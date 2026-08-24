@@ -4,6 +4,12 @@
 first.** The portfolio's job is to ship products people use — not to debate
 policy, re-verify old PRs, or maintain admin queues.
 
+[`PRODUCT_PLAYBOOK.md`](PRODUCT_PLAYBOOK.md) is how to build one: niche
+selection, product shapes with ~$0 marginal cost, the API-key switch, the
+disclaimer text, the SEO/AI-discovery checklist, and the definition of done.
+Usage — the metric while everything is free — is specified in
+[`portfolio/usage/`](portfolio/usage/README.md).
+
 `README.md` covers repo layout.
 
 ## Product-first default

@@ -4,7 +4,16 @@ Businesses that have been researched and scored but are **not** ventures yet.
 
 **Portfolio direction (2026-08-24):** candidates exist to be **built**, not
 re-screened. Graduate a `build-now` item and ship a free full-feature product
-with usage tracking. See [`../DIRECTION.md`](../DIRECTION.md).
+with usage tracking. See [`../DIRECTION.md`](../DIRECTION.md) and
+[`PRODUCT_PLAYBOOK.md`](../../PRODUCT_PLAYBOOK.md).
+
+Two of the scoring dimensions below read differently under that direction, and
+the table has **not** been re-derived for it: **time to revenue** is really
+*time to first user*, since everything ships free, and **distribution** means
+*findable by search and AI assistants in a narrow niche*, not *listable in a
+marketplace*. Read the ranking with that in mind rather than rescoring it — a
+rescore is not a product, and the ranking is not what has been holding these
+back.
 
 `ventures/` is for things being built. This directory is the stage before that:
 written-up candidates with an explicit verdict, so that starting a new venture

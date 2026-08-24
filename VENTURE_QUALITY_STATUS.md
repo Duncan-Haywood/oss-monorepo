@@ -4,6 +4,14 @@ Generated: 2026-08-21
 
 This document tracks the quality and completeness status of each venture against the [DEVELOPMENT_QUALITY.md](DEVELOPMENT_QUALITY.md) framework.
 
+> **A snapshot, not a backlog.** Per [`portfolio/DIRECTION.md`](portfolio/DIRECTION.md),
+> the gaps below are not a queue for scheduled sessions to work through. The
+> question that ranks work now is "can a stranger in the niche find this
+> product, use it, and get value from it" — answered by
+> [`PRODUCT_PLAYBOOK.md`](PRODUCT_PLAYBOOK.md)'s definition of done and by
+> [`portfolio/usage/`](portfolio/usage/README.md), not by the tier columns here.
+> A Foundation-tier product with users beats a Mature one with none.
+
 ## Summary
 
 | Venture | Tier 1 | Tier 2 | Tier 3 | Status |

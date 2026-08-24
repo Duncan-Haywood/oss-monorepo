@@ -2,25 +2,30 @@
 
 This document defines the quality standards and completeness requirements for all ventures and the platform. It serves as the baseline for product maturity and readiness.
 
-## Scope note: secondary to distribution, not a replacement for it
+## Scope note: reference material, not a work queue
 
-This framework is useful reference material, not a mandate to spend scheduled
-sessions raising tier scores. [`portfolio/pipeline/distribution-first.md`](portfolio/pipeline/distribution-first.md)
-established, across ten independent screening runs, that this portfolio's
-binding constraint is distribution and customer contact, not product
-completeness — every candidate it tracks is still at zero customer contacts
-while fully buildable. [`portfolio/ledger/break-even.md`](portfolio/ledger/break-even.md)
-separately derives a `$0` revenue ceiling for the current regime and finds
-roughly half of recent ledger entries re-derive conclusions already on `main`.
-Neither finding is overridden by this document. Raising a venture's tier is
-worth doing when a session is already touching that venture's code for another
-reason, not as a standalone goal, and does not change which PRs are
-agent-decidable: tests, linting, and tooling additions to `ventures/*` app
-code are still routed through the human-gated review path in `CLAUDE.md`
-("Breaking changes to deployable `ventures/*` code"), the same as any other
-change there, regardless of how safe or well-tested. A generic scheduled
-brief should run `portfolio/ledger/session_gate.py` first, as `CLAUDE.md`
-directs, before treating this framework's roadmap as the default next task.
+**Updated 2026-08-24 for [`portfolio/DIRECTION.md`](portfolio/DIRECTION.md).**
+This is a checklist to reach for when a product has users and something in here
+would fix a problem they are actually having. It is not a mandate to spend
+sessions raising tier scores, and a tier number is not a goal.
+
+Three things this document no longer implies:
+
+- **It is not a review gate.** Human code review was removed from the dev flow:
+  you verify by running the tests, the linter, and the product itself, and merge
+  when CI is green. What still needs the account owner is the short owner-only
+  list in `DIRECTION.md`, not this framework.
+- **It is not the default next task.** The default is shipping something a user
+  can use. `python3 portfolio/ledger/session_gate.py` names a concrete build
+  target in two seconds; take that over the roadmap here.
+- **It does not outrank the five things every product ships** — license,
+  disclaimer, privacy line, usage counting, and discoverability. Those are in
+  [`PRODUCT_PLAYBOOK.md`](PRODUCT_PLAYBOOK.md) and they are the real definition
+  of done. A Tier 3 product that a stranger cannot find or safely use has failed
+  at something this tier chart does not measure.
+
+Use it as reference — the checklists below are good ones — in the order the
+product's own users would rank them.
 
 ## Quality Tiers
 

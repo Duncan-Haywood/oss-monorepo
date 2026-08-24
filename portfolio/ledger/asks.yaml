@@ -561,4 +561,48 @@ decisions:
     `test_session_gate.py` cases pass -- but dissolving the money/
     publishing/venture-code gates is exactly the decision class `CLAUDE.md`
     reserves for the owner. Left as a draft proposal; commented the same on
-    the PR.
+    the PR. Update 2026-08-24T17:50Z: #851 has since merged a version of the
+    same direction to `main` (bc149db) -- `portfolio/DIRECTION.md`, a root
+    `AGENTS.md`, and a shortened `CLAUDE.md` -- but keeping the money,
+    publishing, unattended-spend and deployable-`ventures/*` gates rather
+    than dissolving them. So this row is now about a superseded PR: what is
+    left to accept or decline in #836 is specifically the removal of those
+    four gates, not the product-first direction, which is already on `main`.
+
+- id: github-sponsors
+  asks: [10]
+  prs: []
+  gates: revenue
+  exposure: legal-person
+  opened: "2026-08-24"
+  action: >-
+    Enable GitHub Sponsors on the account that should receive support (bank
+    account and tax forms are part of GitHub's own onboarding, which is why
+    no session can do this), then say which handle a `.github/FUNDING.yml`
+    should name.
+  unlocks:
+    - >-
+      The only inbound-support mechanism the current direction permits.
+      Products ship free and full-feature with no payment collection, so
+      Sponsors is the one route by which a user who values a product can
+      support it -- and the only revenue-shaped signal available at all
+      while nothing is priced.
+    - >-
+      A one-line `.github/FUNDING.yml` per shipped product, which a session
+      can add in minutes once the handle exists. Until then a FUNDING.yml
+      would point at an account with Sponsors disabled and render nothing,
+      so nothing is built against this in the meantime.
+  blocked_by: []
+  note: >-
+    Opened 2026-08-24. `portfolio/DIRECTION.md` and `AGENTS.md` both say a
+    GitHub Sponsors or donation link is allowed, and neither says who would
+    enable it -- this row is that gap, not a new policy. Deliberately
+    narrow: GitHub Sponsors only, no third-party donation processor, no
+    checkout, and no donation prompt in front of any feature. This is *not*
+    the `payout-rail` row above, which is about charging customers; granting
+    one does not grant the other, and this one is reversible by turning
+    Sponsors off. Same identity caveat that `session-gate-economics-premise`
+    and `governance-rewrite-836` raise applies to any session's attribution
+    of a direction: what can be checked here is that nothing depends on the
+    answer -- the products ship free either way, and declining costs the
+    portfolio nothing built.
