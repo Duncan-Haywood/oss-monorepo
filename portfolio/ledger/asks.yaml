@@ -412,3 +412,39 @@ decisions:
     then independently made the same correct removal. This row adds the part
     neither made: the actual open question left behind, accept or revert.
 
+- id: self-merge-ruleset-block
+  asks: []
+  prs: [813]
+  gates: deployment
+  exposure: none
+  opened: "2026-08-24"
+  action: >-
+    Either merge #813 by hand (it is verified: 198 tests pass, touches only
+    internal surfaces, clean merge-tree against current `main`), or grant
+    whatever GitHub identity agent sessions merge under a bypass on the
+    branch-protection ruleset that currently blocks it, or say explicitly
+    that self-merge under `CLAUDE.md`'s agent-decidable class is no longer
+    intended and sessions should stop attempting it.
+  unlocks:
+    - >-
+      Restores the "agent-decidable -- verify, merge, and record it
+      yourself" path `CLAUDE.md` documents. As written now it is silently
+      false for every session sharing this identity: verified,
+      internal-only PRs pile up unmerged regardless of how well they are
+      checked, which is the exact ledger-conflict failure mode this
+      portfolio has hit repeatedly (the `portfolio/pipeline/` research
+      rebuilt from scratch five times).
+  blocked_by: []
+  note: >-
+    Discovered 2026-08-24 reviewing #813: `merge_pull_request` fails with
+    "New changes require approval from someone other than the last pusher"
+    plus a pending Code Scanning check, and `pull_request_review_write`
+    with `APPROVE` fails separately with "Can not approve your own pull
+    request" -- this session's GitHub calls resolve to the same account
+    (`Duncan-Haywood`) that authored and pushed #813, so neither review nor
+    merge is reachable from here. The `local-site-studio-subtree-gate-crossing`
+    row above shows a differently-identified bot (`kilo-code-bot[bot]`)
+    merging #731 the same day, so this may be identity-specific rather than
+    a blanket block on all automation -- another reason this needs the
+    owner rather than a guess from in here.
+
