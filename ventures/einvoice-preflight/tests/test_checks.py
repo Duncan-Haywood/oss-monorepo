@@ -1,6 +1,7 @@
 import json
 import contextlib
 import io
+import os
 import tempfile
 import unittest
 from pathlib import Path
@@ -109,6 +110,20 @@ class ChecksTest(unittest.TestCase):
             invoice_path.write_text(json.dumps(VALID))
             with patch("einvoice_preflight.cli.Path.write_text", side_effect=OSError("read-only")):
                 self.assertEqual(main([str(invoice_path), "--format", "json", "--usage-file", str(Path(directory) / "usage.json")]), 0)
+
+    def test_usage_replace_failure_preserves_existing_state(self):
+        with tempfile.TemporaryDirectory() as directory:
+            invoice_path = Path(directory) / "invoice.json"
+            usage_path = Path(directory) / "usage.json"
+            invoice_path.write_text(json.dumps(VALID))
+            usage_path.write_text(json.dumps({"events": {"invoice_preflight_checked": 7}}))
+            with patch("einvoice_preflight.cli.os.replace", side_effect=OSError("interrupted")):
+                self.assertEqual(main([str(invoice_path), "--format", "json", "--usage-file", str(usage_path)]), 0)
+            self.assertEqual(json.loads(usage_path.read_text()), {"events": {"invoice_preflight_checked": 7}})
+            self.assertEqual(
+                {path.name for path in Path(directory).iterdir()},
+                {"invoice.json", "usage.json", ".usage.json.lock"},
+            )
 
     def test_cli_returns_failure_for_bad_invoice(self):
         with tempfile.TemporaryDirectory() as directory:

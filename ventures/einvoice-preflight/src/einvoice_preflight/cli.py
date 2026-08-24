@@ -6,10 +6,14 @@ import csv
 from html import escape as html_escape
 import io
 import json
+import os
 import sys
+import tempfile
 from pathlib import Path
 from typing import Any
 from xml.sax.saxutils import escape, quoteattr
+
+import fcntl
 
 from .checks import check_invoice
 from .ubl import parse_ubl_invoice
@@ -17,27 +21,46 @@ from .ubl import parse_ubl_invoice
 
 def _record_usage(path: str) -> None:
     """Record an aggregate event without affecting the validation result."""
+    temporary_path: str | None = None
     try:
         target = Path(path).expanduser()
         target.parent.mkdir(parents=True, exist_ok=True)
-        data: dict[str, Any] = {"events": {}}
-        if target.exists():
+        # A sidecar lock prevents concurrent CLI processes from dropping events.
+        with target.with_name(f".{target.name}.lock").open("a+") as lock:
+            fcntl.flock(lock.fileno(), fcntl.LOCK_EX)
+            data: dict[str, Any] = {"events": {}}
+            if target.exists():
+                try:
+                    loaded = json.loads(target.read_text())
+                    if isinstance(loaded, dict) and isinstance(loaded.get("events"), dict):
+                        data = loaded
+                except (OSError, json.JSONDecodeError):
+                    pass
+            events = data.setdefault("events", {})
             try:
-                loaded = json.loads(target.read_text())
-                if isinstance(loaded, dict) and isinstance(loaded.get("events"), dict):
-                    data = loaded
-            except (OSError, json.JSONDecodeError):
-                pass
-        events = data.setdefault("events", {})
-        try:
-            previous = int(events.get("invoice_preflight_checked", 0))
-        except (TypeError, ValueError):
-            previous = 0
-        events["invoice_preflight_checked"] = previous + 1
-        target.write_text(json.dumps(data, indent=2) + "\n")
+                previous = int(events.get("invoice_preflight_checked", 0))
+            except (TypeError, ValueError):
+                previous = 0
+            events["invoice_preflight_checked"] = previous + 1
+            with tempfile.NamedTemporaryFile(
+                "w", encoding="utf-8", dir=target.parent, prefix=f".{target.name}.", delete=False
+            ) as temporary:
+                temporary_path = temporary.name
+                json.dump(data, temporary, indent=2)
+                temporary.write("\n")
+                temporary.flush()
+                os.fsync(temporary.fileno())
+            os.replace(temporary_path, target)
+            temporary_path = None
     except (OSError, TypeError, ValueError):
         # Usage is optional telemetry; never hide or change a preflight result.
         pass
+    finally:
+        if temporary_path:
+            try:
+                os.unlink(temporary_path)
+            except OSError:
+                pass
 
 
 def _sarif_report(
