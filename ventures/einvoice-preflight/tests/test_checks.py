@@ -145,6 +145,38 @@ class ChecksTest(unittest.TestCase):
             self.assertEqual(report["rules"], {"INV-017": 1})
             self.assertEqual(report["errors"][0]["rule"], "INV-017")
 
+    def test_cli_emits_jsonl_one_record_per_invoice(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            failed = json.loads(json.dumps(VALID))
+            failed["totals"]["gross"] = 200
+            (root / "fail.json").write_text(json.dumps(failed))
+            passed = json.loads(json.dumps(VALID))
+            passed["invoice_number"] = "INV-2"
+            (root / "pass.json").write_text(json.dumps(passed))
+            output = io.StringIO()
+            with contextlib.redirect_stdout(output):
+                self.assertEqual(main([directory, "--format", "jsonl"]), 1)
+            records = [json.loads(line) for line in output.getvalue().splitlines()]
+            self.assertEqual([record["file"] for record in records], ["fail.json", "pass.json"])
+            self.assertEqual(records[0]["status"], "fail")
+            self.assertEqual(records[0]["errors"][0]["rule"], "INV-017")
+            self.assertEqual(records[1], {"status": "pass", "file": "pass.json", "errors": []})
+            self.assertNotIn("INV-1", output.getvalue())
+
+    def test_cli_jsonl_keeps_read_errors_as_records(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            (root / "broken.json").write_text("not json")
+            output = io.StringIO()
+            with contextlib.redirect_stdout(output):
+                self.assertEqual(main([directory, "--format", "jsonl"]), 2)
+            record = json.loads(output.getvalue())
+            self.assertEqual(record["status"], "read_error")
+            self.assertEqual(record["file"], "broken.json")
+            self.assertEqual(record["errors"], [])
+            self.assertIn("Expecting value", record["error"])
+
     def test_cli_batch_flags_duplicate_invoice_numbers_without_disclosing_number(self):
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)
