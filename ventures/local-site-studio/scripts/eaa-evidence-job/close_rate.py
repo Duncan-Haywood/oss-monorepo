@@ -10,7 +10,8 @@ owner-gated. This script is the software half that can run here:
 - confirm the unmodified pages have no findings the probe can see
 - apply only the rewriteable defect classes the mechanical pass is
   allowed to close (title, heading skip, zoom-lock, aria-hidden on a
-  named control, unmuted autoplay, orientation-lock rotate)
+  named control, unmuted autoplay, orientation-lock rotate,
+  colour-only in-prose link)
 - re-audit with the same engine
 
 A 1.0 close rate on those injected findings is not the kill-criterion
@@ -92,6 +93,19 @@ def apply_mechanical_defects(html: str) -> str:
     html = re.sub(
         r"(<body\b[^>]*>)",
         r'\1<audio autoplay src="close-rate-probe.mp3"></audio>',
+        html,
+        count=1,
+        flags=re.I,
+    )
+    html = re.sub(
+        r"</body>",
+        (
+            '<p style="color:#333">Every order ships within two working '
+            "days from our workshop, and you can see "
+            '<a href="/control-probe" style="color:#06c;text-decoration:none">'
+            "our documentation</a> for the full delivery timetable.</p>"
+            "</body>"
+        ),
         html,
         count=1,
         flags=re.I,

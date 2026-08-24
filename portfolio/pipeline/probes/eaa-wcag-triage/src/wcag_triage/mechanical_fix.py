@@ -29,7 +29,9 @@ The patches here are the ones that do not add words:
 - drop a visual ``transform: rotate()`` on a bare ``html`` / ``body``
   rule inside a pure orientation media query (1.3.4). Combined
   queries, no-op turns, and transforms that carry other functions
-  stay.
+  stay
+- underline a colour-only in-prose link (1.4.1). The rule's own first
+  remediation is this one mark; the words and the colours stay.
 
 A low close rate on blocking findings is a result, not a bug. The
 remainder is the contractor step.
@@ -75,7 +77,13 @@ _CONTROL_OPEN = re.compile(
     re.I | re.S,
 )
 _LABEL_OPEN = re.compile(r"""<label\b(?P<body>[^>]*)>""", re.I | re.S)
+_ANCHOR_OPEN = re.compile(r"<a\b[^>]*>", re.I | re.S)
+_STYLE_ATTR = re.compile(
+    r"""\bstyle\s*=\s*(?P<q>['"])(?P<val>(?:(?!(?P=q)).)*)(?P=q)""",
+    re.I | re.S,
+)
 _SEPARATOR_ONLY = re.compile(r"^[\W_]*$")
+_DECORATION_PROPS = frozenset({"text-decoration", "text-decoration-line"})
 _MISMATCH_MARK = "dead in the rendered page"
 _STYLE_BLOCK = re.compile(r"(<style\b[^>]*>)(.*?)(</style\s*>)", re.I | re.S)
 _PURE_ORIENTATION = re.compile(
@@ -212,6 +220,13 @@ def try_patch(html: str, finding: Finding) -> tuple[Optional[str], str]:
             return nxt, (
                 "removed a visual rotate() on <html>/<body> under a "
                 "pure orientation media query"
+            )
+    if finding.criterion == "1.4.1":
+        nxt = _underline_color_only_link(html, finding)
+        if nxt is not None:
+            return nxt, (
+                "underlined a colour-only in-prose link; "
+                "the words and colours stay"
             )
     return None, skip_reason(finding)
 
@@ -703,3 +718,79 @@ def _drop_orientation_rotate(html: str) -> Optional[str]:
 
     updated = _STYLE_BLOCK.sub(patch_style, html)
     return updated if changed else None
+
+
+def _style_with_underline(val: str) -> Optional[str]:
+    """Replace a removed decoration with underline; keep every other property.
+
+    ``text-decoration-line`` is consulted before the shorthand, so a leftover
+    ``none`` on the longhand would hide the underline we just wrote. Both
+    names are dropped and one shorthand is written.
+    """
+    parts = [p.strip() for p in val.split(";") if p.strip()]
+    kept = []
+    already = False
+    for part in parts:
+        key = part.split(":", 1)[0].strip().lower()
+        if key in _DECORATION_PROPS:
+            if "underline" in part.lower():
+                already = True
+            continue
+        kept.append(part)
+    if already:
+        return None
+    kept.append("text-decoration: underline")
+    return "; ".join(kept)
+
+
+def _tag_with_underline(tag: str) -> Optional[str]:
+    """Add or replace the decoration on one opening ``<a>`` tag."""
+    style = _STYLE_ATTR.search(tag)
+    if style is None:
+        if tag.endswith("/>"):
+            return tag[:-2] + ' style="text-decoration: underline"/>'
+        if tag.endswith(">"):
+            return tag[:-1] + ' style="text-decoration: underline">'
+        return None
+    new_val = _style_with_underline(style.group("val"))
+    if new_val is None:
+        return None
+    quote = style.group("q")
+    return (
+        tag[: style.start()]
+        + f"style={quote}{new_val}{quote}"
+        + tag[style.end() :]
+    )
+
+
+def _underline_color_only_link(html: str, finding: Finding) -> Optional[str]:
+    """Restore the underline the page removed from one in-prose link.
+
+    The rule's own remediation is this mark. Colour and link text are
+    content and stay. A link the rule did not name is not touched.
+    """
+    if finding.element != "a":
+        return None
+    root = parse(html)
+    on_line = [n for n in root.iter() if n.tag == "a" and n.line == finding.line]
+    if not on_line:
+        return None
+    target = next((n for n in on_line if n.order == finding.seq), None)
+    if target is None and len(on_line) == 1:
+        target = on_line[0]
+    if target is None:
+        return None
+    nth = on_line.index(target)
+    lines = html.splitlines(keepends=True)
+    if finding.line < 1 or finding.line > len(lines):
+        return None
+    idx = finding.line - 1
+    matches = list(_ANCHOR_OPEN.finditer(lines[idx]))
+    if nth >= len(matches):
+        return None
+    match = matches[nth]
+    new_tag = _tag_with_underline(match.group(0))
+    if new_tag is None or new_tag == match.group(0):
+        return None
+    lines[idx] = lines[idx][: match.start()] + new_tag + lines[idx][match.end() :]
+    return "".join(lines)
