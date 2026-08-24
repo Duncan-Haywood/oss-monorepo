@@ -32,8 +32,9 @@ Revenue comes later. For now:
 - Do **not** collect payment or wire payout rails.
 - **Do** keep liability-limiting disclaimers in every user-facing product
   (see "Legal guardrails" below).
-- **Do** add GitHub Sponsors or a donation link where it fits — optional
-  support, not a paywall.
+- **Do** add an optional donate link where it fits — read the URL from
+  [`funding.yaml`](funding.yaml) (Buy Me a Coffee today); GitHub Sponsors is a
+  separate owner decision. Support, not a paywall.
 
 ## What a good product looks like here
 

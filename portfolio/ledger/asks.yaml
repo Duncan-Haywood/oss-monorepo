@@ -114,6 +114,10 @@ decisions:
     do not on their own justify the compliance and tax overhead of a
     merchant-of-record account -- which is an argument about *which* direction
     to answer in, not a reason to leave it unanswered.
+    Owner declared 2026-08-24: voluntary payout via Buy Me a Coffee
+    (`https://buymeacoffee.com/duncanhaywood`), recorded in
+    `portfolio/funding.yaml`. That is a donation-grade rail agents may link to;
+    merchant-of-record billing for product checkout remains this decision.
 
 - id: egress-policy
   asks: [3, 7]

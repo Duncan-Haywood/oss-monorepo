@@ -183,12 +183,14 @@ disabled. That is on the owner-only list in
 [`portfolio/DIRECTION.md`](portfolio/DIRECTION.md) because it needs a bank
 account and a tax identity.
 
-The one thing that may exist is GitHub Sponsors, via `.github/FUNDING.yml`
-pointing at the owner's account, once the owner has enabled it (queued as the
-`funding-sponsors-live` decision, PR #839 — read the queue with
-`python3 portfolio/ledger/decision_queue.py`; do not open a second one). No
-third-party donation links, and never in front of a feature — a donation prompt
-lives in the README and the footer, nowhere a user has to pass through.
+Optional donate links may point at the owner's declared methods in
+[`portfolio/funding.yaml`](portfolio/funding.yaml) — currently Buy Me a Coffee
+at `https://buymeacoffee.com/duncanhaywood` (owner-declared 2026-08-24).
+GitHub Sponsors via `.github/FUNDING.yml` is a separate, still-queued decision
+(`funding-sponsors-live`, PR #839 — read the queue with
+`python3 portfolio/ledger/decision_queue.py`; do not open a second one). Never
+put a donation prompt in front of a feature — it lives in the README and the
+footer, nowhere a user has to pass through.
 
 What "free for now" is buying: usage data, which is the only evidence we have
 about which product deserves more time. Design so that turning payment on later
