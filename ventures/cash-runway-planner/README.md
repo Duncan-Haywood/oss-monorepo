@@ -4,9 +4,13 @@ Small service businesses often know their profit and still run out of cash becau
 
 Open `index.html` in a browser. No account, server, API key, or upload is required. Draft values stay in your browser and can be cleared with **Reset**.
 
+After a forecast, **Download CSV** creates a spreadsheet-friendly copy of the
+12-week rows locally. It contains only week, income, costs, and projected
+balance.
+
 ## Privacy and usage
 
-Everything runs in your browser. Your data is never uploaded, and we don't have accounts, tracking cookies, or an analytics vendor. We count anonymous events (forecast runs and draft saves), nothing about who used it. The **Share anonymous usage** checkbox is off by default and can be disabled at any time.
+Everything runs in your browser. Your data is never uploaded, and we don't have accounts, tracking cookies, or an analytics vendor. We count anonymous events (forecast runs and draft saves), nothing about who used it. The **Share anonymous usage** checkbox is off by default and can be disabled at any time. Counting is also disabled when the browser sends Do Not Track or Global Privacy Control.
 
 ## Liability
 
