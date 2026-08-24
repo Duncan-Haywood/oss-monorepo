@@ -4,6 +4,7 @@ import {
   decodeResistor4Band,
   decodeResistor5Band,
   solveOhmsLaw,
+  calculateLedResistor,
   formatResistance,
 } from "./calc.mjs";
 
@@ -96,4 +97,14 @@ test("Ohm's law rejects anything but exactly two knowns", () => {
 
 test("Ohm's law rejects a zero divisor that yields a non-finite result", () => {
   assert.throws(() => solveOhmsLaw({ v: 12, i: 0 }), /finite resistance/);
+});
+
+test("LED resistor calculator returns resistance, dissipation, and a safety-rated wattage", () => {
+  const result = calculateLedResistor({ supplyVoltage: 5, ledForwardVoltage: 2, targetCurrent: 0.02 });
+  assert.deepEqual(result, { resistance: 150, power: 0.06, recommendedWattage: 0.25 });
+});
+
+test("LED resistor calculator rejects impossible or unsafe inputs", () => {
+  assert.throws(() => calculateLedResistor({ supplyVoltage: 5, ledForwardVoltage: 5, targetCurrent: 0.02 }), /lower/);
+  assert.throws(() => calculateLedResistor({ supplyVoltage: 5, ledForwardVoltage: 2, targetCurrent: 0 }), /positive/);
 });
