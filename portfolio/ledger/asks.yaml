@@ -22,8 +22,10 @@
 #     prose ("Ask 5 is currently inert") and the table still lists it as
 #     available to grant.
 #
-# Ask 8 is deliberately absent: `break-even.md` superseded it, so #139's nine
-# rows are eight live asks and one with nothing left to grant.
+# Ask 8 is deliberately absent: `break-even.md` superseded it, so #139's ten
+# rows are nine live asks and one with nothing left to grant. Ask 9
+# (`venture-gate-premise`, added 2026-08-24) is the only row whose answer
+# removes other rows rather than adding work.
 #   - `exposure` -- what granting it actually costs the owner in risk. A repo
 #     Settings toggle and opening a merchant-of-record account are adjacent
 #     rows in a cheapest-first table and are not the same kind of decision.
@@ -168,6 +170,48 @@ decisions:
     -- a rounding error against the ceiling in `break-even.md`. Worth granting
     after the egress decision, not before it.
 
+- id: venture-gate-premise
+  asks: [9]
+  prs: []
+  gates: deployment
+  exposure: none
+  opened: "2026-08-24"
+  action: >-
+    Answer one rule question, and it settles three pull requests at once: while
+    `publish_surface.py` reports nothing live, may a session merge a
+    `ventures/*` change that publishes nowhere and passes the venture's full
+    build, or does the human gate cover venture app code regardless of what it
+    deploys? Either answer is fine to give; leaving it unanswered is what costs.
+  unlocks:
+    - >-
+      Answered "yes, while nothing is live", `next-16-upgrade` and
+      `contrast-fixes` leave this queue outright -- three pull requests the
+      owner never has to read, one of them clearing the advisories #109 was
+      carrying. This is the only row here whose answer makes the queue shorter.
+    - >-
+      Answered "no, the gate stands regardless", every future `ventures/*`
+      pull request stops being re-argued from prose by each session that meets
+      one, and `CLAUDE.md`'s wording can stop citing a live site as the reason.
+  blocked_by: []
+  note: >-
+    Raised 2026-08-24, and deliberately raised rather than acted on. #710
+    established the fact -- `platform/ci/publish_surface.py` derives from the
+    workflow files that 0 of 38 workflows publish on a push to `main` -- and
+    amended `CLAUDE.md` to say so while leaving the gate itself in place,
+    which is the right conservative order. But that leaves the rule genuinely
+    ambiguous: the agent-decidable criterion excludes "`ventures/*` app code
+    *that deploys to a live site*" (which now excludes nothing), while the
+    human-gated list still covers "breaking changes to deployable
+    `ventures/*` code". Both readings are defensible from the current text, so
+    sessions will keep deciding it individually and inconsistently until the
+    owner picks one. An unattended agent resolving its own merge gate in its
+    own favour is the reasoning pattern this portfolio should least want,
+    which is why this is a question and not a pull request.
+    Independently confirmed on the same day by a second session that measured
+    the same 0-of-13-ventures result from a separate implementation before
+    finding #710 had landed; that session's duplicate tool was discarded
+    rather than shipped alongside.
+
 - id: next-16-upgrade
   asks: []
   prs: [372]
@@ -176,7 +220,7 @@ decisions:
   opened: "2026-08-20"
   action: "Merge or decline #372."
   unlocks:
-    - "`next@16.3.1` across six live ventures, clearing the advisories its ancestor #109 was carrying when #109 was closed unmerged by accident."
+    - "`next@16.3.1` across five ventures (six apps), clearing the advisories its ancestor #109 was carrying when #109 was closed unmerged by accident. Corrected 2026-08-24: this line read \"six live ventures\". The diff touches five -- `ai-first-markets`, `photo-editing`, `print-atelier`, `real-estate-agent-photo-app` (two apps) and `retail-pilot-intel` -- and none of them is live, per `platform/ci/publish_surface.py`."
   blocked_by: []
   note: >-
     Verified and CI-green (9/9 checks on the head), `mergeable_state` clean,
@@ -198,10 +242,12 @@ decisions:
     `deploy` and `deploy-vercel` skipped on 2026-08-24. So merging this fires
     no deploy and regresses no live site, because there is no live site. What
     is actually left to decide is narrower: whether a major framework bump
-    across six ventures counts as a "breaking change to deployable
+    across five ventures (six apps) counts as a "breaking change to deployable
     `ventures/*` code" under `CLAUDE.md` while nothing is deployed. That is a
     smaller question than the one this row was posing, and it is the whole of
-    what remains.
+    what remains -- and since it is the same question `contrast-fixes` and
+    every future venture pull request also reduce to, it is now its own row
+    (`venture-gate-premise`, Ask 9) rather than a paragraph inside this one.
 
 - id: dependabot
   asks: []

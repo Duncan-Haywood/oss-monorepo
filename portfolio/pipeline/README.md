@@ -381,8 +381,12 @@ diff of the pull request that makes it. CI runs this on any change under
 
 **These are internal research notes, not published content and not legal
 advice.** Nothing in this directory is rendered by any venture's site, and
-`ventures/ai-first-markets` — which does deploy to a live site — is deliberately
-untouched by it.
+`ventures/ai-first-markets` is deliberately untouched by it. (That sentence
+used to read "which does deploy to a live site". It does not, and no venture
+here does: `python3 platform/ci/publish_surface.py` derives from the workflow
+files that nothing publishes on a push to `main`, and this venture's deploy is
+`workflow_dispatch`-only besides. The isolation is still right; the reason
+given for it was wrong.)
 
 The regulatory dates, fine levels, market sizes, and competitor claims in the
 candidate write-ups came from web research during the screening pass and are
