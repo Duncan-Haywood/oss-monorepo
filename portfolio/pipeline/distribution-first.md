@@ -3,6 +3,26 @@
 Added 2026-08-19, one pass after the consolidation in
 [README.md](README.md).
 
+> **Superseded in part, 2026-08-24.** The finding below — that distribution,
+> not idea supply, is the constraint — still holds and is still worth reading.
+> The *conclusion* the portfolio drew from it does not: it was used, run after
+> run, as a reason to screen and re-screen rather than build, and it produced a
+> shelf of documents and zero users.
+>
+> Per [`../DIRECTION.md`](../DIRECTION.md), distribution is now a build task,
+> not a gate on building. The channel is search and AI-assistant discovery into
+> a narrow niche, and it is reached by shipping a free, full-feature product
+> with a landing page, question-shaped docs, structured data, and a crawlable
+> site — the checklist in [`PRODUCT_PLAYBOOK.md`](../../PRODUCT_PLAYBOOK.md) §5e.
+> A marketplace listing is one channel among several, and most of the ones this
+> document treats as decisive turned out to be unreachable from here anyway
+> (see [channel-inventory.md](channel-inventory.md)).
+>
+> So: do not cite this document as a reason not to build. Scoring distribution
+> as a 4 because "there is no marketplace" is no longer the right reading — the
+> question is whether a person with this problem can find the product by
+> searching for it.
+
 ## The finding this directory already contains
 
 Seven independent screening runs produced about thirty-six candidates. Their own

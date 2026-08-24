@@ -4,6 +4,20 @@ Generated: 2026-08-21
 
 This document tracks the quality and completeness status of each venture against the [DEVELOPMENT_QUALITY.md](DEVELOPMENT_QUALITY.md) framework.
 
+**Not a task list to keep re-auditing.** Per `portfolio/DIRECTION.md`, a
+session's default should be shipping a new product or a real feature, not
+re-scanning every venture to refresh this table. Update a row when you're
+already touching that venture for another reason and notice its status
+changed; a whole pass spent re-verifying rows nobody has touched is exactly
+the meta-work the direction asks sessions to stop doing. Treat this as a
+dated snapshot, not a live dashboard.
+
+The tier columns are also not the ranking. What ranks work now is whether a
+stranger in the niche can find a product, use it, and get value from it —
+[`PRODUCT_PLAYBOOK.md`](PRODUCT_PLAYBOOK.md)'s definition of done — and what
+[`portfolio/usage/`](portfolio/usage/README.md) records once they do. A
+Foundation-tier product with users beats a Mature one with none.
+
 ## Summary
 
 | Venture | Tier 1 | Tier 2 | Tier 3 | Status |

@@ -614,8 +614,8 @@ candidates:
   - slug: repository-branch-hygiene
     name: Repository branch hygiene and recovery
     doc: candidates/repository-branch-hygiene.md
-    verdict: probe
-    probe_status: seven-day read-only pilot; willingness to pay unmeasured
+    verdict: graduated
+    probe_status: prototype shipped 2026-08-24; read-only pilot and willingness to pay remain unmeasured
     graduate_as: venture
     host_venture: null
     scores:
@@ -737,3 +737,30 @@ candidates:
       screened-out.md and the doc for the distinctions.
     first_experiment_days: 3
     first_experiment_budget_usd: 0
+
+  - slug: dns-configuration-evidence
+    name: DNS configuration evidence monitor
+    doc: candidates/dns-configuration-evidence.md
+    verdict: probe
+    probe_status: "fixture-recorder-built; demand and distribution unmeasured"
+    graduate_as: venture
+    host_venture: null
+    scores:
+      ai_leverage: 6
+      autonomous_ops: 9
+      time_to_revenue: 6
+      gross_margin: 9
+      defensibility: 4
+      distribution: 4
+      liability_containment: 7
+      ethical_robustness: 8
+    composite: 6.625
+    floor: 4
+    floor_dimension: defensibility
+    mitigation: >-
+      Retain immutable customer-specific snapshots with portable export and
+      measure reconstruction cost for defensibility; secure a named MSP, agency,
+      or repeatable practitioner community before building a hosted product for
+      distribution.
+    first_experiment_days: 7
+    first_experiment_budget_usd: 50

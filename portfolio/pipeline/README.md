@@ -4,7 +4,16 @@ Businesses that have been researched and scored but are **not** ventures yet.
 
 **Portfolio direction (2026-08-24):** candidates exist to be **built**, not
 re-screened. Graduate a `build-now` item and ship a free full-feature product
-with usage tracking. See [`../DIRECTION.md`](../DIRECTION.md).
+with usage tracking. See [`../DIRECTION.md`](../DIRECTION.md) and
+[`PRODUCT_PLAYBOOK.md`](../../PRODUCT_PLAYBOOK.md).
+
+Two of the scoring dimensions below read differently under that direction, and
+the table has **not** been re-derived for it: **time to revenue** is really
+*time to first user*, since everything ships free, and **distribution** means
+*findable by search and AI assistants in a narrow niche*, not *listable in a
+marketplace*. Read the ranking with that in mind rather than rescoring it — a
+rescore is not a product, and the ranking is not what has been holding these
+back.
 
 `ventures/` is for things being built. This directory is the stage before that:
 written-up candidates with an explicit verdict, so that starting a new venture
@@ -131,11 +140,12 @@ four candidates carrying a probe have moved and the table is re-ordered.
 | 8 | [Vendor-change evidence monitor](candidates/vendor-change-evidence.md) | 6.75 | 4 | Probe; public-page evidence feed, with distribution and archive value still unmeasured |
 | 9 | [Shopify app-permission drift record](candidates/shopify-permission-drift.md) | 6.75 | 4 | Probe; customer-authorized app inventory, with platform observability and App Store demand unmeasured |
 | 10 | [Tender radar](candidates/tender-radar.md) | 6.625 | 4 | Park; needs a channel partner |
-| 11 | [Repository branch hygiene and recovery](candidates/repository-branch-hygiene.md) | 6.5 | 4 | Probe; read-only report and recovery manifest, with distribution unmeasured |
-| 12 | [OSS sponsor readiness checklist](candidates/oss-sponsor-readiness.md) | 6.5 | 3 | Build now, as a new venture (`sponsor-ready`). Zero-cost client-side tool, shipped 2026-08-24; free tier only, revenue is indirect |
-| 13 | [Software evidence provenance ledger](candidates/software-evidence-provenance.md) | 6.375 | 3 | Reject; existing provenance standards leave no defensible wedge and distribution is unresolved |
-| 14 | [E-invoice preflight](candidates/einvoice-preflight.md) | 6.125 | 4 | Reject broad version; narrow version conditional |
-| 15 | [Consent change record](candidates/consent-change-record.md) | 6.125 | 4 | Probe; needs an agency or privacy-implementation channel |
+| 11 | [DNS configuration evidence monitor](candidates/dns-configuration-evidence.md) | 6.625 | 4 | Probe; needs an MSP or domain-operations channel and a history-value test |
+| 12 | [Repository branch hygiene and recovery](candidates/repository-branch-hygiene.md) | 6.5 | 4 | Graduated 2026-08-24 as `ventures/repository-branch-hygiene`; read-only pilot and distribution remain unmeasured |
+| 13 | [OSS sponsor readiness checklist](candidates/oss-sponsor-readiness.md) | 6.5 | 3 | Build now, as a new venture (`sponsor-ready`). Zero-cost client-side tool, shipped 2026-08-24; free tier only, revenue is indirect |
+| 14 | [Software evidence provenance ledger](candidates/software-evidence-provenance.md) | 6.375 | 3 | Reject; existing provenance standards leave no defensible wedge and distribution is unresolved |
+| 15 | [E-invoice preflight](candidates/einvoice-preflight.md) | 6.125 | 4 | Reject broad version; narrow version conditional |
+| 16 | [Consent change record](candidates/consent-change-record.md) | 6.125 | 4 | Probe; needs an agency or privacy-implementation channel |
 
 **"No measured dimension has ever risen" is no longer true, and the way it
 stopped being true is the useful part.** This file said it across four

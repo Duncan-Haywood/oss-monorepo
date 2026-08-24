@@ -40,7 +40,8 @@ class MutatedCloseRate(unittest.TestCase):
         findings = audit_html(html).findings
         criteria = sorted(f.criterion for f in findings)
         self.assertEqual(
-            criteria, ["1.3.4", "1.4.2", "1.4.4", "2.4.2", "2.4.6", "4.1.2"]
+            criteria,
+            ["1.3.4", "1.4.1", "1.4.2", "1.4.4", "2.4.2", "2.4.6", "4.1.2"],
         )
 
     def test_pass_closes_every_injected_finding_and_invents_no_words(self):
@@ -52,15 +53,18 @@ class MutatedCloseRate(unittest.TestCase):
         self.assertNotIn("<img", result.html)
         applied = {p.criterion for p in result.applied}
         self.assertEqual(
-            applied, {"1.3.4", "1.4.2", "1.4.4", "2.4.2", "2.4.6", "4.1.2"}
+            applied,
+            {"1.3.4", "1.4.1", "1.4.2", "1.4.4", "2.4.2", "2.4.6", "4.1.2"},
         )
+        self.assertIn("color:#06c", result.html)
+        self.assertIn("our documentation", result.html)
 
     def test_aggregate_close_rate_is_one_on_injected_blocking(self):
         report = measure()
         self.assertIsNone(report["unmodified"]["blocking_close_rate"])
         self.assertEqual(report["unmodified"]["blocking"], 0)
         mutated = report["mutated_mechanical_only"]
-        self.assertEqual(mutated["before"], {"total": 18, "blocking": 12, "degrading": 6})
+        self.assertEqual(mutated["before"], {"total": 21, "blocking": 15, "degrading": 6})
         self.assertEqual(mutated["after"], {"total": 0, "blocking": 0, "degrading": 0})
         self.assertEqual(mutated["blocking_close_rate"], 1.0)
         self.assertEqual(mutated["limits"], list(LIMITS))

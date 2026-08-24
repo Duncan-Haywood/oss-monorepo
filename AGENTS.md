@@ -63,11 +63,22 @@ already been asked; do not duplicate asks.
 
 ## Every user-facing product includes
 
-1. **Liability disclaimers** — no advice-of-record, no compliance warranties
-   (wording templates live in existing ventures' docs).
-2. **Usage stats** — log anonymized events (page views, feature use, signups)
-   so the portfolio can see what people actually use.
+1. **Liability disclaimers** — no advice-of-record, no compliance warranties.
+   Copy the wording from [`PRODUCT_PLAYBOOK.md`](PRODUCT_PLAYBOOK.md) §5b; it
+   goes in the README *and* somewhere the user sees it (footer, about, `--help`).
+2. **Usage stats** — anonymous events only (feature used, page viewed), never
+   people: no PII, no IPs, no content, no analytics vendor. Rules and the file
+   readings land in: [`portfolio/usage/`](portfolio/usage/README.md).
 3. **Free full access** for now — no paywalls; optional GitHub Sponsors/donate link OK.
+4. **A LICENSE and the discoverability basics** — landing copy in the user's
+   search words, meta description, JSON-LD, sitemap, crawlable robots.txt.
+   Search and AI-assistant discovery are the growth channel, so they ship with
+   v0, not later. Checklist: `PRODUCT_PLAYBOOK.md` §5e.
+
+**Building one from scratch?** `PRODUCT_PLAYBOOK.md` is the step-by-step:
+picking a niche, shapes that cost $0 per user, the API-key switch (product works
+fully without a key; a user's own key unlocks the AI parts), and the definition
+of done.
 
 ## Graduating from the pipeline
 

@@ -21926,6 +21926,24 @@ entries:
         Opened PR #843, waited for and reviewed all three required CI checks
         (all passed), then squash-merged it as commit `011ee3a7` under the
         agent-decidable internal-surface policy. No revenue or MRR impact.
+          Continued the BUILD lane after checking current open PRs, the
+          decision queue, and verification status. Added the distinct
+          `repository-branch-hygiene` pipeline candidate: a customer-facing,
+          read-only multi-repository inventory and recovery manifest for stale
+          branches and closed pull requests. Kept its verdict as `probe` with
+          composite 6.5 and distribution as the limiting score; documented
+          the non-duplication boundary against #829's repository-specific
+          unattended cleanup workflow, safety mitigations, and a seven-day
+          under-EUR150 experiment.
+      - >-
+          Merged current `origin/main` into the candidate branch to preserve
+          concurrent pipeline work, resolved only the two index conflicts,
+          and verified `validate_candidates.py`, `router/validate.py`, and
+          `git diff --check`. Opened PR #848, confirmed all three CI checks
+          passed, rechecked ancestry and a clean merge-tree against the live
+          main tip, and squash-merged it as agent-decidable internal work.
+          No credentials, spending, external publication, unattended
+          automation, or deployable venture code was involved.
     mrr_end: null
   - venture: portfolio
     agent_spend_usd: null
@@ -22543,4 +22561,64 @@ entries:
       - >-
           `payout-rail` remains the only queue item that moves the revenue
           ceiling off $0.
+    mrr_end: null
+  - venture: photos-import-tools
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+          GitHub-triggered session (`pull_request.synchronize` on #814),
+          folded into the generic "continue work, review open PRs, ship
+          product value" brief. Session gate said BUILD and named
+          `eaa-remediation-pipeline`, but that read is stale for a
+          fast-moving repo: the candidate already graduated on `main` via
+          #820 two hours earlier and had ten-plus follow-on merges in
+          flight by the time this session started (#821, #823, #825, #849,
+          #864, and others) -- confirmed by diffing `origin/main` rather
+          than trusting the script, before doing anything else.
+      - >-
+          Reviewed all five open PRs (#814, #720, #531, #857, #868) plus
+          `portfolio/ledger/decision_queue.py`'s live output. #814/#720/#531
+          are unchanged from every prior session's review: correctly
+          self-flagged human-gated (Ask 9 `venture-gate-premise`,
+          `deployment-platform`, `contrast-fixes`) and already tracked in
+          `asks.yaml`/#139 -- did not re-flag, per the ledger-discipline
+          rule against restating a finding a recent entry already covers.
+          #857 (pod-print-file / Print Atelier product line) touches
+          `ventures/print-atelier` app code despite its own body's claim of
+          being an "internal surface" PR -- worth a correction if anyone
+          merges it on that claim, but it is draft, so left alone. #868
+          (product playbook + usage docs) is internal-only and CI-clean but
+          went `dirty` against `main` mid-review; not this session's branch
+          to push a conflict fix to.
+      - >-
+          Also checked two loose branches without PRs named in the generic
+          brief's branch-triage step (`agent/software-evidence-provenance`,
+          `candidate/shopify-permission-drift`): both stale, their unique
+          content already landed on `main` through other merged PRs
+          (#830-adjacent and the Shopify-permission-drift candidate doc
+          respectively). No action -- deleting them is exactly what the
+          already-queued `branch-cleanup-automation` ask covers, not a new
+          decision.
+      - >-
+          Every build-now/probe-able candidate found was either already in
+          flight (EAA, pod-print-file) or blocked on an owner-only
+          registration/egress decision already in the queue (Shopify a11y
+          evidence app needs a Partner account; CRA evidence desk's wedge
+          is egress-blocked). Rather than add a sixth near-identical
+          "reviewed, nothing new" entry, shipped a small real gap instead:
+          `ventures/photos-import-tools` had no LICENSE and no
+          disclaimer/privacy section anywhere, unlike every other venture's
+          README pattern -- and it is the one venture whose failure mode is
+          losing someone's only copy of their photos, which is exactly
+          where a no-warranty/verify-your-own-backups disclaimer earns its
+          place. Added `LICENSE` (MIT) plus README Disclaimer and Privacy
+          sections; checked the privacy claim ("no network calls") against
+          the code (grep for `requests`/`urllib`/`socket`/`http.client` --
+          none; sole dependency `tenacity` has no network I/O) rather than
+          asserting it. Docs-only, no functional code touched. 91/91 tests
+          passed before and after; `git merge-tree` clean against the live
+          `main` tip at merge time. Agent-decidable per `CLAUDE.md`
+          (internal, non-breaking, publishes nothing); opened and
+          squash-merged as #893.
     mrr_end: null

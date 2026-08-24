@@ -3,8 +3,9 @@
 import DemoNav from "@/components/shared/DemoNav";
 import { BarChart3, Image as ImageIcon, Settings, Wallet, Bell, Upload, ExternalLink } from "lucide-react";
 import Link from "next/link";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import ArtistEarningsCalculator from "@/components/ArtistEarningsCalculator";
+import { recordUsageEvent } from "@/lib/usage";
 import {
   calculateCatalogSummary,
   calculateLaunchReadiness,
@@ -30,6 +31,15 @@ export default function ArtistPortal() {
   const recentSales = catalogArtworks
     .filter((artwork) => artwork.status === "Live" && artwork.salesLast30Days > 0)
     .slice(0, 3);
+  const nextAction = nextCatalogFix
+    ? nextCatalogFix.readiness.blockers[0]
+    : proofQueue.length > 0
+      ? "Review proof"
+      : "Catalog ready";
+
+  useEffect(() => {
+    recordUsageEvent("artist_portal_viewed");
+  }, []);
 
   return (
     <div className="flex flex-col h-screen bg-stone-50 overflow-hidden dark:bg-gray-900">
@@ -144,6 +154,27 @@ export default function ArtistPortal() {
                     </div>
                   </div>
                 )}
+
+                <div className="rounded-2xl border border-indigo-200 bg-indigo-50 p-6 dark:border-indigo-900 dark:bg-indigo-950/30">
+                  <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+                    <div>
+                      <p className="text-xs font-bold uppercase tracking-wide text-indigo-700 dark:text-indigo-300">Your next launch action</p>
+                      <h3 className="mt-1 text-lg font-bold text-stone-900 dark:text-white">{nextAction}</h3>
+                      <p className="mt-1 text-sm text-stone-600 dark:text-gray-300">
+                        Work through the highest-impact item first. Readiness is a planning signal, not a guarantee of sales or payout.
+                      </p>
+                    </div>
+                    <button
+                      onClick={() => {
+                        recordUsageEvent("artist_portal_next_action_clicked");
+                        setActiveTab(nextCatalogFix || proofQueue.length > 0 ? "portfolio" : "payouts");
+                      }}
+                      className="shrink-0 rounded-full bg-indigo-700 px-4 py-2 text-sm font-medium text-white transition hover:bg-indigo-800"
+                    >
+                      {nextCatalogFix || proofQueue.length > 0 ? "Open portfolio" : "Review earnings"}
+                    </button>
+                  </div>
+                </div>
 
                 <div className="bg-white dark:bg-gray-800 rounded-2xl border border-stone-200 dark:border-gray-700 shadow-sm overflow-hidden">
                   <div className="px-6 py-4 border-b border-stone-200 dark:border-gray-700">
@@ -296,6 +327,9 @@ export default function ArtistPortal() {
               </div>
             )}
           </div>
+          <p className="mx-auto max-w-6xl px-8 pb-8 text-xs text-stone-500 dark:text-gray-400">
+            Print Atelier provides planning estimates and workflow tools, not legal, tax, financial, or compliance advice. You remain responsible for reviewing proofs, rights, and payout decisions.
+          </p>
         </main>
       </div>
     </div>

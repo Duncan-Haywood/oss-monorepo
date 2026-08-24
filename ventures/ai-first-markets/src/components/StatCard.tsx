@@ -20,13 +20,13 @@ export function StatCard({
 }: StatCardProps) {
   return (
     <div className="rounded-xl border border-zinc-800 bg-zinc-900/50 p-5">
-      <p className="text-xs font-medium uppercase tracking-wider text-zinc-500">
+      <p className="text-xs font-medium uppercase tracking-wider text-zinc-400">
         {label}
       </p>
       <p className={`mt-2 text-3xl font-semibold ${accentClasses[accent]}`}>
         {value}
       </p>
-      {subtext && <p className="mt-1 text-sm text-zinc-500">{subtext}</p>}
+      {subtext && <p className="mt-1 text-sm text-zinc-400">{subtext}</p>}
     </div>
   );
 }
