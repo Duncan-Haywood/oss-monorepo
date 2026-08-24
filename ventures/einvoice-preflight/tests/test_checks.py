@@ -177,6 +177,23 @@ class ChecksTest(unittest.TestCase):
             self.assertEqual(record["errors"], [])
             self.assertIn("Expecting value", record["error"])
 
+    def test_cli_max_files_bounds_directory_scan_before_reading(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            (root / "one.json").write_text(json.dumps(VALID))
+            (root / "two.xml").write_bytes(UBL_VALID)
+            output = io.StringIO()
+            errors = io.StringIO()
+            with contextlib.redirect_stdout(output), contextlib.redirect_stderr(errors):
+                self.assertEqual(main([directory, "--max-files", "1", "--format", "json"]), 2)
+            self.assertEqual(output.getvalue(), "")
+            self.assertIn("exceeding --max-files 1", errors.getvalue())
+
+    def test_cli_rejects_non_positive_max_files(self):
+        with self.assertRaises(SystemExit) as result:
+            main([".", "--max-files", "0"])
+        self.assertEqual(result.exception.code, 2)
+
     def test_cli_batch_flags_duplicate_invoice_numbers_without_disclosing_number(self):
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)

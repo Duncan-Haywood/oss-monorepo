@@ -15,6 +15,7 @@ PYTHONPATH=src python3 -m einvoice_preflight ./invoices/ --format markdown > rev
 PYTHONPATH=src python3 -m einvoice_preflight ./invoices/ --format html > review.html
 PYTHONPATH=src python3 -m einvoice_preflight ./invoices/ --format csv > triage.csv
 PYTHONPATH=src python3 -m einvoice_preflight ./invoices/ --format junit > preflight.junit.xml
+PYTHONPATH=src python3 -m einvoice_preflight ./invoices/ --max-files 500 --format json
 cat invoice.json | PYTHONPATH=src python3 -m einvoice_preflight - --format json
 PYTHONPATH=src python3 -m einvoice_preflight examples/valid-invoice.json --usage-file ~/.local/state/einvoice-preflight/usage.json
 PYTHONPATH=src python3 -m einvoice_preflight ./invoices/ --format json
@@ -76,6 +77,9 @@ all `.json` files recursively; batch JSON includes per-file errors and batch
 SARIF uses paths relative to the input directory. An empty directory is an
 input error and exits `2`. Batch scans also flag duplicate `invoice_number`
 values as `INV-019`; the number itself is never emitted.
+Use `--max-files N` to fail before reading a directory containing more than `N`
+invoice files. This bounds CI jobs and protects against accidentally scanning a
+large export directory; it applies only to directory inputs.
 JSON output uses the same summary fields for single files and directories:
 `status`, `files_checked`, `files_failed`, `observations`, `rules`, and
 `read_errors`. Single-file output also includes `file` and `errors`; directory

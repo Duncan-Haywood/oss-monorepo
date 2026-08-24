@@ -363,10 +363,22 @@ def _markdown_text(value: str) -> str:
     return value.replace("\\", "\\\\").replace("|", "\\|").replace("`", "\\`")
 
 
+def _positive_int(value: str) -> int:
+    """Parse a positive CLI limit with an actionable argparse error."""
+    try:
+        parsed = int(value)
+    except ValueError as exc:
+        raise argparse.ArgumentTypeError("must be a positive integer") from exc
+    if parsed < 1:
+        raise argparse.ArgumentTypeError("must be a positive integer")
+    return parsed
+
+
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description="Check a local JSON or UBL XML e-invoice before submission. No tax advice or submission.")
     parser.add_argument("invoice", type=Path, help="JSON/XML file, directory of JSON/XML files, or '-' for stdin")
     parser.add_argument("--format", choices=("text", "json", "jsonl", "markdown", "html", "csv", "junit", "sarif", "github"), default="text")
+    parser.add_argument("--max-files", type=_positive_int, help="optional maximum number of files to scan in a directory")
     parser.add_argument("--usage-file", help="opt-in local aggregate event counter")
     args = parser.parse_args(argv)
     reports: list[tuple[Path, list[dict[str, str]]]] = []
@@ -386,6 +398,12 @@ def main(argv: list[str] | None = None) -> int:
         )
         if not paths:
             print(f"No JSON or XML invoices found in {args.invoice}")
+            return 2
+        if args.max_files is not None and len(paths) > args.max_files:
+            print(
+                f"Directory contains {len(paths)} JSON/XML files, exceeding --max-files {args.max_files}.",
+                file=sys.stderr,
+            )
             return 2
         sources = []
         for path in paths:
