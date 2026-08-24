@@ -1,0 +1,368 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Tree Service Bid Calculator | Price Removal by DBH, Access, and Haul</title>
+  <meta name="description" content="Price a tree-removal stop the way the job actually costs: DBH-squared wood volume, access, targets, stump grinding, haul, travel, loaded crew cost, and the walk-away number. Free, in your browser.">
+  <meta property="og:title" content="Tree Service Bid Calculator">
+  <meta property="og:description" content="Bid the tree, the access, and the wood — not a day-rate guess. See which tree is carrying the job before you send the price.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Tree Service Bid Calculator","applicationCategory":"BusinessApplication","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"featureList":"DBH-squared removal hours, access and hazard multipliers, stump grinding, haul and dump fees, travel billed once per stop, loaded crew cost, mobilization minimum, walk-away price, per-inch sanity check, proposed-price margin check"}</script>
+  <style>
+    :root { color-scheme: light; font-family: system-ui, sans-serif; color: #1c261c; background: #eef3ea; }
+    body { max-width: 1100px; margin: 0 auto; padding: 32px 18px; }
+    header { max-width: 760px; margin-bottom: 26px; }
+    h1 { font-size: clamp(2rem, 6vw, 3.5rem); line-height: .98; margin: 0 0 12px; letter-spacing: -.05em; }
+    p { line-height: 1.5; }
+    .eyebrow { font-size: .8rem; font-weight: 700; letter-spacing: .08em; color: #2b6b3a; margin: 0 0 6px; }
+    .layout { display: grid; grid-template-columns: minmax(0, 1fr) minmax(300px, .72fr); gap: 18px; align-items: start; }
+    section { background: #fff; border: 1px solid #cfd9c6; border-radius: 14px; padding: 20px; box-shadow: 0 8px 24px #1a2a140d; margin-bottom: 18px; }
+    h2 { margin-top: 0; font-size: 1.15rem; }
+    .hint { font-size: .82rem; color: #4a5848; margin: -6px 0 14px; }
+    .fields { display: grid; grid-template-columns: repeat(2, 1fr); gap: 13px; }
+    label { display: grid; gap: 5px; font-size: .87rem; font-weight: 650; }
+    input, select { width: 100%; box-sizing: border-box; border: 1px solid #a7b6a4; border-radius: 7px; padding: 10px; font: inherit; background: #fff; }
+    .tree { border: 1px solid #d7e0d2; border-radius: 10px; padding: 12px; margin-bottom: 12px; background: #f8fbf6; }
+    .tree-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px; align-items: end; }
+    .tree-grid label:nth-child(-n+2) { grid-column: span 2; }
+    .flags { display: flex; flex-wrap: wrap; gap: 10px 14px; margin-top: 10px; font-size: .82rem; font-weight: 550; }
+    .flags label { display: inline-flex; align-items: center; gap: 6px; font-weight: 550; }
+    .flags input { width: auto; }
+    button { font: inherit; border-radius: 7px; border: 1px solid #a7b6a4; background: #f2f6ee; padding: 10px 14px; cursor: pointer; font-weight: 650; }
+    button:hover { background: #e4eddf; }
+    .remove { padding: 8px 12px; color: #9b2c1f; border-color: #d8b6b0; background: #fdf3f1; margin-top: 10px; }
+    .result { position: sticky; top: 15px; background: #1b3a22; color: #f2f8f2; border-color: #1b3a22; }
+    .hero-number { font-size: 2.9rem; font-weight: 750; letter-spacing: -.05em; margin: 8px 0; }
+    .negative { color: #ffb0a2; } .positive { color: #a9e6b0; }
+    dl { display: grid; grid-template-columns: 1fr auto; gap: 9px; margin: 20px 0; }
+    dt, dd { margin: 0; } dd { font-variant-numeric: tabular-nums; }
+    hr { border: 0; border-top: 1px solid #ffffff2b; }
+    .note { font-size: .82rem; opacity: .84; }
+    .split { margin: 14px 0 0; padding: 0; list-style: none; font-size: .84rem; }
+    .split li { display: grid; grid-template-columns: 1fr auto; gap: 8px; padding: 3px 0; }
+    .bar { grid-column: 1 / -1; height: 4px; border-radius: 2px; background: #ffffff2e; }
+    .bar > span { display: block; height: 100%; border-radius: 2px; background: #8ed48a; }
+    .verdict { margin-top: 14px; padding: 12px; border-radius: 9px; font-size: .87rem; background: #ffffff1a; }
+    .verdict.bad { background: #7d2317; }
+    .empty { font-size: .87rem; opacity: .84; }
+    footer { margin-top: 25px; font-size: .82rem; color: #4a5848; }
+    footer a { color: #2b6b3a; }
+    .support { margin-top: 14px; }
+    .summary-actions { display: flex; gap: 8px; align-items: center; margin-top: 14px; }
+    .summary-status { font-size: .8rem; color: #c6e8c4; }
+    .docs { margin: 8px 0 0; font-size: .9rem; }
+    @media (max-width: 820px) {
+      .layout { grid-template-columns: 1fr; } .result { position: static; } .fields { grid-template-columns: 1fr; }
+      .tree-grid { grid-template-columns: 1fr 1fr; }
+      .tree-grid label:nth-child(-n+2) { grid-column: auto; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="eyebrow">FOR TREE SERVICE OWNERS</p>
+    <h1>Bid the tree, the access, and the wood.</h1>
+    <p>A 24-inch backyard oak is four times the wood of a 12-inch street pine — not twice. Price a removal stop from diameter, height, species, access, targets, stump grinding, and haul, then add the drive, the loaded crew, and the margin you intend to keep. You get the bid, the walk-away number, and which tree is actually carrying the job.</p>
+    <p class="docs"><a href="./how-to-bid-tree-removal.html">How tree services actually bid a removal</a></p>
+  </header>
+
+  <main class="layout">
+    <div>
+      <section>
+        <h2>The stop</h2>
+        <p class="hint">One row per tree. Hours grow with the square of DBH because that is how wood volume grows. Access and targets change the hours more than species does.</p>
+        <div id="trees"></div>
+        <button type="button" id="addTree">+ Add a tree</button>
+      </section>
+
+      <section>
+        <h2>Your costs</h2>
+        <div class="fields">
+          <label>Whole-crew hourly wage <input id="crewHourlyRate" type="number" min="0" step="5" value="180"></label>
+          <label>Payroll burden (%) <input id="burdenRate" type="number" min="0" step="0.5" value="30"></label>
+          <label>Chipper / truck / fuel per on-site hour <input id="equipmentHourly" type="number" min="0" step="1" value="45"></label>
+          <label>Crane day rate <input id="craneDayRate" type="number" min="0" step="25" value="1200"></label>
+          <label>Dump / landfill per hauled tree <input id="dumpFeePerTree" type="number" min="0" step="5" value="85"></label>
+          <label>Other cost on this stop <input id="otherJobCost" type="number" min="0" step="1" value="0"></label>
+          <label>Overhead on direct cost (%) <input id="overheadRate" type="number" min="0" step="0.5" value="15"></label>
+          <label>Target net margin (%) <input id="targetMargin" type="number" min="0" max="99.9" step="0.5" value="25"></label>
+          <label>Minimum mobilization / stop charge <input id="minimumJob" type="number" min="0" step="25" value="450"></label>
+          <label>Round-trip travel (minutes) <input id="travelMinutes" type="number" min="0" step="5" value="40"></label>
+          <label>Price you&rsquo;re considering (optional) <input id="proposedPrice" type="number" min="0" step="25" placeholder="e.g. 2200"></label>
+        </div>
+        <p class="hint" style="margin-top:14px;margin-bottom:0">Crew hourly is what you pay the whole crew for an hour on the clock — climber, ground, and chipper operator together. Payroll burden covers employer taxes, workers&rsquo; compensation (expensive in this trade), and insurance. Travel is billed once for the stop, not once per tree. A crane day is charged only if any tree is marked crane-required.</p>
+      </section>
+    </div>
+
+    <section class="result" aria-live="polite">
+      <h2>Your bid</h2>
+      <div id="price" class="hero-number">$&mdash;</div>
+      <div id="priceLabel">recommended stop price</div>
+      <dl>
+        <dt>On-site hours</dt><dd id="onSiteHours"></dd>
+        <dt>Travel hours</dt><dd id="travelHours"></dd>
+        <dt>Loaded labor</dt><dd id="labor"></dd>
+        <dt>Equipment, crane, dump</dt><dd id="equipment"></dd>
+        <dt>Overhead</dt><dd id="overhead"></dd>
+        <dt>Total job cost</dt><dd id="cost"></dd>
+        <dt>Profit at this bid</dt><dd id="profit"></dd>
+        <dt>Price per inch of DBH</dt><dd id="perInch"></dd>
+        <dt>Effective crew hourly</dt><dd id="hourlyRate"></dd>
+        <dt>Walk-away price</dt><dd id="breakEven"></dd>
+        <dt>Quote floor (cost or minimum)</dt><dd id="quoteFloor"></dd>
+      </dl>
+      <div id="verdict" class="verdict" hidden></div>
+      <div class="summary-actions">
+        <button type="button" id="copySummary">Copy bid summary</button>
+        <span id="summaryStatus" class="summary-status" role="status" aria-live="polite"></span>
+      </div>
+      <hr>
+      <p class="note" style="margin-bottom:4px"><strong>Which tree is carrying the job</strong></p>
+      <ul class="split" id="split"></ul>
+      <hr>
+      <p class="note">Transparent arithmetic from your own inputs. The hour factors are starting points, not an industry standard, a benchmark, or a guarantee &mdash; time your own crews and replace the wages and fees with yours.</p>
+    </section>
+  </main>
+
+  <footer>
+    <label style="display:inline-flex;gap:6px;align-items:center;font-weight:400"><input id="usageOptOut" type="checkbox" style="width:auto"> Do not keep anonymous local usage counts</label>
+    <p><strong>No warranty.</strong> This free tool is not legal, tax, financial, engineering, or business advice, and it does not tell you what to charge. It is not a tree appraisal, a hazard rating, or a recommendation to remove a tree. Verify every figure against your own payroll, insurance, dump tickets, and site conditions, and against a qualified arborist or professional, before relying on it or submitting a bid. To the maximum extent permitted by law, the authors accept no liability for loss or damage from its use.</p>
+    <p><strong>Nothing leaves your browser.</strong> Every number stays on this device. Usage counts are anonymous tallies of which features were used, stored locally, and never include the address, trees, wages, costs, or prices.</p>
+    <p class="support">Free and open source. If it wins you a job, the <a href="https://github.com/Duncan-Haywood/monorepo-projects" rel="noopener">project is on GitHub</a> &mdash; support is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { ACCESS_PRESETS, HAUL_PRESETS, SPECIES_PRESETS, calculateBid } from './calc.mjs';
+    import { recordUsage } from './usage.mjs';
+
+    const COST_IDS = ['crewHourlyRate','burdenRate','equipmentHourly','craneDayRate','dumpFeePerTree','otherJobCost','overheadRate','targetMargin','minimumJob','travelMinutes','proposedPrice'];
+    const money = value => `$${value.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+    const el = id => document.getElementById(id);
+
+    const STARTING_TREES = [
+      {
+        name: 'Backyard oak',
+        dbhInches: 24,
+        heightFeet: 60,
+        species: 'hardwood',
+        access: 'backyard',
+        haul: 'chip_haul',
+        grindStump: true,
+        nearStructure: true,
+      },
+      {
+        name: 'Street pine',
+        dbhInches: 12,
+        heightFeet: 40,
+        species: 'softwood',
+        access: 'street',
+        haul: 'leave',
+      },
+    ];
+
+    const optionHtml = (presets, selected) => presets
+      .map(preset => `<option value="${preset.id}"${preset.id === selected ? ' selected' : ''}>${preset.label}</option>`)
+      .join('');
+
+    const treesHost = el('trees');
+    let rowSeq = 0;
+
+    function addTreeRow(tree = {}) {
+      const id = `t${++rowSeq}`;
+      const row = document.createElement('div');
+      row.className = 'tree';
+      row.innerHTML = `
+        <div class="tree-grid">
+          <label for="${id}-name">Label<input class="t-name" id="${id}-name" type="text" value="${tree.name || ''}" placeholder="e.g. Backyard oak"></label>
+          <label for="${id}-species">Species<select class="t-species" id="${id}-species">${optionHtml(SPECIES_PRESETS, tree.species || 'mixed')}</select></label>
+          <label for="${id}-dbh">DBH (inches)<input class="t-dbh" id="${id}-dbh" type="number" min="1" step="1" value="${tree.dbhInches ?? 18}"></label>
+          <label for="${id}-height">Height (feet)<input class="t-height" id="${id}-height" type="number" min="1" step="1" value="${tree.heightFeet ?? 50}"></label>
+          <label for="${id}-access">Access<select class="t-access" id="${id}-access">${optionHtml(ACCESS_PRESETS, tree.access || 'street')}</select></label>
+          <label for="${id}-haul">Wood / chips<select class="t-haul" id="${id}-haul">${optionHtml(HAUL_PRESETS, tree.haul || 'chip_haul')}</select></label>
+        </div>
+        <div class="flags">
+          <label><input class="t-structure" type="checkbox"${tree.nearStructure ? ' checked' : ''}> Near house / structure</label>
+          <label><input class="t-power" type="checkbox"${tree.nearPower ? ' checked' : ''}> Near power lines</label>
+          <label><input class="t-dead" type="checkbox"${tree.deadHazard ? ' checked' : ''}> Dead / hazard tree</label>
+          <label><input class="t-stump" type="checkbox"${tree.grindStump ? ' checked' : ''}> Grind the stump</label>
+        </div>
+        <button type="button" class="remove">Remove this tree</button>`;
+
+      row.querySelectorAll('input, select').forEach(input => {
+        input.addEventListener('input', update);
+        input.addEventListener('change', () => count('bid_calculated'));
+      });
+      row.querySelector('.remove').addEventListener('click', () => {
+        row.remove();
+        count('tree_removed');
+        update();
+      });
+      treesHost.append(row);
+    }
+
+    function readTrees() {
+      return [...treesHost.querySelectorAll('.tree')].map(row => ({
+        name: row.querySelector('.t-name').value,
+        species: row.querySelector('.t-species').value,
+        dbhInches: row.querySelector('.t-dbh').value,
+        heightFeet: row.querySelector('.t-height').value,
+        access: row.querySelector('.t-access').value,
+        haul: row.querySelector('.t-haul').value,
+        nearStructure: row.querySelector('.t-structure').checked,
+        nearPower: row.querySelector('.t-power').checked,
+        deadHazard: row.querySelector('.t-dead').checked,
+        grindStump: row.querySelector('.t-stump').checked,
+      }));
+    }
+
+    function count(event) {
+      recordUsage(localStorage, el('usageOptOut').checked, event);
+    }
+
+    function clearOutputs(message, isError) {
+      el('price').textContent = message;
+      el('price').className = `hero-number ${isError ? 'negative' : ''}`;
+      el('priceLabel').textContent = isError ? 'check the highlighted input' : 'recommended stop price';
+      ['onSiteHours','travelHours','labor','equipment','overhead','cost','profit','perInch','hourlyRate','breakEven','quoteFloor']
+        .forEach(id => { el(id).textContent = ''; });
+      el('split').innerHTML = '';
+      el('verdict').hidden = true;
+    }
+
+    function update() {
+      const trees = readTrees();
+      if (trees.length === 0) {
+        clearOutputs('Add a tree to price', false);
+        el('split').innerHTML = '<li class="empty">Add at least one tree above and the hour split appears here.</li>';
+        return;
+      }
+      let result;
+      try {
+        result = calculateBid({
+          trees,
+          ...Object.fromEntries(COST_IDS.map(id => [id, el(id).value])),
+          proposedPrice: el('proposedPrice').value,
+        });
+      } catch (error) {
+        clearOutputs(error.message, true);
+        return;
+      }
+
+      el('price').textContent = money(result.recommendedPrice);
+      el('price').className = 'hero-number';
+      el('priceLabel').textContent = result.minimumApplied
+        ? 'minimum stop charge (this job is below your floor)'
+        : 'recommended stop price';
+      el('onSiteHours').textContent = `${result.onSiteHours.toFixed(2)} h`;
+      el('travelHours').textContent = `${result.travelHours.toFixed(2)} h`;
+      el('labor').textContent = money(result.laborCost);
+      el('equipment').textContent = money(result.equipmentCost);
+      el('overhead').textContent = money(result.overhead);
+      el('cost').textContent = money(result.jobCost);
+      el('profit').textContent = money(result.profit);
+      el('perInch').textContent = result.pricePerInch === null ? 'n/a' : `$${result.pricePerInch.toFixed(0)}/in`;
+      el('hourlyRate').textContent = result.effectiveHourlyRate === null ? 'n/a' : `${money(result.effectiveHourlyRate)}/h`;
+      el('breakEven').textContent = money(result.breakEvenPrice);
+      el('quoteFloor').textContent = money(result.quoteFloor);
+
+      el('split').innerHTML = result.trees
+        .slice()
+        .sort((a, b) => b.onSiteHours - a.onSiteHours)
+        .map(tree => `<li><span>${tree.name} (${tree.dbhInches}&Prime;)</span><span>${tree.hoursShare.toFixed(0)}% · ${money(tree.allocatedPrice)}</span>
+          <span class="bar"><span style="width:${tree.hoursShare.toFixed(1)}%"></span></span></li>`)
+        .join('');
+
+      const verdict = el('verdict');
+      if (result.proposed === null) {
+        verdict.hidden = true;
+      } else {
+        verdict.hidden = false;
+        verdict.className = `verdict${result.proposed.belowBreakEven ? ' bad' : ''}`;
+        const rate = result.proposed.hourlyRate === null ? 'n/a' : `${money(result.proposed.hourlyRate)}/h`;
+        if (result.proposed.belowBreakEven) {
+          verdict.innerHTML = `At ${money(result.proposed.price)} this stop <strong>loses ${money(Math.abs(result.proposed.profit))}</strong> before you take anything out of it. Your walk-away price is ${money(result.breakEvenPrice)}.`;
+        } else if (result.proposed.belowMinimum) {
+          verdict.innerHTML = `At ${money(result.proposed.price)} you cover cost, but you are under your ${money(result.minimumJob)} mobilization minimum.`;
+        } else {
+          verdict.innerHTML = `At ${money(result.proposed.price)} you keep <strong>${money(result.proposed.profit)}</strong> — a ${result.proposed.margin.toFixed(1)}% margin, billing ${rate} of crew time.`;
+        }
+      }
+    }
+
+    function summaryText(result) {
+      const lines = result.trees.map(tree => {
+        const extras = [
+          tree.nearStructure ? 'near structure' : null,
+          tree.nearPower ? 'near power' : null,
+          tree.deadHazard ? 'hazard' : null,
+          tree.grindStump ? 'stump grind' : null,
+        ].filter(Boolean).join(', ');
+        return `- ${tree.name}: ${tree.dbhInches}" DBH, ${tree.heightFeet} ft, ${tree.speciesLabel}; ${tree.accessLabel}; ${tree.haulLabel}${extras ? `; ${extras}` : ''}`;
+      }).join('\n');
+      return [
+        'TREE SERVICE BID',
+        '',
+        `Proposed stop price: ${money(result.recommendedPrice)}`,
+        `Walk-away (cost): ${money(result.breakEvenPrice)}`,
+        `On-site labor: ${result.onSiteHours.toFixed(2)} hours`,
+        `Travel: ${result.travelHours.toFixed(2)} hours`,
+        `Price per inch of DBH: ${result.pricePerInch === null ? 'n/a' : '$' + result.pricePerInch.toFixed(0) + '/in'}`,
+        result.minimumApplied ? `Minimum mobilization applied: ${money(result.minimumJob)}` : null,
+        '',
+        'TREES',
+        lines || '- No trees entered',
+        '',
+        'This is a draft for review. Confirm species, access, targets, permits, dump fees, insurance, and all pricing on site before sending.',
+      ].filter(line => line !== null).join('\n');
+    }
+
+    async function copySummary() {
+      const result = calculateBid({
+        trees: readTrees(),
+        ...Object.fromEntries(COST_IDS.map(id => [id, el(id).value])),
+        proposedPrice: el('proposedPrice').value,
+      });
+      const text = summaryText(result);
+      try {
+        await navigator.clipboard.writeText(text);
+      } catch {
+        const fallback = document.createElement('textarea');
+        fallback.value = text;
+        fallback.setAttribute('readonly', '');
+        fallback.style.position = 'fixed';
+        fallback.style.opacity = '0';
+        document.body.append(fallback);
+        fallback.select();
+        document.execCommand('copy');
+        fallback.remove();
+      }
+      count('summary_copied');
+      el('summaryStatus').textContent = 'Copied to clipboard';
+      setTimeout(() => { el('summaryStatus').textContent = ''; }, 2500);
+    }
+
+    el('addTree').addEventListener('click', () => {
+      addTreeRow({ dbhInches: 16, heightFeet: 45, species: 'mixed', access: 'side', haul: 'chip_haul' });
+      count('tree_added');
+      update();
+    });
+
+    COST_IDS.forEach(id => {
+      el(id).addEventListener('input', update);
+      el(id).addEventListener('change', () => count(id === 'proposedPrice' ? 'proposed_price_compared' : 'bid_calculated'));
+    });
+    el('usageOptOut').addEventListener('change', update);
+    el('copySummary').addEventListener('click', () => {
+      try {
+        copySummary().catch(() => { el('summaryStatus').textContent = 'Copy failed; select and copy the figures above.'; });
+      } catch (error) {
+        el('summaryStatus').textContent = error.message;
+      }
+    });
+
+    STARTING_TREES.forEach(addTreeRow);
+    update();
+  </script>
+</body>
+</html>
