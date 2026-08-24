@@ -44,6 +44,13 @@ quoted price and direct costs fixed while showing how the effective hourly rate
 and gap to the supplied target change. They are arithmetic what-if comparisons,
 not a forecast of project delivery time.
 
+The browser's **Copy review summary** button creates a short, plain-text handoff
+for an email or project notes. It includes the quoted price, effective and target
+rates, total and hidden hours, direct costs, and target-price gap, while retaining
+the arithmetic-only disclaimer. It does not include a project name or send any
+data anywhere. Copying the summary records only the aggregate local
+`summary_copied` event when local usage counting is enabled.
+
 **No warranty.** This tool is provided free and as-is, without warranty of any
 kind, express or implied. It is not tax, financial, or business advice, and it
 does not replace a qualified professional. **You are responsible for reviewing
