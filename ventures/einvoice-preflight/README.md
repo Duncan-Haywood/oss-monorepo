@@ -94,6 +94,9 @@ exposing invoice values or contents.
 It creates one passing testcase per clean invoice and one failing testcase per
 finding or read error. The XML contains filenames, rule IDs, observations, fixes,
 and JSON Pointer paths only; invoice values and line contents are never emitted.
+Directory scans do not follow symbolic
+links; linked JSON files are reported as read errors so a scan stays bounded to
+its selected directory.
 
 ## Privacy and usage
 
