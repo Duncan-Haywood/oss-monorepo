@@ -20594,3 +20594,126 @@ entries:
         reading only the entry above wouldn't mistake #704 for the only
         fix and re-derive the same 117/37 correction a third time.
     mrr_end: null
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Scheduled screening-brief session ("research and evaluate potential
+        software business projects that aren't already here"), designated
+        branch claude/laughing-pasteur-9o40vm. `session_gate.py` -> PROCEED
+        (noting 2 distinct sessions committed to `main` within a 15-minute
+        window in the last 6h). Obeyed the `CLAUDE.md` intake gate: no
+        candidate list, no score changed, nothing in `portfolio/pipeline/`
+        rewritten. Took the gate's first useful move -- advance a probe
+        already specified -- and applied it to the one question the previous
+        entry above explicitly left open.
+      - >-
+        That entry's own closing section said it had not established
+        "whether a published probe could be *measured*", and asserted from
+        knowledge rather than measurement that PyPI's JSON API returns -1
+        for every download field. Measured it. PyPI is now a first-class
+        channel in `demand-signal-reachability` (9 surfaces) instead of the
+        single control row it had been, plus 19 offline tests over the
+        classifier, the sentinel rule and both committed result files.
+      - >-
+        Finding: the PyPI route fails BOTH gates this directory exists to
+        separate. `upload.pypi.org` is egress-denied (in-band 403 naming the
+        host and the remedy). On the stats side, Warehouse still serves a
+        `downloads` object and every field is the sentinel -1 -- confirmed
+        on two projects and two windows, so it is a property of the API and
+        not of one project; `pypi.org/stats/` publishes stored *size* for
+        top-N projects and no download count for any; and every
+        zero-credential surface that does carry the real numbers is
+        egress-denied (pypistats.org, api.pepy.tech, clickpy, piwheels). The
+        one count route that answers is PyPI's own documented one, BigQuery,
+        and querying it needs a billing-enabled Google Cloud project -- a
+        heavier credential than anything on the owner's queue.
+      - >-
+        Consequence, and it corrects the entry above rather than extending
+        it. That entry rightly added the missing port to Ask 0's side of the
+        cost table; it priced only that side. With both sides priced, Ask 0
+        costs one signup plus a port into an unused language and buys a
+        channel whose count this directory has now read live twice; the PyPI
+        route costs one signup plus TWO owner-controlled settings (publish
+        allowlist, then a count route) and buys a channel with an artifact
+        already in hand. Neither route is one action away. Which is cheaper
+        remains the owner's call; recorded as a comment on #139, no new ask
+        added.
+      - >-
+        Two secondary results. The 27 targets from the 2026-08-19 pass were
+        re-run in the same invocation and every verdict reproduced exactly
+        (diffed programmatically) -- a fourth independent confirmation that
+        this environment's denials are stable policy, not transient failure;
+        the only values that moved are the five live download totals, all
+        upward by five days of traffic. And this probe's classifier only
+        knew the CONNECT-time denial shape, so it would have coded the
+        in-band 403 as `HTTP_403` -- indistinguishable from PyPI itself
+        refusing an upload. `publish-endpoint-reachability` had already
+        found and named that signature; the lesson had not propagated to
+        this directory's tool. Worth carrying: a correction that lands in
+        one research directory does not fix the instrument in the next one.
+      - >-
+        Scope kept honest: nothing here establishes demand, and predicting
+        that an allowlist entry for pypistats.org *would* make it readable
+        is a prediction, not a measurement -- flagged as such in the
+        write-up. Nothing published, registered, uploaded or signed up for;
+        read-only GETs against public endpoints for packages this portfolio
+        does not own. No venture code touched, no automation changed.
+        Internal `portfolio/research/` only, so agent-decidable per
+        `CLAUDE.md` and self-merged with this entry in the same PR. Checked
+        the 4 open PRs (#583, #531, #372, #368) and `verification_status.py`
+        before starting; all unchanged and correctly owner-gated, none
+        re-verified here.
+      - >-
+        Second, unrelated finding, surfaced by this PR's own CI and fixed in
+        it. `agent-permission-harness`'s committed results file was STALE ON
+        `main` and reading as a current security measurement: R7's instruction
+        closure is 117 files, not the 115 the artifact and five prose figures
+        all stated. Nothing in the probe changed. #699 added a row to
+        `portfolio/research/README.md` -- a depth-2 document in the closure --
+        whose prose mentions `package.json` in a sentence about npm privacy
+        flags, and the walker resolved that bare spec against the naming
+        document's tree, pulling two research `package.json` files (present
+        since 2026-08-21) into the closure at depth 3. The count is not wrong;
+        it is the disclosed upper bound behaving as disclosed. What is worth
+        recording is how little it took: one sentence, in a file nobody filed
+        under security, in a PR about registries.
+      - >-
+        The consequential half is the trigger. That workflow watched the
+        probe's *inputs* (`.github/**` and its own directory) while the
+        artifact it pins is a function of the repository's *prose*, so a merge
+        to a research index invalidated a committed measurement with nothing
+        red to say so -- and it surfaced only because this PR happened to add
+        a workflow file and tripped the filter by accident. Regenerated the
+        artifact with the probe's own tooling (`results-2026-08-24.md`, prior
+        snapshots kept), corrected the five stale figures, and widened the
+        path filter to the closure's prose roots, stating in the workflow that
+        this is still an approximation of "any prose in this repository".
+        Verified: 84 probe tests pass, `validate_probe_index.py` green, the CI
+        diff step reproduces the committed artifact byte for byte. Third tool
+        in this repository to be caught by the same shape -- a coverage or
+        trigger rule that names the wrong axis fails silently, in the
+        direction that flatters the record.
+      - >-
+        And the duplicate-work pattern landed on it mid-session: FOUR
+        sessions, none able to see the others, each fixed a different piece
+        of this within about an hour. #701 changed a workflow's
+        `permissions:`, tripped the OLD trigger, and regenerated
+        `results-2026-08-23.md` in place; #702 and #704 then chased the
+        115/35 prose that regeneration left behind, the second catching what
+        the first missed. Kept all of their work and dropped this session's
+        rival re-dated artifact rather than leaving two copies of one
+        measurement.
+      - >-
+        What none of the three carried is the point, and the reason is
+        structural rather than a lapse: a session arriving after the fact
+        sees only that a figure disagrees with an artifact, not that the
+        trigger is why the artifact went stale. So
+        `portfolio/pipeline/probes/README.md` still read 115 after all three,
+        the `package.json` sentence that moved the count went unnamed, and
+        the path filter -- the actual defect -- was untouched. Three passes
+        of cleanup and the thing that will do it again next week was still
+        armed. That is the argument for fixing the trigger rather than the
+        figure, and it is what this branch carries on top of theirs.
+    mrr_end: null

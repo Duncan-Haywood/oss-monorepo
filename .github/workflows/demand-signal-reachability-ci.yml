@@ -1,0 +1,64 @@
+name: demand-signal-reachability CI
+
+# Test coverage for the demand-signal probe under
+# portfolio/research/demand-signal-reachability/. The suite is
+# standard-library-only and needs no network — every test drives the classifier
+# and summariser from synthetic rows, or re-derives the two committed results
+# files — so this workflow does no more than a contributor runs locally: run the
+# tests. It publishes nothing, registers nothing, and spends no API budget; it
+# is a test runner, not the unattended-automation kind of workflow CLAUDE.md
+# gates.
+#
+# Matching the runners the sibling research probes already have
+# (forge-surface-reachability, register-change-rate, a11y-evidence-record).
+#
+# Two invariants are worth protecting here, and both fail *quietly* rather than
+# loudly:
+#
+#   * The classifier. This environment denies egress in two different
+#     signatures — a CONNECT-time tunnel failure and a real in-band HTTP 403
+#     naming the host — and a regression that stops recognising the second one
+#     does not raise an error. It reports a denied host as the host's own
+#     refusal, which is how a wrong reachability table gets built on a right one.
+#   * The sentinel rule. PyPI's download fields answer with -1 rather than a
+#     number, which passes any `is not None` test. A regression there records a
+#     demand measurement that never happened.
+
+on:
+  pull_request:
+    paths:
+      - "portfolio/research/demand-signal-reachability/**"
+      - ".github/workflows/demand-signal-reachability-ci.yml"
+  push:
+    branches: [main]
+    paths:
+      - "portfolio/research/demand-signal-reachability/**"
+      - ".github/workflows/demand-signal-reachability-ci.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+# A second push to the same branch makes the first run irrelevant.
+concurrency:
+  group: demand-signal-reachability-ci-${{ github.ref }}
+  cancel-in-progress: true
+
+defaults:
+  run:
+    working-directory: portfolio/research/demand-signal-reachability
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      # Standard-library unittest only: no pip install step, by design.
+      - run: python3 -m unittest discover -p 'test_*.py'
+      # The saved results must stay re-derivable offline — that is the contract
+      # the README's tables rest on, and it breaks silently if the schema drifts.
+      - run: python3 probe_demand_signals.py --recompute-from results-2026-08-19.json
+      - run: python3 probe_demand_signals.py --recompute-from results-2026-08-24.json

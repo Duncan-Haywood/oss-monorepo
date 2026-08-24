@@ -244,6 +244,69 @@ instead — the fixed point, cycle termination, depth attribution, the scoping
 rule, the walkable-suffix bound, and the claim that against this repository the
 closure is strictly larger than its first hop.
 
+### Amendment 2026-08-24: a sentence in a research index moved this number, and nothing was red
+
+`115` became **117** on `main` without any workflow, prompt, or file in this
+directory changing, and the committed results file read as a current measurement
+for the whole time it was wrong. The two files that entered the closure are
+`portfolio/research/a11y-axe-recall/package.json` and
+`portfolio/research/a11y-delivered-contrast/package.json` — both present in the
+repository since 2026-08-21, neither in the closure until 2026-08-24. What
+changed is that [#699](https://github.com/Duncan-Haywood/monorepo-projects/pull/699)
+added a row to `portfolio/research/README.md` — a depth-2 document — whose prose
+reads *"all 18 `package.json` files set `\"private\": true\"`"*. The walker resolved
+that bare spec against the naming document's own tree and found exactly those
+two.
+
+That is the disclosed upper bound doing precisely what it is disclosed to do:
+*a named path is counted whether the naming document orders the read or merely
+mentions the file.* Here the mention was a **statistic about** `package.json`
+files, in a document about publishing channels, and it enlarged a measured
+attack surface. The number is not wrong — those files really are named by a
+document the agent is directed to read, and the rule's stated direction of error
+is this one. It is worth recording anyway, because it shows how little it takes:
+one sentence, in a file nobody thought of as security-relevant, in a pull request
+about registries.
+
+The failure that mattered is the second one. This workflow triggered only on
+`.github/workflows/**`, `.github/prompts/**`, `.github/scripts/**` and this
+directory — the inputs the *probe* reads. But the artifact it pins is a function
+of the repository's **prose**, which is a much larger set, so a merge to
+`portfolio/research/README.md` invalidated the committed measurement with nothing
+red to say so. It surfaced only because an unrelated pull request happened to add
+a workflow file and so tripped the trigger by accident. The path filter has been
+widened to the documents the closure actually walks through; that is still an
+approximation of "any prose in this repository", and it is stated here rather
+than assumed away.
+
+The pattern is one this repository has now hit on three separate tools: **a
+coverage or trigger rule that names the wrong axis fails silently and in the
+direction that flatters the record.** `npm-reachability-triage`'s limit named the
+ecosystem when the boundary was the lockfile format; this one named the probe's
+inputs when the boundary is the closure's reachable set.
+
+What happened next belongs in the record rather than in a commit message, because
+it is the pattern `CLAUDE.md` documents landing on one number in one hour.
+**Four sessions, none able to see the others, each fixed a different piece of
+this.** One changed a workflow's `permissions:`, tripped the old trigger, and
+regenerated `results-2026-08-23.md` in place
+([#701](https://github.com/Duncan-Haywood/monorepo-projects/pull/701)); two more
+([#702](https://github.com/Duncan-Haywood/monorepo-projects/pull/702),
+[#704](https://github.com/Duncan-Haywood/monorepo-projects/pull/704)) then
+chased the `115`/`35` prose the regeneration had left behind, the second
+catching what the first missed. Their work is what is on `main` and this pass
+keeps it, dropping its own re-dated copy of the artifact rather than leaving two.
+
+The point worth keeping is what **none** of the three carried, and why. From
+each of their sides the number had simply moved, so there was nothing to
+explain: no session that arrives after the fact can see that the trigger is what
+let the artifact go stale, only that a figure disagrees with an artifact. So
+`portfolio/pipeline/probes/README.md` still read `115` after all three, the
+`package.json` sentence that moved the count went unnamed, and the path filter —
+the actual defect — was untouched. Three passes of cleanup, and the thing that
+will do it again next week was still armed. That is the argument for fixing the
+trigger rather than the figure.
+
 ## What this probe deliberately does not do
 
 It makes **no judgement about whether an agent would misbehave** given a

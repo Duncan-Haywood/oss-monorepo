@@ -39,6 +39,21 @@ name: agent-permission-harness CI
 # would leave the README stating a finding that had been fixed, with nothing
 # red to say so.
 
+# The trigger below is wider than the probe's own inputs, and 2026-08-24 is why.
+# R7's committed number is a function of the repository's *prose*, not of this
+# directory: a document in the closure that names a new path enlarges the
+# measurement. #699 added a row to portfolio/research/README.md mentioning
+# `package.json` in passing, two research package.json files entered the closure
+# at depth 3, and the committed results file read as current while being wrong —
+# because none of the four paths this workflow used to watch had changed. It
+# surfaced only when an unrelated pull request added a workflow file and tripped
+# the trigger by accident.
+#
+# The prose roots below are the documents the closure actually walks through
+# (see instruction_closure's CLOSURE_WALKABLE_SUFFIXES). This is still an
+# approximation of "any prose in this repository" — a path named from a document
+# outside these roots would slip through the same way — and it is written down
+# rather than assumed away.
 on:
   pull_request:
     paths:
@@ -46,6 +61,13 @@ on:
       - ".github/workflows/**"
       - ".github/prompts/**"
       - ".github/scripts/**"
+      - "CLAUDE.md"
+      - "AGENTS.md"
+      - "IMPROVEMENT-PLAN.md"
+      - "README.md"
+      - "portfolio/**"
+      - "ventures/**/AGENTS.md"
+      - "ventures/**/VENTURE.yaml"
   push:
     branches: [main]
     paths:
@@ -53,6 +75,13 @@ on:
       - ".github/workflows/**"
       - ".github/prompts/**"
       - ".github/scripts/**"
+      - "CLAUDE.md"
+      - "AGENTS.md"
+      - "IMPROVEMENT-PLAN.md"
+      - "README.md"
+      - "portfolio/**"
+      - "ventures/**/AGENTS.md"
+      - "ventures/**/VENTURE.yaml"
   workflow_dispatch:
 
 permissions:

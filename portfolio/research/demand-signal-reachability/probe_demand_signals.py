@@ -126,12 +126,61 @@ TARGETS: list[tuple[str, str, str, list | None, bool | None, str]] = [
     ("github-git", GATE_PUBLISH, "https://codeload.github.com/robots.txt", None, None,
      "tarball host the module/tap fetchers use. Same bare non-repo path"),
 
+    # ---- PyPI, added 2026-08-24 ----
+    # PyPI was a *control* in the 2026-08-19 pass, never a channel: it was not on
+    # Ask 0's menu. `artifact-channel-match` (2026-08-24) put it on the board by
+    # measuring the other side of the join -- the only two publishable packages
+    # this repository contains are Python -- so the gates below are the ones that
+    # decide the route it proposed.
+    ("pypi", GATE_PUBLISH, "https://upload.pypi.org/legacy/", None, None,
+     "the only endpoint PyPI accepts an upload on"),
+    ("pypi", GATE_STATS, "https://pypi.org/pypi/requests/json",
+     ["info", "downloads", "last_month"], False,
+     "Warehouse's JSON API still carries a `downloads` object and still answers, "
+     "but every field in it is the sentinel -1. The host is reachable and the "
+     "number is not published here"),
+    ("pypi", GATE_STATS, "https://pypi.org/pypi/black/json",
+     ["info", "downloads", "last_week"], False,
+     "second project, second field: the sentinel is a property of the API, not "
+     "of one project or one window"),
+    ("pypi", GATE_STATS, "https://pypi.org/stats/", None, False,
+     "Warehouse's only public statistics page: total *size* of the largest "
+     "projects, top-N only, no download count for any project"),
+    ("pypi", GATE_STATS, "https://pypistats.org/api/packages/requests/recent",
+     ["data", "last_month"], True,
+     "the community mirror of PyPI's own dataset -- the zero-credential way to "
+     "read a per-project download count"),
+    ("pypi", GATE_STATS, "https://api.pepy.tech/api/v2/projects/requests",
+     ["total_downloads"], True, "second community aggregator for the same dataset"),
+    ("pypi", GATE_STATS, "https://clickpy-api.clickhouse.com/", None, True,
+     "third aggregator, ClickHouse's public PyPI dataset"),
+    ("pypi", GATE_STATS,
+     "https://bigquery.googleapis.com/discovery/v1/apis/bigquery/v2/rest", None, True,
+     "PyPI's own documented download-statistics route: the "
+     "`bigquery-public-data.pypi.file_downloads` dataset"),
+    ("pypi", GATE_STATS, "https://www.piwheels.org/project/requests/json/",
+     None, True,
+     "a mirror that publishes its own per-project counts; they measure one "
+     "hardware platform's installs, not PyPI's"),
+
     # ---- controls, so this run's classifier can be compared to #137's ----
     ("control-reachable", "control", "https://pypi.org/pypi/requests/json",
      ["info", "version"], None, "known REACHABLE in #130/#137"),
     ("control-denied", "control", "https://wordpress.org/plugins/", None, None,
      "known EGRESS_DENIED in #137"),
 ]
+
+# Reaching a count surface is not the same as being allowed to read a number off
+# it. These surfaces answer (or would answer) without an egress change and still
+# cannot produce a count for this portfolio without a credential the account
+# owner would have to create. Keyed by URL so the 27 targets above are untouched.
+COUNT_NEEDS_CREDENTIAL: dict[str, str] = {
+    "https://bigquery.googleapis.com/discovery/v1/apis/bigquery/v2/rest":
+        "querying the public dataset needs a Google Cloud project with billing "
+        "enabled -- an account belonging to a legal person, plus per-query spend",
+    "https://api.pepy.tech/api/v2/projects/requests":
+        "the v2 API requires an API key issued to an account",
+}
 
 
 def fetch(url: str) -> tuple[int | None, bytes, dict]:
@@ -171,6 +220,14 @@ def verdict(status: int | None, body: bytes) -> str:
         return "UNREACHABLE"
     if "just a moment" in low or "cf-browser-verification" in low or "attention required" in low:
         return "BOT_CHALLENGED"
+    # The enforcement layer has a second refusal shape this classifier did not
+    # know, because none of the original 27 targets hit it: a host on the filter's
+    # explicit deny list is refused *in band*, with a real HTTP 403 naming the
+    # host, rather than at CONNECT time. Same policy, same remedy (one allowlist
+    # entry the account owner controls), so it gets the same verdict -- otherwise
+    # it would be coded HTTP_403 and read as the host's own refusal.
+    if status == 403 and "host not in allowlist" in low:
+        return "EGRESS_DENIED"
     if status in (403, 407) and ("agentproxy" in low or "proxy" in low and "denied" in low):
         return "EGRESS_DENIED"
     if 200 <= status < 400:
@@ -188,6 +245,14 @@ def dig(obj, path):
     return cur
 
 
+def is_sentinel(value) -> bool:
+    """A numeric count below zero is not a small count; it is the field saying it
+    has stopped being published. Warehouse returns -1 for every `downloads` field
+    on every project, forever. Read as a number it would pass a `is not None`
+    test and enter the summary as a successful measurement."""
+    return isinstance(value, (int, float)) and not isinstance(value, bool) and value < 0
+
+
 def summarize(rows: list[dict]) -> dict:
     by_channel: dict[str, dict] = {}
     for r in rows:
@@ -196,6 +261,7 @@ def summarize(rows: list[dict]) -> dict:
         c = by_channel.setdefault(r["channel"], {
             "publish": None, "stats": None, "store": None,
             "channel_publishes_a_count": None, "count_read": None,
+            "count_sentinel_seen": False, "count_needs_credential": None,
         })
         gate = r["gate"]
         # a channel's gate passes if any probed surface for it answered
@@ -203,16 +269,25 @@ def summarize(rows: list[dict]) -> dict:
             c[gate] = r["verdict"]
         if r.get("public_count") is not None and c["channel_publishes_a_count"] is not True:
             c["channel_publishes_a_count"] = r["public_count"]
-        if r.get("count_value") is not None and c["count_read"] is None:
+        if is_sentinel(r.get("count_value")):
+            c["count_sentinel_seen"] = True
+        elif r.get("count_value") is not None and c["count_read"] is None:
             c["count_read"] = r["count_value"]
+        # A surface that answers but needs an account is recorded, not counted:
+        # "reachable" and "readable by this portfolio" are different claims.
+        why = COUNT_NEEDS_CREDENTIAL.get(r.get("url") or "")
+        if why and r["verdict"] == "REACHABLE" and not c["count_needs_credential"]:
+            c["count_needs_credential"] = why
 
     # The question Ask 0 turns on: a channel is usable for a demand measurement
     # only if an artifact can be uploaded to it AND the resulting number can be
     # read back from here. Both, or the measurement does not happen.
-    countable, no_count_exists, count_blocked = [], [], []
+    countable, no_count_exists, count_blocked, credentialed = [], [], [], []
     for name, v in by_channel.items():
         if v["count_read"] is not None:
             countable.append(name)
+        elif v["count_needs_credential"]:
+            credentialed.append(name)
         elif v["channel_publishes_a_count"] is False:
             no_count_exists.append(name)
         else:
@@ -222,6 +297,7 @@ def summarize(rows: list[dict]) -> dict:
         "count_readable_from_here": sorted(countable),
         "channel_publishes_no_count_at_all": sorted(no_count_exists),
         "count_exists_but_is_not_readable_from_here": sorted(count_blocked),
+        "count_reachable_only_behind_a_credential": sorted(credentialed),
     }
 
 
@@ -251,8 +327,10 @@ def run(out_path: str) -> None:
             "channel": channel, "gate": gate, "url": url, "note": note,
             "http_status": status, "verdict": v,
             "count_field": ".".join(str(p) for p in path) if path else None,
-            "count_value": count, "parse_error": parse_err,
+            "count_value": count, "count_is_sentinel": is_sentinel(count),
+            "parse_error": parse_err,
             "public_count": public_count,
+            "count_needs_credential": COUNT_NEEDS_CREDENTIAL.get(url),
             "bytes": len(body),
             "snippet": body[:220].decode("utf-8", "replace").replace("\n", " "),
         })

@@ -775,7 +775,12 @@ def instruction_closure(
     matters: `CLAUDE.md` is reached in one hop, and `CLAUDE.md` spends most of
     its length ordering reads of the pipeline, ledger, research and router
     documents, none of which the prompt names. Against this repository the one
-    hop is 21 files and the fixed point is 117, at a maximum depth of 4.
+    hop is 21 files and the fixed point is 117, at a maximum depth of 4. That
+    second number is a function of the repository's prose and moves without this
+    file changing -- it was 115 until a research index gained a sentence naming
+    `package.json` (see the 2026-08-24 amendment in README.md). Nothing here
+    pins it; the committed results file is what a reader should trust, and CI
+    regenerates and diffs it.
 
     What is counted, stated so the number can be checked rather than believed:
 
