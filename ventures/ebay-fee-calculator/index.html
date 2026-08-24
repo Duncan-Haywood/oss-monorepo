@@ -68,11 +68,13 @@
   <script type="module">
     import { calculateOrder } from './calc.mjs';
     import { recordUsage } from './usage.mjs';
+    import { decodeInputs, encodeInputs } from './share.mjs';
     const ids = ['price','shippingCharged','finalValueRate','fixedFee','promotedRate','intlFeeRate','costOfGoods','shippingCost','packagingCost','otherCost'];
     const money = value => `$${value.toFixed(2)}`;
+    function readInputs() { return Object.fromEntries(ids.map(id => [id, document.getElementById(id).value])); }
     function update() {
       try {
-        const result = calculateOrder(Object.fromEntries(ids.map(id => [id, document.getElementById(id).value])));
+        const result = calculateOrder(readInputs());
         const profitEl = document.getElementById('profit');
         profitEl.textContent = money(result.profit);
         profitEl.className = `hero-number ${result.profit < 0 ? 'negative' : 'positive'}`;
@@ -96,8 +98,36 @@
       }
     }
     ids.forEach(id => document.getElementById(id).addEventListener('input', update));
-    ids.forEach(id => document.getElementById(id).addEventListener('change', () => recordUsage(localStorage, document.getElementById('usageOptOut').checked)));
+    const savedKey = 'ebay-fee-calculator-inputs';
+    function restoreInputs() {
+      let saved = {};
+      try { saved = JSON.parse(localStorage.getItem(savedKey) || '{}'); } catch { /* blocked storage */ }
+      const shared = decodeInputs(location.hash || location.search);
+      ids.forEach(id => { const value = shared[id] ?? saved[id]; if (value !== undefined) document.getElementById(id).value = value; });
+    }
+    function saveInputs() {
+      try { localStorage.setItem(savedKey, JSON.stringify(readInputs())); } catch { /* private mode */ }
+    }
+    function shareLink() {
+      const link = `${location.href.split('#')[0]}#${encodeInputs(readInputs())}`;
+      try { history.replaceState(null, '', link); } catch { /* file URLs may reject it */ }
+      if (navigator.clipboard?.writeText) navigator.clipboard.writeText(link).catch(() => {});
+      recordUsage(localStorage, document.getElementById('usageOptOut').checked, 'share_link_copied');
+      window.prompt('Copy this private link:', link);
+    }
+    function resetInputs() {
+      try { localStorage.removeItem(savedKey); } catch { /* private mode */ }
+      location.hash = '';
+      location.reload();
+    }
+    ids.forEach(id => document.getElementById(id).addEventListener('change', () => { saveInputs(); recordUsage(localStorage, document.getElementById('usageOptOut').checked); }));
     document.getElementById('usageOptOut').addEventListener('change', update);
+    const actions = document.createElement('p');
+    actions.innerHTML = '<button type="button" id="share">Copy shareable link</button> <button type="button" id="reset">Reset saved inputs</button>';
+    document.querySelector('section:first-child').append(actions);
+    document.getElementById('share').addEventListener('click', shareLink);
+    document.getElementById('reset').addEventListener('click', resetInputs);
+    restoreInputs();
     update();
   </script>
 </body>

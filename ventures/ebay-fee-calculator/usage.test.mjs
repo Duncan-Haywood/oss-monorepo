@@ -59,3 +59,9 @@ test('is a no-op without storage', () => {
   assert.doesNotThrow(() => recordUsage(undefined, false));
   assert.doesNotThrow(() => recordUsage(null, false));
 });
+
+test('can count a named feature event without recording content', () => {
+  const storage = fakeStorage();
+  recordUsage(storage, false, 'share_link_copied');
+  assert.equal(JSON.parse(storage.getItem('ebay-fee-usage')).share_link_copied, 1);
+});
