@@ -436,11 +436,21 @@ def _rewrite_forgotten_prefix(html: str) -> Optional[str]:
         if len(claimants) != 1:
             continue
         quote, original_for = claimants[0]
-        needle = f"for={quote}{original_for}{quote}"
-        if updated.count(needle) != 1:
+        # Match the same attribute spelling accepted by _attr_in. HTML
+        # attributes are case-insensitive and whitespace around '=' is valid.
+        needle = re.compile(
+            rf"(?P<prefix>\bfor\s*=\s*{re.escape(quote)})"
+            rf"{re.escape(original_for)}{re.escape(quote)}",
+            re.I,
+        )
+        if len(needle.findall(updated)) != 1:
             continue
-        updated = updated.replace(
-            needle, f"for={quote}{original_id}{quote}", 1
+        updated = needle.sub(
+            lambda match: (
+                f"{match.group('prefix')}{original_id}{quote}"
+            ),
+            updated,
+            count=1,
         )
         changed = True
     return updated if changed else None

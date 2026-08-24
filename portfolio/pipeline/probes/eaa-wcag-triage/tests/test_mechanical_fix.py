@@ -174,6 +174,18 @@ def test_forgotten_prefix_rewrites_the_fassbender_newsletter():
     assert all(p.criterion == "1.3.1" for p in result.applied)
 
 
+def test_forgotten_prefix_rewrite_preserves_valid_attribute_spelling():
+    html = (
+        "<html lang='en'><head><title>t</title></head><body><form>"
+        '<label FOR = "mce-NAME">Name</label>'
+        "<input type='text' id='{{ idPrefix }}_mce-NAME'>"
+        "</form></body></html>"
+    )
+    result = apply_mechanical_fixes(html)
+    assert '<label FOR = "{{ idPrefix }}_mce-NAME">' in result.html
+    assert result.applied[0].criterion == "1.3.1"
+
+
 def test_ambiguous_suffix_is_not_rewritten():
     html = (
         "<html lang='en'><head><title>t</title></head><body><form>"
