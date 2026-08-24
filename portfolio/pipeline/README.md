@@ -7,9 +7,34 @@ written-up candidates with an explicit verdict, so that starting a new venture
 is a decision someone makes against evidence rather than an idea that arrived on
 a good afternoon.
 
-Nothing here is committed to. A candidate graduates by someone writing
-`ventures/<name>/VENTURE.yaml`; until that file exists the router cannot see it
-and no agent budget flows to it.
+Nothing here is committed to. A candidate graduates in one of two ways,
+matching its `graduate_as` field, and until one of them is true the router
+cannot see it and no agent budget flows to it:
+
+- **`graduate_as: venture`** — someone writes `ventures/<name>/VENTURE.yaml`.
+- **`graduate_as: product-line`** — someone adds the candidate's slug under
+  `product_lines` in its `host_venture`'s `VENTURE.yaml`. One candidate carries
+  this today (`eaa-remediation-pipeline`, into `local-site-studio`), and it
+  happens to be the only `build-now` verdict in the table — so the path is rare
+  by count and load-bearing in practice. See the closing section on why adding
+  ventures to an unmeasured portfolio is the more expensive problem.
+
+In both cases the directory must actually be routable: a `NOT-A-VENTURE`
+marker wins over a `VENTURE.yaml` in the same directory and `allocate.py` skips
+it, so a graduation into a marked directory routes nothing.
+`python3 portfolio/ledger/session_gate.py` reads exactly this rule to name the
+next unbuilt `build-now` candidate.
+
+**What a `product_lines` entry does and does not do today.** It is a
+*session-gate* marker: `session_gate.py` reads it to stop naming the candidate
+as unbuilt. `allocate.py` does **not** read `product_lines` — it builds one
+`Venture` from the host's own fields and routes the host's hypotheses and
+roadmap, identically before and after the slug is added. So effort reaches a
+product line at *host-venture* granularity, not as a line item with its own
+budget or task. Routing product lines directly would need an extension to
+`allocate.py` and to the schema `portfolio/router/validate.py` enforces; that
+is unbuilt, and until it exists, do not read "graduated" here as "the router
+now allocates to it separately."
 
 ## Why this is separate from `ventures/ai-first-markets`
 

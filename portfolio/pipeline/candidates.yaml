@@ -1,7 +1,11 @@
 # Scored candidates, machine-readable.
 #
-# Not ventures. A candidate becomes a venture when someone writes
-# ventures/<name>/VENTURE.yaml; only then does the router see it.
+# Not ventures. A candidate graduates per its `graduate_as` field: a `venture`
+# when someone writes ventures/<name>/VENTURE.yaml, a `product-line` when its
+# slug is listed under `product_lines` in its `host_venture`'s VENTURE.yaml.
+# Only then does the router see it -- and only if that directory carries no
+# NOT-A-VENTURE marker, which wins over a VENTURE.yaml beside it. See
+# README.md's opening section.
 #
 # Scores are 0-10 on the eight dimensions described in README.md. `composite`
 # is their mean and `floor` is the lowest single dimension — the floor is

@@ -101,10 +101,19 @@ evidence is not lost.
 
 ## What the next screening pass should do differently
 
-1. **Do not generate more candidates.** The archetype space under this
-   portfolio's constraints is close to exhausted; seven runs converged on nine
-   archetypes, and this pass added one that was found by looking at a *channel*
-   rather than at a market.
+1. **Prefer graduating a candidate over generating another one.** The archetype
+   space under this portfolio's constraints is close to exhausted; seven runs
+   converged on nine archetypes, and this pass added one that was found by
+   looking at a *channel* rather than at a market. So the marginal screening
+   pass is worth much less than the marginal *build* — while candidates carry
+   an unbuilt `build-now` verdict, build one of those instead.
+
+   Amended 2026-08-24: this item read "Do not generate more candidates," and
+   sessions were reading it (with `CLAUDE.md`'s matching line) as grounds to
+   stop entirely. It is a statement about *priority*, not a prohibition. When
+   the pipeline has no unbuilt `build-now` verdict left, researching a genuinely
+   new candidate is the right move — name what in
+   [screened-out.md](screened-out.md) it is not, and amend that directory.
 2. **Screen channel-first.** Start from marketplaces the portfolio could list in
    tomorrow, then ask what is sellable there — the reverse of every pass so far.
 3. **Score distribution against the test above**, not against whether a channel is

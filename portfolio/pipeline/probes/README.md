@@ -4,8 +4,10 @@ Executable probes for candidates in [`portfolio/pipeline/`](../README.md).
 
 A candidate write-up is an argument. A probe is the smallest working thing that
 tests the argument's weakest claim. Neither is a venture: a candidate still
-graduates only by someone writing `ventures/<name>/VENTURE.yaml`, and nothing in
-this directory changes a score or creates a `ventures/` entry.
+graduates only by one of the two paths in [../README.md](../README.md) — writing
+`ventures/<name>/VENTURE.yaml`, or listing its slug under its host venture's
+`product_lines` — and nothing in this directory does either, changes a score, or
+creates a `ventures/` entry.
 
 This directory exists because the pipeline had accumulated eight scored
 candidates, ~20 research write-ups, and **no executable artifact for any of
