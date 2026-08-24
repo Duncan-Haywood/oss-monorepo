@@ -596,3 +596,41 @@ decisions:
     the PR's opener -- made that call. Left unmerged pending the owner's
     decision on whether that Sponsors profile should be surfaced here at
     all.
+
+- id: agent-cross-review-auto-merge
+  asks: []
+  prs: [870]
+  gates: deployment
+  exposure: credential
+  opened: "2026-08-24"
+  action: >-
+    Merge or decline #870. Merging requires first registering 3+ new GitHub
+    App installations (GH Actions / Kilo / Cursor / Claude reviewer
+    identities) and provisioning their `AGENT_REVIEWER_*_APP_ID` /
+    `AGENT_REVIEWER_*_PRIVATE_KEY` repository secrets -- none of which exist
+    today. #870 is also stale (`mergeable_state: dirty`, predates a lot of
+    `main` history) and will need a rebase before it is otherwise
+    actionable.
+  unlocks:
+    - >-
+      `platform/ci/agent_review/` plus two workflows
+      (`agent-cross-review.yml`, `agent-pr-auto-merge.yml`) implementing a
+      four-reviewer cross-review system that auto-merges a PR once it
+      collects 2 approving reviews from distinct agent-family GitHub App
+      installations -- the mechanism this repo's own CLAUDE.md already
+      describes as running ("auto-merge runs at two bot approvals plus green
+      CI"), so #870 appears to be the PR that would actually stand it up.
+  blocked_by: []
+  note: >-
+    Opened 2026-08-24 by a branch-hygiene sweep session, correctly
+    self-flagged human-gated in its own PR body per CLAUDE.md's "Automation
+    that writes or spends unattended" section: new unattended automation
+    that, once configured, auto-merges PRs without a human in the loop and
+    spends paid model API budget per agent family on every non-draft PR.
+    Cursor Bugbot's review (added to the PR body) additionally flags that
+    the auto-merge path does not itself block `ventures/*` or other
+    human-gated paths -- it only notes in docs that they still need owner
+    sign-off, i.e. the enforcement is documentation, not code. Not
+    previously tracked here or on #139. No action taken on the PR itself
+    beyond this flag; the merge conflict and Cursor Bugbot's design
+    concern are both left for whoever picks this up next.
