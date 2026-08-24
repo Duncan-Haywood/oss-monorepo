@@ -1508,5 +1508,140 @@ class PositiveControl(unittest.TestCase):
             self.assertIn("caught", md)
 
 
+FASSBENDER_NEWSLETTER = (
+    "<form>"
+    "<label for='mce-NAME'>Name</label>"
+    "<input type='text' id='{{ idPrefix }}_mce-NAME'>"
+    "<label for='mce-EMAIL'>Email</label>"
+    "<input type='email' id='{{ idPrefix }}_mce-EMAIL'>"
+    "</form>"
+)
+
+
+class ForgottenPrefixRepairs(unittest.TestCase):
+    """The audit-and-fix half, for the one class that is uniquely determined.
+
+    Finding 2 of ../a11y-theme-resolution/: every unnamed defect that
+    pass recovered by hand is a form control whose <label for> does not
+    resolve, and the sharp three are a theme that prefixed the control
+    id and forgot the label. That pairing is two strings. Inventing alt
+    text, a visible name, or a colour is not.
+    """
+
+    def test_fassbender_newsletter_yields_two_unique_repairs(self):
+        repairs = audit.suggest_fixes([
+            ("theme/sections/newsletter.liquid", FASSBENDER_NEWSLETTER),
+        ])
+        self.assertEqual(
+            [(r["replace"], r["with"]) for r in repairs],
+            [
+                ("mce-NAME", "{{ idPrefix }}_mce-NAME"),
+                ("mce-EMAIL", "{{ idPrefix }}_mce-EMAIL"),
+            ],
+        )
+        self.assertTrue(all(r["check"] == "label-for-id-mismatch" for r in repairs))
+
+    def test_applying_the_repairs_clears_the_mismatch(self):
+        source = FASSBENDER_NEWSLETTER
+        self.assertEqual(checks(source), ["label-for-id-mismatch", "label-for-id-mismatch"])
+        for repair in audit.suggest_fixes([("n.liquid", source)]):
+            source = audit.apply_repair(source, repair)
+        self.assertEqual(checks(source), [])
+        self.assertEqual(undecidable(source), [])
+
+    def test_ambiguous_suffix_is_not_a_repair(self):
+        # Two controls share the same trailing literal. Accusing either
+        # pairing would be a guess.
+        source = (
+            "<form><label for='NAME'>Name</label>"
+            "<input type='text' id='{{ a }}_NAME'>"
+            "<input type='text' id='{{ b }}_NAME'></form>"
+        )
+        self.assertEqual(audit.suggest_fixes([("x.liquid", source)]), [])
+
+    def test_expression_that_could_render_empty_is_not_a_repair(self):
+        # `{{ p }}mce-NAME` can render as `mce-NAME`. Not a proven mismatch.
+        source = (
+            "<form><label for='mce-NAME'>Name</label>"
+            "<input type='text' id='{{ p }}mce-NAME'></form>"
+        )
+        self.assertEqual(checks(source), [])
+        self.assertEqual(undecidable(source), ["control-no-label"])
+        self.assertEqual(audit.suggest_fixes([("x.liquid", source)]), [])
+
+    def test_does_not_invent_a_label_when_none_exists(self):
+        # search.liquid:22 -- no <label for> in the file. The package
+        # index can promote this to a finding; it cannot write a name.
+        source = "<form><input type='search' id='{{ idPrefix }}_q'></form>"
+        self.assertEqual(audit.suggest_fixes([("search.liquid", source)]), [])
+
+    def test_does_not_rewrite_a_label_in_another_file(self):
+        repairs = audit.suggest_fixes([
+            ("search.liquid", "<form><input type='search' id='{{ idPrefix }}_q'></form>"),
+            ("header.liquid", "<label for='q'>Search</label>"),
+        ])
+        self.assertEqual(repairs, [])
+
+    def test_hidden_input_is_not_paired(self):
+        source = (
+            "<form><label for='mce-NAME'>Name</label>"
+            "<input type='hidden' id='{{ idPrefix }}_mce-NAME'></form>"
+        )
+        self.assertEqual(audit.suggest_fixes([("x.liquid", source)]), [])
+
+    def test_record_omits_the_section_when_repairs_are_not_supplied(self):
+        record = audit.evidence_record(
+            [audit.audit_source(FASSBENDER_NEWSLETTER, "n.liquid")],
+            "Test", date="2026-08-24",
+        )
+        md = audit.render_record(record)
+        self.assertNotIn("Proposed repairs", md)
+
+    def test_record_states_repairs_are_not_applied(self):
+        files = [("n.liquid", FASSBENDER_NEWSLETTER)]
+        record = audit.evidence_record(
+            audit.audit_sources(files),
+            "Test", date="2026-08-24",
+            proposed_repairs=audit.suggest_fixes(files),
+        )
+        md = audit.render_record(record)
+        self.assertIn("Proposed repairs (not applied)", md)
+        self.assertIn("not applied", md.lower())
+        self.assertIn("not a claim", md.lower())
+        self.assertIn("for='mce-NAME'", md)
+        self.assertIn("{{ idPrefix }}_mce-NAME", md)
+        self.assertIn("None have been written", md)
+
+    def test_cli_never_writes_the_source(self):
+        import os
+        import tempfile
+        from io import StringIO
+        from contextlib import redirect_stdout
+
+        with tempfile.TemporaryDirectory() as tmp:
+            page = os.path.join(tmp, "newsletter.liquid")
+            with open(page, "w", encoding="utf-8") as handle:
+                handle.write(FASSBENDER_NEWSLETTER)
+            with open(page, encoding="utf-8") as handle:
+                before = handle.read()
+            buf = StringIO()
+            old = sys.argv
+            try:
+                sys.argv = [
+                    "audit.py", page, "--record",
+                    "--scope", "cli-fix", "--date", "2026-08-24",
+                ]
+                with redirect_stdout(buf):
+                    code = audit.main()
+            finally:
+                sys.argv = old
+            self.assertEqual(code, 0)
+            with open(page, encoding="utf-8") as handle:
+                self.assertEqual(handle.read(), before)
+            md = buf.getvalue()
+            self.assertIn("Proposed repairs (not applied)", md)
+            self.assertIn("for='mce-NAME'", md)
+
+
 if __name__ == "__main__":
     unittest.main()
