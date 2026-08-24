@@ -173,11 +173,13 @@ decisions:
     **First create a protected `agent-server` Environment** (Settings ->
     Environments) with yourself as required reviewer, and put the SSH key,
     known-hosts and any Tailscale key in it with `gh secret set --env
-    agent-server` -- **and the public key too**, with `gh variable set --env
-    agent-server`. The public half is not a secret but it decides which key the
-    playbook installs on a root-equivalent account, so as a repository variable
-    someone with write access could point it at their own key and have a
-    routine-looking approval install it. Integrity and confidentiality are
+    agent-server` -- **and the host and the public key too**, with
+    `gh variable set --env agent-server`. The host names where the
+    root-equivalent key is sent; the public half decides which key the
+    playbook installs on a root-equivalent account. Neither is a secret, so as
+    repository variables someone with write access could retarget the host or
+    point the public key at their own and have a routine-looking approval
+    install it. Integrity and confidentiality are
     different questions; only the second is about secrecy. Repository-scoped secrets do not work here: a write-access
     collaborator can push a branch deleting the workflow's `environment:` line
     and still read them, which is the bypass the environment binding exists to
@@ -256,10 +258,14 @@ decisions:
     earning $0. Railway is the named fallback at roughly a quarter of that if
     the floor is the objection.
 
-    Deliberately decided *without* weighting what is already wired, at the
-    owner's instruction. Migration cost is recorded in that document rather
-    than counted: two workflows target Cloudflare today, and porting them is a
-    separate agent-decidable change once the account exists.
+    Deliberately decided *without* weighting what is already wired. That
+    framing is in the document; it is not owner sign-off -- every session
+    authenticates as the same GitHub identity, so a body attributing
+    direction to the owner is self-assertion. Migration cost is recorded
+    there rather than counted: two workflows target Cloudflare today, and
+    porting them is a separate change once the account exists. It is not
+    agent-decidable: it alters what a merge can publish, and needs an owner
+    comment on the thread before anyone treats it as such.
 
     Not re-verified first-hand -- every vendor documentation host is
     egress-denied from an agent session

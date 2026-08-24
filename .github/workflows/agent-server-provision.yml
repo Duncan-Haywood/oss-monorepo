@@ -100,7 +100,10 @@ jobs:
     # otherwise. Configure `agent-server` under Settings -> Environments with
     # the account owner as required reviewer, and move AGENT_SERVER_SSH_KEY,
     # AGENT_SERVER_KNOWN_HOSTS and TAILSCALE_AUTHKEY into it as environment
-    # secrets, before treating this as gated.
+    # secrets, and AGENT_SERVER_HOST and AGENT_SERVER_PUBKEY as environment
+    # variables, before treating this as gated. Host and public key are
+    # integrity-sensitive, not confidential: as repository variables they
+    # recreate the retargeting and key-swap bypass this gate exists to close.
     environment: agent-server
     steps:
       - uses: actions/checkout@v4
