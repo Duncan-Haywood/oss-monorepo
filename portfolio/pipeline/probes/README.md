@@ -36,6 +36,7 @@ candidate's weakest claim testable, not because a listing follows.
 | [`mls-photo-spec`](mls-photo-spec/) | [`mls-photo-spec-preflight`](../candidates/mls-photo-spec-preflight.md) | Built 2026-08-24, tested on an author-authored 6-photo fixture corpus (precision 1.0 / recall 1.0 at finding-level, 4 true positives, 0 false positives, 0 false negatives). Folder-in, dated record-out. Six coded rules (long edge, byte size, format, aspect, branding filename, staging pair). Visual watermark, burned-in contact, and board-specific extras are disclosed `unimplemented`. The record refuses warranty language. Graduated as a `real-estate-agent-photo-app` product line the same day. No score moved on any prior candidate. |
 
 | [`consent-change-record`](consent-change-record/) | [`consent-change-record`](../candidates/consent-change-record.md) | Built 2026-08-24, tested. Deterministic fixture report for request/storage diffs, explicit browser/region/sequence context, and an `unknown` result when contexts differ. This tests the evidence boundary only; demand and distribution remain unmeasured. |
+| [`vendor-change-watch`](vendor-change-watch/) | [`vendor-change-evidence`](../candidates/vendor-change-evidence.md) | Built 2026-08-24, tested. Fixture report for a customer-selected public vendor page, retaining source URL, timestamps, response metadata, raw before/after text, and unified diff; fetch failures and source changes are `inconclusive`, not `unchanged`. Demand and distribution remain unmeasured. |
 
 ## The rules a probe here follows
 
