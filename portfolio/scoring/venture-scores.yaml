@@ -1,7 +1,7 @@
 # The portfolio's own ventures, scored on ai-first-markets' six dimensions.
 #
 # Not candidates. `portfolio/pipeline/candidates.yaml` scores businesses the
-# portfolio has NOT started; this file scores the eleven it has started. Ten of
+# portfolio has NOT started; this file scores the twelve it has started. Eleven of
 # those are allocated to; `ai-first-markets` was reclassified 2026-08-20 and
 # keeps its row for the record -- see the note above its entry. The dimension
 # keys and the 0-10 scale are the same, so a venture and a candidate can be
@@ -48,6 +48,33 @@ scoring_rule: >-
   near-zero-price norm is a real property of the business on any host.
 
 ventures:
+  - slug: cra-evidence-desk
+    scores:
+      ai_leverage: 4
+      autonomous_ops: 9
+      time_to_revenue: 7
+      gross_margin: 10
+      defensibility: 3
+      distribution: 6
+    composite: 6.5
+    rater_b: null
+    floor: 3
+    floor_dimension: defensibility
+    floor_note: >-
+      Exact matching and draft assembly are reproducible; a durable workflow
+      asset depends on repeat vendor use and verified source coverage.
+    basis: >-
+      Graduated on 2026-08-24 as a local SBOM/advisory evidence matcher and
+      customer-reviewed CRA incident draft generator. It never files, certifies,
+      uploads, or infers affected ranges.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Pass, conditionally: findings are exact observations with explicit
+      coverage limits; the customer remains responsible for professional review,
+      reporting decisions, and submission.
+
   - slug: shopify-permission-drift
     scores:
       ai_leverage: 2
