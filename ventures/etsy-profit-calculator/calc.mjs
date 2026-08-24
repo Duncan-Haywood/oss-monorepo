@@ -14,6 +14,8 @@ export function calculateOrder(input) {
   const shippingCost = number(input.shippingCost ?? 0, 'Shipping cost');
   const materialCost = number(input.materialCost ?? 0, 'Material cost');
   const otherCost = number(input.otherCost ?? 0, 'Other cost');
+  const variableRate = (transactionRate + paymentRate + offsiteAdRate) / 100;
+  if (variableRate >= 1) throw new Error('Combined percentage fees must be below 100%');
   const revenue = price + shippingCharged;
   const fees = {
     listing: listingFee,
@@ -27,15 +29,6 @@ export function calculateOrder(input) {
     revenue, fees, costs, profit,
     margin: revenue === 0 ? 0 : profit / revenue * 100,
     breakEvenPrice: Math.max(0, (listingFee + paymentFixed + shippingCost + materialCost + otherCost) /
-      (1 - (transactionRate + paymentRate + offsiteAdRate) / 100)),
+      (1 - variableRate)),
   };
-}
-
-export function priceForMargin(input, targetMargin) {
-  const margin = Number(targetMargin);
-  if (!Number.isFinite(margin) || margin < 0 || margin >= 100) throw new Error('Target margin must be between 0 and 99.9%');
-  const n = name => Number(input[name] ?? ({ listingFee: .2, paymentFixed: .25, transactionRate: 6.5, paymentRate: 3, offsiteAdRate: 0 }[name] ?? 0));
-  const denominator = 1 - (n('transactionRate') + n('paymentRate') + n('offsiteAdRate')) / 100 - margin / 100;
-  if (denominator <= 0) throw new Error('Target margin is not possible with these fee rates');
-  return Math.max(0, (n('listingFee') + n('paymentFixed') + n('shippingCost') + n('materialCost') + n('otherCost')) / denominator - n('shippingCharged'));
 }

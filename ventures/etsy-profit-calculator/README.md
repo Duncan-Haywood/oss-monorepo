@@ -16,6 +16,9 @@ and verifying its output before relying on it**, and for meeting any obligation
 it helps you prepare for. To the maximum extent permitted by law, the authors
 accept no liability for any loss or damage arising from its use.
 
+If transaction, payment, and offsite-ad percentages total 100% or more, the
+calculator stops with an explanation because no finite break-even price exists.
+
 ## Privacy and usage
 
 Everything runs in your browser. Your prices, costs, and shop data are never
@@ -33,10 +36,3 @@ this tool keeps every customer-entered assumption visible and shows the
 contribution left after variable costs. A later, optional bring-your-own-key
 assistant could explain a seller's own exported fee statement, but the useful
 core deliberately needs no AI or paid service.
-
-## Repricing workflow
-
-Enter a target margin to calculate the item price needed to reach it, then
-compare prices $10 below and above the current price. This turns a fee
-calculation into a quick pricing decision without uploading product data or
-relying on Etsy's changing fee schedule.

@@ -17,9 +17,14 @@ test('honors opt out', () => {
   assert.equal(called, false);
 });
 
-test('supports a named aggregate event without recording inputs', () => {
-  const values = new Map();
-  const storage = { getItem: key => values.get(key) ?? null, setItem: (key, value) => values.set(key, value) };
-  recordUsage(storage, false, 'scenario_compared');
-  assert.equal(JSON.parse(values.get('etsy-profit-usage')).scenario_compared, 1);
+test('honors browser privacy signals', () => {
+  const originalNavigator = globalThis.navigator;
+  try {
+    Object.defineProperty(globalThis, 'navigator', { configurable: true, value: { doNotTrack: '1' } });
+    let called = false;
+    recordUsage({ setItem: () => { called = true; } });
+    assert.equal(called, false);
+  } finally {
+    Object.defineProperty(globalThis, 'navigator', { configurable: true, value: originalNavigator });
+  }
 });

@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { calculateOrder, priceForMargin } from './calc.mjs';
+import { calculateOrder } from './calc.mjs';
 
 test('calculates the complete fee stack and contribution', () => {
   const result = calculateOrder({ price: 30, shippingCharged: 5, listingFee: .2, transactionRate: 6.5, paymentRate: 3, paymentFixed: .25, offsiteAdRate: 0, shippingCost: 6, materialCost: 4, otherCost: 1 });
@@ -27,12 +27,9 @@ test('rejects negative or non-numeric inputs', () => {
   assert.throws(() => calculateOrder({ price: 'nope' }));
 });
 
-test('finds the item price for a target margin', () => {
-  const input = { shippingCharged: 5, listingFee: .2, paymentFixed: .25, transactionRate: 6.5, paymentRate: 3, shippingCost: 6, materialCost: 4 };
-  const price = priceForMargin(input, 50);
-  assert.ok(Math.abs(calculateOrder({ ...input, price }).margin - 50) < 0.000001);
-});
-
-test('rejects impossible target margins', () => {
-  assert.throws(() => priceForMargin({ transactionRate: 60, paymentRate: 40 }, 1), /not possible/);
+test('rejects a fee stack that cannot reach break-even', () => {
+  assert.throws(
+    () => calculateOrder({ price: 10, transactionRate: 60, paymentRate: 40 }),
+    /Combined percentage fees must be below 100%/,
+  );
 });
