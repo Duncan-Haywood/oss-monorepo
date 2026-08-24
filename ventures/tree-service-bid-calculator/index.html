@@ -139,6 +139,12 @@
     const COST_IDS = ['crewHourlyRate','burdenRate','equipmentHourly','craneDayRate','dumpFeePerTree','otherJobCost','overheadRate','targetMargin','minimumJob','travelMinutes','proposedPrice'];
     const money = value => `$${value.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
     const el = id => document.getElementById(id);
+    const escapeHtml = value => String(value)
+      .replaceAll('&', '&amp;')
+      .replaceAll('<', '&lt;')
+      .replaceAll('>', '&gt;')
+      .replaceAll('"', '&quot;')
+      .replaceAll("'", '&#39;');
 
     const STARTING_TREES = [
       {
@@ -269,7 +275,7 @@
       el('split').innerHTML = result.trees
         .slice()
         .sort((a, b) => b.onSiteHours - a.onSiteHours)
-        .map(tree => `<li><span>${tree.name} (${tree.dbhInches}&Prime;)</span><span>${tree.hoursShare.toFixed(0)}% · ${money(tree.allocatedPrice)}</span>
+        .map(tree => `<li><span>${escapeHtml(tree.name)} (${tree.dbhInches}&Prime;)</span><span>${tree.hoursShare.toFixed(0)}% · ${money(tree.allocatedPrice)}</span>
           <span class="bar"><span style="width:${tree.hoursShare.toFixed(1)}%"></span></span></li>`)
         .join('');
 

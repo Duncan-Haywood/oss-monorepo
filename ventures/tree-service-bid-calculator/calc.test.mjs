@@ -1,5 +1,8 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
+import { readFileSync } from 'node:fs';
+import { fileURLToPath } from 'node:url';
+import path from 'node:path';
 import {
   ACCESS_PRESETS,
   HAUL_PRESETS,
@@ -248,6 +251,13 @@ test('presets are usable positive numbers', () => {
   for (const preset of HAUL_PRESETS) {
     assert.ok(preset.hourShare >= 0);
   }
+});
+
+test('browser escapes tree labels before inserting the hour split', () => {
+  const here = path.dirname(fileURLToPath(import.meta.url));
+  const html = readFileSync(path.join(here, 'index.html'), 'utf8');
+  assert.match(html, /const escapeHtml = value =>/);
+  assert.match(html, /<span>\$\{escapeHtml\(tree\.name\)\}/);
 });
 
 test('sanity ratios land in the range a tree service recognises', () => {
