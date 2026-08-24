@@ -9,7 +9,9 @@ needs to survive.
 Built as the second hands-on artifact for [AI Engineering
 Academy](../../README.md)'s planned Electrical Engineering track, alongside
 the [resistor color code & Ohm's law
-calculator](../resistor-calculator/) — another small, genuinely useful tool
+calculator](../resistor-calculator/), the [voltage divider
+calculator](../voltage-divider-calculator/) and the [RC filter
+calculator](../rc-filter-calculator/) — small, genuinely useful tools
 independent of the rest of the curriculum.
 
 ## Use it

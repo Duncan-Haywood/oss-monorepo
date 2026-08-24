@@ -39,21 +39,28 @@ usage counting, unit tested):
   a voltage divider calculator with a load-loading correction (the sag a
   real load causes that the textbook formula ignores) and a target-output
   design mode that snaps R2 to a buyable E24 value (14 passing unit tests).
+- [`tools/rc-filter-calculator/`](tools/rc-filter-calculator/) — a
+  first-order RC low-pass/high-pass filter calculator: cutoff frequency and
+  time constant, the real gain and phase shift at any frequency, a response
+  sweep across the corner, and a design mode that solves for a buyable E24
+  resistor given the capacitor you have (19 passing unit tests).
 
-All three are deliberately narrower than "the MVP": small, self-contained
+All four are deliberately narrower than "the MVP": small, self-contained
 tools for the Circuits corner of the planned EE track, not a curriculum.
-None is yet deployed to a live URL — publishing under the portfolio's name
-is owner-gated per `portfolio/DIRECTION.md`; all three are ready to deploy
-once that gate opens.
+Each page links to the other three, so a visitor who arrives on one from a
+search finds the rest. None is yet deployed to a live URL — publishing under
+the portfolio's name is owner-gated per `portfolio/DIRECTION.md`; all four
+are ready to deploy once that gate opens.
 
 ## Next steps
 
 - Review, argue with, and revise the constitution in `docs/` — it's a v1
   draft meant to be tightened, not treated as settled.
 - Add more small, self-contained EE tools in `tools/` (e.g. a capacitor
-  charge/discharge time calculator, an RC/RL filter cutoff-frequency
-  calculator) as further seeds of the Circuits track, each shippable and
-  testable independently of the full curriculum design.
+  charge/discharge time calculator, a 555 timer calculator, an RL filter
+  variant reusing `rc-filter-calculator`'s response math) as further seeds
+  of the Circuits track, each shippable and testable independently of the
+  full curriculum design.
 - Prototype the fuller MVP scope: Electrical Engineering track (Circuits,
   Electronics, Embedded Systems) with 30–50 projects, AI tutoring, and
   portfolio generation.

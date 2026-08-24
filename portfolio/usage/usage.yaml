@@ -45,6 +45,23 @@ products:
           mode that snaps R2 to a buyable E24 value, 14 passing unit
           tests). Same publishing gate as above — no traffic signal yet.
           Baseline row for the third tool.
+      - as_of: 2026-08-24
+        signals:
+          live_url_visitors: null
+          local_events_reported: 0
+        note: >-
+          Fourth tool shipped: rc-filter-calculator (first-order RC
+          low-pass/high-pass — cutoff frequency, time constant, gain and
+          phase at an arbitrary frequency, a response sweep across the
+          corner, and a design mode solving for a buyable E24 resistor
+          from the capacitor on hand; 19 passing unit tests). Also
+          cross-linked all four tool pages to each other, which is the
+          first navigation between them: resistor-calculator, the
+          highest-search-volume page of the set, previously linked to no
+          sibling at all. Same publishing gate as above — no traffic
+          signal yet. Baseline row for the fourth tool; the cross-links
+          are expected to move per-visit tool reach only once a public URL
+          exists, so nothing here is claimed for them yet.
   - slug: quote-margin-check
     surface: repository-cli
     readings:

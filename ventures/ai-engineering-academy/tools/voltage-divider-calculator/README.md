@@ -9,8 +9,9 @@ output voltage with a resistor value you can actually buy.
 Built as the third hands-on artifact for [AI Engineering
 Academy](../../README.md)'s planned Electrical Engineering track, alongside
 the [resistor color code & Ohm's law
-calculator](../resistor-calculator/) and the [LED series resistor
-calculator](../led-resistor-calculator/).
+calculator](../resistor-calculator/), the [LED series resistor
+calculator](../led-resistor-calculator/) and the [RC filter
+calculator](../rc-filter-calculator/).
 
 ## Use it
 

@@ -1,0 +1,371 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>RC Filter Calculator — cutoff frequency, gain and phase</title>
+<meta name="description" content="Free RC filter calculator: enter R and C to get the cutoff frequency, plus the real gain in dB, attenuation and phase shift at any frequency, for low-pass or high-pass. Also solves for the resistor you need to hit a target cutoff, snapped to standard E24 values. Runs entirely in your browser." />
+<meta name="robots" content="index, follow" />
+<link rel="canonical" href="." />
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Cpath d='M2 8h14c6 0 6 18 14 18' fill='none' stroke='%232b6cb0' stroke-width='3' stroke-linecap='round'/%3E%3Ccircle cx='16' cy='8' r='2.5' fill='%23e53e3e'/%3E%3C/svg%3E" />
+<meta property="og:title" content="RC Filter Calculator — cutoff frequency, gain and phase" />
+<meta property="og:description" content="Cutoff frequency for a first-order RC filter, plus the gain and phase shift you actually get at any frequency. Free, and runs entirely in your browser." />
+<meta property="og:type" content="website" />
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "SoftwareApplication",
+  "name": "RC Filter Calculator",
+  "applicationCategory": "EducationalApplication",
+  "operatingSystem": "Any (runs in a web browser)",
+  "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
+  "description": "Free first-order RC low-pass and high-pass filter calculator. Computes cutoff frequency, time constant, gain in dB, attenuation and phase shift at any frequency, and solves for a standard E24 resistor to hit a target cutoff. Runs entirely client-side."
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "How do I calculate the cutoff frequency of an RC filter?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "The cutoff (corner) frequency of a first-order RC filter is fc = 1 / (2 × pi × R × C), with R in ohms, C in farads and fc in hertz. A 1 kilohm resistor with a 100 nanofarad capacitor gives about 1592 Hz. Swapping which component the output is taken across turns a low-pass into a high-pass, but does not move the corner frequency."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Does an RC filter block everything above the cutoff frequency?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "No. At the cutoff frequency itself a first-order RC filter still passes about 70.7% of the signal amplitude — that is what -3 dB means — and it has already shifted the phase by 45 degrees. Past the corner the response falls off at only about 20 dB per decade, so a signal ten times above the cutoff is still attenuated by roughly a factor of ten, not removed."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "What resistor do I need for a specific cutoff frequency?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Rearranging the formula, R = 1 / (2 × pi × fc × C). Because capacitors are stocked far more coarsely than resistors, the practical approach is to choose the capacitor you already have and solve for the resistor, then round that resistor to the nearest standard E24 value and recompute the cutoff frequency the rounded part actually produces."
+      }
+    }
+  ]
+}
+</script>
+<style>
+  :root {
+    color-scheme: light dark;
+    --bg: #ffffff; --fg: #1a1a1a; --muted: #5a5a5a; --border: #d8d8d8;
+    --accent: #2b6cb0; --panel: #f7f7f8; --focus: #2b6cb0; --warn: #b7791f;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root { --bg: #14161a; --fg: #eaeaea; --muted: #a3a3a3; --border: #33363c; --panel: #1d2026; --accent: #6ea8ff; --warn: #ecc94b; }
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; background: var(--bg); color: var(--fg);
+    font: 16px/1.5 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  }
+  main { max-width: 760px; margin: 0 auto; padding: 2rem 1.25rem 4rem; }
+  h1 { font-size: 1.6rem; margin-bottom: 0.25rem; }
+  p.lede { color: var(--muted); margin-top: 0; }
+  section {
+    background: var(--panel); border: 1px solid var(--border); border-radius: 10px;
+    padding: 1.25rem; margin: 1.5rem 0;
+  }
+  h2 { font-size: 1.15rem; margin-top: 0; }
+  label { display: block; font-size: 0.85rem; color: var(--muted); margin-top: 0.75rem; }
+  input, select {
+    width: 100%; padding: 0.5rem; margin-top: 0.25rem; border-radius: 6px;
+    border: 1px solid var(--border); background: var(--bg); color: var(--fg); font-size: 1rem;
+  }
+  input:focus, select:focus { outline: 2px solid var(--focus); outline-offset: 1px; }
+  .row { display: grid; grid-template-columns: 1fr 1fr; gap: 0 1rem; }
+  .row3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 0 1rem; }
+  @media (max-width: 560px) { .row, .row3 { grid-template-columns: 1fr; } }
+  .result {
+    margin-top: 1rem; padding: 0.85rem 1rem; border-radius: 8px;
+    background: var(--bg); border: 1px solid var(--border); font-size: 1.05rem;
+  }
+  .result strong { color: var(--accent); }
+  .result dl { margin: 0; }
+  .result dt { color: var(--muted); font-size: 0.85rem; margin-top: 0.6rem; }
+  .result dt:first-child { margin-top: 0; }
+  .result dd { margin: 0; font-size: 1.1rem; }
+  .result .warn { color: var(--warn); font-weight: 600; }
+  .error { color: #c53030; }
+  .tablewrap { overflow-x: auto; margin-top: 1rem; }
+  table { border-collapse: collapse; width: 100%; font-size: 0.9rem; }
+  th, td { text-align: right; padding: 0.4rem 0.6rem; border-bottom: 1px solid var(--border); white-space: nowrap; }
+  th:first-child, td:first-child { text-align: left; }
+  th { color: var(--muted); font-weight: 600; font-size: 0.8rem; }
+  tr.corner td { font-weight: 700; color: var(--accent); }
+  footer { border-top: 1px solid var(--border); margin-top: 2rem; padding-top: 1.5rem; font-size: 0.85rem; color: var(--muted); }
+  footer h2 { font-size: 0.95rem; }
+  a { color: var(--accent); }
+  .hint { font-size: 0.8rem; color: var(--muted); margin: 0.25rem 0 0; }
+</style>
+</head>
+<body>
+<main>
+  <h1>RC Filter Calculator</h1>
+  <p class="lede">
+    One resistor, one capacitor: where does it actually roll off, and what
+    does it do to a signal at the frequency you care about? Everything runs
+    in this page — nothing is uploaded.
+  </p>
+
+  <section aria-labelledby="response-heading">
+    <h2 id="response-heading">Filter response</h2>
+
+    <div class="row3">
+      <div>
+        <label for="r">Resistance, R (Ω)</label>
+        <input type="number" id="r" inputmode="decimal" value="1000" step="any" />
+      </div>
+      <div>
+        <label for="c">Capacitance, C (nF)</label>
+        <input type="number" id="c" inputmode="decimal" value="100" step="any" />
+        <p class="hint">1 µF = 1000 nF, 1 nF = 1000 pF.</p>
+      </div>
+      <div>
+        <label for="type">Arrangement</label>
+        <select id="type">
+          <option value="low-pass">Low-pass (output across C)</option>
+          <option value="high-pass">High-pass (output across R)</option>
+        </select>
+      </div>
+    </div>
+
+    <label for="freq">Frequency of interest (Hz)</label>
+    <input type="number" id="freq" inputmode="decimal" value="1000" step="any" min="0" />
+    <p class="hint">
+      What the filter does to a signal at this frequency — the number that
+      decides whether the filter is doing the job, not the corner frequency
+      on its own.
+    </p>
+
+    <div class="result" id="response-result" role="status" aria-live="polite"></div>
+
+    <div class="tablewrap" id="sweep-wrap"></div>
+  </section>
+
+  <section aria-labelledby="design-heading">
+    <h2 id="design-heading">Design for a target cutoff</h2>
+    <p style="color:var(--muted); margin-top:-0.5rem; font-size:0.9rem;">
+      Pick the capacitor you already have — capacitors are stocked far more
+      coarsely than resistors — and this solves for the resistor, then
+      rounds it to one you can actually buy.
+    </p>
+    <div class="row">
+      <div>
+        <label for="d-target">Target cutoff frequency (Hz)</label>
+        <input type="number" id="d-target" inputmode="decimal" value="1000" step="any" />
+      </div>
+      <div>
+        <label for="d-c">Capacitance, C (nF)</label>
+        <input type="number" id="d-c" inputmode="decimal" value="100" step="any" />
+      </div>
+    </div>
+    <div class="result" id="design-result" role="status" aria-live="polite"></div>
+  </section>
+
+  <section aria-labelledby="about-heading">
+    <h2 id="about-heading">What "cutoff" actually means</h2>
+    <p>
+      The corner frequency is <em>not</em> where the signal stops. At exactly
+      f<sub>c</sub> a first-order RC filter still passes about
+      <strong>70.7%</strong> of the amplitude — that is what −3 dB means —
+      and it has already rotated the phase by <strong>45°</strong>. Past the
+      corner the response falls at roughly <strong>20 dB per decade</strong>,
+      so a tone ten times above the cutoff is attenuated by about a factor of
+      ten, not removed.
+    </p>
+    <p>
+      If you need a signal genuinely gone rather than merely reduced, one RC
+      stage is usually not enough — that is a job for a higher-order filter,
+      and this calculator will tell you honestly that it is not doing it.
+    </p>
+  </section>
+
+  <footer>
+    <h2>Disclaimer</h2>
+    <p>
+      <strong>No warranty.</strong> This tool is provided free and as-is,
+      without warranty of any kind, express or implied. It is not
+      engineering advice, and it does not replace measuring the built
+      circuit. It models an ideal first-order RC filter driven by an ideal
+      source into an infinite-impedance load: real source resistance, load
+      impedance, capacitor tolerance (often ±10% or worse) and dielectric
+      behaviour all move the result. <strong>You are responsible for
+      reviewing and verifying its output before relying on it</strong>,
+      including for anything safety-critical. To the maximum extent
+      permitted by law, the authors accept no liability for any loss or
+      damage arising from its use.
+    </p>
+
+    <h2 id="privacy-heading">Privacy</h2>
+    <p>
+      Everything runs in your browser. Your inputs are never uploaded, and
+      we don't have accounts, tracking cookies, or an analytics vendor. This
+      page counts anonymous, local feature-use events (e.g. "a calculation
+      was run") in your own browser's <code>localStorage</code>, only to
+      help this project's maintainers tell whether the tool is used at
+      all — nothing is sent anywhere.
+      <button type="button" id="usage-toggle" style="background:none;border:none;color:var(--accent);text-decoration:underline;cursor:pointer;padding:0;font:inherit;">
+        Turn off local usage counting
+      </button>
+      <span id="usage-status"></span>
+    </p>
+
+    <p>
+      Part of <a href="../../README.md">AI Engineering Academy</a>. MIT
+      licensed — see <a href="LICENSE">LICENSE</a>. See also the
+      <a href="../resistor-calculator/">resistor color code &amp; Ohm's law
+      calculator</a>, the
+      <a href="../led-resistor-calculator/">LED series resistor
+      calculator</a> and the
+      <a href="../voltage-divider-calculator/">voltage divider
+      calculator</a>.
+    </p>
+  </footer>
+</main>
+
+<script type="module">
+  import {
+    filterResponse,
+    designForCutoff,
+    formatResistance,
+    formatCapacitance,
+    formatFrequency,
+  } from "./calc.mjs";
+  import { recordEvent, isUsageCountingEnabled, setUsageCountingEnabled } from "./usage.mjs";
+
+  const rEl = document.getElementById("r");
+  const cEl = document.getElementById("c");
+  const typeEl = document.getElementById("type");
+  const freqEl = document.getElementById("freq");
+  const responseResult = document.getElementById("response-result");
+  const sweepWrap = document.getElementById("sweep-wrap");
+
+  const fmtDb = (db) => (db === -Infinity ? "−∞ dB" : `${db.toFixed(2)} dB`);
+
+  // Capacitance is entered in nanofarads because that is the unit the parts
+  // are labelled in; the calc module works in farads throughout.
+  const readC = (el) => Number(el.value) * 1e-9;
+
+  function updateResponse() {
+    try {
+      const r = Number(rEl.value);
+      const c = readC(cEl);
+      const type = typeEl.value;
+      const frequency = Number(freqEl.value);
+      const res = filterResponse({ r, c, frequency, type });
+
+      // Flag the case the tool exists to catch: the user is at or near the
+      // corner and may be assuming the signal is gone there.
+      const nearCorner = Math.abs(res.decadesFromCutoff) < 0.05;
+
+      responseResult.innerHTML = `
+        <dl>
+          <dt>Cutoff (−3 dB corner) frequency</dt>
+          <dd><strong>${formatFrequency(res.cutoffHz)}</strong> &nbsp; (time constant ${(res.timeConstantSeconds * 1e6).toFixed(2)} µs)</dd>
+          <dt>At ${formatFrequency(frequency)}, this ${type} filter passes</dt>
+          <dd>
+            <strong>${fmtDb(res.gainDb)}</strong> —
+            ${(res.gainRatio * 100).toFixed(2)}% of the amplitude
+            (${res.attenuationPercent.toFixed(2)}% attenuated)
+          </dd>
+          <dt>Phase shift at that frequency</dt>
+          <dd>${res.phaseDegrees > 0 ? "+" : ""}${res.phaseDegrees.toFixed(2)}°</dd>
+          ${nearCorner ? `<dt class="warn">You are at the corner frequency</dt><dd class="warn">−3 dB still passes ~70.7% of the signal, with 45° of phase shift. The corner is not where the signal stops.</dd>` : ""}
+        </dl>
+      `;
+      responseResult.classList.remove("error");
+      renderSweep(r, c, type);
+      recordEvent("response_calculated");
+    } catch (err) {
+      responseResult.textContent = err.message;
+      responseResult.classList.add("error");
+      sweepWrap.innerHTML = "";
+    }
+  }
+
+  // A short sweep around the corner makes the 20 dB/decade slope visible as
+  // a number rather than as a claim, and shows how gradual it really is.
+  function renderSweep(r, c, type) {
+    const multiples = [0.01, 0.1, 0.5, 1, 2, 10, 100];
+    const rows = multiples
+      .map((m) => {
+        const res = filterResponse({ r, c, frequency: m * (1 / (2 * Math.PI * r * c)), type });
+        const label = m === 1 ? "f<sub>c</sub>" : `${m}× f<sub>c</sub>`;
+        return `<tr class="${m === 1 ? "corner" : ""}">
+          <td>${label}</td>
+          <td>${formatFrequency(m * (1 / (2 * Math.PI * r * c)))}</td>
+          <td>${fmtDb(res.gainDb)}</td>
+          <td>${(res.gainRatio * 100).toFixed(2)}%</td>
+          <td>${res.phaseDegrees > 0 ? "+" : ""}${res.phaseDegrees.toFixed(1)}°</td>
+        </tr>`;
+      })
+      .join("");
+    sweepWrap.innerHTML = `
+      <table>
+        <caption class="hint" style="caption-side:top;text-align:left;margin-bottom:0.4rem;">Response across the corner</caption>
+        <thead><tr><th>Relative</th><th>Frequency</th><th>Gain</th><th>Amplitude</th><th>Phase</th></tr></thead>
+        <tbody>${rows}</tbody>
+      </table>`;
+  }
+
+  for (const el of [rEl, cEl, typeEl, freqEl]) {
+    el.addEventListener("input", updateResponse);
+    el.addEventListener("change", updateResponse);
+  }
+  updateResponse();
+
+  const dTarget = document.getElementById("d-target");
+  const dC = document.getElementById("d-c");
+  const designResult = document.getElementById("design-result");
+
+  function updateDesign() {
+    try {
+      const c = readC(dC);
+      const d = designForCutoff({ targetHz: Number(dTarget.value), c });
+      designResult.innerHTML = `
+        <dl>
+          <dt>Exact R needed with ${formatCapacitance(c)}</dt>
+          <dd>${formatResistance(d.exactR)} (${d.exactR.toLocaleString(undefined, { maximumFractionDigits: 2 })} Ω)</dd>
+          <dt>Nearest standard (E24) resistor</dt>
+          <dd>
+            <strong>${formatResistance(d.nearestR)}</strong> →
+            actual cutoff ${formatFrequency(d.actualHz)}
+            (${d.errorPercent > 0 ? "+" : ""}${d.errorPercent.toFixed(2)}% off target)
+          </dd>
+        </dl>
+      `;
+      designResult.classList.remove("error");
+      recordEvent("cutoff_designed");
+    } catch (err) {
+      designResult.textContent = err.message;
+      designResult.classList.add("error");
+    }
+  }
+  for (const el of [dTarget, dC]) el.addEventListener("input", updateDesign);
+  updateDesign();
+
+  const usageToggle = document.getElementById("usage-toggle");
+  const usageStatus = document.getElementById("usage-status");
+  function renderUsageStatus() {
+    const on = isUsageCountingEnabled();
+    usageToggle.textContent = on ? "Turn off local usage counting" : "Turn on local usage counting";
+    usageStatus.textContent = on ? "" : " (currently off)";
+  }
+  usageToggle.addEventListener("click", () => {
+    setUsageCountingEnabled(!isUsageCountingEnabled());
+    renderUsageStatus();
+  });
+  renderUsageStatus();
+</script>
+</body>
+</html>

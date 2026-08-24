@@ -8,7 +8,10 @@ power (V, I, R, P) from any two known values.
 Built as the first hands-on artifact for [AI Engineering
 Academy](../../README.md)'s planned Electrical Engineering track — a small,
 genuinely useful tool a student or hobbyist can use today, independent of
-the rest of the curriculum.
+the rest of the curriculum. Since joined by the [LED series resistor
+calculator](../led-resistor-calculator/), the [voltage divider
+calculator](../voltage-divider-calculator/) and the [RC filter
+calculator](../rc-filter-calculator/).
 
 ## Use it
 

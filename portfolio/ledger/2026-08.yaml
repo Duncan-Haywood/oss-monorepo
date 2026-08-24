@@ -23006,3 +23006,78 @@ entries:
         #949 had already removed the duplicate `shopify-permission-drift`
         score, so #951's patch would have deleted the only remaining entry.
     mrr_end: null
+  - venture: ai-engineering-academy
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Product-first autonomous session (scheduled brief, branch
+        claude/funny-archimedes-iav6j1). session_gate.py read BUILD.
+        Bounded triage first: the trigger PR (#953, quote-margin-check
+        browser tool) had two red checks. Diagnosed both rather than
+        re-running them -- `validate` was its own defect (a new workflow
+        not registered in publish-surface.yaml) and `test` was a
+        repo-wide break it had not caused. Its duplicate #948 and the
+        four-way duplicate snapshot race (#954 merged, #955/#956/#957/#958)
+        were already being resolved by concurrent sessions, so no fifth
+        duplicate was opened.
+      - >-
+        Root-caused the recurring `agent-permission-harness` CI break that
+        had put four sessions on the same one-line regeneration: the R7
+        finding renders `len(closure)` into its text, and that closure is
+        the transitive fixed point over the repository's *prose*, so every
+        merge that adds a markdown file named from a document already in
+        the closure restales the committed snapshot. Proved it by
+        re-running the exact CI command against origin/main two minutes
+        after #954's regeneration merged -- already stale again, 77 -> 78
+        files, not the whitespace the four PRs were fixing. Left the
+        diagnosis and three durable options on #958 rather than opening a
+        fifth regeneration PR. A concurrent session then landed
+        check_results_current.py, which masks the census on both sides and
+        byte-compares the rest -- the first of the three options.
+      - >-
+        Shipped `tools/rc-filter-calculator/`, the venture README's own
+        named next step and the fourth free, zero-dependency, client-side
+        tool in the Circuits set -- the first to leave the DC/resistive
+        world for the frequency domain. First-order RC low-pass/high-pass:
+        cutoff frequency and time constant, gain (dB and amplitude),
+        attenuation and phase at an arbitrary frequency, a 0.01x-100x
+        response sweep across the corner, and a design mode that solves for
+        the resistor from the capacitor you already have and snaps it to a
+        buyable E24 value. Built to the same "correct the beginner
+        surprise" shape as the voltage divider's load-loading correction:
+        the corner frequency is not where the signal stops, so the page
+        reports gain and phase together, flags when the user is sitting on
+        the corner (-3 dB still passes 70.7%, with 45 degrees of shift),
+        and shows the 20 dB/decade roll-off as numbers rather than a claim.
+      - >-
+        Fixed the set's navigation, which was the real discoverability gap:
+        the three existing pages were near-dead-ends, and
+        resistor-calculator -- the highest-search-volume page of the four --
+        linked to no sibling at all, so a visitor arriving there from a
+        color-code search could not find the rest. All four pages and
+        READMEs now cross-link the full set. Registered the new tool in the
+        CI matrix (previously three tools).
+      - >-
+        Verified rather than assumed. 70/70 unit tests green across all four
+        tools (19 new: the -3.01 dB / 45-degree identity at the corner, the
+        20 dB/decade asymptote and its convergence, a high-pass blocking DC
+        to -inf, and the structural check that |H_lp|^2 + |H_hp|^2 = 1 at
+        every frequency). Drove the page end-to-end in real headless
+        Chromium via Playwright: defaults (1k, 100nF, low-pass, 1 kHz) give
+        1.592 kHz corner, -1.45 dB, 84.67% amplitude, -32.14 degrees; at the
+        corner exactly -3.01 dB / 70.71% / -45 degrees with the warning
+        firing; high-pass at DC renders "-inf dB" and +90 degrees rather
+        than NaN; designing 1 kHz from 100 nF gives 1.592k exact, 1.6k E24,
+        994.7 Hz actual, -0.53% error; R=0 shows the validation message, not
+        a bogus result; the opt-out toggle flips. Zero console errors. All
+        seven portfolio validators pass.
+      - >-
+        Not deployed to a public URL -- publishing under the portfolio's
+        name stays owner-gated per `portfolio/DIRECTION.md`, and no hosting
+        credentials exist in this session's environment, so the gate is a
+        real constraint here rather than process friction. All four tools
+        are ready to deploy as static pages the moment it opens; until then
+        usage.yaml's new row is a baseline of zero and the cross-links
+        cannot yet be credited with any reach.
+    mrr_end: null
