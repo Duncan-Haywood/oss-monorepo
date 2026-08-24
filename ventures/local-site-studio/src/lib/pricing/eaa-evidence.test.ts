@@ -131,6 +131,30 @@ describe("buildEaaInquiryMailto", () => {
     expect(assertsNoComplianceWarranty(decoded)).toBe(true);
   });
 
+  it("renders a missing size field as (unknown), not the literal null", () => {
+    const employeesOnly = buildEaaInquiryMailto("support@example.com", {
+      ...draft,
+      turnoverEur: null,
+    });
+    expect(employeesOnly.ok).toBe(true);
+    if (!employeesOnly.ok) return;
+    const employeesDecoded = decodeURIComponent(employeesOnly.href);
+    expect(employeesDecoded).toContain("Employees: 14");
+    expect(employeesDecoded).toContain("Turnover EUR: (unknown)");
+    expect(employeesDecoded).not.toMatch(/Turnover EUR: null/);
+
+    const turnoverOnly = buildEaaInquiryMailto("support@example.com", {
+      ...draft,
+      employees: null,
+    });
+    expect(turnoverOnly.ok).toBe(true);
+    if (!turnoverOnly.ok) return;
+    const turnoverDecoded = decodeURIComponent(turnoverOnly.href);
+    expect(turnoverDecoded).toContain("Employees: (unknown)");
+    expect(turnoverDecoded).toContain("Turnover EUR: 2500000");
+    expect(turnoverDecoded).not.toMatch(/Employees: null/);
+  });
+
   it("refuses to produce a sendable message for an exempt microenterprise", () => {
     const result = buildEaaInquiryMailto("support@example.com", {
       ...draft,
