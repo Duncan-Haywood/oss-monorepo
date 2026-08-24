@@ -566,7 +566,7 @@ decisions:
 - id: funding-sponsors-live
   asks: []
   prs: [839]
-  gates: revenue
+  gates: deployment
   exposure: legal-person
   opened: "2026-08-24"
   action: >-
@@ -595,4 +595,8 @@ decisions:
     a live funding config, with no queue entry recording that an agent -- not
     the PR's opener -- made that call. Left unmerged pending the owner's
     decision on whether that Sponsors profile should be surfaced here at
-    all.
+    all. `gates` corrected to `deployment` per Cursor Bugbot review on this
+    PR: `revenue` is reserved for decisions that move the portfolio's
+    *product* revenue ceiling off $0 (see `payout-rail`), which a personal
+    Sponsors button does not do; `exposure: legal-person` already captures
+    the identity risk.
