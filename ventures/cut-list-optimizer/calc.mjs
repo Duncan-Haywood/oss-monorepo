@@ -38,9 +38,11 @@ export function optimizeCutList({ stockLength, kerf, cuts }) {
   return { bars, totalStock, totalCuts, waste: totalStock - totalCuts - Math.max(0, sorted.length - bars.length) * kerf, utilization: totalCuts / totalStock };
 }
 
-export function formatCutPlan(result, { stockUnit = 'units' } = {}) {
+export function formatCutPlan(result, { stockUnit = 'units', stockLength, kerf } = {}) {
   const lines = [
     `Cut plan: ${result.bars.length} stock piece${result.bars.length === 1 ? '' : 's'}`,
+    ...(stockLength ? [`Stock length: ${Number(stockLength).toFixed(2)} ${stockUnit}`] : []),
+    ...(kerf !== undefined ? [`Kerf per cut: ${Number(kerf).toFixed(2)} ${stockUnit}`] : []),
     `Required material: ${result.totalCuts.toFixed(2)} ${stockUnit}`,
     `Offcut after kerf allowance: ${result.waste.toFixed(2)} ${stockUnit}`,
     '',
