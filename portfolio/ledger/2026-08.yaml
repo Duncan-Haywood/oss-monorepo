@@ -23096,3 +23096,46 @@ entries:
           CI-red rule against fixing what a base-branch failure someone else
           already owns.
     mrr_end: null
+  - venture: cut-list-optimizer
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+          Shipped #1023: the cut list optimizer had never worked. `index.html`
+          opened `<textarea id="cuts">` and never closed it, so the HTML parser
+          swallowed the rest of the document as raw text -- the results panel,
+          the copy button, the liability disclaimer, the usage opt-out,
+          `</main>`, and the entire `<script type="module">`. The script was
+          never an element and never executed. The summary panel it writes into
+          was absent from the markup entirely. Confirmed in Chromium before and
+          after; the primary journey (calculate, switch unit, error, recover,
+          copy to job ticket) now works end to end on `main`.
+      - >-
+          The defect shipped in the venture's first commit (`1a8feb3`) and
+          survived two further feature PRs (#1017, #1020) built on top of a dead
+          page. Nothing caught it: `calc.test.mjs` imports `calc.mjs` directly
+          and never loads the page, and the venture had no CI workflow at all --
+          `get_check_runs` on #1020 returned zero checks.
+      - >-
+          The generalisable lesson, and the reason this entry is worth keeping:
+          **no venture in this repo had any DOM-level test**, so a static
+          product could be completely non-functional while its unit tests stayed
+          green and its PRs read as verified. Added `page.test.mjs`, which
+          parses `index.html` the way a browser does (honouring raw-text
+          elements) and asserts the script would execute and every id it queries
+          exists. It was checked in both directions -- all five assertions fail
+          against the pre-fix file and pass against the repaired one, because a
+          structural test that cannot fail on the broken input proves nothing.
+      - >-
+          Swept all eleven other `ventures/**/index.html` pages in Chromium:
+          each loads and resolves its element lookups, so this was the only dead
+          one. A shared `page.test.mjs` across the static calculators would turn
+          that one-off sweep into a standing check.
+      - >-
+          Also fixed in passing: the usage counter called `recordUsage` on both
+          `input` and `change`, so it measured keystrokes rather than
+          calculations -- the same problem class as #992. Settled edits now
+          count one plan, and plan copies get their own counter. The README told
+          users to open `index.html` from disk, which cannot work, since
+          browsers refuse ES module imports over `file://`.
+    mrr_end: null

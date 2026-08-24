@@ -1,0 +1,38 @@
+name: where-to-sell-calculator CI
+
+# Test runner for the browser-local cross-marketplace profit comparison. The
+# product is static ES modules with no build step and no dependencies, so this
+# does no more than a contributor runs locally: `node --test`. It publishes
+# nothing, registers nothing, and spends no API budget.
+
+on:
+  pull_request:
+    paths:
+      - "ventures/where-to-sell-calculator/**"
+      - ".github/workflows/where-to-sell-calculator-ci.yml"
+  push:
+    branches: [main]
+    paths:
+      - "ventures/where-to-sell-calculator/**"
+      - ".github/workflows/where-to-sell-calculator-ci.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: where-to-sell-calculator-ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  site-test:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ventures/where-to-sell-calculator
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - run: node --test
