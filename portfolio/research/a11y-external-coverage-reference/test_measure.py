@@ -220,19 +220,18 @@ class TestCompare(unittest.TestCase):
                 row["declared_unimplemented_by"], ["audit.py", "eaa-wcag-triage"])
 
     def test_a_criterion_one_engine_built_leaves_the_disclosure_list(self):
-        # 1.4.1 and 2.5.3 are checked by the probe and still unimplemented in
-        # `audit.py`, so neither is undisclosed nor a row both engines decline.
-        # The union is what the customer's record is built from, and a
-        # criterion one engine checks is checked -- but the asymmetry is real
-        # and `a11y-own-sites/` measures it as the corpus's one non-relabelling
-        # disagreement.
+        # 2.5.3 is still probe-only. 1.4.1 was the same until 2026-08-24,
+        # when `audit.py` gained the rule; both engines now claim it.
+        # Neither is undisclosed nor a row both engines decline. The union
+        # is what the customer's record is built from.
         disclosed = {r["criterion"] for r in self.data["disclosed_unimplemented"]}
         claimed = {r["criterion"]: r["claimed_by"] for r in self.data["depth"]}
         for criterion in ("1.4.1", "2.5.3"):
             with self.subTest(criterion=criterion):
                 self.assertIn(criterion, self.data["union_checked"])
                 self.assertNotIn(criterion, disclosed)
-                self.assertEqual(claimed[criterion], ["eaa-wcag-triage"])
+        self.assertEqual(claimed["1.4.1"], ["audit.py", "eaa-wcag-triage"])
+        self.assertEqual(claimed["2.5.3"], ["eaa-wcag-triage"])
 
     def test_the_implemented_criteria_are_now_checked_not_disclosed(self):
         # They left the disclosure list by being built, which is the only way
