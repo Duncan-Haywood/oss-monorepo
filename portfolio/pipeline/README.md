@@ -7,9 +7,33 @@ written-up candidates with an explicit verdict, so that starting a new venture
 is a decision someone makes against evidence rather than an idea that arrived on
 a good afternoon.
 
-Nothing here is committed to. A candidate graduates by someone writing
-`ventures/<name>/VENTURE.yaml`; until that file exists the router cannot see it
-and no agent budget flows to it.
+Nothing here is committed to. A candidate graduates in one of two ways,
+matching its `graduate_as` field, and until one of them is true the router
+cannot see it and no agent budget flows to it:
+
+- **`graduate_as: venture`** — someone writes `ventures/<name>/VENTURE.yaml`.
+- **`graduate_as: product-line`** — someone adds the candidate's slug under
+  `product_lines` in its `host_venture`'s `VENTURE.yaml`. `eaa-remediation-pipeline`
+  graduated this way into `local-site-studio` on 2026-08-24 (the only
+  `build-now` verdict in the table). See the closing section on why adding
+  ventures to an unmeasured portfolio is the more expensive problem.
+
+In both cases the directory must actually be routable: a `NOT-A-VENTURE`
+marker wins over a `VENTURE.yaml` in the same directory and `allocate.py` skips
+it, so a graduation into a marked directory routes nothing.
+`python3 portfolio/ledger/session_gate.py` reads exactly this rule to name the
+next unbuilt `build-now` candidate.
+
+**What a `product_lines` entry does and does not do today.** It is a
+*session-gate* marker: `session_gate.py` reads it to stop naming the candidate
+as unbuilt. `allocate.py` does **not** read `product_lines` — it builds one
+`Venture` from the host's own fields and routes the host's hypotheses and
+roadmap, identically before and after the slug is added. So effort reaches a
+product line at *host-venture* granularity, not as a line item with its own
+budget or task. Routing product lines directly would need an extension to
+`allocate.py` and to the schema `portfolio/router/validate.py` enforces; that
+is unbuilt, and until it exists, do not read "graduated" here as "the router
+now allocates to it separately."
 
 ## Why this is separate from `ventures/ai-first-markets`
 
@@ -92,7 +116,7 @@ four candidates carrying a probe have moved and the table is re-ordered.
 | # | Candidate | Composite | Floor | Verdict |
 |---|---|---|---|---|
 | 1 | [Shopify accessibility evidence app](candidates/shopify-a11y-evidence.md) | 7.25 | 4 | Probe the channel — scored 2026-08-19. Top of the table only because nobody has probed it |
-| 2 | [EAA remediation pipeline](candidates/eaa-remediation-pipeline.md) | 7.125 | 5 | Build now, as a `local-site-studio` product line. Both gates measured 2026-08-21 — `liability_containment` 6→5 (**on** the gate, unmoved), `ethical_robustness` 9→6→9 after the record began printing its error rates |
+| 2 | [EAA remediation pipeline](candidates/eaa-remediation-pipeline.md) | 7.125 | 5 | Graduated 2026-08-24 as a `local-site-studio` product line. Both gates measured 2026-08-21 — `liability_containment` 6→5 (**on** the gate, unmoved), `ethical_robustness` 9→6→9 after the record began printing its error rates |
 | 3 | [Public-record watch](candidates/public-record-watch.md) | 7.0 | 4 | Cheap probe — one vertical, two weeks. `ethical_robustness` 9→6→9 on 2026-08-21, after the subscriber record was built; the detector still misses two thirds of the dormancy it looks for |
 | 4 | [Agent permission harness](candidates/agent-permission-harness.md) | 6.875 | 4 | Park; revisit 2027-Q1. Probed 2026-08-21 — internal build done, `ai_leverage` 9→8; `ethical_robustness` 9→7→9 after `validate_accuracy.py` measured 0 false positives / 0 false negatives on a 34-case fixture corpus and the findings report started disclosing it |
 | 5 | [MCP supply-chain watch](candidates/mcp-supply-chain-watch.md) | 6.875 | 3 | Probe: steps 1–2 run; mitigation refuted, cannot graduate as scored. `ai_leverage` 6→7 on 2026-08-22 — a blind model pass on the held-out corpus roughly doubled the rules classifier's F1 |

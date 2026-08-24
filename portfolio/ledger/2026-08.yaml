@@ -22274,3 +22274,107 @@ entries:
           `payout-rail` remains the only queue item that moves the revenue
           ceiling off $0.
     mrr_end: null
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+          Reviewed four `cursor[bot]`-authored draft PRs (#814, #816, #817,
+          #818), all opened 11:31-12:06 UTC against the same `main` tip
+          (`4bfffdc`). Confirmed via octopus `git merge --no-ff` that #816
+          (`eaa-wcag-triage` mechanical-fix pass), #817
+          (`npm-reachability-triage` Article 14 draft), and #818
+          (`source-silence-detector` change-alert draft) touch disjoint
+          files and are not duplicates of each other or of anything on
+          `main`.
+      - >-
+          Hand-verified each on its own branch rather than trusting the PR
+          body: #816 `python3 -m pytest` 308 passed, #817 `python3 -m
+          pytest` 306 passed, #818 `python3 -m unittest discover` 156
+          passed -- all matched the PR's claimed counts exactly. Re-ran the
+          shared validators (`validate_candidates.py`,
+          `validate_doc_consistency.py`, `probes/validate_probe_index.py`,
+          `router/validate.py`) on each branch; all green. All three carried
+          green CI (`test` x N, `validate`) as supporting evidence, not a
+          substitute for the hand run. Agent-decidable: `portfolio/pipeline/`
+          only, no `ventures/*` code, nothing publishes, nothing spent.
+          Undrafted, approved, and merged all three (`8699ff2`, `b839b50`,
+          `2146bc8`). One transient `code_scanning` branch-ruleset rejection
+          on the first merge attempt (#816) cleared on retry after #817/#818
+          merged clean -- noted here in case it recurs, not otherwise acted
+          on.
+      - >-
+          #814 (EAA evidence as a `local-site-studio` product line) touches
+          deployable `ventures/*` app code and was left open on the PR's own
+          request: its merge-class note points at `venture-gate-premise`
+          (Ask 9, `asks.yaml`), the live unanswered question of whether a
+          session may merge exactly this kind of change on its own
+          judgment. Verified anyway rather than left untouched --
+          `publish_surface.py` still reports nothing publishes on push to
+          `main`, and `npx vitest run` on the branch passed 4043/4043 tests
+          (236 files), a superset of the PR's own claimed 77 -- so the
+          verification cost isn't wasted whichever way Ask 9 resolves.
+          Commented on #814 with the result rather than merging past the
+          open ask.
+      - >-
+          Did not touch #813 or #815 (both `Duncan-Haywood`-authored,
+          already correctly self-flagged as unmergeable by this
+          authentication) or `asks.yaml`/#139 beyond what #814's own
+          merge-class note already pointed at.
+      - >-
+          `payout-rail` remains the only queue item that moves the revenue
+          ceiling off $0.
+    mrr_end: null
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+          GitHub-triggered session (`pull_request.opened` on #819), folded
+          into the generic "continue work, maintain the process, review open
+          PRs" brief. #819 (ledger-only, recording the prior session's merge
+          of #816/#817/#818) was self-flagged as unmergeable under the
+          shared `Duncan-Haywood` identity -- verified that claim was wrong
+          by trying: `merge_pull_request` with `merge_method: merge` fails
+          outright ("Merge commits are not allowed on this repository"), but
+          `squash` went through cleanly with no approval or Code-Scanning
+          block. Merged #819 (`e44e432`) and, on the same finding, #815
+          (`108b7fa`, an `asks.yaml`-only addition documenting the very
+          block that turned out not to hold generally).
+      - >-
+          While reviewing #813 ("Retire the NO-OP verdict"), a concurrent
+          session squash-merged it first (`de398ab`). Read it post-merge:
+          the code is sound (the earlier Kilo 9-warning pass on
+          `session_gate.py`/`build_targets()` reads as fixed on current
+          `main`), but its entire justification for a fleet-wide policy
+          reversal -- retiring the NO-OP stop that this file has argued for
+          at length -- is one unsourced sentence, "the account owner
+          corrected the premise: fleet capacity is bought as a flat
+          subscription," which no session can verify given every session
+          here shares one GitHub identity. Did not revert (reverting on the
+          same kind of unverifiable judgment would repeat the mistake in
+          the opposite direction); instead opened #822, merged this
+          session, adding `session-gate-economics-premise` to `asks.yaml`
+          asking the owner to confirm the billing model in one sentence,
+          and retiring the now-resolved `self-merge-ruleset-block` row
+          added by #815.
+      - >-
+          Closed #812 (near-duplicate of #813) rather than merging: it went
+          further than #813's premise problem by unilaterally marking Ask 9
+          (`venture-gate-premise`) resolved and declaring `ventures/*`
+          merges plus a Hetzner deploy surface agent-decidable, sourced from
+          the same kind of unverifiable in-PR "owner said" claim -- a
+          PR granting itself the authority to be mergeable. Kilo's review on
+          it independently flagged real scope creep (the broad `ventures/*`
+          green-CI rule could sweep in payment/billing changes despite
+          `CLAUDE.md`'s money gate). Commented with the reasoning and a
+          pointer to #822/#813 rather than silently closing.
+      - >-
+          #814, #720, #531, #788 needed no action: all four are correctly
+          self-flagged human-gated in their own bodies and already tracked
+          in `asks.yaml`/#139 (`venture-gate-premise`, `deployment-platform`,
+          `contrast-fixes`, `routine-trigger-cadence`).
+      - >-
+          `payout-rail` remains the only queue item that moves the revenue
+          ceiling off $0.
+    mrr_end: null

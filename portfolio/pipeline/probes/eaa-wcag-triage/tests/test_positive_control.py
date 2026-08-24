@@ -63,6 +63,14 @@ def test_injections_all_bite_a_well_formed_page():
     assert all(row["pages_changed"] == 1 for row in injections)
 
 
+def test_new_structural_criteria_are_exercised_by_positive_controls():
+    result = run_control({"shop.html": _PAGE})
+    by_criterion = {row["criterion"]: row for row in result["mutations"]}
+    for criterion in ("2.2.2", "2.4.1", "3.1.2"):
+        assert by_criterion[criterion]["verdict"] == CAUGHT
+        assert by_criterion[criterion]["pages_changed"] == 1
+
+
 def test_a_fragment_does_not_count_as_a_pass():
     """No attachment point is 'not exercised', never 'caught'."""
     result = run_control({"snip.html": _FRAGMENT})

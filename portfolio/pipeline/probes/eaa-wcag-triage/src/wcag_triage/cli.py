@@ -33,6 +33,7 @@ from pathlib import Path
 from .css import Stylesheet, parse_stylesheet
 from .engine import audit_html
 from .evidence import build_record, to_markdown
+from .mechanical_fix import apply_mechanical_fixes, summarise_close_rate
 from .positive_control import run_control
 
 
@@ -71,6 +72,18 @@ def _build_parser() -> argparse.ArgumentParser:
         "--checked-at",
         default=None,
         help="ISO-8601 timestamp to stamp the record with (default: now, UTC)",
+    )
+    parser.add_argument(
+        "--apply-mechanical-fixes",
+        metavar="DIR",
+        default=None,
+        help=(
+            "Write patched copies of each page and a mechanical close-rate "
+            "report to DIR. Applies only non-invented rewrites. Does not "
+            "invent alt, labels, captions, or a page language. Does not "
+            "claim assistive-technology verification. The evidence record "
+            "stays a record of the source, not of the patches."
+        ),
     )
     return parser
 
@@ -115,6 +128,28 @@ def run(argv=None) -> int:
         (out / "record.md").write_text(to_markdown(record), encoding="utf-8")
     else:
         print(to_markdown(record))
+
+    if args.apply_mechanical_fixes:
+        dest = Path(args.apply_mechanical_fixes)
+        dest.mkdir(parents=True, exist_ok=True)
+        results = []
+        names = []
+        for page in args.pages:
+            path = Path(page)
+            result = apply_mechanical_fixes(pages_html[path.name])
+            (dest / f"{path.stem}.patched.html").write_text(
+                result.html, encoding="utf-8"
+            )
+            results.append(result)
+            names.append(path.name)
+        (dest / "mechanical-close-rate.json").write_text(
+            json.dumps(
+                summarise_close_rate(results, names),
+                indent=2,
+                ensure_ascii=False,
+            ),
+            encoding="utf-8",
+        )
 
     totals = record["totals"]
     if args.fail_on == "any" and totals["total"] > 0:

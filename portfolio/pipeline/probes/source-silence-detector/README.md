@@ -1,5 +1,12 @@
 # Probe: source-silence detector
 
+**Gained a register-change alert on 2026-08-24** — first-experiment
+step 2 of `public-record-watch`, software half. See
+[`change_alert.py`](change_alert.py) and
+[`sample-change-alert-2026-08-24.md`](sample-change-alert-2026-08-24.md).
+The silence detector is still the operational failure-mode watch;
+the change alert is the product the candidate actually sells.
+
 **Built and backtested 2026-08-21. Extended the same day with full-history
 calibration, which inverted the result — read
 [the amendment](#amendment-2026-08-21-calibrating-on-full-history-inverts-this-probes-finding)
@@ -61,7 +68,18 @@ Parameter sensitivity: add `--sweep`. Saved runs:
 [`results-holdout-2026-08-21.json`](results-holdout-2026-08-21.json),
 [`results-small-sample-2026-08-22.json`](results-small-sample-2026-08-22.json).
 Tests: `python3 -m unittest discover -s portfolio/pipeline/probes/source-silence-detector`
-(137 tests, all offline).
+(156 tests, all offline).
+
+Render the first-experiment step 2 sample alert (offline; the fixture
+is a one-entry slice of catalog version 2026.08.21):
+
+```
+python3 render_change_alert_sample.py
+```
+
+The committed file is
+[`sample-change-alert-2026-08-24.md`](sample-change-alert-2026-08-24.md).
+A test regenerates it and fails if it drifts.
 
 ## The claim under test
 

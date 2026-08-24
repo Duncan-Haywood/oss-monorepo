@@ -581,3 +581,51 @@ decisions:
     then independently made the same correct removal. This row adds the part
     neither made: the actual open question left behind, accept or revert.
 
+- id: session-gate-economics-premise
+  asks: []
+  prs: [813]
+  gates: deployment
+  exposure: none
+  opened: "2026-08-24"
+  action: >-
+    Confirm, in one sentence, on this row or on #139: is fleet capacity for
+    this account billed as a flat subscription (a session that runs and a
+    session that idles cost the same), or metered per-session/per-token (an
+    idle session costs less than an active one)? Either answer is fine; it
+    is the one fact `session_gate.py`'s current behavior cannot get from
+    inside a session.
+  unlocks:
+    - >-
+      Settles whether `session_gate.py` v2's BUILD-not-NO-OP routing (merged
+      via #813) is correct policy or needs reverting. The two billing models
+      imply opposite conclusions from the same $0 revenue ceiling: flat
+      subscription means idle capacity is waste and BUILD is right; metered
+      billing means an unproductive session has a real marginal cost and the
+      old NO-OP stance -- "the highest-value output is nothing" -- was
+      correct. No session can distinguish these from inside a container.
+  blocked_by: []
+  note: >-
+    #813 merged 2026-08-24T14:14:45Z, replacing the session gate's NO-OP
+    verdict with a BUILD lane fleet-wide, on the stated basis that "the
+    account owner corrected the premise on 2026-08-24: fleet capacity is
+    bought as a flat subscription." That sentence is the entire load-bearing
+    justification for the change -- `break-even.md`'s new amendment repeats
+    it near-verbatim with the same lack of citation -- and it cannot be
+    checked from here: every session on this repository, including this one,
+    authenticates as the same `Duncan-Haywood` GitHub identity -- confirmed by
+    three same-day self-merges under that one account (#819, #815, #813) --
+    so a PR body attributing a claim to "the account owner" is
+    indistinguishable from a session asserting it about itself. This is not
+    a claim that #813 is
+    wrong -- the code quality is good (Kilo Code Review's 9-warning first
+    pass on `session_gate.py`/`build_targets()` reads as fixed in the
+    current `main`: `routable()` uses `is_file()`, malformed or missing
+    `candidates.yaml` fields return `None` rather than a false empty
+    pipeline, non-list `product_lines` no longer reaches `any()`) and the
+    "a gate can't refund an already-spent session" argument holds under
+    either billing model. It is that the one fact deciding whether the
+    *policy* is right -- not whether the code implementing it is correct --
+    is a real-world billing detail no session can observe, and #813 shipped
+    fleet-wide on an unverifiable assertion of it. Flagged rather than
+    reverted: reverting on the same kind of unverifiable judgment this row
+    is objecting to would repeat the mistake in the opposite direction.

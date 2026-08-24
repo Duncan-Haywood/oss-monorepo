@@ -580,7 +580,33 @@ whether the blocking/degrading triage the candidate sells can be produced
 mechanically at all. It can, and the coverage split it produces (18 criteria
 reasoned about, 9 named criteria explicitly deferred to a human, 1 disclosed
 as decidable but not yet built) is itself the first concrete instance of the
-"quarter to a third" gap the candidate asserts. The split has moved four
+"quarter to a third" gap the candidate asserts.
+
+## Mechanical fixes (fixtures only, 2026-08-24)
+
+The first experiment's software half is now here: a pass that applies only
+rewrites that do not invent meaning, then re-runs the same engine. It will
+derive a title from the first heading, close a heading-level skip, remove
+`aria-hidden` from a focusable control, and drop a viewport zoom-lock. It
+will not invent alt text, labels, captions, link names, button names, or a
+page language.
+
+On the three fixture shops it closes **1 of 11 blocking** findings and
+**2 of 3 degrading** findings. That is a fixture re-audit, not AT
+verification, and it does not settle the kill criterion. The 1/11 is the
+honest software-only rate: the blocking remainder is content a page author
+has to write. `--apply-mechanical-fixes DIR` writes the patched copies and
+that close-rate report; the evidence record stays a record of the source.
+
+**Amended 2026-08-24: forgotten-prefix labels are now a fifth rewrite.**
+Finding 2 of [`a11y-theme-resolution`](../../../research/a11y-theme-resolution/)
+is two strings: a literal `<label for>` that cannot match any id in the
+file, next to exactly one expression-bearing control id whose trailing
+literal is that `for` value after a separator. The pairing is unique, so
+rewriting `for` is not inventing a name. The third fassbender defect
+(`search.liquid:22`) still has no repair — that file has no `<label for>`
+and this pass will not write one. Ambiguous suffixes and expressions that
+could still render equal are left alone. No score moved. The split has moved four
 times since it was first drawn: on 2026-08-21, when 1.4.3 crossed from
 deferred to partial because the corpus changed, not because the rules got
 cleverer; on 2026-08-22, when four criteria a prior pass had disclosed as
