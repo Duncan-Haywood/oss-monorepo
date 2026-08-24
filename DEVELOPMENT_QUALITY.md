@@ -2,25 +2,24 @@
 
 This document defines the quality standards and completeness requirements for all ventures and the platform. It serves as the baseline for product maturity and readiness.
 
-## Scope note: secondary to distribution, not a replacement for it
+## Scope note: reference material, not a gate on shipping
 
-This framework is useful reference material, not a mandate to spend scheduled
-sessions raising tier scores. [`portfolio/pipeline/distribution-first.md`](portfolio/pipeline/distribution-first.md)
-established, across ten independent screening runs, that this portfolio's
-binding constraint is distribution and customer contact, not product
-completeness — every candidate it tracks is still at zero customer contacts
-while fully buildable. [`portfolio/ledger/break-even.md`](portfolio/ledger/break-even.md)
-separately derives a `$0` revenue ceiling for the current regime and finds
-roughly half of recent ledger entries re-derive conclusions already on `main`.
-Neither finding is overridden by this document. Raising a venture's tier is
-worth doing when a session is already touching that venture's code for another
-reason, not as a standalone goal, and does not change which PRs are
-agent-decidable: tests, linting, and tooling additions to `ventures/*` app
-code are still routed through the human-gated review path in `CLAUDE.md`
-("Breaking changes to deployable `ventures/*` code"), the same as any other
-change there, regardless of how safe or well-tested. A generic scheduled
-brief should run `portfolio/ledger/session_gate.py` first, as `CLAUDE.md`
-directs, before treating this framework's roadmap as the default next task.
+Per [`portfolio/DIRECTION.md`](portfolio/DIRECTION.md) and `CLAUDE.md`
+("Ship without review ceremony"): the job is shipping products people use,
+merging on green CI, without a review cycle — not raising tier scores. This
+document is useful reference material for *how* to make something more solid
+when you're already touching it for another reason. It is not a checklist
+that blocks a merge, and no venture should hold a working feature back to
+satisfy a tier before shipping it.
+[`portfolio/pipeline/distribution-first.md`](portfolio/pipeline/distribution-first.md)
+and [`portfolio/ledger/break-even.md`](portfolio/ledger/break-even.md) are
+still right that polishing an unshipped, unmeasured product is the more
+expensive mistake than shipping something imperfect and finding out whether
+anyone uses it. Raising a venture's tier is worth doing when a session is
+already touching that venture's code for another reason, not as a standalone
+goal. A generic scheduled brief should run `portfolio/ledger/session_gate.py`
+first, as `CLAUDE.md` directs, and default to building or shipping a feature
+over working through this framework's tiers.
 
 ## Quality Tiers
 
@@ -179,45 +178,60 @@ All ventures should run these checks in CI:
 
 ## Implementation Strategy
 
-### Phase 1: Foundation (Weeks 1-2)
-- Audit all ventures against Tier 1
-- Create tracking issues for missing items
-- Update `.gitignore` across ventures
-- Ensure VENTURE.yaml validity
+There is no scheduled multi-week rollout of this framework, and no session
+should spend a whole pass auditing ventures against it — that is the
+meta-work `portfolio/DIRECTION.md` asks sessions to stop doing. Apply these
+tiers opportunistically, in order of actual value:
 
-### Phase 2: Maturity (Weeks 3-6)
-- Set up testing infrastructure
-- Configure linting for each venture
-- Implement CI/CD pipelines
-- Document APIs and architecture
-
-### Phase 3: Excellence (Weeks 7+)
-- Production readiness assessments
-- Security audits and hardening
-- Performance optimization
-- User testing and feedback loops
+- **When you're already in a venture's code for a feature or a fix**, bring
+  the file you're touching up to Tier 1 basics (valid `VENTURE.yaml`, no
+  secrets, a README that says what the thing does) as part of that same PR.
+- **Before a product goes live to real users**, make sure it has the
+  liability disclaimer and usage tracking `portfolio/DIRECTION.md` requires
+  of every shipped product — that is the one Tier-3-ish item that is not
+  optional.
+- **Everything else here** (full test coverage, load testing, accessibility
+  audits, ADRs) is worth doing when it's cheap and you're already there, and
+  is not worth blocking a launch on.
 
 ## Quality Governance
 
-### PR Review Standards
-Every PR must:
-- Pass all CI checks
-- Include test coverage for changes
-- Update documentation if needed
-- Follow the venture's style guide
+Per `CLAUDE.md`'s "Ship without review ceremony": merge on green CI, no
+human review gate. The items below are things to check yourself before
+merging your own work, not a review cycle to wait on anyone for.
+
+### Before merging your own PR
+- Run the venture's own CI-equivalent checks locally if CI hasn't reported yet
+- Fix what's cheap to fix (lint auto-fix, obvious type errors); don't let a
+  cosmetic issue hold back a working feature
+- If it has a liability-relevant surface (user data, financial/medical/legal
+  claims), make sure the disclaimer required by `portfolio/DIRECTION.md` is
+  actually in the product, not just planned
+- Secrets and credentials never go in version control — that one blocks a
+  merge, full stop
 
 ### Escalation Path
-- Linting/formatting: Auto-fix with pre-commit hooks
-- Test failures: Block merge until resolved
-- Security issues: Critical severity blocks merge
-- Documentation: Warning, not blocking
+- Linting/formatting: auto-fix with pre-commit hooks where available
+- Test failures on code you touched: fix them before merging, but don't block
+  an otherwise-working product on unrelated pre-existing failures — file them
+  and keep shipping
+- Security issues (secrets committed, known-critical dependency CVE): fix
+  before merging
+- Missing docs/tests on a fast-moving product: a follow-up note, not a
+  blocker
 
 ## Measuring Success
 
-- **Coverage**: % of ventures at each tier
-- **Velocity**: PRs merged per week by quality level
-- **Stability**: Test pass rate and incident count
-- **Velocity**: Time from PR to production
+The metric that matters is the one `portfolio/DIRECTION.md` asks for:
+**products shipped that a real person can use, and whether they actually use
+them.** Everything below this is secondary to that:
+
+- **Shipped**: new products/features live on the VM or in a repo people can
+  use today
+- **Usage**: recorded usage numbers (requests, active users, feature-use
+  counts) per shipped product — an unmeasured product tells you nothing
+- **Coverage**: % of ventures at each tier (useful context, not the goal)
+- **Stability**: test pass rate and incident count on things people depend on
 
 ## Resources & Tools
 
@@ -244,13 +258,11 @@ Every PR must:
 
 ## Updating This Framework
 
-This framework evolves as the portfolio matures. Proposed changes should:
-1. Be discussed in an issue or PR
-2. Reference specific ventures affected
-3. Include implementation effort estimate
-4. Include success criteria
+This framework evolves as the portfolio matures. Proposed changes are
+agent-decidable like any other doc change per `CLAUDE.md` — no discussion
+cycle required, just make the edit and note what changed.
 
 ---
 
-**Last Updated**: 2026-08-21  
-**Current Focus**: Establish Tier 1 baseline across all ventures
+**Last Updated**: 2026-08-24
+**Current Focus**: Ship products people use; apply these tiers opportunistically, not as a standalone project.
