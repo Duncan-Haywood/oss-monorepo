@@ -2,9 +2,10 @@ import json
 import sys
 import tempfile
 import unittest
+import subprocess
 from pathlib import Path
 sys.path.insert(0, str(Path(__file__).parents[1] / "src"))
-from branch_hygiene import scan, write_outputs
+from branch_hygiene import scan, snapshot_from_repo, write_outputs
 
 class BranchHygieneTests(unittest.TestCase):
     def setUp(self):
@@ -22,6 +23,20 @@ class BranchHygieneTests(unittest.TestCase):
             moved = next(item for item in json.loads(manifest.read_text())["findings"] if item["branch"] == "feature/moved")
             self.assertEqual(moved["commits"], ["x2", "x1", "m1"])
             self.assertIn("approval queue", report.read_text().lower())
+
+    def test_local_repository_snapshot_is_read_only_and_usable(self):
+        with tempfile.TemporaryDirectory() as directory:
+            repo = Path(directory)
+            subprocess.run(["git", "init", "-q", "-b", "main", str(repo)], check=True)
+            (repo / "README").write_text("base\n")
+            subprocess.run(["git", "-C", str(repo), "add", "."], check=True)
+            subprocess.run(["git", "-C", str(repo), "-c", "user.name=Test", "-c", "user.email=test@example.com", "commit", "-qm", "base"], check=True)
+            subprocess.run(["git", "-C", str(repo), "branch", "feature"], check=True)
+            before = subprocess.check_output(["git", "-C", str(repo), "rev-parse", "HEAD"], text=True).strip()
+            snapshot = snapshot_from_repo(repo)
+            self.assertEqual(snapshot["default_branch"], "main")
+            self.assertEqual({branch["name"] for branch in snapshot["branches"]}, {"main", "feature"})
+            self.assertEqual(subprocess.check_output(["git", "-C", str(repo), "rev-parse", "HEAD"], text=True).strip(), before)
 
 if __name__ == "__main__":
     unittest.main()
