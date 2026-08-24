@@ -18,7 +18,7 @@ kept per criterion rather than rewritten each time:
 | If the criterion is | The answer is | Because |
 |---|---|---|
 | Lowest spend risk, $0 floor | **Cloudflare** | Free tier takes no card and stops rather than bills |
-| Best fit for the code as written | **Vercel** | Seven of nine apps are Next.js; one already carries `vercel.json` |
+| Best fit for the code as written | **Vercel** | Seven Next.js apps, and **four ventures already carry a `vercel.json`** |
 | **A spend cap built into the vendor** | **Vercel or Railway** | Only these two ship a halt-at-an-amount control |
 | **Most all-inclusive** | **Railway** | The only managed platform that hosts *every* workload here |
 | **Best value** | **Hetzner** | ~$5/month for all of it; the tenth app costs $0 |
@@ -80,12 +80,21 @@ rules out.
 
 Railway and Hetzner both host every row.
 
-Two smaller facts, recorded because they cut the other way and should not be
-buried. `quick-pick-survey` already carries a `vercel.json` *and* a Prisma
-datasource reading `POSTGRES_PRISMA_URL` / `POSTGRES_URL_NON_POOLING` — the
-env var names Vercel Postgres injects. That venture was built for Vercel, and
-moving it is real work. And `local-site-studio` uses Convex, a hosted backend
-that is a second vendor no matter which platform is chosen.
+Facts that cut the other way, recorded rather than buried — and the first one
+is growing:
+
+- **Four ventures are already wired for Vercel**, up from one when this
+  document was first written: `quick-pick-survey`, `local-site-studio`,
+  `photo-editing/docs-site` and `retail-pilot-intel` (twice,
+  `vercel.docs.json` and `apps/docs/vercel.json`). `quick-pick-survey` also
+  reads `POSTGRES_PRISMA_URL` / `POSTGRES_URL_NON_POOLING` — the env var names
+  Vercel Postgres injects. That is real migration work, and the trend is
+  toward Vercel, not away from it. **If a fifth appears before this is
+  decided, revisit the recommendation** — at some point the fit argument
+  outweighs the two daemons.
+- `local-site-studio` uses **Convex**, a hosted backend that is a second
+  vendor whichever platform is chosen, and now carries Stripe webhook handling
+  — an ordinary server route that all three platforms serve.
 
 ## The value question, with the arithmetic shown
 
@@ -134,9 +143,8 @@ together" it is the only option that scores on both.
 
 **Vercel** — still the best fit for the *code*, and the strongest cap control
 (Spend Management pauses the project at a set amount). Seven of nine apps are
-Next.js, `quick-pick-survey` already carries a `vercel.json` and Vercel
-Postgres env var names, and `next build` is the deploy with no translation
-layer. It loses this question on two counts: it cannot host the two daemons at
+Next.js, four ventures already carry a `vercel.json`, and `next build` is the
+deploy with no translation layer. It loses this question on two counts: it cannot host the two daemons at
 all, so it is not the all-inclusive answer by definition; and $20/seat is four
 times Railway's floor. **Choose Vercel if the Next.js apps are the only thing
 that will ever be deployed** and the two daemons stay off-platform.

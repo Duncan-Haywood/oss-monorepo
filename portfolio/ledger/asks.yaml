@@ -204,6 +204,14 @@ decisions:
     host, not a public web server. Railway is the only option scoring on both
     axes. Note it is also the only one of the three with no workflow written
     yet, which is the honest extra cost of the choice.
+
+    Counter-evidence worth watching, added the same day: four ventures now
+    carry a `vercel.json` (`quick-pick-survey`, `local-site-studio`,
+    `photo-editing/docs-site`, `retail-pilot-intel` twice), up from one when
+    this was first written. The codebase is drifting toward Vercel on its own.
+    The two daemons still rule Vercel out of the all-inclusive criterion, but
+    if a fifth appears before this is decided the fit argument may outweigh
+    them -- revisit rather than assume this row is settled.
 - id: publication-identity
   asks: [0, 1, 5]
   prs: []
