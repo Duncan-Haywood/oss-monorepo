@@ -485,3 +485,30 @@ ventures:
       with resolver and timestamp provenance, and explicitly does not warrant
       security, deliverability, uptime, or compliance. Authorization and
       remediation remain customer responsibilities.
+
+  - slug: vendor-change-watch
+    scores:
+      ai_leverage: 7
+      autonomous_ops: 9
+      time_to_revenue: 6
+      gross_margin: 9
+      defensibility: 4
+      distribution: 4
+    composite: 6.5
+    rater_b: null
+    floor: 4
+    floor_dimension: defensibility
+    floor_note: >-
+      A generic page-diff monitor is copyable; customer-specific watch lists
+      and an immutable snapshot history could become a moat but do not create
+      one on day one. Distribution is equally unmeasured -- no security or
+      procurement channel has been probed yet, only the diff engine itself.
+    basis: >-
+      Graduated from the vendor-change-evidence pipeline candidate on
+      2026-08-24. Carries the candidate's own scores forward: the diff engine
+      and its tests were already validated as a probe; this venture adds the
+      live fetcher, watchlist, local storage, and CLI the probe named as
+      unbuilt. No customer contact yet.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
