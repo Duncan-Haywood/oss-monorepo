@@ -58,6 +58,10 @@ jobs:
           python-version: "3.12"
       # Standard-library unittest only: no pip install step, by design.
       - run: python3 -m unittest discover -p 'test_*.py'
-      # The summary in README.md must still re-derive from the committed rows
-      # with no network. This is the check that catches a hand-edited number.
+      # The committed `summary` is exactly summarise(packages), so it must
+      # re-derive from the committed rows with no network. Until 2026-08-24 this
+      # step derived the summary, printed it, and returned 0 without ever
+      # comparing it to the stored one — unfailable, while this comment called it
+      # the check that catches a hand-edited number. It now exits 1 naming each
+      # field that disagrees.
       - run: python3 resolve.py --recompute-from results-2026-08-20.json

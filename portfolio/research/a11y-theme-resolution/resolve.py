@@ -608,7 +608,25 @@ def main() -> int:
     if args.recompute_from:
         with open(args.recompute_from) as handle:
             data = json.load(handle)
-        print(json.dumps(summarise(data["packages"]), indent=2))
+        derived = summarise(data["packages"])
+        print(json.dumps(derived, indent=2))
+        # Re-deriving the summary and discarding the comparison made this step
+        # unfailable: the stored summary is exactly summarise(packages), so a
+        # file whose headline figures disagree with its own rows was hand-edited
+        # or half-regenerated, and printing it read as a current measurement.
+        stored = data["summary"]
+        disagree = sorted(
+            key for key in set(derived) | set(stored)
+            if derived.get(key) != stored.get(key)
+        )
+        if disagree:
+            print(
+                f"{args.recompute_from}: stored summary disagrees with the "
+                f"recorded package rows: {', '.join(disagree)}. Regenerate the "
+                "file with --out rather than editing its headline figures.",
+                file=sys.stderr,
+            )
+            return 1
         return 0
 
     rows = []

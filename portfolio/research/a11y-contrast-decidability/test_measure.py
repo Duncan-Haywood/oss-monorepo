@@ -119,5 +119,33 @@ class CommittedResults(unittest.TestCase):
             self.assertEqual(by_name[name]["both_schemes"].get("fail", 0), count, name)
 
 
+class RecomputeAsserts(unittest.TestCase):
+    """`--recompute-from` is the only thing CI runs against this artifact.
+
+    It cannot re-measure — the scan needs each venture's built `.next`, which a
+    CI checkout does not have. Until 2026-08-24 it therefore did nothing at all:
+    it loaded the file, printed it, and returned 0, so the step could not fail
+    on a stale or hand-edited artifact. These pin the one invariant it *can*
+    check offline.
+    """
+
+    def setUp(self):
+        self.results = json.loads(RESULTS.read_text())
+
+    def test_committed_totals_are_what_the_rows_derive(self):
+        self.assertEqual(measure.totals_disagreement(self.results), [])
+
+    def test_an_edited_headline_figure_is_named(self):
+        self.results["totals"]["decidable_share"] = 0.9999
+        self.assertEqual(
+            measure.totals_disagreement(self.results), ["decidable_share"]
+        )
+
+    def test_an_edited_row_is_caught_by_the_totals_it_feeds(self):
+        """The rows are the record; a row edited alone desyncs the totals."""
+        self.results["ventures"][0]["pages"] += 1
+        self.assertIn("pages", measure.totals_disagreement(self.results))
+
+
 if __name__ == "__main__":
     unittest.main()

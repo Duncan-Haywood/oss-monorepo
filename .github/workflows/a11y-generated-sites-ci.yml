@@ -70,8 +70,14 @@ jobs:
           python-version: "3.12"
       # Standard-library unittest only: no pip install step, by design.
       - run: python3 -m unittest discover -p 'test_*.py'
-      # The summary in README.md must still re-derive from the committed
-      # results with no network and no build. Catches a hand-edited number.
+      # This asserts that the committed file parses and its summary still
+      # renders. It does NOT catch a hand-edited number, as this comment claimed
+      # until 2026-08-24 — `summarise` returns a report string, and the contrast
+      # counters are built from HTML inside `measure`, so nothing here can be
+      # re-derived from `per_page` offline. Note this is the same objection the
+      # comment below already raises against the no-argument invocation: it
+      # applies verbatim to --recompute-from, which prints and exits 0 either
+      # way. The committed figures are pinned by the test step above.
       - run: python3 audit_generated_sites.py --recompute-from results-2026-08-22.json
       # Running the engines over the committed corpus for real is asserted in
       # the suite above (DeliveredCorpus), not repeated here: `audit_generated_
