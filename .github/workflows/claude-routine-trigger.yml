@@ -18,11 +18,27 @@ name: Claude routine trigger
 #
 #   t=0  t=240  t=480  t=720  t=960 (run ends) ... next run at t=1200
 #
-# The last fire of one run and the first of the next are also 240s apart, so
-# the cadence holds across run boundaries. GitHub's scheduler is best-effort
-# and defers `schedule` events under load, so treat 15 fires/hour as the
-# ceiling, not a guarantee. Set FIRES_PER_RUN=1 and the cron to `*/5 * * * *`
-# for the cheap, slightly slower variant (see the cost note below).
+# When runs start on time the last fire of one run and the first of the next
+# are also 240s apart, so the cadence holds across the boundary. That is the
+# best case and not a guarantee:
+#
+#   * GitHub's scheduler is best-effort and defers `schedule` events under
+#     load, so 15 fires/hour is a ceiling. Fires are dropped, never added.
+#   * A deferred run can be cancelled by the next one mid-loop (see the
+#     concurrency block). The incoming run fires straight away, so the gap
+#     across that boundary can be much shorter than 240s -- a delayed :00 run
+#     starting at :19 fires once, and the :20 run cancels it and fires again a
+#     minute later. Spacing is therefore approximate under scheduler delay,
+#     in both directions.
+#
+# Holding a true floor between fires would need state shared across runs,
+# which a workflow has nowhere to keep. If exact spacing matters more than the
+# 4-minute target, use the single-fire variant below, where the cron itself is
+# the only thing deciding when a fire happens.
+#
+# Set FIRES_PER_RUN=1 and the cron to `*/5 * * * *` for that variant: a
+# 5-minute cadence, no in-run loop, no cancellation window, and roughly a
+# quarter of the Actions bill (see the cost note below).
 #
 # COST
 # ----
@@ -51,8 +67,13 @@ on:
 permissions: {}
 
 # A deferred run must not stack on top of a still-looping one, which would
-# double the fire rate. Replacing the in-flight run instead restarts the
-# cadence cleanly; the only thing lost is a sleep.
+# double the fire rate for a whole run. Replacing the in-flight run drops its
+# remaining fires instead. Cancellation does not replay anything -- the
+# incoming run fires its own slots -- but it does fire the first of them
+# immediately, so a cancellation can put two fires closer together than
+# INTERVAL_SECONDS. That is the accepted cost of the choice: queueing instead
+# would let the deferred run start the moment the in-flight one ends and fire
+# all of its slots, which bunches more sessions, not fewer.
 concurrency:
   group: claude-routine-trigger
   cancel-in-progress: true
