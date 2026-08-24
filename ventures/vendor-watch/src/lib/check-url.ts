@@ -1,6 +1,10 @@
 import { createHash } from "node:crypto";
 import { lookup } from "node:dns/promises";
+import http from "node:http";
+import https from "node:https";
 import { BlockList, isIP } from "node:net";
+import { Readable } from "node:stream";
+import { createBrotliDecompress, createGunzip, createInflate } from "node:zlib";
 import { diffWords, type DiffOp } from "./diff";
 import { getSnapshot, saveSnapshot } from "./watch-store";
 
@@ -67,24 +71,138 @@ function isBlockedHostname(hostname: string): boolean {
   return isIP(hostname) !== 0 && isBlockedIpAddress(hostname);
 }
 
-async function urlTargetsBlockedAddress(input: string): Promise<boolean> {
+export type DnsLookupFn = (
+  hostname: string,
+  options: { all: true },
+) => Promise<Array<{ address: string; family: number }>>;
+
+const defaultDnsLookup: DnsLookupFn = (hostname, options) => lookup(hostname, options);
+
+let dnsLookup = defaultDnsLookup;
+let checkTimeoutMs = FETCH_TIMEOUT_MS;
+
+export function configureCheckUrlForTests(options?: {
+  lookup?: DnsLookupFn;
+  timeoutMs?: number;
+}): void {
+  dnsLookup = options?.lookup ?? defaultDnsLookup;
+  checkTimeoutMs = options?.timeoutMs ?? FETCH_TIMEOUT_MS;
+}
+
+function createAbortError(): Error {
+  const error = new Error("This operation was aborted");
+  error.name = "AbortError";
+  return error;
+}
+
+function raceAbort<T>(promise: Promise<T>, signal: AbortSignal): Promise<T> {
+  if (signal.aborted) return Promise.reject(createAbortError());
+  return new Promise<T>((resolve, reject) => {
+    const onAbort = () => reject(createAbortError());
+    signal.addEventListener("abort", onAbort, { once: true });
+    promise.then(
+      (value) => {
+        signal.removeEventListener("abort", onAbort);
+        resolve(value);
+      },
+      (error: unknown) => {
+        signal.removeEventListener("abort", onAbort);
+        reject(error);
+      },
+    );
+  });
+}
+
+type PublicHop = { parsed: URL; address: string };
+
+async function resolvePublicHop(input: string, signal: AbortSignal): Promise<PublicHop | null> {
   let parsed: URL;
   try {
     parsed = new URL(input);
   } catch {
-    return true;
+    return null;
   }
-  if (parsed.protocol !== "http:" && parsed.protocol !== "https:") return true;
+  if (parsed.protocol !== "http:" && parsed.protocol !== "https:") return null;
   const hostname = hostnameOf(parsed);
-  if (isBlockedHostname(hostname)) return true;
-  if (isIP(hostname) !== 0) return false;
-  try {
-    const answers = await lookup(hostname, { all: true });
-    return answers.some((answer) => isBlockedIpAddress(answer.address));
-  } catch {
-    // DNS failure is handled by the later fetch as inconclusive.
-    return false;
+  if (isBlockedHostname(hostname)) return null;
+  if (isIP(hostname) !== 0) return { parsed, address: hostname };
+  const answers = await raceAbort(dnsLookup(hostname, { all: true }), signal);
+  if (answers.length === 0) return null;
+  if (answers.some((answer) => isBlockedIpAddress(answer.address))) return null;
+  const preferred = answers.find((answer) => answer.family === 4) ?? answers[0];
+  if (!preferred) return null;
+  return { parsed, address: preferred.address };
+}
+
+function decodeIncoming(incoming: http.IncomingMessage): Readable {
+  const encoding = String(incoming.headers["content-encoding"] ?? "")
+    .split(",")[0]
+    ?.trim()
+    .toLowerCase();
+  if (encoding === "gzip" || encoding === "x-gzip") return incoming.pipe(createGunzip());
+  if (encoding === "deflate") return incoming.pipe(createInflate());
+  if (encoding === "br") return incoming.pipe(createBrotliDecompress());
+  return incoming;
+}
+
+function incomingToResponse(incoming: http.IncomingMessage): Response {
+  const headers = new Headers();
+  for (const [key, values] of Object.entries(incoming.headersDistinct ?? {})) {
+    if (!values) continue;
+    for (const value of values) headers.append(key, value);
   }
+  const status = incoming.statusCode ?? 0;
+  if (status === 204 || status === 205 || status === 304) {
+    incoming.resume();
+    return new Response(null, { status, statusText: incoming.statusMessage ?? "", headers });
+  }
+  const encoding = String(incoming.headers["content-encoding"] ?? "")
+    .split(",")[0]
+    ?.trim()
+    .toLowerCase();
+  const needsDecode =
+    encoding === "gzip" || encoding === "x-gzip" || encoding === "deflate" || encoding === "br";
+  if (needsDecode) {
+    headers.delete("content-encoding");
+    headers.delete("content-length");
+  }
+  return new Response(Readable.toWeb(needsDecode ? decodeIncoming(incoming) : incoming) as ReadableStream, {
+    status,
+    statusText: incoming.statusMessage ?? "",
+    headers,
+  });
+}
+
+function fetchPinnedHop(hop: PublicHop, signal: AbortSignal): Promise<Response> {
+  const { parsed, address } = hop;
+  const isHttps = parsed.protocol === "https:";
+  const port = parsed.port ? Number(parsed.port) : isHttps ? 443 : 80;
+  const requestOptions: https.RequestOptions = {
+    protocol: parsed.protocol,
+    hostname: address,
+    family: isIP(address) === 6 ? 6 : 4,
+    port,
+    path: `${parsed.pathname}${parsed.search}`,
+    method: "GET",
+    headers: {
+      host: parsed.host,
+      accept: "*/*",
+    },
+    signal,
+  };
+  if (isHttps) requestOptions.servername = hostnameOf(parsed);
+
+  return new Promise((resolve, reject) => {
+    const req = (isHttps ? https : http).request(requestOptions, (incoming) => {
+      try {
+        resolve(incomingToResponse(incoming));
+      } catch (error) {
+        reject(error);
+      }
+    });
+    req.on("error", reject);
+    req.end();
+  });
 }
 
 function concatBytes(chunks: Uint8Array[]): Uint8Array {
@@ -134,12 +252,18 @@ async function fetchPublicUrl(
 ): Promise<Response> {
   let current = url;
   for (let hop = 0; hop <= MAX_REDIRECTS; hop += 1) {
-    if (await urlTargetsBlockedAddress(current)) {
+    const resolved = await resolvePublicHop(current, signal);
+    if (!resolved) {
       throw new Error("URL is not a public http(s) address");
     }
-    // Never let fetch follow redirects itself: a public first hop can 30x
-    // into loopback, RFC1918, or link-local (including cloud metadata).
-    const response = await fetchImpl(current, { signal, redirect: "manual" });
+    // Pin the default fetch to the address we just validated so a short-TTL
+    // or rebinding name cannot pass the private-IP check and then resolve to
+    // loopback / RFC1918 / link-local (including cloud metadata) on connect.
+    // Injected fetch implementations (tests) still receive the original URL.
+    const response =
+      fetchImpl === fetch
+        ? await fetchPinnedHop(resolved, signal)
+        : await fetchImpl(current, { signal, redirect: "manual" });
     if (!REDIRECT_STATUS.has(response.status)) return response;
     const location = response.headers.get("location");
     if (!location) return response;
@@ -194,7 +318,7 @@ export async function checkUrl(url: string, fetchImpl: FetchFn = fetch): Promise
     : undefined;
 
   const controller = new AbortController();
-  const timeout = setTimeout(() => controller.abort(), FETCH_TIMEOUT_MS);
+  const timeout = setTimeout(() => controller.abort(), checkTimeoutMs);
 
   try {
     let response: Response;
@@ -216,7 +340,7 @@ export async function checkUrl(url: string, fetchImpl: FetchFn = fetch): Promise
     } catch (error) {
       const message =
         error instanceof Error && error.name === "AbortError"
-          ? `Fetch timed out after ${FETCH_TIMEOUT_MS}ms`
+          ? `Fetch timed out after ${checkTimeoutMs}ms`
           : error instanceof Error
             ? error.message
             : "Unknown fetch error";

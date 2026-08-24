@@ -1,6 +1,12 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
-import { checkUrl, isPlausibleHttpUrl, normalizeHtmlToText, type FetchFn } from "../src/lib/check-url";
+import {
+  checkUrl,
+  configureCheckUrlForTests,
+  isPlausibleHttpUrl,
+  normalizeHtmlToText,
+  type FetchFn,
+} from "../src/lib/check-url";
 import { clearWatchStoreForTests } from "../src/lib/watch-store";
 
 function fakeResponse(status: number, text: string): Response {
@@ -167,6 +173,67 @@ test("does not follow a redirect onto a private or loopback address", async () =
   assert.equal(result.outcome, "inconclusive");
   assert.equal(result.httpStatus, null);
   assert.ok(!requested.some((value) => value.includes("127.0.0.1")));
+});
+
+test("refuses a hostname whose resolved addresses include a blocked IP", async () => {
+  clearWatchStoreForTests();
+  configureCheckUrlForTests({
+    lookup: async () => [{ address: "127.0.0.1", family: 4 }],
+  });
+  let fetched = false;
+  const fetchImpl: FetchFn = async () => {
+    fetched = true;
+    return fakeResponse(200, "<p>should not be fetched</p>");
+  };
+
+  try {
+    const result = await checkUrl("https://example.com/terms", fetchImpl);
+    assert.equal(result.outcome, "inconclusive");
+    assert.equal(result.httpStatus, null);
+    assert.match(result.errorMessage ?? "", /not a public http\(s\) address/);
+    assert.equal(fetched, false);
+  } finally {
+    configureCheckUrlForTests();
+  }
+});
+
+test("pins the request to the pre-resolved address so fetch cannot rebind DNS", async () => {
+  clearWatchStoreForTests();
+  configureCheckUrlForTests({
+    timeoutMs: 400,
+    // TEST-NET-1 is not blocked, but nothing answers there. If the default
+    // fetch path re-resolved example.com instead of pinning this address,
+    // the check would succeed with HTTP 200.
+    lookup: async () => [{ address: "192.0.2.1", family: 4 }],
+  });
+
+  try {
+    const result = await checkUrl("https://example.com/terms");
+    assert.equal(result.outcome, "inconclusive");
+    assert.equal(result.httpStatus, null);
+    assert.ok(result.errorMessage);
+  } finally {
+    configureCheckUrlForTests();
+  }
+});
+
+test("a hanging DNS lookup is aborted by the check timeout", async () => {
+  clearWatchStoreForTests();
+  configureCheckUrlForTests({
+    timeoutMs: 30,
+    lookup: () => new Promise(() => {}),
+  });
+
+  try {
+    const started = Date.now();
+    const result = await checkUrl("https://example.com/terms", fetchReturning(200, "<p>unused</p>"));
+    assert.equal(result.outcome, "inconclusive");
+    assert.equal(result.httpStatus, null);
+    assert.match(result.errorMessage ?? "", /timed out after 30ms/);
+    assert.ok(Date.now() - started < 1000, "DNS wait should not exceed the check timeout");
+  } finally {
+    configureCheckUrlForTests();
+  }
 });
 
 test("stops reading an oversized response body before it is fully buffered", async () => {
