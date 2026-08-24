@@ -54,7 +54,9 @@ works one $19.99 SKU through both paths, fee by fee.
 4. **Decisions.** Break-even list price, price that hits a target net
    margin, maximum you can pay for the unit, organic vs affiliate on the
    same SKU, mid-2026 vs announced October 2026, and a monthly roll-up at
-   365/12 days (not a flat 30).
+  365/12 days (not a flat 30). Use **Copy scenario link** beneath the result
+  to share or archive the current assumptions. The link contains only values
+  entered into this calculator, not usage data or a hidden identifier.
 
 The arithmetic lives in [`calc.mjs`](calc.mjs) with no DOM or network
 dependency. See [`calc.test.mjs`](calc.test.mjs).

@@ -202,6 +202,8 @@
         <dt>Monthly P&amp;L at this daily volume</dt><dd id="monthlyProfit"></dd>
       </dl>
       <div id="verdict" class="verdict" hidden></div>
+      <button id="copyScenario" type="button">Copy scenario link</button>
+      <span id="copyStatus" class="note" role="status" aria-live="polite"></span>
       <hr>
       <h2>Organic vs affiliate</h2>
       <table>
@@ -292,6 +294,24 @@
 
     function count(event) {
       recordUsage(localStorage, el("usageOptOut").checked, event);
+    }
+
+    function scenarioLink() {
+      const params = new URLSearchParams();
+      FIELD_IDS.forEach((id) => params.set(id, el(id).value));
+      params.set("affiliateRefundedOnReturn", el("affiliateRefundedOnReturn").checked ? "1" : "0");
+      params.set("affiliateOnItemOnly", el("affiliateOnItemOnly").checked ? "1" : "0");
+      return `${window.location.href.split("?")[0]}?${params}`;
+    }
+
+    function restoreScenario() {
+      const params = new URLSearchParams(window.location.search);
+      FIELD_IDS.forEach((id) => {
+        if (params.has(id)) el(id).value = params.get(id);
+      });
+      ["affiliateRefundedOnReturn", "affiliateOnItemOnly"].forEach((id) => {
+        if (params.has(id)) el(id).checked = params.get(id) === "1";
+      });
     }
 
     function paint() {
@@ -397,6 +417,17 @@
       });
     });
 
+    el("copyScenario").addEventListener("click", async () => {
+      try {
+        await navigator.clipboard.writeText(scenarioLink());
+        el("copyStatus").textContent = "Copied. The link contains your assumptions, not usage data.";
+        count("scenario_shared");
+      } catch {
+        el("copyStatus").textContent = "Copy was blocked. Select the page URL manually.";
+      }
+    });
+
+    restoreScenario();
     paint();
   </script>
 </body>

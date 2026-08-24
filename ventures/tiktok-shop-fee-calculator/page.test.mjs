@@ -115,3 +115,11 @@ test("the landing copy names the affiliate-return problem in the first screen", 
   assert.match(markup, /No warranty/);
   assert.match(markup, /Nothing leaves your browser/);
 });
+
+test("scenario sharing is local and restores entered assumptions", () => {
+  assert.match(markup, /id="copyScenario"/);
+  assert.match(scriptSource, /URLSearchParams/);
+  assert.match(scriptSource, /restoreScenario/);
+  assert.match(scriptSource, /navigator\.clipboard\.writeText/);
+  assert.match(scriptSource, /scenario_shared/);
+});
