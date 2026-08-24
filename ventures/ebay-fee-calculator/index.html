@@ -143,8 +143,8 @@
         document.getElementById('roi').textContent = result.roi === null ? 'n/a' : `${result.roi.toFixed(1)}%`;
         document.getElementById('unitProfit').textContent = money(result.unitProfit);
         document.getElementById('breakEven').textContent = Number.isFinite(result.breakEvenPrice) ? money(result.breakEvenPrice) : 'never';
-         document.getElementById('targetMarginPrice').textContent = Number.isFinite(result.targetMarginPrice) ? money(result.targetMarginPrice) : 'unreachable';
-         document.getElementById('maxCostOfGoods').textContent = result.targetRoiAchievable ? money(result.maxCostOfGoods) : 'none';
+        document.getElementById('targetMarginPrice').textContent = Number.isFinite(result.targetMarginPrice) ? money(result.targetMarginPrice) : 'unreachable';
+        document.getElementById('maxCostOfGoods').textContent = result.targetRoiAchievable ? money(result.maxCostOfGoods) : 'none';
       } catch (error) {
         document.getElementById('profit').textContent = error.message;
         document.getElementById('profit').className = 'hero-number negative';
@@ -156,8 +156,8 @@
         document.getElementById('roi').textContent = '';
         document.getElementById('unitProfit').textContent = '';
         document.getElementById('breakEven').textContent = '';
-         document.getElementById('targetMarginPrice').textContent = '';
-         document.getElementById('maxCostOfGoods').textContent = '';
+        document.getElementById('targetMarginPrice').textContent = '';
+        document.getElementById('maxCostOfGoods').textContent = '';
         document.getElementById('scenarios').innerHTML = '';
         document.getElementById('scenariosEmpty').hidden = false;
       }
@@ -187,7 +187,7 @@
     }
     ids.forEach(id => document.getElementById(id).addEventListener('change', () => {
       saveInputs();
-       recordUsage(localStorage, document.getElementById('usageOptOut').checked, id === 'targetMargin' ? 'target_margin_calculated' : id === 'targetRoi' ? 'target_roi_calculated' : id === 'quantity' ? 'batch_calculated' : 'order_profit_calculated');
+      recordUsage(localStorage, document.getElementById('usageOptOut').checked, id === 'targetMargin' ? 'target_margin_calculated' : id === 'targetRoi' ? 'target_roi_calculated' : id === 'quantity' ? 'batch_calculated' : 'order_profit_calculated');
     }));
     document.getElementById('usageOptOut').addEventListener('change', update);
     const actions = document.createElement('p');
