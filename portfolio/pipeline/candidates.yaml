@@ -514,7 +514,11 @@ candidates:
     name: Vendor-change evidence monitor
     doc: candidates/vendor-change-evidence.md
     verdict: probe
-    probe_status: not-started
+    probe_status: >-
+      step 1 partially run: local section-aware snapshot-diff tool built and
+      tested (7 tests) against fixtures, not live pages. Scheduled fetch/hash
+      loop, the 10-page replay, and step 3 (10 practitioner conversations, one
+      paid pilot) are unstarted.
     graduate_as: venture
     host_venture: null
     scores:
@@ -633,3 +637,38 @@ candidates:
       tip/reservation check for any later deletion action.
     first_experiment_days: 7
     first_experiment_budget_usd: 150
+
+  - slug: mls-photo-spec-preflight
+    name: MLS photo spec preflight
+    doc: candidates/mls-photo-spec-preflight.md
+    verdict: build-now
+    graduate_as: product-line
+    host_venture: real-estate-agent-photo-app
+    scores:
+      ai_leverage: 7
+      autonomous_ops: 8
+      time_to_revenue: 6
+      gross_margin: 8
+      defensibility: 5
+      distribution: 5
+      liability_containment: 7
+      ethical_robustness: 8
+    composite: 6.75
+    floor: 5
+    floor_dimension: distribution
+    floor_note: >-
+      Two dimensions tie at the floor. `floor_dimension` names distribution
+      because that is the variable that has blocked every other candidate
+      here; defensibility at 5 only lowers the composite.
+    mitigation: >-
+      Graduates as a product line of `real-estate-agent-photo-app` (same
+      buyer, same delivery folder). Visual watermark detection is disclosed
+      as unimplemented, not sold as covered. The record never says a portal
+      will accept the listing.
+    note: >-
+      Added 2026-08-24 after session_gate reported the pipeline empty
+      (eaa-remediation-pipeline had graduated). Not a restatement of
+      listing photography the venture, not multi-location-listing-guard,
+      not EAA/web accessibility. See screened-out.md.
+    first_experiment_days: 14
+    first_experiment_budget_usd: 0
