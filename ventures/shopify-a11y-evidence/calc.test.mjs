@@ -14,3 +14,10 @@ test('accepts a clean result without inventing compliance', () => {
   assert.equal(report.counts.violations, 0);
   assert.match(reportAsText(report), /Manual review is still required/);
 });
+
+test('keeps incomplete checks in the handoff record', () => {
+  const report = buildReport({ incomplete: [{ id: 'aria-allowed-attr', impact: 'moderate', nodes: [{}] }] }, '2026-08-24');
+  assert.equal(report.reviewItems[0].id, 'aria-allowed-attr');
+  assert.match(reportAsText(report), /Items needing manual review/);
+  assert.match(reportAsText(report), /aria-allowed-attr/);
+});

@@ -4,7 +4,7 @@ Shopify merchants and agencies can paste an `axe-core` JSON export and create a 
 
 ## Run it
 
-Open `index.html` in a browser, paste the JSON exported by axe-core, and choose **Generate evidence record**. Use **Download .txt** to save a reviewable record. No account, network call, Shopify permission, or API key is required.
+Open `index.html` in a browser, paste the JSON exported by axe-core, and choose **Generate evidence record**. Use **Copy record** for an agency or client handoff, or **Download .txt** to save a dated record. Incomplete checks are included separately so uncertain results are not lost. No account, network call, Shopify permission, or API key is required.
 
 Everything runs in the browser. The JSON is never uploaded and there are no cookies or analytics vendors. The tool keeps only an anonymous aggregate `report_generated` count in localStorage, with a visible opt-out.
 
