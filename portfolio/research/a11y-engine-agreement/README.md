@@ -262,6 +262,17 @@ gives the resolver two literal colours, which is a property of that
 engine's corpus and is tracked next to the 1.4.3 decidable-share
 question rather than here.
 
+## Amendment (2026-08-24): 2.2.1, 2.2.2, 3.1.2 moved into `audit.py`
+
+The probe has decided these three from markup since 2026-08-22; `audit.py`
+declared them untested. They are now in its checked catalog, so the
+asymmetry is the disclosed remainder (2.4.1, 2.5.3, 1.3.4) rather than a
+silent one. `results-2026-08-21.json` was regenerated; the catalog move is
+the only change this directory records. The same pass also made `audit.py`
+reject an invalid `<html lang>` (3.1.1), which does not change the catalog
+— that criterion was already checked — but stops `lang="engl"` reading as
+clean. No score moved.
+
 ## Status of these claims
 
 Primary measurement, re-derivable offline. Every number in this document comes
