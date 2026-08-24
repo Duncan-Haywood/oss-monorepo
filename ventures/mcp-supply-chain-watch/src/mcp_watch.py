@@ -14,6 +14,29 @@ from pathlib import Path
 INSTRUCTION = re.compile(r"\b(ignore|disregard|override|system message|you must|do not tell|send .* to|reveal)\b", re.I)
 
 
+def markdown(report: dict) -> str:
+    """Render evidence without copying manifest descriptions or schemas."""
+    changes = report["changes"]
+    lines = [
+        "# MCP supply-chain watch",
+        "",
+        f"Server: `{report.get('server') or 'unknown'}`",
+        f"Before: `{report.get('before') or 'unknown'}`",
+        f"After: `{report.get('after') or 'unknown'}`",
+        "",
+    ]
+    if not changes:
+        lines.append("No tool changes observed.")
+        return "\n".join(lines) + "\n"
+    lines.extend([f"Observed changes: {len(changes)}", ""])
+    for change in changes:
+        bucket = f" ({change['bucket']})" if "bucket" in change else ""
+        reason = f" -- {change['reason']}" if "reason" in change else ""
+        lines.append(f"- **{change['severity'].upper()}** `{change['kind']}`: `{change['tool']}`{bucket}{reason}")
+    lines.extend(["", "Observed manifest differences are not a safety certification."])
+    return "\n".join(lines) + "\n"
+
+
 def load(path: str) -> dict:
     value = json.loads(Path(path).read_text(encoding="utf-8"))
     if not isinstance(value, dict) or not isinstance(value.get("tools"), list):
@@ -61,13 +84,14 @@ def main() -> int:
     parser.add_argument("before")
     parser.add_argument("after")
     parser.add_argument("--output", help="write the JSON evidence report to this path")
+    parser.add_argument("--format", choices=("json", "markdown"), default="json")
     parser.add_argument("--usage-log", help="append one aggregate comparison event")
     args = parser.parse_args()
     try:
         report = compare(load(args.before), load(args.after))
     except (OSError, ValueError, json.JSONDecodeError) as error:
         parser.error(str(error))
-    rendered = json.dumps(report, indent=2, sort_keys=True) + "\n"
+    rendered = markdown(report) if args.format == "markdown" else json.dumps(report, indent=2, sort_keys=True) + "\n"
     if args.output:
         Path(args.output).write_text(rendered, encoding="utf-8")
     else:

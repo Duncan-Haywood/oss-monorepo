@@ -8,6 +8,7 @@ evidence in seconds, which used to require manually inspecting two exports.
 ```bash
 python3 src/mcp_watch.py examples/before.json examples/after.json
 python3 src/mcp_watch.py examples/before.json examples/after.json --output drift.json --usage-log usage.jsonl
+python3 src/mcp_watch.py examples/before.json examples/after.json --format markdown > drift.md
 ```
 
 The checker is local-first and standard-library only. It reports tool additions,
@@ -28,3 +29,7 @@ Usage logging is opt-in with `--usage-log` and records only the event name, day,
 and product slug. It stores no server names, tool names, descriptions, schemas,
 IP addresses, or identifiers. There are no accounts, cookies, network calls,
 paid APIs, or analytics vendors.
+
+The optional Markdown format is suitable for a ticket or review note. It lists
+tool names and observed change categories, but intentionally does not reproduce
+manifest descriptions or input schemas.

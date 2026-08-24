@@ -3,7 +3,7 @@ import sys
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).parents[1] / "src"))
-from mcp_watch import compare, load
+from mcp_watch import compare, load, markdown
 
 
 def test_fixture_reports_removed_and_instruction_changes():
@@ -23,3 +23,14 @@ def test_duplicate_names_are_rejected(tmp_path):
         assert "duplicate" in str(error)
     else:
         raise AssertionError("duplicate names should fail")
+
+
+def test_markdown_report_is_reviewable_without_manifest_content():
+    before = load(str(Path(__file__).parents[1] / "examples/before.json"))
+    after = load(str(Path(__file__).parents[1] / "examples/after.json"))
+    report = compare(before, after)
+    output = markdown(report)
+    assert "Observed changes: 2" in output
+    assert "search_inventory" in output
+    assert "Ignore previous instructions" not in output
+    assert "inputSchema" not in output
