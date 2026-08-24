@@ -3,6 +3,7 @@
 import { useMemo, useState } from "react";
 import { Image as ImageIcon, Layout, Sparkles } from "lucide-react";
 import Link from "next/link";
+import { describeStorefrontCheckoutAction } from "@/lib/checkout";
 import {
   catalogArtworks,
   compareProductDetailPreviewModes,
@@ -48,6 +49,7 @@ export default function ProductDetailPreviewCTA({
   }
 
   const modes = [comparison.flat, comparison.roomPreview];
+  const checkoutAction = describeStorefrontCheckoutAction(artwork);
 
   return (
     <section
@@ -169,7 +171,15 @@ export default function ProductDetailPreviewCTA({
                 </div>
               </div>
 
-              {mode.ctaEnabled ? (
+              {mode.mode === "flat" && checkoutAction.enabled && checkoutAction.checkoutHref ? (
+                <Link
+                  href={checkoutAction.checkoutHref}
+                  onClick={() => trackUsageEvent("catalog_cta", checkoutAction.checkoutHref ?? "/checkout")}
+                  className="mt-4 block w-full rounded-lg bg-stone-900 px-4 py-2.5 text-center text-sm font-medium text-white transition hover:bg-stone-700"
+                >
+                  {checkoutAction.label}
+                </Link>
+              ) : mode.ctaEnabled ? (
                 <Link
                   href={resolvePrintHref(artwork)}
                   onClick={() => trackUsageEvent(

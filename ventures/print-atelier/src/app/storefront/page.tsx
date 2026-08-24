@@ -2,6 +2,7 @@ import DemoNav from "@/components/shared/DemoNav";
 import ProductDetailPreviewCTA from "@/components/ProductDetailPreviewCTA";
 import RoomPreviewExperiment from "@/components/RoomPreviewExperiment";
 import StorefrontSearchForm from "@/components/StorefrontSearchForm";
+import { describeStorefrontCheckoutAction } from "@/lib/checkout";
 import { calculatePrintEconomics, catalogArtworks } from "@/lib/marketplace";
 import { resolvePrintHref } from "@/lib/seo";
 import {
@@ -17,10 +18,10 @@ export const dynamic = "force-dynamic";
 
 type StorefrontPageProps = {
   searchParams: Promise<{
-    style?: string;
-    q?: string;
-    artist?: string;
-    view?: string;
+    style?: string | string[];
+    q?: string | string[];
+    artist?: string | string[];
+    view?: string | string[];
   }>;
 };
 
@@ -197,20 +198,31 @@ export default async function StorefrontPage({ searchParams }: StorefrontPagePro
                   fulfillmentCost: art.fulfillmentCost,
                 });
                 const href = resolvePrintHref(art);
+                const checkoutAction = describeStorefrontCheckoutAction(art);
 
                 return (
-                  <Link
+                  <div
                     key={`${art.slug}-preview`}
-                    href={href}
-                    className="flex items-center gap-3 rounded-2xl border border-stone-200 bg-white p-3 shadow-sm hover:border-stone-400"
+                    className="flex items-center gap-3 rounded-2xl border border-stone-200 bg-white p-3 shadow-sm"
                   >
-                    <div className={`h-16 w-14 shrink-0 rounded-xl ${art.imageClass}`} />
+                    <Link href={href} className={`h-16 w-14 shrink-0 rounded-xl ${art.imageClass}`} aria-label={art.title} />
                     <div className="min-w-0">
-                      <p className="truncate text-sm font-semibold text-stone-900">{art.title}</p>
+                      <p className="truncate text-sm font-semibold text-stone-900">
+                        <Link href={href} className="hover:underline">
+                          {art.title}
+                        </Link>
+                      </p>
                       <p className="text-xs text-stone-500">{art.artistName} • ${art.retailPrice}</p>
                       <p className="text-xs font-medium text-emerald-700">Artist earns ${economics.artistShare.toFixed(2)} per print</p>
+                      {checkoutAction.enabled && checkoutAction.checkoutHref ? (
+                        <Link href={checkoutAction.checkoutHref} className="mt-1 inline-block text-xs font-medium text-indigo-700 hover:underline">
+                          Add to checkout
+                        </Link>
+                      ) : (
+                        <p className="mt-1 text-xs text-stone-500">Preview only</p>
+                      )}
                     </div>
-                  </Link>
+                  </div>
                 );
               })}
             </div>
@@ -222,6 +234,7 @@ export default async function StorefrontPage({ searchParams }: StorefrontPagePro
                   fulfillmentCost: art.fulfillmentCost,
                 });
                 const href = resolvePrintHref(art);
+                const checkoutAction = describeStorefrontCheckoutAction(art);
 
                 return (
                   <article key={art.id} className="group">
@@ -242,7 +255,7 @@ export default async function StorefrontPage({ searchParams }: StorefrontPagePro
                         </div>
                         <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition flex items-end justify-center pb-4">
                           <span className="opacity-0 group-hover:opacity-100 bg-white text-stone-900 px-4 py-2 rounded-md text-sm font-medium transition shadow-lg">
-                            Quick View — ${art.retailPrice}
+                            View print — ${art.retailPrice}
                           </span>
                         </div>
                       </div>
@@ -258,6 +271,19 @@ export default async function StorefrontPage({ searchParams }: StorefrontPagePro
                     </p>
                     <p className="text-sm font-medium text-stone-900 mt-1">From ${art.retailPrice}</p>
                     <p className="text-xs text-stone-400 mt-1">Artist earns ${economics.artistShare.toFixed(2)} per print</p>
+                    {checkoutAction.enabled && checkoutAction.checkoutHref ? (
+                      <Link
+                        href={checkoutAction.checkoutHref}
+                        className="mt-3 inline-flex w-full items-center justify-center rounded-md bg-indigo-600 px-3 py-2 text-sm font-medium text-white hover:bg-indigo-700"
+                      >
+                        {checkoutAction.label}
+                      </Link>
+                    ) : (
+                      <p className="mt-3 rounded-md bg-stone-100 px-3 py-2 text-xs text-stone-600">
+                        {checkoutAction.label}
+                        {checkoutAction.blockers[0] ? ` — ${checkoutAction.blockers[0]}` : ""}
+                      </p>
+                    )}
                   </article>
                 );
               })}
@@ -265,21 +291,33 @@ export default async function StorefrontPage({ searchParams }: StorefrontPagePro
           </>
         )}
 
-        <ProductDetailPreviewCTA />
         <div id="visualizer">
+          <ProductDetailPreviewCTA />
           <RoomPreviewExperiment />
         </div>
       </section>
 
       <footer className="bg-stone-900 text-stone-400 text-sm py-8 mt-12">
-        <div className="max-w-7xl mx-auto px-4 text-center">
+        <div className="max-w-7xl mx-auto px-4 text-center space-y-2">
           <p>Print Atelier — Interactive Storefront Demo</p>
           <p className="text-xs mt-1 text-stone-500">Programmatic SEO pages and dynamic ads drive traffic to pages like this</p>
           <p className="mx-auto mt-3 max-w-2xl text-xs leading-5 text-stone-500">
             Search and catalog filters run in this demo only. They do not collect payment, identity,
             or third-party tracking. Estimates in the visualizer are illustrative scenarios, not
             financial, legal, tax, or investment advice. Print Atelier makes no earnings,
-            conversion, fulfillment, or compliance warranty.
+            conversion, fulfillment, or compliance warranty. Checkout from a card is a simulated
+            lab unless Stripe test keys are configured. Not a live purchase.
+          </p>
+          <p className="text-xs">
+            <a
+              href="https://github.com/sponsors/Duncan-Haywood"
+              className="text-stone-300 underline hover:text-white"
+              rel="noopener noreferrer"
+            >
+              Optional GitHub Sponsors
+            </a>
+            {" "}
+            — refusing does not change checkout or catalog access.
           </p>
         </div>
       </footer>

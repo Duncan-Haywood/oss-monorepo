@@ -1,12 +1,15 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 import {
+  addArtworkToCheckoutCart,
+  buildCheckoutAddHref,
   buildCheckoutFunnelMetrics,
   buildCheckoutReadiness,
   buildCheckoutSessionPayload,
   buildFulfillmentRoute,
   buildSampleCheckoutCart,
   calculateCheckoutTotals,
+  describeStorefrontCheckoutAction,
   getCheckoutEnvStatus,
   validateCheckoutLineItem,
 } from "../src/lib/checkout.ts";
@@ -110,4 +113,44 @@ test("buildCheckoutFunnelMetrics marks live checkout ready when env and POD conf
   assert.equal(funnel.fulfillmentReady, true);
   assert.equal(funnel.checkoutSessionReady, true);
   assert.ok(funnel.overallReadiness >= 80);
+});
+
+test("addArtworkToCheckoutCart accepts a consent-cleared listing and rejects blocked ones", () => {
+  const added = addArtworkToCheckoutCart([], "midnight-coast");
+  assert.equal(added.added, true);
+  assert.equal(added.alreadyInCart, false);
+  assert.equal(added.cart[0]?.artworkSlug, "midnight-coast");
+  assert.equal(buildCheckoutAddHref("midnight-coast"), "/checkout?add=midnight-coast");
+
+  const duplicate = addArtworkToCheckoutCart(added.cart, "midnight-coast");
+  assert.equal(duplicate.added, false);
+  assert.equal(duplicate.alreadyInCart, true);
+  assert.equal(duplicate.cart.length, 1);
+
+  const blocked = addArtworkToCheckoutCart([], "spring-bloom");
+  assert.equal(blocked.added, false);
+  assert.ok(blocked.blockers.some((blocker) => blocker.includes("Storefront consent")));
+  assert.equal(blocked.cart.length, 0);
+
+  const unknown = addArtworkToCheckoutCart([], "not-a-print");
+  assert.equal(unknown.added, false);
+  assert.ok(unknown.blockers[0]?.includes("Unknown artwork slug"));
+});
+
+test("describeStorefrontCheckoutAction exposes checkout href only for eligible listings", () => {
+  const midnight = catalogArtworks.find((art) => art.slug === "midnight-coast");
+  const spring = catalogArtworks.find((art) => art.slug === "spring-bloom");
+  assert.ok(midnight);
+  assert.ok(spring);
+
+  const ready = describeStorefrontCheckoutAction(midnight);
+  assert.equal(ready.enabled, true);
+  assert.equal(ready.checkoutHref, "/checkout?add=midnight-coast");
+  assert.ok(ready.label.includes("$"));
+
+  const preview = describeStorefrontCheckoutAction(spring);
+  assert.equal(preview.enabled, false);
+  assert.equal(preview.checkoutHref, null);
+  assert.equal(preview.label, "Preview only");
+  assert.ok(preview.blockers.length > 0);
 });

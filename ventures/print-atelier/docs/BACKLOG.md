@@ -38,7 +38,7 @@ Agent-maintained. Only work marked `ready` should be picked up. Invent new items
 
 ## in_progress
 
-_(agent assigns at run start)_
+- [ ] [product] Storefront cards and preview CTA add consent-cleared SKUs via `/checkout?add=`
 
 ## done
 
