@@ -261,22 +261,6 @@ decisions:
     every future venture pull request also reduce to, it is now its own row
     (`venture-gate-premise`, Ask 9) rather than a paragraph inside this one.
 
-- id: dependabot
-  asks: []
-  prs: [368]
-  gates: deployment
-  exposure: none
-  opened: "2026-08-20"
-  action: "Merge or decline #368."
-  unlocks:
-    - Scheduled dependency update PRs across the 15 tracked manifests.
-  blocked_by: []
-  note: >-
-    Touches only `.github/dependabot.yml`, so it is an internal surface, but
-    `CLAUDE.md`'s unattended-automation clause gates it anyway: once merged it
-    opens pull requests on its own schedule. Verified in `verifications.yaml`;
-    nothing left to check, the decision itself is the open question.
-
 - id: contrast-fixes
   asks: []
   prs: [531, 583]
