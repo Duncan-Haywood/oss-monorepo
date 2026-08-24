@@ -63,6 +63,23 @@ test('applies documented defaults when rates are omitted', () => {
   near(r.fees.fixed, 0.3, 'default fixed fee');
 });
 
+test('scales batch economics while keeping price thresholds per unit', () => {
+  const input = { price: 40, shippingCharged: 6, finalValueRate: 13.25, fixedFee: 0.3, costOfGoods: 12, shippingCost: 5, packagingCost: 1 };
+  const single = calculateOrder(input);
+  const batch = calculateOrder({ ...input, quantity: 3 });
+  near(batch.revenue, single.revenue * 3, 'batch revenue');
+  near(batch.feeTotal, single.feeTotal * 3, 'batch fees');
+  near(batch.cashInvested, single.cashInvested * 3, 'batch investment');
+  near(batch.profit, single.profit * 3, 'batch profit');
+  near(batch.unitProfit, single.profit, 'unit profit');
+  near(batch.breakEvenPrice, single.breakEvenPrice, 'per-unit break-even');
+});
+
+test('rejects fractional or zero batch quantities', () => {
+  assert.throws(() => calculateOrder({ price: 10, quantity: 0 }), /whole number/);
+  assert.throws(() => calculateOrder({ price: 10, quantity: 1.5 }), /whole number/);
+});
+
 test('rejects negative and non-numeric inputs', () => {
   assert.throws(() => calculateOrder({ price: -1 }), /Item price/);
   assert.throws(() => calculateOrder({ price: 'abc' }), /Item price/);
