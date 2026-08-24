@@ -206,6 +206,15 @@ MUTATIONS: tuple = (
         "add a page part with a malformed language tag",
         _inject_body('<p lang="en_US">Control text.</p>'),
     ),
+    (
+        "1.3.4",
+        "injection",
+        "add an orientation lock rotating <html>",
+        _inject_head(
+            "<style>@media (orientation: portrait) { "
+            "html { transform: rotate(90deg); } }</style>"
+        ),
+    ),
 )
 
 

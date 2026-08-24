@@ -83,7 +83,7 @@ and build.
 
 - Never write `fixes #N` / `closes #N` when referring to someone else's PR —
   GitHub closes the PR unmerged. Say "per #109" or "resolved the conflict on #109".
-- One logical change per commit; push branch `cursor/<name>-b46d`.
+- One logical change per commit; push branch `cursor/<name>-<id>`.
 
 ## Venture-specific notes
 

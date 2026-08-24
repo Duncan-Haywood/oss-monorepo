@@ -31,7 +31,8 @@ outweighed.
 | Generic "AI chatbot for X" agency | No moat, churn tracks the customer's enthusiasm rather than any delivered value, and it is a services business wearing a product costume |
 | Micro-SaaS acquisition and agent-operated turnaround | Fails the low-capital constraint outright, and inherits undisclosed obligations — data-protection liabilities, customer contracts, tax positions — from a seller with an incentive not to mention them |
 | AI PR review, AI receptionist for trades, SOC 2 / ISO / HIPAA doc generation, API uptime monitoring, LinkedIn ghostwriting, RAG-as-a-service, e-commerce QA, contract review API | Already evaluated in `ventures/ai-first-markets/src/data/ideas.ts`. Duplicates, not candidates |
-| Local business websites, print-on-demand art marketplace, small-format retail analytics, listing photography, pairwise survey engine, photo ingest tooling | Already a venture in `ventures/`. See that directory |
+| Local business websites, print-on-demand art marketplace, small-format retail analytics, listing photography, pairwise survey engine, photo ingest tooling | Already a venture in `ventures/`. See that directory. A *product line* of one of those (e.g. [mls-photo-spec-preflight](candidates/mls-photo-spec-preflight.md) on listing photography) is not this row — it is the README rule "fits an existing venture → product line first" |
+| MLS photo spec preflight as a new `ventures/` directory | Same buyer and delivery folder as `real-estate-agent-photo-app`. Kept as a product line of that venture, not a ninth company |
 
 ## From the parallel screening runs (#18, #20, #27, #30, #34)
 
@@ -61,6 +62,14 @@ write-up named; the rest carry their own reason.
 | `einvoice-preflight` (broad version) | Retained as a write-up with a conditional narrow verdict; see [einvoice-preflight](candidates/einvoice-preflight.md) |
 
 ## Notes for the next pass
+
+The **vendor-change evidence monitor** is intentionally retained as a separate
+candidate rather than screened out as public-record watch or documentation
+drift. It watches customer-selected commercial vendor pages and preserves
+source-linked before/after evidence; it does not monitor public registers, infer
+legal consequences, or watch a customer's own documentation. Its low
+defensibility and distribution scores are explicit, and both have named probe
+mitigations in [the write-up](candidates/vendor-change-evidence.md).
 
 - **Deadline-driven compliance is the strongest available wedge for this
   portfolio, and also the most dangerous.** It supplies urgency and a price

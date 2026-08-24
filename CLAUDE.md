@@ -68,7 +68,7 @@ do not re-verify unchanged PRs.
 
 ## Pipeline and new ventures
 
-Screening is done — see `portfolio/pipeline/`. Do not produce another
+Screening is done — see `portfolio/pipeline/README.md`. Do not produce another
 candidate list. Either:
 
 1. Build a `build-now` candidate (`session_gate.py` names the top one), or
@@ -85,9 +85,9 @@ is large, merge the strongest and close the rest with a pointer.
 
 ## Ledger (minimal)
 
-Record outcomes in the monthly ledger when you **shipped or learned something
-new** — not when you looked and confirmed the same blockers. Never bundle a
-ledger entry into a PR waiting on the owner.
+Record outcomes per `portfolio/ledger/README.md` when you **shipped or learned
+something new** — not when you looked and confirmed the same blockers. Never
+bundle a ledger entry into a PR waiting on the owner.
 
 `git fetch origin main` before appending; skip if the latest entry already
 covers your finding.

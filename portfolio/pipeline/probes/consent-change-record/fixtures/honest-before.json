@@ -1,0 +1,9 @@
+{
+  "site": "fixture-honest",
+  "captured_at": "2026-08-24T10:00:00Z",
+  "browser": "chromium-128",
+  "region": "EU",
+  "sequence": "visit-before-consent",
+  "requests": [{"kind": "request", "name": "https://site.test/site.css", "method": "GET"}],
+  "storage": []
+}

@@ -611,7 +611,19 @@ literal is that `for` value after a separator. The pairing is unique, so
 rewriting `for` is not inventing a name. The third fassbender defect
 (`search.liquid:22`) still has no repair — that file has no `<label for>`
 and this pass will not write one. Ambiguous suffixes and expressions that
-could still render equal are left alone. No score moved. The split has moved four
+could still render equal are left alone. No score moved.
+
+**Amended 2026-08-24: autoplay mute and orientation-lock drop.** Two more
+uniquely determined rewrites, neither of which invents words. **1.4.2**
+adds `muted` to `<video>` / `<audio autoplay>` — the rule's own first
+remediation is a boolean, not a caption. **1.3.4** removes a visual
+`transform: rotate()` from a bare `html` / `body` rule inside a *pure*
+orientation media query. Combined queries, no-op turns (`rotate(0deg)` /
+`rotate(360deg)`), class selectors, and a `transform` that carries any
+other function stay. Timed refresh, blink/marquee unwrap, and name-override
+drop already landed in #825 and are not reopened here. Fixture close
+rate is still 1 of 11 blocking: these two defect classes are not in the
+fixture shops. The split has moved four
 times since it was first drawn: on 2026-08-21, when 1.4.3 crossed from
 deferred to partial because the corpus changed, not because the rules got
 cleverer; on 2026-08-22, when four criteria a prior pass had disclosed as
@@ -630,8 +642,9 @@ product: the probe's positive-control module
 runs on every CLI invocation, and the evidence record prints the result in the
 header and in its own section immediately above the findings.
 
-Eleven mutations (three removals, eight injections) cover the blocking
-criteria a qualification audit leads with. A removal that finds nothing to
+Fifteen mutations (three removals, twelve injections) cover the blocking
+criteria a qualification audit leads with, including the 1.3.4 orientation
+lock the mechanical pass can now close. A removal that finds nothing to
 edit is `not_exercised` — untested, not passed. A page that already failed
 the target check is `already_present`, not a miss. `missed` is reserved for
 the case the research named: we introduced the defect and the scanner
@@ -668,7 +681,7 @@ Run in CI by [`eaa-wcag-triage-ci.yml`](../../../../.github/workflows/eaa-wcag-t
 which also re-runs `run_fixture_validation.py` and fails if the committed
 record no longer matches what the engine emits.
 
-282 tests: parser behaviour, each rule and its negative control, the
+326 tests: parser behaviour, each rule and its negative control, the
 blocking-before-degrading ordering, dedup of one element matched by two rules,
 the evidence record's JSON/markdown shape and its compliance disclaimer, the
 fixture validation, and — added 2026-08-21 — the two rules this engine was
