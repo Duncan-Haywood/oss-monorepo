@@ -54,11 +54,14 @@ existing pages:
   (RC/RL × low/high-pass), with a design mode that solves for the missing
   component from a target cutoff and snaps it to a buyable standard value
   (24 passing unit tests).
+- [`tools/capacitor-charge-calculator/`](tools/capacitor-charge-calculator/) —
+  RC capacitor charge/discharge timing, voltage-after-delay, and reverse design
+  for a target threshold (5 passing unit tests).
 
-All five are deliberately narrower than "the MVP": small, self-contained
+All six are deliberately narrower than "the MVP": small, self-contained
 tools for the Circuits corner of the planned EE track, not a curriculum.
 None is yet deployed to a live URL — publishing under the portfolio's name
-is owner-gated per `portfolio/DIRECTION.md`; all five are ready to deploy
+is owner-gated per `portfolio/DIRECTION.md`; all six are ready to deploy
 once that gate opens.
 
 ## Next steps
