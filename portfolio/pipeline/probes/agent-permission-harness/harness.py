@@ -775,7 +775,7 @@ def instruction_closure(
     matters: `CLAUDE.md` is reached in one hop, and `CLAUDE.md` spends most of
     its length ordering reads of the pipeline, ledger, research and router
     documents, none of which the prompt names. Against this repository the one
-    hop is 21 files and the fixed point is 115, at a maximum depth of 4.
+    hop is 21 files and the fixed point is 117, at a maximum depth of 4.
 
     What is counted, stated so the number can be checked rather than believed:
 
