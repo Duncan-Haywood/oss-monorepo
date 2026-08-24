@@ -14,6 +14,7 @@ import {
   generatePolicyText,
   buildShareUrl,
   readShareValues,
+  policyDownloadFilename,
 } from "../src/calc.mjs";
 
 test("parseInputs accepts valid numeric input", () => {
@@ -311,6 +312,23 @@ test("every id src/app.mjs looks up exists in index.html", () => {
       `src/app.mjs queries #${id}, which does not exist in index.html`,
     );
   }
+});
+
+test("policy export control is wired to a local download", () => {
+  const html = readHtml();
+  const app = readApp();
+  assert.match(html, /id="download-policy"/);
+  assert.match(app, /downloadBtn\.addEventListener\("click"/);
+  assert.match(app, /new Blob\(\[policyEl\.value\]/);
+  assert.match(app, /policyDownloadFilename\(businessName\)/);
+  assert.match(app, /recordEvent\("policy_downloaded"\)/);
+});
+
+test("policy download filenames are safe and always have a fallback", () => {
+  assert.equal(policyDownloadFilename("Riverside Personal Training!"), "riverside-personal-training-policy.txt");
+  assert.equal(policyDownloadFilename("   "), "cancellation-policy-policy.txt");
+  assert.equal(policyDownloadFilename("日本語"), "cancellation-policy-policy.txt");
+  assert.ok(policyDownloadFilename("x".repeat(100)).length <= 61);
 });
 
 test("raw-text elements in index.html are closed", () => {

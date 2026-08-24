@@ -229,3 +229,11 @@ function formatHours(hours) {
 function round2(n) {
   return Math.round((n + Number.EPSILON) * 100) / 100;
 }
+export function policyDownloadFilename(businessName) {
+  const safeName = (String(businessName ?? "").trim() || "cancellation-policy")
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "")
+    .slice(0, 50) || "cancellation-policy";
+  return `${safeName}-policy.txt`;
+}

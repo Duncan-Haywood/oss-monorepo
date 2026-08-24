@@ -1,4 +1,4 @@
-import { parseInputs, computeAll, compareFeeScenarios, generatePolicyText, buildShareUrl, readShareValues } from "./calc.mjs";
+import { parseInputs, computeAll, compareFeeScenarios, generatePolicyText, buildShareUrl, readShareValues, policyDownloadFilename } from "./calc.mjs";
 import { recordEvent, isOptedOut, setOptedOut, getUsageSummary, clearUsageLog } from "./usage.mjs";
 
 const form = document.getElementById("calc-form");
@@ -7,6 +7,7 @@ const resultsEl = document.getElementById("results");
 const policyEl = document.getElementById("policy-text");
 const policySection = document.getElementById("policy-section");
 const copyBtn = document.getElementById("copy-policy");
+const downloadBtn = document.getElementById("download-policy");
 const shareBtn = document.getElementById("share-link");
 const copyStatus = document.getElementById("copy-status");
 const optOutCheckbox = document.getElementById("usage-opt-out");
@@ -195,6 +196,21 @@ copyBtn.addEventListener("click", async () => {
   setTimeout(() => {
     copyStatus.textContent = "";
   }, 4000);
+});
+
+downloadBtn.addEventListener("click", () => {
+  const businessName = String(new FormData(form).get("businessName") ?? "").trim();
+  const blob = new Blob([policyEl.value], { type: "text/plain;charset=utf-8" });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement("a");
+  link.href = url;
+  link.download = policyDownloadFilename(businessName);
+  link.click();
+  setTimeout(() => URL.revokeObjectURL(url), 0);
+  copyStatus.textContent = "Policy downloaded.";
+  recordEvent("policy_downloaded");
+  renderUsageSummary();
+  setTimeout(() => { copyStatus.textContent = ""; }, 4000);
 });
 
 optOutCheckbox.addEventListener("change", () => {
