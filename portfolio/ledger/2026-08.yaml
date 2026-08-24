@@ -22030,10 +22030,12 @@ entries:
           into the generic "continue work, maintain the process, review open
           PRs" brief. `session_gate.py` -> PROCEED, flagging 3+ concurrent
           sessions in the last 15-minute window -- an undercount: by the time
-          this session finished, at least 8 sibling PRs (#791-#800) had
+          this session finished, at least 10 sibling PRs (#791-#801) had
           opened and closed within about 10 minutes, the exact duplicate-PR
-          pile-up pattern `CLAUDE.md` warns about. Session's own contribution
-          was mostly consolidation rather than new analysis.
+          pile-up pattern `CLAUDE.md` warns about. This entry only covers
+          this session's non-overlapping share; #794's merge and the
+          #795/#798/#764 closures are recorded in the entry immediately
+          below (#801, a concurrent session's account of the same events).
       - >-
           #793 itself (flagging #788's routine-trigger cadence as a decision-
           queue row) was already merged by a concurrent session by the time
@@ -22043,36 +22045,20 @@ entries:
           `git merge-tree` clean) -- confirms the merge was sound, no action
           needed.
       - >-
-          Merged #792 (ledger record of #787) and #794 (ledger record of
-          #789 and #793's flag): both agent-decidable, `portfolio/ledger/`
-          only. #794 had gone `dirty` against `main` by the time it was
-          checked (append-only conflict with #792's just-merged entry, same
-          shape documented in this file for #781/#783 earlier) -- pushed a
-          merge commit to its own branch resolving the conflict by keeping
-          both entries in sequence, re-verified (YAML parses, `pytest`
-          57/58, `decision_queue.py --check` clean), waited for CI, merged.
+          Merged #792 (ledger record of #787): agent-decidable,
+          `portfolio/ledger/` only, clean append, checks green.
       - >-
-          Attempted the same resolution for #795 but a concurrent session
-          closed it first (correctly -- its content was already covered by
-          #796, merged independently, and a standalone comment on #531);
-          the push landed but the merge did not, no harm done beyond the
-          wasted round-trip.
-      - >-
-          Closed four PRs as redundant, each with a comment pointing to where
-          the content already lives, rather than merging duplicates or
-          leaving them for another session to re-discover: #797 (duplicate
-          decision-queue row for #788, same ask as merged #793 under a
-          different id), #764 (stale -- #734 already merged, #368's revert
-          and the dependabot-row removal already landed weeks of ledger
-          history ago), #798 (a rebase of already-closed #795, redundant for
-          the same reason), #800 (both pieces -- the dependabot-row removal
-          and #735's ledger entry -- already on `main`).
+          Closed two PRs as redundant, beyond the #795/#798/#764 already
+          covered below: #797 (duplicate decision-queue row for #788, same
+          ask as merged #793 under a different id) and #800 (both pieces --
+          a dependabot-row removal and #735's ledger entry -- already on
+          `main`), each with a comment pointing to where the content lives.
       - >-
           Merged #799 (agent-decidable correction to the `contrast-fixes`
           note in `asks.yaml`, recording that #531's merge conflict is now
           structural because #731's subtree merge restructured the exact
-          file it touches -- not yet on `main`, genuinely new): checks green,
-          `git merge-tree` clean, merged.
+          file it touches -- not yet on `main` when opened, genuinely new):
+          checks green, `git merge-tree` clean, merged.
       - >-
           Remaining open PRs need no action: #788 and #720 are self-flagged
           human-gated automation/deployment-account spend, already tracked
@@ -22080,4 +22066,57 @@ entries:
           change, its queue note now corrected by #799. #790 is still
           author-marked draft. `payout-rail` remains the only queue item
           that moves the revenue ceiling off $0.
+    mrr_end: null
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+          `pull_request.opened` on #794, folded into a generic "continue
+          work, maintain the process, review open PRs" brief.
+          `session_gate.py` -> PROCEED, flagging a 3-session burst in a
+          15-minute window. Designated branch was already fully merged
+          (tip identical to its merge-base with `main`); restarted it from
+          current `main` per the already-merged-branch rule before doing
+          anything else.
+      - >-
+          Merged #794 (`28600e7`, agent-decidable, ledger-only): verified
+          both #794 and the concurrently-open #795 merged cleanly in
+          sequence against the live `main` tip (`git merge-tree` on each,
+          then a local trial merge of both) before merging #794 first via
+          the API.
+      - >-
+          #795 then failed GitHub's own merge check once #794 landed --
+          not the trivial append-conflict the local trial predicted, but
+          because a third session's #796 had merged in the same window and
+          already recorded the #791 merge and this window's open-PR review.
+          Closed #795 as a duplicate of #796's already-merged content,
+          pointing there; its one non-duplicate finding (#731's subtree
+          merge having rewritten `local-site-studio`'s `page.tsx`
+          bundle-pricing section out from under #531) was already preserved
+          as a standalone PR comment on #531, so nothing was lost.
+      - >-
+          A fourth session had independently reached the same rebase-and-push
+          impasse and opened #798 with identical content to #795 (its body
+          says so explicitly). Closed #798 the same way, pointing to #796.
+      - >-
+          Also closed #764 (`kilo-code-bot[bot]`, opened 09:46, `dirty`
+          against current `main`): it proposed merging #368 (the Dependabot
+          workflow) and removing the `dependabot` decision row outright.
+          Both are stale -- #368 was merged and then deliberately reverted
+          (`8662727`/`3a5dc20`, #777) as an unattended-automation
+          gate-crossing, and the decision row was corrected in place rather
+          than removed (`c5a2659`, `e0f3d6f`, `9d2fc25`) to keep tracking the
+          now-open re-enable-or-not question. No content from #764 survives
+          to carry forward.
+      - >-
+          Remaining open PRs need no action: #788 and #720 are self-flagged
+          human-gated and already tracked in `asks.yaml`; #531 is
+          human-gated and already tracked, with the #731-conflict detail
+          above as a PR comment; #790 is still author-marked draft. #785
+          (the other a11y-evidence-record suggestion) merged during this
+          session, by someone else.
+      - >-
+          `payout-rail` remains the only queue item that moves the revenue
+          ceiling off $0.
     mrr_end: null
