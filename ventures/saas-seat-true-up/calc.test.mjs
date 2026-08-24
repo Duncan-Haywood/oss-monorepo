@@ -42,3 +42,8 @@ test('ignores malformed saved scenarios', () => {
   const storage = { getItem: () => '{"seats":null}' };
   assert.equal(loadScenario(storage), null);
 });
+
+test('rejects incomplete or non-object saved scenarios', () => {
+  assert.equal(loadScenario({ getItem: () => '{"seats":40,"activeUsers":31}' }), null);
+  assert.equal(loadScenario({ getItem: () => '[40,31,18,12,20]' }), null);
+});
