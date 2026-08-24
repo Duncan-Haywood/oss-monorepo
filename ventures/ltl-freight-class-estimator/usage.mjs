@@ -14,5 +14,7 @@ export function recordUsage(event) {
 }
 
 export function clearUsage() {
-  localStorage.removeItem(KEY);
+  try {
+    localStorage.removeItem(KEY);
+  } catch { /* Private browsing may deny local storage. */ }
 }
