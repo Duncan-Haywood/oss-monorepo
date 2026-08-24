@@ -1,7 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { calculate, compareQuotes, negotiationLines } from "./calc.mjs";
-import { calculate, summary } from "./calc.mjs";
+import { calculate, compareQuotes, negotiationLines, summary } from "./calc.mjs";
 
 test("normalizes the full monthly quote and minimum", () => {
   const result = calculate({ orders: 100, unitsPerOrder: 1.5, pallets: 1, minimumMonthly: 2000 });
