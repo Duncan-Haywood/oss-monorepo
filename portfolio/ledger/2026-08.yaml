@@ -20512,61 +20512,85 @@ entries:
     human_hours: 0
     outcomes:
       - >-
-        Scheduled "continue work on the projects... maintain and improve
-        the development process... increase in profit" session, designated
-        branch claude/nice-mendel-j2qyih. `session_gate.py` -> PROCEED,
-        flagging 2 distinct sessions committed to `main` within a 15-minute
-        window in the last 6h. Checked the 5 open PRs (#700, #583, #531,
-        #372, #368) and issue #139 before starting.
+        Scheduled "continue work... maintain and improve the development
+        process... legal ethical reliable increase in profit... more
+        strategic work" session, designated branch
+        claude/wizardly-albattani-978ymv. `session_gate.py` -> PROCEED,
+        flagging 2 distinct sessions committed to `main` within a
+        15-minute window in the last 6h. Checked the 5 open PRs (#700,
+        #583, #531, #372, #368) and issue #139 before starting.
       - >-
-        Found #700 (an open, agent-decidable research PR, unrelated
-        content) failing a `test` check from
-        `agent-permission-harness-ci.yml`'s "committed results file is
-        current" step -- tripped only because #700 happens to add a new
-        workflow file, matching that check's `.github/workflows/**` path
-        filter. Reproduced the failure directly against `main` before
-        touching anything: the R7 instruction-closure count had drifted
-        115->117 (depth-3 hop 35->37) and the committed
-        `results-2026-08-23.md` was stale, so the check was red on `main`
-        itself, not a defect in #700. Regenerated the results file and
-        opened #702 with that fix plus the matching doc-number updates
-        `results-2026-08-23.md`'s own regen missed: README.md's five prose
-        mentions of "115"/"35" and one docstring line in harness.py, none
-        of which a plain file-regen touches.
+        #700 had a failing `test` check from `agent-permission-harness-
+        ci.yml`, reproduced locally: `main` no longer regenerated
+        `results-2026-08-23.md` byte-identically (R7's file count had
+        drifted 115->117 from unrelated files landing elsewhere in the
+        repo, unrelated to #700's own diff). Started building a fix, but
+        `git fetch origin main` turned up #701 -- merged minutes earlier by
+        a concurrent session, already regenerating the results file in
+        place to 117/37.
+      - >-
+        That left `results-2026-08-23.md` correct but README.md's prose
+        (five mentions: headline count, attacker-ratio sentence, depth-3
+        and fixed-point table cells) and harness.py's docstring still said
+        115/35, disagreeing with the artifact they describe. Opened,
+        verified, and self-merged #704: updated only that leftover prose
+        to 117/37. Confirmed harness.py's output stayed byte-identical to
+        the untouched results file, the probe's 84 tests passed, and the
+        full `portfolio-validate.yml` step set was green locally. `git
+        merge-tree` re-checked clean against the live `main` tip
+        immediately before pushing and again immediately before merging.
+      - >-
+        Agent-decidable per `CLAUDE.md`: two files of probe docs/docstring
+        only, no `ventures/*` app code, publishes nothing, spends nothing
+        beyond agent time. #583, #531, #372, #368 remain unchanged and
+        correctly owner-gated (deployable venture app code or unattended
+        automation); not re-verified here since nothing about them had
+        changed since their last recorded check.
+    mrr_end: null
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Same session as the entry immediately above this one, designated
+        branch claude/nice-mendel-j2qyih, hit the identical #700 CI
+        failure independently and in parallel -- worth recording as its
+        own entry because what happened next is the finding, not a repeat
+        of it. This session also fixed the stale `results-2026-08-23.md`
+        and, going further, the five leftover "115"/"35" prose mentions in
+        README.md and one in harness.py's docstring that a plain
+        results-file regen (the fix in #701 and in this session's own
+        first pass) does not touch. Opened #702 with both.
       - >-
         While #702 was mid-flight, `git merge` against `origin/main`
-        surfaced that a concurrent session had independently hit and fixed
-        the same 115->117 drift as a side effect of #701 (a
-        retail-pilot-intel permissions fix whose own regen picked up the
-        unrelated R7 drift) -- exactly the near-duplicate-discovery pattern
-        `CLAUDE.md` warns about, one layer down from a whole PR: two
-        sessions, same file, same numeric fix, minutes apart. Merged main
-        into #702's branch (clean, no conflicts -- #701 had only touched
-        the results file, this session's unique addition was the README/
-        harness.py prose #701 never touched), re-verified the full 84-test
-        suite plus the portfolio-validate steps, and pushed. A third,
-        independent session (branch claude/wizardly-albattani-978ymv)
-        reached the identical conclusion in parallel and opened #704 with
-        the same 117/37 text fix; #702 and #704 merged two seconds apart
-        (02:31:15Z and 02:31:17Z) with byte-identical resulting diffs, so
-        the second merge was a content no-op -- `main` ended up correct
-        and undamaged, but the token spend on #704 was pure duplication of
-        #702's own final commit.
+        surfaced #701's independent fix. Merged main into #702's branch
+        (clean, no conflicts), re-verified the full 84-test suite plus the
+        portfolio-validate steps, and pushed. Unknown at push time: a
+        third, independent session (claude/wizardly-albattani-978ymv, the
+        entry above) had reached the identical README/harness.py
+        conclusion in parallel and opened #704 with the same 117/37 text
+        fix. #702 and #704 merged two seconds apart (02:31:15Z and
+        02:31:17Z) with byte-identical resulting diffs, so the second
+        merge was a content no-op -- `main` ended up correct and
+        undamaged, but #704 was pure duplicate spend on top of #702's own
+        final commit. Two sessions, same file, same numeric fix, minutes
+        apart -- the near-duplicate-discovery pattern `CLAUDE.md` warns
+        about, one layer down from a whole PR.
       - >-
         Verified the post-merge state directly rather than trusting either
-        PR's account of it: `main` at `fa9d12bf` regenerates
-        `results-2026-08-23.md` byte-identical to the committed copy,
-        README.md and harness.py both read 117/37 with no leftover 115/35
-        anywhere in the probe's directory, and the full 84-test suite plus
-        `validate_probe_index.py`, `test_validate_probe_index`,
-        `validate_workflows.py` (37 files), and `test_allocate.py` all pass
-        against the merged tip.
+        PR's account of it: `main` regenerates `results-2026-08-23.md`
+        byte-identical to the committed copy, README.md and harness.py
+        both read 117/37 with no leftover 115/35 anywhere in the probe's
+        directory, and the full 84-test suite plus `validate_probe_index.py`,
+        `test_validate_probe_index`, `validate_workflows.py` (37 files),
+        and `test_allocate.py` all pass against the merged tip.
       - >-
         No ventures/* app code touched, nothing published, no account
         registered, no automation added or re-enabled -- agent-decidable
         throughout, both #702 and #704 self-merged by their own sessions.
-        No score, ranking, or candidate change. Recording this to close the
-        loop #704's own body deferred ("a separate immediate follow-up")
-        so a fourth session doesn't re-verify the same regenerated file a
-        third time.
+        No score, ranking, or candidate change. This entry exists
+        specifically to record the collision the entry above could not see
+        yet when it was written (#702 hadn't merged), so a later session
+        reading only the entry above wouldn't mistake #704 for the only
+        fix and re-derive the same 117/37 correction a third time.
     mrr_end: null
