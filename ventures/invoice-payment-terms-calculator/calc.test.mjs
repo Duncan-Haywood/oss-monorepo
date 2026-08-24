@@ -17,6 +17,10 @@ test('grace period prevents fees during the grace window', () => {
   assert.equal(result.fees.find(row => row.days === 30).fee, 0);
 });
 
+test('rejects calendar dates that JavaScript would normalize', () => {
+  assert.throws(() => calculateTerms({ ...input, invoiceDate: '2026-02-30' }), /valid invoice date/);
+});
+
 test('creates transparent copyable terms without claiming compliance', () => {
   assert.match(termsCopy(calculateTerms(input)), /due 2026-09-23/);
   assert.match(termsCopy(calculateTerms(input)), /18% annual interest/);
