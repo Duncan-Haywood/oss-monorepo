@@ -9,6 +9,12 @@ import sys
 
 
 REQUIRED = ("captured_at", "api_version", "source", "authorization_state", "apps")
+DISCLAIMER = (
+    "No warranty. This tool is provided free and as-is, without warranty of any kind, "
+    "express or implied. It is not legal, financial, security, or compliance advice, "
+    "and it does not replace a qualified professional. You are responsible for reviewing "
+    "and verifying its output before relying on it."
+)
 
 
 def load_inventory(path: Path) -> dict:
@@ -82,11 +88,48 @@ def write_report(path: Path, report: dict) -> None:
         raise ValueError(f"cannot write report: {exc}") from exc
 
 
+def render_markdown(report: dict) -> str:
+    """Render a report that can be pasted into an approval ticket."""
+    metadata = report["metadata"]
+    lines = [
+        f"# Shopify permission drift: {report['status']}",
+        "",
+        f"- **Review required:** {'yes' if report['review_required'] else 'no'}",
+        f"- **Before:** `{metadata['before_source']}` ({metadata['before_captured_at']})",
+        f"- **After:** `{metadata['after_source']}` ({metadata['after_captured_at']})",
+        "",
+    ]
+    if report["changes"]:
+        lines.append("## Changes")
+        lines.append("")
+        for change in report["changes"]:
+            kind = change["kind"].replace("_", " ")
+            if kind.endswith(" changed") and "added" in change:
+                detail = []
+                if change["added"]:
+                    detail.append("added: " + ", ".join(f"`{item}`" for item in change["added"]))
+                if change["removed"]:
+                    detail.append("removed: " + ", ".join(f"`{item}`" for item in change["removed"]))
+                lines.append(f"- **{kind.title()}** for `{change['app']}` ({'; '.join(detail)})")
+            elif "app" in change:
+                lines.append(f"- **{kind.title()}**: `{change['app']}`")
+            else:
+                lines.append(f"- **{kind.title()}**: `{change['before']}` -> `{change['after']}`")
+        lines.append("")
+    else:
+        lines.extend(["No app, scope, webhook, authorization-state, or API-version changes were found.", ""])
+    lines.extend(["> Evidence only: the merchant decides what each change means.", ">", f"> {DISCLAIMER}"])
+    return "\n".join(lines) + "\n"
+
+
 def main() -> int:
-    parser = argparse.ArgumentParser(description="Compare two customer-authorized Shopify app inventory exports.")
+    parser = argparse.ArgumentParser(
+        description="Compare two customer-authorized Shopify app inventory exports.",
+        epilog=DISCLAIMER,
+    )
     parser.add_argument("before", type=Path)
     parser.add_argument("after", type=Path)
-    parser.add_argument("--format", choices=("text", "json"), default="text")
+    parser.add_argument("--format", choices=("text", "markdown", "json"), default="text")
     parser.add_argument("--output", type=Path, help="write the report as a portable JSON artifact")
     parser.add_argument("--usage-log", type=Path, help="opt-in aggregate event log")
     args = parser.parse_args()
@@ -103,12 +146,15 @@ def main() -> int:
         usage_event(args.usage_log, len(report["changes"]))
     if args.format == "json":
         print(json.dumps(report, indent=2, sort_keys=True))
+    elif args.format == "markdown":
+        print(render_markdown(report), end="")
     else:
         print(f"Status: {report['status']}")
         print("Review required: yes" if report["review_required"] else "Review required: no")
         for change in report["changes"]:
             print(f"- {change}")
         print("Evidence only: the merchant decides what each change means.")
+        print(DISCLAIMER)
     return 0
 
 
