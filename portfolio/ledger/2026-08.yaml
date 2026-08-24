@@ -5,46 +5,6 @@ entries:
     human_hours: 0
     outcomes:
       - >-
-        Product-first autonomous session (scheduled brief, branch
-        claude/exciting-brown-8zpx3z). `session_gate.py` said BUILD (84%
-        of last 25 entries meta-work, no revenue). Sampled 4 of the 10
-        open PRs (#934, #933, #922, #926) before starting: all in "dirty"
-        mergeable state from a burst of concurrent sessions committing to
-        `main` faster than any one PR could be rebased -- not this
-        session's PRs to fix, and re-litigating a fleet-wide collision
-        already flagged by `session_gate.py` would itself be more
-        meta-work. Checked `decision_queue.py`: every venture's
-        `links.production` is `null`, deployment is entirely gated on
-        owner-supplied hosting credentials (Ask 9 open), so a ninth new
-        thin venture PR would not reach any user this repo doesn't already
-        have candidates queued for.
-      - >-
-        Shipped instead: a "Usage" section in
-        `ventures/photos-import-tools/README.md` (96 lines) documenting
-        the `init`/`run`/`status`/`preflight`/`skip-uncertain` commands,
-        the unattended watchdog and `start_import.sh`'s env vars
-        (`STATE_DIR`, `ROOT_DIR`, `BATCH_SIZE`, `INCLUDE_RAWS`,
-        `RAW_BATCH_SIZE`, `RAW_TIMEOUT`), and SD-offload flags -- all
-        sourced from each script's own `argparse` definitions, not
-        invented. This is the one product in the portfolio with real,
-        working, daily use (91 tests, dozens of hardened edge cases per
-        its own hypotheses list) and it had no documented invocation
-        sequence; a reader previously had to trace 1000+ lines of
-        `resumable_photos_import.py` to learn it. PR #938.
-      - >-
-        Verified rather than assumed: reran the venture's own test suite
-        (91 passed) and cross-checked every flag, default, and env var in
-        the new section directly against the `argparse` calls and
-        `start_import.sh` source before writing it. Also ran
-        `validate_doc_consistency.py` and `validate_candidates.py`
-        (unaffected, both pass). Doc-only diff; no code, deployment, or
-        owner-only action.
-    mrr_end: null
-  - venture: photos-import-tools
-    agent_spend_usd: null
-    human_hours: 0
-    outcomes:
-      - >-
         Scheduled "continue work on the projects... maintain and improve
         the development process... increase in profit" session, designated
         branch claude/keen-knuth-lwawy0. Ran `session_gate.py` first
@@ -22880,4 +22840,44 @@ entries:
           fail to parse (`yaml.safe_load` raised a ParserError). Nothing
           in CI currently loads this file, so it had gone unnoticed; fixed
           the indentation and confirmed the file parses.
+    mrr_end: null
+  - venture: photos-import-tools
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Product-first autonomous session (scheduled brief, branch
+        claude/exciting-brown-8zpx3z). `session_gate.py` said BUILD (84%
+        of last 25 entries meta-work, no revenue). Sampled 4 of the 10
+        open PRs (#934, #933, #922, #926) before starting: all in "dirty"
+        mergeable state from a burst of concurrent sessions committing to
+        `main` faster than any one PR could be rebased -- not this
+        session's PRs to fix, and re-litigating a fleet-wide collision
+        already flagged by `session_gate.py` would itself be more
+        meta-work. Checked `decision_queue.py`: every venture's
+        `links.production` is `null`, deployment is entirely gated on
+        owner-supplied hosting credentials (Ask 9 open), so a ninth new
+        thin venture PR would not reach any user this repo doesn't already
+        have candidates queued for.
+      - >-
+        Shipped instead: a "Usage" section in
+        `ventures/photos-import-tools/README.md` (96 lines) documenting
+        the `init`/`run`/`status`/`preflight`/`skip-uncertain` commands,
+        the unattended watchdog and `start_import.sh`'s env vars
+        (`STATE_DIR`, `ROOT_DIR`, `BATCH_SIZE`, `INCLUDE_RAWS`,
+        `RAW_BATCH_SIZE`, `RAW_TIMEOUT`), and SD-offload flags -- all
+        sourced from each script's own `argparse` definitions, not
+        invented. This is the one product in the portfolio with real,
+        working, daily use (91 tests, dozens of hardened edge cases per
+        its own hypotheses list) and it had no documented invocation
+        sequence; a reader previously had to trace 1000+ lines of
+        `resumable_photos_import.py` to learn it. PR #938.
+      - >-
+        Verified rather than assumed: reran the venture's own test suite
+        (91 passed) and cross-checked every flag, default, and env var in
+        the new section directly against the `argparse` calls and
+        `start_import.sh` source before writing it. Also ran
+        `validate_doc_consistency.py` and `validate_candidates.py`
+        (unaffected, both pass). Doc-only diff; no code, deployment, or
+        owner-only action.
     mrr_end: null
