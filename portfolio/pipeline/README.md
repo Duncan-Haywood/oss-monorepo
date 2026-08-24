@@ -13,10 +13,11 @@ cannot see it and no agent budget flows to it:
 
 - **`graduate_as: venture`** — someone writes `ventures/<name>/VENTURE.yaml`.
 - **`graduate_as: product-line`** — someone adds the candidate's slug under
-  `product_lines` in its `host_venture`'s `VENTURE.yaml`. Most verdicts here
-  are product lines rather than new directories (see the closing section on why
-  adding ventures to an unmeasured portfolio is the more expensive problem), so
-  this is the common path, not the exception.
+  `product_lines` in its `host_venture`'s `VENTURE.yaml`. One candidate carries
+  this today (`eaa-remediation-pipeline`, into `local-site-studio`), and it
+  happens to be the only `build-now` verdict in the table — so the path is rare
+  by count and load-bearing in practice. See the closing section on why adding
+  ventures to an unmeasured portfolio is the more expensive problem.
 
 In both cases the directory must actually be routable: a `NOT-A-VENTURE`
 marker wins over a `VENTURE.yaml` in the same directory and `allocate.py` skips

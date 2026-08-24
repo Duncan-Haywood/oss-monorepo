@@ -173,6 +173,12 @@ def test_an_unreadable_pipeline_is_not_an_empty_one(tmp_path, monkeypatch):
     _pipeline(tmp_path, monkeypatch, "scored: 2026-01-01\n")
     assert sg.build_targets() is None  # no `candidates` key at all
 
+    _pipeline(tmp_path, monkeypatch, "candidates: {oops: true}\n")
+    assert sg.build_targets() is None  # iterable, but not the expected sequence
+
+    _pipeline(tmp_path, monkeypatch, "candidates: just-a-string\n")
+    assert sg.build_targets() is None  # also iterable, also not a list
+
     _pipeline(tmp_path, monkeypatch, "candidates: []\n")
     assert sg.build_targets() == []  # read fine, genuinely nothing eligible
 

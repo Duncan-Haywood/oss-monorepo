@@ -349,10 +349,16 @@ def build_targets() -> list[dict] | None:
     try:
         doc = yaml.safe_load(CANDIDATES.read_text())
         candidates = doc["candidates"]
-        if candidates is None:
-            candidates = []
-        iter(candidates)
     except (OSError, yaml.YAMLError, KeyError, TypeError, AttributeError):
+        return None
+    if candidates is None:
+        candidates = []
+    # Must be a *list*, not merely iterable. A mapping or a string satisfies
+    # `iter()` and then contributes no dict entries to the loop below, so the
+    # function would return [] -- "read it, nothing eligible" -- for a file
+    # that is in fact malformed, which is exactly the confusion this None
+    # return exists to prevent.
+    if not isinstance(candidates, list):
         return None
     out = []
     for c in candidates:
@@ -542,8 +548,8 @@ def render(r: dict) -> str:
             "  NOTE: `git fetch origin main` failed this run (offline? network denied?),",
             "  so this reading falls back to whatever `origin/main` already pointed to",
             "  locally -- which can be stale by days or weeks, not just shallow. The",
-            "  cadence figure above may be a stale snapshot, not a floor, and was",
-            "  excluded from clearing the gate this run.",
+            "  cadence figure above may be a stale snapshot rather than a floor. It is",
+            "  informational either way -- cadence decides no lane; it used to.",
         ]
     elif not r["cadence_reliable"]:
         lines += [
