@@ -1095,10 +1095,41 @@ GitHub App permission change), and approval to publish is only useful after it �
 not instead of it. Do not plan work on the premise that this probe is one
 decision away from a live listing.
 
+## Article 14 draft (2026-08-24)
+
+`cra-evidence-desk`'s first experiment step 2 — *generate one Article 14
+draft from a real historical exploited-vulnerability case* — is now a
+module in this probe, not a second directory.
+
+```bash
+PYTHONPATH=src python3 -m triage.article14 \
+  --kev fixtures/kev-historical-log4j.json \
+  --cve CVE-2021-44228
+```
+
+The case is Log4j (`CVE-2021-44228`) from CISA KEV catalog version
+2026.08.21, sliced so the suite never needs the network. The live catalog
+on `raw.githubusercontent.com/cisagov/kev-data` answered `200` the day this
+landed (1,674 entries). The committed sample is
+[`sample-article14-draft-2026-08-24.md`](sample-article14-draft-2026-08-24.md);
+`tests/test_article14.py` regenerates it and fails if it drifts.
+
+What the draft is: a 22-field checklist across the three commonly cited
+clocks, eleven filled from the catalog, eleven left `unknown` for the
+manufacturer. What it is not: a filing, a transmission, a conformity
+assessment, or a claim that the manufacturer's product is in scope. KEV is
+named as a US catalog, not as the EU Vulnerability Database. CISA's
+`requiredAction` is quoted as catalog text written for US federal agencies,
+not as CRA advice.
+
+No score moved. Step 3 (ask fifteen vendors to pay) and a human read of
+the field list against EUR-Lex remain owner-gated.
+
 ## Development
 
 ```bash
-python3 -m pytest                            # 282 tests, no network required
+python3 -m pytest                            # offline unit suite
+PYTHONPATH=src python3 render_article14_sample.py  # regenerate the committed draft
 python3 run_portfolio_sample.py <osv.zip>    # re-run the validation
 python3 run_repository_coverage.py <osv.zip> # re-measure repository coverage
 ```

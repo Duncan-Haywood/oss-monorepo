@@ -103,6 +103,9 @@ Ten days, under €200:
    only number that matters.
 2. Generate one Article 14 draft from a real historical exploited-vulnerability
    case and have it read for plausibility against the required fields.
+   **Software half initiated 2026-08-24** — see the amendment below. The
+   human plausibility read and step 3 (ask fifteen vendors to pay) are
+   still open.
 3. Take it to fifteen small EU-selling vendors reachable through maintainer
    channels; ask for €99/month, not for feedback.
 
@@ -209,6 +212,44 @@ and the probe's own README.
 The composite moves to 6.75. The floor (defensibility, 3) is unchanged and is
 still what actually decides this candidate's verdict — this amendment does not
 touch the wedge problem the verdict change above already recorded.
+
+## Amendment, 2026-08-24: step 2 of the first experiment, software half
+
+**No score moved.** Step 2 asked for one Article 14 draft from a real
+historical exploited-vulnerability case, read for plausibility against the
+required fields. The software half is now in
+[`probes/npm-reachability-triage/`](../probes/npm-reachability-triage/)
+(`src/triage/article14.py`):
+
+- The case is **CVE-2021-44228** (Log4j2), taken from CISA KEV catalog
+  version 2026.08.21 via the git mirror that
+  [`data-reachability`](../../research/data-reachability/) already measured
+  reachable. The live catalog answered `200` again on 2026-08-24 (1,674
+  entries). The committed fixture is a one-entry slice so the suite stays
+  offline.
+- The draft is a checklist, not a form: 22 fields across the three commonly
+  cited clocks (24h / 72h / 14d). Eleven populate from the catalog; eleven
+  stay `unknown — manufacturer completes`. Manufacturer identity, shipped
+  versions, awareness date, impact, and measures taken are never invented.
+- It refuses to be a filing. The header states we do not hold portal
+  credentials and do not transmit. Tests pin that the words `compliant` and
+  `compliance` do not appear, and that CISA's `requiredAction` is quoted as
+  US-federal catalog text, not as CRA advice.
+- It names the remaining gap: KEV is not EUVD, and a catalog listing is not
+  a determination that the manufacturer's product is in scope.
+
+The committed sample is
+[`sample-article14-draft-2026-08-24.md`](../probes/npm-reachability-triage/sample-article14-draft-2026-08-24.md).
+A later session can read it without running the module; a test regenerates
+the same draft and fails if the file drifts.
+
+**What this does not close.** The "have it read for plausibility" half still
+needs a person who has filed, or the EUR-Lex text this environment cannot
+reach. Step 3 — take it to fifteen vendors and ask for €99/month — is
+customer contact, which an unattended session does not have. The verdict
+stays **probe**, the floor stays `defensibility` at 3, and the EUVD wedge
+stays blocked. This is the product slice that was specified and unbuilt,
+not a new candidate and not a new `ventures/` directory.
 
 ## Sources
 
