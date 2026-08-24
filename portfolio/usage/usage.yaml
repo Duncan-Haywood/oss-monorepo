@@ -24,8 +24,8 @@ products:
         note: >-
           resistor-calculator shipped; not yet deployed to a public URL
           (publishing is owner-gated), so there is no traffic signal to read
-         and its local-first event counter reports only to the user's own
-         browser. Baseline row.
+          and its local-first event counter reports only to the user's own
+          browser. Baseline row.
   - slug: quote-margin-check
     surface: repository-cli
     readings:

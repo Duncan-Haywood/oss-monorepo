@@ -543,3 +543,37 @@ ventures:
       expectations", never to restorability, completeness, or data safety.
       Testing restores and maintaining an independent backup strategy remain
       customer responsibilities.
+
+  - slug: shopify-permission-drift
+    scores:
+      ai_leverage: 7
+      autonomous_ops: 8
+      time_to_revenue: 6
+      gross_margin: 9
+      defensibility: 4
+      distribution: 6
+    composite: 6.667
+    rater_b: null
+    floor: 4
+    floor_dimension: defensibility
+    floor_note: >-
+      The diff format is copyable; merchant-specific signed history and an
+      agency workflow could accrue value, but do not create a moat initially.
+      Distribution (6) rests on the Shopify App Store's attached billing rail,
+      but permission auditing is a narrower search category than storefront
+      accessibility and its ranking is unproven.
+    basis: >-
+      Scores carried over from the shopify-permission-drift candidate
+      (portfolio/pipeline/candidates.yaml), whose evidence is unchanged. The
+      shipped slice is a deterministic, local-only comparator over two
+      customer-supplied permission inventories, emitting JSON/Markdown findings
+      and aggregate-only usage events, with no Shopify API, credential,
+      payment, or inference dependency yet.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Pass: the product records permissions and platform responses for an
+      authorized store and does not declare an app malicious, choose a
+      least-privilege policy, or make a compliance claim. The merchant controls
+      authorization, receives the raw evidence, and can revoke access.
