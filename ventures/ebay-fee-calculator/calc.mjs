@@ -51,7 +51,9 @@ export function calculateOrder(input) {
   const percentRate = (finalValueRate + promotedRate + intlFeeRate) / 100;
   const fees = {
     finalValue: revenue * finalValueRate / 100,
-    fixed: fixedFee * quantity,
+    // This is a per-order charge, so a batch pays it once rather than once
+    // per unit. Per-unit costs below are still multiplied by quantity.
+    fixed: fixedFee,
     promoted: revenue * promotedRate / 100,
     international: revenue * intlFeeRate / 100,
   };
@@ -66,7 +68,9 @@ export function calculateOrder(input) {
 
   // Fixed (non-percentage) cash outlay that must be recovered before the
   // percentage-based fees are covered, used to solve for break-even price.
-  const fixedCash = fixedFee + costOfGoods + shippingCost + packagingCost + otherCost;
+  // Thresholds are listing prices per unit. The order fee is spread across
+  // the batch, while the other cash costs are already per-unit inputs.
+  const fixedCash = fixedFee / quantity + costOfGoods + shippingCost + packagingCost + otherCost;
   const targetMarginRate = targetMargin / 100;
   const targetRevenueDenominator = 1 - percentRate - targetMarginRate;
   return {

@@ -68,11 +68,20 @@ test('scales batch economics while keeping price thresholds per unit', () => {
   const single = calculateOrder(input);
   const batch = calculateOrder({ ...input, quantity: 3 });
   near(batch.revenue, single.revenue * 3, 'batch revenue');
-  near(batch.feeTotal, single.feeTotal * 3, 'batch fees');
+  near(batch.feeTotal, single.feeTotal + single.fees.finalValue * 2, 'batch percentage fees scale without duplicating fixed fee');
   near(batch.cashInvested, single.cashInvested * 3, 'batch investment');
-  near(batch.profit, single.profit * 3, 'batch profit');
-  near(batch.unitProfit, single.profit, 'unit profit');
-  near(batch.breakEvenPrice, single.breakEvenPrice, 'per-unit break-even');
+  near(batch.profit, batch.revenue - batch.feeTotal - batch.cashInvested, 'batch profit');
+  near(batch.unitProfit, batch.profit / 3, 'unit profit');
+  assert.ok(batch.breakEvenPrice < single.breakEvenPrice, 'batch spreads the fixed fee across units');
+});
+
+test('charges the fixed fee once for a multi-unit order', () => {
+  const single = calculateOrder({ price: 40, quantity: 1, fixedFee: 0.3 });
+  const batch = calculateOrder({ price: 40, quantity: 5, fixedFee: 0.3 });
+  near(batch.fees.fixed, 0.3, 'one fixed fee for the order');
+  near(batch.feeTotal, batch.fees.finalValue + 0.3, 'fixed fee is not multiplied by units');
+  near(calculateOrder({ price: batch.breakEvenPrice, quantity: 5, fixedFee: 0.3 }).profit, 0, 'batch break-even includes one fixed fee');
+  assert.ok(batch.profit > single.profit * 5, 'avoiding duplicate fixed fees improves batch profit');
 });
 
 test('rejects fractional or zero batch quantities', () => {
