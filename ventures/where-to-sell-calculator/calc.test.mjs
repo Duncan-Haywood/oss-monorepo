@@ -53,6 +53,18 @@ test("subscription can be excluded, and is zero for channels without one", () =>
   close(ebay.fees.subscription, 0, "eBay has no monthly fee");
 });
 
+test("subscription channels show orders needed to recover their monthly plan", () => {
+  const result = calculateChannel(preset("own-store"), shared);
+  assert.equal(result.ordersToCoverPlan, 2);
+
+  const impossible = calculateChannel(
+    { ...preset("own-store"), commissionRate: 99, paymentRate: 0 },
+    shared,
+  );
+  assert.equal(impossible.ordersToCoverPlan, null);
+  assert.equal(calculateChannel(preset("ebay"), shared).ordersToCoverPlan, 0);
+});
+
 test("a monthly fee with no order volume is an error, not a divide by zero", () => {
   assert.throws(
     () => calculateChannel(preset("own-store"), { ...shared, monthlyOrders: 0 }),

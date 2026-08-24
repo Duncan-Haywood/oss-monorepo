@@ -177,6 +177,10 @@ export function calculateChannel(channel, shared = {}) {
   // Cash that must be recovered before any percentage fee is covered. Used for
   // both break-even and the price that reaches a given profit.
   const fixedCash = paymentFixed + perListingFee + subscriptionShare + cashInvested;
+  const profitBeforeSubscription = profit + subscriptionShare;
+  const ordersToCoverPlan = monthlyFee > 0 && profitBeforeSubscription > 0
+    ? Math.ceil(monthlyFee / profitBeforeSubscription)
+    : monthlyFee > 0 ? null : 0;
 
   return {
     id: channel.id ?? null,
@@ -195,6 +199,7 @@ export function calculateChannel(channel, shared = {}) {
     roi: cashInvested === 0 ? null : (profit / cashInvested) * 100,
     percentRate: percentRate * 100,
     fixedCash,
+    ordersToCoverPlan,
     breakEvenPrice: Math.max(0, fixedCash / (1 - percentRate) - shippingCharged),
     /**
      * Item price this channel needs, holding shipping charged constant, to

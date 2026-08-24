@@ -26,6 +26,9 @@ Three things flat "X% fee" comparisons get wrong, all of which this models:
 - **The fee percentage is not the decision.** What matters is the price each
   channel needs to leave you the same money — a channel with higher fees still
   wins if you can list higher there. That is the last column of the table.
+- **A monthly plan needs a volume reality check.** The table shows the minimum
+  whole-order count needed for this item's economics to recover a subscription,
+  or `—` when no order volume can recover it.
 
 ## Using it
 
@@ -65,6 +68,9 @@ questions the ranking alone does not:
   not counted as invested; that keeps the figure comparable across channels
   whose fee structures differ. It reads "—" when nothing was invested (a
   giveaway, or an item with no per-unit cost), rather than an infinite return.
+- **Orders to cover plan** — the minimum whole-order volume needed to recover a
+  monthly subscription from this item's profit before that plan. It is `0` for
+  channels without a monthly plan and `—` when the economics cannot recover it.
 
 Margin answers "how good is this sale", return on cash answers "how hard is my
 money working", and break-even answers "how far can I move the price" — which
