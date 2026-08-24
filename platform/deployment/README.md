@@ -313,9 +313,10 @@ re-verified. Four items are load-bearing enough to check in a browser first:
    and IPv4 is still a small monthly add-on rather than a surprise. This is the
    load-bearing one: the whole value argument is the four-times gap against
    Vercel's floor.
-2. **Hetzner still bills a fixed monthly price with no metered compute** — if
-   any part of the plan has become usage-billed, the "no cap needed" claim
-   fails and Railway's hard limit becomes the safer shape.
+2. **Hetzner still bills traffic beyond the 20 TB allowance at roughly €1/TB,
+   with no halt-at-an-amount control** — if the overage rate has jumped, or
+   compute has become usage-billed, the soft-ceiling case fails and Railway's
+   hard limit becomes the safer shape.
 3. Hetzner signup still needs only a payment method, with no business-entity
    requirement for an individual account.
 4. If the fallback is being weighed: Railway's usage limit still hard-stops,
@@ -359,8 +360,8 @@ That breaks the argument this whole section rests on. Hetzner was chosen
 because its spend exposure is small and slow-moving — a fixed monthly price
 plus a traffic allowance no zero-customer portfolio will approach. A read-write
 Cloud token can provision more servers, so the bound stops being "one box" and
-becomes "whatever the project quota allows". The one property that made this
-option safe without a cap feature is the property such a token removes.
+becomes "whatever the project quota allows". The remaining bound — one box,
+not a project quota — is the property such a token removes.
 
 The blast radius is not hypothetical in this repository. The fleet workflow
 runs with `contents: write`, and `agent-permission-harness` measures its agent
@@ -392,8 +393,8 @@ its key lives in GitHub secrets.** That reverses the "keep it on your machine"
 posture an earlier draft of this section took, and the reasoning behind the
 reversal is sound: the objection to the Hetzner *API token* was that it can
 create servers, which turns a fixed price into an open one. **An SSH key cannot
-provision anything.** The bounded, fixed-price exposure this option was chosen
-for survives a key in CI intact, so that objection does not transfer.
+provision anything.** The remaining one-box bound survives a key in CI intact,
+so that objection does not transfer.
 
 What does transfer is a smaller and more specific risk, worth naming once and
 then designing around rather than worrying about: the key is **access**, and
@@ -412,7 +413,7 @@ The design that makes the owner's framing true rather than merely hopeful:
   cannot type one), reaching one unprivileged account on one host.
 - **The API token is still a no.** Provision the server in the Hetzner console
   by hand. Nothing in CI needs to create servers, and the moment something can,
-  the fixed-price argument is gone.
+  the one-box bound is gone.
 - **The fleet stays off.** `agent_runner_start_disabled` is true unless a human
   flips the workflow input, because `CLAUDE.md` reserves unattended spend-capable
   automation to the owner. Owning a box and running a fleet on it are two
