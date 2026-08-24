@@ -277,10 +277,15 @@ decisions:
     *all-inclusive* rather than best fit. Counting workloads instead of
     frameworks disqualifies Vercel from the all-inclusive half outright:
     `retail-pilot-intel/docker-compose.yml` declares `analytics-sync` as
-    `restart: unless-stopped` against a persistent volume, and
-    `photos-import-tools` is a Python watchdog daemon. Vercel hosts no
+    `restart: unless-stopped` against a persistent volume. Vercel hosts no
     long-running process and no persistent volume, so choosing it means a
-    second platform for those two. Railway and Hetzner host every workload.
+    second platform for that workload. (As first written this paragraph also
+    counted `photos-import-tools` as a second such daemon and said Railway and
+    Hetzner "host every workload". Both were wrong and are corrected above:
+    that venture is macOS tooling driving Apple Photos and runs on no Linux
+    host, so Vercel's disqualification rests on one workload, not two. Left in
+    place with the correction rather than rewritten, because this paragraph is
+    the dated record of why the answer moved.)
     On raw dollars Hetzner wins and it is not close (~$5/month for all of it,
     marginal app $0) but its price is not its cost -- ops hours are the
     currency `CLAUDE.md` calls scarce, and `ubuntu-agent-server`'s Ansible
