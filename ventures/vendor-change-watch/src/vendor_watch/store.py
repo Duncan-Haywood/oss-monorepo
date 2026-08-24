@@ -7,6 +7,7 @@ no separate feature is needed because nothing leaves the filesystem).
 
 from __future__ import annotations
 
+import hashlib
 import json
 import re
 from pathlib import Path
@@ -60,36 +61,60 @@ def remove_watch(data_dir: Path, vendor: str, url: str, page_type: str) -> bool:
     return True
 
 
-def _snapshot_dir(data_dir: Path, vendor: str, page_type: str) -> Path:
-    return data_dir / SNAPSHOTS_DIRNAME / _safe_slug(vendor) / _safe_slug(page_type)
+def _url_slug(url: str) -> str:
+    """A short, deterministic, collision-resistant directory component for a URL.
+
+    Two different watched URLs for the same vendor/page_type (e.g. two
+    "terms" pages) must never share a snapshot directory, and a lossy text
+    slug of the URL can still collide -- the hash is what actually
+    guarantees separation; the readable prefix is only for humans browsing
+    the data directory.
+    """
+    digest = hashlib.sha256(url.encode("utf-8")).hexdigest()[:12]
+    return f"{_safe_slug(url)[:40]}-{digest}"
+
+
+def _snapshot_dir(data_dir: Path, vendor: str, page_type: str, page_url: str) -> Path:
+    return data_dir / SNAPSHOTS_DIRNAME / _safe_slug(vendor) / _safe_slug(page_type) / _url_slug(page_url)
+
+
+def _sequence_of(path: Path) -> int:
+    match = re.match(r"(\d+)-", path.name)
+    return int(match.group(1)) if match else -1
 
 
 def save_snapshot(data_dir: Path, snapshot: dict[str, Any]) -> Path:
     """Save a snapshot under a monotonically increasing, collision-free filename.
 
-    Filenames sort in capture order by sequence number, not by timestamp text --
-    two checks fetched within the same second-resolution timestamp must not
-    overwrite each other, so the sequence prefix is what actually guarantees
-    uniqueness and ordering; the timestamp suffix is only for readability.
+    The sequence number is one past the highest *existing* sequence, not a
+    count of files present -- a count silently reuses a number (and
+    overwrites a still-present snapshot) after any file is removed, e.g. via
+    the documented `rm` retention workflow. The while-loop below is the
+    actual uniqueness guarantee for a same-second concurrent write; the
+    sequence number alone only guarantees it survives gaps from deletion.
     """
-    directory = _snapshot_dir(data_dir, snapshot["vendor"], snapshot["page_type"])
+    directory = _snapshot_dir(data_dir, snapshot["vendor"], snapshot["page_type"], snapshot["page_url"])
     directory.mkdir(parents=True, exist_ok=True)
-    sequence = len(list(directory.glob("*.json")))
+    existing = list(directory.glob("*.json"))
+    sequence = max((_sequence_of(p) for p in existing), default=-1) + 1
     timestamp_slug = _safe_slug(snapshot["captured_at"])
     path = directory / f"{sequence:06d}-{timestamp_slug}.json"
+    while path.exists():
+        sequence += 1
+        path = directory / f"{sequence:06d}-{timestamp_slug}.json"
     path.write_text(json.dumps(snapshot, indent=2, sort_keys=True) + "\n", encoding="utf-8")
     return path
 
 
-def list_snapshots(data_dir: Path, vendor: str, page_type: str) -> list[Path]:
-    directory = _snapshot_dir(data_dir, vendor, page_type)
+def list_snapshots(data_dir: Path, vendor: str, page_type: str, page_url: str) -> list[Path]:
+    directory = _snapshot_dir(data_dir, vendor, page_type, page_url)
     if not directory.exists():
         return []
     return sorted(directory.glob("*.json"))
 
 
-def latest_two_snapshots(data_dir: Path, vendor: str, page_type: str) -> tuple[Path, Path] | None:
-    paths = list_snapshots(data_dir, vendor, page_type)
+def latest_two_snapshots(data_dir: Path, vendor: str, page_type: str, page_url: str) -> tuple[Path, Path] | None:
+    paths = list_snapshots(data_dir, vendor, page_type, page_url)
     if len(paths) < 2:
         return None
     return paths[-2], paths[-1]

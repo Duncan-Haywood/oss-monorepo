@@ -94,7 +94,7 @@ def cmd_check(args: argparse.Namespace) -> int:
             entry["vendor"], entry["url"], entry["page_type"], captured_at, fetch_result
         )
         store.save_snapshot(data_dir, new_snapshot)
-        prior = store.list_snapshots(data_dir, entry["vendor"], entry["page_type"])
+        prior = store.list_snapshots(data_dir, entry["vendor"], entry["page_type"], entry["url"])
         print(f"\n== {entry['vendor']} [{entry['page_type']}] ==")
         if len(prior) < 2:
             print(f"First snapshot captured (fetch_status={new_snapshot['fetch_status']}). Nothing to compare yet.")
@@ -115,9 +115,36 @@ def cmd_check(args: argparse.Namespace) -> int:
     return exit_code
 
 
+def _resolve_watch_url(data_dir: Path, vendor: str, page_type: str, url: str | None) -> str | None:
+    """Resolve which watched URL a vendor/type pair refers to.
+
+    A vendor can have more than one watched URL under the same page_type
+    (e.g. two different "terms" pages), so vendor+type alone does not
+    always name one watch. Returns None (after printing why) when the
+    caller must pass --url to disambiguate.
+    """
+    if url:
+        return url
+    matches = [
+        e for e in store.load_watchlist(data_dir) if e["vendor"] == vendor and e["page_type"] == page_type
+    ]
+    if len(matches) == 1:
+        return matches[0]["url"]
+    if not matches:
+        print(f"No watch found for {vendor} [{page_type}].", file=sys.stderr)
+        return None
+    print(f"Multiple URLs are watched for {vendor} [{page_type}]; pass --url to pick one:", file=sys.stderr)
+    for match in matches:
+        print(f"  {match['url']}", file=sys.stderr)
+    return None
+
+
 def cmd_report(args: argparse.Namespace) -> int:
     data_dir = _data_dir(args)
-    pair = store.latest_two_snapshots(data_dir, args.vendor, args.type)
+    url = _resolve_watch_url(data_dir, args.vendor, args.type, args.url)
+    if url is None:
+        return 1
+    pair = store.latest_two_snapshots(data_dir, args.vendor, args.type, url)
     if pair is None:
         print("Fewer than two snapshots exist for this vendor/type yet. Run `check` at least twice.", file=sys.stderr)
         return 1
@@ -171,6 +198,9 @@ def build_parser() -> argparse.ArgumentParser:
     report_parser = subparsers.add_parser("report", help="Show the diff between the last two stored snapshots")
     report_parser.add_argument("--vendor", required=True)
     report_parser.add_argument("--type", choices=PAGE_TYPES, required=True)
+    report_parser.add_argument(
+        "--url", default=None, help="Required if this vendor/type has more than one watched URL"
+    )
     report_parser.set_defaults(func=cmd_report)
 
     usage_parser = subparsers.add_parser("usage", help="Show locally recorded usage counts (nothing leaves this machine)")
