@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { AlertTriangle, CheckCircle2, FileImage, Upload } from "lucide-react";
 import { formatBytes, preflightImage, type PreflightResult } from "@/lib/print-file-preflight";
+import { trackUsageEvent } from "@/components/shared/UsageTracker";
 
 const USAGE_KEY = "print-atelier:print-file-preflight-events";
 
@@ -17,9 +18,15 @@ export default function PrintFilePreflight() {
       const next = preflightImage(file, image.naturalWidth, image.naturalHeight);
       setResult(next);
       setBusy(false);
-      const events = JSON.parse(localStorage.getItem(USAGE_KEY) || "[]") as unknown[];
-      events.push({ event: "preflight_completed", timestamp: new Date().toISOString(), findingCount: next.findings.length });
-      localStorage.setItem(USAGE_KEY, JSON.stringify(events.slice(-100)));
+      try {
+        const stored = JSON.parse(localStorage.getItem(USAGE_KEY) || "[]");
+        const events = Array.isArray(stored) ? stored : [];
+        events.push({ event: "preflight_completed", timestamp: new Date().toISOString(), findingCount: next.findings.length });
+        localStorage.setItem(USAGE_KEY, JSON.stringify(events.slice(-100)));
+      } catch {
+        // Local analytics must never prevent the report from appearing.
+      }
+      trackUsageEvent("preflight_completed", "/print-file-preflight");
       URL.revokeObjectURL(image.src);
     };
     image.onerror = () => setBusy(false);
@@ -56,7 +63,24 @@ function Result({ result }: { result: PreflightResult }) {
     <div className="flex items-start justify-between gap-4"><div><p className="text-xs uppercase tracking-widest text-stone-400">Preflight record</p><h3 className="mt-2 break-all text-xl font-semibold">{result.fileName}</h3></div>{passed ? <CheckCircle2 className="h-7 w-7 shrink-0 text-emerald-400" /> : <AlertTriangle className="h-7 w-7 shrink-0 text-amber-300" />}</div>
     <p className={`mt-5 text-lg font-semibold ${passed ? "text-emerald-300" : "text-amber-200"}`}>{passed ? "No blocking findings" : `${blocking.length} blocking finding${blocking.length === 1 ? "" : "s"}`}</p>
     <dl className="mt-5 grid grid-cols-2 gap-3 text-sm"><div><dt className="text-stone-500">Dimensions</dt><dd>{result.width}x{result.height}px</dd></div><div><dt className="text-stone-500">File size</dt><dd>{formatBytes(result.bytes)}</dd></div><div><dt className="text-stone-500">Format</dt><dd>{result.format.toUpperCase()}</dd></div><div><dt className="text-stone-500">Named size</dt><dd>{result.sizeToken || "Not detected"}</dd></div></dl>
-    {result.findings.length > 0 && <ul className="mt-6 space-y-3 border-t border-stone-800 pt-5">{result.findings.map((finding) => <li key={finding.rule} className="text-sm"><span className={finding.severity === "blocking" ? "text-amber-300" : "text-orange-300"}>{finding.severity === "blocking" ? "Blocking" : "Review"}</span><span className="ml-2 text-stone-300">{finding.detail}</span></li>)}</ul>}
+     {result.findings.length > 0 && <ul className="mt-6 space-y-3 border-t border-stone-800 pt-5">{result.findings.map((finding) => <li key={finding.rule} className="text-sm"><span className={finding.severity === "blocking" ? "text-amber-300" : "text-orange-300"}>{finding.severity === "blocking" ? "Blocking" : "Review"}</span><span className="ml-2 text-stone-300">{finding.detail}</span></li>)}</ul>}
+     <button type="button" className="mt-6 rounded-lg border border-stone-600 px-3 py-2 text-sm font-semibold text-stone-200 transition hover:border-stone-300" onClick={() => { downloadRecord(result); trackUsageEvent("preflight_exported", "/print-file-preflight"); }}>Download dated record</button>
     <p className="mt-6 border-t border-stone-800 pt-4 text-xs leading-5 text-stone-500">This is evidence from a limited automated floor, not a print-ready warranty, lab approval, or professional advice. Confirm requirements with your printer.</p>
   </div>;
+}
+
+function downloadRecord(result: PreflightResult): void {
+  const record = {
+    spec: "print-atelier-floor-2026-08-24",
+    generatedAt: new Date().toISOString(),
+    ...result,
+    disclaimer: "Limited automated evidence, not a print-ready warranty or lab approval. Confirm requirements with your printer.",
+  };
+  const blob = new Blob([JSON.stringify(record, null, 2)], { type: "application/json" });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement("a");
+  link.href = url;
+  link.download = `${result.fileName.replace(/[^a-z0-9._-]/gi, "-")}-preflight.json`;
+  link.click();
+  URL.revokeObjectURL(url);
 }

@@ -1,4 +1,4 @@
-export type UsageEventName = "page_view" | "catalog_cta" | "room_visualizer_cta";
+export type UsageEventName = "page_view" | "catalog_cta" | "room_visualizer_cta" | "preflight_completed" | "preflight_exported";
 
 export type UsageEvent = {
   name: UsageEventName;
