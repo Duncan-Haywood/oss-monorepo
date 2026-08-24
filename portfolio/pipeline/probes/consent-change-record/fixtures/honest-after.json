@@ -1,0 +1,9 @@
+{
+  "site": "fixture-honest",
+  "captured_at": "2026-08-24T10:01:00Z",
+  "browser": "chromium-128",
+  "region": "EU",
+  "sequence": "visit-after-consent",
+  "requests": [{"kind": "request", "name": "https://site.test/site.css", "method": "GET"}, {"kind": "request", "name": "https://analytics.test/collect", "method": "POST"}],
+  "storage": [{"kind": "storage", "name": "analytics_id", "area": "cookie"}]
+}
