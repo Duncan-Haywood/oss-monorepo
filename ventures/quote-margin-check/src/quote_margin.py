@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import math
 from dataclasses import dataclass
 from datetime import datetime, timezone
 from pathlib import Path
@@ -26,7 +27,7 @@ def load_quote(data: dict[str, Any]) -> Quote:
     values: dict[str, float] = {}
     for field in fields:
         value = data.get(field, 0)
-        if isinstance(value, bool) or not isinstance(value, (int, float)) or value < 0:
+        if isinstance(value, bool) or not isinstance(value, (int, float)) or not math.isfinite(value) or value < 0:
             raise ValueError(f"{field} must be a non-negative number")
         values[field] = float(value)
     if values["price"] <= 0:
@@ -49,6 +50,7 @@ def calculate(quote: Quote) -> dict[str, float]:
         "effective_hourly_rate": effective_rate,
         "target_price": target_price,
         "gap_to_target": quote.price - target_price,
+        "cost_coverage": quote.price - direct_costs,
     }
 
 
@@ -67,6 +69,7 @@ def markdown(quote: Quote, result: dict[str, float]) -> str:
         f"| Effective hourly rate | {result['effective_hourly_rate']:.2f} |",
         f"| Price at supplied target rate | {result['target_price']:.2f} |",
         f"| Gap to target price | {result['gap_to_target']:.2f} |",
+        f"| After direct costs | {result['cost_coverage']:.2f} |",
         "",
         "This is a customer-supplied estimate, not tax, financial, or business advice. It does not certify profitability or account for every cost. Review the assumptions before using the result.",
     ]
@@ -74,7 +77,10 @@ def markdown(quote: Quote, result: dict[str, float]) -> str:
 
 
 def main() -> int:
-    parser = argparse.ArgumentParser(description="Check a quote against a supplied hourly-rate target")
+    parser = argparse.ArgumentParser(
+        description="Check a quote against a supplied hourly-rate target",
+        epilog="No warranty. Arithmetic only, not tax, financial, or business advice. Review and verify every assumption before relying on this output.",
+    )
     parser.add_argument("input", type=Path)
     parser.add_argument("--format", choices=("json", "markdown"), default="markdown")
     parser.add_argument("--usage-log", type=Path)
