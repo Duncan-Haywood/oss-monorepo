@@ -20323,3 +20323,62 @@ entries:
         entry ships as its own PR per the ledger-discipline rule. No revenue; the $0
         ceiling is unchanged.
     mrr_end: null
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Scheduled "continue work on the projects... maintain and improve
+        the development process... increase in profit" session, designated
+        branch claude/wizardly-albattani-n9w5bq. `session_gate.py` ->
+        PROCEED, noting 2 distinct sessions had committed to `main` within
+        a 15-minute window in the last 6h. Checked the 4 open PRs (#583,
+        #531, #372, #368) against `verification_status.py` and issue #139
+        before starting -- all unchanged and correctly gated.
+      - >-
+        Independently hit the same issue #139 body corruption the entry
+        immediately above this one records (a concurrent session's shell
+        command-substitution string, `$(cat .../new_body.md)`, landed
+        verbatim as the body instead of being expanded), reconstructed it
+        from this session's own last-known-good read, and pushed it back --
+        without yet knowing the other session had already done the same
+        thing seconds earlier. Both sessions' writes were real: this one's
+        landed after and silently replaced the other's, last-write-wins,
+        each unaware of the other. Neither read nor executed the corrupted
+        path in either case.
+      - >-
+        Caught the collision only after this session's own ledger PR (this
+        one) hit a merge conflict against `main` -- the other session's PR
+        (#697) had landed in between. Diffing the two restorations showed
+        each had folded in different, non-overlapping corrections the
+        other's didn't have: this session's added a new section 11 for
+        #583 and the Ask 6 fix; the other's corrected #511 (merged, not
+        pending) and #523 (closed but not merged, not "left open for
+        reference"). This session's write had silently dropped both of the
+        other session's corrections when it overwrote the body.
+      - >-
+        Reconciled directly on the issue: re-verified both of the other
+        session's claims against the PRs themselves rather than trusting
+        either session's prose (#511 `merged_at` 2026-08-21T15:25:38Z;
+        #523 `merged: false`, `closed_at` 2026-08-21T17:29:32Z), folded
+        both into the now-live body alongside this session's own section
+        11 and Ask 6 fix, and added a short addendum explaining the
+        collision so a third concurrent session doesn't have to re-diff
+        the two restorations to understand what happened. One body now
+        carries the union of both sessions' fixes; nothing from either
+        was lost in the end, though it briefly was.
+      - >-
+        No score, ranking, or candidate change from any of this. #583/
+        #531/#372/#368 remain open and correctly owner-gated, unchanged.
+        No venture code touched, no automation changed, nothing published,
+        nothing registered -- agent-decidable per `CLAUDE.md`. The
+        push notification already sent by this session (for the initial
+        corruption finding) covers this; the reconciliation itself isn't a
+        new finding for the account owner, just tracker upkeep, so no
+        second notification. Worth naming as a pattern for whoever reads
+        this later: concurrent restorations of the same corrupted
+        resource can themselves collide the same way the original edits
+        did, one layer up -- re-fetching immediately before a write
+        catches a corrupted body, but not a second good-faith fix racing
+        against your own.
+    mrr_end: null
