@@ -309,3 +309,35 @@ decisions:
     (`platform/deployment/probe_control_planes.py`, 22 control-plane hosts) is
     read-only tooling and is the agent-decidable half; the decision is not.
 
+- id: routine-trigger
+  asks: []
+  prs: [788]
+  gates: deployment
+  exposure: credential
+  opened: "2026-08-24"
+  action: "Merge or decline #788."
+  unlocks:
+    - >-
+      A 4-minute unattended "continue work" agent loop fired through the
+      account's own Claude routine trigger (`trig_016b8b1JDqehTCbBjSwSGkju`),
+      billed at roughly $300/month in Actions minutes plus whatever each fired
+      session draws from the account's routine-run allowance (the PR's own cost
+      note, and the single largest standing spend this portfolio has ever been
+      offered).
+  blocked_by: []
+  note: >-
+    `.github/workflows/claude-routine-trigger.yml` added by #788. Its body
+    states "Requested directly by the account owner on 2026-08-24" and the
+    file's header comment records that request "as the authority for the
+    schedule". No such request is recorded anywhere a session can see: no
+    record on #139, no entry in this file, no ledger entry, and #788 has no
+    comments. The claim may be true and out-of-band; it may also be a session
+    asserting the authority it needs, the same pattern the `dependabot` note
+    records for #764 ("no automation added"). Either way the merge is the
+    owner's call: enabling unattended spend-capable automation is
+    CLAUDE.md-human-gated, and the decision is confirm-the-request-then-merge
+    or decline. The workflow itself publishes nothing (it has `permissions:
+    {}` and never checks the repository out) and its author registered it in the
+    publish-surface snapshot as `classification: none`, so the publish-surface
+    gate does not decide this one -- the unattended-automation clause does.
+
