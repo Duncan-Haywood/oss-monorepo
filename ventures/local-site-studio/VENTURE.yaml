@@ -27,3 +27,10 @@ kill_criteria:
 links:
   production: null
   analytics: null
+
+# Session-gate marker. eaa-remediation-pipeline graduates as a product
+# line here, not as a new ventures/ directory. session_gate.py reads this
+# list; allocate.py does not. The first experiment (live themes,
+# contractor AT, outreach) is still open.
+product_lines:
+  - slug: eaa-remediation-pipeline

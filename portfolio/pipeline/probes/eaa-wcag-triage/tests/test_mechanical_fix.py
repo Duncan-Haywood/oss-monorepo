@@ -151,6 +151,82 @@ def test_fixture_aggregate_close_rate_is_one_of_eleven_blocking():
     assert LIMITS[2].startswith("Does not settle the candidate's kill criterion")
 
 
+FASSBENDER_NEWSLETTER = (
+    "<html lang='en'><head><title>t</title></head><body><form>"
+    "<label for='mce-NAME'>Name</label>"
+    "<input type='text' id='{{ idPrefix }}_mce-NAME'>"
+    "<label for='mce-EMAIL'>Email</label>"
+    "<input type='email' id='{{ idPrefix }}_mce-EMAIL'>"
+    "</form></body></html>"
+)
+
+
+def test_forgotten_prefix_rewrites_the_fassbender_newsletter():
+    # Finding 2 of a11y-theme-resolution: the theme prefixes the control
+    # id and forgets the matching <label for>. Two strings, unique pair.
+    before = audit_html(FASSBENDER_NEWSLETTER)
+    assert len(before.findings) == 2
+    assert all(f.criterion == "1.3.1" for f in before.findings)
+    result = apply_mechanical_fixes(FASSBENDER_NEWSLETTER)
+    assert result.after.counts()["blocking"] == 0
+    assert "for='{{ idPrefix }}_mce-NAME'" in result.html
+    assert "for='{{ idPrefix }}_mce-EMAIL'" in result.html
+    assert all(p.criterion == "1.3.1" for p in result.applied)
+
+
+def test_ambiguous_suffix_is_not_rewritten():
+    html = (
+        "<html lang='en'><head><title>t</title></head><body><form>"
+        "<label for='NAME'>Name</label>"
+        "<input type='text' id='{{ a }}_NAME'>"
+        "<input type='text' id='{{ b }}_NAME'>"
+        "</form></body></html>"
+    )
+    result = apply_mechanical_fixes(html)
+    assert result.html == html
+    assert result.applied == []
+    assert any("will not invent a label" in s.reason for s in result.skipped)
+
+
+def test_possible_match_is_not_rewritten():
+    # `{{ p }}mce-NAME` can render as `mce-NAME`. Not a proven mismatch.
+    html = (
+        "<html lang='en'><head><title>t</title></head><body><form>"
+        "<label for='mce-NAME'>Name</label>"
+        "<input type='text' id='{{ p }}mce-NAME'>"
+        "</form></body></html>"
+    )
+    result = apply_mechanical_fixes(html)
+    assert result.html == html
+    assert result.applied == []
+    assert result.after.counts()["blocking"] == 0
+
+
+def test_search_field_with_no_label_is_not_invented():
+    # search.liquid:22 — no <label for> in the file. Detection can name
+    # the gap; this pass cannot write a name.
+    html = (
+        "<html lang='en'><head><title>t</title></head><body><form>"
+        "<input type='search' id='{{ idPrefix }}_q'>"
+        "</form></body></html>"
+    )
+    result = apply_mechanical_fixes(html)
+    assert result.html == html
+    assert result.applied == []
+
+
+def test_hidden_input_is_not_paired_as_the_forgotten_prefix():
+    html = (
+        "<html lang='en'><head><title>t</title></head><body><form>"
+        "<label for='mce-NAME'>Name</label>"
+        "<input type='hidden' id='{{ idPrefix }}_mce-NAME'>"
+        "</form></body></html>"
+    )
+    result = apply_mechanical_fixes(html)
+    assert result.html == html
+    assert result.applied == []
+
+
 def test_cli_writes_patched_pages_and_leaves_the_customer_record_unpatched(
     tmp_path,
 ):
