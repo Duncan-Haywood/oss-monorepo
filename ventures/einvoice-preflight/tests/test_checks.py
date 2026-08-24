@@ -32,6 +32,13 @@ UBL_VALID = b'''<?xml version="1.0" encoding="UTF-8"?>
 
 
 class ChecksTest(unittest.TestCase):
+    def test_cli_reports_version(self):
+        output = io.StringIO()
+        with contextlib.redirect_stdout(output), self.assertRaises(SystemExit) as raised:
+            main(["--version"])
+        self.assertEqual(raised.exception.code, 0)
+        self.assertEqual(output.getvalue(), "einvoice-preflight 0.1.0\n")
+
     def test_ubl_invoice_maps_to_supported_shape(self):
         self.assertEqual(check_invoice(parse_ubl_invoice(UBL_VALID)), [])
 
