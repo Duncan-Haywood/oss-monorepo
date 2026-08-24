@@ -16,3 +16,10 @@ test('honors opt out', () => {
   recordUsage({ setItem: () => { called = true; } }, true);
   assert.equal(called, false);
 });
+
+test('supports a named aggregate event without recording inputs', () => {
+  const values = new Map();
+  const storage = { getItem: key => values.get(key) ?? null, setItem: (key, value) => values.set(key, value) };
+  recordUsage(storage, false, 'scenario_compared');
+  assert.equal(JSON.parse(values.get('etsy-profit-usage')).scenario_compared, 1);
+});

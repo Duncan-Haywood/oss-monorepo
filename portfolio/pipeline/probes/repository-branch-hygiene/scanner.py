@@ -119,6 +119,21 @@ def list_branch_refs(repo: Path) -> list[RefInfo]:
     return refs
 
 
+def _live_shas(ref: RefInfo) -> list[str]:
+    """Every tip SHA currently recorded for this name, including diverged copies.
+
+    Name-grouping keeps only the preferred tip on `RefInfo.sha`. The disagreed
+    tips are still live refs; graph checks have to see them or a different
+    name sitting on `origin/X` looks unique while those commits survive.
+    """
+    shas = [ref.sha]
+    for copy in ref.diverged_copies:
+        sha = copy.rsplit("=", 1)[-1]
+        if sha and sha not in shas:
+            shas.append(sha)
+    return shas
+
+
 def _is_ancestor(repo: Path, maybe_ancestor: str, descendant: str) -> bool:
     result = subprocess.run(
         ["git", "-C", str(repo), "merge-base", "--is-ancestor", maybe_ancestor, descendant],
@@ -163,7 +178,9 @@ def classify_repo(
     recorded_tips = recorded_tips or {}
     refs = list_branch_refs(repo)
     by_name = {r.name: r for r in refs}
-    protected_shas = {by_name[name].sha for name in protected if name in by_name}
+    protected_shas = {
+        sha for name in protected if name in by_name for sha in _live_shas(by_name[name])
+    }
 
     results: list[Classification] = []
     for ref in refs:
@@ -182,7 +199,7 @@ def classify_repo(
             continue
 
         others = [r for r in refs if r.name != ref.name]
-        same_sha = [o.name for o in others if o.sha == ref.sha]
+        same_sha = [o.name for o in others if ref.sha in _live_shas(o)]
         if same_sha:
             results.append(
                 Classification(
@@ -218,7 +235,7 @@ def classify_repo(
             )
             continue
 
-        exclude = list(protected_shas) + [o.sha for o in others if o.name != ref.name]
+        exclude = list(protected_shas) + [sha for o in others for sha in _live_shas(o)]
 
         # Protected branches are checked first on purpose: "already merged to
         # main" is the answer a reviewer can act on, while "also an ancestor of
@@ -230,9 +247,12 @@ def classify_repo(
         duplicate_target = None
         try:
             for target in candidate_targets:
-                if target.sha == ref.sha or target.name == ref.name:
+                if target.name == ref.name:
                     continue
-                if _is_ancestor(repo, ref.sha, target.sha):
+                if any(
+                    sha != ref.sha and _is_ancestor(repo, ref.sha, sha)
+                    for sha in _live_shas(target)
+                ):
                     duplicate_target = target.name
                     break
         except GitError:

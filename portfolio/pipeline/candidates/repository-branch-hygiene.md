@@ -89,10 +89,14 @@ evidence, and distribution (the floor, 4) is untouched by it.
   *jointly* safe. Per-ref verdicts approved as a batch would destroy the
   commit while every individual verdict stayed true. A test pins the loss, and
   no category the report emits says "delete" — the strongest is "review".
-- Two defects surfaced and are kept as regression tests: `duplicate_of` named an
-  arbitrary ref rather than preferring a protected branch, and the first real
-  repository run classified every tracked branch as `shared` with its own remote
-  copy, which on a real repository buries every genuine finding.
+- Three defects surfaced and are kept as regression tests: `duplicate_of` named
+  an arbitrary ref rather than preferring a protected branch; the first real
+  repository run classified every tracked branch as `shared` with its own
+  remote copy; and a Cursor Bugbot review on the pull request caught that
+  grouping refs by name (the second fix) then compared only each name's
+  primary tip, so a diverged remote copy at another branch's exact SHA could
+  leave a commit reported as exclusively unique while a live ref elsewhere
+  still reached it — the recoverability claim itself.
 - **`moved` is not reachable outside the fixture.** It needs a branch's tip as
   recorded when its PR was last seen closed; no bare scan has that. PR #829's
   107 moved tips are why the category matters, and wiring the scanner to a real
