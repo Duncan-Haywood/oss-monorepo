@@ -88,7 +88,18 @@
       <h2 id="calc-heading">Your numbers</h2>
       <form id="calc-form" novalidate>
         <div class="field">
-          <label for="price">Appointment / session price ($)</label>
+          <label for="currency">Currency for displayed amounts</label>
+          <select id="currency" name="currency">
+            <option value="USD" selected>US dollar (USD)</option>
+            <option value="EUR">Euro (EUR)</option>
+            <option value="GBP">Pound sterling (GBP)</option>
+            <option value="CAD">Canadian dollar (CAD)</option>
+            <option value="AUD">Australian dollar (AUD)</option>
+          </select>
+          <p class="hint">No conversion is performed. Choose the currency your prices already use.</p>
+        </div>
+        <div class="field">
+          <label for="price">Appointment / session price</label>
           <input type="number" id="price" name="price" min="0" step="0.01" value="75" required />
         </div>
         <div class="field">
