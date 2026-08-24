@@ -19,6 +19,7 @@ function recordUsage(event: string) {
 
 export function EaaPreauditChecklist() {
   const [checked, setChecked] = useState<string[]>([]);
+  const [copyState, setCopyState] = useState<"idle" | "copied" | "failed">("idle");
   const [optedOut, setOptedOut] = useState(() => {
     try {
       return localStorage.getItem(OPT_OUT_KEY) === "true";
@@ -54,6 +55,17 @@ export function EaaPreauditChecklist() {
     URL.revokeObjectURL(link.href);
   }
 
+  async function copyNotes() {
+    try {
+      await navigator.clipboard.writeText(checklistExport(checked));
+      recordUsage("preaudit_notes_copied");
+      setCopyState("copied");
+      window.setTimeout(() => setCopyState("idle"), 2500);
+    } catch {
+      setCopyState("failed");
+    }
+  }
+
   function setUsagePreference(value: boolean) {
     setOptedOut(value);
     try {
@@ -87,9 +99,19 @@ export function EaaPreauditChecklist() {
           </label>
         ))}
       </div>
-      <button type="button" onClick={downloadNotes} className="mt-6 rounded-full bg-zinc-900 px-5 py-3 text-sm font-medium text-white hover:bg-zinc-700">
-        Download handoff notes
-      </button>
+      <div className="mt-6 flex flex-wrap gap-3">
+        <button type="button" onClick={downloadNotes} className="rounded-full bg-zinc-900 px-5 py-3 text-sm font-medium text-white hover:bg-zinc-700">
+          Download handoff notes
+        </button>
+        <button type="button" onClick={copyNotes} className="rounded-full border border-zinc-300 px-5 py-3 text-sm font-medium text-zinc-900 hover:bg-zinc-50">
+          {copyState === "copied" ? "Copied" : "Copy handoff notes"}
+        </button>
+      </div>
+      {copyState === "failed" && (
+        <p className="mt-2 text-sm text-amber-700" role="status">
+          Clipboard access was unavailable. Use the download button instead.
+        </p>
+      )}
       <label className="mt-5 flex items-center gap-2 text-xs text-zinc-500">
         <input type="checkbox" checked={optedOut} onChange={(event) => setUsagePreference(event.target.checked)} />
         Don&apos;t count anonymous feature-use events on this device

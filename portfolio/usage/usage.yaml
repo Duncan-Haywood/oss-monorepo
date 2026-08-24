@@ -264,7 +264,8 @@ products:
           public_url_visitors: null
           preaudit_checklist_events: 0
           handoff_exports: 0
-        note: Shipped browser-local pre-audit checklist; public deployment remains owner-gated.
+          handoff_copies: 0
+        note: Added browser-local copy handoff; public deployment remains owner-gated.
 # Example of the shape, once a product has shipped:
 #
 # products:
