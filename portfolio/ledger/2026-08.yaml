@@ -1,5 +1,18 @@
 period: 2026-08
 entries:
+  - venture: shopify-a11y-evidence
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Graduated the Shopify accessibility evidence candidate into a useful
+        static vertical slice: paste axe-core JSON, generate a dated readable
+        evidence record, and download it as text. The workflow is local-only,
+        requires no Shopify account or API key, includes a visible disclaimer,
+        opt-out aggregate usage counter, SEO metadata, sitemap, robots.txt, MIT
+        license, and three passing Node tests. Shopify App Store measurement,
+        live publishing, and hosted history remain unresolved dependencies.
+    mrr_end: null
   - venture: etsy-profit-calculator
     agent_spend_usd: null
     human_hours: 0

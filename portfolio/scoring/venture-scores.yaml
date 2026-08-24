@@ -585,3 +585,31 @@ ventures:
       expectations", never to restorability, completeness, or data safety.
       Testing restores and maintaining an independent backup strategy remain
       customer responsibilities.
+
+  - slug: shopify-a11y-evidence
+    scores:
+      ai_leverage: 3
+      autonomous_ops: 10
+      time_to_revenue: 6
+      gross_margin: 10
+      defensibility: 4
+      distribution: 6
+    composite: 6.5
+    rater_b: null
+    floor: 3
+    floor_dimension: ai_leverage
+    floor_note: >-
+      The initial evidence report is intentionally deterministic; a dated
+      history and agency workflow can provide defensibility after usage proves
+      repeat demand.
+    basis: >-
+      Graduated on 2026-08-24 as a browser-local axe-core JSON report for
+      Shopify merchants and agencies. It produces a portable record without
+      Shopify credentials, network access, or server-side data retention.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Pass, conditionally: output is explicitly a record of a supplied
+      automated test, never a compliance determination, and every result calls
+      for manual review.

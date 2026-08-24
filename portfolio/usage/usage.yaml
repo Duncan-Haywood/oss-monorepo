@@ -62,6 +62,16 @@ products:
           live_url_visitors: null
           local_events_reported: 0
         note: Shipped local Etsy order-profit calculator; public URL remains owner-gated.
+  - slug: shopify-a11y-evidence
+    surface: static-page-in-repo
+    readings:
+      - as_of: 2026-08-24
+        signals:
+          live_url_visitors: null
+          local_events_reported: 0
+        note: >-
+          Shipped browser-local axe JSON evidence report; public URL remains
+          owner-gated and the local counter has no external reporting path.
 # Example of the shape, once a product has shipped:
 #
 # products:
