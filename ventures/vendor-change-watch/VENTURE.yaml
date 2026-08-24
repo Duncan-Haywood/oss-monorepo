@@ -1,0 +1,39 @@
+name: vendor-change-watch
+description: Free CLI that snapshots vendor terms/privacy/subprocessor/security pages you choose and reports a source-linked diff when they change — informational monitoring, not compliance advice.
+stage: prototype
+
+owner: duncan
+
+# Graduated from portfolio/pipeline/candidates/vendor-change-evidence.md
+# (composite 6.75, floor 4 on defensibility/distribution, both liability
+# gates clear at 7/8). The candidate's diff logic was already validated as
+# a probe; this venture adds the live fetcher, watchlist, storage, and CLI
+# the probe's own README named as unbuilt. Standalone venture, not a
+# product line: it does not fit an existing venture's niche.
+hypotheses:
+  - claim: Security, procurement, and privacy practitioners will install and repeatedly run a free vendor-change watcher for pages they already care about.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: A source-linked, source-of-truth diff (not a compliance verdict) is what a practitioner needs to trust an automated vendor-page watcher.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: null
+  customers: null
+
+budget:
+  monthly_cap: 20
+  protected: true
+
+kill_criteria:
+  - No external (non-founder) run recorded within 90 days of the CLI being usable end-to-end (this commit).
+  - Fewer than three practitioners in existing public security/procurement communities engage after being shown a real diff from their own watchlist.
+
+links:
+  production: null
+  analytics: null
