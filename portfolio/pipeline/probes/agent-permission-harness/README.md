@@ -54,7 +54,13 @@ itself in exactly those terms. Writer sets are ordered, widest last:
 ## The result
 
 Full report: [`results-2026-08-23.md`](results-2026-08-23.md). Regenerate with
-`python3 harness.py`. [`results-2026-08-21.md`](results-2026-08-21.md) is kept
+`python3 harness.py --snapshot > results-2026-08-23.md` — that flag, not a bare
+`python3 harness.py`, because the committed file also carries a provenance
+header and leaves out the figures that are measured across the whole repository
+rather than across a workflow file. Those move on any merge that adds a
+document, and pinning them here is what kept taking this repository's CI red on
+changes that had nothing to do with the probe; `python3 harness.py` still prints
+them. [`results-2026-08-21.md`](results-2026-08-21.md) is kept
 as the prior snapshot: the two differ only in R7, and the difference is the
 subject of the amendment below.
 
@@ -534,6 +540,7 @@ verifiable in full from this checkout, and are fixed above.
 python3 harness.py                     # markdown report over this repository
 python3 harness.py --json              # machine-readable findings
 python3 harness.py --repo-root PATH    # another checkout
+python3 harness.py --snapshot          # the committed results file, verbatim
 python3 -m unittest discover -p 'test_*.py'
 ```
 

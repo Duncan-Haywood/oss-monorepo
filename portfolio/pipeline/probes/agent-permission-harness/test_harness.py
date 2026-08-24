@@ -22,6 +22,7 @@ import sys
 import tempfile
 import textwrap
 import unittest
+from dataclasses import replace
 from pathlib import Path
 
 import harness
@@ -870,6 +871,79 @@ class TestReporting(unittest.TestCase):
         rendered = render_markdown(findings, summary)
         self.assertIn("| 0 |", rendered)
         self.assertIn("The zero rows are results too.", rendered)
+
+    def _closure_finding(self, size):
+        """R7-shaped finding whose only repository-wide figure is `size`."""
+        return Finding(
+            rule="R7-agent-instruction-closure",
+            severity="defect",
+            workflow="a.yml",
+            job="agent",
+            line=9,
+            summary=f"agent instruction set is {size} repository files, not the 1 prompt file(s) passed to it",
+            detail=f"... the fixed point of that is {size} files (4 at depth 1) ...",
+            input_writer_set="REPO_WRITE",
+            privilege="token:contents",
+            observable_by_replay=False,
+            volatile=(
+                (f"is {size} repository files", "is <measured per run> repository files"),
+                (
+                    f"fixed point of that is {size} files (4 at depth 1)",
+                    "fixed point of that is <measured per run> files "
+                    "(<breakdown by depth measured per run>)",
+                ),
+            ),
+        )
+
+    def test_snapshot_rendering_is_unchanged_when_only_the_closure_grows(self):
+        # The reason --snapshot exists. The closure size is a measurement of the
+        # repository's prose, so merging any document moves it; when it was
+        # pinned in the committed file, those merges took the CI diff red on
+        # main and on every open PR the workflow's portfolio/** trigger reaches,
+        # while saying nothing about this probe. Nine hand regenerations between
+        # 2026-08-22 and 2026-08-24 each went stale on the next merge.
+        small, large = self._closure_finding(77), self._closure_finding(978)
+        self.assertEqual(
+            render_markdown([small], summarise([small]), snapshot=True),
+            render_markdown([large], summarise([large]), snapshot=True),
+        )
+
+    def test_live_rendering_still_reports_the_measured_closure(self):
+        # Substituting in the snapshot must not cost the record the number.
+        f = self._closure_finding(77)
+        live = render_markdown([f], summarise([f]))
+        self.assertIn("is 77 repository files", live)
+        self.assertNotIn("<measured per run>", live)
+
+    def test_snapshot_rendering_still_fails_on_a_changed_finding(self):
+        # The check the snapshot diff was built for has to survive the fix:
+        # a finding appearing, or its prose changing, must still show up.
+        one = self._closure_finding(77)
+        two = replace(one, detail=one.detail + " and one more thing")
+        self.assertNotEqual(
+            render_markdown([one], summarise([one]), snapshot=True),
+            render_markdown([two], summarise([two]), snapshot=True),
+        )
+        pair = [one, self._finding()]
+        self.assertNotEqual(
+            render_markdown([one], summarise([one]), snapshot=True),
+            render_markdown(pair, summarise(pair), snapshot=True),
+        )
+
+    def test_snapshot_says_why_a_figure_is_missing(self):
+        # A reader hitting `<measured per run>` must not read it as the probe
+        # having failed to measure.
+        f = self._closure_finding(77)
+        rendered = render_markdown([f], summarise([f]), snapshot=True)
+        self.assertIn("measured across the whole repository", rendered)
+        self.assertIn("python3 harness.py", rendered)
+
+    def test_a_finding_with_no_repository_wide_figure_renders_identically(self):
+        f = self._finding()
+        self.assertEqual(
+            render_markdown([f], summarise([f])),
+            render_markdown([f], summarise([f]), snapshot=True),
+        )
 
     def test_every_rule_has_a_title(self):
         rule_ids = {
