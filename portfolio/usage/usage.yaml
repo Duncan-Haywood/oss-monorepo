@@ -73,6 +73,24 @@ products:
           live_url_visitors: null
           local_events_reported: 0
         note: Shipped local Etsy order-profit calculator; public URL remains owner-gated.
+  - slug: backup-verification-evidence
+    surface: local-cli
+    readings:
+      - as_of: 2026-08-24
+        signals:
+          local_artifacts_verified: 0
+          local_runs_recorded: 0
+          qualified_operators: 0
+        note: >-
+          Baseline row, opened alongside the artifact-integrity slice (`verify`
+          subcommand; tar/gzip/bzip2/xz/zip/SQLite/text-dump structural checks).
+          The counters map to the local `--usage-file` event names
+          (`artifact_verified`, `run_recorded`) and are opt-in and local-only,
+          so a nonzero reading requires a user to both pass the flag and send
+          the file back — treat zero here as "no signal", not "no users".
+          Distribution is still repo-only: no release, no package, no public
+          URL, so there is no download or traffic signal to read yet. Getting
+          one is the next step that would actually move this venture.
 # Example of the shape, once a product has shipped:
 #
 # products:

@@ -141,3 +141,101 @@ class HistoryReportTests(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class IntegrityClassificationTests(unittest.TestCase):
+    """A proven-bad artifact must never survive as `verified`.
+
+    These cover the gap that motivated integrity checking: every record below
+    passes the exit-code, size, and age gates -- the classifier's entire prior
+    vocabulary -- and is distinguished only by what reading the file found.
+    """
+
+    def _artifact(self, integrity=None):
+        artifact = {
+            "exists": True,
+            "size_bytes": 5_000_000,
+            "modified_at": "2026-08-24T02:58:00Z",
+        }
+        if integrity is not None:
+            artifact["integrity"] = integrity
+        return artifact
+
+    def test_corrupt_artifact_is_failed_despite_clean_exit_size_and_age(self):
+        record = run(
+            artifact=self._artifact({"result": "corrupt", "format": "tar.gz", "detail": "the tar stream ended mid-archive"}),
+            expected={"max_age_hours": 26, "min_size_bytes": 1000},
+        )
+        result = classify_run(record)
+        self.assertEqual(result["status"], "failed")
+        self.assertIn("not intact", result["reasons"][0])
+        self.assertIn("ended mid-archive", result["reasons"][0])
+
+    def test_identical_record_without_the_integrity_check_is_verified(self):
+        # The control for the case above: same exit code, same size, same age.
+        # Only reading the artifact tells the two runs apart, which is the whole
+        # argument for doing it.
+        result = classify_run(
+            run(artifact=self._artifact(), expected={"max_age_hours": 26, "min_size_bytes": 1000})
+        )
+        self.assertEqual(result["status"], "verified")
+
+    def test_intact_artifact_is_verified_and_says_so(self):
+        record = run(
+            artifact=self._artifact({"result": "intact", "format": "tar.gz", "detail": "walked all 4 member(s)"}),
+            expected={"max_age_hours": 26, "min_size_bytes": 1000},
+        )
+        result = classify_run(record)
+        self.assertEqual(result["status"], "verified")
+        self.assertIn("structurally intact", result["reasons"][0])
+
+    def test_verified_without_integrity_states_that_nothing_was_opened(self):
+        result = classify_run(run(artifact=self._artifact()))
+        self.assertEqual(result["status"], "verified")
+        self.assertIn("not opened or checked", result["reasons"][0])
+
+    def test_unsupported_format_still_verifies_but_discloses_the_gap(self):
+        record = run(
+            artifact=self._artifact(
+                {"result": "unsupported", "format": "zstd", "detail": "zstd is not in the standard library"}
+            )
+        )
+        result = classify_run(record)
+        self.assertEqual(result["status"], "verified")
+        self.assertIn("not checked", result["reasons"][0])
+
+    def test_inconclusive_integrity_makes_the_run_suspicious(self):
+        # Failing loud: if the artifact could not be read, that is worth a look,
+        # not a green tick.
+        record = run(
+            artifact=self._artifact(
+                {"result": "inconclusive", "format": "gzip", "detail": "permission denied"}
+            )
+        )
+        result = classify_run(record)
+        self.assertEqual(result["status"], "suspicious")
+        self.assertIn("could not be established", result["reasons"][0])
+
+    def test_corrupt_outranks_a_size_shortfall_in_the_reported_reason(self):
+        # Both problems are real; the corrupt one is the one that explains the
+        # other, so it is what the operator should be told first.
+        record = run(
+            artifact=self._artifact({"result": "corrupt", "format": "gzip", "detail": "CRC check failed"}),
+            expected={"min_size_bytes": 10_000_000},
+        )
+        result = classify_run(record)
+        self.assertEqual(result["status"], "failed")
+        self.assertIn("CRC check failed", result["reasons"][0])
+
+
+class MarkdownEscapingTests(unittest.TestCase):
+    def test_pipes_in_a_tool_name_do_not_shear_the_table_row(self):
+        # `pg_dump|gzip` is both a realistic tool label and the exact pipeline
+        # whose silent failure this venture exists to catch, so it must render.
+        report = build_history_report(
+            [run(tool="pg_dump|gzip", artifact={"exists": True, "size_bytes": 10})]
+        )
+        output = markdown_report(report)
+        row = [line for line in output.splitlines() if "pg_dump" in line and line.startswith("|")][0]
+        self.assertIn(r"pg_dump\|gzip", row)
+        self.assertEqual(row.count("|") - row.count(r"\|"), 5)
