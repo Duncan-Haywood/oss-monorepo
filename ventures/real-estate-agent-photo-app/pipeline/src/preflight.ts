@@ -10,7 +10,19 @@
 import { readdir, readFile } from "node:fs/promises";
 import path from "node:path";
 
-import { checkBatch, isListingPhoto, type PhotoReport } from "../../research/src/lib/photo-spec";
+import {
+  BRANDING_FILENAME_TOKENS,
+  checkBatch,
+  isListingPhoto,
+  type PhotoReport,
+} from "../../research/src/lib/photo-spec";
+
+/** Collateral the Brand/microsite step co-locates (logo.png, headshot.jpg). */
+function isBrandingCompanion(name: string): boolean {
+  const dot = name.lastIndexOf(".");
+  const stem = (dot > 0 ? name.slice(0, dot) : name).toLowerCase();
+  return (BRANDING_FILENAME_TOKENS as readonly string[]).includes(stem);
+}
 
 export type PreflightSummary = {
   dir: string;
@@ -21,12 +33,13 @@ export type PreflightSummary = {
 };
 
 /**
- * `excludeFilenames` — agent branding assets (headshot/logo) that
+ * `excludeFilenames` — extra agent branding assets (headshot/logo) that
  * cli-microsite.ts's --agent-headshot/--agent-logo intentionally co-locate
  * in the delivery dir for the microsite, same convention as
- * microsite.ts's listGalleryPhotos(). Without this, a complete
- * enhance+Brand delivery always trips branding_filename on the agent's own
- * logo/headshot even though nothing MLS-bound is actually branded.
+ * microsite.ts's listGalleryPhotos(). Documented companion names
+ * (logo.png, headshot.jpg) are always skipped via isBrandingCompanion so
+ * `npm run preflight -- --dir ./delivery` works on a complete Brand folder
+ * without repeating those flags.
  */
 export async function preflightDir(dir: string, excludeFilenames: string[] = []): Promise<PreflightSummary> {
   const exclude = new Set(excludeFilenames);
@@ -34,8 +47,7 @@ export async function preflightDir(dir: string, excludeFilenames: string[] = [])
   const names = entries
     .filter((e) => e.isFile())
     .map((e) => e.name)
-    .filter(isListingPhoto)
-    .filter((name) => !exclude.has(name));
+    .filter((name) => isListingPhoto(name) && !isBrandingCompanion(name) && !exclude.has(name));
 
   const files = await Promise.all(
     names.map(async (name) => ({

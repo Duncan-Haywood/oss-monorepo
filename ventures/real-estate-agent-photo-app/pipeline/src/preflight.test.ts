@@ -34,8 +34,11 @@ async function run() {
     await makePhoto(join(dir, "living-room.png"), 1600, 1200);
     // Fails long_edge (too small).
     await makePhoto(join(dir, "hallway.png"), 200, 150);
-    // Fails branding_filename.
+    // Fails branding_filename (listing photo whose name contains a branding token).
     await makePhoto(join(dir, "agent-logo.png"), 1600, 1200);
+    // Brand/microsite companions — must be ignored, not treated as listing photos.
+    await makePhoto(join(dir, "logo.png"), 1600, 1200);
+    await makePhoto(join(dir, "headshot.jpg"), 1600, 1200);
     // Not a listing photo — must be ignored entirely.
     await writeFile(join(dir, "notes.txt"), "not an image");
 
@@ -56,14 +59,19 @@ async function run() {
       "agent-logo.png should fail branding_filename",
     );
     assert(!byName.has("notes.txt"), "notes.txt must not be treated as a photo");
+    assert(!byName.has("logo.png"), "logo.png is Brand collateral, not a listing photo");
+    assert(!byName.has("headshot.jpg"), "headshot.jpg is Brand collateral, not a listing photo");
 
     // An all-clean folder should report ok.
     const cleanDir = await mkdtemp(join(tmpdir(), "listing-lens-preflight-clean-"));
     try {
       await makePhoto(join(cleanDir, "kitchen.png"), 1600, 1200);
+      await makePhoto(join(cleanDir, "logo.png"), 400, 400);
+      await makePhoto(join(cleanDir, "headshot.jpg"), 400, 400);
       const cleanSummary = await preflightDir(cleanDir);
       assert(cleanSummary.ok, "all-clean folder should report ok");
       assert(cleanSummary.blockingCount === 0, "all-clean folder should have 0 blocking findings");
+      assert(cleanSummary.reports.length === 1, "branding companions must not be checked");
     } finally {
       await rm(cleanDir, { recursive: true, force: true });
     }
