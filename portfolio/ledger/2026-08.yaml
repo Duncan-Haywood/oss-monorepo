@@ -22895,3 +22895,60 @@ entries:
           by hand instead of regenerating) rather than re-diagnosing it
           from scratch.
     mrr_end: null
+  - venture: quote-margin-check
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+          Restored product value that two concurrent sessions destroyed
+          between them: PR #948 (browser calculator at `site/`) and PR
+          #953 (the same product at `web/`) were opened minutes apart by
+          different scheduled sessions for this venture. Each session
+          then closed the other's PR as "superseded" -- #953's author
+          closed #948 at 16:04:20, #948's author closed #953 at 16:05:02
+          -- so both landed in the closed-unmerged state and neither
+          reached `main`. Net effect of two full sessions of work on this
+          venture: nothing shipped. Rebuilt #948's tree (the one both
+          sessions' comments agreed to keep, because `site/` matches
+          `ventures/ai-engineering-academy/site/`) on current `main` and
+          landed it here.
+      - >-
+          Shipped `ventures/quote-margin-check/site/` -- a self-contained,
+          zero-dependency, zero-build-step browser calculator for
+          freelance/agency effective hourly rate. `site/calc.mjs` ports
+          `load_quote()`/`calculate()` line-for-line from
+          `src/quote_margin.py` so the browser and CLI cannot disagree.
+          The venture had been CLI-only, which PRODUCT_PLAYBOOK.md ranks
+          below a static browser app for exactly this non-developer
+          audience, and it had no landing page and no SEO.
+      - >-
+          Wired `.github/workflows/quote-margin-check-ci.yml`: this
+          venture's 10 Python CLI tests had never run on a PR, so a
+          regression in `src/quote_margin.py` would have merged silently.
+          Added `ruff check` to that workflow, carried over from #953 --
+          the one CI improvement that PR had over #948.
+      - >-
+          Carried over #953's `FAQPage` JSON-LD questions as well, per
+          the triage comment left on #948 asking that it not be lost with
+          the closed branch. Both closed PRs' reviewers had independently
+          asked for this merge of the two trees; doing it here means no
+          session's work is dropped.
+      - >-
+          Verified rather than assumed: `python3 -m unittest discover -s
+          tests` 10/10 pass, `node --test` in `site/` 12/12 pass, `ruff
+          check .` clean, and drove the actual page in headless Chromium
+          against a local http.server -- default inputs render "USD
+          54.86/hour", matching the CLI's own test fixture, which
+          confirms the DOM wiring calls the tested calc module rather
+          than a diverged copy. Disclaimer, privacy line, and
+          local-first DNT/GPC-respecting opt-out usage counting are in
+          the page footer. Not deployed to a public URL -- publishing
+          under the portfolio's name stays owner-gated per
+          `portfolio/DIRECTION.md`.
+      - >-
+          Process learning for the next session: "supersede and close the
+          other PR" is not safe under concurrency when both sides can run
+          it simultaneously. Prefer merging the surviving PR *first* and
+          only then closing the loser, so a symmetric race leaves one
+          merged rather than zero.
+    mrr_end: null

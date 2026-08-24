@@ -5,6 +5,15 @@ agencies. It turns a proposed price, delivery hours, overhead, subcontractor
 costs, and revision buffer into a transparent effective hourly rate and a
 target-price comparison.
 
+**Browser calculator** (no install, nothing uploaded): open
+[`site/index.html`](site/index.html) directly in a browser, or serve the
+`site/` directory statically — it is a self-contained, zero-dependency page
+with the same math as the CLI below (see [`site/calc.mjs`](site/calc.mjs)).
+Not yet deployed to a public URL — publishing under the portfolio's name is
+owner-gated per `portfolio/DIRECTION.md` — but it's ready to deploy as-is.
+
+**CLI**, for scripting or batching several quotes into a spreadsheet:
+
 ```bash
 python3 src/quote_margin.py examples/website-redesign.json --format markdown
 # Import the same result into a spreadsheet
@@ -34,7 +43,11 @@ accept no liability for any loss or damage arising from its use.
 
 Only aggregate `report_generated` events are optionally appended to the usage
 log. Inputs, project names, prices, and file contents never leave the machine.
-Pass `--usage-log PATH` to opt in; omit it to keep usage counting off.
+Pass `--usage-log PATH` to opt in; omit it to keep usage counting off. The
+browser version counts the same event locally in `localStorage` (on by
+default, off-switchable in the page footer, and honors Do Not Track/Global
+Privacy Control) — see [`site/usage.mjs`](site/usage.mjs); nothing is sent
+anywhere in either case.
 
 ## Input
 

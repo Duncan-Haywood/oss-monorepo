@@ -54,6 +54,22 @@ products:
           repo_views_14d: 0
           release_downloads_total: 0
         note: Shipped calculator baseline; no public distribution or usage yet.
+      - as_of: 2026-08-24
+        signals:
+          report_generated_events: 0
+          local_events_reported: 0
+        note: >-
+          Added a zero-dependency browser calculator (site/index.html +
+          calc.mjs, 12 passing node --test cases) with the same math as the
+          CLI, plus a dedicated CI workflow (this venture previously had
+          none). Discoverability checklist done: title/meta description
+          carrying the search phrase, SoftwareApplication + FAQPage
+          schema.org JSON-LD, OG tags, robots.txt. Not yet deployed to a
+          public URL -- publishing under the portfolio's name stays
+          owner-gated per portfolio/DIRECTION.md; ready to deploy once that
+          opens. Local-first usage counting only reports to the user's own
+          browser, so there is no traffic signal yet -- baseline row for the
+          new surface.
   - slug: etsy-profit-calculator
     surface: static-page-in-repo
     readings:
