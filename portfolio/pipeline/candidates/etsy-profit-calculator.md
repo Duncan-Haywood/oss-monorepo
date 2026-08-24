@@ -3,6 +3,8 @@
 **One line.** A local calculator that shows an Etsy seller's order contribution
 after marketplace fees, shipping, materials, ads, and other variable costs.
 
+Scored 2026-08-24. Composite 7.125 · floor 2 (ai leverage).
+
 **Verdict: graduate narrow version.** Independent Etsy makers have recurring
 search intent around fee and profit calculation, but the amount left after the
 full fee stack is hard to see. This tool keeps every seller-entered assumption
