@@ -44,8 +44,8 @@ jobs:
           - led-resistor-calculator
           - voltage-divider-calculator
           - 555-timer-calculator
-           - rc-filter-calculator
-           - capacitor-charge-calculator
+          - rc-filter-calculator
+          - capacitor-charge-calculator
     defaults:
       run:
         working-directory: ventures/ai-engineering-academy/tools/${{ matrix.tool }}
