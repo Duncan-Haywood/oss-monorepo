@@ -1,0 +1,60 @@
+name: SSH key smoke
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  ssh:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Probe HETZNERSSHKEY against the new box
+        env:
+          HETZNERSSHKEY: ${{ secrets.HETZNERSSHKEY }}
+        run: |
+          set -uo pipefail
+          if [ -z "${HETZNERSSHKEY}" ]; then
+            echo "HETZNERSSHKEY is empty or inaccessible"
+            exit 1
+          fi
+          install -m 700 -d "$HOME/.ssh"
+          printf '%s' "${HETZNERSSHKEY}" > "$HOME/.ssh/id_test"
+          if [ "$(tail -c1 "$HOME/.ssh/id_test" | wc -c)" -ne 0 ]; then
+            echo >> "$HOME/.ssh/id_test"
+          fi
+          chmod 600 "$HOME/.ssh/id_test"
+          if ! grep -q "BEGIN .*PRIVATE KEY" "$HOME/.ssh/id_test"; then
+            echo "Secret is not an OpenSSH/PEM private key"
+            exit 1
+          fi
+          echo "Fingerprint:"
+          ssh-keygen -lf "$HOME/.ssh/id_test"
+          echo "Public key:"
+          ssh-keygen -y -f "$HOME/.ssh/id_test"
+          echo
+          echo "Trying root@89.167.29.39"
+          if ssh -i "$HOME/.ssh/id_test" \
+            -o BatchMode=yes \
+            -o StrictHostKeyChecking=accept-new \
+            -o IdentitiesOnly=yes \
+            -o ConnectTimeout=20 \
+            root@89.167.29.39 'echo HETZNERSSHKEY_ROOT_OK; whoami; hostname'; then
+            echo "root: success"
+          else
+            echo "root: failed"
+          fi
+          echo
+          echo "Trying deploy@89.167.29.39"
+          if ssh -i "$HOME/.ssh/id_test" \
+            -o BatchMode=yes \
+            -o StrictHostKeyChecking=accept-new \
+            -o IdentitiesOnly=yes \
+            -o ConnectTimeout=20 \
+            deploy@89.167.29.39 'echo HETZNERSSHKEY_DEPLOY_OK; whoami; hostname'; then
+            echo "deploy: success"
+          else
+            echo "deploy: failed (user may not exist)"
+          fi
+          shred -u "$HOME/.ssh/id_test" || rm -f "$HOME/.ssh/id_test"
