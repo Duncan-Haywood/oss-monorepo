@@ -73,3 +73,14 @@ export function calculateOrder(input) {
       : Math.max(0, fixedCash / targetRevenueDenominator - shippingCharged),
   };
 }
+
+// Compare listing prices without changing any of the seller's other
+// assumptions. The returned rows are deliberately plain data so the UI and
+// tests can use the same calculation.
+export function calculatePriceScenarios(input, prices) {
+  if (!Array.isArray(prices) || prices.length === 0) throw new Error('At least one scenario price is required');
+  return prices.map(price => ({
+    price: Number(price),
+    ...calculateOrder({ ...input, price }),
+  }));
+}

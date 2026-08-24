@@ -9,11 +9,13 @@ import {
   formatCheckoutCurrency,
   loadCheckoutCartFromStorage,
   saveCheckoutCartToStorage,
+  updateCheckoutLineQuantity,
   type CheckoutEnvStatus,
   type CheckoutLineItem,
   type CheckoutShippingRegion,
 } from "@/lib/checkout";
 import { catalogArtworks } from "@/lib/marketplace";
+import { recordUsageEvent } from "@/lib/usage";
 import Link from "next/link";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import {
@@ -50,9 +52,7 @@ export default function CheckoutLab() {
   }, []);
 
   useEffect(() => {
-    if (cart.length > 0) {
-      saveCheckoutCartToStorage(cart);
-    }
+    saveCheckoutCartToStorage(cart);
   }, [cart]);
 
   useEffect(() => {
@@ -82,7 +82,13 @@ export default function CheckoutLab() {
   }, [cart]);
 
   const removeLine = useCallback((slug: string) => {
+    recordUsageEvent("checkout_remove");
     setCart((prev) => prev.filter((item) => item.artworkSlug !== slug));
+  }, []);
+
+  const changeQuantity = useCallback((slug: string, quantity: number) => {
+    recordUsageEvent(quantity > 0 ? "checkout_quantity_change" : "checkout_remove");
+    setCart((prev) => updateCheckoutLineQuantity(prev, slug, quantity));
   }, []);
 
   const resetCart = useCallback(() => {
@@ -127,7 +133,9 @@ export default function CheckoutLab() {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <section className="lg:col-span-2 space-y-4">
           <div className="flex items-center justify-between">
-            <h2 className="text-lg font-semibold text-stone-900 dark:text-stone-400">Cart ({cart.length})</h2>
+            <h2 className="text-lg font-semibold text-stone-900 dark:text-stone-400">
+              Cart ({cart.reduce((count, item) => count + item.quantity, 0)})
+            </h2>
             <div className="flex gap-2">
               <button
                 type="button"
@@ -148,7 +156,13 @@ export default function CheckoutLab() {
 
           {cart.length === 0 ? (
             <div className="rounded-xl border border-dashed border-stone-300 p-8 text-center text-stone-500 dark:text-stone-400">
-              Cart empty — add a consent-cleared listing from the storefront.
+              <p>Cart empty - add a consent-cleared listing from the storefront.</p>
+              <Link
+                href="/storefront"
+                className="mt-4 inline-flex items-center gap-2 rounded-lg bg-stone-900 px-4 py-2 text-sm font-medium text-white hover:bg-stone-700"
+              >
+                Browse available prints <ArrowRight className="h-4 w-4" />
+              </Link>
             </div>
           ) : (
             <ul className="space-y-3">
@@ -157,20 +171,41 @@ export default function CheckoutLab() {
                   key={item.artworkSlug}
                   className="flex items-center justify-between gap-4 rounded-xl border border-stone-200 bg-white p-4"
                 >
-                  <div>
+                  <div className="min-w-0">
                     <p className="font-semibold text-stone-900">{item.title}</p>
                     <p className="text-sm text-stone-500">{item.artistName}</p>
                     <p className="text-sm font-medium text-stone-800 mt-1">
-                      {formatCheckoutCurrency(item.retailPrice)} × {item.quantity}
+                      {formatCheckoutCurrency(item.retailPrice * item.quantity)} total
                     </p>
                   </div>
-                  <button
-                    type="button"
-                    onClick={() => removeLine(item.artworkSlug)}
-                    className="text-sm text-rose-600 hover:text-rose-800"
-                  >
-                    Remove
-                  </button>
+                  <div className="flex shrink-0 items-center gap-3">
+                    <div className="flex items-center rounded-lg border border-stone-200" aria-label={`Quantity for ${item.title}`}>
+                      <button
+                        type="button"
+                        onClick={() => changeQuantity(item.artworkSlug, item.quantity - 1)}
+                        aria-label={`Decrease ${item.title} quantity`}
+                        className="px-2.5 py-1.5 text-lg text-stone-700 hover:bg-stone-100"
+                      >
+                        -
+                      </button>
+                      <span className="min-w-8 text-center text-sm font-medium text-stone-800">{item.quantity}</span>
+                      <button
+                        type="button"
+                        onClick={() => changeQuantity(item.artworkSlug, item.quantity + 1)}
+                        aria-label={`Increase ${item.title} quantity`}
+                        className="px-2.5 py-1.5 text-lg text-stone-700 hover:bg-stone-100"
+                      >
+                        +
+                      </button>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => removeLine(item.artworkSlug)}
+                      className="text-sm text-rose-600 hover:text-rose-800"
+                    >
+                      Remove
+                    </button>
+                  </div>
                 </li>
               ))}
             </ul>
