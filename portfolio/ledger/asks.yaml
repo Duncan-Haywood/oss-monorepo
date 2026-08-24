@@ -231,10 +231,12 @@ decisions:
     unanswered is what costs.
   unlocks:
     - >-
-      Answered "yes, while nothing is live", `contrast-fixes` and
-      `eaa-evidence-product-line` both leave this queue outright -- two pull
-      requests the owner never has to read individually. This is the only
-      row here whose answer makes the queue shorter.
+      Answered "yes, while nothing is live", `eaa-evidence-product-line`
+      leaves this queue outright -- one pull request the owner never has to
+      read. `contrast-fixes` (#531), the other example this bullet used to
+      cite, merged 2026-08-24T15:03:24Z without the question being answered
+      and its row has been removed from this file -- see this row's own
+      correction below.
     - >-
       Answered "no, the gate stands regardless", every future `ventures/*`
       pull request stops being re-argued from prose by each session that meets
@@ -284,72 +286,17 @@ decisions:
     every future venture pull request also reduce to, it is now its own row
     (`venture-gate-premise`, Ask 9) rather than a paragraph inside this one.
 
-- id: contrast-fixes
-  asks: []
-  prs: [531]
-  gates: deployment
-  exposure: none
-  opened: "2026-08-21"
-  action: "Merge or decline #531."
-  unlocks:
-    - WCAG 1.4.3 contrast failures fixed across `local-site-studio` and `ai-first-markets`.
-  blocked_by: []
-  note: >-
-    Colour-token substitutions, CI-green. Neither changes behaviour beyond
-    colour values.
 
-
-    Correction, 2026-08-24: this note previously gave the reason for the gate
-    as "they republish live sites". Per `platform/ci/publish_surface.py`, no
-    workflow publishes on a push to `main` -- the two Pages deploys skip their
-    publish jobs for want of credentials, and the third is
-    `workflow_dispatch`-only -- so merging republishes nothing. This touches
-    `ventures/*` app code, which is why it is still here rather than
-    self-merged; the live-site consequence it was credited with does not
-    exist.
-
-
-    Correction, 2026-08-24 (later): this row originally covered #531 and #583
-    together -- #583 (the `real-estate-agent-photo-app` half) merged at
-    2026-08-24T09:45:01Z. #531 (`local-site-studio` + `ai-first-markets`)
-    remains open with `mergeable_state: dirty` as of this correction; its own
-    branch needs a rebase onto current `main` before it can merge, which is
-    conflict resolution a session can do, not a decision that needs the
-    owner. `next-16-upgrade` (#372, prs-only row) and `dependabot` (#368,
-    prs-only row) are removed from this file outright rather than corrected
-    in place: both merged at 2026-08-24T09:43:08Z and 09:45:03Z respectively,
-    and neither has anything left to grant.
-
-
-    Correction, 2026-08-24 (later still): the previous correction's "conflict
-    resolution a session can do" is no longer true. #731 (merged
-    2026-08-24T09:45:00Z, the 1,405-commit `local-site-studio` subtree merge)
-    rewrote `ventures/local-site-studio/src/app/page.tsx`'s bundle-pricing
-    section in the meantime. `git merge-tree` now conflicts on that file for
-    real, not as a line-offset rebase: reapplying #531's 11 colour-token
-    substitutions means re-deriving which classes carry the contrast fix
-    against the new structure, closer to redoing the `a11y-contrast-
-    decidability` fix than resolving a merge. Flagged as a PR comment on #531
-    rather than attempted blind, since correctness there (checkout pricing,
-    `BUNDLES` consistency) matters more than speed. The merge-or-decline
-    decision is still the owner's; what changed is that "merge" no longer
-    means taking the diff as-is.
-
-
-    Correction, 2026-08-24 (direction, same day): the previous paragraph had
-    the direction of #731's rewrite backwards. Verified directly against both
-    blobs (pre-#731 `b9e5ea7d` vs. current `main`): the file did *not* move
-    from a shared `BUNDLES` source to an inline array -- it went the other
-    way. Pre-#731, `page.tsx` hardcoded a `const bundles = [...]` array
-    in-file with no pricing import at all. #731 replaced that with one that
-    imports `getBundle`/`COMMERCE_ADDON` from `@/lib/pricing/bundles` and
-    reads bundle data from there -- #731 *fixed* a single-source-of-truth gap
-    in this file, it did not introduce one. The conclusion this row draws
-    from that -- #531's conflict is real and structural, not a plain rebase
-    -- is unaffected: reapplying 11 colour-token classes onto a file whose
-    pricing now comes from a shared module still means re-deriving which
-    classes carry the fix, just against a *better*-structured file than
-    before, not a worse one.
+    Correction, 2026-08-24 (later still): `contrast-fixes` (#531) merged at
+    2026-08-24T15:03:24Z (by `kilo-code-bot[bot]`) without this question being
+    answered -- CI green afterward on both affected ventures (`world-clock-
+    widget CI` and `AI-First Markets CI`, on merge commit `fc860b83`). Its row
+    is removed from this file outright, the same way `next-16-upgrade` and
+    `dependabot` were: nothing left to grant. This does not answer
+    `venture-gate-premise` -- whether a session may merge exactly this class
+    of change on its own judgment is still open, and #531 merging anyway (by
+    a different automation identity, not this portfolio's own agent-decidable
+    reasoning) is a data point for the answer, not a substitute for it.
 
 - id: deployment-platform
   asks: []
