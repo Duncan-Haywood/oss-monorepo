@@ -1489,6 +1489,172 @@ def _control_headline(record: dict) -> str:
     )
 
 
+# ---------------------------------------------------------------------------
+# Mechanically determined repairs. Read-only: these are suggestions, never
+# writes. The candidate's first experiment is "audit-and-fix"; the audit
+# half has been here since 2026-08-20. The one defect class that can be
+# repaired without inventing a name or guessing a colour is the fassbender
+# forgotten-prefix: a literal <label for> that cannot match any id in its
+# file, next to exactly one expression-bearing control id whose trailing
+# literal is that for-value after a separator. That is a fact about two
+# strings, not a conformance claim, and applying it is a merchant decision.
+# ---------------------------------------------------------------------------
+
+FIX_STATEMENT = (
+    "The rows below are suggested edits, not applied changes, and not a "
+    "claim that the result would conform to WCAG, the European Accessibility "
+    "Act, or anything else. Only repairs that are uniquely determined from "
+    "the markup are listed. The only class claimed is a literal "
+    "<label for> that cannot name any control in its file, paired with "
+    "exactly one expression-bearing control id that has that literal as "
+    "its trailing text after a separator -- the theme prefixed the control "
+    "and forgot the label. Nothing here is written to your files."
+)
+
+_ATTR_FIND = re.compile(
+    r"""(?P<name>for|id|type)\s*=\s*(?P<q>['"])(?P<val>(?:(?!(?P=q)).)*)(?P=q)""",
+    re.I | re.S,
+)
+_CONTROL_OPEN = re.compile(
+    r"""<(?P<tag>input|select|textarea)\b(?P<body>[^>]*)>""",
+    re.I | re.S,
+)
+_LABEL_OPEN = re.compile(
+    r"""<label\b(?P<body>[^>]*)>""",
+    re.I | re.S,
+)
+_SEPARATOR_ONLY = re.compile(r"^[\W_]*$")
+
+
+def _attr_in(body: str, name: str) -> tuple[str, str] | None:
+    """Original (quote, value) for `name` inside a start-tag body, or None."""
+    for match in _ATTR_FIND.finditer(body):
+        if match.group("name").lower() == name:
+            return match.group("q"), match.group("val")
+    return None
+
+
+def _control_needs_label(body: str) -> bool:
+    found = _attr_in(body, "type")
+    if found is None:
+        return True
+    return expr_free(strip_expressions(found[1])).lower() not in NO_LABEL_TYPES
+
+
+def _forgotten_prefix(literal_for: str, raw_id: str) -> bool:
+    """Is `raw_id` a prefixed form of `literal_for` that can never equal it?"""
+    if not literal_for or is_expr(literal_for) or not is_expr(raw_id):
+        return False
+    if refs_can_match(literal_for, raw_id):
+        return False
+    last = EXPR_SENTINEL.split(raw_id)[-1]
+    if not last.endswith(literal_for):
+        return False
+    leftover = last[:-len(literal_for)]
+    return bool(_SEPARATOR_ONLY.match(leftover))
+
+
+def suggest_fixes(files: list[tuple[str, str]]) -> list[dict]:
+    """File-local, uniquely determined forgotten-prefix repairs.
+
+    Never writes. A one-file or many-file invocation is the same: pairing
+    never crosses files, because a ``for`` on another partial may already
+    name a different control on that page.
+    """
+    repairs: list[dict] = []
+    for path, source in files:
+        labels: list[tuple[str, str, str]] = []
+        controls: list[tuple[str, str]] = []
+        for match in _LABEL_OPEN.finditer(source):
+            found = _attr_in(match.group("body"), "for")
+            if found:
+                labels.append((found[0], found[1], strip_expressions(found[1])))
+        for match in _CONTROL_OPEN.finditer(source):
+            if not _control_needs_label(match.group("body")):
+                continue
+            found = _attr_in(match.group("body"), "id")
+            if found:
+                controls.append((found[1], strip_expressions(found[1])))
+
+        raw_ids = [stripped for _, stripped in controls]
+        dangling = [
+            (quote, original, stripped)
+            for quote, original, stripped in labels
+            if not any(refs_can_match(stripped, raw) for raw in raw_ids)
+        ]
+
+        claimed: dict[str, list[tuple[str, str, str]]] = {}
+        for quote, original_for, stripped_for in dangling:
+            hits = [
+                original_id
+                for original_id, raw_id in controls
+                if _forgotten_prefix(stripped_for, raw_id)
+            ]
+            if len(hits) != 1:
+                continue
+            claimed.setdefault(hits[0], []).append(
+                (quote, original_for, stripped_for)
+            )
+
+        for original_id, claimants in claimed.items():
+            if len(claimants) != 1:
+                continue
+            quote, original_for, _stripped = claimants[0]
+            if source.count(f"for={quote}{original_for}{quote}") != 1:
+                continue
+            repairs.append({
+                "file": path,
+                "check": "label-for-id-mismatch",
+                "success_criterion": CHECKS["label-for-id-mismatch"][0],
+                "replace": original_for,
+                "with": original_id,
+                "replace_attr": f"for={quote}{original_for}{quote}",
+                "with_attr": f"for={quote}{original_id}{quote}",
+                "reason": (
+                    f"this file's <label for={original_for!r}> cannot name "
+                    f"any control here, and exactly one control id "
+                    f"({original_id!r}) is that literal after a separator"
+                ),
+            })
+    return repairs
+
+
+def apply_repair(source: str, repair: dict) -> str:
+    """Apply one suggested replacement. Used by tests; the CLI never calls it."""
+    needle = repair["replace_attr"]
+    if source.count(needle) != 1:
+        raise ValueError(f"repair is not unique in source: {needle!r}")
+    return source.replace(needle, repair["with_attr"], 1)
+
+
+def _md_cell(text: str) -> str:
+    return text.replace("|", "\\|").replace("\n", " ")
+
+
+def _repairs_section(record: dict) -> list:
+    repairs = record.get("proposed_repairs") or []
+    if not repairs:
+        return []
+    lines = [
+        "## Proposed repairs (not applied)",
+        "",
+        record.get("repair_statement", FIX_STATEMENT),
+        "",
+        f"{len(repairs)} uniquely determined edit(s). None have been written.",
+        "",
+        "| file | replace | with |",
+        "|---|---|---|",
+    ]
+    for row in repairs:
+        lines.append(
+            f"| `{_md_cell(row['file'])}` | "
+            f"`{_md_cell(row['replace_attr'])}` | "
+            f"`{_md_cell(row['with_attr'])}` |"
+        )
+    lines.append("")
+    return lines
+
+
 def _control_section(record: dict) -> list:
     """The per-engagement control table, placed before the findings."""
     control = record.get("positive_control")
@@ -1524,6 +1690,7 @@ def evidence_record(
     scope: str,
     date: str | None = None,
     control: dict | None = None,
+    proposed_repairs: list[dict] | None = None,
 ) -> dict:
     """The deliverable: what was tested, with what, when, and what remains open.
 
@@ -1534,6 +1701,10 @@ def evidence_record(
     ``run_control``. The CLI always supplies it. Tests that build a record
     from a single fixture may omit it; the section is then absent rather
     than silently reported as passing.
+
+    ``proposed_repairs`` is the same: the CLI supplies whatever
+    ``suggest_fixes`` uniquely determined, which may be an empty list.
+    Tests may omit it; absence is not a claim that nothing is fixable.
     """
     findings = [f for r in results for f in r["findings"]]
     undecided = [u for r in results for u in r["undecidable"]]
@@ -1583,6 +1754,8 @@ def evidence_record(
             },
         ],
         "positive_control": control,
+        "proposed_repairs": proposed_repairs,
+        "repair_statement": FIX_STATEMENT if proposed_repairs else None,
     }
 
 
@@ -1605,6 +1778,7 @@ def render_record(record: dict) -> str:
         "",
     ]
     lines += _control_section(record)
+    lines += _repairs_section(record)
     lines += [
         "## What was found",
         "",
@@ -1793,7 +1967,11 @@ def main() -> int:
             print(f"{path}: {exc}", file=sys.stderr)
     results = audit_sources(files, stylesheet=sheet)
     control = run_control({path: source for path, source in files}, stylesheet=sheet)
-    record = evidence_record(results, args.scope, args.date, control=control)
+    record = evidence_record(
+        results, args.scope, args.date,
+        control=control,
+        proposed_repairs=suggest_fixes(files),
+    )
 
     if args.record:
         print(render_record(record))
