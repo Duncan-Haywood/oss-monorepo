@@ -49,6 +49,35 @@ test("markdown matches the CLI's --format markdown byte for byte", () => {
   assert.equal(toMarkdown(quote, calculate(quote)), fromCli);
 });
 
+test("markdown matches the CLI on a round-half-to-even tie", () => {
+  // 621.25 / 10 is exactly 62.125. Python's .2f ties to even (62.12);
+  // Math.round ties toward +∞ (62.13). The two-surface guarantee is the
+  // point of this file, so this case has to be asserted, not only the
+  // non-tie input above.
+  const input = {
+    currency: "USD",
+    price: 621.25,
+    delivery_hours: 10,
+    target_hourly_rate: 50,
+  };
+  const quote = loadQuote(input);
+  const rendered = toMarkdown(quote, calculate(quote));
+  assert.match(rendered, /\| Effective hourly rate \| USD 62\.12\/hour \|/);
+
+  const dir = mkdtempSync(join(tmpdir(), "qmc-"));
+  const path = join(dir, "quote.json");
+  writeFileSync(path, JSON.stringify(input));
+  let fromCli;
+  try {
+    fromCli = execFileSync("python3", [cli, path, "--format", "markdown"], {
+      encoding: "utf8",
+    });
+  } catch {
+    return;
+  }
+  assert.equal(rendered, fromCli);
+});
+
 test("markdown reports below-target status and the disclaimer", () => {
   const quote = loadQuote({
     price: 1000,

@@ -6,6 +6,16 @@
 // and come back to a quote later (the URL fragment). Both matter more here
 // than in a hosted tool, because there is no account to save anything into.
 
+/** Python 3 `f"{x:.2f}"`: round-half-to-even, not Math.round's half-toward-+∞. */
+function formatDecimal(value) {
+  const scaled = value * 100;
+  let rounded = Math.round(scaled);
+  if (scaled - Math.floor(scaled) === 0.5 && rounded % 2 !== 0) {
+    rounded -= 1;
+  }
+  return (rounded / 100).toFixed(2);
+}
+
 /**
  * Renders the same Markdown report as `python3 src/quote_margin.py --format
  * markdown`, field for field. Anyone comparing the two surfaces should get
@@ -14,7 +24,7 @@
  */
 export function toMarkdown(quote, result) {
   const c = quote.currency;
-  const n = (value) => (Math.round(value * 100) / 100).toFixed(2);
+  const n = formatDecimal;
   const status = result.gap_to_target >= 0 ? "above target" : "below target";
   return (
     [
