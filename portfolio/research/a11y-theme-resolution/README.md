@@ -154,6 +154,12 @@ useful, a concrete improvement available to
 to `audit.py`: match label references on raw expression text, and flag the
 mismatch case as a finding rather than an undecidable.
 
+**Closed 2026-08-24 for `audit.py`.** The same-file half landed the next day
+(`a11y-evidence-record` README, 2026-08-21). The package-wide half -- the
+third fassbender defect, `search.liquid:22`, which has no `<label for>` in
+its own file -- is now `resolve_package_labels` in that engine. The HTML
+probe never stripped expressions and still needs no corresponding change.
+
 The correction cuts both ways, which is why it is worth having. It removes 64
 false undecidables *and* it is what exposes the fassbender defect: a
 literal-only comparison sees `for="mce-NAME"` and an id it cannot read, and
