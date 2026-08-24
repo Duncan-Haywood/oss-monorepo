@@ -43,10 +43,12 @@ AI-wrap by default.
 
 Agent-decidable (merge yourself after CI):
 
-- All `ventures/*` changes while `python3 platform/ci/publish_surface.py`
-  reports nothing live on push to `main`
 - `platform/`, `portfolio/`, docs, tests, CI — internal surfaces
 - Usage tracking, disclaimers, free-tier features, GitHub Sponsors links
+
+`python3 platform/ci/publish_surface.py` currently reports nothing live on
+push to `main`. That does not make `ventures/*` app code agent-decidable
+on its own — Ask 9 (`venture-gate-premise`) is still open.
 
 Owner-only (flag only when it **blocks** product work you cannot finish):
 
@@ -54,6 +56,7 @@ Owner-only (flag only when it **blocks** product work you cannot finish):
 - Account registration needing card / ID / domain / bank
 - Public publishing (store listing, npm publish, production domain)
 - Unattended paid automation (scheduled jobs calling paid APIs)
+- Breaking changes to deployable `ventures/*` code
 
 See `python3 portfolio/ledger/decision_queue.py` for what the owner has
 already been asked; do not duplicate asks.

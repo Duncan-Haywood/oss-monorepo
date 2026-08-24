@@ -40,10 +40,14 @@ have disclaimers and usage tracking.
 
 **Agent-decidable — verify and merge yourself:**
 
-- `ventures/*` while `python3 platform/ci/publish_surface.py` shows nothing
-  live on push to `main`
-- `platform/`, `portfolio/`, docs, tests, CI
+- `platform/`, `portfolio/`, docs, tests, CI — internal surfaces
 - Free full-feature products, usage instrumentation, sponsor links
+  (building privately; merging `ventures/*` is a separate gate)
+
+`python3 platform/ci/publish_surface.py` currently shows nothing live on
+push to `main`. That does not make venture app code agent-decidable on
+its own — the owner-only list below still covers breaking changes to it,
+and Ask 9 (`venture-gate-premise`) is still open.
 
 **Owner-only — flag only when it blocks product work you cannot finish:**
 
@@ -52,6 +56,7 @@ have disclaimers and usage tracking.
 - Publishing under the portfolio's public name (store listing, npm publish,
   production domain) — building the artifact privately is always allowed
 - Enabling unattended automation that spends paid API budget
+- Breaking changes to deployable `ventures/*` code
 
 `python3 portfolio/ledger/decision_queue.py` lists owner decisions already
 queued. Do not add duplicate asks. Do not expand the queue with items that

@@ -80,16 +80,24 @@ when product work is actually blocked):
 - **Publishing** under the portfolio's public name (store listing, npm publish,
   production domain cutover) — building privately is always allowed
 - Enabling unattended automation that spends paid API budget
+- Breaking changes to deployable `ventures/*` code
 
-Everything else — including `ventures/*` app code while nothing is live on
-`main` — is **agent-decidable**: verify, merge, ship.
+Internal surfaces (`platform/`, `portfolio/`, docs, tests, CI) are
+**agent-decidable**: verify, merge, ship. Nothing live on `main` does not
+make `ventures/*` app code agent-decidable on its own — breaking changes
+to deployable venture code stay owner-gated until Ask 9
+(`venture-gate-premise`) is answered.
 
 ## Graduating new products
 
 1. Pick a niche from `portfolio/pipeline/` or invent one that is **not** in
    `screened-out.md`.
-2. Create `ventures/<slug>/` with `VENTURE.yaml`, a runnable app, disclaimers,
-   and basic usage tracking.
+2. Graduate it matching its `graduate_as` field:
+   - `graduate_as: venture` — create `ventures/<slug>/` with `VENTURE.yaml`,
+     a runnable app, disclaimers, and basic usage tracking.
+   - `graduate_as: product-line` — add the slug under `product_lines` in
+     its host venture's `VENTURE.yaml` (the host must already be routable).
+     Do not open a second venture directory.
 3. Ship on the VM or a preview deploy; record usage, not opinions.
 4. Let organic traffic and return usage decide what gets more investment.
 
