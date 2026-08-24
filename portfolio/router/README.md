@@ -2,6 +2,12 @@
 
 Decides which venture gets the next unit of agent effort.
 
+**2026-08-24 direction:** the router ranks work, but the fleet's default is
+product shipping, not router maintenance. Prefer dispatchable `in-repo`
+hypotheses and ventures with runnable software over blocked
+`customer-contact` hypotheses until a product exists to show users. See
+[`../DIRECTION.md`](../DIRECTION.md).
+
 ## Why this is not a pure ROI maximizer
 
 The obvious design — rank ventures by return and spend on the top one — is a
