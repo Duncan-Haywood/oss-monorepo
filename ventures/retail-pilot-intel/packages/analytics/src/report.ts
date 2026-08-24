@@ -6,6 +6,8 @@ export interface DailySummary {
   bounces: number;
   purchases: number;
   conversion_rate: number;
+  revenue_cents: number;
+  revenue_per_entrant_cents: number;
 }
 
 export function dailySummary(dbPath: string, day: string): DailySummary {
@@ -24,11 +26,13 @@ export function dailySummary(dbPath: string, day: string): DailySummary {
     .get(day) as { v: number };
   const purchases = db
     .prepare(
-      `SELECT COUNT(*) AS c FROM sale_events WHERE date(closed_at) = ?`,
+      `SELECT COUNT(*) AS c, COALESCE(SUM(total_cents), 0) AS revenue
+       FROM sale_events WHERE date(closed_at) = ?`,
     )
-    .get(day) as { c: number };
+    .get(day) as { c: number; revenue: number };
   const entryCount = Number(entries.v);
   const purchaseCount = Number(purchases.c);
+  const revenueCents = Number(purchases.revenue);
   return {
     date: day,
     entries: entryCount,
@@ -38,6 +42,9 @@ export function dailySummary(dbPath: string, day: string): DailySummary {
       entryCount > 0
         ? Math.round((purchaseCount / entryCount) * 10000) / 10000
         : 0,
+    revenue_cents: revenueCents,
+    revenue_per_entrant_cents:
+      entryCount > 0 ? Math.round(revenueCents / entryCount) : 0,
   };
 }
 
