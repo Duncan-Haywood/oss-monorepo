@@ -44,6 +44,7 @@ export function calculate(quote) {
   const directCosts = quote.overhead + quote.subcontractor_cost;
   const effectiveHourlyRate = (quote.price - directCosts) / totalHours;
   const targetPrice = totalHours * quote.target_hourly_rate + directCosts;
+  const hoursAtTargetRate = Math.max(0, (quote.price - directCosts) / quote.target_hourly_rate);
   return {
     total_hours: totalHours,
     direct_costs: directCosts,
@@ -51,6 +52,7 @@ export function calculate(quote) {
     target_price: targetPrice,
     gap_to_target: quote.price - targetPrice,
     cost_coverage: quote.price - directCosts,
+    hours_at_target_rate: hoursAtTargetRate,
   };
 }
 

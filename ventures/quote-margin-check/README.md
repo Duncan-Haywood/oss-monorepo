@@ -31,6 +31,9 @@ compensation visible, while `Gap to target price` compares the quote with the
 supplied target rate. Both are arithmetic signals, not a profitability verdict.
 The CSV format emits stable `measure,value,unit` columns so you can append
 results from several proposals to a spreadsheet without retyping calculations.
+`Hours covered at supplied target rate` shows how many hours remain after direct
+costs if the remainder is valued at the target rate; it is a scoping comparison,
+not a recommendation or a promise that the work fits that time.
 Batch CSV emits one comparison row per filename, making a folder of recurring
 proposal reviews easy to sort and filter without exposing the proposal data.
 

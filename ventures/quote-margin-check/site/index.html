@@ -301,6 +301,7 @@
            <dt>Price at your target rate</dt><dd>${safeCurrency} ${fmt(r.target_price)}</dd>
            <dt>Gap to target price</dt><dd>${safeCurrency} ${fmt(r.gap_to_target)}</dd>
            <dt>Left after direct costs</dt><dd>${safeCurrency} ${fmt(r.cost_coverage)}</dd>
+           <dt>Hours covered at your target rate</dt><dd>${fmt(r.hours_at_target_rate)} hours</dd>
         </dl>
        `;
        review.querySelector(".checks").innerHTML = reviewQuote(quote, r).map((check) => `<li class="${check.level}"><strong>${escapeHtml(check.title)}</strong>${escapeHtml(check.detail)}</li>`).join("");
@@ -354,6 +355,7 @@
       `target_price,${r.target_price.toFixed(2)},${quote.currency}`,
       `gap_to_target,${r.gap_to_target.toFixed(2)},${quote.currency}`,
       `cost_coverage,${r.cost_coverage.toFixed(2)},${quote.currency}`,
+      `hours_at_target_rate,${r.hours_at_target_rate.toFixed(2)},hours`,
     ].join("\n");
     try {
       await navigator.clipboard.writeText(rows);

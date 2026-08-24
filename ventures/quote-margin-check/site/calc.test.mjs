@@ -18,6 +18,7 @@ test("calculates hidden time and target price", () => {
   assert.ok(Math.abs(result.effective_hourly_rate - 54.8571428) < 1e-6);
   assert.equal(result.target_price, 3105);
   assert.equal(result.gap_to_target, -705);
+  assert.equal(result.hours_at_target_rate, 25.6);
 });
 
 test("defaults optional costs and time to zero", () => {
@@ -49,6 +50,12 @@ test("rejects non-finite numbers", () => {
 test("reports price left after direct costs", () => {
   const quote = loadQuote({ price: 1000, delivery_hours: 10, overhead: 125, subcontractor_cost: 75, target_hourly_rate: 80 });
   assert.equal(calculate(quote).cost_coverage, 800);
+  assert.equal(calculate(quote).hours_at_target_rate, 10);
+});
+
+test("does not report negative target-rate hours when costs exceed price", () => {
+  const quote = loadQuote({ price: 100, delivery_hours: 2, overhead: 80, subcontractor_cost: 40, target_hourly_rate: 20 });
+  assert.equal(calculate(quote).hours_at_target_rate, 0);
 });
 
 test("currency defaults and is trimmed", () => {
