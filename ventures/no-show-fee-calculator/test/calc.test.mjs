@@ -9,6 +9,7 @@ import {
   computeFeeAmount,
   computeAnnualExposure,
   computeAnnualFeeRevenue,
+  computeRecovery,
   computeAll,
   compareFeeScenarios,
   generatePolicyText,
@@ -120,6 +121,24 @@ test("computeAnnualFeeRevenue is bounded by full enforcement", () => {
   assert.ok(half < full);
 });
 
+test("computeRecovery reports modeled recovery and whole-fee break-even count", () => {
+  assert.deepEqual(computeRecovery({ feeAmount: 75, annualLostRevenue: 6240, annualFeeRevenue: 4368 }), {
+    recoveryRatePct: 70,
+    collectionsToBreakEven: 84,
+  });
+});
+
+test("computeRecovery handles zero exposure and zero fee without infinity", () => {
+  assert.deepEqual(computeRecovery({ feeAmount: 0, annualLostRevenue: 0, annualFeeRevenue: 0 }), {
+    recoveryRatePct: 0,
+    collectionsToBreakEven: 0,
+  });
+  assert.deepEqual(computeRecovery({ feeAmount: 0, annualLostRevenue: 100, annualFeeRevenue: 0 }), {
+    recoveryRatePct: 0,
+    collectionsToBreakEven: null,
+  });
+});
+
 test("computeAll composes the individual calculations consistently", () => {
   const values = {
     price: 75,
@@ -142,6 +161,8 @@ test("computeAll composes the individual calculations consistently", () => {
       enforcementRatePct: values.enforcementRatePct,
     }),
   );
+  assert.equal(result.recoveryRatePct, 70);
+  assert.equal(result.collectionsToBreakEven, 84);
 });
 
 test("compareFeeScenarios shows standard levels and preserves a custom selection", () => {

@@ -103,6 +103,27 @@ export function computeAnnualFeeRevenue({ feeAmount, noShowsPerYear, enforcement
 }
 
 /**
+ * Shows how much of the appointment revenue represented by missed slots the
+ * modeled fee revenue recovers, and how many collected fees would cover all of
+ * that exposure. Zero exposure is a valid result; a zero fee cannot recover a
+ * non-zero exposure.
+ *
+ * @param {{ feeAmount: number, annualLostRevenue: number, annualFeeRevenue: number }} args
+ */
+export function computeRecovery({ feeAmount, annualLostRevenue, annualFeeRevenue }) {
+  const recoveryRatePct = annualLostRevenue === 0
+    ? 0
+    : round2((annualFeeRevenue / annualLostRevenue) * 100);
+  const collectionsToBreakEven = annualLostRevenue === 0
+    ? 0
+    : feeAmount === 0
+      ? null
+      : Math.ceil(annualLostRevenue / feeAmount);
+
+  return { recoveryRatePct, collectionsToBreakEven };
+}
+
+/**
  * Runs every calculation from a single validated input set.
  * @param {{ price: number, bookingsPerWeek: number, noShowRatePct: number, noticeHours: number, feePercent: number, enforcementRatePct: number }} values
  */
@@ -114,11 +135,18 @@ export function computeAll(values) {
     noShowsPerYear,
     enforcementRatePct: values.enforcementRatePct,
   });
+  const { recoveryRatePct, collectionsToBreakEven } = computeRecovery({
+    feeAmount,
+    annualLostRevenue,
+    annualFeeRevenue,
+  });
   return {
     feeAmount,
     noShowsPerYear,
     annualLostRevenue,
     annualFeeRevenue,
+    recoveryRatePct,
+    collectionsToBreakEven,
     inputs: values,
   };
 }
