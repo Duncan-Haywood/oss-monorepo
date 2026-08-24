@@ -175,6 +175,7 @@ export function generatePolicyText({
 }
 
 const SHARE_FIELDS = [
+  "currency",
   "price",
   "bookingsPerWeek",
   "noShowRatePct",

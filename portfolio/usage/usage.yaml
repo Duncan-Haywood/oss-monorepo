@@ -172,6 +172,15 @@ products:
           local_preflights: 1
           qualified_pilots: 0
         note: Shipped local JSON preflight; format coverage and customer demand remain untested.
+  - slug: eaa-remediation-pipeline
+    surface: local-site-studio-browser
+    readings:
+      - as_of: 2026-08-24
+        signals:
+          public_url_visitors: null
+          preaudit_checklist_events: 0
+          handoff_exports: 0
+        note: Shipped browser-local pre-audit checklist; public deployment remains owner-gated.
 # Example of the shape, once a product has shipped:
 #
 # products:

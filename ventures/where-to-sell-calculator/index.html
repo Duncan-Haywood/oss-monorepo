@@ -100,6 +100,7 @@
     button { font: inherit; font-weight: 650; padding: 9px 14px; border-radius: 8px; border: 1px solid #a49bd0; background: #fff; cursor: pointer; }
     button:hover { background: #f0ecff; }
     .actions { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 14px; }
+    .status { font-size: .85rem; color: #574d80; min-height: 1.3em; }
     .faq { margin-top: 18px; }
     .faq h3 { margin-bottom: 4px; }
     footer { margin-top: 25px; font-size: .82rem; color: #4a4270; }
@@ -146,7 +147,9 @@
       </p>
       <div class="actions">
         <button id="reset" type="button">Reset everything</button>
+        <button id="share" type="button">Copy share link</button>
       </div>
+      <p id="share-status" class="status" aria-live="polite"></p>
     </section>
 
     <section class="verdict" aria-labelledby="verdict-heading">
@@ -239,6 +242,7 @@
 
   <script type="module">
     import { CHANNEL_PRESETS, compareChannels } from "./calc.mjs";
+    import { decodeComparison, encodeComparison } from "./share.mjs";
     import { readOptOut, recordUsage, writeOptOut } from "./usage.mjs";
 
     const SHARED_FIELDS = [
@@ -310,6 +314,23 @@
           return stored ? { ...channel, ...stored, label: channel.label, note: channel.note } : channel;
         });
       }
+    }
+
+    function restoreSharedLink() {
+      const value = new URLSearchParams(window.location.search).get("c");
+      const shared = decodeComparison(value);
+      if (!shared) return false;
+      for (const id of SHARED_FIELDS) {
+        if (shared.shared[id] !== undefined) document.getElementById(id).value = shared.shared[id];
+      }
+      document.getElementById("includeSubscription").checked = shared.includeSubscription;
+      if (shared.channels.length) {
+        channels = freshChannels().map((channel) => {
+          const incoming = shared.channels.find((candidate) => candidate.id === channel.id);
+          return incoming ? { ...channel, ...incoming } : channel;
+        });
+      }
+      return true;
     }
 
     function renderPanels() {
@@ -422,6 +443,24 @@
     document.getElementById("usageOptOut").addEventListener("change", (event) => {
       writeOptOut(localStorage, event.target.checked);
     });
+    document.getElementById("share").addEventListener("click", async () => {
+      const status = document.getElementById("share-status");
+      try {
+        compareChannels(channels, readShared());
+        const url = new URL(window.location.href);
+        url.search = `?c=${encodeComparison(readShared(), channels)}`;
+        if (navigator.clipboard?.writeText) {
+          await navigator.clipboard.writeText(url.href);
+          status.textContent = "Share link copied. It contains your assumptions, not your saved usage data.";
+        } else {
+          window.prompt("Copy this share link:", url.href);
+          status.textContent = "Share link ready to copy.";
+        }
+        recordUsage(localStorage, optedOut(), "share_link_copied");
+      } catch (error) {
+        status.textContent = error.message || "Fix the inputs before creating a share link.";
+      }
+    });
     document.getElementById("reset").addEventListener("click", () => {
       try {
         localStorage.removeItem(SAVE_KEY);
@@ -441,6 +480,7 @@
 
     document.getElementById("usageOptOut").checked = readOptOut(localStorage);
     restore();
+    restoreSharedLink();
     renderPanels();
     update();
   </script>
