@@ -22884,3 +22884,43 @@ entries:
           by hand instead of regenerating) rather than re-diagnosing it
           from scratch.
     mrr_end: null
+  - venture: ai-engineering-academy
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+          Continuation of the earlier ai-engineering-academy session on
+          branch claude/exciting-brown-4627fk. That session's own
+          voltage-divider-calculator (PR #937) collided with a concurrent
+          session's #944, which shipped a strictly more capable
+          voltage-divider-calculator at the same path (E24-snapping,
+          loaded-sag correction, and a target-Vout design mode -- this
+          session's version had loaded-sag but no E24 design mode) and
+          merged first. Rather than force a duplicate/inferior tool into
+          main via a contested merge, reset the branch to main's tip and
+          dropped the redundant feature work entirely -- #944 is the
+          better artifact and the venture does not need two.
+      - >-
+          Kept and re-verified the two genuinely independent fixes from
+          that branch, since neither depends on the dropped feature and
+          both were still broken on main after the reset:
+          (1) portfolio/pipeline/probes/agent-permission-harness/
+          results-2026-08-23.md had drifted from harness.py's current
+          deterministic output (stray indent + trailing blank line),
+          failing the "committed results file is current" CI check on any
+          PR touching portfolio/** or .github/workflows/**; regenerated
+          via the exact command CI runs, all 84 harness unit tests pass.
+          (2) portfolio/scoring/venture-scores.yaml scored
+          shopify-permission-drift twice (git history traces both blocks
+          to a single commit, #923, almost certainly a bad merge-conflict
+          resolution that kept both sides); removed the duplicate,
+          verified with score_ventures.py --check and its 37-test suite.
+          Both were reproducible identically against origin/main directly,
+          confirming neither was an artifact of this branch's own history.
+      - >-
+          Net effect: PR #937 now ships two small, unrelated CI-hygiene
+          fixes instead of a venture feature. Recording this explicitly so
+          a later session does not read the PR title (still referencing
+          the calculator) as a mismatch with its diff without checking
+          this entry first.
+    mrr_end: null
