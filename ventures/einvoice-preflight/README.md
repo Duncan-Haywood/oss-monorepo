@@ -83,7 +83,9 @@ findings and `2` for read errors.
 `--format csv` produces one spreadsheet row per finding, plus explicit pass and
 read-error rows. Its stable columns are `file`, `status`, `rule`, `path`,
 `message`, `fix`, and `error`, making it suitable for triage queues without
-exposing invoice values or contents.
+exposing invoice values or contents. Directory scans do not follow symbolic
+links; linked JSON files are reported as read errors so a scan stays bounded to
+its selected directory.
 
 ## Privacy and usage
 

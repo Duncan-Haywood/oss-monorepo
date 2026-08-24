@@ -289,6 +289,22 @@ class ChecksTest(unittest.TestCase):
             self.assertEqual(report["files_checked"], 0)
             self.assertEqual(report["read_errors"][0]["file"], "broken.json")
 
+    def test_cli_batch_does_not_follow_symlinked_invoice(self):
+        with tempfile.TemporaryDirectory() as directory, tempfile.TemporaryDirectory() as outside:
+            root = Path(directory)
+            outside_invoice = Path(outside) / "outside.json"
+            outside_invoice.write_text(json.dumps(VALID))
+            (root / "linked.json").symlink_to(outside_invoice)
+            output = io.StringIO()
+            with contextlib.redirect_stdout(output):
+                self.assertEqual(main([directory, "--format", "json"]), 2)
+            report = json.loads(output.getvalue())
+            self.assertEqual(report["files_checked"], 0)
+            self.assertEqual(report["read_errors"], [{
+                "file": "linked.json",
+                "error": "Refusing to follow symbolic link during directory scan.",
+            }])
+
     def test_cli_emits_markdown_review_for_single_invoice(self):
         with tempfile.TemporaryDirectory() as directory:
             invoice_path = Path(directory) / "invoice.json"
