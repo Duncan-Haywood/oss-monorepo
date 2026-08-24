@@ -2,7 +2,7 @@
 
 Small ecommerce sellers often assemble a dispute response from scattered order, fulfillment, delivery, and support records. This free browser-local tool turns those records into a structured checklist and a copyable factual response draft. **After using it, you can now prepare a reviewable packet before a processor deadline, which used to take searching across several systems and rewriting the same timeline.**
 
-Enter the deadline shown by your processor to get a simple urgency reminder. The tool does date arithmetic only; it does not infer processor rules, filing extensions, or the correct deadline. After reviewing the result, copy the draft or download a plain-text packet for your own records.
+Enter the deadline shown by your processor to get a simple urgency reminder. The tool does date arithmetic only; it does not infer processor rules, filing extensions, or the correct deadline. After reviewing the result, copy the draft or download a plain-text packet for your own records. You can optionally save an in-progress draft in the browser and restore it later; saved fields never leave that browser.
 
 Open `index.html` in a browser. No account, server, API key, or paid dependency is required. Order details and notes stay in the browser; only anonymous feature counts are stored locally and can be disabled or cleared through browser storage. The counter also stays off when the browser sends Do Not Track or Global Privacy Control.
 
