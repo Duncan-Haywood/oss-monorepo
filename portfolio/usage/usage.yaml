@@ -278,6 +278,19 @@ products:
           preaudit_checklist_events: 0
           handoff_exports: 0
         note: Shipped browser-local pre-audit checklist; public deployment remains owner-gated.
+  - slug: delivery-app-margin-calculator
+    surface: static-page-in-repo
+    readings:
+      - as_of: 2026-08-24
+        signals:
+          live_url_visitors: null
+          local_events_reported: 0
+        note: >-
+          Shipped browser-local restaurant delivery-margin comparison:
+          dine-in vs pickup vs DoorDash / Uber Eats / Grubhub / own driver,
+          with packaging, extra labor, dine-in-matching price, and monthly
+          gap. Public URL remains owner-gated; the local-first counter
+          reports only to the user's own browser and is opt-out. Baseline row.
 # Example of the shape, once a product has shipped:
 #
 # products:
