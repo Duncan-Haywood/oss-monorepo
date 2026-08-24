@@ -168,6 +168,13 @@ decisions:
     no halt-at-an-amount control, so if a hard cap is required the answer is
     Railway instead), point
     `ventures/ubuntu-agent-server/inventory.ini` at it and run that playbook.
+    **First create a protected `agent-server` Environment** (Settings ->
+    Environments) with yourself as required reviewer, and put the SSH key,
+    known-hosts and any Tailscale key in it with `gh secret set --env
+    agent-server`. Repository-scoped secrets do not work here: a write-access
+    collaborator can push a branch deleting the workflow's `environment:` line
+    and still read them, which is the bypass the environment binding exists to
+    close.
     Do **not** add a Hetzner Cloud API
     token to GitHub secrets -- it can create servers, which turns one box
     into a project quota, and Hetzner offers no
@@ -201,7 +208,7 @@ decisions:
       secrets -- and is *not* true of the one it carries now. Provisioning a
       private agent host deploys no venture: `platform/deployment/README.md`
       states there is no nginx/TLS role, no Postgres role and no app-deploy
-      role, and that moving the two daemons is separate work. Those three
+      role, and that moving the `analytics-sync` daemon is separate work. Those three
       ventures stay un-deployed until that automation exists, and granting this
       is the prerequisite for building it rather than the thing that ships it.
   blocked_by: []
@@ -236,7 +243,7 @@ decisions:
     unattended automation that fails silently -- and it also eliminates
     Cloudflare, whose free-tier safety is a quota rather than a cap and whose
     paid tier has no stop control. Vercel and Railway pass it; Vercel wins on
-    fit, because seven of the nine venture apps are Next.js and every other
+    fit, because seven of the ten web apps are Next.js and every other
     host runs Next.js through a translation layer. The cost is real and is the
     main argument against: $20/seat/month standing, against a portfolio
     earning $0. Railway is the named fallback at roughly a quarter of that if
@@ -313,7 +320,10 @@ decisions:
     carry a `vercel.json` (`quick-pick-survey`, `local-site-studio`,
     `photo-editing/docs-site`, `retail-pilot-intel` twice), up from one when
     this was first written. The codebase is drifting toward Vercel on its own.
-    The two daemons still rule Vercel out of the all-inclusive criterion, but
+    The `analytics-sync` daemon still rules Vercel out of the all-inclusive
+    criterion -- on one workload rather than the two an earlier version of this
+    row claimed, since `photos-import-tools` is macOS-only and runs on no host
+    here -- but
     if a fifth appears before this is decided the fit argument may outweigh
     them -- revisit rather than assume this row is settled.
 - id: publication-identity

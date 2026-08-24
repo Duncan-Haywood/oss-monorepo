@@ -229,7 +229,7 @@ capability arriving is the point; using it is a separate decision.
 ## Runners-up, and when each would win
 
 **Vercel** — still the best fit for the *code*, and the strongest cap control
-(Spend Management pauses the project at a set amount). Seven of the nine web
+(Spend Management pauses the project at a set amount). Seven of the ten web
 apps are Next.js, four ventures already carry a `vercel.json`, and `next build`
 is the deploy with no translation layer. It loses this question on two counts:
 it cannot host the `analytics-sync` daemon at
@@ -384,8 +384,10 @@ recommendation.
    traffic). Fixed monthly price, with the traffic caveat below — there is no
    vendor-side stop to configure, because Hetzner does not offer one.
 2. Point `ventures/ubuntu-agent-server/inventory.ini` at it and run the
-   playbook — public IP for the bootstrap run, Tailscale address thereafter,
-   exactly as that README already documents.
+   playbook, over the box's public IP. **Keep using the public address**: the
+   CI-provisioned posture needs it, because a GitHub runner is not on your
+   tailnet. Switching to a Tailscale address is the other posture, and it means
+   running the playbook by hand from a tailnet machine instead.
 3. Leave `agent_runner_start_disabled: true`. Turning the fleet on is a
    separate decision and this is not it.
 4. Leave `GITHUB_PAGES_ENABLED`, `VERCEL_DEPLOY` and the `CLOUDFLARE_*`
@@ -504,13 +506,25 @@ all, and both were invisible until CI was the operator:
 
 Set up, in order:
 
+**Create the protected Environment first.** This is not optional ordering, and
+review caught the earlier instructions getting it wrong: they used
+`gh secret set`, which stores a *repository* secret. A write-access
+collaborator can then push a branch that deletes the `environment:` line and
+dispatch it — the edited workflow still reads a repository secret, and the
+required-reviewer gate never runs. **An environment-scoped secret is the thing
+that cannot be reached that way.** In Settings → Environments, create
+`agent-server` with the account owner as a required reviewer. Then:
+
 ```bash
 ssh-keygen -t ed25519 -N "" -C "agent-server ci" -f /tmp/agent-ci
-gh secret   set AGENT_SERVER_SSH_KEY < /tmp/agent-ci    # private half, never on screen
-gh variable set AGENT_SERVER_PUBKEY  < /tmp/agent-ci.pub
+gh secret   set AGENT_SERVER_SSH_KEY --env agent-server < /tmp/agent-ci
+gh variable set AGENT_SERVER_PUBKEY  < /tmp/agent-ci.pub   # public, not a secret
 gh variable set AGENT_SERVER_HOST --body "<box ip>"
 shred -u /tmp/agent-ci /tmp/agent-ci.pub
 ```
+
+`AGENT_SERVER_KNOWN_HOSTS` and `TAILSCALE_AUTHKEY` go in the same environment,
+for the same reason — both reach the box.
 
 Piping straight into `gh` keeps the private key off your screen, out of your
 shell history and out of any transcript. Create the server in the Hetzner
@@ -520,7 +534,8 @@ Then pin the host key **before the first run**, reading the fingerprint from
 the Hetzner console rather than from the network:
 
 ```bash
-gh secret set AGENT_SERVER_KNOWN_HOSTS --body "<host> ssh-ed25519 AAAA..."
+gh secret set AGENT_SERVER_KNOWN_HOSTS --env agent-server \
+  --body "<host> ssh-ed25519 AAAA..."
 ```
 
 The workflow refuses to start without it, and that is deliberate. An earlier

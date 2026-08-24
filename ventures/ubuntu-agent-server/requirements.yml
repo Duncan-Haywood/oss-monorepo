@@ -1,4 +1,16 @@
 ---
+# Version bounds rather than bare names: these collections run in a play that
+# receives a root-equivalent SSH key and, optionally, a Tailscale auth key, so
+# "whatever Galaxy published this morning" is inside the privileged path.
+#
+# Bounds, not exact pins, and the reason is worth stating rather than hiding:
+# galaxy.ansible.com is egress-denied from the environment this was written in,
+# so the exact current versions could not be resolved to pin against. Major
+# bounds keep a breaking or yanked release out; they do not give you the
+# reviewed-artifact guarantee an exact pin plus hash would. Tightening these to
+# exact versions is a worthwhile follow-up from a machine that can reach Galaxy.
 collections:
   - name: ansible.posix
+    version: ">=1.5.0,<3.0.0"
   - name: community.general
+    version: ">=8.0.0,<13.0.0"

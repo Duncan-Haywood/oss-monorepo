@@ -134,13 +134,17 @@
 
 # --- firewall: SSH from anywhere (needed before tailscale is up), full trust on tailnet ---
 #
-# Public SSH is a *bootstrap* requirement, not a steady state: the box cannot be
-# reached over the tailnet until this playbook has installed and authed
-# Tailscale. Leaving the rule in place afterwards is what makes "private by
-# default" untrue, so closing it is a variable rather than a manual step nobody
-# remembers. Default `true` preserves the previous behaviour exactly -- flipping
-# the default would lock out anyone re-running this against a box whose tailnet
-# handoff has not happened.
+# Public SSH is the bootstrap route -- the box cannot be reached over the
+# tailnet until this playbook has installed and authed Tailscale -- and for a
+# box provisioned from CI it is also the *permanent* management route, since a
+# GitHub-hosted runner is never on the tailnet. So this is a variable rather
+# than a manual step nobody remembers, but the two settings are two postures
+# and not a sequence:
+#
+#   true   provisioned from CI; publicly reachable by SSH, key-only
+#   false  provisioned by hand from a tailnet machine; CI can no longer reach it
+#
+# Default `true` preserves the previous behaviour and keeps the CI path working.
 - name: Allow OpenSSH through ufw
   community.general.ufw:
     rule: allow

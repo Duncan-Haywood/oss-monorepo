@@ -16,12 +16,16 @@ agent_user_authorized_keys:
 # true, because a runner cannot answer `--ask-become-pass`.
 agent_user_passwordless_sudo: false
 
-# Whether ufw keeps OpenSSH open to the whole internet. True is the bootstrap
-# state and the previous behaviour: you cannot reach the box over Tailscale
-# until this playbook has put it on the tailnet. Set false on a later run, once
-# `tailscale status` shows the box and you have confirmed you can reach it that
-# way, and the public route closes. Until then the host is publicly reachable
-# by SSH and should be described that way rather than as private.
+# Whether ufw keeps OpenSSH open to the whole internet. True is the previous
+# behaviour and the bootstrap state: you cannot reach the box over Tailscale
+# until this playbook has put it on the tailnet.
+#
+# Setting it false is a change of *posture*, not a hardening step to apply
+# later. A GitHub-hosted runner is not on your tailnet, so closing the public
+# route also cuts off `agent-server-provision.yml` -- the next dispatch cannot
+# reach the host by either address. Set false only if you are provisioning by
+# hand from a machine already on the tailnet. While CI provisions, this stays
+# true and the host is publicly reachable by SSH, key-only.
 ssh_public_access: true
 
 # Hostname to set on the box. The Ubuntu installer gave it a junk
