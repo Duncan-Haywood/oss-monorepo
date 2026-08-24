@@ -21,7 +21,7 @@ kept per criterion rather than rewritten each time:
 | If the criterion is | The answer is | Because |
 |---|---|---|
 | Lowest spend risk, $0 floor | **Cloudflare** | Free tier takes no card and stops rather than bills |
-| Best fit for the code as written | **Vercel** | Seven of the nine web apps are Next.js; **four ventures carry a `vercel.json`** |
+| Best fit for the code as written | **Vercel** | Seven of the ten web apps are Next.js; **four ventures carry a `vercel.json`** |
 | **A spend cap built into the vendor** | **Vercel or Railway** | Only these two ship a halt-at-an-amount control |
 | **Most all-inclusive** | **Railway** | The only managed platform that hosts *every* workload here |
 | **Best value** | **Hetzner** | ~$5/month for all of it; the tenth workload costs $0 — but a *soft* ceiling, see below |
@@ -59,31 +59,52 @@ bill usually is.
 ## The workload inventory — and the fact that disqualifies Vercel
 
 The earlier passes of this document counted *frameworks* and concluded Vercel,
-because seven of the nine *web apps* are Next.js. Counting **workloads**
-instead changes the answer, because the portfolio also has two that are not
-request/response web apps at all:
+because most of the web apps are Next.js. Counting **workloads** instead
+changes the answer. **This table was wrong twice and is corrected here** — see
+the note below it, because both errors were in the direction that flattered the
+recommendation.
 
 | Workload | Where | Vercel | Railway | Hetzner |
 |---|---|---|---|---|
-| Next.js SSR | `ai-first-markets`, `local-site-studio`, `print-atelier`, `photo-editing/docs-site`, `quick-pick-survey` | native | Node server | Node server |
-| Next.js static export | `real-estate-agent-photo-app` (docs-site, research) | yes | yes | yes |
-| Vite/pnpm static docs | `retail-pilot-intel`, `ai-engineering-academy` | yes | yes | yes |
+| Next.js SSR (5) | `ai-first-markets`, `local-site-studio`, `print-atelier`, `photo-editing/docs-site`, `quick-pick-survey` | native | Node server | Node server |
+| Next.js static export (2) | `real-estate-agent-photo-app` (docs-site, research) | yes | yes | yes |
+| Vite/React static (3) | `retail-pilot-intel` (`apps/docs`, `apps/portal`), `ai-engineering-academy` | yes | yes | yes |
 | Postgres | `quick-pick-survey` (`prisma`, `POSTGRES_PRISMA_URL`) | marketplace add-on | **built in** | you install |
 | **Long-running daemon + persistent volume** | `retail-pilot-intel` `analytics-sync` | **no** | yes | yes |
-| **Python watchdog daemon** | `photos-import-tools` | **no** | yes | yes |
 | Convex backend | `local-site-studio` | external either way | external either way | external either way |
-| Swift / MonkeyC | `world-clock-widget`, `garmin-world-traveler-watchface` | store artifacts — not hosted anywhere | | |
+| **Not hostable anywhere** | `photos-import-tools` (macOS), `world-clock-widget` (Swift), `garmin-world-traveler-watchface` (MonkeyC) | — | — | — |
 
-The two bolded rows are the finding. `retail-pilot-intel/docker-compose.yml`
+**Ten web apps plus one daemon: eleven hostable workloads.** Three further
+ventures are not hosting questions at all.
+
+The bolded daemon row is the finding. `retail-pilot-intel/docker-compose.yml`
 declares `analytics-sync` as `restart: unless-stopped` against a named volume
-`pilot-data`, and `photos-import-tools` is a Python watchdog
-(`photos_import_watchdog.py`, `resumable_photos_import.py`) that runs
-continuously against local state. **Vercel hosts neither** — it has no
-long-running processes and no persistent volumes. Choosing it means a second
-platform for those two, which is precisely what "one platform, all-inclusive"
-rules out.
+`pilot-data`. **Vercel hosts neither long-running processes nor persistent
+volumes**, so choosing it means a second platform for that workload — which is
+what "one platform, all-inclusive" rules out. Railway and Hetzner both host it.
 
-Railway and Hetzner both host every row.
+### Two corrections to this table, and they cut against the argument
+
+Both were found in review, and both had made the case look stronger than it is:
+
+- **`photos-import-tools` is not a hostable workload.** I filed it as a
+  "Python watchdog daemon" that Vercel could not run and the other two could.
+  It is macOS tooling: its README calls it "resumable **macOS** photo-import
+  utilities … into **Apple Photos**", it drives Photos.app through `osascript`,
+  `start_import.sh` execs `caffeinate`, and its defaults are hardcoded to
+  `/Users/duncan/Library/Mobile Documents/…`. **No Linux host runs it** —
+  not Hetzner, not Railway. It belongs with the Swift and MonkeyC ventures.
+  Consequence: **Vercel's disqualification rests on one workload, not two.**
+  That is still disqualifying for an all-inclusive criterion, but it is a
+  thinner margin than this document claimed, and "Railway and Hetzner host
+  every row" was false as written.
+- **`retail-pilot-intel/apps/portal` was missing entirely** — a separate
+  buildable Vite/React app with its own `portal:build` script. The web-app
+  count was nine and is ten.
+
+The total is still eleven hostable workloads, which is the sort of coincidence
+that lets a wrong table survive a sanity check: one row left the inventory and
+another joined it. The composition was wrong in both directions at once.
 
 Facts that cut the other way, recorded rather than buried — and the first one
 is growing:
@@ -96,7 +117,7 @@ is growing:
   Vercel Postgres injects. That is real migration work, and the trend is
   toward Vercel, not away from it. **If a fifth appears before this is
   decided, revisit the recommendation** — at some point the fit argument
-  outweighs the two daemons.
+  outweighs the daemon.
 - `local-site-studio` uses **Convex**, a hosted backend that is a second
   vendor whichever platform is chosen, and now carries Stripe webhook handling
   — an ordinary server route that all three platforms serve.
@@ -104,18 +125,19 @@ is growing:
 ## The value question, with the arithmetic shown
 
 "Value" is cost per unit of capability, so it has to be priced against *this*
-portfolio: **eleven hostable workloads** — nine web apps (seven Next.js, two
-static docs sites) plus the two daemons — near-zero traffic, occasional
-deploys, and no customers. Two more ventures (`world-clock-widget`,
-`garmin-world-traveler-watchface`) build store artifacts and are not hosted
-anywhere, so no platform choice affects them. All figures are approximate and
+portfolio: **eleven hostable workloads** — ten web apps (seven Next.js, three
+Vite/React static) plus one daemon — near-zero traffic, occasional deploys, and
+no customers. Three further ventures are not hosting questions at all:
+`world-clock-widget` (Swift) and `garmin-world-traveler-watchface` (MonkeyC)
+build store artifacts, and `photos-import-tools` is macOS-only tooling that
+drives Apple Photos on a specific Mac. No platform choice affects any of them. All figures are approximate and
 unverified (see the limits
 section) — the ratios are the point, not the decimals.
 
 | | Hetzner CX22 | Railway Hobby | Vercel Pro |
 |---|---|---|---|
 | Monthly floor | **~$5** (€3.79 + IPv4, +20% for backups) | **$5**, and $5 of usage is included | **$20/seat** |
-| Realistic monthly, this portfolio | ~$5 | ~$10–25 once a dozen services are always-on | $20 + Postgres + a second host for the two daemons |
+| Realistic monthly, this portfolio | ~$5 | ~$10–25 once a dozen services are always-on | $20 + Postgres + a second host for the daemon |
 | Cost of the tenth app | **$0** | metered — more RAM, more bill | $0 (same seat) |
 | Postgres | you install it | **included as a service** | marketplace add-on |
 | Traffic | 20 TB included, then ~€1/TB | metered | generous, then metered |
@@ -143,7 +165,7 @@ unattended agents on a box are treated as a deliberate decision. So it is a
 head start, not a solution.
 
 **Railway is the compromise that is actually being recommended.** It hosts
-every workload including the two daemons, includes Postgres as a service
+every hostable workload including the daemon, includes Postgres as a service
 rather than an add-on, bills once, caps once, and costs a fraction of Vercel
 while asking for none of Hetzner's ops hours. On "all-inclusive **and** value
 together" it is the only option that scores on both.
@@ -178,15 +200,25 @@ the reason is in that same playbook:
   no source restriction and never removed it, so Tailscale added a private
   route without closing the public one. "Private by default" was false, and it
   was doing work in this argument, which is the worst place for a wrong claim.
-  Public SSH is now a variable (`ssh_public_access`, default `true` to preserve
-  the bootstrap path, since the box cannot be reached over the tailnet until
-  this playbook puts it there). Closing it is one flag on a later run, and
-  until you set it the host is publicly reachable by SSH and should be
-  described that way.
+  Public SSH is now a variable (`ssh_public_access`, default `true`). **But
+  closing it is not simply "one flag on a later run"** — a second review pass
+  caught that too: a GitHub-hosted runner is not on your tailnet and this
+  workflow does not join it, so closing the public route also cuts CI off from
+  the box. These are two coherent postures, not a sequence:
+
+  | Posture | Provisioned by | Public SSH | 
+  |---|---|---|
+  | CI-provisioned | `agent-server-provision.yml` | **open** — this is the management route |
+  | Tailnet-only | a machine already on the tailnet | closed |
+
+  Pick one. The first is what this document's setup describes and leaves the
+  host publicly reachable by SSH, key-only. The second is tighter and gives up
+  push-button provisioning. What you cannot do is take the first and then set
+  the flag, which is what an earlier draft of this bullet implied.
 
 What is genuinely **not** automated, and is the honest cost of this choice:
 there is no nginx/TLS role, no Postgres role, and no app-deploy role. Serving
-the nine web apps from this box is real work that Railway would hand you free.
+the ten web apps from this box is real work that Railway would hand you free.
 
 One thing this explicitly does **not** license. `agent_runner_start_disabled:
 true` is the playbook's own default, and `CLAUDE.md` is unambiguous that
@@ -200,14 +232,14 @@ capability arriving is the point; using it is a separate decision.
 (Spend Management pauses the project at a set amount). Seven of the nine web
 apps are Next.js, four ventures already carry a `vercel.json`, and `next build`
 is the deploy with no translation layer. It loses this question on two counts:
-it cannot host the two daemons at
+it cannot host the `analytics-sync` daemon at
 all, so it is not the all-inclusive answer by definition; and $20/seat is four
 times Railway's floor. **Choose Vercel if the Next.js apps are the only thing
-that will ever be deployed** and the two daemons stay off-platform.
+that will ever be deployed** and the daemon stays off-platform.
 
 **Railway** — the answer if the question is only *where do the ventures
 deploy*, and the right choice for anyone who would rather never touch a
-server. It hosts every deployable workload including the two daemons, includes
+server. It hosts every deployable workload including the daemon, includes
 Postgres as a service, bills once and caps once. It loses here only because it
 cannot be the monorepo's compute: no agent host, no SSH, no systemd. **Choose
 Railway if the agent fleet is never going to move off GitHub Actions** and the
@@ -253,9 +285,9 @@ exists only to make Next.js run somewhere it is not native.
 - **Serving the web apps is not included.** No nginx/TLS role, no Postgres
   role, no app-deploy role. That is real follow-on work, and Railway would
   have given it away.
-- **Nothing here ports the two daemons.** The box *can* run
-  `retail-pilot-intel`'s `analytics-sync` and `photos-import-tools`; actually
-  moving them is separate work, not part of this ask.
+- **Nothing here ports the daemon.** The box *can* run `retail-pilot-intel`'s
+  `analytics-sync`; actually moving it is separate work, not part of this ask.
+  `photos-import-tools` is macOS-only and is not a candidate for any host.
 - **SSH and root are credentials.** A box the fleet can deploy to is a box a
   compromised token can reach. Tailscale-only access is the mitigation the
   playbook already sets up, and it should stay that way.

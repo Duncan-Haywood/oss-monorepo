@@ -154,15 +154,42 @@ def run_probe() -> None:
         rec["role"] = role
         controls.append(rec)
 
-    unstable = [r["host"] for r in results + controls if not r["stable"]]
     print(json.dumps({"results": results, "controls": controls}, indent=2,
                      sort_keys=True))
-    if unstable:
-        print(f"\nUNSTABLE, do not ingest as-is: {', '.join(unstable)}",
-              file=sys.stderr)
+
+    # Stability alone is not enough to license an ingest, and saying "merge the
+    # results, that file has its own controls" was the gap: a run whose network
+    # was broken denies *every* host, twice, and so reports stable -- then
+    # merges next to an older reachable control and leaves --check green. The
+    # controls have to be checked against this run, not a previous one.
+    problems = []
+    verdicts = {r["host"]: r["verdict"] for r in controls}
+    if verdicts.get(CONTROL_REACHABLE) != "reachable":
+        problems.append(
+            f"{CONTROL_REACHABLE} did not answer this run "
+            f"({verdicts.get(CONTROL_REACHABLE)}) -- every denial above is "
+            "unreliable, because a broken probe looks exactly like this"
+        )
+    if verdicts.get(CONTROL_DENIED) != "egress_denied":
+        problems.append(
+            f"{CONTROL_DENIED} was not denied this run "
+            f"({verdicts.get(CONTROL_DENIED)}) -- the denial signature has "
+            "changed and the verdicts above do not mean what they say"
+        )
+    problems += [
+        f"{r['host']} gave differing verdicts on two attempts"
+        for r in results + controls if not r["stable"]
+    ]
+
+    if problems:
+        print("\nDO NOT INGEST:", file=sys.stderr)
+        for line in problems:
+            print(f"  - {line}", file=sys.stderr)
+        raise SystemExit(1)
+
     print(
-        "\nMerge `results` into portfolio/research/egress-reachability/"
-        "unindexed-hosts.json (that file carries its own controls), then run "
+        "\nControls agree with this run. Merge `results` into "
+        "portfolio/research/egress-reachability/unindexed-hosts.json, then run "
         "`consolidate.py --ingest` there.",
         file=sys.stderr,
     )

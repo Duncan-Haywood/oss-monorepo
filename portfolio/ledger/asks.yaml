@@ -186,9 +186,13 @@ decisions:
     where each of the four candidates wins.
   unlocks:
     - >-
-      Compute the repository can use at all: one box that can run the nine web
-      apps, both daemons and a Postgres, and that `ventures/ubuntu-agent-server/`
-      has been automated against since before it had a machine to run on.
+      Compute the repository can use at all: one box that can run the ten web
+      apps, the `analytics-sync` daemon and a Postgres, and that
+      `ventures/ubuntu-agent-server/` has been automated against since before it
+      had a machine to run on. Corrected after review: an earlier version said
+      "both daemons". `photos-import-tools` is macOS tooling that drives Apple
+      Photos through `osascript` on a specific Mac, so no Linux host runs it and
+      it is not part of what this buys.
     - >-
       Corrected 2026-08-24 after review. This row previously claimed it
       unlocked "three ventures whose builds already pass but which deploy
@@ -290,8 +294,12 @@ decisions:
     the box can be reached over the tailnet. Corrected after review: that role
     also opened OpenSSH to the internet and never closed it, so Tailscale added
     a private route without removing the public one -- "private by default" was
-    false. Closing it is now a flag (`ssh_public_access`), off the bootstrap
-    path, and until it is set the host is publicly reachable by SSH. Note also
+    false. Closing it is now a flag (`ssh_public_access`), but it is a choice
+    between two postures rather than a hardening step to apply later: a
+    GitHub runner is not on the tailnet, so closing the public route also cuts
+    CI off from the box. Either provision from CI and leave key-only public SSH
+    open as the management route, or provision by hand from a tailnet machine
+    and close it. Until closed, the host is publicly reachable by SSH. Note also
     that the CI deploy key is root-equivalent on that box: the same public key
     goes into `root` via the provider console, and the managed account holds
     NOPASSWD sudo so unattended Ansible can run. The boundary is the box, not

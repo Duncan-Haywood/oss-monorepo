@@ -35,6 +35,16 @@ name: Provision agent server
 #                                    unprivileged: it holds NOPASSWD sudo, so
 #                                    this key is root-equivalent on the box.
 #   secret TAILSCALE_AUTHKEY         joins the box to the tailnet unattended
+#
+# One constraint to understand before closing anything down. A GitHub-hosted
+# runner is not on your tailnet, and this workflow does not join it. So while
+# CI is the thing that provisions the box, the box needs a public SSH route for
+# CI to use -- `ssh_public_access` must stay true. Setting it false is correct
+# *once you stop provisioning from CI* and run the playbook from a machine
+# already on the tailnet; do it before that and the next dispatch simply cannot
+# reach the host, whether HOST names the blocked public address or a tailnet
+# one. The two are alternatives, not a sequence: CI-provisioned and
+# publicly-reachable, or tailnet-only and provisioned by hand.
 
 on:
   workflow_dispatch:
@@ -58,6 +68,20 @@ defaults:
 jobs:
   provision:
     runs-on: ubuntu-latest
+    # The real gate. Removing the fleet-enable input was necessary but not
+    # sufficient: a write-access collaborator can push a branch that edits this
+    # workflow and dispatch *that* ref, and the edited workflow reads the same
+    # repository secrets -- enough to start the fleet or exfiltrate a
+    # root-equivalent SSH key. Binding the job to an Environment is what makes
+    # the owner a required approver of the run itself.
+    #
+    # NOTE: this binding does nothing until the Environment exists *with a
+    # required reviewer*. GitHub creates an unprotected Environment implicitly
+    # otherwise. Configure `agent-server` under Settings -> Environments with
+    # the account owner as required reviewer, and move AGENT_SERVER_SSH_KEY,
+    # AGENT_SERVER_KNOWN_HOSTS and TAILSCALE_AUTHKEY into it as environment
+    # secrets, before treating this as gated.
+    environment: agent-server
     steps:
       - uses: actions/checkout@v4
 
@@ -83,8 +107,12 @@ jobs:
           python-version: "3.12"
 
       - name: Install Ansible
+        # Pinned, because the next step hands this toolchain a root-equivalent
+        # SSH key and possibly a Tailscale auth key. Installing whatever
+        # `ansible-core` and Galaxy happen to publish that morning puts an
+        # unreviewed upstream inside the privileged path.
         run: |
-          pip install --quiet ansible-core
+          pip install --quiet 'ansible-core==2.19.12'
           ansible-galaxy collection install -r requirements.yml
 
       - name: Write the SSH key and pin the host key
