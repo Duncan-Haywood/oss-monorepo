@@ -1,0 +1,97 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>eBay Fee &amp; Profit Calculator | Reseller Margin and ROI</title>
+  <meta name="description" content="Calculate eBay order profit, margin, ROI, and break-even resale price after final value fee, per-order fee, promoted listings, shipping, and cost of goods.">
+  <meta property="og:title" content="eBay Fee &amp; Profit Calculator">
+  <meta property="og:description" content="See what an eBay sale really leaves after fees and your cost of goods — profit, margin, ROI, and break-even price.">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"eBay Fee & Profit Calculator","applicationCategory":"BusinessApplication","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"featureList":"eBay fee breakdown, net profit, margin, return on investment, break-even resale price"}</script>
+  <style>
+    :root { color-scheme: light; font-family: system-ui, sans-serif; color: #1d2530; background: #eef2f7; }
+    body { max-width: 980px; margin: 0 auto; padding: 32px 18px; }
+    header { max-width: 700px; margin-bottom: 26px; } h1 { font-size: clamp(2rem, 6vw, 3.7rem); line-height: .98; margin: 0 0 12px; letter-spacing: -.05em; } p { line-height: 1.5; }
+    .eyebrow { font-size: .8rem; font-weight: 700; letter-spacing: .08em; color: #386fd6; margin: 0 0 6px; }
+    .layout { display: grid; grid-template-columns: minmax(0, 1fr) minmax(280px, .8fr); gap: 18px; align-items: start; }
+    section { background: #ffffff; border: 1px solid #d3dce6; border-radius: 14px; padding: 20px; box-shadow: 0 8px 24px #1a2a4a0d; } h2 { margin-top: 0; font-size: 1.15rem; }
+    .fields { display: grid; grid-template-columns: repeat(2, 1fr); gap: 13px; } label { display: grid; gap: 5px; font-size: .87rem; font-weight: 650; } input { width: 100%; box-sizing: border-box; border: 1px solid #a9b6c6; border-radius: 7px; padding: 10px; font: inherit; background: white; }
+    .result { position: sticky; top: 15px; background: #16324f; color: #f4f8fc; border-color: #16324f; } .hero-number { font-size: 3rem; font-weight: 750; letter-spacing: -.05em; margin: 8px 0; } .negative { color: #ffb0a2; } .positive { color: #a9e6b0; } dl { display: grid; grid-template-columns: 1fr auto; gap: 9px; margin: 20px 0; } dt, dd { margin: 0; } dd { font-variant-numeric: tabular-nums; } hr { border: 0; border-top: 1px solid #ffffff2b; } .note { font-size: .82rem; opacity: .82; }
+    footer { margin-top: 25px; font-size: .82rem; color: #4a5666; } footer a { color: #386fd6; }
+    .support { margin-top: 14px; }
+    @media (max-width: 700px) { .layout { grid-template-columns: 1fr; } .result { position: static; } .fields { grid-template-columns: 1fr; } }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="eyebrow">FOR EBAY RESELLERS</p>
+    <h1>Know what each sale really leaves.</h1>
+    <p>Enter your eBay fees, shipping, and what you paid for the item to see net profit, margin, return on your invested cash, and the lowest resale price that still breaks even — before you list or reprice.</p>
+  </header>
+  <main class="layout">
+    <section>
+      <h2>Order, fees and costs</h2>
+      <div class="fields">
+        <label>Item price <input id="price" type="number" min="0" step="0.01" value="40"></label>
+        <label>Shipping charged to buyer <input id="shippingCharged" type="number" min="0" step="0.01" value="6"></label>
+        <label>Final value fee (%) <input id="finalValueRate" type="number" min="0" step="0.01" value="13.25"></label>
+        <label>Per-order fixed fee <input id="fixedFee" type="number" min="0" step="0.01" value="0.30"></label>
+        <label>Promoted listings (%) <input id="promotedRate" type="number" min="0" step="0.1" value="0"></label>
+        <label>International fee (%) <input id="intlFeeRate" type="number" min="0" step="0.01" value="0"></label>
+        <label>You paid for the item <input id="costOfGoods" type="number" min="0" step="0.01" value="12"></label>
+        <label>Shipping label cost <input id="shippingCost" type="number" min="0" step="0.01" value="5"></label>
+        <label>Packaging cost <input id="packagingCost" type="number" min="0" step="0.01" value="1"></label>
+        <label>Other per-order cost <input id="otherCost" type="number" min="0" step="0.01" value="0"></label>
+      </div>
+    </section>
+    <section class="result">
+      <h2>Order result</h2>
+      <div id="profit" class="hero-number">$—</div>
+      <div id="label">estimated net profit</div>
+      <dl>
+        <dt>Total revenue</dt><dd id="revenue"></dd>
+        <dt>eBay &amp; payment fees</dt><dd id="fees"></dd>
+        <dt>Cash you invested</dt><dd id="invested"></dd>
+        <dt>Net margin</dt><dd id="margin"></dd>
+        <dt>Return on investment</dt><dd id="roi"></dd>
+        <dt>Break-even item price</dt><dd id="breakEven"></dd>
+      </dl>
+      <hr>
+      <p class="note">Transparent arithmetic from your inputs — not a statement of eBay's current fee schedule. Fees vary by category, store subscription, and seller status.</p>
+    </section>
+  </main>
+  <footer>
+    <label><input id="usageOptOut" type="checkbox" style="width:auto"> Do not keep anonymous local usage counts</label>
+    <p><strong>No warranty.</strong> This free tool is not tax, financial, or business advice. Verify every output and fee against your eBay account and a qualified professional before relying on it. To the maximum extent permitted by law, the authors accept no liability for loss or damage from its use.</p>
+    <p class="support">Free and open source. If it saves you time, the <a href="https://github.com/Duncan-Haywood/monorepo-projects" rel="noopener">project is on GitHub</a> — support is entirely optional and never changes what the tool does.</p>
+  </footer>
+  <script type="module">
+    import { calculateOrder } from './calc.mjs';
+    import { recordUsage } from './usage.mjs';
+    const ids = ['price','shippingCharged','finalValueRate','fixedFee','promotedRate','intlFeeRate','costOfGoods','shippingCost','packagingCost','otherCost'];
+    const money = value => `$${value.toFixed(2)}`;
+    function update() {
+      try {
+        const result = calculateOrder(Object.fromEntries(ids.map(id => [id, document.getElementById(id).value])));
+        const profitEl = document.getElementById('profit');
+        profitEl.textContent = money(result.profit);
+        profitEl.className = `hero-number ${result.profit < 0 ? 'negative' : 'positive'}`;
+        document.getElementById('label').textContent = result.profit < 0 ? 'loss on this order' : 'estimated net profit';
+        document.getElementById('revenue').textContent = money(result.revenue);
+        document.getElementById('fees').textContent = money(result.feeTotal);
+        document.getElementById('invested').textContent = money(result.cashInvested);
+        document.getElementById('margin').textContent = `${result.margin.toFixed(1)}%`;
+        document.getElementById('roi').textContent = result.roi === null ? 'n/a' : `${result.roi.toFixed(1)}%`;
+        document.getElementById('breakEven').textContent = Number.isFinite(result.breakEvenPrice) ? money(result.breakEvenPrice) : 'never';
+      } catch (error) {
+        document.getElementById('profit').textContent = error.message;
+        document.getElementById('profit').className = 'hero-number negative';
+      }
+    }
+    ids.forEach(id => document.getElementById(id).addEventListener('input', update));
+    ids.forEach(id => document.getElementById(id).addEventListener('change', () => recordUsage(localStorage, document.getElementById('usageOptOut').checked)));
+    document.getElementById('usageOptOut').addEventListener('change', update);
+    update();
+  </script>
+</body>
+</html>
