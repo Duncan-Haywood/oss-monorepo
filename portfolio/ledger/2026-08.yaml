@@ -22243,3 +22243,34 @@ entries:
           `payout-rail` remains the only queue item that moves the revenue
           ceiling off $0.
     mrr_end: null
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+          GitHub-triggered session (`pull_request.opened` on #809), folded
+          into the generic "continue work, maintain the process, review open
+          PRs" brief. This session's designated branch had already been
+          provisioned at #809's exact head commit, so its content (recording
+          the prior merges of #368 and #734) was this session's own to
+          verify and act on.
+      - >-
+          Verified #809 against fresh `main`: it based cleanly on the live
+          tip, its claims about #368 and #734 both being merged checked out
+          against the API, and `decision_queue.py --check` / ledger YAML
+          parsing both passed. Merged it (`dfab9ca`). Two sibling ledger PRs
+          from concurrent sessions, #808 (`#790`->`#805` consolidation) and
+          #810 (folding in #802's record), were still open with the same
+          append-only conflict risk at that point; both self-merged via
+          their own owning sessions (`7aa6ed8`, `f78747c`) before this
+          session needed to intervene -- no manual conflict resolution was
+          required this round.
+      - >-
+          Remaining open PRs need no action: #788 (routine-trigger workflow)
+          and #720 (deployment platform choice) are self-flagged human-gated
+          spend/account-creation decisions; #531 is human-gated venture-code
+          (contrast fixes). All three already tracked in `asks.yaml`/#139.
+      - >-
+          `payout-rail` remains the only queue item that moves the revenue
+          ceiling off $0.
+    mrr_end: null
