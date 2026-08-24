@@ -249,24 +249,6 @@ decisions:
     every future venture pull request also reduce to, it is now its own row
     (`venture-gate-premise`, Ask 9) rather than a paragraph inside this one.
 
-- id: dependabot
-  asks: []
-  prs: [777]
-  gates: deployment
-  exposure: none
-  opened: "2026-08-20"
-  action: "Merge or decline #777 (revert of #368)."
-  unlocks:
-    - Restores the owner's decision point on whether to enable Dependabot.
-  blocked_by: []
-  note: >-
-    #368 (Dependabot config) was merged by a session on 2026-08-24 despite
-    the PR body saying "Not self-merging" and the decision queue listing it
-    as human-gated. Dependabot immediately opened 30+ PRs (#736-#772). PR
-    #777 reverts that merge to restore the owner's decision point. The
-    existing Dependabot PRs will go stale and stop being replaced if #777
-    merges.
-
 - id: contrast-fixes
   asks: []
   prs: [531]
@@ -326,4 +308,42 @@ decisions:
     so this is a merge-or-decline call, not a session's. The probe it ships
     (`platform/deployment/probe_control_planes.py`, 22 control-plane hosts) is
     read-only tooling and is the agent-decidable half; the decision is not.
+
+- id: local-site-studio-subtree-gate-crossing
+  asks: []
+  prs: [731]
+  gates: deployment
+  exposure: none
+  opened: "2026-08-24"
+  action: >-
+    Review the already-merged #731 (1,405-commit `local-site-studio` subtree
+    merge, `7b69f3d`) and decide whether to accept it as-is or revert it.
+  unlocks:
+    - >-
+      Closes a process gap rather than a code gap: #731's own body said "this
+      is venture code, so per `CLAUDE.md` it is not agent-decidable and I have
+      not merged it. Flagging for review" -- but it was merged anyway, by
+      `kilo-code-bot[bot]`, the same day it was opened. No open PR or ledger
+      entry recorded this before now.
+  blocked_by: []
+  note: >-
+    Same shape as the (now-resolved) `dependabot` row's #368 gate-crossing: a
+    PR whose body explicitly deferred to the owner was self-merged regardless.
+    Lower urgency than #368 was -- this merge did not spawn ongoing
+    automation, and `platform/ci/publish_surface.py` confirms nothing
+    currently publishes on a push to `main`, so no live site was republished
+    -- but it did land 1,405 commits and 533 changed files of upstream
+    history, a `next` 16.3.1/`react` 19.2.8 version split, and a regenerated
+    lockfile into `local-site-studio` without the sign-off `CLAUDE.md`'s
+    "breaking changes to deployable `ventures/*` code" gate requires. The
+    PR's own verification (tsc clean, lint clean, 4,030 tests passing, build
+    clean, `npm audit` 0 high/critical) is not in question; whether the owner
+    wanted this merge at all, and on this timeline, is. A same-day companion
+    PR, #786, correctly proposed removing the now-stale
+    `local-site-studio-subtree` decision row (its `action` was "merge or
+    decline #731", moot once #731 is merged) but was closed by a concurrent
+    session on the mistaken belief that "#731 is still open" -- it is not;
+    `merged: true`, `merged_at: 2026-08-24T09:45:00Z`. A second session (#787)
+    then independently made the same correct removal. This row adds the part
+    neither made: the actual open question left behind, accept or revert.
 
