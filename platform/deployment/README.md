@@ -368,6 +368,46 @@ If such a token has already been added, revoke it in the Hetzner console
 rather than deleting the GitHub secret alone: deletion removes the copy, not
 the credential.
 
+### The SSH key, done properly
+
+"Use an SSH key instead" is right, and it is still possible to give away most
+of the same power by using *one* key for everything. Two keys, two jobs:
+
+| | Admin key | Deploy key |
+|---|---|---|
+| Who holds it | you, on your own machine | GitHub Actions, as a secret |
+| What it reaches | `agent_user`, full sudo | one unprivileged `deploy` user |
+| Used by | `ubuntu-agent-server`'s Ansible | a deploy workflow, when one exists |
+| In CI? | **never** | yes, once there is something to deploy |
+
+The admin key is the one `group_vars/all.yml` already wires up, via
+`agent_user_authorized_keys`. It runs the playbook, it can become root, and it
+has no business in a repository an unattended fleet can write to.
+
+The deploy key is worth creating **only when a workflow actually deploys
+something**, which nothing here does yet. When that day comes, constrain it in
+the deploy user's `authorized_keys` rather than trusting the workflow:
+
+```
+restrict,command="/usr/local/bin/deploy-site" ssh-ed25519 AAAA... ci@deploy
+```
+
+`restrict` turns off agent, port and X11 forwarding and PTY allocation;
+`command=` pins the key to exactly one script regardless of what the client
+asks for. A stolen deploy key then buys running that one script on that one
+box — not a shell, not sudo, and not the ability to create a second server.
+
+The remaining question is whether SSH faces the public internet at all. Pinning
+`from=` to GitHub's runner ranges is a poor fit — they are broad and they
+change. The better shape, and the one this box is already built for, is to put
+the *runner* on the tailnet for the length of the job with an ephemeral,
+tag-scoped Tailscale auth key, and leave port 22 closed to the world. That
+keeps the Tailscale-only posture that made this option defensible in the first
+place.
+
+Until a deploy workflow exists, the correct number of Hetzner-related secrets
+in this repository is **zero**.
+
 
 
 Serving the web apps from the box is follow-on work — nginx/TLS, Postgres, a
