@@ -51,7 +51,7 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
           </div>
         )}
 
-        <p className="mt-6 text-center text-xs text-zinc-500">
+        <p className="mt-6 text-center text-xs text-zinc-400">
           Only{" "}
           <span className="font-mono text-zinc-400">{ALLOWED_EMAIL}</span> is
           authorized.

@@ -130,11 +130,10 @@ four candidates carrying a probe have moved and the table is re-ordered.
 | 6 | [MLS photo spec preflight](candidates/mls-photo-spec-preflight.md) | 6.75 | 5 | Build now, as a `real-estate-agent-photo-app` product line. Scored 2026-08-24 — file-spec evidence, not listing photography the venture and not web accessibility |
 | 7 | [CRA evidence desk](candidates/cra-evidence-desk.md) | 6.75 | 3 | Probe (was build-now); wedge is egress-blocked. `ethical_robustness` 8→6→7→8 — 7→8 on 2026-08-21 after the triage engine's own record began carrying its hand-verified wrong-suppression rate (0 of 53 claims wrong) |
 | 8 | [Vendor-change evidence monitor](candidates/vendor-change-evidence.md) | 6.75 | 4 | Probe; public-page evidence feed, with distribution and archive value still unmeasured |
-| 9 | [Shopify app-permission drift record](candidates/shopify-permission-drift.md) | 6.75 | 4 | Probe; customer-authorized app inventory, with platform observability and App Store demand unmeasured |
 | 10 | [POD print-file preflight](candidates/pod-print-file-preflight.md) | 6.625 | 5 | Build now, as a `print-atelier` product line. Scored 2026-08-24 — print-size evidence, not the marketplace venture and not MLS photo spec |
 | 11 | [Tender radar](candidates/tender-radar.md) | 6.625 | 4 | Park; needs a channel partner |
 | 12 | [DNS configuration evidence monitor](candidates/dns-configuration-evidence.md) | 6.625 | 4 | Probe; needs an MSP or domain-operations channel and a history-value test |
-| 13 | [Repository branch hygiene and recovery](candidates/repository-branch-hygiene.md) | 6.5 | 4 | Probe; read-only report and recovery manifest, with distribution unmeasured |
+| 13 | [Repository branch hygiene and recovery](candidates/repository-branch-hygiene.md) | 6.5 | 4 | Graduated 2026-08-24 as `ventures/repository-branch-hygiene`; read-only pilot and distribution remain unmeasured |
 | 14 | [Software evidence provenance ledger](candidates/software-evidence-provenance.md) | 6.375 | 3 | Reject; existing provenance standards leave no defensible wedge and distribution is unresolved |
 | 15 | [E-invoice preflight](candidates/einvoice-preflight.md) | 6.125 | 4 | Reject broad version; narrow version conditional |
 | 16 | [Consent change record](candidates/consent-change-record.md) | 6.125 | 4 | Probe; needs an agency or privacy-implementation channel |

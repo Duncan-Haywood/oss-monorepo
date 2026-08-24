@@ -614,8 +614,8 @@ candidates:
   - slug: repository-branch-hygiene
     name: Repository branch hygiene and recovery
     doc: candidates/repository-branch-hygiene.md
-    verdict: probe
-    probe_status: seven-day read-only pilot; willingness to pay unmeasured
+    verdict: graduated
+    probe_status: prototype shipped 2026-08-24; read-only pilot and willingness to pay remain unmeasured
     graduate_as: venture
     host_venture: null
     scores:
@@ -739,7 +739,7 @@ candidates:
     name: DNS configuration evidence monitor
     doc: candidates/dns-configuration-evidence.md
     verdict: probe
-    probe_status: not-started
+    probe_status: "fixture-recorder-built; demand and distribution unmeasured"
     graduate_as: venture
     host_venture: null
     scores:
