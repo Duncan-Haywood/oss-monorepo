@@ -1,0 +1,27 @@
+name: etsy-profit-calculator
+description: A private browser calculator for Etsy sellers to see order profit after marketplace, ad, shipping, and material costs.
+stage: prototype
+owner: duncan
+hypotheses:
+  - claim: Etsy sellers will return to a fast order-profit calculator when marketplace fees and shipping obscure their real margin.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: A transparent fee breakdown is more useful for product decisions than a single profit number.
+    status: untested
+    checked: null
+    evidence: customer-contact
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+budget:
+  monthly_cap: 1
+  protected: true
+kill_criteria:
+  - Fewer than three qualified Etsy sellers use the calculator twice within 90 days.
+  - Users do not find at least one listing whose net profit differs materially from their expectation.
+links:
+  production: null
+  analytics: null
