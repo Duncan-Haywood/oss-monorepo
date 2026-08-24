@@ -17,9 +17,16 @@ python3 src/permission_drift.py examples/before.json examples/after.json --forma
 ```
 
 Each inventory contains the store's own exported evidence: app identifiers,
-requested scopes, webhook topics, authorization state, API version, source, and
-capture time. Missing or redacted fields are reported as `inconclusive`; the
-tool never turns an unavailable response into an unchanged result.
+scopes, webhook topics, authorization state, API version, source, and capture
+time. Malformed or incomplete exports are rejected; the tool never turns an
+unavailable response into an unchanged result. If a source cannot provide a
+field, preserve that limitation in the source record and treat the comparison
+as inconclusive rather than fabricating a value.
+
+Shopify distinguishes scopes declared by an app from scopes actually granted to
+an installation. A future API adapter must preserve that distinction and should
+also record the `app/scopes_update` signal when available. The local comparator
+does not query Shopify or infer either value from an app's name.
 
 ## Customer workflow
 

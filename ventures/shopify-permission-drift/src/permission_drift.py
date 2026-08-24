@@ -18,6 +18,13 @@ def load_inventory(path: Path) -> dict:
         raise ValueError(f"cannot read inventory: {exc}") from exc
     if not isinstance(data, dict) or any(key not in data for key in REQUIRED):
         raise ValueError("inventory must include captured_at, api_version, source, authorization_state, and apps")
+    for field in REQUIRED[:-1]:
+        if not isinstance(data[field], str) or not data[field].strip():
+            raise ValueError(f"inventory {field} must be a non-empty string")
+    try:
+        datetime.fromisoformat(data["captured_at"].replace("Z", "+00:00"))
+    except ValueError as exc:
+        raise ValueError("inventory captured_at must be an ISO 8601 timestamp") from exc
     if not isinstance(data["apps"], list):
         raise ValueError("inventory apps must be a list")
     return data
@@ -33,6 +40,8 @@ def _mapping(inventory: dict) -> dict[str, dict]:
         for field in ("scopes", "webhooks"):
             if not isinstance(app.get(field), list) or not all(isinstance(item, str) for item in app[field]):
                 raise ValueError(f"app {app['id']} must contain a string {field} list")
+            if len(app[field]) != len(set(app[field])):
+                raise ValueError(f"app {app['id']} contains duplicate {field}")
         result[app["id"]] = app
     return result
 
