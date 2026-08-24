@@ -9,6 +9,13 @@ test("landing page exposes the chargeback workflow and safety boundary", () => {
   assert.match(html, /not legal, financial, or payment-dispute advice/);
   assert.match(html, /Everything runs locally/);
   assert.match(html, /SoftwareApplication/);
+  assert.match(html, /navigator\.clipboard\.writeText\(draft\)/);
+  assert.match(html, /draft_copied/);
+});
+
+test("landing page validates optional order amounts", () => {
+  assert.match(html, /Order amount cannot be negative/);
+  assert.match(html, /amountField\.reportValidity\(\)/);
 });
 
 test("each dispute reason has a deterministic evidence rule", () => {
