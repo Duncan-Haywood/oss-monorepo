@@ -175,8 +175,20 @@ class TestAgreement(unittest.TestCase):
     def test_no_dispatchable_ventures_is_not_consistent(self):
         ranking = sv.merit_ranking(doc(venture("alpha")))
         result = sv.agreement(ranking, set())
+        self.assertFalse(result["agreement_applicable"])
         self.assertFalse(result["occupies_top_slots"])
         self.assertIsNone(result["mean_composite_dispatchable"])
+
+    def test_all_dispatchable_makes_agreement_not_applicable(self):
+        ranking = sv.merit_ranking(
+            doc(
+                venture("alpha", scores=scores(ai_leverage=9)),
+                venture("beta", scores=scores(ai_leverage=1)),
+            )
+        )
+        result = sv.agreement(ranking, {"alpha", "beta"})
+        self.assertFalse(result["agreement_applicable"])
+        self.assertFalse(result["occupies_top_slots"])
 
     def test_ranking_orders_by_composite_then_slug(self):
         ranking = sv.merit_ranking(

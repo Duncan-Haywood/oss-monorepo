@@ -247,66 +247,18 @@ decisions:
   gates: deployment
   exposure: none
   opened: "2026-08-21"
-  action: "Merge or decline #531."
+  resolved: "2026-08-24"
+  action: >-
+    ANSWERED (Ask 9): agents rebase and merge #531 when CI is green, or close
+    with reason. No owner gate on ventures/* merges.
   unlocks:
     - WCAG 1.4.3 contrast failures fixed across `local-site-studio` and `ai-first-markets`.
   blocked_by: []
   note: >-
-    Colour-token substitutions, CI-green. Neither changes behaviour beyond
-    colour values.
-
-
-    Correction, 2026-08-24: this note previously gave the reason for the gate
-    as "they republish live sites". Per `platform/ci/publish_surface.py`, no
-    workflow publishes on a push to `main` -- the two Pages deploys skip their
-    publish jobs for want of credentials, and the third is
-    `workflow_dispatch`-only -- so merging republishes nothing. This touches
-    `ventures/*` app code, which is why it is still here rather than
-    self-merged; the live-site consequence it was credited with does not
-    exist.
-
-
-    Correction, 2026-08-24 (later): this row originally covered #531 and #583
-    together -- #583 (the `real-estate-agent-photo-app` half) merged at
-    2026-08-24T09:45:01Z. #531 (`local-site-studio` + `ai-first-markets`)
-    remains open with `mergeable_state: dirty` as of this correction; its own
-    branch needs a rebase onto current `main` before it can merge, which is
-    conflict resolution a session can do, not a decision that needs the
-    owner. `next-16-upgrade` (#372, prs-only row) and `dependabot` (#368,
-    prs-only row) are removed from this file outright rather than corrected
-    in place: both merged at 2026-08-24T09:43:08Z and 09:45:03Z respectively,
-    and neither has anything left to grant.
-
-
-    Correction, 2026-08-24 (later still): the previous correction's "conflict
-    resolution a session can do" is no longer true. #731 (merged
-    2026-08-24T09:45:00Z, the 1,405-commit `local-site-studio` subtree merge)
-    rewrote `ventures/local-site-studio/src/app/page.tsx`'s bundle-pricing
-    section in the meantime. `git merge-tree` now conflicts on that file for
-    real, not as a line-offset rebase: reapplying #531's 11 colour-token
-    substitutions means re-deriving which classes carry the contrast fix
-    against the new structure, closer to redoing the `a11y-contrast-
-    decidability` fix than resolving a merge. Flagged as a PR comment on #531
-    rather than attempted blind, since correctness there (checkout pricing,
-    `BUNDLES` consistency) matters more than speed. The merge-or-decline
-    decision is still the owner's; what changed is that "merge" no longer
-    means taking the diff as-is.
-
-
-    Correction, 2026-08-24 (direction, same day): the previous paragraph had
-    the direction of #731's rewrite backwards. Verified directly against both
-    blobs (pre-#731 `b9e5ea7d` vs. current `main`): the file did *not* move
-    from a shared `BUNDLES` source to an inline array -- it went the other
-    way. Pre-#731, `page.tsx` hardcoded a `const bundles = [...]` array
-    in-file with no pricing import at all. #731 replaced that with one that
-    imports `getBundle`/`COMMERCE_ADDON` from `@/lib/pricing/bundles` and
-    reads bundle data from there -- #731 *fixed* a single-source-of-truth gap
-    in this file, it did not introduce one. The conclusion this row draws
-    from that -- #531's conflict is real and structural, not a plain rebase
-    -- is unaffected: reapplying 11 colour-token classes onto a file whose
-    pricing now comes from a shared module still means re-deriving which
-    classes carry the fix, just against a *better*-structured file than
-    before, not a worse one.
+    Colour-token substitutions, CI-green. Resolved with venture-gate-premise:
+    ventures/* merges are agent-decidable on green CI. #531 still needs a
+    structural reapply of contrast classes against post-#731 bundle-pricing
+    layout — agent work, not an owner decision unless declining the fix.
 
 - id: deployment-platform
   asks: []

@@ -207,16 +207,16 @@ def merit_ranking(doc: dict) -> list[dict]:
 
 
 def dispatchable_slugs() -> set[str]:
-    """Ask the router itself which ventures a session could start on today.
+    """Ventures with no external-service hold on the next hypothesis.
 
-    Imported rather than reimplemented: if the router's definition of
-    dispatchable changes, this agreement test must move with it, not drift
-    from it.
+    Uses `Venture.blocker`, not `Venture.dispatchable`: development is never
+    blocked, but merit–router agreement only applies when some ventures need
+    an app-store/marketplace account and others do not.
     """
     sys.path.insert(0, str(REPO_ROOT / "portfolio" / "router"))
     import allocate  # noqa: PLC0415
 
-    return {v.name for v in allocate.load_ventures() if v.dispatchable}
+    return {v.name for v in allocate.load_ventures() if v.blocker is None}
 
 
 def agreement(
@@ -244,11 +244,13 @@ def agreement(
         return round(sum(picked) / len(picked), 3) if picked else None
 
     blocked = set(order) - dispatchable
+    agreement_applicable = bool(dispatchable) and bool(blocked)
     return {
         "ranked": order,
         "dispatchable": sorted(dispatchable),
         "dispatchable_merit_ranks": dispatchable_ranks,
-        "occupies_top_slots": bool(dispatchable) and top_slots == dispatchable,
+        "agreement_applicable": agreement_applicable,
+        "occupies_top_slots": agreement_applicable and top_slots == dispatchable,
         "mean_composite_dispatchable": mean(dispatchable),
         "mean_composite_blocked": mean(blocked),
     }
@@ -350,7 +352,7 @@ def print_table(doc: dict, ranking: list[dict], result: dict) -> None:
         elif slug in dispatchable:
             state = "dispatchable"
         else:
-            state = "blocked"
+            state = "held"
         print(
             f"{i:<3}{slug:<32}{composite(venture['scores']):>6.2f}"
             f"{venture['floor']:>7}  {state:<14}{gate_text}"
@@ -358,23 +360,30 @@ def print_table(doc: dict, ranking: list[dict], result: dict) -> None:
 
     print()
     ranks = result["dispatchable_merit_ranks"]
-    print(
-        f"Dispatchable ventures sit at merit rank(s) {ranks} of {len(allocated)}; "
-        f"the top {len(ranks)} slot(s) "
-        f"{'are' if result['occupies_top_slots'] else 'are not'} exactly the "
-        f"dispatchable set."
-    )
-    print(
-        f"Mean composite — dispatchable {result['mean_composite_dispatchable']}, "
-        f"blocked {result['mean_composite_blocked']}."
-    )
-    verdict = (
-        "consistent: merit ranking and the router's split agree"
-        if result["occupies_top_slots"]
-        else "not consistent: the orderings measure different things "
-        "(see README.md — dispatchability is testability, not merit)"
-    )
-    print(f"Hypothesis: {verdict}.")
+    if not result["agreement_applicable"]:
+        print(
+            "Merit–router agreement: not applicable — no ventures carry an "
+            "external-service hold, so there is no dispatchable-vs-held split "
+            "to compare."
+        )
+    else:
+        print(
+            f"Dispatchable ventures sit at merit rank(s) {ranks} of {len(allocated)}; "
+            f"the top {len(ranks)} slot(s) "
+            f"{'are' if result['occupies_top_slots'] else 'are not'} exactly the "
+            f"dispatchable set."
+        )
+        print(
+            f"Mean composite — dispatchable {result['mean_composite_dispatchable']}, "
+            f"held {result['mean_composite_blocked']}."
+        )
+        verdict = (
+            "consistent: merit ranking and the router's split agree"
+            if result["occupies_top_slots"]
+            else "not consistent: the orderings measure different things "
+            "(see README.md — dispatchability is testability, not merit)"
+        )
+        print(f"Hypothesis: {verdict}.")
 
 
 def main(argv: list[str] | None = None) -> int:
