@@ -539,6 +539,14 @@ decisions:
     left to accept or decline in #836 is specifically the removal of those
     four gates, not the product-first direction, which is already on `main`.
 
+    Update 2026-08-24: #836 is now closed, not merged (never left draft).
+    `main`'s `CLAUDE.md` still carries the full governance text this PR
+    proposed cutting. Left in this file as a record that the "product-first,
+    override existing governance" framing was proposed once already today
+    and declined -- a later session or an externally-stored prompt carrying
+    the same framing should not treat it as a standing, owner-verified
+    policy without an actual decision recorded here or on #139.
+
 - id: funding-sponsors-live
   asks: []
   prs: [839]
@@ -572,3 +580,47 @@ decisions:
     the PR's opener -- made that call. Left unmerged pending the owner's
     decision on whether that Sponsors profile should be surfaced here at
     all.
+
+- id: agent-cross-review-automerge
+  asks: []
+  prs: [870]
+  gates: deployment
+  exposure: credential
+  opened: "2026-08-24"
+  action: >-
+    Informational -- #870 is now closed, not merged, and `platform/ci/
+    agent_review/` never landed on `main`, so there is nothing left to
+    enable. No owner action needed unless someone reopens or re-proposes
+    this automation, in which case the `ventures/*` gap noted below still
+    applies.
+  unlocks:
+    - >-
+      Nothing further; kept as a record of a real design gap found during
+      review, in case this automation shape is proposed again.
+  blocked_by: []
+  note: >-
+    Opened 2026-08-24 by a branch-hygiene sweep session, which correctly
+    self-flagged it in the PR body as CLAUDE.md's "enabling unattended,
+    spend-capable automation" and left it unmerged for that reason. On
+    review, `platform/ci/agent_review/review.py`'s `evaluate_pr()` treated a
+    PR touching `ventures/*` the same as any other -- `path_touches_ventures()`
+    only appended an informational reason string ("touches ventures/* --
+    venture path-filtered CI must be green"), never blocking approval or
+    requiring anything beyond the same CI-green check every other PR gets.
+    So had the reviewer Apps existed, a PR changing deployable venture app
+    code could have reached two bot approvals and green CI and auto-merged
+    without the human sign-off CLAUDE.md's "breaking changes to deployable
+    `ventures/*` code" rule requires -- Cursor Bugbot flagged the same gap
+    independently on the PR itself. Also `mergeable_state: dirty` against
+    current `main` at review time.
+
+    Update 2026-08-24T15:15Z: kilo-code-bot closed #870 at 15:05:31Z --
+    before this review's findings were posted -- citing "Conflicting
+    process-automation proposal is superseded by the product-first
+    operating direction; closing rather than adding review ceremony or
+    auto-merge policy." That close happened in the same ~20-minute window
+    `governance-rewrite-836` records the fleet acting on #851's newly-merged
+    policy; #870 was correctly owner-gated regardless of that policy
+    question, so the close's *outcome* (no unattended auto-merge enabled)
+    was fine even though its stated rationale leaned on the same
+    not-independently-verified "product-first direction" premise.
