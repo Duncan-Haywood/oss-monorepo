@@ -44,6 +44,11 @@ quoted price and direct costs fixed while showing how the effective hourly rate
 and gap to the supplied target change. They are arithmetic what-if comparisons,
 not a forecast of project delivery time.
 
+The browser's **Copy review summary** button turns the current assumptions,
+arithmetic status, and overrun scenarios into plain text for an email or proposal
+thread. It copies no project name or hidden metadata, and it does not recommend a
+price.
+
 **No warranty.** This tool is provided free and as-is, without warranty of any
 kind, express or implied. It is not tax, financial, or business advice, and it
 does not replace a qualified professional. **You are responsible for reviewing

@@ -183,6 +183,7 @@
       <div class="result" id="review" aria-live="polite"><strong>Before you send it</strong><ul class="checks"></ul></div>
 
     <div class="actions">
+      <button type="button" id="copy-summary">Copy review summary</button>
       <button type="button" id="copy-csv">Copy as CSV row</button>
       <span id="copy-status" class="hint" role="status" aria-live="polite"></span>
     </div>
@@ -253,6 +254,7 @@
   import { loadQuote, calculate, overrunScenarios } from "./calc.mjs";
   import { reviewQuote } from "./review.mjs";
   import { recordEvent, createReportCounter, isUsageCountingEnabled, setUsageCountingEnabled } from "./usage.mjs";
+  import { quoteSummary } from "./summary.mjs";
 
   // Counts settled quotes rather than keystrokes — see usage.mjs.
   const reportCounter = createReportCounter();
@@ -338,7 +340,37 @@
   }
 
   const copyBtn = document.getElementById("copy-csv");
+  const copySummaryBtn = document.getElementById("copy-summary");
   const copyStatus = document.getElementById("copy-status");
+  async function copyText(text) {
+    if (navigator.clipboard?.writeText) {
+      await navigator.clipboard.writeText(text);
+      return;
+    }
+    const textarea = document.createElement("textarea");
+    textarea.value = text;
+    textarea.setAttribute("readonly", "");
+    textarea.style.position = "fixed";
+    textarea.style.opacity = "0";
+    document.body.append(textarea);
+    textarea.select();
+    if (!document.execCommand("copy")) throw new Error("copy failed");
+    textarea.remove();
+  }
+  copySummaryBtn.addEventListener("click", async () => {
+    if (!lastReport) {
+      copyStatus.textContent = "Fix the inputs above first.";
+      return;
+    }
+    try {
+      const { quote, r } = lastReport;
+      await copyText(quoteSummary(quote, r, overrunScenarios(quote, r)));
+      copyStatus.textContent = "Copied — paste into an email or proposal.";
+      recordEvent("summary_copied");
+    } catch {
+      copyStatus.textContent = "Couldn't copy the summary in this browser.";
+    }
+  });
   copyBtn.addEventListener("click", async () => {
     if (!lastReport) {
       copyStatus.textContent = "Fix the inputs above first.";
@@ -356,7 +388,7 @@
       `cost_coverage,${r.cost_coverage.toFixed(2)},${quote.currency}`,
     ].join("\n");
     try {
-      await navigator.clipboard.writeText(rows);
+      await copyText(rows);
       copyStatus.textContent = "Copied — paste into a spreadsheet.";
       recordEvent("csv_copied");
     } catch {

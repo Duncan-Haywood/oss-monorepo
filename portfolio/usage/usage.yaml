@@ -123,9 +123,17 @@ products:
           quote_review_checked: 0
         note: >-
           Added a browser-local pre-send review that surfaces direct-cost,
-          target-gap, hidden-time, and revision-assumption observations. No
-          public URL yet; the feature counter stores only aggregate local
-          events and remains opt-out.
+           target-gap, hidden-time, and revision-assumption observations. No
+           public URL yet; the feature counter stores only aggregate local
+           events and remains opt-out.
+       - as_of: 2026-08-24
+         signals:
+           live_url_visitors: null
+           summary_copied: 0
+         note: >-
+           Added a plain-text review summary for proposal threads; it reports
+           supplied assumptions and scenarios without storing quote values. No
+           public URL yet; the counter remains browser-local and opt-out.
   - slug: etsy-profit-calculator
     surface: static-page-in-repo
     readings:
