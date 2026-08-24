@@ -102,6 +102,36 @@ class ChecksTest(unittest.TestCase):
             self.assertEqual(report["rules"], {"INV-017": 1})
             self.assertEqual(report["errors"][0]["rule"], "INV-017")
 
+    def test_cli_batch_flags_duplicate_invoice_numbers_without_disclosing_number(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            first = json.loads(json.dumps(VALID))
+            second = json.loads(json.dumps(VALID))
+            second["lines"][0]["description"] = "Different work"
+            (root / "first.json").write_text(json.dumps(first))
+            (root / "second.json").write_text(json.dumps(second))
+            output = io.StringIO()
+            with contextlib.redirect_stdout(output):
+                self.assertEqual(main([directory, "--format", "json"]), 1)
+            report = json.loads(output.getvalue())
+            self.assertEqual(report["rules"], {"INV-019": 2})
+            self.assertTrue(all(error["path"] == "/invoice_number" for item in report["reports"] for error in item["errors"]))
+            self.assertNotIn("INV-1", output.getvalue())
+
+    def test_cli_batch_allows_unique_invoice_numbers(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            first = json.loads(json.dumps(VALID))
+            second = json.loads(json.dumps(VALID))
+            second["invoice_number"] = "INV-2"
+            (root / "first.json").write_text(json.dumps(first))
+            (root / "second.json").write_text(json.dumps(second))
+            output = io.StringIO()
+            with contextlib.redirect_stdout(output):
+                self.assertEqual(main([directory, "--format", "json"]), 0)
+            report = json.loads(output.getvalue())
+            self.assertEqual(report["rules"], {})
+
     def test_cli_json_single_file_reports_read_error(self):
         with tempfile.TemporaryDirectory() as directory:
             invoice_path = Path(directory) / "broken.json"
@@ -204,6 +234,7 @@ class ChecksTest(unittest.TestCase):
             (root / "nested").mkdir()
             (root / "pass.json").write_text(json.dumps(VALID))
             failed = json.loads(json.dumps(VALID))
+            failed["invoice_number"] = "INV-2"
             failed["totals"]["gross"] = 200
             (root / "nested" / "fail.json").write_text(json.dumps(failed))
             output = io.StringIO()
