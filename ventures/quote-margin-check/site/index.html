@@ -1,0 +1,374 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Quote Margin Check — free effective hourly rate calculator for freelancers</title>
+<meta name="description" content="Free calculator for freelancers and small agencies: turn a proposed price, delivery hours, admin/revision time, overhead, and subcontractor cost into your real effective hourly rate before you send the quote. Runs entirely in your browser." />
+<meta name="robots" content="index, follow" />
+<link rel="canonical" href="." />
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect x='3' y='6' width='26' height='20' rx='2' fill='%232b6cb0'/%3E%3Cpath d='M8 12h16M8 16h10M8 20h13' stroke='white' stroke-width='2' stroke-linecap='round'/%3E%3C/svg%3E" />
+<meta property="og:title" content="Quote Margin Check — free effective hourly rate calculator" />
+<meta property="og:description" content="See your real effective hourly rate before you send a quote. Free, private, and runs entirely in your browser — no signup." />
+<meta property="og:type" content="website" />
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "SoftwareApplication",
+  "name": "Quote Margin Check",
+  "applicationCategory": "BusinessApplication",
+  "operatingSystem": "Any (runs in a web browser)",
+  "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
+  "description": "Free, local-first calculator for freelancers and small agencies. Turns a proposed price, delivery hours, overhead, subcontractor costs, and revision buffer into a transparent effective hourly rate and a target-price comparison. Runs entirely client-side; nothing is uploaded."
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "How do I calculate my effective hourly rate on a fixed-price quote?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Add up every hour the project will actually take you — delivery work, admin, and revisions — then subtract any direct costs (overhead, subcontractors) from the price, and divide what's left by the total hours. That is your effective hourly rate: what you're really being paid per hour once every task is counted, not just the billable delivery hours."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Why does a quote that looks profitable still underpay me?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Fixed-price quotes usually price only the visible delivery work. Admin time (calls, invoicing, project management), revision rounds, and subcontractor or tool costs quietly eat into the same fixed price, so the effective hourly rate ends up well below the rate you meant to charge."
+      }
+    }
+  ]
+}
+</script>
+<style>
+  :root {
+    color-scheme: light dark;
+    --bg: #ffffff; --fg: #1a1a1a; --muted: #5a5a5a; --border: #d8d8d8;
+    --accent: #2b6cb0; --panel: #f7f7f8; --focus: #2b6cb0;
+    --good: #2f855a; --bad: #c53030;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root { --bg: #14161a; --fg: #eaeaea; --muted: #a3a3a3; --border: #33363c; --panel: #1d2026; --accent: #6ea8ff; --good: #48bb78; --bad: #fc8181; }
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; background: var(--bg); color: var(--fg);
+    font: 16px/1.5 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  }
+  main { max-width: 760px; margin: 0 auto; padding: 2rem 1.25rem 4rem; }
+  h1 { font-size: 1.6rem; margin-bottom: 0.25rem; }
+  p.lede { color: var(--muted); margin-top: 0; }
+  .example-note {
+    margin: 0 0 0.75rem; padding: 0.5rem 0.75rem; border-radius: 6px;
+    font-size: 0.85rem; border: 1px dashed var(--border); color: var(--muted);
+  }
+  .example-note[hidden] { display: none; }
+  section {
+    background: var(--panel); border: 1px solid var(--border); border-radius: 10px;
+    padding: 1.25rem; margin: 1.5rem 0;
+  }
+  h2 { font-size: 1.15rem; margin-top: 0; }
+  label { display: block; font-size: 0.85rem; color: var(--muted); margin-top: 0.75rem; }
+  select, input {
+    width: 100%; padding: 0.5rem; margin-top: 0.25rem; border-radius: 6px;
+    border: 1px solid var(--border); background: var(--bg); color: var(--fg); font-size: 1rem;
+  }
+  select:focus, input:focus { outline: 2px solid var(--focus); outline-offset: 1px; }
+  .row { display: grid; grid-template-columns: 1fr 1fr; gap: 0 1rem; }
+  .row3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 0 1rem; }
+  .result {
+    margin-top: 1rem; padding: 0.85rem 1rem; border-radius: 8px;
+    background: var(--bg); border: 1px solid var(--border); font-size: 1.05rem;
+  }
+  .result .status { font-weight: 600; }
+  .result .status.good { color: var(--good); }
+  .result .status.bad { color: var(--bad); }
+  .result dl { margin: 0.75rem 0 0; }
+  .result dt { color: var(--muted); font-size: 0.85rem; margin-top: 0.6rem; }
+  .result dt:first-child { margin-top: 0; }
+  .result dd { margin: 0; font-size: 1.1rem; }
+  .error { color: var(--bad); }
+  .checks { margin: 0.75rem 0 0; padding: 0; list-style: none; }
+  .checks li { border-left: 4px solid var(--border); padding: 0.55rem 0.75rem; margin-top: 0.55rem; background: var(--panel); }
+  .checks li.attention { border-color: var(--bad); }
+  .checks li.clear { border-color: var(--good); }
+  .checks strong { display: block; }
+  .actions { margin-top: 1rem; display: flex; gap: 0.5rem; flex-wrap: wrap; }
+  button { font: inherit; padding: 0.5rem 0.9rem; border-radius: 6px; border: 1px solid var(--border); background: var(--bg); color: var(--fg); cursor: pointer; }
+  button:hover { border-color: var(--accent); }
+  footer { border-top: 1px solid var(--border); margin-top: 2rem; padding-top: 1.5rem; font-size: 0.85rem; color: var(--muted); }
+  footer h2 { font-size: 0.95rem; }
+  a { color: var(--accent); }
+  .hint { font-size: 0.8rem; color: var(--muted); margin: 0.25rem 0 0; }
+  code { background: var(--panel); padding: 0.1rem 0.3rem; border-radius: 4px; }
+</style>
+</head>
+<body>
+<main>
+  <h1>Quote Margin Check</h1>
+  <p class="lede">
+    See your real effective hourly rate before you send a fixed-price quote —
+    after admin time, revisions, overhead, and subcontractor costs eat into
+    it. Everything runs in this page; nothing you type is uploaded anywhere.
+  </p>
+
+  <section aria-labelledby="calc-heading">
+    <h2 id="calc-heading">Quote details</h2>
+
+    <!-- The form ships pre-filled so a first-time visitor sees a worked
+         result immediately rather than an empty page. That makes the
+         starting numbers someone else's, though, and the result below
+         renders a red "Below target" verdict on them — so say plainly that
+         they are an example until the visitor edits any field. -->
+    <p class="example-note" id="example-note">
+      Showing an <strong>example quote</strong> so you can see how this
+      works. Edit any field below to use your own numbers.
+    </p>
+
+    <div class="row">
+      <div>
+        <label for="currency">Currency label</label>
+        <input type="text" id="currency" value="USD" maxlength="12" />
+      </div>
+      <div>
+        <label for="price">Quoted price</label>
+        <input type="number" id="price" inputmode="decimal" value="2400" min="0" step="any" />
+      </div>
+    </div>
+
+    <div class="row3">
+      <div>
+        <label for="delivery_hours">Delivery hours</label>
+        <input type="number" id="delivery_hours" inputmode="decimal" value="24" min="0" step="any" />
+      </div>
+      <div>
+        <label for="admin_hours">Admin hours</label>
+        <input type="number" id="admin_hours" inputmode="decimal" value="5" min="0" step="any" />
+        <p class="hint">Calls, invoicing, project management — hours you rarely bill for but always spend.</p>
+      </div>
+      <div>
+        <label for="revision_hours">Revision hours</label>
+        <input type="number" id="revision_hours" inputmode="decimal" value="6" min="0" step="any" />
+      </div>
+    </div>
+
+    <div class="row">
+      <div>
+        <label for="overhead">Overhead cost</label>
+        <input type="number" id="overhead" inputmode="decimal" value="180" min="0" step="any" />
+        <p class="hint">Tools, software, materials for this project.</p>
+      </div>
+      <div>
+        <label for="subcontractor_cost">Subcontractor cost</label>
+        <input type="number" id="subcontractor_cost" inputmode="decimal" value="300" min="0" step="any" />
+      </div>
+    </div>
+
+    <label for="target_hourly_rate">Your target hourly rate</label>
+    <input type="number" id="target_hourly_rate" inputmode="decimal" value="75" min="0" step="any" />
+    <p class="hint">What you'd want to be paid per hour if you were billing hourly instead.</p>
+
+       <div class="result" id="result" role="status" aria-live="polite"></div>
+     <div class="result" id="review" aria-live="polite"><strong>Before you send it</strong><ul class="checks"></ul></div>
+
+    <div class="actions">
+      <button type="button" id="copy-csv">Copy as CSV row</button>
+      <span id="copy-status" class="hint" role="status" aria-live="polite"></span>
+    </div>
+  </section>
+
+  <section aria-labelledby="about-heading">
+    <h2 id="about-heading">What this checks</h2>
+    <p>
+      Fixed-price quotes usually price the visible delivery work and quietly
+      skip the rest: admin time, revision rounds, overhead, and subcontractor
+      costs. This calculator adds all of it back in and reports the
+      <strong>effective hourly rate</strong> you're actually being paid —
+      alongside the price you'd need to charge to hit your own target rate.
+    </p>
+    <p>
+      It does not recommend a price, does not provide tax or financial
+      advice, and does not claim a quote is profitable. The
+      <strong>gap to target price</strong> and <strong>after direct
+      costs</strong> figures are arithmetic comparisons only — you decide
+      what costs and target rate are appropriate for the job.
+    </p>
+    <p>
+      Prefer the command line, or need to batch several quotes into a
+      spreadsheet? The same logic ships as a
+      <a href="https://github.com/Duncan-Haywood/monorepo-projects/tree/main/ventures/quote-margin-check">Python CLI</a>
+      that reads/writes JSON, Markdown, and CSV.
+    </p>
+  </section>
+
+  <footer>
+    <h2>Disclaimer</h2>
+    <p>
+      <strong>No warranty.</strong> This tool is provided free and as-is,
+      without warranty of any kind, express or implied. It is not tax,
+      financial, or business advice, and it does not replace a qualified
+      professional. <strong>You are responsible for reviewing and verifying
+      its output before relying on it</strong>, and for meeting any
+      obligation it helps you prepare for. To the maximum extent permitted by
+      law, the authors accept no liability for any loss or damage arising
+      from its use.
+    </p>
+
+    <h2 id="privacy-heading">Privacy</h2>
+    <p>
+      Everything runs in your browser. Your quote figures are never
+      uploaded, and we don't have accounts, tracking cookies, or an
+      analytics vendor. This page counts anonymous, local feature-use events
+      (e.g. "a report was generated") in your own browser's
+      <code>localStorage</code>, only to help this project's maintainers
+      tell whether the tool is used at all — nothing is sent anywhere.
+      <button type="button" id="usage-toggle" style="background:none;border:none;color:var(--accent);text-decoration:underline;cursor:pointer;padding:0;font:inherit;">
+        Turn off local usage counting
+      </button>
+      <span id="usage-status"></span>
+    </p>
+
+    <p>
+      MIT licensed — see
+      <a href="https://github.com/Duncan-Haywood/monorepo-projects/blob/main/ventures/quote-margin-check/LICENSE">LICENSE</a>.
+      Source and CLI on
+      <a href="https://github.com/Duncan-Haywood/monorepo-projects/tree/main/ventures/quote-margin-check">GitHub</a>.
+      <a href="https://github.com/sponsors/Duncan-Haywood">Support on GitHub Sponsors</a> if this saved you from an underpriced quote — entirely optional, the tool stays free either way.
+    </p>
+  </footer>
+</main>
+
+<script type="module">
+  import { loadQuote, calculate } from "./calc.mjs";
+  import { reviewQuote } from "./review.mjs";
+  import { recordEvent, createReportCounter, isUsageCountingEnabled, setUsageCountingEnabled } from "./usage.mjs";
+
+  // Counts settled quotes rather than keystrokes — see usage.mjs.
+  const reportCounter = createReportCounter();
+
+  const ids = ["currency", "price", "delivery_hours", "admin_hours", "revision_hours", "overhead", "subcontractor_cost", "target_hourly_rate"];
+  const el = Object.fromEntries(ids.map((id) => [id, document.getElementById(id)]));
+  const result = document.getElementById("result");
+  const review = document.getElementById("review");
+
+  let lastReport = null;
+
+  function readInputs() {
+    return {
+      currency: el.currency.value,
+      price: Number(el.price.value),
+      delivery_hours: Number(el.delivery_hours.value),
+      admin_hours: Number(el.admin_hours.value),
+      revision_hours: Number(el.revision_hours.value),
+      overhead: Number(el.overhead.value),
+      subcontractor_cost: Number(el.subcontractor_cost.value),
+      target_hourly_rate: Number(el.target_hourly_rate.value),
+    };
+  }
+
+  function fmt(n) {
+    return n.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  }
+  function escapeHtml(value) {
+    return String(value).replace(/[&<>\"']/g, (character) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", "\"": "&quot;", "'": "&#39;" }[character]));
+  }
+
+  function update() {
+    try {
+      const quote = loadQuote(readInputs());
+      const r = calculate(quote);
+       const above = r.gap_to_target >= 0;
+       lastReport = { quote, r };
+       const safeCurrency = escapeHtml(quote.currency);
+      result.innerHTML = `
+        <div class="status ${above ? "good" : "bad"}">${above ? "Above target" : "Below target"} (arithmetic comparison only)</div>
+        <dl>
+          <dt>Total working hours</dt><dd>${fmt(r.total_hours)}</dd>
+           <dt>Direct costs</dt><dd>${safeCurrency} ${fmt(r.direct_costs)}</dd>
+           <dt>Effective hourly rate</dt><dd><strong>${safeCurrency} ${fmt(r.effective_hourly_rate)}/hour</strong></dd>
+           <dt>Price at your target rate</dt><dd>${safeCurrency} ${fmt(r.target_price)}</dd>
+           <dt>Gap to target price</dt><dd>${safeCurrency} ${fmt(r.gap_to_target)}</dd>
+           <dt>Left after direct costs</dt><dd>${safeCurrency} ${fmt(r.cost_coverage)}</dd>
+        </dl>
+       `;
+       review.querySelector(".checks").innerHTML = reviewQuote(quote, r).map((check) => `<li class="${check.level}"><strong>${escapeHtml(check.title)}</strong>${escapeHtml(check.detail)}</li>`).join("");
+       recordEvent("quote_review_checked");
+      result.classList.remove("error");
+      reportCounter.count(JSON.stringify(quote));
+    } catch (err) {
+      lastReport = null;
+      reportCounter.drop();
+       result.textContent = err.message;
+       result.classList.add("error");
+       review.querySelector(".checks").textContent = "Fix the inputs above to review this quote.";
+    }
+  }
+
+  // Once the visitor edits anything, the numbers are theirs — drop the
+  // "this is an example" note rather than leaving it contradicting the form.
+  const exampleNote = document.getElementById("example-note");
+  function dismissExampleNote() {
+    if (exampleNote) exampleNote.hidden = true;
+  }
+
+  for (const id of ids) {
+    el[id].addEventListener("input", update);
+    el[id].addEventListener("input", dismissExampleNote, { once: true });
+  }
+  update();
+  // The first render is the pre-filled example, not a quote the visitor asked
+  // for. Seed it so it isn't counted, and so their first real edit still is.
+  try {
+    reportCounter.seed(JSON.stringify(loadQuote(readInputs())));
+  } catch {
+    // defaults don't validate — nothing to seed, the first valid quote counts
+  }
+
+  const copyBtn = document.getElementById("copy-csv");
+  const copyStatus = document.getElementById("copy-status");
+  copyBtn.addEventListener("click", async () => {
+    if (!lastReport) {
+      copyStatus.textContent = "Fix the inputs above first.";
+      return;
+    }
+    const { quote, r } = lastReport;
+    const rows = [
+      "measure,value,unit",
+      `quoted_price,${quote.price.toFixed(2)},${quote.currency}`,
+      `total_working_hours,${r.total_hours.toFixed(2)},hours`,
+      `direct_costs,${r.direct_costs.toFixed(2)},${quote.currency}`,
+      `effective_hourly_rate,${r.effective_hourly_rate.toFixed(2)},${quote.currency}/hour`,
+      `target_price,${r.target_price.toFixed(2)},${quote.currency}`,
+      `gap_to_target,${r.gap_to_target.toFixed(2)},${quote.currency}`,
+      `cost_coverage,${r.cost_coverage.toFixed(2)},${quote.currency}`,
+    ].join("\n");
+    try {
+      await navigator.clipboard.writeText(rows);
+      copyStatus.textContent = "Copied — paste into a spreadsheet.";
+      recordEvent("csv_copied");
+    } catch {
+      copyStatus.textContent = "Couldn't access the clipboard in this browser.";
+    }
+  });
+
+  const usageToggle = document.getElementById("usage-toggle");
+  const usageStatus = document.getElementById("usage-status");
+  function renderUsageStatus() {
+    const on = isUsageCountingEnabled();
+    usageToggle.textContent = on ? "Turn off local usage counting" : "Turn on local usage counting";
+    usageStatus.textContent = on ? "" : " (currently off)";
+  }
+  usageToggle.addEventListener("click", () => {
+    setUsageCountingEnabled(!isUsageCountingEnabled());
+    renderUsageStatus();
+  });
+  renderUsageStatus();
+</script>
+</body>
+</html>

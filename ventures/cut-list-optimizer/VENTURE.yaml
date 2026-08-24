@@ -1,0 +1,23 @@
+name: cut-list-optimizer
+description: A local browser tool for woodworking and sign shops that turns stock lengths and required cuts into a low-waste cutting plan.
+stage: prototype
+owner: duncan
+hypotheses:
+  - claim: Small woodworking and sign shops will use a quick cut-list optimizer before buying stock because reducing offcuts saves material and setup time.
+    status: untested
+    checked: null
+    evidence: customer-contact
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+budget:
+  monthly_cap: 1
+  protected: true
+kill_criteria:
+  - Fewer than three qualified makers use the optimizer twice within 90 days.
+  - Users report that the generated plan does not reduce material purchased versus their usual estimate.
+links:
+  production: null
+  analytics: null

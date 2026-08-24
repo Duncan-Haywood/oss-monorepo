@@ -54,3 +54,10 @@ this tool keeps every customer-entered assumption visible and shows the
 contribution left after variable costs. A later, optional bring-your-own-key
 assistant could explain a seller's own exported fee statement, but the useful
 core deliberately needs no AI or paid service.
+
+## Repricing workflow
+
+Enter a target margin to calculate the item price needed to reach it, then
+compare prices $10 below and above the current price. This turns a fee
+calculation into a quick pricing decision without uploading product data or
+relying on Etsy's changing fee schedule.
