@@ -102,7 +102,17 @@ jobs:
     permissions:
       contents: read
     steps:
+      # Default checkout on a pull_request event fetches the ephemeral
+      # merge-with-base preview, not the PR's own tree. In a repo where main
+      # is pushed to continuously, that preview drifts underneath a single PR
+      # commit as unrelated PRs land, making the closure count computed here
+      # nondeterministic per re-run even though this probe reads only the
+      # checked-out tree. Pinning to the PR's actual head SHA (falling back to
+      # github.sha on push/workflow_dispatch, where head_sha is unset) makes
+      # the result a pure function of the commit under test.
       - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"

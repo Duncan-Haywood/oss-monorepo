@@ -221,6 +221,63 @@ export function getSeoPageBySlug(
   return generateSeoLandingPages(artworks).pages.find((page) => page.slug === slug);
 }
 
+const PRINT_INTENT_PRIORITY: SeoLandingIntent[] = [
+  "room-style",
+  "long-tail-tag",
+  "artist-story",
+  "payout-proof",
+];
+
+function preferPrintPage(pages: SeoLandingPage[]): SeoLandingPage | undefined {
+  return [...pages].sort(
+    (left, right) =>
+      PRINT_INTENT_PRIORITY.indexOf(left.intent) - PRINT_INTENT_PRIORITY.indexOf(right.intent),
+  )[0];
+}
+
+/**
+ * Accepts either a programmatic SEO slug or a catalog artwork slug.
+ * Storefront cards use catalog slugs (`midnight-coast`); landing pages use
+ * intent suffixes (`midnight-coast-landscape-wall-art`). Linking the former
+ * without this resolver 404s.
+ */
+export function resolvePrintPage(
+  slug: string,
+  consentRecords: ListingConsentRecord[] = defaultListingConsentRecords,
+  artworks: CatalogArtwork[] = catalogArtworks,
+): SeoLandingPage | undefined {
+  const exact = getSeoPageBySlug(slug, artworks);
+  if (exact) {
+    return exact;
+  }
+
+  const forArtwork = generateSeoLandingPages(artworks).pages.filter(
+    (page) => page.artworkSlug === slug,
+  );
+  if (forArtwork.length === 0) {
+    return undefined;
+  }
+
+  const withState = getSeoPagesWithPublishState(consentRecords, artworks);
+  const publishable = forArtwork.filter((page) =>
+    withState.find((item) => item.slug === page.slug)?.publishState.publishable,
+  );
+  return preferPrintPage(publishable.length > 0 ? publishable : forArtwork);
+}
+
+export function resolvePrintHref(
+  artwork: Pick<CatalogArtwork, "slug">,
+  consentRecords: ListingConsentRecord[] = defaultListingConsentRecords,
+  artworks: CatalogArtwork[] = catalogArtworks,
+): string {
+  const page = resolvePrintPage(artwork.slug, consentRecords, artworks);
+  return `/prints/${page?.slug ?? artwork.slug}`;
+}
+
+export function getCatalogArtworkSlugs(artworks: CatalogArtwork[] = catalogArtworks): string[] {
+  return artworks.map((artwork) => artwork.slug);
+}
+
 export function getSeoPagesWithPublishState(
   consentRecords: ListingConsentRecord[] = defaultListingConsentRecords,
   artworks: CatalogArtwork[] = catalogArtworks,

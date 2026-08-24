@@ -3,6 +3,7 @@
 from __future__ import annotations
 import argparse
 import json
+import subprocess
 from dataclasses import asdict, dataclass
 from datetime import datetime, timezone
 from pathlib import Path
@@ -15,6 +16,52 @@ class Finding:
     classification: str
     reason: str
     commits: tuple[str, ...]
+
+    @property
+    def review_action(self) -> str:
+        """Return a review instruction, never an executable Git operation."""
+        return {
+            "merged": "review-delete-candidate",
+            "moved-tip": "preserve-and-review",
+            "active": "preserve-active-work",
+            "protected": "do-not-delete",
+            "shared": "preserve-shared-ref",
+            "uncertain": "investigate-missing-pr-record",
+        }[self.classification]
+
+def _git(repo: Path, *args: str) -> str:
+    result = subprocess.run(
+        ["git", "-C", str(repo), *args],
+        check=True,
+        capture_output=True,
+        text=True,
+    )
+    return result.stdout
+
+
+def snapshot_from_repo(repo: Path, protected: set[str] | None = None) -> dict[str, Any]:
+    """Build a read-only snapshot from local refs without contacting a remote."""
+    repo = repo.resolve()
+    names = [
+        line
+        for line in _git(repo, "for-each-ref", "--format=%(refname:short)", "refs/heads").splitlines()
+        if line
+    ]
+    if not names:
+        raise ValueError("repository has no local branches")
+    default = _git(repo, "symbolic-ref", "--short", "HEAD").strip()
+    branches = []
+    for name in names:
+        commits = _git(repo, "rev-list", "--max-count=100", name).splitlines()
+        if commits:
+            branches.append({"name": name, "tip": commits[0], "commits": commits})
+    protected_branches = {default, *(protected or set())}
+    return {
+        "default_branch": default,
+        "protected_branches": sorted(protected_branches),
+        "branches": branches,
+        "pull_requests": [],
+    }
 
 def scan(snapshot: dict[str, Any]) -> list[Finding]:
     branches, pull_requests = snapshot.get("branches"), snapshot.get("pull_requests")
@@ -61,9 +108,15 @@ def write_outputs(findings: list[Finding], report_path: Path, manifest_path: Pat
     for finding in findings:
         counts[finding.classification] = counts.get(finding.classification, 0) + 1
     lines = ["Repository branch hygiene report", "", "Approval queue: review every finding before any Git operation.", "", "Counts: " + ", ".join(f"{key}={counts[key]}" for key in sorted(counts))]
-    lines.extend(f"- [{f.classification}] {f.branch} ({f.tip}): {f.reason}" for f in findings)
+    lines.extend(f"- [{f.classification}] {f.branch} ({f.tip}): {f.reason}; action={f.review_action}" for f in findings)
     report_path.write_text("\n".join(lines) + "\n", encoding="utf-8")
-    manifest_path.write_text(json.dumps({"format": 1, "findings": [asdict(f) for f in findings]}, indent=2) + "\n", encoding="utf-8")
+    manifest = {
+        "format": 2,
+        "read_only": True,
+        "approval_required": True,
+        "findings": [dict(asdict(f), review_action=f.review_action) for f in findings],
+    }
+    manifest_path.write_text(json.dumps(manifest, indent=2) + "\n", encoding="utf-8")
 
 def has_unresolved_risk(findings: list[Finding]) -> bool:
     """Return whether the snapshot needs human review before any cleanup."""
@@ -71,14 +124,23 @@ def has_unresolved_risk(findings: list[Finding]) -> bool:
 
 def main() -> int:
     parser = argparse.ArgumentParser(description="Create a read-only branch review report")
-    parser.add_argument("snapshot", type=Path)
+    parser.add_argument("snapshot", type=Path, nargs="?", help="JSON snapshot (omit when using --repo)")
+    parser.add_argument("--repo", type=Path, help="scan local branches from this checkout")
+    parser.add_argument("--protect", action="append", default=[], help="additional protected branch name")
     parser.add_argument("--report", type=Path, default=Path("branch-report.txt"))
     parser.add_argument("--manifest", type=Path, default=Path("recovery-manifest.json"))
     parser.add_argument("--usage-log", type=Path)
     parser.add_argument("--format", choices=("text", "json"), default="text", help="print a human or machine-readable summary")
     parser.add_argument("--fail-on-risk", action="store_true", help="exit 2 when shared, moved-tip, or uncertain findings need review")
     args = parser.parse_args()
-    findings = scan(json.loads(args.snapshot.read_text(encoding="utf-8")))
+    if bool(args.snapshot) == bool(args.repo):
+        parser.error("provide exactly one of SNAPSHOT or --repo")
+    snapshot = (
+        snapshot_from_repo(args.repo, set(args.protect))
+        if args.repo
+        else json.loads(args.snapshot.read_text(encoding="utf-8"))
+    )
+    findings = scan(snapshot)
     write_outputs(findings, args.report, args.manifest)
     if args.usage_log:
         event = {"event": "scan_completed", "at": datetime.now(timezone.utc).isoformat(), "finding_count": len(findings)}

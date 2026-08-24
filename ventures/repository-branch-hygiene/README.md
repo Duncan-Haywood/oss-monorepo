@@ -20,10 +20,25 @@ Exit status `2` means a human must review a `shared`, `moved-tip`, or
 status means only that this snapshot contains no unresolved ambiguity; the
 customer still approves every Git operation.
 
+For a checkout you control, the same report can be produced directly from
+local branches. This reads refs only and never fetches, pushes, or deletes:
+
+```bash
+python3 src/branch_hygiene.py --repo /path/to/checkout --report report.txt --manifest recovery.json
+```
+
+The local mode intentionally has no pull-request metadata. Branches that are
+not protected or shared are therefore reported as `uncertain`, rather than
+being treated as safe to remove. Add `--protect release` for each additional
+protected local branch.
+
 The scanner distinguishes merged branches, closed-PR branches whose tip moved,
-shared refs, protected branches, active work, and uncertain records. It never
-talks to GitHub, uploads repository data, or deletes refs. Its output is evidence
-for a human approval queue, not deletion advice.
+shared refs, protected branches, active work, and uncertain records. Each
+finding includes a non-executable `review_action`, such as
+`review-delete-candidate` or `preserve-and-review`, so teams can route work in
+an approval queue without turning a report into deletion advice. It never talks
+to GitHub, uploads repository data, or deletes refs. The manifest explicitly
+marks itself read-only and approval-required.
 
 Keep snapshots customer-owned and remove them when no longer needed. The
 optional usage log records only an event name, timestamp, and aggregate count,
