@@ -20,7 +20,7 @@ export function calculate(input) {
   const delta = inHouse - quote.total;
   const perOrder = orders ? quote.total / orders : 0;
   const inHouseRate = n(input.inHousePerOrder, 13);
-  return { orders, quote, inHouse, delta, perOrder, breakEvenOrders: inHouseRate ? quote.total / inHouseRate : 0, winner: delta >= 0 ? "3PL" : "in-house", components: ["receiving", "storage", "pickPack", "packaging", "shipping", "returns", "fixed"] };
+  return { orders, quote, inHouse, delta, perOrder, breakEvenOrders: inHouseRate ? quote.total / inHouseRate : 0, minimumApplied: quote.total > quote.subtotal, winner: delta >= 0 ? "3PL" : "in-house", components: ["receiving", "storage", "pickPack", "packaging", "shipping", "returns", "fixed"] };
 }
 
 export function money(value) {

@@ -16,6 +16,13 @@ test("break-even reflects the in-house comparison", () => {
   assert.ok(result.delta > 0);
 });
 
+test("zero volume stays finite and does not apply a minimum", () => {
+  const result = calculate({ orders: 0, inboundUnits: 0, pallets: 0, minimumMonthly: 0 });
+  assert.equal(result.perOrder, 0);
+  assert.equal(result.minimumApplied, false);
+  assert.ok(Number.isFinite(result.breakEvenOrders));
+});
+
 test("compares two normalized quotes and creates a negotiation report", () => {
   const first = calculate({ orders: 100, shipping: 8 });
   const second = calculate({ orders: 100, shipping: 9 });
