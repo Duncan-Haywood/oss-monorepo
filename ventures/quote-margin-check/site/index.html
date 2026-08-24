@@ -184,6 +184,7 @@
 
     <div class="actions">
       <button type="button" id="copy-csv">Copy as CSV row</button>
+       <button type="button" id="download-report">Download JSON report</button>
       <span id="copy-status" class="hint" role="status" aria-live="polite"></span>
     </div>
   </section>
@@ -252,6 +253,7 @@
 <script type="module">
   import { loadQuote, calculate, overrunScenarios } from "./calc.mjs";
   import { reviewQuote } from "./review.mjs";
+  import { reportDocument } from "./report.mjs";
   import { recordEvent, createReportCounter, isUsageCountingEnabled, setUsageCountingEnabled } from "./usage.mjs";
 
   // Counts settled quotes rather than keystrokes — see usage.mjs.
@@ -362,6 +364,22 @@
     } catch {
       copyStatus.textContent = "Couldn't access the clipboard in this browser.";
     }
+  });
+
+  document.getElementById("download-report").addEventListener("click", () => {
+    if (!lastReport) {
+      copyStatus.textContent = "Fix the inputs above first.";
+      return;
+    }
+    const blob = new Blob([JSON.stringify(reportDocument(lastReport.quote, lastReport.r), null, 2) + "\n"], { type: "application/json" });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = "quote-margin-report.json";
+    link.click();
+    URL.revokeObjectURL(url);
+    copyStatus.textContent = "Downloaded a local JSON report.";
+    recordEvent("report_downloaded");
   });
 
   const usageToggle = document.getElementById("usage-toggle");
