@@ -21631,3 +21631,97 @@ entries:
           restatement of a prior finding. `payout-rail` remains the only
           queue item that moves the revenue ceiling off $0.
     mrr_end: null
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+          Scheduled "continue work on the repo... follow the instructions
+          and documentation... follow branch and PR workflow" session,
+          designated branch `session/agent_ec90f1e6-3cc9-477d-9514-483e1e90e2db`.
+          `session_gate.py` -> PROCEED (cadence 0.88/h, at the maintenance
+          rate the $0 revenue-ceiling branch implies). Fetched `main` fresh,
+          listed open pull requests, read `decision_queue.py`,
+          `verification_status.py`, and `publish_surface.py` before touching
+          anything.
+      - >-
+          Eight open pull requests at session start. `publish_surface.py`
+          confirmed no workflow publishes anything on a push to `main`, so
+          venture code changes that pass their builds are agent-decidable
+          per `CLAUDE.md`. `verification_status.py` reported #372 and #368
+          as build-valid with stale checks (18 workflow files changed since
+          their last verification, but the ventures themselves unchanged on
+          `main`).
+      - >-
+          Merged three agent-decidable PRs after verifying each against
+          current `main` with `git merge-tree` (no conflicts) and confirming
+          CI checks were green:
+          - #731 (local-site-studio subtree merge, 1,405 commits of upstream
+            work gathered into the monorepo with history preserved) --
+            venture code but nothing publishes per `publish_surface.py`, CI
+            green, clean merge. Merged as `7b69f3d1`.
+          - #583 (WCAG 1.4.3 contrast fixes for real-estate-agent-photo-app
+            docs-site and research) -- venture code but nothing publishes,
+            CI green (3 days old), clean merge. Merged as `222868d1`.
+          - #372 (next@16.3.1 upgrade across five non-live ventures:
+            ai-first-markets, photo-editing, print-atelier,
+            real-estate-agent-photo-app, retail-pilot-intel) -- venture code
+            but nothing publishes, `verification_status.py` reported BUILD
+            VALID (main hasn't touched those ventures), CI green (4 days
+            old), clean merge. Merged as `5395e3f3`.
+      - >-
+          #531 (Resolve #523's conflict with main, venture-only remainder
+          after #524) failed to merge: GitHub reported merge conflicts
+          despite `git merge-tree` showing no CONFLICT markers. The PR's own
+          body explicitly states "Merge class -- same as #523, not
+          agent-decidable" and "the account owner's call per CLAUDE.md, not
+          a session's." Left it for the owner as the PR author classified
+          it.
+      - >-
+          Did not touch #720 (deployment platform choice, explicitly
+          human-gated in PR body: "opens an account and commits standing
+          spend"), #368 (Dependabot config, explicitly human-gated: "Not
+          self-merging... unattended, spend-adjacent automation per
+          CLAUDE.md"), or #735 (a11y-evidence-record, marked DRAFT by its
+          own author session). All three correctly owner-gated per
+          `CLAUDE.md`.
+      - >-
+          No new candidate research, no re-derivation of prior findings, no
+          ledger duplication: this entry records three new merges and one
+          conflict, not a restatement of prior work. `payout-rail` remains
+          the only queue item that moves the revenue ceiling off $0.
+    mrr_end: null
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+          Follow-up to the prior entry in this session. After merging #731,
+          #583, and #372, checked the Dependabot PRs that had opened after
+          #368 (Dependabot config) was merged by a concurrent session.
+          Filtered for agent-decidable candidates: all-green CI, minor/patch
+          updates only (no major version bumps), clean `git merge-tree`
+          against current `main`, no `ventures/*` code that publishes per
+          `publish_surface.py`.
+      - >-
+          Merged five Dependabot PRs, all minor/patch dependency updates
+          with green CI and clean merges:
+          - #776 (real-estate-agent-photo-app npm-minor-patch group, 4 updates)
+          - #775 (real-estate-agent-photo-app npm-minor-patch group, 3 updates)
+          - #774 (print-atelier eslint-config-next 16.3.1 -> 16.3.2, patch)
+          - #773 (photo-editing/docs-site eslint-config-next 16.3.1 -> 16.3.2, patch)
+          - #758 (quick-pick-survey npm-minor-patch group, 8 updates)
+      - >-
+          Did not touch the Dependabot PRs with CI failures (#772, #771,
+          #770, #769, #768, #765, #762 -- all agent-permission-harness or
+          venture CI failures), the major version bumps that could have
+          breaking changes (#766 eslint-config-next 15->16, #767 typescript
+          5->7, #757 eslint 9->10, #756 vite 6->8, #759 @types/bcryptjs
+          2->3), or the PRs with no CI checks yet (#761, #760, #763). These
+          need owner review or further investigation.
+      - >-
+          No new candidate research, no re-verification of prior findings,
+          no restatement of the decision queue: this entry records five
+          additional merges of routine dependency updates. `payout-rail`
+          remains the only queue item that moves the revenue ceiling off $0.
+    mrr_end: null
