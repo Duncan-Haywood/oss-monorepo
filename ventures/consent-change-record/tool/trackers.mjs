@@ -11,7 +11,6 @@ const CATEGORIZED_SUFFIXES = [
   ["doubleclick.net", "advertising"],
   ["googlesyndication.com", "advertising"],
   ["googleadservices.com", "advertising"],
-  ["google.com/pagead", "advertising"],
   ["facebook.net", "advertising"],
   ["facebook.com", "advertising"],
   ["ads-twitter.com", "advertising"],
