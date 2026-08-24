@@ -259,6 +259,16 @@ products:
           preaudit_checklist_events: 0
           handoff_exports: 0
         note: Shipped browser-local pre-audit checklist; public deployment remains owner-gated.
+  - slug: saas-seat-true-up
+    surface: static-page-in-repo
+    readings:
+      - as_of: 2026-08-24
+        signals:
+          public_url_visitors: null
+          local_scenarios_calculated: 0
+          local_briefs_copied: 0
+        note: Shipped totals-only SaaS renewal true-up calculator; public deployment remains owner-gated and demand is unmeasured.
+
 # Example of the shape, once a product has shipped:
 #
 # products:

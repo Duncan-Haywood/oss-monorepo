@@ -838,3 +838,28 @@ candidates:
       component for distribution.
     first_experiment_days: 14
     first_experiment_budget_usd: 100
+
+  - slug: saas-seat-true-up
+    name: SaaS seat true-up calculator
+    doc: candidates/saas-seat-true-up.md
+    verdict: graduated
+    probe_status: "browser-local totals calculator shipped; demand and repeat usage unmeasured"
+    graduate_as: venture
+    host_venture: null
+    initiated: 2026-08-24
+    initiated_path: ventures/saas-seat-true-up
+    scores:
+      ai_leverage: 2
+      autonomous_ops: 10
+      time_to_revenue: 7
+      gross_margin: 10
+      defensibility: 4
+      distribution: 5
+      liability_containment: 8
+      ethical_robustness: 9
+    composite: 6.875
+    floor: 2
+    floor_dimension: ai_leverage
+    mitigation: Keep deterministic totals arithmetic as the complete free core and make the renewal brief portable; test search and repeat renewal usage before adding hosted workflow features.
+    first_experiment_days: 14
+    first_experiment_budget_usd: 0

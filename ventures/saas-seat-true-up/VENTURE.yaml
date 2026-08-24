@@ -1,0 +1,27 @@
+name: saas-seat-true-up
+description: Browser-local calculator that estimates unused SaaS seat waste and renewal true-up exposure from customer-supplied plan numbers.
+stage: prototype
+owner: duncan
+hypotheses:
+  - claim: Operations and finance teams will return to a seat true-up calculator before recurring SaaS renewals.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: A local calculator can create immediate value without importing employee names or connecting vendor accounts.
+    status: supported
+    checked: 2026-08-24
+    evidence: in-repo
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+budget:
+  monthly_cap: 0
+  protected: true
+kill_criteria:
+  - Fewer than three users return for a second renewal scenario within 90 days.
+  - No user reports finding avoidable seat spend or an overage risk within 90 days.
+links:
+  production: null
+  analytics: null

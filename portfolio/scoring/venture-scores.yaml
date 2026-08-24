@@ -48,6 +48,24 @@ scoring_rule: >-
   near-zero-price norm is a real property of the business on any host.
 
 ventures:
+  - slug: saas-seat-true-up
+    scores:
+      ai_leverage: 2
+      autonomous_ops: 10
+      time_to_revenue: 7
+      gross_margin: 10
+      defensibility: 4
+      distribution: 5
+    composite: 6.333
+    rater_b: null
+    floor: 2
+    floor_dimension: ai_leverage
+    floor_note: AI is intentionally absent from the transparent arithmetic core; portable renewal briefs are the initial defensibility mitigation.
+    basis: Graduated on 2026-08-24 as a browser-local SaaS license seat true-up calculator using totals only, with no vendor connection or employee roster.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+
   - slug: shopify-permission-drift
     scores:
       ai_leverage: 2
