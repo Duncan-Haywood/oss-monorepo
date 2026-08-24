@@ -7,6 +7,7 @@ test("normalizes the full monthly quote and minimum", () => {
   assert.equal(Math.round(result.quote.subtotal), 1419);
   assert.equal(result.quote.total, 2000);
   assert.equal(result.winner, "in-house");
+  assert.deepEqual(result.components, ["receiving", "storage", "pickPack", "packaging", "shipping", "returns", "fixed"]);
 });
 
 test("break-even reflects the in-house comparison", () => {
