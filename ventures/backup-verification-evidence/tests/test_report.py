@@ -8,8 +8,10 @@ import unittest
 from backup_evidence.report import build_history_report, classify_run, markdown_report
 
 
-def run(exit_code=0, finished_at="2026-08-24T03:00:00Z", artifact=None, expected=None, tool="restic"):
+def run(exit_code=0, finished_at="2026-08-24T03:00:00Z", artifact=None, expected=None, tool="restic", started_at=None):
     record = {"tool": tool, "exit_code": exit_code, "finished_at": finished_at}
+    if started_at is not None:
+        record["started_at"] = started_at
     if artifact is not None:
         record["artifact"] = artifact
     if expected is not None:
@@ -59,6 +61,32 @@ class ClassifyRunTests(unittest.TestCase):
         result = classify_run(record)
         self.assertEqual(result["status"], "suspicious")
         self.assertIn("stale file", result["reasons"][0])
+
+    def test_artifact_reused_from_yesterday_is_suspicious_even_within_max_age_hours(self):
+        # Regression: a nightly job's max_age_hours is set wide enough (26h)
+        # to tolerate normal cadence jitter around a 24h schedule. That same
+        # width used to let a run that silently reused yesterday's untouched
+        # artifact (~24h old) read as `verified`, because 24h < 26h. Knowing
+        # when *this* run started catches it regardless of that threshold.
+        record = run(
+            started_at="2026-08-24T03:00:00Z",
+            finished_at="2026-08-24T03:00:05Z",
+            artifact={"exists": True, "size_bytes": 5_000_000, "modified_at": "2026-08-23T03:00:05Z"},
+            expected={"max_age_hours": 26, "min_size_bytes": 1000},
+        )
+        result = classify_run(record)
+        self.assertEqual(result["status"], "suspicious")
+        self.assertIn("not written during this run", result["reasons"][0])
+
+    def test_artifact_written_during_this_run_is_verified_even_if_run_started_earlier(self):
+        record = run(
+            started_at="2026-08-24T03:00:00Z",
+            finished_at="2026-08-24T03:04:00Z",
+            artifact={"exists": True, "size_bytes": 5_000_000, "modified_at": "2026-08-24T03:03:59Z"},
+            expected={"max_age_hours": 26, "min_size_bytes": 1000},
+        )
+        result = classify_run(record)
+        self.assertEqual(result["status"], "verified")
 
     def test_missing_required_field_is_inconclusive_not_failed(self):
         result = classify_run({"tool": "restic", "exit_code": 0})
