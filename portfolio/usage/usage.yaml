@@ -6,6 +6,15 @@
 # retired honestly instead of quietly.
 period: 2026-08
 products:
+  - slug: tender-radar
+    surface: static-page-in-repo
+    readings:
+      - as_of: 2026-08-24
+        signals:
+          live_url_visitors: null
+          shortlist_created: 0
+          shortlist_exported: 0
+        note: Shipped import-first tender shortlist baseline; public URL remains owner-gated.
   - slug: shopify-permission-drift
     surface: local-cli
     readings:

@@ -617,9 +617,11 @@ candidates:
   - slug: tender-radar
     name: Tender radar
     doc: candidates/tender-radar.md
-    verdict: park
+    verdict: graduated
     graduate_as: venture
     host_venture: null
+    initiated: 2026-08-24
+    initiated_path: ventures/tender-radar
     scores:
       ai_leverage: 8
       autonomous_ops: 7
@@ -632,7 +634,10 @@ candidates:
     composite: 6.625
     floor: 4
     floor_dimension: defensibility
-    mitigation: None found. Parked pending a trade-association or community channel partner, which is the only variable that changes the outcome.
+    mitigation: >-
+      Launch import-first with no feed or hosted data; measure repeat shortlist
+      use before seeking a trade-association channel partner. The tool produces
+      review aids only and never determines eligibility or submits bids.
     unpark_conditions:
       - A trade association or vertical community agrees to introduce it to members.
 
