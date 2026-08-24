@@ -435,6 +435,31 @@ ventures:
       liability_containment: pass
       ethical_robustness: pass
 
+  - slug: shopify-permission-drift
+    scores:
+      ai_leverage: 2
+      autonomous_ops: 9
+      time_to_revenue: 6
+      gross_margin: 10
+      defensibility: 4
+      distribution: 4
+    composite: 5.833
+    rater_b: null
+    floor: 2
+    floor_dimension: ai_leverage
+    floor_note: >-
+      The first release is intentionally deterministic and local-first. Its
+      defensibility depends on portable evidence records and agency workflow
+      adoption, neither of which has customer evidence yet.
+    basis: >-
+      Graduated from the Shopify permission drift candidate on 2026-08-24. The
+      first slice compares customer-authorized app scopes, webhook topics, and
+      authorization state without Shopify credentials, network calls, or
+      customer data. The schema is strict about provenance and uncertainty.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+
   - slug: print-atelier
     scores:
       ai_leverage: 6
@@ -584,33 +609,3 @@ ventures:
       guarantees no sponsorship outcome. It never claims a repo "will"
       earn sponsors -- that warranty is the positioning error this scoring
       exists to refuse.
-
-  - slug: shopify-permission-drift
-    scores:
-      ai_leverage: 7
-      autonomous_ops: 8
-      time_to_revenue: 6
-      gross_margin: 9
-      defensibility: 4
-      distribution: 6
-    composite: 6.667
-    rater_b: null
-    floor: 4
-    floor_dimension: defensibility
-    floor_note: >-
-      A scope-and-webhook comparator is reimplementable; what could compound
-      is an immutable, merchant-specific authorization history that a new
-      entrant cannot reconstruct. That is untested, and the Shopify agency
-      or App Store channel it would need is unsecured.
-    basis: >-
-      Row added 2026-08-24 to close a `score_ventures.py --check` failure
-      that landed on `main` when this venture's directory was merged without
-      one -- it was red on `main`, not introduced by the pull request that
-      added this row. Scores are carried over unchanged from the
-      shopify-permission-drift candidate rather than re-estimated here, so
-      this records the existing agreed position rather than a second
-      session's opinion of another session's venture. Re-score it against
-      the built artifact when whoever owns it next touches it.
-    gates:
-      liability_containment: pass
-      ethical_robustness: pass

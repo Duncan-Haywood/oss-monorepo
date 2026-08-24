@@ -42,6 +42,15 @@ products:
           (publishing is owner-gated), so there is no traffic signal to read
           and its local-first event counter reports only to the user's own
           browser. Baseline row.
+      - as_of: 2026-08-24
+        signals:
+          live_url_visitors: null
+          local_events_reported: 0
+        note: >-
+          Second tool shipped: led-resistor-calculator (E24 nearest-standard
+          resistor + power rating for one or more series LEDs, 12 passing
+          unit tests). Same publishing gate as above — no traffic signal yet.
+          Baseline row for the second tool.
   - slug: quote-margin-check
     surface: repository-cli
     readings:
