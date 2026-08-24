@@ -48,6 +48,31 @@ scoring_rule: >-
   near-zero-price norm is a real property of the business on any host.
 
 ventures:
+  - slug: repository-branch-hygiene
+    scores:
+      ai_leverage: 6
+      autonomous_ops: 8
+      time_to_revenue: 5
+      gross_margin: 9
+      defensibility: 5
+      distribution: 4
+    composite: 6.167
+    rater_b: null
+    floor: 4
+    floor_dimension: distribution
+    floor_note: >-
+      Distribution is unmeasured: the read-only CLI is useful without hosting,
+      but no repeatable DevOps channel or pilot buyer has been established.
+    basis: >-
+      Graduated from the repository-branch-hygiene candidate on 2026-08-24.
+      The first slice is a standard-library scanner over customer-controlled
+      snapshots, with deterministic classifications and portable recovery
+      manifests. Scores preserve the candidate estimate until pilot evidence
+      exists.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+
   - slug: local-site-studio
     scores:
       ai_leverage: 7
@@ -427,3 +452,36 @@ ventures:
       retire a venture on its own scoring pass. The narrower version that
       clears the gate is licensed or owner-supplied artwork with a flat fee
       rather than a profit share.
+
+  - slug: dns-configuration-evidence
+    scores:
+      ai_leverage: 6
+      autonomous_ops: 9
+      time_to_revenue: 6
+      gross_margin: 9
+      defensibility: 4
+      distribution: 4
+    composite: 6.333
+    rater_b: null
+    floor: 4
+    floor_dimension: defensibility
+    floor_note: >-
+      Resolver lookup and diff logic are reproducible. A signed, portable,
+      customer-specific history could compound, but that defensibility is
+      untested; distribution is similarly unproven until a named MSP, agency,
+      or repeatable practitioner community adopts the workflow.
+    basis: >-
+      The first slice is a deterministic, local recorder with JSON and Markdown
+      reports, resolver-aware uncertainty states, and no network, credential,
+      payment, or inference dependency. The candidate score supports strong
+      autonomous operation and gross margin once scheduled collection exists,
+      while time to revenue is moderated by the untested recurring workflow and
+      the absence of an owned distribution channel.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Pass, conditionally: the product reports customer-authorized observations
+      with resolver and timestamp provenance, and explicitly does not warrant
+      security, deliverability, uptime, or compliance. Authorization and
+      remediation remain customer responsibilities.

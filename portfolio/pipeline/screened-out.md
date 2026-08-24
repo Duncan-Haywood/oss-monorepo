@@ -100,3 +100,7 @@ The internal workflow is a repository-specific unattended deletion mechanism;
 this candidate is a customer-facing, multi-repository read-only inventory and
 recovery product whose first output is an approval queue. It must still prove a
 buyer and a distribution channel before graduation.
+
+It graduated on 2026-08-24 as `ventures/repository-branch-hygiene` with a local
+scanner vertical slice. Graduation is not demand validation: the read-only pilot
+and willingness-to-pay experiment remain outstanding.
