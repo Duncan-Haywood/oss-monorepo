@@ -8,6 +8,10 @@ assistive-technology testing, and a dated evidence record.
 as a new venture.** Same buyer, same delivery surface, and the venture already
 has Stripe, a lead pipeline, and a dashboard. If it sells, split it out then.
 
+**Graduated 2026-08-24** as a `product_lines` entry on
+`ventures/local-site-studio`. That is the marker `session_gate.py` reads.
+The first experiment (live themes, contractor AT, outreach) remains open.
+
 Scored 2026-08-18. Composite 7.125 · floor 5 (liability containment).
 
 | Dimension | Score | Why |
