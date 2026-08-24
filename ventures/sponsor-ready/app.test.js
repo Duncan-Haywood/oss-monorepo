@@ -1,6 +1,6 @@
 const test = require("node:test");
 const assert = require("node:assert/strict");
-const { parseRepoInput, fundingYmlHasEntries, containsSponsorshipAsk } = require("./app.js");
+const { parseRepoInput, fundingYmlHasEntries, containsSponsorshipAsk, fetchRepoFacts } = require("./app.js");
 
 test("parseRepoInput accepts owner/repo", () => {
   assert.deepEqual(parseRepoInput("octocat/hello-world"), { owner: "octocat", repo: "hello-world" });
@@ -37,8 +37,73 @@ test("fundingYmlHasEntries rejects a key present with an empty value", () => {
   assert.equal(fundingYmlHasEntries("custom: ''\n"), false);
 });
 
+test("fundingYmlHasEntries rejects GitHub's empty FUNDING.yml scaffold", () => {
+  // Official template: every platform key is followed by `# Replace with…`.
+  const scaffold = `# These are supported funding model platforms
+
+github: # Replace with up to 4 GitHub Sponsors-enabled usernames e.g., [user1, user2]
+patreon: # Replace with a single Patreon username
+open_collective: # Replace with a single Open Collective username
+ko_fi: # Replace with a single Ko-fi username
+custom: # Replace with up to 4 custom sponsorship URLs e.g., ['link1', 'link2']
+`;
+  assert.equal(fundingYmlHasEntries(scaffold), false);
+});
+
+test("fundingYmlHasEntries still accepts a real value with a trailing comment", () => {
+  assert.equal(fundingYmlHasEntries("github: [octocat] # Sponsors\n"), true);
+});
+
 test("containsSponsorshipAsk is case-insensitive and matches common phrasing", () => {
   assert.equal(containsSponsorshipAsk("Please consider Sponsoring this project"), true);
   assert.equal(containsSponsorshipAsk("Support us on Ko-fi"), true);
   assert.equal(containsSponsorshipAsk("This is a README with nothing relevant"), false);
+});
+
+function jsonResponse(status, body, remaining) {
+  return {
+    ok: status >= 200 && status < 300,
+    status,
+    headers: { get: (name) => (name.toLowerCase() === "x-ratelimit-remaining" ? remaining : null) },
+    json: async () => body,
+  };
+}
+
+test("fetchRepoFacts throws when a follow-up request is rate-limited", async () => {
+  const originalFetch = globalThis.fetch;
+  globalThis.fetch = async (url) => {
+    if (String(url).endsWith("/repos/octocat/hello-world")) {
+      return jsonResponse(200, { description: "hi", homepage: "", topics: [], license: { key: "mit" }, pushed_at: "2026-08-01T00:00:00Z", archived: false }, "10");
+    }
+    return jsonResponse(403, { message: "API rate limit exceeded" }, "0");
+  };
+  try {
+    await assert.rejects(() => fetchRepoFacts("octocat", "hello-world"), /rate limit/i);
+  } finally {
+    globalThis.fetch = originalFetch;
+  }
+});
+
+test("fetchRepoFacts treats a 404 FUNDING.yml as missing, not rate-limited", async () => {
+  const originalFetch = globalThis.fetch;
+  globalThis.fetch = async (url) => {
+    const path = String(url);
+    if (path.endsWith("/repos/octocat/hello-world")) {
+      return jsonResponse(200, { description: "hi", homepage: "", topics: [], license: { key: "mit" }, pushed_at: "2026-08-01T00:00:00Z", archived: false }, "10");
+    }
+    if (path.includes("/community/profile")) {
+      return jsonResponse(200, { files: {} }, "9");
+    }
+    if (path.includes("/readme")) {
+      return jsonResponse(200, { content: Buffer.from("# Hello").toString("base64") }, "8");
+    }
+    return jsonResponse(404, { message: "Not Found" }, "7");
+  };
+  try {
+    const facts = await fetchRepoFacts("octocat", "hello-world");
+    assert.equal(facts.funding.present, false);
+    assert.equal(facts.funding.hasEntries, false);
+  } finally {
+    globalThis.fetch = originalFetch;
+  }
 });

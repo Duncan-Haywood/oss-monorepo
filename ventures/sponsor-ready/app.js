@@ -3,6 +3,8 @@
 
 const GITHUB_API = "https://api.github.com";
 const SPONSORSHIP_KEYWORDS = ["sponsor", "sponsoring", "donate", "funding", "buy me a coffee", "ko-fi", "patreon", "open collective"];
+const RATE_LIMIT_ERROR =
+  "GitHub's public API rate limit was hit. This tool makes unauthenticated requests, capped at 60/hour per visitor IP — try again in a few minutes.";
 
 // Privacy-conscious usage counting, per portfolio/usage/README.md:
 // aggregate-only, no per-user record, local-first, honours DNT/GPC.
@@ -70,6 +72,20 @@ function containsSponsorshipAsk(text) {
   return SPONSORSHIP_KEYWORDS.some((kw) => lower.includes(kw));
 }
 
+function stripUnquotedYamlComment(value) {
+  const trimmed = value.trim();
+  // Quoted scalars keep `#` (custom URLs, labels). GitHub's empty
+  // FUNDING.yml scaffold is unquoted: `github: # Replace with…`.
+  if (
+    (trimmed.startsWith('"') && trimmed.endsWith('"') && trimmed.length >= 2) ||
+    (trimmed.startsWith("'") && trimmed.endsWith("'") && trimmed.length >= 2)
+  ) {
+    return trimmed;
+  }
+  const commentAt = trimmed.search(/(^|\s)#/);
+  return commentAt === -1 ? trimmed : trimmed.slice(0, commentAt);
+}
+
 function fundingYmlHasEntries(yamlText) {
   // FUNDING.yml is a flat map of platform -> username(s). A non-empty,
   // non-comment, non-blank line with a value after the colon is enough
@@ -78,20 +94,22 @@ function fundingYmlHasEntries(yamlText) {
     const trimmed = line.trim();
     if (!trimmed || trimmed.startsWith("#")) return false;
     const [, value] = trimmed.split(/:(.*)/s);
-    return Boolean(value && value.trim().length > 0 && value.trim() !== "[]" && value.trim() !== "''" && value.trim() !== '""');
+    if (!value) return false;
+    const meaningful = stripUnquotedYamlComment(value).trim();
+    return Boolean(meaningful.length > 0 && meaningful !== "[]" && meaningful !== "''" && meaningful !== '""');
   });
 }
 
-// Fetches and normalizes everything scoreRepo() needs. Throws only on
-// network failure or an unknown repo (404 on the base repo lookup) —
-// individual missing sub-resources degrade to "not present" rather than
-// failing the whole check.
+// Fetches and normalizes everything scoreRepo() needs. Throws on
+// network failure, an unknown repo (404 on the base repo lookup), or a
+// mid-scan rate limit. Individual missing sub-resources degrade to
+// "not present" rather than failing the whole check.
 async function fetchRepoFacts(owner, repo) {
   const base = `/repos/${encodeURIComponent(owner)}/${encodeURIComponent(repo)}`;
 
   const repoRes = await fetchJson(base);
   if (repoRes.rateLimited) {
-    throw new Error("GitHub's public API rate limit was hit. This tool makes unauthenticated requests, capped at 60/hour per visitor IP — try again in a few minutes.");
+    throw new Error(RATE_LIMIT_ERROR);
   }
   if (!repoRes.ok) {
     throw new Error(repoRes.status === 404 ? `No public repo found at ${owner}/${repo}.` : `GitHub API returned an unexpected error (status ${repoRes.status}).`);
@@ -104,6 +122,10 @@ async function fetchRepoFacts(owner, repo) {
     fetchJson(`${base}/contents/FUNDING.yml`),
     fetchJson(`${base}/readme`),
   ]);
+
+  if ([communityRes, fundingRes, fundingRootRes, readmeRes].some((r) => r.rateLimited)) {
+    throw new Error(RATE_LIMIT_ERROR);
+  }
 
   const fundingRes2 = fundingRes.ok ? fundingRes : fundingRootRes;
   const fundingText = fundingRes2.ok ? decodeBase64Content(fundingRes2) : "";
@@ -212,5 +234,5 @@ if (typeof window !== "undefined") {
 }
 
 if (typeof module !== "undefined" && module.exports) {
-  module.exports = { parseRepoInput, fundingYmlHasEntries, containsSponsorshipAsk };
+  module.exports = { parseRepoInput, fundingYmlHasEntries, containsSponsorshipAsk, fetchRepoFacts };
 }

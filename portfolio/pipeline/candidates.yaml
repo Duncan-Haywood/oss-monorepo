@@ -732,7 +732,7 @@ candidates:
   - slug: oss-sponsor-readiness
     name: OSS sponsor readiness checklist
     doc: candidates/oss-sponsor-readiness.md
-    verdict: build-now
+    verdict: graduated
     graduate_as: venture
     host_venture: null
     scores:
