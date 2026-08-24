@@ -48,6 +48,29 @@ scoring_rule: >-
   near-zero-price norm is a real property of the business on any host.
 
 ventures:
+  - slug: shopify-permission-drift
+    scores:
+      ai_leverage: 3
+      autonomous_ops: 8
+      time_to_revenue: 6
+      gross_margin: 10
+      defensibility: 5
+      distribution: 6
+    composite: 6.333
+    rater_b: null
+    floor: 3
+    floor_dimension: ai_leverage
+    floor_note: >-
+      The evidence record is intentionally deterministic and local-first; the
+      differentiator is portable authorization history, not model output.
+    basis: >-
+      Graduated from the Shopify permission drift candidate on 2026-08-24. The
+      first slice inventories customer-authorized app scopes and webhook topics
+      without accessing customer data or requiring Shopify credentials.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+
   - slug: quote-margin-check
     scores:
       ai_leverage: 3
