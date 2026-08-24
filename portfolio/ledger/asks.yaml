@@ -169,11 +169,11 @@ decisions:
     Railway instead), point
     `ventures/ubuntu-agent-server/inventory.ini` at it and run that playbook.
     Do **not** add a Hetzner Cloud API
-    token to GitHub secrets -- it can create servers, which removes the
-    structural spend bound this option was chosen for, and Hetzner offers no
+    token to GitHub secrets -- it can create servers, which turns one box
+    into a project quota, and Hetzner offers no
     scope below Read & Write; provision in the console by hand. An SSH key in
     secrets is fine and is the intended design: it cannot provision anything,
-    so the fixed-price bound survives it. `agent-server-provision.yml` (added
+    so the one-box bound survives it. `agent-server-provision.yml` (added
     in #720, `workflow_dispatch`-only) runs the playbook from CI; the secrets
     and variables it needs are listed at the top of it. It is **not** dry-run by
     default -- Ansible's check mode cannot provision a fresh box, since the
