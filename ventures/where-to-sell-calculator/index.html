@@ -155,10 +155,16 @@
         <div id="bestLabel">—</div>
         <div id="bestProfit" class="hero-number">$—</div>
         <p id="spread" class="note"></p>
+        <p id="speedNote" class="note speed-note" hidden></p>
       </div>
+      <fieldset class="rank-by">
+        <legend>Rank by</legend>
+        <label class="check"><input type="radio" name="rankBy" value="profit" checked> What you keep per sale</label>
+        <label class="check"><input type="radio" name="rankBy" value="profitPerDay"> What you keep per day of waiting</label>
+      </fieldset>
       <div class="scroller">
         <table>
-          <caption class="note" style="text-align:left;padding-bottom:8px">
+          <caption class="note" style="text-align:left;padding-bottom:8px" id="tableCaption">
             Same item on every channel, ranked by what you keep.
           </caption>
           <thead>
@@ -170,6 +176,8 @@
               <th scope="col">Margin</th>
               <th scope="col">Gives up</th>
               <th scope="col">Price to match best</th>
+              <th scope="col">Days to sell</th>
+              <th scope="col">Keep / day</th>
             </tr>
           </thead>
           <tbody id="rows"></tbody>
@@ -225,6 +233,12 @@
     <p>More seller arithmetic: <a href="../ebay-fee-calculator/">eBay fee calculator</a> · <a href="../etsy-profit-calculator/">Etsy profit calculator</a> · <a href="../shopify-fee-calculator/">Shopify fee calculator</a>.</p>
   </footer>
 
+  <style>
+    .rank-by { border: 1px solid #cfc7e8; border-radius: 10px; padding: 10px 14px; margin: 14px 0 4px; display: flex; flex-wrap: wrap; gap: 6px 20px; align-items: center; }
+    .rank-by legend { font-size: .78rem; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: #574d80; padding: 0 4px; }
+    .rank-by label { font-size: .88rem; font-weight: 600; }
+    .speed-note { margin-top: 10px; padding: 10px 12px; border-radius: 8px; background: #fff5e2; border: 1px solid #d9a441; color: #5d4108; }
+  </style>
   <script type="module">
     import { CHANNEL_PRESETS, compareChannels } from "./calc.mjs";
     import { readOptOut, recordUsage, writeOptOut } from "./usage.mjs";
@@ -245,6 +259,7 @@
       { key: "perListingFee", label: "Per-listing fee", step: "0.01" },
       { key: "monthlyFee", label: "Monthly plan", step: "0.01" },
       { key: "adRate", label: "Ads / promoted (%)", step: "0.01" },
+      { key: "daysToSell", label: "Days to sell here", step: "1" },
     ];
     const SAVE_KEY = "where-to-sell-inputs";
     const money = (value) => `$${value.toFixed(2)}`;
@@ -258,6 +273,7 @@
         SHARED_FIELDS.map((id) => [id, document.getElementById(id).value]),
       );
       shared.includeSubscription = document.getElementById("includeSubscription").checked;
+      shared.rankBy = document.querySelector('input[name="rankBy"]:checked')?.value ?? "profit";
       return shared;
     }
 
@@ -289,6 +305,8 @@
         if (saved.shared.includeSubscription !== undefined) {
           document.getElementById("includeSubscription").checked = Boolean(saved.shared.includeSubscription);
         }
+        const savedRank = document.querySelector(`input[name="rankBy"][value="${saved.shared.rankBy}"]`);
+        if (savedRank) savedRank.checked = true;
       }
       // Merge onto the current presets by id, so a channel added in a later
       // version still appears for someone with older saved input.
@@ -370,10 +388,20 @@
 
       const profit = document.getElementById("bestProfit");
       profit.style.fontSize = "";
-      document.getElementById("bestLabel").textContent =
-        `Best on fees: ${comparison.best.label} — you keep`;
-      profit.textContent = money(comparison.best.profit);
-      profit.className = `hero-number ${comparison.best.profit < 0 ? "negative" : "positive"}`;
+      // The headline follows the chosen ranking; a hero that names the
+      // profit winner above a table sorted by speed just reads as a bug.
+      const leader = comparison.results.find((result) => result.rank === 1);
+      const bySpeed = comparison.rankBy === "profitPerDay" && leader.profitPerDay !== null;
+      document.getElementById("bestLabel").textContent = bySpeed
+        ? `Best per day of waiting: ${leader.label} — you keep`
+        : `Best on fees: ${comparison.best.label} — you keep`;
+      renderSpeedNote(comparison);
+      document.getElementById("tableCaption").textContent = comparison.rankBy === "profitPerDay"
+        ? "Same item on every channel, ranked by what you keep per day of waiting."
+        : "Same item on every channel, ranked by what you keep.";
+      const headline = bySpeed ? leader.profitPerDay : comparison.best.profit;
+      profit.textContent = bySpeed ? `${money(headline)} / day` : money(headline);
+      profit.className = `hero-number ${headline < 0 ? "negative" : "positive"}`;
       document.getElementById("spread").textContent = comparison.spread > 0
         ? `${money(comparison.spread)} separates the best channel from the worst on this one item — ${comparison.best.margin.toFixed(1)}% margin at the top.`
         : "Every channel leaves you the same on this item.";
@@ -390,13 +418,44 @@
             <td class="money">${result.margin.toFixed(1)}%</td>
             <td class="money">${result.isBest ? "—" : money(result.gapVsBest)}</td>
             <td class="money">${result.priceToMatchBest === null ? "—" : money(result.priceToMatchBest)}</td>
+            <td class="money">${result.daysToSell > 0 ? `${result.daysToSell}` : "—"}</td>
+            <td class="money">${result.profitPerDay === null ? "—" : money(result.profitPerDay)}</td>
           </tr>`).join("");
+    }
+
+    // The whole point of the holding-period column is the case where it
+    // disagrees with the profit ranking. Say so in words when it does, and stay
+    // quiet when it does not — an always-on line would be noise.
+    function renderSpeedNote(comparison) {
+      const note = document.getElementById("speedNote");
+      if (!comparison.speedChangesTheAnswer) {
+        note.hidden = true;
+        note.textContent = "";
+        return;
+      }
+      const fast = comparison.fastestReturn;
+      const slow = comparison.results.find((result) => result.id === comparison.best.id);
+      const turnover = fast.cashTurnsPerYear === null || slow.cashTurnsPerYear === null
+        ? ""
+        : ` At those speeds the same cash goes round ${fast.cashTurnsPerYear.toFixed(0)} times a year there `
+          + `against ${slow.cashTurnsPerYear.toFixed(0)}.`;
+      note.hidden = false;
+      note.textContent =
+        `${comparison.best.label} nets more per sale, but ${fast.label} sells in ${fast.daysToSell} days and earns `
+        + `${money(fast.profitPerDay)} a day of waiting against ${money(slow.profitPerDay)}.${turnover}`;
     }
 
     for (const id of SHARED_FIELDS) {
       document.getElementById(id).addEventListener("input", update);
       document.getElementById(id).addEventListener("change", () => {
         recordUsage(localStorage, optedOut(), "comparison_calculated");
+        save();
+      });
+    }
+    for (const radio of document.querySelectorAll('input[name="rankBy"]')) {
+      radio.addEventListener("change", () => {
+        update();
+        recordUsage(localStorage, optedOut(), "ranked_by_speed");
         save();
       });
     }
@@ -421,6 +480,7 @@
       };
       for (const [id, value] of Object.entries(defaults)) document.getElementById(id).value = value;
       document.getElementById("includeSubscription").checked = true;
+      document.querySelector('input[name="rankBy"][value="profit"]').checked = true;
       renderPanels();
       update();
     });

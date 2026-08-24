@@ -21,6 +21,16 @@
  * compute them. A seller whose channel differs can zero one field and fold the
  * rate into another.
  */
+/**
+ * Days an item typically waits before selling. Shipped identical for every
+ * channel on purpose: how fast a channel moves *your* category is an
+ * observation only the seller has, and inventing per-marketplace figures here
+ * would be exactly the kind of stale published-schedule claim the rest of this
+ * file refuses to make. Until the seller edits it, the time-weighted ranking
+ * agrees with the profit ranking and tells them nothing they did not know.
+ */
+export const DEFAULT_DAYS_TO_SELL = 21;
+
 export const CHANNEL_PRESETS = [
   {
     id: "ebay",
@@ -133,6 +143,10 @@ export function calculateChannel(channel, shared = {}) {
   const paymentFixed = number(channel.paymentFixed, `${label} payment fixed fee`, 0);
   const perListingFee = number(channel.perListingFee, `${label} listing fee`, 0);
   const monthlyFee = number(channel.monthlyFee, `${label} monthly fee`, 0);
+  // How long the item typically sits before it sells here. Optional, and
+  // deliberately shipped identical on every channel (see DEFAULT_DAYS_TO_SELL)
+  // so it changes nothing until a seller enters what they have actually seen.
+  const daysToSell = number(channel.daysToSell, `${label} days to sell`, shared.daysToSell ?? DEFAULT_DAYS_TO_SELL);
 
   const itemCost = number(shared.itemCost, "What you paid for the item", 0);
   const packagingCost = number(shared.packagingCost, "Packaging cost", 0);
@@ -195,6 +209,20 @@ export function calculateChannel(channel, shared = {}) {
     roi: cashInvested === 0 ? null : (profit / cashInvested) * 100,
     percentRate: percentRate * 100,
     fixedCash,
+    daysToSell,
+    // Profit is per *sale*; these are per *day of waiting for one*. A reseller
+    // with finite cash cares about the second: $8 in a week beats $12 in a
+    // quarter, because the week's cash goes round the loop six more times.
+    // Null rather than Infinity when no holding period was given, which is
+    // "unknown", not "instant".
+    profitPerDay: daysToSell > 0 ? profit / daysToSell : null,
+    // How many times a year the same cash completes this buy-sell loop. Stated
+    // as a turnover count rather than an annualised percentage on purpose: a
+    // three-day flip annualises to four figures, which is arithmetically true,
+    // reads as a promise, and would be the one dishonest number on the page.
+    // "Your cash goes round 122 times a year" is the same fact without the
+    // implied compounding.
+    cashTurnsPerYear: daysToSell > 0 ? 365 / daysToSell : null,
     breakEvenPrice: Math.max(0, fixedCash / (1 - percentRate) - shippingCharged),
     /**
      * Item price this channel needs, holding shipping charged constant, to
@@ -226,8 +254,25 @@ export function compareChannels(channels, shared = {}) {
   const results = active.map((channel) => calculateChannel(channel, shared));
   const best = results.reduce((winner, result) => (result.profit > winner.profit ? result : winner));
 
-  const ranked = [...results].sort((a, b) => b.profit - a.profit);
+  // Ranking by profit stays the default: it is the question people arrive with.
+  // `rankBy: "profitPerDay"` re-sorts on what the cash earns while it waits.
+  // A channel with no holding period sorts last there rather than winning on an
+  // unknown, and ties fall back to profit so the order stays stable.
+  const rankBy = shared.rankBy === "profitPerDay" ? "profitPerDay" : "profit";
+  const perDay = (result) => (result.profitPerDay === null ? -Infinity : result.profitPerDay);
+  const order = rankBy === "profitPerDay"
+    ? (a, b) => perDay(b) - perDay(a) || b.profit - a.profit
+    : (a, b) => b.profit - a.profit;
+  const ranked = [...results].sort(order);
   const rankById = new Map(ranked.map((result, index) => [result, index + 1]));
+
+  // The winner on speed, computed whichever way the table is sorted, because
+  // the interesting case is the two disagreeing: a channel that nets less per
+  // sale but turns the cash over faster.
+  const timed = results.filter((result) => result.profitPerDay !== null);
+  const fastestReturn = timed.length
+    ? timed.reduce((winner, result) => (result.profitPerDay > winner.profitPerDay ? result : winner))
+    : null;
 
   return {
     results: results.map((result) => ({
@@ -242,12 +287,29 @@ export function compareChannels(channels, shared = {}) {
       priceToMatchBest: result === best ? null : result.priceForProfit(best.profit),
     })),
     ranked: ranked.map((result) => result.label),
+    rankBy,
     best: {
       id: best.id,
       label: best.label,
       profit: best.profit,
       margin: best.margin,
     },
+    // Null when no active channel has a holding period to divide by.
+    fastestReturn: fastestReturn && {
+      id: fastestReturn.id,
+      label: fastestReturn.label,
+      profit: fastestReturn.profit,
+      daysToSell: fastestReturn.daysToSell,
+      profitPerDay: fastestReturn.profitPerDay,
+      cashTurnsPerYear: fastestReturn.cashTurnsPerYear,
+    },
+    // True only when the extra column changes the answer — the one moment this
+    // feature is worth a seller's attention. It also requires the profit winner
+    // to have a holding period of its own: "sells faster than" is not a
+    // comparison that can be made against an unknown, and claiming it would
+    // rank a channel the seller never timed.
+    speedChangesTheAnswer:
+      Boolean(fastestReturn) && fastestReturn.id !== best.id && best.profitPerDay !== null,
     // How much the channel choice is worth on this one item, before any
     // difference in how many buyers each channel actually reaches.
     spread: best.profit - ranked[ranked.length - 1].profit,
