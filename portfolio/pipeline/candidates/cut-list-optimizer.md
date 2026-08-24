@@ -1,5 +1,9 @@
 # Candidate: Cut-list optimizer
 
+Scored 2026-08-24. Composite 7.0 · floor 2 (ai_leverage). The low AI-leverage
+score is intentional: deterministic packing is the complete free core, while
+any future AI assistance remains optional.
+
 **Target user and problem.** Independent woodworkers, sign shops, trim
 carpenters, and makers buy dimensional stock or sheet-like bars, then manually
 try to fit required pieces into stock lengths. A poor estimate creates paid
