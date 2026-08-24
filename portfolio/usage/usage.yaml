@@ -54,6 +54,18 @@ products:
           repo_views_14d: 0
           release_downloads_total: 0
         note: Shipped calculator baseline; no public distribution or usage yet.
+      - as_of: 2026-08-24
+        signals:
+          live_url_visitors: null
+          local_events_reported: 0
+        note: >-
+          Added web/index.html, a zero-dependency static-page version of the
+          same calculator (the CLI is Python-only and most of this
+          venture's target freelancers won't run a script). Not yet
+          deployed to a public URL -- publishing is owner-gated -- so
+          there is no traffic signal to read; the page's local-first event
+          counter reports only to the visitor's own browser. Baseline row
+          for the second surface.
 # Example of the shape, once a product has shipped:
 #
 # products:
