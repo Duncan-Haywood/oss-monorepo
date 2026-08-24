@@ -20923,3 +20923,88 @@ entries:
           keeping the 115 -> 117 history intact. 84 probe tests pass,
           `validate_probe_index.py` green.
     mrr_end: null
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+          Scheduled generic session ("continue work... maintain and improve the
+          development process... legal ethical reliable increase in profit"),
+          designated branch claude/nice-mendel-ytevcc. `session_gate.py` ->
+          PROCEED, flagging 2 distinct sessions committed to `main` within a
+          15-minute window and a meta-work share of 100% over the last 25
+          entries. Checked the 4 open PRs (#583, #531, #372, #368),
+          `decision_queue.py` and `verification_status.py` first: all four
+          correctly owner-gated, both verification records still BUILD-VALID,
+          and `main` green across its last 15 workflow runs. Re-verified none
+          of them, which is the behaviour the 84% re-verification share exists
+          to discourage.
+      - >-
+          Found instead that the premise three of those four decisions rested
+          on was false, and that nothing in the repository was checking it.
+          `CLAUDE.md`'s agent-decidable test turns on one factual question --
+          does the change touch "any `ventures/*` app code that deploys to a
+          live site"? -- and no tool answered it from the workflow files. Four
+          documents hand-derived it into prose and froze it: `asks.yaml`'s
+          `unlocks:` strings, `CLAUDE.md`'s own rule (which names no ventures),
+          `a11y-contrast-decidability/README.md`, and two 2026-08-20 ledger
+          entries that each re-derived the same table by hand.
+      - >-
+          Two of those had already gone false. `asks.yaml`, merged seven hours
+          earlier in #708, said of `next-16-upgrade`: "owner-gated only because
+          merging fires deploys to live sites", and of `contrast-fixes`:
+          "owner-gated for the same single reason -- they republish live
+          sites". No workflow publishes anything on a push to `main`.
+          `ai-first-markets-deploy.yml` is `workflow_dispatch`-only so a push
+          cannot start it; the Cloudflare and GitHub Pages publish steps sit
+          behind `if:` gates on credentials the owner has not set. The runs
+          agree independently of the YAML: the wrangler step skipped on
+          2026-08-21 (run 32502928247) and `retail-pilot-intel`'s `deploy` and
+          `deploy-vercel` both skipped on 2026-08-24 (run 32683094978). So
+          merging #372, #531 or #583 fires no deploy and regresses no live
+          site, because there is no live site.
+      - >-
+          Shipped the check rather than the correction, in #710 (merged):
+          `platform/ci/publish_surface.py` derives the surface from
+          `.github/workflows/` and `--check` pins every workflow's
+          classification and the exact text of each `if:` gate, so deleting one
+          gate or adding a deploy turns CI red instead of silently falsifying
+          four documents. Tested against that exact failure rather than argued
+          for -- deleting `retail-pilot-intel`'s `GITHUB_PAGES_ENABLED` gate
+          flips it `gated` -> `live` and exits 1; restoring it returns to
+          green. Detection is an explicit allowlist and cannot recognise a
+          mechanism it was not told about, so the snapshot records all 38
+          workflows including the 35 that publish nothing, and the limit is
+          stated in the module docstring rather than assumed away.
+      - >-
+          Deliberately did not reclassify anything. The three PRs touch
+          `ventures/*` app code and `CLAUDE.md`'s human-gated list still covers
+          breaking changes to it, so they stay in the queue. What changed is
+          the premise the owner is deciding against: `next-16-upgrade` was
+          posing "should a merge redeploy six live sites", and what is left in
+          it is the narrower "does a major framework bump count as a breaking
+          change to deployable code while nothing is deployed". Three of seven
+          queued decisions were resting on the larger question. Added no new
+          ask -- this shrinks the queue's content without adding a row.
+      - >-
+          Verified by running the checks, not reading the diff: 12 validators
+          and 10 unit suites (279 tests, 23 of them new) pass, and both PR
+          checks were green on the head before merging (Portfolio validate
+          26/26 steps including the two new ones; agent-permission-harness CI).
+          The harness regenerates byte-identical, so the R7 instruction closure
+          is unchanged at 118 -- checked deliberately after the `CLAUDE.md`
+          edit, since that file is a depth-0 closure root and the previous
+          three sessions each tripped it. `git merge-tree` re-checked clean
+          against the live tip a32994a immediately before merging.
+      - >-
+          Incidental finding, left unfixed to keep the diff scoped: the
+          closure's `PROMPT_PATH` regex matches only a bare backticked path, so
+          a path written inside a command is not counted. That is a third
+          under-count direction beyond the two the probe's docstring already
+          discloses. Worth a one-line amendment by a session already touching
+          those files; it is not worth a PR of its own.
+      - >-
+          Nothing here moves the $0 revenue ceiling, which remains owner-gated
+          on Ask 2 (the payout rail). This entry ships separately from #710 per
+          the ledger-discipline rule.
+    mrr_end: null
