@@ -1,8 +1,10 @@
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import { pilotImpactSummary } from "../data/demoStore";
+import { recordEngagementEvent } from "../lib/engagement-log";
 
 export function OwnerBanner() {
   const impact = pilotImpactSummary;
+  const { pathname } = useLocation();
 
   return (
     <aside className="owner-banner" aria-label="Owner summary">
@@ -14,7 +16,17 @@ export function OwnerBanner() {
           vs last week
         </p>
       </div>
-      <Link to="/value" className="btn-owner-cta">
+      <Link
+        to="/value"
+        className="btn-owner-cta"
+        onClick={() =>
+          recordEngagementEvent({
+            name: "owner_value_cta_click",
+            path: pathname,
+            createdAt: new Date().toISOString(),
+          })
+        }
+      >
         Business value →
       </Link>
     </aside>

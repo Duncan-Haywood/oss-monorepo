@@ -6,6 +6,7 @@ on:
       - "ventures/ai-engineering-academy/site/**"
       - "ventures/ai-engineering-academy/docs/**"
       - "ventures/ai-engineering-academy/PROJECT_BRIEF.md"
+      - "ventures/ai-engineering-academy/tools/**"
       - ".github/workflows/ai-engineering-academy-ci.yml"
   push:
     branches: [main]
@@ -13,19 +14,19 @@ on:
       - "ventures/ai-engineering-academy/site/**"
       - "ventures/ai-engineering-academy/docs/**"
       - "ventures/ai-engineering-academy/PROJECT_BRIEF.md"
+      - "ventures/ai-engineering-academy/tools/**"
       - ".github/workflows/ai-engineering-academy-ci.yml"
   workflow_dispatch:
 
 permissions:
   contents: read
 
-defaults:
-  run:
-    working-directory: ventures/ai-engineering-academy/site
-
 jobs:
   build:
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ventures/ai-engineering-academy/site
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -33,3 +34,18 @@ jobs:
           node-version: "22"
       - run: npm ci
       - run: npm run build
+
+  tools-test:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        tool: [resistor-calculator]
+    defaults:
+      run:
+        working-directory: ventures/ai-engineering-academy/tools/${{ matrix.tool }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - run: node --test

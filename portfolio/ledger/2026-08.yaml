@@ -22684,3 +22684,59 @@ entries:
           step is a static host (GitHub Pages/Cloudflare Pages) with no
           new secrets required for the free tier.
     mrr_end: null
+
+  - venture: ai-engineering-academy
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+          Shipped the venture's first learner-facing artifact:
+          `tools/resistor-calculator/`, a free, zero-dependency, entirely
+          client-side resistor color code decoder (4/5/6-band) and Ohm's
+          law + power solver. The venture had been pre-product since
+          creation -- constitution docs and a markdown-render site, no
+          product a stranger could use. This is one small, self-contained
+          tool for the Circuits corner of the planned EE track, deliberately
+          narrower than the MVP scope the README had been waiting on.
+      - >-
+          Ships the guardrails DIRECTION.md requires: MIT LICENSE, the
+          no-warranty disclaimer in both the README and the page footer
+          (positioned as "not engineering advice, verify against the
+          datasheet"), an honest privacy line, and local-first aggregate
+          usage counting -- event name plus day in the user's own
+          localStorage, no IDs/IPs/content, nothing transmitted, an in-page
+          off switch, and automatic opt-out on Do Not Track / Global
+          Privacy Control.
+      - >-
+          Verified rather than assumed: 19 unit tests pass (`node --test`)
+          covering the decode math against known real resistors, all six
+          Ohm's-law solve paths, unit-prefix formatting, and the usage
+          module's opt-out and DNT behaviour. Also driven in a real
+          Chromium via Playwright -- default 4-band renders 4.7kohm +/-5%,
+          brown-black-red-gold gives 1kohm, the 5-band toggle reveals the
+          third digit band and yields 10kohm +/-1%, 12V across 4ohm gives
+          3A/36W, entering three values falls back to the prompt rather
+          than a wrong answer, the usage toggle writes the opt-out flag,
+          and the console is clean. Not deployed to a public URL --
+          publishing under the portfolio's name stays owner-gated.
+      - >-
+          Added a `tools-test` job to `ai-engineering-academy-ci.yml` (and
+          the `tools/**` path trigger) so the tests actually gate the PR;
+          moved the site-specific `working-directory` from the workflow
+          level into the build job so the new job is not forced into it.
+          Created `portfolio/usage/usage.yaml` with a baseline reading --
+          DIRECTION.md mandates usage tracking but named no place to record
+          it, and the file did not exist on `main` (PR #868, which would
+          have added it alongside a large playbook document, was closed
+          unmerged as superseded by #851). Added the data file only, not
+          the documentation that was rejected with it.
+      - >-
+          Triage: PR #868 (the trigger for this session) was already closed
+          unmerged by another agent as superseded -- no action. PR #870
+          (four-agent cross-review and auto-merge) is correctly self-flagged
+          owner-only: it is new unattended automation that would auto-merge
+          without a human and requires three GitHub App registrations that
+          do not exist; left open, not merged. This session's branch had
+          been sitting on #868's abandoned commit and was restarted from
+          `main` rather than resurrecting it.
+    mrr_end: null

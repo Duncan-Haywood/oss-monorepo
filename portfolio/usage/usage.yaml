@@ -22,6 +22,35 @@ products:
           localStorage counts exist client-side (see
           ventures/sponsor-ready/app.js `track()`) but by design never reach
           this ledger from an unopened tab.
+  - slug: shopify-permission-drift
+    surface: local-cli
+    readings:
+      - as_of: 2026-08-24
+        signals:
+          local_comparisons: 1
+          qualified_pilots: 0
+        note: Shipped fixture-backed local comparison; customer demand remains untested.
+  - slug: ai-engineering-academy
+    surface: static-page-in-repo
+    readings:
+      - as_of: 2026-08-24
+        signals:
+          live_url_visitors: null
+          local_events_reported: 0
+        note: >-
+          resistor-calculator shipped; not yet deployed to a public URL
+          (publishing is owner-gated), so there is no traffic signal to read
+          and its local-first event counter reports only to the user's own
+          browser. Baseline row.
+  - slug: quote-margin-check
+    surface: repository-cli
+    readings:
+      - as_of: 2026-08-24
+        signals:
+          report_generated_events: 0
+          repo_views_14d: 0
+          release_downloads_total: 0
+        note: Shipped calculator baseline; no public distribution or usage yet.
 # Example of the shape, once a product has shipped:
 #
 # products:
