@@ -14,6 +14,12 @@ setup every new venture costs a fresh onboarding pass across every agent
 surface (Claude Code, Cursor, Antigravity, CI). Here a new venture is a new
 directory that inherits the platform automatically.
 
+The current operating direction is product-first: ship a useful, free,
+local-first vertical slice before spending time on portfolio administration.
+New candidates may be graduated when they are distinct from existing ventures,
+have a runnable customer workflow, and preserve the repository's disclaimer,
+privacy, usage, and safety guardrails.
+
 ## Layout
 
 ```

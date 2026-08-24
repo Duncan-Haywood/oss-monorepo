@@ -228,8 +228,10 @@ candidates:
   - slug: mcp-supply-chain-watch
     name: MCP supply-chain watch
     doc: candidates/mcp-supply-chain-watch.md
-    verdict: probe
-    probe_status: steps-1-and-2-run; step-3 (willingness to pay) blocked on owner
+    verdict: graduated
+    probe_status: steps-1-and-2-run; step-3 (willingness to pay) remains untested
+    initiated: 2026-08-24
+    initiated_path: ventures/mcp-supply-chain-watch
     graduate_as: venture
     host_venture: null
     scores:

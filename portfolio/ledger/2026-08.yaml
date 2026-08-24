@@ -1,5 +1,17 @@
 period: 2026-08
 entries:
+  - venture: mcp-supply-chain-watch
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Graduated the MCP supply-chain watch candidate into a standard-library
+        local CLI: compare two captured tool manifests, prioritize removals and
+        instruction-bearing changes, export JSON evidence, and opt into an
+        aggregate usage event. It does not contact endpoints or certify safety.
+        Buyer interviews, public publishing, and any scheduled polling remain
+        unresolved dependencies.
+    mrr_end: null
   - venture: shopify-a11y-evidence
     agent_spend_usd: null
     human_hours: 0

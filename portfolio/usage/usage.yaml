@@ -6,6 +6,14 @@
 # retired honestly instead of quietly.
 period: 2026-08
 products:
+  - slug: mcp-supply-chain-watch
+    surface: repository-cli
+    readings:
+      - as_of: 2026-08-24
+        signals:
+          local_comparisons: 1
+          qualified_pilots: 0
+        note: Shipped local manifest drift evidence baseline; buyer demand remains untested.
   - slug: shopify-permission-drift
     surface: local-cli
     readings:
