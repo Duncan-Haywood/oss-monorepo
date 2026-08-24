@@ -18,6 +18,7 @@ PYTHONPATH=src python3 -m einvoice_preflight ./invoices/ --format junit > prefli
 cat invoice.json | PYTHONPATH=src python3 -m einvoice_preflight - --format json
 PYTHONPATH=src python3 -m einvoice_preflight examples/valid-invoice.json --usage-file ~/.local/state/einvoice-preflight/usage.json
 PYTHONPATH=src python3 -m einvoice_preflight ./invoices/ --format json
+PYTHONPATH=src python3 -m einvoice_preflight ./invoices/ --format jsonl
 PYTHONPATH=src python3 -m einvoice_preflight invoice.xml --format json
 ```
 
@@ -78,6 +79,11 @@ JSON output uses the same summary fields for single files and directories:
 `read_errors`. Single-file output also includes `file` and `errors`; directory
 output includes the per-file `reports` array. Rule counts let a CI or ERP
 adapter show a compact defect summary without parsing human text.
+`--format jsonl` emits one compact JSON object per invoice (or read error),
+which is suitable for streaming directory results into CI or an ERP adapter
+without parsing an aggregate document. Each invoice record has `status`, `file`,
+and `errors`; read-error records also have `error`. The line-oriented mode uses
+the same privacy boundary and exit codes as JSON.
 `--format markdown` produces a reviewable report with filenames, rule IDs,
 observations, and fixes for single files and recursive directory scans. Batch
 reports also include a finding summary grouped by rule, so repeated defects can
