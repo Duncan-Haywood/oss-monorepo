@@ -250,6 +250,14 @@ class Node:
             yield node
             node = node.parent
 
+    def accessible_text(self) -> str:
+        """Visible text, matching the sibling probe's method of the same name.
+
+        The 1.4.1 resolver walks links through this rather than `text()`, so
+        a template Node has to answer it the same way a rendered one does.
+        """
+        return self.text()
+
 
 class Tree(HTMLParser):
     """A forgiving element tree. Unclosed `<p>`/`<li>` are normal in templates."""
@@ -344,6 +352,12 @@ CHECKS = {
     # by any dynamically-rendered class/style up its ancestor chain; every
     # other case is an honestly-reasoned undecidable, never a silent skip.
     "text-contrast-fail":    ("1.4.3 Contrast (Minimum)", "blocking"),
+    # Added 2026-08-24, porting the sibling engine's 1.4.1 resolver the same
+    # way 1.4.3 was ported: reuse the arithmetic, refuse any dynamically
+    # classed or styled ancestor (or surrounding-text owner). See
+    # contrast_pass.py. Closes the asymmetry a11y-engine-agreement recorded
+    # when the probe gained this criterion and this engine did not.
+    "color-only-link":       ("1.4.1 Use of Color", "blocking"),
 }
 
 FILENAME_ALT = re.compile(
@@ -437,8 +451,11 @@ def audit_source(source: str, path: str = "<string>", stylesheet=None) -> dict:
     Contrast (1.4.3) is always evaluated, stylesheet or not: with none, every
     text-bearing element still gets an honestly-reasoned `no-declared-color`
     undecidable rather than being silently skipped -- the same coverage-
-    boundary rule the rest of this module follows. A template's own inline
-    `<style>` blocks are picked up either way.
+    boundary rule the rest of this module follows. Use of Color (1.4.1) is
+    evaluated the same way, on the narrower set of in-prose links; a bare
+    link with no stylesheet still has the browser underline, so it passes
+    rather than going undecidable. A template's own inline `<style>` blocks
+    are picked up either way.
     """
     tree = parse(source)
     findings: list[dict] = []
@@ -791,6 +808,10 @@ def audit_source(source: str, path: str = "<string>", stylesheet=None) -> dict:
         tree.root, sheet, path)
     findings.extend(contrast_findings)
     undecided.extend(contrast_undecided)
+    color_findings, color_undecided = contrast_pass.findings_and_undecidables_use_of_color(
+        tree.root, sheet, path)
+    findings.extend(color_findings)
+    undecided.extend(color_undecided)
 
     # --- heading order (advisory) -------------------------------------------
     levels = [
@@ -861,7 +882,7 @@ NOT_TESTED = [
     # See `portfolio/research/a11y-external-coverage-reference/`.
     ("1.2.1 Audio-only and Video-only (Prerecorded)", "a media element with no transcript or alternative is detectable from the markup; no rule here looks"),
     ("1.3.4 Orientation", "a stylesheet locking orientation is decidable from the CSS; no rule here looks"),
-    ("1.4.1 Use of Color", "a link distinguished from body text by colour alone is decidable where the stylesheet names the colours; no rule here looks"),
+    # 1.4.1 moved to CHECKS 2026-08-24 -- see the "color-only-link" entry.
     ("2.2.1 Timing Adjustable", "a <meta http-equiv=refresh> timeout is detectable from the head; no rule here looks"),
     ("2.2.2 Pause, Stop, Hide", "<blink> and <marquee> are detectable from the markup; no rule here looks"),
     ("2.4.1 Bypass Blocks", "the absence of a skip link or of landmark structure is detectable from the markup; no rule here looks -- a commonly-failed Level A criterion on shop pages"),

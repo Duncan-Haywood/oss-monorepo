@@ -72,10 +72,12 @@ if str(PROBE_SRC) not in sys.path:
 
 from wcag_triage import css as wt_css  # noqa: E402
 from wcag_triage import contrast as wt_contrast  # noqa: E402
+from wcag_triage import usecolor as wt_usecolor  # noqa: E402
 
 import audit  # noqa: E402
 
 CHECK = "text-contrast-fail"
+USE_OF_COLOR_CHECK = "color-only-link"
 
 # Reported straight as undecidable, before the cascade resolver runs at all.
 # See the module docstring, point 2.
@@ -167,4 +169,82 @@ def findings_and_undecidables(root: "audit.Node", sheet: "wt_css.Stylesheet", pa
             findings.append(audit._finding(CHECK, node, _detail(result), path))
         elif result.verdict == wt_contrast.UNDECIDABLE:
             undecided.append(audit._undecidable(CHECK, node, result.reason, path))
+    return findings, undecided
+
+
+def _color_detail(result) -> str:
+    if result.ratio is not None and result.link_color:
+        measured = (
+            f"is {result.ratio}:1 against the text around it "
+            f"({result.link_color} on prose in {result.text_color})"
+        )
+    else:
+        measured = "is exactly the colour of the text around it"
+    where = (
+        " in " + " and ".join(f"{scheme} mode" for scheme in result.schemes)
+        if len(result.schemes) == 1
+        else ""
+    )
+    return (
+        f"The link {measured}{where} and carries no underline, border, "
+        "weight or background of its own, so colour is the only thing "
+        "marking it as a link."
+    )
+
+
+def _use_of_color_guard(link: "audit.Node", surrounding: list) -> "str | None":
+    """Dynamic class/style on the link, its ancestors, or the prose around it.
+
+    A wrapper's render-time class can add an underline or a colour the
+    template does not settle. A sibling span holding the surrounding text
+    can do the same to the other side of the ratio. Either one withdraws
+    the finding, same direction as 1.4.3.
+    """
+    guard = _dynamic_guard_reason(link)
+    if guard is not None:
+        return guard
+    for owner, _ in surrounding:
+        guard = _dynamic_guard_reason(owner)
+        if guard is not None:
+            return guard
+    return None
+
+
+def evaluate_template_use_of_color(root: "audit.Node", sheet: "wt_css.Stylesheet") -> list:
+    """`[(link, LinkResult), ...]` for every in-prose link, with the
+    dynamic-class/style guard applied before the resolver runs.
+    """
+    dark = wt_usecolor._declares_dark_scheme(sheet, root)
+    out = []
+    for link, block, surrounding in wt_usecolor.links_in_text(root, sheet):
+        guard_reason = _use_of_color_guard(link, surrounding)
+        if guard_reason is not None:
+            out.append((link, wt_usecolor._undecidable(guard_reason)))
+            continue
+        result = wt_usecolor.worst_of(
+            [
+                (scheme, wt_usecolor.evaluate_link(
+                    sheet, link, block, surrounding, scheme, dark))
+                for scheme in wt_css.SCHEMES
+            ]
+        )
+        out.append((link, result))
+    return out
+
+
+def findings_and_undecidables_use_of_color(
+    root: "audit.Node", sheet: "wt_css.Stylesheet", path: str
+) -> tuple:
+    """`(findings, undecidables)` for SC 1.4.1, in `audit.py`'s dict shape."""
+    findings = []
+    undecided = []
+    for node, result in evaluate_template_use_of_color(root, sheet):
+        if result.verdict == wt_usecolor.FAIL:
+            findings.append(
+                audit._finding(USE_OF_COLOR_CHECK, node, _color_detail(result), path)
+            )
+        elif result.verdict == wt_usecolor.UNDECIDABLE:
+            undecided.append(
+                audit._undecidable(USE_OF_COLOR_CHECK, node, result.reason, path)
+            )
     return findings, undecided

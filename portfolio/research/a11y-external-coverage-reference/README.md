@@ -544,3 +544,8 @@ because they are about the reference rather than about the probe:
 same reason the previous section gives: closing a gap is not a measurement of
 the coverage statement's accuracy, and this pass found two of its own defects
 before shipping rather than a defect in the record.
+
+**Amended 2026-08-24.** The sibling engine gained the same 1.4.1 rule, so
+both now claim it. `results-2026-08-22-after-rules.json` was regenerated
+against the worktree; the catalog move is the only change this directory
+records. No score moved.

@@ -519,3 +519,9 @@ For all 123 links the rule examined, the computed `text-decoration-line`,
 the static reader concluded: **0 disagreements**. Three `quick-pick-survey`
 pages are excluded from that cross-check — their delivered DOM has more links
 than the prerender, the same client-rendering limit this corpus hit above.
+
+**Amended 2026-08-24.** The detection gap named above closed in the engine:
+`audit.py` now has the same 1.4.1 rule. The committed snapshot in this
+directory is still the 2026-08-22 run (90/118, one non-relabelling
+disagreement) and was not rebuilt; a later pass that re-measures the 118
+pages is what would move those numbers, not this amendment.

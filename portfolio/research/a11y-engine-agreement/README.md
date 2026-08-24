@@ -249,10 +249,18 @@ than one both engines already knew about: 1.4.1 moves from the probe's
 original name; it is the live-comparison snapshot, not a dated historical
 one — see the two amendments above). `test_results_file_matches_a_live_run`
 passed against the regenerated file, confirming this is the only catalog
-effect. Not closed here: porting the rule to `audit.py` would need the same
-two-element colour comparison this probe just built, against a template
-engine whose `class`/`style` are render-time output — the same open
-constraint the 1.4.3 port above already named for that engine.
+effect. Closed 2026-08-24: the rule is now in `audit.py` too, by the same
+adaptation the 1.4.3 port used — reuse the sibling resolver, refuse any
+dynamically classed or styled ancestor (or surrounding-text owner)
+before the cascade runs. `results-2026-08-21.json` was regenerated:
+1.4.1 moved from `audit.py`'s `declared_untested` list to its checked
+catalog, the mirror of the probe's move two days earlier.
+`test_results_file_matches_a_live_run` passed against the regenerated
+file. The two-element comparison the paragraph above named is no longer
+an open constraint; what remains open is how often a *theme template*
+gives the resolver two literal colours, which is a property of that
+engine's corpus and is tracked next to the 1.4.3 decidable-share
+question rather than here.
 
 ## Status of these claims
 

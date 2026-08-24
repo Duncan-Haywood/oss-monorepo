@@ -32,15 +32,23 @@ def checks(source, path="t.liquid"):
     return sorted(f["check"] for f in findings(source, path))
 
 
+# Colour checks that fire (or go undecidable) on almost every fixture that
+# has text or a link, and so have to be filtered out of helpers that are
+# asserting a *different* check. Each has its own class that reads them
+# unfiltered.
+_COLOUR_CHECKS = {"text-contrast-fail", "color-only-link"}
+
+
 def undecidable(source, path="t.liquid"):
-    # "text-contrast-fail" excluded: every text-bearing fixture in this file
-    # is undecidable for contrast by construction (none carries a stylesheet
-    # or even a class worth resolving), so it would appear in nearly every
-    # list below and say nothing about the check the test is actually
-    # exercising. The `Contrast` class asserts on it directly, unfiltered.
+    # Colour checks excluded: every text-bearing fixture is undecidable for
+    # 1.4.3 by construction (none carries a stylesheet), and an in-prose
+    # link can produce a 1.4.1 row the same way. Those would appear in
+    # nearly every list below and say nothing about the check the test is
+    # actually exercising. The `Contrast` and `UseOfColor` classes assert
+    # on them directly, unfiltered.
     return sorted(
         u["check"] for u in audit.audit_source(source, path)["undecidable"]
-        if u["check"] != "text-contrast-fail"
+        if u["check"] not in _COLOUR_CHECKS
     )
 
 
@@ -452,7 +460,7 @@ class PackageWideLabelIndex(unittest.TestCase):
         ])
 
     def _non_contrast(self, items):
-        return [item for item in items if item["check"] != "text-contrast-fail"]
+        return [item for item in items if item["check"] not in _COLOUR_CHECKS]
 
     def test_single_file_is_not_a_package(self):
         # A one-file invocation of a fragment must keep today's semantics:
@@ -684,6 +692,109 @@ class Contrast(unittest.TestCase):
         self.assertEqual(record["summary"]["by_check"].get("text-contrast-fail"), 1)
 
 
+class UseOfColor(unittest.TestCase):
+    """1.4.1, ported 2026-08-24 from the sibling engine's resolver.
+
+    Same adaptation 1.4.3 needed: refuse any dynamically classed or styled
+    ancestor (or surrounding-text owner) before asking the cascade. The
+    arithmetic is reused unmodified.
+    """
+
+    _PROSE = (
+        '<p class="txt">See the <a href="/docs" class="lnk">docs</a> '
+        "for a longer explanation of how this shop works.</p>"
+    )
+    _FAIL_CSS = (
+        "p { color: #333333; } "
+        "a { color: #333333; text-decoration: none; }"
+    )
+    _PASS_CSS = (
+        "p { color: #333333; } "
+        "a { color: #0000ee; text-decoration: underline; }"
+    )
+
+    def test_colour_only_in_prose_link_is_blocking(self):
+        sheet = audit.merge_stylesheets([self._FAIL_CSS])
+        result = audit.audit_source(
+            f"<body>{self._PROSE}</body>", "p.html", stylesheet=sheet)
+        color = [f for f in result["findings"] if f["check"] == "color-only-link"]
+        self.assertEqual(len(color), 1)
+        self.assertEqual(color[0]["success_criterion"], "1.4.1 Use of Color")
+        self.assertEqual(color[0]["severity"], "blocking")
+
+    def test_underlined_link_is_neither_a_finding_nor_an_undecidable(self):
+        sheet = audit.merge_stylesheets([self._PASS_CSS])
+        result = audit.audit_source(
+            f"<body>{self._PROSE}</body>", "p.html", stylesheet=sheet)
+        self.assertEqual(
+            [f["check"] for f in result["findings"] if f["check"] == "color-only-link"],
+            [],
+        )
+        self.assertEqual(
+            [u["check"] for u in result["undecidable"] if u["check"] == "color-only-link"],
+            [],
+        )
+
+    def test_bare_link_without_stylesheet_passes_on_the_ua_underline(self):
+        # Unlike 1.4.3, this criterion does not go undecidable with no CSS:
+        # a bare <a href> is underlined by every UA stylesheet.
+        result = audit.audit_source(
+            f"<body>{self._PROSE}</body>", "p.html")
+        self.assertEqual(
+            [f["check"] for f in result["findings"] if f["check"] == "color-only-link"],
+            [],
+        )
+        self.assertEqual(
+            [u["check"] for u in result["undecidable"] if u["check"] == "color-only-link"],
+            [],
+        )
+
+    def test_element_under_a_dynamically_classed_ancestor_is_undecidable(self):
+        sheet = audit.merge_stylesheets([self._FAIL_CSS])
+        source = f'<body><div class="{{{{ x }}}}">{self._PROSE}</div></body>'
+        result = audit.audit_source(source, "p.html", stylesheet=sheet)
+        self.assertEqual(
+            [f["check"] for f in result["findings"] if f["check"] == "color-only-link"],
+            [],
+        )
+        self.assertEqual(
+            [(u["check"], u["reason"])
+             for u in result["undecidable"] if u["check"] == "color-only-link"],
+            [("color-only-link", "class-is-template-expression")],
+        )
+
+    def test_dynamically_classed_surrounding_text_is_undecidable_too(self):
+        # A sibling span, not an ancestor: its render-time class can change
+        # the prose colour the ratio is measured against.
+        sheet = audit.merge_stylesheets([self._FAIL_CSS])
+        source = (
+            '<body><p class="txt"><span class="{{ c }}">See the </span>'
+            '<a href="/docs" class="lnk">docs</a> for a longer explanation '
+            "of how this shop works.</p></body>"
+        )
+        result = audit.audit_source(source, "p.html", stylesheet=sheet)
+        self.assertEqual(
+            [f["check"] for f in result["findings"] if f["check"] == "color-only-link"],
+            [],
+        )
+        self.assertEqual(
+            [u["reason"] for u in result["undecidable"] if u["check"] == "color-only-link"],
+            ["class-is-template-expression"],
+        )
+
+    def test_1_4_1_is_checked_not_declared_untested(self):
+        self.assertIn("color-only-link", audit.CHECKS)
+        untested_numbers = {c.split()[0] for c, _ in audit.NOT_TESTED}
+        self.assertNotIn("1.4.1", untested_numbers)
+
+    def test_evidence_record_counts_use_of_color_findings(self):
+        sheet = audit.merge_stylesheets([self._FAIL_CSS])
+        result = audit.audit_source(
+            f"<body>{self._PROSE}</body>", "p.html", stylesheet=sheet)
+        record = audit.evidence_record([result], "Test", date="2026-08-24")
+        self.assertEqual(record["summary"]["by_check"].get("color-only-link"), 1)
+
+
 class CoverageBoundaryIsComplete(unittest.TestCase):
     """The invariant that would have caught 1.2.2 going missing.
 
@@ -709,7 +820,7 @@ class CoverageBoundaryIsComplete(unittest.TestCase):
         # Criteria the sibling engine demonstrates are reachable from static
         # markup. Any of these missing from both lists is a silent gap.
         statically_reachable = {
-            "1.1.1", "1.2.2", "1.3.1", "1.4.2", "1.4.3", "1.4.4",
+            "1.1.1", "1.2.2", "1.3.1", "1.4.1", "1.4.2", "1.4.3", "1.4.4",
             "2.4.2", "2.4.3", "2.4.4", "3.1.1", "3.3.2", "4.1.2",
         }
         self.assertEqual(statically_reachable - checked - declared, set())

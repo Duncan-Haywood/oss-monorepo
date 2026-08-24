@@ -34,9 +34,9 @@ and why"* — as a function rather than a promise.
 
 | File | What it is |
 |---|---|
-| [`audit.py`](audit.py) | 20 static WCAG 2.2 AA checks over HTML, Liquid, Twig, Blade/PHP, EJS, Vue and Svelte templates, plus `evidence_record()` |
-| [`contrast_pass.py`](contrast_pass.py) | SC 1.4.3, ported from the sibling engine's resolver rather than reimplemented — see finding 5 |
-| [`test_audit.py`](test_audit.py) | 89 tests, standard-library `unittest`, no install step |
+| [`audit.py`](audit.py) | Static WCAG 2.2 AA checks over HTML, Liquid, Twig, Blade/PHP, EJS, Vue and Svelte templates, plus `evidence_record()` |
+| [`contrast_pass.py`](contrast_pass.py) | SC 1.4.3 and SC 1.4.1, ported from the sibling engine's resolvers rather than reimplemented — see finding 5 and the 2026-08-24 amendment |
+| [`test_audit.py`](test_audit.py) | Standard-library `unittest`, no install step |
 | [`measure_themes.py`](measure_themes.py) | Runs the pass over published storefront themes on npm and reports the distribution |
 | [`results-2026-08-20.json`](results-2026-08-20.json) | Every per-package row behind findings 1-4 (pre-contrast) |
 | [`results-2026-08-21-contrast.json`](results-2026-08-21-contrast.json) | Every per-package row behind finding 5 (contrast), same 22 pinned packages as above |
@@ -397,6 +397,16 @@ can read, and read completely — see finding 5 for what a resolver actually
 recovers from the fraction it can reach. Closing the *rest* of the gap for
 template packages generally would need a Sass/Less build stage, which remains
 a different, larger decision than a port and is still not proposed here.
+
+**Amendment, 2026-08-24 — 1.4.1 moved the same way.** The sibling probe gained
+Use of Color two days earlier and this engine declared it untested ("no rule
+here looks"), which is the disclosed form of the asymmetry
+`a11y-engine-agreement` exists to catch. The rule is now here too: same
+resolver, same dynamic-class/style guard the 1.4.3 port already needed, plus
+a guard on the surrounding-text owner (a sibling span's render-time class
+can change the other side of the ratio). No score moved. The theme-corpus
+decidable share was not re-measured; that is still finding 5's 1.4.3 figure,
+not a 1.4.1 one.
 
 ## What could not be measured here
 
