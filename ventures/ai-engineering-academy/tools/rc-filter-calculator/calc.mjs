@@ -62,6 +62,22 @@ export function formatFrequency(hz) {
   return `${signif(hz, 4)} Hz`;
 }
 
+/** Formats an RC time constant in seconds with the prefix a datasheet would use. */
+export function formatTimeConstant(seconds) {
+  if (!Number.isFinite(seconds) || seconds < 0) return "—";
+  const units = [
+    [1, "s"],
+    [1e-3, "ms"],
+    [1e-6, "µs"],
+    [1e-9, "ns"],
+    [1e-12, "ps"],
+  ];
+  for (const [scale, suffix] of units) {
+    if (seconds >= scale) return `${signif(seconds / scale, 4)} ${suffix}`;
+  }
+  return `${signif(seconds / 1e-12, 4)} ps`;
+}
+
 // The 24 base values of the E24 preferred-number series (IEC 60063) — the
 // resistors a hobbyist can actually buy, and the reason a "design for this
 // cutoff" answer has to be rounded before it is useful.

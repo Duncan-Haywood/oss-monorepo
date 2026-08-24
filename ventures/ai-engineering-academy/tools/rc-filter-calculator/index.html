@@ -240,6 +240,7 @@
     formatResistance,
     formatCapacitance,
     formatFrequency,
+    formatTimeConstant,
   } from "./calc.mjs";
   import { recordEvent, isUsageCountingEnabled, setUsageCountingEnabled } from "./usage.mjs";
 
@@ -271,7 +272,7 @@
       responseResult.innerHTML = `
         <dl>
           <dt>Cutoff (−3 dB corner) frequency</dt>
-          <dd><strong>${formatFrequency(res.cutoffHz)}</strong> &nbsp; (time constant ${(res.timeConstantSeconds * 1e6).toFixed(2)} µs)</dd>
+          <dd><strong>${formatFrequency(res.cutoffHz)}</strong> &nbsp; (time constant ${formatTimeConstant(res.timeConstantSeconds)})</dd>
           <dt>At ${formatFrequency(frequency)}, this ${type} filter passes</dt>
           <dd>
             <strong>${fmtDb(res.gainDb)}</strong> —

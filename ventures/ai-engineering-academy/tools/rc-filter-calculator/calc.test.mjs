@@ -11,6 +11,7 @@ import {
   formatResistance,
   formatCapacitance,
   formatFrequency,
+  formatTimeConstant,
   E24_BASE,
   E6_BASE,
 } from "./calc.mjs";
@@ -158,6 +159,12 @@ test("formatters use the prefixes a datasheet would", () => {
   assert.equal(formatFrequency(159.1549431), "159.2 Hz");
   assert.equal(formatFrequency(20000), "20 kHz");
   assert.equal(formatFrequency(1.5e6), "1.5 MHz");
+  assert.equal(formatTimeConstant(1e-4), "100 µs");
+  assert.equal(formatTimeConstant(1e-2), "10 ms");
+  assert.equal(formatTimeConstant(1e-9), "1 ns");
+  assert.equal(formatTimeConstant(5e-10), "500 ps");
+  assert.equal(formatTimeConstant(2), "2 s");
   assert.equal(formatResistance(-1), "—");
   assert.equal(formatCapacitance(NaN), "—");
+  assert.equal(formatTimeConstant(-1), "—");
 });
