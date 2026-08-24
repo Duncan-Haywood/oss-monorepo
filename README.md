@@ -106,6 +106,15 @@ other. The router consumes the composite as a tiebreaker. See
 pass found, including why merit and the router's dispatchable/blocked split
 disagree.
 
+## Product-first operating direction
+
+The portfolio prioritizes shipping useful, free software products over
+administrative throughput. New work should start from a narrow customer problem,
+ship a runnable vertical slice, measure anonymous feature events without PII,
+and preserve the legal, privacy, and safety guardrails in
+[`PRODUCT_PLAYBOOK.md`](PRODUCT_PLAYBOOK.md). Pull requests are reviewed in
+proportion to risk and merged when their relevant checks are green.
+
 ## History
 
 Ventures were merged in with `git subtree`, so each one's full commit history
