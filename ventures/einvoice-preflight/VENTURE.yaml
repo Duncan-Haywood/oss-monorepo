@@ -1,0 +1,27 @@
+name: einvoice-preflight
+description: A local JSON invoice checker that catches structural and arithmetic defects before a bookkeeper submits an e-invoice.
+stage: prototype
+owner: duncan
+hypotheses:
+  - claim: Bookkeepers and ERP integrators will use a fast local preflight to catch invoice defects before submission.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: Explainable rule IDs and downloadable JSON are useful enough for repeated integration checks.
+    status: untested
+    checked: null
+    evidence: customer-contact
+economics:
+  currency: EUR
+  mrr: null
+  monthly_cost: 0
+  customers: null
+budget:
+  monthly_cap: 1
+  protected: true
+kill_criteria:
+  - Fewer than three qualified bookkeepers or integrators run the checker twice within 90 days.
+  - Users do not report catching a defect before submission within 90 days.
+links:
+  production: null
+  analytics: null
