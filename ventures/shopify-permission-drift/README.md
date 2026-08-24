@@ -29,9 +29,10 @@ any merchant data into the optional usage log.
 Each inventory contains the store's own exported evidence: app identifiers,
 scopes, webhook topics, authorization state, API version, source, and capture
 time. Malformed or incomplete exports are rejected; the tool never turns an
-unavailable response into an unchanged result. If a source cannot provide a
-field, preserve that limitation in the source record and treat the comparison
-as inconclusive rather than fabricating a value.
+unavailable response into an unchanged result. Captures where the purported
+after export predates the before export are marked inconclusive. If a source
+cannot provide a field, preserve that limitation in the source record and treat
+the comparison as inconclusive rather than fabricating a value.
 
 Shopify distinguishes scopes declared by an app from scopes actually granted to
 an installation. A future API adapter must preserve that distinction and should
