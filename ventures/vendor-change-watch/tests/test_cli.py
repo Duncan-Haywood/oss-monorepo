@@ -71,6 +71,28 @@ def test_report_without_two_snapshots_fails_cleanly(tmp_path, capsys):
     assert "Fewer than two snapshots" in err
 
 
+def test_check_keeps_two_urls_of_same_type_separate(monkeypatch, tmp_path, capsys):
+    cli.main(["--data-dir", str(tmp_path), "add", "--vendor", "AcmeSaaS", "--url", "https://acme.test/privacy", "--type", "privacy"])
+    cli.main(["--data-dir", str(tmp_path), "add", "--vendor", "AcmeSaaS", "--url", "https://acme.test/privacy-eu", "--type", "privacy"])
+    run(monkeypatch, tmp_path, ["check"], html_by_call=["<h1>US</h1><p>a</p>", "<h1>EU</h1><p>b</p>"])
+    capsys.readouterr()
+    exit_code = run(monkeypatch, tmp_path, ["check"], html_by_call=["<h1>US</h1><p>a</p>", "<h1>EU</h1><p>b</p>"])
+    assert exit_code == 0
+    out = capsys.readouterr().out
+    assert "No change detected" in out
+    assert "UNKNOWN" not in out
+    assert "First snapshot captured" not in out
+
+
+def test_report_requires_url_when_vendor_type_has_multiple_pages(tmp_path, capsys):
+    cli.main(["--data-dir", str(tmp_path), "add", "--vendor", "AcmeSaaS", "--url", "https://acme.test/privacy", "--type", "privacy"])
+    cli.main(["--data-dir", str(tmp_path), "add", "--vendor", "AcmeSaaS", "--url", "https://acme.test/privacy-eu", "--type", "privacy"])
+    exit_code = cli.main(["--data-dir", str(tmp_path), "report", "--vendor", "AcmeSaaS", "--type", "privacy"])
+    assert exit_code == 1
+    err = capsys.readouterr().err
+    assert "Pass --url" in err
+
+
 def test_usage_command_reports_local_only_counts(monkeypatch, tmp_path, capsys):
     cli.main(["--data-dir", str(tmp_path), "add", "--vendor", "AcmeSaaS", "--url", "https://acme.test/terms", "--type", "terms"])
     run(monkeypatch, tmp_path, ["check"], html_by_call=["<h1>Intro</h1><p>hello</p>"])

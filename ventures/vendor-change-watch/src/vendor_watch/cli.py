@@ -94,7 +94,7 @@ def cmd_check(args: argparse.Namespace) -> int:
             entry["vendor"], entry["url"], entry["page_type"], captured_at, fetch_result
         )
         store.save_snapshot(data_dir, new_snapshot)
-        prior = store.list_snapshots(data_dir, entry["vendor"], entry["page_type"])
+        prior = store.list_snapshots(data_dir, entry["vendor"], entry["page_type"], entry["url"])
         print(f"\n== {entry['vendor']} [{entry['page_type']}] ==")
         if len(prior) < 2:
             print(f"First snapshot captured (fetch_status={new_snapshot['fetch_status']}). Nothing to compare yet.")
@@ -115,9 +115,32 @@ def cmd_check(args: argparse.Namespace) -> int:
     return exit_code
 
 
+def _report_url(data_dir: Path, vendor: str, page_type: str, url: str | None) -> str | None:
+    if url:
+        return url
+    matches = [
+        entry["url"]
+        for entry in store.load_watchlist(data_dir)
+        if entry["vendor"] == vendor and entry["page_type"] == page_type
+    ]
+    if len(matches) == 1:
+        return matches[0]
+    return None
+
+
 def cmd_report(args: argparse.Namespace) -> int:
     data_dir = _data_dir(args)
-    pair = store.latest_two_snapshots(data_dir, args.vendor, args.type)
+    url = _report_url(data_dir, args.vendor, args.type, args.url)
+    if url is None:
+        if args.url is None and any(
+            entry["vendor"] == args.vendor and entry["page_type"] == args.type
+            for entry in store.load_watchlist(data_dir)
+        ):
+            print("Multiple pages watched for this vendor/type. Pass --url to select one.", file=sys.stderr)
+            return 1
+        print("Fewer than two snapshots exist for this vendor/type yet. Run `check` at least twice.", file=sys.stderr)
+        return 1
+    pair = store.latest_two_snapshots(data_dir, args.vendor, args.type, url)
     if pair is None:
         print("Fewer than two snapshots exist for this vendor/type yet. Run `check` at least twice.", file=sys.stderr)
         return 1
@@ -171,6 +194,7 @@ def build_parser() -> argparse.ArgumentParser:
     report_parser = subparsers.add_parser("report", help="Show the diff between the last two stored snapshots")
     report_parser.add_argument("--vendor", required=True)
     report_parser.add_argument("--type", choices=PAGE_TYPES, required=True)
+    report_parser.add_argument("--url", default=None, help="Page URL when this vendor/type has more than one watched page")
     report_parser.set_defaults(func=cmd_report)
 
     usage_parser = subparsers.add_parser("usage", help="Show locally recorded usage counts (nothing leaves this machine)")

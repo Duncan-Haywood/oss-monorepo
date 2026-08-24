@@ -7,7 +7,9 @@ no separate feature is needed because nothing leaves the filesystem).
 
 from __future__ import annotations
 
+import hashlib
 import json
+import os
 import re
 from pathlib import Path
 from typing import Any
@@ -22,6 +24,16 @@ def default_data_dir() -> Path:
 
 def _safe_slug(value: str) -> str:
     return re.sub(r"[^a-zA-Z0-9_-]+", "_", value.strip()).strip("_") or "unnamed"
+
+
+def _identity_slug(value: str) -> str:
+    """Filesystem-safe slug that stays unique when characters are stripped."""
+    stripped = value.strip()
+    slug = _safe_slug(stripped)
+    if slug == stripped:
+        return slug
+    digest = hashlib.sha256(stripped.encode("utf-8")).hexdigest()[:8]
+    return f"{slug}_{digest}"
 
 
 def watchlist_path(data_dir: Path) -> Path:
@@ -60,8 +72,17 @@ def remove_watch(data_dir: Path, vendor: str, url: str, page_type: str) -> bool:
     return True
 
 
-def _snapshot_dir(data_dir: Path, vendor: str, page_type: str) -> Path:
-    return data_dir / SNAPSHOTS_DIRNAME / _safe_slug(vendor) / _safe_slug(page_type)
+def _snapshot_dir(data_dir: Path, vendor: str, page_type: str, url: str) -> Path:
+    return data_dir / SNAPSHOTS_DIRNAME / _identity_slug(vendor) / _identity_slug(page_type) / _identity_slug(url)
+
+
+def _next_sequence(directory: Path) -> int:
+    highest = -1
+    for path in directory.glob("*.json"):
+        prefix = path.name.split("-", 1)[0]
+        if prefix.isdigit():
+            highest = max(highest, int(prefix))
+    return highest + 1
 
 
 def save_snapshot(data_dir: Path, snapshot: dict[str, Any]) -> Path:
@@ -71,25 +92,36 @@ def save_snapshot(data_dir: Path, snapshot: dict[str, Any]) -> Path:
     two checks fetched within the same second-resolution timestamp must not
     overwrite each other, so the sequence prefix is what actually guarantees
     uniqueness and ordering; the timestamp suffix is only for readability.
+    Sequence is the max existing prefix plus one (not the file count), so
+    deleting an older snapshot for retention cannot reuse a remaining name.
+    Exclusive create rejects a concurrent check that picks the same sequence.
     """
-    directory = _snapshot_dir(data_dir, snapshot["vendor"], snapshot["page_type"])
+    directory = _snapshot_dir(data_dir, snapshot["vendor"], snapshot["page_type"], snapshot["page_url"])
     directory.mkdir(parents=True, exist_ok=True)
-    sequence = len(list(directory.glob("*.json")))
     timestamp_slug = _safe_slug(snapshot["captured_at"])
-    path = directory / f"{sequence:06d}-{timestamp_slug}.json"
-    path.write_text(json.dumps(snapshot, indent=2, sort_keys=True) + "\n", encoding="utf-8")
-    return path
+    payload = json.dumps(snapshot, indent=2, sort_keys=True) + "\n"
+    sequence = _next_sequence(directory)
+    while True:
+        path = directory / f"{sequence:06d}-{timestamp_slug}.json"
+        try:
+            fd = os.open(path, os.O_WRONLY | os.O_CREAT | os.O_EXCL)
+        except FileExistsError:
+            sequence += 1
+            continue
+        with os.fdopen(fd, "w", encoding="utf-8") as handle:
+            handle.write(payload)
+        return path
 
 
-def list_snapshots(data_dir: Path, vendor: str, page_type: str) -> list[Path]:
-    directory = _snapshot_dir(data_dir, vendor, page_type)
+def list_snapshots(data_dir: Path, vendor: str, page_type: str, url: str) -> list[Path]:
+    directory = _snapshot_dir(data_dir, vendor, page_type, url)
     if not directory.exists():
         return []
     return sorted(directory.glob("*.json"))
 
 
-def latest_two_snapshots(data_dir: Path, vendor: str, page_type: str) -> tuple[Path, Path] | None:
-    paths = list_snapshots(data_dir, vendor, page_type)
+def latest_two_snapshots(data_dir: Path, vendor: str, page_type: str, url: str) -> tuple[Path, Path] | None:
+    paths = list_snapshots(data_dir, vendor, page_type, url)
     if len(paths) < 2:
         return None
     return paths[-2], paths[-1]
