@@ -124,6 +124,8 @@ class ChecksTest(unittest.TestCase):
             self.assertEqual(report["files_failed"], 1)
             self.assertEqual(report["observations"], 1)
             self.assertEqual(report["reports"][0]["file"], "invoice.json")
+            self.assertEqual(report["reports"][0]["status"], "fail")
+            self.assertEqual(report["reports"][0]["observations"], 1)
             self.assertEqual(report["reports"][0]["errors"][0]["rule"], "INV-017")
 
     def test_cli_json_single_file_includes_adapter_summary(self):
@@ -298,6 +300,10 @@ class ChecksTest(unittest.TestCase):
             self.assertEqual(report["files_failed"], 1)
             self.assertEqual(report["reports"][0]["file"], "nested/fail.json")
             self.assertEqual(report["reports"][1]["file"], "pass.json")
+            self.assertEqual(report["reports"][0]["status"], "fail")
+            self.assertEqual(report["reports"][0]["observations"], 1)
+            self.assertEqual(report["reports"][1]["status"], "pass")
+            self.assertEqual(report["reports"][1]["observations"], 0)
             self.assertEqual(report["reports"][0]["errors"][0]["rule"], "INV-017")
             self.assertEqual(report["observations"], 1)
             self.assertEqual(report["rules"], {"INV-017": 1})

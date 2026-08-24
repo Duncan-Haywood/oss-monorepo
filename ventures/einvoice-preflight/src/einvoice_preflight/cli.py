@@ -174,7 +174,15 @@ def _json_report(
         "errors": errors,
         "read_errors": read_errors,
     }
-    output["reports"] = [{"file": path.as_posix(), "errors": invoice_errors} for path, invoice_errors in reports]
+    output["reports"] = [
+        {
+            "file": path.as_posix(),
+            "status": "fail" if invoice_errors else "pass",
+            "observations": len(invoice_errors),
+            "errors": invoice_errors,
+        }
+        for path, invoice_errors in reports
+    ]
     return output
 
 
