@@ -110,6 +110,7 @@
   footer h2 { font-size: 0.95rem; }
   a { color: var(--accent); }
   .hint { font-size: 0.8rem; color: var(--muted); margin: 0.25rem 0 0; }
+  .change-order { border-left: 4px solid var(--accent); }
   code { background: var(--panel); padding: 0.1rem 0.3rem; border-radius: 4px; }
 </style>
 </head>
@@ -186,6 +187,22 @@
       <button type="button" id="copy-csv">Copy as CSV row</button>
       <span id="copy-status" class="hint" role="status" aria-live="polite"></span>
     </div>
+
+    <div class="result change-order" id="change-order" aria-live="polite">
+      <strong>When the scope grows</strong>
+      <p class="hint">Price extra work before agreeing to it. This uses your target rate and any new direct cost.</p>
+      <div class="row">
+        <div>
+          <label for="extra-hours">Additional hours</label>
+          <input type="number" id="extra-hours" inputmode="decimal" value="4" min="0" step="any" />
+        </div>
+        <div>
+          <label for="extra-direct-costs">Additional direct costs</label>
+          <input type="number" id="extra-direct-costs" inputmode="decimal" value="0" min="0" step="any" />
+        </div>
+      </div>
+      <p id="change-order-result"></p>
+    </div>
   </section>
 
   <section aria-labelledby="about-heading">
@@ -250,18 +267,22 @@
 </main>
 
 <script type="module">
-  import { loadQuote, calculate, overrunScenarios } from "./calc.mjs";
+  import { loadQuote, calculate, overrunScenarios, changeOrderPrice } from "./calc.mjs";
   import { reviewQuote } from "./review.mjs";
   import { recordEvent, createReportCounter, isUsageCountingEnabled, setUsageCountingEnabled } from "./usage.mjs";
 
   // Counts settled quotes rather than keystrokes — see usage.mjs.
   const reportCounter = createReportCounter();
+  const changeOrderCounter = createReportCounter({ eventName: "change_order_checked" });
 
   const ids = ["currency", "price", "delivery_hours", "admin_hours", "revision_hours", "overhead", "subcontractor_cost", "target_hourly_rate"];
   const el = Object.fromEntries(ids.map((id) => [id, document.getElementById(id)]));
   const result = document.getElementById("result");
   const review = document.getElementById("review");
   const sensitivity = document.getElementById("sensitivity");
+  const changeOrderResult = document.getElementById("change-order-result");
+  const extraHours = document.getElementById("extra-hours");
+  const extraDirectCosts = document.getElementById("extra-direct-costs");
 
   let lastReport = null;
 
@@ -307,15 +328,30 @@
        sensitivity.querySelector("tbody").innerHTML = overrunScenarios(quote, r).map((scenario) => `<tr><th scope="row">+${scenario.percent}%</th><td>${fmt(scenario.total_hours)}</td><td>${safeCurrency} ${fmt(scenario.effective_hourly_rate)}/hour</td><td>${safeCurrency} ${fmt(scenario.gap_to_target)}</td></tr>`).join("");
        recordEvent("quote_review_checked");
       result.classList.remove("error");
-      reportCounter.count(JSON.stringify(quote));
+       reportCounter.count(JSON.stringify(quote));
+       updateChangeOrder(quote);
     } catch (err) {
       lastReport = null;
       reportCounter.drop();
        result.textContent = err.message;
        result.classList.add("error");
        review.querySelector(".checks").textContent = "Fix the inputs above to review this quote.";
-    }
-  }
+       changeOrderResult.textContent = "Fix the quote inputs above to price extra scope.";
+     }
+   }
+
+   function updateChangeOrder(quote) {
+     try {
+       const change = changeOrderPrice(quote, Number(extraHours.value), Number(extraDirectCosts.value));
+       changeOrderResult.textContent = change.extra_hours === 0
+         ? "Add the expected extra hours to see a change-order price floor."
+         : `Ask for at least ${escapeHtml(quote.currency)} ${fmt(change.target_price)} for this scope change (${fmt(change.extra_hours)} hours at ${escapeHtml(quote.currency)} ${fmt(quote.target_hourly_rate)}/hour, including ${escapeHtml(quote.currency)} ${fmt(change.extra_direct_costs)} in direct costs). This is an arithmetic floor, not a recommendation.`;
+       changeOrderCounter.count(JSON.stringify({ quote, change }));
+     } catch (err) {
+       changeOrderCounter.drop();
+       changeOrderResult.textContent = err.message;
+     }
+   }
 
   // Once the visitor edits anything, the numbers are theirs — drop the
   // "this is an example" note rather than leaving it contradicting the form.
@@ -324,15 +360,23 @@
     if (exampleNote) exampleNote.hidden = true;
   }
 
-  for (const id of ids) {
+   for (const id of ids) {
     el[id].addEventListener("input", update);
     el[id].addEventListener("input", dismissExampleNote, { once: true });
-  }
+   }
+   for (const field of [extraHours, extraDirectCosts]) field.addEventListener("input", () => {
+     try { updateChangeOrder(loadQuote(readInputs())); } catch { updateChangeOrder({ currency: "units", target_hourly_rate: 0 }); }
+   });
   update();
   // The first render is the pre-filled example, not a quote the visitor asked
   // for. Seed it so it isn't counted, and so their first real edit still is.
   try {
     reportCounter.seed(JSON.stringify(loadQuote(readInputs())));
+    const initialQuote = loadQuote(readInputs());
+    changeOrderCounter.seed(JSON.stringify({
+      quote: initialQuote,
+      change: changeOrderPrice(initialQuote, Number(extraHours.value), Number(extraDirectCosts.value)),
+    }));
   } catch {
     // defaults don't validate — nothing to seed, the first valid quote counts
   }

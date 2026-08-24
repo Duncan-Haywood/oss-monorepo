@@ -1,7 +1,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 
-import { loadQuote, calculate, overrunScenarios } from "./calc.mjs";
+import { loadQuote, calculate, overrunScenarios, changeOrderPrice } from "./calc.mjs";
 
 test("calculates hidden time and target price", () => {
   const quote = loadQuote({
@@ -69,4 +69,20 @@ test("calculates transparent overrun sensitivity without changing the quote", ()
   assert.deepEqual(overrunScenarios(quote, report).map((scenario) => scenario.total_hours), [38.5, 43.75, 52.5]);
   assert.equal(overrunScenarios(quote, report)[0].effective_hourly_rate, 49.87012987012987);
   assert.equal(report.total_hours, 35);
+});
+
+test("prices extra scope at the quote's target rate plus new direct costs", () => {
+  const quote = loadQuote({ price: 2400, delivery_hours: 24, target_hourly_rate: 75 });
+  assert.deepEqual(changeOrderPrice(quote, 4, 60), {
+    extra_hours: 4,
+    extra_direct_costs: 60,
+    target_price: 360,
+    effective_hourly_rate: 75,
+  });
+});
+
+test("rejects negative or non-finite change-order inputs", () => {
+  const quote = loadQuote({ price: 1000, delivery_hours: 10, target_hourly_rate: 100 });
+  assert.throws(() => changeOrderPrice(quote, -1));
+  assert.throws(() => changeOrderPrice(quote, 1, Infinity));
 });

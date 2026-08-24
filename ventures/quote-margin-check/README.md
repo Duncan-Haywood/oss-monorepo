@@ -44,6 +44,12 @@ quoted price and direct costs fixed while showing how the effective hourly rate
 and gap to the supplied target change. They are arithmetic what-if comparisons,
 not a forecast of project delivery time.
 
+When a client adds scope, the browser's change-order guard calculates a price
+floor from the additional hours at the supplied target rate plus any new direct
+costs. It is a transparent arithmetic floor, not a recommendation: review the
+scope, assumptions, taxes, and any other business costs yourself before making
+an offer.
+
 **No warranty.** This tool is provided free and as-is, without warranty of any
 kind, express or implied. It is not tax, financial, or business advice, and it
 does not replace a qualified professional. **You are responsible for reviewing
@@ -51,7 +57,7 @@ and verifying its output before relying on it**, and for meeting any obligation
 it helps you prepare for. To the maximum extent permitted by law, the authors
 accept no liability for any loss or damage arising from its use.
 
-Only aggregate `report_generated` events are optionally appended to the usage
+Only aggregate `report_generated` and `change_order_checked` events are optionally appended to the usage
 log. Inputs, project names, prices, and file contents never leave the machine.
 Pass `--usage-log PATH` to opt in; omit it to keep usage counting off. The
 browser version counts the same event locally in `localStorage` (on by

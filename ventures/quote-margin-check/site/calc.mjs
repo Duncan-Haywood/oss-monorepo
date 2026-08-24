@@ -66,3 +66,19 @@ export function overrunScenarios(quote, report, percentages = [10, 25, 50]) {
     };
   });
 }
+
+/** Calculates the price floor for additional scope at the quote's target rate. */
+export function changeOrderPrice(quote, extraHours, extraDirectCosts = 0) {
+  if (typeof extraHours !== "number" || !Number.isFinite(extraHours) || extraHours < 0) {
+    throw new Error("extraHours must be a non-negative number");
+  }
+  if (typeof extraDirectCosts !== "number" || !Number.isFinite(extraDirectCosts) || extraDirectCosts < 0) {
+    throw new Error("extraDirectCosts must be a non-negative number");
+  }
+  return {
+    extra_hours: extraHours,
+    extra_direct_costs: extraDirectCosts,
+    target_price: extraHours * quote.target_hourly_rate + extraDirectCosts,
+    effective_hourly_rate: extraHours === 0 ? null : (extraHours * quote.target_hourly_rate) / extraHours,
+  };
+}

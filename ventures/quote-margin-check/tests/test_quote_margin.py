@@ -5,7 +5,7 @@ import tempfile
 import unittest
 from pathlib import Path
 
-from src.quote_margin import batch_csv_report, calculate, csv_report, load_quote, load_reports, main
+from src.quote_margin import batch_csv_report, calculate, change_order_price, csv_report, load_quote, load_reports, main
 
 
 class QuoteMarginTests(unittest.TestCase):
@@ -39,6 +39,17 @@ class QuoteMarginTests(unittest.TestCase):
     def test_reports_price_left_after_direct_costs(self) -> None:
         quote = load_quote({"price": 1000, "delivery_hours": 10, "overhead": 125, "subcontractor_cost": 75, "target_hourly_rate": 80})
         self.assertEqual(calculate(quote)["cost_coverage"], 800)
+
+    def test_prices_change_order_at_target_rate_plus_direct_costs(self) -> None:
+        quote = load_quote({"price": 2400, "delivery_hours": 24, "target_hourly_rate": 75})
+        self.assertEqual(change_order_price(quote, 4, 60)["target_price"], 360)
+
+    def test_rejects_invalid_change_order_inputs(self) -> None:
+        quote = load_quote({"price": 1000, "delivery_hours": 10, "target_hourly_rate": 100})
+        with self.assertRaises(ValueError):
+            change_order_price(quote, -1)
+        with self.assertRaises(ValueError):
+            change_order_price(quote, 1, float("inf"))
 
     def test_csv_report_is_ready_for_spreadsheet_import(self) -> None:
         quote = load_quote({"currency": "EUR", "price": 2400, "delivery_hours": 24, "target_hourly_rate": 75})

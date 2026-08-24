@@ -60,6 +60,18 @@ def calculate(quote: Quote) -> dict[str, float]:
     }
 
 
+def change_order_price(quote: Quote, extra_hours: float, extra_direct_costs: float = 0) -> dict[str, float]:
+    """Calculate the target-rate price floor for additional scope."""
+    for name, value in (("extra_hours", extra_hours), ("extra_direct_costs", extra_direct_costs)):
+        if isinstance(value, bool) or not isinstance(value, (int, float)) or not math.isfinite(value) or value < 0:
+            raise ValueError(f"{name} must be a non-negative number")
+    return {
+        "extra_hours": float(extra_hours),
+        "extra_direct_costs": float(extra_direct_costs),
+        "target_price": float(extra_hours) * quote.target_hourly_rate + float(extra_direct_costs),
+    }
+
+
 def markdown(quote: Quote, result: dict[str, float]) -> str:
     status = "above target" if result["gap_to_target"] >= 0 else "below target"
     lines = [
