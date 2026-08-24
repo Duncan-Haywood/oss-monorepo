@@ -87,7 +87,8 @@ Events counted: `bid_calculated`, `area_added`, `area_removed`,
 - Single currency and no tax handling; the contractor enters their own numbers.
 - One periodic-service model. Project work (strip and wax, carpet extraction,
   post-construction) is not priced separately yet.
-- "Other space" rows are labelled `Area N` rather than a custom name.
+- Optional proposal names let you distinguish repeated spaces, such as
+  `Second-floor restrooms`, in the labor split and copied bid summary.
 - Day porter or fixed-headcount contracts are not modelled; this prices from
   production rates, not from a scheduled shift.
 

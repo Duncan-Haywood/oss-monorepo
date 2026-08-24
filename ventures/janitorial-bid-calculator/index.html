@@ -22,7 +22,7 @@
     .fields { display: grid; grid-template-columns: repeat(2, 1fr); gap: 13px; }
     label { display: grid; gap: 5px; font-size: .87rem; font-weight: 650; }
     input, select { width: 100%; box-sizing: border-box; border: 1px solid #a9b6c6; border-radius: 7px; padding: 10px; font: inherit; background: #fff; }
-    .area-row { display: grid; grid-template-columns: minmax(0, 2.9fr) repeat(3, minmax(0, 1fr)) auto; gap: 8px; align-items: end; margin-bottom: 10px; }
+    .area-row { display: grid; grid-template-columns: minmax(0, 2.1fr) minmax(0, 1.4fr) repeat(3, minmax(0, 1fr)) auto; gap: 8px; align-items: end; margin-bottom: 10px; }
     .area-row select, .area-row input { padding: 10px 7px; }
     .area-head { font-size: .74rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; color: #5a6779; }
     /* The header row already names the columns on desktop, so each field's own
@@ -76,9 +76,9 @@
     <div>
       <section>
         <h2>The building</h2>
-        <p class="hint">One row per space type. Production rate is cleanable square feet one cleaner covers per hour — pick a space type to start from a common figure, then replace it with a rate timed from your own crew.</p>
+        <p class="hint">One row per space type. Add an optional proposal name when you need scope detail such as "Second-floor restrooms". Production rate is cleanable square feet one cleaner covers per hour — pick a space type to start from a common figure, then replace it with a rate timed from your own crew.</p>
         <div class="area-row area-head" aria-hidden="true">
-          <span>Space type</span><span>Cleanable sq ft</span><span>Sq ft / hour</span><span>Cleans / week</span><span></span>
+          <span>Space type</span><span>Proposal name</span><span>Cleanable sq ft</span><span>Sq ft / hour</span><span>Cleans / week</span><span></span>
         </div>
         <div id="areas"></div>
         <button type="button" id="addArea">+ Add a space</button>
@@ -173,6 +173,7 @@
       row.className = 'area-row';
       row.innerHTML = `
         <label for="${id}-type"><span class="lbl">Space type</span><select class="a-type" id="${id}-type">${TYPE_OPTIONS}</select></label>
+        <label for="${id}-name"><span class="lbl">Proposal name</span><input class="a-name" id="${id}-name" type="text" maxlength="80" placeholder="e.g. Second-floor restrooms"></label>
         <label for="${id}-sqft"><span class="lbl">Cleanable sq ft</span><input class="a-sqft" id="${id}-sqft" type="number" min="0" step="10"></label>
         <label for="${id}-rate"><span class="lbl">Sq ft cleaned per hour</span><input class="a-rate" id="${id}-rate" type="number" min="1" step="50"></label>
         <label for="${id}-freq"><span class="lbl">Cleans per week</span><input class="a-freq" id="${id}-freq" type="number" min="0" max="21" step="1"></label>
@@ -182,6 +183,7 @@
       const rateField = row.querySelector('.a-rate');
       const presetIndex = PRODUCTION_RATE_PRESETS.findIndex(p => p.label === area.name);
       typeField.value = presetIndex === -1 ? 'other' : String(presetIndex);
+      row.querySelector('.a-name').value = area.name === (presetIndex === -1 ? '' : PRODUCTION_RATE_PRESETS[presetIndex].label) ? '' : (area.name || '');
       row.querySelector('.a-sqft').value = area.squareFeet;
       rateField.value = area.productionRate;
       row.querySelector('.a-freq').value = area.cleaningsPerWeek;
@@ -211,15 +213,20 @@
     function readAreas() {
       return [...areasHost.querySelectorAll('.area-row')].map(row => {
         const preset = PRODUCTION_RATE_PRESETS[Number(row.querySelector('.a-type').value)];
+        const customName = row.querySelector('.a-name').value.trim();
         return {
-          // An "Other" row has no name, so the calculator falls back to a
-          // stable "Area N" label rather than several identical rows.
-          name: preset ? preset.label : '',
+          name: customName || (preset ? preset.label : ''),
           squareFeet: row.querySelector('.a-sqft').value,
           productionRate: row.querySelector('.a-rate').value,
           cleaningsPerWeek: row.querySelector('.a-freq').value,
         };
       });
+    }
+
+    function escapeHtml(value) {
+      return String(value).replace(/[&<>"']/g, character => ({
+        '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;',
+      })[character]);
     }
 
     function count(event) {
@@ -277,7 +284,7 @@
         : worked
           .slice()
           .sort((a, b) => b.monthlyHours - a.monthlyHours)
-          .map(area => `<li><span>${area.name}</span><span>${area.hoursShare.toFixed(0)}% of hours</span>
+          .map(area => `<li><span>${escapeHtml(area.name)}</span><span>${area.hoursShare.toFixed(0)}% of hours</span>
             <span class="bar"><span style="width:${area.hoursShare.toFixed(1)}%"></span></span></li>`)
           .join('');
 
