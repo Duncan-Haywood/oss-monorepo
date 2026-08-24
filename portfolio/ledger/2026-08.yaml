@@ -21671,3 +21671,59 @@ entries:
           #583, #531, #372, #368. `payout-rail` remains the only queue item
           that moves the revenue ceiling off $0.
     mrr_end: null
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+          Scheduled "continue work... maintain and improve the development
+          process... increase in profit" session, designated branch
+          `claude/keen-knuth-79d0xe`. `session_gate.py` -> PROCEED (cadence
+          0.92/h, at the maintenance rate; flagged 3 distinct sessions
+          committed to `main` within one 15-minute window in the last 6h --
+          checked open PRs, branches and the decision queue before touching
+          anything, per that flag).
+      - >-
+          Found `asks.yaml` stale in exactly the way #733's own entry above
+          warned against: three of its rows (`next-16-upgrade` #372,
+          `dependabot` #368, half of `contrast-fixes` #583) named pull
+          requests that had already been merged -- by `kilo-code-bot[bot]`,
+          apparently on the owner's behalf, at 09:43:08Z-09:45:03Z, minutes
+          before this session started. `decision_queue.py` was still
+          presenting all three as open owner decisions. Also found an open,
+          conflicting duplicate of this same correction: #764
+          (`kilo-code-bot[bot]`, `session/agent_fdf6b92c-...`) had merged
+          #368 and #734 itself and opened a PR for the matching ledger
+          entry + `asks.yaml` edit, but its `mergeable_state` was `dirty`
+          against current `main` (this append-only file had moved under it).
+      - >-
+          Removed the `next-16-upgrade` and `dependabot` rows outright (both
+          merged, nothing left to grant); narrowed `contrast-fixes` to its
+          one remaining open PR, #531 (`mergeable_state: dirty` -- needs a
+          rebase, not an owner decision); corrected `venture-gate-premise`'s
+          `unlocks` text, which had cited #372 as a pull request its answer
+          would settle. Removed the now-merged #372/#368 records from
+          `verifications.yaml` per that file's own rule ("remove a record
+          when its pull request is merged or closed") -- it now holds zero
+          records, correctly, since no other PR has one.
+      - >-
+          Verified by running, not by reading the diff: `decision_queue.py
+          --check` (8 decisions, down from 10, schema OK),
+          `verification_status.py --check` (0 well-formed records, none
+          expected), and the full `portfolio/ledger` test suite --
+          58/58 passing except `test_break_even` (fails to import `pytest`,
+          a pre-existing environment gap unrelated to this change, not a
+          regression). Confirmed all three PR merges independently via the
+          GitHub API (`merged: true`, `merged_by: kilo-code-bot[bot]`), not
+          from the merge-commit log alone. Re-fetched `origin/main`
+          immediately before appending this entry -- still at the tip this
+          session started from.
+      - >-
+          Agent-decidable per `CLAUDE.md`: `portfolio/ledger/` only, no
+          `ventures/*` code, publishes nothing, spends nothing, adds no
+          automation. Closing #764 with a comment pointing here, since its
+          only unmerged content (the ledger record + `asks.yaml` edit) is
+          now fully superseded by this entry and it cannot merge as-is.
+          Owner-gated PRs left untouched: #720, #731, #531. `payout-rail`
+          remains the only queue item that moves the revenue ceiling off $0.
+    mrr_end: null
