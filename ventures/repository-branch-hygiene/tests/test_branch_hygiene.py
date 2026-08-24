@@ -4,7 +4,7 @@ import tempfile
 import unittest
 from pathlib import Path
 sys.path.insert(0, str(Path(__file__).parents[1] / "src"))
-from branch_hygiene import scan, write_outputs
+from branch_hygiene import has_unresolved_risk, scan, write_outputs
 
 class BranchHygieneTests(unittest.TestCase):
     def setUp(self):
@@ -22,6 +22,12 @@ class BranchHygieneTests(unittest.TestCase):
             moved = next(item for item in json.loads(manifest.read_text())["findings"] if item["branch"] == "feature/moved")
             self.assertEqual(moved["commits"], ["x2", "x1", "m1"])
             self.assertIn("approval queue", report.read_text().lower())
+
+    def test_risk_gate_requires_review_for_ambiguous_refs(self):
+        findings = scan(self.snapshot)
+        self.assertTrue(has_unresolved_risk(findings))
+        safe = [item for item in findings if item.classification in {"protected", "merged", "active"}]
+        self.assertFalse(has_unresolved_risk(safe))
 
 if __name__ == "__main__":
     unittest.main()
