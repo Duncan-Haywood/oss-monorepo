@@ -50,6 +50,7 @@ class BranchHygieneTests(unittest.TestCase):
         self.assertEqual(findings["feature/reused"].classification, "active")
         self.assertEqual(findings["feature/reused"].review_action, "preserve-active-work")
 
+
     def test_risk_gate_requires_review_for_ambiguous_refs(self):
         findings = scan(self.snapshot)
         self.assertTrue(has_unresolved_risk(findings))
@@ -213,6 +214,17 @@ class BranchHygieneTests(unittest.TestCase):
         )
         self.assertNotEqual(result.returncode, 0)
         self.assertIn("--pr-json requires --repo", result.stderr)
+
+    def test_cli_help_discloses_boundary(self):
+        project = Path(__file__).parents[1]
+        result = subprocess.run(
+            [sys.executable, str(project / "src/branch_hygiene.py"), "--help"],
+            capture_output=True,
+            text=True,
+            check=True,
+        )
+        self.assertIn("not legal, security, or compliance advice", result.stdout)
+        self.assertIn("reviewing and verifying its", result.stdout)
 
 if __name__ == "__main__":
     unittest.main()
