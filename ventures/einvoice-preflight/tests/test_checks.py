@@ -99,6 +99,35 @@ class ChecksTest(unittest.TestCase):
             invoice_path.write_text(json.dumps(invoice))
             self.assertEqual(main([str(invoice_path), "--format", "json"]), 1)
 
+    def test_cli_json_single_file_includes_adapter_summary(self):
+        with tempfile.TemporaryDirectory() as directory:
+            invoice_path = Path(directory) / "invoice.json"
+            invoice = json.loads(json.dumps(VALID))
+            invoice["totals"]["gross"] = 200
+            invoice_path.write_text(json.dumps(invoice))
+            output = io.StringIO()
+            with contextlib.redirect_stdout(output):
+                self.assertEqual(main([str(invoice_path), "--format", "json"]), 1)
+            report = json.loads(output.getvalue())
+            self.assertEqual(report["file"], "invoice.json")
+            self.assertEqual(report["files_checked"], 1)
+            self.assertEqual(report["files_failed"], 1)
+            self.assertEqual(report["observations"], 1)
+            self.assertEqual(report["rules"], {"INV-017": 1})
+            self.assertEqual(report["errors"][0]["rule"], "INV-017")
+
+    def test_cli_json_single_file_reports_read_error(self):
+        with tempfile.TemporaryDirectory() as directory:
+            invoice_path = Path(directory) / "broken.json"
+            invoice_path.write_text("not json")
+            output = io.StringIO()
+            with contextlib.redirect_stdout(output):
+                self.assertEqual(main([str(invoice_path), "--format", "json"]), 2)
+            report = json.loads(output.getvalue())
+            self.assertIsNone(report["file"])
+            self.assertEqual(report["files_checked"], 0)
+            self.assertEqual(report["read_errors"][0]["file"], "broken.json")
+
     def test_cli_emits_sarif_for_ci_and_editor_integrations(self):
         with tempfile.TemporaryDirectory() as directory:
             invoice_path = Path(directory) / "invoice.json"
@@ -161,6 +190,8 @@ class ChecksTest(unittest.TestCase):
             self.assertEqual(report["reports"][0]["file"], "nested/fail.json")
             self.assertEqual(report["reports"][1]["file"], "pass.json")
             self.assertEqual(report["reports"][0]["errors"][0]["rule"], "INV-017")
+            self.assertEqual(report["observations"], 1)
+            self.assertEqual(report["rules"], {"INV-017": 1})
 
     def test_cli_batch_sarif_uses_relative_file_locations(self):
         with tempfile.TemporaryDirectory() as directory:
