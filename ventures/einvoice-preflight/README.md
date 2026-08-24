@@ -12,6 +12,7 @@ PYTHONPATH=src python3 -m einvoice_preflight examples/valid-invoice.json --forma
 PYTHONPATH=src python3 -m einvoice_preflight examples/valid-invoice.json --format sarif > preflight.sarif
 PYTHONPATH=src python3 -m einvoice_preflight ./invoices/ --format github
 PYTHONPATH=src python3 -m einvoice_preflight ./invoices/ --format markdown > review.md
+PYTHONPATH=src python3 -m einvoice_preflight ./invoices/ --format csv > triage.csv
 cat invoice.json | PYTHONPATH=src python3 -m einvoice_preflight - --format json
 PYTHONPATH=src python3 -m einvoice_preflight examples/valid-invoice.json --usage-file ~/.local/state/einvoice-preflight/usage.json
 PYTHONPATH=src python3 -m einvoice_preflight ./invoices/ --format json
@@ -79,6 +80,10 @@ read error, so a CI job can place defects directly in its Checks UI. It uses the
 same privacy boundary as SARIF: only the local filename, rule ID, observation,
 and fix are emitted, never invoice numbers or line contents. It exits `1` for
 findings and `2` for read errors.
+`--format csv` produces one spreadsheet row per finding, plus explicit pass and
+read-error rows. Its stable columns are `file`, `status`, `rule`, `path`,
+`message`, `fix`, and `error`, making it suitable for triage queues without
+exposing invoice values or contents.
 
 ## Privacy and usage
 
