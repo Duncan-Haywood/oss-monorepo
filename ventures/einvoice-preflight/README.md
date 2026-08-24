@@ -134,6 +134,12 @@ file instead of stdout. Parent directories are created when needed. A failed
 write returns exit code `2` and never replaces an existing report with a partial
 file.
 
+Machine-readable formats remain valid JSON, JSONL, SARIF, CSV, JUnit, Markdown,
+or HTML when a directory is empty or a `--max-files` limit refuses the scan.
+These input errors are reported in the selected format and the command exits
+`2`, so CI and ERP adapters do not need to special-case an unstructured stderr
+or stdout message.
+
 ## Privacy and usage
 
 Everything is local. Invoice contents are never uploaded or retained by this
