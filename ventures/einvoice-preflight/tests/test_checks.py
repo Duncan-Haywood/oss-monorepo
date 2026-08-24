@@ -4,6 +4,7 @@ import io
 import tempfile
 import unittest
 from pathlib import Path
+from unittest.mock import patch
 
 from einvoice_preflight.checks import check_invoice
 from einvoice_preflight.cli import main
@@ -74,6 +75,26 @@ class ChecksTest(unittest.TestCase):
                 self.assertEqual(main([str(invoice_path), "--format", "sarif"]), 0)
             report = json.loads(output.getvalue())
             self.assertEqual(report["runs"][0]["results"], [])
+
+    def test_cli_reads_valid_invoice_from_stdin(self):
+        output = io.StringIO()
+        with patch("sys.stdin", io.StringIO(json.dumps(VALID))), contextlib.redirect_stdout(output):
+            self.assertEqual(main(["-", "--format", "json"]), 0)
+        self.assertEqual(json.loads(output.getvalue())["status"], "pass")
+
+    def test_cli_labels_stdin_in_sarif_and_keeps_failure_exit(self):
+        invoice = json.loads(json.dumps(VALID))
+        invoice["totals"]["gross"] = 200
+        output = io.StringIO()
+        with patch("sys.stdin", io.StringIO(json.dumps(invoice))), contextlib.redirect_stdout(output):
+            self.assertEqual(main(["-", "--format", "sarif"]), 1)
+        report = json.loads(output.getvalue())
+        location = report["runs"][0]["results"][0]["locations"][0]
+        self.assertEqual(location["physicalLocation"]["artifactLocation"]["uri"], "stdin.json")
+
+    def test_cli_returns_read_error_for_malformed_stdin(self):
+        with patch("sys.stdin", io.StringIO("not json")):
+            self.assertEqual(main(["-", "--format", "json"]), 2)
 
 
 if __name__ == "__main__":

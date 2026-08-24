@@ -10,11 +10,15 @@ cd ventures/einvoice-preflight
 PYTHONPATH=src python3 -m einvoice_preflight examples/valid-invoice.json
 PYTHONPATH=src python3 -m einvoice_preflight examples/valid-invoice.json --format json
 PYTHONPATH=src python3 -m einvoice_preflight examples/valid-invoice.json --format sarif > preflight.sarif
+cat invoice.json | PYTHONPATH=src python3 -m einvoice_preflight - --format json
 PYTHONPATH=src python3 -m einvoice_preflight examples/valid-invoice.json --usage-file ~/.local/state/einvoice-preflight/usage.json
 ```
 
 For an installed command, run `python3 -m pip install .` from this directory,
-then use `python3 -m einvoice_preflight invoice.json` from anywhere.
+then use `python3 -m einvoice_preflight invoice.json` from anywhere. Pass `-`
+as the filename to read one JSON invoice from standard input, which is useful
+for ERP adapters and CI pipelines. SARIF reports use `stdin.json` as the
+artifact name for piped input.
 
 The tool never submits an invoice, chooses a tax rate, contacts a tax
 authority, or claims that an invoice is legally valid. It only checks the
@@ -47,7 +51,7 @@ any check fails and `2` for an unreadable input file.
 ## Privacy and usage
 
 Everything is local. Invoice contents are never uploaded or retained by this
-tool. Usage counting is opt-in with `--usage-file` and stores only aggregate
+tool, including when read from standard input. Usage counting is opt-in with `--usage-file` and stores only aggregate
 event counts, never invoice data, paths, IPs, or identifiers. Omit the flag to
 disable it. There are no accounts, cookies, or analytics vendors.
 

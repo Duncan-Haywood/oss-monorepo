@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import sys
 from pathlib import Path
 from typing import Any
 
@@ -49,12 +50,14 @@ def _sarif_report(invoice_path: Path, errors: list[dict[str, str]]) -> dict[str,
 
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description="Check a local JSON e-invoice before submission. No tax advice or submission.")
-    parser.add_argument("invoice", type=Path)
+    parser.add_argument("invoice", type=Path, help="JSON file to check, or '-' to read JSON from stdin")
     parser.add_argument("--format", choices=("text", "json", "sarif"), default="text")
     parser.add_argument("--usage-file", help="opt-in local aggregate event counter")
     args = parser.parse_args(argv)
+    invoice_name = "stdin.json" if str(args.invoice) == "-" else args.invoice.name
     try:
-        invoice = json.loads(args.invoice.read_text())
+        source = sys.stdin.read() if str(args.invoice) == "-" else args.invoice.read_text()
+        invoice = json.loads(source)
     except (OSError, json.JSONDecodeError) as exc:
         print(f"Could not read invoice: {exc}")
         return 2
@@ -64,7 +67,7 @@ def main(argv: list[str] | None = None) -> int:
     if args.format == "json":
         print(json.dumps({"status": "pass" if not errors else "fail", "errors": errors}, indent=2))
     elif args.format == "sarif":
-        print(json.dumps(_sarif_report(args.invoice, errors), indent=2))
+        print(json.dumps(_sarif_report(Path(invoice_name), errors), indent=2))
     elif errors:
         print(f"Preflight failed: {len(errors)} observation(s)")
         for error in errors:
