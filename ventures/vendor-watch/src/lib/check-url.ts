@@ -3,7 +3,7 @@ import { lookup } from "node:dns/promises";
 import http from "node:http";
 import https from "node:https";
 import { BlockList, isIP } from "node:net";
-import { Readable } from "node:stream";
+import { pipeline, Readable } from "node:stream";
 import { createBrotliDecompress, createGunzip, createInflate } from "node:zlib";
 import { diffWords, type DiffOp } from "./diff";
 import { getSnapshot, saveSnapshot } from "./watch-store";
@@ -134,15 +134,39 @@ async function resolvePublicHop(input: string, signal: AbortSignal): Promise<Pub
   return { parsed, address: preferred.address };
 }
 
+function discardIncoming(incoming: http.IncomingMessage): void {
+  incoming.on("error", () => {});
+  incoming.resume();
+}
+
+async function discardResponseBody(response: Response): Promise<void> {
+  if (!response.body) return;
+  try {
+    await response.body.cancel();
+  } catch {
+    // Already closed or locked by a cancelled reader.
+  }
+}
+
 function decodeIncoming(incoming: http.IncomingMessage): Readable {
   const encoding = String(incoming.headers["content-encoding"] ?? "")
     .split(",")[0]
     ?.trim()
     .toLowerCase();
-  if (encoding === "gzip" || encoding === "x-gzip") return incoming.pipe(createGunzip());
-  if (encoding === "deflate") return incoming.pipe(createInflate());
-  if (encoding === "br") return incoming.pipe(createBrotliDecompress());
-  return incoming;
+  const decoder =
+    encoding === "gzip" || encoding === "x-gzip"
+      ? createGunzip()
+      : encoding === "deflate"
+        ? createInflate()
+        : encoding === "br"
+          ? createBrotliDecompress()
+          : undefined;
+  if (!decoder) return incoming;
+  // pipeline attaches error handlers on every stream. incoming.pipe(decoder)
+  // does not, so a mid-body socket error would be an unhandled 'error' on
+  // IncomingMessage and could terminate the process.
+  pipeline(incoming, decoder, () => {});
+  return decoder;
 }
 
 function incomingToResponse(incoming: http.IncomingMessage): Response {
@@ -152,8 +176,9 @@ function incomingToResponse(incoming: http.IncomingMessage): Response {
     for (const value of values) headers.append(key, value);
   }
   const status = incoming.statusCode ?? 0;
-  if (status === 204 || status === 205 || status === 304) {
-    incoming.resume();
+  // Drain bodies we will not read so keep-alive sockets return to the agent.
+  if (status < 200 || status >= 300 || status === 204 || status === 205) {
+    discardIncoming(incoming);
     return new Response(null, { status, statusText: incoming.statusMessage ?? "", headers });
   }
   const encoding = String(incoming.headers["content-encoding"] ?? "")
@@ -267,6 +292,7 @@ async function fetchPublicUrl(
     if (!REDIRECT_STATUS.has(response.status)) return response;
     const location = response.headers.get("location");
     if (!location) return response;
+    await discardResponseBody(response);
     current = new URL(location, current).href;
   }
   throw new Error("Too many redirects");
@@ -327,6 +353,7 @@ export async function checkUrl(url: string, fetchImpl: FetchFn = fetch): Promise
       response = await fetchPublicUrl(url, fetchImpl, controller.signal);
       const status = response.status;
       if (status < 200 || status >= 300) {
+        await discardResponseBody(response);
         return {
           outcome: "inconclusive",
           url,
