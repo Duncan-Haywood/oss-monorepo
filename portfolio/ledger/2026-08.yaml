@@ -22841,3 +22841,81 @@ entries:
           in CI currently loads this file, so it had gone unnoticed; fixed
           the indentation and confirmed the file parses.
     mrr_end: null
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+          Webhook-triggered session (pull_request.closed on #720, branch
+          claude/festive-mccarthy-k5sapz). #720 (deployment platform pick)
+          had closed unmerged -- blocked on the repo-wide self-approval
+          branch-protection quirk, and human-gated regardless (account
+          registration, standing spend). Corrected `portfolio/ledger/asks.yaml`
+          to match: removed the resolved `deployment-platform` row and fixed
+          `deploy-settings`'s note, which had pointed at
+          `agent-server-provision.yml` and `platform/deployment/README.md` --
+          both of which existed only on #720's closed branch, never merged
+          to `main`. Opened as #879; closed by a concurrent session
+          ("administrative cleanup is not the current product priority")
+          before its CI reported. Left it closed rather than re-litigating --
+          the correction was small and the underlying #720 closure needed no
+          further action either way.
+      - >-
+          session_gate.py printed BUILD, no pipeline candidate carried an
+          unbuilt build-now verdict (both graduated same-day product lines,
+          eaa-remediation-pipeline and mls-photo-spec-preflight, already had
+          their first-experiment software built and tested). Advanced
+          `repository-branch-hygiene` instead -- a `probe`-verdict candidate
+          whose first experiment's steps 1-2 are fully network-free and had
+          real supporting evidence already in the repo (PR #829's 608-branch
+          sweep). Built a read-only git-ref classifier
+          (`portfolio/pipeline/probes/repository-branch-hygiene/`): six
+          categories (protected/shared/duplicate/moved/unique/uncertain), a
+          synthetic fixture that declares its own oracle so tests assert
+          against ground truth rather than the scanner's own output, and a
+          recovery manifest where no category ever says "delete". Opened as
+          #915, 29 tests passing, recoverability checked by test (not
+          asserted) including a race the write-up hadn't anticipated (two
+          refs at one tip are individually safe to delete and not jointly
+          safe).
+      - >-
+          #915 auto-merged (`kilo-code-bot[bot]`) at its first commit --
+          before Cursor Bugbot's review landed. Bugbot found a real,
+          high-severity defect afterward: grouping refs by name (done in
+          #915 itself, to stop every tracked branch classifying `shared`
+          with its own remote copy) then compared only each name's primary
+          tip, so a diverged remote copy at another branch's exact SHA could
+          leave a commit reported as exclusively "unique" while a live ref
+          elsewhere still reached it -- a direct violation of the probe's
+          recoverability claim. Cursor's own Bugbot Autofix agent pushed a
+          fix independently of one written locally in this session before
+          either was seen; adopted Autofix's version (three regression
+          tests) over carrying two divergent implementations, since #915's
+          branch had already been merged with the bug still in it and only
+          one fix needed to land. Rebased onto `main` per the documented
+          merged-branch recovery procedure and opened as #933 -- 32 tests
+          passing.
+      - >-
+          #933 was itself closed by `kilo-code-bot[bot]`, citing "superseded
+          by #935, which carries the same diverged-tip fix." That claim was
+          checked and was false: #935 is a wholly separate, independently
+          built implementation at `ventures/repository-branch-hygiene/` (a
+          different concurrent session graduated the same pipeline candidate
+          as a full venture rather than a product-line probe, unaware of
+          this one) that never touches `scanner.py`. The diverged-tip bug
+          was still live on `main` after #935 merged. Rebased the fix onto
+          the post-#935 tip of `main` and re-opened as #943, rather than
+          accepting an incorrect auto-close of a confirmed defect fix.
+      - >-
+          Two findings worth keeping distinct from any one PR: (1) an
+          auto-merge bot merged a PR before its own review pipeline
+          (Bugbot) had reported, which is a race independent of anything
+          this session did and worth the owner's attention if it recurs;
+          (2) `repository-branch-hygiene` now has two independent, un-
+          reconciled implementations on `main` (this probe and the
+          `ventures/` graduation) from concurrent sessions that could not
+          see each other's work -- not resolved in this session to keep
+          #943 scoped to the one confirmed defect, and not duplicating the
+          decision-queue/#139 flag a future session would need to actually
+          act on it.
+    mrr_end: null
