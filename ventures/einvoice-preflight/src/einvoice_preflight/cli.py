@@ -3,6 +3,7 @@ from __future__ import annotations
 import argparse
 from collections import Counter
 import csv
+from html import escape as html_escape
 import io
 import json
 import sys
@@ -244,6 +245,67 @@ def _junit_report(
     )
 
 
+def _html_report(
+    reports: list[tuple[Path, list[dict[str, str]]]],
+    read_errors: list[dict[str, str]],
+) -> str:
+    """Build a standalone, privacy-safe report for browser review."""
+    observations = sum(len(errors) for _, errors in reports)
+    failed = sum(bool(errors) for _, errors in reports)
+    passed = len(reports) - failed
+    rule_counts = Counter(error["rule"] for _, errors in reports for error in errors)
+    rule_messages = {error["rule"]: error["message"] for _, errors in reports for error in errors}
+    overall = "FAIL" if observations or read_errors else "PASS"
+
+    def text(value: str) -> str:
+        return html_escape(value, quote=True)
+
+    metrics = "".join(
+        f'<div class="metric"><strong>{value}</strong><span>{label}</span></div>'
+        for value, label in ((len(reports), "checked"), (passed, "passed"), (failed, "failed"), (observations, "observations"), (len(read_errors), "read errors"))
+    )
+    summary = ""
+    if rule_counts:
+        rows = "".join(
+            f"<tr><td><code>{text(rule)}</code></td><td>{count}</td><td>{text(rule_messages[rule])}</td></tr>"
+            for rule, count in sorted(rule_counts.items())
+        )
+        summary = f'<section><h2>Finding summary</h2><table><thead><tr><th>Rule</th><th>Occurrences</th><th>Check</th></tr></thead><tbody>{rows}</tbody></table></section>'
+
+    sections = []
+    for path, errors in reports:
+        if errors:
+            findings = "".join(
+                f'<li><strong>{text(error["rule"])}</strong> at <code>{text(error["path"] or "/")}</code><br>{text(error["message"])}<br><span class="fix">Fix: {text(error["fix"])}</span></li>'
+                for error in errors
+            )
+            body = f'<p class="status fail">FAIL</p><ul>{findings}</ul>'
+        else:
+            body = '<p class="status pass">PASS</p><p>No defects found in the supported checks.</p>'
+        sections.append(f'<article><h2><code>{text(path.as_posix())}</code></h2>{body}</article>')
+    read_section = ""
+    if read_errors:
+        items = "".join(f'<li><code>{text(error["file"])}</code>: {text(error["error"])}</li>' for error in read_errors)
+        read_section = f'<section><h2>Read errors</h2><ul>{items}</ul></section>'
+    accent = "#a61b1b" if overall == "FAIL" else "#116329"
+    return f'''<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>E-invoice preflight: {text(overall)}</title>
+<style>
+:root {{ color-scheme: light; font-family: system-ui, sans-serif; background: #f4f5f7; color: #17202a; }}
+body {{ max-width: 960px; margin: 0 auto; padding: 2rem 1rem 4rem; }}
+header, section, article {{ background: white; border: 1px solid #d9dee5; border-radius: 10px; padding: 1.25rem; margin: 1rem 0; box-shadow: 0 2px 8px #17202a0d; }}
+h1 {{ margin-top: 0; }} h2 {{ font-size: 1.05rem; }} .overall {{ color: {accent}; font-weight: 700; letter-spacing: .08em; }}
+.metrics {{ display: flex; flex-wrap: wrap; gap: .75rem; }} .metric {{ min-width: 7rem; background: #eef2f6; border-radius: 8px; padding: .75rem; }}
+.metric strong, .metric span {{ display: block; }} .metric strong {{ font-size: 1.5rem; }} .metric span {{ color: #52606d; font-size: .85rem; }}
+table {{ border-collapse: collapse; width: 100%; }} th, td {{ border-bottom: 1px solid #e4e7eb; padding: .6rem; text-align: left; vertical-align: top; }}
+.status {{ font-weight: 700; }} .pass {{ color: #116329; }} .fail {{ color: #a61b1b; }} .fix, footer {{ color: #52606d; }} li {{ margin: .7rem 0; }} code {{ overflow-wrap: anywhere; }} footer {{ font-size: .85rem; margin-top: 1.5rem; }}
+</style></head><body><header><h1>E-invoice preflight</h1><p class="overall">Overall: {text(overall)}</p><div class="metrics">{metrics}</div></header>
+{summary}{''.join(sections)}{read_section}<footer>This local report is an observation, not a declaration that an invoice is valid or compliant. It contains no invoice values or line contents. Review and verify output before relying on it; this tool is not tax or legal advice.</footer>
+</body></html>
+'''
+
+
 def _add_batch_duplicate_findings(
     reports: list[tuple[Path, list[dict[str, str]]]],
     invoices: list[tuple[Path, Any]],
@@ -274,7 +336,7 @@ def _markdown_text(value: str) -> str:
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description="Check a local JSON or UBL XML e-invoice before submission. No tax advice or submission.")
     parser.add_argument("invoice", type=Path, help="JSON/XML file, directory of JSON/XML files, or '-' for stdin")
-    parser.add_argument("--format", choices=("text", "json", "markdown", "csv", "junit", "sarif", "github"), default="text")
+    parser.add_argument("--format", choices=("text", "json", "markdown", "html", "csv", "junit", "sarif", "github"), default="text")
     parser.add_argument("--usage-file", help="opt-in local aggregate event counter")
     args = parser.parse_args(argv)
     reports: list[tuple[Path, list[dict[str, str]]]] = []
@@ -334,6 +396,8 @@ def main(argv: list[str] | None = None) -> int:
         print(json.dumps(_json_report(reports, read_errors), indent=2))
     elif args.format == "markdown":
         print(_markdown_report(reports, read_errors), end="")
+    elif args.format == "html":
+        print(_html_report(reports, read_errors), end="")
     elif args.format == "csv":
         print(_csv_report(reports, read_errors), end="")
     elif args.format == "junit":

@@ -12,6 +12,7 @@ PYTHONPATH=src python3 -m einvoice_preflight examples/valid-invoice.json --forma
 PYTHONPATH=src python3 -m einvoice_preflight examples/valid-invoice.json --format sarif > preflight.sarif
 PYTHONPATH=src python3 -m einvoice_preflight ./invoices/ --format github
 PYTHONPATH=src python3 -m einvoice_preflight ./invoices/ --format markdown > review.md
+PYTHONPATH=src python3 -m einvoice_preflight ./invoices/ --format html > review.html
 PYTHONPATH=src python3 -m einvoice_preflight ./invoices/ --format csv > triage.csv
 PYTHONPATH=src python3 -m einvoice_preflight ./invoices/ --format junit > preflight.junit.xml
 cat invoice.json | PYTHONPATH=src python3 -m einvoice_preflight - --format json
@@ -95,8 +96,11 @@ read-error rows. Its stable columns are `file`, `status`, `rule`, `path`,
 one testcase; failed checks are failures and unreadable files are errors. The
 report contains only local filenames, rule IDs, JSON Pointer paths, observations,
  and fixes, never invoice values or line contents. Directory scans do not follow
- symbolic links; linked JSON files are reported as read errors so a scan stays
- bounded to its selected directory.
+symbolic links; linked JSON files are reported as read errors so a scan stays
+bounded to its selected directory.
+`--format html` produces a standalone browser report with summary cards, finding
+counts, and per-file review sections. It has the same privacy boundary as the
+other report formats and can be opened locally without a server.
 
 ## Privacy and usage
 
