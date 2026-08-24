@@ -14,3 +14,15 @@ test("break-even reflects the in-house comparison", () => {
   assert.equal(Math.round(result.breakEvenOrders), Math.round(result.quote.total / 20));
   assert.ok(result.delta > 0);
 });
+
+test("returns are charged per returned order without changing order volume", () => {
+  const result = calculate({
+    orders: 100,
+    unitsPerOrder: 1,
+    returnsRate: 10,
+    returnFee: 3,
+    restockFee: 1,
+  });
+  assert.equal(result.quote.returns, 40);
+  assert.equal(result.orders, 100);
+});
