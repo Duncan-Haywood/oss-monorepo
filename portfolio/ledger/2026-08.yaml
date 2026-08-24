@@ -22476,3 +22476,43 @@ entries:
           on top of that, mid-fleet-surge, would have been the duplicate-work
           pattern this file warns about rather than new value.
     mrr_end: null
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+          GitHub-triggered session (`pull_request.opened` on #827), folded
+          into the generic "continue work, maintain the process, review open
+          PRs" brief. #827 had gone dirty because its own predecessor
+          content (#823) landed separately as a squash commit; started
+          resolving the append-only ledger conflict by hand, but a
+          concurrent session resolved and merged it first (`b2fabdb`) before
+          this session pushed -- no action needed there.
+      - >-
+          Reviewed #828 (`kilo-code-bot[bot]`, a new consent-change-record
+          pipeline candidate): pure `portfolio/pipeline/` docs, no venture
+          code, publishes nothing, no CI configured on the PR itself.
+          Verified locally -- `validate_candidates.py`,
+          `validate_doc_consistency.py`, `git diff --check` all clean, `git
+          merge-tree` against the live `main` tip conflict-free. Not a
+          duplicate of anything in `screened-out.md`. Agent-decidable;
+          squash-merged (`836aed9`).
+      - >-
+          Reviewed #829 (a new unattended
+          `.github/workflows/branch-cleanup.yml` deleting merged/closed PR
+          branches): correctly self-flagged human-gated in its own body per
+          CLAUDE.md's "Automation that writes or spends unattended" section,
+          but had not yet been recorded in `asks.yaml`/#139. Added the
+          `branch-cleanup-automation` decision row (merged via #833)
+          summarizing its own verification (39 workflow files valid, 0 live
+          publish surface, 25 tests, a read-only `--sweep --dry-run` finding
+          220 of 608 branches deletable) so the owner can act on it without
+          re-deriving the PR.
+      - >-
+          #814, #720, #531 remain unchanged from prior sessions' review: all
+          three correctly self-flagged human-gated and already tracked in
+          `asks.yaml`/#139.
+      - >-
+          `payout-rail` remains the only queue item that moves the revenue
+          ceiling off $0.
+    mrr_end: null
