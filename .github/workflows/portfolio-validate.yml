@@ -55,6 +55,9 @@ on:
       - "portfolio/ledger/verifications.yaml"
       - "portfolio/ledger/session_gate.py"
       - "portfolio/ledger/test_session_gate.py"
+      - "portfolio/ledger/decision_queue.py"
+      - "portfolio/ledger/test_decision_queue.py"
+      - "portfolio/ledger/asks.yaml"
       - "portfolio/ledger/2026-08.yaml"
       - "platform/ci/**"
       - ".github/workflows/**"
@@ -75,6 +78,9 @@ on:
       - "portfolio/ledger/verifications.yaml"
       - "portfolio/ledger/session_gate.py"
       - "portfolio/ledger/test_session_gate.py"
+      - "portfolio/ledger/decision_queue.py"
+      - "portfolio/ledger/test_decision_queue.py"
+      - "portfolio/ledger/asks.yaml"
       - "portfolio/ledger/2026-08.yaml"
       - "platform/ci/**"
       - ".github/workflows/**"
@@ -157,3 +163,10 @@ jobs:
       - name: Session-gate tests
         working-directory: portfolio/ledger
         run: python3 -m pytest test_session_gate.py -q
+
+      - name: Check the owner decision queue is well-formed
+        run: python3 portfolio/ledger/decision_queue.py --check
+
+      - name: Decision-queue tests
+        working-directory: portfolio/ledger
+        run: python3 -m unittest test_decision_queue

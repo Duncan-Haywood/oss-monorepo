@@ -1,0 +1,191 @@
+#!/usr/bin/env python3
+"""Unit tests for the owner decision queue renderer."""
+import datetime as dt
+import unittest
+
+from decision_queue import (
+    EXPOSURES,
+    GATES,
+    age_days,
+    check,
+    covers,
+    load,
+    render,
+    sort_key,
+    wrap,
+)
+
+TODAY = dt.date(2026, 8, 24)
+
+
+def decision(**overrides):
+    base = {
+        "id": "payout-rail",
+        "asks": [2],
+        "prs": [],
+        "gates": "revenue",
+        "exposure": "legal-person",
+        "opened": "2026-08-19",
+        "action": "Open a merchant-of-record account.",
+        "unlocks": ["Any revenue at all."],
+        "blocked_by": [],
+        "note": "Deliberately human-gated.",
+    }
+    base.update(overrides)
+    return base
+
+
+class Check(unittest.TestCase):
+    def test_clean_record_has_no_problems(self):
+        self.assertEqual(check([decision()]), [])
+
+    def test_missing_field_is_reported_once(self):
+        d = decision()
+        del d["unlocks"]
+        problems = check([d])
+        self.assertEqual(len(problems), 1)
+        self.assertIn("unlocks", problems[0])
+
+    def test_unknown_gates_value_rejected(self):
+        problems = check([decision(gates="vibes")])
+        self.assertTrue(any("gates=" in p for p in problems))
+
+    def test_unknown_exposure_value_rejected(self):
+        problems = check([decision(exposure="mild")])
+        self.assertTrue(any("exposure=" in p for p in problems))
+
+    def test_bad_date_rejected(self):
+        problems = check([decision(opened="last Tuesday")])
+        self.assertTrue(any("YYYY-MM-DD" in p for p in problems))
+
+    def test_duplicate_id_rejected(self):
+        problems = check([decision(), decision(asks=[3])])
+        self.assertTrue(any("duplicate id" in p for p in problems))
+
+    def test_blocked_by_unknown_id_rejected(self):
+        problems = check([decision(blocked_by=["no-such-thing"])])
+        self.assertTrue(any("unknown id" in p for p in problems))
+
+    def test_blocked_by_self_rejected(self):
+        problems = check([decision(blocked_by=["payout-rail"])])
+        self.assertTrue(any("itself" in p for p in problems))
+
+    def test_covering_nothing_rejected(self):
+        problems = check([decision(asks=[], prs=[])])
+        self.assertTrue(any("neither an ask nor" in p for p in problems))
+
+    def test_empty_unlocks_rejected(self):
+        problems = check([decision(unlocks=[])])
+        self.assertTrue(any("unlocks is empty" in p for p in problems))
+
+    # The collapse is the point of this file, so an ask or PR landing under two
+    # decisions is a real defect: the queue would show it twice and the counts
+    # in the header would disagree with #139.
+    def test_ask_claimed_twice_rejected(self):
+        problems = check([
+            decision(),
+            decision(id="other", asks=[2, 3], gates="measurement"),
+        ])
+        self.assertTrue(any("ask 2 claimed by both" in p for p in problems))
+
+    def test_pr_claimed_twice_rejected(self):
+        problems = check([
+            decision(id="a", asks=[], prs=[372]),
+            decision(id="b", asks=[], prs=[372]),
+        ])
+        self.assertTrue(any("PR 372 claimed by both" in p for p in problems))
+
+
+class Ordering(unittest.TestCase):
+    def test_revenue_leads_however_cheap_the_rest_are(self):
+        cheap = decision(id="cheap", asks=[3], gates="measurement", exposure="none")
+        ordered = sorted([cheap, decision()], key=sort_key)
+        self.assertEqual(ordered[0]["id"], "payout-rail")
+
+    def test_blocked_sinks_below_actionable(self):
+        blocked = decision(
+            id="blocked", asks=[5], gates="distribution",
+            blocked_by=["payout-rail"],
+        )
+        late = decision(id="late", asks=[6], gates="deployment", exposure="none")
+        ordered = sorted([blocked, late], key=sort_key)
+        self.assertEqual([d["id"] for d in ordered], ["late", "blocked"])
+
+    def test_gates_ranking_matches_break_even(self):
+        # break-even.md's own ordering: gates all revenue; gates distribution
+        # but not capture; buys information; buys deployment.
+        self.assertEqual(GATES, ["revenue", "distribution", "measurement", "deployment"])
+
+    def test_within_a_class_lower_exposure_first(self):
+        risky = decision(id="risky", asks=[4], gates="deployment", exposure="legal-person")
+        safe = decision(id="safe", asks=[6], gates="deployment", exposure="none")
+        ordered = sorted([risky, safe], key=sort_key)
+        self.assertEqual([d["id"] for d in ordered], ["safe", "risky"])
+
+
+class Helpers(unittest.TestCase):
+    def test_age_counts_whole_days(self):
+        self.assertEqual(age_days("2026-08-19", TODAY), 5)
+
+    def test_covers_names_asks_and_prs(self):
+        self.assertEqual(covers(decision(asks=[3, 7], prs=[372])), "ask 3, 7; #372")
+
+    def test_wrap_keeps_every_word(self):
+        text = "one two three four five six seven eight nine ten"
+        lines = wrap(text, 20, "  ")
+        self.assertEqual(" ".join(l.strip() for l in lines), text)
+
+    def test_wrap_respects_width(self):
+        lines = wrap("alpha beta gamma delta epsilon", 12, "    ")
+        self.assertTrue(all(len(l) <= 12 + 4 for l in lines))
+
+
+class Render(unittest.TestCase):
+    def test_header_counts_asks_and_prs_not_decisions(self):
+        out = render([
+            decision(),
+            decision(id="prs", asks=[], prs=[372, 368], gates="deployment"),
+        ], TODAY)
+        self.assertIn("2 decisions, collapsed from 1 asks and 2 open", out)
+
+    def test_blocked_items_are_marked(self):
+        out = render([
+            decision(),
+            decision(id="later", asks=[5], gates="distribution",
+                     blocked_by=["payout-rail"]),
+        ], TODAY)
+        self.assertIn("[blocked]", out)
+        self.assertIn("blocked by: payout-rail", out)
+
+    def test_footer_names_the_revenue_item(self):
+        out = render([decision()], TODAY)
+        self.assertIn("Only payout-rail changes what this portfolio can earn", out)
+
+    def test_no_footer_claim_when_nothing_gates_revenue(self):
+        out = render([decision(id="m", gates="measurement", asks=[3])], TODAY)
+        self.assertNotIn("changes what this portfolio can earn", out)
+
+    def test_oldest_age_is_the_max_not_the_first(self):
+        out = render([
+            decision(id="new", opened="2026-08-23"),
+            decision(id="old", asks=[3], gates="measurement", opened="2026-08-19"),
+        ], TODAY)
+        self.assertIn("Oldest has waited 5 days", out)
+
+
+class RealFile(unittest.TestCase):
+    def test_committed_file_passes_its_own_schema(self):
+        self.assertEqual(check(load()), [])
+
+    def test_committed_file_renders(self):
+        out = render(load(), TODAY)
+        self.assertIn("The account owner's decision queue", out)
+
+    def test_every_exposure_and_gate_value_is_declared(self):
+        for d in load():
+            self.assertIn(d["gates"], GATES)
+            self.assertIn(d["exposure"], EXPOSURES)
+
+
+if __name__ == "__main__":
+    unittest.main()

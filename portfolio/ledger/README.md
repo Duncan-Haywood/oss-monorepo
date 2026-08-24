@@ -41,3 +41,29 @@ do instead of skipping the record entirely.
   several times an hour and a live figure would be stale before it was read.
   `--check` verifies the document against that snapshot and runs in CI;
   `--refresh` re-measures deliberately.
+
+## The owner's decision queue
+
+- [asks.yaml](asks.yaml) — every item waiting on the account owner, as data:
+  what one action closes it, what that unlocks, what it costs in exposure, and
+  which other item blocks it. Render it with `python3 decision_queue.py`.
+
+  Issue #139 remains where the owner answers. This file is the *structure*, and
+  it lives in git for a specific reason: #139's body is rewritten in place by
+  whichever session edits last, and on 2026-08-24 two concurrent sessions
+  clobbered it twice in one day (#697, #698). Git merges concurrent edits; an
+  issue body does not.
+
+  It carries two axes the #139 asks table does not, and both change the answer.
+  `blocked_by` records that granting an ask can buy nothing while another ask
+  gates it — true of Ask 5 today, which `CLAUDE.md` states in prose while the
+  table still lists it as available. `exposure` separates a repository Settings
+  toggle from opening a merchant-of-record account, which a cheapest-first sort
+  puts side by side. Ordered by `break-even.md`'s own ranking (what each item
+  gates), the eight live asks (#139 lists nine; Ask 8 is superseded and has
+  nothing to grant) and four open pull requests collapse to seven decisions,
+  of which exactly one moves the revenue ceiling off `$0`.
+
+  Update it when an ask is granted, withdrawn, or added — not by appending a
+  second record for the same ask. `--check` runs in CI and rejects an ask or
+  pull request claimed by two decisions, since that is the collapse being wrong.

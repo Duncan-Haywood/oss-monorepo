@@ -20802,3 +20802,124 @@ entries:
         conflict-prone. No score, ranking or candidate changed; nothing here
         moves the $0 revenue ceiling, which remains owner-gated on Ask 2.
     mrr_end: null
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+          Scheduled strategic session ("continue work... maintain and improve
+          the development process... legal ethical reliable increase in
+          profit... this run should be more strategic work"), designated
+          branch claude/wizardly-albattani-qwyzuv. `session_gate.py` ->
+          PROCEED, flagging 2 distinct sessions committed to `main` within a
+          15-minute window. Checked the 4 open PRs (#583, #531, #372, #368),
+          issue #139 and `verification_status.py` before starting. Found
+          nothing agent-decidable pending: every open PR is correctly owner-
+          gated, all their checks are green, and `main` had no red run among
+          its last 15 workflow runs. Re-verified none of them -- nothing about
+          them had changed since their last recorded check.
+      - >-
+          So the question was where a session's marginal output goes when the
+          queue of work it may decide is empty. It goes into the owner's
+          queue, which is the portfolio's actual binding constraint: `break-
+          even.md` establishes a structural `$0` revenue ceiling only the
+          owner can move, so every session's output is queued behind decisions
+          no agent may make. Between 2026-08-19 and 2026-08-24 exactly one
+          item on that queue was answered. The queue is not slow because the
+          owner is slow; it is 8 live asks plus 4 pull requests presented as ~82KB
+          of prose on #139, sorted cheapest-first, and it had never been
+          rendered in a form that supports being answered.
+      - >-
+          Built `portfolio/ledger/asks.yaml` plus `decision_queue.py`
+          (renderer and `--check` validator) and `test_decision_queue.py` (28
+          tests), wired both into `portfolio-validate.yml` and both of its
+          path filters. It is a renderer over declared fields, not a judge:
+          every ordering rule is a fixed rank, so what it prints is a function
+          of the data file and the data file is what gets reviewed. The
+          ranking is `break-even.md`'s own "sorted by what each ask gates"
+          ordering rather than a new one, pinned by a test so a later pass
+          cannot quietly reintroduce the cheapest-first sort that document
+          faulted.
+      - >-
+          Two axes the #139 table does not carry, and both change the answer.
+          `blocked_by`: granting an ask can buy nothing while another ask
+          gates it. That is true of Ask 5 today -- `CLAUDE.md` says so in
+          prose ("Ask 5 is currently inert", every nominated channel egress-
+          or scope-denied, verified twice on separate dates) while the table
+          still lists it as available to grant. `exposure`: a repository
+          Settings toggle and opening a merchant-of-record account are
+          adjacent rows in a cheapest-first sort and are not the same kind of
+          decision. With both applied, the 8 live asks (#139 lists nine; Ask 8 is
+          superseded, with nothing to grant) and 4 open PRs collapse to SEVEN
+          decisions, of which exactly one (Ask 2, the payout rail) moves the
+          ceiling off `$0`, and one is blocked. No new evidence is claimed
+          here: every input was already committed somewhere in this
+          repository. The contribution is the join, and that it is now a
+          command rather than a paragraph.
+      - >-
+          Chose git over #139 for a measured reason rather than a stylistic
+          one. #139's body is rewritten in place by whichever session edits
+          last, and it was clobbered twice in one day on 2026-08-24 (#697,
+          #698) by concurrent sessions restoring it. A queue two agents can
+          corrupt in an afternoon is not one the owner can trust. Git merges
+          concurrent edits; an issue body does not. #139 stays where the owner
+          answers; only the structure moved.
+      - >-
+          `--check` rejects an ask or pull request claimed by two decisions,
+          because that is precisely the collapse being wrong and a double-
+          counted row would make the printed header disagree with #139. It
+          caught two defects in this session's own work before they landed: an
+          unquoted `#372` in a YAML scalar silently truncated an action to
+          "Merge or decline" (YAML comment syntax), and the first gate ranking
+          put deployment above measurement, contradicting `break-even.md`'s
+          committed ordering.
+      - >-
+          Verified by running the checks rather than reading the diff: all 10
+          repo validators pass (router, doc-consistency, candidates, probe-
+          index, score-sensitivity, venture-scoring, workflows 38/38, break-
+          even --check, verification-status --check, decision-queue --check)
+          and all 7 unit suites (193 tests). Confirmed the router still parses
+          the new file -- it globs every `*.yaml` in this directory as a
+          monthly ledger, so these records live under a `decisions:` key for
+          the same reason `verifications.yaml` uses `records:`.
+      - >-
+          Agent-decidable per `CLAUDE.md`: `portfolio/ledger/`, `CLAUDE.md`
+          and CI config only. No `ventures/*` app code, nothing published, no
+          account registered, no credential used, and no unattended or spend-
+          capable automation added -- the two new CI steps run offline Python
+          checks in an existing workflow. Self-merged with this entry in the
+          same PR, which is safe here because the PR is merged in the same
+          session rather than waiting on the owner. Added no new ask: this
+          reorganizes what the owner was already being asked, and adding a
+          tenth row would have been the exact failure the tool exists to
+          measure.
+      - >-
+          This PR's CI then went red, and the failure is the most useful thing
+          the session produced. `agent-permission-harness`'s R7 instruction
+          closure grew 117 -> 118 because `portfolio/ledger/README.md` -- a
+          depth-2 document in the closure -- now names the new `asks.yaml`.
+          That is the identical mechanism #699 tripped four hours earlier with
+          a `package.json` sentence, reproduced by a PR about the owner's
+          decision queue with nothing to do with security. It corroborates the
+          measurement rather than merely repeating it: a document naming a new
+          path enlarges that surface, and one line does it.
+      - >-
+          The difference is that this time it was caught. #700 widened that
+          workflow's path filter from the probe's own inputs to the closure's
+          prose roots roughly twenty minutes before this session started; the
+          old filter would not have fired on this diff, and the artifact would
+          have read as a current security measurement while wrong -- exactly
+          the silent failure #700 was built to stop. So the trigger fix is now
+          confirmed by an independent case, not just argued for.
+      - >-
+          Fixed it in the PR that caused it, which is what the previous three
+          sessions could not do: regenerated `results-2026-08-23.md`
+          (reproduces byte-for-byte), synced all six stale prose figures (five
+          in the probe's README, one in `harness.py`'s docstring) AND the
+          three in `portfolio/pipeline/probes/README.md` -- the routing cell
+          that still read `115` after all three earlier passes because a
+          session arriving later sees only that a figure disagrees, not why.
+          Recorded the second instance as an amendment in both documents,
+          keeping the 115 -> 117 history intact. 84 probe tests pass,
+          `validate_probe_index.py` green.
+    mrr_end: null
