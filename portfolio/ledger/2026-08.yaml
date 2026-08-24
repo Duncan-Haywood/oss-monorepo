@@ -22021,3 +22021,63 @@ entries:
           content to #792's original head, already merged upstream by the
           time this session looked -- no unique work was lost.
     mrr_end: null
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+          GitHub-triggered session (`pull_request.opened` on #793), folded
+          into the generic "continue work, maintain the process, review open
+          PRs" brief. `session_gate.py` -> PROCEED, flagging 3+ concurrent
+          sessions in the last 15-minute window -- an undercount: by the time
+          this session finished, at least 8 sibling PRs (#791-#800) had
+          opened and closed within about 10 minutes, the exact duplicate-PR
+          pile-up pattern `CLAUDE.md` warns about. Session's own contribution
+          was mostly consolidation rather than new analysis.
+      - >-
+          #793 itself (flagging #788's routine-trigger cadence as a decision-
+          queue row) was already merged by a concurrent session by the time
+          it was checked; independently re-verified anyway
+          (`decision_queue.py --check` 8/8 schema OK, `portfolio/ledger`
+          suite 57/58 with the known pre-existing `pytest`-import gap,
+          `git merge-tree` clean) -- confirms the merge was sound, no action
+          needed.
+      - >-
+          Merged #792 (ledger record of #787) and #794 (ledger record of
+          #789 and #793's flag): both agent-decidable, `portfolio/ledger/`
+          only. #794 had gone `dirty` against `main` by the time it was
+          checked (append-only conflict with #792's just-merged entry, same
+          shape documented in this file for #781/#783 earlier) -- pushed a
+          merge commit to its own branch resolving the conflict by keeping
+          both entries in sequence, re-verified (YAML parses, `pytest`
+          57/58, `decision_queue.py --check` clean), waited for CI, merged.
+      - >-
+          Attempted the same resolution for #795 but a concurrent session
+          closed it first (correctly -- its content was already covered by
+          #796, merged independently, and a standalone comment on #531);
+          the push landed but the merge did not, no harm done beyond the
+          wasted round-trip.
+      - >-
+          Closed four PRs as redundant, each with a comment pointing to where
+          the content already lives, rather than merging duplicates or
+          leaving them for another session to re-discover: #797 (duplicate
+          decision-queue row for #788, same ask as merged #793 under a
+          different id), #764 (stale -- #734 already merged, #368's revert
+          and the dependabot-row removal already landed weeks of ledger
+          history ago), #798 (a rebase of already-closed #795, redundant for
+          the same reason), #800 (both pieces -- the dependabot-row removal
+          and #735's ledger entry -- already on `main`).
+      - >-
+          Merged #799 (agent-decidable correction to the `contrast-fixes`
+          note in `asks.yaml`, recording that #531's merge conflict is now
+          structural because #731's subtree merge restructured the exact
+          file it touches -- not yet on `main`, genuinely new): checks green,
+          `git merge-tree` clean, merged.
+      - >-
+          Remaining open PRs need no action: #788 and #720 are self-flagged
+          human-gated automation/deployment-account spend, already tracked
+          in `asks.yaml`. #531 is self-flagged human-gated venture-code
+          change, its queue note now corrected by #799. #790 is still
+          author-marked draft. `payout-rail` remains the only queue item
+          that moves the revenue ceiling off $0.
+    mrr_end: null
