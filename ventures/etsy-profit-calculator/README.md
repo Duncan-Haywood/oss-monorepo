@@ -61,3 +61,9 @@ Enter a target margin to calculate the item price needed to reach it, then
 compare prices $10 below and above the current price. This turns a fee
 calculation into a quick pricing decision without uploading product data or
 relying on Etsy's changing fee schedule.
+
+You can also enter a target dollar profit per order. The calculator solves for
+the item price that leaves that contribution after the same fees and costs,
+which is useful when deciding whether a product is worth making and shipping.
+Changing this field records only the anonymous `target_profit_used` event in the
+local usage counter; it never records the target amount.

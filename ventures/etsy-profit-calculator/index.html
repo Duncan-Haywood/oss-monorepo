@@ -35,11 +35,11 @@
       <label>Materials / supplies <input id="materialCost" type="number" min="0" step="0.01" value="4"></label>
       <label>Other per-order cost <input id="otherCost" type="number" min="0" step="0.01" value="0"></label>
     </div></section>
-    <section class="result"><h2>Order result</h2><div id="profit" class="hero-number">$24.00</div><div id="label">estimated net contribution</div><dl><dt>Total revenue</dt><dd id="revenue"></dd><dt>Marketplace and payment fees</dt><dd id="fees"></dd><dt>Other variable costs</dt><dd id="other"></dd><dt>Net margin</dt><dd id="margin"></dd><dt>Break-even item price</dt><dd id="breakEven"></dd></dl><hr><h2>Reprice for a goal</h2><label>Target margin (%) <input id="targetMargin" type="number" min="0" max="99.9" step="1" value="50"></label><p id="targetPrice"></p><table><thead><tr><th>Item price</th><th>Profit</th><th>Margin</th></tr></thead><tbody id="scenarios"></tbody></table><div class="actions"><button id="copyLink" type="button">Copy shareable link</button><button id="reset" type="button">Reset to defaults</button></div><p id="status" class="note" role="status" aria-live="polite"></p><hr><p class="note">Your numbers stay in this browser and are restored on your next visit. The shareable link puts them in the URL so you can bookmark your shop's fee setup or send it to a partner. This is a transparent arithmetic result using your inputs, not a statement of Etsy's current fee schedule.</p></section>
+    <section class="result"><h2>Order result</h2><div id="profit" class="hero-number">$24.00</div><div id="label">estimated net contribution</div><dl><dt>Total revenue</dt><dd id="revenue"></dd><dt>Marketplace and payment fees</dt><dd id="fees"></dd><dt>Other variable costs</dt><dd id="other"></dd><dt>Net margin</dt><dd id="margin"></dd><dt>Break-even item price</dt><dd id="breakEven"></dd></dl><hr><h2>Reprice for a goal</h2><label>Target margin (%) <input id="targetMargin" type="number" min="0" max="99.9" step="1" value="50"></label><label>Target profit per order <input id="targetProfit" type="number" min="0" step="0.01" value="20"></label><p id="targetPrice"></p><table><thead><tr><th>Item price</th><th>Profit</th><th>Margin</th></tr></thead><tbody id="scenarios"></tbody></table><div class="actions"><button id="copyLink" type="button">Copy shareable link</button><button id="reset" type="button">Reset to defaults</button></div><p id="status" class="note" role="status" aria-live="polite"></p><hr><p class="note">Your numbers stay in this browser and are restored on your next visit. The shareable link puts them in the URL so you can bookmark your shop's fee setup or send it to a partner. This is a transparent arithmetic result using your inputs, not a statement of Etsy's current fee schedule.</p></section>
   </main>
   <footer><label><input id="usageOptOut" type="checkbox" style="width:auto"> Do not keep anonymous local usage counts</label><p><strong>No warranty.</strong> This free tool is not tax, financial, or business advice. Verify every output and fee against your Etsy account and a qualified professional before relying on it. To the maximum extent permitted by law, the authors accept no liability for loss or damage from its use.</p></footer>
   <script type="module">
-    import { calculateOrder, priceForMargin } from './calc.mjs'; import { recordUsage } from './usage.mjs'; import { encodeInputs, decodeInputs, FIELD_IDS } from './share.mjs';
+    import { calculateOrder, priceForMargin, priceForProfit } from './calc.mjs'; import { recordUsage } from './usage.mjs'; import { encodeInputs, decodeInputs, FIELD_IDS } from './share.mjs';
     const ids = FIELD_IDS;
     const INPUTS_KEY = 'etsy-profit-inputs';
     const field = id => document.getElementById(id);
@@ -59,7 +59,8 @@
     // Kept separate from update() so the share/persist path above stays readable.
     function renderRepricing(input) {
       const target = field('targetMargin').value;
-      document.getElementById('targetPrice').textContent = `Charge ${money(priceForMargin(input, target))} to target a ${target}% margin.`;
+      const targetProfit = field('targetProfit').value;
+      document.getElementById('targetPrice').textContent = `Charge ${money(priceForMargin(input, target))} to target a ${target}% margin, or ${money(priceForProfit(input, targetProfit))} to keep ${money(Number(targetProfit))} per order.`;
       document.getElementById('scenarios').replaceChildren(...[-10, 0, 10].map(delta => {
         const price = Math.max(0, Number(input.price) + delta);
         const scenario = calculateOrder({ ...input, price });
@@ -91,7 +92,9 @@
     // targetMargin drives the repricing panel only: it is not one of the ten
     // shared/persisted fields, so it re-renders without touching saved inputs.
     field('targetMargin').addEventListener('input', update);
+    field('targetProfit').addEventListener('input', update);
     field('targetMargin').addEventListener('change', () => recordUsage(safe(() => localStorage), document.getElementById('usageOptOut').checked, 'scenario_compared'));
+    field('targetProfit').addEventListener('change', () => recordUsage(safe(() => localStorage), document.getElementById('usageOptOut').checked, 'target_profit_used'));
     document.getElementById('usageOptOut').addEventListener('change', update);
 
     document.getElementById('copyLink').addEventListener('click', async () => {
