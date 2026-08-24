@@ -56,6 +56,12 @@ def _markdown_report(reports: list[tuple[Path, list[dict[str, str]]]], read_erro
     failed = sum(bool(errors) for _, errors in reports)
     passed = len(reports) - failed
     overall = "FAIL" if observations or read_errors else "PASS"
+    rule_counts = Counter(error["rule"] for _, errors in reports for error in errors)
+    rule_messages = {
+        error["rule"]: error["message"]
+        for _, errors in reports
+        for error in errors
+    }
     lines = [
         "# E-invoice preflight",
         "",
@@ -67,18 +73,29 @@ def _markdown_report(reports: list[tuple[Path, list[dict[str, str]]]], read_erro
         f"Read errors: {len(read_errors)}",
         "",
     ]
+    if rule_counts:
+        lines.extend(["## Finding summary", "", "| Rule | Occurrences | Check |", "| --- | ---: | --- |"])
+        for rule, count in sorted(rule_counts.items()):
+            lines.append(f"| `{_markdown_text(rule)}` | {count} | {_markdown_text(rule_messages[rule])} |")
+        lines.append("")
     for path, errors in reports:
-        lines.append(f"## `{path.as_posix()}`")
+        lines.append(f"## `{_markdown_text(path.as_posix())}`")
         if not errors:
             lines.extend(["", "Status: **PASS**", "", "No defects found in the supported checks.", ""])
             continue
         lines.extend(["", "Status: **FAIL**", ""])
         for error in errors:
-            lines.extend([f"- **{error['rule']}**: {error['message']}", f"  Fix: {error['fix']}"])
+            lines.extend([
+                f"- **{_markdown_text(error['rule'])}**: {_markdown_text(error['message'])}",
+                f"  Fix: {_markdown_text(error['fix'])}",
+            ])
         lines.append("")
     if read_errors:
         lines.extend(["## Read errors", ""])
-        lines.extend(f"- `{error['file']}`: {error['error']}" for error in read_errors)
+        lines.extend(
+            f"- `{_markdown_text(error['file'])}`: {_markdown_text(error['error'])}"
+            for error in read_errors
+        )
         lines.append("")
     return "\n".join(lines).rstrip() + "\n"
 
@@ -101,6 +118,11 @@ def _json_report(reports: list[tuple[Path, list[dict[str, str]]]], read_errors: 
         output["file"] = reports[0][0].as_posix() if reports else None
         output["errors"] = errors
     return output
+
+
+def _markdown_text(value: str) -> str:
+    """Keep local filenames and validator text from changing report structure."""
+    return value.replace("\\", "\\\\").replace("|", "\\|").replace("`", "\\`")
 
 
 def main(argv: list[str] | None = None) -> int:

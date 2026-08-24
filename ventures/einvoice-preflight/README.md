@@ -63,7 +63,10 @@ JSON output uses the same summary fields for single files and directories:
 output includes the per-file `reports` array. Rule counts let a CI or ERP
 adapter show a compact defect summary without parsing human text.
 `--format markdown` produces a reviewable report with filenames, rule IDs,
-observations, and fixes for single files and recursive directory scans.
+observations, and fixes for single files and recursive directory scans. Batch
+reports also include a finding summary grouped by rule, so repeated defects can
+be triaged before reviewing individual invoices. Markdown-sensitive local names
+and messages are escaped in the report.
 
 ## Privacy and usage
 
