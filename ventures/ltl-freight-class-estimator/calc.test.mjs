@@ -28,6 +28,13 @@ test('shows the density threshold for the next lower class', () => {
   assert.equal(result.nextLowerClassDensity, 13.5);
 });
 
+test('marks the densest class as having no higher band', () => {
+  const result = estimateFreightClass({ length: 12, width: 12, height: 12, weight: 100 });
+  assert.equal(result.freightClass, 50);
+  assert.equal(result.nextLowerClass, null);
+  assert.equal(result.nextLowerClassDensity, null);
+});
+
 test('rejects missing or fractional pieces', () => {
   assert.throws(() => estimateFreightClass({ length: 1, width: 1, height: 1, weight: 1, pieces: 0 }));
   assert.throws(() => estimateFreightClass({ length: 1, width: 1, height: 1, weight: 1, pieces: 1.5 }), /whole number/);
