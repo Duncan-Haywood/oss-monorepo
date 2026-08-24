@@ -69,6 +69,13 @@ export function calculateOrder(input) {
   const fixedCash = fixedFee + costOfGoods + shippingCost + packagingCost + otherCost;
   const targetMarginRate = targetMargin / 100;
   const targetRevenueDenominator = 1 - percentRate - targetMarginRate;
+  // Solve the same equation for the item cost: this is the highest sourcing
+  // price that still reaches the requested margin at the current sale price.
+  const maxCostDenominator = 1 - percentRate - targetMarginRate;
+  const maxCostOfGoods = maxCostDenominator <= 0
+    ? -Infinity
+    : (price + shippingCharged) * maxCostDenominator - fixedFee
+      - shippingCost - packagingCost - otherCost;
   return {
     revenue,
     quantity,
@@ -92,6 +99,7 @@ export function calculateOrder(input) {
     targetMarginPrice: targetRevenueDenominator <= 0
       ? Infinity
       : Math.max(0, fixedCash / targetRevenueDenominator - shippingCharged),
+    maxCostOfGoods: Math.max(0, maxCostOfGoods),
   };
 }
 

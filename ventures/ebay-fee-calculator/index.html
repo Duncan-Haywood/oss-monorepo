@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>eBay Fee &amp; Profit Calculator | Reseller Margin and ROI</title>
-  <meta name="description" content="Calculate eBay order profit, margin, ROI, and break-even resale price after final value fee, per-order fee, promoted listings, shipping, and cost of goods — then compare nearby listing prices before you reprice.">
+  <meta name="description" content="Calculate eBay order profit, margin, ROI, break-even resale price, and the maximum cost of goods you can pay after final value fee, per-order fee, promoted listings, shipping, and cost of goods.">
   <meta property="og:title" content="eBay Fee &amp; Profit Calculator">
   <meta property="og:description" content="See what an eBay sale really leaves after fees and your cost of goods — profit, margin, ROI, and break-even price.">
   <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"eBay Fee & Profit Calculator","applicationCategory":"BusinessApplication","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"featureList":"eBay fee breakdown, net profit, margin, return on investment, break-even resale price, target-margin price, batch profit, repricing sensitivity table"}</script>
@@ -38,7 +38,7 @@
   <header>
     <p class="eyebrow">FOR EBAY RESELLERS</p>
     <h1>Know what each sale really leaves.</h1>
-    <p>Enter your eBay fees, shipping, and what you paid for the item to see net profit, margin, return on your invested cash, and the lowest resale price that still breaks even. Then compare nearby listing prices to see exactly what a price move is worth — before you list or reprice.</p>
+    <p>Enter your eBay fees, shipping, and what you paid for the item to see net profit, margin, return on your invested cash, the lowest resale price that still breaks even, and the most you can pay to source it while hitting your target margin. Then compare nearby listing prices before you list or reprice.</p>
   </header>
   <main>
     <div class="layout">
@@ -72,6 +72,7 @@
           <dt>Profit per unit</dt><dd id="unitProfit"></dd>
           <dt>Break-even item price</dt><dd id="breakEven"></dd>
           <dt>Price for target margin</dt><dd id="targetMarginPrice"></dd>
+          <dt>Max item cost at target margin</dt><dd id="maxCostOfGoods"></dd>
         </dl>
         <hr>
         <p class="note">Transparent arithmetic from your inputs — not a statement of eBay's current fee schedule. Fees vary by category, store subscription, and seller status.</p>
@@ -142,6 +143,7 @@
         document.getElementById('unitProfit').textContent = money(result.unitProfit);
         document.getElementById('breakEven').textContent = Number.isFinite(result.breakEvenPrice) ? money(result.breakEvenPrice) : 'never';
         document.getElementById('targetMarginPrice').textContent = Number.isFinite(result.targetMarginPrice) ? money(result.targetMarginPrice) : 'unreachable';
+        document.getElementById('maxCostOfGoods').textContent = Number.isFinite(result.maxCostOfGoods) ? money(result.maxCostOfGoods) : 'unreachable';
       } catch (error) {
         document.getElementById('profit').textContent = error.message;
         document.getElementById('profit').className = 'hero-number negative';
@@ -154,6 +156,7 @@
         document.getElementById('unitProfit').textContent = '';
         document.getElementById('breakEven').textContent = '';
         document.getElementById('targetMarginPrice').textContent = '';
+        document.getElementById('maxCostOfGoods').textContent = '';
         document.getElementById('scenarios').innerHTML = '';
         document.getElementById('scenariosEmpty').hidden = false;
       }
@@ -183,7 +186,7 @@
     }
     ids.forEach(id => document.getElementById(id).addEventListener('change', () => {
       saveInputs();
-      recordUsage(localStorage, document.getElementById('usageOptOut').checked, id === 'targetMargin' ? 'target_margin_calculated' : id === 'quantity' ? 'batch_calculated' : 'order_profit_calculated');
+      recordUsage(localStorage, document.getElementById('usageOptOut').checked, id === 'targetMargin' ? 'target_margin_calculated' : id === 'costOfGoods' ? 'max_acquisition_cost_calculated' : id === 'quantity' ? 'batch_calculated' : 'order_profit_calculated');
     }));
     document.getElementById('usageOptOut').addEventListener('change', update);
     const actions = document.createElement('p');
