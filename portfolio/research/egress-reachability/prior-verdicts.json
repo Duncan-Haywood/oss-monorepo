@@ -4,6 +4,7 @@
       "n_observations": 1,
       "prior_consensus": "egress_denied",
       "prior_disputed": false,
+      "prior_tied": false,
       "prior_verdicts": {
         "egress_denied": 1
       },
@@ -16,6 +17,7 @@
       "n_observations": 1,
       "prior_consensus": "reachable",
       "prior_disputed": false,
+      "prior_tied": false,
       "prior_verdicts": {
         "reachable": 1
       },
@@ -28,6 +30,7 @@
       "n_observations": 1,
       "prior_consensus": "egress_denied",
       "prior_disputed": false,
+      "prior_tied": false,
       "prior_verdicts": {
         "egress_denied": 1
       },
@@ -40,6 +43,7 @@
       "n_observations": 1,
       "prior_consensus": "egress_denied",
       "prior_disputed": false,
+      "prior_tied": false,
       "prior_verdicts": {
         "egress_denied": 1
       },
@@ -49,28 +53,35 @@
       ]
     },
     "api.github.com": {
-      "n_observations": 12,
+      "curated": true,
+      "curated_reason": "Same 403 scope message as github.com. Passes recording it as 'reachable' read the status code without the body, which is the error this directory's central finding is about.",
+      "n_observations": 14,
       "prior_consensus": "scope_denied",
       "prior_disputed": true,
+      "prior_tied": false,
       "prior_verdicts": {
-        "reachable": 6,
+        "reachable": 8,
         "scope_denied": 6
       },
-      "probe_url": "https://api.github.com/marketplace_listing/plans",
+      "probe_url": "https://api.github.com/",
       "sources": [
         "agent-reachability/results-2026-08-19.json",
         "data-reachability/results-2026-08-20.json",
         "demand-signal-reachability/results-2026-08-19.json",
+        "demand-signal-reachability/results-2026-08-24.json",
         "monetization-reachability/results-2026-08-19.json",
+        "publish-endpoint-reachability/results-2026-08-24.json",
         "publish-endpoint-reachability/results.json",
         "publish-reachability/results-2026-08-19.json",
         "runtime-data-reachability/results-2026-08-20.json"
-      ]
+      ],
+      "vote_consensus": "reachable"
     },
     "api.gumroad.com": {
       "n_observations": 1,
       "prior_consensus": "egress_denied",
       "prior_disputed": false,
+      "prior_tied": false,
       "prior_verdicts": {
         "egress_denied": 1
       },
@@ -83,6 +94,7 @@
       "n_observations": 1,
       "prior_consensus": "egress_denied",
       "prior_disputed": false,
+      "prior_tied": false,
       "prior_verdicts": {
         "egress_denied": 1
       },
@@ -92,16 +104,19 @@
       ]
     },
     "api.nuget.org": {
-      "n_observations": 4,
+      "n_observations": 6,
       "prior_consensus": "reachable",
       "prior_disputed": false,
+      "prior_tied": false,
       "prior_verdicts": {
-        "reachable": 4
+        "reachable": 6
       },
       "probe_url": "https://api.nuget.org/v3/index.json",
       "sources": [
         "demand-signal-reachability/results-2026-08-19.json",
+        "demand-signal-reachability/results-2026-08-24.json",
         "monetization-reachability/results-2026-08-19.json",
+        "publish-endpoint-reachability/results-2026-08-24.json",
         "publish-endpoint-reachability/results.json",
         "publish-reachability/results-2026-08-19.json"
       ]
@@ -110,6 +125,7 @@
       "n_observations": 1,
       "prior_consensus": "egress_denied",
       "prior_disputed": false,
+      "prior_tied": false,
       "prior_verdicts": {
         "egress_denied": 1
       },
@@ -122,6 +138,7 @@
       "n_observations": 4,
       "prior_consensus": "egress_denied",
       "prior_disputed": false,
+      "prior_tied": false,
       "prior_verdicts": {
         "egress_denied": 4
       },
@@ -137,6 +154,7 @@
       "n_observations": 1,
       "prior_consensus": "egress_denied",
       "prior_disputed": false,
+      "prior_tied": false,
       "prior_verdicts": {
         "egress_denied": 1
       },
@@ -149,6 +167,7 @@
       "n_observations": 1,
       "prior_consensus": "egress_denied",
       "prior_disputed": false,
+      "prior_tied": false,
       "prior_verdicts": {
         "egress_denied": 1
       },
@@ -157,10 +176,24 @@
         "monetization-reachability/results-2026-08-19.json"
       ]
     },
+    "api.pepy.tech": {
+      "n_observations": 1,
+      "prior_consensus": "egress_denied",
+      "prior_disputed": false,
+      "prior_tied": false,
+      "prior_verdicts": {
+        "egress_denied": 1
+      },
+      "probe_url": "https://api.pepy.tech/api/v2/projects/requests",
+      "sources": [
+        "demand-signal-reachability/results-2026-08-24.json"
+      ]
+    },
     "api.polar.sh": {
       "n_observations": 1,
       "prior_consensus": "egress_denied",
       "prior_disputed": false,
+      "prior_tied": false,
       "prior_verdicts": {
         "egress_denied": 1
       },
@@ -173,6 +206,7 @@
       "n_observations": 1,
       "prior_consensus": "egress_denied",
       "prior_disputed": false,
+      "prior_tied": false,
       "prior_verdicts": {
         "egress_denied": 1
       },
@@ -185,6 +219,7 @@
       "n_observations": 3,
       "prior_consensus": "egress_denied",
       "prior_disputed": false,
+      "prior_tied": false,
       "prior_verdicts": {
         "egress_denied": 3
       },
@@ -199,6 +234,7 @@
       "n_observations": 5,
       "prior_consensus": "egress_denied",
       "prior_disputed": false,
+      "prior_tied": false,
       "prior_verdicts": {
         "egress_denied": 5
       },
@@ -215,6 +251,7 @@
       "n_observations": 1,
       "prior_consensus": "egress_denied",
       "prior_disputed": false,
+      "prior_tied": false,
       "prior_verdicts": {
         "egress_denied": 1
       },
@@ -224,21 +261,37 @@
       ]
     },
     "azuresearch-usnc.nuget.org": {
-      "n_observations": 1,
+      "n_observations": 2,
       "prior_consensus": "egress_denied",
       "prior_disputed": false,
+      "prior_tied": false,
       "prior_verdicts": {
-        "egress_denied": 1
+        "egress_denied": 2
       },
       "probe_url": "https://azuresearch-usnc.nuget.org/query?q=packageid:newtonsoft.json",
       "sources": [
-        "demand-signal-reachability/results-2026-08-19.json"
+        "demand-signal-reachability/results-2026-08-19.json",
+        "demand-signal-reachability/results-2026-08-24.json"
+      ]
+    },
+    "bigquery.googleapis.com": {
+      "n_observations": 1,
+      "prior_consensus": "reachable",
+      "prior_disputed": false,
+      "prior_tied": false,
+      "prior_verdicts": {
+        "reachable": 1
+      },
+      "probe_url": "https://bigquery.googleapis.com/discovery/v1/apis/bigquery/v2/rest",
+      "sources": [
+        "demand-signal-reachability/results-2026-08-24.json"
       ]
     },
     "chromewebstore.google.com": {
       "n_observations": 1,
       "prior_consensus": "egress_denied",
       "prior_disputed": false,
+      "prior_tied": false,
       "prior_verdicts": {
         "egress_denied": 1
       },
@@ -247,32 +300,53 @@
         "agent-reachability/results-2026-08-19.json"
       ]
     },
-    "codeload.github.com": {
-      "n_observations": 2,
-      "prior_consensus": "reachable",
-      "prior_disputed": true,
+    "clickpy-api.clickhouse.com": {
+      "n_observations": 1,
+      "prior_consensus": "egress_denied",
+      "prior_disputed": false,
+      "prior_tied": false,
       "prior_verdicts": {
-        "reachable": 1,
-        "scope_denied": 1
+        "egress_denied": 1
       },
-      "probe_url": "https://codeload.github.com/w3c/wcag/tar.gz/refs/heads/main",
+      "probe_url": "https://clickpy-api.clickhouse.com/",
       "sources": [
-        "data-reachability/results-2026-08-20.json",
-        "demand-signal-reachability/results-2026-08-19.json"
+        "demand-signal-reachability/results-2026-08-24.json"
       ]
     },
+    "codeload.github.com": {
+      "curated": true,
+      "curated_reason": "Same 403 scope message. Its committed verdict was 'reachable' on a 1-1 insertion-order tie, contradicting the README that shipped beside it.",
+      "n_observations": 3,
+      "prior_consensus": "scope_denied",
+      "prior_disputed": true,
+      "prior_tied": false,
+      "prior_verdicts": {
+        "reachable": 1,
+        "scope_denied": 2
+      },
+      "probe_url": "https://codeload.github.com/robots.txt",
+      "sources": [
+        "data-reachability/results-2026-08-20.json",
+        "demand-signal-reachability/results-2026-08-19.json",
+        "demand-signal-reachability/results-2026-08-24.json"
+      ],
+      "vote_consensus": "scope_denied"
+    },
     "crates.io": {
-      "n_observations": 9,
+      "n_observations": 12,
       "prior_consensus": "reachable",
       "prior_disputed": false,
+      "prior_tied": false,
       "prior_verdicts": {
-        "reachable": 9
+        "reachable": 12
       },
       "probe_url": "https://crates.io/api/v1/crates/serde",
       "sources": [
         "agent-reachability/results-2026-08-19.json",
         "demand-signal-reachability/results-2026-08-19.json",
+        "demand-signal-reachability/results-2026-08-24.json",
         "monetization-reachability/results-2026-08-19.json",
+        "publish-endpoint-reachability/results-2026-08-24.json",
         "publish-endpoint-reachability/results.json",
         "publish-reachability/results-2026-08-19.json",
         "runtime-data-reachability/results-2026-08-20.json"
@@ -282,6 +356,7 @@
       "n_observations": 1,
       "prior_consensus": "egress_denied",
       "prior_disputed": false,
+      "prior_tied": false,
       "prior_verdicts": {
         "egress_denied": 1
       },
@@ -294,6 +369,7 @@
       "n_observations": 1,
       "prior_consensus": "egress_denied",
       "prior_disputed": false,
+      "prior_tied": false,
       "prior_verdicts": {
         "egress_denied": 1
       },
@@ -306,6 +382,7 @@
       "n_observations": 1,
       "prior_consensus": "egress_denied",
       "prior_disputed": false,
+      "prior_tied": false,
       "prior_verdicts": {
         "egress_denied": 1
       },
@@ -318,6 +395,7 @@
       "n_observations": 2,
       "prior_consensus": "egress_denied",
       "prior_disputed": false,
+      "prior_tied": false,
       "prior_verdicts": {
         "egress_denied": 2
       },
@@ -331,6 +409,7 @@
       "n_observations": 2,
       "prior_consensus": "egress_denied",
       "prior_disputed": false,
+      "prior_tied": false,
       "prior_verdicts": {
         "egress_denied": 2
       },
@@ -344,6 +423,7 @@
       "n_observations": 2,
       "prior_consensus": "egress_denied",
       "prior_disputed": false,
+      "prior_tied": false,
       "prior_verdicts": {
         "egress_denied": 2
       },
@@ -357,6 +437,7 @@
       "n_observations": 1,
       "prior_consensus": "egress_denied",
       "prior_disputed": false,
+      "prior_tied": false,
       "prior_verdicts": {
         "egress_denied": 1
       },
@@ -369,6 +450,7 @@
       "n_observations": 1,
       "prior_consensus": "egress_denied",
       "prior_disputed": false,
+      "prior_tied": false,
       "prior_verdicts": {
         "egress_denied": 1
       },
@@ -381,6 +463,7 @@
       "n_observations": 3,
       "prior_consensus": "egress_denied",
       "prior_disputed": false,
+      "prior_tied": false,
       "prior_verdicts": {
         "egress_denied": 3
       },
@@ -395,6 +478,7 @@
       "n_observations": 2,
       "prior_consensus": "egress_denied",
       "prior_disputed": false,
+      "prior_tied": false,
       "prior_verdicts": {
         "egress_denied": 2
       },
@@ -404,10 +488,24 @@
         "publisher-audience/channel-reachability-2026-08-19.json"
       ]
     },
+    "euvdservices.enisa.europa.eu": {
+      "n_observations": 1,
+      "prior_consensus": "egress_denied",
+      "prior_disputed": false,
+      "prior_tied": false,
+      "prior_verdicts": {
+        "egress_denied": 1
+      },
+      "probe_url": "https://euvdservices.enisa.europa.eu/api/lastvulnerabilities",
+      "sources": [
+        "../pipeline/probes/README.md"
+      ]
+    },
     "example.com": {
       "n_observations": 2,
       "prior_consensus": "egress_denied",
       "prior_disputed": false,
+      "prior_tied": false,
       "prior_verdicts": {
         "egress_denied": 2
       },
@@ -418,48 +516,57 @@
       ]
     },
     "files.pythonhosted.org": {
-      "n_observations": 1,
+      "n_observations": 2,
       "prior_consensus": "reachable",
       "prior_disputed": false,
+      "prior_tied": false,
       "prior_verdicts": {
-        "reachable": 1
+        "reachable": 2
       },
       "probe_url": "https://files.pythonhosted.org/",
       "sources": [
+        "publish-endpoint-reachability/results-2026-08-24.json",
         "publish-endpoint-reachability/results.json"
       ]
     },
     "formulae.brew.sh": {
-      "n_observations": 3,
+      "n_observations": 5,
       "prior_consensus": "egress_denied",
       "prior_disputed": false,
+      "prior_tied": false,
       "prior_verdicts": {
-        "egress_denied": 3
+        "egress_denied": 5
       },
       "probe_url": "https://formulae.brew.sh/api/analytics/install/30d.json",
       "sources": [
         "demand-signal-reachability/results-2026-08-19.json",
+        "demand-signal-reachability/results-2026-08-24.json",
         "monetization-reachability/results-2026-08-19.json"
       ]
     },
     "ghcr.io": {
-      "n_observations": 4,
+      "n_observations": 5,
       "prior_consensus": "reachable",
       "prior_disputed": false,
+      "prior_tied": false,
       "prior_verdicts": {
-        "reachable": 4
+        "reachable": 5
       },
       "probe_url": "https://ghcr.io/v2/",
       "sources": [
         "demand-signal-reachability/results-2026-08-19.json",
+        "demand-signal-reachability/results-2026-08-24.json",
         "monetization-reachability/results-2026-08-19.json",
         "publish-reachability/results-2026-08-19.json"
       ]
     },
     "github.com": {
+      "curated": true,
+      "curated_reason": "HTTP surface answers 403 with GitHub's own scope message; the connection completes, so this is repository scoping and not the egress policy. See README 'Scope-denied (3)' and the git-surface table, confirmed against two unrelated public orgs.",
       "n_observations": 4,
       "prior_consensus": "scope_denied",
       "prior_disputed": true,
+      "prior_tied": false,
       "prior_verdicts": {
         "reachable": 1,
         "scope_denied": 3
@@ -469,12 +576,14 @@
         "data-reachability/results-2026-08-20.json",
         "monetization-reachability/results-2026-08-19.json",
         "publish-reachability/results-2026-08-19.json"
-      ]
+      ],
+      "vote_consensus": "scope_denied"
     },
     "gitlab.com": {
       "n_observations": 1,
       "prior_consensus": "reachable",
       "prior_disputed": false,
+      "prior_tied": false,
       "prior_verdicts": {
         "reachable": 1
       },
@@ -487,6 +596,7 @@
       "n_observations": 1,
       "prior_consensus": "egress_denied",
       "prior_disputed": false,
+      "prior_tied": false,
       "prior_verdicts": {
         "egress_denied": 1
       },
@@ -496,31 +606,37 @@
       ]
     },
     "hex.pm": {
-      "n_observations": 7,
+      "n_observations": 10,
       "prior_consensus": "reachable",
       "prior_disputed": false,
+      "prior_tied": false,
       "prior_verdicts": {
-        "reachable": 7
+        "reachable": 10
       },
-      "probe_url": "https://hex.pm/api/packages?search=json",
+      "probe_url": "https://hex.pm/api/packages?search=phoenix",
       "sources": [
         "demand-signal-reachability/results-2026-08-19.json",
+        "demand-signal-reachability/results-2026-08-24.json",
         "monetization-reachability/results-2026-08-19.json",
+        "publish-endpoint-reachability/results-2026-08-24.json",
         "publish-endpoint-reachability/results.json",
         "publish-reachability/results-2026-08-19.json"
       ]
     },
     "hub.docker.com": {
-      "n_observations": 6,
+      "n_observations": 9,
       "prior_consensus": "reachable",
       "prior_disputed": false,
+      "prior_tied": false,
       "prior_verdicts": {
-        "reachable": 6
+        "reachable": 9
       },
-      "probe_url": "https://hub.docker.com/v2/repositories/library/nginx/",
+      "probe_url": "https://hub.docker.com/v2/",
       "sources": [
         "demand-signal-reachability/results-2026-08-19.json",
+        "demand-signal-reachability/results-2026-08-24.json",
         "monetization-reachability/results-2026-08-19.json",
+        "publish-endpoint-reachability/results-2026-08-24.json",
         "publish-endpoint-reachability/results.json",
         "publish-reachability/results-2026-08-19.json"
       ]
@@ -529,6 +645,7 @@
       "n_observations": 2,
       "prior_consensus": "egress_denied",
       "prior_disputed": false,
+      "prior_tied": false,
       "prior_verdicts": {
         "egress_denied": 2
       },
@@ -539,36 +656,42 @@
       ]
     },
     "index.crates.io": {
-      "n_observations": 4,
+      "n_observations": 6,
       "prior_consensus": "reachable",
       "prior_disputed": false,
+      "prior_tied": false,
       "prior_verdicts": {
-        "reachable": 4
+        "reachable": 6
       },
       "probe_url": "https://index.crates.io/config.json",
       "sources": [
         "agent-reachability/results-2026-08-19.json",
         "demand-signal-reachability/results-2026-08-19.json",
+        "demand-signal-reachability/results-2026-08-24.json",
+        "publish-endpoint-reachability/results-2026-08-24.json",
         "publish-endpoint-reachability/results.json",
         "publish-reachability/results-2026-08-19.json"
       ]
     },
     "index.golang.org": {
-      "n_observations": 1,
+      "n_observations": 2,
       "prior_consensus": "reachable",
       "prior_disputed": false,
+      "prior_tied": false,
       "prior_verdicts": {
-        "reachable": 1
+        "reachable": 2
       },
       "probe_url": "https://index.golang.org/index?limit=1",
       "sources": [
-        "demand-signal-reachability/results-2026-08-19.json"
+        "demand-signal-reachability/results-2026-08-19.json",
+        "demand-signal-reachability/results-2026-08-24.json"
       ]
     },
     "jsr.io": {
       "n_observations": 1,
       "prior_consensus": "egress_denied",
       "prior_disputed": false,
+      "prior_tied": false,
       "prior_verdicts": {
         "egress_denied": 1
       },
@@ -581,6 +704,7 @@
       "n_observations": 1,
       "prior_consensus": "egress_denied",
       "prior_disputed": false,
+      "prior_tied": false,
       "prior_verdicts": {
         "egress_denied": 1
       },
@@ -593,6 +717,7 @@
       "n_observations": 1,
       "prior_consensus": "egress_denied",
       "prior_disputed": false,
+      "prior_tied": false,
       "prior_verdicts": {
         "egress_denied": 1
       },
@@ -605,6 +730,7 @@
       "n_observations": 1,
       "prior_consensus": "egress_denied",
       "prior_disputed": false,
+      "prior_tied": false,
       "prior_verdicts": {
         "egress_denied": 1
       },
@@ -617,6 +743,7 @@
       "n_observations": 1,
       "prior_consensus": "egress_denied",
       "prior_disputed": false,
+      "prior_tied": false,
       "prior_verdicts": {
         "egress_denied": 1
       },
@@ -629,6 +756,7 @@
       "n_observations": 4,
       "prior_consensus": "egress_denied",
       "prior_disputed": false,
+      "prior_tied": false,
       "prior_verdicts": {
         "egress_denied": 4
       },
@@ -640,21 +768,24 @@
       ]
     },
     "obsidian.md": {
-      "n_observations": 1,
+      "n_observations": 2,
       "prior_consensus": "egress_denied",
       "prior_disputed": false,
+      "prior_tied": false,
       "prior_verdicts": {
-        "egress_denied": 1
+        "egress_denied": 2
       },
       "probe_url": "https://obsidian.md/plugins",
       "sources": [
-        "demand-signal-reachability/results-2026-08-19.json"
+        "demand-signal-reachability/results-2026-08-19.json",
+        "demand-signal-reachability/results-2026-08-24.json"
       ]
     },
     "open-vsx.org": {
       "n_observations": 5,
       "prior_consensus": "egress_denied",
       "prior_disputed": false,
+      "prior_tied": false,
       "prior_verdicts": {
         "egress_denied": 5
       },
@@ -669,6 +800,7 @@
       "n_observations": 1,
       "prior_consensus": "egress_denied",
       "prior_disputed": false,
+      "prior_tied": false,
       "prior_verdicts": {
         "egress_denied": 1
       },
@@ -681,6 +813,7 @@
       "n_observations": 1,
       "prior_consensus": "egress_denied",
       "prior_disputed": false,
+      "prior_tied": false,
       "prior_verdicts": {
         "egress_denied": 1
       },
@@ -693,6 +826,7 @@
       "n_observations": 1,
       "prior_consensus": "reachable",
       "prior_disputed": false,
+      "prior_tied": false,
       "prior_verdicts": {
         "reachable": 1
       },
@@ -702,15 +836,18 @@
       ]
     },
     "packagist.org": {
-      "n_observations": 6,
+      "n_observations": 10,
       "prior_consensus": "reachable",
       "prior_disputed": false,
+      "prior_tied": false,
       "prior_verdicts": {
-        "reachable": 6
+        "reachable": 10
       },
       "probe_url": "https://packagist.org/api/create-package",
       "sources": [
         "demand-signal-reachability/results-2026-08-19.json",
+        "demand-signal-reachability/results-2026-08-24.json",
+        "publish-endpoint-reachability/results-2026-08-24.json",
         "publish-endpoint-reachability/results.json",
         "publish-reachability/results-2026-08-19.json"
       ]
@@ -719,6 +856,7 @@
       "n_observations": 1,
       "prior_consensus": "reachable",
       "prior_disputed": false,
+      "prior_tied": false,
       "prior_verdicts": {
         "reachable": 1
       },
@@ -731,6 +869,7 @@
       "n_observations": 2,
       "prior_consensus": "egress_denied",
       "prior_disputed": false,
+      "prior_tied": false,
       "prior_verdicts": {
         "egress_denied": 2
       },
@@ -741,15 +880,17 @@
       ]
     },
     "proxy.golang.org": {
-      "n_observations": 4,
+      "n_observations": 5,
       "prior_consensus": "reachable",
       "prior_disputed": false,
+      "prior_tied": false,
       "prior_verdicts": {
-        "reachable": 4
+        "reachable": 5
       },
-      "probe_url": "https://proxy.golang.org/github.com/pkg/errors/@v/list",
+      "probe_url": "https://proxy.golang.org/github.com/gorilla/mux/@v/list",
       "sources": [
         "demand-signal-reachability/results-2026-08-19.json",
+        "demand-signal-reachability/results-2026-08-24.json",
         "monetization-reachability/results-2026-08-19.json",
         "publish-reachability/results-2026-08-19.json"
       ]
@@ -758,6 +899,7 @@
       "n_observations": 1,
       "prior_consensus": "egress_denied",
       "prior_disputed": false,
+      "prior_tied": false,
       "prior_verdicts": {
         "egress_denied": 1
       },
@@ -767,16 +909,19 @@
       ]
     },
     "pypi.org": {
-      "n_observations": 8,
+      "n_observations": 14,
       "prior_consensus": "reachable",
       "prior_disputed": false,
+      "prior_tied": false,
       "prior_verdicts": {
-        "reachable": 8
+        "reachable": 14
       },
       "probe_url": "https://pypi.org/pypi/requests/json",
       "sources": [
         "agent-reachability/results-2026-08-19.json",
         "demand-signal-reachability/results-2026-08-19.json",
+        "demand-signal-reachability/results-2026-08-24.json",
+        "publish-endpoint-reachability/results-2026-08-24.json",
         "publish-endpoint-reachability/results.json",
         "publish-reachability/results-2026-08-19.json",
         "publisher-audience/channel-reachability-2026-08-19.json",
@@ -784,29 +929,33 @@
       ]
     },
     "pypistats.org": {
-      "n_observations": 1,
+      "n_observations": 2,
       "prior_consensus": "egress_denied",
       "prior_disputed": false,
+      "prior_tied": false,
       "prior_verdicts": {
-        "egress_denied": 1
+        "egress_denied": 2
       },
       "probe_url": "https://pypistats.org/api/packages/requests/recent",
       "sources": [
-        "agent-reachability/results-2026-08-19.json"
+        "agent-reachability/results-2026-08-19.json",
+        "demand-signal-reachability/results-2026-08-24.json"
       ]
     },
     "raw.githubusercontent.com": {
-      "n_observations": 12,
+      "n_observations": 13,
       "prior_consensus": "reachable",
       "prior_disputed": false,
+      "prior_tied": false,
       "prior_verdicts": {
-        "reachable": 12
+        "reachable": 13
       },
       "probe_url": "https://raw.githubusercontent.com/github/advisory-database/main/README.md",
       "sources": [
         "agent-reachability/results-2026-08-19.json",
         "data-reachability/results-2026-08-20.json",
         "demand-signal-reachability/results-2026-08-19.json",
+        "demand-signal-reachability/results-2026-08-24.json",
         "monetization-reachability/results-2026-08-19.json"
       ]
     },
@@ -814,6 +963,7 @@
       "n_observations": 1,
       "prior_consensus": "reachable",
       "prior_disputed": false,
+      "prior_tied": false,
       "prior_verdicts": {
         "reachable": 1
       },
@@ -826,6 +976,7 @@
       "n_observations": 2,
       "prior_consensus": "reachable",
       "prior_disputed": false,
+      "prior_tied": false,
       "prior_verdicts": {
         "reachable": 2
       },
@@ -836,17 +987,19 @@
       ]
     },
     "registry.npmjs.org": {
-      "n_observations": 13,
+      "n_observations": 17,
       "prior_consensus": "reachable",
       "prior_disputed": false,
+      "prior_tied": false,
       "prior_verdicts": {
-        "reachable": 13
+        "reachable": 17
       },
-      "probe_url": "https://registry.npmjs.org/-/v1/search?text=sbom&size=1",
+      "probe_url": "https://registry.npmjs.org/-/whoami",
       "sources": [
         "agent-reachability/results-2026-08-19.json",
         "data-reachability/results-2026-08-20.json",
         "monetization-reachability/results-2026-08-19.json",
+        "publish-endpoint-reachability/results-2026-08-24.json",
         "publish-endpoint-reachability/results.json",
         "publish-reachability/results-2026-08-19.json",
         "publisher-audience/channel-reachability-2026-08-19.json",
@@ -857,6 +1010,7 @@
       "n_observations": 1,
       "prior_consensus": "egress_denied",
       "prior_disputed": false,
+      "prior_tied": false,
       "prior_verdicts": {
         "egress_denied": 1
       },
@@ -866,31 +1020,36 @@
       ]
     },
     "repo.packagist.org": {
-      "n_observations": 4,
+      "n_observations": 5,
       "prior_consensus": "reachable",
       "prior_disputed": false,
+      "prior_tied": false,
       "prior_verdicts": {
-        "reachable": 4
+        "reachable": 5
       },
       "probe_url": "https://repo.packagist.org/p2/monolog/monolog.json",
       "sources": [
         "demand-signal-reachability/results-2026-08-19.json",
+        "demand-signal-reachability/results-2026-08-24.json",
         "monetization-reachability/results-2026-08-19.json",
         "publish-reachability/results-2026-08-19.json",
         "runtime-data-reachability/results-2026-08-20.json"
       ]
     },
     "rubygems.org": {
-      "n_observations": 11,
+      "n_observations": 17,
       "prior_consensus": "reachable",
       "prior_disputed": false,
+      "prior_tied": false,
       "prior_verdicts": {
-        "reachable": 11
+        "reachable": 17
       },
       "probe_url": "https://rubygems.org/api/v1/gems/rails.json",
       "sources": [
         "demand-signal-reachability/results-2026-08-19.json",
+        "demand-signal-reachability/results-2026-08-24.json",
         "monetization-reachability/results-2026-08-19.json",
+        "publish-endpoint-reachability/results-2026-08-24.json",
         "publish-endpoint-reachability/results.json",
         "publish-reachability/results-2026-08-19.json",
         "runtime-data-reachability/results-2026-08-20.json"
@@ -900,6 +1059,7 @@
       "n_observations": 1,
       "prior_consensus": "reachable",
       "prior_disputed": false,
+      "prior_tied": false,
       "prior_verdicts": {
         "reachable": 1
       },
@@ -912,6 +1072,7 @@
       "n_observations": 3,
       "prior_consensus": "egress_denied",
       "prior_disputed": false,
+      "prior_tied": false,
       "prior_verdicts": {
         "egress_denied": 3
       },
@@ -926,6 +1087,7 @@
       "n_observations": 2,
       "prior_consensus": "egress_denied",
       "prior_disputed": false,
+      "prior_tied": false,
       "prior_verdicts": {
         "egress_denied": 2
       },
@@ -939,6 +1101,7 @@
       "n_observations": 1,
       "prior_consensus": "egress_denied",
       "prior_disputed": false,
+      "prior_tied": false,
       "prior_verdicts": {
         "egress_denied": 1
       },
@@ -951,6 +1114,7 @@
       "n_observations": 2,
       "prior_consensus": "reachable",
       "prior_disputed": false,
+      "prior_tied": false,
       "prior_verdicts": {
         "reachable": 2
       },
@@ -964,6 +1128,7 @@
       "n_observations": 3,
       "prior_consensus": "egress_denied",
       "prior_disputed": false,
+      "prior_tied": false,
       "prior_verdicts": {
         "egress_denied": 3
       },
@@ -978,6 +1143,7 @@
       "n_observations": 1,
       "prior_consensus": "egress_denied",
       "prior_disputed": false,
+      "prior_tied": false,
       "prior_verdicts": {
         "egress_denied": 1
       },
@@ -990,6 +1156,7 @@
       "n_observations": 1,
       "prior_consensus": "egress_denied",
       "prior_disputed": false,
+      "prior_tied": false,
       "prior_verdicts": {
         "egress_denied": 1
       },
@@ -999,28 +1166,32 @@
       ]
     },
     "upload.pypi.org": {
-      "n_observations": 2,
+      "n_observations": 3,
       "prior_consensus": "egress_denied",
       "prior_disputed": false,
+      "prior_tied": false,
       "prior_verdicts": {
-        "egress_denied": 2
+        "egress_denied": 3
       },
       "probe_url": "https://upload.pypi.org/legacy/",
       "sources": [
+        "demand-signal-reachability/results-2026-08-24.json",
         "monetization-reachability/results-2026-08-19.json",
         "publish-reachability/results-2026-08-19.json"
       ]
     },
     "wordpress.org": {
-      "n_observations": 4,
+      "n_observations": 5,
       "prior_consensus": "egress_denied",
       "prior_disputed": false,
+      "prior_tied": false,
       "prior_verdicts": {
-        "egress_denied": 4
+        "egress_denied": 5
       },
       "probe_url": "https://wordpress.org/plugins/",
       "sources": [
         "demand-signal-reachability/results-2026-08-19.json",
+        "demand-signal-reachability/results-2026-08-24.json",
         "publish-reachability/results-2026-08-19.json",
         "publisher-audience/channel-reachability-2026-08-19.json"
       ]
@@ -1029,6 +1200,7 @@
       "n_observations": 1,
       "prior_consensus": "egress_denied",
       "prior_disputed": false,
+      "prior_tied": false,
       "prior_verdicts": {
         "egress_denied": 1
       },
@@ -1041,6 +1213,7 @@
       "n_observations": 1,
       "prior_consensus": "egress_denied",
       "prior_disputed": false,
+      "prior_tied": false,
       "prior_verdicts": {
         "egress_denied": 1
       },
@@ -1053,6 +1226,7 @@
       "n_observations": 2,
       "prior_consensus": "egress_denied",
       "prior_disputed": false,
+      "prior_tied": false,
       "prior_verdicts": {
         "egress_denied": 2
       },
@@ -1066,6 +1240,7 @@
       "n_observations": 2,
       "prior_consensus": "egress_denied",
       "prior_disputed": false,
+      "prior_tied": false,
       "prior_verdicts": {
         "egress_denied": 2
       },
@@ -1075,10 +1250,24 @@
         "runtime-data-reachability/results-2026-08-20.json"
       ]
     },
+    "www.ftc.gov": {
+      "n_observations": 1,
+      "prior_consensus": "egress_denied",
+      "prior_disputed": false,
+      "prior_tied": false,
+      "prior_verdicts": {
+        "egress_denied": 1
+      },
+      "probe_url": "https://www.ftc.gov/legal-library/browse/rules",
+      "sources": [
+        "primary-source-egress/README.md"
+      ]
+    },
     "www.gov.uk": {
       "n_observations": 1,
       "prior_consensus": "egress_denied",
       "prior_disputed": false,
+      "prior_tied": false,
       "prior_verdicts": {
         "egress_denied": 1
       },
@@ -1088,36 +1277,54 @@
       ]
     },
     "www.npmjs.com": {
-      "n_observations": 3,
+      "n_observations": 4,
       "prior_consensus": "reachable",
       "prior_disputed": false,
+      "prior_tied": false,
       "prior_verdicts": {
-        "reachable": 3
+        "reachable": 4
       },
       "probe_url": "https://www.npmjs.com/signup",
       "sources": [
         "monetization-reachability/results-2026-08-19.json",
+        "publish-endpoint-reachability/results-2026-08-24.json",
         "publish-endpoint-reachability/results.json",
         "publish-reachability/results-2026-08-19.json"
       ]
     },
     "www.nuget.org": {
-      "n_observations": 3,
+      "n_observations": 4,
       "prior_consensus": "reachable",
       "prior_disputed": false,
+      "prior_tied": false,
       "prior_verdicts": {
-        "reachable": 3
+        "reachable": 4
       },
       "probe_url": "https://www.nuget.org/api/v2/package",
       "sources": [
+        "publish-endpoint-reachability/results-2026-08-24.json",
         "publish-endpoint-reachability/results.json",
         "publish-reachability/results-2026-08-19.json"
+      ]
+    },
+    "www.piwheels.org": {
+      "n_observations": 1,
+      "prior_consensus": "egress_denied",
+      "prior_disputed": false,
+      "prior_tied": false,
+      "prior_verdicts": {
+        "egress_denied": 1
+      },
+      "probe_url": "https://www.piwheels.org/project/requests/json/",
+      "sources": [
+        "demand-signal-reachability/results-2026-08-24.json"
       ]
     },
     "www.pulsemcp.com": {
       "n_observations": 1,
       "prior_consensus": "egress_denied",
       "prior_disputed": false,
+      "prior_tied": false,
       "prior_verdicts": {
         "egress_denied": 1
       },
@@ -1127,21 +1334,24 @@
       ]
     },
     "www.raycast.com": {
-      "n_observations": 1,
+      "n_observations": 2,
       "prior_consensus": "egress_denied",
       "prior_disputed": false,
+      "prior_tied": false,
       "prior_verdicts": {
-        "egress_denied": 1
+        "egress_denied": 2
       },
       "probe_url": "https://www.raycast.com/store",
       "sources": [
-        "demand-signal-reachability/results-2026-08-19.json"
+        "demand-signal-reachability/results-2026-08-19.json",
+        "demand-signal-reachability/results-2026-08-24.json"
       ]
     },
     "www.sec.gov": {
       "n_observations": 1,
       "prior_consensus": "egress_denied",
       "prior_disputed": false,
+      "prior_tied": false,
       "prior_verdicts": {
         "egress_denied": 1
       },
@@ -1154,6 +1364,7 @@
       "n_observations": 1,
       "prior_consensus": "egress_denied",
       "prior_disputed": false,
+      "prior_tied": false,
       "prior_verdicts": {
         "egress_denied": 1
       },
@@ -1166,6 +1377,7 @@
       "n_observations": 3,
       "prior_consensus": "egress_denied",
       "prior_disputed": false,
+      "prior_tied": false,
       "prior_verdicts": {
         "egress_denied": 3
       },
@@ -1180,6 +1392,7 @@
       "n_observations": 1,
       "prior_consensus": "egress_denied",
       "prior_disputed": false,
+      "prior_tied": false,
       "prior_verdicts": {
         "egress_denied": 1
       },
@@ -1189,41 +1402,67 @@
       ]
     },
     "zed.dev": {
-      "n_observations": 1,
+      "n_observations": 2,
       "prior_consensus": "egress_denied",
       "prior_disputed": false,
+      "prior_tied": false,
       "prior_verdicts": {
-        "egress_denied": 1
+        "egress_denied": 2
       },
       "probe_url": "https://zed.dev/extensions",
       "sources": [
-        "demand-signal-reachability/results-2026-08-19.json"
+        "demand-signal-reachability/results-2026-08-19.json",
+        "demand-signal-reachability/results-2026-08-24.json"
       ]
     }
   },
   "ingested_from": [
+    "a11y-axe-recall/results-2026-08-22.json",
+    "a11y-contrast-decidability/results-2026-08-21.json",
+    "a11y-delivered-contrast/results-2026-08-21.json",
+    "a11y-engine-agreement/results-2026-08-21.json",
+    "a11y-evidence-record/results-2026-08-20.json",
+    "a11y-evidence-record/results-2026-08-21-contrast.json",
+    "a11y-evidence-record/results-stylesheet-reachability-2026-08-21.json",
+    "a11y-external-coverage-reference/results-2026-08-21-after-disclosure.json",
+    "a11y-external-coverage-reference/results-2026-08-21-as-found.json",
+    "a11y-external-coverage-reference/results-2026-08-22-after-rules.json",
+    "a11y-generated-sites/results-2026-08-22.json",
+    "a11y-own-sites/results-2026-08-22.json",
+    "a11y-render-recovery/results-2026-08-20.json",
+    "a11y-theme-resolution/results-2026-08-20.json",
     "agent-reachability/results-2026-08-19-crates.json",
     "agent-reachability/results-2026-08-19.json",
+    "artifact-channel-match/results-2026-08-24.json",
     "cra-advisory-reachability/results-2026-08-20-findings.json",
     "cra-advisory-reachability/results-2026-08-20-reviewed.json",
     "data-reachability/results-2026-08-20.json",
     "demand-signal-reachability/results-2026-08-19.json",
+    "demand-signal-reachability/results-2026-08-24.json",
+    "egress-reachability/unindexed-hosts.json",
+    "error-rate-disclosure/results-2026-08-22.json",
+    "forge-surface-reachability/results-2026-08-21.json",
     "free-listing-demand/results-2026-08-19.json",
     "free-listing-demand/results-cross-registry-2026-08-19.json",
     "free-listing-economics/results-2026-08-19.json",
     "listing-monetization/results-2026-08-19.json",
     "mcp-archive-defensibility/results-2026-08-20.json",
+    "mcp-tool-drift/results-2026-08-19-classified.json",
     "mcp-tool-drift/results-2026-08-19-consecutive.json",
     "mcp-tool-drift/results-2026-08-19-lifetime.json",
     "monetization-reachability/results-2026-08-19-ghsa-vs-cve.json",
     "monetization-reachability/results-2026-08-19.json",
+    "monetization-reachability/results-2026-08-20-advisory-disagreement.json",
+    "publish-endpoint-reachability/results-2026-08-24.json",
     "publish-endpoint-reachability/results.json",
     "publish-reachability/results-2026-08-19.json",
     "publisher-audience/channel-reachability-2026-08-19.json",
     "publisher-audience/results-2026-08-19.json",
+    "register-change-rate/results-2026-08-20.json",
     "registry-audience-match/results-2026-08-19.json",
-    "runtime-data-reachability/results-2026-08-20.json"
+    "runtime-data-reachability/results-2026-08-20.json",
+    "substitute-supply/results-2026-08-20.json"
   ],
-  "n_hosts": 92,
-  "n_source_files": 21
+  "n_hosts": 98,
+  "n_source_files": 45
 }

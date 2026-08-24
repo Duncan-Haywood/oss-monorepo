@@ -10,15 +10,18 @@ three places they contradict each other. This script does three things:
   --probe    re-probe each distinct host once, live, with the methodology
              corrections the prior passes each discovered the hard way
   --report   diff the two and print what changed, what disagreed, and why
+  --check    assert the committed table still equals a fresh --ingest
 
 Read-only. Standard library only. No credentials, publishes nothing, registers
-nothing, cannot spend money. `--report` runs with no network at all, from saved
-data, which is how a reviewer checks the claim without re-running the probe.
+nothing, cannot spend money. `--report` and `--check` run with no network at
+all, from saved data, which is how a reviewer checks the claim without
+re-running the probe.
 
 Usage:
     python3 consolidate.py --ingest  -o prior-verdicts.json
     python3 consolidate.py --probe   -i prior-verdicts.json -o results-<date>.json
     python3 consolidate.py --report  -i prior-verdicts.json -r results-<date>.json
+    python3 consolidate.py --check
 """
 
 from __future__ import annotations
@@ -35,6 +38,24 @@ from urllib.parse import urlsplit
 
 RESEARCH_DIR = os.path.dirname(os.path.abspath(__file__))
 PORTFOLIO_RESEARCH = os.path.dirname(RESEARCH_DIR)
+
+# The walk below can only see machine-readable results *under*
+# portfolio/research/. Two kinds of measurement are invisible to it, and both
+# had gone missing by 2026-08-24:
+#
+#   - a pass that recorded its hosts in prose only (`primary-source-egress/`
+#     probed 23 hosts and left no results file; `www.ftc.gov` is one of them,
+#     and it is named in `portfolio/ledger/asks.yaml`'s egress ask)
+#   - a pass that lives outside this tree entirely
+#     (`portfolio/pipeline/probes/README.md` probed
+#     `euvdservices.enisa.europa.eu`, the host that actually serves the EUVD
+#     API, and recorded the verdict in its own README)
+#
+# A host missing from this table is not merely undocumented: `--probe` iterates
+# the table, so an absent host is never re-measured, and the ask that names it
+# goes to the account owner with no verdict behind it. This file is where such
+# a measurement is written down so the table carries it.
+UNINDEXED_PATH = os.path.join(RESEARCH_DIR, "unindexed-hosts.json")
 
 UA = "monorepo-projects-research/1.0 (read-only egress reachability probe)"
 TIMEOUT = 20
@@ -181,6 +202,75 @@ def _normalise(rec: dict):
     return host, verdict, url, detail
 
 
+# A plain `Counter.most_common(1)` breaks a tie by insertion order, which is
+# the order the walk happened to read the files in. Two hosts were decided that
+# way and nobody could have seen it in the output: `api.github.com` stood at
+# 6 reachable / 6 scope_denied and `codeload.github.com` at 1 / 1. The second
+# landed on `reachable`, which contradicts this directory's own README — it
+# records all three GitHub hosts answering 403 with GitHub's scope message,
+# measured first-hand and confirmed against a second unrelated org.
+#
+# `probe()` already states the rule that settles a tie, and it is the
+# conservative one: *denials are authoritative and reachability is not — one
+# observed denial means the host is not dependably usable.* A tie is a case
+# where some pass observed a denial, so it resolves to the denial.
+_CONSENSUS_PRECEDENCE = (EGRESS_DENIED, SCOPE_DENIED, REACHABLE, ERROR)
+
+
+def _is_tied(verdicts: Counter) -> bool:
+    if not verdicts:
+        return False
+    top = verdicts.most_common(1)[0][1]
+    return sum(1 for v in verdicts.values() if v == top) > 1
+
+
+def _consensus(verdicts: Counter) -> str:
+    if not verdicts:
+        return ERROR
+    top = max(verdicts.values())
+    tied = [v for v, n in verdicts.items() if n == top]
+    for verdict in _CONSENSUS_PRECEDENCE:
+        if verdict in tied:
+            return verdict
+    return tied[0]
+
+
+# Hosts whose verdict was settled by first-hand analysis rather than by counting
+# observations, with the reason. This table is small on purpose and every entry
+# has to point at a measurement in this directory's README.
+#
+# It exists because a vote over observations is a vote over *methods*, and the
+# methods here are not equally good: several passes classified any HTTP status
+# as an origin answer, which this directory's central finding shows is wrong
+# about 6% of the time for a denial and always wrong for GitHub's scope 403.
+# Folding in newer passes that made that error would have overturned
+# `api.github.com` from scope_denied to reachable on an 8-6 vote. Pinning is
+# what stops a re-ingest from silently undoing a conclusion the consolidation
+# reached, while `prior_verdicts` and `vote_consensus` keep the disagreement
+# visible rather than hiding it.
+CURATED = {
+    "github.com": (
+        SCOPE_DENIED,
+        "HTTP surface answers 403 with GitHub's own scope message; the "
+        "connection completes, so this is repository scoping and not the "
+        "egress policy. See README 'Scope-denied (3)' and the git-surface "
+        "table, confirmed against two unrelated public orgs.",
+    ),
+    "api.github.com": (
+        SCOPE_DENIED,
+        "Same 403 scope message as github.com. Passes recording it as "
+        "'reachable' read the status code without the body, which is the "
+        "error this directory's central finding is about.",
+    ),
+    "codeload.github.com": (
+        SCOPE_DENIED,
+        "Same 403 scope message. Its committed verdict was 'reachable' on a "
+        "1-1 insertion-order tie, contradicting the README that shipped "
+        "beside it.",
+    ),
+}
+
+
 def ingest() -> dict:
     """Walk sibling research dirs and fold every probe into one host table."""
     by_host = defaultdict(lambda: {"urls": {}, "observations": []})
@@ -215,19 +305,49 @@ def ingest() -> dict:
             n += 1
         print(f"  {rel}: {n} probe records", file=sys.stderr)
 
+    # Hosts measured outside this walk's reach. Each record names the document
+    # that measured it, so provenance still points at a primary source.
+    if os.path.exists(UNINDEXED_PATH):
+        blob = json.load(open(UNINDEXED_PATH))
+        rel_unindexed = os.path.relpath(UNINDEXED_PATH, PORTFOLIO_RESEARCH)
+        n = 0
+        for rec in _records(blob):
+            norm = _normalise(rec)
+            if norm is None:
+                continue
+            host, verdict, url, detail = norm
+            entry = by_host[host]
+            entry["urls"][url] = entry["urls"].get(url, 0) + 1
+            entry["observations"].append(
+                {"source": rec.get("source") or rel_unindexed,
+                 "verdict": verdict, "url": url, "detail": detail[:200]}
+            )
+            n += 1
+        files.append(UNINDEXED_PATH)
+        print(f"  {rel_unindexed}: {n} probe records", file=sys.stderr)
+
     out = {}
     for host, entry in sorted(by_host.items()):
         verdicts = Counter(o["verdict"] for o in entry["observations"])
         # The most-probed URL is the representative one to re-probe.
         url = max(entry["urls"].items(), key=lambda kv: kv[1])[0]
-        out[host] = {
+        consensus = _consensus(verdicts)
+        record = {
             "probe_url": url,
             "prior_verdicts": dict(verdicts),
-            "prior_consensus": verdicts.most_common(1)[0][0],
+            "prior_consensus": consensus,
             "prior_disputed": len(verdicts) > 1,
+            "prior_tied": _is_tied(verdicts),
             "sources": sorted({o["source"] for o in entry["observations"]}),
             "n_observations": len(entry["observations"]),
         }
+        if host in CURATED:
+            verdict, reason = CURATED[host]
+            record["prior_consensus"] = verdict
+            record["curated"] = True
+            record["curated_reason"] = reason
+            record["vote_consensus"] = consensus
+        out[host] = record
     return {
         "ingested_from": sorted(os.path.relpath(f, PORTFOLIO_RESEARCH) for f in files),
         "n_source_files": len(files),
@@ -507,12 +627,84 @@ def report(prior: dict, fresh: dict) -> int:
     return 0
 
 
+# --------------------------------------------------------------------------
+# --check
+# --------------------------------------------------------------------------
+#
+# This directory exists because nine passes each re-measured an overlapping
+# host set without ever folding the results into one table. Landing the table
+# fixed that once. It did not keep it fixed: `--ingest` is a command somebody
+# has to remember to run, and between 2026-08-20 and 2026-08-24 four hosts
+# (`api.pepy.tech`, `bigquery.googleapis.com`, `clickpy-api.clickhouse.com`,
+# `www.piwheels.org`) were measured by a sibling pass and never folded in, so
+# the committed table said 92 while a fresh ingest said 96.
+#
+# The consequence is the same one the directory was built to stop: `--probe`
+# iterates the committed table, so a host the table does not carry is never
+# re-measured, and the next session that wants its verdict probes it again from
+# scratch. `--ingest` is deterministic and needs no network, so the drift is
+# mechanically checkable rather than something to notice.
+
+
+def check(prior_path: str) -> int:
+    fresh = ingest()
+    try:
+        committed = json.load(open(prior_path))
+    except (OSError, json.JSONDecodeError) as exc:
+        print(f"FAIL: cannot read {prior_path}: {exc}")
+        return 1
+
+    problems = []
+    missing = sorted(set(fresh["hosts"]) - set(committed["hosts"]))
+    extra = sorted(set(committed["hosts"]) - set(fresh["hosts"]))
+    if missing:
+        problems.append(
+            f"{len(missing)} host(s) measured by a pass in this tree but absent "
+            f"from the committed table: {', '.join(missing)}"
+        )
+    if extra:
+        problems.append(
+            f"{len(extra)} host(s) in the committed table that no results file "
+            f"supports: {', '.join(extra)}"
+        )
+
+    moved = [
+        h for h in sorted(set(fresh["hosts"]) & set(committed["hosts"]))
+        if fresh["hosts"][h]["prior_consensus"]
+        != committed["hosts"][h]["prior_consensus"]
+    ]
+    if moved:
+        problems.append(
+            "consensus changed for: "
+            + ", ".join(
+                f"{h} ({committed['hosts'][h]['prior_consensus']} -> "
+                f"{fresh['hosts'][h]['prior_consensus']})"
+                for h in moved
+            )
+        )
+
+    if problems:
+        print(f"FAIL: {os.path.relpath(prior_path)} lags a fresh --ingest.\n")
+        for p in problems:
+            print(f"  - {p}")
+        print("\n  Fix: python3 consolidate.py --ingest")
+        print("  Then re-probe any newly folded host before quoting its verdict.")
+        return 1
+
+    print(f"OK: {len(fresh['hosts'])} hosts from {fresh['n_source_files']} "
+          f"results files; committed table matches a fresh ingest.")
+    return 0
+
+
 def main() -> int:
     ap = argparse.ArgumentParser(description=__doc__,
                                  formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("--ingest", action="store_true")
     ap.add_argument("--probe", action="store_true")
     ap.add_argument("--report", action="store_true")
+    ap.add_argument("--check", action="store_true",
+                    help="assert the committed table equals a fresh --ingest; "
+                         "offline, exits non-zero on drift")
     ap.add_argument("--git-surface", action="store_true",
                     help="probe git's smart-HTTP transport on the GitHub hosts "
                          "the HTTP passes recorded as scope_denied")
@@ -521,6 +713,9 @@ def main() -> int:
     ap.add_argument("-o", "--out")
     ap.add_argument("--stamp", default="", help="date stamp to record in the output")
     args = ap.parse_args()
+
+    if args.check:
+        return check(args.prior)
 
     if args.ingest:
         data = ingest()
@@ -558,7 +753,7 @@ def main() -> int:
             ap.error("--report needs -r/--results")
         return report(prior, json.load(open(args.results)))
 
-    ap.error("pick one of --ingest / --probe / --report")
+    ap.error("pick one of --ingest / --probe / --report / --check")
     return 2
 
 

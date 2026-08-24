@@ -4,9 +4,16 @@
 pass each, first-hand. Read-only GETs; no credential, no account, no
 publication, no spend.**
 
+**2026-08-24: the table is 98 hosts.** Six were measured and never folded in —
+four by a sibling pass this ingest could see and nobody ran, two it structurally
+could not see at all, one of which the account owner is being asked to
+allowlist. See [the 2026-08-24 amendment](#amendment-2026-08-24--the-table-had-drifted-six-hosts-and-nothing-was-checking).
+
 Reproduce:
 
 ```
+python3 consolidate.py --check                                   # is the table current? (offline)
+python3 check_ask_hosts.py                                       # is every host in an ask measured?
 python3 consolidate.py --ingest                                  # fold in every prior pass
 python3 consolidate.py --probe  -o results-2026-08-23.json       # re-measure all 92 hosts
 python3 consolidate.py --report -r results-2026-08-23.json       # diff the two, offline
@@ -201,10 +208,12 @@ No ask is added and no score is changed. Three are re-stated more precisely:
   `repo.packagist.org`, `crates.io` and `hex.pm` all answer. The caveat is
   PyPI-shaped and worth keeping: a registry's read host and its *publish* host
   can have different verdicts, and for PyPI they do.
-- **Asks 3 and 7 are one decision, confirmed at 92 hosts.** `api.wordpress.org`
-  and the government/standards publishers fail with the same signature as the
-  `example.com` control. There is no host-specific denial to appeal; there is one
-  policy, and 64 hosts sit behind it.
+- **Asks 3 and 7 are one decision, confirmed at 92 hosts** (98 as of
+  2026-08-24). `api.wordpress.org` and the government/standards publishers fail
+  with the same signature as the `example.com` control. There is no
+  host-specific denial to appeal; there is one policy, and 64 hosts sit behind
+  it — 69 after the 2026-08-24 amendment below, which also corrects the ask to
+  name the host that actually serves the EUVD API.
 - **Ask 2 (a payout rail) needs the egress change to be worth anything.** All
   eleven payment and funding rails probed are denied. A merchant-of-record
   credential alone changes nothing from inside a session — which is what
@@ -239,3 +248,93 @@ be denied answers). Absent such a signal, cite the table.
 Re-run `consolidate.py --probe` before citing any row; it takes about two
 minutes and updates the whole table at once. **Do not write a new probe
 directory** — add hosts to the inventory this one already builds.
+
+## Amendment, 2026-08-24 — the table had drifted six hosts, and nothing was checking
+
+The line above says to add hosts to this inventory rather than write a new
+probe. Four days later the inventory was six hosts short, and the two failures
+that produced the shortfall are different from each other.
+
+**Four hosts this ingest could see and nobody folded in.** `--ingest` is a
+command someone has to remember to run. `demand-signal-reachability/` measured
+`api.pepy.tech`, `bigquery.googleapis.com`, `clickpy-api.clickhouse.com` and
+`www.piwheels.org` on 2026-08-24 and left a proper results file, and the
+committed table still said 92 while a fresh ingest said 96. That matters beyond
+tidiness: **`--probe` iterates the committed table**, so a host the table does
+not carry is never re-measured, and the next session that wants its verdict
+starts from nothing. All four were re-probed here and agree with that pass
+(three denied; `bigquery.googleapis.com` answers `200`).
+
+**Two hosts this ingest structurally could not see.** The walk reads
+machine-readable results *under `portfolio/research/`*. A pass that recorded its
+hosts in prose is invisible to it, and so is a pass living anywhere else in the
+repository. Both cases were live:
+
+| Host | Measured by | Why the table could not see it |
+|---|---|---|
+| `www.ftc.gov` | `primary-source-egress/` (#232) | 23 hosts recorded in prose; no results file |
+| `euvdservices.enisa.europa.eu` | `../pipeline/probes/README.md` (2026-08-23) | outside `portfolio/research/` entirely |
+
+Both are now measured first-hand — denied, twice each, alongside a reachable
+control — and folded in through
+[unindexed-hosts.json](unindexed-hosts.json), which is the "add hosts to the
+inventory" mechanism this README asked for and did not have.
+
+**The cost was about to land on the account owner.** `www.ftc.gov` has been
+named in `portfolio/ledger/asks.yaml`'s egress ask since 2026-08-19 with no
+verdict in this table at all: the owner was being asked to allowlist a host the
+portfolio had not, on its own canonical record, measured. Worse, the same ask
+named `euvd.enisa.europa.eu` and claimed granting it would unlock
+`cra-evidence-desk`'s EUVD wedge — but that host serves the website and the API
+is served from `euvdservices.enisa.europa.eu`. **Granted exactly as written, the
+one decision would have been spent and the wedge would still have been
+blocked.** The ask now names both hosts, and
+[check_ask_hosts.py](check_ask_hosts.py) fails CI if any decision in
+`asks.yaml` ever again names a host with no verdict here. Run against the table
+as it stood on `main`, that check fails on `www.ftc.gov` — it catches the real
+defect, not a synthetic one.
+
+**And a third defect, found on the way.** `prior_consensus` was a bare
+`Counter.most_common(1)`, which breaks a tie by whichever order the walk read
+the files in. Two hosts were decided that way with nothing in the output
+showing it: `api.github.com` stood at 6 `reachable` / 6 `scope_denied`, and
+`codeload.github.com` at 1 / 1 — landing on `reachable`, **contradicting the
+"Scope-denied (3)" section of this very README**, which records all three GitHub
+hosts answering 403 with GitHub's scope message. Ties now resolve by the rule
+`probe()` already states — *denials are authoritative and reachability is not* —
+and `codeload.github.com` reads `scope_denied`, agreeing with the prose it
+shipped beside.
+
+That fix is not sufficient on its own, because a vote over observations is a
+vote over *methods*, and the methods folded in here are not equally good: the
+passes that record GitHub as `reachable` read the status code without the body,
+which is the error [the central finding](#the-finding-this-environment-denies-egress-three-different-ways-and-one-of-them-is-intermittent)
+above is about. Folding in the newer passes would have overturned
+`api.github.com` to `reachable` on an 8–6 vote. The three GitHub hosts are
+therefore **pinned** in `consolidate.CURATED`, each with its reason and each
+pointing at a first-hand measurement in this README; `prior_verdicts` and
+`vote_consensus` stay in the output so the disagreement is visible rather than
+hidden. Pinning is deliberately hard to reach for — three entries, all of them
+the same finding.
+
+**What is checked now, and what still is not.** `consolidate.py --check` asserts
+the committed table equals a fresh ingest, offline; `check_ask_hosts.py` asserts
+every host named in an owner ask has a verdict here; both run in
+`portfolio-validate.yml`, with unit tests in
+[test_consolidate.py](test_consolidate.py). What none of them catches is the
+defect that would have cost the most — an ask naming a *real, measured, denied*
+host that is simply the wrong host for the thing it claims to unlock. No schema
+check sees that, because the record is well-formed and every sentence in it is
+individually true. What surfaced it was probing the hosts the ask names, which
+is the weaker mechanical property the checker now forces.
+
+Counts after this pass: 69 `egress_denied`, 26 `reachable`, 3 `scope_denied`.
+No verdict on any previously-carried host changed except the
+`codeload.github.com` tie-break correction, and **no conclusion in this
+directory moves**: every host added is denied but for `bigquery.googleapis.com`,
+whose discovery document answers `200` while — per
+`demand-signal-reachability/` — actually querying
+`bigquery-public-data.pypi.file_downloads` needs a billing-enabled Google Cloud
+project, which is a credential the portfolio does not have and a spend it will
+not make unattended. The egress ask is still one decision, still the
+highest-leverage item with no legal exposure, and still unanswered.
