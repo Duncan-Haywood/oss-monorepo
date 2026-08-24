@@ -118,6 +118,10 @@ def write_outputs(findings: list[Finding], report_path: Path, manifest_path: Pat
     }
     manifest_path.write_text(json.dumps(manifest, indent=2) + "\n", encoding="utf-8")
 
+def has_unresolved_risk(findings: list[Finding]) -> bool:
+    """Return whether the snapshot needs human review before any cleanup."""
+    return any(finding.classification in {"shared", "moved-tip", "uncertain"} for finding in findings)
+
 def main() -> int:
     parser = argparse.ArgumentParser(description="Create a read-only branch review report")
     parser.add_argument("snapshot", type=Path, nargs="?", help="JSON snapshot (omit when using --repo)")
@@ -126,6 +130,8 @@ def main() -> int:
     parser.add_argument("--report", type=Path, default=Path("branch-report.txt"))
     parser.add_argument("--manifest", type=Path, default=Path("recovery-manifest.json"))
     parser.add_argument("--usage-log", type=Path)
+    parser.add_argument("--format", choices=("text", "json"), default="text", help="print a human or machine-readable summary")
+    parser.add_argument("--fail-on-risk", action="store_true", help="exit 2 when shared, moved-tip, or uncertain findings need review")
     args = parser.parse_args()
     if bool(args.snapshot) == bool(args.repo):
         parser.error("provide exactly one of SNAPSHOT or --repo")
@@ -140,8 +146,15 @@ def main() -> int:
         event = {"event": "scan_completed", "at": datetime.now(timezone.utc).isoformat(), "finding_count": len(findings)}
         with args.usage_log.open("a", encoding="utf-8") as handle:
             handle.write(json.dumps(event) + "\n")
-    print(f"Wrote {len(findings)} findings to {args.report} and {args.manifest}")
-    return 0
+    summary = {"finding_count": len(findings), "risk": has_unresolved_risk(findings), "classifications": {}}
+    for finding in findings:
+        summary["classifications"][finding.classification] = summary["classifications"].get(finding.classification, 0) + 1
+    if args.format == "json":
+        print(json.dumps(summary, sort_keys=True))
+    else:
+        status = "review required" if summary["risk"] else "no unresolved risk"
+        print(f"Wrote {len(findings)} findings to {args.report} and {args.manifest}; {status}")
+    return 2 if args.fail_on_risk and summary["risk"] else 0
 
 if __name__ == "__main__":
     raise SystemExit(main())
