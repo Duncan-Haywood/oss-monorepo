@@ -16,7 +16,7 @@ PYTHONPATH=src python3 -m einvoice_preflight ./invoices/ --format csv > triage.c
 cat invoice.json | PYTHONPATH=src python3 -m einvoice_preflight - --format json
 PYTHONPATH=src python3 -m einvoice_preflight examples/valid-invoice.json --usage-file ~/.local/state/einvoice-preflight/usage.json
 PYTHONPATH=src python3 -m einvoice_preflight ./invoices/ --format json
-PYTHONPATH=src python3 -m einvoice_preflight invoice.xml --format json
+PYTHONPATH=src python3 -m einvoice_preflight examples/valid-invoice.xml --format json
 ```
 
 For an installed command, run `python3 -m pip install .` from this directory,
@@ -89,6 +89,11 @@ findings and `2` for read errors.
 read-error rows. Its stable columns are `file`, `status`, `rule`, `path`,
 `message`, `fix`, and `error`, making it suitable for triage queues without
 exposing invoice values or contents.
+
+The bundled `examples/valid-invoice.xml` is a small UBL example that can be
+used to verify an ERP export locally. UBL parsing is deliberately limited to
+the fields mapped above; passing this check is not a declaration of Peppol,
+EN 16931, or local tax compliance.
 
 ## Privacy and usage
 

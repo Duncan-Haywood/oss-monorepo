@@ -9,6 +9,7 @@ from unittest.mock import patch
 from einvoice_preflight.checks import check_invoice
 from einvoice_preflight.cli import main
 from einvoice_preflight.ubl import parse_ubl_invoice
+from einvoice_preflight.ubl import parse_ubl_invoice
 
 
 VALID = {
@@ -32,6 +33,14 @@ UBL_VALID = b'''<?xml version="1.0" encoding="UTF-8"?>
 
 
 class ChecksTest(unittest.TestCase):
+    def test_valid_ubl_invoice_maps_into_supported_checks(self):
+        xml = (Path(__file__).parents[1] / "examples" / "valid-invoice.xml").read_bytes()
+        self.assertEqual(check_invoice(parse_ubl_invoice(xml)), [])
+
+    def test_ubl_rejects_entity_declarations_before_parsing(self):
+        with self.assertRaisesRegex(ValueError, "DTD and entity"):
+            parse_ubl_invoice(b"<!DOCTYPE Invoice [<!ENTITY secret 'x'>]><Invoice/>")
+
     def test_ubl_invoice_maps_to_supported_shape(self):
         self.assertEqual(check_invoice(parse_ubl_invoice(UBL_VALID)), [])
 
@@ -254,6 +263,15 @@ class ChecksTest(unittest.TestCase):
         self.assertEqual(report["files_failed"], 0)
         self.assertEqual(report["observations"], 0)
         self.assertEqual(report["reports"][0]["file"], "stdin.json")
+
+    def test_cli_reads_valid_ubl_invoice_file(self):
+        xml_path = Path(__file__).parents[1] / "examples" / "valid-invoice.xml"
+        output = io.StringIO()
+        with contextlib.redirect_stdout(output):
+            self.assertEqual(main([str(xml_path), "--format", "json"]), 0)
+        report = json.loads(output.getvalue())
+        self.assertEqual(report["status"], "pass")
+        self.assertEqual(report["files_checked"], 1)
 
     def test_cli_labels_stdin_in_sarif_and_keeps_failure_exit(self):
         invoice = json.loads(json.dumps(VALID))

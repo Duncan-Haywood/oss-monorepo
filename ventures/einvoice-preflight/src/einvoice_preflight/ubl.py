@@ -24,7 +24,8 @@ def _number(value: str) -> int | float:
 
 def _party(element: ElementTree.Element) -> dict[str, str]:
     party = next(iter(_children(element, "Party")), element)
-    identifier = _text(party, "ID")
+    # EndpointID is the common UBL identifier; accept ID for simpler fixtures.
+    identifier = _text(party, "EndpointID", required=False) or _text(party, "ID")
     name = _text(party, "Name")
     return {"id": identifier, "name": name}
 
