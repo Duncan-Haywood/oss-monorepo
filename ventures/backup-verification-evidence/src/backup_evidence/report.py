@@ -32,7 +32,7 @@ def _parse_timestamp(value: str) -> datetime:
     return parsed
 
 
-def classify_run(record: dict[str, Any], *, now: datetime | None = None) -> dict[str, Any]:
+def classify_run(record: dict[str, Any]) -> dict[str, Any]:
     """Classify one backup run record. Never raises on customer-supplied input.
 
     `record` shape (all customer-supplied, nothing fetched or inferred):
@@ -106,27 +106,48 @@ def classify_run(record: dict[str, Any], *, now: datetime | None = None) -> dict
         )
 
     modified_at = artifact.get("modified_at")
+    parsed_modified_at: datetime | None = None
+    if modified_at:
+        try:
+            parsed_modified_at = _parse_timestamp(modified_at)
+        except (ValueError, TypeError) as exc:
+            reasons.append(f"artifact.modified_at is not a parseable timestamp: {exc}")
+
     max_age_hours = expected.get("max_age_hours")
     if max_age_hours is not None:
         if not modified_at:
             reasons.append("expected.max_age_hours was set but the artifact has no modified_at to check")
+        elif parsed_modified_at is not None:
+            age_hours = (finished_at - parsed_modified_at).total_seconds() / 3600
+            if age_hours < 0:
+                reasons.append(
+                    f"artifact.modified_at is {abs(age_hours):.1f}h after finished_at "
+                    "-- clock skew or a mismatched record"
+                )
+            elif age_hours > max_age_hours:
+                reasons.append(
+                    f"artifact is {age_hours:.1f}h old, older than the expected "
+                    f"{max_age_hours}h -- this run may have reused a stale file "
+                    "rather than writing a fresh one"
+                )
+
+    # A wide max_age_hours (needed to tolerate normal cadence jitter) can still
+    # be wide enough to miss a run that silently reused the previous run's
+    # artifact untouched. Independent of that threshold: if we know when this
+    # run started, an artifact not touched since strongly suggests reuse.
+    started_at = record.get("started_at")
+    if started_at and parsed_modified_at is not None:
+        try:
+            parsed_started_at = _parse_timestamp(started_at)
+        except (ValueError, TypeError) as exc:
+            reasons.append(f"started_at is not a parseable timestamp: {exc}")
         else:
-            try:
-                age_hours = (finished_at - _parse_timestamp(modified_at)).total_seconds() / 3600
-            except (ValueError, TypeError) as exc:
-                reasons.append(f"artifact.modified_at is not a parseable timestamp: {exc}")
-            else:
-                if age_hours < 0:
-                    reasons.append(
-                        f"artifact.modified_at is {abs(age_hours):.1f}h after finished_at "
-                        "-- clock skew or a mismatched record"
-                    )
-                elif age_hours > max_age_hours:
-                    reasons.append(
-                        f"artifact is {age_hours:.1f}h old, older than the expected "
-                        f"{max_age_hours}h -- this run may have reused a stale file "
-                        "rather than writing a fresh one"
-                    )
+            if parsed_modified_at < parsed_started_at:
+                reasons.append(
+                    f"artifact.modified_at ({modified_at}) is before this run's "
+                    f"started_at ({started_at}) -- the artifact was not written "
+                    "during this run and may be reused from an earlier one"
+                )
 
     if reasons:
         return {
