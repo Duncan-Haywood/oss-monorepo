@@ -708,7 +708,6 @@ candidates:
       spec, not photo-editing, not EAA. See screened-out.md.
     first_experiment_days: 14
     first_experiment_budget_usd: 0
-
   - slug: shopify-permission-drift
     name: Shopify app-permission drift record
     doc: candidates/shopify-permission-drift.md
