@@ -14,15 +14,23 @@ const usageSummaryEl = document.getElementById("usage-summary");
 const clearUsageBtn = document.getElementById("clear-usage");
 const scenarioSection = document.getElementById("scenario-section");
 const scenarioBody = document.getElementById("scenario-body");
+const currencySelect = document.getElementById("currency");
 
-const currencyFormatter = new Intl.NumberFormat(undefined, {
-  style: "currency",
-  currency: "USD",
-  maximumFractionDigits: 2,
-});
+const currencyOptions = {
+  USD: { currency: "USD", symbol: "$" },
+  EUR: { currency: "EUR", symbol: "€" },
+  GBP: { currency: "GBP", symbol: "£" },
+  CAD: { currency: "CAD", symbol: "CA$" },
+  AUD: { currency: "AUD", symbol: "A$" },
+};
 
-function fmtMoney(n) {
-  return currencyFormatter.format(n);
+function fmtMoney(n, currency = currencySelect.value) {
+  const selected = currencyOptions[currency] ?? currencyOptions.USD;
+  return new Intl.NumberFormat(undefined, {
+    style: "currency",
+    currency: selected.currency,
+    maximumFractionDigits: 2,
+  }).format(n);
 }
 
 function renderErrors(errors) {
@@ -98,7 +106,8 @@ function render() {
     resultsEl.hidden = true;
     policySection.hidden = true;
     // Hide the comparison too: a stale table next to fresh errors reads as if
-    // the old numbers still apply to the edited inputs.
+    // the old numbers still apply to the edited inputs. This is #1022's fix;
+    // a later merge on `main` dropped the line, so this restores it.
     scenarioSection.hidden = true;
     return false;
   }
@@ -114,6 +123,7 @@ function render() {
     noticeHours: parsed.values.noticeHours,
     feePercent: parsed.values.feePercent,
     feeAmount: result.feeAmount,
+    currencySymbol: (currencyOptions[currencySelect.value] ?? currencyOptions.USD).symbol,
   });
   policySection.hidden = false;
   return true;

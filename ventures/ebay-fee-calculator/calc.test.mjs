@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { calculateOrder, calculatePriceScenarios } from './calc.mjs';
+import { calculateOrder, calculatePriceScenarios, calculateRepricingTable } from './calc.mjs';
 
 const near = (actual, expected, msg) => assert.ok(Math.abs(actual - expected) < 1e-6, `${msg}: ${actual} vs ${expected}`);
 
@@ -95,4 +95,42 @@ test('compares profit at multiple listing prices using the same assumptions', ()
   assert.ok(scenarios[0].profit < scenarios[1].profit);
   assert.ok(scenarios[1].profit < scenarios[2].profit);
   assert.throws(() => calculatePriceScenarios(input, []), /scenario price/);
+});
+
+test('builds a repricing table around the seller\'s current price', () => {
+  const input = { price: 40, shippingCharged: 6, costOfGoods: 12, shippingCost: 5, packagingCost: 1 };
+  const rows = calculateRepricingTable(input);
+  assert.equal(rows.length, 5, 'default offsets');
+  assert.deepEqual(rows.map(row => row.price), [32, 36, 40, 44, 48], 'prices rounded to whole cents');
+  assert.deepEqual(rows.map(row => row.isCurrent), [false, false, true, false, false], 'only the 0% row is current');
+  // Every row is the same arithmetic as the headline result, so the table can
+  // never disagree with the number the seller is already looking at.
+  near(rows[2].profit, calculateOrder(input).profit, 'current row matches the headline order');
+  near(rows[2].profitDelta, 0, 'no change against itself');
+  assert.ok(rows[0].profitDelta < 0 && rows[4].profitDelta > 0, 'deltas are signed against the current price');
+  assert.ok(rows[4].profit > rows[3].profit && rows[1].profit > rows[0].profit, 'profit rises with price');
+  // Percentage fees take a cut of every extra dollar, so listing $8 higher must
+  // leave the seller less than $8 better off.
+  assert.ok(rows[4].profitDelta < 8, 'fees eat part of a price rise');
+});
+
+test('rounds repricing scenarios to cents a seller can actually list', () => {
+  const rows = calculateRepricingTable({ price: 19.99 }, [-15, 0, 15]);
+  assert.deepEqual(rows.map(row => row.price), [16.99, 19.99, 22.99]);
+});
+
+test('carries batch quantity and every other assumption into each scenario', () => {
+  const input = { price: 40, shippingCharged: 6, costOfGoods: 12, quantity: 4, promotedRate: 2 };
+  const rows = calculateRepricingTable(input, [10]);
+  const direct = calculateOrder({ ...input, price: 44 });
+  near(rows[0].profit, direct.profit, 'batch profit');
+  near(rows[0].unitProfit, direct.unitProfit, 'unit profit');
+  assert.equal(rows[0].quantity, 4, 'quantity preserved');
+});
+
+test('rejects repricing offsets that cannot produce a listable price', () => {
+  assert.throws(() => calculateRepricingTable({ price: 40 }, []), /At least one price offset/);
+  assert.throws(() => calculateRepricingTable({ price: 40 }, [-100]), /greater than -100/);
+  assert.throws(() => calculateRepricingTable({ price: 40 }, ['abc']), /greater than -100/);
+  assert.throws(() => calculateRepricingTable({ price: -1 }, [0]), /Item price/);
 });

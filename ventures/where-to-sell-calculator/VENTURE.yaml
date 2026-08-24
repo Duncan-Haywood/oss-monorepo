@@ -1,0 +1,27 @@
+name: where-to-sell-calculator
+description: A private browser calculator that puts one item through every channel a small seller can list it on — eBay, Etsy, Amazon, an own store, a direct sale — and reports net profit after each channel's fee shape, plus the price each channel needs to match the best one.
+stage: prototype
+owner: duncan
+hypotheses:
+  - claim: Sellers who can list the same item in more than one place will use a single cross-channel comparison in preference to opening three single-marketplace calculators and reconciling them by hand.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: Amortising monthly plans over expected orders and counting per-listing fees changes which channel wins often enough that the comparison alters a listing decision, rather than confirming the one the seller already made.
+    status: untested
+    checked: null
+    evidence: customer-contact
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+budget:
+  monthly_cap: 1
+  protected: true
+kill_criteria:
+  - Fewer than three sellers use the comparison twice within 90 days.
+  - Sellers report that the winning channel is always the one they had already chosen, so the comparison changes no decision.
+links:
+  production: null
+  analytics: null

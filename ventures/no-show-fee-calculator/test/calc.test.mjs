@@ -170,6 +170,18 @@ test("generatePolicyText includes the fee, notice window, and non-warranty note"
   assert.match(text, /not a finished legal document/);
 });
 
+test("generatePolicyText supports a selected currency symbol", () => {
+  const text = generatePolicyText({
+    businessName: "Riverside Training",
+    serviceName: "session",
+    noticeHours: 24,
+    feePercent: 50,
+    feeAmount: 37.5,
+    currencySymbol: "€",
+  });
+  assert.match(text, /50% of the session price \(€37\.50\)/);
+});
+
 test("generatePolicyText falls back to placeholders when name/service are blank", () => {
   const text = generatePolicyText({
     businessName: "",
@@ -189,8 +201,8 @@ test("generatePolicyText always ends with the non-warranty disclaimer", () => {
 });
 
 test("buildShareUrl encodes supported inputs without server state", () => {
-  const url = buildShareUrl({ price: "75", bookingsPerWeek: "20", noShowRatePct: "8", noticeHours: "24", feePercent: "100", enforcementRatePct: "70", businessName: "Riverside & Co", serviceName: "training session", ignored: "secret" }, "https://example.test/calculator");
-  assert.equal(url, "https://example.test/calculator?price=75&bookingsPerWeek=20&noShowRatePct=8&noticeHours=24&feePercent=100&enforcementRatePct=70&businessName=Riverside+%26+Co&serviceName=training+session");
+  const url = buildShareUrl({ currency: "EUR", price: "75", bookingsPerWeek: "20", noShowRatePct: "8", noticeHours: "24", feePercent: "100", enforcementRatePct: "70", businessName: "Riverside & Co", serviceName: "training session", ignored: "secret" }, "https://example.test/calculator");
+  assert.equal(url, "https://example.test/calculator?currency=EUR&price=75&bookingsPerWeek=20&noShowRatePct=8&noticeHours=24&feePercent=100&enforcementRatePct=70&businessName=Riverside+%26+Co&serviceName=training+session");
   assert.equal(url.includes("ignored"), false);
 });
 
