@@ -134,6 +134,18 @@ products:
           live_url_visitors: null
           local_events_reported: 0
         note: Shipped local Etsy order-profit calculator; public URL remains owner-gated.
+  - slug: real-estate-agent-photo-app
+    surface: static-page-in-repo
+    readings:
+      - as_of: 2026-08-24
+        signals:
+          live_url_visitors: null
+          local_preflight_reports_copied: 0
+          local_preflight_reports_downloaded: 0
+        note: >-
+          MLS photo preflight now exports a handoff summary and JSON evidence
+          record locally. No public URL yet; counters remain anonymous, local,
+          aggregate, and opt-out.
   - slug: shopify-a11y-evidence
     surface: static-page-in-repo
     readings:

@@ -292,6 +292,16 @@ export const roadmap: RoadmapPhase[] = [
           "process/referral-followup.ts exists with followUpMessageText() (a 3-7-days-after-delivery check-in that asks for a concrete testimonial and offers a zero-cash-spend discount-based referral incentive), a TESTIMONIAL_PROMPT for turning a vague reply into a usable quote, and REFERRAL_INCENTIVE defined as future-delivery discounts (not cash) so it doesn't violate the no-real-spend guardrail; has a passing self-test (npm test) with no real listing/customer data required. See process/referral-followup.ts, pipeline/src/referral-followup.test.ts.",
       },
       {
+        id: "p2-mls-photo-preflight-export",
+        title: "Export portable MLS photo preflight evidence",
+        status: "done",
+        owner: "agent",
+        rationale:
+          "A copyable handoff summary and JSON evidence record turn browser findings into a usable delivery artifact without uploading photos or claiming board acceptance.",
+        doneWhen:
+          "The /photo-check workflow can copy a factual summary and download JSON, with local usage events and safety disclosure; research tests and build pass.",
+      },
+      {
         id: "p2-promise-consistency-audit",
         title: "Audit outreach/delivery/referral copy for drifted customer promises",
         status: "done",

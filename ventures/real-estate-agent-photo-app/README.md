@@ -95,6 +95,27 @@ is the shared playbook and the source of truth for what's done, what's
 blocked on a human, and what to do next — see `AGENTS.md` for the read/write
 convention. It's also rendered live at `/process/` on the private docs site.
 
+## Free MLS photo preflight
+
+Open `research/` and use `/photo-check` to check a delivery folder locally for
+the dated Listing Lens floor spec. After a check, copy a factual handoff summary
+or download the JSON evidence record for the photographer, agent, or internal
+delivery archive. The report is evidence of the checks performed, not a promise
+that a particular MLS board will accept the photos.
+
+**No warranty.** This tool is provided free and as-is, without warranty of any
+kind, express or implied. It is not legal, tax, financial, medical, or
+engineering advice, and it does not replace a qualified professional. **You are
+responsible for reviewing and verifying its output before relying on it**, and
+for meeting any obligation it helps you prepare for. To the maximum extent
+permitted by law, the authors accept no liability for any loss or damage arising
+from its use.
+
+Everything runs in your browser. Photos, filenames, findings, and exports are
+never uploaded; there are no accounts, tracking cookies, or analytics vendor.
+Only aggregate local feature events are counted, and usage counting is
+opt-out-able in the browser.
+
 ## Docs site (private)
 
 The documentation site is a **Next.js** app in `docs-site/`. It deploys to **Cloudflare Pages** and is protected by **Cloudflare Access** with a single-email allowlist (`duncan.andrew.haywood@gmail.com`).

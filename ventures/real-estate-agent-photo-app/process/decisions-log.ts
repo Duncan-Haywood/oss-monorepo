@@ -8,6 +8,16 @@ import type { BusinessDecision } from "./types";
  */
 export const decisionsLog: BusinessDecision[] = [
   {
+    date: "2026-08-24",
+    title: "Make MLS preflight reports portable",
+    decision:
+      "The MLS photo preflight product line exports a copyable handoff summary and a local JSON evidence record after each browser check.",
+    rationale:
+      "A findings table helps the operator, but a portable report helps them complete the delivery workflow with a photographer, agent, or archive. Both outputs remain evidence of checks performed and explicitly avoid claiming MLS acceptance; no photo data leaves the browser.",
+    madeBy: "cursor/mls-photo-preflight-export-20260824",
+    relatedTaskIds: ["p2-mls-photo-preflight-export"],
+  },
+  {
     date: "2026-06-13",
     title: "Lead with agents, not Airbnb/STR hosts",
     decision:

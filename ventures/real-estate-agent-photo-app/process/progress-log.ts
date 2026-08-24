@@ -7,6 +7,21 @@ import type { ProgressEntry } from "./types";
  */
 export const progressLog: ProgressEntry[] = [
   {
+    date: "2026-08-24",
+    agent: "cursor/mls-photo-preflight-export-20260824",
+    summary:
+      "Completed the MLS photo preflight product-line slice by making findings portable for real delivery handoffs.",
+    changes: [
+      "Added copyable handoff summaries and local JSON evidence downloads to research/src/components/PhotoCheckTool.tsx.",
+      "Recorded aggregate local report-copy and report-download signals in portfolio/usage/usage.yaml.",
+      "Added the product-line roadmap task, decision log entry, and user-facing safety/privacy documentation.",
+    ],
+    nextUp: [
+      "Human: publish the static research site and measure real preflight use; verify output against each target MLS board before relying on it.",
+      "Human: run the first concierge delivery and interviews to validate willingness to pay.",
+    ],
+  },
+  {
     date: "2026-06-13",
     agent: "initial-scaffold",
     summary:

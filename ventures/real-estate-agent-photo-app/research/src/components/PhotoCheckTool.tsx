@@ -34,10 +34,31 @@ function severityStyle(severity: "blocking" | "degrading"): string {
     : "border-amber-400/30 bg-amber-500/10 text-amber-200";
 }
 
+function reportText(run: RunSummary): string {
+  const blockers = run.reports.reduce(
+    (total, report) => total + report.findings.filter((finding) => finding.severity === "blocking").length,
+    0,
+  );
+  const status = blockers === 0 ? "No blocking findings" : `${blockers} blocking finding${blockers === 1 ? "" : "s"}`;
+  const lines = [
+    `Listing Lens photo preflight | ${status}`,
+    `Checked ${run.reports.length} photo${run.reports.length === 1 ? "" : "s"} against ${SPEC_ID}`,
+    `Checked at: ${new Date(run.checkedAt).toISOString()}`,
+    "",
+  ];
+  for (const report of run.reports) {
+    lines.push(`${report.info.name}: ${report.findings.length === 0 ? "no findings" : report.findings.map((finding) => `${finding.rule} (${finding.severity})`).join(", ")}`);
+  }
+  if (run.skipped.length > 0) lines.push("", `Skipped non-photo files: ${run.skipped.join(", ")}`);
+  lines.push("", "Evidence only: review this report against the destination MLS board's current rules before relying on it.");
+  return lines.join("\n");
+}
+
 export function PhotoCheckTool() {
   const [run, setRun] = useState<RunSummary | null>(null);
   const [isProcessing, setIsProcessing] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
+  const [copyState, setCopyState] = useState<"idle" | "copied" | "failed">("idle");
 
   const handleFiles = useCallback(async (fileList: FileList | null) => {
     if (!fileList || fileList.length === 0) return;
@@ -88,6 +109,40 @@ export function PhotoCheckTool() {
 
       {run && (
         <div className="mt-8">
+          <div className="mb-4 flex flex-wrap gap-3">
+            <button
+              type="button"
+              className="rounded-lg border border-brand-300/40 bg-brand-400/10 px-3 py-2 text-sm font-semibold text-brand-100 hover:bg-brand-400/20"
+              onClick={async () => {
+                try {
+                  await navigator.clipboard.writeText(reportText(run));
+                  setCopyState("copied");
+                } catch {
+                  setCopyState("failed");
+                }
+                recordUsageEvent("report_copied");
+              }}
+            >
+              {copyState === "copied" ? "Report copied" : "Copy handoff summary"}
+            </button>
+            <button
+              type="button"
+              className="rounded-lg border border-white/15 px-3 py-2 text-sm font-semibold text-slate-200 hover:bg-white/10"
+              onClick={() => {
+                const blob = new Blob([JSON.stringify({ specId: SPEC_ID, checkedAt: run.checkedAt, reports: run.reports, skipped: run.skipped }, null, 2)], { type: "application/json" });
+                const url = URL.createObjectURL(blob);
+                const link = document.createElement("a");
+                link.href = url;
+                link.download = "listing-lens-photo-preflight.json";
+                link.click();
+                URL.revokeObjectURL(url);
+                recordUsageEvent("report_downloaded");
+              }}
+            >
+              Download JSON evidence
+            </button>
+            {copyState === "failed" && <span className="self-center text-sm text-amber-200">Clipboard blocked; select the findings manually.</span>}
+          </div>
           <p className="text-sm text-slate-400">
             Checked {run.reports.length} photo{run.reports.length === 1 ? "" : "s"} against{" "}
             <span className="font-mono text-slate-300">{SPEC_ID}</span> at{" "}
