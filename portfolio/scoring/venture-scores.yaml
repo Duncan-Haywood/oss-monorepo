@@ -66,7 +66,18 @@ ventures:
     basis: >-
       Graduated from the Shopify permission drift candidate on 2026-08-24. The
       first slice inventories customer-authorized app scopes and webhook topics
-      without accessing customer data or requiring Shopify credentials.
+      without accessing customer data or requiring Shopify credentials. This row
+      is the later of two independent same-day scorings of this venture that
+      landed on `main` 15 minutes apart with no merge conflict, since each
+      touched a different, non-overlapping region of this file -- a duplicate
+      `slug: shopify-permission-drift` entry, caught by `score_ventures.py
+      --check` failing on `main` itself. The earlier entry (composite 5.833:
+      ai_leverage 2, autonomous_ops 9, time_to_revenue 6, gross_margin 10,
+      defensibility 4, distribution 4) is folded in here rather than silently
+      dropped; the two disagree mainly on ai_leverage (2 vs 3) and distribution
+      (4 vs 6), neither large enough to change the floor dimension or composite
+      band materially. Consolidated 2026-08-24 in a standalone fix, not a
+      product change to the venture itself.
     gates:
       liability_containment: pass
       ethical_robustness: pass
@@ -454,31 +465,6 @@ ventures:
       useful software with no commercial thesis: deterministic file transfer,
       so no AI leverage; free first-party alternatives ship with the OS, so
       little defensibility; run locally from a venv, so no channel.
-    gates:
-      liability_containment: pass
-      ethical_robustness: pass
-
-  - slug: shopify-permission-drift
-    scores:
-      ai_leverage: 2
-      autonomous_ops: 9
-      time_to_revenue: 6
-      gross_margin: 10
-      defensibility: 4
-      distribution: 4
-    composite: 5.833
-    rater_b: null
-    floor: 2
-    floor_dimension: ai_leverage
-    floor_note: >-
-      The first release is intentionally deterministic and local-first. Its
-      defensibility depends on portable evidence records and agency workflow
-      adoption, neither of which has customer evidence yet.
-    basis: >-
-      Graduated from the Shopify permission drift candidate on 2026-08-24. The
-      first slice compares customer-authorized app scopes, webhook topics, and
-      authorization state without Shopify credentials, network calls, or
-      customer data. The schema is strict about provenance and uncertainty.
     gates:
       liability_containment: pass
       ethical_robustness: pass
