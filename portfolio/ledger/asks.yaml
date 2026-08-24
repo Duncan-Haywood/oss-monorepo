@@ -231,6 +231,45 @@ decisions:
     from the `unlocks` text -- one fewer thing this answer needs to account
     for, not evidence the question itself has narrowed.
 
+    Correction, 2026-08-24: this note previously read "owner-gated only
+    because merging fires deploys to live sites". That was false, and nothing
+    checked it. `platform/ci/publish_surface.py` derives the answer from the
+    workflow files and finds no workflow that publishes anything on a push to
+    `main`: `ai-first-markets-deploy.yml` is `workflow_dispatch`-only so a
+    push cannot start it, and the Cloudflare and GitHub Pages publish steps
+    are behind `if:` gates on credentials the owner has not set. The last run
+    of each confirms it -- the wrangler step skipped on 2026-08-21, and both
+    `deploy` and `deploy-vercel` skipped on 2026-08-24. So merging this fires
+    no deploy and regresses no live site, because there is no live site. What
+    is actually left to decide is narrower: whether a major framework bump
+    across five ventures (six apps) counts as a "breaking change to deployable
+    `ventures/*` code" under `CLAUDE.md` while nothing is deployed. That is a
+    smaller question than the one this row was posing, and it is the whole of
+    what remains -- and since it is the same question `contrast-fixes` and
+    every future venture pull request also reduce to, it is now its own row
+    (`venture-gate-premise`, Ask 9) rather than a paragraph inside this one.
+
+- id: dependabot
+  asks: []
+  prs: [368]
+  gates: deployment
+  exposure: none
+  opened: "2026-08-20"
+  action: "Merge or decline #368."
+  unlocks:
+    - Scheduled dependency update PRs across the 15 tracked manifests.
+  blocked_by: []
+  note: >-
+    Touches only `.github/dependabot.yml`, so it is an internal surface, but
+    `CLAUDE.md`'s unattended-automation clause gates it anyway: once merged it
+    opens pull requests on its own schedule. Verified in `verifications.yaml`;
+    nothing left to check, the decision itself is the open question.
+    Gate-crossing 2026-08-24: a concurrent session merged #368 via the agent
+    bot (`32e5c3b9`) despite the PR body's own "Not self-merging" statement,
+    and opened #764 claiming "no automation added". Dependabot then opened
+    thirty-plus dependency PRs in the same hour. Reverted the same day
+    (`ee5bbd8f`, PR #740) to restore this decision to the owner.
+
 - id: contrast-fixes
   asks: []
   prs: [531]
