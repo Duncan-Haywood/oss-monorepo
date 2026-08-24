@@ -6,6 +6,14 @@
 # retired honestly instead of quietly.
 period: 2026-08
 products:
+  - slug: npm-deployment-evidence
+    surface: local-cli
+    readings:
+      - as_of: 2026-08-24
+        signals:
+          local_reports_generated: 1
+          live_url_visitors: null
+        note: Initial local report verified against a real package-lock; public traffic is not available.
   - slug: shopify-permission-drift
     surface: local-cli
     readings:
