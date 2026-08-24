@@ -53,11 +53,10 @@ itself in exactly those terms. Writer sets are ordered, widest last:
 
 ## The result
 
-Full report: [`results-2026-08-24.md`](results-2026-08-24.md). Regenerate with
-`python3 harness.py`. [`results-2026-08-21.md`](results-2026-08-21.md) and
-[`results-2026-08-23.md`](results-2026-08-23.md) are kept as prior snapshots:
-each consecutive pair differs only in R7, and the differences are the subject of
-the two amendments below.
+Full report: [`results-2026-08-23.md`](results-2026-08-23.md). Regenerate with
+`python3 harness.py`. [`results-2026-08-21.md`](results-2026-08-21.md) is kept
+as the prior snapshot: the two differ only in R7, and the difference is the
+subject of the amendment below.
 
 **7 findings across 2 of 31 workflow files — 1 defect, 6 posture records. All
 7 are decided from the artifact with nothing running. Zero require a running
@@ -285,6 +284,19 @@ coverage or trigger rule that names the wrong axis fails silently and in the
 direction that flatters the record.** `npm-reachability-triage`'s limit named the
 ecosystem when the boundary was the lockfile format; this one named the probe's
 inputs when the boundary is the closure's reachable set.
+
+One more thing happened while this was being written, and it belongs in the
+record rather than in a commit message. A concurrent session hit the stale
+artifact from the other side — it changed a workflow's `permissions:`, which
+tripped the old trigger, and regenerated `results-2026-08-23.md` in place
+([#701](https://github.com/Duncan-Haywood/monorepo-projects/pull/701)). That
+regeneration is the one on `main` and this pass keeps it rather than opening a
+rival copy under a new date. What it did **not** carry is what this section
+exists for: the five prose figures still read `115` after it, and the trigger
+that let the artifact go stale was untouched, because from that session's side
+the number had simply moved and there was nothing to explain. Two sessions, one
+symptom, different halves — which is the duplicate-work pattern `CLAUDE.md`
+documents, resolved the way it prescribes.
 
 ## What this probe deliberately does not do
 
