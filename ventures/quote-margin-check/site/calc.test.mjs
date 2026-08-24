@@ -1,7 +1,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 
-import { loadQuote, calculate } from "./calc.mjs";
+import { loadQuote, calculate, encodeQuote, decodeQuote } from "./calc.mjs";
 
 test("calculates hidden time and target price", () => {
   const quote = loadQuote({
@@ -61,4 +61,14 @@ test("rejects an empty or over-long currency label", () => {
   assert.throws(() =>
     loadQuote({ currency: "WAY TOO LONG A LABEL", price: 1000, delivery_hours: 10, target_hourly_rate: 100 }),
   );
+});
+
+test("share links round-trip validated quote inputs", () => {
+  const quote = loadQuote({ currency: "EUR", price: 1800, delivery_hours: 12, admin_hours: 2.5, revision_hours: 1, overhead: 40, subcontractor_cost: 120, target_hourly_rate: 90 });
+  assert.deepEqual(decodeQuote(`?${encodeQuote(quote)}`), quote);
+});
+
+test("share links require the core quote fields", () => {
+  assert.equal(decodeQuote("currency=USD&price=100"), null);
+  assert.throws(() => decodeQuote("price=100&delivery_hours=2&target_hourly_rate=50&admin_hours=not-a-number"));
 });

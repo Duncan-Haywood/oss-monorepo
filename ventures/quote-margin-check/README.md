@@ -34,6 +34,11 @@ results from several proposals to a spreadsheet without retyping calculations.
 Batch CSV emits one comparison row per filename, making a folder of recurring
 proposal reviews easy to sort and filter without exposing the proposal data.
 
+The browser calculator can also copy a share link. The link contains the quote
+figures in its URL so a collaborator can reopen the same calculation without an
+account, server, or upload. Treat the link like the quote itself: anyone who
+receives it can read those figures.
+
 **No warranty.** This tool is provided free and as-is, without warranty of any
 kind, express or implied. It is not tax, financial, or business advice, and it
 does not replace a qualified professional. **You are responsible for reviewing
@@ -41,7 +46,7 @@ and verifying its output before relying on it**, and for meeting any obligation
 it helps you prepare for. To the maximum extent permitted by law, the authors
 accept no liability for any loss or damage arising from its use.
 
-Only aggregate `report_generated` events are optionally appended to the usage
+Only aggregate `report_generated` and `share_link_copied` events are optionally appended to the usage
 log. Inputs, project names, prices, and file contents never leave the machine.
 Pass `--usage-log PATH` to opt in; omit it to keep usage counting off. The
 browser version counts the same event locally in `localStorage` (on by

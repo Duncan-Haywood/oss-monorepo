@@ -173,6 +173,7 @@
 
     <div class="actions">
       <button type="button" id="copy-csv">Copy as CSV row</button>
+      <button type="button" id="copy-share-link">Copy share link</button>
       <span id="copy-status" class="hint" role="status" aria-live="polite"></span>
     </div>
   </section>
@@ -239,7 +240,7 @@
 </main>
 
 <script type="module">
-  import { loadQuote, calculate } from "./calc.mjs";
+  import { loadQuote, calculate, encodeQuote, decodeQuote } from "./calc.mjs";
   import { recordEvent, isUsageCountingEnabled, setUsageCountingEnabled } from "./usage.mjs";
 
   const ids = ["currency", "price", "delivery_hours", "admin_hours", "revision_hours", "overhead", "subcontractor_cost", "target_hourly_rate"];
@@ -247,6 +248,12 @@
   const result = document.getElementById("result");
 
   let lastReport = null;
+
+  function writeInputs(quote) {
+    for (const id of ids) {
+      if (quote[id] !== undefined) el[id].value = quote[id];
+    }
+  }
 
   function readInputs() {
     return {
@@ -305,6 +312,7 @@
   update();
 
   const copyBtn = document.getElementById("copy-csv");
+  const shareBtn = document.getElementById("copy-share-link");
   const copyStatus = document.getElementById("copy-status");
   copyBtn.addEventListener("click", async () => {
     if (!lastReport) {
@@ -331,6 +339,22 @@
     }
   });
 
+  shareBtn.addEventListener("click", async () => {
+    if (!lastReport) {
+      copyStatus.textContent = "Fix the inputs above first.";
+      return;
+    }
+    const url = new URL(window.location.href);
+    url.search = encodeQuote(lastReport.quote);
+    try {
+      await navigator.clipboard.writeText(url.href);
+      copyStatus.textContent = "Share link copied — it contains the quote figures in the URL.";
+      recordEvent("share_link_copied");
+    } catch {
+      copyStatus.textContent = `Share link: ${url.href}`;
+    }
+  });
+
   const usageToggle = document.getElementById("usage-toggle");
   const usageStatus = document.getElementById("usage-status");
   function renderUsageStatus() {
@@ -343,6 +367,17 @@
     renderUsageStatus();
   });
   renderUsageStatus();
+
+  try {
+    const sharedQuote = decodeQuote(window.location.search);
+    if (sharedQuote) {
+      writeInputs(sharedQuote);
+      exampleNote.hidden = true;
+      update();
+    }
+  } catch {
+    // Ignore malformed shared links and keep the worked example usable.
+  }
 </script>
 </body>
 </html>
