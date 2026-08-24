@@ -240,7 +240,10 @@
 
 <script type="module">
   import { loadQuote, calculate } from "./calc.mjs";
-  import { recordEvent, isUsageCountingEnabled, setUsageCountingEnabled } from "./usage.mjs";
+  import { recordEvent, createReportCounter, isUsageCountingEnabled, setUsageCountingEnabled } from "./usage.mjs";
+
+  // Counts settled quotes rather than keystrokes — see usage.mjs.
+  const reportCounter = createReportCounter();
 
   const ids = ["currency", "price", "delivery_hours", "admin_hours", "revision_hours", "overhead", "subcontractor_cost", "target_hourly_rate"];
   const el = Object.fromEntries(ids.map((id) => [id, document.getElementById(id)]));
@@ -283,9 +286,10 @@
         </dl>
       `;
       result.classList.remove("error");
-      recordEvent("report_generated");
+      reportCounter.count(JSON.stringify(quote));
     } catch (err) {
       lastReport = null;
+      reportCounter.drop();
       result.textContent = err.message;
       result.classList.add("error");
     }
@@ -303,6 +307,13 @@
     el[id].addEventListener("input", dismissExampleNote, { once: true });
   }
   update();
+  // The first render is the pre-filled example, not a quote the visitor asked
+  // for. Seed it so it isn't counted, and so their first real edit still is.
+  try {
+    reportCounter.seed(JSON.stringify(loadQuote(readInputs())));
+  } catch {
+    // defaults don't validate — nothing to seed, the first valid quote counts
+  }
 
   const copyBtn = document.getElementById("copy-csv");
   const copyStatus = document.getElementById("copy-status");

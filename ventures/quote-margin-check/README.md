@@ -47,7 +47,11 @@ Pass `--usage-log PATH` to opt in; omit it to keep usage counting off. The
 browser version counts the same event locally in `localStorage` (on by
 default, off-switchable in the page footer, and honors Do Not Track/Global
 Privacy Control) — see [`site/usage.mjs`](site/usage.mjs); nothing is sent
-anywhere in either case.
+anywhere in either case. One `report_generated` means one *settled* quote: the
+page recomputes on every keystroke, so the counter waits for the figures to
+stop changing, skips the pre-filled example on first load, and ignores a repeat
+of a quote it already counted. Reading it as "reports", not "keystrokes", is
+what makes it comparable to the CLI's own count.
 
 ## Input
 
