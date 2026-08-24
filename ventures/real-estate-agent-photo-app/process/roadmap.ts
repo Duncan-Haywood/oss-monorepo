@@ -389,6 +389,16 @@ export const roadmap: RoadmapPhase[] = [
         doneWhen: "A decision is logged in decisions-log.ts with rationale.",
         gatedOn: ["p1-run-interviews", "p2-first-deliveries"],
       },
+      {
+        id: "p2-photo-check-read-recovery",
+        title: "Recover clearly when a browser cannot read selected photos",
+        status: "done",
+        owner: "agent",
+        rationale:
+          "Mobile file pickers and temporary file handles can fail after selection. A silent rejected read leaves an agent without a report or a recovery path during a delivery preflight.",
+        doneWhen:
+          "The browser preflight catches file-read failures, shows an actionable alert, clears processing state, and has a regression test for the message contract.",
+      },
     ],
   },
   {

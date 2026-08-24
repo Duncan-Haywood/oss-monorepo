@@ -628,4 +628,18 @@ export const progressLog: ProgressEntry[] = [
       "Agent (next session): once a real delivery folder exists (from a real or realistic test shoot), run `npm run preflight -- --dir <delivery>` against it and fold the result into the candidate write-up's first-experiment section as real evidence instead of the current fixture-only precision/recall claim.",
     ],
   },
+  {
+    date: "2026-08-24",
+    agent: "cursor/listing-lens-photo-read-recovery-20260824",
+    summary:
+      "Made the Listing Lens browser preflight recover cleanly when a selected photo cannot be read.",
+    changes: [
+      "PhotoCheckTool now catches delayed File.arrayBuffer failures, stops the processing state, and renders an actionable alert without an unhandled rejection.",
+      "Added a focused regression test for specific and unknown read-error messages; research test command now runs both the photo-spec and component helper checks.",
+      "Marked p2-photo-check-read-recovery done in roadmap.ts. No photo data, filenames, or error contents are sent to usage tracking.",
+    ],
+    nextUp: [
+      "Human: run the preflight against a real listing delivery after the first concierge shoot; the check remains a dated floor-spec observation, not an MLS acceptance guarantee.",
+    ],
+  },
 ];

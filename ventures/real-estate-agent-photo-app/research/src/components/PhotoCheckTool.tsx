@@ -28,6 +28,11 @@ async function toFileList(files: File[]): Promise<Array<{ name: string; data: Ui
   );
 }
 
+export function photoReadErrorMessage(error: unknown): string {
+  const detail = error instanceof Error ? error.message.trim() : "The browser could not read one or more files.";
+  return `Could not read the selected photos. ${detail} Try selecting them again.`;
+}
+
 function severityStyle(severity: "blocking" | "degrading"): string {
   return severity === "blocking"
     ? "border-red-400/30 bg-red-500/10 text-red-200"
@@ -37,11 +42,13 @@ function severityStyle(severity: "blocking" | "degrading"): string {
 export function PhotoCheckTool() {
   const [run, setRun] = useState<RunSummary | null>(null);
   const [isProcessing, setIsProcessing] = useState(false);
+  const [readError, setReadError] = useState<string | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
   const handleFiles = useCallback(async (fileList: FileList | null) => {
     if (!fileList || fileList.length === 0) return;
     setIsProcessing(true);
+    setReadError(null);
     try {
       const files = Array.from(fileList);
       const skipped = files.filter((f) => !isListingPhoto(f.name)).map((f) => f.name);
@@ -53,6 +60,11 @@ export function PhotoCheckTool() {
       recordUsageEvent(
         blockingCount === 0 ? "batch_checked_all_clear" : "batch_checked_with_blockers",
       );
+    } catch (error) {
+      // File access can fail after the picker accepts a file (for example when
+      // a temporary mobile file disappears). Keep the page usable and explain
+      // the recovery instead of leaving the user with a stuck-looking run.
+      setReadError(photoReadErrorMessage(error));
     } finally {
       setIsProcessing(false);
     }
@@ -85,6 +97,12 @@ export function PhotoCheckTool() {
       </div>
 
       {isProcessing && <p className="mt-4 text-sm text-slate-400">Checking…</p>}
+
+      {readError && (
+        <p role="alert" className="mt-4 rounded-lg border border-red-400/30 bg-red-500/10 px-4 py-3 text-sm text-red-200">
+          {readError}
+        </p>
+      )}
 
       {run && (
         <div className="mt-8">
