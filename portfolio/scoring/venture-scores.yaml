@@ -48,6 +48,29 @@ scoring_rule: >-
   near-zero-price norm is a real property of the business on any host.
 
 ventures:
+  - slug: quote-margin-check
+    scores:
+      ai_leverage: 3
+      autonomous_ops: 9
+      time_to_revenue: 8
+      gross_margin: 10
+      defensibility: 4
+      distribution: 6
+    composite: 6.667
+    rater_b: null
+    floor: 3
+    floor_dimension: ai_leverage
+    floor_note: >-
+      Low AI leverage is intentional: transparent arithmetic is the product,
+      while reusable niche templates are the proposed future moat.
+    basis: >-
+      Graduated from the quote-margin-check candidate on 2026-08-24. The first
+      slice is a standard-library, local-only calculator for customer-supplied
+      quote inputs, with hidden time and direct costs made explicit.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+
   - slug: repository-branch-hygiene
     scores:
       ai_leverage: 6
