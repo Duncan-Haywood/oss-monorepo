@@ -45,6 +45,17 @@ products:
           mode that snaps R2 to a buyable E24 value, 14 passing unit
           tests). Same publishing gate as above — no traffic signal yet.
           Baseline row for the third tool.
+      - as_of: 2026-08-24
+        signals:
+          live_url_visitors: null
+          local_events_reported: 0
+        note: >-
+          Fourth tool shipped: rc-filter-calculator (first-order RC/RL
+          filter cutoff frequency and time constant across all four
+          topologies, plus a design mode that solves for the missing
+          component from a target cutoff and snaps it to a buyable
+          preferred value, 24 passing unit tests). Same publishing gate as
+          above — no traffic signal yet. Baseline row for the fourth tool.
   - slug: quote-margin-check
     surface: repository-cli
     readings:
