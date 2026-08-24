@@ -1,5 +1,16 @@
 period: 2026-08
 entries:
+  - venture: etsy-profit-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Graduated and implemented a browser-local Etsy order-profit calculator
+        with a complete fee and variable-cost breakdown, visible disclaimer,
+        local opt-out usage counter, SEO metadata, sitemap, robots.txt, and
+        six behavior tests. Public URL and current Etsy fee verification remain
+        owner-gated or user-supplied.
+    mrr_end: null
   - venture: photos-import-tools
     agent_spend_usd: null
     human_hours: 0
@@ -22900,4 +22911,87 @@ entries:
           owner-gated per `portfolio/DIRECTION.md`; ready to deploy as a
           static site once that opens. `portfolio/router/validate.py`
           still reports all 15 `VENTURE.yaml` files valid (none touched).
+    mrr_end: null
+  - venture: ai-engineering-academy
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+          Continued the same product-first session (branch
+          claude/exciting-brown-7crc4d) after shipping and merging
+          led-resistor-calculator (#932) and the agent-permission-harness
+          CI fix (#936). Shipped a third EE tool:
+          `tools/voltage-divider-calculator/` -- unloaded and loaded
+          V_out (the load-loading correction most beginner treatments
+          skip: a real load in parallel with R2 sags V_out below the
+          textbook value, and the tool shows both numbers plus the
+          percentage drop and per-component power), and a target-output
+          design mode that solves for R2 given a preferred R1 and snaps
+          it to a buyable E24 value. Same definition-of-done as the first
+          two tools: MIT LICENSE, no-warranty disclaimer, honest privacy
+          line, local-first opt-out/DNT-respecting usage counting, zero
+          dependencies, zero build step.
+      - >-
+          Verified rather than assumed: 14 unit tests pass (`node --test`)
+          covering the equal-resistor halving case, an unequal-ratio
+          case, the loaded-vs-unloaded divergence (33% sag verified by
+          hand-computed fraction), a light-load near-no-sag sanity check,
+          invalid-input rejection, and the target-design mode's exact/
+          nearest-E24 R2 with a real worked example (12V to 3.3V through
+          a 10k R1 lands on a standard 3.9k). Also re-ran the two sibling
+          tools' suites unchanged (21 and 16 passing) to catch any
+          regression, and drove the new page in a real headless Chromium
+          -- default inputs render 6.0000V/0.600mA/3.60mW and 3.9kOhm/
+          3.3669V, matching the unit tests exactly. Wired into the
+          `tools-test` CI matrix.
+      - >-
+          Noticed while re-verifying the previous session's CI fix
+          (#936) that `agent-permission-harness`'s committed results
+          snapshot had already drifted again from a concurrent session's
+          edit, minutes after landing. Left it alone this time rather
+          than chasing an actively-churning file a second time in one
+          session -- noted here so the next session sees the pattern
+          (broad-trigger workflow + a generated file some sessions edit
+          by hand instead of regenerating) rather than re-diagnosing it
+          from scratch.
+    mrr_end: null
+  - venture: photos-import-tools
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Product-first autonomous session (scheduled brief, branch
+        claude/exciting-brown-8zpx3z). `session_gate.py` said BUILD (84%
+        of last 25 entries meta-work, no revenue). Sampled 4 of the 10
+        open PRs (#934, #933, #922, #926) before starting: all in "dirty"
+        mergeable state from a burst of concurrent sessions committing to
+        `main` faster than any one PR could be rebased -- not this
+        session's PRs to fix, and re-litigating a fleet-wide collision
+        already flagged by `session_gate.py` would itself be more
+        meta-work. Checked `decision_queue.py`: every venture's
+        `links.production` is `null`, deployment is entirely gated on
+        owner-supplied hosting credentials (Ask 9 open), so a ninth new
+        thin venture PR would not reach any user this repo doesn't already
+        have candidates queued for.
+      - >-
+        Shipped instead: a "Usage" section in
+        `ventures/photos-import-tools/README.md` (96 lines) documenting
+        the `init`/`run`/`status`/`preflight`/`skip-uncertain` commands,
+        the unattended watchdog and `start_import.sh`'s env vars
+        (`STATE_DIR`, `ROOT_DIR`, `BATCH_SIZE`, `INCLUDE_RAWS`,
+        `RAW_BATCH_SIZE`, `RAW_TIMEOUT`), and SD-offload flags -- all
+        sourced from each script's own `argparse` definitions, not
+        invented. This is the one product in the portfolio with real,
+        working, daily use (91 tests, dozens of hardened edge cases per
+        its own hypotheses list) and it had no documented invocation
+        sequence; a reader previously had to trace 1000+ lines of
+        `resumable_photos_import.py` to learn it. PR #938.
+      - >-
+        Verified rather than assumed: reran the venture's own test suite
+        (91 passed) and cross-checked every flag, default, and env var in
+        the new section directly against the `argparse` calls and
+        `start_import.sh` source before writing it. Also ran
+        `validate_doc_consistency.py` and `validate_candidates.py`
+        (unaffected, both pass). Doc-only diff; no code, deployment, or
+        owner-only action.
     mrr_end: null
