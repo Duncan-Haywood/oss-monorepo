@@ -231,9 +231,10 @@ decisions:
     unanswered is what costs.
   unlocks:
     - >-
-      Answered "yes, while nothing is live", `contrast-fixes` leaves this
-      queue outright -- one pull request the owner never has to read. This is
-      the only row here whose answer makes the queue shorter.
+      Answered "yes, while nothing is live", `contrast-fixes` and
+      `eaa-evidence-product-line` both leave this queue outright -- two pull
+      requests the owner never has to read individually. This is the only
+      row here whose answer makes the queue shorter.
     - >-
       Answered "no, the gate stands regardless", every future `ventures/*`
       pull request stops being re-argued from prose by each session that meets
@@ -490,3 +491,33 @@ decisions:
     repo found 220 branches it would delete (166 already-merged, 107 whose
     tip moved after their PR closed, 7 still in grace) out of 608 total.
     No ledger hunk riding along, so it stays mergeable while it waits.
+
+- id: eaa-evidence-product-line
+  asks: []
+  prs: [814]
+  gates: deployment
+  exposure: none
+  opened: "2026-08-24"
+  action: "Merge or decline #814."
+  unlocks:
+    - >-
+      The pipeline's only `build-now` candidate (`eaa-remediation-pipeline`),
+      initiated as a product line of `local-site-studio`: a catalog
+      (EUR 900-1800 job, EUR 49-99/mo re-test) with a buyer gate that refuses
+      EAA-deadline urgency to a microenterprise, a public
+      `/accessibility-evidence` page disclosing precision/recall rather than
+      claiming compliance, and operator docs. Checkout is explicitly not
+      wired; inquiries are mailto-only.
+  blocked_by: []
+  note: >-
+    Self-flagged human-gated in its own body: touches deployable
+    `ventures/local-site-studio` app code, so per `CLAUDE.md` it is not
+    agent-decidable regardless of `publish_surface.py` currently reporting
+    nothing live -- the same premise `venture-gate-premise` (ask 9) raises.
+    The PR's own verification is thorough (`validate.py` all 10 VENTURE.yaml
+    valid, pipeline consistency checks pass, 77 vitest cases, `tsc --noEmit`
+    and eslint clean, `next build` prerenders the new routes, a manual
+    browser pass through the microenterprise-refusal and obligated-inquiry
+    paths, and a clean `git merge-tree` against `main` with no ledger hunk)
+    but does not settle the merge-class question, which is why this is a
+    merge-or-decline row rather than something a session did itself.
