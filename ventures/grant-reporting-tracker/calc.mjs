@@ -36,3 +36,13 @@ export function toCsv(rows) {
   const quote = (value) => `"${String(value ?? '').replaceAll('"', '""')}"`;
   return [fields.join(','), ...rows.map((row) => fields.map((field) => quote(row[field])).join(','))].join('\n');
 }
+
+export function loadGrants(value) {
+  if (!value) return [];
+  try {
+    const grants = JSON.parse(value);
+    return Array.isArray(grants) ? grants.filter((grant) => grant && typeof grant === 'object') : [];
+  } catch {
+    return [];
+  }
+}

@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { addMonths, reviewAll, toCsv } from './calc.mjs';
+import { addMonths, loadGrants, reviewAll, toCsv } from './calc.mjs';
 
 test('adds months without overflowing short months', () => {
   assert.equal(addMonths('2026-01-31', 1), '2026-02-28');
@@ -21,4 +21,10 @@ test('escapes CSV values and preserves the review fields', () => {
   const csv = toCsv([{ name: 'Food, Inc.', funder: 'A "Funder"', nextReport: '2026-09-01', status: 'Due soon', restrictedBalance: 10 }]);
   assert.match(csv, /"Food, Inc\."/);
   assert.match(csv, /"A ""Funder"""/);
+});
+
+test('loads only saved grant rows and recovers from damaged local storage', () => {
+  assert.deepEqual(loadGrants(JSON.stringify([{ name: 'Garden' }, null, 'not a grant'])), [{ name: 'Garden' }]);
+  assert.deepEqual(loadGrants('{damaged'), []);
+  assert.deepEqual(loadGrants(JSON.stringify({ name: 'not a list' })), []);
 });
