@@ -272,6 +272,17 @@ products:
           preaudit_checklist_events: 0
           handoff_exports: 0
         note: Shipped browser-local pre-audit checklist; public deployment remains owner-gated.
+  - slug: job-margin-variance
+    surface: static-page-in-repo
+    readings:
+      - as_of: 2026-08-24
+        signals:
+          live_url_visitors: null
+          report_generated_events: 0
+        note: >-
+          Shipped a browser-local completed-job estimate-versus-actual variance
+          review for independent contractors. Public URL remains owner-gated;
+          the counter is aggregate, local, and opt-out.
 # Example of the shape, once a product has shipped:
 #
 # products:
