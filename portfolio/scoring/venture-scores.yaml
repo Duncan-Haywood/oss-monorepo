@@ -174,6 +174,32 @@ ventures:
       liability_containment: pass
       ethical_robustness: pass
 
+  - slug: where-to-sell-calculator
+    scores:
+      ai_leverage: 2
+      autonomous_ops: 10
+      time_to_revenue: 7
+      gross_margin: 10
+      defensibility: 5
+      distribution: 8
+    composite: 7.0
+    rater_b: null
+    floor: 2
+    floor_dimension: ai_leverage
+    floor_note: AI is intentionally absent from the arithmetic core.
+    basis: >-
+      Graduated on 2026-08-24 as the cross-channel counterpart to the
+      single-marketplace calculators already in the portfolio. Scored one above
+      shopify-fee-calculator on defensibility: the per-marketplace calculators
+      are each a commodity SERP, while a comparison that models differing fee
+      *shapes* — per-listing fees, subscription amortisation, and the price
+      needed to match the best channel — is the piece the incumbent ad-funded
+      pages do not attempt. Distribution matches at 8: "etsy vs ebay fees" and
+      "where to sell online" are high-intent seller queries.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+
   - slug: no-show-fee-calculator
     scores:
       ai_leverage: 1
