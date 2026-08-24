@@ -21,9 +21,12 @@ being treated as safe to remove. Add `--protect release` for each additional
 protected local branch.
 
 The scanner distinguishes merged branches, closed-PR branches whose tip moved,
-shared refs, protected branches, active work, and uncertain records. It never
-talks to GitHub, uploads repository data, or deletes refs. Its output is evidence
-for a human approval queue, not deletion advice.
+shared refs, protected branches, active work, and uncertain records. Each
+finding includes a non-executable `review_action`, such as
+`review-delete-candidate` or `preserve-and-review`, so teams can route work in
+an approval queue without turning a report into deletion advice. It never talks
+to GitHub, uploads repository data, or deletes refs. The manifest explicitly
+marks itself read-only and approval-required.
 
 Keep snapshots customer-owned and remove them when no longer needed. The
 optional usage log records only an event name, timestamp, and aggregate count,
