@@ -22,6 +22,12 @@ test('uses the densest class band at an exact threshold', () => {
   assert.equal(result.freightClass, 150);
 });
 
+test('shows the density threshold for the next lower class', () => {
+  const result = estimateFreightClass({ length: 48, width: 40, height: 36, weight: 500 });
+  assert.equal(result.nextLowerClass, 77.5);
+  assert.equal(result.nextLowerClassDensity, 13.5);
+});
+
 test('rejects missing or fractional pieces', () => {
   assert.throws(() => estimateFreightClass({ length: 1, width: 1, height: 1, weight: 1, pieces: 0 }));
   assert.throws(() => estimateFreightClass({ length: 1, width: 1, height: 1, weight: 1, pieces: 1.5 }), /whole number/);
