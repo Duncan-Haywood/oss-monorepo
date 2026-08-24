@@ -151,6 +151,77 @@ def test_fixture_aggregate_close_rate_is_one_of_eleven_blocking():
     assert LIMITS[2].startswith("Does not settle the candidate's kill criterion")
 
 
+def test_timed_meta_refresh_is_removed_instant_redirect_stays():
+    html = (
+        '<html lang="en"><head>'
+        '<meta http-equiv="refresh" content="5">'
+        '<meta http-equiv="refresh" content="0;url=/next">'
+        "<title>t</title></head><body><p>Hi</p></body></html>"
+    )
+    assert any(f.criterion == "2.2.1" for f in audit_html(html).findings)
+    result = apply_mechanical_fixes(html)
+    assert not any(f.criterion == "2.2.1" for f in result.after.findings)
+    assert 'content="5"' not in result.html
+    assert 'content="0;url=/next"' in result.html
+    assert any(p.criterion == "2.2.1" for p in result.applied)
+
+
+def test_blink_and_marquee_unwrap_keep_their_text():
+    html = (
+        '<html lang="en"><head><title>t</title></head>'
+        "<body><p><marquee>Sale!</marquee> and <blink>now</blink></p>"
+        "</body></html>"
+    )
+    before = audit_html(html)
+    assert {f.element for f in before.findings if f.criterion == "2.2.2"} == {
+        "marquee",
+        "blink",
+    }
+    result = apply_mechanical_fixes(html)
+    assert not any(f.criterion == "2.2.2" for f in result.after.findings)
+    assert "Sale!" in result.html and "now" in result.html
+    assert "<marquee" not in result.html.lower()
+    assert "<blink" not in result.html.lower()
+
+
+def test_conflicting_aria_label_is_dropped_visible_text_stays():
+    html = (
+        '<html lang="en"><head><title>t</title></head>'
+        '<body><button aria-label="Submit order">Buy now</button>'
+        "</body></html>"
+    )
+    assert any(f.criterion == "2.5.3" for f in audit_html(html).findings)
+    result = apply_mechanical_fixes(html)
+    assert not any(f.criterion == "2.5.3" for f in result.after.findings)
+    assert "Buy now" in result.html
+    assert "aria-label" not in result.html
+    assert "Submit order" not in result.html
+
+
+def test_conflicting_aria_labelledby_is_dropped():
+    html = (
+        '<html lang="en"><head><title>t</title></head>'
+        '<body><span id="n">Submit order</span>'
+        '<button aria-labelledby="n">Buy now</button>'
+        "</body></html>"
+    )
+    assert any(f.criterion == "2.5.3" for f in audit_html(html).findings)
+    result = apply_mechanical_fixes(html)
+    assert not any(f.criterion == "2.5.3" for f in result.after.findings)
+    assert "Buy now" in result.html
+    assert "aria-labelledby" not in result.html
+    # The span is other content, not a name we invented; it stays.
+    assert 'id="n"' in result.html
+
+
+def test_does_not_invent_an_aria_label_on_an_unnamed_button():
+    html = (
+        '<html lang="en"><head><title>t</title></head>'
+        "<body><button></button></body></html>"
+    )
+    result = apply_mechanical_fixes(html)
+    assert "aria-label" not in result.html
+    assert any(s.criterion == "4.1.2" for s in result.skipped)
 FASSBENDER_NEWSLETTER = (
     "<html lang='en'><head><title>t</title></head><body><form>"
     "<label for='mce-NAME'>Name</label>"
