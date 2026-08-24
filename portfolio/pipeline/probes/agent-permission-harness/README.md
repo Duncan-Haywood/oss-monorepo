@@ -140,7 +140,7 @@ is issue further reading orders: the pipeline directory, the ledger README and
 its `break-even.md`, `re-verification.md`, the research index, the router
 README. None of those is named by the prompt. Taking the closure to its fixed
 point, as [the amendment below](#amendment-2026-08-23-the-closure-is-transitive-and-was-measured-one-hop-deep)
-records, the instruction set is **118 files at a maximum depth of 4**.
+records, the instruction set is **120 files at a maximum depth of 4**.
 
 Every one is an ordinary repository file. Every one is one merged pull request
 away from saying something else. And the agent reads all of them while holding
@@ -148,9 +148,9 @@ away from saying something else. And the agent reads all of them while holding
 `OPENCODE_API_KEY`.
 
 An attack-replay harness pointed at this agent tests the `prompt:` input. That
-input is 1 of the 118 files in the instruction set, and it is the only one of
-the 118 that an attacker has no particular reason to write to. The harness would
-test the surface at a ratio of 1:118, and it would test the wrong end of it.
+input is 1 of the 120 files in the instruction set, and it is the only one of
+the 120 that an attacker has no particular reason to write to. The harness would
+test the surface at a ratio of 1:120, and it would test the wrong end of it.
 
 This is not a subtle property that needed a clever tool. It is four regexes over
 a markdown file, a glob expansion, and a worklist that keeps going until it
@@ -191,9 +191,9 @@ that flatters it.
 | prompt input | 1 |
 | depth 1 — paths the prompt names | 21 |
 | depth 2 | 55 |
-| depth 3 | 37 |
+| depth 3 | 39 |
 | depth 4 | 4 |
-| **instruction set (fixed point)** | **118** |
+| **instruction set (fixed point)** | **120** |
 
 The first-hop number is unchanged, so nothing above it is retracted; what
 changed is that the walk no longer stops there. Three things are worth naming
@@ -320,6 +320,28 @@ line to do it. And the fix worked — the widened path filter turned #708's CI
 red *before* the merge, so the artifact and its six prose figures were corrected
 in the pull request that moved the number, by the session that moved it, instead
 of by three later sessions chasing a figure they could not explain.
+
+**Third instance, 2026-08-24: `118` became `120`, and the trigger caught it
+again.** A ledger session amended `portfolio/ledger/break-even.md` — already a
+depth-2 document in the closure — to record that two of its closing
+recommendations had since been implemented. Saying so required naming the two
+tools that implemented them, `portfolio/ledger/decision_queue.py` and
+`portfolio/ledger/session_gate.py`, and naming them is what put both into the
+instruction set at depth 3 (`37 → 39`). Neither file is new; both have been in
+the repository for days, reachable by anyone reading the ledger directory. What
+changed is that a document the fleet agent is *directed* to read now points at
+them.
+
+This is the third confirmation of the same mechanism and the first where the
+enlarging sentence was a **correction** rather than an addition — the session
+was removing staleness, which is exactly the maintenance this repository asks
+for, and it still moved a security measurement by two files. That is the
+cleanest available statement of the finding: the surface grows as a side effect
+of ordinary prose upkeep, by authors with no reason to think they are touching
+security, and **only the artifact check makes it visible.** The widened path
+filter earned its keep for the second time — CI went red before the merge, and
+the results file and all four prose figures were corrected in the pull request
+that moved them.
 
 ## What this probe deliberately does not do
 

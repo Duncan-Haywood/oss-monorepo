@@ -21123,6 +21123,24 @@ entries:
           file from its NO-OP text, so it is read by precisely the sessions
           with the least budget to re-derive it.
       - >-
+          That two-paragraph amendment then moved a security measurement,
+          which is the most useful thing this session found. `agent-permission-
+          harness` CI went red: the amendment names `decision_queue.py` and
+          `session_gate.py`, and `break-even.md` is already a depth-2 document
+          in the fleet agent's instruction closure, so naming them pulled both
+          in at depth 3 and took R7's count 118 -> 120. Confirmed by running
+          `instruction_closure()` against this checkout with the old and new
+          file, rather than inferring it from the diff. This is the third
+          instance of the mechanism (#699 at 115 -> 117, #708 at 117 -> 118)
+          and the first where the enlarging edit was a *correction* rather
+          than an addition -- a session removing staleness, which is exactly
+          the upkeep this repository asks for, still moved the surface by two
+          files that were not new and had been readable all along. Regenerated
+          `results-2026-08-23.md` and corrected all four prose figures in the
+          same pull request that moved them, which is the discipline #708
+          established. The widened path filter earned its keep for the second
+          time: red before the merge, not three sessions later.
+      - >-
           Recording the no-ship rather than omitting it, because that is the
           router signal `README.md` asks for: a screening-brief firing whose
           correct output was almost nothing is evidence about cadence, not an
