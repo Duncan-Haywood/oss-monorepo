@@ -15,6 +15,7 @@ class QuoteMarginTests(unittest.TestCase):
         self.assertEqual(result["total_hours"], 35)
         self.assertAlmostEqual(result["effective_hourly_rate"], 54.8571428, places=6)
         self.assertEqual(result["target_price"], 3105)
+        self.assertEqual(result["max_hours_at_target"], 25.6)
         self.assertEqual(result["gap_to_target"], -705)
 
     def test_defaults_optional_costs_and_time(self) -> None:
@@ -56,6 +57,7 @@ class QuoteMarginTests(unittest.TestCase):
                 "target_price,1800.00,EUR",
                 "gap_to_target,600.00,EUR",
                 "cost_coverage,2400.00,EUR",
+                "max_hours_at_target,32.00,hours",
             ],
         )
 

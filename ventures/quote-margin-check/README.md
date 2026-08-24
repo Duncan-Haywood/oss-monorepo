@@ -34,6 +34,12 @@ results from several proposals to a spreadsheet without retyping calculations.
 Batch CSV emits one comparison row per filename, making a folder of recurring
 proposal reviews easy to sort and filter without exposing the proposal data.
 
+The browser also reports the **maximum total hours at target rate**: the amount
+left after direct costs are covered divided by the supplied target hourly rate.
+Compare that threshold with delivery, admin, and revision hours before accepting
+the scope. A negative value means the price does not cover direct costs at all;
+it is an arithmetic warning, not a pricing recommendation.
+
 The browser also shows a small pre-send review: arithmetic observations for
 direct costs above the price, a gap below the supplied target, hidden time, and
 quotes with no revision hours. These are prompts to review your own assumptions,
@@ -64,6 +70,8 @@ of a quote it already counted. Reading it as "reports", not "keystrokes", is
 what makes it comparable to the CLI's own count. The browser also counts
 `quote_review_checked` locally when a valid quote is reviewed; it stores no quote
 values and sends nothing anywhere.
+Copying a CSV row also records the aggregate `target_hours_copied` event, which
+shows whether users take the hour-budget output into their own workflow.
 
 ## Input
 
