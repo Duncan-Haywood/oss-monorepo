@@ -89,6 +89,31 @@ test("a non-2xx response is labeled inconclusive, never unchanged", async () => 
   assert.ok(second.previous, "should still reference the last good snapshot for context");
 });
 
+test("HTTP 204 and 205 are inconclusive and do not store or overwrite a snapshot", async () => {
+  clearWatchStoreForTests();
+  const noContentFetch = (status: number): FetchFn => async () => new Response(null, { status });
+
+  const firstEmpty = await checkUrl("https://example.com/empty", noContentFetch(204));
+  assert.equal(firstEmpty.outcome, "inconclusive");
+  assert.equal(firstEmpty.httpStatus, 204);
+  assert.ok(firstEmpty.errorMessage);
+
+  const firstReal = await checkUrl("https://example.com/empty", fetchReturning(200, "<p>Actual page.</p>"));
+  assert.equal(firstReal.outcome, "first_snapshot");
+
+  await checkUrl("https://example.com/terms", fetchReturning(200, "<p>Original text.</p>"));
+  for (const status of [204, 205]) {
+    const result = await checkUrl("https://example.com/terms", noContentFetch(status));
+    assert.equal(result.outcome, "inconclusive");
+    assert.equal(result.httpStatus, status);
+    assert.ok(result.errorMessage);
+    assert.ok(result.previous);
+  }
+
+  const after = await checkUrl("https://example.com/terms", fetchReturning(200, "<p>Original text.</p>"));
+  assert.equal(after.outcome, "unchanged");
+});
+
 test("a network/fetch error is labeled inconclusive and preserves the prior snapshot", async () => {
   clearWatchStoreForTests();
   await checkUrl("https://example.com/terms", fetchReturning(200, "<p>Original text.</p>"));
