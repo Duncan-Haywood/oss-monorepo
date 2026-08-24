@@ -1,3 +1,5 @@
+import Link from "next/link";
+
 import { AudienceComparison } from "@/components/AudienceComparison";
 import {
   PricingSection,
@@ -72,6 +74,13 @@ export default function Home() {
             Confidential market-research scaffold for Listing Lens. Private /
             proprietary. Verdict preserved: {REPORT_META.verdictRaw} (confidence:{" "}
             {REPORT_META.confidence}).
+          </p>
+          <p className="mt-3 text-sm text-slate-400">
+            Free tool:{" "}
+            <Link href="/photo-check" className="font-medium text-brand-300 hover:text-brand-200">
+              MLS listing photo preflight check
+            </Link>{" "}
+            — no account, no upload.
           </p>
         </div>
       </footer>
