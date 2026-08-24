@@ -76,11 +76,14 @@ all `.json` files recursively; batch JSON includes per-file errors and batch
 SARIF uses paths relative to the input directory. An empty directory is an
 input error and exits `2`. Batch scans also flag duplicate `invoice_number`
 values as `INV-019`; the number itself is never emitted.
-JSON output uses the same summary fields for single files and directories:
-`status`, `files_checked`, `files_failed`, `observations`, `rules`, and
-`read_errors`. Single-file output also includes `file` and `errors`; directory
-output includes the per-file `reports` array. Rule counts let a CI or ERP
-adapter show a compact defect summary without parsing human text.
+JSON output uses the same versioned summary fields for single files and
+directories: `schema_version` (currently `1`), `status`, `exit_code`,
+`files_checked`, `files_failed`, `observations`, `rules`, and `read_errors`.
+`exit_code` mirrors the process result (`0` pass, `1` findings, `2` read/input
+errors), so an adapter can handle captured output without reimplementing exit
+logic. Single-file output also includes `file` and `errors`; directory output
+includes the per-file `reports` array. Rule counts let a CI or ERP adapter show
+a compact defect summary without parsing human text.
 `--format jsonl` emits one compact JSON object per invoice (or read error),
 which is suitable for streaming directory results into CI or an ERP adapter
 without parsing an aggregate document. Each invoice record has `status`, `file`,

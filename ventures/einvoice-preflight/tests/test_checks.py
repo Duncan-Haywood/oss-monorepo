@@ -138,12 +138,38 @@ class ChecksTest(unittest.TestCase):
             with contextlib.redirect_stdout(output):
                 self.assertEqual(main([str(invoice_path), "--format", "json"]), 1)
             report = json.loads(output.getvalue())
+            self.assertEqual(report["schema_version"], 1)
+            self.assertEqual(report["exit_code"], 1)
             self.assertEqual(report["file"], "invoice.json")
             self.assertEqual(report["files_checked"], 1)
             self.assertEqual(report["files_failed"], 1)
             self.assertEqual(report["observations"], 1)
             self.assertEqual(report["rules"], {"INV-017": 1})
             self.assertEqual(report["errors"][0]["rule"], "INV-017")
+
+    def test_cli_json_success_reports_machine_result_contract(self):
+        with tempfile.TemporaryDirectory() as directory:
+            invoice_path = Path(directory) / "invoice.json"
+            invoice_path.write_text(json.dumps(VALID))
+            output = io.StringIO()
+            with contextlib.redirect_stdout(output):
+                self.assertEqual(main([str(invoice_path), "--format", "json"]), 0)
+            report = json.loads(output.getvalue())
+            self.assertEqual(report["schema_version"], 1)
+            self.assertEqual(report["status"], "pass")
+            self.assertEqual(report["exit_code"], 0)
+
+    def test_cli_json_read_error_reports_machine_result_contract(self):
+        with tempfile.TemporaryDirectory() as directory:
+            invoice_path = Path(directory) / "broken.json"
+            invoice_path.write_text("not json")
+            output = io.StringIO()
+            with contextlib.redirect_stdout(output):
+                self.assertEqual(main([str(invoice_path), "--format", "json"]), 2)
+            report = json.loads(output.getvalue())
+            self.assertEqual(report["schema_version"], 1)
+            self.assertEqual(report["status"], "fail")
+            self.assertEqual(report["exit_code"], 2)
 
     def test_cli_emits_jsonl_one_record_per_invoice(self):
         with tempfile.TemporaryDirectory() as directory:

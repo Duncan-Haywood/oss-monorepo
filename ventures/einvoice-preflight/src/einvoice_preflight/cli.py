@@ -161,11 +161,14 @@ def _json_report(
     reports: list[tuple[Path, list[dict[str, str]]]],
     read_errors: list[dict[str, str]],
 ) -> dict[str, Any]:
-    """Build one stable adapter payload for every input mode."""
+    """Build one versioned adapter payload for every input mode."""
     rule_counts = Counter(error["rule"] for _, errors in reports for error in errors)
     errors = [error for _, invoice_errors in reports for error in invoice_errors]
+    exit_code = 2 if read_errors else (0 if not errors else 1)
     output: dict[str, Any] = {
+        "schema_version": 1,
         "status": "pass" if not errors and not read_errors else "fail",
+        "exit_code": exit_code,
         "files_checked": len(reports),
         "files_failed": sum(bool(invoice_errors) for _, invoice_errors in reports),
         "observations": len(errors),
