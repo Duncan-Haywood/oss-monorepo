@@ -417,12 +417,18 @@ host venture already delivers — trades, salon, restaurant — from
 corpus; the close-rate on a clean page is undefined, and is recorded as
 null rather than as 100%.
 
-**On the same three pages, after injecting only the four defect classes
-the pass is allowed to rewrite** (missing title, heading-level skip,
-viewport zoom-lock, `aria-hidden` on a named control), the pass closed
-12 of 12 findings, 6 of 6 blocking. Blocking close-rate **1.0**. Operator
-job and committed JSON:
+**On the same three pages, after injecting only the rewriteable defect
+classes the pass is allowed to close** (missing title, heading-level skip,
+viewport zoom-lock, `aria-hidden` on a named control, unmuted autoplay,
+orientation-lock rotate), the pass closed 18 of 18 findings, 12 of 12
+blocking. Blocking close-rate **1.0**. Operator job and committed JSON:
 `ventures/local-site-studio/scripts/eaa-evidence-job/`.
+
+The two added classes are uniquely determined deletions-or-booleans:
+`muted` on autoplaying media (1.4.2) and a visual `rotate()` on
+`<html>`/`<body>` under a pure orientation query (1.3.4). They do not
+invent words. Timed refresh, blink/marquee, and name-override already
+landed in #825 and are not reopened here.
 
 That 1.0 is the rate on defects written to be closeable, placed onto real
 theme markup. It is not a shop's natural mix. The probe's own fixture

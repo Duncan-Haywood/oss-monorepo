@@ -32,8 +32,8 @@
   },
   "mutated_mechanical_only": {
     "before": {
-      "total": 12,
-      "blocking": 6,
+      "total": 18,
+      "blocking": 12,
       "degrading": 6
     },
     "after": {
@@ -42,8 +42,8 @@
       "degrading": 0
     },
     "closed": {
-      "total": 12,
-      "blocking": 6,
+      "total": 18,
+      "blocking": 12,
       "degrading": 6
     },
     "blocking_close_rate": 1.0,
@@ -51,8 +51,8 @@
       {
         "page": "live-trades.html",
         "before": {
-          "total": 4,
-          "blocking": 2,
+          "total": 6,
+          "blocking": 4,
           "degrading": 2
         },
         "after": {
@@ -61,8 +61,8 @@
           "degrading": 0
         },
         "closed": {
-          "total": 4,
-          "blocking": 2,
+          "total": 6,
+          "blocking": 4,
           "degrading": 2
         },
         "blocking_close_rate": 1.0,
@@ -73,9 +73,19 @@
             "action": "removed aria-hidden from a focusable control"
           },
           {
+            "criterion": "1.4.2",
+            "impact": "blocking",
+            "action": "added muted to autoplaying media"
+          },
+          {
             "criterion": "1.4.4",
             "impact": "blocking",
             "action": "removed the viewport zoom-lock"
+          },
+          {
+            "criterion": "1.3.4",
+            "impact": "blocking",
+            "action": "removed a visual rotate() on <html>/<body> under a pure orientation media query"
           },
           {
             "criterion": "2.4.2",
@@ -93,8 +103,8 @@
       {
         "page": "live-salon.html",
         "before": {
-          "total": 4,
-          "blocking": 2,
+          "total": 6,
+          "blocking": 4,
           "degrading": 2
         },
         "after": {
@@ -103,8 +113,8 @@
           "degrading": 0
         },
         "closed": {
-          "total": 4,
-          "blocking": 2,
+          "total": 6,
+          "blocking": 4,
           "degrading": 2
         },
         "blocking_close_rate": 1.0,
@@ -115,9 +125,19 @@
             "action": "removed aria-hidden from a focusable control"
           },
           {
+            "criterion": "1.4.2",
+            "impact": "blocking",
+            "action": "added muted to autoplaying media"
+          },
+          {
             "criterion": "1.4.4",
             "impact": "blocking",
             "action": "removed the viewport zoom-lock"
+          },
+          {
+            "criterion": "1.3.4",
+            "impact": "blocking",
+            "action": "removed a visual rotate() on <html>/<body> under a pure orientation media query"
           },
           {
             "criterion": "2.4.2",
@@ -135,8 +155,8 @@
       {
         "page": "live-restaurant.html",
         "before": {
-          "total": 4,
-          "blocking": 2,
+          "total": 6,
+          "blocking": 4,
           "degrading": 2
         },
         "after": {
@@ -145,8 +165,8 @@
           "degrading": 0
         },
         "closed": {
-          "total": 4,
-          "blocking": 2,
+          "total": 6,
+          "blocking": 4,
           "degrading": 2
         },
         "blocking_close_rate": 1.0,
@@ -157,9 +177,19 @@
             "action": "removed aria-hidden from a focusable control"
           },
           {
+            "criterion": "1.4.2",
+            "impact": "blocking",
+            "action": "added muted to autoplaying media"
+          },
+          {
             "criterion": "1.4.4",
             "impact": "blocking",
             "action": "removed the viewport zoom-lock"
+          },
+          {
+            "criterion": "1.3.4",
+            "impact": "blocking",
+            "action": "removed a visual rotate() on <html>/<body> under a pure orientation media query"
           },
           {
             "criterion": "2.4.2",
@@ -179,7 +209,7 @@
       "Host-venture delivered pages, not a live customer shop.",
       "Re-audit by the same static engine, not assistive-technology verification.",
       "Does not settle the candidate's kill criterion (that needs live themes and a contractor).",
-      "Mutated close-rate injects only the four defect classes the pass can rewrite. It is not a shop's natural blocking mix.",
+      "Mutated close-rate injects only the rewriteable defect classes the pass can close. It is not a shop's natural blocking mix.",
       "Does not invent alt text, labels, captions, link names, button names, or a page language.",
       "Unmodified pages of this corpus were already measured clean; a null unmodified close-rate is that measurement, not a missing run."
     ]
@@ -188,7 +218,7 @@
     "Host-venture delivered pages, not a live customer shop.",
     "Re-audit by the same static engine, not assistive-technology verification.",
     "Does not settle the candidate's kill criterion (that needs live themes and a contractor).",
-    "Mutated close-rate injects only the four defect classes the pass can rewrite. It is not a shop's natural blocking mix.",
+    "Mutated close-rate injects only the rewriteable defect classes the pass can close. It is not a shop's natural blocking mix.",
     "Does not invent alt text, labels, captions, link names, button names, or a page language.",
     "Unmodified pages of this corpus were already measured clean; a null unmodified close-rate is that measurement, not a missing run."
   ]
