@@ -592,6 +592,14 @@ decisions:
     left to accept or decline in #836 is specifically the removal of those
     four gates, not the product-first direction, which is already on `main`.
 
+    Update 2026-08-24: #836 is now closed, not merged (never left draft).
+    `main`'s `CLAUDE.md` still carries the full governance text this PR
+    proposed cutting. Left in this file as a record that the "product-first,
+    override existing governance" framing was proposed once already today
+    and declined -- a later session or an externally-stored prompt carrying
+    the same framing should not treat it as a standing, owner-verified
+    policy without an actual decision recorded here or on #139.
+
 - id: funding-sponsors-live
   asks: []
   prs: [839]
@@ -625,3 +633,43 @@ decisions:
     the PR's opener -- made that call. Left unmerged pending the owner's
     decision on whether that Sponsors profile should be surfaced here at
     all.
+
+- id: agent-cross-review-automerge
+  asks: []
+  prs: [870]
+  gates: deployment
+  exposure: credential
+  opened: "2026-08-24"
+  action: >-
+    Decide whether to enable four-agent cross-review auto-merge on #870: if
+    yes, register the three missing GitHub App installations (GH Actions,
+    Kilo, Cursor -- plus a dedicated `portfolio-reviewer-claude[bot]`
+    identity distinct from the owner's own account) and add their
+    `AGENT_REVIEWER_<NAME>_APP_ID` / `_PRIVATE_KEY` repo secrets; if no,
+    close #870.
+  unlocks:
+    - >-
+      Two-bot-approval auto-merge for ordinary PRs once configured, removing
+      the owner from routine merge decisions. Inert today: none of the four
+      reviewer Apps or their secrets exist yet, so nothing in this PR runs.
+  blocked_by: []
+  note: >-
+    Opened 2026-08-24 by a branch-hygiene sweep session, which correctly
+    self-flagged it in the PR body as CLAUDE.md's "enabling unattended,
+    spend-capable automation" and left it unmerged for that reason.
+    Confirmed on review: `platform/ci/agent_review/review.py`'s
+    `evaluate_pr()` treats a PR touching `ventures/*` the same as any other
+    -- `path_touches_ventures()` only appends an informational reason string
+    ("touches ventures/* -- venture path-filtered CI must be green"), it
+    never blocks approval or requires anything beyond the same CI-green
+    check every other PR gets. So once the reviewer Apps exist, a PR
+    changing deployable venture app code could reach two bot approvals and
+    green CI and auto-merge without the human sign-off CLAUDE.md's
+    "breaking changes to deployable `ventures/*` code" rule requires --
+    Cursor Bugbot flagged the same gap independently on the PR itself
+    ("Does not block `ventures/*` ... from auto-merge"). Separately,
+    `mergeable_state: dirty` against current `main`: real conflict on
+    `.github/prompts/portfolio-work.md`, and the diff is stale by roughly
+    130 files of subsequent history, so a rebase is needed regardless of
+    the automation decision. Reviewed, not approved or merged, per
+    CLAUDE.md's automation gate -- left for the owner.
