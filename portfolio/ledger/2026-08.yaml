@@ -20609,16 +20609,24 @@ entries:
         trigger rule that names the wrong axis fails silently, in the
         direction that flatters the record.
       - >-
-        And the duplicate-work pattern landed on it mid-session, from the
-        other side. A concurrent session (#701) changed a workflow's
-        `permissions:`, which tripped the OLD trigger, and regenerated
-        `results-2026-08-23.md` in place -- so by the time this branch merged
-        `main`, the artifact was already correct there. Kept that
-        regeneration and dropped this session's rival re-dated copy rather
-        than opening a second artifact. What #701 could not carry, because
-        from its side the number had simply moved and there was nothing to
-        explain, is exactly what this pass adds: the five prose figures still
-        read 115 after it, and the trigger that let the artifact go stale was
-        untouched. Two sessions, one symptom, different halves; resolved the
-        way `CLAUDE.md` prescribes.
+        And the duplicate-work pattern landed on it mid-session: FOUR
+        sessions, none able to see the others, each fixed a different piece
+        of this within about an hour. #701 changed a workflow's
+        `permissions:`, tripped the OLD trigger, and regenerated
+        `results-2026-08-23.md` in place; #702 and #704 then chased the
+        115/35 prose that regeneration left behind, the second catching what
+        the first missed. Kept all of their work and dropped this session's
+        rival re-dated artifact rather than leaving two copies of one
+        measurement.
+      - >-
+        What none of the three carried is the point, and the reason is
+        structural rather than a lapse: a session arriving after the fact
+        sees only that a figure disagrees with an artifact, not that the
+        trigger is why the artifact went stale. So
+        `portfolio/pipeline/probes/README.md` still read 115 after all three,
+        the `package.json` sentence that moved the count went unnamed, and
+        the path filter -- the actual defect -- was untouched. Three passes
+        of cleanup and the thing that will do it again next week was still
+        armed. That is the argument for fixing the trigger rather than the
+        figure, and it is what this branch carries on top of theirs.
     mrr_end: null

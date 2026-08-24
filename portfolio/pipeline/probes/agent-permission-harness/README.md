@@ -285,18 +285,27 @@ direction that flatters the record.** `npm-reachability-triage`'s limit named th
 ecosystem when the boundary was the lockfile format; this one named the probe's
 inputs when the boundary is the closure's reachable set.
 
-One more thing happened while this was being written, and it belongs in the
-record rather than in a commit message. A concurrent session hit the stale
-artifact from the other side — it changed a workflow's `permissions:`, which
-tripped the old trigger, and regenerated `results-2026-08-23.md` in place
-([#701](https://github.com/Duncan-Haywood/monorepo-projects/pull/701)). That
-regeneration is the one on `main` and this pass keeps it rather than opening a
-rival copy under a new date. What it did **not** carry is what this section
-exists for: the five prose figures still read `115` after it, and the trigger
-that let the artifact go stale was untouched, because from that session's side
-the number had simply moved and there was nothing to explain. Two sessions, one
-symptom, different halves — which is the duplicate-work pattern `CLAUDE.md`
-documents, resolved the way it prescribes.
+What happened next belongs in the record rather than in a commit message, because
+it is the pattern `CLAUDE.md` documents landing on one number in one hour.
+**Four sessions, none able to see the others, each fixed a different piece of
+this.** One changed a workflow's `permissions:`, tripped the old trigger, and
+regenerated `results-2026-08-23.md` in place
+([#701](https://github.com/Duncan-Haywood/monorepo-projects/pull/701)); two more
+([#702](https://github.com/Duncan-Haywood/monorepo-projects/pull/702),
+[#704](https://github.com/Duncan-Haywood/monorepo-projects/pull/704)) then
+chased the `115`/`35` prose the regeneration had left behind, the second
+catching what the first missed. Their work is what is on `main` and this pass
+keeps it, dropping its own re-dated copy of the artifact rather than leaving two.
+
+The point worth keeping is what **none** of the three carried, and why. From
+each of their sides the number had simply moved, so there was nothing to
+explain: no session that arrives after the fact can see that the trigger is what
+let the artifact go stale, only that a figure disagrees with an artifact. So
+`portfolio/pipeline/probes/README.md` still read `115` after all three, the
+`package.json` sentence that moved the count went unnamed, and the path filter —
+the actual defect — was untouched. Three passes of cleanup, and the thing that
+will do it again next week was still armed. That is the argument for fixing the
+trigger rather than the figure.
 
 ## What this probe deliberately does not do
 
