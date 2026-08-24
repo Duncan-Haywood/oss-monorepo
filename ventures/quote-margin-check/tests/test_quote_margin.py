@@ -16,6 +16,7 @@ class QuoteMarginTests(unittest.TestCase):
         self.assertAlmostEqual(result["effective_hourly_rate"], 54.8571428, places=6)
         self.assertEqual(result["target_price"], 3105)
         self.assertEqual(result["gap_to_target"], -705)
+        self.assertEqual(result["target_rate_hours"], 25.6)
 
     def test_defaults_optional_costs_and_time(self) -> None:
         quote = load_quote({"price": 1000, "delivery_hours": 10, "target_hourly_rate": 100})
@@ -40,6 +41,10 @@ class QuoteMarginTests(unittest.TestCase):
         quote = load_quote({"price": 1000, "delivery_hours": 10, "overhead": 125, "subcontractor_cost": 75, "target_hourly_rate": 80})
         self.assertEqual(calculate(quote)["cost_coverage"], 800)
 
+    def test_reports_negative_target_rate_hours_when_costs_exceed_price(self) -> None:
+        quote = load_quote({"price": 100, "delivery_hours": 1, "overhead": 150, "target_hourly_rate": 50})
+        self.assertEqual(calculate(quote)["target_rate_hours"], -1)
+
     def test_csv_report_is_ready_for_spreadsheet_import(self) -> None:
         quote = load_quote({"currency": "EUR", "price": 2400, "delivery_hours": 24, "target_hourly_rate": 75})
         output = io.StringIO()
@@ -56,6 +61,7 @@ class QuoteMarginTests(unittest.TestCase):
                 "target_price,1800.00,EUR",
                 "gap_to_target,600.00,EUR",
                 "cost_coverage,2400.00,EUR",
+                "target_rate_hours,32.00,hours",
             ],
         )
 

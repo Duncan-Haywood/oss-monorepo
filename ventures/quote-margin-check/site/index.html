@@ -93,6 +93,7 @@
   .result dt { color: var(--muted); font-size: 0.85rem; margin-top: 0.6rem; }
   .result dt:first-child { margin-top: 0; }
   .result dd { margin: 0; font-size: 1.1rem; }
+  .result dd.warning { color: var(--bad); }
   .error { color: var(--bad); }
   .checks { margin: 0.75rem 0 0; padding: 0; list-style: none; }
   .checks li { border-left: 4px solid var(--border); padding: 0.55rem 0.75rem; margin-top: 0.55rem; background: var(--panel); }
@@ -301,11 +302,13 @@
            <dt>Price at your target rate</dt><dd>${safeCurrency} ${fmt(r.target_price)}</dd>
            <dt>Gap to target price</dt><dd>${safeCurrency} ${fmt(r.gap_to_target)}</dd>
            <dt>Left after direct costs</dt><dd>${safeCurrency} ${fmt(r.cost_coverage)}</dd>
+           <dt>Hours supported at target rate</dt><dd class="${r.target_rate_hours < 0 ? "warning" : ""}">${fmt(r.target_rate_hours)} hours</dd>
         </dl>
        `;
        review.querySelector(".checks").innerHTML = reviewQuote(quote, r).map((check) => `<li class="${check.level}"><strong>${escapeHtml(check.title)}</strong>${escapeHtml(check.detail)}</li>`).join("");
        sensitivity.querySelector("tbody").innerHTML = overrunScenarios(quote, r).map((scenario) => `<tr><th scope="row">+${scenario.percent}%</th><td>${fmt(scenario.total_hours)}</td><td>${safeCurrency} ${fmt(scenario.effective_hourly_rate)}/hour</td><td>${safeCurrency} ${fmt(scenario.gap_to_target)}</td></tr>`).join("");
-       recordEvent("quote_review_checked");
+        recordEvent("quote_review_checked");
+        recordEvent("target_rate_hours_viewed");
       result.classList.remove("error");
       reportCounter.count(JSON.stringify(quote));
     } catch (err) {

@@ -18,6 +18,7 @@ test("calculates hidden time and target price", () => {
   assert.ok(Math.abs(result.effective_hourly_rate - 54.8571428) < 1e-6);
   assert.equal(result.target_price, 3105);
   assert.equal(result.gap_to_target, -705);
+  assert.equal(result.target_rate_hours, 25.6);
 });
 
 test("defaults optional costs and time to zero", () => {
@@ -69,4 +70,9 @@ test("calculates transparent overrun sensitivity without changing the quote", ()
   assert.deepEqual(overrunScenarios(quote, report).map((scenario) => scenario.total_hours), [38.5, 43.75, 52.5]);
   assert.equal(overrunScenarios(quote, report)[0].effective_hourly_rate, 49.87012987012987);
   assert.equal(report.total_hours, 35);
+});
+
+test("shows negative target-rate hours when direct costs already exceed the price", () => {
+  const quote = loadQuote({ price: 100, delivery_hours: 1, overhead: 150, target_hourly_rate: 50 });
+  assert.equal(calculate(quote).target_rate_hours, -1);
 });
