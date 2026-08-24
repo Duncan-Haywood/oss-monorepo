@@ -85,10 +85,18 @@ jobs:
           trap 'rm -f "${body}"' EXIT
           succeeded=0
           failed=0
+          run_start="$(date +%s)"
 
-          # One POST. Echoes the session URL on success. Returns 0 when the
-          # routine fired, 2 when the token itself is the problem (no point
-          # retrying or continuing), 1 for anything else.
+          # One POST. Echoes the session URL on success. Exit codes:
+          #   0  fired
+          #   2  the token was rejected -- no point retrying or continuing
+          #   3  the server refused the request (429/5xx), so it was not
+          #      accepted and retrying cannot duplicate a session
+          #   1  anything else, including a timeout or dropped connection.
+          #      Deliberately NOT retried: /fire takes no idempotency key, so
+          #      a request that timed out after Anthropic accepted it would
+          #      start a second session on retry. An occasional missed fire is
+          #      cheaper than a duplicate cloud session.
           fire() {
             local code
             code="$(curl --silent --show-error \
@@ -110,6 +118,14 @@ jobs:
                 echo "::error::HTTP ${code} from the routine endpoint -- the token in CLAUDETRIGGERAPIKEY is missing, revoked, or scoped to a different routine. $(tr -d '\n' < "${body}")"
                 return 2
                 ;;
+              429|5??)
+                echo "::warning::HTTP ${code} from the routine endpoint; the request was refused, so it is safe to retry. $(tr -d '\n' < "${body}")"
+                return 3
+                ;;
+              000)
+                echo "::warning::No response from the routine endpoint (timeout or dropped connection). Not retried -- the routine may already have been fired."
+                return 1
+                ;;
               *)
                 echo "::warning::HTTP ${code} from the routine endpoint. $(tr -d '\n' < "${body}")"
                 return 1
@@ -121,30 +137,36 @@ jobs:
           while [ "${i}" -le "${FIRES_PER_RUN}" ]; do
             echo "fire ${i}/${FIRES_PER_RUN} at $(date -u +%H:%M:%SZ)"
 
-            fire
-            status=$?
-            if [ "${status}" -eq 2 ]; then
-              exit 1
-            fi
-            if [ "${status}" -ne 0 ]; then
-              # One retry, for a rate limit or a blip. A second failure is
-              # left to the next fire in the loop rather than eating the slot.
+            # Every call to `fire` goes through an `if` condition, which is
+            # exempt from errexit. GitHub runs `run:` steps as `bash -e {0}`
+            # and `set -uo pipefail` does not turn that off, so a bare
+            # `fire; status=$?` would kill the step on the first 5xx and never
+            # reach the retry or the summary below.
+            if fire; then status=0; else status=$?; fi
+
+            if [ "${status}" -eq 3 ]; then
+              # One retry, for a rate limit or a refused request. A second
+              # failure is left to the next slot rather than eating this one.
               sleep 10
-              fire
-              status=$?
-              if [ "${status}" -eq 2 ]; then
-                exit 1
-              fi
+              if fire; then status=0; else status=$?; fi
             fi
 
-            if [ "${status}" -eq 0 ]; then
-              succeeded=$((succeeded + 1))
-            else
-              failed=$((failed + 1))
-            fi
+            case "${status}" in
+              0) succeeded=$((succeeded + 1)) ;;
+              2) exit 1 ;;
+              *) failed=$((failed + 1)) ;;
+            esac
 
             if [ "${i}" -lt "${FIRES_PER_RUN}" ]; then
-              sleep "${INTERVAL_SECONDS}"
+              # Sleep to the slot's deadline rather than a flat interval.
+              # Request time and any retry would otherwise be added on top of
+              # every interval, so each fire would land later than the last
+              # and the run would drift past the cadence it advertises.
+              now="$(date +%s)"
+              remaining=$(( run_start + i * INTERVAL_SECONDS - now ))
+              if [ "${remaining}" -gt 0 ]; then
+                sleep "${remaining}"
+              fi
             fi
             i=$((i + 1))
           done
