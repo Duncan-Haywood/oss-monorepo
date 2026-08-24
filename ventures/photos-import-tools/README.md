@@ -29,3 +29,22 @@ python3 -m venv .venv
 Generated EXIF/GPS caches, SQLite state, logs, bytecode, and the virtual
 environment are intentionally excluded. They are machine-specific and may
 contain information derived from private photos.
+
+## Disclaimer
+
+**No warranty.** This tool is provided free and as-is, without warranty of
+any kind, express or implied. It is not a substitute for your own backups.
+**You are responsible for verifying that a copy completed successfully and
+for keeping an independent backup of anything irreplaceable** — photo
+libraries included — before running an import or offload. To the maximum
+extent permitted by law, the authors accept no liability for any loss or
+damage arising from its use. See [`LICENSE`](LICENSE) for the full terms.
+
+## Privacy
+
+Everything here runs locally on your own machine. These tools make no network
+calls, send no data anywhere, and have no analytics vendor or telemetry of any
+kind. The only records produced (`status.json`, `completion_report.json`,
+offload manifests) are written to disk on the machine running the tool, for
+your own use — see "Development" above for why they, and other
+machine-specific caches, are excluded from version control.
