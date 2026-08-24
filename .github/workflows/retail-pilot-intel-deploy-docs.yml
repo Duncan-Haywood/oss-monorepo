@@ -31,6 +31,8 @@ defaults:
 jobs:
   build:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
     steps:
       - uses: actions/checkout@v4
 
@@ -62,6 +64,9 @@ jobs:
   deploy:
     needs: build
     runs-on: ubuntu-latest
+    permissions:
+      pages: write
+      id-token: write
     # Opt-in: the deploy-pages action 404s until GitHub Pages is enabled in
     # repo settings, which turns this workflow red on every push to the docs
     # paths. Gate it on an owner-set variable (mirrors deploy-vercel below) so
@@ -78,6 +83,8 @@ jobs:
   deploy-vercel:
     needs: build
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
     if: ${{ vars.VERCEL_DEPLOY == 'true' }}
     steps:
       - uses: actions/checkout@v4
