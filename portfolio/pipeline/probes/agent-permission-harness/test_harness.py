@@ -1059,9 +1059,33 @@ class TestResultsCurrencyNormalisation(unittest.TestCase):
             check_results_current.normalise(after),
         )
 
-    def test_a_moved_finding_still_differs(self):
+    def test_a_pure_line_shift_is_not_a_failure(self):
+        # Inserting a comment into a watched workflow moves every finding below
+        # it without changing a single permission. Gating on that re-armed the
+        # same trap this file exists to defuse, one level in: a red gate whose
+        # remedy is "regenerate", which is how a real posture change gets waved
+        # through unread.
         before = self._render(77, 4, "4 at depth 1", "`a.md`")
-        after = before.replace("(line 109)", "(line 250)")
+        after = before.replace("(line 109)", "(line 110)")
+        self.assertNotEqual(before, after)
+        self.assertEqual(
+            check_results_current.normalise(before),
+            check_results_current.normalise(after),
+        )
+
+    def test_a_finding_that_moves_to_another_job_still_differs(self):
+        # What actually identifies a finding is its rule, workflow and job --
+        # all still byte-compared. Relocating is a real change; shifting is not.
+        before = self._render(77, 4, "4 at depth 1", "`a.md`")
+        after = before.replace("job `agent`", "job `deploy`")
+        self.assertNotEqual(
+            check_results_current.normalise(before),
+            check_results_current.normalise(after),
+        )
+
+    def test_a_finding_in_another_workflow_still_differs(self):
+        before = self._render(77, 4, "4 at depth 1", "`a.md`")
+        after = before.replace("workflows/a.yml", "workflows/b.yml")
         self.assertNotEqual(
             check_results_current.normalise(before),
             check_results_current.normalise(after),

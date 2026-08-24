@@ -90,8 +90,26 @@ VOLATILE = (
     # ", among them `A`, `B`, ... . Every one is" -- a sample of the closure,
     # so its membership moves for the same reason the count does. Anchored on
     # the sentence that follows so an empty sample stays distinguishable.
+    #
+    # NOTE: non-greedy but DOTALL. If R7's detail ever loses the literal
+    # ". Every one is" tail, this silently stops masking and the gate goes red
+    # for the original reason. harness.py carries a pointer back here at the
+    # place that string is built, so the two do not drift apart.
     (re.compile(r", among them .*?\. Every one is", re.DOTALL),
      ", among them <sample>. Every one is"),
+    # "(line 109)**" in a finding's heading. A line number is *where* a finding
+    # is, not *which* finding it is, and it shifts for edits that change no
+    # permission at all: inserting one comment line into a watched workflow
+    # moves every finding below it and reports the whole set as changed. That
+    # is this file's own failure shape one level in -- a red gate whose
+    # documented remedy is "regenerate", which is the regenerate-without-reading
+    # reflex that would wave a genuine posture change through.
+    #
+    # This does not weaken what identifies a finding: the rule heading, the
+    # workflow path and the job name are all still byte-compared, so a finding
+    # that genuinely relocates to a different job, or changes rule, still
+    # fails. Only a pure line shift stops failing.
+    (re.compile(r"\(line \d+\)\*\*"), "(line <n>)**"),
 )
 
 

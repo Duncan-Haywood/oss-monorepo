@@ -884,6 +884,12 @@ def rule_agent_instruction_closure(wf: WorkflowFile, repo_root: Path) -> list[Fi
     # at depth 1 has nothing to show here and says so rather than trailing an
     # empty list.
     beyond = sorted(p for p, e in closure.items() if e.depth > 1)
+    # The ", among them ..." prefix and the ". Every one is" tail that follows it
+    # below are load-bearing beyond their reading: check_results_current.py masks
+    # this sample by matching between them, because its membership moves with any
+    # prose added anywhere in the repository. Rewording either end silently stops
+    # that mask and puts the CI gate back to failing on unrelated merges. Change
+    # them together with VOLATILE there.
     sample = (
         ", among them " + ", ".join(f"`{p}`" for p in beyond[:6]) if beyond else ""
     )
