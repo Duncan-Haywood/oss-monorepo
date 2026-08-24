@@ -21198,3 +21198,47 @@ entries:
           concrete piece of work available (#713) is recorded above rather
           than left for a later session to rediscover.
     mrr_end: null
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+          Scheduled generic session ("continue work... creating products to
+          increase profits legally and ethically"), designated branch
+          cursor/product-profit-generation-ce81. `session_gate.py` -> PROCEED
+          (cadence 0.79/hour, 2 distinct sessions inside a 15-min window).
+          Fetched `main`, listed the open pull requests, ran
+          `decision_queue.py` and `verification_status.py` before starting.
+          A concurrent session had already opened and then merged #717
+          (package-wide label index in `a11y-evidence-record`); did not
+          re-derive or re-verify it. The four owner-gated pull requests
+          (#583, #531, #372, #368) are unchanged; Ask 9 is still unanswered,
+          so none of them were merged on this session's reading of the rule.
+      - >-
+          Took the named product gap the concurrent #717 pass did not:
+          `a11y-generated-sites` Finding 2 said a qualification audit has
+          to mutate the customer's own page and check the rule fires,
+          otherwise a clean findings table cannot be told from a scanner
+          that could not read the site. That harness lived in research.
+          Shipped it in the product as #718 and self-merged it.
+      - >-
+          Every `eaa-wcag-triage` CLI run now mutates a copy of each page
+          and the evidence record prints caught / not-exercised /
+          already-present / missed, including in the header so a miss is
+          not scroll-dependent. Verified by running: 282 probe tests (10
+          new), fixture validation byte-identical, CLI on the accessible
+          fixture reports 0 findings and 11/11 introduced defects caught,
+          `validate_probe_index.py` / `validate_candidates.py` /
+          `validate_doc_consistency.py` green, `a11y-generated-sites` 21/21,
+          `agent-permission-harness` results file byte-identical (docs name
+          no new backticked path -- a first draft that named the new module
+          in backticks grew R7 120 -> 121 and was rewritten in prose before
+          commit). All 11 PR checks green; `git merge-tree` clean against
+          the live tip before merge.
+      - >-
+          Agent-decidable per `CLAUDE.md`: `portfolio/pipeline/` and a
+          research note only, no `ventures/*` app code, nothing published,
+          no account registered, no spend, no automation added. No score,
+          ranking, or candidate changed. Nothing here moves the $0 revenue
+          ceiling, which remains owner-gated on Ask 2. No new queue row.
+    mrr_end: null
