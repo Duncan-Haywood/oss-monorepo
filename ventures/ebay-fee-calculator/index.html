@@ -98,6 +98,7 @@
   </footer>
   <script type="module">
     import { calculateOrder, calculateRepricingTable, INPUT_FIELDS as ids } from './calc.mjs';
+    import { repricingCsv } from './csv.mjs';
     import { recordUsage } from './usage.mjs';
     import { decodeInputs, encodeInputs } from './share.mjs';
     const money = value => `$${value.toFixed(2)}`;
@@ -123,6 +124,16 @@
         sensitivityCounted = true;
         recordUsage(localStorage, document.getElementById('usageOptOut').checked, 'price_sensitivity_viewed');
       }
+    }
+    function downloadScenarios() {
+      const csv = repricingCsv(calculateRepricingTable(readInputs()));
+      const url = URL.createObjectURL(new Blob([csv], { type: 'text/csv;charset=utf-8' }));
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = 'ebay-repricing-scenarios.csv';
+      link.click();
+      setTimeout(() => URL.revokeObjectURL(url), 0);
+      recordUsage(localStorage, document.getElementById('usageOptOut').checked, 'repricing_csv_downloaded');
     }
     function readInputs() { return Object.fromEntries(ids.map(id => [id, document.getElementById(id).value])); }
     function update() {
@@ -187,9 +198,10 @@
     }));
     document.getElementById('usageOptOut').addEventListener('change', update);
     const actions = document.createElement('p');
-    actions.innerHTML = '<button type="button" id="share">Copy shareable link</button> <button type="button" id="reset">Reset saved inputs</button>';
+    actions.innerHTML = '<button type="button" id="share">Copy shareable link</button> <button type="button" id="download">Download repricing CSV</button> <button type="button" id="reset">Reset saved inputs</button>';
     document.querySelector('section:first-child').append(actions);
     document.getElementById('share').addEventListener('click', shareLink);
+    document.getElementById('download').addEventListener('click', downloadScenarios);
     document.getElementById('reset').addEventListener('click', resetInputs);
     restoreInputs();
     update();

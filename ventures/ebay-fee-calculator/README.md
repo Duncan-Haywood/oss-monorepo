@@ -40,6 +40,9 @@ drive that decision:
   Percentage fees scale with the price, so a $1 increase never leaves $1 more
   in the seller's pocket; the table makes that visible instead of leaving it to
   be re-derived by hand.
+- **CSV export** — download the visible repricing scenarios as a spreadsheet-
+  ready CSV for inventory reviews or a pricing conversation. The export contains
+  calculated values only and never includes a seller's raw inputs or identifiers.
 
 **No warranty.** This tool is provided free and as-is, without warranty of any
 kind, express or implied. It is not tax, financial, or business advice, and it
@@ -57,7 +60,8 @@ browser; it never records the inputs. Turn it off with the checkbox in the
 footer, or your browser's Do Not Track / Global Privacy Control setting.
 
 The counted events are `order_profit_calculated`, `target_margin_calculated`,
-`batch_calculated`, and `price_sensitivity_viewed`. The last one is counted at
+`batch_calculated`, `price_sensitivity_viewed`, and `repricing_csv_downloaded`.
+The sensitivity event is counted at
 most once per visit and only after an input is edited — counting the table's
 first paint would just re-count page loads and say nothing about whether the
 repricing view is used.
@@ -84,9 +88,9 @@ Pure ES modules, no build step, no dependencies.
 node --test        # runs calc.test.mjs and usage.test.mjs
 ```
 
-`calc.mjs` holds the fee/profit/ROI arithmetic; `usage.mjs` holds the
-anonymous local counter; `index.html` is the entire UI. All three are small
-enough to read end to end.
+`calc.mjs` holds the fee/profit/ROI arithmetic; `csv.mjs` formats the repricing
+export; `usage.mjs` holds the anonymous local counter; `index.html` is the
+entire UI. All four are small enough to read end to end.
 
 ## Opportunity
 
