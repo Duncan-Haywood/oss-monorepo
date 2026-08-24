@@ -25,22 +25,34 @@ kept per criterion rather than rewritten each time:
 | **A spend cap built into the vendor** | **Vercel or Railway** | Only these two ship a halt-at-an-amount control |
 | **Most all-inclusive** | **Railway** | The only managed platform that hosts *every* workload here |
 | **Best value** | **Hetzner** | ~$5/month for all of it; the tenth workload costs $0 — but a *soft* ceiling, see below |
-| **All-inclusive + value together** | **Railway** | Hosts everything deployable, one bill, one hard cap, ~$5–25/month |
+| **All-inclusive + value together** | **Railway** | Hosts everything deployable, one bill, one vendor-side stop, ~$5–25/month |
 | **Compute for the monorepo itself** | **Hetzner** | The only one that also runs the agent host this repo has already automated |
 
 ## The criterion, stated precisely
 
 "Spend cap built in" is a sharper test than it sounds, and it is what does the
-work here. A platform passes only if the vendor ships a control that says:
-*at $X, stop.* Not an alert. Not a budget you wire to a function that revokes
-a policy. A first-class setting whose action is to halt service.
+work here. A platform passes only if the vendor ships a control whose *action*
+is to halt service at an amount you set — not an alert, and not a budget you
+wire to a function that revokes a policy.
+
+**Not "at $X, stop" literally, though**, and an earlier draft of this section
+overstated it. Vercel documents that usage is evaluated on a period of minutes,
+so the pause lands some minutes after the threshold is crossed, and the docs
+themselves advise setting the amount below the true maximum you would accept.
+Railway's limit is the same shape. So what these platforms actually offer is a
+**delayed automatic pause**, and the honest phrasing of the test is: does the
+vendor stop the meter on its own, without you building the mechanism? That
+still separates them cleanly from AWS, GCP, Azure and Hetzner, none of which
+will stop anything — but it means the "hard cap" is bounded overshoot rather
+than a wall, and the gap to Hetzner's soft ceiling is narrower than a
+stop-versus-no-stop framing suggests.
 
 Most of the industry fails that test:
 
 | Platform | Native cap that halts at an amount? | |
 |---|---|---|
-| **Vercel** | **Yes** — Spend Management: set an amount, action = pause the project | **passes** |
-| **Railway** | **Yes** — usage limits; workloads are taken offline at the hard limit | **passes** |
+| **Vercel** | **Yes, with lag** — Spend Management pauses the project at a set amount; usage is evaluated periodically, so expect minutes of overshoot | **passes** |
+| **Railway** | **Yes, with lag** — usage limits take workloads offline at the ceiling, on the same periodic-evaluation caveat | **passes** |
 | **Supabase** | Yes — a literal "Spend Cap" toggle, but it caps a *database*, not a host | partial |
 | **Hetzner** | **No.** Fixed price *plus* a 20 TB traffic allowance, then metered per TB. A very high soft ceiling, not a hard one | **fails, gently** |
 | **Cloudflare** | No. Free-tier quotas stop you; the paid tier has no "stop at $X" control | fails |
@@ -366,11 +378,14 @@ re-verified. Four items are load-bearing enough to check in a browser first:
 2. **Hetzner still bills traffic beyond the 20 TB allowance at roughly €1/TB,
    with no halt-at-an-amount control** — if the overage rate has jumped, or
    compute has become usage-billed, the soft-ceiling case fails and Railway's
-   hard limit becomes the safer shape.
+   vendor-side stop becomes the safer shape, overshoot lag and all.
 3. Hetzner signup still needs only a payment method, with no business-entity
    requirement for an individual account.
-4. If the fallback is being weighed: Railway's usage limit still hard-stops,
-   and its Hobby plan permits commercial use (Vercel's forbids it).
+4. If the fallback is being weighed: Railway's usage limit still takes
+   workloads offline on its own (with the periodic-evaluation lag noted
+   above — it is not instantaneous), and its Hobby plan permits commercial use
+   where Vercel's forbids it. The overshoot window is itself unverified from
+   here; Vercel publishes theirs, Railway's is assumed to be similar.
 
 If (2) fails, the answer is Railway. If the ops work in step 3 of the action
 below is unwelcome, the answer is Railway. The criteria do not change either

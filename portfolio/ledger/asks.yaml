@@ -165,8 +165,10 @@ decisions:
   action: >-
     Take one Hetzner CX-class VPS (~EUR 4/month with 20 TB of traffic
     included, then ~EUR 1/TB -- a soft ceiling, not a hard one; Hetzner offers
-    no halt-at-an-amount control, so if a hard cap is required the answer is
-    Railway instead), point
+    no halt-at-an-amount control at all, so if a vendor-side stop is required the
+    answer is Railway instead -- noting that Vercel's and Railway's own stops
+    evaluate usage periodically and so overshoot by minutes rather than halting
+    on the instant), point
     `ventures/ubuntu-agent-server/inventory.ini` at it and run that playbook.
     **First create a protected `agent-server` Environment** (Settings ->
     Environments) with yourself as required reviewer, and put the SSH key,

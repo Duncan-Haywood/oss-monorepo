@@ -1,7 +1,9 @@
 name: Provision agent server
 
 # Runs `ventures/ubuntu-agent-server/`'s playbook against the repository's own
-# Hetzner box, from CI, using an SSH key held in repository secrets.
+# Hetzner box, from CI, using an SSH key held as an **environment** secret on
+# the protected `agent-server` environment -- not a repository secret. The
+# difference is the whole gate: see the `environment:` note on the job below.
 #
 # `workflow_dispatch` only, deliberately -- a button a human presses, not
 # unattended automation.
