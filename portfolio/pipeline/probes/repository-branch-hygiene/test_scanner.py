@@ -22,6 +22,8 @@ from scanner import (
     UNCERTAIN,
     UNIQUE_WORK,
     Branch,
+    Commit,
+    PullRequest,
     build_report,
     find_duplicate_tips,
     load_snapshot,
@@ -87,6 +89,34 @@ def test_identical_tips_collapse_to_one_duplicate_and_one_kept_ref():
     assert _category_of(report, "chore/dup-b") == DUPLICATE
     dup_entry = next(e for e in report["review_queue"][DUPLICATE] if e["name"] == "chore/dup-b")
     assert dup_entry["duplicate_of"] == "chore/dup-a"
+
+
+def test_open_pr_sharing_a_tip_is_not_reclassified_as_duplicate():
+    """An open PR is bound to its branch name, so a later-sorting tip twin
+    must stay `shared` / keep even when another ref is the alphabetical keeper.
+    """
+    snapshot = {
+        "base_ref": "main",
+        "base_tip_sha": "base",
+        "branches": [
+            Branch(
+                name="aaa-twin",
+                tip_sha="same",
+                unique_commits=[Commit(sha="same", message="same work")],
+            ),
+            Branch(
+                name="zzz-open-pr",
+                tip_sha="same",
+                unique_commits=[Commit(sha="same", message="same work")],
+                pull_request=PullRequest(number=1, state="open", head_sha="same"),
+            ),
+        ],
+    }
+    report = build_report(snapshot)
+    assert _category_of(report, "zzz-open-pr") == SHARED
+    open_entry = next(e for e in report["review_queue"][SHARED] if e["name"] == "zzz-open-pr")
+    assert open_entry["proposed_action"] == "keep"
+    assert _category_of(report, "aaa-twin") == UNIQUE_WORK
 
 
 def test_unique_work_with_no_pr_is_never_a_deletion_candidate():

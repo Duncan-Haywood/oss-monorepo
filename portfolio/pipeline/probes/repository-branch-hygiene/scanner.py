@@ -192,7 +192,7 @@ def build_report(snapshot: dict[str, Any]) -> dict[str, Any]:
     for branch in branches:
         category = classify_branch(branch, base_tip_sha)
         redundant_with = tip_to_group.get(branch.name)
-        if redundant_with is not None and category != PROTECTED:
+        if redundant_with is not None and category not in (PROTECTED, SHARED):
             category = DUPLICATE
 
         entry: dict[str, Any] = {
