@@ -188,3 +188,41 @@ Ask 8 need not be withdrawn — reporting the spend would still let the ledger
 record real economics, which has independent value — but it should stop being
 the thing the throttling decision waits on. It has already waited a day for a
 number that was never required.
+
+---
+
+## Amendment, 2026-08-24: both sections above have been acted on
+
+The two sections above are kept for their derivation, but a reader should not
+take either as describing an open problem. Both were implemented, and this
+document was the last place still stating them as pending.
+
+- **"Recommended next action" is done.** Ask 8 was superseded, not merely
+  proposed for supersession. `portfolio/ledger/asks.yaml` carries the note
+  explicitly — *"Ask 8 is deliberately absent: `break-even.md` superseded
+  it"* — so there is no longer an ask waiting on the owner to report a spend
+  figure.
+- **"What follows" describes a sorting problem that no longer exists.** That
+  section's complaint is that #139's cheapest-first table buried the payout
+  rail "seventh of nine." The queue is no longer read off that table:
+  `portfolio/ledger/decision_queue.py` renders `asks.yaml` sorted by what each
+  decision gates, which puts **payout-rail first of eight**, collapses the
+  nine asks into eight decisions, and closes on the line this document argued
+  for — *"Only payout-rail changes what this portfolio can earn."* Run the
+  renderer rather than reasoning from the table this section describes.
+
+**What has not changed is the binary itself**, and it is the reason to leave
+the rest of this file standing: commit to a payout rail, or accept that the
+portfolio cannot earn and set the cadence to match. As of this amendment it
+has waited five days, and one of the eight queued decisions was answered in
+that window while the fleet kept running at roughly its full cadence. The
+arithmetic in "Deriving the spend side" is unchanged and still the only thing
+needed to price that: the per-session threshold derived there is a figure the
+owner can check privately in seconds.
+
+The staleness corrected here is the failure mode `CLAUDE.md` and
+[`../pipeline/channel-inventory.md`](../pipeline/channel-inventory.md) both
+record at length — a document that keeps recommending something already done
+costs the next session the time it spends re-deriving it. `session_gate.py`
+links this file from its NO-OP text, so it is read by exactly the sessions
+least able to afford that.

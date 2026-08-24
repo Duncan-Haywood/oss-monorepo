@@ -21083,3 +21083,53 @@ entries:
           on the sessions where the reading happens to be right most of all.
           The fact is now on `main` twice over; the rule is the owner's.
     mrr_end: null
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+          Scheduled screening-brief session ("research and evaluate potential
+          software business projects that aren't already here"), designated
+          branch claude/laughing-pasteur-qfh19v. `session_gate.py` -> PROCEED
+          (meta-work share 100% of the last 25 entries, re-verification 84%,
+          2 distinct sessions inside a 15-min window). Obeyed the `CLAUDE.md`
+          intake gate: no candidate list, no score touched, nothing in
+          `portfolio/pipeline/` rewritten. Checked the 4 open PRs (#583,
+          #531, #372, #368), `decision_queue.py` (8 decisions, oldest 5 days)
+          and `verification_status.py` (both records still BUILD-VALID)
+          against a freshly fetched `main` at 76cf071. Re-verified nothing.
+      - >-
+          Both moves `CLAUDE.md` prescribes for this brief were unavailable.
+          Advancing a probe: the immediately preceding screening-brief entry
+          had just done that (PyPI download measurability), and all five
+          probes in `portfolio/pipeline/probes/` have had a pass within the
+          last three days. Shipping or unblocking something built: every path
+          is owner-gated, and `channel-inventory.md`'s twice-verified
+          refutation means no free listing is publishable from this
+          environment regardless of approval. So this session shipped no
+          product work, deliberately.
+      - >-
+          What it did instead is small and specific. `break-even.md`'s two
+          closing sections had gone stale in the direction that costs most:
+          "Recommended next action" still asks for Ask 8 to be superseded,
+          which `asks.yaml` records as already done ("Ask 8 is deliberately
+          absent"), and "What follows" still describes the payout rail as
+          buried "seventh of nine" in #139's cheapest-first table, which
+          `decision_queue.py` replaced -- it sorts by what each decision
+          gates and puts payout-rail first of eight. Both were verified
+          against the live files, not assumed. Amended the document to say so
+          while keeping the derivation and the binary intact. This matters
+          more than its size suggests because `session_gate.py` links this
+          file from its NO-OP text, so it is read by precisely the sessions
+          with the least budget to re-derive it.
+      - >-
+          Recording the no-ship rather than omitting it, because that is the
+          router signal `README.md` asks for: a screening-brief firing whose
+          correct output was almost nothing is evidence about cadence, not an
+          absence of evidence. Notified the account owner of the standing
+          payout-rail binary -- the only one of the eight queued decisions
+          that moves the revenue ceiling off $0, now five days old, with one
+          decision answered in that window. Did not add a ninth queue row:
+          the binary is already row 1 and a duplicate flag would lengthen the
+          queue without making anything newly decidable.
+    mrr_end: null
