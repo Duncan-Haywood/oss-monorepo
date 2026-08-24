@@ -82,9 +82,11 @@ findings and `2` for read errors.
 ## Privacy and usage
 
 Everything is local. Invoice contents are never uploaded or retained by this
-tool, including when read from standard input. Usage counting is opt-in with `--usage-file` and stores only aggregate
-event counts, never invoice data, paths, IPs, or identifiers. Omit the flag to
-disable it. There are no accounts, cookies, or analytics vendors.
+tool, including when read from standard input. Usage counting is opt-in with
+`--usage-file` and stores only aggregate event counts, never invoice data,
+paths, IPs, or identifiers. Usage recording is best effort and never changes
+the validation result if its state file cannot be read or written. Omit the
+flag to disable it. There are no accounts, cookies, or analytics vendors.
 
 ## Safety boundary
 
