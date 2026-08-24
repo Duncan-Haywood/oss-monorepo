@@ -5,7 +5,9 @@ platform that works on it.
 
 **Strategy:** [`portfolio/DIRECTION.md`](portfolio/DIRECTION.md) — build
 products people use (free, full-feature, usage-tracked), ship fast, minimize
-variable cost. Agent instructions: [`AGENTS.md`](AGENTS.md).
+variable cost. Agent instructions: [`AGENTS.md`](AGENTS.md). How to build one:
+[`PRODUCT_PLAYBOOK.md`](PRODUCT_PLAYBOOK.md). What to count and where it lands:
+[`portfolio/usage/`](portfolio/usage/README.md).
 
 The point of consolidating: agent automation is repo-scoped. In a polyrepo
 setup every new venture costs a fresh onboarding pass across every agent
@@ -80,6 +82,10 @@ here instead.
 `router/` reads the ledger plus each `VENTURE.yaml` and decides where agent
 effort goes next. See [portfolio/router/README.md](portfolio/router/README.md)
 for how allocation works and why it is not a pure ROI maximizer.
+
+`usage/` holds usage readings per product — the signal the portfolio steers by
+while everything is free. See [usage/README.md](portfolio/usage/README.md) for
+what may be counted (events, never people) and what a reading of zero means.
 
 `pipeline/` holds businesses that have been researched and scored but are **not**
 ventures yet — the stage before `ventures/`, so starting one is a decision made

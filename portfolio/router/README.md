@@ -37,6 +37,13 @@ against outcomes for at least a few cycles.
 
 - `ventures/*/VENTURE.yaml` — stage, economics, budget caps, kill criteria
 - `portfolio/ledger/` — recorded spend and outcomes over time
+- `portfolio/usage/usage.yaml` — usage readings per product. **Read by humans
+  and sessions, not yet by `allocate.py`.** Added 2026-08-24 with
+  [`../DIRECTION.md`](../DIRECTION.md): everything ships free, so revenue is
+  zero by design and MRR ranks nothing. Until the code reads it, apply it by
+  hand — **a product with returning users outranks the router's output and every
+  candidate in the pipeline.** Wiring it in is a worthwhile change to
+  `allocate.py`; making it the tiebreaker below `stage` is the obvious shape.
 
 ## Output
 

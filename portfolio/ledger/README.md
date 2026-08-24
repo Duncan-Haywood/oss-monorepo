@@ -4,6 +4,9 @@ Append-only record of what was spent on each venture and what happened after.
 
 **2026-08-24:** record **shipping outcomes**, not meta-work. If a session
 looked but did not build, skip the entry. See [`../DIRECTION.md`](../DIRECTION.md).
+Usage numbers do not belong here — they go to
+[`../usage/usage.yaml`](../usage/usage.yaml), which keeps a per-product series
+this month-by-month file cannot.
 
 One file per month: `YYYY-MM.yaml`.
 

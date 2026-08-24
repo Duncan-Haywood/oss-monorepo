@@ -1,0 +1,19 @@
+# Usage readings per product. See README.md in this directory for what may be
+# counted (events, never people) and how to read these numbers.
+#
+# Add a dated reading rather than overwriting an older one — the trend is the
+# signal. A reading of zero is worth recording; it is how a product gets
+# retired honestly instead of quietly.
+period: 2026-08
+products: []
+# Example of the shape, once a product has shipped:
+#
+# products:
+#   - slug: example-product
+#     surface: github-pages
+#     readings:
+#       - as_of: 2026-08-24
+#         signals:
+#           repo_views_14d: 0
+#           release_downloads_total: 0
+#         note: Shipped today; baseline reading.
