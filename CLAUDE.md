@@ -1,380 +1,106 @@
 # Working in this repo
 
-Read `README.md` first for the ventures/platform/portfolio layout.
+**Read [`portfolio/DIRECTION.md`](portfolio/DIRECTION.md) and [`AGENTS.md`](AGENTS.md)
+first.** The portfolio's job is to ship products people use — not to debate
+policy, re-verify old PRs, or maintain admin queues.
 
-## Check open PRs before starting work
+`README.md` covers repo layout.
 
-This repo runs scheduled/automated agent sessions, often several per hour,
-each starting from a fresh checkout with no memory of the others. Before
-starting new work, list open pull requests and recent commits and check
-whether one already covers it. If it does, review, extend, or consolidate
-that PR instead of opening a duplicate — do not re-derive the same change
-from scratch.
+## Product-first default
 
-This matters more here than in most repos: on 2026-08-18, roughly two dozen
-PRs accumulated within a few hours, a large fraction near-duplicates of each
-other — independent scheduled runs each discovering the same gap (missing
-`VENTURE.yaml`, missing liability scoring on business candidates, an
-unreviewed automation workflow) and opening its own PR, unaware the others
-existed. Several sessions correctly *flagged* the backlog as the real
-problem but then joined the same unmerged pile instead of fixing it — noticing
-the pattern did not by itself stop it. That is wasted agent spend against the
-portfolio's own goal of profitable output, not useful parallelism.
+Every session should move a venture closer to something strangers can use for
+free, with usage tracked and disclaimers in place. Features, fixes, landing
+pages, SEO, integrations (behind env vars), and VM-runnable apps beat ledger
+entries and analysis documents.
 
-If you find the open-PR backlog is large and growing, the most valuable
-thing a session can do is consolidate: pick the strongest existing PR(s),
-merge in anything unique from the others, verify the result (run the actual
-tests, don't just trust the diff or the title), and close the rest with a
-comment pointing to the consolidated PR.
+Target super-niches where users have money and a real problem — especially
+tools that help them earn more. Low variable cost, traditional software, AI
+only where it clearly helps. Payment and payout rails stay off; GitHub
+Sponsors/donations are fine.
 
-## What a session may merge without a human, and what it may not
-
-A blanket "every merge to `main` is the account owner's call" was the single
-largest source of wasted spend in this repo's history. It is why the
-`portfolio/pipeline/` consolidation was rebuilt from scratch five times, why
-verified research sat unmerged until it conflicted, and why the recurring
-screening brief kept firing against a checkout where the answer had never
-landed. The gate did not protect anything — every one of those PRs was
-internal, verified, and spent nothing. It only delayed, and delay is what cost
-the budget. **The account owner's time is a scarce resource; do not spend it on
-decisions that do not need a human.** The split below is what actually needs
-one.
-
-**Agent-decidable — verify, merge, and record it yourself. Do not wait.**
-A PR is in this class when *all* of the following hold, and a session that
-built or verified it should merge it rather than leave it for the owner:
-
-- It touches only internal surfaces — `portfolio/` (pipeline, research,
-  router, ledger), `platform/`, CI config, docs, tests — **not** any
-  `ventures/*` app code that deploys to a live site. Do not hand-derive which
-  code that is; `python3 platform/ci/publish_surface.py` reads it off the
-  workflow files. As of 2026-08-24 the answer is *none of it*: no workflow
-  publishes anything on a push to `main`, because the two Pages deploys skip
-  their publish jobs for want of credentials the owner has not set and the
-  third is `workflow_dispatch`-only. Sessions had been asserting the opposite
-  in the decision queue. That does not make venture app code agent-decidable
-  on its own — the human-gated list below still covers breaking changes to it
-  — but it does mean "a wrong merge ships a regression to a live site" is
-  currently false, and a claim that it is true needs the tool to agree.
-- It publishes nothing to the outside world, registers no account, and uses no
-  credential belonging to a legal person.
-- It spends nothing beyond agent time and enables no unattended paid spend.
-- It is verified by actually running the repo's checks (the relevant
-  validators and tests), not by trusting the diff or the title.
-- Its base is current `main` and it merges cleanly (re-check with
-  `git merge-tree` against the live tip, since `main` moves hourly).
-
-Read the PR's existing check runs before hand-running any of this. Every
-venture has a path-filtered CI workflow, so a PR touching `ventures/*` already
-carries a build result for each app it affects. On 2026-08-20 a session
-hand-built one of #222's six affected apps, never looked at the checks, and
-recorded the other five as "unverified" — while all ten checks on that PR were
-green. That is how a security upgrade to four live sites got parked. Hand
-verification is for what CI cannot tell you: a merge against a `main` that has
-moved since CI ran, or a check no workflow runs. It is not a substitute for
-reading a result that is already attached.
-
-**Before you verify anything, run
-`python3 portfolio/ledger/verification_status.py`.** It reads
-`portfolio/ledger/verifications.yaml` and tells you, from git alone, which parts
-of a prior verification the drift on `main` has actually invalidated — usually a
-subset. When it says a project is unaffected, `main` did not touch it and a
-rebuild cannot return a different answer, so re-running it buys nothing.
-`re-verification.md` in that directory has the rule and its limits. When you
-verify an open PR by hand, add or replace its record there so the next session
-inherits the result instead of re-deriving it.
-
-Consolidation of such PRs is itself agent-decidable: merge the strongest,
-fold in what is unique, close the rest with a pointer.
-
-**Human-gated — these genuinely need the account owner, because they need a
-legal person or create ongoing outside effects. Flag them clearly (issue #139
-is the decision queue) and do not merge them on your own judgment:**
-
-- **Taking or moving money** — any payout rail, merchant-of-record, or billing
-  setup. This needs a bank account and a tax identity, and an unattended agent
-  holding one is exactly the liability this portfolio exists to avoid. This is
-  the correct design, not a gap to route around (see
-  `portfolio/pipeline/channel-inventory.md`).
-- **Registering any account** that requires a payment card, a government ID, a
-  domain, or a bank account (store developer programs, verified-publisher
-  marketplaces).
-- **Publishing under this portfolio's name to the public** — a listing, a
-  package, a live-site content change. The *decision to publish at all* is the
-  owner's; building the artifact privately is not.
-- **Enabling unattended, spend-capable automation** — agent fleets, scheduled
-  workflows that call paid APIs, cron jobs (see "Automation that writes or
-  spends unattended" below). Adding or re-enabling one is always a human call.
-- **Breaking changes to deployable `ventures/*` code** where a wrong merge
-  ships a regression to a live site — merge these only when the venture's full
-  build/test passes and the change is in scope.
-
-When you merge something in the agent-decidable class, say so plainly in the
-merge and the ledger, with the verification you ran. When you flag something
-human-gated, put it on #139 with enough context to decide without scrolling.
-The goal is that the *only* things reaching the account owner are the ones on
-the human-gated list — everything else the portfolio needs, a session finishes
-itself.
-
-**Read the queue before you add to it:**
-
-```
-python3 portfolio/ledger/decision_queue.py
-```
-
-`portfolio/ledger/asks.yaml` holds every item currently waiting on the owner,
-with the one action that closes it, what that unlocks, and which other item
-blocks it. Add your flag there as well as on #139 — the file is in git, so
-concurrent sessions merge instead of overwriting each other, which #139's body
-does not (it was clobbered twice on 2026-08-24). Do not append a second record
-for an ask that already has one; CI rejects that.
-
-The queue is the portfolio's binding constraint, not its supply of work: every
-session's output is queued behind decisions only the owner can make, and
-between 2026-08-19 and 2026-08-24 exactly one was answered. So a flag that
-lands as a ninth undifferentiated row costs more than it buys. State what one
-action closes it and what that unlocks, or you have added to the backlog
-without adding to what can be decided.
-
-## If your brief is "research new business projects"
-
-**The screening is already done. Don't produce another list — graduate one of
-the candidates in it.**
-
-This section used to end in "stop." That was wrong, and the account owner
-corrected it on 2026-08-24: fleet capacity is a flat subscription, so a session
-that declines to work does not save money, it wastes capacity that was already
-bought. The anti-duplication content below is still right — re-deriving a list
-that exists is waste — but the conclusion drawn from it was not. **Never
-conclude "there is nothing to do" from this section.** The pipeline has
-candidates carrying a `build-now` verdict that nobody has built; building one
-is always available and always beats another screening pass.
-
-A recurring scheduled task fires this brief — "research and evaluate potential
-software business projects that aren't already here," or wording close to it —
-and by 2026-08-19 it had fired eleven times. Those runs produced roughly
-thirty-six candidates that reduce to nine archetypes, all of them screened,
-scored, and written up in `portfolio/pipeline/`. Read that directory before
-writing anything:
-
-- `portfolio/pipeline/README.md` — the eight surviving candidates and the
-  scoring gates
-- `portfolio/pipeline/screened-out.md` — everything already rejected, with the
-  reason. Check here first; the odds are high your idea is in this table
-- `portfolio/pipeline/convergence.md` — what six independent runs agreed on,
-  and why that agreement is evidence about the constraints rather than about
-  the market
-- `portfolio/pipeline/distribution-first.md` — the screening rule, and why
-  candidate supply is not the bottleneck
-- `portfolio/pipeline/channel-inventory.md` — which channels this portfolio can
-  list in and what each costs in credentials, including which ones an agent can
-  publish to for $0 without any account belonging to a legal person
-- `portfolio/research/README.md` — the *measurements* those rankings rest on,
-  and the index of what has already been measured. Read this before writing any
-  probe. Fourteen passes over two days re-derived each other's work because
-  each one's results sat in an unmerged branch; the index exists so a fifteenth
-  does not. In particular, **do not write a new egress/reachability probe** —
-  `portfolio/research/egress-reachability/` covers 98 hosts and regenerates the
-  whole table with one command. If you measure a host it does not carry, fold it
-  in with that directory's ingest (or its unindexed-hosts list if your pass
-  lives outside `portfolio/research/`) — the probe command iterates that table,
-  so a host missing from it is never re-measured and the next session probes it
-  from scratch. CI checks this now
-
-The finding every run reproduces is that **the bottleneck is distribution and
-customer contact, not idea generation**. Every candidate in that directory is
-still at zero customer contacts. A further screening pass re-derives a list
-that already exists — so spend the session on the next step instead of the
-same one.
-
-That next step is graduation. A candidate becomes real when it has a
-`VENTURE.yaml` (or a `product_lines` entry in its host venture's), because
-until then `portfolio/router/` cannot see it and no effort is routed to it.
-`python3 portfolio/ledger/session_gate.py` names the highest-scoring candidate
-carrying an unbuilt `build-now` verdict; if the pipeline has none left, that is
-the case where researching a genuinely new candidate is the right move.
-
-Note how this gate came to be on `main`. Runs seven through ten each wrote a
-version of it, and each version was closed unmerged — so every later run
-started from a checkout where `portfolio/pipeline/` did not exist and had no
-way to know the question was answered. **The loop was sustained by the research
-never landing, not by any run failing to notice.** If you find yourself about
-to re-derive something, check the closed pull requests and the branches behind
-them before assuming it has not been done.
-
-If you are handed this brief, the useful moves are, in order: graduate a
-candidate carrying a `build-now` verdict and start building it; advance a probe
-that is already specified in `portfolio/pipeline/` (the built ones live in
-`portfolio/pipeline/probes/` — this instruction pointed at a directory no
-routing file named until 2026-08-20); ship or unblock something
-already built (see the ninth-run amendment in `distribution-first.md` — two
-finished products are sitting unlisted in stores the portfolio can list in).
-If a specific *outward* step is blocked on the account owner — a listing, a
-payment rail, an account registration — record the ask and then keep building
-the parts that are not blocked. A blocked channel blocks publishing; it does
-not block writing the product. Before concluding you are blocked, check
-`channel-inventory.md` — but read it to the end. Its tenth-run amendment
-argued that demand measurement is *not* credential-blocked, only revenue
-capture is, and this file used to repeat that as settled. **Later runs
-refuted its factual half and the correction is on `main`:** every channel it
-nominated as agent-listable — WordPress.org, Open VSX, VS Code Marketplace,
-GitHub Marketplace — turned out to be egress- or scope-denied, verified twice
-on separate dates against a control host. The *conceptual* split still holds
-(measuring demand and taking money are different asks), but permission was
-never the binding constraint, so Ask 5 is currently inert. Do not plan work on
-the premise that a free listing can be published from here; that premise has
-been probed and is false. Adding a genuinely new candidate is legitimate only when you
-can name what in `screened-out.md` it is *not* — and it belongs as an amendment
-to that directory, not as a new list.
-
-## Run the session gate before doing generic work
+## Session gate (generic briefs only)
 
 ```
 python3 portfolio/ledger/session_gate.py
 ```
 
-If your brief is generic — "continue work", "maintain and improve the
-development process", "research new business projects", or a paraphrase — run
-this first and act on what it says. It reads the ledger and `git log` and takes
-about two seconds.
+Run this when the brief is vague ("continue work", "improve the process",
+"research new projects"). **BUILD** → ship product value (gate names a
+`build-now` candidate if one exists). **PROCEED** → keep building. The gate
+never means stop.
 
-It prints one of two lanes, and **neither of them is a stop:**
+Named tasks, venture work, red CI, and PRs you are driving skip the gate.
 
-- **PROCEED** — the fleet is already on venture work, or revenue is recorded.
-  Continue with the brief as given.
-- **BUILD** — recent ledger entries are almost entirely portfolio meta-work.
-  The gate names the highest-scoring candidate carrying an unbuilt `build-now`
-  verdict and where it graduates to. Go build that, or advance the venture
-  hosting it. What BUILD steers you away from is the meta-work loop — another
-  analysis document, a re-verification of a pull request another session
-  already verified, a ledger entry recording that you looked — not work.
+## Ship without review ceremony
 
-**The gate used to print NO-OP and tell sessions to stop. It no longer does,
-and nothing should reinstate that.** Two reasons, both established 2026-08-24:
+**Merge when CI is green.** No human code review. Fix forward.
 
-1. **The economics were backwards.** NO-OP rested on `break-even.md`'s
-   `$0.12`-per-session figure and a `$0` revenue ceiling. But fleet capacity is
-   bought as a flat subscription, so the marginal cash cost of a session that is
-   already running is `$0`, and idle capacity is the waste rather than the
-   saving. See the 2026-08-24 amendment in
-   [`portfolio/ledger/break-even.md`](portfolio/ledger/break-even.md).
-2. **A gate here cannot save anything anyway.** By the time this script runs,
-   the container is provisioned, the repository cloned and the tokens spent.
-   NO-OP suppressed the *output* of a session that had already been paid for —
-   it converted spend into nothing rather than into work.
+Before merge: run or read CI; scope stays in-bounds; new user-facing surfaces
+have disclaimers and usage tracking.
 
-There was also a live defect worth remembering, because it shows how cheaply a
-stop-verdict goes wrong: the NO-OP branch depended on a cadence figure read
-from `git log`, which a shallow clone (the default for a fresh session here)
-leaves unmeasurable. An unmeasurable reading skipped the clear-the-gate branch
-instead of clearing it, so the session fell through to NO-OP. Two containers
-seconds apart returned opposite verdicts on identical ledger facts, decided by
-how many commits each happened to fetch. Cadence is still reported — it is a
-useful collision signal when several sessions are committing at once — but it
-gates nothing, and `test_cadence_no_longer_participates_in_the_verdict` pins
-that.
+**Agent-decidable — verify and merge yourself:**
 
-The gate is deliberately narrow and never overrides a real trigger. Venture
-work, a red CI run, a pull request you are driving to green, a review comment,
-a merge conflict, and any specifically named task have their own reason and the
-gate is silent about them. It speaks only to the scheduled generic brief, which
-is the case where a session has no target — and its job is to hand that session
-a target, not to send it home.
+- `platform/`, `portfolio/`, docs, tests, CI — internal surfaces
+- Free full-feature products, usage instrumentation, sponsor links
+  (building privately; merging `ventures/*` is a separate gate)
 
-Why a command and not another paragraph: this file has warned about duplicate
-and re-derived work since 2026-08-18, in steadily more detail, and the
-re-verification share has not fallen. The sessions that most need the warning
-are the ones that skim the file.
+`python3 platform/ci/publish_surface.py` currently shows nothing live on
+push to `main`. That does not make venture app code agent-decidable on
+its own — the owner-only list below still covers breaking changes to it,
+and Ask 9 (`venture-gate-premise`) is still open.
 
-## Automation that writes or spends unattended
+**Owner-only — flag only when it blocks product work you cannot finish:**
 
-Anything that runs unattended, can push commits or open PRs, and consumes
-paid API budget (agent fleets, scheduled workflows with third-party GitHub
-Actions, cron-triggered jobs) is a deliberate, human-reviewed decision, not
-something a session should add or re-enable on its own judgment. If you
-think one would help, propose it in a PR and say so plainly — don't ship it
-straight to `main`.
+- Taking or moving money (billing, payout rails, live Stripe)
+- Registering accounts needing card, government ID, domain, or bank
+- Publishing under the portfolio's public name (store listing, npm publish,
+  production domain) — building the artifact privately is always allowed
+- Enabling unattended automation that spends paid API budget
+- Breaking changes to deployable `ventures/*` code
 
-## Ledger discipline
+`python3 portfolio/ledger/decision_queue.py` lists owner decisions already
+queued. Do not add duplicate asks. Do not expand the queue with items that
+do not block shipping.
 
-Per `portfolio/ledger/README.md`: record outcomes in the monthly ledger file
-even when the outcome is "nothing shipped" or "found wasted spend." That
-signal is what the portfolio router (`portfolio/router/README.md`) uses to
-allocate effort, so it only works if it's honest.
+If a prior verification exists, run
+`python3 portfolio/ledger/verification_status.py` before re-running tests —
+do not re-verify unchanged PRs.
 
-**Never bundle a ledger entry into a pull request that is waiting on a human
-decision.** The monthly ledger file is append-only and several sessions append
-to it per hour, so any PR carrying a ledger hunk becomes un-mergeable within
-about an hour of being opened. That is harmless for a routine PR you merge
-yourself in the same session. It is fatal for one that has to sit and wait: the
-`portfolio/pipeline/` research was rebuilt from scratch five times, each version
-correct and each one conflicted before anyone could act on it, purely because
-the ledger rode along in the same PR. Ship the decision-pending content on its
-own — it stays mergeable indefinitely — and merge the ledger entry separately.
+## Pipeline and new ventures
 
-The duplicate-PR pattern above recurs one layer up, at the ledger itself: on
-2026-08-19 six scheduled sessions each independently re-verified the same PR
-and opened their own ledger-only PR within a ten-minute window, and even
-after that was consolidated, further sessions (including concurrent runs of
-this very session) kept re-doing the identical verification and drafting
-near-identical entries within the same hour — because each was working from
-a `main` that was already stale by the time it looked. Before drafting a new
-entry, `git fetch origin main` and read the most recent entry/entries against
-the *current* remote tip, not the tip you started from. If the latest entry
-already covers your findings (same PR verified, same blocker re-confirmed, no
-new development) and is less than a few hours old, do not add another one —
-that repeats the exact waste this section exists to prevent. Only add a new
-entry when you have something the latest one doesn't: a new PR, a changed
-finding, or an action you actually took.
+Screening is done — see `portfolio/pipeline/README.md`. Do not produce another
+candidate list. Either:
 
-**Single-branch sessions with a decision-pending PR: record on the tracker
-issue, not the ledger.** A session constrained to one designated branch that
-already carries a PR waiting on the account owner cannot append a ledger
-hunk without violating the rule above (it would make that PR un-mergeable
-within the hour). This was hit twice — PRs #155 and #177 — and each flagged
-it as an open question ("worth deciding whether single-branch sessions get
-an exemption, a second branch, or a different record surface") rather than
-an answered one. It is answered: comment the outcome on the living
-decision-tracker issue (#139 as of 2026-08-19) instead of writing a ledger
-entry, and say so explicitly in the PR body, the way PR #175's session did.
-A later session with ledger-writing room folds the comment into a proper
-entry during its next pass, the same way PR #176 folded in #175's finding.
-Do not re-flag this as an unresolved structural question — it is a standing
-answer, not a gap to escalate again.
+1. Build a `build-now` candidate (`session_gate.py` names the top one), or
+2. Graduate and build a new niche not in `screened-out.md`.
+
+A candidate becomes routable when it has `ventures/<slug>/VENTURE.yaml` or a
+`product_lines` entry on its host venture.
+
+## Duplicate PRs
+
+Scheduled sessions often overlap. Before opening a PR, check open PRs and
+recent commits. Extend or consolidate instead of duplicating. If the backlog
+is large, merge the strongest and close the rest with a pointer.
+
+## Ledger (minimal)
+
+Record outcomes per `portfolio/ledger/README.md` when you **shipped or learned
+something new** — not when you looked and confirmed the same blockers. Never
+bundle a ledger entry into a PR waiting on the owner.
+
+`git fetch origin main` before appending; skip if the latest entry already
+covers your finding.
+
+## Automation
+
+Do not add or re-enable unattended workflows that push commits or call paid
+APIs without owner approval.
 
 ## Never write `fixes #N` / `closes #N` about someone else's PR
 
-GitHub treats `close`, `closes`, `closed`, `fix`, `fixes`, `fixed`, `resolve`,
-`resolves`, `resolved` followed by `#N` as a **command**, not a reference. When
-the commit lands on the default branch, it closes `#N` — and a pull request
-closed this way is closed *unmerged*, so its diff is silently dropped.
+GitHub closes the referenced PR **unmerged** when that commit hits `main`.
+Refer as "#109" or "PR #109". Rephrase "fixed #109's conflict" → "resolved
+the merge conflict on #109".
 
-This has already cost the portfolio a shipped fix. On 2026-08-19, PR #112 (a
-ledger-only entry) had the commit subject *"Ledger: record independent
-re-verification of #109/#106, **fixed #109's merge conflict**"*. Merging it
-closed #109 — which carried `local-site-studio`'s upgrade to `next@16.3.1`,
-clearing three high-severity advisories, and was deliberately being held for
-the account owner's sign-off. Nobody decided to drop it; a verb in a sentence
-about a *merge conflict* did. Two later ledger entries (#115, #116) then
-recorded #109 as "unchanged" and still awaiting sign-off, and a third session
-listed the open PRs without it and read nothing unusual into the shorter list —
-none of the three had any way to see it had been closed by accident. The three
-advisories sat on `main` for the next hour.
-
-The failure is quiet in both directions: the closing session sees a normal
-merge, and later sessions cannot tell a deliberately-closed PR from an
-accidentally-closed one. Ledger entries and status comments are where this
-bites, because their whole job is to talk *about* other PRs.
-
-- Refer to other PRs as plain references: "#109", "PR #109", "per #109",
-  "re-verified #109". A bare `#N` is always safe.
-- Rephrase anything that puts a closing verb before the number. "fixed #109's
-  merge conflict" → "resolved the merge conflict on #109". "closes #104 and
-  #107" in a consolidating PR → keep it, that one is intended.
-- The keyword only fires on the repo's own issues/PRs and only from the PR body
-  or a commit reaching `main`. Comments are safe, but write them the same way —
-  text gets copied into commit messages.
-
-When you do intend to close a PR, close it explicitly with a comment saying
-why and pointing to what supersedes it. Intentional closes should be visible
-as decisions, not as side effects of prose.
+When intentionally closing a PR, comment why and point to what supersedes it.

@@ -611,6 +611,33 @@ candidates:
     first_experiment_days: 14
     first_experiment_budget_usd: 25
 
+  - slug: repository-branch-hygiene
+    name: Repository branch hygiene and recovery
+    doc: candidates/repository-branch-hygiene.md
+    verdict: probe
+    probe_status: seven-day read-only pilot; willingness to pay unmeasured
+    graduate_as: venture
+    host_venture: null
+    scores:
+      ai_leverage: 6
+      autonomous_ops: 8
+      time_to_revenue: 5
+      gross_margin: 9
+      defensibility: 5
+      distribution: 4
+      liability_containment: 7
+      ethical_robustness: 8
+    composite: 6.5
+    floor: 4
+    floor_dimension: distribution
+    mitigation: >-
+      Start read-only and secure one repeatable DevOps community or channel
+      partner before hosting; retain customer-owned signed snapshots and
+      portable recovery manifests, and require per-ref approval plus a fresh
+      tip/reservation check for any later deletion action.
+    first_experiment_days: 7
+    first_experiment_budget_usd: 150
+
   - slug: mls-photo-spec-preflight
     name: MLS photo spec preflight
     doc: candidates/mls-photo-spec-preflight.md
@@ -672,3 +699,29 @@ candidates:
       distribution.
     first_experiment_days: 7
     first_experiment_budget_usd: 50
+
+  - slug: shopify-permission-drift
+    name: Shopify app-permission drift record
+    doc: candidates/shopify-permission-drift.md
+    verdict: probe
+    graduate_as: product-line
+    host_venture: local-site-studio
+    scores:
+      ai_leverage: 7
+      autonomous_ops: 8
+      time_to_revenue: 6
+      gross_margin: 9
+      defensibility: 4
+      distribution: 6
+      liability_containment: 6
+      ethical_robustness: 8
+    composite: 6.75
+    floor: 4
+    floor_dimension: defensibility
+    mitigation: >-
+      Before graduation, retain immutable merchant-specific snapshots with a
+      portable export and test whether a new entrant can reconstruct the same
+      history without the merchant's prior records; also secure a Shopify
+      agency partner or measure repeatable App Store search demand.
+    first_experiment_days: 14
+    first_experiment_budget_usd: 150

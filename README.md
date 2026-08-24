@@ -3,6 +3,10 @@
 A single repository for the whole venture portfolio, plus the shared agent
 platform that works on it.
 
+**Strategy:** [`portfolio/DIRECTION.md`](portfolio/DIRECTION.md) — build
+products people use (free, full-feature, usage-tracked), ship fast, minimize
+variable cost. Agent instructions: [`AGENTS.md`](AGENTS.md).
+
 The point of consolidating: agent automation is repo-scoped. In a polyrepo
 setup every new venture costs a fresh onboarding pass across every agent
 surface (Claude Code, Cursor, Antigravity, CI). Here a new venture is a new

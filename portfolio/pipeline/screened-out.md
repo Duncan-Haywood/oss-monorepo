@@ -61,6 +61,12 @@ write-up named; the rest carry their own reason.
 | `chatbot-disclosure-monitor` | Correctly scoped and genuinely low-liability, but too small to be a business on its own — this is a feature of a compliance monitoring product, not a subscription anyone renews. Worth revisiting as an add-on if [public-record-watch](candidates/public-record-watch.md) finds a buyer |
 | `einvoice-preflight` (broad version) | Retained as a write-up with a conditional narrow verdict; see [einvoice-preflight](candidates/einvoice-preflight.md) |
 
+## Candidate added 2026-08-24
+
+| Candidate | Why it is not already screened out |
+|---|---|
+| Shopify app-permission drift record | Not the existing storefront QA idea: it records customer-authorized Shopify admin app scopes, webhook topics, and authorization state rather than exercising checkout or visual behaviour. It is not Shopify accessibility evidence, which scans rendered theme output, and it is not vendor-change evidence, which watches public third-party pages. The proposed Shopify App Store channel is real but the narrower permission-audit search demand and platform observability remain unmeasured, so it is retained as a probe rather than treated as validated. |
+
 ## Notes for the next pass
 
 The **vendor-change evidence monitor** is intentionally retained as a separate
@@ -84,6 +90,13 @@ mitigations in [the write-up](candidates/vendor-change-evidence.md).
 - **A contractor-in-the-loop step is not a failure of automation** when the step
   is one that cannot be automated honestly. It is what keeps a candidate on the
   right side of the ethics gate — the alternative is claiming the automated
- result covers what it does not.
+  result covers what it does not.
 
 - **DNS configuration evidence monitor** is retained separately from vendor-change evidence and uptime monitoring. It observes customer-authorized DNS answers and delegation, never writes records, sends mail, or claims security, deliverability, or compliance.
+
+`repository-branch-hygiene` is intentionally retained as a separate candidate,
+not screened out as the internal branch-cleanup automation proposed in PR #829.
+The internal workflow is a repository-specific unattended deletion mechanism;
+this candidate is a customer-facing, multi-repository read-only inventory and
+recovery product whose first output is an approval queue. It must still prove a
+buyer and a distribution channel before graduation.
