@@ -21461,3 +21461,49 @@ entries:
           restatement of a prior finding. `payout-rail` remains the only
           queue item that moves the revenue ceiling off $0.
     mrr_end: null
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+          Scheduled "continue work on the projects... maintain and improve
+          the development process... increase in profit" session, designated
+          branch `claude/ecstatic-volta-jrirpu`. `session_gate.py` ->
+          PROCEED, with the same flag as the last two entries: 3 distinct
+          sessions committed to `main` within a 15-minute window in the last
+          6h. Fetched `main` fresh, read the open pull requests,
+          `decision_queue.py`, `verification_status.py` and issue #139's
+          current body before touching anything.
+      - >-
+          Five open pull requests, all correctly owner-gated and unchanged
+          from the decision queue's own read: #720 (Vercel deployment-platform
+          choice, opens an account and commits standing spend), #531/#583
+          (contrast fixes, `ventures/*` app code pending the
+          `venture-gate-premise` answer), #372 (next@16.3.1 across five
+          non-live ventures) and #368 (Dependabot, self-flagged
+          owner-gated). Did not re-verify #372/#368 by hand --
+          `verification_status.py` already reported both build-valid with no
+          `main` drift since their last check.
+      - >-
+          #729 (`a11y-evidence-record`: port SC 2.4.1 Bypass Blocks and 2.5.3
+          Label in Name from the sibling engine) was agent-decidable and
+          ripe, opened as a draft by a concurrent cursor session with all 11
+          CI checks green: `portfolio/research/` and this ledger only, no
+          `ventures/*` code, publishes nothing, spends nothing, adds no
+          automation. Verified rather than trusted -- pulled the branch into
+          a worktree and re-ran the suite: `a11y-evidence-record` 141/141,
+          matching the PR's own figure. `git merge-tree` against the live
+          `main` tip was clean both before and after #725 landed mid-session.
+          Marked ready for review (its own session had left it in draft) and
+          merged as #729 (`0b039bdc`) on this session's own judgment.
+      - >-
+          #725 (harness closure-count follow-up to #723, left in draft by
+          the last entry) merged itself mid-session via a concurrent cursor
+          session -- no action needed here.
+      - >-
+          No new candidate research, no re-verification of records
+          `verification_status.py` already reported valid, no ledger
+          duplication: this is a new entry recording a new merge, not a
+          restatement of a prior finding. `payout-rail` remains the only
+          queue item that moves the revenue ceiling off $0.
+    mrr_end: null
