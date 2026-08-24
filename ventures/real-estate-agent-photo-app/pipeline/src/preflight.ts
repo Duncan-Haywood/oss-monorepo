@@ -44,5 +44,11 @@ export async function preflightDir(dir: string): Promise<PreflightSummary> {
     0,
   );
 
-  return { dir, reports, blockingCount, degradingCount, ok: blockingCount === 0 };
+  return {
+    dir,
+    reports,
+    blockingCount,
+    degradingCount,
+    ok: reports.length > 0 && blockingCount === 0,
+  };
 }

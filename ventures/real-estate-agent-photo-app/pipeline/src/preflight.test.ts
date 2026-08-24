@@ -68,6 +68,21 @@ async function run() {
       await rm(cleanDir, { recursive: true, force: true });
     }
 
+    // Empty / non-image folders must not report ok — nothing was checked.
+    const emptyDir = await mkdtemp(join(tmpdir(), "listing-lens-preflight-empty-"));
+    try {
+      const emptySummary = await preflightDir(emptyDir);
+      assert(!emptySummary.ok, "empty folder should not report ok");
+      assert(emptySummary.reports.length === 0, "empty folder should have 0 reports");
+
+      await writeFile(join(emptyDir, "notes.txt"), "not an image");
+      const noPhotosSummary = await preflightDir(emptyDir);
+      assert(!noPhotosSummary.ok, "folder with no listing photos should not report ok");
+      assert(noPhotosSummary.reports.length === 0, "non-image files must not count as checked photos");
+    } finally {
+      await rm(emptyDir, { recursive: true, force: true });
+    }
+
     console.log("preflight.test.ts: all assertions passed");
   } finally {
     await rm(dir, { recursive: true, force: true });
