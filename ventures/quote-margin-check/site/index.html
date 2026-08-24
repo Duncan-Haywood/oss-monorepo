@@ -104,6 +104,10 @@
   .sensitivity th:first-child, .sensitivity td:first-child { text-align: left; }
   .table-scroll { overflow-x: auto; }
   .actions { margin-top: 1rem; display: flex; gap: 0.5rem; flex-wrap: wrap; }
+  .history-list { margin: 0; padding: 0; list-style: none; }
+  .history-list li { display: flex; justify-content: space-between; gap: 1rem; align-items: center; border-top: 1px solid var(--border); padding: 0.7rem 0; }
+  .history-list small { color: var(--muted); display: block; }
+  .history-empty { color: var(--muted); }
   button { font: inherit; padding: 0.5rem 0.9rem; border-radius: 6px; border: 1px solid var(--border); background: var(--bg); color: var(--fg); cursor: pointer; }
   button:hover { border-color: var(--accent); }
   footer { border-top: 1px solid var(--border); margin-top: 2rem; padding-top: 1.5rem; font-size: 0.85rem; color: var(--muted); }
@@ -186,6 +190,20 @@
       <button type="button" id="copy-csv">Copy as CSV row</button>
       <span id="copy-status" class="hint" role="status" aria-live="polite"></span>
     </div>
+    <div class="actions">
+      <label for="quote-label" style="flex:1;min-width:12rem;margin:0">Save this quote
+        <input type="text" id="quote-label" maxlength="80" placeholder="e.g. Website redesign" />
+      </label>
+      <button type="button" id="save-quote">Save to local history</button>
+      <span id="save-status" class="hint" role="status" aria-live="polite"></span>
+    </div>
+  </section>
+
+  <section aria-labelledby="history-heading">
+    <h2 id="history-heading">Your recent quote checks</h2>
+    <p class="hint">Saved only in this browser. Use it to revisit recurring proposals without retyping the assumptions.</p>
+    <ul class="history-list" id="history-list"></ul>
+    <div class="actions"><button type="button" id="clear-history">Clear local history</button></div>
   </section>
 
   <section aria-labelledby="about-heading">
@@ -253,6 +271,7 @@
   import { loadQuote, calculate, overrunScenarios } from "./calc.mjs";
   import { reviewQuote } from "./review.mjs";
   import { recordEvent, createReportCounter, isUsageCountingEnabled, setUsageCountingEnabled } from "./usage.mjs";
+  import { readHistory, saveHistoryEntry, clearHistory } from "./history.mjs";
 
   // Counts settled quotes rather than keystrokes — see usage.mjs.
   const reportCounter = createReportCounter();
@@ -262,6 +281,7 @@
   const result = document.getElementById("result");
   const review = document.getElementById("review");
   const sensitivity = document.getElementById("sensitivity");
+  const historyList = document.getElementById("history-list");
 
   let lastReport = null;
 
@@ -317,6 +337,17 @@
     }
   }
 
+  function renderHistory() {
+    const history = readHistory();
+    historyList.innerHTML = history.length ? history.map((entry) => {
+      const rate = Number(entry.report?.effective_hourly_rate);
+      const target = Number(entry.quote?.target_hourly_rate);
+      const currency = escapeHtml(entry.quote?.currency || "units");
+      const date = new Date(entry.saved_at).toLocaleDateString();
+      return `<li><span><strong>${escapeHtml(entry.label)}</strong><small>${date} · ${currency} ${Number.isFinite(rate) ? fmt(rate) : "-"}/hour effective</small></span><span><span class="${rate >= target ? "status good" : "status bad"}">${rate >= target ? "At target" : "Below target"}</span> <button type="button" data-history-id="${escapeHtml(entry.id)}">Load</button></span></li>`;
+    }).join("") : `<li class="history-empty">No saved quotes yet.</li>`;
+  }
+
   // Once the visitor edits anything, the numbers are theirs — drop the
   // "this is an example" note rather than leaving it contradicting the form.
   const exampleNote = document.getElementById("example-note");
@@ -364,6 +395,33 @@
     }
   });
 
+  document.getElementById("save-quote").addEventListener("click", () => {
+    const status = document.getElementById("save-status");
+    if (!lastReport || !saveHistoryEntry(document.getElementById("quote-label").value, lastReport.quote, lastReport.r)) {
+      status.textContent = "Fix the inputs or enable browser storage first.";
+      return;
+    }
+    recordEvent("quote_saved");
+    status.textContent = "Saved in this browser.";
+    renderHistory();
+  });
+  document.getElementById("clear-history").addEventListener("click", () => {
+    clearHistory();
+    renderHistory();
+    document.getElementById("save-status").textContent = "Local history cleared.";
+  });
+  historyList.addEventListener("click", (event) => {
+    const button = event.target.closest("button[data-history-id]");
+    if (!button) return;
+    const entry = readHistory().find((item) => item.id === button.dataset.historyId);
+    if (!entry) return;
+    for (const id of ids) el[id].value = entry.quote[id] ?? "";
+    document.getElementById("quote-label").value = entry.label;
+    dismissExampleNote();
+    update();
+    document.getElementById("save-status").textContent = "Loaded from local history.";
+  });
+
   const usageToggle = document.getElementById("usage-toggle");
   const usageStatus = document.getElementById("usage-status");
   function renderUsageStatus() {
@@ -376,6 +434,7 @@
     renderUsageStatus();
   });
   renderUsageStatus();
+  renderHistory();
 </script>
 </body>
 </html>

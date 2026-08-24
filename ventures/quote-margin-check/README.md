@@ -44,6 +44,11 @@ quoted price and direct costs fixed while showing how the effective hourly rate
 and gap to the supplied target change. They are arithmetic what-if comparisons,
 not a forecast of project delivery time.
 
+The browser can save up to 20 named quote checks in local history. Each saved
+entry keeps its inputs and arithmetic report in this browser only, so recurring
+proposals can be compared without uploading client or project data. Clear the
+history at any time; saving records only the anonymous local `quote_saved` event.
+
 **No warranty.** This tool is provided free and as-is, without warranty of any
 kind, express or implied. It is not tax, financial, or business advice, and it
 does not replace a qualified professional. **You are responsible for reviewing
