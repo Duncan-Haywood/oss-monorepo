@@ -15,6 +15,7 @@ PYTHONPATH=src python3 -m einvoice_preflight ./invoices/ --format markdown > rev
 PYTHONPATH=src python3 -m einvoice_preflight ./invoices/ --format html > review.html
 PYTHONPATH=src python3 -m einvoice_preflight ./invoices/ --format csv > triage.csv
 PYTHONPATH=src python3 -m einvoice_preflight ./invoices/ --format junit > preflight.junit.xml
+PYTHONPATH=src python3 -m einvoice_preflight ./invoices/ --format summary
 cat invoice.json | PYTHONPATH=src python3 -m einvoice_preflight - --format json
 PYTHONPATH=src python3 -m einvoice_preflight examples/valid-invoice.json --usage-file ~/.local/state/einvoice-preflight/usage.json
 PYTHONPATH=src python3 -m einvoice_preflight ./invoices/ --format json
@@ -109,6 +110,9 @@ bounded to its selected directory.
 `--format html` produces a standalone browser report with summary cards, finding
 counts, and per-file review sections. It has the same privacy boundary as the
 other report formats and can be opened locally without a server.
+`--format summary` prints a compact batch result for CI logs, followed by sorted
+rule counts when findings exist. It includes counts and rule IDs only, never
+invoice values, numbers, or line contents.
 
 ## Privacy and usage
 

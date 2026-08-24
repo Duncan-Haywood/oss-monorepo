@@ -164,6 +164,23 @@ class ChecksTest(unittest.TestCase):
             self.assertEqual(records[1], {"status": "pass", "file": "pass.json", "errors": []})
             self.assertNotIn("INV-1", output.getvalue())
 
+    def test_cli_emits_privacy_safe_summary(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            failed = json.loads(json.dumps(VALID))
+            failed["totals"]["gross"] = 200
+            (root / "fail.json").write_text(json.dumps(failed))
+            (root / "pass.json").write_text(json.dumps({**VALID, "invoice_number": "INV-2"}))
+            output = io.StringIO()
+            with contextlib.redirect_stdout(output):
+                self.assertEqual(main([directory, "--format", "summary"]), 1)
+            self.assertEqual(output.getvalue().splitlines(), [
+                "E-invoice preflight summary", "Overall: FAIL", "Checked: 2",
+                "Passed: 1", "Failed: 1", "Observations: 1", "Read errors: 0",
+                "Rules: INV-017=1",
+            ])
+            self.assertNotIn("INV-1", output.getvalue())
+
     def test_cli_jsonl_keeps_read_errors_as_records(self):
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)
