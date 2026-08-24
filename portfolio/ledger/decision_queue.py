@@ -25,7 +25,7 @@ decide the answer are absent from that sort:
 
 Reading those two axes off `asks.yaml` collapses the nine live asks (#139
 lists ten; Ask 8 is superseded by `break-even.md` and has nothing to grant)
-and four open pull requests into eight decisions, of which exactly one moves
+and six open pull requests into ten decisions, of which exactly one moves
 the revenue ceiling -- and one, Ask 9, would remove two of the others.
 
 This is a renderer, not a judge: every ordering rule below is a fixed rank over

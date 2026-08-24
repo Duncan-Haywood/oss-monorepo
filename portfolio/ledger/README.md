@@ -60,8 +60,8 @@ do instead of skipping the record entirely.
   table still lists it as available. `exposure` separates a repository Settings
   toggle from opening a merchant-of-record account, which a cheapest-first sort
   puts side by side. Ordered by `break-even.md`'s own ranking (what each item
-  gates), the eight live asks (#139 lists nine; Ask 8 is superseded and has
-  nothing to grant) and four open pull requests collapse to seven decisions,
+  gates), the nine live asks (#139 lists ten; Ask 8 is superseded and has
+  nothing to grant) and six open pull requests collapse to ten decisions,
   of which exactly one moves the revenue ceiling off `$0`.
 
   Update it when an ask is granted, withdrawn, or added — not by appending a
