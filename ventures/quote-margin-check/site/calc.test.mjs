@@ -74,6 +74,7 @@ test("calculates transparent overrun sensitivity without changing the quote", ()
 test("share links round-trip validated quote inputs", () => {
   const quote = loadQuote({ currency: "EUR", price: 1800, delivery_hours: 12, admin_hours: 2.5, revision_hours: 1, overhead: 40, subcontractor_cost: 120, target_hourly_rate: 90 });
   assert.deepEqual(decodeQuote(`?${encodeQuote(quote)}`), quote);
+  assert.deepEqual(decodeQuote(`#${encodeQuote(quote)}`), quote);
 });
 
 test("share links require the core quote fields", () => {

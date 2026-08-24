@@ -45,9 +45,11 @@ and gap to the supplied target change. They are arithmetic what-if comparisons,
 not a forecast of project delivery time.
 
 The browser calculator can also copy a share link. The link contains the quote
-figures in its URL so a collaborator can reopen the same calculation without an
-account, server, or upload. Treat the link like the quote itself: anyone who
-receives it can read those figures.
+figures in its URL fragment so a collaborator can reopen the same calculation
+without an account, server, or upload. Keeping the figures in the fragment
+prevents browsers from sending them in referrer headers. Treat the link like
+the quote itself: anyone who receives it can read those figures. Older query
+string links remain readable.
 
 **No warranty.** This tool is provided free and as-is, without warranty of any
 kind, express or implied. It is not tax, financial, or business advice, and it

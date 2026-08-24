@@ -77,7 +77,7 @@ export function encodeQuote(quote) {
 
 /** Reads a URL query string and validates it through the same input boundary. */
 export function decodeQuote(search) {
-  const params = new URLSearchParams(search.startsWith("?") ? search.slice(1) : search);
+  const params = new URLSearchParams(search.replace(/^[?#]/, ""));
   if (!params.has("price") || !params.has("delivery_hours") || !params.has("target_hourly_rate")) {
     return null;
   }

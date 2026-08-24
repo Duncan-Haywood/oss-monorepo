@@ -378,10 +378,13 @@
       return;
     }
     const url = new URL(window.location.href);
-    url.search = encodeQuote(lastReport.quote);
+    // Keep quote figures in the fragment so browsers do not send them in a
+    // referrer header when a collaborator opens the link.
+    url.search = "";
+    url.hash = encodeQuote(lastReport.quote);
     try {
       await navigator.clipboard.writeText(url.href);
-      copyStatus.textContent = "Share link copied — it contains the quote figures in the URL.";
+      copyStatus.textContent = "Share link copied — quote figures stay in the private URL fragment.";
       recordEvent("share_link_copied");
     } catch {
       copyStatus.textContent = `Share link: ${url.href}`;
@@ -402,7 +405,7 @@
   renderUsageStatus();
 
   try {
-    const sharedQuote = decodeQuote(window.location.search);
+    const sharedQuote = decodeQuote(window.location.hash) ?? decodeQuote(window.location.search);
     if (sharedQuote) {
       writeInputs(sharedQuote);
       exampleNote.hidden = true;
