@@ -20808,4 +20808,33 @@ entries:
           reorganizes what the owner was already being asked, and adding a
           tenth row would have been the exact failure the tool exists to
           measure.
+      - >-
+          This PR's CI then went red, and the failure is the most useful thing
+          the session produced. `agent-permission-harness`'s R7 instruction
+          closure grew 117 -> 118 because `portfolio/ledger/README.md` -- a
+          depth-2 document in the closure -- now names the new `asks.yaml`.
+          That is the identical mechanism #699 tripped four hours earlier with
+          a `package.json` sentence, reproduced by a PR about the owner's
+          decision queue with nothing to do with security. It corroborates the
+          measurement rather than merely repeating it: a document naming a new
+          path enlarges that surface, and one line does it.
+      - >-
+          The difference is that this time it was caught. #700 widened that
+          workflow's path filter from the probe's own inputs to the closure's
+          prose roots roughly twenty minutes before this session started; the
+          old filter would not have fired on this diff, and the artifact would
+          have read as a current security measurement while wrong -- exactly
+          the silent failure #700 was built to stop. So the trigger fix is now
+          confirmed by an independent case, not just argued for.
+      - >-
+          Fixed it in the PR that caused it, which is what the previous three
+          sessions could not do: regenerated `results-2026-08-23.md`
+          (reproduces byte-for-byte), synced all six stale prose figures (five
+          in the probe's README, one in `harness.py`'s docstring) AND the
+          three in `portfolio/pipeline/probes/README.md` -- the routing cell
+          that still read `115` after all three earlier passes because a
+          session arriving later sees only that a figure disagrees, not why.
+          Recorded the second instance as an amendment in both documents,
+          keeping the 115 -> 117 history intact. 84 probe tests pass,
+          `validate_probe_index.py` green.
     mrr_end: null
