@@ -34,6 +34,22 @@ class PermissionDriftTests(unittest.TestCase):
             self.assertEqual(event["finding_count"], 2)
             self.assertEqual(set(event), {"event", "day", "finding_count"})
 
+    def test_rejects_invalid_capture_time_and_duplicate_scopes(self):
+        invalid_time = dict(self.before, captured_at="not-a-timestamp")
+        with self.assertRaisesRegex(ValueError, "ISO 8601"):
+            load_inventory_from_data(invalid_time)
+
+        duplicate_scopes = dict(self.before, apps=[dict(self.before["apps"][0], scopes=["read_analytics", "read_analytics"])])
+        with self.assertRaisesRegex(ValueError, "duplicate scopes"):
+            compare(duplicate_scopes, self.after)
+
+
+def load_inventory_from_data(data):
+    with tempfile.NamedTemporaryFile(mode="w", suffix=".json", encoding="utf-8") as handle:
+        json.dump(data, handle)
+        handle.flush()
+        return load_inventory(Path(handle.name))
+
 
 if __name__ == "__main__":
     unittest.main()
