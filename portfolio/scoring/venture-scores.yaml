@@ -48,6 +48,32 @@ scoring_rule: >-
   near-zero-price norm is a real property of the business on any host.
 
 ventures:
+  - slug: grant-reporting-tracker
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 6
+      gross_margin: 10
+      defensibility: 4
+      distribution: 6
+    composite: 6.167
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      AI is not needed for the first workflow: transparent deadline arithmetic
+      and exportable evidence are more valuable than generated prose.
+    basis: >-
+      Graduated on 2026-08-24 from a newly screened small-nonprofit workflow.
+      The first slice is a private browser queue for award reporting dates and
+      restricted balances, with no account, network, or paid dependency.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      The product explicitly does not interpret funder rules or certify
+      compliance; it asks users to verify the award agreement and professional
+      requirements before relying on the planning queue.
   - slug: shopify-permission-drift
     scores:
       ai_leverage: 2

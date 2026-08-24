@@ -1,5 +1,18 @@
 period: 2026-08
 entries:
+  - venture: grant-reporting-tracker
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Graduated a newly researched small-nonprofit workflow into a runnable,
+        offline browser vertical slice: add awards, calculate a sorted reporting
+        review queue, show restricted balances, and export CSV. It has no
+        account, network, payment, or paid API dependency; includes visible
+        safety language, local opt-in aggregate usage counting, SEO metadata,
+        sitemap, robots.txt, and three Node behavior tests. Public publishing
+        and customer demand remain untested and owner-gated.
+    mrr_end: null
   - venture: shopify-a11y-evidence
     agent_spend_usd: null
     human_hours: 0
