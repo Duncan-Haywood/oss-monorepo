@@ -510,33 +510,6 @@ candidates:
         that is a substitute-supply measurement and the egress it needs is
         denied here. Left at 5 rather than moved on an unmeasured argument.
 
-  - slug: vendor-change-evidence
-    name: Vendor-change evidence monitor
-    doc: candidates/vendor-change-evidence.md
-    verdict: probe
-    probe_status: not-started
-    graduate_as: venture
-    host_venture: null
-    scores:
-      ai_leverage: 7
-      autonomous_ops: 9
-      time_to_revenue: 6
-      gross_margin: 9
-      defensibility: 4
-      distribution: 4
-      liability_containment: 7
-      ethical_robustness: 8
-    composite: 6.75
-    floor: 4
-    floor_dimension: defensibility
-    mitigation: >-
-      Retain immutable customer-specific snapshots with portable export and
-      measure reconstruction cost for defensibility; secure a channel partner or
-      repeatable practitioner community before building a hosted product for
-      distribution.
-    first_experiment_days: 14
-    first_experiment_budget_usd: 150
-
   - slug: tender-radar
     name: Tender radar
     doc: candidates/tender-radar.md
