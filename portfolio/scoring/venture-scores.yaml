@@ -138,6 +138,30 @@ ventures:
       liability_containment: pass
       ethical_robustness: pass
 
+  - slug: amazon-fba-calculator
+    scores:
+      ai_leverage: 2
+      autonomous_ops: 10
+      time_to_revenue: 7
+      gross_margin: 10
+      defensibility: 3
+      distribution: 8
+    composite: 6.667
+    rater_b: null
+    floor: 2
+    floor_dimension: ai_leverage
+    floor_note: AI is intentionally absent from the arithmetic core.
+    basis: >-
+      Graduated on 2026-08-24 as a browser-local Amazon seller FBA vs FBM
+      profit calculator. The wedge is the same-SKU comparison plus the
+      maximum inventory buy cost, which generic FBA fee pages omit.
+      Scored one below shopify-fee-calculator on defensibility: "Amazon FBA
+      calculator" is a more saturated SERP, but distribution stays at 8
+      because FBA vs FBM and max-buy-cost are high-intent sourcing queries.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+
   - slug: no-show-fee-calculator
     scores:
       ai_leverage: 1

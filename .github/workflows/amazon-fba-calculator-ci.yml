@@ -1,0 +1,38 @@
+name: amazon-fba-calculator CI
+
+# Test runner for the browser-local Amazon FBA vs FBM profit calculator. The
+# product is static ES modules with no build step and no dependencies, so this
+# does no more than a contributor runs locally: `node --test`. It publishes
+# nothing, registers nothing, and spends no API budget.
+
+on:
+  pull_request:
+    paths:
+      - "ventures/amazon-fba-calculator/**"
+      - ".github/workflows/amazon-fba-calculator-ci.yml"
+  push:
+    branches: [main]
+    paths:
+      - "ventures/amazon-fba-calculator/**"
+      - ".github/workflows/amazon-fba-calculator-ci.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: amazon-fba-calculator-ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  site-test:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ventures/amazon-fba-calculator
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - run: node --test
