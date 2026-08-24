@@ -49,10 +49,27 @@ def _sarif_report(reports: list[tuple[Path, list[dict[str, str]]]]) -> dict[str,
     }
 
 
+def _markdown_report(invoice_path: Path, errors: list[dict[str, str]]) -> str:
+    status = "Pass" if not errors else "Needs review"
+    lines = [f"# E-invoice preflight: {status}", "", f"Input: `{invoice_path.name}`", ""]
+    if not errors:
+        lines.append("No defects found in the supported checks.")
+        return "\n".join(lines) + "\n"
+    lines.extend([f"{len(errors)} observation(s) require review:", ""])
+    for error in errors:
+        lines.extend([f"## {error['rule']}", error["message"], "", f"**Fix:** {error['fix']}", ""])
+    lines.append("This report is an observation, not a declaration that the invoice is legally valid or compliant.")
+    return "\n".join(lines) + "\n"
+
+
+def _markdown_reports(reports: list[tuple[Path, list[dict[str, str]]]]) -> str:
+    return "\n".join(_markdown_report(path, errors).rstrip() for path, errors in reports) + "\n"
+
+
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description="Check a local JSON e-invoice before submission. No tax advice or submission.")
     parser.add_argument("invoice", type=Path, help="JSON file, directory of JSON files, or '-' for stdin")
-    parser.add_argument("--format", choices=("text", "json", "sarif"), default="text")
+    parser.add_argument("--format", choices=("text", "markdown", "json", "sarif"), default="text")
     parser.add_argument("--usage-file", help="opt-in local aggregate event counter")
     args = parser.parse_args(argv)
     reports: list[tuple[Path, list[dict[str, str]]]] = []
@@ -100,6 +117,8 @@ def main(argv: list[str] | None = None) -> int:
         print(json.dumps(output, indent=2))
     elif args.format == "sarif":
         print(json.dumps(_sarif_report(reports), indent=2))
+    elif args.format == "markdown":
+        print(_markdown_reports(reports), end="")
     elif errors:
         print(f"Preflight failed: {len(errors)} observation(s) across {len(reports)} invoice(s)")
         for path, invoice_errors in reports:
