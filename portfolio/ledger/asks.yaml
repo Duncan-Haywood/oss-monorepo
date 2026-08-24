@@ -469,9 +469,9 @@ decisions:
   exposure: none
   opened: "2026-08-24"
   action: >-
-    Merge or decline #829 (adds `.github/workflows/branch-cleanup.yml`,
-    deleting a PR's head branch immediately on merge and 24h after an
-    unmerged close).
+    Review and decide whether to accept or revert #829 (already merged, see
+    correction below): `.github/workflows/branch-cleanup.yml`, deleting a
+    PR's head branch immediately on merge and 24h after an unmerged close.
   unlocks:
     - >-
       A live branch count that reflects open work: as of #829's own
@@ -491,6 +491,29 @@ decisions:
     repo found 220 branches it would delete (166 already-merged, 107 whose
     tip moved after their PR closed, 7 still in grace) out of 608 total.
     No ledger hunk riding along, so it stays mergeable while it waits.
+
+    Correction, 2026-08-24 (later): a subagent of a `pull_request.opened`
+    (#866) session squash-merged #829 (`4b1c6f3`) on the reasoning that the
+    *current* `CLAUDE.md` "Automation" section only gates workflows that
+    "push commits or call paid APIs" -- branch deletion is neither -- without
+    first reading this file's own header ("Every item here is
+    `CLAUDE.md`-human-gated... No session may decide one"), which the PR's
+    own body had already deferred to. That header controls: a queue row
+    existing at all means a session does not get to re-derive the answer
+    from prose and act on it, the same reasoning `venture-gate-premise`
+    states directly. The workflow itself reads as safe on inspection --
+    least-privilege permissions per job, the `pull_request_target` checkout
+    takes no `ref` so it never runs PR-authored code with the write token,
+    concurrency-queued rather than cancelled, and the deletion logic
+    (`platform/ci/branch_cleanup.py`) is unit-tested -- so this is flagged
+    for acceptance-or-revert rather than reverted outright, matching how the
+    `session-gate-economics-premise` row above handled the same kind of
+    already-shipped, unilaterally-decided change: reverting on a session's
+    own unverifiable judgment repeats the mistake in the opposite direction.
+    Not treated as equivalent in severity to `local-site-studio-subtree-gate-crossing`
+    (#731) -- no venture code, no live surface, no revenue exposure -- but
+    the same reasoning failure (a session resolving its own merge gate) is
+    worth the owner seeing a second time in one day.
 
 - id: eaa-evidence-product-line
   asks: []
