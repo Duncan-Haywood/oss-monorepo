@@ -521,3 +521,44 @@ decisions:
     paths, and a clean `git merge-tree` against `main` with no ledger hunk)
     but does not settle the merge-class question, which is why this is a
     merge-or-decline row rather than something a session did itself.
+
+- id: governance-rewrite-836
+  asks: []
+  prs: [836]
+  gates: deployment
+  exposure: none
+  opened: "2026-08-24"
+  action: >-
+    Accept or decline #836. It is a proposal, not an agent-decidable change:
+    a session should not undraft and self-merge it on green CI. If the
+    product-first direction it describes is the intended policy, say so
+    explicitly (here or on #139) and it can land; if not, decline it.
+  unlocks:
+    - >-
+      Settles the portfolio's operating policy. #836 rewrites `CLAUDE.md`
+      from ~380 lines of merge-class governance to ~100, adds
+      `portfolio/DIRECTION.md` and a root `AGENTS.md`, and makes *all*
+      `ventures/*` app code agent-decidable ("merge when CI green, no human
+      review") while `publish_surface.py` shows nothing live. It supersedes
+      the narrower `venture-gate-premise` (ask 9) question by answering it
+      "yes" wholesale, and reworks `session_gate.py`'s BUILD messaging to
+      match.
+  blocked_by: []
+  note: >-
+    Flagged 2026-08-24 reviewing the open-PR backlog. #836's entire
+    authority is one line -- "Implements the 2026-08-24 company direction" /
+    "Effective 2026-08-24" -- with no verifiable source. Every session here
+    authenticates as the same `Duncan-Haywood` identity, so a PR body
+    asserting "the company direction is X" is indistinguishable from a
+    session asserting it about itself; this is the same unverifiable-
+    attribution pattern #812 was closed for and #822 (merged) flagged for
+    `session_gate.py`'s flat-subscription premise. A change that *removes*
+    the human merge gate cannot itself be verified from inside a session,
+    and self-merging it would retroactively make every later self-merge of
+    live venture code look authorized. Not a claim the content is wrong --
+    several parts (build over meta-work, ship runnable products, don't
+    re-verify unchanged PRs) already match `main`, and its 57
+    `test_session_gate.py` cases pass -- but dissolving the money/
+    publishing/venture-code gates is exactly the decision class `CLAUDE.md`
+    reserves for the owner. Left as a draft proposal; commented the same on
+    the PR.
