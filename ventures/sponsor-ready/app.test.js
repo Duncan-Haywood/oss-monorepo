@@ -163,12 +163,10 @@ test("fetchRepoFacts uses the org .github default FUNDING.yml when the scanned r
   }
 });
 
-test("fetchRepoFacts does not look up an org default FUNDING.yml for a user-owned repo", async () => {
+test("fetchRepoFacts uses the user .github default FUNDING.yml when the scanned repo has none", async () => {
   const originalFetch = globalThis.fetch;
-  const requested = [];
   globalThis.fetch = async (url) => {
     const path = String(url);
-    requested.push(path);
     if (path.endsWith("/repos/octocat/hello-world")) {
       return jsonResponse(200, { description: "hi", homepage: "", topics: [], license: { key: "mit" }, pushed_at: "2026-08-01T00:00:00Z", archived: false, owner: { login: "octocat", type: "User" } }, "10");
     }
@@ -178,12 +176,15 @@ test("fetchRepoFacts does not look up an org default FUNDING.yml for a user-owne
     if (path.includes("/readme")) {
       return jsonResponse(200, { content: Buffer.from("# Hello").toString("base64") }, "8");
     }
-    return jsonResponse(404, { message: "Not Found" }, "7");
+    if (path.includes("/repos/octocat/.github/contents/.github/FUNDING.yml")) {
+      return jsonResponse(200, { content: Buffer.from("github: [octocat]\n").toString("base64") }, "7");
+    }
+    return jsonResponse(404, { message: "Not Found" }, "6");
   };
   try {
     const facts = await fetchRepoFacts("octocat", "hello-world");
-    assert.equal(facts.funding.present, false);
-    assert.equal(requested.some((p) => p.includes("/repos/octocat/.github/")), false);
+    assert.equal(facts.funding.present, true);
+    assert.equal(facts.funding.hasEntries, true);
   } finally {
     globalThis.fetch = originalFetch;
   }

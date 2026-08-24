@@ -128,9 +128,10 @@ async function fetchRepoFacts(owner, repo) {
   }
 
   // Repo-level FUNDING.yml wins. If the scanned repo has none, GitHub still
-  // shows the Sponsor button from the org's public `.github` default file.
+  // shows the Sponsor button from the account's public `.github` default file
+  // (organizations and users).
   let fundingRes2 = fundingRes.ok ? fundingRes : fundingRootRes;
-  if (!fundingRes2.ok && repoData.owner?.type === "Organization" && repo !== ".github") {
+  if (!fundingRes2.ok && repo !== ".github") {
     const orgGithub = `/repos/${encodeURIComponent(owner)}/.github`;
     const [orgFundingRes, orgFundingRootRes] = await Promise.all([
       fetchJson(`${orgGithub}/contents/.github/FUNDING.yml`),
