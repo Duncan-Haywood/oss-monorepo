@@ -21242,3 +21242,340 @@ entries:
           ranking, or candidate changed. Nothing here moves the $0 revenue
           ceiling, which remains owner-gated on Ask 2. No new queue row.
     mrr_end: null
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+          Scheduled "continue work... maintain and improve the development
+          process... legal ethical reliable increase in profit... more
+          strategic work" session, designated branch
+          `claude/wizardly-albattani-1enrb3`. `session_gate.py` -> PROCEED
+          with the concurrency note (2 distinct sessions inside a 15-min
+          window in the last 6h). Fetched `main`, listed the open pull
+          requests, and read `decision_queue.py` before starting anything
+          new.
+      - >-
+          Found two fresh draft PRs from a Cursor cloud agent, both opened
+          within the hour: #716 (`.cursor/environment.json` so Cloud Agents
+          boot with the portfolio Python toolchain ready) and #719
+          (expression-aware label matching in `eaa-wcag-triage`, closing a
+          gap `a11y-theme-resolution` Finding 3 named). Independently
+          verified both rather than trusting the PR bodies: fetched each
+          branch, ran `git merge-tree` against the live `main` tip (both
+          clean, no conflicts), and for #719 ran the `eaa-wcag-triage`
+          suite on a fresh worktree (296 passed) plus
+          `validate_probe_index.py` / `validate_doc_consistency.py` /
+          `validate_candidates.py` / `test_score_sensitivity.py` (all
+          green). For #716, read the single added file directly -- a
+          2-key JSON with no secret material, matching its own PR body's
+          claim that the pre-commit secret-scanner hook crash was a VM
+          tooling bug unrelated to the change.
+      - >-
+          #719 was merged (by the Cursor agent itself or a concurrent
+          session -- not by this one; it landed on `main` between this
+          session's verification pass and its next fetch) before this
+          session called the merge API, so no action was needed there
+          beyond the verification already done. #716 was still open and
+          draft when checked; marked it ready for review and merged it
+          directly (`a212a34`). Agent-decidable per `CLAUDE.md` for both:
+          `portfolio/pipeline/`, a research note, and root-level Cloud
+          Agent tooling only, no `ventures/*` app code, nothing published,
+          no account registered, no spend, no automation added.
+      - >-
+          The four owner-gated pull requests (#583, #531, #372, #368) are
+          unchanged; `verification_status.py` still reports #372 and #368
+          BUILD VALID (checks stale only because workflow files changed
+          since, which does not invalidate builds that never touched the
+          ventures those PRs affect). Ask 9 (the venture-gate-premise
+          question that would let `next-16-upgrade` and `contrast-fixes`
+          leave the queue) is still unanswered at the queue's own count.
+          Did not merge any of the four on this session's own reading of
+          an unanswered rule.
+      - >-
+          The account owner's decision queue is otherwise unchanged from
+          the last session's read: `payout-rail` (Ask 2) is still the only
+          item that moves the $0 revenue ceiling, now 5 days old, and a
+          concurrent session already notified the account owner of it
+          within the last few hours -- did not send a duplicate
+          notification for the same standing ask. No new queue row added;
+          nothing in this session's work changes what the owner needs to
+          decide.
+    mrr_end: null
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+          Scheduled screening-brief session ("research and evaluate
+          potential software business projects that aren't already here"),
+          designated branch `claude/laughing-pasteur-dgj7ra`.
+          `session_gate.py` -> PROCEED (meta-work 100% of the last 25
+          entries, re-verification 88%, 2 distinct sessions inside a
+          15-min window). Obeyed the `CLAUDE.md` intake gate: no candidate
+          list, no score touched, nothing in `portfolio/pipeline/`
+          rewritten. Checked the open pull requests, `decision_queue.py`
+          and `verification_status.py` against a freshly fetched `main`
+          first. Re-verified none of the four owner-gated PRs.
+      - >-
+          Both moves `CLAUDE.md` prescribes for this brief were checked
+          and unavailable, same as the previous firing: no probe in
+          `portfolio/pipeline/probes/` has a named next step left (audited
+          all five cells), and every shipping path is owner-gated. #717
+          and #716 had both been merged by concurrent sessions before this
+          one looked. So the session went looking for something measurable
+          that was wrong rather than writing another analysis document.
+      - >-
+          Found the consolidated egress table six hosts behind what had
+          actually been measured, four days after the directory that exists
+          to stop exactly that drift had landed. Four hosts
+          (`api.pepy.tech`, `bigquery.googleapis.com`,
+          `clickpy-api.clickhouse.com`, `www.piwheels.org`) were in a
+          sibling results file nobody had folded in -- `--ingest` is a
+          command someone has to remember to run. Two more were invisible
+          by construction: the walk only reads machine-readable results
+          under `portfolio/research/`, so `www.ftc.gov` (measured by #232,
+          which left prose and no results file) and
+          `euvdservices.enisa.europa.eu` (measured under
+          `portfolio/pipeline/probes/`) could never enter it. This is not
+          cosmetic: `--probe` iterates the committed table, so a host
+          missing from it is never re-measured either.
+      - >-
+          The cost was landing on the account owner. `asks.yaml`'s egress
+          row had named `www.ftc.gov` since 2026-08-19 with no verdict in
+          the canonical table at all. Worse, it named
+          `euvd.enisa.europa.eu` while claiming to unlock
+          `cra-evidence-desk`'s EUVD wedge -- that host serves the website
+          and the API is on `euvdservices.enisa.europa.eu`, so granting the
+          list as written would have spent the owner's one allowlist
+          decision and unblocked nothing. Both hosts measured first-hand
+          (denied, twice each, against a reachable control), folded in via
+          a new `unindexed-hosts.json`, and the ask corrected to name both.
+          Table now 98 hosts: 26 reachable, 69 egress-denied, 3
+          scope-denied. No conclusion in the directory moves and the
+          revenue ceiling is unchanged at $0.
+      - >-
+          A third defect surfaced on the way: `prior_consensus` was a bare
+          `Counter.most_common(1)`, so a tie was broken by file-read order.
+          `api.github.com` stood at 6-6 and `codeload.github.com` at 1-1,
+          the latter landing on `reachable` and contradicting the
+          "Scope-denied (3)" section of the README it shipped beside. Ties
+          now resolve by the rule `probe()` already stated (denials are
+          authoritative, reachability is not), and the three GitHub hosts
+          are pinned in `CURATED` with reasons, because a vote over
+          observations is a vote over methods and the passes recording
+          GitHub as reachable read the status code without the body.
+      - >-
+          Shipped three checks rather than another paragraph, per this
+          repository's own pattern: `consolidate.py --check` (committed
+          table equals a fresh ingest, offline), `check_ask_hosts.py`
+          (every host named in an owner ask has a measured verdict), and
+          23 unit tests, all wired into `portfolio-validate.yml`. Run
+          against `prior-verdicts.json` as it stood on `main`,
+          `check_ask_hosts.py` fails on `www.ftc.gov` -- it catches the
+          real defect, not a synthetic one. What it deliberately cannot
+          catch is stated in its own docstring: an ask naming a real,
+          measured, denied host that is simply the wrong host for what it
+          claims to unlock.
+      - >-
+          CI then caught the fourth instance of the
+          `agent-permission-harness` closure mechanism, caused by this very
+          pull request: naming `check_ask_hosts.py` and
+          `unindexed-hosts.json` from `CLAUDE.md` and the egress README
+          took the fleet agent's instruction closure `120 -> 122`.
+          Regenerated the artifact and corrected every prose figure in the
+          same pull request that moved them, per the discipline #708
+          established. The three prior instances were authors with no
+          reason to think they were touching security; this one was a
+          session writing a staleness check, which is the sharpest form of
+          the finding -- the mechanism does not care what the edit is
+          about. Also repaired a stale depth-table row (55 vs the artifact's
+          56) whose four rows had summed to 119 against a headline of 120;
+          nothing re-derives a sum.
+      - >-
+          Merged as #723 (`d0a01a3`) on this session's own judgment:
+          agent-decidable per `CLAUDE.md` -- `portfolio/research/`,
+          `portfolio/ledger/asks.yaml`, CI config and `CLAUDE.md` only, no
+          `ventures/*` code, nothing published, no account, no spend, no
+          automation added. Verified rather than assumed: all three PR
+          checks green, every validator and unit suite in
+          `portfolio-validate.yml` re-run locally, and both the closure
+          artifact and the two new egress checks re-derived against a tree
+          with the live `main` tip merged in, since `main` moved after CI
+          ran.
+      - >-
+          Notified the account owner, because the finding changes a
+          decision already waiting on them rather than merely reporting
+          status: the egress ask they have held for five days would not
+          have unlocked what it said it would. No new queue row added --
+          the ask already exists and is now correct, so a ninth row would
+          lengthen the queue without making anything newly decidable.
+          `payout-rail` remains the only item that moves the ceiling off
+          $0.
+    mrr_end: null
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+          Scheduled "continue work, maintain and improve the development
+          process" session, designated branch `claude/keen-knuth-3egfxi`.
+          `session_gate.py` -> PROCEED, with a flag: 3 distinct sessions had
+          committed to `main` within a 15-minute window in the last 6h, so
+          checked open pull requests, `decision_queue.py` and
+          `verification_status.py` against a freshly fetched `main` before
+          doing anything, per the gate's own instruction.
+      - >-
+          Eight open pull requests. Six are already correctly owner-gated:
+          #372 (next@16.3.1 across five non-live ventures) and #368
+          (Dependabot config -- unattended automation, explicitly flagged
+          owner-gated in its own body) both still verification-valid per
+          `verification_status.py` (build valid, no `main` drift since their
+          last check); #531/#583 (contrast fixes) are `ventures/*` and the
+          `venture-gate-premise` question that would clear them is still
+          unanswered on the queue; #720 (Vercel deployment-platform choice)
+          opens an account and commits standing spend, correctly held for
+          the owner.
+      - >-
+          #726 (`a11y-evidence-record`: port SC 1.4.1 from the sibling
+          engine, opened by a concurrent cursor session) was agent-decidable
+          and ripe: `portfolio/research/` only, no `ventures/*` code,
+          publishes nothing, spends nothing, adds no automation. Verified
+          rather than trusted -- pulled the PR head into a worktree,
+          confirmed a clean `git merge-tree` against the live `main` tip,
+          and re-ran all three test suites it claimed: `a11y-evidence-record`
+          103/103, `a11y-engine-agreement` 15/15,
+          `a11y-external-coverage-reference` 29/29, all matching the PR's
+          own figures. Merged as #726 (`1d24c7f5`) on this session's own
+          judgment.
+      - >-
+          #725 (harness closure-count follow-up to the just-merged #723) is
+          also self-declared agent-decidable and its checks are clean, but
+          it is still marked draft by its own author session -- left it
+          alone rather than merging work its own session hasn't signalled
+          as finished.
+      - >-
+          No new candidate research, no re-verification of the two records
+          `verification_status.py` already reported valid, no ledger
+          duplication: this is a new entry recording a new merge, not a
+          restatement of a prior finding. `payout-rail` remains the only
+          queue item that moves the revenue ceiling off $0.
+    mrr_end: null
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+          Scheduled "continue work on the repo... creating products to
+          increase profits" session, designated branch
+          `cursor/product-profit-generation-fdad`. `session_gate.py` ->
+          PROCEED (cadence 0.88/h, burst of 3). Did not re-derive #717/#718/#719
+          or #723. Did not re-port 1.4.1 (merged as #726). Did not touch
+          draft #725. Did not add a queue row.
+      - >-
+          Unique leftover taken: port the sibling engine's remaining
+          markup-decidable rules that #726 did not -- 2.2.1 (positive-delay
+          meta refresh), 2.2.2 (`<blink>`/`<marquee>`), 3.1.2 (invalid
+          `lang` on a part) -- and close the 3.1.1 overclaim the sibling
+          closed on 2026-08-22 (existence was checked, validity was not, so
+          `lang="engl"` read as clean). Validity reuses the sibling's
+          BCP-47 check; a template-expression `lang` or refresh delay is
+          undecidable. 2.4.1, 2.5.3 and 1.3.4 stay disclosed-untested.
+          Own-site / generated-site snapshots were not rebuilt. No score
+          moved. No new file, no new path-span in walkable closure prose.
+      - >-
+          Merged as #728 (`b9e5ea7d`) on this session's own judgment.
+          Agent-decidable per `CLAUDE.md`: `portfolio/research/` only, no
+          `ventures/*` code, publishes nothing, spends nothing, adds no
+          automation. Verified rather than trusted: 10/10 CI green, and
+          hand-ran `a11y-evidence-record` 114/114 (was 103; 11 new tests),
+          `a11y-engine-agreement` 15/15,
+          `a11y-external-coverage-reference` 29/29, `a11y-axe-recall` 15/15.
+          `git merge-tree` against the live `main` tip was clean.
+      - >-
+          Owner-gated open PRs unchanged: #720, #583, #531, #372, #368.
+          Ask 9 still unanswered. `payout-rail` remains the only queue item
+          that moves the revenue ceiling off $0.
+    mrr_end: null
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+          Scheduled "continue work on the repo... creating products to
+          increase profits" session, designated branch
+          `cursor/product-profit-generation-e5dd`. `session_gate.py` ->
+          PROCEED (cadence 0.88/h, burst of 3). Did not re-derive
+          #717/#718/#719/#726/#728. Did not re-port 2.2.1 / 2.2.2 / 3.1.2
+          / 3.1.1 validity. Did not touch draft #725. Did not add a queue
+          row. Folded in the #728 ledger commit that had stayed on
+          `cursor/product-profit-generation-fdad` after that PR merged.
+      - >-
+          Unique leftover taken: port the two markup rules #728 left
+          disclosed -- 2.4.1 Bypass Blocks (nav/link-count gate, content
+          floor, suppress on main / heading / skip link) and 2.5.3 Label
+          in Name (override must contain the visible text; image-of-text
+          and glyph-only labels refused). A template expression that
+          could be a skip-link href, a landmark role, or either side of
+          a 2.5.3 comparison is undecidable. 1.3.4 stays
+          disclosed-untested -- it needs the CSS adapter. Own-site /
+          generated-site snapshots were not rebuilt. No score moved.
+      - >-
+          Verified rather than trusted: `a11y-evidence-record` 141/141
+          (was 114), `a11y-engine-agreement` 15/15,
+          `a11y-external-coverage-reference` 29/29. `git merge-tree`
+          against the live `main` tip was clean. Agent-decidable per
+          `CLAUDE.md`: `portfolio/research/` and this ledger only, no
+          `ventures/*` code, publishes nothing, spends nothing, adds no
+          automation.
+      - >-
+          Owner-gated open PRs unchanged: #720, #583, #531, #372, #368.
+          Ask 9 still unanswered. `payout-rail` remains the only queue
+          item that moves the revenue ceiling off $0.
+    mrr_end: null
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+          Scheduled "continue work on the projects... maintain and improve
+          the development process... increase in profit" session, designated
+          branch `claude/ecstatic-volta-jrirpu`. `session_gate.py` ->
+          PROCEED, with the same flag as the last two entries: 3 distinct
+          sessions committed to `main` within a 15-minute window in the last
+          6h. Fetched `main` fresh, read the open pull requests,
+          `decision_queue.py`, `verification_status.py` and issue #139's
+          current body before touching anything.
+      - >-
+          Five open pull requests, all correctly owner-gated and unchanged
+          from the decision queue's own read: #720 (Vercel deployment-platform
+          choice, opens an account and commits standing spend), #531/#583
+          (contrast fixes, `ventures/*` app code pending the
+          `venture-gate-premise` answer), #372 (next@16.3.1 across five
+          non-live ventures) and #368 (Dependabot, self-flagged
+          owner-gated). Did not re-verify #372/#368 by hand --
+          `verification_status.py` already reported both build-valid with no
+          `main` drift since their last check.
+      - >-
+          #729 (`a11y-evidence-record`: port SC 2.4.1 Bypass Blocks and 2.5.3
+          Label in Name from the sibling engine) was agent-decidable and
+          ripe, opened as a draft by a concurrent cursor session with all 11
+          CI checks green: `portfolio/research/` and this ledger only, no
+          `ventures/*` code, publishes nothing, spends nothing, adds no
+          automation. Verified rather than trusted -- pulled the branch into
+          a worktree and re-ran the suite: `a11y-evidence-record` 141/141,
+          matching the PR's own figure. `git merge-tree` against the live
+          `main` tip was clean both before and after #725 landed mid-session.
+          Marked ready for review (its own session had left it in draft) and
+          merged as #729 (`0b039bdc`) on this session's own judgment.
+      - >-
+          #725 (harness closure-count follow-up to #723, left in draft by
+          the last entry) merged itself mid-session via a concurrent cursor
+          session -- no action needed here.
+      - >-
+          No new candidate research, no re-verification of records
+          `verification_status.py` already reported valid, no ledger
+          duplication: this is a new entry recording a new merge, not a
+          restatement of a prior finding. `payout-rail` remains the only
+          queue item that moves the revenue ceiling off $0.
+    mrr_end: null

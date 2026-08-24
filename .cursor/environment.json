@@ -1,0 +1,4 @@
+{
+  "name": "monorepo-projects",
+  "install": "pip install --user -r portfolio/router/requirements.txt pytest"
+}

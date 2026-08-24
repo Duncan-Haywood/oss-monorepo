@@ -249,10 +249,36 @@ than one both engines already knew about: 1.4.1 moves from the probe's
 original name; it is the live-comparison snapshot, not a dated historical
 one — see the two amendments above). `test_results_file_matches_a_live_run`
 passed against the regenerated file, confirming this is the only catalog
-effect. Not closed here: porting the rule to `audit.py` would need the same
-two-element colour comparison this probe just built, against a template
-engine whose `class`/`style` are render-time output — the same open
-constraint the 1.4.3 port above already named for that engine.
+effect. Closed 2026-08-24: the rule is now in `audit.py` too, by the same
+adaptation the 1.4.3 port used — reuse the sibling resolver, refuse any
+dynamically classed or styled ancestor (or surrounding-text owner)
+before the cascade runs. `results-2026-08-21.json` was regenerated:
+1.4.1 moved from `audit.py`'s `declared_untested` list to its checked
+catalog, the mirror of the probe's move two days earlier.
+`test_results_file_matches_a_live_run` passed against the regenerated
+file. The two-element comparison the paragraph above named is no longer
+an open constraint; what remains open is how often a *theme template*
+gives the resolver two literal colours, which is a property of that
+engine's corpus and is tracked next to the 1.4.3 decidable-share
+question rather than here.
+
+## Amendment (2026-08-24): 2.2.1, 2.2.2, 3.1.2 moved into `audit.py`
+
+The probe has decided these three from markup since 2026-08-22; `audit.py`
+declared them untested. They are now in its checked catalog, so the
+asymmetry is the disclosed remainder (2.4.1, 2.5.3, 1.3.4) rather than a
+silent one. `results-2026-08-21.json` was regenerated; the catalog move is
+the only change this directory records. The same pass also made `audit.py`
+reject an invalid `<html lang>` (3.1.1), which does not change the catalog
+— that criterion was already checked — but stops `lang="engl"` reading as
+clean. No score moved.
+
+## Amendment (2026-08-24): 2.4.1 and 2.5.3 moved into `audit.py`
+
+The two leftover markup rows are now in `audit.py`'s checked catalog.
+The disclosed remainder is 1.3.4 (CSS adapter, not markup).
+`results-2026-08-21.json` was regenerated; the catalog move is the only
+change this directory records. No score moved.
 
 ## Status of these claims
 

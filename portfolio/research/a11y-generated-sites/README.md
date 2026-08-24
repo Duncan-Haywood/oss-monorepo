@@ -242,9 +242,8 @@ at once, which is a narrower and more honest claim.
 
 Injection only proves the rule works, not that these delivered pages carry the
 defect — same caveat Finding 1 gives every injected row. `audit.py` finds
-nothing here either, the same disclosed asymmetry as the four criteria in
-Finding 4, not a fresh gap: it declares no rule for 1.4.1 in its own
-`COVERAGE` table. Pinned in
+nothing here either on the committed snapshot, which predates the 2026-08-24
+port of this rule into that engine; the snapshot was not rebuilt. Pinned in
 `test_use_of_color_fires_on_the_real_corpus_via_injection`.
 
 The delivered-page result for 1.4.1 is **0 findings**, on a corpus verified

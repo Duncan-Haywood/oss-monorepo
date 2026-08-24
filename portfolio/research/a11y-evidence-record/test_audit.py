@@ -32,15 +32,23 @@ def checks(source, path="t.liquid"):
     return sorted(f["check"] for f in findings(source, path))
 
 
+# Colour checks that fire (or go undecidable) on almost every fixture that
+# has text or a link, and so have to be filtered out of helpers that are
+# asserting a *different* check. Each has its own class that reads them
+# unfiltered.
+_COLOUR_CHECKS = {"text-contrast-fail", "color-only-link"}
+
+
 def undecidable(source, path="t.liquid"):
-    # "text-contrast-fail" excluded: every text-bearing fixture in this file
-    # is undecidable for contrast by construction (none carries a stylesheet
-    # or even a class worth resolving), so it would appear in nearly every
-    # list below and say nothing about the check the test is actually
-    # exercising. The `Contrast` class asserts on it directly, unfiltered.
+    # Colour checks excluded: every text-bearing fixture is undecidable for
+    # 1.4.3 by construction (none carries a stylesheet), and an in-prose
+    # link can produce a 1.4.1 row the same way. Those would appear in
+    # nearly every list below and say nothing about the check the test is
+    # actually exercising. The `Contrast` and `UseOfColor` classes assert
+    # on them directly, unfiltered.
     return sorted(
         u["check"] for u in audit.audit_source(source, path)["undecidable"]
-        if u["check"] != "text-contrast-fail"
+        if u["check"] not in _COLOUR_CHECKS
     )
 
 
@@ -216,6 +224,355 @@ class DocumentLevel(unittest.TestCase):
     def test_ordinary_viewport_is_fine(self):
         source = "<html lang='en'><head><title>t</title><meta name='viewport' content='width=device-width, initial-scale=1'></head><body></body></html>"
         self.assertEqual(checks(source, "page.html"), [])
+
+    def test_html_lang_engl_is_degrading_not_clean(self):
+        # The overclaim the sibling closed on 2026-08-22: existence was
+        # checked, validity was not, so lang="engl" read as a pass.
+        source = "<html lang='engl'><head><title>t</title></head><body></body></html>"
+        result = findings(source, "page.html")
+        lang = [f for f in result if f["check"] == "html-lang-invalid"]
+        self.assertEqual(len(lang), 1)
+        self.assertEqual(lang[0]["success_criterion"], "3.1.1 Language of Page")
+        self.assertEqual(lang[0]["severity"], "degrading")
+
+    def test_html_lang_from_an_expression_is_undecidable_not_a_finding(self):
+        source = "<html lang='{{ locale }}'><head><title>t</title></head><body></body></html>"
+        self.assertEqual(checks(source, "page.html"), [])
+        self.assertEqual(undecidable(source, "page.html"), ["html-lang-invalid"])
+
+
+class TimingAndLanguage(unittest.TestCase):
+    """2.2.1, 2.2.2, 3.1.2 -- ported 2026-08-24 from the sibling engine."""
+
+    def test_positive_meta_refresh_is_blocking(self):
+        source = (
+            "<html lang='en'><head><title>t</title>"
+            "<meta http-equiv='refresh' content='5'></head>"
+            "<body><p>x</p></body></html>"
+        )
+        result = findings(source, "page.html")
+        refresh = [f for f in result if f["check"] == "meta-refresh"]
+        self.assertEqual(len(refresh), 1)
+        self.assertEqual(refresh[0]["success_criterion"], "2.2.1 Timing Adjustable")
+        self.assertEqual(refresh[0]["severity"], "blocking")
+
+    def test_immediate_redirect_is_not_a_time_limit(self):
+        source = (
+            "<html lang='en'><head><title>t</title>"
+            "<meta http-equiv='refresh' content='0;url=/next'></head>"
+            "<body><p>x</p></body></html>"
+        )
+        self.assertEqual(
+            [f["check"] for f in findings(source, "page.html")
+             if f["check"] == "meta-refresh"],
+            [],
+        )
+
+    def test_refresh_delay_from_an_expression_is_undecidable(self):
+        source = (
+            "<html lang='en'><head><title>t</title>"
+            "<meta http-equiv='refresh' content='{{ n }}'></head>"
+            "<body><p>x</p></body></html>"
+        )
+        self.assertEqual(checks(source, "page.html"), [])
+        self.assertEqual(undecidable(source, "page.html"), ["meta-refresh"])
+
+    def test_marquee_and_blink_are_blocking(self):
+        source = DOC.format("<marquee>Sale!</marquee><blink>now</blink>")
+        result = findings(source, "page.html")
+        moving = [f for f in result if f["check"] == "moving-content"]
+        self.assertEqual(sorted(f["element"] for f in moving), ["blink", "marquee"])
+        self.assertEqual({f["severity"] for f in moving}, {"blocking"})
+        self.assertEqual(moving[0]["success_criterion"], "2.2.2 Pause, Stop, Hide")
+
+    def test_part_lang_engl_is_degrading(self):
+        source = DOC.format("<p lang='engl'>bonjour</p>")
+        result = findings(source, "page.html")
+        parts = [f for f in result if f["check"] == "lang-of-parts-invalid"]
+        self.assertEqual(len(parts), 1)
+        self.assertEqual(parts[0]["success_criterion"], "3.1.2 Language of Parts")
+        self.assertEqual(parts[0]["severity"], "degrading")
+
+    def test_valid_part_lang_is_clean(self):
+        self.assertEqual(
+            [f["check"] for f in findings(DOC.format("<p lang='fr'>bonjour</p>"),
+                                          "page.html")
+             if f["check"] == "lang-of-parts-invalid"],
+            [],
+        )
+
+    def test_root_lang_is_not_charged_as_a_part(self):
+        # 3.1.2 is about parts; the root element's language is 3.1.1.
+        source = "<html lang='engl'><head><title>t</title></head><body></body></html>"
+        self.assertEqual(
+            [f["check"] for f in findings(source, "page.html")],
+            ["html-lang-invalid"],
+        )
+
+    def test_part_lang_from_an_expression_is_undecidable(self):
+        source = DOC.format("<p lang='{{ locale }}'>bonjour</p>")
+        self.assertEqual(checks(source, "page.html"), [])
+        self.assertEqual(undecidable(source, "page.html"), ["lang-of-parts-invalid"])
+
+    def test_new_criteria_are_checked_not_declared_untested(self):
+        untested = {c.split()[0] for c, _ in audit.NOT_TESTED}
+        for number, key in (
+            ("2.2.1", "meta-refresh"),
+            ("2.2.2", "moving-content"),
+            ("3.1.2", "lang-of-parts-invalid"),
+        ):
+            with self.subTest(criterion=number):
+                self.assertIn(key, audit.CHECKS)
+                self.assertNotIn(number, untested)
+
+
+# Enough prose that 2.4.1 has something to skip *to*. A nav above an empty
+# region is a page that has not finished rendering, not a 2.4.1 failure --
+# the sibling learned that on quick-pick-survey's /app prerender.
+_BYPASS_CONTENT = (
+    "<div><p>" + ("Every survey you answer sharpens the next one. " * 6)
+    + "</p></div>"
+)
+_BYPASS_NAV = "<nav><a href='/a'>a</a><a href='/b'>b</a></nav>"
+
+
+class BypassAndLabelInName(unittest.TestCase):
+    """2.4.1 and 2.5.3 -- ported 2026-08-24 from the sibling engine."""
+
+    def test_nav_with_no_bypass_mechanism_is_blocking(self):
+        source = DOC.format(_BYPASS_NAV + _BYPASS_CONTENT)
+        result = findings(source, "page.html")
+        bypass = [f for f in result if f["check"] == "bypass-blocks"]
+        self.assertEqual(len(bypass), 1)
+        self.assertEqual(bypass[0]["success_criterion"], "2.4.1 Bypass Blocks")
+        self.assertEqual(bypass[0]["severity"], "blocking")
+
+    def test_main_landmark_suppresses_bypass(self):
+        source = DOC.format(_BYPASS_NAV + "<main>" + _BYPASS_CONTENT + "</main>")
+        self.assertEqual(
+            [f["check"] for f in findings(source, "page.html")
+             if f["check"] == "bypass-blocks"],
+            [],
+        )
+
+    def test_heading_suppresses_bypass(self):
+        source = DOC.format(
+            _BYPASS_NAV + "<div><h1>T</h1>" + _BYPASS_CONTENT + "</div>")
+        self.assertEqual(
+            [f["check"] for f in findings(source, "page.html")
+             if f["check"] == "bypass-blocks"],
+            [],
+        )
+
+    def test_skip_link_suppresses_bypass(self):
+        source = DOC.format(
+            "<a href='#c'>Skip</a>" + _BYPASS_NAV
+            + "<div id='c'>" + _BYPASS_CONTENT + "</div>")
+        self.assertEqual(
+            [f["check"] for f in findings(source, "page.html")
+             if f["check"] == "bypass-blocks"],
+            [],
+        )
+
+    def test_role_main_suppresses_bypass(self):
+        source = DOC.format(
+            _BYPASS_NAV + "<div role='main'>" + _BYPASS_CONTENT + "</div>")
+        self.assertEqual(
+            [f["check"] for f in findings(source, "page.html")
+             if f["check"] == "bypass-blocks"],
+            [],
+        )
+
+    def test_role_navigation_counts_as_a_block(self):
+        source = DOC.format(
+            "<div role='navigation'><a href='/a'>a</a></div>" + _BYPASS_CONTENT)
+        self.assertEqual(
+            [f["check"] for f in findings(source, "page.html")
+             if f["check"] == "bypass-blocks"],
+            ["bypass-blocks"],
+        )
+
+    def test_page_with_nothing_to_bypass_is_left_alone(self):
+        source = DOC.format(_BYPASS_CONTENT)
+        self.assertEqual(
+            [f["check"] for f in findings(source, "page.html")
+             if f["check"] == "bypass-blocks"],
+            [],
+        )
+
+    def test_many_links_count_as_a_block_without_a_nav(self):
+        links = "".join(f"<a href='/p{i}'>p{i}</a>" for i in range(12))
+        source = DOC.format(f"<div>{links}</div>" + _BYPASS_CONTENT)
+        self.assertEqual(
+            [f["check"] for f in findings(source, "page.html")
+             if f["check"] == "bypass-blocks"],
+            ["bypass-blocks"],
+        )
+
+    def test_fragment_without_a_body_is_not_a_page(self):
+        # Sibling: no <body> means no page, so no 2.4.1 finding.
+        self.assertEqual(
+            [f["check"] for f in findings(_BYPASS_NAV + _BYPASS_CONTENT)
+             if f["check"] == "bypass-blocks"],
+            [],
+        )
+
+    def test_unrendered_shell_is_not_a_bypass_failure(self):
+        shell = '<div class="flex"><div>Loading&#8230;</div></div>' + _BYPASS_NAV
+        source = DOC.format(shell)
+        self.assertEqual(
+            [f["check"] for f in findings(source, "page.html")
+             if f["check"] == "bypass-blocks"],
+            [],
+        )
+
+    def test_expression_href_that_could_be_a_skip_link_is_undecidable(self):
+        source = DOC.format(
+            "<a href='{{ skip }}'>Skip</a>" + _BYPASS_NAV + _BYPASS_CONTENT)
+        self.assertEqual(checks(source, "page.html"), [])
+        self.assertEqual(undecidable(source, "page.html"), ["bypass-blocks"])
+
+    def test_aria_label_not_containing_visible_text_is_blocking(self):
+        source = DOC.format('<button aria-label="Submit order">Buy now</button>')
+        result = findings(source, "page.html")
+        labels = [f for f in result if f["check"] == "label-in-name"]
+        self.assertEqual(len(labels), 1)
+        self.assertEqual(labels[0]["success_criterion"], "2.5.3 Label in Name")
+        self.assertEqual(labels[0]["severity"], "blocking")
+        self.assertIn("Buy now", labels[0]["detail"])
+        self.assertIn("Submit order", labels[0]["detail"])
+
+    def test_accessible_name_containing_the_visible_text_passes(self):
+        source = DOC.format(
+            '<button aria-label="Buy now, adds to cart">Buy now</button>')
+        self.assertEqual(
+            [f["check"] for f in findings(source, "page.html")
+             if f["check"] == "label-in-name"],
+            [],
+        )
+
+    def test_match_ignores_case_and_punctuation(self):
+        source = DOC.format(
+            '<button aria-label="please BUY NOW!">Buy now.</button>')
+        self.assertEqual(
+            [f["check"] for f in findings(source, "page.html")
+             if f["check"] == "label-in-name"],
+            [],
+        )
+
+    def test_link_with_mismatched_name_is_flagged(self):
+        source = DOC.format('<a href="/x" aria-label="Read more">Shipping</a>')
+        self.assertEqual(
+            [f["check"] for f in findings(source, "page.html")
+             if f["check"] == "label-in-name"],
+            ["label-in-name"],
+        )
+
+    def test_link_without_href_is_not_a_widget(self):
+        source = DOC.format('<a aria-label="Read more">Shipping</a>')
+        self.assertEqual(
+            [f["check"] for f in findings(source, "page.html")
+             if f["check"] == "label-in-name"],
+            [],
+        )
+
+    def test_explicit_role_takes_the_element_out_of_scope(self):
+        source = DOC.format(
+            '<button role="presentation" aria-label="Submit order">'
+            "Buy now</button>")
+        self.assertEqual(
+            [f["check"] for f in findings(source, "page.html")
+             if f["check"] == "label-in-name"],
+            [],
+        )
+
+    def test_explicit_widget_role_brings_a_plain_element_into_scope(self):
+        source = DOC.format(
+            '<div role="button" aria-label="Submit order">Buy now</div>')
+        self.assertEqual(
+            [f["check"] for f in findings(source, "page.html")
+             if f["check"] == "label-in-name"],
+            ["label-in-name"],
+        )
+
+    def test_aria_labelledby_is_resolved_not_assumed(self):
+        source = DOC.format(
+            '<span id="n">Submit order</span>'
+            '<button aria-labelledby="n">Buy now</button>')
+        self.assertEqual(
+            [f["check"] for f in findings(source, "page.html")
+             if f["check"] == "label-in-name"],
+            ["label-in-name"],
+        )
+
+    def test_unresolvable_aria_labelledby_is_left_alone(self):
+        source = DOC.format(
+            '<button aria-labelledby="missing">Buy now</button>')
+        self.assertEqual(
+            [f["check"] for f in findings(source, "page.html")
+             if f["check"] == "label-in-name"],
+            [],
+        )
+
+    def test_no_override_is_never_a_finding(self):
+        source = DOC.format("<button>Buy now</button>")
+        self.assertEqual(
+            [f["check"] for f in findings(source, "page.html")
+             if f["check"] == "label-in-name"],
+            [],
+        )
+
+    def test_glyph_only_label_is_not_text_presented_visually(self):
+        source = DOC.format('<button aria-label="Close">×</button>')
+        self.assertEqual(
+            [f["check"] for f in findings(source, "page.html")
+             if f["check"] == "label-in-name"],
+            [],
+        )
+
+    def test_image_label_is_refused_rather_than_guessed_from_alt(self):
+        source = DOC.format(
+            '<button aria-label="Submit order">'
+            '<img src="b.png" alt="Buy now"></button>')
+        self.assertEqual(
+            [f["check"] for f in findings(source, "page.html")
+             if f["check"] == "label-in-name"],
+            [],
+        )
+
+    def test_input_value_is_the_visible_label(self):
+        source = DOC.format(
+            '<input type="submit" value="Buy now" aria-label="Submit order">')
+        self.assertEqual(
+            [f["check"] for f in findings(source, "page.html")
+             if f["check"] == "label-in-name"],
+            ["label-in-name"],
+        )
+
+    def test_text_input_is_out_of_scope(self):
+        source = DOC.format(
+            '<input type="text" value="Buy now" aria-label="Search products">')
+        self.assertEqual(
+            [f["check"] for f in findings(source, "page.html")
+             if f["check"] == "label-in-name"],
+            [],
+        )
+
+    def test_aria_label_from_an_expression_is_undecidable(self):
+        source = DOC.format(
+            '<button aria-label="{{ name }}">Buy now</button>')
+        self.assertEqual(checks(source, "page.html"), [])
+        self.assertIn("label-in-name", undecidable(source, "page.html"))
+
+    def test_new_criteria_are_checked_not_declared_untested(self):
+        untested = {c.split()[0] for c, _ in audit.NOT_TESTED}
+        for number, key in (
+            ("2.4.1", "bypass-blocks"),
+            ("2.5.3", "label-in-name"),
+        ):
+            with self.subTest(criterion=number):
+                self.assertIn(key, audit.CHECKS)
+                self.assertNotIn(number, untested)
 
 
 class ReferencesAndOrder(unittest.TestCase):
@@ -452,7 +809,7 @@ class PackageWideLabelIndex(unittest.TestCase):
         ])
 
     def _non_contrast(self, items):
-        return [item for item in items if item["check"] != "text-contrast-fail"]
+        return [item for item in items if item["check"] not in _COLOUR_CHECKS]
 
     def test_single_file_is_not_a_package(self):
         # A one-file invocation of a fragment must keep today's semantics:
@@ -684,6 +1041,109 @@ class Contrast(unittest.TestCase):
         self.assertEqual(record["summary"]["by_check"].get("text-contrast-fail"), 1)
 
 
+class UseOfColor(unittest.TestCase):
+    """1.4.1, ported 2026-08-24 from the sibling engine's resolver.
+
+    Same adaptation 1.4.3 needed: refuse any dynamically classed or styled
+    ancestor (or surrounding-text owner) before asking the cascade. The
+    arithmetic is reused unmodified.
+    """
+
+    _PROSE = (
+        '<p class="txt">See the <a href="/docs" class="lnk">docs</a> '
+        "for a longer explanation of how this shop works.</p>"
+    )
+    _FAIL_CSS = (
+        "p { color: #333333; } "
+        "a { color: #333333; text-decoration: none; }"
+    )
+    _PASS_CSS = (
+        "p { color: #333333; } "
+        "a { color: #0000ee; text-decoration: underline; }"
+    )
+
+    def test_colour_only_in_prose_link_is_blocking(self):
+        sheet = audit.merge_stylesheets([self._FAIL_CSS])
+        result = audit.audit_source(
+            f"<body>{self._PROSE}</body>", "p.html", stylesheet=sheet)
+        color = [f for f in result["findings"] if f["check"] == "color-only-link"]
+        self.assertEqual(len(color), 1)
+        self.assertEqual(color[0]["success_criterion"], "1.4.1 Use of Color")
+        self.assertEqual(color[0]["severity"], "blocking")
+
+    def test_underlined_link_is_neither_a_finding_nor_an_undecidable(self):
+        sheet = audit.merge_stylesheets([self._PASS_CSS])
+        result = audit.audit_source(
+            f"<body>{self._PROSE}</body>", "p.html", stylesheet=sheet)
+        self.assertEqual(
+            [f["check"] for f in result["findings"] if f["check"] == "color-only-link"],
+            [],
+        )
+        self.assertEqual(
+            [u["check"] for u in result["undecidable"] if u["check"] == "color-only-link"],
+            [],
+        )
+
+    def test_bare_link_without_stylesheet_passes_on_the_ua_underline(self):
+        # Unlike 1.4.3, this criterion does not go undecidable with no CSS:
+        # a bare <a href> is underlined by every UA stylesheet.
+        result = audit.audit_source(
+            f"<body>{self._PROSE}</body>", "p.html")
+        self.assertEqual(
+            [f["check"] for f in result["findings"] if f["check"] == "color-only-link"],
+            [],
+        )
+        self.assertEqual(
+            [u["check"] for u in result["undecidable"] if u["check"] == "color-only-link"],
+            [],
+        )
+
+    def test_element_under_a_dynamically_classed_ancestor_is_undecidable(self):
+        sheet = audit.merge_stylesheets([self._FAIL_CSS])
+        source = f'<body><div class="{{{{ x }}}}">{self._PROSE}</div></body>'
+        result = audit.audit_source(source, "p.html", stylesheet=sheet)
+        self.assertEqual(
+            [f["check"] for f in result["findings"] if f["check"] == "color-only-link"],
+            [],
+        )
+        self.assertEqual(
+            [(u["check"], u["reason"])
+             for u in result["undecidable"] if u["check"] == "color-only-link"],
+            [("color-only-link", "class-is-template-expression")],
+        )
+
+    def test_dynamically_classed_surrounding_text_is_undecidable_too(self):
+        # A sibling span, not an ancestor: its render-time class can change
+        # the prose colour the ratio is measured against.
+        sheet = audit.merge_stylesheets([self._FAIL_CSS])
+        source = (
+            '<body><p class="txt"><span class="{{ c }}">See the </span>'
+            '<a href="/docs" class="lnk">docs</a> for a longer explanation '
+            "of how this shop works.</p></body>"
+        )
+        result = audit.audit_source(source, "p.html", stylesheet=sheet)
+        self.assertEqual(
+            [f["check"] for f in result["findings"] if f["check"] == "color-only-link"],
+            [],
+        )
+        self.assertEqual(
+            [u["reason"] for u in result["undecidable"] if u["check"] == "color-only-link"],
+            ["class-is-template-expression"],
+        )
+
+    def test_1_4_1_is_checked_not_declared_untested(self):
+        self.assertIn("color-only-link", audit.CHECKS)
+        untested_numbers = {c.split()[0] for c, _ in audit.NOT_TESTED}
+        self.assertNotIn("1.4.1", untested_numbers)
+
+    def test_evidence_record_counts_use_of_color_findings(self):
+        sheet = audit.merge_stylesheets([self._FAIL_CSS])
+        result = audit.audit_source(
+            f"<body>{self._PROSE}</body>", "p.html", stylesheet=sheet)
+        record = audit.evidence_record([result], "Test", date="2026-08-24")
+        self.assertEqual(record["summary"]["by_check"].get("color-only-link"), 1)
+
+
 class CoverageBoundaryIsComplete(unittest.TestCase):
     """The invariant that would have caught 1.2.2 going missing.
 
@@ -709,8 +1169,9 @@ class CoverageBoundaryIsComplete(unittest.TestCase):
         # Criteria the sibling engine demonstrates are reachable from static
         # markup. Any of these missing from both lists is a silent gap.
         statically_reachable = {
-            "1.1.1", "1.2.2", "1.3.1", "1.4.2", "1.4.3", "1.4.4",
-            "2.4.2", "2.4.3", "2.4.4", "3.1.1", "3.3.2", "4.1.2",
+            "1.1.1", "1.2.2", "1.3.1", "1.4.1", "1.4.2", "1.4.3", "1.4.4",
+            "2.2.1", "2.2.2", "2.4.1", "2.4.2", "2.4.3", "2.4.4",
+            "2.5.3", "3.1.1", "3.1.2", "3.3.2", "4.1.2",
         }
         self.assertEqual(statically_reachable - checked - declared, set())
 

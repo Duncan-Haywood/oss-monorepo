@@ -544,3 +544,19 @@ because they are about the reference rather than about the probe:
 same reason the previous section gives: closing a gap is not a measurement of
 the coverage statement's accuracy, and this pass found two of its own defects
 before shipping rather than a defect in the record.
+
+**Amended 2026-08-24.** The sibling engine gained the same 1.4.1 rule, so
+both now claim it. `results-2026-08-22-after-rules.json` was regenerated
+against the worktree; the catalog move is the only change this directory
+records. No score moved.
+
+**Amended 2026-08-24, later the same day.** `audit.py` gained 2.2.1, 2.2.2
+and 3.1.2 — the three remaining markup-decidable rows a default axe run
+reports that only the probe claimed. Both engines now claim them. 2.5.3
+stays probe-only. The worktree results file was regenerated; no score
+moved.
+
+**Amended 2026-08-24, later still.** `audit.py` gained 2.4.1 and 2.5.3 —
+the two leftover markup rows. Both engines now claim them. 1.3.4 stays
+probe-only (it needs the CSS adapter). The worktree results file was
+regenerated; no score moved.

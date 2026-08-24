@@ -1,0 +1,196 @@
+{
+  "controls": [
+    {
+      "detail": "Tunnel connection failed: 403 Forbidden",
+      "host": "example.com",
+      "role": "known-denied control",
+      "second_attempt": {
+        "detail": "Tunnel connection failed: 403 Forbidden",
+        "status": 0,
+        "verdict": "egress_denied"
+      },
+      "stable": true,
+      "status": 0,
+      "url": "https://example.com/",
+      "verdict": "egress_denied"
+    },
+    {
+      "detail": "HTTP 200",
+      "host": "pypi.org",
+      "role": "known-reachable control",
+      "second_attempt": {
+        "detail": "HTTP 200",
+        "status": 200,
+        "verdict": "reachable"
+      },
+      "stable": true,
+      "status": 200,
+      "url": "https://pypi.org/simple/",
+      "verdict": "reachable"
+    }
+  ],
+  "controls_note": "A pass that denies every host it probes cannot distinguish 'these hosts are denied' from 'the probe is broken'. The reachable control answering 200 is what separates them.",
+  "method": "Two HTTPS GETs per host through this environment's egress proxy, redirects not followed, descriptive user-agent, 20s timeout, verdict classified on the response body rather than the status code. Read-only; no credential, no account, nothing published, no spend.",
+  "probed_at": "2026-08-24",
+  "proxy": {
+    "available": true,
+    "status": {
+      "caBundlePath": "/root/.ccr/ca-bundle.crt",
+      "enabled": true,
+      "gitConfigInjection": true,
+      "gitSshRewrite": true,
+      "hasSystemCa": true,
+      "installedProxyPreconfiguredClis": [],
+      "javaTrustStorePath": "/root/.ccr/java-truststore.p12",
+      "noProxy": "localhost,127.0.0.1,::1,127.0.0.0/8,0.0.0.0/8,::,169.254.0.0/16,api.anthropic.com,api-staging.anthropic.com,api-pr-preview.anthropic.com,mcp-proxy.anthropic.com,mcp-proxy-staging.anthropic.com,registry.npmjs.org,jsr.io,npm.jsr.io,pypi.org,files.pythonhosted.org,index.crates.io,proxy.golang.org,host.docker.internal,10.0.0.0/8,172.16.0.0/12,192.168.0.0/16,100.64.0.0/10,.svc.cluster.local,*.svc.cluster.local",
+      "port": 35307,
+      "readmePath": "/root/.ccr/README.md",
+      "recentRelayFailures": [
+        {
+          "detail": "gateway answered 403 to CONNECT (policy denial or upstream failure)",
+          "host": "www.ftc.gov:443",
+          "kind": "connect_rejected",
+          "ts": "2026-08-24T08:16:55.634Z"
+        },
+        {
+          "detail": "gateway answered 403 to CONNECT (policy denial or upstream failure)",
+          "host": "www.ftc.gov:443",
+          "kind": "connect_rejected",
+          "ts": "2026-08-24T08:16:56.039Z"
+        },
+        {
+          "detail": "gateway answered 403 to CONNECT (policy denial or upstream failure)",
+          "host": "euvdservices.enisa.europa.eu:443",
+          "kind": "connect_rejected",
+          "ts": "2026-08-24T08:16:56.429Z"
+        },
+        {
+          "detail": "gateway answered 403 to CONNECT (policy denial or upstream failure)",
+          "host": "euvdservices.enisa.europa.eu:443",
+          "kind": "connect_rejected",
+          "ts": "2026-08-24T08:16:56.799Z"
+        },
+        {
+          "detail": "gateway answered 403 to CONNECT (policy denial or upstream failure)",
+          "host": "example.com:443",
+          "kind": "connect_rejected",
+          "ts": "2026-08-24T08:16:57.217Z"
+        },
+        {
+          "detail": "gateway answered 403 to CONNECT (policy denial or upstream failure)",
+          "host": "example.com:443",
+          "kind": "connect_rejected",
+          "ts": "2026-08-24T08:16:57.594Z"
+        },
+        {
+          "detail": "gateway answered 403 to CONNECT (policy denial or upstream failure)",
+          "host": "www.ftc.gov:443",
+          "kind": "connect_rejected",
+          "ts": "2026-08-24T08:19:26.834Z"
+        },
+        {
+          "detail": "gateway answered 403 to CONNECT (policy denial or upstream failure)",
+          "host": "www.ftc.gov:443",
+          "kind": "connect_rejected",
+          "ts": "2026-08-24T08:19:27.336Z"
+        },
+        {
+          "detail": "gateway answered 403 to CONNECT (policy denial or upstream failure)",
+          "host": "euvdservices.enisa.europa.eu:443",
+          "kind": "connect_rejected",
+          "ts": "2026-08-24T08:19:27.693Z"
+        },
+        {
+          "detail": "gateway answered 403 to CONNECT (policy denial or upstream failure)",
+          "host": "euvdservices.enisa.europa.eu:443",
+          "kind": "connect_rejected",
+          "ts": "2026-08-24T08:19:28.121Z"
+        },
+        {
+          "detail": "gateway answered 403 to CONNECT (policy denial or upstream failure)",
+          "host": "example.com:443",
+          "kind": "connect_rejected",
+          "ts": "2026-08-24T08:19:28.492Z"
+        },
+        {
+          "detail": "gateway answered 403 to CONNECT (policy denial or upstream failure)",
+          "host": "example.com:443",
+          "kind": "connect_rejected",
+          "ts": "2026-08-24T08:19:28.926Z"
+        },
+        {
+          "detail": "gateway answered 403 to CONNECT (policy denial or upstream failure)",
+          "host": "www.ftc.gov:443",
+          "kind": "connect_rejected",
+          "ts": "2026-08-24T08:19:54.775Z"
+        },
+        {
+          "detail": "gateway answered 403 to CONNECT (policy denial or upstream failure)",
+          "host": "www.ftc.gov:443",
+          "kind": "connect_rejected",
+          "ts": "2026-08-24T08:19:55.171Z"
+        },
+        {
+          "detail": "gateway answered 403 to CONNECT (policy denial or upstream failure)",
+          "host": "euvdservices.enisa.europa.eu:443",
+          "kind": "connect_rejected",
+          "ts": "2026-08-24T08:19:55.574Z"
+        },
+        {
+          "detail": "gateway answered 403 to CONNECT (policy denial or upstream failure)",
+          "host": "euvdservices.enisa.europa.eu:443",
+          "kind": "connect_rejected",
+          "ts": "2026-08-24T08:19:55.948Z"
+        },
+        {
+          "detail": "gateway answered 403 to CONNECT (policy denial or upstream failure)",
+          "host": "example.com:443",
+          "kind": "connect_rejected",
+          "ts": "2026-08-24T08:19:56.371Z"
+        },
+        {
+          "detail": "gateway answered 403 to CONNECT (policy denial or upstream failure)",
+          "host": "example.com:443",
+          "kind": "connect_rejected",
+          "ts": "2026-08-24T08:19:56.795Z"
+        }
+      ],
+      "selective": false,
+      "standalone": false,
+      "toolScoped": false
+    }
+  },
+  "results": [
+    {
+      "detail": "Tunnel connection failed: 403 Forbidden",
+      "host": "www.ftc.gov",
+      "second_attempt": {
+        "detail": "Tunnel connection failed: 403 Forbidden",
+        "status": 0,
+        "verdict": "egress_denied"
+      },
+      "source": "primary-source-egress/README.md",
+      "stable": true,
+      "status": 0,
+      "url": "https://www.ftc.gov/legal-library/browse/rules",
+      "verdict": "egress_denied",
+      "why_unindexed": "Named in portfolio/ledger/asks.yaml's egress-policy ask, so the account owner is asked to allowlist it. Measured by #232, which recorded 23 hosts in prose and left no results file, so --ingest could never see it."
+    },
+    {
+      "detail": "Tunnel connection failed: 403 Forbidden",
+      "host": "euvdservices.enisa.europa.eu",
+      "second_attempt": {
+        "detail": "Tunnel connection failed: 403 Forbidden",
+        "status": 0,
+        "verdict": "egress_denied"
+      },
+      "source": "../pipeline/probes/README.md",
+      "stable": true,
+      "status": 0,
+      "url": "https://euvdservices.enisa.europa.eu/api/lastvulnerabilities",
+      "verdict": "egress_denied",
+      "why_unindexed": "The host that actually serves the EUVD API; euvd.enisa.europa.eu, the host the ask names, serves only the website. Probed 2026-08-23 by a pass living under portfolio/pipeline/probes/, outside this walk's tree."
+    }
+  ],
+  "why_this_file_exists": "consolidate.py --ingest walks portfolio/research/ for machine-readable results files. A host measured in prose, or measured by a pass living outside that tree, is invisible to it -- and because --probe iterates the table --ingest builds, an invisible host is also never re-measured. These two were invisible on both counts. Each record names, in `source`, the document that first measured it; the verdict fields are this pass's own re-measurement, taken with probe_host() so the body-based classification rule this directory established applies."
+}

@@ -92,12 +92,13 @@ decisions:
     public storefronts (`formulae.brew.sh`, `www.raycast.com`, `obsidian.md`,
     `zed.dev`) and the EU/US institutional publishers
     (`eur-lex.europa.eu`, `ec.europa.eu`, `www.ftc.gov`, `www.w3.org`,
-    `www.federalregister.gov`, `euvd.enisa.europa.eu`). No account, no write
-    access, nothing published.
+    `www.federalregister.gov`, `euvd.enisa.europa.eu` and
+    `euvdservices.enisa.europa.eu`). No account, no write access, nothing
+    published.
   unlocks:
     - WordPress.org `active_installs` -- the one adopter-rate observation available on a free channel with a business buyer.
     - "`portfolio/pipeline/`'s own graduation gate, which requires obligation dates checked against primary legislation and is otherwise unsatisfiable by any session through any tool."
-    - "`cra-evidence-desk`'s EUVD wedge, its only remaining differentiator."
+    - "`cra-evidence-desk`'s EUVD wedge, its only remaining differentiator -- which needs `euvdservices.enisa.europa.eu`, not just the website host."
     - "`mcp-supply-chain-watch`'s only surviving path to a defensible archive (the 84.5% remote-endpoint half of its market)."
   blocked_by: []
   note: >-
@@ -109,6 +110,17 @@ decisions:
     for the harness's own `WebFetch` as well as `curl`. This is the highest-
     leverage item with no legal exposure at all: it buys four distinct things
     and costs the owner one allowlist decision.
+    Corrected 2026-08-24 on two counts, both found by measuring the hosts this
+    row names rather than by re-reading it. First, this row asked for
+    `euvd.enisa.europa.eu` while claiming to unlock the EUVD wedge; that host
+    serves only the website, the API is served from
+    `euvdservices.enisa.europa.eu`, and granting the list as written would have
+    left the wedge blocked. Second, `www.ftc.gov` had been named here since
+    2026-08-19 with no verdict in the consolidated egress table at all -- it
+    was measured by #232, which left prose and no results file. Both hosts are
+    now measured (denied, twice each, against a reachable control) and carried
+    in `portfolio/research/egress-reachability/`, and CI fails if this row
+    ever again names a host nothing has probed.
 
 - id: deploy-settings
   asks: [4, 6]

@@ -34,9 +34,9 @@ and why"* — as a function rather than a promise.
 
 | File | What it is |
 |---|---|
-| [`audit.py`](audit.py) | 20 static WCAG 2.2 AA checks over HTML, Liquid, Twig, Blade/PHP, EJS, Vue and Svelte templates, plus `evidence_record()` |
-| [`contrast_pass.py`](contrast_pass.py) | SC 1.4.3, ported from the sibling engine's resolver rather than reimplemented — see finding 5 |
-| [`test_audit.py`](test_audit.py) | 89 tests, standard-library `unittest`, no install step |
+| [`audit.py`](audit.py) | Static WCAG 2.2 AA checks over HTML, Liquid, Twig, Blade/PHP, EJS, Vue and Svelte templates, plus `evidence_record()` |
+| [`contrast_pass.py`](contrast_pass.py) | SC 1.4.3 and SC 1.4.1, ported from the sibling engine's resolvers rather than reimplemented — see finding 5 and the 2026-08-24 amendment |
+| [`test_audit.py`](test_audit.py) | Standard-library `unittest`, no install step |
 | [`measure_themes.py`](measure_themes.py) | Runs the pass over published storefront themes on npm and reports the distribution |
 | [`results-2026-08-20.json`](results-2026-08-20.json) | Every per-package row behind findings 1-4 (pre-contrast) |
 | [`results-2026-08-21-contrast.json`](results-2026-08-21-contrast.json) | Every per-package row behind finding 5 (contrast), same 22 pinned packages as above |
@@ -397,6 +397,40 @@ can read, and read completely — see finding 5 for what a resolver actually
 recovers from the fraction it can reach. Closing the *rest* of the gap for
 template packages generally would need a Sass/Less build stage, which remains
 a different, larger decision than a port and is still not proposed here.
+
+**Amendment, 2026-08-24 — 1.4.1 moved the same way.** The sibling probe gained
+Use of Color two days earlier and this engine declared it untested ("no rule
+here looks"), which is the disclosed form of the asymmetry
+`a11y-engine-agreement` exists to catch. The rule is now here too: same
+resolver, same dynamic-class/style guard the 1.4.3 port already needed, plus
+a guard on the surrounding-text owner (a sibling span's render-time class
+can change the other side of the ratio). No score moved. The theme-corpus
+decidable share was not re-measured; that is still finding 5's 1.4.3 figure,
+not a 1.4.1 one.
+
+**Amendment, 2026-08-24 — three markup rules, and the 3.1.1 overclaim.**
+The sibling's 2026-08-22 pass added 2.2.1, 2.2.2 and 3.1.2 as rules; this
+engine still listed them as "no rule here looks". They are now checks, with
+the one template adaptation those rules need: a `lang` or refresh delay that
+is a template expression is undecidable, never a guessed defect. The same
+pass closed the 3.1.1 overclaim the sibling closed two days earlier —
+existence was checked, validity was not, so `lang="engl"` read as clean.
+Validity reuses the sibling's BCP-47 check rather than reimplementing it.
+2.4.1, 2.5.3 and 1.3.4 stay disclosed-untested: the first two are still
+decidable from markup and still have no rule here; 1.3.4 needs the CSS
+adapter 1.4.1 used. Own-site / generated-site snapshots were not rebuilt.
+No score moved.
+
+**Amendment, 2026-08-24 — 2.4.1 and 2.5.3, the leftover markup pair.**
+The two rows the previous amendment left disclosed are now checks. Same
+sibling decisions (2.4.1's three gates including the content floor that
+stopped a prerendered shell reading as a failure; 2.5.3's override-
+contains-visible-text test, refusing image-of-text and glyph-only
+labels), plus the template adaptation: an expression that could be a
+skip-link href, a landmark role, or either side of a 2.5.3 comparison
+is undecidable. 1.3.4 stays disclosed-untested -- it needs the CSS
+adapter, not another markup walk. Own-site / generated-site snapshots
+were not rebuilt. No score moved.
 
 ## What could not be measured here
 

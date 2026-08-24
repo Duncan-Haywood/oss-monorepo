@@ -250,6 +250,14 @@ class Node:
             yield node
             node = node.parent
 
+    def accessible_text(self) -> str:
+        """Visible text, matching the sibling probe's method of the same name.
+
+        The 1.4.1 resolver walks links through this rather than `text()`, so
+        a template Node has to answer it the same way a rendered one does.
+        """
+        return self.text()
+
 
 class Tree(HTMLParser):
     """A forgiving element tree. Unclosed `<p>`/`<li>` are normal in templates."""
@@ -320,6 +328,11 @@ CHECKS = {
     "button-no-accessible-name": ("4.1.2 Name, Role, Value", "blocking"),
     "control-no-label":      ("3.3.2 Labels or Instructions", "blocking"),
     "html-lang-missing":     ("3.1.1 Language of Page", "blocking"),
+    # Added 2026-08-24. Existence was already checked; validity was not, so
+    # lang="engl" read as clean while this catalog called 3.1.1 checked. The
+    # sibling engine closed the same overclaim on 2026-08-22. Degrading: the
+    # page is still there; pronunciation is wrong.
+    "html-lang-invalid":     ("3.1.1 Language of Page", "degrading"),
     "title-missing":         ("2.4.2 Page Titled", "degrading"),
     "iframe-no-title":       ("4.1.2 Name, Role, Value", "blocking"),
     "aria-reference-broken": ("1.3.1 Info and Relationships", "blocking"),
@@ -344,6 +357,27 @@ CHECKS = {
     # by any dynamically-rendered class/style up its ancestor chain; every
     # other case is an honestly-reasoned undecidable, never a silent skip.
     "text-contrast-fail":    ("1.4.3 Contrast (Minimum)", "blocking"),
+    # Added 2026-08-24, porting the sibling engine's 1.4.1 resolver the same
+    # way 1.4.3 was ported: reuse the arithmetic, refuse any dynamically
+    # classed or styled ancestor (or surrounding-text owner). See
+    # contrast_pass.py. Closes the asymmetry a11y-engine-agreement recorded
+    # when the probe gained this criterion and this engine did not.
+    "color-only-link":       ("1.4.1 Use of Color", "blocking"),
+    # Added 2026-08-24, porting the sibling engine's markup-decidable rules
+    # the same way 1.4.1 was ported: reuse the sibling's decision (here, its
+    # BCP-47 check) rather than reimplement it, and refuse a template
+    # expression rather than guess. 2.2.1 / 2.2.2 need no sibling import.
+    "meta-refresh":          ("2.2.1 Timing Adjustable", "blocking"),
+    "moving-content":        ("2.2.2 Pause, Stop, Hide", "blocking"),
+    "lang-of-parts-invalid": ("3.1.2 Language of Parts", "degrading"),
+    # Added 2026-08-24, the two leftover markup rules #728 left disclosed.
+    # Same decision as the sibling's 2026-08-22 rules, plus the template
+    # adaptation this engine already uses: an expression that could be a
+    # skip link, a landmark role, or either side of a 2.5.3 comparison is
+    # undecidable, never a guessed defect. 1.3.4 stays untested -- it
+    # needs the CSS adapter, not another markup walk.
+    "bypass-blocks":         ("2.4.1 Bypass Blocks", "blocking"),
+    "label-in-name":         ("2.5.3 Label in Name", "blocking"),
 }
 
 FILENAME_ALT = re.compile(
@@ -362,6 +396,172 @@ FOCUSABLE = {"a", "button", "input", "select", "textarea"}
 # because the distinction from `captions` is editorial (translation vs. sound
 # description) and firing on it would be a false positive more often than not.
 CAPTION_KINDS = {"captions", "subtitles"}
+
+_REFRESH_DELAY = re.compile(r"^\s*(\d+(?:\.\d+)?)")
+_MOVING_TAGS = frozenset({"blink", "marquee"})
+
+# Sibling thresholds for 2.4.1 -- see wcag_triage.rules.rule_bypass_blocks.
+# Ten links without a <nav> is a judgement, kept identical so the two
+# engines decide the same pages. Two hundred characters of non-navigation
+# text is the content gate that stopped the sibling firing on a
+# prerendered "Loading…" shell.
+_REPEATED_BLOCK_LINKS = 10
+_MIN_CONTENT_CHARS = 200
+_TEXT_OPAQUE = frozenset({"script", "style", "template", "noscript"})
+
+# Roles whose accessible name is computed from their own content. A
+# textbox is out of scope: its visible label is a separate element.
+_NAME_FROM_CONTENT_ROLES = frozenset({
+    "button", "link", "checkbox", "radio",
+    "menuitem", "menuitemcheckbox", "menuitemradio",
+    "option", "switch", "tab", "treeitem",
+})
+_INPUT_SELF_NAMED = frozenset({"submit", "button", "reset"})
+_NAME_NOISE = re.compile(r"[^\w\s]", re.UNICODE)
+
+_lang_check = None
+
+
+def _lang_reason(value: str):
+    """None if `value` is a usable language tag, else a reason.
+
+    Reuses the sibling engine's BCP-47 + ISO 639-1 check, including the
+    `lang="engl"` case a grammar-only test misses. Three-letter codes are
+    accepted without a registry lookup -- the same under-report the sibling
+    states, on purpose.
+    """
+    global _lang_check
+    if _lang_check is None:
+        probe_src = os.path.abspath(os.path.join(
+            os.path.dirname(__file__), "..", "..", "pipeline",
+            "probes", "eaa-wcag-triage", "src"))
+        if probe_src not in sys.path:
+            sys.path.insert(0, probe_src)
+        from wcag_triage.lang import check as _imported
+        _lang_check = _imported
+    return _lang_check(value)
+
+
+def _role_token(node: Node) -> tuple[str, bool]:
+    """(first role token, undecidable). An expression-only role is unknown."""
+    raw = node.attr("role")
+    if raw is None:
+        return "", False
+    if is_expr(raw) and not expr_free(raw):
+        return "", True
+    tokens = expr_free(raw).lower().split()
+    return (tokens[0] if tokens else ""), False
+
+
+def _non_navigation_text(node: Node) -> str:
+    """Visible text that is not the navigation the reader wants past.
+
+    Port of the sibling's helper: skip nav subtrees, aria-hidden subtrees,
+    and script/style so a page of links or framework bootstrap cannot look
+    like a page with something to skip to.
+    """
+    role, role_unknown = _role_token(node)
+    if node.tag in _TEXT_OPAQUE or node.tag == "nav" or role == "navigation":
+        return ""
+    if (node.attr("aria-hidden") or "").strip().lower() == "true":
+        return ""
+    if role_unknown:
+        return ""
+    parts = [part.strip() for part in node.text_parts if part and part.strip()]
+    for child in node.children:
+        text = _non_navigation_text(child)
+        if text:
+            parts.append(text)
+    return " ".join(parts)
+
+
+def _normalised_name(text: str) -> str:
+    return " ".join(_NAME_NOISE.sub(" ", text.casefold()).split())
+
+
+def _id_index(nodes: list[Node]) -> dict[str, Node]:
+    index: dict[str, Node] = {}
+    for node in nodes:
+        raw = node.attr("id")
+        if raw is None or is_expr(raw):
+            continue
+        literal = expr_free(raw)
+        if literal and literal not in index:
+            index[literal] = node
+    return index
+
+
+def _takes_name_from_content(node: Node) -> bool:
+    role, role_unknown = _role_token(node)
+    if role_unknown:
+        return False
+    if role:
+        return role in _NAME_FROM_CONTENT_ROLES
+    if node.tag == "button":
+        return True
+    if node.tag == "a":
+        return node.has_attr("href")
+    if node.tag == "input":
+        return expr_free(node.attr("type")).lower() in _INPUT_SELF_NAMED
+    return False
+
+
+def _overriding_name(node: Node, ids: dict[str, Node]) -> tuple[str | None, bool]:
+    """(accessible name from an override, undecidable).
+
+    None means "no name this rule may reason about": no override, or an
+    aria-labelledby that points at an id this document does not define.
+    """
+    labelledby = node.attr("aria-labelledby")
+    if labelledby is not None:
+        if is_expr(labelledby) and not expr_free(labelledby):
+            return None, True
+        parts = []
+        for target_id in expr_free(labelledby).split():
+            target = ids.get(target_id)
+            if target is None:
+                return None, False
+            text = target.text()
+            if not text and any(part == "" for part in target.text_parts):
+                return None, True
+            if text:
+                parts.append(text)
+        joined = " ".join(parts).strip()
+        return (joined or None), False
+    raw = node.attr("aria-label")
+    if raw is None:
+        return None, False
+    if is_expr(raw) and not expr_free(raw):
+        return None, True
+    return expr_free(raw) or None, False
+
+
+def _visible_label(node: Node) -> tuple[str | None, bool]:
+    """(visible text on the control, undecidable).
+
+    None means "not decidable", never "empty". An image-of-text label is
+    refused: an alt is a description, not a transcription, and firing on
+    the difference would be a guess. A glyph-only label is the caller's
+    problem -- this just returns the glyph.
+    """
+    if node.tag == "input":
+        raw = node.attr("value")
+        if raw is None:
+            return None, False
+        if is_expr(raw) and not expr_free(raw):
+            return None, True
+        return expr_free(raw) or None, False
+    for child in node.descendants():
+        if child.tag == "img" and expr_free(child.attr("alt")):
+            return None, False
+    text = node.text()
+    if text:
+        return text, False
+    if any(part == "" for part in node.text_parts) or any(
+        part == "" for child in node.descendants() for part in child.text_parts
+    ):
+        return None, True
+    return None, False
 
 
 def _accessible_name(node: Node) -> tuple[str, bool]:
@@ -437,8 +637,11 @@ def audit_source(source: str, path: str = "<string>", stylesheet=None) -> dict:
     Contrast (1.4.3) is always evaluated, stylesheet or not: with none, every
     text-bearing element still gets an honestly-reasoned `no-declared-color`
     undecidable rather than being silently skipped -- the same coverage-
-    boundary rule the rest of this module follows. A template's own inline
-    `<style>` blocks are picked up either way.
+    boundary rule the rest of this module follows. Use of Color (1.4.1) is
+    evaluated the same way, on the narrower set of in-prose links; a bare
+    link with no stylesheet still has the browser underline, so it passes
+    rather than going undecidable. A template's own inline `<style>` blocks
+    are picked up either way.
     """
     tree = parse(source)
     findings: list[dict] = []
@@ -457,6 +660,7 @@ def audit_source(source: str, path: str = "<string>", stylesheet=None) -> dict:
     # matching in the resolution pass below.
     labelling_raw: set[str] = set()
     is_fragment = by_tag.get("html", 0) == 0
+    ids = _id_index(nodes)
 
     for node in nodes:
         hidden = node.attr("aria-hidden") == "true" or node.has_attr("hidden")
@@ -593,6 +797,62 @@ def audit_source(source: str, path: str = "<string>", stylesheet=None) -> dict:
                     "viewport-scaling-blocked", node,
                     f"viewport meta prevents zooming to 200% ({content!r})", path))
 
+        # --- 2.2.1 timing adjustable ----------------------------------------
+        # A positive-delay <meta http-equiv=refresh> is a timer the reader
+        # cannot extend. content="0" is an immediate redirect, not a limit.
+        if node.tag == "meta":
+            http_equiv = node.attr("http-equiv")
+            refresh_content = node.attr("content")
+            if http_equiv is not None:
+                if is_expr(http_equiv) and not expr_free(http_equiv):
+                    undecided.append(_undecidable(
+                        "meta-refresh", node,
+                        "http-equiv is a template expression; whether this "
+                        "is a refresh is unknown without the data", path))
+                elif expr_free(http_equiv).lower() == "refresh":
+                    if is_expr(refresh_content) and not expr_free(refresh_content):
+                        undecided.append(_undecidable(
+                            "meta-refresh", node,
+                            "refresh delay is a template expression", path))
+                    else:
+                        match = _REFRESH_DELAY.match(expr_free(refresh_content) or "")
+                        if match is not None:
+                            delay = float(match.group(1))
+                            if delay > 0:
+                                findings.append(_finding(
+                                    "meta-refresh", node,
+                                    f"The page refreshes itself after {delay:g}s, "
+                                    "with no way to turn the timer off, extend "
+                                    "it, or finish reading first.", path))
+
+        # --- 2.2.2 pause, stop, hide ----------------------------------------
+        if node.tag in _MOVING_TAGS and not hidden:
+            findings.append(_finding(
+                "moving-content", node,
+                f"<{node.tag}> moves its content continuously and offers no "
+                "way to pause, stop, or hide it.", path))
+
+        # --- 3.1.2 language of parts ----------------------------------------
+        # Root <html lang> is 3.1.1's business (existence + validity below).
+        if node.tag != "html":
+            for attr in ("lang", "xml:lang"):
+                if not node.has_attr(attr):
+                    continue
+                raw = node.attr(attr)
+                if is_expr(raw) and not expr_free(raw):
+                    undecided.append(_undecidable(
+                        "lang-of-parts-invalid", node,
+                        f"{attr} is a template expression; whether it names "
+                        "a language is unknown without the data", path))
+                    break
+                if _lang_reason(expr_free(raw)) is not None:
+                    findings.append(_finding(
+                        "lang-of-parts-invalid", node,
+                        f"<{node.tag} {attr}> names no usable language "
+                        f"({expr_free(raw)!r}), so a screen reader falls "
+                        "back to the surrounding language", path))
+                    break
+
         # --- 1.4.2 audio ----------------------------------------------------
         if node.tag in ("video", "audio") and node.has_attr("autoplay"):
             if not node.has_attr("muted"):
@@ -641,6 +901,40 @@ def audit_source(source: str, path: str = "<string>", stylesheet=None) -> dict:
                     "focusable, so it is announced as nothing when tabbed to",
                     path))
 
+        # --- 2.5.3 label in name -------------------------------------------
+        # A speech-input user activates a control by saying what it says.
+        # When the button reads "Buy now" and its accessible name is
+        # "Submit order", the spoken command matches nothing. Same
+        # decision as the sibling's rule_label_in_name, plus expressions.
+        if _takes_name_from_content(node):
+            if (node.attr("aria-hidden") or "").strip().lower() != "true":
+                accessible, name_unknown = _overriding_name(node, ids)
+                # No override: the name comes from the content, so the
+                # criterion holds. Do not mark an expression-only label
+                # undecidable here -- that is the naming rule's job.
+                if accessible or name_unknown:
+                    visible, visible_unknown = _visible_label(node)
+                    if name_unknown or visible_unknown:
+                        undecided.append(_undecidable(
+                            "label-in-name", node,
+                            "the visible label or its accessible-name "
+                            "override is a template expression; whether "
+                            "one contains the other is unknown without "
+                            "the data", path))
+                    elif (
+                        visible is not None
+                        and accessible
+                        and any(char.isalnum() for char in visible)
+                        and _normalised_name(visible) not in _normalised_name(accessible)
+                    ):
+                        findings.append(_finding(
+                            "label-in-name", node,
+                            f'The control reads "{visible}" but is announced '
+                            f'as "{accessible}", which does not contain the '
+                            "visible text. Speech input has nothing to match, "
+                            "so saying what the control says does not "
+                            "operate it.", path))
+
         # --- 1.3.1 data tables ---------------------------------------------
         if node.tag == "table" and node.attr("role") not in ("presentation", "none"):
             descendants = list(node.descendants())
@@ -676,6 +970,19 @@ def audit_source(source: str, path: str = "<string>", stylesheet=None) -> dict:
                 "html-lang-missing", root,
                 "<html> has no lang attribute, so assistive technology guesses "
                 "the pronunciation of the whole page", path))
+        else:
+            raw_lang = root.attr("lang") if root.has_attr("lang") else root.attr("xml:lang")
+            if is_expr(raw_lang) and not expr_free(raw_lang):
+                undecided.append(_undecidable(
+                    "html-lang-invalid", root,
+                    "lang is a template expression; whether it names a "
+                    "language is unknown without the data", path))
+            elif _lang_reason(expr_free(raw_lang)) is not None:
+                findings.append(_finding(
+                    "html-lang-invalid", root,
+                    f"<html lang> names no usable language "
+                    f"({expr_free(raw_lang)!r}), so assistive technology "
+                    "guesses the pronunciation of the whole page", path))
         heads = [n for n in nodes if n.tag == "head"]
         titles = [n for n in nodes if n.tag == "title" and n.parent and n.parent.tag == "head"]
         if heads and not titles:
@@ -689,6 +996,57 @@ def audit_source(source: str, path: str = "<string>", stylesheet=None) -> dict:
             findings.append(_finding(
                 "title-missing", titles[0],
                 "<title> is empty", path))
+
+        # --- 2.4.1 bypass blocks -------------------------------------------
+        # Document-level, same three gates as the sibling: a block to
+        # bypass, content to bypass to, and no mechanism (main, heading,
+        # or in-page link). A fragment is not a page. An expression that
+        # could be a skip-link href or a landmark role withdraws the
+        # claim rather than guessing -- the same template adaptation
+        # 2.2.1 / 3.1.2 already use.
+        body = next((n for n in nodes if n.tag == "body"), None)
+        if body is not None:
+            has_nav = False
+            heading = False
+            landmark = False
+            internal_link = False
+            possible_mechanism = False
+            links = 0
+            for node in nodes:
+                role, role_unknown = _role_token(node)
+                if role_unknown:
+                    possible_mechanism = True
+                if node.tag == "nav" or role == "navigation":
+                    has_nav = True
+                elif node.tag == "main" or role == "main":
+                    landmark = True
+                elif len(node.tag) == 2 and node.tag[0] == "h" and node.tag[1] in "123456":
+                    heading = True
+                elif node.tag == "a" and node.has_attr("href"):
+                    href = node.attr("href") or ""
+                    links += 1
+                    if is_expr(href) and not expr_free(href):
+                        possible_mechanism = True
+                    elif href.startswith("#") and len(href) > 1:
+                        internal_link = True
+            if (has_nav or links >= _REPEATED_BLOCK_LINKS) and not (
+                landmark or heading or internal_link
+            ):
+                if len(_non_navigation_text(body)) >= _MIN_CONTENT_CHARS:
+                    if possible_mechanism:
+                        undecided.append(_undecidable(
+                            "bypass-blocks", body,
+                            "a role or in-page href is a template "
+                            "expression; whether a bypass mechanism is "
+                            "present is unknown without the data", path))
+                    else:
+                        findings.append(_finding(
+                            "bypass-blocks", body,
+                            "The page has a block of navigation links and "
+                            "no way past it: no skip link, no <main> "
+                            "landmark, and no heading. A keyboard or "
+                            "screen-reader user has to travel the whole "
+                            "navigation again on every page.", path))
 
     # --- resolve label/aria references now that every id is known -----------
     known_ids = set(tree.ids)
@@ -791,6 +1149,10 @@ def audit_source(source: str, path: str = "<string>", stylesheet=None) -> dict:
         tree.root, sheet, path)
     findings.extend(contrast_findings)
     undecided.extend(contrast_undecided)
+    color_findings, color_undecided = contrast_pass.findings_and_undecidables_use_of_color(
+        tree.root, sheet, path)
+    findings.extend(color_findings)
+    undecided.extend(color_undecided)
 
     # --- heading order (advisory) -------------------------------------------
     levels = [
@@ -861,12 +1223,12 @@ NOT_TESTED = [
     # See `portfolio/research/a11y-external-coverage-reference/`.
     ("1.2.1 Audio-only and Video-only (Prerecorded)", "a media element with no transcript or alternative is detectable from the markup; no rule here looks"),
     ("1.3.4 Orientation", "a stylesheet locking orientation is decidable from the CSS; no rule here looks"),
-    ("1.4.1 Use of Color", "a link distinguished from body text by colour alone is decidable where the stylesheet names the colours; no rule here looks"),
-    ("2.2.1 Timing Adjustable", "a <meta http-equiv=refresh> timeout is detectable from the head; no rule here looks"),
-    ("2.2.2 Pause, Stop, Hide", "<blink> and <marquee> are detectable from the markup; no rule here looks"),
-    ("2.4.1 Bypass Blocks", "the absence of a skip link or of landmark structure is detectable from the markup; no rule here looks -- a commonly-failed Level A criterion on shop pages"),
-    ("2.5.3 Label in Name", "an accessible name that does not contain the control's visible text is decidable from the markup; no rule here looks"),
-    ("3.1.2 Language of Parts", "a lang attribute holding an invalid tag is decidable; no rule here looks"),
+    # 1.4.1 moved to CHECKS 2026-08-24 -- see the "color-only-link" entry.
+    # 2.2.1, 2.2.2, 3.1.2 moved to CHECKS 2026-08-24 -- see "meta-refresh",
+    # "moving-content", "lang-of-parts-invalid". 3.1.1 validity joined the
+    # existing existence check the same pass. 2.4.1 and 2.5.3 moved to
+    # CHECKS later the same day -- see "bypass-blocks", "label-in-name".
+    # 1.3.4 is the remaining markup-adjacent row and still needs CSS.
     ("Alt text quality", "an alt attribute that is present and non-empty may still describe the wrong thing; only a human can say"),
     ("Assistive-technology outcome", "no static tool establishes whether a real screen reader user can complete checkout"),
 ]
