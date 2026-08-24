@@ -5,7 +5,8 @@ after **Shopify Payments** or a **third-party processor** (PayPal, Stripe, and
 the rest), including the extra Shopify third-party transaction fee that generic
 fee pages skip. From the same inputs it reports net profit, margin, return on
 the cash you put into the order (plus a share of the monthly plan), the
-break-even listing price, and the price that hits a target margin.
+break-even listing price, the price that hits a target margin, and the price
+needed to reach a target dollar profit.
 
 Open [`index.html`](index.html) in a browser. The calculation is local and
 works without an account, network request, or API key. It is arithmetic, not
@@ -14,7 +15,8 @@ statements, and verify them there.
 
 **After using this, you can now see whether PayPal or Stripe costs more than
 Shopify Payments on a real order, and what to charge to keep a target
-margin** — which used to mean a spreadsheet that forgot the extra Shopify fee.
+margin or target dollar profit** — which used to mean a spreadsheet that forgot
+the extra Shopify fee.
 
 ## Why it's different
 
@@ -29,6 +31,11 @@ merchants actually make is the payment path:
 This tool keeps every assumption editable, fills illustrative US online
 defaults from a plan picker, allocates the monthly Shopify plan across
 expected monthly orders, and shows **both paths on the same order**.
+
+The target-profit result is a pricing aid, not a recommendation: it solves the
+entered fee model for the item price that leaves the dollar profit you specify.
+Shipping charged, variable costs, fixed fees, and allocated plan cost all stay
+visible in the arithmetic.
 
 [Why PayPal can cost more on Shopify](why-paypal-costs-more.html) answers that
 search question directly.
