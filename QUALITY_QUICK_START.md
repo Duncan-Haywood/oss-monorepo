@@ -11,6 +11,11 @@ launching. The "2-3 weeks" below describes total effort if you did it all at
 once; in practice, do it incrementally, a step at a time, whenever you're
 already touching the relevant code.
 
+**Building a product from nothing?** [`PRODUCT_PLAYBOOK.md`](PRODUCT_PLAYBOOK.md)
+is the guide for that, and its "five things every product ships" (license,
+disclaimer, privacy line, usage counting, discoverability) come before anything
+on this page.
+
 ## Before You Start
 
 1. Read [DEVELOPMENT_QUALITY.md](DEVELOPMENT_QUALITY.md) - understand the framework
