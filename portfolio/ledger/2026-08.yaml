@@ -22622,3 +22622,65 @@ entries:
           (internal, non-breaking, publishes nothing); opened and
           squash-merged as #893.
     mrr_end: null
+
+  - venture: sponsor-ready
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+          GitHub-triggered session (`pull_request.closed` on #829, folded
+          into the generic "review PRs, triage branches, build product"
+          brief). PR/branch triage was a no-op: all 4 open PRs (#857 draft,
+          #814/#531 blocked on the unanswered `venture-gate-premise` ask,
+          #720 owner-gated recurring spend) were already tracked in
+          `asks.yaml`/#139 by prior sessions, and no other remote branches
+          existed. `session_gate.py` said BUILD with no unbuilt
+          `build-now` candidate, so built a new one instead of re-deriving
+          the same "nothing to triage" finding a sixth time.
+      - >-
+          Invented and scored a new pipeline candidate --
+          `oss-sponsor-readiness` (composite 6.5, floor 3 on
+          ai_leverage/time_to_revenue/defensibility, both gates well clear)
+          -- and graduated it same-session as a new venture, `sponsor-ready`:
+          a free, client-side checklist that scores a public GitHub repo
+          against the signals correlated with attracting GitHub Sponsors
+          (`FUNDING.yml` validity, community-health files, activity
+          recency, discoverability) and returns a ranked fix-this-first
+          list. Checked against `screened-out.md` and
+          `ai-first-markets/src/data/ideas.ts` first; not a restatement of
+          either. Zero backend, zero marginal cost: every check is a
+          browser-side call to `api.github.com`.
+      - >-
+          Shipped a working vertical slice, not a scaffold: `scoring.js`
+          (pure, weighted checklist logic) and the pure input-parsing
+          helpers in `app.js` are covered by 16 `node --test` cases (0
+          dependencies, no build step). Verified the full fetch/score/render
+          flow once against the live GitHub API for a real repo via a
+          headless Chromium run (screenshot reviewed) before a later,
+          unrelated environment network hiccup (`ERR_TOO_MANY_RETRIES` from
+          Chromium specifically; direct `curl` to the same endpoint
+          succeeded throughout) made a second confirmation run flaky --
+          logged rather than hidden, and the unit suite plus the one clean
+          full run are the verification this entry stands on.
+      - >-
+          Followed `portfolio/usage/README.md`'s usage-counting rules:
+          `track()` keeps an aggregate, local-first count in the visitor's
+          own `localStorage`, honours `DNT`/Global Privacy Control by
+          skipping any remote send, and reports only an event name and a
+          day (never the repo scanned) if a deploy ever sets
+          `SPONSOR_READY_ANALYTICS_ENDPOINT`. Recorded a baseline (null)
+          reading in `portfolio/usage/usage.yaml` -- honest about there
+          being no signal yet rather than skipping the row.
+      - >-
+          Not deployed to a public URL: "publishing under the portfolio's
+          public name" (a production domain) is owner-gated per
+          `DIRECTION.md`, and this session did not register any account or
+          take any owner-only action. Built, tested, and merge-conflict
+          resolved against 25 concurrent commits that landed on `main`
+          while this session ran (including another session's own new
+          venture, `repository-branch-hygiene`, and a `dns-configuration-evidence`
+          candidate) -- re-ran every pipeline/router validator clean after
+          the merge. Ready for the owner's go-ahead to deploy; next product
+          step is a static host (GitHub Pages/Cloudflare Pages) with no
+          new secrets required for the free tier.
+    mrr_end: null

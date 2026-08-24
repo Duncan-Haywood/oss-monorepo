@@ -4,21 +4,34 @@
 const GITHUB_API = "https://api.github.com";
 const SPONSORSHIP_KEYWORDS = ["sponsor", "sponsoring", "donate", "funding", "buy me a coffee", "ko-fi", "patreon", "open collective"];
 
-// Privacy-conscious usage counter. Off by default. To wire it up, set
-// `window.SPONSOR_READY_ANALYTICS_ENDPOINT` to a URL before this script runs
-// (e.g. in index.html, or a small env-driven snippet at deploy time). Only
-// an event name and a timestamp are ever sent — never the repo the visitor
-// scanned.
+// Privacy-conscious usage counting, per portfolio/usage/README.md:
+// aggregate-only, no per-user record, local-first, honours DNT/GPC.
+//
+// Local-first: always keep a same-browser count in localStorage so a
+// visitor can see their own usage; never anything that could re-identify
+// them. Remote reporting is off unless `window.SPONSOR_READY_ANALYTICS_ENDPOINT`
+// is set (e.g. by a deploy-time snippet in index.html), and even then sends
+// only an event name and a day — never the repo scanned, never an IP or
+// user-agent record on our side beyond what the transport itself carries.
 function track(eventName) {
   try {
+    const dntOn = navigator.doNotTrack === "1" || window.doNotTrack === "1" || navigator.globalPrivacyControl === true;
+
+    const key = "sponsor-ready:usage-counts";
+    const counts = JSON.parse(localStorage.getItem(key) || "{}");
+    counts[eventName] = (counts[eventName] || 0) + 1;
+    localStorage.setItem(key, JSON.stringify(counts));
+
+    if (dntOn) return;
     const endpoint = window.SPONSOR_READY_ANALYTICS_ENDPOINT;
     if (!endpoint) return;
+    const day = new Date().toISOString().slice(0, 10);
     navigator.sendBeacon?.(
       endpoint,
-      new Blob([JSON.stringify({ event: eventName, ts: Date.now() })], { type: "application/json" })
+      new Blob([JSON.stringify({ event: eventName, day })], { type: "application/json" })
     );
   } catch {
-    // Analytics must never break the tool.
+    // Usage counting must never break the tool.
   }
 }
 

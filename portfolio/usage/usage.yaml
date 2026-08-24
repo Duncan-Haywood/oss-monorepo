@@ -5,7 +5,23 @@
 # signal. A reading of zero is worth recording; it is how a product gets
 # retired honestly instead of quietly.
 period: 2026-08
-products: []
+products:
+  - slug: sponsor-ready
+    surface: not-yet-deployed
+    readings:
+      - as_of: 2026-08-24
+        signals:
+          repo_views_14d: null
+          release_downloads_total: null
+        note: >-
+          Built and tested today (12 files, 16 node:test cases, verified
+          against the live GitHub API via a headless-browser run). No signal
+          to record yet -- publishing under the portfolio's public name is
+          owner-gated per DIRECTION.md, so there is no URL for GitHub's repo
+          traffic API to measure until that happens. Local-first
+          localStorage counts exist client-side (see
+          ventures/sponsor-ready/app.js `track()`) but by design never reach
+          this ledger from an unopened tab.
 # Example of the shape, once a product has shipped:
 #
 # products:

@@ -52,9 +52,13 @@ live API (see the venture's hypotheses in `VENTURE.yaml`).
 
 - No backend. Nothing about a scanned repo is transmitted anywhere by this
   tool beyond the browser's direct request to `api.github.com`.
-- `track()` in `app.js` is a no-op unless `window.SPONSOR_READY_ANALYTICS_ENDPOINT`
-  is set at deploy time, and even then sends only an event name and a
-  timestamp — never the repo scanned.
+- Usage counting follows `portfolio/usage/README.md`: aggregate event counts
+  only, kept local-first in the visitor's own `localStorage` (`track()` in
+  `app.js`). Remote reporting is off unless a deploy sets
+  `window.SPONSOR_READY_ANALYTICS_ENDPOINT`, honours `DNT`/Global Privacy
+  Control by skipping the remote send entirely, and even when on sends only
+  an event name and a day — never the repo scanned, never anything that
+  could re-identify a visitor.
 - Informational heuristic only. Not affiliated with GitHub. Does not
   guarantee any sponsorship outcome — see the in-app disclaimer.
 
