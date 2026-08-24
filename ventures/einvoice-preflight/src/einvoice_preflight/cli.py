@@ -52,13 +52,26 @@ def _sarif_report(reports: list[tuple[Path, list[dict[str, str]]]]) -> dict[str,
 def _markdown_report(reports: list[tuple[Path, list[dict[str, str]]]], read_errors: list[dict[str, str]]) -> str:
     """Build a reviewable report containing filenames and observations only."""
     observations = sum(len(errors) for _, errors in reports)
-    lines = ["# E-invoice preflight", "", f"Checked: {len(reports)} invoice(s)", f"Observations: {observations}", ""]
+    failed = sum(bool(errors) for _, errors in reports)
+    passed = len(reports) - failed
+    overall = "FAIL" if observations or read_errors else "PASS"
+    lines = [
+        "# E-invoice preflight",
+        "",
+        f"Overall: **{overall}**",
+        f"Checked: {len(reports)} invoice(s)",
+        f"Passed: {passed}",
+        f"Failed: {failed}",
+        f"Observations: {observations}",
+        f"Read errors: {len(read_errors)}",
+        "",
+    ]
     for path, errors in reports:
         lines.append(f"## `{path.as_posix()}`")
         if not errors:
-            lines.extend(["", "Pass: no defects found in the supported checks.", ""])
+            lines.extend(["", "Status: **PASS**", "", "No defects found in the supported checks.", ""])
             continue
-        lines.append("")
+        lines.extend(["", "Status: **FAIL**", ""])
         for error in errors:
             lines.extend([f"- **{error['rule']}**: {error['message']}", f"  Fix: {error['fix']}"])
         lines.append("")
