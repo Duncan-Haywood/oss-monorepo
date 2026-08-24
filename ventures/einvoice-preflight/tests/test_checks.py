@@ -271,6 +271,9 @@ class ChecksTest(unittest.TestCase):
             failed = json.loads(json.dumps(VALID))
             failed["totals"]["gross"] = 200
             (root / "fail.json").write_text(json.dumps(failed))
+            passed = json.loads(json.dumps(VALID))
+            passed["invoice_number"] = "INV-1002"
+            (root / "pass.json").write_text(json.dumps(passed))
             output = io.StringIO()
             with contextlib.redirect_stdout(output):
                 self.assertEqual(main([directory, "--format", "sarif"]), 1)
