@@ -21466,6 +21466,58 @@ entries:
     human_hours: 0
     outcomes:
       - >-
+          Scheduled "continue work, maintain and improve the development
+          process, increase in profit" session, designated branch
+          `claude/charming-hawking-hppuoi`. `session_gate.py` -> PROCEED,
+          with the recurring flag: 3 distinct sessions committed to `main`
+          within a 15-minute window in the last 6h. Fetched `main`, listed
+          open pull requests, and read `decision_queue.py` and
+          `verification_status.py` before starting, per the gate's own
+          instruction.
+      - >-
+          Six open pull requests, five already correctly owner-gated and
+          unchanged since the prior session's pass: #372 (next@16.3.1,
+          five non-live ventures) and #368 (Dependabot config) both still
+          verification-valid per `verification_status.py`; #531/#583
+          (contrast fixes) held on the still-unanswered
+          `venture-gate-premise` queue row; #720 (Vercel deployment-platform
+          choice) opens an account and commits standing spend, correctly
+          held for the owner.
+      - >-
+          #725 (harness closure-count follow-up to #723, self-declared
+          agent-decidable, checks green) had been left alone by the prior
+          session only because its own author session still had it marked
+          draft. Re-checked it fresh: no file touched by #725 overlaps
+          anything landed on `main` since (`git diff` against #725's base
+          vs. current `main` -- ledger and unrelated a11y-research files
+          only), and `git merge-tree` against the live `main` tip was
+          clean. Verified rather than trusted the PR body: pulled the head
+          into a worktree and re-ran `harness.py`, confirming the
+          regenerated report is byte-identical to the committed
+          `results-2026-08-23.md` (120-file closure, 21/56/39/4 depth
+          breakdown, matching the PR's claimed reversal of #723's
+          122-file growth); `test_harness` + `test_validate_accuracy`
+          (84 tests) pass; `consolidate.py --check` (98 hosts),
+          `decision_queue.py --check` (8 decisions), and
+          `validate_doc_consistency.py` (8 candidates) all clean. Internal
+          only (`portfolio/`, `CLAUDE.md`), no `ventures/*` code, publishes
+          nothing, spends nothing, adds no automation -- agent-decidable
+          per `CLAUDE.md`. Marked it ready for review and merged it as
+          #725 (`17e5fc0c`) on this session's own judgment, with the
+          verification recorded in the merge commit message.
+      - >-
+          No new candidate research, no re-verification of records
+          `verification_status.py` already reported valid, no restatement
+          of the prior session's findings on the other five PRs: this
+          entry records one new merge the prior entry explicitly did not
+          make. `payout-rail` remains the only queue item that moves the
+          revenue ceiling off $0.
+    mrr_end: null
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
           Scheduled "continue work on the repo... creating products to
           increase profits" session, designated branch
           `cursor/product-profit-generation-fdad`. `session_gate.py` ->
