@@ -8,6 +8,13 @@ assistive-technology testing, and a dated evidence record.
 as a new venture.** Same buyer, same delivery surface, and the venture already
 has Stripe, a lead pipeline, and a dashboard. If it sells, split it out then.
 
+**Initiated 2026-08-24** as that product line — not as a new `ventures/`
+directory. Public surface: `/accessibility-evidence`. Catalog, buyer
+qualification, and disclosed error rates live in
+`ventures/local-site-studio/src/lib/pricing/eaa-evidence.ts`. Checkout is not
+live (no Stripe Price IDs). The first experiment's contractor and outreach
+steps remain owner-gated.
+
 Scored 2026-08-18. Composite 7.125 · floor 5 (liability containment).
 
 | Dimension | Score | Why |

@@ -19,6 +19,12 @@ export const DOCS_PAGES: DocsPageLink[] = [
     description: "Starter, Growth, Complete, Commerce tiers and upsell paths.",
   },
   {
+    title: "Accessibility evidence",
+    href: "/docs/eaa-evidence",
+    description:
+      "EAA evidence product line — dated record, not a certificate; buyer qualification and first experiment.",
+  },
+  {
     title: "Marketing automation",
     href: "/docs/marketing-automation",
     description: "AI-only copy, scheduling tiers, compliance, platform priority.",
