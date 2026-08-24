@@ -60,7 +60,10 @@ real-estate-agent-photo-app/
 │       ├── cli-microsite.ts     # npm run microsite -- --dir --listing --agent-name
 │       ├── microsite.test.ts    # npm test — synthetic-delivery-folder self-test
 │       ├── log-lead.ts          # npm run log-lead -- ... (see AGENTS.md)
-│       └── log-lead.test.ts     # npm test
+│       ├── log-lead.test.ts     # npm test
+│       ├── preflight.ts         # MLS floor-spec check (research/src/lib/photo-spec.ts) on a delivery dir
+│       ├── cli-preflight.ts     # npm run preflight -- --dir <delivery-dir>
+│       └── preflight.test.ts    # npm test — synthetic-photo self-test
 ├── scripts/
 │   └── push-to-github.sh
 └── research/

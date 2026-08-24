@@ -99,26 +99,57 @@ def csv_report(quote: Quote, result: dict[str, float]) -> None:
     )
 
 
+def batch_csv_report(reports: list[tuple[str, Quote, dict[str, float]]]) -> None:
+    """Write a comparison table for several quote files."""
+    writer = csv.writer(sys.stdout, lineterminator="\n")
+    writer.writerow(("quote", "currency", "quoted_price", "total_hours", "direct_costs", "effective_hourly_rate", "target_price", "gap_to_target"))
+    for name, quote, result in reports:
+        writer.writerow((name, quote.currency, f"{quote.price:.2f}", f"{result['total_hours']:.2f}", f"{result['direct_costs']:.2f}", f"{result['effective_hourly_rate']:.2f}", f"{result['target_price']:.2f}", f"{result['gap_to_target']:.2f}"))
+
+
+def load_reports(directory: Path) -> list[tuple[str, Quote, dict[str, float]]]:
+    reports = []
+    for path in sorted(directory.glob("*.json")):
+        quote = load_quote(json.loads(path.read_text(encoding="utf-8")))
+        reports.append((path.name, quote, calculate(quote)))
+    if not reports:
+        raise ValueError("directory must contain at least one .json quote file")
+    return reports
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(
         description="Check a quote against a supplied hourly-rate target",
         epilog="No warranty. Arithmetic only, not tax, financial, or business advice. Review and verify every assumption before relying on this output.",
     )
     parser.add_argument("input", type=Path)
+    parser.add_argument("--batch", action="store_true", help="read every .json quote in the input directory")
     parser.add_argument("--format", choices=("json", "markdown", "csv"), default="markdown")
     parser.add_argument("--usage-log", type=Path)
     args = parser.parse_args()
-    quote = load_quote(json.loads(args.input.read_text(encoding="utf-8")))
-    result = calculate(quote)
-    if args.format == "json":
-        print(json.dumps({"inputs": quote.__dict__, "result": result, "disclaimer": "Arithmetic only; not tax, financial, or business advice."}, indent=2))
-    elif args.format == "csv":
-        csv_report(quote, result)
+    if args.batch:
+        reports = load_reports(args.input)
+        if args.format == "csv":
+            batch_csv_report(reports)
+        elif args.format == "json":
+            print(json.dumps({"reports": [{"file": name, "inputs": quote.__dict__, "result": result} for name, quote, result in reports], "disclaimer": "Arithmetic only; not tax, financial, or business advice."}, indent=2))
+        else:
+            for index, (name, quote, result) in enumerate(reports):
+                if index:
+                    print()
+                print(f"## {name}\n\n{markdown(quote, result)}", end="")
     else:
-        print(markdown(quote, result), end="")
+        quote = load_quote(json.loads(args.input.read_text(encoding="utf-8")))
+        result = calculate(quote)
+        if args.format == "json":
+            print(json.dumps({"inputs": quote.__dict__, "result": result, "disclaimer": "Arithmetic only; not tax, financial, or business advice."}, indent=2))
+        elif args.format == "csv":
+            csv_report(quote, result)
+        else:
+            print(markdown(quote, result), end="")
     if args.usage_log:
         event = {
-            "event": "report_generated",
+            "event": "batch_report_generated" if args.batch else "report_generated",
             "format": args.format,
             "at": datetime.now(timezone.utc).isoformat(),
         }
