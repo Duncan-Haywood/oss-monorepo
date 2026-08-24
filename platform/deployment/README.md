@@ -108,7 +108,8 @@ portfolio: **eleven hostable workloads** — nine web apps (seven Next.js, two
 static docs sites) plus the two daemons — near-zero traffic, occasional
 deploys, and no customers. Two more ventures (`world-clock-widget`,
 `garmin-world-traveler-watchface`) build store artifacts and are not hosted
-anywhere, so no platform choice affects them. All figures are approximate and unverified (see the limits
+anywhere, so no platform choice affects them. All figures are approximate and
+unverified (see the limits
 section) — the ratios are the point, not the decimals.
 
 | | Hetzner CX22 | Railway Hobby | Vercel Pro |
@@ -198,7 +199,8 @@ capability arriving is the point; using it is a separate decision.
 **Vercel** — still the best fit for the *code*, and the strongest cap control
 (Spend Management pauses the project at a set amount). Seven of the nine web
 apps are Next.js, four ventures already carry a `vercel.json`, and `next build`
-is the deploy with no translation layer. It loses this question on two counts: it cannot host the two daemons at
+is the deploy with no translation layer. It loses this question on two counts:
+it cannot host the two daemons at
 all, so it is not the all-inclusive answer by definition; and $20/seat is four
 times Railway's floor. **Choose Vercel if the Next.js apps are the only thing
 that will ever be deployed** and the two daemons stay off-platform.
@@ -263,7 +265,8 @@ exists only to make Next.js run somewhere it is not native.
   the revenue ceiling is $0 because of distribution and the payout rail, not
   because nothing is deployed. This makes ventures publishable; it does not
   make them earn, and it adds a standing monthly cost to a portfolio earning
-  nothing — the smallest such cost on the shortlist, but not zero. The `payout-rail` row remains the only queue item that moves the
+  nothing — the smallest such cost on the shortlist, but not zero. The
+  `payout-rail` row remains the only queue item that moves the
   ceiling.
 
 ## What is measured here, and what is not
@@ -441,7 +444,8 @@ The design that makes the owner's framing true rather than merely hopeful:
 
 `.github/workflows/agent-server-provision.yml` implements this. It is
 `workflow_dispatch`-only — a button, not a trigger — and refuses to start with
-a clear list of what is missing rather than half-configuring a box. `platform/ci/publish_surface.py` classifies it
+a clear list of what is missing rather than half-configuring a box.
+`platform/ci/publish_surface.py` classifies it
 as publishing nothing, which is accurate: no push trigger reaches it.
 
 Two gaps in `ubuntu-agent-server` had to be closed for any of this to run at
@@ -486,9 +490,10 @@ pinned later cannot authenticate a connection already made.
 Two accounts are involved and they are not the same one. `AGENT_SERVER_SSH_USER`
 is the login used to *connect*, and it must already exist — on a fresh cloud
 image that is `root`, which is the default. `AGENT_SERVER_AGENT_USER` is the
-unprivileged account the playbook *creates* and the agents run as, defaulting
-to `deploy`. Conflating them either cannot connect or installs the entire agent
-stack as root.
+non-root account the playbook *creates* and the agents run as, defaulting to
+`deploy` — non-root, not unprivileged, since it carries NOPASSWD sudo.
+Conflating the two either cannot connect or installs the entire agent stack as
+root.
 
 One limitation worth knowing before you press the button: the workflow's dry-run
 option cannot validate a *fresh* box. Ansible's `user` module only predicts the

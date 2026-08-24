@@ -30,8 +30,10 @@ name: Provision agent server
 # Optional:
 #   var    AGENT_SERVER_SSH_USER     login used to connect (default: root --
 #                                    a fresh cloud image has no other account)
-#   var    AGENT_SERVER_AGENT_USER   unprivileged account the playbook creates
-#                                    and the agents run as (default: deploy)
+#   var    AGENT_SERVER_AGENT_USER   non-root account the playbook creates and
+#                                    the agents run as (default: deploy). Not
+#                                    unprivileged: it holds NOPASSWD sudo, so
+#                                    this key is root-equivalent on the box.
 #   secret TAILSCALE_AUTHKEY         joins the box to the tailnet unattended
 
 on:
@@ -107,9 +109,11 @@ jobs:
           HOST: ${{ vars.AGENT_SERVER_HOST }}
           # Two accounts, and conflating them was a real bug: the login must
           # already exist to connect at all (a fresh cloud image has only
-          # root), while agent_user is the unprivileged account this playbook
+          # root), while agent_user is the non-root account this playbook
           # creates and the agents run as. One name for both either cannot
-          # connect or installs the whole agent stack as root.
+          # connect or installs the whole agent stack as root. "Non-root" is
+          # the accurate word, not "unprivileged" -- that account holds
+          # NOPASSWD sudo, so the key reaching it is root-equivalent here.
           SSH_USER: ${{ vars.AGENT_SERVER_SSH_USER || 'root' }}
           AGENT_USER: ${{ vars.AGENT_SERVER_AGENT_USER || 'deploy' }}
           PUBKEY: ${{ vars.AGENT_SERVER_PUBKEY }}
