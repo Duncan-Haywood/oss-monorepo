@@ -43,7 +43,10 @@ switched out of the comparison; "Other channel" starts switched off and blank
 for anything not listed (Mercari, Poshmark, Depop, a craft fair, wholesale).
 
 Entries are saved in your own browser so the page remembers them next time.
-"Reset everything" clears them.
+Use **Copy share link** to put the current comparison into a URL you can send
+to a partner or reopen elsewhere. The link contains the calculator inputs in
+an encoded URL query value; there is no server-side save or account. Use
+"Reset everything" to clear local entries.
 
 ## Rates are inputs, not a published schedule
 
@@ -81,7 +84,8 @@ pixels, or analytics vendors. Saved entries stay in `localStorage` on that
 device.
 
 The optional usage counter records only an event name (`comparison_calculated`,
-`channel_rates_edited`, `channel_toggled`, `subscription_toggled`) and the
+`channel_rates_edited`, `channel_toggled`, `subscription_toggled`,
+`share_link_copied`) and the
 current day, in the visitor's own `localStorage`. It never records inputs, it
 never leaves the device, it is off for anyone sending Do Not Track or Global
 Privacy Control, and the footer checkbox turns it off and discards what was
