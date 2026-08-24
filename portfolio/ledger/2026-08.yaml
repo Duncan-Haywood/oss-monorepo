@@ -21727,3 +21727,44 @@ entries:
           Owner-gated PRs left untouched: #720, #731, #531. `payout-rail`
           remains the only queue item that moves the revenue ceiling off $0.
     mrr_end: null
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+          Scheduled "continue work on the repo... follow branch and PR workflow"
+          session, designated branch `claude/revert-368-dependabot`.
+          `session_gate.py` -> PROCEED (cadence 0.92/h, at the maintenance rate;
+          flagged 3 distinct sessions committed to `main` within one 15-minute
+          window in the last 6h -- checked open PRs, branches and the decision
+          queue before touching anything, per that flag).
+      - >-
+          Found PR #777 (revert of #368 Dependabot merge) with a failing test:
+          `portfolio/pipeline/probes/agent-permission-harness/results-2026-08-23.md`
+          was stale (agent instruction closure count 120, should be 121 after
+          the PR's `asks.yaml` changes). Regenerated the results file with
+          `python3 harness.py`, restored the comment header the CI test expects,
+          committed and pushed. The PR's branch was also conflicting with `main`
+          (asks.yaml had moved under it); rebased onto current `main`, resolved
+          the conflict by keeping both the #372 correction from `main` and the
+          dependabot gate-crossing correction from the PR, force-pushed. All
+          three CI checks passed (2 test, 1 validate).
+      - >-
+          Verified PR #777 is agent-decidable per `CLAUDE.md`: touches only
+          `.github/` CI config and `portfolio/ledger/` (internal surfaces, no
+          `ventures/*` code), publishes nothing, spends nothing (removes
+          automation rather than adding it), verified by running checks, merges
+          cleanly against current `main`. Merged as agent-decidable. The revert
+          restores `.github/dependabot.yml` to absent (it had been merged by a
+          concurrent session despite the PR body's "Not self-merging" statement
+          and the queue row's owner-gated note), and keeps the `dependabot` row
+          in `asks.yaml` with the gate-crossing recorded. The 30+ Dependabot PRs
+          (#736-#772) that opened after #368 was merged are left untouched; they
+          will go stale since `dependabot.yml` is now absent.
+      - >-
+          Decision queue now has 9 decisions (down from 10). `payout-rail`
+          remains the only queue item that moves the revenue ceiling off $0.
+          Owner-gated PRs left untouched: #720, #731, #531. The Dependabot PRs
+          (#736-#772) are owner-gated per the `dependabot` row in `asks.yaml`;
+          the owner can merge or decline them knowingly.
+    mrr_end: null

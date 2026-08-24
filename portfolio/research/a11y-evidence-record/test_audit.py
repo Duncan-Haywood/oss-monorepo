@@ -19,6 +19,7 @@ customer-facing deliverable depends on:
 """
 
 import re
+import sys
 import unittest
 
 import audit
@@ -1317,6 +1318,194 @@ class Robustness(unittest.TestCase):
     def test_script_contents_are_not_read_as_link_text(self):
         source = "<a href='/x'><script>var t = 'Buy'</script></a>"
         self.assertEqual(checks(source), ["link-no-accessible-name"])
+
+
+# A well-formed page that exercises every removal and every injection.
+_CONTROL_PAGE = """<!doctype html>
+<html lang="en">
+<head>
+  <title>Shop</title>
+</head>
+<body>
+  <h1>Welcome</h1>
+  <p>Hello.</p>
+  <img src="hero.jpg" alt="A loaf of bread">
+  <label for="email">Email</label>
+  <input id="email" type="email">
+  <button type="submit">Buy</button>
+  <a href="/about">About</a>
+</body>
+</html>
+"""
+
+_CONTROL_FRAGMENT = "<p>just text</p>"
+
+
+class PositiveControl(unittest.TestCase):
+    """Per-engagement positive control — the product, not the research harness.
+
+    The sibling probe already ships this inside its customer record. These
+    tests pin the same contract on this engine: every mutation that bites a
+    well-formed page makes its check fire, a no-op is untested rather than
+    passed, a page that already fails the check is not counted as a miss,
+    and a constructed miss stays a miss.
+    """
+
+    def test_every_mutation_that_bites_this_page_is_caught(self):
+        result = audit.run_control({"shop.html": _CONTROL_PAGE})
+        by_mutation = {row["mutation"]: row for row in result["mutations"]}
+        self.assertEqual(len(by_mutation), len(audit.CONTROL_MUTATIONS))
+        for check, _criterion, _kind, description, mutate in audit.CONTROL_MUTATIONS:
+            row = by_mutation[description]
+            if mutate(_CONTROL_PAGE) == _CONTROL_PAGE:
+                self.assertEqual(row["verdict"], audit.NOT_EXERCISED, description)
+            else:
+                self.assertEqual(row["verdict"], audit.CAUGHT, (description, row, check))
+
+    def test_injections_all_bite_a_well_formed_page(self):
+        result = audit.run_control({"shop.html": _CONTROL_PAGE})
+        injections = [row for row in result["mutations"] if row["kind"] == "injection"]
+        self.assertTrue(injections)
+        self.assertTrue(all(row["verdict"] == audit.CAUGHT for row in injections))
+        self.assertTrue(all(row["pages_changed"] == 1 for row in injections))
+
+    def test_a_fragment_does_not_count_as_a_pass(self):
+        result = audit.run_control({"snip.html": _CONTROL_FRAGMENT})
+        self.assertEqual(result["counts"][audit.CAUGHT], 0)
+        self.assertEqual(result["counts"][audit.MISSED], 0)
+        self.assertEqual(result["counts"][audit.NOT_EXERCISED], len(audit.CONTROL_MUTATIONS))
+
+    def test_already_failing_page_is_not_a_miss(self):
+        already = audit.audit_source(
+            "<html><head><title>x</title></head><body></body></html>", "x.html"
+        )
+        still = audit.audit_source(
+            "<html><head><title>x</title></head><body></body></html>", "x.html"
+        )
+        self.assertEqual(
+            audit.classify_control(already, still, "html-lang-missing"),
+            audit.ALREADY_PRESENT,
+        )
+
+    def test_a_constructed_miss_stays_a_miss(self):
+        original = audit.audit_source(_CONTROL_PAGE, "shop.html")
+        self.assertEqual(
+            audit.classify_control(original, original, "img-alt-missing"),
+            audit.MISSED,
+        )
+
+    def test_caught_requires_the_target_check_specifically(self):
+        original = audit.audit_source(_CONTROL_PAGE, "shop.html")
+        mutated = audit.audit_source(
+            _CONTROL_PAGE.replace("<body>", "<body><button></button>", 1),
+            "shop.html",
+        )
+        self.assertIn(
+            "button-no-accessible-name",
+            {f["check"] for f in mutated["findings"]},
+        )
+        self.assertEqual(
+            audit.classify_control(original, mutated, "button-no-accessible-name"),
+            audit.CAUGHT,
+        )
+        self.assertEqual(
+            audit.classify_control(original, mutated, "img-alt-missing"),
+            audit.MISSED,
+        )
+
+    def test_single_quoted_lang_is_exercised(self):
+        """Templates often quote attributes with singles; a double-only
+        removal would leave those pages untested and read as a pass."""
+        page = _CONTROL_PAGE.replace('lang="en"', "lang='en'")
+        result = audit.run_control({"shop.html": page})
+        row = next(r for r in result["mutations"] if r["check"] == "html-lang-missing")
+        self.assertEqual(row["verdict"], audit.CAUGHT)
+
+    def test_record_omits_the_section_when_the_control_was_not_run(self):
+        record = audit.evidence_record(
+            [audit.audit_source(_CONTROL_PAGE, "shop.html")],
+            "Test",
+            date="2026-08-24",
+        )
+        self.assertIsNone(record["positive_control"])
+        md = audit.render_record(record)
+        self.assertNotIn("## Positive control", md)
+        self.assertNotIn("**Positive control:**", md)
+
+    def test_record_prints_the_control_before_the_findings(self):
+        control = audit.run_control({"shop.html": _CONTROL_PAGE})
+        record = audit.evidence_record(
+            [audit.audit_source(_CONTROL_PAGE, "shop.html")],
+            "Test",
+            date="2026-08-24",
+            control=control,
+        )
+        md = audit.render_record(record)
+        self.assertIs(record["positive_control"], control)
+        self.assertIn("## Positive control", md)
+        self.assertLess(md.index("## Positive control"), md.index("## What was found"))
+        self.assertIn("**Positive control:**", md)
+        self.assertIn("caught", md.lower())
+        self.assertIn("not a conformance test", md.lower())
+
+    def test_a_miss_is_named_in_the_header(self):
+        control = {
+            "statement": "test",
+            "mutations": [
+                {
+                    "check": "img-alt-missing",
+                    "criterion": "1.1.1",
+                    "kind": "removal",
+                    "mutation": "drop alt",
+                    "verdict": audit.MISSED,
+                    "pages_changed": 1,
+                    "pages": [],
+                }
+            ],
+            "counts": {
+                audit.NOT_EXERCISED: 0,
+                audit.CAUGHT: 0,
+                audit.MISSED: 1,
+                audit.ALREADY_PRESENT: 0,
+            },
+        }
+        md = audit.render_record(
+            audit.evidence_record(
+                [audit.audit_source(_CONTROL_PAGE, "shop.html")],
+                "Test",
+                date="2026-08-24",
+                control=control,
+            )
+        )
+        header = md[: md.index("## Positive control")]
+        self.assertIn("missed", header)
+        self.assertIn("would have been wrong", header)
+
+    def test_cli_wires_the_control_into_the_record(self):
+        import os
+        import tempfile
+
+        with tempfile.TemporaryDirectory() as tmp:
+            page = os.path.join(tmp, "shop.html")
+            with open(page, "w", encoding="utf-8") as handle:
+                handle.write(_CONTROL_PAGE)
+            from io import StringIO
+            from contextlib import redirect_stdout
+
+            buf = StringIO()
+            argv = ["audit.py", page, "--record", "--scope", "cli-control", "--date", "2026-08-24"]
+            old = sys.argv
+            try:
+                sys.argv = argv
+                with redirect_stdout(buf):
+                    code = audit.main()
+            finally:
+                sys.argv = old
+            self.assertEqual(code, 0)
+            md = buf.getvalue()
+            self.assertIn("## Positive control", md)
+            self.assertIn("**Positive control:**", md)
+            self.assertIn("caught", md)
 
 
 if __name__ == "__main__":

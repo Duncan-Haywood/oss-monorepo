@@ -378,8 +378,8 @@ expression, so the same check, named differently, is not part of the
 instruction set. That is the cheap half of the finding this probe exists to
 measure: the surface grows when a directed document *names* a path, not when
 the path exists. The artifact and the depth table were regenerated against that
-checkout (21 / 56 / 39 / 4 = 120). The depth table above now reads 121; see the
-fifth instance below, which moved it again without any prose changing.
+checkout (21 / 56 / 39 / 4 = 120). The depth table above now reads 21 / 56 / 40 / 4 = 121; see the fifth
+instance below, which moved it again without any prose changing.
 
 ### Amendment 2026-08-24: the fifth instance, in which *no document changed at all*
 
@@ -422,6 +422,20 @@ identical at 121. It tripped the trigger by touching `platform/` and
 `portfolio/ledger/asks.yaml`, exactly the accidental mechanism the amendment
 above describes, on the fourth occasion out of five that this number has been
 corrected by a session that did not move it.
+
+**A concurrent session recorded this same transition on `main`, with a
+different explanation, and this one supersedes it on evidence.** That note read
+*"same mechanism, one more path at depth 3, in the pull request that also
+shipped a per-engagement positive control"* — attributing the growth to a prose
+edit naming a path, in the a11y-evidence-record work. The entering file was
+found here by diffing the closure at the commit that last recorded `120`
+against current `main`: it is `global-error.tsx` under `local-site-studio`,
+which that pull request does not touch, and no naming document changed. The
+earlier note's own conclusion — that the fix is to describe the new path rather
+than name it — is kept and is why this amendment gives the bare filename and
+its venture in prose instead of a full backticked path. It costs nothing here,
+since the file is already in the closure via the bare spec above, but the habit
+is what keeps a write-up about the surface from enlarging it.
 
 ## What this probe deliberately does not do
 
