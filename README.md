@@ -14,6 +14,12 @@ setup every new venture costs a fresh onboarding pass across every agent
 surface (Claude Code, Cursor, Antigravity, CI). Here a new venture is a new
 directory that inherits the platform automatically.
 
+The current product-first portfolio includes local-first tools such as Cash
+Runway Planner, which forecasts invoice timing against recurring bills for small
+service businesses. New products should ship a runnable customer workflow,
+privacy-safe usage measurement, and their legal/discoverability basics in the
+same change.
+
 ## Layout
 
 ```
