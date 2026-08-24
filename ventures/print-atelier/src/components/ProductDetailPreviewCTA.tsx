@@ -7,6 +7,7 @@ import {
   compareProductDetailPreviewModes,
   type CatalogArtwork,
 } from "@/lib/marketplace";
+import { trackUsageEvent } from "@/components/shared/UsageTracker";
 
 type ProductDetailPreviewCTAProps = {
   artwork?: CatalogArtwork;
@@ -169,6 +170,10 @@ export default function ProductDetailPreviewCTA({
               <button
                 type="button"
                 disabled={!mode.ctaEnabled}
+                onClick={() => trackUsageEvent(
+                  mode.mode === "room-preview" ? "room_visualizer_cta" : "catalog_cta",
+                  `/prints/${artwork.slug}`,
+                )}
                 className={`mt-4 w-full rounded-lg px-4 py-2.5 text-sm font-medium transition ${
                   mode.ctaEnabled
                     ? "bg-stone-900 text-white hover:bg-stone-700"

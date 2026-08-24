@@ -3,6 +3,7 @@ import ProductDetailPreviewCTA from "@/components/ProductDetailPreviewCTA";
 import RoomPreviewExperiment from "@/components/RoomPreviewExperiment";
 import { calculatePrintEconomics, catalogArtworks } from "@/lib/marketplace";
 import { ShoppingBag, Search, Heart, Image as ImageIcon } from "lucide-react";
+import Link from "next/link";
 
 type StorefrontPageProps = {
   searchParams?: {
@@ -63,12 +64,12 @@ export default function StorefrontPage({ searchParams }: StorefrontPageProps) {
             {liveArtworks.length} launch-ready pieces digitized with AI-enhanced capture. Printed on archival paper and shipped directly to your door. 30% of net profit goes to the artist.
           </p>
           <div className="flex gap-3">
-            <button className="bg-white text-stone-900 px-6 py-3 rounded-md font-medium hover:bg-stone-100 transition">
+            <a href="#catalog" className="bg-white text-stone-900 px-6 py-3 rounded-md font-medium hover:bg-stone-100 transition">
               Shop Collection
-            </button>
-            <button className="border border-white/30 px-6 py-3 rounded-md font-medium hover:bg-white/10 transition">
+            </a>
+            <a href="#visualizer" className="border border-white/30 px-6 py-3 rounded-md font-medium hover:bg-white/10 transition">
               Room Visualizer
-            </button>
+            </a>
           </div>
         </div>
       </section>
@@ -125,7 +126,7 @@ export default function StorefrontPage({ searchParams }: StorefrontPageProps) {
             });
 
             return (
-              <div key={art.id} className="group cursor-pointer">
+              <div key={art.id} className="group">
                 <div className={`relative aspect-[4/5] ${art.imageClass} rounded-lg overflow-hidden mb-3`}>
                   {art.badge && (
                     <span className="absolute top-3 left-3 bg-white/90 backdrop-blur-sm px-2 py-0.5 rounded text-[10px] font-bold text-stone-700">
@@ -141,12 +142,12 @@ export default function StorefrontPage({ searchParams }: StorefrontPageProps) {
                     <ImageIcon className="w-3 h-3" /> {art.hasRoomMockups ? "Room Preview" : "Preview Soon"}
                   </div>
                   <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition flex items-end justify-center pb-4">
-                    <button className="opacity-0 group-hover:opacity-100 bg-white text-stone-900 px-4 py-2 rounded-md text-sm font-medium transition shadow-lg">
+                    <Link href={`/prints/${art.slug}`} className="opacity-0 group-hover:opacity-100 bg-white text-stone-900 px-4 py-2 rounded-md text-sm font-medium transition shadow-lg">
                       Quick View — ${art.retailPrice}
-                    </button>
+                    </Link>
                   </div>
                 </div>
-                <h3 className="font-semibold text-stone-900">{art.title}</h3>
+                <Link href={`/prints/${art.slug}`} className="font-semibold text-stone-900 hover:text-indigo-700 hover:underline">{art.title}</Link>
                 <p className="text-sm text-stone-500">{art.artistName}</p>
                 <p className="text-sm font-medium text-stone-900 mt-1">From ${art.retailPrice}</p>
                 <p className="text-xs text-stone-400 mt-1">Artist earns ${economics.artistShare.toFixed(2)} per print</p>
@@ -156,13 +157,18 @@ export default function StorefrontPage({ searchParams }: StorefrontPageProps) {
         </div>
 
         <ProductDetailPreviewCTA />
-        <RoomPreviewExperiment />
+        <div id="visualizer"><RoomPreviewExperiment /></div>
       </section>
 
       <footer className="bg-stone-900 text-stone-400 text-sm py-8 mt-12">
         <div className="max-w-7xl mx-auto px-4 text-center">
           <p>Print Atelier — Interactive Storefront Demo</p>
           <p className="text-xs mt-1 text-stone-500">Programmatic SEO pages and dynamic ads drive traffic to pages like this</p>
+          <p className="mx-auto mt-3 max-w-2xl text-xs leading-5 text-stone-500">
+            Estimates in the visualizer are illustrative scenarios, not financial, legal, tax, or
+            investment advice. Print Atelier makes no earnings, conversion, fulfillment, or
+            compliance warranty.
+          </p>
         </div>
       </footer>
     </div>
