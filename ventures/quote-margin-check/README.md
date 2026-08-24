@@ -29,6 +29,9 @@ profitable. The customer decides what costs and target rate are appropriate.
 The `After direct costs` line makes the amount left before the user's own
 compensation visible, while `Gap to target price` compares the quote with the
 supplied target rate. Both are arithmetic signals, not a profitability verdict.
+The browser also shows the `Break-even price` floor: direct costs only, before
+any compensation for the user's time. It is a warning boundary, not a claim
+that a quote is profitable above it.
 The CSV format emits stable `measure,value,unit` columns so you can append
 results from several proposals to a spreadsheet without retyping calculations.
 Batch CSV emits one comparison row per filename, making a folder of recurring

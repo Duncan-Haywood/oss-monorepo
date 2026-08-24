@@ -49,6 +49,7 @@ export function calculate(quote) {
     direct_costs: directCosts,
     effective_hourly_rate: effectiveHourlyRate,
     target_price: targetPrice,
+    break_even_price: directCosts,
     gap_to_target: quote.price - targetPrice,
     cost_coverage: quote.price - directCosts,
   };
