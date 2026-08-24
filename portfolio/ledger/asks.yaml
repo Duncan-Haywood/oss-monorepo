@@ -531,7 +531,13 @@ decisions:
     `test_session_gate.py` cases pass -- but dissolving the money/
     publishing/venture-code gates is exactly the decision class `CLAUDE.md`
     reserves for the owner. Left as a draft proposal; commented the same on
-    the PR.
+    the PR. Update 2026-08-24T17:50Z: #851 has since merged a version of the
+    same direction to `main` (bc149db) -- `portfolio/DIRECTION.md`, a root
+    `AGENTS.md`, and a shortened `CLAUDE.md` -- but keeping the money,
+    publishing, unattended-spend and deployable-`ventures/*` gates rather
+    than dissolving them. So this row is now about a superseded PR: what is
+    left to accept or decline in #836 is specifically the removal of those
+    four gates, not the product-first direction, which is already on `main`.
 
 - id: funding-sponsors-live
   asks: []
