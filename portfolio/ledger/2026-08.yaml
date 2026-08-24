@@ -1,5 +1,11 @@
 period: 2026-08
 entries:
+  - venture: pool-route-pricing
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - Graduated and implemented a browser-local recurring pool service route pricing calculator with drive time, labor, chemicals, overhead, target-margin output, visible disclaimer, opt-out local usage counting, SEO metadata, sitemap, robots.txt, MIT license, and three tests. Public distribution and demand remain untested.
+    mrr_end: null
   - venture: shopify-a11y-evidence
     agent_spend_usd: null
     human_hours: 0

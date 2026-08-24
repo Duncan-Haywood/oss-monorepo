@@ -6,6 +6,14 @@
 # retired honestly instead of quietly.
 period: 2026-08
 products:
+  - slug: pool-route-pricing
+    surface: static-page-in-repo
+    readings:
+      - as_of: 2026-08-24
+        signals:
+          live_url_visitors: null
+          local_estimate_events: 0
+        note: Shipped browser-local recurring pool route pricing calculator; public URL remains owner-gated and local counting is anonymous and opt-out.
   - slug: shopify-permission-drift
     surface: local-cli
     readings:
