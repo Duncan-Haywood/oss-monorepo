@@ -126,6 +126,28 @@ class ChecksTest(unittest.TestCase):
             self.assertEqual(main([str(invoice_path), "--format", "json", "--usage-file", str(usage_path)]), 0)
             self.assertEqual(json.loads(usage_path.read_text()), {"events": {"invoice_preflight_checked": 1}})
 
+    def test_cli_writes_report_to_output_file(self):
+        with tempfile.TemporaryDirectory() as directory:
+            invoice_path = Path(directory) / "invoice.json"
+            report_path = Path(directory) / "reports" / "preflight.json"
+            invoice_path.write_text(json.dumps(VALID))
+            output = io.StringIO()
+            with contextlib.redirect_stdout(output):
+                self.assertEqual(main([str(invoice_path), "--format", "json", "--output", str(report_path)]), 0)
+            self.assertEqual(output.getvalue(), "")
+            report = json.loads(report_path.read_text())
+            self.assertEqual(report["status"], "pass")
+            self.assertFalse(list(report_path.parent.glob(".preflight.json.*")))
+
+    def test_cli_reports_output_write_failure_without_partial_file(self):
+        with tempfile.TemporaryDirectory() as directory:
+            invoice_path = Path(directory) / "invoice.json"
+            invoice_path.write_text(json.dumps(VALID))
+            output = io.StringIO()
+            with contextlib.redirect_stderr(output), patch("einvoice_preflight.cli._write_output", side_effect=OSError("read-only")):
+                self.assertEqual(main([str(invoice_path), "--format", "json", "--output", str(Path(directory) / "report.json")]), 2)
+            self.assertIn("Could not write report", output.getvalue())
+
     def test_cli_ignores_invalid_usage_counter(self):
         with tempfile.TemporaryDirectory() as directory:
             invoice_path = Path(directory) / "invoice.json"

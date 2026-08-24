@@ -23,6 +23,7 @@ PYTHONPATH=src python3 -m einvoice_preflight ./invoices/ --format json
 PYTHONPATH=src python3 -m einvoice_preflight ./invoices/ --format jsonl
 PYTHONPATH=src python3 -m einvoice_preflight ./invoices/ --format json --max-files 500
 PYTHONPATH=src python3 -m einvoice_preflight invoice.xml --format json
+PYTHONPATH=src python3 -m einvoice_preflight ./invoices/ --format sarif --output preflight.sarif
 ```
 
 For an installed command, run `python3 -m pip install .` from this directory,
@@ -128,6 +129,10 @@ other report formats and can be opened locally without a server.
 `--format summary` prints a compact batch result for CI logs, followed by sorted
 rule counts when findings exist. It includes counts and rule IDs only, never
 invoice values, numbers, or line contents.
+Use `--output PATH` with any format to write the report atomically to a local
+file instead of stdout. Parent directories are created when needed. A failed
+write returns exit code `2` and never replaces an existing report with a partial
+file.
 
 ## Privacy and usage
 
