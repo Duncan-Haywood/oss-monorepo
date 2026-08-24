@@ -22274,3 +22274,54 @@ entries:
           `payout-rail` remains the only queue item that moves the revenue
           ceiling off $0.
     mrr_end: null
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+          Reviewed four `cursor[bot]`-authored draft PRs (#814, #816, #817,
+          #818), all opened 11:31-12:06 UTC against the same `main` tip
+          (`4bfffdc`). Confirmed via octopus `git merge --no-ff` that #816
+          (`eaa-wcag-triage` mechanical-fix pass), #817
+          (`npm-reachability-triage` Article 14 draft), and #818
+          (`source-silence-detector` change-alert draft) touch disjoint
+          files and are not duplicates of each other or of anything on
+          `main`.
+      - >-
+          Hand-verified each on its own branch rather than trusting the PR
+          body: #816 `python3 -m pytest` 308 passed, #817 `python3 -m
+          pytest` 306 passed, #818 `python3 -m unittest discover` 156
+          passed -- all matched the PR's claimed counts exactly. Re-ran the
+          shared validators (`validate_candidates.py`,
+          `validate_doc_consistency.py`, `probes/validate_probe_index.py`,
+          `router/validate.py`) on each branch; all green. All three carried
+          green CI (`test` x N, `validate`) as supporting evidence, not a
+          substitute for the hand run. Agent-decidable: `portfolio/pipeline/`
+          only, no `ventures/*` code, nothing publishes, nothing spent.
+          Undrafted, approved, and merged all three (`8699ff2`, `b839b50`,
+          `2146bc8`). One transient `code_scanning` branch-ruleset rejection
+          on the first merge attempt (#816) cleared on retry after #817/#818
+          merged clean -- noted here in case it recurs, not otherwise acted
+          on.
+      - >-
+          #814 (EAA evidence as a `local-site-studio` product line) touches
+          deployable `ventures/*` app code and was left open on the PR's own
+          request: its merge-class note points at `venture-gate-premise`
+          (Ask 9, `asks.yaml`), the live unanswered question of whether a
+          session may merge exactly this kind of change on its own
+          judgment. Verified anyway rather than left untouched --
+          `publish_surface.py` still reports nothing publishes on push to
+          `main`, and `npx vitest run` on the branch passed 4043/4043 tests
+          (236 files), a superset of the PR's own claimed 77 -- so the
+          verification cost isn't wasted whichever way Ask 9 resolves.
+          Commented on #814 with the result rather than merging past the
+          open ask.
+      - >-
+          Did not touch #813 or #815 (both `Duncan-Haywood`-authored,
+          already correctly self-flagged as unmergeable by this
+          authentication) or `asks.yaml`/#139 beyond what #814's own
+          merge-class note already pointed at.
+      - >-
+          `payout-rail` remains the only queue item that moves the revenue
+          ceiling off $0.
+    mrr_end: null
