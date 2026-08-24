@@ -64,6 +64,9 @@ workflows:
 - workflow: claude-routine-trigger.yml
   classification: none
   publishes: []
+- workflow: concrete-bid-calculator-ci.yml
+  classification: none
+  publishes: []
 - workflow: cut-list-optimizer-ci.yml
   classification: none
   publishes: []
