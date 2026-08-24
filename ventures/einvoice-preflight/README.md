@@ -63,7 +63,8 @@ filename, never invoice fields or line contents. Both formats exit `1` when
 any check fails and `2` for an unreadable input file. Pass a directory to scan
 all `.json` files recursively; batch JSON includes per-file errors and batch
 SARIF uses paths relative to the input directory. An empty directory is an
-input error and exits `2`.
+input error and exits `2`. Batch scans also flag duplicate `invoice_number`
+values as `INV-019`; the number itself is never emitted.
 JSON output uses the same summary fields for single files and directories:
 `status`, `files_checked`, `files_failed`, `observations`, `rules`, and
 `read_errors`. Single-file output also includes `file` and `errors`; directory
