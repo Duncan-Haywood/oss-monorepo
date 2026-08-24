@@ -47,7 +47,10 @@ Pass `--usage-log PATH` to opt in; omit it to keep usage counting off. The
 browser version counts the same event locally in `localStorage` (on by
 default, off-switchable in the page footer, and honors Do Not Track/Global
 Privacy Control) — see [`site/usage.mjs`](site/usage.mjs); nothing is sent
-anywhere in either case.
+anywhere in either case. It counts *settled* reports, not keystrokes: the page
+re-renders as you type, but an event is recorded only once the figures stop
+changing, and a result identical to the one already counted is never counted
+twice — so the browser figure stays comparable to the CLI's.
 
 ## Input
 

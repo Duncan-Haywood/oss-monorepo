@@ -240,7 +240,7 @@
 
 <script type="module">
   import { loadQuote, calculate } from "./calc.mjs";
-  import { recordEvent, isUsageCountingEnabled, setUsageCountingEnabled } from "./usage.mjs";
+  import { recordEvent, isUsageCountingEnabled, setUsageCountingEnabled, createSettledRecorder } from "./usage.mjs";
 
   const ids = ["currency", "price", "delivery_hours", "admin_hours", "revision_hours", "overhead", "subcontractor_cost", "target_hourly_rate"];
   const el = Object.fromEntries(ids.map((id) => [id, document.getElementById(id)]));
@@ -265,27 +265,46 @@
     return n.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
   }
 
-  function update() {
+  // The currency label is free text the visitor types, and it is interpolated
+  // into innerHTML below. Nothing is uploaded, so this is only ever
+  // self-inflicted — but escaping costs nothing and keeps the report a report.
+  function esc(value) {
+    return String(value).replace(/[&<>"']/g, (ch) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[ch]);
+  }
+
+  // One event per settled, distinct result — see createSettledRecorder().
+  const reportRecorder = createSettledRecorder({ record: recordEvent });
+
+  function signatureOf(quote, r) {
+    return [quote.currency, quote.price, r.total_hours, r.direct_costs, r.effective_hourly_rate, r.target_price].join("|");
+  }
+
+  function update({ initial = false } = {}) {
     try {
       const quote = loadQuote(readInputs());
       const r = calculate(quote);
       const above = r.gap_to_target >= 0;
+      const c = esc(quote.currency);
       lastReport = { quote, r };
       result.innerHTML = `
         <div class="status ${above ? "good" : "bad"}">${above ? "Above target" : "Below target"} (arithmetic comparison only)</div>
         <dl>
           <dt>Total working hours</dt><dd>${fmt(r.total_hours)}</dd>
-          <dt>Direct costs</dt><dd>${quote.currency} ${fmt(r.direct_costs)}</dd>
-          <dt>Effective hourly rate</dt><dd><strong>${quote.currency} ${fmt(r.effective_hourly_rate)}/hour</strong></dd>
-          <dt>Price at your target rate</dt><dd>${quote.currency} ${fmt(r.target_price)}</dd>
-          <dt>Gap to target price</dt><dd>${quote.currency} ${fmt(r.gap_to_target)}</dd>
-          <dt>Left after direct costs</dt><dd>${quote.currency} ${fmt(r.cost_coverage)}</dd>
+          <dt>Direct costs</dt><dd>${c} ${fmt(r.direct_costs)}</dd>
+          <dt>Effective hourly rate</dt><dd><strong>${c} ${fmt(r.effective_hourly_rate)}/hour</strong></dd>
+          <dt>Price at your target rate</dt><dd>${c} ${fmt(r.target_price)}</dd>
+          <dt>Gap to target price</dt><dd>${c} ${fmt(r.gap_to_target)}</dd>
+          <dt>Left after direct costs</dt><dd>${c} ${fmt(r.cost_coverage)}</dd>
         </dl>
       `;
       result.classList.remove("error");
-      recordEvent("report_generated");
+      // The pre-filled example render is a page view, not a report the visitor
+      // asked for, so it seeds the recorder instead of counting.
+      if (initial) reportRecorder.seed(signatureOf(quote, r));
+      else reportRecorder.note("report_generated", signatureOf(quote, r));
     } catch (err) {
       lastReport = null;
+      reportRecorder.discard();
       result.textContent = err.message;
       result.classList.add("error");
     }
@@ -299,10 +318,10 @@
   }
 
   for (const id of ids) {
-    el[id].addEventListener("input", update);
+    el[id].addEventListener("input", () => update());
     el[id].addEventListener("input", dismissExampleNote, { once: true });
   }
-  update();
+  update({ initial: true });
 
   const copyBtn = document.getElementById("copy-csv");
   const copyStatus = document.getElementById("copy-status");

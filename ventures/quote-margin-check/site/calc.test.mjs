@@ -62,3 +62,24 @@ test("rejects an empty or over-long currency label", () => {
     loadQuote({ currency: "WAY TOO LONG A LABEL", price: 1000, delivery_hours: 10, target_hourly_rate: 100 }),
   );
 });
+
+test("reports an above-target quote", () => {
+  // The suite's other worked example lands below target; this covers the
+  // other branch, which drives the page's "Above target" status line.
+  const quote = loadQuote({
+    currency: "USD",
+    price: 4200,
+    delivery_hours: 30,
+    admin_hours: 4,
+    revision_hours: 6,
+    overhead: 150,
+    subcontractor_cost: 400,
+    target_hourly_rate: 90,
+  });
+  const result = calculate(quote);
+  assert.equal(result.total_hours, 40);
+  assert.equal(result.direct_costs, 550);
+  assert.equal(result.effective_hourly_rate, 91.25);
+  assert.equal(result.target_price, 4150);
+  assert.equal(result.gap_to_target, 50);
+});
