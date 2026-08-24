@@ -142,7 +142,7 @@ four candidates carrying a probe have moved and the table is re-ordered.
 | 10 | [CRA evidence desk](candidates/cra-evidence-desk.md) | 6.75 | 3 | Probe (was build-now); wedge is egress-blocked. `ethical_robustness` 8→6→7→8 — 7→8 on 2026-08-21 after the triage engine's own record began carrying its hand-verified wrong-suppression rate (0 of 53 claims wrong) |
 | 11 | [Vendor-change evidence monitor](candidates/vendor-change-evidence.md) | 6.75 | 4 | Probe; public-page evidence feed, with distribution and archive value still unmeasured |
 | 12 | [Shopify app-permission drift record](candidates/shopify-permission-drift.md) | 6.75 | 4 | Probe; customer-authorized app inventory, with platform observability and App Store demand unmeasured |
-| 13 | [Tender radar](candidates/tender-radar.md) | 6.625 | 4 | Park; needs a channel partner |
+| 13 | [Tender radar](candidates/tender-radar.md) | 6.625 | 4 | Graduated 2026-08-24 as `ventures/tender-radar`; import-first local shortlist, with repeat use and contractor distribution still unmeasured |
 | 14 | [DNS configuration evidence monitor](candidates/dns-configuration-evidence.md) | 6.625 | 4 | Probe; needs an MSP or domain-operations channel and a history-value test |
 | 15 | [Repository branch hygiene and recovery](candidates/repository-branch-hygiene.md) | 6.5 | 4 | Graduated 2026-08-24 as `ventures/repository-branch-hygiene`; read-only pilot and distribution remain unmeasured |
 | 16 | [Backup verification evidence](candidates/backup-verification-evidence.md) | 6.5 | 4 | Probe; local exit-code/artifact classifier built, needs a real recurring job and a sysadmin/MSP channel |
