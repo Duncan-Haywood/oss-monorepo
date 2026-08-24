@@ -4,7 +4,7 @@
 submission — Factur-X, XRechnung, Peppol BIS — sold to bookkeepers and small
 ERP integrators facing phased EU e-invoicing mandates.
 
-**Verdict: reject the broad version; the narrow version is conditional.**
+**Verdict: reject the broad version; the narrow version graduated on 2026-08-24.**
 Becoming any part of the transmission or filing path is out of bounds for an
 unattended business. A pure validation tool that never touches submission is
 acceptable but scores too low on its own merits to fund now.
@@ -45,7 +45,7 @@ regardless of what the margin looks like.
 
 ## The conditional narrow version
 
-If built at all, it is strictly:
+The shipped narrow version is strictly:
 
 - **Validate and explain, never transmit.** Input is a file, output is a list of
   failures with the rule cited and a plain explanation of the fix. No
@@ -61,6 +61,12 @@ is why it sits last in this pipeline. Recorded here so the reasoning does not ge
 re-derived next time e-invoicing appears on a deadline list — the mandate is
 real, the business under it is thin, and the tempting version is the one that
 carries the liability.
+
+The first implementation is a free local JSON checker for structural fields and
+arithmetic. It is not format-complete: Factur-X, XRechnung, and Peppol profiles
+still require a dedicated validator and professional review. Its rule IDs and
+JSON output make that limitation visible rather than implying coverage it does
+not have.
 
 ## Sources
 

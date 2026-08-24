@@ -15,6 +15,7 @@ from resumable_photos_import import (
     file_is_ready,
     recover_interrupted,
     summarize_recent_errors,
+    verify_manifest,
 )
 
 
@@ -30,6 +31,30 @@ def _make_fake_photos_db(path: Path, filenames: set[str]) -> None:
 
 
 class ResumablePhotosImportTests(unittest.TestCase):
+    def test_verify_manifest_reports_missing_empty_and_readable_files(self):
+        with tempfile.TemporaryDirectory() as temp_dir:
+            root = Path(temp_dir)
+            readable = root / "readable.JPG"
+            empty = root / "empty.JPG"
+            missing = root / "missing.JPG"
+            readable.write_bytes(b"jpeg")
+            empty.write_bytes(b"")
+            state = ImportState(root / "state.sqlite3")
+            state.upsert(readable, "imported")
+            state.upsert(empty, "imported")
+            state.upsert(missing, "imported")
+
+            report = verify_manifest(state)
+
+            self.assertEqual(report["checked"], 3)
+            self.assertEqual(report["healthy"], 1)
+            self.assertEqual(
+                {failure["path"] for failure in report["failures"]},
+                {str(empty), str(missing)},
+            )
+            self.assertEqual(report["status_counts"], {"imported": 3})
+            state.close()
+
     def test_build_manifest_marks_confirmed_imports(self):
         with tempfile.TemporaryDirectory() as temp_dir:
             root = Path(temp_dir)
