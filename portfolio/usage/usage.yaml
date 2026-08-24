@@ -5,7 +5,15 @@
 # signal. A reading of zero is worth recording; it is how a product gets
 # retired honestly instead of quietly.
 period: 2026-08
-products: []
+products:
+  - slug: shopify-permission-drift
+    surface: local-cli
+    readings:
+      - as_of: 2026-08-24
+        signals:
+          local_comparisons: 1
+          qualified_pilots: 0
+        note: Shipped fixture-backed local comparison; customer demand remains untested.
 # Example of the shape, once a product has shipped:
 #
 # products:
