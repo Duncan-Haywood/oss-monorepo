@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import Link from "next/link";
 import {
   Users,
   Image as ImageIcon,
@@ -115,7 +116,7 @@ export default function AdminPortal() {
             <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse"></span>
             All Systems Operational
           </span>
-          <a href="/" className="ml-4 text-sm font-medium px-4 py-2 border border-slate-700 rounded-lg hover:bg-slate-800 text-white transition">Exit to Docs</a>
+          <Link href="/" className="ml-4 text-sm font-medium px-4 py-2 border border-slate-700 rounded-lg hover:bg-slate-800 text-white transition">Exit to Docs</Link>
         </div>
       </header>
 
