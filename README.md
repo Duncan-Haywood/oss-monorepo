@@ -14,6 +14,16 @@ setup every new venture costs a fresh onboarding pass across every agent
 surface (Claude Code, Cursor, Antigravity, CI). Here a new venture is a new
 directory that inherits the platform automatically.
 
+## Product-first operating direction
+
+The portfolio now prioritizes shipping useful, profitable software over
+administrative throughput. New products should target a narrow, searchable
+problem with measurable customer value, run free and full-featured at launch,
+keep computation client-side where possible, and record only privacy-conscious
+aggregate usage events. See [`portfolio/DIRECTION.md`](portfolio/DIRECTION.md)
+and [`PRODUCT_PLAYBOOK.md`](PRODUCT_PLAYBOOK.md) for the required disclaimer,
+privacy, discoverability, and verification bar.
+
 ## Layout
 
 ```
