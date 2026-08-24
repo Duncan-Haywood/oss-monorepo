@@ -101,6 +101,16 @@ and build.
   GitHub closes the PR unmerged. Say "per #109" or "resolved the conflict on #109".
 - One logical change per commit; push branch `cursor/<name>-<id>`.
 
+When the open queue is large, triage by customer value and mergeability rather
+than touching every branch: merge only green, authorized work; stack small
+follow-ups on the strongest existing product PR; leave failing venture PRs
+open when their failure is an account or infrastructure blocker; and close a
+branch only when its work is demonstrably superseded and the supersede check
+passes. A product assessment should name the user, repeated job, alternatives,
+acquisition path, economics, operational cost, and safety boundary before code
+is started, but it should remain short enough that implementation begins in
+the same session.
+
 ## Venture-specific notes
 
 Each venture may have its own `AGENTS.md` (framework rules, doc conventions).
