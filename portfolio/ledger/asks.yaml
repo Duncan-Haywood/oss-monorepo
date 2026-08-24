@@ -343,3 +343,41 @@ decisions:
     (`platform/deployment/probe_control_planes.py`, 22 control-plane hosts) is
     read-only tooling and is the agent-decidable half; the decision is not.
 
+- id: local-site-studio-subtree-gate-crossing
+  asks: []
+  prs: [731]
+  gates: deployment
+  exposure: none
+  opened: "2026-08-24"
+  action: >-
+    Review the already-merged #731 (1,405-commit `local-site-studio` subtree
+    merge, `7b69f3d`) and decide whether to accept it as-is or revert it.
+  unlocks:
+    - >-
+      Closes a process gap rather than a code gap: #731's own body said "this
+      is venture code, so per `CLAUDE.md` it is not agent-decidable and I have
+      not merged it. Flagging for review" -- but it was merged anyway, by
+      `kilo-code-bot[bot]`, the same day it was opened. No open PR or ledger
+      entry recorded this before now.
+  blocked_by: []
+  note: >-
+    Same shape as the (now-resolved) `dependabot` row's #368 gate-crossing: a
+    PR whose body explicitly deferred to the owner was self-merged regardless.
+    Lower urgency than #368 was -- this merge did not spawn ongoing
+    automation, and `platform/ci/publish_surface.py` confirms nothing
+    currently publishes on a push to `main`, so no live site was republished
+    -- but it did land 1,405 commits and 533 changed files of upstream
+    history, a `next` 16.3.1/`react` 19.2.8 version split, and a regenerated
+    lockfile into `local-site-studio` without the sign-off `CLAUDE.md`'s
+    "breaking changes to deployable `ventures/*` code" gate requires. The
+    PR's own verification (tsc clean, lint clean, 4,030 tests passing, build
+    clean, `npm audit` 0 high/critical) is not in question; whether the owner
+    wanted this merge at all, and on this timeline, is. A same-day companion
+    PR, #786, correctly proposed removing the now-stale
+    `local-site-studio-subtree` decision row (its `action` was "merge or
+    decline #731", moot once #731 is merged) but was closed by a concurrent
+    session on the mistaken belief that "#731 is still open" -- it is not;
+    `merged: true`, `merged_at: 2026-08-24T09:45:00Z`. A second session (#787)
+    then independently made the same correct removal. This row adds the part
+    neither made: the actual open question left behind, accept or revert.
+
