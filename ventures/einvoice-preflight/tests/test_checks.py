@@ -29,6 +29,24 @@ class ChecksTest(unittest.TestCase):
         self.assertIn("INV-017", {error["rule"] for error in errors})
         self.assertTrue(any("net plus tax" in error["message"] for error in errors))
 
+    def test_tax_total_must_match_line_tax_percentages(self):
+        invoice = json.loads(json.dumps(VALID))
+        invoice["totals"]["tax"] = 0
+        invoice["totals"]["gross"] = 200
+        errors = check_invoice(invoice)
+        rules = {error["rule"] for error in errors}
+        self.assertIn("INV-018", rules)
+        self.assertTrue(any("line tax percentages" in error["message"] for error in errors))
+
+    def test_tax_total_rounds_each_line_to_cents(self):
+        invoice = json.loads(json.dumps(VALID))
+        invoice["lines"] = [
+            {"description": "A", "quantity": 1, "unit_price": 0.03, "tax_percent": 19, "net": 0.03},
+            {"description": "B", "quantity": 1, "unit_price": 0.03, "tax_percent": 19, "net": 0.03},
+        ]
+        invoice["totals"] = {"net": 0.06, "tax": 0.02, "gross": 0.08}
+        self.assertEqual(check_invoice(invoice), [])
+
     def test_missing_fields_and_bad_date_are_not_valid(self):
         errors = check_invoice({"issue_date": "24/08/2026"})
         rules = {error["rule"] for error in errors}

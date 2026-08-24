@@ -41,7 +41,11 @@ The supported v0 shape is intentionally small and format-neutral:
 }
 ```
 
-Amounts use the currency's major unit and are compared to cent precision.
+Amounts use the currency's major unit and are compared to cent precision. Each
+line's tax is calculated from its rounded line net and the supplied
+`tax_percent`; the invoice tax total must equal the sum of those per-line
+rounded amounts. This reports arithmetic discrepancies only and does not
+decide whether a tax percentage is legally correct.
 `--format json` is suitable for an ERP adapter. `--format sarif` emits SARIF
 2.1.0 for GitHub code scanning, CI annotations, and
 editor integrations. It contains the rule IDs, fixes, and the local invoice
