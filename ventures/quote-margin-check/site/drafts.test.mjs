@@ -14,6 +14,7 @@ test("round trips only the validated quote inputs", () => {
 test("rejects malformed, unsupported, and invalid drafts", () => {
   assert.throws(() => parseDraft("not json", loadQuote), /valid JSON/);
   assert.throws(() => parseDraft(JSON.stringify({ version: 2, quote }), loadQuote), /supported/);
+  assert.throws(() => parseDraft(JSON.stringify({ version: 1, quote: [] }), loadQuote), /supported/);
   assert.throws(() => parseDraft(JSON.stringify({ version: 1, quote: { ...quote, price: -1 } }), loadQuote), /non-negative/);
 });
 

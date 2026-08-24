@@ -18,7 +18,7 @@ export function parseDraft(text, loadQuote) {
   } catch {
     throw new Error("draft file is not valid JSON");
   }
-  if (!data || data.version !== DRAFT_VERSION || !data.quote || typeof data.quote !== "object") {
+  if (!data || data.version !== DRAFT_VERSION || !data.quote || typeof data.quote !== "object" || Array.isArray(data.quote)) {
     throw new Error("draft file is not a supported Quote Margin Check draft");
   }
   return loadQuote(data.quote);
