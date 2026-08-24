@@ -33,6 +33,31 @@ rescore_note: >-
   rescore-2026-08-20.md.
 
 candidates:
+  - slug: software-evidence-provenance
+    name: Software evidence provenance ledger
+    doc: candidates/software-evidence-provenance.md
+    verdict: reject
+    graduate_as: venture
+    host_venture: null
+    scores:
+      ai_leverage: 6
+      autonomous_ops: 8
+      time_to_revenue: 5
+      gross_margin: 9
+      defensibility: 3
+      distribution: 4
+      liability_containment: 8
+      ethical_robustness: 8
+    composite: 6.375
+    floor: 3
+    floor_dimension: defensibility
+    mitigation: >-
+      Do not graduate until a named code-host or release-engineering channel
+      partner demonstrates a buyer and the experiment identifies a durable asset
+      beyond existing provenance standards.
+    first_experiment_days: 7
+    first_experiment_budget_usd: 50
+
   - slug: eaa-remediation-pipeline
     name: EAA remediation pipeline
     doc: candidates/eaa-remediation-pipeline.md
@@ -485,6 +510,37 @@ candidates:
         that is a substitute-supply measurement and the egress it needs is
         denied here. Left at 5 rather than moved on an unmeasured argument.
 
+  - slug: vendor-change-evidence
+    name: Vendor-change evidence monitor
+    doc: candidates/vendor-change-evidence.md
+    verdict: probe
+    probe_status: >-
+      step 1 partially run: local section-aware snapshot-diff tool built and
+      tested (7 tests) against fixtures, not live pages. Scheduled fetch/hash
+      loop, the 10-page replay, and step 3 (10 practitioner conversations, one
+      paid pilot) are unstarted.
+    graduate_as: venture
+    host_venture: null
+    scores:
+      ai_leverage: 7
+      autonomous_ops: 9
+      time_to_revenue: 6
+      gross_margin: 9
+      defensibility: 4
+      distribution: 4
+      liability_containment: 7
+      ethical_robustness: 8
+    composite: 6.75
+    floor: 4
+    floor_dimension: defensibility
+    mitigation: >-
+      Retain immutable customer-specific snapshots with portable export and
+      measure reconstruction cost for defensibility; secure a channel partner or
+      repeatable practitioner community before building a hosted product for
+      distribution.
+    first_experiment_days: 14
+    first_experiment_budget_usd: 150
+
   - slug: tender-radar
     name: Tender radar
     doc: candidates/tender-radar.md
@@ -529,3 +585,143 @@ candidates:
       Transmission or filing versions fail the liability gate outright. The
       validate-and-explain version clears it at 5 but is a thin utility against
       free open-source validators. Recorded so the reasoning is not re-derived.
+
+  - slug: consent-change-record
+    name: Consent change record
+    doc: candidates/consent-change-record.md
+    verdict: probe
+    graduate_as: venture
+    host_venture: null
+    scores:
+      ai_leverage: 7
+      autonomous_ops: 7
+      time_to_revenue: 5
+      gross_margin: 8
+      defensibility: 5
+      distribution: 4
+      liability_containment: 6
+      ethical_robustness: 7
+    composite: 6.125
+    floor: 4
+    floor_dimension: distribution
+    mitigation: >-
+      Distribution requires a named web-agency or privacy-implementation
+      partner before graduation; until then this remains a local probe rather
+      than a standalone venture.
+    first_experiment_days: 14
+    first_experiment_budget_usd: 25
+
+  - slug: repository-branch-hygiene
+    name: Repository branch hygiene and recovery
+    doc: candidates/repository-branch-hygiene.md
+    verdict: graduated
+    probe_status: prototype shipped 2026-08-24; read-only pilot and willingness to pay remain unmeasured
+    graduate_as: venture
+    host_venture: null
+    scores:
+      ai_leverage: 6
+      autonomous_ops: 8
+      time_to_revenue: 5
+      gross_margin: 9
+      defensibility: 5
+      distribution: 4
+      liability_containment: 7
+      ethical_robustness: 8
+    composite: 6.5
+    floor: 4
+    floor_dimension: distribution
+    mitigation: >-
+      Start read-only and secure one repeatable DevOps community or channel
+      partner before hosting; retain customer-owned signed snapshots and
+      portable recovery manifests, and require per-ref approval plus a fresh
+      tip/reservation check for any later deletion action.
+    first_experiment_days: 7
+    first_experiment_budget_usd: 150
+
+  - slug: mls-photo-spec-preflight
+    name: MLS photo spec preflight
+    doc: candidates/mls-photo-spec-preflight.md
+    verdict: build-now
+    graduate_as: product-line
+    host_venture: real-estate-agent-photo-app
+    scores:
+      ai_leverage: 7
+      autonomous_ops: 8
+      time_to_revenue: 6
+      gross_margin: 8
+      defensibility: 5
+      distribution: 5
+      liability_containment: 7
+      ethical_robustness: 8
+    composite: 6.75
+    floor: 5
+    floor_dimension: distribution
+    floor_note: >-
+      Two dimensions tie at the floor. `floor_dimension` names distribution
+      because that is the variable that has blocked every other candidate
+      here; defensibility at 5 only lowers the composite.
+    mitigation: >-
+      Graduates as a product line of `real-estate-agent-photo-app` (same
+      buyer, same delivery folder). Visual watermark detection is disclosed
+      as unimplemented, not sold as covered. The record never says a portal
+      will accept the listing.
+    note: >-
+      Added 2026-08-24 after session_gate reported the pipeline empty
+      (eaa-remediation-pipeline had graduated). Not a restatement of
+      listing photography the venture, not multi-location-listing-guard,
+      not EAA/web accessibility. See screened-out.md.
+    first_experiment_days: 14
+    first_experiment_budget_usd: 0
+
+  - slug: shopify-permission-drift
+    name: Shopify app-permission drift record
+    doc: candidates/shopify-permission-drift.md
+    verdict: probe
+    graduate_as: product-line
+    host_venture: local-site-studio
+    scores:
+      ai_leverage: 7
+      autonomous_ops: 8
+      time_to_revenue: 6
+      gross_margin: 9
+      defensibility: 4
+      distribution: 6
+      liability_containment: 6
+      ethical_robustness: 8
+    composite: 6.75
+    floor: 4
+    floor_dimension: defensibility
+    mitigation: >-
+      Before graduation, retain immutable merchant-specific snapshots with a
+      portable export and test whether a new entrant can reconstruct the same
+      history without the merchant's prior records; also secure a Shopify
+      agency partner or measure repeatable App Store search demand.
+    first_experiment_days: 14
+    first_experiment_budget_usd: 150
+
+  - slug: dns-configuration-evidence
+    name: DNS configuration evidence monitor
+    doc: candidates/dns-configuration-evidence.md
+    verdict: probe
+    probe_status: "fixture-recorder-built; demand and distribution unmeasured"
+    graduate_as: venture
+    host_venture: null
+    scores:
+      ai_leverage: 6
+      autonomous_ops: 9
+      time_to_revenue: 6
+      gross_margin: 9
+      defensibility: 4
+      distribution: 4
+      liability_containment: 7
+      ethical_robustness: 8
+    composite: 6.625
+    floor: 4
+    floor_dimension: defensibility
+    mitigation: >-
+      Retain immutable customer-specific snapshots with portable export and
+      measure reconstruction cost for defensibility; secure a named MSP, agency,
+      or repeatable practitioner community before building a hosted product for
+      distribution.
+    first_experiment_days: 7
+    first_experiment_budget_usd: 50

@@ -231,9 +231,10 @@ decisions:
     unanswered is what costs.
   unlocks:
     - >-
-      Answered "yes, while nothing is live", `contrast-fixes` leaves this
-      queue outright -- one pull request the owner never has to read. This is
-      the only row here whose answer makes the queue shorter.
+      Answered "yes, while nothing is live", `contrast-fixes` and
+      `eaa-evidence-product-line` both leave this queue outright -- two pull
+      requests the owner never has to read individually. This is the only
+      row here whose answer makes the queue shorter.
     - >-
       Answered "no, the gate stands regardless", every future `ventures/*`
       pull request stops being re-argued from prose by each session that meets
@@ -460,3 +461,138 @@ decisions:
     fleet-wide on an unverifiable assertion of it. Flagged rather than
     reverted: reverting on the same kind of unverifiable judgment this row
     is objecting to would repeat the mistake in the opposite direction.
+
+- id: branch-cleanup-automation
+  asks: []
+  prs: [829]
+  gates: deployment
+  exposure: none
+  opened: "2026-08-24"
+  action: >-
+    Merge or decline #829 (adds `.github/workflows/branch-cleanup.yml`,
+    deleting a PR's head branch immediately on merge and 24h after an
+    unmerged close).
+  unlocks:
+    - >-
+      A live branch count that reflects open work: as of #829's own
+      read-only sweep, 608 branches exist against 6 open PRs, so the branch
+      list CLAUDE.md tells sessions to check before assuming work has not
+      been done is ~99% landed-or-abandoned noise.
+  blocked_by: []
+  note: >-
+    Correctly self-flagged human-gated in its own PR body per CLAUDE.md's
+    "Automation that writes or spends unattended" section: it is a new
+    unattended workflow that pushes branch deletions on a schedule plus a
+    `pull_request_target` trigger, even though it calls no paid API,
+    consumes no agent budget, and pushes no commits/PRs of its own. Local
+    verification in the PR body: `validate_workflows.py` (39 files),
+    `publish_surface.py --check` (0 live, unchanged), `test_branch_cleanup`
+    (25 tests) all green; a read-only `--sweep --dry-run` against the live
+    repo found 220 branches it would delete (166 already-merged, 107 whose
+    tip moved after their PR closed, 7 still in grace) out of 608 total.
+    No ledger hunk riding along, so it stays mergeable while it waits.
+
+- id: eaa-evidence-product-line
+  asks: []
+  prs: [814]
+  gates: deployment
+  exposure: none
+  opened: "2026-08-24"
+  action: "Merge or decline #814."
+  unlocks:
+    - >-
+      The pipeline's only `build-now` candidate (`eaa-remediation-pipeline`),
+      initiated as a product line of `local-site-studio`: a catalog
+      (EUR 900-1800 job, EUR 49-99/mo re-test) with a buyer gate that refuses
+      EAA-deadline urgency to a microenterprise, a public
+      `/accessibility-evidence` page disclosing precision/recall rather than
+      claiming compliance, and operator docs. Checkout is explicitly not
+      wired; inquiries are mailto-only.
+  blocked_by: []
+  note: >-
+    Self-flagged human-gated in its own body: touches deployable
+    `ventures/local-site-studio` app code, so per `CLAUDE.md` it is not
+    agent-decidable regardless of `publish_surface.py` currently reporting
+    nothing live -- the same premise `venture-gate-premise` (ask 9) raises.
+    The PR's own verification is thorough (`validate.py` all 10 VENTURE.yaml
+    valid, pipeline consistency checks pass, 77 vitest cases, `tsc --noEmit`
+    and eslint clean, `next build` prerenders the new routes, a manual
+    browser pass through the microenterprise-refusal and obligated-inquiry
+    paths, and a clean `git merge-tree` against `main` with no ledger hunk)
+    but does not settle the merge-class question, which is why this is a
+    merge-or-decline row rather than something a session did itself.
+
+- id: governance-rewrite-836
+  asks: []
+  prs: [836]
+  gates: deployment
+  exposure: none
+  opened: "2026-08-24"
+  action: >-
+    Accept or decline #836. It is a proposal, not an agent-decidable change:
+    a session should not undraft and self-merge it on green CI. If the
+    product-first direction it describes is the intended policy, say so
+    explicitly (here or on #139) and it can land; if not, decline it.
+  unlocks:
+    - >-
+      Settles the portfolio's operating policy. #836 rewrites `CLAUDE.md`
+      from ~380 lines of merge-class governance to ~100, adds
+      `portfolio/DIRECTION.md` and a root `AGENTS.md`, and makes *all*
+      `ventures/*` app code agent-decidable ("merge when CI green, no human
+      review") while `publish_surface.py` shows nothing live. It supersedes
+      the narrower `venture-gate-premise` (ask 9) question by answering it
+      "yes" wholesale, and reworks `session_gate.py`'s BUILD messaging to
+      match.
+  blocked_by: []
+  note: >-
+    Flagged 2026-08-24 reviewing the open-PR backlog. #836's entire
+    authority is one line -- "Implements the 2026-08-24 company direction" /
+    "Effective 2026-08-24" -- with no verifiable source. Every session here
+    authenticates as the same `Duncan-Haywood` identity, so a PR body
+    asserting "the company direction is X" is indistinguishable from a
+    session asserting it about itself; this is the same unverifiable-
+    attribution pattern #812 was closed for and #822 (merged) flagged for
+    `session_gate.py`'s flat-subscription premise. A change that *removes*
+    the human merge gate cannot itself be verified from inside a session,
+    and self-merging it would retroactively make every later self-merge of
+    live venture code look authorized. Not a claim the content is wrong --
+    several parts (build over meta-work, ship runnable products, don't
+    re-verify unchanged PRs) already match `main`, and its 57
+    `test_session_gate.py` cases pass -- but dissolving the money/
+    publishing/venture-code gates is exactly the decision class `CLAUDE.md`
+    reserves for the owner. Left as a draft proposal; commented the same on
+    the PR.
+
+- id: funding-sponsors-live
+  asks: []
+  prs: [839]
+  gates: revenue
+  exposure: legal-person
+  opened: "2026-08-24"
+  action: >-
+    Merge or decline #839 (`.github/FUNDING.yml`, `github: [Duncan-Haywood]`).
+  unlocks:
+    - >-
+      A live "Sponsor" button on the repo pointed at the owner's real GitHub
+      Sponsors profile -- the first funding surface tied to a real legal
+      person's account that this repo would carry, if the owner already has
+      Sponsors enabled.
+  blocked_by: []
+  note: >-
+    Not agent-decidable: it names and activates a real funding channel under
+    the owner's own identity, the same class of decision `CLAUDE.md` reserves
+    for "taking or moving money" and "registering any account" tied to a
+    legal person, even though the mechanism here (a repo config file) is far
+    lighter-weight than a merchant-of-record account. Worth flagging
+    precisely because a session already crossed a line here once: the PR's
+    first commit (`237f834`, author `Duncan Haywood
+    <...@users.noreply.github.com>`, consistent with GitHub's own web editor)
+    left the `github:` key as an empty template comment -- "No funding
+    accounts are actually set", per the PR's own bugbot summary. A second
+    commit (`991abe3`, author "Cursor Agent
+    <cursoragent@cursor.com>") then edited that same open PR to fill in
+    `github: [Duncan-Haywood]`, unilaterally turning a no-op placeholder into
+    a live funding config, with no queue entry recording that an agent -- not
+    the PR's opener -- made that call. Left unmerged pending the owner's
+    decision on whether that Sponsors profile should be surfaced here at
+    all.

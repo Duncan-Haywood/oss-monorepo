@@ -143,6 +143,11 @@ export default function RoomPreviewExperiment() {
             />
           </div>
 
+          <p className="mt-4 text-xs leading-5 text-stone-500">
+            Modeled outcomes are illustrative only, not financial or investment advice. Validate
+            demand, costs, rights, and fulfillment before making business decisions.
+          </p>
+
           <div
             className={`mt-5 rounded-2xl border p-4 ${
               isBlocked ? "border-amber-200 bg-amber-50 text-amber-900" : "border-emerald-200 bg-emerald-50 text-emerald-900"

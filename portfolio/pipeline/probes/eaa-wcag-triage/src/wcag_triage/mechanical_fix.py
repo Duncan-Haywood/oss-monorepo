@@ -16,10 +16,25 @@ The patches here are the ones that do not add words:
 - remove ``aria-hidden`` from a focusable control (the control already
   has a name, or a different rule would have said so)
 - drop a zoom-lock on the viewport meta
+- remove a ``<meta http-equiv=refresh>`` with a positive delay
+- unwrap ``<blink>`` / ``<marquee>``, keeping the text they already hold
+- drop an ``aria-label`` / ``aria-labelledby`` that does not contain the
+  visible label, so the name comes from the content that is already there
 - rewrite a dead ``<label for>`` onto the unique expression-prefixed
   control id that already ends with that literal (forgotten-prefix).
   A search field with no label in the file is still skipped: there is
   no ``for`` to rewrite, and inventing a name is content.
+- add ``muted`` to ``<video>`` / ``<audio autoplay>`` (1.4.2). The
+  rule's own first remediation is a boolean attribute, not a word.
+- drop a visual ``transform: rotate()`` on a bare ``html`` / ``body``
+  rule inside a pure orientation media query (1.3.4). Combined
+  queries, no-op turns, and transforms that carry other functions
+  stay
+- underline a colour-only in-prose link (1.4.1). The rule's own first
+  remediation is this one mark; the words and the colours stay.
+- wrap body content that is not the navigation block in ``<main>``
+  (2.4.1). The rule's own second remediation is this landmark. A
+  skip-link would invent words; this pass will not write one.
 
 A low close rate on blocking findings is a result, not a bug. The
 remainder is the contractor step.
@@ -41,9 +56,20 @@ from .expressions import (
     strip_expressions,
 )
 from .parser import parse
-from .rules import Finding
+from .rules import Finding, _has_visual_rotation
 
 _INTERACTIVE = frozenset({"a", "button", "input", "select", "textarea"})
+_NAME_FROM_CONTENT = frozenset({"a", "button", "input"})
+_REFRESH_DELAY = re.compile(r"^\s*(\d+(?:\.\d+)?)")
+_META_TAG = re.compile(r"<meta\b[^>]*>", re.I)
+_MOVING_WRAP = re.compile(
+    r"<(?P<tag>blink|marquee)\b[^>]*>(?P<body>.*?)</(?P=tag)\s*>",
+    re.I | re.S,
+)
+_OVERRIDE_ATTR = re.compile(
+    r"""\s+aria-(?:label|labelledby)=(?P<q>['"])(?:(?!(?P=q)).)*(?P=q)""",
+    re.I | re.S,
+)
 _NO_LABEL_TYPES = frozenset({"hidden"})
 _ATTR_FIND = re.compile(
     r"""(?P<name>[A-Za-z_:][-\w:.]*)\s*=\s*(?P<q>['"])(?P<val>(?:(?!(?P=q)).)*)(?P=q)""",
@@ -54,8 +80,39 @@ _CONTROL_OPEN = re.compile(
     re.I | re.S,
 )
 _LABEL_OPEN = re.compile(r"""<label\b(?P<body>[^>]*)>""", re.I | re.S)
+_ANCHOR_OPEN = re.compile(r"<a\b[^>]*>", re.I | re.S)
+_STYLE_ATTR = re.compile(
+    r"""\bstyle\s*=\s*(?P<q>['"])(?P<val>(?:(?!(?P=q)).)*)(?P=q)""",
+    re.I | re.S,
+)
 _SEPARATOR_ONLY = re.compile(r"^[\W_]*$")
+_DECORATION_PROPS = frozenset({"text-decoration", "text-decoration-line"})
 _MISMATCH_MARK = "dead in the rendered page"
+_STYLE_BLOCK = re.compile(r"(<style\b[^>]*>)(.*?)(</style\s*>)", re.I | re.S)
+_PURE_ORIENTATION = re.compile(
+    r"@media\s*\(\s*orientation\s*:\s*(?:portrait|landscape)\s*\)\s*\{",
+    re.I,
+)
+_BARE_TYPE_RULE = re.compile(
+    r"(?P<prefix>^|[{};])\s*(?P<sel>html|body)\s*\{(?P<decls>[^}]*)\}",
+    re.I | re.S,
+)
+_ONLY_ROTATE = re.compile(
+    r"^\s*rotate\(\s*-?[\d.]+\s*(?:deg|grad|rad|turn)?\s*\)\s*$",
+    re.I,
+)
+_BODY_OPEN = re.compile(r"<body\b[^>]*>", re.I)
+_BODY_CLOSE = re.compile(r"</body\s*>", re.I)
+_NAV_BLOCK = re.compile(r"<nav\b[^>]*>.*?</nav\s*>", re.I | re.S)
+_NAV_ROLE_BLOCK = re.compile(
+    r"<(?P<tag>[a-zA-Z][\w:-]*)\b[^>]*\brole\s*=\s*(?P<q>['\"])"
+    r"navigation(?P=q)[^>]*>.*?</(?P=tag)\s*>",
+    re.I | re.S,
+)
+_HAS_MAIN = re.compile(
+    r"<main\b|role\s*=\s*(['\"])main\1",
+    re.I,
+)
 
 LIMITS = (
     "Fixture or supplied markup, not a live shop theme.",
@@ -146,12 +203,52 @@ def try_patch(html: str, finding: Finding) -> tuple[Optional[str], str]:
         nxt = _relax_viewport(html)
         if nxt is not None:
             return nxt, "removed the viewport zoom-lock"
+    if finding.criterion == "2.2.1":
+        nxt = _remove_meta_refresh(html)
+        if nxt is not None:
+            return nxt, "removed a timed meta refresh"
+    if finding.criterion == "2.2.2":
+        nxt = _unwrap_moving_content(html)
+        if nxt is not None:
+            return nxt, f"unwrapped <{finding.element}>, keeping its existing text"
+    if finding.criterion == "2.5.3":
+        nxt = _drop_name_override(html, finding)
+        if nxt is not None:
+            return nxt, (
+                "dropped the accessible-name override so the name "
+                "comes from the visible text already on the control"
+            )
     if finding.criterion == "1.3.1" and _MISMATCH_MARK in finding.message:
         nxt = _rewrite_forgotten_prefix(html)
         if nxt is not None:
             return nxt, (
                 "rewrote a dead <label for> onto the unique "
                 "expression-prefixed control id"
+            )
+    if finding.criterion == "1.4.2":
+        nxt = _mute_autoplay(html, finding)
+        if nxt is not None:
+            return nxt, "added muted to autoplaying media"
+    if finding.criterion == "1.3.4":
+        nxt = _drop_orientation_rotate(html)
+        if nxt is not None:
+            return nxt, (
+                "removed a visual rotate() on <html>/<body> under a "
+                "pure orientation media query"
+            )
+    if finding.criterion == "1.4.1":
+        nxt = _underline_color_only_link(html, finding)
+        if nxt is not None:
+            return nxt, (
+                "underlined a colour-only in-prose link; "
+                "the words and colours stay"
+            )
+    if finding.criterion == "2.4.1":
+        nxt = _wrap_content_in_main(html)
+        if nxt is not None:
+            return nxt, (
+                "wrapped content after the navigation block in <main>; "
+                "no skip-link text was invented"
             )
     return None, skip_reason(finding)
 
@@ -361,6 +458,65 @@ def _relax_viewport(html: str) -> Optional[str]:
     return html[: match.start()] + new_tag + html[match.end() :]
 
 
+def _remove_meta_refresh(html: str) -> Optional[str]:
+    """Drop every ``<meta http-equiv=refresh>`` whose delay is positive.
+
+    ``content="0"`` is an immediate redirect, not a time limit, and the
+    rule does not fire on it — this pass must not remove those either.
+    """
+    changed = False
+    parts: list[str] = []
+    last = 0
+    for match in _META_TAG.finditer(html):
+        tag = match.group(0)
+        if not re.search(r"""\bhttp-equiv=(['"])refresh\1""", tag, flags=re.I):
+            continue
+        content = re.search(
+            r"""\bcontent=(['"])(.*?)\1""", tag, flags=re.I | re.DOTALL
+        )
+        if content is None:
+            continue
+        delay = _REFRESH_DELAY.match(content.group(2))
+        if delay is None or float(delay.group(1)) <= 0:
+            continue
+        parts.append(html[last : match.start()])
+        last = match.end()
+        changed = True
+    if not changed:
+        return None
+    parts.append(html[last:])
+    return "".join(parts)
+
+
+def _unwrap_moving_content(html: str) -> Optional[str]:
+    """Replace one ``<blink>``/``<marquee>`` with the text it already holds."""
+    nxt, n = _MOVING_WRAP.subn(r"\g<body>", html, count=1)
+    return nxt if n else None
+
+
+def _drop_name_override(html: str, finding: Finding) -> Optional[str]:
+    """Remove ``aria-label`` / ``aria-labelledby`` from the named control.
+
+    The visible text stays. The rule's own remediation is to drop the
+    override and let the name come from content — that is a deletion,
+    not a new name.
+    """
+    if finding.element not in _NAME_FROM_CONTENT and finding.element != "div":
+        return None
+    lines = html.splitlines(keepends=True)
+    if finding.line < 1 or finding.line > len(lines):
+        return None
+    idx = finding.line - 1
+    open_pat = rf"<{finding.element}\b[^>]*>"
+    match = re.search(open_pat, lines[idx], flags=re.I | re.S)
+    if match is None:
+        return None
+    tag = match.group(0)
+    new_tag, n = _OVERRIDE_ATTR.subn("", tag)
+    if n == 0 or new_tag == tag:
+        return None
+    lines[idx] = lines[idx][: match.start()] + new_tag + lines[idx][match.end() :]
+    return "".join(lines)
 def _attr_in(body: str, name: str) -> tuple[str, str] | None:
     """Original (quote, value) for ``name`` inside a start-tag body."""
     for match in _ATTR_FIND.finditer(body):
@@ -454,3 +610,252 @@ def _rewrite_forgotten_prefix(html: str) -> Optional[str]:
         )
         changed = True
     return updated if changed else None
+
+
+def _mute_autoplay(html: str, finding: Finding) -> Optional[str]:
+    """Add ``muted`` to the autoplaying media the finding named.
+
+    The rule's first remediation is this boolean. It is not a name, a
+    caption, or a language. Media that is already muted, or that does
+    not autoplay, is left alone.
+    """
+    if finding.element not in {"video", "audio"}:
+        return None
+    lines = html.splitlines(keepends=True)
+    if finding.line < 1 or finding.line > len(lines):
+        return None
+    idx = finding.line - 1
+    pattern = re.compile(
+        rf"<(?P<tag>{re.escape(finding.element)})\b(?P<body>[^>]*)>",
+        re.I | re.S,
+    )
+
+    def insert_muted(match: re.Match) -> str:
+        body = match.group("body")
+        if not re.search(r"\bautoplay\b", body, flags=re.I):
+            return match.group(0)
+        if re.search(r"\bmuted\b", body, flags=re.I):
+            return match.group(0)
+        return f"<{match.group('tag')} muted{body}>"
+
+    new, n = pattern.subn(insert_muted, lines[idx], count=1)
+    if n != 1 or new == lines[idx]:
+        return None
+    lines[idx] = new
+    return "".join(lines)
+
+
+def _matching_brace_block(text: str, open_idx: int) -> tuple[int, int] | None:
+    """Return ``(content_start, close_idx)`` for ``{`` at ``open_idx``."""
+    if open_idx < 0 or open_idx >= len(text) or text[open_idx] != "{":
+        return None
+    depth = 0
+    for i in range(open_idx, len(text)):
+        if text[i] == "{":
+            depth += 1
+        elif text[i] == "}":
+            depth -= 1
+            if depth == 0:
+                return open_idx + 1, i
+    return None
+
+
+def _is_only_visual_rotate(value: str) -> bool:
+    return bool(_ONLY_ROTATE.match(value)) and _has_visual_rotation(value)
+
+
+def _strip_html_body_rotates(body: str) -> tuple[str, bool]:
+    """Drop a bare html/body ``transform: rotate()``; keep every other decl."""
+    changed = False
+
+    def repl(match: re.Match) -> str:
+        nonlocal changed
+        kept: list[str] = []
+        removed = False
+        for part in match.group("decls").split(";"):
+            raw = part.strip()
+            if not raw:
+                continue
+            key, sep, val = raw.partition(":")
+            if sep and key.strip().lower() == "transform" and _is_only_visual_rotate(
+                val
+            ):
+                removed = True
+                continue
+            kept.append(raw)
+        if not removed:
+            return match.group(0)
+        changed = True
+        if not kept:
+            return match.group("prefix")
+        return (
+            f"{match.group('prefix')}{match.group('sel')} "
+            f"{{ {'; '.join(kept)}; }}"
+        )
+
+    return _BARE_TYPE_RULE.sub(repl, body), changed
+
+
+def _strip_orientation_rotates(css_text: str) -> tuple[str, bool]:
+    """Remove visual rotates from pure orientation queries only."""
+    changed = False
+    parts: list[str] = []
+    last = 0
+    for match in _PURE_ORIENTATION.finditer(css_text):
+        span = _matching_brace_block(css_text, match.end() - 1)
+        if span is None:
+            continue
+        content_start, close_idx = span
+        new_body, did = _strip_html_body_rotates(css_text[content_start:close_idx])
+        if not did:
+            continue
+        parts.append(css_text[last : match.start()])
+        if new_body.strip():
+            parts.append(css_text[match.start() : content_start])
+            parts.append(new_body)
+            parts.append("}")
+        last = close_idx + 1
+        changed = True
+    if not changed:
+        return css_text, False
+    parts.append(css_text[last:])
+    return "".join(parts), True
+
+
+def _drop_orientation_rotate(html: str) -> Optional[str]:
+    """Remove the classic html/body orientation-lock rotate from ``<style>``.
+
+    Combined queries (a breakpoint plus orientation), no-op turns, class
+    selectors, and a ``transform`` that carries anything besides
+    ``rotate()`` are left alone — those are not uniquely the lock.
+    """
+    changed = False
+
+    def patch_style(match: re.Match) -> str:
+        nonlocal changed
+        new_css, did = _strip_orientation_rotates(match.group(2))
+        if did:
+            changed = True
+        return f"{match.group(1)}{new_css}{match.group(3)}"
+
+    updated = _STYLE_BLOCK.sub(patch_style, html)
+    return updated if changed else None
+
+
+def _style_with_underline(val: str) -> Optional[str]:
+    """Replace a removed decoration with underline; keep every other property.
+
+    ``text-decoration-line`` is consulted before the shorthand, so a leftover
+    ``none`` on the longhand would hide the underline we just wrote. Both
+    names are dropped and one shorthand is written.
+    """
+    parts = [p.strip() for p in val.split(";") if p.strip()]
+    kept = []
+    already = False
+    for part in parts:
+        key = part.split(":", 1)[0].strip().lower()
+        if key in _DECORATION_PROPS:
+            if "underline" in part.lower():
+                already = True
+            continue
+        kept.append(part)
+    if already:
+        return None
+    kept.append("text-decoration: underline")
+    return "; ".join(kept)
+
+
+def _tag_with_underline(tag: str) -> Optional[str]:
+    """Add or replace the decoration on one opening ``<a>`` tag."""
+    style = _STYLE_ATTR.search(tag)
+    if style is None:
+        if tag.endswith("/>"):
+            return tag[:-2] + ' style="text-decoration: underline"/>'
+        if tag.endswith(">"):
+            return tag[:-1] + ' style="text-decoration: underline">'
+        return None
+    new_val = _style_with_underline(style.group("val"))
+    if new_val is None:
+        return None
+    quote = style.group("q")
+    return (
+        tag[: style.start()]
+        + f"style={quote}{new_val}{quote}"
+        + tag[style.end() :]
+    )
+
+
+def _underline_color_only_link(html: str, finding: Finding) -> Optional[str]:
+    """Restore the underline the page removed from one in-prose link.
+
+    The rule's own remediation is this mark. Colour and link text are
+    content and stay. A link the rule did not name is not touched.
+    """
+    if finding.element != "a":
+        return None
+    root = parse(html)
+    on_line = [n for n in root.iter() if n.tag == "a" and n.line == finding.line]
+    if not on_line:
+        return None
+    target = next((n for n in on_line if n.order == finding.seq), None)
+    if target is None and len(on_line) == 1:
+        target = on_line[0]
+    if target is None:
+        return None
+    nth = on_line.index(target)
+    lines = html.splitlines(keepends=True)
+    if finding.line < 1 or finding.line > len(lines):
+        return None
+    idx = finding.line - 1
+    matches = list(_ANCHOR_OPEN.finditer(lines[idx]))
+    if nth >= len(matches):
+        return None
+    match = matches[nth]
+    new_tag = _tag_with_underline(match.group(0))
+    if new_tag is None or new_tag == match.group(0):
+        return None
+    lines[idx] = lines[idx][: match.start()] + new_tag + lines[idx][match.end() :]
+    return "".join(lines)
+
+
+def _first_nav_end(inner: str) -> int | None:
+    """End offset of the first navigation block, if one is uniquely there."""
+    ends = []
+    for pat in (_NAV_BLOCK, _NAV_ROLE_BLOCK):
+        match = pat.search(inner)
+        if match:
+            ends.append(match.end())
+    return min(ends) if ends else None
+
+
+def _wrap_content_in_main(html: str) -> Optional[str]:
+    """Wrap body content that is not the navigation block in ``<main>``.
+
+    The 2.4.1 finding fires only when there is a repeated block, enough
+    non-nav text, and no heading, skip-link, or main landmark. Wrapping
+    the content after the first navigation element is the rule's own
+    second remediation. It adds a landmark, not words. A skip-link
+    would invent a name; this pass will not write one.
+
+    When the finding fired because of link count rather than a ``<nav>``
+    / ``role=navigation`` element, the whole body inner is wrapped.
+    An empty remainder, or a page that already has a main, is left
+    alone.
+    """
+    if _HAS_MAIN.search(html):
+        return None
+    body_open = _BODY_OPEN.search(html)
+    body_close = _BODY_CLOSE.search(html)
+    if body_open is None or body_close is None:
+        return None
+    if body_close.start() <= body_open.end():
+        return None
+    inner_start = body_open.end()
+    inner_end = body_close.start()
+    inner = html[inner_start:inner_end]
+    nav_end = _first_nav_end(inner)
+    wrap_at = inner_start + nav_end if nav_end is not None else inner_start
+    region = html[wrap_at:inner_end]
+    if not region.strip():
+        return None
+    return html[:wrap_at] + "<main>" + region + "</main>" + html[inner_end:]

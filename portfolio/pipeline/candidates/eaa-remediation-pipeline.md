@@ -405,6 +405,51 @@ Kill it if fewer than two of ten take a paid audit, or if AT verification finds
 that generated fixes close less than half of blocking issues — below that the
 economics are a human service with an AI marketing story.
 
+## Amendment (2026-08-24): first-experiment software half on host themes
+
+Step 1 asked for three real shop themes. Live shops are still owner-gated.
+This pass ran the mechanical fix against the three category themes this
+host venture already delivers — trades, salon, restaurant — from
+[`a11y-generated-sites`](../../research/a11y-generated-sites/)
+(`live-trades.html`, `live-salon.html`, `live-restaurant.html`).
+
+**Unmodified, 0 findings on all three.** That restates Finding 1 of that
+corpus; the close-rate on a clean page is undefined, and is recorded as
+null rather than as 100%.
+
+**On the same three pages, after injecting only the rewriteable defect
+classes the pass is allowed to close** (missing title, heading-level skip,
+viewport zoom-lock, `aria-hidden` on a named control, unmuted autoplay,
+orientation-lock rotate, colour-only in-prose link), the pass closed
+every injected finding. Blocking close-rate **1.0**. Operator job and
+committed JSON: `ventures/local-site-studio/scripts/eaa-evidence-job/`.
+
+A colour-only link (1.4.1) is closed by restoring the underline the page
+removed; the words and the colours stay. A page with a navigation block
+and no bypass (2.4.1) is closed by wrapping the content after that block
+in `<main>` — a landmark, not invented skip-link text. `muted` on
+autoplaying media (1.4.2) and a visual `rotate()` on `<html>`/`<body>`
+under a pure orientation query (1.3.4) already landed in #835. Timed
+refresh, blink/marquee, and name-override already landed in #825. None
+of these invent words. The host-theme close-rate job does not inject
+2.4.1: those pages already have headings, so the finding cannot fire.
+
+That 1.0 is the rate on defects written to be closeable, placed onto real
+theme markup. It is not a shop's natural mix. The probe's own fixture
+aggregate the same day measured **1 of 11** blocking closed, because
+those pages' blocking findings are mostly missing words the pass refuses
+to invent. Read the two numbers together. Neither is AT verification, and
+neither settles the kill criterion.
+
+The catalog / buyer-qualification surface is the sibling draft #814.
+This session did not reopen that surface and did not add a
+`product_lines` marker: that marker is what `session_gate.py` reads to
+stop naming this candidate, and landing it before the buyer surface
+would send the next generic session off to invent a ninth candidate.
+
+Steps 2–3 (contractor price, outreach to ten obligated shops) remain
+owner-gated. No score moved.
+
 ## Sources
 
 - [TestParty — accessibility remediation as EAA enforcement gets underway](https://testparty.ai/blog/website-accessibility-remediation-eaa-enforcement)

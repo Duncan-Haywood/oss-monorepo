@@ -9,6 +9,10 @@ hypotheses:
     status: untested
     checked: null
     evidence: customer-contact
+  - claim: Agents will pay for a dated photo-spec evidence record that states what was checked, not that a portal will accept the listing.
+    status: untested
+    checked: null
+    evidence: customer-contact
 
 economics:
   currency: USD
@@ -27,3 +31,10 @@ kill_criteria:
 links:
   production: null
   analytics: null
+
+# Session-gate marker. mls-photo-spec-preflight graduates as a product
+# line here, not as a new ventures/ directory. session_gate.py reads this
+# list; allocate.py does not. The first experiment's software half is the
+# probe in portfolio/pipeline/probes/mls-photo-spec/.
+product_lines:
+  - slug: mls-photo-spec-preflight

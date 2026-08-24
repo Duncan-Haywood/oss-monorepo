@@ -31,7 +31,8 @@ outweighed.
 | Generic "AI chatbot for X" agency | No moat, churn tracks the customer's enthusiasm rather than any delivered value, and it is a services business wearing a product costume |
 | Micro-SaaS acquisition and agent-operated turnaround | Fails the low-capital constraint outright, and inherits undisclosed obligations — data-protection liabilities, customer contracts, tax positions — from a seller with an incentive not to mention them |
 | AI PR review, AI receptionist for trades, SOC 2 / ISO / HIPAA doc generation, API uptime monitoring, LinkedIn ghostwriting, RAG-as-a-service, e-commerce QA, contract review API | Already evaluated in `ventures/ai-first-markets/src/data/ideas.ts`. Duplicates, not candidates |
-| Local business websites, print-on-demand art marketplace, small-format retail analytics, listing photography, pairwise survey engine, photo ingest tooling | Already a venture in `ventures/`. See that directory |
+| Local business websites, print-on-demand art marketplace, small-format retail analytics, listing photography, pairwise survey engine, photo ingest tooling | Already a venture in `ventures/`. See that directory. A *product line* of one of those (e.g. [mls-photo-spec-preflight](candidates/mls-photo-spec-preflight.md) on listing photography) is not this row — it is the README rule "fits an existing venture → product line first" |
+| MLS photo spec preflight as a new `ventures/` directory | Same buyer and delivery folder as `real-estate-agent-photo-app`. Kept as a product line of that venture, not a ninth company |
 
 ## From the parallel screening runs (#18, #20, #27, #30, #34)
 
@@ -60,7 +61,21 @@ write-up named; the rest carry their own reason.
 | `chatbot-disclosure-monitor` | Correctly scoped and genuinely low-liability, but too small to be a business on its own — this is a feature of a compliance monitoring product, not a subscription anyone renews. Worth revisiting as an add-on if [public-record-watch](candidates/public-record-watch.md) finds a buyer |
 | `einvoice-preflight` (broad version) | Retained as a write-up with a conditional narrow verdict; see [einvoice-preflight](candidates/einvoice-preflight.md) |
 
+## Candidate added 2026-08-24
+
+| Candidate | Why it is not already screened out |
+|---|---|
+| Shopify app-permission drift record | Not the existing storefront QA idea: it records customer-authorized Shopify admin app scopes, webhook topics, and authorization state rather than exercising checkout or visual behaviour. It is not Shopify accessibility evidence, which scans rendered theme output, and it is not vendor-change evidence, which watches public third-party pages. The proposed Shopify App Store channel is real but the narrower permission-audit search demand and platform observability remain unmeasured, so it is retained as a probe rather than treated as validated. |
+
 ## Notes for the next pass
+
+The **vendor-change evidence monitor** is intentionally retained as a separate
+candidate rather than screened out as public-record watch or documentation
+drift. It watches customer-selected commercial vendor pages and preserves
+source-linked before/after evidence; it does not monitor public registers, infer
+legal consequences, or watch a customer's own documentation. Its low
+defensibility and distribution scores are explicit, and both have named probe
+mitigations in [the write-up](candidates/vendor-change-evidence.md).
 
 - **Deadline-driven compliance is the strongest available wedge for this
   portfolio, and also the most dangerous.** It supplies urgency and a price
@@ -76,3 +91,16 @@ write-up named; the rest carry their own reason.
   is one that cannot be automated honestly. It is what keeps a candidate on the
   right side of the ethics gate — the alternative is claiming the automated
   result covers what it does not.
+
+- **DNS configuration evidence monitor** is retained separately from vendor-change evidence and uptime monitoring. It observes customer-authorized DNS answers and delegation, never writes records, sends mail, or claims security, deliverability, or compliance.
+
+`repository-branch-hygiene` is intentionally retained as a separate candidate,
+not screened out as the internal branch-cleanup automation proposed in PR #829.
+The internal workflow is a repository-specific unattended deletion mechanism;
+this candidate is a customer-facing, multi-repository read-only inventory and
+recovery product whose first output is an approval queue. It must still prove a
+buyer and a distribution channel before graduation.
+
+It graduated on 2026-08-24 as `ventures/repository-branch-hygiene` with a local
+scanner vertical slice. Graduation is not demand validation: the read-only pilot
+and willingness-to-pay experiment remain outstanding.

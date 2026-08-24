@@ -5,6 +5,7 @@ shop pages, re-audit, and pin the close rate. A low blocking rate is the
 honest result — most blocking findings on these pages are missing words.
 """
 
+import re
 from collections import Counter
 from pathlib import Path
 
@@ -151,6 +152,77 @@ def test_fixture_aggregate_close_rate_is_one_of_eleven_blocking():
     assert LIMITS[2].startswith("Does not settle the candidate's kill criterion")
 
 
+def test_timed_meta_refresh_is_removed_instant_redirect_stays():
+    html = (
+        '<html lang="en"><head>'
+        '<meta http-equiv="refresh" content="5">'
+        '<meta http-equiv="refresh" content="0;url=/next">'
+        "<title>t</title></head><body><p>Hi</p></body></html>"
+    )
+    assert any(f.criterion == "2.2.1" for f in audit_html(html).findings)
+    result = apply_mechanical_fixes(html)
+    assert not any(f.criterion == "2.2.1" for f in result.after.findings)
+    assert 'content="5"' not in result.html
+    assert 'content="0;url=/next"' in result.html
+    assert any(p.criterion == "2.2.1" for p in result.applied)
+
+
+def test_blink_and_marquee_unwrap_keep_their_text():
+    html = (
+        '<html lang="en"><head><title>t</title></head>'
+        "<body><p><marquee>Sale!</marquee> and <blink>now</blink></p>"
+        "</body></html>"
+    )
+    before = audit_html(html)
+    assert {f.element for f in before.findings if f.criterion == "2.2.2"} == {
+        "marquee",
+        "blink",
+    }
+    result = apply_mechanical_fixes(html)
+    assert not any(f.criterion == "2.2.2" for f in result.after.findings)
+    assert "Sale!" in result.html and "now" in result.html
+    assert "<marquee" not in result.html.lower()
+    assert "<blink" not in result.html.lower()
+
+
+def test_conflicting_aria_label_is_dropped_visible_text_stays():
+    html = (
+        '<html lang="en"><head><title>t</title></head>'
+        '<body><button aria-label="Submit order">Buy now</button>'
+        "</body></html>"
+    )
+    assert any(f.criterion == "2.5.3" for f in audit_html(html).findings)
+    result = apply_mechanical_fixes(html)
+    assert not any(f.criterion == "2.5.3" for f in result.after.findings)
+    assert "Buy now" in result.html
+    assert "aria-label" not in result.html
+    assert "Submit order" not in result.html
+
+
+def test_conflicting_aria_labelledby_is_dropped():
+    html = (
+        '<html lang="en"><head><title>t</title></head>'
+        '<body><span id="n">Submit order</span>'
+        '<button aria-labelledby="n">Buy now</button>'
+        "</body></html>"
+    )
+    assert any(f.criterion == "2.5.3" for f in audit_html(html).findings)
+    result = apply_mechanical_fixes(html)
+    assert not any(f.criterion == "2.5.3" for f in result.after.findings)
+    assert "Buy now" in result.html
+    assert "aria-labelledby" not in result.html
+    # The span is other content, not a name we invented; it stays.
+    assert 'id="n"' in result.html
+
+
+def test_does_not_invent_an_aria_label_on_an_unnamed_button():
+    html = (
+        '<html lang="en"><head><title>t</title></head>'
+        "<body><button></button></body></html>"
+    )
+    result = apply_mechanical_fixes(html)
+    assert "aria-label" not in result.html
+    assert any(s.criterion == "4.1.2" for s in result.skipped)
 FASSBENDER_NEWSLETTER = (
     "<html lang='en'><head><title>t</title></head><body><form>"
     "<label for='mce-NAME'>Name</label>"
@@ -212,6 +284,232 @@ def test_possible_match_is_not_rewritten():
     assert result.html == html
     assert result.applied == []
     assert result.after.counts()["blocking"] == 0
+
+
+def test_autoplay_gets_muted_and_keeps_autoplay():
+    html = (
+        '<html lang="en"><head><title>t</title></head>'
+        '<body><video autoplay src="clip.mp4"></video></body></html>'
+    )
+    assert any(f.criterion == "1.4.2" for f in audit_html(html).findings)
+    result = apply_mechanical_fixes(html)
+    assert not any(f.criterion == "1.4.2" for f in result.after.findings)
+    assert re.search(r"<video\b[^>]*\bmuted\b", result.html, flags=re.I)
+    assert re.search(r"<video\b[^>]*\bautoplay\b", result.html, flags=re.I)
+    assert any(p.criterion == "1.4.2" for p in result.applied)
+
+
+def test_already_muted_autoplay_is_left_alone():
+    html = (
+        '<html lang="en"><head><title>t</title></head>'
+        '<body><audio autoplay muted src="clip.mp3"></audio></body></html>'
+    )
+    result = apply_mechanical_fixes(html)
+    assert result.html == html
+    assert result.applied == []
+
+
+def test_orientation_lock_rotate_is_removed_other_decls_stay():
+    html = (
+        '<html lang="en"><head><title>t</title>'
+        "<style>@media (orientation: portrait) { "
+        "html { color: red; transform: rotate(90deg); } }</style>"
+        "</head><body><p>Hi</p></body></html>"
+    )
+    assert any(f.criterion == "1.3.4" for f in audit_html(html).findings)
+    result = apply_mechanical_fixes(html)
+    assert not any(f.criterion == "1.3.4" for f in result.after.findings)
+    assert "rotate(90deg)" not in result.html
+    assert "color: red" in result.html
+    assert "@media (orientation: portrait)" in result.html
+    assert any(p.criterion == "1.3.4" for p in result.applied)
+
+
+def test_orientation_lock_only_decl_drops_the_empty_query():
+    html = (
+        '<html lang="en"><head><title>t</title>'
+        "<style>@media (orientation: landscape) { "
+        "body { transform: rotate(-90deg); } }</style>"
+        "</head><body><p>Hi</p></body></html>"
+    )
+    result = apply_mechanical_fixes(html)
+    assert not any(f.criterion == "1.3.4" for f in result.after.findings)
+    assert "transform" not in result.html
+    assert "@media (orientation: landscape)" not in result.html
+
+
+def test_combined_orientation_query_is_not_rewritten():
+    html = (
+        '<html lang="en"><head><title>t</title>'
+        "<style>@media (orientation: portrait) and (min-width: 40rem) { "
+        "html { transform: rotate(90deg); } }</style>"
+        "</head><body><p>Hi</p></body></html>"
+    )
+    result = apply_mechanical_fixes(html)
+    assert result.html == html
+    assert "rotate(90deg)" in result.html
+
+
+def test_compound_transform_is_not_stripped():
+    html = (
+        '<html lang="en"><head><title>t</title>'
+        "<style>@media (orientation: portrait) { "
+        "html { transform: rotate(90deg) translateX(10px); } }</style>"
+        "</head><body><p>Hi</p></body></html>"
+    )
+    before = audit_html(html)
+    assert any(f.criterion == "1.3.4" for f in before.findings)
+    result = apply_mechanical_fixes(html)
+    assert result.html == html
+    assert any(s.criterion == "1.3.4" for s in result.skipped)
+
+
+COLOR_ONLY_LINK = (
+    '<html lang="en"><head><title>t</title></head>'
+    '<body><p style="color:#333">Every order ships within two working '
+    "days from our workshop, and you can see "
+    '<a href="/terms" style="color:#06c;text-decoration:none">'
+    "our documentation</a> for the full delivery timetable.</p>"
+    "</body></html>"
+)
+
+
+def test_colour_only_link_is_underlined_words_and_colour_stay():
+    assert any(f.criterion == "1.4.1" for f in audit_html(COLOR_ONLY_LINK).findings)
+    result = apply_mechanical_fixes(COLOR_ONLY_LINK)
+    assert not any(f.criterion == "1.4.1" for f in result.after.findings)
+    assert "our documentation" in result.html
+    assert "color:#06c" in result.html
+    assert "text-decoration: underline" in result.html
+    assert "text-decoration:none" not in result.html.replace(" ", "")
+    assert any(p.criterion == "1.4.1" for p in result.applied)
+
+
+def test_inherited_decoration_is_replaced_with_underline():
+    html = (
+        '<html lang="en"><head><title>t</title></head>'
+        '<body><p style="color:#333">Every order ships within two working '
+        "days from our workshop, and you can see "
+        '<a href="/terms" style="color:#06c;text-decoration:inherit">'
+        "our documentation</a> for the full delivery timetable.</p>"
+        "</body></html>"
+    )
+    assert any(f.criterion == "1.4.1" for f in audit_html(html).findings)
+    result = apply_mechanical_fixes(html)
+    assert not any(f.criterion == "1.4.1" for f in result.after.findings)
+    assert "text-decoration:inherit" not in result.html.replace(" ", "")
+    assert "text-decoration: underline" in result.html
+    assert "color:#06c" in result.html
+
+
+def test_stylesheet_removed_underline_is_restored_on_the_flagged_link_only():
+    html = (
+        '<html lang="en"><head><title>t</title>'
+        "<style>a{text-decoration:none}p{color:#333}a{color:#06c}</style>"
+        "</head><body><p>Every order ships within two working days from "
+        "our workshop, and you can see "
+        '<a href="/terms">our documentation</a> for the full delivery '
+        "timetable.</p>"
+        '<p><a href="/nav">Cart</a></p>'
+        "</body></html>"
+    )
+    before = [f for f in audit_html(html).findings if f.criterion == "1.4.1"]
+    assert len(before) == 1
+    result = apply_mechanical_fixes(html)
+    assert not any(f.criterion == "1.4.1" for f in result.after.findings)
+    assert result.html.count("text-decoration: underline") == 1
+    assert 'href="/nav"' in result.html
+    assert "style=" not in result.html.split('href="/nav"')[1].split(">")[0]
+
+
+def test_already_underlined_link_is_not_rewritten():
+    html = (
+        '<html lang="en"><head><title>t</title></head>'
+        '<body><p style="color:#333">Every order ships within two working '
+        "days from our workshop, and you can see "
+        '<a href="/terms" style="color:#06c;text-decoration:underline">'
+        "our documentation</a> for the full delivery timetable.</p>"
+        "</body></html>"
+    )
+    result = apply_mechanical_fixes(html)
+    assert result.html == html
+    assert not any(p.criterion == "1.4.1" for p in result.applied)
+
+
+_BYPASS_NAV = "<nav><a href='/a'>a</a><a href='/b'>b</a></nav>"
+_BYPASS_CONTENT = (
+    "<div><p>"
+    + ("Every survey you answer sharpens the next one. " * 6)
+    + "</p></div>"
+)
+_BYPASS_PAGE = (
+    '<html lang="en"><head><title>t</title></head><body>'
+    + _BYPASS_NAV
+    + _BYPASS_CONTENT
+    + "</body></html>"
+)
+
+
+def test_nav_without_bypass_gets_a_main_landmark_words_stay():
+    assert any(f.criterion == "2.4.1" for f in audit_html(_BYPASS_PAGE).findings)
+    result = apply_mechanical_fixes(_BYPASS_PAGE)
+    assert not any(f.criterion == "2.4.1" for f in result.after.findings)
+    assert "<main>" in result.html
+    assert "</main>" in result.html
+    assert _BYPASS_NAV in result.html
+    assert "Every survey you answer sharpens the next one." in result.html
+    assert "Skip to content" not in result.html
+    assert "skip to" not in result.html.lower()
+    assert any(p.criterion == "2.4.1" for p in result.applied)
+    # Navigation stays outside the landmark so the landmark is the bypass.
+    nav_end = result.html.find("</nav>") + len("</nav>")
+    main_at = result.html.find("<main>")
+    assert 0 < nav_end <= main_at
+
+
+def test_role_navigation_without_bypass_gets_a_main_landmark():
+    html = (
+        '<html lang="en"><head><title>t</title></head><body>'
+        "<div role='navigation'><a href='/a'>a</a></div>"
+        + _BYPASS_CONTENT
+        + "</body></html>"
+    )
+    assert any(f.criterion == "2.4.1" for f in audit_html(html).findings)
+    result = apply_mechanical_fixes(html)
+    assert not any(f.criterion == "2.4.1" for f in result.after.findings)
+    assert "<main>" in result.html
+    assert "Every survey you answer sharpens the next one." in result.html
+    assert "Skip to content" not in result.html
+
+
+def test_link_count_block_without_nav_wraps_the_body_inner():
+    links = "".join(f"<a href='/p{i}'>p{i}</a>" for i in range(12))
+    html = (
+        '<html lang="en"><head><title>t</title></head><body>'
+        f"<div>{links}</div>"
+        + _BYPASS_CONTENT
+        + "</body></html>"
+    )
+    assert any(f.criterion == "2.4.1" for f in audit_html(html).findings)
+    result = apply_mechanical_fixes(html)
+    assert not any(f.criterion == "2.4.1" for f in result.after.findings)
+    assert result.html.count("<main>") == 1
+    assert f"<div>{links}</div>" in result.html
+    assert "Skip to content" not in result.html
+
+
+def test_heading_already_bypasses_so_main_is_not_invented():
+    html = (
+        '<html lang="en"><head><title>t</title></head><body>'
+        + _BYPASS_NAV
+        + "<div><h1>T</h1>"
+        + _BYPASS_CONTENT
+        + "</div></body></html>"
+    )
+    result = apply_mechanical_fixes(html)
+    assert result.html == html
+    assert not any(p.criterion == "2.4.1" for p in result.applied)
+    assert result.html.count("<main>") == 0
 
 
 def test_search_field_with_no_label_is_not_invented():

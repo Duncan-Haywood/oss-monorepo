@@ -1,0 +1,240 @@
+{
+  "measured": "2026-08-24",
+  "corpus": "portfolio/research/a11y-generated-sites/corpus",
+  "pages": [
+    "live-trades.html",
+    "live-salon.html",
+    "live-restaurant.html"
+  ],
+  "unmodified": {
+    "pages": [
+      {
+        "page": "live-trades.html",
+        "total": 0,
+        "blocking": 0,
+        "degrading": 0
+      },
+      {
+        "page": "live-salon.html",
+        "total": 0,
+        "blocking": 0,
+        "degrading": 0
+      },
+      {
+        "page": "live-restaurant.html",
+        "total": 0,
+        "blocking": 0,
+        "degrading": 0
+      }
+    ],
+    "blocking": 0,
+    "blocking_close_rate": null
+  },
+  "mutated_mechanical_only": {
+    "before": {
+      "total": 21,
+      "blocking": 15,
+      "degrading": 6
+    },
+    "after": {
+      "total": 0,
+      "blocking": 0,
+      "degrading": 0
+    },
+    "closed": {
+      "total": 21,
+      "blocking": 15,
+      "degrading": 6
+    },
+    "blocking_close_rate": 1.0,
+    "pages": [
+      {
+        "page": "live-trades.html",
+        "before": {
+          "total": 7,
+          "blocking": 5,
+          "degrading": 2
+        },
+        "after": {
+          "total": 0,
+          "blocking": 0,
+          "degrading": 0
+        },
+        "closed": {
+          "total": 7,
+          "blocking": 5,
+          "degrading": 2
+        },
+        "blocking_close_rate": 1.0,
+        "applied": [
+          {
+            "criterion": "4.1.2",
+            "impact": "blocking",
+            "action": "removed aria-hidden from a focusable control"
+          },
+          {
+            "criterion": "1.4.2",
+            "impact": "blocking",
+            "action": "added muted to autoplaying media"
+          },
+          {
+            "criterion": "1.4.4",
+            "impact": "blocking",
+            "action": "removed the viewport zoom-lock"
+          },
+          {
+            "criterion": "1.4.1",
+            "impact": "blocking",
+            "action": "underlined a colour-only in-prose link; the words and colours stay"
+          },
+          {
+            "criterion": "1.3.4",
+            "impact": "blocking",
+            "action": "removed a visual rotate() on <html>/<body> under a pure orientation media query"
+          },
+          {
+            "criterion": "2.4.2",
+            "impact": "degrading",
+            "action": "derived <title> from the first heading's existing text"
+          },
+          {
+            "criterion": "2.4.6",
+            "impact": "degrading",
+            "action": "closed a heading-level skip without changing the words"
+          }
+        ],
+        "skipped": []
+      },
+      {
+        "page": "live-salon.html",
+        "before": {
+          "total": 7,
+          "blocking": 5,
+          "degrading": 2
+        },
+        "after": {
+          "total": 0,
+          "blocking": 0,
+          "degrading": 0
+        },
+        "closed": {
+          "total": 7,
+          "blocking": 5,
+          "degrading": 2
+        },
+        "blocking_close_rate": 1.0,
+        "applied": [
+          {
+            "criterion": "4.1.2",
+            "impact": "blocking",
+            "action": "removed aria-hidden from a focusable control"
+          },
+          {
+            "criterion": "1.4.2",
+            "impact": "blocking",
+            "action": "added muted to autoplaying media"
+          },
+          {
+            "criterion": "1.4.4",
+            "impact": "blocking",
+            "action": "removed the viewport zoom-lock"
+          },
+          {
+            "criterion": "1.4.1",
+            "impact": "blocking",
+            "action": "underlined a colour-only in-prose link; the words and colours stay"
+          },
+          {
+            "criterion": "1.3.4",
+            "impact": "blocking",
+            "action": "removed a visual rotate() on <html>/<body> under a pure orientation media query"
+          },
+          {
+            "criterion": "2.4.2",
+            "impact": "degrading",
+            "action": "derived <title> from the first heading's existing text"
+          },
+          {
+            "criterion": "2.4.6",
+            "impact": "degrading",
+            "action": "closed a heading-level skip without changing the words"
+          }
+        ],
+        "skipped": []
+      },
+      {
+        "page": "live-restaurant.html",
+        "before": {
+          "total": 7,
+          "blocking": 5,
+          "degrading": 2
+        },
+        "after": {
+          "total": 0,
+          "blocking": 0,
+          "degrading": 0
+        },
+        "closed": {
+          "total": 7,
+          "blocking": 5,
+          "degrading": 2
+        },
+        "blocking_close_rate": 1.0,
+        "applied": [
+          {
+            "criterion": "4.1.2",
+            "impact": "blocking",
+            "action": "removed aria-hidden from a focusable control"
+          },
+          {
+            "criterion": "1.4.2",
+            "impact": "blocking",
+            "action": "added muted to autoplaying media"
+          },
+          {
+            "criterion": "1.4.4",
+            "impact": "blocking",
+            "action": "removed the viewport zoom-lock"
+          },
+          {
+            "criterion": "1.4.1",
+            "impact": "blocking",
+            "action": "underlined a colour-only in-prose link; the words and colours stay"
+          },
+          {
+            "criterion": "1.3.4",
+            "impact": "blocking",
+            "action": "removed a visual rotate() on <html>/<body> under a pure orientation media query"
+          },
+          {
+            "criterion": "2.4.2",
+            "impact": "degrading",
+            "action": "derived <title> from the first heading's existing text"
+          },
+          {
+            "criterion": "2.4.6",
+            "impact": "degrading",
+            "action": "closed a heading-level skip without changing the words"
+          }
+        ],
+        "skipped": []
+      }
+    ],
+    "limits": [
+      "Host-venture delivered pages, not a live customer shop.",
+      "Re-audit by the same static engine, not assistive-technology verification.",
+      "Does not settle the candidate's kill criterion (that needs live themes and a contractor).",
+      "Mutated close-rate injects only the rewriteable defect classes the pass can close. It is not a shop's natural blocking mix.",
+      "Does not invent alt text, labels, captions, link names, button names, or a page language.",
+      "Unmodified pages of this corpus were already measured clean; a null unmodified close-rate is that measurement, not a missing run."
+    ]
+  },
+  "limits": [
+    "Host-venture delivered pages, not a live customer shop.",
+    "Re-audit by the same static engine, not assistive-technology verification.",
+    "Does not settle the candidate's kill criterion (that needs live themes and a contractor).",
+    "Mutated close-rate injects only the rewriteable defect classes the pass can close. It is not a shop's natural blocking mix.",
+    "Does not invent alt text, labels, captions, link names, button names, or a page language.",
+    "Unmodified pages of this corpus were already measured clean; a null unmodified close-rate is that measurement, not a missing run."
+  ]
+}
