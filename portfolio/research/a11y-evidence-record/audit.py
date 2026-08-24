@@ -370,6 +370,14 @@ CHECKS = {
     "meta-refresh":          ("2.2.1 Timing Adjustable", "blocking"),
     "moving-content":        ("2.2.2 Pause, Stop, Hide", "blocking"),
     "lang-of-parts-invalid": ("3.1.2 Language of Parts", "degrading"),
+    # Added 2026-08-24, the two leftover markup rules #728 left disclosed.
+    # Same decision as the sibling's 2026-08-22 rules, plus the template
+    # adaptation this engine already uses: an expression that could be a
+    # skip link, a landmark role, or either side of a 2.5.3 comparison is
+    # undecidable, never a guessed defect. 1.3.4 stays untested -- it
+    # needs the CSS adapter, not another markup walk.
+    "bypass-blocks":         ("2.4.1 Bypass Blocks", "blocking"),
+    "label-in-name":         ("2.5.3 Label in Name", "blocking"),
 }
 
 FILENAME_ALT = re.compile(
@@ -392,6 +400,25 @@ CAPTION_KINDS = {"captions", "subtitles"}
 _REFRESH_DELAY = re.compile(r"^\s*(\d+(?:\.\d+)?)")
 _MOVING_TAGS = frozenset({"blink", "marquee"})
 
+# Sibling thresholds for 2.4.1 -- see wcag_triage.rules.rule_bypass_blocks.
+# Ten links without a <nav> is a judgement, kept identical so the two
+# engines decide the same pages. Two hundred characters of non-navigation
+# text is the content gate that stopped the sibling firing on a
+# prerendered "Loading…" shell.
+_REPEATED_BLOCK_LINKS = 10
+_MIN_CONTENT_CHARS = 200
+_TEXT_OPAQUE = frozenset({"script", "style", "template", "noscript"})
+
+# Roles whose accessible name is computed from their own content. A
+# textbox is out of scope: its visible label is a separate element.
+_NAME_FROM_CONTENT_ROLES = frozenset({
+    "button", "link", "checkbox", "radio",
+    "menuitem", "menuitemcheckbox", "menuitemradio",
+    "option", "switch", "tab", "treeitem",
+})
+_INPUT_SELF_NAMED = frozenset({"submit", "button", "reset"})
+_NAME_NOISE = re.compile(r"[^\w\s]", re.UNICODE)
+
 _lang_check = None
 
 
@@ -413,6 +440,128 @@ def _lang_reason(value: str):
         from wcag_triage.lang import check as _imported
         _lang_check = _imported
     return _lang_check(value)
+
+
+def _role_token(node: Node) -> tuple[str, bool]:
+    """(first role token, undecidable). An expression-only role is unknown."""
+    raw = node.attr("role")
+    if raw is None:
+        return "", False
+    if is_expr(raw) and not expr_free(raw):
+        return "", True
+    tokens = expr_free(raw).lower().split()
+    return (tokens[0] if tokens else ""), False
+
+
+def _non_navigation_text(node: Node) -> str:
+    """Visible text that is not the navigation the reader wants past.
+
+    Port of the sibling's helper: skip nav subtrees, aria-hidden subtrees,
+    and script/style so a page of links or framework bootstrap cannot look
+    like a page with something to skip to.
+    """
+    role, role_unknown = _role_token(node)
+    if node.tag in _TEXT_OPAQUE or node.tag == "nav" or role == "navigation":
+        return ""
+    if (node.attr("aria-hidden") or "").strip().lower() == "true":
+        return ""
+    if role_unknown:
+        return ""
+    parts = [part.strip() for part in node.text_parts if part and part.strip()]
+    for child in node.children:
+        text = _non_navigation_text(child)
+        if text:
+            parts.append(text)
+    return " ".join(parts)
+
+
+def _normalised_name(text: str) -> str:
+    return " ".join(_NAME_NOISE.sub(" ", text.casefold()).split())
+
+
+def _id_index(nodes: list[Node]) -> dict[str, Node]:
+    index: dict[str, Node] = {}
+    for node in nodes:
+        raw = node.attr("id")
+        if raw is None or is_expr(raw):
+            continue
+        literal = expr_free(raw)
+        if literal and literal not in index:
+            index[literal] = node
+    return index
+
+
+def _takes_name_from_content(node: Node) -> bool:
+    role, role_unknown = _role_token(node)
+    if role_unknown:
+        return False
+    if role:
+        return role in _NAME_FROM_CONTENT_ROLES
+    if node.tag == "button":
+        return True
+    if node.tag == "a":
+        return node.has_attr("href")
+    if node.tag == "input":
+        return expr_free(node.attr("type")).lower() in _INPUT_SELF_NAMED
+    return False
+
+
+def _overriding_name(node: Node, ids: dict[str, Node]) -> tuple[str | None, bool]:
+    """(accessible name from an override, undecidable).
+
+    None means "no name this rule may reason about": no override, or an
+    aria-labelledby that points at an id this document does not define.
+    """
+    labelledby = node.attr("aria-labelledby")
+    if labelledby is not None:
+        if is_expr(labelledby) and not expr_free(labelledby):
+            return None, True
+        parts = []
+        for target_id in expr_free(labelledby).split():
+            target = ids.get(target_id)
+            if target is None:
+                return None, False
+            text = target.text()
+            if not text and any(part == "" for part in target.text_parts):
+                return None, True
+            if text:
+                parts.append(text)
+        joined = " ".join(parts).strip()
+        return (joined or None), False
+    raw = node.attr("aria-label")
+    if raw is None:
+        return None, False
+    if is_expr(raw) and not expr_free(raw):
+        return None, True
+    return expr_free(raw) or None, False
+
+
+def _visible_label(node: Node) -> tuple[str | None, bool]:
+    """(visible text on the control, undecidable).
+
+    None means "not decidable", never "empty". An image-of-text label is
+    refused: an alt is a description, not a transcription, and firing on
+    the difference would be a guess. A glyph-only label is the caller's
+    problem -- this just returns the glyph.
+    """
+    if node.tag == "input":
+        raw = node.attr("value")
+        if raw is None:
+            return None, False
+        if is_expr(raw) and not expr_free(raw):
+            return None, True
+        return expr_free(raw) or None, False
+    for child in node.descendants():
+        if child.tag == "img" and expr_free(child.attr("alt")):
+            return None, False
+    text = node.text()
+    if text:
+        return text, False
+    if any(part == "" for part in node.text_parts) or any(
+        part == "" for child in node.descendants() for part in child.text_parts
+    ):
+        return None, True
+    return None, False
 
 
 def _accessible_name(node: Node) -> tuple[str, bool]:
@@ -511,6 +660,7 @@ def audit_source(source: str, path: str = "<string>", stylesheet=None) -> dict:
     # matching in the resolution pass below.
     labelling_raw: set[str] = set()
     is_fragment = by_tag.get("html", 0) == 0
+    ids = _id_index(nodes)
 
     for node in nodes:
         hidden = node.attr("aria-hidden") == "true" or node.has_attr("hidden")
@@ -751,6 +901,40 @@ def audit_source(source: str, path: str = "<string>", stylesheet=None) -> dict:
                     "focusable, so it is announced as nothing when tabbed to",
                     path))
 
+        # --- 2.5.3 label in name -------------------------------------------
+        # A speech-input user activates a control by saying what it says.
+        # When the button reads "Buy now" and its accessible name is
+        # "Submit order", the spoken command matches nothing. Same
+        # decision as the sibling's rule_label_in_name, plus expressions.
+        if _takes_name_from_content(node):
+            if (node.attr("aria-hidden") or "").strip().lower() != "true":
+                accessible, name_unknown = _overriding_name(node, ids)
+                # No override: the name comes from the content, so the
+                # criterion holds. Do not mark an expression-only label
+                # undecidable here -- that is the naming rule's job.
+                if accessible or name_unknown:
+                    visible, visible_unknown = _visible_label(node)
+                    if name_unknown or visible_unknown:
+                        undecided.append(_undecidable(
+                            "label-in-name", node,
+                            "the visible label or its accessible-name "
+                            "override is a template expression; whether "
+                            "one contains the other is unknown without "
+                            "the data", path))
+                    elif (
+                        visible is not None
+                        and accessible
+                        and any(char.isalnum() for char in visible)
+                        and _normalised_name(visible) not in _normalised_name(accessible)
+                    ):
+                        findings.append(_finding(
+                            "label-in-name", node,
+                            f'The control reads "{visible}" but is announced '
+                            f'as "{accessible}", which does not contain the '
+                            "visible text. Speech input has nothing to match, "
+                            "so saying what the control says does not "
+                            "operate it.", path))
+
         # --- 1.3.1 data tables ---------------------------------------------
         if node.tag == "table" and node.attr("role") not in ("presentation", "none"):
             descendants = list(node.descendants())
@@ -812,6 +996,57 @@ def audit_source(source: str, path: str = "<string>", stylesheet=None) -> dict:
             findings.append(_finding(
                 "title-missing", titles[0],
                 "<title> is empty", path))
+
+        # --- 2.4.1 bypass blocks -------------------------------------------
+        # Document-level, same three gates as the sibling: a block to
+        # bypass, content to bypass to, and no mechanism (main, heading,
+        # or in-page link). A fragment is not a page. An expression that
+        # could be a skip-link href or a landmark role withdraws the
+        # claim rather than guessing -- the same template adaptation
+        # 2.2.1 / 3.1.2 already use.
+        body = next((n for n in nodes if n.tag == "body"), None)
+        if body is not None:
+            has_nav = False
+            heading = False
+            landmark = False
+            internal_link = False
+            possible_mechanism = False
+            links = 0
+            for node in nodes:
+                role, role_unknown = _role_token(node)
+                if role_unknown:
+                    possible_mechanism = True
+                if node.tag == "nav" or role == "navigation":
+                    has_nav = True
+                elif node.tag == "main" or role == "main":
+                    landmark = True
+                elif len(node.tag) == 2 and node.tag[0] == "h" and node.tag[1] in "123456":
+                    heading = True
+                elif node.tag == "a" and node.has_attr("href"):
+                    href = node.attr("href") or ""
+                    links += 1
+                    if is_expr(href) and not expr_free(href):
+                        possible_mechanism = True
+                    elif href.startswith("#") and len(href) > 1:
+                        internal_link = True
+            if (has_nav or links >= _REPEATED_BLOCK_LINKS) and not (
+                landmark or heading or internal_link
+            ):
+                if len(_non_navigation_text(body)) >= _MIN_CONTENT_CHARS:
+                    if possible_mechanism:
+                        undecided.append(_undecidable(
+                            "bypass-blocks", body,
+                            "a role or in-page href is a template "
+                            "expression; whether a bypass mechanism is "
+                            "present is unknown without the data", path))
+                    else:
+                        findings.append(_finding(
+                            "bypass-blocks", body,
+                            "The page has a block of navigation links and "
+                            "no way past it: no skip link, no <main> "
+                            "landmark, and no heading. A keyboard or "
+                            "screen-reader user has to travel the whole "
+                            "navigation again on every page.", path))
 
     # --- resolve label/aria references now that every id is known -----------
     known_ids = set(tree.ids)
@@ -991,9 +1226,9 @@ NOT_TESTED = [
     # 1.4.1 moved to CHECKS 2026-08-24 -- see the "color-only-link" entry.
     # 2.2.1, 2.2.2, 3.1.2 moved to CHECKS 2026-08-24 -- see "meta-refresh",
     # "moving-content", "lang-of-parts-invalid". 3.1.1 validity joined the
-    # existing existence check the same pass.
-    ("2.4.1 Bypass Blocks", "the absence of a skip link or of landmark structure is detectable from the markup; no rule here looks -- a commonly-failed Level A criterion on shop pages"),
-    ("2.5.3 Label in Name", "an accessible name that does not contain the control's visible text is decidable from the markup; no rule here looks"),
+    # existing existence check the same pass. 2.4.1 and 2.5.3 moved to
+    # CHECKS later the same day -- see "bypass-blocks", "label-in-name".
+    # 1.3.4 is the remaining markup-adjacent row and still needs CSS.
     ("Alt text quality", "an alt attribute that is present and non-empty may still describe the wrong thing; only a human can say"),
     ("Assistive-technology outcome", "no static tool establishes whether a real screen reader user can complete checkout"),
 ]

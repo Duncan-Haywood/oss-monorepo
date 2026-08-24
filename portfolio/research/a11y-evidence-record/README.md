@@ -421,6 +421,17 @@ decidable from markup and still have no rule here; 1.3.4 needs the CSS
 adapter 1.4.1 used. Own-site / generated-site snapshots were not rebuilt.
 No score moved.
 
+**Amendment, 2026-08-24 — 2.4.1 and 2.5.3, the leftover markup pair.**
+The two rows the previous amendment left disclosed are now checks. Same
+sibling decisions (2.4.1's three gates including the content floor that
+stopped a prerendered shell reading as a failure; 2.5.3's override-
+contains-visible-text test, refusing image-of-text and glyph-only
+labels), plus the template adaptation: an expression that could be a
+skip-link href, a landmark role, or either side of a 2.5.3 comparison
+is undecidable. 1.3.4 stays disclosed-untested -- it needs the CSS
+adapter, not another markup walk. Own-site / generated-site snapshots
+were not rebuilt. No score moved.
+
 ## What could not be measured here
 
 - **No AT verification, so the candidate's actual kill criterion is untested.**

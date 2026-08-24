@@ -21513,3 +21513,75 @@ entries:
           make. `payout-rail` remains the only queue item that moves the
           revenue ceiling off $0.
     mrr_end: null
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+          Scheduled "continue work on the repo... creating products to
+          increase profits" session, designated branch
+          `cursor/product-profit-generation-fdad`. `session_gate.py` ->
+          PROCEED (cadence 0.88/h, burst of 3). Did not re-derive #717/#718/#719
+          or #723. Did not re-port 1.4.1 (merged as #726). Did not touch
+          draft #725. Did not add a queue row.
+      - >-
+          Unique leftover taken: port the sibling engine's remaining
+          markup-decidable rules that #726 did not -- 2.2.1 (positive-delay
+          meta refresh), 2.2.2 (`<blink>`/`<marquee>`), 3.1.2 (invalid
+          `lang` on a part) -- and close the 3.1.1 overclaim the sibling
+          closed on 2026-08-22 (existence was checked, validity was not, so
+          `lang="engl"` read as clean). Validity reuses the sibling's
+          BCP-47 check; a template-expression `lang` or refresh delay is
+          undecidable. 2.4.1, 2.5.3 and 1.3.4 stay disclosed-untested.
+          Own-site / generated-site snapshots were not rebuilt. No score
+          moved. No new file, no new path-span in walkable closure prose.
+      - >-
+          Merged as #728 (`b9e5ea7d`) on this session's own judgment.
+          Agent-decidable per `CLAUDE.md`: `portfolio/research/` only, no
+          `ventures/*` code, publishes nothing, spends nothing, adds no
+          automation. Verified rather than trusted: 10/10 CI green, and
+          hand-ran `a11y-evidence-record` 114/114 (was 103; 11 new tests),
+          `a11y-engine-agreement` 15/15,
+          `a11y-external-coverage-reference` 29/29, `a11y-axe-recall` 15/15.
+          `git merge-tree` against the live `main` tip was clean.
+      - >-
+          Owner-gated open PRs unchanged: #720, #583, #531, #372, #368.
+          Ask 9 still unanswered. `payout-rail` remains the only queue item
+          that moves the revenue ceiling off $0.
+    mrr_end: null
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+          Scheduled "continue work on the repo... creating products to
+          increase profits" session, designated branch
+          `cursor/product-profit-generation-e5dd`. `session_gate.py` ->
+          PROCEED (cadence 0.88/h, burst of 3). Did not re-derive
+          #717/#718/#719/#726/#728. Did not re-port 2.2.1 / 2.2.2 / 3.1.2
+          / 3.1.1 validity. Did not touch draft #725. Did not add a queue
+          row. Folded in the #728 ledger commit that had stayed on
+          `cursor/product-profit-generation-fdad` after that PR merged.
+      - >-
+          Unique leftover taken: port the two markup rules #728 left
+          disclosed -- 2.4.1 Bypass Blocks (nav/link-count gate, content
+          floor, suppress on main / heading / skip link) and 2.5.3 Label
+          in Name (override must contain the visible text; image-of-text
+          and glyph-only labels refused). A template expression that
+          could be a skip-link href, a landmark role, or either side of
+          a 2.5.3 comparison is undecidable. 1.3.4 stays
+          disclosed-untested -- it needs the CSS adapter. Own-site /
+          generated-site snapshots were not rebuilt. No score moved.
+      - >-
+          Verified rather than trusted: `a11y-evidence-record` 141/141
+          (was 114), `a11y-engine-agreement` 15/15,
+          `a11y-external-coverage-reference` 29/29. `git merge-tree`
+          against the live `main` tip was clean. Agent-decidable per
+          `CLAUDE.md`: `portfolio/research/` and this ledger only, no
+          `ventures/*` code, publishes nothing, spends nothing, adds no
+          automation.
+      - >-
+          Owner-gated open PRs unchanged: #720, #583, #531, #372, #368.
+          Ask 9 still unanswered. `payout-rail` remains the only queue
+          item that moves the revenue ceiling off $0.
+    mrr_end: null
