@@ -17,7 +17,7 @@ economics:
   monthly_cost: 0
   customers: null
 budget:
-  monthly_cap: 0
+  monthly_cap: 50
   protected: true
 kill_criteria:
   - Fewer than three qualified agencies identify a recurring consent evidence workflow after ten conversations.
