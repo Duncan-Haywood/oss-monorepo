@@ -83,24 +83,19 @@ def _markdown_report(reports: list[tuple[Path, list[dict[str, str]]]], read_erro
     return "\n".join(lines).rstrip() + "\n"
 
 
-def _json_report(reports: list[tuple[Path, list[dict[str, str]]]], read_errors: list[dict[str, str]], *, batch: bool) -> dict[str, Any]:
+def _json_report(reports: list[tuple[Path, list[dict[str, str]]]], read_errors: list[dict[str, str]]) -> dict[str, Any]:
     """Build one stable adapter payload for both single files and directories."""
     rule_counts = Counter(error["rule"] for _, errors in reports for error in errors)
     errors = [error for _, invoice_errors in reports for error in invoice_errors]
-    output: dict[str, Any] = {
+    return {
         "status": "pass" if not errors and not read_errors else "fail",
         "files_checked": len(reports),
         "files_failed": sum(bool(invoice_errors) for _, invoice_errors in reports),
         "observations": len(errors),
         "rules": dict(sorted(rule_counts.items())),
+        "reports": [{"file": path.as_posix(), "errors": invoice_errors} for path, invoice_errors in reports],
         "read_errors": read_errors,
     }
-    if batch:
-        output["reports"] = [{"file": path.as_posix(), "errors": invoice_errors} for path, invoice_errors in reports]
-    else:
-        output["file"] = reports[0][0].as_posix() if reports else None
-        output["errors"] = errors
-    return output
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -141,7 +136,7 @@ def main(argv: list[str] | None = None) -> int:
     errors = [error for _, invoice_errors in reports for error in invoice_errors]
     has_read_errors = bool(read_errors)
     if args.format == "json":
-        print(json.dumps(_json_report(reports, read_errors, batch=args.invoice.is_dir()), indent=2))
+        print(json.dumps(_json_report(reports, read_errors), indent=2))
     elif args.format == "markdown":
         print(_markdown_report(reports, read_errors), end="")
     elif args.format == "sarif":

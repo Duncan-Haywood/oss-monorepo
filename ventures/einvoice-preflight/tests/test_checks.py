@@ -74,9 +74,17 @@ class ChecksTest(unittest.TestCase):
             invoice = json.loads(json.dumps(VALID))
             invoice["totals"]["gross"] = 200
             invoice_path.write_text(json.dumps(invoice))
-            self.assertEqual(main([str(invoice_path), "--format", "json"]), 1)
+            output = io.StringIO()
+            with contextlib.redirect_stdout(output):
+                self.assertEqual(main([str(invoice_path), "--format", "json"]), 1)
+            report = json.loads(output.getvalue())
+            self.assertEqual(report["files_checked"], 1)
+            self.assertEqual(report["files_failed"], 1)
+            self.assertEqual(report["observations"], 1)
+            self.assertEqual(report["reports"][0]["file"], "invoice.json")
+            self.assertEqual(report["reports"][0]["errors"][0]["rule"], "INV-017")
 
-    def test_cli_json_single_file_includes_adapter_summary(self):
+    def test_cli_json_single_file_uses_batch_envelope(self):
         with tempfile.TemporaryDirectory() as directory:
             invoice_path = Path(directory) / "invoice.json"
             invoice = json.loads(json.dumps(VALID))
@@ -86,12 +94,12 @@ class ChecksTest(unittest.TestCase):
             with contextlib.redirect_stdout(output):
                 self.assertEqual(main([str(invoice_path), "--format", "json"]), 1)
             report = json.loads(output.getvalue())
-            self.assertEqual(report["file"], "invoice.json")
             self.assertEqual(report["files_checked"], 1)
             self.assertEqual(report["files_failed"], 1)
             self.assertEqual(report["observations"], 1)
             self.assertEqual(report["rules"], {"INV-017": 1})
-            self.assertEqual(report["errors"][0]["rule"], "INV-017")
+            self.assertEqual(report["reports"][0]["file"], "invoice.json")
+            self.assertEqual(report["reports"][0]["errors"][0]["rule"], "INV-017")
 
     def test_cli_json_single_file_reports_read_error(self):
         with tempfile.TemporaryDirectory() as directory:
@@ -101,8 +109,8 @@ class ChecksTest(unittest.TestCase):
             with contextlib.redirect_stdout(output):
                 self.assertEqual(main([str(invoice_path), "--format", "json"]), 2)
             report = json.loads(output.getvalue())
-            self.assertIsNone(report["file"])
             self.assertEqual(report["files_checked"], 0)
+            self.assertEqual(report["reports"], [])
             self.assertEqual(report["read_errors"][0]["file"], "broken.json")
 
     def test_cli_emits_sarif_for_ci_and_editor_integrations(self):
@@ -134,7 +142,12 @@ class ChecksTest(unittest.TestCase):
         output = io.StringIO()
         with patch("sys.stdin", io.StringIO(json.dumps(VALID))), contextlib.redirect_stdout(output):
             self.assertEqual(main(["-", "--format", "json"]), 0)
-        self.assertEqual(json.loads(output.getvalue())["status"], "pass")
+        report = json.loads(output.getvalue())
+        self.assertEqual(report["status"], "pass")
+        self.assertEqual(report["files_checked"], 1)
+        self.assertEqual(report["files_failed"], 0)
+        self.assertEqual(report["observations"], 0)
+        self.assertEqual(report["reports"][0]["file"], "stdin.json")
 
     def test_cli_labels_stdin_in_sarif_and_keeps_failure_exit(self):
         invoice = json.loads(json.dumps(VALID))
