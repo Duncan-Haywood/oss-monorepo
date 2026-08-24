@@ -1492,27 +1492,36 @@ def _control_headline(record: dict) -> str:
 # ---------------------------------------------------------------------------
 # Mechanically determined repairs. Read-only: these are suggestions, never
 # writes. The candidate's first experiment is "audit-and-fix"; the audit
-# half has been here since 2026-08-20. The one defect class that can be
-# repaired without inventing a name or guessing a colour is the fassbender
-# forgotten-prefix: a literal <label for> that cannot match any id in its
-# file, next to exactly one expression-bearing control id whose trailing
-# literal is that for-value after a separator. That is a fact about two
-# strings, not a conformance claim, and applying it is a merchant decision.
+# half has been here since 2026-08-20. Two defect classes can be repaired
+# without inventing a name or guessing a colour:
+#
+# 1. Forgotten-prefix labels: a literal <label for> that cannot match any
+#    id in its file, next to exactly one expression-bearing control id
+#    whose trailing literal is that for-value after a separator.
+# 2. Viewport zoom locks: a <meta name=viewport> whose content lists a
+#    literal user-scalable=no and/or maximum-scale < 2. Dropping those
+#    tokens (and only those tokens) is the unique edit; the rest of the
+#    descriptor is left as written.
+#
+# Both are facts about strings, not conformance claims. Applying one is
+# a merchant decision. Inventing alt text, a visible name, or a contrast
+# colour is still not attempted.
 # ---------------------------------------------------------------------------
 
 FIX_STATEMENT = (
     "The rows below are suggested edits, not applied changes, and not a "
     "claim that the result would conform to WCAG, the European Accessibility "
     "Act, or anything else. Only repairs that are uniquely determined from "
-    "the markup are listed. The only class claimed is a literal "
-    "<label for> that cannot name any control in its file, paired with "
-    "exactly one expression-bearing control id that has that literal as "
-    "its trailing text after a separator -- the theme prefixed the control "
-    "and forgot the label. Nothing here is written to your files."
+    "the markup are listed. Two classes are claimed: a literal <label for> "
+    "that cannot name any control in its file, paired with exactly one "
+    "expression-bearing control id that has that literal as its trailing "
+    "text after a separator; and a viewport meta that blocks zoom to 200%, "
+    "whose unique edit is to drop the blocking token(s) and leave the rest "
+    "of the descriptor. Nothing here is written to your files."
 )
 
 _ATTR_FIND = re.compile(
-    r"""(?P<name>for|id|type)\s*=\s*(?P<q>['"])(?P<val>(?:(?!(?P=q)).)*)(?P=q)""",
+    r"""(?P<name>[A-Za-z_:][-\w:.]*)\s*=\s*(?P<q>['"])(?P<val>(?:(?!(?P=q)).)*)(?P=q)""",
     re.I | re.S,
 )
 _CONTROL_OPEN = re.compile(
@@ -1523,7 +1532,12 @@ _LABEL_OPEN = re.compile(
     r"""<label\b(?P<body>[^>]*)>""",
     re.I | re.S,
 )
+_META_OPEN = re.compile(
+    r"""<meta\b(?P<body>[^>]*)>""",
+    re.I | re.S,
+)
 _SEPARATOR_ONLY = re.compile(r"^[\W_]*$")
+_VIEWPORT_TOKEN = re.compile(r"^\s*([^=\s,]+)\s*=\s*(.+?)\s*$")
 
 
 def _attr_in(body: str, name: str) -> tuple[str, str] | None:
@@ -1554,12 +1568,93 @@ def _forgotten_prefix(literal_for: str, raw_id: str) -> bool:
     return bool(_SEPARATOR_ONLY.match(leftover))
 
 
-def suggest_fixes(files: list[tuple[str, str]]) -> list[dict]:
-    """File-local, uniquely determined forgotten-prefix repairs.
+def _token_is_zoom_block(token: str) -> bool:
+    """Does this viewport descriptor token match the 1.4.4 check's lock?"""
+    match = _VIEWPORT_TOKEN.match(token)
+    if not match:
+        return False
+    key, val = match.group(1).lower(), match.group(2).lower()
+    if key == "user-scalable" and val.replace(" ", "") == "no":
+        return True
+    if key == "maximum-scale":
+        try:
+            return float(val) < 2.0
+        except ValueError:
+            return False
+    return False
 
-    Never writes. A one-file or many-file invocation is the same: pairing
-    never crosses files, because a ``for`` on another partial may already
-    name a different control on that page.
+
+def _drop_zoom_blocks(content: str) -> str | None:
+    """Content with literal zoom-lock tokens removed, or None if none drop.
+
+    An expression-bearing token is kept, never dropped: ``maximum-scale={{ n }}``
+    might render as 3, and guessing would invent a defect-clearing edit.
+    A literal ``user-scalable=no`` next to an expression is still dropped.
+    """
+    kept: list[str] = []
+    dropped = False
+    for token in content.split(","):
+        if is_expr(strip_expressions(token)):
+            stripped = token.strip()
+            if stripped:
+                kept.append(stripped)
+            continue
+        if _token_is_zoom_block(token):
+            dropped = True
+            continue
+        stripped = token.strip()
+        if stripped:
+            kept.append(stripped)
+    if not dropped:
+        return None
+    return ", ".join(kept)
+
+
+def _viewport_repairs(path: str, source: str) -> list[dict]:
+    """Uniquely determined zoom-lock drops in one file. Never writes."""
+    repairs: list[dict] = []
+    for match in _META_OPEN.finditer(source):
+        body = match.group("body")
+        name = _attr_in(body, "name")
+        content = _attr_in(body, "content")
+        if name is None or content is None:
+            continue
+        _name_q, name_val = name
+        content_q, content_val = content
+        if is_expr(strip_expressions(name_val)):
+            continue
+        if expr_free(strip_expressions(name_val)).lower() != "viewport":
+            continue
+        repaired = _drop_zoom_blocks(content_val)
+        if repaired is None or repaired == content_val:
+            continue
+        needle = f"content={content_q}{content_val}{content_q}"
+        if source.count(needle) != 1:
+            continue
+        repairs.append({
+            "file": path,
+            "check": "viewport-scaling-blocked",
+            "success_criterion": CHECKS["viewport-scaling-blocked"][0],
+            "replace": content_val,
+            "with": repaired,
+            "replace_attr": needle,
+            "with_attr": f"content={content_q}{repaired}{content_q}",
+            "reason": (
+                f"this file's viewport meta blocks zoom to 200% "
+                f"({content_val!r}); dropping the blocking token(s) is "
+                f"the unique edit that leaves the rest of the descriptor"
+            ),
+        })
+    return repairs
+
+
+def suggest_fixes(files: list[tuple[str, str]]) -> list[dict]:
+    """File-local, uniquely determined repairs. Never writes.
+
+    Forgotten-prefix pairing never crosses files, because a ``for`` on
+    another partial may already name a different control on that page.
+    Viewport edits are file-local for the same reason: a content string
+    that appears twice is not a unique replacement.
     """
     repairs: list[dict] = []
     for path, source in files:
@@ -1616,6 +1711,7 @@ def suggest_fixes(files: list[tuple[str, str]]) -> list[dict]:
                     f"({original_id!r}) is that literal after a separator"
                 ),
             })
+        repairs.extend(_viewport_repairs(path, source))
     return repairs
 
 
