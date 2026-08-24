@@ -22773,3 +22773,63 @@ entries:
           in CI currently loads this file, so it had gone unnoticed; fixed
           the indentation and confirmed the file parses.
     mrr_end: null
+  - venture: quote-margin-check
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+          Product-first autonomous session (scheduled brief, branch
+          claude/exciting-brown-rhs0iv). session_gate.py read BUILD.
+          Bounded PR triage first, via a background agent over the 11 open
+          PRs: merged #935 (branch-hygiene fix), #934 (ledger entry), #925
+          (Listing Lens wiring) once CI was confirmed green; left precise
+          comments on the rest (#933/#928/#926 hit a pre-existing
+          harness-snapshot CI failure #935 fixed, now needs a rebase;
+          #922/#920 likely share a duplicate venture-scores.yaml entry;
+          #927 has a real merge conflict; #905/#931/#926 are already
+          self-flagged owner-gated by their authors). No duplicates or
+          destructive actions.
+      - >-
+          Product pick: this venture was CLI-only (`src/quote_margin.py`),
+          but its target audience -- freelancers and small agencies, not
+          developers -- is exactly the persona PRODUCT_PLAYBOOK.md says
+          should get a static browser app (shape #1) over a CLI (shape
+          #2), and it had zero discoverability (no landing page, no SEO,
+          not even a dedicated CI workflow -- it was the only python
+          venture in the pipeline pre-scored `build-now`-adjacent with no
+          `.github/workflows/*-ci.yml` at all). Fixed both: added
+          `site/index.html`, a self-contained, zero-dependency,
+          zero-build-step browser calculator with the identical math as
+          the CLI, plus `.github/workflows/quote-margin-check-ci.yml`
+          (previously nothing ran this venture's existing 9 Python tests
+          in CI either).
+      - >-
+          `site/calc.mjs` ports `calculate()`/`load_quote()` line-for-line
+          from `src/quote_margin.py` so the browser and CLI can never
+          disagree; `site/calc.test.mjs` mirrors 7 of the CLI's 9 test
+          cases (including the 54.8571428.../hour worked example -- the
+          two not mirrored are CLI-I/O-specific: CSV formatting and the
+          usage-log file test, neither applicable to the browser module)
+          plus one new currency-validation case the CLI suite didn't
+          cover, 8 tests total. Same local-first, opt-out,
+          DNT/GPC-respecting usage counting pattern as
+          `ai-engineering-academy`'s tools (`site/usage.mjs` +
+          `site/usage.test.mjs`, 4 tests) -- 12 tests total, all green.
+      - >-
+          Verified rather than assumed: ran `node --test` (12/12 pass) and
+          drove the actual page in headless Chromium
+          (`chrome --headless --dump-dom` against a local
+          `python3 -m http.server`) -- the default inputs render "USD
+          54.86/hour", matching the CLI's own test fixture, confirming the
+          DOM wiring calls the tested calc module rather than diverging
+          from it. Discoverability checklist from PRODUCT_PLAYBOOK.md
+          done: title + meta description carrying the actual search phrase
+          ("effective hourly rate calculator"), `SoftwareApplication` +
+          `FAQPage` schema.org JSON-LD, Open Graph tags, robots.txt, a
+          value-test sentence in the README. Disclaimer and privacy line
+          are in both the README and the page footer. Not deployed to a
+          public URL -- publishing under the portfolio's name stays
+          owner-gated per `portfolio/DIRECTION.md`; ready to deploy as a
+          static site once that opens. `portfolio/router/validate.py`
+          still reports all 15 `VENTURE.yaml` files valid (none touched).
+    mrr_end: null
