@@ -433,6 +433,113 @@ class ExpressionAwareLabelMatching(unittest.TestCase):
         self.assertEqual(undecidable(source), [])
 
 
+class PackageWideLabelIndex(unittest.TestCase):
+    """The remaining half of finding 3: a package-wide ``<label for>`` index.
+
+    ``audit_source`` on one file cannot recover
+    ``fassbender-shopify-theme``'s ``theme/templates/search.liquid:22`` --
+    that file has no ``<label for>`` at all, so the engine correctly
+    reports "the label may live in another partial". Across the package
+    it does not. ``../a11y-theme-resolution/`` named this as larger than
+    finding 3 and left it unbuilt; the five hand-verified defects that
+    pass reported all reduce to "no matching label anywhere in the
+    package."
+    """
+
+    def _package(self, files):
+        return audit.resolve_package_labels([
+            audit.audit_source(source, path) for path, source in files
+        ])
+
+    def _non_contrast(self, items):
+        return [item for item in items if item["check"] != "text-contrast-fail"]
+
+    def test_single_file_is_not_a_package(self):
+        # A one-file invocation of a fragment must keep today's semantics:
+        # "not in this file" is not "not in the package".
+        results = self._package([
+            ("search.liquid", "<form><input type='text' id='q'></form>"),
+        ])
+        self.assertEqual([f["check"] for f in results[0]["findings"]], [])
+        self.assertEqual(
+            [u["check"] for u in self._non_contrast(results[0]["undecidable"])],
+            ["control-no-label"],
+        )
+
+    def test_label_in_another_file_clears_the_undecidable(self):
+        results = self._package([
+            ("search.liquid", "<form><input type='text' id='q'></form>"),
+            ("header.liquid", "<label for='q'>Search</label>"),
+        ])
+        self.assertEqual([f["check"] for f in results[0]["findings"]], [])
+        self.assertEqual(self._non_contrast(results[0]["undecidable"]), [])
+
+    def test_same_expression_in_another_file_is_a_certain_match(self):
+        results = self._package([
+            ("field.liquid", "<input type='text' id='{{ id_prefix }}FirstName'>"),
+            ("labels.liquid", "<label for='{{id_prefix}}FirstName'>First name</label>"),
+        ])
+        self.assertEqual([f["check"] for f in results[0]["findings"]], [])
+        self.assertEqual(self._non_contrast(results[0]["undecidable"]), [])
+
+    def test_no_label_anywhere_in_the_package_is_a_finding(self):
+        # The search.liquid:22 shape: a control whose id the theme prefixes
+        # and no ``<label for>`` anywhere that can name it.
+        results = self._package([
+            ("search.liquid",
+             "<form><input type='search' id='{{ idPrefix }}_q'></form>"),
+            ("newsletter.liquid",
+             "<form><label for='mce-NAME'>Name</label>"
+             "<input type='text' id='{{ idPrefix }}_mce-NAME'></form>"),
+        ])
+        search = next(r for r in results if r["file"] == "search.liquid")
+        self.assertEqual(
+            [f["check"] for f in search["findings"]], ["control-no-label"])
+        self.assertIn("anywhere in the package", search["findings"][0]["detail"])
+        self.assertEqual(self._non_contrast(search["undecidable"]), [])
+        # The newsletter file still reports its own same-file mismatch;
+        # another file's unlabelled control does not steal that finding.
+        newsletter = next(r for r in results if r["file"] == "newsletter.liquid")
+        self.assertEqual(
+            [f["check"] for f in newsletter["findings"]],
+            ["label-for-id-mismatch"],
+        )
+
+    def test_possible_cross_file_match_stays_undecidable(self):
+        # Two different expressions could render equal. Accusing the shop
+        # would be the failure mode the positioning forbids.
+        results = self._package([
+            ("field.liquid", "<input type='text' id='{{ a }}X'>"),
+            ("labels.liquid", "<label for='{{ b }}X'>X</label>"),
+        ])
+        field = next(r for r in results if r["file"] == "field.liquid")
+        self.assertEqual([f["check"] for f in field["findings"]], [])
+        undecided = self._non_contrast(field["undecidable"])
+        self.assertEqual([u["check"] for u in undecided], ["control-no-label"])
+        self.assertIn("other files", undecided[0]["reason"])
+
+    def test_other_files_dead_label_is_not_this_controls_mismatch(self):
+        # A dangling ``for="mce-NAME"`` on the newsletter page is not
+        # evidence that the search field's missing label is a mismatch.
+        results = self._package([
+            ("search.liquid", "<form><input type='search' id='q'></form>"),
+            ("newsletter.liquid", "<label for='mce-NAME'>Name</label>"),
+        ])
+        search = next(r for r in results if r["file"] == "search.liquid")
+        self.assertEqual(
+            [f["check"] for f in search["findings"]], ["control-no-label"])
+        self.assertNotIn("mismatch", search["findings"][0]["check"])
+
+    def test_audit_sources_runs_the_package_pass(self):
+        results = audit.audit_sources([
+            ("search.liquid", "<form><input type='search' id='q'></form>"),
+            ("header.liquid", "<label for='q'>Search</label>"),
+        ])
+        search = next(r for r in results if r["file"] == "search.liquid")
+        self.assertEqual([f["check"] for f in search["findings"]], [])
+        self.assertEqual(self._non_contrast(search["undecidable"]), [])
+
+
 class Captions(unittest.TestCase):
     """1.2.2. Added 2026-08-21; see portfolio/research/a11y-engine-agreement/."""
 

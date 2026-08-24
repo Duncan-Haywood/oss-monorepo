@@ -398,21 +398,25 @@ def _accessible_name(node: Node) -> tuple[str, bool]:
     return "", False
 
 
-def _finding(kind, node, detail, source):
+def _finding_at(kind, source, line, element, detail):
     sc, severity = CHECKS[kind]
     return {
         "check": kind,
         "success_criterion": sc,
         "severity": severity,
         "file": source,
-        "line": node.line,
-        "element": node.tag,
+        "line": line,
+        "element": element,
         "detail": detail,
     }
 
 
-def _undecidable(kind, node, reason, source):
-    return {
+def _finding(kind, node, detail, source):
+    return _finding_at(kind, source, node.line, node.tag, detail)
+
+
+def _undecidable(kind, node, reason, source, raw_id=None):
+    item = {
         "check": kind,
         "success_criterion": CHECKS[kind][0],
         "file": source,
@@ -420,6 +424,9 @@ def _undecidable(kind, node, reason, source):
         "element": node.tag,
         "reason": reason,
     }
+    if raw_id is not None:
+        item["raw_id"] = raw_id
+    return item
 
 
 def audit_source(source: str, path: str = "<string>", stylesheet=None) -> dict:
@@ -738,7 +745,8 @@ def audit_source(source: str, path: str = "<string>", stylesheet=None) -> dict:
             undecided.append(_undecidable(
                 "control-no-label", node,
                 f"no <label for={shown!r}> in this file; the label may live "
-                "in another partial of the same page", path))
+                "in another partial of the same page", path,
+                raw_id=pending))
 
     if not is_fragment:
         for node in nodes:
@@ -806,6 +814,11 @@ def audit_source(source: str, path: str = "<string>", stylesheet=None) -> dict:
         "elements": sum(by_tag.values()),
         "is_fragment": is_fragment,
         "tags": dict(by_tag),
+        # Package-wide resolution (see resolve_package_labels) needs the raw
+        # `<label for>` targets this file contributed. JSON-serialisable lists
+        # so a saved per-file result can still be re-resolved offline.
+        "labelling_raw": sorted(labelling_raw),
+        "labelling_ids": sorted(labelling_ids),
     }
 
 
@@ -984,20 +997,104 @@ def merge_stylesheets(css_sources: "list[str]"):
     return contrast_pass.merge_stylesheets(css_sources)
 
 
-def audit_paths(paths: list[str], limit: int | None = None, stylesheet=None) -> list[dict]:
+def resolve_package_labels(results: list[dict]) -> list[dict]:
+    """Re-resolve file-local ``control-no-label`` undecidables against the package.
+
+    ``audit_source`` cannot tell a fragment whose label lives in another
+    partial from one that has no label anywhere. Finding 3 of
+    ``../a11y-theme-resolution/`` measured that 64 of 69 such cases were in
+    the *same* file; the remaining five had no matching ``<label for>`` in
+    the package at all -- including the third fassbender defect
+    (``theme/templates/search.liquid:22``), which this function is built to
+    recover. The same-file half is already handled inside ``audit_source``;
+    this is the package-wide half that write-up named and left unbuilt.
+
+    Precision over recall, same as the rest of this module:
+
+    * A certain match (identical raw ``for`` / ``id``, or a literal id
+      against a literal ``for``) in any file of the package clears the
+      undecidable. The label exists.
+    * A possible match (``refs_can_match``) stays undecidable -- two
+      expressions could still render equal.
+    * No possible match anywhere is a finding. A label in another file
+      that cannot name this control is not evidence of a *mismatch* on
+      this control (that would confuse one page's dead ``for`` with
+      another's unlabelled field); it is simply not a label for it.
+
+    Single-file results are returned unchanged: one file is not a package,
+    and promoting "not in this file" to "not in the package" is the
+    overclaim a one-file CLI invocation of a fragment must not make.
+    """
+    if len(results) < 2:
+        return results
+
+    package_raw: set[str] = set()
+    package_ids: set[str] = set()
+    for result in results:
+        package_raw.update(result.get("labelling_raw") or ())
+        package_ids.update(result.get("labelling_ids") or ())
+
+    for result in results:
+        kept: list[dict] = []
+        for item in result["undecidable"]:
+            if item["check"] != "control-no-label" or "partial" not in item.get("reason", ""):
+                kept.append(item)
+                continue
+            raw_id = item.get("raw_id")
+            if not raw_id:
+                kept.append(item)
+                continue
+            shown = expr_free(raw_id) or "<expression>"
+            if raw_id in package_raw or (not is_expr(raw_id) and raw_id in package_ids):
+                continue
+            possible = [target for target in package_raw if refs_can_match(raw_id, target)]
+            if possible:
+                updated = dict(item)
+                updated["reason"] = (
+                    f"no <label for={shown!r}> matches for certain in this "
+                    f"package; {len(possible)} label(s) in other files could "
+                    "match depending on what the template expressions render to"
+                )
+                kept.append(updated)
+                continue
+            result["findings"].append(_finding_at(
+                "control-no-label",
+                item["file"],
+                item["line"],
+                item["element"],
+                f"<{item['element']}> is unlabelled, and no "
+                f"<label for={shown!r}> exists anywhere in the package",
+            ))
+        result["undecidable"] = kept
+    return results
+
+
+def audit_sources(
+    files: list[tuple[str, str]], stylesheet=None,
+) -> list[dict]:
+    """Audit ``(path, source)`` pairs as one package.
+
+    Used by the CLI (via ``audit_paths``) and by ``measure_themes.py``, so
+    the package-wide label index cannot drift between the two callers.
+    """
     results = []
-    for path in walk(paths, limit):
-        try:
-            with open(path, encoding="utf-8", errors="ignore") as handle:
-                source = handle.read()
-        except OSError as exc:
-            print(f"{path}: {exc}", file=sys.stderr)
-            continue
+    for path, source in files:
         try:
             results.append(audit_source(source, path, stylesheet=stylesheet))
         except Exception as exc:  # a malformed template must not stop the pass
             print(f"{path}: parse failed: {exc}", file=sys.stderr)
-    return results
+    return resolve_package_labels(results)
+
+
+def audit_paths(paths: list[str], limit: int | None = None, stylesheet=None) -> list[dict]:
+    files: list[tuple[str, str]] = []
+    for path in walk(paths, limit):
+        try:
+            with open(path, encoding="utf-8", errors="ignore") as handle:
+                files.append((path, handle.read()))
+        except OSError as exc:
+            print(f"{path}: {exc}", file=sys.stderr)
+    return audit_sources(files, stylesheet=stylesheet)
 
 
 def main() -> int:

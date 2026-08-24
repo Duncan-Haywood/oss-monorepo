@@ -445,16 +445,24 @@ a different, larger decision than a port and is still not proposed here.
   `theme/sections/newsletter.liquid:69` and `:83`, at the exact lines that pass
   reported by hand.
 
-  Two limits worth stating. The third hand-verified fassbender defect
-  (`theme/templates/search.liquid:22`) is *not* recovered: that file contains no
+  Two limits worth stating. **The third hand-verified fassbender defect
+  (`theme/templates/search.liquid:22`) is now recovered**, by the package-wide
+  label index finding 3 named and left unbuilt. That file contains no
   `<label for>` at all, so from the file alone the label could genuinely live in
-  another partial, and it stays undecidable. Resolving it needs a package-wide
-  label index, which is a larger change than finding 3 prescribed. And the
-  numbers in the body of this document are still the 2026-08-20 measurement,
-  left as measured rather than retrospectively edited.
+  another partial and `audit_source` still reports it undecidable -- a
+  one-file invocation of a fragment must not promote "not in this file" to
+  "not in the package". `resolve_package_labels` (and `audit_sources` /
+  `audit_paths` / `measure_themes.py`, which all go through it) looks across
+  the package: a certain match in another file clears the undecidable, a
+  possible match stays undecidable, and no possible match anywhere is a
+  `control-no-label` finding. A dead `for` on a *different* page is not
+  treated as this control's mismatch -- that would confuse one template's
+  defect with another's. The numbers in the body of this document are still
+  the 2026-08-20 measurement, left as measured rather than retrospectively
+  edited.
   [`../../pipeline/probes/eaa-wcag-triage/`](../../pipeline/probes/eaa-wcag-triage/)
   is a separate HTML-surface engine that never stripped expressions, so it does
-  not carry this defect and needs no corresponding change.
+  not carry the original same-file defect and needs no corresponding change.
 - **~~No rendered-page comparison.~~** Closed 2026-08-20 by
   [`../a11y-render-recovery/`](../a11y-render-recovery/), which classifies each
   of these 491 undecidables by the data it is waiting on. Headline: rendering

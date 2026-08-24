@@ -240,12 +240,7 @@ def audit_package(package: dict, pause: float) -> dict | None:
     css_files = css_from_tarball(blob)
     stylesheet = audit.merge_stylesheets([source for _, source in css_files]) if css_files else None
 
-    results = []
-    for path, source in files:
-        try:
-            results.append(audit.audit_source(source, path, stylesheet=stylesheet))
-        except Exception as exc:
-            print(f"{name}:{path}: audit failed: {exc}", file=sys.stderr)
+    results = audit.audit_sources(files, stylesheet=stylesheet)
 
     findings = [f for r in results for f in r["findings"]]
     undecided = [u for r in results for u in r["undecidable"]]
