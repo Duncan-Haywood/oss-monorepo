@@ -14,6 +14,8 @@ from xml.sax.saxutils import escape, quoteattr
 from .checks import check_invoice
 from .ubl import parse_ubl_invoice
 
+VERSION = "0.1.0"
+
 
 def _record_usage(path: str) -> None:
     """Record an aggregate event without affecting the validation result."""
@@ -387,6 +389,7 @@ def _markdown_text(value: str) -> str:
 
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description="Check a local JSON or UBL XML e-invoice before submission. No tax advice or submission.")
+    parser.add_argument("--version", action="version", version=f"einvoice-preflight {VERSION}")
     parser.add_argument("invoice", type=Path, help="JSON/XML file, directory of JSON/XML files, or '-' for stdin")
     parser.add_argument("--format", choices=("text", "summary", "json", "jsonl", "markdown", "html", "csv", "junit", "sarif", "github"), default="text")
     parser.add_argument("--usage-file", help="opt-in local aggregate event counter")

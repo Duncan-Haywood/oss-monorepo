@@ -24,7 +24,9 @@ PYTHONPATH=src python3 -m einvoice_preflight invoice.xml --format json
 ```
 
 For an installed command, run `python3 -m pip install .` from this directory,
-then use `python3 -m einvoice_preflight invoice.json` from anywhere. Pass `-`
+then use `einvoice-preflight invoice.json` from anywhere. The installed command
+also supports `einvoice-preflight --version` for CI logs and adapter diagnostics.
+Pass `-`
 as the filename to read one JSON or UBL XML invoice from standard input, which
 is useful for ERP adapters and CI pipelines. SARIF reports use `stdin.json` as
 the artifact name for piped input. Directories are scanned recursively for both
