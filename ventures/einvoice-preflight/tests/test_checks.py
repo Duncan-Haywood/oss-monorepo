@@ -8,6 +8,7 @@ from unittest.mock import patch
 
 from einvoice_preflight.checks import check_invoice
 from einvoice_preflight.cli import main
+from einvoice_preflight.ubl import parse_ubl_invoice
 
 
 VALID = {
@@ -17,8 +18,32 @@ VALID = {
     "totals": {"net": 200, "tax": 38, "gross": 238},
 }
 
+UBL_VALID = b'''<?xml version="1.0" encoding="UTF-8"?>
+<Invoice xmlns="urn:oasis:names:specification:ubl:schema:xsd:Invoice-2"
+ xmlns:cac="urn:oasis:names:specification:ubl:schema:xsd:CommonAggregateComponents-2"
+ xmlns:cbc="urn:oasis:names:specification:ubl:schema:xsd:CommonBasicComponents-2">
+  <cbc:ID>INV-XML-1</cbc:ID><cbc:IssueDate>2026-08-24</cbc:IssueDate><cbc:DocumentCurrencyCode>EUR</cbc:DocumentCurrencyCode>
+  <cac:AccountingSupplierParty><cac:Party><cac:PartyIdentification><cbc:ID>S1</cbc:ID></cac:PartyIdentification><cac:PartyName><cbc:Name>Supplier</cbc:Name></cac:PartyName></cac:Party></cac:AccountingSupplierParty>
+  <cac:AccountingCustomerParty><cac:Party><cac:PartyIdentification><cbc:ID>C1</cbc:ID></cac:PartyIdentification><cac:PartyName><cbc:Name>Customer</cbc:Name></cac:PartyName></cac:Party></cac:AccountingCustomerParty>
+  <cac:TaxTotal><cbc:TaxAmount currencyID="EUR">38</cbc:TaxAmount></cac:TaxTotal>
+  <cac:InvoiceLine><cbc:InvoicedQuantity>2</cbc:InvoicedQuantity><cbc:LineExtensionAmount>200</cbc:LineExtensionAmount><cac:Item><cbc:Name>Work</cbc:Name><cac:ClassifiedTaxCategory><cbc:Percent>19</cbc:Percent></cac:ClassifiedTaxCategory></cac:Item><cac:Price><cbc:PriceAmount>100</cbc:PriceAmount></cac:Price></cac:InvoiceLine>
+  <cac:LegalMonetaryTotal><cbc:TaxExclusiveAmount>200</cbc:TaxExclusiveAmount><cbc:TaxInclusiveAmount>238</cbc:TaxInclusiveAmount></cac:LegalMonetaryTotal>
+</Invoice>'''
+
 
 class ChecksTest(unittest.TestCase):
+    def test_ubl_invoice_maps_to_supported_shape(self):
+        self.assertEqual(check_invoice(parse_ubl_invoice(UBL_VALID)), [])
+
+    def test_cli_accepts_ubl_xml_file(self):
+        with tempfile.TemporaryDirectory() as directory:
+            path = Path(directory) / "invoice.xml"
+            path.write_bytes(UBL_VALID)
+            self.assertEqual(main([str(path), "--format", "json"]), 0)
+
+    def test_ubl_rejects_entity_declarations(self):
+        with self.assertRaisesRegex(ValueError, "entity"):
+            parse_ubl_invoice(b"<!DOCTYPE Invoice [ <!ENTITY x 'x'> ]>" + UBL_VALID)
     def test_valid_invoice_passes(self):
         self.assertEqual(check_invoice(VALID), [])
 
