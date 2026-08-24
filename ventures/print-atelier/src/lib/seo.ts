@@ -261,6 +261,7 @@ const staticMarketRoutes: SitemapEntry[] = [
   { path: "/storefront", changeFrequency: "daily", priority: 0.8 },
   { path: "/artist-portal", changeFrequency: "weekly", priority: 0.75 },
   { path: "/capture", changeFrequency: "weekly", priority: 0.7 },
+  { path: "/print-file-preflight", changeFrequency: "weekly", priority: 0.8 },
 ];
 
 /** Builds sitemap paths: static market routes + consent-gated `/prints/[slug]` pages only. */

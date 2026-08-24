@@ -43,6 +43,7 @@ const demoLinks = [
   { href: "/designer-portal", label: "Designer Portal" },
   { href: "/capture", label: "Capture App" },
   { href: "/capture-demo", label: "AI Capture Flow", badge: "New" },
+  { href: "/print-file-preflight", label: "Print File Preflight", badge: "New" },
   { href: "/sales-portal", label: "Sales Outreach", badge: "New" },
   { href: "/marketing-portal", label: "Marketing Hub", badge: "New" },
   { href: "/ops", label: "Ops Console" },
