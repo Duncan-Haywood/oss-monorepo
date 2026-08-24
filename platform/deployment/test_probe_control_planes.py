@@ -1,9 +1,12 @@
 """The check is what CI runs, so the check is what needs testing.
 
 Its job is to fail when the consolidated egress table stops supporting
-README.md's claim that no vendor control plane is reachable from a session. A
-check that passes on a broken measurement is worse than no check, so both
-controls are tested in each direction.
+README.md's claim about reachability from a session. That claim is deliberately
+*not* blanket: `cloudresourcemanager.googleapis.com` is a reachable write API
+and is permitted by name, so the suite pins both halves -- everything else must
+be denied, and the exception must still be reachable. A check that passes on a
+broken measurement is worse than no check, so the controls and the exception
+are both tested in each direction.
 """
 
 import unittest
@@ -54,6 +57,14 @@ class CheckTest(unittest.TestCase):
         for host in p.EXPECTED_REACHABLE:
             with self.subTest(host=host):
                 self.assertEqual(p.check(table(**{host: "egress_denied"})), 1)
+
+    def test_an_exception_with_no_usable_measurement_fails(self):
+        # `error` is neither reachable nor denied. Excluding exceptions from the
+        # denied-surface rule must not also excuse them from having evidence.
+        for host in p.EXPECTED_REACHABLE:
+            for verdict in ("error", "scope_denied", ""):
+                with self.subTest(host=host, verdict=verdict):
+                    self.assertEqual(p.check(table(**{host: verdict})), 1)
 
     def test_a_reachable_write_api_is_not_filed_as_context(self):
         # The first draft put GCP's Resource Manager -- projects.create,

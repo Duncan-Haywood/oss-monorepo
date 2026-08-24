@@ -202,21 +202,23 @@ decisions:
       is the prerequisite for building it rather than the thing that ships it.
   blocked_by: []
   note: >-
-    Grouped because both are repository settings the owner changes in one
-    sitting, with no third party involved and no ongoing spend commitment.
-    Note the correction recorded in #696 and on #139 (comment 5389301893):
-    Ask 6 as originally written described a *failing* deploy; it is now a
-    silently-skipped one, which is worse for the record and unchanged for the
-    site. Sequenced after `egress-policy` in the printed queue only because it
-    buys deployment rather than measurement -- nothing blocks it.
+    Originally grouped as two repository settings the owner changes in one
+    sitting, with no third party and no ongoing spend. **That description no
+    longer fits this row and is retained only as history** -- corrected after
+    review, which caught it contradicting the action above. The action now buys
+    a VPS from a third party for a recurring monthly fee, and deliberately
+    leaves `GITHUB_PAGES_ENABLED`, `VERCEL_DEPLOY` and the `CLOUDFLARE_*`
+    secrets unset, so it does not flip any deploy workflow from gated to live.
+    The `publish_surface.py --check` consequence described below therefore does
+    not apply to granting this as written: nothing here publishes, and the
+    snapshot stays green until separate deployment automation is built.
 
-
-    As of 2026-08-24 the two `unlocks:` claims above are no longer prose:
-    `platform/ci/publish_surface.py --check` re-derives them from
-    `.github/workflows/` on every CI run, so "deploys nothing" cannot quietly
-    stop being true. Granting this ask is the thing that flips those two
-    workflows from `gated` to `live`, and that flip is what will turn the
-    check red until the snapshot is rewritten to record it.
+    The earlier correction is still worth keeping for the record (#696, and
+    #139 comment 5389301893): Ask 6 as originally written described a *failing*
+    deploy; it became a silently-skipped one, which is worse for the record and
+    unchanged for the site. Sequenced after `egress-policy` in the printed
+    queue only because it buys deployment capability rather than measurement --
+    nothing blocks it.
 
 
     Narrowed 2026-08-24 from a menu to one step. This row previously offered
@@ -277,7 +279,15 @@ decisions:
     paid for; the machine is what is missing, and no managed platform can be
     it. That playbook also weakens two objections this row previously carried:
     unattended-upgrades is already configured, and the Tailscale role means
-    the box is private by default rather than a public web server. What is
+    the box can be reached over the tailnet. Corrected after review: that role
+    also opened OpenSSH to the internet and never closed it, so Tailscale added
+    a private route without removing the public one -- "private by default" was
+    false. Closing it is now a flag (`ssh_public_access`), off the bootstrap
+    path, and until it is set the host is publicly reachable by SSH. Note also
+    that the CI deploy key is root-equivalent on that box: the same public key
+    goes into `root` via the provider console, and the managed account holds
+    NOPASSWD sudo so unattended Ansible can run. The boundary is the box, not
+    the account, which is why it must hold nothing irreplaceable. What is
     genuinely not automated is nginx/TLS, Postgres and app deploy -- real work
     that Railway would give away, and the honest price of this answer.
     Railway remains the recommendation for anyone who would rather not run a

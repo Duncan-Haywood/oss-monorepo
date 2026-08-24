@@ -3,11 +3,19 @@ name: Provision agent server
 # Runs `ventures/ubuntu-agent-server/`'s playbook against the repository's own
 # Hetzner box, from CI, using an SSH key held in repository secrets.
 #
-# `workflow_dispatch` only, deliberately. This is a button a human presses, not
-# unattended automation: per CLAUDE.md, anything that runs unattended and can
-# spend is the account owner's decision. It also does **not** enable the agent
-# runner -- `agent_runner_start_disabled` stays true unless someone overrides
-# it on purpose, which is a separate decision from having a box at all.
+# `workflow_dispatch` only, deliberately -- a button a human presses, not
+# unattended automation.
+#
+# It has **no switch for starting the agent fleet**, and that is a correction
+# rather than an oversight. An earlier version exposed one as a boolean input,
+# on the reasoning that a human would have to flip it. But `workflow_dispatch`
+# is not an owner-only boundary: anyone with write access can dispatch a
+# workflow and set its inputs, so the input would have been a route around the
+# gate CLAUDE.md reserves to the account owner, wearing the gate's own label.
+# `agent_runner_start_disabled` is therefore pinned true here with no way to
+# override it from this workflow. Starting the fleet is a separate decision and
+# needs its own mechanism -- an Environment with the owner as required
+# reviewer, or a hand-run playbook -- not a checkbox on the box's installer.
 #
 # Required before the first run:
 #   secret AGENT_SERVER_SSH_KEY      private half of a key used for nothing else
@@ -29,10 +37,6 @@ name: Provision agent server
 on:
   workflow_dispatch:
     inputs:
-      enable_agent_runner:
-        description: "Start the agent fleet on the box (owner decision -- leave false)"
-        type: boolean
-        default: false
       check_mode:
         description: "Dry run (re-runs only -- cannot work on an unprovisioned box)"
         type: boolean
@@ -110,7 +114,6 @@ jobs:
           AGENT_USER: ${{ vars.AGENT_SERVER_AGENT_USER || 'deploy' }}
           PUBKEY: ${{ vars.AGENT_SERVER_PUBKEY }}
           AUTHKEY: ${{ secrets.TAILSCALE_AUTHKEY }}
-          ENABLE_RUNNER: ${{ inputs.enable_agent_runner }}
           CHECK_MODE: ${{ inputs.check_mode }}
         run: |
           printf '[agent_server]\nagent-server ansible_host=%s ansible_user=%s\n' \
@@ -132,13 +135,9 @@ jobs:
             args+=(-e "tailscale_authkey=$AUTHKEY")
           fi
 
-          # The fleet stays off unless someone deliberately asks for it.
-          if [ "$ENABLE_RUNNER" = "true" ]; then
-            echo "::warning::Starting the agent runner -- this is the owner-gated switch in CLAUDE.md."
-            args+=(-e "agent_runner_start_disabled=false")
-          else
-            args+=(-e "agent_runner_start_disabled=true")
-          fi
+          # Pinned, not defaulted. See the header: a dispatch input would have
+          # been an owner gate that any write-access collaborator could open.
+          args+=(-e "agent_runner_start_disabled=true")
 
           # The public key is not secret; passing it as a var keeps the
           # playbook's default (read the operator's own key off their machine)

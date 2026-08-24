@@ -9,7 +9,10 @@ worth doing anyway:
 > the portfolio's own agents — the cost is small, the corpus starts compounding,
 > and it becomes a product later without a wasted start.
 
-This is that internal build. It is 31 workflow files' worth of measurement
+This is that internal build. It was 31 workflow files' worth of measurement
+when written -- the repository carries 39 as of 2026-08-24, and the counts
+in this document are as-of their own dates; the committed artifact is what
+reports the current run
 against the portfolio's own unattended agent, and it took the mitigation
 literally rather than as a gesture — which is how it ended up **refuting the
 shape of the product the candidate describes**, in a way no amount of further

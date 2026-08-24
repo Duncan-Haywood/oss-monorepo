@@ -3,8 +3,16 @@
 
 `README.md` chooses a deployment platform on the grounds that the spend cap has
 to live *inside* the vendor, because deploys run on GitHub Actions runners and
-no agent session can reach a vendor's control plane to inspect, throttle, or
+an agent session cannot reach a vendor's control plane to inspect, throttle, or
 stop one. That second half is a measurable claim, and this checks it.
+
+It is not a blanket claim, and this file does not enforce one.
+`cloudresourcemanager.googleapis.com` -- Google Cloud Resource Manager, a real
+write API -- answers, and is carried in `EXPECTED_REACHABLE` as a documented
+exception. The check therefore asserts "every write surface denied *except* the
+listed exceptions, which must still be reachable", and fails on drift in either
+direction. Anyone reading only the first paragraph would infer a stronger
+statement than the code makes, which is why this one is here.
 
 It deliberately keeps **no host table of its own.** The verdicts live in
 `portfolio/research/egress-reachability/prior-verdicts.json`, the portfolio's
@@ -229,15 +237,21 @@ def check(hosts: dict) -> int:
 
     # Drift in the other direction matters too: if a documented exception stops
     # being reachable, the document is describing a world that has moved.
+    # Must *equal* reachable, not merely differ from denied. An `error` verdict
+    # on an exception means there is no usable measurement behind the sentence
+    # README.md prints about it -- which is the same failure this check already
+    # rejects for the denied surfaces, one level down.
     stale = sorted(
         f"{h}: {verdict_of(hosts, h)}"
         for h in EXPECTED_REACHABLE
-        if h in hosts and verdict_of(hosts, h) == "egress_denied"
+        if h in hosts and verdict_of(hosts, h) != "reachable"
     )
     if stale:
         problems.append(
-            f"documented as reachable, now denied: {', '.join(stale)}. "
-            "README.md's exception list is stale -- drop it there and here."
+            "documented as reachable, and no longer measured as reachable: "
+            f"{', '.join(stale)}. README.md's exception list is describing a "
+            "state the table does not support -- re-probe, or drop the "
+            "exception there and here."
         )
 
     if problems:

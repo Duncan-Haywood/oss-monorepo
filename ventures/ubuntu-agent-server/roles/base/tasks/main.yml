@@ -124,11 +124,26 @@
   notify: Restart systemd-logind
 
 # --- firewall: SSH from anywhere (needed before tailscale is up), full trust on tailnet ---
-
+#
+# Public SSH is a *bootstrap* requirement, not a steady state: the box cannot be
+# reached over the tailnet until this playbook has installed and authed
+# Tailscale. Leaving the rule in place afterwards is what makes "private by
+# default" untrue, so closing it is a variable rather than a manual step nobody
+# remembers. Default `true` preserves the previous behaviour exactly -- flipping
+# the default would lock out anyone re-running this against a box whose tailnet
+# handoff has not happened.
 - name: Allow OpenSSH through ufw
   community.general.ufw:
     rule: allow
     name: OpenSSH
+  when: ssh_public_access | bool
+
+- name: Close public SSH once the tailnet is the way in
+  community.general.ufw:
+    rule: allow
+    name: OpenSSH
+    delete: true
+  when: not (ssh_public_access | bool)
 
 - name: Allow all traffic on the tailscale interface
   community.general.ufw:

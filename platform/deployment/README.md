@@ -171,12 +171,17 @@ the reason is in that same playbook:
 
 - **"You own OS patching."** `unattended_upgrades_enabled: true` is already in
   `group_vars/all.yml`, with the reboot policy exposed as a variable.
-- **"A public box an unattended fleet pushes to."** The `tailscale` role is
-  already there and the README's whole bootstrap sequence is *get on the
-  tailnet, then stop using the public address.* The box is private by default;
-  a site is public only when you choose to publish one. That is a materially
-  smaller surface than "a public web server", which is how the earlier
-  Hetzner section framed it.
+- **"A public box an unattended fleet pushes to."** Partly answered, and the
+  first draft of this bullet overstated it. **Corrected after review:** the
+  `tailscale` role is there, but `roles/base` also ran `ufw allow OpenSSH` with
+  no source restriction and never removed it, so Tailscale added a private
+  route without closing the public one. "Private by default" was false, and it
+  was doing work in this argument, which is the worst place for a wrong claim.
+  Public SSH is now a variable (`ssh_public_access`, default `true` to preserve
+  the bootstrap path, since the box cannot be reached over the tailnet until
+  this playbook puts it there). Closing it is one flag on a later run, and
+  until you set it the host is publicly reachable by SSH and should be
+  described that way.
 
 What is genuinely **not** automated, and is the honest cost of this choice:
 there is no nginx/TLS role, no Postgres role, and no app-deploy role. Serving
@@ -263,12 +268,17 @@ exists only to make Next.js run somewhere it is not native.
 
 ## What is measured here, and what is not
 
-**Measured.** No hosting vendor's control plane is reachable from an agent
-session's own network. Every write surface — the API a deploy, a scale-up or a
-teardown would call — is `egress_denied`: `api.vercel.com`,
-`api.cloudflare.com`, `api.hetzner.cloud`, `management.azure.com`,
-`ec2.amazonaws.com`, `api.netlify.com`, `api.fly.io`, `api.render.com`,
-`api.digitalocean.com`.
+**Measured, with one exception that is stated up front rather than buried.**
+Ten of the eleven vendor write surfaces — the API a deploy, a scale-up or a
+teardown would call — are `egress_denied` from an agent session:
+`backboard.railway.app`, `api.vercel.com`, `api.cloudflare.com`,
+`api.hetzner.cloud`, `management.azure.com`, `ec2.amazonaws.com`,
+`api.netlify.com`, `api.fly.io`, `api.render.com`, `api.digitalocean.com`.
+
+**The eleventh answers.** `cloudresourcemanager.googleapis.com` is reachable,
+and it is a write API — details below. So the claim this section supports is
+"a session cannot reach *these* control planes", not "a session cannot reach
+any", and `check()` enforces exactly that narrower statement.
 
 ```
 python3 platform/deployment/probe_control_planes.py --report   # offline
@@ -408,8 +418,18 @@ The design that makes the owner's framing true rather than merely hopeful:
   rebuilding it, and rebuilding it costs €4 and a playbook run. Nothing
   irreplaceable — no payout rail, no domain control, no personal key — ever
   lands on it.
-- **The key is used for nothing else.** Dedicated pair, no passphrase (CI
-  cannot type one), reaching one unprivileged account on one host.
+- **The key is used for nothing else** — dedicated pair, no passphrase (CI
+  cannot type one), reaching one account on one host. But **that account is
+  root-equivalent**, and an earlier draft's "one unprivileged account" was
+  wrong: the same public key is what you paste into the Hetzner console, so it
+  lands in `root`'s `authorized_keys`; the workflow connects as `root` by
+  default because a fresh image has nobody else; and the managed account is
+  given `NOPASSWD:ALL` so unattended Ansible can work at all. Any one of those
+  three makes a stolen deploy key root on that box. Narrowing the sudo rule is
+  not realistic for a playbook that installs packages and manages systemd
+  units, so **the boundary is the box, not the account** — which is exactly why
+  the cattle property below is doing the load-bearing work rather than
+  decorating it.
 - **The API token is still a no.** Provision the server in the Hetzner console
   by hand. Nothing in CI needs to create servers, and the moment something can,
   the fixed-price argument is gone.
