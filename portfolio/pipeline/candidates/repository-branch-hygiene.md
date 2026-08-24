@@ -8,6 +8,13 @@ and produces an approval queue plus a recovery manifest before any deletion.
 repository lifecycle problem is visible, but distribution and willingness to pay
 are unmeasured.
 
+**Probe status, 2026-08-24.** The local read-only scanner in
+[`../probes/branch-hygiene/`](../probes/branch-hygiene/) is built and tested on
+synthetic merged, unique, protected, shared, moved-tip, and incomplete-metadata
+cases. It accepts a credential-free JSON export and emits a Markdown approval
+queue plus a portable JSON recovery manifest. This validates the safety and
+recovery boundary only; it does not validate demand, distribution, or payment.
+
 Scored 2026-08-24. Composite 6.5 · floor 4 (distribution).
 
 | Dimension | Score | Why |

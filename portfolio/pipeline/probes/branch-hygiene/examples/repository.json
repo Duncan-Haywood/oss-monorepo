@@ -1,0 +1,31 @@
+{
+  "repository": "example/widgets",
+  "default_branch": "main",
+  "default_commits": ["main-1", "main-2"],
+  "branches": [
+    {
+      "name": "merged/complete",
+      "tip": "main-2",
+      "commits": ["main-2"],
+      "protected": false,
+      "shared_by": [],
+      "pull_request": {"number": 41, "state": "closed", "merged": true, "tip_moved_after_close": false}
+    },
+    {
+      "name": "closed/continued",
+      "tip": "work-3",
+      "commits": ["main-2", "work-3"],
+      "protected": false,
+      "shared_by": [],
+      "pull_request": {"number": 42, "state": "closed", "merged": false, "tip_moved_after_close": true}
+    },
+    {
+      "name": "feature/unique",
+      "tip": "work-4",
+      "commits": ["main-2", "work-4"],
+      "protected": false,
+      "shared_by": [],
+      "pull_request": {"number": 43, "state": "open", "merged": false, "tip_moved_after_close": false}
+    }
+  ]
+}
