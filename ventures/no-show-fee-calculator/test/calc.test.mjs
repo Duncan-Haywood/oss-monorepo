@@ -10,6 +10,7 @@ import {
   computeAnnualExposure,
   computeAnnualFeeRevenue,
   computeAll,
+  compareFeeScenarios,
   generatePolicyText,
   buildShareUrl,
   readShareValues,
@@ -141,6 +142,18 @@ test("computeAll composes the individual calculations consistently", () => {
       enforcementRatePct: values.enforcementRatePct,
     }),
   );
+});
+
+test("compareFeeScenarios shows standard levels and preserves a custom selection", () => {
+  const scenarios = compareFeeScenarios({ price: 80, bookingsPerWeek: 10, noShowRatePct: 10, feePercent: 60, enforcementRatePct: 50 });
+  assert.deepEqual(scenarios.map(({ feePercent }) => feePercent), [50, 60, 75, 100]);
+  assert.deepEqual(scenarios.map(({ feeAmount }) => feeAmount), [40, 48, 60, 80]);
+  assert.deepEqual(scenarios.map(({ annualFeeRevenue }) => annualFeeRevenue), [1040, 1248, 1560, 2080]);
+});
+
+test("compareFeeScenarios does not duplicate a standard selected level", () => {
+  const scenarios = compareFeeScenarios({ price: 100, bookingsPerWeek: 1, noShowRatePct: 10, feePercent: 75, enforcementRatePct: 100 });
+  assert.deepEqual(scenarios.map(({ feePercent }) => feePercent), [50, 75, 100]);
 });
 
 test("generatePolicyText includes the fee, notice window, and non-warranty note", () => {

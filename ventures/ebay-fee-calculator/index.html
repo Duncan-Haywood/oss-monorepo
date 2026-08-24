@@ -17,6 +17,7 @@
     section { background: #ffffff; border: 1px solid #d3dce6; border-radius: 14px; padding: 20px; box-shadow: 0 8px 24px #1a2a4a0d; } h2 { margin-top: 0; font-size: 1.15rem; }
     .fields { display: grid; grid-template-columns: repeat(2, 1fr); gap: 13px; } label { display: grid; gap: 5px; font-size: .87rem; font-weight: 650; } input { width: 100%; box-sizing: border-box; border: 1px solid #a9b6c6; border-radius: 7px; padding: 10px; font: inherit; background: white; }
     .result { position: sticky; top: 15px; background: #16324f; color: #f4f8fc; border-color: #16324f; } .hero-number { font-size: 3rem; font-weight: 750; letter-spacing: -.05em; margin: 8px 0; } .negative { color: #ffb0a2; } .positive { color: #a9e6b0; } dl { display: grid; grid-template-columns: 1fr auto; gap: 9px; margin: 20px 0; } dt, dd { margin: 0; } dd { font-variant-numeric: tabular-nums; } hr { border: 0; border-top: 1px solid #ffffff2b; } .note { font-size: .82rem; opacity: .82; }
+    .sensitivity { margin-top: 18px; } .sensitivity table { width: 100%; border-collapse: collapse; font-size: .88rem; } .sensitivity th, .sensitivity td { padding: 8px 4px; text-align: right; border-bottom: 1px solid #ffffff2b; font-variant-numeric: tabular-nums; } .sensitivity th:first-child, .sensitivity td:first-child { text-align: left; } .sensitivity .current { color: #a9e6b0; font-weight: 700; }
     footer { margin-top: 25px; font-size: .82rem; color: #4a5666; } footer a { color: #386fd6; }
     .support { margin-top: 14px; }
     @media (max-width: 700px) { .layout { grid-template-columns: 1fr; } .result { position: static; } .fields { grid-template-columns: 1fr; } }
@@ -62,6 +63,14 @@
       </dl>
       <hr>
       <p class="note">Transparent arithmetic from your inputs — not a statement of eBay's current fee schedule. Fees vary by category, store subscription, and seller status.</p>
+      <div class="sensitivity">
+        <h2>Repricing sensitivity</h2>
+        <p class="note">Profit if you list at nearby prices, keeping your quantity, costs, and fees unchanged.</p>
+        <table>
+          <thead><tr><th scope="col">Item price</th><th scope="col">Net profit</th><th scope="col">Margin</th></tr></thead>
+          <tbody id="scenarios"></tbody>
+        </table>
+      </div>
     </section>
   </main>
   <footer>
@@ -70,13 +79,15 @@
     <p class="support">Free and open source. If it saves you time, the <a href="https://github.com/Duncan-Haywood/monorepo-projects" rel="noopener">project is on GitHub</a> — support is entirely optional and never changes what the tool does.</p>
   </footer>
   <script type="module">
-    import { calculateOrder } from './calc.mjs';
+    import { calculateOrder, calculatePriceScenarios, INPUT_FIELDS as ids } from './calc.mjs';
     import { recordUsage } from './usage.mjs';
-    const ids = ['price','quantity','shippingCharged','finalValueRate','fixedFee','promotedRate','intlFeeRate','costOfGoods','shippingCost','packagingCost','otherCost','targetMargin'];
+    import { decodeInputs, encodeInputs } from './share.mjs';
     const money = value => `$${value.toFixed(2)}`;
+    function readInputs() { return Object.fromEntries(ids.map(id => [id, document.getElementById(id).value])); }
     function update() {
       try {
-        const result = calculateOrder(Object.fromEntries(ids.map(id => [id, document.getElementById(id).value])));
+        const input = readInputs();
+        const result = calculateOrder(input);
         const profitEl = document.getElementById('profit');
         profitEl.textContent = money(result.profit);
         profitEl.className = `hero-number ${result.profit < 0 ? 'negative' : 'positive'}`;
@@ -89,6 +100,11 @@
         document.getElementById('unitProfit').textContent = money(result.unitProfit);
         document.getElementById('breakEven').textContent = Number.isFinite(result.breakEvenPrice) ? money(result.breakEvenPrice) : 'never';
         document.getElementById('targetMarginPrice').textContent = Number.isFinite(result.targetMarginPrice) ? money(result.targetMarginPrice) : 'unreachable';
+        const scenarioPrices = [-20, -10, 0, 10, 20].map(offset => Math.max(0, Number(input.price) * (1 + offset / 100)));
+        document.getElementById('scenarios').innerHTML = calculatePriceScenarios(input, scenarioPrices).map(scenario => `
+          <tr class="${scenario.price === Number(input.price) ? 'current' : ''}">
+            <td>${money(scenario.price)}</td><td>${money(scenario.profit)}</td><td>${scenario.margin.toFixed(1)}%</td>
+          </tr>`).join('');
       } catch (error) {
         document.getElementById('profit').textContent = error.message;
         document.getElementById('profit').className = 'hero-number negative';
@@ -101,11 +117,44 @@
         document.getElementById('unitProfit').textContent = '';
         document.getElementById('breakEven').textContent = '';
         document.getElementById('targetMarginPrice').textContent = '';
+        document.getElementById('scenarios').innerHTML = '';
       }
     }
     ids.forEach(id => document.getElementById(id).addEventListener('input', update));
-    ids.forEach(id => document.getElementById(id).addEventListener('change', () => recordUsage(localStorage, document.getElementById('usageOptOut').checked, id === 'targetMargin' ? 'target_margin_calculated' : id === 'quantity' ? 'batch_calculated' : 'order_profit_calculated')));
+    const savedKey = 'ebay-fee-calculator-inputs';
+    function restoreInputs() {
+      let saved = {};
+      try { saved = JSON.parse(localStorage.getItem(savedKey) || '{}'); } catch { /* blocked storage */ }
+      const shared = decodeInputs(location.hash || location.search);
+      ids.forEach(id => { const value = shared[id] ?? saved[id]; if (value !== undefined) document.getElementById(id).value = value; });
+    }
+    function saveInputs() {
+      try { localStorage.setItem(savedKey, JSON.stringify(readInputs())); } catch { /* private mode */ }
+    }
+    function shareLink() {
+      const link = `${location.href.split('#')[0]}#${encodeInputs(readInputs())}`;
+      try { history.replaceState(null, '', link); } catch { /* file URLs may reject it */ }
+      if (navigator.clipboard?.writeText) navigator.clipboard.writeText(link).catch(() => {});
+      recordUsage(localStorage, document.getElementById('usageOptOut').checked, 'share_link_copied');
+      window.prompt('Copy this private link:', link);
+    }
+    function resetInputs() {
+      try { localStorage.removeItem(savedKey); } catch { /* private mode */ }
+      location.hash = '';
+      location.reload();
+    }
+    ids.forEach(id => document.getElementById(id).addEventListener('change', () => {
+      saveInputs();
+      recordUsage(localStorage, document.getElementById('usageOptOut').checked, id === 'targetMargin' ? 'target_margin_calculated' : id === 'quantity' ? 'batch_calculated' : 'order_profit_calculated');
+    }));
+    document.getElementById('price').addEventListener('change', () => recordUsage(localStorage, document.getElementById('usageOptOut').checked, 'price_sensitivity_viewed'));
     document.getElementById('usageOptOut').addEventListener('change', update);
+    const actions = document.createElement('p');
+    actions.innerHTML = '<button type="button" id="share">Copy shareable link</button> <button type="button" id="reset">Reset saved inputs</button>';
+    document.querySelector('section:first-child').append(actions);
+    document.getElementById('share').addEventListener('click', shareLink);
+    document.getElementById('reset').addEventListener('click', resetInputs);
+    restoreInputs();
     update();
   </script>
 </body>

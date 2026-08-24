@@ -32,6 +32,8 @@ drive that decision:
   money, holding shipping charged constant.
 - **Target-margin item price** — the price needed to reach a chosen net margin
   after the same fees and cash costs.
+- **Repricing sensitivity** — compare profit and margin at prices 20% below or
+  above the current listing price before changing a listing.
 
 **No warranty.** This tool is provided free and as-is, without warranty of any
 kind, express or implied. It is not tax, financial, or business advice, and it
@@ -53,6 +55,14 @@ footer, or your browser's Do Not Track / Global Privacy Control setting.
 The tool is free and full-featured. The
 [project lives on GitHub](https://github.com/Duncan-Haywood/monorepo-projects);
 support is entirely voluntary and never changes what the tool does.
+
+## Save and share
+
+The calculator saves its ten numeric assumptions in your browser so returning
+sellers do not re-enter them. **Copy shareable link** puts those assumptions in
+the URL fragment for a collaborator; anyone with the link can read the figures,
+so do not share sensitive information. Nothing is uploaded. Use **Reset saved
+inputs** to remove the local setup.
 
 ## Development
 

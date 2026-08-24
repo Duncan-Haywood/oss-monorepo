@@ -34,6 +34,11 @@ results from several proposals to a spreadsheet without retyping calculations.
 Batch CSV emits one comparison row per filename, making a folder of recurring
 proposal reviews easy to sort and filter without exposing the proposal data.
 
+The browser also shows a small pre-send review: arithmetic observations for
+direct costs above the price, a gap below the supplied target, hidden time, and
+quotes with no revision hours. These are prompts to review your own assumptions,
+not a profitability verdict or pricing advice.
+
 **No warranty.** This tool is provided free and as-is, without warranty of any
 kind, express or implied. It is not tax, financial, or business advice, and it
 does not replace a qualified professional. **You are responsible for reviewing
@@ -51,7 +56,9 @@ anywhere in either case. One `report_generated` means one *settled* quote: the
 page recomputes on every keystroke, so the counter waits for the figures to
 stop changing, skips the pre-filled example on first load, and ignores a repeat
 of a quote it already counted. Reading it as "reports", not "keystrokes", is
-what makes it comparable to the CLI's own count.
+what makes it comparable to the CLI's own count. The browser also counts
+`quote_review_checked` locally when a valid quote is reviewed; it stores no quote
+values and sends nothing anywhere.
 
 ## Input
 
