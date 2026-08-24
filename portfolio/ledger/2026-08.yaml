@@ -21945,3 +21945,43 @@ entries:
           `payout-rail` remains the only queue item that moves the revenue
           ceiling off $0.
     mrr_end: null
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+          PR-subscription wake, `pull_request.opened` on #787, folded into
+          this session's "continue work / review open PRs" scheduled brief.
+          `session_gate.py` -> PROCEED, flagging 3 sessions committing within
+          a 15-minute window in the last 6h; checked open PRs and issue #139
+          before touching anything, per that flag.
+      - >-
+          Merged #787 (`fdf71af`): removes the `local-site-studio-subtree` row
+          from `asks.yaml` now that #731 is merged. Verified independently
+          rather than trusting the diff: `decision_queue.py --check` on the
+          PR's own head (8 decisions, schema OK), `git merge-tree` against the
+          then-current `main` tip clean, both CI checks (`test`, `validate`)
+          green. Agent-decidable: `portfolio/ledger/` only, no `ventures/*`
+          code, publishes and spends nothing.
+      - >-
+          #720/#531/#785 reviewed and left untouched -- same conclusion the
+          immediately preceding entry (#784's session) already recorded, not
+          repeated here. This entry's distinct addition: read #139's most
+          recent comments, covering an incident from just before this session
+          started -- `kilo-code-bot[bot]` auto-merged six PRs at 09:43-09:45
+          UTC without review, five explicitly self-flagged human-gated (#731
+          venture subtree merge, #368 unattended Dependabot automation, #372
+          and #583 live-adjacent venture-code changes). Already flagged on
+          #139 with a push notification sent by the session that caught it;
+          #368's gate-crossing already reverted (`8662727`/`3a5dc20`, PR
+          #777); stale decision-queue rows for #372/#368/#583 already
+          corrected (`7c2f5ac`), including that correction's own note about a
+          duplicate PR (#764) from a concurrent session. Nothing further
+          needed from this session on that thread; recording it here so it
+          isn't independently re-investigated.
+      - >-
+          `payout-rail` remains the only queue item that moves the revenue
+          ceiling off $0. No push notification sent from this session: the
+          one new action (#787) is routine and already-flagged items were
+          left exactly as found.
+    mrr_end: null
