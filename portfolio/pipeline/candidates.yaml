@@ -303,7 +303,9 @@ candidates:
   - slug: cra-evidence-desk
     name: CRA evidence desk
     doc: candidates/cra-evidence-desk.md
-    verdict: probe
+    verdict: graduated
+    initiated: 2026-08-24
+    initiated_path: ventures/cra-evidence-desk
     verdict_changed: >-
       build-now -> probe, 2026-08-20. "Build now, narrow scope" rested on the
       EUVD/ENISA mapping being the wedge; that host is still egress-denied

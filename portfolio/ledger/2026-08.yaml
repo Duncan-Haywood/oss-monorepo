@@ -1,5 +1,18 @@
 period: 2026-08
 entries:
+  - venture: cra-evidence-desk
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Graduated the CRA evidence desk candidate into a local, deterministic
+        SBOM/advisory exact-match report and customer-reviewed Article 14 draft.
+        The slice includes fixture-backed tests, a CLI smoke test, MIT license,
+        privacy boundary, visible legal disclaimer, and opt-in aggregate usage.
+        It never uploads data, files a notification, infers affected ranges, or
+        claims conformity. Demand, authoritative-feed coverage, and public
+        publishing remain untested or owner-gated.
+    mrr_end: null
   - venture: shopify-a11y-evidence
     agent_spend_usd: null
     human_hours: 0
