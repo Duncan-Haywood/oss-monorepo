@@ -68,7 +68,7 @@ recommendation.
 |---|---|---|---|---|
 | Next.js SSR (5) | `ai-first-markets`, `local-site-studio`, `print-atelier`, `photo-editing/docs-site`, `quick-pick-survey` | native | Node server | Node server |
 | Next.js static export (2) | `real-estate-agent-photo-app` (docs-site, research) | yes | yes | yes |
-| Vite/React static (3) | `retail-pilot-intel` (`apps/docs`, `apps/portal`), `ai-engineering-academy` | yes | yes | yes |
+| Static site builds (3) | `retail-pilot-intel` `apps/docs` and `apps/portal` (Vite/React), `ai-engineering-academy` (`build.mjs` + `marked`) | yes | yes | yes |
 | Postgres | `quick-pick-survey` (`prisma`, `POSTGRES_PRISMA_URL`) | marketplace add-on | **built in** | you install |
 | **Long-running daemon + persistent volume** | `retail-pilot-intel` `analytics-sync` | **no** | yes | yes |
 | Convex backend | `local-site-studio` | external either way | external either way | external either way |
@@ -126,7 +126,7 @@ is growing:
 
 "Value" is cost per unit of capability, so it has to be priced against *this*
 portfolio: **eleven hostable workloads** — ten web apps (seven Next.js, three
-Vite/React static) plus one daemon — near-zero traffic, occasional deploys, and
+static builds) plus one daemon — near-zero traffic, occasional deploys, and
 no customers. Three further ventures are not hosting questions at all:
 `world-clock-widget` (Swift) and `garmin-world-traveler-watchface` (MonkeyC)
 build store artifacts, and `photos-import-tools` is macOS-only tooling that

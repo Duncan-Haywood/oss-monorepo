@@ -23,11 +23,17 @@
     enabled: true
     state: started
 
+# `no_log` because the key is interpolated into the command line: without it,
+# a failure prints the expanded `tailscale up --authkey=tskey-...` into the
+# result, and once this is dispatched from CI that result is a public-ish
+# Actions log. The task is the one place in this playbook where a secret
+# reaches argv, so it is the one place that needs this.
 - name: Bring up tailscale with an authkey (non-interactive)
   ansible.builtin.command:
     cmd: "tailscale up --authkey={{ tailscale_authkey }} --ssh"
   when: tailscale_authkey | length > 0
   changed_when: true
+  no_log: true
 
 - name: Tailscale manual-auth reminder
   ansible.builtin.debug:
