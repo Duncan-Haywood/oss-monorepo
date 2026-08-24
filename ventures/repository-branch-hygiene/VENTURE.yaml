@@ -1,0 +1,27 @@
+name: repository-branch-hygiene
+description: Read-only Git branch inventory and recovery manifests that help GitHub-heavy teams reduce stale branch noise without risking recoverable work.
+stage: prototype
+owner: duncan
+hypotheses:
+  - claim: Teams with automated pull-request fleets will use a read-only branch report to find stale refs and preserve unique work before cleanup.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: A portable recovery manifest is valuable enough to support a recurring repository hygiene report.
+    status: untested
+    checked: null
+    evidence: customer-contact
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+budget:
+  monthly_cap: 1
+  protected: true
+kill_criteria:
+  - Fewer than three qualified teams run a read-only pilot within 90 days.
+  - No pilot team returns to run a second inventory within 90 days.
+links:
+  production: null
+  analytics: null
