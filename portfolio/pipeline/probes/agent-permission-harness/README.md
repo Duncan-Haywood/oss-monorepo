@@ -422,6 +422,29 @@ concurrent sessions push to `main` continuously. The workflow now checks out the
 PR's head SHA, making the measurement a function of the commit under test. A
 closure count is only reproducible if the thing measured holds still.
 
+Pinning the head SHA fixed the half of that race a pull request can see. The
+other half only shows up after merge, and on 2026-08-24 it had `main` red
+continuously — runs 436, 442, 447, 458 and 463. Checking out the head SHA makes
+the number right *for that commit*; it does not make it right for `main`, which
+by then also contains whatever else landed. So a pull request adding an
+unrelated markdown file that names a new path is green at its head, enlarges the
+closure, and turns the next push to `main` red. Regenerating the snapshot is not
+a fix either: `#954` regenerated `77`, merged, and two minutes later `#946` and
+`#942` made it `78`. The snapshot-regen PR chasing that (`#955`) was redundant
+before it could land.
+
+The gate now runs [`check_results_current.py`](check_results_current.py), which
+masks R7's repository census — closure size, per-depth histogram, first-hop
+count, sampled paths — on both sides and compares everything else byte for byte.
+A finding that appears, disappears, moves line or changes rule still fails. This
+is the choice the test suite had already made: `TestHeadlineNumbersAgainstThisRepo`
+asserts the closure *claim* and declines to pin the count, "because the exact
+count moves with every venture added". The committed artifact still carries the
+real numbers for a reader; they are simply no longer a merge-blocking assertion
+about a repository that never holds still. **Byte-equality is the wrong gate for
+a measurement whose subject is the whole repository** — the staleness it reported
+was real, but unfixable by whoever happened to merge next.
+
 Both corrections are in this pull request: the artifact is regenerated and the
 depth table now reads the current checkout. Two things worth keeping from the
 pair. **Shrinking the prompt is the lever that works** — dropping seventeen
