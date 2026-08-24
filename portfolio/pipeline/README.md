@@ -2,6 +2,10 @@
 
 Businesses that have been researched and scored but are **not** ventures yet.
 
+**Portfolio direction (2026-08-24):** candidates exist to be **built**, not
+re-screened. Graduate a `build-now` item and ship a free full-feature product
+with usage tracking. See [`../DIRECTION.md`](../DIRECTION.md).
+
 `ventures/` is for things being built. This directory is the stage before that:
 written-up candidates with an explicit verdict, so that starting a new venture
 is a decision someone makes against evidence rather than an idea that arrived on
