@@ -261,7 +261,7 @@
   // Counts settled quotes rather than keystrokes — see usage.mjs.
   const reportCounter = createReportCounter();
 
-   const ids = ["currency", "price", "delivery_hours", "admin_hours", "revision_hours", "overhead", "subcontractor_cost", "target_hourly_rate", "time_buffer_percent"];
+  const ids = ["currency", "price", "delivery_hours", "admin_hours", "revision_hours", "overhead", "subcontractor_cost", "target_hourly_rate", "time_buffer_percent"];
   const el = Object.fromEntries(ids.map((id) => [id, document.getElementById(id)]));
   const result = document.getElementById("result");
   const review = document.getElementById("review");
@@ -278,8 +278,8 @@
       revision_hours: Number(el.revision_hours.value),
       overhead: Number(el.overhead.value),
       subcontractor_cost: Number(el.subcontractor_cost.value),
-       target_hourly_rate: Number(el.target_hourly_rate.value),
-       time_buffer_percent: Number(el.time_buffer_percent.value),
+      target_hourly_rate: Number(el.target_hourly_rate.value),
+      time_buffer_percent: Number(el.time_buffer_percent.value),
     };
   }
 
@@ -303,8 +303,8 @@
           <dt>Total working hours</dt><dd>${fmt(r.total_hours)}</dd>
            <dt>Direct costs</dt><dd>${safeCurrency} ${fmt(r.direct_costs)}</dd>
            <dt>Effective hourly rate</dt><dd><strong>${safeCurrency} ${fmt(r.effective_hourly_rate)}/hour</strong></dd>
-            <dt>Price at your target rate</dt><dd>${safeCurrency} ${fmt(r.target_price)}</dd>
-            <dt>Price at target rate with ${fmt(quote.time_buffer_percent)}% time buffer</dt><dd>${safeCurrency} ${fmt(r.buffered_target_price)}</dd>
+           <dt>Price at your target rate</dt><dd>${safeCurrency} ${fmt(r.target_price)}</dd>
+           <dt>Price at target rate with ${fmt(quote.time_buffer_percent)}% time buffer</dt><dd>${safeCurrency} ${fmt(r.buffered_target_price)}</dd>
            <dt>Gap to target price</dt><dd>${safeCurrency} ${fmt(r.gap_to_target)}</dd>
            <dt>Left after direct costs</dt><dd>${safeCurrency} ${fmt(r.cost_coverage)}</dd>
         </dl>
@@ -358,8 +358,8 @@
       `direct_costs,${r.direct_costs.toFixed(2)},${quote.currency}`,
       `effective_hourly_rate,${r.effective_hourly_rate.toFixed(2)},${quote.currency}/hour`,
       `target_price,${r.target_price.toFixed(2)},${quote.currency}`,
-       `gap_to_target,${r.gap_to_target.toFixed(2)},${quote.currency}`,
-       `buffered_target_price,${r.buffered_target_price.toFixed(2)},${quote.currency}`,
+      `gap_to_target,${r.gap_to_target.toFixed(2)},${quote.currency}`,
+      `buffered_target_price,${r.buffered_target_price.toFixed(2)},${quote.currency}`,
       `cost_coverage,${r.cost_coverage.toFixed(2)},${quote.currency}`,
     ].join("\n");
     try {
