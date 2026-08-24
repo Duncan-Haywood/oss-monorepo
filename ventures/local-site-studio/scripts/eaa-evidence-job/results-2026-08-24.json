@@ -32,8 +32,8 @@
   },
   "mutated_mechanical_only": {
     "before": {
-      "total": 18,
-      "blocking": 12,
+      "total": 21,
+      "blocking": 15,
       "degrading": 6
     },
     "after": {
@@ -42,8 +42,8 @@
       "degrading": 0
     },
     "closed": {
-      "total": 18,
-      "blocking": 12,
+      "total": 21,
+      "blocking": 15,
       "degrading": 6
     },
     "blocking_close_rate": 1.0,
@@ -51,8 +51,8 @@
       {
         "page": "live-trades.html",
         "before": {
-          "total": 6,
-          "blocking": 4,
+          "total": 7,
+          "blocking": 5,
           "degrading": 2
         },
         "after": {
@@ -61,8 +61,8 @@
           "degrading": 0
         },
         "closed": {
-          "total": 6,
-          "blocking": 4,
+          "total": 7,
+          "blocking": 5,
           "degrading": 2
         },
         "blocking_close_rate": 1.0,
@@ -81,6 +81,11 @@
             "criterion": "1.4.4",
             "impact": "blocking",
             "action": "removed the viewport zoom-lock"
+          },
+          {
+            "criterion": "1.4.1",
+            "impact": "blocking",
+            "action": "underlined a colour-only in-prose link; the words and colours stay"
           },
           {
             "criterion": "1.3.4",
@@ -103,8 +108,8 @@
       {
         "page": "live-salon.html",
         "before": {
-          "total": 6,
-          "blocking": 4,
+          "total": 7,
+          "blocking": 5,
           "degrading": 2
         },
         "after": {
@@ -113,8 +118,8 @@
           "degrading": 0
         },
         "closed": {
-          "total": 6,
-          "blocking": 4,
+          "total": 7,
+          "blocking": 5,
           "degrading": 2
         },
         "blocking_close_rate": 1.0,
@@ -133,6 +138,11 @@
             "criterion": "1.4.4",
             "impact": "blocking",
             "action": "removed the viewport zoom-lock"
+          },
+          {
+            "criterion": "1.4.1",
+            "impact": "blocking",
+            "action": "underlined a colour-only in-prose link; the words and colours stay"
           },
           {
             "criterion": "1.3.4",
@@ -155,8 +165,8 @@
       {
         "page": "live-restaurant.html",
         "before": {
-          "total": 6,
-          "blocking": 4,
+          "total": 7,
+          "blocking": 5,
           "degrading": 2
         },
         "after": {
@@ -165,8 +175,8 @@
           "degrading": 0
         },
         "closed": {
-          "total": 6,
-          "blocking": 4,
+          "total": 7,
+          "blocking": 5,
           "degrading": 2
         },
         "blocking_close_rate": 1.0,
@@ -185,6 +195,11 @@
             "criterion": "1.4.4",
             "impact": "blocking",
             "action": "removed the viewport zoom-lock"
+          },
+          {
+            "criterion": "1.4.1",
+            "impact": "blocking",
+            "action": "underlined a colour-only in-prose link; the words and colours stay"
           },
           {
             "criterion": "1.3.4",

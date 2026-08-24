@@ -623,7 +623,14 @@ orientation media query. Combined queries, no-op turns (`rotate(0deg)` /
 other function stay. Timed refresh, blink/marquee unwrap, and name-override
 drop already landed in #825 and are not reopened here. Fixture close
 rate is still 1 of 11 blocking: these two defect classes are not in the
-fixture shops. The split has moved four
+fixture shops.
+
+**Amended 2026-08-24: colour-only links are underlined.** **1.4.1**'s own
+first remediation is this one mark. The pass restores `text-decoration:
+underline` on the flagged in-prose link and leaves its words and colours
+alone. A nav-style link the rule did not name is not touched. Fixture
+close rate is still 1 of 11 blocking: the fixture shops do not carry this
+class. The split has moved four
 times since it was first drawn: on 2026-08-21, when 1.4.3 crossed from
 deferred to partial because the corpus changed, not because the rules got
 cleverer; on 2026-08-22, when four criteria a prior pass had disclosed as

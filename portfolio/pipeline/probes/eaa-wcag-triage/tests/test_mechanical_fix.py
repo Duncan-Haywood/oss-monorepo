@@ -364,6 +364,78 @@ def test_compound_transform_is_not_stripped():
     assert any(s.criterion == "1.3.4" for s in result.skipped)
 
 
+COLOR_ONLY_LINK = (
+    '<html lang="en"><head><title>t</title></head>'
+    '<body><p style="color:#333">Every order ships within two working '
+    "days from our workshop, and you can see "
+    '<a href="/terms" style="color:#06c;text-decoration:none">'
+    "our documentation</a> for the full delivery timetable.</p>"
+    "</body></html>"
+)
+
+
+def test_colour_only_link_is_underlined_words_and_colour_stay():
+    assert any(f.criterion == "1.4.1" for f in audit_html(COLOR_ONLY_LINK).findings)
+    result = apply_mechanical_fixes(COLOR_ONLY_LINK)
+    assert not any(f.criterion == "1.4.1" for f in result.after.findings)
+    assert "our documentation" in result.html
+    assert "color:#06c" in result.html
+    assert "text-decoration: underline" in result.html
+    assert "text-decoration:none" not in result.html.replace(" ", "")
+    assert any(p.criterion == "1.4.1" for p in result.applied)
+
+
+def test_inherited_decoration_is_replaced_with_underline():
+    html = (
+        '<html lang="en"><head><title>t</title></head>'
+        '<body><p style="color:#333">Every order ships within two working '
+        "days from our workshop, and you can see "
+        '<a href="/terms" style="color:#06c;text-decoration:inherit">'
+        "our documentation</a> for the full delivery timetable.</p>"
+        "</body></html>"
+    )
+    assert any(f.criterion == "1.4.1" for f in audit_html(html).findings)
+    result = apply_mechanical_fixes(html)
+    assert not any(f.criterion == "1.4.1" for f in result.after.findings)
+    assert "text-decoration:inherit" not in result.html.replace(" ", "")
+    assert "text-decoration: underline" in result.html
+    assert "color:#06c" in result.html
+
+
+def test_stylesheet_removed_underline_is_restored_on_the_flagged_link_only():
+    html = (
+        '<html lang="en"><head><title>t</title>'
+        "<style>a{text-decoration:none}p{color:#333}a{color:#06c}</style>"
+        "</head><body><p>Every order ships within two working days from "
+        "our workshop, and you can see "
+        '<a href="/terms">our documentation</a> for the full delivery '
+        "timetable.</p>"
+        '<p><a href="/nav">Cart</a></p>'
+        "</body></html>"
+    )
+    before = [f for f in audit_html(html).findings if f.criterion == "1.4.1"]
+    assert len(before) == 1
+    result = apply_mechanical_fixes(html)
+    assert not any(f.criterion == "1.4.1" for f in result.after.findings)
+    assert result.html.count("text-decoration: underline") == 1
+    assert 'href="/nav"' in result.html
+    assert "style=" not in result.html.split('href="/nav"')[1].split(">")[0]
+
+
+def test_already_underlined_link_is_not_rewritten():
+    html = (
+        '<html lang="en"><head><title>t</title></head>'
+        '<body><p style="color:#333">Every order ships within two working '
+        "days from our workshop, and you can see "
+        '<a href="/terms" style="color:#06c;text-decoration:underline">'
+        "our documentation</a> for the full delivery timetable.</p>"
+        "</body></html>"
+    )
+    result = apply_mechanical_fixes(html)
+    assert result.html == html
+    assert not any(p.criterion == "1.4.1" for p in result.applied)
+
+
 def test_search_field_with_no_label_is_not_invented():
     # search.liquid:22 — no <label for> in the file. Detection can name
     # the gap; this pass cannot write a name.
