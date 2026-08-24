@@ -258,7 +258,20 @@ products:
           public_url_visitors: null
           preaudit_checklist_events: 0
           handoff_exports: 0
-        note: Shipped browser-local pre-audit checklist; public deployment remains owner-gated.
+         note: Shipped browser-local pre-audit checklist; public deployment remains owner-gated.
+  - slug: mls-photo-spec-preflight
+    surface: listing-lens-browser
+    readings:
+      - as_of: 2026-08-24
+        signals:
+          local_photo_batches_checked: 0
+          local_reports_exported: 0
+          public_url_visitors: null
+        note: >-
+          Added a client-only MLS photo preflight report export to the Listing
+          Lens product line. No photos, filenames, findings, or identity leave
+          the browser; public traffic remains owner-gated, so this is a zero
+          baseline rather than a demand result.
 # Example of the shape, once a product has shipped:
 #
 # products:

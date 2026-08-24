@@ -7,6 +7,21 @@ import type { ProgressEntry } from "./types";
  */
 export const progressLog: ProgressEntry[] = [
   {
+    date: "2026-08-24",
+    agent: "cursor/mls-photo-report-20260824",
+    summary:
+      "Turned the MLS photo preflight findings table into a portable customer handoff artifact.",
+    changes: [
+      "Added a dated JSON report export containing the checked floor spec, per-photo findings, skipped files, limitations, and the non-warranty disclaimer.",
+      "Added anonymous local usage measurement for report exports without recording filenames, findings, photos, or identity.",
+      "Updated the preflight page copy and roadmap to explain the photographer/delivery handoff value.",
+    ],
+    nextUp: [
+      "Run the research site build and browser smoke test against real file inputs.",
+      "Human: publish the static surface and test whether agents return to export reports.",
+    ],
+  },
+  {
     date: "2026-06-13",
     agent: "initial-scaffold",
     summary:

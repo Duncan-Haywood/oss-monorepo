@@ -4,7 +4,8 @@
  * No photo, filename, or finding ever leaves the browser — this only
  * increments a same-origin localStorage counter so future sessions can see
  * whether the tool gets used at all, without collecting anything about who
- * used it or what they checked.
+ * used it or what they checked. Event names describe product actions only;
+ * filenames, findings, and photo data are never recorded.
  */
 
 const USAGE_KEY = "listing-lens-photo-check-usage-v1";

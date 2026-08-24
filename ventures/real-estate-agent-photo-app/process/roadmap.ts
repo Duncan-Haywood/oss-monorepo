@@ -381,6 +381,16 @@ export const roadmap: RoadmapPhase[] = [
     summary: "TestFlight with 20 users; measure time-to-publish, NPS, willingness to pay.",
     tasks: [
       {
+        id: "p2-photo-check-report-export",
+        title: "Export a dated MLS photo preflight evidence report",
+        status: "done",
+        owner: "agent",
+        rationale:
+          "A findings table helps the shooter in the moment, but a portable report is what can be shared with a photographer or retained with a delivery. It increases repeat value without uploading customer photos or claiming MLS acceptance.",
+        doneWhen:
+          "The browser preflight exports a dated JSON report containing the checked spec, findings, skipped files, limitations, and disclaimer; export usage is counted as an anonymous local action and the research site builds successfully.",
+      },
+      {
         id: "p3-app-scope",
         title: "Define v1 app scope (photos-only vs photos+3D lite)",
         status: "not_started",

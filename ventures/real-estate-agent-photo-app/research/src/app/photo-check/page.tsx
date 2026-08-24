@@ -24,6 +24,9 @@ export default function PhotoCheckPage() {
           file size, format, aspect ratio, branding/watermark filenames, and staged-photo
           pairing. Free, unlimited, and your photos never leave this browser tab.
         </p>
+        <p className="mt-3 text-sm text-slate-400">
+          Export a dated JSON evidence report after each check to share with a photographer or keep with the delivery.
+        </p>
         <PhotoCheckTool />
       </div>
     </main>

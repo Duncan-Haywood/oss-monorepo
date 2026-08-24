@@ -39,6 +39,29 @@ export function PhotoCheckTool() {
   const [isProcessing, setIsProcessing] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
 
+  function downloadReport() {
+    if (!run) return;
+    const report = {
+      product: "Listing Lens MLS Listing Photo Preflight Check",
+      spec: SPEC_ID,
+      specDate: SPEC_DATE,
+      checkedAt: run.checkedAt,
+      photos: run.reports,
+      skipped: run.skipped,
+      limitations: [...UNIMPLEMENTED_RULES],
+      disclaimer:
+        "This is an evidence report, not a board rulebook or a warranty that any MLS will accept these photos.",
+    };
+    const blob = new Blob([JSON.stringify(report, null, 2)], { type: "application/json" });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = `listing-lens-photo-report-${run.checkedAt.slice(0, 10)}.json`;
+    link.click();
+    URL.revokeObjectURL(url);
+    recordUsageEvent("report_exported");
+  }
+
   const handleFiles = useCallback(async (fileList: FileList | null) => {
     if (!fileList || fileList.length === 0) return;
     setIsProcessing(true);
@@ -96,6 +119,14 @@ export function PhotoCheckTool() {
               <> Skipped {run.skipped.length} non-photo file{run.skipped.length === 1 ? "" : "s"}.</>
             )}
           </p>
+
+          <button
+            type="button"
+            onClick={downloadReport}
+            className="mt-4 rounded-lg border border-brand-300/40 bg-brand-400/10 px-3 py-2 text-sm font-semibold text-brand-200 transition hover:bg-brand-400/20"
+          >
+            Download dated JSON report
+          </button>
 
           <ul className="mt-4 divide-y divide-white/10 overflow-hidden rounded-xl border border-white/10">
             {run.reports.map((report) => (
