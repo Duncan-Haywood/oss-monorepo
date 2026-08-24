@@ -46,6 +46,8 @@ requirement yourself.
 node --test calc.test.mjs
 ```
 
-The page can save the current form values in browser local storage and copy a
-line-by-line negotiation report. Saved values never leave the browser. The
-product is free while demand is measured. There is no payment collection.
+The page saves the current form values in browser local storage and restores
+them on the next visit, so recurring quote reviews do not require retyping a
+rate card. It also copies a line-by-line negotiation report. Saved values never
+leave the browser. The product is free while demand is measured. There is no
+payment collection.
