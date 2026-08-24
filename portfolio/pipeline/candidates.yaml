@@ -554,3 +554,28 @@ candidates:
       Transmission or filing versions fail the liability gate outright. The
       validate-and-explain version clears it at 5 but is a thin utility against
       free open-source validators. Recorded so the reasoning is not re-derived.
+
+  - slug: consent-change-record
+    name: Consent change record
+    doc: candidates/consent-change-record.md
+    verdict: probe
+    graduate_as: venture
+    host_venture: null
+    scores:
+      ai_leverage: 7
+      autonomous_ops: 7
+      time_to_revenue: 5
+      gross_margin: 8
+      defensibility: 5
+      distribution: 4
+      liability_containment: 6
+      ethical_robustness: 7
+    composite: 6.125
+    floor: 4
+    floor_dimension: distribution
+    mitigation: >-
+      Distribution requires a named web-agency or privacy-implementation
+      partner before graduation; until then this remains a local probe rather
+      than a standalone venture.
+    first_experiment_days: 14
+    first_experiment_budget_usd: 25
