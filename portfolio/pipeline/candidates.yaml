@@ -616,8 +616,7 @@ candidates:
   - slug: consent-change-record
     name: Consent change record
     doc: candidates/consent-change-record.md
-    verdict: graduated
-    probe_status: "prototype shipped 2026-08-24 (HAR-diff v0); distribution partner and willingness to pay remain unmeasured"
+    verdict: probe
     graduate_as: venture
     host_venture: null
     scores:
