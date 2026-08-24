@@ -1,0 +1,27 @@
+name: mobile-detailing-bid-calculator
+description: A local-first quote calculator for mobile auto detailers that prices the stop from service time, travel, supplies, overhead, and target margin.
+stage: prototype
+owner: duncan
+hypotheses:
+  - claim: Mobile detailers lose margin by pricing a vehicle package without charging for setup, travel, and cleanup time.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: A quote that exposes minimum viable price and effective hourly rate helps owner-operators reject unprofitable jobs.
+    status: untested
+    checked: null
+    evidence: customer-contact
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+budget:
+  monthly_cap: 1
+  protected: true
+kill_criteria:
+  - Fewer than three qualified mobile detailers use the calculator twice within 90 days.
+  - Users report that travel and setup inputs do not change the price they would quote.
+links:
+  production: null
+  analytics: null

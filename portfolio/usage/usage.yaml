@@ -6,6 +6,18 @@
 # retired honestly instead of quietly.
 period: 2026-08
 products:
+  - slug: mobile-detailing-bid-calculator
+    surface: static-page-in-repo
+    readings:
+      - as_of: 2026-08-24
+        signals:
+          live_url_visitors: null
+          local_events_reported: 0
+        note: >-
+          Shipped a browser-local mobile auto detailing quote calculator that
+          includes travel, setup, cleanup, loaded labor, supplies, overhead,
+          and target margin. Public URL remains owner-gated; local events are
+          anonymous, opt-out, and never leave the browser.
   - slug: shopify-permission-drift
     surface: local-cli
     readings:
