@@ -44,4 +44,6 @@ test("reviewed packets can be downloaded locally", () => {
   assert.match(html, /new Blob\(\[content\]/);
   assert.match(html, /packet_downloaded/);
   assert.match(html, /URL\.createObjectURL/);
+  assert.match(html, /const orderId=.*replace\(/);
+  assert.match(html, /slice\(0,80\)/);
 });
