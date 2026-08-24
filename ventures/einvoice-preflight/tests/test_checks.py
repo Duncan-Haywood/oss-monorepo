@@ -68,6 +68,29 @@ class ChecksTest(unittest.TestCase):
             self.assertEqual(main([str(invoice_path), "--format", "json", "--usage-file", str(usage_path)]), 0)
             self.assertEqual(json.loads(usage_path.read_text()), {"events": {"invoice_preflight_checked": 1}})
 
+    def test_cli_writes_report_artifact_without_changing_stdout(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            invoice_path = root / "invoice.json"
+            report_path = root / "reports" / "review.md"
+            invoice_path.write_text(json.dumps(VALID))
+            output = io.StringIO()
+            with contextlib.redirect_stdout(output):
+                self.assertEqual(main([str(invoice_path), "--format", "markdown", "--output", str(report_path)]), 0)
+            self.assertEqual(output.getvalue(), report_path.read_text())
+            self.assertIn("Overall: **PASS**", report_path.read_text())
+
+    def test_cli_output_artifact_preserves_failure_exit(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            invoice_path = root / "invoice.json"
+            report_path = root / "review.json"
+            invoice = json.loads(json.dumps(VALID))
+            invoice["totals"]["gross"] = 200
+            invoice_path.write_text(json.dumps(invoice))
+            self.assertEqual(main([str(invoice_path), "--format", "json", "--output", str(report_path)]), 1)
+            self.assertEqual(json.loads(report_path.read_text())["status"], "fail")
+
     def test_cli_returns_failure_for_bad_invoice(self):
         with tempfile.TemporaryDirectory() as directory:
             invoice_path = Path(directory) / "invoice.json"

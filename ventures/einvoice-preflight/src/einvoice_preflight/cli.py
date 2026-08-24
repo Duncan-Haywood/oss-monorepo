@@ -25,6 +25,13 @@ def _record_usage(path: str) -> None:
     target.write_text(json.dumps(data, indent=2) + "\n")
 
 
+def _write_output(path: str, content: str) -> None:
+    """Write a report artifact without retaining any invoice data in usage."""
+    target = Path(path).expanduser()
+    target.parent.mkdir(parents=True, exist_ok=True)
+    target.write_text(content)
+
+
 def _sarif_report(reports: list[tuple[Path, list[dict[str, str]]]]) -> dict[str, Any]:
     """Build a SARIF 2.1.0 report for CI annotations and code scanning tools."""
     rules = {}
@@ -86,6 +93,7 @@ def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description="Check a local JSON e-invoice before submission. No tax advice or submission.")
     parser.add_argument("invoice", type=Path, help="JSON file, directory of JSON files, or '-' for stdin")
     parser.add_argument("--format", choices=("text", "json", "markdown", "sarif"), default="text")
+    parser.add_argument("--output", help="write the report to a local file as well as stdout")
     parser.add_argument("--usage-file", help="opt-in local aggregate event counter")
     args = parser.parse_args(argv)
     reports: list[tuple[Path, list[dict[str, str]]]] = []
@@ -130,21 +138,31 @@ def main(argv: list[str] | None = None) -> int:
             }
         else:
             output = {"status": "pass" if not errors and not has_read_errors else "fail", "errors": errors}
-        print(json.dumps(output, indent=2))
+        rendered = json.dumps(output, indent=2) + "\n"
+        print(rendered, end="")
     elif args.format == "markdown":
-        print(_markdown_report(reports, read_errors), end="")
+        rendered = _markdown_report(reports, read_errors)
+        print(rendered, end="")
     elif args.format == "sarif":
-        print(json.dumps(_sarif_report(reports), indent=2))
+        rendered = json.dumps(_sarif_report(reports), indent=2) + "\n"
+        print(rendered, end="")
     elif errors:
-        print(f"Preflight failed: {len(errors)} observation(s) across {len(reports)} invoice(s)")
+        lines = [f"Preflight failed: {len(errors)} observation(s) across {len(reports)} invoice(s)"]
         for path, invoice_errors in reports:
             for error in invoice_errors:
-                print(f"{path.as_posix()}: [{error['rule']}] {error['message']} Fix: {error['fix']}")
+                lines.append(f"{path.as_posix()}: [{error['rule']}] {error['message']} Fix: {error['fix']}")
         for read_error in read_errors:
-            print(f"{read_error['file']}: Could not read invoice: {read_error['error']}")
+            lines.append(f"{read_error['file']}: Could not read invoice: {read_error['error']}")
+        rendered = "\n".join(lines) + "\n"
+        print(rendered, end="")
     elif read_errors:
-        for read_error in read_errors:
-            print(f"{read_error['file']}: Could not read invoice: {read_error['error']}")
+        rendered = "\n".join(
+            f"{read_error['file']}: Could not read invoice: {read_error['error']}" for read_error in read_errors
+        ) + "\n"
+        print(rendered, end="")
     else:
-        print(f"Preflight passed: {len(reports)} invoice(s), no defects found in the supported checks.")
+        rendered = f"Preflight passed: {len(reports)} invoice(s), no defects found in the supported checks.\n"
+        print(rendered, end="")
+    if args.output:
+        _write_output(args.output, rendered)
     return 2 if has_read_errors else (0 if not errors else 1)

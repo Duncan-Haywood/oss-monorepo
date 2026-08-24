@@ -236,8 +236,9 @@ products:
         signals:
           local_preflights: 1
           markdown_reports: 1
+          report_artifacts_written: 1
           qualified_pilots: 0
-        note: Markdown review reports shipped for single files and batch scans; customer demand remains untested.
+        note: Markdown review reports and local output artifacts shipped for single files and batch scans; customer demand remains untested.
   - slug: backup-verification-evidence
     surface: local-cli
     readings:

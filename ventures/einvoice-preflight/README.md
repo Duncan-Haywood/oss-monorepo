@@ -11,6 +11,7 @@ PYTHONPATH=src python3 -m einvoice_preflight examples/valid-invoice.json
 PYTHONPATH=src python3 -m einvoice_preflight examples/valid-invoice.json --format json
 PYTHONPATH=src python3 -m einvoice_preflight examples/valid-invoice.json --format sarif > preflight.sarif
 PYTHONPATH=src python3 -m einvoice_preflight ./invoices/ --format markdown > review.md
+PYTHONPATH=src python3 -m einvoice_preflight ./invoices/ --format sarif --output preflight.sarif
 cat invoice.json | PYTHONPATH=src python3 -m einvoice_preflight - --format json
 PYTHONPATH=src python3 -m einvoice_preflight examples/valid-invoice.json --usage-file ~/.local/state/einvoice-preflight/usage.json
 PYTHONPATH=src python3 -m einvoice_preflight ./invoices/ --format json
@@ -59,6 +60,10 @@ SARIF uses paths relative to the input directory. An empty directory is an
 input error and exits `2`.
 `--format markdown` produces a reviewable report with filenames, rule IDs,
 observations, and fixes for single files and recursive directory scans.
+Use `--output report.ext` to write the same report to a local artifact while
+still printing it to stdout. The output file's format follows `--format` and
+its parent directories are created when needed. Exit codes remain `0` for a
+clean report, `1` for invoice observations, and `2` for read errors.
 
 ## Privacy and usage
 
