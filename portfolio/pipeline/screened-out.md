@@ -92,6 +92,8 @@ mitigations in [the write-up](candidates/vendor-change-evidence.md).
   right side of the ethics gate — the alternative is claiming the automated
   result covers what it does not.
 
+- **DNS configuration evidence monitor** is retained separately from vendor-change evidence and uptime monitoring. It observes customer-authorized DNS answers and delegation, never writes records, sends mail, or claims security, deliverability, or compliance.
+
 `repository-branch-hygiene` is intentionally retained as a separate candidate,
 not screened out as the internal branch-cleanup automation proposed in PR #829.
 The internal workflow is a repository-specific unattended deletion mechanism;
