@@ -84,3 +84,10 @@ mitigations in [the write-up](candidates/vendor-change-evidence.md).
   is one that cannot be automated honestly. It is what keeps a candidate on the
   right side of the ethics gate — the alternative is claiming the automated
   result covers what it does not.
+
+`repository-branch-hygiene` is intentionally retained as a separate candidate,
+not screened out as the internal branch-cleanup automation proposed in PR #829.
+The internal workflow is a repository-specific unattended deletion mechanism;
+this candidate is a customer-facing, multi-repository read-only inventory and
+recovery product whose first output is an approval queue. It must still prove a
+buyer and a distribution channel before graduation.

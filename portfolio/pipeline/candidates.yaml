@@ -606,3 +606,30 @@ candidates:
       than a standalone venture.
     first_experiment_days: 14
     first_experiment_budget_usd: 25
+
+  - slug: repository-branch-hygiene
+    name: Repository branch hygiene and recovery
+    doc: candidates/repository-branch-hygiene.md
+    verdict: probe
+    probe_status: seven-day read-only pilot; willingness to pay unmeasured
+    graduate_as: venture
+    host_venture: null
+    scores:
+      ai_leverage: 6
+      autonomous_ops: 8
+      time_to_revenue: 5
+      gross_margin: 9
+      defensibility: 5
+      distribution: 4
+      liability_containment: 7
+      ethical_robustness: 8
+    composite: 6.5
+    floor: 4
+    floor_dimension: distribution
+    mitigation: >-
+      Start read-only and secure one repeatable DevOps community or channel
+      partner before hosting; retain customer-owned signed snapshots and
+      portable recovery manifests, and require per-ref approval plus a fresh
+      tip/reservation check for any later deletion action.
+    first_experiment_days: 7
+    first_experiment_budget_usd: 150
