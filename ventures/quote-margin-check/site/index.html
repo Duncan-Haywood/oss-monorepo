@@ -176,7 +176,7 @@
 
     <label for="target_hourly_rate">Your target hourly rate</label>
     <input type="number" id="target_hourly_rate" inputmode="decimal" value="75" min="0" step="any" />
-    <p class="hint">What you'd want to be paid per hour if you were billing hourly instead.</p>
+    <p class="hint">What you'd want to be paid per hour if you were billing hourly instead. Currency labels are also escaped when copied to CSV.</p>
 
     <div class="result" id="result" role="status" aria-live="polite"></div>
     <div class="result" id="sensitivity" aria-live="polite"><strong>If the work takes longer</strong><p class="hint">A scenario view, not a prediction. Direct costs stay unchanged.</p><div class="table-scroll"><table class="sensitivity"><thead><tr><th>Extra time</th><th>Total hours</th><th>Effective rate</th><th>Gap to target</th></tr></thead><tbody></tbody></table></div></div>
@@ -252,6 +252,7 @@
 <script type="module">
   import { loadQuote, calculate, overrunScenarios } from "./calc.mjs";
   import { reviewQuote } from "./review.mjs";
+  import { csvCell } from "./csv.mjs";
   import { recordEvent, createReportCounter, isUsageCountingEnabled, setUsageCountingEnabled } from "./usage.mjs";
 
   // Counts settled quotes rather than keystrokes — see usage.mjs.
@@ -347,13 +348,13 @@
     const { quote, r } = lastReport;
     const rows = [
       "measure,value,unit",
-      `quoted_price,${quote.price.toFixed(2)},${quote.currency}`,
+      `quoted_price,${quote.price.toFixed(2)},${csvCell(quote.currency)}`,
       `total_working_hours,${r.total_hours.toFixed(2)},hours`,
-      `direct_costs,${r.direct_costs.toFixed(2)},${quote.currency}`,
-      `effective_hourly_rate,${r.effective_hourly_rate.toFixed(2)},${quote.currency}/hour`,
-      `target_price,${r.target_price.toFixed(2)},${quote.currency}`,
-      `gap_to_target,${r.gap_to_target.toFixed(2)},${quote.currency}`,
-      `cost_coverage,${r.cost_coverage.toFixed(2)},${quote.currency}`,
+      `direct_costs,${r.direct_costs.toFixed(2)},${csvCell(quote.currency)}`,
+      `effective_hourly_rate,${r.effective_hourly_rate.toFixed(2)},${csvCell(`${quote.currency}/hour`)}`,
+      `target_price,${r.target_price.toFixed(2)},${csvCell(quote.currency)}`,
+      `gap_to_target,${r.gap_to_target.toFixed(2)},${csvCell(quote.currency)}`,
+      `cost_coverage,${r.cost_coverage.toFixed(2)},${csvCell(quote.currency)}`,
     ].join("\n");
     try {
       await navigator.clipboard.writeText(rows);

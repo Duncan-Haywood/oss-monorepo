@@ -33,6 +33,9 @@ The CSV format emits stable `measure,value,unit` columns so you can append
 results from several proposals to a spreadsheet without retyping calculations.
 Batch CSV emits one comparison row per filename, making a folder of recurring
 proposal reviews easy to sort and filter without exposing the proposal data.
+The browser export also applies standard CSV quoting to the user-supplied
+currency label, so labels containing commas, quotes, or line breaks stay in one
+spreadsheet cell.
 
 The browser also shows a small pre-send review: arithmetic observations for
 direct costs above the price, a gap below the supplied target, hidden time, and
