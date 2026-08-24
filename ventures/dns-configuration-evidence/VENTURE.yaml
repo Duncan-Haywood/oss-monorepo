@@ -1,0 +1,32 @@
+name: dns-configuration-evidence
+description: Customer-authorized DNS snapshot and change evidence for agencies and domain operators.
+stage: prototype
+owner: duncan
+
+hypotheses:
+  - claim: MSPs and web agencies repeatedly need portable, source-linked DNS change records for customer domains.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: Resolver-aware history is more useful in operational reviews than a green/red DNS monitoring alert.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: null
+  customers: null
+
+budget:
+  monthly_cap: 20
+  protected: true
+
+kill_criteria:
+  - Fewer than three qualified practitioners identify a recurring DNS review workflow after ten conversations.
+  - No practitioner values portable evidence history over existing DNS tools in the first pilot.
+
+links:
+  production: null
+  analytics: null

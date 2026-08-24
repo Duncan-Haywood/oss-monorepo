@@ -2,12 +2,14 @@
 
 import { useMemo, useState } from "react";
 import { Image as ImageIcon, Layout, Sparkles } from "lucide-react";
+import Link from "next/link";
 import {
   catalogArtworks,
   compareProductDetailPreviewModes,
   type CatalogArtwork,
 } from "@/lib/marketplace";
 import { trackUsageEvent } from "@/components/shared/UsageTracker";
+import { resolvePrintHref } from "@/lib/seo";
 
 type ProductDetailPreviewCTAProps = {
   artwork?: CatalogArtwork;
@@ -167,21 +169,26 @@ export default function ProductDetailPreviewCTA({
                 </div>
               </div>
 
-              <button
-                type="button"
-                disabled={!mode.ctaEnabled}
-                onClick={() => trackUsageEvent(
-                  mode.mode === "room-preview" ? "room_visualizer_cta" : "catalog_cta",
-                  `/prints/${artwork.slug}`,
-                )}
-                className={`mt-4 w-full rounded-lg px-4 py-2.5 text-sm font-medium transition ${
-                  mode.ctaEnabled
-                    ? "bg-stone-900 text-white hover:bg-stone-700"
-                    : "cursor-not-allowed bg-stone-200 text-stone-600"
-                }`}
-              >
-                {mode.ctaLabel}
-              </button>
+              {mode.ctaEnabled ? (
+                <Link
+                  href={resolvePrintHref(artwork)}
+                  onClick={() => trackUsageEvent(
+                    mode.mode === "room-preview" ? "room_visualizer_cta" : "catalog_cta",
+                    resolvePrintHref(artwork),
+                  )}
+                  className="mt-4 block w-full rounded-lg bg-stone-900 px-4 py-2.5 text-center text-sm font-medium text-white transition hover:bg-stone-700"
+                >
+                  {mode.ctaLabel}
+                </Link>
+              ) : (
+                <button
+                  type="button"
+                  disabled
+                  className="mt-4 w-full cursor-not-allowed rounded-lg bg-stone-200 px-4 py-2.5 text-sm font-medium text-stone-600"
+                >
+                  {mode.ctaLabel}
+                </button>
+              )}
 
               {mode.blockers.length > 0 && (
                 <p className="mt-2 text-xs text-amber-700">
