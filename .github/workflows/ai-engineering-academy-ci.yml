@@ -33,7 +33,22 @@ jobs:
         with:
           node-version: "22"
       - run: npm ci
+      # Unit-tests the tool discovery/render layer before exercising it, so a
+      # failure names the broken function instead of surfacing as a build crash.
+      - run: node --test
       - run: npm run build
+      # The calculators are the only part of this venture a stranger can use.
+      # If the build ever stops emitting the hub that lists them, they become
+      # unreachable again — which is exactly the regression this guards.
+      - name: Verify the built site exposes the calculators
+        run: |
+          test -f dist/tools/index.html
+          for tool in ../tools/*/; do
+            slug=$(basename "$tool")
+            test -f "dist/tools/$slug/index.html" || { echo "missing built tool: $slug"; exit 1; }
+            grep -q "href=\"$slug/\"" dist/tools/index.html || { echo "hub does not link: $slug"; exit 1; }
+          done
+          grep -q 'href="tools/"' dist/index.html || { echo "site nav does not link the calculators"; exit 1; }
 
   tools-test:
     runs-on: ubuntu-latest
