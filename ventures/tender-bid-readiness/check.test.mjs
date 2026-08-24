@@ -14,3 +14,10 @@ test('does not invent findings for empty or unrelated text', () => {
   assert.equal(result.findings.filter((item) => item.found).length, 0);
   assert.match(result.warnings[1], /6 readiness/);
 });
+
+test('keeps every finding actionable when a signal is absent', () => {
+  const result = checkTender('Submit through the portal by Friday.');
+  assert.equal(result.findings.length, 6);
+  assert.equal(result.findings.filter((item) => !item.found).length, 5);
+  assert.ok(result.findings.every((item) => item.action.length > 20));
+});
