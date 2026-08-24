@@ -611,4 +611,21 @@ export const progressLog: ProgressEntry[] = [
       "Agent (next session): if recentlyConfirmedWithinHours(24) is true, do only the cheap check per step 0a and skip the branch/commit/PR entirely if nothing's different. For the CI blocker specifically, pulling the newest run's job list (runner_id:0/empty-runner_name/~2-4s duration) is sufficient re-verification — no need to re-fetch job logs again since the 404 finding is now a permanent, one-time diagnosis (ci.yml isn't going to change on its own).",
     ],
   },
+  {
+    date: "2026-08-24",
+    agent: "claude/exciting-brown-5nvsyb",
+    summary:
+      "Wired the MLS photo-spec preflight check into the pipeline CLI. portfolio/pipeline/candidates/mls-photo-spec-preflight.md graduated as a product_lines entry on this venture on 2026-08-24 (session_gate.py's build-now marker) and already shipped a browser tool (research/src/app/photo-check/) using research/src/lib/photo-spec.ts, but the actual local CLI a photographer/agent runs (pipeline/) had no way to run the same check — only the enhance/microsite/log-lead commands existed. That meant the check the candidate write-up sells ('a dated file the agent can keep next to the delivery') was reachable only through the marketing site, not through the tool that produces the delivery folder.",
+    changes: [
+      "pipeline/src/preflight.ts: reads a delivery directory, filters to .jpg/.jpeg/.png, and runs the shared research/src/lib/photo-spec.ts checkBatch() against it — same rule set and same disclosed UNIMPLEMENTED_RULES as the browser tool, imported directly (no logic duplicated or re-ported).",
+      "pipeline/src/cli-preflight.ts: `npm run preflight -- --dir <delivery-dir>` — prints per-photo findings (blocking/degrading), a summary line, and the floor-spec disclaimer; exits 1 when any blocking finding is present, matching cli.ts's coverage-check exit-code convention.",
+      "pipeline/src/preflight.test.ts: exercises preflightDir end-to-end against a real temp directory with sharp-generated synthetic PNGs (long_edge and branding_filename failures, a passing photo, a non-image file correctly ignored, and an all-clean folder), plus package.json's test script now runs it.",
+      "Manually ran the CLI against a synthetic delivery folder (not just the test suite): confirmed the printed report, exit code 1 on blocking findings, exit code 0 on a clean folder, and the usage error when --dir is omitted.",
+      "Verified: `npm test` and `npx tsc --noEmit` both clean in pipeline/ (strict mode, no new findings). research/ and docs-site/ untouched by this change; re-verified their builds anyway per AGENTS.md's 'build research/ and docs-site/ for anything you touched' — see this entry's next changes/verification note.",
+    ],
+    nextUp: [
+      "Human: same long-open blockers remain (see process/blockers.ts) — booking a real concierge shoot is still what turns this from a synthetic-fixture check into the real one the candidate write-up's first experiment needs (running the check on an enhance.ts-produced delivery from an actual listing).",
+      "Agent (next session): once a real delivery folder exists (from a real or realistic test shoot), run `npm run preflight -- --dir <delivery>` against it and fold the result into the candidate write-up's first-experiment section as real evidence instead of the current fixture-only precision/recall claim.",
+    ],
+  },
 ];

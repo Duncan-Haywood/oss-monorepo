@@ -27,10 +27,23 @@ local branches. This reads refs only and never fetches, pushes, or deletes:
 python3 src/branch_hygiene.py --repo /path/to/checkout --report report.txt --manifest recovery.json
 ```
 
-The local mode intentionally has no pull-request metadata. Branches that are
-not protected or shared are therefore reported as `uncertain`, rather than
-being treated as safe to remove. Add `--protect release` for each additional
+Local mode has no pull-request metadata by default. Branches that are not
+protected or shared are therefore reported as `uncertain`, rather than being
+treated as safe to remove. Add `--protect release` for each additional
 protected local branch.
+
+If the team already has the `gh` CLI, `--pr-json` closes that gap without any
+network call from this tool: export the customer's own pull-request records
+once, then resolve them against this same local checkout's ref ancestry.
+
+```bash
+gh pr list --state all --json headRefName,state,baseRefName --limit 500 > prs.json
+python3 src/branch_hygiene.py --repo /path/to/checkout --pr-json prs.json --report report.txt --manifest recovery.json
+```
+
+`gh pr list` is the customer's own export step, run with their own
+credentials outside this tool; `branch_hygiene.py` only reads the resulting
+JSON file from disk and diffs it against local git refs.
 
 The scanner distinguishes merged branches, closed-PR branches whose tip moved,
 shared refs, protected branches, active work, and uncertain records. Each

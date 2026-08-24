@@ -5,7 +5,7 @@ import tempfile
 import unittest
 from pathlib import Path
 
-from src.quote_margin import calculate, csv_report, load_quote, main
+from src.quote_margin import batch_csv_report, calculate, csv_report, load_quote, load_reports, main
 
 
 class QuoteMarginTests(unittest.TestCase):
@@ -80,3 +80,15 @@ class QuoteMarginTests(unittest.TestCase):
             self.assertEqual(event["event"], "report_generated")
             self.assertEqual(event["format"], "csv")
             self.assertNotIn("price", event)
+
+    def test_batch_reports_are_sorted_and_spreadsheet_ready(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            folder = Path(directory)
+            (folder / "b.json").write_text(json.dumps({"price": 1000, "delivery_hours": 10, "target_hourly_rate": 100}), encoding="utf-8")
+            (folder / "a.json").write_text(json.dumps({"price": 900, "delivery_hours": 10, "target_hourly_rate": 100}), encoding="utf-8")
+            reports = load_reports(folder)
+            output = io.StringIO()
+            with contextlib.redirect_stdout(output):
+                batch_csv_report(reports)
+            self.assertEqual(output.getvalue().splitlines()[1].split(",")[0], "a.json")
+            self.assertEqual(len(output.getvalue().splitlines()), 3)

@@ -22776,4 +22776,163 @@ entries:
           directory, worth a beat for the owner to see even though nothing
           in it needs their sign-off (no payment, no external account, no
           breaking change) -- subscribed to its PR activity.
+      - >-
+        Scheduled "review every open PR, clear the backlog, then build"
+        session, designated branch claude/festive-mccarthy-eysttq.
+        session_gate.py said BUILD. Triaged all 7 open PRs first (#867,
+        #866, #829 already merged by concurrent sessions during the
+        triage; #814 got a real, small, pushed CI fix and was correctly
+        left owner-gated; #531/#720/#857 correctly left alone, #720's
+        block is a repo-wide branch-protection quirk already queued).
+      - >-
+        Graduated the vendor-change-evidence pipeline candidate (composite
+        6.75, both gates clear) into a full venture: a free Python CLI
+        (ventures/vendor-change-watch) with a live page fetcher, watchlist,
+        local snapshot storage, and disclaimers, built on the existing
+        probe's validated diff engine. 28 tests, ruff/mypy clean, opened
+        as #883.
+      - >-
+        #883's CI failed on push (missing venture-scores.yaml entry, a
+        stale generated agent-permission-harness snapshot, and a missing
+        pytest install for mypy); fixed all three and pushed, resolving one
+        real merge conflict against a concurrently-merged
+        dns-configuration-evidence venture along the way.
+      - >-
+        Before that fix's CI could report, #883 was closed as superseded
+        by #898 (a different session's bot, carrying the same
+        implementation plus the same three fixes). Checked out #898's
+        branch directly and pushed a further fix for two real bugs Cursor
+        Bugbot found in the carried-over code: a snapshot-filename
+        collision after deletion (High) and snapshot storage keyed only by
+        vendor+page_type, letting two watched URLs interleave (Medium) --
+        both with regression tests. Rebased onto a second round of
+        upstream pushes to the same branch (main had moved again) and
+        re-verified clean.
+      - >-
+        Before that push's CI could report either, #898 was itself closed
+        as superseded by #905 -- a *third*, independently-built
+        implementation (a Next.js web app, ventures/vendor-watch, from a
+        sibling claude/festive-mccarthy-* scheduled session) solving the
+        identical niche. Left #905 alone (not this session's PR to drive)
+        and did not open a fourth PR for the same change, per the
+        supersession notice's explicit instruction.
+      - >-
+        The finding worth recording is the pattern, not any one
+        implementation: three sessions independently graduated the same
+        pipeline candidate into full ventures inside roughly a 15-minute
+        window, two full build-fix-supersede cycles completed before a
+        single CI run finished reporting on either. session_gate.py's own
+        collision signal (distinct sessions/hour) was already elevated
+        going into this session and undercounts on a shallow clone by its
+        own admission -- this is a concrete instance of exactly that risk,
+        not a new one. No code from this session's branch reached `main`;
+        restarted the branch from current `main` rather than resurrecting
+        dead commits, per CLAUDE.md's already-superseded-branch handling.
+      - >-
+        Also caught, mid-session, a near-miss unrelated to the above: the
+        working tree briefly picked up an uncommitted, unrelated change
+        (a re-added .github/FUNDING.yml with a live Sponsors username, plus
+        deletion of the ledger entry that flagged that exact config for
+        owner review after its PR #862 revert) that this session did not
+        make. Traced it to a concurrently-running subagent invoking git in
+        the same shared working directory. Caught before staging, verified
+        it matched neither `origin/main` nor this branch's own history, and
+        discarded it via `git reset --hard origin/main` before continuing.
+        Nothing from it reached any commit or push.
+    mrr_end: null
+  - venture: ai-engineering-academy
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+          Product-first autonomous session (scheduled brief, branch
+          claude/exciting-brown-7crc4d). session_gate.py read BUILD (92%
+          meta-work in the last 25 entries, no revenue). Before building,
+          triaged the 10 open PRs via a background agent: merged #915
+          (branch-hygiene probe) and #909 (backup-verification-evidence
+          CLI), closed five confirmed duplicates that a concurrent session
+          had already closed (#908, #911, #912, #914, #890/#887 group),
+          left #891 (merge conflict) and #905 (real CI failure -- new
+          venture-scores.yaml entry missing) for the next session with
+          reasoning posted on each.
+      - >-
+          Shipped `tools/led-resistor-calculator/` -- the second EE tool
+          this venture's own README named as its explicit next step ("Add
+          more small, self-contained EE tools ... e.g. voltage divider,
+          LED series-resistor calculator"). Given a supply voltage, an
+          LED's forward voltage/current, and how many are wired in series,
+          it returns the exact current-limiting resistor value, the
+          nearest resistor you can actually buy (snapped to the E24
+          preferred-number series across decade boundaries), the current
+          and dissipation that results, and a recommended power rating
+          derated 2x for reliability. Same definition-of-done as the first
+          tool: MIT LICENSE, no-warranty disclaimer, honest privacy line,
+          local-first opt-out/DNT-respecting usage counting, zero
+          dependencies, zero build step.
+      - >-
+          Verified rather than assumed: 16 unit tests pass (`node --test`)
+          covering E24 snapping (including the 9.6ohm -> 10ohm decade
+          boundary), power-rating selection, the classic 9V/2V/20mA
+          worked example (350ohm exact, 360ohm nearest, 0.5W recommended),
+          a 3-LED series string landing on an exact E24 value, and
+          rejection of insufficient headroom / invalid inputs. Also driven
+          in a real headless Chromium (chrome --dump-dom against a local
+          http.server): the page's default inputs render the same
+          350ohm/360ohm/0.5W result as the unit tests, confirming the DOM
+          wiring actually calls the tested calc module. Wired into
+          `ai-engineering-academy-ci.yml`'s `tools-test` matrix so the
+          tests gate future PRs. Not deployed to a public URL --
+          publishing under the portfolio's name stays owner-gated per
+          `portfolio/DIRECTION.md`; ready to deploy once that opens.
+      - >-
+          Fixed a pre-existing YAML bug in `portfolio/usage/usage.yaml`
+          while adding this tool's baseline usage row: two continuation
+          lines of the ai-engineering-academy note were indented one space
+          short of the block-scalar's opening line, which made the file
+          fail to parse (`yaml.safe_load` raised a ParserError). Nothing
+          in CI currently loads this file, so it had gone unnoticed; fixed
+          the indentation and confirmed the file parses.
+    mrr_end: null
+  - venture: ai-engineering-academy
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+          Continued the same product-first session (branch
+          claude/exciting-brown-7crc4d) after shipping and merging
+          led-resistor-calculator (#932) and the agent-permission-harness
+          CI fix (#936). Shipped a third EE tool:
+          `tools/voltage-divider-calculator/` -- unloaded and loaded
+          V_out (the load-loading correction most beginner treatments
+          skip: a real load in parallel with R2 sags V_out below the
+          textbook value, and the tool shows both numbers plus the
+          percentage drop and per-component power), and a target-output
+          design mode that solves for R2 given a preferred R1 and snaps
+          it to a buyable E24 value. Same definition-of-done as the first
+          two tools: MIT LICENSE, no-warranty disclaimer, honest privacy
+          line, local-first opt-out/DNT-respecting usage counting, zero
+          dependencies, zero build step.
+      - >-
+          Verified rather than assumed: 14 unit tests pass (`node --test`)
+          covering the equal-resistor halving case, an unequal-ratio
+          case, the loaded-vs-unloaded divergence (33% sag verified by
+          hand-computed fraction), a light-load near-no-sag sanity check,
+          invalid-input rejection, and the target-design mode's exact/
+          nearest-E24 R2 with a real worked example (12V to 3.3V through
+          a 10k R1 lands on a standard 3.9k). Also re-ran the two sibling
+          tools' suites unchanged (21 and 16 passing) to catch any
+          regression, and drove the new page in a real headless Chromium
+          -- default inputs render 6.0000V/0.600mA/3.60mW and 3.9kOhm/
+          3.3669V, matching the unit tests exactly. Wired into the
+          `tools-test` CI matrix.
+      - >-
+          Noticed while re-verifying the previous session's CI fix
+          (#936) that `agent-permission-harness`'s committed results
+          snapshot had already drifted again from a concurrent session's
+          edit, minutes after landing. Left it alone this time rather
+          than chasing an actively-churning file a second time in one
+          session -- noted here so the next session sees the pattern
+          (broad-trigger workflow + a generated file some sessions edit
+          by hand instead of regenerating) rather than re-diagnosing it
+          from scratch.
     mrr_end: null
