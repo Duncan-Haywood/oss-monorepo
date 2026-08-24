@@ -19,6 +19,11 @@ or paid service. Use **Copy summary** to take the decision snapshot into a
 quote review or negotiation note. All entered data and anonymous feature
 counts stay in the browser's local storage.
 
+The line-by-line export is designed for a recurring quote review: it separates
+receiving, storage, pick and pack, packaging, shipping, returns, fixed fees, and
+the minimum-charge effect so a warehouse operator can challenge one assumption
+at a time instead of accepting a blended cost-per-order figure.
+
 ## Privacy and usage
 
 Everything runs in your browser. Your data is never uploaded, and this product
