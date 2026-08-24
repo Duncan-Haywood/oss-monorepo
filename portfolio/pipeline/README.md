@@ -145,7 +145,7 @@ four candidates carrying a probe have moved and the table is re-ordered.
 | 13 | [Repository branch hygiene and recovery](candidates/repository-branch-hygiene.md) | 6.5 | 4 | Graduated 2026-08-24 as `ventures/repository-branch-hygiene`; read-only pilot and distribution remain unmeasured |
 | 14 | [Software evidence provenance ledger](candidates/software-evidence-provenance.md) | 6.375 | 3 | Reject; existing provenance standards leave no defensible wedge and distribution is unresolved |
 | 15 | [E-invoice preflight](candidates/einvoice-preflight.md) | 6.125 | 4 | Reject broad version; narrow version conditional |
-| 16 | [Consent change record](candidates/consent-change-record.md) | 6.125 | 4 | Probe; needs an agency or privacy-implementation channel |
+| 16 | [Consent change record](candidates/consent-change-record.md) | 6.125 | 4 | Graduated 2026-08-24 as `ventures/consent-change-record` (HAR-diff v0); distribution partner and pricing remain unmeasured |
 
 **"No measured dimension has ever risen" is no longer true, and the way it
 stopped being true is the useful part.** This file said it across four

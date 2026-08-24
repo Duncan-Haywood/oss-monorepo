@@ -27,6 +27,18 @@ products:
           repo_views_14d: 0
           release_downloads_total: 0
         note: Shipped calculator baseline; no public distribution or usage yet.
+  - slug: consent-change-record
+    surface: static-page-in-repo
+    readings:
+      - as_of: 2026-08-24
+        signals:
+          live_url_visitors: null
+          local_events_reported: 0
+        note: >-
+          HAR-diff v0 shipped; not deployed to a public URL (publishing is
+          owner-gated) and no distribution partner contacted yet, so there is
+          no traffic signal to read. Local-first event counter reports only
+          to the user's own browser. Baseline row.
 # Example of the shape, once a product has shipped:
 #
 # products:
