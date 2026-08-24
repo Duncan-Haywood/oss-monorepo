@@ -545,6 +545,22 @@ undecidable, never a guessed lock. Absence of a lock is a pass. Own-site
   hand off to `eaa-wcag-triage` — is a real piece of work of its own and is
   named here as the follow-up, not attempted in this pass.
 
+## Amendment, 2026-08-24 — a clean record is no longer silent about whether the scanner can see
+
+[`a11y-generated-sites`](../a11y-generated-sites/) named the cheap test that
+separates "this page has no static defects" from "our scanner could not
+read the page": mutate a copy, check the rule fires. The sibling probe
+already ships that test inside every customer record. This engine's
+`evidence_record()` is the same deliverable for templates, and until now a
+clean record from here could not tell those two claims apart.
+
+A `--record` run now mutates each page and prints the result above the
+findings table, with a one-line headline so a miss is not
+scroll-dependent. Tests that build a record from a fixture may omit it;
+absence is not a pass. No score moved: this is the disclosure the
+candidate's liability position already required, not a new measurement of
+how often the engine is right.
+
 ## What this does and does not do to the pipeline
 
 **Does not.** No candidate is added, no score is changed, no `ventures/`
