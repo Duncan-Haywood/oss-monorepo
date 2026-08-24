@@ -105,7 +105,7 @@ compliant — the distinction matters, so it is worth being exact about:
 ## Options
 
 ```sh
-PYTHONPATH=src python3 -m einvoice_preflight INVOICE [--format text|json] [--strict] [--usage-file PATH]
+PYTHONPATH=src python3 -m einvoice_preflight INVOICE [--format text|json|sarif] [--strict] [--usage-file PATH]
 ```
 
 `--format json` emits a machine-readable report for an ERP adapter:
@@ -120,6 +120,10 @@ PYTHONPATH=src python3 -m einvoice_preflight INVOICE [--format text|json] [--str
   "warnings": [...]
 }
 ```
+
+`--format sarif` emits SARIF 2.1.0 for GitHub code scanning, CI annotations,
+and editor integrations. It includes rule IDs, fixes, and the input filename,
+never invoice fields or line contents.
 
 Exit codes are distinct so an adapter can tell them apart: `0` clean, `1`
 defects found (or warnings with `--strict`), `2` the file could not be read as

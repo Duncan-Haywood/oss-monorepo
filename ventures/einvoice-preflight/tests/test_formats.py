@@ -240,6 +240,29 @@ class ArithmeticRuleTest(unittest.TestCase):
 
 
 class CliTest(unittest.TestCase):
+    def test_sarif_report_is_available_for_ci_integrations(self):
+        import contextlib
+        import io
+
+        buffer = io.StringIO()
+        with contextlib.redirect_stdout(buffer):
+            exit_code = main([str(EXAMPLES / "ubl-invoice-with-defects.xml"), "--format", "sarif"])
+        report = json.loads(buffer.getvalue())
+        self.assertEqual(exit_code, 1)
+        self.assertEqual(report["version"], "2.1.0")
+        result = report["runs"][0]["results"][0]
+        self.assertEqual(result["ruleId"], "INV-030")
+        self.assertEqual(result["locations"][0]["physicalLocation"]["artifactLocation"]["uri"], "ubl-invoice-with-defects.xml")
+
+    def test_sarif_report_for_clean_invoice_has_no_results(self):
+        import contextlib
+        import io
+
+        buffer = io.StringIO()
+        with contextlib.redirect_stdout(buffer):
+            self.assertEqual(main([str(EXAMPLES / "ubl-invoice.xml"), "--format", "sarif"]), 0)
+        self.assertEqual(json.loads(buffer.getvalue())["runs"][0]["results"], [])
+
     def test_xml_report_is_machine_readable_for_an_erp_adapter(self):
         import contextlib
         import io

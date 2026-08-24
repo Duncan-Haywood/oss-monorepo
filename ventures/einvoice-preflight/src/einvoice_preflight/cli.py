@@ -64,6 +64,33 @@ def _print_findings(findings: list[dict[str, str]]) -> None:
         print(f"    Fix: {finding['fix']}")
 
 
+def _sarif_report(invoice_path: Path, findings: list[dict[str, str]]) -> dict[str, Any]:
+    """Build a SARIF report without including invoice contents."""
+    rules: dict[str, dict[str, Any]] = {}
+    results = []
+    for finding in findings:
+        rule = finding["rule"]
+        rules.setdefault(rule, {"id": rule, "shortDescription": {"text": finding["message"]}})
+        results.append({
+            "ruleId": rule,
+            "level": "warning" if finding.get("severity") == WARNING else "error",
+            "message": {"text": f'{finding["message"]} Fix: {finding["fix"]}'},
+            "locations": [{"physicalLocation": {"artifactLocation": {"uri": invoice_path.name}}}],
+        })
+    return {
+        "$schema": "https://json.schemastore.org/sarif-2.1.0.json",
+        "version": "2.1.0",
+        "runs": [{
+            "tool": {"driver": {
+                "name": "einvoice-preflight",
+                "informationUri": "https://github.com/Duncan-Haywood/monorepo-projects/tree/main/ventures/einvoice-preflight",
+                "rules": list(rules.values()),
+            }},
+            "results": results,
+        }],
+    }
+
+
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(
         description=(
@@ -73,7 +100,7 @@ def main(argv: list[str] | None = None) -> int:
         )
     )
     parser.add_argument("invoice", type=Path, help="path to the invoice file (XML or JSON)")
-    parser.add_argument("--format", choices=("text", "json"), default="text", help="report format")
+    parser.add_argument("--format", choices=("text", "json", "sarif"), default="text", help="report format")
     parser.add_argument(
         "--strict",
         action="store_true",
@@ -112,6 +139,8 @@ def main(argv: list[str] | None = None) -> int:
                 indent=2,
             )
         )
+    elif args.format == "sarif":
+        print(json.dumps(_sarif_report(args.invoice, findings), indent=2))
     else:
         print(f"Read {args.invoice.name} as {SYNTAX_LABELS.get(syntax, syntax)}.")
         if errors:
