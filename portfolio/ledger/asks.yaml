@@ -119,8 +119,8 @@ decisions:
     2026-08-19 with no verdict in the consolidated egress table at all -- it
     was measured by #232, which left prose and no results file. Both hosts are
     now measured (denied, twice each, against a reachable control) and carried
-    in `portfolio/research/egress-reachability/`, and `check_ask_hosts.py`
-    fails CI if this row ever again names a host nothing has probed.
+    in `portfolio/research/egress-reachability/`, and CI fails if this row
+    ever again names a host nothing has probed.
 
 - id: deploy-settings
   asks: [4, 6]
