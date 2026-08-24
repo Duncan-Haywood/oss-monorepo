@@ -148,6 +148,7 @@
       <div class="actions">
         <button id="reset" type="button">Reset everything</button>
         <button id="share" type="button">Copy share link</button>
+        <button id="downloadCsv" type="button">Download comparison CSV</button>
       </div>
       <p id="share-status" class="status" aria-live="polite"></p>
     </section>
@@ -242,6 +243,7 @@
 
   <script type="module">
     import { CHANNEL_PRESETS, compareChannels } from "./calc.mjs";
+    import { comparisonCsv } from "./export.mjs";
     import { decodeComparison, encodeComparison } from "./share.mjs";
     import { readOptOut, recordUsage, writeOptOut } from "./usage.mjs";
 
@@ -459,6 +461,23 @@
         recordUsage(localStorage, optedOut(), "share_link_copied");
       } catch (error) {
         status.textContent = error.message || "Fix the inputs before creating a share link.";
+      }
+    });
+    document.getElementById("downloadCsv").addEventListener("click", () => {
+      const status = document.getElementById("share-status");
+      try {
+        const comparison = compareChannels(channels, readShared());
+        const blob = new Blob([comparisonCsv(comparison)], { type: "text/csv;charset=utf-8" });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement("a");
+        link.href = url;
+        link.download = "where-to-sell-comparison.csv";
+        link.click();
+        setTimeout(() => URL.revokeObjectURL(url), 0);
+        recordUsage(localStorage, optedOut(), "comparison_csv_downloaded");
+        status.textContent = "Comparison CSV downloaded. It contains calculated results, not usage data.";
+      } catch (error) {
+        status.textContent = error.message || "Fix the inputs before downloading a comparison.";
       }
     });
     document.getElementById("reset").addEventListener("click", () => {

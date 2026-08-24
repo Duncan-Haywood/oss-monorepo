@@ -50,6 +50,10 @@ only the numeric assumptions and channel settings needed to reproduce the table;
 it does not include local usage counts or browser-saved data. Anyone with the
 link can read those assumptions, so do not include confidential costs.
 
+Use **Download comparison CSV** to save the ranked table for a spreadsheet,
+bookkeeping note, or sourcing review. The export contains calculated channel
+results only, never browser-saved inputs, usage counts, or a network upload.
+
 ### Reading the table
 
 Alongside net profit and margin, each channel reports two figures that answer
@@ -115,7 +119,7 @@ device.
 
 The optional usage counter records only an event name (`comparison_calculated`,
 `channel_rates_edited`, `channel_toggled`, `subscription_toggled`,
-`share_link_copied`) and the
+`share_link_copied`, `comparison_csv_downloaded`) and the
 current day, in the visitor's own `localStorage`. It never records inputs, it
 never leaves the device, it is off for anyone sending Do Not Track or Global
 Privacy Control, and the footer checkbox turns it off and discards what was
