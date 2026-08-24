@@ -44,6 +44,11 @@ quoted price and direct costs fixed while showing how the effective hourly rate
 and gap to the supplied target change. They are arithmetic what-if comparisons,
 not a forecast of project delivery time.
 
+The report also shows how many total hours the quoted price supports after direct
+costs are deducted at the supplied target rate, plus the hours remaining (or over)
+against the hours you entered. This is a capacity comparison, not a promise that
+the work will fit in that time or a recommendation to reduce scope.
+
 **No warranty.** This tool is provided free and as-is, without warranty of any
 kind, express or implied. It is not tax, financial, or business advice, and it
 does not replace a qualified professional. **You are responsible for reviewing

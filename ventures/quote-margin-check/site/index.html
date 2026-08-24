@@ -300,6 +300,7 @@
            <dt>Effective hourly rate</dt><dd><strong>${safeCurrency} ${fmt(r.effective_hourly_rate)}/hour</strong></dd>
            <dt>Price at your target rate</dt><dd>${safeCurrency} ${fmt(r.target_price)}</dd>
            <dt>Gap to target price</dt><dd>${safeCurrency} ${fmt(r.gap_to_target)}</dd>
+           <dt>Hours this price supports at target rate</dt><dd>${fmt(r.target_rate_hours)} hours (${fmt(r.hours_cushion)} hours ${r.hours_cushion >= 0 ? "remaining" : "over"})</dd>
            <dt>Left after direct costs</dt><dd>${safeCurrency} ${fmt(r.cost_coverage)}</dd>
         </dl>
        `;
@@ -353,6 +354,8 @@
       `effective_hourly_rate,${r.effective_hourly_rate.toFixed(2)},${quote.currency}/hour`,
       `target_price,${r.target_price.toFixed(2)},${quote.currency}`,
       `gap_to_target,${r.gap_to_target.toFixed(2)},${quote.currency}`,
+      `target_rate_hours,${r.target_rate_hours.toFixed(2)},hours`,
+      `hours_cushion,${r.hours_cushion.toFixed(2)},hours`,
       `cost_coverage,${r.cost_coverage.toFixed(2)},${quote.currency}`,
     ].join("\n");
     try {

@@ -50,6 +50,7 @@ def calculate(quote: Quote) -> dict[str, float]:
     direct_costs = quote.overhead + quote.subcontractor_cost
     effective_rate = (quote.price - direct_costs) / total_hours
     target_price = total_hours * quote.target_hourly_rate + direct_costs
+    target_rate_hours = (quote.price - direct_costs) / quote.target_hourly_rate
     return {
         "total_hours": total_hours,
         "direct_costs": direct_costs,
@@ -57,6 +58,8 @@ def calculate(quote: Quote) -> dict[str, float]:
         "target_price": target_price,
         "gap_to_target": quote.price - target_price,
         "cost_coverage": quote.price - direct_costs,
+        "target_rate_hours": target_rate_hours,
+        "hours_cushion": target_rate_hours - total_hours,
     }
 
 
@@ -75,6 +78,7 @@ def markdown(quote: Quote, result: dict[str, float]) -> str:
         f"| Effective hourly rate | {quote.currency} {result['effective_hourly_rate']:.2f}/hour |",
         f"| Price at supplied target rate | {quote.currency} {result['target_price']:.2f} |",
         f"| Gap to target price | {quote.currency} {result['gap_to_target']:.2f} |",
+        f"| Hours supported at target rate | {result['target_rate_hours']:.2f} ({result['hours_cushion']:.2f} {'remaining' if result['hours_cushion'] >= 0 else 'over'}) |",
         f"| After direct costs | {quote.currency} {result['cost_coverage']:.2f} |",
         "",
         "This is a customer-supplied estimate, not tax, financial, or business advice. It does not certify profitability or account for every cost. Review the assumptions before using the result.",
@@ -94,6 +98,8 @@ def csv_report(quote: Quote, result: dict[str, float]) -> None:
             ("effective_hourly_rate", f"{result['effective_hourly_rate']:.2f}", f"{quote.currency}/hour"),
             ("target_price", f"{result['target_price']:.2f}", quote.currency),
             ("gap_to_target", f"{result['gap_to_target']:.2f}", quote.currency),
+            ("target_rate_hours", f"{result['target_rate_hours']:.2f}", "hours"),
+            ("hours_cushion", f"{result['hours_cushion']:.2f}", "hours"),
             ("cost_coverage", f"{result['cost_coverage']:.2f}", quote.currency),
         )
     )
