@@ -14,6 +14,7 @@ test("records anonymous events and returns aggregate counts", () => {
   assert.deepEqual(getUsageEventSummary(), {
     totalEvents: 2,
     pageViews: 1,
+    searches: 0,
     featureEvents: 1,
     recentEvents: [
       { name: "catalog_cta", path: "/storefront", createdAt: "2026-08-24T00:01:00.000Z" },
@@ -29,4 +30,13 @@ test("bounds the in-memory demo store", () => {
   }
 
   assert.equal(getUsageEventSummary().totalEvents, 500);
+});
+
+test("counts storefront search events separately from page views", () => {
+  clearUsageEventsForTests();
+  recordUsageEvent({ name: "storefront_search", path: "/storefront?q=blue", createdAt: "2026-08-24T00:02:00.000Z" });
+  const summary = getUsageEventSummary();
+  assert.equal(summary.searches, 1);
+  assert.equal(summary.pageViews, 0);
+  assert.equal(summary.featureEvents, 1);
 });

@@ -4,6 +4,16 @@
 instructions conflict, this document wins over older prose in `CLAUDE.md`, the
 ledger, or session notes that still treat policy compliance as the primary job.
 
+Two companion documents carry the parts this one only names:
+
+- [`PRODUCT_PLAYBOOK.md`](../PRODUCT_PLAYBOOK.md) — how to actually build one of
+  these products in a session: picking the niche, product shapes that cost $0
+  per user, the API-key switch, the disclaimer text to copy, the SEO/AI-discovery
+  checklist, and the definition of done.
+- [`portfolio/usage/`](usage/README.md) — what may be counted (events, never
+  people), which free signals already exist, and where readings land
+  (`usage/usage.yaml`) so the next session and the router can see them.
+
 ## What we are doing
 
 Build software products that create large amounts of value for real users.
@@ -128,6 +138,14 @@ Track and prefer work that moves these:
 
 Deprioritize work that only moves internal metrics (ledger entries, open PR
 count, decision-queue rows) unless it directly unblocks a product.
+
+Write the readings down in [`usage/usage.yaml`](usage/usage.yaml) — a number
+that only ever existed in a running process is not a signal, and a reading of
+zero after a fair run is a result worth recording, not a failure to hide.
+[`usage/README.md`](usage/README.md) has the rules: count events, never people;
+no PII, no IPs, no content, no analytics vendor; prefer free signals that
+already exist (release downloads, package downloads, repo traffic) over
+instrumenting anything new.
 
 ## What this replaces
 

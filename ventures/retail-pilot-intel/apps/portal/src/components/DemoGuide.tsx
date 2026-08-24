@@ -1,18 +1,28 @@
 import { useState } from "react";
 import { useLocation } from "react-router-dom";
 import { demoTalkingPoints } from "../data/demoStore";
+import { recordEngagementEvent } from "../lib/engagement-log";
 
 export function DemoGuide() {
   const { pathname } = useLocation();
   const guide = demoTalkingPoints[pathname] ?? demoTalkingPoints["/"];
   const [open, setOpen] = useState(true);
 
+  function toggle(next: boolean) {
+    setOpen(next);
+    recordEngagementEvent({
+      name: "presenter_guide_toggle",
+      path: pathname,
+      createdAt: new Date().toISOString(),
+    });
+  }
+
   if (!open) {
     return (
       <button
         type="button"
         className="demo-guide-collapsed"
-        onClick={() => setOpen(true)}
+        onClick={() => toggle(true)}
         aria-label="Open demo presenter guide"
       >
         Presenter guide
@@ -27,7 +37,7 @@ export function DemoGuide() {
         <button
           type="button"
           className="link-btn"
-          onClick={() => setOpen(false)}
+          onClick={() => toggle(false)}
           aria-label="Hide demo guide"
         >
           Hide

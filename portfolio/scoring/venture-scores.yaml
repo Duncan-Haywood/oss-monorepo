@@ -48,6 +48,29 @@ scoring_rule: >-
   near-zero-price norm is a real property of the business on any host.
 
 ventures:
+  - slug: quote-margin-check
+    scores:
+      ai_leverage: 3
+      autonomous_ops: 9
+      time_to_revenue: 8
+      gross_margin: 10
+      defensibility: 4
+      distribution: 6
+    composite: 6.667
+    rater_b: null
+    floor: 3
+    floor_dimension: ai_leverage
+    floor_note: >-
+      Low AI leverage is intentional: transparent arithmetic is the product,
+      while reusable niche templates are the proposed future moat.
+    basis: >-
+      Graduated from the quote-margin-check candidate on 2026-08-24. The first
+      slice is a standard-library, local-only calculator for customer-supplied
+      quote inputs, with hidden time and direct costs made explicit.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+
   - slug: repository-branch-hygiene
     scores:
       ai_leverage: 6
@@ -452,3 +475,71 @@ ventures:
       retire a venture on its own scoring pass. The narrower version that
       clears the gate is licensed or owner-supplied artwork with a flat fee
       rather than a profit share.
+
+  - slug: dns-configuration-evidence
+    scores:
+      ai_leverage: 6
+      autonomous_ops: 9
+      time_to_revenue: 6
+      gross_margin: 9
+      defensibility: 4
+      distribution: 4
+    composite: 6.333
+    rater_b: null
+    floor: 4
+    floor_dimension: defensibility
+    floor_note: >-
+      Resolver lookup and diff logic are reproducible. A signed, portable,
+      customer-specific history could compound, but that defensibility is
+      untested; distribution is similarly unproven until a named MSP, agency,
+      or repeatable practitioner community adopts the workflow.
+    basis: >-
+      The first slice is a deterministic, local recorder with JSON and Markdown
+      reports, resolver-aware uncertainty states, and no network, credential,
+      payment, or inference dependency. The candidate score supports strong
+      autonomous operation and gross margin once scheduled collection exists,
+      while time to revenue is moderated by the untested recurring workflow and
+      the absence of an owned distribution channel.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Pass, conditionally: the product reports customer-authorized observations
+      with resolver and timestamp provenance, and explicitly does not warrant
+      security, deliverability, uptime, or compliance. Authorization and
+      remediation remain customer responsibilities.
+
+  - slug: backup-verification-evidence
+    scores:
+      ai_leverage: 5
+      autonomous_ops: 9
+      time_to_revenue: 6
+      gross_margin: 9
+      defensibility: 4
+      distribution: 4
+    composite: 6.167
+    rater_b: null
+    floor: 4
+    floor_dimension: defensibility
+    floor_note: >-
+      An exit-code-plus-artifact-stat classifier is trivially reimplemented.
+      A dated, portable, per-client verification history could compound, but
+      that defensibility is untested; distribution is similarly unproven
+      until a named sysadmin/MSP community or repeatable practitioner
+      conversation channel adopts it.
+    basis: >-
+      The first slice is a deterministic local CLI with no network calls,
+      credentials, paid APIs, or inference dependency, which supports strong
+      autonomous operation and gross margin. AI leverage is low by design --
+      the classification is arithmetic on an exit code, a file size, and two
+      timestamps. Time to revenue is moderated by an untested recurring
+      workflow and the absence of an owned distribution channel.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Pass, conditionally: `verified` is scoped in both the CLI output and
+      the README to "exit code 0 and artifact meets the stated size/age
+      expectations", never to restorability, completeness, or data safety.
+      Testing restores and maintaining an independent backup strategy remain
+      customer responsibilities.
