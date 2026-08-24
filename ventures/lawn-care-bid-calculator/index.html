@@ -1,0 +1,378 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Lawn Care Bid Calculator | Price a Mowing Stop, Not the Lot Size</title>
+  <meta name="description" content="Price a lawn care route stop from production rates: turf, beds, edging, travel time, fuel, dump, and margin — plus price per visit, in-season monthly, honest annual, and the walk-away number.">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="./">
+  <meta property="og:title" content="Lawn Care Bid Calculator">
+  <meta property="og:description" content="Bid the stop the way a crew actually runs it — turf, beds, and windshield time — and see the margin before you send the price.">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Lawn Care Bid Calculator","applicationCategory":"BusinessApplication","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"featureList":"Per-service production-rate hours, travel as loaded labor, fuel and dump per visit, in-season monthly price, honest annual at growing-season weeks, price per visit, effective hourly rate, break-even walk-away price"}</script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"How do I price lawn mowing for a residential yard?","acceptedAnswer":{"@type":"Answer","text":"Split the stop into services with their own rates — turf mowing, edging and blowing, beds — then add round-trip travel, fuel, and dump. Price from those hours plus overhead and the margin you intend to keep, not from lot size alone."}},{"@type":"Question","name":"Why is a price per acre a bad lawn care bid?","acceptedAnswer":{"@type":"Answer","text":"Two half-acre lots are not the same job. Beds, hedges, and an 18-minute drive each way often take more of the stop than the mow. A flat per-acre rule cannot see any of that."}},{"@type":"Question","name":"Should a lawn care contract be monthly times twelve?","acceptedAnswer":{"@type":"Answer","text":"Only if you actually service the property every month. Most growing-season routes run 28 to 36 weeks. Annual is the per-visit price times those weeks, not the in-season monthly times twelve."}}]}</script>
+  <style>
+    :root { color-scheme: light; font-family: system-ui, sans-serif; color: #1e2a1c; background: #eef3e8; }
+    body { max-width: 1060px; margin: 0 auto; padding: 32px 18px; }
+    header { max-width: 740px; margin-bottom: 26px; }
+    h1 { font-size: clamp(2rem, 6vw, 3.4rem); line-height: .98; margin: 0 0 12px; letter-spacing: -.05em; }
+    p { line-height: 1.5; }
+    .eyebrow { font-size: .8rem; font-weight: 700; letter-spacing: .08em; color: #2f6b32; margin: 0 0 6px; }
+    .layout { display: grid; grid-template-columns: minmax(0, 1fr) minmax(300px, .75fr); gap: 18px; align-items: start; }
+    section { background: #fff; border: 1px solid #cfd9c4; border-radius: 14px; padding: 20px; box-shadow: 0 8px 24px #1a2a140d; margin-bottom: 18px; }
+    h2 { margin-top: 0; font-size: 1.15rem; }
+    .hint { font-size: .82rem; color: #4d5b46; margin: -6px 0 14px; }
+    .fields { display: grid; grid-template-columns: repeat(2, 1fr); gap: 13px; }
+    label { display: grid; gap: 5px; font-size: .87rem; font-weight: 650; }
+    input, select { width: 100%; box-sizing: border-box; border: 1px solid #a9b89a; border-radius: 7px; padding: 10px; font: inherit; background: #fff; }
+    .service-row { display: grid; grid-template-columns: minmax(0, 2.4fr) repeat(2, minmax(0, 1fr)) auto; gap: 8px; align-items: end; margin-bottom: 10px; }
+    .service-row select, .service-row input { padding: 10px 7px; }
+    .service-head { font-size: .74rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; color: #5a6b52; }
+    .service-row .lbl { position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0; overflow: hidden; clip-path: inset(50%); white-space: nowrap; border: 0; }
+    button { font: inherit; border-radius: 7px; border: 1px solid #a9b89a; background: #f3f7ee; padding: 10px 14px; cursor: pointer; font-weight: 650; }
+    button:hover { background: #e6eedc; }
+    .remove { padding: 10px; color: #9b2c1f; border-color: #d8b6b0; background: #fdf3f1; }
+    .result { position: sticky; top: 15px; background: #1d3b1f; color: #f3f8ef; border-color: #1d3b1f; }
+    .hero-number { font-size: 2.7rem; font-weight: 750; letter-spacing: -.05em; margin: 8px 0 0; }
+    .negative { color: #ffb0a2; }
+    dl { display: grid; grid-template-columns: 1fr auto; gap: 9px; margin: 20px 0; }
+    dt, dd { margin: 0; } dd { font-variant-numeric: tabular-nums; }
+    hr { border: 0; border-top: 1px solid #ffffff2b; }
+    .note { font-size: .82rem; opacity: .84; }
+    .split { margin: 14px 0 0; padding: 0; list-style: none; font-size: .84rem; }
+    .split li { display: grid; grid-template-columns: 1fr auto; gap: 8px; padding: 3px 0; }
+    .bar { grid-column: 1 / -1; height: 4px; border-radius: 2px; background: #ffffff2e; }
+    .bar > span { display: block; height: 100%; border-radius: 2px; background: #8ed37a; }
+    .verdict { margin-top: 14px; padding: 12px; border-radius: 9px; font-size: .87rem; background: #ffffff1a; }
+    .verdict.bad { background: #7d2317; }
+    .empty { font-size: .87rem; opacity: .84; }
+    footer { margin-top: 25px; font-size: .82rem; color: #4d5b46; }
+    footer a { color: #2f6b32; }
+    .support { margin-top: 14px; }
+    .summary-actions { display: flex; gap: 8px; align-items: center; margin-top: 14px; flex-wrap: wrap; }
+    .summary-status { font-size: .8rem; color: #c8e8b8; }
+    .more { margin-top: 10px; font-size: .9rem; }
+    @media (max-width: 780px) {
+      .layout { grid-template-columns: 1fr; } .result { position: static; } .fields { grid-template-columns: 1fr; }
+      .service-head { display: none; }
+      .service-row { grid-template-columns: 1fr 1fr; border: 1px solid #dde6d4; border-radius: 9px; padding: 11px; }
+      .service-row label { font-size: .78rem; gap: 5px; }
+      .service-row .lbl { position: static; width: auto; height: auto; margin: 0; overflow: visible; clip-path: none; white-space: normal; }
+      .service-row label:first-child { grid-column: 1 / -1; }
+      .remove { grid-column: 1 / -1; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="eyebrow">FOR INDEPENDENT LAWN CARE OPERATORS</p>
+    <h1>Bid the stop, not the lot size.</h1>
+    <p>Price a recurring lawn-care stop the way a crew actually runs it: turf, beds, and edging each at their own production rate, then windshield time, fuel, dump, and the margin you intend to keep. You get the price per visit, the in-season monthly, an annual that counts growing-season weeks rather than inventing winter, and the number below which the stop loses money.</p>
+    <p class="more">Background: <a href="how-to-price-lawn-mowing.html">how to price lawn mowing without a per-acre guess</a>.</p>
+  </header>
+
+  <main class="layout">
+    <div>
+      <section>
+        <h2>The property</h2>
+        <p class="hint">One row per service on the visit. Production rate is how much one person covers per hour in that row&rsquo;s unit. Pick a service to start from a common figure, then replace it with a rate timed from your own crew.</p>
+        <div class="service-row service-head" aria-hidden="true">
+          <span>Service</span><span>Quantity</span><span>Per hour</span><span></span>
+        </div>
+        <div id="services"></div>
+        <button type="button" id="addService">+ Add a service</button>
+      </section>
+
+      <section>
+        <h2>Route and season</h2>
+        <div class="fields">
+          <label>Visits per week <input id="visitsPerWeek" type="number" min="0" step="0.5" value="1"></label>
+          <label>Service weeks per year <input id="serviceWeeksPerYear" type="number" min="0" max="52" step="1" value="32"></label>
+          <label>One-way travel (minutes) <input id="oneWayMinutes" type="number" min="0" step="1" value="18"></label>
+          <label>Crew size <input id="crewSize" type="number" min="1" step="1" value="1"></label>
+        </div>
+        <p class="hint" style="margin-top:14px;margin-bottom:0">Round-trip travel is loaded labor. Service weeks are the growing season you actually bill — 32 is a common temperate-US figure, not a recommendation. Annual is visit price × these weeks, not monthly × 12.</p>
+      </section>
+
+      <section>
+        <h2>Your costs</h2>
+        <div class="fields">
+          <label>Crew hourly wage <input id="hourlyWage" type="number" min="0" step="0.25" value="18"></label>
+          <label>Payroll burden (%) <input id="burdenRate" type="number" min="0" step="0.5" value="25"></label>
+          <label>Fuel per visit <input id="fuelPerVisit" type="number" min="0" step="0.5" value="8"></label>
+          <label>Dump / disposal per visit <input id="dumpPerVisit" type="number" min="0" step="0.5" value="0"></label>
+          <label>Equipment share / month <input id="equipmentMonthly" type="number" min="0" step="1" value="40"></label>
+          <label>Other cost / month <input id="otherMonthly" type="number" min="0" step="1" value="0"></label>
+          <label>Overhead on direct cost (%) <input id="overheadRate" type="number" min="0" step="0.5" value="12"></label>
+          <label>Target net margin (%) <input id="targetMargin" type="number" min="0" max="99.9" step="0.5" value="25"></label>
+          <label>Monthly price you&rsquo;re considering (optional) <input id="proposedPrice" type="number" min="0" step="5" placeholder="e.g. 180"></label>
+        </div>
+        <p class="hint" style="margin-top:14px;margin-bottom:0">Payroll burden covers employer taxes, workers&rsquo; compensation, and paid time off. Equipment share is this stop&rsquo;s piece of the mower payment, trailer, and shop — not the whole fleet.</p>
+      </section>
+    </div>
+
+    <section class="result" aria-live="polite">
+      <h2>Your bid</h2>
+      <div id="price" class="hero-number">$&mdash;</div>
+      <div id="priceLabel">per visit</div>
+      <dl>
+        <dt>In-season monthly</dt><dd id="monthly"></dd>
+        <dt>Honest annual</dt><dd id="annual"></dd>
+        <dt>Year-round monthly equivalent</dt><dd id="smoothed"></dd>
+        <dt>On-property hours / visit</dt><dd id="onProperty"></dd>
+        <dt>Travel hours / visit</dt><dd id="travel"></dd>
+        <dt>Clock time on site</dt><dd id="clock"></dd>
+        <dt>Loaded labor / month</dt><dd id="labor"></dd>
+        <dt>Fuel &amp; dump / month</dt><dd id="consumables"></dd>
+        <dt>Equipment &amp; other</dt><dd id="equipment"></dd>
+        <dt>Overhead</dt><dd id="overhead"></dd>
+        <dt>Total in-season cost</dt><dd id="cost"></dd>
+        <dt>Monthly profit</dt><dd id="profit"></dd>
+        <dt>Price per acre / month</dt><dd id="perAcre"></dd>
+        <dt>Effective hourly rate</dt><dd id="hourlyRate"></dd>
+        <dt>Walk-away monthly</dt><dd id="breakEven"></dd>
+        <dt>Walk-away per visit</dt><dd id="breakEvenVisit"></dd>
+      </dl>
+      <div id="verdict" class="verdict" hidden></div>
+      <div class="summary-actions">
+        <button type="button" id="copySummary">Copy bid summary</button>
+        <span id="summaryStatus" class="summary-status" role="status" aria-live="polite"></span>
+      </div>
+      <hr>
+      <p class="note" style="margin-bottom:4px"><strong>Where the hours go</strong></p>
+      <ul class="split" id="split"></ul>
+      <hr>
+      <p class="note">Transparent arithmetic from your own inputs. The starting production rates are common ballpark figures, not an industry standard, a benchmark, or a guarantee &mdash; time your own crews and replace them.</p>
+    </section>
+  </main>
+
+  <footer>
+    <label style="display:inline-flex;gap:6px;align-items:center;font-weight:400"><input id="usageOptOut" type="checkbox" style="width:auto"> Do not keep anonymous local usage counts</label>
+    <p><strong>No warranty.</strong> This free tool is not legal, tax, financial, or business advice, and it does not tell you what to charge. Verify every figure against your own payroll, fuel, insurance, and dump costs, and against a qualified professional, before relying on it or submitting a bid. To the maximum extent permitted by law, the authors accept no liability for loss or damage from its use.</p>
+    <p><strong>Nothing leaves your browser.</strong> Every number stays on this device. Usage counts are anonymous tallies of which features were used, stored locally, and never include your property, wages, costs, or prices.</p>
+    <p class="support">Free and open source. If it wins you a route, the <a href="https://github.com/Duncan-Haywood/monorepo-projects" rel="noopener">project is on GitHub</a> &mdash; support is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { calculateBid, SERVICE_PRESETS, UNIT_LABELS } from './calc.mjs';
+    import { recordUsage } from './usage.mjs';
+
+    const FIELD_IDS = ['visitsPerWeek','serviceWeeksPerYear','oneWayMinutes','crewSize','hourlyWage','burdenRate','fuelPerVisit','dumpPerVisit','equipmentMonthly','otherMonthly','overheadRate','targetMargin','proposedPrice'];
+    const money = value => `$${value.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+    const el = id => document.getElementById(id);
+
+    // A typical suburban stop: enough rows that the hour split immediately
+    // shows why beds and travel cannot be priced at the turf rate.
+    const STARTING_SERVICES = [
+      { name: 'Turf mowing', quantity: 10000, productionRate: 20000 },
+      { name: 'Edging & blowing', quantity: 25, productionRate: 60 },
+      { name: 'Bed weeding / detail', quantity: 350, productionRate: 400 },
+    ];
+
+    const TYPE_OPTIONS = SERVICE_PRESETS
+      .map((preset, index) => `<option value="${index}">${preset.label}</option>`)
+      .join('') + '<option value="other">Other service</option>';
+
+    const host = el('services');
+    let rowSeq = 0;
+
+    function addServiceRow(service) {
+      const id = `s${++rowSeq}`;
+      const row = document.createElement('div');
+      row.className = 'service-row';
+      row.innerHTML = `
+        <label for="${id}-type"><span class="lbl">Service</span><select class="s-type" id="${id}-type">${TYPE_OPTIONS}</select></label>
+        <label for="${id}-qty"><span class="lbl">Quantity</span><input class="s-qty" id="${id}-qty" type="number" min="0" step="1"></label>
+        <label for="${id}-rate"><span class="lbl">Quantity per hour</span><input class="s-rate" id="${id}-rate" type="number" min="0.01" step="1"></label>
+        <button type="button" class="remove">Remove<span class="lbl"> this service</span></button>`;
+
+      const typeField = row.querySelector('.s-type');
+      const rateField = row.querySelector('.s-rate');
+      const presetIndex = SERVICE_PRESETS.findIndex(p => p.label === service.name);
+      typeField.value = presetIndex === -1 ? 'other' : String(presetIndex);
+      row.querySelector('.s-qty').value = service.quantity;
+      rateField.value = service.productionRate;
+
+      typeField.addEventListener('change', () => {
+        const preset = SERVICE_PRESETS[Number(typeField.value)];
+        if (preset && !rateField.dataset.edited) rateField.value = preset.rate;
+        count('bid_calculated');
+        update();
+      });
+      rateField.addEventListener('input', () => { rateField.dataset.edited = '1'; });
+      row.querySelectorAll('input').forEach(input => {
+        input.addEventListener('input', update);
+        input.addEventListener('change', () => count('bid_calculated'));
+      });
+      row.querySelector('.remove').addEventListener('click', () => {
+        row.remove();
+        count('service_removed');
+        update();
+      });
+      host.append(row);
+    }
+
+    function readServices() {
+      return [...host.querySelectorAll('.service-row')].map(row => {
+        const preset = SERVICE_PRESETS[Number(row.querySelector('.s-type').value)];
+        return {
+          name: preset ? preset.label : '',
+          unit: preset ? preset.unit : 'sqft',
+          quantity: row.querySelector('.s-qty').value,
+          productionRate: row.querySelector('.s-rate').value,
+        };
+      });
+    }
+
+    function count(event) {
+      recordUsage(localStorage, el('usageOptOut').checked, event);
+    }
+
+    function clearOutputs(message, isError) {
+      el('price').textContent = message;
+      el('price').className = `hero-number ${isError ? 'negative' : ''}`;
+      el('priceLabel').textContent = isError ? 'check the highlighted input' : 'per visit';
+      ['monthly','annual','smoothed','onProperty','travel','clock','labor','consumables','equipment','overhead','cost','profit','perAcre','hourlyRate','breakEven','breakEvenVisit']
+        .forEach(id => { el(id).textContent = ''; });
+      el('split').innerHTML = '';
+      el('verdict').hidden = true;
+    }
+
+    function update() {
+      const services = readServices();
+      if (services.length === 0) {
+        clearOutputs('Add a service to price', false);
+        el('split').innerHTML = '<li class="empty">Add at least one service above and the hour split appears here.</li>';
+        return;
+      }
+      let result;
+      try {
+        result = calculateBid({
+          services,
+          ...Object.fromEntries(FIELD_IDS.map(id => [id, el(id).value])),
+          proposedPrice: el('proposedPrice').value,
+        });
+      } catch (error) {
+        clearOutputs(error.message, true);
+        return;
+      }
+
+      el('price').textContent = result.pricePerVisit === null ? 'n/a' : money(result.pricePerVisit);
+      el('price').className = 'hero-number';
+      el('priceLabel').textContent = 'per visit';
+      el('monthly').textContent = money(result.monthlyPrice);
+      el('annual').textContent = `${money(result.annualPrice)} (${result.serviceWeeksPerYear} weeks)`;
+      el('smoothed').textContent = money(result.smoothedMonthly);
+      el('onProperty').textContent = `${result.onPropertyHoursPerVisit.toFixed(2)} h`;
+      el('travel').textContent = `${result.travelHoursPerVisit.toFixed(2)} h`;
+      el('clock').textContent = `${result.clockHoursOnSite.toFixed(2)} h`;
+      el('labor').textContent = money(result.monthlyLaborCost);
+      el('consumables').textContent = money(result.monthlyFuel + result.monthlyDump);
+      el('equipment').textContent = money(result.equipmentMonthly + result.otherMonthly);
+      el('overhead').textContent = money(result.monthlyOverhead);
+      el('cost').textContent = money(result.monthlyCost);
+      el('profit').textContent = money(result.monthlyProfit);
+      el('perAcre').textContent = result.pricePerAcreMonth === null ? 'n/a' : `${money(result.pricePerAcreMonth)}/acre`;
+      el('hourlyRate').textContent = result.effectiveHourlyRate === null ? 'n/a' : `${money(result.effectiveHourlyRate)}/h`;
+      el('breakEven').textContent = money(result.breakEvenMonthlyPrice);
+      el('breakEvenVisit').textContent = result.breakEvenPerVisit === null ? 'n/a' : money(result.breakEvenPerVisit);
+
+      const rows = [
+        ...result.services.filter(s => s.hoursPerVisit > 0).map(s => ({
+          name: `${s.name}${s.enteredUnit && UNIT_LABELS[s.enteredUnit] ? ` (${UNIT_LABELS[s.enteredUnit]})` : ''}`,
+          share: s.hoursShare,
+        })),
+      ];
+      if (result.travelHoursPerVisit > 0) rows.push({ name: 'Travel (round trip)', share: result.travelHoursShare });
+      el('split').innerHTML = rows.length === 0
+        ? '<li class="empty">No hours on this stop yet — add quantity or travel above.</li>'
+        : rows
+          .slice()
+          .sort((a, b) => b.share - a.share)
+          .map(row => `<li><span>${row.name}</span><span>${row.share.toFixed(0)}% of hours</span>
+            <span class="bar"><span style="width:${row.share.toFixed(1)}%"></span></span></li>`)
+          .join('');
+
+      const verdict = el('verdict');
+      if (result.proposed === null) {
+        verdict.hidden = true;
+      } else {
+        verdict.hidden = false;
+        verdict.className = `verdict${result.proposed.belowBreakEven ? ' bad' : ''}`;
+        const rate = result.proposed.hourlyRate === null ? 'n/a' : `${money(result.proposed.hourlyRate)}/h`;
+        verdict.innerHTML = result.proposed.belowBreakEven
+          ? `At ${money(result.proposed.price)} a month this stop <strong>loses ${money(Math.abs(result.proposed.profit))} a month</strong> before you take anything out of it. Your walk-away monthly is ${money(result.breakEvenMonthlyPrice)}.`
+          : `At ${money(result.proposed.price)} a month you keep <strong>${money(result.proposed.profit)}</strong> — a ${result.proposed.margin.toFixed(1)}% margin, billing ${rate} of labor.`;
+      }
+    }
+
+    function summaryText(result) {
+      const lines = result.services
+        .filter(s => s.quantity > 0)
+        .map(s => `- ${s.name}: ${s.quantity} ${UNIT_LABELS[s.enteredUnit] || s.enteredUnit}`)
+        .join('\n');
+      return [
+        'LAWN CARE BID',
+        '',
+        `Proposed price per visit: ${result.pricePerVisit === null ? 'n/a' : money(result.pricePerVisit)}`,
+        `In-season monthly: ${money(result.monthlyPrice)}`,
+        `Annual at ${result.serviceWeeksPerYear} service weeks: ${money(result.annualPrice)}`,
+        `On-property time: ${result.onPropertyHoursPerVisit.toFixed(2)} hours/visit`,
+        `Travel (round trip): ${result.travelHoursPerVisit.toFixed(2)} hours/visit`,
+        '',
+        'SERVICES',
+        lines || '- No services entered',
+        '',
+        'This is a draft for review. Confirm scope, schedule, insurance, taxes, and all pricing before sending.',
+      ].join('\n');
+    }
+
+    async function copySummary() {
+      const result = calculateBid({
+        services: readServices(),
+        ...Object.fromEntries(FIELD_IDS.map(id => [id, el(id).value])),
+        proposedPrice: el('proposedPrice').value,
+      });
+      const text = summaryText(result);
+      try {
+        await navigator.clipboard.writeText(text);
+      } catch {
+        const fallback = document.createElement('textarea');
+        fallback.value = text;
+        fallback.setAttribute('readonly', '');
+        fallback.style.position = 'fixed';
+        fallback.style.opacity = '0';
+        document.body.append(fallback);
+        fallback.select();
+        document.execCommand('copy');
+        fallback.remove();
+      }
+      count('summary_copied');
+      el('summaryStatus').textContent = 'Copied to clipboard';
+      setTimeout(() => { el('summaryStatus').textContent = ''; }, 2500);
+    }
+
+    el('addService').addEventListener('click', () => {
+      addServiceRow({ name: '', quantity: 0, productionRate: 20000 });
+      count('service_added');
+      update();
+    });
+
+    FIELD_IDS.forEach(id => {
+      el(id).addEventListener('input', update);
+      el(id).addEventListener('change', () => count(id === 'proposedPrice' ? 'proposed_price_compared' : 'bid_calculated'));
+    });
+    el('usageOptOut').addEventListener('change', update);
+    el('copySummary').addEventListener('click', () => {
+      try {
+        copySummary().catch(() => { el('summaryStatus').textContent = 'Copy failed; select and copy the figures above.'; });
+      } catch (error) {
+        el('summaryStatus').textContent = error.message;
+      }
+    });
+
+    STARTING_SERVICES.forEach(addServiceRow);
+    update();
+  </script>
+</body>
+</html>
