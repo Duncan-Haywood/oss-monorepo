@@ -8,6 +8,7 @@ import json
 import sys
 from pathlib import Path
 from typing import Any
+from xml.sax.saxutils import escape, quoteattr
 
 from .checks import check_invoice
 from .ubl import parse_ubl_invoice
@@ -195,6 +196,40 @@ def _csv_report(
     return output.getvalue()
 
 
+def _junit_report(
+    reports: list[tuple[Path, list[dict[str, str]]]],
+    read_errors: list[dict[str, str]],
+) -> str:
+    """Build a CI-compatible JUnit report without emitting invoice contents."""
+    testcases: list[str] = []
+    failures = 0
+    errors = 0
+    for path, findings in reports:
+        attributes = f" name={quoteattr(path.as_posix())} classname={quoteattr('einvoice-preflight')}"
+        if findings:
+            failures += 1
+            details = "\n".join(
+                f"[{finding['rule']}] {finding['path'] or '/'}: {finding['message']} Fix: {finding['fix']}"
+                for finding in findings
+            )
+            testcases.append(f"  <testcase{attributes}><failure message={quoteattr('Invoice preflight failed')}>{escape(details)}</failure></testcase>")
+        else:
+            testcases.append(f"  <testcase{attributes} />")
+    for read_error in read_errors:
+        errors += 1
+        testcases.append(
+            f"  <testcase name={quoteattr(read_error['file'])} classname={quoteattr('einvoice-preflight')}>"
+            f"<error message={quoteattr('Invoice could not be read')}>{escape(read_error['error'])}</error></testcase>"
+        )
+    total = len(reports) + len(read_errors)
+    body = "\n".join(testcases)
+    return (
+        '<?xml version="1.0" encoding="UTF-8"?>\n'
+        f'<testsuite name="einvoice-preflight" tests="{total}" failures="{failures}" errors="{errors}">\n'
+        f"{body}\n</testsuite>\n"
+    )
+
+
 def _add_batch_duplicate_findings(
     reports: list[tuple[Path, list[dict[str, str]]]],
     invoices: list[tuple[Path, Any]],
@@ -225,7 +260,7 @@ def _markdown_text(value: str) -> str:
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description="Check a local JSON or UBL XML e-invoice before submission. No tax advice or submission.")
     parser.add_argument("invoice", type=Path, help="JSON/XML file, directory of JSON/XML files, or '-' for stdin")
-    parser.add_argument("--format", choices=("text", "json", "markdown", "csv", "sarif", "github"), default="text")
+    parser.add_argument("--format", choices=("text", "json", "markdown", "csv", "junit", "sarif", "github"), default="text")
     parser.add_argument("--usage-file", help="opt-in local aggregate event counter")
     args = parser.parse_args(argv)
     reports: list[tuple[Path, list[dict[str, str]]]] = []
@@ -287,6 +322,8 @@ def main(argv: list[str] | None = None) -> int:
         print(_markdown_report(reports, read_errors), end="")
     elif args.format == "csv":
         print(_csv_report(reports, read_errors), end="")
+    elif args.format == "junit":
+        print(_junit_report(reports, read_errors), end="")
     elif args.format == "sarif":
         print(json.dumps(_sarif_report(reports), indent=2))
     elif args.format == "github":
