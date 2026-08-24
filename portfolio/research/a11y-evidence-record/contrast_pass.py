@@ -14,7 +14,7 @@ established pattern of importing the sibling package via `sys.path`.
 What is different here, and why this could not just be a straight port
 ------------------------------------------------------------------------
 `audit.py` reads *unrendered* storefront theme *templates* — Liquid, Twig,
-Blade, EJS, Vue, Svelte — not the rendered HTML/CSS pairs #523 measured. Two
+Blade, EJS, Vue, Svelte — not the rendered HTML/CSS pairs #523 measured. Three
 things follow from that:
 
 1. **The stylesheet is not necessarily inline.** A rendered page carries its
@@ -43,6 +43,16 @@ things follow from that:
    element under any dynamically-classed or dynamically-styled ancestor
    (self included) is reported straight as undecidable, before the cascade
    resolver is asked to reason about it at all. See `_dynamic_guard_reason`.
+
+3. **SC 1.3.4 is the same adapter, not a second CSS reader.** The sibling
+   already decides orientation locks from bare ``html``/``body`` type
+   selectors under a pure ``(orientation: …)`` query. This module reuses
+   that decision (``orientation_conditionals`` plus ``_has_visual_rotation``)
+   and adds only the template refusal: a ``transform`` value that is itself
+   an expression is undecidable, never a guessed lock. Class-selector locks
+   stay out of scope for the same reason they are out of scope in the
+   sibling — attributing a class to "the whole page" needs cascade
+   reasoning this reader does not do.
 
 `is_expr`/`node.attr()`'s framework-binding-prefix resolution
 (`:class`, `v-bind:class`, `[class]`, ...) already normalise Vue/Angular
@@ -73,11 +83,13 @@ if str(PROBE_SRC) not in sys.path:
 from wcag_triage import css as wt_css  # noqa: E402
 from wcag_triage import contrast as wt_contrast  # noqa: E402
 from wcag_triage import usecolor as wt_usecolor  # noqa: E402
+from wcag_triage.rules import _has_visual_rotation  # noqa: E402
 
 import audit  # noqa: E402
 
 CHECK = "text-contrast-fail"
 USE_OF_COLOR_CHECK = "color-only-link"
+ORIENTATION_CHECK = "orientation-lock"
 
 # Reported straight as undecidable, before the cascade resolver runs at all.
 # See the module docstring, point 2.
@@ -247,4 +259,61 @@ def findings_and_undecidables_use_of_color(
             undecided.append(
                 audit._undecidable(USE_OF_COLOR_CHECK, node, result.reason, path)
             )
+    return findings, undecided
+
+
+def _value_is_expr(value: str) -> bool:
+    """True when a CSS property value still carries a template expression.
+
+    External stylesheets arrive raw, so ``rotate({{ n }}deg)`` still has
+    Liquid delimiters. Inline ``<style>`` blocks have already been through
+    ``audit.strip_expressions``, so the same case arrives as a sentinel.
+    Running the stripper first makes both spellings answer the same
+    question.
+    """
+    return audit.is_expr(audit.strip_expressions(value))
+
+
+def findings_and_undecidables_orientation(
+    root: "audit.Node", sheet: "wt_css.Stylesheet", path: str
+) -> tuple:
+    """``(findings, undecidables)`` for SC 1.3.4, in ``audit.py``'s dict shape.
+
+    Same document-level question as the sibling's ``rule_orientation_lock``:
+    does any bare ``html``/``body`` type selector rotate the page under one
+    orientation? One finding is enough. A transform value that is a template
+    expression is undecidable rather than guessed; a later definite lock on
+    the other element wins, because the barrier is then proven.
+    """
+    findings = []
+    undecided = []
+    pending = None
+    for tag in ("html", "body"):
+        node = next((n for n in root.iter() if n.tag == tag), None)
+        if node is None:
+            continue
+        entry = sheet.element_property_for(tag, "transform")
+        if entry is None:
+            continue
+        for orientation, value in wt_css.orientation_conditionals(entry):
+            if _value_is_expr(value):
+                if pending is None:
+                    pending = (node, "transform-is-template-expression")
+                continue
+            if not _has_visual_rotation(value):
+                continue
+            findings.append(audit._finding(
+                ORIENTATION_CHECK,
+                node,
+                f"<{tag}> is rotated ({value.strip()}) whenever the device "
+                f"reports {orientation} orientation, locking the display to "
+                "the other one with no way for the reader to undo it.",
+                path,
+            ))
+            return findings, []
+    if pending is not None:
+        node, reason = pending
+        undecided.append(
+            audit._undecidable(ORIENTATION_CHECK, node, reason, path)
+        )
     return findings, undecided
