@@ -162,6 +162,32 @@ ventures:
       liability_containment: pass
       ethical_robustness: pass
 
+  - slug: where-to-sell-calculator
+    scores:
+      ai_leverage: 2
+      autonomous_ops: 10
+      time_to_revenue: 7
+      gross_margin: 10
+      defensibility: 5
+      distribution: 8
+    composite: 7.0
+    rater_b: null
+    floor: 2
+    floor_dimension: ai_leverage
+    floor_note: AI is intentionally absent from the arithmetic core.
+    basis: >-
+      Graduated on 2026-08-24 as the cross-channel counterpart to the
+      single-marketplace calculators already in the portfolio. Scored one above
+      shopify-fee-calculator on defensibility: the per-marketplace calculators
+      are each a commodity SERP, while a comparison that models differing fee
+      *shapes* — per-listing fees, subscription amortisation, and the price
+      needed to match the best channel — is the piece the incumbent ad-funded
+      pages do not attempt. Distribution matches at 8: "etsy vs ebay fees" and
+      "where to sell online" are high-intent seller queries.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+
   - slug: no-show-fee-calculator
     scores:
       ai_leverage: 1
@@ -768,3 +794,39 @@ ventures:
       Pass, conditionally: output is explicitly a record of a supplied
       automated test, never a compliance determination, and every result calls
       for manual review.
+
+  - slug: janitorial-bid-calculator
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 7
+      gross_margin: 10
+      defensibility: 5
+      distribution: 7
+    composite: 6.667
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      There is no AI anywhere in the product. The value is a domain model —
+      per-space production rates and payroll burden — that is arithmetic, and
+      adding inference to it would only make the result less checkable.
+    basis: >-
+      Graduated on 2026-08-24 as a browser-local commercial cleaning bid
+      calculator. Scored above the marketplace fee calculators on
+      defensibility (5): those restate a published fee schedule, whereas the
+      production-rate model encodes how the trade actually estimates labor,
+      and the incumbents here are paid bidding suites rather than free
+      ad-funded pages. Distribution 7: "janitorial bidding calculator" and
+      "commercial cleaning price per square foot" are lower-volume than the
+      marketplace-fee queries but far less saturated and bought by an operator
+      with a real contract on the line.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Pass: the output is arithmetic on the contractor's own inputs, never a
+      recommended price, a wage determination, or an employment-law opinion.
+      The shipped production rates are labelled ballpark starting points rather
+      than a standard or benchmark, and nothing the user enters leaves the
+      browser.

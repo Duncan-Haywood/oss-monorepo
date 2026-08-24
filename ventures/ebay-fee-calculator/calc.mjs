@@ -2,6 +2,27 @@
 // state: every rate and cost is an input so the result stays a transparent
 // calculation the seller can check against their own eBay statements rather
 // than a claim about eBay's current fee schedule.
+
+// Every seller-supplied field, in the order the form presents them. The page
+// and the save/share encoder both read this rather than keeping their own
+// copies: when those lists drifted, a shared link silently dropped whichever
+// field the encoder had not heard about, and the recipient saw a different
+// order than the sender did.
+export const INPUT_FIELDS = [
+  'price',
+  'quantity',
+  'shippingCharged',
+  'finalValueRate',
+  'fixedFee',
+  'promotedRate',
+  'intlFeeRate',
+  'costOfGoods',
+  'shippingCost',
+  'packagingCost',
+  'otherCost',
+  'targetMargin',
+];
+
 export function calculateOrder(input) {
   const number = (value, name) => {
     const result = Number(value);
@@ -82,5 +103,31 @@ export function calculatePriceScenarios(input, prices) {
   return prices.map(price => ({
     price: Number(price),
     ...calculateOrder({ ...input, price }),
+  }));
+}
+
+// The repricing table the UI renders: scenarios placed a few percent either
+// side of the price the seller typed.
+//
+// Percentage offsets rather than absolute prices, because that is what lets the
+// "current" row be identified exactly instead of by comparing two floats, and
+// it puts the rounding to whole cents — what the seller would actually type
+// into eBay — in one place a test can pin.
+export function calculateRepricingTable(input, offsets = [-20, -10, 0, 10, 20]) {
+  if (!Array.isArray(offsets) || offsets.length === 0) throw new Error('At least one price offset is required');
+  const percentages = offsets.map(offset => {
+    const percent = Number(offset);
+    if (!Number.isFinite(percent) || percent <= -100) throw new Error('Price offset must be greater than -100%');
+    return percent;
+  });
+  const current = calculateOrder(input);
+  const prices = percentages.map(percent => Math.round(Number(input.price) * (1 + percent / 100) * 100) / 100);
+  return calculatePriceScenarios(input, prices).map((scenario, index) => ({
+    ...scenario,
+    offset: percentages[index],
+    isCurrent: percentages[index] === 0,
+    // Signed change against the seller's current price, so the table answers
+    // "what does moving the price actually buy me" without mental arithmetic.
+    profitDelta: scenario.profit - current.profit,
   }));
 }

@@ -64,6 +64,9 @@ workflows:
 - workflow: claude-routine-trigger.yml
   classification: none
   publishes: []
+- workflow: cut-list-optimizer-ci.yml
+  classification: none
+  publishes: []
 - workflow: demand-signal-reachability-ci.yml
   classification: none
   publishes: []
@@ -76,10 +79,16 @@ workflows:
 - workflow: error-rate-disclosure-ci.yml
   classification: none
   publishes: []
+- workflow: etsy-profit-calculator-ci.yml
+  classification: none
+  publishes: []
 - workflow: forge-surface-reachability-ci.yml
   classification: none
   publishes: []
 - workflow: garmin-world-traveler-watchface-ci.yml
+  classification: none
+  publishes: []
+- workflow: janitorial-bid-calculator-ci.yml
   classification: none
   publishes: []
 - workflow: local-site-studio-ci.yml
@@ -158,6 +167,9 @@ workflows:
   classification: none
   publishes: []
 - workflow: ubuntu-agent-server-ci.yml
+  classification: none
+  publishes: []
+- workflow: where-to-sell-calculator-ci.yml
   classification: none
   publishes: []
 - workflow: world-clock-widget-ci.yml
