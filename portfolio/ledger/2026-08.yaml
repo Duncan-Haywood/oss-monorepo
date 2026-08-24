@@ -22935,3 +22935,81 @@ entries:
         (unaffected, both pass). Doc-only diff; no code, deployment, or
         owner-only action.
     mrr_end: null
+  - venture: ai-engineering-academy
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Triage first (scheduled brief, webhook-triggered on PR #955):
+        #955 turned out to be a byte-identical duplicate of #954, which a
+        concurrent session had already merged to main, so closed #955
+        rather than re-landing the same snapshot regeneration twice. The
+        other quote-margin-check duplicate pair (#948 vs #953, the same
+        browser-calculator idea under `site/` and `web/`) resolved itself
+        mid-session -- #948 was closed by another session while I was
+        reading it -- so I left #953 as the survivor and did not pile on.
+        With 7 concurrent sessions committing in a 15-minute window,
+        picking a lane nobody else was in mattered more than reviewing
+        work that was already moving.
+      - >-
+        Product pick: `ai-engineering-academy` had zero open PRs against
+        it and a concrete, user-visible defect. Its three tool pages
+        cross-linked only the tools that existed when each was written --
+        `resistor-calculator` linked to nothing, `led-resistor-calculator`
+        to one sibling -- so a visitor who found one tool could not
+        discover the others, and every new tool meant editing every
+        existing page. That is an O(n^2) convention that was already
+        failing at n=3.
+      - >-
+        Shipped `tools/index.html`, a hub page listing all four tools with
+        ItemList/CollectionPage JSON-LD, plus a one-line back-link
+        (`../`) added to each tool page -- cross-links are now O(n) and a
+        fifth tool costs one hub entry and one CI matrix line, both
+        documented in the venture README's next-steps.
+      - >-
+        Shipped `tools/555-timer-calculator/`: astable and monostable in
+        both directions (analyse given parts, or solve backwards from a
+        target frequency, duty cycle, or pulse width to nearest-E24
+        resistors). The differentiator over the many existing 555
+        calculators is that it reports what the timing equations don't:
+        a standard two-resistor astable cannot reach 50% duty or below
+        (the tool refuses the request and explains the diode-across-R2
+        workaround instead of returning a negative resistor), R1 alone
+        limits current into the ~200mA discharge pin, bipolar NE555
+        timing drifts past ~1M-ohm of timing resistance, and a
+        microfarad-scale timing cap is an electrolytic whose -20%/+80%
+        tolerance makes the computed frequency a target rather than a
+        spec. Added it to the CI matrix in
+        `.github/workflows/ai-engineering-academy-ci.yml`.
+      - >-
+        Verified rather than assumed. 29 unit tests pass (`node --test`).
+        Drove all four pages end-to-end in headless Chromium via
+        Playwright: every hub link resolves (HTTP 200), every tool
+        back-links to the hub, the astable/design/monostable panels render
+        the hand-checked values (1.023 kHz at 66.67% duty for
+        4k7/4k7/100nF; 3k + 5.6k as the E24 pair for a 1 kHz 60% target),
+        the duty<=50 refusal renders as an error with the diode
+        explanation, a 100-ohm R1 raises the discharge-pin warning, usage
+        events land in localStorage, the opt-out toggle persists, and the
+        page makes zero off-origin requests with zero console errors.
+        Also checked my own copy against the code rather than the READMEs:
+        the hub's first draft credited `resistor-calculator` with 6-band
+        and reverse-lookup support it does not have, and a README example
+        said ~1.07 kHz where the real figure is 1023 Hz. Both corrected
+        before commit.
+      - >-
+        The browser run caught a real defect the unit tests had not: the
+        page rendered "1.02318797 kHz", nine significant figures, claiming
+        a precision that +/-5% resistors and +/-20% capacitors cannot
+        deliver. Split display precision (4 s.f.) from computational
+        precision in the formatters and added a test pinning it.
+      - >-
+        Not deployed to a public URL -- publishing under the portfolio's
+        name stays owner-gated per `portfolio/DIRECTION.md`, and
+        `publish_surface.py` confirms nothing publishes on a push to main.
+        Ready to deploy as a static directory the moment that opens.
+        Added a usage.yaml baseline row naming the reading to watch once
+        it does: hub entries versus direct entries to a single tool. All
+        five portfolio validators re-run clean (16 VENTURE.yaml, 18
+        candidates x2, 17 venture scores, 42 workflows).
+    mrr_end: null

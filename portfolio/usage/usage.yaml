@@ -45,6 +45,25 @@ products:
           mode that snaps R2 to a buyable E24 value, 14 passing unit
           tests). Same publishing gate as above — no traffic signal yet.
           Baseline row for the third tool.
+      - as_of: 2026-08-24
+        signals:
+          live_url_visitors: null
+          local_events_reported: 0
+        note: >-
+          Fourth tool shipped: 555-timer-calculator (astable and monostable
+          in both directions — analyse given parts, or solve backwards from
+          a target frequency, duty cycle, or pulse width to nearest-E24
+          resistors — plus buildability checks the timing equations don't
+          make: sub-50% duty cycles a standard astable cannot produce,
+          discharge-pin overcurrent, drift-prone resistor values,
+          electrolytic-cap tolerance. 29 passing unit tests). Also added
+          tools/index.html, a hub listing all four: until now each tool page
+          cross-linked only the tools that existed when it was written, so
+          resistor-calculator linked to nothing and a visitor who found one
+          tool could not discover the others. That is a discoverability
+          reading to watch once a public URL exists — entries from the hub
+          versus direct entries to a tool. Same publishing gate as above, so
+          no traffic signal yet; baseline row for the fourth tool and the hub.
   - slug: quote-margin-check
     surface: repository-cli
     readings:
