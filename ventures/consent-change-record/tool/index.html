@@ -27,10 +27,10 @@
     color-scheme: light dark;
     --bg: #ffffff; --fg: #1a1a1a; --muted: #5a5a5a; --border: #d8d8d8;
     --accent: #2b6cb0; --panel: #f7f7f8; --focus: #2b6cb0;
-    --added: #c53030; --removed: #2f855a;
+    --added: #c53030; --removed: #2f855a; --persisting: #c05621;
   }
   @media (prefers-color-scheme: dark) {
-    :root { --bg: #14161a; --fg: #eaeaea; --muted: #a3a3a3; --border: #33363c; --panel: #1d2026; --accent: #6ea8ff; --added: #fc8181; --removed: #68d391; }
+    :root { --bg: #14161a; --fg: #eaeaea; --muted: #a3a3a3; --border: #33363c; --panel: #1d2026; --accent: #6ea8ff; --added: #fc8181; --removed: #68d391; --persisting: #f6ad55; }
   }
   * { box-sizing: border-box; }
   body {
@@ -61,6 +61,7 @@
   .tag { display: inline-block; padding: 0.05rem 0.5rem; border-radius: 999px; font-size: 0.72rem; border: 1px solid var(--border); }
   .tag.added { color: var(--added); border-color: var(--added); }
   .tag.removed { color: var(--removed); border-color: var(--removed); }
+  .tag.persisting { color: var(--persisting); border-color: var(--persisting); }
   .tag.unclassified { color: var(--muted); }
   .summary-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 0.75rem; margin-top: 0.75rem; }
   .stat { background: var(--bg); border: 1px solid var(--border); border-radius: 8px; padding: 0.6rem 0.8rem; }
@@ -283,7 +284,7 @@
     );
     const trs = sorted.map((r) => `
       <tr>
-        <td><span class="tag removed">still present</span></td>
+        <td><span class="tag persisting">still present</span></td>
         <td>${escapeHtml(r.hostname || "(unknown host)")}</td>
         <td><span class="tag unclassified">${escapeHtml(r.classification.category)}</span></td>
         <td>${escapeHtml(r.method)} ${escapeHtml(r.url)}</td>
@@ -297,7 +298,7 @@
     }
     const trs = persisting.map((c) => `
       <tr>
-        <td><span class="tag removed">still set</span></td>
+        <td><span class="tag persisting">still set</span></td>
         <td>${escapeHtml(c.hostname || "(unknown host)")}</td>
         <td><code>${escapeHtml(c.name)}</code></td>
       </tr>`).join("");
