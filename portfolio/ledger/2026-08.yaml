@@ -21198,3 +21198,46 @@ entries:
           concrete piece of work available (#713) is recorded above rather
           than left for a later session to rediscover.
     mrr_end: null
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+          Scheduled "continue work on the repo... creating products to
+          increase legal ethical profits" session, designated branch
+          cursor/legal-ethical-profit-products-df54. `session_gate.py` ->
+          PROCEED (meta-work share 100% of last 25, re-verification 88%,
+          cadence 0.79/hour, 2 distinct sessions inside a 15-min window).
+          Checked the 5 open PRs (#716 draft, #583, #531, #372, #368),
+          `decision_queue.py` (8 decisions, oldest 5 days) and
+          `verification_status.py` before starting. Did not re-verify the
+          four owner-gated PRs, and did not merge any of them on an
+          unanswered Ask 9.
+      - >-
+          The five existing probes have no named next step, and every
+          listing or payout path is still owner-gated. What was still
+          specified and unbuilt is the package-wide half of
+          `a11y-theme-resolution` Finding 3: `audit.py` recovered the two
+          same-file fassbender newsletter defects on 2026-08-21 and left
+          `search.liquid:22` undecidable because that file has no
+          `<label for>` of its own. Built `resolve_package_labels` (used
+          by the CLI and `measure_themes.py`): a certain cross-file match
+          clears the undecidable, a possible match stays undecidable, and
+          no possible match anywhere is a `control-no-label` finding. A
+          dead `for` on a different page is not treated as this control's
+          mismatch. `audit_source` on a one-file fragment is unchanged.
+      - >-
+          Verified locally and then by the 10 attached checks on #717, all
+          green: `a11y-evidence-record` 96/96 (7 new),
+          `a11y-theme-resolution` 60/60, `a11y-render-recovery` 22/22,
+          `validate_doc_consistency.py` and `validate_candidates.py` pass.
+          `git merge-tree` against live `main` (`db85c7f`) was clean.
+          `publish_surface.py` still reports nothing live on a push to
+          `main`. Merged #717. Agent-decidable per `CLAUDE.md`:
+          `portfolio/research/` only, nothing published, no account, no
+          spend, no `ventures/*` code. No score moved.
+      - >-
+          Did not add a ninth queue row. The payout-rail binary remains
+          the only decision that moves the revenue ceiling off $0, now
+          five days old.
+    mrr_end: null
