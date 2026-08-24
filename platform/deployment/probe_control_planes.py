@@ -62,10 +62,31 @@ WRITE_SURFACES = {
     "api.hetzner.cloud": "hetzner",
     "ec2.amazonaws.com": "aws",
     "management.azure.com": "azure",
+    # Google Cloud Resource Manager: projects.create, projects.delete,
+    # setIamPolicy. It was filed under "dashboards and context" in the first
+    # draft, which was wrong and conveniently so -- putting a reachable write
+    # API in the non-load-bearing bucket is how a check passes despite its own
+    # contrary evidence. It belongs here, and it is the one exception below.
+    "cloudresourcemanager.googleapis.com": "gcp",
     "api.netlify.com": "netlify",
     "api.fly.io": "fly",
     "api.render.com": "render",
     "api.digitalocean.com": "digitalocean",
+}
+
+# The measured truth is not "every write surface is denied" -- it is "every
+# write surface is denied except this one". Encoding the exception explicitly,
+# with the reason, is what keeps the check honest: it fails if anything *else*
+# becomes reachable, and equally if this one goes quiet, because a table that
+# silently stops recording a known-reachable host is drifting too.
+EXPECTED_REACHABLE = {
+    "cloudresourcemanager.googleapis.com": (
+        "answers 404 unauthenticated -- the network path to GCP's control "
+        "plane exists from a session, though using it would still need a "
+        "credential. Recorded because README.md's argument must survive it, "
+        "not because it changes the GCP recommendation, which turns on the "
+        "absence of a native spend cap rather than on reachability."
+    ),
 }
 
 # Probed alongside them and carried in the same table, but not load-bearing:
@@ -74,8 +95,7 @@ CONTEXT_HOSTS = {
     "dash.cloudflare.com", "pages.dev", "workers.dev", "vercel.com",
     "console.hetzner.cloud", "www.hetzner.com", "aws.amazon.com",
     "railway.app", "railway.com",
-    "portal.azure.com", "cloudresourcemanager.googleapis.com",
-    "console.cloud.google.com", "deno.com",
+    "portal.azure.com", "console.cloud.google.com", "deno.com",
 }
 
 # Without both, a blanket denial cannot be told from a broken probe.
@@ -86,16 +106,56 @@ ALL_HOSTS = sorted(set(WRITE_SURFACES) | CONTEXT_HOSTS)
 
 
 def run_probe() -> None:
+    """Emit records `unindexed-hosts.json` can actually take.
+
+    The first draft printed a bare array after a single attempt, under an
+    instruction to paste it into that file. Following that instruction would
+    have failed the ingest tests, which require the `results`/`controls` split,
+    a `source`, and a second attempt that agrees -- one probe cannot separate a
+    transient failure from a policy denial. So the schema is produced here
+    rather than left as an exercise.
+    """
     consolidate = _canonical_probe()
-    records = []
-    for host in ALL_HOSTS + [CONTROL_REACHABLE, CONTROL_DENIED]:
-        rec = consolidate.probe_host(host, f"https://{host}/")
-        print(f"  {host:38} {rec['verdict']:14} {rec['status']}", file=sys.stderr)
-        records.append(rec)
-    print(json.dumps(records, indent=2))
+
+    def twice(host: str) -> dict:
+        url = f"https://{host}/"
+        first = consolidate.probe_host(host, url)
+        second = consolidate.probe_host(host, url)
+        rec = dict(first)
+        rec["second_attempt"] = {k: second[k] for k in ("verdict", "status", "detail")}
+        rec["stable"] = second["verdict"] == first["verdict"]
+        print(f"  {host:38} {rec['verdict']:14} {rec['status']}  "
+              f"stable={rec['stable']}", file=sys.stderr)
+        return rec
+
+    results = []
+    for host in ALL_HOSTS:
+        rec = twice(host)
+        rec["source"] = "platform/deployment/README.md"
+        rec["why_unindexed"] = (
+            "Hosting control plane measured by "
+            "platform/deployment/probe_control_planes.py, which lives outside "
+            "the portfolio/research/ tree --ingest walks."
+        )
+        results.append(rec)
+
+    controls = []
+    for host, role in ((CONTROL_REACHABLE, "known-reachable control"),
+                       (CONTROL_DENIED, "known-denied control")):
+        rec = twice(host)
+        rec["role"] = role
+        controls.append(rec)
+
+    unstable = [r["host"] for r in results + controls if not r["stable"]]
+    print(json.dumps({"results": results, "controls": controls}, indent=2,
+                     sort_keys=True))
+    if unstable:
+        print(f"\nUNSTABLE, do not ingest as-is: {', '.join(unstable)}",
+              file=sys.stderr)
     print(
-        "\nFold these into portfolio/research/egress-reachability/"
-        "unindexed-hosts.json, then run `consolidate.py --ingest` there.",
+        "\nMerge `results` into portfolio/research/egress-reachability/"
+        "unindexed-hosts.json (that file carries its own controls), then run "
+        "`consolidate.py --ingest` there.",
         file=sys.stderr,
     )
 
@@ -155,14 +215,29 @@ def check(hosts: dict) -> int:
     unsupported = sorted(
         f"{h} ({vendor}): {verdict_of(hosts, h)}"
         for h, vendor in WRITE_SURFACES.items()
-        if h in hosts and verdict_of(hosts, h) != "egress_denied"
+        if h in hosts
+        and h not in EXPECTED_REACHABLE
+        and verdict_of(hosts, h) != "egress_denied"
     )
     if unsupported:
         problems.append(
             "README.md argues the spend cap must live in the platform because "
-            "every vendor write surface is denied from a session. These do not "
-            f"carry an egress_denied verdict: {', '.join(unsupported)}. Either "
-            "re-probe them or rewrite that section."
+            "a session cannot reach a vendor's control plane. These are write "
+            f"surfaces that no longer support it: {', '.join(unsupported)}. "
+            "Either re-probe them or rewrite that section."
+        )
+
+    # Drift in the other direction matters too: if a documented exception stops
+    # being reachable, the document is describing a world that has moved.
+    stale = sorted(
+        f"{h}: {verdict_of(hosts, h)}"
+        for h in EXPECTED_REACHABLE
+        if h in hosts and verdict_of(hosts, h) == "egress_denied"
+    )
+    if stale:
+        problems.append(
+            f"documented as reachable, now denied: {', '.join(stale)}. "
+            "README.md's exception list is stale -- drop it there and here."
         )
 
     if problems:
@@ -171,7 +246,9 @@ def check(hosts: dict) -> int:
         return 1
     print(
         f"deployment control planes: {len(ALL_HOSTS)} hosts checked against the "
-        f"{len(hosts)}-host table, every write surface denied, controls sane."
+        f"{len(hosts)}-host table; {len(WRITE_SURFACES) - len(EXPECTED_REACHABLE)} "
+        f"of {len(WRITE_SURFACES)} write surfaces denied, "
+        f"{len(EXPECTED_REACHABLE)} documented exception(s), controls sane."
     )
     return 0
 

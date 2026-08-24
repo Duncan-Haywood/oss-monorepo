@@ -163,8 +163,10 @@ decisions:
   exposure: credential
   opened: "2026-08-19"
   action: >-
-    Take one Hetzner CX-class VPS (~EUR 4/month, 20 TB traffic, fixed price so
-    there is nothing to cap), point
+    Take one Hetzner CX-class VPS (~EUR 4/month with 20 TB of traffic
+    included, then ~EUR 1/TB -- a soft ceiling, not a hard one; Hetzner offers
+    no halt-at-an-amount control, so if a hard cap is required the answer is
+    Railway instead), point
     `ventures/ubuntu-agent-server/inventory.ini` at it and run that playbook.
     Do **not** add a Hetzner Cloud API
     token to GitHub secrets -- it can create servers, which removes the
@@ -172,8 +174,11 @@ decisions:
     scope below Read & Write; provision in the console by hand. An SSH key in
     secrets is fine and is the intended design: it cannot provision anything,
     so the fixed-price bound survives it. `agent-server-provision.yml` (added
-    in #720, `workflow_dispatch`-only, dry-run by default) runs the playbook
-    from CI; the secrets and variables it needs are listed at the top of it. Leave
+    in #720, `workflow_dispatch`-only) runs the playbook from CI; the secrets
+    and variables it needs are listed at the top of it. It is **not** dry-run by
+    default -- Ansible's check mode cannot provision a fresh box, since the
+    `user` module only predicts the account and every later task then fails
+    against a user that does not exist, so the first dispatch is a real run. Leave
     `agent_runner_start_disabled: true` -- switching the fleet on is a
     separate decision. Leave `GITHUB_PAGES_ENABLED`, `VERCEL_DEPLOY` and the
     `CLOUDFLARE_*` secrets unset. Choose Railway instead (~$5-25/month) if you
@@ -478,8 +483,11 @@ decisions:
     call, not a session's. The probe it ships
     (`platform/deployment/probe_control_planes.py`) is read-only tooling and is
     the agent-decidable half; the decision is not. It keeps no host table of
-    its own -- its 20 control planes were folded into the consolidated egress
-    table, now 118 hosts, and it asserts its claim against that.
+    its own -- its 23 control planes were folded into the consolidated egress
+    table, now 121 hosts, and it asserts its claim against that. Note the
+    measured exception: `cloudresourcemanager.googleapis.com` is reachable and
+    is a write API, so the claim is "every vendor control plane probed except
+    GCP's Resource Manager", not a blanket one.
 
 - id: local-site-studio-subtree-gate-crossing
   asks: []

@@ -14,6 +14,10 @@ import probe_control_planes as p
 def table(**overrides):
     """A consolidated-table `hosts` mapping that should pass."""
     hosts = {h: {"prior_consensus": "egress_denied"} for h in p.ALL_HOSTS}
+    # The documented exceptions are reachable in the real table; a fixture that
+    # denied them would not be the state this check is asserting about.
+    for h in p.EXPECTED_REACHABLE:
+        hosts[h] = {"prior_consensus": "reachable"}
     hosts[p.CONTROL_REACHABLE] = {"prior_consensus": "reachable"}
     hosts[p.CONTROL_DENIED] = {"prior_consensus": "egress_denied"}
     for host, verdict in overrides.items():
@@ -32,8 +36,31 @@ class CheckTest(unittest.TestCase):
 
     def test_every_write_surface_must_be_egress_denied(self):
         for host in p.WRITE_SURFACES:
+            if host in p.EXPECTED_REACHABLE:
+                continue
             with self.subTest(host=host):
                 self.assertEqual(p.check(table(**{host: "error"})), 1)
+
+    def test_a_documented_exception_is_allowed_to_answer(self):
+        # GCP's Resource Manager really is reachable. The check has to survive
+        # that without being loosened for everything else.
+        for host in p.EXPECTED_REACHABLE:
+            with self.subTest(host=host):
+                self.assertEqual(p.check(table(**{host: "reachable"})), 0)
+
+    def test_an_exception_going_quiet_is_drift_too(self):
+        # If a host documented as reachable starts being denied, the document
+        # describes a world that has moved and should say so.
+        for host in p.EXPECTED_REACHABLE:
+            with self.subTest(host=host):
+                self.assertEqual(p.check(table(**{host: "egress_denied"})), 1)
+
+    def test_a_reachable_write_api_is_not_filed_as_context(self):
+        # The first draft put GCP's Resource Manager -- projects.create,
+        # setIamPolicy -- in the context bucket, where its reachability could
+        # not fail the claim. Regression test for that specific shuffle.
+        self.assertNotIn("cloudresourcemanager.googleapis.com", p.CONTEXT_HOSTS)
+        self.assertIn("cloudresourcemanager.googleapis.com", p.WRITE_SURFACES)
 
     def test_railway_is_in_the_load_bearing_set(self):
         # It is the document's runner-up; a check that omits it cannot support
@@ -50,6 +77,8 @@ class CheckTest(unittest.TestCase):
 
     def test_every_write_surface_is_load_bearing(self):
         for host in p.WRITE_SURFACES:
+            if host in p.EXPECTED_REACHABLE:
+                continue
             with self.subTest(host=host):
                 self.assertEqual(p.check(table(**{host: "reachable"})), 1)
 

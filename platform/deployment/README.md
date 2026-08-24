@@ -24,7 +24,7 @@ kept per criterion rather than rewritten each time:
 | Best fit for the code as written | **Vercel** | Seven of the nine web apps are Next.js; **four ventures carry a `vercel.json`** |
 | **A spend cap built into the vendor** | **Vercel or Railway** | Only these two ship a halt-at-an-amount control |
 | **Most all-inclusive** | **Railway** | The only managed platform that hosts *every* workload here |
-| **Best value** | **Hetzner** | ~$5/month for all of it; the tenth app costs $0 |
+| **Best value** | **Hetzner** | ~$5/month for all of it; the tenth workload costs $0 — but a *soft* ceiling, see below |
 | **All-inclusive + value together** | **Railway** | Hosts everything deployable, one bill, one hard cap, ~$5–25/month |
 | **Compute for the monorepo itself** | **Hetzner** | The only one that also runs the agent host this repo has already automated |
 
@@ -42,7 +42,7 @@ Most of the industry fails that test:
 | **Vercel** | **Yes** — Spend Management: set an amount, action = pause the project | **passes** |
 | **Railway** | **Yes** — usage limits; workloads are taken offline at the hard limit | **passes** |
 | **Supabase** | Yes — a literal "Spend Cap" toggle, but it caps a *database*, not a host | partial |
-| **Hetzner** | No cap *feature* — but a fixed monthly price it cannot exceed | passes differently |
+| **Hetzner** | **No.** Fixed price *plus* a 20 TB traffic allowance, then metered per TB. A very high soft ceiling, not a hard one | **fails, gently** |
 | **Cloudflare** | No. Free-tier quotas stop you; the paid tier has no "stop at $X" control | fails |
 | **Netlify / Render / Fly.io** | No first-class halt-at-amount control | fails |
 | **AWS** | No. Budgets alert; a real cap means Budget → Lambda → deny-policy, built and owned by you | **fails** |
@@ -117,7 +117,7 @@ section) — the ratios are the point, not the decimals.
 | Realistic monthly, this portfolio | ~$5 | ~$10–25 once a dozen services are always-on | $20 + Postgres + a second host for the two daemons |
 | Cost of the tenth app | **$0** | metered — more RAM, more bill | $0 (same seat) |
 | Postgres | you install it | **included as a service** | marketplace add-on |
-| Traffic | 20 TB included | metered | generous, then metered |
+| Traffic | 20 TB included, then ~€1/TB | metered | generous, then metered |
 | Hosts every workload here | **yes** | **yes** | **no** |
 
 **On raw dollars, Hetzner wins and it is not close** — roughly a quarter of
@@ -233,10 +233,16 @@ exists only to make Next.js run somewhere it is not native.
 
 ## What this does not cover
 
-- **No cap is needed, and that is the point.** A fixed monthly price cannot be
-  exceeded by traffic, so there is no spend control to configure and none to
-  forget. This is the only option on the shortlist where the bound is a
-  property of the product rather than a setting.
+- **There is no cap, and this option cannot give you one.** Corrected after
+  review: an earlier draft of this document claimed a fixed monthly price that
+  traffic could not move, and that is false. Hetzner includes a traffic
+  allowance — 20 TB on the EU CX line — and bills roughly €1/TB beyond it, with
+  no vendor-side control that halts at an amount. So Hetzner **fails** the
+  spend-cap test that eliminated AWS, GCP and Azure. It fails it far more
+  gently: the overage rate is cents per gigabyte against their unbounded
+  metering, and the first 20 TB are free, so a runaway here is tens of euros
+  rather than a story. But "nothing to cap" was wrong, and anyone choosing this
+  is choosing a **soft** ceiling. If a hard one is required, that is Railway.
 - **Serving the web apps is not included.** No nginx/TLS role, no Postgres
   role, no app-deploy role. That is real follow-on work, and Railway would
   have given it away.
@@ -273,16 +279,25 @@ The verdicts are **not** kept here. They live in the portfolio's one
 consolidated table, `portfolio/research/egress-reachability/prior-verdicts.json`,
 which exists because nine passes once each re-probed an overlapping host set
 into a different file; a second table in this directory would be the tenth.
-These 20 hosts reached it through that directory's `unindexed-hosts.json`, the
+These 23 hosts reached it through that directory's `unindexed-hosts.json`, the
 designated hook for hosts measured outside the `portfolio/research/` tree, so
 `consolidate.py --probe` re-measures them along with everything else. This
 script only asserts the claim against that table, and a test here fails if a
 results file ever reappears in this directory.
 
-Two dashboard roots answer rather than being denied — `portal.azure.com` (200)
-and `cloudresourcemanager.googleapis.com` (404). Neither is an API a deploy
-calls, so neither refutes the claim, and the check treats them as context
-rather than as write surfaces.
+**One measured exception, and it is a write API.** Corrected after review:
+`cloudresourcemanager.googleapis.com` answers 404, and it is Google Cloud's
+Resource Manager — `projects.create`, `projects.delete`, `setIamPolicy`, not a
+dashboard. An earlier draft filed it under "context", where its reachability
+could not fail the claim — the same bucket-shuffle that had left Railway out of
+the load-bearing set entirely. It is a write surface now, carried as an
+explicit exception with its reason, and the check fails both if anything else
+becomes reachable *and* if this one goes quiet. The accurate claim is therefore
+not "every vendor control plane is unreachable" but "every one probed except
+GCP's Resource Manager". Reaching it would still need a credential, and GCP
+stays disqualified on the absence of a native spend cap, not on reachability.
+
+`portal.azure.com` (200) is genuinely a dashboard root and stays context.
 
 This is why the cap has to be *in the platform*. Deploys run on GitHub Actions
 runners, and **no agent session can inspect, throttle, or stop one from
@@ -315,7 +330,8 @@ recommendation.
 ## The one action
 
 1. Create the Hetzner account and take one CX-class VPS (~€4/month, 20 TB
-   traffic). Fixed price; nothing to cap, because nothing meters.
+   traffic). Fixed monthly price, with the traffic caveat below — there is no
+   vendor-side stop to configure, because Hetzner does not offer one.
 2. Point `ventures/ubuntu-agent-server/inventory.ini` at it and run the
    playbook — public IP for the bootstrap run, Tailscale address thereafter,
    exactly as that README already documents.
@@ -340,8 +356,8 @@ offers only *Read* or *Read & Write* per project, with no finer scoping, so
 there is no least-privilege version of it to reach for.
 
 That breaks the argument this whole section rests on. Hetzner was chosen
-because the spend bound is **structural** — a fixed monthly price that traffic
-cannot move, needing no cap to configure and none to forget. A read-write
+because its spend exposure is small and slow-moving — a fixed monthly price
+plus a traffic allowance no zero-customer portfolio will approach. A read-write
 Cloud token can provision more servers, so the bound stops being "one box" and
 becomes "whatever the project quota allows". The one property that made this
 option safe without a cap feature is the property such a token removes.
@@ -376,8 +392,8 @@ its key lives in GitHub secrets.** That reverses the "keep it on your machine"
 posture an earlier draft of this section took, and the reasoning behind the
 reversal is sound: the objection to the Hetzner *API token* was that it can
 create servers, which turns a fixed price into an open one. **An SSH key cannot
-provision anything.** The structural spend bound this option was chosen for
-survives a key in CI intact, so that objection does not transfer.
+provision anything.** The bounded, fixed-price exposure this option was chosen
+for survives a key in CI intact, so that objection does not transfer.
 
 What does transfer is a smaller and more specific risk, worth naming once and
 then designing around rather than worrying about: the key is **access**, and
