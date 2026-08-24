@@ -22,3 +22,10 @@ test('escapes CSV values and preserves the review fields', () => {
   assert.match(csv, /"Food, Inc\."/);
   assert.match(csv, /"A ""Funder"""/);
 });
+
+test('does not mutate saved award data while reviewing', () => {
+  const grant = { name: 'Annual award', awardDate: '2026-01-31', intervalMonths: '1', awardAmount: '500', spentAmount: '125' };
+  const before = JSON.stringify(grant);
+  reviewAll([grant], '2026-02-01');
+  assert.equal(JSON.stringify(grant), before);
+});
