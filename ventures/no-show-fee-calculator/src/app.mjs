@@ -1,4 +1,4 @@
-import { parseInputs, computeAll, generatePolicyText } from "./calc.mjs";
+import { parseInputs, computeAll, generatePolicyText, buildShareUrl, readShareValues } from "./calc.mjs";
 import { recordEvent, isOptedOut, setOptedOut, getUsageSummary, clearUsageLog } from "./usage.mjs";
 
 const form = document.getElementById("calc-form");
@@ -7,6 +7,7 @@ const resultsEl = document.getElementById("results");
 const policyEl = document.getElementById("policy-text");
 const policySection = document.getElementById("policy-section");
 const copyBtn = document.getElementById("copy-policy");
+const shareBtn = document.getElementById("share-link");
 const copyStatus = document.getElementById("copy-status");
 const optOutCheckbox = document.getElementById("usage-opt-out");
 const usageSummaryEl = document.getElementById("usage-summary");
@@ -93,6 +94,26 @@ form.addEventListener("submit", (event) => {
   renderUsageSummary();
 });
 
+shareBtn.addEventListener("click", async () => {
+  const raw = Object.fromEntries(new FormData(form).entries());
+  const parsed = parseInputs(raw);
+  if (!parsed.ok) {
+    renderErrors(parsed.errors);
+    copyStatus.textContent = "Fix the numbers before creating a share link.";
+    return;
+  }
+  const shareUrl = buildShareUrl(raw, window.location.href.split("?")[0]);
+  try {
+    await navigator.clipboard.writeText(shareUrl);
+    copyStatus.textContent = "Share link copied. Anyone with it can see the values in the link.";
+    recordEvent("share_link_copied");
+    renderUsageSummary();
+  } catch {
+    window.prompt("Copy this share link:", shareUrl);
+  }
+  setTimeout(() => { copyStatus.textContent = ""; }, 5000);
+});
+
 copyBtn.addEventListener("click", async () => {
   try {
     await navigator.clipboard.writeText(policyEl.value);
@@ -120,3 +141,14 @@ clearUsageBtn.addEventListener("click", () => {
 
 syncOptOutUI();
 renderUsageSummary();
+
+const sharedValues = readShareValues(window.location.href);
+if (Object.keys(sharedValues).length > 0) {
+  for (const [key, value] of Object.entries(sharedValues)) {
+    const input = form.elements.namedItem(key);
+    if (input && "value" in input) input.value = value;
+  }
+  form.requestSubmit();
+  recordEvent("shared_calculation_opened");
+  renderUsageSummary();
+}
