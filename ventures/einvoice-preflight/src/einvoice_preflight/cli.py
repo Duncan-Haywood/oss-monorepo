@@ -97,6 +97,7 @@ def _json_report(
         "observations": len(errors),
         "rules": dict(sorted(rule_counts.items())),
         "file": reports[0][0].as_posix() if len(reports) == 1 else None,
+        "errors": errors,
         "read_errors": read_errors,
     }
     output["reports"] = [{"file": path.as_posix(), "errors": invoice_errors} for path, invoice_errors in reports]
