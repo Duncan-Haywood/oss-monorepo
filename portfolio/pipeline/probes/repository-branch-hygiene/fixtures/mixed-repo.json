@@ -1,0 +1,77 @@
+{
+  "_comment": "Synthetic repository snapshot covering every scenario the candidate write-up names: merged, closed, reopened (folds into shared/open), moved-tip, shared-ref (duplicate tips), fork (out of scope, documented in README rather than modeled here), and protected-branch.",
+  "base_ref": "main",
+  "base_tip_sha": "base9999",
+  "branches": [
+    {
+      "name": "main",
+      "tip_sha": "base9999",
+      "protected": true,
+      "unique_commits": []
+    },
+    {
+      "name": "feature/merged-and-clean",
+      "tip_sha": "merged001",
+      "unique_commits": [],
+      "pull_request": {"number": 100, "state": "merged", "head_sha": "merged001"},
+      "_scenario": "merged: fully contained in base, PR head matches tip -> duplicate, safe to propose"
+    },
+    {
+      "name": "feature/still-in-review",
+      "tip_sha": "open002",
+      "unique_commits": [{"sha": "open002", "message": "wip: add retry logic"}],
+      "pull_request": {"number": 101, "state": "open", "head_sha": "open002"},
+      "_scenario": "open PR -> shared, keep regardless of ancestry"
+    },
+    {
+      "name": "feature/reopened-after-close",
+      "tip_sha": "reopen003",
+      "unique_commits": [{"sha": "reopen003", "message": "address review comments"}],
+      "pull_request": {"number": 102, "state": "open", "head_sha": "reopen003"},
+      "_scenario": "reopened PR reads as an ordinary open PR -> shared, same as feature/still-in-review"
+    },
+    {
+      "name": "feature/grew-after-pr-closed",
+      "tip_sha": "moved004b",
+      "unique_commits": [
+        {"sha": "moved004a", "message": "original PR content"},
+        {"sha": "moved004b", "message": "pushed after the PR was closed, never reviewed"}
+      ],
+      "pull_request": {"number": 103, "state": "closed_unmerged", "head_sha": "moved004a"},
+      "_scenario": "PR closed at moved004a but branch tip is moved004b -> moved_since_closed, never read as stale-by-age"
+    },
+    {
+      "name": "feature/moved-after-merge",
+      "tip_sha": "moved005b",
+      "unique_commits": [
+        {"sha": "moved005b", "message": "a second commit landed after merge, never shipped"}
+      ],
+      "pull_request": {"number": 104, "state": "merged", "head_sha": "moved005a"},
+      "_scenario": "PR merged at moved005a but tip is moved005b -> moved_since_closed even though the PR itself merged"
+    },
+    {
+      "name": "chore/dup-a",
+      "tip_sha": "shared006",
+      "unique_commits": [{"sha": "shared006", "message": "duplicate push of the same fix"}],
+      "_scenario": "shared-ref: identical tip to chore/dup-b, no PR on either -> duplicate (redundant), keeper is chore/dup-a alphabetically"
+    },
+    {
+      "name": "chore/dup-b",
+      "tip_sha": "shared006",
+      "unique_commits": [{"sha": "shared006", "message": "duplicate push of the same fix"}],
+      "_scenario": "shared-ref: identical tip to chore/dup-a -> duplicate, flagged as duplicate_of chore/dup-a"
+    },
+    {
+      "name": "experiment/never-opened-a-pr",
+      "tip_sha": "unique007",
+      "unique_commits": [{"sha": "unique007", "message": "half-finished spike, no PR was ever opened"}],
+      "_scenario": "unique commits, no PR at all -> unique_work, never proposed for deletion, always in the recovery manifest"
+    },
+    {
+      "name": "legacy/unknown-history",
+      "tip_sha": "gap008",
+      "unique_commits": null,
+      "_scenario": "ancestry could not be computed (e.g. a shallow clone) -> uncertain, never collapsed into a deletion recommendation"
+    }
+  ]
+}

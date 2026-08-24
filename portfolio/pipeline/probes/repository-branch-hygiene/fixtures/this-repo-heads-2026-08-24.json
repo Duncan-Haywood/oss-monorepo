@@ -1,0 +1,2531 @@
+{
+  "_comment": "Real branch-tip snapshot of this repository (git ls-remote --heads origin), captured 2026-08-24. Only name and tip_sha are real; no PR linkage or ancestry data was collected for this demonstration, which is why the accompanying script runs only find_duplicate_tips (tip-sha grouping needs neither).",
+  "captured_at": "2026-08-24",
+  "source": "git ls-remote --heads origin",
+  "branches": [
+    {
+      "name": "agent/software-evidence-provenance",
+      "tip_sha": "be7d2f965af36eb61440edb3be6e6d7a2b6ce2a2"
+    },
+    {
+      "name": "candidate/shopify-permission-drift",
+      "tip_sha": "84eda756f38b772cc85086d5e22b0c4168be1316"
+    },
+    {
+      "name": "claude/charming-hawking-0jhqyj",
+      "tip_sha": "5e0f008fca2ebcf1872a19f948bad2927913c0fc"
+    },
+    {
+      "name": "claude/charming-hawking-0kypyy",
+      "tip_sha": "6cdaf0bcab2a08ac9083e7ada125e98c343241f1"
+    },
+    {
+      "name": "claude/charming-hawking-128aen",
+      "tip_sha": "d89b3ceba8a195f562452d6af82b50200db03fcb"
+    },
+    {
+      "name": "claude/charming-hawking-2zeuj2",
+      "tip_sha": "699b7d460a4f63e193f0364d542bd268c625ee7d"
+    },
+    {
+      "name": "claude/charming-hawking-4pv90d",
+      "tip_sha": "2a9b8a995646498544c13df09a7c0f92c86942cb"
+    },
+    {
+      "name": "claude/charming-hawking-5my8mo",
+      "tip_sha": "ec3aa0dd20dc3e9a2a3a14867ad075b86f92efdd"
+    },
+    {
+      "name": "claude/charming-hawking-8008wz",
+      "tip_sha": "86d1d051b72e84e07aa3615e0d4c3d865a09f6cf"
+    },
+    {
+      "name": "claude/charming-hawking-ap653f",
+      "tip_sha": "6ff23ef98268b0b9b2a0d792221b8f7e09c9453a"
+    },
+    {
+      "name": "claude/charming-hawking-c4bwzo",
+      "tip_sha": "aeb961c1d1c6e0d54021dfe286e3f4a86086b671"
+    },
+    {
+      "name": "claude/charming-hawking-cfr1tx",
+      "tip_sha": "9eb561c19fad38cf2bf23dfea5372f6ee5117f1e"
+    },
+    {
+      "name": "claude/charming-hawking-cwjsmo",
+      "tip_sha": "ee513237eff5eecd215cb137834539196aa608b9"
+    },
+    {
+      "name": "claude/charming-hawking-d9d7wr",
+      "tip_sha": "b310e7fcb3aa0ae52594ce88d8b6071c981cc54a"
+    },
+    {
+      "name": "claude/charming-hawking-djuqke",
+      "tip_sha": "c9c6a5f42c5133174534a5a9355fc502d73335ea"
+    },
+    {
+      "name": "claude/charming-hawking-egjs1z",
+      "tip_sha": "2d6b3af3ed7a364b9ee966b66712d6c9702e6a23"
+    },
+    {
+      "name": "claude/charming-hawking-g4ds3z",
+      "tip_sha": "38727d780fdaa22f8b0661349160f441ac46fdd2"
+    },
+    {
+      "name": "claude/charming-hawking-gnfb67",
+      "tip_sha": "5b2dc4f9d4904cdb3592e6a92b84460b2f0ccf1c"
+    },
+    {
+      "name": "claude/charming-hawking-gr1c30",
+      "tip_sha": "8de58df4c88b4971f1b8d71db93d1836f8b28cc1"
+    },
+    {
+      "name": "claude/charming-hawking-h2ni70",
+      "tip_sha": "9bbb4d78132b20956a5db38ed11940be84ef8e81"
+    },
+    {
+      "name": "claude/charming-hawking-hppuoi",
+      "tip_sha": "f7cd0cb4a4d58b0157d350b2649d82a0aa4326a2"
+    },
+    {
+      "name": "claude/charming-hawking-i4poor",
+      "tip_sha": "fda7b8e7523eef224235011a4fe89ca487e241f2"
+    },
+    {
+      "name": "claude/charming-hawking-imeylf",
+      "tip_sha": "2be66c164990f3d8b923b9b1cb77b0e22ea9e134"
+    },
+    {
+      "name": "claude/charming-hawking-ipz881",
+      "tip_sha": "fd41110f612accb815a3d5100570506be94d1ffd"
+    },
+    {
+      "name": "claude/charming-hawking-j7up1w",
+      "tip_sha": "777b06efdfa2603076ba9e3b07b58005d3554d7a"
+    },
+    {
+      "name": "claude/charming-hawking-jho41r",
+      "tip_sha": "572907cf034eb4e24b121a059c7215a79b1bf59f"
+    },
+    {
+      "name": "claude/charming-hawking-k8m709",
+      "tip_sha": "c113369c3fff0ef62f086d2b29510a289aa44b02"
+    },
+    {
+      "name": "claude/charming-hawking-lna1v4",
+      "tip_sha": "4f4d497880ce324ff70b439f05d697be0a633a5d"
+    },
+    {
+      "name": "claude/charming-hawking-md5nkv",
+      "tip_sha": "0c288b557950c45921c22b0797a91cd4d45ca9c9"
+    },
+    {
+      "name": "claude/charming-hawking-mz0q9l",
+      "tip_sha": "948b053c600c4c5f8f909e4af58f74ea9d57eda7"
+    },
+    {
+      "name": "claude/charming-hawking-n508ld",
+      "tip_sha": "f80b4dbdb954660e25d40d709057f711a0fbbca9"
+    },
+    {
+      "name": "claude/charming-hawking-niqwcq",
+      "tip_sha": "2a5cf1ca710f26c19491342ccda275993548a1ed"
+    },
+    {
+      "name": "claude/charming-hawking-o9i3ty",
+      "tip_sha": "eae3183486be082f2977f11fcdceda227905f22d"
+    },
+    {
+      "name": "claude/charming-hawking-p0wz5a",
+      "tip_sha": "6fdda199754f6f3c466fc4d0416b0f4024cb7253"
+    },
+    {
+      "name": "claude/charming-hawking-pfy0uc",
+      "tip_sha": "f14530e10dab5317c956401b9be2fcc82cdb49ae"
+    },
+    {
+      "name": "claude/charming-hawking-prvknx",
+      "tip_sha": "628b19d62482181e861e8f14eaebcebecf4fe530"
+    },
+    {
+      "name": "claude/charming-hawking-q1v1ja",
+      "tip_sha": "2114d252321f9849cb76413d48cf555c565acdec"
+    },
+    {
+      "name": "claude/charming-hawking-qs1q5v",
+      "tip_sha": "c47e2c790742f80f1c380eeb9a77752ec2746c14"
+    },
+    {
+      "name": "claude/charming-hawking-qta6ip",
+      "tip_sha": "62f919b535079a6bdbe1a1f9659ad40f6927b09c"
+    },
+    {
+      "name": "claude/charming-hawking-r9e12g",
+      "tip_sha": "0500a73f2fec557f5b7fcb908292122f04758a87"
+    },
+    {
+      "name": "claude/charming-hawking-sgezmg",
+      "tip_sha": "2e442bcb297a9adab2572f722c1cf74426c269d5"
+    },
+    {
+      "name": "claude/charming-hawking-sz6puz",
+      "tip_sha": "c1406570738fb8570735caf5bcee2859943a9d09"
+    },
+    {
+      "name": "claude/charming-hawking-tkahn4",
+      "tip_sha": "8875eb184fd0ba8d2d748995c3145460172635e2"
+    },
+    {
+      "name": "claude/charming-hawking-u5e6my",
+      "tip_sha": "746c368068ddec7a2a44d3be2af84bf80d11aff0"
+    },
+    {
+      "name": "claude/charming-hawking-ugniw5",
+      "tip_sha": "84ac8d4f696e980928bba50271f24956e2ef994b"
+    },
+    {
+      "name": "claude/charming-hawking-uhjdox",
+      "tip_sha": "b79fb5e2aa035e9b4f5f1a54ce687d25c5fb23b4"
+    },
+    {
+      "name": "claude/charming-hawking-wl74l3",
+      "tip_sha": "ff5e292e26591e65a63fc0815388d4d1f575a432"
+    },
+    {
+      "name": "claude/charming-hawking-wyjdik",
+      "tip_sha": "bfd4e00fc179e47c78bd36a36bbf81ea8cac026c"
+    },
+    {
+      "name": "claude/charming-hawking-xj6ruy",
+      "tip_sha": "a0a6ce1697ce325ab6af07457a9ddee104f6bb13"
+    },
+    {
+      "name": "claude/consolidate-print-atelier-retail-pilot-audit",
+      "tip_sha": "8e29d7f03661dfbbb4643cefbb8a8f5ba4603421"
+    },
+    {
+      "name": "claude/deployment-platform-choice-ndyjq4",
+      "tip_sha": "195a64fb4818ae6e37821c25019f23cf7ca16e25"
+    },
+    {
+      "name": "claude/dev-instructions-pr-review-ugsthb",
+      "tip_sha": "220d27099750793c21972d909ee9957efca1283c"
+    },
+    {
+      "name": "claude/dreamy-planck-95k5g5",
+      "tip_sha": "410a0d5923b5f68d11d8b8d5ed6ef9945abd2cd3"
+    },
+    {
+      "name": "claude/dreamy-planck-ddiv7f",
+      "tip_sha": "a77da31540df20bbfb5bd6ebfdd96d54592c89b5"
+    },
+    {
+      "name": "claude/dreamy-planck-drlgwe",
+      "tip_sha": "1317db7321f428caf29f880a7cd6d9894ae4b27b"
+    },
+    {
+      "name": "claude/dreamy-planck-lbpwto",
+      "tip_sha": "c341d2911f16a5daf8f4f708f6d18bdfbe9742ab"
+    },
+    {
+      "name": "claude/dreamy-planck-rwi09t",
+      "tip_sha": "691a7b4f08382122179a9a5458d43ea136a78ccd"
+    },
+    {
+      "name": "claude/dreamy-planck-vvaum5",
+      "tip_sha": "eae091b3e12dc194e0a152935b9bfc7df88393a6"
+    },
+    {
+      "name": "claude/dreamy-planck-wgqgvu",
+      "tip_sha": "85ca9d14c84b03f051652ced8e27735bee82d5c9"
+    },
+    {
+      "name": "claude/dreamy-planck-yf0nme",
+      "tip_sha": "ca8000e191f2d9fc15d3553e213cd5b6b9963707"
+    },
+    {
+      "name": "claude/ecstatic-volta-0j8yx2",
+      "tip_sha": "f23f97bc1e969783025f7b9072961ad802db837b"
+    },
+    {
+      "name": "claude/ecstatic-volta-2dr38x",
+      "tip_sha": "be7e8a0b26abbd7c95b120c78e57480d1afa68ab"
+    },
+    {
+      "name": "claude/ecstatic-volta-3yyaqx",
+      "tip_sha": "8e4104d1063c7e9ce833da1af3d7d5e5e63e3f8b"
+    },
+    {
+      "name": "claude/ecstatic-volta-4lhhia",
+      "tip_sha": "2cb9288e60ebc6aa6fd9ac6326ff10bc326b516d"
+    },
+    {
+      "name": "claude/ecstatic-volta-5az82q",
+      "tip_sha": "72a23fdff5bdd51a34ec4e32582f04340a446569"
+    },
+    {
+      "name": "claude/ecstatic-volta-5ojald",
+      "tip_sha": "2fbbce1bd9b4848c2a50869f05261153263dee73"
+    },
+    {
+      "name": "claude/ecstatic-volta-688kr8",
+      "tip_sha": "5d2dc7f437de99a4a38f1abb7fdfac5395ac4760"
+    },
+    {
+      "name": "claude/ecstatic-volta-7cpl6e",
+      "tip_sha": "ef2e9d7f15349ba6bdbef2dcbf33f2728b05a78d"
+    },
+    {
+      "name": "claude/ecstatic-volta-8u22pg",
+      "tip_sha": "29b9e0d3536eaf186d2eb091cc9af9a3b7d4a4ec"
+    },
+    {
+      "name": "claude/ecstatic-volta-9s6zts",
+      "tip_sha": "223e2d01f3e96bacc832f2d3d8b10b3365ee7fec"
+    },
+    {
+      "name": "claude/ecstatic-volta-a8g7tv",
+      "tip_sha": "5ce4e3a03009056711def29e330c50d48e81939e"
+    },
+    {
+      "name": "claude/ecstatic-volta-bte9f2",
+      "tip_sha": "cfbc6eeffd199fa870e1c59a5c1541d9992386b1"
+    },
+    {
+      "name": "claude/ecstatic-volta-c9piwr",
+      "tip_sha": "467cd69e5d802208c856451e41d3db1425044bc4"
+    },
+    {
+      "name": "claude/ecstatic-volta-cbkjw4",
+      "tip_sha": "17e4b89fb6d7375b228535ec283fbc0e977c5cc5"
+    },
+    {
+      "name": "claude/ecstatic-volta-cl7sm1",
+      "tip_sha": "8501186ad0f4b7b00c6cb7bb3a6b2b62be37a9d1"
+    },
+    {
+      "name": "claude/ecstatic-volta-dbq3lf",
+      "tip_sha": "a98f1c8cf171523f5f22fc8a316f404882147857"
+    },
+    {
+      "name": "claude/ecstatic-volta-egl67u",
+      "tip_sha": "c91a158e2f73fe67c767ec08f4e25d4421411fff"
+    },
+    {
+      "name": "claude/ecstatic-volta-eizmp0",
+      "tip_sha": "f0095667baadb341271902de285eaa92c771ad02"
+    },
+    {
+      "name": "claude/ecstatic-volta-fa761v",
+      "tip_sha": "c8cf9643da10648afdaf9c9f91ccafdf3575622a"
+    },
+    {
+      "name": "claude/ecstatic-volta-fjla2y",
+      "tip_sha": "d04c3552bc2117e2619bd7f9547dfb665b65edff"
+    },
+    {
+      "name": "claude/ecstatic-volta-fqog1k",
+      "tip_sha": "055390b6313e272c9b1cae44bde08f3b3f4457d0"
+    },
+    {
+      "name": "claude/ecstatic-volta-fsw1ck",
+      "tip_sha": "6b545896d4257af85a1536b7656cdebdabd59ab3"
+    },
+    {
+      "name": "claude/ecstatic-volta-ggcmmh",
+      "tip_sha": "b2bfc02ac3ebf183546270b233a74cbaa3b7ef30"
+    },
+    {
+      "name": "claude/ecstatic-volta-hezzeq",
+      "tip_sha": "be4cc2b48bb9f1d59711bad1215f0a837d1a1ed0"
+    },
+    {
+      "name": "claude/ecstatic-volta-hpgq4t",
+      "tip_sha": "40073b56e3e0271660f8a299c7249b19c1c9032c"
+    },
+    {
+      "name": "claude/ecstatic-volta-hv8l65",
+      "tip_sha": "4a34a5c30a94133afdd09a039b7d4de4c2263253"
+    },
+    {
+      "name": "claude/ecstatic-volta-i6zdkg",
+      "tip_sha": "0cd8bab6ce8a5b025120b917ade78a91185b1f2a"
+    },
+    {
+      "name": "claude/ecstatic-volta-ii2f8j",
+      "tip_sha": "2c04a4571a3efba117c2bc4dfaa027babfe6d3f5"
+    },
+    {
+      "name": "claude/ecstatic-volta-jd5qso",
+      "tip_sha": "a6c763057ee21d2dfcf489ba01da4f294c17dae8"
+    },
+    {
+      "name": "claude/ecstatic-volta-jgrbfs",
+      "tip_sha": "1aebc65cc72243b7b0e8a69f5fabd1039530862b"
+    },
+    {
+      "name": "claude/ecstatic-volta-jrirpu",
+      "tip_sha": "b30951f4e959f58d871eb559c042a0bcfee7906a"
+    },
+    {
+      "name": "claude/ecstatic-volta-kujosp",
+      "tip_sha": "e4b2ec757a53367e5b264721193aa43ca63ec90d"
+    },
+    {
+      "name": "claude/ecstatic-volta-lf2cjm",
+      "tip_sha": "f4687d6fe6a2e66580dd5787da144b1cfa714579"
+    },
+    {
+      "name": "claude/ecstatic-volta-nomaqc",
+      "tip_sha": "f49729ccbe105dbba57cb81ef2b5c6c2109e827b"
+    },
+    {
+      "name": "claude/ecstatic-volta-nwew03",
+      "tip_sha": "1024a1e5b134bc25b23f5b953255dd6393e017b6"
+    },
+    {
+      "name": "claude/ecstatic-volta-oahbwa",
+      "tip_sha": "68ce8b04f52bd281978b097c2ff6460d8fd1a8d9"
+    },
+    {
+      "name": "claude/ecstatic-volta-oxsrt7",
+      "tip_sha": "18b6427de5217abfe57f39509b97438ce918dcc1"
+    },
+    {
+      "name": "claude/ecstatic-volta-oxvqyr",
+      "tip_sha": "75650d7aaf767bc8da4f90acdd3259627fef8d0d"
+    },
+    {
+      "name": "claude/ecstatic-volta-r4umhr",
+      "tip_sha": "ec3aa0dd20dc3e9a2a3a14867ad075b86f92efdd"
+    },
+    {
+      "name": "claude/ecstatic-volta-rvc3er",
+      "tip_sha": "a1aa6c65e349e425bfc2cbd5bfdbb579ccf4a016"
+    },
+    {
+      "name": "claude/ecstatic-volta-tasll0",
+      "tip_sha": "ab85bf0c95a68a8c90fba1ece3c5e8ba15a7da76"
+    },
+    {
+      "name": "claude/ecstatic-volta-tax5h4",
+      "tip_sha": "ae92c1754270287220aad857b5b4a08a8fffd1df"
+    },
+    {
+      "name": "claude/ecstatic-volta-u8x01c",
+      "tip_sha": "6f6fe44905b2b86d16de0cd8845fc72a5e4b970d"
+    },
+    {
+      "name": "claude/ecstatic-volta-ua0kni",
+      "tip_sha": "3567597ab478b9a7b9d61c46f286f5a316a6f448"
+    },
+    {
+      "name": "claude/ecstatic-volta-v1oxmd",
+      "tip_sha": "521b148b56bc6ed84d96fe607f0ea7e5b75bf1c0"
+    },
+    {
+      "name": "claude/ecstatic-volta-v3dcfx",
+      "tip_sha": "4b82a6049df6a5c2544dc3784c8475abc9623130"
+    },
+    {
+      "name": "claude/ecstatic-volta-vfdcfl",
+      "tip_sha": "a239e5daa4a8af3851a29ec1b849de5db91b75ba"
+    },
+    {
+      "name": "claude/ecstatic-volta-w0c8s4",
+      "tip_sha": "521345b50f4d568a731c375306c1c4c49db2f882"
+    },
+    {
+      "name": "claude/ecstatic-volta-w1faiu",
+      "tip_sha": "dda84602a0c9d459e735fc1f46dece5a8e33f4f9"
+    },
+    {
+      "name": "claude/ecstatic-volta-wcksz5",
+      "tip_sha": "554eb358f5a4de6d562964c0aaeedf1e4a06f28b"
+    },
+    {
+      "name": "claude/ecstatic-volta-wf6dxg",
+      "tip_sha": "f96b4fae4096c5f16f5c78349d9ed87cb0c52016"
+    },
+    {
+      "name": "claude/ecstatic-volta-yvvu6h",
+      "tip_sha": "db12407b7228dbdae24ad33fabc327dfe09f5e83"
+    },
+    {
+      "name": "claude/festive-mccarthy-a8hj4x",
+      "tip_sha": "79212e0c53a8deff86bdc5f1b362d19a51cb6731"
+    },
+    {
+      "name": "claude/festive-mccarthy-ghjxfl",
+      "tip_sha": "7cc70b930a3c226e2104e0adeccfd1137e3f7847"
+    },
+    {
+      "name": "claude/festive-mccarthy-hu9otk",
+      "tip_sha": "d167d0a58ea2128c76a93a11e665e37f9022c2cd"
+    },
+    {
+      "name": "claude/garmin-world-traveler-watchface-qc27on",
+      "tip_sha": "ffbf5b0f193f7ca883d05aa16007164e84a14c3a"
+    },
+    {
+      "name": "claude/gha-branch-cleanup-pajw2b",
+      "tip_sha": "53e47f179f5b049d8887b68feeed7c70b3632b23"
+    },
+    {
+      "name": "claude/intelligent-knuth-06lpis",
+      "tip_sha": "4bfffdcfb7db19d54d76434ad1813bca9f11fdb5"
+    },
+    {
+      "name": "claude/intelligent-knuth-1oes7b",
+      "tip_sha": "b3dbb5f43c02cfaa84a6bce3c5eba543766d4b43"
+    },
+    {
+      "name": "claude/intelligent-knuth-3hhg6d",
+      "tip_sha": "20e5546a1d2b0520df996350de4936167b84fb75"
+    },
+    {
+      "name": "claude/intelligent-knuth-79h350",
+      "tip_sha": "b20a3b9eb45c9a4af82c64dd0f48bd6d6a4824ac"
+    },
+    {
+      "name": "claude/intelligent-knuth-7x7cd3",
+      "tip_sha": "e3efd22d984d48091a692bf7f974da63c7bc15a8"
+    },
+    {
+      "name": "claude/intelligent-knuth-9c41no",
+      "tip_sha": "8eb7d0b7e772b7ba6faabbd5dc9035d3357d87eb"
+    },
+    {
+      "name": "claude/intelligent-knuth-b8cax8",
+      "tip_sha": "56d8c274059c8bbc58a275dfb2782de6fd8b8b95"
+    },
+    {
+      "name": "claude/intelligent-knuth-bnlwuq",
+      "tip_sha": "107b3cab80b59f7426ab86c1cc4e37393324f52d"
+    },
+    {
+      "name": "claude/intelligent-knuth-d2gy94",
+      "tip_sha": "d26602ec58ceacc969dbd96a2950b0b4c71f569e"
+    },
+    {
+      "name": "claude/intelligent-knuth-f8stzx",
+      "tip_sha": "42061bbb4987381d2fe164e69d2fcc21d6c7af2b"
+    },
+    {
+      "name": "claude/intelligent-knuth-j0s6rl",
+      "tip_sha": "7aa6ed86c1eda8044f375e786368f4b082ffeb6a"
+    },
+    {
+      "name": "claude/intelligent-knuth-lljrhl",
+      "tip_sha": "a9a7b023ff21edcba7fda62f484fd928e52fbe1d"
+    },
+    {
+      "name": "claude/intelligent-knuth-mz9kgu",
+      "tip_sha": "417ef63747944fc5b73750fcc05b4beb25556376"
+    },
+    {
+      "name": "claude/intelligent-knuth-o8acnx",
+      "tip_sha": "7aa6ed86c1eda8044f375e786368f4b082ffeb6a"
+    },
+    {
+      "name": "claude/intelligent-knuth-oaiylj",
+      "tip_sha": "7ec04b30dfb12965261dfbf3882ea68e159b5146"
+    },
+    {
+      "name": "claude/intelligent-knuth-ovs7at",
+      "tip_sha": "d78cd9b49111385904a1247a9cc5664459ba2f79"
+    },
+    {
+      "name": "claude/intelligent-knuth-vhlbxo",
+      "tip_sha": "d3850cbdb53ea88bec376761041e3de348c551fc"
+    },
+    {
+      "name": "claude/intelligent-knuth-xatbju",
+      "tip_sha": "b1dbd07583973816a8cf947dff9b3512331b4607"
+    },
+    {
+      "name": "claude/keen-knuth-03vkxf",
+      "tip_sha": "afc8d0fd4438fea581d160a9f78111125398d17a"
+    },
+    {
+      "name": "claude/keen-knuth-2iuxsz",
+      "tip_sha": "6181de536e043922a349b69854b038486715c2b6"
+    },
+    {
+      "name": "claude/keen-knuth-2ynlsy",
+      "tip_sha": "4ccefc1d48653bf0aa7bc2e9903acf4ab8889177"
+    },
+    {
+      "name": "claude/keen-knuth-3egfxi",
+      "tip_sha": "f23287e67317e7acbcf2e20932b90ba599d0c943"
+    },
+    {
+      "name": "claude/keen-knuth-3hhwt7",
+      "tip_sha": "60bdac3ef3c39553bbae216b92e7a3791da0831a"
+    },
+    {
+      "name": "claude/keen-knuth-4c2nru",
+      "tip_sha": "dfe93290134f431ddaa24c3d22d55fc562f1eeed"
+    },
+    {
+      "name": "claude/keen-knuth-4clrql",
+      "tip_sha": "4d878f3d3350457083b6530617089fd6525a2e6a"
+    },
+    {
+      "name": "claude/keen-knuth-4xhg9y",
+      "tip_sha": "8079bbe2907f41e04cb090f79a59891aa8adc334"
+    },
+    {
+      "name": "claude/keen-knuth-553i5h",
+      "tip_sha": "373cf7a89c01ad81c4ed7f1836f8e38e25b88d77"
+    },
+    {
+      "name": "claude/keen-knuth-5cktcn",
+      "tip_sha": "44fda84c26adca22610613db7ecc16b06149cf39"
+    },
+    {
+      "name": "claude/keen-knuth-5qdu0e",
+      "tip_sha": "d82b5fcea893f1ac469cf6a01c4d8882ab6f4e84"
+    },
+    {
+      "name": "claude/keen-knuth-5r0d6r",
+      "tip_sha": "83eaab90b5deae43105c2f8d2122f1e609413e9d"
+    },
+    {
+      "name": "claude/keen-knuth-60g99r",
+      "tip_sha": "6edc7fa2357d49e02d110f0f43718e7a7fb8ed13"
+    },
+    {
+      "name": "claude/keen-knuth-66rjuq",
+      "tip_sha": "eef7fe393bdb96458fdd3ca8626e1dd5525a41cd"
+    },
+    {
+      "name": "claude/keen-knuth-79d0xe",
+      "tip_sha": "f2b5db13928b504d6d0a3e1d96826b8cead96e80"
+    },
+    {
+      "name": "claude/keen-knuth-79hmzx",
+      "tip_sha": "052d0439d1d83b0df0e35e9ceec5bc2c608ba8f4"
+    },
+    {
+      "name": "claude/keen-knuth-82bnqu",
+      "tip_sha": "ad9db8d2d76ce2a1a521e934410db083161cb5dd"
+    },
+    {
+      "name": "claude/keen-knuth-9iabbv",
+      "tip_sha": "60161132ecd9379f2f168f70037f81a61c150a6b"
+    },
+    {
+      "name": "claude/keen-knuth-9rbj9x",
+      "tip_sha": "44ebc02511e4ae670e5fe2d9f3251051e2527205"
+    },
+    {
+      "name": "claude/keen-knuth-ak8hhp",
+      "tip_sha": "31b43ee92f86229a861006b41dd4c6a1fbe30712"
+    },
+    {
+      "name": "claude/keen-knuth-bqyqeq",
+      "tip_sha": "1024a1e5b134bc25b23f5b953255dd6393e017b6"
+    },
+    {
+      "name": "claude/keen-knuth-c8ou9e",
+      "tip_sha": "f5ece595d1697c6bffc554663481b42c6989fa48"
+    },
+    {
+      "name": "claude/keen-knuth-cc2frm",
+      "tip_sha": "aa06accf611e49d21f360064f71909261f734a6f"
+    },
+    {
+      "name": "claude/keen-knuth-cx193a",
+      "tip_sha": "5cd2ba1e5af01a641cf0ebf9ef83644b5d266706"
+    },
+    {
+      "name": "claude/keen-knuth-d6rdgp",
+      "tip_sha": "9602f04c13f0f0d66f4ea531d951506f66f3cf24"
+    },
+    {
+      "name": "claude/keen-knuth-du31vc",
+      "tip_sha": "7dd9f4f0a90e990663199a0878fa66bee0672f57"
+    },
+    {
+      "name": "claude/keen-knuth-dwnqu4",
+      "tip_sha": "44bac7668e953feffe884bd8fa6308651d8d269e"
+    },
+    {
+      "name": "claude/keen-knuth-el2bv9",
+      "tip_sha": "84c0b6bd74b79fffbb15e553b98c55af3309bf02"
+    },
+    {
+      "name": "claude/keen-knuth-f6oucy",
+      "tip_sha": "540b5e9468645ccae6cad23b9c70128d6fb13005"
+    },
+    {
+      "name": "claude/keen-knuth-fuu7lc",
+      "tip_sha": "acc34f677c905f0d56eb5669775dcb8728549670"
+    },
+    {
+      "name": "claude/keen-knuth-fvbm5o",
+      "tip_sha": "c66f62ea8407d80dcd684d71a7156630e2cd3791"
+    },
+    {
+      "name": "claude/keen-knuth-g7ccbl",
+      "tip_sha": "1447de9eb4c208f0b9ca3e3f123f6a3a124751a4"
+    },
+    {
+      "name": "claude/keen-knuth-j0r93f",
+      "tip_sha": "96abbaaeb49ce0bd2865d39b24660a5d3eca6c0f"
+    },
+    {
+      "name": "claude/keen-knuth-jo998j",
+      "tip_sha": "8f5b9c6c86e4fa96182a9bb749cfe08981f1e64c"
+    },
+    {
+      "name": "claude/keen-knuth-ke2c2k",
+      "tip_sha": "c0b8035d2b82e06d6ca89f83913a401eb0f6ebd1"
+    },
+    {
+      "name": "claude/keen-knuth-kfxr5v",
+      "tip_sha": "81eb514b994b96e676f2b653ecd6cc50fce95cdc"
+    },
+    {
+      "name": "claude/keen-knuth-lwawy0",
+      "tip_sha": "e8005997b3bae39ea7872234375c05fc4bb50ccc"
+    },
+    {
+      "name": "claude/keen-knuth-m19tjy",
+      "tip_sha": "dcad1e6adeb7cb7b2719933a9ea609e805cf8e2e"
+    },
+    {
+      "name": "claude/keen-knuth-mgi09r",
+      "tip_sha": "61bbe902b7041a33e5e1d04b4cc490a5bc14efb6"
+    },
+    {
+      "name": "claude/keen-knuth-nvqapy",
+      "tip_sha": "54a55ce6533801f9d000abdfc147bab5931af944"
+    },
+    {
+      "name": "claude/keen-knuth-o52qro",
+      "tip_sha": "554eb358f5a4de6d562964c0aaeedf1e4a06f28b"
+    },
+    {
+      "name": "claude/keen-knuth-oxnhzo",
+      "tip_sha": "c523714d507cf81b9dc9106bcc3d71f38a2c50dc"
+    },
+    {
+      "name": "claude/keen-knuth-psa5n2",
+      "tip_sha": "1676953e8298db07f5647850d685053d2cf5026e"
+    },
+    {
+      "name": "claude/keen-knuth-rt70sl",
+      "tip_sha": "c127d32c79e83322bd5107d4e67b9354cb3aa86c"
+    },
+    {
+      "name": "claude/keen-knuth-t0ile1",
+      "tip_sha": "328982dbdff390f31b06899f110d01324ebdff45"
+    },
+    {
+      "name": "claude/keen-knuth-v911ly",
+      "tip_sha": "b192425daf5bfa2ab5d3f566665a7114bb46238b"
+    },
+    {
+      "name": "claude/keen-knuth-vagekd",
+      "tip_sha": "50c0b9a4e78c4ed8bd42fe2d3d80bb0899c366ee"
+    },
+    {
+      "name": "claude/keen-knuth-vmm5g3",
+      "tip_sha": "a6c763057ee21d2dfcf489ba01da4f294c17dae8"
+    },
+    {
+      "name": "claude/keen-knuth-w08uyz",
+      "tip_sha": "65f0090498c2a0dfc286bc8f20a543456e82c1f9"
+    },
+    {
+      "name": "claude/keen-knuth-wnmnmg",
+      "tip_sha": "8314f84ee623a70f97069ff110d32708e638ed3a"
+    },
+    {
+      "name": "claude/keen-knuth-wq92kx",
+      "tip_sha": "f1f2d2fdc17db8d0b1664b6cac5d3554b2f24d6d"
+    },
+    {
+      "name": "claude/keen-knuth-xbplru",
+      "tip_sha": "e709b80da967a58a41f612bcd0b917dacbe783ee"
+    },
+    {
+      "name": "claude/keen-knuth-xhplpt",
+      "tip_sha": "bed965769cf539750d3a41b6e2283a70c12ce847"
+    },
+    {
+      "name": "claude/keen-knuth-xlzirc",
+      "tip_sha": "9c0199bd7998f0043bd557e78c1e507e2894f1a8"
+    },
+    {
+      "name": "claude/keen-knuth-xyv7ke",
+      "tip_sha": "0f38cf0aeeb3db1e0d5ab4cfddf9a9de0d168c44"
+    },
+    {
+      "name": "claude/keen-knuth-ytxi2a",
+      "tip_sha": "6571ba7be304301c1cfd5e7c7842b906cfdb7239"
+    },
+    {
+      "name": "claude/keen-knuth-z6jis7",
+      "tip_sha": "47f8cef294bef90d0566e46d77c5340665b637e4"
+    },
+    {
+      "name": "claude/keen-knuth-zi864a",
+      "tip_sha": "5a5db8973fe7d25d7d9c25af2179ca3ddb3939bb"
+    },
+    {
+      "name": "claude/keen-knuth-zordxp",
+      "tip_sha": "0ea647597ae0370d13ea89bf4c09de572eb81f8c"
+    },
+    {
+      "name": "claude/laughing-pasteur-1868zg",
+      "tip_sha": "52873fc82a1c407923101c9934abe4fe8be3a23e"
+    },
+    {
+      "name": "claude/laughing-pasteur-1aqqnv",
+      "tip_sha": "a770e98572a276c5e7596f732547ef73fb5ae450"
+    },
+    {
+      "name": "claude/laughing-pasteur-1no39p",
+      "tip_sha": "253becd6513be6c62ef7188919cff4f815736d11"
+    },
+    {
+      "name": "claude/laughing-pasteur-1syfub",
+      "tip_sha": "40d4a60e50d1c7f8fb90f172df27c26a9c3c8efd"
+    },
+    {
+      "name": "claude/laughing-pasteur-22apui",
+      "tip_sha": "015389da82edb995d14c70856c26a0244696a7ec"
+    },
+    {
+      "name": "claude/laughing-pasteur-28tq7h",
+      "tip_sha": "39d6bc34c71422bc31033c945a77a78e60c59a39"
+    },
+    {
+      "name": "claude/laughing-pasteur-3rn33u",
+      "tip_sha": "b7c6ea1dcd94e0c9496bb50d948ee8f228378af0"
+    },
+    {
+      "name": "claude/laughing-pasteur-40xvih",
+      "tip_sha": "14c3850db97d13a2d558e2b4802f61785a41ef82"
+    },
+    {
+      "name": "claude/laughing-pasteur-43re2p",
+      "tip_sha": "b2618df799096bb6cd3f874b201ea14787392abf"
+    },
+    {
+      "name": "claude/laughing-pasteur-48ezfu",
+      "tip_sha": "c29f6c4c394d9b38a32f08b1868a92bc9077749c"
+    },
+    {
+      "name": "claude/laughing-pasteur-4rjbpg",
+      "tip_sha": "35f11e2b87382bab4997e6ffb87a226c65bf0511"
+    },
+    {
+      "name": "claude/laughing-pasteur-4ylpfp",
+      "tip_sha": "8d261b8afea02158d7b934070b46e4fb33726c57"
+    },
+    {
+      "name": "claude/laughing-pasteur-5hd7eg",
+      "tip_sha": "2c0cf1f528e7ed6fba470ee1b3e010483b80d088"
+    },
+    {
+      "name": "claude/laughing-pasteur-5ppwmq",
+      "tip_sha": "d18310073915fbfd9cd986b36df3002e0eca8f94"
+    },
+    {
+      "name": "claude/laughing-pasteur-5tgehs",
+      "tip_sha": "082a09e60bae2955c1a20eb90cc47ef4f9bc934a"
+    },
+    {
+      "name": "claude/laughing-pasteur-6g5omj",
+      "tip_sha": "59f18784cd201adc7b467c54d40ebcbfea568bed"
+    },
+    {
+      "name": "claude/laughing-pasteur-7a0ci6",
+      "tip_sha": "2eeace824f60b40980c881d91bf426cec5861366"
+    },
+    {
+      "name": "claude/laughing-pasteur-7gxau3",
+      "tip_sha": "80d0c75e58387c8a9ae557a68f423b9365cd65d3"
+    },
+    {
+      "name": "claude/laughing-pasteur-7i0rrx",
+      "tip_sha": "118c3a9f423a6cd822c48953490de70e091d398c"
+    },
+    {
+      "name": "claude/laughing-pasteur-7kvl6i",
+      "tip_sha": "2fe6de504eeed05e15b0e837e3912f9c246f41a1"
+    },
+    {
+      "name": "claude/laughing-pasteur-7za6a7",
+      "tip_sha": "634f0f055f2491279350eed075e7e8e08a76cb6c"
+    },
+    {
+      "name": "claude/laughing-pasteur-84vra3",
+      "tip_sha": "db3a379262d60b5bcb65784d3f3a7619cba78ae3"
+    },
+    {
+      "name": "claude/laughing-pasteur-884yyz",
+      "tip_sha": "217835bea58b05c32b27b68b844da26b64d88b69"
+    },
+    {
+      "name": "claude/laughing-pasteur-8blxg9",
+      "tip_sha": "774eaf68ffd5253297d2438a17c6d3e551c4fabf"
+    },
+    {
+      "name": "claude/laughing-pasteur-8ec5co",
+      "tip_sha": "f41b1acd4340df24926682a014b833089d1b03c1"
+    },
+    {
+      "name": "claude/laughing-pasteur-9o40vm",
+      "tip_sha": "8c5271354f80c57d45dfc5d38d6639ed5b13aa27"
+    },
+    {
+      "name": "claude/laughing-pasteur-aodjvp",
+      "tip_sha": "c2a40bbc5d91d38881961cab20b8ad10cb10ebb4"
+    },
+    {
+      "name": "claude/laughing-pasteur-b8wssf",
+      "tip_sha": "138165f294fb068cf8d769eeaff78a437e2214bd"
+    },
+    {
+      "name": "claude/laughing-pasteur-bhj1ew",
+      "tip_sha": "42999cca8f643e3a4504217f5a1076d5f227cbdc"
+    },
+    {
+      "name": "claude/laughing-pasteur-bt9mer",
+      "tip_sha": "110d68ccf2863c5964ff261961a8f863bd2999bd"
+    },
+    {
+      "name": "claude/laughing-pasteur-c0s142",
+      "tip_sha": "9c42c55b515f77de387556f6bf8161033e596a07"
+    },
+    {
+      "name": "claude/laughing-pasteur-c3wa8z",
+      "tip_sha": "dbd5a5c2dbb6a58d12cc49a52631bb2c3e622267"
+    },
+    {
+      "name": "claude/laughing-pasteur-c880un",
+      "tip_sha": "0c276b3c3fdb425232dd6f8b2d491361ffb9622f"
+    },
+    {
+      "name": "claude/laughing-pasteur-cetrnc",
+      "tip_sha": "34bd7d125e5366f9300d2811ec8437b31f1c45d5"
+    },
+    {
+      "name": "claude/laughing-pasteur-cgqu1z",
+      "tip_sha": "ea7fa9548e83faa464c795228d055bd2001e7010"
+    },
+    {
+      "name": "claude/laughing-pasteur-d2hzlz",
+      "tip_sha": "358fc50deee27d7852fbf8783beb012f241863f0"
+    },
+    {
+      "name": "claude/laughing-pasteur-d6giqj",
+      "tip_sha": "2c08c25301ece403387edfd056226b60e343d9f2"
+    },
+    {
+      "name": "claude/laughing-pasteur-dgj7ra",
+      "tip_sha": "825fe31549f5c124a7c169fdb537eadb4acbfeda"
+    },
+    {
+      "name": "claude/laughing-pasteur-dpst47",
+      "tip_sha": "cd8ed524c3de5e1324b7b850fec3d5517326b085"
+    },
+    {
+      "name": "claude/laughing-pasteur-ern7gs",
+      "tip_sha": "f4ba29460159bf0970d04351c296a60e85dd8cf0"
+    },
+    {
+      "name": "claude/laughing-pasteur-gj4gv9",
+      "tip_sha": "e01ccaae69a323e0e31ebae543b749dd36071fa4"
+    },
+    {
+      "name": "claude/laughing-pasteur-gka7y7",
+      "tip_sha": "fd34da5d748e1ea99bef1b92bdac28d61a68de67"
+    },
+    {
+      "name": "claude/laughing-pasteur-gpquf9",
+      "tip_sha": "152d886e798dcb52ee43b99c51d3c53a8492f1ba"
+    },
+    {
+      "name": "claude/laughing-pasteur-gu7h1u",
+      "tip_sha": "322142a3274cd59eba85d2838dcda2a27749dfbd"
+    },
+    {
+      "name": "claude/laughing-pasteur-gwksql",
+      "tip_sha": "2348863bd66f0ccea85c71d0904c4e11337fdc28"
+    },
+    {
+      "name": "claude/laughing-pasteur-h6j2z3",
+      "tip_sha": "72b77a0ba54121444d6474a4d481487ada4ecc39"
+    },
+    {
+      "name": "claude/laughing-pasteur-hv9z8v",
+      "tip_sha": "6840496410f98aae29340ca8f65ebdd36dcf3757"
+    },
+    {
+      "name": "claude/laughing-pasteur-i4fm0j",
+      "tip_sha": "249241b099c5c42bebb25502a01233c718f39527"
+    },
+    {
+      "name": "claude/laughing-pasteur-inxud1",
+      "tip_sha": "5753f00d0bbf2065ba6089be14e62bcd90b4dcdc"
+    },
+    {
+      "name": "claude/laughing-pasteur-ipbf1p",
+      "tip_sha": "2b0e7af69060e5920cb6ec93dc9caf0b10462af8"
+    },
+    {
+      "name": "claude/laughing-pasteur-jcf0wq",
+      "tip_sha": "321ffb66057cb145b008214035adbba96f1b9c26"
+    },
+    {
+      "name": "claude/laughing-pasteur-jgr8ty",
+      "tip_sha": "4245fa971e4b9d2b33a9717e05f45d015d39591b"
+    },
+    {
+      "name": "claude/laughing-pasteur-jgr8ty-ledger",
+      "tip_sha": "a7328d591be5a8f6e3a92c7d6eebe90ae2bd3064"
+    },
+    {
+      "name": "claude/laughing-pasteur-jho6kr",
+      "tip_sha": "e470a61bd11f22053d7057e15ab02ac102b8cc7c"
+    },
+    {
+      "name": "claude/laughing-pasteur-k3kv14",
+      "tip_sha": "75dfe59b9b721f889ff02915c7b37cc4530d3f5e"
+    },
+    {
+      "name": "claude/laughing-pasteur-klvk0t",
+      "tip_sha": "e69349612b46b3cd918ec3d4c0f821a37d4eab1a"
+    },
+    {
+      "name": "claude/laughing-pasteur-lha511",
+      "tip_sha": "a6caf8958998825ecf7b921a8932ba91f146a5d7"
+    },
+    {
+      "name": "claude/laughing-pasteur-mbxve3",
+      "tip_sha": "3054d7b6fdcbcf6d0bdf4b80fddbba6af05bf594"
+    },
+    {
+      "name": "claude/laughing-pasteur-mnxy3o",
+      "tip_sha": "a52cbad8f9ee2c87faea136f9b0496bd303ffd4c"
+    },
+    {
+      "name": "claude/laughing-pasteur-n742sh",
+      "tip_sha": "429cd089bbb5a8504a877a200f506221309edfcd"
+    },
+    {
+      "name": "claude/laughing-pasteur-n8rs30",
+      "tip_sha": "6fdb7847e6b98d8c6c631e9c8eb5d530f263ea52"
+    },
+    {
+      "name": "claude/laughing-pasteur-nwupq6",
+      "tip_sha": "3a0f21ad257283460992edf4f924a9fdfa31c01c"
+    },
+    {
+      "name": "claude/laughing-pasteur-nxi6te",
+      "tip_sha": "106682468a29e04a73ce48ccc96f688eabfd59c1"
+    },
+    {
+      "name": "claude/laughing-pasteur-odffd5",
+      "tip_sha": "a9c73a7d0e194c597162c8c8c27aad20f398e7a8"
+    },
+    {
+      "name": "claude/laughing-pasteur-ojx7zy",
+      "tip_sha": "3161d82d182e802d4dfe05cfcdcd4323e5e22539"
+    },
+    {
+      "name": "claude/laughing-pasteur-otztoc",
+      "tip_sha": "c472cc9437de026fd585840cfa33a264a84a5f7b"
+    },
+    {
+      "name": "claude/laughing-pasteur-pezp98",
+      "tip_sha": "44efd843f1797351c84c1d587145cd8a5280dd67"
+    },
+    {
+      "name": "claude/laughing-pasteur-qfh19v",
+      "tip_sha": "44016425ea80215d6ecab1770c3b6d47a1411a15"
+    },
+    {
+      "name": "claude/laughing-pasteur-qjh9a0",
+      "tip_sha": "41aaec692765f4463666790a494b85a32c38af44"
+    },
+    {
+      "name": "claude/laughing-pasteur-qjhjdx",
+      "tip_sha": "a1bc41872d37e75a2f144f81991a997af4e51b7f"
+    },
+    {
+      "name": "claude/laughing-pasteur-qnwegd",
+      "tip_sha": "d0c4abd0574394f7085029093636c2e1c78ba9c5"
+    },
+    {
+      "name": "claude/laughing-pasteur-qq24fx",
+      "tip_sha": "500cb173fb3db2251e7de6aa3b49f53d7062c0bf"
+    },
+    {
+      "name": "claude/laughing-pasteur-qvk1n3",
+      "tip_sha": "17bee6272b74521e5aad060491cd80ba2b7642e6"
+    },
+    {
+      "name": "claude/laughing-pasteur-r7sdl3",
+      "tip_sha": "22ab0f561854ee8c0b0cb05041e512d1b01cedbf"
+    },
+    {
+      "name": "claude/laughing-pasteur-rentr5",
+      "tip_sha": "7f9f31ee4a3980529052cee195694a9929b873b5"
+    },
+    {
+      "name": "claude/laughing-pasteur-s3n7o6",
+      "tip_sha": "3d3985b136fa81c26a5cc41957cde3a98cf4134d"
+    },
+    {
+      "name": "claude/laughing-pasteur-sifkys",
+      "tip_sha": "a00d7f9ea183aa5b4a808e5fdbc20f8433407cf8"
+    },
+    {
+      "name": "claude/laughing-pasteur-te5vcp",
+      "tip_sha": "f36f01d904092b9f38558c55bbc096d1e9922d78"
+    },
+    {
+      "name": "claude/laughing-pasteur-tn8qwa",
+      "tip_sha": "afb8bb903a6257a743b9c3fb0f0a592d7976e25b"
+    },
+    {
+      "name": "claude/laughing-pasteur-ur5atd",
+      "tip_sha": "5cbacee39d251cb1c55b8542fb2038ec97f351ac"
+    },
+    {
+      "name": "claude/laughing-pasteur-uum9yc",
+      "tip_sha": "46d01765416cd50d6a89a8f7dbc10e51b8aa9dc0"
+    },
+    {
+      "name": "claude/laughing-pasteur-v52emo",
+      "tip_sha": "36536fe813b7280b74b0bc7937e689952c84674b"
+    },
+    {
+      "name": "claude/laughing-pasteur-v5spji",
+      "tip_sha": "1b438318a217855a2a4334095d48296622dde04c"
+    },
+    {
+      "name": "claude/laughing-pasteur-v7ybzh",
+      "tip_sha": "60db9ca941ae0e8c5b954749988c915d5209f090"
+    },
+    {
+      "name": "claude/laughing-pasteur-v9od2u",
+      "tip_sha": "8ef52e211fd1b1d9f31728978107d97bfb31fe64"
+    },
+    {
+      "name": "claude/laughing-pasteur-w6btcn",
+      "tip_sha": "6563be956fb7cf5f423f76d4c87674885e336e5e"
+    },
+    {
+      "name": "claude/laughing-pasteur-wru97i",
+      "tip_sha": "902a61973aa2bc2a14a83dbe430990823763998c"
+    },
+    {
+      "name": "claude/laughing-pasteur-xr0z33",
+      "tip_sha": "57b07bd74976aee3474dd36a5c638ba40dc9d913"
+    },
+    {
+      "name": "claude/laughing-pasteur-xy5lbe",
+      "tip_sha": "20127899edf6e454f96a37db1e2720240bf85f55"
+    },
+    {
+      "name": "claude/laughing-pasteur-y32mf9",
+      "tip_sha": "e5fc3be137a0afb6c52a436f9dff29c0d7590a42"
+    },
+    {
+      "name": "claude/laughing-pasteur-y6bst4",
+      "tip_sha": "194583342e31529f69aa36b07a680fcea1283f2c"
+    },
+    {
+      "name": "claude/laughing-pasteur-y7mbc7",
+      "tip_sha": "31aca5c8f2f9d0405ee5b15e150cc63331276528"
+    },
+    {
+      "name": "claude/laughing-pasteur-ythy3u",
+      "tip_sha": "55cb12db946044cfee3fcf097cfda718307f9bbc"
+    },
+    {
+      "name": "claude/ledger-109-106-verify",
+      "tip_sha": "e3cb4e750ab69c9574960507cf743c3ba5b827d3"
+    },
+    {
+      "name": "claude/ledger-109-accidental-close",
+      "tip_sha": "d7515593e46ae2d3a9f8a8f72223d8a0f39e0550"
+    },
+    {
+      "name": "claude/ledger-114-audit-fixes",
+      "tip_sha": "2be769a04cf0f7c3f33b3f4c12ec9897f401d129"
+    },
+    {
+      "name": "claude/ledger-162-guardrail-record",
+      "tip_sha": "d9465fd85cd2987440d0b93142c4d4f131646467"
+    },
+    {
+      "name": "claude/ledger-166-tracking",
+      "tip_sha": "2586d17e537eb2835bd37f990bf7be03d0b2c9be"
+    },
+    {
+      "name": "claude/ledger-181",
+      "tip_sha": "c01005852b11650bffa79fdd95677eac3a7ef9a8"
+    },
+    {
+      "name": "claude/ledger-702-fold-in",
+      "tip_sha": "cfea499fcdd337a31f7fc652691e31d58839e8a2"
+    },
+    {
+      "name": "claude/ledger-ai-first-markets-106",
+      "tip_sha": "7e78e7fe07170cdec99ee8b7e448984ddc217fd9"
+    },
+    {
+      "name": "claude/ledger-buildfailed-diagnosis",
+      "tip_sha": "064b320bfbbfb710abe573ac145a6013ca6bdb7d"
+    },
+    {
+      "name": "claude/ledger-photos-import-tools-fd-leak",
+      "tip_sha": "494cd6a86ec110227679ccda7bde2b1b7851a6d1"
+    },
+    {
+      "name": "claude/ledger-print-atelier-113",
+      "tip_sha": "1a79987339591677badde4b4a19226279a420526"
+    },
+    {
+      "name": "claude/ledger-print-atelier-contrast-fix",
+      "tip_sha": "7ba56cd7c4129bf7abef76e47259c0c4836136a7"
+    },
+    {
+      "name": "claude/monorepo-git-subtrees-q1f4tn",
+      "tip_sha": "9bcb24a3188e4e1d1429a353452ad65b9d4919ac"
+    },
+    {
+      "name": "claude/moober-cattle-transport-00g9aa",
+      "tip_sha": "e60233a2252fb0df3bc7c33699d8253d58672f5c"
+    },
+    {
+      "name": "claude/nice-mendel-0fbi46",
+      "tip_sha": "ec3aa0dd20dc3e9a2a3a14867ad075b86f92efdd"
+    },
+    {
+      "name": "claude/nice-mendel-1fx5s0",
+      "tip_sha": "c62a5adda7dac770cc18b8a73c76f9a0061de24f"
+    },
+    {
+      "name": "claude/nice-mendel-2p4pio",
+      "tip_sha": "769544b587aa95af5465affcf4f016454fb1375d"
+    },
+    {
+      "name": "claude/nice-mendel-3stpnk",
+      "tip_sha": "303e1f1a501293a663589b13ba98a583e4163aa4"
+    },
+    {
+      "name": "claude/nice-mendel-47trny",
+      "tip_sha": "3c789b4785139445da56ece179510b09be13ddf6"
+    },
+    {
+      "name": "claude/nice-mendel-4krwrq",
+      "tip_sha": "20fb5f2ab5267c4e29131b369f03b675bd0b3cd4"
+    },
+    {
+      "name": "claude/nice-mendel-4qbeaj",
+      "tip_sha": "9310dceb50cb521f2a98d0bc82350bf8e8bf4940"
+    },
+    {
+      "name": "claude/nice-mendel-79rwkl",
+      "tip_sha": "5df388e6ef717e1c466995ceeaf6454eb4cdc615"
+    },
+    {
+      "name": "claude/nice-mendel-8j032u",
+      "tip_sha": "4e0516831a4d46e91bb76c251cd86ddfa9623d65"
+    },
+    {
+      "name": "claude/nice-mendel-8okbv6",
+      "tip_sha": "b54aed4a4f787930807ea3ef7d61cdc6bdd4c333"
+    },
+    {
+      "name": "claude/nice-mendel-8ro96s",
+      "tip_sha": "62715edbe77323ce4e1b954a568aa5522e63555a"
+    },
+    {
+      "name": "claude/nice-mendel-8ym7dq",
+      "tip_sha": "074e3d0052619d59dd28aaa39c86d5f63738216e"
+    },
+    {
+      "name": "claude/nice-mendel-9fcvf1",
+      "tip_sha": "067f9c72fbb1c5677fd9e31807bc4e7996ecb963"
+    },
+    {
+      "name": "claude/nice-mendel-9w59zm",
+      "tip_sha": "ddc5de75dfbf466da79a5f6bfc0f1d1bf1c2031e"
+    },
+    {
+      "name": "claude/nice-mendel-allups",
+      "tip_sha": "4457e18a8b24e48566f3353a01b4e35e6075a787"
+    },
+    {
+      "name": "claude/nice-mendel-aoioqn",
+      "tip_sha": "006fbb1a5fac48ff610b7876dd410a6aeabecac8"
+    },
+    {
+      "name": "claude/nice-mendel-bazt3w",
+      "tip_sha": "4bb32940157930ad56abc2cf7d07e20a1b09e8e6"
+    },
+    {
+      "name": "claude/nice-mendel-bf0gbi",
+      "tip_sha": "8f14bbae89279f8a4159987cecdb1aee71e10bc6"
+    },
+    {
+      "name": "claude/nice-mendel-bqa5kz",
+      "tip_sha": "36a2460f1231c6f48329ef19f5ccfdfe48fef3b4"
+    },
+    {
+      "name": "claude/nice-mendel-coz4wi",
+      "tip_sha": "c6c7a2c9071a6b113c8fb47b1444bc8daba3a320"
+    },
+    {
+      "name": "claude/nice-mendel-d4sfi5",
+      "tip_sha": "9ff564f56cbc2c5be6ea046b00273f53e9d23eed"
+    },
+    {
+      "name": "claude/nice-mendel-e7lkfg",
+      "tip_sha": "2071de3bf08ac8c8c43dc228ca667fa39bc4bcc0"
+    },
+    {
+      "name": "claude/nice-mendel-eaxmza",
+      "tip_sha": "433b51daa32c7c21a283193db0d89709ebd83e60"
+    },
+    {
+      "name": "claude/nice-mendel-fsfq1i",
+      "tip_sha": "d42fbc6b3dcd5748eb375929a1f5613ce5607b21"
+    },
+    {
+      "name": "claude/nice-mendel-haan38",
+      "tip_sha": "dd642250e14cfa550e467dbdbe97f9fe57acef4a"
+    },
+    {
+      "name": "claude/nice-mendel-hg0mml",
+      "tip_sha": "4509110b4d51453e124ed0e68c4d93ca529525a2"
+    },
+    {
+      "name": "claude/nice-mendel-j2qyih",
+      "tip_sha": "dc33c9d4dccd81fa655e4b834b0ebb3cc6660f3a"
+    },
+    {
+      "name": "claude/nice-mendel-kn8059",
+      "tip_sha": "b6496817f5d15af2f776e271d0c9f3a25bbc471f"
+    },
+    {
+      "name": "claude/nice-mendel-l9eqwl",
+      "tip_sha": "b0a02d684e886c1767eb3425c21aeea37bb78c9a"
+    },
+    {
+      "name": "claude/nice-mendel-lstnry",
+      "tip_sha": "dff55fa3bf7ccb24fa03c1febff077e659dcb333"
+    },
+    {
+      "name": "claude/nice-mendel-m0rbqx",
+      "tip_sha": "35f5277eb257bbf44fe806a842b00a10fe3c8331"
+    },
+    {
+      "name": "claude/nice-mendel-m19ncv",
+      "tip_sha": "17e5fc0cac4c2e5154eda0179fb88efb09f1bc49"
+    },
+    {
+      "name": "claude/nice-mendel-ntgt4l",
+      "tip_sha": "aa0446f879828739b752212f2a50250d30c71c30"
+    },
+    {
+      "name": "claude/nice-mendel-o70hgc",
+      "tip_sha": "069ea9a9f94016b3d1f68ef3559d128515170a83"
+    },
+    {
+      "name": "claude/nice-mendel-p1bhp4",
+      "tip_sha": "b566d69171eb6aa81be9ea3d92ca816cbebe761f"
+    },
+    {
+      "name": "claude/nice-mendel-ptsaie",
+      "tip_sha": "6eb3b80a851cf48164c58a5adac618887aaab0ec"
+    },
+    {
+      "name": "claude/nice-mendel-ptz7bt",
+      "tip_sha": "30ef8afa9c939864d2d72d958d931ac8010c23cf"
+    },
+    {
+      "name": "claude/nice-mendel-ql1u9p",
+      "tip_sha": "0f5f5af40bb58bdd6f0882d77b850c97c38418e8"
+    },
+    {
+      "name": "claude/nice-mendel-qm45s8",
+      "tip_sha": "1d94480bd611a729e8f2d6ecae46fa9ed6b5577f"
+    },
+    {
+      "name": "claude/nice-mendel-qrs2u5",
+      "tip_sha": "582026495e2205a3ab3d4ec5da764f6701d8f43a"
+    },
+    {
+      "name": "claude/nice-mendel-qtifrz",
+      "tip_sha": "46adb09093ef492d136dfbb6a82a2eb01dd50f09"
+    },
+    {
+      "name": "claude/nice-mendel-qudya8",
+      "tip_sha": "ba79770530fd96f90a3a44fd6eb557186e765035"
+    },
+    {
+      "name": "claude/nice-mendel-r857en",
+      "tip_sha": "14960d9ee0cf100c581ab835eccab745d318b419"
+    },
+    {
+      "name": "claude/nice-mendel-rkhvr5",
+      "tip_sha": "cc7ec6b9eeca7ab97535fea2d7d31084e8f4f17c"
+    },
+    {
+      "name": "claude/nice-mendel-rptl31",
+      "tip_sha": "1b9dafbf7f9352db1059981e5ca07fa5175e3735"
+    },
+    {
+      "name": "claude/nice-mendel-rym0x6",
+      "tip_sha": "0fb4d6a02713eeed766d5689b830084f628163f6"
+    },
+    {
+      "name": "claude/nice-mendel-sh5qiu",
+      "tip_sha": "776a6ff605e13dec84f49891ff698ac1914af3a9"
+    },
+    {
+      "name": "claude/nice-mendel-tma61v",
+      "tip_sha": "34f1249342fe81cfbfe5f8faf22118357408e663"
+    },
+    {
+      "name": "claude/nice-mendel-u7m9hf",
+      "tip_sha": "f0f9e4564d8c7a948f8b80e891b92c67b5856e9b"
+    },
+    {
+      "name": "claude/nice-mendel-v0bq1h",
+      "tip_sha": "0c326da564f317a548d36c733d042f83999859ca"
+    },
+    {
+      "name": "claude/nice-mendel-w1hoxe",
+      "tip_sha": "f7c44e0cd4cb360defa4e0d0a65c957d1daac6de"
+    },
+    {
+      "name": "claude/nice-mendel-wloo6t",
+      "tip_sha": "35c23f891c9489245a5e550b407fd54401b725b0"
+    },
+    {
+      "name": "claude/nice-mendel-ybz5bj",
+      "tip_sha": "dbfe32b1ec5c701f8251cbc53e2096c2c822f9ec"
+    },
+    {
+      "name": "claude/nice-mendel-ytevcc",
+      "tip_sha": "e775fe056ece2b3d3837521603c7ebc1deae68ce"
+    },
+    {
+      "name": "claude/nice-mendel-z4zcq9",
+      "tip_sha": "1d4d44c083783389d97fed4ff2511e821379e3ce"
+    },
+    {
+      "name": "claude/nice-mendel-zbhas9",
+      "tip_sha": "e4be0888e2ab04e68c97a410a47b38593a0c2598"
+    },
+    {
+      "name": "claude/nifty-goodall-00imrq",
+      "tip_sha": "c9b5cf8bae6cee8a9c2c284e9344d46d3131f8e1"
+    },
+    {
+      "name": "claude/nifty-goodall-0ud4ee",
+      "tip_sha": "05324ec63b568f98ed5b4b39afb85d27bb33c744"
+    },
+    {
+      "name": "claude/nifty-goodall-0xpjgt",
+      "tip_sha": "b566d69171eb6aa81be9ea3d92ca816cbebe761f"
+    },
+    {
+      "name": "claude/nifty-goodall-2fq3ll",
+      "tip_sha": "0a87d6988bcafab3fb5cfeef586742aa468c7c61"
+    },
+    {
+      "name": "claude/nifty-goodall-3bukb2",
+      "tip_sha": "5856616625cec7db34cbd0ea309bb06fb0f8643c"
+    },
+    {
+      "name": "claude/nifty-goodall-529h5y",
+      "tip_sha": "125f42ced5901b12e540d93fae1c5874d374d0fe"
+    },
+    {
+      "name": "claude/nifty-goodall-574l10",
+      "tip_sha": "3417bd4485848629f4de7442fde13b4993309ddf"
+    },
+    {
+      "name": "claude/nifty-goodall-5i4mth",
+      "tip_sha": "2af65ffce6cfbf2260546b77fbcfc4f5a7ad2a9b"
+    },
+    {
+      "name": "claude/nifty-goodall-5jxywj",
+      "tip_sha": "5847fd138efba4e00e91be1a94d5c854920006fc"
+    },
+    {
+      "name": "claude/nifty-goodall-5zwab8",
+      "tip_sha": "392004c0f8d71a1f63fd45a01a2f1372e856c1c8"
+    },
+    {
+      "name": "claude/nifty-goodall-63n64z",
+      "tip_sha": "19ec2bd8d3257d65695c4ac342f24b1a2eea40b0"
+    },
+    {
+      "name": "claude/nifty-goodall-63si24",
+      "tip_sha": "8a399d973bac060a7d563bd9325e545be5714a74"
+    },
+    {
+      "name": "claude/nifty-goodall-71wlbm",
+      "tip_sha": "99e93f3e29b3ff25aecff054eaacabdf070c3cf9"
+    },
+    {
+      "name": "claude/nifty-goodall-7p435v",
+      "tip_sha": "cb8ed04b31d57f9a2dc155e2a64f5d2bfb3b7e70"
+    },
+    {
+      "name": "claude/nifty-goodall-7px7ex",
+      "tip_sha": "24cf1e6ced734bdcd553cbb27139083bdaa526a0"
+    },
+    {
+      "name": "claude/nifty-goodall-7t6r1s",
+      "tip_sha": "f8c721740fe60bc66df0a744c50074027bac14df"
+    },
+    {
+      "name": "claude/nifty-goodall-852rd1",
+      "tip_sha": "567b76cf933e7cf27d529f604ad2da96d98ca439"
+    },
+    {
+      "name": "claude/nifty-goodall-8n7oe6",
+      "tip_sha": "edfb2f026bcfb9a061878a51188a455b4ec289ad"
+    },
+    {
+      "name": "claude/nifty-goodall-bcym01",
+      "tip_sha": "91866e0a393b6feaa62283d64fc1e8a2cacb1b78"
+    },
+    {
+      "name": "claude/nifty-goodall-cqiggk",
+      "tip_sha": "1b4af122358eac110f6f05648329091e5482ab1d"
+    },
+    {
+      "name": "claude/nifty-goodall-cxwkgl",
+      "tip_sha": "551a189e47e02470ad943c41798daf0be481eda3"
+    },
+    {
+      "name": "claude/nifty-goodall-dt5c6k",
+      "tip_sha": "1674aafa3bf095f19e72d85bc29f3c5114789b89"
+    },
+    {
+      "name": "claude/nifty-goodall-e22oyq",
+      "tip_sha": "b230553f6bd026b3d2269dd9da74dafffa31ba46"
+    },
+    {
+      "name": "claude/nifty-goodall-e2hlqj",
+      "tip_sha": "5c2dc71981148a572a904468abcdd7c5e96bc48e"
+    },
+    {
+      "name": "claude/nifty-goodall-edca18",
+      "tip_sha": "c3ea4fef0c1e07fc693946e09cbcf3b204c17491"
+    },
+    {
+      "name": "claude/nifty-goodall-eklnny",
+      "tip_sha": "07bed88d952374d6993bf72bfa973fd439c82e6b"
+    },
+    {
+      "name": "claude/nifty-goodall-ezltlv",
+      "tip_sha": "0d44445b17e4a995df486ceba05fd128be2df9b7"
+    },
+    {
+      "name": "claude/nifty-goodall-fdtg38",
+      "tip_sha": "6417e3c485bf480f7fab62d965c656b68f4de687"
+    },
+    {
+      "name": "claude/nifty-goodall-io0zh7",
+      "tip_sha": "5961673380285d95010d5d7792814a4dd4c10005"
+    },
+    {
+      "name": "claude/nifty-goodall-j8sbjx",
+      "tip_sha": "87293f08afcad5ffe6b4d1418e3e30abc1560ed7"
+    },
+    {
+      "name": "claude/nifty-goodall-kjidqf",
+      "tip_sha": "46d82158d9507de92ffcf4487ff54dde020e2646"
+    },
+    {
+      "name": "claude/nifty-goodall-kx3i8b",
+      "tip_sha": "9be1d7a73753ad43f61e7c5b6bc95012d9bcac79"
+    },
+    {
+      "name": "claude/nifty-goodall-l15snh",
+      "tip_sha": "3731341070d6563bc32c03942e0486fa96ceb909"
+    },
+    {
+      "name": "claude/nifty-goodall-lsxsxg",
+      "tip_sha": "32dc04ee367e89c275346186095f424fbb4e8493"
+    },
+    {
+      "name": "claude/nifty-goodall-moe3le",
+      "tip_sha": "c6986c669c1489c3b58ddebd14b8faa459da50e0"
+    },
+    {
+      "name": "claude/nifty-goodall-n10ago",
+      "tip_sha": "2fe04e3f9c7569b65ade749b7c0ef983a54411b7"
+    },
+    {
+      "name": "claude/nifty-goodall-n2ap6f",
+      "tip_sha": "bde663f97623dbcec98ab616c45d550335e45084"
+    },
+    {
+      "name": "claude/nifty-goodall-oeyq39",
+      "tip_sha": "81a32402e5a7b2d301d9758e00e92f1ebc3f41f4"
+    },
+    {
+      "name": "claude/nifty-goodall-rwwdel",
+      "tip_sha": "f4af69cc68af34769004363ee1319c106a3aa3d8"
+    },
+    {
+      "name": "claude/nifty-goodall-tbh36p",
+      "tip_sha": "d20f6b696048441b9d8416fd544e7b7b0a6eb249"
+    },
+    {
+      "name": "claude/nifty-goodall-u8eug4",
+      "tip_sha": "d39d0419a1b1fc48b7243893ec94bec5422da92d"
+    },
+    {
+      "name": "claude/nifty-goodall-u8h5tm",
+      "tip_sha": "e936f7fe60c884535847a7057301d5e27811bad3"
+    },
+    {
+      "name": "claude/nifty-goodall-vhh6rf",
+      "tip_sha": "38859a0afc1bea39db47c44365704020e1fd0857"
+    },
+    {
+      "name": "claude/nifty-goodall-vnup85",
+      "tip_sha": "f97c36c233b8953068013bde73dc2e9c2215950c"
+    },
+    {
+      "name": "claude/nifty-goodall-wgh6ci",
+      "tip_sha": "8c0ceee638d9077f4d492d5401099f8426fc5699"
+    },
+    {
+      "name": "claude/nifty-goodall-x372ec",
+      "tip_sha": "7fe44576a41bd9831b7c1607d2470cfebcb7f500"
+    },
+    {
+      "name": "claude/nifty-goodall-xe7wdn",
+      "tip_sha": "4af3032db06d9d45fa96c07e7091f6619563421c"
+    },
+    {
+      "name": "claude/nifty-goodall-xeuniy",
+      "tip_sha": "1e1159ba47b86ba4e9b3bfda861baa042c815fb5"
+    },
+    {
+      "name": "claude/nifty-goodall-xjytvi",
+      "tip_sha": "0804430764068ff555fa17765a40d6b796ccfb83"
+    },
+    {
+      "name": "claude/nifty-goodall-y2cyei",
+      "tip_sha": "6221448c21dd05a8fab4051fd8a4b26ee4257bcc"
+    },
+    {
+      "name": "claude/nifty-goodall-y7bfsg",
+      "tip_sha": "d847751d509b98a4127a96f2d2b069e275de7073"
+    },
+    {
+      "name": "claude/nifty-goodall-z0v2p0",
+      "tip_sha": "72ba00294d5f15fe61c893dcb726a7766de846d8"
+    },
+    {
+      "name": "claude/pensive-feynman-017gjc",
+      "tip_sha": "f9731132ee0c5f6389817affe05e5627e601df37"
+    },
+    {
+      "name": "claude/pensive-feynman-1fwp45",
+      "tip_sha": "ad75beb70c6fdc242afbd2a5140ca3ab9ea3f3b9"
+    },
+    {
+      "name": "claude/pensive-feynman-1hzc2v",
+      "tip_sha": "1cb177434eb2a4a9f4e40b78357428cd896c910a"
+    },
+    {
+      "name": "claude/pensive-feynman-1wrx8a",
+      "tip_sha": "bccd9e4a5717fadc9d82d5c9ba5c57c96573c7de"
+    },
+    {
+      "name": "claude/pensive-feynman-23ucgn",
+      "tip_sha": "ac6b6c0ed76417b67ff880bcc830f6f07bc3dcfa"
+    },
+    {
+      "name": "claude/pensive-feynman-2yat7b",
+      "tip_sha": "7e98c469f2610478bfd09c4d0a566685c2c2356b"
+    },
+    {
+      "name": "claude/pensive-feynman-3p0iz2",
+      "tip_sha": "ef14afbe09840f7d84b9724c2e6b7853634031a0"
+    },
+    {
+      "name": "claude/pensive-feynman-3s525q",
+      "tip_sha": "0e226a29394c1adbacf75bbdf9e4f300c7f8693a"
+    },
+    {
+      "name": "claude/pensive-feynman-3ydsfw",
+      "tip_sha": "6003fb8d3dbf1b51b704287f3230c33d904a481f"
+    },
+    {
+      "name": "claude/pensive-feynman-49ksqr",
+      "tip_sha": "d5bc5273548c2bef9454844481a5c99a414091ab"
+    },
+    {
+      "name": "claude/pensive-feynman-4m1etc",
+      "tip_sha": "54ec7accea1dc13b6adea89057dae0679d4d5358"
+    },
+    {
+      "name": "claude/pensive-feynman-4xemmh",
+      "tip_sha": "5ef55d4d2993bdde17ea38f738efe623ff5b277a"
+    },
+    {
+      "name": "claude/pensive-feynman-5ir482",
+      "tip_sha": "45e3a2a1766ac91a199e9efdb33e497fcc487f12"
+    },
+    {
+      "name": "claude/pensive-feynman-612e38",
+      "tip_sha": "234d6710bd0e3e155d9b44aafb6d0aec48d03596"
+    },
+    {
+      "name": "claude/pensive-feynman-6sof5s",
+      "tip_sha": "3ebb0f56a3fd35dd2146c10fe6f652918732ca3f"
+    },
+    {
+      "name": "claude/pensive-feynman-73h187",
+      "tip_sha": "40aa8be964310c0f689e53f31b507ee4c688f08e"
+    },
+    {
+      "name": "claude/pensive-feynman-9rgiju",
+      "tip_sha": "e522125176292fca02012890f8df3ab99d7ecb61"
+    },
+    {
+      "name": "claude/pensive-feynman-clscla",
+      "tip_sha": "0fc0904798d3876849d748de9adf39c4310d6f0f"
+    },
+    {
+      "name": "claude/pensive-feynman-df9qey",
+      "tip_sha": "6b7b8711219b97a0637e19d511e4ba8c0af89c95"
+    },
+    {
+      "name": "claude/pensive-feynman-fpvukd",
+      "tip_sha": "4292b07159da6c5feae76a571ada929c03ba5397"
+    },
+    {
+      "name": "claude/pensive-feynman-fvkzs9",
+      "tip_sha": "1ffb0ed2bb518e11e4316ae2f688a85848243a34"
+    },
+    {
+      "name": "claude/pensive-feynman-g2cnc1",
+      "tip_sha": "c07ab6090d12694f414334f92279b3fd6c95469c"
+    },
+    {
+      "name": "claude/pensive-feynman-hqzvtd",
+      "tip_sha": "70b67c1d48fe03f1be63f5bfa05ca42fa8faa801"
+    },
+    {
+      "name": "claude/pensive-feynman-hrtqus",
+      "tip_sha": "6f4f23c352de21d803a1607677e207f1e2924945"
+    },
+    {
+      "name": "claude/pensive-feynman-ip1l7n",
+      "tip_sha": "a3e663e3096d5884503c38e6bb57f16d84cf1559"
+    },
+    {
+      "name": "claude/pensive-feynman-iwk76u",
+      "tip_sha": "e50cb2122bb33e121cb7a89716652c8605306857"
+    },
+    {
+      "name": "claude/pensive-feynman-j9wklo",
+      "tip_sha": "19be674b0170520c53baf2c1422605d3d0562740"
+    },
+    {
+      "name": "claude/pensive-feynman-kowzv8",
+      "tip_sha": "a659be7df0b0057c333745b6b26466eeca3a7aab"
+    },
+    {
+      "name": "claude/pensive-feynman-kvvvdl",
+      "tip_sha": "eba73057709c06753a4cf09055891792c0d3dc08"
+    },
+    {
+      "name": "claude/pensive-feynman-kyut4n",
+      "tip_sha": "8c6843d9ba61edb9396ffc7877a0a2760ccea503"
+    },
+    {
+      "name": "claude/pensive-feynman-lkab18",
+      "tip_sha": "112eab99ab72ae62a355993e3ee33ef5e4178539"
+    },
+    {
+      "name": "claude/pensive-feynman-mjg04g",
+      "tip_sha": "7b6f0244baae28d3d2c0e730aa851a35242d91cf"
+    },
+    {
+      "name": "claude/pensive-feynman-mu2h99",
+      "tip_sha": "50c15a543e0d183ea4c90a6731abf220fa54a013"
+    },
+    {
+      "name": "claude/pensive-feynman-n1szcy",
+      "tip_sha": "b489c22cab4da1a0ab3b7a9b1e2aa4cb95dcdc34"
+    },
+    {
+      "name": "claude/pensive-feynman-p0v8m3",
+      "tip_sha": "697c5a68de12416166d5d93f4088679dc7e4a50c"
+    },
+    {
+      "name": "claude/pensive-feynman-pchwrh",
+      "tip_sha": "40ec4f3860aa809ae106e4fb9a17cd9f1927279c"
+    },
+    {
+      "name": "claude/pensive-feynman-qh7w0x",
+      "tip_sha": "ed8425e78cd3fb088dd7cb68f377746090891281"
+    },
+    {
+      "name": "claude/pensive-feynman-qqxz47",
+      "tip_sha": "fa3a5c71d019427adbe52a6f119c425b857a57ff"
+    },
+    {
+      "name": "claude/pensive-feynman-t22rmy",
+      "tip_sha": "50acf1f3430c629144fb5b4a1a5cef4715ad2968"
+    },
+    {
+      "name": "claude/pensive-feynman-t4ydnh",
+      "tip_sha": "837eea08b5f7ef29fab3062ae2329eaa85ca4edd"
+    },
+    {
+      "name": "claude/pensive-feynman-t5gyfy",
+      "tip_sha": "8bb4085073f952a00613aa0bcc7e6c44c275de84"
+    },
+    {
+      "name": "claude/pensive-feynman-usrr4v",
+      "tip_sha": "af0b73c81e7ff792caaeb5607356e0579c2930c1"
+    },
+    {
+      "name": "claude/pensive-feynman-vk7w1c",
+      "tip_sha": "955c0655a0cc1f4a565b4f844f2d58ef2e83bb45"
+    },
+    {
+      "name": "claude/pensive-feynman-vktyvm",
+      "tip_sha": "acd3f560837f9ec10ab2d6e3181ee5d2f70742f6"
+    },
+    {
+      "name": "claude/pensive-feynman-wbfkk0",
+      "tip_sha": "4abca0abb285b3d5fb067a5fc6270280ce7821ea"
+    },
+    {
+      "name": "claude/pensive-feynman-xbfagi",
+      "tip_sha": "993569fdba802f6ac77af07d0a74d20a1da08405"
+    },
+    {
+      "name": "claude/pensive-feynman-xp8tno",
+      "tip_sha": "8961c4e261093b949f6e2e19e0f22d0d784a84f9"
+    },
+    {
+      "name": "claude/pensive-feynman-xw0b3o",
+      "tip_sha": "711bf5552af792cdab9dafa99a9a2c82e6a3f0c2"
+    },
+    {
+      "name": "claude/pensive-feynman-y0f6qm",
+      "tip_sha": "89a1d72e38155a831f540f51aaf70a1005fb94f9"
+    },
+    {
+      "name": "claude/pensive-feynman-ydiiyg",
+      "tip_sha": "29896ad32ae5df431287986b62d7e4716ca09502"
+    },
+    {
+      "name": "claude/pensive-feynman-yhs470",
+      "tip_sha": "7b5c814a9be780b20e8d1a6f7b4764628b5e7b96"
+    },
+    {
+      "name": "claude/pensive-feynman-yyaeaq",
+      "tip_sha": "6221448c21dd05a8fab4051fd8a4b26ee4257bcc"
+    },
+    {
+      "name": "claude/pensive-feynman-zpk0ft",
+      "tip_sha": "6d8a8b318cb2a6da8243efa8b7f650e6c6d21443"
+    },
+    {
+      "name": "claude/pensive-feynman-ztlsql",
+      "tip_sha": "5fe8da64575960f7d85f7d3b7d9edd69d965dd63"
+    },
+    {
+      "name": "claude/photos-import-hypothesis-19",
+      "tip_sha": "4205755b56e6c7a21cf06d56fbe0fc38fa7f4450"
+    },
+    {
+      "name": "claude/product-dev-strategy-docs-lpo6b5",
+      "tip_sha": "02d50ae29db2dcdd6f4bea46af106edf87876601"
+    },
+    {
+      "name": "claude/product-quality-completeness-e9mz8u",
+      "tip_sha": "4848b4504463cc020062477158161dae83ec4d3d"
+    },
+    {
+      "name": "claude/repo-agent-deepseek-opencode-adfsvc",
+      "tip_sha": "1ef9b458abd03ed94e3183ee2b18347e278df1b0"
+    },
+    {
+      "name": "claude/repo-state-orientation-3u8edn",
+      "tip_sha": "4cfd8efb80cd301f58610a89afde29bf6b9c6007"
+    },
+    {
+      "name": "claude/revert-368-dependabot",
+      "tip_sha": "88eb0bf628f00b43f4cbf8ca50f70dcafbfbcee7"
+    },
+    {
+      "name": "claude/wizardly-albattani-0uh2ap",
+      "tip_sha": "d590097ca361bd5c86145656ad15b89a702d718f"
+    },
+    {
+      "name": "claude/wizardly-albattani-14e8i3",
+      "tip_sha": "dfef4aba3cf3cb8c25150d8ca300323907ae188c"
+    },
+    {
+      "name": "claude/wizardly-albattani-17m7lq",
+      "tip_sha": "6a354528793133e08f92ed60c2b487281c208994"
+    },
+    {
+      "name": "claude/wizardly-albattani-1enrb3",
+      "tip_sha": "118a798ed2d4f82a0e352eb63412550dfa988a89"
+    },
+    {
+      "name": "claude/wizardly-albattani-1pques",
+      "tip_sha": "d41db2dfda00a1f9b2ba315ee2b2110b1e8ec138"
+    },
+    {
+      "name": "claude/wizardly-albattani-2hjvly",
+      "tip_sha": "71bf2a0c777d6dec54d81ec1d853a7e78872951f"
+    },
+    {
+      "name": "claude/wizardly-albattani-2holir",
+      "tip_sha": "a65b079069f5e8c338a01430f33ca8f232a48ac3"
+    },
+    {
+      "name": "claude/wizardly-albattani-2w5a5u",
+      "tip_sha": "864ab7212f343622716846ec97b9512941009460"
+    },
+    {
+      "name": "claude/wizardly-albattani-2y3fte",
+      "tip_sha": "0533944d05fbf6b13881a25d4316a1b3962036e3"
+    },
+    {
+      "name": "claude/wizardly-albattani-46zcmy",
+      "tip_sha": "ccc78371e0113253f503ee797e87f198b8764491"
+    },
+    {
+      "name": "claude/wizardly-albattani-551tns",
+      "tip_sha": "22064b2fa2c0fb642ad304b7722a65d39310d36f"
+    },
+    {
+      "name": "claude/wizardly-albattani-56nhb9",
+      "tip_sha": "ad677a6269427940cceaaa66a2f6d6364a5e6d86"
+    },
+    {
+      "name": "claude/wizardly-albattani-5y11go",
+      "tip_sha": "fe19bb899ea0e58d36b48ddcd96575ffa2cd529b"
+    },
+    {
+      "name": "claude/wizardly-albattani-7i4dch",
+      "tip_sha": "7e204e77bdae04db34fb722e5462aae063da11ab"
+    },
+    {
+      "name": "claude/wizardly-albattani-7me512",
+      "tip_sha": "f3d00a26a5728af083a496f686aac2cbd205f346"
+    },
+    {
+      "name": "claude/wizardly-albattani-81hr22",
+      "tip_sha": "32fdebdd91864709af36a6a2a9eadf1118c84492"
+    },
+    {
+      "name": "claude/wizardly-albattani-8bn5w2",
+      "tip_sha": "d762684c890528373517b5cb7a1d4a7caade23f9"
+    },
+    {
+      "name": "claude/wizardly-albattani-8bn5w2-ledger",
+      "tip_sha": "a0f8a17025d4ebb909d62196192583fe70f0a92d"
+    },
+    {
+      "name": "claude/wizardly-albattani-8rce1b",
+      "tip_sha": "fb8b188eb80ccfa696be60c9f9e82233a57b0b52"
+    },
+    {
+      "name": "claude/wizardly-albattani-978ymv",
+      "tip_sha": "11bb20b9141e57f4a714ea600b7c92cdfd172508"
+    },
+    {
+      "name": "claude/wizardly-albattani-a6fe8u",
+      "tip_sha": "0582afc78c6c5089cb007d875c34213e68d6b748"
+    },
+    {
+      "name": "claude/wizardly-albattani-as63k0",
+      "tip_sha": "579aec6bdfd38929b83590110252e32a4bbced21"
+    },
+    {
+      "name": "claude/wizardly-albattani-bqhe7q",
+      "tip_sha": "292486d7802ad384be7cc3126fe44abd1aeaf7d7"
+    },
+    {
+      "name": "claude/wizardly-albattani-c5kvvk",
+      "tip_sha": "bd8925bef9d9495ac0956103941574707e9cb96a"
+    },
+    {
+      "name": "claude/wizardly-albattani-c9n71j",
+      "tip_sha": "50e3af14a7433a15dca64707a987934a9ccb0ad1"
+    },
+    {
+      "name": "claude/wizardly-albattani-cb9zbz",
+      "tip_sha": "ef9a142f0f9099266299fcfd626079bb64fa3ba1"
+    },
+    {
+      "name": "claude/wizardly-albattani-cr4oy6",
+      "tip_sha": "25a6cb714605003139e8ac6d82c736587f3faf6d"
+    },
+    {
+      "name": "claude/wizardly-albattani-d64eg2",
+      "tip_sha": "8088da9d59375e5d940610da524dfef32c47f3e5"
+    },
+    {
+      "name": "claude/wizardly-albattani-dj4b2y",
+      "tip_sha": "4fd6bb7f06b329040faa08a4a4ec8b97d607e20b"
+    },
+    {
+      "name": "claude/wizardly-albattani-e1ve3c",
+      "tip_sha": "6809943b80b9ca434d0bb0ba208ef8b2e6ee7ccd"
+    },
+    {
+      "name": "claude/wizardly-albattani-eekg3y",
+      "tip_sha": "439e8bd816680f77307da1ada1404fcc57b39263"
+    },
+    {
+      "name": "claude/wizardly-albattani-fu71li",
+      "tip_sha": "b9f790b3e7b56c6025d43c98babc1cace36bf1b6"
+    },
+    {
+      "name": "claude/wizardly-albattani-g15j1i",
+      "tip_sha": "f8862ea09fe9bebfd15988f533629b8ddb4ef6af"
+    },
+    {
+      "name": "claude/wizardly-albattani-gfsupk",
+      "tip_sha": "4c2ff57b1b41643922c81bbdb7f4effcd513d4cd"
+    },
+    {
+      "name": "claude/wizardly-albattani-h09auh",
+      "tip_sha": "31973fb3ca949161b278d306d854cb951c95bc08"
+    },
+    {
+      "name": "claude/wizardly-albattani-hdeq9n",
+      "tip_sha": "dfb3793b77232e61a5e55cea286aab0fde6bd4cc"
+    },
+    {
+      "name": "claude/wizardly-albattani-huc5pe",
+      "tip_sha": "575c6742318e176c7ac6e29f600d4d68df38507b"
+    },
+    {
+      "name": "claude/wizardly-albattani-hxo2xv",
+      "tip_sha": "7bdd0f3fa2787b5d6da547ea4de54e4616ebd88d"
+    },
+    {
+      "name": "claude/wizardly-albattani-icyaph",
+      "tip_sha": "c66043ca75dce62b54c35bb169496352472d26c2"
+    },
+    {
+      "name": "claude/wizardly-albattani-ikrw1x",
+      "tip_sha": "abe53d34f38f13984407e33b1e1fbfe461164cbd"
+    },
+    {
+      "name": "claude/wizardly-albattani-j1zsk4",
+      "tip_sha": "38ad506442b6412160f3b661b9918ed387ff22ad"
+    },
+    {
+      "name": "claude/wizardly-albattani-jcqdvr",
+      "tip_sha": "6f39e755186bf8104c6e22a42b25e1d4db460e80"
+    },
+    {
+      "name": "claude/wizardly-albattani-k8y305",
+      "tip_sha": "91b6949690727e877ae6b6a8b099dfc4d47bd93a"
+    },
+    {
+      "name": "claude/wizardly-albattani-kcsumz",
+      "tip_sha": "06eeca65c8ca79f13dfec22139ad980dfbedf199"
+    },
+    {
+      "name": "claude/wizardly-albattani-lqx9zm",
+      "tip_sha": "f29485fb2cfbcbd412fa2c157c59afd540b00770"
+    },
+    {
+      "name": "claude/wizardly-albattani-m0pu8m",
+      "tip_sha": "57a8c27130881b43ecff7a84b56455926149b869"
+    },
+    {
+      "name": "claude/wizardly-albattani-mkny4c",
+      "tip_sha": "50c964a46c947519303a036c955f1167d7b887c7"
+    },
+    {
+      "name": "claude/wizardly-albattani-n7elhf",
+      "tip_sha": "66e5d05ed0aa38c31c1422b3bd1a17b3f56a0637"
+    },
+    {
+      "name": "claude/wizardly-albattani-n9w5bq",
+      "tip_sha": "5e2dac894c441df0d0a8b333d0e3801a017e2837"
+    },
+    {
+      "name": "claude/wizardly-albattani-naxy38",
+      "tip_sha": "6c4bf10ead73ff99bc3c70fb10b82b27f1417081"
+    },
+    {
+      "name": "claude/wizardly-albattani-nhj8wi",
+      "tip_sha": "ead2d77929068b0d13fa5c92b1b8bd982766aecb"
+    },
+    {
+      "name": "claude/wizardly-albattani-o8m9js",
+      "tip_sha": "e382f8c4e686ffd98d8ecee20c3a5728730dbd0d"
+    },
+    {
+      "name": "claude/wizardly-albattani-pai4kr",
+      "tip_sha": "d78589edca0d5700f10d3b5d2656e9cc0947b46e"
+    },
+    {
+      "name": "claude/wizardly-albattani-qmftxa",
+      "tip_sha": "a45621d6cb3663a241a0702ec1b361ef74059e8d"
+    },
+    {
+      "name": "claude/wizardly-albattani-qt8w5u",
+      "tip_sha": "63c8d498f5ea7e592f96e4ae0d98b115e8f3b594"
+    },
+    {
+      "name": "claude/wizardly-albattani-qwyzuv",
+      "tip_sha": "dd63967ea7df12710fbbf481f8a95cdba63e51f5"
+    },
+    {
+      "name": "claude/wizardly-albattani-rakkti",
+      "tip_sha": "6c353eed90725d4fe6de7abace3f424b931ceabd"
+    },
+    {
+      "name": "claude/wizardly-albattani-su3o3x",
+      "tip_sha": "477bf6ca05c1bcbb6de9b2b3ccc34a3eb68ed6ce"
+    },
+    {
+      "name": "claude/wizardly-albattani-su5fgi",
+      "tip_sha": "4132b3343d5a249a310d36256f0c3795a75ea6d3"
+    },
+    {
+      "name": "claude/wizardly-albattani-twja14",
+      "tip_sha": "84e190caef62a3f790c638815011eec7efffaa77"
+    },
+    {
+      "name": "claude/wizardly-albattani-u159fn",
+      "tip_sha": "51940b591dedc678b9caa4b6a8cecf6cc2d3d624"
+    },
+    {
+      "name": "claude/wizardly-albattani-u1i47l",
+      "tip_sha": "3b8dc1058ea0e192fdb18ede4a9e54b02d5ee310"
+    },
+    {
+      "name": "claude/wizardly-albattani-ue54n2",
+      "tip_sha": "c0870b046a056218510ffc406a8999f402760778"
+    },
+    {
+      "name": "claude/wizardly-albattani-w4u5sw",
+      "tip_sha": "245ba8a91cdef8c690613e7933e9bea985950f7b"
+    },
+    {
+      "name": "claude/wizardly-albattani-wgfhxt",
+      "tip_sha": "8b2a643d6d35592cbdbfd4c7891bd70e22f199b9"
+    },
+    {
+      "name": "claude/wizardly-albattani-wjttm3",
+      "tip_sha": "f1709fc27b42544a851d0a118d9adaaed288264d"
+    },
+    {
+      "name": "claude/wizardly-albattani-yb120a",
+      "tip_sha": "7af311e9cbdac96a8790047381d6d4823d3e4b73"
+    },
+    {
+      "name": "claude/wizardly-albattani-yrc51k",
+      "tip_sha": "669924be69698b5dd9eb58f3425759f7d998eab1"
+    },
+    {
+      "name": "claude/world-clock-widget-app-61bkan",
+      "tip_sha": "a104d2750d6ffaaa79a0bb4e19b7b8d0d7ac13b2"
+    },
+    {
+      "name": "claude/zealous-curie-11mtsw",
+      "tip_sha": "290bd8192af3a0979e72889a52dca28799c12235"
+    },
+    {
+      "name": "claude/zealous-curie-15w8ov",
+      "tip_sha": "27df7c0b964b50f6db5abbb7a281dd6fd9237d06"
+    },
+    {
+      "name": "claude/zealous-curie-3501br",
+      "tip_sha": "a15021ed0bdd7bc0d9cae847bba11a07b50a3539"
+    },
+    {
+      "name": "claude/zealous-curie-4o02q3",
+      "tip_sha": "c9556714b99fc37fbc899341c8281c5b7e9b47be"
+    },
+    {
+      "name": "claude/zealous-curie-5fs6of",
+      "tip_sha": "88ce289d4c6fcf9a4bccbbe55348785cba5613eb"
+    },
+    {
+      "name": "claude/zealous-curie-9kmie3",
+      "tip_sha": "c8876c0756141f67392129213abb8f3473e6e5d3"
+    },
+    {
+      "name": "claude/zealous-curie-9lc9k7",
+      "tip_sha": "665c416f4f45fb5202a69ad6bc3c3e02050b862b"
+    },
+    {
+      "name": "claude/zealous-curie-9o9nl5",
+      "tip_sha": "68b7f1b271cbfaed24330fb5a12230f3dad93638"
+    },
+    {
+      "name": "claude/zealous-curie-9vz1kq",
+      "tip_sha": "075c323aafff80ca040c6d571b0b565465e0f913"
+    },
+    {
+      "name": "claude/zealous-curie-ae11jc",
+      "tip_sha": "3f5a69684755c9d7a2263dd76ea0e3867d40ac29"
+    },
+    {
+      "name": "claude/zealous-curie-aig6c5",
+      "tip_sha": "a1dd2005e24cc9c4e6ca4ee57ba64b636f5d63d9"
+    },
+    {
+      "name": "claude/zealous-curie-amuewz",
+      "tip_sha": "b621977b4995e8ebe8ec85ec393a4cfdae584fe5"
+    },
+    {
+      "name": "claude/zealous-curie-ark3c8",
+      "tip_sha": "a67bf2ba8e55efd0dd9701fe175a675c32df1a35"
+    },
+    {
+      "name": "claude/zealous-curie-cg8mxb",
+      "tip_sha": "f3689d53dca495097c647e2d036549b8cd7e3118"
+    },
+    {
+      "name": "claude/zealous-curie-chjpwx",
+      "tip_sha": "3d6f6112cb25ac1ef21761fa4aa9192628cb0de4"
+    },
+    {
+      "name": "claude/zealous-curie-cpp4jf",
+      "tip_sha": "829255060bf01c371f4bf37f223d411efd604a77"
+    },
+    {
+      "name": "claude/zealous-curie-crue4w",
+      "tip_sha": "df132b0d1f6cdd3823538f28f0c3c82e37dff0a4"
+    },
+    {
+      "name": "claude/zealous-curie-d0eibw",
+      "tip_sha": "0b1d96dc30a9db6b9857f0dc8c3aec64bd780551"
+    },
+    {
+      "name": "claude/zealous-curie-d1fkml",
+      "tip_sha": "10b38e47af339f5c3be71432f010f1aba5699144"
+    },
+    {
+      "name": "claude/zealous-curie-d2br2s",
+      "tip_sha": "7173ffd38aec4444481129c304552206f5fe8c13"
+    },
+    {
+      "name": "claude/zealous-curie-dr3uln",
+      "tip_sha": "9e561cc64033550fef49085342597e2bfc5d6c6f"
+    },
+    {
+      "name": "claude/zealous-curie-em1yw5",
+      "tip_sha": "02342f255041efaaa423378a4295a0448a370b22"
+    },
+    {
+      "name": "claude/zealous-curie-eqj411",
+      "tip_sha": "05cb28e7720200134b2d7335f567ec396c5ad6ec"
+    },
+    {
+      "name": "claude/zealous-curie-f7jbmz",
+      "tip_sha": "49ddccb9287e70ab84f381b450553fa56f64c67a"
+    },
+    {
+      "name": "claude/zealous-curie-g94e7m",
+      "tip_sha": "ec4879af48a1fd7fff4a5c69d77aa0994da20969"
+    },
+    {
+      "name": "claude/zealous-curie-hjqq3r",
+      "tip_sha": "77d778336eba817822cc2bfd253c8bd4f2eebce6"
+    },
+    {
+      "name": "claude/zealous-curie-hx9e58",
+      "tip_sha": "87e8b0f5da3f672e2bd93e353b35707c0cfc8612"
+    },
+    {
+      "name": "claude/zealous-curie-i8f03y",
+      "tip_sha": "b774d15e6320303141923e76c9d9ef0a415ef6da"
+    },
+    {
+      "name": "claude/zealous-curie-ifk68d",
+      "tip_sha": "8e8a320fd71ea51361117bdfa8b4d5cb70e45f84"
+    },
+    {
+      "name": "claude/zealous-curie-j0714s",
+      "tip_sha": "494b85a2816b8928ca3e076826d094f366002862"
+    },
+    {
+      "name": "claude/zealous-curie-l27gpx",
+      "tip_sha": "15fbf40d687467dfe0b1cf98dc84475b564a8149"
+    },
+    {
+      "name": "claude/zealous-curie-li3drf",
+      "tip_sha": "25bf7b1475f35f3b477e366c4ed446eb7941b0ca"
+    },
+    {
+      "name": "claude/zealous-curie-m6uz4a",
+      "tip_sha": "e2c28d5a5e1c0823370e7e8b0d8f631eb3d86e42"
+    },
+    {
+      "name": "claude/zealous-curie-m8ztj9",
+      "tip_sha": "f66a597f2a7571f2c9f97b93576a7653b254775d"
+    },
+    {
+      "name": "claude/zealous-curie-o4ga7q",
+      "tip_sha": "4060ebaa5e4b5093300b793995db38586884cb97"
+    },
+    {
+      "name": "claude/zealous-curie-p8hw78",
+      "tip_sha": "7677bbd8c90df92f3294c89ca5669faa8d8d9ce0"
+    },
+    {
+      "name": "claude/zealous-curie-s11rwo",
+      "tip_sha": "a4ae97ee084a6b18a451fefe2d19eb0bd248161e"
+    },
+    {
+      "name": "claude/zealous-curie-sxy5ql",
+      "tip_sha": "329b4505e70ae30cdd888a87c75a7910f9588ff5"
+    },
+    {
+      "name": "claude/zealous-curie-tprhiw",
+      "tip_sha": "dd8d05edc5ca036acd133646c2b66da135b7926c"
+    },
+    {
+      "name": "claude/zealous-curie-ub533t",
+      "tip_sha": "41c3de78e817362effda12544c92886de7b82634"
+    },
+    {
+      "name": "claude/zealous-curie-vigk84",
+      "tip_sha": "51940b591dedc678b9caa4b6a8cecf6cc2d3d624"
+    },
+    {
+      "name": "claude/zealous-curie-w0r30g",
+      "tip_sha": "38d13b010238102c5b64ac3bd96c0b6787b53007"
+    },
+    {
+      "name": "claude/zealous-curie-w2vxek",
+      "tip_sha": "1c44c3279fa1d3e3a9b0e6b321a85cae0d115687"
+    },
+    {
+      "name": "claude/zealous-curie-w9igrg",
+      "tip_sha": "06e6e383843237e291715d6b087064c66d15e1e4"
+    },
+    {
+      "name": "claude/zealous-curie-wveopr",
+      "tip_sha": "5c0c9dd7016f1e6a2821f130b9383f74d3027268"
+    },
+    {
+      "name": "claude/zealous-curie-y9s3ak",
+      "tip_sha": "d4a63b920c529b02fc3544015ca5f23f27b15e90"
+    },
+    {
+      "name": "claude/zealous-curie-yz21zg",
+      "tip_sha": "16635b087e308ca5c1c76520e7c2b3db12a36133"
+    },
+    {
+      "name": "cursor/agent-cross-review-f90e",
+      "tip_sha": "4b6871ed7109f1f56655f84f9a5e747ac24da6d7"
+    },
+    {
+      "name": "cursor/branch-hygiene-probe-20260824",
+      "tip_sha": "8e4cb8f643783cfe26f97c5dce60a55960eb1ef3"
+    },
+    {
+      "name": "cursor/branch-hygiene-product-20260824",
+      "tip_sha": "3066e528eea95028b77c74726dbcc3c35eee8f13"
+    },
+    {
+      "name": "cursor/dns-evidence-monitor-20260824",
+      "tip_sha": "63e00820528498a2486a11faeb1570e10f074a62"
+    },
+    {
+      "name": "cursor/dns-evidence-probe-20260824",
+      "tip_sha": "8cce596ce2a9f85e78335f52faca8c3f6e30e340"
+    },
+    {
+      "name": "cursor/ethical-product-profits-adba",
+      "tip_sha": "e8031885fdd6b359cd408357327d3dc558f5e251"
+    },
+    {
+      "name": "cursor/fix-session-gate-idle-883b",
+      "tip_sha": "5556cf91830c5a3af4658e3862f5129d1d3e9c20"
+    },
+    {
+      "name": "cursor/legal-ethical-profit-products-df54",
+      "tip_sha": "6559900db19b89e4f5d18839000a25c638f91c32"
+    },
+    {
+      "name": "cursor/new-ai-business-projects-96a6",
+      "tip_sha": "c727678eede8ed8e57ce422315cdd40abf16dee5"
+    },
+    {
+      "name": "cursor/new-ai-business-projects-d6af",
+      "tip_sha": "fa67405bfe5c6b3368d01cdb23eff421df672ab6"
+    },
+    {
+      "name": "cursor/potential-ai-business-projects-e072",
+      "tip_sha": "edee73e277a9648eafa6c1379585efd52e3d8ae1"
+    },
+    {
+      "name": "cursor/product-first-direction-b46d",
+      "tip_sha": "e7ca70f596293a8a5f6c58614646ad56ed480dd6"
+    },
+    {
+      "name": "cursor/product-profit-generation-0e0e",
+      "tip_sha": "470607b6fbe56cc1e20bf863be64d40d9a7650b3"
+    },
+    {
+      "name": "cursor/product-profit-generation-2dbc",
+      "tip_sha": "4948d5bb73746c07cd45a9ee25641157464a0a8b"
+    },
+    {
+      "name": "cursor/product-profit-generation-6090",
+      "tip_sha": "89b88ac255cb91fd526690beb16718f4c509deb6"
+    },
+    {
+      "name": "cursor/product-profit-generation-c0b3",
+      "tip_sha": "00d68031d37cf461c3b0375a1c645f951b4cc441"
+    },
+    {
+      "name": "cursor/product-profit-generation-ce81",
+      "tip_sha": "3cb64a6808c3b597087841651d780cc4885132a0"
+    },
+    {
+      "name": "cursor/product-profit-generation-e5dd",
+      "tip_sha": "83227d3fa885309a26ec67e058cc08b2354e025e"
+    },
+    {
+      "name": "cursor/product-profit-generation-fc73",
+      "tip_sha": "28cd4faa15963adca686bd3f244a399c5c99b973"
+    },
+    {
+      "name": "cursor/product-profit-generation-fdad",
+      "tip_sha": "b7bb840ffefbcb98d3e2c429ef14c6ea5e4eaad0"
+    },
+    {
+      "name": "cursor/setup-cloud-agent-environment-7061",
+      "tip_sha": "6b8c08689cdd023adb4aed17004eed4d8de44f57"
+    },
+    {
+      "name": "decision-queue/session-gate-economics-premise",
+      "tip_sha": "d80739df4e6140bd4bd599668c066831c58d1db1"
+    },
+    {
+      "name": "ledger-481-483",
+      "tip_sha": "683b2a868e2522c2725b917f8d48f13b46ac890c"
+    },
+    {
+      "name": "ledger-ci-actions-status-171",
+      "tip_sha": "84ce90b636abf69a920d774040241e9e77d054a5"
+    },
+    {
+      "name": "ledger-demand-signal-reachability-150",
+      "tip_sha": "6cb186ae19dbcc824f3d9e3989f8f67743cf4f79"
+    },
+    {
+      "name": "ledger-entry-session-gate-fix",
+      "tip_sha": "b1d8fa6e3e25b81b405437e53d35e916cf4f8a6d"
+    },
+    {
+      "name": "ledger-monetization-reachability",
+      "tip_sha": "c9dd3e7ec96e0f08f5e9684409d1c8b68d9cfb0f"
+    },
+    {
+      "name": "ledger-photo-editing-docs-site-142",
+      "tip_sha": "21f607cc44f6b01016448b38ffee4459379a1f43"
+    },
+    {
+      "name": "ledger-real-estate-photo-log-lead-474",
+      "tip_sha": "e3bb4b00a4187996ce1d4f9155d076a21d22343f"
+    },
+    {
+      "name": "ledger-strategic-cycle",
+      "tip_sha": "402623cf2f0307d282c1b80e35ff229797e63e5b"
+    },
+    {
+      "name": "ledger/asks-routine-trigger-788",
+      "tip_sha": "5a2520ed060313e75b25008b8c73799928d8151d"
+    },
+    {
+      "name": "ledger/repository-branch-hygiene-848",
+      "tip_sha": "679f5e04b67098f2c08a1a043231e885d6b3c584"
+    },
+    {
+      "name": "main",
+      "tip_sha": "347d76217d324c5b159b49db7e5485debf5ba2de"
+    },
+    {
+      "name": "pipeline/dns-evidence-monitor",
+      "tip_sha": "61989bf0468c2bdf84e0cedb0e4a9f13addc4cce"
+    },
+    {
+      "name": "session/agent_0019ec2a-5741-4ff3-b51c-d7f72888dbfb",
+      "tip_sha": "eab215fdd738a47bd90addfda65d36f088d0d91a"
+    },
+    {
+      "name": "session/agent_1a7734f2-248c-4263-b0d0-240c0f680b59",
+      "tip_sha": "6c68e5608b86b2e29d8250cc9f405f68a388722e"
+    },
+    {
+      "name": "session/agent_7d315dce-2f00-46da-ad04-af831d6dbbeb",
+      "tip_sha": "679ca15678a783d652c888b83c1fb435469b25fb"
+    },
+    {
+      "name": "session/agent_863bbfa5-dd81-4726-92c6-140435f338d0",
+      "tip_sha": "6aad2bda74bd576e16d14cbb632806004c68ee1c"
+    },
+    {
+      "name": "session/agent_ec90f1e6-3cc9-477d-9514-483e1e90e2db",
+      "tip_sha": "f8a05c403842354ec0a5e07399a8b3dd682b3da6"
+    },
+    {
+      "name": "session/cleanup-2026-08-24",
+      "tip_sha": "be8b72806ef20fcfb0692b52c13323fb4e91cbd6"
+    },
+    {
+      "name": "session/consolidate-783-781",
+      "tip_sha": "410ac1ed058f910728e254d351aca647877d3bcc"
+    },
+    {
+      "name": "session/consolidate-790-viewport-repairs",
+      "tip_sha": "119edd1ed88cbc59a3b652e06f730c55350b9e3d"
+    },
+    {
+      "name": "session/decision-queue-stale-entries",
+      "tip_sha": "d53f7e9d75c97c2ba619e115bd54ffddaf17a2c4"
+    },
+    {
+      "name": "session/decision-queue-stale-prs-777-731",
+      "tip_sha": "d53f7e9d75c97c2ba619e115bd54ffddaf17a2c4"
+    },
+    {
+      "name": "session/remove-stale-local-site-studio-entry",
+      "tip_sha": "870b7d5ecf3e408164ceb04b23ecff0651a81d4d"
+    },
+    {
+      "name": "tmp/ssh-key-smoke",
+      "tip_sha": "4d27d4b5fd1f0e9a2331da55fad0965bd1e5c82e"
+    }
+  ]
+}
