@@ -46,4 +46,6 @@ requirement yourself.
 node --test calc.test.mjs
 ```
 
-The product is free while demand is measured. There is no payment collection.
+The page can save the current form values in browser local storage and copy a
+line-by-line negotiation report. Saved values never leave the browser. The
+product is free while demand is measured. There is no payment collection.

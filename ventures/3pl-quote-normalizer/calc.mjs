@@ -26,3 +26,22 @@ export function calculate(input) {
 export function money(value) {
   return new Intl.NumberFormat("en-US", { style: "currency", currency: "USD" }).format(value);
 }
+
+export function compareQuotes(first, second) {
+  return {
+    totalDelta: second.quote.total - first.quote.total,
+    perOrderDelta: second.perOrder - first.perOrder,
+    cheaper: first.quote.total <= second.quote.total ? "first" : "second",
+  };
+}
+
+export function negotiationLines(result) {
+  return [
+    `Monthly volume: ${result.orders} orders`,
+    ...result.components.map((component) => `${component}: ${money(result.quote[component])}`),
+    `Subtotal before minimum: ${money(result.quote.subtotal)}`,
+    `Minimum monthly spend applied: ${money(Math.max(0, result.quote.total - result.quote.subtotal))}`,
+    `Total estimated 3PL cost: ${money(result.quote.total)}`,
+    `True cost per order: ${money(result.perOrder)}`,
+  ];
+}
