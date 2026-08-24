@@ -56,16 +56,24 @@ def snapshot_from_repo(repo: Path, protected: set[str] | None = None) -> dict[st
         if commits:
             branches.append({"name": name, "tip": commits[0], "commits": commits})
     protected_branches = {default, *(protected or set())}
+    protected_commits = {
+        commit
+        for name in protected_branches
+        if name in names
+        for commit in _git(repo, "rev-list", "--max-count=100", name).splitlines()
+    }
     return {
         "default_branch": default,
         "protected_branches": sorted(protected_branches),
         "branches": branches,
         "pull_requests": [],
+        "protected_commits": sorted(protected_commits),
     }
 
 def scan(snapshot: dict[str, Any]) -> list[Finding]:
     branches, pull_requests = snapshot.get("branches"), snapshot.get("pull_requests")
     protected = set(snapshot.get("protected_branches", []))
+    protected_commits = set(snapshot.get("protected_commits", []))
     if not isinstance(branches, list) or not isinstance(pull_requests, list):
         raise ValueError("snapshot requires branches and pull_requests arrays")
     by_head: dict[str, list[dict[str, Any]]] = {}
@@ -89,6 +97,8 @@ def scan(snapshot: dict[str, Any]) -> list[Finding]:
             classification, reason = "protected", "branch is explicitly protected"
         elif len(tips[tip]) > 1:
             classification, reason = "shared", "tip is referenced by multiple branches"
+        elif protected_commits and tip in protected_commits:
+            classification, reason = "merged", "branch tip is in the recorded protected branch history"
         elif related and related.get("state") == "closed" and related.get("merged"):
             if tip in set(related.get("base_commits", [])):
                 classification, reason = "merged", "closed pull request was merged and tip is in its base history"

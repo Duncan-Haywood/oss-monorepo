@@ -83,5 +83,21 @@ class BranchHygieneTests(unittest.TestCase):
             self.assertEqual({branch["name"] for branch in snapshot["branches"]}, {"main", "feature"})
             self.assertEqual(subprocess.check_output(["git", "-C", str(repo), "rev-parse", "HEAD"], text=True).strip(), before)
 
+    def test_local_snapshot_marks_ancestor_branch_as_reviewable_merged(self):
+        with tempfile.TemporaryDirectory() as directory:
+            repo = Path(directory)
+            subprocess.run(["git", "init", "-q", "-b", "main", str(repo)], check=True)
+            (repo / "README").write_text("base\n")
+            subprocess.run(["git", "-C", str(repo), "add", "."], check=True)
+            subprocess.run(["git", "-C", str(repo), "-c", "user.name=Test", "-c", "user.email=test@example.com", "commit", "-qm", "base"], check=True)
+            subprocess.run(["git", "-C", str(repo), "branch", "feature"], check=True)
+            (repo / "README").write_text("main\n")
+            subprocess.run(["git", "-C", str(repo), "add", "."], check=True)
+            subprocess.run(["git", "-C", str(repo), "-c", "user.name=Test", "-c", "user.email=test@example.com", "commit", "-qm", "main change"], check=True)
+            findings = {item.branch: item for item in scan(snapshot_from_repo(repo))}
+            self.assertEqual(findings["feature"].classification, "merged")
+            self.assertEqual(findings["feature"].review_action, "review-delete-candidate")
+            self.assertIn("protected branch history", findings["feature"].reason)
+
 if __name__ == "__main__":
     unittest.main()

@@ -27,6 +27,11 @@ local branches. This reads refs only and never fetches, pushes, or deletes:
 python3 src/branch_hygiene.py --repo /path/to/checkout --report report.txt --manifest recovery.json
 ```
 
+Local scans now identify a branch whose tip is already in the protected default
+branch history as a `merged` review candidate. This is only ancestry evidence:
+the report still requires a human to confirm that no external workflow, tag, or
+unrecorded ref needs the branch before any deletion.
+
 The local mode intentionally has no pull-request metadata. Branches that are
 not protected or shared are therefore reported as `uncertain`, rather than
 being treated as safe to remove. Add `--protect release` for each additional

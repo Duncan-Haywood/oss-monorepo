@@ -5,7 +5,16 @@
 # signal. A reading of zero is worth recording; it is how a product gets
 # retired honestly instead of quietly.
 period: 2026-08
-products: []
+products:
+  - slug: repository-branch-hygiene
+    surface: github-repository
+    readings:
+      - as_of: 2026-08-24
+        signals:
+          local_smoke_scan_findings: 3
+          local_smoke_scan_risk: 1
+          release_downloads_total: 0
+        note: Shipped ancestor detection; local smoke scan found protected and shared refs.
 # Example of the shape, once a product has shipped:
 #
 # products:
