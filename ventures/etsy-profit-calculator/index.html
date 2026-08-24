@@ -62,7 +62,13 @@
     if (Object.keys(fromLink).length) { apply(fromLink); }
     else { const saved = safe(() => JSON.parse(localStorage.getItem(INPUTS_KEY) || 'null')); if (saved) apply(decodeInputs(encodeInputs(saved))); }
 
-    function persist() { safe(() => localStorage.setItem(INPUTS_KEY, JSON.stringify(currentInputs()))); }
+    // A share hash is authoritative on reload, so refresh it with later edits.
+    // Otherwise a copied (or opened) snapshot would overwrite the saved session.
+    function persist() {
+      const inputs = currentInputs();
+      safe(() => localStorage.setItem(INPUTS_KEY, JSON.stringify(inputs)));
+      if (location.hash || location.search) history.replaceState(null, '', `${location.pathname}#${encodeInputs(inputs)}`);
+    }
 
     ids.forEach(id => field(id).addEventListener('input', () => { update(); persist(); }));
     ids.forEach(id => field(id).addEventListener('change', () => recordUsage(safe(() => localStorage), document.getElementById('usageOptOut').checked)));
