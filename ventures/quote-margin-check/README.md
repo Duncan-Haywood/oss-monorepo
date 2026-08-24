@@ -5,6 +5,27 @@ agencies. It turns a proposed price, delivery hours, overhead, subcontractor
 costs, and revision buffer into a transparent effective hourly rate and a
 target-price comparison.
 
+## Browser calculator
+
+Most freelancers won't run a Python script, so the same math also ships as a
+self-contained page: open [`site/index.html`](site/index.html) in a browser, or
+serve the `site/` directory statically. Zero dependencies, no build step, no
+signup, and nothing is uploaded — there is no server for it to go to. It opens
+with a worked example already filled in, so the first number appears without
+typing anything, and "Copy as CSV row" produces the same
+`measure,value,unit` rows as the CLI's `--format csv`.
+
+[`site/calc.mjs`](site/calc.mjs) mirrors `src/quote_margin.py`'s `load_quote()`
+and `calculate()` field-for-field so the two surfaces can't quietly diverge;
+`node --test` in `site/` covers the same cases as the Python suite.
+
+Not yet deployed to a public URL — publishing under the portfolio's name is
+owner-gated per `portfolio/DIRECTION.md` — but it is ready to deploy as-is.
+
+## Command line
+
+For scripting, or batching several proposals into a spreadsheet:
+
 ```bash
 python3 src/quote_margin.py examples/website-redesign.json --format markdown
 # Import the same result into a spreadsheet
@@ -35,6 +56,14 @@ accept no liability for any loss or damage arising from its use.
 Only aggregate `report_generated` events are optionally appended to the usage
 log. Inputs, project names, prices, and file contents never leave the machine.
 Pass `--usage-log PATH` to opt in; omit it to keep usage counting off.
+
+The browser calculator counts the same event locally in `localStorage` — on by
+default, switchable off in the page footer, and automatically disabled when the
+browser sends Do Not Track or Global Privacy Control. It counts *settled*
+reports, not keystrokes: the page re-renders as you type, but an event is
+recorded only once the figures stop changing, and a result identical to the one
+already counted is never counted twice. See
+[`site/usage.mjs`](site/usage.mjs). Nothing is transmitted in either case.
 
 ## Input
 

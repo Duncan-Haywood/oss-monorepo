@@ -22935,3 +22935,66 @@ entries:
         (unaffected, both pass). Doc-only diff; no code, deployment, or
         owner-only action.
     mrr_end: null
+  - venture: quote-margin-check
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+          Triage first: two concurrent sessions had independently built the
+          same product -- #948 (`site/`) and #953 (`web/`) both add a browser
+          calculator for quote-margin-check plus the same
+          `.github/workflows/quote-margin-check-ci.yml`. Neither could merge:
+          both add a new workflow without updating
+          `platform/ci/publish-surface.yaml`, so `publish_surface.py --check`
+          fails the shared `validate` job on both. Consolidated into one
+          surface rather than shipping a third variant, per CLAUDE.md's
+          duplicate-PR rule; closed both with pointers here.
+      - >-
+          Kept #948's `site/` as the base -- it carried the stronger product
+          (a worked example pre-filled so the first number appears with zero
+          typing, a "Copy as CSV row" action matching the CLI's `--format
+          csv`, a GitHub Sponsors link, and absolute GitHub links that
+          survive a standalone static deploy, where #953's `../README.md`
+          and `../LICENSE` would 404 once `web/` is served as the site root).
+          Ported #953's `ruff check .` job, which #948's workflow lacked, so
+          the union runs cli-test + cli-lint + site-test.
+      - >-
+          Fixed a real analytics defect both PRs shared: `recordEvent(
+          "report_generated")` was called straight from the render path,
+          which is bound to `input` on every field -- so typing "2400"
+          scored four reports, a backspace scored a fifth, and #948's
+          initial render counted a bare page view. The one metric this
+          portfolio steers on would have measured typing speed. Extracted
+          `createSettledRecorder()` into `site/usage.mjs` (injectable timer,
+          so it is unit-testable rather than buried untested in the HTML):
+          at most one event per settled, distinct result, page view seeds
+          instead of counting, transient invalid states drop their pending
+          record. Verified in a real headless Chromium -- page load records
+          0 events, and a ~20-keystroke edit of all seven fields records
+          exactly 1.
+      - >-
+          Also escaped the user-typed currency label before interpolating it
+          into the result innerHTML (self-inflicted only -- nothing is
+          uploaded -- but free to fix); verified a `<img src=x>` label
+          renders 0 image nodes. Added an above-target worked example to
+          the calc suite, which had only covered the below-target branch
+          that drives the page's status line.
+      - >-
+          Verified rather than assumed: `node --test` 19/19 in `site/`,
+          `python3 -m unittest discover -s tests` 10/10, `ruff check .`
+          clean, and the browser journey driven end-to-end -- the page's
+          default render shows 35.00 hours / 480.00 direct costs / 54.86
+          per hour, byte-identical to what `src/quote_margin.py` prints for
+          `examples/website-redesign.json`, confirming the two surfaces
+          actually agree. Zero console errors. Regenerated
+          `publish-surface.yaml`: the new workflow classifies `none` /
+          `publishes: []`, i.e. a merge still publishes nothing.
+      - >-
+          Not deployed to a public URL -- publishing under the portfolio's
+          name stays owner-gated per `portfolio/DIRECTION.md`, and no
+          hosting credentials exist in this environment. Tracked the browser
+          tool as its own `static-page-in-repo` surface in usage.yaml rather
+          than a second reading on the CLI row, so the two stay separable.
+          The pre-existing `agent-permission-harness` "test" failure
+          reproduces on main (as #949 also recorded) and is untouched here.
+    mrr_end: null

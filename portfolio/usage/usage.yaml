@@ -62,6 +62,26 @@ products:
           live_url_visitors: null
           local_events_reported: 0
         note: Shipped local Etsy order-profit calculator; public URL remains owner-gated.
+  - slug: quote-margin-check
+    surface: static-page-in-repo
+    readings:
+      - as_of: 2026-08-24
+        signals:
+          live_url_visitors: null
+          report_generated_events: 0
+          local_events_reported: 0
+        note: >-
+          Second surface: site/index.html, a zero-dependency browser
+          calculator with the same math as the CLI, for the freelancers who
+          will never run a Python script. Tracked as its own surface rather
+          than another reading on the CLI row, so browser use and CLI use
+          stay separable. Not deployed to a public URL — publishing is
+          owner-gated — so there is no traffic signal; the page's counter
+          reports only to the visitor's own browser. Note the counter counts
+          settled reports, not keystrokes (the page re-renders on every
+          keypress), so this number stays comparable to the CLI's
+          report_generated events rather than measuring typing speed.
+          Baseline row of zero.
 # Example of the shape, once a product has shipped:
 #
 # products:
