@@ -20205,3 +20205,72 @@ entries:
         per the ledger-discipline rule. No revenue; the $0 ceiling is
         unchanged.
     mrr_end: null
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Scheduled "research and evaluate potential software business
+        projects that aren't already here" session, designated branch
+        claude/laughing-pasteur-7kvl6i. `session_gate.py` -> PROCEED with
+        its concurrency note. Fetched `main` (tip 292486d), listed the 4
+        open PRs (#583, #531, #372, #368) and read the ledger tail before
+        starting. Per `CLAUDE.md` this brief is answered in
+        `portfolio/pipeline/`: no candidate list, no screening pass, no new
+        research probe. The open PRs were not re-verified -- the entries
+        from the last two hours already record them as unchanged and
+        correctly owner-gated, and `verification_status.py` still reports
+        #372's and #368's build records valid.
+      - >-
+        The routed first move ("advance a probe already specified") is
+        saturated rather than open: the three preceding sessions, two of
+        them firing this same brief, each advanced `mcp-drift-watch`, the
+        last two both splitting its accuracy by publisher (#691, #694,
+        about an hour apart). A fourth pass there is the duplicate churn
+        this repo has repeatedly paid for, so this session took the second
+        routed move -- "ship or unblock something already built" -- and
+        audited whether the cheapest asks in issue #139's table are still
+        accurately described. One is not.
+      - >-
+        Ask 6 is stale in both halves, and as written it no longer works.
+        It instructs one action (Settings -> Pages -> Source: "GitHub
+        Actions") and names the symptom "currently 404s creating the
+        deployment". Since #347 landed on 2026-08-20, current `main`'s
+        `.github/workflows/retail-pilot-intel-deploy-docs.yml` gates both
+        publish jobs behind repository *variables* -- `deploy` on
+        `vars.GITHUB_PAGES_ENABLED == 'true'`, `deploy-vercel` on
+        `vars.VERCEL_DEPLOY == 'true'`. Enabling Pages alone therefore
+        publishes nothing, and the 404 is gone: the workflow now reports
+        green while publishing nothing. Verified on run 32502928302 (head
+        b6e2e78) -- `build` success, `deploy` skipped, `deploy-vercel`
+        skipped, run conclusion success.
+      - >-
+        Neither variable name appears anywhere in the decision queue:
+        grepping issue #139's fetched body plus all comments (73,749
+        characters) for `GITHUB_PAGES_ENABLED` and for `VERCEL_DEPLOY`
+        returns zero matches each. Outside the workflow itself they occur
+        once in the repository, at `portfolio/ledger/2026-08.yaml:10069` --
+        the entry recording the #347 change that introduced them. #347 was
+        the right call on its own terms (a permanently-red workflow on
+        `main` is worse than a skipped job); the side effect is that the
+        blocker stopped being observable, which is how a roughly
+        30-second owner action stays ungranted for four days without
+        anyone deciding not to grant it.
+      - >-
+        Action taken: posted the correction, the evidence table, and
+        suggested replacement text for the Ask 6 row as a comment on issue
+        #139 (comment 5389301893). Did not edit the ~74KB body -- it is
+        concurrently edited, and this issue's established pattern leaves
+        the fold-in to a session that can re-fetch and diff immediately
+        before writing. Push notification sent: an ask the owner cannot
+        successfully grant by following its own instructions is a different
+        finding from the re-confirmations this queue already carries.
+      - >-
+        Ask 4 was re-checked in the same pass and is still accurate as
+        written -- `ai-first-markets-deploy.yml` remains `workflow_dispatch`
+        only with `total_count: 0`, so its Cloudflare secrets stay
+        unconfirmed. Section 4 needs no correction. No score moved, no
+        candidate added, nothing graduated, nothing published. This entry
+        ships as its own PR per the ledger-discipline rule. No revenue; the
+        $0 ceiling is unchanged.
+    mrr_end: null
