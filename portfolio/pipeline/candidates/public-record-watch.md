@@ -204,3 +204,56 @@ source-year. The 9 says a subscriber is now told that, not that the product is
 good. The verdict stays **probe**, the floor stays `distribution` at 4, and the
 reason this candidate is hard — fifty reachable buyers in one vertical — is
 untouched.
+
+## Amendment, 2026-08-24: step 2 of the first experiment, software half
+
+**No score changed.** Probe and committed sample:
+[`probes/source-silence-detector/change_alert.py`](../probes/source-silence-detector/change_alert.py),
+[`sample-change-alert-2026-08-24.md`](../probes/source-silence-detector/sample-change-alert-2026-08-24.md).
+
+Step 2 above — *"write the alert as it would be sent, with the source
+link, and show it to ten staffing or credentialing people"* — has a
+software half and a human half. The software half is built. The human
+half is still the thing that decides, and it is still unrun.
+
+What the alert does:
+
+- Quotes one historical catalog addition, **CVE-2021-44228**, added to
+  the CISA Known Exploited Vulnerabilities catalog on **2021-12-10**.
+  The row is the live catalog's 2026.08.21 entry (the feed answered
+  `200` this session); the committed fixture is a one-entry slice so
+  CI stays offline.
+- Puts the source document URL on every alert. A second link appears
+  only when the register itself published one in `notes`. An NVD URL
+  is never constructed from the CVE id.
+- Leaves a missing catalog field as `unknown — register did not
+  publish`. It will not invent whether the subscriber is affected,
+  what they should do, or a score of anyone the record names.
+- Labels `requiredAction` and `dueDate` as US-federal catalog text,
+  not instructions to the subscriber.
+- Refuses the words that would turn a quote into a warranty. Tests
+  pin that `compliant` / `compliance` / `you are affected` do not
+  appear.
+- Discloses that change-detection accuracy is **not measured**. The
+  6-of-17 (0.35) figure belongs to the silence detector, a different
+  surface. Quoting it here would describe the wrong product.
+- Names the error that would pay us: over-notifying, or dressing
+  catalog text up as a finding about the subscriber.
+
+What it does not do, and must not be read as doing:
+
+- **It is not the licensing vertical.** Step 1 already established
+  that licensing boards have no git mirror from here and their
+  portals are egress-denied. This sample uses the software-security
+  feed that *is* reachable, the same one the step-1 amendment said
+  buyers already get free. The format is what step 2 asked for. The
+  vertical is the one that can actually be quoted offline.
+- **It does not show the alert to ten people.** Outreach is the
+  human half of step 2, and step 3 (three pre-pays) still stands.
+  Distribution remains 4 and remains the floor.
+- **It does not move a score.** A product artifact is not a
+  measurement of the dimension that decides this candidate.
+
+Verdict stays **probe**. Do not re-initiate this slice. Do not open
+a second change-alert pull request. The next specified work on this
+candidate is the owner-gated buyer test, not another renderer.
