@@ -231,9 +231,10 @@ decisions:
     unanswered is what costs.
   unlocks:
     - >-
-      Answered "yes, while nothing is live", `contrast-fixes` leaves this
-      queue outright -- one pull request the owner never has to read. This is
-      the only row here whose answer makes the queue shorter.
+      Answered "yes, while nothing is live", `contrast-fixes` and
+      `eaa-evidence-product-line` both leave this queue outright -- two pull
+      requests the owner never has to read individually. This is the only
+      row here whose answer makes the queue shorter.
     - >-
       Answered "no, the gate stands regardless", every future `ventures/*`
       pull request stops being re-argued from prose by each session that meets
@@ -412,39 +413,152 @@ decisions:
     then independently made the same correct removal. This row adds the part
     neither made: the actual open question left behind, accept or revert.
 
-- id: self-merge-ruleset-block
+- id: session-gate-economics-premise
   asks: []
   prs: [813]
   gates: deployment
   exposure: none
   opened: "2026-08-24"
   action: >-
-    Either merge #813 by hand (it is verified: 198 tests pass, touches only
-    internal surfaces, clean merge-tree against current `main`), or grant
-    whatever GitHub identity agent sessions merge under a bypass on the
-    branch-protection ruleset that currently blocks it, or say explicitly
-    that self-merge under `CLAUDE.md`'s agent-decidable class is no longer
-    intended and sessions should stop attempting it.
+    Confirm, in one sentence, on this row or on #139: is fleet capacity for
+    this account billed as a flat subscription (a session that runs and a
+    session that idles cost the same), or metered per-session/per-token (an
+    idle session costs less than an active one)? Either answer is fine; it
+    is the one fact `session_gate.py`'s current behavior cannot get from
+    inside a session.
   unlocks:
     - >-
-      Restores the "agent-decidable -- verify, merge, and record it
-      yourself" path `CLAUDE.md` documents. As written now it is silently
-      false for every session sharing this identity: verified,
-      internal-only PRs pile up unmerged regardless of how well they are
-      checked, which is the exact ledger-conflict failure mode this
-      portfolio has hit repeatedly (the `portfolio/pipeline/` research
-      rebuilt from scratch five times).
+      Settles whether `session_gate.py` v2's BUILD-not-NO-OP routing (merged
+      via #813) is correct policy or needs reverting. The two billing models
+      imply opposite conclusions from the same $0 revenue ceiling: flat
+      subscription means idle capacity is waste and BUILD is right; metered
+      billing means an unproductive session has a real marginal cost and the
+      old NO-OP stance -- "the highest-value output is nothing" -- was
+      correct. No session can distinguish these from inside a container.
   blocked_by: []
   note: >-
-    Discovered 2026-08-24 reviewing #813: `merge_pull_request` fails with
-    "New changes require approval from someone other than the last pusher"
-    plus a pending Code Scanning check, and `pull_request_review_write`
-    with `APPROVE` fails separately with "Can not approve your own pull
-    request" -- this session's GitHub calls resolve to the same account
-    (`Duncan-Haywood`) that authored and pushed #813, so neither review nor
-    merge is reachable from here. The `local-site-studio-subtree-gate-crossing`
-    row above shows a differently-identified bot (`kilo-code-bot[bot]`)
-    merging #731 the same day, so this may be identity-specific rather than
-    a blanket block on all automation -- another reason this needs the
-    owner rather than a guess from in here.
+    #813 merged 2026-08-24T14:14:45Z, replacing the session gate's NO-OP
+    verdict with a BUILD lane fleet-wide, on the stated basis that "the
+    account owner corrected the premise on 2026-08-24: fleet capacity is
+    bought as a flat subscription." That sentence is the entire load-bearing
+    justification for the change -- `break-even.md`'s new amendment repeats
+    it near-verbatim with the same lack of citation -- and it cannot be
+    checked from here: every session on this repository, including this one,
+    authenticates as the same `Duncan-Haywood` GitHub identity -- confirmed by
+    three same-day self-merges under that one account (#819, #815, #813) --
+    so a PR body attributing a claim to "the account owner" is
+    indistinguishable from a session asserting it about itself. This is not
+    a claim that #813 is
+    wrong -- the code quality is good (Kilo Code Review's 9-warning first
+    pass on `session_gate.py`/`build_targets()` reads as fixed in the
+    current `main`: `routable()` uses `is_file()`, malformed or missing
+    `candidates.yaml` fields return `None` rather than a false empty
+    pipeline, non-list `product_lines` no longer reaches `any()`) and the
+    "a gate can't refund an already-spent session" argument holds under
+    either billing model. It is that the one fact deciding whether the
+    *policy* is right -- not whether the code implementing it is correct --
+    is a real-world billing detail no session can observe, and #813 shipped
+    fleet-wide on an unverifiable assertion of it. Flagged rather than
+    reverted: reverting on the same kind of unverifiable judgment this row
+    is objecting to would repeat the mistake in the opposite direction.
 
+- id: branch-cleanup-automation
+  asks: []
+  prs: [829]
+  gates: deployment
+  exposure: none
+  opened: "2026-08-24"
+  action: >-
+    Merge or decline #829 (adds `.github/workflows/branch-cleanup.yml`,
+    deleting a PR's head branch immediately on merge and 24h after an
+    unmerged close).
+  unlocks:
+    - >-
+      A live branch count that reflects open work: as of #829's own
+      read-only sweep, 608 branches exist against 6 open PRs, so the branch
+      list CLAUDE.md tells sessions to check before assuming work has not
+      been done is ~99% landed-or-abandoned noise.
+  blocked_by: []
+  note: >-
+    Correctly self-flagged human-gated in its own PR body per CLAUDE.md's
+    "Automation that writes or spends unattended" section: it is a new
+    unattended workflow that pushes branch deletions on a schedule plus a
+    `pull_request_target` trigger, even though it calls no paid API,
+    consumes no agent budget, and pushes no commits/PRs of its own. Local
+    verification in the PR body: `validate_workflows.py` (39 files),
+    `publish_surface.py --check` (0 live, unchanged), `test_branch_cleanup`
+    (25 tests) all green; a read-only `--sweep --dry-run` against the live
+    repo found 220 branches it would delete (166 already-merged, 107 whose
+    tip moved after their PR closed, 7 still in grace) out of 608 total.
+    No ledger hunk riding along, so it stays mergeable while it waits.
+
+- id: eaa-evidence-product-line
+  asks: []
+  prs: [814]
+  gates: deployment
+  exposure: none
+  opened: "2026-08-24"
+  action: "Merge or decline #814."
+  unlocks:
+    - >-
+      The pipeline's only `build-now` candidate (`eaa-remediation-pipeline`),
+      initiated as a product line of `local-site-studio`: a catalog
+      (EUR 900-1800 job, EUR 49-99/mo re-test) with a buyer gate that refuses
+      EAA-deadline urgency to a microenterprise, a public
+      `/accessibility-evidence` page disclosing precision/recall rather than
+      claiming compliance, and operator docs. Checkout is explicitly not
+      wired; inquiries are mailto-only.
+  blocked_by: []
+  note: >-
+    Self-flagged human-gated in its own body: touches deployable
+    `ventures/local-site-studio` app code, so per `CLAUDE.md` it is not
+    agent-decidable regardless of `publish_surface.py` currently reporting
+    nothing live -- the same premise `venture-gate-premise` (ask 9) raises.
+    The PR's own verification is thorough (`validate.py` all 10 VENTURE.yaml
+    valid, pipeline consistency checks pass, 77 vitest cases, `tsc --noEmit`
+    and eslint clean, `next build` prerenders the new routes, a manual
+    browser pass through the microenterprise-refusal and obligated-inquiry
+    paths, and a clean `git merge-tree` against `main` with no ledger hunk)
+    but does not settle the merge-class question, which is why this is a
+    merge-or-decline row rather than something a session did itself.
+
+- id: governance-rewrite-836
+  asks: []
+  prs: [836]
+  gates: deployment
+  exposure: none
+  opened: "2026-08-24"
+  action: >-
+    Accept or decline #836. It is a proposal, not an agent-decidable change:
+    a session should not undraft and self-merge it on green CI. If the
+    product-first direction it describes is the intended policy, say so
+    explicitly (here or on #139) and it can land; if not, decline it.
+  unlocks:
+    - >-
+      Settles the portfolio's operating policy. #836 rewrites `CLAUDE.md`
+      from ~380 lines of merge-class governance to ~100, adds
+      `portfolio/DIRECTION.md` and a root `AGENTS.md`, and makes *all*
+      `ventures/*` app code agent-decidable ("merge when CI green, no human
+      review") while `publish_surface.py` shows nothing live. It supersedes
+      the narrower `venture-gate-premise` (ask 9) question by answering it
+      "yes" wholesale, and reworks `session_gate.py`'s BUILD messaging to
+      match.
+  blocked_by: []
+  note: >-
+    Flagged 2026-08-24 reviewing the open-PR backlog. #836's entire
+    authority is one line -- "Implements the 2026-08-24 company direction" /
+    "Effective 2026-08-24" -- with no verifiable source. Every session here
+    authenticates as the same `Duncan-Haywood` identity, so a PR body
+    asserting "the company direction is X" is indistinguishable from a
+    session asserting it about itself; this is the same unverifiable-
+    attribution pattern #812 was closed for and #822 (merged) flagged for
+    `session_gate.py`'s flat-subscription premise. A change that *removes*
+    the human merge gate cannot itself be verified from inside a session,
+    and self-merging it would retroactively make every later self-merge of
+    live venture code look authorized. Not a claim the content is wrong --
+    several parts (build over meta-work, ship runnable products, don't
+    re-verify unchanged PRs) already match `main`, and its 57
+    `test_session_gate.py` cases pass -- but dissolving the money/
+    publishing/venture-code gates is exactly the decision class `CLAUDE.md`
+    reserves for the owner. Left as a draft proposal; commented the same on
+    the PR.

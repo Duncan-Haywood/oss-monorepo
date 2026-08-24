@@ -36,6 +36,7 @@ on:
       - "portfolio/pipeline/probes/eaa-wcag-triage/**"
       - "ventures/local-site-studio/src/components/preview/**"
       - "ventures/local-site-studio/src/app/layout.tsx"
+      - "ventures/local-site-studio/scripts/eaa-evidence-job/**"
       - ".github/workflows/a11y-generated-sites-ci.yml"
   push:
     branches: [main]
@@ -45,6 +46,7 @@ on:
       - "portfolio/pipeline/probes/eaa-wcag-triage/**"
       - "ventures/local-site-studio/src/components/preview/**"
       - "ventures/local-site-studio/src/app/layout.tsx"
+      - "ventures/local-site-studio/scripts/eaa-evidence-job/**"
       - ".github/workflows/a11y-generated-sites-ci.yml"
   workflow_dispatch:
 

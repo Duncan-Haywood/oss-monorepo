@@ -5,6 +5,7 @@ shop pages, re-audit, and pin the close rate. A low blocking rate is the
 honest result — most blocking findings on these pages are missing words.
 """
 
+import re
 from collections import Counter
 from pathlib import Path
 
@@ -149,6 +150,243 @@ def test_fixture_aggregate_close_rate_is_one_of_eleven_blocking():
     assert summary["blocking_close_rate"] == 1 / 11
     assert summary["limits"] == list(LIMITS)
     assert LIMITS[2].startswith("Does not settle the candidate's kill criterion")
+
+
+def test_timed_meta_refresh_is_removed_instant_redirect_stays():
+    html = (
+        '<html lang="en"><head>'
+        '<meta http-equiv="refresh" content="5">'
+        '<meta http-equiv="refresh" content="0;url=/next">'
+        "<title>t</title></head><body><p>Hi</p></body></html>"
+    )
+    assert any(f.criterion == "2.2.1" for f in audit_html(html).findings)
+    result = apply_mechanical_fixes(html)
+    assert not any(f.criterion == "2.2.1" for f in result.after.findings)
+    assert 'content="5"' not in result.html
+    assert 'content="0;url=/next"' in result.html
+    assert any(p.criterion == "2.2.1" for p in result.applied)
+
+
+def test_blink_and_marquee_unwrap_keep_their_text():
+    html = (
+        '<html lang="en"><head><title>t</title></head>'
+        "<body><p><marquee>Sale!</marquee> and <blink>now</blink></p>"
+        "</body></html>"
+    )
+    before = audit_html(html)
+    assert {f.element for f in before.findings if f.criterion == "2.2.2"} == {
+        "marquee",
+        "blink",
+    }
+    result = apply_mechanical_fixes(html)
+    assert not any(f.criterion == "2.2.2" for f in result.after.findings)
+    assert "Sale!" in result.html and "now" in result.html
+    assert "<marquee" not in result.html.lower()
+    assert "<blink" not in result.html.lower()
+
+
+def test_conflicting_aria_label_is_dropped_visible_text_stays():
+    html = (
+        '<html lang="en"><head><title>t</title></head>'
+        '<body><button aria-label="Submit order">Buy now</button>'
+        "</body></html>"
+    )
+    assert any(f.criterion == "2.5.3" for f in audit_html(html).findings)
+    result = apply_mechanical_fixes(html)
+    assert not any(f.criterion == "2.5.3" for f in result.after.findings)
+    assert "Buy now" in result.html
+    assert "aria-label" not in result.html
+    assert "Submit order" not in result.html
+
+
+def test_conflicting_aria_labelledby_is_dropped():
+    html = (
+        '<html lang="en"><head><title>t</title></head>'
+        '<body><span id="n">Submit order</span>'
+        '<button aria-labelledby="n">Buy now</button>'
+        "</body></html>"
+    )
+    assert any(f.criterion == "2.5.3" for f in audit_html(html).findings)
+    result = apply_mechanical_fixes(html)
+    assert not any(f.criterion == "2.5.3" for f in result.after.findings)
+    assert "Buy now" in result.html
+    assert "aria-labelledby" not in result.html
+    # The span is other content, not a name we invented; it stays.
+    assert 'id="n"' in result.html
+
+
+def test_does_not_invent_an_aria_label_on_an_unnamed_button():
+    html = (
+        '<html lang="en"><head><title>t</title></head>'
+        "<body><button></button></body></html>"
+    )
+    result = apply_mechanical_fixes(html)
+    assert "aria-label" not in result.html
+    assert any(s.criterion == "4.1.2" for s in result.skipped)
+FASSBENDER_NEWSLETTER = (
+    "<html lang='en'><head><title>t</title></head><body><form>"
+    "<label for='mce-NAME'>Name</label>"
+    "<input type='text' id='{{ idPrefix }}_mce-NAME'>"
+    "<label for='mce-EMAIL'>Email</label>"
+    "<input type='email' id='{{ idPrefix }}_mce-EMAIL'>"
+    "</form></body></html>"
+)
+
+
+def test_forgotten_prefix_rewrites_the_fassbender_newsletter():
+    # Finding 2 of a11y-theme-resolution: the theme prefixes the control
+    # id and forgets the matching <label for>. Two strings, unique pair.
+    before = audit_html(FASSBENDER_NEWSLETTER)
+    assert len(before.findings) == 2
+    assert all(f.criterion == "1.3.1" for f in before.findings)
+    result = apply_mechanical_fixes(FASSBENDER_NEWSLETTER)
+    assert result.after.counts()["blocking"] == 0
+    assert "for='{{ idPrefix }}_mce-NAME'" in result.html
+    assert "for='{{ idPrefix }}_mce-EMAIL'" in result.html
+    assert all(p.criterion == "1.3.1" for p in result.applied)
+
+
+def test_forgotten_prefix_rewrite_preserves_valid_attribute_spelling():
+    html = (
+        "<html lang='en'><head><title>t</title></head><body><form>"
+        '<label FOR = "mce-NAME">Name</label>'
+        "<input type='text' id='{{ idPrefix }}_mce-NAME'>"
+        "</form></body></html>"
+    )
+    result = apply_mechanical_fixes(html)
+    assert '<label FOR = "{{ idPrefix }}_mce-NAME">' in result.html
+    assert result.applied[0].criterion == "1.3.1"
+
+
+def test_ambiguous_suffix_is_not_rewritten():
+    html = (
+        "<html lang='en'><head><title>t</title></head><body><form>"
+        "<label for='NAME'>Name</label>"
+        "<input type='text' id='{{ a }}_NAME'>"
+        "<input type='text' id='{{ b }}_NAME'>"
+        "</form></body></html>"
+    )
+    result = apply_mechanical_fixes(html)
+    assert result.html == html
+    assert result.applied == []
+    assert any("will not invent a label" in s.reason for s in result.skipped)
+
+
+def test_possible_match_is_not_rewritten():
+    # `{{ p }}mce-NAME` can render as `mce-NAME`. Not a proven mismatch.
+    html = (
+        "<html lang='en'><head><title>t</title></head><body><form>"
+        "<label for='mce-NAME'>Name</label>"
+        "<input type='text' id='{{ p }}mce-NAME'>"
+        "</form></body></html>"
+    )
+    result = apply_mechanical_fixes(html)
+    assert result.html == html
+    assert result.applied == []
+    assert result.after.counts()["blocking"] == 0
+
+
+def test_autoplay_gets_muted_and_keeps_autoplay():
+    html = (
+        '<html lang="en"><head><title>t</title></head>'
+        '<body><video autoplay src="clip.mp4"></video></body></html>'
+    )
+    assert any(f.criterion == "1.4.2" for f in audit_html(html).findings)
+    result = apply_mechanical_fixes(html)
+    assert not any(f.criterion == "1.4.2" for f in result.after.findings)
+    assert re.search(r"<video\b[^>]*\bmuted\b", result.html, flags=re.I)
+    assert re.search(r"<video\b[^>]*\bautoplay\b", result.html, flags=re.I)
+    assert any(p.criterion == "1.4.2" for p in result.applied)
+
+
+def test_already_muted_autoplay_is_left_alone():
+    html = (
+        '<html lang="en"><head><title>t</title></head>'
+        '<body><audio autoplay muted src="clip.mp3"></audio></body></html>'
+    )
+    result = apply_mechanical_fixes(html)
+    assert result.html == html
+    assert result.applied == []
+
+
+def test_orientation_lock_rotate_is_removed_other_decls_stay():
+    html = (
+        '<html lang="en"><head><title>t</title>'
+        "<style>@media (orientation: portrait) { "
+        "html { color: red; transform: rotate(90deg); } }</style>"
+        "</head><body><p>Hi</p></body></html>"
+    )
+    assert any(f.criterion == "1.3.4" for f in audit_html(html).findings)
+    result = apply_mechanical_fixes(html)
+    assert not any(f.criterion == "1.3.4" for f in result.after.findings)
+    assert "rotate(90deg)" not in result.html
+    assert "color: red" in result.html
+    assert "@media (orientation: portrait)" in result.html
+    assert any(p.criterion == "1.3.4" for p in result.applied)
+
+
+def test_orientation_lock_only_decl_drops_the_empty_query():
+    html = (
+        '<html lang="en"><head><title>t</title>'
+        "<style>@media (orientation: landscape) { "
+        "body { transform: rotate(-90deg); } }</style>"
+        "</head><body><p>Hi</p></body></html>"
+    )
+    result = apply_mechanical_fixes(html)
+    assert not any(f.criterion == "1.3.4" for f in result.after.findings)
+    assert "transform" not in result.html
+    assert "@media (orientation: landscape)" not in result.html
+
+
+def test_combined_orientation_query_is_not_rewritten():
+    html = (
+        '<html lang="en"><head><title>t</title>'
+        "<style>@media (orientation: portrait) and (min-width: 40rem) { "
+        "html { transform: rotate(90deg); } }</style>"
+        "</head><body><p>Hi</p></body></html>"
+    )
+    result = apply_mechanical_fixes(html)
+    assert result.html == html
+    assert "rotate(90deg)" in result.html
+
+
+def test_compound_transform_is_not_stripped():
+    html = (
+        '<html lang="en"><head><title>t</title>'
+        "<style>@media (orientation: portrait) { "
+        "html { transform: rotate(90deg) translateX(10px); } }</style>"
+        "</head><body><p>Hi</p></body></html>"
+    )
+    before = audit_html(html)
+    assert any(f.criterion == "1.3.4" for f in before.findings)
+    result = apply_mechanical_fixes(html)
+    assert result.html == html
+    assert any(s.criterion == "1.3.4" for s in result.skipped)
+
+
+def test_search_field_with_no_label_is_not_invented():
+    # search.liquid:22 — no <label for> in the file. Detection can name
+    # the gap; this pass cannot write a name.
+    html = (
+        "<html lang='en'><head><title>t</title></head><body><form>"
+        "<input type='search' id='{{ idPrefix }}_q'>"
+        "</form></body></html>"
+    )
+    result = apply_mechanical_fixes(html)
+    assert result.html == html
+    assert result.applied == []
+
+
+def test_hidden_input_is_not_paired_as_the_forgotten_prefix():
+    html = (
+        "<html lang='en'><head><title>t</title></head><body><form>"
+        "<label for='mce-NAME'>Name</label>"
+        "<input type='hidden' id='{{ idPrefix }}_mce-NAME'>"
+        "</form></body></html>"
+    )
+    result = apply_mechanical_fixes(html)
+    assert result.html == html
+    assert result.applied == []
 
 
 def test_cli_writes_patched_pages_and_leaves_the_customer_record_unpatched(

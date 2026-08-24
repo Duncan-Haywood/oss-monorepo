@@ -55,6 +55,9 @@ workflows:
 - workflow: branch-cleanup.yml
   classification: none
   publishes: []
+- workflow: claude-routine-trigger.yml
+  classification: none
+  publishes: []
 - workflow: demand-signal-reachability-ci.yml
   classification: none
   publishes: []

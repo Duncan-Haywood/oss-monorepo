@@ -16,6 +16,20 @@ The patches here are the ones that do not add words:
 - remove ``aria-hidden`` from a focusable control (the control already
   has a name, or a different rule would have said so)
 - drop a zoom-lock on the viewport meta
+- remove a ``<meta http-equiv=refresh>`` with a positive delay
+- unwrap ``<blink>`` / ``<marquee>``, keeping the text they already hold
+- drop an ``aria-label`` / ``aria-labelledby`` that does not contain the
+  visible label, so the name comes from the content that is already there
+- rewrite a dead ``<label for>`` onto the unique expression-prefixed
+  control id that already ends with that literal (forgotten-prefix).
+  A search field with no label in the file is still skipped: there is
+  no ``for`` to rewrite, and inventing a name is content.
+- add ``muted`` to ``<video>`` / ``<audio autoplay>`` (1.4.2). The
+  rule's own first remediation is a boolean attribute, not a word.
+- drop a visual ``transform: rotate()`` on a bare ``html`` / ``body``
+  rule inside a pure orientation media query (1.3.4). Combined
+  queries, no-op turns, and transforms that carry other functions
+  stay.
 
 A low close rate on blocking findings is a result, not a bug. The
 remainder is the contractor step.
@@ -29,10 +43,53 @@ from html import escape
 from typing import Optional
 
 from .engine import Audit, audit_html
+from .expressions import (
+    EXPR_SENTINEL,
+    expr_free,
+    is_expr,
+    refs_can_match,
+    strip_expressions,
+)
 from .parser import parse
-from .rules import Finding
+from .rules import Finding, _has_visual_rotation
 
 _INTERACTIVE = frozenset({"a", "button", "input", "select", "textarea"})
+_NAME_FROM_CONTENT = frozenset({"a", "button", "input"})
+_REFRESH_DELAY = re.compile(r"^\s*(\d+(?:\.\d+)?)")
+_META_TAG = re.compile(r"<meta\b[^>]*>", re.I)
+_MOVING_WRAP = re.compile(
+    r"<(?P<tag>blink|marquee)\b[^>]*>(?P<body>.*?)</(?P=tag)\s*>",
+    re.I | re.S,
+)
+_OVERRIDE_ATTR = re.compile(
+    r"""\s+aria-(?:label|labelledby)=(?P<q>['"])(?:(?!(?P=q)).)*(?P=q)""",
+    re.I | re.S,
+)
+_NO_LABEL_TYPES = frozenset({"hidden"})
+_ATTR_FIND = re.compile(
+    r"""(?P<name>[A-Za-z_:][-\w:.]*)\s*=\s*(?P<q>['"])(?P<val>(?:(?!(?P=q)).)*)(?P=q)""",
+    re.I | re.S,
+)
+_CONTROL_OPEN = re.compile(
+    r"""<(?P<tag>input|select|textarea)\b(?P<body>[^>]*)>""",
+    re.I | re.S,
+)
+_LABEL_OPEN = re.compile(r"""<label\b(?P<body>[^>]*)>""", re.I | re.S)
+_SEPARATOR_ONLY = re.compile(r"^[\W_]*$")
+_MISMATCH_MARK = "dead in the rendered page"
+_STYLE_BLOCK = re.compile(r"(<style\b[^>]*>)(.*?)(</style\s*>)", re.I | re.S)
+_PURE_ORIENTATION = re.compile(
+    r"@media\s*\(\s*orientation\s*:\s*(?:portrait|landscape)\s*\)\s*\{",
+    re.I,
+)
+_BARE_TYPE_RULE = re.compile(
+    r"(?P<prefix>^|[{};])\s*(?P<sel>html|body)\s*\{(?P<decls>[^}]*)\}",
+    re.I | re.S,
+)
+_ONLY_ROTATE = re.compile(
+    r"^\s*rotate\(\s*-?[\d.]+\s*(?:deg|grad|rad|turn)?\s*\)\s*$",
+    re.I,
+)
 
 LIMITS = (
     "Fixture or supplied markup, not a live shop theme.",
@@ -94,6 +151,11 @@ class FixPass:
 def skip_reason(finding: Finding) -> str:
     if finding.criterion == "4.1.2" and "aria-hidden" not in finding.message:
         return "a control name is content; this pass will not invent it"
+    if finding.criterion == "1.3.1" and _MISMATCH_MARK in finding.message:
+        return (
+            "no unique forgotten-prefix pairing in this file; "
+            "this pass will not invent a label"
+        )
     return _SKIP_REASONS.get(
         finding.criterion,
         "no mechanical rewrite exists for this finding",
@@ -118,6 +180,39 @@ def try_patch(html: str, finding: Finding) -> tuple[Optional[str], str]:
         nxt = _relax_viewport(html)
         if nxt is not None:
             return nxt, "removed the viewport zoom-lock"
+    if finding.criterion == "2.2.1":
+        nxt = _remove_meta_refresh(html)
+        if nxt is not None:
+            return nxt, "removed a timed meta refresh"
+    if finding.criterion == "2.2.2":
+        nxt = _unwrap_moving_content(html)
+        if nxt is not None:
+            return nxt, f"unwrapped <{finding.element}>, keeping its existing text"
+    if finding.criterion == "2.5.3":
+        nxt = _drop_name_override(html, finding)
+        if nxt is not None:
+            return nxt, (
+                "dropped the accessible-name override so the name "
+                "comes from the visible text already on the control"
+            )
+    if finding.criterion == "1.3.1" and _MISMATCH_MARK in finding.message:
+        nxt = _rewrite_forgotten_prefix(html)
+        if nxt is not None:
+            return nxt, (
+                "rewrote a dead <label for> onto the unique "
+                "expression-prefixed control id"
+            )
+    if finding.criterion == "1.4.2":
+        nxt = _mute_autoplay(html, finding)
+        if nxt is not None:
+            return nxt, "added muted to autoplaying media"
+    if finding.criterion == "1.3.4":
+        nxt = _drop_orientation_rotate(html)
+        if nxt is not None:
+            return nxt, (
+                "removed a visual rotate() on <html>/<body> under a "
+                "pure orientation media query"
+            )
     return None, skip_reason(finding)
 
 
@@ -324,3 +419,287 @@ def _relax_viewport(html: str) -> Optional[str]:
         + tag[content_match.end() :]
     )
     return html[: match.start()] + new_tag + html[match.end() :]
+
+
+def _remove_meta_refresh(html: str) -> Optional[str]:
+    """Drop every ``<meta http-equiv=refresh>`` whose delay is positive.
+
+    ``content="0"`` is an immediate redirect, not a time limit, and the
+    rule does not fire on it — this pass must not remove those either.
+    """
+    changed = False
+    parts: list[str] = []
+    last = 0
+    for match in _META_TAG.finditer(html):
+        tag = match.group(0)
+        if not re.search(r"""\bhttp-equiv=(['"])refresh\1""", tag, flags=re.I):
+            continue
+        content = re.search(
+            r"""\bcontent=(['"])(.*?)\1""", tag, flags=re.I | re.DOTALL
+        )
+        if content is None:
+            continue
+        delay = _REFRESH_DELAY.match(content.group(2))
+        if delay is None or float(delay.group(1)) <= 0:
+            continue
+        parts.append(html[last : match.start()])
+        last = match.end()
+        changed = True
+    if not changed:
+        return None
+    parts.append(html[last:])
+    return "".join(parts)
+
+
+def _unwrap_moving_content(html: str) -> Optional[str]:
+    """Replace one ``<blink>``/``<marquee>`` with the text it already holds."""
+    nxt, n = _MOVING_WRAP.subn(r"\g<body>", html, count=1)
+    return nxt if n else None
+
+
+def _drop_name_override(html: str, finding: Finding) -> Optional[str]:
+    """Remove ``aria-label`` / ``aria-labelledby`` from the named control.
+
+    The visible text stays. The rule's own remediation is to drop the
+    override and let the name come from content — that is a deletion,
+    not a new name.
+    """
+    if finding.element not in _NAME_FROM_CONTENT and finding.element != "div":
+        return None
+    lines = html.splitlines(keepends=True)
+    if finding.line < 1 or finding.line > len(lines):
+        return None
+    idx = finding.line - 1
+    open_pat = rf"<{finding.element}\b[^>]*>"
+    match = re.search(open_pat, lines[idx], flags=re.I | re.S)
+    if match is None:
+        return None
+    tag = match.group(0)
+    new_tag, n = _OVERRIDE_ATTR.subn("", tag)
+    if n == 0 or new_tag == tag:
+        return None
+    lines[idx] = lines[idx][: match.start()] + new_tag + lines[idx][match.end() :]
+    return "".join(lines)
+def _attr_in(body: str, name: str) -> tuple[str, str] | None:
+    """Original (quote, value) for ``name`` inside a start-tag body."""
+    for match in _ATTR_FIND.finditer(body):
+        if match.group("name").lower() == name:
+            return match.group("q"), match.group("val")
+    return None
+
+
+def _control_needs_label(body: str) -> bool:
+    found = _attr_in(body, "type")
+    if found is None:
+        return True
+    return expr_free(strip_expressions(found[1])).lower() not in _NO_LABEL_TYPES
+
+
+def _forgotten_prefix(literal_for: str, raw_id: str) -> bool:
+    """Is ``raw_id`` a prefixed form of ``literal_for`` that can never equal it?"""
+    if not literal_for or is_expr(literal_for) or not is_expr(raw_id):
+        return False
+    if refs_can_match(literal_for, raw_id):
+        return False
+    last = EXPR_SENTINEL.split(raw_id)[-1]
+    if not last.endswith(literal_for):
+        return False
+    leftover = last[: -len(literal_for)]
+    return bool(_SEPARATOR_ONLY.match(leftover))
+
+
+def _rewrite_forgotten_prefix(html: str) -> Optional[str]:
+    """Rewrite each uniquely determined dead ``for`` onto its prefixed id.
+
+    Same pairing rule as ``audit.py``'s ``suggest_fixes``: a literal
+    ``<label for>`` that cannot match any id here, next to exactly one
+    expression-bearing control id whose trailing literal is that
+    ``for`` value after a separator. Ambiguous suffixes, labels that
+    could still render equal, and a control with no label in the file
+    are left alone.
+    """
+    labels = []
+    controls = []
+    for match in _LABEL_OPEN.finditer(html):
+        found = _attr_in(match.group("body"), "for")
+        if found:
+            labels.append((found[0], found[1], strip_expressions(found[1])))
+    for match in _CONTROL_OPEN.finditer(html):
+        if not _control_needs_label(match.group("body")):
+            continue
+        found = _attr_in(match.group("body"), "id")
+        if found:
+            controls.append((found[1], strip_expressions(found[1])))
+
+    raw_ids = [stripped for _, stripped in controls]
+    dangling = [
+        (quote, original, stripped)
+        for quote, original, stripped in labels
+        if not any(refs_can_match(stripped, raw) for raw in raw_ids)
+    ]
+
+    claimed: dict[str, list[tuple[str, str]]] = {}
+    for quote, original_for, stripped_for in dangling:
+        hits = [
+            original_id
+            for original_id, raw_id in controls
+            if _forgotten_prefix(stripped_for, raw_id)
+        ]
+        if len(hits) != 1:
+            continue
+        claimed.setdefault(hits[0], []).append((quote, original_for))
+
+    updated = html
+    changed = False
+    for original_id, claimants in claimed.items():
+        if len(claimants) != 1:
+            continue
+        quote, original_for = claimants[0]
+        # Match the same attribute spelling accepted by _attr_in. HTML
+        # attributes are case-insensitive and whitespace around '=' is valid.
+        needle = re.compile(
+            rf"(?P<prefix>\bfor\s*=\s*{re.escape(quote)})"
+            rf"{re.escape(original_for)}{re.escape(quote)}",
+            re.I,
+        )
+        if len(needle.findall(updated)) != 1:
+            continue
+        updated = needle.sub(
+            lambda match: (
+                f"{match.group('prefix')}{original_id}{quote}"
+            ),
+            updated,
+            count=1,
+        )
+        changed = True
+    return updated if changed else None
+
+
+def _mute_autoplay(html: str, finding: Finding) -> Optional[str]:
+    """Add ``muted`` to the autoplaying media the finding named.
+
+    The rule's first remediation is this boolean. It is not a name, a
+    caption, or a language. Media that is already muted, or that does
+    not autoplay, is left alone.
+    """
+    if finding.element not in {"video", "audio"}:
+        return None
+    lines = html.splitlines(keepends=True)
+    if finding.line < 1 or finding.line > len(lines):
+        return None
+    idx = finding.line - 1
+    pattern = re.compile(
+        rf"<(?P<tag>{re.escape(finding.element)})\b(?P<body>[^>]*)>",
+        re.I | re.S,
+    )
+
+    def insert_muted(match: re.Match) -> str:
+        body = match.group("body")
+        if not re.search(r"\bautoplay\b", body, flags=re.I):
+            return match.group(0)
+        if re.search(r"\bmuted\b", body, flags=re.I):
+            return match.group(0)
+        return f"<{match.group('tag')} muted{body}>"
+
+    new, n = pattern.subn(insert_muted, lines[idx], count=1)
+    if n != 1 or new == lines[idx]:
+        return None
+    lines[idx] = new
+    return "".join(lines)
+
+
+def _matching_brace_block(text: str, open_idx: int) -> tuple[int, int] | None:
+    """Return ``(content_start, close_idx)`` for ``{`` at ``open_idx``."""
+    if open_idx < 0 or open_idx >= len(text) or text[open_idx] != "{":
+        return None
+    depth = 0
+    for i in range(open_idx, len(text)):
+        if text[i] == "{":
+            depth += 1
+        elif text[i] == "}":
+            depth -= 1
+            if depth == 0:
+                return open_idx + 1, i
+    return None
+
+
+def _is_only_visual_rotate(value: str) -> bool:
+    return bool(_ONLY_ROTATE.match(value)) and _has_visual_rotation(value)
+
+
+def _strip_html_body_rotates(body: str) -> tuple[str, bool]:
+    """Drop a bare html/body ``transform: rotate()``; keep every other decl."""
+    changed = False
+
+    def repl(match: re.Match) -> str:
+        nonlocal changed
+        kept: list[str] = []
+        removed = False
+        for part in match.group("decls").split(";"):
+            raw = part.strip()
+            if not raw:
+                continue
+            key, sep, val = raw.partition(":")
+            if sep and key.strip().lower() == "transform" and _is_only_visual_rotate(
+                val
+            ):
+                removed = True
+                continue
+            kept.append(raw)
+        if not removed:
+            return match.group(0)
+        changed = True
+        if not kept:
+            return match.group("prefix")
+        return (
+            f"{match.group('prefix')}{match.group('sel')} "
+            f"{{ {'; '.join(kept)}; }}"
+        )
+
+    return _BARE_TYPE_RULE.sub(repl, body), changed
+
+
+def _strip_orientation_rotates(css_text: str) -> tuple[str, bool]:
+    """Remove visual rotates from pure orientation queries only."""
+    changed = False
+    parts: list[str] = []
+    last = 0
+    for match in _PURE_ORIENTATION.finditer(css_text):
+        span = _matching_brace_block(css_text, match.end() - 1)
+        if span is None:
+            continue
+        content_start, close_idx = span
+        new_body, did = _strip_html_body_rotates(css_text[content_start:close_idx])
+        if not did:
+            continue
+        parts.append(css_text[last : match.start()])
+        if new_body.strip():
+            parts.append(css_text[match.start() : content_start])
+            parts.append(new_body)
+            parts.append("}")
+        last = close_idx + 1
+        changed = True
+    if not changed:
+        return css_text, False
+    parts.append(css_text[last:])
+    return "".join(parts), True
+
+
+def _drop_orientation_rotate(html: str) -> Optional[str]:
+    """Remove the classic html/body orientation-lock rotate from ``<style>``.
+
+    Combined queries (a breakpoint plus orientation), no-op turns, class
+    selectors, and a ``transform`` that carries anything besides
+    ``rotate()`` are left alone — those are not uniquely the lock.
+    """
+    changed = False
+
+    def patch_style(match: re.Match) -> str:
+        nonlocal changed
+        new_css, did = _strip_orientation_rotates(match.group(2))
+        if did:
+            changed = True
+        return f"{match.group(1)}{new_css}{match.group(3)}"
+
+    updated = _STYLE_BLOCK.sub(patch_style, html)
+    return updated if changed else None

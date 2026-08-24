@@ -2,6 +2,10 @@
 
 Businesses that have been researched and scored but are **not** ventures yet.
 
+**Portfolio direction (2026-08-24):** candidates exist to be **built**, not
+re-screened. Graduate a `build-now` item and ship a free full-feature product
+with usage tracking. See [`../DIRECTION.md`](../DIRECTION.md).
+
 `ventures/` is for things being built. This directory is the stage before that:
 written-up candidates with an explicit verdict, so that starting a new venture
 is a decision someone makes against evidence rather than an idea that arrived on
@@ -13,11 +17,12 @@ cannot see it and no agent budget flows to it:
 
 - **`graduate_as: venture`** — someone writes `ventures/<name>/VENTURE.yaml`.
 - **`graduate_as: product-line`** — someone adds the candidate's slug under
-  `product_lines` in its `host_venture`'s `VENTURE.yaml`. One candidate carries
-  this today (`eaa-remediation-pipeline`, into `local-site-studio`), and it
-  happens to be the only `build-now` verdict in the table — so the path is rare
-  by count and load-bearing in practice. See the closing section on why adding
-  ventures to an unmeasured portfolio is the more expensive problem.
+  `product_lines` in its `host_venture`'s `VENTURE.yaml`. Two `build-now`
+  verdicts have graduated this way: `eaa-remediation-pipeline` into
+  `local-site-studio` and `mls-photo-spec-preflight` into
+  `real-estate-agent-photo-app`, both on 2026-08-24. See the closing section
+  on why adding ventures to an unmeasured portfolio is the more expensive
+  problem.
 
 In both cases the directory must actually be routable: a `NOT-A-VENTURE`
 marker wins over a `VENTURE.yaml` in the same directory and `allocate.py` skips
@@ -117,13 +122,19 @@ four candidates carrying a probe have moved and the table is re-ordered.
 | # | Candidate | Composite | Floor | Verdict |
 |---|---|---|---|---|
 | 1 | [Shopify accessibility evidence app](candidates/shopify-a11y-evidence.md) | 7.25 | 4 | Probe the channel — scored 2026-08-19. Top of the table only because nobody has probed it |
-| 2 | [EAA remediation pipeline](candidates/eaa-remediation-pipeline.md) | 7.125 | 5 | Build now, as a `local-site-studio` product line. Both gates measured 2026-08-21 — `liability_containment` 6→5 (**on** the gate, unmoved), `ethical_robustness` 9→6→9 after the record began printing its error rates |
+| 2 | [EAA remediation pipeline](candidates/eaa-remediation-pipeline.md) | 7.125 | 5 | Graduated 2026-08-24 as a `local-site-studio` product line. Both gates measured 2026-08-21 — `liability_containment` 6→5 (**on** the gate, unmoved), `ethical_robustness` 9→6→9 after the record began printing its error rates |
 | 3 | [Public-record watch](candidates/public-record-watch.md) | 7.0 | 4 | Cheap probe — one vertical, two weeks. `ethical_robustness` 9→6→9 on 2026-08-21, after the subscriber record was built; the detector still misses two thirds of the dormancy it looks for |
 | 4 | [Agent permission harness](candidates/agent-permission-harness.md) | 6.875 | 4 | Park; revisit 2027-Q1. Probed 2026-08-21 — internal build done, `ai_leverage` 9→8; `ethical_robustness` 9→7→9 after `validate_accuracy.py` measured 0 false positives / 0 false negatives on a 34-case fixture corpus and the findings report started disclosing it |
 | 5 | [MCP supply-chain watch](candidates/mcp-supply-chain-watch.md) | 6.875 | 3 | Probe: steps 1–2 run; mitigation refuted, cannot graduate as scored. `ai_leverage` 6→7 on 2026-08-22 — a blind model pass on the held-out corpus roughly doubled the rules classifier's F1 |
-| 6 | [CRA evidence desk](candidates/cra-evidence-desk.md) | 6.75 | 3 | Probe (was build-now); wedge is egress-blocked. `ethical_robustness` 8→6→7→8 — 7→8 on 2026-08-21 after the triage engine's own record began carrying its hand-verified wrong-suppression rate (0 of 53 claims wrong) |
-| 7 | [Tender radar](candidates/tender-radar.md) | 6.625 | 4 | Park; needs a channel partner |
-| 8 | [E-invoice preflight](candidates/einvoice-preflight.md) | 6.125 | 4 | Reject broad version; narrow version conditional |
+| 6 | [MLS photo spec preflight](candidates/mls-photo-spec-preflight.md) | 6.75 | 5 | Build now, as a `real-estate-agent-photo-app` product line. Scored 2026-08-24 — file-spec evidence, not listing photography the venture and not web accessibility |
+| 7 | [CRA evidence desk](candidates/cra-evidence-desk.md) | 6.75 | 3 | Probe (was build-now); wedge is egress-blocked. `ethical_robustness` 8→6→7→8 — 7→8 on 2026-08-21 after the triage engine's own record began carrying its hand-verified wrong-suppression rate (0 of 53 claims wrong) |
+| 8 | [Vendor-change evidence monitor](candidates/vendor-change-evidence.md) | 6.75 | 4 | Probe; public-page evidence feed, with distribution and archive value still unmeasured |
+| 9 | [Shopify app-permission drift record](candidates/shopify-permission-drift.md) | 6.75 | 4 | Probe; customer-authorized app inventory, with platform observability and App Store demand unmeasured |
+| 10 | [Tender radar](candidates/tender-radar.md) | 6.625 | 4 | Park; needs a channel partner |
+| 11 | [Repository branch hygiene and recovery](candidates/repository-branch-hygiene.md) | 6.5 | 4 | Probe; read-only report and recovery manifest, with distribution unmeasured |
+| 12 | [Software evidence provenance ledger](candidates/software-evidence-provenance.md) | 6.375 | 3 | Reject; existing provenance standards leave no defensible wedge and distribution is unresolved |
+| 13 | [E-invoice preflight](candidates/einvoice-preflight.md) | 6.125 | 4 | Reject broad version; narrow version conditional |
+| 14 | [Consent change record](candidates/consent-change-record.md) | 6.125 | 4 | Probe; needs an agency or privacy-implementation channel |
 
 **"No measured dimension has ever risen" is no longer true, and the way it
 stopped being true is the useful part.** This file said it across four
@@ -559,3 +570,12 @@ rather than measured return. Adding new ventures on top of an unmeasured
 portfolio is the more expensive version of that problem, which is why every
 verdict above is a probe or a product line rather than a new `ventures/`
 directory.
+
+A 2026-08-24 session found the pipeline empty of unbuilt `build-now`
+items after `eaa-remediation-pipeline` graduated, and added one candidate
+that is *not* a restatement of the nine archetypes:
+[mls-photo-spec-preflight](candidates/mls-photo-spec-preflight.md), a
+file-spec evidence product line of `real-estate-agent-photo-app`. Named
+against [screened-out.md](screened-out.md) (not listing photography the
+venture, not multi-location-listing-guard, not web accessibility). The
+probe is [`probes/mls-photo-spec/`](probes/mls-photo-spec/).
