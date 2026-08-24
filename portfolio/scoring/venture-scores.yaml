@@ -91,6 +91,132 @@ ventures:
       liability_containment: pass
       ethical_robustness: pass
 
+  - slug: ebay-fee-calculator
+    scores:
+      ai_leverage: 2
+      autonomous_ops: 10
+      time_to_revenue: 7
+      gross_margin: 10
+      defensibility: 3
+      distribution: 6
+    composite: 6.333
+    rater_b: null
+    floor: 2
+    floor_dimension: ai_leverage
+    floor_note: AI is intentionally absent from the arithmetic core.
+    basis: >-
+      Graduated on 2026-08-24 as a browser-local eBay reseller fee, profit and
+      ROI calculator. Scored one below its etsy-profit-calculator sibling on
+      defensibility and distribution: "eBay fee calculator" is a more saturated
+      SERP with entrenched ad-funded incumbents, so the cost-of-goods/ROI
+      differentiator is thinner cover there than on Etsy's.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+
+  - slug: shopify-fee-calculator
+    scores:
+      ai_leverage: 2
+      autonomous_ops: 10
+      time_to_revenue: 7
+      gross_margin: 10
+      defensibility: 4
+      distribution: 8
+    composite: 6.833
+    rater_b: null
+    floor: 2
+    floor_dimension: ai_leverage
+    floor_note: AI is intentionally absent from the arithmetic core.
+    basis: >-
+      Graduated on 2026-08-24 as a browser-local Shopify merchant fee and
+      profit calculator. The wedge is the Shopify Payments vs third-party
+      (PayPal/Stripe) comparison, including the extra Shopify transaction fee
+      generic calculators omit. Scored one above ebay-fee-calculator on
+      distribution: "Shopify fee calculator" and "Shopify PayPal fees" are
+      high-intent merchant queries with a clearer payment-path decision.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+
+  - slug: amazon-fba-calculator
+    scores:
+      ai_leverage: 2
+      autonomous_ops: 10
+      time_to_revenue: 7
+      gross_margin: 10
+      defensibility: 3
+      distribution: 8
+    composite: 6.667
+    rater_b: null
+    floor: 2
+    floor_dimension: ai_leverage
+    floor_note: AI is intentionally absent from the arithmetic core.
+    basis: >-
+      Graduated on 2026-08-24 as a browser-local Amazon seller FBA vs FBM
+      profit calculator. The wedge is the same-SKU comparison plus the
+      maximum inventory buy cost, which generic FBA fee pages omit.
+      Scored one below shopify-fee-calculator on defensibility: "Amazon FBA
+      calculator" is a more saturated SERP, but distribution stays at 8
+      because FBA vs FBM and max-buy-cost are high-intent sourcing queries.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+
+  - slug: where-to-sell-calculator
+    scores:
+      ai_leverage: 2
+      autonomous_ops: 10
+      time_to_revenue: 7
+      gross_margin: 10
+      defensibility: 5
+      distribution: 8
+    composite: 7.0
+    rater_b: null
+    floor: 2
+    floor_dimension: ai_leverage
+    floor_note: AI is intentionally absent from the arithmetic core.
+    basis: >-
+      Graduated on 2026-08-24 as the cross-channel counterpart to the
+      single-marketplace calculators already in the portfolio. Scored one above
+      shopify-fee-calculator on defensibility: the per-marketplace calculators
+      are each a commodity SERP, while a comparison that models differing fee
+      *shapes* — per-listing fees, subscription amortisation, and the price
+      needed to match the best channel — is the piece the incumbent ad-funded
+      pages do not attempt. Distribution matches at 8: "etsy vs ebay fees" and
+      "where to sell online" are high-intent seller queries.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+
+  - slug: no-show-fee-calculator
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 7
+      gross_margin: 10
+      defensibility: 4
+      distribution: 7
+    composite: 6.5
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      AI is intentionally unnecessary: transparent arithmetic and policy
+      drafting are the user value. Repeat usage and niche templates may provide
+      a future moat, but demand is untested.
+    basis: >-
+      Graduated as a new venture on 2026-08-24. The browser-local calculator
+      addresses a specific revenue leak for appointment businesses, has no
+      account, network, inference, or payment dependency, and produces a
+      copyable policy draft from user-supplied numbers.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Pass, conditionally: results are estimates and draft text, not legal or
+      financial advice. The interface tells users to verify local consumer,
+      industry, and payment-processor requirements before publishing.
+
   - slug: quote-margin-check
     scores:
       ai_leverage: 3
@@ -552,6 +678,35 @@ ventures:
       security, deliverability, uptime, or compliance. Authorization and
       remediation remain customer responsibilities.
 
+  - slug: einvoice-preflight
+    scores:
+      ai_leverage: 5
+      autonomous_ops: 8
+      time_to_revenue: 5
+      gross_margin: 9
+      defensibility: 4
+      distribution: 5
+    composite: 6
+    rater_b: null
+    floor: 4
+    floor_dimension: defensibility
+    floor_note: >-
+      Format validation is reproducible and open-source substitutes exist;
+      explainable JSON output and integration fixtures are the proposed wedge,
+      but neither retention nor a buyer channel is measured.
+    basis: >-
+      Graduated as the narrow version of the e-invoice preflight candidate on
+      2026-08-24. The first slice is a local standard-library checker for
+      structural fields and arithmetic. It never transmits an invoice, chooses
+      tax treatment, or stores customer documents.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Pass, conditionally: output is limited to observations about supplied
+      fields and arithmetic. The user remains the filer, signer, and decision
+      maker; no format completeness or tax compliance warranty is made.
+
   - slug: backup-verification-evidence
     scores:
       ai_leverage: 5
@@ -580,9 +735,34 @@ ventures:
     gates:
       liability_containment: pass
       ethical_robustness: pass
+
+  - slug: cut-list-optimizer
+    scores:
+      ai_leverage: 2
+      autonomous_ops: 10
+      time_to_revenue: 6
+      gross_margin: 10
+      defensibility: 4
+      distribution: 7
+    composite: 6.5
+    rater_b: null
+    floor: 2
+    floor_dimension: ai_leverage
+    floor_note: AI is intentionally absent from the deterministic packing core.
+    basis: >-
+      Graduated on 2026-08-24 as a browser-local cut-list planner for
+      woodworkers, sign shops, and makers. The first slice expands required
+      quantities, accounts for saw kerf, and produces a transparent heuristic
+      stock plan without uploads, accounts, or paid dependencies. Distribution
+      is supported by the specific low-waste and kerf-aware planning search
+      intent, while defensibility remains modest until repeat usage creates
+      niche templates or workflow data.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
     gate_note: >-
-      Pass, conditionally: `verified` is scoped in both the CLI output and
-      the README to "exit code 0 and artifact meets the stated size/age
+      Pass, conditionally: `verified` is scoped in both the CLI output and the
+      README to "exit code 0 and artifact meets the stated size/age
       expectations", never to restorability, completeness, or data safety.
       Testing restores and maintaining an independent backup strategy remain
       customer responsibilities.
@@ -612,3 +792,66 @@ ventures:
     gates:
       liability_containment: pass
       ethical_robustness: pass
+  - slug: shopify-a11y-evidence
+    scores:
+      ai_leverage: 3
+      autonomous_ops: 10
+      time_to_revenue: 6
+      gross_margin: 10
+      defensibility: 4
+      distribution: 6
+    composite: 6.5
+    rater_b: null
+    floor: 3
+    floor_dimension: ai_leverage
+    floor_note: >-
+      The initial evidence report is intentionally deterministic; a dated
+      history and agency workflow can provide defensibility after usage proves
+      repeat demand.
+    basis: >-
+      Graduated on 2026-08-24 as a browser-local axe-core JSON report for
+      Shopify merchants and agencies. It produces a portable record without
+      Shopify credentials, network access, or server-side data retention.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Pass, conditionally: output is explicitly a record of a supplied
+      automated test, never a compliance determination, and every result calls
+      for manual review.
+
+  - slug: janitorial-bid-calculator
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 7
+      gross_margin: 10
+      defensibility: 5
+      distribution: 7
+    composite: 6.667
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      There is no AI anywhere in the product. The value is a domain model —
+      per-space production rates and payroll burden — that is arithmetic, and
+      adding inference to it would only make the result less checkable.
+    basis: >-
+      Graduated on 2026-08-24 as a browser-local commercial cleaning bid
+      calculator. Scored above the marketplace fee calculators on
+      defensibility (5): those restate a published fee schedule, whereas the
+      production-rate model encodes how the trade actually estimates labor,
+      and the incumbents here are paid bidding suites rather than free
+      ad-funded pages. Distribution 7: "janitorial bidding calculator" and
+      "commercial cleaning price per square foot" are lower-volume than the
+      marketplace-fee queries but far less saturated and bought by an operator
+      with a real contract on the line.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Pass: the output is arithmetic on the contractor's own inputs, never a
+      recommended price, a wage determination, or an employment-law opinion.
+      The shipped production rates are labelled ballpark starting points rather
+      than a standard or benchmark, and nothing the user enters leaves the
+      browser.

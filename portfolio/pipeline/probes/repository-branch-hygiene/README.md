@@ -57,7 +57,7 @@ matters — see the race below.
 a thin corpus and not evidence about a customer's repository. It is the run
 that found the false-positive defect below, so it earned its place.
 
-## Two defects the tests found, both kept as regression tests
+## Three defects the tests found, all kept as regression tests
 
 1. **`duplicate_of` named an arbitrary ref.** `merged-feature` is an ancestor
    of both `main` and an unrelated topic branch; the scanner reported
@@ -71,6 +71,19 @@ that found the false-positive defect below, so it earned its place.
    finding. Refs are now grouped by name; agreeing copies go in `also_at`, and
    copies at a *different* tip go in `diverged_copies` — which is itself a
    finding (unpushed or force-pushed work), not noise to drop.
+
+3. **Found by review, not by the test suite: grouping by name (fix 2) then
+   compared only each name's *primary* tip.** A diverged remote copy
+   (`diverged_copies`) is still a live ref. If it happened to sit at the
+   exact SHA of a *different* branch's primary tip, neither branch was
+   flagged `shared`, and the commit could be reported as exclusively
+   "unique" to one of them while a live ref under another name reached it
+   too — a direct violation of the recoverability claim. Shared/duplicate
+   detection and the unique-commit exclusion set now check every copy
+   (primary and diverged) of every other name, not just primaries.
+   `test_branch_at_another_name_diverged_tip_is_shared`,
+   `test_unique_commits_exclude_diverged_tips`, and
+   `test_ancestor_of_diverged_tip_is_duplicate` pin it.
 
 ## The race, pinned as a test rather than a warning
 

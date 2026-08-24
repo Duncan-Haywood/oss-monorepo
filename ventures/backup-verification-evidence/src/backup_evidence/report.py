@@ -17,6 +17,8 @@ from __future__ import annotations
 from datetime import datetime, timezone
 from typing import Any
 
+from . import integrity as integrity_mod
+
 STATUS_VERIFIED = "verified"
 STATUS_SUSPICIOUS = "suspicious"
 STATUS_FAILED = "failed"
@@ -39,7 +41,8 @@ def classify_run(record: dict[str, Any]) -> dict[str, Any]:
       tool: str -- name of the backup tool that ran (restic, borg, pg_dump, ...)
       exit_code: int | null
       finished_at: str -- ISO-8601 timestamp
-      artifact: {exists: bool, size_bytes: int, modified_at: str} | null
+      artifact: {exists: bool, size_bytes: int, modified_at: str,
+                 integrity: {result, format, detail} | null} | null
       expected: {max_age_hours: number, min_size_bytes: int} | null -- both optional
       log_tail: str | null -- last lines of the tool's own output, for context only
     """
@@ -95,6 +98,30 @@ def classify_run(record: dict[str, Any]) -> dict[str, Any]:
             "tool": record["tool"],
             "finished_at": record["finished_at"],
         }
+
+    # Structural integrity, if it was checked, outranks size and age: those are
+    # proxies for "the writer finished", and this is the direct measurement. A
+    # provably corrupt artifact is a failed backup even though the command said
+    # 0, so it is reported as `failed` rather than softened to `suspicious` --
+    # there is nothing ambiguous about a checksum that did not match.
+    integrity = artifact.get("integrity") or {}
+    integrity_result = integrity.get("result")
+    if integrity_result == integrity_mod.CORRUPT:
+        return {
+            "status": STATUS_FAILED,
+            "reasons": [
+                f"{record['tool']} exited 0 but the artifact is not intact: "
+                f"{integrity.get('detail', 'the integrity check failed')}"
+            ],
+            "tool": record["tool"],
+            "finished_at": record["finished_at"],
+            "integrity": integrity,
+        }
+    if integrity_result == integrity_mod.INCONCLUSIVE:
+        reasons.append(
+            f"the artifact's integrity could not be established: "
+            f"{integrity.get('detail', 'the integrity check did not complete')}"
+        )
 
     expected = record.get("expected") or {}
     size_bytes = artifact.get("size_bytes")
@@ -155,13 +182,31 @@ def classify_run(record: dict[str, Any]) -> dict[str, Any]:
             "reasons": reasons,
             "tool": record["tool"],
             "finished_at": record["finished_at"],
+            "integrity": integrity,
         }
+
+    # Say which of the two grades of `verified` this is. They are not the same
+    # claim, and a reader deciding whether to trust the result deserves to know
+    # whether anything actually opened the file.
+    verified_reason = "exit code 0, artifact exists, and size/age expectations (if any) were met"
+    if integrity_result == integrity_mod.INTACT:
+        verified_reason += (
+            f"; the artifact was also read end-to-end and is structurally intact "
+            f"({integrity.get('detail', '')})"
+        )
+    elif integrity_result == integrity_mod.UNSUPPORTED:
+        verified_reason += (
+            f"; structural integrity was not checked -- {integrity.get('detail', '')}"
+        )
+    else:
+        verified_reason += "; the artifact's contents were not opened or checked"
 
     return {
         "status": STATUS_VERIFIED,
-        "reasons": ["exit code 0, artifact exists, and size/age expectations (if any) were met"],
+        "reasons": [verified_reason],
         "tool": record["tool"],
         "finished_at": record["finished_at"],
+        "integrity": integrity,
     }
 
 
@@ -186,21 +231,56 @@ def build_history_report(records: list[dict[str, Any]]) -> dict[str, Any]:
         counts[finding["status"]] = counts.get(finding["status"], 0) + 1
 
     latest = findings[-1] if findings else None
+
+    # The honest limitation text differs depending on whether anything actually
+    # opened the artifacts. Printing the weaker disclaimer over an integrity-
+    # checked run would undersell it; printing the stronger one over a stat-only
+    # run would be a false claim. So the report says which it is.
+    any_integrity = any(
+        (finding.get("integrity") or {}).get("result")
+        in (integrity_mod.INTACT, integrity_mod.CORRUPT)
+        for finding in findings
+    )
+    limitations = ["This reports what the supplied run records and artifact stats show."]
+    if any_integrity:
+        limitations.append(
+            "Where an integrity check ran, `intact` means the artifact decompressed "
+            "and/or parsed to its end with every checksum the format carries matching "
+            "-- evidence the writer finished. It still does not mean the backup holds "
+            "the right data or that a restore will succeed; an intact archive of the "
+            "wrong database is intact. Test restores separately."
+        )
+    else:
+        limitations.append(
+            "It does not verify that the backup contents are complete, uncorrupted, "
+            "or restorable -- only that the job exited cleanly and produced an "
+            "artifact meeting the size/age expectations given to it. Pass "
+            "--verify-integrity to also read the artifact itself."
+        )
+    limitations.append(
+        "A run with no record is invisible to this tool; a missed backup with "
+        "no attempt looks identical to a backup schedule that was never configured."
+    )
+
     return {
         "generated_at": None,
         "run_count": len(findings),
         "status_counts": counts,
         "latest": latest,
         "findings": findings,
-        "limitations": [
-            "This reports what the supplied run records and artifact stats show.",
-            "It does not verify that the backup contents are complete, uncorrupted, "
-            "or restorable -- only that the job exited cleanly and produced an "
-            "artifact meeting the size/age expectations given to it.",
-            "A run with no record is invisible to this tool; a missed backup with "
-            "no attempt looks identical to a backup schedule that was never configured.",
-        ],
+        "limitations": limitations,
     }
+
+
+def _cell(value: Any) -> str:
+    """Make a value safe to drop into a markdown table cell.
+
+    Tool names and reasons routinely contain a pipe -- `pg_dump|gzip` is the
+    canonical example, and it is exactly the pipeline this tool exists to catch
+    failing -- which silently shears the rest of the row into extra columns.
+    Newlines in a log-derived reason do the same to the row itself.
+    """
+    return str(value).replace("|", "\\|").replace("\n", " ")
 
 
 def markdown_report(report: dict[str, Any]) -> str:
@@ -231,8 +311,11 @@ def markdown_report(report: dict[str, Any]) -> str:
         lines.extend(f"- {reason}" for reason in latest["reasons"])
     lines.extend(["", "## All runs", "", "| Finished at | Tool | Status | Reasons |", "|---|---|---|---|"])
     for finding in report["findings"]:
-        reasons = "; ".join(finding["reasons"])
-        lines.append(f"| {finding.get('finished_at')} | {finding.get('tool')} | **{finding['status']}** | {reasons} |")
+        reasons = _cell("; ".join(finding["reasons"]))
+        lines.append(
+            f"| {_cell(finding.get('finished_at'))} | {_cell(finding.get('tool'))} "
+            f"| **{finding['status']}** | {reasons} |"
+        )
     lines.extend(["", "## Limits", ""])
     lines.extend(f"- {limit}" for limit in report["limitations"])
     return "\n".join(lines) + "\n"

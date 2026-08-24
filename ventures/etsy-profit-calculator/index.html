@@ -15,7 +15,8 @@
     .layout { display: grid; grid-template-columns: minmax(0, 1fr) minmax(280px, .8fr); gap: 18px; align-items: start; }
     section { background: #fffdf9; border: 1px solid #ded5c8; border-radius: 14px; padding: 20px; box-shadow: 0 8px 24px #40301a0d; } h2 { margin-top: 0; font-size: 1.15rem; }
     .fields { display: grid; grid-template-columns: repeat(2, 1fr); gap: 13px; } label { display: grid; gap: 5px; font-size: .87rem; font-weight: 650; } input { width: 100%; box-sizing: border-box; border: 1px solid #b9ad9f; border-radius: 7px; padding: 10px; font: inherit; background: white; }
-    .result { position: sticky; top: 15px; background: #243d35; color: #fffdf9; border-color: #243d35; } .hero-number { font-size: 3rem; font-weight: 750; letter-spacing: -.05em; margin: 8px 0; } .negative { color: #ffb6a6; } .positive { color: #c5edb5; } dl { display: grid; grid-template-columns: 1fr auto; gap: 9px; margin: 20px 0; } dt, dd { margin: 0; } dd { font-variant-numeric: tabular-nums; } hr { border: 0; border-top: 1px solid #ffffff33; } .note { font-size: .82rem; opacity: .8; }
+    .result { position: sticky; top: 15px; background: #243d35; color: #fffdf9; border-color: #243d35; } .hero-number { font-size: 3rem; font-weight: 750; letter-spacing: -.05em; margin: 8px 0; } .negative { color: #ffb6a6; } .positive { color: #c5edb5; } dl { display: grid; grid-template-columns: 1fr auto; gap: 9px; margin: 20px 0; } dt, dd { margin: 0; } dd { font-variant-numeric: tabular-nums; } hr { border: 0; border-top: 1px solid #ffffff33; } .note { font-size: .82rem; opacity: .8; } table { width: 100%; border-collapse: collapse; } th, td { padding: 8px 4px; text-align: right; border-bottom: 1px solid #ffffff22; } th:first-child, td:first-child { text-align: left; }
+    .actions { display: flex; flex-wrap: wrap; gap: 8px; margin: 14px 0 6px; } .actions button { flex: 1 1 auto; cursor: pointer; font: inherit; font-weight: 650; border-radius: 7px; padding: 9px 12px; border: 1px solid #ffffff40; background: #ffffff1a; } #copyLink { background: #c5edb5; color: #16261f; border-color: #c5edb5; } #reset { background: transparent; color: #fffdf9; } .actions button:hover { filter: brightness(1.06); } #status { min-height: 1.1em; margin: 2px 0 0; }
     footer { margin-top: 25px; font-size: .82rem; color: #5c554d; } @media (max-width: 700px) { .layout { grid-template-columns: 1fr; } .result { position: static; } .fields { grid-template-columns: 1fr; } }
   </style>
 </head>
@@ -34,15 +35,81 @@
       <label>Materials / supplies <input id="materialCost" type="number" min="0" step="0.01" value="4"></label>
       <label>Other per-order cost <input id="otherCost" type="number" min="0" step="0.01" value="0"></label>
     </div></section>
-    <section class="result"><h2>Order result</h2><div id="profit" class="hero-number">$24.00</div><div id="label">estimated net contribution</div><dl><dt>Total revenue</dt><dd id="revenue"></dd><dt>Marketplace and payment fees</dt><dd id="fees"></dd><dt>Other variable costs</dt><dd id="other"></dd><dt>Net margin</dt><dd id="margin"></dd><dt>Break-even item price</dt><dd id="breakEven"></dd></dl><hr><p class="note">This is a transparent arithmetic result using your inputs, not a statement of Etsy's current fee schedule.</p></section>
+    <section class="result"><h2>Order result</h2><div id="profit" class="hero-number">$24.00</div><div id="label">estimated net contribution</div><dl><dt>Total revenue</dt><dd id="revenue"></dd><dt>Marketplace and payment fees</dt><dd id="fees"></dd><dt>Other variable costs</dt><dd id="other"></dd><dt>Net margin</dt><dd id="margin"></dd><dt>Break-even item price</dt><dd id="breakEven"></dd></dl><hr><h2>Reprice for a goal</h2><label>Target margin (%) <input id="targetMargin" type="number" min="0" max="99.9" step="1" value="50"></label><p id="targetPrice"></p><table><thead><tr><th>Item price</th><th>Profit</th><th>Margin</th></tr></thead><tbody id="scenarios"></tbody></table><div class="actions"><button id="copyLink" type="button">Copy shareable link</button><button id="reset" type="button">Reset to defaults</button></div><p id="status" class="note" role="status" aria-live="polite"></p><hr><p class="note">Your numbers stay in this browser and are restored on your next visit. The shareable link puts them in the URL so you can bookmark your shop's fee setup or send it to a partner. This is a transparent arithmetic result using your inputs, not a statement of Etsy's current fee schedule.</p></section>
   </main>
   <footer><label><input id="usageOptOut" type="checkbox" style="width:auto"> Do not keep anonymous local usage counts</label><p><strong>No warranty.</strong> This free tool is not tax, financial, or business advice. Verify every output and fee against your Etsy account and a qualified professional before relying on it. To the maximum extent permitted by law, the authors accept no liability for loss or damage from its use.</p></footer>
   <script type="module">
-    import { calculateOrder } from './calc.mjs'; import { recordUsage } from './usage.mjs';
-    const ids = ['price','shippingCharged','listingFee','transactionRate','paymentRate','paymentFixed','offsiteAdRate','shippingCost','materialCost','otherCost'];
+    import { calculateOrder, priceForMargin } from './calc.mjs'; import { recordUsage } from './usage.mjs'; import { encodeInputs, decodeInputs, FIELD_IDS } from './share.mjs';
+    const ids = FIELD_IDS;
+    const INPUTS_KEY = 'etsy-profit-inputs';
+    const field = id => document.getElementById(id);
     const money = value => `$${value.toFixed(2)}`;
-    function update() { try { const result = calculateOrder(Object.fromEntries(ids.map(id => [id, document.getElementById(id).value]))); document.getElementById('profit').textContent = money(result.profit); document.getElementById('profit').className = `hero-number ${result.profit < 0 ? 'negative' : 'positive'}`; document.getElementById('label').textContent = result.profit < 0 ? 'loss on this order' : 'estimated net contribution'; document.getElementById('revenue').textContent = money(result.revenue); document.getElementById('fees').textContent = money(result.fees.listing + result.fees.transaction + result.fees.payment + result.fees.offsiteAd); document.getElementById('other').textContent = money(result.costs - result.fees.listing - result.fees.transaction - result.fees.payment - result.fees.offsiteAd); document.getElementById('margin').textContent = `${result.margin.toFixed(1)}%`; document.getElementById('breakEven').textContent = money(result.breakEvenPrice); } catch (error) { document.getElementById('profit').textContent = error.message; } }
-    ids.forEach(id => document.getElementById(id).addEventListener('input', update)); ids.forEach(id => document.getElementById(id).addEventListener('change', () => recordUsage(localStorage, document.getElementById('usageOptOut').checked))); document.getElementById('usageOptOut').addEventListener('change', update); update();
+    const currentInputs = () => Object.fromEntries(ids.map(id => [id, field(id).value]));
+    // localStorage can throw (private mode, blocked cookies); a calculator must
+    // still work without it, so every access is guarded.
+    const safe = fn => { try { return fn(); } catch { return undefined; } };
+    let statusTimer;
+    function flash(message) { const el = document.getElementById('status'); el.textContent = message; clearTimeout(statusTimer); statusTimer = setTimeout(() => { el.textContent = ''; }, 3000); }
+
+    function apply(values) { for (const id of ids) { if (values[id] !== undefined) field(id).value = values[id]; } }
+
+    function update() { try { const result = calculateOrder(currentInputs()); document.getElementById('profit').textContent = money(result.profit); document.getElementById('profit').className = `hero-number ${result.profit < 0 ? 'negative' : 'positive'}`; document.getElementById('label').textContent = result.profit < 0 ? 'loss on this order' : 'estimated net contribution'; document.getElementById('revenue').textContent = money(result.revenue); document.getElementById('fees').textContent = money(result.fees.listing + result.fees.transaction + result.fees.payment + result.fees.offsiteAd); document.getElementById('other').textContent = money(result.costs - result.fees.listing - result.fees.transaction - result.fees.payment - result.fees.offsiteAd); document.getElementById('margin').textContent = `${result.margin.toFixed(1)}%`; document.getElementById('breakEven').textContent = money(result.breakEvenPrice); renderRepricing(currentInputs()); } catch (error) { document.getElementById('profit').textContent = error.message; } }
+
+    // Repricing panel: the target-margin price and the +/- $10 scenario rows.
+    // Kept separate from update() so the share/persist path above stays readable.
+    function renderRepricing(input) {
+      const target = field('targetMargin').value;
+      document.getElementById('targetPrice').textContent = `Charge ${money(priceForMargin(input, target))} to target a ${target}% margin.`;
+      document.getElementById('scenarios').replaceChildren(...[-10, 0, 10].map(delta => {
+        const price = Math.max(0, Number(input.price) + delta);
+        const scenario = calculateOrder({ ...input, price });
+        const row = document.createElement('tr');
+        for (const text of [money(price), money(scenario.profit), `${scenario.margin.toFixed(1)}%`]) {
+          row.insertCell().textContent = text;
+        }
+        return row;
+      }));
+    }
+
+    // Restore on load: a shared link wins over a saved session so a link always
+    // shows what its sender configured; otherwise fall back to this browser's
+    // last inputs. The page's HTML defaults fill anything neither provides.
+    const fromLink = decodeInputs(location.hash || location.search);
+    if (Object.keys(fromLink).length) { apply(fromLink); }
+    else { const saved = safe(() => JSON.parse(localStorage.getItem(INPUTS_KEY) || 'null')); if (saved) apply(decodeInputs(encodeInputs(saved))); }
+
+    // A share hash is authoritative on reload, so refresh it with later edits.
+    // Otherwise a copied (or opened) snapshot would overwrite the saved session.
+    function persist() {
+      const inputs = currentInputs();
+      safe(() => localStorage.setItem(INPUTS_KEY, JSON.stringify(inputs)));
+      if (location.hash || location.search) history.replaceState(null, '', `${location.pathname}#${encodeInputs(inputs)}`);
+    }
+
+    ids.forEach(id => field(id).addEventListener('input', () => { update(); persist(); }));
+    ids.forEach(id => field(id).addEventListener('change', () => recordUsage(safe(() => localStorage), document.getElementById('usageOptOut').checked)));
+    // targetMargin drives the repricing panel only: it is not one of the ten
+    // shared/persisted fields, so it re-renders without touching saved inputs.
+    field('targetMargin').addEventListener('input', update);
+    field('targetMargin').addEventListener('change', () => recordUsage(safe(() => localStorage), document.getElementById('usageOptOut').checked, 'scenario_compared'));
+    document.getElementById('usageOptOut').addEventListener('change', update);
+
+    document.getElementById('copyLink').addEventListener('click', async () => {
+      const query = encodeInputs(currentInputs());
+      history.replaceState(null, '', `${location.pathname}#${query}`);
+      const url = location.href;
+      try { await navigator.clipboard.writeText(url); flash('Link copied — it reopens the calculator with these numbers.'); }
+      catch { flash('Link is in your address bar — copy it to share these numbers.'); }
+    });
+
+    document.getElementById('reset').addEventListener('click', () => {
+      safe(() => localStorage.removeItem(INPUTS_KEY));
+      history.replaceState(null, '', location.pathname);
+      apply({ price: 30, shippingCharged: 5, listingFee: 0.20, transactionRate: 6.5, paymentRate: 3, paymentFixed: 0.25, offsiteAdRate: 0, shippingCost: 6, materialCost: 4, otherCost: 0 });
+      update(); flash('Reset to the default example order.');
+    });
+
+    update();
   </script>
 </body>
 </html>

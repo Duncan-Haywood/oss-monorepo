@@ -40,6 +40,11 @@ AI-wrap by default.
   invalidated them.
 - **Do not open ledger-only PRs** that re-state known blockers. Build the
   unblocked parts instead.
+- **Do not close a PR as "already on main"** until
+  `python3 portfolio/ledger/supersede_check.py <n>` exits 0. Exit 1 prints the
+  lines the close would destroy. See `CLAUDE.md` for why: the claim has been
+  wrong three times in one hour, and each time the feature existed only on the
+  branch being closed.
 
 Agent-decidable (merge yourself after CI):
 

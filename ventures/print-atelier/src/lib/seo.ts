@@ -26,6 +26,7 @@ export type SeoLandingPage = {
   artworkSlug: string;
   artworkTitle: string;
   artistName: string;
+  retailPrice: number;
   tags: string[];
   estimatedMonthlySearchVolume: number;
   readinessScore: number;
@@ -118,6 +119,7 @@ function buildPage(
     artworkSlug: artwork.slug,
     artworkTitle: artwork.title,
     artistName: artwork.artistName,
+    retailPrice: artwork.retailPrice,
     tags: artwork.tags,
     estimatedMonthlySearchVolume: estimateSearchVolume(artwork, intent),
     readinessScore: artwork.readinessScore ?? 0,
@@ -183,6 +185,55 @@ export type SeoPublishState = {
   blockers: string[];
   consentBlocked: boolean;
 };
+
+export type PrintStructuredData = {
+  "@context": "https://schema.org";
+  "@graph": Array<Record<string, unknown>>;
+};
+
+/** Builds crawlable product facts without exposing blocked listings as purchasable. */
+export function buildPrintStructuredData(
+  page: SeoLandingPage,
+  publishState: SeoPublishState,
+  baseUrl = "https://printatelier.com",
+): PrintStructuredData {
+  const productUrl = `${baseUrl.replace(/\/$/, "")}/prints/${page.slug}`;
+  const product: Record<string, unknown> = {
+    "@type": "Product",
+    "@id": `${productUrl}#product`,
+    name: page.artworkTitle,
+    description: page.metaDescription,
+    url: productUrl,
+    category: "Fine Art Prints",
+    brand: { "@type": "Brand", name: "Print Atelier" },
+    manufacturer: { "@type": "Person", name: page.artistName },
+  };
+
+  if (publishState.publishable) {
+    product.offers = {
+      "@type": "Offer",
+      url: productUrl,
+      priceCurrency: "USD",
+      price: page.retailPrice.toFixed(2),
+      availability: "https://schema.org/InStock",
+      itemCondition: "https://schema.org/NewCondition",
+    };
+  }
+
+  return {
+    "@context": "https://schema.org",
+    "@graph": [
+      product,
+      {
+        "@type": "BreadcrumbList",
+        itemListElement: [
+          { "@type": "ListItem", position: 1, name: "Storefront", item: `${baseUrl.replace(/\/$/, "")}/storefront` },
+          { "@type": "ListItem", position: 2, name: page.artworkTitle, item: productUrl },
+        ],
+      },
+    ],
+  };
+}
 
 export function evaluateSeoPagePublishability(
   page: SeoLandingPage,
@@ -316,6 +367,7 @@ const staticMarketRoutes: SitemapEntry[] = [
   { path: "/docs", changeFrequency: "weekly", priority: 0.9 },
   { path: "/investor", changeFrequency: "weekly", priority: 0.85 },
   { path: "/storefront", changeFrequency: "daily", priority: 0.8 },
+  { path: "/print-file-preflight", changeFrequency: "weekly", priority: 0.75 },
   { path: "/artist-portal", changeFrequency: "weekly", priority: 0.75 },
   { path: "/capture", changeFrequency: "weekly", priority: 0.7 },
 ];

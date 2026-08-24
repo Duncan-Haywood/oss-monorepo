@@ -52,6 +52,9 @@ workflows:
   - job: deploy
     step: runs 'npm run deploy'
     gates: []
+- workflow: amazon-fba-calculator-ci.yml
+  classification: none
+  publishes: []
 - workflow: backup-verification-evidence-ci.yml
   classification: none
   publishes: []
@@ -61,13 +64,22 @@ workflows:
 - workflow: claude-routine-trigger.yml
   classification: none
   publishes: []
+- workflow: cut-list-optimizer-ci.yml
+  classification: none
+  publishes: []
 - workflow: demand-signal-reachability-ci.yml
   classification: none
   publishes: []
 - workflow: eaa-wcag-triage-ci.yml
   classification: none
   publishes: []
+- workflow: ebay-fee-calculator-ci.yml
+  classification: none
+  publishes: []
 - workflow: error-rate-disclosure-ci.yml
+  classification: none
+  publishes: []
+- workflow: etsy-profit-calculator-ci.yml
   classification: none
   publishes: []
 - workflow: forge-surface-reachability-ci.yml
@@ -76,10 +88,16 @@ workflows:
 - workflow: garmin-world-traveler-watchface-ci.yml
   classification: none
   publishes: []
+- workflow: janitorial-bid-calculator-ci.yml
+  classification: none
+  publishes: []
 - workflow: local-site-studio-ci.yml
   classification: none
   publishes: []
 - workflow: mcp-drift-watch-ci.yml
+  classification: none
+  publishes: []
+- workflow: no-show-fee-calculator-ci.yml
   classification: none
   publishes: []
 - workflow: npm-reachability-triage-ci.yml
@@ -104,6 +122,9 @@ workflows:
   classification: none
   publishes: []
 - workflow: quick-pick-survey-ci.yml
+  classification: none
+  publishes: []
+- workflow: quote-margin-check-ci.yml
   classification: none
   publishes: []
 - workflow: real-estate-agent-photo-app-ci.yml
@@ -136,6 +157,9 @@ workflows:
     step: uses amondnet/vercel-action
     gates:
     - ${{ vars.VERCEL_DEPLOY == 'true' }}
+- workflow: shopify-fee-calculator-ci.yml
+  classification: none
+  publishes: []
 - workflow: source-silence-detector-ci.yml
   classification: none
   publishes: []
@@ -146,6 +170,7 @@ workflows:
   classification: none
   publishes: []
 - workflow: vendor-watch-ci.yml
+- workflow: where-to-sell-calculator-ci.yml
   classification: none
   publishes: []
 - workflow: world-clock-widget-ci.yml

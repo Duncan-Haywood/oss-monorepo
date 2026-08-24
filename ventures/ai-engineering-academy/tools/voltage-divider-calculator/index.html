@@ -39,6 +39,7 @@
   main { max-width: 760px; margin: 0 auto; padding: 2rem 1.25rem 4rem; }
   h1 { font-size: 1.6rem; margin-bottom: 0.25rem; }
   p.lede { color: var(--muted); margin-top: 0; }
+  nav.toolbar { font-size: 0.85rem; margin: 0 0 1.5rem; }
   section {
     background: var(--panel); border: 1px solid var(--border); border-radius: 10px;
     padding: 1.25rem; margin: 1.5rem 0;
@@ -77,6 +78,7 @@
     a real load pull that down? Everything runs in this page — nothing is
     uploaded.
   </p>
+  <nav class="toolbar"><a href="../">← All free electronics tools</a></nav>
 
   <section aria-labelledby="divider-heading">
     <h2 id="divider-heading">Divider output</h2>
@@ -160,7 +162,8 @@
     </p>
 
     <p>
-      Part of <a href="../../README.md">AI Engineering Academy</a>. MIT
+      Part of <a href="../">the free electronics tools</a> from
+      <a href="../../README.md">AI Engineering Academy</a>. MIT
       licensed — see <a href="LICENSE">LICENSE</a>. See also the
       <a href="../resistor-calculator/">resistor color code &amp; Ohm's
       law calculator</a> and the
@@ -172,7 +175,7 @@
 
 <script type="module">
   import { calculateVoltageDivider, suggestDividerForTarget, formatResistance } from "./calc.mjs";
-  import { recordEvent, isUsageCountingEnabled, setUsageCountingEnabled } from "./usage.mjs";
+  import { recordEventSettled, isUsageCountingEnabled, setUsageCountingEnabled } from "./usage.mjs";
 
   const vin = document.getElementById("vin");
   const r1 = document.getElementById("r1");
@@ -180,7 +183,14 @@
   const load = document.getElementById("load");
   const dividerResult = document.getElementById("divider-result");
 
-  function updateDivider() {
+  // `update` runs both on page load (to render a first result from the
+  // prefilled defaults) and whenever a person changes something. Only the
+  // second is somebody using the tool, so only it is counted -- previously
+  // the on-load call recorded a calculation for every page view, bounces
+  // included, which is exactly the difference portfolio/usage/ exists to
+  // measure. Real-interaction call sites pass `true`; the on-load call
+  // passes nothing.
+  function updateDivider(userAction) {
     const inputs = {
       vin: Number(vin.value),
       r1: Number(r1.value),
@@ -206,13 +216,13 @@
       html += "</dl>";
       dividerResult.innerHTML = html;
       dividerResult.classList.remove("error");
-      recordEvent("divider_calculated");
+      if (userAction) recordEventSettled("divider_calculated");
     } catch (err) {
       dividerResult.textContent = err.message;
       dividerResult.classList.add("error");
     }
   }
-  for (const el of [vin, r1, r2, load]) el.addEventListener("input", updateDivider);
+  for (const el of [vin, r1, r2, load]) el.addEventListener("input", () => updateDivider(true));
   updateDivider();
 
   const tVin = document.getElementById("t-vin");
@@ -220,7 +230,7 @@
   const tR1 = document.getElementById("t-r1");
   const targetResult = document.getElementById("target-result");
 
-  function updateTarget() {
+  function updateTarget(userAction) {
     try {
       const s = suggestDividerForTarget({
         vin: Number(tVin.value),
@@ -236,13 +246,13 @@
         </dl>
       `;
       targetResult.classList.remove("error");
-      recordEvent("target_suggested");
+      if (userAction) recordEventSettled("target_suggested");
     } catch (err) {
       targetResult.textContent = err.message;
       targetResult.classList.add("error");
     }
   }
-  for (const el of [tVin, tTarget, tR1]) el.addEventListener("input", updateTarget);
+  for (const el of [tVin, tTarget, tR1]) el.addEventListener("input", () => updateTarget(true));
   updateTarget();
 
   const usageToggle = document.getElementById("usage-toggle");

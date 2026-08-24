@@ -1,0 +1,49 @@
+from __future__ import annotations
+
+import argparse
+import json
+from pathlib import Path
+from typing import Any
+
+from .checks import check_invoice
+
+
+def _record_usage(path: str) -> None:
+    target = Path(path).expanduser()
+    target.parent.mkdir(parents=True, exist_ok=True)
+    data: dict[str, Any] = {"events": {}}
+    if target.exists():
+        try:
+            loaded = json.loads(target.read_text())
+            if isinstance(loaded, dict) and isinstance(loaded.get("events"), dict):
+                data = loaded
+        except (OSError, json.JSONDecodeError):
+            pass
+    events = data.setdefault("events", {})
+    events["invoice_preflight_checked"] = int(events.get("invoice_preflight_checked", 0)) + 1
+    target.write_text(json.dumps(data, indent=2) + "\n")
+
+
+def main(argv: list[str] | None = None) -> int:
+    parser = argparse.ArgumentParser(description="Check a local JSON e-invoice before submission. No tax advice or submission.")
+    parser.add_argument("invoice", type=Path)
+    parser.add_argument("--format", choices=("text", "json"), default="text")
+    parser.add_argument("--usage-file", help="opt-in local aggregate event counter")
+    args = parser.parse_args(argv)
+    try:
+        invoice = json.loads(args.invoice.read_text())
+    except (OSError, json.JSONDecodeError) as exc:
+        print(f"Could not read invoice: {exc}")
+        return 2
+    errors = check_invoice(invoice)
+    if args.usage_file:
+        _record_usage(args.usage_file)
+    if args.format == "json":
+        print(json.dumps({"status": "pass" if not errors else "fail", "errors": errors}, indent=2))
+    elif errors:
+        print(f"Preflight failed: {len(errors)} observation(s)")
+        for error in errors:
+            print(f"[{error['rule']}] {error['message']} Fix: {error['fix']}")
+    else:
+        print("Preflight passed: no defects found in the supported checks.")
+    return 0 if not errors else 1

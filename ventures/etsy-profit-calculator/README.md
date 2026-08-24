@@ -9,6 +9,23 @@ account, network request, or API key. It is arithmetic, not an estimate of the
 fees Etsy will charge: enter the rates and costs that apply to your shop and
 verify them against your current Etsy statements.
 
+## Save and share your numbers
+
+Your shop's fees and costs are the part you would otherwise re-enter every
+visit, so the calculator keeps them:
+
+- **Restored on return.** Your inputs are saved in your browser and reappear
+  the next time you open the page, so you land on your own shop's numbers
+  instead of the example order. **Reset to defaults** clears them.
+- **Shareable link.** **Copy shareable link** writes your current inputs into
+  the page URL and copies it. Bookmark it to reopen the calculator already
+  filled in, or send it to a partner or bookkeeper — opening the link shows
+  exactly the numbers you configured. A link's values always take precedence
+  over whatever a browser had saved.
+
+The link and the saved copy contain only the numbers you typed into the fee and
+cost fields. They never include anything else, and nothing is uploaded.
+
 **No warranty.** This tool is provided free and as-is, without warranty of any
 kind, express or implied. It is not tax, financial, or business advice, and it
 does not replace a qualified professional. **You are responsible for reviewing
@@ -20,9 +37,13 @@ accept no liability for any loss or damage arising from its use.
 
 Everything runs in your browser. Your prices, costs, and shop data are never
 uploaded. There are no accounts, cookies, tracking pixels, or analytics vendor.
-The optional local counter records only the event name and day in your browser;
-it never records the inputs. Turn it off with the checkbox in the footer, or
-your browser's Do Not Track / Global Privacy Control setting.
+Two things are stored locally, on your device only: the numbers you enter (so
+they can be restored on your next visit — clear them with **Reset to defaults**)
+and, unless you opt out, an anonymous counter that records only an event name
+and the day. The counter never records your inputs. A shareable link carries
+your numbers only inside the URL you copy, and only when you click **Copy
+shareable link**. Turn the counter off with the checkbox in the footer, or your
+browser's Do Not Track / Global Privacy Control setting.
 
 ## Opportunity
 
@@ -33,3 +54,10 @@ this tool keeps every customer-entered assumption visible and shows the
 contribution left after variable costs. A later, optional bring-your-own-key
 assistant could explain a seller's own exported fee statement, but the useful
 core deliberately needs no AI or paid service.
+
+## Repricing workflow
+
+Enter a target margin to calculate the item price needed to reach it, then
+compare prices $10 below and above the current price. This turns a fee
+calculation into a quick pricing decision without uploading product data or
+relying on Etsy's changing fee schedule.
