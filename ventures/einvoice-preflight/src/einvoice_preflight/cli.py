@@ -24,10 +24,33 @@ def _record_usage(path: str) -> None:
     target.write_text(json.dumps(data, indent=2) + "\n")
 
 
+def _sarif_report(invoice_path: Path, errors: list[dict[str, str]]) -> dict[str, Any]:
+    """Build a SARIF 2.1.0 report for CI annotations and code scanning tools."""
+    rules = {}
+    results = []
+    for error in errors:
+        rule = error["rule"]
+        rules.setdefault(rule, {"id": rule, "shortDescription": {"text": error["message"]}})
+        results.append({
+            "ruleId": rule,
+            "level": "error",
+            "message": {"text": f'{error["message"]} Fix: {error["fix"]}'},
+            "locations": [{"physicalLocation": {"artifactLocation": {"uri": invoice_path.name}}}],
+        })
+    return {
+        "$schema": "https://json.schemastore.org/sarif-2.1.0.json",
+        "version": "2.1.0",
+        "runs": [{
+            "tool": {"driver": {"name": "einvoice-preflight", "informationUri": "https://github.com/Duncan-Haywood/monorepo-projects/tree/main/ventures/einvoice-preflight", "rules": list(rules.values())}},
+            "results": results,
+        }],
+    }
+
+
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description="Check a local JSON e-invoice before submission. No tax advice or submission.")
     parser.add_argument("invoice", type=Path)
-    parser.add_argument("--format", choices=("text", "json"), default="text")
+    parser.add_argument("--format", choices=("text", "json", "sarif"), default="text")
     parser.add_argument("--usage-file", help="opt-in local aggregate event counter")
     args = parser.parse_args(argv)
     try:
@@ -40,6 +63,8 @@ def main(argv: list[str] | None = None) -> int:
         _record_usage(args.usage_file)
     if args.format == "json":
         print(json.dumps({"status": "pass" if not errors else "fail", "errors": errors}, indent=2))
+    elif args.format == "sarif":
+        print(json.dumps(_sarif_report(args.invoice, errors), indent=2))
     elif errors:
         print(f"Preflight failed: {len(errors)} observation(s)")
         for error in errors:
