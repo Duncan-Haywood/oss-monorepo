@@ -509,6 +509,41 @@ ventures:
       security, deliverability, uptime, or compliance. Authorization and
       remediation remain customer responsibilities.
 
+  - slug: backup-verification-evidence
+    scores:
+      ai_leverage: 5
+      autonomous_ops: 9
+      time_to_revenue: 6
+      gross_margin: 9
+      defensibility: 4
+      distribution: 4
+    composite: 6.167
+    rater_b: null
+    floor: 4
+    floor_dimension: defensibility
+    floor_note: >-
+      An exit-code-plus-artifact-stat classifier is trivially reimplemented.
+      A dated, portable, per-client verification history could compound, but
+      that defensibility is untested; distribution is similarly unproven
+      until a named sysadmin/MSP community or repeatable practitioner
+      conversation channel adopts it.
+    basis: >-
+      The first slice is a deterministic local CLI with no network calls,
+      credentials, paid APIs, or inference dependency, which supports strong
+      autonomous operation and gross margin. AI leverage is low by design --
+      the classification is arithmetic on an exit code, a file size, and two
+      timestamps. Time to revenue is moderated by an untested recurring
+      workflow and the absence of an owned distribution channel.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Pass, conditionally: `verified` is scoped in both the CLI output and
+      the README to "exit code 0 and artifact meets the stated size/age
+      expectations", never to restorability, completeness, or data safety.
+      Testing restores and maintaining an independent backup strategy remain
+      customer responsibilities.
+
   - slug: shopify-permission-drift
     scores:
       ai_leverage: 7
