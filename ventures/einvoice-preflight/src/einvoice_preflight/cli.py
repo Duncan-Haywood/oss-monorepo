@@ -11,6 +11,7 @@ from typing import Any
 from xml.sax.saxutils import escape, quoteattr
 
 from .checks import check_invoice
+from .ubl import parse_ubl_invoice
 
 
 def _record_usage(path: str) -> None:
@@ -257,8 +258,8 @@ def _markdown_text(value: str) -> str:
 
 
 def main(argv: list[str] | None = None) -> int:
-    parser = argparse.ArgumentParser(description="Check a local JSON e-invoice before submission. No tax advice or submission.")
-    parser.add_argument("invoice", type=Path, help="JSON file, directory of JSON files, or '-' for stdin")
+    parser = argparse.ArgumentParser(description="Check a local JSON or UBL XML e-invoice before submission. No tax advice or submission.")
+    parser.add_argument("invoice", type=Path, help="JSON/XML file, directory of JSON/XML files, or '-' for stdin")
     parser.add_argument("--format", choices=("text", "json", "markdown", "csv", "junit", "sarif", "github"), default="text")
     parser.add_argument("--usage-file", help="opt-in local aggregate event counter")
     args = parser.parse_args(argv)
@@ -266,16 +267,18 @@ def main(argv: list[str] | None = None) -> int:
     invoices: list[tuple[Path, Any]] = []
     read_errors: list[dict[str, str]] = []
     if str(args.invoice) == "-":
-        sources = [(Path("stdin.json"), sys.stdin.read())]
+        stdin = getattr(sys.stdin, "buffer", sys.stdin)
+        source = stdin.read()
+        sources = [(Path("stdin.json"), source.encode() if isinstance(source, str) else source)]
     elif args.invoice.is_dir():
-        paths = sorted(path for path in args.invoice.rglob("*.json") if path.is_file())
+        paths = sorted(path for pattern in ("*.json", "*.xml") for path in args.invoice.rglob(pattern) if path.is_file())
         if not paths:
-            print(f"No JSON invoices found in {args.invoice}")
+            print(f"No JSON or XML invoices found in {args.invoice}")
             return 2
         sources = []
         for path in paths:
             try:
-                sources.append((path.relative_to(args.invoice), path.read_text()))
+                sources.append((path.relative_to(args.invoice), path.read_bytes()))
             except OSError as exc:
                 read_errors.append({"file": path.relative_to(args.invoice).as_posix(), "error": str(exc)})
     else:
@@ -284,8 +287,10 @@ def main(argv: list[str] | None = None) -> int:
     for invoice_path, source in sources:
         report_path = invoice_path if args.invoice.is_dir() or str(args.invoice) == "-" else Path(invoice_path.name)
         try:
-            invoice = json.loads(source if source is not None else invoice_path.read_text())
-        except (OSError, json.JSONDecodeError) as exc:
+            raw = source if source is not None else invoice_path.read_bytes()
+            is_xml = report_path.suffix.lower() == ".xml" or raw.lstrip().startswith(b"<")
+            invoice = parse_ubl_invoice(raw) if is_xml else json.loads(raw)
+        except (OSError, UnicodeDecodeError, ValueError, json.JSONDecodeError) as exc:
             read_errors.append({"file": report_path.as_posix(), "error": str(exc)})
             continue
         reports.append((report_path, check_invoice(invoice)))
