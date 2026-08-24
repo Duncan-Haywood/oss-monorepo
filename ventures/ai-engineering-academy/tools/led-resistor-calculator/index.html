@@ -155,7 +155,7 @@
 
 <script type="module">
   import { calculateLedResistor } from "./calc.mjs";
-  import { recordEvent, isUsageCountingEnabled, setUsageCountingEnabled } from "./usage.mjs";
+  import { recordEvent, recordEventSettled, isUsageCountingEnabled, setUsageCountingEnabled } from "./usage.mjs";
 
   const preset = document.getElementById("preset");
   const supply = document.getElementById("supply");
@@ -168,11 +168,18 @@
     if (preset.value !== "") {
       vf.value = preset.value;
       recordEvent("preset_selected");
-      update();
+      update(true);
     }
   });
 
-  function update() {
+  // `update` runs both on page load (to render a first result from the
+  // prefilled defaults) and whenever a person changes something. Only the
+  // second is somebody using the tool, so only it is counted -- previously
+  // the on-load call recorded a calculation for every page view, bounces
+  // included, which is exactly the difference portfolio/usage/ exists to
+  // measure. Real-interaction call sites pass `true`; the on-load call
+  // passes nothing.
+  function update(userAction) {
     const inputs = {
       supplyVoltage: Number(supply.value),
       ledForwardVoltage: Number(vf.value),
@@ -193,14 +200,14 @@
         </dl>
       `;
       result.classList.remove("error");
-      recordEvent("led_resistor_calculated");
+      if (userAction) recordEventSettled("led_resistor_calculated");
     } catch (err) {
       result.textContent = err.message;
       result.classList.add("error");
     }
   }
 
-  for (const el of [supply, vf, if_, n]) el.addEventListener("input", update);
+  for (const el of [supply, vf, if_, n]) el.addEventListener("input", () => update(true));
   update();
 
   const usageToggle = document.getElementById("usage-toggle");
