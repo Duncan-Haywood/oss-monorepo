@@ -22,6 +22,8 @@
     .fields { display: grid; grid-template-columns: repeat(2, 1fr); gap: 13px; }
     label { display: grid; gap: 5px; font-size: .87rem; font-weight: 650; }
     input, select { width: 100%; box-sizing: border-box; border: 1px solid #a9b6c6; border-radius: 7px; padding: 10px; font: inherit; background: #fff; }
+    .custom-name { display: none; margin-top: 6px; }
+    .custom-name.visible { display: block; }
     .area-row { display: grid; grid-template-columns: minmax(0, 2.9fr) repeat(3, minmax(0, 1fr)) auto; gap: 8px; align-items: end; margin-bottom: 10px; }
     .area-row select, .area-row input { padding: 10px 7px; }
     .area-head { font-size: .74rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; color: #5a6779; }
@@ -172,16 +174,19 @@
       const row = document.createElement('div');
       row.className = 'area-row';
       row.innerHTML = `
-        <label for="${id}-type"><span class="lbl">Space type</span><select class="a-type" id="${id}-type">${TYPE_OPTIONS}</select></label>
+        <label for="${id}-type"><span class="lbl">Space type</span><select class="a-type" id="${id}-type">${TYPE_OPTIONS}</select><input class="custom-name" id="${id}-name" type="text" maxlength="80" placeholder="Name this space" aria-label="Custom space name"></label>
         <label for="${id}-sqft"><span class="lbl">Cleanable sq ft</span><input class="a-sqft" id="${id}-sqft" type="number" min="0" step="10"></label>
         <label for="${id}-rate"><span class="lbl">Sq ft cleaned per hour</span><input class="a-rate" id="${id}-rate" type="number" min="1" step="50"></label>
         <label for="${id}-freq"><span class="lbl">Cleans per week</span><input class="a-freq" id="${id}-freq" type="number" min="0" max="21" step="1"></label>
         <button type="button" class="remove">Remove<span class="lbl"> this space</span></button>`;
 
       const typeField = row.querySelector('.a-type');
+      const nameField = row.querySelector('.custom-name');
       const rateField = row.querySelector('.a-rate');
       const presetIndex = PRODUCTION_RATE_PRESETS.findIndex(p => p.label === area.name);
       typeField.value = presetIndex === -1 ? 'other' : String(presetIndex);
+      nameField.value = presetIndex === -1 ? (area.name || '') : '';
+      nameField.classList.toggle('visible', typeField.value === 'other');
       row.querySelector('.a-sqft').value = area.squareFeet;
       rateField.value = area.productionRate;
       row.querySelector('.a-freq').value = area.cleaningsPerWeek;
@@ -192,6 +197,7 @@
       typeField.addEventListener('change', () => {
         const preset = PRODUCTION_RATE_PRESETS[Number(typeField.value)];
         if (preset && !rateField.dataset.edited) rateField.value = preset.rate;
+        nameField.classList.toggle('visible', typeField.value === 'other');
         count('bid_calculated');
         update();
       });
@@ -212,9 +218,7 @@
       return [...areasHost.querySelectorAll('.area-row')].map(row => {
         const preset = PRODUCTION_RATE_PRESETS[Number(row.querySelector('.a-type').value)];
         return {
-          // An "Other" row has no name, so the calculator falls back to a
-          // stable "Area N" label rather than several identical rows.
-          name: preset ? preset.label : '',
+          name: preset ? preset.label : row.querySelector('.custom-name').value,
           squareFeet: row.querySelector('.a-sqft').value,
           productionRate: row.querySelector('.a-rate').value,
           cleaningsPerWeek: row.querySelector('.a-freq').value,
@@ -234,6 +238,12 @@
         .forEach(id => { el(id).textContent = ''; });
       el('split').innerHTML = '';
       el('verdict').hidden = true;
+    }
+
+    function escapeHtml(value) {
+      return String(value).replace(/[&<>"']/g, character => ({
+        '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+      }[character]));
     }
 
     function update() {
@@ -277,7 +287,7 @@
         : worked
           .slice()
           .sort((a, b) => b.monthlyHours - a.monthlyHours)
-          .map(area => `<li><span>${area.name}</span><span>${area.hoursShare.toFixed(0)}% of hours</span>
+          .map(area => `<li><span>${escapeHtml(area.name)}</span><span>${area.hoursShare.toFixed(0)}% of hours</span>
             <span class="bar"><span style="width:${area.hoursShare.toFixed(1)}%"></span></span></li>`)
           .join('');
 
