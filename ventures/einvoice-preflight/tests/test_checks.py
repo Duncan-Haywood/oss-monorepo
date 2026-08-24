@@ -244,6 +244,21 @@ class ChecksTest(unittest.TestCase):
             self.assertIn("Failed: 0", markdown)
             self.assertIn("Status: **PASS**", markdown)
 
+    def test_cli_emits_markdown_finding_summary_for_repeated_rules(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            failed = json.loads(json.dumps(VALID))
+            failed["totals"]["gross"] = 200
+            (root / "first.json").write_text(json.dumps(failed))
+            (root / "second|review.json").write_text(json.dumps(failed))
+            output = io.StringIO()
+            with contextlib.redirect_stdout(output):
+                self.assertEqual(main([directory, "--format", "markdown"]), 1)
+            markdown = output.getvalue()
+            self.assertIn("## Finding summary", markdown)
+            self.assertIn("| `INV-017` | 2 | Gross total does not equal net plus tax. |", markdown)
+            self.assertIn("## `second\\|review.json`", markdown)
+
 
 if __name__ == "__main__":
     unittest.main()
