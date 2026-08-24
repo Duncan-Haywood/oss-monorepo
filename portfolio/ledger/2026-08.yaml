@@ -22325,3 +22325,56 @@ entries:
           `payout-rail` remains the only queue item that moves the revenue
           ceiling off $0.
     mrr_end: null
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+          GitHub-triggered session (`pull_request.opened` on #819), folded
+          into the generic "continue work, maintain the process, review open
+          PRs" brief. #819 (ledger-only, recording the prior session's merge
+          of #816/#817/#818) was self-flagged as unmergeable under the
+          shared `Duncan-Haywood` identity -- verified that claim was wrong
+          by trying: `merge_pull_request` with `merge_method: merge` fails
+          outright ("Merge commits are not allowed on this repository"), but
+          `squash` went through cleanly with no approval or Code-Scanning
+          block. Merged #819 (`e44e432`) and, on the same finding, #815
+          (`108b7fa`, an `asks.yaml`-only addition documenting the very
+          block that turned out not to hold generally).
+      - >-
+          While reviewing #813 ("Retire the NO-OP verdict"), a concurrent
+          session squash-merged it first (`de398ab`). Read it post-merge:
+          the code is sound (the earlier Kilo 9-warning pass on
+          `session_gate.py`/`build_targets()` reads as fixed on current
+          `main`), but its entire justification for a fleet-wide policy
+          reversal -- retiring the NO-OP stop that this file has argued for
+          at length -- is one unsourced sentence, "the account owner
+          corrected the premise: fleet capacity is bought as a flat
+          subscription," which no session can verify given every session
+          here shares one GitHub identity. Did not revert (reverting on the
+          same kind of unverifiable judgment would repeat the mistake in
+          the opposite direction); instead opened #822, merged this
+          session, adding `session-gate-economics-premise` to `asks.yaml`
+          asking the owner to confirm the billing model in one sentence,
+          and retiring the now-resolved `self-merge-ruleset-block` row
+          added by #815.
+      - >-
+          Closed #812 (near-duplicate of #813) rather than merging: it went
+          further than #813's premise problem by unilaterally marking Ask 9
+          (`venture-gate-premise`) resolved and declaring `ventures/*`
+          merges plus a Hetzner deploy surface agent-decidable, sourced from
+          the same kind of unverifiable in-PR "owner said" claim -- a
+          PR granting itself the authority to be mergeable. Kilo's review on
+          it independently flagged real scope creep (the broad `ventures/*`
+          green-CI rule could sweep in payment/billing changes despite
+          `CLAUDE.md`'s money gate). Commented with the reasoning and a
+          pointer to #822/#813 rather than silently closing.
+      - >-
+          #814, #720, #531, #788 needed no action: all four are correctly
+          self-flagged human-gated in their own bodies and already tracked
+          in `asks.yaml`/#139 (`venture-gate-premise`, `deployment-platform`,
+          `contrast-fixes`, `routine-trigger-cadence`).
+      - >-
+          `payout-rail` remains the only queue item that moves the revenue
+          ceiling off $0.
+    mrr_end: null

@@ -20,6 +20,10 @@ The patches here are the ones that do not add words:
 - unwrap ``<blink>`` / ``<marquee>``, keeping the text they already hold
 - drop an ``aria-label`` / ``aria-labelledby`` that does not contain the
   visible label, so the name comes from the content that is already there
+- rewrite a dead ``<label for>`` onto the unique expression-prefixed
+  control id that already ends with that literal (forgotten-prefix).
+  A search field with no label in the file is still skipped: there is
+  no ``for`` to rewrite, and inventing a name is content.
 
 A low close rate on blocking findings is a result, not a bug. The
 remainder is the contractor step.
@@ -33,6 +37,13 @@ from html import escape
 from typing import Optional
 
 from .engine import Audit, audit_html
+from .expressions import (
+    EXPR_SENTINEL,
+    expr_free,
+    is_expr,
+    refs_can_match,
+    strip_expressions,
+)
 from .parser import parse
 from .rules import Finding
 
@@ -48,6 +59,18 @@ _OVERRIDE_ATTR = re.compile(
     r"""\s+aria-(?:label|labelledby)=(?P<q>['"])(?:(?!(?P=q)).)*(?P=q)""",
     re.I | re.S,
 )
+_NO_LABEL_TYPES = frozenset({"hidden"})
+_ATTR_FIND = re.compile(
+    r"""(?P<name>[A-Za-z_:][-\w:.]*)\s*=\s*(?P<q>['"])(?P<val>(?:(?!(?P=q)).)*)(?P=q)""",
+    re.I | re.S,
+)
+_CONTROL_OPEN = re.compile(
+    r"""<(?P<tag>input|select|textarea)\b(?P<body>[^>]*)>""",
+    re.I | re.S,
+)
+_LABEL_OPEN = re.compile(r"""<label\b(?P<body>[^>]*)>""", re.I | re.S)
+_SEPARATOR_ONLY = re.compile(r"^[\W_]*$")
+_MISMATCH_MARK = "dead in the rendered page"
 
 LIMITS = (
     "Fixture or supplied markup, not a live shop theme.",
@@ -109,6 +132,11 @@ class FixPass:
 def skip_reason(finding: Finding) -> str:
     if finding.criterion == "4.1.2" and "aria-hidden" not in finding.message:
         return "a control name is content; this pass will not invent it"
+    if finding.criterion == "1.3.1" and _MISMATCH_MARK in finding.message:
+        return (
+            "no unique forgotten-prefix pairing in this file; "
+            "this pass will not invent a label"
+        )
     return _SKIP_REASONS.get(
         finding.criterion,
         "no mechanical rewrite exists for this finding",
@@ -147,6 +175,13 @@ def try_patch(html: str, finding: Finding) -> tuple[Optional[str], str]:
             return nxt, (
                 "dropped the accessible-name override so the name "
                 "comes from the visible text already on the control"
+            )
+    if finding.criterion == "1.3.1" and _MISMATCH_MARK in finding.message:
+        nxt = _rewrite_forgotten_prefix(html)
+        if nxt is not None:
+            return nxt, (
+                "rewrote a dead <label for> onto the unique "
+                "expression-prefixed control id"
             )
     return None, skip_reason(finding)
 
@@ -415,3 +450,98 @@ def _drop_name_override(html: str, finding: Finding) -> Optional[str]:
         return None
     lines[idx] = lines[idx][: match.start()] + new_tag + lines[idx][match.end() :]
     return "".join(lines)
+
+
+def _attr_in(body: str, name: str) -> tuple[str, str] | None:
+    """Original (quote, value) for ``name`` inside a start-tag body."""
+    for match in _ATTR_FIND.finditer(body):
+        if match.group("name").lower() == name:
+            return match.group("q"), match.group("val")
+    return None
+
+
+def _control_needs_label(body: str) -> bool:
+    found = _attr_in(body, "type")
+    if found is None:
+        return True
+    return expr_free(strip_expressions(found[1])).lower() not in _NO_LABEL_TYPES
+
+
+def _forgotten_prefix(literal_for: str, raw_id: str) -> bool:
+    """Is ``raw_id`` a prefixed form of ``literal_for`` that can never equal it?"""
+    if not literal_for or is_expr(literal_for) or not is_expr(raw_id):
+        return False
+    if refs_can_match(literal_for, raw_id):
+        return False
+    last = EXPR_SENTINEL.split(raw_id)[-1]
+    if not last.endswith(literal_for):
+        return False
+    leftover = last[: -len(literal_for)]
+    return bool(_SEPARATOR_ONLY.match(leftover))
+
+
+def _rewrite_forgotten_prefix(html: str) -> Optional[str]:
+    """Rewrite each uniquely determined dead ``for`` onto its prefixed id.
+
+    Same pairing rule as ``audit.py``'s ``suggest_fixes``: a literal
+    ``<label for>`` that cannot match any id here, next to exactly one
+    expression-bearing control id whose trailing literal is that
+    ``for`` value after a separator. Ambiguous suffixes, labels that
+    could still render equal, and a control with no label in the file
+    are left alone.
+    """
+    labels = []
+    controls = []
+    for match in _LABEL_OPEN.finditer(html):
+        found = _attr_in(match.group("body"), "for")
+        if found:
+            labels.append((found[0], found[1], strip_expressions(found[1])))
+    for match in _CONTROL_OPEN.finditer(html):
+        if not _control_needs_label(match.group("body")):
+            continue
+        found = _attr_in(match.group("body"), "id")
+        if found:
+            controls.append((found[1], strip_expressions(found[1])))
+
+    raw_ids = [stripped for _, stripped in controls]
+    dangling = [
+        (quote, original, stripped)
+        for quote, original, stripped in labels
+        if not any(refs_can_match(stripped, raw) for raw in raw_ids)
+    ]
+
+    claimed: dict[str, list[tuple[str, str]]] = {}
+    for quote, original_for, stripped_for in dangling:
+        hits = [
+            original_id
+            for original_id, raw_id in controls
+            if _forgotten_prefix(stripped_for, raw_id)
+        ]
+        if len(hits) != 1:
+            continue
+        claimed.setdefault(hits[0], []).append((quote, original_for))
+
+    updated = html
+    changed = False
+    for original_id, claimants in claimed.items():
+        if len(claimants) != 1:
+            continue
+        quote, original_for = claimants[0]
+        # Match the same attribute spelling accepted by _attr_in. HTML
+        # attributes are case-insensitive and whitespace around '=' is valid.
+        needle = re.compile(
+            rf"(?P<prefix>\bfor\s*=\s*{re.escape(quote)})"
+            rf"{re.escape(original_for)}{re.escape(quote)}",
+            re.I,
+        )
+        if len(needle.findall(updated)) != 1:
+            continue
+        updated = needle.sub(
+            lambda match: (
+                f"{match.group('prefix')}{original_id}{quote}"
+            ),
+            updated,
+            count=1,
+        )
+        changed = True
+    return updated if changed else None

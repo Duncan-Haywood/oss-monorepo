@@ -601,7 +601,17 @@ On the three fixture shops it closes **1 of 11 blocking** findings and
 verification, and it does not settle the kill criterion. The 1/11 is the
 honest software-only rate: the blocking remainder is content a page author
 has to write. `--apply-mechanical-fixes DIR` writes the patched copies and
-that close-rate report; the evidence record stays a record of the source. The split has moved four
+that close-rate report; the evidence record stays a record of the source.
+
+**Amended 2026-08-24: forgotten-prefix labels are now a fifth rewrite.**
+Finding 2 of [`a11y-theme-resolution`](../../../research/a11y-theme-resolution/)
+is two strings: a literal `<label for>` that cannot match any id in the
+file, next to exactly one expression-bearing control id whose trailing
+literal is that `for` value after a separator. The pairing is unique, so
+rewriting `for` is not inventing a name. The third fassbender defect
+(`search.liquid:22`) still has no repair — that file has no `<label for>`
+and this pass will not write one. Ambiguous suffixes and expressions that
+could still render equal are left alone. No score moved. The split has moved four
 times since it was first drawn: on 2026-08-21, when 1.4.3 crossed from
 deferred to partial because the corpus changed, not because the rules got
 cleverer; on 2026-08-22, when four criteria a prior pass had disclosed as
