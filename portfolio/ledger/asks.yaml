@@ -244,13 +244,21 @@ decisions:
     separate agent-decidable change once the account exists.
 
     Not re-verified first-hand -- every vendor documentation host is
-    egress-denied from an agent session (`platform/deployment/probe_control_planes.py`
-    measures this over 22 hosts with both controls), so three load-bearing
-    Vercel claims are flagged in that document for a browser check before
-    granting; if the pause action or the price has changed, the fallback is
-    Railway and the criterion is unaffected. `quick-pick-survey`'s Postgres is
-    covered only via Vercel's marketplace, billed through Vercel and so under
-    the same cap.
+    egress-denied from an agent session
+    (`platform/deployment/probe_control_planes.py` measures 23 control-plane
+    and context hosts against the consolidated table, with both controls), so
+    the document flags **four** load-bearing figures for a browser check before
+    granting. Corrected after review: those are now Hetzner and Railway
+    figures, not the three Vercel ones this row used to name -- the
+    recommendation moved and this sentence had not. The load-bearing one is
+    Hetzner's traffic overage beyond the 20 TB allowance, since the value case
+    rests on it; if the overage rate has jumped or compute has become
+    usage-billed, the fallback is Railway. Note also the one measured
+    exception: `cloudresourcemanager.googleapis.com` is reachable and is a
+    write API, so the reachability claim is "every vendor control plane probed
+    except GCP's Resource Manager", not a blanket one. `quick-pick-survey`'s
+    Postgres remains a Vercel-marketplace consideration only if Vercel is
+    chosen; on Hetzner or Railway it is a service on the platform itself.
 
     Revised again 2026-08-24 when the owner asked for best *value* and most
     *all-inclusive* rather than best fit. Counting workloads instead of
