@@ -33,6 +33,52 @@ rescore_note: >-
   rescore-2026-08-20.md.
 
 candidates:
+  - slug: cut-list-optimizer
+    name: Cut-list optimizer
+    doc: candidates/cut-list-optimizer.md
+    verdict: graduated
+    graduate_as: venture
+    host_venture: null
+    initiated: 2026-08-24
+    initiated_path: ventures/cut-list-optimizer
+    scores:
+      ai_leverage: 2
+      autonomous_ops: 10
+      time_to_revenue: 6
+      gross_margin: 10
+      defensibility: 4
+      distribution: 7
+      liability_containment: 8
+      ethical_robustness: 9
+    composite: 7.0
+    floor: 2
+    floor_dimension: ai_leverage
+    mitigation: Keep deterministic packing as the complete free core and disclose that it is a heuristic rather than an optimal or safety-certified plan.
+    first_experiment_days: 14
+    first_experiment_budget_usd: 0
+  - slug: etsy-profit-calculator
+    name: Etsy profit calculator
+    doc: candidates/etsy-profit-calculator.md
+    verdict: graduated
+    graduate_as: venture
+    host_venture: null
+    initiated: 2026-08-24
+    initiated_path: ventures/etsy-profit-calculator
+    scores:
+      ai_leverage: 2
+      autonomous_ops: 10
+      time_to_revenue: 7
+      gross_margin: 10
+      defensibility: 4
+      distribution: 7
+      liability_containment: 8
+      ethical_robustness: 9
+    composite: 7.125
+    floor: 2
+    floor_dimension: ai_leverage
+    mitigation: Keep deterministic arithmetic as the complete free core.
+    first_experiment_days: 14
+    first_experiment_budget_usd: 0
   - slug: quote-margin-check
     name: Quote margin check
     doc: candidates/quote-margin-check.md

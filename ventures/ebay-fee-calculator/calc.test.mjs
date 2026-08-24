@@ -1,0 +1,88 @@
+import { test } from 'node:test';
+import assert from 'node:assert/strict';
+import { calculateOrder } from './calc.mjs';
+
+const near = (actual, expected, msg) => assert.ok(Math.abs(actual - expected) < 1e-6, `${msg}: ${actual} vs ${expected}`);
+
+test('computes fees, profit, margin and ROI for a typical resale order', () => {
+  // $40 item + $6 shipping = $46 revenue. FVF 13.25% = 6.095, fixed 0.30,
+  // no promoted/intl. Cash invested: $12 goods + $5 label + $1 packaging = $18.
+  const r = calculateOrder({
+    price: 40, shippingCharged: 6, finalValueRate: 13.25, fixedFee: 0.3,
+    costOfGoods: 12, shippingCost: 5, packagingCost: 1,
+  });
+  near(r.revenue, 46, 'revenue');
+  near(r.fees.finalValue, 6.095, 'final value fee');
+  near(r.feeTotal, 6.395, 'fee total');
+  near(r.cashInvested, 18, 'cash invested');
+  near(r.profit, 46 - 6.395 - 18, 'profit');
+  near(r.margin, (46 - 6.395 - 18) / 46 * 100, 'margin');
+  near(r.roi, (46 - 6.395 - 18) / 18 * 100, 'roi');
+});
+
+test('applies promoted-listings and international rates on the full order total', () => {
+  const r = calculateOrder({ price: 100, shippingCharged: 0, finalValueRate: 13.25, promotedRate: 5, intlFeeRate: 1.65, fixedFee: 0.3 });
+  near(r.fees.promoted, 5, 'promoted fee');
+  near(r.fees.international, 1.65, 'international fee');
+  near(r.feeTotal, 13.25 + 5 + 1.65 + 0.3, 'fee total with all percentage fees');
+});
+
+test('break-even price makes profit exactly zero', () => {
+  const input = { price: 40, shippingCharged: 6, finalValueRate: 13.25, fixedFee: 0.3, costOfGoods: 12, shippingCost: 5, packagingCost: 1 };
+  const r = calculateOrder(input);
+  const atBreakEven = calculateOrder({ ...input, price: r.breakEvenPrice });
+  near(atBreakEven.profit, 0, 'profit at break-even');
+});
+
+test('calculates the item price required for a target net margin', () => {
+  const input = { price: 40, shippingCharged: 6, finalValueRate: 13.25, fixedFee: 0.3, costOfGoods: 12, shippingCost: 5, packagingCost: 1, targetMargin: 20 };
+  const r = calculateOrder(input);
+  const atTarget = calculateOrder({ ...input, price: r.targetMarginPrice });
+  near(atTarget.margin, 20, 'margin at target price');
+  near(r.targetMarginPrice, 18.3 / 0.6675 - 6, 'target margin price');
+});
+
+test('reports an unreachable target margin when fees leave no margin room', () => {
+  const r = calculateOrder({ price: 10, finalValueRate: 80, targetMargin: 20 });
+  assert.equal(r.targetMarginPrice, Infinity);
+});
+
+test('ROI is null when no cash was invested', () => {
+  const r = calculateOrder({ price: 20, shippingCharged: 0, costOfGoods: 0, shippingCost: 0, packagingCost: 0, otherCost: 0 });
+  assert.equal(r.roi, null);
+});
+
+test('margin is zero rather than NaN when revenue is zero', () => {
+  const r = calculateOrder({ price: 0, shippingCharged: 0 });
+  assert.equal(r.margin, 0);
+});
+
+test('applies documented defaults when rates are omitted', () => {
+  const r = calculateOrder({ price: 50 });
+  near(r.fees.finalValue, 50 * 0.1325, 'default final value fee');
+  near(r.fees.fixed, 0.3, 'default fixed fee');
+});
+
+test('scales batch economics while keeping price thresholds per unit', () => {
+  const input = { price: 40, shippingCharged: 6, finalValueRate: 13.25, fixedFee: 0.3, costOfGoods: 12, shippingCost: 5, packagingCost: 1 };
+  const single = calculateOrder(input);
+  const batch = calculateOrder({ ...input, quantity: 3 });
+  near(batch.revenue, single.revenue * 3, 'batch revenue');
+  near(batch.feeTotal, single.feeTotal * 3, 'batch fees');
+  near(batch.cashInvested, single.cashInvested * 3, 'batch investment');
+  near(batch.profit, single.profit * 3, 'batch profit');
+  near(batch.unitProfit, single.profit, 'unit profit');
+  near(batch.breakEvenPrice, single.breakEvenPrice, 'per-unit break-even');
+});
+
+test('rejects fractional or zero batch quantities', () => {
+  assert.throws(() => calculateOrder({ price: 10, quantity: 0 }), /whole number/);
+  assert.throws(() => calculateOrder({ price: 10, quantity: 1.5 }), /whole number/);
+});
+
+test('rejects negative and non-numeric inputs', () => {
+  assert.throws(() => calculateOrder({ price: -1 }), /Item price/);
+  assert.throws(() => calculateOrder({ price: 'abc' }), /Item price/);
+  assert.throws(() => calculateOrder({ price: 10, costOfGoods: -5 }), /Cost of goods/);
+  assert.throws(() => calculateOrder({ price: 10, targetMargin: 100 }), /less than 100/);
+});

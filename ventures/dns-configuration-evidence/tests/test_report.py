@@ -43,6 +43,23 @@ class ReportTests(unittest.TestCase):
         self.assertIn("not a security, deliverability, or compliance warranty", output)
         self.assertIn("Inconclusive observations are not reported as unchanged", output)
 
+    def test_duplicate_observations_are_rejected(self):
+        duplicate = observation("a", ["one"])
+        with tempfile.TemporaryDirectory() as directory:
+            path = Path(directory) / "input.json"
+            path.write_text(json.dumps(snapshot([duplicate, duplicate])), encoding="utf-8")
+            with self.assertRaisesRegex(ValueError, "duplicate"):
+                load_snapshot(path)
+
+    def test_invalid_timestamp_is_rejected(self):
+        invalid = observation("a", ["one"])
+        invalid["observed_at"] = "yesterday"
+        with tempfile.TemporaryDirectory() as directory:
+            path = Path(directory) / "input.json"
+            path.write_text(json.dumps(snapshot([invalid])), encoding="utf-8")
+            with self.assertRaisesRegex(ValueError, "ISO 8601"):
+                load_snapshot(path)
+
 
 if __name__ == "__main__":
     unittest.main()

@@ -1,5 +1,29 @@
 period: 2026-08
 entries:
+  - venture: shopify-a11y-evidence
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Graduated the Shopify accessibility evidence candidate into a useful
+        static vertical slice: paste axe-core JSON, generate a dated readable
+        evidence record, and download it as text. The workflow is local-only,
+        requires no Shopify account or API key, includes a visible disclaimer,
+        opt-out aggregate usage counter, SEO metadata, sitemap, robots.txt, MIT
+        license, and three passing Node tests. Shopify App Store measurement,
+        live publishing, and hosted history remain unresolved dependencies.
+    mrr_end: null
+  - venture: etsy-profit-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Graduated and implemented a browser-local Etsy order-profit calculator
+        with a complete fee and variable-cost breakdown, visible disclaimer,
+        local opt-out usage counter, SEO metadata, sitemap, robots.txt, and
+        six behavior tests. Public URL and current Etsy fee verification remain
+        owner-gated or user-supplied.
+    mrr_end: null
   - venture: photos-import-tools
     agent_spend_usd: null
     human_hours: 0
@@ -22719,4 +22743,356 @@ entries:
           do not exist; left open, not merged. This session's branch had
           been sitting on #868's abandoned commit and was restarted from
           `main` rather than resurrecting it.
+    mrr_end: null
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Scheduled "review every open PR, clear the backlog, then build"
+        session, designated branch claude/festive-mccarthy-eysttq.
+        session_gate.py said BUILD. Triaged all 7 open PRs first (#867,
+        #866, #829 already merged by concurrent sessions during the
+        triage; #814 got a real, small, pushed CI fix and was correctly
+        left owner-gated; #531/#720/#857 correctly left alone, #720's
+        block is a repo-wide branch-protection quirk already queued).
+      - >-
+        Graduated the vendor-change-evidence pipeline candidate (composite
+        6.75, both gates clear) into a full venture: a free Python CLI
+        (ventures/vendor-change-watch) with a live page fetcher, watchlist,
+        local snapshot storage, and disclaimers, built on the existing
+        probe's validated diff engine. 28 tests, ruff/mypy clean, opened
+        as #883.
+      - >-
+        #883's CI failed on push (missing venture-scores.yaml entry, a
+        stale generated agent-permission-harness snapshot, and a missing
+        pytest install for mypy); fixed all three and pushed, resolving one
+        real merge conflict against a concurrently-merged
+        dns-configuration-evidence venture along the way.
+      - >-
+        Before that fix's CI could report, #883 was closed as superseded
+        by #898 (a different session's bot, carrying the same
+        implementation plus the same three fixes). Checked out #898's
+        branch directly and pushed a further fix for two real bugs Cursor
+        Bugbot found in the carried-over code: a snapshot-filename
+        collision after deletion (High) and snapshot storage keyed only by
+        vendor+page_type, letting two watched URLs interleave (Medium) --
+        both with regression tests. Rebased onto a second round of
+        upstream pushes to the same branch (main had moved again) and
+        re-verified clean.
+      - >-
+        Before that push's CI could report either, #898 was itself closed
+        as superseded by #905 -- a *third*, independently-built
+        implementation (a Next.js web app, ventures/vendor-watch, from a
+        sibling claude/festive-mccarthy-* scheduled session) solving the
+        identical niche. Left #905 alone (not this session's PR to drive)
+        and did not open a fourth PR for the same change, per the
+        supersession notice's explicit instruction.
+      - >-
+        The finding worth recording is the pattern, not any one
+        implementation: three sessions independently graduated the same
+        pipeline candidate into full ventures inside roughly a 15-minute
+        window, two full build-fix-supersede cycles completed before a
+        single CI run finished reporting on either. session_gate.py's own
+        collision signal (distinct sessions/hour) was already elevated
+        going into this session and undercounts on a shallow clone by its
+        own admission -- this is a concrete instance of exactly that risk,
+        not a new one. No code from this session's branch reached `main`;
+        restarted the branch from current `main` rather than resurrecting
+        dead commits, per CLAUDE.md's already-superseded-branch handling.
+      - >-
+        Also caught, mid-session, a near-miss unrelated to the above: the
+        working tree briefly picked up an uncommitted, unrelated change
+        (a re-added .github/FUNDING.yml with a live Sponsors username, plus
+        deletion of the ledger entry that flagged that exact config for
+        owner review after its PR #862 revert) that this session did not
+        make. Traced it to a concurrently-running subagent invoking git in
+        the same shared working directory. Caught before staging, verified
+        it matched neither `origin/main` nor this branch's own history, and
+        discarded it via `git reset --hard origin/main` before continuing.
+        Nothing from it reached any commit or push.
+    mrr_end: null
+  - venture: ai-engineering-academy
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+          Product-first autonomous session (scheduled brief, branch
+          claude/exciting-brown-7crc4d). session_gate.py read BUILD (92%
+          meta-work in the last 25 entries, no revenue). Before building,
+          triaged the 10 open PRs via a background agent: merged #915
+          (branch-hygiene probe) and #909 (backup-verification-evidence
+          CLI), closed five confirmed duplicates that a concurrent session
+          had already closed (#908, #911, #912, #914, #890/#887 group),
+          left #891 (merge conflict) and #905 (real CI failure -- new
+          venture-scores.yaml entry missing) for the next session with
+          reasoning posted on each.
+      - >-
+          Shipped `tools/led-resistor-calculator/` -- the second EE tool
+          this venture's own README named as its explicit next step ("Add
+          more small, self-contained EE tools ... e.g. voltage divider,
+          LED series-resistor calculator"). Given a supply voltage, an
+          LED's forward voltage/current, and how many are wired in series,
+          it returns the exact current-limiting resistor value, the
+          nearest resistor you can actually buy (snapped to the E24
+          preferred-number series across decade boundaries), the current
+          and dissipation that results, and a recommended power rating
+          derated 2x for reliability. Same definition-of-done as the first
+          tool: MIT LICENSE, no-warranty disclaimer, honest privacy line,
+          local-first opt-out/DNT-respecting usage counting, zero
+          dependencies, zero build step.
+      - >-
+          Verified rather than assumed: 16 unit tests pass (`node --test`)
+          covering E24 snapping (including the 9.6ohm -> 10ohm decade
+          boundary), power-rating selection, the classic 9V/2V/20mA
+          worked example (350ohm exact, 360ohm nearest, 0.5W recommended),
+          a 3-LED series string landing on an exact E24 value, and
+          rejection of insufficient headroom / invalid inputs. Also driven
+          in a real headless Chromium (chrome --dump-dom against a local
+          http.server): the page's default inputs render the same
+          350ohm/360ohm/0.5W result as the unit tests, confirming the DOM
+          wiring actually calls the tested calc module. Wired into
+          `ai-engineering-academy-ci.yml`'s `tools-test` matrix so the
+          tests gate future PRs. Not deployed to a public URL --
+          publishing under the portfolio's name stays owner-gated per
+          `portfolio/DIRECTION.md`; ready to deploy once that opens.
+      - >-
+          Fixed a pre-existing YAML bug in `portfolio/usage/usage.yaml`
+          while adding this tool's baseline usage row: two continuation
+          lines of the ai-engineering-academy note were indented one space
+          short of the block-scalar's opening line, which made the file
+          fail to parse (`yaml.safe_load` raised a ParserError). Nothing
+          in CI currently loads this file, so it had gone unnoticed; fixed
+          the indentation and confirmed the file parses.
+    mrr_end: null
+  - venture: ai-engineering-academy
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+          Continued the same product-first session (branch
+          claude/exciting-brown-7crc4d) after shipping and merging
+          led-resistor-calculator (#932) and the agent-permission-harness
+          CI fix (#936). Shipped a third EE tool:
+          `tools/voltage-divider-calculator/` -- unloaded and loaded
+          V_out (the load-loading correction most beginner treatments
+          skip: a real load in parallel with R2 sags V_out below the
+          textbook value, and the tool shows both numbers plus the
+          percentage drop and per-component power), and a target-output
+          design mode that solves for R2 given a preferred R1 and snaps
+          it to a buyable E24 value. Same definition-of-done as the first
+          two tools: MIT LICENSE, no-warranty disclaimer, honest privacy
+          line, local-first opt-out/DNT-respecting usage counting, zero
+          dependencies, zero build step.
+      - >-
+          Verified rather than assumed: 14 unit tests pass (`node --test`)
+          covering the equal-resistor halving case, an unequal-ratio
+          case, the loaded-vs-unloaded divergence (33% sag verified by
+          hand-computed fraction), a light-load near-no-sag sanity check,
+          invalid-input rejection, and the target-design mode's exact/
+          nearest-E24 R2 with a real worked example (12V to 3.3V through
+          a 10k R1 lands on a standard 3.9k). Also re-ran the two sibling
+          tools' suites unchanged (21 and 16 passing) to catch any
+          regression, and drove the new page in a real headless Chromium
+          -- default inputs render 6.0000V/0.600mA/3.60mW and 3.9kOhm/
+          3.3669V, matching the unit tests exactly. Wired into the
+          `tools-test` CI matrix.
+      - >-
+          Noticed while re-verifying the previous session's CI fix
+          (#936) that `agent-permission-harness`'s committed results
+          snapshot had already drifted again from a concurrent session's
+          edit, minutes after landing. Left it alone this time rather
+          than chasing an actively-churning file a second time in one
+          session -- noted here so the next session sees the pattern
+          (broad-trigger workflow + a generated file some sessions edit
+          by hand instead of regenerating) rather than re-diagnosing it
+          from scratch.
+    mrr_end: null
+  - venture: photos-import-tools
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Product-first autonomous session (scheduled brief, branch
+        claude/exciting-brown-8zpx3z). `session_gate.py` said BUILD (84%
+        of last 25 entries meta-work, no revenue). Sampled 4 of the 10
+        open PRs (#934, #933, #922, #926) before starting: all in "dirty"
+        mergeable state from a burst of concurrent sessions committing to
+        `main` faster than any one PR could be rebased -- not this
+        session's PRs to fix, and re-litigating a fleet-wide collision
+        already flagged by `session_gate.py` would itself be more
+        meta-work. Checked `decision_queue.py`: every venture's
+        `links.production` is `null`, deployment is entirely gated on
+        owner-supplied hosting credentials (Ask 9 open), so a ninth new
+        thin venture PR would not reach any user this repo doesn't already
+        have candidates queued for.
+      - >-
+        Shipped instead: a "Usage" section in
+        `ventures/photos-import-tools/README.md` (96 lines) documenting
+        the `init`/`run`/`status`/`preflight`/`skip-uncertain` commands,
+        the unattended watchdog and `start_import.sh`'s env vars
+        (`STATE_DIR`, `ROOT_DIR`, `BATCH_SIZE`, `INCLUDE_RAWS`,
+        `RAW_BATCH_SIZE`, `RAW_TIMEOUT`), and SD-offload flags -- all
+        sourced from each script's own `argparse` definitions, not
+        invented. This is the one product in the portfolio with real,
+        working, daily use (91 tests, dozens of hardened edge cases per
+        its own hypotheses list) and it had no documented invocation
+        sequence; a reader previously had to trace 1000+ lines of
+        `resumable_photos_import.py` to learn it. PR #938.
+      - >-
+        Verified rather than assumed: reran the venture's own test suite
+        (91 passed) and cross-checked every flag, default, and env var in
+        the new section directly against the `argparse` calls and
+        `start_import.sh` source before writing it. Also ran
+        `validate_doc_consistency.py` and `validate_candidates.py`
+        (unaffected, both pass). Doc-only diff; no code, deployment, or
+        owner-only action.
+    mrr_end: null
+  - venture: quote-margin-check
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Resolved a duplicate-PR deadlock that had silently destroyed real
+        product value. Two concurrent sessions independently built the same
+        browser calculator for this venture -- #948 at `site/` and #953 at
+        `web/` -- both adding the same
+        `.github/workflows/quote-margin-check-ci.yml` path, so whichever
+        merged second would have conflicted. Each PR was then closed in
+        favour of the other within about a minute: `kilo-code-bot` closed
+        #948 as "superseded by #953" on branch recency alone at 16:04:20,
+        and this session closed #953 on the merits at 16:05. Net result was
+        both closed and the venture left with no browser tool at all.
+        Rather than reopen either branch and continue the ping-pong, took
+        ownership on a fresh branch and landed the consolidated work once.
+      - >-
+        Shipped `ventures/quote-margin-check/site/`: a zero-dependency,
+        zero-build static calculator whose `calc.mjs` ports
+        `load_quote()`/`calculate()` from `src/quote_margin.py`
+        field-for-field, so the CLI and browser tool cannot quietly
+        diverge. Re-verified that port against the current `main` after
+        #939 (`--batch`) and #924 (CSV export) landed -- neither touched
+        the two ported functions, so it is still accurate. Kept #948's
+        `site/` naming (matches `ventures/ai-engineering-academy/site/`)
+        and its copy-as-CSV export, which emits the same
+        `measure,value,unit` schema as the CLI's `--format csv`.
+      - >-
+        Wired `.github/workflows/quote-margin-check-ci.yml`: this venture's
+        Python tests had never run in CI at all (`portfolio-validate.yml`
+        only covers portfolio infra). Now the CLI's `unittest` suite and
+        the site's `node --test` suite both run on PRs touching the
+        venture. Registered the workflow in
+        `platform/ci/publish-surface.yaml` -- it classifies as `none`
+        (`contents: read`, no deploy steps), so the snapshot still reads
+        43 workflows / 0 live and the owner-only publishing gate is
+        untouched by this change.
+      - >-
+        Product improvement beyond the consolidation: the page ships
+        pre-filled so a first visit shows a worked result instead of an
+        empty form, but those unlabelled sample numbers rendered a red
+        "Below target" verdict before the visitor had entered anything of
+        their own -- reading as a judgement on their quote. Added an
+        example-quote note that clears on the first edit to any field, so
+        the pre-filled state is honest without costing the fast
+        time-to-first-value.
+      - >-
+        Verified rather than assumed. Unit: 10/10 Python CLI tests, 12/12
+        node site tests. Validators: `validate_workflows.py` (43/43),
+        `publish_surface.py --check` (43 workflows, 0 live),
+        `router/validate.py` (15/15 VENTURE.yaml). Browser, in real
+        headless Chromium against a served copy of the page: the CLI's own
+        website-redesign fixture (4200 / 30h / 4h admin / 6h revisions /
+        150 overhead / 400 subcontractor / 90 target) renders 40.00 hours,
+        USD 550.00 direct costs, USD 91.25/hour effective rate, USD
+        4,150.00 target price and a USD 50.00 gap -- matching hand-computed
+        arithmetic; an invalid price of 0 renders "price must be greater
+        than zero" instead of a bogus report; the example note clears on
+        first edit and does not return; copy-as-CSV puts the correct
+        eight-row `measure,value,unit` block on the clipboard. Zero console
+        errors throughout.
+      - >-
+        Not deployed to a public URL -- publishing under the portfolio's
+        name stays owner-gated per `portfolio/DIRECTION.md`. The `site/`
+        directory is a ready-to-deploy static site the moment that gate
+        opens. Also closed #937 (voltage-divider calculator, fully
+        superseded by merged #944) and #951, which would have re-broken CI:
+        #949 had already removed the duplicate `shopify-permission-drift`
+        score, so #951's patch would have deleted the only remaining entry.
+    mrr_end: null
+
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+          Webhook-triggered session (pull_request.closed on #720, branch
+          claude/festive-mccarthy-k5sapz). #720 (deployment platform pick)
+          had closed unmerged -- blocked on the repo-wide self-approval
+          branch-protection quirk, and human-gated regardless (account
+          registration, standing spend). Corrected `portfolio/ledger/asks.yaml`
+          to match: removed the resolved `deployment-platform` row and fixed
+          `deploy-settings`'s note, which had pointed at
+          `agent-server-provision.yml` and `platform/deployment/README.md` --
+          both of which existed only on #720's closed branch, never merged
+          to `main`. Opened as #879; closed by a concurrent session
+          ("administrative cleanup is not the current product priority")
+          before its CI reported. Left it closed rather than re-litigating.
+      - >-
+          session_gate.py printed BUILD, no pipeline candidate carried an
+          unbuilt build-now verdict. Advanced `repository-branch-hygiene`
+          instead (a `probe`-verdict candidate, `graduate_as: product-line`,
+          whose first experiment's steps 1-2 are fully network-free, with
+          real supporting evidence already in the repo: PR #829's 608-branch
+          sweep). Built a read-only git-ref classifier at
+          `portfolio/pipeline/probes/repository-branch-hygiene/`: six
+          categories (protected/shared/duplicate/moved/unique/uncertain), a
+          synthetic fixture that declares its own oracle, and a recovery
+          manifest where no category ever says "delete". Opened as #915, 29
+          tests passing, recoverability checked by test including a race the
+          write-up hadn't anticipated (two refs at one tip are individually
+          safe to delete and not jointly safe).
+      - >-
+          The fix chain that followed is the finding worth keeping. #915
+          auto-merged (`kilo-code-bot[bot]`) at its first commit, before
+          Cursor Bugbot's review reported a real, high-severity defect
+          (grouping refs by name compared only each name's primary tip, so a
+          diverged remote copy at another branch's exact SHA could leave a
+          commit reported as exclusively "unique" while a live ref elsewhere
+          still reached it -- a direct violation of the probe's
+          recoverability claim). Cursor's own Bugbot Autofix agent pushed a
+          fix independently of one written locally in this session; adopted
+          Autofix's version. Opened the fix as #933 (32 tests passing) --
+          closed by `kilo-code-bot[bot]`, citing supersession by #935.
+          Checked #935's diff: it is a wholly separate, independently built
+          implementation at `ventures/repository-branch-hygiene/` (a
+          different concurrent session graduated the same pipeline candidate
+          as a full venture, unaware of this probe) that never touches
+          `scanner.py`. Rebased and re-opened as #943 -- closed again by the
+          same bot, citing supersession by #952, which turned out to be a
+          *third* PR, also confined entirely to `ventures/repository-branch-
+          hygiene/`, also never touching `scanner.py`. Rebased a third time
+          and opened as #978, this time with the mismatch stated at the top
+          of the PR body in the hope it isn't closed on the same false
+          premise again.
+      - >-
+          Two findings flagged for the owner rather than absorbed silently:
+          (1) `kilo-code-bot[bot]` closed two consecutive, unrelated PRs on
+          an identical false-supersession pattern -- matching by candidate
+          *name* (`repository-branch-hygiene`) without diffing which files
+          each PR actually touches. Worth the owner's attention if a
+          confirmed defect fix gets auto-closed a third time on the same
+          mistake. (2) `repository-branch-hygiene` has two independent,
+          unreconciled implementations on `main` (this probe and the
+          `ventures/` graduation) from concurrent sessions that could not
+          see each other's work -- not resolved here to keep the code PR
+          scoped to the one confirmed defect.
+      - >-
+          Also confirmed, in passing, that two other CI-red base-branch
+          issues encountered mid-session (the `agent-permission-harness`
+          snapshot drifting from `harness.py`'s output, and a duplicate
+          `shopify-permission-drift` score row) were independently fixed by
+          concurrent sessions (#954, #949) before this session's own PRs
+          needed to touch either -- no action taken on either, per the
+          CI-red rule against fixing what a base-branch failure someone else
+          already owns.
     mrr_end: null

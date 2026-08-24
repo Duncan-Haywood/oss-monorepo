@@ -2,7 +2,12 @@ export type UsageEventName =
   | "page_view"
   | "catalog_cta"
   | "room_visualizer_cta"
-  | "storefront_search";
+  | "storefront_search"
+  | "checkout_add"
+  | "checkout_remove"
+  | "checkout_quantity_change"
+  | "preflight_completed"
+  | "preflight_exported";
 
 export type UsageEvent = {
   name: UsageEventName;
