@@ -14,6 +14,34 @@
   community.general.timezone:
     name: "{{ server_timezone }}"
 
+# The playbook was written for a box whose Ubuntu *installer* created this
+# account. A cloud image has only root, so provisioning one from CI would fail
+# at the first authorized_key task with a user that does not exist. Creating it
+# here is idempotent on the hand-installed case.
+- name: Ensure agent_user exists
+  ansible.builtin.user:
+    name: "{{ agent_user }}"
+    shell: /bin/bash
+    create_home: true
+    groups: "{{ 'sudo' if ansible_os_family == 'Debian' else 'wheel' }}"
+    append: true
+    state: present
+
+# Off by default: a hand-run playbook should not silently hand out passwordless
+# root. CI sets it true because a runner cannot answer --ask-become-pass, which
+# this venture's README already identifies as the prerequisite for unattended
+# runs. `validate` matters more than it looks -- a malformed sudoers file locks
+# every account out of sudo, and on a box reached only by SSH that is fatal.
+- name: Allow agent_user passwordless sudo
+  ansible.builtin.copy:
+    dest: "/etc/sudoers.d/90-{{ agent_user }}-nopasswd"
+    content: "{{ agent_user }} ALL=(ALL) NOPASSWD:ALL\n"
+    owner: root
+    group: root
+    mode: "0440"
+    validate: "visudo -cf %s"
+  when: agent_user_passwordless_sudo | bool
+
 - name: Ensure agent_user has the expected authorized keys
   ansible.posix.authorized_key:
     user: "{{ agent_user }}"

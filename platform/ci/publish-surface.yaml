@@ -40,6 +40,9 @@ workflows:
 - workflow: agent-permission-harness-ci.yml
   classification: none
   publishes: []
+- workflow: agent-server-provision.yml
+  classification: none
+  publishes: []
 - workflow: ai-engineering-academy-ci.yml
   classification: none
   publishes: []

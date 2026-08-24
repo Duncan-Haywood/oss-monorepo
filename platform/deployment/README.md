@@ -323,8 +323,9 @@ recommendation.
    separate decision and this is not it.
 4. Leave `GITHUB_PAGES_ENABLED`, `VERCEL_DEPLOY` and the `CLOUDFLARE_*`
    secrets unset.
-5. **Do not put a Hetzner Cloud API token in GitHub secrets.** See below —
-   this is the one step where the obvious move is the wrong one.
+5. **Do not put a Hetzner Cloud API token in GitHub secrets** — an SSH key
+   for the box is the credential CI wants, and it cannot create servers. See
+   below for the split and the setup.
 
 ### The credential this does *not* want
 
@@ -370,49 +371,75 @@ the credential.
 
 ### The SSH key, done properly
 
-"Use an SSH key instead" is right, and it is still possible to give away most
-of the same power by using *one* key for everything. Two keys, two jobs:
+**Decided 2026-08-24: the box belongs to the repository, not to a person, and
+its key lives in GitHub secrets.** That reverses the "keep it on your machine"
+posture an earlier draft of this section took, and the reasoning behind the
+reversal is sound: the objection to the Hetzner *API token* was that it can
+create servers, which turns a fixed price into an open one. **An SSH key cannot
+provision anything.** The structural spend bound this option was chosen for
+survives a key in CI intact, so that objection does not transfer.
 
-| | Admin key | Deploy key |
-|---|---|---|
-| Who holds it | you, on your own machine | GitHub Actions, as a secret |
-| What it reaches | `agent_user`, full sudo | one unprivileged `deploy` user |
-| Used by | `ubuntu-agent-server`'s Ansible | a deploy workflow, when one exists |
-| In CI? | **never** | yes, once there is something to deploy |
+What does transfer is a smaller and more specific risk, worth naming once and
+then designing around rather than worrying about: the key is **access**, and
+what it eventually reaches is not an empty box. Once someone logs the agent
+CLIs in — which is the point of `ubuntu-agent-server` — that machine holds
+live Claude Code, Codex and opencode sessions. A deploy key in a repository an
+unattended fleet can write to is one workflow edit away from those.
 
-The admin key is the one `group_vars/all.yml` already wires up, via
-`agent_user_authorized_keys`. It runs the playbook, it can become root, and it
-has no business in a repository an unattended fleet can write to.
+The design that makes the owner's framing true rather than merely hopeful:
 
-The deploy key is worth creating **only when a workflow actually deploys
-something**, which nothing here does yet. When that day comes, constrain it in
-the deploy user's `authorized_keys` rather than trusting the workflow:
+- **The box is cattle.** It holds no credential that is not recoverable by
+  rebuilding it, and rebuilding it costs €4 and a playbook run. Nothing
+  irreplaceable — no payout rail, no domain control, no personal key — ever
+  lands on it.
+- **The key is used for nothing else.** Dedicated pair, no passphrase (CI
+  cannot type one), reaching one unprivileged account on one host.
+- **The API token is still a no.** Provision the server in the Hetzner console
+  by hand. Nothing in CI needs to create servers, and the moment something can,
+  the fixed-price argument is gone.
+- **The fleet stays off.** `agent_runner_start_disabled` is true unless a human
+  flips the workflow input, because `CLAUDE.md` reserves unattended spend-capable
+  automation to the owner. Owning a box and running a fleet on it are two
+  decisions and this document only makes the first.
 
+`.github/workflows/agent-server-provision.yml` implements this. It is
+`workflow_dispatch`-only — a button, not a trigger — defaults to `--check` so
+the first run reports rather than acts, and refuses to start with a clear error
+if the configuration is missing. `platform/ci/publish_surface.py` classifies it
+as publishing nothing, which is accurate: no push trigger reaches it.
+
+Two gaps in `ubuntu-agent-server` had to be closed for any of this to run at
+all, and both were invisible until CI was the operator:
+
+1. **The playbook never created `agent_user`.** It was written for a box whose
+   Ubuntu installer had already made the account; a cloud image has only root,
+   so the first `authorized_key` task would have failed against a user that did
+   not exist.
+2. **`--ask-become-pass` has no answer on a runner.** Passwordless sudo is now
+   a variable, default `false` so a hand-run playbook does not silently hand out
+   NOPASSWD, set `true` by the workflow. The sudoers drop-in is written with
+   `validate: visudo -cf %s`, because a malformed sudoers file locks every
+   account out of sudo and on an SSH-only box that is unrecoverable.
+
+Set up, in order:
+
+```bash
+ssh-keygen -t ed25519 -N "" -C "agent-server ci" -f /tmp/agent-ci
+gh secret set AGENT_SERVER_SSH_KEY < /tmp/agent-ci     # private half, never on screen
+gh variable set AGENT_SERVER_PUBKEY < /tmp/agent-ci.pub
+gh variable set AGENT_SERVER_HOST --body "<box ip>"
+gh variable set AGENT_SERVER_USER --body "deploy"
+shred -u /tmp/agent-ci /tmp/agent-ci.pub
 ```
-restrict,command="/usr/local/bin/deploy-site" ssh-ed25519 AAAA... ci@deploy
-```
 
-`restrict` turns off agent, port and X11 forwarding and PTY allocation;
-`command=` pins the key to exactly one script regardless of what the client
-asks for. A stolen deploy key then buys running that one script on that one
-box — not a shell, not sudo, and not the ability to create a second server.
+Piping straight into `gh` keeps the private key off your screen, out of your
+shell history and out of any transcript. Create the server in the Hetzner
+console first, pasting the same public key so the box comes up reachable.
 
-The remaining question is whether SSH faces the public internet at all. Pinning
-`from=` to GitHub's runner ranges is a poor fit — they are broad and they
-change. The better shape, and the one this box is already built for, is to put
-the *runner* on the tailnet for the length of the job with an ephemeral,
-tag-scoped Tailscale auth key, and leave port 22 closed to the world. That
-keeps the Tailscale-only posture that made this option defensible in the first
-place.
-
-Until a deploy workflow exists, the correct number of Hetzner-related secrets
-in this repository is **zero**.
-
-
-
-Serving the web apps from the box is follow-on work — nginx/TLS, Postgres, a
-deploy path — and is agent-decidable once the box exists. It is also the part
-Railway would have given away, and it is the honest price of this choice.
+After the first successful run, pin the host key —
+`ssh-keyscan <host> | gh secret set AGENT_SERVER_KNOWN_HOSTS` — which flips the
+workflow from trust-on-first-use to `StrictHostKeyChecking=yes`. It warns until
+you do.
 
 Expect `platform/ci/publish_surface.py --check` to go red once any deploy job
 goes live; rewriting the snapshot is the correct follow-up, not a regression.

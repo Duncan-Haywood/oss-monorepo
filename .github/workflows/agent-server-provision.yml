@@ -1,0 +1,134 @@
+name: Provision agent server
+
+# Runs `ventures/ubuntu-agent-server/`'s playbook against the repository's own
+# Hetzner box, from CI, using an SSH key held in repository secrets.
+#
+# `workflow_dispatch` only, deliberately. This is a button a human presses, not
+# unattended automation: per CLAUDE.md, anything that runs unattended and can
+# spend is the account owner's decision. It also does **not** enable the agent
+# runner -- `agent_runner_start_disabled` stays true unless someone overrides
+# it on purpose, which is a separate decision from having a box at all.
+#
+# Required before the first run:
+#   secret AGENT_SERVER_SSH_KEY    private half of a key used for nothing else
+#   var    AGENT_SERVER_HOST       IP or hostname to reach the box on
+#   var    AGENT_SERVER_USER       login on the box (default: deploy)
+#   var    AGENT_SERVER_PUBKEY     public half, installed as an authorized key
+# Optional:
+#   secret AGENT_SERVER_KNOWN_HOSTS  pinned host key; without it the first
+#                                    connection is trust-on-first-use
+#   secret TAILSCALE_AUTHKEY         joins the box to the tailnet unattended
+
+on:
+  workflow_dispatch:
+    inputs:
+      enable_agent_runner:
+        description: "Start the agent fleet on the box (owner decision -- leave false)"
+        type: boolean
+        default: false
+      check_mode:
+        description: "Dry run: report changes without making them"
+        type: boolean
+        default: true
+
+permissions:
+  contents: read
+
+concurrency:
+  group: agent-server-provision
+  cancel-in-progress: false
+
+defaults:
+  run:
+    working-directory: ventures/ubuntu-agent-server
+
+jobs:
+  provision:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Check the required configuration is present
+        env:
+          HOST: ${{ vars.AGENT_SERVER_HOST }}
+          PUBKEY: ${{ vars.AGENT_SERVER_PUBKEY }}
+          KEY: ${{ secrets.AGENT_SERVER_SSH_KEY }}
+        run: |
+          missing=()
+          [ -n "$HOST" ]   || missing+=("var AGENT_SERVER_HOST")
+          [ -n "$PUBKEY" ] || missing+=("var AGENT_SERVER_PUBKEY")
+          [ -n "$KEY" ]    || missing+=("secret AGENT_SERVER_SSH_KEY")
+          if [ ${#missing[@]} -ne 0 ]; then
+            printf '::error::not configured yet -- missing: %s\n' "${missing[*]}"
+            exit 1
+          fi
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install Ansible
+        run: |
+          pip install --quiet ansible-core
+          ansible-galaxy collection install -r requirements.yml
+
+      - name: Write the SSH key and host key
+        env:
+          KEY: ${{ secrets.AGENT_SERVER_SSH_KEY }}
+          KNOWN_HOSTS: ${{ secrets.AGENT_SERVER_KNOWN_HOSTS }}
+        run: |
+          install -d -m 700 ~/.ssh
+          printf '%s\n' "$KEY" > ~/.ssh/agent_server
+          chmod 600 ~/.ssh/agent_server
+          if [ -n "$KNOWN_HOSTS" ]; then
+            printf '%s\n' "$KNOWN_HOSTS" > ~/.ssh/known_hosts
+            chmod 600 ~/.ssh/known_hosts
+            echo "HOST_KEY_ARGS=-o StrictHostKeyChecking=yes" >> "$GITHUB_ENV"
+          else
+            echo "::warning::AGENT_SERVER_KNOWN_HOSTS is unset -- trusting the host key on first use. Set it after the first run: ssh-keyscan <host>"
+            echo "HOST_KEY_ARGS=-o StrictHostKeyChecking=accept-new" >> "$GITHUB_ENV"
+          fi
+
+      - name: Run the playbook
+        env:
+          ANSIBLE_HOST_KEY_CHECKING: "True"
+          ANSIBLE_FORCE_COLOR: "1"
+          HOST: ${{ vars.AGENT_SERVER_HOST }}
+          USER_NAME: ${{ vars.AGENT_SERVER_USER || 'deploy' }}
+          PUBKEY: ${{ vars.AGENT_SERVER_PUBKEY }}
+          AUTHKEY: ${{ secrets.TAILSCALE_AUTHKEY }}
+          ENABLE_RUNNER: ${{ inputs.enable_agent_runner }}
+          CHECK_MODE: ${{ inputs.check_mode }}
+        run: |
+          printf '[agent_server]\nagent-server ansible_host=%s ansible_user=%s\n' \
+            "$HOST" "$USER_NAME" > inventory.ci.ini
+
+          # `run:` executes under `bash -e`, and `[ test ] && cmd` exits the
+          # step when the test is false -- the && list's status is the step's.
+          # Explicit ifs, so a dry run that is *not* requested does not abort.
+          args=(-i inventory.ci.ini playbook.yml)
+          if [ "$CHECK_MODE" = "true" ]; then
+            args+=(--check --diff)
+          fi
+          if [ -n "$AUTHKEY" ]; then
+            args+=(-e "tailscale_authkey=$AUTHKEY")
+          fi
+
+          # The fleet stays off unless someone deliberately asks for it.
+          if [ "$ENABLE_RUNNER" = "true" ]; then
+            echo "::warning::Starting the agent runner -- this is the owner-gated switch in CLAUDE.md."
+            args+=(-e "agent_runner_start_disabled=false")
+          else
+            args+=(-e "agent_runner_start_disabled=true")
+          fi
+
+          # The public key is not secret; passing it as a var keeps the
+          # playbook's default (read the operator's own key off their machine)
+          # working for a human run, which has no repository variables.
+          args+=(-e "agent_user=$USER_NAME")
+          args+=(-e "agent_user_passwordless_sudo=true")
+          args+=(-e "{\"agent_user_authorized_keys\": [\"$PUBKEY\"]}")
+
+          ANSIBLE_PRIVATE_KEY_FILE=~/.ssh/agent_server \
+          ANSIBLE_SSH_COMMON_ARGS="$HOST_KEY_ARGS" \
+          ansible-playbook "${args[@]}"

@@ -10,6 +10,12 @@ agent_user: duncan
 agent_user_authorized_keys:
   - "{{ lookup('file', '~/.ssh/id_ed25519.pub') }}"
 
+# Passwordless sudo for agent_user. Left off for a hand-run playbook -- you are
+# there to type the password, and handing out NOPASSWD without asking is not a
+# default anyone should inherit. The CI provisioning workflow overrides this to
+# true, because a runner cannot answer `--ask-become-pass`.
+agent_user_passwordless_sudo: false
+
 # Hostname to set on the box. The Ubuntu installer gave it a junk
 # DMI-derived default ("duncan-Default-string") last time; pick something sane.
 server_hostname: agent-server

@@ -166,11 +166,14 @@ decisions:
     Take one Hetzner CX-class VPS (~EUR 4/month, 20 TB traffic, fixed price so
     there is nothing to cap), point
     `ventures/ubuntu-agent-server/inventory.ini` at it and run that playbook.
-    Do **not** add a Hetzner Cloud API token to GitHub secrets -- it is an
-    infrastructure control plane that can create servers, so it removes the
+    Do **not** add a Hetzner Cloud API
+    token to GitHub secrets -- it can create servers, which removes the
     structural spend bound this option was chosen for, and Hetzner offers no
-    scope below Read & Write. Provision by hand; CI wants an SSH key for a
-    restricted deploy user, if anything. Leave
+    scope below Read & Write; provision in the console by hand. An SSH key in
+    secrets is fine and is the intended design: it cannot provision anything,
+    so the fixed-price bound survives it. `agent-server-provision.yml` (added
+    in #720, `workflow_dispatch`-only, dry-run by default) runs the playbook
+    from CI; the secrets and variables it needs are listed at the top of it. Leave
     `agent_runner_start_disabled: true` -- switching the fleet on is a
     separate decision. Leave `GITHUB_PAGES_ENABLED`, `VERCEL_DEPLOY` and the
     `CLOUDFLARE_*` secrets unset. Choose Railway instead (~$5-25/month) if you
