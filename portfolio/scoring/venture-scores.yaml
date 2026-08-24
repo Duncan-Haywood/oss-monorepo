@@ -635,34 +635,30 @@ ventures:
       Testing restores and maintaining an independent backup strategy remain
        customer responsibilities.
 
-  - slug: cut-list-optimizer
+   - slug: shopify-a11y-evidence
     scores:
-      ai_leverage: 2
+      ai_leverage: 3
       autonomous_ops: 10
-      time_to_revenue: 8
+      time_to_revenue: 6
       gross_margin: 10
       defensibility: 4
       distribution: 6
-    composite: 6.667
+    composite: 6.5
     rater_b: null
-    floor: 2
+    floor: 3
     floor_dimension: ai_leverage
     floor_note: >-
-      The first release is intentionally deterministic and client-side. Its
-      defensibility depends on repeat use, shop-specific presets, and printable
-      workflow adoption, none of which has customer evidence yet.
+      The initial evidence report is intentionally deterministic; a dated
+      history and agency workflow can provide defensibility after usage proves
+      repeat demand.
     basis: >-
-      Graduated from the cut-list-optimizer candidate on 2026-08-24. The first
-      slice packs quantity-aware linear-stock cuts with kerf into a transparent
-      browser plan, with no server, account, upload, paid API, or inference
-      dependency. It targets a concrete material-waste and setup-time problem
-      for small makers while remaining useful without claiming mathematical
-      optimality.
+      Graduated on 2026-08-24 as a browser-local axe-core JSON report for
+      Shopify merchants and agencies. It produces a portable record without
+      Shopify credentials, network access, or server-side data retention.
     gates:
       liability_containment: pass
       ethical_robustness: pass
     gate_note: >-
-      Pass, conditionally: output is framed as a planning aid, not engineering
-      advice or a guarantee of material fit. The user remains responsible for
-      verifying dimensions, kerf, grain direction, stock condition, and safe
-      cutting before relying on the plan.
+      Pass, conditionally: output is explicitly a record of a supplied
+      automated test, never a compliance determination, and every result calls
+      for manual review.

@@ -34,6 +34,19 @@ test('break-even price makes profit exactly zero', () => {
   near(atBreakEven.profit, 0, 'profit at break-even');
 });
 
+test('calculates the item price required for a target net margin', () => {
+  const input = { price: 40, shippingCharged: 6, finalValueRate: 13.25, fixedFee: 0.3, costOfGoods: 12, shippingCost: 5, packagingCost: 1, targetMargin: 20 };
+  const r = calculateOrder(input);
+  const atTarget = calculateOrder({ ...input, price: r.targetMarginPrice });
+  near(atTarget.margin, 20, 'margin at target price');
+  near(r.targetMarginPrice, 18.3 / 0.6675 - 6, 'target margin price');
+});
+
+test('reports an unreachable target margin when fees leave no margin room', () => {
+  const r = calculateOrder({ price: 10, finalValueRate: 80, targetMargin: 20 });
+  assert.equal(r.targetMarginPrice, Infinity);
+});
+
 test('ROI is null when no cash was invested', () => {
   const r = calculateOrder({ price: 20, shippingCharged: 0, costOfGoods: 0, shippingCost: 0, packagingCost: 0, otherCost: 0 });
   assert.equal(r.roi, null);
@@ -54,4 +67,5 @@ test('rejects negative and non-numeric inputs', () => {
   assert.throws(() => calculateOrder({ price: -1 }), /Item price/);
   assert.throws(() => calculateOrder({ price: 'abc' }), /Item price/);
   assert.throws(() => calculateOrder({ price: 10, costOfGoods: -5 }), /Cost of goods/);
+  assert.throws(() => calculateOrder({ price: 10, targetMargin: 100 }), /less than 100/);
 });

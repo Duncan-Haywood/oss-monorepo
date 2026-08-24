@@ -9,11 +9,11 @@ function honorsBrowserSignal() {
   }
 }
 
-export function recordUsage(storage = globalThis.localStorage, optedOut = false) {
+export function recordUsage(storage = globalThis.localStorage, optedOut = false, event = 'order_profit_calculated') {
   if (optedOut || !storage || honorsBrowserSignal()) return;
   const today = new Date().toISOString().slice(0, 10);
   const current = JSON.parse(storage.getItem('ebay-fee-usage') || '{}');
-  current.order_profit_calculated = (current.order_profit_calculated || 0) + 1;
+  current[event] = (current[event] || 0) + 1;
   current.last_day = today;
   storage.setItem('ebay-fee-usage', JSON.stringify(current));
 }
