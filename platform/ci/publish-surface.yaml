@@ -61,6 +61,9 @@ workflows:
 - workflow: claude-routine-trigger.yml
   classification: none
   publishes: []
+- workflow: cut-list-optimizer-ci.yml
+  classification: none
+  publishes: []
 - workflow: demand-signal-reachability-ci.yml
   classification: none
   publishes: []
@@ -155,6 +158,9 @@ workflows:
   classification: none
   publishes: []
 - workflow: ubuntu-agent-server-ci.yml
+  classification: none
+  publishes: []
+- workflow: where-to-sell-calculator-ci.yml
   classification: none
   publishes: []
 - workflow: world-clock-widget-ci.yml

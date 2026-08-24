@@ -2,6 +2,27 @@
 // state: every rate and cost is an input so the result stays a transparent
 // calculation the seller can check against their own eBay statements rather
 // than a claim about eBay's current fee schedule.
+
+// Every seller-supplied field, in the order the form presents them. The page
+// and the save/share encoder both read this rather than keeping their own
+// copies: when those lists drifted, a shared link silently dropped whichever
+// field the encoder had not heard about, and the recipient saw a different
+// order than the sender did.
+export const INPUT_FIELDS = [
+  'price',
+  'quantity',
+  'shippingCharged',
+  'finalValueRate',
+  'fixedFee',
+  'promotedRate',
+  'intlFeeRate',
+  'costOfGoods',
+  'shippingCost',
+  'packagingCost',
+  'otherCost',
+  'targetMargin',
+];
+
 export function calculateOrder(input) {
   const number = (value, name) => {
     const result = Number(value);

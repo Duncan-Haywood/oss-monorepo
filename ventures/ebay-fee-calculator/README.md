@@ -68,6 +68,14 @@ The tool is free and full-featured. The
 [project lives on GitHub](https://github.com/Duncan-Haywood/monorepo-projects);
 support is entirely voluntary and never changes what the tool does.
 
+## Save and share
+
+The calculator saves its ten numeric assumptions in your browser so returning
+sellers do not re-enter them. **Copy shareable link** puts those assumptions in
+the URL fragment for a collaborator; anyone with the link can read the figures,
+so do not share sensitive information. Nothing is uploaded. Use **Reset saved
+inputs** to remove the local setup.
+
 ## Development
 
 Pure ES modules, no build step, no dependencies.
