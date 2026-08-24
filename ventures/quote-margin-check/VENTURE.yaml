@@ -1,0 +1,27 @@
+name: quote-margin-check
+description: A private, transparent quote calculator that helps freelancers and small agencies spot underpriced work before they commit.
+stage: prototype
+owner: duncan
+hypotheses:
+  - claim: Freelancers will return to a fast quote margin check when estimates include hidden admin, revision, and delivery time.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: A local-first report is useful enough to replace a spreadsheet for recurring quote reviews.
+    status: untested
+    checked: null
+    evidence: customer-contact
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+budget:
+  monthly_cap: 1
+  protected: true
+kill_criteria:
+  - Fewer than three qualified freelancers run the calculator twice within 90 days.
+  - Users do not report finding at least one underpriced or below-target quote in the first 90 days.
+links:
+  production: null
+  analytics: null
