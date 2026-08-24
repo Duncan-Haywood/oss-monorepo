@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { calculateOrder } from './calc.mjs';
+import { calculateOrder, calculatePriceScenarios } from './calc.mjs';
 
 const near = (actual, expected, msg) => assert.ok(Math.abs(actual - expected) < 1e-6, `${msg}: ${actual} vs ${expected}`);
 
@@ -85,4 +85,14 @@ test('rejects negative and non-numeric inputs', () => {
   assert.throws(() => calculateOrder({ price: 'abc' }), /Item price/);
   assert.throws(() => calculateOrder({ price: 10, costOfGoods: -5 }), /Cost of goods/);
   assert.throws(() => calculateOrder({ price: 10, targetMargin: 100 }), /less than 100/);
+});
+
+test('compares profit at multiple listing prices using the same assumptions', () => {
+  const input = { price: 40, shippingCharged: 6, finalValueRate: 13.25, fixedFee: 0.3, costOfGoods: 12, shippingCost: 5, packagingCost: 1 };
+  const scenarios = calculatePriceScenarios(input, [30, 40, 50]);
+  assert.deepEqual(scenarios.map(scenario => scenario.price), [30, 40, 50]);
+  near(scenarios[1].profit, calculateOrder(input).profit, 'current price profit');
+  assert.ok(scenarios[0].profit < scenarios[1].profit);
+  assert.ok(scenarios[1].profit < scenarios[2].profit);
+  assert.throws(() => calculatePriceScenarios(input, []), /scenario price/);
 });

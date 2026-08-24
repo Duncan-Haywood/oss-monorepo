@@ -639,8 +639,9 @@ candidates:
   - slug: einvoice-preflight
     name: E-invoice preflight
     doc: candidates/einvoice-preflight.md
-    verdict: reject-broad-conditional-narrow
-    graduate_as: null
+    verdict: graduated-narrow
+    probe_status: local JSON preflight shipped 2026-08-24; format coverage and demand remain unmeasured
+    graduate_as: venture
     host_venture: null
     scores:
       ai_leverage: 5
@@ -655,9 +656,14 @@ candidates:
     floor: 4
     floor_dimension: defensibility
     note: >-
-      Transmission or filing versions fail the liability gate outright. The
-      validate-and-explain version clears it at 5 but is a thin utility against
-      free open-source validators. Recorded so the reasoning is not re-derived.
+      Narrow validate-and-explain version shipped despite thin defensibility:
+      it never transmits, selects tax treatment, or claims compliance. The
+      broad transmission version remains rejected on the liability gate.
+    mitigation: >-
+      Keep the supported schema deliberately narrow; publish rule IDs and
+      downloadable JSON so integrators can test the checker against their own
+      fixtures. Do not expand to transmission until a separate liability review
+      authorizes it.
 
   - slug: consent-change-record
     name: Consent change record
