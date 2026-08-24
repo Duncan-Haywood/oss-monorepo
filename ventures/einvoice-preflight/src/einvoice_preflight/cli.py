@@ -96,6 +96,7 @@ def _json_report(
         "files_failed": sum(bool(invoice_errors) for _, invoice_errors in reports),
         "observations": len(errors),
         "rules": dict(sorted(rule_counts.items())),
+        "file": reports[0][0].as_posix() if len(reports) == 1 else None,
         "read_errors": read_errors,
     }
     output["reports"] = [{"file": path.as_posix(), "errors": invoice_errors} for path, invoice_errors in reports]
