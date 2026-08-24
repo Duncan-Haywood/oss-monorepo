@@ -1,4 +1,6 @@
 import json
+import contextlib
+import io
 import tempfile
 import unittest
 from pathlib import Path
@@ -47,6 +49,31 @@ class ChecksTest(unittest.TestCase):
             invoice["totals"]["gross"] = 200
             invoice_path.write_text(json.dumps(invoice))
             self.assertEqual(main([str(invoice_path), "--format", "json"]), 1)
+
+    def test_cli_emits_sarif_for_ci_and_editor_integrations(self):
+        with tempfile.TemporaryDirectory() as directory:
+            invoice_path = Path(directory) / "invoice.json"
+            invoice = json.loads(json.dumps(VALID))
+            invoice["totals"]["gross"] = 200
+            invoice_path.write_text(json.dumps(invoice))
+            output = io.StringIO()
+            with contextlib.redirect_stdout(output):
+                self.assertEqual(main([str(invoice_path), "--format", "sarif"]), 1)
+            report = json.loads(output.getvalue())
+            self.assertEqual(report["version"], "2.1.0")
+            result = report["runs"][0]["results"][0]
+            self.assertEqual(result["ruleId"], "INV-017")
+            self.assertEqual(result["locations"][0]["physicalLocation"]["artifactLocation"]["uri"], "invoice.json")
+
+    def test_cli_emits_empty_sarif_for_valid_invoice(self):
+        with tempfile.TemporaryDirectory() as directory:
+            invoice_path = Path(directory) / "invoice.json"
+            invoice_path.write_text(json.dumps(VALID))
+            output = io.StringIO()
+            with contextlib.redirect_stdout(output):
+                self.assertEqual(main([str(invoice_path), "--format", "sarif"]), 0)
+            report = json.loads(output.getvalue())
+            self.assertEqual(report["runs"][0]["results"], [])
 
 
 if __name__ == "__main__":

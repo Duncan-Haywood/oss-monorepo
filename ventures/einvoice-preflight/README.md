@@ -9,6 +9,7 @@ bookkeepers and ERP integrators searching for an e-invoice preflight check.
 cd ventures/einvoice-preflight
 PYTHONPATH=src python3 -m einvoice_preflight examples/valid-invoice.json
 PYTHONPATH=src python3 -m einvoice_preflight examples/valid-invoice.json --format json
+PYTHONPATH=src python3 -m einvoice_preflight examples/valid-invoice.json --format sarif > preflight.sarif
 PYTHONPATH=src python3 -m einvoice_preflight examples/valid-invoice.json --usage-file ~/.local/state/einvoice-preflight/usage.json
 ```
 
@@ -37,7 +38,10 @@ The supported v0 shape is intentionally small and format-neutral:
 ```
 
 Amounts use the currency's major unit and are compared to cent precision.
-`--format json` is suitable for an ERP adapter; the process exits `1` when
+`--format json` is suitable for an ERP adapter. `--format sarif` emits SARIF
+2.1.0 for GitHub code scanning, CI annotations, and
+editor integrations. It contains the rule IDs, fixes, and the local invoice
+filename, never invoice fields or line contents. Both formats exit `1` when
 any check fails and `2` for an unreadable input file.
 
 ## Privacy and usage
