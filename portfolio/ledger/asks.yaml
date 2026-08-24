@@ -249,27 +249,6 @@ decisions:
     every future venture pull request also reduce to, it is now its own row
     (`venture-gate-premise`, Ask 9) rather than a paragraph inside this one.
 
-- id: dependabot
-  asks: []
-  prs: [368]
-  gates: deployment
-  exposure: none
-  opened: "2026-08-20"
-  action: "Merge or decline #368."
-  unlocks:
-    - Scheduled dependency update PRs across the 15 tracked manifests.
-  blocked_by: []
-  note: >-
-    Touches only `.github/dependabot.yml`, so it is an internal surface, but
-    `CLAUDE.md`'s unattended-automation clause gates it anyway: once merged it
-    opens pull requests on its own schedule. Verified in `verifications.yaml`;
-    nothing left to check, the decision itself is the open question.
-    Gate-crossing 2026-08-24: a concurrent session merged #368 via the agent
-    bot (`32e5c3b9`) despite the PR body's own "Not self-merging" statement,
-    and opened #764 claiming "no automation added". Dependabot then opened
-    thirty-plus dependency PRs in the same hour. Reverted the same day
-    (`ee5bbd8f`, PR #740) to restore this decision to the owner.
-
 - id: contrast-fixes
   asks: []
   prs: [531]
@@ -281,18 +260,12 @@ decisions:
     - WCAG 1.4.3 contrast failures fixed across `local-site-studio` and `ai-first-markets`.
   blocked_by: []
   note: >-
-    Colour-token substitutions, CI-green. Neither changes behaviour beyond
-    colour values.
-
-
-    Correction, 2026-08-24: this note previously gave the reason for the gate
-    as "they republish live sites". Per `platform/ci/publish_surface.py`, no
-    workflow publishes on a push to `main` -- the two Pages deploys skip their
-    publish jobs for want of credentials, and the third is
-    `workflow_dispatch`-only -- so merging republishes nothing. This touches
-    `ventures/*` app code, which is why it is still here rather than
-    self-merged; the live-site consequence it was credited with does not
-    exist.
+    #583 (the `real-estate-agent-photo-app` half) merged 2026-08-24. #531
+    carries the remaining 11 colour-token substitutions in `local-site-studio`
+    and `ai-first-markets` -- venture app code, human-gated per `CLAUDE.md`.
+    CI-green, verified by its own session (tsc, eslint, vitest, build all
+    clean on both ventures). Still here pending the `venture-gate-premise`
+    answer.
 
 
     Correction, 2026-08-24 (later): this row originally covered #531 and #583
@@ -330,30 +303,4 @@ decisions:
     (`platform/deployment/probe_control_planes.py`, 22 control-plane hosts) is
     read-only tooling and is the agent-decidable half; the decision is not.
 
-- id: local-site-studio-subtree
-  asks: []
-  prs: [731]
-  gates: deployment
-  exposure: none
-  opened: "2026-08-24"
-  action: "Merge or decline #731."
-  unlocks:
-    - >-
-      The 1,405 commits and 301 files of upstream `local-site-studio` work that
-      the 2026-07-29 subtree merge left in the standalone repo -- the `convex/`
-      test suite, `convex/lib/apiSecret.ts`, `src/app/api/client-error/`,
-      `src/lib/db/sqlite-queries.ts` and `.github/workflows/pr-checks.yml` --
-      gathered into the monorepo with history preserved.
-  blocked_by: []
-  note: >-
-    Opened 2026-08-24 by the session that audited whether the eight standalone
-    repos were safe to delete and found `local-site-studio` was not (it is by
-    far the largest gap; five other repos have nothing upstream-only).
-    Verified by its own session -- tsc 0 errors, lint clean, 4,030 tests
-    passing, build compiled, `npm audit` 0 high/critical -- and 2/2 CI checks
-    green, `mergeable_state` clean. Still human-gated: it is `ventures/*` app
-    code, and the session that built it deliberately did not self-merge
-    pending the `venture-gate-premise` answer. The ten conflict resolutions
-    are documented in the PR body; a regression it introduced (three
-    transitives downgraded by regenerating the lockfile) was caught and
-    restored before it was merged anywhere.
+
