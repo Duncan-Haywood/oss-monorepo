@@ -2,8 +2,9 @@
 
 Did that consent banner actually stop the tracking requests, or just hide the
 banner? This free tool diffs two HAR (HTTP Archive) network captures — one
-taken before a consent choice, one after — and reports exactly which requests
-and cookies appeared or disappeared. Runs entirely in your browser.
+taken before a consent choice, one after — and reports which requests and
+cookies appeared, disappeared, or **kept firing across the choice**. Runs
+entirely in your browser.
 
 Try it: open [`tool/index.html`](tool/index.html) in a browser (or serve it
 locally, see below).
@@ -17,11 +18,23 @@ now — point it at two exported HAR files and read the diff.
 
 ## What it answers
 
+- "I clicked Reject — **which third-party endpoints were contacted anyway?**"
+  This is the report's headline section. A tracker that stops is easy to spot
+  by eye; one that never stopped appears in neither an "appeared" nor a
+  "disappeared" list, which is exactly how it gets missed.
 - "I changed the cookie banner's default — did the analytics script actually
   stop firing before consent, or does it still load?"
 - "The privacy team says a vendor script was removed — is that request gone
   from the after-capture, or just relocated?"
-- "What cookies actually got set, from which domain, before vs. after?"
+- "What cookies actually got set, from which domain, before vs. after — and
+  which were still being set after the choice?"
+
+Requests are matched on method + origin + path, so the rotating cache-busters
+and session IDs that trackers put in query strings don't make one persistent
+beacon look like a removal plus an addition. Repeat hits to the same endpoint
+collapse into a single row. Requests to the page's own host are counted but
+not listed, since a site's own assets are expected to persist; every
+third-party row is listed in full, classified or not.
 
 ## How to use it
 
@@ -49,6 +62,12 @@ Only test sites you own or are explicitly authorized to test.
   report, never hidden.
 - **Not live monitoring.** v0 is a manual before/after diff over files you
   provide; it does not crawl, schedule, or re-check anything on its own.
+- **"Still present" is an observation, not a violation.** A request appearing
+  in both captures means the same endpoint was contacted twice. It is not a
+  finding that the request carries personal data, that consent was required
+  for it, or that any law was broken — plenty of third-party requests are
+  legitimately consent-exempt. It tells you where to look, not what to
+  conclude.
 
 ## No warranty
 

@@ -68,36 +68,75 @@ function cookieKey(row) {
 function diffByKey(beforeRows, afterRows, keyFn) {
   const beforeKeys = new Set(beforeRows.map(keyFn));
   const afterKeys = new Set(afterRows.map(keyFn));
+  // `persisting` is taken from the after-capture and de-duplicated by key: a
+  // tracker that fires four times after the consent choice is one finding, not
+  // four. It is reported from the after side because that is the capture the
+  // user is asking about ("is this still happening now that I rejected?").
+  const seen = new Set();
+  const persisting = afterRows.filter((row) => {
+    const key = keyFn(row);
+    if (!beforeKeys.has(key) || seen.has(key)) return false;
+    seen.add(key);
+    return true;
+  });
   return {
     added: afterRows.filter((row) => !beforeKeys.has(keyFn(row))),
     removed: beforeRows.filter((row) => !afterKeys.has(keyFn(row))),
+    persisting,
   };
 }
 
 /**
+ * The document host of a capture, used only to separate "the site's own
+ * requests" from third-party ones in the persisting list. Heuristic: the first
+ * entry in a HAR is conventionally the top-level document. If that cannot be
+ * determined, nothing is treated as first-party, so no row is ever demoted on
+ * a guess.
+ */
+function firstPartyHostname(har) {
+  const first = har?.log?.entries?.[0];
+  return hostnameOf(first?.request?.url);
+}
+
+/**
  * Diffs two HAR captures. Returns added/removed requests (each tagged with a
- * disclosed, non-exhaustive tracker classification) and added/removed
- * response cookies. Throws if either capture is not a HAR log.
+ * disclosed, non-exhaustive tracker classification), added/removed response
+ * cookies, and — the signal a consent check actually turns on — the requests
+ * and cookies present in *both* captures, i.e. what carried on unchanged
+ * across the consent choice. Throws if either capture is not a HAR log.
  */
 export function diffHarCaptures(beforeHar, afterHar) {
   const beforeRequests = requestRows(beforeHar);
   const afterRequests = requestRows(afterHar);
-  const { added: addedRequests, removed: removedRequests } = diffByKey(
-    beforeRequests,
-    afterRequests,
-    requestKey,
-  );
+  const {
+    added: addedRequests,
+    removed: removedRequests,
+    persisting: persistingRequests,
+  } = diffByKey(beforeRequests, afterRequests, requestKey);
 
   const beforeCookies = cookieRows(beforeHar);
   const afterCookies = cookieRows(afterHar);
-  const { added: addedCookies, removed: removedCookies } = diffByKey(
-    beforeCookies,
-    afterCookies,
-    cookieKey,
-  );
+  const {
+    added: addedCookies,
+    removed: removedCookies,
+    persisting: persistingCookies,
+  } = diffByKey(beforeCookies, afterCookies, cookieKey);
 
   const withClassification = (rows) =>
     rows.map((row) => ({ ...row, classification: classifyDomain(row.hostname) }));
+
+  // Third-party is decided per capture-pair, not per row, so that a site whose
+  // own host happens to sit on a tracker list is still reported as first-party.
+  const documentHost = firstPartyHostname(afterHar) ?? firstPartyHostname(beforeHar);
+  const withParty = (rows) =>
+    rows.map((row) => ({
+      ...row,
+      thirdParty: row.hostname != null && row.hostname !== documentHost,
+    }));
+
+  const classifiedPersistingRequests = withParty(withClassification(persistingRequests));
+  const persistingThirdParty = classifiedPersistingRequests.filter((r) => r.thirdParty);
+  const persistingCookiesWithParty = withParty(persistingCookies);
 
   return {
     summary: {
@@ -105,12 +144,23 @@ export function diffHarCaptures(beforeHar, afterHar) {
       afterRequestCount: afterRequests.length,
       addedRequestCount: addedRequests.length,
       removedRequestCount: removedRequests.length,
+      // Counted on the de-duplicated persisting list, so repeated beacons to
+      // the same endpoint do not inflate the headline number.
+      persistingRequestCount: classifiedPersistingRequests.length,
+      persistingThirdPartyRequestCount: persistingThirdParty.length,
+      persistingKnownTrackerRequestCount: persistingThirdParty.filter(
+        (r) => r.classification.known,
+      ).length,
       addedCookieCount: addedCookies.length,
       removedCookieCount: removedCookies.length,
+      persistingCookieCount: persistingCookiesWithParty.length,
     },
     addedRequests: withClassification(addedRequests),
     removedRequests: withClassification(removedRequests),
+    persistingRequests: classifiedPersistingRequests,
     addedCookies,
     removedCookies,
+    persistingCookies: persistingCookiesWithParty,
+    documentHost,
   };
 }

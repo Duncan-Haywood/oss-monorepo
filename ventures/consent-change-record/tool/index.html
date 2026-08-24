@@ -122,6 +122,21 @@
     <h2 id="report-heading">Diff report</h2>
     <div class="summary-grid" id="summary-grid"></div>
 
+    <h3>Third-party requests present in both captures</h3>
+    <p class="howto">
+      These carried on across the consent choice — the same endpoint was
+      requested before and after. This is usually the part of the report worth
+      reading first: a request that disappears is easy to spot, but one that
+      never stopped is what a consent check is looking for. Repeats of the same
+      endpoint are collapsed into one row. Requests to the page's own host are
+      counted below rather than listed, because a site's own assets are
+      expected to persist.
+    </p>
+    <div id="persisting-table"></div>
+
+    <h3>Cookies present in both captures</h3>
+    <div id="persisting-cookies-table"></div>
+
     <h3>Requests that appeared or disappeared</h3>
     <div id="requests-table"></div>
 
@@ -251,10 +266,51 @@
     return `<table><thead><tr><th>Change</th><th>Host</th><th>Cookie name</th></tr></thead><tbody>${trs}</tbody></table>`;
   }
 
+  // Persisting third-party requests, listed in full — known-tracker rows first
+  // so the disclosed classifier is a sort order, not a filter. Unclassified
+  // rows are never hidden: an unmatched domain is not a finding that it is safe.
+  function renderPersistingTable(persisting, documentHost) {
+    const thirdParty = persisting.filter((r) => r.thirdParty);
+    const firstPartyCount = persisting.length - thirdParty.length;
+    const hostNote = documentHost
+      ? `<p class="howto">${firstPartyCount} request(s) to the page's own host (<code>${escapeHtml(documentHost)}</code>) also persisted and are not listed.</p>`
+      : "";
+    if (thirdParty.length === 0) {
+      return `<p class="empty">No third-party request was present in both captures. That is not proof tracking stopped — it only means these two captures share none.</p>${hostNote}`;
+    }
+    const sorted = [...thirdParty].sort(
+      (a, b) => Number(b.classification.known) - Number(a.classification.known),
+    );
+    const trs = sorted.map((r) => `
+      <tr>
+        <td><span class="tag removed">still present</span></td>
+        <td>${escapeHtml(r.hostname || "(unknown host)")}</td>
+        <td><span class="tag unclassified">${escapeHtml(r.classification.category)}</span></td>
+        <td>${escapeHtml(r.method)} ${escapeHtml(r.url)}</td>
+      </tr>`).join("");
+    return `<table><thead><tr><th>Change</th><th>Host</th><th>Category</th><th>Request</th></tr></thead><tbody>${trs}</tbody></table>${hostNote}`;
+  }
+
+  function renderPersistingCookiesTable(persisting) {
+    if (persisting.length === 0) {
+      return '<p class="empty">No response cookie was set in both captures.</p>';
+    }
+    const trs = persisting.map((c) => `
+      <tr>
+        <td><span class="tag removed">still set</span></td>
+        <td>${escapeHtml(c.hostname || "(unknown host)")}</td>
+        <td><code>${escapeHtml(c.name)}</code></td>
+      </tr>`).join("");
+    return `<table><thead><tr><th>Change</th><th>Host</th><th>Cookie name</th></tr></thead><tbody>${trs}</tbody></table>`;
+  }
+
   function renderSummary(summary) {
     const stats = [
       ["Requests before", summary.beforeRequestCount],
       ["Requests after", summary.afterRequestCount],
+      ["Third-party still present", summary.persistingThirdPartyRequestCount],
+      ["…of those, known trackers", summary.persistingKnownTrackerRequestCount],
+      ["Cookies still set", summary.persistingCookieCount],
       ["Requests appeared", summary.addedRequestCount],
       ["Requests disappeared", summary.removedRequestCount],
       ["Cookies appeared", summary.addedCookieCount],
@@ -274,6 +330,8 @@
       return;
     }
     document.getElementById("summary-grid").innerHTML = renderSummary(lastDiff.summary);
+    document.getElementById("persisting-table").innerHTML = renderPersistingTable(lastDiff.persistingRequests, lastDiff.documentHost);
+    document.getElementById("persisting-cookies-table").innerHTML = renderPersistingCookiesTable(lastDiff.persistingCookies);
     document.getElementById("requests-table").innerHTML = renderRequestsTable(lastDiff.addedRequests, lastDiff.removedRequests);
     document.getElementById("cookies-table").innerHTML = renderCookiesTable(lastDiff.addedCookies, lastDiff.removedCookies);
     reportSection.style.display = "";
@@ -287,7 +345,7 @@
       beforeFile: beforeCapture.name,
       afterFile: afterCapture.name,
       disclaimer:
-        "Observed requests and cookies from the two provided HAR captures only. Not a compliance determination. An 'unclassified' domain is not a finding that it is safe. Absence of a request in the after-capture is not proof it is absent for every visitor, browser, region, or session.",
+        "Observed requests and cookies from the two provided HAR captures only. Not a compliance determination. An 'unclassified' domain is not a finding that it is safe. Absence of a request in the after-capture is not proof it is absent for every visitor, browser, region, or session. Equally, a request present in both captures is an observation that the same endpoint was contacted twice — not a determination that it carries personal data, that consent was required for it, or that any law was broken.",
       diff: lastDiff,
     };
     const blob = new Blob([JSON.stringify(record, null, 2)], { type: "application/json" });

@@ -100,3 +100,81 @@ test("rejects an entry missing request.url with a clear message", () => {
   const malformed = harOf([{ request: {}, response: {} }]);
   assert.throws(() => diffHarCaptures(malformed, malformed), /missing request\.url/);
 });
+
+// The signal a consent check actually turns on: not what disappeared, but what
+// kept firing across the choice. A tracker that never stopped is invisible in
+// added/removed alone, because it is in neither list.
+test("reports a tracker that fired in both captures as persisting, despite a rotating cache-buster", () => {
+  const before = harOf([
+    entry({ url: "https://shop.example/" }),
+    entry({ url: "https://www.google-analytics.com/collect?v=1&cid=111&_r=8823" }),
+    entry({ url: "https://connect.facebook.net/en_US/fbevents.js" }),
+  ]);
+  const after = harOf([
+    entry({ url: "https://shop.example/" }),
+    entry({ url: "https://www.google-analytics.com/collect?v=1&cid=111&_r=99401" }),
+  ]);
+  const diff = diffHarCaptures(before, after);
+
+  // Facebook genuinely stopped; Google Analytics did not.
+  assert.equal(diff.summary.removedRequestCount, 1);
+  assert.equal(diff.summary.addedRequestCount, 0);
+  assert.equal(diff.summary.persistingThirdPartyRequestCount, 1);
+  assert.equal(diff.summary.persistingKnownTrackerRequestCount, 1);
+  const [ga] = diff.persistingRequests.filter((r) => r.thirdParty);
+  assert.equal(ga.hostname, "www.google-analytics.com");
+  assert.equal(ga.classification.known, true);
+  assert.equal(ga.thirdParty, true);
+});
+
+test("counts the page's own host as first-party so its assets are not reported as persisting trackers", () => {
+  const har = harOf([
+    entry({ url: "https://shop.example/" }),
+    entry({ url: "https://shop.example/app.css" }),
+    entry({ url: "https://cdn.tracker.invalid/px.gif" }),
+  ]);
+  const diff = diffHarCaptures(har, har);
+  assert.equal(diff.documentHost, "shop.example");
+  assert.equal(diff.summary.persistingRequestCount, 3);
+  assert.equal(diff.summary.persistingThirdPartyRequestCount, 1);
+  assert.equal(diff.persistingRequests.filter((r) => r.thirdParty)[0].hostname, "cdn.tracker.invalid");
+});
+
+test("collapses repeated beacons to the same endpoint into one persisting row", () => {
+  const before = harOf([
+    entry({ url: "https://shop.example/" }),
+    entry({ url: "https://www.google-analytics.com/collect?n=1" }),
+  ]);
+  const after = harOf([
+    entry({ url: "https://shop.example/" }),
+    entry({ url: "https://www.google-analytics.com/collect?n=2" }),
+    entry({ url: "https://www.google-analytics.com/collect?n=3" }),
+    entry({ url: "https://www.google-analytics.com/collect?n=4" }),
+  ]);
+  const diff = diffHarCaptures(before, after);
+  assert.equal(diff.summary.persistingThirdPartyRequestCount, 1);
+});
+
+test("keeps an unclassified third-party host in the persisting list rather than hiding it", () => {
+  const har = harOf([
+    entry({ url: "https://shop.example/" }),
+    entry({ url: "https://metrics.unknown-vendor.invalid/beacon" }),
+  ]);
+  const diff = diffHarCaptures(har, har);
+  const [row] = diff.persistingRequests.filter((r) => r.thirdParty);
+  assert.equal(row.hostname, "metrics.unknown-vendor.invalid");
+  assert.equal(row.classification.known, false);
+  assert.equal(row.classification.category, "unclassified");
+  assert.equal(diff.summary.persistingKnownTrackerRequestCount, 0);
+  assert.equal(diff.summary.persistingThirdPartyRequestCount, 1);
+});
+
+test("reports a response cookie set in both captures as still set", () => {
+  const har = harOf([
+    entry({ url: "https://shop.example/", cookies: [{ name: "_ga", value: "1.2.3" }] }),
+  ]);
+  const diff = diffHarCaptures(har, har);
+  assert.equal(diff.summary.persistingCookieCount, 1);
+  assert.equal(diff.persistingCookies[0].name, "_ga");
+  assert.equal(diff.summary.addedCookieCount, 0);
+});
