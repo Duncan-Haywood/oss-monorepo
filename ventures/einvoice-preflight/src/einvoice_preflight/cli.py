@@ -48,10 +48,23 @@ def _sarif_report(invoice_path: Path, errors: list[dict[str, str]]) -> dict[str,
     }
 
 
+def _markdown_report(invoice_path: Path, errors: list[dict[str, str]]) -> str:
+    status = "Pass" if not errors else "Needs review"
+    lines = [f"# E-invoice preflight: {status}", "", f"Input: `{invoice_path.name}`", ""]
+    if not errors:
+        lines.append("No defects found in the supported checks.")
+        return "\n".join(lines) + "\n"
+    lines.extend([f"{len(errors)} observation(s) require review:", ""])
+    for error in errors:
+        lines.extend([f"## {error['rule']}", error["message"], "", f"**Fix:** {error['fix']}", ""])
+    lines.append("This report is an observation, not a declaration that the invoice is legally valid or compliant.")
+    return "\n".join(lines) + "\n"
+
+
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description="Check a local JSON e-invoice before submission. No tax advice or submission.")
     parser.add_argument("invoice", type=Path, help="JSON file to check, or '-' to read JSON from stdin")
-    parser.add_argument("--format", choices=("text", "json", "sarif"), default="text")
+    parser.add_argument("--format", choices=("text", "markdown", "json", "sarif"), default="text")
     parser.add_argument("--usage-file", help="opt-in local aggregate event counter")
     args = parser.parse_args(argv)
     invoice_name = "stdin.json" if str(args.invoice) == "-" else args.invoice.name
@@ -66,6 +79,8 @@ def main(argv: list[str] | None = None) -> int:
         _record_usage(args.usage_file)
     if args.format == "json":
         print(json.dumps({"status": "pass" if not errors else "fail", "errors": errors}, indent=2))
+    elif args.format == "markdown":
+        print(_markdown_report(Path(invoice_name), errors), end="")
     elif args.format == "sarif":
         print(json.dumps(_sarif_report(Path(invoice_name), errors), indent=2))
     elif errors:

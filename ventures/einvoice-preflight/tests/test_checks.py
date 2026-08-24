@@ -76,6 +76,30 @@ class ChecksTest(unittest.TestCase):
             invoice_path.write_text(json.dumps(invoice))
             self.assertEqual(main([str(invoice_path), "--format", "json"]), 1)
 
+    def test_cli_emits_markdown_review_report(self):
+        with tempfile.TemporaryDirectory() as directory:
+            invoice_path = Path(directory) / "invoice.json"
+            invoice = json.loads(json.dumps(VALID))
+            invoice["totals"]["gross"] = 200
+            invoice_path.write_text(json.dumps(invoice))
+            output = io.StringIO()
+            with contextlib.redirect_stdout(output):
+                self.assertEqual(main([str(invoice_path), "--format", "markdown"]), 1)
+            report = output.getvalue()
+            self.assertIn("# E-invoice preflight: Needs review", report)
+            self.assertIn("## INV-017", report)
+            self.assertIn("**Fix:** Set gross total to 238.00", report)
+
+    def test_cli_emits_markdown_success_report(self):
+        with tempfile.TemporaryDirectory() as directory:
+            invoice_path = Path(directory) / "invoice.json"
+            invoice_path.write_text(json.dumps(VALID))
+            output = io.StringIO()
+            with contextlib.redirect_stdout(output):
+                self.assertEqual(main([str(invoice_path), "--format", "markdown"]), 0)
+            self.assertIn("# E-invoice preflight: Pass", output.getvalue())
+            self.assertIn("No defects found", output.getvalue())
+
     def test_cli_emits_sarif_for_ci_and_editor_integrations(self):
         with tempfile.TemporaryDirectory() as directory:
             invoice_path = Path(directory) / "invoice.json"
