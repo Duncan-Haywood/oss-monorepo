@@ -21,35 +21,107 @@ def entry(venture="portfolio", mrr=None, outcomes=()):
     return {"venture": venture, "mrr_end": mrr, "outcomes": list(outcomes)}
 
 
-# --- the verdict is a conjunction: any single condition clears it -------------
+# --- the verdict routes into a lane; it never stops a session ----------------
 
 
-def test_no_op_only_when_every_condition_holds():
-    call, _ = sg.verdict(revenue=False, meta=0.9, cadence=2.5)
-    assert call == "NO-OP"
+TARGET = {
+    "slug": "some-candidate",
+    "name": "Some candidate",
+    "doc": "candidates/some-candidate.md",
+    "composite": 7.0,
+    "graduate_as": "venture",
+}
 
 
-def test_recorded_revenue_clears_the_gate():
+def test_the_gate_never_returns_a_stop():
+    """The saturated case routes to BUILD. NO-OP is gone; nothing may reinstate it."""
+    call, _ = sg.verdict(revenue=False, meta=0.9, cadence=2.5, targets=[TARGET])
+    assert call == "BUILD"
+    calls = {
+        sg.verdict(revenue=r, meta=m, cadence=c, cadence_reliable=rel, targets=t)[0]
+        for r in (True, False)
+        for m in (0.0, sg.META_SHARE_THRESHOLD, 1.0)
+        for c in (0.0, 99.0)
+        for rel in (True, False)
+        for t in ([], [TARGET])
+    }
+    assert calls <= {"BUILD", "PROCEED"}
+    assert "NO-OP" not in calls
+
+
+def test_recorded_revenue_routes_to_the_earning_venture():
     call, reasons = sg.verdict(revenue=True, meta=1.0, cadence=10.0)
     assert call == "PROCEED"
-    assert "regime has ended" in reasons[0]
+    assert "earning" in reasons[0]
 
 
-def test_venture_work_clears_the_gate():
+def test_venture_work_proceeds_as_briefed():
     """Meta-share below threshold means the fleet is spending on ventures."""
     call, _ = sg.verdict(revenue=False, meta=sg.META_SHARE_THRESHOLD - 0.01, cadence=99.0)
     assert call == "PROCEED"
 
 
-def test_maintenance_cadence_clears_the_gate():
-    call, _ = sg.verdict(revenue=False, meta=1.0, cadence=sg.CADENCE_THRESHOLD_PER_HOUR - 0.01)
-    assert call == "PROCEED"
-
-
-def test_thresholds_are_boundaries_not_ranges():
+def test_meta_threshold_is_a_boundary_not_a_range():
     """At exactly the threshold the condition still holds — no off-by-one drift."""
-    assert sg.verdict(revenue=False, meta=sg.META_SHARE_THRESHOLD, cadence=2.0)[0] == "NO-OP"
-    assert sg.verdict(revenue=False, meta=1.0, cadence=sg.CADENCE_THRESHOLD_PER_HOUR)[0] == "NO-OP"
+    at = sg.verdict(revenue=False, meta=sg.META_SHARE_THRESHOLD, cadence=2.0, targets=[TARGET])
+    assert at[0] == "BUILD"
+
+
+def test_cadence_no_longer_participates_in_the_verdict():
+    """The regression this rewrite exists for.
+
+    Cadence was the only input derived from `git log`, so on a shallow clone it
+    was unmeasurable, its PROCEED branch was skipped rather than cleared, and
+    the session fell through to a stop. Two containers seconds apart returned
+    opposite verdicts on identical ledger facts. Whatever cadence says now, and
+    whether or not it is trustworthy, the lane must not move.
+    """
+    lanes = {
+        sg.verdict(
+            revenue=False, meta=1.0, cadence=c, cadence_reliable=rel, targets=[TARGET]
+        )[0]
+        for c in (0.0, 0.5, sg.CADENCE_THRESHOLD_PER_HOUR, 99.0)
+        for rel in (True, False)
+    }
+    assert lanes == {"BUILD"}
+
+
+def test_build_names_the_candidate_to_start():
+    _, reasons = sg.verdict(revenue=False, meta=1.0, cadence=2.0, targets=[TARGET])
+    joined = " ".join(reasons)
+    assert "some-candidate" in joined
+    assert "candidates/some-candidate.md" in joined
+
+
+def test_build_falls_back_to_researching_a_new_candidate():
+    """An empty pipeline is a reason to research one, not a reason to stop."""
+    call, reasons = sg.verdict(revenue=False, meta=1.0, cadence=2.0, targets=[])
+    assert call == "BUILD"
+    assert "screened-out.md" in " ".join(reasons)
+
+
+def test_build_targets_skips_what_has_already_graduated(tmp_path, monkeypatch):
+    """Graduation is a fact on disk: a VENTURE.yaml, or a product_lines entry."""
+    (tmp_path / "portfolio" / "pipeline").mkdir(parents=True)
+    (tmp_path / "ventures" / "graduated").mkdir(parents=True)
+    (tmp_path / "ventures" / "host").mkdir(parents=True)
+    (tmp_path / "ventures" / "graduated" / "VENTURE.yaml").write_text("name: graduated\n")
+    (tmp_path / "ventures" / "host" / "VENTURE.yaml").write_text(
+        "name: host\nproduct_lines:\n  - slug: shipped\n"
+    )
+    candidates = tmp_path / "portfolio" / "pipeline" / "candidates.yaml"
+    candidates.write_text(
+        "candidates:\n"
+        "  - {slug: graduated, verdict: build-now, graduate_as: venture, composite: 9}\n"
+        "  - {slug: shipped, verdict: build-now, graduate_as: product-line,"
+        " host_venture: host, composite: 8}\n"
+        "  - {slug: pending, verdict: build-now, graduate_as: venture, composite: 7}\n"
+        "  - {slug: scored, verdict: probe, graduate_as: venture, composite: 10}\n"
+    )
+    monkeypatch.setattr(sg, "REPO", tmp_path)
+    monkeypatch.setattr(sg, "CANDIDATES", candidates)
+
+    assert [c["slug"] for c in sg.build_targets()] == ["pending"]
 
 
 # --- the reading comes from the ledger, not from constants -------------------
@@ -109,7 +181,7 @@ def test_meta_threshold_is_crossable_by_the_real_ledger():
 
 def test_live_report_is_well_formed():
     r = sg.report(yaml.safe_load(sg.LEDGER.read_text())["entries"], cadence=2.0)
-    assert r["verdict"] in {"NO-OP", "PROCEED"}
+    assert r["verdict"] in {"BUILD", "PROCEED"}
     assert r["reasons"]
     assert 0.0 <= r["meta_share_recent"] <= 1.0
     assert 0.0 <= r["reverification_share_recent"] <= 1.0
@@ -166,10 +238,12 @@ def test_report_adds_a_burst_reason_only_at_or_above_threshold():
 
 
 def test_report_burst_reason_does_not_flip_the_verdict():
-    """Burst is a caution added to the reasons, not a new gate condition."""
+    """Burst is a caution added to the reasons, not a new routing condition."""
     entries = [entry()] * sg.WINDOW
-    r = sg.report(entries, cadence=0.1, burst=10)
-    assert r["verdict"] == "PROCEED"
+    without = sg.report(entries, cadence=0.1, burst=0, targets=[TARGET])
+    with_burst = sg.report(entries, cadence=0.1, burst=10, targets=[TARGET])
+    assert with_burst["verdict"] == without["verdict"]
+    assert len(with_burst["reasons"]) > len(without["reasons"])
 
 
 def test_commits_with_sessions_parses_multiline_bodies():
@@ -212,14 +286,18 @@ def test_history_span_hours_empty_is_zero():
     assert sg.history_span_hours([]) == 0.0
 
 
-def test_unreliable_cadence_does_not_clear_the_gate():
-    """Same (falsely low) cadence reading; only the reliable one may PROCEED on it."""
+def test_clone_depth_cannot_change_the_lane():
+    """Same falsely-low cadence, trusted and not: the verdict must not move.
+
+    This pair used to return PROCEED and NO-OP respectively — the live bug. The
+    reading is still reported both ways, because it is a useful collision
+    signal; it just no longer decides anything.
+    """
     entries = [entry("portfolio")] * sg.WINDOW  # meta_share = 1.0, no revenue recorded
-    reliable = sg.report(entries, cadence=0.0, cadence_reliable=True)
-    unreliable = sg.report(entries, cadence=0.0, cadence_reliable=False)
-    assert reliable["verdict"] == "PROCEED"
-    assert unreliable["verdict"] == "NO-OP"
-    assert unreliable["sessions_per_hour"] == 0.0  # still reported, just not trusted
+    reliable = sg.report(entries, cadence=0.0, cadence_reliable=True, targets=[TARGET])
+    unreliable = sg.report(entries, cadence=0.0, cadence_reliable=False, targets=[TARGET])
+    assert reliable["verdict"] == unreliable["verdict"] == "BUILD"
+    assert unreliable["sessions_per_hour"] == 0.0  # still reported
     assert not unreliable["cadence_reliable"]
 
 
@@ -406,8 +484,11 @@ def test_report_stale_streak_reason_does_not_flip_the_verdict():
             "correctly human-gated, nothing to consolidate."
         ]
     )
-    r = sg.report([unchanged] * sg.STALE_PR_STREAK_THRESHOLD, cadence=0.1)
-    assert r["verdict"] == "PROCEED"
+    entries = [unchanged] * sg.STALE_PR_STREAK_THRESHOLD
+    with_streak = sg.report(entries, cadence=0.1, targets=[TARGET])
+    without = sg.report([entry()] * sg.WINDOW, cadence=0.1, targets=[TARGET])
+    assert with_streak["verdict"] == without["verdict"]
+    assert len(with_streak["reasons"]) > len(without["reasons"])
 
 
 def test_render_shows_the_stale_streak_count():
@@ -494,5 +575,5 @@ def test_main_does_not_trust_a_reading_the_fetch_could_not_refresh(monkeypatch, 
     sg.main()
 
     out = capsys.readouterr().out
-    assert "VERDICT: NO-OP" in out
+    assert "VERDICT: BUILD" in out
     assert "git fetch origin main` failed" in out

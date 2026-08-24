@@ -223,6 +223,47 @@ owner can check privately in seconds.
 The staleness corrected here is the failure mode `CLAUDE.md` and
 [`../pipeline/channel-inventory.md`](../pipeline/channel-inventory.md) both
 record at length — a document that keeps recommending something already done
-costs the next session the time it spends re-deriving it. `session_gate.py`
-links this file from its NO-OP text, so it is read by exactly the sessions
-least able to afford that.
+costs the next session the time it spends re-deriving it.
+
+## Amendment, 2026-08-24: the spend side is not a marginal cash cost
+
+**The cost model above prices agent sessions as if each one bills.** Every
+conclusion drawn from the `$0.12` threshold — including the NO-OP verdict
+`session_gate.py` used to return, and the "set the cadence to match" half of
+the binary above — depends on that.
+
+The account owner corrected it on 2026-08-24: **fleet capacity is bought as a
+flat subscription.** Two consequences, and they run opposite to what this
+document concluded:
+
+1. **The marginal cash cost of an additional session is `$0`,** not `$0.12`.
+   The subscription is paid whether or not a session runs. So there is no
+   cash saving to be had by declining work, and the "spend side" derived here
+   is an allocation of a fixed cost, not a bill that grows.
+2. **Idle capacity is the waste.** Under a marginal-cost model, a session that
+   does nothing costs nothing. Under a fixed-cost model it costs the full
+   opportunity of the capacity it declined to use. This inverts the profit
+   lever: it is not "run fewer sessions", it is "make each session produce
+   venture value".
+
+A third point is independent of the cost model and was true all along: **a gate
+at the top of a session cannot save its cost.** By the time `session_gate.py`
+runs, the container is provisioned, the repository cloned and the tokens spent.
+NO-OP could only suppress the output of a session that had already been paid
+for — converting spend into nothing rather than into work. That is strictly
+worse than any output, under either cost model.
+
+**What survives.** The revenue side is untouched: revenue is still `$0`, the
+payout-rail decision is still the binary that governs whether the portfolio can
+earn, and it is still the account owner's to make. The per-session arithmetic in
+"Deriving the spend side" remains correct *as arithmetic* and is still the right
+figure if the fleet ever moves to metered billing — it is the interpretation
+("therefore run less") that does not hold.
+
+**What changed downstream.** `session_gate.py` no longer returns NO-OP; it
+routes a generic brief to the highest-scoring candidate carrying an unbuilt
+`build-now` verdict. `CLAUDE.md`'s gate section and its "research new business
+projects" section were both rewritten to match, and
+[`../pipeline/distribution-first.md`](../pipeline/distribution-first.md)'s "do
+not generate more candidates" item was clarified as a priority, not a
+prohibition.

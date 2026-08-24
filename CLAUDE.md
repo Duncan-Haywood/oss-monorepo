@@ -138,7 +138,17 @@ without adding to what can be decided.
 
 ## If your brief is "research new business projects"
 
-**It is already answered. Do not produce a candidate list.**
+**The screening is already done. Don't produce another list — graduate one of
+the candidates in it.**
+
+This section used to end in "stop." That was wrong, and the account owner
+corrected it on 2026-08-24: fleet capacity is a flat subscription, so a session
+that declines to work does not save money, it wastes capacity that was already
+bought. The anti-duplication content below is still right — re-deriving a list
+that exists is waste — but the conclusion drawn from it was not. **Never
+conclude "there is nothing to do" from this section.** The pipeline has
+candidates carrying a `build-now` verdict that nobody has built; building one
+is always available and always beats another screening pass.
 
 A recurring scheduled task fires this brief — "research and evaluate potential
 software business projects that aren't already here," or wording close to it —
@@ -173,9 +183,16 @@ writing anything:
 
 The finding every run reproduces is that **the bottleneck is distribution and
 customer contact, not idea generation**. Every candidate in that directory is
-still at zero customer contacts. A further screening pass has negative value:
-it spends paid budget re-deriving a list that exists, against the portfolio's
-own goal of profitable output.
+still at zero customer contacts. A further screening pass re-derives a list
+that already exists — so spend the session on the next step instead of the
+same one.
+
+That next step is graduation. A candidate becomes real when it has a
+`VENTURE.yaml` (or a `product_lines` entry in its host venture's), because
+until then `portfolio/router/` cannot see it and no effort is routed to it.
+`python3 portfolio/ledger/session_gate.py` names the highest-scoring candidate
+carrying an unbuilt `build-now` verdict; if the pipeline has none left, that is
+the case where researching a genuinely new candidate is the right move.
 
 Note how this gate came to be on `main`. Runs seven through ten each wrote a
 version of it, and each version was closed unmerged — so every later run
@@ -185,14 +202,17 @@ never landing, not by any run failing to notice.** If you find yourself about
 to re-derive something, check the closed pull requests and the branches behind
 them before assuming it has not been done.
 
-If you are handed this brief, the useful moves are, in order: advance a probe
+If you are handed this brief, the useful moves are, in order: graduate a
+candidate carrying a `build-now` verdict and start building it; advance a probe
 that is already specified in `portfolio/pipeline/` (the built ones live in
 `portfolio/pipeline/probes/` — this instruction pointed at a directory no
 routing file named until 2026-08-20); ship or unblock something
 already built (see the ninth-run amendment in `distribution-first.md` — two
-finished products are sitting unlisted in stores the portfolio can list in);
-or, if both are blocked on the account owner, say so, record it in the ledger,
-notify, and stop. Before concluding you are blocked, check
+finished products are sitting unlisted in stores the portfolio can list in).
+If a specific *outward* step is blocked on the account owner — a listing, a
+payment rail, an account registration — record the ask and then keep building
+the parts that are not blocked. A blocked channel blocks publishing; it does
+not block writing the product. Before concluding you are blocked, check
 `channel-inventory.md` — but read it to the end. Its tenth-run amendment
 argued that demand measurement is *not* credential-blocked, only revenue
 capture is, and this file used to repeat that as settled. **Later runs
@@ -218,21 +238,48 @@ development process", "research new business projects", or a paraphrase — run
 this first and act on what it says. It reads the ledger and `git log` and takes
 about two seconds.
 
-When it prints **NO-OP**, the highest-value output of your session is nothing:
-no new analysis document, no re-verification of a pull request another session
-already verified, no ledger entry recording that you looked. Report what the
-gate read and stop. That is not idleness; it is the only profit lever available
-in a regime whose revenue ceiling is provably `$0` — see
-[`portfolio/ledger/break-even.md`](portfolio/ledger/break-even.md), which
-derives the ceiling, the `$0.12`-per-session break-even, and the finding that
-roughly half this month's ledger entries record re-deriving conclusions already
-on `main`.
+It prints one of two lanes, and **neither of them is a stop:**
+
+- **PROCEED** — the fleet is already on venture work, or revenue is recorded.
+  Continue with the brief as given.
+- **BUILD** — recent ledger entries are almost entirely portfolio meta-work.
+  The gate names the highest-scoring candidate carrying an unbuilt `build-now`
+  verdict and where it graduates to. Go build that, or advance the venture
+  hosting it. What BUILD steers you away from is the meta-work loop — another
+  analysis document, a re-verification of a pull request another session
+  already verified, a ledger entry recording that you looked — not work.
+
+**The gate used to print NO-OP and tell sessions to stop. It no longer does,
+and nothing should reinstate that.** Two reasons, both established 2026-08-24:
+
+1. **The economics were backwards.** NO-OP rested on `break-even.md`'s
+   `$0.12`-per-session figure and a `$0` revenue ceiling. But fleet capacity is
+   bought as a flat subscription, so the marginal cash cost of a session that is
+   already running is `$0`, and idle capacity is the waste rather than the
+   saving. See the 2026-08-24 amendment in
+   [`portfolio/ledger/break-even.md`](portfolio/ledger/break-even.md).
+2. **A gate here cannot save anything anyway.** By the time this script runs,
+   the container is provisioned, the repository cloned and the tokens spent.
+   NO-OP suppressed the *output* of a session that had already been paid for —
+   it converted spend into nothing rather than into work.
+
+There was also a live defect worth remembering, because it shows how cheaply a
+stop-verdict goes wrong: the NO-OP branch depended on a cadence figure read
+from `git log`, which a shallow clone (the default for a fresh session here)
+leaves unmeasurable. An unmeasurable reading skipped the clear-the-gate branch
+instead of clearing it, so the session fell through to NO-OP. Two containers
+seconds apart returned opposite verdicts on identical ledger facts, decided by
+how many commits each happened to fetch. Cadence is still reported — it is a
+useful collision signal when several sessions are committing at once — but it
+gates nothing, and `test_cadence_no_longer_participates_in_the_verdict` pins
+that.
 
 The gate is deliberately narrow and never overrides a real trigger. Venture
 work, a red CI run, a pull request you are driving to green, a review comment,
-a merge conflict, and any specifically named task all clear it by having a
-reason of their own. It speaks only to the scheduled generic brief, which is
-the case where a session has no target and invents one.
+a merge conflict, and any specifically named task have their own reason and the
+gate is silent about them. It speaks only to the scheduled generic brief, which
+is the case where a session has no target — and its job is to hand that session
+a target, not to send it home.
 
 Why a command and not another paragraph: this file has warned about duplicate
 and re-derived work since 2026-08-18, in steadily more detail, and the
