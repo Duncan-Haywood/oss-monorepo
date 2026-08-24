@@ -21899,3 +21899,58 @@ entries:
           `payout-rail` remains the only queue item that moves the revenue
           ceiling off $0.
     mrr_end: null
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+          GitHub-triggered session (`pull_request.opened` on #786), folded
+          into a generic "continue work, review open PRs" brief. Workspace
+          was seeded from #786's branch; checked open PRs before adding new
+          work, per the repeat warning about concurrent duplicate edits to
+          `asks.yaml`.
+      - >-
+          #786 proposed two correct changes -- reference #777 instead of
+          #368 in the `dependabot` row, and remove the stale
+          `local-site-studio-subtree` row now that #731 is merged -- but was
+          closed by a concurrent session on the stated premise that "#731 is
+          still open". That premise is false: #731's `merged` is `true`,
+          `merged_at` is `2026-08-24T09:45:00Z` (`7b69f3d`). By the time this
+          was confirmed, two more concurrent sessions had independently
+          landed the same two fixes anyway (#787 for the row removal; the
+          dependabot correction folded into #781/#782/#783's history), so
+          re-opening #786 itself would have added nothing.
+      - >-
+          What none of those sessions flagged: #731's own PR body says "this
+          is venture code, so per CLAUDE.md it is not agent-decidable and I
+          have not merged it. Flagging for review" -- and it was merged the
+          same day anyway, by `kilo-code-bot[bot]`. Same shape as the
+          `dependabot`/#368 gate-crossing already on record in `asks.yaml`,
+          just not yet flagged for this one. Added a new row,
+          `local-site-studio-subtree-gate-crossing`, asking the owner to
+          accept or revert the already-merged #731 -- 1,405 commits, a
+          `next`/`react` version split, and a regenerated lockfile landed in
+          a deploying venture without the sign-off the "breaking changes to
+          deployable `ventures/*` code" gate requires. Lower urgency than
+          #368's crossing: no ongoing automation was spawned, and
+          `platform/ci/publish_surface.py` confirms nothing currently
+          publishes on push to `main`, so no live site was republished.
+      - >-
+          Opened as #791, agent-decidable (`portfolio/ledger/` only,
+          publishes nothing, spends nothing), re-verified against the live
+          `main` tip twice after it moved mid-session (`git merge-tree`
+          clean both times), waited for `test`/`validate` to go green, then
+          merged (`64ab33b`).
+      - >-
+          Also checked #531 (contrast-fix colour substitutions,
+          human-gated): its own `asks.yaml` note assumed the conflict was a
+          plain rebase a session could do. It is not, now -- #731's subtree
+          merge rewrote `ventures/local-site-studio/src/app/page.tsx`'s
+          bundle-pricing section from reading the shared `BUNDLES` source of
+          truth to an inline hardcoded array, so `git merge-tree` conflicts
+          in that file for real. Reapplying the colour-token fix means
+          re-deriving it against the new structure, not resolving a rebase.
+          Flagged on the PR (comment) rather than attempted blind; no change
+          pushed to #531. `payout-rail` remains the only queue item that
+          moves the revenue ceiling off $0.
+    mrr_end: null
