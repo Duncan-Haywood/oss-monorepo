@@ -42,6 +42,7 @@ The supported v0 shape is intentionally small and format-neutral:
 ```
 
 Amounts use the currency's major unit and are compared to cent precision. Each
+line must include a numeric `net` amount matching quantity times unit price. Each
 line's tax is calculated from its rounded line net and the supplied
 `tax_percent`; the invoice tax total must equal the sum of those per-line
 rounded amounts. This reports arithmetic discrepancies only and does not

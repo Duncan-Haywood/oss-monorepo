@@ -63,8 +63,8 @@ def check_invoice(invoice: Any) -> list[dict[str, str]]:
             if tax is not None and 0 <= tax <= 100:
                 expected_tax += (line_net * tax / Decimal("100")).quantize(Decimal("0.01"), rounding=ROUND_HALF_UP)
             supplied = _money(line.get("net"))
-            if supplied is not None and supplied != line_net:
-                fail("INV-012", f"Line {index} net does not match quantity times unit price.", f"Set line net to {line_net} or correct the inputs.")
+            if supplied is None or supplied != line_net:
+                fail("INV-012", f"Line {index} net is missing or does not match quantity times unit price.", f"Set line net to {line_net} or correct the inputs.")
     totals = invoice.get("totals")
     if not isinstance(totals, dict):
         totals = {}

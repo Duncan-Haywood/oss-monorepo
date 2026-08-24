@@ -47,6 +47,13 @@ class ChecksTest(unittest.TestCase):
         invoice["totals"] = {"net": 0.06, "tax": 0.02, "gross": 0.08}
         self.assertEqual(check_invoice(invoice), [])
 
+    def test_line_net_is_required(self):
+        invoice = json.loads(json.dumps(VALID))
+        del invoice["lines"][0]["net"]
+        errors = check_invoice(invoice)
+        self.assertIn("INV-012", {error["rule"] for error in errors})
+        self.assertTrue(any("missing" in error["message"] for error in errors))
+
     def test_missing_fields_and_bad_date_are_not_valid(self):
         errors = check_invoice({"issue_date": "24/08/2026"})
         rules = {error["rule"] for error in errors}
