@@ -353,6 +353,32 @@ class ChecksTest(unittest.TestCase):
                 self.assertEqual(main([directory, "--format", "csv"]), 2)
             self.assertIn("broken.json,read_error", output.getvalue())
 
+    def test_cli_emits_junit_for_findings_without_invoice_contents(self):
+        with tempfile.TemporaryDirectory() as directory:
+            invoice_path = Path(directory) / "invoice&review.json"
+            invoice = json.loads(json.dumps(VALID))
+            invoice["totals"]["gross"] = 200
+            invoice_path.write_text(json.dumps(invoice))
+            output = io.StringIO()
+            with contextlib.redirect_stdout(output):
+                self.assertEqual(main([str(invoice_path), "--format", "junit"]), 1)
+            junit = output.getvalue()
+            self.assertIn('tests="1" failures="1" errors="0"', junit)
+            self.assertIn('name="invoice&amp;review.json"', junit)
+            self.assertIn("[INV-017] /totals/gross", junit)
+            self.assertNotIn("INV-1", junit)
+
+    def test_cli_junit_marks_read_errors_as_errors(self):
+        with tempfile.TemporaryDirectory() as directory:
+            invoice_path = Path(directory) / "broken.json"
+            invoice_path.write_text("not json")
+            output = io.StringIO()
+            with contextlib.redirect_stdout(output):
+                self.assertEqual(main([str(invoice_path), "--format", "junit"]), 2)
+            junit = output.getvalue()
+            self.assertIn('tests="1" failures="0" errors="1"', junit)
+            self.assertIn("<error message=\"Invoice could not be read\">", junit)
+
     def test_cli_emits_pass_summary_for_valid_batch(self):
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)
