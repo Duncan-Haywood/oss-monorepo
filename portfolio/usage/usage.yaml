@@ -116,6 +116,17 @@ products:
         note: >-
           Shipped a local stock-cut planning baseline for makers; public URL
           remains owner-gated and the browser counter is local and opt-out.
+  - slug: no-show-fee-calculator
+    surface: static-page-in-repo
+    readings:
+      - as_of: 2026-08-24
+        signals:
+          live_url_visitors: null
+          local_events_reported: 0
+        note: >-
+          Shipped browser-local no-show exposure calculator and policy draft
+          generator. Public URL remains owner-gated; the local counter is
+          anonymous, event-only, and opt-out. Baseline row.
 # Example of the shape, once a product has shipped:
 #
 # products:
