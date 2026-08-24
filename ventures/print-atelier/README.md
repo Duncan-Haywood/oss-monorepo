@@ -109,3 +109,13 @@ Next.js 14 (App Router), React 18, TypeScript, Tailwind CSS, Lucide icons.
 | Setup guide | [docs/AUTOMATION_SETUP.md](docs/AUTOMATION_SETUP.md) |
 
 **One-time setup:** [cursor.com/automations](https://cursor.com/automations) → scheduled `0 * * * *` → attach this repo → paste the prompt file → enable Open pull request.
+
+## Usage
+
+The demo counts anonymous events only: page views, storefront searches, catalog/visualizer clicks, checkout adds, print-file preflight complete/export, and `cart_badge_open` when a buyer opens checkout from the bag icon. No PII, IPs, cart contents, or analytics vendor. Events stay in the process that received them.
+
+The storefront bag badge reads the local checkout cart. An empty bag shows no count; the number updates after Checkout Lab writes `print-atelier-checkout-cart` in this browser.
+
+## Disclaimer
+
+**No warranty.** This tool is provided free and as-is, without warranty of any kind, express or implied. It is not financial, tax, legal, or investment advice, and it does not replace a qualified professional. **You are responsible for reviewing and verifying its output before relying on it**, including prices, artist shares, fulfillment routes, and checkout totals. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use. Print Atelier makes no earnings, conversion, fulfillment, or compliance warranty.

@@ -7,6 +7,9 @@ import {
   buildFulfillmentRoute,
   buildSampleCheckoutCart,
   calculateCheckoutTotals,
+  countCheckoutUnits,
+  describeCheckoutBag,
+  formatCheckoutBagCount,
   getCheckoutEnvStatus,
   validateCheckoutLineItem,
 } from "../src/lib/checkout.ts";
@@ -95,6 +98,32 @@ test("buildCheckoutFunnelMetrics tracks cart-to-session readiness stages", () =>
   assert.equal(funnel.stages.length, 5);
   assert.ok(funnel.overallReadiness >= 0 && funnel.overallReadiness <= 100);
   assert.equal(funnel.checkoutSessionReady, false);
+});
+
+test("countCheckoutUnits sums quantities and ignores invalid counts", () => {
+  const sample = buildSampleCheckoutCart();
+  assert.equal(countCheckoutUnits(sample), sample.reduce((sum, item) => sum + item.quantity, 0));
+  assert.equal(countCheckoutUnits([]), 0);
+  assert.equal(
+    countCheckoutUnits([
+      { artworkSlug: "a", title: "A", artistName: "X", retailPrice: 10, fulfillmentCost: 4, quantity: 2 },
+      { artworkSlug: "b", title: "B", artistName: "Y", retailPrice: 12, fulfillmentCost: 4, quantity: -3 },
+      { artworkSlug: "c", title: "C", artistName: "Z", retailPrice: 8, fulfillmentCost: 3, quantity: 1.9 },
+    ]),
+    3,
+  );
+});
+
+test("formatCheckoutBagCount hides empty bags and caps large counts", () => {
+  assert.equal(formatCheckoutBagCount(0), "");
+  assert.equal(formatCheckoutBagCount(2), "2");
+  assert.equal(formatCheckoutBagCount(100), "99+");
+});
+
+test("describeCheckoutBag names the empty state instead of a demo count", () => {
+  assert.equal(describeCheckoutBag(0), "View checkout — bag is empty");
+  assert.equal(describeCheckoutBag(1), "View checkout — 1 print in bag");
+  assert.equal(describeCheckoutBag(2), "View checkout — 2 prints in bag");
 });
 
 test("buildCheckoutFunnelMetrics marks live checkout ready when env and POD configured", () => {

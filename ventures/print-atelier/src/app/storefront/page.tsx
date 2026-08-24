@@ -12,7 +12,8 @@ import {
   listStorefrontArtists,
   listStorefrontStyles,
 } from "@/lib/storefront-catalog";
-import { ShoppingBag, Heart, Image as ImageIcon } from "lucide-react";
+import StorefrontCartBadge from "@/components/StorefrontCartBadge";
+import { Heart, Image as ImageIcon } from "lucide-react";
 import Link from "next/link";
 
 export const dynamic = "force-dynamic";
@@ -35,7 +36,6 @@ function firstParam(value: string | string[] | undefined): string {
 
 export default async function StorefrontPage({ searchParams }: StorefrontPageProps) {
   const params = await searchParams;
-  const cartCount = 2;
   const query = firstParam(params.q);
   const artist = firstParam(params.artist).trim();
   const styles = listStorefrontStyles(catalogArtworks);
@@ -70,14 +70,7 @@ export default async function StorefrontPage({ searchParams }: StorefrontPagePro
             <a href="#catalog" className="text-stone-600 hover:text-stone-900">
               Collections
             </a>
-            <a href="/checkout" className="relative" aria-label="View checkout">
-              <ShoppingBag className="w-5 h-5 text-stone-700" />
-              {cartCount > 0 && (
-                <span className="absolute -top-1.5 -right-1.5 w-4 h-4 bg-indigo-600 text-white text-[10px] rounded-full flex items-center justify-center">
-                  {cartCount}
-                </span>
-              )}
-            </a>
+            <StorefrontCartBadge />
           </div>
         </div>
       </div>

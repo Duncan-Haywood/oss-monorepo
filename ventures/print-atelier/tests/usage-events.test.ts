@@ -50,6 +50,15 @@ test("counts preflight completion and export as feature events", () => {
   assert.equal(summary.searches, 0);
 });
 
+test("counts cart badge opens as a feature event, not a page view", () => {
+  clearUsageEventsForTests();
+  recordUsageEvent({ name: "cart_badge_open", path: "/checkout", createdAt: "2026-08-24T00:03:00.000Z" });
+  const summary = getUsageEventSummary();
+  assert.equal(summary.featureEvents, 1);
+  assert.equal(summary.pageViews, 0);
+  assert.equal(summary.searches, 0);
+});
+
 test("counts storefront search events separately from page views", () => {
   clearUsageEventsForTests();
   recordUsageEvent({ name: "storefront_search", path: "/storefront?q=blue", createdAt: "2026-08-24T00:02:00.000Z" });

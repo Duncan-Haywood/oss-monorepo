@@ -9,6 +9,7 @@ const eventNames: UsageEventName[] = [
   "checkout_add",
   "preflight_completed",
   "preflight_exported",
+  "cart_badge_open",
 ];
 
 export async function POST(request: Request) {

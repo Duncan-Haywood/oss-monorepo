@@ -79,6 +79,7 @@ export type CheckoutReadiness = {
 };
 
 const STORAGE_KEY = "print-atelier-checkout-cart";
+export const CHECKOUT_CART_CHANGED_EVENT = "print-atelier-checkout-cart-changed";
 const STRIPE_RATE = 0.029;
 const STRIPE_FIXED = 0.3;
 
@@ -427,9 +428,34 @@ export function loadCheckoutCartFromStorage(): CheckoutLineItem[] {
   return parseCheckoutCart(window.localStorage.getItem(STORAGE_KEY));
 }
 
+export function notifyCheckoutCartChanged(): void {
+  if (typeof window === "undefined") return;
+  window.dispatchEvent(new Event(CHECKOUT_CART_CHANGED_EVENT));
+}
+
 export function saveCheckoutCartToStorage(lineItems: CheckoutLineItem[]): void {
   if (typeof window === "undefined") return;
   window.localStorage.setItem(STORAGE_KEY, serializeCheckoutCart(lineItems));
+  notifyCheckoutCartChanged();
+}
+
+export function countCheckoutUnits(lineItems: CheckoutLineItem[]): number {
+  return lineItems.reduce((sum, item) => {
+    const quantity = Number.isFinite(item.quantity) ? Math.floor(item.quantity) : 0;
+    return sum + Math.max(0, quantity);
+  }, 0);
+}
+
+export function formatCheckoutBagCount(unitCount: number): string {
+  if (unitCount <= 0) return "";
+  if (unitCount > 99) return "99+";
+  return String(unitCount);
+}
+
+export function describeCheckoutBag(unitCount: number): string {
+  if (unitCount <= 0) return "View checkout — bag is empty";
+  if (unitCount === 1) return "View checkout — 1 print in bag";
+  return `View checkout — ${unitCount} prints in bag`;
 }
 
 export function formatCheckoutCurrency(value: number): string {

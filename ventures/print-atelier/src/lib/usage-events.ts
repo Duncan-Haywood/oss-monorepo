@@ -5,7 +5,8 @@ export type UsageEventName =
   | "storefront_search"
   | "checkout_add"
   | "preflight_completed"
-  | "preflight_exported";
+  | "preflight_exported"
+  | "cart_badge_open";
 
 export type UsageEvent = {
   name: UsageEventName;

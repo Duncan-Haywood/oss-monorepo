@@ -1,5 +1,6 @@
 import Link from "next/link";
 import ProductDetailPreviewCTA from "@/components/ProductDetailPreviewCTA";
+import StorefrontCartBadge from "@/components/StorefrontCartBadge";
 import {
   evaluateSeoPagePublishability,
   getSeoIntentLabel,
@@ -50,13 +51,14 @@ export default function PrintLandingPage({ page, publishState }: PrintLandingPag
           <Link href="/" className="font-serif tracking-wider text-lg hover:opacity-80">
             PRINT ATELIER
           </Link>
-          <div className="flex gap-3 text-sm">
+          <div className="flex items-center gap-3 text-sm">
             <Link href="/storefront" className="text-indigo-600 dark:text-indigo-400 hover:underline">
               Storefront
             </Link>
             <Link href="/seo-lab" className="text-gray-500 dark:text-gray-400 hover:underline">
               SEO Lab
             </Link>
+            <StorefrontCartBadge iconClassName="w-5 h-5 text-stone-700 dark:text-stone-300" />
           </div>
         </div>
       </header>
