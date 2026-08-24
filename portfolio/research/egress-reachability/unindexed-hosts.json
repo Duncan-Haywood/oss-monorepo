@@ -490,6 +490,51 @@
       "url": "https://deno.com/",
       "verdict": "egress_denied",
       "why_unindexed": "Named in platform/deployment/README.md, the deployment-platform decision, which measures hosting control planes to establish that no vendor's deploy or teardown API is reachable from an agent session -- the reason that decision requires a spend cap inside the platform. It lives under platform/, outside the portfolio/research/ tree --ingest walks, so these verdicts would otherwise be invisible here and never re-probed."
+    },
+    {
+      "detail": "Tunnel connection failed: 403 Forbidden",
+      "host": "backboard.railway.app",
+      "second_attempt": {
+        "detail": "Tunnel connection failed: 403 Forbidden",
+        "status": 0,
+        "verdict": "egress_denied"
+      },
+      "source": "platform/deployment/README.md",
+      "stable": true,
+      "status": 0,
+      "url": "https://backboard.railway.app/",
+      "verdict": "egress_denied",
+      "why_unindexed": "Railway is the runner-up in platform/deployment/README.md and its API is a write surface that decision's evidence claims is unreachable. It was missing from the check entirely until a review caught that the claim could pass without it. Measured outside portfolio/research/, so --ingest cannot see it."
+    },
+    {
+      "detail": "Tunnel connection failed: 403 Forbidden",
+      "host": "railway.app",
+      "second_attempt": {
+        "detail": "Tunnel connection failed: 403 Forbidden",
+        "status": 0,
+        "verdict": "egress_denied"
+      },
+      "source": "platform/deployment/README.md",
+      "stable": true,
+      "status": 0,
+      "url": "https://railway.app/",
+      "verdict": "egress_denied",
+      "why_unindexed": "Railway is the runner-up in platform/deployment/README.md and its API is a write surface that decision's evidence claims is unreachable. It was missing from the check entirely until a review caught that the claim could pass without it. Measured outside portfolio/research/, so --ingest cannot see it."
+    },
+    {
+      "detail": "Tunnel connection failed: 403 Forbidden",
+      "host": "railway.com",
+      "second_attempt": {
+        "detail": "Tunnel connection failed: 403 Forbidden",
+        "status": 0,
+        "verdict": "egress_denied"
+      },
+      "source": "platform/deployment/README.md",
+      "stable": true,
+      "status": 0,
+      "url": "https://railway.com/",
+      "verdict": "egress_denied",
+      "why_unindexed": "Railway is the runner-up in platform/deployment/README.md and its API is a write surface that decision's evidence claims is unreachable. It was missing from the check entirely until a review caught that the claim could pass without it. Measured outside portfolio/research/, so --ingest cannot see it."
     }
   ],
   "why_this_file_exists": "consolidate.py --ingest walks portfolio/research/ for machine-readable results files. A host measured in prose, or measured by a pass living outside that tree, is invisible to it -- and because --probe iterates the table --ingest builds, an invisible host is also never re-measured. These two were invisible on both counts. Each record names, in `source`, the document that first measured it; the verdict fields are this pass's own re-measurement, taken with probe_host() so the body-based classification rule this directory established applies. Extended 2026-08-24 with the hosting control planes measured by platform/deployment/probe_control_planes.py, for the same reason: a pass living outside portfolio/research/ is invisible to --ingest, so its hosts would sit in a second table nobody re-probes. One table, one command."

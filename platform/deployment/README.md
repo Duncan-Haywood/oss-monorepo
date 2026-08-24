@@ -403,9 +403,8 @@ The design that makes the owner's framing true rather than merely hopeful:
   decisions and this document only makes the first.
 
 `.github/workflows/agent-server-provision.yml` implements this. It is
-`workflow_dispatch`-only — a button, not a trigger — defaults to `--check` so
-the first run reports rather than acts, and refuses to start with a clear error
-if the configuration is missing. `platform/ci/publish_surface.py` classifies it
+`workflow_dispatch`-only — a button, not a trigger — and refuses to start with
+a clear list of what is missing rather than half-configuring a box. `platform/ci/publish_surface.py` classifies it
 as publishing nothing, which is accurate: no push trigger reaches it.
 
 Two gaps in `ubuntu-agent-server` had to be closed for any of this to run at
@@ -425,10 +424,9 @@ Set up, in order:
 
 ```bash
 ssh-keygen -t ed25519 -N "" -C "agent-server ci" -f /tmp/agent-ci
-gh secret set AGENT_SERVER_SSH_KEY < /tmp/agent-ci     # private half, never on screen
-gh variable set AGENT_SERVER_PUBKEY < /tmp/agent-ci.pub
+gh secret   set AGENT_SERVER_SSH_KEY < /tmp/agent-ci    # private half, never on screen
+gh variable set AGENT_SERVER_PUBKEY  < /tmp/agent-ci.pub
 gh variable set AGENT_SERVER_HOST --body "<box ip>"
-gh variable set AGENT_SERVER_USER --body "deploy"
 shred -u /tmp/agent-ci /tmp/agent-ci.pub
 ```
 
@@ -436,10 +434,30 @@ Piping straight into `gh` keeps the private key off your screen, out of your
 shell history and out of any transcript. Create the server in the Hetzner
 console first, pasting the same public key so the box comes up reachable.
 
-After the first successful run, pin the host key —
-`ssh-keyscan <host> | gh secret set AGENT_SERVER_KNOWN_HOSTS` — which flips the
-workflow from trust-on-first-use to `StrictHostKeyChecking=yes`. It warns until
-you do.
+Then pin the host key **before the first run**, reading the fingerprint from
+the Hetzner console rather than from the network:
+
+```bash
+gh secret set AGENT_SERVER_KNOWN_HOSTS --body "<host> ssh-ed25519 AAAA..."
+```
+
+The workflow refuses to start without it, and that is deliberate. An earlier
+draft fell back to `accept-new` and pinned afterwards — but the first run is
+the one that may hand `TAILSCALE_AUTHKEY` to whatever answered, and a key
+pinned later cannot authenticate a connection already made.
+
+Two accounts are involved and they are not the same one. `AGENT_SERVER_SSH_USER`
+is the login used to *connect*, and it must already exist — on a fresh cloud
+image that is `root`, which is the default. `AGENT_SERVER_AGENT_USER` is the
+unprivileged account the playbook *creates* and the agents run as, defaulting
+to `deploy`. Conflating them either cannot connect or installs the entire agent
+stack as root.
+
+One limitation worth knowing before you press the button: the workflow's dry-run
+option cannot validate a *fresh* box. Ansible's `user` module only predicts the
+account in check mode, so every later task targeting it fails against a user
+that does not exist. `--check` is for re-runs against a box that is already up;
+the first run has to be a real one.
 
 Expect `platform/ci/publish_surface.py --check` to go red once any deploy job
 goes live; rewriting the snapshot is the correct follow-up, not a regression.

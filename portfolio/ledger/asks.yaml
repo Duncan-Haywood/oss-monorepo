@@ -180,8 +180,21 @@ decisions:
     would rather never touch a server; `platform/deployment/README.md` says
     where each of the four candidates wins.
   unlocks:
-    - Three ventures whose builds already pass but which deploy nothing.
-    - "`retail-pilot-intel`'s docs deploy, which since #347 is green *and publishes nothing* -- the workflow skips the publish job rather than failing, so the record shows success for a site that does not exist."
+    - >-
+      Compute the repository can use at all: one box that can run the nine web
+      apps, both daemons and a Postgres, and that `ventures/ubuntu-agent-server/`
+      has been automated against since before it had a machine to run on.
+    - >-
+      Corrected 2026-08-24 after review. This row previously claimed it
+      unlocked "three ventures whose builds already pass but which deploy
+      nothing" and `retail-pilot-intel`'s silently-skipped docs deploy. That
+      was true of the action it used to carry -- set the Cloudflare/Vercel/Pages
+      secrets -- and is *not* true of the one it carries now. Provisioning a
+      private agent host deploys no venture: `platform/deployment/README.md`
+      states there is no nginx/TLS role, no Postgres role and no app-deploy
+      role, and that moving the two daemons is separate work. Those three
+      ventures stay un-deployed until that automation exists, and granting this
+      is the prerequisite for building it rather than the thing that ships it.
   blocked_by: []
   note: >-
     Grouped because both are repository settings the owner changes in one
@@ -219,7 +232,7 @@ decisions:
     the floor is the objection.
 
     Deliberately decided *without* weighting what is already wired, at the
-    owner''s instruction. Migration cost is recorded in that document rather
+    owner's instruction. Migration cost is recorded in that document rather
     than counted: two workflows target Cloudflare today, and porting them is a
     separate agent-decidable change once the account exists.
 
@@ -228,8 +241,8 @@ decisions:
     measures this over 22 hosts with both controls), so three load-bearing
     Vercel claims are flagged in that document for a browser check before
     granting; if the pause action or the price has changed, the fallback is
-    Railway and the criterion is unaffected. `quick-pick-survey`''s Postgres is
-    covered only via Vercel''s marketplace, billed through Vercel and so under
+    Railway and the criterion is unaffected. `quick-pick-survey`'s Postgres is
+    covered only via Vercel's marketplace, billed through Vercel and so under
     the same cap.
 
     Revised again 2026-08-24 when the owner asked for best *value* and most
@@ -242,7 +255,7 @@ decisions:
     second platform for those two. Railway and Hetzner host every workload.
     On raw dollars Hetzner wins and it is not close (~$5/month for all of it,
     marginal app $0) but its price is not its cost -- ops hours are the
-    currency `CLAUDE.md` calls scarce, and `ubuntu-agent-server`''s Ansible
+    currency `CLAUDE.md` calls scarce, and `ubuntu-agent-server`'s Ansible
     roles close only part of that gap since they provision a tailnet agent
     host, not a public web server. Railway is the only option scoring on both
     axes. Note it is also the only one of the three with no workflow written

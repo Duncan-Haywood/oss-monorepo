@@ -25,6 +25,24 @@ class CheckTest(unittest.TestCase):
     def test_wellformed_table_passes(self):
         self.assertEqual(p.check(table()), 0)
 
+    def test_an_error_verdict_does_not_support_the_claim(self):
+        # Absence of an answer is not evidence of a denial. A probe that failed
+        # for its own reasons must not read as "the vendor is unreachable".
+        self.assertEqual(p.check(table(**{"api.vercel.com": "error"})), 1)
+
+    def test_every_write_surface_must_be_egress_denied(self):
+        for host in p.WRITE_SURFACES:
+            with self.subTest(host=host):
+                self.assertEqual(p.check(table(**{host: "error"})), 1)
+
+    def test_railway_is_in_the_load_bearing_set(self):
+        # It is the document's runner-up; a check that omits it cannot support
+        # the all-vendor claim. Regression test for that omission.
+        self.assertTrue(
+            any("railway" in v for v in p.WRITE_SURFACES.values()),
+            "Railway has no write surface in the load-bearing set",
+        )
+
     def test_reachable_write_surface_fails_the_claim(self):
         # If egress policy later opens up, README.md's "a session cannot stop a
         # runaway deploy from here" stops being true and must be rewritten.

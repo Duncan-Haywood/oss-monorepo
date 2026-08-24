@@ -28,26 +28,35 @@ Read-only GETs. No credential, no account, nothing published, nothing spent.
 from __future__ import annotations
 
 import argparse
+import importlib.util
 import json
 import pathlib
-import ssl
 import sys
-import urllib.error
-import urllib.request
 
 HERE = pathlib.Path(__file__).resolve().parent
 REPO = HERE.parent.parent
 TABLE = REPO / "portfolio" / "research" / "egress-reachability" / "prior-verdicts.json"
-CA_BUNDLE = "/root/.ccr/ca-bundle.crt"
+EGRESS_DIR = REPO / "portfolio" / "research" / "egress-reachability"
 
-# The proxy refuses a denied host at CONNECT time, before TLS. That failure is
-# textually distinct from anything an origin can say, which is what lets
-# `egress_denied` be told apart from a 403 an origin chose to send.
-DENIAL_SIGNATURE = "Tunnel connection failed: 403 Forbidden"
+# `--probe` reuses the consolidated probe's own `probe_host` rather than
+# carrying a second implementation. That is not only tidiness: an earlier pass
+# there followed redirects and recorded `s3.amazonaws.com` and `gitlab.com` as
+# unreachable, because both answer with a redirect to a host that is itself
+# denied. `consolidate.py` disables redirects and classifies on the response
+# body for exactly that reason, and a private copy here would have quietly
+# reintroduced the bug it fixed.
+def _canonical_probe():
+    spec = importlib.util.spec_from_file_location(
+        "egress_consolidate", EGRESS_DIR / "consolidate.py"
+    )
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    return module
 
 # The write surfaces: the API a deploy, a scale-up, or a teardown would call.
 # README.md's claim is about exactly these, so exactly these are checked.
 WRITE_SURFACES = {
+    "backboard.railway.app": "railway",
     "api.vercel.com": "vercel",
     "api.cloudflare.com": "cloudflare",
     "api.hetzner.cloud": "hetzner",
@@ -64,6 +73,7 @@ WRITE_SURFACES = {
 CONTEXT_HOSTS = {
     "dash.cloudflare.com", "pages.dev", "workers.dev", "vercel.com",
     "console.hetzner.cloud", "www.hetzner.com", "aws.amazon.com",
+    "railway.app", "railway.com",
     "portal.azure.com", "cloudresourcemanager.googleapis.com",
     "console.cloud.google.com", "deno.com",
 }
@@ -75,29 +85,11 @@ CONTROL_DENIED = "example.com"
 ALL_HOSTS = sorted(set(WRITE_SURFACES) | CONTEXT_HOSTS)
 
 
-def probe(host: str, timeout: int = 12) -> dict:
-    ctx = ssl.create_default_context(cafile=CA_BUNDLE)
-    req = urllib.request.Request(
-        f"https://{host}/", method="GET",
-        headers={"User-Agent": "monorepo-projects-deployment-probe"},
-    )
-    try:
-        with urllib.request.urlopen(req, timeout=timeout, context=ctx) as r:
-            return {"host": host, "verdict": "reachable", "status": r.status, "detail": ""}
-    except urllib.error.HTTPError as e:
-        # The origin answered, with an opinion. 401/403/404/405 all count as
-        # reached -- this measures the network, not our authorisation.
-        return {"host": host, "verdict": "reachable", "status": e.code, "detail": ""}
-    except Exception as e:  # noqa: BLE001 - any failure is a non-answer
-        detail = f"{type(e).__name__}: {e}"
-        verdict = "egress_denied" if DENIAL_SIGNATURE in detail else "error"
-        return {"host": host, "verdict": verdict, "status": 0, "detail": detail[:200]}
-
-
 def run_probe() -> None:
+    consolidate = _canonical_probe()
     records = []
     for host in ALL_HOSTS + [CONTROL_REACHABLE, CONTROL_DENIED]:
-        rec = probe(host)
+        rec = consolidate.probe_host(host, f"https://{host}/")
         print(f"  {host:38} {rec['verdict']:14} {rec['status']}", file=sys.stderr)
         records.append(rec)
     print(json.dumps(records, indent=2))
@@ -156,15 +148,21 @@ def check(hosts: dict) -> int:
             "egress-reachability/unindexed-hosts.json."
         )
 
-    reachable = sorted(
-        f"{h} ({v})" for h, v in WRITE_SURFACES.items()
-        if verdict_of(hosts, h) == "reachable"
+    # An `error` verdict is not evidence of a denial -- it is the absence of
+    # evidence, usually a probe that failed for its own reasons. Requiring the
+    # verdict to *equal* egress_denied is what makes a green check mean the
+    # thing README.md claims, rather than merely "nothing answered".
+    unsupported = sorted(
+        f"{h} ({vendor}): {verdict_of(hosts, h)}"
+        for h, vendor in WRITE_SURFACES.items()
+        if h in hosts and verdict_of(hosts, h) != "egress_denied"
     )
-    if reachable:
+    if unsupported:
         problems.append(
             "README.md argues the spend cap must live in the platform because "
-            "no vendor control plane is reachable from a session. These now "
-            f"answer: {', '.join(reachable)}. Rewrite that section."
+            "every vendor write surface is denied from a session. These do not "
+            f"carry an egress_denied verdict: {', '.join(unsupported)}. Either "
+            "re-probe them or rewrite that section."
         )
 
     if problems:

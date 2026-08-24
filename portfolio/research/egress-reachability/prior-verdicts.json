@@ -378,6 +378,19 @@
         "demand-signal-reachability/results-2026-08-24.json"
       ]
     },
+    "backboard.railway.app": {
+      "n_observations": 1,
+      "prior_consensus": "egress_denied",
+      "prior_disputed": false,
+      "prior_tied": false,
+      "prior_verdicts": {
+        "egress_denied": 1
+      },
+      "probe_url": "https://backboard.railway.app/",
+      "sources": [
+        "platform/deployment/README.md"
+      ]
+    },
     "bigquery.googleapis.com": {
       "n_observations": 1,
       "prior_consensus": "reachable",
@@ -1163,6 +1176,32 @@
         "demand-signal-reachability/results-2026-08-24.json"
       ]
     },
+    "railway.app": {
+      "n_observations": 1,
+      "prior_consensus": "egress_denied",
+      "prior_disputed": false,
+      "prior_tied": false,
+      "prior_verdicts": {
+        "egress_denied": 1
+      },
+      "probe_url": "https://railway.app/",
+      "sources": [
+        "platform/deployment/README.md"
+      ]
+    },
+    "railway.com": {
+      "n_observations": 1,
+      "prior_consensus": "egress_denied",
+      "prior_disputed": false,
+      "prior_tied": false,
+      "prior_verdicts": {
+        "egress_denied": 1
+      },
+      "probe_url": "https://railway.com/",
+      "sources": [
+        "platform/deployment/README.md"
+      ]
+    },
     "raw.githubusercontent.com": {
       "n_observations": 13,
       "prior_consensus": "reachable",
@@ -1723,6 +1762,6 @@
     "runtime-data-reachability/results-2026-08-20.json",
     "substitute-supply/results-2026-08-20.json"
   ],
-  "n_hosts": 118,
+  "n_hosts": 121,
   "n_source_files": 45
 }

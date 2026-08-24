@@ -10,13 +10,20 @@ name: Provision agent server
 # it on purpose, which is a separate decision from having a box at all.
 #
 # Required before the first run:
-#   secret AGENT_SERVER_SSH_KEY    private half of a key used for nothing else
-#   var    AGENT_SERVER_HOST       IP or hostname to reach the box on
-#   var    AGENT_SERVER_USER       login on the box (default: deploy)
-#   var    AGENT_SERVER_PUBKEY     public half, installed as an authorized key
+#   secret AGENT_SERVER_SSH_KEY      private half of a key used for nothing else
+#   secret AGENT_SERVER_KNOWN_HOSTS  the box's host key, read out of band from
+#                                    the provider console. Required, not
+#                                    optional: the first run is the one that
+#                                    may carry TAILSCALE_AUTHKEY, and a key
+#                                    pinned afterwards cannot authenticate a
+#                                    connection already made.
+#   var    AGENT_SERVER_HOST         IP or hostname to reach the box on
+#   var    AGENT_SERVER_PUBKEY       public half, installed as an authorized key
 # Optional:
-#   secret AGENT_SERVER_KNOWN_HOSTS  pinned host key; without it the first
-#                                    connection is trust-on-first-use
+#   var    AGENT_SERVER_SSH_USER     login used to connect (default: root --
+#                                    a fresh cloud image has no other account)
+#   var    AGENT_SERVER_AGENT_USER   unprivileged account the playbook creates
+#                                    and the agents run as (default: deploy)
 #   secret TAILSCALE_AUTHKEY         joins the box to the tailnet unattended
 
 on:
@@ -27,9 +34,9 @@ on:
         type: boolean
         default: false
       check_mode:
-        description: "Dry run: report changes without making them"
+        description: "Dry run (re-runs only -- cannot work on an unprovisioned box)"
         type: boolean
-        default: true
+        default: false
 
 permissions:
   contents: read
@@ -53,11 +60,13 @@ jobs:
           HOST: ${{ vars.AGENT_SERVER_HOST }}
           PUBKEY: ${{ vars.AGENT_SERVER_PUBKEY }}
           KEY: ${{ secrets.AGENT_SERVER_SSH_KEY }}
+          KNOWN_HOSTS: ${{ secrets.AGENT_SERVER_KNOWN_HOSTS }}
         run: |
           missing=()
-          [ -n "$HOST" ]   || missing+=("var AGENT_SERVER_HOST")
-          [ -n "$PUBKEY" ] || missing+=("var AGENT_SERVER_PUBKEY")
-          [ -n "$KEY" ]    || missing+=("secret AGENT_SERVER_SSH_KEY")
+          [ -n "$HOST" ]        || missing+=("var AGENT_SERVER_HOST")
+          [ -n "$PUBKEY" ]      || missing+=("var AGENT_SERVER_PUBKEY")
+          [ -n "$KEY" ]         || missing+=("secret AGENT_SERVER_SSH_KEY")
+          [ -n "$KNOWN_HOSTS" ] || missing+=("secret AGENT_SERVER_KNOWN_HOSTS -- read the fingerprint from the Hetzner console, do not trust it on first use")
           if [ ${#missing[@]} -ne 0 ]; then
             printf '::error::not configured yet -- missing: %s\n' "${missing[*]}"
             exit 1
@@ -72,7 +81,7 @@ jobs:
           pip install --quiet ansible-core
           ansible-galaxy collection install -r requirements.yml
 
-      - name: Write the SSH key and host key
+      - name: Write the SSH key and pin the host key
         env:
           KEY: ${{ secrets.AGENT_SERVER_SSH_KEY }}
           KNOWN_HOSTS: ${{ secrets.AGENT_SERVER_KNOWN_HOSTS }}
@@ -80,34 +89,43 @@ jobs:
           install -d -m 700 ~/.ssh
           printf '%s\n' "$KEY" > ~/.ssh/agent_server
           chmod 600 ~/.ssh/agent_server
-          if [ -n "$KNOWN_HOSTS" ]; then
-            printf '%s\n' "$KNOWN_HOSTS" > ~/.ssh/known_hosts
-            chmod 600 ~/.ssh/known_hosts
-            echo "HOST_KEY_ARGS=-o StrictHostKeyChecking=yes" >> "$GITHUB_ENV"
-          else
-            echo "::warning::AGENT_SERVER_KNOWN_HOSTS is unset -- trusting the host key on first use. Set it after the first run: ssh-keyscan <host>"
-            echo "HOST_KEY_ARGS=-o StrictHostKeyChecking=accept-new" >> "$GITHUB_ENV"
-          fi
+          # No accept-new fallback. The run that would have used it is the
+          # same run that may hand TAILSCALE_AUTHKEY to whatever answered, and
+          # a key pinned afterwards cannot authenticate a connection already
+          # made. The step above refuses to start without this secret.
+          printf '%s\n' "$KNOWN_HOSTS" > ~/.ssh/known_hosts
+          chmod 600 ~/.ssh/known_hosts
 
       - name: Run the playbook
         env:
           ANSIBLE_HOST_KEY_CHECKING: "True"
           ANSIBLE_FORCE_COLOR: "1"
           HOST: ${{ vars.AGENT_SERVER_HOST }}
-          USER_NAME: ${{ vars.AGENT_SERVER_USER || 'deploy' }}
+          # Two accounts, and conflating them was a real bug: the login must
+          # already exist to connect at all (a fresh cloud image has only
+          # root), while agent_user is the unprivileged account this playbook
+          # creates and the agents run as. One name for both either cannot
+          # connect or installs the whole agent stack as root.
+          SSH_USER: ${{ vars.AGENT_SERVER_SSH_USER || 'root' }}
+          AGENT_USER: ${{ vars.AGENT_SERVER_AGENT_USER || 'deploy' }}
           PUBKEY: ${{ vars.AGENT_SERVER_PUBKEY }}
           AUTHKEY: ${{ secrets.TAILSCALE_AUTHKEY }}
           ENABLE_RUNNER: ${{ inputs.enable_agent_runner }}
           CHECK_MODE: ${{ inputs.check_mode }}
         run: |
           printf '[agent_server]\nagent-server ansible_host=%s ansible_user=%s\n' \
-            "$HOST" "$USER_NAME" > inventory.ci.ini
+            "$HOST" "$SSH_USER" > inventory.ci.ini
 
           # `run:` executes under `bash -e`, and `[ test ] && cmd` exits the
           # step when the test is false -- the && list's status is the step's.
           # Explicit ifs, so a dry run that is *not* requested does not abort.
           args=(-i inventory.ci.ini playbook.yml)
+          # --check cannot provision a fresh box: Ansible's `user` module only
+          # *predicts* the account in check mode, so every later task targeting
+          # it fails against a user that does not exist. Useful for re-runs
+          # against a box already up; useless for the first run.
           if [ "$CHECK_MODE" = "true" ]; then
+            echo "::notice::Dry run -- meaningful only against an already-provisioned box."
             args+=(--check --diff)
           fi
           if [ -n "$AUTHKEY" ]; then
@@ -125,10 +143,10 @@ jobs:
           # The public key is not secret; passing it as a var keeps the
           # playbook's default (read the operator's own key off their machine)
           # working for a human run, which has no repository variables.
-          args+=(-e "agent_user=$USER_NAME")
+          args+=(-e "agent_user=$AGENT_USER")
           args+=(-e "agent_user_passwordless_sudo=true")
           args+=(-e "{\"agent_user_authorized_keys\": [\"$PUBKEY\"]}")
 
           ANSIBLE_PRIVATE_KEY_FILE=~/.ssh/agent_server \
-          ANSIBLE_SSH_COMMON_ARGS="$HOST_KEY_ARGS" \
+          ANSIBLE_SSH_COMMON_ARGS="-o StrictHostKeyChecking=yes" \
           ansible-playbook "${args[@]}"
