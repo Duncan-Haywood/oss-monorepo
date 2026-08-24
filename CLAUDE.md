@@ -5,8 +5,14 @@ Read `README.md` first for the ventures/platform/portfolio layout.
 ## Check open PRs before starting work
 
 This repo runs scheduled/automated agent sessions, often several per hour,
-each starting from a fresh checkout with no memory of the others. Before
-starting new work, list open pull requests and recent commits and check
+each starting from a fresh checkout with no memory of the others. **Review
+open PRs before starting new work** — see
+`.github/prompts/review-open-prs-first.md` and
+`platform/ci/agent_review/README.md`. Four agent families (GitHub Actions,
+Kilo, Cursor, Claude) each post approvals via dedicated reviewer GitHub Apps;
+auto-merge runs at two bot approvals plus green CI.
+
+Before starting new work, list open pull requests and recent commits and check
 whether one already covers it. If it does, review, extend, or consolidate
 that PR instead of opening a duplicate — do not re-derive the same change
 from scratch.

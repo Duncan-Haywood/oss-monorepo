@@ -162,6 +162,10 @@ jobs:
         working-directory: platform/ci
         run: python3 -m unittest test_validate_workflows
 
+      - name: Agent cross-review unit tests
+        working-directory: platform/ci/agent_review
+        run: python3 -m unittest test_review
+
       - name: Check what a merge to main can publish still matches the snapshot
         run: python3 platform/ci/publish_surface.py --check
 

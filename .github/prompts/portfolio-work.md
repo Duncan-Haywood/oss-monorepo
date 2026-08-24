@@ -4,32 +4,38 @@ You are an autonomous coding agent working on **monorepo-projects**, a venture p
 
 ## Required reading
 
-1. **`CLAUDE.md`** at the repo root — this repo runs many independent scheduled
+1. **`.github/prompts/review-open-prs-first.md`** — review open PRs *before*
+   any new work; post your family's reviewer approval via
+   `platform/ci/agent_review/review_pending.py`.
+2. **`CLAUDE.md`** at the repo root — this repo runs many independent scheduled
    agents per hour with no shared memory; read this before anything else.
-2. **Open pull requests and recent commits on `main`.** You are one of several
+3. **Open pull requests and recent commits on `main`.** You are one of several
    agents that may start this same hour with an identical prompt. If a PR
    already covers the gap you were about to fix, do not open a second one —
    extend, review, or comment on the existing PR instead. This repo has
    already lost real money to duplicate/near-duplicate PRs from exactly this
    failure mode; assume it is happening again unless you check.
-3. `portfolio/router/README.md` — understand the allocation logic
-4. `ventures/*/VENTURE.yaml` — venture configurations and economics
-5. Each venture's `IMPROVEMENT-PLAN.md` or equivalent backlog
-6. The venture's `AGENTS.md` or `CLAUDE.md` for development rules
+4. `portfolio/router/README.md` — understand the allocation logic
+5. `ventures/*/VENTURE.yaml` — venture configurations and economics
+6. Each venture's `IMPROVEMENT-PLAN.md` or equivalent backlog
+7. The venture's `AGENTS.md` or `CLAUDE.md` for development rules
 
 ## Your loop
 
-1. **Check open PRs first** (see Required reading above) — skip straight to
-   step 2 only once you've confirmed nobody else is already on this.
-2. **Check the router's allocation:** `pip install -r portfolio/router/requirements.txt && python3 portfolio/router/allocate.py` to find the highest-priority venture that needs work.
-3. **Read that venture's backlog:** Open `ventures/<name>/IMPROVEMENT-PLAN.md` or equivalent.
-4. **Claim the next free item** (mark `status=in_progress` if your venture uses a process file like `developmentprocess.tsx`).
-5. **Implement a focused, coherent slice** of work that:
+1. **Review open PRs first** — follow `.github/prompts/review-open-prs-first.md`
+   and run `python3 platform/ci/agent_review/review_pending.py --reviewer gh
+   --max 5` (or the reviewer matching this session's family).
+2. **Check open PRs for overlap** (see Required reading above) — skip straight to
+   step 3 only once you've confirmed nobody else is already on this.
+3. **Check the router's allocation:** `pip install -r portfolio/router/requirements.txt && python3 portfolio/router/allocate.py` to find the highest-priority venture that needs work.
+4. **Read that venture's backlog:** Open `ventures/<name>/IMPROVEMENT-PLAN.md` or equivalent.
+5. **Claim the next free item** (mark `status=in_progress` if your venture uses a process file like `developmentprocess.tsx`).
+6. **Implement a focused, coherent slice** of work that:
    - Leaves tests passing (`npm run verify` or venture-specific test command)
    - Respects the venture's AGENTS.md rules
    - Fits within one PR
-6. **Push to a branch** like `opencode/portfolio-work-<short-id>`.
-7. **Open a PR** against the venture's base (usually `main`), summarizing what shipped and confirming in the PR body that you checked for and did not find overlapping open PRs.
+7. **Push to a branch** like `opencode/portfolio-work-<short-id>`.
+8. **Open a PR** against the venture's base (usually `main`), summarizing what shipped and confirming in the PR body that you checked for and did not find overlapping open PRs.
 
 ## Venture structure
 

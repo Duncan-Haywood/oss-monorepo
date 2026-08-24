@@ -1,0 +1,55 @@
+name: Agent PR auto-merge
+
+# Squash-merge when two allowed agent reviewers have approved and CI is green.
+# See platform/ci/agent_review/config.yaml for the approver list and threshold.
+
+on:
+  pull_request_review:
+    types: [submitted]
+  check_suite:
+    types: [completed]
+  workflow_run:
+    workflows: [Agent cross-review]
+    types: [completed]
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  auto-merge:
+    if: >-
+      github.event_name != 'pull_request_review' ||
+      github.event.review.state == 'APPROVED'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install dependencies
+        run: pip install -r portfolio/router/requirements.txt
+
+      - name: Auto-merge eligible open PRs
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -euo pipefail
+          prs=""
+          case "${{ github.event_name }}" in
+            pull_request_review)
+              prs="${{ github.event.pull_request.number }}"
+              ;;
+            check_suite)
+              prs="${{ github.event.check_suite.pull_requests[0].number }}"
+              ;;
+            workflow_run)
+              prs="$(gh pr list --state open --json number -q '.[].number' | tr '\n' ' ')"
+              ;;
+          esac
+          for pr in $prs; do
+            [ -n "$pr" ] || continue
+            python3 platform/ci/agent_review/review.py --auto-merge --pr "$pr" || true
+          done
