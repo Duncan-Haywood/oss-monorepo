@@ -38,3 +38,10 @@ test("copy action degrades gracefully when Clipboard API is unavailable", () => 
   assert.match(html, /document\.execCommand\('copy'\)/);
   assert.match(html, /Select the draft and copy it manually/);
 });
+
+test("reviewed packets can be downloaded locally", () => {
+  assert.match(html, /id="download"/);
+  assert.match(html, /new Blob\(\[content\]/);
+  assert.match(html, /packet_downloaded/);
+  assert.match(html, /URL\.createObjectURL/);
+});
