@@ -43,6 +43,7 @@ def check_invoice(invoice: Any) -> list[dict[str, str]]:
         fail("INV-007", "Invoice has no line items.", "Add at least one line item.")
         lines = []
     expected_net = Decimal("0")
+    expected_tax = Decimal("0")
     for index, line in enumerate(lines, 1):
         if not isinstance(line, dict):
             fail("INV-008", f"Line {index} is not an object.", "Provide description, quantity, unit_price, and tax_percent.")
@@ -59,6 +60,8 @@ def check_invoice(invoice: Any) -> list[dict[str, str]]:
         if quantity is not None and price is not None and quantity > 0 and price >= 0:
             line_net = (quantity * price).quantize(Decimal("0.01"), rounding=ROUND_HALF_UP)
             expected_net += line_net
+            if tax is not None and 0 <= tax <= 100:
+                expected_tax += (line_net * tax / Decimal("100")).quantize(Decimal("0.01"), rounding=ROUND_HALF_UP)
             supplied = _money(line.get("net"))
             if supplied is not None and supplied != line_net:
                 fail("INV-012", f"Line {index} net does not match quantity times unit price.", f"Set line net to {line_net} or correct the inputs.")
@@ -72,6 +75,8 @@ def check_invoice(invoice: Any) -> list[dict[str, str]]:
         fail("INV-014", "Invoice net total does not match its line items.", f"Set net total to {expected_net} or correct the line items.")
     if tax_total is None or tax_total < 0:
         fail("INV-015", "Invoice tax total is missing or invalid.", "Provide a non-negative numeric tax total.")
+    elif tax_total != expected_tax:
+        fail("INV-018", "Invoice tax total does not match its line tax percentages.", f"Set tax total to {expected_tax} or correct the line inputs.")
     if gross is None or gross < 0:
         fail("INV-016", "Invoice gross total is missing or invalid.", "Provide a non-negative numeric gross total.")
     elif net is not None and tax_total is not None and gross != net + tax_total:
