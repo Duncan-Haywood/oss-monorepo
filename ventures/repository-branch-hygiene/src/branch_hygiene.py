@@ -2,6 +2,7 @@
 """Read-only branch inventory over a customer-controlled JSON snapshot."""
 from __future__ import annotations
 import argparse
+import csv
 import json
 import subprocess
 from dataclasses import asdict, dataclass
@@ -180,6 +181,24 @@ def write_outputs(findings: list[Finding], report_path: Path, manifest_path: Pat
     }
     manifest_path.write_text(json.dumps(manifest, indent=2) + "\n", encoding="utf-8")
 
+def write_csv(findings: list[Finding], path: Path) -> None:
+    """Write a spreadsheet-friendly approval queue, never executable commands."""
+    with path.open("w", encoding="utf-8", newline="") as handle:
+        writer = csv.DictWriter(
+            handle,
+            fieldnames=("branch", "tip", "classification", "reason", "review_action", "commit_count"),
+        )
+        writer.writeheader()
+        for finding in findings:
+            writer.writerow({
+                "branch": finding.branch,
+                "tip": finding.tip,
+                "classification": finding.classification,
+                "reason": finding.reason,
+                "review_action": finding.review_action,
+                "commit_count": len(finding.commits),
+            })
+
 def has_unresolved_risk(findings: list[Finding]) -> bool:
     """Return whether the snapshot needs human review before any cleanup."""
     return any(finding.classification in {"shared", "moved-tip", "uncertain"} for finding in findings)
@@ -199,6 +218,7 @@ def main() -> int:
     )
     parser.add_argument("--report", type=Path, default=Path("branch-report.txt"))
     parser.add_argument("--manifest", type=Path, default=Path("recovery-manifest.json"))
+    parser.add_argument("--csv", dest="csv_path", type=Path, help="write a spreadsheet-friendly approval queue")
     parser.add_argument("--usage-log", type=Path)
     parser.add_argument("--format", choices=("text", "json"), default="text", help="print a human or machine-readable summary")
     parser.add_argument("--fail-on-risk", action="store_true", help="exit 2 when shared, moved-tip, or uncertain findings need review")
@@ -214,6 +234,8 @@ def main() -> int:
     )
     findings = scan(snapshot)
     write_outputs(findings, args.report, args.manifest)
+    if args.csv_path:
+        write_csv(findings, args.csv_path)
     if args.usage_log:
         event = {"event": "scan_completed", "at": datetime.now(timezone.utc).isoformat(), "finding_count": len(findings)}
         with args.usage_log.open("a", encoding="utf-8") as handle:
@@ -225,7 +247,10 @@ def main() -> int:
         print(json.dumps(summary, sort_keys=True))
     else:
         status = "review required" if summary["risk"] else "no unresolved risk"
-        print(f"Wrote {len(findings)} findings to {args.report} and {args.manifest}; {status}")
+        outputs = f"{args.report}, {args.manifest}"
+        if args.csv_path:
+            outputs += f", and {args.csv_path}"
+        print(f"Wrote {len(findings)} findings to {outputs}; {status}")
     return 2 if args.fail_on_risk and summary["risk"] else 0
 
 if __name__ == "__main__":

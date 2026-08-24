@@ -1,5 +1,18 @@
 period: 2026-08
 entries:
+  - venture: repository-branch-hygiene
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Continued the newly graduated branch-hygiene product with a CSV approval
+        queue export for spreadsheet and ticket workflows. The export includes
+        classifications, reasons, and non-executable review actions; it never
+        emits deletion commands or performs Git operations. Thirteen focused
+        tests pass and the real CLI smoke test produced the expected four-row
+        queue with risk mode failing closed. Buyer pilots and public publishing
+        remain unresolved.
+    mrr_end: null
   - venture: shopify-a11y-evidence
     agent_spend_usd: null
     human_hours: 0

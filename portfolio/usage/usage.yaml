@@ -6,6 +6,18 @@
 # retired honestly instead of quietly.
 period: 2026-08
 products:
+  - slug: repository-branch-hygiene
+    surface: repository-cli
+    readings:
+      - as_of: 2026-08-24
+        signals:
+          local_scans: 1
+          approval_queue_exports: 1
+          qualified_pilots: 0
+        note: >-
+          Added a spreadsheet-friendly, non-executable approval queue export to
+          the read-only branch inventory CLI. Pilot demand and recurring use
+          remain untested; no customer repository data is collected.
   - slug: shopify-permission-drift
     surface: local-cli
     readings:

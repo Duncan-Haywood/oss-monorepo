@@ -5,7 +5,7 @@ import tempfile
 import unittest
 from pathlib import Path
 sys.path.insert(0, str(Path(__file__).parents[1] / "src"))
-from branch_hygiene import has_unresolved_risk, load_pr_export, scan, snapshot_from_repo, write_outputs
+from branch_hygiene import has_unresolved_risk, load_pr_export, scan, snapshot_from_repo, write_csv, write_outputs
 
 class BranchHygieneTests(unittest.TestCase):
     def setUp(self):
@@ -31,6 +31,16 @@ class BranchHygieneTests(unittest.TestCase):
             self.assertTrue(manifest_data["approval_required"])
             self.assertEqual(manifest_data["format"], 2)
             self.assertIn("approval queue", report.read_text().lower())
+
+    def test_csv_is_review_queue_not_delete_script(self):
+        with tempfile.TemporaryDirectory() as directory:
+            path = Path(directory) / "queue.csv"
+            write_csv(scan(self.snapshot), path)
+            rows = path.read_text().splitlines()
+            self.assertEqual(rows[0], "branch,tip,classification,reason,review_action,commit_count")
+            self.assertIn("review-delete-candidate", path.read_text())
+            self.assertNotIn("git delete", path.read_text())
+            self.assertEqual(len(rows), 5)
 
     def test_reused_branch_name_prefers_open_pr_over_stale_closed_record(self):
         snapshot = {

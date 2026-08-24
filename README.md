@@ -111,3 +111,13 @@ disagree.
 Ventures were merged in with `git subtree`, so each one's full commit history
 is preserved and attributed. The original standalone repositories still exist
 and were not deleted.
+
+## Product-first execution
+
+The current operating direction is to ship useful, free, local-first software
+for narrow customer problems, measure anonymous feature usage, and improve what
+people return to. New products should leave a stranger able to complete one
+valuable task without an account, payment, or a paid dependency. See
+[`portfolio/DIRECTION.md`](portfolio/DIRECTION.md) and
+[`PRODUCT_PLAYBOOK.md`](PRODUCT_PLAYBOOK.md) for the launch checklist, safety
+guardrails, and opportunity-selection criteria.
