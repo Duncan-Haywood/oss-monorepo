@@ -65,6 +65,21 @@ for reviewing and approving any Git operation.
 
 See `examples/snapshot.json` for the input format.
 
+## Privacy and usage
+
+The scanner is local-first: it reads only the checkout and files you pass to
+it, makes no network requests, and does not upload repository data. The
+optional `--usage-log` records one aggregate `scan_completed` event and the
+finding count in a file you control. It records no repository names, branch
+names, commit messages, identifiers, IP addresses, or file contents.
+
+**No warranty.** This tool is provided free and as-is, without warranty of any
+kind, express or implied. It is not legal, security, or compliance advice, and
+it does not replace a qualified professional. **You are responsible for
+reviewing and verifying its output before relying on it**, and for meeting any
+obligation it helps you prepare for. To the maximum extent permitted by law,
+the authors accept no liability for any loss or damage arising from its use.
+
 ## Customer workflow
 
 1. Export branch names, tips, commit ancestry, protected refs, and the latest

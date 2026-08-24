@@ -6,6 +6,18 @@
 # retired honestly instead of quietly.
 period: 2026-08
 products:
+  - slug: repository-branch-hygiene
+    surface: local-cli
+    readings:
+      - as_of: 2026-08-24
+        signals:
+          scan_completed_events: 0
+          qualified_pilots: 0
+        note: >-
+          Shipped a local read-only branch report and recovery manifest with a
+          static landing page. Customer pilots and public distribution remain
+          untested; the optional counter records aggregate events in customer
+          storage only.
   - slug: shopify-permission-drift
     surface: local-cli
     readings:
