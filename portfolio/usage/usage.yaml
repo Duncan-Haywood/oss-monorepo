@@ -6,6 +6,15 @@
 # retired honestly instead of quietly.
 period: 2026-08
 products:
+  - slug: payment-reconciliation-workbench
+    surface: static-page-in-repo
+    readings:
+      - as_of: 2026-08-24
+        signals:
+          live_url_visitors: null
+          local_events_reported: 0
+          repo_views_14d: 0
+        note: Shipped private CSV reconciliation baseline; public distribution is owner-gated.
   - slug: shopify-permission-drift
     surface: local-cli
     readings:
