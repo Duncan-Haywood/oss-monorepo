@@ -100,8 +100,11 @@ def _markdown_report(reports: list[tuple[Path, list[dict[str, str]]]], read_erro
     return "\n".join(lines).rstrip() + "\n"
 
 
-def _json_report(reports: list[tuple[Path, list[dict[str, str]]]], read_errors: list[dict[str, str]], *, batch: bool) -> dict[str, Any]:
-    """Build one stable adapter payload for both single files and directories."""
+def _json_report(
+    reports: list[tuple[Path, list[dict[str, str]]]],
+    read_errors: list[dict[str, str]],
+) -> dict[str, Any]:
+    """Build one stable adapter payload for every input mode."""
     rule_counts = Counter(error["rule"] for _, errors in reports for error in errors)
     errors = [error for _, invoice_errors in reports for error in invoice_errors]
     output: dict[str, Any] = {
@@ -110,13 +113,11 @@ def _json_report(reports: list[tuple[Path, list[dict[str, str]]]], read_errors: 
         "files_failed": sum(bool(invoice_errors) for _, invoice_errors in reports),
         "observations": len(errors),
         "rules": dict(sorted(rule_counts.items())),
+        "file": reports[0][0].as_posix() if len(reports) == 1 else None,
+        "errors": errors,
         "read_errors": read_errors,
     }
-    if batch:
-        output["reports"] = [{"file": path.as_posix(), "errors": invoice_errors} for path, invoice_errors in reports]
-    else:
-        output["file"] = reports[0][0].as_posix() if reports else None
-        output["errors"] = errors
+    output["reports"] = [{"file": path.as_posix(), "errors": invoice_errors} for path, invoice_errors in reports]
     return output
 
 
@@ -163,7 +164,7 @@ def main(argv: list[str] | None = None) -> int:
     errors = [error for _, invoice_errors in reports for error in invoice_errors]
     has_read_errors = bool(read_errors)
     if args.format == "json":
-        print(json.dumps(_json_report(reports, read_errors, batch=args.invoice.is_dir()), indent=2))
+        print(json.dumps(_json_report(reports, read_errors), indent=2))
     elif args.format == "markdown":
         print(_markdown_report(reports, read_errors), end="")
     elif args.format == "sarif":
