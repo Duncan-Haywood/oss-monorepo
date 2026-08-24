@@ -121,6 +121,48 @@ class ChecksTest(unittest.TestCase):
         with patch("sys.stdin", io.StringIO("not json")):
             self.assertEqual(main(["-", "--format", "json"]), 2)
 
+    def test_cli_checks_directory_and_reports_each_file(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            (root / "nested").mkdir()
+            (root / "pass.json").write_text(json.dumps(VALID))
+            failed = json.loads(json.dumps(VALID))
+            failed["totals"]["gross"] = 200
+            (root / "nested" / "fail.json").write_text(json.dumps(failed))
+            output = io.StringIO()
+            with contextlib.redirect_stdout(output):
+                self.assertEqual(main([directory, "--format", "json"]), 1)
+            report = json.loads(output.getvalue())
+            self.assertEqual(report["files_checked"], 2)
+            self.assertEqual(report["files_failed"], 1)
+            self.assertEqual(report["reports"][0]["file"], "nested/fail.json")
+            self.assertEqual(report["reports"][1]["file"], "pass.json")
+            self.assertEqual(report["reports"][0]["errors"][0]["rule"], "INV-017")
+
+    def test_cli_batch_sarif_uses_relative_file_locations(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            failed = json.loads(json.dumps(VALID))
+            failed["totals"]["gross"] = 200
+            (root / "fail.json").write_text(json.dumps(failed))
+            output = io.StringIO()
+            with contextlib.redirect_stdout(output):
+                self.assertEqual(main([directory, "--format", "sarif"]), 1)
+            report = json.loads(output.getvalue())
+            location = report["runs"][0]["results"][0]["locations"][0]
+            self.assertEqual(location["physicalLocation"]["artifactLocation"]["uri"], "fail.json")
+
+    def test_cli_batch_returns_read_error_for_malformed_file(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            (root / "broken.json").write_text("not json")
+            output = io.StringIO()
+            with contextlib.redirect_stdout(output):
+                self.assertEqual(main([directory, "--format", "json"]), 2)
+            report = json.loads(output.getvalue())
+            self.assertEqual(report["files_checked"], 0)
+            self.assertEqual(report["read_errors"][0]["file"], "broken.json")
+
 
 if __name__ == "__main__":
     unittest.main()
