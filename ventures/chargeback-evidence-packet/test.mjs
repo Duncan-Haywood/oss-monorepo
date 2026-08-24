@@ -38,3 +38,10 @@ test("copy action degrades gracefully when Clipboard API is unavailable", () => 
   assert.match(html, /document\.execCommand\('copy'\)/);
   assert.match(html, /Select the draft and copy it manually/);
 });
+
+test("packet download stays local and uses a safe filename", () => {
+  assert.match(html, /new Blob\(\[draft\.value\],\{type:'text\/plain;charset=utf-8'\}\)/);
+  assert.match(html, /order\.replace\(\/\[\^a-z0-9_\-\]\+\/gi,'-'\)/);
+  assert.match(html, /packet_downloaded/);
+  assert.match(html, /Review and redact it before sharing/);
+});
