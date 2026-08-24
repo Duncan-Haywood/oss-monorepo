@@ -36,8 +36,14 @@ function requestRows(har) {
   });
 }
 
+/** Method + origin + path. Query strings and hashes rotate on tracker hits. */
 function requestKey(row) {
-  return `${row.method} ${row.url}`;
+  try {
+    const parsed = new URL(row.url);
+    return `${row.method} ${parsed.origin}${parsed.pathname}`;
+  } catch {
+    return `${row.method} ${row.url}`;
+  }
 }
 
 /** Cookie names set via Set-Cookie in HAR responses, one row per (hostname, cookie name). */

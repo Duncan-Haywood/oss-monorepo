@@ -200,6 +200,11 @@
         renderIfReady();
       } catch (err) {
         loadError.textContent = `Could not read ${file.name}: ${err.message}`;
+        document.getElementById(zoneId).classList.remove("has-file");
+        document.getElementById(filenameId).textContent = "";
+        onLoaded(null);
+        lastDiff = null;
+        reportSection.style.display = "none";
       }
     });
   }

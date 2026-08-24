@@ -55,6 +55,18 @@ test("reports an added request to an unlisted domain as unclassified, not omitte
   });
 });
 
+test("treats the same endpoint as unchanged when only query params rotate", () => {
+  const before = harOf([
+    entry({ url: "https://www.google-analytics.com/g/collect?v=2&tid=G-AAA&cid=111&_z=1" }),
+  ]);
+  const after = harOf([
+    entry({ url: "https://www.google-analytics.com/g/collect?v=2&tid=G-AAA&cid=222&_z=99#n" }),
+  ]);
+  const diff = diffHarCaptures(before, after);
+  assert.equal(diff.summary.addedRequestCount, 0);
+  assert.equal(diff.summary.removedRequestCount, 0);
+});
+
 test("distinguishes requests by method as well as URL", () => {
   const before = harOf([entry({ url: "https://example.com/api", method: "GET" })]);
   const after = harOf([
