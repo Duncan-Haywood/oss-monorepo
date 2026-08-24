@@ -22074,3 +22074,26 @@ entries:
           `payout-rail` remains the only queue item that moves the revenue
           ceiling off $0.
     mrr_end: null
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+          Merged #785 (`7ec04b3`, "a11y-evidence-record: suggest forgotten-prefix
+          label repairs"): PR was author-marked DRAFT but all verification passed
+          -- 174 unit tests green, `git merge-tree` against live `main` clean (0
+          conflicts), `publish_surface.py` confirmed no workflow publishes on push
+          to `main`. Marked ready for review and merged. Agent-decidable:
+          `portfolio/research/a11y-evidence-record/` only (internal surface), no
+          `ventures/*` code, publishes nothing, spends nothing beyond agent time.
+          Adds `suggest_fixes()` function proposing mechanically determined
+          forgotten-prefix label repairs (read-only suggestions, never writes).
+      - >-
+          Remaining open PRs reviewed, no action taken: #788 (4-minute
+          routine-trigger workflow) is human-gated unattended spend per CLAUDE.md.
+          #720 (deployment platform choice) and #531 (venture-code contrast fixes)
+          are both explicitly human-gated and tracked in `asks.yaml`.
+      - >-
+          `payout-rail` remains the only queue item that moves the revenue ceiling
+          off $0.
+    mrr_end: null
