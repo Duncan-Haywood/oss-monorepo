@@ -44,6 +44,8 @@ export function negotiationLines(result) {
     `Total estimated 3PL cost: ${money(result.quote.total)}`,
     `True cost per order: ${money(result.perOrder)}`,
   ];
+}
+
 export function summary(result) {
   return [
     "3PL quote normalization",
