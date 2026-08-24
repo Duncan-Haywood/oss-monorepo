@@ -4,9 +4,10 @@ export function forecast({ cash, weeklyIncome, collectionWeeks, weeklyCosts, wee
   if (values.some((value) => !Number.isFinite(value) || value < 0) || delayWeeks > 52) {
     throw new Error('Enter non-negative numbers; collection delay must be 52 weeks or less.');
   }
+  let balance = startingCash;
   return Array.from({ length: weeks }, (_, index) => {
     const income = index >= delayWeeks ? incomePerWeek : 0;
-    const balance = startingCash + (income - costsPerWeek) * (index + 1);
+    balance += income - costsPerWeek;
     return { week: index + 1, income, costs: costsPerWeek, balance };
   });
 }
