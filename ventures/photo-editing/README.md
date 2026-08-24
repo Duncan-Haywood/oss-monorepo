@@ -714,6 +714,9 @@ state, `python -m shootflow.cli package-handoff-brief --ingest-manifest <path>`
 loads the trusted production status and scheduler report, summarizes package
 readiness/materialized package outputs, and returns disabled copy/retry/
 materialization controls derived from the report authority.
+Pass `--format text` for a deterministic operator-readable summary of the same
+read-only package handoff; text output never includes executable workflow
+commands or confirmation flags.
 
 ## Run tests
 
