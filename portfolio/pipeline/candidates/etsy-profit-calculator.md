@@ -14,6 +14,8 @@ The strongest alternatives are Etsy's fee pages, spreadsheets, and generic fee
 calculators. A later hosted tier could add saved templates or bulk CSV review,
 but the free core is useful without payment, accounts, or an API key.
 
+Scored 2026-08-24. Composite 7.125 · floor 2 (AI leverage).
+
 | Dimension | Score | Reason |
 |---|---:|---|
 | AI leverage | 2 | Deterministic arithmetic is the right core |
