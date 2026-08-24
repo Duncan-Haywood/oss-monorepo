@@ -79,9 +79,12 @@ for how allocation works and why it is not a pure ROI maximizer.
 
 `pipeline/` holds businesses that have been researched and scored but are **not**
 ventures yet — the stage before `ventures/`, so starting one is a decision made
-against evidence. A candidate graduates only when someone writes
-`ventures/<name>/VENTURE.yaml`; until then the router cannot see it and no budget
-flows to it. Its write-ups are internal research notes carrying unverified
+against evidence. A candidate graduates per its `graduate_as` field — a
+`venture` when someone writes `ventures/<name>/VENTURE.yaml`, a `product-line`
+when its slug is listed under `product_lines` in its host venture's — and until
+one of those is true, no budget flows to it. See
+[pipeline/README.md](portfolio/pipeline/README.md) for both paths, the
+`NOT-A-VENTURE` precedence, and what a `product_lines` entry does not do. Its write-ups are internal research notes carrying unverified
 claims, not published content — see
 [portfolio/pipeline/README.md](portfolio/pipeline/README.md).
 

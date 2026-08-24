@@ -179,8 +179,49 @@ def test_an_unreadable_pipeline_is_not_an_empty_one(tmp_path, monkeypatch):
     _pipeline(tmp_path, monkeypatch, "candidates: just-a-string\n")
     assert sg.build_targets() is None  # also iterable, also not a list
 
+    _pipeline(tmp_path, monkeypatch, "candidates: [oops]\n")
+    assert sg.build_targets() is None  # a list, but of scalars rather than records
+
     _pipeline(tmp_path, monkeypatch, "candidates: []\n")
     assert sg.build_targets() == []  # read fine, genuinely nothing eligible
+
+
+def test_a_quoted_composite_does_not_crash_the_sort(tmp_path, monkeypatch):
+    """validate_candidates.py normalises with float(), so this data passes CI.
+
+    Sorting on the raw value would compare str against float and raise, making
+    the gate crash on a pipeline the repository validator calls clean.
+    """
+    _pipeline(
+        tmp_path,
+        monkeypatch,
+        "candidates:\n"
+        "  - {slug: quoted, verdict: build-now, graduate_as: venture, composite: '7.5'}\n"
+        "  - {slug: numeric, verdict: build-now, graduate_as: venture, composite: 7.0}\n"
+        "  - {slug: absent, verdict: build-now, graduate_as: venture}\n",
+    )
+    assert [c["slug"] for c in sg.build_targets()] == ["quoted", "numeric", "absent"]
+
+
+def test_the_build_footer_does_not_promise_a_candidate_that_was_not_named(monkeypatch):
+    """The footer renders on every BUILD, including the two recovery paths.
+
+    With no target the reasons say "research a new candidate"; with an
+    unreadable pipeline they say "repair candidates.yaml". A footer telling the
+    session to build "the candidate named above" contradicts both.
+    """
+    entries = [entry("portfolio")] * sg.WINDOW
+
+    named = sg.render(sg.report(entries, cadence=2.0, targets=[TARGET]))
+    assert "some-candidate" in named
+
+    nothing_eligible = sg.render(sg.report(entries, cadence=2.0, targets=[]))
+    monkeypatch.setattr(sg, "build_targets", lambda: None)
+    unreadable = sg.render(sg.report(entries, cadence=2.0))
+
+    for rendered in (named, nothing_eligible, unreadable):
+        assert "VERDICT: BUILD" in rendered
+        assert "named above" not in rendered
 
 
 def test_an_unreadable_pipeline_does_not_send_a_session_off_to_research(tmp_path, monkeypatch):

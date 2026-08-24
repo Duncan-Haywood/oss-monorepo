@@ -25,6 +25,17 @@ it, so a graduation into a marked directory routes nothing.
 `python3 portfolio/ledger/session_gate.py` reads exactly this rule to name the
 next unbuilt `build-now` candidate.
 
+**What a `product_lines` entry does and does not do today.** It is a
+*session-gate* marker: `session_gate.py` reads it to stop naming the candidate
+as unbuilt. `allocate.py` does **not** read `product_lines` — it builds one
+`Venture` from the host's own fields and routes the host's hypotheses and
+roadmap, identically before and after the slug is added. So effort reaches a
+product line at *host-venture* granularity, not as a line item with its own
+budget or task. Routing product lines directly would need an extension to
+`allocate.py` and to the schema `portfolio/router/validate.py` enforces; that
+is unbuilt, and until it exists, do not read "graduated" here as "the router
+now allocates to it separately."
+
 ## Why this is separate from `ventures/ai-first-markets`
 
 That venture is a **product**: a market map and scored idea library for solo

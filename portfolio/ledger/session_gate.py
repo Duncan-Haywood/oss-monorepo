@@ -362,7 +362,12 @@ def build_targets() -> list[dict] | None:
         return None
     out = []
     for c in candidates:
-        if not isinstance(c, dict) or c.get("verdict") != "build-now":
+        # A scalar or nested-list entry is a malformed record, not an ineligible
+        # one. Skipping it would land in the same "read it, nothing eligible"
+        # answer as a clean empty pipeline and send a session off to research.
+        if not isinstance(c, dict):
+            return None
+        if c.get("verdict") != "build-now":
             continue
         slug = str(c.get("slug"))
         if c.get("graduate_as") == "product-line":
@@ -380,7 +385,20 @@ def build_targets() -> list[dict] | None:
         elif routable(slug):
             continue
         out.append(c)
-    return sorted(out, key=lambda c: c.get("composite") or 0, reverse=True)
+    def composite(c: dict) -> float:
+        """Sort key, coerced.
+
+        `validate_candidates.py` normalises with `float(...)` before comparing,
+        so a quoted numeric composite passes the repository validator. Sorting
+        on the raw value would then compare a str against a float and raise,
+        making the gate crash on data the validator calls clean.
+        """
+        try:
+            return float(c.get("composite") or 0)
+        except (TypeError, ValueError):
+            return 0.0
+
+    return sorted(out, key=composite, reverse=True)
 
 
 def verdict(
@@ -564,8 +582,9 @@ def render(r: dict) -> str:
             "",
             "  This is a routing call, not a stop. Fleet capacity is bought as a flat",
             "  subscription, so a session that is already running costs nothing further",
-            "  to finish and idle capacity is the waste. Spend it on venture value:",
-            "  graduate the candidate named above, or advance the venture that hosts it.",
+            "  to finish and idle capacity is the waste. Spend it on venture value, by",
+            "  taking whichever action the reasons above name -- a candidate to build, a",
+            "  new one to research, or a `candidates.yaml` to repair.",
             "",
             "  What this is steering you away from is the meta-work loop, not work:",
             "  another analysis document, a re-verification of a PR someone already",
