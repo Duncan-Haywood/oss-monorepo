@@ -2452,6 +2452,55 @@ class ShootFlowRenderTaskCliTests(unittest.TestCase):
             ],
         )
 
+    def test_package_handoff_brief_can_render_text_without_workflow_commands(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            manifest_path, production_plan = self._create_ingested_workspace(root)
+            workspace = manifest_path.parent
+            self._write_package_ready_production_status(workspace, production_plan)
+            scheduler_exit_code = main(
+                [
+                    "dry-run-production-scheduler",
+                    "--ingest-manifest",
+                    str(manifest_path),
+                    "--worker",
+                    "package-production-local",
+                    "--started-at",
+                    "2026-05-10T22:38:00Z",
+                    "--completed-at",
+                    "2026-05-10T22:38:05Z",
+                    "--generated-at",
+                    "2026-05-10T22:38:06Z",
+                    "--max-concurrency",
+                    "3",
+                    "--max-iterations",
+                    "2",
+                ],
+                stdout=io.StringIO(),
+            )
+            stdout = io.StringIO()
+            exit_code = main(
+                [
+                    "package-handoff-brief",
+                    "--ingest-manifest",
+                    str(manifest_path),
+                    "--format",
+                    "text",
+                ],
+                stdout=stdout,
+            )
+
+        self.assertEqual(scheduler_exit_code, 0)
+        self.assertEqual(exit_code, 0)
+        text = stdout.getvalue()
+        self.assertIn("ShootFlow package handoff brief", text)
+        self.assertIn("Status: ready", text)
+        self.assertIn("Materialized outputs: 3", text)
+        self.assertIn("- deliverables/instagram_reel.mp4", text)
+        self.assertIn("observe-only", text)
+        self.assertNotIn("python -m", text)
+        self.assertNotIn("--confirm", text)
+
     def test_write_render_tasks_command_persists_trusted_assembly_handoff(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)
