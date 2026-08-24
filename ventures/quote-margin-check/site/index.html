@@ -104,12 +104,19 @@
   .sensitivity th:first-child, .sensitivity td:first-child { text-align: left; }
   .table-scroll { overflow-x: auto; }
   .actions { margin-top: 1rem; display: flex; gap: 0.5rem; flex-wrap: wrap; }
+  .history { margin-top: 1rem; }
+  .history form { display: flex; gap: 0.5rem; flex-wrap: wrap; }
+  .history form input { flex: 1 1 14rem; width: auto; margin-top: 0; }
+  .saved-quotes { list-style: none; padding: 0; margin: 0.75rem 0 0; }
+  .saved-quotes li { display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap; border-top: 1px solid var(--border); padding: 0.65rem 0; }
+  .saved-quotes li span { flex: 1 1 12rem; }
   button { font: inherit; padding: 0.5rem 0.9rem; border-radius: 6px; border: 1px solid var(--border); background: var(--bg); color: var(--fg); cursor: pointer; }
   button:hover { border-color: var(--accent); }
   footer { border-top: 1px solid var(--border); margin-top: 2rem; padding-top: 1.5rem; font-size: 0.85rem; color: var(--muted); }
   footer h2 { font-size: 0.95rem; }
   a { color: var(--accent); }
   .hint { font-size: 0.8rem; color: var(--muted); margin: 0.25rem 0 0; }
+  .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0; }
   code { background: var(--panel); padding: 0.1rem 0.3rem; border-radius: 4px; }
 </style>
 </head>
@@ -186,6 +193,17 @@
       <button type="button" id="copy-csv">Copy as CSV row</button>
       <span id="copy-status" class="hint" role="status" aria-live="polite"></span>
     </div>
+    <div class="history" aria-labelledby="history-heading">
+      <h2 id="history-heading">Saved quotes</h2>
+      <p class="hint">Keep up to 25 named snapshots in this browser. Nothing is uploaded.</p>
+      <form id="save-form">
+        <label class="sr-only" for="snapshot-name">Saved quote name</label>
+        <input id="snapshot-name" type="text" maxlength="80" placeholder="e.g. Acme website refresh" autocomplete="off" />
+        <button type="submit">Save current quote</button>
+      </form>
+      <p id="history-status" class="hint" role="status" aria-live="polite"></p>
+      <ul id="saved-quotes" class="saved-quotes"></ul>
+    </div>
   </section>
 
   <section aria-labelledby="about-heading">
@@ -253,6 +271,7 @@
   import { loadQuote, calculate, overrunScenarios } from "./calc.mjs";
   import { reviewQuote } from "./review.mjs";
   import { recordEvent, createReportCounter, isUsageCountingEnabled, setUsageCountingEnabled } from "./usage.mjs";
+  import { listSavedQuotes, saveQuote, deleteQuote } from "./history.mjs";
 
   // Counts settled quotes rather than keystrokes — see usage.mjs.
   const reportCounter = createReportCounter();
@@ -262,6 +281,10 @@
   const result = document.getElementById("result");
   const review = document.getElementById("review");
   const sensitivity = document.getElementById("sensitivity");
+  const saveForm = document.getElementById("save-form");
+  const snapshotName = document.getElementById("snapshot-name");
+  const savedQuotes = document.getElementById("saved-quotes");
+  const historyStatus = document.getElementById("history-status");
 
   let lastReport = null;
 
@@ -316,6 +339,44 @@
        review.querySelector(".checks").textContent = "Fix the inputs above to review this quote.";
     }
   }
+
+  function renderSavedQuotes() {
+     const snapshots = listSavedQuotes();
+     savedQuotes.innerHTML = snapshots.length ? snapshots.map((snapshot) => `
+       <li><span><strong>${escapeHtml(snapshot.name)}</strong><br><small>${escapeHtml(new Date(snapshot.saved_at).toLocaleString())}</small></span>
+         <button type="button" data-restore="${escapeHtml(snapshot.id)}">Restore</button>
+         <button type="button" data-delete="${escapeHtml(snapshot.id)}">Delete</button>
+       </li>`).join("") : '<li class="hint">No saved quotes yet.</li>';
+  }
+
+  saveForm.addEventListener("submit", (event) => {
+     event.preventDefault();
+     if (!lastReport) { historyStatus.textContent = "Fix the inputs above first."; return; }
+     try {
+       saveQuote(snapshotName.value, lastReport.quote);
+       snapshotName.value = "";
+       historyStatus.textContent = "Saved in this browser.";
+       recordEvent("quote_saved");
+       renderSavedQuotes();
+     } catch (error) { historyStatus.textContent = error.message; }
+  });
+
+  savedQuotes.addEventListener("click", (event) => {
+     const button = event.target.closest("button");
+     if (!button) return;
+     const id = button.dataset.restore || button.dataset.delete;
+     const snapshot = listSavedQuotes().find((item) => item.id === id);
+     if (button.dataset.restore && snapshot) {
+       for (const field of ids) el[field].value = snapshot.quote[field] ?? "";
+       update();
+       historyStatus.textContent = `Restored "${snapshot.name}".`;
+       recordEvent("quote_restored");
+     } else if (button.dataset.delete && deleteQuote(id)) {
+       historyStatus.textContent = "Saved quote deleted.";
+       recordEvent("quote_deleted");
+       renderSavedQuotes();
+     }
+  });
 
   // Once the visitor edits anything, the numbers are theirs — drop the
   // "this is an example" note rather than leaving it contradicting the form.
@@ -375,7 +436,8 @@
     setUsageCountingEnabled(!isUsageCountingEnabled());
     renderUsageStatus();
   });
-  renderUsageStatus();
+   renderUsageStatus();
+   renderSavedQuotes();
 </script>
 </body>
 </html>

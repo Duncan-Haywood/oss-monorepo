@@ -65,6 +65,12 @@ what makes it comparable to the CLI's own count. The browser also counts
 `quote_review_checked` locally when a valid quote is reviewed; it stores no quote
 values and sends nothing anywhere.
 
+The browser can save up to 25 named quote snapshots locally for recurring proposal
+work. Snapshot names and inputs stay in that browser's `localStorage`; restore and
+delete are available from the Saved quotes panel. Saving, restoring, and deleting
+only add aggregate local usage events (`quote_saved`, `quote_restored`, and
+`quote_deleted`), never quote values or names.
+
 ## Input
 
 Required non-negative numbers are `price`, `delivery_hours`, and `target_hourly_rate`.
