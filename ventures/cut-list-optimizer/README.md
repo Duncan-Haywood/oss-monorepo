@@ -2,7 +2,7 @@
 
 Cut List Optimizer is a free browser tool for woodworkers, sign shops, and makers who need to turn a list of required pieces into a practical low-waste plan before buying stock. After using this, you can now estimate stock pieces, saw-kerf allowance, offcut, and utilization in seconds, which used to take manual spreadsheet trial and error.
 
-Open [`index.html`](index.html) directly or serve this directory as static files. Enter one required length per line. Add `x quantity` when several identical pieces are needed, such as `24 x 3`. The deterministic first-fit decreasing plan is a planning aid, not a guarantee of the optimal arrangement.
+Open [`index.html`](index.html) directly or serve this directory as static files. Enter one required length per line. Add `x quantity` when several identical pieces are needed, such as `24 x 3`. The deterministic first-fit decreasing plan is a planning aid, not a guarantee of the optimal arrangement. Use **Copy cut plan** to put a plain-text version into a job ticket or shop note; it stays in your browser and is not uploaded.
 
 Everything runs in the browser. The cut list never leaves your device, there are no accounts, cookies, or analytics vendors, and anonymous calculation events are counted only in local storage. The footer provides an off switch.
 

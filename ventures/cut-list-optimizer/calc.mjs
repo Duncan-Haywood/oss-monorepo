@@ -15,6 +15,7 @@ export function parseCuts(text) {
 
 export function optimizeCutList({ stockLength, kerf, cuts }) {
   if (!(stockLength > 0) || kerf < 0) throw new Error('Stock length must be positive and kerf cannot be negative');
+  if (!Array.isArray(cuts) || cuts.length === 0) throw new Error('Add at least one required cut');
   const sorted = [...cuts].sort((a, b) => b - a);
   if (sorted.some(cut => cut <= 0 || cut > stockLength)) throw new Error('Every required cut must fit inside one stock length');
   const bars = [];
@@ -35,4 +36,18 @@ export function optimizeCutList({ stockLength, kerf, cuts }) {
   const totalStock = bars.length * stockLength;
   const totalCuts = sorted.reduce((sum, cut) => sum + cut, 0);
   return { bars, totalStock, totalCuts, waste: totalStock - totalCuts - Math.max(0, sorted.length - bars.length) * kerf, utilization: totalCuts / totalStock };
+}
+
+export function formatCutPlan(result, { stockUnit = 'units' } = {}) {
+  const lines = [
+    `Cut plan: ${result.bars.length} stock piece${result.bars.length === 1 ? '' : 's'}`,
+    `Required material: ${result.totalCuts.toFixed(2)} ${stockUnit}`,
+    `Offcut after kerf allowance: ${result.waste.toFixed(2)} ${stockUnit}`,
+    '',
+  ];
+  result.bars.forEach((bar, index) => {
+    lines.push(`Stock ${index + 1}: ${bar.cuts.map((cut) => cut.toFixed(2)).join(' + ')} ${stockUnit}`);
+    lines.push(`  ${bar.remaining.toFixed(2)} ${stockUnit} remaining after kerf allowance`);
+  });
+  return lines.join('\n');
 }
