@@ -6,6 +6,7 @@ import csv
 from html import escape as html_escape
 import io
 import json
+import os
 import sys
 from pathlib import Path
 from typing import Any
@@ -155,6 +156,21 @@ def _github_property(value: str) -> str:
 def _github_message(value: str) -> str:
     """Escape a workflow-command message value."""
     return value.replace("%", "%25").replace("\r", "%0D").replace("\n", "%0A")
+
+
+def _write_output(path: str, content: str) -> None:
+    """Write a report atomically so consumers never see a partial artifact."""
+    target = Path(path).expanduser()
+    temporary = target.with_name(f".{target.name}.tmp-{os.getpid()}")
+    try:
+        target.parent.mkdir(parents=True, exist_ok=True)
+        temporary.write_text(content, encoding="utf-8")
+        temporary.replace(target)
+    finally:
+        try:
+            temporary.unlink()
+        except FileNotFoundError:
+            pass
 
 
 def _json_report(
@@ -337,6 +353,7 @@ def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description="Check a local JSON or UBL XML e-invoice before submission. No tax advice or submission.")
     parser.add_argument("invoice", type=Path, help="JSON/XML file, directory of JSON/XML files, or '-' for stdin")
     parser.add_argument("--format", choices=("text", "json", "markdown", "html", "csv", "junit", "sarif", "github"), default="text")
+    parser.add_argument("--output", help="write the report to a UTF-8 file instead of stdout")
     parser.add_argument("--usage-file", help="opt-in local aggregate event counter")
     args = parser.parse_args(argv)
     reports: list[tuple[Path, list[dict[str, str]]]] = []
@@ -392,30 +409,42 @@ def main(argv: list[str] | None = None) -> int:
 
     errors = [error for _, invoice_errors in reports for error in invoice_errors]
     has_read_errors = bool(read_errors)
+    rendered: str | None = None
     if args.format == "json":
-        print(json.dumps(_json_report(reports, read_errors), indent=2))
+        rendered = json.dumps(_json_report(reports, read_errors), indent=2) + "\n"
     elif args.format == "markdown":
-        print(_markdown_report(reports, read_errors), end="")
+        rendered = _markdown_report(reports, read_errors)
     elif args.format == "html":
-        print(_html_report(reports, read_errors), end="")
+        rendered = _html_report(reports, read_errors)
     elif args.format == "csv":
-        print(_csv_report(reports, read_errors), end="")
+        rendered = _csv_report(reports, read_errors)
     elif args.format == "junit":
-        print(_junit_report(reports, read_errors), end="")
+        rendered = _junit_report(reports, read_errors)
     elif args.format == "sarif":
-        print(json.dumps(_sarif_report(reports, read_errors), indent=2))
+        rendered = json.dumps(_sarif_report(reports, read_errors), indent=2) + "\n"
     elif args.format == "github":
-        print(_github_report(reports, read_errors), end="")
+        rendered = _github_report(reports, read_errors)
     elif errors:
-        print(f"Preflight failed: {len(errors)} observation(s) across {len(reports)} invoice(s)")
+        lines = [f"Preflight failed: {len(errors)} observation(s) across {len(reports)} invoice(s)"]
         for path, invoice_errors in reports:
             for error in invoice_errors:
-                print(f"{path.as_posix()}: [{error['rule']}] {error['message']} Fix: {error['fix']}")
+                lines.append(f"{path.as_posix()}: [{error['rule']}] {error['message']} Fix: {error['fix']}")
         for read_error in read_errors:
-            print(f"{read_error['file']}: Could not read invoice: {read_error['error']}")
+            lines.append(f"{read_error['file']}: Could not read invoice: {read_error['error']}")
+        rendered = "\n".join(lines) + "\n"
     elif read_errors:
-        for read_error in read_errors:
-            print(f"{read_error['file']}: Could not read invoice: {read_error['error']}")
+        rendered = "\n".join(
+            f"{read_error['file']}: Could not read invoice: {read_error['error']}"
+            for read_error in read_errors
+        ) + "\n"
     else:
-        print(f"Preflight passed: {len(reports)} invoice(s), no defects found in the supported checks.")
+        rendered = f"Preflight passed: {len(reports)} invoice(s), no defects found in the supported checks.\n"
+    if args.output:
+        try:
+            _write_output(args.output, rendered)
+        except OSError as exc:
+            print(f"Could not write report to {args.output}: {exc}", file=sys.stderr)
+            return 2
+    else:
+        print(rendered, end="")
     return 2 if has_read_errors else (0 if not errors else 1)

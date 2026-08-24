@@ -13,6 +13,7 @@ PYTHONPATH=src python3 -m einvoice_preflight examples/valid-invoice.json --forma
 PYTHONPATH=src python3 -m einvoice_preflight ./invoices/ --format github
 PYTHONPATH=src python3 -m einvoice_preflight ./invoices/ --format markdown > review.md
 PYTHONPATH=src python3 -m einvoice_preflight ./invoices/ --format html > review.html
+PYTHONPATH=src python3 -m einvoice_preflight ./invoices/ --format html --output review.html
 PYTHONPATH=src python3 -m einvoice_preflight ./invoices/ --format csv > triage.csv
 PYTHONPATH=src python3 -m einvoice_preflight ./invoices/ --format junit > preflight.junit.xml
 cat invoice.json | PYTHONPATH=src python3 -m einvoice_preflight - --format json
@@ -101,6 +102,9 @@ bounded to its selected directory.
 `--format html` produces a standalone browser report with summary cards, finding
 counts, and per-file review sections. It has the same privacy boundary as the
 other report formats and can be opened locally without a server.
+Pass `--output report.ext` to write any report format as a UTF-8 artifact. The
+file is replaced atomically, so a CI consumer will not observe a half-written
+report; without this option, reports continue to print to standard output.
 
 ## Privacy and usage
 
