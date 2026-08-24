@@ -3,35 +3,227 @@
 <head>
   <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Cut List Optimizer | Reduce Wood and Material Waste</title>
-  <meta name="description" content="Free cut list optimizer for woodworking and sign shops. Turn stock lengths, kerf, and required cuts into a low-waste cutting plan in your browser.">
-  <meta property="og:title" content="Cut List Optimizer for Woodworkers"><meta property="og:description" content="Plan stock cuts, reduce offcuts, and see material utilization without uploading your project.">
-  <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Cut List Optimizer","applicationCategory":"BusinessApplication","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"featureList":"quantity-aware cut list, kerf allowance, stock utilization, waste estimate"}</script>
+  <meta name="description" content="Free cut list optimizer for woodworking and sign shops. Plan cuts against the offcuts you already own, see how many new stock pieces you actually need, and price the material — all in your browser.">
+  <meta property="og:title" content="Cut List Optimizer for Woodworkers"><meta property="og:description" content="Plan stock cuts against your existing offcuts, price the material, and see utilization without uploading your project.">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Cut List Optimizer","applicationCategory":"BusinessApplication","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"featureList":"quantity-aware cut list, kerf allowance, on-hand offcut inventory, material cost and avoided purchases, stock utilization, copyable job-ticket plan"}</script>
   <style>
-    :root{font-family:ui-sans-serif,system-ui,sans-serif;color:#20241d;background:#f1eee6}body{max-width:1040px;margin:auto;padding:34px 18px}header{max-width:760px}.eyebrow{color:#b44f2a;font-weight:800;letter-spacing:.12em;font-size:.75rem}h1{font:800 clamp(2.4rem,7vw,5rem)/.94 Georgia,serif;letter-spacing:-.06em;margin:8px 0 18px}p{line-height:1.55}.layout{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-top:28px}section{background:#fffdf8;border:1px solid #d6d0c3;border-radius:16px;padding:22px;box-shadow:0 10px 30px #3328170d}h2{margin-top:0;font-size:1.1rem}.fields{display:grid;grid-template-columns:1fr 1fr;gap:14px}label{display:grid;gap:6px;font-size:.88rem;font-weight:700}input,textarea{font:inherit;border:1px solid #aaa394;border-radius:8px;padding:11px;background:#fff}textarea{min-height:200px;resize:vertical}.wide{grid-column:1/-1}.summary{background:#24392b;color:#f8f5eb;border-color:#24392b}.big{font:800 3.5rem Georgia,serif;margin:4px 0 18px;color:#e9be76}dl{display:grid;grid-template-columns:1fr auto;gap:10px}dt,dd{margin:0}dd{font-variant-numeric:tabular-nums;font-weight:700}.bar{border-top:1px solid #ffffff30;padding:11px 0}.bar strong{display:block}.muted{opacity:.75;font-size:.84rem}footer{font-size:.8rem;color:#5c5b52;margin-top:24px}@media(max-width:700px){.layout{grid-template-columns:1fr}.fields{grid-template-columns:1fr}}
+    :root{font-family:ui-sans-serif,system-ui,sans-serif;color:#20241d;background:#f1eee6}
+    body{max-width:1040px;margin:auto;padding:34px 18px}
+    header{max-width:760px}
+    .eyebrow{color:#b44f2a;font-weight:800;letter-spacing:.12em;font-size:.75rem}
+    h1{font:800 clamp(2.4rem,7vw,5rem)/.94 Georgia,serif;letter-spacing:-.06em;margin:8px 0 18px}
+    p{line-height:1.55}
+    .layout{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-top:28px;align-items:start}
+    section{background:#fffdf8;border:1px solid #d6d0c3;border-radius:16px;padding:22px;box-shadow:0 10px 30px #3328170d}
+    h2{margin-top:0;font-size:1.1rem}
+    .fields{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+    label{display:grid;gap:6px;font-size:.88rem;font-weight:700}
+    input,textarea,select{font:inherit;border:1px solid #aaa394;border-radius:8px;padding:11px;background:#fff;width:100%;box-sizing:border-box}
+    textarea{min-height:150px;resize:vertical}
+    .wide{grid-column:1/-1}
+    .summary{background:#24392b;color:#f8f5eb;border-color:#24392b}
+    .big{font:800 3.5rem Georgia,serif;margin:4px 0 10px;color:#e9be76;line-height:1}
+    dl{display:grid;grid-template-columns:1fr auto;gap:10px;margin:18px 0 0}
+    dt,dd{margin:0}
+    dd{font-variant-numeric:tabular-nums;font-weight:700}
+    .bar{border-top:1px solid #ffffff30;padding:11px 0}
+    .bar strong{display:block}
+    .tag{display:inline-block;font-size:.68rem;letter-spacing:.08em;font-weight:800;border-radius:99px;padding:2px 8px;margin-right:7px;vertical-align:1px}
+    .tag-onhand{background:#e9be76;color:#24392b}
+    .tag-buy{background:#ffffff26;color:#f8f5eb}
+    .muted{opacity:.75;font-size:.84rem}
+    .saved{background:#e9be76;color:#24392b;border-radius:10px;padding:11px 13px;font-weight:700;font-size:.9rem;margin:16px 0 0}
+    button{font:inherit;font-weight:700;border:1px solid #24392b;background:#24392b;color:#f8f5eb;border-radius:8px;padding:11px 17px;cursor:pointer;margin-top:16px}
+    button[disabled]{opacity:.45;cursor:not-allowed}
+    footer{font-size:.8rem;color:#5c5b52;margin-top:24px}
+    /* The global label rule is a grid, which stacks the opt-out box above its
+       own text. In the footer the two belong on one line. */
+    footer label{display:flex;align-items:center;gap:8px;font-weight:600}
+    footer a{color:#b44f2a}
+    @media(max-width:700px){.layout{grid-template-columns:1fr}.fields{grid-template-columns:1fr}}
   </style>
 </head>
 <body>
-  <header><p class="eyebrow">FOR WOODWORKERS, SIGN SHOPS, AND MAKERS</p><h1>Buy less stock. Cut with a plan.</h1><p>Paste the pieces you need, add your stock length and saw kerf, and get a bar-by-bar cutting plan that exposes offcuts before you buy material. Everything runs in this browser.</p></header>
+  <header>
+    <p class="eyebrow">FOR WOODWORKERS, SIGN SHOPS, AND MAKERS</p>
+    <h1>Buy less stock. Cut with a plan.</h1>
+    <p>Paste the pieces you need and the offcuts already in your rack. You get a bar-by-bar cutting plan that uses your scrap first, tells you how many new stock pieces you actually have to buy, and prices them. Everything runs in this browser.</p>
+  </header>
+
   <main class="layout">
-    <section><h2>Stock and required cuts</h2><div class="fields"><label>Stock length<input id="stock" type="number" min="0.01" step="0.01" value="96"></label><label>Saw kerf per cut<input id="kerf" type="number" min="0" step="0.01" value="0.125"></label><label>Measurement unit<select id="unit"><option value="in">inches</option><option value="cm">centimeters</option><option value="mm">millimeters</option><option value="ft">feet</option></select></label><label class="wide">Required cuts, one per line<br><span class="muted">Use <code>24 x 3</code> for three pieces at 24</span><textarea id="cuts">48 x 2
-30 x 4
-18 x 3
-12.5</textarea></label></div></section>
-    <section class="summary"><h2>Your cutting plan</h2><p class="big" id="headline">—</p><p id="message">Enter your stock length, saw kerf, and required cuts to see a plan.</p><dl><dt>Stock pieces to buy</dt><dd id="bars">—</dd><dt>Required material</dt><dd id="used">—</dd><dt>Offcut after kerf allowance</dt><dd id="waste">—</dd><dt>Stock utilization</dt><dd id="utilization">—</dd></dl><div id="plan"></div><p><button type="button" id="copy-plan" disabled>Copy cut plan</button> <span id="copy-status" class="muted" role="status"></span></p></section>
+    <section>
+      <h2>Stock and required cuts</h2>
+      <div class="fields">
+        <label>Stock length
+          <input id="stock" type="number" min="0.01" step="0.01" value="96">
+        </label>
+        <label>Saw kerf per cut
+          <input id="kerf" type="number" min="0" step="0.01" value="0.125">
+        </label>
+        <label>Measurement unit
+          <select id="unit">
+            <option value="in">inches</option>
+            <option value="cm">centimeters</option>
+            <option value="mm">millimeters</option>
+            <option value="ft">feet</option>
+          </select>
+        </label>
+        <label>Price per stock piece
+          <input id="price" type="number" min="0" step="0.01" placeholder="optional">
+        </label>
+        <label>Currency
+          <select id="currency">
+            <option value="$">$ USD</option>
+            <option value="€">&euro; EUR</option>
+            <option value="£">&pound; GBP</option>
+            <option value="C$">C$ CAD</option>
+            <option value="A$">A$ AUD</option>
+          </select>
+        </label>
+        <label class="wide">Required cuts, one per line
+          <span class="muted">Use <code>24 x 3</code> for three pieces at 24</span>
+          <textarea id="cuts">48
+30 x 2
+18 x 4
+12 x 6</textarea>
+        </label>
+        <label class="wide">Offcuts you already have <span class="muted">optional &mdash; these get used before anything is bought</span>
+          <textarea id="onhand" placeholder="36 x 2&#10;22">36 x 2
+22</textarea>
+        </label>
+      </div>
+    </section>
+
+    <section class="summary">
+      <h2>Your cutting plan</h2>
+      <p class="big" id="headline">&mdash;</p>
+      <p class="muted" id="message">Enter your cuts to see a plan.</p>
+      <p class="saved" id="saved" hidden></p>
+      <dl>
+        <dt>Stock pieces in plan</dt><dd id="bars">&mdash;</dd>
+        <dt>New pieces to buy</dt><dd id="purchased">&mdash;</dd>
+        <dt>Material cost</dt><dd id="cost">&mdash;</dd>
+        <dt>Required material</dt><dd id="used">&mdash;</dd>
+        <dt>Offcut after kerf allowance</dt><dd id="waste">&mdash;</dd>
+        <dt>Utilization</dt><dd id="utilization">&mdash;</dd>
+      </dl>
+      <div id="plan"></div>
+      <button type="button" id="copy-plan" disabled>Copy cut plan</button>
+      <span id="copy-status" role="status" class="muted"></span>
+    </section>
   </main>
-  <footer><label><input id="optout" type="checkbox" style="width:auto;display:inline"> Do not keep anonymous local usage counts</label><p><strong>No warranty.</strong> This free tool is provided as-is. It is not engineering, financial, or business advice and does not replace a qualified professional. Review and verify the plan, dimensions, tool setup, and material before cutting. To the maximum extent permitted by law, the authors accept no liability for loss or damage arising from its use.</p><p>Everything runs in your browser. Your cut list is never uploaded. Anonymous calculation events are counted only in local storage, can be switched off above, and are never sent to an analytics vendor.</p></footer>
+
+  <footer>
+    <label><input id="optout" type="checkbox" style="width:auto;display:inline"> Do not keep anonymous local usage counts</label>
+    <p><strong>No warranty.</strong> This free tool is provided as-is. It is not engineering, financial, or business advice and does not replace a qualified professional. Review and verify the plan, dimensions, tool setup, material, and prices before cutting or buying. To the maximum extent permitted by law, the authors accept no liability for loss or damage arising from its use.</p>
+    <p>Everything runs in your browser. Your cut list is never uploaded. Anonymous calculation events are counted only in local storage, can be switched off above, and are never sent to an analytics vendor.</p>
+    <p>Free and open source. If it saved you a trip to the lumber yard, you can <a href="https://github.com/sponsors/Duncan-Haywood">sponsor its upkeep</a> &mdash; entirely optional, and nothing here is gated behind it.</p>
+  </footer>
+
   <script type="module">
-     import { parseCuts, optimizeCutList, formatCutPlan } from './calc.mjs'; import { recordUsage } from './usage.mjs';
-     const $ = id => document.getElementById(id); const copy = $('copy-plan');
-     // Re-rendering is cheap and runs on every keystroke, but a usage count that
-     // ticks per keystroke measures typing, not cut plans. `planReady` lets the
-     // settled-value ('change') listeners below count one plan per real edit.
-     let planReady = false;
-     function render() { const unit = $('unit').value; const format = n => `${n.toFixed(2)} ${unit}`; try { const result = optimizeCutList({ stockLength: Number($('stock').value), kerf: Number($('kerf').value), cuts: parseCuts($('cuts').value) }); $('headline').textContent = `${result.bars.length} stock piece${result.bars.length === 1 ? '' : 's'}`; $('message').textContent = 'Largest cuts are placed first to keep the plan compact. Confirm against your actual saw and stock.'; $('bars').textContent = result.bars.length; $('used').textContent = format(result.totalCuts); $('waste').textContent = format(result.waste); $('utilization').textContent = `${(result.utilization * 100).toFixed(1)}%`; $('plan').innerHTML = result.bars.map((bar, i) => `<div class="bar"><strong>Stock ${i + 1}: ${bar.cuts.map(format).join(' + ')}</strong><span class="muted">${format(bar.remaining)} remaining after kerf allowance</span></div>`).join(''); copy.disabled = false; copy.dataset.plan = formatCutPlan(result, { stockUnit: unit, stockLength: $('stock').value, kerf: $('kerf').value }); planReady = true; } catch (error) { $('headline').textContent = 'Check your list'; $('message').textContent = error.message; $('bars').textContent = $('used').textContent = $('waste').textContent = $('utilization').textContent = '—'; $('plan').textContent = ''; copy.disabled = true; copy.dataset.plan = ''; planReady = false; } }
-     function countPlan() { if (planReady) recordUsage(localStorage, $('optout').checked, 'runs'); }
-     copy.addEventListener('click', async () => { try { await navigator.clipboard.writeText(copy.dataset.plan); $('copy-status').textContent = 'Plan copied.'; recordUsage(localStorage, $('optout').checked, 'copies'); } catch { $('copy-status').textContent = 'Clipboard access was blocked. Select the plan above and copy it manually.'; } setTimeout(() => { $('copy-status').textContent = ''; }, 4000); });
-     ['stock','kerf','cuts','unit'].forEach(id => { $(id).addEventListener('input', render); $(id).addEventListener('change', () => { render(); countPlan(); }); });
-     $('optout').addEventListener('change', render); render();
+    import { parseCuts, parseStock, optimizeCutList, formatCutPlan } from './calc.mjs';
+    import { recordUsage } from './usage.mjs';
+
+    const $ = id => document.getElementById(id);
+    const copy = $('copy-plan');
+    const INPUTS = ['stock', 'kerf', 'cuts', 'onhand', 'price', 'unit', 'currency'];
+    // Re-rendering is cheap and runs on every keystroke, but a usage count that
+    // ticks per keystroke measures typing, not cut plans. `planReady` lets the
+    // settled-value ('change') listeners below count one plan per real edit.
+    let planReady = false;
+
+    function clear(message) {
+      $('headline').textContent = 'Check your list';
+      $('message').textContent = message;
+      $('saved').hidden = true;
+      for (const id of ['bars', 'purchased', 'cost', 'used', 'waste', 'utilization']) $(id).textContent = '—';
+      $('plan').textContent = '';
+      copy.disabled = true;
+      copy.dataset.plan = '';
+    }
+
+    function update() {
+      const unit = $('unit').value;
+      const currency = $('currency').value;
+      const price = Number($('price').value) || 0;
+      const length = n => `${n.toFixed(2)} ${unit}`;
+      const money = n => `${currency}${n.toFixed(2)}`;
+      let result;
+      try {
+        result = optimizeCutList({
+          stockLength: Number($('stock').value),
+          kerf: Number($('kerf').value),
+          cuts: parseCuts($('cuts').value),
+          onHand: parseStock($('onhand').value),
+          stockPrice: price,
+        });
+      } catch (error) {
+        clear(error.message);
+        planReady = false;
+        return;
+      }
+
+      $('headline').textContent = result.purchased === 0
+        ? 'Nothing to buy'
+        : `Buy ${result.purchased} piece${result.purchased === 1 ? '' : 's'}`;
+      $('message').textContent = 'Largest cuts are placed first, into your shortest usable offcut before any new stock. Confirm against your actual saw and material.';
+      $('bars').textContent = result.bars.length;
+      $('purchased').textContent = result.purchased;
+      $('cost').textContent = result.cost === null ? '—' : money(result.cost);
+      $('used').textContent = length(result.totalCuts);
+      $('waste').textContent = length(result.waste);
+      $('utilization').textContent = `${(result.utilization * 100).toFixed(1)}%`;
+
+      const saved = $('saved');
+      if (result.purchasesAvoided > 0) {
+        const value = result.savings === null ? '' : ` — ${money(result.savings)} you do not spend`;
+        saved.textContent = `Your offcuts covered ${result.purchasesAvoided} stock piece${result.purchasesAvoided === 1 ? '' : 's'}${value}.`;
+        saved.hidden = false;
+      } else {
+        saved.hidden = true;
+      }
+
+      // Mirrors formatCutPlan's labelling so the copied ticket and the screen
+      // name the same piece the same way.
+      let purchaseNumber = 0;
+      $('plan').innerHTML = result.bars.map((bar, i) => {
+        let tag = '';
+        let label = `Stock ${i + 1}`;
+        if (result.onHandUsed) {
+          purchaseNumber += bar.source === 'purchase' ? 1 : 0;
+          tag = bar.source === 'on-hand'
+            ? '<span class="tag tag-onhand">FROM YOUR RACK</span>'
+            : '<span class="tag tag-buy">BUY</span>';
+          label = bar.source === 'on-hand' ? length(bar.length) : `New piece ${purchaseNumber}`;
+        }
+        return `<div class="bar"><strong>${tag}${label}: ${bar.cuts.map(length).join(' + ')}</strong><span class="muted">${length(bar.remaining)} remaining after kerf allowance</span></div>`;
+      }).join('');
+
+      copy.disabled = false;
+      copy.dataset.plan = formatCutPlan(result, { stockUnit: unit, stockLength: $('stock').value, kerf: $('kerf').value, currency });
+      planReady = true;
+    }
+
+    function countPlan() { if (planReady) recordUsage(localStorage, $('optout').checked, 'runs'); }
+
+    copy.addEventListener('click', async () => {
+      try {
+        await navigator.clipboard.writeText(copy.dataset.plan);
+        $('copy-status').textContent = 'Plan copied.';
+        recordUsage(localStorage, $('optout').checked, 'copies');
+      } catch {
+        $('copy-status').textContent = 'Clipboard access was blocked. Select the plan above and copy it manually.';
+      }
+      setTimeout(() => { $('copy-status').textContent = ''; }, 4000);
+    });
+
+    for (const id of INPUTS) {
+      $(id).addEventListener('input', update);
+      // 'change' fires on the settled value, so one edit counts as one plan.
+      $(id).addEventListener('change', countPlan);
+    }
+    $('optout').addEventListener('change', update);
+    update();
   </script>
 </body>
 </html>
