@@ -36,6 +36,8 @@ candidate's weakest claim testable, not because a listing follows.
 
 | [`consent-change-record`](consent-change-record/) | [`consent-change-record`](../candidates/consent-change-record.md) | Built 2026-08-24, tested. Deterministic fixture report for request/storage diffs, explicit browser/region/sequence context, and an `unknown` result when contexts differ. This tests the evidence boundary only; demand and distribution remain unmeasured. |
 
+| [`vendor-change-evidence`](vendor-change-evidence/) | [`vendor-change-evidence`](../candidates/vendor-change-evidence.md) | Built 2026-08-24, tested (7 tests). Section-aware fixture diff for vendor terms/privacy/subprocessor pages: matches sections by heading rather than position so a reorder is not flagged, whitespace-normalizes text so a reflow is not flagged, and a failed fetch forces `inconclusive` rather than `unchanged` — the candidate write-up's own named failure mode. This tests the evidence boundary only; the scheduled fetch/snapshot loop, demand, and distribution remain unmeasured and unrun. |
+
 ## The rules a probe here follows
 
 Taken from [`channel-inventory.md`](../channel-inventory.md)'s "what this does
