@@ -40,6 +40,12 @@ jobs:
         working-directory: ventures/quote-margin-check/site
     steps:
       - uses: actions/checkout@v4
+      # calc.test.mjs runs the real Python CLI and requires identical output,
+      # so this job needs both runtimes — pinned to the same version cli-test
+      # uses, so the two jobs can never disagree about what "the CLI" is.
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
       - uses: actions/setup-node@v4
         with:
           node-version: "22"

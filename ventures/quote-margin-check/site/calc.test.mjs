@@ -1,7 +1,13 @@
 import test from "node:test";
 import assert from "node:assert/strict";
+import { execFileSync } from "node:child_process";
+import { readFileSync } from "node:fs";
+import { fileURLToPath } from "node:url";
+import path from "node:path";
 
 import { loadQuote, calculate } from "./calc.mjs";
+
+const ventureRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 
 test("calculates hidden time and target price", () => {
   const quote = loadQuote({
@@ -61,4 +67,39 @@ test("rejects an empty or over-long currency label", () => {
   assert.throws(() =>
     loadQuote({ currency: "WAY TOO LONG A LABEL", price: 1000, delivery_hours: 10, target_hourly_rate: 100 }),
   );
+});
+
+// calc.mjs claims to mirror src/quote_margin.py. Every test above checks that
+// claim against numbers hand-copied into this file, which pins the port to
+// whatever the Python did on the day it was copied — if load_quote() or
+// calculate() changes upstream, all of them still pass.
+//
+// This one runs the real CLI over the venture's committed example and requires
+// identical output, so a change to either side that the other doesn't follow
+// fails CI instead of silently shipping two calculators that disagree.
+test("matches the Python CLI's own output for the committed example", () => {
+  const examplePath = path.join(ventureRoot, "examples", "website-redesign.json");
+  const cliCsv = execFileSync(
+    "python3",
+    [path.join(ventureRoot, "src", "quote_margin.py"), examplePath, "--format", "csv"],
+    { encoding: "utf-8" },
+  );
+
+  const quote = loadQuote(JSON.parse(readFileSync(examplePath, "utf-8")));
+  const result = calculate(quote);
+
+  // Rebuild the CLI's measure/value/unit rows from this module's own output.
+  // Same rows, same order, same 2dp rounding as csv_report() in quote_margin.py.
+  const ours = [
+    "measure,value,unit",
+    `quoted_price,${quote.price.toFixed(2)},${quote.currency}`,
+    `total_working_hours,${result.total_hours.toFixed(2)},hours`,
+    `direct_costs,${result.direct_costs.toFixed(2)},${quote.currency}`,
+    `effective_hourly_rate,${result.effective_hourly_rate.toFixed(2)},${quote.currency}/hour`,
+    `target_price,${result.target_price.toFixed(2)},${quote.currency}`,
+    `gap_to_target,${result.gap_to_target.toFixed(2)},${quote.currency}`,
+    `cost_coverage,${result.cost_coverage.toFixed(2)},${quote.currency}`,
+  ].join("\n");
+
+  assert.equal(ours.trimEnd(), cliCsv.trimEnd());
 });
