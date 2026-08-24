@@ -1,4 +1,5 @@
 import json
+import subprocess
 import sys
 import tempfile
 import unittest
@@ -28,6 +29,37 @@ class BranchHygieneTests(unittest.TestCase):
         self.assertTrue(has_unresolved_risk(findings))
         safe = [item for item in findings if item.classification in {"protected", "merged", "active"}]
         self.assertFalse(has_unresolved_risk(safe))
+
+    def test_cli_json_summary_fails_closed_and_logs_aggregate_usage(self):
+        project = Path(__file__).parents[1]
+        snapshot = project / "examples/snapshot.json"
+        with tempfile.TemporaryDirectory() as directory:
+            output_dir = Path(directory)
+            result = subprocess.run(
+                [
+                    sys.executable,
+                    str(project / "src/branch_hygiene.py"),
+                    str(snapshot),
+                    "--format",
+                    "json",
+                    "--fail-on-risk",
+                    "--report",
+                    str(output_dir / "report.txt"),
+                    "--manifest",
+                    str(output_dir / "manifest.json"),
+                    "--usage-log",
+                    str(output_dir / "usage.jsonl"),
+                ],
+                capture_output=True,
+                text=True,
+                check=False,
+            )
+            self.assertEqual(result.returncode, 2)
+            self.assertEqual(json.loads(result.stdout)["finding_count"], 4)
+            event = json.loads((output_dir / "usage.jsonl").read_text().strip())
+            self.assertEqual(event["event"], "scan_completed")
+            self.assertEqual(event["finding_count"], 4)
+            self.assertNotIn("feature/", event)
 
 if __name__ == "__main__":
     unittest.main()
