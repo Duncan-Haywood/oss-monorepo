@@ -33,6 +33,28 @@ rescore_note: >-
   rescore-2026-08-20.md.
 
 candidates:
+  - slug: ltl-freight-class-estimator
+    name: LTL freight class estimator
+    doc: candidates/ltl-freight-class-estimator.md
+    verdict: build-now
+    graduate_as: venture
+    initiated: 2026-08-24
+    initiated_path: ventures/ltl-freight-class-estimator
+    scores:
+      ai_leverage: 4
+      autonomous_ops: 9
+      time_to_revenue: 7
+      gross_margin: 9
+      defensibility: 4
+      distribution: 7
+      liability_containment: 7
+      ethical_robustness: 8
+    composite: 6.875
+    floor: 4
+    floor_dimension: defensibility
+    mitigation: Retain portable shipment templates and test repeat usage before adding integrations or hosted state.
+    first_experiment_days: 14
+    first_experiment_budget_usd: 0
   - slug: cut-list-optimizer
     name: Cut-list optimizer
     doc: candidates/cut-list-optimizer.md
