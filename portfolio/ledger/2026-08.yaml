@@ -22421,3 +22421,58 @@ entries:
           `payout-rail` remains the only queue item that moves the revenue
           ceiling off $0.
     mrr_end: null
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+          GitHub-triggered session (`pull_request.opened` on #822), folded
+          into the generic "continue work, maintain the process, review open
+          PRs" brief. Ran `session_gate.py` first (BUILD). Re-fetched `main`
+          before every merge given five concurrent sessions were committing
+          within 15-minute windows.
+      - >-
+          Verified and squash-merged four PRs, each re-checked against the
+          live `main` tip immediately before merging: #822 (`asks.yaml`-only,
+          schema-checked), #820 (EAA `product_lines` graduation marker +
+          forgotten-prefix mechanical rewrite -- 322 probe tests and 57
+          `session_gate` tests passed on the PR tree, and re-running
+          `session_gate.py` on it confirmed the marker actually clears
+          `eaa-remediation-pipeline` from the unbuilt list), #821 (host-theme
+          close-rate measurement in a standalone `ventures/local-site-studio/
+          scripts/eaa-evidence-job/` operator script, not the deployed
+          Next.js app -- 28 + 7 unit tests passed).
+      - >-
+          #825 (three more mechanical-fix rewrites: timed meta-refresh,
+          blink/marquee unwrap, aria-label/-labelledby override removal) had
+          a real merge conflict against `main` by the time it was reached --
+          both #825 and the already-merged #820 added new elif-branches and
+          helper functions to the same file
+          (`wcag_triage/mechanical_fix.py`), and `git merge-tree`'s legacy
+          3-ref form had reported it clean against a `main` that had since
+          moved. Built a worktree, ran an actual `git merge origin/main`,
+          confirmed all four conflict hunks were non-overlapping additions
+          from both sides (new regexes/constants, new `try_patch` branches,
+          new helper functions), union-merged them, fixed one dangling
+          parenthesis the naive union left broken, confirmed the merged
+          module compiles and the full `eaa-wcag-triage` pytest suite (322
+          tests) plus `run_fixture_validation.py` (byte-identical output)
+          and the router/candidate validators all pass on the merged tree,
+          then pushed the merge commit to the PR's own branch (not a
+          rebase/force-push) and squash-merged.
+      - >-
+          #823/#824 (a `kilo-code-bot[bot]` duplicate pair) and the ledger
+          entries for the above were already handled by concurrent sessions
+          before or during this one; left untouched rather than re-verified.
+      - >-
+          Remaining open PRs (#814, #720, #531) are unchanged from prior
+          sessions' review: all three correctly self-flagged human-gated
+          (Ask 9 `venture-gate-premise`, `deployment-platform`,
+          `contrast-fixes`) and already tracked in `asks.yaml`/#139. No new
+          venture-value work was started this session beyond the review and
+          merge pass above -- the pipeline's only `build-now` candidate
+          (`eaa-remediation-pipeline`) graduated and had three follow-on PRs
+          in flight when this session started; researching a new candidate
+          on top of that, mid-fleet-surge, would have been the duplicate-work
+          pattern this file warns about rather than new value.
+    mrr_end: null
