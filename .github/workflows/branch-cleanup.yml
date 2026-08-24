@@ -1,0 +1,99 @@
+name: Branch cleanup
+
+# Delete a pull request's head branch once that PR is finished with it.
+#
+# Nothing in this repo removed branches, and every scheduled agent session is
+# handed a fresh `claude/*` or `cursor/*` one. By 2026-08-24 the remote carried
+# 608 branches against six open PRs, so the list a session reads to find out
+# what work already exists was ~99% landed-or-abandoned noise -- and CLAUDE.md
+# routes sessions at exactly that list ("check the closed pull requests and the
+# branches behind them before assuming it has not been done").
+#
+# Two rules, both keyed to a pull request rather than to a branch's age:
+#   merged           -> delete now; the commits are already on `main`.
+#   closed, unmerged -> delete after 24h; the commits are NOT on `main`, so the
+#                       delay is the window to reopen or fetch a PR closed by
+#                       mistake.
+#
+# All the deletion rules, and the guards that make them safe (fork heads,
+# protected refs, a branch that moved after the close, a ref another open PR
+# still needs), live in platform/ci/branch_cleanup.py with unit tests. This
+# file only decides *when* that script runs.
+#
+# On CLAUDE.md's "Automation that writes or spends unattended" gate: this is
+# unattended and it does write, so it was the account owner's call and was
+# asked for directly. It calls no paid API and consumes no agent budget -- it
+# is one GITHUB_TOKEN REST call per deleted ref, on GitHub's own runner. It
+# pushes no commits, opens no PRs, and publishes nothing outside the repo.
+
+on:
+  # `pull_request_target`, not `pull_request`, for two reasons: the closed
+  # event then runs the version of this workflow on `main` rather than the one
+  # on the PR's own branch (so it also covers PRs opened before this landed),
+  # and the token is writable even when the PR came from a fork. The usual
+  # `pull_request_target` hazard -- running PR-authored code with a write token
+  # -- does not apply: the checkout below takes no `ref`, so it checks out the
+  # base branch, and the only thing from the event is the PR number.
+  pull_request_target:
+    types: [closed]
+  schedule:
+    # Every 6 hours, offset off the hour. This is what actually retires the
+    # closed-unmerged branches (their grace period expires long after the event
+    # that closed them) and what works through the pre-existing backlog.
+    - cron: "17 */6 * * *"
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: "Report what would be deleted, delete nothing"
+        type: boolean
+        default: false
+      grace_hours:
+        description: "Hours a closed-unmerged branch is kept"
+        type: string
+        default: "24"
+
+permissions:
+  contents: write # deleting a ref
+  pull-requests: read
+
+# Two sweeps at once would race each other into 404s on the same refs. Queue
+# rather than cancel: a cancelled sweep leaves the backlog half-done.
+concurrency:
+  group: branch-cleanup
+  cancel-in-progress: false
+
+jobs:
+  on-close:
+    # Runs for merged PRs only. A PR that is closed unmerged has to wait out its
+    # grace period, so it is the scheduled sweep that picks it up, not this job.
+    if: github.event_name == 'pull_request_target' && github.event.pull_request.merged == true
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4 # no `ref`: base branch, not the PR head
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Delete the merged PR's head branch
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+        run: python3 platform/ci/branch_cleanup.py --pr "$PR_NUMBER"
+
+  sweep:
+    # Retires branches whose PR was closed unmerged more than the grace period
+    # ago, and catches any merged PR whose on-close run was missed.
+    if: github.event_name != 'pull_request_target'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Sweep closed pull requests
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          DRY_RUN: ${{ inputs.dry_run && '--dry-run' || '' }}
+          GRACE_HOURS: ${{ inputs.grace_hours || '24' }}
+        run: |
+          python3 platform/ci/branch_cleanup.py --sweep \
+            --grace-hours "$GRACE_HOURS" $DRY_RUN
