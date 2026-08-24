@@ -50,6 +50,11 @@ Usage
     python3 audit.py path/to/templates --json findings.json
     python3 audit.py path/to/templates --record --scope "Dawn 15.3.0"
 
+A ``--record`` run mutates a copy of each page and checks that the target
+rule fires. That result is part of the record: a clean findings table with
+a miss means the scanner could not read the page, which is not the same
+claim as "no defects".
+
 No third-party dependencies; standard library only. Reads files, writes only
 where told to.
 """
@@ -1245,11 +1250,290 @@ NOT_TESTED = [
 ]
 
 
-def evidence_record(results: list[dict], scope: str, date: str | None = None) -> dict:
+# ---------------------------------------------------------------------------
+# Per-engagement positive control.
+#
+# A clean findings table is ambiguous: either the page has no static defects,
+# or the scanner could not read the page. ``a11y-generated-sites`` named the
+# cheap test that separates them -- mutate a copy, check the rule fires --
+# and the sibling probe already ships it inside its customer record. This
+# engine's ``evidence_record()`` is the same deliverable for templates, and
+# until now a clean record from here could not tell those two claims apart.
+# The CLI always runs the control. Tests that build a record from a fixture
+# may omit it; the section is then absent rather than silently reported as
+# passing.
+# ---------------------------------------------------------------------------
+
+NOT_EXERCISED = "not_exercised"
+CAUGHT = "caught"
+MISSED = "missed"
+ALREADY_PRESENT = "already_present"
+
+CONTROL_STATEMENT = (
+    "A clean findings table is not evidence that this scanner can see defects "
+    "on your pages. The rows below introduce a known defect into a copy of "
+    "each page and check that the rule fires. 'Caught' means it did. "
+    "'Not exercised' means your markup has no such element to edit, or no "
+    "place to insert one — the criterion is untested here, not satisfied. "
+    "'Already present' means the page already failed that check, so the "
+    "mutation could not isolate the engine. 'Missed' means we introduced the "
+    "defect and the scanner reported nothing — a clean report on that page "
+    "would have been wrong. This control is not a conformance test and not a "
+    "claim about any criterion it did not exercise."
+)
+
+
+def _sub_once(pattern: str, repl: str, flags: int = 0):
+    def apply(html: str) -> str:
+        return re.sub(pattern, repl, html, count=1, flags=flags)
+
+    return apply
+
+
+def _inject_head(fragment: str):
+    def apply(html: str) -> str:
+        new, n = re.subn(
+            r"<head([^>]*)>", r"<head\1>" + fragment, html, count=1, flags=re.I
+        )
+        return new if n else html
+
+    return apply
+
+
+def _inject_body(fragment: str):
+    def apply(html: str) -> str:
+        new, n = re.subn(
+            r"<body([^>]*)>", r"<body\1>" + fragment, html, count=1, flags=re.I
+        )
+        return new if n else html
+
+    return apply
+
+
+# (check, criterion, kind, description, mutate)
+#
+# Targets are this engine's check ids, not the sibling's criterion numbers:
+# an unlabelled control is 3.3.2 here and 1.3.1 there, and classifying by
+# the shared number would call a 1.3.1-shaped injection a miss on this
+# engine even when ``control-no-label`` fired. The mutations themselves
+# are the sibling's, so a well-formed page exercises the same defects.
+CONTROL_MUTATIONS: tuple = (
+    (
+        "html-lang-missing", "3.1.1", "removal",
+        "drop lang from the <html> element",
+        _sub_once(r"""(<html\b[^>]*?)\s+lang=(["'])(?:(?!\2).)*\2""", r"\1", re.I),
+    ),
+    (
+        "title-missing", "2.4.2", "removal",
+        "drop the <title> element",
+        _sub_once(r"<title\b[^>]*>.*?</title>", "", re.I | re.S),
+    ),
+    (
+        "img-alt-missing", "1.1.1", "removal",
+        "drop alt from the first <img>",
+        _sub_once(r"""(<img\b[^>]*?)\s+alt=(["'])(?:(?!\2).)*\2""", r"\1", re.I),
+    ),
+    (
+        "button-no-accessible-name", "4.1.2", "injection",
+        "add an unnamed <button>",
+        _inject_body("<button></button>"),
+    ),
+    (
+        "control-no-label", "3.3.2", "injection",
+        "add an unlabelled <input>",
+        _inject_body('<input type="text" name="control-probe">'),
+    ),
+    (
+        "link-no-accessible-name", "2.4.4", "injection",
+        "add an empty <a href>",
+        _inject_body('<a href="/control-probe"></a>'),
+    ),
+    (
+        "viewport-scaling-blocked", "1.4.4", "injection",
+        "add a viewport meta that blocks zoom",
+        _inject_head(
+            '<meta name="viewport" content="width=device-width, '
+            'maximum-scale=1, user-scalable=no"/>'
+        ),
+    ),
+    (
+        "autoplay-unmuted", "1.4.2", "injection",
+        "add an autoplaying <audio> with no muted",
+        _inject_body('<audio autoplay src="control-probe.mp3"></audio>'),
+    ),
+    (
+        "media-no-captions", "1.2.2", "injection",
+        "add a <video> with no captions track",
+        _inject_body('<video src="control-probe.mp4"></video>'),
+    ),
+    (
+        "meta-refresh", "2.2.1", "injection",
+        "add a <meta http-equiv=refresh>",
+        _inject_head('<meta http-equiv="refresh" content="5"/>'),
+    ),
+    (
+        "color-only-link", "1.4.1", "injection",
+        "add a colour-only link inside prose",
+        _inject_body(
+            '<p style="color:#333">Every order ships within two working '
+            "days from our workshop, and you can see "
+            '<a href="/control-probe" style="color:#06c;text-decoration:none">'
+            "our documentation</a> for the full delivery timetable.</p>"
+        ),
+    ),
+)
+
+
+def _checks_of(result: dict) -> set:
+    return {finding["check"] for finding in result.get("findings") or ()}
+
+
+def classify_control(original: dict, mutated: dict, check: str) -> str:
+    """Verdict for one page after one mutation that actually changed it."""
+    new = _checks_of(mutated) - _checks_of(original)
+    if check in new:
+        return CAUGHT
+    if check in _checks_of(mutated):
+        return ALREADY_PRESENT
+    return MISSED
+
+
+def _roll_up_control(page_verdicts: list[str]) -> str:
+    if not page_verdicts:
+        return NOT_EXERCISED
+    if CAUGHT in page_verdicts:
+        return CAUGHT
+    if MISSED in page_verdicts:
+        return MISSED
+    return ALREADY_PRESENT
+
+
+def run_control(pages: dict, stylesheet=None) -> dict:
+    """Run every mutation against every page.
+
+    ``pages`` maps a page label to its source. The same stylesheet the audit
+    used is passed through: a colour-dependent mutation audited without CSS
+    (and without inline colours the resolver can read) reports as a miss
+    that is really a missing stylesheet.
+    """
+    originals = {
+        label: audit_source(html, label, stylesheet=stylesheet)
+        for label, html in pages.items()
+    }
+    rows = []
+    for check, criterion, kind, description, mutate in CONTROL_MUTATIONS:
+        page_rows = []
+        verdicts = []
+        for label, html in pages.items():
+            mutated_html = mutate(html)
+            if mutated_html == html:
+                page_rows.append(
+                    {"page": label, "changed": False, "verdict": NOT_EXERCISED}
+                )
+                continue
+            mutated = audit_source(mutated_html, label, stylesheet=stylesheet)
+            verdict = classify_control(originals[label], mutated, check)
+            verdicts.append(verdict)
+            page_rows.append(
+                {"page": label, "changed": True, "verdict": verdict}
+            )
+        rows.append(
+            {
+                "check": check,
+                "criterion": criterion,
+                "kind": kind,
+                "mutation": description,
+                "verdict": _roll_up_control(verdicts),
+                "pages_changed": sum(1 for row in page_rows if row["changed"]),
+                "pages": page_rows,
+            }
+        )
+    counts = {
+        NOT_EXERCISED: 0,
+        CAUGHT: 0,
+        MISSED: 0,
+        ALREADY_PRESENT: 0,
+    }
+    for row in rows:
+        counts[row["verdict"]] += 1
+    return {
+        "statement": CONTROL_STATEMENT,
+        "mutations": rows,
+        "counts": counts,
+    }
+
+
+def _control_headline(record: dict) -> str:
+    """One line in the header, so a miss is not scroll-dependent."""
+    control = record.get("positive_control")
+    if not control:
+        return ""
+    counts = control.get("counts") or {}
+    caught = counts.get(CAUGHT, 0)
+    missed = counts.get(MISSED, 0)
+    exercised = caught + missed + counts.get(ALREADY_PRESENT, 0)
+    if missed:
+        return (
+            f"**Positive control:** {caught} of {exercised} introduced defects "
+            f"caught, {missed} missed — a clean findings table would have been "
+            "wrong on those. See the section below."
+        )
+    if exercised == 0:
+        return (
+            "**Positive control:** none of the mutations could be applied to "
+            "these pages, so a clean findings table is unconfirmed."
+        )
+    return (
+        f"**Positive control:** {caught} of {exercised} introduced defects "
+        "caught. See the section below."
+    )
+
+
+def _control_section(record: dict) -> list:
+    """The per-engagement control table, placed before the findings."""
+    control = record.get("positive_control")
+    if not control:
+        return []
+    counts = control.get("counts") or {}
+    lines = [
+        "## Positive control",
+        "",
+        control.get("statement", ""),
+        "",
+        (
+            f"{counts.get(CAUGHT, 0)} caught, "
+            f"{counts.get(MISSED, 0)} missed, "
+            f"{counts.get(ALREADY_PRESENT, 0)} already present, "
+            f"{counts.get(NOT_EXERCISED, 0)} not exercised."
+        ),
+        "",
+        "| Verdict | Criterion | Kind | Mutation |",
+        "|---|---|---|---|",
+    ]
+    for row in control.get("mutations") or []:
+        lines.append(
+            f"| {row['verdict']} | {row['criterion']} | {row['kind']} | "
+            f"{row['mutation']} |"
+        )
+    lines.append("")
+    return lines
+
+
+def evidence_record(
+    results: list[dict],
+    scope: str,
+    date: str | None = None,
+    control: dict | None = None,
+) -> dict:
     """The deliverable: what was tested, with what, when, and what remains open.
 
     The coverage boundary is assembled here rather than supplied by the caller,
     so no consumer of this function can publish findings without it.
+
+    ``control`` is the per-engagement positive-control result from
+    ``run_control``. The CLI always supplies it. Tests that build a record
+    from a single fixture may omit it; the section is then absent rather
+    than silently reported as passing.
     """
     findings = [f for r in results for f in r["findings"]]
     undecided = [u for r in results for u in r["undecidable"]]
@@ -1298,6 +1582,7 @@ def evidence_record(results: list[dict], scope: str, date: str | None = None) ->
                 "detail": [{"criterion": c, "reason": r} for c, r in NOT_TESTED],
             },
         ],
+        "positive_control": control,
     }
 
 
@@ -1311,8 +1596,16 @@ def render_record(record: dict) -> str:
         f"**Files tested:** {record['files_tested']} "
         f"({record['elements_examined']} elements)",
         "",
+    ]
+    headline = _control_headline(record)
+    if headline:
+        lines += [headline, ""]
+    lines += [
         f"> {record['not_a_conformance_claim']}",
         "",
+    ]
+    lines += _control_section(record)
+    lines += [
         "## What was found",
         "",
         f"| | count |",
@@ -1491,8 +1784,16 @@ def main() -> int:
                 css_sources.append(handle.read())
         sheet = merge_stylesheets(css_sources)
 
-    results = audit_paths(args.paths, args.limit, stylesheet=sheet)
-    record = evidence_record(results, args.scope, args.date)
+    files: list[tuple[str, str]] = []
+    for path in walk(args.paths, args.limit):
+        try:
+            with open(path, encoding="utf-8", errors="ignore") as handle:
+                files.append((path, handle.read()))
+        except OSError as exc:
+            print(f"{path}: {exc}", file=sys.stderr)
+    results = audit_sources(files, stylesheet=sheet)
+    control = run_control({path: source for path, source in files}, stylesheet=sheet)
+    record = evidence_record(results, args.scope, args.date, control=control)
 
     if args.record:
         print(render_record(record))
