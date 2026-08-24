@@ -19,6 +19,8 @@ test("each dispute reason has a deterministic evidence rule", () => {
 
 test("generated draft preserves factual-input and review language", () => {
   assert.match(html, /Factual timeline/);
+  assert.match(html, /Processor deadline entered/);
+  assert.match(html, /The entered deadline is in the past/);
   assert.match(html, /Review before submitting/);
   assert.match(html, /This is an observation, not a decision/);
 });
