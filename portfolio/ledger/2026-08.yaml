@@ -20448,3 +20448,62 @@ entries:
         and `verification_status.py` before starting; all unchanged and
         correctly owner-gated, none re-verified here.
     mrr_end: null
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Scheduled "continue work on the projects... maintain and improve
+        the development process... increase in profit" session, designated
+        branch claude/pensive-feynman-qqxz47. `session_gate.py` -> PROCEED,
+        noting 2 distinct sessions had committed to `main` within a
+        15-minute window in the last 6h. Checked the 4 open PRs (#583,
+        #531, #372, #368) via `verification_status.py` and issue #139
+        before starting -- all unchanged and correctly owner-gated
+        (deployable `ventures/*` app code or unattended automation, per
+        `CLAUDE.md`). The day's most recent prior entry (artifact-channel-
+        match) already covered the standing research/session-gate checks,
+        so nothing there needed re-deriving.
+      - >-
+        Opened, verified, and self-merged #701: least-privilege job
+        `permissions:` on `retail-pilot-intel-deploy-docs.yml`'s three
+        jobs, closing a real finding from
+        `portfolio/pipeline/probes/agent-permission-harness` (R5-inherited-
+        write-permission, results-2026-08-23.md) -- `build` and
+        `deploy-vercel` were inheriting the file-level `id-token`/`pages`
+        floor despite using neither, and `deploy` needed both but had never
+        declared them explicitly. Agent-decidable per `CLAUDE.md`: CI
+        config only, no `ventures/*` app code, no behavior change (the
+        jobs already had the scopes available via the file-level grant --
+        this only makes each job's actual usage explicit and drops the two
+        unused scopes each of `build`/`deploy-vercel` was silently
+        carrying).
+      - >-
+        CI caught something real on the first push: the harness's own
+        regen-check job diffs a committed `results-2026-08-23.md` against a
+        fresh `python3 harness.py` run and failed, correctly, because
+        fixing the workflow made 3 of that file's recorded findings stale.
+        Regenerated and pushed a second commit; that regen also picked up
+        an unrelated pre-existing drift in the R7 agent-instruction-closure
+        file count (115->117, from files added to `main` since the record
+        was last generated) that the diff check would have failed on
+        regardless. Re-ran the harness's own suite (84/84 tests) before
+        pushing. Both commits landed on a `main` re-checked immediately
+        before push each time; merged once all 3 checks (test x2, validate)
+        came back green.
+      - >-
+        Left `opencode-high-throughput.yml`'s two same-shaped R5 findings
+        (`opencode-agent`, `resolve-config` jobs) alone -- that file also
+        carries the R6/R7 findings about the agent step itself holding
+        write scope, and per `CLAUDE.md`'s automation-is-a-human-call
+        section this felt closer to touching the fleet's own automation
+        config than routine CI hardening, even though only the *inherited-
+        scope-declaration* half was in scope for a mechanical fix. Left
+        for a session (or the account owner) with more context on whether
+        narrowing that file's grants is safe without changing what the
+        fleet can do.
+      - >-
+        No ventures/* app code touched, nothing published, no account
+        registered, no automation added or re-enabled -- agent-decidable
+        throughout, self-merged. No score, ranking, or candidate change.
+    mrr_end: null
