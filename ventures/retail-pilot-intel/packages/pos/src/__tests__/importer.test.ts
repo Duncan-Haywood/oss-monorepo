@@ -65,3 +65,42 @@ test("importSaleEventsFromCsv keeps receipts from different stores separate with
   assert.equal(storeB.total_cents, 5000, "store-b's total must not include store-a's line item");
   assert.notEqual(storeA.event_id, storeB.event_id);
 });
+
+test("importSaleEventsFromCsv rejects a fractional quantity instead of silently truncating it", () => {
+  // parseInt("2.5", 10) === 2, so a naive integer parse would drop the row's
+  // true quantity to 2 and under-report revenue with no issue reported at all.
+  const csv =
+    "receipt_id,closed_at,sku,quantity,unit_price_cents\n" +
+    "RCP-1,2026-08-19T10:00:00Z,LEATHER-BAG-01,2.5,10000\n";
+
+  const { events, issues } = importSaleEventsFromCsv(csv, "pilot-leather-01");
+
+  assert.equal(events.length, 0, "a row with a fractional quantity must not become a SaleEvent");
+  assert.equal(issues.length, 1);
+  assert.match(issues[0].reason, /quantity must be a positive integer/);
+});
+
+test("importSaleEventsFromCsv rejects a fractional unit_price_cents instead of silently truncating it", () => {
+  const csv =
+    "receipt_id,closed_at,sku,quantity,unit_price_cents\n" +
+    "RCP-1,2026-08-19T10:00:00Z,LEATHER-BAG-01,1,999.9\n";
+
+  const { events, issues } = importSaleEventsFromCsv(csv, "pilot-leather-01");
+
+  assert.equal(events.length, 0, "a row with a fractional unit_price_cents must not become a SaleEvent");
+  assert.equal(issues.length, 1);
+  assert.match(issues[0].reason, /unit_price_cents must be a non-negative integer/);
+});
+
+test("importSaleEventsFromCsv rejects a non-numeric quantity with trailing garbage instead of truncating it", () => {
+  // parseInt("5abc", 10) === 5, another silent-corruption path a naive integer parse allows.
+  const csv =
+    "receipt_id,closed_at,sku,quantity,unit_price_cents\n" +
+    "RCP-1,2026-08-19T10:00:00Z,LEATHER-BAG-01,5abc,10000\n";
+
+  const { events, issues } = importSaleEventsFromCsv(csv, "pilot-leather-01");
+
+  assert.equal(events.length, 0);
+  assert.equal(issues.length, 1);
+  assert.match(issues[0].reason, /quantity must be a positive integer/);
+});

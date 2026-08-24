@@ -48,6 +48,31 @@ scoring_rule: >-
   near-zero-price norm is a real property of the business on any host.
 
 ventures:
+  - slug: repository-branch-hygiene
+    scores:
+      ai_leverage: 6
+      autonomous_ops: 8
+      time_to_revenue: 5
+      gross_margin: 9
+      defensibility: 5
+      distribution: 4
+    composite: 6.167
+    rater_b: null
+    floor: 4
+    floor_dimension: distribution
+    floor_note: >-
+      Distribution is unmeasured: the read-only CLI is useful without hosting,
+      but no repeatable DevOps channel or pilot buyer has been established.
+    basis: >-
+      Graduated from the repository-branch-hygiene candidate on 2026-08-24.
+      The first slice is a standard-library scanner over customer-controlled
+      snapshots, with deterministic classifications and portable recovery
+      manifests. Scores preserve the candidate estimate until pilot evidence
+      exists.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+
   - slug: local-site-studio
     scores:
       ai_leverage: 7
