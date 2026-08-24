@@ -4,10 +4,10 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>eBay Fee &amp; Profit Calculator | Reseller Margin and ROI</title>
-  <meta name="description" content="Calculate eBay order profit, margin, ROI, and break-even resale price after final value fee, per-order fee, promoted listings, shipping, and cost of goods.">
+  <meta name="description" content="Calculate eBay order profit, margin, ROI, and break-even resale price after final value fee, per-order fee, promoted listings, shipping, and cost of goods — then compare nearby listing prices before you reprice.">
   <meta property="og:title" content="eBay Fee &amp; Profit Calculator">
   <meta property="og:description" content="See what an eBay sale really leaves after fees and your cost of goods — profit, margin, ROI, and break-even price.">
-  <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"eBay Fee & Profit Calculator","applicationCategory":"BusinessApplication","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"featureList":"eBay fee breakdown, net profit, margin, return on investment, break-even resale price"}</script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"eBay Fee & Profit Calculator","applicationCategory":"BusinessApplication","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"featureList":"eBay fee breakdown, net profit, margin, return on investment, break-even resale price, target-margin price, batch profit, repricing sensitivity table"}</script>
   <style>
     :root { color-scheme: light; font-family: system-ui, sans-serif; color: #1d2530; background: #eef2f7; }
     body { max-width: 980px; margin: 0 auto; padding: 32px 18px; }
@@ -17,60 +17,78 @@
     section { background: #ffffff; border: 1px solid #d3dce6; border-radius: 14px; padding: 20px; box-shadow: 0 8px 24px #1a2a4a0d; } h2 { margin-top: 0; font-size: 1.15rem; }
     .fields { display: grid; grid-template-columns: repeat(2, 1fr); gap: 13px; } label { display: grid; gap: 5px; font-size: .87rem; font-weight: 650; } input { width: 100%; box-sizing: border-box; border: 1px solid #a9b6c6; border-radius: 7px; padding: 10px; font: inherit; background: white; }
     .result { position: sticky; top: 15px; background: #16324f; color: #f4f8fc; border-color: #16324f; } .hero-number { font-size: 3rem; font-weight: 750; letter-spacing: -.05em; margin: 8px 0; } .negative { color: #ffb0a2; } .positive { color: #a9e6b0; } dl { display: grid; grid-template-columns: 1fr auto; gap: 9px; margin: 20px 0; } dt, dd { margin: 0; } dd { font-variant-numeric: tabular-nums; } hr { border: 0; border-top: 1px solid #ffffff2b; } .note { font-size: .82rem; opacity: .82; }
-    .sensitivity { margin-top: 18px; } .sensitivity table { width: 100%; border-collapse: collapse; font-size: .88rem; } .sensitivity th, .sensitivity td { padding: 8px 4px; text-align: right; border-bottom: 1px solid #ffffff2b; font-variant-numeric: tabular-nums; } .sensitivity th:first-child, .sensitivity td:first-child { text-align: left; } .sensitivity .current { color: #a9e6b0; font-weight: 700; }
+    /* The repricing table sits outside .layout on purpose: as a grid item it
+       would be painted under the sticky result panel, which hid its right-hand
+       columns on desktop. min-width:0 keeps the table's own min-width from
+       widening the page, so only the table scrolls sideways on a phone. */
+    .sensitivity { margin-top: 18px; min-width: 0; } .table-scroll { overflow-x: auto; min-width: 0; }
+    .sensitivity table { width: 100%; min-width: 290px; border-collapse: collapse; font-size: .92rem; } .sensitivity p.note { color: #4a5666; opacity: 1; margin-top: 0; }
+    /* A single-unit order's per-unit profit is the same number as its net
+       profit, so the column is dropped rather than shown twice — that keeps the
+       "vs your price" column on screen on a phone. */
+    .sensitivity table.single-unit .unit { display: none; }
+    .sensitivity th, .sensitivity td { padding: 9px 6px; text-align: right; border-bottom: 1px solid #e2e8f0; font-variant-numeric: tabular-nums; } .sensitivity th:first-child, .sensitivity td:first-child { text-align: left; }
+    .sensitivity thead th { font-size: .8rem; letter-spacing: .03em; color: #4a5666; } .sensitivity tr.current { background: #eaf1fc; font-weight: 700; } .sensitivity .down { color: #a3391f; } .sensitivity .up { color: #1c6b34; }
     footer { margin-top: 25px; font-size: .82rem; color: #4a5666; } footer a { color: #386fd6; }
     .support { margin-top: 14px; }
-    @media (max-width: 700px) { .layout { grid-template-columns: 1fr; } .result { position: static; } .fields { grid-template-columns: 1fr; } }
+    @media (max-width: 700px) { .layout { grid-template-columns: minmax(0, 1fr); } .result { position: static; } .fields { grid-template-columns: 1fr; } }
   </style>
 </head>
 <body>
   <header>
     <p class="eyebrow">FOR EBAY RESELLERS</p>
     <h1>Know what each sale really leaves.</h1>
-    <p>Enter your eBay fees, shipping, and what you paid for the item to see net profit, margin, return on your invested cash, and the lowest resale price that still breaks even — before you list or reprice.</p>
+    <p>Enter your eBay fees, shipping, and what you paid for the item to see net profit, margin, return on your invested cash, and the lowest resale price that still breaks even. Then compare nearby listing prices to see exactly what a price move is worth — before you list or reprice.</p>
   </header>
-  <main class="layout">
-    <section>
-      <h2>Order, fees and costs</h2>
-      <div class="fields">
-        <label>Item price <input id="price" type="number" min="0" step="0.01" value="40"></label>
-        <label>Units in this batch <input id="quantity" type="number" min="1" max="1000" step="1" value="1"></label>
-        <label>Shipping charged to buyer <input id="shippingCharged" type="number" min="0" step="0.01" value="6"></label>
-        <label>Final value fee (%) <input id="finalValueRate" type="number" min="0" step="0.01" value="13.25"></label>
-        <label>Per-order fixed fee <input id="fixedFee" type="number" min="0" step="0.01" value="0.30"></label>
-        <label>Promoted listings (%) <input id="promotedRate" type="number" min="0" step="0.1" value="0"></label>
-        <label>International fee (%) <input id="intlFeeRate" type="number" min="0" step="0.01" value="0"></label>
-        <label>You paid for the item <input id="costOfGoods" type="number" min="0" step="0.01" value="12"></label>
-        <label>Shipping label cost <input id="shippingCost" type="number" min="0" step="0.01" value="5"></label>
-        <label>Packaging cost <input id="packagingCost" type="number" min="0" step="0.01" value="1"></label>
-        <label>Other per-order cost <input id="otherCost" type="number" min="0" step="0.01" value="0"></label>
-        <label>Target net margin (%) <input id="targetMargin" type="number" min="0" max="99.99" step="0.1" value="20"></label>
-      </div>
-    </section>
-    <section class="result">
-      <h2>Order result</h2>
-      <div id="profit" class="hero-number">$—</div>
-      <div id="label">estimated batch profit</div>
-      <dl>
-        <dt>Total revenue</dt><dd id="revenue"></dd>
-        <dt>eBay &amp; payment fees</dt><dd id="fees"></dd>
-        <dt>Cash you invested</dt><dd id="invested"></dd>
-        <dt>Net margin</dt><dd id="margin"></dd>
-        <dt>Return on investment</dt><dd id="roi"></dd>
-        <dt>Profit per unit</dt><dd id="unitProfit"></dd>
-        <dt>Break-even item price</dt><dd id="breakEven"></dd>
-        <dt>Price for target margin</dt><dd id="targetMarginPrice"></dd>
-      </dl>
-      <hr>
-      <p class="note">Transparent arithmetic from your inputs — not a statement of eBay's current fee schedule. Fees vary by category, store subscription, and seller status.</p>
-      <div class="sensitivity">
-        <h2>Repricing sensitivity</h2>
-        <p class="note">Profit if you list at nearby prices, keeping your quantity, costs, and fees unchanged.</p>
-        <table>
-          <thead><tr><th scope="col">Item price</th><th scope="col">Net profit</th><th scope="col">Margin</th></tr></thead>
+  <main>
+    <div class="layout">
+      <section>
+        <h2>Order, fees and costs</h2>
+        <div class="fields">
+          <label>Item price <input id="price" type="number" min="0" step="0.01" value="40"></label>
+          <label>Units in this batch <input id="quantity" type="number" min="1" max="1000" step="1" value="1"></label>
+          <label>Shipping charged to buyer <input id="shippingCharged" type="number" min="0" step="0.01" value="6"></label>
+          <label>Final value fee (%) <input id="finalValueRate" type="number" min="0" step="0.01" value="13.25"></label>
+          <label>Per-order fixed fee <input id="fixedFee" type="number" min="0" step="0.01" value="0.30"></label>
+          <label>Promoted listings (%) <input id="promotedRate" type="number" min="0" step="0.1" value="0"></label>
+          <label>International fee (%) <input id="intlFeeRate" type="number" min="0" step="0.01" value="0"></label>
+          <label>You paid for the item <input id="costOfGoods" type="number" min="0" step="0.01" value="12"></label>
+          <label>Shipping label cost <input id="shippingCost" type="number" min="0" step="0.01" value="5"></label>
+          <label>Packaging cost <input id="packagingCost" type="number" min="0" step="0.01" value="1"></label>
+          <label>Other per-order cost <input id="otherCost" type="number" min="0" step="0.01" value="0"></label>
+          <label>Target net margin (%) <input id="targetMargin" type="number" min="0" max="99.99" step="0.1" value="20"></label>
+        </div>
+      </section>
+      <section class="result">
+        <h2>Order result</h2>
+        <div id="profit" class="hero-number">$—</div>
+        <div id="label">estimated batch profit</div>
+        <dl>
+          <dt>Total revenue</dt><dd id="revenue"></dd>
+          <dt>eBay &amp; payment fees</dt><dd id="fees"></dd>
+          <dt>Cash you invested</dt><dd id="invested"></dd>
+          <dt>Net margin</dt><dd id="margin"></dd>
+          <dt>Return on investment</dt><dd id="roi"></dd>
+          <dt>Profit per unit</dt><dd id="unitProfit"></dd>
+          <dt>Break-even item price</dt><dd id="breakEven"></dd>
+          <dt>Price for target margin</dt><dd id="targetMarginPrice"></dd>
+        </dl>
+        <hr>
+        <p class="note">Transparent arithmetic from your inputs — not a statement of eBay's current fee schedule. Fees vary by category, store subscription, and seller status.</p>
+      </section>
+    </div>
+    <section class="sensitivity">
+      <h2>If you repriced</h2>
+      <p id="sensitivityNote" class="note">The same order listed a little higher or lower, with your costs, fees, and unit count unchanged. Percentage fees move with the price, so profit does not change one-for-one with it.</p>
+      <div class="table-scroll">
+        <!-- The note sits outside the scrolling box so it wraps on a phone
+             instead of being clipped with the table. -->
+        <table id="scenarioTable" aria-describedby="sensitivityNote">
+          <thead><tr><th scope="col">Item price</th><th scope="col">Net profit</th><th scope="col">Net margin</th><th scope="col" class="unit">Profit per unit</th><th scope="col">vs your price</th></tr></thead>
           <tbody id="scenarios"></tbody>
         </table>
       </div>
+      <p id="scenariosEmpty" class="note" hidden>Enter a valid item price to compare repricing options.</p>
     </section>
   </main>
   <footer>
@@ -79,14 +97,38 @@
     <p class="support">Free and open source. If it saves you time, the <a href="https://github.com/Duncan-Haywood/monorepo-projects" rel="noopener">project is on GitHub</a> — support is entirely optional and never changes what the tool does.</p>
   </footer>
   <script type="module">
-    import { calculateOrder, calculatePriceScenarios } from './calc.mjs';
+    import { calculateOrder, calculateRepricingTable } from './calc.mjs';
     import { recordUsage } from './usage.mjs';
     const ids = ['price','quantity','shippingCharged','finalValueRate','fixedFee','promotedRate','intlFeeRate','costOfGoods','shippingCost','packagingCost','otherCost','targetMargin'];
     const money = value => `$${value.toFixed(2)}`;
+    const signedMoney = value => `${value > 0 ? '+' : value < 0 ? '−' : ''}$${Math.abs(value).toFixed(2)}`;
+    // Counted at most once per visit, and only after the seller has actually
+    // changed an input. Counting the table's first render instead would just
+    // re-count page views, which says nothing about whether anyone used it.
+    let sensitivityCounted = false;
+    let sellerEditedInputs = false;
+    function renderScenarios(input) {
+      const rows = calculateRepricingTable(input);
+      document.getElementById('scenarioTable').classList.toggle('single-unit', rows[0].quantity === 1);
+      document.getElementById('scenarios').innerHTML = rows.map(row => `
+        <tr class="${row.isCurrent ? 'current' : ''}">
+          <td>${money(row.price)}${row.isCurrent ? ' (now)' : ''}</td>
+          <td class="${row.profit < 0 ? 'down' : ''}">${money(row.profit)}</td>
+          <td>${row.margin.toFixed(1)}%</td>
+          <td class="unit">${money(row.unitProfit)}</td>
+          <td class="${row.profitDelta > 0 ? 'up' : row.profitDelta < 0 ? 'down' : ''}">${row.isCurrent ? '—' : signedMoney(row.profitDelta)}</td>
+        </tr>`).join('');
+      document.getElementById('scenariosEmpty').hidden = true;
+      if (sellerEditedInputs && !sensitivityCounted) {
+        sensitivityCounted = true;
+        recordUsage(localStorage, document.getElementById('usageOptOut').checked, 'price_sensitivity_viewed');
+      }
+    }
     function update() {
       try {
         const input = Object.fromEntries(ids.map(id => [id, document.getElementById(id).value]));
         const result = calculateOrder(input);
+        renderScenarios(input);
         const profitEl = document.getElementById('profit');
         profitEl.textContent = money(result.profit);
         profitEl.className = `hero-number ${result.profit < 0 ? 'negative' : 'positive'}`;
@@ -99,11 +141,6 @@
         document.getElementById('unitProfit').textContent = money(result.unitProfit);
         document.getElementById('breakEven').textContent = Number.isFinite(result.breakEvenPrice) ? money(result.breakEvenPrice) : 'never';
         document.getElementById('targetMarginPrice').textContent = Number.isFinite(result.targetMarginPrice) ? money(result.targetMarginPrice) : 'unreachable';
-        const scenarioPrices = [-20, -10, 0, 10, 20].map(offset => Math.max(0, Number(input.price) * (1 + offset / 100)));
-        document.getElementById('scenarios').innerHTML = calculatePriceScenarios(input, scenarioPrices).map(scenario => `
-          <tr class="${scenario.price === Number(input.price) ? 'current' : ''}">
-            <td>${money(scenario.price)}</td><td>${money(scenario.profit)}</td><td>${scenario.margin.toFixed(1)}%</td>
-          </tr>`).join('');
       } catch (error) {
         document.getElementById('profit').textContent = error.message;
         document.getElementById('profit').className = 'hero-number negative';
@@ -117,11 +154,11 @@
         document.getElementById('breakEven').textContent = '';
         document.getElementById('targetMarginPrice').textContent = '';
         document.getElementById('scenarios').innerHTML = '';
+        document.getElementById('scenariosEmpty').hidden = false;
       }
     }
-    ids.forEach(id => document.getElementById(id).addEventListener('input', update));
+    ids.forEach(id => document.getElementById(id).addEventListener('input', () => { sellerEditedInputs = true; update(); }));
     ids.forEach(id => document.getElementById(id).addEventListener('change', () => recordUsage(localStorage, document.getElementById('usageOptOut').checked, id === 'targetMargin' ? 'target_margin_calculated' : id === 'quantity' ? 'batch_calculated' : 'order_profit_calculated')));
-    document.getElementById('price').addEventListener('change', () => recordUsage(localStorage, document.getElementById('usageOptOut').checked, 'price_sensitivity_viewed'));
     document.getElementById('usageOptOut').addEventListener('change', update);
     update();
   </script>

@@ -11,6 +11,9 @@ well as sourcing.
 Enter multiple units to see total batch economics and profit per unit without
 repeating the calculation. Break-even and target-margin prices remain listing
 prices for one unit.
+Below the result, an **If you repriced** table prices the same order 20% and
+10% either side of what you entered, so you can see what a price move is
+actually worth before making it — no re-entering numbers.
 
 Open `index.html` in a browser. The calculation is local and works without an
 account, network request, or API key. It is arithmetic, not an estimate of the
@@ -32,8 +35,11 @@ drive that decision:
   money, holding shipping charged constant.
 - **Target-margin item price** — the price needed to reach a chosen net margin
   after the same fees and cash costs.
-- **Repricing sensitivity** — compare profit and margin at prices 20% below or
-  above the current listing price before changing a listing.
+- **Repricing sensitivity** — profit, margin, and the signed change against
+  your current price at listing prices 10% and 20% either side of it.
+  Percentage fees scale with the price, so a $1 increase never leaves $1 more
+  in the seller's pocket; the table makes that visible instead of leaving it to
+  be re-derived by hand.
 
 **No warranty.** This tool is provided free and as-is, without warranty of any
 kind, express or implied. It is not tax, financial, or business advice, and it
@@ -49,6 +55,12 @@ never uploaded. There are no accounts, cookies, tracking pixels, or analytics
 vendors. The optional local counter records only the event name and day in your
 browser; it never records the inputs. Turn it off with the checkbox in the
 footer, or your browser's Do Not Track / Global Privacy Control setting.
+
+The counted events are `order_profit_calculated`, `target_margin_calculated`,
+`batch_calculated`, and `price_sensitivity_viewed`. The last one is counted at
+most once per visit and only after an input is edited — counting the table's
+first paint would just re-count page loads and say nothing about whether the
+repricing view is used.
 
 ## Support
 
