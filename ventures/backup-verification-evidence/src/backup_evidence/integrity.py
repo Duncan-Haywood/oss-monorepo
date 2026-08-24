@@ -191,6 +191,16 @@ def _limit_detail(fmt: str, read: int, limit: int) -> str:
     )
 
 
+def _text_dump_kind(header: bytes) -> tuple[str, bytes] | None:
+    """Return `(label, trailer)` if `header` looks like a known logical dump."""
+    for name, marker in _TEXT_DUMP_HEADS:
+        if marker in header:
+            trailer = next((item for item_name, item in _TEXT_DUMP_TRAILERS if item_name == name), None)
+            if trailer is not None:
+                return name, trailer
+    return None
+
+
 def _check_compressed_stream(path: Path, fmt: str, max_bytes: int | None) -> dict[str, Any]:
     """Decompress a non-tar compressed file to its end and discard the output."""
     opener = _decompressor(fmt)
@@ -229,6 +239,75 @@ def _check_compressed_stream(path: Path, fmt: str, max_bytes: int | None) -> dic
         INTACT,
         fmt,
         f"decompressed {read} bytes to a clean end of stream; the format's own checksum matched",
+        bytes_read=read,
+    )
+
+
+def _check_compressed_text_dump(
+    path: Path,
+    fmt: str,
+    kind: tuple[str, bytes],
+    max_bytes: int | None,
+) -> dict[str, Any]:
+    """Decompress a dump stream and require both a clean wrapper and its trailer.
+
+    The motivating failure is `pg_dump | gzip` without `pipefail`: the compressor
+    sees EOF, writes a valid footer, and exits 0, so the on-disk file is a
+    CRC-valid gzip whose payload is an incomplete SQL dump. Checking only the
+    wrapper would report that file intact.
+    """
+    label, trailer = kind
+    opener = _decompressor(fmt)
+    assert opener is not None
+    read = 0
+    tail = b""
+    try:
+        with opener(path) as stream:
+            while True:
+                chunk = stream.read(CHUNK_SIZE)
+                if not chunk:
+                    break
+                read += len(chunk)
+                tail = (tail + chunk)[-_TRAILER_WINDOW:]
+                if max_bytes is not None and read >= max_bytes:
+                    raise _LimitReached(read)
+    except _LimitReached as limit:
+        return _result(
+            INCONCLUSIVE,
+            fmt,
+            _limit_detail(fmt, limit.read, max_bytes or 0),
+            bytes_read=limit.read,
+        )
+    except _DECOMPRESS_ERRORS as exc:
+        return _result(
+            CORRUPT,
+            fmt,
+            f"the {fmt} stream did not decompress to a clean end ({type(exc).__name__}: {exc}). "
+            "A truncated or checksum-failing stream means the writer did not finish -- "
+            "the artifact is incomplete.",
+            bytes_read=read,
+        )
+    except OSError as exc:
+        return _result(
+            INCONCLUSIVE,
+            fmt,
+            f"could not read the {fmt} stream to its end ({type(exc).__name__}: {exc})",
+            bytes_read=read,
+        )
+    if trailer in tail:
+        return _result(
+            INTACT,
+            fmt,
+            f"decompressed {read} bytes to a clean end of stream and found "
+            f"{label}'s dump-complete marker",
+            bytes_read=read,
+        )
+    return _result(
+        CORRUPT,
+        fmt,
+        f"the {fmt} stream decompressed cleanly, but a {label} dump that finishes writes "
+        f"{trailer.decode()!r} at the end; the payload does not contain it in its final "
+        "bytes, so the dump was cut short.",
         bytes_read=read,
     )
 
@@ -350,7 +429,9 @@ def _check_sqlite(path: Path) -> dict[str, Any]:
     multi-gigabyte database, and this runs after every backup.
     """
     try:
-        connection = sqlite3.connect(f"file:{path}?mode=ro", uri=True)
+        # as_uri() percent-encodes #, ?, spaces, and the rest so they cannot
+        # be read as a URI fragment or query and drop mode=ro.
+        connection = sqlite3.connect(f"{path.resolve().as_uri()}?mode=ro", uri=True)
     except sqlite3.Error as exc:
         return _result(INCONCLUSIVE, "sqlite", f"could not open the database read-only ({exc})")
     try:
@@ -382,10 +463,10 @@ def _check_text_dump(path: Path, fmt: str, header: bytes) -> dict[str, Any]:
     hunted (the dump stopped early) is precisely the one that removes the
     trailer.
     """
-    label = next((name for name, marker in _TEXT_DUMP_HEADS if marker in header), None)
-    trailer = next((marker for name, marker in _TEXT_DUMP_TRAILERS if name == label), None)
-    if trailer is None:
+    kind = _text_dump_kind(header)
+    if kind is None:
         return _result(UNSUPPORTED, fmt, "no known completion marker for this dump flavour")
+    label, trailer = kind
     try:
         size = path.stat().st_size
         with path.open("rb") as handle:
@@ -468,6 +549,9 @@ def inspect_artifact(path: str | Path, *, max_bytes: int | None = None) -> dict[
             inner = b""
         if _has_tar_magic(inner):
             return _check_tar(path, _TAR_LABELS[fmt], max_bytes)
+        dump_kind = _text_dump_kind(inner)
+        if dump_kind is not None:
+            return _check_compressed_text_dump(path, fmt, dump_kind, max_bytes)
         return _check_compressed_stream(path, fmt, max_bytes)
 
     if fmt == "tar":

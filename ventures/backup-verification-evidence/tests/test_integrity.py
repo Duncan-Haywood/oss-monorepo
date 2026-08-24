@@ -218,6 +218,19 @@ class SqliteTests(ArtifactFixtureCase):
         self.assertEqual(path.stat().st_mtime, before_mtime)
         self.assertEqual(sorted(p.name for p in self.dir.iterdir()), ["app.db"])
 
+    def test_uri_special_characters_in_path_stay_read_only(self) -> None:
+        # SQLite URI filenames treat # as a fragment and ? as the query
+        # delimiter. Without encoding, mode=ro is dropped and the wrong
+        # path is opened.
+        for name in ("app#1.db", "app 1.db", "app?1.db"):
+            with self.subTest(name=name):
+                path = self._db(name)
+                before = path.read_bytes()
+                result = inspect_artifact(path)
+                self.assertEqual(result["result"], INTACT)
+                self.assertEqual(path.read_bytes(), before)
+                self.assertIn(name, [p.name for p in self.dir.iterdir()])
+
 
 class TextDumpTests(ArtifactFixtureCase):
     def test_complete_postgres_dump(self) -> None:
@@ -239,6 +252,30 @@ class TextDumpTests(ArtifactFixtureCase):
         body = b"-- MySQL dump 10.13\nINSERT INTO t VALUES (1);\n-- Dump completed on 2026-08-24\n"
         result = inspect_artifact(self.write("db.sql", body))
         self.assertEqual(result["result"], INTACT)
+
+    def test_complete_postgres_dump_inside_gzip_is_intact(self) -> None:
+        body = (
+            b"-- PostgreSQL database dump\n"
+            + b"INSERT INTO t VALUES (1);\n" * 100
+            + b"-- PostgreSQL database dump complete\n"
+        )
+        result = inspect_artifact(self.write("db.sql.gz", gzip.compress(body)))
+        self.assertEqual(result["result"], INTACT)
+        self.assertEqual(result["format"], "gzip")
+
+    def test_truncated_postgres_dump_inside_valid_gzip_is_corrupt(self) -> None:
+        """The `pg_dump | gzip` case: the gzip wrapper is flawless, the dump is not.
+
+        Without pipefail, gzip sees EOF, writes a valid footer, and exits 0.
+        Decompressing the wrapper alone would report this file intact.
+        """
+        body = b"-- PostgreSQL database dump\n" + b"INSERT INTO t VALUES (1);\n" * 100
+        path = self.write("db.sql.gz", gzip.compress(body))
+        self.assertEqual(gzip.decompress(path.read_bytes()), body)
+        result = inspect_artifact(path)
+        self.assertEqual(result["result"], CORRUPT)
+        self.assertEqual(result["format"], "gzip")
+        self.assertIn("cut short", result["detail"])
 
 
 class UnsupportedAndEdgeCaseTests(ArtifactFixtureCase):
