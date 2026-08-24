@@ -1,3 +1,9 @@
+# Usage readings per product. See README.md in this directory for what may be
+# counted (events, never people) and how to read these numbers.
+#
+# Add a dated reading rather than overwriting an older one — the trend is the
+# signal. A reading of zero is worth recording; it is how a product gets
+# retired honestly instead of quietly.
 period: 2026-08
 products:
   - slug: shopify-permission-drift
@@ -5,6 +11,266 @@ products:
     readings:
       - as_of: 2026-08-24
         signals:
-          local_fixture_comparisons: 1
+          local_comparisons: 1
+          qualified_pilots: 0
+        note: Shipped fixture-backed local comparison; customer demand remains untested.
+      - as_of: 2026-08-24
+        signals:
+          markdown_reports_rendered: 1
+        note: Added approval-ready Markdown output; local usage baseline only.
+  - slug: ai-engineering-academy
+    surface: static-page-in-repo
+    readings:
+      - as_of: 2026-08-24
+        signals:
+          live_url_visitors: null
+          local_events_reported: 0
+        note: >-
+          resistor-calculator shipped; not yet deployed to a public URL
+          (publishing is owner-gated), so there is no traffic signal to read
+          and its local-first event counter reports only to the user's own
+          browser. Baseline row.
+      - as_of: 2026-08-24
+        signals:
+          live_url_visitors: null
+          local_events_reported: 0
+        note: >-
+          Second tool shipped: led-resistor-calculator (E24 nearest-standard
+          resistor + power rating for one or more series LEDs, 12 passing
+          unit tests). Same publishing gate as above — no traffic signal yet.
+          Baseline row for the second tool.
+      - as_of: 2026-08-24
+        signals:
+          live_url_visitors: null
+          local_events_reported: 0
+        note: >-
+          Third tool shipped: voltage-divider-calculator (unloaded/loaded
+          Vout with a load-loading correction, plus a target-Vout design
+          mode that snaps R2 to a buyable E24 value, 14 passing unit
+          tests). Same publishing gate as above — no traffic signal yet.
+          Baseline row for the third tool.
+      - as_of: 2026-08-24
+        signals:
+          live_url_visitors: null
+          local_events_reported: 0
+        note: >-
+          Two tools shipped concurrently by separate sessions, both landing
+          as the venture's fourth and fifth: 555-timer-calculator (astable and
+          monostable in both directions — analyse given parts, or solve
+          backwards from a target frequency, duty cycle, or pulse width to
+          nearest-E24 resistors — plus buildability checks the timing
+          equations don't make: sub-50% duty cycles a standard astable cannot
+          produce, discharge-pin overcurrent, drift-prone resistor values,
+          electrolytic-cap tolerance. 29 passing unit tests), and
+          rc-filter-calculator (first-order RC/RL filter cutoff frequency and
+          time constant across all four topologies, plus a design mode that
+          solves for the missing component from a target cutoff and snaps it
+          to a buyable preferred value, 24 passing unit tests). Also added
+          tools/index.html, a hub listing all five: until now each tool page
+          cross-linked only the tools that existed when it was written, so
+          resistor-calculator linked to nothing and a visitor who found one
+          tool could not discover the others. That is a discoverability
+          reading to watch once a public URL exists — entries from the hub
+          versus direct entries to a tool. Same publishing gate as above, so
+          no traffic signal yet; baseline rows for both tools and the hub.
+      - as_of: 2026-08-24
+        signals:
+          live_url_visitors: null
+          local_events_reported: 0
+        note: >-
+          Correction, not a new surface: all four tools were counting
+          calculations that nobody performed. Each `update()` ran on page
+          load to render a first result from the prefilled defaults, and
+          recorded an event while doing it — so a visit that bounced
+          immediately still logged a calculation. On top of that the
+          continuous-input handlers recorded per keystroke, so typing "220"
+          into one field logged three more. A single arrive-type-leave
+          visit could log a dozen calculations.
+          Fixed both: the on-load render no longer counts, and keystroke
+          bursts collapse into one event once the input settles (800 ms).
+          Verified in headless Chromium — a bare page load now records 0,
+          and typing a value records exactly 1.
+          No past reading is invalidated, because every reading so far is
+          0/null: nothing is deployed, so no inflated number was ever
+          recorded. The point of fixing it before launch is that the first
+          real reading will mean what it says.
+          The fourth tool shipped from a concurrent branch carrying the same
+          defect, so the fix covers it too rather than leaving one tool of
+          four inflating its own numbers — which would be worse than uniform
+          over-counting, because it makes the tools incomparable.
+  - slug: quote-margin-check
+    surface: repository-cli
+    readings:
+      - as_of: 2026-08-24
+        signals:
+          report_generated_events: 0
+          repo_views_14d: 0
           release_downloads_total: 0
-        note: Shipped approval-ready Markdown output; local usage baseline only.
+        note: Shipped calculator baseline; no public distribution or usage yet.
+      - as_of: 2026-08-24
+        signals:
+          live_url_visitors: null
+          local_events_reported: 0
+        note: >-
+          Second surface: site/index.html, a zero-dependency static page
+          running the same math as the Python CLI (most of this venture's
+          target freelancers will not run a script). Publishing is
+          owner-gated, so there is no traffic signal to read yet; the
+          page's counter reports only to the visitor's own browser.
+          Baseline row for the browser surface.
+  - slug: quote-margin-check
+    surface: static-page-in-repo
+    readings:
+      - as_of: 2026-08-24
+        signals:
+          live_url_visitors: null
+          quote_review_checked: 0
+        note: >-
+          Added a browser-local pre-send review that surfaces direct-cost,
+          target-gap, hidden-time, and revision-assumption observations. No
+          public URL yet; the feature counter stores only aggregate local
+          events and remains opt-out.
+  - slug: etsy-profit-calculator
+    surface: static-page-in-repo
+    readings:
+      - as_of: 2026-08-24
+        signals:
+          live_url_visitors: null
+          local_events_reported: 0
+        note: Shipped local Etsy order-profit calculator; public URL remains owner-gated.
+  - slug: shopify-a11y-evidence
+    surface: static-page-in-repo
+    readings:
+      - as_of: 2026-08-24
+        signals:
+          live_url_visitors: null
+          local_events_reported: 0
+        note: >-
+          Shipped browser-local axe JSON evidence report; public URL remains
+          owner-gated and the local counter has no external reporting path.
+  - slug: ebay-fee-calculator
+    surface: static-page-in-repo
+    readings:
+      - as_of: 2026-08-24
+        signals:
+          live_url_visitors: null
+          local_events_reported: 0
+        note: >-
+          Shipped local eBay reseller fee/profit/ROI calculator (10 passing
+          unit tests). Public URL remains owner-gated, so there is no traffic
+          signal to read; the local-first counter reports only to the user's
+          own browser and is opt-out. Baseline row.
+  - slug: cut-list-optimizer
+    surface: static-page-in-repo
+    readings:
+      - as_of: 2026-08-24
+        signals:
+          live_url_visitors: null
+          local_events_reported: 0
+        note: >-
+          Shipped a local stock-cut planning baseline for makers; public URL
+          remains owner-gated and the browser counter is local and opt-out.
+  - slug: janitorial-bid-calculator
+    surface: static-page-in-repo
+    readings:
+      - as_of: 2026-08-24
+        signals:
+          live_url_visitors: null
+          local_events_reported: 0
+        note: >-
+          Shipped a local commercial cleaning bid calculator with a copyable
+          proposal summary; public URL remains owner-gated.
+  - slug: shopify-fee-calculator
+    surface: static-page-in-repo
+    readings:
+      - as_of: 2026-08-24
+        signals:
+          live_url_visitors: null
+          local_events_reported: 0
+        note: >-
+          Shipped local Shopify Payments vs PayPal/Stripe profit calculator
+          (plan presets, both-path comparison, break-even and target-margin
+          price). Public URL remains owner-gated; the local-first counter
+          reports only to the user's own browser and is opt-out. Baseline row.
+  - slug: where-to-sell-calculator
+    surface: static-page-in-repo
+    readings:
+      - as_of: 2026-08-24
+        signals:
+          live_url_visitors: null
+          local_events_reported: 0
+        note: >-
+          Shipped the cross-marketplace comparison: one item ranked across
+          eBay, Etsy, Amazon, an own store and a direct sale, with
+          subscription amortisation and the price each channel needs to match
+          the best. Public URL remains owner-gated; the local-first counter
+          reports only to the user's own browser and is opt-out. Baseline row.
+  - slug: no-show-fee-calculator
+    surface: static-page-in-repo
+    readings:
+      - as_of: 2026-08-24
+        signals:
+          live_url_visitors: null
+          local_events_reported: 0
+        note: >-
+          Shipped browser-local no-show exposure calculator and policy draft
+          generator. Public URL remains owner-gated; the local counter is
+          anonymous, event-only, and opt-out. Baseline row.
+  - slug: amazon-fba-calculator
+    surface: static-page-in-repo
+    readings:
+      - as_of: 2026-08-24
+        signals:
+          live_url_visitors: null
+          local_events_reported: 0
+        note: >-
+          Shipped local Amazon FBA vs FBM profit calculator (size-tier
+          fulfillment, storage, inbound, max buy cost, both-path comparison).
+          Public URL remains owner-gated; the local-first counter reports only
+          to the user's own browser and is opt-out. Baseline row.
+  - slug: einvoice-preflight
+    surface: local-cli
+    readings:
+      - as_of: 2026-08-24
+        signals:
+          local_preflights: 1
+          qualified_pilots: 0
+        note: Shipped local JSON preflight; format coverage and customer demand remain untested.
+  - slug: backup-verification-evidence
+    surface: local-cli
+    readings:
+      - as_of: 2026-08-24
+        signals:
+          local_artifacts_verified: 0
+          local_runs_recorded: 0
+          qualified_operators: 0
+        note: >-
+          Baseline row, opened alongside the artifact-integrity slice (`verify`
+          subcommand; tar/gzip/bzip2/xz/zip/SQLite/text-dump structural checks).
+          The counters map to the local `--usage-file` event names
+          (`artifact_verified`, `run_recorded`) and are opt-in and local-only,
+          so a nonzero reading requires a user to both pass the flag and send
+          the file back — treat zero here as "no signal", not "no users".
+          Distribution is still repo-only: no release, no package, no public
+          URL, so there is no download or traffic signal to read yet. Getting
+          one is the next step that would actually move this venture.
+  - slug: eaa-remediation-pipeline
+    surface: local-site-studio-browser
+    readings:
+      - as_of: 2026-08-24
+        signals:
+          public_url_visitors: null
+          preaudit_checklist_events: 0
+          handoff_exports: 0
+        note: Shipped browser-local pre-audit checklist; public deployment remains owner-gated.
+# Example of the shape, once a product has shipped:
+#
+# products:
+#   - slug: example-product
+#     surface: github-pages
+#     readings:
+#       - as_of: 2026-08-24
+#         signals:
+#           repo_views_14d: 0
+#           release_downloads_total: 0
+#         note: Shipped today; baseline reading.
