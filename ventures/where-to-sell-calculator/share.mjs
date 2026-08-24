@@ -10,6 +10,13 @@ const CHANNEL_FIELDS = [
   "monthlyFee", "adRate",
 ];
 
+function sharedNumber(value) {
+  if (typeof value !== "number" && typeof value !== "string") return null;
+  if (value === "") return null;
+  const number = Number(value);
+  return Number.isFinite(number) && number >= 0 ? number : null;
+}
+
 export function encodeComparison(shared = {}, channels = []) {
   const payload = {
     shared: Object.fromEntries(SHARED_FIELDS
@@ -33,16 +40,17 @@ export function decodeComparison(value) {
     if (!parsed || typeof parsed !== "object") return null;
     const shared = {};
     for (const key of SHARED_FIELDS) {
-      const number = Number(parsed.shared?.[key]);
-      if (Number.isFinite(number) && number >= 0) shared[key] = number;
+      const number = sharedNumber(parsed.shared?.[key]);
+      if (number !== null) shared[key] = number;
     }
     const channels = Array.isArray(parsed.channels) ? parsed.channels
       .filter((channel) => channel && typeof channel.id === "string")
       .map((channel) => ({
         id: channel.id,
         enabled: channel.enabled !== false,
-        ...Object.fromEntries(CHANNEL_FIELDS.map((key) => [key, channel.values?.[key]])
-          .filter(([, value]) => value !== undefined && value !== "")),
+        ...Object.fromEntries(CHANNEL_FIELDS
+          .map((key) => [key, sharedNumber(channel.values?.[key])])
+          .filter(([, value]) => value !== null)),
       })) : [];
     return { shared, includeSubscription: parsed.includeSubscription !== false, channels };
   } catch {
