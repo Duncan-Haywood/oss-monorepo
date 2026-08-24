@@ -1,0 +1,36 @@
+name: no-show-fee-calculator CI
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "ventures/no-show-fee-calculator/**"
+      - ".github/workflows/no-show-fee-calculator-ci.yml"
+  pull_request:
+    branches: [main]
+    paths:
+      - "ventures/no-show-fee-calculator/**"
+      - ".github/workflows/no-show-fee-calculator-ci.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: no-show-fee-calculator-ci-${{ github.ref }}
+  cancel-in-progress: true
+
+defaults:
+  run:
+    working-directory: ventures/no-show-fee-calculator
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - name: Run tests
+        run: npm test
