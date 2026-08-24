@@ -3,8 +3,9 @@
 A free, private browser calculator for independent subcontractors who need to
 know whether a project will create a working-capital gap before the invoice is
 paid. Enter the invoice, upfront materials, weekly business burn, payment
-terms, retention, late-payment buffer, and cash available. The planner shows
-the expected collection day, cash needed before payment, and any funding gap.
+terms, retention, late-payment buffer, retention release timing, and cash
+available. The planner shows the expected collection day, retained cash release
+day, cash needed before payment, and any funding gap.
 
 **After using this, you can now** see the cash you need to bridge a subcontract
 before ordering materials, **which used to take** a spreadsheet and a hopeful
@@ -43,9 +44,9 @@ There are no cookies, accounts, analytics vendors, or uploads.
 ## Limits and disclaimer
 
 The result is a timing scenario, not a prediction. It does not model taxes,
-debt, staged billing, supplier credit, milestone approvals, or the date a
-retention amount is released. Confirm contract terms and funding decisions
-with a qualified accountant or adviser.
+debt, staged billing, supplier credit, milestone approvals, or partial payment
+disputes. Confirm contract terms and funding decisions with a qualified
+accountant or adviser.
 
 **No warranty.** This tool is provided free and as-is, without warranty of any
 kind, express or implied. It is not legal, tax, financial, or accounting advice,
