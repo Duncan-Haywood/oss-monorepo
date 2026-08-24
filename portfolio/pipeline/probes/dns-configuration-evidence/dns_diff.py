@@ -20,6 +20,18 @@ from typing import Any
 OK = "ok"
 
 
+def _same_rrsets(left: dict[str, Any], right: dict[str, Any]) -> bool:
+    """True when both maps name the same types with the same values per type.
+
+    Resource-record order inside an RRset is not semantically meaningful, so
+    per-type lists are compared after sorting. Key presence still matters:
+    a type present on one side and absent on the other is a disagreement.
+    """
+    if left.keys() != right.keys():
+        return False
+    return all(sorted(left[key]) == sorted(right[key]) for key in left)
+
+
 def load_snapshot(path: Path) -> dict[str, Any]:
     payload = json.loads(path.read_text(encoding="utf-8"))
     required = {"domain", "captured_at", "resolvers"}
@@ -54,7 +66,7 @@ def _consensus(side: dict[str, Any]) -> tuple[dict[str, list[str]] | None, str |
 
     reference = ok_resolvers[0]
     for other in ok_resolvers[1:]:
-        if other.get("records", {}) != reference.get("records", {}):
+        if not _same_rrsets(other.get("records", {}), reference.get("records", {})):
             return None, f"resolvers disagree ({reference['resolver']} vs {other['resolver']})"
 
     return reference.get("records", {}), None

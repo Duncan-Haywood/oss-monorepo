@@ -43,6 +43,15 @@ def test_resolver_disagreement_is_inconclusive_not_unchanged():
     assert "changes" not in report
 
 
+def test_rrset_order_difference_is_not_disagreement():
+    """Identical RRsets in different list order still have consensus."""
+    after = json.loads(json.dumps(snapshot("unchanged-before.json")))
+    after["resolvers"][1]["records"]["NS"] = list(reversed(after["resolvers"][1]["records"]["NS"]))
+    report = build_report(snapshot("unchanged-before.json"), after)
+    assert report["status"] == "observed"
+    assert report["changes"] == []
+
+
 def test_resolver_timeout_is_inconclusive_not_unchanged():
     report = build_report(snapshot("unchanged-before.json"), snapshot("timeout-after.json"))
     assert report["status"] == "inconclusive"
