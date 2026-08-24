@@ -265,9 +265,11 @@ products:
       - as_of: 2026-08-24
         signals:
           public_url_visitors: null
-          local_scenarios_calculated: 0
-          local_briefs_copied: 0
-        note: Shipped totals-only SaaS renewal true-up calculator; public deployment remains owner-gated and demand is unmeasured.
+           local_scenarios_calculated: 0
+           local_briefs_copied: 0
+           local_scenarios_saved: 0
+           local_scenarios_restored: 0
+         note: Added browser-local scenario save/restore for recurring renewals; public deployment remains owner-gated and demand is unmeasured.
 
 # Example of the shape, once a product has shipped:
 #

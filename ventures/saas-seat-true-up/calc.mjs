@@ -1,7 +1,9 @@
 export function calculate({ seats, activeUsers, price, months, overageRate }) {
   const values = { seats, activeUsers, price, months, overageRate };
   for (const [key, value] of Object.entries(values)) {
-    if (!Number.isFinite(Number(value)) || Number(value) < 0) throw new Error(`${key} must be a non-negative number`);
+    if (!Number.isFinite(Number(value)) || Number(value) < 0 || (key === 'months' && Number(value) < 1)) {
+      throw new Error(`${key} must be ${key === 'months' ? 'at least 1' : 'a non-negative number'}`);
+    }
   }
   const purchased = Math.floor(Number(seats));
   const active = Math.floor(Number(activeUsers));

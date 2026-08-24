@@ -1,6 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { calculate, renewalBrief } from './calc.mjs';
+import { loadScenario, saveScenario } from './usage.mjs';
 
 test('calculates unused seat waste across a term', () => {
   const result = calculate({ seats: 40, activeUsers: 31, price: 18, months: 12, overageRate: 20 });
@@ -26,4 +27,18 @@ test('brief remains evidence-oriented and includes the entered scenario', () => 
 
 test('rejects invalid values', () => {
   assert.throws(() => calculate({ seats: -1, activeUsers: 1, price: 1, months: 1, overageRate: 0 }), /seats/);
+  assert.throws(() => calculate({ seats: 1, activeUsers: 1, price: 1, months: 0, overageRate: 0 }), /months/);
+});
+
+test('saves and restores only the totals-only scenario', () => {
+  const data = new Map();
+  const storage = { getItem: key => data.get(key) || null, setItem: (key, value) => data.set(key, value) };
+  const scenario = { seats: '40', activeUsers: '31', price: '18', months: '12', overageRate: '20' };
+  assert.equal(saveScenario(storage, scenario), true);
+  assert.deepEqual(loadScenario(storage), { seats: 40, activeUsers: 31, price: 18, months: 12, overageRate: 20 });
+});
+
+test('ignores malformed saved scenarios', () => {
+  const storage = { getItem: () => '{"seats":null}' };
+  assert.equal(loadScenario(storage), null);
 });
