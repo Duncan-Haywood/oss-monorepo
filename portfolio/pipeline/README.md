@@ -122,20 +122,21 @@ four candidates carrying a probe have moved and the table is re-ordered.
 | # | Candidate | Composite | Floor | Verdict |
 |---|---|---|---|---|
 | 1 | [Shopify accessibility evidence app](candidates/shopify-a11y-evidence.md) | 7.25 | 4 | Probe the channel — scored 2026-08-19. Top of the table only because nobody has probed it |
-| 2 | [EAA remediation pipeline](candidates/eaa-remediation-pipeline.md) | 7.125 | 5 | Graduated 2026-08-24 as a `local-site-studio` product line. Both gates measured 2026-08-21 — `liability_containment` 6→5 (**on** the gate, unmoved), `ethical_robustness` 9→6→9 after the record began printing its error rates |
-| 3 | [Public-record watch](candidates/public-record-watch.md) | 7.0 | 4 | Cheap probe — one vertical, two weeks. `ethical_robustness` 9→6→9 on 2026-08-21, after the subscriber record was built; the detector still misses two thirds of the dormancy it looks for |
-| 4 | [Agent permission harness](candidates/agent-permission-harness.md) | 6.875 | 4 | Park; revisit 2027-Q1. Probed 2026-08-21 — internal build done, `ai_leverage` 9→8; `ethical_robustness` 9→7→9 after `validate_accuracy.py` measured 0 false positives / 0 false negatives on a 34-case fixture corpus and the findings report started disclosing it |
-| 5 | [MCP supply-chain watch](candidates/mcp-supply-chain-watch.md) | 6.875 | 3 | Probe: steps 1–2 run; mitigation refuted, cannot graduate as scored. `ai_leverage` 6→7 on 2026-08-22 — a blind model pass on the held-out corpus roughly doubled the rules classifier's F1 |
-| 6 | [MLS photo spec preflight](candidates/mls-photo-spec-preflight.md) | 6.75 | 5 | Build now, as a `real-estate-agent-photo-app` product line. Scored 2026-08-24 — file-spec evidence, not listing photography the venture and not web accessibility |
-| 7 | [CRA evidence desk](candidates/cra-evidence-desk.md) | 6.75 | 3 | Probe (was build-now); wedge is egress-blocked. `ethical_robustness` 8→6→7→8 — 7→8 on 2026-08-21 after the triage engine's own record began carrying its hand-verified wrong-suppression rate (0 of 53 claims wrong) |
-| 8 | [Vendor-change evidence monitor](candidates/vendor-change-evidence.md) | 6.75 | 4 | Probe; public-page evidence feed, with distribution and archive value still unmeasured |
-| 9 | [Shopify app-permission drift record](candidates/shopify-permission-drift.md) | 6.75 | 4 | Probe; customer-authorized app inventory, with platform observability and App Store demand unmeasured |
-| 10 | [Tender radar](candidates/tender-radar.md) | 6.625 | 4 | Park; needs a channel partner |
-| 11 | [DNS configuration evidence monitor](candidates/dns-configuration-evidence.md) | 6.625 | 4 | Probe; needs an MSP or domain-operations channel and a history-value test |
-| 12 | [Repository branch hygiene and recovery](candidates/repository-branch-hygiene.md) | 6.5 | 4 | Graduated 2026-08-24 as `ventures/repository-branch-hygiene`; read-only pilot and distribution remain unmeasured |
-| 13 | [Software evidence provenance ledger](candidates/software-evidence-provenance.md) | 6.375 | 3 | Reject; existing provenance standards leave no defensible wedge and distribution is unresolved |
-| 14 | [E-invoice preflight](candidates/einvoice-preflight.md) | 6.125 | 4 | Reject broad version; narrow version conditional |
-| 15 | [Consent change record](candidates/consent-change-record.md) | 6.125 | 4 | Probe; needs an agency or privacy-implementation channel |
+| 2 | [Quote margin check](candidates/quote-margin-check.md) | 7.125 | 3 | Build now as `ventures/quote-margin-check`; deterministic local calculator, with repeat usage and defensibility still unmeasured |
+| 3 | [EAA remediation pipeline](candidates/eaa-remediation-pipeline.md) | 7.125 | 5 | Graduated 2026-08-24 as a `local-site-studio` product line. Both gates measured 2026-08-21 — `liability_containment` 6→5 (**on** the gate, unmoved), `ethical_robustness` 9→6→9 after the record began printing its error rates |
+| 4 | [Public-record watch](candidates/public-record-watch.md) | 7.0 | 4 | Cheap probe — one vertical, two weeks. `ethical_robustness` 9→6→9 on 2026-08-21, after the subscriber record was built; the detector still misses two thirds of the dormancy it looks for |
+| 5 | [Agent permission harness](candidates/agent-permission-harness.md) | 6.875 | 4 | Park; revisit 2027-Q1. Probed 2026-08-21 — internal build done, `ai_leverage` 9→8; `ethical_robustness` 9→7→9 after `validate_accuracy.py` measured 0 false positives / 0 false negatives on a 34-case fixture corpus and the findings report started disclosing it |
+| 6 | [MCP supply-chain watch](candidates/mcp-supply-chain-watch.md) | 6.875 | 3 | Probe: steps 1–2 run; mitigation refuted, cannot graduate as scored. `ai_leverage` 6→7 on 2026-08-22 — a blind model pass on the held-out corpus roughly doubled the rules classifier's F1 |
+| 7 | [MLS photo spec preflight](candidates/mls-photo-spec-preflight.md) | 6.75 | 5 | Build now, as a `real-estate-agent-photo-app` product line. Scored 2026-08-24 — file-spec evidence, not listing photography the venture and not web accessibility |
+| 8 | [CRA evidence desk](candidates/cra-evidence-desk.md) | 6.75 | 3 | Probe (was build-now); wedge is egress-blocked. `ethical_robustness` 8→6→7→8 — 7→8 on 2026-08-21 after the triage engine's own record began carrying its hand-verified wrong-suppression rate (0 of 53 claims wrong) |
+| 9 | [Vendor-change evidence monitor](candidates/vendor-change-evidence.md) | 6.75 | 4 | Probe; public-page evidence feed, with distribution and archive value still unmeasured |
+| 10 | [Shopify app-permission drift record](candidates/shopify-permission-drift.md) | 6.75 | 4 | Probe; customer-authorized app inventory, with platform observability and App Store demand unmeasured |
+| 11 | [Tender radar](candidates/tender-radar.md) | 6.625 | 4 | Park; needs a channel partner |
+| 12 | [DNS configuration evidence monitor](candidates/dns-configuration-evidence.md) | 6.625 | 4 | Probe; needs an MSP or domain-operations channel and a history-value test |
+| 13 | [Repository branch hygiene and recovery](candidates/repository-branch-hygiene.md) | 6.5 | 4 | Graduated 2026-08-24 as `ventures/repository-branch-hygiene`; read-only pilot and distribution remain unmeasured |
+| 14 | [Software evidence provenance ledger](candidates/software-evidence-provenance.md) | 6.375 | 3 | Reject; existing provenance standards leave no defensible wedge and distribution is unresolved |
+| 15 | [E-invoice preflight](candidates/einvoice-preflight.md) | 6.125 | 4 | Reject broad version; narrow version conditional |
+| 16 | [Consent change record](candidates/consent-change-record.md) | 6.125 | 4 | Probe; needs an agency or privacy-implementation channel |
 
 **"No measured dimension has ever risen" is no longer true, and the way it
 stopped being true is the useful part.** This file said it across four

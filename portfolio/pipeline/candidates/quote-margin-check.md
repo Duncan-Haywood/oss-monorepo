@@ -1,5 +1,7 @@
 # Quote margin check
 
+Composite 7.125 · floor 3 (ai_leverage)
+
 ## Target and pain
 
 Freelancers and small agencies often price from delivery hours while forgetting
