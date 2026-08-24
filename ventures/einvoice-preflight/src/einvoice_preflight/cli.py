@@ -159,6 +159,17 @@ def _github_message(value: str) -> str:
     return value.replace("%", "%25").replace("\r", "%0D").replace("\n", "%0A")
 
 
+def _positive_int(value: str) -> int:
+    """Parse a positive CLI limit with an actionable argparse error."""
+    try:
+        parsed = int(value)
+    except ValueError as exc:
+        raise argparse.ArgumentTypeError("must be a positive integer") from exc
+    if parsed < 1:
+        raise argparse.ArgumentTypeError("must be a positive integer")
+    return parsed
+
+
 def _json_report(
     reports: list[tuple[Path, list[dict[str, str]]]],
     read_errors: list[dict[str, str]],
@@ -393,6 +404,11 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("invoice", type=Path, help="JSON/XML file, directory of JSON/XML files, or '-' for stdin")
     parser.add_argument("--format", choices=("text", "summary", "json", "jsonl", "markdown", "html", "csv", "junit", "sarif", "github"), default="text")
     parser.add_argument("--usage-file", help="opt-in local aggregate event counter")
+    parser.add_argument(
+        "--max-files",
+        type=_positive_int,
+        help="refuse a directory scan when it contains more invoice files than this",
+    )
     args = parser.parse_args(argv)
     reports: list[tuple[Path, list[dict[str, str]]]] = []
     invoices: list[tuple[Path, Any]] = []
@@ -411,6 +427,12 @@ def main(argv: list[str] | None = None) -> int:
         )
         if not paths:
             print(f"No JSON or XML invoices found in {args.invoice}")
+            return 2
+        if args.max_files is not None and len(paths) > args.max_files:
+            print(
+                f"Directory contains {len(paths)} JSON/XML invoices, exceeding "
+                f"--max-files {args.max_files}. Refusing to scan."
+            )
             return 2
         sources = []
         for path in paths:

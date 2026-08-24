@@ -388,6 +388,22 @@ class ChecksTest(unittest.TestCase):
             self.assertEqual(report["observations"], 1)
             self.assertEqual(report["rules"], {"INV-017": 1})
 
+    def test_cli_refuses_directory_over_max_files_before_reading(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            (root / "one.json").write_text(json.dumps(VALID))
+            (root / "two.json").write_text(json.dumps(VALID))
+            output = io.StringIO()
+            with contextlib.redirect_stdout(output):
+                self.assertEqual(main([directory, "--format", "json", "--max-files", "1"]), 2)
+            self.assertIn("exceeding --max-files 1", output.getvalue())
+            self.assertNotIn("INV-1", output.getvalue())
+
+    def test_cli_rejects_non_positive_max_files(self):
+        with self.assertRaises(SystemExit) as raised:
+            main([".", "--max-files", "0"])
+        self.assertEqual(raised.exception.code, 2)
+
     def test_cli_batch_sarif_uses_relative_file_locations(self):
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)
