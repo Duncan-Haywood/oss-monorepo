@@ -176,6 +176,18 @@ products:
         note: >-
           Shipped a local commercial cleaning bid calculator with a copyable
           proposal summary; public URL remains owner-gated.
+  - slug: concrete-bid-calculator
+    surface: static-page-in-repo
+    readings:
+      - as_of: 2026-08-24
+        signals:
+          live_url_visitors: null
+          local_events_reported: 0
+        note: >-
+          Shipped a local concrete driveway/patio bid calculator (yards from
+          thickness, forms, finish, access, short-load fee, copyable summary).
+          Public URL remains owner-gated; the local-first counter reports only
+          to the user's own browser and is opt-out. Baseline row.
   - slug: shopify-fee-calculator
     surface: static-page-in-repo
     readings:

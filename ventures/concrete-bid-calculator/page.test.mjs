@@ -1,0 +1,82 @@
+import { test } from 'node:test';
+import assert from 'node:assert/strict';
+import { readFileSync } from 'node:fs';
+
+const html = readFileSync(new URL('./index.html', import.meta.url), 'utf8');
+const seo = readFileSync(new URL('./how-much-concrete-for-a-driveway.html', import.meta.url), 'utf8');
+
+function parse(source) {
+  const RAW = /<(textarea|script|style)\b[^>]*>/i;
+  let rest = source;
+  let markup = '';
+  const scripts = [];
+  for (;;) {
+    const open = rest.match(RAW);
+    if (!open) return { markup: markup + rest, scripts, unclosed: null };
+    const tag = open[1].toLowerCase();
+    const contentStart = open.index + open[0].length;
+    markup += rest.slice(0, contentStart);
+    const closer = new RegExp(`</${tag}\\s*>`, 'i').exec(rest.slice(contentStart));
+    if (!closer) return { markup, scripts, unclosed: tag };
+    if (tag === 'script') scripts.push(rest.slice(contentStart, contentStart + closer.index));
+    markup += closer[0];
+    rest = rest.slice(contentStart + closer.index + closer[0].length);
+  }
+}
+
+const { markup, scripts, unclosed } = parse(html);
+const scriptSource = scripts.join('\n');
+
+test('every raw-text element is closed', () => {
+  assert.equal(unclosed, null, `<${unclosed}> is never closed`);
+});
+
+test('the page names the contractor problem before the form', () => {
+  assert.match(markup, /Bid the yards and the forms/);
+  assert.match(markup, /cubic yards/i);
+});
+
+test('disclaimer and privacy line are visible, not only in the README', () => {
+  assert.match(markup, /No warranty/);
+  assert.match(markup, /not legal, tax, financial, engineering/);
+  assert.match(markup, /Nothing leaves your browser/);
+});
+
+test('usage is opt-out and the off switch exists', () => {
+  assert.match(markup, /id="usageOptOut"/);
+  assert.match(scriptSource, /recordUsage/);
+});
+
+test('figures named in schema.org featureList are actually rendered', () => {
+  const featureList = html.match(/"featureList":\s*"([^"]+)"/);
+  assert.ok(featureList, 'no schema.org featureList found');
+  const claims = [
+    ['walk-away price', /result\.breakEvenPrice/],
+    ['price per square foot', /result\.pricePerSqFt/],
+    ['price per cubic yard', /result\.pricePerYard/],
+    ['effective hourly rate', /result\.effectiveHourlyRate/],
+    ['proposed-price', /result\.proposed/],
+    ['quarter-yard', /result\.orderedYards/],
+  ];
+  for (const [claim, rendered] of claims) {
+    assert.ok(
+      featureList[1].toLowerCase().includes(claim.toLowerCase()),
+      `featureList no longer advertises "${claim}"`,
+    );
+    assert.match(scriptSource, rendered, `featureList advertises "${claim}" but the page never renders it`);
+  }
+});
+
+test('null per-unit ratios are rendered as a placeholder, not formatted', () => {
+  assert.match(scriptSource, /result\.pricePerSqFt === null/);
+  assert.match(scriptSource, /result\.pricePerYard === null/);
+  assert.match(scriptSource, /result\.effectiveHourlyRate === null/);
+});
+
+test('the satellite yardage page answers the search question and links back', () => {
+  assert.match(seo, /How much concrete for a driveway/);
+  assert.match(seo, /cubic yard/i);
+  assert.match(seo, /index\.html/);
+  assert.match(seo, /No warranty/);
+  assert.match(seo, /slabVolumeCuYd/);
+});
