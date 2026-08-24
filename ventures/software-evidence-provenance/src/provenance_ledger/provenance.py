@@ -182,6 +182,44 @@ def _roll_up(states: list[str]) -> str:
     return UNRESOLVED
 
 
+def _presence_state(inp: dict[str, Any]) -> str:
+    """Present only when the path was hashed as a regular file.
+
+    A directory or unreadable path exists on disk but was never examined, so it
+    is unresolved -- never pass. A missing path is fail.
+    """
+    if inp.get("sha256"):
+        return PASS
+    if inp.get("exists"):
+        return UNRESOLVED
+    return FAIL
+
+
+def _declared_hashes_detail(inputs: list[dict[str, Any]], declared_states: list[str]) -> str:
+    if not declared_states:
+        return "no input carried a declared_sha256 to check"
+    mismatched = [
+        inp.get("path") for inp in inputs if inp.get("hash_match") == "mismatch"
+    ]
+    unchecked = [
+        inp.get("path")
+        for inp in inputs
+        if inp.get("declared_sha256") and inp.get("hash_match") not in {"matched", "mismatch"}
+    ]
+    if not mismatched and not unchecked:
+        return "every declared_sha256 matched the file on disk"
+    parts = []
+    if mismatched:
+        parts.append(
+            f"declared_sha256 mismatch on: {', '.join(str(p) for p in mismatched)}"
+        )
+    if unchecked:
+        parts.append(
+            f"declared_sha256 not verified on: {', '.join(str(p) for p in unchecked)}"
+        )
+    return "; ".join(parts)
+
+
 def _derive_checks(inputs: list[dict[str, Any]], source: dict[str, Any]) -> list[dict[str, Any]]:
     checks: list[dict[str, Any]] = []
 
@@ -199,17 +237,27 @@ def _derive_checks(inputs: list[dict[str, Any]], source: dict[str, Any]) -> list
         }
     )
 
-    present_states = [PASS if inp.get("exists") else FAIL for inp in inputs]
+    present_states = [_presence_state(inp) for inp in inputs]
     missing = [inp.get("path") for inp in inputs if not inp.get("exists")]
+    unreadable = [
+        inp.get("path") for inp in inputs if inp.get("exists") and not inp.get("sha256")
+    ]
+    if not missing and not unreadable:
+        present_detail = "every named input file exists"
+    else:
+        parts = []
+        if missing:
+            parts.append(f"missing input file(s): {', '.join(str(p) for p in missing)}")
+        if unreadable:
+            parts.append(
+                f"not a readable regular file: {', '.join(str(p) for p in unreadable)}"
+            )
+        present_detail = "; ".join(parts)
     checks.append(
         {
             "name": "all_inputs_present",
             "state": _roll_up(present_states),
-            "detail": (
-                "every named input file exists"
-                if not missing
-                else f"missing input file(s): {', '.join(str(p) for p in missing)}"
-            ),
+            "detail": present_detail,
         }
     )
 
@@ -218,41 +266,30 @@ def _derive_checks(inputs: list[dict[str, Any]], source: dict[str, Any]) -> list
         for inp in inputs
         if inp.get("declared_sha256")
     ]
-    mismatched = [
-        inp.get("path") for inp in inputs if inp.get("hash_match") == "mismatch"
-    ]
     checks.append(
         {
             "name": "declared_hashes_matched",
             "state": _roll_up(declared_states),
-            "detail": (
-                "no input carried a declared_sha256 to check"
-                if not declared_states
-                else (
-                    "every declared_sha256 matched the file on disk"
-                    if not mismatched
-                    else f"declared_sha256 mismatch on: {', '.join(str(p) for p in mismatched)}"
-                )
-            ),
+            "detail": _declared_hashes_detail(inputs, declared_states),
         }
     )
 
     for role in ("manifest", "lockfile", "artifact"):
         described = [inp for inp in inputs if inp.get("role") == role]
-        state = _roll_up([PASS if inp.get("exists") else FAIL for inp in described])
+        state = _roll_up([_presence_state(inp) for inp in described])
+        if not described:
+            role_detail = f"no input with role '{role}' was described"
+        elif state == PASS:
+            role_detail = f"{role} input present"
+        elif state == FAIL:
+            role_detail = f"{role} input described but missing on disk"
+        else:
+            role_detail = f"{role} input described but not a readable regular file"
         checks.append(
             {
                 "name": f"{role}_present",
                 "state": state,
-                "detail": (
-                    f"no input with role '{role}' was described"
-                    if not described
-                    else (
-                        f"{role} input present"
-                        if state == PASS
-                        else f"{role} input described but missing on disk"
-                    )
-                ),
+                "detail": role_detail,
             }
         )
 

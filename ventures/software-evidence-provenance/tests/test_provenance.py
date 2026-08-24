@@ -148,6 +148,30 @@ class BuildBundleTest(unittest.TestCase):
         bundle = build_bundle(descriptor, base_dir=self.root)
         self.assertIsNone(bundle["inputs"][0]["sha256"])
         self.assertEqual(bundle["inputs"][0]["hash_match"], "unresolved")
+        checks = {c["name"]: c for c in bundle["checks"]}
+        # A directory exists but was never hashed -- presence is not a pass.
+        self.assertEqual(checks["all_inputs_present"]["state"], "unresolved")
+        self.assertEqual(checks["artifact_present"]["state"], "unresolved")
+        self.assertNotIn("every named input file exists", checks["all_inputs_present"]["detail"])
+        self.assertNotEqual(checks["artifact_present"]["detail"], "artifact input present")
+
+    def test_unhashable_declared_hash_does_not_claim_match(self):
+        (self.root / "adir").mkdir()
+        descriptor = {
+            "release": "r",
+            "inputs": [
+                {"role": "artifact", "path": "adir", "declared_sha256": "a" * 64},
+                {"role": "manifest", "path": "gone.json", "declared_sha256": "b" * 64},
+            ],
+        }
+        bundle = build_bundle(descriptor, base_dir=self.root)
+        self.assertEqual(bundle["inputs"][0]["hash_match"], "unresolved")
+        self.assertEqual(bundle["inputs"][1]["hash_match"], "unresolved")
+        check = next(c for c in bundle["checks"] if c["name"] == "declared_hashes_matched")
+        self.assertEqual(check["state"], "fail")
+        self.assertNotIn("every declared_sha256 matched", check["detail"])
+        self.assertIn("adir", check["detail"])
+        self.assertIn("gone.json", check["detail"])
 
 
 class VerifyBundleTest(unittest.TestCase):
