@@ -8,6 +8,9 @@ reports net profit, margin, return on your invested cash (ROI), and the lowest
 resale price that still breaks even. Set a target net margin to get the listing
 price required to reach it, which makes the calculator useful for repricing as
 well as sourcing.
+Enter multiple units to see total batch economics and profit per unit without
+repeating the calculation. Break-even and target-margin prices remain listing
+prices for one unit.
 
 Open `index.html` in a browser. The calculation is local and works without an
 account, network request, or API key. It is arithmetic, not an estimate of the
