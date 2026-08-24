@@ -22621,6 +22621,49 @@ entries:
           `main` tip at merge time. Agent-decidable per `CLAUDE.md`
           (internal, non-breaking, publishes nothing); opened and
           squash-merged as #893.
+  - venture: backup-verification-evidence
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+          Shipped a new venture: `ventures/backup-verification-evidence`, a
+          free local CLI that turns a backup job's real exit code plus its
+          artifact stat into a `verified`/`suspicious`/`failed`/`inconclusive`
+          record. The failure mode it exists to catch is the silent one --
+          a cron backup that exits 0 while the artifact is missing,
+          truncated, or stale -- which an exit code alone cannot detect.
+          `record` wraps a real command and observes it; `check` classifies
+          saved records and exits non-zero when the latest run is not
+          verified, so it wires into existing monitoring without shipping
+          any alerting of its own.
+      - >-
+          Verified beyond fixtures: 17 unit tests pass, and the CLI was run
+          end-to-end against real `tar` invocations including two induced
+          failures. The silent-failure case (command exits 0, artifact
+          truncated to 0 bytes) was correctly classified `suspicious`, not
+          `verified`; a genuine nonzero exit was `failed`. `ruff check`
+          clean.
+      - >-
+          Scored the candidate at composite 6.5 / floor 4 (defensibility,
+          distribution) and registered it in `candidates.yaml`, a write-up,
+          and README.md's ranked table -- distinctness checked against
+          `dns-configuration-evidence`, `vendor-change-evidence`, and
+          `repository-branch-hygiene` (different customer, no network fetch
+          at all, local filesystem metadata only). Demand and distribution
+          are unmeasured: no practitioner has seen it.
+      - >-
+          Local, event-count-only usage counter behind an opt-in
+          `--usage-file` flag; LICENSE, disclaimer, and privacy sections
+          shipped with v0. No network calls, no paid API, no hosted
+          component, $0 variable cost. Path-filtered CI added; publish
+          surface still 0 live across 41 workflows.
+      - >-
+          PR triage this session: merged #875 (branch-cleanup reused-ref
+          grace fix). Closed #876 as duplicate -- `main`'s a74470b already
+          shipped the same `dns-configuration-evidence` probe, confirmed by
+          add/add conflicts on every file. Closed #871 as superseded by
+          #874, which had already merged the graduated
+          `ventures/repository-branch-hygiene`.
     mrr_end: null
   - venture: ai-engineering-academy
     agent_spend_usd: null
