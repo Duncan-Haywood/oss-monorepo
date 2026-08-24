@@ -703,7 +703,7 @@ candidates:
     name: DNS configuration evidence monitor
     doc: candidates/dns-configuration-evidence.md
     verdict: probe
-    probe_status: not-started
+    probe_status: "fixture-recorder-built; demand and distribution unmeasured"
     graduate_as: venture
     host_venture: null
     scores:
