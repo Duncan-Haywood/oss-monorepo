@@ -62,6 +62,14 @@ write-up named; the rest carry their own reason.
 
 ## Notes for the next pass
 
+The **vendor-change evidence monitor** is intentionally retained as a separate
+candidate rather than screened out as public-record watch or documentation
+drift. It watches customer-selected commercial vendor pages and preserves
+source-linked before/after evidence; it does not monitor public registers, infer
+legal consequences, or watch a customer's own documentation. Its low
+defensibility and distribution scores are explicit, and both have named probe
+mitigations in [the write-up](candidates/vendor-change-evidence.md).
+
 - **Deadline-driven compliance is the strongest available wedge for this
   portfolio, and also the most dangerous.** It supplies urgency and a price
   anchor without paid acquisition, and it puts you one positioning error away
