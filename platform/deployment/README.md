@@ -18,7 +18,7 @@ kept per criterion rather than rewritten each time:
 | If the criterion is | The answer is | Because |
 |---|---|---|
 | Lowest spend risk, $0 floor | **Cloudflare** | Free tier takes no card and stops rather than bills |
-| Best fit for the code as written | **Vercel** | Seven Next.js apps, and **four ventures already carry a `vercel.json`** |
+| Best fit for the code as written | **Vercel** | Seven of the nine web apps are Next.js; **four ventures carry a `vercel.json`** |
 | **A spend cap built into the vendor** | **Vercel or Railway** | Only these two ship a halt-at-an-amount control |
 | **Most all-inclusive** | **Railway** | The only managed platform that hosts *every* workload here |
 | **Best value** | **Hetzner** | ~$5/month for all of it; the tenth app costs $0 |
@@ -55,8 +55,9 @@ bill usually is.
 ## The workload inventory — and the fact that disqualifies Vercel
 
 The earlier passes of this document counted *frameworks* and concluded Vercel,
-because seven of nine apps are Next.js. Counting **workloads** instead changes
-the answer, because two of them are not request/response web apps at all:
+because seven of the nine *web apps* are Next.js. Counting **workloads**
+instead changes the answer, because the portfolio also has two that are not
+request/response web apps at all:
 
 | Workload | Where | Vercel | Railway | Hetzner |
 |---|---|---|---|---|
@@ -99,22 +100,25 @@ is growing:
 ## The value question, with the arithmetic shown
 
 "Value" is cost per unit of capability, so it has to be priced against *this*
-portfolio: nine app-ish workloads, near-zero traffic, occasional deploys, and
-no customers. All figures are approximate and unverified (see the limits
+portfolio: **eleven hostable workloads** — nine web apps (seven Next.js, two
+static docs sites) plus the two daemons — near-zero traffic, occasional
+deploys, and no customers. Two more ventures (`world-clock-widget`,
+`garmin-world-traveler-watchface`) build store artifacts and are not hosted
+anywhere, so no platform choice affects them. All figures are approximate and unverified (see the limits
 section) — the ratios are the point, not the decimals.
 
 | | Hetzner CX22 | Railway Hobby | Vercel Pro |
 |---|---|---|---|
 | Monthly floor | **~$5** (€3.79 + IPv4, +20% for backups) | **$5**, and $5 of usage is included | **$20/seat** |
-| Realistic monthly, this portfolio | ~$5 | ~$10–25 once nine services are always-on | $20 + Postgres + a second host for the two daemons |
+| Realistic monthly, this portfolio | ~$5 | ~$10–25 once a dozen services are always-on | $20 + Postgres + a second host for the two daemons |
 | Cost of the tenth app | **$0** | metered — more RAM, more bill | $0 (same seat) |
 | Postgres | you install it | **included as a service** | marketplace add-on |
 | Traffic | 20 TB included | metered | generous, then metered |
 | Hosts every workload here | **yes** | **yes** | **no** |
 
 **On raw dollars, Hetzner wins and it is not close** — roughly a quarter of
-Vercel's floor, for a box that runs all nine workloads plus the database, with
-20 TB of traffic and a marginal app cost of zero. If "best value" means dollars
+Vercel's floor, for a box that runs all eleven workloads plus the database,
+with 20 TB of traffic and a marginal app cost of zero. If "best value" means dollars
 per capability, that is the answer and the rest of this section is the caveat.
 
 The caveat is that Hetzner's price is not its cost. What comes back with the VM
@@ -142,9 +146,9 @@ together" it is the only option that scores on both.
 ## Runners-up, and when each would win
 
 **Vercel** — still the best fit for the *code*, and the strongest cap control
-(Spend Management pauses the project at a set amount). Seven of nine apps are
-Next.js, four ventures already carry a `vercel.json`, and `next build` is the
-deploy with no translation layer. It loses this question on two counts: it cannot host the two daemons at
+(Spend Management pauses the project at a set amount). Seven of the nine web
+apps are Next.js, four ventures already carry a `vercel.json`, and `next build`
+is the deploy with no translation layer. It loses this question on two counts: it cannot host the two daemons at
 all, so it is not the all-inclusive answer by definition; and $20/seat is four
 times Railway's floor. **Choose Vercel if the Next.js apps are the only thing
 that will ever be deployed** and the two daemons stay off-platform.
@@ -235,7 +239,7 @@ unsupervised — which is precisely what the first table ranks.
 **Not measured — confirm before granting.** Every price, quota and feature
 claim above is from model knowledge, not first-hand: the vendor documentation
 hosts are all egress-denied from this environment, so none of it could be
-re-verified. Three items are load-bearing enough to check in a browser first:
+re-verified. Four items are load-bearing enough to check in a browser first:
 
 1. **Railway's usage limit still hard-stops** — takes workloads offline at the
    ceiling rather than only warning — and is available on the Hobby plan.
