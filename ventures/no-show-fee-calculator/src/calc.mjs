@@ -153,11 +153,12 @@ export function compareFeeScenarios(values) {
  * Always returns text ending in the non-warranty note — callers should not
  * strip it.
  *
- * @param {{ businessName?: string, serviceName?: string, noticeHours: number, feePercent: number, feeAmount: number, currencySymbol?: string }} args
+ * @param {{ businessName?: string, serviceName?: string, collectionMethod?: string, noticeHours: number, feePercent: number, feeAmount: number, currencySymbol?: string }} args
  */
 export function generatePolicyText({
   businessName,
   serviceName,
+  collectionMethod = "payment-method",
   noticeHours,
   feePercent,
   feeAmount,
@@ -167,6 +168,12 @@ export function generatePolicyText({
   const what = serviceName && serviceName.trim() ? serviceName.trim() : "appointment";
   const notice = formatHours(noticeHours);
   const fee = `${currencySymbol}${feeAmount.toFixed(2)}`;
+  const collection = {
+    "payment-method": "We will charge the payment method you provided for the booking.",
+    invoice: "We will send an invoice for the cancellation or no-show fee, payable according to its terms.",
+    booking: "The fee will be collected when the booking is made, using the payment method offered at checkout.",
+    contact: "We will contact you to arrange payment of the cancellation or no-show fee.",
+  }[collectionMethod] ?? "We will contact you to arrange payment of the cancellation or no-show fee.";
 
   const lines = [
     `Cancellation & No-Show Policy — ${who}`,
@@ -174,6 +181,8 @@ export function generatePolicyText({
     `We ask for at least ${notice} of notice to cancel or reschedule your ${what}.`,
     "",
     `Cancellations or no-shows with less than ${notice} of notice will be charged ${feePercent}% of the ${what} price (${fee}).`,
+    "",
+    collection,
     "",
     "This isn't a penalty — a reserved slot that opens up with little notice usually can't be rebooked, so the fee covers that lost time.",
     "",
@@ -194,6 +203,7 @@ const SHARE_FIELDS = [
   "enforcementRatePct",
   "businessName",
   "serviceName",
+  "collectionMethod",
 ];
 
 /** @param {Record<string, unknown>} raw @param {string} baseUrl */

@@ -120,6 +120,7 @@ function render() {
   policyEl.value = generatePolicyText({
     businessName: String(raw.businessName ?? ""),
     serviceName: String(raw.serviceName ?? ""),
+    collectionMethod: String(raw.collectionMethod ?? "payment-method"),
     noticeHours: parsed.values.noticeHours,
     feePercent: parsed.values.feePercent,
     feeAmount: result.feeAmount,

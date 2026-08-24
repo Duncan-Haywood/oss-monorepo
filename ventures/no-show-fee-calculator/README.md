@@ -44,7 +44,7 @@ No build step, no install, no dependencies. It's plain HTML/CSS/JS.
 4. Get: the fee amount, how many no-shows/late-cancels you can expect in a
    year at your rate, what that time is worth, and an estimate of fee
    revenue you could collect if you enforce the policy — plus a plain-text
-   cancellation policy you can copy straight into your booking system,
+   cancellation policy (including how you plan to collect the fee) you can copy straight into your booking system,
    client agreement, or website.
 
 All the arithmetic is in [`src/calc.mjs`](src/calc.mjs), covered by
