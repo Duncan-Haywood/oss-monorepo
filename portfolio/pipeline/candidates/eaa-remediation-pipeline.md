@@ -275,6 +275,19 @@ in-page link, minimum content) evaluate real per-request markup the way they
 are meant to, not just a fixture or a page that never finished rendering.
 `liability_containment` stays 5, on the gate.
 
+**Amended 2026-08-24: the per-engagement positive control is now in the
+product.** Finding 2 of
+[`a11y-generated-sites`](../../research/a11y-generated-sites/) said a
+qualification audit needs to mutate the customer's own page and check the
+rule fires, otherwise a clean report cannot be told from a scanner that
+could not read the site. That harness lived in research. It now runs on
+every `eaa-wcag-triage` CLI invocation
+and the evidence record prints the result in the header and above the
+findings table. A miss is named as a miss. **No score moved** —
+`liability_containment` is still 5 and still on the gate; this does not
+change what the engine finds, only whether a clean table can hide a deaf
+scanner.
+
 ## Buyer-segment correction (2026-08-19, per ledger PR #96)
 
 **The "ten German or Swedish shops" in the first experiment below is largely the

@@ -312,6 +312,11 @@ which sells the same audit through another channel, two things are recorded:
    the rule fires — and it is the only thing that distinguishes "your site is
    clean" from "our scanner could not read your site." Both gaps above would
    have produced a clean report on a page that was not clean.
+   **Shipped in the product 2026-08-24:**
+   the `eaa-wcag-triage` CLI now runs that control on every invocation
+   and the evidence record prints the result.
+   This directory remains the measurement that named the requirement; the
+   product is where a buyer would see a miss.
 
 The candidate's own liability rule — *state coverage limits in the product, not
 in the terms* — is why both belong here rather than in a backlog.

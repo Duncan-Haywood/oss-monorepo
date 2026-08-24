@@ -589,6 +589,28 @@ became the fifth; and later still the same day, when 1.3.4 became the sixth,
 leaving 1.2.1 as the only `unimplemented` row left and the only one of the
 original eight that is actually undecidable rather than merely unbuilt.
 
+## Positive control (2026-08-24)
+
+A clean findings table is ambiguous: either the page has no static defects, or
+the scanner could not read the page. [`a11y-generated-sites`](../../../research/a11y-generated-sites/)
+named the cheap test that separates them — mutate the customer's own page,
+check the rule fires — and ran it as research. That test is now in the
+product: the probe's positive-control module
+runs on every CLI invocation, and the evidence record prints the result in the
+header and in its own section immediately above the findings.
+
+Eleven mutations (three removals, eight injections) cover the blocking
+criteria a qualification audit leads with. A removal that finds nothing to
+edit is `not_exercised` — untested, not passed. A page that already failed
+the target check is `already_present`, not a miss. `missed` is reserved for
+the case the research named: we introduced the defect and the scanner
+reported nothing.
+
+No score moved. The control does not change precision, recall, or
+`liability_containment`. It makes a silent miss visible in the file a buyer
+holds, which is the coverage-in-the-product rule this probe already follows
+for everything else.
+
 ## Run it
 
 ```bash
@@ -615,7 +637,7 @@ Run in CI by [`eaa-wcag-triage-ci.yml`](../../../../.github/workflows/eaa-wcag-t
 which also re-runs `run_fixture_validation.py` and fails if the committed
 record no longer matches what the engine emits.
 
-272 tests: parser behaviour, each rule and its negative control, the
+282 tests: parser behaviour, each rule and its negative control, the
 blocking-before-degrading ordering, dedup of one element matched by two rules,
 the evidence record's JSON/markdown shape and its compliance disclaimer, the
 fixture validation, and — added 2026-08-21 — the two rules this engine was
@@ -648,6 +670,12 @@ orientation condition, both orientations named at once, `rotate(0deg)` /
 that carries no `rotate()`, an unconditional rotation that never locks
 anything), unit conversion (`turn`, `grad`) feeding the same no-op check, and
 that only one finding is ever reported even when both elements are locked.
+Added 2026-08-24, for the per-engagement positive control (10 tests): every
+mutation that bites a well-formed page is caught, a fragment with no
+attachment point is `not_exercised` rather than a fabricated catch, a page
+that already fails the target check is not a miss, a constructed miss stays
+a miss, the record omits the section when the control was not run and prints
+it above the findings when it was, and a miss is named in the header.
 
 ## Scope and honesty, in one place
 
