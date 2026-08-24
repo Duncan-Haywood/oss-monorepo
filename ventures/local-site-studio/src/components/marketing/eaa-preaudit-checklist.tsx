@@ -1,0 +1,102 @@
+"use client";
+
+import { useEffect, useState } from "react";
+import { EAA_PREAUDIT_CHECKS, checklistExport, checklistPercent } from "@/lib/pricing/eaa-checklist";
+
+const USAGE_KEY = "local-site-studio:eaa-preaudit-events";
+const OPT_OUT_KEY = "local-site-studio:eaa-preaudit-usage-opt-out";
+
+function recordUsage(event: string) {
+  try {
+    if (localStorage.getItem(OPT_OUT_KEY) === "true") return;
+    const current = JSON.parse(localStorage.getItem(USAGE_KEY) || "{}") as Record<string, number>;
+    current[event] = (current[event] || 0) + 1;
+    localStorage.setItem(USAGE_KEY, JSON.stringify(current));
+  } catch {
+    // Private browsing and disabled storage must not break the checklist.
+  }
+}
+
+export function EaaPreauditChecklist() {
+  const [checked, setChecked] = useState<string[]>([]);
+  const [optedOut, setOptedOut] = useState(() => {
+    try {
+      return localStorage.getItem(OPT_OUT_KEY) === "true";
+    } catch {
+      return false;
+    }
+  });
+  const percent = checklistPercent(checked);
+
+  useEffect(() => {
+    try {
+      recordUsage("preaudit_opened");
+    } catch {
+      // The control remains useful without browser storage.
+    }
+  }, []);
+
+  function toggle(id: string) {
+    setChecked((current) => {
+      const next = current.includes(id) ? current.filter((item) => item !== id) : [...current, id];
+      recordUsage("preaudit_check_toggled");
+      return next;
+    });
+  }
+
+  function downloadNotes() {
+    recordUsage("preaudit_notes_exported");
+    const blob = new Blob([checklistExport(checked)], { type: "text/plain;charset=utf-8" });
+    const link = document.createElement("a");
+    link.href = URL.createObjectURL(blob);
+    link.download = "accessibility-evidence-preaudit.txt";
+    link.click();
+    URL.revokeObjectURL(link.href);
+  }
+
+  function setUsagePreference(value: boolean) {
+    setOptedOut(value);
+    try {
+      localStorage.setItem(OPT_OUT_KEY, String(value));
+    } catch {
+      // Preference is best effort; no event is required for the feature to work.
+    }
+  }
+
+  return (
+    <div className="mt-8 rounded-2xl border border-zinc-200 bg-white p-6 shadow-sm">
+      <div className="flex flex-wrap items-end justify-between gap-4">
+        <div>
+          <p className="text-sm font-medium text-zinc-500">Free preparation tool</p>
+          <h2 className="mt-1 text-2xl font-semibold tracking-tight text-zinc-900">Build an evidence-ready checklist</h2>
+        </div>
+        <p className="text-2xl font-semibold text-zinc-900" aria-live="polite">{percent}% ready</p>
+      </div>
+      <p className="mt-3 max-w-2xl text-sm leading-6 text-zinc-600">
+        Mark what you have checked, then download a plain-text handoff for your team or auditor.
+        This does not test your shop and an unchecked item is not proof of a failure.
+      </p>
+      <div className="mt-6 space-y-3">
+        {EAA_PREAUDIT_CHECKS.map((item) => (
+          <label key={item.id} className="flex cursor-pointer gap-3 rounded-xl border border-zinc-200 p-3 hover:bg-zinc-50">
+            <input type="checkbox" checked={checked.includes(item.id)} onChange={() => toggle(item.id)} className="mt-1 h-4 w-4 accent-zinc-900" />
+            <span>
+              <span className="block text-sm font-medium text-zinc-900">{item.label}</span>
+              <span className="block text-sm leading-5 text-zinc-600">{item.prompt}</span>
+            </span>
+          </label>
+        ))}
+      </div>
+      <button type="button" onClick={downloadNotes} className="mt-6 rounded-full bg-zinc-900 px-5 py-3 text-sm font-medium text-white hover:bg-zinc-700">
+        Download handoff notes
+      </button>
+      <label className="mt-5 flex items-center gap-2 text-xs text-zinc-500">
+        <input type="checkbox" checked={optedOut} onChange={(event) => setUsagePreference(event.target.checked)} />
+        Don&apos;t count anonymous feature-use events on this device
+      </label>
+      <p className="mt-5 border-t border-zinc-200 pt-4 text-xs leading-5 text-zinc-500">
+        No warranty. This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal or compliance advice, and it does not replace a qualified professional. You are responsible for reviewing and verifying its output before relying on it. The authors accept no liability for loss or damage arising from its use.
+      </p>
+    </div>
+  );
+}
