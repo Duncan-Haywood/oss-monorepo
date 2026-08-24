@@ -140,7 +140,7 @@ is issue further reading orders: the pipeline directory, the ledger README and
 its `break-even.md`, `re-verification.md`, the research index, the router
 README. None of those is named by the prompt. Taking the closure to its fixed
 point, as [the amendment below](#amendment-2026-08-23-the-closure-is-transitive-and-was-measured-one-hop-deep)
-records, the instruction set is **120 files at a maximum depth of 4**.
+records, the instruction set is **121 files at a maximum depth of 4**.
 
 Every one is an ordinary repository file. Every one is one merged pull request
 away from saying something else. And the agent reads all of them while holding
@@ -148,9 +148,9 @@ away from saying something else. And the agent reads all of them while holding
 `OPENCODE_API_KEY`.
 
 An attack-replay harness pointed at this agent tests the `prompt:` input. That
-input is 1 of the 120 files in the instruction set, and it is the only one of
-the 120 that an attacker has no particular reason to write to. The harness would
-test the surface at a ratio of 1:120, and it would test the wrong end of it.
+input is 1 of the 121 files in the instruction set, and it is the only one of
+the 121 that an attacker has no particular reason to write to. The harness would
+test the surface at a ratio of 1:121, and it would test the wrong end of it.
 
 This is not a subtle property that needed a clever tool. It is four regexes over
 a markdown file, a glob expansion, and a worklist that keeps going until it
@@ -191,9 +191,9 @@ that flatters it.
 | prompt input | 1 |
 | depth 1 — paths the prompt names | 21 |
 | depth 2 | 56 |
-| depth 3 | 39 |
+| depth 3 | 40 |
 | depth 4 | 4 |
-| **instruction set (fixed point)** | **120** |
+| **instruction set (fixed point)** | **121** |
 
 The first-hop number is unchanged, so nothing above it is retracted; what
 changed is that the walk no longer stops there. Three things are worth naming
@@ -377,8 +377,51 @@ naming them as path-spans. The walker only follows a backticked path
 expression, so the same check, named differently, is not part of the
 instruction set. That is the cheap half of the finding this probe exists to
 measure: the surface grows when a directed document *names* a path, not when
-the path exists. The artifact and the depth table above are regenerated
-against this checkout (21 / 56 / 39 / 4 = 120).
+the path exists. The artifact and the depth table were regenerated against that
+checkout (21 / 56 / 39 / 4 = 120). The depth table above now reads 121; see the
+fifth instance below, which moved it again without any prose changing.
+
+### Amendment 2026-08-24: the fifth instance, in which *no document changed at all*
+
+`120` became **121** on `main`, and the committed artifact read as a current
+measurement for hours with nothing red. The file that entered is
+`ventures/local-site-studio/src/app/global-error.tsx`.
+
+The four instances above all have the same shape: someone edited prose, and the
+edit named a path. **This one has no edit.** No document in the closure changed.
+`ventures/quick-pick-survey/IMPROVEMENT-PLAN.md` -- a depth-1 file, named by the
+prompt itself -- has named `` `global-error.tsx` `` as a bare spec since long
+before any of this. A bare spec resolves against the naming document's tree, and
+until 2026-08-24 exactly one file in the repository matched it. Then
+`local-site-studio` gained a `global-error.tsx` of its own, as part of unrelated
+security work, and the same unchanged sentence in an unrelated venture's plan
+document pulled it into the agent's instruction set.
+
+So the surface can grow **when a file is created**, not only when a document
+names it -- provided some directed document already carries a bare spec the new
+file happens to match. Every previous amendment here concluded, correctly for
+its own instance, that "the surface grows when a directed document *names* a
+path, not when the path exists." That sentence is now too narrow: a bare spec is
+a *standing* name, and it captures files that do not exist yet. Nobody adding an
+error boundary to a venture is choosing to widen an agent's attack surface, and
+no reviewer of that diff could see that they had.
+
+This also defeats the widened path filter, and by construction rather than by
+oversight. The trigger watches the documents the closure walks through; here the
+enlarging change was a `.tsx` file in a venture, which is not one of them and
+should not be. Widening the filter to "any file whose name might match a bare
+spec somewhere in the closure" is the whole repository. The honest reading is
+that **this artifact cannot be pinned by a path filter at all** -- only by
+running the check on every pull request, or by accepting that it is a lagging
+measurement and saying so where it is quoted.
+
+Found from an unrelated pull request (#720, the deployment-platform decision),
+whose own diff adds **nothing** to the closure -- verified by computing the
+closure on that branch and on clean `main` and diffing the two sets, which are
+identical at 121. It tripped the trigger by touching `platform/` and
+`portfolio/ledger/asks.yaml`, exactly the accidental mechanism the amendment
+above describes, on the fourth occasion out of five that this number has been
+corrected by a session that did not move it.
 
 ## What this probe deliberately does not do
 
