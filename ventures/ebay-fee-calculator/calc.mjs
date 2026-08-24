@@ -21,6 +21,7 @@ export const INPUT_FIELDS = [
   'packagingCost',
   'otherCost',
   'targetMargin',
+  'targetRoi',
 ];
 
 export function calculateOrder(input) {
@@ -40,6 +41,7 @@ export function calculateOrder(input) {
   const packagingCost = number(input.packagingCost ?? 0, 'Packaging cost');
   const otherCost = number(input.otherCost ?? 0, 'Other cost');
   const targetMargin = number(input.targetMargin ?? 0, 'Target margin');
+  const targetRoi = number(input.targetRoi ?? 0, 'Target ROI');
   const quantity = number(input.quantity ?? 1, 'Units');
   if (!Number.isInteger(quantity) || quantity < 1) throw new Error('Units must be a whole number of at least 1');
   if (targetMargin >= 100) throw new Error('Target margin must be less than 100%');
@@ -69,6 +71,11 @@ export function calculateOrder(input) {
   const fixedCash = fixedFee + costOfGoods + shippingCost + packagingCost + otherCost;
   const targetMarginRate = targetMargin / 100;
   const targetRevenueDenominator = 1 - percentRate - targetMarginRate;
+  // Solve profit / cash invested >= target ROI for the maximum acquisition
+  // cost. This is the sourcing ceiling for one unit at the planned sale price.
+  const targetRoiRate = targetRoi / 100;
+  const profitBeforeGoods = (price + shippingCharged) * (1 - percentRate) - fixedFee - shippingCost - packagingCost - otherCost;
+  const maxCostOfGoodsRaw = (profitBeforeGoods - targetRoiRate * (shippingCost + packagingCost + otherCost)) / (1 + targetRoiRate);
   return {
     revenue,
     quantity,
@@ -92,6 +99,8 @@ export function calculateOrder(input) {
     targetMarginPrice: targetRevenueDenominator <= 0
       ? Infinity
       : Math.max(0, fixedCash / targetRevenueDenominator - shippingCharged),
+    maxCostOfGoods: Math.max(0, maxCostOfGoodsRaw),
+    targetRoiAchievable: maxCostOfGoodsRaw >= 0,
   };
 }
 

@@ -57,6 +57,7 @@
           <label>Packaging cost <input id="packagingCost" type="number" min="0" step="0.01" value="1"></label>
           <label>Other per-order cost <input id="otherCost" type="number" min="0" step="0.01" value="0"></label>
           <label>Target net margin (%) <input id="targetMargin" type="number" min="0" max="99.99" step="0.1" value="20"></label>
+          <label>Target ROI (%) <input id="targetRoi" type="number" min="0" step="1" value="50"></label>
         </div>
       </section>
       <section class="result">
@@ -72,6 +73,7 @@
           <dt>Profit per unit</dt><dd id="unitProfit"></dd>
           <dt>Break-even item price</dt><dd id="breakEven"></dd>
           <dt>Price for target margin</dt><dd id="targetMarginPrice"></dd>
+          <dt>Max buy cost for target ROI</dt><dd id="maxCostOfGoods"></dd>
         </dl>
         <hr>
         <p class="note">Transparent arithmetic from your inputs — not a statement of eBay's current fee schedule. Fees vary by category, store subscription, and seller status.</p>
@@ -141,7 +143,8 @@
         document.getElementById('roi').textContent = result.roi === null ? 'n/a' : `${result.roi.toFixed(1)}%`;
         document.getElementById('unitProfit').textContent = money(result.unitProfit);
         document.getElementById('breakEven').textContent = Number.isFinite(result.breakEvenPrice) ? money(result.breakEvenPrice) : 'never';
-        document.getElementById('targetMarginPrice').textContent = Number.isFinite(result.targetMarginPrice) ? money(result.targetMarginPrice) : 'unreachable';
+         document.getElementById('targetMarginPrice').textContent = Number.isFinite(result.targetMarginPrice) ? money(result.targetMarginPrice) : 'unreachable';
+         document.getElementById('maxCostOfGoods').textContent = result.targetRoiAchievable ? money(result.maxCostOfGoods) : 'none';
       } catch (error) {
         document.getElementById('profit').textContent = error.message;
         document.getElementById('profit').className = 'hero-number negative';
@@ -153,7 +156,8 @@
         document.getElementById('roi').textContent = '';
         document.getElementById('unitProfit').textContent = '';
         document.getElementById('breakEven').textContent = '';
-        document.getElementById('targetMarginPrice').textContent = '';
+         document.getElementById('targetMarginPrice').textContent = '';
+         document.getElementById('maxCostOfGoods').textContent = '';
         document.getElementById('scenarios').innerHTML = '';
         document.getElementById('scenariosEmpty').hidden = false;
       }
@@ -183,7 +187,7 @@
     }
     ids.forEach(id => document.getElementById(id).addEventListener('change', () => {
       saveInputs();
-      recordUsage(localStorage, document.getElementById('usageOptOut').checked, id === 'targetMargin' ? 'target_margin_calculated' : id === 'quantity' ? 'batch_calculated' : 'order_profit_calculated');
+       recordUsage(localStorage, document.getElementById('usageOptOut').checked, id === 'targetMargin' ? 'target_margin_calculated' : id === 'targetRoi' ? 'target_roi_calculated' : id === 'quantity' ? 'batch_calculated' : 'order_profit_calculated');
     }));
     document.getElementById('usageOptOut').addEventListener('change', update);
     const actions = document.createElement('p');

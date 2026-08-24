@@ -42,6 +42,23 @@ test('calculates the item price required for a target net margin', () => {
   near(r.targetMarginPrice, 18.3 / 0.6675 - 6, 'target margin price');
 });
 
+test('calculates the maximum acquisition cost for a target ROI', () => {
+  const input = {
+    price: 40, shippingCharged: 6, finalValueRate: 13.25, fixedFee: 0.3,
+    shippingCost: 5, packagingCost: 1, targetRoi: 50,
+  };
+  const r = calculateOrder(input);
+  const atCeiling = calculateOrder({ ...input, costOfGoods: r.maxCostOfGoods });
+  near(atCeiling.roi, 50, 'ROI at maximum buy cost');
+  near(r.maxCostOfGoods, (46 * (1 - 0.1325) - 0.3 - 5 - 1 - 0.5 * 6) / 1.5, 'maximum buy cost');
+});
+
+test('reports when a target ROI is impossible even with a free item', () => {
+  const r = calculateOrder({ price: 10, shippingCost: 20, targetRoi: 1 });
+  assert.equal(r.maxCostOfGoods, 0);
+  assert.equal(r.targetRoiAchievable, false);
+});
+
 test('reports an unreachable target margin when fees leave no margin room', () => {
   const r = calculateOrder({ price: 10, finalValueRate: 80, targetMargin: 20 });
   assert.equal(r.targetMarginPrice, Infinity);

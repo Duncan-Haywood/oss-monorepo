@@ -8,6 +8,9 @@ reports net profit, margin, return on your invested cash (ROI), and the lowest
 resale price that still breaks even. Set a target net margin to get the listing
 price required to reach it, which makes the calculator useful for repricing as
 well as sourcing.
+Set a target ROI to see the most you can pay for the item and still hit that
+return after fees, shipping, and packaging. If the target is impossible even
+with a free item, the result says so instead of suggesting a purchase price.
 Enter multiple units to see total batch economics and profit per unit without
 repeating the calculation. Break-even and target-margin prices remain listing
 prices for one unit.
@@ -35,6 +38,8 @@ drive that decision:
   money, holding shipping charged constant.
 - **Target-margin item price** — the price needed to reach a chosen net margin
   after the same fees and cash costs.
+- **Maximum buy cost** — the most you can pay to source the item while still
+  reaching a chosen ROI at the planned sale price.
 - **Repricing sensitivity** — profit, margin, and the signed change against
   your current price at listing prices 10% and 20% either side of it.
   Percentage fees scale with the price, so a $1 increase never leaves $1 more
@@ -57,7 +62,7 @@ browser; it never records the inputs. Turn it off with the checkbox in the
 footer, or your browser's Do Not Track / Global Privacy Control setting.
 
 The counted events are `order_profit_calculated`, `target_margin_calculated`,
-`batch_calculated`, and `price_sensitivity_viewed`. The last one is counted at
+`target_roi_calculated`, `batch_calculated`, and `price_sensitivity_viewed`. The last one is counted at
 most once per visit and only after an input is edited — counting the table's
 first paint would just re-count page loads and say nothing about whether the
 repricing view is used.
@@ -70,7 +75,7 @@ support is entirely voluntary and never changes what the tool does.
 
 ## Save and share
 
-The calculator saves its ten numeric assumptions in your browser so returning
+The calculator saves its thirteen numeric assumptions in your browser so returning
 sellers do not re-enter them. **Copy shareable link** puts those assumptions in
 the URL fragment for a collaborator; anyone with the link can read the figures,
 so do not share sensitive information. Nothing is uploaded. Use **Reset saved
