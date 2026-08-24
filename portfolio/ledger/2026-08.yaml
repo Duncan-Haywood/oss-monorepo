@@ -22677,3 +22677,71 @@ entries:
           been sitting on #868's abandoned commit and was restarted from
           `main` rather than resurrecting it.
     mrr_end: null
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Scheduled "review every open PR, clear the backlog, then build"
+        session, designated branch claude/festive-mccarthy-eysttq.
+        session_gate.py said BUILD. Triaged all 7 open PRs first (#867,
+        #866, #829 already merged by concurrent sessions during the
+        triage; #814 got a real, small, pushed CI fix and was correctly
+        left owner-gated; #531/#720/#857 correctly left alone, #720's
+        block is a repo-wide branch-protection quirk already queued).
+      - >-
+        Graduated the vendor-change-evidence pipeline candidate (composite
+        6.75, both gates clear) into a full venture: a free Python CLI
+        (ventures/vendor-change-watch) with a live page fetcher, watchlist,
+        local snapshot storage, and disclaimers, built on the existing
+        probe's validated diff engine. 28 tests, ruff/mypy clean, opened
+        as #883.
+      - >-
+        #883's CI failed on push (missing venture-scores.yaml entry, a
+        stale generated agent-permission-harness snapshot, and a missing
+        pytest install for mypy); fixed all three and pushed, resolving one
+        real merge conflict against a concurrently-merged
+        dns-configuration-evidence venture along the way.
+      - >-
+        Before that fix's CI could report, #883 was closed as superseded
+        by #898 (a different session's bot, carrying the same
+        implementation plus the same three fixes). Checked out #898's
+        branch directly and pushed a further fix for two real bugs Cursor
+        Bugbot found in the carried-over code: a snapshot-filename
+        collision after deletion (High) and snapshot storage keyed only by
+        vendor+page_type, letting two watched URLs interleave (Medium) --
+        both with regression tests. Rebased onto a second round of
+        upstream pushes to the same branch (main had moved again) and
+        re-verified clean.
+      - >-
+        Before that push's CI could report either, #898 was itself closed
+        as superseded by #905 -- a *third*, independently-built
+        implementation (a Next.js web app, ventures/vendor-watch, from a
+        sibling claude/festive-mccarthy-* scheduled session) solving the
+        identical niche. Left #905 alone (not this session's PR to drive)
+        and did not open a fourth PR for the same change, per the
+        supersession notice's explicit instruction.
+      - >-
+        The finding worth recording is the pattern, not any one
+        implementation: three sessions independently graduated the same
+        pipeline candidate into full ventures inside roughly a 15-minute
+        window, two full build-fix-supersede cycles completed before a
+        single CI run finished reporting on either. session_gate.py's own
+        collision signal (distinct sessions/hour) was already elevated
+        going into this session and undercounts on a shallow clone by its
+        own admission -- this is a concrete instance of exactly that risk,
+        not a new one. No code from this session's branch reached `main`;
+        restarted the branch from current `main` rather than resurrecting
+        dead commits, per CLAUDE.md's already-superseded-branch handling.
+      - >-
+        Also caught, mid-session, a near-miss unrelated to the above: the
+        working tree briefly picked up an uncommitted, unrelated change
+        (a re-added .github/FUNDING.yml with a live Sponsors username, plus
+        deletion of the ledger entry that flagged that exact config for
+        owner review after its PR #862 revert) that this session did not
+        make. Traced it to a concurrently-running subagent invoking git in
+        the same shared working directory. Caught before staging, verified
+        it matched neither `origin/main` nor this branch's own history, and
+        discarded it via `git reset --hard origin/main` before continuing.
+        Nothing from it reached any commit or push.
+    mrr_end: null
