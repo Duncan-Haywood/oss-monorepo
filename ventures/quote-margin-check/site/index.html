@@ -183,6 +183,7 @@
       <div class="result" id="review" aria-live="polite"><strong>Before you send it</strong><ul class="checks"></ul></div>
 
     <div class="actions">
+      <button type="button" id="copy-summary">Copy proposal summary</button>
       <button type="button" id="copy-csv">Copy as CSV row</button>
       <span id="copy-status" class="hint" role="status" aria-live="polite"></span>
     </div>
@@ -251,7 +252,7 @@
 
 <script type="module">
   import { loadQuote, calculate, overrunScenarios } from "./calc.mjs";
-  import { reviewQuote } from "./review.mjs";
+  import { reviewQuote, proposalSummary } from "./review.mjs";
   import { recordEvent, createReportCounter, isUsageCountingEnabled, setUsageCountingEnabled } from "./usage.mjs";
 
   // Counts settled quotes rather than keystrokes — see usage.mjs.
@@ -337,8 +338,23 @@
     // defaults don't validate — nothing to seed, the first valid quote counts
   }
 
+  const summaryBtn = document.getElementById("copy-summary");
   const copyBtn = document.getElementById("copy-csv");
   const copyStatus = document.getElementById("copy-status");
+  summaryBtn.addEventListener("click", async () => {
+    if (!lastReport) {
+      copyStatus.textContent = "Fix the inputs above first.";
+      return;
+    }
+    const { quote, r } = lastReport;
+    try {
+      await navigator.clipboard.writeText(proposalSummary(quote, r));
+      copyStatus.textContent = "Copied — paste into your proposal notes.";
+      recordEvent("proposal_summary_copied");
+    } catch {
+      copyStatus.textContent = "Couldn't access the clipboard in this browser.";
+    }
+  });
   copyBtn.addEventListener("click", async () => {
     if (!lastReport) {
       copyStatus.textContent = "Fix the inputs above first.";

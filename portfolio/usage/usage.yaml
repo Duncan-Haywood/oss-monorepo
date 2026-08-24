@@ -126,6 +126,14 @@ products:
           target-gap, hidden-time, and revision-assumption observations. No
           public URL yet; the feature counter stores only aggregate local
           events and remains opt-out.
+      - as_of: 2026-08-24
+        signals:
+          live_url_visitors: null
+          proposal_summary_copied: 0
+        note: >-
+          Added a browser-local proposal-ready summary that copies the
+          arithmetic review without project names or scope details. No public
+          URL yet; the counter remains aggregate-only, local, and opt-out.
   - slug: etsy-profit-calculator
     surface: static-page-in-repo
     readings:

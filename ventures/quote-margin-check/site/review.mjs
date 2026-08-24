@@ -22,3 +22,29 @@ export function reviewQuote(quote, report) {
   }
   return checks;
 }
+
+/** Formats a short, proposal-ready review without including private project details. */
+export function proposalSummary(quote, report) {
+  const above = report.gap_to_target >= 0;
+  const observations = reviewQuote(quote, report)
+    .filter((check) => check.level === "attention")
+    .map((check) => `- ${check.title}: ${check.detail}`);
+
+  return [
+    "QUOTE MARGIN REVIEW",
+    "Arithmetic comparison for the supplied quote; review before relying on it.",
+    "",
+    `Quoted price: ${quote.currency} ${quote.price.toFixed(2)}`,
+    `Total working hours: ${report.total_hours.toFixed(2)}`,
+    `Direct costs: ${quote.currency} ${report.direct_costs.toFixed(2)}`,
+    `Effective hourly rate: ${quote.currency} ${report.effective_hourly_rate.toFixed(2)}/hour`,
+    `Price at supplied target rate: ${quote.currency} ${report.target_price.toFixed(2)}`,
+    `Gap to target price: ${quote.currency} ${report.gap_to_target.toFixed(2)}`,
+    `Comparison: ${above ? "above" : "below"} the supplied target (not a profitability verdict)`,
+    "",
+    "Review observations:",
+    ...(observations.length ? observations : ["- No attention flags from these inputs."]),
+    "",
+    "Verify the scope, assumptions, costs, and arithmetic before sending the quote.",
+  ].join("\n");
+}
