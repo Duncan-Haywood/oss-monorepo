@@ -1,11 +1,12 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import { execFileSync } from "node:child_process";
-import { readFileSync } from "node:fs";
+import { mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
+import { tmpdir } from "node:os";
 import { fileURLToPath } from "node:url";
 import path from "node:path";
 
-import { loadQuote, calculate } from "./calc.mjs";
+import { loadQuote, calculate, csvRows } from "./calc.mjs";
 
 const ventureRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 
@@ -88,18 +89,28 @@ test("matches the Python CLI's own output for the committed example", () => {
   const quote = loadQuote(JSON.parse(readFileSync(examplePath, "utf-8")));
   const result = calculate(quote);
 
-  // Rebuild the CLI's measure/value/unit rows from this module's own output.
-  // Same rows, same order, same 2dp rounding as csv_report() in quote_margin.py.
-  const ours = [
-    "measure,value,unit",
-    `quoted_price,${quote.price.toFixed(2)},${quote.currency}`,
-    `total_working_hours,${result.total_hours.toFixed(2)},hours`,
-    `direct_costs,${result.direct_costs.toFixed(2)},${quote.currency}`,
-    `effective_hourly_rate,${result.effective_hourly_rate.toFixed(2)},${quote.currency}/hour`,
-    `target_price,${result.target_price.toFixed(2)},${quote.currency}`,
-    `gap_to_target,${result.gap_to_target.toFixed(2)},${quote.currency}`,
-    `cost_coverage,${result.cost_coverage.toFixed(2)},${quote.currency}`,
-  ].join("\n");
+  assert.equal(csvRows(quote, result), cliCsv.trimEnd());
+});
 
-  assert.equal(ours.trimEnd(), cliCsv.trimEnd());
+test("quotes a currency label the same way the Python CLI does", () => {
+  const dir = mkdtempSync(path.join(tmpdir(), "quote-margin-"));
+  const quotePath = path.join(dir, "quote.json");
+  const data = {
+    currency: 'USD, "US"',
+    price: 2400,
+    delivery_hours: 24,
+    target_hourly_rate: 75,
+  };
+  writeFileSync(quotePath, JSON.stringify(data));
+  try {
+    const cliCsv = execFileSync(
+      "python3",
+      [path.join(ventureRoot, "src", "quote_margin.py"), quotePath, "--format", "csv"],
+      { encoding: "utf-8" },
+    );
+    const quote = loadQuote(data);
+    assert.equal(csvRows(quote, calculate(quote)), cliCsv.trimEnd());
+  } finally {
+    rmSync(dir, { recursive: true, force: true });
+  }
 });

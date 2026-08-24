@@ -239,7 +239,7 @@
 </main>
 
 <script type="module">
-  import { loadQuote, calculate } from "./calc.mjs";
+  import { loadQuote, calculate, csvRows } from "./calc.mjs";
   import { recordEvent, isUsageCountingEnabled, setUsageCountingEnabled } from "./usage.mjs";
 
   const ids = ["currency", "price", "delivery_hours", "admin_hours", "revision_hours", "overhead", "subcontractor_cost", "target_hourly_rate"];
@@ -312,16 +312,7 @@
       return;
     }
     const { quote, r } = lastReport;
-    const rows = [
-      "measure,value,unit",
-      `quoted_price,${quote.price.toFixed(2)},${quote.currency}`,
-      `total_working_hours,${r.total_hours.toFixed(2)},hours`,
-      `direct_costs,${r.direct_costs.toFixed(2)},${quote.currency}`,
-      `effective_hourly_rate,${r.effective_hourly_rate.toFixed(2)},${quote.currency}/hour`,
-      `target_price,${r.target_price.toFixed(2)},${quote.currency}`,
-      `gap_to_target,${r.gap_to_target.toFixed(2)},${quote.currency}`,
-      `cost_coverage,${r.cost_coverage.toFixed(2)},${quote.currency}`,
-    ].join("\n");
+    const rows = csvRows(quote, r);
     try {
       await navigator.clipboard.writeText(rows);
       copyStatus.textContent = "Copied — paste into a spreadsheet.";

@@ -53,3 +53,30 @@ export function calculate(quote) {
     cost_coverage: quote.price - directCosts,
   };
 }
+
+/** Quote a CSV field the way Python csv.writer (QUOTE_MINIMAL) does. */
+function csvField(value) {
+  const field = String(value);
+  if (/[",\r\n]/.test(field)) {
+    return `"${field.replaceAll('"', '""')}"`;
+  }
+  return field;
+}
+
+/**
+ * Spreadsheet-friendly measure/value/unit rows. Matches csv_report() in
+ * src/quote_margin.py, including QUOTE_MINIMAL quoting of the currency label.
+ */
+export function csvRows(quote, result) {
+  const rows = [
+    ["measure", "value", "unit"],
+    ["quoted_price", quote.price.toFixed(2), quote.currency],
+    ["total_working_hours", result.total_hours.toFixed(2), "hours"],
+    ["direct_costs", result.direct_costs.toFixed(2), quote.currency],
+    ["effective_hourly_rate", result.effective_hourly_rate.toFixed(2), `${quote.currency}/hour`],
+    ["target_price", result.target_price.toFixed(2), quote.currency],
+    ["gap_to_target", result.gap_to_target.toFixed(2), quote.currency],
+    ["cost_coverage", result.cost_coverage.toFixed(2), quote.currency],
+  ];
+  return rows.map((row) => row.map(csvField).join(",")).join("\n");
+}
