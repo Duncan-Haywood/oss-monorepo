@@ -5,6 +5,29 @@ agencies. It turns a proposed price, delivery hours, overhead, subcontractor
 costs, and revision buffer into a transparent effective hourly rate and a
 target-price comparison.
 
+## Browser tool
+
+Most freelancers won't run a Python script. [`web/index.html`](web/index.html)
+is the same math as a zero-dependency, zero-build static page — open it
+directly in a browser, or serve the `web/` directory. "Fill in an example
+quote" loads a worked example in one click; "Copy as CSV row" hands back the
+same rows the CLI's `--format csv` writes, for pasting into a spreadsheet.
+Nothing is uploaded; see the page's Privacy section for the local-first usage
+counter.
+
+```bash
+cd web && python3 -m http.server 8000
+# then open http://localhost:8000/
+```
+
+`web/calc.mjs` mirrors `src/quote_margin.py`'s `load_quote()`/`calculate()`
+field-for-field so the two can't quietly diverge — `node --test` in `web/`
+covers the same cases as the CLI's test suite.
+
+## Command line
+
+Prefer scripting several quotes at once, or importing into a spreadsheet:
+
 ```bash
 python3 src/quote_margin.py examples/website-redesign.json --format markdown
 # Import the same result into a spreadsheet
@@ -34,7 +57,11 @@ accept no liability for any loss or damage arising from its use.
 
 Only aggregate `report_generated` events are optionally appended to the usage
 log. Inputs, project names, prices, and file contents never leave the machine.
-Pass `--usage-log PATH` to opt in; omit it to keep usage counting off.
+Pass `--usage-log PATH` to opt in; omit it to keep usage counting off. The
+browser tool counts the same event locally in `localStorage` (on by default,
+off-switchable in the page footer, and honors Do Not Track / Global Privacy
+Control) — see [`web/usage.mjs`](web/usage.mjs). One settled quote counts as
+one report, not one per keystroke. Nothing is sent anywhere in either case.
 
 ## Input
 

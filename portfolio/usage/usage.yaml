@@ -54,6 +54,23 @@ products:
           repo_views_14d: 0
           release_downloads_total: 0
         note: Shipped calculator baseline; no public distribution or usage yet.
+      - as_of: 2026-08-24
+        signals:
+          live_url_visitors: null
+          local_events_reported: 0
+        note: >-
+          Added web/index.html, a zero-dependency static-page version of the
+          same calculator (the CLI is Python-only and most of this venture's
+          target freelancers won't run a script), plus this venture's first CI
+          workflow. Not yet deployed to a public URL — publishing is
+          owner-gated — so there is no traffic signal to read; the page's
+          local-first counter reports only to the visitor's own browser.
+          Baseline row for the second surface. Note for whoever reads the
+          first non-zero row: report_generated counts one *settled* quote,
+          not one per keystroke (see web/usage.mjs) — an earlier draft of
+          this page counted per input event, which would have inflated this
+          figure roughly 15-20x and inflated it most for the users who
+          deliberate longest.
   - slug: etsy-profit-calculator
     surface: static-page-in-repo
     readings:
