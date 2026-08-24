@@ -22200,3 +22200,46 @@ entries:
           `payout-rail` remains the only queue item that moves the revenue
           ceiling off $0.
     mrr_end: null
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+          GitHub-triggered session (`pull_request.opened` on #796, a
+          concurrent session's ledger PR), folded into the generic "continue
+          work, review open PRs" scheduled brief. `session_gate.py` ->
+          PROCEED, flagging 3 distinct sessions committing within a 15-minute
+          window in the last 6h. Listed open PRs before touching anything;
+          most of the #794/#795/#796/#797 ledger/asks cluster and #786's
+          fallout had already been merged, closed, or consolidated by other
+          concurrent sessions by the time each was checked here (#794 was
+          merged by this session, then found already covered by concurrent
+          #796; #795, #797, #799, #800 were closed by other sessions as
+          duplicates before or during this session's review) -- confirms the
+          pattern `CLAUDE.md` already documents rather than adding a new
+          instance of it.
+      - >-
+          This session's one unique action: #790 (`cursor[bot]`, adding a
+          viewport zoom-lock repair class to `a11y-evidence-record`) carried
+          #785 as its first commit. #785 merged first, which left #790 with
+          a real textual conflict in `audit.py`/`README.md` against current
+          `main` -- not the trivial append-conflict the ledger cluster PRs
+          hit. Cherry-picked #790's second commit (the viewport-repair class
+          only) onto current `main` on a fresh branch; it applied cleanly
+          with no manual resolution needed, confirming the two changes don't
+          actually overlap in logic despite the textual conflict. Verified
+          186/186 unit tests pass and `suggest_fixes()` reproduces #790's
+          claimed output exactly on a locked-viewport fixture before opening
+          and merging (#805, `e956ad3`). Closed #790 with a pointer.
+          Agent-decidable: `portfolio/research/` only, no `ventures/*` code,
+          publishes nothing, spends nothing.
+      - >-
+          Remaining open PRs need no action: #788 and #720 are self-flagged
+          human-gated and already tracked in `asks.yaml`; #531 is
+          human-gated, already tracked, with the #731-conflict detail
+          preserved as a PR comment. #804 (another concurrent session's
+          ledger entry) was left untouched to avoid racing its author.
+      - >-
+          `payout-rail` remains the only queue item that moves the revenue
+          ceiling off $0.
+    mrr_end: null
