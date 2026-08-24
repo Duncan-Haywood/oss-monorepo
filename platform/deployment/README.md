@@ -288,9 +288,14 @@ exists only to make Next.js run somewhere it is not native.
 - **Nothing here ports the daemon.** The box *can* run `retail-pilot-intel`'s
   `analytics-sync`; actually moving it is separate work, not part of this ask.
   `photos-import-tools` is macOS-only and is not a candidate for any host.
-- **SSH and root are credentials.** A box the fleet can deploy to is a box a
-  compromised token can reach. Tailscale-only access is the mitigation the
-  playbook already sets up, and it should stay that way.
+- **SSH and root are credentials, and the box is not Tailscale-only.** A box CI
+  can deploy to is a box a compromised token can reach. An earlier draft said
+  Tailscale-only access "is the mitigation the playbook already sets up" — it
+  is not: `ssh_public_access` defaults to `true`, so an ordinary provisioning
+  run leaves OpenSSH reachable from the internet, key-only, and that is the
+  route CI itself uses. Tailscale-only is the *other* posture described above,
+  and it costs push-button provisioning. Whichever you pick, the mitigation
+  that actually holds is the box being disposable.
 - **`local-site-studio` still needs Convex** regardless of platform.
 - **Deployment is not the binding constraint.** Per
   `portfolio/ledger/break-even.md` and `portfolio/pipeline/distribution-first.md`,
@@ -469,9 +474,13 @@ The design that makes the owner's framing true rather than merely hopeful:
 - **The API token is still a no.** Provision the server in the Hetzner console
   by hand. Nothing in CI needs to create servers, and the moment something can,
   the one-box bound is gone.
-- **The fleet stays off.** `agent_runner_start_disabled` is true unless a human
-  flips the workflow input, because `CLAUDE.md` reserves unattended spend-capable
-  automation to the owner. Owning a box and running a fleet on it are two
+- **The fleet stays off, with no switch here at all.** The provisioning
+  workflow pins `agent_runner_start_disabled=true` and exposes no input to
+  override it. An earlier draft had a boolean for it and this bullet still
+  described that — both wrong: `workflow_dispatch` is not an owner-only
+  boundary, so the input was a route *around* the gate `CLAUDE.md` reserves to
+  the account owner. Starting the fleet needs a hand-run playbook or its own
+  owner-gated mechanism. Owning a box and running a fleet on it are two
   decisions and this document only makes the first.
 
 `.github/workflows/agent-server-provision.yml` implements this. It is

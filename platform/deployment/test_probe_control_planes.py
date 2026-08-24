@@ -14,17 +14,23 @@ import unittest
 import probe_control_planes as p
 
 
+def entry(verdict, disputed=False, tied=False):
+    """A table entry in the shape `prior-verdicts.json` actually uses."""
+    return {"prior_consensus": verdict, "prior_disputed": disputed,
+            "prior_tied": tied, "n_observations": 2}
+
+
 def table(**overrides):
     """A consolidated-table `hosts` mapping that should pass."""
-    hosts = {h: {"prior_consensus": "egress_denied"} for h in p.ALL_HOSTS}
+    hosts = {h: entry("egress_denied") for h in p.ALL_HOSTS}
     # The documented exceptions are reachable in the real table; a fixture that
     # denied them would not be the state this check is asserting about.
     for h in p.EXPECTED_REACHABLE:
-        hosts[h] = {"prior_consensus": "reachable"}
-    hosts[p.CONTROL_REACHABLE] = {"prior_consensus": "reachable"}
-    hosts[p.CONTROL_DENIED] = {"prior_consensus": "egress_denied"}
+        hosts[h] = entry("reachable")
+    hosts[p.CONTROL_REACHABLE] = entry("reachable")
+    hosts[p.CONTROL_DENIED] = entry("egress_denied")
     for host, verdict in overrides.items():
-        hosts[host] = {"prior_consensus": verdict}
+        hosts[host] = entry(verdict)
     return hosts
 
 
@@ -116,6 +122,42 @@ class CheckTest(unittest.TestCase):
         hosts = table()
         del hosts["api.cloudflare.com"]
         self.assertEqual(p.check(hosts), 1)
+
+    def test_disputed_write_surface_is_not_usable_evidence(self):
+        # The table records a *conservative* consensus, so one new reachable
+        # observation against existing denials leaves consensus at
+        # egress_denied and flips prior_disputed -- precisely when a write
+        # surface has started answering.
+        for host in p.WRITE_SURFACES:
+            with self.subTest(host=host):
+                hosts = table()
+                hosts[host] = entry(
+                    "reachable" if host in p.EXPECTED_REACHABLE else "egress_denied",
+                    disputed=True,
+                )
+                self.assertEqual(p.check(hosts), 1)
+
+    def test_tied_evidence_is_rejected_too(self):
+        hosts = table()
+        hosts["api.vercel.com"] = entry("egress_denied", tied=True)
+        self.assertEqual(p.check(hosts), 1)
+
+    def test_disputed_control_is_rejected(self):
+        for control in (p.CONTROL_REACHABLE, p.CONTROL_DENIED):
+            with self.subTest(control=control):
+                hosts = table()
+                hosts[control] = entry(
+                    "reachable" if control == p.CONTROL_REACHABLE else "egress_denied",
+                    disputed=True,
+                )
+                self.assertEqual(p.check(hosts), 1)
+
+    def test_disputed_context_host_does_not_fail(self):
+        # Only the hosts the claim rests on are held to this. A disputed
+        # dashboard root is noise, not evidence about the argument.
+        hosts = table()
+        hosts["portal.azure.com"] = entry("reachable", disputed=True)
+        self.assertEqual(p.check(hosts), 0)
 
     def test_committed_table_supports_the_document(self):
         self.assertEqual(p.check(p.load_table()), 0)

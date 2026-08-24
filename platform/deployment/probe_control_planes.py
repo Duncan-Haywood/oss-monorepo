@@ -206,6 +206,22 @@ def verdict_of(hosts: dict, host: str) -> str | None:
     return entry.get("prior_consensus") if entry else None
 
 
+def disputed(hosts: dict, host: str) -> bool:
+    """Does this host's evidence disagree with itself?
+
+    `prior_consensus` alone is not enough to decide anything load-bearing. The
+    consolidated table records a *conservative* consensus, so one new
+    `reachable` observation against several existing denials can leave the
+    consensus at `egress_denied` while `prior_disputed` flips true -- which is
+    exactly the moment a write surface has started answering and exactly when
+    this check would otherwise stay green. The reverse hides an exception going
+    quiet. Three hosts in the committed table are disputed today, so this is a
+    live condition rather than a hypothetical one.
+    """
+    entry = hosts.get(host) or {}
+    return bool(entry.get("prior_disputed") or entry.get("prior_tied"))
+
+
 def report(hosts: dict) -> None:
     print("Deployment control planes, per the consolidated egress table\n")
     width = max(len(h) for h in ALL_HOSTS)
@@ -233,6 +249,19 @@ def check(hosts: dict) -> int:
             f"denied control {CONTROL_DENIED} is "
             f"{verdict_of(hosts, CONTROL_DENIED)!r}: the denial signature has "
             "changed, so egress_denied verdicts are no longer trustworthy"
+        )
+
+    contested = sorted(
+        f"{h} ({verdict_of(hosts, h)}, disputed)"
+        for h in list(WRITE_SURFACES) + [CONTROL_REACHABLE, CONTROL_DENIED]
+        if h in hosts and disputed(hosts, h)
+    )
+    if contested:
+        problems.append(
+            "evidence disagrees with itself for hosts this claim rests on: "
+            f"{', '.join(contested)}. A conservative consensus can hide a new "
+            "reachable observation, so a disputed write surface, exception or "
+            "control is not usable evidence -- re-probe and resolve it."
         )
 
     missing = sorted(h for h in ALL_HOSTS if h not in hosts)

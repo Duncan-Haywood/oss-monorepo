@@ -47,10 +47,19 @@
     validate: "visudo -cf %s"
   when: agent_user_passwordless_sudo | bool
 
+# Removes the *documented* drop-in as well as the managed one. This README
+# tells operators to run `echo '<user> ALL=(ALL) NOPASSWD:ALL' | sudo tee
+# /etc/sudoers.d/<user>-nopasswd` by hand for unattended runs, so a host set up
+# that way keeps NOPASSWD while the role reports the feature disabled. Removing
+# only the file this role wrote would converge the role's own state and not the
+# host's, which is the failure the `when: false` branch was added to fix.
 - name: Remove agent_user passwordless sudo when disabled
   ansible.builtin.file:
-    path: "/etc/sudoers.d/90-{{ agent_user }}-nopasswd"
+    path: "{{ item }}"
     state: absent
+  loop:
+    - "/etc/sudoers.d/90-{{ agent_user }}-nopasswd"
+    - "/etc/sudoers.d/{{ agent_user }}-nopasswd"
   when: not (agent_user_passwordless_sudo | bool)
 
 - name: Ensure agent_user has the expected authorized keys
