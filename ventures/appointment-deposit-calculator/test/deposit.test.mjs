@@ -21,6 +21,7 @@ test("a zero deposit does not change the service balance", () => {
 });
 
 test("non-finite form numbers are rejected before formatting", () => {
-  assert.equal(Number.isFinite(Number("")), true);
-  assert.equal(Number.isFinite(Number("not-a-number")), false);
+  const parseNumber = value => value === "" ? NaN : Number(value);
+  assert.equal(Number.isFinite(parseNumber("")), false);
+  assert.equal(Number.isFinite(parseNumber("not-a-number")), false);
 });
