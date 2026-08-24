@@ -28,6 +28,33 @@ test('honors opt out', () => {
   assert.equal(storage.getItem('ebay-fee-usage'), null);
 });
 
+test('honors Do Not Track and Global Privacy Control', () => {
+  const previous = Object.getOwnPropertyDescriptor(globalThis, 'navigator');
+  const restore = () => {
+    if (previous) Object.defineProperty(globalThis, 'navigator', previous);
+    else delete globalThis.navigator;
+  };
+  try {
+    const dntStorage = fakeStorage();
+    Object.defineProperty(globalThis, 'navigator', {
+      value: { doNotTrack: '1' },
+      configurable: true,
+    });
+    recordUsage(dntStorage, false);
+    assert.equal(dntStorage.getItem('ebay-fee-usage'), null);
+
+    const gpcStorage = fakeStorage();
+    Object.defineProperty(globalThis, 'navigator', {
+      value: { globalPrivacyControl: true },
+      configurable: true,
+    });
+    recordUsage(gpcStorage, false);
+    assert.equal(gpcStorage.getItem('ebay-fee-usage'), null);
+  } finally {
+    restore();
+  }
+});
+
 test('is a no-op without storage', () => {
   assert.doesNotThrow(() => recordUsage(undefined, false));
   assert.doesNotThrow(() => recordUsage(null, false));

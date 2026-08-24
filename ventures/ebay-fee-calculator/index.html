@@ -86,6 +86,13 @@
       } catch (error) {
         document.getElementById('profit').textContent = error.message;
         document.getElementById('profit').className = 'hero-number negative';
+        document.getElementById('label').textContent = 'estimated net profit';
+        document.getElementById('revenue').textContent = '';
+        document.getElementById('fees').textContent = '';
+        document.getElementById('invested').textContent = '';
+        document.getElementById('margin').textContent = '';
+        document.getElementById('roi').textContent = '';
+        document.getElementById('breakEven').textContent = '';
       }
     }
     ids.forEach(id => document.getElementById(id).addEventListener('input', update));
