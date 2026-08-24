@@ -1,6 +1,6 @@
-// Pure calculation logic, ported 1:1 from src/quote_margin.py so the CLI and
-// the browser tool can never quietly diverge. No advice, no recommendation —
-// arithmetic only.
+// Pure calculation logic for the Quote Margin Check browser calculator. No
+// DOM, no network, no state — mirrors ../src/quote_margin.py's calculate()
+// exactly so the browser and CLI never disagree, and is unit tested directly.
 
 const FIELDS = [
   "price",
@@ -13,14 +13,16 @@ const FIELDS = [
 ];
 
 /**
- * Validates and normalizes raw quote input, matching load_quote() in
- * src/quote_margin.py. Throws Error with a message on invalid input.
+ * Validates and normalizes raw quote input, matching src/quote_margin.py's
+ * load_quote(). Throws Error with a human-readable message on invalid input.
  */
 export function loadQuote(data) {
   const currencyRaw = data.currency === undefined ? "units" : data.currency;
   if (typeof currencyRaw !== "string" || !currencyRaw.trim() || currencyRaw.trim().length > 12) {
     throw new Error("currency must be a short non-empty label");
   }
+  const currency = currencyRaw.trim();
+
   const values = {};
   for (const field of FIELDS) {
     const value = data[field] === undefined ? 0 : data[field];
@@ -32,19 +34,20 @@ export function loadQuote(data) {
   if (values.price <= 0) throw new Error("price must be greater than zero");
   if (values.delivery_hours <= 0) throw new Error("delivery_hours must be greater than zero");
   if (values.target_hourly_rate <= 0) throw new Error("target_hourly_rate must be greater than zero");
-  return { currency: currencyRaw.trim(), ...values };
+
+  return { currency, ...values };
 }
 
-/** Matches calculate() in src/quote_margin.py exactly. */
+/** Derives the transparent margin report from a validated quote. Matches calculate() in src/quote_margin.py. */
 export function calculate(quote) {
   const totalHours = quote.delivery_hours + quote.admin_hours + quote.revision_hours;
   const directCosts = quote.overhead + quote.subcontractor_cost;
-  const effectiveRate = (quote.price - directCosts) / totalHours;
+  const effectiveHourlyRate = (quote.price - directCosts) / totalHours;
   const targetPrice = totalHours * quote.target_hourly_rate + directCosts;
   return {
     total_hours: totalHours,
     direct_costs: directCosts,
-    effective_hourly_rate: effectiveRate,
+    effective_hourly_rate: effectiveHourlyRate,
     target_price: targetPrice,
     gap_to_target: quote.price - targetPrice,
     cost_coverage: quote.price - directCosts,

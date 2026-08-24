@@ -5,37 +5,14 @@ agencies. It turns a proposed price, delivery hours, overhead, subcontractor
 costs, and revision buffer into a transparent effective hourly rate and a
 target-price comparison.
 
-## Browser tool
+**Browser calculator** (no install, nothing uploaded): open
+[`site/index.html`](site/index.html) directly in a browser, or serve the
+`site/` directory statically — it is a self-contained, zero-dependency page
+with the same math as the CLI below (see [`site/calc.mjs`](site/calc.mjs)).
+Not yet deployed to a public URL — publishing under the portfolio's name is
+owner-gated per `portfolio/DIRECTION.md` — but it's ready to deploy as-is.
 
-Most freelancers won't run a Python script. [`web/index.html`](web/index.html)
-is the same math as a zero-dependency, zero-build static page — open it
-directly in a browser (or serve the `web/` directory) and fill in the form.
-Nothing is uploaded; see its own Privacy section for the local-first usage
-counter.
-
-```bash
-cd web && python3 -m http.server 8000
-# then open http://localhost:8000/
-```
-
-The page has no account and no server, so the two things it would otherwise be
-unable to do are built in:
-
-- **Copy report (Markdown)** — the same report `--format markdown` prints, ready
-  to paste into notes or a client email.
-- **Copy link to this quote** — the figures ride in the URL's `#` fragment,
-  which browsers never send to a server, so a link is a private bookmark you can
-  reopen or send to yourself. Opening one restores the form.
-
-`web/calc.mjs` mirrors `src/quote_margin.py`'s `load_quote()`/`calculate()`
-field-for-field so the two can't quietly diverge — `node --test` in `web/`
-covers the same cases as the CLI's test suite, and `web/report.test.mjs` asserts
-the copied Markdown against the CLI's own output byte for byte rather than
-against a fixture that could drift away from it.
-
-## Command line
-
-Prefer scripting several quotes at once, or importing into a spreadsheet:
+**CLI**, for scripting or batching several quotes into a spreadsheet:
 
 ```bash
 python3 src/quote_margin.py examples/website-redesign.json --format markdown
@@ -66,7 +43,11 @@ accept no liability for any loss or damage arising from its use.
 
 Only aggregate `report_generated` events are optionally appended to the usage
 log. Inputs, project names, prices, and file contents never leave the machine.
-Pass `--usage-log PATH` to opt in; omit it to keep usage counting off.
+Pass `--usage-log PATH` to opt in; omit it to keep usage counting off. The
+browser version counts the same event locally in `localStorage` (on by
+default, off-switchable in the page footer, and honors Do Not Track/Global
+Privacy Control) — see [`site/usage.mjs`](site/usage.mjs); nothing is sent
+anywhere in either case.
 
 ## Input
 

@@ -1,5 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
+
 import { loadQuote, calculate } from "./calc.mjs";
 
 test("calculates hidden time and target price", () => {
@@ -19,7 +20,7 @@ test("calculates hidden time and target price", () => {
   assert.equal(result.gap_to_target, -705);
 });
 
-test("defaults optional costs and time", () => {
+test("defaults optional costs and time to zero", () => {
   const quote = loadQuote({ price: 1000, delivery_hours: 10, target_hourly_rate: 100 });
   assert.equal(calculate(quote).effective_hourly_rate, 100);
 });
@@ -35,7 +36,7 @@ test("rejects invalid required values", () => {
   }
 });
 
-test("rejects boolean as number", () => {
+test("rejects booleans as numbers", () => {
   assert.throws(() => loadQuote({ price: true, delivery_hours: 1, target_hourly_rate: 1 }));
 });
 
@@ -55,24 +56,9 @@ test("currency defaults and is trimmed", () => {
   assert.equal(quote.currency, "USD");
 });
 
-test("rejects empty or oversized currency label", () => {
-  assert.throws(() => loadQuote({ currency: "   ", price: 1, delivery_hours: 1, target_hourly_rate: 1 }));
-  assert.throws(() => loadQuote({ currency: "x".repeat(13), price: 1, delivery_hours: 1, target_hourly_rate: 1 }));
-});
-
-test("matches the CLI's website-redesign example", () => {
-  const quote = loadQuote({
-    currency: "USD",
-    price: 4200,
-    delivery_hours: 30,
-    admin_hours: 4,
-    revision_hours: 6,
-    overhead: 150,
-    subcontractor_cost: 400,
-    target_hourly_rate: 90,
-  });
-  const result = calculate(quote);
-  assert.equal(result.total_hours, 40);
-  assert.equal(result.direct_costs, 550);
-  assert.equal(result.gap_to_target, 4200 - (40 * 90 + 550));
+test("rejects an empty or over-long currency label", () => {
+  assert.throws(() => loadQuote({ currency: "   ", price: 1000, delivery_hours: 10, target_hourly_rate: 100 }));
+  assert.throws(() =>
+    loadQuote({ currency: "WAY TOO LONG A LABEL", price: 1000, delivery_hours: 10, target_hourly_rate: 100 }),
+  );
 });

@@ -1,9 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 
-// Minimal in-memory localStorage stand-in — this module is meant to run in
-// a browser, but its logic (opt-out, event aggregation) is worth unit
-// testing directly rather than only by hand in a browser.
 class FakeStorage {
   constructor() { this.store = new Map(); }
   getItem(k) { return this.store.has(k) ? this.store.get(k) : null; }
@@ -28,6 +25,7 @@ test("recordEvent aggregates same-day events under one key", () => {
   globalThis.localStorage = new FakeStorage();
   recordEvent("report_generated");
   recordEvent("report_generated");
+  recordEvent("csv_exported");
   const events = readLocalUsage();
   const keys = Object.keys(events);
   assert.equal(keys.filter((k) => k.startsWith("report_generated:")).length, 1);

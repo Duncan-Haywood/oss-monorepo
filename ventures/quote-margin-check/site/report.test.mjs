@@ -7,12 +7,7 @@ import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
 
 import { loadQuote, calculate } from "./calc.mjs";
-import {
-  toMarkdown,
-  encodeQuoteToHash,
-  decodeQuoteFromHash,
-  EXAMPLE_QUOTE,
-} from "./report.mjs";
+import { toMarkdown, encodeQuoteToHash, decodeQuoteFromHash } from "./report.mjs";
 
 const here = dirname(fileURLToPath(import.meta.url));
 const cli = join(here, "..", "src", "quote_margin.py");
@@ -67,12 +62,20 @@ test("markdown reports below-target status and the disclaimer", () => {
 });
 
 test("a quote round-trips through the URL fragment", () => {
-  const hash = encodeQuoteToHash(EXAMPLE_QUOTE);
-  const decoded = decodeQuoteFromHash(hash);
+  const raw = {
+    currency: "USD",
+    price: "4200",
+    delivery_hours: "30",
+    admin_hours: "6",
+    revision_hours: "8",
+    overhead: "150",
+    subcontractor_cost: "400",
+    target_hourly_rate: "95",
+  };
+  const decoded = decodeQuoteFromHash(encodeQuoteToHash(raw));
   // "USD" is the form's own default and is left out of the link to keep it
   // short; the form supplies it again on restore.
-  const { currency, ...numbers } = EXAMPLE_QUOTE;
-  assert.equal(currency, "USD");
+  const { currency, ...numbers } = raw;
   assert.deepEqual(decoded, numbers);
 });
 
@@ -122,16 +125,4 @@ test("an over-long currency label from a fragment is ignored", () => {
   const decoded = decodeQuoteFromHash(`#currency=${"x".repeat(13)}&price=100`);
   assert.equal(decoded.currency, undefined);
   assert.equal(decoded.price, "100");
-});
-
-test("the worked example is valid input and lands below target", () => {
-  // The example exists to demonstrate the failure mode the tool is for. If a
-  // future edit made it comfortably profitable, the demo would stop showing
-  // anything, so the sign is asserted rather than assumed.
-  const numeric = Object.fromEntries(
-    Object.entries(EXAMPLE_QUOTE).map(([k, v]) => [k, k === "currency" ? v : Number(v)]),
-  );
-  const result = calculate(loadQuote(numeric));
-  assert.ok(result.gap_to_target < 0, "example should show a below-target quote");
-  assert.ok(result.effective_hourly_rate < numeric.target_hourly_rate);
 });

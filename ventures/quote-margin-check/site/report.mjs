@@ -106,22 +106,3 @@ export function decodeQuoteFromHash(hash) {
   }
   return raw;
 }
-
-/**
- * A worked example, used by the "Try an example" button.
- *
- * Chosen to be below target: a quote that looks fine on delivery hours alone
- * and stops looking fine once admin and revision time are counted. That is the
- * problem the tool exists for, so the first thing a first-time visitor sees
- * should demonstrate it rather than a comfortable pass.
- */
-export const EXAMPLE_QUOTE = {
-  currency: "USD",
-  price: "4200",
-  delivery_hours: "30",
-  admin_hours: "6",
-  revision_hours: "8",
-  overhead: "150",
-  subcontractor_cost: "400",
-  target_hourly_rate: "95",
-};

@@ -15,9 +15,7 @@ on:
 permissions:
   contents: read
 
-# A second push to the same branch makes the first run irrelevant. Carried over
-# from the parallel build in #948, which had this and the branch this file came
-# from did not.
+# A second push to the same branch makes the first run irrelevant.
 concurrency:
   group: quote-margin-check-ci-${{ github.ref }}
   cancel-in-progress: true
@@ -36,6 +34,8 @@ jobs:
           python-version: "3.12"
       - run: python3 -m unittest discover -s tests -v
 
+  # Carried over from #953's parallel build, which main's version dropped:
+  # nothing else lints this venture's Python.
   cli-lint:
     runs-on: ubuntu-latest
     steps:
@@ -46,11 +46,11 @@ jobs:
       - run: pip install ruff==0.15.8
       - run: ruff check .
 
-  web-test:
+  site-test:
     runs-on: ubuntu-latest
     defaults:
       run:
-        working-directory: ventures/quote-margin-check/web
+        working-directory: ventures/quote-margin-check/site
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
