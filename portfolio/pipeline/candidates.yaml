@@ -538,12 +538,21 @@ candidates:
   - slug: vendor-change-evidence
     name: Vendor-change evidence monitor
     doc: candidates/vendor-change-evidence.md
-    verdict: probe
+    verdict: build-now
     probe_status: >-
       step 1 partially run: local section-aware snapshot-diff tool built and
       tested (7 tests) against fixtures, not live pages. Scheduled fetch/hash
       loop, the 10-page replay, and step 3 (10 practitioner conversations, one
       paid pilot) are unstarted.
+    note: >-
+      2026-08-24: graduated by direct ship-and-measure rather than completing
+      the practitioner-outreach probe above, per updated portfolio direction
+      (ship free, full-featured product first; let real usage be the
+      validation signal instead of pre-build sales conversations). Built as
+      ventures/vendor-watch: a manual "check now" tool with a working
+      fetch/diff/inconclusive-labeling pipeline, disclaimers, and usage
+      tracking. Distribution and archive value are still unmeasured — that is
+      now what the venture's own kill criteria track.
     graduate_as: venture
     host_venture: null
     scores:
