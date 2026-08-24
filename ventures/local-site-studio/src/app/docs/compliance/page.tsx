@@ -1,5 +1,9 @@
+import type { Metadata } from "next";
 import { DocLink, DocPage } from "@/components/docs/doc-page";
 import { brand } from "@/lib/brand";
+import { docPageMetadata } from "@/lib/seo";
+
+export const metadata: Metadata = docPageMetadata("/docs/compliance");
 
 export default function ComplianceDocPage() {
   return (
@@ -25,8 +29,8 @@ export default function ComplianceDocPage() {
       <table>
         <thead>
           <tr>
-            <th>Platform</th>
-            <th>Notes</th>
+            <th scope="col">Platform</th>
+            <th scope="col">Notes</th>
           </tr>
         </thead>
         <tbody>
@@ -89,7 +93,24 @@ export default function ComplianceDocPage() {
           Retry-After so a harvested footer link cannot unboundedly mutate the global suppression
           list that gates every automated send
         </li>
+        <li>
+          Every outbound send carries <code>List-Unsubscribe</code> +{" "}
+          <code>List-Unsubscribe-Post: List-Unsubscribe=One-Click</code> headers (
+          <code>src/lib/email/resend.ts</code>) per Gmail/Yahoo bulk-sender requirements, and{" "}
+          <code>POST /api/unsubscribe</code> (RFC 8058 one-click) shares the exact same
+          rate-limit / token-verify / length-cap / <code>requireConvex</code> guards as{" "}
+          <code>GET</code> so a mail client&apos;s automated one-click request cannot bypass
+          anything the browser-driven link enforces
+        </li>
         <li>Non-deceptive subject lines</li>
+        <li>
+          Operators can review the full suppression list and remove an address via the
+          Suppressed emails panel on <DocLink href="/dashboard">/dashboard/leads</DocLink> (
+          <code>unsuppressEmailAction</code>) — this is for correcting a mistaken or stale
+          suppression only, never because the recipient asked to be contacted again; removing an
+          address does not restore consent, and a genuine opt-out must go through a fresh,
+          affirmative re-consent flow before that address is emailed again
+        </li>
       </ul>
 
       <h2>Voice — TCPA</h2>
@@ -111,8 +132,8 @@ export default function ComplianceDocPage() {
       <table>
         <thead>
           <tr>
-            <th>Data</th>
-            <th>Retention</th>
+            <th scope="col">Data</th>
+            <th scope="col">Retention</th>
           </tr>
         </thead>
         <tbody>
@@ -122,7 +143,10 @@ export default function ComplianceDocPage() {
           </tr>
           <tr>
             <td>Opted-out / DNC</td>
-            <td>Indefinitely</td>
+            <td>
+              Indefinitely, unless an operator removes a mistaken/stale entry via the Suppressed
+              emails panel (see above)
+            </td>
           </tr>
           <tr>
             <td>Email logs</td>

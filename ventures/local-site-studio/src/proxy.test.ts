@@ -3,6 +3,7 @@ import { NextRequest } from "next/server";
 import {
   OPERATOR_SESSION_COOKIE,
   createOperatorSessionToken,
+  tryCreateSessionFromPassword,
 } from "@/lib/auth/operator";
 
 const getLeadBySlug = vi.fn();
@@ -60,6 +61,34 @@ describe("src/proxy.ts orchestration", () => {
     );
   });
 
+  it("falls back next=/dashboard when the protected pathname is over-long", async () => {
+    process.env.OPERATOR_DASHBOARD_PASSWORD = PASSWORD;
+    const { MAX_SAFE_NEXT_PATH_LENGTH } = await import("@/lib/auth/safe-next-path");
+    const { proxy } = await import("./proxy");
+    const overLongPath =
+      "/dashboard/" + "a".repeat(MAX_SAFE_NEXT_PATH_LENGTH);
+    expect(overLongPath.length).toBeGreaterThan(MAX_SAFE_NEXT_PATH_LENGTH);
+    const response = await proxy(request(`http://localhost${overLongPath}`));
+    expect(response.status).toBe(307);
+    expect(response.headers.get("location")).toBe(
+      "http://localhost/dashboard/login?next=%2Fdashboard",
+    );
+  });
+
+  it("drops inherited query params from the login redirect Location", async () => {
+    process.env.OPERATOR_DASHBOARD_PASSWORD = PASSWORD;
+    const { proxy } = await import("./proxy");
+    const response = await proxy(
+      request("http://localhost/dashboard/leads?probe=" + "x".repeat(4000)),
+    );
+    expect(response.status).toBe(307);
+    const location = response.headers.get("location");
+    expect(location).toBe(
+      "http://localhost/dashboard/login?next=%2Fdashboard%2Fleads",
+    );
+    expect(location).not.toContain("probe=");
+  });
+
   it("allows /dashboard when a valid operator session cookie is present", async () => {
     process.env.OPERATOR_DASHBOARD_PASSWORD = PASSWORD;
     const token = createOperatorSessionToken(PASSWORD);
@@ -69,6 +98,28 @@ describe("src/proxy.ts orchestration", () => {
         headers: { cookie: `${OPERATOR_SESSION_COOKIE}=${token}` },
       }),
     );
+    expect(isNext(response)).toBe(true);
+  });
+
+  it("allows /dashboard when env password has surrounding whitespace (getPassword parity)", async () => {
+    // Login signs with trimmed getPassword(); proxy must verify with the same
+    // key — raw process.env would reject this cookie and loop to login.
+    process.env.OPERATOR_DASHBOARD_PASSWORD = `  ${PASSWORD}  `;
+    const token = tryCreateSessionFromPassword(PASSWORD);
+    expect(token).not.toBeNull();
+    const { proxy } = await import("./proxy");
+    const response = await proxy(
+      request("http://localhost/dashboard/leads", {
+        headers: { cookie: `${OPERATOR_SESSION_COOKIE}=${token!}` },
+      }),
+    );
+    expect(isNext(response)).toBe(true);
+  });
+
+  it("treats whitespace-only OPERATOR_DASHBOARD_PASSWORD as open demo at the proxy gate", async () => {
+    process.env.OPERATOR_DASHBOARD_PASSWORD = "   ";
+    const { proxy } = await import("./proxy");
+    const response = await proxy(request("http://localhost/dashboard"));
     expect(isNext(response)).toBe(true);
   });
 
@@ -106,6 +157,37 @@ describe("src/proxy.ts orchestration", () => {
     expect(rewriteTarget(response)).toBeNull();
     expect(getLeadBySlug).toHaveBeenCalledWith("unknown-label");
     expect(getLeadSlugByCustomDomain).not.toHaveBeenCalled();
+  });
+
+  it("skips getLeadBySlug for over-long preview-subdomain Host labels", async () => {
+    // Length gate in extractPreviewSubdomainSlug — spoofed Host must not burn CRM.
+    const overHost = `${"a".repeat(121)}.${ROOT}`;
+    const { proxy } = await import("./proxy");
+    const response = await proxy(
+      request(`http://${overHost}/`, {
+        headers: { host: overHost },
+      }),
+    );
+    expect(isNext(response)).toBe(true);
+    expect(rewriteTarget(response)).toBeNull();
+    expect(getLeadBySlug).not.toHaveBeenCalled();
+    expect(getLeadSlugByCustomDomain).not.toHaveBeenCalled();
+  });
+
+  it("skips getLeadSlugByCustomDomain for over-long custom-domain Host headers", async () => {
+    // isPlausibleCustomDomainHost rejects length > 253 before CRM lookup.
+    const overHost = `${"x".repeat(250)}.example.com`;
+    expect(overHost.length).toBeGreaterThan(253);
+    const { proxy } = await import("./proxy");
+    const response = await proxy(
+      request(`http://${overHost}/`, {
+        headers: { host: overHost },
+      }),
+    );
+    expect(isNext(response)).toBe(true);
+    expect(rewriteTarget(response)).toBeNull();
+    expect(getLeadSlugByCustomDomain).not.toHaveBeenCalled();
+    expect(getLeadBySlug).not.toHaveBeenCalled();
   });
 
   it("rewrites / on a client custom domain to /preview/[slug] when mapped", async () => {
@@ -168,5 +250,133 @@ describe("src/proxy.ts orchestration", () => {
     );
     expect(isNext(response)).toBe(true);
     expect(getLeadSlugByCustomDomain).not.toHaveBeenCalled();
+  });
+
+  describe("Host-route rate limiting (proxy-host-route-rate-limit)", () => {
+    it("rate-limits repeated preview-subdomain lookups from the same IP before getLeadBySlug", async () => {
+      getLeadBySlug.mockResolvedValue({ slug: "joes-plumbing" });
+      const { proxy } = await import("./proxy");
+      const req = () =>
+        request("http://joes-plumbing.localsitestudio.com/", {
+          headers: { host: "joes-plumbing.localsitestudio.com", "x-forwarded-for": "9.9.9.9" },
+        });
+      // DEFAULT_RATE_LIMIT is 20 requests/60s per key — exhaust the window.
+      for (let i = 0; i < 20; i++) {
+        const response = await proxy(req());
+        expect(rewriteTarget(response)).toBe(
+          "http://joes-plumbing.localsitestudio.com/preview/joes-plumbing",
+        );
+      }
+      getLeadBySlug.mockClear();
+      const throttled = await proxy(req());
+      expect(isNext(throttled)).toBe(true);
+      expect(rewriteTarget(throttled)).toBeNull();
+      expect(getLeadBySlug).not.toHaveBeenCalled();
+    });
+
+    it("rate-limits repeated custom-domain lookups from the same IP before getLeadSlugByCustomDomain", async () => {
+      getLeadSlugByCustomDomain.mockResolvedValue("joes-plumbing");
+      const { proxy } = await import("./proxy");
+      const req = () =>
+        request("http://joesplumbing.com/", {
+          headers: { host: "joesplumbing.com", "x-forwarded-for": "8.8.8.8" },
+        });
+      for (let i = 0; i < 20; i++) {
+        const response = await proxy(req());
+        expect(rewriteTarget(response)).toBe("http://joesplumbing.com/preview/joes-plumbing");
+      }
+      getLeadSlugByCustomDomain.mockClear();
+      const throttled = await proxy(req());
+      expect(isNext(throttled)).toBe(true);
+      expect(rewriteTarget(throttled)).toBeNull();
+      expect(getLeadSlugByCustomDomain).not.toHaveBeenCalled();
+    });
+
+    it("keys the rate-limit bucket by client IP, not shared across different callers", async () => {
+      getLeadBySlug.mockResolvedValue({ slug: "joes-plumbing" });
+      const { proxy } = await import("./proxy");
+      const reqFor = (ip: string) =>
+        request("http://joes-plumbing.localsitestudio.com/", {
+          headers: { host: "joes-plumbing.localsitestudio.com", "x-forwarded-for": ip },
+        });
+      for (let i = 0; i < 20; i++) {
+        await proxy(reqFor("1.1.1.1"));
+      }
+      getLeadBySlug.mockClear();
+      const other = await proxy(reqFor("2.2.2.2"));
+      expect(rewriteTarget(other)).toBe(
+        "http://joes-plumbing.localsitestudio.com/preview/joes-plumbing",
+      );
+      expect(getLeadBySlug).toHaveBeenCalledWith("joes-plumbing");
+    });
+  });
+
+  describe("Content-Security-Policy (csp-nonce-rollout)", () => {
+    it("sends the static-safe policy (no nonce) on a static marketing/docs route", async () => {
+      const { proxy } = await import("./proxy");
+      const response = await proxy(request("http://localhost/docs/architecture"));
+      const csp = response.headers.get("Content-Security-Policy");
+      expect(csp).not.toBeNull();
+      expect(csp).not.toContain("nonce-");
+      expect(csp).toContain("object-src 'none'");
+      expect(csp).toContain("frame-ancestors 'none'");
+    });
+
+    it("sends the static-safe policy on the platform homepage (no rewrite, still statically generated)", async () => {
+      const { proxy } = await import("./proxy");
+      const response = await proxy(
+        request("http://localsitestudio.com/", { headers: { host: "localsitestudio.com" } }),
+      );
+      expect(response.headers.get("Content-Security-Policy")).not.toContain("nonce-");
+    });
+
+    it("sends a nonce-scoped strict policy on /dashboard when the gate passes through", async () => {
+      const { proxy } = await import("./proxy");
+      const response = await proxy(request("http://localhost/dashboard"));
+      const csp = response.headers.get("Content-Security-Policy");
+      expect(csp).toMatch(/script-src 'self' 'nonce-[^']+' 'strict-dynamic'/);
+      expect(csp).toMatch(/style-src 'self' 'nonce-[^']+'/);
+    });
+
+    it("sends no Content-Security-Policy header on the login redirect itself (3xx, no body to render)", async () => {
+      process.env.OPERATOR_DASHBOARD_PASSWORD = PASSWORD;
+      const { proxy } = await import("./proxy");
+      const response = await proxy(request("http://localhost/dashboard/leads"));
+      expect(response.status).toBe(307);
+      expect(response.headers.get("Content-Security-Policy")).toBeNull();
+    });
+
+    it("sends a nonce-scoped policy on /checkout", async () => {
+      const { proxy } = await import("./proxy");
+      const response = await proxy(request("http://localhost/checkout"));
+      expect(response.headers.get("Content-Security-Policy")).toMatch(/nonce-/);
+    });
+
+    it("sends a nonce-scoped policy on a directly-requested /preview/[slug] page", async () => {
+      const { proxy } = await import("./proxy");
+      const response = await proxy(request("http://localhost/preview/joes-plumbing"));
+      expect(response.headers.get("Content-Security-Policy")).toMatch(/nonce-/);
+    });
+
+    it("sends a nonce-scoped policy on a preview-subdomain rewrite, even though the request path was \"/\"", async () => {
+      getLeadBySlug.mockResolvedValue({ slug: "joes-plumbing" });
+      const { proxy } = await import("./proxy");
+      const response = await proxy(
+        request("http://joes-plumbing.localsitestudio.com/", {
+          headers: { host: "joes-plumbing.localsitestudio.com" },
+        }),
+      );
+      expect(rewriteTarget(response)).not.toBeNull();
+      expect(response.headers.get("Content-Security-Policy")).toMatch(/nonce-/);
+    });
+
+    it("issues a fresh nonce per request", async () => {
+      const { proxy } = await import("./proxy");
+      const first = await proxy(request("http://localhost/dashboard"));
+      const second = await proxy(request("http://localhost/dashboard"));
+      expect(first.headers.get("Content-Security-Policy")).not.toBe(
+        second.headers.get("Content-Security-Policy"),
+      );
+    });
   });
 });

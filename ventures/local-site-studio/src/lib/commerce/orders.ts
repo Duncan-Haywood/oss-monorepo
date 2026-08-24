@@ -24,6 +24,18 @@ export interface CommerceOrderRecord {
   amountPaidUsd: number;
   stripeSessionId: string;
   createdAt: string;
+  /**
+   * Units of skuId actually purchased in this Checkout Session — read from
+   * Stripe's own line-item `quantity` (adjustable_quantity, see
+   * commerce-checkout-adjustable-quantity/commerce-order-quantity-visibility).
+   * Optional: absent on rows recorded before quantity was captured, or if a
+   * future line item shape ever lacks it — callers must not assume 1, only
+   * that "undefined" means "unknown," and render accordingly (never fall
+   * back to inferring quantity from amountPaidUsd ÷ current catalog price,
+   * since a re-synced SKU price makes that division meaningless for an
+   * already-open/paid Session — see commerceSkuStripeKey's stale-Price note).
+   */
+  quantity?: number;
   /** Set once an operator has manually paid this order's amount out to the client. */
   paidOutAt?: string;
   /**
@@ -32,6 +44,38 @@ export interface CommerceOrderRecord {
    * notification only while this is unset (independent of inquiry presence).
    */
   clientReceiptEmailSentAt?: string;
+  /**
+   * Set once the Stripe webhook's charge.refunded handler resolved this order's
+   * Checkout Session (see commerce-order-refund-clawback-tracking). A refunded
+   * end-customer sale owes the client nothing — this order must drop out of
+   * the "owed" total, and if paidOutAt was already set before the refund
+   * landed, the operator already paid the client out of pocket for money
+   * Stripe has since returned to the shopper (clawback owed from the client).
+   */
+  refundedAt?: string;
+  /**
+   * Set once the Stripe webhook's charge.dispute.created handler resolved this
+   * order's Checkout Session (see commerce-order-dispute-clawback-tracking).
+   * Stripe debits the disputed amount from the platform the moment a dispute
+   * opens (before any resolution), so a disputed sale is the same payout-safety
+   * exposure as a refund: it must drop out of the "owed" total, and if
+   * paidOutAt was already set before the dispute landed, the operator already
+   * paid the client out of pocket for money Stripe has since withdrawn.
+   * Cleared by charge.dispute.closed when status is won / warning_closed
+   * (commerce-order-dispute-closed-resolution); lost keeps/ensures this flag.
+   */
+  disputedAt?: string;
+  /**
+   * The shopper's own email, read from Stripe's checkout.session.completed
+   * customer_details.email/customer_email (see the Stripe webhook route) —
+   * captured so resendCommerceClientReceiptAction (the dashboard's manual
+   * resend of sendCommerceBuyNowClientReceipt) can pass it through as
+   * replyTo the same way the live webhook send already does (see
+   * commerce-buy-now-client-receipt-reply-to-shopper). Optional: absent on
+   * rows recorded before this capture shipped, or when Stripe Checkout
+   * collected no customer email.
+   */
+  customerEmail?: string;
 }
 
 export interface InsertCommerceOrderInput {
@@ -40,6 +84,10 @@ export interface InsertCommerceOrderInput {
   skuName: string;
   amountPaidUsd: number;
   stripeSessionId: string;
+  /** See CommerceOrderRecord.quantity — optional, undefined means unknown. */
+  quantity?: number;
+  /** See CommerceOrderRecord.customerEmail — optional, undefined means none collected. */
+  customerEmail?: string;
 }
 
 /**
@@ -51,6 +99,20 @@ export interface InsertCommerceOrderInput {
  */
 export function newCommerceOrderId(): string {
   return `corder_${Date.now().toString(36)}_${Math.random().toString(36).slice(2, 8)}`;
+}
+
+/**
+ * Newest-first by app createdAt (ISO string). Matches SQLite
+ * `ORDER BY createdAt DESC` and convex/commerceOrders.list / listUnpaid
+ * (collect + sort createdAt desc — not bare `.order("desc")`, which sorts
+ * `_creationTime`). db.ts re-applies this on the Convex path as
+ * belt-and-suspenders so the Commerce payouts panel / digest cannot
+ * regress if a future caller bypasses that query shape.
+ */
+export function sortCommerceOrdersNewestFirst<T extends { createdAt: string }>(
+  orders: ReadonlyArray<T>,
+): T[] {
+  return [...orders].sort((a, b) => b.createdAt.localeCompare(a.createdAt));
 }
 
 /** Sum of all recorded commerce-order amounts (USD dollars). Pure — no I/O. */
@@ -66,11 +128,103 @@ export function sumCommerceOrdersRevenueUsd(
   return total;
 }
 
+/**
+ * Distinguishing accessible name for the "Mark paid out" button rendered once
+ * per unpaid order inside the Commerce payouts (manual) panel
+ * (leads-client.tsx) — a lead with two or more unpaid Buy now orders renders
+ * two or more buttons with the identical visible text "Mark paid out" inside
+ * that lead's own order list, and every lead's list shares the page in one
+ * combined screen-reader "list of buttons" view (VoiceOver Form Controls
+ * rotor / NVDA and JAWS button lists). This is the same "distinguishable
+ * identical control labels in a list" bug class already fixed for
+ * SuppressedEmailsPanel's Remove button and this same panel's sibling
+ * Missing-client-receipt "Resend receipt" button (see
+ * list-row-action-button-aria-label) and for the public storefront's Buy
+ * now/Request order buttons (commerce-storefront-buy-now-aria-label) — this
+ * exact button was the one instance that audit's own "checked every other
+ * `.map()` site" pass judged safe as "sits inside a large, clearly-
+ * demarcated per-lead card block," which does not hold once a single lead
+ * has more than one unpaid order. businessName disambiguates across leads;
+ * skuName + amount + quantity (only appended when known and >1, matching
+ * every other quantity-aware render site) disambiguate between one lead's
+ * own multiple orders. Pure — no I/O.
+ */
+export function commerceMarkPaidOutAriaLabel(
+  order: Pick<CommerceOrderRecord, "skuName" | "amountPaidUsd" | "quantity">,
+  businessName: string,
+): string {
+  const amount = `$${order.amountPaidUsd.toFixed(2)}`;
+  const quantitySuffix =
+    order.quantity && order.quantity > 1 ? ` × ${order.quantity}` : "";
+  return `Mark paid out — ${businessName}: ${order.skuName}${quantitySuffix} (${amount})`;
+}
+
 /** True once an operator has marked this order's amount as paid out to the client. */
 export function isCommerceOrderPaidOut(
   order: Pick<CommerceOrderRecord, "paidOutAt">,
 ): boolean {
   return Boolean(order.paidOutAt);
+}
+
+/** True once the Stripe charge behind this order has been refunded (full or partial). */
+export function isCommerceOrderRefunded(
+  order: Pick<CommerceOrderRecord, "refundedAt">,
+): boolean {
+  return Boolean(order.refundedAt);
+}
+
+/** True once the Stripe charge behind this order has an open dispute (chargeback). */
+export function isCommerceOrderDisputed(
+  order: Pick<CommerceOrderRecord, "disputedAt">,
+): boolean {
+  return Boolean(order.disputedAt);
+}
+
+/**
+ * True when a commerce order still has a real, unresolved amount owed to the
+ * client — not yet paid out, not refunded, not disputed, AND its
+ * amountPaidUsd is actually positive. A 100%-off promo-code Buy now order
+ * (allow_promotion_codes on both Checkout create routes; see
+ * checkout-session-no-payment-required-fulfillment-gap) settles at
+ * amountPaidUsd === 0 with no money ever having crossed into the platform's
+ * Stripe account to pass through — there is nothing for the operator to
+ * "mark paid out." Before this predicate existed, four separate call sites
+ * (this file's own summarizeCommerceOrdersByLead, pipeline-health.ts's
+ * unpaidCommerceOrders, daily-digest.ts's commerceOrdersOwed, and
+ * leads-client.tsx's commerceOrdersStillOwed) each duplicated the same
+ * paidOutAt/refundedAt/disputedAt-only check with no amount guard, so a $0
+ * order would sit in the "owed" queue forever once #743 made it reachable at
+ * all — see commerce-order-zero-amount-owed-exclusion.
+ */
+export function isCommerceOrderOwed(
+  order: Pick<
+    CommerceOrderRecord,
+    "paidOutAt" | "refundedAt" | "disputedAt" | "amountPaidUsd"
+  >,
+): boolean {
+  return (
+    !isCommerceOrderPaidOut(order) &&
+    !isCommerceOrderRefunded(order) &&
+    !isCommerceOrderDisputed(order) &&
+    order.amountPaidUsd > 0
+  );
+}
+
+/**
+ * True when a refunded OR disputed order was already marked paid out to the
+ * client — the operator sent the client their cut before Stripe took the
+ * money back (returned to the shopper on refund, withdrawn pending review on
+ * dispute), so that amount must be clawed back from the client rather than
+ * silently written off. This is the urgent case; a refund/dispute on an order
+ * that was never paid out just means $0 is owed (see excludeRefundedFromOwed).
+ */
+export function commerceOrderNeedsClawback(
+  order: Pick<CommerceOrderRecord, "paidOutAt" | "refundedAt" | "disputedAt">,
+): boolean {
+  return (
+    isCommerceOrderPaidOut(order) &&
+    (isCommerceOrderRefunded(order) || isCommerceOrderDisputed(order))
+  );
 }
 
 /**
@@ -86,7 +240,16 @@ export interface CommerceOrdersByLeadSummary {
   orderCount: number;
   /** Lifetime total of all recorded orders for this lead (paid out or not). */
   totalUsd: number;
-  /** Total still owed to the client — excludes orders with paidOutAt set. */
+  /**
+   * Total still owed to the client — excludes orders with paidOutAt set, orders
+   * with refundedAt set, orders with disputedAt set, and orders with
+   * amountPaidUsd === 0 (see isCommerceOrderOwed). A refunded, disputed, or
+   * 100%-off free end-customer sale owes the client nothing, so none of them
+   * may inflate this operator-facing "owed" total (see
+   * commerce-order-refund-clawback-tracking,
+   * commerce-order-dispute-clawback-tracking,
+   * commerce-order-zero-amount-owed-exclusion).
+   */
   unpaidTotalUsd: number;
   unpaidCount: number;
   latestCreatedAt: string;
@@ -114,7 +277,7 @@ export function summarizeCommerceOrdersByLead(
     );
     const latest = sorted[0];
     if (!latest) continue;
-    const unpaid = sorted.filter((order) => !isCommerceOrderPaidOut(order));
+    const unpaid = sorted.filter(isCommerceOrderOwed);
     summaries.push({
       leadSlug,
       orderCount: sorted.length,
@@ -132,4 +295,67 @@ export function summarizeCommerceOrdersByLead(
     if (byDate !== 0) return byDate;
     return a.leadSlug.localeCompare(b.leadSlug);
   });
+}
+
+/**
+ * Merge orders from multiple listing queries (e.g. listUnpaidCommerceOrders,
+ * listCommerceOrdersRefunded, listCommerceOrdersDisputed) into one deduplicated
+ * set, keyed on id. A UI that needs to show every order an operator must act
+ * on cannot just concat those feeds: an order refunded/disputed but never paid
+ * out satisfies BOTH "unpaid" (paidOutAt unset) and "refunded"/"disputed"
+ * queries and would otherwise be double-counted (see
+ * commerce-payouts-panel-clawback-visibility). Pure — no I/O.
+ */
+export function mergeCommerceOrdersForReview(
+  ...sources: ReadonlyArray<ReadonlyArray<CommerceOrderRecord>>
+): CommerceOrderRecord[] {
+  const byId = new Map<string, CommerceOrderRecord>();
+  for (const source of sources) {
+    for (const order of source) {
+      byId.set(order.id, order);
+    }
+  }
+  return sortCommerceOrdersNewestFirst([...byId.values()]);
+}
+
+/**
+ * True when a per-lead payout summary has something for the operator to act
+ * on — either money still owed (unpaidCount > 0) or a clawback-needed order
+ * (paid out, then refunded/disputed). A summary with zero unpaid orders but
+ * one clawback-needed order must not be hidden: that lead still needs the
+ * operator to physically recover money from the client, and hiding it was a
+ * real bug (see commerce-payouts-panel-clawback-visibility) — the panel's
+ * own per-order rendering already had UI text for this case
+ * ("Refunded/Disputed after payout — claw back from client") that could
+ * never actually be reached because the summary itself was filtered out
+ * first. Pure — no I/O.
+ */
+export function commerceOrdersByLeadSummaryNeedsAttention(
+  summary: Pick<CommerceOrdersByLeadSummary, "unpaidCount" | "orders">,
+): boolean {
+  return (
+    summary.unpaidCount > 0 || summary.orders.some(commerceOrderNeedsClawback)
+  );
+}
+
+/**
+ * Total order count actually rendered by the Commerce payouts (manual) panel
+ * — the sum of orderCount across only the per-lead summaries that passed
+ * commerceOrdersByLeadSummaryNeedsAttention, not every order in the merged
+ * review feed (mergeCommerceOrdersForReview) passed to
+ * summarizeCommerceOrdersByLead. Those two counts silently drifted apart
+ * (commerce-payouts-panel-order-count-drift): a Buy now order refunded (or
+ * disputed) before ever being marked paid out owes nothing and is correctly
+ * filtered out of the visible per-lead list, but it still arrived via
+ * listCommerceOrdersRefunded()/listCommerceOrdersDisputed() into the merged
+ * feed, so the panel's header count kept growing forever from ordinary,
+ * fully-resolved refunds/disputes while the list below showed only leads
+ * that actually need operator action — the same "header count from the
+ * pre-filter array" bug class the daily digest button already had (see
+ * daily-digest-button-item-count-drift). Pure — no I/O.
+ */
+export function sumCommerceOrdersByLeadOrderCount(
+  summaries: ReadonlyArray<Pick<CommerceOrdersByLeadSummary, "orderCount">>,
+): number {
+  return summaries.reduce((total, summary) => total + summary.orderCount, 0);
 }

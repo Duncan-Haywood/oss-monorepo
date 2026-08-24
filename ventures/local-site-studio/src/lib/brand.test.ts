@@ -11,7 +11,6 @@ import {
   marketingFooterLine,
   outreachSenderLine,
 } from "./brand";
-import { company, legalFooterLine } from "./company";
 
 const BRAND_ENV_KEYS = [
   "NEXT_PUBLIC_BRAND_NAME",
@@ -156,29 +155,5 @@ describe("footer / sender helpers", () => {
     expect(outreachSenderLine()).toBe(
       "Local Site Studio · Maris Stella Labs · Colorado, USA",
     );
-  });
-});
-
-describe("deprecated company re-exports", () => {
-  beforeEach(() => {
-    process.env.NEXT_PUBLIC_BRAND_NAME = "Public Brand";
-    process.env.NEXT_PUBLIC_LEGAL_ENTITY = "Legal Co";
-    process.env.NEXT_PUBLIC_LEGAL_LOCATION = "Colorado, USA";
-    process.env.NEXT_PUBLIC_COMPANY_ADDRESS = "1 Main St";
-    process.env.NEXT_PUBLIC_SUPPORT_EMAIL = "support@example.com";
-    process.env.EMAIL_FROM = "noreply@example.com";
-  });
-
-  it("mirrors brand fields on the company compatibility object", () => {
-    expect(company.productName).toBe(brand.name);
-    expect(company.legalName).toBe(brand.legalEntity);
-    expect(company.location).toBe(brand.legalLocation);
-    expect(company.postalAddress).toBe(brand.postalAddress);
-    expect(company.supportEmail).toBe(brand.supportEmail);
-    expect(company.emailFrom).toBe(brand.emailFrom);
-  });
-
-  it("aliases legalFooterLine to marketingFooterLine", () => {
-    expect(legalFooterLine(2026)).toBe(marketingFooterLine(2026));
   });
 });

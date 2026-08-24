@@ -1,0 +1,303 @@
+import { listAllPages } from "../stripe/list-all-pages";
+
+/**
+ * Stripe Connect Express account creation + onboarding-link generation +
+ * status checking for commerce-payouts-stripe-connect (tier-6 empty-backlog
+ * scaffold, 2026-07-20). ACCOUNT CREATION AND STATUS-CHECKING ONLY — this
+ * module never moves money (no transfers, no destination charges). Commerce
+ * Buy now revenue still lands entirely in the platform's own Stripe account
+ * (STRIPE_SECRET_KEY) until a future, counsel-reviewed iteration wires actual
+ * payouts. Dormant behind ALLOW_STRIPE_CONNECT_ONBOARDING (see
+ * stripe-connect-gate.ts), default OFF.
+ *
+ * The Stripe client is passed in behind a minimal structural interface (not
+ * `import Stripe from "stripe"` types) so this stays unit testable with a
+ * fake client — mirrors src/lib/pricing/bootstrap-stripe-prices.ts and
+ * src/lib/commerce/stripe-sync.ts. Only the dashboard action that calls this
+ * constructs the real `new Stripe(secretKey)` client and gates on
+ * assessStripeConnectOnboardingGate.
+ */
+
+type MinimalStripeConnectAccount = {
+  id: string;
+  metadata?: Record<string, string>;
+  charges_enabled?: boolean;
+  payouts_enabled?: boolean;
+  details_submitted?: boolean;
+};
+
+type MinimalStripeAccountLink = { url: string };
+
+/** Interface subset this module calls — matches the real Stripe SDK shape. */
+export interface StripeConnectAccountsClient {
+  accounts: {
+    list(params: {
+      limit: number;
+      starting_after?: string;
+    }): Promise<{ data: MinimalStripeConnectAccount[]; has_more: boolean }>;
+    create(
+      params: {
+        type: "express";
+        email?: string;
+        business_type?: "company" | "individual";
+        capabilities: { card_payments: { requested: true }; transfers: { requested: true } };
+        metadata: Record<string, string>;
+      },
+      options?: { idempotencyKey?: string },
+    ): Promise<MinimalStripeConnectAccount>;
+    retrieve(accountId: string): Promise<MinimalStripeConnectAccount>;
+  };
+  accountLinks: {
+    create(params: {
+      account: string;
+      refresh_url: string;
+      return_url: string;
+      type: "account_onboarding";
+    }): Promise<MinimalStripeAccountLink>;
+  };
+}
+
+/** Metadata key used to idempotently locate a lead's Connect account across retries. */
+const LEAD_SLUG_METADATA_KEY = "local_site_studio_lead_slug";
+
+/**
+ * Stable Stripe Idempotency-Key for a lead's account.create call — mirrors
+ * commerceSkuStripeKey's stable-metadata-key pattern, but as a real Stripe
+ * idempotency key rather than a post-hoc metadata search. The list-then-create
+ * check in findConnectAccountByLeadSlug is a check-then-act race: two
+ * concurrent createExpressConnectAccount calls for the same lead (a
+ * double-click, or two open dashboard tabs) can both see no existing account
+ * and both call accounts.create, minting two permanently-orphaned Express
+ * accounts under the same lead-slug metadata. Passing this key as the
+ * request's Idempotency-Key closes that race at the Stripe API layer: Stripe
+ * guarantees at most one account is ever created for a given key, and any
+ * replayed request (including a genuinely concurrent one) gets back the
+ * identical first response instead of minting a duplicate.
+ */
+function connectAccountIdempotencyKey(leadSlug: string): string {
+  return `local_site_studio_connect_account_${leadSlug}`;
+}
+
+export type ConnectAccountResult = { accountId: string; created: boolean };
+
+async function findConnectAccountByLeadSlug(
+  stripe: StripeConnectAccountsClient,
+  leadSlug: string,
+): Promise<MinimalStripeConnectAccount | null> {
+  const matchesSlug = (account: MinimalStripeConnectAccount) =>
+    account.metadata?.[LEAD_SLUG_METADATA_KEY] === leadSlug;
+  const listed = await listAllPages(
+    (starting_after) => stripe.accounts.list({ limit: 100, starting_after }),
+    matchesSlug,
+  );
+  return listed.find(matchesSlug) ?? null;
+}
+
+/**
+ * Create (or find, if a prior call already created one for this lead — e.g.
+ * after a Convex persist failure on retry) a Stripe Connect Express account
+ * for a local business. Requests card_payments + transfers capabilities (the
+ * standard Express shape so the account is ready once payout wiring ships)
+ * but this call alone never moves money — capabilities stay unused until a
+ * future charge/transfer flow reads accountId.
+ */
+export async function createExpressConnectAccount(
+  stripe: StripeConnectAccountsClient,
+  params: { leadSlug: string; email?: string; businessName: string },
+): Promise<ConnectAccountResult> {
+  const existing = await findConnectAccountByLeadSlug(stripe, params.leadSlug);
+  if (existing) {
+    return { accountId: existing.id, created: false };
+  }
+
+  const account = await stripe.accounts.create(
+    {
+      type: "express",
+      email: params.email,
+      business_type: "company",
+      capabilities: {
+        card_payments: { requested: true },
+        transfers: { requested: true },
+      },
+      metadata: {
+        [LEAD_SLUG_METADATA_KEY]: params.leadSlug,
+        local_site_studio_business_name: params.businessName,
+      },
+    },
+    { idempotencyKey: connectAccountIdempotencyKey(params.leadSlug) },
+  );
+  return { accountId: account.id, created: true };
+}
+
+/**
+ * Generate a Stripe-hosted Connect Express onboarding link for an
+ * already-created account. The operator sends this URL to the client, who
+ * completes their own KYC/bank details on Stripe's hosted flow.
+ */
+export async function createConnectOnboardingLink(
+  stripe: StripeConnectAccountsClient,
+  accountId: string,
+  urls: { refreshUrl: string; returnUrl: string },
+): Promise<{ url: string }> {
+  const link = await stripe.accountLinks.create({
+    account: accountId,
+    refresh_url: urls.refreshUrl,
+    return_url: urls.returnUrl,
+    type: "account_onboarding",
+  });
+  return { url: link.url };
+}
+
+export type ConnectAccountStatus = {
+  chargesEnabled: boolean;
+  payoutsEnabled: boolean;
+  detailsSubmitted: boolean;
+};
+
+/** Fetch the live onboarding status of a Connect account — status-checking only, no writes. */
+export async function fetchConnectAccountStatus(
+  stripe: StripeConnectAccountsClient,
+  accountId: string,
+): Promise<ConnectAccountStatus> {
+  const account = await stripe.accounts.retrieve(accountId);
+  return {
+    chargesEnabled: account.charges_enabled ?? false,
+    payoutsEnabled: account.payouts_enabled ?? false,
+    detailsSubmitted: account.details_submitted ?? false,
+  };
+}
+
+export type DisplayedConnectStatus = ConnectAccountStatus & {
+  /** ISO timestamp of the check this status came from; null for a same-session live check. */
+  checkedAt: string | null;
+  /** True when this came from a "Check status" click this session; false when read from the persisted cache. */
+  live: boolean;
+};
+
+/**
+ * Resolve what the Payouts panel's "Charges enabled / Payouts enabled /
+ * Details submitted" line should show for a lead — closes a gap in the
+ * stripe-connect-onboarding-pipeline-health-visibility scaffold: that PR
+ * added stripeConnectChargesEnabled/PayoutsEnabled/DetailsSubmitted/
+ * StatusCheckedAt to the Lead record specifically so pipeline-health/digest
+ * could show cached onboarding status without a live Stripe call, but the
+ * Payouts panel itself kept reading only an in-memory, never-persisted
+ * useState populated solely by that session's own "Check status" click —
+ * so the panel showed nothing at all on every fresh page load even though
+ * the record already carried a real cached answer. Prefers a live status
+ * just fetched this session (liveStatus, the direct response of
+ * checkStripeConnectAccountStatusAction) over the persisted cache, but
+ * falls back to the cache so the panel isn't blank until the operator
+ * re-clicks. Returns null only when neither exists yet (account created but
+ * never checked).
+ */
+export function resolveDisplayedConnectStatus(
+  lead: {
+    stripeConnectChargesEnabled?: boolean;
+    stripeConnectPayoutsEnabled?: boolean;
+    stripeConnectDetailsSubmitted?: boolean;
+    stripeConnectStatusCheckedAt?: string;
+  },
+  liveStatus?: ConnectAccountStatus | null,
+): DisplayedConnectStatus | null {
+  if (liveStatus) {
+    return { ...liveStatus, checkedAt: null, live: true };
+  }
+  if (typeof lead.stripeConnectStatusCheckedAt !== "string") return null;
+  return {
+    chargesEnabled: lead.stripeConnectChargesEnabled === true,
+    payoutsEnabled: lead.stripeConnectPayoutsEnabled === true,
+    detailsSubmitted: lead.stripeConnectDetailsSubmitted === true,
+    checkedAt: lead.stripeConnectStatusCheckedAt,
+    live: false,
+  };
+}
+
+/**
+ * Pure pipeline-health/digest visibility helpers for the Connect scaffold
+ * (stripe-connect-onboarding-pipeline-health-visibility) — closes the gap
+ * flagged by buffer-token-header-not-query: Connect onboarding status had
+ * zero visibility outside each lead's own Payouts panel, unlike every other
+ * due-queue signal in this codebase. A Connect account is presumed
+ * incomplete until BOTH chargesEnabled and payoutsEnabled are confirmed
+ * true by the operator's most recent "Check status" click — an account
+ * that's never been checked (undefined) counts as incomplete by design,
+ * since Stripe Express accounts require onboarding steps before either flag
+ * goes true.
+ */
+
+const HOUR_MS = 60 * 60 * 1000;
+
+/** True once a lead has a Connect account that is not yet confirmed fully onboarded. */
+export function connectOnboardingIncomplete(lead: {
+  stripeConnectAccountId?: string;
+  stripeConnectChargesEnabled?: boolean;
+  stripeConnectPayoutsEnabled?: boolean;
+}): boolean {
+  if (!lead.stripeConnectAccountId) return false;
+  return !(lead.stripeConnectChargesEnabled === true && lead.stripeConnectPayoutsEnabled === true);
+}
+
+/**
+ * Correlate a Stripe `account.updated` webhook event's account id back to the
+ * lead that owns it (account-updated-connect-status-refresh) — until this,
+ * the ONLY code path that ever refreshed stripeConnectChargesEnabled/
+ * PayoutsEnabled/DetailsSubmitted was an operator's manual "Check status"
+ * click; the cached due-queue signal (connectOnboardingIncomplete /
+ * oldestConnectOnboardingIncompleteAgeHours) could never self-correct once an
+ * operator stopped re-checking a lead, even after the client actually
+ * finished onboarding on Stripe's hosted page. There is no dedicated index
+ * for this lookup (dormant, low-volume scaffold — see the module header) so
+ * this does a linear scan over the full lead list the caller already fetched
+ * via getLeads(), mirroring findConnectAccountByLeadSlug's own full-scan
+ * shape for the reverse direction. Returns null (no-op, not an error) when
+ * the account doesn't belong to any known lead — a Connect account created
+ * outside this app, or one whose id was never successfully persisted.
+ */
+export function findLeadSlugByStripeConnectAccountId<
+  T extends { slug: string; stripeConnectAccountId?: string },
+>(leads: readonly T[], accountId: string): string | null {
+  const match = leads.find((lead) => lead.stripeConnectAccountId === accountId);
+  return match ? match.slug : null;
+}
+
+/** Leads with an incomplete Connect account, slug-sorted (mirrors listCommerceCatalogsMissing). */
+export function listLeadsWithIncompleteConnectOnboarding<
+  T extends {
+    slug: string;
+    stripeConnectAccountId?: string;
+    stripeConnectChargesEnabled?: boolean;
+    stripeConnectPayoutsEnabled?: boolean;
+  },
+>(leads: readonly T[]): T[] {
+  return leads
+    .filter(connectOnboardingIncomplete)
+    .slice()
+    .sort((a, b) => a.slug.localeCompare(b.slug));
+}
+
+/**
+ * Age in whole hours since the oldest incomplete Connect account was created
+ * (stripeConnectAccountCreatedAt); null when there are no candidates or none
+ * carry a parseable timestamp. A candidate with no createdAt (a pre-existing
+ * account created before this field shipped) is skipped from the age
+ * computation — same skip-if-no-anchor contract as oldestPaidNotLiveAgeHours
+ * — but still counts toward connectOnboardingIncompleteCount above. Pass
+ * nowMs from the caller — never Date.now() inside list/age helpers.
+ */
+export function oldestConnectOnboardingIncompleteAgeHours(
+  candidates: ReadonlyArray<{ stripeConnectAccountCreatedAt?: string }>,
+  nowMs: number,
+): number | null {
+  let oldestCreatedAtMs: number | null = null;
+  for (const candidate of candidates) {
+    if (typeof candidate.stripeConnectAccountCreatedAt !== "string") continue;
+    const createdAtMs = Date.parse(candidate.stripeConnectAccountCreatedAt);
+    if (Number.isNaN(createdAtMs)) continue;
+    if (oldestCreatedAtMs === null || createdAtMs < oldestCreatedAtMs) {
+      oldestCreatedAtMs = createdAtMs;
+    }
+  }
+  if (oldestCreatedAtMs === null) return null;
+  return Math.max(0, Math.floor((nowMs - oldestCreatedAtMs) / HOUR_MS));
+}

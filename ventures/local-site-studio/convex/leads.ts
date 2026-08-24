@@ -1,10 +1,22 @@
 import { query, mutation } from "./_generated/server";
 import { v } from "convex/values";
+import {
+  normalizeLeadCategory,
+  normalizeLeadRecommendedTier,
+} from "../src/lib/leads/category-normalize";
+import { buildPaymentStubLeadFields } from "../src/lib/leads/payment-stub";
+import { requireApiSecret } from "./lib/apiSecret";
 
 const categoryValidator = v.union(
   v.literal("restaurant"),
   v.literal("salon"),
   v.literal("trades"),
+  v.literal("retail"),
+  v.literal("health"),
+  v.literal("automotive"),
+  v.literal("cleaning"),
+  v.literal("fitness"),
+  v.literal("legal"),
   v.literal("generic"),
 );
 
@@ -50,22 +62,202 @@ const leadFields = {
   snoozedUntil: v.optional(v.string()),
 };
 
+/**
+ * list/getBySlug's return shape — every OTHER Convex file in this app
+ * (orders/commerceOrders/deployHandoffs/marketingPacks/clientVoicePacks/
+ * commerceCatalogs/inquiries) defines an explicit `xReturn` validator + a
+ * mapping function that names every field, so a raw `ctx.db` doc (which
+ * always carries Convex's own `_id`/`_creationTime` system fields, per
+ * https://docs.convex.dev/database/document-storage#document-ids) never
+ * reaches a caller unmapped. leads.ts's list/getBySlug were the one
+ * remaining pair returning `v.array(v.any())`/`v.any()` and the raw doc
+ * itself — src/lib/db.ts's getLeads()/getLeadBySlug() then blindly cast
+ * that raw doc `as Lead[]`/`as Lead`, so on a Convex-backed deployment every
+ * in-memory `Lead` object silently carried two extra enumerable properties
+ * (`_id`, `_creationTime`) the `Lead` TypeScript interface has no field for
+ * — unlike the SQLite fallback (mapSqliteRowToLead builds a clean object
+ * literal with only `Lead`'s own fields). That divergence isn't just a
+ * type/style inconsistency: it directly undermined the just-shipped
+ * `softCapLeadForPublicSurface` / `PublicLead` hardening
+ * (public-lead-strip-notes-and-stripe-connect-id) — that fix destructures
+ * only `notes`/`stripeConnectAccountId` out of `lead` before spreading
+ * `...publicLead`, so on a Convex-backed instance the "safe for a public
+ * surface" object would still carry a Convex-internal document id via the
+ * spread, since `_id`/`_creationTime` were never named fields to strip.
+ * Explicit mapping (mirroring commerceOrders.ts's mapOrderRow) closes this
+ * for both backends the same way every other table already does. See
+ * leads-convex-query-return-validator-system-field-leak.
+ *
+ * Deliberately does NOT reuse `leadFields`'s strict category/stage/
+ * recommendedTier literal unions as the RETURN VALIDATOR here — those exist
+ * to validate WRITES (upsertLead/seed args), but schema.ts itself stores all
+ * three as plain `v.string()` (its own comments note the literal values are
+ * documented, not schema-enforced). A stricter return validator would make
+ * list/getBySlug throw at runtime for any pre-existing row whose value
+ * predates (or otherwise falls outside) the current literal set, turning a
+ * merely unexpected value into a hard 500 on every dashboard/preview read for
+ * that row instead of just passing it through — the same class of risk
+ * checkoutSessions.ts's kind field is already documented to guard against.
+ * `stage` is left as a raw pass-through (dashboard/pipeline-health render it
+ * as plain text — no downstream lookup crashes on an unrecognized value).
+ *
+ * `category` and `recommendedTier` are different: category feeds a direct
+ * object-keyed lookup with no fallback downstream (getCategoryTheme's
+ * CATEGORY_THEMES[category] in src/lib/previews/themes.ts, consumed by the
+ * public /preview/[slug] page and its OG-image routes) — an unrecognized
+ * value there doesn't just render oddly, it throws. mapSqliteRowToLead
+ * (src/lib/leads/sqlite-row-mapping.ts) has always defended against this by
+ * falling back to "generic"/a category-derived tier default for an
+ * unrecognized stored value; this mapping function did not, so the exact
+ * same corrupt row degraded gracefully on SQLite but 500'd on Convex — a
+ * dual-backend parity gap in read-time value safety, not row ordering.
+ * mapLeadRow now runs both fields through the same shared normalizer
+ * (normalizeLeadCategory / normalizeLeadRecommendedTier, category-normalize.ts)
+ * mapSqliteRowToLead uses, so the return validator can stay loose (`v.string()`,
+ * no new RPC-throw risk) while the actual value it returns is always one of
+ * the current literals on both backends (leads-category-tier-read-normalize-parity).
+ */
+const leadReturn = v.object({
+  slug: v.string(),
+  businessName: v.string(),
+  category: v.string(),
+  city: v.string(),
+  state: v.string(),
+  address: v.optional(v.string()),
+  tagline: v.string(),
+  description: v.string(),
+  phone: v.string(),
+  email: v.optional(v.string()),
+  services: v.array(v.string()),
+  hours: v.object({
+    weekday: v.string(),
+    weekend: v.string(),
+  }),
+  stage: v.string(),
+  recommendedTier: v.string(),
+  dataSource: v.optional(v.string()),
+  outreachStep: v.optional(v.number()),
+  lastOutreachAt: v.optional(v.string()),
+  lastPreviewOpenAt: v.optional(v.string()),
+  notes: v.optional(v.string()),
+  snoozedUntil: v.optional(v.string()),
+  stripeConnectAccountId: v.optional(v.string()),
+  stripeConnectAccountCreatedAt: v.optional(v.string()),
+  stripeConnectChargesEnabled: v.optional(v.boolean()),
+  stripeConnectPayoutsEnabled: v.optional(v.boolean()),
+  stripeConnectDetailsSubmitted: v.optional(v.boolean()),
+  stripeConnectStatusCheckedAt: v.optional(v.string()),
+  bufferProfileIds: v.optional(v.array(v.string())),
+  bufferPostedVariantKeys: v.optional(v.array(v.string())),
+  starterUpsellSentCount: v.optional(v.number()),
+  lastStarterUpsellSentAt: v.optional(v.string()),
+  stripeConnectOnboardingLinkSentCount: v.optional(v.number()),
+  lastStripeConnectOnboardingLinkSentAt: v.optional(v.string()),
+  growthUpsellSentCount: v.optional(v.number()),
+  lastGrowthUpsellSentAt: v.optional(v.string()),
+});
+
+function mapLeadRow(row: {
+  slug: string;
+  businessName: string;
+  category: string;
+  city: string;
+  state: string;
+  address?: string;
+  tagline: string;
+  description: string;
+  phone: string;
+  email?: string;
+  services: string[];
+  hours: { weekday: string; weekend: string };
+  stage: string;
+  recommendedTier: string;
+  dataSource?: string;
+  outreachStep?: number;
+  lastOutreachAt?: string;
+  lastPreviewOpenAt?: string;
+  notes?: string;
+  snoozedUntil?: string;
+  stripeConnectAccountId?: string;
+  stripeConnectAccountCreatedAt?: string;
+  stripeConnectChargesEnabled?: boolean;
+  stripeConnectPayoutsEnabled?: boolean;
+  stripeConnectDetailsSubmitted?: boolean;
+  stripeConnectStatusCheckedAt?: string;
+  bufferProfileIds?: string[];
+  bufferPostedVariantKeys?: string[];
+  starterUpsellSentCount?: number;
+  lastStarterUpsellSentAt?: string;
+  stripeConnectOnboardingLinkSentCount?: number;
+  lastStripeConnectOnboardingLinkSentAt?: string;
+  growthUpsellSentCount?: number;
+  lastGrowthUpsellSentAt?: string;
+}) {
+  const category = normalizeLeadCategory(row.category);
+  return {
+    slug: row.slug,
+    businessName: row.businessName,
+    category,
+    city: row.city,
+    state: row.state,
+    address: row.address,
+    tagline: row.tagline,
+    description: row.description,
+    phone: row.phone,
+    email: row.email,
+    services: row.services,
+    hours: row.hours,
+    stage: row.stage,
+    recommendedTier: normalizeLeadRecommendedTier(row.recommendedTier, category),
+    dataSource: row.dataSource,
+    outreachStep: row.outreachStep,
+    lastOutreachAt: row.lastOutreachAt,
+    lastPreviewOpenAt: row.lastPreviewOpenAt,
+    notes: row.notes,
+    snoozedUntil: row.snoozedUntil,
+    stripeConnectAccountId: row.stripeConnectAccountId,
+    stripeConnectAccountCreatedAt: row.stripeConnectAccountCreatedAt,
+    stripeConnectChargesEnabled: row.stripeConnectChargesEnabled,
+    stripeConnectPayoutsEnabled: row.stripeConnectPayoutsEnabled,
+    stripeConnectDetailsSubmitted: row.stripeConnectDetailsSubmitted,
+    stripeConnectStatusCheckedAt: row.stripeConnectStatusCheckedAt,
+    bufferProfileIds: row.bufferProfileIds,
+    bufferPostedVariantKeys: row.bufferPostedVariantKeys,
+    starterUpsellSentCount: row.starterUpsellSentCount,
+    lastStarterUpsellSentAt: row.lastStarterUpsellSentAt,
+    stripeConnectOnboardingLinkSentCount: row.stripeConnectOnboardingLinkSentCount,
+    lastStripeConnectOnboardingLinkSentAt: row.lastStripeConnectOnboardingLinkSentAt,
+    growthUpsellSentCount: row.growthUpsellSentCount,
+    lastGrowthUpsellSentAt: row.lastGrowthUpsellSentAt,
+  };
+}
+
 export const list = query({
-  args: {},
-  returns: v.array(v.any()),
-  handler: async (ctx) => {
-    return await ctx.db.query("leads").collect();
+  args: { apiSecret: v.string() },
+  returns: v.array(leadReturn),
+  handler: async (ctx, args) => {
+    requireApiSecret(args.apiSecret);
+    // Match the SQLite fallback (getLeads: ORDER BY createdAt DESC — newest
+    // first). The leads table has no explicit createdAt field, so _creationTime
+    // descending is the closest available proxy; a bare .collect() returns
+    // _creationTime ASCENDING, which reversed the /dashboard/leads table order
+    // between backends. See convex-query-ordering-parity in /docs/process.
+    const rows = await ctx.db.query("leads").order("desc").collect();
+    return rows.map(mapLeadRow);
   },
 });
 
 export const getBySlug = query({
-  args: { slug: v.string() },
-  returns: v.union(v.any(), v.null()),
+  args: { slug: v.string(), apiSecret: v.string() },
+  returns: v.union(leadReturn, v.null()),
   handler: async (ctx, args) => {
-    return await ctx.db
+    requireApiSecret(args.apiSecret);
+    const row = await ctx.db
       .query("leads")
       .withIndex("by_slug", (q) => q.eq("slug", args.slug))
       .unique();
+    if (!row) return null;
+    return mapLeadRow(row);
   },
 });
 
@@ -73,9 +265,18 @@ export const updateStage = mutation({
   args: {
     slug: v.string(),
     stage: stageValidator,
+    apiSecret: v.string(),
   },
-  returns: v.null(),
+  /**
+   * false when the fresh row had already gone paid/live and this write
+   * would revert it to an earlier stage — patch skipped
+   * (update-lead-stage-action-paid-live-revert-guard). A write that itself
+   * targets paid or live is always allowed even from a paid/live row (the
+   * normal Mark-live and re-confirm transitions).
+   */
+  returns: v.boolean(),
   handler: async (ctx, args) => {
+    requireApiSecret(args.apiSecret);
     const lead = await ctx.db
       .query("leads")
       .withIndex("by_slug", (q) => q.eq("slug", args.slug))
@@ -83,25 +284,44 @@ export const updateStage = mutation({
     if (!lead) {
       throw new Error(`Lead with slug ${args.slug} not found`);
     }
+    if (
+      (lead.stage === "paid" || lead.stage === "live") &&
+      args.stage !== "paid" &&
+      args.stage !== "live"
+    ) {
+      return false;
+    }
     await ctx.db.patch(lead._id, { stage: args.stage });
-    return null;
+    return true;
   },
 });
 
 export const upsertLead = mutation({
-  args: leadFields,
-  returns: v.null(),
+  args: { ...leadFields, apiSecret: v.string() },
+  /**
+   * Create-only, atomic at write time: returns false (no write) when a row
+   * with this slug already exists by the time this mutation runs, instead of
+   * patching it — see lead-upsert-create-only-race-guard. Both call sites
+   * (addLeadAction, importLeadsCsvAction) already treat a pre-existing slug
+   * as a conflict via their own earlier existence check, never a legitimate
+   * update; a stale bulk snapshot (importLeadsCsvAction reads all existing
+   * slugs once, then loops up to MAX_ROWS sequential upserts) must not let a
+   * lead created/promoted mid-loop be silently reverted to CSV defaults.
+   */
+  returns: v.boolean(),
   handler: async (ctx, args) => {
+    requireApiSecret(args.apiSecret);
+    const { apiSecret, ...leadData } = args;
+    void apiSecret;
     const existing = await ctx.db
       .query("leads")
-      .withIndex("by_slug", (q) => q.eq("slug", args.slug))
+      .withIndex("by_slug", (q) => q.eq("slug", leadData.slug))
       .unique();
     if (existing) {
-      await ctx.db.patch(existing._id, args);
-    } else {
-      await ctx.db.insert("leads", args);
+      return false;
     }
-    return null;
+    await ctx.db.insert("leads", leadData);
+    return true;
   },
 });
 
@@ -114,6 +334,10 @@ export const markLeadPaid = mutation({
     commerceAddon: v.boolean(),
     amountTotal: v.float64(),
     stripeCustomerId: v.optional(v.string()),
+    acquisitionSource: v.optional(v.string()),
+    businessName: v.optional(v.string()),
+    businessPhone: v.optional(v.string()),
+    apiSecret: v.string(),
   },
   // Returns whether this call recorded a *new* order — false means Stripe
   // redelivered a checkout.session.completed event we already processed, and
@@ -123,6 +347,7 @@ export const markLeadPaid = mutation({
   // and commerce_orders).
   returns: v.object({ alreadyRecorded: v.boolean() }),
   handler: async (ctx, args) => {
+    requireApiSecret(args.apiSecret);
     const existing = await ctx.db
       .query("orders")
       .withIndex("by_stripeSessionId", (q) => q.eq("stripeSessionId", args.stripeSessionId))
@@ -137,43 +362,36 @@ export const markLeadPaid = mutation({
       .unique();
 
     if (lead) {
-      // A Starter -> Growth/Complete upsell checkout (leadEligibleForStarterUpsell
-      // in src/lib/billing/starter-upsell.ts fires at stage "paid" OR "live")
-      // carries a new stripeSessionId, so the idempotency check above doesn't
-      // catch it. Don't let a second payment regress an already-live lead back
-      // to "paid" — pipeline-health and the daily digest key off that stage.
+      // Never regress an already-live lead back to "paid" — this mutation
+      // fires on every successful bundle checkout, including a paid Starter
+      // upsell to Growth/Complete on a lead whose site is already deployed
+      // (leadEligibleForStarterUpsell explicitly allows stage="live"). The
+      // order row below still records the new revenue either way; only the
+      // stage patch is guarded, mirroring the automatic-write-never-downgrades
+      // precedent (preferAdvancedHandoffStatus /
+      // update-lead-stage-action-paid-live-revert-guard) rather than the
+      // dashboard operator's manual updateStage, which intentionally still
+      // allows a human to set paid<->live directly.
       if (lead.stage !== "live") {
         await ctx.db.patch(lead._id, { stage: "paid" });
       }
     } else {
       // Parity with SQLite recordLeadPayment: checkout can complete before a
       // CRM lead row exists. Insert a paid stub so listOrders revenue and
-      // paidNotLive / handoff eligibility stay consistent. Defaults must stay
-      // in sync with src/lib/leads/payment-stub.ts buildPaymentStubLeadFields.
-      const businessName =
-        args.slug
-          .split("-")
-          .filter(Boolean)
-          .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
-          .join(" ") || "Unknown";
-      await ctx.db.insert("leads", {
-        slug: args.slug,
-        businessName,
-        category: "generic",
-        city: "Colorado",
-        state: "CO",
-        tagline: "Local favorites made fresh daily",
-        description: `This is a preview page generated for ${businessName}. Claim it to connect your domain, contact form, and marketing dashboard.`,
-        phone: "(555) 000-0000",
-        services: [],
-        hours: {
-          weekday: "Mon–Fri 9am–5pm",
-          weekend: "Sat–Sun Closed",
-        },
-        stage: "paid",
-        recommendedTier: "growth",
-        dataSource: "payment_stub",
-      });
+      // paidNotLive / handoff eligibility stay consistent. Defaults come from
+      // the canonical buildPaymentStubLeadFields (src/lib/leads/payment-stub.ts)
+      // — previously this handler forked its own private copy of the same
+      // businessName-from-slug + stub-defaults logic, the same duplicate-logic
+      // drift class fixed once already in convex/orders.ts and
+      // convex/deployHandoffs.ts (see AGENT_PROTOCOL /
+      // convex-deploy-handoff-status-rank-duplicate-fix).
+      await ctx.db.insert(
+        "leads",
+        buildPaymentStubLeadFields(args.slug, {
+          businessName: args.businessName,
+          phone: args.businessPhone,
+        }),
+      );
     }
 
     await ctx.db.insert("orders", {
@@ -185,6 +403,7 @@ export const markLeadPaid = mutation({
       amountTotal: args.amountTotal,
       customerEmail: args.customerEmail,
       createdAt: Date.now(),
+      acquisitionSource: args.acquisitionSource,
     });
     return { alreadyRecorded: false };
   },
@@ -195,9 +414,22 @@ export const recordOutreach = mutation({
     slug: v.string(),
     outreachStep: v.union(v.literal(1), v.literal(2), v.literal(3)),
     lastOutreachAt: v.string(),
+    apiSecret: v.string(),
   },
-  returns: v.null(),
+  /**
+   * false when the fresh row had already gone paid/live/closed, or the lead's
+   * current outreachStep already reached/passed args.outreachStep — patch
+   * skipped either way. The latter closes a duplicate-send window: two
+   * concurrent sendFollowUpAction/updateLeadStageAction("outreach_sent")
+   * calls (a double-click, or two operator tabs) both read the same
+   * pre-write outreachStep, both compute the same target step, both pass
+   * the paid/live/closed check, and — without this guard — both patched the
+   * row and both proceeded to send the real Resend Email 1/2/3 to a live
+   * prospect (outreach-step-duplicate-send-guard).
+   */
+  returns: v.boolean(),
   handler: async (ctx, args) => {
+    requireApiSecret(args.apiSecret);
     const lead = await ctx.db
       .query("leads")
       .withIndex("by_slug", (q) => q.eq("slug", args.slug))
@@ -205,11 +437,139 @@ export const recordOutreach = mutation({
     if (!lead) {
       throw new Error(`Lead with slug ${args.slug} not found`);
     }
+    if (lead.stage === "paid" || lead.stage === "live" || lead.stage === "closed") {
+      return false;
+    }
+    if ((lead.outreachStep ?? 0) >= args.outreachStep) {
+      return false;
+    }
     await ctx.db.patch(lead._id, {
       outreachStep: args.outreachStep,
       lastOutreachAt: args.lastOutreachAt,
     });
-    return null;
+    return true;
+  },
+});
+
+/**
+ * CAS marker for sendStarterUpsellAction — mirrors
+ * checkoutSessions.recordRecoverySent's expected-count pattern, not
+ * markMarketingPackSentToClient's one-shot "already sent" gate: a Starter
+ * upsell nudge has no monthly regenerate step to reset eligibility, so an
+ * operator may legitimately re-send it to a still Starter-only lead weeks
+ * later. This only rejects a write whose expectedStarterUpsellSentCount no
+ * longer matches the row's current count — an exact concurrent duplicate (a
+ * second dashboard tab, or a double-click before the button's
+ * isPending-disabled state applies), never a later, deliberate resend. See
+ * starter-upsell-send-race-guard.
+ */
+export const recordStarterUpsellSent = mutation({
+  args: {
+    slug: v.string(),
+    sentAt: v.string(),
+    expectedStarterUpsellSentCount: v.number(),
+    apiSecret: v.string(),
+  },
+  returns: v.boolean(),
+  handler: async (ctx, args) => {
+    requireApiSecret(args.apiSecret);
+    const lead = await ctx.db
+      .query("leads")
+      .withIndex("by_slug", (q) => q.eq("slug", args.slug))
+      .unique();
+    if (!lead) {
+      return false;
+    }
+    if ((lead.starterUpsellSentCount ?? 0) !== args.expectedStarterUpsellSentCount) {
+      return false;
+    }
+    await ctx.db.patch(lead._id, {
+      starterUpsellSentCount: args.expectedStarterUpsellSentCount + 1,
+      lastStarterUpsellSentAt: args.sentAt,
+    });
+    return true;
+  },
+});
+
+/**
+ * CAS marker for sendStripeConnectOnboardingLinkToClientAction — mirrors
+ * recordStarterUpsellSent's expected-count pattern, not
+ * markMarketingPackSentToClient's one-shot "already sent" gate: an operator
+ * may legitimately re-send a fresh onboarding link after an earlier one
+ * expired unused. This only rejects a write whose
+ * expectedStripeConnectOnboardingLinkSentCount no longer matches the row's
+ * current count — an exact concurrent duplicate (a second dashboard tab, or
+ * a double-click before the button's isPending-disabled state applies),
+ * never a later, deliberate resend. See
+ * stripe-connect-onboarding-link-send-race-guard.
+ */
+export const recordStripeConnectOnboardingLinkSent = mutation({
+  args: {
+    slug: v.string(),
+    sentAt: v.string(),
+    expectedStripeConnectOnboardingLinkSentCount: v.number(),
+    apiSecret: v.string(),
+  },
+  returns: v.boolean(),
+  handler: async (ctx, args) => {
+    requireApiSecret(args.apiSecret);
+    const lead = await ctx.db
+      .query("leads")
+      .withIndex("by_slug", (q) => q.eq("slug", args.slug))
+      .unique();
+    if (!lead) {
+      return false;
+    }
+    if (
+      (lead.stripeConnectOnboardingLinkSentCount ?? 0) !==
+      args.expectedStripeConnectOnboardingLinkSentCount
+    ) {
+      return false;
+    }
+    await ctx.db.patch(lead._id, {
+      stripeConnectOnboardingLinkSentCount: args.expectedStripeConnectOnboardingLinkSentCount + 1,
+      lastStripeConnectOnboardingLinkSentAt: args.sentAt,
+    });
+    return true;
+  },
+});
+
+/**
+ * CAS marker for sendGrowthUpsellAction — mirrors recordStarterUpsellSent's
+ * expected-count pattern, not markMarketingPackSentToClient's one-shot
+ * "already sent" gate: a Growth upsell nudge has no monthly regenerate step
+ * to reset eligibility, so an operator may legitimately re-send it to a
+ * still Growth-only lead weeks later. This only rejects a write whose
+ * expectedGrowthUpsellSentCount no longer matches the row's current count —
+ * an exact concurrent duplicate (a second dashboard tab, or a double-click
+ * before the button's isPending-disabled state applies), never a later,
+ * deliberate resend. See growth-upsell-send-race-guard.
+ */
+export const recordGrowthUpsellSent = mutation({
+  args: {
+    slug: v.string(),
+    sentAt: v.string(),
+    expectedGrowthUpsellSentCount: v.number(),
+    apiSecret: v.string(),
+  },
+  returns: v.boolean(),
+  handler: async (ctx, args) => {
+    requireApiSecret(args.apiSecret);
+    const lead = await ctx.db
+      .query("leads")
+      .withIndex("by_slug", (q) => q.eq("slug", args.slug))
+      .unique();
+    if (!lead) {
+      return false;
+    }
+    if ((lead.growthUpsellSentCount ?? 0) !== args.expectedGrowthUpsellSentCount) {
+      return false;
+    }
+    await ctx.db.patch(lead._id, {
+      growthUpsellSentCount: args.expectedGrowthUpsellSentCount + 1,
+      lastGrowthUpsellSentAt: args.sentAt,
+    });
+    return true;
   },
 });
 
@@ -217,9 +577,11 @@ export const recordPreviewOpen = mutation({
   args: {
     slug: v.string(),
     openedAt: v.string(),
+    apiSecret: v.string(),
   },
   returns: v.null(),
   handler: async (ctx, args) => {
+    requireApiSecret(args.apiSecret);
     const lead = await ctx.db
       .query("leads")
       .withIndex("by_slug", (q) => q.eq("slug", args.slug))
@@ -240,9 +602,11 @@ export const updateNotes = mutation({
     slug: v.string(),
     /** Empty string clears notes; undefined is treated the same. */
     notes: v.optional(v.string()),
+    apiSecret: v.string(),
   },
   returns: v.null(),
   handler: async (ctx, args) => {
+    requireApiSecret(args.apiSecret);
     const lead = await ctx.db
       .query("leads")
       .withIndex("by_slug", (q) => q.eq("slug", args.slug))
@@ -250,7 +614,10 @@ export const updateNotes = mutation({
     if (!lead) {
       throw new Error(`Lead with slug ${args.slug} not found`);
     }
-    // Convex patch ignores undefined keys — persist "" so clears stick.
+    // Convex db.patch() actually removes a field when it's explicitly
+    // undefined (see convex-patch-undefined-clear-semantics-correction in
+    // business-decisions.ts) — this still persists "" rather than passing
+    // undefined through, for parity with the SQLite twin's cleared value.
     await ctx.db.patch(lead._id, {
       notes: args.notes ?? "",
     });
@@ -263,9 +630,11 @@ export const updateSnooze = mutation({
     slug: v.string(),
     /** Empty string clears snooze; undefined is treated the same. */
     snoozedUntil: v.optional(v.string()),
+    apiSecret: v.string(),
   },
   returns: v.null(),
   handler: async (ctx, args) => {
+    requireApiSecret(args.apiSecret);
     const lead = await ctx.db
       .query("leads")
       .withIndex("by_slug", (q) => q.eq("slug", args.slug))
@@ -273,7 +642,10 @@ export const updateSnooze = mutation({
     if (!lead) {
       throw new Error(`Lead with slug ${args.slug} not found`);
     }
-    // Convex patch ignores undefined keys — persist "" so clears stick.
+    // Convex db.patch() actually removes a field when it's explicitly
+    // undefined (see convex-patch-undefined-clear-semantics-correction in
+    // business-decisions.ts) — this still persists "" rather than passing
+    // undefined through, for parity with the SQLite twin's cleared value.
     await ctx.db.patch(lead._id, {
       snoozedUntil: args.snoozedUntil ?? "",
     });
@@ -281,9 +653,140 @@ export const updateSnooze = mutation({
   },
 });
 
+export const updateStripeConnectAccountId = mutation({
+  args: {
+    slug: v.string(),
+    /** Empty string clears; undefined is treated the same. */
+    stripeConnectAccountId: v.optional(v.string()),
+    /**
+     * Set once, the first time this lead learns its account id (either just
+     * created on Stripe, or found via idempotent metadata search after a
+     * prior persist failure) — never overwritten on a later call, so a
+     * repeat call after the field is already set is a no-op for this key.
+     * See stripe-connect-onboarding-pipeline-health-visibility.
+     */
+    stripeConnectAccountCreatedAt: v.optional(v.string()),
+    apiSecret: v.string(),
+  },
+  returns: v.null(),
+  handler: async (ctx, args) => {
+    requireApiSecret(args.apiSecret);
+    const lead = await ctx.db
+      .query("leads")
+      .withIndex("by_slug", (q) => q.eq("slug", args.slug))
+      .unique();
+    if (!lead) {
+      throw new Error(`Lead with slug ${args.slug} not found`);
+    }
+    // Convex db.patch() actually removes a field when it's explicitly
+    // undefined (see convex-patch-undefined-clear-semantics-correction in
+    // business-decisions.ts) — this still persists "" rather than passing
+    // undefined through, for parity with the SQLite twin's cleared value.
+    // stripeConnectAccountCreatedAt is only ever included in the patch when
+    // the caller passed one AND the lead doesn't already have one — omitting
+    // the key entirely (rather than patching it to the same value) means a
+    // second call for the same lead can never overwrite the original
+    // first-learned timestamp.
+    await ctx.db.patch(lead._id, {
+      stripeConnectAccountId: args.stripeConnectAccountId ?? "",
+      ...(args.stripeConnectAccountCreatedAt !== undefined &&
+      !lead.stripeConnectAccountCreatedAt
+        ? { stripeConnectAccountCreatedAt: args.stripeConnectAccountCreatedAt }
+        : {}),
+    });
+    return null;
+  },
+});
+
+export const updateStripeConnectStatus = mutation({
+  args: {
+    slug: v.string(),
+    chargesEnabled: v.boolean(),
+    payoutsEnabled: v.boolean(),
+    detailsSubmitted: v.boolean(),
+    /** ISO timestamp of this check — checkStripeConnectAccountStatusAction's own clock, not Stripe's. */
+    checkedAt: v.string(),
+    apiSecret: v.string(),
+  },
+  returns: v.null(),
+  handler: async (ctx, args) => {
+    requireApiSecret(args.apiSecret);
+    const lead = await ctx.db
+      .query("leads")
+      .withIndex("by_slug", (q) => q.eq("slug", args.slug))
+      .unique();
+    if (!lead) {
+      throw new Error(`Lead with slug ${args.slug} not found`);
+    }
+    await ctx.db.patch(lead._id, {
+      stripeConnectChargesEnabled: args.chargesEnabled,
+      stripeConnectPayoutsEnabled: args.payoutsEnabled,
+      stripeConnectDetailsSubmitted: args.detailsSubmitted,
+      stripeConnectStatusCheckedAt: args.checkedAt,
+    });
+    return null;
+  },
+});
+
+export const updateBufferProfileIds = mutation({
+  args: {
+    slug: v.string(),
+    /** Empty array clears; the operator's chosen Buffer profile ids for this lead. */
+    bufferProfileIds: v.array(v.string()),
+    apiSecret: v.string(),
+  },
+  returns: v.null(),
+  handler: async (ctx, args) => {
+    requireApiSecret(args.apiSecret);
+    const lead = await ctx.db
+      .query("leads")
+      .withIndex("by_slug", (q) => q.eq("slug", args.slug))
+      .unique();
+    if (!lead) {
+      throw new Error(`Lead with slug ${args.slug} not found`);
+    }
+    await ctx.db.patch(lead._id, {
+      bufferProfileIds: args.bufferProfileIds,
+    });
+    return null;
+  },
+});
+
+export const updateBufferPostedVariantKeys = mutation({
+  args: {
+    slug: v.string(),
+    /** Full replacement list — caller computes the pruned+merged set (see pruneBufferPostedVariantKeysForPack). */
+    bufferPostedVariantKeys: v.array(v.string()),
+    apiSecret: v.string(),
+  },
+  returns: v.null(),
+  handler: async (ctx, args) => {
+    requireApiSecret(args.apiSecret);
+    const lead = await ctx.db
+      .query("leads")
+      .withIndex("by_slug", (q) => q.eq("slug", args.slug))
+      .unique();
+    if (!lead) {
+      throw new Error(`Lead with slug ${args.slug} not found`);
+    }
+    await ctx.db.patch(lead._id, {
+      bufferPostedVariantKeys: args.bufferPostedVariantKeys,
+    });
+    return null;
+  },
+});
+
 /**
  * Apply a cold-lead disposition patch (re-engage or close) in one write.
- * Caller validates via planColdLeadDisposition — this only persists fields.
+ * Caller validates via planColdLeadDisposition — but that validation runs
+ * against a snapshot read moments earlier in disposeColdLeadAction, so this
+ * mutation re-checks the one condition that matters (paid/live) atomically
+ * against the fresh row immediately before patching — mirrors
+ * commerceOrders.markPaidOut's re-check-at-write-time shape
+ * (commerce-order-paid-out-refund-race-guard) for the same TOCTOU class: a
+ * concurrent Stripe checkout completing between the action's read and this
+ * write must not have its stage='paid'/'live' silently reverted back to
+ * closed/discovered by a stale Close/Re-engage click.
  */
 export const applyColdDisposition = mutation({
   args: {
@@ -294,9 +797,12 @@ export const applyColdDisposition = mutation({
     lastOutreachAt: v.optional(v.string()),
     /** Empty string clears snooze. */
     snoozedUntil: v.optional(v.string()),
+    apiSecret: v.string(),
   },
-  returns: v.null(),
+  /** false when the fresh row had already gone paid/live — patch skipped. */
+  returns: v.boolean(),
   handler: async (ctx, args) => {
+    requireApiSecret(args.apiSecret);
     const lead = await ctx.db
       .query("leads")
       .withIndex("by_slug", (q) => q.eq("slug", args.slug))
@@ -304,25 +810,30 @@ export const applyColdDisposition = mutation({
     if (!lead) {
       throw new Error(`Lead with slug ${args.slug} not found`);
     }
+    if (lead.stage === "paid" || lead.stage === "live") {
+      return false;
+    }
     await ctx.db.patch(lead._id, {
       stage: args.stage,
       outreachStep: args.outreachStep,
       lastOutreachAt: args.lastOutreachAt ?? "",
       snoozedUntil: args.snoozedUntil ?? "",
     });
-    return null;
+    return true;
   },
 });
 
 export const seed = mutation({
   args: {
     leads: v.array(v.object(leadFields)),
+    apiSecret: v.string(),
   },
   returns: v.object({
     message: v.string(),
     count: v.number(),
   }),
   handler: async (ctx, args) => {
+    requireApiSecret(args.apiSecret);
     const existingLeads = await ctx.db.query("leads").collect();
     if (existingLeads.length > 0) {
       return { message: "Database already seeded", count: existingLeads.length };

@@ -2,8 +2,9 @@
  * Minimal in-memory rate limiter for public write endpoints (contact form,
  * checkout create, commerce checkout create, billing portal create,
  * preview-open beacon, CAN-SPAM unsubscribe GET, Stripe bootstrap-prices,
- * and operator marketing/generate — the last two are auth-gated but still
- * need per-IP throttling when OPERATOR_DASHBOARD_PASSWORD is unset).
+ * operator marketing/generate — the last two are auth-gated but still
+ * need per-IP throttling when OPERATOR_DASHBOARD_PASSWORD is unset — and
+ * loginOperatorAction with a tighter 5/60s window for password guessing).
  *
  * IMPORTANT — this is per-instance, best-effort protection, not a hard
  * security boundary:
@@ -43,6 +44,7 @@ export interface RateLimitResult {
 interface WindowState {
   count: number;
   windowStart: number;
+  windowMs: number;
 }
 
 /**
@@ -56,6 +58,29 @@ export const DEFAULT_RATE_LIMIT: RateLimitConfig = {
 };
 
 const buckets = new Map<string, WindowState>();
+
+/**
+ * Keep the dependency-free limiter bounded even when callers can rotate
+ * client identifiers (for example, spoofed forwarded IPs). This is a
+ * process-local safety valve, not a claim that the limiter is distributed.
+ */
+export const MAX_RATE_LIMIT_BUCKETS = 10_000;
+
+function evictExpiredBuckets(now: number): void {
+  for (const [key, state] of buckets) {
+    if (now - state.windowStart >= state.windowMs) {
+      buckets.delete(key);
+    }
+  }
+}
+
+function evictOldestBucketIfFull(): void {
+  while (buckets.size >= MAX_RATE_LIMIT_BUCKETS) {
+    const oldest = buckets.keys().next().value;
+    if (oldest === undefined) return;
+    buckets.delete(oldest);
+  }
+}
 
 /**
  * Fixed-window counter keyed by an arbitrary string (callers compose
@@ -73,10 +98,13 @@ export function checkRateLimit(
   config: RateLimitConfig = DEFAULT_RATE_LIMIT,
   now: number = Date.now(),
 ): RateLimitResult {
+  evictExpiredBuckets(now);
   const existing = buckets.get(key);
 
   if (!existing || now - existing.windowStart >= config.windowMs) {
-    buckets.set(key, { count: 1, windowStart: now });
+    if (existing) buckets.delete(key);
+    evictOldestBucketIfFull();
+    buckets.set(key, { count: 1, windowStart: now, windowMs: config.windowMs });
     return { allowed: true, remaining: Math.max(config.limit - 1, 0), retryAfterSeconds: 0 };
   }
 
@@ -100,23 +128,47 @@ export function checkRateLimit(
 }
 
 /**
+ * Generous enough for any real IPv4/IPv6 value (or a long comma-separated
+ * forwarded chain) while still bounding the string a client-controlled
+ * header can inject into a rate-limit bucket key — mirrors the same
+ * hard-cap-then-placeholder pattern as MAX_OPERATOR_PASSWORD_LENGTH
+ * (src/lib/auth/operator.ts) and MAX_PUBLIC_LEAD_SLUG_PATH_LENGTH
+ * (src/lib/leads/slug-path.ts).
+ */
+export const MAX_CLIENT_IP_LENGTH = 128;
+
+/**
  * Derives a best-effort client identifier from standard proxy headers.
  * Falls back to a fixed placeholder when neither header is present (direct
  * connection in dev, or a test harness) so every unattributed request
- * shares one bucket rather than silently bypassing the limiter.
+ * shares one bucket rather than silently bypassing the limiter. Also falls
+ * back to the placeholder when the extracted value exceeds
+ * MAX_CLIENT_IP_LENGTH — a direct (non-proxied) caller can set an
+ * arbitrarily long x-forwarded-for/x-real-ip value, and without this cap
+ * that string flows straight into the shared bucket Map's key, growing its
+ * per-entry memory footprint (MAX_RATE_LIMIT_BUCKETS bounds entry count,
+ * not entry size) and letting the caller trivially rotate keys to dodge
+ * per-IP throttling.
  */
 export function clientIpFromHeaders(headers: Headers): string {
   const forwardedFor = headers.get("x-forwarded-for");
   if (forwardedFor) {
     const first = forwardedFor.split(",")[0]?.trim();
-    if (first) return first;
+    if (first && first.length <= MAX_CLIENT_IP_LENGTH) return first;
   }
   const realIp = headers.get("x-real-ip");
-  if (realIp && realIp.trim()) return realIp.trim();
+  if (realIp && realIp.trim() && realIp.trim().length <= MAX_CLIENT_IP_LENGTH) {
+    return realIp.trim();
+  }
   return "unknown";
 }
 
 /** Clears all in-memory limiter state. Test-only — never call from product code. */
 export function resetRateLimiterForTests(): void {
   buckets.clear();
+}
+
+/** Reports bucket count for bounded-state tests; never call from product code. */
+export function getRateLimiterBucketCountForTests(): number {
+  return buckets.size;
 }

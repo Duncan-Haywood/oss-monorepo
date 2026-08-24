@@ -12,6 +12,7 @@ export const FOLLOW_UP_2_AFTER_DAYS = 3;
 export const FOLLOW_UP_3_AFTER_DAYS = 4;
 
 const DAY_MS = 24 * 60 * 60 * 1000;
+const HOUR_MS = 60 * 60 * 1000;
 
 export function normalizeOutreachStep(value: number | undefined | null): OutreachStep {
   if (value === 1 || value === 2 || value === 3) return value;
@@ -108,4 +109,29 @@ export function listColdLeads(leads: Lead[], nowMs: number): Lead[] {
       const bAt = b.lastOutreachAt ? Date.parse(b.lastOutreachAt) : 0;
       return aAt - bAt;
     });
+}
+
+/**
+ * Oldest age in hours since lastOutreachAt across a set of leads, or null if
+ * none have a parseable lastOutreachAt. Order-agnostic and set-agnostic —
+ * pass whichever already-filtered set the call site uses (listFollowUpsDue's
+ * or listColdLeads' result for pipeline-health/digest/dashboard) rather than
+ * assuming this recomputes the filter — same shared-anchor contract as
+ * oldestCheckoutSessionAgeHours (src/lib/checkout/abandoned-recovery.ts).
+ * Was duplicated as an inline loop in pipeline-health.ts (x2) and
+ * daily-digest.ts (x2) before being extracted here
+ * (followups-due-panel-staleness-signal).
+ */
+export function oldestLastOutreachAgeHours(
+  leads: ReadonlyArray<{ lastOutreachAt?: string }>,
+  nowMs: number,
+): number | null {
+  let oldestMs: number | null = null;
+  for (const lead of leads) {
+    if (!lead.lastOutreachAt) continue;
+    const parsed = Date.parse(lead.lastOutreachAt);
+    if (Number.isNaN(parsed)) continue;
+    if (oldestMs === null || parsed < oldestMs) oldestMs = parsed;
+  }
+  return oldestMs === null ? null : Math.max(0, Math.floor((nowMs - oldestMs) / HOUR_MS));
 }

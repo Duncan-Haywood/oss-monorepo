@@ -2,18 +2,27 @@ import "server-only";
 import { ConvexHttpClient } from "convex/browser";
 import { DatabaseSync } from "node:sqlite";
 import path from "node:path";
-import { DEMO_LEADS } from "./leads/demo-catalog";
+import { initializeSqliteSchema } from "./db/sqlite-schema";
+import { captureError } from "./observability/error-tracking";
 import type { Lead, LeadPipelineStage, OutreachStep } from "./leads/types";
-import { buildPaymentStubLeadFields } from "./leads/payment-stub";
-import { normalizeOutreachStep } from "./email/outreach-followups";
 import type { DeployHandoff, DeployHandoffStatus } from "./deploy/types";
 import type { ClientInquiry, ClientInquiryStatus, CreateClientInquiryInput } from "./inquiries/types";
-import type { OrderRecord } from "./orders/types";
+import { normalizeContactFormFields } from "./inquiries/contact-fields";
+import { newClientInquiryId } from "./inquiries/inquiry-id";
+import type { BillingNoticeType, OrderRecord } from "./orders/types";
 import { sortOrdersNewestFirst } from "./orders/types";
+import { orderGrantsSoldCapabilityEntitlement } from "./orders/recurring";
 import type { CheckoutSessionRecord } from "./checkout/types";
+import type { CronRunRecord } from "./cron/cron-run-health";
+import { preferSuppressionReason } from "./email/suppression";
+import type { SuppressionReason, SuppressionRecord } from "./email/suppression";
+import { newCheckoutSessionId } from "./checkout/types";
 import type { MarketingPack, UpsertMarketingPackInput } from "./marketing/pack";
 import type { CommerceCatalog, UpsertCommerceCatalogInput } from "./commerce/types";
-import { newCommerceOrderId } from "./commerce/orders";
+import {
+  newCommerceOrderId,
+  sortCommerceOrdersNewestFirst,
+} from "./commerce/orders";
 import type { CommerceOrderRecord, InsertCommerceOrderInput } from "./commerce/orders";
 import type { ClientVoicePack, UpsertClientVoicePackInput } from "./voice/pack";
 import {
@@ -24,28 +33,81 @@ import {
 import { resolveConvexDeploymentUrl } from "./convex/convex-url-env-readiness";
 import {
   mapSqliteRowToLead,
-  serializeLeadHours,
-  serializeLeadServices,
+  serializeLeadBufferProfileIds,
+  serializeLeadBufferPostedVariantKeys,
   type SqliteLeadRow,
 } from "./leads/sqlite-row-mapping";
 import { mapSqliteOrderRow, type SqliteOrderJoinRow } from "./orders/sqlite-row-mapping";
+import {
+  sqliteListOrders,
+  sqliteListOrdersByLeadSlug,
+  sqliteUpsertLead,
+  sqliteUpdateLeadStage,
+  sqliteRecordLeadOutreach,
+  sqliteRecordStarterUpsellSent,
+  sqliteRecordStripeConnectOnboardingLinkSent,
+  sqliteRecordGrowthUpsellSent,
+  sqliteApplyColdLeadDisposition,
+  sqliteRecordClientInquiryReply,
+  sqliteRecordCheckoutRecoverySent,
+  sqliteMarkCommerceOrderPaidOut,
+  sqliteMarkCommerceOrderClientReceiptSent,
+  sqliteClearCommerceOrderClientReceiptSent,
+  sqliteMarkMarketingPackSentToClient,
+  sqliteMarkClientVoicePackSentToClient,
+  sqliteClearMarketingPackSentToClient,
+  sqliteClearClientVoicePackSentToClient,
+  sqliteUpdateDeployHandoffCustomDomain,
+  sqliteReserveBundleBuyerEmailNotes,
+  sqliteReleaseBundleBuyerEmailNotes,
+  sqliteOrderAlreadyRecorded,
+  sqliteRecordLeadPayment,
+} from "./db/sqlite-queries";
+import { preferAdvancedHandoffStatus } from "./deploy/handoff-preserve";
+import {
+  CustomDomainConflictError,
+  customDomainHostAliases,
+  isPlausibleCustomDomainHost,
+  normalizeOperatorCustomDomainHost,
+} from "./deploy/custom-domain-routing";
 import { mapDeployHandoffRow, type SqliteDeployHandoffRow } from "./deploy/sqlite-row-mapping";
 import { mapClientInquiryRow, type SqliteClientInquiryRow } from "./inquiries/sqlite-row-mapping";
 import { mapCheckoutSessionRow, type SqliteCheckoutSessionRow } from "./checkout/sqlite-row-mapping";
-import { mapMarketingPackRow, type SqliteMarketingPackRow } from "./marketing/sqlite-row-mapping";
+import {
+  mapMarketingPackRow,
+  softCapMarketingPack,
+  type SqliteMarketingPackRow,
+} from "./marketing/sqlite-row-mapping";
 import {
   mapCommerceCatalogRow,
   mapCommerceOrderRow,
   type SqliteCommerceCatalogRow,
   type SqliteCommerceOrderRow,
 } from "./commerce/sqlite-row-mapping";
-import { mapClientVoicePackRow, type SqliteClientVoicePackRow } from "./voice/sqlite-row-mapping";
+import {
+  mapClientVoicePackRow,
+  softCapClientVoicePack,
+  type SqliteClientVoicePackRow,
+} from "./voice/sqlite-row-mapping";
 
 export type { ConvexPrimaryWriteOptions } from "./payments/convex-primary";
 
 /** Trim + placeholder gate — whitespace-only must not construct ConvexHttpClient. */
 const convexUrl = resolveConvexDeploymentUrl(process.env.NEXT_PUBLIC_CONVEX_URL);
 const convexClient = convexUrl ? new ConvexHttpClient(convexUrl) : null;
+
+/**
+ * Shared secret sent with every Convex call to a function protected by
+ * requireApiSecret (see convex/lib/apiSecret.ts) — deliberately NOT
+ * NEXT_PUBLIC_-prefixed, so it never ships to the browser bundle. Must match
+ * the CONVEX_API_SECRET environment variable configured on the Convex
+ * deployment itself (Convex dashboard or `npx convex env set`), which is a
+ * separate env store from this app's hosting env. An unset/mismatched value
+ * on either side makes every protected Convex call fail closed and fall back
+ * to SQLite (same degraded-but-safe path as any other Convex outage), not a
+ * hard crash — see convex-public-function-api-secret in prompt_process.tsx.
+ */
+const convexApiSecret = process.env.CONVEX_API_SECRET ?? "";
 
 // SQLite Database Setup (for local fallback persistence and suppression list)
 const dbPath = path.join(process.cwd(), "local.db");
@@ -54,288 +116,10 @@ let sqliteDb: DatabaseSync | null = null;
 function getSqliteDb(): DatabaseSync {
   if (sqliteDb) return sqliteDb;
   sqliteDb = new DatabaseSync(dbPath);
-
-  // Initialize SQLite schema
-  sqliteDb.exec(`
-    CREATE TABLE IF NOT EXISTS leads (
-      id TEXT PRIMARY KEY,
-      slug TEXT UNIQUE NOT NULL,
-      businessName TEXT NOT NULL,
-      category TEXT NOT NULL,
-      city TEXT NOT NULL,
-      state TEXT,
-      address TEXT,
-      phone TEXT,
-      email TEXT,
-      hours TEXT,
-      services TEXT, -- JSON array of strings
-      tagline TEXT,
-      description TEXT,
-      recommendedTier TEXT,
-      dataSource TEXT,
-      status TEXT NOT NULL DEFAULT 'discovered',
-      createdAt TEXT NOT NULL DEFAULT (datetime('now')),
-      updatedAt TEXT NOT NULL DEFAULT (datetime('now'))
-    );
-
-    CREATE TABLE IF NOT EXISTS orders (
-      id TEXT PRIMARY KEY,
-      leadId TEXT NOT NULL REFERENCES leads(id),
-      stripeSessionId TEXT,
-      stripeCustomerId TEXT,
-      tier TEXT NOT NULL,
-      commerceAddon INTEGER NOT NULL DEFAULT 0,
-      amountPaid INTEGER NOT NULL,
-      status TEXT NOT NULL DEFAULT 'paid',
-      createdAt TEXT NOT NULL DEFAULT (datetime('now'))
-    );
-
-    CREATE TABLE IF NOT EXISTS suppression_list (
-      email TEXT PRIMARY KEY,
-      createdAt TEXT NOT NULL DEFAULT (datetime('now'))
-    );
-
-    CREATE TABLE IF NOT EXISTS deploy_handoffs (
-      id TEXT PRIMARY KEY,
-      leadSlug TEXT UNIQUE NOT NULL,
-      businessName TEXT NOT NULL,
-      tier TEXT NOT NULL,
-      commerceAddon INTEGER NOT NULL DEFAULT 0,
-      stripeSessionId TEXT NOT NULL,
-      customerEmail TEXT NOT NULL,
-      previewUrl TEXT NOT NULL,
-      suggestedHost TEXT NOT NULL,
-      customDomain TEXT,
-      contactFormUrl TEXT NOT NULL,
-      dnsInstructions TEXT NOT NULL,
-      status TEXT NOT NULL DEFAULT 'pending',
-      vercelDomainStatus TEXT,
-      vercelProjectId TEXT,
-      notes TEXT NOT NULL DEFAULT '[]',
-      createdAt TEXT NOT NULL DEFAULT (datetime('now')),
-      updatedAt TEXT NOT NULL DEFAULT (datetime('now'))
-    );
-
-    CREATE TABLE IF NOT EXISTS client_inquiries (
-      id TEXT PRIMARY KEY,
-      leadSlug TEXT NOT NULL,
-      businessName TEXT NOT NULL,
-      name TEXT,
-      email TEXT,
-      phone TEXT,
-      message TEXT NOT NULL,
-      status TEXT NOT NULL DEFAULT 'new',
-      source TEXT,
-      operatorReply TEXT,
-      repliedAt TEXT,
-      createdAt TEXT NOT NULL DEFAULT (datetime('now')),
-      updatedAt TEXT NOT NULL DEFAULT (datetime('now'))
-    );
-
-    CREATE INDEX IF NOT EXISTS idx_client_inquiries_slug
-      ON client_inquiries(leadSlug);
-    CREATE INDEX IF NOT EXISTS idx_client_inquiries_status
-      ON client_inquiries(status);
-
-    CREATE TABLE IF NOT EXISTS checkout_sessions (
-      id TEXT PRIMARY KEY,
-      leadSlug TEXT NOT NULL,
-      stripeSessionId TEXT UNIQUE NOT NULL,
-      tier TEXT NOT NULL,
-      commerceAddon INTEGER NOT NULL DEFAULT 0,
-      customerEmail TEXT,
-      status TEXT NOT NULL DEFAULT 'open',
-      createdAt TEXT NOT NULL DEFAULT (datetime('now')),
-      recoverySentAt TEXT,
-      kind TEXT NOT NULL DEFAULT 'bundle',
-      skuId TEXT
-    );
-
-    CREATE INDEX IF NOT EXISTS idx_checkout_sessions_status
-      ON checkout_sessions(status);
-    CREATE INDEX IF NOT EXISTS idx_checkout_sessions_leadSlug
-      ON checkout_sessions(leadSlug);
-
-    CREATE TABLE IF NOT EXISTS marketing_packs (
-      id TEXT PRIMARY KEY,
-      leadSlug TEXT NOT NULL,
-      yearMonth TEXT NOT NULL,
-      variantsJson TEXT NOT NULL,
-      generatedAt TEXT NOT NULL,
-      generator TEXT NOT NULL,
-      packageTier TEXT,
-      UNIQUE(leadSlug, yearMonth)
-    );
-
-    CREATE INDEX IF NOT EXISTS idx_marketing_packs_month
-      ON marketing_packs(yearMonth);
-    CREATE INDEX IF NOT EXISTS idx_marketing_packs_slug
-      ON marketing_packs(leadSlug);
-
-    CREATE TABLE IF NOT EXISTS commerce_catalogs (
-      leadSlug TEXT PRIMARY KEY,
-      itemsJson TEXT NOT NULL,
-      updatedAt TEXT NOT NULL
-    );
-
-    CREATE TABLE IF NOT EXISTS client_voice_packs (
-      id TEXT PRIMARY KEY,
-      leadSlug TEXT NOT NULL UNIQUE,
-      variantsJson TEXT NOT NULL,
-      generatedAt TEXT NOT NULL,
-      generator TEXT NOT NULL
-    );
-
-    CREATE INDEX IF NOT EXISTS idx_client_voice_packs_slug
-      ON client_voice_packs(leadSlug);
-
-    CREATE TABLE IF NOT EXISTS commerce_orders (
-      id TEXT PRIMARY KEY,
-      leadSlug TEXT NOT NULL,
-      skuId TEXT NOT NULL,
-      skuName TEXT NOT NULL,
-      amountPaidUsd REAL NOT NULL,
-      stripeSessionId TEXT UNIQUE NOT NULL,
-      createdAt TEXT NOT NULL DEFAULT (datetime('now'))
-    );
-
-    CREATE INDEX IF NOT EXISTS idx_commerce_orders_slug
-      ON commerce_orders(leadSlug);
-
-    CREATE INDEX IF NOT EXISTS idx_deploy_handoffs_customDomain
-      ON deploy_handoffs(customDomain);
-  `);
-
-  // Migrations for DBs created before email/dataSource columns existed
-  const leadCols = (
-    sqliteDb.prepare("PRAGMA table_info(leads)").all() as unknown as Array<{ name: string }>
-  ).map((c) => c.name);
-  const addLeadCol = (name: string, typeSql: string) => {
-    if (!leadCols.includes(name)) {
-      sqliteDb!.exec(`ALTER TABLE leads ADD COLUMN ${name} ${typeSql}`);
-    }
-  };
-  addLeadCol("email", "TEXT");
-  addLeadCol("address", "TEXT");
-  addLeadCol("tagline", "TEXT");
-  addLeadCol("description", "TEXT");
-  addLeadCol("recommendedTier", "TEXT");
-  addLeadCol("dataSource", "TEXT");
-  addLeadCol("outreachStep", "INTEGER");
-  addLeadCol("lastOutreachAt", "TEXT");
-  addLeadCol("lastPreviewOpenAt", "TEXT");
-  addLeadCol("notes", "TEXT");
-  addLeadCol("snoozedUntil", "TEXT");
-
-  const handoffCols = (
-    sqliteDb.prepare("PRAGMA table_info(deploy_handoffs)").all() as unknown as Array<{ name: string }>
-  ).map((c) => c.name);
-  if (!handoffCols.includes("vercelProjectId")) {
-    sqliteDb.exec("ALTER TABLE deploy_handoffs ADD COLUMN vercelProjectId TEXT");
-  }
-
-  const orderCols = (
-    sqliteDb.prepare("PRAGMA table_info(orders)").all() as unknown as Array<{ name: string }>
-  ).map((c) => c.name);
-  if (!orderCols.includes("stripeCustomerId")) {
-    sqliteDb.exec("ALTER TABLE orders ADD COLUMN stripeCustomerId TEXT");
-  }
-  // Stripe redelivers checkout.session.completed on retry/timeout; unlike
-  // checkout_sessions/commerce_orders, `orders` had no uniqueness guard, so a
-  // retry double-counted revenueTotalUsd and resent receipt/handoff emails.
-  // NULLs (pre-webhook manual rows) don't collide under a unique index. Guard
-  // against a pre-existing DB that already accumulated a duplicate pair
-  // before this fix — don't crash startup over stale data.
-  try {
-    sqliteDb.exec(
-      "CREATE UNIQUE INDEX IF NOT EXISTS idx_orders_stripe_session_id ON orders(stripeSessionId)",
-    );
-  } catch (e) {
-    console.error(
-      "Failed to create unique index on orders.stripeSessionId — likely pre-existing duplicate rows from before this fix; new inserts still check-before-insert in application code",
-      e,
-    );
-  }
-
-  const inquiryCols = (
-    sqliteDb.prepare("PRAGMA table_info(client_inquiries)").all() as unknown as Array<{
-      name: string;
-    }>
-  ).map((c) => c.name);
-  if (!inquiryCols.includes("operatorReply")) {
-    sqliteDb.exec("ALTER TABLE client_inquiries ADD COLUMN operatorReply TEXT");
-  }
-  if (!inquiryCols.includes("repliedAt")) {
-    sqliteDb.exec("ALTER TABLE client_inquiries ADD COLUMN repliedAt TEXT");
-  }
-
-  const checkoutSessionCols = (
-    sqliteDb.prepare("PRAGMA table_info(checkout_sessions)").all() as unknown as Array<{
-      name: string;
-    }>
-  ).map((c) => c.name);
-  if (!checkoutSessionCols.includes("kind")) {
-    sqliteDb.exec("ALTER TABLE checkout_sessions ADD COLUMN kind TEXT NOT NULL DEFAULT 'bundle'");
-  }
-  if (!checkoutSessionCols.includes("skuId")) {
-    sqliteDb.exec("ALTER TABLE checkout_sessions ADD COLUMN skuId TEXT");
-  }
-
-  const commerceOrderCols = (
-    sqliteDb.prepare("PRAGMA table_info(commerce_orders)").all() as unknown as Array<{
-      name: string;
-    }>
-  ).map((c) => c.name);
-  if (!commerceOrderCols.includes("paidOutAt")) {
-    sqliteDb.exec("ALTER TABLE commerce_orders ADD COLUMN paidOutAt TEXT");
-  }
-  if (!commerceOrderCols.includes("clientReceiptEmailSentAt")) {
-    sqliteDb.exec(
-      "ALTER TABLE commerce_orders ADD COLUMN clientReceiptEmailSentAt TEXT",
-    );
-  }
-
-  // Seed SQLite database if empty
-  const countStmt = sqliteDb.prepare("SELECT COUNT(*) as count FROM leads");
-  const row = countStmt.get() as { count: number } | undefined;
-  if (!row || row.count === 0) {
-    const insertStmt = sqliteDb.prepare(`
-      INSERT INTO leads (id, slug, businessName, category, city, state, phone, hours, services, status)
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-    `);
-
-    DEMO_LEADS.forEach((lead, i) => {
-      const id = `lead_demo_${i}`;
-      insertStmt.run(
-        id,
-        lead.slug,
-        lead.businessName,
-        lead.category,
-        lead.city,
-        lead.state,
-        lead.phone,
-        serializeLeadHours(lead.hours),
-        serializeLeadServices(lead.services),
-        lead.stage
-      );
-      sqliteDb!.prepare(`
-        UPDATE leads SET email = ?, address = ?, tagline = ?, description = ?, recommendedTier = ?, dataSource = ?
-        WHERE id = ?
-      `).run(
-        lead.email ?? null,
-        lead.address ?? null,
-        lead.tagline,
-        lead.description,
-        lead.recommendedTier,
-        lead.dataSource ?? "demo_catalog",
-        id,
-      );
-    });
-    console.log("Seeded SQLite database with initial demo leads.");
-  }
-
+  initializeSqliteSchema(sqliteDb);
   return sqliteDb;
 }
+
 
 // Statically define Convex function names to prevent compilation failures
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -348,10 +132,17 @@ const api: any = {
     seed: "leads:seed",
     markLeadPaid: "leads:markLeadPaid",
     recordOutreach: "leads:recordOutreach",
+    recordStarterUpsellSent: "leads:recordStarterUpsellSent",
+    recordStripeConnectOnboardingLinkSent: "leads:recordStripeConnectOnboardingLinkSent",
+    recordGrowthUpsellSent: "leads:recordGrowthUpsellSent",
     recordPreviewOpen: "leads:recordPreviewOpen",
     updateNotes: "leads:updateNotes",
     updateSnooze: "leads:updateSnooze",
     applyColdDisposition: "leads:applyColdDisposition",
+    updateStripeConnectAccountId: "leads:updateStripeConnectAccountId",
+    updateStripeConnectStatus: "leads:updateStripeConnectStatus",
+    updateBufferProfileIds: "leads:updateBufferProfileIds",
+    updateBufferPostedVariantKeys: "leads:updateBufferPostedVariantKeys",
   },
   inquiries: {
     create: "inquiries:create",
@@ -365,10 +156,27 @@ const api: any = {
   },
   orders: {
     list: "orders:list",
+    listByLeadSlug: "orders:listByLeadSlug",
+    getByStripeSessionId: "orders:getByStripeSessionId",
+    getByStripeCustomerId: "orders:getByStripeCustomerId",
+    markRecurringCanceledByCustomer: "orders:markRecurringCanceledByCustomer",
+    markRecurringCanceledBySessionId: "orders:markRecurringCanceledBySessionId",
+    clearRecurringCanceledByCustomer: "orders:clearRecurringCanceledByCustomer",
+    syncRecurringEntitlementByCustomer: "orders:syncRecurringEntitlementByCustomer",
+    markRefunded: "orders:markRefunded",
+    clearRefunded: "orders:clearRefunded",
+    markDisputed: "orders:markDisputed",
+    clearDisputed: "orders:clearDisputed",
+    recordSubscriptionRenewalPayment: "orders:recordSubscriptionRenewalPayment",
+    recordBillingNoticeSendOutcome: "orders:recordBillingNoticeSendOutcome",
   },
   checkoutSessions: {
     create: "checkoutSessions:create",
     markComplete: "checkoutSessions:markComplete",
+    markOpen: "checkoutSessions:markOpen",
+    markCompleteOpenBundleForLead: "checkoutSessions:markCompleteOpenBundleForLead",
+    markCompleteOpenCommerceForLeadSkuCustomer:
+      "checkoutSessions:markCompleteOpenCommerceForLeadSkuCustomer",
     recordRecoverySent: "checkoutSessions:recordRecoverySent",
     listOpen: "checkoutSessions:listOpen",
   },
@@ -376,6 +184,8 @@ const api: any = {
     upsert: "marketingPacks:upsert",
     getByLeadMonth: "marketingPacks:getByLeadMonth",
     listByMonth: "marketingPacks:listByMonth",
+    markSentToClient: "marketingPacks:markSentToClient",
+    clearSentToClient: "marketingPacks:clearSentToClient",
   },
   commerceCatalogs: {
     upsert: "commerceCatalogs:upsert",
@@ -386,19 +196,30 @@ const api: any = {
     upsert: "clientVoicePacks:upsert",
     getByLeadSlug: "clientVoicePacks:getByLeadSlug",
     list: "clientVoicePacks:list",
+    markSentToClient: "clientVoicePacks:markSentToClient",
+    clearSentToClient: "clientVoicePacks:clearSentToClient",
   },
   commerceOrders: {
     insert: "commerceOrders:insert",
     list: "commerceOrders:list",
     listUnpaid: "commerceOrders:listUnpaid",
+    listRefunded: "commerceOrders:listRefunded",
+    listDisputed: "commerceOrders:listDisputed",
+    listMissingClientReceipt: "commerceOrders:listMissingClientReceipt",
     getByStripeSessionId: "commerceOrders:getByStripeSessionId",
     markPaidOut: "commerceOrders:markPaidOut",
     markClientReceiptSent: "commerceOrders:markClientReceiptSent",
+    clearClientReceiptSent: "commerceOrders:clearClientReceiptSent",
+    markRefunded: "commerceOrders:markRefunded",
+    clearRefunded: "commerceOrders:clearRefunded",
+    markDisputed: "commerceOrders:markDisputed",
+    clearDisputed: "commerceOrders:clearDisputed",
   },
   suppressions: {
     isSuppressed: "suppressions:isSuppressed",
     suppress: "suppressions:suppress",
     list: "suppressions:list",
+    unsuppress: "suppressions:unsuppress",
   },
   deployHandoffs: {
     upsert: "deployHandoffs:upsert",
@@ -408,15 +229,24 @@ const api: any = {
     updateStatus: "deployHandoffs:updateStatus",
     updateVercelProject: "deployHandoffs:updateVercelProject",
     updateCustomDomain: "deployHandoffs:updateCustomDomain",
+    reserveBuyerEmailNotes: "deployHandoffs:reserveBuyerEmailNotes",
+    releaseBuyerEmailNotes: "deployHandoffs:releaseBuyerEmailNotes",
+  },
+  cronRuns: {
+    recordRun: "cronRuns:recordRun",
+    list: "cronRuns:list",
   },
 };
 
 export async function getLeads(): Promise<Lead[]> {
   if (convexClient) {
     try {
-      return (await convexClient.query(api.leads.list)) as Lead[];
+      return (await convexClient.query(api.leads.list, {
+        apiSecret: convexApiSecret,
+      })) as Lead[];
     } catch (e) {
       console.warn("Failed to fetch leads from Convex, falling back to SQLite database", e);
+      void captureError(e, { component: "db-getLeads-convex-fallback" });
     }
   }
 
@@ -429,10 +259,14 @@ export async function getLeads(): Promise<Lead[]> {
 export async function getLeadBySlug(slug: string): Promise<Lead | null> {
   if (convexClient) {
     try {
-      const lead = await convexClient.query(api.leads.getBySlug, { slug });
+      const lead = await convexClient.query(api.leads.getBySlug, {
+        slug,
+        apiSecret: convexApiSecret,
+      });
       return (lead as Lead) || null;
     } catch (e) {
       console.warn(`Failed to fetch lead ${slug} from Convex, falling back to SQLite database`, e);
+      void captureError(e, { component: "db-getLeadBySlug-convex-fallback" });
     }
   }
 
@@ -456,7 +290,7 @@ export async function updateLeadStage(
   slug: string,
   stage: LeadPipelineStage,
   options?: ConvexPrimaryWriteOptions,
-): Promise<void> {
+): Promise<boolean> {
   // Pass { requireConvex: true } (LEAD_STAGE_CONVEX_PRIMARY) from
   // updateLeadStageAction so a Convex mutation failure does not silently leave
   // stage only in instance-local SQLite while Convex-first readers (getLeads /
@@ -464,109 +298,67 @@ export async function updateLeadStage(
   // DEPLOY_HANDOFF_CONVEX_PRIMARY through this same helper.
   if (convexClient) {
     try {
-      await convexClient.mutation(api.leads.updateStage, { slug, stage });
-      return;
+      return (await convexClient.mutation(api.leads.updateStage, {
+        slug,
+        stage,
+        apiSecret: convexApiSecret,
+      })) as boolean;
     } catch (e) {
       if (!shouldFallbackToSqliteOnConvexFailure(true, options)) {
         throw new ConvexPrimaryWriteError("updateLeadStage", e);
       }
       console.warn(`Failed to update lead stage for ${slug} on Convex, falling back to SQLite database`, e);
+      void captureError(e, { component: "db-updateLeadStage-convex-fallback" });
     }
   }
 
-  // SQLite Fallback
-  const db = getSqliteDb();
-  const stmt = db.prepare("UPDATE leads SET status = ?, updatedAt = datetime('now') WHERE slug = ?");
-  stmt.run(stage, slug);
+  // SQLite Fallback. Existence-check-then-throw here mirrors
+  // convex/leads.ts's updateStage (which throws `Lead with slug ${slug} not
+  // found`) and every sibling lead-mutation helper in this file
+  // (updateLeadNotes / updateLeadSnooze / applyColdLeadDisposition) — a bare
+  // `UPDATE ... WHERE slug = ?` on an unknown slug matches zero rows and
+  // never throws, so without this check the two backends silently diverged:
+  // Convex threw on an unknown slug while SQLite no-op'd and returned
+  // normally. Every current call site already pre-checks the lead exists
+  // (updateLeadStageAction via getLeadBySlug, markHandoffLive via its own
+  // handoff/lead chain) so this was not reachable through the UI today, but
+  // the two backends must still agree on what "success" means for any future
+  // caller (db-convex-sqlite-not-found-parity).
+  return sqliteUpdateLeadStage(getSqliteDb(), slug, stage);
 }
 
+/**
+ * Create-only despite the name (kept for parity with the Convex mutation and
+ * both call sites' historical naming): returns false without writing when a
+ * row with this slug already exists at write time, instead of patching it —
+ * see lead-upsert-create-only-race-guard. addLeadAction and
+ * importLeadsCsvAction both already treat a pre-existing slug as a conflict
+ * via their own earlier existence check, never a legitimate update; this
+ * atomic re-check closes the window where importLeadsCsvAction's one-time
+ * bulk existingSlugs snapshot goes stale partway through its sequential
+ * per-row upsert loop.
+ */
 export async function upsertLead(
   lead: Lead,
   options?: ConvexPrimaryWriteOptions,
-): Promise<void> {
+): Promise<boolean> {
   if (convexClient) {
     try {
-      await convexClient.mutation(api.leads.upsertLead, lead);
-      return;
+      return (await convexClient.mutation(api.leads.upsertLead, {
+        ...lead,
+        apiSecret: convexApiSecret,
+      })) as boolean;
     } catch (e) {
       if (!shouldFallbackToSqliteOnConvexFailure(true, options)) {
         throw new ConvexPrimaryWriteError("upsertLead", e);
       }
       console.warn("Failed to upsert lead on Convex, falling back to SQLite database", e);
+      void captureError(e, { component: "db-upsertLead-convex-fallback" });
     }
   }
 
   // SQLite Fallback
-  const db = getSqliteDb();
-  const services = serializeLeadServices(lead.services);
-  const hoursStr = serializeLeadHours(lead.hours);
-  const dataSource = lead.dataSource ?? "manual_entry";
-
-  const check = db.prepare("SELECT id FROM leads WHERE slug = ?").get(lead.slug) as { id: string } | undefined;
-  const outreachStep = normalizeOutreachStep(lead.outreachStep);
-  const lastOutreachAt = lead.lastOutreachAt ?? null;
-  const lastPreviewOpenAt = lead.lastPreviewOpenAt ?? null;
-  const notes = lead.notes ?? null;
-  const snoozedUntil = lead.snoozedUntil ?? null;
-
-  if (check) {
-    db.prepare(`
-      UPDATE leads
-      SET businessName = ?, category = ?, city = ?, state = ?, address = ?, phone = ?, email = ?, hours = ?, services = ?,
-          tagline = ?, description = ?, recommendedTier = ?, dataSource = ?, status = ?,
-          outreachStep = ?, lastOutreachAt = ?, lastPreviewOpenAt = ?, notes = ?, snoozedUntil = ?, updatedAt = datetime('now')
-      WHERE slug = ?
-    `).run(
-      lead.businessName,
-      lead.category,
-      lead.city,
-      lead.state,
-      lead.address ?? null,
-      lead.phone,
-      lead.email ?? null,
-      hoursStr,
-      services,
-      lead.tagline,
-      lead.description,
-      lead.recommendedTier,
-      dataSource,
-      lead.stage,
-      outreachStep,
-      lastOutreachAt,
-      lastPreviewOpenAt,
-      notes,
-      snoozedUntil,
-      lead.slug,
-    );
-  } else {
-    const id = `lead_${Date.now()}`;
-    db.prepare(`
-      INSERT INTO leads (id, slug, businessName, category, city, state, address, phone, email, hours, services, tagline, description, recommendedTier, dataSource, status, outreachStep, lastOutreachAt, lastPreviewOpenAt, notes, snoozedUntil)
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-    `).run(
-      id,
-      lead.slug,
-      lead.businessName,
-      lead.category,
-      lead.city,
-      lead.state,
-      lead.address ?? null,
-      lead.phone,
-      lead.email ?? null,
-      hoursStr,
-      services,
-      lead.tagline,
-      lead.description,
-      lead.recommendedTier,
-      dataSource,
-      lead.stage,
-      outreachStep,
-      lastOutreachAt,
-      lastPreviewOpenAt,
-      notes,
-      snoozedUntil,
-    );
-  }
+  return sqliteUpsertLead(getSqliteDb(), lead);
 }
 
 /**
@@ -577,19 +369,19 @@ export async function recordLeadOutreach(
   outreachStep: OutreachStep,
   lastOutreachAt: string = new Date().toISOString(),
   options?: ConvexPrimaryWriteOptions,
-): Promise<void> {
+): Promise<boolean> {
   if (outreachStep < 1 || outreachStep > 3) {
     throw new Error("outreachStep must be 1, 2, or 3");
   }
 
   if (convexClient) {
     try {
-      await convexClient.mutation(api.leads.recordOutreach, {
+      return (await convexClient.mutation(api.leads.recordOutreach, {
         slug,
         outreachStep,
         lastOutreachAt,
-      });
-      return;
+        apiSecret: convexApiSecret,
+      })) as boolean;
     } catch (e) {
       if (!shouldFallbackToSqliteOnConvexFailure(true, options)) {
         throw new ConvexPrimaryWriteError("recordLeadOutreach", e);
@@ -598,15 +390,143 @@ export async function recordLeadOutreach(
         `Failed to record outreach for ${slug} on Convex, falling back to SQLite database`,
         e,
       );
+      void captureError(e, { component: "db-recordLeadOutreach-convex-fallback" });
     }
   }
 
-  const db = getSqliteDb();
-  db.prepare(`
-    UPDATE leads
-    SET outreachStep = ?, lastOutreachAt = ?, updatedAt = datetime('now')
-    WHERE slug = ?
-  `).run(outreachStep, lastOutreachAt, slug);
+  return sqliteRecordLeadOutreach(getSqliteDb(), slug, outreachStep, lastOutreachAt);
+}
+
+/**
+ * CAS marker for sendStarterUpsellAction. Unlike recordLeadOutreach's
+ * monotonic step guard, this is a plain expected-count compare-and-swap
+ * (mirroring recordCheckoutRecoverySent) — the caller passes the count it
+ * last read (expectedStarterUpsellSentCount), and the write only applies
+ * when the row's current count still matches, so a later, deliberate resend
+ * (a fresh read, a fresh expected count) always succeeds and only an exact
+ * concurrent duplicate (same stale expected count) is rejected. See
+ * starter-upsell-send-race-guard.
+ */
+export async function recordStarterUpsellSent(
+  slug: string,
+  sentAt: string,
+  expectedStarterUpsellSentCount: number,
+  options?: ConvexPrimaryWriteOptions,
+): Promise<boolean> {
+  if (convexClient) {
+    try {
+      return (await convexClient.mutation(api.leads.recordStarterUpsellSent, {
+        slug,
+        sentAt,
+        expectedStarterUpsellSentCount,
+        apiSecret: convexApiSecret,
+      })) as boolean;
+    } catch (e) {
+      if (!shouldFallbackToSqliteOnConvexFailure(true, options)) {
+        throw new ConvexPrimaryWriteError("recordStarterUpsellSent", e);
+      }
+      console.warn(
+        `Failed to record Starter upsell send for ${slug} on Convex, falling back to SQLite database`,
+        e,
+      );
+      void captureError(e, { component: "db-recordStarterUpsellSent-convex-fallback" });
+    }
+  }
+
+  return sqliteRecordStarterUpsellSent(
+    getSqliteDb(),
+    slug,
+    sentAt,
+    expectedStarterUpsellSentCount,
+  );
+}
+
+/**
+ * CAS marker for sendStripeConnectOnboardingLinkToClientAction. Unlike
+ * recordLeadOutreach's monotonic step guard, this is a plain expected-count
+ * compare-and-swap (mirroring recordStarterUpsellSent) — the caller passes
+ * the count it last read (expectedStripeConnectOnboardingLinkSentCount), and
+ * the write only applies when the row's current count still matches, so a
+ * later, deliberate resend (a fresh read, a fresh expected count) always
+ * succeeds and only an exact concurrent duplicate (same stale expected
+ * count) is rejected. See stripe-connect-onboarding-link-send-race-guard.
+ */
+export async function recordStripeConnectOnboardingLinkSent(
+  slug: string,
+  sentAt: string,
+  expectedStripeConnectOnboardingLinkSentCount: number,
+  options?: ConvexPrimaryWriteOptions,
+): Promise<boolean> {
+  if (convexClient) {
+    try {
+      return (await convexClient.mutation(api.leads.recordStripeConnectOnboardingLinkSent, {
+        slug,
+        sentAt,
+        expectedStripeConnectOnboardingLinkSentCount,
+        apiSecret: convexApiSecret,
+      })) as boolean;
+    } catch (e) {
+      if (!shouldFallbackToSqliteOnConvexFailure(true, options)) {
+        throw new ConvexPrimaryWriteError("recordStripeConnectOnboardingLinkSent", e);
+      }
+      console.warn(
+        `Failed to record Stripe Connect onboarding-link send for ${slug} on Convex, falling back to SQLite database`,
+        e,
+      );
+      void captureError(e, { component: "db-recordStripeConnectOnboardingLinkSent-convex-fallback" });
+    }
+  }
+
+  return sqliteRecordStripeConnectOnboardingLinkSent(
+    getSqliteDb(),
+    slug,
+    sentAt,
+    expectedStripeConnectOnboardingLinkSentCount,
+  );
+}
+
+/**
+ * CAS marker for sendGrowthUpsellAction. Unlike recordLeadOutreach's
+ * monotonic step guard, this is a plain expected-count compare-and-swap
+ * (mirroring recordStarterUpsellSent) — the caller passes the count it last
+ * read (expectedGrowthUpsellSentCount), and the write only applies when the
+ * row's current count still matches, so a later, deliberate resend (a fresh
+ * read, a fresh expected count) always succeeds and only an exact
+ * concurrent duplicate (same stale expected count) is rejected. See
+ * growth-upsell-send-race-guard.
+ */
+export async function recordGrowthUpsellSent(
+  slug: string,
+  sentAt: string,
+  expectedGrowthUpsellSentCount: number,
+  options?: ConvexPrimaryWriteOptions,
+): Promise<boolean> {
+  if (convexClient) {
+    try {
+      return (await convexClient.mutation(api.leads.recordGrowthUpsellSent, {
+        slug,
+        sentAt,
+        expectedGrowthUpsellSentCount,
+        apiSecret: convexApiSecret,
+      })) as boolean;
+    } catch (e) {
+      if (!shouldFallbackToSqliteOnConvexFailure(true, options)) {
+        throw new ConvexPrimaryWriteError("recordGrowthUpsellSent", e);
+      }
+      console.warn(
+        `Failed to record Growth upsell send for ${slug} on Convex, falling back to SQLite database`,
+        e,
+      );
+      void captureError(e, { component: "db-recordGrowthUpsellSent-convex-fallback" });
+    }
+  }
+
+  return sqliteRecordGrowthUpsellSent(
+    getSqliteDb(),
+    slug,
+    sentAt,
+    expectedGrowthUpsellSentCount,
+  );
 }
 
 /**
@@ -626,6 +546,7 @@ export async function recordLeadPreviewOpen(
       await convexClient.mutation(api.leads.recordPreviewOpen, {
         slug,
         openedAt,
+        apiSecret: convexApiSecret,
       });
       return { recorded: true };
     } catch (e) {
@@ -636,6 +557,7 @@ export async function recordLeadPreviewOpen(
         `Failed to record preview open for ${slug} on Convex, falling back to SQLite database`,
         e,
       );
+      void captureError(e, { component: "db-recordLeadPreviewOpen-convex-fallback" });
     }
   }
 
@@ -672,6 +594,7 @@ export async function updateLeadNotes(
       await convexClient.mutation(api.leads.updateNotes, {
         slug,
         notes: notes ?? "",
+        apiSecret: convexApiSecret,
       });
       return;
     } catch (e) {
@@ -682,6 +605,7 @@ export async function updateLeadNotes(
         `Failed to update notes for ${slug} on Convex, falling back to SQLite database`,
         e,
       );
+      void captureError(e, { component: "db-updateLeadNotes-convex-fallback" });
     }
   }
 
@@ -717,6 +641,7 @@ export async function updateLeadSnooze(
       await convexClient.mutation(api.leads.updateSnooze, {
         slug,
         snoozedUntil: snoozedUntil ?? "",
+        apiSecret: convexApiSecret,
       });
       return;
     } catch (e) {
@@ -727,6 +652,7 @@ export async function updateLeadSnooze(
         `Failed to update snooze for ${slug} on Convex, falling back to SQLite database`,
         e,
       );
+      void captureError(e, { component: "db-updateLeadSnooze-convex-fallback" });
     }
   }
 
@@ -745,41 +671,47 @@ export async function updateLeadSnooze(
 }
 
 /**
- * Persist a cold-lead disposition patch (re-engage or close) in one write.
- * Caller must validate via planColdLeadDisposition first.
- * Pass { requireConvex: true } (COLD_DISPOSITION_CONVEX_PRIMARY) from
- * disposeColdLeadAction so a Convex mutation failure does not silently leave
- * stage/outreach only in instance-local SQLite while Convex-first readers
- * (getLeads, cold badges, pipeline-health) never see the Re-engage/Close.
+ * Persist a lead's Stripe Connect Express account id (dormant scaffold — see
+ * commerce-payouts-stripe-connect / stripe-connect-gate.ts). Pass
+ * { requireConvex: true } (LEAD_STRIPE_CONNECT_CONVEX_PRIMARY) from
+ * createStripeConnectAccountAction so a Convex mutation failure surfaces to
+ * the operator instead of writing only to instance-local SQLite while
+ * Convex-first readers (getLeads) never see the created account id.
+ *
+ * `accountCreatedAt` (ISO timestamp) anchors the onboarding-incomplete
+ * staleness signal (oldestConnectOnboardingIncompleteAgeHours — see
+ * stripe-connect-onboarding-pipeline-health-visibility) — set-once semantics:
+ * a lead that already has a stored value keeps it (SQLite: COALESCE; Convex:
+ * the mutation itself only patches the key when the lead doesn't already
+ * have one), so a later idempotent re-call (e.g. after a prior persist
+ * failure) never resets "how long has this been incomplete" back to now.
  */
-export async function applyColdLeadDisposition(
+export async function updateLeadStripeConnectAccountId(
   slug: string,
-  patch: {
-    stage: LeadPipelineStage;
-    outreachStep: OutreachStep;
-    lastOutreachAt: string | undefined;
-    snoozedUntil: string | undefined;
-  },
+  stripeConnectAccountId: string | undefined,
   options?: ConvexPrimaryWriteOptions,
+  accountCreatedAt?: string,
 ): Promise<void> {
   if (convexClient) {
     try {
-      await convexClient.mutation(api.leads.applyColdDisposition, {
+      await convexClient.mutation(api.leads.updateStripeConnectAccountId, {
         slug,
-        stage: patch.stage,
-        outreachStep: patch.outreachStep,
-        lastOutreachAt: patch.lastOutreachAt ?? "",
-        snoozedUntil: patch.snoozedUntil ?? "",
+        stripeConnectAccountId: stripeConnectAccountId ?? "",
+        ...(accountCreatedAt !== undefined
+          ? { stripeConnectAccountCreatedAt: accountCreatedAt }
+          : {}),
+        apiSecret: convexApiSecret,
       });
       return;
     } catch (e) {
       if (!shouldFallbackToSqliteOnConvexFailure(true, options)) {
-        throw new ConvexPrimaryWriteError("applyColdLeadDisposition", e);
+        throw new ConvexPrimaryWriteError("updateLeadStripeConnectAccountId", e);
       }
       console.warn(
-        `Failed to apply cold disposition for ${slug} on Convex, falling back to SQLite database`,
+        `Failed to update Stripe Connect account id for ${slug} on Convex, falling back to SQLite database`,
         e,
       );
+      void captureError(e, { component: "db-updateLeadStripeConnectAccountId-convex-fallback" });
     }
   }
 
@@ -792,15 +724,249 @@ export async function applyColdLeadDisposition(
   }
   db.prepare(`
     UPDATE leads
-    SET status = ?, outreachStep = ?, lastOutreachAt = ?, snoozedUntil = ?, updatedAt = datetime('now')
+    SET stripeConnectAccountId = ?,
+        stripeConnectAccountCreatedAt = COALESCE(stripeConnectAccountCreatedAt, ?),
+        updatedAt = datetime('now')
+    WHERE slug = ?
+  `).run(stripeConnectAccountId ?? null, accountCreatedAt ?? null, slug);
+}
+
+/**
+ * Persist the operator's most recent Stripe Connect Express onboarding
+ * status check (checkStripeConnectAccountStatusAction) — a display cache for
+ * pipeline-health/digest visibility (see
+ * stripe-connect-onboarding-pipeline-health-visibility), not the source of
+ * truth (Stripe's own account object is). Pass
+ * LEAD_STRIPE_CONNECT_STATUS_CONVEX_PRIMARY (requireConvex: true) so a
+ * Convex mutation failure throws instead of silently caching the fresh
+ * status to instance-local SQLite only — getLeads/getLeadBySlug read
+ * Convex-first, and connectOnboardingIncompleteCount reads this same cache
+ * across every instance, so an unconditional SQLite fallback here would
+ * split-brain the due-queue count until a later check happened to succeed
+ * (see stripe-connect-status-cache-convex-fail-closed). This is NOT the same
+ * class as updateLeadBufferPostedVariantKeys, which has no pipeline-health
+ * consumer to diverge. The caller already wraps this call in a try/catch
+ * that swallows any error (including the ConvexPrimaryWriteError this can
+ * now throw) — an already-successful live status check must never be turned
+ * into a reported error, so failing closed here means "skip persistence,"
+ * not "fail the request."
+ */
+export async function updateLeadStripeConnectStatus(
+  slug: string,
+  status: { chargesEnabled: boolean; payoutsEnabled: boolean; detailsSubmitted: boolean },
+  checkedAt: string,
+  options?: ConvexPrimaryWriteOptions,
+): Promise<void> {
+  if (convexClient) {
+    try {
+      await convexClient.mutation(api.leads.updateStripeConnectStatus, {
+        slug,
+        chargesEnabled: status.chargesEnabled,
+        payoutsEnabled: status.payoutsEnabled,
+        detailsSubmitted: status.detailsSubmitted,
+        checkedAt,
+        apiSecret: convexApiSecret,
+      });
+      return;
+    } catch (e) {
+      if (!shouldFallbackToSqliteOnConvexFailure(true, options)) {
+        throw new ConvexPrimaryWriteError("updateLeadStripeConnectStatus", e);
+      }
+      console.warn(
+        `Failed to persist Stripe Connect status for ${slug} on Convex, falling back to SQLite database`,
+        e,
+      );
+      void captureError(e, { component: "db-updateLeadStripeConnectStatus-convex-fallback" });
+    }
+  }
+
+  const db = getSqliteDb();
+  const existing = db.prepare("SELECT slug FROM leads WHERE slug = ?").get(slug) as
+    | { slug: string }
+    | undefined;
+  if (!existing) {
+    throw new Error(`Lead with slug ${slug} not found`);
+  }
+  db.prepare(`
+    UPDATE leads
+    SET stripeConnectChargesEnabled = ?,
+        stripeConnectPayoutsEnabled = ?,
+        stripeConnectDetailsSubmitted = ?,
+        stripeConnectStatusCheckedAt = ?,
+        updatedAt = datetime('now')
     WHERE slug = ?
   `).run(
-    patch.stage,
-    patch.outreachStep,
-    patch.lastOutreachAt ?? null,
-    patch.snoozedUntil ?? null,
+    status.chargesEnabled ? 1 : 0,
+    status.payoutsEnabled ? 1 : 0,
+    status.detailsSubmitted ? 1 : 0,
+    checkedAt,
     slug,
   );
+}
+
+/**
+ * Persist a lead's chosen Buffer profile ids (dormant scaffold — see
+ * marketing-content-scheduling / src/lib/marketing/buffer-gate.ts). Pass
+ * { requireConvex: true } (LEAD_BUFFER_PROFILES_CONVEX_PRIMARY) from
+ * saveLeadBufferProfilesAction so a Convex mutation failure surfaces to the
+ * operator instead of writing only to instance-local SQLite while
+ * Convex-first readers (getLeads) never see the chosen profiles.
+ */
+export async function updateLeadBufferProfileIds(
+  slug: string,
+  bufferProfileIds: string[],
+  options?: ConvexPrimaryWriteOptions,
+): Promise<void> {
+  if (convexClient) {
+    try {
+      await convexClient.mutation(api.leads.updateBufferProfileIds, {
+        slug,
+        bufferProfileIds,
+        apiSecret: convexApiSecret,
+      });
+      return;
+    } catch (e) {
+      if (!shouldFallbackToSqliteOnConvexFailure(true, options)) {
+        throw new ConvexPrimaryWriteError("updateLeadBufferProfileIds", e);
+      }
+      console.warn(
+        `Failed to update Buffer profile ids for ${slug} on Convex, falling back to SQLite database`,
+        e,
+      );
+      void captureError(e, { component: "db-updateLeadBufferProfileIds-convex-fallback" });
+    }
+  }
+
+  const db = getSqliteDb();
+  const existing = db.prepare("SELECT slug FROM leads WHERE slug = ?").get(slug) as
+    | { slug: string }
+    | undefined;
+  if (!existing) {
+    throw new Error(`Lead with slug ${slug} not found`);
+  }
+  db.prepare(`
+    UPDATE leads
+    SET bufferProfileIds = ?, updatedAt = datetime('now')
+    WHERE slug = ?
+  `).run(serializeLeadBufferProfileIds(bufferProfileIds), slug);
+}
+
+/**
+ * Persist the set of Buffer idempotency markers (bufferPostedVariantKey, see
+ * src/lib/marketing/buffer.ts) scheduleMarketingPackToBufferAction has
+ * already queued for a lead, so a repeated click within the same pack never
+ * re-posts the same variant to the same profile
+ * (buffer-schedule-duplicate-post-guard). Full-replacement semantics, same as
+ * updateLeadBufferProfileIds — the caller computes the pruned+merged set via
+ * pruneBufferPostedVariantKeysForPack before calling this.
+ *
+ * Must fail closed (LEAD_BUFFER_POSTED_VARIANT_KEYS_CONVEX_PRIMARY,
+ * buffer-posted-variant-keys-convex-fail-closed) rather than falling back to
+ * SQLite on a Convex mutation failure: getLeadBySlug reads
+ * bufferPostedVariantKeys Convex-first, both at the top of
+ * scheduleMarketingPackToBufferAction and in its own TOCTOU re-read
+ * immediately before this call. A silent SQLite-only fallback here would
+ * split-brain the marker — this instance's SQLite row would carry the
+ * just-posted key while every Convex-first reader (including this same
+ * action on its next invocation, possibly from a different instance) would
+ * not see it — reopening the door to a duplicate, irreversible post to the
+ * client's live Buffer/Facebook/Instagram profile. The call site already
+ * wraps this in a try/catch that logs and returns success (the Buffer post
+ * itself already happened and can't be undone), so failing closed here does
+ * not turn a successful schedule into a reported error — it only prevents
+ * the marker from landing somewhere Convex-first readers can't see it; the
+ * documented worst case (a later click can re-post) is unchanged from before
+ * this guard shipped.
+ */
+export async function updateLeadBufferPostedVariantKeys(
+  slug: string,
+  bufferPostedVariantKeys: string[],
+  options?: ConvexPrimaryWriteOptions,
+): Promise<void> {
+  if (convexClient) {
+    try {
+      await convexClient.mutation(api.leads.updateBufferPostedVariantKeys, {
+        slug,
+        bufferPostedVariantKeys,
+        apiSecret: convexApiSecret,
+      });
+      return;
+    } catch (e) {
+      if (!shouldFallbackToSqliteOnConvexFailure(true, options)) {
+        throw new ConvexPrimaryWriteError("updateLeadBufferPostedVariantKeys", e);
+      }
+      console.warn(
+        `Failed to update Buffer posted-variant markers for ${slug} on Convex, falling back to SQLite database`,
+        e,
+      );
+      void captureError(e, { component: "db-updateLeadBufferPostedVariantKeys-convex-fallback" });
+    }
+  }
+
+  const db = getSqliteDb();
+  const existing = db.prepare("SELECT slug FROM leads WHERE slug = ?").get(slug) as
+    | { slug: string }
+    | undefined;
+  if (!existing) {
+    throw new Error(`Lead with slug ${slug} not found`);
+  }
+  db.prepare(`
+    UPDATE leads
+    SET bufferPostedVariantKeys = ?, updatedAt = datetime('now')
+    WHERE slug = ?
+  `).run(serializeLeadBufferPostedVariantKeys(bufferPostedVariantKeys), slug);
+}
+
+/**
+ * Persist a cold-lead disposition patch (re-engage or close) in one write.
+ * Caller must validate via planColdLeadDisposition first.
+ * Pass { requireConvex: true } (COLD_DISPOSITION_CONVEX_PRIMARY) from
+ * disposeColdLeadAction so a Convex mutation failure does not silently leave
+ * stage/outreach only in instance-local SQLite while Convex-first readers
+ * (getLeads, cold badges, pipeline-health) never see the Re-engage/Close.
+ *
+ * Returns false (no write applied) when the row's stage has already moved to
+ * paid/live by the time this runs — planColdLeadDisposition's own paid/live
+ * guard only saw disposeColdLeadAction's earlier snapshot read, so a
+ * concurrent Stripe checkout completing in that window must not have its
+ * stage silently reverted back to closed/discovered (same TOCTOU class as
+ * commerce-order-paid-out-refund-race-guard; the Convex twin
+ * applyColdDisposition re-checks the identical condition atomically at
+ * patch time).
+ */
+export async function applyColdLeadDisposition(
+  slug: string,
+  patch: {
+    stage: LeadPipelineStage;
+    outreachStep: OutreachStep;
+    lastOutreachAt: string | undefined;
+    snoozedUntil: string | undefined;
+  },
+  options?: ConvexPrimaryWriteOptions,
+): Promise<boolean> {
+  if (convexClient) {
+    try {
+      return (await convexClient.mutation(api.leads.applyColdDisposition, {
+        slug,
+        stage: patch.stage,
+        outreachStep: patch.outreachStep,
+        lastOutreachAt: patch.lastOutreachAt ?? "",
+        snoozedUntil: patch.snoozedUntil ?? "",
+        apiSecret: convexApiSecret,
+      })) as boolean;
+    } catch (e) {
+      if (!shouldFallbackToSqliteOnConvexFailure(true, options)) {
+        throw new ConvexPrimaryWriteError("applyColdLeadDisposition", e);
+      }
+      console.warn(
+        `Failed to apply cold disposition for ${slug} on Convex, falling back to SQLite database`,
+        e,
+      );
+      void captureError(e, { component: "db-applyColdLeadDisposition-convex-fallback" });
+    }
+  }
+
+  return sqliteApplyColdLeadDisposition(getSqliteDb(), slug, patch);
 }
 
 /**
@@ -819,99 +985,42 @@ export async function recordLeadPayment(
     commerceAddon: boolean;
     amountTotal: number;
     stripeCustomerId?: string;
+    acquisitionSource?: string;
+    /**
+     * Real business name/phone collected at checkout on the organic
+     * no-preexisting-lead path (see checkout-business-fields-capture) — used
+     * only when the payment stub below actually creates a new lead row;
+     * ignored when the slug already resolves to an existing CRM lead.
+     */
+    businessName?: string;
+    businessPhone?: string;
   },
   options?: ConvexPrimaryWriteOptions,
 ): Promise<{ alreadyRecorded: boolean }> {
   if (convexClient) {
     try {
-      return await convexClient.mutation(api.leads.markLeadPaid, params);
+      return await convexClient.mutation(api.leads.markLeadPaid, {
+        ...params,
+        apiSecret: convexApiSecret,
+      });
     } catch (e) {
       if (!shouldFallbackToSqliteOnConvexFailure(true, options)) {
         throw new ConvexPrimaryWriteError("recordLeadPayment", e);
       }
       console.warn(`Failed to record lead payment for ${params.slug} on Convex, falling back to SQLite database`, e);
+      void captureError(e, { component: "db-recordLeadPayment-convex-fallback" });
     }
   }
 
   // SQLite Fallback
   const db = getSqliteDb();
-  const existingOrder = db
-    .prepare("SELECT id FROM orders WHERE stripeSessionId = ?")
-    .get(params.stripeSessionId) as { id: string } | undefined;
-  if (existingOrder) {
+  if (sqliteOrderAlreadyRecorded(db, params.stripeSessionId)) {
     return { alreadyRecorded: true };
   }
 
   const lead = await getLeadBySlug(params.slug);
-  if (!lead) {
-    // Keep field defaults aligned with Convex markLeadPaid stub + payment-stub.ts.
-    const stub = buildPaymentStubLeadFields(params.slug);
-    const id = `lead_${Date.now()}`;
-
-    db.prepare(`
-      INSERT INTO leads (id, slug, businessName, category, city, state, phone, tagline, description, recommendedTier, dataSource, status)
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'paid')
-    `).run(
-      id,
-      stub.slug,
-      stub.businessName,
-      stub.category,
-      stub.city,
-      stub.state,
-      stub.phone,
-      stub.tagline,
-      stub.description,
-      stub.recommendedTier,
-      stub.dataSource,
-    );
-  } else if (lead.stage !== "live") {
-    // A Starter -> Growth/Complete upsell checkout (leadEligibleForStarterUpsell
-    // in src/lib/billing/starter-upsell.ts fires at stage "paid" OR "live")
-    // carries a new stripeSessionId, so the existingOrder check above doesn't
-    // catch it. Don't let a second payment regress an already-live lead back
-    // to "paid" -- pipeline-health and the daily digest key off that stage.
-    // Mirrors the Convex markLeadPaid fix (convex/leads.ts).
-    const stmt = db.prepare("UPDATE leads SET status = 'paid', updatedAt = datetime('now') WHERE slug = ?");
-    stmt.run(params.slug);
-  }
-
-  // Get lead ID
-  const leadRow = db.prepare("SELECT id FROM leads WHERE slug = ?").get(params.slug) as { id: string };
-
-  // Insert order
-  const orderId = `order_${Date.now()}`;
-  db.prepare(`
-    INSERT INTO orders (id, leadId, stripeSessionId, stripeCustomerId, tier, commerceAddon, amountPaid, status)
-    VALUES (?, ?, ?, ?, ?, ?, ?, 'paid')
-  `).run(
-    orderId,
-    leadRow.id,
-    params.stripeSessionId,
-    params.stripeCustomerId ?? null,
-    params.tier,
-    params.commerceAddon ? 1 : 0,
-    params.amountTotal
-  );
+  sqliteRecordLeadPayment(db, params, Boolean(lead));
   return { alreadyRecorded: false };
-}
-
-export async function countLeadsByStage(): Promise<Record<LeadPipelineStage, number>> {
-  const leads = await getLeads();
-  const counts: Record<LeadPipelineStage, number> = {
-    discovered: 0,
-    site_built: 0,
-    outreach_sent: 0,
-    discovery_call: 0,
-    paid: 0,
-    live: 0,
-    closed: 0,
-  };
-  for (const lead of leads) {
-    if (lead.stage in counts) {
-      counts[lead.stage] += 1;
-    }
-  }
-  return counts;
 }
 
 /**
@@ -923,34 +1032,238 @@ export async function countLeadsByStage(): Promise<Record<LeadPipelineStage, num
  * latestEligibleOrder cannot regress if a future caller bypasses that query
  * shape or the Convex sort is accidentally removed.
  */
+function mapConvexOrderRow(row: {
+  _id: string;
+  leadSlug: string;
+  stripeSessionId: string;
+  stripeCustomerId?: string;
+  tier: string;
+  commerceAddon: boolean;
+  recurringCanceledAt?: number;
+  amountTotal: number;
+  createdAt: number;
+  refundedAt?: string;
+  disputedAt?: string;
+  lifetimeRevenueUsd?: number;
+  lastRenewalInvoiceId?: string;
+  lastBillingNoticeSendFailedAt?: number;
+  lastBillingNoticeSendFailedType?: string;
+  acquisitionSource?: string;
+}): OrderRecord {
+  return {
+    id: row._id,
+    leadSlug: row.leadSlug,
+    stripeSessionId: row.stripeSessionId,
+    stripeCustomerId: row.stripeCustomerId,
+    tier: row.tier,
+    commerceAddon: row.commerceAddon,
+    recurringCanceledAt:
+      typeof row.recurringCanceledAt === "number" &&
+      Number.isFinite(row.recurringCanceledAt) &&
+      row.recurringCanceledAt > 0
+        ? row.recurringCanceledAt
+        : undefined,
+    amountPaid: row.amountTotal,
+    createdAt: new Date(row.createdAt).toISOString(),
+    refundedAt: row.refundedAt || undefined,
+    disputedAt: row.disputedAt || undefined,
+    lifetimeRevenueUsd:
+      typeof row.lifetimeRevenueUsd === "number" && Number.isFinite(row.lifetimeRevenueUsd)
+        ? row.lifetimeRevenueUsd
+        : undefined,
+    lastRenewalInvoiceId: row.lastRenewalInvoiceId || undefined,
+    lastBillingNoticeSendFailedAt:
+      typeof row.lastBillingNoticeSendFailedAt === "number" &&
+      Number.isFinite(row.lastBillingNoticeSendFailedAt) &&
+      row.lastBillingNoticeSendFailedAt > 0
+        ? row.lastBillingNoticeSendFailedAt
+        : undefined,
+    lastBillingNoticeSendFailedType: (row.lastBillingNoticeSendFailedType ||
+      undefined) as OrderRecord["lastBillingNoticeSendFailedType"],
+    acquisitionSource: row.acquisitionSource || undefined,
+  };
+}
+
 export async function listOrders(): Promise<OrderRecord[]> {
   if (convexClient) {
     try {
-      const rows = (await convexClient.query(api.orders.list)) as Array<{
+      const rows = (await convexClient.query(api.orders.list, { apiSecret: convexApiSecret })) as Array<{
         _id: string;
         leadSlug: string;
         stripeSessionId: string;
         stripeCustomerId?: string;
         tier: string;
         commerceAddon: boolean;
+        recurringCanceledAt?: number;
         amountTotal: number;
         createdAt: number;
+        refundedAt?: string;
+        disputedAt?: string;
+        lifetimeRevenueUsd?: number;
+        lastRenewalInvoiceId?: string;
+        lastBillingNoticeSendFailedAt?: number;
+        lastBillingNoticeSendFailedType?: string;
+        acquisitionSource?: string;
       }>;
-      return sortOrdersNewestFirst(
-        rows.map((row) => ({
-          id: row._id,
-          leadSlug: row.leadSlug,
-          stripeSessionId: row.stripeSessionId,
-          stripeCustomerId: row.stripeCustomerId,
-          tier: row.tier,
-          commerceAddon: row.commerceAddon,
-          amountPaid: row.amountTotal,
-          status: "paid",
-          createdAt: new Date(row.createdAt).toISOString(),
-        })),
-      );
+      return sortOrdersNewestFirst(rows.map(mapConvexOrderRow));
     } catch (e) {
       console.warn("Failed to fetch orders from Convex, falling back to SQLite", e);
+      void captureError(e, { component: "db-listOrders-convex-fallback" });
+    }
+  }
+
+  return sqliteListOrders(getSqliteDb());
+}
+
+/**
+ * Slug-scoped orders for preview commerce eligibility, Manage billing, and
+ * per-lead dashboard sold-capability gates (upsell / packs / catalog).
+ * Prefer over listOrders() whenever the caller already has a lead slug —
+ * never full-ledger collect then filter. Newest-first on both backends
+ * (matches listOrders). Keep listOrders() for digest + dashboard aggregates.
+ */
+export async function listOrdersByLeadSlug(
+  leadSlug: string,
+): Promise<OrderRecord[]> {
+  if (convexClient) {
+    try {
+      const rows = (await convexClient.query(api.orders.listByLeadSlug, {
+        leadSlug,
+        apiSecret: convexApiSecret,
+      })) as Array<{
+        _id: string;
+        leadSlug: string;
+        stripeSessionId: string;
+        stripeCustomerId?: string;
+        tier: string;
+        commerceAddon: boolean;
+        recurringCanceledAt?: number;
+        amountTotal: number;
+        createdAt: number;
+        refundedAt?: string;
+        disputedAt?: string;
+        lifetimeRevenueUsd?: number;
+        lastRenewalInvoiceId?: string;
+        lastBillingNoticeSendFailedAt?: number;
+        lastBillingNoticeSendFailedType?: string;
+        acquisitionSource?: string;
+      }>;
+      return sortOrdersNewestFirst(rows.map(mapConvexOrderRow));
+    } catch (e) {
+      console.warn(
+        `Failed to fetch orders for ${leadSlug} from Convex, falling back to SQLite`,
+        e,
+      );
+      void captureError(e, { component: "db-listOrdersByLeadSlug-convex-fallback" });
+    }
+  }
+
+  return sqliteListOrdersByLeadSlug(getSqliteDb(), leadSlug);
+}
+
+/**
+ * Single bundle order lookup by stripeSessionId (unique) — used by the
+ * charge.refunded webhook handler to correlate a refunded charge back to a
+ * bundle (Starter/Growth/Complete/Commerce-addon) order, mirroring
+ * getCommerceOrderByStripeSessionId. See bundle-order-refund-tracking.
+ */
+export async function getOrderByStripeSessionId(
+  stripeSessionId: string,
+): Promise<OrderRecord | null> {
+  if (convexClient) {
+    try {
+      const row = (await convexClient.query(api.orders.getByStripeSessionId, {
+        stripeSessionId,
+        apiSecret: convexApiSecret,
+      })) as {
+        _id: string;
+        leadSlug: string;
+        stripeSessionId: string;
+        stripeCustomerId?: string;
+        tier: string;
+        commerceAddon: boolean;
+        recurringCanceledAt?: number;
+        amountTotal: number;
+        createdAt: number;
+        refundedAt?: string;
+        disputedAt?: string;
+        lifetimeRevenueUsd?: number;
+        lastRenewalInvoiceId?: string;
+        lastBillingNoticeSendFailedAt?: number;
+        lastBillingNoticeSendFailedType?: string;
+        acquisitionSource?: string;
+      } | null;
+      return row ? mapConvexOrderRow(row) : null;
+    } catch (e) {
+      console.warn(
+        `Failed to get order ${stripeSessionId} from Convex, falling back to SQLite`,
+        e,
+      );
+      void captureError(e, { component: "db-getOrderByStripeSessionId-convex-fallback" });
+    }
+  }
+
+  const db = getSqliteDb();
+  const row = db
+    .prepare(
+      `SELECT o.id, l.slug as leadSlug, o.stripeSessionId, o.stripeCustomerId, o.tier, o.commerceAddon,
+              o.recurringCanceledAt, o.amountPaid, o.createdAt, o.refundedAt, o.disputedAt,
+              o.lifetimeRevenueUsd, o.lastRenewalInvoiceId,
+              o.lastBillingNoticeSendFailedAt, o.lastBillingNoticeSendFailedType,
+              o.acquisitionSource
+       FROM orders o
+       LEFT JOIN leads l ON l.id = o.leadId
+       WHERE o.stripeSessionId = ?`,
+    )
+    .get(stripeSessionId) as unknown as SqliteOrderJoinRow | undefined;
+  return row
+    ? mapSqliteOrderRow({ ...row, leadSlug: row.leadSlug || "unknown" })
+    : null;
+}
+
+/**
+ * Orders for a Stripe Customer — used by the invoice.payment_failed dunning
+ * notice to resolve the leadSlug + stripeSessionId to email from (the lead's
+ * email lives on the leads row, not orders). Newest-first, matching
+ * listOrders/listOrdersByLeadSlug. Not exhaustive across every historical
+ * order shape — a Customer only ever carries orders for one lead.
+ */
+export async function getOrdersByStripeCustomerId(
+  stripeCustomerId: string,
+): Promise<OrderRecord[]> {
+  const customerId = stripeCustomerId.trim();
+  if (!customerId) return [];
+
+  if (convexClient) {
+    try {
+      const rows = (await convexClient.query(api.orders.getByStripeCustomerId, {
+        stripeCustomerId: customerId,
+        apiSecret: convexApiSecret,
+      })) as Array<{
+        _id: string;
+        leadSlug: string;
+        stripeSessionId: string;
+        stripeCustomerId?: string;
+        tier: string;
+        commerceAddon: boolean;
+        recurringCanceledAt?: number;
+        amountTotal: number;
+        createdAt: number;
+        refundedAt?: string;
+        disputedAt?: string;
+        lifetimeRevenueUsd?: number;
+        lastRenewalInvoiceId?: string;
+        lastBillingNoticeSendFailedAt?: number;
+        lastBillingNoticeSendFailedType?: string;
+        acquisitionSource?: string;
+      }>;
+      return sortOrdersNewestFirst(rows.map(mapConvexOrderRow));
+    } catch (e) {
+      console.warn(
+        `Failed to get orders for customer ${customerId} from Convex, falling back to SQLite`,
+        e,
+      );
+      void captureError(e, { component: "db-getOrdersByStripeCustomerId-convex-fallback" });
     }
   }
 
@@ -958,12 +1271,16 @@ export async function listOrders(): Promise<OrderRecord[]> {
   const rows = db
     .prepare(
       `SELECT o.id, l.slug as leadSlug, o.stripeSessionId, o.stripeCustomerId, o.tier, o.commerceAddon,
-              o.amountPaid, o.status, o.createdAt
+              o.recurringCanceledAt, o.amountPaid, o.createdAt, o.refundedAt, o.disputedAt,
+              o.lifetimeRevenueUsd, o.lastRenewalInvoiceId,
+              o.lastBillingNoticeSendFailedAt, o.lastBillingNoticeSendFailedType,
+              o.acquisitionSource
        FROM orders o
        LEFT JOIN leads l ON l.id = o.leadId
+       WHERE o.stripeCustomerId = ?
        ORDER BY o.createdAt DESC`,
     )
-    .all() as unknown as SqliteOrderJoinRow[];
+    .all(customerId) as unknown as SqliteOrderJoinRow[];
 
   return rows.map((row) =>
     mapSqliteOrderRow({
@@ -971,6 +1288,582 @@ export async function listOrders(): Promise<OrderRecord[]> {
       leadSlug: row.leadSlug || "unknown",
     }),
   );
+}
+
+/**
+ * Flags a bundle order as refunded by Stripe (charge.refunded). Keyed on
+ * stripeSessionId (unique), mirrors markCommerceOrderRefunded. Idempotent on
+ * Convex (see convex/orders.ts markRefunded); the SQLite fallback's WHERE
+ * clause is naturally idempotent (redelivery just re-sets the same value).
+ *
+ * Pass { requireConvex: true } from the Stripe webhook so a Convex mutation
+ * failure surfaces (5xx → Stripe retry) instead of SQLite-only success while
+ * Convex-first getOrderByStripeSessionId still looks unmarked.
+ */
+export async function markOrderRefunded(
+  stripeSessionId: string,
+  refundedAt: string = new Date().toISOString(),
+  options?: ConvexPrimaryWriteOptions,
+): Promise<void> {
+  if (convexClient) {
+    try {
+      await convexClient.mutation(api.orders.markRefunded, {
+        stripeSessionId,
+        refundedAt,
+        apiSecret: convexApiSecret,
+      });
+      return;
+    } catch (e) {
+      if (!shouldFallbackToSqliteOnConvexFailure(true, options)) {
+        throw new ConvexPrimaryWriteError("markOrderRefunded", e);
+      }
+      console.warn(
+        `Failed to mark order ${stripeSessionId} refunded on Convex, falling back to SQLite`,
+        e,
+      );
+      void captureError(e, { component: "db-markOrderRefunded-convex-fallback" });
+    }
+  }
+
+  const db = getSqliteDb();
+  db.prepare(
+    "UPDATE orders SET refundedAt = ? WHERE stripeSessionId = ? AND (refundedAt IS NULL OR refundedAt = '')",
+  ).run(refundedAt, stripeSessionId);
+}
+
+/**
+ * Clears orders.refundedAt after refund.updated reports the refund that set
+ * it (failed/canceled) never actually completed — funds never left the
+ * platform. Keyed on stripeSessionId — mirrors clearCommerceOrderRefunded.
+ * Idempotent. Pass { requireConvex: true } from the webhook.
+ * See commerce-order-refund-reversal-tracking.
+ */
+export async function clearOrderRefunded(
+  stripeSessionId: string,
+  options?: ConvexPrimaryWriteOptions,
+): Promise<void> {
+  if (convexClient) {
+    try {
+      await convexClient.mutation(api.orders.clearRefunded, {
+        stripeSessionId,
+        apiSecret: convexApiSecret,
+      });
+      return;
+    } catch (e) {
+      if (!shouldFallbackToSqliteOnConvexFailure(true, options)) {
+        throw new ConvexPrimaryWriteError("clearOrderRefunded", e);
+      }
+      console.warn(
+        `Failed to clear order ${stripeSessionId} refunded on Convex, falling back to SQLite`,
+        e,
+      );
+      void captureError(e, { component: "db-clearOrderRefunded-convex-fallback" });
+    }
+  }
+
+  const db = getSqliteDb();
+  db.prepare(
+    "UPDATE orders SET refundedAt = NULL WHERE stripeSessionId = ? AND refundedAt IS NOT NULL AND refundedAt != ''",
+  ).run(stripeSessionId);
+}
+
+/**
+ * Flags a bundle order as disputed by Stripe (charge.dispute.created, or
+ * charge.dispute.closed lost when created was missed). Keyed on
+ * stripeSessionId — mirrors markCommerceOrderDisputed. Idempotent.
+ * Pass { requireConvex: true } from the webhook (WEBHOOK_CONVEX_PRIMARY).
+ * See bundle-order-dispute-tracking.
+ */
+export async function markOrderDisputed(
+  stripeSessionId: string,
+  disputedAt: string = new Date().toISOString(),
+  options?: ConvexPrimaryWriteOptions,
+): Promise<void> {
+  if (convexClient) {
+    try {
+      await convexClient.mutation(api.orders.markDisputed, {
+        stripeSessionId,
+        disputedAt,
+        apiSecret: convexApiSecret,
+      });
+      return;
+    } catch (e) {
+      if (!shouldFallbackToSqliteOnConvexFailure(true, options)) {
+        throw new ConvexPrimaryWriteError("markOrderDisputed", e);
+      }
+      console.warn(
+        `Failed to mark order ${stripeSessionId} disputed on Convex, falling back to SQLite`,
+        e,
+      );
+      void captureError(e, { component: "db-markOrderDisputed-convex-fallback" });
+    }
+  }
+
+  const db = getSqliteDb();
+  db.prepare(
+    "UPDATE orders SET disputedAt = ? WHERE stripeSessionId = ? AND (disputedAt IS NULL OR disputedAt = '')",
+  ).run(disputedAt, stripeSessionId);
+}
+
+/**
+ * Clears orders.disputedAt after charge.dispute.closed with status won /
+ * warning_closed. Keyed on stripeSessionId — mirrors clearCommerceOrderDisputed.
+ * Idempotent. Pass { requireConvex: true } from the webhook.
+ * See bundle-order-dispute-tracking.
+ */
+export async function clearOrderDisputed(
+  stripeSessionId: string,
+  options?: ConvexPrimaryWriteOptions,
+): Promise<void> {
+  if (convexClient) {
+    try {
+      await convexClient.mutation(api.orders.clearDisputed, {
+        stripeSessionId,
+        apiSecret: convexApiSecret,
+      });
+      return;
+    } catch (e) {
+      if (!shouldFallbackToSqliteOnConvexFailure(true, options)) {
+        throw new ConvexPrimaryWriteError("clearOrderDisputed", e);
+      }
+      console.warn(
+        `Failed to clear order ${stripeSessionId} disputed on Convex, falling back to SQLite`,
+        e,
+      );
+      void captureError(e, { component: "db-clearOrderDisputed-convex-fallback" });
+    }
+  }
+
+  const db = getSqliteDb();
+  db.prepare(
+    "UPDATE orders SET disputedAt = NULL WHERE stripeSessionId = ? AND disputedAt IS NOT NULL AND disputedAt != ''",
+  ).run(stripeSessionId);
+}
+
+/**
+ * Mark Growth/Complete/Commerce orders for a Stripe Customer as recurring-canceled
+ * after customer.subscription.deleted. Idempotent — already-canceled rows are
+ * left unchanged. requireConvex on the webhook path (WEBHOOK_CONVEX_PRIMARY).
+ */
+export async function markOrdersRecurringCanceledByCustomer(
+  stripeCustomerId: string,
+  canceledAt: number,
+  options?: ConvexPrimaryWriteOptions,
+): Promise<number> {
+  const customerId = stripeCustomerId.trim();
+  if (!customerId) return 0;
+  const at =
+    Number.isFinite(canceledAt) && canceledAt > 0 ? canceledAt : Date.now();
+
+  if (convexClient) {
+    try {
+      const result = (await convexClient.mutation(
+        api.orders.markRecurringCanceledByCustomer,
+        { stripeCustomerId: customerId, canceledAt: at, apiSecret: convexApiSecret },
+      )) as { updatedCount: number };
+      return result.updatedCount;
+    } catch (e) {
+      if (!shouldFallbackToSqliteOnConvexFailure(true, options)) {
+        throw new ConvexPrimaryWriteError(
+          "markOrdersRecurringCanceledByCustomer",
+          e,
+        );
+      }
+      console.warn(
+        `Failed to mark recurring canceled for customer ${customerId} on Convex, falling back to SQLite`,
+        e,
+      );
+      void captureError(e, { component: "db-markOrdersRecurringCanceledByCustomer-convex-fallback" });
+    }
+  }
+
+  const db = getSqliteDb();
+  const rows = db
+    .prepare(
+      `SELECT id, tier, commerceAddon, recurringCanceledAt
+       FROM orders
+       WHERE stripeCustomerId = ?`,
+    )
+    .all(customerId) as Array<{
+    id: string;
+    tier: string;
+    commerceAddon: number;
+    recurringCanceledAt: number | null;
+  }>;
+
+  let updatedCount = 0;
+  const patch = db.prepare(
+    `UPDATE orders SET recurringCanceledAt = ? WHERE id = ? AND (recurringCanceledAt IS NULL OR recurringCanceledAt = 0)`,
+  );
+  for (const row of rows) {
+    const hadRecurring =
+      row.commerceAddon === 1 || row.tier === "growth" || row.tier === "complete";
+    if (!hadRecurring) continue;
+    if (
+      typeof row.recurringCanceledAt === "number" &&
+      Number.isFinite(row.recurringCanceledAt) &&
+      row.recurringCanceledAt > 0
+    ) {
+      continue;
+    }
+    const result = patch.run(at, row.id);
+    if (result.changes > 0) updatedCount += 1;
+  }
+  return updatedCount;
+}
+
+/**
+ * Marks a single order recurring-canceled by its own stripeSessionId, never
+ * by Stripe Customer id. Exists specifically for the recurring-upgrade
+ * supersede path (stripe-checkout-recurring-upgrade-dedup): once
+ * existingRecurringStripeCustomerId reuses a lead's existing Stripe Customer
+ * for a tier-upgrade Checkout Session (the common case, not the exception),
+ * the OLD superseded order and the BRAND-NEW order share the same
+ * stripeCustomerId. markOrdersRecurringCanceledByCustomer patches every
+ * order row for that Customer id, which would incorrectly also cancel the
+ * entitlement the customer just paid for — this function targets only the
+ * one superseded order. Idempotent — an already-canceled row is left
+ * unchanged. requireConvex on the webhook path (WEBHOOK_CONVEX_PRIMARY). See
+ * stripe-checkout-recurring-upgrade-dedup-shared-customer-fix.
+ */
+export async function markOrderRecurringCanceledBySessionId(
+  stripeSessionId: string,
+  canceledAt: number,
+  options?: ConvexPrimaryWriteOptions,
+): Promise<void> {
+  const sessionId = stripeSessionId.trim();
+  if (!sessionId) return;
+  const at = Number.isFinite(canceledAt) && canceledAt > 0 ? canceledAt : Date.now();
+
+  if (convexClient) {
+    try {
+      await convexClient.mutation(api.orders.markRecurringCanceledBySessionId, {
+        stripeSessionId: sessionId,
+        canceledAt: at,
+        apiSecret: convexApiSecret,
+      });
+      return;
+    } catch (e) {
+      if (!shouldFallbackToSqliteOnConvexFailure(true, options)) {
+        throw new ConvexPrimaryWriteError(
+          "markOrderRecurringCanceledBySessionId",
+          e,
+        );
+      }
+      console.warn(
+        `Failed to mark order ${sessionId} recurring canceled on Convex, falling back to SQLite`,
+        e,
+      );
+      void captureError(e, { component: "db-markOrderRecurringCanceledBySessionId-convex-fallback" });
+    }
+  }
+
+  const db = getSqliteDb();
+  db.prepare(
+    `UPDATE orders SET recurringCanceledAt = ?
+     WHERE stripeSessionId = ? AND (recurringCanceledAt IS NULL OR recurringCanceledAt = 0)
+       AND (tier = 'growth' OR tier = 'complete' OR commerceAddon = 1)`,
+  ).run(at, sessionId);
+}
+
+/**
+ * Clear recurringCanceledAt on Growth/Complete/Commerce orders for a Stripe
+ * Customer after subscription.created|updated reaches active|trialing.
+ * Idempotent — rows without a cancel timestamp are left unchanged.
+ * requireConvex on the webhook path (WEBHOOK_CONVEX_PRIMARY).
+ */
+export async function clearOrdersRecurringCanceledByCustomer(
+  stripeCustomerId: string,
+  options?: ConvexPrimaryWriteOptions,
+): Promise<number> {
+  const customerId = stripeCustomerId.trim();
+  if (!customerId) return 0;
+
+  if (convexClient) {
+    try {
+      const result = (await convexClient.mutation(
+        api.orders.clearRecurringCanceledByCustomer,
+        { stripeCustomerId: customerId, apiSecret: convexApiSecret },
+      )) as { updatedCount: number };
+      return result.updatedCount;
+    } catch (e) {
+      if (!shouldFallbackToSqliteOnConvexFailure(true, options)) {
+        throw new ConvexPrimaryWriteError(
+          "clearOrdersRecurringCanceledByCustomer",
+          e,
+        );
+      }
+      console.warn(
+        `Failed to clear recurring canceled for customer ${customerId} on Convex, falling back to SQLite`,
+        e,
+      );
+      void captureError(e, { component: "db-clearOrdersRecurringCanceledByCustomer-convex-fallback" });
+    }
+  }
+
+  const db = getSqliteDb();
+  const rows = db
+    .prepare(
+      `SELECT id, tier, commerceAddon, recurringCanceledAt
+       FROM orders
+       WHERE stripeCustomerId = ?`,
+    )
+    .all(customerId) as Array<{
+    id: string;
+    tier: string;
+    commerceAddon: number;
+    recurringCanceledAt: number | null;
+  }>;
+
+  let updatedCount = 0;
+  const clear = db.prepare(
+    `UPDATE orders SET recurringCanceledAt = NULL WHERE id = ? AND recurringCanceledAt IS NOT NULL AND recurringCanceledAt > 0`,
+  );
+  for (const row of rows) {
+    const hadRecurring =
+      row.commerceAddon === 1 || row.tier === "growth" || row.tier === "complete";
+    if (!hadRecurring) continue;
+    if (
+      !(
+        typeof row.recurringCanceledAt === "number" &&
+        Number.isFinite(row.recurringCanceledAt) &&
+        row.recurringCanceledAt > 0
+      )
+    ) {
+      continue;
+    }
+    const result = clear.run(row.id);
+    if (result.changes > 0) updatedCount += 1;
+  }
+  return updatedCount;
+}
+
+/**
+ * Sync tier + commerceAddon on Growth/Complete/Commerce orders for a Stripe
+ * Customer from the live Subscription catalog monthly Prices. Idempotent —
+ * matching rows are skipped. requireConvex on the webhook path
+ * (WEBHOOK_CONVEX_PRIMARY). Does not touch recurringCanceledAt.
+ */
+export async function syncOrdersRecurringEntitlementByCustomer(
+  stripeCustomerId: string,
+  entitlement: {
+    tier: "starter" | "growth" | "complete";
+    commerceAddon: boolean;
+  },
+  options?: ConvexPrimaryWriteOptions,
+): Promise<number> {
+  const customerId = stripeCustomerId.trim();
+  if (!customerId) return 0;
+  const hadRecurringTarget =
+    entitlement.commerceAddon ||
+    entitlement.tier === "growth" ||
+    entitlement.tier === "complete";
+  if (!hadRecurringTarget) return 0;
+
+  if (convexClient) {
+    try {
+      const result = (await convexClient.mutation(
+        api.orders.syncRecurringEntitlementByCustomer,
+        {
+          stripeCustomerId: customerId,
+          tier: entitlement.tier,
+          commerceAddon: entitlement.commerceAddon,
+          apiSecret: convexApiSecret,
+        },
+      )) as { updatedCount: number };
+      return result.updatedCount;
+    } catch (e) {
+      if (!shouldFallbackToSqliteOnConvexFailure(true, options)) {
+        throw new ConvexPrimaryWriteError(
+          "syncOrdersRecurringEntitlementByCustomer",
+          e,
+        );
+      }
+      console.warn(
+        `Failed to sync recurring entitlement for customer ${customerId} on Convex, falling back to SQLite`,
+        e,
+      );
+      void captureError(e, { component: "db-syncOrdersRecurringEntitlementByCustomer-convex-fallback" });
+    }
+  }
+
+  const db = getSqliteDb();
+  const rows = db
+    .prepare(
+      `SELECT id, tier, commerceAddon
+       FROM orders
+       WHERE stripeCustomerId = ?`,
+    )
+    .all(customerId) as Array<{
+    id: string;
+    tier: string;
+    commerceAddon: number;
+  }>;
+
+  let updatedCount = 0;
+  const patch = db.prepare(
+    `UPDATE orders SET tier = ?, commerceAddon = ? WHERE id = ?`,
+  );
+  for (const row of rows) {
+    const hadRecurring =
+      row.commerceAddon === 1 || row.tier === "growth" || row.tier === "complete";
+    if (!hadRecurring) continue;
+    const nextAddon = entitlement.commerceAddon ? 1 : 0;
+    if (row.tier === entitlement.tier && row.commerceAddon === nextAddon) {
+      continue;
+    }
+    const result = patch.run(entitlement.tier, nextAddon, row.id);
+    if (result.changes > 0) updatedCount += 1;
+  }
+  return updatedCount;
+}
+
+/**
+ * Adds a subscription-cycle renewal invoice's amount to lifetimeRevenueUsd
+ * on the Stripe Customer's currently sold-capability-entitled order — the
+ * fix for revenue-total-usd-renewal-gap: checkout.session.completed only
+ * ever recorded the first billing period's amount into amountPaid, so
+ * revenueTotalUsd silently never counted a Growth/Complete/Commerce-addon
+ * subscriber's renewals past their first cycle. Only ever applied to the one
+ * order still passing orderGrantsSoldCapabilityEntitlement (canceled,
+ * refunded, or disputed orders must not accrue further recorded revenue).
+ * Idempotent on invoiceId — Stripe redelivers invoice.paid, and a row whose
+ * lastRenewalInvoiceId already matches is left unchanged. requireConvex on
+ * the webhook path (WEBHOOK_CONVEX_PRIMARY) — this is a money-ledger write,
+ * same discipline as recordLeadPayment.
+ */
+export async function recordSubscriptionRenewalPayment(
+  stripeCustomerId: string,
+  invoiceId: string,
+  amountUsd: number,
+  options?: ConvexPrimaryWriteOptions,
+): Promise<{ recorded: boolean }> {
+  const customerId = stripeCustomerId.trim();
+  const invoice = invoiceId.trim();
+  if (!customerId || !invoice || !(amountUsd > 0)) {
+    return { recorded: false };
+  }
+
+  if (convexClient) {
+    try {
+      return await convexClient.mutation(api.orders.recordSubscriptionRenewalPayment, {
+        stripeCustomerId: customerId,
+        invoiceId: invoice,
+        amountUsd,
+        apiSecret: convexApiSecret,
+      });
+    } catch (e) {
+      if (!shouldFallbackToSqliteOnConvexFailure(true, options)) {
+        throw new ConvexPrimaryWriteError("recordSubscriptionRenewalPayment", e);
+      }
+      console.warn(
+        `Failed to record subscription renewal payment for customer ${customerId} on Convex, falling back to SQLite`,
+        e,
+      );
+      void captureError(e, { component: "db-recordSubscriptionRenewalPayment-convex-fallback" });
+    }
+  }
+
+  const db = getSqliteDb();
+  const rows = db
+    .prepare(
+      `SELECT id, tier, commerceAddon, recurringCanceledAt, refundedAt, disputedAt, amountPaid, lifetimeRevenueUsd, lastRenewalInvoiceId
+       FROM orders
+       WHERE stripeCustomerId = ?`,
+    )
+    .all(customerId) as Array<{
+    id: string;
+    tier: string;
+    commerceAddon: number;
+    recurringCanceledAt: number | null;
+    refundedAt: string | null;
+    disputedAt: string | null;
+    amountPaid: number;
+    lifetimeRevenueUsd: number | null;
+    lastRenewalInvoiceId: string | null;
+  }>;
+
+  const row = rows.find((r) =>
+    orderGrantsSoldCapabilityEntitlement({
+      tier: r.tier,
+      commerceAddon: r.commerceAddon === 1,
+      recurringCanceledAt: r.recurringCanceledAt ?? undefined,
+      refundedAt: r.refundedAt ?? undefined,
+      disputedAt: r.disputedAt ?? undefined,
+    }),
+  );
+  if (!row || row.lastRenewalInvoiceId === invoice) {
+    return { recorded: false };
+  }
+
+  const base =
+    typeof row.lifetimeRevenueUsd === "number" && Number.isFinite(row.lifetimeRevenueUsd)
+      ? row.lifetimeRevenueUsd
+      : row.amountPaid;
+  db.prepare(
+    `UPDATE orders SET lifetimeRevenueUsd = ?, lastRenewalInvoiceId = ? WHERE id = ?`,
+  ).run(base + amountUsd, invoice, row.id);
+  return { recorded: true };
+}
+
+/**
+ * Records the outcome of a best-effort billing-notice send (dunning /
+ * payment-recovered / subscription-paused / subscription-resumed —
+ * src/app/api/stripe/webhook/route.ts) so a sustained Resend outage or a
+ * persistently-bad customer email is visible to the operator instead of only
+ * reaching a server log via console.warn (see
+ * billing-notice-send-failure-visibility). success:true clears any prior
+ * failure marker; success:false records this attempt. Deliberately never
+ * throws — this is a display-only marker on an already-best-effort send, not
+ * a required write; a failure here must never turn the webhook's 200
+ * response into a 5xx/retry loop, so both the Convex and SQLite paths are
+ * wrapped and merely logged.
+ */
+export async function recordBillingNoticeSendOutcome(
+  stripeSessionId: string,
+  noticeType: BillingNoticeType,
+  success: boolean,
+  atMs: number,
+): Promise<void> {
+  const sessionId = stripeSessionId.trim();
+  if (!sessionId) return;
+
+  if (convexClient) {
+    try {
+      await convexClient.mutation(api.orders.recordBillingNoticeSendOutcome, {
+        stripeSessionId: sessionId,
+        noticeType,
+        success,
+        atMs,
+        apiSecret: convexApiSecret,
+      });
+      return;
+    } catch (e) {
+      console.warn(
+        `Failed to record billing notice ${noticeType} send outcome for ${sessionId} on Convex, falling back to SQLite`,
+        e,
+      );
+      void captureError(e, { component: "db-recordBillingNoticeSendOutcome-convex-fallback" });
+    }
+  }
+
+  try {
+    const db = getSqliteDb();
+    if (success) {
+      db.prepare(
+        `UPDATE orders SET lastBillingNoticeSendFailedAt = NULL, lastBillingNoticeSendFailedType = NULL WHERE stripeSessionId = ?`,
+      ).run(sessionId);
+    } else {
+      db.prepare(
+        `UPDATE orders SET lastBillingNoticeSendFailedAt = ?, lastBillingNoticeSendFailedType = ? WHERE stripeSessionId = ?`,
+      ).run(atMs, noticeType, sessionId);
+    }
+  } catch (e) {
+    console.error(
+      `Failed to record billing notice ${noticeType} send outcome for ${sessionId} on SQLite`,
+      e,
+    );
+  }
 }
 
 // --- Suppression List Functions ---
@@ -981,9 +1874,11 @@ export async function isEmailSuppressed(email: string): Promise<boolean> {
     try {
       return (await convexClient.query(api.suppressions.isSuppressed, {
         email: normalized,
+        apiSecret: convexApiSecret,
       })) as boolean;
     } catch (e) {
       console.warn("Failed to check suppression on Convex, falling back to SQLite database", e);
+      void captureError(e, { component: "db-isEmailSuppressed-convex-fallback" });
     }
   }
 
@@ -995,39 +1890,120 @@ export async function isEmailSuppressed(email: string): Promise<boolean> {
 
 export async function suppressEmail(
   email: string,
+  reason: SuppressionReason,
   options?: ConvexPrimaryWriteOptions,
 ): Promise<void> {
   const normalized = email.toLowerCase().trim();
   if (convexClient) {
     try {
-      await convexClient.mutation(api.suppressions.suppress, { email: normalized });
+      await convexClient.mutation(api.suppressions.suppress, {
+        email: normalized,
+        reason,
+        apiSecret: convexApiSecret,
+      });
       return;
     } catch (e) {
       if (!shouldFallbackToSqliteOnConvexFailure(true, options)) {
         throw new ConvexPrimaryWriteError("suppressEmail", e);
       }
       console.warn("Failed to record suppression on Convex, falling back to SQLite database", e);
+      void captureError(e, { component: "db-suppressEmail-convex-fallback" });
     }
   }
 
   // SQLite Fallback
   const db = getSqliteDb();
-  db.prepare("INSERT OR IGNORE INTO suppression_list (email) VALUES (?)").run(normalized);
+  const existing = db
+    .prepare("SELECT reason FROM suppression_list WHERE email = ?")
+    .get(normalized) as { reason: SuppressionReason } | undefined;
+  if (!existing) {
+    db.prepare(
+      "INSERT INTO suppression_list (email, reason, createdAt) VALUES (?, ?, ?)",
+    ).run(normalized, reason, new Date().toISOString());
+    return;
+  }
+  const preferred = preferSuppressionReason(existing.reason, reason);
+  if (preferred !== existing.reason) {
+    db.prepare(
+      "UPDATE suppression_list SET reason = ?, reasonUpdatedAt = ? WHERE email = ?",
+    ).run(preferred, new Date().toISOString(), normalized);
+  }
 }
 
-export async function getSuppressedEmails(): Promise<string[]> {
+export async function getSuppressedEmails(): Promise<SuppressionRecord[]> {
   if (convexClient) {
     try {
-      return (await convexClient.query(api.suppressions.list)) as string[];
+      return (await convexClient.query(api.suppressions.list, {
+        apiSecret: convexApiSecret,
+      })) as SuppressionRecord[];
     } catch (e) {
       console.warn("Failed to list suppressions from Convex, falling back to SQLite database", e);
+      void captureError(e, { component: "db-getSuppressedEmails-convex-fallback" });
     }
   }
 
   // SQLite Fallback
   const db = getSqliteDb();
-  const rows = db.prepare("SELECT email FROM suppression_list").all() as { email: string }[];
-  return rows.map((r) => r.email);
+  const rows = db
+    .prepare("SELECT email, reason, createdAt, reasonUpdatedAt FROM suppression_list")
+    .all() as {
+    email: string;
+    reason: SuppressionReason;
+    createdAt: string;
+    reasonUpdatedAt: string | null;
+  }[];
+  // Rows written before this fix relied on SQLite's DEFAULT (datetime('now'))
+  // instead of an explicit ISO createdAt param — that format
+  // ("YYYY-MM-DD HH:MM:SS", always UTC, no timezone marker) parses as LOCAL
+  // time under `new Date(...)` in a non-UTC server timezone, silently
+  // shifting the value. Append Z when the string has no timezone marker so
+  // both the legacy space-separated rows and this fix's own ISO rows parse
+  // correctly as UTC.
+  const parseUtc = (value: string): number =>
+    new Date(/[zZ]|[+-]\d{2}:?\d{2}$/.test(value) ? value : `${value}Z`).getTime();
+  return rows.map((r) => ({
+    email: r.email,
+    reason: r.reason,
+    createdAt: parseUtc(r.createdAt),
+    reasonUpdatedAt: r.reasonUpdatedAt ? parseUtc(r.reasonUpdatedAt) : undefined,
+  }));
+}
+
+/**
+ * Operator override: remove an address from the CAN-SPAM opt-out list.
+ * Returns whether a row was actually removed (false = the address was not
+ * suppressed to begin with). isEmailSuppressed reads Convex-first at every
+ * outreach send, so this must accept ConvexPrimaryWriteOptions the same way
+ * suppressEmail does — a silent SQLite-only fallback here would look like it
+ * succeeded to the operator while every Convex-primary instance (including
+ * this one's own next read) kept treating the address as suppressed.
+ */
+export async function unsuppressEmail(
+  email: string,
+  options?: ConvexPrimaryWriteOptions,
+): Promise<boolean> {
+  const normalized = email.toLowerCase().trim();
+  if (convexClient) {
+    try {
+      return (await convexClient.mutation(api.suppressions.unsuppress, {
+        email: normalized,
+        apiSecret: convexApiSecret,
+      })) as boolean;
+    } catch (e) {
+      if (!shouldFallbackToSqliteOnConvexFailure(true, options)) {
+        throw new ConvexPrimaryWriteError("unsuppressEmail", e);
+      }
+      console.warn("Failed to remove suppression on Convex, falling back to SQLite database", e);
+      void captureError(e, { component: "db-unsuppressEmail-convex-fallback" });
+    }
+  }
+
+  // SQLite Fallback
+  const db = getSqliteDb();
+  const result = db
+    .prepare("DELETE FROM suppression_list WHERE email = ?")
+    .run(normalized);
+  return result.changes > 0;
 }
 
 // --- Production deploy handoffs (Phase 5) ---
@@ -1057,6 +2033,7 @@ export async function insertDeployHandoff(
         notes: handoff.notes,
         createdAt: handoff.createdAt,
         updatedAt: handoff.updatedAt,
+        apiSecret: convexApiSecret,
       });
       return;
     } catch (e) {
@@ -1067,6 +2044,7 @@ export async function insertDeployHandoff(
         "Failed to upsert deploy handoff on Convex, falling back to SQLite database",
         e,
       );
+      void captureError(e, { component: "db-insertDeployHandoff-convex-fallback" });
     }
   }
 
@@ -1120,12 +2098,14 @@ export async function getDeployHandoffBySlug(slug: string): Promise<DeployHandof
     try {
       return (await convexClient.query(api.deployHandoffs.getByLeadSlug, {
         leadSlug: slug,
+        apiSecret: convexApiSecret,
       })) as DeployHandoff | null;
     } catch (e) {
       console.warn(
         "Failed to get deploy handoff from Convex, falling back to SQLite database",
         e,
       );
+      void captureError(e, { component: "db-getDeployHandoffBySlug-convex-fallback" });
     }
   }
 
@@ -1140,12 +2120,15 @@ export async function getDeployHandoffBySlug(slug: string): Promise<DeployHandof
 export async function listDeployHandoffs(): Promise<DeployHandoff[]> {
   if (convexClient) {
     try {
-      return (await convexClient.query(api.deployHandoffs.list)) as DeployHandoff[];
+      return (await convexClient.query(api.deployHandoffs.list, {
+        apiSecret: convexApiSecret,
+      })) as DeployHandoff[];
     } catch (e) {
       console.warn(
         "Failed to list deploy handoffs from Convex, falling back to SQLite database",
         e,
       );
+      void captureError(e, { component: "db-listDeployHandoffs-convex-fallback" });
     }
   }
 
@@ -1171,6 +2154,7 @@ export async function updateDeployHandoffStatus(
         status,
         extraNotes,
         updatedAt,
+        apiSecret: convexApiSecret,
       })) as DeployHandoff | null;
     } catch (e) {
       if (!shouldFallbackToSqliteOnConvexFailure(true, options)) {
@@ -1180,6 +2164,7 @@ export async function updateDeployHandoffStatus(
         "Failed to update deploy handoff status on Convex, falling back to SQLite database",
         e,
       );
+      void captureError(e, { component: "db-updateDeployHandoffStatus-convex-fallback" });
     }
   }
 
@@ -1192,19 +2177,119 @@ export async function updateDeployHandoffStatus(
   if (!row) return null;
 
   const existing = mapDeployHandoffRow(row);
+  // Never downgrade status on note append (bundle receipt/DNS markers pass a
+  // possibly-stale handoff.status from before Resend). Mirror Convex
+  // deployHandoffs.updateStatus — see preferAdvancedHandoffStatus.
+  const nextStatus = preferAdvancedHandoffStatus(existing.status, status);
   const notes = [...existing.notes, ...extraNotes];
   db.prepare(`
     UPDATE deploy_handoffs
     SET status = ?, notes = ?, updatedAt = ?
     WHERE leadSlug = ?
-  `).run(status, JSON.stringify(notes), updatedAt, leadSlug);
+  `).run(nextStatus, JSON.stringify(notes), updatedAt, leadSlug);
 
   return {
     ...existing,
-    status,
+    status: nextStatus,
     notes,
     updatedAt,
   };
+}
+
+/**
+ * Atomically reserves the buyer receipt / DNS handoff sent-marker note(s)
+ * before resendBundleBuyerEmailAction sends the corresponding email — see
+ * bundle-buyer-email-resend-race-guard-ordering-fix. Callers must pass
+ * requireConvex (DEPLOY_HANDOFF_CONVEX_PRIMARY) and skip the guarded send
+ * entirely on a ConvexPrimaryWriteError or a false reservedX flag, matching
+ * every other reserve-then-send-then-release marker in this file.
+ */
+export async function reserveBundleBuyerEmailNotes(
+  leadSlug: string,
+  stripeSessionId: string,
+  wantReceipt: boolean,
+  wantDns: boolean,
+  options?: ConvexPrimaryWriteOptions,
+): Promise<{ handoff: DeployHandoff; reservedReceipt: boolean; reservedDns: boolean } | null> {
+  const updatedAt = new Date().toISOString();
+
+  if (convexClient) {
+    try {
+      const result = await convexClient.mutation(api.deployHandoffs.reserveBuyerEmailNotes, {
+        leadSlug,
+        stripeSessionId,
+        wantReceipt,
+        wantDns,
+        updatedAt,
+        apiSecret: convexApiSecret,
+      });
+      if (!result) return null;
+      return result as {
+        handoff: DeployHandoff;
+        reservedReceipt: boolean;
+        reservedDns: boolean;
+      };
+    } catch (e) {
+      if (!shouldFallbackToSqliteOnConvexFailure(true, options)) {
+        throw new ConvexPrimaryWriteError("reserveBundleBuyerEmailNotes", e);
+      }
+      console.warn(
+        `Failed to reserve bundle buyer email notes for ${leadSlug} on Convex, falling back to SQLite database`,
+        e,
+      );
+      void captureError(e, { component: "db-reserveBundleBuyerEmailNotes-convex-fallback" });
+    }
+  }
+
+  return sqliteReserveBundleBuyerEmailNotes(
+    getSqliteDb(),
+    leadSlug,
+    stripeSessionId,
+    wantReceipt,
+    wantDns,
+    updatedAt,
+  );
+}
+
+/**
+ * Releases a reservation made by reserveBundleBuyerEmailNotes when the send
+ * it was guarding failed — see bundle-buyer-email-resend-race-guard-ordering-fix.
+ * Best-effort by design at the call site: a failed release leaves the
+ * marker recorded as sent until an operator manually re-checks Resend
+ * delivery status, mirroring clearMarketingPackSentToClient's own
+ * best-effort release contract.
+ */
+export async function releaseBundleBuyerEmailNotes(
+  leadSlug: string,
+  stripeSessionId: string,
+  releaseReceipt: boolean,
+  releaseDns: boolean,
+): Promise<boolean> {
+  if (convexClient) {
+    try {
+      return await convexClient.mutation(api.deployHandoffs.releaseBuyerEmailNotes, {
+        leadSlug,
+        stripeSessionId,
+        releaseReceipt,
+        releaseDns,
+        apiSecret: convexApiSecret,
+      });
+    } catch (e) {
+      console.warn(
+        `Failed to release bundle buyer email notes for ${leadSlug} on Convex, falling back to SQLite`,
+        e,
+      );
+      void captureError(e, { component: "db-releaseBundleBuyerEmailNotes-convex-fallback" });
+    }
+  }
+
+  return sqliteReleaseBundleBuyerEmailNotes(
+    getSqliteDb(),
+    leadSlug,
+    stripeSessionId,
+    releaseReceipt,
+    releaseDns,
+  );
 }
 
 /** Set (or clear) the dedicated Vercel project isolating this client's deploy. */
@@ -1221,6 +2306,7 @@ export async function updateDeployHandoffVercelProject(
         leadSlug,
         vercelProjectId: vercelProjectId ?? "",
         updatedAt,
+        apiSecret: convexApiSecret,
       })) as DeployHandoff | null;
     } catch (e) {
       if (!shouldFallbackToSqliteOnConvexFailure(true, options)) {
@@ -1230,6 +2316,7 @@ export async function updateDeployHandoffVercelProject(
         "Failed to update deploy handoff Vercel project on Convex, falling back to SQLite database",
         e,
       );
+      void captureError(e, { component: "db-updateDeployHandoffVercelProject-convex-fallback" });
     }
   }
 
@@ -1260,16 +2347,31 @@ export async function updateDeployHandoffCustomDomain(
   options?: ConvexPrimaryWriteOptions,
 ): Promise<DeployHandoff | null> {
   const updatedAt = new Date().toISOString();
-  const normalized = customDomain?.trim().toLowerCase() || null;
+  // Bare hostname only (strip scheme/path/port) so stored values match
+  // normalizeRequestHost(Host) and Vercel Domains API — see
+  // normalizeOperatorCustomDomainHost / custom-domain-host-normalize.
+  const normalized = normalizeOperatorCustomDomainHost(customDomain);
 
   if (convexClient) {
     try {
-      return (await convexClient.mutation(api.deployHandoffs.updateCustomDomain, {
+      const result = await convexClient.mutation(api.deployHandoffs.updateCustomDomain, {
         leadSlug,
         customDomain: normalized ?? "",
         updatedAt,
-      })) as DeployHandoff | null;
+        apiSecret: convexApiSecret,
+      });
+      // Conflict sentinel from the mutation's own atomic re-check — not a
+      // Convex/network failure, so never fall back to SQLite here (that
+      // would recreate the exact split-brain the re-check exists to
+      // prevent). Always propagate regardless of requireConvex.
+      if (result && typeof result === "object" && "conflict" in result) {
+        throw new CustomDomainConflictError((result as { ownerSlug: string }).ownerSlug);
+      }
+      return result as DeployHandoff | null;
     } catch (e) {
+      if (e instanceof CustomDomainConflictError) {
+        throw e;
+      }
       if (!shouldFallbackToSqliteOnConvexFailure(true, options)) {
         throw new ConvexPrimaryWriteError("updateDeployHandoffCustomDomain", e);
       }
@@ -1277,57 +2379,61 @@ export async function updateDeployHandoffCustomDomain(
         "Failed to update deploy handoff custom domain on Convex, falling back to SQLite database",
         e,
       );
+      void captureError(e, { component: "db-updateDeployHandoffCustomDomain-convex-fallback" });
     }
   }
 
   const db = getSqliteDb();
-  const row = db
-    .prepare("SELECT * FROM deploy_handoffs WHERE leadSlug = ?")
-    .get(leadSlug) as SqliteDeployHandoffRow | undefined;
-  if (!row) return null;
-
-  const existing = mapDeployHandoffRow(row);
-  db.prepare(`
-    UPDATE deploy_handoffs
-    SET customDomain = ?, updatedAt = ?
-    WHERE leadSlug = ?
-  `).run(normalized, updatedAt, leadSlug);
-
-  return {
-    ...existing,
-    customDomain: normalized || undefined,
-    updatedAt,
-  };
+  return sqliteUpdateDeployHandoffCustomDomain(db, leadSlug, normalized, updatedAt);
 }
 
 /**
  * Host-based routing lookup (proxy.ts) — given an inbound request Host
  * header, find which lead's preview to serve. Returns null for hosts with
  * no matching handoff (caller falls through to normal routing).
+ *
+ * Tries www↔apex aliases (exact first) so Save www.client.com still matches
+ * Host client.com and uniqueness rejects the twin on another lead
+ * (custom-domain-www-apex-alias).
  */
 export async function getLeadSlugByCustomDomain(customDomain: string): Promise<string | null> {
-  const normalized = customDomain.trim().toLowerCase();
+  // Same bare-host normalize as write path so a mis-pasted lookup still matches.
+  const normalized = normalizeOperatorCustomDomainHost(customDomain);
   if (!normalized) return null;
+  // Read-path twin of Save domain: reject over-long / implausible hosts before
+  // Convex/SQLite work (proxy-host-lookup-field-length-cap). Spoofed Host is
+  // not DNS-bounded; write path already uses isPlausibleCustomDomainHost.
+  if (!isPlausibleCustomDomainHost(normalized)) return null;
+
+  const aliases = customDomainHostAliases(normalized);
 
   if (convexClient) {
     try {
-      const result = (await convexClient.query(api.deployHandoffs.getByCustomDomain, {
-        customDomain: normalized,
-      })) as { leadSlug: string } | null;
-      return result?.leadSlug ?? null;
+      for (const alias of aliases) {
+        const result = (await convexClient.query(api.deployHandoffs.getByCustomDomain, {
+          customDomain: alias,
+          apiSecret: convexApiSecret,
+        })) as { leadSlug: string } | null;
+        if (result?.leadSlug) return result.leadSlug;
+      }
+      return null;
     } catch (e) {
       console.warn(
         "Failed to look up deploy handoff by custom domain on Convex, falling back to SQLite database",
         e,
       );
+      void captureError(e, { component: "db-getLeadSlugByCustomDomain-convex-fallback" });
     }
   }
 
   const db = getSqliteDb();
-  const row = db
-    .prepare("SELECT leadSlug FROM deploy_handoffs WHERE customDomain = ? LIMIT 1")
-    .get(normalized) as { leadSlug: string } | undefined;
-  return row?.leadSlug ?? null;
+  for (const alias of aliases) {
+    const row = db
+      .prepare("SELECT leadSlug FROM deploy_handoffs WHERE customDomain = ? LIMIT 1")
+      .get(alias) as { leadSlug: string } | undefined;
+    if (row?.leadSlug) return row.leadSlug;
+  }
+  return null;
 }
 
 // --- Client inquiries (contact form CRM) ---
@@ -1337,16 +2443,26 @@ export async function insertClientInquiry(
   options?: ConvexPrimaryWriteOptions,
 ): Promise<ClientInquiry> {
   const now = new Date().toISOString();
-  const inquiry: ClientInquiry = {
-    id: `inq_${input.leadSlug}_${Date.now()}`,
-    leadSlug: input.leadSlug,
-    businessName: input.businessName,
+  // Defense in depth: same soft-caps the contact route applies before notify
+  // (contact-form-notify-field-length-caps). Webhook commerce_checkout inquiries
+  // and any future writer share these bounds.
+  const capped = normalizeContactFormFields({
     name: input.name,
     email: input.email,
     phone: input.phone,
-    message: input.message.slice(0, 5000),
-    status: "new",
+    message: input.message,
     source: input.source,
+  });
+  const inquiry: ClientInquiry = {
+    id: newClientInquiryId(input.leadSlug),
+    leadSlug: input.leadSlug,
+    businessName: input.businessName,
+    name: capped.name || undefined,
+    email: capped.email || undefined,
+    phone: capped.phone || undefined,
+    message: capped.message,
+    status: "new",
+    source: capped.source || undefined,
     createdAt: now,
     updatedAt: now,
   };
@@ -1362,6 +2478,7 @@ export async function insertClientInquiry(
         phone: inquiry.phone,
         message: inquiry.message,
         source: inquiry.source,
+        apiSecret: convexApiSecret,
       });
       return inquiry;
     } catch (e) {
@@ -1369,6 +2486,7 @@ export async function insertClientInquiry(
         throw new ConvexPrimaryWriteError("insertClientInquiry", e);
       }
       console.warn("Failed to insert client inquiry on Convex, falling back to SQLite", e);
+      void captureError(e, { component: "db-insertClientInquiry-convex-fallback" });
     }
   }
 
@@ -1401,9 +2519,11 @@ export async function listClientInquiries(limit = 100): Promise<ClientInquiry[]>
     try {
       return (await convexClient.query(api.inquiries.list, {
         limit: safeLimit,
+        apiSecret: convexApiSecret,
       })) as ClientInquiry[];
     } catch (e) {
       console.warn("Failed to list client inquiries from Convex, falling back to SQLite", e);
+      void captureError(e, { component: "db-listClientInquiries-convex-fallback" });
     }
   }
 
@@ -1426,12 +2546,15 @@ export async function listClientInquiries(limit = 100): Promise<ClientInquiry[]>
 export async function listUnrepliedInquiries(): Promise<ClientInquiry[]> {
   if (convexClient) {
     try {
-      return (await convexClient.query(api.inquiries.listUnreplied, {})) as ClientInquiry[];
+      return (await convexClient.query(api.inquiries.listUnreplied, {
+        apiSecret: convexApiSecret,
+      })) as ClientInquiry[];
     } catch (e) {
       console.warn(
         "Failed to list unreplied client inquiries from Convex, falling back to SQLite",
         e,
       );
+      void captureError(e, { component: "db-listUnrepliedInquiries-convex-fallback" });
     }
   }
 
@@ -1455,12 +2578,14 @@ export async function listClientInquiriesBySlug(
       return (await convexClient.query(api.inquiries.listBySlug, {
         leadSlug,
         limit: safeLimit,
+        apiSecret: convexApiSecret,
       })) as ClientInquiry[];
     } catch (e) {
       console.warn(
         `Failed to list client inquiries for ${leadSlug} from Convex, falling back to SQLite`,
         e,
       );
+      void captureError(e, { component: "db-listClientInquiriesBySlug-convex-fallback" });
     }
   }
 
@@ -1488,13 +2613,14 @@ export async function listCommerceCheckoutInquiriesBySlug(
     try {
       return (await convexClient.query(
         api.inquiries.listCommerceCheckoutBySlug,
-        { leadSlug },
+        { leadSlug, apiSecret: convexApiSecret },
       )) as ClientInquiry[];
     } catch (e) {
       console.warn(
         `Failed to list commerce_checkout inquiries for ${leadSlug} from Convex, falling back to SQLite`,
         e,
       );
+      void captureError(e, { component: "db-listCommerceCheckoutInquiriesBySlug-convex-fallback" });
     }
   }
 
@@ -1526,6 +2652,7 @@ export async function updateClientInquiryStatus(
       const updated = (await convexClient.mutation(api.inquiries.updateStatus, {
         inquiryId,
         status,
+        apiSecret: convexApiSecret,
       })) as ClientInquiry | null;
       if (updated) return updated;
       // Shared store is authoritative when requireConvex — do not invent from SQLite.
@@ -1540,6 +2667,7 @@ export async function updateClientInquiryStatus(
         `Failed to update inquiry ${inquiryId} on Convex, falling back to SQLite`,
         e,
       );
+      void captureError(e, { component: "db-updateClientInquiryStatus-convex-fallback" });
     }
   }
 
@@ -1562,15 +2690,24 @@ export async function getClientInquiryById(
 ): Promise<ClientInquiry | null> {
   if (convexClient) {
     try {
-      const inquiry = (await convexClient.query(api.inquiries.getById, {
+      // Convex is authoritative once configured — return its answer directly
+      // (including a legitimate null "not found"), matching every other
+      // get-by-id/slug reader in this file (getLeadBySlug,
+      // getDeployHandoffBySlug, getCommerceCatalog, etc.). Only a thrown
+      // Convex error (network/query failure, caught below) falls through to
+      // SQLite; a clean null must never be reinterpreted as "go check
+      // SQLite instead", or a stale/orphaned SQLite row sharing this id
+      // would be served as if it were the live record.
+      return (await convexClient.query(api.inquiries.getById, {
         inquiryId,
+        apiSecret: convexApiSecret,
       })) as ClientInquiry | null;
-      if (inquiry) return inquiry;
     } catch (e) {
       console.warn(
         `Failed to get inquiry ${inquiryId} from Convex, falling back to SQLite`,
         e,
       );
+      void captureError(e, { component: "db-getClientInquiryById-convex-fallback" });
     }
   }
 
@@ -1587,10 +2724,26 @@ export async function getClientInquiryById(
  * replyToInquiryAction so a Convex mutation failure does not silently leave
  * the replied mark only in instance-local SQLite while unrepliedInquiryCount
  * reads Convex-first (duplicate-reply risk). Callers must mark BEFORE Resend.
+ *
+ * Re-checks status !== "archived" atomically against the row it just read,
+ * mirroring convex/inquiries.ts recordReply — replyToInquiryAction's
+ * inquiryCanReceiveReply gate runs against a stale read from moments earlier
+ * and a concurrent archive can land in that window (see
+ * inquiry-reply-archive-race-guard). Returns null on that race the same way
+ * it already does for a missing row.
+ *
+ * expectedReplySentCount is a second, independent CAS guard (mirroring
+ * recordStarterUpsellSent) — the caller passes the count it last read, and
+ * the write only applies when the row's current count still matches, so a
+ * later, deliberate follow-up reply always succeeds and only an exact
+ * concurrent duplicate (same stale expected count — a second dashboard tab,
+ * or a double-click before the button's isPending-disabled state applies)
+ * is rejected. See inquiry-reply-send-race-guard.
  */
 export async function recordClientInquiryReply(
   inquiryId: string,
   operatorReply: string,
+  expectedReplySentCount: number,
   options?: ConvexPrimaryWriteOptions,
 ): Promise<ClientInquiry | null> {
   if (convexClient) {
@@ -1598,6 +2751,8 @@ export async function recordClientInquiryReply(
       const updated = (await convexClient.mutation(api.inquiries.recordReply, {
         inquiryId,
         operatorReply,
+        expectedReplySentCount,
+        apiSecret: convexApiSecret,
       })) as ClientInquiry | null;
       if (updated) return updated;
       // Shared store is authoritative when requireConvex — do not invent from SQLite.
@@ -1612,29 +2767,16 @@ export async function recordClientInquiryReply(
         `Failed to record inquiry reply ${inquiryId} on Convex, falling back to SQLite`,
         e,
       );
+      void captureError(e, { component: "db-recordClientInquiryReply-convex-fallback" });
     }
   }
 
-  const db = getSqliteDb();
-  const existing = db
-    .prepare("SELECT * FROM client_inquiries WHERE id = ?")
-    .get(inquiryId) as SqliteClientInquiryRow | undefined;
-  if (!existing) return null;
-
-  const now = new Date().toISOString();
-  db.prepare(
-    `UPDATE client_inquiries
-     SET status = ?, operatorReply = ?, repliedAt = ?, updatedAt = ?
-     WHERE id = ?`,
-  ).run("replied", operatorReply, now, now, inquiryId);
-
-  return mapClientInquiryRow({
-    ...existing,
-    status: "replied",
+  return sqliteRecordClientInquiryReply(
+    getSqliteDb(),
+    inquiryId,
     operatorReply,
-    repliedAt: now,
-    updatedAt: now,
-  });
+    expectedReplySentCount,
+  );
 }
 
 // --- Checkout sessions (abandoned-checkout recovery, Phase 3) ---
@@ -1656,6 +2798,7 @@ export async function recordCheckoutSessionCreated(
     customerEmail?: string;
     kind?: "bundle" | "commerce_sku";
     skuId?: string;
+    billingInterval?: "monthly" | "annual";
   },
   options?: ConvexPrimaryWriteOptions,
 ): Promise<void> {
@@ -1668,6 +2811,7 @@ export async function recordCheckoutSessionCreated(
         ...params,
         kind,
         createdAt,
+        apiSecret: convexApiSecret,
       });
       return;
     } catch (e) {
@@ -1678,16 +2822,17 @@ export async function recordCheckoutSessionCreated(
         `Failed to record checkout session ${params.stripeSessionId} on Convex, falling back to SQLite`,
         e,
       );
+      void captureError(e, { component: "db-recordCheckoutSessionCreated-convex-fallback" });
     }
   }
 
   const db = getSqliteDb();
   db.prepare(`
-    INSERT INTO checkout_sessions (id, leadSlug, stripeSessionId, tier, commerceAddon, customerEmail, status, createdAt, kind, skuId)
-    VALUES (?, ?, ?, ?, ?, ?, 'open', ?, ?, ?)
+    INSERT INTO checkout_sessions (id, leadSlug, stripeSessionId, tier, commerceAddon, customerEmail, status, createdAt, kind, skuId, billingInterval)
+    VALUES (?, ?, ?, ?, ?, ?, 'open', ?, ?, ?, ?)
     ON CONFLICT(stripeSessionId) DO NOTHING
   `).run(
-    `chk_${Date.now()}`,
+    newCheckoutSessionId(),
     params.leadSlug,
     params.stripeSessionId,
     params.tier,
@@ -1696,6 +2841,7 @@ export async function recordCheckoutSessionCreated(
     createdAt,
     kind,
     params.skuId ?? null,
+    params.billingInterval ?? null,
   );
 }
 
@@ -1713,7 +2859,10 @@ export async function markCheckoutSessionComplete(
 ): Promise<void> {
   if (convexClient) {
     try {
-      await convexClient.mutation(api.checkoutSessions.markComplete, { stripeSessionId });
+      await convexClient.mutation(api.checkoutSessions.markComplete, {
+        stripeSessionId,
+        apiSecret: convexApiSecret,
+      });
       return;
     } catch (e) {
       if (!shouldFallbackToSqliteOnConvexFailure(true, options)) {
@@ -1723,6 +2872,7 @@ export async function markCheckoutSessionComplete(
         `Failed to mark checkout session ${stripeSessionId} complete on Convex, falling back to SQLite`,
         e,
       );
+      void captureError(e, { component: "db-markCheckoutSessionComplete-convex-fallback" });
     }
   }
 
@@ -1732,19 +2882,196 @@ export async function markCheckoutSessionComplete(
   );
 }
 
-/** Records that an operator sent an abandoned-checkout recovery email for this session. */
-export async function recordCheckoutRecoverySent(
+/**
+ * Re-opens a checkout session after checkout.session.async_payment_failed.
+ * Unpaid completed marks the row complete (stop abandoned-recovery while ACH
+ * clears); a failed async payment must reopen so Finish-checkout / Buy now
+ * recovery can nudge a retry (recovery emails link to /checkout?slug= or
+ * preview#catalog — not the terminal Stripe Session). Pass
+ * { requireConvex: true } (the webhook does) so a Convex failure does not
+ * silently leave the session "complete" only in instance-local SQLite while
+ * Convex-first readers never see it as open again.
+ */
+export async function markCheckoutSessionOpen(
   stripeSessionId: string,
-  sentAt: string = new Date().toISOString(),
   options?: ConvexPrimaryWriteOptions,
 ): Promise<void> {
   if (convexClient) {
     try {
-      await convexClient.mutation(api.checkoutSessions.recordRecoverySent, {
+      await convexClient.mutation(api.checkoutSessions.markOpen, {
         stripeSessionId,
-        sentAt,
+        apiSecret: convexApiSecret,
       });
       return;
+    } catch (e) {
+      if (!shouldFallbackToSqliteOnConvexFailure(true, options)) {
+        throw new ConvexPrimaryWriteError("markCheckoutSessionOpen", e);
+      }
+      console.warn(
+        `Failed to reopen checkout session ${stripeSessionId} on Convex, falling back to SQLite`,
+        e,
+      );
+      void captureError(e, { component: "db-markCheckoutSessionOpen-convex-fallback" });
+    }
+  }
+
+  const db = getSqliteDb();
+  db.prepare("UPDATE checkout_sessions SET status = 'open' WHERE stripeSessionId = ?").run(
+    stripeSessionId,
+  );
+}
+
+/**
+ * After a paid bundle Checkout Session, mark other open bundle rows for the
+ * same leadSlug complete so Finish-checkout / digest / pipeline-health cannot
+ * nudge an already-paid customer. Never touches commerce_sku (multi-shopper).
+ * Pass { requireConvex: true } (the webhook does) so a Convex failure does not
+ * silently leave orphans open only in Convex while this instance's SQLite
+ * looks clean.
+ */
+export async function markCompleteOpenBundleCheckoutSessionsForLead(
+  leadSlug: string,
+  exceptStripeSessionId: string,
+  options?: ConvexPrimaryWriteOptions,
+): Promise<number> {
+  if (convexClient) {
+    try {
+      return (await convexClient.mutation(api.checkoutSessions.markCompleteOpenBundleForLead, {
+        leadSlug,
+        exceptStripeSessionId,
+        apiSecret: convexApiSecret,
+      })) as number;
+    } catch (e) {
+      if (!shouldFallbackToSqliteOnConvexFailure(true, options)) {
+        throw new ConvexPrimaryWriteError("markCompleteOpenBundleCheckoutSessionsForLead", e);
+      }
+      console.warn(
+        `Failed to close orphan open bundle checkout sessions for ${leadSlug} on Convex, falling back to SQLite`,
+        e,
+      );
+      void captureError(e, { component: "db-markCompleteOpenBundleCheckoutSessionsForLead-convex-fallback" });
+    }
+  }
+
+  const db = getSqliteDb();
+  const result = db
+    .prepare(
+      `UPDATE checkout_sessions
+       SET status = 'complete'
+       WHERE leadSlug = ?
+         AND status = 'open'
+         AND stripeSessionId != ?
+         AND (kind IS NULL OR kind = '' OR kind = 'bundle')`,
+    )
+    .run(leadSlug, exceptStripeSessionId);
+  return Number(result.changes ?? 0);
+}
+
+/**
+ * After a paid commerce_sku Checkout Session, mark other open commerce_sku
+ * rows for the same leadSlug + skuId + customerEmail complete so Buy now
+ * recovery / digest / pipeline-health cannot nudge the same shopper after
+ * they pay. Never closes when customerEmail is blank (multi-shopper). Email
+ * match is trim + lowercase on both sides. Pass { requireConvex: true } (the
+ * webhook does) so a Convex failure does not silently leave orphans open
+ * only in Convex while this instance's SQLite looks clean.
+ */
+export async function markCompleteOpenCommerceCheckoutSessionsForLeadSkuCustomer(
+  leadSlug: string,
+  skuId: string,
+  customerEmail: string,
+  exceptStripeSessionId: string,
+  options?: ConvexPrimaryWriteOptions,
+): Promise<number> {
+  const email = customerEmail.trim().toLowerCase();
+  const normalizedSkuId = skuId.trim();
+  if (!email || !normalizedSkuId || !leadSlug.trim() || !exceptStripeSessionId.trim()) {
+    return 0;
+  }
+
+  if (convexClient) {
+    try {
+      return (await convexClient.mutation(
+        api.checkoutSessions.markCompleteOpenCommerceForLeadSkuCustomer,
+        {
+          leadSlug,
+          skuId: normalizedSkuId,
+          customerEmail: email,
+          exceptStripeSessionId,
+          apiSecret: convexApiSecret,
+        },
+      )) as number;
+    } catch (e) {
+      if (!shouldFallbackToSqliteOnConvexFailure(true, options)) {
+        throw new ConvexPrimaryWriteError(
+          "markCompleteOpenCommerceCheckoutSessionsForLeadSkuCustomer",
+          e,
+        );
+      }
+      console.warn(
+        `Failed to close orphan open commerce checkout sessions for ${leadSlug}/${normalizedSkuId} on Convex, falling back to SQLite`,
+        e,
+      );
+      void captureError(e, { component: "db-markCompleteOpenCommerceCheckoutSessionsForLeadSkuCustomer-convex-fallback" });
+    }
+  }
+
+  const db = getSqliteDb();
+  // SQLite LOWER(TRIM(...)) mirrors Convex trim+lowercase; skip blank emails.
+  const result = db
+    .prepare(
+      `UPDATE checkout_sessions
+       SET status = 'complete'
+       WHERE leadSlug = ?
+         AND status = 'open'
+         AND stripeSessionId != ?
+         AND kind = 'commerce_sku'
+         AND skuId = ?
+         AND customerEmail IS NOT NULL
+         AND TRIM(customerEmail) != ''
+         AND LOWER(TRIM(customerEmail)) = ?`,
+    )
+    .run(leadSlug, exceptStripeSessionId, normalizedSkuId, email);
+  return Number(result.changes ?? 0);
+}
+
+/** Records that an operator sent an abandoned-checkout recovery email for this session. */
+/**
+ * Returns false (no write) when the session is missing or is no longer
+ * "open" at write time — never trusts the caller's earlier
+ * listOpenCheckoutSessions() snapshot alone. A concurrent Stripe webhook can
+ * complete the same session between that read and this call (a real payment
+ * landing), and the calling action must skip sending a "finish your
+ * purchase" recovery email once this returns false
+ * (checkout-session-recovery-race-guard).
+ *
+ * expectedRecoverySentCount is the caller's own pre-write recoverySentCount
+ * snapshot (the same value used to pick the recovery-email-escalating-cadence
+ * nudge tier) — both backends apply the write only when the row's CURRENT
+ * count still matches it. This closes a second, distinct race the status
+ * check above does not: two concurrent calls for the same still-open session
+ * (two dashboard tabs, or a click landing before the button's
+ * isPending-disabled state takes effect) both read the identical stale
+ * snapshot, so without this guard both would pass the status check and both
+ * send a real duplicate email to the customer with identical, stale
+ * nudge-tier copy. Only the write that "wins" applies; the loser returns
+ * false so the caller can report a duplicate-send message instead of
+ * emailing twice (checkout-recovery-send-race-guard).
+ */
+export async function recordCheckoutRecoverySent(
+  stripeSessionId: string,
+  sentAt: string,
+  expectedRecoverySentCount: number,
+  options?: ConvexPrimaryWriteOptions,
+): Promise<boolean> {
+  if (convexClient) {
+    try {
+      return await convexClient.mutation(api.checkoutSessions.recordRecoverySent, {
+        stripeSessionId,
+        sentAt,
+        expectedRecoverySentCount,
+        apiSecret: convexApiSecret,
+      });
     } catch (e) {
       if (!shouldFallbackToSqliteOnConvexFailure(true, options)) {
         throw new ConvexPrimaryWriteError("recordCheckoutRecoverySent", e);
@@ -1753,13 +3080,15 @@ export async function recordCheckoutRecoverySent(
         `Failed to record recovery send for ${stripeSessionId} on Convex, falling back to SQLite`,
         e,
       );
+      void captureError(e, { component: "db-recordCheckoutRecoverySent-convex-fallback" });
     }
   }
 
-  const db = getSqliteDb();
-  db.prepare("UPDATE checkout_sessions SET recoverySentAt = ? WHERE stripeSessionId = ?").run(
-    sentAt,
+  return sqliteRecordCheckoutRecoverySent(
+    getSqliteDb(),
     stripeSessionId,
+    sentAt,
+    expectedRecoverySentCount,
   );
 }
 
@@ -1767,12 +3096,15 @@ export async function recordCheckoutRecoverySent(
 export async function listOpenCheckoutSessions(): Promise<CheckoutSessionRecord[]> {
   if (convexClient) {
     try {
-      return (await convexClient.query(api.checkoutSessions.listOpen)) as CheckoutSessionRecord[];
+      return (await convexClient.query(api.checkoutSessions.listOpen, {
+        apiSecret: convexApiSecret,
+      })) as CheckoutSessionRecord[];
     } catch (e) {
       console.warn(
         "Failed to list open checkout sessions from Convex, falling back to SQLite",
         e,
       );
+      void captureError(e, { component: "db-listOpenCheckoutSessions-convex-fallback" });
     }
   }
 
@@ -1809,6 +3141,7 @@ export async function upsertMarketingPack(
         generatedAt: pack.generatedAt,
         generator: pack.generator,
         packageTier: pack.packageTier,
+        apiSecret: convexApiSecret,
       });
       return pack;
     } catch (e) {
@@ -1819,10 +3152,13 @@ export async function upsertMarketingPack(
         `Failed to upsert marketing pack for ${pack.leadSlug} on Convex, falling back to SQLite`,
         e,
       );
+      void captureError(e, { component: "db-upsertMarketingPack-convex-fallback" });
     }
   }
 
   const db = getSqliteDb();
+  // Regenerating always clears sentToClientAt on the ON CONFLICT branch — new
+  // pack content has not yet been sent (marketing-voice-pack-client-send-visibility).
   db.prepare(`
     INSERT INTO marketing_packs (
       id, leadSlug, yearMonth, variantsJson, generatedAt, generator, packageTier
@@ -1832,7 +3168,8 @@ export async function upsertMarketingPack(
       variantsJson = excluded.variantsJson,
       generatedAt = excluded.generatedAt,
       generator = excluded.generator,
-      packageTier = excluded.packageTier
+      packageTier = excluded.packageTier,
+      sentToClientAt = NULL
   `).run(
     pack.id,
     pack.leadSlug,
@@ -1852,15 +3189,20 @@ export async function getMarketingPack(
 ): Promise<MarketingPack | null> {
   if (convexClient) {
     try {
-      return (await convexClient.query(api.marketingPacks.getByLeadMonth, {
+      const pack = (await convexClient.query(api.marketingPacks.getByLeadMonth, {
         leadSlug,
         yearMonth,
+        apiSecret: convexApiSecret,
       })) as MarketingPack | null;
+      // Convex-primary reads bypass parsePackVariants — soft-cap here so Email
+      // pack + dashboard cannot emit pre-generate-cap rows.
+      return pack ? softCapMarketingPack(pack) : null;
     } catch (e) {
       console.warn(
         `Failed to get marketing pack for ${leadSlug} from Convex, falling back to SQLite`,
         e,
       );
+      void captureError(e, { component: "db-getMarketingPack-convex-fallback" });
     }
   }
 
@@ -1885,14 +3227,17 @@ export async function listMarketingPacksForMonth(
 
   if (convexClient) {
     try {
-      return (await convexClient.query(api.marketingPacks.listByMonth, {
+      const packs = (await convexClient.query(api.marketingPacks.listByMonth, {
         yearMonth,
+        apiSecret: convexApiSecret,
       })) as MarketingPack[];
+      return packs.map(softCapMarketingPack);
     } catch (e) {
       console.warn(
         "Failed to list marketing packs from Convex, falling back to SQLite",
         e,
       );
+      void captureError(e, { component: "db-listMarketingPacksForMonth-convex-fallback" });
     }
   }
 
@@ -1903,6 +3248,99 @@ export async function listMarketingPacksForMonth(
     )
     .all(yearMonth) as unknown as SqliteMarketingPackRow[];
   return rows.map(mapMarketingPackRow);
+}
+
+/**
+ * Durable sent-marker after sendMarketingPackToClientEmail resolves
+ * { success: true } in sendMarketingPackToClientAction. Keyed on
+ * leadSlug+yearMonth (matches the pack's own uniqueness). Returns whether the
+ * row was actually marked (re-checks sentToClientAt unset atomically with the
+ * write, matching markCommerceOrderClientReceiptSent's race guard) — see
+ * marketing-voice-pack-client-send-visibility. expectedGeneratedAt must be
+ * the generatedAt of the pack version the caller actually read and is about
+ * to email — the reservation also fails (returns false, no write) if a
+ * concurrent regenerate has since replaced that version, closing the window
+ * where a stale send could land while this marker stamps the NEW pack as
+ * delivered (see marketing-voice-pack-send-stale-content-race-guard).
+ */
+export async function markMarketingPackSentToClient(
+  leadSlug: string,
+  yearMonth: string,
+  expectedGeneratedAt: string,
+  sentToClientAt: string = new Date().toISOString(),
+  options?: ConvexPrimaryWriteOptions,
+): Promise<boolean> {
+  if (convexClient) {
+    try {
+      return await convexClient.mutation(api.marketingPacks.markSentToClient, {
+        leadSlug,
+        yearMonth,
+        expectedGeneratedAt,
+        sentToClientAt,
+        apiSecret: convexApiSecret,
+      });
+    } catch (e) {
+      if (!shouldFallbackToSqliteOnConvexFailure(true, options)) {
+        throw new ConvexPrimaryWriteError("markMarketingPackSentToClient", e);
+      }
+      console.warn(
+        `Failed to mark marketing pack sent to client for ${leadSlug} on Convex, falling back to SQLite`,
+        e,
+      );
+      void captureError(e, { component: "db-markMarketingPackSentToClient-convex-fallback" });
+    }
+  }
+
+  return sqliteMarkMarketingPackSentToClient(
+    getSqliteDb(),
+    leadSlug,
+    yearMonth,
+    expectedGeneratedAt,
+    sentToClientAt,
+  );
+}
+
+/**
+ * Releases a reservation made by markMarketingPackSentToClient when the send
+ * it was guarding failed — see
+ * marketing-voice-pack-client-send-race-guard-ordering-fix. Best-effort by
+ * design at the call site (a failed release leaves the pack showing as sent
+ * even though it wasn't; regenerating the pack is the documented manual
+ * recovery, since upsertMarketingPack always clears sentToClientAt). Not
+ * requireConvex-gated: a caller in this situation already knows the send
+ * failed and is trying to clean up, not trying to prove a durable state
+ * change succeeded — silently leaving SQLite unreleased on a Convex-primary
+ * outage is an acceptable degraded fallback here, unlike the reservation
+ * write itself.
+ */
+export async function clearMarketingPackSentToClient(
+  leadSlug: string,
+  yearMonth: string,
+  expectedSentToClientAt: string,
+): Promise<boolean> {
+  if (convexClient) {
+    try {
+      return await convexClient.mutation(api.marketingPacks.clearSentToClient, {
+        leadSlug,
+        yearMonth,
+        expectedSentToClientAt,
+        apiSecret: convexApiSecret,
+      });
+    } catch (e) {
+      console.warn(
+        `Failed to clear marketing pack sent-to-client marker for ${leadSlug} on Convex, falling back to SQLite`,
+        e,
+      );
+      void captureError(e, { component: "db-clearMarketingPackSentToClient-convex-fallback" });
+    }
+  }
+
+  return sqliteClearMarketingPackSentToClient(
+    getSqliteDb(),
+    leadSlug,
+    yearMonth,
+    expectedSentToClientAt,
+  );
 }
 
 // --- Commerce catalogs (≤50 SKUs for commerceAddon leads) ---
@@ -1931,6 +3369,7 @@ export async function upsertCommerceCatalog(
         leadSlug: catalog.leadSlug,
         items: catalog.items,
         updatedAt: catalog.updatedAt,
+        apiSecret: convexApiSecret,
       });
       return catalog;
     } catch (e) {
@@ -1941,6 +3380,7 @@ export async function upsertCommerceCatalog(
         `Failed to upsert commerce catalog for ${catalog.leadSlug} on Convex, falling back to SQLite`,
         e,
       );
+      void captureError(e, { component: "db-upsertCommerceCatalog-convex-fallback" });
     }
   }
 
@@ -1963,12 +3403,14 @@ export async function getCommerceCatalog(
     try {
       return (await convexClient.query(api.commerceCatalogs.getByLeadSlug, {
         leadSlug,
+        apiSecret: convexApiSecret,
       })) as CommerceCatalog | null;
     } catch (e) {
       console.warn(
         `Failed to get commerce catalog for ${leadSlug} from Convex, falling back to SQLite`,
         e,
       );
+      void captureError(e, { component: "db-getCommerceCatalog-convex-fallback" });
     }
   }
 
@@ -1995,13 +3437,14 @@ export async function listCommerceCatalogs(
     try {
       return (await convexClient.query(
         api.commerceCatalogs.list,
-        {},
+        { apiSecret: convexApiSecret },
       )) as CommerceCatalog[];
     } catch (e) {
       console.warn(
         "Failed to list commerce catalogs from Convex, falling back to SQLite",
         e,
       );
+      void captureError(e, { component: "db-listCommerceCatalogs-convex-fallback" });
     }
   }
 
@@ -2038,6 +3481,7 @@ export async function insertCommerceOrder(
         ...input,
         orderId: id,
         createdAt,
+        apiSecret: convexApiSecret,
       });
       // Convex insert returns null when by_stripeSessionId already exists.
       return { alreadyRecorded: result === null };
@@ -2049,6 +3493,7 @@ export async function insertCommerceOrder(
         "Failed to insert commerce order on Convex, falling back to SQLite",
         e,
       );
+      void captureError(e, { component: "db-insertCommerceOrder-convex-fallback" });
     }
   }
 
@@ -2062,8 +3507,8 @@ export async function insertCommerceOrder(
 
   db.prepare(
     `INSERT OR IGNORE INTO commerce_orders (
-      id, leadSlug, skuId, skuName, amountPaidUsd, stripeSessionId, createdAt
-    ) VALUES (?, ?, ?, ?, ?, ?, ?)`,
+      id, leadSlug, skuId, skuName, amountPaidUsd, stripeSessionId, createdAt, quantity, customerEmail
+    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
   ).run(
     id,
     input.leadSlug,
@@ -2072,10 +3517,18 @@ export async function insertCommerceOrder(
     input.amountPaidUsd,
     input.stripeSessionId,
     createdAt,
+    input.quantity ?? null,
+    input.customerEmail ?? null,
   );
   return { alreadyRecorded: false };
 }
 
+/**
+ * Newest-first by app createdAt. convex/commerceOrders.list sorts at the
+ * source; sortCommerceOrdersNewestFirst here stays as belt-and-suspenders so
+ * the Commerce payouts panel cannot regress if a future caller bypasses that
+ * query shape (same pattern as listOrders + sortOrdersNewestFirst).
+ */
 export async function listCommerceOrders(
   limit = 200,
 ): Promise<CommerceOrderRecord[]> {
@@ -2083,14 +3536,17 @@ export async function listCommerceOrders(
 
   if (convexClient) {
     try {
-      return (await convexClient.query(api.commerceOrders.list, {
+      const rows = (await convexClient.query(api.commerceOrders.list, {
         limit: safeLimit,
+        apiSecret: convexApiSecret,
       })) as CommerceOrderRecord[];
+      return sortCommerceOrdersNewestFirst(rows);
     } catch (e) {
       console.warn(
         "Failed to list commerce orders from Convex, falling back to SQLite",
         e,
       );
+      void captureError(e, { component: "db-listCommerceOrders-convex-fallback" });
     }
   }
 
@@ -2107,19 +3563,24 @@ export async function listCommerceOrders(
  * Every unpaid commerce order for manual payout reconciliation / owed totals.
  * Prefer this over listCommerceOrders() for pipeline-health, digest, and the
  * Commerce payouts panel — list()'s newest-page cap undercounts liability.
+ *
+ * Newest-first by app createdAt on both backends (Convex sorts at source;
+ * belt-and-suspenders re-sort here matches listCommerceOrders / listOrders).
  */
 export async function listUnpaidCommerceOrders(): Promise<CommerceOrderRecord[]> {
   if (convexClient) {
     try {
-      return (await convexClient.query(
+      const rows = (await convexClient.query(
         api.commerceOrders.listUnpaid,
-        {},
+        { apiSecret: convexApiSecret },
       )) as CommerceOrderRecord[];
+      return sortCommerceOrdersNewestFirst(rows);
     } catch (e) {
       console.warn(
         "Failed to list unpaid commerce orders from Convex, falling back to SQLite",
         e,
       );
+      void captureError(e, { component: "db-listUnpaidCommerceOrders-convex-fallback" });
     }
   }
 
@@ -2134,6 +3595,119 @@ export async function listUnpaidCommerceOrders(): Promise<CommerceOrderRecord[]>
   return rows.map(mapCommerceOrderRow);
 }
 
+/**
+ * Every refunded commerce order, regardless of paidOutAt — listUnpaidCommerceOrders
+ * drops a row once paidOutAt is set, so a refund landing AFTER payout (clawback
+ * owed from the client) would otherwise be invisible to pipeline-health/digest.
+ * Uncapped for the same reason listUnpaidCommerceOrders is: this is a bounded
+ * operator ledger and completeness beats a truncated recent page (see
+ * commerce-order-refund-clawback-tracking).
+ */
+export async function listCommerceOrdersRefunded(): Promise<CommerceOrderRecord[]> {
+  if (convexClient) {
+    try {
+      const rows = (await convexClient.query(
+        api.commerceOrders.listRefunded,
+        { apiSecret: convexApiSecret },
+      )) as CommerceOrderRecord[];
+      return sortCommerceOrdersNewestFirst(rows);
+    } catch (e) {
+      console.warn(
+        "Failed to list refunded commerce orders from Convex, falling back to SQLite",
+        e,
+      );
+      void captureError(e, { component: "db-listCommerceOrdersRefunded-convex-fallback" });
+    }
+  }
+
+  const db = getSqliteDb();
+  const rows = db
+    .prepare(
+      `SELECT * FROM commerce_orders
+       WHERE refundedAt IS NOT NULL AND refundedAt != ''
+       ORDER BY createdAt DESC`,
+    )
+    .all() as unknown as SqliteCommerceOrderRow[];
+  return rows.map(mapCommerceOrderRow);
+}
+
+/**
+ * Every disputed commerce order, regardless of paidOutAt — same rationale as
+ * listCommerceOrdersRefunded: listUnpaidCommerceOrders drops a row once
+ * paidOutAt is set, so a dispute landing AFTER payout (clawback owed from the
+ * client) would otherwise be invisible to pipeline-health/digest. Uncapped
+ * for the same reason (see commerce-order-dispute-clawback-tracking).
+ */
+export async function listCommerceOrdersDisputed(): Promise<CommerceOrderRecord[]> {
+  if (convexClient) {
+    try {
+      const rows = (await convexClient.query(
+        api.commerceOrders.listDisputed,
+        { apiSecret: convexApiSecret },
+      )) as CommerceOrderRecord[];
+      return sortCommerceOrdersNewestFirst(rows);
+    } catch (e) {
+      console.warn(
+        "Failed to list disputed commerce orders from Convex, falling back to SQLite",
+        e,
+      );
+      void captureError(e, { component: "db-listCommerceOrdersDisputed-convex-fallback" });
+    }
+  }
+
+  const db = getSqliteDb();
+  const rows = db
+    .prepare(
+      `SELECT * FROM commerce_orders
+       WHERE disputedAt IS NOT NULL AND disputedAt != ''
+       ORDER BY createdAt DESC`,
+    )
+    .all() as unknown as SqliteCommerceOrderRow[];
+  return rows.map(mapCommerceOrderRow);
+}
+
+/**
+ * Every commerce order with no client-receipt-sent marker, regardless of
+ * paidOutAt/refundedAt/disputedAt — sendCommerceBuyNowClientReceipt notifies
+ * the local business (the "client") that their storefront sold something; a
+ * permanently-bad email or a sustained Resend outage past Stripe's webhook
+ * retry window leaves clientReceiptEmailSentAt unset forever with nothing
+ * else surfacing the gap. Uncapped for the same reason
+ * listCommerceOrdersRefunded/listCommerceOrdersDisputed are (see
+ * commerce-buy-now-client-receipt-visibility).
+ */
+export async function listCommerceOrdersMissingClientReceipt(): Promise<
+  CommerceOrderRecord[]
+> {
+  if (convexClient) {
+    try {
+      const rows = (await convexClient.query(
+        api.commerceOrders.listMissingClientReceipt,
+        { apiSecret: convexApiSecret },
+      )) as CommerceOrderRecord[];
+      return sortCommerceOrdersNewestFirst(rows);
+    } catch (e) {
+      console.warn(
+        "Failed to list commerce orders missing client receipt from Convex, falling back to SQLite",
+        e,
+      );
+      void captureError(e, {
+        component: "db-listCommerceOrdersMissingClientReceipt-convex-fallback",
+      });
+    }
+  }
+
+  const db = getSqliteDb();
+  const rows = db
+    .prepare(
+      `SELECT * FROM commerce_orders
+       WHERE clientReceiptEmailSentAt IS NULL OR clientReceiptEmailSentAt = ''
+       ORDER BY createdAt DESC`,
+    )
+    .all() as unknown as SqliteCommerceOrderRow[];
+  return rows.map(mapCommerceOrderRow);
+}
+
 /** Single commerce order by Stripe Checkout Session id (Mark paid out lookup). */
 export async function getCommerceOrderByStripeSessionId(
   stripeSessionId: string,
@@ -2142,7 +3716,7 @@ export async function getCommerceOrderByStripeSessionId(
     try {
       const row = (await convexClient.query(
         api.commerceOrders.getByStripeSessionId,
-        { stripeSessionId },
+        { stripeSessionId, apiSecret: convexApiSecret },
       )) as CommerceOrderRecord | null;
       return row;
     } catch (e) {
@@ -2150,6 +3724,7 @@ export async function getCommerceOrderByStripeSessionId(
         `Failed to get commerce order ${stripeSessionId} from Convex, falling back to SQLite`,
         e,
       );
+      void captureError(e, { component: "db-getCommerceOrderByStripeSessionId-convex-fallback" });
     }
   }
 
@@ -2168,19 +3743,32 @@ export async function getCommerceOrderByStripeSessionId(
  * Pass { requireConvex: true } from markCommerceOrderPaidOutAction so a
  * Convex mutation failure surfaces instead of SQLite-only success while
  * Convex-first unpaid owed readers still show the order as owed.
+ *
+ * Returns whether the row was actually marked paid out. The caller
+ * (markCommerceOrderPaidOutAction) already rejects a refunded/disputed/
+ * already-paid-out order based on a row it read moments earlier — but that
+ * earlier read can go stale: an independent Stripe webhook
+ * (charge.refunded / charge.dispute.created) can record a refund or dispute
+ * in the window between that read and this write, since the two are
+ * uncorrelated async deliveries. The UPDATE's WHERE clause (and the Convex
+ * mutation's matching in-handler check) re-verifies refundedAt/disputedAt/
+ * paidOutAt atomically with the write itself, so a race never leaves an
+ * order both paid out AND refunded/disputed — the action-level check alone
+ * cannot guarantee that. See commerce-order-paid-out-refund-race-guard in
+ * /docs/process.
  */
 export async function markCommerceOrderPaidOut(
   stripeSessionId: string,
   paidOutAt: string = new Date().toISOString(),
   options?: ConvexPrimaryWriteOptions,
-): Promise<void> {
+): Promise<boolean> {
   if (convexClient) {
     try {
-      await convexClient.mutation(api.commerceOrders.markPaidOut, {
+      return await convexClient.mutation(api.commerceOrders.markPaidOut, {
         stripeSessionId,
         paidOutAt,
+        apiSecret: convexApiSecret,
       });
-      return;
     } catch (e) {
       if (!shouldFallbackToSqliteOnConvexFailure(true, options)) {
         throw new ConvexPrimaryWriteError("markCommerceOrderPaidOut", e);
@@ -2189,14 +3777,11 @@ export async function markCommerceOrderPaidOut(
         `Failed to mark commerce order ${stripeSessionId} paid out on Convex, falling back to SQLite`,
         e,
       );
+      void captureError(e, { component: "db-markCommerceOrderPaidOut-convex-fallback" });
     }
   }
 
-  const db = getSqliteDb();
-  db.prepare("UPDATE commerce_orders SET paidOutAt = ? WHERE stripeSessionId = ?").run(
-    paidOutAt,
-    stripeSessionId,
-  );
+  return sqliteMarkCommerceOrderPaidOut(getSqliteDb(), stripeSessionId, paidOutAt);
 }
 
 /**
@@ -2207,19 +3792,23 @@ export async function markCommerceOrderPaidOut(
  * Pass { requireConvex: true } from the Stripe webhook so a Convex mutation
  * failure surfaces (5xx → Stripe retry) instead of SQLite-only success while
  * Convex-first getCommerceOrderByStripeSessionId still looks unmarked.
+ *
+ * Returns whether the row was actually marked (re-checks clientReceiptEmailSentAt
+ * IS NULL atomically with the write, matching markCommerceOrderPaidOut's
+ * refunded/disputed/paidOutAt re-check) — see commerce-client-receipt-marker-race-guard.
  */
 export async function markCommerceOrderClientReceiptSent(
   stripeSessionId: string,
   clientReceiptEmailSentAt: string = new Date().toISOString(),
   options?: ConvexPrimaryWriteOptions,
-): Promise<void> {
+): Promise<boolean> {
   if (convexClient) {
     try {
-      await convexClient.mutation(api.commerceOrders.markClientReceiptSent, {
+      return await convexClient.mutation(api.commerceOrders.markClientReceiptSent, {
         stripeSessionId,
         clientReceiptEmailSentAt,
+        apiSecret: convexApiSecret,
       });
-      return;
     } catch (e) {
       if (!shouldFallbackToSqliteOnConvexFailure(true, options)) {
         throw new ConvexPrimaryWriteError("markCommerceOrderClientReceiptSent", e);
@@ -2228,13 +3817,224 @@ export async function markCommerceOrderClientReceiptSent(
         `Failed to mark commerce client receipt sent for ${stripeSessionId} on Convex, falling back to SQLite`,
         e,
       );
+      void captureError(e, { component: "db-markCommerceOrderClientReceiptSent-convex-fallback" });
+    }
+  }
+
+  return sqliteMarkCommerceOrderClientReceiptSent(
+    getSqliteDb(),
+    stripeSessionId,
+    clientReceiptEmailSentAt,
+  );
+}
+
+/**
+ * Releases a reservation made by markCommerceOrderClientReceiptSent when the
+ * send it was guarding failed — used only by
+ * resendCommerceClientReceiptAction's reserve-then-send-then-release
+ * ordering (see commerce-client-receipt-resend-race-guard-ordering-fix,
+ * mirroring clearMarketingPackSentToClient's shape). Best-effort by design
+ * at the call site (a failed release leaves the order showing as sent even
+ * though it wasn't; a future manual resend attempt would report a false
+ * duplicate-send warning until an operator investigates). Not
+ * requireConvex-gated: a caller in this situation already knows the send
+ * failed and is trying to clean up, not trying to prove a durable state
+ * change succeeded. The Stripe webhook never calls this — it deliberately
+ * stays mark-after-send with its own redelivery-recovery path (see
+ * markCommerceOrderClientReceiptSent's doc comment).
+ */
+export async function clearCommerceOrderClientReceiptSent(
+  stripeSessionId: string,
+  expectedClientReceiptEmailSentAt: string,
+): Promise<boolean> {
+  if (convexClient) {
+    try {
+      return await convexClient.mutation(api.commerceOrders.clearClientReceiptSent, {
+        stripeSessionId,
+        expectedClientReceiptEmailSentAt,
+        apiSecret: convexApiSecret,
+      });
+    } catch (e) {
+      console.warn(
+        `Failed to clear commerce order client receipt sent-marker for ${stripeSessionId} on Convex, falling back to SQLite`,
+        e,
+      );
+      void captureError(e, { component: "db-clearCommerceOrderClientReceiptSent-convex-fallback" });
+    }
+  }
+
+  return sqliteClearCommerceOrderClientReceiptSent(
+    getSqliteDb(),
+    stripeSessionId,
+    expectedClientReceiptEmailSentAt,
+  );
+}
+
+/**
+ * Marks a commerce order refunded — called from the Stripe webhook's
+ * charge.refunded handler after it resolves the order's Checkout Session.
+ * Keyed on stripeSessionId (unique, always present), matching markCommerceOrderPaidOut.
+ * Idempotent: a redelivered/duplicate refund event re-applying the same mark is a no-op.
+ *
+ * Pass { requireConvex: true } from the webhook (WEBHOOK_CONVEX_PRIMARY) so a
+ * Convex mutation failure surfaces (5xx → Stripe retry) instead of SQLite-only
+ * success while Convex-first owed/clawback readers on other instances still
+ * show the order as owed and never flag the clawback.
+ */
+export async function markCommerceOrderRefunded(
+  stripeSessionId: string,
+  refundedAt: string = new Date().toISOString(),
+  options?: ConvexPrimaryWriteOptions,
+): Promise<void> {
+  if (convexClient) {
+    try {
+      await convexClient.mutation(api.commerceOrders.markRefunded, {
+        stripeSessionId,
+        refundedAt,
+        apiSecret: convexApiSecret,
+      });
+      return;
+    } catch (e) {
+      if (!shouldFallbackToSqliteOnConvexFailure(true, options)) {
+        throw new ConvexPrimaryWriteError("markCommerceOrderRefunded", e);
+      }
+      console.warn(
+        `Failed to mark commerce order ${stripeSessionId} refunded on Convex, falling back to SQLite`,
+        e,
+      );
+      void captureError(e, { component: "db-markCommerceOrderRefunded-convex-fallback" });
     }
   }
 
   const db = getSqliteDb();
   db.prepare(
-    "UPDATE commerce_orders SET clientReceiptEmailSentAt = ? WHERE stripeSessionId = ?",
-  ).run(clientReceiptEmailSentAt, stripeSessionId);
+    "UPDATE commerce_orders SET refundedAt = ? WHERE stripeSessionId = ? AND (refundedAt IS NULL OR refundedAt = '')",
+  ).run(refundedAt, stripeSessionId);
+}
+
+/**
+ * Clears a commerce order's refundedAt — called from the Stripe webhook's
+ * refund.updated handler when the refund that originally set it
+ * (failed/canceled) never actually completed, so the funds never left the
+ * platform and the order must reopen as owed / eligible for Mark paid out.
+ * Keyed on stripeSessionId, matching markCommerceOrderRefunded. Idempotent: a
+ * redelivered clear on an already-unrefunded row is a no-op.
+ *
+ * Pass { requireConvex: true } from the webhook (WEBHOOK_CONVEX_PRIMARY) so a
+ * Convex mutation failure surfaces (5xx → Stripe retry) instead of SQLite-only
+ * success while Convex-first owed/clawback readers on other instances still
+ * show the order as refunded (and permanently excluded from owed) forever.
+ */
+export async function clearCommerceOrderRefunded(
+  stripeSessionId: string,
+  options?: ConvexPrimaryWriteOptions,
+): Promise<void> {
+  if (convexClient) {
+    try {
+      await convexClient.mutation(api.commerceOrders.clearRefunded, {
+        stripeSessionId,
+        apiSecret: convexApiSecret,
+      });
+      return;
+    } catch (e) {
+      if (!shouldFallbackToSqliteOnConvexFailure(true, options)) {
+        throw new ConvexPrimaryWriteError("clearCommerceOrderRefunded", e);
+      }
+      console.warn(
+        `Failed to clear commerce order ${stripeSessionId} refunded on Convex, falling back to SQLite`,
+        e,
+      );
+      void captureError(e, { component: "db-clearCommerceOrderRefunded-convex-fallback" });
+    }
+  }
+
+  const db = getSqliteDb();
+  db.prepare(
+    "UPDATE commerce_orders SET refundedAt = NULL WHERE stripeSessionId = ? AND refundedAt IS NOT NULL AND refundedAt != ''",
+  ).run(stripeSessionId);
+}
+
+/**
+ * Marks a commerce order disputed — called from the Stripe webhook's
+ * charge.dispute.created handler after it resolves the order's Checkout
+ * Session. Keyed on stripeSessionId (unique, always present), matching
+ * markCommerceOrderRefunded. Idempotent: a redelivered/duplicate dispute
+ * event re-applying the same mark is a no-op.
+ *
+ * Pass { requireConvex: true } from the webhook (WEBHOOK_CONVEX_PRIMARY) so a
+ * Convex mutation failure surfaces (5xx → Stripe retry) instead of SQLite-only
+ * success while Convex-first owed/clawback readers on other instances still
+ * show the order as owed and never flag the clawback.
+ */
+export async function markCommerceOrderDisputed(
+  stripeSessionId: string,
+  disputedAt: string = new Date().toISOString(),
+  options?: ConvexPrimaryWriteOptions,
+): Promise<void> {
+  if (convexClient) {
+    try {
+      await convexClient.mutation(api.commerceOrders.markDisputed, {
+        stripeSessionId,
+        disputedAt,
+        apiSecret: convexApiSecret,
+      });
+      return;
+    } catch (e) {
+      if (!shouldFallbackToSqliteOnConvexFailure(true, options)) {
+        throw new ConvexPrimaryWriteError("markCommerceOrderDisputed", e);
+      }
+      console.warn(
+        `Failed to mark commerce order ${stripeSessionId} disputed on Convex, falling back to SQLite`,
+        e,
+      );
+      void captureError(e, { component: "db-markCommerceOrderDisputed-convex-fallback" });
+    }
+  }
+
+  const db = getSqliteDb();
+  db.prepare(
+    "UPDATE commerce_orders SET disputedAt = ? WHERE stripeSessionId = ? AND (disputedAt IS NULL OR disputedAt = '')",
+  ).run(disputedAt, stripeSessionId);
+}
+
+/**
+ * Clears commerceOrders.disputedAt — called from the Stripe webhook's
+ * charge.dispute.closed handler when status is won / warning_closed (funds
+ * reinstated or never permanently withdrawn). Keyed on stripeSessionId.
+ * Idempotent: a redelivered clear on an already-undisputed row is a no-op.
+ *
+ * Pass { requireConvex: true } from the webhook (WEBHOOK_CONVEX_PRIMARY) so a
+ * Convex mutation failure surfaces (5xx → Stripe retry) instead of SQLite-only
+ * success while Convex-first owed/clawback readers on other instances still
+ * show the order as disputed forever.
+ */
+export async function clearCommerceOrderDisputed(
+  stripeSessionId: string,
+  options?: ConvexPrimaryWriteOptions,
+): Promise<void> {
+  if (convexClient) {
+    try {
+      await convexClient.mutation(api.commerceOrders.clearDisputed, {
+        stripeSessionId,
+        apiSecret: convexApiSecret,
+      });
+      return;
+    } catch (e) {
+      if (!shouldFallbackToSqliteOnConvexFailure(true, options)) {
+        throw new ConvexPrimaryWriteError("clearCommerceOrderDisputed", e);
+      }
+      console.warn(
+        `Failed to clear commerce order ${stripeSessionId} disputed on Convex, falling back to SQLite`,
+        e,
+      );
+      void captureError(e, { component: "db-clearCommerceOrderDisputed-convex-fallback" });
+    }
+  }
+
+  const db = getSqliteDb();
+  db.prepare(
+    "UPDATE commerce_orders SET disputedAt = NULL WHERE stripeSessionId = ? AND disputedAt IS NOT NULL AND disputedAt != ''",
+  ).run(stripeSessionId);
 }
 
 // --- Client voice FAQ packs (Complete receptionist scripts) ---
@@ -2259,6 +4059,7 @@ export async function upsertClientVoicePack(
         variants: pack.variants,
         generatedAt: pack.generatedAt,
         generator: pack.generator,
+        apiSecret: convexApiSecret,
       });
       return pack;
     } catch (e) {
@@ -2269,10 +4070,13 @@ export async function upsertClientVoicePack(
         `Failed to upsert client voice pack for ${pack.leadSlug} on Convex, falling back to SQLite`,
         e,
       );
+      void captureError(e, { component: "db-upsertClientVoicePack-convex-fallback" });
     }
   }
 
   const db = getSqliteDb();
+  // Regenerating always clears sentToClientAt — see upsertMarketingPack's
+  // matching comment (marketing-voice-pack-client-send-visibility).
   db.prepare(`
     INSERT INTO client_voice_packs (
       id, leadSlug, variantsJson, generatedAt, generator
@@ -2281,7 +4085,8 @@ export async function upsertClientVoicePack(
       id = excluded.id,
       variantsJson = excluded.variantsJson,
       generatedAt = excluded.generatedAt,
-      generator = excluded.generator
+      generator = excluded.generator,
+      sentToClientAt = NULL
   `).run(
     pack.id,
     pack.leadSlug,
@@ -2297,14 +4102,19 @@ export async function getClientVoicePackByLeadSlug(
 ): Promise<ClientVoicePack | null> {
   if (convexClient) {
     try {
-      return (await convexClient.query(api.clientVoicePacks.getByLeadSlug, {
+      const pack = (await convexClient.query(api.clientVoicePacks.getByLeadSlug, {
         leadSlug,
+        apiSecret: convexApiSecret,
       })) as ClientVoicePack | null;
+      // Convex-primary reads bypass parseClientVoiceVariants — soft-cap here so
+      // Email voice pack + dashboard cannot emit pre-generate-cap rows.
+      return pack ? softCapClientVoicePack(pack) : null;
     } catch (e) {
       console.warn(
         `Failed to get client voice pack for ${leadSlug} from Convex, falling back to SQLite`,
         e,
       );
+      void captureError(e, { component: "db-getClientVoicePackByLeadSlug-convex-fallback" });
     }
   }
 
@@ -2328,15 +4138,17 @@ export async function listClientVoicePacks(
 
   if (convexClient) {
     try {
-      return (await convexClient.query(
+      const packs = (await convexClient.query(
         api.clientVoicePacks.list,
-        {},
+        { apiSecret: convexApiSecret },
       )) as ClientVoicePack[];
+      return packs.map(softCapClientVoicePack);
     } catch (e) {
       console.warn(
         "Failed to list client voice packs from Convex, falling back to SQLite",
         e,
       );
+      void captureError(e, { component: "db-listClientVoicePacks-convex-fallback" });
     }
   }
 
@@ -2345,4 +4157,198 @@ export async function listClientVoicePacks(
     .prepare("SELECT * FROM client_voice_packs ORDER BY generatedAt DESC")
     .all() as unknown as SqliteClientVoicePackRow[];
   return rows.map(mapClientVoicePackRow);
+}
+
+/**
+ * Durable sent-marker after sendClientVoicePackToClientEmail resolves
+ * { success: true } in sendClientVoicePackToClientAction. Keyed on leadSlug
+ * (matches the pack's own uniqueness — one row per lead). Mirrors
+ * markMarketingPackSentToClient's race-guard, including its
+ * expectedGeneratedAt version check (see
+ * marketing-voice-pack-send-stale-content-race-guard).
+ */
+export async function markClientVoicePackSentToClient(
+  leadSlug: string,
+  expectedGeneratedAt: string,
+  sentToClientAt: string = new Date().toISOString(),
+  options?: ConvexPrimaryWriteOptions,
+): Promise<boolean> {
+  if (convexClient) {
+    try {
+      return await convexClient.mutation(api.clientVoicePacks.markSentToClient, {
+        leadSlug,
+        expectedGeneratedAt,
+        sentToClientAt,
+        apiSecret: convexApiSecret,
+      });
+    } catch (e) {
+      if (!shouldFallbackToSqliteOnConvexFailure(true, options)) {
+        throw new ConvexPrimaryWriteError("markClientVoicePackSentToClient", e);
+      }
+      console.warn(
+        `Failed to mark client voice pack sent to client for ${leadSlug} on Convex, falling back to SQLite`,
+        e,
+      );
+      void captureError(e, { component: "db-markClientVoicePackSentToClient-convex-fallback" });
+    }
+  }
+
+  return sqliteMarkClientVoicePackSentToClient(
+    getSqliteDb(),
+    leadSlug,
+    expectedGeneratedAt,
+    sentToClientAt,
+  );
+}
+
+/**
+ * Releases a reservation made by markClientVoicePackSentToClient when the
+ * send it was guarding failed. Mirrors clearMarketingPackSentToClient's
+ * best-effort, non-requireConvex-gated shape (see
+ * marketing-voice-pack-client-send-race-guard-ordering-fix).
+ */
+export async function clearClientVoicePackSentToClient(
+  leadSlug: string,
+  expectedSentToClientAt: string,
+): Promise<boolean> {
+  if (convexClient) {
+    try {
+      return await convexClient.mutation(api.clientVoicePacks.clearSentToClient, {
+        leadSlug,
+        expectedSentToClientAt,
+        apiSecret: convexApiSecret,
+      });
+    } catch (e) {
+      console.warn(
+        `Failed to clear client voice pack sent-to-client marker for ${leadSlug} on Convex, falling back to SQLite`,
+        e,
+      );
+      void captureError(e, { component: "db-clearClientVoicePackSentToClient-convex-fallback" });
+    }
+  }
+
+  return sqliteClearClientVoicePackSentToClient(getSqliteDb(), leadSlug, expectedSentToClientAt);
+}
+
+// --- Cron job run-health (see cron-run-health-visibility / src/lib/cron/cron-run-health.ts) ---
+
+/**
+ * Records that a cron-triggered route (job: "daily-digest" |
+ * "checkout-recovery" | "outreach-followups") just ran, and whether it
+ * succeeded. Called from both the success and failure/catch branches of each
+ * route, so `lastRunAt` always reflects the most recent invocation
+ * regardless of outcome, letting computeCronJobHealth (src/lib/cron/cron-run-health.ts)
+ * tell "stopped being invoked at all" apart from "invoked but failing".
+ *
+ * Deliberately best-effort and never throws (like captureError) — this is
+ * diagnostic plumbing only; a failure to persist the marker must never turn
+ * an otherwise-successful cron run into a reported failure, or vice versa.
+ * Not requireConvex-gated for the same reason: there is no money/state
+ * correctness invariant here, only observability, so a lost write on a
+ * Convex outage just means one missed health data point, not a split-brain.
+ */
+export async function recordCronRunOutcome(
+  job: string,
+  outcome: { success: boolean; atIso: string; error?: string },
+): Promise<void> {
+  try {
+    if (convexClient) {
+      try {
+        await convexClient.mutation(api.cronRuns.recordRun, {
+          job,
+          success: outcome.success,
+          atIso: outcome.atIso,
+          error: outcome.error,
+          apiSecret: convexApiSecret,
+        });
+        return;
+      } catch (e) {
+        console.warn(
+          `Failed to record cron run outcome for "${job}" on Convex, falling back to SQLite database`,
+          e,
+        );
+        void captureError(e, { component: "db-recordCronRunOutcome-convex-fallback" });
+      }
+    }
+
+    // SQLite Fallback
+    const db = getSqliteDb();
+    const existing = db.prepare("SELECT job FROM cron_runs WHERE job = ?").get(job) as
+      | { job: string }
+      | undefined;
+    if (existing) {
+      if (outcome.success) {
+        db.prepare(
+          "UPDATE cron_runs SET lastRunAt = ?, lastRunSuccess = 1, lastSuccessAt = ? WHERE job = ?",
+        ).run(outcome.atIso, outcome.atIso, job);
+      } else {
+        db.prepare(
+          "UPDATE cron_runs SET lastRunAt = ?, lastRunSuccess = 0, lastFailureAt = ?, lastError = ? WHERE job = ?",
+        ).run(outcome.atIso, outcome.atIso, outcome.error ?? null, job);
+      }
+      return;
+    }
+    db.prepare(
+      "INSERT INTO cron_runs (job, lastRunAt, lastRunSuccess, lastSuccessAt, lastFailureAt, lastError) VALUES (?, ?, ?, ?, ?, ?)",
+    ).run(
+      job,
+      outcome.atIso,
+      outcome.success ? 1 : 0,
+      outcome.success ? outcome.atIso : null,
+      outcome.success ? null : outcome.atIso,
+      outcome.success ? null : (outcome.error ?? null),
+    );
+  } catch (e) {
+    console.error(
+      `Failed to record cron run outcome for "${job}" — observability-only, does not affect the cron's actual result`,
+      e,
+    );
+  }
+}
+
+/**
+ * Lists every recorded cron job's run-health row. Wrapped in a top-level
+ * try/catch (unlike most list* functions) and returns [] on total failure —
+ * this feeds an optional pipeline-health/digest signal, and a broken
+ * cron_runs table must never break the dashboard or digest it powers.
+ */
+export async function listCronRuns(): Promise<CronRunRecord[]> {
+  try {
+    if (convexClient) {
+      try {
+        return (await convexClient.query(api.cronRuns.list, {
+          apiSecret: convexApiSecret,
+        })) as CronRunRecord[];
+      } catch (e) {
+        console.warn("Failed to list cron runs from Convex, falling back to SQLite database", e);
+        void captureError(e, { component: "db-listCronRuns-convex-fallback" });
+      }
+    }
+
+    // SQLite Fallback
+    const db = getSqliteDb();
+    const rows = db
+      .prepare(
+        "SELECT job, lastRunAt, lastRunSuccess, lastSuccessAt, lastFailureAt, lastError FROM cron_runs",
+      )
+      .all() as Array<{
+      job: string;
+      lastRunAt: string;
+      lastRunSuccess: number;
+      lastSuccessAt: string | null;
+      lastFailureAt: string | null;
+      lastError: string | null;
+    }>;
+    return rows.map((row) => ({
+      job: row.job,
+      lastRunAt: row.lastRunAt,
+      lastRunSuccess: !!row.lastRunSuccess,
+      lastSuccessAt: row.lastSuccessAt ?? undefined,
+      lastFailureAt: row.lastFailureAt ?? undefined,
+      lastError: row.lastError ?? undefined,
+    }));
+  } catch (e) {
+    console.error("Failed to list cron runs — returning empty (observability-only)", e);
+    return [];
+  }
 }

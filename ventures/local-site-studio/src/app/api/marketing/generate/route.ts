@@ -1,5 +1,10 @@
 import { NextResponse } from "next/server";
 import { requireOperatorAuth } from "@/lib/auth/operator";
+import {
+  MAX_MARKETING_CONTENT_TYPES_PER_REQUEST,
+  MAX_MARKETING_GENERATE_LEAD_ID_LENGTH,
+  normalizeMarketingGenerateBusiness,
+} from "@/lib/marketing/generate-limits";
 import { getMarketingGenerator } from "@/lib/marketing/generators";
 import type {
   AutomationLevel,
@@ -7,6 +12,7 @@ import type {
   GenerateMarketingRequest,
   MarketingContentType,
 } from "@/lib/marketing/types";
+import { readJsonBodyWithByteLimit } from "@/lib/security/json-body";
 import { checkRateLimit, clientIpFromHeaders } from "@/lib/security/rate-limit";
 
 const VALID_CONTENT_TYPES: MarketingContentType[] = [
@@ -29,11 +35,13 @@ const VALID_AUTOMATION_LEVELS: AutomationLevel[] = [
 function isBusinessContext(value: unknown): value is BusinessContext {
   if (!value || typeof value !== "object") return false;
   const b = value as Record<string, unknown>;
+  // Bound services length before .every so a multi-MB array cannot stall validation.
+  if (!Array.isArray(b.services) || b.services.length > 500) return false;
+  if (b.campaignContext !== undefined && typeof b.campaignContext !== "string") return false;
   return (
     typeof b.businessName === "string" &&
     typeof b.category === "string" &&
     typeof b.city === "string" &&
-    Array.isArray(b.services) &&
     b.services.every((s) => typeof s === "string")
   );
 }
@@ -47,6 +55,15 @@ function isBusinessContext(value: unknown): value is BusinessContext {
  * is unset, requireOperatorAuth returns ok for every caller — without a limiter
  * that open-demo window can burn Anthropic quota unbounded. Mirrors
  * bootstrap-prices (auth then checkRateLimit).
+ *
+ * contentTypes length is capped at MAX_MARKETING_CONTENT_TYPES_PER_REQUEST
+ * (sold monthly pack ceiling). Membership checks alone are not a size bound —
+ * generators map 1:1 over the array into stub variants / Anthropic prompt
+ * length (marketing-generate-content-types-size-cap). Business context is
+ * soft-capped via normalizeMarketingGenerateBusiness before generate.
+ * Raw JSON body is hard-capped via readJsonBodyWithByteLimit before those
+ * field parsers — auth is not a payload-size throttle when the password is
+ * unset (public-json-body-byte-length-cap).
  */
 export async function POST(request: Request) {
   const auth = await requireOperatorAuth();
@@ -63,12 +80,14 @@ export async function POST(request: Request) {
     );
   }
 
-  let body: unknown;
-  try {
-    body = await request.json();
-  } catch {
+  const parsedBody = await readJsonBodyWithByteLimit<unknown>(request);
+  if (!parsedBody.ok) {
+    if (parsedBody.reason === "too_large") {
+      return NextResponse.json({ error: "Request body is too large" }, { status: 400 });
+    }
     return NextResponse.json({ error: "Invalid JSON body" }, { status: 400 });
   }
+  const body = parsedBody.value;
 
   if (!body || typeof body !== "object") {
     return NextResponse.json({ error: "Request body required" }, { status: 400 });
@@ -83,10 +102,27 @@ export async function POST(request: Request) {
   if (typeof leadId !== "string" || !leadId) {
     return NextResponse.json({ error: "leadId is required" }, { status: 400 });
   }
+  if (leadId.length > MAX_MARKETING_GENERATE_LEAD_ID_LENGTH) {
+    return NextResponse.json(
+      {
+        error: `leadId must be ${MAX_MARKETING_GENERATE_LEAD_ID_LENGTH} characters or fewer`,
+      },
+      { status: 400 },
+    );
+  }
 
   if (!Array.isArray(contentTypes) || contentTypes.length === 0) {
     return NextResponse.json(
       { error: "contentTypes must be a non-empty array" },
+      { status: 400 },
+    );
+  }
+  if (contentTypes.length > MAX_MARKETING_CONTENT_TYPES_PER_REQUEST) {
+    return NextResponse.json(
+      {
+        error: `contentTypes must have at most ${MAX_MARKETING_CONTENT_TYPES_PER_REQUEST} entries (monthly pack ceiling)`,
+        max: MAX_MARKETING_CONTENT_TYPES_PER_REQUEST,
+      },
       { status: 400 },
     );
   }
@@ -136,7 +172,7 @@ export async function POST(request: Request) {
       payload.approvalMode === "required"
         ? payload.approvalMode
         : undefined,
-    business,
+    business: normalizeMarketingGenerateBusiness(business),
   };
 
   const generator = getMarketingGenerator();

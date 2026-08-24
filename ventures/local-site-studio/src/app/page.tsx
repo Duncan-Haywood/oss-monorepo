@@ -1,5 +1,8 @@
 import Link from "next/link";
+import { Testimonials } from "@/components/marketing/testimonials";
 import { brand } from "@/lib/brand";
+import { CATEGORY_LANDING_PAGES } from "@/lib/marketing/category-landing";
+import { COMMERCE_ADDON, getBundle } from "@/lib/pricing/bundles";
 
 const steps = [
   {
@@ -10,7 +13,7 @@ const steps = [
   {
     title: "Preview before you buy",
     description:
-      "Receive a link to your pre-built website. Talk to our AI assistant for tweaks, or buy as-is — no sales calls.",
+      "Receive a link to your pre-built website. Email us for tweaks, or buy as-is — no sales calls.",
   },
   {
     title: "Go live in days",
@@ -19,49 +22,18 @@ const steps = [
   },
 ];
 
-const bundles = [
-  {
-    id: "starter" as const,
-    name: "Starter",
-    tagline: "Your site, live in days",
-    setup: "$500",
-    recurring: null as string | null,
-    features: [
-      "Professional landing page",
-      "Contact form and Google Maps embed",
-      "Basic SEO and fast hosting",
-      "Preview subdomain → custom domain handoff",
-    ],
-    highlighted: false,
-  },
-  {
-    id: "growth" as const,
-    name: "Growth",
-    tagline: "Site + customers on autopilot",
-    setup: "$500",
-    recurring: "$99/mo",
-    features: [
-      "Everything in Starter",
-      "8 social/GBP posts + 2 emails per month",
-      "Ready-to-post packs for Google, Facebook, Instagram",
-      "Brand voice from your site data",
-    ],
-    highlighted: true,
-  },
-  {
-    id: "complete" as const,
-    name: "Complete",
-    tagline: "Never miss a call or a customer",
-    setup: "$500",
-    recurring: "$199/mo",
-    features: [
-      "Everything in Growth",
-      "Full marketing — seasonal promos, A/B variants",
-      "AI phone agent for your business line",
-      "Appointment booking and lead capture",
-    ],
-    highlighted: false,
-  },
+// Only page-specific display state (which card gets the "recommended" treatment)
+// lives here — name, USD prices, tagline, and feature bullets all render
+// straight from BUNDLES (src/lib/pricing/bundles.ts), the single source of
+// truth Stripe checkout AND the /preview/[slug] tier upsell also read, so a
+// future price or feature change (BUSINESS_DECISIONS) can't leave this, the
+// highest-traffic page, advertising stale copy while checkout/preview show
+// something else (homepage-bundle-pricing-single-source-of-truth,
+// bundle-features-single-source-of-truth).
+const bundleMarketingCopy = [
+  { id: "starter" as const, highlighted: false },
+  { id: "growth" as const, highlighted: true },
+  { id: "complete" as const, highlighted: false },
 ];
 
 const commerceFeatures = [
@@ -84,9 +56,9 @@ export default function Home() {
           </h1>
           <p className="mt-6 text-lg leading-8 text-zinc-600">
             {brand.name} creates professional websites for restaurants, salons, trades,
-            and other local businesses. Preview your site first — choose Starter from $500,
-            or add automated marketing and an AI phone agent. Self-serve checkout, no sales
-            calls.
+            and other local businesses. Preview your site first — choose Starter from{" "}
+            ${getBundle("starter")!.setupPriceUsd}, or add automated marketing and an AI
+            phone agent. Self-serve checkout, no sales calls.
           </p>
           {!brand.isConfigured && (
             <p className="mt-4 text-sm text-amber-700">
@@ -129,7 +101,7 @@ export default function Home() {
           <div className="mt-10 grid gap-8 sm:grid-cols-3">
             {steps.map((step, index) => (
               <div key={step.title} className="rounded-2xl bg-white p-6 shadow-sm">
-                <p className="text-sm font-medium text-zinc-400">Step {index + 1}</p>
+                <p className="text-sm font-medium text-zinc-500">Step {index + 1}</p>
                 <h3 className="mt-2 text-lg font-semibold">{step.title}</h3>
                 <p className="mt-2 text-sm leading-6 text-zinc-600">{step.description}</p>
               </div>
@@ -137,6 +109,29 @@ export default function Home() {
           </div>
         </div>
       </section>
+
+      <section id="industries" className="mx-auto max-w-6xl px-6 py-20">
+        <h2 className="text-2xl font-semibold tracking-tight">Built for your industry</h2>
+        <p className="mt-4 max-w-2xl text-zinc-600">
+          Every bundle adapts to how your business actually runs — see what that looks like for
+          yours.
+        </p>
+        <div className="mt-10 grid gap-6 sm:grid-cols-3">
+          {CATEGORY_LANDING_PAGES.map((page) => (
+            <Link
+              key={page.href}
+              href={page.href}
+              className="rounded-2xl border border-zinc-200 bg-white p-6 shadow-sm transition-colors hover:border-zinc-400"
+            >
+              <p className="text-sm font-medium text-zinc-500">{page.navLabel}</p>
+              <h3 className="mt-2 text-lg font-semibold text-zinc-900">{page.heroHeadline}</h3>
+              <p className="mt-3 text-sm text-zinc-500 underline-offset-4">See what&rsquo;s included →</p>
+            </Link>
+          ))}
+        </div>
+      </section>
+
+      <Testimonials />
 
       <section id="pricing" className="mx-auto max-w-6xl px-6 py-20">
         <div className="max-w-2xl">
@@ -147,75 +142,83 @@ export default function Home() {
           </p>
         </div>
         <div className="mt-10 grid gap-6 lg:grid-cols-3">
-          {bundles.map((bundle) => (
-            <div
-              key={bundle.id}
-              className={`flex flex-col rounded-2xl border p-8 shadow-sm ${
-                bundle.highlighted
-                  ? "border-zinc-900 bg-zinc-900 text-white"
-                  : "border-zinc-200 bg-white"
-              }`}
-            >
-              <p
-                className={`text-sm font-medium ${
-                  bundle.highlighted ? "text-zinc-400" : "text-zinc-500"
+          {bundleMarketingCopy.map((copy) => {
+            const bundle = getBundle(copy.id)!;
+            return (
+              <div
+                key={bundle.id}
+                className={`flex flex-col rounded-2xl border p-8 shadow-sm ${
+                  copy.highlighted
+                    ? "border-zinc-900 bg-zinc-900 text-white"
+                    : "border-zinc-200 bg-white"
                 }`}
               >
-                {bundle.name}
-              </p>
-              <p
-                className={`mt-1 text-sm ${
-                  bundle.highlighted ? "text-zinc-300" : "text-zinc-600"
-                }`}
-              >
-                {bundle.tagline}
-              </p>
-              <p className="mt-4 text-4xl font-semibold tracking-tight">{bundle.setup}</p>
-              {bundle.recurring ? (
                 <p
-                  className={`mt-1 text-sm ${
-                    bundle.highlighted ? "text-zinc-300" : "text-zinc-600"
+                  className={`text-sm font-medium ${
+                    copy.highlighted ? "text-zinc-400" : "text-zinc-500"
                   }`}
                 >
-                  + {bundle.recurring} after go-live
+                  {bundle.name}
                 </p>
-              ) : (
                 <p
                   className={`mt-1 text-sm ${
-                    bundle.highlighted ? "text-zinc-300" : "text-zinc-600"
+                    copy.highlighted ? "text-zinc-300" : "text-zinc-600"
                   }`}
                 >
-                  One-time payment
+                  {bundle.tagline}
                 </p>
-              )}
-              <ul className="mt-6 flex-1 space-y-3 text-sm">
-                {bundle.features.map((feature) => (
-                  <li key={feature} className="flex items-start gap-2">
-                    <span className={bundle.highlighted ? "text-zinc-500" : "text-zinc-400"}>
-                      ✓
-                    </span>
-                    <span className={bundle.highlighted ? "text-zinc-200" : "text-zinc-700"}>
-                      {feature}
-                    </span>
-                  </li>
-                ))}
-              </ul>
-              <Link
-                href={`/checkout?tier=${bundle.id}`}
-                className={`mt-8 inline-flex h-11 w-full items-center justify-center rounded-full font-medium transition-colors ${
-                  bundle.highlighted
-                    ? "bg-white text-zinc-900 hover:bg-zinc-100"
-                    : "bg-zinc-900 text-white hover:bg-zinc-700"
-                }`}
-              >
-                Get {bundle.name}
-              </Link>
-            </div>
-          ))}
+                <p className="mt-4 text-4xl font-semibold tracking-tight">
+                  ${bundle.setupPriceUsd}
+                </p>
+                {bundle.monthlyPriceUsd != null ? (
+                  <p
+                    className={`mt-1 text-sm ${
+                      copy.highlighted ? "text-zinc-300" : "text-zinc-600"
+                    }`}
+                  >
+                    + ${bundle.monthlyPriceUsd}/mo after go-live
+                  </p>
+                ) : (
+                  <p
+                    className={`mt-1 text-sm ${
+                      copy.highlighted ? "text-zinc-300" : "text-zinc-600"
+                    }`}
+                  >
+                    One-time payment
+                  </p>
+                )}
+                <ul className="mt-6 flex-1 space-y-3 text-sm">
+                  {bundle.features.map((feature) => (
+                    <li key={feature} className="flex items-start gap-2">
+                      <span className={copy.highlighted ? "text-zinc-400" : "text-zinc-500"}>
+                        ✓
+                      </span>
+                      <span className={copy.highlighted ? "text-zinc-200" : "text-zinc-700"}>
+                        {feature}
+                      </span>
+                    </li>
+                  ))}
+                </ul>
+                <Link
+                  href={`/checkout?tier=${bundle.id}&source=home`}
+                  className={`mt-8 inline-flex h-11 w-full items-center justify-center rounded-full font-medium transition-colors ${
+                    copy.highlighted
+                      ? "bg-white text-zinc-900 hover:bg-zinc-100"
+                      : "bg-zinc-900 text-white hover:bg-zinc-700"
+                  }`}
+                >
+                  Get {bundle.name}
+                </Link>
+              </div>
+            );
+          })}
         </div>
         <p className="mt-8 text-center text-xs text-zinc-500">
-          Sold by {brand.legalEntity}. Call our AI assistant to compare tiers — no human sales
-          calls.
+          Sold by {brand.legalEntity}. Questions on tiers? Email{" "}
+          <a href={`mailto:${brand.supportEmail}`} className="underline">
+            {brand.supportEmail}
+          </a>{" "}
+          — no human sales calls.
         </p>
       </section>
 
@@ -237,7 +240,7 @@ export default function Home() {
               <ul className="mt-6 space-y-3 text-sm text-zinc-700">
                 {commerceFeatures.map((feature) => (
                   <li key={feature} className="flex items-start gap-2">
-                    <span className="mt-1 text-zinc-400">✓</span>
+                    <span className="mt-1 text-zinc-500">✓</span>
                     {feature}
                   </li>
                 ))}
@@ -245,12 +248,14 @@ export default function Home() {
             </div>
             <div className="rounded-2xl border border-zinc-200 bg-white p-8 shadow-sm">
               <p className="text-sm font-medium text-zinc-500">Commerce add-on</p>
-              <p className="mt-2 text-4xl font-semibold tracking-tight">+$300</p>
+              <p className="mt-2 text-4xl font-semibold tracking-tight">
+                +${COMMERCE_ADDON.setupPriceUsd}
+              </p>
               <p className="mt-2 text-sm text-zinc-600">
-                One-time setup + $49/mo · stacks on any bundle
+                One-time setup + ${COMMERCE_ADDON.monthlyPriceUsd}/mo · stacks on any bundle
               </p>
               <Link
-                href="/checkout?commerce=1"
+                href="/checkout?commerce=1&source=home"
                 className="mt-8 inline-flex h-11 w-full items-center justify-center rounded-full border border-zinc-300 font-medium text-zinc-900 transition-colors hover:border-zinc-400"
               >
                 Add at checkout
@@ -284,8 +289,11 @@ export default function Home() {
           <div>
             <dt className="font-semibold text-zinc-900">Is there a sales call?</dt>
             <dd className="mt-2 text-sm leading-6 text-zinc-600">
-              No. Self-serve checkout, optional AI assistant for questions. Sold by{" "}
-              {brand.legalEntity}.
+              No. Self-serve checkout — email{" "}
+              <a href={`mailto:${brand.supportEmail}`} className="underline">
+                {brand.supportEmail}
+              </a>{" "}
+              with questions. Sold by {brand.legalEntity}.
             </dd>
           </div>
         </dl>

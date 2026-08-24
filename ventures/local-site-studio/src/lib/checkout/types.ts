@@ -5,6 +5,8 @@
  * checkout.session.completed webhook. See /docs/architecture#payments.
  */
 
+import type { BundleBillingInterval } from "@/lib/pricing/bundles";
+
 export type CheckoutSessionStatus = "open" | "complete";
 
 /**
@@ -32,10 +34,41 @@ export interface CheckoutSessionRecord {
   /** ISO timestamp of the last operator-triggered abandoned-checkout recovery email. */
   recoverySentAt?: string;
   /**
+   * How many recovery nudges have been sent for this session. Drives
+   * escalating copy in sendCheckoutAbandonedRecovery/sendCommerceAbandonedRecovery
+   * (see recovery-email-escalating-cadence) — nudge 1 stays the original
+   * reassurance framing, nudge 2 answers common objections, nudge 3+ is a
+   * final soft close, mirroring the outreach Email 1/2/3 cadence.
+   */
+  recoverySentCount?: number;
+  /**
    * What this session sells. Omit/undefined = bundle (legacy rows).
    * commerce_sku = end-customer Buy now on a client's catalog.
    */
   kind?: CheckoutSessionKind;
   /** Present when kind === "commerce_sku". */
   skuId?: string;
+  /**
+   * Billing cadence selected at checkout creation (kind=bundle only — see
+   * annual-billing-option). Undefined on legacy pre-feature rows and on
+   * commerce_sku rows (no recurring concept); recovery emails must thread
+   * this through so an abandoned annual-checkout shopper is never nudged
+   * back onto a monthly link they never chose (see
+   * checkout-recovery-billing-interval-carry-through).
+   */
+  billingInterval?: BundleBillingInterval;
+}
+
+/**
+ * Stable app-owned id for a new SQLite-fallback checkout_sessions row (see
+ * leads-sqlite-id-collision-guard). The prior generator was
+ * `chk_${Date.now()}` — millisecond-only, same collision-prone class as the
+ * pre-fix lead/order/inquiry id generators. `checkout_sessions.id` is a
+ * SQLite PRIMARY KEY; the row's `ON CONFLICT(stripeSessionId) DO NOTHING`
+ * only de-dupes on the Stripe session id column, so a colliding `id` from a
+ * *different* stripeSessionId inserted in the same millisecond (two shoppers
+ * starting checkout at once) still throws a constraint-violation error.
+ */
+export function newCheckoutSessionId(): string {
+  return `chk_${Date.now().toString(36)}_${Math.random().toString(36).slice(2, 8)}`;
 }

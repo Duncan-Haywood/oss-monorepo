@@ -1,5 +1,16 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 import {
+  MAX_PACK_VARIANT_BODY_LENGTH,
+  MAX_PACK_VARIANT_CTA_LENGTH,
+  MAX_PACK_VARIANT_TITLE_LENGTH,
+} from "@/lib/packs/variant-fields";
+
+const captureError = vi.fn();
+vi.mock("@/lib/observability/error-tracking", () => ({
+  captureError: (...args: unknown[]) => captureError(...args),
+}));
+
+import {
   AnthropicClientVoiceGenerator,
   createDefaultClientVoiceGenerator,
   getClientVoiceGenerator,
@@ -42,6 +53,7 @@ afterEach(() => {
   vi.restoreAllMocks();
   resetClientVoiceGeneratorForTests();
   delete process.env.ANTHROPIC_API_KEY;
+  captureError.mockReset().mockResolvedValue(undefined);
 });
 
 describe("StubClientVoiceGenerator", () => {
@@ -75,6 +87,21 @@ describe("StubClientVoiceGenerator", () => {
     expect(result.variants.every((v) => v.body.includes("Summit Plumbing"))).toBe(
       true,
     );
+  });
+
+  it("soft-caps services_faq body when services.join exceeds pack body max", async () => {
+    // MAX_SERVICES(100) × MAX_SERVICE_ITEM_LENGTH(100) alone exceeds BODY=8000.
+    const manyServices = Array.from({ length: 100 }, (_, i) =>
+      `service-${String(i).padStart(3, "0")}-${"x".repeat(80)}`,
+    );
+    const result = await new StubClientVoiceGenerator().generate(
+      request({
+        scriptTypes: ["services_faq"],
+        business: { ...baseBusiness, services: manyServices },
+      }),
+    );
+    expect(result.variants[0]?.body).toHaveLength(MAX_PACK_VARIANT_BODY_LENGTH);
+    expect(result.variants[0]?.title).toBe("Services");
   });
 
   it("omits state from location and falls back when services/hours/phone missing", async () => {
@@ -181,6 +208,42 @@ describe("AnthropicClientVoiceGenerator", () => {
     });
   });
 
+  it("soft-caps over-long title/body/cta from the model", async () => {
+    const longTitle = "T".repeat(MAX_PACK_VARIANT_TITLE_LENGTH + 20);
+    const longBody = "B".repeat(MAX_PACK_VARIANT_BODY_LENGTH + 20);
+    const longCta = "C".repeat(MAX_PACK_VARIANT_CTA_LENGTH + 20);
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async () => ({
+        ok: true,
+        json: async () => ({
+          content: [
+            {
+              type: "text",
+              text: JSON.stringify([
+                {
+                  scriptType: "wrong",
+                  title: longTitle,
+                  body: longBody,
+                  cta: longCta,
+                },
+                { scriptType: "wrong", body: "hours body" },
+                { scriptType: "wrong", title: "Book", body: "booking body" },
+              ]),
+            },
+          ],
+        }),
+      })),
+    );
+
+    const result = await new AnthropicClientVoiceGenerator("sk-test").generate(
+      request(),
+    );
+    expect(result.variants[0]?.title).toHaveLength(MAX_PACK_VARIANT_TITLE_LENGTH);
+    expect(result.variants[0]?.body).toHaveLength(MAX_PACK_VARIANT_BODY_LENGTH);
+    expect(result.variants[0]?.cta).toHaveLength(MAX_PACK_VARIANT_CTA_LENGTH);
+  });
+
   it("falls back when model returns the wrong variant count", async () => {
     const fallback = new StubClientVoiceGenerator();
     const spy = vi.spyOn(fallback, "generate");
@@ -203,7 +266,7 @@ describe("AnthropicClientVoiceGenerator", () => {
     expect(result.variants[0]?.body).toMatch(/automated assistant/i);
   });
 
-  it("falls back on HTTP errors", async () => {
+  it("falls back on HTTP errors and reports the failure via captureError", async () => {
     const fallback = new StubClientVoiceGenerator();
     const spy = vi.spyOn(fallback, "generate");
     vi.stubGlobal(
@@ -221,6 +284,59 @@ describe("AnthropicClientVoiceGenerator", () => {
     );
     expect(spy).toHaveBeenCalledOnce();
     expect(errorSpy).toHaveBeenCalled();
+    // Sold-capability degradation: a paid Complete customer's FAQ voice pack
+    // silently fell back to generic stub scripts — this must be reported,
+    // not just logged.
+    expect(captureError).toHaveBeenCalledWith(expect.any(Error), {
+      component: "voice-generators",
+      failureKind: "anthropic_client_voice_generation",
+      leadId: "summit-plumbing",
+    });
+  });
+
+  it("passes an AbortSignal request timeout to fetch", async () => {
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async () => ({
+        ok: true,
+        json: async () => ({
+          content: [
+            { type: "text", text: JSON.stringify([{ scriptType: "inbound_greeting", title: "t", body: "hi" }]) },
+          ],
+        }),
+      })),
+    );
+
+    await new AnthropicClientVoiceGenerator("sk-test").generate(
+      request({ scriptTypes: ["inbound_greeting"] }),
+    );
+
+    const [, init] = (fetch as ReturnType<typeof vi.fn>).mock.calls[0]!;
+    expect((init as RequestInit).signal).toBeInstanceOf(AbortSignal);
+  });
+
+  it("falls back when the request times out (AbortError)", async () => {
+    const fallback = new StubClientVoiceGenerator();
+    const spy = vi.spyOn(fallback, "generate");
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async () => {
+        throw new DOMException("The operation was aborted.", "TimeoutError");
+      }),
+    );
+    const errorSpy = vi.spyOn(console, "error").mockImplementation(() => {});
+
+    const result = await new AnthropicClientVoiceGenerator("sk-test", fallback).generate(
+      request(),
+    );
+    expect(spy).toHaveBeenCalledOnce();
+    expect(errorSpy).toHaveBeenCalled();
+    expect(result.leadId).toBe(request().leadId);
+    expect(captureError).toHaveBeenCalledWith(expect.any(Error), {
+      component: "voice-generators",
+      failureKind: "anthropic_client_voice_generation",
+      leadId: "summit-plumbing",
+    });
   });
 
   it("falls back when response has no text content", async () => {

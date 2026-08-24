@@ -1,8 +1,12 @@
 import { describe, expect, it } from "vitest";
 import {
+  customDomainHostAliases,
   extractPreviewSubdomainSlug,
   isPlatformHost,
+  isPlausibleCustomDomainHost,
+  normalizeOperatorCustomDomainHost,
   normalizeRequestHost,
+  parseOperatorCustomDomain,
 } from "./custom-domain-routing";
 
 describe("normalizeRequestHost", () => {
@@ -19,6 +23,106 @@ describe("normalizeRequestHost", () => {
     expect(normalizeRequestHost(null)).toBe("");
     expect(normalizeRequestHost(undefined)).toBe("");
     expect(normalizeRequestHost("")).toBe("");
+  });
+});
+
+describe("normalizeOperatorCustomDomainHost", () => {
+  it("returns null for empty / whitespace (clear domain)", () => {
+    expect(normalizeOperatorCustomDomainHost(null)).toBeNull();
+    expect(normalizeOperatorCustomDomainHost(undefined)).toBeNull();
+    expect(normalizeOperatorCustomDomainHost("")).toBeNull();
+    expect(normalizeOperatorCustomDomainHost("   ")).toBeNull();
+  });
+
+  it("strips scheme, path, port, and trailing FQDN dot to a bare host", () => {
+    expect(normalizeOperatorCustomDomainHost("https://JoesPlumbing.com/")).toBe(
+      "joesplumbing.com",
+    );
+    expect(normalizeOperatorCustomDomainHost("http://www.joesplumbing.com/path?x=1")).toBe(
+      "www.joesplumbing.com",
+    );
+    expect(normalizeOperatorCustomDomainHost("JoesPlumbing.com:443")).toBe("joesplumbing.com");
+    expect(normalizeOperatorCustomDomainHost("  WWW.Example.COM.  ")).toBe("www.example.com");
+  });
+
+  it("matches normalizeRequestHost for the common bare-host paste", () => {
+    const bare = "joesplumbing.com";
+    expect(normalizeOperatorCustomDomainHost(bare)).toBe(normalizeRequestHost(bare));
+  });
+});
+
+describe("isPlausibleCustomDomainHost", () => {
+  it("accepts ordinary public hostnames", () => {
+    expect(isPlausibleCustomDomainHost("joesplumbing.com")).toBe(true);
+    expect(isPlausibleCustomDomainHost("www.joes-plumbing.co.uk")).toBe(true);
+  });
+
+  it("rejects localhost, single labels, spaces, and broken labels", () => {
+    expect(isPlausibleCustomDomainHost("localhost")).toBe(false);
+    expect(isPlausibleCustomDomainHost("intranet")).toBe(false);
+    expect(isPlausibleCustomDomainHost("bad host.com")).toBe(false);
+    expect(isPlausibleCustomDomainHost("-bad.com")).toBe(false);
+    expect(isPlausibleCustomDomainHost("bad..com")).toBe(false);
+  });
+
+  it("rejects hosts longer than 253 chars (DNS absolute max)", () => {
+    // Read-path twin for spoofed Host → getLeadSlugByCustomDomain
+    // (proxy-host-lookup-field-length-cap).
+    const over = `${"x".repeat(250)}.example.com`;
+    expect(over.length).toBeGreaterThan(253);
+    expect(isPlausibleCustomDomainHost(over)).toBe(false);
+  });
+});
+
+describe("parseOperatorCustomDomain", () => {
+  const root = "localsitestudio.com";
+
+  it("clears on empty input", () => {
+    expect(parseOperatorCustomDomain("  ")).toEqual({ ok: true, host: null });
+  });
+
+  it("accepts URL pastes as bare hosts", () => {
+    expect(parseOperatorCustomDomain("https://joesplumbing.com/menu")).toEqual({
+      ok: true,
+      host: "joesplumbing.com",
+    });
+  });
+
+  it("rejects invalid and platform-owned hosts", () => {
+    expect(parseOperatorCustomDomain("not a domain").ok).toBe(false);
+    expect(parseOperatorCustomDomain("localhost").ok).toBe(false);
+    expect(parseOperatorCustomDomain("localsitestudio.com", root).ok).toBe(false);
+    expect(parseOperatorCustomDomain("joes-plumbing.localsitestudio.com", root).ok).toBe(
+      false,
+    );
+  });
+});
+
+describe("customDomainHostAliases", () => {
+  it("returns exact host first, then the www twin for an apex", () => {
+    expect(customDomainHostAliases("joesplumbing.com")).toEqual([
+      "joesplumbing.com",
+      "www.joesplumbing.com",
+    ]);
+  });
+
+  it("returns www first, then apex when Save kept the www form", () => {
+    expect(customDomainHostAliases("www.joesplumbing.com")).toEqual([
+      "www.joesplumbing.com",
+      "joesplumbing.com",
+    ]);
+  });
+
+  it("lowercases and strips a trailing FQDN dot", () => {
+    expect(customDomainHostAliases("WWW.Example.COM.")).toEqual([
+      "www.example.com",
+      "example.com",
+    ]);
+  });
+
+  it("returns empty for blank input", () => {
+    expect(customDomainHostAliases("")).toEqual([]);
+    expect(customDomainHostAliases("   ")).toEqual([]);
   });
 });
 
@@ -80,5 +184,17 @@ describe("extractPreviewSubdomainSlug", () => {
 
   it("returns null for an empty host", () => {
     expect(extractPreviewSubdomainSlug("", root)).toBeNull();
+  });
+
+  it("returns null for over-long preview-subdomain labels before CRM lookup", () => {
+    // Spoofed Host is not DNS-bounded — multi-KB labels must not reach getLeadBySlug
+    // (proxy-host-lookup-field-length-cap; shared MAX_PUBLIC_LEAD_SLUG_PATH_LENGTH).
+    const over = `${"a".repeat(121)}.${root}`;
+    expect(extractPreviewSubdomainSlug(over, root)).toBeNull();
+  });
+
+  it("accepts a label at the public lead-slug path-length ceiling", () => {
+    const exact = `${"b".repeat(120)}.${root}`;
+    expect(extractPreviewSubdomainSlug(exact, root)).toBe("b".repeat(120));
   });
 });

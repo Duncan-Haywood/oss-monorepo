@@ -25,9 +25,18 @@ vi.mock("next/cache", () => ({
   revalidatePath: (...args: unknown[]) => revalidatePath(...args),
 }));
 
+const headersMock = vi.fn();
 vi.mock("next/headers", () => ({
-  headers: vi.fn(),
+  headers: (...args: unknown[]) => headersMock(...args),
 }));
+
+function headerStore(entries: Record<string, string | null> = {}) {
+  return {
+    get(name: string) {
+      return entries[name] ?? null;
+    },
+  };
+}
 
 const updateLeadStage = vi.fn();
 const getLeadBySlug = vi.fn();
@@ -45,6 +54,7 @@ vi.mock("@/lib/db", () => ({
   recordClientInquiryReply: vi.fn(),
   getLeads: vi.fn(),
   listOrders: vi.fn(),
+  listOrdersByLeadSlug: vi.fn(),
   recordLeadOutreach: (...args: unknown[]) => recordLeadOutreach(...args),
   listUnrepliedInquiries: vi.fn(),
   updateLeadNotes: vi.fn(),
@@ -113,14 +123,21 @@ const baseLead = {
   dataSource: "manual_entry" as const,
 };
 
+const captureError = vi.fn();
+vi.mock("@/lib/observability/error-tracking", () => ({
+  captureError: (...args: unknown[]) => captureError(...args),
+}));
+
 describe("updateLeadStageAction", () => {
   beforeEach(() => {
+    captureError.mockReset().mockResolvedValue(undefined);
     vi.resetModules();
     requireOperatorAuth.mockReset().mockResolvedValue({ ok: true });
+    headersMock.mockReset().mockResolvedValue(headerStore());
     revalidatePath.mockReset();
-    updateLeadStage.mockReset().mockResolvedValue(undefined);
+    updateLeadStage.mockReset().mockResolvedValue(true);
     getLeadBySlug.mockReset().mockResolvedValue(baseLead);
-    recordLeadOutreach.mockReset().mockResolvedValue(undefined);
+    recordLeadOutreach.mockReset().mockResolvedValue(true);
     sendOutreachEmail.mockReset().mockResolvedValue({
       success: true,
       id: "email_1",
@@ -144,13 +161,42 @@ describe("updateLeadStageAction", () => {
     expect(sendOutreachEmail).not.toHaveBeenCalled();
   });
 
+  it("rate-limits repeated stage moves from the same IP (auth alone is not a throttle)", async () => {
+    const { updateLeadStageAction } = await import("./actions");
+    // DEFAULT_RATE_LIMIT is 20 requests/60s per key — exhaust the window.
+    for (let i = 0; i < 20; i++) {
+      const res = await updateLeadStageAction("demo-cafe", "discovery_call");
+      expect(res.success).toBe(true);
+    }
+    updateLeadStage.mockClear();
+    const res = await updateLeadStageAction("demo-cafe", "discovery_call");
+    expect(res).toEqual({
+      success: false,
+      error: "Too many requests — please try again shortly.",
+    });
+    expect(updateLeadStage).not.toHaveBeenCalled();
+  });
+
+  it("hard-rejects over-long slug before getLeadBySlug", async () => {
+    const { MAX_LEAD_SLUG_LENGTH } = await import("@/lib/leads/slug");
+    const { updateLeadStageAction } = await import("./actions");
+    const over = "a".repeat(MAX_LEAD_SLUG_LENGTH + 1);
+    const res = await updateLeadStageAction(over, "discovery_call");
+    expect(res).toEqual({
+      success: false,
+      error: "Slug is too long",
+    });
+    expect(getLeadBySlug).not.toHaveBeenCalled();
+    expect(updateLeadStage).not.toHaveBeenCalled();
+  });
+
   it("moves a non-outreach stage with LEAD_STAGE_CONVEX_PRIMARY and revalidates", async () => {
     const { updateLeadStageAction } = await import("./actions");
-    const res = await updateLeadStageAction("demo-cafe", "discovery_call");
+    const res = await updateLeadStageAction("demo-cafe", "paid");
 
     expect(res).toEqual({ success: true });
     expect(updateLeadStage).toHaveBeenCalledOnce();
-    expect(updateLeadStage).toHaveBeenCalledWith("demo-cafe", "discovery_call", {
+    expect(updateLeadStage).toHaveBeenCalledWith("demo-cafe", "paid", {
       requireConvex: true,
     });
     expect(recordLeadOutreach).not.toHaveBeenCalled();
@@ -159,15 +205,8 @@ describe("updateLeadStageAction", () => {
     expect(revalidatePath).toHaveBeenCalledWith("/preview/demo-cafe");
   });
 
-  it.each([
-    "discovered",
-    "site_built",
-    "discovery_call",
-    "paid",
-    "live",
-    "closed",
-  ] as LeadPipelineStage[])(
-    "revalidates after a successful %s stage move without Email 1",
+  it.each(["discovered", "site_built", "paid", "live", "closed"] as LeadPipelineStage[])(
+    "revalidates after a successful %s stage move without recording outreach or sending Email 1",
     async (stage) => {
       const { updateLeadStageAction } = await import("./actions");
       expect(await updateLeadStageAction("demo-cafe", stage)).toEqual({
@@ -180,6 +219,87 @@ describe("updateLeadStageAction", () => {
       expect(sendOutreachEmail).not.toHaveBeenCalled();
     },
   );
+
+  it("records outreach cadence step 1 for a move to discovery_call, without sending Email 1 (discovery-call-outreach-cadence-gap)", async () => {
+    const { updateLeadStageAction } = await import("./actions");
+    const res = await updateLeadStageAction("demo-cafe", "discovery_call");
+
+    expect(res).toEqual({ success: true });
+    expect(updateLeadStage).toHaveBeenCalledWith("demo-cafe", "discovery_call", {
+      requireConvex: true,
+    });
+    expect(recordLeadOutreach).toHaveBeenCalledWith(
+      "demo-cafe",
+      1,
+      undefined,
+      { requireConvex: true },
+    );
+    expect(sendOutreachEmail).not.toHaveBeenCalled();
+    expect(revalidatePath).toHaveBeenCalledWith("/dashboard/leads");
+  });
+
+  it("does not record outreach for a discovery_call move when the lead has no email", async () => {
+    getLeadBySlug.mockResolvedValue({ ...baseLead, email: undefined });
+    const { updateLeadStageAction } = await import("./actions");
+    const res = await updateLeadStageAction("demo-cafe", "discovery_call");
+
+    expect(res).toEqual({ success: true });
+    expect(recordLeadOutreach).not.toHaveBeenCalled();
+    expect(sendOutreachEmail).not.toHaveBeenCalled();
+  });
+
+  it("silently no-ops a discovery_call move when recordLeadOutreach resolves false (already recorded, or a paid/live/closed race)", async () => {
+    recordLeadOutreach.mockResolvedValue(false);
+    const { updateLeadStageAction } = await import("./actions");
+    const res = await updateLeadStageAction("demo-cafe", "discovery_call");
+
+    // Unlike outreach_sent, a false return here is not an error — there is
+    // no send to have skipped, and recording is best-effort bookkeeping.
+    expect(res).toEqual({ success: true });
+    expect(sendOutreachEmail).not.toHaveBeenCalled();
+  });
+
+  it("fails closed on a discovery_call move when the outreach mark rejects Convex primary", async () => {
+    recordLeadOutreach.mockRejectedValue(new MockConvexPrimaryWriteError());
+    const { updateLeadStageAction } = await import("./actions");
+    const res = await updateLeadStageAction("demo-cafe", "discovery_call");
+
+    expect(res).toEqual({
+      success: false,
+      error:
+        "Stage saved, but could not record the outreach mark in the shared store. Retry in a moment.",
+    });
+    expect(sendOutreachEmail).not.toHaveBeenCalled();
+  });
+
+  it("returns the paid/live race-guard error and never records outreach when updateLeadStage resolves false", async () => {
+    updateLeadStage.mockResolvedValue(false);
+    const { updateLeadStageAction } = await import("./actions");
+    const res = await updateLeadStageAction("demo-cafe", "outreach_sent");
+    expect(res).toEqual({
+      success: false,
+      error:
+        "Lead was paid or went live after this page loaded — refresh and check its status; the stage was not changed",
+    });
+    expect(recordLeadOutreach).not.toHaveBeenCalled();
+    expect(sendOutreachEmail).not.toHaveBeenCalled();
+    expect(revalidatePath).not.toHaveBeenCalled();
+  });
+
+  it("returns a race-guard error and skips Email 1 when recordLeadOutreach resolves false", async () => {
+    recordLeadOutreach.mockResolvedValue(false);
+    const { updateLeadStageAction } = await import("./actions");
+    const res = await updateLeadStageAction("demo-cafe", "outreach_sent");
+    expect(res).toEqual({
+      success: false,
+      error:
+        "Stage saved, but the lead went paid/live/closed, or Email 1 was already sent by another request, before this could record it — Email 1 was not sent here",
+    });
+    expect(updateLeadStage).toHaveBeenCalledOnce();
+    expect(recordLeadOutreach).toHaveBeenCalledOnce();
+    expect(sendOutreachEmail).not.toHaveBeenCalled();
+    expect(revalidatePath).not.toHaveBeenCalled();
+  });
 
   it("fails closed when Convex primary stage write rejects", async () => {
     updateLeadStage.mockRejectedValue(new MockConvexPrimaryWriteError());
@@ -238,15 +358,26 @@ describe("updateLeadStageAction", () => {
     expect(revalidatePath).toHaveBeenCalledWith("/dashboard/leads");
   });
 
-  it("on outreach_sent skips Email 1 when the lead is missing after the stage write", async () => {
+  it("returns Lead not found and never writes the stage when the slug does not exist", async () => {
     getLeadBySlug.mockResolvedValue(null);
     const { updateLeadStageAction } = await import("./actions");
-    const res = await updateLeadStageAction("demo-cafe", "outreach_sent");
+    const res = await updateLeadStageAction("missing-slug", "outreach_sent");
 
-    expect(res).toEqual({ success: true });
+    expect(res).toEqual({ success: false, error: "Lead not found" });
+    expect(updateLeadStage).not.toHaveBeenCalled();
     expect(recordLeadOutreach).not.toHaveBeenCalled();
     expect(sendOutreachEmail).not.toHaveBeenCalled();
-    expect(revalidatePath).toHaveBeenCalledWith("/dashboard/leads");
+    expect(revalidatePath).not.toHaveBeenCalled();
+  });
+
+  it("returns Lead not found for a non-outreach stage move on an unknown slug, without writing", async () => {
+    getLeadBySlug.mockResolvedValue(null);
+    const { updateLeadStageAction } = await import("./actions");
+    const res = await updateLeadStageAction("missing-slug", "paid");
+
+    expect(res).toEqual({ success: false, error: "Lead not found" });
+    expect(updateLeadStage).not.toHaveBeenCalled();
+    expect(revalidatePath).not.toHaveBeenCalled();
   });
 
   it("fails closed on outreach mark Convex error after stage save (skips Email 1)", async () => {
@@ -274,6 +405,10 @@ describe("updateLeadStageAction", () => {
       error: "db offline",
     });
     expect(revalidatePath).not.toHaveBeenCalled();
+    expect(captureError).toHaveBeenCalledWith(expect.any(Error), {
+      component: "dashboard-leads-actions",
+      failureKind: "updateLeadStageAction",
+    });
   });
 
   it("surfaces non-Error throws as Unknown error", async () => {

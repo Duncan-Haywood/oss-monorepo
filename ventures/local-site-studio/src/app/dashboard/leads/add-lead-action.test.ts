@@ -11,10 +11,10 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
  * dashboard action glue: requireOperatorAuth, missing slug/businessName,
  * slug sanitize, default stage/dataSource, existing-slug conflict (no
  * upsert), LEAD_UPSERT_CONVEX_PRIMARY on upsertLead, ConvexPrimaryWriteError
- * fail-closed (no revalidate), success revalidate, outreach_sent
- * mark-before-Resend, missing-email skip send, outreach-mark
- * ConvexPrimaryWriteError (lead saved; Email 1 not sent), and Error /
- * non-Error throws.
+ * fail-closed (no revalidate), success revalidate, field-length soft-caps /
+ * hard-reject (shared with CSV), outreach_sent mark-before-Resend,
+ * missing-email skip send, outreach-mark ConvexPrimaryWriteError (lead saved;
+ * Email 1 not sent), and Error / non-Error throws.
  */
 
 const requireOperatorAuth = vi.fn();
@@ -27,9 +27,18 @@ vi.mock("next/cache", () => ({
   revalidatePath: (...args: unknown[]) => revalidatePath(...args),
 }));
 
+const headersMock = vi.fn();
 vi.mock("next/headers", () => ({
-  headers: vi.fn(),
+  headers: (...args: unknown[]) => headersMock(...args),
 }));
+
+function headerStore(entries: Record<string, string | null> = {}) {
+  return {
+    get(name: string) {
+      return entries[name] ?? null;
+    },
+  };
+}
 
 const getLeadBySlug = vi.fn();
 const upsertLead = vi.fn();
@@ -47,6 +56,7 @@ vi.mock("@/lib/db", () => ({
   recordClientInquiryReply: vi.fn(),
   getLeads: vi.fn(),
   listOrders: vi.fn(),
+  listOrdersByLeadSlug: vi.fn(),
   recordLeadOutreach: (...args: unknown[]) => recordLeadOutreach(...args),
   listUnrepliedInquiries: vi.fn(),
   updateLeadNotes: vi.fn(),
@@ -113,13 +123,20 @@ const baseLeadInput = {
   recommendedTier: "starter" as const,
 };
 
+const captureError = vi.fn();
+vi.mock("@/lib/observability/error-tracking", () => ({
+  captureError: (...args: unknown[]) => captureError(...args),
+}));
+
 describe("addLeadAction", () => {
   beforeEach(() => {
+    captureError.mockReset().mockResolvedValue(undefined);
     vi.resetModules();
     requireOperatorAuth.mockReset().mockResolvedValue({ ok: true });
+    headersMock.mockReset().mockResolvedValue(headerStore());
     revalidatePath.mockReset();
     getLeadBySlug.mockReset().mockResolvedValue(null);
-    upsertLead.mockReset().mockResolvedValue(undefined);
+    upsertLead.mockReset().mockResolvedValue(true);
     recordLeadOutreach.mockReset().mockResolvedValue(undefined);
     sendOutreachEmail.mockReset().mockResolvedValue({
       success: true,
@@ -142,6 +159,22 @@ describe("addLeadAction", () => {
     expect(getLeadBySlug).not.toHaveBeenCalled();
     expect(upsertLead).not.toHaveBeenCalled();
     expect(recordLeadOutreach).not.toHaveBeenCalled();
+  });
+
+  it("rate-limits repeated creates from the same IP (auth alone is not a throttle)", async () => {
+    const { addLeadAction } = await import("./actions");
+    // DEFAULT_RATE_LIMIT is 20 requests/60s per key — exhaust the window.
+    for (let i = 0; i < 20; i++) {
+      const res = await addLeadAction(baseLeadInput);
+      expect(res.success).toBe(true);
+    }
+    getLeadBySlug.mockClear();
+    const res = await addLeadAction(baseLeadInput);
+    expect(res).toEqual({
+      success: false,
+      error: "Too many requests — please try again shortly.",
+    });
+    expect(getLeadBySlug).not.toHaveBeenCalled();
     expect(sendOutreachEmail).not.toHaveBeenCalled();
   });
 
@@ -151,6 +184,16 @@ describe("addLeadAction", () => {
     expect(res).toEqual({
       success: false,
       error: "Slug and Business Name are required",
+    });
+    expect(upsertLead).not.toHaveBeenCalled();
+  });
+
+  it("rejects all-symbol slugs that sanitize to empty", async () => {
+    const { addLeadAction } = await import("./actions");
+    const res = await addLeadAction({ ...baseLeadInput, slug: "!!!" });
+    expect(res).toEqual({
+      success: false,
+      error: "Slug must contain at least one letter or number",
     });
     expect(upsertLead).not.toHaveBeenCalled();
   });
@@ -165,16 +208,74 @@ describe("addLeadAction", () => {
     expect(upsertLead).not.toHaveBeenCalled();
   });
 
+  it("hard-rejects over-long businessName before upsert", async () => {
+    const { MAX_BUSINESS_NAME_LENGTH } = await import(
+      "@/lib/leads/create-fields"
+    );
+    const { addLeadAction } = await import("./actions");
+    const res = await addLeadAction({
+      ...baseLeadInput,
+      businessName: "A".repeat(MAX_BUSINESS_NAME_LENGTH + 1),
+    });
+    expect(res).toEqual({
+      success: false,
+      error: `Business Name must be ${MAX_BUSINESS_NAME_LENGTH} characters or fewer`,
+    });
+    expect(getLeadBySlug).not.toHaveBeenCalled();
+    expect(upsertLead).not.toHaveBeenCalled();
+  });
+
+  it("rejects an unrecognized category before upsert (CSV parity, add-lead-category-validation-parity)", async () => {
+    const { addLeadAction } = await import("./actions");
+    const res = await addLeadAction({
+      ...baseLeadInput,
+      category: "not-a-real-category" as unknown as typeof baseLeadInput.category,
+    });
+    expect(res).toEqual({
+      success: false,
+      error:
+        "Invalid category \"not-a-real-category\" (use restaurant|salon|trades|retail|health|automotive|cleaning|fitness|legal|generic)",
+    });
+    expect(getLeadBySlug).not.toHaveBeenCalled();
+    expect(upsertLead).not.toHaveBeenCalled();
+  });
+
+  it("soft-caps optional create fields before upsert (CSV parity)", async () => {
+    const {
+      MAX_CITY_LENGTH,
+      MAX_DESCRIPTION_LENGTH,
+      MAX_TAGLINE_LENGTH,
+    } = await import("@/lib/leads/create-fields");
+    const { addLeadAction } = await import("./actions");
+    const res = await addLeadAction({
+      ...baseLeadInput,
+      city: "c".repeat(MAX_CITY_LENGTH + 40),
+      tagline: "t".repeat(MAX_TAGLINE_LENGTH + 10),
+      description: "d".repeat(MAX_DESCRIPTION_LENGTH + 50),
+    });
+    expect(res).toEqual({ success: true, slug: "demo-cafe" });
+    expect(upsertLead).toHaveBeenCalledWith(
+      expect.objectContaining({
+        city: "c".repeat(MAX_CITY_LENGTH),
+        tagline: "t".repeat(MAX_TAGLINE_LENGTH),
+        description: "d".repeat(MAX_DESCRIPTION_LENGTH),
+      }),
+      { requireConvex: true },
+    );
+  });
+
   it("sanitizes slug, defaults stage/dataSource, passes LEAD_UPSERT_CONVEX_PRIMARY, and revalidates", async () => {
     const { addLeadAction } = await import("./actions");
     const res = await addLeadAction(baseLeadInput);
 
-    expect(res).toEqual({ success: true, slug: "demo-cafe-" });
-    expect(getLeadBySlug).toHaveBeenCalledWith("demo-cafe-");
+    // Edge dashes stripped so CRM slug matches leadSlugAsDnsLabel / Host lookup
+    // (create-path-slug-edge-dash-normalize — "Demo Cafe!" must not become demo-cafe-).
+    expect(res).toEqual({ success: true, slug: "demo-cafe" });
+    expect(getLeadBySlug).toHaveBeenCalledWith("demo-cafe");
     expect(upsertLead).toHaveBeenCalledOnce();
     expect(upsertLead).toHaveBeenCalledWith(
       expect.objectContaining({
-        slug: "demo-cafe-",
+        slug: "demo-cafe",
         businessName: "Demo Cafe",
         stage: "discovered",
         dataSource: "manual_entry",
@@ -185,7 +286,7 @@ describe("addLeadAction", () => {
     expect(recordLeadOutreach).not.toHaveBeenCalled();
     expect(sendOutreachEmail).not.toHaveBeenCalled();
     expect(revalidatePath).toHaveBeenCalledWith("/dashboard/leads");
-    expect(revalidatePath).toHaveBeenCalledWith("/preview/demo-cafe-");
+    expect(revalidatePath).toHaveBeenCalledWith("/preview/demo-cafe");
   });
 
   it("preserves an explicit stage and dataSource on create", async () => {
@@ -210,6 +311,28 @@ describe("addLeadAction", () => {
     expect(sendOutreachEmail).not.toHaveBeenCalled();
   });
 
+  it("soft-caps an over-long dataSource before upsert", async () => {
+    const { MAX_LEAD_DATA_SOURCE_LENGTH } = await import(
+      "@/lib/leads/create-fields"
+    );
+    const long = "x".repeat(MAX_LEAD_DATA_SOURCE_LENGTH + 25);
+    const { addLeadAction } = await import("./actions");
+    const res = await addLeadAction({
+      ...baseLeadInput,
+      slug: "soft-cap-source",
+      dataSource: long,
+    });
+
+    expect(res).toEqual({ success: true, slug: "soft-cap-source" });
+    expect(upsertLead).toHaveBeenCalledWith(
+      expect.objectContaining({
+        slug: "soft-cap-source",
+        dataSource: "x".repeat(MAX_LEAD_DATA_SOURCE_LENGTH),
+      }),
+      { requireConvex: true },
+    );
+  });
+
   it("rejects an existing slug without calling upsertLead", async () => {
     getLeadBySlug.mockResolvedValue({
       ...baseLeadInput,
@@ -230,6 +353,26 @@ describe("addLeadAction", () => {
       error: existingLeadSlugConflictMessage("demo-cafe"),
     });
     expect(upsertLead).not.toHaveBeenCalled();
+    expect(revalidatePath).not.toHaveBeenCalled();
+  });
+
+  it("returns a conflict error and skips outreach/revalidate when upsertLead loses the create-only race (lead-upsert-create-only-race-guard)", async () => {
+    upsertLead.mockResolvedValue(false);
+    const { existingLeadSlugConflictMessage } = await import(
+      "@/lib/leads/csv-import"
+    );
+    const { addLeadAction } = await import("./actions");
+    const res = await addLeadAction({
+      ...baseLeadInput,
+      slug: "race-cafe",
+      stage: "outreach_sent",
+    });
+    expect(res).toEqual({
+      success: false,
+      error: existingLeadSlugConflictMessage("race-cafe"),
+    });
+    expect(recordLeadOutreach).not.toHaveBeenCalled();
+    expect(sendOutreachEmail).not.toHaveBeenCalled();
     expect(revalidatePath).not.toHaveBeenCalled();
   });
 
@@ -324,6 +467,61 @@ describe("addLeadAction", () => {
     expect(revalidatePath).not.toHaveBeenCalled();
   });
 
+  it("on discovery_call records outreach cadence step 1 without sending Email 1 (add-lead-discovery-call-outreach-cadence-gap)", async () => {
+    const { addLeadAction } = await import("./actions");
+    const res = await addLeadAction({
+      ...baseLeadInput,
+      slug: "discovery-cafe",
+      stage: "discovery_call",
+    });
+
+    expect(res).toEqual({ success: true, slug: "discovery-cafe" });
+    expect(recordLeadOutreach).toHaveBeenCalledOnce();
+    expect(recordLeadOutreach).toHaveBeenCalledWith(
+      "discovery-cafe",
+      1,
+      undefined,
+      { requireConvex: true },
+    );
+    expect(sendOutreachEmail).not.toHaveBeenCalled();
+    expect(revalidatePath).toHaveBeenCalledWith("/dashboard/leads");
+  });
+
+  it("on discovery_call skips the outreach mark when the lead has no email", async () => {
+    const { addLeadAction } = await import("./actions");
+    const res = await addLeadAction({
+      ...baseLeadInput,
+      slug: "discovery-no-email-cafe",
+      stage: "discovery_call",
+      email: "",
+    });
+
+    expect(res).toEqual({ success: true, slug: "discovery-no-email-cafe" });
+    expect(recordLeadOutreach).not.toHaveBeenCalled();
+    expect(sendOutreachEmail).not.toHaveBeenCalled();
+  });
+
+  it("fails closed on discovery_call outreach mark Convex error after lead save", async () => {
+    recordLeadOutreach.mockRejectedValue(new MockConvexPrimaryWriteError());
+    const { addLeadAction } = await import("./actions");
+    const res = await addLeadAction({
+      ...baseLeadInput,
+      slug: "discovery-mark-fail-cafe",
+      stage: "discovery_call",
+    });
+
+    expect(res).toEqual({
+      success: false,
+      error:
+        "Lead saved, but could not record the outreach mark in the shared store. Retry in a moment.",
+      slug: "discovery-mark-fail-cafe",
+    });
+    expect(upsertLead).toHaveBeenCalledOnce();
+    expect(recordLeadOutreach).toHaveBeenCalledOnce();
+    expect(sendOutreachEmail).not.toHaveBeenCalled();
+    expect(revalidatePath).not.toHaveBeenCalled();
+  });
+
   it("surfaces unexpected Error messages from the upsert", async () => {
     upsertLead.mockRejectedValue(new Error("db offline"));
     const { addLeadAction } = await import("./actions");
@@ -336,6 +534,10 @@ describe("addLeadAction", () => {
       error: "db offline",
     });
     expect(revalidatePath).not.toHaveBeenCalled();
+    expect(captureError).toHaveBeenCalledWith(expect.any(Error), {
+      component: "dashboard-leads-actions",
+      failureKind: "addLeadAction",
+    });
   });
 
   it("surfaces non-Error throws as Unknown error", async () => {

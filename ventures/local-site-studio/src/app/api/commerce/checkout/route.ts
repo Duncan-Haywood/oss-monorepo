@@ -1,8 +1,25 @@
 import { NextResponse } from "next/server";
 import Stripe from "stripe";
+import { normalizeCheckoutCustomerEmail } from "@/lib/checkout/customer-email";
+import { parseClientIdempotencyKey } from "@/lib/checkout/idempotency-key";
 import { CHECKOUT_SESSION_CREATE_CONVEX_PRIMARY } from "@/lib/checkout/session-persist";
-import { getCommerceCatalog, recordCheckoutSessionCreated } from "@/lib/db";
+import { leadEligibleForCommerceCatalog } from "@/lib/commerce/catalog";
+import {
+  MAX_COMMERCE_LINE_ITEM_QUANTITY,
+  parseCommerceCheckoutSkuId,
+  parseCommerceCheckoutSlug,
+} from "@/lib/commerce/checkout-fields";
+import {
+  getCommerceCatalog,
+  getLeadBySlug,
+  listOrdersByLeadSlug,
+  recordCheckoutSessionCreated,
+} from "@/lib/db";
+import { leadPreviewAbsoluteUrl } from "@/lib/leads/slug-path";
+import { captureError } from "@/lib/observability/error-tracking";
 import { ConvexPrimaryWriteError } from "@/lib/payments/convex-primary";
+import { resolveStripeRedirectAppUrl } from "@/lib/security/app-url";
+import { readJsonBodyWithByteLimit } from "@/lib/security/json-body";
 import { checkRateLimit, clientIpFromHeaders } from "@/lib/security/rate-limit";
 
 /**
@@ -13,8 +30,22 @@ import { checkRateLimit, clientIpFromHeaders } from "@/lib/security/rate-limit";
  * trusted from the request body, so a tampered client payload cannot buy a
  * SKU below its stored price.
  *
+ * Entitlement must match preview + saveCommerceCatalogAction: paid/live with
+ * an uncanceled commerceAddon order (leadEligibleForCommerceCatalog). CRM
+ * pause/cancel (#344–#347) hides Buy now on preview but must also fail closed
+ * on this create path — catalog+stripePriceId alone is not enough.
+ *
  * Records kind=commerce_sku on checkout_sessions so abandoned Buy now carts
  * never enter the bundle recovery queue (wrong Finish-checkout email).
+ *
+ * The line item carries adjustable_quantity so a shopper can buy more than
+ * one unit from Stripe's own hosted Checkout page (there is no in-app cart —
+ * PreviewCommerceCatalog's Buy now button posts one skuId per Session) —
+ * quantity is otherwise hardcoded to 1 and Stripe shows no quantity stepper
+ * at all. Safe with every downstream invariant: the webhook ledgers
+ * session.amount_total (not catalogItem.priceCents × quantity) and proves
+ * Price identity via the stable commerceSkuStripeKey metadata match, both
+ * quantity-agnostic (commerce-checkout-adjustable-quantity).
  *
  * Rate limited per client IP (best-effort, per-instance — see
  * src/lib/security/rate-limit.ts) to blunt scripted checkout-session churn.
@@ -24,6 +55,7 @@ interface CommerceCheckoutRequestBody {
   slug?: string;
   skuId?: string;
   customerEmail?: string;
+  idempotencyKey?: string;
 }
 
 function notConfigured(message: string) {
@@ -48,17 +80,48 @@ export async function POST(request: Request) {
     return notConfigured("Set STRIPE_SECRET_KEY to enable Commerce checkout.");
   }
 
-  let body: CommerceCheckoutRequestBody;
-  try {
-    body = await request.json();
-  } catch {
+  const parsedBody = await readJsonBodyWithByteLimit<CommerceCheckoutRequestBody>(
+    request,
+  );
+  if (!parsedBody.ok) {
+    if (parsedBody.reason === "too_large") {
+      return NextResponse.json({ error: "Request body is too large" }, { status: 400 });
+    }
     return NextResponse.json({ error: "Invalid JSON body" }, { status: 400 });
   }
+  const body = parsedBody.value;
 
-  const slug = typeof body.slug === "string" ? body.slug.trim() : "";
-  const skuId = typeof body.skuId === "string" ? body.skuId.trim() : "";
-  if (!slug || !skuId) {
+  // Opaque lookup keys — hard-reject over-length before DB/Stripe (never
+  // soft-cap; truncation looks up the wrong row and can still burn quota).
+  const parsedSlug = parseCommerceCheckoutSlug(body.slug);
+  if (!parsedSlug.ok) {
+    if (parsedSlug.reason === "too_long") {
+      return NextResponse.json({ error: "slug is too long" }, { status: 400 });
+    }
     return NextResponse.json({ error: "slug and skuId are required" }, { status: 400 });
+  }
+  const parsedSkuId = parseCommerceCheckoutSkuId(body.skuId);
+  if (!parsedSkuId.ok) {
+    if (parsedSkuId.reason === "too_long") {
+      return NextResponse.json({ error: "skuId is too long" }, { status: 400 });
+    }
+    return NextResponse.json({ error: "slug and skuId are required" }, { status: 400 });
+  }
+  const slug = parsedSlug.value;
+  const skuId = parsedSkuId.value;
+
+  // Same predicate as loadPreviewCommerceItems / saveCommerceCatalogAction —
+  // never mint a Session after CRM pause/cancel while UI is hidden.
+  const lead = await getLeadBySlug(slug);
+  if (!lead) {
+    return NextResponse.json({ error: "Lead not found" }, { status: 404 });
+  }
+  const orders = await listOrdersByLeadSlug(slug);
+  if (!leadEligibleForCommerceCatalog(lead, orders)) {
+    return NextResponse.json(
+      { error: "Commerce catalog not available for this lead" },
+      { status: 403 },
+    );
   }
 
   const catalog = await getCommerceCatalog(slug);
@@ -72,18 +135,39 @@ export async function POST(request: Request) {
     );
   }
 
-  const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? new URL(request.url).origin;
+  // Never trust request.url / Host for Stripe redirect bases — see
+  // resolveStripeRedirectAppUrl (Host spoof → post-payment phishing).
+  const appUrl = resolveStripeRedirectAppUrl();
   const stripe = new Stripe(secretKey);
+  // Soft-cap before Stripe + persist — rate limits blunt count, not size.
+  const customerEmail = normalizeCheckoutCustomerEmail(body.customerEmail);
+  // Client-minted per-attempt key — see idempotency-key.ts for why this must
+  // NOT be a stable server-derived key like the catalog/bootstrap/Connect ones.
+  const idempotencyKey = parseClientIdempotencyKey(body.idempotencyKey);
 
   try {
-    const session = await stripe.checkout.sessions.create({
-      mode: "payment",
-      line_items: [{ price: item.stripePriceId, quantity: 1 }],
-      customer_email: body.customerEmail,
-      success_url: `${appUrl}/checkout/success?session_id={CHECKOUT_SESSION_ID}`,
-      cancel_url: `${appUrl}/preview/${slug}#catalog`,
-      metadata: { slug, skuId, kind: "commerce_sku" },
-    });
+    const session = await stripe.checkout.sessions.create(
+      {
+        mode: "payment",
+        line_items: [
+          {
+            price: item.stripePriceId,
+            quantity: 1,
+            adjustable_quantity: {
+              enabled: true,
+              minimum: 1,
+              maximum: MAX_COMMERCE_LINE_ITEM_QUANTITY,
+            },
+          },
+        ],
+        customer_email: customerEmail,
+        allow_promotion_codes: true,
+        success_url: `${appUrl}/checkout/success?session_id={CHECKOUT_SESSION_ID}`,
+        cancel_url: `${leadPreviewAbsoluteUrl(appUrl, slug)}#catalog`,
+        metadata: { slug, skuId, kind: "commerce_sku" },
+      },
+      idempotencyKey ? { idempotencyKey } : undefined,
+    );
 
     if (!session.url) {
       return NextResponse.json(
@@ -102,7 +186,7 @@ export async function POST(request: Request) {
           stripeSessionId: session.id,
           tier: "",
           commerceAddon: false,
-          customerEmail: body.customerEmail,
+          customerEmail,
           kind: "commerce_sku",
           skuId,
         },
@@ -112,6 +196,7 @@ export async function POST(request: Request) {
       if (!(e instanceof ConvexPrimaryWriteError)) {
         console.warn(`Failed to record commerce checkout session ${session.id}`, e);
       }
+      await captureError(e, { component: "commerce-checkout", failureKind: "checkout_session_record" });
       return NextResponse.json(
         {
           error: "Checkout tracking unavailable",
@@ -125,6 +210,7 @@ export async function POST(request: Request) {
     return NextResponse.json({ url: session.url });
   } catch (error) {
     const message = error instanceof Error ? error.message : "Unknown Stripe error";
+    await captureError(error, { component: "commerce-checkout", failureKind: "session_create" });
     return NextResponse.json({ error: "Stripe session creation failed", message }, { status: 502 });
   }
 }

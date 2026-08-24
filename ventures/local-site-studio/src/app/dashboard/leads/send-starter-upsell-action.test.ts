@@ -1,5 +1,21 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
+class MockConvexPrimaryWriteError extends Error {
+  constructor(message = "Convex primary write failed") {
+    super(message);
+    this.name = "ConvexPrimaryWriteError";
+  }
+}
+
+// Mocked (not imported from the real module) so the class reference stays
+// identical across this suite's per-test vi.resetModules() calls — the real
+// module would be re-instantiated on each dynamic `await import("./actions")`,
+// breaking `instanceof` checks against a top-level import taken before reset
+// (mirrors checkout-recovery-actions.test.ts / stripe-connect-actions.test.ts).
+vi.mock("@/lib/payments/convex-primary", () => ({
+  ConvexPrimaryWriteError: MockConvexPrimaryWriteError,
+}));
+
 /**
  * Action-level orchestration for sendStarterUpsellAction — the operator
  * Starter → MRR Upsell path (eligibility inverse of billing portal + Resend).
@@ -9,7 +25,12 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
  * action glue: requireOperatorAuth, empty slug, missing lead, eligibility
  * (paid/live Starter-only + email, no Growth/Complete/Commerce), target
  * tier from recommendedTier, suppression / send failure (no revalidate),
- * mock send flag, leadSlug order filtering, and success revalidate.
+ * mock send flag, leadSlug order filtering, success revalidate, and the
+ * recordStarterUpsellSent CAS sent-marker (starter-upsell-send-race-guard) —
+ * the mark runs BEFORE the send (persist-then-notify, mirroring
+ * checkout-recovery-send-race-guard), so a `false` CAS return (a concurrent
+ * duplicate) or a thrown write error both skip the send entirely and surface
+ * as success:false, never silent success or a duplicate real email.
  */
 
 const requireOperatorAuth = vi.fn();
@@ -22,12 +43,22 @@ vi.mock("next/cache", () => ({
   revalidatePath: (...args: unknown[]) => revalidatePath(...args),
 }));
 
+const headersMock = vi.fn();
 vi.mock("next/headers", () => ({
-  headers: vi.fn(),
+  headers: (...args: unknown[]) => headersMock(...args),
 }));
 
+function headerStore(entries: Record<string, string | null> = {}) {
+  return {
+    get(name: string) {
+      return entries[name] ?? null;
+    },
+  };
+}
+
 const getLeadBySlug = vi.fn();
-const listOrders = vi.fn();
+const listOrdersByLeadSlug = vi.fn();
+const recordStarterUpsellSent = vi.fn();
 
 vi.mock("@/lib/db", () => ({
   listOpenCheckoutSessions: vi.fn(),
@@ -40,8 +71,10 @@ vi.mock("@/lib/db", () => ({
   getClientInquiryById: vi.fn(),
   recordClientInquiryReply: vi.fn(),
   getLeads: vi.fn(),
-  listOrders: (...args: unknown[]) => listOrders(...args),
+  listOrdersByLeadSlug: (...args: unknown[]) => listOrdersByLeadSlug(...args),
+  listOrders: vi.fn(),
   recordLeadOutreach: vi.fn(),
+  recordStarterUpsellSent: (...args: unknown[]) => recordStarterUpsellSent(...args),
   listUnrepliedInquiries: vi.fn(),
   updateLeadNotes: vi.fn(),
   updateLeadSnooze: vi.fn(),
@@ -96,27 +129,34 @@ const starterOrder = {
   tier: "starter",
   commerceAddon: false,
   amountPaid: 500,
-  status: "paid",
   createdAt: "2026-07-13T10:00:00.000Z",
 };
 
 const eligibilityError =
   "Upsell only applies to paid/live Starter leads with email and no Growth/Complete/Commerce order yet";
 
+const captureError = vi.fn();
+vi.mock("@/lib/observability/error-tracking", () => ({
+  captureError: (...args: unknown[]) => captureError(...args),
+}));
+
 describe("sendStarterUpsellAction", () => {
   const originalEnv = { ...process.env };
 
   beforeEach(() => {
+    captureError.mockReset().mockResolvedValue(undefined);
     vi.resetModules();
     process.env = { ...originalEnv };
     requireOperatorAuth.mockReset().mockResolvedValue({ ok: true });
+    headersMock.mockReset().mockResolvedValue(headerStore());
     revalidatePath.mockReset();
     getLeadBySlug.mockReset().mockResolvedValue(eligibleLead);
-    listOrders.mockReset().mockResolvedValue([starterOrder]);
+    listOrdersByLeadSlug.mockReset().mockResolvedValue([starterOrder]);
     sendStarterUpsellEmail.mockReset().mockResolvedValue({
       success: true,
       id: "email_1",
     });
+    recordStarterUpsellSent.mockReset().mockResolvedValue(true);
   });
 
   afterEach(() => {
@@ -136,6 +176,22 @@ describe("sendStarterUpsellAction", () => {
     });
     expect(getLeadBySlug).not.toHaveBeenCalled();
     expect(sendStarterUpsellEmail).not.toHaveBeenCalled();
+  });
+
+  it("rate-limits repeated upsell sends from the same IP (auth alone is not a throttle)", async () => {
+    const { sendStarterUpsellAction } = await import("./actions");
+    // DEFAULT_RATE_LIMIT is 20 requests/60s per key — exhaust the window.
+    for (let i = 0; i < 20; i++) {
+      const res = await sendStarterUpsellAction("demo-cafe");
+      expect(res.success).toBe(true);
+    }
+    getLeadBySlug.mockClear();
+    const res = await sendStarterUpsellAction("demo-cafe");
+    expect(res).toEqual({
+      success: false,
+      error: "Too many requests — please try again shortly.",
+    });
+    expect(getLeadBySlug).not.toHaveBeenCalled();
   });
 
   it("rejects an empty or whitespace slug", async () => {
@@ -188,7 +244,7 @@ describe("sendStarterUpsellAction", () => {
   });
 
   it("rejects when Growth/Complete already exists (billing-portal eligible)", async () => {
-    listOrders.mockResolvedValue([
+    listOrdersByLeadSlug.mockResolvedValue([
       starterOrder,
       {
         ...starterOrder,
@@ -196,6 +252,32 @@ describe("sendStarterUpsellAction", () => {
         stripeSessionId: "cs_test_growth",
         tier: "growth",
         amountPaid: 599,
+      },
+    ]);
+    const { sendStarterUpsellAction } = await import("./actions");
+    const res = await sendStarterUpsellAction("demo-cafe");
+    expect(res).toEqual({
+      success: false,
+      error: eligibilityError,
+    });
+    expect(sendStarterUpsellEmail).not.toHaveBeenCalled();
+  });
+
+  it("still rejects when the existing Growth order was refunded — a refund does not always cancel the underlying Subscription (mutual-exclusion-restore)", async () => {
+    // orderEligibleForBillingPortal never excludes refunded/disputed orders
+    // (a disputed-but-still-billing subscriber keeps Manage billing on
+    // purpose) — leadEligibleForStarterUpsell must stay in lockstep with it,
+    // or the operator could nudge a still-subscribed customer to buy Growth
+    // again, risking two simultaneously active recurring subscriptions.
+    listOrdersByLeadSlug.mockResolvedValue([
+      starterOrder,
+      {
+        ...starterOrder,
+        id: "ord_growth",
+        stripeSessionId: "cs_test_growth",
+        tier: "growth",
+        amountPaid: 599,
+        refundedAt: "2026-07-14T00:00:00.000Z",
       },
     ]);
     const { sendStarterUpsellAction } = await import("./actions");
@@ -225,6 +307,75 @@ describe("sendStarterUpsellAction", () => {
       monthlyPriceUsd: 99,
     });
     expect(revalidatePath).toHaveBeenCalledWith("/dashboard/leads");
+    expect(recordStarterUpsellSent).toHaveBeenCalledWith(
+      "demo-cafe",
+      expect.any(String),
+      0,
+      expect.objectContaining({ requireConvex: true }),
+    );
+  });
+
+  it("passes the lead's current starterUpsellSentCount as the CAS expected value on a repeat nudge", async () => {
+    getLeadBySlug.mockResolvedValue({
+      ...eligibleLead,
+      starterUpsellSentCount: 2,
+    });
+    const { sendStarterUpsellAction } = await import("./actions");
+    const res = await sendStarterUpsellAction("demo-cafe");
+    expect(res.success).toBe(true);
+    expect(recordStarterUpsellSent).toHaveBeenCalledWith(
+      "demo-cafe",
+      expect.any(String),
+      2,
+      expect.objectContaining({ requireConvex: true }),
+    );
+  });
+
+  it("skips the send entirely when a concurrent request already advanced the sent count (starter-upsell-send-race-guard)", async () => {
+    // recordStarterUpsellSent's atomic CAS write resolves false (not throw)
+    // when a second tab or a double-click before the button's
+    // isPending-disabled state applied already advanced this exact count.
+    // The mark runs BEFORE the send (persist-then-notify, mirroring
+    // checkout-recovery-send-race-guard), so a lost CAS means this call's
+    // own send never fires — a real duplicate email is only ever sent by
+    // the concurrent call that actually won the race, never by both. This
+    // is a concurrency guard only — it does NOT block a later, deliberate
+    // resend (see the CAS-expected-count test above), unlike the one-shot
+    // marketing/voice-pack gate.
+    recordStarterUpsellSent.mockResolvedValue(false);
+    const { sendStarterUpsellAction } = await import("./actions");
+    const res = await sendStarterUpsellAction("demo-cafe");
+    expect(res).toEqual({
+      success: false,
+      error:
+        "Starter upsell was already sent moments ago by a concurrent request — skipped duplicate send",
+    });
+    expect(sendStarterUpsellEmail).not.toHaveBeenCalled();
+    expect(revalidatePath).not.toHaveBeenCalled();
+  });
+
+  it("skips the send and reports a not-sent error when the mark write fails closed on Convex (ConvexPrimaryWriteError)", async () => {
+    recordStarterUpsellSent.mockRejectedValue(new MockConvexPrimaryWriteError());
+    const { sendStarterUpsellAction } = await import("./actions");
+    const res = await sendStarterUpsellAction("demo-cafe");
+    expect(res.success).toBe(false);
+    if (res.success) return;
+    expect(res.error).toMatch(/shared store/);
+    expect(sendStarterUpsellEmail).not.toHaveBeenCalled();
+    expect(revalidatePath).not.toHaveBeenCalled();
+  });
+
+  it("fails closed (does not send) when the sent-marker write throws a non-Convex error", async () => {
+    recordStarterUpsellSent.mockRejectedValue(new Error("disk full"));
+    const { sendStarterUpsellAction } = await import("./actions");
+    const res = await sendStarterUpsellAction("demo-cafe");
+    expect(res).toEqual({ success: false, error: "disk full" });
+    expect(sendStarterUpsellEmail).not.toHaveBeenCalled();
+    expect(revalidatePath).not.toHaveBeenCalled();
+    expect(captureError).toHaveBeenCalledWith(expect.any(Error), {
+      component: "dashboard-leads-actions",
+      failureKind: "sendStarterUpsellAction",
+    });
   });
 
   it("targets Complete when recommendedTier is complete", async () => {
@@ -258,7 +409,8 @@ describe("sendStarterUpsellAction", () => {
     const res = await sendStarterUpsellAction("demo-cafe");
     expect(res).toEqual({
       success: false,
-      error: "Email is on the suppression list",
+      error:
+        "Email is on the suppression list (sent-marker was recorded — click Send Starter upsell again to retry)",
     });
     expect(revalidatePath).not.toHaveBeenCalled();
   });
@@ -272,7 +424,8 @@ describe("sendStarterUpsellAction", () => {
     const res = await sendStarterUpsellAction("demo-cafe");
     expect(res).toEqual({
       success: false,
-      error: "Resend 429",
+      error:
+        "Resend 429 (sent-marker was recorded — click Send Starter upsell again to retry)",
     });
     expect(revalidatePath).not.toHaveBeenCalled();
   });
@@ -292,18 +445,11 @@ describe("sendStarterUpsellAction", () => {
     expect(revalidatePath).toHaveBeenCalledWith("/dashboard/leads");
   });
 
-  it("filters orders to the requested lead slug before eligibility", async () => {
-    listOrders.mockResolvedValue([
-      {
-        ...starterOrder,
-        leadSlug: "other-cafe",
-        tier: "growth",
-        amountPaid: 599,
-      },
-      starterOrder,
-    ]);
+  it("loads orders via listOrdersByLeadSlug for the requested slug", async () => {
+    listOrdersByLeadSlug.mockResolvedValue([starterOrder]);
     const { sendStarterUpsellAction } = await import("./actions");
     const res = await sendStarterUpsellAction("demo-cafe");
+    expect(listOrdersByLeadSlug).toHaveBeenCalledWith("demo-cafe");
     expect(res).toEqual({
       success: true,
       targetTier: "growth",

@@ -23,9 +23,18 @@ vi.mock("next/cache", () => ({
   revalidatePath: (...args: unknown[]) => revalidatePath(...args),
 }));
 
+const headersMock = vi.fn();
 vi.mock("next/headers", () => ({
-  headers: vi.fn(),
+  headers: (...args: unknown[]) => headersMock(...args),
 }));
+
+function headerStore(entries: Record<string, string | null> = {}) {
+  return {
+    get(name: string) {
+      return entries[name] ?? null;
+    },
+  };
+}
 
 const getLeadBySlug = vi.fn();
 const recordLeadOutreach = vi.fn();
@@ -42,6 +51,7 @@ vi.mock("@/lib/db", () => ({
   recordClientInquiryReply: vi.fn(),
   getLeads: vi.fn(),
   listOrders: vi.fn(),
+  listOrdersByLeadSlug: vi.fn(),
   recordLeadOutreach: (...args: unknown[]) => recordLeadOutreach(...args),
   listUnrepliedInquiries: vi.fn(),
   updateLeadNotes: vi.fn(),
@@ -107,13 +117,20 @@ const outreachLead = {
   dataSource: "manual_entry" as const,
 };
 
+const captureError = vi.fn();
+vi.mock("@/lib/observability/error-tracking", () => ({
+  captureError: (...args: unknown[]) => captureError(...args),
+}));
+
 describe("sendFollowUpAction", () => {
   beforeEach(() => {
+    captureError.mockReset().mockResolvedValue(undefined);
     vi.resetModules();
     requireOperatorAuth.mockReset().mockResolvedValue({ ok: true });
+    headersMock.mockReset().mockResolvedValue(headerStore());
     revalidatePath.mockReset();
     getLeadBySlug.mockReset().mockResolvedValue(outreachLead);
-    recordLeadOutreach.mockReset().mockResolvedValue(undefined);
+    recordLeadOutreach.mockReset().mockResolvedValue(true);
     sendOutreachFollowUp2.mockReset().mockResolvedValue({
       success: true,
       id: "email_2",
@@ -121,6 +138,20 @@ describe("sendFollowUpAction", () => {
     sendOutreachFollowUp3.mockReset().mockResolvedValue({
       success: true,
       id: "email_3",
+    });
+  });
+
+  it("surfaces unexpected Error messages from the lead lookup and reports it via captureError", async () => {
+    getLeadBySlug.mockRejectedValue(new Error("db offline"));
+    const { sendFollowUpAction } = await import("./actions");
+    const res = await sendFollowUpAction("demo-cafe");
+    expect(res).toEqual({
+      success: false,
+      error: "db offline",
+    });
+    expect(captureError).toHaveBeenCalledWith(expect.any(Error), {
+      component: "dashboard-leads-actions",
+      failureKind: "sendFollowUpAction",
     });
   });
 
@@ -138,6 +169,23 @@ describe("sendFollowUpAction", () => {
     expect(getLeadBySlug).not.toHaveBeenCalled();
     expect(recordLeadOutreach).not.toHaveBeenCalled();
     expect(sendOutreachFollowUp2).not.toHaveBeenCalled();
+    expect(sendOutreachFollowUp3).not.toHaveBeenCalled();
+  });
+
+  it("rate-limits repeated follow-ups from the same IP (auth alone is not a throttle)", async () => {
+    const { sendFollowUpAction } = await import("./actions");
+    // DEFAULT_RATE_LIMIT is 20 requests/60s per key — exhaust the window.
+    for (let i = 0; i < 20; i++) {
+      const res = await sendFollowUpAction("demo-cafe");
+      expect(res.success).toBe(true);
+    }
+    getLeadBySlug.mockClear();
+    const res = await sendFollowUpAction("demo-cafe");
+    expect(res).toEqual({
+      success: false,
+      error: "Too many requests — please try again shortly.",
+    });
+    expect(getLeadBySlug).not.toHaveBeenCalled();
   });
 
   it("rejects an empty slug", async () => {
@@ -145,6 +193,18 @@ describe("sendFollowUpAction", () => {
     expect(await sendFollowUpAction("")).toEqual({
       success: false,
       error: "Slug is required",
+    });
+    expect(getLeadBySlug).not.toHaveBeenCalled();
+  });
+
+  it("hard-rejects over-long slug before getLeadBySlug", async () => {
+    const { MAX_LEAD_SLUG_LENGTH } = await import("@/lib/leads/slug");
+    const { sendFollowUpAction } = await import("./actions");
+    const over = "a".repeat(MAX_LEAD_SLUG_LENGTH + 1);
+    const res = await sendFollowUpAction(over);
+    expect(res).toEqual({
+      success: false,
+      error: "Slug is too long",
     });
     expect(getLeadBySlug).not.toHaveBeenCalled();
   });
@@ -280,6 +340,20 @@ describe("sendFollowUpAction", () => {
         "Could not record the outreach mark in the shared store — follow-up was not sent. Retry in a moment.",
     });
     expect(sendOutreachFollowUp2).not.toHaveBeenCalled();
+    expect(revalidatePath).not.toHaveBeenCalled();
+  });
+
+  it("rejects when recordLeadOutreach resolves false (paid/live/closed race guard, or duplicate-step race guard) and never sends", async () => {
+    recordLeadOutreach.mockResolvedValue(false);
+    const { sendFollowUpAction } = await import("./actions");
+    const res = await sendFollowUpAction("demo-cafe");
+    expect(res).toEqual({
+      success: false,
+      error:
+        "Lead was paid, went live, or was closed after this page loaded — or this follow-up step was already sent by another request. Refresh and check its status; the follow-up was not sent",
+    });
+    expect(sendOutreachFollowUp2).not.toHaveBeenCalled();
+    expect(sendOutreachFollowUp3).not.toHaveBeenCalled();
     expect(revalidatePath).not.toHaveBeenCalled();
   });
 

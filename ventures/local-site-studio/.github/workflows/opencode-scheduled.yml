@@ -1,7 +1,10 @@
 name: OpenCode scheduled agents
 
-# OpenCode OAuth via ~/.local/share/opencode/auth.json.
-# Seed OPENCODE_AUTH from a local `opencode auth login` session.
+# OpenCode via GitHub Copilot subscription (Pro/Pro+/Business/Enterprise) OAuth,
+# NOT OpenCode's own Zen gateway (opencode/* models bill metered credits, not a
+# subscription) and not a raw provider API key.
+# Seed OPENCODE_AUTH from ~/.local/share/opencode/auth.json after authenticating
+# to the "GitHub Copilot" provider in `opencode auth login` (device-code flow).
 # Runs both repo prompts hourly (stagger :20).
 
 on:
@@ -21,12 +24,11 @@ on:
       model:
         description: OpenCode provider/model id
         required: false
-        default: opencode/deepseek-v4-flash
+        default: github-copilot/gpt-5.5
 
 permissions:
   contents: write
   pull-requests: write
-  issues: write
   id-token: write
 
 jobs:
@@ -37,13 +39,27 @@ jobs:
     steps:
       - id: set
         shell: bash
+        env:
+          PROMPT_KIND_INPUT: ${{ github.event.inputs.prompt_kind }}
         run: |
-          kind="${{ github.event.inputs.prompt_kind || 'both' }}"
-          if [ "$kind" = "both" ] || [ "$kind" = "" ]; then
-            echo 'prompts=["dev-work","continuous-work"]' >> "$GITHUB_OUTPUT"
-          else
-            echo "prompts=[\"${kind}\"]" >> "$GITHUB_OUTPUT"
-          fi
+          # workflow_dispatch's `type: choice` is UI-only — the REST/GraphQL
+          # API accepts any string, so this must not raw-interpolate
+          # ${{ github.event.inputs.* }} into a run: script (script
+          # injection) and must hard-reject any value outside the known set
+          # rather than pass it through into $GITHUB_OUTPUT / matrix.*.
+          kind="${PROMPT_KIND_INPUT:-both}"
+          case "$kind" in
+            both|"")
+              echo 'prompts=["dev-work","continuous-work"]' >> "$GITHUB_OUTPUT"
+              ;;
+            dev-work|continuous-work)
+              echo "prompts=[\"${kind}\"]" >> "$GITHUB_OUTPUT"
+              ;;
+            *)
+              echo "::warning::Unrecognized prompt_kind '${kind}', falling back to both."
+              echo 'prompts=["dev-work","continuous-work"]' >> "$GITHUB_OUTPUT"
+              ;;
+          esac
 
   opencode:
     needs: resolve-prompts
@@ -94,16 +110,19 @@ jobs:
             echo "PROMPT_EOF"
           } >> "$GITHUB_OUTPUT"
 
-      - name: Run OpenCode (OAuth)
-        uses: anomalyco/opencode/github@latest
+      - name: Run OpenCode (GitHub Copilot subscription OAuth)
+        # Pinned to the anomalyco/opencode v1.18.5 tag's commit SHA, not
+        # @latest — this step hands GITHUB_TOKEN (contents/pull-requests:
+        # write) to third-party code on an unattended hourly cron
+        # with no human review; @latest would let a repointed tag or
+        # compromised upstream account execute arbitrary code with that
+        # token on the very next scheduled run. Bump the SHA (and this
+        # comment) deliberately when upgrading, never float again.
+        uses: anomalyco/opencode/github@e5cc278dec9294a627a7b05f47ce6a564408c1a2 # v1.18.5
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          # OAuth auth.json is primary; optional API keys are fallbacks only.
-          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
-          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
-          GOOGLE_GENERATIVE_AI_API_KEY: ${{ secrets.GOOGLE_GENERATIVE_AI_API_KEY }}
         with:
-          model: ${{ github.event.inputs.model || 'opencode/deepseek-v4-flash' }}
+          model: ${{ github.event.inputs.model || 'github-copilot/gpt-5.5' }}
           prompt: ${{ steps.prompt.outputs.body }}
           use_github_token: true
 

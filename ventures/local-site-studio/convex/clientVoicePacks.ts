@@ -1,5 +1,6 @@
 import { mutation, query } from "./_generated/server";
 import { v } from "convex/values";
+import { requireApiSecret } from "./lib/apiSecret";
 
 const variantValidator = v.object({
   scriptType: v.string(),
@@ -14,6 +15,7 @@ const packReturn = v.object({
   variants: v.array(variantValidator),
   generatedAt: v.string(),
   generator: v.union(v.literal("stub"), v.literal("anthropic")),
+  sentToClientAt: v.optional(v.string()),
 });
 
 export const upsert = mutation({
@@ -23,20 +25,25 @@ export const upsert = mutation({
     variants: v.array(variantValidator),
     generatedAt: v.string(),
     generator: v.union(v.literal("stub"), v.literal("anthropic")),
+    apiSecret: v.string(),
   },
   returns: packReturn,
   handler: async (ctx, args) => {
+    requireApiSecret(args.apiSecret);
     const existing = await ctx.db
       .query("clientVoicePacks")
       .withIndex("by_leadSlug", (q) => q.eq("leadSlug", args.leadSlug))
       .unique();
 
+    // Regenerating always clears sentToClientAt — see marketingPacks.upsert's
+    // matching comment (marketing-voice-pack-client-send-visibility).
     if (existing) {
       await ctx.db.patch(existing._id, {
         packId: args.packId,
         variants: args.variants,
         generatedAt: args.generatedAt,
         generator: args.generator,
+        sentToClientAt: undefined,
       });
     } else {
       await ctx.db.insert("clientVoicePacks", {
@@ -58,12 +65,73 @@ export const upsert = mutation({
   },
 });
 
+/**
+ * Durable sent-marker after sendClientVoicePackToClientEmail resolves
+ * { success: true }. Mirrors marketingPacks.markSentToClient, including its
+ * expectedGeneratedAt version guard (see
+ * marketing-voice-pack-send-stale-content-race-guard).
+ */
+export const markSentToClient = mutation({
+  args: {
+    leadSlug: v.string(),
+    expectedGeneratedAt: v.string(),
+    sentToClientAt: v.string(),
+    apiSecret: v.string(),
+  },
+  returns: v.boolean(),
+  handler: async (ctx, args) => {
+    requireApiSecret(args.apiSecret);
+    const existing = await ctx.db
+      .query("clientVoicePacks")
+      .withIndex("by_leadSlug", (q) => q.eq("leadSlug", args.leadSlug))
+      .unique();
+    if (
+      !existing ||
+      existing.sentToClientAt ||
+      existing.generatedAt !== args.expectedGeneratedAt
+    ) {
+      return false;
+    }
+    await ctx.db.patch(existing._id, { sentToClientAt: args.sentToClientAt });
+    return true;
+  },
+});
+
+/**
+ * Releases a reservation made by markSentToClient when the send that
+ * reservation was guarding turned out to fail — see
+ * marketing-voice-pack-client-send-race-guard-ordering-fix. Mirrors
+ * marketingPacks.clearSentToClient's exact-match CAS release.
+ */
+export const clearSentToClient = mutation({
+  args: {
+    leadSlug: v.string(),
+    expectedSentToClientAt: v.string(),
+    apiSecret: v.string(),
+  },
+  returns: v.boolean(),
+  handler: async (ctx, args) => {
+    requireApiSecret(args.apiSecret);
+    const existing = await ctx.db
+      .query("clientVoicePacks")
+      .withIndex("by_leadSlug", (q) => q.eq("leadSlug", args.leadSlug))
+      .unique();
+    if (!existing || existing.sentToClientAt !== args.expectedSentToClientAt) {
+      return false;
+    }
+    await ctx.db.patch(existing._id, { sentToClientAt: undefined });
+    return true;
+  },
+});
+
 export const getByLeadSlug = query({
   args: {
     leadSlug: v.string(),
+    apiSecret: v.string(),
   },
   returns: v.union(packReturn, v.null()),
   handler: async (ctx, args) => {
+    requireApiSecret(args.apiSecret);
     const row = await ctx.db
       .query("clientVoicePacks")
       .withIndex("by_leadSlug", (q) => q.eq("leadSlug", args.leadSlug))
@@ -75,6 +143,7 @@ export const getByLeadSlug = query({
       variants: row.variants,
       generatedAt: row.generatedAt,
       generator: row.generator as "stub" | "anthropic",
+      sentToClientAt: row.sentToClientAt,
     };
   },
 });
@@ -88,9 +157,11 @@ export const getByLeadSlug = query({
 export const list = query({
   args: {
     limit: v.optional(v.number()),
+    apiSecret: v.string(),
   },
   returns: v.array(packReturn),
   handler: async (ctx, args) => {
+    requireApiSecret(args.apiSecret);
     void args.limit;
     const rows = await ctx.db.query("clientVoicePacks").collect();
     // Newest-first to match SQLite ORDER BY generatedAt DESC.
@@ -101,6 +172,7 @@ export const list = query({
       variants: row.variants,
       generatedAt: row.generatedAt,
       generator: row.generator as "stub" | "anthropic",
+      sentToClientAt: row.sentToClientAt,
     }));
   },
 });

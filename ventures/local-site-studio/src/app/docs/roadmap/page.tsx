@@ -1,5 +1,18 @@
+import type { Metadata } from "next";
 import { DocLink, DocPage } from "@/components/docs/doc-page";
 import { brand } from "@/lib/brand";
+import {
+  monthlyMarketingEmailCount,
+  monthlyMarketingSocialPostCount,
+} from "@/lib/marketing/monthly-pack";
+import { docPageMetadata } from "@/lib/seo";
+import {
+  bundlePriceHeadingLabel,
+  commerceAddonPriceHeadingLabel,
+  getBundle,
+} from "@/lib/pricing/bundles";
+
+export const metadata: Metadata = docPageMetadata("/docs/roadmap");
 
 export default function RoadmapDocPage() {
   return (
@@ -16,9 +29,9 @@ export default function RoadmapDocPage() {
       <table>
         <thead>
           <tr>
-            <th>Phase</th>
-            <th>Delivers</th>
-            <th>Tier</th>
+            <th scope="col">Phase</th>
+            <th scope="col">Delivers</th>
+            <th scope="col">Tier</th>
           </tr>
         </thead>
         <tbody>
@@ -30,7 +43,7 @@ export default function RoadmapDocPage() {
           <tr>
             <td>1, 3, 5</td>
             <td>Website + Stripe + deploy</td>
-            <td>Starter ($500)</td>
+            <td>Starter (${getBundle("starter")!.setupPriceUsd})</td>
           </tr>
           <tr>
             <td>2</td>
@@ -40,17 +53,17 @@ export default function RoadmapDocPage() {
           <tr>
             <td>6</td>
             <td>Marketing engine</td>
-            <td>Growth ($500 + $99/mo)</td>
+            <td>Growth ({bundlePriceHeadingLabel(getBundle("growth")!)})</td>
           </tr>
           <tr>
             <td>7</td>
             <td>Client AI phone</td>
-            <td>Complete ($500 + $199/mo)</td>
+            <td>Complete ({bundlePriceHeadingLabel(getBundle("complete")!)})</td>
           </tr>
           <tr>
             <td>8</td>
             <td>Stripe catalog</td>
-            <td>Commerce (+$300 + $49/mo)</td>
+            <td>Commerce ({commerceAddonPriceHeadingLabel()})</td>
           </tr>
         </tbody>
       </table>
@@ -65,13 +78,14 @@ export default function RoadmapDocPage() {
 
       <h2 id="phase-1">Phase 1 — Website foundation</h2>
       <p>
-        Category templates + tier cards on preview: shipped (restaurant / salon / trades +
-        generic fallback). Convex + SQLite-fallback persistence and manual lead entry: shipped
+        Category templates + tier cards on preview: shipped (restaurant / salon / trades / retail
+        / health / automotive / cleaning / fitness / legal + generic fallback). Convex + SQLite-fallback persistence and manual lead entry: shipped
         (see <DocLink href="/docs/process">process log</DocLink>). Operator auth on{" "}
         <code>/dashboard</code> (shared-secret session via{" "}
         <code>OPERATOR_DASHBOARD_PASSWORD</code>): shipped — action-level Vitest in{" "}
         <code>src/app/dashboard/login/actions.test.ts</code> locks login/logout session
-        write/clear + <code>safeNextPath</code> open-redirect guard beside token crypto,{" "}
+        write/clear beside <code>src/lib/auth/safe-next-path.ts</code> (page + action twin
+        open-redirect guard), token crypto,{" "}
         <code>requireOperatorAuth</code> cookie-read, and proxy Host gate. Until the password is
         a non-placeholder secret, <DocLink href="/dashboard">/dashboard</DocLink> and{" "}
         <DocLink href="/dashboard/leads">/dashboard/leads</DocLink> show an amber open-dashboard
@@ -105,7 +119,12 @@ export default function RoadmapDocPage() {
         real lead (see <DocLink href="/docs/process">process log</DocLink>{" "}
         <code>preview-subdomain-routing</code>). Remaining: the one-time wildcard DNS (a single{" "}
         <code>*.localsitestudio.com</code> CNAME to Vercel) and wildcard domain on the Vercel
-        project — operator infrastructure, not code.
+        project — operator infrastructure, not code. Branded 404 and error pages (
+        <code>src/app/not-found.tsx</code>, <code>src/app/error.tsx</code>): shipped — a stale
+        outreach/preview link or an uncaught render exception now shows on-brand copy with a
+        path back to the homepage and pricing instead of Next&apos;s generic default UI (see{" "}
+        <DocLink href="/docs/process">process log</DocLink>{" "}
+        <code>branded-error-not-found-pages</code>).
       </p>
 
       <h2 id="phase-2">Phase 2 — Outreach + platform voice</h2>
@@ -248,7 +267,10 @@ export default function RoadmapDocPage() {
         self-serve route suite. Operator <strong>Upsell</strong> action glue for paid/live
         Starter-only leads is covered by <code>send-starter-upsell-action.test.ts</code>{" "}
         (auth, eligibility inverse of Billing, Growth/Complete target tier, suppression /
-        Resend) beside the starter-upsell helper suite. Checkout for an unknown slug creates a
+        Resend) beside the starter-upsell helper suite. The second upgrade step — paid/live
+        Growth-only leads with no Complete order yet — has its own <strong>Upsell to Complete</strong>{" "}
+        action, covered by <code>send-growth-upsell-action.test.ts</code> beside the{" "}
+        <code>growth-upsell.test.ts</code> helper suite. Checkout for an unknown slug creates a
         paid payment stub lead on both backends. Remaining: run
         bootstrap (or Dashboard) for test + live Price IDs, and activate Customer Portal in the
         Stripe Dashboard. Until core Stripe secrets are set,{" "}
@@ -334,10 +356,14 @@ export default function RoadmapDocPage() {
         <code>cold-disposition-convex-primary</code>): shipped.
         Follow-ups-due pipeline aggregate: shipped. Daily digest snoozed footnote: shipped.
         Paid-Starter → Growth/Complete upsell nudge: shipped (operator email + checkout link).
-        Growth/Complete monthly marketing packs: shipped. Marketing packs due this UTC month
-        surface on pipeline health + daily digest from an uncapped{" "}
-        <code>listMarketingPacksForMonth</code> (not a newest-N page); Starter upsell candidates
-        also appear in the digest. Closed-leads funnel footnote: shipped (
+        Paid-Growth → Complete upsell nudge (the second upgrade step — Complete is the only tier
+        with real differentiated value over Growth: seasonal promos, the AI phone agent,
+        appointment booking): shipped (its own dashboard panel + row action + Resend email
+        pitching those specific differentiators, not a re-pitch of the marketing pack Growth
+        already has). Growth/Complete monthly marketing packs: shipped. Marketing packs due this
+        UTC month surface on pipeline health + daily digest from an uncapped{" "}
+        <code>listMarketingPacksForMonth</code> (not a newest-N page); Starter and Growth upsell
+        candidates also appear in the digest. Closed-leads funnel footnote: shipped (
         <code>closedLeadCount</code> on pipeline health — see{" "}
         <DocLink href="/docs/process">process log</DocLink>).
       </p>
@@ -345,8 +371,9 @@ export default function RoadmapDocPage() {
       <p>
         Operator-triggered monthly marketing pack for paid/live Growth/Complete leads: shipped
         (<code>generateMarketingPackAction</code> on{" "}
-        <DocLink href="/dashboard/leads">/dashboard/leads</DocLink> — 8 social/GBP posts + 2
-        emails, Anthropic when <code>ANTHROPIC_API_KEY</code> is set, stub fallback, persisted
+        <DocLink href="/dashboard/leads">/dashboard/leads</DocLink> — {monthlyMarketingSocialPostCount()}{" "}
+        social/GBP posts + {monthlyMarketingEmailCount()} emails, Anthropic when{" "}
+        <code>ANTHROPIC_API_KEY</code> is set, stub fallback, persisted
         per lead/month; when Convex is configured the persist uses <code>requireConvex</code>{" "}
         so Generate pack cannot succeed only in instance-local SQLite —{" "}
         <code>marketing-pack-convex-primary</code>; action-level Vitest in{" "}
@@ -354,8 +381,13 @@ export default function RoadmapDocPage() {
         <code>sendMarketingPackToClientAction</code>) delivers the pack to{" "}
         <code>lead.email</code> via Resend — action-level Vitest in{" "}
         <code>send-marketing-pack-to-client-action.test.ts</code>. Eligible-but-missing packs
-        count on pipeline health and list in the daily digest. Buffer / GBP / Meta
-        auto-scheduling stays operator-gated on secrets.
+        count on pipeline health and list in the daily digest. Buffer auto-posting shipped
+        as a dormant scaffold (<DocLink href="/docs/marketing-automation">
+          Marketing automation
+        </DocLink>{" "}
+        — <code>ALLOW_MARKETING_SCHEDULING</code> + <code>BUFFER_ACCESS_TOKEN</code>, default
+        off); GBP / Meta auto-scheduling stays fully gated on per-business OAuth an agent
+        cannot obtain.
       </p>
 
       <h2>Phase 7 — Client AI phone</h2>
@@ -430,8 +462,12 @@ export default function RoadmapDocPage() {
         <code>/preview/[slug]#catalog</code>. Completed Buy now also emails the Commerce client
         (<code>lead.email</code>) via <code>sendCommerceBuyNowClientReceipt</code> so they can
         fulfill — distinct from the shopper abandoned-recovery email and from the Local Site
-        Studio bundle receipt. Still open: an actual payout path to
-        the client (Stripe Connect) — operator/legal-gated, see{" "}
+        Studio bundle receipt. A dormant Stripe Connect Express account-creation + onboarding-link
+        scaffold shipped 2026-07-20 (Payouts panel on{" "}
+        <DocLink href="/dashboard/leads">/dashboard/leads</DocLink>, gated off by default behind{" "}
+        <code>ALLOW_STRIPE_CONNECT_ONBOARDING</code>) — see{" "}
+        <DocLink href="/docs/architecture">architecture</DocLink>. Still open: the actual
+        transfer/payout path to the client — operator/legal-gated, see{" "}
         <code>commerce-payouts-stripe-connect</code> in{" "}
         <DocLink href="/docs/process">process</DocLink>.
       </p>

@@ -6,19 +6,30 @@ import type {
 import {
   getDeployHandoffBySlug,
   insertDeployHandoff,
-  listDeployHandoffs,
   updateDeployHandoffCustomDomain,
   updateDeployHandoffStatus,
   updateDeployHandoffVercelProject,
   updateLeadStage,
 } from "@/lib/db";
 import type { ConvexPrimaryWriteOptions } from "@/lib/payments/convex-primary";
+import { captureError } from "@/lib/observability/error-tracking";
+import {
+  leadContactAbsoluteUrl,
+  leadPreviewAbsoluteUrl,
+  leadSlugAsDnsLabel,
+} from "@/lib/leads/slug-path";
 import { DEPLOY_HANDOFF_CONVEX_PRIMARY } from "./handoff-persist";
-import { preserveDeployHandoffOperatorFields } from "./handoff-preserve";
+import {
+  mergeProvisionOntoFreshHandoff,
+  preserveDeployHandoffOperatorFields,
+} from "./handoff-preserve";
+import { customDomainHostAliases } from "./custom-domain-routing";
 
 export { formatDnsInstructionsForEmail } from "./dns-email";
 export {
   isProgressedHandoffStatus,
+  isVercelDomainProvisioningFailed,
+  mergeProvisionOntoFreshHandoff,
   preserveDeployHandoffOperatorFields,
 } from "./handoff-preserve";
 
@@ -45,6 +56,18 @@ export function productionRootDomain(): string {
   return preview;
 }
 
+/**
+ * Bounds every Vercel Domains API call (register + release) so a hung/stalled
+ * connection fails fast into the existing network-error handling instead of
+ * blocking the request indefinitely — enqueueProductionHandoff awaits
+ * tryProvisionVercelDomain synchronously from the paid-checkout fulfillment
+ * path, so an unbounded call here risks tying up the Stripe webhook handler
+ * for however long the hosting platform's own function-duration ceiling
+ * allows. Mirrors ANTHROPIC_REQUEST_TIMEOUT_MS in
+ * src/lib/marketing/generators.ts / src/lib/voice/generators.ts.
+ */
+const VERCEL_REQUEST_TIMEOUT_MS = 15_000;
+
 function buildDnsInstructions(suggestedHost: string): DnsInstruction[] {
   const vercelCname = "cname.vercel-dns.com";
   return [
@@ -65,9 +88,11 @@ function buildDnsInstructions(suggestedHost: string): DnsInstruction[] {
 
 function buildHandoffRecord(input: CreateDeployHandoffInput): DeployHandoff {
   const now = new Date().toISOString();
-  const suggestedHost = `${input.leadSlug}.${productionRootDomain()}`;
-  const previewUrl = `${appBaseUrl()}/preview/${input.leadSlug}`;
-  const contactFormUrl = `${appBaseUrl()}/api/contact/${input.leadSlug}`;
+  // DNS label sanitize (hostnames can't percent-encode); path URLs encode-at-use
+  // so legacy free-form slugs stay a single segment (see slug-path.ts).
+  const suggestedHost = `${leadSlugAsDnsLabel(input.leadSlug)}.${productionRootDomain()}`;
+  const previewUrl = leadPreviewAbsoluteUrl(appBaseUrl(), input.leadSlug);
+  const contactFormUrl = leadContactAbsoluteUrl(appBaseUrl(), input.leadSlug);
   const notes: string[] = [
     "Payment received — production handoff queued.",
     "Preview remains live at the preview URL until DNS is confirmed.",
@@ -130,65 +155,151 @@ async function tryProvisionVercelDomain(
     };
   }
 
-  const domain = handoff.customDomain || handoff.suggestedHost;
+  // Client custom domains: register www↔apex twins so either Host form reaches
+  // the project (custom-domain-www-apex-alias). Platform suggestedHost stays
+  // a single label — no www twin.
+  const domains = handoff.customDomain
+    ? customDomainHostAliases(handoff.customDomain)
+    : [handoff.suggestedHost];
   const query = teamId ? `?teamId=${encodeURIComponent(teamId)}` : "";
   const url = `https://api.vercel.com/v10/projects/${encodeURIComponent(projectId)}/domains${query}`;
 
+  let notes = [...handoff.notes];
+  // Prefer "created" if any alias was newly registered; else already_exists if
+  // every successful call was a 409; else the first hard error.
+  let vercelDomainStatus: string | undefined;
+  let sawCreated = false;
+  let sawAlreadyExists = false;
+  let hardError: string | undefined;
+
   try {
-    const response = await fetch(url, {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${token}`,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ name: domain }),
-    });
+    for (const domain of domains) {
+      const response = await fetch(url, {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ name: domain }),
+        signal: AbortSignal.timeout(VERCEL_REQUEST_TIMEOUT_MS),
+      });
 
-    if (response.ok) {
-      return {
-        ...handoff,
-        // Never downgrade Mark live → provisioned on an upsell re-provision.
-        status: handoff.status === "live" ? "live" : "provisioned",
-        vercelDomainStatus: "created",
-        notes: [
-          ...handoff.notes,
+      if (response.ok) {
+        sawCreated = true;
+        notes = [
+          ...notes,
           `Vercel domain registered: ${domain}. Await DNS propagation, then mark live.`,
-        ],
-        updatedAt: new Date().toISOString(),
-      };
-    }
+        ];
+        continue;
+      }
 
-    const body = await response.text();
-    // 409 often means domain already on the project — treat as provisioned
-    // (or keep live when the operator already confirmed DNS).
-    if (response.status === 409) {
-      return {
-        ...handoff,
-        status: handoff.status === "live" ? "live" : "provisioned",
-        vercelDomainStatus: "already_exists",
-        notes: [...handoff.notes, `Vercel already has domain ${domain}.`],
-        updatedAt: new Date().toISOString(),
-      };
-    }
+      const body = await response.text();
+      // 409 often means domain already on the project — treat as provisioned
+      // (or keep live when the operator already confirmed DNS).
+      if (response.status === 409) {
+        sawAlreadyExists = true;
+        notes = [...notes, `Vercel already has domain ${domain}.`];
+        continue;
+      }
 
-    return {
-      ...handoff,
-      vercelDomainStatus: `error_${response.status}`,
-      notes: [
-        ...handoff.notes,
-        `Vercel domain API failed (${response.status}): ${body.slice(0, 200)}`,
-      ],
-      updatedAt: new Date().toISOString(),
-    };
+      hardError = `error_${response.status}`;
+      notes = [
+        ...notes,
+        `Vercel domain API failed (${response.status}) for ${domain}: ${body.slice(0, 200)}`,
+      ];
+      // Keep trying remaining aliases — one twin may still succeed.
+    }
   } catch (error) {
     const message = error instanceof Error ? error.message : "unknown error";
+    await captureError(error, {
+      component: "deploy-handoff",
+      failureKind: "vercel_domain_provision_network",
+      leadSlug: handoff.leadSlug,
+    });
     return {
       ...handoff,
       vercelDomainStatus: "error_network",
-      notes: [...handoff.notes, `Vercel domain API network error: ${message}`],
+      notes: [...notes, `Vercel domain API network error: ${message}`],
       updatedAt: new Date().toISOString(),
     };
   }
+
+  if (sawCreated) {
+    vercelDomainStatus = "created";
+  } else if (sawAlreadyExists && !hardError) {
+    vercelDomainStatus = "already_exists";
+  } else if (hardError) {
+    vercelDomainStatus = hardError;
+  } else {
+    vercelDomainStatus = "created";
+  }
+
+  return {
+    ...handoff,
+    // Never downgrade Mark live → provisioned on an upsell re-provision.
+    status:
+      hardError && !sawCreated && !sawAlreadyExists
+        ? handoff.status
+        : handoff.status === "live"
+          ? "live"
+          : "provisioned",
+    vercelDomainStatus,
+    notes,
+    updatedAt: new Date().toISOString(),
+  };
+}
+
+/**
+ * Best-effort Vercel domain release (DELETE) — never throws, failures become
+ * notes on the caller's handoff. A domain can only live on one Vercel project
+ * at a time; without this, reassigning a client to a different dedicated
+ * project (assignVercelProjectAndProvision) or clearing/changing their custom
+ * domain (assignCustomDomainAndProvision) leaves the old registration stuck
+ * on the project/domain it moved off of, with tryProvisionVercelDomain's own
+ * re-POST to the new project rejected by Vercel (still attached elsewhere) —
+ * see vercel-domain-release-on-reassign.
+ */
+async function releaseVercelDomains(
+  token: string,
+  teamId: string | undefined,
+  projectId: string,
+  domains: string[],
+): Promise<string[]> {
+  const query = teamId ? `?teamId=${encodeURIComponent(teamId)}` : "";
+  const notes: string[] = [];
+
+  for (const domain of domains) {
+    const url = `https://api.vercel.com/v10/projects/${encodeURIComponent(projectId)}/domains/${encodeURIComponent(domain)}${query}`;
+    try {
+      const response = await fetch(url, {
+        method: "DELETE",
+        headers: { Authorization: `Bearer ${token}` },
+        signal: AbortSignal.timeout(VERCEL_REQUEST_TIMEOUT_MS),
+      });
+      // 404 means it's already gone (or never registered) — treat as released.
+      if (response.ok || response.status === 404) {
+        notes.push(`Released Vercel domain ${domain} from project ${projectId}.`);
+        continue;
+      }
+      const body = await response.text();
+      notes.push(
+        `Vercel domain release failed (${response.status}) for ${domain} on project ${projectId}: ${body.slice(0, 200)}`,
+      );
+    } catch (error) {
+      const message = error instanceof Error ? error.message : "unknown error";
+      await captureError(error, {
+        component: "deploy-handoff",
+        failureKind: "vercel_domain_release_network",
+        domain,
+        projectId,
+      });
+      notes.push(
+        `Vercel domain release network error for ${domain} on project ${projectId}: ${message}`,
+      );
+    }
+  }
+
+  return notes;
 }
 
 /**
@@ -213,8 +324,14 @@ export async function enqueueProductionHandoff(
     existing,
   );
   handoff = await tryProvisionVercelDomain(handoff);
-  await insertDeployHandoff(handoff, options);
-  return handoff;
+  // Re-read after the Vercel network window so a concurrent Mark live /
+  // Save domain / Assign project is not wiped by the full-row upsert.
+  const fresh = await getDeployHandoffBySlug(input.leadSlug);
+  const toPersist = fresh
+    ? mergeProvisionOntoFreshHandoff(fresh, handoff)
+    : handoff;
+  await insertDeployHandoff(toPersist, options);
+  return toPersist;
 }
 
 /**
@@ -226,6 +343,7 @@ export async function assignVercelProjectAndProvision(
   leadSlug: string,
   vercelProjectId: string | null,
 ): Promise<DeployHandoff | null> {
+  const before = await getDeployHandoffBySlug(leadSlug);
   const updated = await updateDeployHandoffVercelProject(
     leadSlug,
     vercelProjectId,
@@ -233,9 +351,31 @@ export async function assignVercelProjectAndProvision(
   );
   if (!updated) return null;
 
-  const provisioned = await tryProvisionVercelDomain(updated);
-  await insertDeployHandoff(provisioned, DEPLOY_HANDOFF_CONVEX_PRIMARY);
-  return provisioned;
+  let toProvision = updated;
+  const token = process.env.VERCEL_TOKEN?.trim();
+  const oldProjectId =
+    before?.vercelProjectId?.trim() || process.env.VERCEL_PROJECT_ID?.trim();
+  const newProjectId =
+    updated.vercelProjectId?.trim() || process.env.VERCEL_PROJECT_ID?.trim();
+  if (token && before && oldProjectId && oldProjectId !== newProjectId) {
+    const releaseNotes = await releaseVercelDomains(
+      token,
+      process.env.VERCEL_TEAM_ID?.trim(),
+      oldProjectId,
+      before.customDomain
+        ? customDomainHostAliases(before.customDomain)
+        : [before.suggestedHost],
+    );
+    toProvision = { ...updated, notes: [...updated.notes, ...releaseNotes] };
+  }
+
+  const provisioned = await tryProvisionVercelDomain(toProvision);
+  const fresh = await getDeployHandoffBySlug(leadSlug);
+  const toPersist = fresh
+    ? mergeProvisionOntoFreshHandoff(fresh, provisioned)
+    : provisioned;
+  await insertDeployHandoff(toPersist, DEPLOY_HANDOFF_CONVEX_PRIMARY);
+  return toPersist;
 }
 
 /**
@@ -249,6 +389,7 @@ export async function assignCustomDomainAndProvision(
   leadSlug: string,
   customDomain: string | null,
 ): Promise<DeployHandoff | null> {
+  const before = await getDeployHandoffBySlug(leadSlug);
   const updated = await updateDeployHandoffCustomDomain(
     leadSlug,
     customDomain,
@@ -256,9 +397,35 @@ export async function assignCustomDomainAndProvision(
   );
   if (!updated) return null;
 
-  const provisioned = await tryProvisionVercelDomain(updated);
-  await insertDeployHandoff(provisioned, DEPLOY_HANDOFF_CONVEX_PRIMARY);
-  return provisioned;
+  let toProvision = updated;
+  const token = process.env.VERCEL_TOKEN?.trim();
+  const projectId =
+    updated.vercelProjectId?.trim() || process.env.VERCEL_PROJECT_ID?.trim();
+  const oldCustomDomain = before?.customDomain?.trim();
+  const newCustomDomain = updated.customDomain?.trim();
+  if (
+    token &&
+    projectId &&
+    before &&
+    oldCustomDomain &&
+    oldCustomDomain !== newCustomDomain
+  ) {
+    const releaseNotes = await releaseVercelDomains(
+      token,
+      process.env.VERCEL_TEAM_ID?.trim(),
+      projectId,
+      customDomainHostAliases(oldCustomDomain),
+    );
+    toProvision = { ...updated, notes: [...updated.notes, ...releaseNotes] };
+  }
+
+  const provisioned = await tryProvisionVercelDomain(toProvision);
+  const fresh = await getDeployHandoffBySlug(leadSlug);
+  const toPersist = fresh
+    ? mergeProvisionOntoFreshHandoff(fresh, provisioned)
+    : provisioned;
+  await insertDeployHandoff(toPersist, DEPLOY_HANDOFF_CONVEX_PRIMARY);
+  return toPersist;
 }
 
 export async function markHandoffLive(leadSlug: string): Promise<DeployHandoff | null> {
@@ -271,10 +438,13 @@ export async function markHandoffLive(leadSlug: string): Promise<DeployHandoff |
     ["Operator confirmed DNS / publish — lead marked live."],
     DEPLOY_HANDOFF_CONVEX_PRIMARY,
   );
+  // updateDeployHandoffStatus returns null when the handoff row vanished
+  // between the get above and the status write (or never existed on the
+  // backend that served the write). Do not advance lead stage without a
+  // durable handoff status=live — otherwise the operator sees "No deploy
+  // handoff found" while stage=live and paid-not-live / open-handoff
+  // metrics diverge (mark-handoff-live-null-status-guard).
+  if (!updated) return null;
   await updateLeadStage(leadSlug, "live", DEPLOY_HANDOFF_CONVEX_PRIMARY);
   return updated;
-}
-
-export async function getHandoffsForOperator(): Promise<DeployHandoff[]> {
-  return listDeployHandoffs();
 }

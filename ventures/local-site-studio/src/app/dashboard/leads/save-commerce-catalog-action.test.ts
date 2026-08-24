@@ -22,12 +22,21 @@ vi.mock("next/cache", () => ({
   revalidatePath: (...args: unknown[]) => revalidatePath(...args),
 }));
 
+const headersMock = vi.fn();
 vi.mock("next/headers", () => ({
-  headers: vi.fn(),
+  headers: (...args: unknown[]) => headersMock(...args),
 }));
 
+function headerStore(entries: Record<string, string | null> = {}) {
+  return {
+    get(name: string) {
+      return entries[name] ?? null;
+    },
+  };
+}
+
 const getLeadBySlug = vi.fn();
-const listOrders = vi.fn();
+const listOrdersByLeadSlug = vi.fn();
 const getCommerceCatalog = vi.fn();
 const upsertCommerceCatalog = vi.fn();
 
@@ -42,7 +51,8 @@ vi.mock("@/lib/db", () => ({
   getClientInquiryById: vi.fn(),
   recordClientInquiryReply: vi.fn(),
   getLeads: vi.fn(),
-  listOrders: (...args: unknown[]) => listOrders(...args),
+  listOrdersByLeadSlug: (...args: unknown[]) => listOrdersByLeadSlug(...args),
+  listOrders: vi.fn(),
   recordLeadOutreach: vi.fn(),
   listUnrepliedInquiries: vi.fn(),
   updateLeadNotes: vi.fn(),
@@ -100,7 +110,6 @@ const commerceOrder = {
   tier: "growth",
   commerceAddon: true,
   amountPaid: 849,
-  status: "paid",
   createdAt: "2026-07-13T10:00:00.000Z",
 };
 
@@ -113,16 +122,23 @@ const draftItems = [
   },
 ];
 
+const captureError = vi.fn();
+vi.mock("@/lib/observability/error-tracking", () => ({
+  captureError: (...args: unknown[]) => captureError(...args),
+}));
+
 describe("saveCommerceCatalogAction", () => {
   const originalEnv = { ...process.env };
 
   beforeEach(() => {
+    captureError.mockReset().mockResolvedValue(undefined);
     vi.resetModules();
     process.env = { ...originalEnv };
     requireOperatorAuth.mockReset().mockResolvedValue({ ok: true });
     revalidatePath.mockReset();
+    headersMock.mockReset().mockResolvedValue(headerStore());
     getLeadBySlug.mockReset().mockResolvedValue(eligibleLead);
-    listOrders.mockReset().mockResolvedValue([commerceOrder]);
+    listOrdersByLeadSlug.mockReset().mockResolvedValue([commerceOrder]);
     getCommerceCatalog.mockReset().mockResolvedValue(null);
     upsertCommerceCatalog.mockReset().mockImplementation(async (input) => ({
       id: "cat_1",
@@ -132,6 +148,25 @@ describe("saveCommerceCatalogAction", () => {
 
   afterEach(() => {
     process.env = { ...originalEnv };
+  });
+
+  it("rate-limits repeated calls from the same IP (auth alone is not a throttle)", async () => {
+    const { saveCommerceCatalogAction } = await import("./actions");
+    // DEFAULT_RATE_LIMIT is 20 requests/60s per key — exhaust the window.
+    for (let i = 0; i < 20; i++) {
+      const res = await saveCommerceCatalogAction("demo-cafe", draftItems);
+      expect(res.success).toBe(true);
+    }
+    getLeadBySlug.mockClear();
+    upsertCommerceCatalog.mockClear();
+    revalidatePath.mockClear();
+    const res = await saveCommerceCatalogAction("demo-cafe", draftItems);
+    expect(res).toEqual({
+      success: false,
+      error: "Too many requests — please try again shortly.",
+    });
+    expect(getLeadBySlug).not.toHaveBeenCalled();
+    expect(upsertCommerceCatalog).not.toHaveBeenCalled();
   });
 
   it("returns auth error without loading the lead", async () => {
@@ -171,7 +206,7 @@ describe("saveCommerceCatalogAction", () => {
   });
 
   it("rejects paid leads without a Commerce add-on order", async () => {
-    listOrders.mockResolvedValue([
+    listOrdersByLeadSlug.mockResolvedValue([
       { ...commerceOrder, commerceAddon: false, amountPaid: 599 },
     ]);
     const { saveCommerceCatalogAction } = await import("./actions");
@@ -204,6 +239,20 @@ describe("saveCommerceCatalogAction", () => {
     expect(res).toEqual({
       success: false,
       error: "SKU 1 needs a name",
+    });
+    expect(upsertCommerceCatalog).not.toHaveBeenCalled();
+  });
+
+  it("hard-rejects over-long opaque SKU ids before persist (never truncates)", async () => {
+    const { MAX_COMMERCE_SKU_ID_LENGTH } = await import("@/lib/commerce/types");
+    const overId = "s".repeat(MAX_COMMERCE_SKU_ID_LENGTH + 1);
+    const { saveCommerceCatalogAction } = await import("./actions");
+    const res = await saveCommerceCatalogAction("demo-cafe", [
+      { id: overId, name: "Latte", priceCents: 450 },
+    ]);
+    expect(res).toEqual({
+      success: false,
+      error: `SKU 1 id must be ≤${MAX_COMMERCE_SKU_ID_LENGTH} characters`,
     });
     expect(upsertCommerceCatalog).not.toHaveBeenCalled();
   });
@@ -336,21 +385,35 @@ describe("saveCommerceCatalogAction", () => {
       error: "disk full",
     });
     expect(revalidatePath).not.toHaveBeenCalled();
+    expect(captureError).toHaveBeenCalledWith(expect.any(Error), {
+      component: "dashboard-leads-actions",
+      failureKind: "saveCommerceCatalogAction",
+    });
   });
 
-  it("filters orders to the requested lead slug before eligibility", async () => {
-    listOrders.mockResolvedValue([
-      {
-        ...commerceOrder,
-        leadSlug: "other-cafe",
-        commerceAddon: true,
-      },
+  it("loads orders via listOrdersByLeadSlug (no commerceAddon does not pass)", async () => {
+    listOrdersByLeadSlug.mockResolvedValue([
       {
         ...commerceOrder,
         leadSlug: "demo-cafe",
         commerceAddon: false,
         amountPaid: 599,
       },
+    ]);
+    const { saveCommerceCatalogAction } = await import("./actions");
+    const res = await saveCommerceCatalogAction("demo-cafe", draftItems);
+    expect(listOrdersByLeadSlug).toHaveBeenCalledWith("demo-cafe");
+    expect(res).toEqual({
+      success: false,
+      error:
+        "Commerce catalogs require a paid/live lead with a Commerce add-on order",
+    });
+    expect(upsertCommerceCatalog).not.toHaveBeenCalled();
+  });
+
+  it("rejects Commerce add-on orders after recurringCanceledAt (paused/canceled MRR)", async () => {
+    listOrdersByLeadSlug.mockResolvedValue([
+      { ...commerceOrder, recurringCanceledAt: 1_720_000_000_000 },
     ]);
     const { saveCommerceCatalogAction } = await import("./actions");
     const res = await saveCommerceCatalogAction("demo-cafe", draftItems);

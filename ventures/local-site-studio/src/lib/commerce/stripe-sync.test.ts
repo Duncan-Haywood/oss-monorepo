@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import {
+  archiveCommerceStripeProducts,
   archiveOrphanCommerceStripeProducts,
   commerceSkuStripeKey,
   listOrphanCommerceStripeProducts,
@@ -12,15 +13,25 @@ function createFakeStripe(): StripeProductsAndPrices & {
   productCount: () => number;
   activeProductCount: () => number;
   priceCount: () => number;
+  activePriceCount: (productId?: string) => number;
+  isPriceActive: (id: string) => boolean;
+  productCreateCallsByIdempotencyKey: () => Map<string, number>;
+  priceCreateCallsByIdempotencyKey: () => Map<string, number>;
 } {
   const products: Array<{
     id: string;
     name?: string;
+    description?: string;
     active: boolean;
     metadata: Record<string, string>;
   }> = [];
   const prices: Array<{ id: string; product: string; unit_amount: number; active: boolean }> = [];
   let nextId = 1;
+  /** Real Stripe returns the SAME object for a replayed Idempotency-Key instead of creating a second one. */
+  const productsByIdempotencyKey = new Map<string, (typeof products)[number]>();
+  const productCreateCallsByIdempotencyKey = new Map<string, number>();
+  const pricesByIdempotencyKey = new Map<string, (typeof prices)[number]>();
+  const priceCreateCallsByIdempotencyKey = new Map<string, number>();
 
   /** Real Stripe list endpoints cap a page at `limit` and set has_more/starting_after. */
   function paginate<T extends { id: string }>(
@@ -41,15 +52,27 @@ function createFakeStripe(): StripeProductsAndPrices & {
         const matching = products.filter((p) => (active ? p.active : true));
         return paginate(matching, limit, starting_after);
       },
-      async create({ name, metadata }) {
-        const product = { id: `prod_${nextId++}`, name, metadata, active: true };
+      async create({ name, description, metadata }, options) {
+        const idempotencyKey = options?.idempotencyKey;
+        if (idempotencyKey) {
+          productCreateCallsByIdempotencyKey.set(
+            idempotencyKey,
+            (productCreateCallsByIdempotencyKey.get(idempotencyKey) ?? 0) + 1,
+          );
+          const existing = productsByIdempotencyKey.get(idempotencyKey);
+          if (existing) return existing;
+        }
+        const product = { id: `prod_${nextId++}`, name, description, metadata, active: true };
         products.push(product);
+        if (idempotencyKey) productsByIdempotencyKey.set(idempotencyKey, product);
         return product;
       },
       async update(id, params) {
         const product = products.find((p) => p.id === id);
         if (!product) throw new Error(`Product ${id} not found`);
-        product.active = params.active;
+        if (params.active !== undefined) product.active = params.active;
+        if (params.name !== undefined) product.name = params.name;
+        if (params.description !== undefined) product.description = params.description;
         return product;
       },
     },
@@ -58,15 +81,36 @@ function createFakeStripe(): StripeProductsAndPrices & {
         const matching = prices.filter((p) => p.product === product && (active ? p.active : true));
         return paginate(matching, limit, starting_after);
       },
-      async create({ product, unit_amount }) {
+      async create({ product, unit_amount }, options) {
+        const idempotencyKey = options?.idempotencyKey;
+        if (idempotencyKey) {
+          priceCreateCallsByIdempotencyKey.set(
+            idempotencyKey,
+            (priceCreateCallsByIdempotencyKey.get(idempotencyKey) ?? 0) + 1,
+          );
+          const existing = pricesByIdempotencyKey.get(idempotencyKey);
+          if (existing) return existing;
+        }
         const price = { id: `price_${nextId++}`, product, unit_amount, active: true };
         prices.push(price);
+        if (idempotencyKey) pricesByIdempotencyKey.set(idempotencyKey, price);
+        return price;
+      },
+      async update(id, params) {
+        const price = prices.find((p) => p.id === id);
+        if (!price) throw new Error(`Price ${id} not found`);
+        price.active = params.active;
         return price;
       },
     },
     productCount: () => products.length,
     activeProductCount: () => products.filter((p) => p.active).length,
     priceCount: () => prices.length,
+    activePriceCount: (productId?: string) =>
+      prices.filter((p) => p.active && (!productId || p.product === productId)).length,
+    isPriceActive: (id: string) => prices.find((p) => p.id === id)?.active ?? false,
+    productCreateCallsByIdempotencyKey: () => productCreateCallsByIdempotencyKey,
+    priceCreateCallsByIdempotencyKey: () => priceCreateCallsByIdempotencyKey,
   };
 }
 
@@ -120,6 +164,131 @@ describe("syncCommerceCatalogToStripe", () => {
     expect(stripe.priceCount()).toBe(3);
   });
 
+  it("deactivates the superseded Price on the same Product when priceCents changes, leaving no orphaned active duplicate", async () => {
+    const stripe = createFakeStripe();
+    const first = await syncCommerceCatalogToStripe(stripe, "acme-cafe", "Acme Cafe", items);
+
+    const repriced = [{ ...items[0]!, priceCents: 599 }, items[1]!];
+    const second = await syncCommerceCatalogToStripe(stripe, "acme-cafe", "Acme Cafe", repriced);
+
+    expect(stripe.isPriceActive(first[0]!.stripePriceId)).toBe(false);
+    expect(stripe.isPriceActive(second[0]!.stripePriceId)).toBe(true);
+    // Untouched SKU (sku_2) keeps its single active Price.
+    expect(stripe.isPriceActive(first[1]!.stripePriceId)).toBe(true);
+    expect(stripe.activePriceCount(second[0]!.stripeProductId)).toBe(1);
+  });
+
+  it("reactivates the original Price and deactivates the interim one when priceCents reverts back", async () => {
+    const stripe = createFakeStripe();
+    const first = await syncCommerceCatalogToStripe(stripe, "acme-cafe", "Acme Cafe", items);
+
+    const repriced = [{ ...items[0]!, priceCents: 599 }, items[1]!];
+    const second = await syncCommerceCatalogToStripe(stripe, "acme-cafe", "Acme Cafe", repriced);
+    const reverted = await syncCommerceCatalogToStripe(stripe, "acme-cafe", "Acme Cafe", items);
+
+    expect(reverted[0]?.stripePriceId).toBe(first[0]?.stripePriceId); // reactivated, not re-created
+    expect(stripe.isPriceActive(first[0]!.stripePriceId)).toBe(true);
+    expect(stripe.isPriceActive(second[0]!.stripePriceId)).toBe(false);
+    expect(stripe.priceCount()).toBe(3); // no third Price minted on the round trip
+    expect(stripe.activePriceCount(first[0]!.stripeProductId)).toBe(1);
+  });
+
+  it("renames the Stripe Product in place when the SKU name changes (keeping the same Product/Price ids)", async () => {
+    const stripe = createFakeStripe();
+    const first = await syncCommerceCatalogToStripe(stripe, "acme-cafe", "Acme Cafe", items);
+
+    const renamed = [{ ...items[0]!, name: "Oat Milk Latte" }, items[1]!];
+    const second = await syncCommerceCatalogToStripe(stripe, "acme-cafe", "Acme Cafe", renamed);
+
+    expect(second[0]?.stripeProductId).toBe(first[0]?.stripeProductId);
+    expect(second[0]?.stripePriceId).toBe(first[0]?.stripePriceId);
+    expect(stripe.productCount()).toBe(2); // no duplicate created
+
+    const { data: products } = await stripe.products.list({ limit: 100 });
+    const renamedProduct = products.find((p) => p.id === first[0]!.stripeProductId);
+    expect(renamedProduct?.name).toBe("Acme Cafe — Oat Milk Latte");
+  });
+
+  it("renames the Stripe Product when the lead's businessName changes, even with the SKU name unchanged", async () => {
+    const stripe = createFakeStripe();
+    const first = await syncCommerceCatalogToStripe(stripe, "acme-cafe", "Acme Cafe", items);
+
+    await syncCommerceCatalogToStripe(stripe, "acme-cafe", "Acme Coffee Roasters", items);
+
+    const { data: products } = await stripe.products.list({ limit: 100 });
+    const renamedProduct = products.find((p) => p.id === first[0]!.stripeProductId);
+    expect(renamedProduct?.name).toBe("Acme Coffee Roasters — Latte");
+  });
+
+  it("includes the SKU description on the Stripe Product when present", async () => {
+    const stripe = createFakeStripe();
+    const withDescription = [
+      { ...items[0]!, description: "60-minute deep tissue, includes hot towel" },
+      items[1]!,
+    ];
+    const result = await syncCommerceCatalogToStripe(
+      stripe,
+      "acme-cafe",
+      "Acme Cafe",
+      withDescription,
+    );
+
+    const { data: products } = await stripe.products.list({ limit: 100 });
+    const product = products.find((p) => p.id === result[0]!.stripeProductId);
+    expect(product?.description).toBe("60-minute deep tissue, includes hot towel");
+  });
+
+  it("omits description on the Stripe Product when the SKU has none", async () => {
+    const stripe = createFakeStripe();
+    const result = await syncCommerceCatalogToStripe(stripe, "acme-cafe", "Acme Cafe", items);
+
+    const { data: products } = await stripe.products.list({ limit: 100 });
+    const product = products.find((p) => p.id === result[0]!.stripeProductId);
+    expect(product?.description).toBeUndefined();
+  });
+
+  it("resyncs the Stripe Product description in place when it changes (keeping the same Product/Price ids)", async () => {
+    const stripe = createFakeStripe();
+    const first = await syncCommerceCatalogToStripe(stripe, "acme-cafe", "Acme Cafe", [
+      { ...items[0]!, description: "Original description" },
+      items[1]!,
+    ]);
+
+    const redescribed = [
+      { ...items[0]!, description: "Updated description" },
+      items[1]!,
+    ];
+    const second = await syncCommerceCatalogToStripe(
+      stripe,
+      "acme-cafe",
+      "Acme Cafe",
+      redescribed,
+    );
+
+    expect(second[0]?.stripeProductId).toBe(first[0]?.stripeProductId);
+    expect(second[0]?.stripePriceId).toBe(first[0]?.stripePriceId);
+    expect(stripe.productCount()).toBe(2); // no duplicate created
+
+    const { data: products } = await stripe.products.list({ limit: 100 });
+    const redescribedProduct = products.find((p) => p.id === first[0]!.stripeProductId);
+    expect(redescribedProduct?.description).toBe("Updated description");
+  });
+
+  it("does not call products.update when neither name nor description changed on re-sync", async () => {
+    const stripe = createFakeStripe();
+    await syncCommerceCatalogToStripe(stripe, "acme-cafe", "Acme Cafe", items);
+
+    let updateCalls = 0;
+    const originalUpdate = stripe.products.update.bind(stripe.products);
+    stripe.products.update = async (id, params) => {
+      updateCalls++;
+      return originalUpdate(id, params);
+    };
+
+    await syncCommerceCatalogToStripe(stripe, "acme-cafe", "Acme Cafe", items);
+    expect(updateCalls).toBe(0);
+  });
+
   it("scopes Products per lead so two leads never collide on the same SKU id", async () => {
     const stripe = createFakeStripe();
     await syncCommerceCatalogToStripe(stripe, "lead-a", "Lead A", items);
@@ -149,6 +318,73 @@ describe("syncCommerceCatalogToStripe", () => {
     expect(second[0]?.stripePriceId).toBe(first[0]?.stripePriceId);
     expect(stripe.productCount()).toBe(122);
     expect(stripe.priceCount()).toBe(122);
+  });
+
+  it("reactivates a Product deactivated outside this module instead of duplicating it", async () => {
+    const stripe = createFakeStripe();
+    const first = await syncCommerceCatalogToStripe(stripe, "acme-cafe", "Acme Cafe", items);
+
+    // Simulate an operator deactivating the Product directly in the Stripe
+    // Dashboard (or via this app's own Archive orphan Stripe products action,
+    // if the same skuId is ever reintroduced) while the SKU stays in the
+    // catalog — re-syncing must reactivate, not mint a duplicate under the
+    // same idempotency key.
+    await stripe.products.update(first[0]!.stripeProductId, { active: false });
+    expect(stripe.activeProductCount()).toBe(1);
+
+    const second = await syncCommerceCatalogToStripe(stripe, "acme-cafe", "Acme Cafe", items);
+
+    expect(second[0]?.stripeProductId).toBe(first[0]?.stripeProductId);
+    expect(second[0]?.stripePriceId).toBe(first[0]?.stripePriceId);
+    expect(stripe.productCount()).toBe(2); // no duplicate created
+    expect(stripe.activeProductCount()).toBe(2); // deactivated one is active again
+  });
+
+  it("reactivates a Price deactivated outside this module instead of duplicating it", async () => {
+    const stripe = createFakeStripe();
+    const first = await syncCommerceCatalogToStripe(stripe, "acme-cafe", "Acme Cafe", items);
+
+    await stripe.prices.update(first[0]!.stripePriceId, { active: false });
+
+    const second = await syncCommerceCatalogToStripe(stripe, "acme-cafe", "Acme Cafe", items);
+
+    expect(second[0]?.stripePriceId).toBe(first[0]?.stripePriceId);
+    expect(stripe.priceCount()).toBe(2); // no duplicate created
+  });
+
+  it("passes a stable per-lead-per-SKU Idempotency-Key on the product.create and price.create calls", async () => {
+    const stripe = createFakeStripe();
+    await syncCommerceCatalogToStripe(stripe, "acme-cafe", "Acme Cafe", [items[0]!]);
+
+    const productKeys = stripe.productCreateCallsByIdempotencyKey();
+    expect(productKeys.size).toBe(1);
+    expect([...productKeys.keys()][0]).toBe("local_site_studio_commerce_sku_acme-cafe_sku_1_product");
+
+    const priceKeys = stripe.priceCreateCallsByIdempotencyKey();
+    expect(priceKeys.size).toBe(1);
+    expect([...priceKeys.keys()][0]).toBe(
+      "local_site_studio_commerce_sku_acme-cafe_sku_1_price_499",
+    );
+  });
+
+  it("never mints two Products when two concurrent syncs race past the list-based precheck for the same SKU", async () => {
+    // Simulates the exact race findProductByKey cannot close by itself: both
+    // calls see no existing Product (list runs before either create lands)
+    // and both call products.create — Stripe's Idempotency-Key guarantee is
+    // what actually collapses them to one Product, verified here by calling
+    // the fake client's create directly with the same key the module
+    // derives, twice, "concurrently".
+    const stripe = createFakeStripe();
+    const key = "local_site_studio_commerce_sku_acme-cafe_sku_1_product";
+    const metadata = { local_site_studio_key: "commerce_sku_acme-cafe_sku_1", leadSlug: "acme-cafe", skuId: "sku_1" };
+
+    const [first, second] = await Promise.all([
+      stripe.products.create({ name: "Acme Cafe — Latte", metadata }, { idempotencyKey: key }),
+      stripe.products.create({ name: "Acme Cafe — Latte", metadata }, { idempotencyKey: key }),
+    ]);
+
+    expect(first.id).toBe(second.id);
+    expect(stripe.productCount()).toBe(1);
   });
 });
 
@@ -226,5 +462,63 @@ describe("listOrphanCommerceStripeProducts / archiveOrphanCommerceStripeProducts
     ]);
     expect(archived).toHaveLength(1);
     expect(archived[0]?.skuId).toBe("sku_2");
+  });
+
+  it("archives every orphan when no isStillOrphan option is passed (unchanged default behavior)", async () => {
+    const stripe = createFakeStripe();
+    await syncCommerceCatalogToStripe(stripe, "acme-cafe", "Acme Cafe", items);
+    const orphans = await listOrphanCommerceStripeProducts(stripe, "acme-cafe", []);
+
+    const { archived } = await archiveCommerceStripeProducts(stripe, orphans);
+    expect(archived).toHaveLength(2);
+    expect(stripe.activeProductCount()).toBe(0);
+  });
+
+  it("skips an orphan whose isStillOrphan check reports it is no longer orphaned", async () => {
+    const stripe = createFakeStripe();
+    await syncCommerceCatalogToStripe(stripe, "acme-cafe", "Acme Cafe", items);
+    const orphans = await listOrphanCommerceStripeProducts(stripe, "acme-cafe", []);
+
+    const { archived } = await archiveCommerceStripeProducts(stripe, orphans, {
+      isStillOrphan: async (orphan) => orphan.skuId !== "sku_1",
+    });
+
+    expect(archived.map((o) => o.skuId)).toEqual(["sku_2"]);
+    expect(stripe.activeProductCount()).toBe(1);
+    const stillActive = await listOrphanCommerceStripeProducts(stripe, "acme-cafe", [items[0]!]);
+    expect(stillActive).toHaveLength(0);
+  });
+
+  it("re-checks isStillOrphan before EACH orphan's own archive call, not just once before the batch (buffer-schedule-stale-pack-variant-guard bug shape)", async () => {
+    // Three orphans archived sequentially. Simulate a concurrent catalog
+    // save re-adding the SECOND orphan's SKU between the first and second
+    // archive calls — a bug that a single once-before-the-loop check (rather
+    // than a check before every individual iteration) would miss entirely.
+    const stripe = createFakeStripe();
+    await syncCommerceCatalogToStripe(stripe, "acme-cafe", "Acme Cafe", [
+      { id: "sku_1", name: "Latte", priceCents: 499 },
+      { id: "sku_2", name: "Croissant", priceCents: 350 },
+      { id: "sku_3", name: "Muffin", priceCents: 375 },
+    ]);
+    const orphans = await listOrphanCommerceStripeProducts(stripe, "acme-cafe", []);
+    expect(orphans.map((o) => o.skuId)).toEqual(["sku_1", "sku_2", "sku_3"]);
+
+    const checkedSkuIds: string[] = [];
+    const { archived } = await archiveCommerceStripeProducts(stripe, orphans, {
+      isStillOrphan: async (orphan) => {
+        checkedSkuIds.push(orphan.skuId);
+        return orphan.skuId !== "sku_2";
+      },
+    });
+
+    // Every orphan gets its own check, in order — not a single upfront check.
+    expect(checkedSkuIds).toEqual(["sku_1", "sku_2", "sku_3"]);
+    // sku_2 reappeared mid-loop and must survive; its neighbors still archive.
+    expect(archived.map((o) => o.skuId)).toEqual(["sku_1", "sku_3"]);
+    expect(stripe.activeProductCount()).toBe(1);
+    const stillActive = await listOrphanCommerceStripeProducts(stripe, "acme-cafe", [
+      { id: "sku_2", name: "Croissant", priceCents: 350 },
+    ]);
+    expect(stillActive).toHaveLength(0);
   });
 });

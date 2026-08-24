@@ -58,4 +58,25 @@ describe("formatCommerceBuyNowClientReceiptHtml", () => {
     });
     expect(html).toContain("No customer email was collected");
   });
+
+  it("shows the purchased quantity when known, so the business knows how many units to fulfill", () => {
+    const html = formatCommerceBuyNowClientReceiptHtml({
+      businessName: "Acme",
+      skuName: "Latte",
+      amountTotalUsd: 15,
+      stripeSessionId: "cs_test_x",
+      quantity: 3,
+    });
+    expect(html).toContain("<strong>Quantity:</strong> 3");
+  });
+
+  it("omits the quantity line entirely when quantity is unknown (legacy order)", () => {
+    const html = formatCommerceBuyNowClientReceiptHtml({
+      businessName: "Acme",
+      skuName: "Latte",
+      amountTotalUsd: 5,
+      stripeSessionId: "cs_test_x",
+    });
+    expect(html).not.toContain("Quantity:");
+  });
 });

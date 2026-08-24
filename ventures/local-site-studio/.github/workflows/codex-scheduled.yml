@@ -22,7 +22,6 @@ on:
 permissions:
   contents: write
   pull-requests: write
-  issues: write
 
 jobs:
   resolve-prompts:
@@ -32,13 +31,27 @@ jobs:
     steps:
       - id: set
         shell: bash
+        env:
+          PROMPT_KIND_INPUT: ${{ github.event.inputs.prompt_kind }}
         run: |
-          kind="${{ github.event.inputs.prompt_kind || 'both' }}"
-          if [ "$kind" = "both" ] || [ "$kind" = "" ]; then
-            echo 'prompts=["dev-work","continuous-work"]' >> "$GITHUB_OUTPUT"
-          else
-            echo "prompts=[\"${kind}\"]" >> "$GITHUB_OUTPUT"
-          fi
+          # workflow_dispatch's `type: choice` is UI-only — the REST/GraphQL
+          # API accepts any string, so this must not raw-interpolate
+          # ${{ github.event.inputs.* }} into a run: script (script
+          # injection) and must hard-reject any value outside the known set
+          # rather than pass it through into $GITHUB_OUTPUT / matrix.*.
+          kind="${PROMPT_KIND_INPUT:-both}"
+          case "$kind" in
+            both|"")
+              echo 'prompts=["dev-work","continuous-work"]' >> "$GITHUB_OUTPUT"
+              ;;
+            dev-work|continuous-work)
+              echo "prompts=[\"${kind}\"]" >> "$GITHUB_OUTPUT"
+              ;;
+            *)
+              echo "::warning::Unrecognized prompt_kind '${kind}', falling back to both."
+              echo 'prompts=["dev-work","continuous-work"]' >> "$GITHUB_OUTPUT"
+              ;;
+          esac
 
   codex:
     needs: resolve-prompts
@@ -104,10 +117,13 @@ jobs:
           set -euo pipefail
           PROMPT="$(cat "$PROMPT_FILE")"
           # GitHub-hosted runners are already isolated; agents need network for gh/npm.
+          # `--ask-for-approval` is no longer accepted by the current Codex CLI
+          # (`codex exec --help` doesn't list it); use the config-key override
+          # instead, verified against the CLI's own --help output.
           codex exec \
             --model gpt-5.6-luna \
             --sandbox danger-full-access \
-            --ask-for-approval never \
+            -c 'approval_policy="never"' \
             -c 'cli_auth_credentials_store="file"' \
             "$PROMPT"
 

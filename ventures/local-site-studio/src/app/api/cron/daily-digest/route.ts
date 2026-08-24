@@ -1,0 +1,86 @@
+import { NextResponse } from "next/server";
+import { recordCronRunOutcome } from "@/lib/db";
+import { sendOperatorDigestEmail } from "@/lib/digest/send-operator-digest";
+import { captureError } from "@/lib/observability/error-tracking";
+import { resolveTrustedAppUrl } from "@/lib/security/app-url";
+import { verifyCronRequest } from "@/lib/security/cron-secret";
+import { checkRateLimit, clientIpFromHeaders, type RateLimitConfig } from "@/lib/security/rate-limit";
+
+/**
+ * Automated daily trigger for the operator digest — see
+ * operator-daily-digest-cron-automation in BUSINESS_DECISIONS for why this
+ * exists: sendDailyDigestAction (src/app/dashboard/leads/actions.ts) was, until
+ * this route shipped, the digest's ONLY trigger, requiring the operator to
+ * remember to open /dashboard/leads and click a button — the one mechanism
+ * built to make that unnecessary could never actually fire unattended.
+ *
+ * Enabled by setting CRON_SECRET and wiring a vercel.json "crons" entry (see
+ * .env.example and /docs/launch-checklist) to call this route once daily.
+ * Vercel automatically sends CRON_SECRET as `Authorization: Bearer <secret>`
+ * to cron-invoked routes when the env var is named exactly CRON_SECRET — no
+ * OAuth, no third-party approval, no legal review, unlike the operator/legal
+ * -gated NEXT_STEPS items.
+ *
+ * Dormant (mirrors src/app/api/resend/webhook/route.ts's notConfigured
+ * pattern) until BOTH CRON_SECRET and OPERATOR_DIGEST_EMAIL are set — a
+ * misconfigured deployment should show as a failing cron run in Vercel's own
+ * dashboard, not silently report success while never actually sending
+ * anything.
+ */
+
+const CRON_DAILY_DIGEST_RATE_LIMIT: RateLimitConfig = { limit: 5, windowMs: 60_000 };
+
+function notConfigured(message: string) {
+  return NextResponse.json(
+    {
+      error: "Daily digest cron not configured",
+      message,
+      docs: "/docs/launch-checklist",
+    },
+    { status: 501 },
+  );
+}
+
+export async function GET(request: Request) {
+  const cronSecret = process.env.CRON_SECRET?.trim();
+  if (!cronSecret) {
+    return notConfigured("Set CRON_SECRET (see .env.example) and configure vercel.json crons.");
+  }
+
+  if (!verifyCronRequest(request.headers, cronSecret)) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
+  // Defense in depth against a leaked/misconfigured secret being replayed —
+  // Vercel Cron itself only calls this once daily, so this never blocks a
+  // legitimate invocation.
+  const clientIp = clientIpFromHeaders(request.headers);
+  const rate = checkRateLimit(`cron-daily-digest:${clientIp}`, CRON_DAILY_DIGEST_RATE_LIMIT);
+  if (!rate.allowed) {
+    return NextResponse.json({ error: "Too many requests" }, { status: 429 });
+  }
+
+  const digestEmail = process.env.OPERATOR_DIGEST_EMAIL?.trim();
+  if (!digestEmail) {
+    return notConfigured("Set OPERATOR_DIGEST_EMAIL (see .env.example) to enable the daily digest.");
+  }
+
+  const appUrl = resolveTrustedAppUrl(request.headers, process.env.NEXT_PUBLIC_APP_URL);
+  const nowIso = new Date().toISOString();
+
+  try {
+    const result = await sendOperatorDigestEmail(digestEmail, appUrl);
+    if (!result.success) {
+      await captureError(new Error(result.error), { component: "cron-daily-digest" });
+      await recordCronRunOutcome("daily-digest", { success: false, atIso: nowIso, error: result.error });
+      return NextResponse.json({ success: false, error: result.error }, { status: 500 });
+    }
+    await recordCronRunOutcome("daily-digest", { success: true, atIso: nowIso });
+    return NextResponse.json({ success: true, mock: result.mock });
+  } catch (error) {
+    await captureError(error, { component: "cron-daily-digest" });
+    const message = error instanceof Error ? error.message : "Unknown error";
+    await recordCronRunOutcome("daily-digest", { success: false, atIso: nowIso, error: message });
+    return NextResponse.json({ success: false, error: message }, { status: 500 });
+  }
+}

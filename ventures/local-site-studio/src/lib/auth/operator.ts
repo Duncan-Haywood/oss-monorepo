@@ -14,17 +14,45 @@ export const OPERATOR_SESSION_COOKIE = "lss_operator_session";
 const SESSION_TTL_MS = 1000 * 60 * 60 * 12; // 12 hours
 const SESSION_SUBJECT = "operator";
 
+/**
+ * Hard ceiling for client-supplied login passwords.
+ *
+ * Soft-cap is wrong (would change the secret). Rate limits blunt attempt
+ * count (5/60s) but not per-attempt payload size — without this bound,
+ * passwordsMatch allocates Buffer.from(provided) before the length-mismatch
+ * short-circuit, so a public caller can force multi-MB allocations per try.
+ * Legitimate operator secrets sit far below 256.
+ */
+export const MAX_OPERATOR_PASSWORD_LENGTH = 256;
+
+/**
+ * Hard ceiling for OPERATOR_SESSION_COOKIE values before HMAC / Buffer.from.
+ *
+ * Genuine tokens are `${expiresAt}.operator.${hmacSha256Base64url}` (~66 chars).
+ * Soft-cap/truncate would change the opaque token. Login is rate-limited (5/60s)
+ * but src/proxy.ts dashboardAuthGate verifies the cookie on every /dashboard/*
+ * with no rate limit — without this bound a client can force multi-KB crypto
+ * work per navigation. Mirror unsubscribe-token MAX=128 headroom.
+ */
+export const MAX_OPERATOR_SESSION_TOKEN_LENGTH = 128;
+
 export function isOperatorAuthConfigured(): boolean {
-  const password = process.env.OPERATOR_DASHBOARD_PASSWORD;
-  return Boolean(password && password.length > 0);
+  return getPassword() !== null;
 }
 
-function getPassword(): string | null {
-  const password = process.env.OPERATOR_DASHBOARD_PASSWORD;
-  if (!password || password.length === 0) {
+/**
+ * Trimmed OPERATOR_DASHBOARD_PASSWORD, or null when unset / whitespace-only.
+ * Every verify/sign path (login action, requireOperatorAuth, proxy gate) must
+ * use this — never raw process.env — so a secret-manager trailing space cannot
+ * desync cookie signing from Host-gate verification.
+ */
+export function getPassword(): string | null {
+  const raw = process.env.OPERATOR_DASHBOARD_PASSWORD;
+  if (!raw || raw.length === 0) {
     return null;
   }
-  return password;
+  const trimmed = raw.trim();
+  return trimmed.length > 0 ? trimmed : null;
 }
 
 function signPayload(payload: string, password: string): string {
@@ -47,6 +75,12 @@ export function verifyOperatorSessionToken(
   nowMs: number = Date.now(),
 ): boolean {
   if (!token) {
+    return false;
+  }
+
+  // Hard-reject over-long cookies before HMAC / Buffer allocation.
+  // Genuine createOperatorSessionToken values sit well under this ceiling.
+  if (token.length > MAX_OPERATOR_SESSION_TOKEN_LENGTH) {
     return false;
   }
 
@@ -85,6 +119,10 @@ export function verifyOperatorSessionToken(
 }
 
 export function passwordsMatch(provided: string, expected: string): boolean {
+  // Bound before Buffer.from — rate limits blunt count, not payload size.
+  if (provided.length > MAX_OPERATOR_PASSWORD_LENGTH) {
+    return false;
+  }
   const a = Buffer.from(provided);
   const b = Buffer.from(expected);
   if (a.length !== b.length) {
@@ -153,7 +191,12 @@ export function tryCreateSessionFromPassword(providedPassword: string): string |
   if (!expected) {
     return null;
   }
-  if (!passwordsMatch(providedPassword, expected)) {
+  // Reject over-long raw input before trim allocates a second giant string.
+  // Soft-cap would change the secret; treat as wrong password (null token).
+  if (providedPassword.length > MAX_OPERATOR_PASSWORD_LENGTH) {
+    return null;
+  }
+  if (!passwordsMatch(providedPassword.trim(), expected)) {
     return null;
   }
   return createOperatorSessionToken(expected);

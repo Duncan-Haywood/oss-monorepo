@@ -1,3 +1,4 @@
+import type { BundleBillingInterval } from "@/lib/pricing/bundles";
 import type { CheckoutSessionRecord } from "./types";
 
 /**
@@ -19,8 +20,10 @@ export interface SqliteCheckoutSessionRow {
   status: string;
   createdAt: string;
   recoverySentAt: string | null;
+  recoverySentCount: number | null;
   kind: string | null;
   skuId: string | null;
+  billingInterval: string | null;
 }
 
 /** Map a SQLite `checkout_sessions` row back into the app-wide CheckoutSessionRecord shape (fallback-read path). */
@@ -35,7 +38,9 @@ export function mapCheckoutSessionRow(row: SqliteCheckoutSessionRow): CheckoutSe
     status: row.status === "complete" ? "complete" : "open",
     createdAt: row.createdAt,
     recoverySentAt: row.recoverySentAt || undefined,
+    recoverySentCount: row.recoverySentCount ?? undefined,
     kind,
     skuId: row.skuId || undefined,
+    billingInterval: (row.billingInterval || undefined) as BundleBillingInterval | undefined,
   };
 }

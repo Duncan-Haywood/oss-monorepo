@@ -68,6 +68,23 @@ function normalizeOutreachStepLocal(value: number | undefined | null): OutreachS
   return 0;
 }
 
+/**
+ * Guard for the two soft auto-open prompts (discovery_call stage / Email 3
+ * sent) — false when a DIFFERENT lead's notes editor is already open with a
+ * possibly-unsaved draft, so an action on lead B never clobbers lead A's
+ * in-progress notes (same single-non-keyed-draft-slot bug class as
+ * commerceDraftItemsAfterSync; here the editor should simply stay put rather
+ * than steal focus and discard unsaved text). True when no editor is open,
+ * or the editor already showing is for the same lead the prompt is for
+ * (re-opening/refreshing its own editor is harmless).
+ */
+export function shouldAutoOpenNotesEditor(
+  currentEditSlug: string | null,
+  targetSlug: string,
+): boolean {
+  return currentEditSlug === null || currentEditSlug === targetSlug;
+}
+
 /** Copy for the soft banner above the notes editor — never blocks stage/email success. */
 export function notesPromptMessage(
   reason: NotesPromptReason,

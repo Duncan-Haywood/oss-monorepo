@@ -30,9 +30,22 @@ export {
   leadStageEligibleForMarketingPack,
   listMarketingPacksDue,
   marketingMonthKey,
+  marketingMonthStartMs,
   MONTHLY_MARKETING_PACK_TYPES,
+  monthlyMarketingContentTypeCount,
+  monthlyMarketingEmailCount,
+  monthlyMarketingSocialPostCount,
+  oldestMarketingPacksDueAgeHours,
   packageTierForOrderTier,
 } from "./monthly-pack";
+
+export {
+  formatPackBusinessHours,
+  MAX_MARKETING_CONTENT_TYPES_PER_REQUEST,
+  MAX_MARKETING_GENERATE_LEAD_ID_LENGTH,
+  MAX_PACK_BUSINESS_HOURS_LENGTH,
+  normalizeMarketingGenerateBusiness,
+} from "./generate-limits";
 
 export {
   formatMarketingPackEmailHtml,
@@ -41,3 +54,11 @@ export {
 } from "./deliver-pack";
 
 export { businessContextFromLead, monthlyPackRequestForLead } from "./build-request";
+
+export {
+  defaultSeasonalPromoOccasion,
+  leadEligibleForSeasonalPromo,
+  resolveSeasonalPromoOccasion,
+  seasonalPromoRequestForLead,
+  SEASONAL_PROMO_CONTENT_TYPES,
+} from "./seasonal-promo";

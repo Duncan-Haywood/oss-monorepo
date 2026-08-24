@@ -1,11 +1,16 @@
 import { NextResponse } from "next/server";
 import { getLeadBySlug, recordLeadPreviewOpen } from "@/lib/db";
 import {
+  resolvePreviewOpenAttrParam,
+  resolvePreviewOpenedAt,
   shouldPersistPreviewOpen,
   shouldRecordPreviewOpen,
 } from "@/lib/leads/preview-open";
 import { PREVIEW_OPEN_CONVEX_PRIMARY } from "@/lib/leads/preview-open-persist";
+import { isPublicLeadSlugPathLengthOk } from "@/lib/leads/slug-path";
+import { captureError } from "@/lib/observability/error-tracking";
 import { ConvexPrimaryWriteError } from "@/lib/payments/convex-primary";
+import { readJsonBodyWithByteLimit } from "@/lib/security/json-body";
 import { checkRateLimit, clientIpFromHeaders } from "@/lib/security/rate-limit";
 
 type RouteContext = { params: Promise<{ slug: string }> };
@@ -22,10 +27,21 @@ type RouteContext = { params: Promise<{ slug: string }> };
  * src/lib/security/rate-limit.ts) to blunt beacon-flooding abuse; the
  * existing debounce (shouldPersistPreviewOpen) already limits legitimate
  * writes per lead, so this only guards against a scripted burst.
+ *
+ * Path slug length is hard-capped via isPublicLeadSlugPathLengthOk (shared
+ * with POST /api/contact/[slug]) before CRM lookup. Raw JSON body is
+ * hard-capped via readJsonBodyWithByteLimit (over-long → 400) before field
+ * parsers run — field caps alone still allocate unbounded request.json().
+ * Optional body.openedAt is length-bounded via resolvePreviewOpenedAt
+ * (over-long → server now) so Date.parse never sees multi-KB probes.
+ * Optional `src` / `utm_source` query params are length-bounded via
+ * resolvePreviewOpenAttrParam (over-long → missing) so attribution matching
+ * never sees multi-KB probes. Empty / invalid JSON body is fine (beacon
+ * falls back to server now).
  */
 export async function POST(request: Request, context: RouteContext) {
   const { slug } = await context.params;
-  if (!slug || slug.length > 120) {
+  if (!slug || !isPublicLeadSlugPathLengthOk(slug)) {
     return NextResponse.json({ ok: false, error: "Invalid slug" }, { status: 400 });
   }
 
@@ -40,13 +56,17 @@ export async function POST(request: Request, context: RouteContext) {
 
   const url = new URL(request.url);
   let openedAt = new Date().toISOString();
-  try {
-    const body = (await request.json()) as { openedAt?: string };
-    if (body?.openedAt && !Number.isNaN(Date.parse(body.openedAt))) {
-      openedAt = new Date(body.openedAt).toISOString();
+  const parsedBody = await readJsonBodyWithByteLimit<{ openedAt?: unknown }>(request);
+  if (!parsedBody.ok) {
+    if (parsedBody.reason === "too_large") {
+      return NextResponse.json(
+        { ok: false, recorded: false, reason: "body_too_large", error: "Request body is too large" },
+        { status: 400 },
+      );
     }
-  } catch {
-    // empty body is fine
+    // empty / invalid JSON body is fine — keep server now
+  } else {
+    openedAt = resolvePreviewOpenedAt(parsedBody.value?.openedAt, openedAt);
   }
 
   const lead = await getLeadBySlug(slug);
@@ -54,13 +74,16 @@ export async function POST(request: Request, context: RouteContext) {
     return NextResponse.json({ ok: true, recorded: false, reason: "unknown_lead" });
   }
 
-  const src = url.searchParams.get("src");
-  const utmSource = url.searchParams.get("utm_source");
+  const src = resolvePreviewOpenAttrParam(url.searchParams.get("src"));
+  const utmSource = resolvePreviewOpenAttrParam(url.searchParams.get("utm_source"));
   if (!shouldRecordPreviewOpen({ src, utmSource, stage: lead.stage })) {
     return NextResponse.json({ ok: true, recorded: false, reason: "not_attributed" });
   }
 
-  const nowMs = Date.parse(openedAt);
+  // Debounce clock must be real server time, never the (client-influenced,
+  // though now skew-bounded) resolved `openedAt` — see
+  // preview-open-openedat-past-skew-debounce-bypass-guard.
+  const nowMs = Date.now();
   if (!shouldPersistPreviewOpen(lead.lastPreviewOpenAt, nowMs)) {
     return NextResponse.json({ ok: true, recorded: false, reason: "debounced" });
   }
@@ -73,6 +96,8 @@ export async function POST(request: Request, context: RouteContext) {
     );
     return NextResponse.json({ ok: true, recorded: result.recorded });
   } catch (error) {
+    console.error(`preview-open persist failed for ${slug}:`, error);
+    await captureError(error, { component: "preview-open", failureKind: "persist_failed" });
     if (error instanceof ConvexPrimaryWriteError) {
       return NextResponse.json(
         {

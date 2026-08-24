@@ -7,8 +7,15 @@ import {
   leadEligibleForMarketingPack,
   leadNeedsMarketingPackForMonth,
   listMarketingPacksDue,
+  listMarketingPacksMissingClientSend,
   marketingMonthKey,
+  marketingMonthStartMs,
   MONTHLY_MARKETING_PACK_TYPES,
+  monthlyMarketingContentTypeCount,
+  monthlyMarketingEmailCount,
+  monthlyMarketingSocialPostCount,
+  oldestMarketingPacksDueAgeHours,
+  oldestMarketingPackMissingClientSendAgeHours,
 } from "./monthly-pack";
 import { monthlyPackRequestForLead } from "./build-request";
 import {
@@ -63,6 +70,39 @@ describe("eligibility", () => {
     ).toBe(false);
   });
 
+  it("rejects Growth/Complete orders after recurringCanceledAt", () => {
+    expect(
+      leadEligibleForMarketingPack(baseLead({ stage: "paid" }), [
+        { tier: "growth", recurringCanceledAt: 1_720_000_000_000 },
+      ]),
+    ).toBe(false);
+    expect(
+      leadEligibleForMarketingPack(baseLead({ stage: "paid" }), [
+        { tier: "growth", recurringCanceledAt: 1_720_000_000_000 },
+        { tier: "complete" },
+      ]),
+    ).toBe(true);
+  });
+
+  it("rejects Growth/Complete orders that were refunded or disputed", () => {
+    expect(
+      leadEligibleForMarketingPack(baseLead({ stage: "paid" }), [
+        { tier: "growth", refundedAt: "2026-07-01T00:00:00.000Z" },
+      ]),
+    ).toBe(false);
+    expect(
+      leadEligibleForMarketingPack(baseLead({ stage: "paid" }), [
+        { tier: "complete", disputedAt: "2026-07-01T00:00:00.000Z" },
+      ]),
+    ).toBe(false);
+    expect(
+      leadEligibleForMarketingPack(baseLead({ stage: "paid" }), [
+        { tier: "growth", refundedAt: "2026-07-01T00:00:00.000Z" },
+        { tier: "complete" },
+      ]),
+    ).toBe(true);
+  });
+
   it("isMarketingBundleTier", () => {
     expect(isMarketingBundleTier("growth")).toBe(true);
     expect(isMarketingBundleTier("complete")).toBe(true);
@@ -73,6 +113,41 @@ describe("eligibility", () => {
     expect(bestMarketingOrderTier([{ tier: "growth" }, { tier: "complete" }])).toBe("complete");
     expect(bestMarketingOrderTier([{ tier: "starter" }, { tier: "growth" }])).toBe("growth");
     expect(bestMarketingOrderTier([{ tier: "starter" }])).toBeNull();
+  });
+
+  it("bestMarketingOrderTier ignores paused/canceled Complete over active Growth", () => {
+    expect(
+      bestMarketingOrderTier([
+        { tier: "complete", recurringCanceledAt: 1_720_000_000_000 },
+        { tier: "growth" },
+      ]),
+    ).toBe("growth");
+    expect(
+      bestMarketingOrderTier([
+        { tier: "complete", recurringCanceledAt: 1_720_000_000_000 },
+        { tier: "growth", recurringCanceledAt: 1_720_000_000_000 },
+      ]),
+    ).toBeNull();
+    expect(
+      bestMarketingOrderTier([
+        { tier: "growth", recurringCanceledAt: 1_720_000_000_000 },
+        { tier: "complete" },
+      ]),
+    ).toBe("complete");
+  });
+
+  it("bestMarketingOrderTier ignores refunded/disputed orders", () => {
+    expect(
+      bestMarketingOrderTier([
+        { tier: "complete", refundedAt: "2026-07-01T00:00:00.000Z" },
+        { tier: "growth" },
+      ]),
+    ).toBe("growth");
+    expect(
+      bestMarketingOrderTier([
+        { tier: "complete", disputedAt: "2026-07-01T00:00:00.000Z" },
+      ]),
+    ).toBeNull();
   });
 });
 
@@ -140,18 +215,204 @@ describe("listMarketingPacksDue", () => {
   });
 });
 
+describe("listMarketingPacksMissingClientSend", () => {
+  const month = "2026-07";
+  const paidLead = baseLead({ slug: "sent-pending", stage: "paid" });
+  const orders = [{ leadSlug: "sent-pending", tier: "growth" }];
+
+  it("flags a generated pack with no sentToClientAt", () => {
+    const packs = [
+      { leadSlug: "sent-pending", yearMonth: month, generatedAt: "2026-07-01T00:00:00.000Z" },
+    ];
+    expect(
+      listMarketingPacksMissingClientSend(packs, [paidLead], orders).map((p) => p.leadSlug),
+    ).toEqual(["sent-pending"]);
+  });
+
+  it("excludes a pack that already has sentToClientAt", () => {
+    const packs = [
+      {
+        leadSlug: "sent-pending",
+        yearMonth: month,
+        generatedAt: "2026-07-01T00:00:00.000Z",
+        sentToClientAt: "2026-07-02T00:00:00.000Z",
+      },
+    ];
+    expect(listMarketingPacksMissingClientSend(packs, [paidLead], orders)).toEqual([]);
+  });
+
+  it("excludes a pack whose lead is no longer eligible (e.g. Starter-only)", () => {
+    const starterOnly = baseLead({ slug: "starter-only", stage: "paid" });
+    const packs = [
+      { leadSlug: "starter-only", yearMonth: month, generatedAt: "2026-07-01T00:00:00.000Z" },
+    ];
+    expect(
+      listMarketingPacksMissingClientSend(
+        packs,
+        [starterOnly],
+        [{ leadSlug: "starter-only", tier: "starter" }],
+      ),
+    ).toEqual([]);
+  });
+});
+
+describe("oldestMarketingPackMissingClientSendAgeHours", () => {
+  it("returns null when there are no candidates", () => {
+    expect(oldestMarketingPackMissingClientSendAgeHours([], 0)).toBeNull();
+  });
+
+  it("computes hours since the oldest candidate's generatedAt", () => {
+    const nowMs = Date.parse("2026-07-10T00:00:00.000Z");
+    const candidates = [
+      { generatedAt: "2026-07-05T00:00:00.000Z" },
+      { generatedAt: "2026-07-08T00:00:00.000Z" },
+    ];
+    expect(oldestMarketingPackMissingClientSendAgeHours(candidates, nowMs)).toBe(5 * 24);
+  });
+
+  it("skips a candidate with no parseable generatedAt", () => {
+    const nowMs = Date.parse("2026-07-10T00:00:00.000Z");
+    expect(
+      oldestMarketingPackMissingClientSendAgeHours(
+        [{ generatedAt: undefined }, { generatedAt: "not-a-date" }],
+        nowMs,
+      ),
+    ).toBeNull();
+  });
+});
+
+describe("marketingMonthStartMs", () => {
+  it("returns the first UTC instant of the month", () => {
+    expect(marketingMonthStartMs("2026-07")).toBe(Date.UTC(2026, 6, 1, 0, 0, 0));
+    expect(marketingMonthStartMs("2026-01")).toBe(Date.UTC(2026, 0, 1, 0, 0, 0));
+  });
+
+  it("rejects a malformed yearMonth", () => {
+    expect(() => marketingMonthStartMs("2026-7")).toThrow(/invalid yearMonth/);
+    expect(() => marketingMonthStartMs("not-a-month")).toThrow(/invalid yearMonth/);
+  });
+});
+
+describe("oldestMarketingPacksDueAgeHours", () => {
+  const HOUR_MS = 60 * 60 * 1000;
+  const month = "2026-07";
+  const monthStartMs = Date.UTC(2026, 6, 1, 0, 0, 0);
+  const NOW = monthStartMs + 10 * HOUR_MS;
+
+  it("returns null for no candidates", () => {
+    expect(oldestMarketingPacksDueAgeHours([], [], month, NOW)).toBeNull();
+  });
+
+  it("anchors to month start for a long-time subscriber", () => {
+    const candidates = [{ slug: "alpha" }];
+    const orders = [
+      {
+        leadSlug: "alpha",
+        tier: "growth",
+        // Subscribed long before this month — due-since is still month start,
+        // not their original signup, so the age doesn't grow unbounded forever.
+        createdAt: new Date(monthStartMs - 999 * HOUR_MS).toISOString(),
+      },
+    ];
+    expect(oldestMarketingPacksDueAgeHours(candidates, orders, month, NOW)).toBe(10);
+  });
+
+  it("anchors to the order's createdAt for a mid-month signup", () => {
+    const candidates = [{ slug: "beta" }];
+    const orders = [
+      {
+        leadSlug: "beta",
+        tier: "complete",
+        createdAt: new Date(monthStartMs + 6 * HOUR_MS).toISOString(),
+      },
+    ];
+    expect(oldestMarketingPacksDueAgeHours(candidates, orders, month, NOW)).toBe(4);
+  });
+
+  it("ignores non-candidates, paused entitlement, and unparseable orders", () => {
+    const candidates = [{ slug: "alpha" }];
+    const orders = [
+      { leadSlug: "gamma", tier: "growth", createdAt: new Date(monthStartMs).toISOString() },
+      {
+        leadSlug: "alpha",
+        tier: "growth",
+        recurringCanceledAt: monthStartMs,
+        createdAt: new Date(monthStartMs).toISOString(),
+      },
+      { leadSlug: "alpha", tier: "growth", createdAt: "not-a-date" },
+    ];
+    expect(oldestMarketingPacksDueAgeHours(candidates, orders, month, NOW)).toBeNull();
+  });
+
+  it("clamps to 0 when nowMs is before the due-since instant", () => {
+    const candidates = [{ slug: "alpha" }];
+    const orders = [
+      {
+        leadSlug: "alpha",
+        tier: "growth",
+        createdAt: new Date(monthStartMs + 2 * HOUR_MS).toISOString(),
+      },
+    ];
+    expect(oldestMarketingPacksDueAgeHours(candidates, orders, month, monthStartMs)).toBe(0);
+  });
+
+  it("ignores an older refunded/disputed order — only the active entitlement anchors the age", () => {
+    const candidates = [{ slug: "alpha" }];
+    const orders = [
+      {
+        // Older order refunded mid-cycle: recurringCanceledAt not set (a
+        // refund does not always cancel the Subscription), so a raw
+        // recurringCanceledAt check alone would wrongly anchor here.
+        leadSlug: "alpha",
+        tier: "growth",
+        createdAt: new Date(monthStartMs - 999 * HOUR_MS).toISOString(),
+        refundedAt: new Date(monthStartMs - 999 * HOUR_MS).toISOString(),
+      },
+      {
+        leadSlug: "alpha",
+        tier: "complete",
+        createdAt: new Date(monthStartMs + 6 * HOUR_MS).toISOString(),
+      },
+      {
+        leadSlug: "alpha",
+        tier: "growth",
+        createdAt: new Date(monthStartMs - 999 * HOUR_MS).toISOString(),
+        disputedAt: new Date(monthStartMs - 999 * HOUR_MS).toISOString(),
+      },
+    ];
+    expect(oldestMarketingPacksDueAgeHours(candidates, orders, month, NOW)).toBe(4);
+  });
+});
+
 describe("MONTHLY_MARKETING_PACK_TYPES", () => {
   it("is 8 posts + 2 emails", () => {
     expect(MONTHLY_MARKETING_PACK_TYPES).toHaveLength(10);
-    const posts = MONTHLY_MARKETING_PACK_TYPES.filter(
-      (t) =>
-        t === "gbp_post" || t === "facebook_caption" || t === "instagram_caption",
-    );
-    const emails = MONTHLY_MARKETING_PACK_TYPES.filter(
-      (t) => t === "email_campaign" || t === "review_request_email",
-    );
-    expect(posts).toHaveLength(8);
-    expect(emails).toHaveLength(2);
+    expect(monthlyMarketingSocialPostCount()).toBe(8);
+    expect(monthlyMarketingEmailCount()).toBe(2);
+  });
+});
+
+describe("monthlyMarketingContentTypeCount", () => {
+  it("matches the exact per-type breakdown /docs/marketing-automation renders", () => {
+    expect(monthlyMarketingContentTypeCount("gbp_post")).toBe(2);
+    expect(monthlyMarketingContentTypeCount("facebook_caption")).toBe(3);
+    expect(monthlyMarketingContentTypeCount("instagram_caption")).toBe(3);
+    expect(monthlyMarketingContentTypeCount("email_campaign")).toBe(1);
+    expect(monthlyMarketingContentTypeCount("review_request_email")).toBe(1);
+    // Ad-hoc-only types are not part of the fixed monthly pack.
+    expect(monthlyMarketingContentTypeCount("local_seo_meta")).toBe(0);
+    expect(monthlyMarketingContentTypeCount("seasonal_promo")).toBe(0);
+    expect(monthlyMarketingContentTypeCount("ad_copy")).toBe(0);
+  });
+
+  it("sums to the full pack length", () => {
+    const sum =
+      monthlyMarketingContentTypeCount("gbp_post") +
+      monthlyMarketingContentTypeCount("facebook_caption") +
+      monthlyMarketingContentTypeCount("instagram_caption") +
+      monthlyMarketingContentTypeCount("email_campaign") +
+      monthlyMarketingContentTypeCount("review_request_email");
+    expect(sum).toBe(MONTHLY_MARKETING_PACK_TYPES.length);
   });
 });
 
