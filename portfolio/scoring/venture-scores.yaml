@@ -543,3 +543,74 @@ ventures:
       expectations", never to restorability, completeness, or data safety.
       Testing restores and maintaining an independent backup strategy remain
       customer responsibilities.
+
+  - slug: sponsor-ready
+    scores:
+      ai_leverage: 3
+      autonomous_ops: 10
+      time_to_revenue: 3
+      gross_margin: 10
+      defensibility: 3
+      distribution: 6
+    composite: 5.833
+    rater_b: null
+    floor: 3
+    floor_dimension: defensibility
+    floor_note: >-
+      Three dimensions tie at the floor. Defensibility is named because a
+      checklist is copyable in an afternoon and GitHub already ships a
+      generic community-health score; what could compound is a
+      sponsor-conversion-specific checklist plus earned audience and SEO
+      trust, and none of that is measured. The other two are deliberate:
+      AI leverage is low because v1 is a deterministic rules pass over
+      GitHub's own API responses, and time to revenue is low because the
+      product is free by design in the portfolio's current
+      no-payment-rails phase, not because a buyer was sought and missed.
+    basis: >-
+      Graduated from the oss-sponsor-readiness candidate on 2026-08-24.
+      The first slice is a zero-dependency static page whose every check
+      runs in the visitor's browser against api.github.com's public
+      endpoints -- no backend, no account, no stored data -- which is what
+      carries autonomous ops and gross margin. Scores preserve the
+      candidate estimate; nothing here is a customer measurement, and
+      there is no public URL yet from which one could be taken.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Pass, conditionally: the tool reports only what a repo owner already
+      published publicly, and both the page and the README state that it
+      is an informational heuristic, is not affiliated with GitHub, and
+      guarantees no sponsorship outcome. It never claims a repo "will"
+      earn sponsors -- that warranty is the positioning error this scoring
+      exists to refuse.
+
+  - slug: shopify-permission-drift
+    scores:
+      ai_leverage: 7
+      autonomous_ops: 8
+      time_to_revenue: 6
+      gross_margin: 9
+      defensibility: 4
+      distribution: 6
+    composite: 6.667
+    rater_b: null
+    floor: 4
+    floor_dimension: defensibility
+    floor_note: >-
+      A scope-and-webhook comparator is reimplementable; what could compound
+      is an immutable, merchant-specific authorization history that a new
+      entrant cannot reconstruct. That is untested, and the Shopify agency
+      or App Store channel it would need is unsecured.
+    basis: >-
+      Row added 2026-08-24 to close a `score_ventures.py --check` failure
+      that landed on `main` when this venture's directory was merged without
+      one -- it was red on `main`, not introduced by the pull request that
+      added this row. Scores are carried over unchanged from the
+      shopify-permission-drift candidate rather than re-estimated here, so
+      this records the existing agreed position rather than a second
+      session's opinion of another session's venture. Re-score it against
+      the built artifact when whoever owns it next touches it.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
