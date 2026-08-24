@@ -38,6 +38,7 @@ def _sarif_report(reports: list[tuple[Path, list[dict[str, str]]]]) -> dict[str,
                 "ruleId": rule,
                 "level": "error",
                 "message": {"text": f'{error["message"]} Fix: {error["fix"]}'},
+                "properties": {"jsonPointer": error["path"]},
                 "locations": [{"physicalLocation": {"artifactLocation": {"uri": invoice_path.as_posix()}}}],
             })
     return {
@@ -86,7 +87,7 @@ def _markdown_report(reports: list[tuple[Path, list[dict[str, str]]]], read_erro
         lines.extend(["", "Status: **FAIL**", ""])
         for error in errors:
             lines.extend([
-                f"- **{_markdown_text(error['rule'])}**: {_markdown_text(error['message'])}",
+                f"- **{_markdown_text(error['rule'])}** at `{_markdown_text(error['path']) or '/'}`: {_markdown_text(error['message'])}",
                 f"  Fix: {_markdown_text(error['fix'])}",
             ])
         lines.append("")

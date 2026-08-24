@@ -16,47 +16,47 @@ def _money(value: Any) -> Decimal | None:
 def check_invoice(invoice: Any) -> list[dict[str, str]]:
     errors: list[dict[str, str]] = []
 
-    def fail(rule: str, message: str, fix: str) -> None:
-        errors.append({"rule": rule, "message": message, "fix": fix})
+    def fail(rule: str, message: str, fix: str, path: str = "") -> None:
+        errors.append({"rule": rule, "message": message, "fix": fix, "path": path})
 
     if not isinstance(invoice, dict):
-        return [{"rule": "INV-001", "message": "Invoice must be a JSON object.", "fix": "Provide the invoice object at the document root."}]
+        return [{"rule": "INV-001", "message": "Invoice must be a JSON object.", "fix": "Provide the invoice object at the document root.", "path": ""}]
     for field in ("invoice_number", "issue_date", "currency", "supplier", "customer", "lines", "totals"):
         if field not in invoice:
-            fail("INV-001", f"Required field '{field}' is missing.", f"Add a '{field}' field.")
+            fail("INV-001", f"Required field '{field}' is missing.", f"Add a '{field}' field.", f"/{field}")
     if not isinstance(invoice.get("invoice_number"), str) or not invoice.get("invoice_number", "").strip():
-        fail("INV-002", "Invoice number is empty or not text.", "Provide a non-empty invoice number.")
+        fail("INV-002", "Invoice number is empty or not text.", "Provide a non-empty invoice number.", "/invoice_number")
     try:
         date.fromisoformat(invoice.get("issue_date", ""))
     except (ValueError, TypeError):
-        fail("INV-003", "Issue date is not an ISO date.", "Use YYYY-MM-DD, for example 2026-08-24.")
+        fail("INV-003", "Issue date is not an ISO date.", "Use YYYY-MM-DD, for example 2026-08-24.", "/issue_date")
     if not isinstance(invoice.get("currency"), str) or len(invoice.get("currency", "")) != 3 or not invoice.get("currency", "").isupper():
-        fail("INV-004", "Currency is not a three-letter uppercase code.", "Use an ISO-style code such as EUR or GBP.")
+        fail("INV-004", "Currency is not a three-letter uppercase code.", "Use an ISO-style code such as EUR or GBP.", "/currency")
     for party_name in ("supplier", "customer"):
         party = invoice.get(party_name)
         if not isinstance(party, dict) or not isinstance(party.get("id"), str) or not party.get("id", "").strip():
-            fail("INV-005", f"{party_name.title()} identifier is missing.", f"Add the {party_name} identifier from the source system.")
+            fail("INV-005", f"{party_name.title()} identifier is missing.", f"Add the {party_name} identifier from the source system.", f"/{party_name}/id")
         if not isinstance(party, dict) or not isinstance(party.get("name"), str) or not party.get("name", "").strip():
-            fail("INV-006", f"{party_name.title()} name is missing.", f"Add the {party_name} name.")
+            fail("INV-006", f"{party_name.title()} name is missing.", f"Add the {party_name} name.", f"/{party_name}/name")
     lines = invoice.get("lines")
     if not isinstance(lines, list) or not lines:
-        fail("INV-007", "Invoice has no line items.", "Add at least one line item.")
+        fail("INV-007", "Invoice has no line items.", "Add at least one line item.", "/lines")
         lines = []
     expected_net = Decimal("0")
     expected_tax = Decimal("0")
     for index, line in enumerate(lines, 1):
         if not isinstance(line, dict):
-            fail("INV-008", f"Line {index} is not an object.", "Provide description, quantity, unit_price, and tax_percent.")
+            fail("INV-008", f"Line {index} is not an object.", "Provide description, quantity, unit_price, and tax_percent.", f"/lines/{index - 1}")
             continue
         if not isinstance(line.get("description"), str) or not line.get("description", "").strip():
-            fail("INV-008", f"Line {index} has no description.", "Add a human-readable line description.")
+            fail("INV-008", f"Line {index} has no description.", "Add a human-readable line description.", f"/lines/{index - 1}/description")
         quantity, price, tax = (_money(line.get(key)) for key in ("quantity", "unit_price", "tax_percent"))
         if quantity is None or quantity <= 0:
-            fail("INV-009", f"Line {index} quantity is invalid.", "Use a positive numeric quantity.")
+            fail("INV-009", f"Line {index} quantity is invalid.", "Use a positive numeric quantity.", f"/lines/{index - 1}/quantity")
         if price is None or price < 0:
-            fail("INV-010", f"Line {index} unit price is invalid.", "Use a non-negative numeric unit price.")
+            fail("INV-010", f"Line {index} unit price is invalid.", "Use a non-negative numeric unit price.", f"/lines/{index - 1}/unit_price")
         if tax is None or tax < 0 or tax > 100:
-            fail("INV-011", f"Line {index} tax percentage is invalid.", "Use the tax percentage supplied by your authoritative source; this tool does not choose it.")
+            fail("INV-011", f"Line {index} tax percentage is invalid.", "Use the tax percentage supplied by your authoritative source; this tool does not choose it.", f"/lines/{index - 1}/tax_percent")
         if quantity is not None and price is not None and quantity > 0 and price >= 0:
             line_net = (quantity * price).quantize(Decimal("0.01"), rounding=ROUND_HALF_UP)
             expected_net += line_net
@@ -64,21 +64,21 @@ def check_invoice(invoice: Any) -> list[dict[str, str]]:
                 expected_tax += (line_net * tax / Decimal("100")).quantize(Decimal("0.01"), rounding=ROUND_HALF_UP)
             supplied = _money(line.get("net"))
             if supplied is None or supplied != line_net:
-                fail("INV-012", f"Line {index} net is missing or does not match quantity times unit price.", f"Set line net to {line_net} or correct the inputs.")
+                fail("INV-012", f"Line {index} net is missing or does not match quantity times unit price.", f"Set line net to {line_net} or correct the inputs.", f"/lines/{index - 1}/net")
     totals = invoice.get("totals")
     if not isinstance(totals, dict):
         totals = {}
     net, tax_total, gross = (_money(totals.get(key)) for key in ("net", "tax", "gross"))
     if net is None or net < 0:
-        fail("INV-013", "Invoice net total is missing or invalid.", "Provide a non-negative numeric net total.")
+        fail("INV-013", "Invoice net total is missing or invalid.", "Provide a non-negative numeric net total.", "/totals/net")
     elif net != expected_net:
-        fail("INV-014", "Invoice net total does not match its line items.", f"Set net total to {expected_net} or correct the line items.")
+        fail("INV-014", "Invoice net total does not match its line items.", f"Set net total to {expected_net} or correct the line items.", "/totals/net")
     if tax_total is None or tax_total < 0:
-        fail("INV-015", "Invoice tax total is missing or invalid.", "Provide a non-negative numeric tax total.")
+        fail("INV-015", "Invoice tax total is missing or invalid.", "Provide a non-negative numeric tax total.", "/totals/tax")
     elif tax_total != expected_tax:
-        fail("INV-018", "Invoice tax total does not match its line tax percentages.", f"Set tax total to {expected_tax} or correct the line inputs.")
+        fail("INV-018", "Invoice tax total does not match its line tax percentages.", f"Set tax total to {expected_tax} or correct the line inputs.", "/totals/tax")
     if gross is None or gross < 0:
-        fail("INV-016", "Invoice gross total is missing or invalid.", "Provide a non-negative numeric gross total.")
+        fail("INV-016", "Invoice gross total is missing or invalid.", "Provide a non-negative numeric gross total.", "/totals/gross")
     elif net is not None and tax_total is not None and gross != net + tax_total:
-        fail("INV-017", "Gross total does not equal net plus tax.", f"Set gross total to {net + tax_total} or correct the totals.")
+        fail("INV-017", "Gross total does not equal net plus tax.", f"Set gross total to {net + tax_total} or correct the totals.", "/totals/gross")
     return errors
