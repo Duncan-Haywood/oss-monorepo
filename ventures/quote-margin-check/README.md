@@ -44,6 +44,11 @@ quoted price and direct costs fixed while showing how the effective hourly rate
 and gap to the supplied target change. They are arithmetic what-if comparisons,
 not a forecast of project delivery time.
 
+The price ladder compares the quote needed at 50, 75, 100, and 125 per hour,
+using the supplied hours and direct costs. It is a quick way to compare
+negotiation anchors without changing the quote inputs; it is arithmetic only,
+not pricing advice.
+
 **No warranty.** This tool is provided free and as-is, without warranty of any
 kind, express or implied. It is not tax, financial, or business advice, and it
 does not replace a qualified professional. **You are responsible for reviewing

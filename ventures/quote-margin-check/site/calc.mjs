@@ -66,3 +66,12 @@ export function overrunScenarios(quote, report, percentages = [10, 25, 50]) {
     };
   });
 }
+
+/** Compares the quote price needed at nearby hourly targets. */
+export function targetRateLadder(quote, report, rates = [50, 75, 100, 125]) {
+  return rates.map((rate) => ({
+    hourly_rate: rate,
+    target_price: report.total_hours * rate + report.direct_costs,
+    difference_from_quote: report.total_hours * rate + report.direct_costs - quote.price,
+  }));
+}

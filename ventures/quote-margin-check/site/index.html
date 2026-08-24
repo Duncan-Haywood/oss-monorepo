@@ -180,6 +180,7 @@
 
     <div class="result" id="result" role="status" aria-live="polite"></div>
     <div class="result" id="sensitivity" aria-live="polite"><strong>If the work takes longer</strong><p class="hint">A scenario view, not a prediction. Direct costs stay unchanged.</p><div class="table-scroll"><table class="sensitivity"><thead><tr><th>Extra time</th><th>Total hours</th><th>Effective rate</th><th>Gap to target</th></tr></thead><tbody></tbody></table></div></div>
+    <div class="result" id="ladder" aria-live="polite"><strong>Price ladder</strong><p class="hint">Comparison only: the quote needed to pay each hourly target for the hours and direct costs above.</p><div class="table-scroll"><table class="sensitivity"><thead><tr><th>Hourly target</th><th>Needed quote</th><th>Change from quote</th></tr></thead><tbody></tbody></table></div></div>
       <div class="result" id="review" aria-live="polite"><strong>Before you send it</strong><ul class="checks"></ul></div>
 
     <div class="actions">
@@ -250,7 +251,7 @@
 </main>
 
 <script type="module">
-  import { loadQuote, calculate, overrunScenarios } from "./calc.mjs";
+  import { loadQuote, calculate, overrunScenarios, targetRateLadder } from "./calc.mjs";
   import { reviewQuote } from "./review.mjs";
   import { recordEvent, createReportCounter, isUsageCountingEnabled, setUsageCountingEnabled } from "./usage.mjs";
 
@@ -262,6 +263,7 @@
   const result = document.getElementById("result");
   const review = document.getElementById("review");
   const sensitivity = document.getElementById("sensitivity");
+  const ladder = document.getElementById("ladder");
 
   let lastReport = null;
 
@@ -305,6 +307,7 @@
        `;
        review.querySelector(".checks").innerHTML = reviewQuote(quote, r).map((check) => `<li class="${check.level}"><strong>${escapeHtml(check.title)}</strong>${escapeHtml(check.detail)}</li>`).join("");
        sensitivity.querySelector("tbody").innerHTML = overrunScenarios(quote, r).map((scenario) => `<tr><th scope="row">+${scenario.percent}%</th><td>${fmt(scenario.total_hours)}</td><td>${safeCurrency} ${fmt(scenario.effective_hourly_rate)}/hour</td><td>${safeCurrency} ${fmt(scenario.gap_to_target)}</td></tr>`).join("");
+       ladder.querySelector("tbody").innerHTML = targetRateLadder(quote, r).map((scenario) => `<tr><th scope="row">${safeCurrency} ${fmt(scenario.hourly_rate)}/hour</th><td>${safeCurrency} ${fmt(scenario.target_price)}</td><td class="${scenario.difference_from_quote <= 0 ? "good" : "bad"}">${scenario.difference_from_quote <= 0 ? "-" : "+"}${safeCurrency} ${fmt(Math.abs(scenario.difference_from_quote))}</td></tr>`).join("");
        recordEvent("quote_review_checked");
       result.classList.remove("error");
       reportCounter.count(JSON.stringify(quote));

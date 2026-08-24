@@ -1,7 +1,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 
-import { loadQuote, calculate, overrunScenarios } from "./calc.mjs";
+import { loadQuote, calculate, overrunScenarios, targetRateLadder } from "./calc.mjs";
 
 test("calculates hidden time and target price", () => {
   const quote = loadQuote({
@@ -69,4 +69,14 @@ test("calculates transparent overrun sensitivity without changing the quote", ()
   assert.deepEqual(overrunScenarios(quote, report).map((scenario) => scenario.total_hours), [38.5, 43.75, 52.5]);
   assert.equal(overrunScenarios(quote, report)[0].effective_hourly_rate, 49.87012987012987);
   assert.equal(report.total_hours, 35);
+});
+
+test("builds a target-rate ladder from the same hours and direct costs", () => {
+  const quote = loadQuote({ price: 2400, delivery_hours: 24, admin_hours: 5, revision_hours: 6, overhead: 180, subcontractor_cost: 300, target_hourly_rate: 75 });
+  const report = calculate(quote);
+  assert.deepEqual(targetRateLadder(quote, report, [50, 75, 100]), [
+    { hourly_rate: 50, target_price: 2230, difference_from_quote: -170 },
+    { hourly_rate: 75, target_price: 3105, difference_from_quote: 705 },
+    { hourly_rate: 100, target_price: 3980, difference_from_quote: 1580 },
+  ]);
 });
