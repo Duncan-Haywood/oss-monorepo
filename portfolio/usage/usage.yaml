@@ -144,6 +144,31 @@ products:
           avoided-purchase figures on top of it. 25 passing tests. Public URL
           remains owner-gated, so the counters still have no external
           reporting path.
+  - slug: shopify-fee-calculator
+    surface: static-page-in-repo
+    readings:
+      - as_of: 2026-08-24
+        signals:
+          live_url_visitors: null
+          local_events_reported: 0
+        note: >-
+          Shipped local Shopify Payments vs PayPal/Stripe profit calculator
+          (plan presets, both-path comparison, break-even and target-margin
+          price). Public URL remains owner-gated; the local-first counter
+          reports only to the user's own browser and is opt-out. Baseline row.
+  - slug: where-to-sell-calculator
+    surface: static-page-in-repo
+    readings:
+      - as_of: 2026-08-24
+        signals:
+          live_url_visitors: null
+          local_events_reported: 0
+        note: >-
+          Shipped the cross-marketplace comparison: one item ranked across
+          eBay, Etsy, Amazon, an own store and a direct sale, with
+          subscription amortisation and the price each channel needs to match
+          the best. Public URL remains owner-gated; the local-first counter
+          reports only to the user's own browser and is opt-out. Baseline row.
   - slug: no-show-fee-calculator
     surface: static-page-in-repo
     readings:
@@ -163,6 +188,15 @@ products:
           local_preflights: 1
           qualified_pilots: 0
         note: Shipped local JSON preflight; format coverage and customer demand remain untested.
+  - slug: eaa-remediation-pipeline
+    surface: local-site-studio-browser
+    readings:
+      - as_of: 2026-08-24
+        signals:
+          public_url_visitors: null
+          preaudit_checklist_events: 0
+          handoff_exports: 0
+        note: Shipped browser-local pre-audit checklist; public deployment remains owner-gated.
 # Example of the shape, once a product has shipped:
 #
 # products:
