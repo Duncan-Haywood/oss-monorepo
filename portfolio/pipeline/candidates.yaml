@@ -725,3 +725,34 @@ candidates:
       distribution.
     first_experiment_days: 7
     first_experiment_budget_usd: 50
+
+  - slug: backup-verification-evidence
+    name: Backup verification evidence
+    doc: candidates/backup-verification-evidence.md
+    verdict: probe
+    probe_status: >-
+      local record/check CLI built and tested (17 tests) against fixtures;
+      not yet wired into a real recurring job, and demand/distribution
+      unmeasured.
+    graduate_as: venture
+    host_venture: null
+    scores:
+      ai_leverage: 5
+      autonomous_ops: 9
+      time_to_revenue: 6
+      gross_margin: 9
+      defensibility: 4
+      distribution: 4
+      liability_containment: 7
+      ethical_robustness: 8
+    composite: 6.5
+    floor: 4
+    floor_dimension: defensibility
+    mitigation: >-
+      Retain a dated, portable, per-client verification history and measure
+      whether a competitor could reconstruct the same trend without it for
+      defensibility; secure a named sysadmin/MSP community or one repeatable
+      practitioner conversation channel before building a hosted or scheduled
+      component for distribution.
+    first_experiment_days: 14
+    first_experiment_budget_usd: 100
