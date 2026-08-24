@@ -33,6 +33,31 @@ rescore_note: >-
   rescore-2026-08-20.md.
 
 candidates:
+  - slug: software-evidence-provenance
+    name: Software evidence provenance ledger
+    doc: candidates/software-evidence-provenance.md
+    verdict: reject
+    graduate_as: venture
+    host_venture: null
+    scores:
+      ai_leverage: 6
+      autonomous_ops: 8
+      time_to_revenue: 5
+      gross_margin: 9
+      defensibility: 3
+      distribution: 4
+      liability_containment: 8
+      ethical_robustness: 8
+    composite: 6.375
+    floor: 3
+    floor_dimension: defensibility
+    mitigation: >-
+      Do not graduate until a named code-host or release-engineering channel
+      partner demonstrates a buyer and the experiment identifies a durable asset
+      beyond existing provenance standards.
+    first_experiment_days: 7
+    first_experiment_budget_usd: 50
+
   - slug: eaa-remediation-pipeline
     name: EAA remediation pipeline
     doc: candidates/eaa-remediation-pipeline.md
