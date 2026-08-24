@@ -7,6 +7,7 @@
 import { brand } from "@/lib/brand";
 import type { LeadPipelineStage } from "@/lib/leads/types";
 import { escapeHtmlForEmail, plainTextToEmailHtml } from "@/lib/inquiries/reply";
+import { softCapPackVariantFields } from "@/lib/packs/variant-fields";
 import { leadEligibleForClientVoicePack, scriptTypeLabel } from "./faq-pack";
 import type { ClientVoiceScriptVariant } from "./types";
 
@@ -17,7 +18,13 @@ import type { ClientVoiceScriptVariant } from "./types";
  */
 export function leadEligibleForClientVoicePackDelivery(
   lead: { stage: LeadPipelineStage; email?: string | null },
-  orders: ReadonlyArray<{ tier: string }>,
+  orders: ReadonlyArray<{
+    tier: string;
+    commerceAddon?: boolean;
+    recurringCanceledAt?: number | null;
+    refundedAt?: string;
+    disputedAt?: string;
+  }>,
 ): boolean {
   if (!leadEligibleForClientVoicePack(lead, orders)) return false;
   return Boolean(lead.email && lead.email.trim().length > 0);
@@ -58,7 +65,10 @@ export function formatClientVoicePackEmailHtml(input: {
   previewUrl?: string;
 }): string {
   const { businessName, variants, previewUrl } = input;
+  // Soft-cap at the skipSuppression sink — generate soft-caps before upsert, but
+  // Email voice pack must not emit already-stored uncapped rows (deliver twin).
   const scriptHtml = variants
+    .map((variant) => softCapPackVariantFields(variant))
     .map((variant, index) => scriptBlockHtml(variant, index))
     .join("");
   const previewLine = previewUrl

@@ -32,6 +32,11 @@ vi.mock("stripe", () => ({
   },
 }));
 
+const captureError = vi.fn();
+vi.mock("@/lib/observability/error-tracking", () => ({
+  captureError: (...args: unknown[]) => captureError(...args),
+}));
+
 function bootstrapRequest(clientIp = "203.0.113.5") {
   return new Request("http://localhost/api/stripe/bootstrap-prices", {
     method: "POST",
@@ -46,6 +51,7 @@ describe("POST /api/stripe/bootstrap-prices", () => {
     requireOperatorAuth.mockReset().mockResolvedValue({ ok: true });
     bootstrapStripePrices.mockReset();
     stripeCtor.mockReset();
+    captureError.mockReset().mockResolvedValue(undefined);
     resetRateLimiterForTests();
     process.env = { ...originalEnv };
     delete process.env.ALLOW_STRIPE_BOOTSTRAP;
@@ -165,6 +171,10 @@ describe("POST /api/stripe/bootstrap-prices", () => {
     const body = await res.json();
     expect(body.error).toBe("Bootstrap failed");
     expect(body.message).toBe("Stripe API timeout");
+    expect(captureError).toHaveBeenCalledWith(expect.any(Error), {
+      component: "stripe-bootstrap-prices-route",
+      failureKind: "bootstrap_prices",
+    });
   });
 
   it("returns 502 with Unknown Stripe error when throw is non-Error", async () => {
@@ -178,5 +188,9 @@ describe("POST /api/stripe/bootstrap-prices", () => {
     const body = await res.json();
     expect(body.error).toBe("Bootstrap failed");
     expect(body.message).toBe("Unknown Stripe error");
+    expect(captureError).toHaveBeenCalledWith("raw-failure", {
+      component: "stripe-bootstrap-prices-route",
+      failureKind: "bootstrap_prices",
+    });
   });
 });

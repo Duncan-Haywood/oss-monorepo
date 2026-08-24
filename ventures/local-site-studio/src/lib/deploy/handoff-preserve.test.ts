@@ -1,6 +1,9 @@
 import { describe, expect, it } from "vitest";
 import {
   isProgressedHandoffStatus,
+  isVercelDomainProvisioningFailed,
+  mergeProvisionOntoFreshHandoff,
+  preferAdvancedHandoffStatus,
   preserveDeployHandoffOperatorFields,
 } from "./handoff-preserve";
 import type { DeployHandoff } from "./types";
@@ -33,6 +36,80 @@ describe("isProgressedHandoffStatus", () => {
     expect(isProgressedHandoffStatus("awaiting_dns")).toBe(false);
     expect(isProgressedHandoffStatus("pending")).toBe(false);
     expect(isProgressedHandoffStatus("failed")).toBe(false);
+  });
+});
+
+describe("isVercelDomainProvisioningFailed", () => {
+  it("is true for a hard HTTP error while not yet live", () => {
+    expect(
+      isVercelDomainProvisioningFailed({ status: "awaiting_dns", vercelDomainStatus: "error_500" }),
+    ).toBe(true);
+  });
+
+  it("is true for a network/timeout error while not yet live", () => {
+    expect(
+      isVercelDomainProvisioningFailed({ status: "pending", vercelDomainStatus: "error_network" }),
+    ).toBe(true);
+  });
+
+  it("is false once the handoff is marked live, even with a stale error status", () => {
+    expect(
+      isVercelDomainProvisioningFailed({ status: "live", vercelDomainStatus: "error_500" }),
+    ).toBe(false);
+  });
+
+  it("is false for ordinary non-error statuses", () => {
+    expect(
+      isVercelDomainProvisioningFailed({ status: "awaiting_dns", vercelDomainStatus: "created" }),
+    ).toBe(false);
+    expect(
+      isVercelDomainProvisioningFailed({
+        status: "awaiting_dns",
+        vercelDomainStatus: "already_exists",
+      }),
+    ).toBe(false);
+    expect(
+      isVercelDomainProvisioningFailed({
+        status: "awaiting_dns",
+        vercelDomainStatus: "skipped_unconfigured",
+      }),
+    ).toBe(false);
+  });
+
+  it("is false when vercelDomainStatus is unset", () => {
+    expect(isVercelDomainProvisioningFailed({ status: "awaiting_dns" })).toBe(false);
+  });
+});
+
+describe("preferAdvancedHandoffStatus", () => {
+  it("keeps live when a stale awaiting_dns marker write would otherwise downgrade", () => {
+    // Bundle webhook receipt/DNS markers pass handoff.status from before Resend;
+    // concurrent Mark live must win.
+    expect(preferAdvancedHandoffStatus("live", "awaiting_dns")).toBe("live");
+    expect(preferAdvancedHandoffStatus("live", "provisioned")).toBe("live");
+    expect(preferAdvancedHandoffStatus("provisioned", "awaiting_dns")).toBe(
+      "provisioned",
+    );
+  });
+
+  it("allows intentional upgrades (Mark live / provision)", () => {
+    expect(preferAdvancedHandoffStatus("awaiting_dns", "live")).toBe("live");
+    expect(preferAdvancedHandoffStatus("awaiting_dns", "provisioned")).toBe(
+      "provisioned",
+    );
+    expect(preferAdvancedHandoffStatus("failed", "awaiting_dns")).toBe(
+      "awaiting_dns",
+    );
+  });
+
+  it("prefers requested when ranks are equal (same-status note append)", () => {
+    expect(preferAdvancedHandoffStatus("awaiting_dns", "awaiting_dns")).toBe(
+      "awaiting_dns",
+    );
+    expect(preferAdvancedHandoffStatus("live", "live")).toBe("live");
+    // pending and failed share rank 0 — requested wins so callers can move either way.
+    expect(preferAdvancedHandoffStatus("failed", "pending")).toBe("pending");
+    expect(preferAdvancedHandoffStatus("pending", "failed")).toBe("failed");
   });
 });
 
@@ -153,5 +230,101 @@ describe("preserveDeployHandoffOperatorFields", () => {
       customDomain: "kept.example",
       vercelProjectId: "prj_kept",
     });
+  });
+});
+
+describe("mergeProvisionOntoFreshHandoff", () => {
+  it("keeps concurrent Mark live status and notes while applying provision outputs", () => {
+    const fresh = baseHandoff({
+      status: "live",
+      customDomain: "joesplumbing.com",
+      notes: [
+        "Payment received — production handoff queued.",
+        "Operator confirmed DNS / publish — lead marked live.",
+      ],
+    });
+    const provisioned = baseHandoff({
+      status: "provisioned",
+      customDomain: "joesplumbing.com",
+      vercelDomainStatus: "created",
+      notes: [
+        "Payment received — production handoff queued.",
+        "Vercel domain registered: joesplumbing.com. Await DNS propagation, then mark live.",
+      ],
+      updatedAt: "2026-07-14T12:00:00.000Z",
+    });
+
+    expect(mergeProvisionOntoFreshHandoff(fresh, provisioned)).toEqual({
+      ...provisioned,
+      status: "live",
+      customDomain: "joesplumbing.com",
+      vercelDomainStatus: "created",
+      notes: [
+        "Payment received — production handoff queued.",
+        "Operator confirmed DNS / publish — lead marked live.",
+        "Vercel domain registered: joesplumbing.com. Await DNS propagation, then mark live.",
+      ],
+    });
+  });
+
+  it("prefers a concurrent customDomain clear from fresh over the stale provision snapshot", () => {
+    const fresh = baseHandoff({
+      status: "awaiting_dns",
+      customDomain: undefined,
+      notes: ["Payment received — production handoff queued."],
+    });
+    const provisioned = baseHandoff({
+      status: "provisioned",
+      customDomain: "old.example",
+      vercelDomainStatus: "created",
+      notes: [
+        "Payment received — production handoff queued.",
+        "Vercel domain registered: old.example. Await DNS propagation, then mark live.",
+      ],
+    });
+
+    const merged = mergeProvisionOntoFreshHandoff(fresh, provisioned);
+    expect(merged.customDomain).toBeUndefined();
+    expect(merged.status).toBe("provisioned");
+    expect(merged.vercelDomainStatus).toBe("created");
+  });
+
+  it("does not keep a stale fresh failed status over a successful provision rebuild", () => {
+    const fresh = baseHandoff({
+      status: "failed",
+      stripeSessionId: "cs_old",
+      notes: ["previous failure"],
+    });
+    const provisioned = baseHandoff({
+      status: "provisioned",
+      stripeSessionId: "cs_retry",
+      vercelDomainStatus: "created",
+      notes: [
+        "Payment received — production handoff queued.",
+        "Vercel domain registered: joes-plumbing.localsitestudio.com. Await DNS propagation, then mark live.",
+      ],
+    });
+
+    const merged = mergeProvisionOntoFreshHandoff(fresh, provisioned);
+    expect(merged.status).toBe("provisioned");
+    expect(merged.stripeSessionId).toBe("cs_retry");
+    expect(merged.notes).toEqual([
+      "previous failure",
+      "Payment received — production handoff queued.",
+      "Vercel domain registered: joes-plumbing.localsitestudio.com. Await DNS propagation, then mark live.",
+    ]);
+  });
+
+  it("never downgrades fresh provisioned when provisioned snapshot stayed awaiting_dns", () => {
+    const fresh = baseHandoff({ status: "provisioned", vercelDomainStatus: "created" });
+    const provisioned = baseHandoff({
+      status: "awaiting_dns",
+      vercelDomainStatus: "skipped_unconfigured",
+      notes: [...fresh.notes, "Skipped Vercel domain API (set VERCEL_TOKEN + VERCEL_PROJECT_ID, or assign a per-client Vercel project, to enable)."],
+    });
+
+    const merged = mergeProvisionOntoFreshHandoff(fresh, provisioned);
+    expect(merged.status).toBe("provisioned");
+    expect(merged.vercelDomainStatus).toBe("skipped_unconfigured");
   });
 });

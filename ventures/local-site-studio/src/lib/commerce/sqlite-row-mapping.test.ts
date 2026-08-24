@@ -68,6 +68,10 @@ describe("mapCommerceOrderRow", () => {
     createdAt: "2026-01-01T00:00:00.000Z",
     paidOutAt: null,
     clientReceiptEmailSentAt: null,
+    refundedAt: null,
+    disputedAt: null,
+    quantity: null,
+    customerEmail: null,
   };
 
   it("maps a well-formed row and converts null optionals to undefined", () => {
@@ -81,28 +85,58 @@ describe("mapCommerceOrderRow", () => {
       createdAt: "2026-01-01T00:00:00.000Z",
       paidOutAt: undefined,
       clientReceiptEmailSentAt: undefined,
+      refundedAt: undefined,
+      disputedAt: undefined,
+      quantity: undefined,
+      customerEmail: undefined,
     });
   });
 
-  it("preserves set paidOutAt/clientReceiptEmailSentAt timestamps", () => {
+  it("preserves a set quantity", () => {
+    const mapped = mapCommerceOrderRow({ ...baseRow, quantity: 3 });
+    expect(mapped.quantity).toBe(3);
+  });
+
+  it("preserves a set customerEmail", () => {
+    const mapped = mapCommerceOrderRow({
+      ...baseRow,
+      customerEmail: "shopper@example.com",
+    });
+    expect(mapped.customerEmail).toBe("shopper@example.com");
+  });
+
+  it("normalizes empty-string customerEmail to undefined", () => {
+    const mapped = mapCommerceOrderRow({ ...baseRow, customerEmail: "" });
+    expect(mapped.customerEmail).toBeUndefined();
+  });
+
+  it("preserves set paidOutAt/clientReceiptEmailSentAt/refundedAt/disputedAt timestamps", () => {
     const row: SqliteCommerceOrderRow = {
       ...baseRow,
       paidOutAt: "2026-01-02T00:00:00.000Z",
       clientReceiptEmailSentAt: "2026-01-01T01:00:00.000Z",
+      refundedAt: "2026-01-03T00:00:00.000Z",
+      disputedAt: "2026-01-04T00:00:00.000Z",
     };
     const mapped = mapCommerceOrderRow(row);
     expect(mapped.paidOutAt).toBe("2026-01-02T00:00:00.000Z");
     expect(mapped.clientReceiptEmailSentAt).toBe("2026-01-01T01:00:00.000Z");
+    expect(mapped.refundedAt).toBe("2026-01-03T00:00:00.000Z");
+    expect(mapped.disputedAt).toBe("2026-01-04T00:00:00.000Z");
   });
 
-  it("normalizes empty-string paidOutAt/clientReceiptEmailSentAt to undefined (unpaid)", () => {
+  it("normalizes empty-string paidOutAt/clientReceiptEmailSentAt/refundedAt/disputedAt to undefined (unpaid/unrefunded/undisputed)", () => {
     const row: SqliteCommerceOrderRow = {
       ...baseRow,
       paidOutAt: "",
       clientReceiptEmailSentAt: "",
+      refundedAt: "",
+      disputedAt: "",
     };
     const mapped = mapCommerceOrderRow(row);
     expect(mapped.paidOutAt).toBeUndefined();
     expect(mapped.clientReceiptEmailSentAt).toBeUndefined();
+    expect(mapped.refundedAt).toBeUndefined();
+    expect(mapped.disputedAt).toBeUndefined();
   });
 });

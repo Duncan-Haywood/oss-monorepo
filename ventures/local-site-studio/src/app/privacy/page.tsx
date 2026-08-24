@@ -1,5 +1,13 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import { brand, legalEntityLine, marketingFooterLine } from "@/lib/brand";
+import { staticPageMetadata } from "@/lib/seo";
+
+export const metadata: Metadata = staticPageMetadata({
+  title: `Privacy Policy — ${brand.name}`,
+  description: `How ${brand.legalEntity} collects, uses, and protects data for ${brand.name}.`,
+  path: "/privacy",
+});
 
 export default function PrivacyPage() {
   return (
@@ -41,7 +49,7 @@ export default function PrivacyPage() {
           Back to home
         </Link>
       </p>
-      <p className="mt-4 text-xs text-zinc-400">{marketingFooterLine()}</p>
+      <p className="mt-4 text-xs text-zinc-500">{marketingFooterLine()}</p>
     </main>
   );
 }

@@ -3,7 +3,10 @@
 import { useState } from "react";
 import type { CommerceSku } from "@/lib/commerce/types";
 import {
+  commerceBuyNowAriaLabel,
+  commerceCatalogIntroCopy,
   commerceOrderRequestMessage,
+  commerceRequestOrderAriaLabel,
   formatPriceUsd,
 } from "@/lib/commerce/catalog";
 
@@ -32,6 +35,14 @@ type PreviewCommerceCatalogProps = {
 function BuyNowButton({ slug, sku, ctaClass }: { slug: string; sku: CommerceSku; ctaClass: string }) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  // slug/sku.id are fixed for this button's lifetime, so a key minted once
+  // and reused on every click (including a network-error retry) is safe —
+  // see idempotency-key.ts for why it must not be a stable server-derived key.
+  const [idempotencyKey] = useState<string | undefined>(() =>
+    typeof crypto !== "undefined" && typeof crypto.randomUUID === "function"
+      ? crypto.randomUUID()
+      : undefined,
+  );
 
   const handleBuy = async () => {
     setLoading(true);
@@ -40,7 +51,7 @@ function BuyNowButton({ slug, sku, ctaClass }: { slug: string; sku: CommerceSku;
       const response = await fetch("/api/commerce/checkout", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ slug, skuId: sku.id }),
+        body: JSON.stringify({ slug, skuId: sku.id, idempotencyKey }),
       });
       const data = await response.json();
       if (!response.ok || !data.url) {
@@ -61,11 +72,16 @@ function BuyNowButton({ slug, sku, ctaClass }: { slug: string; sku: CommerceSku;
         type="button"
         disabled={loading}
         onClick={handleBuy}
+        aria-label={commerceBuyNowAriaLabel(sku)}
         className={`inline-flex h-10 items-center justify-center rounded-full px-5 text-sm font-medium transition-colors disabled:opacity-60 ${ctaClass}`}
       >
         {loading ? "Redirecting…" : "Buy now"}
       </button>
-      {error ? <p className="text-xs text-red-600">{error}</p> : null}
+      {error ? (
+        <p role="alert" className="text-xs text-red-600">
+          {error}
+        </p>
+      ) : null}
     </div>
   );
 }
@@ -101,8 +117,7 @@ export function PreviewCommerceCatalog({
           Menu &amp; products
         </h2>
         <p className="mt-2 text-sm leading-6 text-zinc-600">
-          Request an item below — we&apos;ll confirm availability and payment by
-          email or phone.
+          {commerceCatalogIntroCopy(items)}
         </p>
         <ul className="mt-6 divide-y divide-zinc-200/80">
           {items.map((sku) => {
@@ -126,8 +141,27 @@ export function PreviewCommerceCatalog({
                 ) : (
                   <a
                     href="#contact"
+                    aria-label={commerceRequestOrderAriaLabel(sku)}
                     className={`inline-flex h-10 shrink-0 items-center justify-center rounded-full px-5 text-sm font-medium transition-colors ${ctaClass}`}
-                    onClick={() => {
+                    onClick={(event) => {
+                      // Open-in-new-tab / middle-click gestures keep the native
+                      // hash-navigation behavior untouched.
+                      if (
+                        event.button !== 0 ||
+                        event.metaKey ||
+                        event.ctrlKey ||
+                        event.shiftKey ||
+                        event.altKey
+                      ) {
+                        return;
+                      }
+                      // Prevent the native #contact hash-jump: it resets focus
+                      // to <body> (the target section has no tabindex) *after*
+                      // this handler runs, silently discarding the
+                      // COMMERCE_ORDER_EVENT listener's own focus() call below
+                      // — the message field must be the thing that ends up
+                      // focused, not the section it lives in.
+                      event.preventDefault();
                       try {
                         sessionStorage.setItem(
                           commerceOrderStorageKey(slug),

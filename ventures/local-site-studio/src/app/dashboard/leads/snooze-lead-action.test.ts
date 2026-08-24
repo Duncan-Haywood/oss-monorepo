@@ -22,9 +22,18 @@ vi.mock("next/cache", () => ({
   revalidatePath: (...args: unknown[]) => revalidatePath(...args),
 }));
 
+const headersMock = vi.fn();
 vi.mock("next/headers", () => ({
-  headers: vi.fn(),
+  headers: (...args: unknown[]) => headersMock(...args),
 }));
+
+function headerStore(entries: Record<string, string | null> = {}) {
+  return {
+    get(name: string) {
+      return entries[name] ?? null;
+    },
+  };
+}
 
 const getLeadBySlug = vi.fn();
 const updateLeadSnooze = vi.fn();
@@ -41,6 +50,7 @@ vi.mock("@/lib/db", () => ({
   recordClientInquiryReply: vi.fn(),
   getLeads: vi.fn(),
   listOrders: vi.fn(),
+  listOrdersByLeadSlug: vi.fn(),
   recordLeadOutreach: vi.fn(),
   listUnrepliedInquiries: vi.fn(),
   updateLeadNotes: vi.fn(),
@@ -107,19 +117,45 @@ const baseLead = {
   dataSource: "manual_entry" as const,
 };
 
+const captureError = vi.fn();
+vi.mock("@/lib/observability/error-tracking", () => ({
+  captureError: (...args: unknown[]) => captureError(...args),
+}));
+
 describe("snoozeLeadAction", () => {
   beforeEach(() => {
+    captureError.mockReset().mockResolvedValue(undefined);
     vi.resetModules();
     vi.useFakeTimers();
     vi.setSystemTime(NOW_MS);
     requireOperatorAuth.mockReset().mockResolvedValue({ ok: true });
     revalidatePath.mockReset();
+    headersMock.mockReset().mockResolvedValue(headerStore());
     getLeadBySlug.mockReset().mockResolvedValue(baseLead);
     updateLeadSnooze.mockReset().mockResolvedValue(undefined);
   });
 
   afterEach(() => {
     vi.useRealTimers();
+  });
+
+  it("rate-limits repeated calls from the same IP (auth alone is not a throttle)", async () => {
+    const { snoozeLeadAction } = await import("./actions");
+    // DEFAULT_RATE_LIMIT is 20 requests/60s per key — exhaust the window.
+    for (let i = 0; i < 20; i++) {
+      const res = await snoozeLeadAction("demo-cafe", { preset: "1d" });
+      expect(res.success).toBe(true);
+    }
+    getLeadBySlug.mockClear();
+    updateLeadSnooze.mockClear();
+    revalidatePath.mockClear();
+    const res = await snoozeLeadAction("demo-cafe", { preset: "1d" });
+    expect(res).toEqual({
+      success: false,
+      error: "Too many requests — please try again shortly.",
+    });
+    expect(getLeadBySlug).not.toHaveBeenCalled();
+    expect(updateLeadSnooze).not.toHaveBeenCalled();
   });
 
   it("returns auth error without loading or snoozing", async () => {
@@ -256,6 +292,10 @@ describe("snoozeLeadAction", () => {
       error: "db offline",
     });
     expect(revalidatePath).not.toHaveBeenCalled();
+    expect(captureError).toHaveBeenCalledWith(expect.any(Error), {
+      component: "dashboard-leads-actions",
+      failureKind: "snoozeLeadAction",
+    });
   });
 
   it("surfaces non-Error throws as Unknown error", async () => {

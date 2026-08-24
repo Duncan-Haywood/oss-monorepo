@@ -1,7 +1,8 @@
 /**
  * Stripe webhook fulfillment policy.
- * Required ledger / handoff writes must fail the HTTP response (5xx) so Stripe
- * redelivers. Email / notify side effects stay best-effort after durable writes.
+ * Required ledger / handoff writes and transactional email delivery must fail
+ * the HTTP response (5xx) so Stripe redelivers. Email / notify side effects
+ * still run after durable writes, with independent markers for recovery.
  */
 
 export type WebhookFulfillmentStep =
@@ -12,17 +13,258 @@ export type WebhookFulfillmentStep =
   /** Marking a checkout_sessions row complete — required so abandoned-checkout due queues stop targeting a paid session. */
   | "checkout_session_mark_complete"
   /**
+   * Closing other open bundle checkout_sessions for the same lead after a paid
+   * bundle Session — required so Stripe retries rather than leaving orphan
+   * abandoned carts that Finish-checkout / digest still nudge after pay.
+   */
+  | "checkout_session_orphan_bundle_cleanup"
+  /**
+   * Closing other open commerce_sku checkout_sessions for the same
+   * leadSlug+skuId+customerEmail after a paid Buy now Session — required so
+   * Stripe retries rather than leaving orphan abandoned carts that digest /
+   * Send Buy now recovery still nudge after pay.
+   */
+  | "checkout_session_orphan_commerce_cleanup"
+  /**
+   * Re-opening a checkout_sessions row after async_payment_failed — required so
+   * Stripe retries rather than leaving a failed ACH cart stuck status=complete
+   * (Finish-checkout / Buy now recovery permanently skipped).
+   */
+  | "checkout_session_mark_open"
+  /**
+   * Marking Growth/Complete/Commerce orders.recurringCanceledAt after
+   * customer.subscription.deleted, past_due|unpaid subscription.updated, or
+   * invoice.payment_failed (subscription invoices) — required so Stripe retries
+   * rather than leaving canceled/past-due subscribers with active
+   * marketing/voice/catalog entitlement.
+   */
+  | "orders_recurring_canceled"
+  /**
+   * Clearing Growth/Complete/Commerce orders.recurringCanceledAt after
+   * customer.subscription.created|updated reaches active|trialing, or after
+   * invoice.paid when subscriptions.retrieve proves grants + !pause_collection
+   * — required so Stripe retries rather than leaving resubscribers / recovered
+   * renewals without packs/catalog.
+   */
+  | "orders_recurring_reactivated"
+  /**
+   * Retrieving the Subscription for invoice.paid / invoice.payment_failed CRM
+   * twins before clear/mark — required so Stripe retries rather than skipping
+   * restore/pause (or blindly mutating) when retrieve fails.
+   */
+  | "subscription_retrieve"
+  /**
+   * Listing Checkout Session line items to derive commerceAddon + verify
+   * bundle catalog Price IDs (create-path Price ID parity) — required so
+   * Stripe retries rather than recording a forged metadata.commerceAddon
+   * entitlement or a session that never charged the catalog Prices.
+   */
+  | "bundle_commerce_addon_line_items"
+  /**
+   * Listing Checkout Session line items to verify commerce_sku catalog
+   * stripePriceId membership — required so Stripe retries rather than
+   * ledgering a session whose amount/currency match but Price differs.
+   */
+  | "commerce_sku_price_line_items"
+  /**
    * Durable handoff-note marker after a successful bundle buyer receipt / DNS
    * email — required so Stripe retries rather than leaving recovery unable to
    * see that the email already went out (duplicate risk on every redelivery).
    */
   | "bundle_email_sent_marker"
   /**
+   * Sending a bundle buyer receipt or DNS handoff email — required so Stripe
+   * redelivers after a transient Resend failure when its marker is absent.
+   */
+  | "bundle_email_send"
+  /**
    * Durable commerceOrders.clientReceiptEmailSentAt marker after a successful
    * sendCommerceBuyNowClientReceipt — required so Stripe retries rather than
    * leaving recovery unable to see that the client order notification went out.
    */
-  | "commerce_client_receipt_sent_marker";
+  | "commerce_client_receipt_sent_marker"
+  /**
+   * Sending the Commerce client receipt — required so Stripe redelivers after
+   * a transient Resend failure when its marker is absent.
+   */
+  | "commerce_client_receipt_send"
+  /**
+   * Looking up the Checkout Session behind a refunded charge (via
+   * stripe.checkout.sessions.list({ payment_intent })) on charge.refunded —
+   * required so Stripe retries rather than silently leaving a refunded
+   * commerce order still counted as owed (or already-paid-out clawback
+   * debt invisible) because the correlating lookup failed transiently.
+   */
+  | "commerce_order_refund_session_lookup"
+  /**
+   * Marking commerceOrders.refundedAt after charge.refunded resolves the
+   * order's Checkout Session — required so Stripe retries rather than
+   * leaving a refunded Buy now order still counted toward the "owed to
+   * client" total, or an already-paid-out clawback silently unflagged.
+   */
+  | "commerce_order_refund"
+  /**
+   * Looking up the Checkout Session behind a disputed charge (via
+   * stripe.checkout.sessions.list({ payment_intent })) on
+   * charge.dispute.created — required so Stripe retries rather than
+   * silently leaving a disputed commerce order still counted as owed (or
+   * already-paid-out clawback debt invisible) because the correlating
+   * lookup failed transiently.
+   */
+  | "commerce_order_dispute_session_lookup"
+  /**
+   * Marking commerceOrders.disputedAt after charge.dispute.created resolves
+   * the order's Checkout Session — required so Stripe retries rather than
+   * leaving a disputed Buy now order still counted toward the "owed to
+   * client" total, or an already-paid-out clawback silently unflagged.
+   */
+  | "commerce_order_dispute"
+  /**
+   * Looking up the Checkout Session behind a closed dispute (via
+   * stripe.checkout.sessions.list({ payment_intent })) on
+   * charge.dispute.closed — required so Stripe retries rather than silently
+   * leaving a won dispute still flagged disputedAt (false Mark-paid-out
+   * reject + false clawback debt) because the correlating lookup failed.
+   */
+  | "commerce_order_dispute_closed_session_lookup"
+  /**
+   * Clearing commerceOrders.disputedAt after charge.dispute.closed with
+   * status won / warning_closed — required so Stripe retries rather than
+   * leaving Mark paid out rejected and Dispute clawback needed counting a
+   * false clawback after Stripe reinstated the funds.
+   */
+  | "commerce_order_dispute_clear"
+  /**
+   * Marking orders.refundedAt (bundle Starter/Growth/Complete/Commerce-addon
+   * revenue) after charge.refunded resolves the order's Checkout Session, OR
+   * (see bundle_order_refund_renewal_customer_lookup below) resolves via
+   * Stripe Customer correlation for a renewal-cycle charge with no Checkout
+   * Session at all — required so Stripe retries rather than leaving a
+   * refunded bundle order still counted in revenueTotalUsd with no operator
+   * visibility. See bundle-order-refund-tracking. Session lookup itself
+   * reuses commerce_order_refund_session_lookup (shared correlation call).
+   */
+  | "bundle_order_refund"
+  /**
+   * Looking up a subscription's currently sold-capability-entitled order via
+   * a Stripe Customer id after the Checkout Session correlation on
+   * charge.refunded, charge.dispute.created, refund.updated, or
+   * charge.dispute.closed found nothing — required for a renewal-cycle
+   * refund/dispute (opened OR its closed/reversed twin): a renewal invoice's
+   * PaymentIntent is minted directly by Stripe's billing system and is never
+   * attached to a Checkout Session, so commerce_order_refund_session_lookup /
+   * commerce_order_dispute_session_lookup / their reversed/closed twins
+   * always miss it. Mirrors how recordSubscriptionRenewalPayment/invoice.paid
+   * resolve "the" active order for a customer. Required (5xx on failure, not
+   * best-effort) because it gates the same money-ledger write as the
+   * Session-based path. Shared by all four events via
+   * findRecurringOrderByStripeCustomerId (route.ts) — the lookup itself
+   * (getOrdersByStripeCustomerId + orderHadRecurringEntitlement) is identical
+   * either way. See renewal-charge-refund-dispute-customer-correlation and,
+   * for the closed/reversed twins, refund-updated-dispute-closed-customer-
+   * correlation-fallback.
+   */
+  | "bundle_order_renewal_customer_lookup"
+  /**
+   * Marking orders.disputedAt after charge.dispute.created (or dispute.closed
+   * lost) resolves a bundle order's Checkout Session, OR (see
+   * bundle_order_dispute_renewal_payment_intent_lookup +
+   * bundle_order_renewal_customer_lookup) resolves via PaymentIntent Customer
+   * correlation for a renewal-cycle charge with no Checkout Session at all —
+   * required so Stripe retries rather than leaving a disputed bundle order
+   * still counted in revenueTotalUsd. Session lookup reuses
+   * commerce_order_dispute_session_lookup /
+   * commerce_order_dispute_closed_session_lookup. dispute.closed lost reaches
+   * this same customer-id fallback too — see
+   * refund-updated-dispute-closed-customer-correlation-fallback. See
+   * bundle-order-dispute-tracking.
+   */
+  | "bundle_order_dispute"
+  /**
+   * Retrieving the PaymentIntent behind a disputed charge (via
+   * stripe.paymentIntents.retrieve) to read its Customer id, after the
+   * Checkout Session correlation above found nothing — required for a
+   * renewal-cycle dispute on EITHER the opened (charge.dispute.created) OR
+   * closed (charge.dispute.closed) event: unlike Charge, Dispute carries no
+   * `.customer` field of its own, and a renewal invoice's PaymentIntent was
+   * never attached to a Checkout Session in the first place. See
+   * renewal-charge-refund-dispute-customer-correlation and
+   * refund-updated-dispute-closed-customer-correlation-fallback.
+   */
+  | "bundle_order_dispute_renewal_payment_intent_lookup"
+  /**
+   * Clearing orders.disputedAt after charge.dispute.closed with status won /
+   * warning_closed — required so Stripe retries rather than leaving a won
+   * dispute still excluded from revenueTotalUsd forever. Session lookup
+   * reuses commerce_order_dispute_closed_session_lookup, OR (for a
+   * renewal-cycle charge with no Checkout Session at all) the customer-id
+   * fallback via bundle_order_renewal_customer_lookup — see
+   * refund-updated-dispute-closed-customer-correlation-fallback. See
+   * bundle-order-dispute-tracking.
+   */
+  | "bundle_order_dispute_clear"
+  /**
+   * Re-fetching the Charge behind a reversed refund (via
+   * stripe.charges.retrieve) on refund.updated (status failed/canceled), to
+   * re-verify the charge's own aggregate amount_refunded before clearing —
+   * required so Stripe retries rather than risking a stale-state clear (or
+   * silently leaving refundedAt stuck) because the re-verification lookup
+   * failed transiently. Stripe allows multiple independent refunds per
+   * charge; a single refund event's status alone is not ground truth for
+   * whether the charge still has a genuinely-completed refund on it. See
+   * refund-reversal-charge-aggregate-recheck.
+   */
+  | "commerce_order_refund_reversed_charge_lookup"
+  /**
+   * Looking up the Checkout Session behind a reversed refund (via
+   * stripe.checkout.sessions.list({ payment_intent })) on refund.updated
+   * (status failed/canceled), after the charge re-verification above showed
+   * zero net refund remaining — required so Stripe retries rather than
+   * silently leaving a refund-that-never-completed still excluded from owed
+   * totals because the correlating lookup failed transiently. See
+   * commerce-order-refund-reversal-tracking.
+   */
+  | "commerce_order_refund_reversed_session_lookup"
+  /**
+   * Clearing commerceOrders.refundedAt after refund.updated reports the
+   * refund that set it (failed/canceled) never actually completed —
+   * required so Stripe retries rather than leaving a commerce order
+   * permanently excluded from the "owed to client" total and Mark paid out
+   * even though the funds never left the platform. See
+   * commerce-order-refund-reversal-tracking.
+   */
+  | "commerce_order_refund_clear"
+  /**
+   * Clearing orders.refundedAt (bundle Starter/Growth/Complete/Commerce-addon
+   * revenue) after refund.updated reports the refund that set it
+   * (failed/canceled) never actually completed — required so Stripe retries
+   * rather than leaving a bundle order permanently excluded from
+   * revenueTotalUsd. Session lookup reuses
+   * commerce_order_refund_reversed_session_lookup, OR (for a renewal-cycle
+   * charge with no Checkout Session at all) the customer-id fallback via
+   * bundle_order_renewal_customer_lookup — see
+   * refund-updated-dispute-closed-customer-correlation-fallback. See
+   * commerce-order-refund-reversal-tracking.
+   */
+  | "bundle_order_refund_clear"
+  /**
+   * Adding a subscription-cycle renewal invoice's amount to
+   * orders.lifetimeRevenueUsd on invoice.paid — required so Stripe retries
+   * rather than silently leaving a Growth/Complete/Commerce-addon
+   * subscriber's renewal permanently uncounted in revenueTotalUsd. See
+   * revenue-total-usd-renewal-gap.
+   */
+  | "subscription_renewal_revenue"
+  /**
+   * Listing a lead's existing bundle orders (listOrdersByLeadSlug) on a
+   * bundle checkout.session.completed, to independently re-derive whether
+   * this lead already had a prior order before this session — required so
+   * Stripe retries rather than risking a false verdict on whether omitting
+   * the one-time setup fee (checkout-setup-fee-skip-on-upgrade) was
+   * legitimate, which gates the catalog-Price/amount-parity checks right
+   * below it. See webhook-setup-fee-skip-parity.
+   */
+  | "bundle_existing_orders_lookup";
 
 /** HTTP status Stripe should see when a required fulfillment write fails. */
 export const WEBHOOK_FULFILLMENT_FAILURE_STATUS = 500;

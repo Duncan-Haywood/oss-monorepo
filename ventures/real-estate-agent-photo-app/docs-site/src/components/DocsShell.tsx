@@ -38,7 +38,7 @@ export function DocsShell({ pages, activeSlug, children }: DocsShellProps) {
 
       <div className="mx-auto grid max-w-6xl gap-8 px-6 py-10 lg:grid-cols-[240px_minmax(0,1fr)]">
         <aside className="lg:sticky lg:top-8 lg:self-start">
-          <p className="mb-3 text-xs font-semibold uppercase tracking-wider text-slate-500">
+          <p className="mb-3 text-xs font-semibold uppercase tracking-wider text-slate-400">
             Documentation
           </p>
           <nav className="space-y-1">
@@ -61,7 +61,7 @@ export function DocsShell({ pages, activeSlug, children }: DocsShellProps) {
             })}
           </nav>
 
-          <p className="mb-3 mt-6 text-xs font-semibold uppercase tracking-wider text-slate-500">
+          <p className="mb-3 mt-6 text-xs font-semibold uppercase tracking-wider text-slate-400">
             Live
           </p>
           <nav className="space-y-1">

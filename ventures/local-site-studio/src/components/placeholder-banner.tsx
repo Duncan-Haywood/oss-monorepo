@@ -1,3 +1,5 @@
+import Link from "next/link";
+
 type PlaceholderBannerProps = {
   title: string;
   description: string;
@@ -15,9 +17,9 @@ export function PlaceholderBanner({
       <p className="mt-1 text-amber-800">{description}</p>
       <p className="mt-2">
         See{" "}
-        <a href={docsHref} className="underline underline-offset-2">
+        <Link href={docsHref} className="underline underline-offset-2">
           project documentation
-        </a>{" "}
+        </Link>{" "}
         for implementation plans.
       </p>
     </div>

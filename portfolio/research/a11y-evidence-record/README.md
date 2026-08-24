@@ -432,6 +432,15 @@ is undecidable. 1.3.4 stays disclosed-untested -- it needs the CSS
 adapter, not another markup walk. Own-site / generated-site snapshots
 were not rebuilt. No score moved.
 
+**Amendment, 2026-08-24 — 1.3.4, the leftover CSS-adapter row.**
+The last disclosed-untested criterion that is decidable from the
+artifact is now a check. Same sibling decision (a bare `html`/`body`
+type selector rotating the page under a pure orientation query; class
+selectors and breakpoint-combined queries left alone), plus the
+template adaptation: a `transform` value that is an expression is
+undecidable, never a guessed lock. Absence of a lock is a pass. Own-site
+/ generated-site snapshots were not rebuilt. No score moved.
+
 ## What could not be measured here
 
 - **No AT verification, so the candidate's actual kill criterion is untested.**

@@ -6,16 +6,20 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
  *
  * operator.test.ts covers token crypto + passwordsMatch; proxy.test.ts covers
  * the Host gate when a cookie is missing. This suite locks the login form glue:
- * unconfigured redirect, invalid password redirect, safeNextPath open-redirect
- * guard, cookie set with sessionMaxAgeSeconds options, and logout clear
- * (maxAge 0) + redirect to /dashboard/login.
+ * unconfigured redirect, invalid password redirect, per-IP rate limit (5/60s),
+ * safeNextPath open-redirect guard, cookie set with sessionMaxAgeSeconds
+ * options, and logout clear (maxAge 0) + redirect to /dashboard/login.
  */
 
 const cookieSet = vi.fn();
+const headerGet = vi.fn();
 vi.mock("next/headers", () => ({
   cookies: vi.fn(async () => ({
     set: (...args: unknown[]) => cookieSet(...args),
     get: vi.fn(),
+  })),
+  headers: vi.fn(async () => ({
+    get: (...args: unknown[]) => headerGet(...(args as [string])),
   })),
 }));
 
@@ -45,8 +49,7 @@ vi.mock("@/lib/auth/operator", () => ({
     tryCreateSessionFromPassword(...args),
   operatorSessionCookieOptions: (...args: unknown[]) =>
     operatorSessionCookieOptions(...(args as [number])),
-  sessionMaxAgeSeconds: (...args: Parameters<typeof sessionMaxAgeSeconds>) =>
-    sessionMaxAgeSeconds(...args),
+  sessionMaxAgeSeconds: () => sessionMaxAgeSeconds(),
 }));
 
 function formData(entries: Record<string, string>): FormData {
@@ -69,6 +72,7 @@ describe("loginOperatorAction", () => {
   beforeEach(() => {
     vi.resetModules();
     cookieSet.mockReset();
+    headerGet.mockReset().mockReturnValue("203.0.113.1");
     redirect.mockClear();
     isOperatorAuthConfigured.mockReset().mockReturnValue(true);
     tryCreateSessionFromPassword.mockReset().mockReturnValue("signed.token.value");
@@ -90,6 +94,34 @@ describe("loginOperatorAction", () => {
     );
     expect(tryCreateSessionFromPassword).not.toHaveBeenCalled();
     expect(cookieSet).not.toHaveBeenCalled();
+  });
+
+  it("redirects to rate_limited when login rate limit is exceeded", async () => {
+    const { loginOperatorAction } = await import("./actions");
+
+    // Exhaust the 5-attempt window by calling the action 5 times.
+    // Each call goes through the action's own checkRateLimit module instance.
+    tryCreateSessionFromPassword.mockReturnValue(null);
+    for (let i = 0; i < 5; i++) {
+      try {
+        await loginOperatorAction(formData({ password: "guess" }));
+      } catch {
+        // expected redirect on each failed attempt
+      }
+    }
+
+    // 6th attempt within the same window — should hit rate limit.
+    redirect.mockClear();
+    tryCreateSessionFromPassword.mockClear();
+    await expectRedirect(
+      () =>
+        loginOperatorAction(
+          formData({ password: "guess", next: "/dashboard/leads" }),
+        ),
+      "/dashboard/login?error=rate_limited&next=%2Fdashboard%2Fleads",
+    );
+    // Password was never checked — rate limiter blocked it before password comparison.
+    expect(tryCreateSessionFromPassword).not.toHaveBeenCalled();
   });
 
   it("redirects to login with error=invalid on wrong password", async () => {
@@ -166,6 +198,48 @@ describe("loginOperatorAction", () => {
           formData({
             password: "correct-horse",
             next: "https://evil.example/phish",
+          }),
+        ),
+      "/dashboard",
+    );
+  });
+
+  it("rejects backslash host tricks and falls back to /dashboard", async () => {
+    const { loginOperatorAction } = await import("./actions");
+
+    await expectRedirect(
+      () =>
+        loginOperatorAction(
+          formData({ password: "correct-horse", next: "/\\evil.example" }),
+        ),
+      "/dashboard",
+    );
+  });
+
+  it("rejects non-dashboard relative paths and falls back to /dashboard", async () => {
+    const { loginOperatorAction } = await import("./actions");
+
+    await expectRedirect(
+      () =>
+        loginOperatorAction(
+          formData({
+            password: "correct-horse",
+            next: "/preview/demo-cafe",
+          }),
+        ),
+      "/dashboard",
+    );
+  });
+
+  it("rejects /dashboard/login self-target and falls back to /dashboard", async () => {
+    const { loginOperatorAction } = await import("./actions");
+
+    await expectRedirect(
+      () =>
+        loginOperatorAction(
+          formData({
+            password: "correct-horse",
+            next: "/dashboard/login",
           }),
         ),
       "/dashboard",

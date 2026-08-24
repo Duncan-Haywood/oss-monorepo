@@ -1,5 +1,6 @@
 import { mutation, query } from "./_generated/server";
 import { v } from "convex/values";
+import { requireApiSecret } from "./lib/apiSecret";
 
 const orderReturn = v.object({
   id: v.string(),
@@ -11,6 +12,10 @@ const orderReturn = v.object({
   createdAt: v.string(),
   paidOutAt: v.optional(v.string()),
   clientReceiptEmailSentAt: v.optional(v.string()),
+  refundedAt: v.optional(v.string()),
+  disputedAt: v.optional(v.string()),
+  quantity: v.optional(v.number()),
+  customerEmail: v.optional(v.string()),
 });
 
 function mapOrderRow(row: {
@@ -23,6 +28,10 @@ function mapOrderRow(row: {
   createdAt: string;
   paidOutAt?: string;
   clientReceiptEmailSentAt?: string;
+  refundedAt?: string;
+  disputedAt?: string;
+  quantity?: number;
+  customerEmail?: string;
 }) {
   return {
     id: row.orderId,
@@ -35,6 +44,12 @@ function mapOrderRow(row: {
     // Empty string must stay unpaid (matches SQLite listUnpaid + isCommerceOrderPaidOut).
     paidOutAt: row.paidOutAt || undefined,
     clientReceiptEmailSentAt: row.clientReceiptEmailSentAt || undefined,
+    // Empty string must stay unrefunded (same SQLite/Convex parity as paidOutAt).
+    refundedAt: row.refundedAt || undefined,
+    // Empty string must stay undisputed (same SQLite/Convex parity as paidOutAt/refundedAt).
+    disputedAt: row.disputedAt || undefined,
+    quantity: row.quantity,
+    customerEmail: row.customerEmail || undefined,
   };
 }
 
@@ -57,37 +72,57 @@ export const insert = mutation({
     amountPaidUsd: v.number(),
     stripeSessionId: v.string(),
     createdAt: v.string(),
+    quantity: v.optional(v.number()),
+    customerEmail: v.optional(v.string()),
+    apiSecret: v.string(),
   },
   returns: v.union(orderReturn, v.null()),
   handler: async (ctx, args) => {
+    requireApiSecret(args.apiSecret);
+    // Destructure apiSecret out before persisting — schema.ts's commerceOrders
+    // table is a strict defineTable that rejects unlisted fields, and a raw
+    // `args` insert would otherwise leak apiSecret into the row as an extra
+    // column (same gotcha as orders.createOrder / leads.upsertLead).
+    const { apiSecret, ...order } = args;
+    void apiSecret;
     const existing = await ctx.db
       .query("commerceOrders")
       .withIndex("by_stripeSessionId", (q) =>
-        q.eq("stripeSessionId", args.stripeSessionId),
+        q.eq("stripeSessionId", order.stripeSessionId),
       )
       .unique();
     if (existing) return null;
 
-    await ctx.db.insert("commerceOrders", args);
+    await ctx.db.insert("commerceOrders", order);
     return {
-      id: args.orderId,
-      leadSlug: args.leadSlug,
-      skuId: args.skuId,
-      skuName: args.skuName,
-      amountPaidUsd: args.amountPaidUsd,
-      stripeSessionId: args.stripeSessionId,
-      createdAt: args.createdAt,
+      id: order.orderId,
+      leadSlug: order.leadSlug,
+      skuId: order.skuId,
+      skuName: order.skuName,
+      amountPaidUsd: order.amountPaidUsd,
+      stripeSessionId: order.stripeSessionId,
+      createdAt: order.createdAt,
+      quantity: order.quantity,
+      customerEmail: order.customerEmail,
     };
   },
 });
 
 export const list = query({
-  args: { limit: v.optional(v.number()) },
+  args: { limit: v.optional(v.number()), apiSecret: v.string() },
   returns: v.array(orderReturn),
   handler: async (ctx, args) => {
+    requireApiSecret(args.apiSecret);
     const limit = Math.min(Math.max(args.limit ?? 200, 1), 500);
-    const rows = await ctx.db.query("commerceOrders").order("desc").take(limit);
-    return rows.map(mapOrderRow);
+    // Match SQLite `ORDER BY createdAt DESC LIMIT ?`. Bare `.order("desc").take(limit)`
+    // sorts `_creationTime`, not the app `createdAt` column — when those diverge
+    // (backfill, clock skew, or a future writer), the newest-N page and payout
+    // panel order would disagree with SQLite. Collect, sort on app createdAt
+    // ISO descending, then slice — same contract as inquiries.listBySlug /
+    // orders.list. See commerce-orders-convex-createdAt-ordering-parity.
+    const rows = await ctx.db.query("commerceOrders").collect();
+    rows.sort((a, b) => b.createdAt.localeCompare(a.createdAt));
+    return rows.slice(0, limit).map(mapOrderRow);
   },
 });
 
@@ -100,23 +135,28 @@ export const list = query({
  * until Stripe Connect, and completeness beats a truncated recent page.
  */
 export const listUnpaid = query({
-  args: {},
+  args: { apiSecret: v.string() },
   returns: v.array(orderReturn),
-  handler: async (ctx) => {
-    const rows = await ctx.db.query("commerceOrders").order("desc").collect();
-    // Match SQLite `(paidOutAt IS NULL OR paidOutAt = '')` and
-    // isCommerceOrderPaidOut's Boolean(paidOutAt) — empty string must stay unpaid.
+  handler: async (ctx, args) => {
+    requireApiSecret(args.apiSecret);
+    const rows = await ctx.db.query("commerceOrders").collect();
+    // Match SQLite `(paidOutAt IS NULL OR paidOutAt = '') ORDER BY createdAt DESC`
+    // and isCommerceOrderPaidOut's Boolean(paidOutAt) — empty string must stay unpaid.
+    // Sort on app createdAt (not `_creationTime` via `.order("desc")`) so unpaid
+    // payout/digest row order matches the SQLite twin.
     return rows
       .filter((row) => !row.paidOutAt)
+      .sort((a, b) => b.createdAt.localeCompare(a.createdAt))
       .map(mapOrderRow);
   },
 });
 
 /** Lookup one commerce order by Stripe Checkout Session id (Mark paid out). */
 export const getByStripeSessionId = query({
-  args: { stripeSessionId: v.string() },
+  args: { stripeSessionId: v.string(), apiSecret: v.string() },
   returns: v.union(orderReturn, v.null()),
   handler: async (ctx, args) => {
+    requireApiSecret(args.apiSecret);
     const row = await ctx.db
       .query("commerceOrders")
       .withIndex("by_stripeSessionId", (q) =>
@@ -132,21 +172,34 @@ export const getByStripeSessionId = query({
  * Marks a commerce order as manually paid out to the client. Keyed on
  * stripeSessionId (unique, always present) rather than the Convex row id —
  * matches the checkoutSessions mutation pattern (recordRecoverySent).
+ *
+ * Returns whether the patch was actually applied. markCommerceOrderPaidOutAction
+ * checks refundedAt/disputedAt on a row it read *before* this call — an
+ * independent Stripe webhook (charge.refunded / charge.dispute.created) can
+ * land in the window between that read and this mutation, since the two are
+ * uncorrelated async deliveries with no shared lock. Re-checking
+ * refundedAt/disputedAt/paidOutAt here, atomically with the patch, is the
+ * only thing that actually prevents paying a client out for money Stripe has
+ * already reversed or withdrawn — the action-level check alone is a
+ * stale-read guard, not a guarantee. See
+ * commerce-order-paid-out-refund-race-guard in /docs/process.
  */
 export const markPaidOut = mutation({
-  args: { stripeSessionId: v.string(), paidOutAt: v.string() },
-  returns: v.null(),
+  args: { stripeSessionId: v.string(), paidOutAt: v.string(), apiSecret: v.string() },
+  returns: v.boolean(),
   handler: async (ctx, args) => {
+    requireApiSecret(args.apiSecret);
     const order = await ctx.db
       .query("commerceOrders")
       .withIndex("by_stripeSessionId", (q) =>
         q.eq("stripeSessionId", args.stripeSessionId),
       )
       .unique();
-    if (order) {
-      await ctx.db.patch(order._id, { paidOutAt: args.paidOutAt });
+    if (!order || order.paidOutAt || order.refundedAt || order.disputedAt) {
+      return false;
     }
-    return null;
+    await ctx.db.patch(order._id, { paidOutAt: args.paidOutAt });
+    return true;
   },
 });
 
@@ -154,22 +207,298 @@ export const markPaidOut = mutation({
  * Durable client-receipt sent-marker after sendCommerceBuyNowClientReceipt
  * resolves { success: true }. Keyed on stripeSessionId — Stripe redelivery
  * recovers the client order notification while this field is unset.
+ *
+ * Returns whether the patch was actually applied. Both live callers
+ * (resendCommerceClientReceiptAction and the Stripe webhook's redelivery-
+ * recovery path) read clientReceiptEmailSentAt, send the email, THEN call
+ * this mutation — an independent trigger (an operator resend click racing a
+ * webhook redelivery, or two redeliveries) can pass that same stale-unset
+ * read and both send before either marks. Re-checking clientReceiptEmailSentAt
+ * here, atomically with the patch, is the same action-vs-mutation lost-update
+ * guard already applied to markPaidOut/markRefunded/markDisputed in this file
+ * and to checkoutSessions.recordRecoverySent — this was the one durable
+ * marker mutation in this file missing it. It cannot un-send a duplicate
+ * email already in flight, but it does keep the persisted timestamp at the
+ * first successful send (never clobbered by a later race) and lets a caller
+ * that loses the race tell the operator a duplicate notification may have
+ * gone out, instead of reporting an unconditional success. See
+ * commerce-client-receipt-marker-race-guard in /docs/process.
  */
 export const markClientReceiptSent = mutation({
-  args: { stripeSessionId: v.string(), clientReceiptEmailSentAt: v.string() },
-  returns: v.null(),
+  args: {
+    stripeSessionId: v.string(),
+    clientReceiptEmailSentAt: v.string(),
+    apiSecret: v.string(),
+  },
+  returns: v.boolean(),
   handler: async (ctx, args) => {
+    requireApiSecret(args.apiSecret);
     const order = await ctx.db
       .query("commerceOrders")
       .withIndex("by_stripeSessionId", (q) =>
         q.eq("stripeSessionId", args.stripeSessionId),
       )
       .unique();
-    if (order) {
-      await ctx.db.patch(order._id, {
-        clientReceiptEmailSentAt: args.clientReceiptEmailSentAt,
-      });
+    if (!order || order.clientReceiptEmailSentAt) {
+      return false;
     }
+    await ctx.db.patch(order._id, {
+      clientReceiptEmailSentAt: args.clientReceiptEmailSentAt,
+    });
+    return true;
+  },
+});
+
+/**
+ * Releases a reservation made by markClientReceiptSent when the send that
+ * reservation was guarding turned out to fail — used only by
+ * resendCommerceClientReceiptAction's reserve-then-send-then-release
+ * ordering (mirroring marketingPacks.clearSentToClient /
+ * clientVoicePacks.clearSentToClient, see
+ * marketing-voice-pack-client-send-race-guard-ordering-fix and
+ * commerce-client-receipt-resend-race-guard-ordering-fix). The Stripe
+ * webhook's own call to markClientReceiptSent is deliberately left
+ * mark-after-send (see that mutation's own doc comment) and never calls
+ * this release — a webhook redelivery already has its own idempotent
+ * recovery path via hasCommerceClientReceiptSentMarker /
+ * planCommerceWebhookSideEffects, so there is nothing to reserve or roll
+ * back there. Only clears the marker when it still holds the exact value
+ * this caller itself just wrote (expectedClientReceiptEmailSentAt); a safe
+ * no-op otherwise (e.g. a concurrent webhook redelivery already set its own
+ * value in between).
+ */
+export const clearClientReceiptSent = mutation({
+  args: {
+    stripeSessionId: v.string(),
+    expectedClientReceiptEmailSentAt: v.string(),
+    apiSecret: v.string(),
+  },
+  returns: v.boolean(),
+  handler: async (ctx, args) => {
+    requireApiSecret(args.apiSecret);
+    const order = await ctx.db
+      .query("commerceOrders")
+      .withIndex("by_stripeSessionId", (q) =>
+        q.eq("stripeSessionId", args.stripeSessionId),
+      )
+      .unique();
+    if (
+      !order ||
+      order.clientReceiptEmailSentAt !== args.expectedClientReceiptEmailSentAt
+    ) {
+      return false;
+    }
+    await ctx.db.patch(order._id, { clientReceiptEmailSentAt: undefined });
+    return true;
+  },
+});
+
+/**
+ * Marks a commerce order refunded — called from the Stripe webhook's
+ * charge.refunded handler once it resolves the order's Checkout Session.
+ * Keyed on stripeSessionId (unique, always present), matching markPaidOut.
+ * Idempotent: re-applying the same refundedAt on redelivery is a no-op patch.
+ * Missing order (charge belongs to a Session we never ledgered) is a no-op —
+ * the webhook route treats that as "not one of our commerce orders."
+ */
+export const markRefunded = mutation({
+  args: { stripeSessionId: v.string(), refundedAt: v.string(), apiSecret: v.string() },
+  returns: v.null(),
+  handler: async (ctx, args) => {
+    requireApiSecret(args.apiSecret);
+    const order = await ctx.db
+      .query("commerceOrders")
+      .withIndex("by_stripeSessionId", (q) =>
+        q.eq("stripeSessionId", args.stripeSessionId),
+      )
+      .unique();
+    if (order && !order.refundedAt) {
+      await ctx.db.patch(order._id, { refundedAt: args.refundedAt });
+    }
+    return null;
+  },
+});
+
+/**
+ * Every refunded commerce order, regardless of paidOutAt — the payout-safety
+ * "owed" queries (listUnpaid) drop any row once paidOutAt is set, so a refund
+ * that lands AFTER payout (clawback owed from the client) would otherwise be
+ * invisible to every uncapped reader. Collect + filter (not a newest-N page):
+ * this is a bounded operator ledger and completeness beats a truncated recent
+ * page, same rationale as listUnpaid (see commerce-order-refund-clawback-tracking).
+ */
+export const listRefunded = query({
+  args: { apiSecret: v.string() },
+  returns: v.array(orderReturn),
+  handler: async (ctx, args) => {
+    requireApiSecret(args.apiSecret);
+    const rows = await ctx.db.query("commerceOrders").collect();
+    return rows
+      .filter((row) => Boolean(row.refundedAt))
+      .sort((a, b) => b.createdAt.localeCompare(a.createdAt))
+      .map(mapOrderRow);
+  },
+});
+
+/**
+ * Clears a commerce order's refundedAt — called from the Stripe webhook's
+ * refund.updated handler when the refund that originally set it
+ * (failed/canceled) never actually completed, so the funds never left the
+ * platform and the order must reopen as owed / eligible for Mark paid out.
+ * Keyed on stripeSessionId, matching markRefunded. Idempotent: rows without
+ * refundedAt stay. Missing order is a no-op. Uses replace (not patch) so the
+ * optional field is omitted — matches SQLite NULL and the clearDisputed
+ * pattern. See commerce-order-refund-reversal-tracking.
+ */
+export const clearRefunded = mutation({
+  args: { stripeSessionId: v.string(), apiSecret: v.string() },
+  returns: v.null(),
+  handler: async (ctx, args) => {
+    requireApiSecret(args.apiSecret);
+    const order = await ctx.db
+      .query("commerceOrders")
+      .withIndex("by_stripeSessionId", (q) =>
+        q.eq("stripeSessionId", args.stripeSessionId),
+      )
+      .unique();
+    if (!order || !order.refundedAt) {
+      return null;
+    }
+    // Convex db.patch() actually removes a field when it's explicitly
+    // undefined (see convex-patch-undefined-clear-semantics-correction in
+    // business-decisions.ts) — replace with conditional spreads is used here
+    // regardless, so every persisted optional is explicit at the call site.
+    await ctx.db.replace(order._id, {
+      orderId: order.orderId,
+      leadSlug: order.leadSlug,
+      skuId: order.skuId,
+      skuName: order.skuName,
+      amountPaidUsd: order.amountPaidUsd,
+      stripeSessionId: order.stripeSessionId,
+      createdAt: order.createdAt,
+      ...(order.paidOutAt ? { paidOutAt: order.paidOutAt } : {}),
+      ...(order.clientReceiptEmailSentAt
+        ? { clientReceiptEmailSentAt: order.clientReceiptEmailSentAt }
+        : {}),
+      ...(order.disputedAt ? { disputedAt: order.disputedAt } : {}),
+      ...(order.quantity !== undefined ? { quantity: order.quantity } : {}),
+      ...(order.customerEmail ? { customerEmail: order.customerEmail } : {}),
+    });
+    return null;
+  },
+});
+
+/**
+ * Marks a commerce order disputed — called from the Stripe webhook's
+ * charge.dispute.created handler once it resolves the order's Checkout
+ * Session. Keyed on stripeSessionId (unique, always present), matching
+ * markRefunded. Idempotent: re-applying the same disputedAt on redelivery is
+ * a no-op patch. Missing order (charge belongs to a Session we never
+ * ledgered) is a no-op — the webhook route treats that as "not one of our
+ * commerce orders."
+ */
+export const markDisputed = mutation({
+  args: { stripeSessionId: v.string(), disputedAt: v.string(), apiSecret: v.string() },
+  returns: v.null(),
+  handler: async (ctx, args) => {
+    requireApiSecret(args.apiSecret);
+    const order = await ctx.db
+      .query("commerceOrders")
+      .withIndex("by_stripeSessionId", (q) =>
+        q.eq("stripeSessionId", args.stripeSessionId),
+      )
+      .unique();
+    if (order && !order.disputedAt) {
+      await ctx.db.patch(order._id, { disputedAt: args.disputedAt });
+    }
+    return null;
+  },
+});
+
+/**
+ * Every disputed commerce order, regardless of paidOutAt — same rationale as
+ * listRefunded: listUnpaid drops any row once paidOutAt is set, so a dispute
+ * that lands AFTER payout (clawback owed from the client) would otherwise be
+ * invisible to every uncapped reader (see commerce-order-dispute-clawback-tracking).
+ */
+export const listDisputed = query({
+  args: { apiSecret: v.string() },
+  returns: v.array(orderReturn),
+  handler: async (ctx, args) => {
+    requireApiSecret(args.apiSecret);
+    const rows = await ctx.db.query("commerceOrders").collect();
+    return rows
+      .filter((row) => Boolean(row.disputedAt))
+      .sort((a, b) => b.createdAt.localeCompare(a.createdAt))
+      .map(mapOrderRow);
+  },
+});
+
+/**
+ * Every commerce order with no client-receipt-sent marker, regardless of
+ * paidOutAt/refundedAt/disputedAt — sendCommerceBuyNowClientReceipt notifies
+ * the local business (the "client") that their storefront sold something;
+ * a permanently-bad email or a sustained Resend outage past Stripe's webhook
+ * retry window leaves clientReceiptEmailSentAt unset forever with nothing
+ * else surfacing the gap (see commerce-buy-now-client-receipt-visibility).
+ * Same collect + filter shape as listRefunded/listDisputed — bounded operator
+ * ledger, completeness over a truncated recent page.
+ */
+export const listMissingClientReceipt = query({
+  args: { apiSecret: v.string() },
+  returns: v.array(orderReturn),
+  handler: async (ctx, args) => {
+    requireApiSecret(args.apiSecret);
+    const rows = await ctx.db.query("commerceOrders").collect();
+    return rows
+      .filter((row) => !row.clientReceiptEmailSentAt)
+      .sort((a, b) => b.createdAt.localeCompare(a.createdAt))
+      .map(mapOrderRow);
+  },
+});
+
+/**
+ * Clears commerceOrders.disputedAt after charge.dispute.closed with status
+ * won / warning_closed — Stripe reinstated (or never permanently withdrew)
+ * the funds, so Mark paid out and owed totals must reopen. Uses replace (not
+ * patch) so the optional field is omitted — matches SQLite NULL and the
+ * orders.clearRecurringCanceledByCustomer pattern. Idempotent: rows without
+ * disputedAt stay. Missing order is a no-op.
+ */
+export const clearDisputed = mutation({
+  args: { stripeSessionId: v.string(), apiSecret: v.string() },
+  returns: v.null(),
+  handler: async (ctx, args) => {
+    requireApiSecret(args.apiSecret);
+    const order = await ctx.db
+      .query("commerceOrders")
+      .withIndex("by_stripeSessionId", (q) =>
+        q.eq("stripeSessionId", args.stripeSessionId),
+      )
+      .unique();
+    if (!order || !order.disputedAt) {
+      return null;
+    }
+    // Convex db.patch() actually removes a field when it's explicitly
+    // undefined (see convex-patch-undefined-clear-semantics-correction in
+    // business-decisions.ts) — replace with conditional spreads is used here
+    // regardless, so every persisted optional is explicit at the call site.
+    await ctx.db.replace(order._id, {
+      orderId: order.orderId,
+      leadSlug: order.leadSlug,
+      skuId: order.skuId,
+      skuName: order.skuName,
+      amountPaidUsd: order.amountPaidUsd,
+      stripeSessionId: order.stripeSessionId,
+      createdAt: order.createdAt,
+      ...(order.paidOutAt ? { paidOutAt: order.paidOutAt } : {}),
+      ...(order.clientReceiptEmailSentAt
+        ? { clientReceiptEmailSentAt: order.clientReceiptEmailSentAt }
+        : {}),
+      ...(order.refundedAt ? { refundedAt: order.refundedAt } : {}),
+      ...(order.quantity !== undefined ? { quantity: order.quantity } : {}),
+      ...(order.customerEmail ? { customerEmail: order.customerEmail } : {}),
+    });
     return null;
   },
 });

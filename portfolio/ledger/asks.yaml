@@ -238,17 +238,17 @@ decisions:
   exposure: none
   opened: "2026-08-24"
   action: >-
-    Answer one rule question, and it settles three pull requests at once: while
-    `publish_surface.py` reports nothing live, may a session merge a
-    `ventures/*` change that publishes nowhere and passes the venture's full
-    build, or does the human gate cover venture app code regardless of what it
-    deploys? Either answer is fine to give; leaving it unanswered is what costs.
+    Answer one rule question, and it settles the remaining venture-code pull
+    request at once: while `publish_surface.py` reports nothing live, may a
+    session merge a `ventures/*` change that publishes nowhere and passes the
+    venture's full build, or does the human gate cover venture app code
+    regardless of what it deploys? Either answer is fine to give; leaving it
+    unanswered is what costs.
   unlocks:
     - >-
-      Answered "yes, while nothing is live", `next-16-upgrade` and
-      `contrast-fixes` leave this queue outright -- three pull requests the
-      owner never has to read, one of them clearing the advisories #109 was
-      carrying. This is the only row here whose answer makes the queue shorter.
+      Answered "yes, while nothing is live", `contrast-fixes` leaves this
+      queue outright -- one pull request the owner never has to read. This is
+      the only row here whose answer makes the queue shorter.
     - >-
       Answered "no, the gate stands regardless", every future `ventures/*`
       pull request stops being re-argued from prose by each session that meets
@@ -273,80 +273,97 @@ decisions:
     finding #710 had landed; that session's duplicate tool was discarded
     rather than shipped alongside.
 
-- id: next-16-upgrade
-  asks: []
-  prs: [372]
-  gates: deployment
-  exposure: none
-  opened: "2026-08-20"
-  action: "Merge or decline #372."
-  unlocks:
-    - "`next@16.3.1` across five ventures (six apps), clearing the advisories its ancestor #109 was carrying when #109 was closed unmerged by accident. Corrected 2026-08-24: this line read \"six live ventures\". The diff touches five -- `ai-first-markets`, `photo-editing`, `print-atelier`, `real-estate-agent-photo-app` (two apps) and `retail-pilot-intel` -- and none of them is live, per `platform/ci/publish_surface.py`."
-  blocked_by: []
-  note: >-
-    Verified and CI-green (9/9 checks on the head), `mergeable_state` clean,
-    recorded in `verifications.yaml` with BUILD still VALID against the
-    current `main`. This is the item with a measured carrying cost: it is the
-    third conflict-resolution pass on the #191 -> #208 -> #222 chain, so each
-    day it waits has spent a session on re-resolving it rather than on
-    anything new.
 
-
-    Correction, 2026-08-24: this note previously read "owner-gated only
-    because merging fires deploys to live sites". That was false, and nothing
-    checked it. `platform/ci/publish_surface.py` derives the answer from the
-    workflow files and finds no workflow that publishes anything on a push to
-    `main`: `ai-first-markets-deploy.yml` is `workflow_dispatch`-only so a
-    push cannot start it, and the Cloudflare and GitHub Pages publish steps
-    are behind `if:` gates on credentials the owner has not set. The last run
-    of each confirms it -- the wrangler step skipped on 2026-08-21, and both
-    `deploy` and `deploy-vercel` skipped on 2026-08-24. So merging this fires
-    no deploy and regresses no live site, because there is no live site. What
-    is actually left to decide is narrower: whether a major framework bump
-    across five ventures (six apps) counts as a "breaking change to deployable
-    `ventures/*` code" under `CLAUDE.md` while nothing is deployed. That is a
-    smaller question than the one this row was posing, and it is the whole of
-    what remains -- and since it is the same question `contrast-fixes` and
-    every future venture pull request also reduce to, it is now its own row
-    (`venture-gate-premise`, Ask 9) rather than a paragraph inside this one.
-
-- id: dependabot
-  asks: []
-  prs: [368]
-  gates: deployment
-  exposure: none
-  opened: "2026-08-20"
-  action: "Merge or decline #368."
-  unlocks:
-    - Scheduled dependency update PRs across the 15 tracked manifests.
-  blocked_by: []
-  note: >-
-    Touches only `.github/dependabot.yml`, so it is an internal surface, but
-    `CLAUDE.md`'s unattended-automation clause gates it anyway: once merged it
-    opens pull requests on its own schedule. Verified in `verifications.yaml`;
-    nothing left to check, the decision itself is the open question.
+    Correction, 2026-08-24 (later): this row originally cited `next-16-upgrade`
+    (#372) as a second pull request this question would settle. #372 merged
+    at 2026-08-24T09:43:08Z, independent of this question, so it is removed
+    from the `unlocks` text -- one fewer thing this answer needs to account
+    for, not evidence the question itself has narrowed.
 
 - id: contrast-fixes
   asks: []
-  prs: [531, 583]
+  prs: [531]
   gates: deployment
   exposure: none
   opened: "2026-08-21"
-  action: "Merge or decline #531 and #583 together."
+  action: "Merge or decline #531."
   unlocks:
-    - WCAG 1.4.3 contrast failures fixed across `local-site-studio`, `ai-first-markets` and `real-estate-agent-photo-app`.
+    - WCAG 1.4.3 contrast failures fixed across `local-site-studio` and `ai-first-markets`.
   blocked_by: []
   note: >-
-    Two pull requests, one decision: both are colour-token substitutions of
-    the same shape, both CI-green, both `mergeable_state` clean. Neither
-    changes behaviour beyond colour values.
+    Colour-token substitutions, CI-green. Neither changes behaviour beyond
+    colour values.
 
 
     Correction, 2026-08-24: this note previously gave the reason for the gate
     as "they republish live sites". Per `platform/ci/publish_surface.py`, no
     workflow publishes on a push to `main` -- the two Pages deploys skip their
     publish jobs for want of credentials, and the third is
-    `workflow_dispatch`-only -- so merging republishes nothing. These touch
-    `ventures/*` app code, which is why they are still here rather than
-    self-merged; the live-site consequence they were credited with does not
+    `workflow_dispatch`-only -- so merging republishes nothing. This touches
+    `ventures/*` app code, which is why it is still here rather than
+    self-merged; the live-site consequence it was credited with does not
     exist.
+
+
+    Correction, 2026-08-24 (later): this row originally covered #531 and #583
+    together -- #583 (the `real-estate-agent-photo-app` half) merged at
+    2026-08-24T09:45:01Z. #531 (`local-site-studio` + `ai-first-markets`)
+    remains open with `mergeable_state: dirty` as of this correction; its own
+    branch needs a rebase onto current `main` before it can merge, which is
+    conflict resolution a session can do, not a decision that needs the
+    owner. `next-16-upgrade` (#372, prs-only row) and `dependabot` (#368,
+    prs-only row) are removed from this file outright rather than corrected
+    in place: both merged at 2026-08-24T09:43:08Z and 09:45:03Z respectively,
+    and neither has anything left to grant.
+
+- id: deployment-platform
+  asks: []
+  prs: [720]
+  gates: deployment
+  exposure: credential
+  opened: "2026-08-24"
+  action: "Merge or decline #720."
+  unlocks:
+    - >-
+      One named deployment platform (Vercel, with the spend cap built into the
+      vendor) in place of the three-way menu `deploy-settings` had carried for
+      five days; Railway is the named fallback if the load-bearing Vercel
+      claims fail the browser check the document itself flags.
+  blocked_by: []
+  note: >-
+    #720 answers the menu that `deploy-settings` (asks 4/6) posed as an open
+    choice. Its own body says the deciding criterion is "spend cap built into
+    the vendor", applies it to the shortlist, and names Vercel. Human-gated
+    regardless of the quality of the analysis: the document commits to an
+    account registration and standing spend that only the owner may authorise,
+    so this is a merge-or-decline call, not a session's. The probe it ships
+    (`platform/deployment/probe_control_planes.py`, 22 control-plane hosts) is
+    read-only tooling and is the agent-decidable half; the decision is not.
+
+- id: local-site-studio-subtree
+  asks: []
+  prs: [731]
+  gates: deployment
+  exposure: none
+  opened: "2026-08-24"
+  action: "Merge or decline #731."
+  unlocks:
+    - >-
+      The 1,405 commits and 301 files of upstream `local-site-studio` work that
+      the 2026-07-29 subtree merge left in the standalone repo -- the `convex/`
+      test suite, `convex/lib/apiSecret.ts`, `src/app/api/client-error/`,
+      `src/lib/db/sqlite-queries.ts` and `.github/workflows/pr-checks.yml` --
+      gathered into the monorepo with history preserved.
+  blocked_by: []
+  note: >-
+    Opened 2026-08-24 by the session that audited whether the eight standalone
+    repos were safe to delete and found `local-site-studio` was not (it is by
+    far the largest gap; five other repos have nothing upstream-only).
+    Verified by its own session -- tsc 0 errors, lint clean, 4,030 tests
+    passing, build compiled, `npm audit` 0 high/critical -- and 2/2 CI checks
+    green, `mergeable_state` clean. Still human-gated: it is `ventures/*` app
+    code, and the session that built it deliberately did not self-merge
+    pending the `venture-gate-premise` answer. The ten conflict resolutions
+    are documented in the PR body; a regression it introduced (three
+    transitives downgraded by regenerating the lockfile) was caught and
+    restored before it was merged anywhere.

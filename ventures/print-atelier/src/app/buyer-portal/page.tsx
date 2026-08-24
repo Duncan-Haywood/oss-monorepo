@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { ShoppingCart, Search, Filter, User, Heart } from "lucide-react";
 
 export default function BuyerPortal() {
@@ -32,7 +33,7 @@ export default function BuyerPortal() {
               <ShoppingCart className="w-5 h-5" />
               <span className="absolute top-1 right-1 w-2 h-2 bg-blue-600 rounded-full"></span>
             </button>
-            <a href="/" className="ml-4 text-sm font-medium px-4 py-2 border border-stone-300 dark:border-gray-600 rounded-full hover:bg-stone-100 dark:hover:bg-gray-700 transition">Return to Docs</a>
+            <Link href="/" className="ml-4 text-sm font-medium px-4 py-2 border border-stone-300 dark:border-gray-600 rounded-full hover:bg-stone-100 dark:hover:bg-gray-700 transition">Return to Docs</Link>
           </div>
         </div>
       </header>

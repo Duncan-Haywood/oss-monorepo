@@ -21,12 +21,15 @@ vi.mock("next/cache", () => ({
   revalidatePath: (...args: unknown[]) => revalidatePath(...args),
 }));
 
+const headerGet = vi.fn();
 vi.mock("next/headers", () => ({
-  headers: vi.fn(),
+  headers: vi.fn(async () => ({
+    get: (...args: unknown[]) => headerGet(...(args as [string])),
+  })),
 }));
 
 const getLeadBySlug = vi.fn();
-const listOrders = vi.fn();
+const listOrdersByLeadSlug = vi.fn();
 const upsertMarketingPack = vi.fn();
 
 vi.mock("@/lib/db", () => ({
@@ -40,7 +43,8 @@ vi.mock("@/lib/db", () => ({
   getClientInquiryById: vi.fn(),
   recordClientInquiryReply: vi.fn(),
   getLeads: vi.fn(),
-  listOrders: (...args: unknown[]) => listOrders(...args),
+  listOrdersByLeadSlug: (...args: unknown[]) => listOrdersByLeadSlug(...args),
+  listOrders: vi.fn(),
   recordLeadOutreach: vi.fn(),
   listUnrepliedInquiries: vi.fn(),
   updateLeadNotes: vi.fn(),
@@ -110,7 +114,6 @@ const growthOrder = {
   tier: "growth",
   commerceAddon: false,
   amountPaid: 599,
-  status: "paid",
   createdAt: "2026-07-13T10:00:00.000Z",
 };
 
@@ -122,17 +125,24 @@ const stubVariants = [
   },
 ];
 
+const captureError = vi.fn();
+vi.mock("@/lib/observability/error-tracking", () => ({
+  captureError: (...args: unknown[]) => captureError(...args),
+}));
+
 describe("generateMarketingPackAction", () => {
   const originalEnv = { ...process.env };
 
   beforeEach(() => {
+    captureError.mockReset().mockResolvedValue(undefined);
     vi.resetModules();
     process.env = { ...originalEnv };
     delete process.env.ANTHROPIC_API_KEY;
     requireOperatorAuth.mockReset().mockResolvedValue({ ok: true });
+    headerGet.mockReset().mockReturnValue("203.0.113.5");
     revalidatePath.mockReset();
     getLeadBySlug.mockReset().mockResolvedValue(eligibleLead);
-    listOrders.mockReset().mockResolvedValue([growthOrder]);
+    listOrdersByLeadSlug.mockReset().mockResolvedValue([growthOrder]);
     upsertMarketingPack.mockReset().mockImplementation(async (input) => ({
       id: "pack_1",
       ...input,
@@ -165,6 +175,22 @@ describe("generateMarketingPackAction", () => {
     expect(generate).not.toHaveBeenCalled();
   });
 
+  it("rate-limits repeated generation from the same IP (auth alone is not a throttle)", async () => {
+    const { generateMarketingPackAction } = await import("./actions");
+    // DEFAULT_RATE_LIMIT is 20 requests/60s per key — exhaust the window.
+    for (let i = 0; i < 20; i++) {
+      const res = await generateMarketingPackAction("demo-cafe");
+      expect(res.success).toBe(true);
+    }
+    generate.mockClear();
+    const res = await generateMarketingPackAction("demo-cafe");
+    expect(res).toEqual({
+      success: false,
+      error: "Too many requests — please try again shortly.",
+    });
+    expect(generate).not.toHaveBeenCalled();
+  });
+
   it("rejects an empty slug", async () => {
     const { generateMarketingPackAction } = await import("./actions");
     const res = await generateMarketingPackAction("");
@@ -187,7 +213,7 @@ describe("generateMarketingPackAction", () => {
   });
 
   it("rejects Starter-only / unpaid leads (eligibility)", async () => {
-    listOrders.mockResolvedValue([
+    listOrdersByLeadSlug.mockResolvedValue([
       { ...growthOrder, tier: "starter", amountPaid: 500 },
     ]);
     const { generateMarketingPackAction } = await import("./actions");
@@ -294,12 +320,30 @@ describe("generateMarketingPackAction", () => {
       error: "disk full",
     });
     expect(revalidatePath).not.toHaveBeenCalled();
+    expect(captureError).toHaveBeenCalledWith(expect.any(Error), {
+      component: "dashboard-leads-actions",
+      failureKind: "generateMarketingPackAction",
+    });
   });
 
-  it("filters orders to the requested lead slug before eligibility", async () => {
-    listOrders.mockResolvedValue([
-      { ...growthOrder, leadSlug: "other-cafe", tier: "complete" },
+  it("loads orders via listOrdersByLeadSlug (ineligible starter does not pass)", async () => {
+    listOrdersByLeadSlug.mockResolvedValue([
       { ...growthOrder, leadSlug: "demo-cafe", tier: "starter" },
+    ]);
+    const { generateMarketingPackAction } = await import("./actions");
+    const res = await generateMarketingPackAction("demo-cafe");
+    expect(listOrdersByLeadSlug).toHaveBeenCalledWith("demo-cafe");
+    expect(res).toEqual({
+      success: false,
+      error:
+        "Marketing packs require a paid/live lead with a Growth or Complete order",
+    });
+    expect(generate).not.toHaveBeenCalled();
+  });
+
+  it("rejects Growth orders after recurringCanceledAt (paused/canceled MRR)", async () => {
+    listOrdersByLeadSlug.mockResolvedValue([
+      { ...growthOrder, recurringCanceledAt: 1_720_000_000_000 },
     ]);
     const { generateMarketingPackAction } = await import("./actions");
     const res = await generateMarketingPackAction("demo-cafe");
@@ -309,5 +353,6 @@ describe("generateMarketingPackAction", () => {
         "Marketing packs require a paid/live lead with a Growth or Complete order",
     });
     expect(generate).not.toHaveBeenCalled();
+    expect(upsertMarketingPack).not.toHaveBeenCalled();
   });
 });

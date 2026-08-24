@@ -5,6 +5,8 @@ import { BUNDLES, COMMERCE_ADDON } from "./bundles";
 function createFakeStripe(): StripeProductsAndPricesForBootstrap & {
   productCount: () => number;
   priceCount: () => number;
+  productCreateCallsByIdempotencyKey: () => Map<string, number>;
+  priceCreateCallsByIdempotencyKey: () => Map<string, number>;
 } {
   const products: Array<{ id: string; metadata: Record<string, string> }> = [];
   const prices: Array<{
@@ -15,6 +17,12 @@ function createFakeStripe(): StripeProductsAndPricesForBootstrap & {
     recurring?: { interval?: string } | null;
   }> = [];
   let nextId = 1;
+
+  /** Real Stripe returns the SAME object for a replayed Idempotency-Key instead of creating a second one. */
+  const productsByIdempotencyKey = new Map<string, (typeof products)[number]>();
+  const productCreateCallsByIdempotencyKey = new Map<string, number>();
+  const pricesByIdempotencyKey = new Map<string, (typeof prices)[number]>();
+  const priceCreateCallsByIdempotencyKey = new Map<string, number>();
 
   /** Real Stripe list endpoints cap a page at `limit` and set has_more/starting_after. */
   function paginate<T extends { id: string }>(
@@ -34,9 +42,19 @@ function createFakeStripe(): StripeProductsAndPricesForBootstrap & {
       async list({ limit, starting_after }) {
         return paginate(products, limit, starting_after);
       },
-      async create({ metadata }) {
+      async create({ metadata }, options) {
+        const idempotencyKey = options?.idempotencyKey;
+        if (idempotencyKey) {
+          productCreateCallsByIdempotencyKey.set(
+            idempotencyKey,
+            (productCreateCallsByIdempotencyKey.get(idempotencyKey) ?? 0) + 1,
+          );
+          const existing = productsByIdempotencyKey.get(idempotencyKey);
+          if (existing) return existing;
+        }
         const product = { id: `prod_${nextId++}`, metadata };
         products.push(product);
+        if (idempotencyKey) productsByIdempotencyKey.set(idempotencyKey, product);
         return product;
       },
     },
@@ -48,7 +66,16 @@ function createFakeStripe(): StripeProductsAndPricesForBootstrap & {
           starting_after,
         );
       },
-      async create({ product, unit_amount, recurring }) {
+      async create({ product, unit_amount, recurring }, options) {
+        const idempotencyKey = options?.idempotencyKey;
+        if (idempotencyKey) {
+          priceCreateCallsByIdempotencyKey.set(
+            idempotencyKey,
+            (priceCreateCallsByIdempotencyKey.get(idempotencyKey) ?? 0) + 1,
+          );
+          const existing = pricesByIdempotencyKey.get(idempotencyKey);
+          if (existing) return existing;
+        }
         const price = {
           id: `price_${nextId++}`,
           product,
@@ -57,16 +84,36 @@ function createFakeStripe(): StripeProductsAndPricesForBootstrap & {
           recurring: recurring ?? null,
         };
         prices.push(price);
+        if (idempotencyKey) pricesByIdempotencyKey.set(idempotencyKey, price);
         return price;
       },
     },
     productCount: () => products.length,
     priceCount: () => prices.length,
+    productCreateCallsByIdempotencyKey: () => productCreateCallsByIdempotencyKey,
+    priceCreateCallsByIdempotencyKey: () => priceCreateCallsByIdempotencyKey,
   };
 }
 
 const EXPECTED_SPEC_COUNT =
-  BUNDLES.reduce((count, bundle) => count + (bundle.monthlyPriceIdEnv ? 2 : 1), 0) + 2; // + Commerce setup/monthly
+  BUNDLES.reduce(
+    (count, bundle) =>
+      count + 1 + (bundle.monthlyPriceIdEnv ? 1 : 0) + (bundle.annualPriceIdEnv ? 1 : 0),
+    0,
+  ) + 2; // + Commerce setup/monthly
+
+/**
+ * One Product per DISTINCT spec key — lower than EXPECTED_SPEC_COUNT because
+ * a bundle with both a monthly and an annual Price shares ONE Product for
+ * both (key `${bundle.id}_recurring`, see annual-billing-option), while each
+ * still gets its own Price object (Stripe Prices are immutable per interval).
+ */
+const EXPECTED_PRODUCT_COUNT = new Set(
+  BUNDLES.flatMap((bundle) => [
+    `${bundle.id}_setup`,
+    bundle.monthlyPriceIdEnv || bundle.annualPriceIdEnv ? `${bundle.id}_recurring` : null,
+  ]).filter(Boolean),
+).size + 2; // + Commerce setup/monthly Products (distinct keys, no sharing)
 
 describe("bootstrapStripePrices", () => {
   it("creates one Product + Price per bundle/commerce price spec", async () => {
@@ -75,7 +122,7 @@ describe("bootstrapStripePrices", () => {
 
     expect(results).toHaveLength(EXPECTED_SPEC_COUNT);
     expect(results.every((r) => r.created)).toBe(true);
-    expect(stripe.productCount()).toBe(EXPECTED_SPEC_COUNT);
+    expect(stripe.productCount()).toBe(EXPECTED_PRODUCT_COUNT);
     expect(stripe.priceCount()).toBe(EXPECTED_SPEC_COUNT);
 
     const starterSetup = results.find((r) => r.envVar === "STRIPE_PRICE_ID_STARTER_SETUP");
@@ -92,18 +139,20 @@ describe("bootstrapStripePrices", () => {
     expect(second.results.every((r) => !r.created)).toBe(true);
     expect(second.results.map((r) => r.priceId)).toEqual(first.results.map((r) => r.priceId));
     expect(second.results.map((r) => r.productId)).toEqual(first.results.map((r) => r.productId));
-    expect(stripe.productCount()).toBe(EXPECTED_SPEC_COUNT);
+    expect(stripe.productCount()).toBe(EXPECTED_PRODUCT_COUNT);
     expect(stripe.priceCount()).toBe(EXPECTED_SPEC_COUNT);
   });
 
   it("reuses the existing Product but creates a fresh Price when no Price on it matches the current amount", async () => {
     const stripe = createFakeStripe();
-    // Pre-seed a Product for Growth monthly (metadata key matches the spec)
-    // with only a stale/mismatched Price on it — simulates an account where
-    // the bundle's price changed since the last bootstrap run.
+    // Pre-seed a Product for Growth's shared recurring key (metadata key
+    // matches the spec — monthly and annual share one Product, see
+    // annual-billing-option) with only a stale/mismatched Price on it —
+    // simulates an account where the bundle's price changed since the last
+    // bootstrap run.
     const product = await stripe.products.create({
-      name: "Growth — monthly",
-      metadata: { local_site_studio_key: "growth_monthly" },
+      name: "Growth — recurring",
+      metadata: { local_site_studio_key: "growth_recurring" },
     });
     const stalePrice = await stripe.prices.create({
       product: product.id,
@@ -176,11 +225,103 @@ describe("bootstrapStripePrices", () => {
     const envVars = results.map((r) => r.envVar).sort();
 
     const expected = [
-      ...BUNDLES.flatMap((b) => [b.setupPriceIdEnv, b.monthlyPriceIdEnv].filter(Boolean) as string[]),
+      ...BUNDLES.flatMap(
+        (b) =>
+          [b.setupPriceIdEnv, b.monthlyPriceIdEnv, b.annualPriceIdEnv].filter(Boolean) as string[],
+      ),
       COMMERCE_ADDON.setupPriceIdEnv,
       COMMERCE_ADDON.monthlyPriceIdEnv,
     ].sort();
 
     expect(envVars).toEqual(expected);
+  });
+
+  it("passes a stable Idempotency-Key on every product.create and price.create call", async () => {
+    const stripe = createFakeStripe();
+    await bootstrapStripePrices(stripe);
+
+    const productCalls = stripe.productCreateCallsByIdempotencyKey();
+    const priceCalls = stripe.priceCreateCallsByIdempotencyKey();
+
+    expect(productCalls.size).toBe(EXPECTED_PRODUCT_COUNT);
+    expect(priceCalls.size).toBe(EXPECTED_SPEC_COUNT);
+    expect([...productCalls.values()].every((count) => count === 1)).toBe(true);
+    expect([...priceCalls.values()].every((count) => count === 1)).toBe(true);
+    expect([...productCalls.keys()]).toContain("local_site_studio_starter_setup_product");
+  });
+
+  it("creates both a monthly and an annual Price under the SAME shared Product for Growth/Complete", async () => {
+    const stripe = createFakeStripe();
+    const { results } = await bootstrapStripePrices(stripe);
+
+    const growthMonthly = results.find((r) => r.envVar === "STRIPE_PRICE_ID_GROWTH_MONTHLY");
+    const growthAnnual = results.find((r) => r.envVar === "STRIPE_PRICE_ID_GROWTH_ANNUAL");
+    expect(growthMonthly?.productId).toBeDefined();
+    expect(growthAnnual?.productId).toBe(growthMonthly?.productId);
+    expect(growthAnnual?.priceId).not.toBe(growthMonthly?.priceId);
+
+    const completeMonthly = results.find((r) => r.envVar === "STRIPE_PRICE_ID_COMPLETE_MONTHLY");
+    const completeAnnual = results.find((r) => r.envVar === "STRIPE_PRICE_ID_COMPLETE_ANNUAL");
+    expect(completeAnnual?.productId).toBe(completeMonthly?.productId);
+    expect(completeAnnual?.priceId).not.toBe(completeMonthly?.priceId);
+
+    // Only ONE Product created per bundle+setup pairing (setup + shared
+    // recurring), not one per Price — confirms the rename to a shared
+    // `${bundle.id}_recurring` key actually collapsed monthly/annual onto one
+    // Product rather than accidentally minting two.
+    expect(stripe.productCount()).toBe(EXPECTED_PRODUCT_COUNT);
+  });
+
+  it("never mints a duplicate Product/Price when two concurrent calls both race past the list-based precheck", async () => {
+    // Simulates the exact race findProductByKey/findMatchingPrice cannot close
+    // by itself: both invocations of bootstrapStripePrices see no existing
+    // Product/Price for a spec (list runs before either create lands) and
+    // both call products.create/prices.create — Stripe's Idempotency-Key
+    // guarantee is what actually collapses them to one object, verified here
+    // by calling the fake client's create directly with the same derived key
+    // the module uses, twice, "concurrently".
+    const stripe = createFakeStripe();
+    const key = "starter_setup";
+    const productKey = `local_site_studio_${key}_product`;
+
+    const [firstProduct, secondProduct] = await Promise.all([
+      stripe.products.create(
+        { name: "Starter — setup", metadata: { local_site_studio_key: key } },
+        { idempotencyKey: productKey },
+      ),
+      stripe.products.create(
+        { name: "Starter — setup", metadata: { local_site_studio_key: key } },
+        { idempotencyKey: productKey },
+      ),
+    ]);
+
+    expect(firstProduct.id).toBe(secondProduct.id);
+    expect(stripe.productCount()).toBe(1);
+
+    const unitAmount = 50000;
+    const priceKey = `local_site_studio_${key}_price_${unitAmount}`;
+    const [firstPrice, secondPrice] = await Promise.all([
+      stripe.prices.create(
+        {
+          product: firstProduct.id,
+          currency: "usd",
+          unit_amount: unitAmount,
+          metadata: { local_site_studio_key: key },
+        },
+        { idempotencyKey: priceKey },
+      ),
+      stripe.prices.create(
+        {
+          product: firstProduct.id,
+          currency: "usd",
+          unit_amount: unitAmount,
+          metadata: { local_site_studio_key: key },
+        },
+        { idempotencyKey: priceKey },
+      ),
+    ]);
+
+    expect(firstPrice.id).toBe(secondPrice.id);
+    expect(stripe.priceCount()).toBe(1);
   });
 });

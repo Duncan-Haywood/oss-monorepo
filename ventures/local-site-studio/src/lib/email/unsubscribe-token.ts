@@ -13,11 +13,20 @@
  * fallback. When neither is meaningfully configured, sendEmail() only logs
  * a mock send (see resend.ts) and never reaches a real recipient, so the
  * fallback key never has to protect a link anyone actually receives.
+ *
+ * Length: HMAC-SHA256 digest as base64url is exactly 43 chars. Public
+ * query tokens must hard-reject over MAX_UNSUBSCRIBE_TOKEN_LENGTH before
+ * Buffer.from / timing-safe compare — rate limits blunt request count, not
+ * per-request payload size. Soft-cap/truncate would break every genuine
+ * footer link (opaque signed token, same class as billing-portal sessionId).
  */
 
 import { createHmac, timingSafeEqual } from "node:crypto";
 
 const DEV_FALLBACK_SECRET = "local-site-studio-dev-unsubscribe-secret";
+
+/** HMAC-SHA256 base64url is 43 chars; 128 leaves headroom without allowing multi-KB probes. */
+export const MAX_UNSUBSCRIBE_TOKEN_LENGTH = 128;
 
 function signingSecret(): string {
   const resendKey = process.env.RESEND_API_KEY;
@@ -39,6 +48,12 @@ export function signUnsubscribeToken(email: string): string {
 
 export function verifyUnsubscribeToken(email: string, token: string | null): boolean {
   if (!token) {
+    return false;
+  }
+
+  // Hard-reject over-long tokens before Buffer allocation / HMAC work.
+  // Genuine footer tokens are always signUnsubscribeToken length (43).
+  if (token.length > MAX_UNSUBSCRIBE_TOKEN_LENGTH) {
     return false;
   }
 

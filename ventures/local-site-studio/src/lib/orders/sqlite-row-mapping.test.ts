@@ -10,9 +10,16 @@ describe("mapSqliteOrderRow", () => {
       stripeCustomerId: "cus_1",
       tier: "growth",
       commerceAddon: 1,
+      recurringCanceledAt: null,
       amountPaid: 99,
-      status: "paid",
       createdAt: "2026-01-01T00:00:00.000Z",
+      refundedAt: null,
+      disputedAt: null,
+      lifetimeRevenueUsd: null,
+      lastRenewalInvoiceId: null,
+      lastBillingNoticeSendFailedAt: null,
+      lastBillingNoticeSendFailedType: null,
+      acquisitionSource: null,
     };
     expect(mapSqliteOrderRow(row)).toEqual({
       id: "ord_1",
@@ -22,7 +29,6 @@ describe("mapSqliteOrderRow", () => {
       tier: "growth",
       commerceAddon: true,
       amountPaid: 99,
-      status: "paid",
       createdAt: "2026-01-01T00:00:00.000Z",
     });
   });
@@ -35,13 +41,248 @@ describe("mapSqliteOrderRow", () => {
       stripeCustomerId: null,
       tier: "starter",
       commerceAddon: 0,
+      recurringCanceledAt: null,
       amountPaid: 500,
-      status: "paid",
       createdAt: "2026-01-01T00:00:00.000Z",
+      refundedAt: null,
+      disputedAt: null,
+      lifetimeRevenueUsd: null,
+      lastRenewalInvoiceId: null,
+      lastBillingNoticeSendFailedAt: null,
+      lastBillingNoticeSendFailedType: null,
+      acquisitionSource: null,
     };
     const mapped = mapSqliteOrderRow(row);
     expect(mapped.stripeSessionId).toBe("");
     expect(mapped.stripeCustomerId).toBeUndefined();
     expect(mapped.commerceAddon).toBe(false);
+  });
+
+  it("maps a refundedAt column value through to refundedAt", () => {
+    const row: SqliteOrderJoinRow = {
+      id: "ord_1",
+      leadSlug: "acme",
+      stripeSessionId: "cs_test_1",
+      stripeCustomerId: "cus_1",
+      tier: "growth",
+      commerceAddon: 0,
+      recurringCanceledAt: null,
+      amountPaid: 99,
+      createdAt: "2026-01-01T00:00:00.000Z",
+      refundedAt: "2026-01-02T00:00:00.000Z",
+      disputedAt: null,
+      lifetimeRevenueUsd: null,
+      lastRenewalInvoiceId: null,
+      lastBillingNoticeSendFailedAt: null,
+      lastBillingNoticeSendFailedType: null,
+      acquisitionSource: null,
+    };
+    expect(mapSqliteOrderRow(row).refundedAt).toBe("2026-01-02T00:00:00.000Z");
+  });
+
+  it("defaults a null refundedAt to undefined", () => {
+    const row: SqliteOrderJoinRow = {
+      id: "ord_1",
+      leadSlug: "acme",
+      stripeSessionId: "cs_test_1",
+      stripeCustomerId: "cus_1",
+      tier: "growth",
+      commerceAddon: 0,
+      recurringCanceledAt: null,
+      amountPaid: 99,
+      createdAt: "2026-01-01T00:00:00.000Z",
+      refundedAt: null,
+      disputedAt: null,
+      lifetimeRevenueUsd: null,
+      lastRenewalInvoiceId: null,
+      lastBillingNoticeSendFailedAt: null,
+      lastBillingNoticeSendFailedType: null,
+      acquisitionSource: null,
+    };
+    expect(mapSqliteOrderRow(row).refundedAt).toBeUndefined();
+  });
+
+  it("maps a disputedAt column value through to disputedAt", () => {
+    const row: SqliteOrderJoinRow = {
+      id: "ord_1",
+      leadSlug: "acme",
+      stripeSessionId: "cs_test_1",
+      stripeCustomerId: "cus_1",
+      tier: "growth",
+      commerceAddon: 0,
+      recurringCanceledAt: null,
+      amountPaid: 99,
+      createdAt: "2026-01-01T00:00:00.000Z",
+      refundedAt: null,
+      disputedAt: "2026-01-03T00:00:00.000Z",
+      lifetimeRevenueUsd: null,
+      lastRenewalInvoiceId: null,
+      lastBillingNoticeSendFailedAt: null,
+      lastBillingNoticeSendFailedType: null,
+      acquisitionSource: null,
+    };
+    expect(mapSqliteOrderRow(row).disputedAt).toBe("2026-01-03T00:00:00.000Z");
+  });
+
+  it("defaults a null disputedAt to undefined", () => {
+    const row: SqliteOrderJoinRow = {
+      id: "ord_1",
+      leadSlug: "acme",
+      stripeSessionId: "cs_test_1",
+      stripeCustomerId: "cus_1",
+      tier: "growth",
+      commerceAddon: 0,
+      recurringCanceledAt: null,
+      amountPaid: 99,
+      createdAt: "2026-01-01T00:00:00.000Z",
+      refundedAt: null,
+      disputedAt: null,
+      lifetimeRevenueUsd: null,
+      lastRenewalInvoiceId: null,
+      lastBillingNoticeSendFailedAt: null,
+      lastBillingNoticeSendFailedType: null,
+      acquisitionSource: null,
+    };
+    expect(mapSqliteOrderRow(row).disputedAt).toBeUndefined();
+  });
+
+  it("maps a lifetimeRevenueUsd column value through to lifetimeRevenueUsd", () => {
+    const row: SqliteOrderJoinRow = {
+      id: "ord_1",
+      leadSlug: "acme",
+      stripeSessionId: "cs_test_1",
+      stripeCustomerId: "cus_1",
+      tier: "growth",
+      commerceAddon: 0,
+      recurringCanceledAt: null,
+      amountPaid: 99,
+      createdAt: "2026-01-01T00:00:00.000Z",
+      refundedAt: null,
+      disputedAt: null,
+      lifetimeRevenueUsd: 297,
+      lastRenewalInvoiceId: "in_last_1",
+      lastBillingNoticeSendFailedAt: null,
+      lastBillingNoticeSendFailedType: null,
+      acquisitionSource: null,
+    };
+    const mapped = mapSqliteOrderRow(row);
+    expect(mapped.lifetimeRevenueUsd).toBe(297);
+    expect(mapped.lastRenewalInvoiceId).toBe("in_last_1");
+  });
+
+  it("defaults a null lifetimeRevenueUsd/lastRenewalInvoiceId to undefined", () => {
+    const row: SqliteOrderJoinRow = {
+      id: "ord_1",
+      leadSlug: "acme",
+      stripeSessionId: "cs_test_1",
+      stripeCustomerId: "cus_1",
+      tier: "growth",
+      commerceAddon: 0,
+      recurringCanceledAt: null,
+      amountPaid: 99,
+      createdAt: "2026-01-01T00:00:00.000Z",
+      refundedAt: null,
+      disputedAt: null,
+      lifetimeRevenueUsd: null,
+      lastRenewalInvoiceId: null,
+      lastBillingNoticeSendFailedAt: null,
+      lastBillingNoticeSendFailedType: null,
+      acquisitionSource: null,
+    };
+    const mapped = mapSqliteOrderRow(row);
+    expect(mapped.lifetimeRevenueUsd).toBeUndefined();
+    expect(mapped.lastRenewalInvoiceId).toBeUndefined();
+  });
+
+  it("maps lastBillingNoticeSendFailedAt/Type column values through", () => {
+    const row: SqliteOrderJoinRow = {
+      id: "ord_1",
+      leadSlug: "acme",
+      stripeSessionId: "cs_test_1",
+      stripeCustomerId: "cus_1",
+      tier: "growth",
+      commerceAddon: 0,
+      recurringCanceledAt: null,
+      amountPaid: 99,
+      createdAt: "2026-01-01T00:00:00.000Z",
+      refundedAt: null,
+      disputedAt: null,
+      lifetimeRevenueUsd: null,
+      lastRenewalInvoiceId: null,
+      lastBillingNoticeSendFailedAt: 1700000000000,
+      lastBillingNoticeSendFailedType: "payment_failed",
+      acquisitionSource: null,
+    };
+    const mapped = mapSqliteOrderRow(row);
+    expect(mapped.lastBillingNoticeSendFailedAt).toBe(1700000000000);
+    expect(mapped.lastBillingNoticeSendFailedType).toBe("payment_failed");
+  });
+
+  it("defaults a null/zero lastBillingNoticeSendFailedAt/Type to undefined", () => {
+    const row: SqliteOrderJoinRow = {
+      id: "ord_1",
+      leadSlug: "acme",
+      stripeSessionId: "cs_test_1",
+      stripeCustomerId: "cus_1",
+      tier: "growth",
+      commerceAddon: 0,
+      recurringCanceledAt: null,
+      amountPaid: 99,
+      createdAt: "2026-01-01T00:00:00.000Z",
+      refundedAt: null,
+      disputedAt: null,
+      lifetimeRevenueUsd: null,
+      lastRenewalInvoiceId: null,
+      lastBillingNoticeSendFailedAt: 0,
+      lastBillingNoticeSendFailedType: null,
+      acquisitionSource: null,
+    };
+    const mapped = mapSqliteOrderRow(row);
+    expect(mapped.lastBillingNoticeSendFailedAt).toBeUndefined();
+    expect(mapped.lastBillingNoticeSendFailedType).toBeUndefined();
+  });
+
+  it("maps an acquisitionSource column value through to acquisitionSource", () => {
+    const row: SqliteOrderJoinRow = {
+      id: "ord_1",
+      leadSlug: "acme",
+      stripeSessionId: "cs_test_1",
+      stripeCustomerId: "cus_1",
+      tier: "growth",
+      commerceAddon: 0,
+      recurringCanceledAt: null,
+      amountPaid: 99,
+      createdAt: "2026-01-01T00:00:00.000Z",
+      refundedAt: null,
+      disputedAt: null,
+      lifetimeRevenueUsd: null,
+      lastRenewalInvoiceId: null,
+      lastBillingNoticeSendFailedAt: null,
+      lastBillingNoticeSendFailedType: null,
+      acquisitionSource: "cat-restaurant",
+    };
+    expect(mapSqliteOrderRow(row).acquisitionSource).toBe("cat-restaurant");
+  });
+
+  it("defaults a null acquisitionSource to undefined", () => {
+    const row: SqliteOrderJoinRow = {
+      id: "ord_1",
+      leadSlug: "acme",
+      stripeSessionId: "cs_test_1",
+      stripeCustomerId: "cus_1",
+      tier: "growth",
+      commerceAddon: 0,
+      recurringCanceledAt: null,
+      amountPaid: 99,
+      createdAt: "2026-01-01T00:00:00.000Z",
+      refundedAt: null,
+      disputedAt: null,
+      lifetimeRevenueUsd: null,
+      lastRenewalInvoiceId: null,
+      lastBillingNoticeSendFailedAt: null,
+      lastBillingNoticeSendFailedType: null,
+      acquisitionSource: null,
+    };
+    expect(mapSqliteOrderRow(row).acquisitionSource).toBeUndefined();
   });
 });

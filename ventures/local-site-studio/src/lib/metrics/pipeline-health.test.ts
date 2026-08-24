@@ -1,10 +1,18 @@
 import { describe, expect, it } from "vitest";
 import {
+  acquisitionSourceBreakdown,
   computePipelineHealth,
+  deployHandoffAgeHours,
   emptyStageCounts,
   formatAbandonedAgeHours,
   formatUsd,
   isUnrepliedInquiryStatus,
+  leadWinRatePercent,
+  oldestBundleOrderRefundOrDisputeAgeHours,
+  oldestCommerceOrdersOwedAgeHours,
+  oldestOpenHandoffAgeHours,
+  oldestPaidNotLiveAgeHours,
+  oldestUnrepliedInquiryAgeHoursFor,
 } from "./pipeline-health";
 import type { Lead, LeadPipelineStage } from "../leads/types";
 import type { DeployHandoff } from "../deploy/types";
@@ -12,9 +20,14 @@ import type { ClientInquiry } from "../inquiries/types";
 import type { OrderRecord } from "../orders/types";
 import type { CheckoutSessionRecord } from "../checkout/types";
 import { ABANDONED_AFTER_HOURS } from "../checkout/abandoned-recovery";
+import {
+  bundleDnsHandoffEmailSentNote,
+  bundleReceiptEmailSentNote,
+} from "../payments/bundle-side-effect-recovery";
 
 const NOW = Date.parse("2026-07-12T12:00:00.000Z");
 const HOUR_MS = 60 * 60 * 1000;
+const DAY_MS = 24 * HOUR_MS;
 
 function makeSession(
   overrides: Partial<CheckoutSessionRecord> = {},
@@ -50,7 +63,10 @@ function makeLead(stage: LeadPipelineStage, overrides: Partial<Lead> = {}): Lead
   };
 }
 
-function makeHandoff(status: DeployHandoff["status"]): DeployHandoff {
+function makeHandoff(
+  status: DeployHandoff["status"],
+  overrides: Partial<DeployHandoff> = {},
+): DeployHandoff {
   return {
     id: "h1",
     leadSlug: "lead-1",
@@ -67,6 +83,7 @@ function makeHandoff(status: DeployHandoff["status"]): DeployHandoff {
     notes: [],
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString(),
+    ...overrides,
   };
 }
 
@@ -94,7 +111,6 @@ function makeOrder(amountPaid: number): OrderRecord {
     tier: "starter",
     commerceAddon: false,
     amountPaid,
-    status: "paid",
     createdAt: new Date().toISOString(),
   };
 }
@@ -105,11 +121,35 @@ describe("computePipelineHealth", () => {
     expect(health.revenueTotalUsd).toBe(0);
     expect(health.leadCount).toBe(0);
     expect(health.orderCount).toBe(0);
+    expect(health.bundleOrdersRefundedCount).toBe(0);
+    expect(health.bundleOrdersRefundedUsd).toBe(0);
+    expect(health.oldestBundleOrdersRefundedAgeHours).toBeNull();
+    expect(health.bundleOrdersDisputedCount).toBe(0);
+    expect(health.bundleOrdersDisputedUsd).toBe(0);
+    expect(health.oldestBundleOrdersDisputedAgeHours).toBeNull();
     expect(health.marketingPacksDueCount).toBe(0);
     expect(health.marketingPacksDueMonth).toBe("1970-01");
+    expect(health.oldestMarketingPacksDueAgeHours).toBeNull();
     expect(health.commerceCatalogsMissingCount).toBe(0);
+    expect(health.oldestCommerceCatalogsMissingAgeHours).toBeNull();
     expect(health.commerceCatalogsUnsyncedCount).toBe(0);
+    expect(health.oldestCommerceCatalogsUnsyncedAgeHours).toBeNull();
     expect(health.clientVoicePacksDueCount).toBe(0);
+    expect(health.oldestClientVoicePacksDueAgeHours).toBeNull();
+    expect(health.recurringEntitlementPausedCount).toBe(0);
+    expect(health.oldestRecurringEntitlementPausedAgeHours).toBeNull();
+    expect(health.billingNoticeSendFailedCount).toBe(0);
+    expect(health.oldestBillingNoticeSendFailedAgeHours).toBeNull();
+    expect(health.starterUpsellCandidatesCount).toBe(0);
+    expect(health.oldestStarterUpsellCandidateAgeHours).toBeNull();
+    expect(health.growthUpsellCandidatesCount).toBe(0);
+    expect(health.oldestGrowthUpsellCandidateAgeHours).toBeNull();
+    expect(health.connectOnboardingIncompleteCount).toBe(0);
+    expect(health.oldestConnectOnboardingIncompleteAgeHours).toBeNull();
+    expect(health.bufferProfileMappingMissingCount).toBe(0);
+    expect(health.oldestBufferProfileMappingMissingAgeHours).toBeNull();
+    expect(health.marketingPacksMissingBufferPostCount).toBe(0);
+    expect(health.oldestMarketingPacksMissingBufferPostAgeHours).toBeNull();
     expect(health.stageCounts).toEqual(emptyStageCounts());
     expect(health.closedLeadCount).toBe(0);
     expect(health.stageFunnel.map((s) => s.stage)).toEqual([
@@ -131,6 +171,100 @@ describe("computePipelineHealth", () => {
     });
     expect(health.revenueTotalUsd).toBe(750);
     expect(health.orderCount).toBe(3);
+  });
+
+  it("sums lifetimeRevenueUsd (not just the first-period amountPaid) once a renewal is recorded", () => {
+    // Regression for revenue-total-usd-renewal-gap: a Growth/Complete/
+    // Commerce-addon subscriber's renewal invoices must count past their
+    // first billing cycle, not just amountPaid from the original checkout.
+    const renewed = { ...makeOrder(49), lifetimeRevenueUsd: 147 };
+    const health = computePipelineHealth({
+      leads: [],
+      orders: [makeOrder(500), renewed],
+      handoffs: [],
+      inquiries: [],
+    });
+    expect(health.revenueTotalUsd).toBe(647);
+    expect(health.orderCount).toBe(2);
+  });
+
+  it("excludes refunded bundle orders from revenueTotalUsd but keeps orderCount", () => {
+    const refunded = { ...makeOrder(300), refundedAt: "2026-07-01T00:00:00.000Z" };
+    const health = computePipelineHealth({
+      leads: [],
+      orders: [makeOrder(500), refunded],
+      handoffs: [],
+      inquiries: [],
+      nowMs: Date.parse("2026-07-03T00:00:00.000Z"),
+    });
+    expect(health.revenueTotalUsd).toBe(500);
+    expect(health.orderCount).toBe(2);
+    expect(health.bundleOrdersRefundedCount).toBe(1);
+    expect(health.bundleOrdersRefundedUsd).toBe(300);
+    expect(health.oldestBundleOrdersRefundedAgeHours).toBe(48);
+  });
+
+  it("returns zero bundle refund stats and null age when nothing is refunded", () => {
+    const health = computePipelineHealth({
+      leads: [],
+      orders: [makeOrder(500)],
+      handoffs: [],
+      inquiries: [],
+    });
+    expect(health.bundleOrdersRefundedCount).toBe(0);
+    expect(health.bundleOrdersRefundedUsd).toBe(0);
+    expect(health.oldestBundleOrdersRefundedAgeHours).toBeNull();
+  });
+
+  it("reports the oldest refundedAt among multiple refunded bundle orders", () => {
+    const older = {
+      ...makeOrder(100),
+      id: "order_older",
+      refundedAt: "2026-06-01T00:00:00.000Z",
+    };
+    const newer = {
+      ...makeOrder(200),
+      id: "order_newer",
+      refundedAt: "2026-07-01T00:00:00.000Z",
+    };
+    const health = computePipelineHealth({
+      leads: [],
+      orders: [newer, older],
+      handoffs: [],
+      inquiries: [],
+      nowMs: Date.parse("2026-07-02T00:00:00.000Z"),
+    });
+    expect(health.bundleOrdersRefundedCount).toBe(2);
+    expect(health.bundleOrdersRefundedUsd).toBe(300);
+    expect(health.oldestBundleOrdersRefundedAgeHours).toBeGreaterThan(700);
+  });
+
+  it("excludes disputed bundle orders from revenueTotalUsd but keeps orderCount", () => {
+    const disputed = { ...makeOrder(300), disputedAt: "2026-07-01T00:00:00.000Z" };
+    const health = computePipelineHealth({
+      leads: [],
+      orders: [makeOrder(500), disputed],
+      handoffs: [],
+      inquiries: [],
+      nowMs: Date.parse("2026-07-03T00:00:00.000Z"),
+    });
+    expect(health.revenueTotalUsd).toBe(500);
+    expect(health.orderCount).toBe(2);
+    expect(health.bundleOrdersDisputedCount).toBe(1);
+    expect(health.bundleOrdersDisputedUsd).toBe(300);
+    expect(health.oldestBundleOrdersDisputedAgeHours).toBe(48);
+  });
+
+  it("returns zero bundle dispute stats and null age when nothing is disputed", () => {
+    const health = computePipelineHealth({
+      leads: [],
+      orders: [makeOrder(500)],
+      handoffs: [],
+      inquiries: [],
+    });
+    expect(health.bundleOrdersDisputedCount).toBe(0);
+    expect(health.bundleOrdersDisputedUsd).toBe(0);
+    expect(health.oldestBundleOrdersDisputedAgeHours).toBeNull();
   });
 
   it("counts leads per stage", () => {
@@ -170,6 +304,204 @@ describe("computePipelineHealth", () => {
     expect(health.openHandoffCount).toBe(2);
     expect(health.newInquiryCount).toBe(2);
     expect(health.unrepliedInquiryCount).toBe(3);
+  });
+
+  it("reports the oldest open handoff age (ignoring live rows) and null when none open", () => {
+    const withOpen = computePipelineHealth({
+      leads: [],
+      orders: [],
+      handoffs: [
+        makeHandoff("pending", {
+          id: "h_recent",
+          createdAt: new Date(NOW - 4 * HOUR_MS).toISOString(),
+        }),
+        makeHandoff("awaiting_dns", {
+          id: "h_old",
+          createdAt: new Date(NOW - 40 * HOUR_MS).toISOString(),
+        }),
+        // A live handoff that is older still must NOT anchor the age — it is
+        // no longer open fulfillment debt.
+        makeHandoff("live", {
+          id: "h_live_older",
+          createdAt: new Date(NOW - 500 * HOUR_MS).toISOString(),
+        }),
+      ],
+      inquiries: [],
+      nowMs: NOW,
+    });
+    expect(withOpen.openHandoffCount).toBe(2);
+    expect(withOpen.oldestOpenHandoffAgeHours).toBe(40);
+
+    const noneOpen = computePipelineHealth({
+      leads: [],
+      orders: [],
+      handoffs: [makeHandoff("live", { createdAt: new Date(NOW - 9 * HOUR_MS).toISOString() })],
+      inquiries: [],
+      nowMs: NOW,
+    });
+    expect(noneOpen.openHandoffCount).toBe(0);
+    expect(noneOpen.oldestOpenHandoffAgeHours).toBeNull();
+  });
+
+  it("counts bundle handoffs missing a buyer receipt and/or DNS handoff email", () => {
+    const health = computePipelineHealth({
+      leads: [],
+      orders: [],
+      handoffs: [
+        // No markers at all — missing both.
+        makeHandoff("pending", {
+          id: "h_missing_both",
+          stripeSessionId: "sess_missing_both",
+          createdAt: new Date(NOW - 30 * HOUR_MS).toISOString(),
+        }),
+        // Only the receipt marker — DNS still missing.
+        makeHandoff("awaiting_dns", {
+          id: "h_missing_dns",
+          stripeSessionId: "sess_missing_dns",
+          notes: [bundleReceiptEmailSentNote("sess_missing_dns")],
+          createdAt: new Date(NOW - 5 * HOUR_MS).toISOString(),
+        }),
+        // Both markers present — fully notified, must not count.
+        makeHandoff("live", {
+          id: "h_notified",
+          stripeSessionId: "sess_notified",
+          notes: [
+            bundleReceiptEmailSentNote("sess_notified"),
+            bundleDnsHandoffEmailSentNote("sess_notified"),
+          ],
+        }),
+        // No customer email on file — planBundleWebhookSideEffects never
+        // attempts either send, so this must not count as "missing".
+        makeHandoff("pending", {
+          id: "h_no_email",
+          stripeSessionId: "sess_no_email",
+          customerEmail: "",
+        }),
+      ],
+      inquiries: [],
+      nowMs: NOW,
+    });
+    expect(health.bundleOrdersMissingBuyerEmailCount).toBe(2);
+    expect(health.oldestBundleOrdersMissingBuyerEmailAgeHours).toBe(30);
+  });
+
+  it("counts handoffs whose Vercel domain provisioning hard-failed, distinct from ordinary awaiting_dns", () => {
+    const health = computePipelineHealth({
+      leads: [],
+      orders: [],
+      handoffs: [
+        // Hard HTTP error from the Domains API, not yet live.
+        makeHandoff("awaiting_dns", {
+          id: "h_error_http",
+          vercelDomainStatus: "error_500",
+          createdAt: new Date(NOW - 20 * HOUR_MS).toISOString(),
+        }),
+        // Network/timeout error, still pending.
+        makeHandoff("pending", {
+          id: "h_error_network",
+          vercelDomainStatus: "error_network",
+          createdAt: new Date(NOW - 6 * HOUR_MS).toISOString(),
+        }),
+        // Later marked live despite a stale error status — must not count.
+        makeHandoff("live", {
+          id: "h_recovered",
+          vercelDomainStatus: "error_500",
+          createdAt: new Date(NOW - 400 * HOUR_MS).toISOString(),
+        }),
+        // Ordinary awaiting_dns with no automation failure — must not count.
+        makeHandoff("awaiting_dns", {
+          id: "h_ordinary",
+          vercelDomainStatus: "created",
+        }),
+      ],
+      inquiries: [],
+      nowMs: NOW,
+    });
+    expect(health.vercelDomainProvisioningFailedCount).toBe(2);
+    expect(health.oldestVercelDomainProvisioningFailedAgeHours).toBe(20);
+  });
+
+  it("staleOrFailingCronJobsCount stays 0 when cronSecretConfigured is false, even with a clearly stale/failing cronRuns feed", () => {
+    const health = computePipelineHealth({
+      leads: [],
+      orders: [],
+      handoffs: [],
+      inquiries: [],
+      cronRuns: [
+        { job: "daily-digest", lastRunAt: "2020-01-01T00:00:00.000Z", lastRunSuccess: false, lastError: "boom" },
+      ],
+      cronSecretConfigured: false,
+      nowMs: NOW,
+    });
+    expect(health.staleOrFailingCronJobsCount).toBe(0);
+    expect(health.staleOrFailingCronJobNames).toEqual([]);
+  });
+
+  it("flags never-run and failing cron jobs when cronSecretConfigured is true, leaving a healthy job out", () => {
+    const health = computePipelineHealth({
+      leads: [],
+      orders: [],
+      handoffs: [],
+      inquiries: [],
+      cronRuns: [
+        {
+          job: "daily-digest",
+          lastRunAt: new Date(NOW - 2 * HOUR_MS).toISOString(),
+          lastRunSuccess: true,
+        },
+        {
+          job: "checkout-recovery",
+          lastRunAt: new Date(NOW - 1 * HOUR_MS).toISOString(),
+          lastRunSuccess: false,
+          lastError: "Resend API error",
+        },
+        // outreach-followups has no row at all — never run.
+      ],
+      cronSecretConfigured: true,
+      nowMs: NOW,
+    });
+    expect(health.staleOrFailingCronJobsCount).toBe(2);
+    expect(health.staleOrFailingCronJobNames.sort()).toEqual(
+      ["Checkout recovery", "Outreach follow-ups"].sort(),
+    );
+  });
+
+  it("counts bounce/complaint suppressions in the last 7 days, ignoring unsubscribes and older events", () => {
+    const health = computePipelineHealth({
+      leads: [],
+      orders: [],
+      handoffs: [],
+      inquiries: [],
+      suppressions: [
+        { email: "recent-bounce@example.com", reason: "bounce", createdAt: NOW - 3 * HOUR_MS },
+        {
+          email: "recent-complaint@example.com",
+          reason: "complaint",
+          createdAt: NOW - 24 * HOUR_MS,
+        },
+        { email: "recent-unsub@example.com", reason: "unsubscribe", createdAt: NOW - HOUR_MS },
+        {
+          email: "old-bounce@example.com",
+          reason: "bounce",
+          createdAt: NOW - 24 * 8 * HOUR_MS,
+        },
+      ],
+      nowMs: NOW,
+    });
+    expect(health.recentBounceOrComplaintSuppressionCount).toBe(2);
+    expect(health.newestBounceOrComplaintSuppressionAgeHours).toBe(3);
+  });
+
+  it("reports zero bounce/complaint count and null age when no suppressions are passed", () => {
+    const health = computePipelineHealth({
+      leads: [],
+      orders: [],
+      handoffs: [],
+      inquiries: [],
+      nowMs: NOW,
+    });
+    expect(health.recentBounceOrComplaintSuppressionCount).toBe(0);
+    expect(health.newestBounceOrComplaintSuppressionAgeHours).toBeNull();
   });
 
   it("counts unreplied inquiries (new+read) with oldest age; ignores replied/archived", () => {
@@ -261,6 +593,69 @@ describe("computePipelineHealth", () => {
       inquiries: [],
     });
     expect(health.paidNotLiveCount).toBe(2);
+    // No order at all for either paid lead — nothing to anchor the age on.
+    expect(health.oldestPaidNotLiveAgeHours).toBeNull();
+  });
+
+  it("anchors oldestPaidNotLiveAgeHours to the oldest matching order and skips leads with no order", () => {
+    const leadWithOlderOrder = makeLead("paid", { slug: "lead-with-older-order" });
+    const leadWithNewerOrder = makeLead("paid", { slug: "lead-with-newer-order" });
+    const leadWithNoOrder = makeLead("paid", { slug: "lead-with-no-order" });
+    const liveLeadWithOldOrder = makeLead("live", { slug: "live-lead-old-order" });
+    const olderOrder: OrderRecord = {
+      ...makeOrder(500),
+      leadSlug: "lead-with-older-order",
+      createdAt: new Date(NOW - 80 * HOUR_MS).toISOString(),
+    };
+    const newerOrder: OrderRecord = {
+      ...makeOrder(500),
+      leadSlug: "lead-with-newer-order",
+      createdAt: new Date(NOW - 5 * HOUR_MS).toISOString(),
+    };
+    // Ancient order belongs to a lead that is already live — must not anchor
+    // the paid-not-live signal (same "only open debt anchors" rule as
+    // oldestOpenHandoffAgeHours excluding live handoffs).
+    const liveOrder: OrderRecord = {
+      ...makeOrder(500),
+      leadSlug: "live-lead-old-order",
+      createdAt: new Date(NOW - 500 * HOUR_MS).toISOString(),
+    };
+
+    const health = computePipelineHealth({
+      leads: [leadWithOlderOrder, leadWithNewerOrder, leadWithNoOrder, liveLeadWithOldOrder],
+      orders: [olderOrder, newerOrder, liveOrder],
+      handoffs: [],
+      inquiries: [],
+      nowMs: NOW,
+    });
+
+    expect(health.paidNotLiveCount).toBe(3);
+    expect(health.oldestPaidNotLiveAgeHours).toBe(80);
+  });
+
+  it("does not let a refunded order's old createdAt anchor oldestPaidNotLiveAgeHours over a fresh later payment (paid-not-live-refund-dispute-age-guard)", () => {
+    const lead = makeLead("paid", { slug: "lead-a" });
+    const refundedOldOrder: OrderRecord = {
+      ...makeOrder(500),
+      leadSlug: "lead-a",
+      createdAt: new Date(NOW - 2160 * HOUR_MS).toISOString(),
+      refundedAt: new Date(NOW - 2000 * HOUR_MS).toISOString(),
+    };
+    const freshOrder: OrderRecord = {
+      ...makeOrder(500),
+      leadSlug: "lead-a",
+      createdAt: new Date(NOW - 2 * HOUR_MS).toISOString(),
+    };
+
+    const health = computePipelineHealth({
+      leads: [lead],
+      orders: [refundedOldOrder, freshOrder],
+      handoffs: [],
+      inquiries: [],
+      nowMs: NOW,
+    });
+
+    expect(health.oldestPaidNotLiveAgeHours).toBe(2);
   });
 
   it("defaults abandoned checkout metrics to zero without sessions", () => {
@@ -274,6 +669,7 @@ describe("computePipelineHealth", () => {
     expect(health.abandonedCheckoutCount).toBe(0);
     expect(health.recoveryDueCount).toBe(0);
     expect(health.oldestAbandonedAgeHours).toBeNull();
+    expect(health.oldestCommerceAbandonedAgeHours).toBeNull();
   });
 
   it("counts abandoned and recovery-due sessions with oldest age", () => {
@@ -333,8 +729,18 @@ describe("computePipelineHealth", () => {
     });
 
     const health = computePipelineHealth({
-      leads: [],
-      orders: [],
+      leads: [makeLead("paid", { slug: "cart-lead" })],
+      orders: [
+        {
+          id: "ord_1",
+          leadSlug: "cart-lead",
+          tier: "starter",
+          amountPaid: 800,
+          stripeSessionId: "cs_paid",
+          commerceAddon: true,
+          createdAt: new Date(NOW - 10 * DAY_MS).toISOString(),
+        },
+      ],
       handoffs: [],
       inquiries: [],
       openCheckoutSessions: [bundleDue, commerceDue, commerceFresh],
@@ -345,6 +751,84 @@ describe("computePipelineHealth", () => {
     expect(health.recoveryDueCount).toBe(1);
     expect(health.commerceAbandonedCheckoutCount).toBe(1);
     expect(health.commerceRecoveryDueCount).toBe(1);
+  });
+
+  it("computes oldest age for commerce Buy now abandoned carts, independent of bundle carts", () => {
+    const bundleOlder = makeSession({
+      stripeSessionId: "cs_bundle_old",
+      createdAt: new Date(NOW - 40 * HOUR_MS).toISOString(),
+    });
+    const commerceNewer = makeSession({
+      stripeSessionId: "cs_commerce_newer",
+      kind: "commerce_sku",
+      skuId: "sku_latte",
+      tier: "",
+      createdAt: new Date(NOW - 6 * HOUR_MS).toISOString(),
+    });
+    const commerceOlder = makeSession({
+      stripeSessionId: "cs_commerce_older",
+      kind: "commerce_sku",
+      skuId: "sku_tea",
+      tier: "",
+      createdAt: new Date(NOW - 20 * HOUR_MS).toISOString(),
+    });
+
+    const health = computePipelineHealth({
+      leads: [makeLead("paid", { slug: "cart-lead" })],
+      orders: [
+        {
+          id: "ord_1",
+          leadSlug: "cart-lead",
+          tier: "starter",
+          amountPaid: 800,
+          stripeSessionId: "cs_paid",
+          commerceAddon: true,
+          createdAt: new Date(NOW - 10 * DAY_MS).toISOString(),
+        },
+      ],
+      handoffs: [],
+      inquiries: [],
+      openCheckoutSessions: [bundleOlder, commerceNewer, commerceOlder],
+      nowMs: NOW,
+    });
+
+    // Bundle oldest age (40h) must not leak into the commerce-only field.
+    expect(health.oldestAbandonedAgeHours).toBe(40);
+    expect(health.commerceAbandonedCheckoutCount).toBe(2);
+    expect(health.oldestCommerceAbandonedAgeHours).toBe(20);
+  });
+
+  it("omits commerce abandoned carts when recurring entitlement is paused", () => {
+    const commerceDue = makeSession({
+      stripeSessionId: "cs_commerce_paused",
+      kind: "commerce_sku",
+      skuId: "sku_latte",
+      tier: "",
+      createdAt: new Date(NOW - 6 * HOUR_MS).toISOString(),
+    });
+
+    const health = computePipelineHealth({
+      leads: [makeLead("paid", { slug: "cart-lead" })],
+      orders: [
+        {
+          id: "ord_paused",
+          leadSlug: "cart-lead",
+          tier: "starter",
+          amountPaid: 800,
+          stripeSessionId: "cs_paid",
+          commerceAddon: true,
+          recurringCanceledAt: Date.parse("2026-07-01T00:00:00.000Z"),
+          createdAt: new Date(NOW - 10 * DAY_MS).toISOString(),
+        },
+      ],
+      handoffs: [],
+      inquiries: [],
+      openCheckoutSessions: [commerceDue],
+      nowMs: NOW,
+    });
+
+    expect(health.commerceAbandonedCheckoutCount).toBe(0);
+    expect(health.commerceRecoveryDueCount).toBe(0);
   });
 
   it("defaults cold lead metrics to zero without cold leads", () => {
@@ -500,6 +984,341 @@ describe("computePipelineHealth", () => {
     expect(health.marketingPacksDueMonth).toBe("2026-07");
   });
 
+  it("anchors oldestMarketingPacksDueAgeHours to month start, not the subscriber's original order", () => {
+    const longTimeSubscriber = makeLead("paid", { slug: "long-time" });
+    const health = computePipelineHealth({
+      leads: [longTimeSubscriber],
+      orders: [
+        {
+          ...makeOrder(599),
+          id: "o1",
+          leadSlug: "long-time",
+          tier: "growth",
+          // Subscribed months before July — due-since is still 2026-07-01, not
+          // this order's createdAt, so tenure doesn't inflate the age forever.
+          createdAt: new Date(Date.UTC(2026, 0, 1)).toISOString(),
+        },
+      ],
+      handoffs: [],
+      inquiries: [],
+      marketingPacksThisMonth: [],
+      nowMs: NOW,
+    });
+    const expectedMonthStartMs = Date.UTC(2026, 6, 1);
+    expect(health.marketingPacksDueCount).toBe(1);
+    expect(health.oldestMarketingPacksDueAgeHours).toBe(
+      Math.floor((NOW - expectedMonthStartMs) / HOUR_MS),
+    );
+  });
+
+  it("counts marketing packs generated this month but never emailed to the client", () => {
+    const notSent = makeLead("paid", { slug: "not-sent" });
+    const sent = makeLead("live", { slug: "sent" });
+    const health = computePipelineHealth({
+      leads: [notSent, sent],
+      orders: [
+        { ...makeOrder(599), id: "o1", leadSlug: "not-sent", tier: "growth" },
+        { ...makeOrder(699), id: "o2", leadSlug: "sent", tier: "complete" },
+      ],
+      handoffs: [],
+      inquiries: [],
+      marketingPacksThisMonth: [
+        {
+          leadSlug: "not-sent",
+          yearMonth: "2026-07",
+          generatedAt: new Date(NOW - 8 * HOUR_MS).toISOString(),
+        },
+        {
+          leadSlug: "sent",
+          yearMonth: "2026-07",
+          generatedAt: new Date(NOW - 20 * HOUR_MS).toISOString(),
+          sentToClientAt: new Date(NOW - 1 * HOUR_MS).toISOString(),
+        },
+      ],
+      nowMs: NOW,
+    });
+    expect(health.marketingPacksMissingClientSendCount).toBe(1);
+    expect(health.oldestMarketingPacksMissingClientSendAgeHours).toBe(8);
+  });
+
+  it("counts paid/live leads with paused recurring entitlement (not marketing packs due)", () => {
+    const paused = makeLead("paid", { slug: "paused-mrr" });
+    const active = makeLead("live", { slug: "active-mrr" });
+    const pausedAt = NOW - 5 * 60 * 60 * 1000;
+    const health = computePipelineHealth({
+      leads: [paused, active],
+      orders: [
+        {
+          ...makeOrder(599),
+          id: "o1",
+          leadSlug: "paused-mrr",
+          tier: "growth",
+          recurringCanceledAt: pausedAt,
+          stripeCustomerId: "cus_paused",
+        },
+        {
+          ...makeOrder(699),
+          id: "o2",
+          leadSlug: "active-mrr",
+          tier: "complete",
+        },
+      ],
+      handoffs: [],
+      inquiries: [],
+      marketingPacksThisMonth: [],
+      nowMs: NOW,
+    });
+    // Paused lead drops out of packs-due; active Complete still needs a pack.
+    expect(health.marketingPacksDueCount).toBe(1);
+    expect(health.recurringEntitlementPausedCount).toBe(1);
+    expect(health.oldestRecurringEntitlementPausedAgeHours).toBe(5);
+  });
+
+  it("counts orders whose most recent billing-notice send failed, oldest first", () => {
+    const failedAt = NOW - 3 * HOUR_MS;
+    const health = computePipelineHealth({
+      leads: [makeLead("paid", { slug: "notice-failed", businessName: "Notice Failed Co" })],
+      orders: [
+        {
+          ...makeOrder(599),
+          id: "o1",
+          leadSlug: "notice-failed",
+          tier: "growth",
+          lastBillingNoticeSendFailedAt: failedAt,
+          lastBillingNoticeSendFailedType: "payment_failed",
+        },
+      ],
+      handoffs: [],
+      inquiries: [],
+      marketingPacksThisMonth: [],
+      nowMs: NOW,
+    });
+    expect(health.billingNoticeSendFailedCount).toBe(1);
+    expect(health.oldestBillingNoticeSendFailedAgeHours).toBe(3);
+  });
+
+  it("excludes orders whose most recent billing-notice send succeeded (marker cleared)", () => {
+    const health = computePipelineHealth({
+      leads: [makeLead("paid", { slug: "notice-clean" })],
+      orders: [
+        {
+          ...makeOrder(599),
+          id: "o1",
+          leadSlug: "notice-clean",
+          tier: "growth",
+        },
+      ],
+      handoffs: [],
+      inquiries: [],
+      marketingPacksThisMonth: [],
+      nowMs: NOW,
+    });
+    expect(health.billingNoticeSendFailedCount).toBe(0);
+    expect(health.oldestBillingNoticeSendFailedAgeHours).toBeNull();
+  });
+
+  it("counts paid/live Starter-only leads ready for a Growth/Complete upsell nudge", () => {
+    const upsellCandidate = makeLead("paid", { slug: "starter-upsell", email: "owner@example.com" });
+    const olderCandidate = makeLead("live", { slug: "starter-upsell-older", email: "owner2@example.com" });
+    const alreadyRecurring = makeLead("live", { slug: "already-growth", email: "owner3@example.com" });
+    const noEmail = makeLead("paid", { slug: "starter-no-email", email: undefined });
+    const olderCreatedAt = NOW - 10 * HOUR_MS;
+    const health = computePipelineHealth({
+      leads: [upsellCandidate, olderCandidate, alreadyRecurring, noEmail],
+      orders: [
+        {
+          ...makeOrder(500),
+          id: "o1",
+          leadSlug: "starter-upsell",
+          tier: "starter",
+          createdAt: new Date(NOW - 4 * HOUR_MS).toISOString(),
+        },
+        {
+          ...makeOrder(500),
+          id: "o2",
+          leadSlug: "starter-upsell-older",
+          tier: "starter",
+          createdAt: new Date(olderCreatedAt).toISOString(),
+        },
+        { ...makeOrder(599), id: "o3", leadSlug: "already-growth", tier: "growth" },
+        {
+          ...makeOrder(500),
+          id: "o4",
+          leadSlug: "starter-no-email",
+          tier: "starter",
+          createdAt: new Date(NOW - 20 * HOUR_MS).toISOString(),
+        },
+      ],
+      handoffs: [],
+      inquiries: [],
+      nowMs: NOW,
+    });
+    expect(health.starterUpsellCandidatesCount).toBe(2);
+    expect(health.oldestStarterUpsellCandidateAgeHours).toBe(10);
+  });
+
+  it("counts paid/live Growth-only leads ready for a Complete upsell nudge", () => {
+    const upsellCandidate = makeLead("paid", { slug: "growth-upsell", email: "owner@example.com" });
+    const olderCandidate = makeLead("live", { slug: "growth-upsell-older", email: "owner2@example.com" });
+    const alreadyComplete = makeLead("live", { slug: "already-complete", email: "owner3@example.com" });
+    const noEmail = makeLead("paid", { slug: "growth-no-email", email: undefined });
+    const olderCreatedAt = NOW - 12 * HOUR_MS;
+    const health = computePipelineHealth({
+      leads: [upsellCandidate, olderCandidate, alreadyComplete, noEmail],
+      orders: [
+        {
+          ...makeOrder(599),
+          id: "g1",
+          leadSlug: "growth-upsell",
+          tier: "growth",
+          createdAt: new Date(NOW - 5 * HOUR_MS).toISOString(),
+        },
+        {
+          ...makeOrder(599),
+          id: "g2",
+          leadSlug: "growth-upsell-older",
+          tier: "growth",
+          createdAt: new Date(olderCreatedAt).toISOString(),
+        },
+        { ...makeOrder(699), id: "g3", leadSlug: "already-complete", tier: "complete" },
+        {
+          ...makeOrder(599),
+          id: "g4",
+          leadSlug: "growth-no-email",
+          tier: "growth",
+          createdAt: new Date(NOW - 20 * HOUR_MS).toISOString(),
+        },
+      ],
+      handoffs: [],
+      inquiries: [],
+      nowMs: NOW,
+    });
+    expect(health.growthUpsellCandidatesCount).toBe(2);
+    expect(health.oldestGrowthUpsellCandidateAgeHours).toBe(12);
+  });
+
+  it("counts leads with an incomplete Stripe Connect account, anchoring age on stripeConnectAccountCreatedAt", () => {
+    const neverChecked = makeLead("paid", {
+      slug: "connect-never-checked",
+      stripeConnectAccountId: "acct_1",
+      stripeConnectAccountCreatedAt: new Date(NOW - 30 * HOUR_MS).toISOString(),
+    });
+    const partiallyEnabled = makeLead("paid", {
+      slug: "connect-partial",
+      stripeConnectAccountId: "acct_2",
+      stripeConnectChargesEnabled: true,
+      stripeConnectPayoutsEnabled: false,
+      stripeConnectAccountCreatedAt: new Date(NOW - 5 * HOUR_MS).toISOString(),
+    });
+    const fullyOnboarded = makeLead("paid", {
+      slug: "connect-complete",
+      stripeConnectAccountId: "acct_3",
+      stripeConnectChargesEnabled: true,
+      stripeConnectPayoutsEnabled: true,
+    });
+    const noAccount = makeLead("paid", { slug: "connect-none" });
+
+    const health = computePipelineHealth({
+      leads: [neverChecked, partiallyEnabled, fullyOnboarded, noAccount],
+      orders: [],
+      handoffs: [],
+      inquiries: [],
+      nowMs: NOW,
+    });
+    expect(health.connectOnboardingIncompleteCount).toBe(2);
+    expect(health.oldestConnectOnboardingIncompleteAgeHours).toBe(30);
+  });
+
+  it("counts Growth/Complete leads missing a Buffer profile mapping only when marketingSchedulingEnabled", () => {
+    const missing = makeLead("paid", { slug: "buffer-missing" });
+    const mapped = makeLead("live", {
+      slug: "buffer-mapped",
+      bufferProfileIds: ["p1"],
+    });
+    const orders = [
+      {
+        ...makeOrder(0),
+        id: "o1",
+        leadSlug: "buffer-missing",
+        tier: "growth",
+        createdAt: new Date(NOW - 8 * HOUR_MS).toISOString(),
+      },
+      { ...makeOrder(0), id: "o2", leadSlug: "buffer-mapped", tier: "complete" },
+    ];
+
+    const disabled = computePipelineHealth({
+      leads: [missing, mapped],
+      orders,
+      handoffs: [],
+      inquiries: [],
+      nowMs: NOW,
+    });
+    expect(disabled.bufferProfileMappingMissingCount).toBe(0);
+    expect(disabled.oldestBufferProfileMappingMissingAgeHours).toBeNull();
+
+    const enabled = computePipelineHealth({
+      leads: [missing, mapped],
+      orders,
+      handoffs: [],
+      inquiries: [],
+      marketingSchedulingEnabled: true,
+      nowMs: NOW,
+    });
+    expect(enabled.bufferProfileMappingMissingCount).toBe(1);
+    expect(enabled.oldestBufferProfileMappingMissingAgeHours).toBe(8);
+  });
+
+  it("counts Buffer-mapped leads whose current pack was never posted only when marketingSchedulingEnabled", () => {
+    const notPosted = makeLead("paid", {
+      slug: "buffer-not-posted",
+      bufferProfileIds: ["p1"],
+    });
+    const posted = makeLead("live", {
+      slug: "buffer-posted",
+      bufferProfileIds: ["p1"],
+      bufferPostedVariantKeys: ["2026-07-01T00:00:00.000Z|p1|facebook_caption|0"],
+    });
+    const orders = [
+      { ...makeOrder(0), id: "o1", leadSlug: "buffer-not-posted", tier: "growth" },
+      { ...makeOrder(0), id: "o2", leadSlug: "buffer-posted", tier: "complete" },
+    ];
+    const marketingPacksThisMonth = [
+      {
+        leadSlug: "buffer-not-posted",
+        yearMonth: "2026-07",
+        generatedAt: new Date(NOW - 10 * HOUR_MS).toISOString(),
+      },
+      {
+        leadSlug: "buffer-posted",
+        yearMonth: "2026-07",
+        generatedAt: "2026-07-01T00:00:00.000Z",
+      },
+    ];
+
+    const disabled = computePipelineHealth({
+      leads: [notPosted, posted],
+      orders,
+      handoffs: [],
+      inquiries: [],
+      marketingPacksThisMonth,
+      nowMs: NOW,
+    });
+    expect(disabled.marketingPacksMissingBufferPostCount).toBe(0);
+    expect(disabled.oldestMarketingPacksMissingBufferPostAgeHours).toBeNull();
+
+    const enabled = computePipelineHealth({
+      leads: [notPosted, posted],
+      orders,
+      handoffs: [],
+      inquiries: [],
+      marketingPacksThisMonth,
+      marketingSchedulingEnabled: true,
+      nowMs: NOW,
+    });
+    expect(enabled.marketingPacksMissingBufferPostCount).toBe(1);
+    expect(enabled.oldestMarketingPacksMissingBufferPostAgeHours).toBe(10);
+  });
+
   it("counts paid/live commerceAddon leads missing a catalog", () => {
     const needsCatalog = makeLead("paid", { slug: "needs-catalog" });
     const hasCatalog = makeLead("live", { slug: "has-catalog" });
@@ -513,6 +1332,7 @@ describe("computePipelineHealth", () => {
           leadSlug: "needs-catalog",
           tier: "starter",
           commerceAddon: true,
+          createdAt: new Date(NOW - 8 * HOUR_MS).toISOString(),
         },
         {
           ...makeOrder(849),
@@ -535,6 +1355,7 @@ describe("computePipelineHealth", () => {
       nowMs: NOW,
     });
     expect(health.commerceCatalogsMissingCount).toBe(1);
+    expect(health.oldestCommerceCatalogsMissingAgeHours).toBe(8);
   });
 
   it("counts saved Commerce catalogs that still need Sync to Stripe", () => {
@@ -549,6 +1370,7 @@ describe("computePipelineHealth", () => {
           leadSlug: "unsynced-shop",
           tier: "starter",
           commerceAddon: true,
+          createdAt: new Date(NOW - 12 * HOUR_MS).toISOString(),
         },
         {
           ...makeOrder(849),
@@ -574,6 +1396,7 @@ describe("computePipelineHealth", () => {
     });
     expect(health.commerceCatalogsMissingCount).toBe(0);
     expect(health.commerceCatalogsUnsyncedCount).toBe(1);
+    expect(health.oldestCommerceCatalogsUnsyncedAgeHours).toBe(12);
   });
 
   it("counts Complete leads missing a client voice FAQ pack", () => {
@@ -583,7 +1406,13 @@ describe("computePipelineHealth", () => {
     const health = computePipelineHealth({
       leads: [needsVoice, hasVoice, growthOnly],
       orders: [
-        { ...makeOrder(699), id: "o1", leadSlug: "needs-voice", tier: "complete" },
+        {
+          ...makeOrder(699),
+          id: "o1",
+          leadSlug: "needs-voice",
+          tier: "complete",
+          createdAt: new Date(NOW - 6 * HOUR_MS).toISOString(),
+        },
         { ...makeOrder(699), id: "o2", leadSlug: "has-voice", tier: "complete" },
         { ...makeOrder(599), id: "o3", leadSlug: "growth-only", tier: "growth" },
       ],
@@ -593,6 +1422,32 @@ describe("computePipelineHealth", () => {
       nowMs: NOW,
     });
     expect(health.clientVoicePacksDueCount).toBe(1);
+    expect(health.oldestClientVoicePacksDueAgeHours).toBe(6);
+  });
+
+  it("counts client voice packs generated but never emailed to the client", () => {
+    const notSent = makeLead("paid", { slug: "voice-not-sent" });
+    const sent = makeLead("live", { slug: "voice-sent" });
+    const health = computePipelineHealth({
+      leads: [notSent, sent],
+      orders: [
+        { ...makeOrder(699), id: "o1", leadSlug: "voice-not-sent", tier: "complete" },
+        { ...makeOrder(699), id: "o2", leadSlug: "voice-sent", tier: "complete" },
+      ],
+      handoffs: [],
+      inquiries: [],
+      clientVoicePacks: [
+        { leadSlug: "voice-not-sent", generatedAt: new Date(NOW - 12 * HOUR_MS).toISOString() },
+        {
+          leadSlug: "voice-sent",
+          generatedAt: new Date(NOW - 30 * HOUR_MS).toISOString(),
+          sentToClientAt: new Date(NOW - 1 * HOUR_MS).toISOString(),
+        },
+      ],
+      nowMs: NOW,
+    });
+    expect(health.clientVoicePacksMissingClientSendCount).toBe(1);
+    expect(health.oldestClientVoicePacksMissingClientSendAgeHours).toBe(12);
   });
 
   it("sums commerce Buy now order revenue separately from revenueTotalUsd", () => {
@@ -628,6 +1483,154 @@ describe("computePipelineHealth", () => {
     });
     expect(health.commerceOrdersRevenueUsd).toBe(7.25);
     expect(health.commerceOrdersCount).toBe(1);
+  });
+
+  it("excludes $0 (100%-off promo) commerce orders from the owed pass-through card", () => {
+    const health = computePipelineHealth({
+      leads: [],
+      orders: [],
+      handoffs: [],
+      inquiries: [],
+      commerceOrders: [
+        { amountPaidUsd: 0 },
+        { amountPaidUsd: 7.25 },
+      ],
+      nowMs: NOW,
+    });
+    expect(health.commerceOrdersRevenueUsd).toBe(7.25);
+    expect(health.commerceOrdersCount).toBe(1);
+  });
+
+  it("excludes refunded commerce orders from the owed pass-through card (never paid out)", () => {
+    const health = computePipelineHealth({
+      leads: [],
+      orders: [],
+      handoffs: [],
+      inquiries: [],
+      commerceOrders: [
+        { amountPaidUsd: 12.5, refundedAt: "2026-07-12T10:00:00.000Z" },
+        { amountPaidUsd: 7.25 },
+      ],
+      nowMs: NOW,
+    });
+    expect(health.commerceOrdersRevenueUsd).toBe(7.25);
+    expect(health.commerceOrdersCount).toBe(1);
+    expect(health.commerceOrdersRefundClawbackCount).toBe(0);
+  });
+
+  it("surfaces refund-after-payout as a clawback owed from the client", () => {
+    const health = computePipelineHealth({
+      leads: [],
+      orders: [],
+      handoffs: [],
+      inquiries: [],
+      commerceOrdersRefunded: [
+        {
+          amountPaidUsd: 40,
+          paidOutAt: "2026-07-10T10:00:00.000Z",
+          refundedAt: "2026-07-14T10:00:00.000Z",
+        },
+        // Refunded but never paid out — zero clawback risk, excluded.
+        { amountPaidUsd: 15, refundedAt: "2026-07-15T10:00:00.000Z" },
+      ],
+      nowMs: NOW,
+    });
+    expect(health.commerceOrdersRefundClawbackCount).toBe(1);
+    expect(health.commerceOrdersRefundClawbackUsd).toBe(40);
+    expect(health.oldestCommerceOrdersRefundClawbackAgeHours).not.toBeNull();
+  });
+
+  it("defaults clawback fields to zero/null when no refunds recorded", () => {
+    const health = computePipelineHealth({
+      leads: [],
+      orders: [],
+      handoffs: [],
+      inquiries: [],
+      nowMs: NOW,
+    });
+    expect(health.commerceOrdersRefundClawbackCount).toBe(0);
+    expect(health.commerceOrdersRefundClawbackUsd).toBe(0);
+    expect(health.oldestCommerceOrdersRefundClawbackAgeHours).toBeNull();
+  });
+
+  it("excludes disputed commerce orders from the owed pass-through card (never paid out)", () => {
+    const health = computePipelineHealth({
+      leads: [],
+      orders: [],
+      handoffs: [],
+      inquiries: [],
+      commerceOrders: [
+        { amountPaidUsd: 12.5, disputedAt: "2026-07-12T10:00:00.000Z" },
+        { amountPaidUsd: 7.25 },
+      ],
+      nowMs: NOW,
+    });
+    expect(health.commerceOrdersRevenueUsd).toBe(7.25);
+    expect(health.commerceOrdersCount).toBe(1);
+    expect(health.commerceOrdersDisputeClawbackCount).toBe(0);
+  });
+
+  it("surfaces dispute-after-payout as a clawback owed from the client", () => {
+    const health = computePipelineHealth({
+      leads: [],
+      orders: [],
+      handoffs: [],
+      inquiries: [],
+      commerceOrdersDisputed: [
+        {
+          amountPaidUsd: 40,
+          paidOutAt: "2026-07-10T10:00:00.000Z",
+          disputedAt: "2026-07-14T10:00:00.000Z",
+        },
+        // Disputed but never paid out — zero clawback risk, excluded.
+        { amountPaidUsd: 15, disputedAt: "2026-07-15T10:00:00.000Z" },
+      ],
+      nowMs: NOW,
+    });
+    expect(health.commerceOrdersDisputeClawbackCount).toBe(1);
+    expect(health.commerceOrdersDisputeClawbackUsd).toBe(40);
+    expect(health.oldestCommerceOrdersDisputeClawbackAgeHours).not.toBeNull();
+  });
+
+  it("defaults dispute clawback fields to zero/null when no disputes recorded", () => {
+    const health = computePipelineHealth({
+      leads: [],
+      orders: [],
+      handoffs: [],
+      inquiries: [],
+      nowMs: NOW,
+    });
+    expect(health.commerceOrdersDisputeClawbackCount).toBe(0);
+    expect(health.commerceOrdersDisputeClawbackUsd).toBe(0);
+    expect(health.oldestCommerceOrdersDisputeClawbackAgeHours).toBeNull();
+  });
+
+  it("surfaces commerce orders missing a client-receipt-sent marker", () => {
+    const health = computePipelineHealth({
+      leads: [],
+      orders: [],
+      handoffs: [],
+      inquiries: [],
+      commerceOrdersMissingClientReceipt: [
+        { createdAt: "2026-07-10T10:00:00.000Z" },
+        { createdAt: "2026-07-11T10:00:00.000Z" },
+      ],
+      nowMs: NOW,
+    });
+    expect(health.commerceOrdersMissingClientReceiptCount).toBe(2);
+    expect(health.oldestCommerceOrdersMissingClientReceiptAgeHours).not.toBeNull();
+  });
+
+  it("defaults missing-client-receipt fields to zero/null when none recorded", () => {
+    const health = computePipelineHealth({
+      leads: [],
+      orders: [],
+      handoffs: [],
+      inquiries: [],
+      nowMs: NOW,
+    });
+    expect(health.commerceOrdersMissingClientReceiptCount).toBe(0);
+    expect(health.oldestCommerceOrdersMissingClientReceiptAgeHours).toBeNull();
   });
 
   it("a newest-N commerce orders page hides older unpaid liability the unpaid set catches", () => {
@@ -679,6 +1682,38 @@ describe("computePipelineHealth", () => {
     });
     expect(health.commerceOrdersRevenueUsd).toBe(0);
     expect(health.commerceOrdersCount).toBe(0);
+    expect(health.oldestCommerceOrdersOwedAgeHours).toBeNull();
+  });
+
+  it("anchors oldestCommerceOrdersOwedAgeHours to the oldest still-owed order, ignoring paid-out/refunded/disputed and no-createdAt rows", () => {
+    const health = computePipelineHealth({
+      leads: [],
+      orders: [],
+      handoffs: [],
+      inquiries: [],
+      commerceOrders: [
+        // Oldest still-owed row — anchors the signal.
+        { amountPaidUsd: 12.5, createdAt: new Date(NOW - 80 * HOUR_MS).toISOString() },
+        // Newer still-owed row — does not win over the older one.
+        { amountPaidUsd: 7.25, createdAt: new Date(NOW - 5 * HOUR_MS).toISOString() },
+        // Paid out — excluded from the owed set entirely, so its older createdAt must not anchor.
+        {
+          amountPaidUsd: 3.0,
+          createdAt: new Date(NOW - 999 * HOUR_MS).toISOString(),
+          paidOutAt: "2026-07-12T10:00:00.000Z",
+        },
+        // Refunded (never paid out) — also excluded, older createdAt must not anchor.
+        {
+          amountPaidUsd: 9.0,
+          createdAt: new Date(NOW - 999 * HOUR_MS).toISOString(),
+          refundedAt: "2026-07-12T10:00:00.000Z",
+        },
+        // No createdAt at all — must be skipped, not treated as age 0.
+        { amountPaidUsd: 1.0 },
+      ],
+      nowMs: NOW,
+    });
+    expect(health.oldestCommerceOrdersOwedAgeHours).toBe(80);
   });
 
   it("defaults closed lead count to zero when none are closed", () => {
@@ -711,6 +1746,132 @@ describe("computePipelineHealth", () => {
     expect(health.stageFunnel.map((s) => s.stage)).not.toContain("closed");
     expect(health.stageFunnel.find((s) => s.stage === "live")?.count).toBe(1);
   });
+
+  it("reports leadWinRatePercent/leadWinRateDecidedCount from the same stage counts", () => {
+    const health = computePipelineHealth({
+      leads: [
+        makeLead("discovered"),
+        makeLead("outreach_sent"),
+        makeLead("paid", { slug: "paid-a" }),
+        makeLead("live", { slug: "live-a" }),
+        makeLead("live", { slug: "live-b" }),
+        makeLead("closed", { slug: "closed-a" }),
+      ],
+      orders: [],
+      handoffs: [],
+      inquiries: [],
+      nowMs: NOW,
+    });
+
+    // 3 won (1 paid + 2 live) of 4 decided (won + 1 closed) = 75%.
+    // discovered/outreach_sent are still in progress and must not dilute the rate.
+    expect(health.leadWinRateDecidedCount).toBe(4);
+    expect(health.leadWinRatePercent).toBe(75);
+  });
+
+  it("reports leadWinRatePercent null when no lead has reached a decision", () => {
+    const health = computePipelineHealth({
+      leads: [makeLead("discovered"), makeLead("outreach_sent")],
+      orders: [],
+      handoffs: [],
+      inquiries: [],
+      nowMs: NOW,
+    });
+
+    expect(health.leadWinRateDecidedCount).toBe(0);
+    expect(health.leadWinRatePercent).toBeNull();
+  });
+
+  it("exposes acquisitionSourceBreakdown computed from the same orders input", () => {
+    const health = computePipelineHealth({
+      leads: [],
+      orders: [
+        { ...makeOrder(500), acquisitionSource: "home" },
+        { ...makeOrder(100), acquisitionSource: "cat-trades" },
+      ],
+      handoffs: [],
+      inquiries: [],
+      nowMs: NOW,
+    });
+    expect(health.acquisitionSourceBreakdown).toEqual([
+      { source: "home", label: "Homepage", orderCount: 1, revenueUsd: 500 },
+      { source: "cat-trades", label: "Trades landing page", orderCount: 1, revenueUsd: 100 },
+    ]);
+  });
+
+  it("returns an empty acquisitionSourceBreakdown when there are no orders", () => {
+    const health = computePipelineHealth({ leads: [], orders: [], handoffs: [], inquiries: [] });
+    expect(health.acquisitionSourceBreakdown).toEqual([]);
+  });
+});
+
+describe("leadWinRatePercent", () => {
+  it("returns null when paid+live+closed is zero", () => {
+    expect(leadWinRatePercent({ paid: 0, live: 0, closed: 0 })).toBeNull();
+  });
+
+  it("computes a one-decimal percentage of won vs. decided", () => {
+    expect(leadWinRatePercent({ paid: 1, live: 0, closed: 2 })).toBeCloseTo(33.3);
+    expect(leadWinRatePercent({ paid: 2, live: 0, closed: 0 })).toBe(100);
+    expect(leadWinRatePercent({ paid: 0, live: 0, closed: 3 })).toBe(0);
+  });
+
+  it("ignores in-progress stages entirely (they are not part of the signature)", () => {
+    expect(leadWinRatePercent({ paid: 1, live: 1, closed: 1 })).toBeCloseTo(66.7);
+  });
+});
+
+describe("acquisitionSourceBreakdown", () => {
+  it("returns an empty array for no orders", () => {
+    expect(acquisitionSourceBreakdown([])).toEqual([]);
+  });
+
+  it("groups by source, sums revenue, and sorts revenue-descending", () => {
+    const rows = acquisitionSourceBreakdown([
+      { ...makeOrder(100), acquisitionSource: "home" },
+      { ...makeOrder(100), acquisitionSource: "cat-restaurant" },
+      { ...makeOrder(200), acquisitionSource: "cat-restaurant" },
+    ]);
+    expect(rows).toEqual([
+      { source: "cat-restaurant", label: "Restaurants landing page", orderCount: 2, revenueUsd: 300 },
+      { source: "home", label: "Homepage", orderCount: 1, revenueUsd: 100 },
+    ]);
+  });
+
+  it("groups orders with no acquisitionSource under 'unknown' / 'Unknown / direct'", () => {
+    const rows = acquisitionSourceBreakdown([makeOrder(150)]);
+    expect(rows).toEqual([
+      { source: "unknown", label: "Unknown / direct", orderCount: 1, revenueUsd: 150 },
+    ]);
+  });
+
+  it("excludes refunded and disputed orders from the count and revenue", () => {
+    const rows = acquisitionSourceBreakdown([
+      { ...makeOrder(500), acquisitionSource: "home" },
+      {
+        ...makeOrder(300),
+        acquisitionSource: "home",
+        refundedAt: "2026-07-01T00:00:00.000Z",
+      },
+      {
+        ...makeOrder(200),
+        acquisitionSource: "home",
+        disputedAt: "2026-07-02T00:00:00.000Z",
+      },
+    ]);
+    expect(rows).toEqual([
+      { source: "home", label: "Homepage", orderCount: 1, revenueUsd: 500 },
+    ]);
+  });
+
+  it("uses orderLifetimeRevenueUsd (renewals), not just the first-period amountPaid", () => {
+    const rows = acquisitionSourceBreakdown([
+      { ...makeOrder(50), acquisitionSource: "cat-salon", lifetimeRevenueUsd: 350 },
+    ]);
+    expect(rows).toEqual([
+      { source: "cat-salon", label: "Salons landing page", orderCount: 1, revenueUsd: 350 },
+    ]);
+  });
 });
 
 describe("isUnrepliedInquiryStatus", () => {
@@ -741,5 +1902,263 @@ describe("formatAbandonedAgeHours", () => {
     expect(formatAbandonedAgeHours(3)).toBe("3h");
     expect(formatAbandonedAgeHours(24)).toBe("1d");
     expect(formatAbandonedAgeHours(30)).toBe("1d 6h");
+  });
+});
+
+describe("deployHandoffAgeHours", () => {
+  it("computes whole hours since createdAt, clamped to 0 for a future timestamp", () => {
+    expect(
+      deployHandoffAgeHours(new Date(NOW - 40 * HOUR_MS).toISOString(), NOW),
+    ).toBe(40);
+    expect(deployHandoffAgeHours(new Date(NOW + HOUR_MS).toISOString(), NOW)).toBe(0);
+    expect(deployHandoffAgeHours(new Date(NOW).toISOString(), NOW)).toBe(0);
+  });
+
+  it("returns null when createdAt fails to parse", () => {
+    expect(deployHandoffAgeHours("not-a-date", NOW)).toBeNull();
+  });
+
+  it("matches the aggregate oldestOpenHandoffAgeHours loop for the oldest open handoff", () => {
+    const health = computePipelineHealth({
+      leads: [],
+      orders: [],
+      inquiries: [],
+      handoffs: [
+        makeHandoff("pending", {
+          createdAt: new Date(NOW - 40 * HOUR_MS).toISOString(),
+        }),
+        makeHandoff("awaiting_dns", {
+          createdAt: new Date(NOW - 10 * HOUR_MS).toISOString(),
+        }),
+      ],
+      nowMs: NOW,
+    });
+    expect(health.oldestOpenHandoffAgeHours).toBe(40);
+    expect(
+      deployHandoffAgeHours(new Date(NOW - 40 * HOUR_MS).toISOString(), NOW),
+    ).toBe(health.oldestOpenHandoffAgeHours);
+  });
+});
+
+describe("oldestCommerceOrdersOwedAgeHours", () => {
+  it("returns null for an empty order set", () => {
+    expect(oldestCommerceOrdersOwedAgeHours([], NOW)).toBeNull();
+  });
+
+  it("returns null when every order is missing createdAt or fails to parse", () => {
+    expect(
+      oldestCommerceOrdersOwedAgeHours(
+        [{ createdAt: undefined }, { createdAt: "not-a-date" }],
+        NOW,
+      ),
+    ).toBeNull();
+  });
+
+  it("selects the maximum age across orders, skipping unparseable rows", () => {
+    expect(
+      oldestCommerceOrdersOwedAgeHours(
+        [
+          { createdAt: new Date(NOW - 5 * HOUR_MS).toISOString() },
+          { createdAt: new Date(NOW - 60 * HOUR_MS).toISOString() },
+          { createdAt: "not-a-date" },
+          { createdAt: undefined },
+        ],
+        NOW,
+      ),
+    ).toBe(60);
+  });
+
+  it("clamps a future createdAt to 0", () => {
+    expect(
+      oldestCommerceOrdersOwedAgeHours(
+        [{ createdAt: new Date(NOW + HOUR_MS).toISOString() }],
+        NOW,
+      ),
+    ).toBe(0);
+  });
+});
+
+describe("oldestOpenHandoffAgeHours", () => {
+  it("returns null for an empty handoff set", () => {
+    expect(oldestOpenHandoffAgeHours([], NOW)).toBeNull();
+  });
+
+  it("returns null when every handoff's createdAt fails to parse", () => {
+    expect(oldestOpenHandoffAgeHours([{ createdAt: "not-a-date" }], NOW)).toBeNull();
+  });
+
+  it("selects the maximum age across handoffs, skipping unparseable rows", () => {
+    expect(
+      oldestOpenHandoffAgeHours(
+        [
+          { createdAt: new Date(NOW - 5 * HOUR_MS).toISOString() },
+          { createdAt: new Date(NOW - 72 * HOUR_MS).toISOString() },
+          { createdAt: "not-a-date" },
+        ],
+        NOW,
+      ),
+    ).toBe(72);
+  });
+
+  it("clamps a future createdAt to 0", () => {
+    expect(
+      oldestOpenHandoffAgeHours([{ createdAt: new Date(NOW + HOUR_MS).toISOString() }], NOW),
+    ).toBe(0);
+  });
+});
+
+describe("oldestBundleOrderRefundOrDisputeAgeHours", () => {
+  it("returns null for empty refund and dispute sets", () => {
+    expect(oldestBundleOrderRefundOrDisputeAgeHours([], [], NOW)).toBeNull();
+  });
+
+  it("returns null when every candidate is missing its timestamp or fails to parse", () => {
+    expect(
+      oldestBundleOrderRefundOrDisputeAgeHours(
+        [{ refundedAt: undefined }, { refundedAt: "not-a-date" }],
+        [{ disputedAt: undefined }, { disputedAt: "not-a-date" }],
+        NOW,
+      ),
+    ).toBeNull();
+  });
+
+  it("selects the maximum age across both refunds and disputes, skipping unparseable rows", () => {
+    expect(
+      oldestBundleOrderRefundOrDisputeAgeHours(
+        [
+          { refundedAt: new Date(NOW - 5 * HOUR_MS).toISOString() },
+          { refundedAt: "not-a-date" },
+        ],
+        [
+          { disputedAt: new Date(NOW - 90 * HOUR_MS).toISOString() },
+          { disputedAt: undefined },
+        ],
+        NOW,
+      ),
+    ).toBe(90);
+  });
+
+  it("clamps a future refundedAt/disputedAt to 0", () => {
+    expect(
+      oldestBundleOrderRefundOrDisputeAgeHours(
+        [{ refundedAt: new Date(NOW + HOUR_MS).toISOString() }],
+        [],
+        NOW,
+      ),
+    ).toBe(0);
+  });
+});
+
+describe("oldestUnrepliedInquiryAgeHoursFor", () => {
+  it("returns null for an empty inquiry set", () => {
+    expect(oldestUnrepliedInquiryAgeHoursFor([], NOW)).toBeNull();
+  });
+
+  it("returns null when every inquiry is replied/archived (no unreplied candidates)", () => {
+    expect(
+      oldestUnrepliedInquiryAgeHoursFor(
+        [
+          { status: "replied", createdAt: new Date(NOW - 40 * HOUR_MS).toISOString() },
+          { status: "archived", createdAt: new Date(NOW - 90 * HOUR_MS).toISOString() },
+        ],
+        NOW,
+      ),
+    ).toBeNull();
+  });
+
+  it("selects the maximum age across new/read inquiries, skipping replied/archived and unparseable rows", () => {
+    expect(
+      oldestUnrepliedInquiryAgeHoursFor(
+        [
+          { status: "new", createdAt: new Date(NOW - 5 * HOUR_MS).toISOString() },
+          { status: "read", createdAt: new Date(NOW - 30 * HOUR_MS).toISOString() },
+          { status: "replied", createdAt: new Date(NOW - 200 * HOUR_MS).toISOString() },
+          { status: "new", createdAt: "not-a-date" },
+        ],
+        NOW,
+      ),
+    ).toBe(30);
+  });
+
+  it("clamps a future createdAt to 0", () => {
+    expect(
+      oldestUnrepliedInquiryAgeHoursFor(
+        [{ status: "new", createdAt: new Date(NOW + HOUR_MS).toISOString() }],
+        NOW,
+      ),
+    ).toBe(0);
+  });
+});
+
+describe("oldestPaidNotLiveAgeHours", () => {
+  it("returns null for no candidates", () => {
+    expect(oldestPaidNotLiveAgeHours([], [], NOW)).toBeNull();
+  });
+
+  it("returns null when no order matches any candidate slug", () => {
+    const candidates = [{ slug: "paid-lead" }];
+    const orders = [{ leadSlug: "other-lead", createdAt: new Date(NOW - 10 * HOUR_MS).toISOString() }];
+    expect(oldestPaidNotLiveAgeHours(candidates, orders, NOW)).toBeNull();
+  });
+
+  it("returns null when the only matching order has no createdAt or an unparseable one", () => {
+    const candidates = [{ slug: "paid-lead" }];
+    expect(
+      oldestPaidNotLiveAgeHours(candidates, [{ leadSlug: "paid-lead" }], NOW),
+    ).toBeNull();
+    expect(
+      oldestPaidNotLiveAgeHours(
+        candidates,
+        [{ leadSlug: "paid-lead", createdAt: "not-a-date" }],
+        NOW,
+      ),
+    ).toBeNull();
+  });
+
+  it("picks the oldest matching order across every candidate", () => {
+    const candidates = [{ slug: "lead-a" }, { slug: "lead-b" }];
+    const orders = [
+      { leadSlug: "lead-a", createdAt: new Date(NOW - 10 * HOUR_MS).toISOString() },
+      { leadSlug: "lead-b", createdAt: new Date(NOW - 30 * HOUR_MS).toISOString() },
+      // Not a candidate — must not anchor the signal even though it's older.
+      { leadSlug: "lead-c", createdAt: new Date(NOW - 900 * HOUR_MS).toISOString() },
+    ];
+    expect(oldestPaidNotLiveAgeHours(candidates, orders, NOW)).toBe(30);
+  });
+
+  it("clamps to 0 when the matching order's createdAt is in the future", () => {
+    const candidates = [{ slug: "lead-a" }];
+    const orders = [
+      { leadSlug: "lead-a", createdAt: new Date(NOW + 5 * HOUR_MS).toISOString() },
+    ];
+    expect(oldestPaidNotLiveAgeHours(candidates, orders, NOW)).toBe(0);
+  });
+
+  it("ignores a refunded order's old createdAt in favor of a genuinely fresh later payment (paid-not-live-refund-dispute-age-guard)", () => {
+    const candidates = [{ slug: "lead-a" }];
+    const orders = [
+      {
+        leadSlug: "lead-a",
+        createdAt: new Date(NOW - 2160 * HOUR_MS).toISOString(), // 90 days ago
+        refundedAt: new Date(NOW - 2000 * HOUR_MS).toISOString(),
+      },
+      {
+        leadSlug: "lead-a",
+        createdAt: new Date(NOW - 2 * HOUR_MS).toISOString(),
+      },
+    ];
+    expect(oldestPaidNotLiveAgeHours(candidates, orders, NOW)).toBe(2);
+  });
+
+  it("ignores a disputed order the same way, and returns null when every matching order is refunded/disputed", () => {
+    const candidates = [{ slug: "lead-a" }];
+    const orders = [
+      {
+        leadSlug: "lead-a",
+        createdAt: new Date(NOW - 500 * HOUR_MS).toISOString(),
+        disputedAt: new Date(NOW - 100 * HOUR_MS).toISOString(),
+      },
+    ];
+    expect(oldestPaidNotLiveAgeHours(candidates, orders, NOW)).toBeNull();
   });
 });

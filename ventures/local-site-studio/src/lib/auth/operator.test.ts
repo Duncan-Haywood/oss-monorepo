@@ -17,11 +17,16 @@ vi.mock("next/headers", () => ({
 }));
 
 import {
+  MAX_OPERATOR_PASSWORD_LENGTH,
+  MAX_OPERATOR_SESSION_TOKEN_LENGTH,
   OPERATOR_SESSION_COOKIE,
   createOperatorSessionToken,
+  getPassword,
   isOperatorAuthenticated,
+  isOperatorAuthConfigured,
   passwordsMatch,
   requireOperatorAuth,
+  tryCreateSessionFromPassword,
   verifyOperatorSessionToken,
 } from "./operator";
 
@@ -82,6 +87,26 @@ describe("createOperatorSessionToken / verifyOperatorSessionToken", () => {
     const tampered = `${Number(expiresAt) + HOUR_MS}.${subject}.${signature}`;
     expect(verifyOperatorSessionToken(tampered, PASSWORD, NOW)).toBe(false);
   });
+
+  it("produces tokens well under MAX_OPERATOR_SESSION_TOKEN_LENGTH", () => {
+    const token = createOperatorSessionToken(PASSWORD, NOW);
+    expect(token.length).toBeLessThanOrEqual(MAX_OPERATOR_SESSION_TOKEN_LENGTH);
+    expect(token.length).toBeLessThan(80);
+  });
+
+  it("hard-rejects tokens longer than MAX_OPERATOR_SESSION_TOKEN_LENGTH (no soft-cap)", () => {
+    const over = "x".repeat(MAX_OPERATOR_SESSION_TOKEN_LENGTH + 1);
+    expect(over.length).toBeGreaterThan(MAX_OPERATOR_SESSION_TOKEN_LENGTH);
+    expect(verifyOperatorSessionToken(over, PASSWORD, NOW)).toBe(false);
+  });
+
+  it("still evaluates tokens at exactly MAX_OPERATOR_SESSION_TOKEN_LENGTH (no early length reject)", () => {
+    // Exact-max garbage still goes through shape/HMAC checks (rejects as invalid),
+    // proving the length gate is exclusive (> max) not inclusive.
+    const exact = "y".repeat(MAX_OPERATOR_SESSION_TOKEN_LENGTH);
+    expect(exact).toHaveLength(MAX_OPERATOR_SESSION_TOKEN_LENGTH);
+    expect(verifyOperatorSessionToken(exact, PASSWORD, NOW)).toBe(false);
+  });
 });
 
 describe("passwordsMatch", () => {
@@ -95,6 +120,96 @@ describe("passwordsMatch", () => {
 
   it("returns false without throwing on different-length inputs", () => {
     expect(passwordsMatch("short", "a-much-longer-password")).toBe(false);
+  });
+
+  it("returns false for passwords longer than MAX_OPERATOR_PASSWORD_LENGTH (no Buffer compare)", () => {
+    const over = "x".repeat(MAX_OPERATOR_PASSWORD_LENGTH + 1);
+    expect(passwordsMatch(over, PASSWORD)).toBe(false);
+  });
+
+  it("still compares an exact-max-length password", () => {
+    const exact = "y".repeat(MAX_OPERATOR_PASSWORD_LENGTH);
+    expect(passwordsMatch(exact, exact)).toBe(true);
+    expect(passwordsMatch(exact, `${exact.slice(0, -1)}z`)).toBe(false);
+  });
+});
+
+describe("getPassword / isOperatorAuthConfigured", () => {
+  afterEach(() => {
+    restorePasswordEnv();
+  });
+
+  it("returns trimmed password and reports configured", () => {
+    process.env.OPERATOR_DASHBOARD_PASSWORD = `  ${PASSWORD}  `;
+    expect(getPassword()).toBe(PASSWORD);
+    expect(isOperatorAuthConfigured()).toBe(true);
+  });
+
+  it("treats whitespace-only as unset", () => {
+    process.env.OPERATOR_DASHBOARD_PASSWORD = "   ";
+    expect(getPassword()).toBeNull();
+    expect(isOperatorAuthConfigured()).toBe(false);
+  });
+});
+
+describe("tryCreateSessionFromPassword", () => {
+  beforeEach(() => {
+    process.env.OPERATOR_DASHBOARD_PASSWORD = PASSWORD;
+  });
+
+  afterEach(() => {
+    restorePasswordEnv();
+  });
+
+  it("returns a token for a correct password", () => {
+    expect(tryCreateSessionFromPassword(PASSWORD)).not.toBeNull();
+    expect(tryCreateSessionFromPassword(PASSWORD)).toContain(".");
+  });
+
+  it("returns null for a wrong password", () => {
+    expect(tryCreateSessionFromPassword("wrong-password")).toBeNull();
+  });
+
+  it("returns null when env var is unset", () => {
+    delete process.env.OPERATOR_DASHBOARD_PASSWORD;
+    expect(tryCreateSessionFromPassword("anything")).toBeNull();
+  });
+
+  it("trims leading whitespace from the provided password", () => {
+    expect(tryCreateSessionFromPassword(`  ${PASSWORD}`)).not.toBeNull();
+  });
+
+  it("trims trailing whitespace from the provided password", () => {
+    expect(tryCreateSessionFromPassword(`${PASSWORD}  `)).not.toBeNull();
+  });
+
+  it("trims whitespace on both sides of the provided password", () => {
+    expect(tryCreateSessionFromPassword(`  ${PASSWORD}  `)).not.toBeNull();
+  });
+
+  it("rejects when env var has only whitespace (treated as unset)", () => {
+    process.env.OPERATOR_DASHBOARD_PASSWORD = "   ";
+    expect(tryCreateSessionFromPassword("anything")).toBeNull();
+  });
+
+  it("returns a token when env var has surrounding whitespace (trimmed)", () => {
+    process.env.OPERATOR_DASHBOARD_PASSWORD = `  ${PASSWORD}  `;
+    expect(tryCreateSessionFromPassword(PASSWORD)).not.toBeNull();
+  });
+
+  it("returns null for a whitespace-only provided password", () => {
+    expect(tryCreateSessionFromPassword("   ")).toBeNull();
+  });
+
+  it("returns null for an over-long provided password before compare", () => {
+    const over = "z".repeat(MAX_OPERATOR_PASSWORD_LENGTH + 1);
+    expect(tryCreateSessionFromPassword(over)).toBeNull();
+  });
+
+  it("accepts an exact-max-length correct password", () => {
+    const exact = "p".repeat(MAX_OPERATOR_PASSWORD_LENGTH);
+    process.env.OPERATOR_DASHBOARD_PASSWORD = exact;
+    expect(tryCreateSessionFromPassword(exact)).not.toBeNull();
   });
 });
 
@@ -115,8 +230,14 @@ describe("requireOperatorAuth (cookie-read)", () => {
     expect(cookieGet).not.toHaveBeenCalled();
   });
 
-  it("returns ok when password is whitespace-only (treated as unset)", async () => {
+  it("returns ok when password is empty string (treated as unset)", async () => {
     process.env.OPERATOR_DASHBOARD_PASSWORD = "";
+    await expect(requireOperatorAuth()).resolves.toEqual({ ok: true });
+    expect(cookieGet).not.toHaveBeenCalled();
+  });
+
+  it("returns ok when password is whitespace-only (treated as unset)", async () => {
+    process.env.OPERATOR_DASHBOARD_PASSWORD = "   ";
     await expect(requireOperatorAuth()).resolves.toEqual({ ok: true });
     expect(cookieGet).not.toHaveBeenCalled();
   });

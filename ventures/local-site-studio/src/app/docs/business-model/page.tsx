@@ -1,5 +1,19 @@
+import type { Metadata } from "next";
 import { DocLink, DocPage } from "@/components/docs/doc-page";
 import { brand } from "@/lib/brand";
+import {
+  monthlyMarketingEmailCount,
+  monthlyMarketingSocialPostCount,
+} from "@/lib/marketing/monthly-pack";
+import { docPageMetadata } from "@/lib/seo";
+import {
+  bundlePriceHeadingLabel,
+  commerceAddonPriceHeadingLabel,
+  getBundle,
+  minBundleSetupPriceUsd,
+} from "@/lib/pricing/bundles";
+
+export const metadata: Metadata = docPageMetadata("/docs/business-model");
 
 export default function BusinessModelDocPage() {
   return (
@@ -22,30 +36,33 @@ export default function BusinessModelDocPage() {
       <table>
         <thead>
           <tr>
-            <th>Bundle</th>
-            <th>Price</th>
-            <th>Includes</th>
+            <th scope="col">Bundle</th>
+            <th scope="col">Price</th>
+            <th scope="col">Includes</th>
           </tr>
         </thead>
         <tbody>
           <tr>
             <td>Starter</td>
-            <td>$500 one-time</td>
+            <td>{bundlePriceHeadingLabel(getBundle("starter")!)}</td>
             <td>Landing page, contact form, maps, SEO, domain handoff</td>
           </tr>
           <tr>
             <td>Growth</td>
-            <td>$500 + $99/mo</td>
-            <td>Starter + AI marketing (8 social/GBP + 2 emails/mo)</td>
+            <td>{bundlePriceHeadingLabel(getBundle("growth")!)}</td>
+            <td>
+              Starter + AI marketing ({monthlyMarketingSocialPostCount()} social/GBP +{" "}
+              {monthlyMarketingEmailCount()} emails/mo)
+            </td>
           </tr>
           <tr>
             <td>Complete</td>
-            <td>$500 + $199/mo</td>
+            <td>{bundlePriceHeadingLabel(getBundle("complete")!)}</td>
             <td>Growth + full marketing + client AI phone agent</td>
           </tr>
           <tr>
             <td>Commerce add-on</td>
-            <td>+$300 + $49/mo</td>
+            <td>{commerceAddonPriceHeadingLabel()}</td>
             <td>Stripe checkout, catalog ≤50 SKUs</td>
           </tr>
         </tbody>
@@ -62,12 +79,17 @@ export default function BusinessModelDocPage() {
       <ol>
         <li>Discover business (API/CSV)</li>
         <li>Auto-generate preview site</li>
-        <li>Email with preview link (+ optional outbound voice)</li>
-        <li>Customer views preview or calls AI assistant</li>
-        <li>Voice discovery updates preview (optional)</li>
+        <li>Email with preview link</li>
+        <li>Customer views preview, self-serve checkouts, or replies for tweaks</li>
         <li>Stripe checkout — self-serve</li>
         <li>Automated production deploy + DNS handoff</li>
       </ol>
+      <p>
+        No sales calls: platform voice (an AI assistant that calls or answers for{" "}
+        {brand.name} itself) is unbuilt — see{" "}
+        <DocLink href="/docs/roadmap">Roadmap</DocLink> and{" "}
+        <DocLink href="/docs/voice-agent-flow">Voice agent flow</DocLink>.
+      </p>
 
       <h2>Outreach — Email 1</h2>
       <p>
@@ -77,8 +99,7 @@ export default function BusinessModelDocPage() {
       </p>
       <ol>
         <li>Preview link on subdomain</li>
-        <li>Callback number for AI assistant</li>
-        <li>Checkout on preview — bundles from $500</li>
+        <li>Checkout on preview — bundles from ${minBundleSetupPriceUsd()}</li>
         <li>CAN-SPAM footer: public brand + {brand.legalEntity} address</li>
       </ol>
 
@@ -211,11 +232,16 @@ export default function BusinessModelDocPage() {
       <h2>Bundle upsell touchpoints</h2>
       <ul>
         <li>Preview site tier comparison cards</li>
-        <li>Platform voice after customization</li>
         <li>
           Post-purchase upgrade emails — operator <strong>Upsell</strong> on paid/live Starter
           leads (<code>/dashboard/leads</code> panel + row action) → Growth/Complete checkout;
           the same candidates also appear in the operator daily digest
+        </li>
+        <li>
+          Second-step upgrade — operator <strong>Upsell to Complete</strong> on paid/live
+          Growth-only leads (own panel + row action) → Complete checkout, pitching the AI phone
+          agent, appointment booking, and seasonal promos Growth doesn&apos;t include; also
+          surfaced in pipeline health and the daily digest
         </li>
       </ul>
 

@@ -45,7 +45,7 @@ describe("listAllPages", () => {
       })
       .mockResolvedValueOnce(pageOf(["should_not_fetch"], false));
 
-    const listed = await listAllPages(fetchPage, (item) => item.key === "target");
+    const listed = await listAllPages<Item>(fetchPage, (item) => item.key === "target");
     expect(listed.map((item) => item.id)).toEqual(["prod_1", "prod_2", "prod_3"]);
     expect(fetchPage).toHaveBeenCalledTimes(1);
   });
@@ -63,7 +63,7 @@ describe("listAllPages", () => {
       })
       .mockResolvedValueOnce(pageOf(["should_not_fetch"], false));
 
-    const listed = await listAllPages(fetchPage, (item) => item.key === "yes");
+    const listed = await listAllPages<Item>(fetchPage, (item) => item.key === "yes");
     expect(listed.map((item) => item.id)).toEqual(["prod_1", "prod_2"]);
     expect(fetchPage.mock.calls).toEqual([[undefined], ["prod_1"]]);
   });

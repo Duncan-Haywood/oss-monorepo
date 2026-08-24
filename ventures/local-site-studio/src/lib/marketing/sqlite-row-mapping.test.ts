@@ -1,7 +1,12 @@
 import { describe, expect, it } from "vitest";
 import {
+  MAX_PACK_VARIANT_BODY_LENGTH,
+  MAX_PACK_VARIANT_TITLE_LENGTH,
+} from "@/lib/packs/variant-fields";
+import {
   mapMarketingPackRow,
   parsePackVariants,
+  softCapMarketingPack,
   type SqliteMarketingPackRow,
 } from "./sqlite-row-mapping";
 
@@ -13,6 +18,7 @@ const baseRow: SqliteMarketingPackRow = {
   generatedAt: "2026-01-01T00:00:00.000Z",
   generator: "stub",
   packageTier: "social_email",
+  sentToClientAt: null,
 };
 
 describe("parsePackVariants", () => {
@@ -41,6 +47,40 @@ describe("parsePackVariants", () => {
       "not-an-object",
     ]);
     expect(parsePackVariants(json)).toEqual([{ contentType: "gbp_post", body: "valid" }]);
+  });
+
+  it("soft-caps over-long title/body on read", () => {
+    const json = JSON.stringify([
+      {
+        contentType: "gbp_post",
+        title: "t".repeat(MAX_PACK_VARIANT_TITLE_LENGTH + 5),
+        body: "b".repeat(MAX_PACK_VARIANT_BODY_LENGTH + 2),
+      },
+    ]);
+    const [variant] = parsePackVariants(json);
+    expect(variant?.title).toHaveLength(MAX_PACK_VARIANT_TITLE_LENGTH);
+    expect(variant?.body).toHaveLength(MAX_PACK_VARIANT_BODY_LENGTH);
+  });
+});
+
+describe("softCapMarketingPack", () => {
+  it("soft-caps Convex-shaped packs that bypass parsePackVariants", () => {
+    const pack = softCapMarketingPack({
+      id: "mp_x",
+      leadSlug: "x",
+      yearMonth: "2026-07",
+      generatedAt: "2026-07-01T00:00:00.000Z",
+      generator: "stub",
+      variants: [
+        {
+          contentType: "gbp_post",
+          title: "t".repeat(MAX_PACK_VARIANT_TITLE_LENGTH + 1),
+          body: "ok",
+        },
+      ],
+    });
+    expect(pack.variants[0]?.title).toHaveLength(MAX_PACK_VARIANT_TITLE_LENGTH);
+    expect(pack.variants[0]?.body).toBe("ok");
   });
 });
 
@@ -72,6 +112,14 @@ describe("mapMarketingPackRow", () => {
     expect(mapMarketingPackRow({ ...baseRow, packageTier: "full_marketing" }).packageTier).toBe(
       "full_marketing",
     );
+  });
+
+  it("maps a null sentToClientAt to undefined and passes through a set value", () => {
+    expect(mapMarketingPackRow(baseRow).sentToClientAt).toBeUndefined();
+    expect(
+      mapMarketingPackRow({ ...baseRow, sentToClientAt: "2026-01-05T00:00:00.000Z" })
+        .sentToClientAt,
+    ).toBe("2026-01-05T00:00:00.000Z");
   });
 
   it("survives a corrupted variantsJson column without throwing", () => {

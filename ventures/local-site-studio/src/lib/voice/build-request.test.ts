@@ -1,5 +1,14 @@
 import { describe, expect, it } from "vitest";
 import type { Lead } from "@/lib/leads/types";
+import {
+  MAX_BUSINESS_NAME_LENGTH,
+  MAX_CITY_LENGTH,
+  MAX_HOURS_SEGMENT_LENGTH,
+  MAX_SERVICE_ITEM_LENGTH,
+  MAX_SERVICES,
+  MAX_TAGLINE_LENGTH,
+} from "@/lib/leads/create-fields";
+import { MAX_PACK_BUSINESS_HOURS_LENGTH } from "@/lib/marketing/generate-limits";
 import { CLIENT_VOICE_FAQ_SCRIPT_TYPES } from "./faq-pack";
 import {
   clientVoiceBusinessContextFromLead,
@@ -73,6 +82,40 @@ describe("clientVoiceBusinessContextFromLead", () => {
     expect(ctx.state).toBeUndefined();
     expect(ctx.phone).toBeUndefined();
     expect(ctx.tagline).toBeUndefined();
+  });
+
+  it("soft-caps oversize lead fields like normalizeMarketingGenerateBusiness", () => {
+    const weekday = "W".repeat(MAX_HOURS_SEGMENT_LENGTH);
+    const weekend = "E".repeat(MAX_HOURS_SEGMENT_LENGTH);
+    const ctx = clientVoiceBusinessContextFromLead(
+      baseLead({
+        businessName: "A".repeat(MAX_BUSINESS_NAME_LENGTH + 40),
+        city: "C".repeat(MAX_CITY_LENGTH + 10),
+        tagline: "T".repeat(MAX_TAGLINE_LENGTH + 10),
+        services: [
+          "S".repeat(MAX_SERVICE_ITEM_LENGTH + 5),
+          ...Array.from({ length: MAX_SERVICES + 3 }, (_, i) => `svc-${i}`),
+        ],
+        hours: { weekday, weekend },
+      }),
+    );
+    expect(ctx.businessName).toHaveLength(MAX_BUSINESS_NAME_LENGTH);
+    expect(ctx.city).toHaveLength(MAX_CITY_LENGTH);
+    expect(ctx.tagline).toHaveLength(MAX_TAGLINE_LENGTH);
+    expect(ctx.services).toHaveLength(MAX_SERVICES);
+    expect(ctx.services[0]).toHaveLength(MAX_SERVICE_ITEM_LENGTH);
+    expect(ctx.hours).toBe(`Weekdays ${weekday}; Weekends ${weekend}`);
+    expect(ctx.hours).toHaveLength(MAX_PACK_BUSINESS_HOURS_LENGTH);
+  });
+
+  it("retains weekend hours when both CRM segments are at create-path max", () => {
+    const weekday = "W".repeat(MAX_HOURS_SEGMENT_LENGTH);
+    const weekend = "E".repeat(MAX_HOURS_SEGMENT_LENGTH);
+    const ctx = clientVoiceBusinessContextFromLead(
+      baseLead({ hours: { weekday, weekend } }),
+    );
+    expect(ctx.hours).toContain(`Weekends ${weekend}`);
+    expect(ctx.hours?.endsWith(weekend)).toBe(true);
   });
 });
 

@@ -374,10 +374,14 @@ CHECKS = {
     # Same decision as the sibling's 2026-08-22 rules, plus the template
     # adaptation this engine already uses: an expression that could be a
     # skip link, a landmark role, or either side of a 2.5.3 comparison is
-    # undecidable, never a guessed defect. 1.3.4 stays untested -- it
-    # needs the CSS adapter, not another markup walk.
+    # undecidable, never a guessed defect.
     "bypass-blocks":         ("2.4.1 Bypass Blocks", "blocking"),
     "label-in-name":         ("2.5.3 Label in Name", "blocking"),
+    # Added 2026-08-24, the leftover CSS-adapter row. Reuses the sibling's
+    # orientation-lock decision (bare html/body type selectors under a
+    # pure orientation query) and refuses a transform value that is a
+    # template expression rather than guessing a lock. See contrast_pass.py.
+    "orientation-lock":      ("1.3.4 Orientation", "blocking"),
 }
 
 FILENAME_ALT = re.compile(
@@ -640,8 +644,10 @@ def audit_source(source: str, path: str = "<string>", stylesheet=None) -> dict:
     boundary rule the rest of this module follows. Use of Color (1.4.1) is
     evaluated the same way, on the narrower set of in-prose links; a bare
     link with no stylesheet still has the browser underline, so it passes
-    rather than going undecidable. A template's own inline `<style>` blocks
-    are picked up either way.
+    rather than going undecidable. Orientation (1.3.4) is the same pass over
+    the same stylesheet: no lock found is a pass, not an undecidable, because
+    the criterion is a single document-level yes/no. A template's own inline
+    `<style>` blocks are picked up either way.
     """
     tree = parse(source)
     findings: list[dict] = []
@@ -1153,6 +1159,12 @@ def audit_source(source: str, path: str = "<string>", stylesheet=None) -> dict:
         tree.root, sheet, path)
     findings.extend(color_findings)
     undecided.extend(color_undecided)
+    orientation_findings, orientation_undecided = (
+        contrast_pass.findings_and_undecidables_orientation(
+            tree.root, sheet, path)
+    )
+    findings.extend(orientation_findings)
+    undecided.extend(orientation_undecided)
 
     # --- heading order (advisory) -------------------------------------------
     levels = [
@@ -1222,13 +1234,12 @@ NOT_TESTED = [
     # because these are not the contractor step -- nobody covers them today.
     # See `portfolio/research/a11y-external-coverage-reference/`.
     ("1.2.1 Audio-only and Video-only (Prerecorded)", "a media element with no transcript or alternative is detectable from the markup; no rule here looks"),
-    ("1.3.4 Orientation", "a stylesheet locking orientation is decidable from the CSS; no rule here looks"),
     # 1.4.1 moved to CHECKS 2026-08-24 -- see the "color-only-link" entry.
     # 2.2.1, 2.2.2, 3.1.2 moved to CHECKS 2026-08-24 -- see "meta-refresh",
     # "moving-content", "lang-of-parts-invalid". 3.1.1 validity joined the
     # existing existence check the same pass. 2.4.1 and 2.5.3 moved to
     # CHECKS later the same day -- see "bypass-blocks", "label-in-name".
-    # 1.3.4 is the remaining markup-adjacent row and still needs CSS.
+    # 1.3.4 moved to CHECKS the same day -- see "orientation-lock".
     ("Alt text quality", "an alt attribute that is present and non-empty may still describe the wrong thing; only a human can say"),
     ("Assistive-technology outcome", "no static tool establishes whether a real screen reader user can complete checkout"),
 ]

@@ -21,13 +21,23 @@ export type BundlePriceEnvReadiness = {
   missing: readonly string[];
 };
 
-/** Stable list of env var names checkout needs for all tiers + Commerce. */
+/**
+ * Stable list of env var names checkout needs for all tiers + Commerce —
+ * both cadences (see annual-billing-option). POST /api/stripe/checkout
+ * looks up bundle.annualPriceIdEnv when billingInterval === "annual" and
+ * 501s if it's unset, so a readiness check that only lists monthlyPriceIdEnv
+ * can report ready: true while an annual checkout is still guaranteed to
+ * fail (bundle-price-env-readiness-annual-gap).
+ */
 export function listRequiredBundlePriceEnvNames(): string[] {
   const names: string[] = [];
   for (const bundle of BUNDLES) {
     names.push(bundle.setupPriceIdEnv);
     if (bundle.monthlyPriceIdEnv) {
       names.push(bundle.monthlyPriceIdEnv);
+    }
+    if (bundle.annualPriceIdEnv) {
+      names.push(bundle.annualPriceIdEnv);
     }
   }
   names.push(COMMERCE_ADDON.setupPriceIdEnv, COMMERCE_ADDON.monthlyPriceIdEnv);

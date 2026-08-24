@@ -3,7 +3,17 @@
  * Persisted via Convex when configured, otherwise SQLite fallback (see /docs/process).
  */
 
-export type BusinessCategory = "restaurant" | "salon" | "trades" | "generic";
+export type BusinessCategory =
+  | "restaurant"
+  | "salon"
+  | "trades"
+  | "retail"
+  | "health"
+  | "automotive"
+  | "cleaning"
+  | "fitness"
+  | "legal"
+  | "generic";
 
 export type LeadPipelineStage =
   | "discovered"
@@ -69,4 +79,115 @@ export interface Lead {
    * non-actionable while snoozedUntil > now. See src/lib/leads/snooze.ts.
    */
   snoozedUntil?: string;
+  /**
+   * Stripe Connect Express account id for this local business, once created
+   * by the operator via createStripeConnectAccountAction (dormant behind
+   * ALLOW_STRIPE_CONNECT_ONBOARDING — see stripe-connect-gate.ts). Account
+   * creation/status-checking only; no payout/transfer wiring reads this yet
+   * (commerce-payouts-stripe-connect stays operator/legal-gated for that).
+   */
+  stripeConnectAccountId?: string;
+  /**
+   * ISO timestamp when this lead's Connect account was first created/found
+   * (set once, at the same time as stripeConnectAccountId — never updated
+   * again). Anchors the "how long has onboarding been incomplete" staleness
+   * signal (oldestConnectOnboardingIncompleteAgeHours) the same way an
+   * order's own createdAt anchors every other due-queue's oldest-age card —
+   * Lead itself has no general createdAt/updatedAt field to reuse. See
+   * stripe-connect-onboarding-pipeline-health-visibility.
+   */
+  stripeConnectAccountCreatedAt?: string;
+  /**
+   * Live Stripe Connect Express onboarding status, cached from the operator's
+   * most recent "Check status" click (checkStripeConnectAccountStatusAction) —
+   * undefined means never checked. This is a DISPLAY CACHE, not the source of
+   * truth (Stripe's own account object is); a stale/never-refreshed value
+   * only means the pipeline-health/digest visibility can lag behind an
+   * operator completing onboarding out-of-band, never that money moves on a
+   * wrong value (this scaffold moves no money at all yet). See
+   * stripe-connect-onboarding-pipeline-health-visibility.
+   */
+  stripeConnectChargesEnabled?: boolean;
+  /** See stripeConnectChargesEnabled — same cache-freshness caveat. */
+  stripeConnectPayoutsEnabled?: boolean;
+  /** See stripeConnectChargesEnabled — same cache-freshness caveat. */
+  stripeConnectDetailsSubmitted?: boolean;
+  /** ISO timestamp of the most recent successful status check; undefined means never checked. */
+  stripeConnectStatusCheckedAt?: string;
+  /**
+   * Buffer profile ids the operator has chosen to auto-post this lead's
+   * generated marketing pack content to, via saveLeadBufferProfilesAction
+   * (dormant behind ALLOW_MARKETING_SCHEDULING — see
+   * src/lib/marketing/buffer-gate.ts). Empty/absent means Buffer auto-posting
+   * is not set up for this lead yet — operator still copy-pastes manually.
+   */
+  bufferProfileIds?: string[];
+  /**
+   * Idempotency markers (bufferPostedVariantKey, src/lib/marketing/buffer.ts)
+   * for pack variants scheduleMarketingPackToBufferAction has already queued
+   * to Buffer this pack — prevents a repeated click within the same month
+   * from re-posting the same content to the same profile
+   * (buffer-schedule-duplicate-post-guard). Scoped to the pack's own
+   * generatedAt, so a mid-month regenerate naturally makes every prior key
+   * stale rather than permanently blocking the new content.
+   */
+  bufferPostedVariantKeys?: string[];
+  /**
+   * Monotonic count of Starter→Growth/Complete upsell emails sent to this
+   * lead via sendStarterUpsellAction — a concurrency guard, not a
+   * one-shot "already sent" gate: unlike marketing/voice pack sent-markers,
+   * a Starter upsell nudge has no monthly regenerate step to reset
+   * eligibility, and an operator may legitimately re-nudge a still
+   * Starter-only lead weeks later. recordStarterUpsellSent only rejects a
+   * write whose expected count no longer matches the current row (an exact
+   * concurrent duplicate — a second tab or a double-click before the
+   * button's isPending-disabled state applies), never a later, deliberate
+   * resend. Absent/0 means never sent. See starter-upsell-send-race-guard.
+   */
+  starterUpsellSentCount?: number;
+  /** ISO timestamp of the most recent Starter upsell send. */
+  lastStarterUpsellSentAt?: string;
+  /**
+   * Monotonic count of Stripe Connect onboarding-link emails sent to this
+   * lead's client via sendStripeConnectOnboardingLinkToClientAction — a
+   * concurrency guard only, not a one-shot "already sent" gate: mirrors
+   * starterUpsellSentCount's CAS shape, not marketingPacks.sentToClientAt's
+   * one-shot gate, since an operator may legitimately re-send a fresh
+   * onboarding link after an earlier one expired unused.
+   * recordStripeConnectOnboardingLinkSent only rejects a write whose expected
+   * count no longer matches the current row (an exact concurrent duplicate —
+   * a second tab or a double-click before the button's isPending-disabled
+   * state applies), never a later, deliberate resend. Absent/0 means never
+   * sent. See stripe-connect-onboarding-link-send-race-guard.
+   */
+  stripeConnectOnboardingLinkSentCount?: number;
+  /** ISO timestamp of the most recent Stripe Connect onboarding-link send. */
+  lastStripeConnectOnboardingLinkSentAt?: string;
+  /**
+   * Monotonic count of Growth→Complete upsell emails sent to this lead via
+   * sendGrowthUpsellAction — a concurrency guard, not a one-shot "already
+   * sent" gate, mirroring starterUpsellSentCount's CAS shape: an operator
+   * may legitimately re-nudge a still Growth-only lead weeks later.
+   * recordGrowthUpsellSent only rejects a write whose expected count no
+   * longer matches the current row (an exact concurrent duplicate), never a
+   * later, deliberate resend. Absent/0 means never sent. See
+   * growth-upsell-send-race-guard.
+   */
+  growthUpsellSentCount?: number;
+  /** ISO timestamp of the most recent Growth upsell send. */
+  lastGrowthUpsellSentAt?: string;
+}
+
+/**
+ * Stable app-owned id for a new SQLite-fallback lead row (see leads-sqlite-id-collision-guard).
+ * The prior generator was `lead_${Date.now()}` — millisecond-only, no random
+ * component, unlike newCommerceOrderId/newCommerceSkuId/newClientInquiryId.
+ * `leads.id` is a SQLite PRIMARY KEY, so two leads created in the same
+ * millisecond (a CSV bulk-import loop inserting many fresh rows synchronously,
+ * or two near-simultaneous Stripe webhook payment-stub creates) throw a
+ * constraint-violation error on INSERT rather than silently colliding —
+ * still a real outage on the money/CRM create paths, not just a data bug.
+ */
+export function newLeadId(): string {
+  return `lead_${Date.now().toString(36)}_${Math.random().toString(36).slice(2, 8)}`;
 }

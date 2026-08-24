@@ -1,5 +1,6 @@
 import { mutation, query } from "./_generated/server";
 import { v } from "convex/values";
+import { requireApiSecret } from "./lib/apiSecret";
 
 const variantValidator = v.object({
   contentType: v.string(),
@@ -18,6 +19,7 @@ const packReturn = v.object({
   generatedAt: v.string(),
   generator: v.union(v.literal("stub"), v.literal("anthropic")),
   packageTier: v.optional(v.string()),
+  sentToClientAt: v.optional(v.string()),
 });
 
 export const upsert = mutation({
@@ -29,9 +31,11 @@ export const upsert = mutation({
     generatedAt: v.string(),
     generator: v.union(v.literal("stub"), v.literal("anthropic")),
     packageTier: v.optional(v.string()),
+    apiSecret: v.string(),
   },
   returns: packReturn,
   handler: async (ctx, args) => {
+    requireApiSecret(args.apiSecret);
     // Compound index typing needs a generated DataModel; with generic ctx,
     // chain only the first indexed field then match yearMonth in TS.
     const candidates = await ctx.db
@@ -40,6 +44,9 @@ export const upsert = mutation({
       .collect();
     const existing = candidates.find((row) => row.yearMonth === args.yearMonth);
 
+    // Regenerating always clears sentToClientAt (undefined unsets a Convex
+    // field on patch) — new pack content has not yet been sent, even if the
+    // prior month's/version's pack was (marketing-voice-pack-client-send-visibility).
     if (existing) {
       await ctx.db.patch(existing._id, {
         packId: args.packId,
@@ -47,6 +54,7 @@ export const upsert = mutation({
         generatedAt: args.generatedAt,
         generator: args.generator,
         packageTier: args.packageTier,
+        sentToClientAt: undefined,
       });
     } else {
       await ctx.db.insert("marketingPacks", {
@@ -72,13 +80,89 @@ export const upsert = mutation({
   },
 });
 
+/**
+ * Durable sent-marker after sendMarketingPackToClientEmail resolves
+ * { success: true }. Returns whether the row was actually marked — re-checks
+ * sentToClientAt IS unset atomically with the write, mirroring
+ * commerceOrders.markClientReceiptSent (see
+ * marketing-voice-pack-client-send-visibility). Also re-checks generatedAt
+ * still matches expectedGeneratedAt (the version the caller actually read
+ * and is about to email) — a regenerate between the caller's read and this
+ * reservation clears sentToClientAt and swaps in new variants, and without
+ * this check the reservation would succeed against the NEW row while the
+ * caller sends the STALE content it captured earlier (see
+ * marketing-voice-pack-send-stale-content-race-guard).
+ */
+export const markSentToClient = mutation({
+  args: {
+    leadSlug: v.string(),
+    yearMonth: v.string(),
+    expectedGeneratedAt: v.string(),
+    sentToClientAt: v.string(),
+    apiSecret: v.string(),
+  },
+  returns: v.boolean(),
+  handler: async (ctx, args) => {
+    requireApiSecret(args.apiSecret);
+    const candidates = await ctx.db
+      .query("marketingPacks")
+      .withIndex("by_lead_month", (q) => q.eq("leadSlug", args.leadSlug))
+      .collect();
+    const existing = candidates.find((row) => row.yearMonth === args.yearMonth);
+    if (
+      !existing ||
+      existing.sentToClientAt ||
+      existing.generatedAt !== args.expectedGeneratedAt
+    ) {
+      return false;
+    }
+    await ctx.db.patch(existing._id, { sentToClientAt: args.sentToClientAt });
+    return true;
+  },
+});
+
+/**
+ * Releases a reservation made by markSentToClient when the send that
+ * reservation was guarding turned out to fail — see
+ * marketing-voice-pack-client-send-race-guard-ordering-fix. Only clears the
+ * marker when it still holds the exact value this caller itself just wrote
+ * (expectedSentToClientAt); if it has since changed — a regenerate already
+ * cleared it, or (impossible under the reserve-before-send ordering, but
+ * checked anyway) a different value was written — this is a safe no-op
+ * rather than clobbering someone else's state.
+ */
+export const clearSentToClient = mutation({
+  args: {
+    leadSlug: v.string(),
+    yearMonth: v.string(),
+    expectedSentToClientAt: v.string(),
+    apiSecret: v.string(),
+  },
+  returns: v.boolean(),
+  handler: async (ctx, args) => {
+    requireApiSecret(args.apiSecret);
+    const candidates = await ctx.db
+      .query("marketingPacks")
+      .withIndex("by_lead_month", (q) => q.eq("leadSlug", args.leadSlug))
+      .collect();
+    const existing = candidates.find((row) => row.yearMonth === args.yearMonth);
+    if (!existing || existing.sentToClientAt !== args.expectedSentToClientAt) {
+      return false;
+    }
+    await ctx.db.patch(existing._id, { sentToClientAt: undefined });
+    return true;
+  },
+});
+
 export const getByLeadMonth = query({
   args: {
     leadSlug: v.string(),
     yearMonth: v.string(),
+    apiSecret: v.string(),
   },
   returns: v.union(packReturn, v.null()),
   handler: async (ctx, args) => {
+    requireApiSecret(args.apiSecret);
     const candidates = await ctx.db
       .query("marketingPacks")
       .withIndex("by_lead_month", (q) => q.eq("leadSlug", args.leadSlug))
@@ -93,6 +177,7 @@ export const getByLeadMonth = query({
       generatedAt: row.generatedAt,
       generator: row.generator as "stub" | "anthropic",
       packageTier: row.packageTier,
+      sentToClientAt: row.sentToClientAt,
     };
   },
 });
@@ -107,9 +192,11 @@ export const listByMonth = query({
   args: {
     yearMonth: v.string(),
     limit: v.optional(v.number()),
+    apiSecret: v.string(),
   },
   returns: v.array(packReturn),
   handler: async (ctx, args) => {
+    requireApiSecret(args.apiSecret);
     void args.limit;
     const rows = await ctx.db
       .query("marketingPacks")
@@ -125,6 +212,7 @@ export const listByMonth = query({
       generatedAt: row.generatedAt,
       generator: row.generator as "stub" | "anthropic",
       packageTier: row.packageTier,
+      sentToClientAt: row.sentToClientAt,
     }));
   },
 });

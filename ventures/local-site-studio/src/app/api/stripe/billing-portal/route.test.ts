@@ -15,12 +15,14 @@ import { resetRateLimiterForTests } from "@/lib/security/rate-limit";
  */
 
 const sessionsRetrieve = vi.fn();
+const sessionsListLineItems = vi.fn();
 const billingPortalCreate = vi.fn();
 vi.mock("stripe", () => ({
   default: class MockStripe {
     checkout = {
       sessions: {
         retrieve: (...args: unknown[]) => sessionsRetrieve(...args),
+        listLineItems: (...args: unknown[]) => sessionsListLineItems(...args),
       },
     };
     billingPortal = {
@@ -38,7 +40,8 @@ vi.mock("stripe", () => ({
 // createBillingPortalForCheckoutSession, matching the other route suites'
 // "mock Stripe SDK and @/lib/db" pattern.
 vi.mock("@/lib/db", () => ({
-  listOrders: vi.fn().mockResolvedValue([]),
+  listOrders: vi.fn(),
+  listOrdersByLeadSlug: vi.fn().mockResolvedValue([]),
 }));
 
 function portalRequest(body: unknown, url = "http://localhost/api/stripe/billing-portal") {
@@ -52,6 +55,7 @@ function portalRequest(body: unknown, url = "http://localhost/api/stripe/billing
 function completeSubscriptionSession(overrides: Record<string, unknown> = {}) {
   return {
     status: "complete",
+    payment_status: "paid",
     mode: "subscription",
     metadata: {},
     customer: "cus_1",
@@ -64,10 +68,17 @@ describe("POST /api/stripe/billing-portal", () => {
 
   beforeEach(() => {
     sessionsRetrieve.mockReset();
+    // Subscription-mode portal requires a create-path catalog recurring Price
+    // on listLineItems — default fixtures use Growth monthly.
+    sessionsListLineItems.mockReset().mockResolvedValue({
+      data: [{ price: { id: "price_growth_monthly" } }],
+    });
     billingPortalCreate.mockReset();
     process.env = { ...originalEnv };
     delete process.env.STRIPE_SECRET_KEY;
     delete process.env.NEXT_PUBLIC_APP_URL;
+    delete process.env.VERCEL_URL;
+    process.env.STRIPE_PRICE_ID_GROWTH_MONTHLY = "price_growth_monthly";
     // Each `it` below issues its own POST(s) from the same synthetic (no
     // x-forwarded-for) client — reset the limiter so route-level tests don't
     // interfere with each other regardless of run order.
@@ -86,6 +97,22 @@ describe("POST /api/stripe/billing-portal", () => {
     expect(sessionsRetrieve).not.toHaveBeenCalled();
   });
 
+  it("returns 400 when the raw JSON body exceeds MAX_PUBLIC_JSON_BODY_BYTES", async () => {
+    const { MAX_PUBLIC_JSON_BODY_BYTES } = await import(
+      "@/lib/security/json-body"
+    );
+    process.env.STRIPE_SECRET_KEY = "sk_test_portal";
+    const { POST } = await import("./route");
+    const huge = JSON.stringify({
+      sessionId: "cs_test_abc",
+      pad: "p".repeat(MAX_PUBLIC_JSON_BODY_BYTES),
+    });
+    const res = await POST(portalRequest(huge));
+    expect(res.status).toBe(400);
+    expect(await res.json()).toEqual({ error: "Request body is too large" });
+    expect(sessionsRetrieve).not.toHaveBeenCalled();
+  });
+
   it("returns 400 when sessionId is missing", async () => {
     const { POST } = await import("./route");
     const res = await POST(portalRequest({}));
@@ -99,6 +126,20 @@ describe("POST /api/stripe/billing-portal", () => {
     const { POST } = await import("./route");
     const res = await POST(portalRequest({ sessionId: "   " }));
     expect(res.status).toBe(400);
+    expect(sessionsRetrieve).not.toHaveBeenCalled();
+  });
+
+  it("returns 400 when sessionId exceeds MAX_STRIPE_CHECKOUT_SESSION_ID_LENGTH (no Stripe call)", async () => {
+    const { MAX_STRIPE_CHECKOUT_SESSION_ID_LENGTH } = await import(
+      "@/lib/billing/checkout-session-id"
+    );
+    process.env.STRIPE_SECRET_KEY = "sk_test_portal";
+    const { POST } = await import("./route");
+    const over = `cs_test_${"a".repeat(MAX_STRIPE_CHECKOUT_SESSION_ID_LENGTH)}`;
+    const res = await POST(portalRequest({ sessionId: over }));
+    expect(res.status).toBe(400);
+    const body = await res.json();
+    expect(body.error).toMatch(/sessionId is too long/);
     expect(sessionsRetrieve).not.toHaveBeenCalled();
   });
 
@@ -129,20 +170,62 @@ describe("POST /api/stripe/billing-portal", () => {
     });
   });
 
-  it("falls back to the request origin when NEXT_PUBLIC_APP_URL is unset", async () => {
+  it("falls back to localhost when NEXT_PUBLIC_APP_URL is unset (never trusts request origin / Host)", async () => {
     process.env.STRIPE_SECRET_KEY = "sk_test_portal";
+    delete process.env.VERCEL_URL;
     sessionsRetrieve.mockResolvedValue(completeSubscriptionSession());
     billingPortalCreate.mockResolvedValue({ url: "https://billing.stripe.com/session/1" });
 
     const { POST } = await import("./route");
     const res = await POST(
-      portalRequest({ sessionId: "cs_test_1" }, "https://origin.example.com/api/stripe/billing-portal"),
+      portalRequest({ sessionId: "cs_test_1" }, "https://attacker.example.com/api/stripe/billing-portal"),
     );
 
     expect(res.status).toBe(200);
     expect(billingPortalCreate).toHaveBeenCalledWith({
       customer: "cus_1",
-      return_url: "https://origin.example.com/checkout/success?session_id=cs_test_1",
+      return_url: "http://localhost:3000/checkout/success?session_id=cs_test_1",
+    });
+  });
+
+  it("uses VERCEL_URL when APP_URL is unset (preview deploys) and still ignores request origin", async () => {
+    process.env.STRIPE_SECRET_KEY = "sk_test_portal";
+    process.env.VERCEL_URL = "preview-abc.vercel.app";
+    sessionsRetrieve.mockResolvedValue(completeSubscriptionSession());
+    billingPortalCreate.mockResolvedValue({ url: "https://billing.stripe.com/session/1" });
+
+    const { POST } = await import("./route");
+    const res = await POST(
+      portalRequest({ sessionId: "cs_test_1" }, "https://attacker.example.com/api/stripe/billing-portal"),
+    );
+
+    expect(res.status).toBe(200);
+    expect(billingPortalCreate).toHaveBeenCalledWith({
+      customer: "cus_1",
+      return_url: "https://preview-abc.vercel.app/checkout/success?session_id=cs_test_1",
+    });
+  });
+
+  it("rejects a body returnUrl that only matches a spoofed request origin when APP_URL is unset", async () => {
+    process.env.STRIPE_SECRET_KEY = "sk_test_portal";
+    delete process.env.VERCEL_URL;
+    sessionsRetrieve.mockResolvedValue(completeSubscriptionSession());
+    billingPortalCreate.mockResolvedValue({ url: "https://billing.stripe.com/session/1" });
+
+    const { POST } = await import("./route");
+    const res = await POST(
+      portalRequest(
+        { sessionId: "cs_test_1", returnUrl: "https://attacker.example.com/phish" },
+        "https://attacker.example.com/api/stripe/billing-portal",
+      ),
+    );
+
+    expect(res.status).toBe(200);
+    // Comparison origin is localhost (not the spoofed request origin), so the
+    // attacker returnUrl fails isSameOriginReturnUrl and we keep the default.
+    expect(billingPortalCreate).toHaveBeenCalledWith({
+      customer: "cus_1",
+      return_url: "http://localhost:3000/checkout/success?session_id=cs_test_1",
     });
   });
 
@@ -200,6 +283,29 @@ describe("POST /api/stripe/billing-portal", () => {
     });
   });
 
+  it("ignores an over-long same-origin returnUrl and falls back to the derived default", async () => {
+    process.env.STRIPE_SECRET_KEY = "sk_test_portal";
+    process.env.NEXT_PUBLIC_APP_URL = "https://app.example.com";
+    sessionsRetrieve.mockResolvedValue(completeSubscriptionSession());
+    billingPortalCreate.mockResolvedValue({ url: "https://billing.stripe.com/session/1" });
+
+    const { MAX_BILLING_PORTAL_RETURN_URL_LENGTH } = await import(
+      "@/lib/billing/return-url"
+    );
+    const over = `https://app.example.com/${"a".repeat(MAX_BILLING_PORTAL_RETURN_URL_LENGTH)}`;
+
+    const { POST } = await import("./route");
+    const res = await POST(
+      portalRequest({ sessionId: "cs_test_1", returnUrl: over }),
+    );
+
+    expect(res.status).toBe(200);
+    expect(billingPortalCreate).toHaveBeenCalledWith({
+      customer: "cus_1",
+      return_url: "https://app.example.com/checkout/success?session_id=cs_test_1",
+    });
+  });
+
   it("passes through a 400 when the checkout session is not complete", async () => {
     process.env.STRIPE_SECRET_KEY = "sk_test_portal";
     sessionsRetrieve.mockResolvedValue({ status: "open", customer: "cus_1" });
@@ -212,6 +318,21 @@ describe("POST /api/stripe/billing-portal", () => {
     expect(billingPortalCreate).not.toHaveBeenCalled();
   });
 
+  it("passes through a 400 when the session is complete but not paid (async ACH)", async () => {
+    process.env.STRIPE_SECRET_KEY = "sk_test_portal";
+    sessionsRetrieve.mockResolvedValue(
+      completeSubscriptionSession({ payment_status: "unpaid" }),
+    );
+
+    const { POST } = await import("./route");
+    const res = await POST(portalRequest({ sessionId: "cs_test_1" }));
+
+    expect(res.status).toBe(400);
+    expect(await res.json()).toEqual({ error: "Checkout session is not paid" });
+    expect(sessionsListLineItems).not.toHaveBeenCalled();
+    expect(billingPortalCreate).not.toHaveBeenCalled();
+  });
+
   it("passes through a 400 when the session has no recurring plan or Commerce add-on", async () => {
     process.env.STRIPE_SECRET_KEY = "sk_test_portal";
     sessionsRetrieve.mockResolvedValue(
@@ -221,6 +342,31 @@ describe("POST /api/stripe/billing-portal", () => {
     const { POST } = await import("./route");
     const res = await POST(portalRequest({ sessionId: "cs_test_1" }));
 
+    expect(sessionsListLineItems).toHaveBeenCalledWith("cs_test_1", { limit: 100 });
+    expect(res.status).toBe(400);
+    const body = await res.json();
+    expect(body.error).toMatch(/no recurring subscription/);
+  });
+
+  it("does not trust metadata.commerceAddon=true without Commerce Price line items", async () => {
+    process.env.STRIPE_SECRET_KEY = "sk_test_portal";
+    process.env.STRIPE_PRICE_ID_COMMERCE_SETUP = "price_commerce_setup";
+    process.env.STRIPE_PRICE_ID_COMMERCE_MONTHLY = "price_commerce_monthly";
+    sessionsRetrieve.mockResolvedValue(
+      completeSubscriptionSession({
+        mode: "payment",
+        metadata: { tier: "starter", commerceAddon: "true" },
+      }),
+    );
+    sessionsListLineItems.mockResolvedValue({
+      data: [{ price: { id: "price_starter_setup" } }],
+    });
+
+    const { POST } = await import("./route");
+    const res = await POST(portalRequest({ sessionId: "cs_forged" }));
+
+    expect(sessionsListLineItems).toHaveBeenCalledWith("cs_forged", { limit: 100 });
+    expect(billingPortalCreate).not.toHaveBeenCalled();
     expect(res.status).toBe(400);
     const body = await res.json();
     expect(body.error).toMatch(/no recurring subscription/);

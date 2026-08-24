@@ -43,7 +43,11 @@ export function ManageBillingButton({ sessionId }: { sessionId: string }) {
       >
         {isPending ? "Opening…" : "Manage subscription"}
       </button>
-      {error ? <p className="text-sm text-red-600">{error}</p> : null}
+      {error ? (
+        <p role="alert" className="text-sm text-red-600">
+          {error}
+        </p>
+      ) : null}
     </div>
   );
 }

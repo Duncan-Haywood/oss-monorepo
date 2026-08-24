@@ -24,12 +24,22 @@ vi.mock("next/cache", () => ({
   revalidatePath: (...args: unknown[]) => revalidatePath(...args),
 }));
 
+const headersMock = vi.fn();
 vi.mock("next/headers", () => ({
-  headers: vi.fn(),
+  headers: (...args: unknown[]) => headersMock(...args),
 }));
+
+function headerStore(entries: Record<string, string | null> = {}) {
+  return {
+    get(name: string) {
+      return entries[name] ?? null;
+    },
+  };
+}
 
 const getLeads = vi.fn();
 const upsertLead = vi.fn();
+const recordLeadOutreach = vi.fn();
 
 vi.mock("@/lib/db", () => ({
   listOpenCheckoutSessions: vi.fn(),
@@ -43,7 +53,8 @@ vi.mock("@/lib/db", () => ({
   recordClientInquiryReply: vi.fn(),
   getLeads: (...args: unknown[]) => getLeads(...args),
   listOrders: vi.fn(),
-  recordLeadOutreach: vi.fn(),
+  listOrdersByLeadSlug: vi.fn(),
+  recordLeadOutreach: (...args: unknown[]) => recordLeadOutreach(...args),
   listUnrepliedInquiries: vi.fn(),
   updateLeadNotes: vi.fn(),
   updateLeadSnooze: vi.fn(),
@@ -61,8 +72,9 @@ vi.mock("@/lib/db", () => ({
   listUnpaidCommerceOrders: vi.fn(),
 }));
 
+const sendOutreachEmail = vi.fn();
 vi.mock("@/lib/email/resend", () => ({
-  sendOutreachEmail: vi.fn(),
+  sendOutreachEmail: (...args: unknown[]) => sendOutreachEmail(...args),
   sendOutreachFollowUp2: vi.fn(),
   sendOutreachFollowUp3: vi.fn(),
   sendInquiryReply: vi.fn(),
@@ -123,13 +135,22 @@ const cafeRow = [
   "demo-cafe",
 ];
 
+const captureError = vi.fn();
+vi.mock("@/lib/observability/error-tracking", () => ({
+  captureError: (...args: unknown[]) => captureError(...args),
+}));
+
 describe("importLeadsCsvAction", () => {
   beforeEach(() => {
+    captureError.mockReset().mockResolvedValue(undefined);
     vi.resetModules();
     requireOperatorAuth.mockReset().mockResolvedValue({ ok: true });
+    headersMock.mockReset().mockResolvedValue(headerStore());
     revalidatePath.mockReset();
     getLeads.mockReset().mockResolvedValue([]);
-    upsertLead.mockReset().mockResolvedValue(undefined);
+    upsertLead.mockReset().mockResolvedValue(true);
+    recordLeadOutreach.mockReset().mockResolvedValue(true);
+    sendOutreachEmail.mockReset();
   });
 
   it("returns auth error without parsing or upserting", async () => {
@@ -147,6 +168,24 @@ describe("importLeadsCsvAction", () => {
     expect(upsertLead).not.toHaveBeenCalled();
   });
 
+  it("rate-limits repeated imports from the same IP (auth alone is not a throttle)", async () => {
+    const { importLeadsCsvAction } = await import("./actions");
+    // DEFAULT_RATE_LIMIT is 20 requests/60s per key — exhaust the window.
+    for (let i = 0; i < 20; i++) {
+      const res = await importLeadsCsvAction({ csvText: csvFor(salonRow) });
+      expect(res.success).toBe(true);
+    }
+    upsertLead.mockClear();
+    getLeads.mockClear();
+    const res = await importLeadsCsvAction({ csvText: csvFor(salonRow) });
+    expect(res).toEqual({
+      success: false,
+      error: "Too many requests — please try again shortly.",
+    });
+    expect(upsertLead).not.toHaveBeenCalled();
+    expect(getLeads).not.toHaveBeenCalled();
+  });
+
   it("rejects empty CSV text without calling getLeads", async () => {
     const { importLeadsCsvAction } = await import("./actions");
     const res = await importLeadsCsvAction({ csvText: "   " });
@@ -156,6 +195,38 @@ describe("importLeadsCsvAction", () => {
     });
     expect(getLeads).not.toHaveBeenCalled();
     expect(upsertLead).not.toHaveBeenCalled();
+  });
+
+  it("hard-rejects over-long csvText before parse / getLeads / upsert", async () => {
+    const { MAX_CSV_IMPORT_TEXT_LENGTH } = await import(
+      "@/lib/leads/csv-import",
+    );
+    const over = "x".repeat(MAX_CSV_IMPORT_TEXT_LENGTH + 1);
+    expect(over.length).toBeGreaterThan(MAX_CSV_IMPORT_TEXT_LENGTH);
+    const { importLeadsCsvAction } = await import("./actions");
+    const res = await importLeadsCsvAction({ csvText: over });
+    expect(res).toEqual({
+      success: false,
+      error: `CSV text is too long (over ${MAX_CSV_IMPORT_TEXT_LENGTH.toLocaleString("en-US")} characters) — split it into smaller batches (fewer rows, or shorter services lists) and import each separately.`,
+    });
+    expect(getLeads).not.toHaveBeenCalled();
+    expect(upsertLead).not.toHaveBeenCalled();
+  });
+
+  it("accepts exactly MAX_CSV_IMPORT_TEXT_LENGTH when the CSV still parses", async () => {
+    const { MAX_CSV_IMPORT_TEXT_LENGTH } = await import(
+      "@/lib/leads/csv-import",
+    );
+    // Pad a valid one-row CSV up to exact max with trailing spaces (ignored by
+    // the parser) so length-gate accepts and upsert still runs.
+    const base = csvFor(salonRow);
+    const pad = " ".repeat(MAX_CSV_IMPORT_TEXT_LENGTH - base.length);
+    const exact = base + pad;
+    expect(exact.length).toBe(MAX_CSV_IMPORT_TEXT_LENGTH);
+    const { importLeadsCsvAction } = await import("./actions");
+    const res = await importLeadsCsvAction({ csvText: exact });
+    expect(res.success).toBe(true);
+    expect(upsertLead).toHaveBeenCalledOnce();
   });
 
   it("returns parse failure when CSV has no valid leads", async () => {
@@ -220,7 +291,28 @@ describe("importLeadsCsvAction", () => {
     expect(revalidatePath).toHaveBeenCalledWith("/dashboard/leads");
   });
 
-  it("skips existing slugs without calling upsertLead for collisions", async () => {
+  it("soft-caps an over-long dataSource before upsert", async () => {
+    const { MAX_LEAD_DATA_SOURCE_LENGTH } = await import(
+      "@/lib/leads/create-fields"
+    );
+    const long = "batch-".repeat(20);
+    const { importLeadsCsvAction } = await import("./actions");
+    const res = await importLeadsCsvAction({
+      csvText: csvFor(salonRow),
+      dataSource: long,
+    });
+
+    expect(res).toMatchObject({ success: true, imported: 1 });
+    expect(upsertLead).toHaveBeenCalledWith(
+      expect.objectContaining({
+        slug: "blue-river-salon",
+        dataSource: long.slice(0, MAX_LEAD_DATA_SOURCE_LENGTH),
+      }),
+      { requireConvex: true },
+    );
+  });
+
+  it("skips existing slugs without calling upsertLead for collisions, reporting the real CSV row (not a hardcoded 0)", async () => {
     getLeads.mockResolvedValue([{ slug: "blue-river-salon" }]);
     const { existingLeadSlugConflictMessage } = await import(
       "@/lib/leads/csv-import"
@@ -236,10 +328,14 @@ describe("importLeadsCsvAction", () => {
       slugs: ["demo-cafe"],
       skipped: 1,
     });
+    // blue-river-salon is CSV data row 1 — see
+    // csv-import-row-number-mislabel-after-drop (this used to be hardcoded
+    // to row: 0 for every collision, giving the operator no way to tell
+    // which CSV row a collision came from when a batch had more than one).
     expect(res.errors).toEqual(
       expect.arrayContaining([
         {
-          row: 0,
+          row: 1,
           message: existingLeadSlugConflictMessage("blue-river-salon"),
         },
       ]),
@@ -248,6 +344,55 @@ describe("importLeadsCsvAction", () => {
     expect(upsertLead).toHaveBeenCalledWith(
       expect.objectContaining({ slug: "demo-cafe" }),
       { requireConvex: true },
+    );
+  });
+
+  it("reports the correct original CSV row for a fresh-row upsert failure even after an earlier row was dropped by parse validation (csv-import-row-number-mislabel-after-drop)", async () => {
+    // Row 1 (invalid category) never enters `leads`/`fresh` at all — it's
+    // dropped by parseLeadsCsv with its own row:1 error. Row 2 (salonRow) is
+    // the only fresh row, but its position in `fresh` is *array index 0*.
+    // The old index+1 numbering would have mislabeled its own upsert
+    // failure as "row 1" — the very row that was already dropped for an
+    // unrelated reason — instead of its real CSV row, 2.
+    const invalidCategoryRow = [...salonRow];
+    invalidCategoryRow[1] = "not-a-real-category";
+    upsertLead.mockRejectedValueOnce(new Error("sqlite locked"));
+    const { importLeadsCsvAction } = await import("./actions");
+    const res = await importLeadsCsvAction({
+      csvText: csvFor(invalidCategoryRow, cafeRow),
+    });
+
+    expect(res).toMatchObject({ success: false, imported: 0 });
+    expect(res.errors).toEqual(
+      expect.arrayContaining([
+        { row: 1, message: expect.stringMatching(/Invalid category/) },
+        { row: 2, message: "sqlite locked" },
+      ]),
+    );
+  });
+
+  it("reports distinct real CSV rows for multiple collisions in one batch, not all row: 0", async () => {
+    getLeads.mockResolvedValue([
+      { slug: "blue-river-salon" },
+      { slug: "demo-cafe" },
+    ]);
+    const { existingLeadSlugConflictMessage } = await import(
+      "@/lib/leads/csv-import"
+    );
+    const { importLeadsCsvAction } = await import("./actions");
+    const res = await importLeadsCsvAction({
+      csvText: csvFor(salonRow, cafeRow),
+    });
+
+    expect(res).toMatchObject({ success: false, imported: 0, skipped: 2 });
+    expect(res.errors).toEqual(
+      expect.arrayContaining([
+        {
+          row: 1,
+          message: existingLeadSlugConflictMessage("blue-river-salon"),
+        },
+        { row: 2, message: existingLeadSlugConflictMessage("demo-cafe") },
+      ]),
     );
   });
 
@@ -282,10 +427,45 @@ describe("importLeadsCsvAction", () => {
     );
   });
 
+  it("reports a stale-snapshot collision (not a false import) when upsertLead loses the create-only race mid-batch (lead-upsert-create-only-race-guard)", async () => {
+    // The one-time existingSlugs snapshot (read before the loop) missed a
+    // concurrent create/payment/import that landed for this exact slug
+    // between the snapshot and this row's turn — upsertLead's atomic
+    // re-check refuses the write; the action must not still count it as
+    // imported or silently drop it.
+    upsertLead
+      .mockResolvedValueOnce(false)
+      .mockResolvedValueOnce(true);
+    const { existingLeadSlugConflictMessage } = await import(
+      "@/lib/leads/csv-import"
+    );
+    const { importLeadsCsvAction } = await import("./actions");
+    const res = await importLeadsCsvAction({
+      csvText: csvFor(salonRow, cafeRow),
+    });
+
+    expect(res).toMatchObject({
+      success: true,
+      imported: 1,
+      slugs: ["demo-cafe"],
+      skipped: 1,
+    });
+    expect(res.errors).toEqual(
+      expect.arrayContaining([
+        {
+          row: 1,
+          message: existingLeadSlugConflictMessage("blue-river-salon"),
+        },
+      ]),
+    );
+    expect(revalidatePath).toHaveBeenCalledWith("/preview/demo-cafe");
+    expect(revalidatePath).not.toHaveBeenCalledWith("/preview/blue-river-salon");
+  });
+
   it("fails closed per-row on ConvexPrimaryWriteError and still imports siblings", async () => {
     upsertLead
       .mockRejectedValueOnce(new MockConvexPrimaryWriteError())
-      .mockResolvedValueOnce(undefined);
+      .mockResolvedValueOnce(true);
     const { importLeadsCsvAction } = await import("./actions");
     const res = await importLeadsCsvAction({
       csvText: csvFor(salonRow, cafeRow),
@@ -363,6 +543,10 @@ describe("importLeadsCsvAction", () => {
       error: "db offline",
     });
     expect(upsertLead).not.toHaveBeenCalled();
+    expect(captureError).toHaveBeenCalledWith(expect.any(Error), {
+      component: "dashboard-leads-actions",
+      failureKind: "importLeadsCsvAction",
+    });
   });
 
   it("surfaces non-Error throws as Unknown error", async () => {
@@ -391,6 +575,99 @@ describe("importLeadsCsvAction", () => {
     });
     expect(res.errors).toEqual(
       expect.arrayContaining([{ row: 1, message: "sqlite locked" }]),
+    );
+  });
+
+  it("records outreach cadence step 1 for a row imported directly into outreach_sent, without sending Email 1 (csv-import-outreach-sent-cadence-gap)", async () => {
+    const { importLeadsCsvAction } = await import("./actions");
+    const res = await importLeadsCsvAction({
+      csvText: csvFor(salonRow),
+      defaultStage: "outreach_sent",
+    });
+
+    expect(res).toMatchObject({ success: true, imported: 1 });
+    expect(recordLeadOutreach).toHaveBeenCalledWith(
+      "blue-river-salon",
+      1,
+      undefined,
+      { requireConvex: true },
+    );
+    expect(sendOutreachEmail).not.toHaveBeenCalled();
+  });
+
+  it("does not record outreach cadence for rows imported into a stage other than outreach_sent", async () => {
+    const { importLeadsCsvAction } = await import("./actions");
+    const res = await importLeadsCsvAction({
+      csvText: csvFor(salonRow),
+      defaultStage: "discovered",
+    });
+
+    expect(res).toMatchObject({ success: true, imported: 1 });
+    expect(recordLeadOutreach).not.toHaveBeenCalled();
+  });
+
+  it("still counts the row as imported but reports a row error when recordLeadOutreach fails Convex-primary for an outreach_sent row", async () => {
+    recordLeadOutreach.mockRejectedValue(new MockConvexPrimaryWriteError());
+    const { importLeadsCsvAction } = await import("./actions");
+    const res = await importLeadsCsvAction({
+      csvText: csvFor(salonRow),
+      defaultStage: "outreach_sent",
+    });
+
+    expect(res).toMatchObject({
+      success: true,
+      imported: 1,
+      slugs: ["blue-river-salon"],
+    });
+    expect(res.errors).toEqual(
+      expect.arrayContaining([
+        {
+          row: 1,
+          message:
+            "Lead saved, but could not record the outreach mark in the shared store — retry marking the stage again from the dashboard.",
+        },
+      ]),
+    );
+  });
+
+  it("records outreach cadence step 1 for a row imported directly into discovery_call, without sending Email 1 (discovery-call-outreach-cadence-gap)", async () => {
+    const { importLeadsCsvAction } = await import("./actions");
+    const res = await importLeadsCsvAction({
+      csvText: csvFor(salonRow),
+      defaultStage: "discovery_call",
+    });
+
+    expect(res).toMatchObject({ success: true, imported: 1 });
+    expect(recordLeadOutreach).toHaveBeenCalledWith(
+      "blue-river-salon",
+      1,
+      undefined,
+      { requireConvex: true },
+    );
+    expect(sendOutreachEmail).not.toHaveBeenCalled();
+  });
+
+  it("still counts the row as imported but reports a row error when recordLeadOutreach fails Convex-primary for a discovery_call row", async () => {
+    recordLeadOutreach.mockRejectedValue(new MockConvexPrimaryWriteError());
+    const { importLeadsCsvAction } = await import("./actions");
+    const res = await importLeadsCsvAction({
+      csvText: csvFor(salonRow),
+      defaultStage: "discovery_call",
+    });
+
+    expect(res).toMatchObject({
+      success: true,
+      imported: 1,
+      slugs: ["blue-river-salon"],
+    });
+    expect(res.errors).toEqual(
+      expect.arrayContaining([
+        {
+          row: 1,
+          message:
+            "Lead saved, but could not record the outreach mark in the shared store — retry marking the stage again from the dashboard.",
+        },
+      ]),
     );
   });
 });

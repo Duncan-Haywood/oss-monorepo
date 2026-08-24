@@ -1,5 +1,14 @@
 import { mutation, query } from "./_generated/server";
 import { v } from "convex/values";
+import { preferAdvancedHandoffStatus as preferAdvancedHandoffStatusCanonical } from "../src/lib/deploy/handoff-preserve";
+import type { DeployHandoffStatus } from "../src/lib/deploy/types";
+import { requireApiSecret } from "./lib/apiSecret";
+import {
+  bundleReceiptEmailSentNote,
+  bundleDnsHandoffEmailSentNote,
+  hasBundleReceiptEmailNote,
+  hasBundleDnsHandoffEmailNote,
+} from "../src/lib/payments/bundle-side-effect-recovery";
 
 const dnsInstruction = v.object({
   type: v.string(),
@@ -102,48 +111,59 @@ export const upsert = mutation({
     notes: v.array(v.string()),
     createdAt: v.string(),
     updatedAt: v.string(),
+    apiSecret: v.string(),
   },
   returns: v.null(),
   handler: async (ctx, args) => {
+    requireApiSecret(args.apiSecret);
+    // Destructure apiSecret out before persisting — schema.ts's deployHandoffs
+    // table is a strict defineTable that rejects unlisted fields, and the
+    // previous plain `ctx.db.insert("deployHandoffs", args)` would otherwise
+    // leak apiSecret into the row as an extra column (same gotcha as
+    // orders.createOrder / leads.upsertLead / commerceOrders.insert /
+    // checkoutSessions.create).
+    const { apiSecret, ...handoff } = args;
+    void apiSecret;
     const existing = await ctx.db
       .query("deployHandoffs")
-      .withIndex("by_leadSlug", (q) => q.eq("leadSlug", args.leadSlug))
+      .withIndex("by_leadSlug", (q) => q.eq("leadSlug", handoff.leadSlug))
       .unique();
 
     if (existing) {
       // replace (not patch) so omitted optionals clear — matches SQLite NULL overwrite.
       await ctx.db.replace(existing._id, {
         handoffId: existing.handoffId,
-        leadSlug: args.leadSlug,
-        businessName: args.businessName,
-        tier: args.tier,
-        commerceAddon: args.commerceAddon,
-        stripeSessionId: args.stripeSessionId,
-        customerEmail: args.customerEmail,
-        previewUrl: args.previewUrl,
-        suggestedHost: args.suggestedHost,
-        customDomain: args.customDomain,
-        contactFormUrl: args.contactFormUrl,
-        dnsInstructions: args.dnsInstructions,
-        status: args.status,
-        vercelDomainStatus: args.vercelDomainStatus,
-        vercelProjectId: args.vercelProjectId,
-        notes: args.notes,
+        leadSlug: handoff.leadSlug,
+        businessName: handoff.businessName,
+        tier: handoff.tier,
+        commerceAddon: handoff.commerceAddon,
+        stripeSessionId: handoff.stripeSessionId,
+        customerEmail: handoff.customerEmail,
+        previewUrl: handoff.previewUrl,
+        suggestedHost: handoff.suggestedHost,
+        customDomain: handoff.customDomain,
+        contactFormUrl: handoff.contactFormUrl,
+        dnsInstructions: handoff.dnsInstructions,
+        status: handoff.status,
+        vercelDomainStatus: handoff.vercelDomainStatus,
+        vercelProjectId: handoff.vercelProjectId,
+        notes: handoff.notes,
         createdAt: existing.createdAt,
-        updatedAt: args.updatedAt,
+        updatedAt: handoff.updatedAt,
       });
       return null;
     }
 
-    await ctx.db.insert("deployHandoffs", args);
+    await ctx.db.insert("deployHandoffs", handoff);
     return null;
   },
 });
 
 export const getByLeadSlug = query({
-  args: { leadSlug: v.string() },
+  args: { leadSlug: v.string(), apiSecret: v.string() },
   returns: v.union(handoffReturn, v.null()),
   handler: async (ctx, args) => {
+    requireApiSecret(args.apiSecret);
     const row = await ctx.db
       .query("deployHandoffs")
       .withIndex("by_leadSlug", (q) => q.eq("leadSlug", args.leadSlug))
@@ -154,9 +174,10 @@ export const getByLeadSlug = query({
 });
 
 export const list = query({
-  args: {},
+  args: { apiSecret: v.string() },
   returns: v.array(handoffReturn),
-  handler: async (ctx) => {
+  handler: async (ctx, args) => {
+    requireApiSecret(args.apiSecret);
     // Bounded by paid leads — collect + sort is fine (same as suppressions list).
     const rows = await ctx.db.query("deployHandoffs").collect();
     return rows
@@ -171,9 +192,10 @@ export const list = query({
  * domains) never match a lookup since real hosts are non-empty.
  */
 export const getByCustomDomain = query({
-  args: { customDomain: v.string() },
+  args: { customDomain: v.string(), apiSecret: v.string() },
   returns: v.union(v.object({ leadSlug: v.string() }), v.null()),
   handler: async (ctx, args) => {
+    requireApiSecret(args.apiSecret);
     if (!args.customDomain) return null;
     // .first() (not .unique()) — customDomain has no uniqueness constraint at
     // the DB level, and a rare operator collision must not throw for every
@@ -187,34 +209,169 @@ export const getByCustomDomain = query({
   },
 });
 
+/**
+ * Progress rank for handoff status lives once, canonically, in
+ * src/lib/deploy/handoff-preserve.ts (HANDOFF_STATUS_RANK /
+ * preferAdvancedHandoffStatus) — imported directly here (a relative import
+ * of a pure module with no `@/`-alias or server-only dependency, same
+ * pattern as convex/orders.ts importing orderHadRecurringEntitlement from
+ * src/lib/orders/recurring) instead of a second hand-maintained copy of the
+ * rank table that can silently drift out of sync with the canonical one if a
+ * status is ever added or reordered there. Note-only marker writes (bundle
+ * receipt/DNS) must not regress live — see
+ * handoff-email-marker-status-no-downgrade and
+ * convex-orders-recurring-entitlement-duplicate-fix (the prior instance of
+ * this exact duplication bug class). Convex's `status` schema field is a
+ * plain v.string(), not the narrower DeployHandoffStatus union, so cast at
+ * the call boundary only — the comparison logic itself is untouched.
+ */
+function preferAdvancedHandoffStatus(
+  existing: string,
+  requested: string,
+): string {
+  return preferAdvancedHandoffStatusCanonical(
+    existing as DeployHandoffStatus,
+    requested as DeployHandoffStatus,
+  );
+}
+
 export const updateStatus = mutation({
   args: {
     leadSlug: v.string(),
     status: v.string(),
     extraNotes: v.array(v.string()),
     updatedAt: v.string(),
+    apiSecret: v.string(),
   },
   returns: v.union(handoffReturn, v.null()),
   handler: async (ctx, args) => {
+    requireApiSecret(args.apiSecret);
     const existing = await ctx.db
       .query("deployHandoffs")
       .withIndex("by_leadSlug", (q) => q.eq("leadSlug", args.leadSlug))
       .unique();
     if (!existing) return null;
 
+    // Atomic never-downgrade: webhook sent-markers pass a pre-Resend status
+    // snapshot; if Mark live landed during that window, keep live.
+    const status = preferAdvancedHandoffStatus(existing.status, args.status);
     const notes = [...existing.notes, ...args.extraNotes];
     await ctx.db.patch(existing._id, {
-      status: args.status,
+      status,
       notes,
       updatedAt: args.updatedAt,
     });
 
     return toHandoff({
       ...existing,
-      status: args.status,
+      status,
       notes,
       updatedAt: args.updatedAt,
     });
+  },
+});
+
+/**
+ * Atomically reserves the buyer receipt / DNS handoff sent-marker note(s)
+ * for resendBundleBuyerEmailAction, mirroring markSentToClient's
+ * reserve-then-send-then-release pattern (see
+ * bundle-buyer-email-resend-race-guard-ordering-fix). Re-checks each
+ * marker's absence atomically with the append — a concurrent reservation (a
+ * second open dashboard tab, or a double-click landing before the button's
+ * isPending-disabled state applies) sees the marker already reserved and is
+ * told not to send, instead of both callers sending their own real email to
+ * the paying buyer before either persists a marker. Only reserves the
+ * marker(s) actually requested (wantReceipt/wantDns) and still absent;
+ * returns which one(s) were reserved so the caller knows exactly which
+ * send(s) are cleared to proceed.
+ */
+export const reserveBuyerEmailNotes = mutation({
+  args: {
+    leadSlug: v.string(),
+    stripeSessionId: v.string(),
+    wantReceipt: v.boolean(),
+    wantDns: v.boolean(),
+    updatedAt: v.string(),
+    apiSecret: v.string(),
+  },
+  returns: v.union(
+    v.object({
+      handoff: handoffReturn,
+      reservedReceipt: v.boolean(),
+      reservedDns: v.boolean(),
+    }),
+    v.null(),
+  ),
+  handler: async (ctx, args) => {
+    requireApiSecret(args.apiSecret);
+    const existing = await ctx.db
+      .query("deployHandoffs")
+      .withIndex("by_leadSlug", (q) => q.eq("leadSlug", args.leadSlug))
+      .unique();
+    if (!existing) return null;
+
+    const hasReceipt = hasBundleReceiptEmailNote(existing.notes, args.stripeSessionId);
+    const hasDns = hasBundleDnsHandoffEmailNote(existing.notes, args.stripeSessionId);
+    const reservedReceipt = args.wantReceipt && !hasReceipt;
+    const reservedDns = args.wantDns && !hasDns;
+
+    if (!reservedReceipt && !reservedDns) {
+      return { handoff: toHandoff(existing), reservedReceipt: false, reservedDns: false };
+    }
+
+    const notesToAdd: string[] = [];
+    if (reservedReceipt) notesToAdd.push(bundleReceiptEmailSentNote(args.stripeSessionId));
+    if (reservedDns) notesToAdd.push(bundleDnsHandoffEmailSentNote(args.stripeSessionId));
+    const notes = [...existing.notes, ...notesToAdd];
+    await ctx.db.patch(existing._id, { notes, updatedAt: args.updatedAt });
+
+    return {
+      handoff: toHandoff({ ...existing, notes, updatedAt: args.updatedAt }),
+      reservedReceipt,
+      reservedDns,
+    };
+  },
+});
+
+/**
+ * Releases a reservation made by reserveBuyerEmailNotes when the send it was
+ * guarding turned out to fail — see
+ * bundle-buyer-email-resend-race-guard-ordering-fix. Best-effort by design at
+ * the call site (a failed release leaves the marker showing sent until a
+ * manual retry recomputes it — there is no periodic sweep for this specific
+ * marker, unlike the one-shot pack/receipt markers' regenerate-clears-it
+ * escape hatch). Removes only the exact marker note(s) requested; a safe
+ * no-op when a marker isn't currently present (e.g. never reserved, or
+ * already released).
+ */
+export const releaseBuyerEmailNotes = mutation({
+  args: {
+    leadSlug: v.string(),
+    stripeSessionId: v.string(),
+    releaseReceipt: v.boolean(),
+    releaseDns: v.boolean(),
+    apiSecret: v.string(),
+  },
+  returns: v.boolean(),
+  handler: async (ctx, args) => {
+    requireApiSecret(args.apiSecret);
+    const existing = await ctx.db
+      .query("deployHandoffs")
+      .withIndex("by_leadSlug", (q) => q.eq("leadSlug", args.leadSlug))
+      .unique();
+    if (!existing) return false;
+
+    const receiptMarker = bundleReceiptEmailSentNote(args.stripeSessionId);
+    const dnsMarker = bundleDnsHandoffEmailSentNote(args.stripeSessionId);
+    const notes = existing.notes.filter((note: string) => {
+      if (args.releaseReceipt && note === receiptMarker) return false;
+      if (args.releaseDns && note === dnsMarker) return false;
+      return true;
+    });
+    if (notes.length === existing.notes.length) return false;
+
+    await ctx.db.patch(existing._id, { notes });
+    return true;
   },
 });
 
@@ -224,9 +381,11 @@ export const updateVercelProject = mutation({
     /** Empty string clears the dedicated project (falls back to shared env). */
     vercelProjectId: v.string(),
     updatedAt: v.string(),
+    apiSecret: v.string(),
   },
   returns: v.union(handoffReturn, v.null()),
   handler: async (ctx, args) => {
+    requireApiSecret(args.apiSecret);
     const existing = await ctx.db
       .query("deployHandoffs")
       .withIndex("by_leadSlug", (q) => q.eq("leadSlug", args.leadSlug))
@@ -264,22 +423,84 @@ export const updateVercelProject = mutation({
   },
 });
 
+// Mirror src/lib/deploy/custom-domain-routing's customDomainHostAliases —
+// Convex cannot import that module directly (it depends on @/lib/leads/slug-path,
+// an alias import Convex's bundler does not resolve), same reason the host
+// normalization above is hand-rolled rather than imported.
+function hostAliasCandidates(host: string): string[] {
+  if (host.startsWith("www.")) {
+    const apex = host.slice(4);
+    return apex ? [host, apex] : [host];
+  }
+  return [host, `www.${host}`];
+}
+
 export const updateCustomDomain = mutation({
   args: {
     leadSlug: v.string(),
     /** Empty string clears the custom domain (falls back to suggestedHost). */
     customDomain: v.string(),
     updatedAt: v.string(),
+    apiSecret: v.string(),
   },
-  returns: v.union(handoffReturn, v.null()),
+  returns: v.union(
+    handoffReturn,
+    v.null(),
+    v.object({ conflict: v.literal(true), ownerSlug: v.string() }),
+  ),
   handler: async (ctx, args) => {
+    requireApiSecret(args.apiSecret);
     const existing = await ctx.db
       .query("deployHandoffs")
       .withIndex("by_leadSlug", (q) => q.eq("leadSlug", args.leadSlug))
       .unique();
     if (!existing) return null;
 
-    const customDomain = args.customDomain.trim().toLowerCase() || undefined;
+    // Bare hostname only (mirror src/lib/deploy/custom-domain-routing
+    // normalizeOperatorCustomDomainHost — Convex cannot import src/).
+    // Strip scheme/path/port/trailing FQDN dot so Host→preview matches.
+    let customDomain: string | undefined;
+    const raw = args.customDomain.trim();
+    if (raw) {
+      let host = "";
+      try {
+        const withScheme = /^[a-zA-Z][a-zA-Z0-9+.-]*:\/\//.test(raw)
+          ? raw
+          : `https://${raw}`;
+        host = new URL(withScheme).hostname.toLowerCase();
+      } catch {
+        host = raw
+          .toLowerCase()
+          .replace(/^https?:\/\//, "")
+          .split("/")[0]
+          ?.split("?")[0]
+          ?.split("#")[0]
+          ?.split(":")[0] ?? "";
+      }
+      host = host.replace(/\.$/, "").trim();
+      customDomain = host || undefined;
+    }
+
+    // Atomic re-check immediately before the write — closes the TOCTOU
+    // window between the caller's own getLeadSlugByCustomDomain precheck
+    // and this mutation's persist (two concurrent Save domain requests for
+    // two different leads can both pass that precheck before either write
+    // lands). A Convex mutation is a single serialized transaction, so a
+    // second concurrent call touching the same by_customDomain index entry
+    // is retried against this call's already-committed result rather than
+    // racing it — see custom-domain-assign-race-guard.
+    if (customDomain) {
+      for (const alias of hostAliasCandidates(customDomain)) {
+        const conflict = await ctx.db
+          .query("deployHandoffs")
+          .withIndex("by_customDomain", (q) => q.eq("customDomain", alias))
+          .first();
+        if (conflict && conflict.leadSlug !== existing.leadSlug) {
+          return { conflict: true as const, ownerSlug: conflict.leadSlug };
+        }
+      }
+    }
+
     // replace so clearing the domain actually drops the optional field.
     await ctx.db.replace(existing._id, {
       handoffId: existing.handoffId,

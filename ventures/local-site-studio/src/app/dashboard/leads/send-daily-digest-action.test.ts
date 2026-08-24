@@ -36,9 +36,14 @@ const listMarketingPacksForMonth = vi.fn();
 const listCommerceCatalogs = vi.fn();
 const listClientVoicePacks = vi.fn();
 const listUnpaidCommerceOrders = vi.fn();
+const listCommerceOrdersRefunded = vi.fn();
+const listCommerceOrdersDisputed = vi.fn();
+const listCommerceOrdersMissingClientReceipt = vi.fn();
 const listClientInquiries = vi.fn();
 const listCommerceOrders = vi.fn();
 const listDeployHandoffs = vi.fn();
+const getSuppressedEmails = vi.fn();
+const listCronRuns = vi.fn();
 
 vi.mock("@/lib/db", () => ({
   listOpenCheckoutSessions: (...args: unknown[]) =>
@@ -73,8 +78,16 @@ vi.mock("@/lib/db", () => ({
   listClientVoicePacks: (...args: unknown[]) => listClientVoicePacks(...args),
   listUnpaidCommerceOrders: (...args: unknown[]) =>
     listUnpaidCommerceOrders(...args),
+  listCommerceOrdersRefunded: (...args: unknown[]) =>
+    listCommerceOrdersRefunded(...args),
+  listCommerceOrdersDisputed: (...args: unknown[]) =>
+    listCommerceOrdersDisputed(...args),
+  listCommerceOrdersMissingClientReceipt: (...args: unknown[]) =>
+    listCommerceOrdersMissingClientReceipt(...args),
   listCommerceOrders: (...args: unknown[]) => listCommerceOrders(...args),
   listDeployHandoffs: (...args: unknown[]) => listDeployHandoffs(...args),
+  getSuppressedEmails: (...args: unknown[]) => getSuppressedEmails(...args),
+  listCronRuns: (...args: unknown[]) => listCronRuns(...args),
 }));
 
 const sendOperatorDailyDigest = vi.fn();
@@ -93,10 +106,16 @@ vi.mock("@/lib/email/resend", () => ({
   sendClientVoicePackToClientEmail: vi.fn(),
 }));
 
+const captureError = vi.fn();
+vi.mock("@/lib/observability/error-tracking", () => ({
+  captureError: (...args: unknown[]) => captureError(...args),
+}));
+
 describe("sendDailyDigestAction", () => {
   const originalEnv = { ...process.env };
 
   beforeEach(() => {
+    captureError.mockReset().mockResolvedValue(undefined);
     vi.resetModules();
     process.env = { ...originalEnv };
     process.env.OPERATOR_DIGEST_EMAIL = "ops@localsitestudio.com";
@@ -118,9 +137,14 @@ describe("sendDailyDigestAction", () => {
     listCommerceCatalogs.mockReset().mockResolvedValue([]);
     listClientVoicePacks.mockReset().mockResolvedValue([]);
     listUnpaidCommerceOrders.mockReset().mockResolvedValue([]);
+    listCommerceOrdersRefunded.mockReset().mockResolvedValue([]);
+    listCommerceOrdersDisputed.mockReset().mockResolvedValue([]);
+    listCommerceOrdersMissingClientReceipt.mockReset().mockResolvedValue([]);
     listDeployHandoffs.mockReset().mockResolvedValue([]);
     listClientInquiries.mockReset();
     listCommerceOrders.mockReset();
+    getSuppressedEmails.mockReset().mockResolvedValue([]);
+    listCronRuns.mockReset().mockResolvedValue([]);
     sendOperatorDailyDigest.mockReset().mockResolvedValue({
       success: true,
       mock: true,
@@ -145,6 +169,22 @@ describe("sendDailyDigestAction", () => {
     expect(getLeads).not.toHaveBeenCalled();
     expect(listUnrepliedInquiries).not.toHaveBeenCalled();
     expect(sendOperatorDailyDigest).not.toHaveBeenCalled();
+  });
+
+  it("rate-limits repeated digest sends from the same IP (auth alone is not a throttle)", async () => {
+    const { sendDailyDigestAction } = await import("./actions");
+    // DEFAULT_RATE_LIMIT is 20 requests/60s per key — exhaust the window.
+    for (let i = 0; i < 20; i++) {
+      const res = await sendDailyDigestAction();
+      expect(res.success).toBe(true);
+    }
+    getLeads.mockClear();
+    const res = await sendDailyDigestAction();
+    expect(res).toEqual({
+      success: false,
+      error: "Too many requests — please try again shortly.",
+    });
+    expect(getLeads).not.toHaveBeenCalled();
   });
 
   it("rejects when OPERATOR_DIGEST_EMAIL is unset", async () => {
@@ -190,8 +230,12 @@ describe("sendDailyDigestAction", () => {
     expect(listCommerceCatalogs).toHaveBeenCalledOnce();
     expect(listClientVoicePacks).toHaveBeenCalledOnce();
     expect(listUnpaidCommerceOrders).toHaveBeenCalledOnce();
+    expect(listCommerceOrdersRefunded).toHaveBeenCalledOnce();
+    expect(listCommerceOrdersDisputed).toHaveBeenCalledOnce();
+    expect(listCommerceOrdersMissingClientReceipt).toHaveBeenCalledOnce();
     expect(listDeployHandoffs).toHaveBeenCalledOnce();
     expect(listCommerceOrders).not.toHaveBeenCalled();
+    expect(getSuppressedEmails).toHaveBeenCalledOnce();
 
     expect(sendOperatorDailyDigest).toHaveBeenCalledOnce();
     const [to, html] = sendOperatorDailyDigest.mock.calls[0]!;
@@ -246,6 +290,36 @@ describe("sendDailyDigestAction", () => {
     expect(html).not.toContain("http://localhost:3000");
   });
 
+  it("never trusts a malformed/injection x-forwarded-host header verbatim into the digest link", async () => {
+    headers.mockResolvedValue({
+      get: (name: string) => {
+        if (name === "x-forwarded-host") return '"><script>alert(1)</script>';
+        if (name === "x-forwarded-proto") return "https";
+        return null;
+      },
+    });
+    listUnrepliedInquiries.mockResolvedValue([
+      {
+        id: "inq_1",
+        leadSlug: "demo-cafe",
+        businessName: "Demo Cafe",
+        name: "Alex",
+        email: "alex@example.com",
+        message: "Need a site by Friday",
+        status: "new",
+        source: "contact_form",
+        createdAt: "2026-07-13T10:00:00.000Z",
+        updatedAt: "2026-07-13T10:00:00.000Z",
+      },
+    ]);
+    const { sendDailyDigestAction } = await import("./actions");
+    const res = await sendDailyDigestAction();
+    expect(res.success).toBe(true);
+    const html = sendOperatorDailyDigest.mock.calls[0]![1] as string;
+    expect(html).not.toContain("<script>alert(1)</script>");
+    expect(html).toContain("http://localhost:3000/dashboard/leads");
+  });
+
   it("surfaces sendOperatorDailyDigest failures", async () => {
     sendOperatorDailyDigest.mockResolvedValue({
       success: false,
@@ -278,6 +352,27 @@ describe("sendDailyDigestAction", () => {
       error: "db unavailable",
     });
     expect(sendOperatorDailyDigest).not.toHaveBeenCalled();
+    expect(captureError).toHaveBeenCalledWith(expect.any(Error), {
+      component: "dashboard-leads-actions",
+      failureKind: "sendDailyDigestAction",
+    });
+  });
+
+  it("wires getSuppressedEmails into the digest's bounce/complaint footnote (suppression-reason-visibility follow-up)", async () => {
+    getSuppressedEmails.mockResolvedValue([
+      {
+        email: "bounce@example.com",
+        reason: "bounce",
+        createdAt: Date.now() - 3 * 60 * 60 * 1000,
+      },
+    ]);
+    const { sendDailyDigestAction } = await import("./actions");
+    const res = await sendDailyDigestAction();
+    expect(res.success).toBe(true);
+    if (!res.success) throw new Error("expected success");
+    expect(res.digest.recentBounceOrComplaintSuppressionCount).toBe(1);
+    const html = sendOperatorDailyDigest.mock.calls[0]![1] as string;
+    expect(html).toContain("sender-reputation risk");
   });
 
   it("reports mock:false when Resend actually sends", async () => {

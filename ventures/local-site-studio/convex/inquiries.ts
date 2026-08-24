@@ -1,5 +1,6 @@
 import { mutation, query } from "./_generated/server";
 import { v } from "convex/values";
+import { requireApiSecret } from "./lib/apiSecret";
 
 const statusValidator = v.union(
   v.literal("new"),
@@ -20,6 +21,7 @@ const inquiryReturn = v.object({
   source: v.optional(v.string()),
   operatorReply: v.optional(v.string()),
   repliedAt: v.optional(v.string()),
+  replySentCount: v.optional(v.number()),
   createdAt: v.string(),
   updatedAt: v.string(),
 });
@@ -40,6 +42,7 @@ function mapInquiry(row: {
   source?: string;
   operatorReply?: string;
   repliedAt?: number;
+  replySentCount?: number;
   createdAt: number;
   updatedAt: number;
 }) {
@@ -56,6 +59,7 @@ function mapInquiry(row: {
     operatorReply: row.operatorReply,
     repliedAt:
       row.repliedAt !== undefined ? toIso(row.repliedAt) : undefined,
+    replySentCount: row.replySentCount,
     createdAt: toIso(row.createdAt),
     updatedAt: toIso(row.updatedAt),
   };
@@ -71,9 +75,11 @@ export const create = mutation({
     phone: v.optional(v.string()),
     message: v.string(),
     source: v.optional(v.string()),
+    apiSecret: v.string(),
   },
   returns: inquiryReturn,
   handler: async (ctx, args) => {
+    requireApiSecret(args.apiSecret);
     const now = Date.now();
     await ctx.db.insert("clientInquiries", {
       inquiryId: args.inquiryId,
@@ -108,9 +114,11 @@ export const create = mutation({
 export const list = query({
   args: {
     limit: v.optional(v.number()),
+    apiSecret: v.string(),
   },
   returns: v.array(inquiryReturn),
   handler: async (ctx, args) => {
+    requireApiSecret(args.apiSecret);
     const limit = Math.min(Math.max(args.limit ?? 100, 1), 200);
     const rows = await ctx.db
       .query("clientInquiries")
@@ -132,9 +140,10 @@ export const list = query({
  * unreplied-inquiry-list-completeness in /docs/process.
  */
 export const listUnreplied = query({
-  args: {},
+  args: { apiSecret: v.string() },
   returns: v.array(inquiryReturn),
-  handler: async (ctx) => {
+  handler: async (ctx, args) => {
+    requireApiSecret(args.apiSecret);
     const [newRows, readRows] = await Promise.all([
       ctx.db
         .query("clientInquiries")
@@ -155,17 +164,23 @@ export const listBySlug = query({
   args: {
     leadSlug: v.string(),
     limit: v.optional(v.number()),
+    apiSecret: v.string(),
   },
   returns: v.array(inquiryReturn),
   handler: async (ctx, args) => {
+    requireApiSecret(args.apiSecret);
     const limit = Math.min(Math.max(args.limit ?? 50, 1), 200);
     const rows = await ctx.db
       .query("clientInquiries")
       .withIndex("by_leadSlug", (q) => q.eq("leadSlug", args.leadSlug))
-      .order("desc")
-      .take(limit);
-
-    return rows.map(mapInquiry);
+      .collect();
+    // Match the SQLite fallback (ORDER BY createdAt DESC LIMIT ?). The
+    // by_leadSlug index has no createdAt sort field, so .order("desc") would
+    // sort by _creationTime instead of the app createdAt — collect, sort on the
+    // numeric app createdAt descending, then take the newest `limit`. See
+    // convex-query-ordering-parity in /docs/process.
+    rows.sort((a, b) => b.createdAt - a.createdAt);
+    return rows.slice(0, limit).map(mapInquiry);
   },
 });
 
@@ -180,9 +195,11 @@ export const listBySlug = query({
 export const listCommerceCheckoutBySlug = query({
   args: {
     leadSlug: v.string(),
+    apiSecret: v.string(),
   },
   returns: v.array(inquiryReturn),
   handler: async (ctx, args) => {
+    requireApiSecret(args.apiSecret);
     const rows = await ctx.db
       .query("clientInquiries")
       .withIndex("by_leadSlug", (q) => q.eq("leadSlug", args.leadSlug))
@@ -198,9 +215,11 @@ export const listCommerceCheckoutBySlug = query({
 export const getById = query({
   args: {
     inquiryId: v.string(),
+    apiSecret: v.string(),
   },
   returns: v.union(inquiryReturn, v.null()),
   handler: async (ctx, args) => {
+    requireApiSecret(args.apiSecret);
     const existing = await ctx.db
       .query("clientInquiries")
       .withIndex("by_inquiryId", (q) => q.eq("inquiryId", args.inquiryId))
@@ -214,9 +233,11 @@ export const updateStatus = mutation({
   args: {
     inquiryId: v.string(),
     status: statusValidator,
+    apiSecret: v.string(),
   },
   returns: v.union(inquiryReturn, v.null()),
   handler: async (ctx, args) => {
+    requireApiSecret(args.apiSecret);
     const existing = await ctx.db
       .query("clientInquiries")
       .withIndex("by_inquiryId", (q) => q.eq("inquiryId", args.inquiryId))
@@ -233,19 +254,49 @@ export const updateStatus = mutation({
   },
 });
 
+/**
+ * replyToInquiryAction gates on inquiryCanReceiveReply(inquiry) against a row
+ * it read *before* this call — a concurrent updateInquiryStatusAction("archived")
+ * (a second operator tab, or the same operator archiving from a stale reply
+ * composer) can land in the window between that read and this mutation, since
+ * the two are independent async calls with no shared lock. Re-checking
+ * status here, atomically with the patch, is the only thing that actually
+ * prevents overwriting an operator's archive decision with status=replied
+ * and firing an email the operator just decided not to send — the
+ * action-level check alone is a stale-read guard, not a guarantee. Same bug
+ * class as commerce-order-paid-out-refund-race-guard, applied to the inquiry
+ * reply surface. See inquiry-reply-archive-race-guard.
+ *
+ * expectedReplySentCount is a second, independent guard on top of the
+ * archive check above — a plain expected-count compare-and-swap (mirroring
+ * leads.recordStarterUpsellSent), not a one-shot "already replied" gate: a
+ * legitimate follow-up reply must still succeed later against a fresh read.
+ * This only rejects a write whose expectedReplySentCount no longer matches
+ * the row's current count — an exact concurrent duplicate (a second
+ * dashboard tab, or a double-click before the button's isPending-disabled
+ * state applies) firing two replyToInquiryAction calls for the same stale
+ * composer state, which previously both persisted and both sent a real
+ * duplicate reply email to the visitor. See inquiry-reply-send-race-guard.
+ */
 export const recordReply = mutation({
   args: {
     inquiryId: v.string(),
     operatorReply: v.string(),
+    expectedReplySentCount: v.number(),
+    apiSecret: v.string(),
   },
   returns: v.union(inquiryReturn, v.null()),
   handler: async (ctx, args) => {
+    requireApiSecret(args.apiSecret);
     const existing = await ctx.db
       .query("clientInquiries")
       .withIndex("by_inquiryId", (q) => q.eq("inquiryId", args.inquiryId))
       .unique();
 
-    if (!existing) {
+    if (!existing || existing.status === "archived") {
+      return null;
+    }
+    if ((existing.replySentCount ?? 0) !== args.expectedReplySentCount) {
       return null;
     }
 
@@ -254,6 +305,7 @@ export const recordReply = mutation({
       status: "replied",
       operatorReply: args.operatorReply,
       repliedAt: now,
+      replySentCount: args.expectedReplySentCount + 1,
       updatedAt: now,
     });
 
@@ -262,6 +314,7 @@ export const recordReply = mutation({
       status: "replied",
       operatorReply: args.operatorReply,
       repliedAt: now,
+      replySentCount: args.expectedReplySentCount + 1,
       updatedAt: now,
     });
   },

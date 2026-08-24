@@ -1,5 +1,7 @@
 import type { Lead, LeadHours, LeadPipelineStage } from "./types";
 import { normalizeOutreachStep } from "../email/outreach-followups";
+import { normalizeLeadCategory, normalizeLeadRecommendedTier } from "./category-normalize";
+import { defaultTagline } from "./default-tagline";
 
 /**
  * Pure SQLite <-> Lead row mapping, split out of src/lib/db.ts (which imports
@@ -32,6 +34,20 @@ export interface SqliteLeadRow {
   lastPreviewOpenAt?: string | null;
   notes?: string | null;
   snoozedUntil?: string | null;
+  stripeConnectAccountId?: string | null;
+  stripeConnectAccountCreatedAt?: string | null;
+  stripeConnectChargesEnabled?: number | null;
+  stripeConnectPayoutsEnabled?: number | null;
+  stripeConnectDetailsSubmitted?: number | null;
+  stripeConnectStatusCheckedAt?: string | null;
+  bufferProfileIds?: string | null;
+  bufferPostedVariantKeys?: string | null;
+  starterUpsellSentCount?: number | null;
+  lastStarterUpsellSentAt?: string | null;
+  stripeConnectOnboardingLinkSentCount?: number | null;
+  lastStripeConnectOnboardingLinkSentAt?: string | null;
+  growthUpsellSentCount?: number | null;
+  lastGrowthUpsellSentAt?: string | null;
 }
 
 /** Encode LeadHours into the single TEXT column db.ts persists — "weekday · weekend", or bare weekday when weekend is empty. */
@@ -45,8 +61,10 @@ export function parseLeadHours(raw: string | null | undefined): LeadHours {
     return { weekday: "Mon–Fri 9am–5pm", weekend: "Sat–Sun Closed" };
   }
   if (raw.includes("·")) {
-    const parts = raw.split("·").map((p) => p.trim());
-    return { weekday: parts[0], weekend: parts[1] || "" };
+    const idx = raw.indexOf("·");
+    const weekday = raw.slice(0, idx).trim();
+    const weekend = raw.slice(idx + 1).trim();
+    return { weekday, weekend };
   }
   return { weekday: raw, weekend: "" };
 }
@@ -67,24 +85,57 @@ export function parseLeadServices(raw: string | null | undefined): string[] {
   }
 }
 
-const CATEGORIES = ["restaurant", "salon", "trades", "generic"] as const;
-const RECOMMENDED_TIERS = ["starter", "growth", "complete"] as const;
+/** Encode Lead.bufferProfileIds into the JSON TEXT column db.ts persists. */
+export function serializeLeadBufferProfileIds(bufferProfileIds: string[]): string {
+  return JSON.stringify(bufferProfileIds);
+}
+
+/** Inverse of serializeLeadBufferProfileIds; malformed/absent JSON degrades to undefined. */
+export function parseLeadBufferProfileIds(raw: string | null | undefined): string[] | undefined {
+  if (!raw) return undefined;
+  try {
+    const parsed: unknown = JSON.parse(raw);
+    return Array.isArray(parsed) && parsed.length > 0 ? (parsed as string[]) : undefined;
+  } catch {
+    return undefined;
+  }
+}
+
+/** Encode Lead.bufferPostedVariantKeys into the JSON TEXT column db.ts persists. */
+export function serializeLeadBufferPostedVariantKeys(bufferPostedVariantKeys: string[]): string {
+  return JSON.stringify(bufferPostedVariantKeys);
+}
+
+/** Inverse of serializeLeadBufferPostedVariantKeys; malformed/absent JSON degrades to undefined. */
+export function parseLeadBufferPostedVariantKeys(
+  raw: string | null | undefined,
+): string[] | undefined {
+  if (!raw) return undefined;
+  try {
+    const parsed: unknown = JSON.parse(raw);
+    return Array.isArray(parsed) && parsed.length > 0 ? (parsed as string[]) : undefined;
+  } catch {
+    return undefined;
+  }
+}
+
+/**
+ * Inverse of the `? 1 : 0` write convention this codebase uses for every
+ * SQLite boolean column (see e.g. orders.commerceAddon) — tri-state: 1 →
+ * true, 0 → false, null/undefined → undefined (never checked yet), so a
+ * lead whose Connect status was never checked stays distinguishable from one
+ * confirmed NOT chargesEnabled/payoutsEnabled.
+ */
+export function parseSqliteTriStateBoolean(raw: number | null | undefined): boolean | undefined {
+  if (raw === 1) return true;
+  if (raw === 0) return false;
+  return undefined;
+}
 
 /** Map a SQLite `leads` row back into the app-wide Lead shape (fallback-read path). */
 export function mapSqliteRowToLead(row: SqliteLeadRow): Lead {
-  const category = (CATEGORIES as readonly string[]).includes(row.category)
-    ? (row.category as Lead["category"])
-    : "generic";
-
-  const recommendedTier = (RECOMMENDED_TIERS as readonly string[]).includes(
-    row.recommendedTier ?? "",
-  )
-    ? (row.recommendedTier as Lead["recommendedTier"])
-    : category === "trades"
-      ? "starter"
-      : category === "salon"
-        ? "complete"
-        : "growth";
+  const category = normalizeLeadCategory(row.category);
+  const recommendedTier = normalizeLeadRecommendedTier(row.recommendedTier, category);
 
   return {
     slug: row.slug,
@@ -93,13 +144,7 @@ export function mapSqliteRowToLead(row: SqliteLeadRow): Lead {
     city: row.city,
     state: row.state || "CO",
     address: row.address || undefined,
-    tagline:
-      row.tagline ||
-      (category === "trades"
-        ? "Professional services you can count on"
-        : category === "salon"
-          ? "Tailored styling and care"
-          : "Local favorites made fresh daily"),
+    tagline: row.tagline || defaultTagline(category),
     description:
       row.description ||
       `This is a preview page generated for ${row.businessName}. Claim it to connect your domain, contact form, and marketing dashboard.`,
@@ -115,5 +160,24 @@ export function mapSqliteRowToLead(row: SqliteLeadRow): Lead {
     lastPreviewOpenAt: row.lastPreviewOpenAt || undefined,
     notes: row.notes || undefined,
     snoozedUntil: row.snoozedUntil || undefined,
+    stripeConnectAccountId: row.stripeConnectAccountId || undefined,
+    stripeConnectAccountCreatedAt: row.stripeConnectAccountCreatedAt || undefined,
+    stripeConnectChargesEnabled: parseSqliteTriStateBoolean(row.stripeConnectChargesEnabled),
+    stripeConnectPayoutsEnabled: parseSqliteTriStateBoolean(row.stripeConnectPayoutsEnabled),
+    stripeConnectDetailsSubmitted: parseSqliteTriStateBoolean(row.stripeConnectDetailsSubmitted),
+    stripeConnectStatusCheckedAt: row.stripeConnectStatusCheckedAt || undefined,
+    bufferProfileIds: parseLeadBufferProfileIds(row.bufferProfileIds),
+    bufferPostedVariantKeys: parseLeadBufferPostedVariantKeys(row.bufferPostedVariantKeys),
+    starterUpsellSentCount:
+      typeof row.starterUpsellSentCount === "number" ? row.starterUpsellSentCount : undefined,
+    lastStarterUpsellSentAt: row.lastStarterUpsellSentAt || undefined,
+    stripeConnectOnboardingLinkSentCount:
+      typeof row.stripeConnectOnboardingLinkSentCount === "number"
+        ? row.stripeConnectOnboardingLinkSentCount
+        : undefined,
+    lastStripeConnectOnboardingLinkSentAt: row.lastStripeConnectOnboardingLinkSentAt || undefined,
+    growthUpsellSentCount:
+      typeof row.growthUpsellSentCount === "number" ? row.growthUpsellSentCount : undefined,
+    lastGrowthUpsellSentAt: row.lastGrowthUpsellSentAt || undefined,
   };
 }
