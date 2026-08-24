@@ -171,13 +171,25 @@
               <th scope="col">Fees</th>
               <th scope="col">You keep</th>
               <th scope="col">Margin</th>
+              <th scope="col" title="Profit as a percentage of the cash you laid out to source, pack and ship.">Return on cash</th>
               <th scope="col">Gives up</th>
+              <th scope="col" title="List below this and the sale loses money on this channel.">Break-even price</th>
               <th scope="col">Price to match best</th>
             </tr>
           </thead>
           <tbody id="rows"></tbody>
         </table>
       </div>
+      <p class="note">
+        <strong>Break-even price</strong> is how low you can list before the
+        sale costs you money — your floor when you discount, and it differs by
+        channel because the fee shapes do. It is shown in red where your
+        current price is already under it.
+        <strong>Return on cash</strong> is profit against what you actually
+        laid out to source, pack and ship; fees come out of the sale rather
+        than your pocket, so they are not counted as invested. It reads “—”
+        when nothing was invested.
+      </p>
       <p class="note">
         Transparent arithmetic from the rates you entered — not any
         marketplace’s current published schedule. Rates vary by category,
@@ -409,7 +421,9 @@
             <td class="money">${money(result.feeTotal)}</td>
             <td class="money">${money(result.profit)}</td>
             <td class="money">${result.margin.toFixed(1)}%</td>
+            <td class="money">${result.roi === null ? "—" : `${result.roi.toFixed(0)}%`}</td>
             <td class="money">${result.isBest ? "—" : money(result.gapVsBest)}</td>
+            <td class="money${result.price < result.breakEvenPrice ? " negative" : ""}">${money(result.breakEvenPrice)}</td>
             <td class="money">${result.priceToMatchBest === null ? "—" : money(result.priceToMatchBest)}</td>
           </tr>`).join("");
     }

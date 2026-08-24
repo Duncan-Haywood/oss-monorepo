@@ -134,3 +134,141 @@ class CheckCommandTests(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+import gzip  # noqa: E402
+import io  # noqa: E402
+import tarfile  # noqa: E402
+
+
+def _tar_gz(path, truncate_tar=False):
+    """Write a tar.gz, optionally with the tar cut short inside a valid gzip.
+
+    `truncate_tar=True` reproduces the `tar ... | gzip > out.gz` failure: the
+    gzip layer is complete and checksums cleanly, and only the tar inside is
+    short. Nothing but walking the archive catches it.
+    """
+    buffer = io.BytesIO()
+    with tarfile.open(fileobj=buffer, mode="w") as archive:
+        for index in range(3):
+            payload = b"data\n" * 5000
+            info = tarfile.TarInfo(f"m{index}.txt")
+            info.size = len(payload)
+            archive.addfile(info, io.BytesIO(payload))
+    raw = buffer.getvalue()
+    if truncate_tar:
+        raw = raw[: len(raw) // 2]
+    path.write_bytes(gzip.compress(raw))
+    return path
+
+
+class VerifyCommandTests(unittest.TestCase):
+    """`verify` is the no-setup entry point: point it at a file, get an answer."""
+
+    def _run(self, argv):
+        with self.assertRaises(SystemExit) as ctx:
+            main(argv)
+        return ctx.exception.code
+
+    def test_intact_archive_exits_zero(self):
+        with tempfile.TemporaryDirectory() as directory:
+            artifact = _tar_gz(Path(directory) / "nightly.tar.gz")
+            self.assertEqual(self._run(["verify", str(artifact)]), 0)
+
+    def test_corrupt_archive_exits_one(self):
+        with tempfile.TemporaryDirectory() as directory:
+            artifact = _tar_gz(Path(directory) / "nightly.tar.gz", truncate_tar=True)
+            self.assertEqual(self._run(["verify", str(artifact)]), 1)
+
+    def test_uncheckable_artifact_exits_two_not_one(self):
+        # Distinct from the corrupt exit code so an alerting rule can page
+        # differently for "this backup is broken" and "I could not tell".
+        with tempfile.TemporaryDirectory() as directory:
+            artifact = Path(directory) / "notes.txt"
+            artifact.write_bytes(b"not an archive\n")
+            self.assertEqual(self._run(["verify", str(artifact)]), 2)
+
+    def test_one_corrupt_artifact_dominates_a_batch(self):
+        with tempfile.TemporaryDirectory() as directory:
+            good = _tar_gz(Path(directory) / "mon.tar.gz")
+            bad = _tar_gz(Path(directory) / "tue.tar.gz", truncate_tar=True)
+            self.assertEqual(self._run(["verify", str(good), str(bad)]), 1)
+
+    def test_json_output_is_machine_readable(self):
+        with tempfile.TemporaryDirectory() as directory:
+            artifact = _tar_gz(Path(directory) / "nightly.tar.gz")
+            buffer = io.StringIO()
+            stdout, sys.stdout = sys.stdout, buffer
+            try:
+                self._run(["verify", "--format", "json", str(artifact)])
+            finally:
+                sys.stdout = stdout
+            payload = json.loads(buffer.getvalue())
+            self.assertEqual(payload["artifacts"][0]["result"], "intact")
+            self.assertEqual(payload["artifacts"][0]["format"], "tar.gz")
+            self.assertEqual(payload["artifacts"][0]["path"], str(artifact))
+
+    def test_usage_file_counts_the_event(self):
+        with tempfile.TemporaryDirectory() as directory:
+            artifact = _tar_gz(Path(directory) / "nightly.tar.gz")
+            usage = Path(directory) / "usage.json"
+            self._run(["verify", str(artifact), "--usage-file", str(usage)])
+            self.assertEqual(json.loads(usage.read_text())["artifact_verified"], 1)
+
+
+class RecordIntegrityTests(unittest.TestCase):
+    def test_verify_integrity_flag_records_the_finding(self):
+        with tempfile.TemporaryDirectory() as directory:
+            artifact = _tar_gz(Path(directory) / "backup.tar.gz", truncate_tar=True)
+            output = Path(directory) / "run.json"
+            with self.assertRaises(SystemExit):
+                main(
+                    [
+                        "record", "--tool", "tar", "--artifact", str(artifact),
+                        "--min-size-bytes", "100", "--verify-integrity",
+                        "--output", str(output), "--", "true",
+                    ]
+                )
+            record = json.loads(output.read_text())
+            self.assertEqual(record["artifact"]["integrity"]["result"], "corrupt")
+
+    def test_end_to_end_a_clean_exit_over_a_broken_archive_reports_failed(self):
+        """The whole point, exercised through the real CLI.
+
+        `true` exits 0, the artifact comfortably clears the size floor, and it
+        was written seconds ago -- this run was `verified` before integrity
+        checking existed.
+        """
+        with tempfile.TemporaryDirectory() as directory:
+            artifact = _tar_gz(Path(directory) / "backup.tar.gz", truncate_tar=True)
+            output = Path(directory) / "run.json"
+            with self.assertRaises(SystemExit):
+                main(
+                    [
+                        "record", "--tool", "pg_dump|gzip", "--artifact", str(artifact),
+                        "--min-size-bytes", "100", "--max-age-hours", "26",
+                        "--verify-integrity", "--output", str(output), "--", "true",
+                    ]
+                )
+            report_path = Path(directory) / "report.json"
+            with self.assertRaises(SystemExit) as ctx:
+                main(["check", str(output), "--output", str(report_path)])
+            self.assertEqual(ctx.exception.code, 1)
+            report = json.loads(report_path.read_text())
+            self.assertEqual(report["latest"]["status"], "failed")
+            self.assertIn("not intact", report["latest"]["reasons"][0])
+
+    def test_without_the_flag_the_same_broken_archive_reports_verified(self):
+        # Documents the behaviour the flag changes, and pins the default: the
+        # integrity read is opt-in, so existing cron jobs keep their old cost.
+        with tempfile.TemporaryDirectory() as directory:
+            artifact = _tar_gz(Path(directory) / "backup.tar.gz", truncate_tar=True)
+            output = Path(directory) / "run.json"
+            with self.assertRaises(SystemExit):
+                main(
+                    [
+                        "record", "--tool", "tar", "--artifact", str(artifact),
+                        "--min-size-bytes", "100", "--output", str(output), "--", "true",
+                    ]
+                )
+            self.assertNotIn("integrity", json.loads(output.read_text())["artifact"])
