@@ -85,7 +85,9 @@ automatically when the browser sends Do Not Track or Global Privacy Control.
 See [`usage.mjs`](usage.mjs) and [`portfolio/usage/`](../../portfolio/usage/README.md).
 
 Events counted: `bid_calculated`, `service_added`, `service_removed`,
-`proposed_price_compared`, `summary_copied`.
+`proposed_price_compared`, `summary_copied`. The copied draft includes the
+calculated walk-away monthly cost and monthly profit so the operator can review
+the guardrail alongside the proposed price.
 
 ## Limitations
 
