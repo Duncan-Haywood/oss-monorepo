@@ -13,10 +13,9 @@ cannot see it and no agent budget flows to it:
 
 - **`graduate_as: venture`** — someone writes `ventures/<name>/VENTURE.yaml`.
 - **`graduate_as: product-line`** — someone adds the candidate's slug under
-  `product_lines` in its `host_venture`'s `VENTURE.yaml`. One candidate carries
-  this today (`eaa-remediation-pipeline`, into `local-site-studio`), and it
-  happens to be the only `build-now` verdict in the table — so the path is rare
-  by count and load-bearing in practice. See the closing section on why adding
+  `product_lines` in its `host_venture`'s `VENTURE.yaml`. `eaa-remediation-pipeline`
+  graduated this way into `local-site-studio` on 2026-08-24 (the only
+  `build-now` verdict in the table). See the closing section on why adding
   ventures to an unmeasured portfolio is the more expensive problem.
 
 In both cases the directory must actually be routable: a `NOT-A-VENTURE`
@@ -117,7 +116,7 @@ four candidates carrying a probe have moved and the table is re-ordered.
 | # | Candidate | Composite | Floor | Verdict |
 |---|---|---|---|---|
 | 1 | [Shopify accessibility evidence app](candidates/shopify-a11y-evidence.md) | 7.25 | 4 | Probe the channel — scored 2026-08-19. Top of the table only because nobody has probed it |
-| 2 | [EAA remediation pipeline](candidates/eaa-remediation-pipeline.md) | 7.125 | 5 | Build now, as a `local-site-studio` product line. Both gates measured 2026-08-21 — `liability_containment` 6→5 (**on** the gate, unmoved), `ethical_robustness` 9→6→9 after the record began printing its error rates |
+| 2 | [EAA remediation pipeline](candidates/eaa-remediation-pipeline.md) | 7.125 | 5 | Graduated 2026-08-24 as a `local-site-studio` product line. Both gates measured 2026-08-21 — `liability_containment` 6→5 (**on** the gate, unmoved), `ethical_robustness` 9→6→9 after the record began printing its error rates |
 | 3 | [Public-record watch](candidates/public-record-watch.md) | 7.0 | 4 | Cheap probe — one vertical, two weeks. `ethical_robustness` 9→6→9 on 2026-08-21, after the subscriber record was built; the detector still misses two thirds of the dormancy it looks for |
 | 4 | [Agent permission harness](candidates/agent-permission-harness.md) | 6.875 | 4 | Park; revisit 2027-Q1. Probed 2026-08-21 — internal build done, `ai_leverage` 9→8; `ethical_robustness` 9→7→9 after `validate_accuracy.py` measured 0 false positives / 0 false negatives on a 34-case fixture corpus and the findings report started disclosing it |
 | 5 | [MCP supply-chain watch](candidates/mcp-supply-chain-watch.md) | 6.875 | 3 | Probe: steps 1–2 run; mitigation refuted, cannot graduate as scored. `ai_leverage` 6→7 on 2026-08-22 — a blind model pass on the held-out corpus roughly doubled the rules classifier's F1 |

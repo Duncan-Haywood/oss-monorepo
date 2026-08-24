@@ -1,0 +1,191 @@
+name: Claude routine trigger
+
+# Fires the "continue work via api" Claude routine
+# (trig_016b8b1JDqehTCbBjSwSGkju) every 4 minutes, using the account-scoped
+# bearer token held in the CLAUDETRIGGERAPIKEY repository secret.
+#
+# Requested directly by the account owner on 2026-08-24. CLAUDE.md's
+# "Automation that writes or spends unattended" section makes enabling this a
+# human call rather than a session's own judgment, which is what that request
+# is; this file records the request as the authority for the schedule.
+#
+# WHY A LOOP AND NOT `cron: */4 * * * *`
+# --------------------------------------
+# GitHub Actions will not schedule a workflow more often than once every five
+# minutes, so a 4-minute cron is not expressible as a cron line -- it would
+# either be rejected or silently coalesced. The schedule below therefore wakes
+# every 20 minutes and fires five times inside the run, 240s apart:
+#
+#   t=0  t=240  t=480  t=720  t=960 (run ends) ... next run at t=1200
+#
+# When runs start on time the last fire of one run and the first of the next
+# are also 240s apart, so the cadence holds across the boundary. That is the
+# best case and not a guarantee:
+#
+#   * GitHub's scheduler is best-effort and defers `schedule` events under
+#     load, so 15 fires/hour is a ceiling. Fires are dropped, never added.
+#   * A deferred run can be cancelled by the next one mid-loop (see the
+#     concurrency block). The incoming run fires straight away, so the gap
+#     across that boundary can be much shorter than 240s -- a delayed :00 run
+#     starting at :19 fires once, and the :20 run cancels it and fires again a
+#     minute later. Spacing is therefore approximate under scheduler delay,
+#     in both directions.
+#
+# Holding a true floor between fires would need state shared across runs,
+# which a workflow has nowhere to keep. If exact spacing matters more than the
+# 4-minute target, use the single-fire variant below, where the cron itself is
+# the only thing deciding when a fire happens.
+#
+# Set FIRES_PER_RUN=1 and the cron to `*/5 * * * *` for that variant: a
+# 5-minute cadence, no in-run loop, no cancellation window, and roughly a
+# quarter of the Actions bill (see the cost note below).
+#
+# COST
+# ----
+# This repository is private, so Actions minutes are billed. A run bills ~17
+# minutes (GitHub rounds each job up to the minute), three runs an hour, which
+# is roughly 37,000 minutes -- on the order of $300 -- per month, before the
+# subscription usage each fired session itself draws down. Each fire also
+# starts a full Claude Code cloud session and counts against the account's
+# daily routine-run cap, which 360 fires/day will exhaust.
+# portfolio/ledger/break-even.md puts the portfolio's current revenue ceiling
+# at $0/month; this schedule is a deliberate spend against that, not an
+# oversight. The `*/5` single-fire variant above costs roughly a quarter as
+# much in Actions minutes.
+#
+# Scheduled workflows run only from the default branch, so this does nothing
+# until it is merged to `main`. Disable it from the Actions tab, or by setting
+# the schedule block aside, rather than by leaving it to fail.
+
+on:
+  schedule:
+    - cron: "*/20 * * * *"
+  workflow_dispatch:
+
+# No repository access needed: the job talks to api.anthropic.com and never
+# touches the checkout. GITHUB_TOKEN gets no scopes at all.
+permissions: {}
+
+# A deferred run must not stack on top of a still-looping one, which would
+# double the fire rate for a whole run. Replacing the in-flight run drops its
+# remaining fires instead. Cancellation does not replay anything -- the
+# incoming run fires its own slots -- but it does fire the first of them
+# immediately, so a cancellation can put two fires closer together than
+# INTERVAL_SECONDS. That is the accepted cost of the choice: queueing instead
+# would let the deferred run start the moment the in-flight one ends and fire
+# all of its slots, which bunches more sessions, not fewer.
+concurrency:
+  group: claude-routine-trigger
+  cancel-in-progress: true
+
+jobs:
+  fire:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    env:
+      ROUTINE_ID: trig_016b8b1JDqehTCbBjSwSGkju
+      FIRES_PER_RUN: "5"
+      INTERVAL_SECONDS: "240"
+      # Beta header the /fire endpoint ships under. Anthropic keeps the two
+      # previous dated versions working, so this needs bumping only when a
+      # breaking change lands.
+      ROUTINE_BETA: experimental-cc-routine-2026-04-01
+      CLAUDE_TRIGGER_API_KEY: ${{ secrets.CLAUDETRIGGERAPIKEY }}
+    steps:
+      - name: Fire the routine on a 4-minute cadence
+        run: |
+          set -uo pipefail
+
+          if [ -z "${CLAUDE_TRIGGER_API_KEY}" ]; then
+            echo "::error::Repository secret CLAUDETRIGGERAPIKEY is not set. Generate a token on the routine's API trigger at https://claude.ai/code/routines and add it under Settings > Secrets and variables > Actions."
+            exit 1
+          fi
+
+          url="https://api.anthropic.com/v1/claude_code/routines/${ROUTINE_ID}/fire"
+          body="$(mktemp)"
+          trap 'rm -f "${body}"' EXIT
+          succeeded=0
+          failed=0
+          run_start="$(date +%s)"
+
+          # One POST, attempted exactly once. Echoes the session URL on
+          # success. Exit codes: 0 fired, 2 the token was rejected, 1 anything
+          # else.
+          #
+          # Nothing here is retried, deliberately. /fire takes no idempotency
+          # key, and no failure this side of the wire proves the request was
+          # not already accepted -- a timeout obviously does not, but neither
+          # does a 502 or 504, which a gateway can return after the backend
+          # has started the session. A retry on any of those buys a second
+          # billed cloud session. The next slot is at most INTERVAL_SECONDS
+          # away and is the retry: at this cadence a missed fire costs four
+          # minutes, while a duplicate costs money and a slot against the
+          # account's daily routine-run cap.
+          fire() {
+            local code
+            code="$(curl --silent --show-error \
+              --output "${body}" --write-out '%{http_code}' \
+              --max-time 30 \
+              --request POST "${url}" \
+              --header "Authorization: Bearer ${CLAUDE_TRIGGER_API_KEY}" \
+              --header "anthropic-beta: ${ROUTINE_BETA}" \
+              --header "anthropic-version: 2023-06-01" \
+              --header "Content-Type: application/json" \
+              --data '{}')" || code="000"
+
+            case "${code}" in
+              2??)
+                echo "  fired: $(tr -d '\n' < "${body}")"
+                return 0
+                ;;
+              401|403)
+                echo "::error::HTTP ${code} from the routine endpoint -- the token in CLAUDETRIGGERAPIKEY is missing, revoked, or scoped to a different routine. $(tr -d '\n' < "${body}")"
+                return 2
+                ;;
+              000)
+                echo "::warning::No response from the routine endpoint (timeout or dropped connection). The routine may or may not have fired; not retried."
+                return 1
+                ;;
+              *)
+                echo "::warning::HTTP ${code} from the routine endpoint. $(tr -d '\n' < "${body}")"
+                return 1
+                ;;
+            esac
+          }
+
+          i=1
+          while [ "${i}" -le "${FIRES_PER_RUN}" ]; do
+            echo "fire ${i}/${FIRES_PER_RUN} at $(date -u +%H:%M:%SZ)"
+
+            # `fire` is called from an `if` condition, which is exempt from
+            # errexit. GitHub runs `run:` steps as `bash -e {0}` and
+            # `set -uo pipefail` does not turn that off, so a bare
+            # `fire; status=$?` would kill the step on the first 5xx and never
+            # reach the accounting or the summary below.
+            if fire; then status=0; else status=$?; fi
+
+            case "${status}" in
+              0) succeeded=$((succeeded + 1)) ;;
+              2) exit 1 ;;
+              *) failed=$((failed + 1)) ;;
+            esac
+
+            if [ "${i}" -lt "${FIRES_PER_RUN}" ]; then
+              # Sleep to the slot's deadline rather than a flat interval.
+              # Request time would otherwise be added on top of every
+              # interval, so each fire would land later than the last and the
+              # run would drift past the cadence it advertises.
+              now="$(date +%s)"
+              remaining=$(( run_start + i * INTERVAL_SECONDS - now ))
+              if [ "${remaining}" -gt 0 ]; then
+                sleep "${remaining}"
+              fi
+            fi
+            i=$((i + 1))
+          done
+
+          echo "${succeeded} fired, ${failed} failed."
+          if [ "${succeeded}" -eq 0 ]; then
+            echo "::error::Every fire in this run failed. The next scheduled run will retry; if this repeats, check the routine still exists and its API trigger token is current."
+            exit 1
+          fi
