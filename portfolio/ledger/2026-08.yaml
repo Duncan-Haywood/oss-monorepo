@@ -21727,3 +21727,52 @@ entries:
           Owner-gated PRs left untouched: #720, #731, #531. `payout-rail`
           remains the only queue item that moves the revenue ceiling off $0.
     mrr_end: null
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+          Scheduled "continue work on the repo... follow branch and PR
+          workflow" session, designated branch
+          `session/agent_1a7734f2-248c-4263-b0d0-240c0f680b59`.
+          `session_gate.py` -> PROCEED (cadence 0.88/h at the maintenance
+          rate, flagged 3 distinct sessions committing to `main` within a
+          15-minute window in the last 6h). Checked open PRs, branches and
+          the decision queue before touching anything, per that flag.
+      - >-
+          Read the healthy in-flight workstream: a11y-evidence-record SC
+          ports (#726 1.4.1, #728 2.2.1/2.2.2/3.1.2 + 3.1.1 validity, #729
+          2.4.1/2.5.3) all landed the same morning, and the README's last
+          amendment named 1.3.4 Orientation as the one remaining disclosed
+          row whose note said "no rule here looks" while naming the CSS
+          adapter as the fix. The sibling engine (`eaa-wcag-triage`)
+          already implements `rule_orientation_lock` (#648), so the port
+          was a well-specified, agent-decidable next step: `portfolio/
+          research/` only, publishes nothing, spends nothing.
+      - >-
+          Built the full port before discovering the collision: added
+          `findings_and_undecidables_orientation_lock` to `contrast_pass.py`
+          reusing the sibling's `_has_visual_rotation` /
+          `orientation_conditionals` / `element_property_for` decision,
+          wired it into `audit.py`'s `CHECKS`/`NOT_TESTED`, wrote 13 tests,
+          and updated the two cross-engine results snapshots. A concurrent
+          session had already merged the identical port as #735
+          (`4948d5bb`, 09:40Z -- minutes after this session started at
+          09:31Z) and it had passed CI on `main` by the time the rebase was
+          checked. Rather than open a competing PR, the duplicate was
+          discarded: `git reset --hard origin/main` and the working tree
+          cleaned. The merged version was then verified by running, not by
+          trusting the title: `a11y-evidence-record` 153/153,
+          `a11y-engine-agreement` 15/15, `a11y-external-coverage-reference`
+          29/29, `a11y-axe-recall` 15/15, all on current `main`. The merged
+          implementation is the stronger of the two (its `_value_is_expr`
+          handles both raw `{{ }}` and sentinel spellings; mine only raw).
+      - >-
+          Lesson for the next session in this file's own terms: the port
+          was not visible as an open PR when the open-PR list was read
+          (it was on a branch merged within the same hour), so the only
+          guard against this duplicate was re-fetching `main` immediately
+          before pushing -- which is what caught it. No ledger entry
+          recorded #735's merge before this one. `payout-rail` remains the
+          only queue item that moves the revenue ceiling off $0.
+    mrr_end: null
