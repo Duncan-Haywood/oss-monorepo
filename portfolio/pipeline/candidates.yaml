@@ -672,3 +672,29 @@ candidates:
       not EAA/web accessibility. See screened-out.md.
     first_experiment_days: 14
     first_experiment_budget_usd: 0
+
+  - slug: shopify-permission-drift
+    name: Shopify app-permission drift record
+    doc: candidates/shopify-permission-drift.md
+    verdict: probe
+    graduate_as: venture
+    host_venture: null
+    scores:
+      ai_leverage: 7
+      autonomous_ops: 8
+      time_to_revenue: 6
+      gross_margin: 9
+      defensibility: 4
+      distribution: 6
+      liability_containment: 6
+      ethical_robustness: 8
+    composite: 6.75
+    floor: 4
+    floor_dimension: defensibility
+    mitigation: >-
+      Before graduation, retain immutable merchant-specific snapshots with a
+      portable export and test whether a new entrant can reconstruct the same
+      history without the merchant's prior records; also secure a Shopify
+      agency partner or measure repeatable App Store search demand.
+    first_experiment_days: 14
+    first_experiment_budget_usd: 150
