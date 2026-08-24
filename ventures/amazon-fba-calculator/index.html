@@ -84,6 +84,9 @@
     footer a { color: #1f4f8a; }
     .faq { margin-top: 18px; }
     .error { color: #ffb0a2; }
+    .buy-check { margin-top: 18px; padding: 12px; border: 1px solid #ffffff33; border-radius: 8px; background: #ffffff0d; }
+    .buy-check strong { display: block; }
+    .buy-check .warning { color: #ffb0a2; } .buy-check .clear { color: #b6efc0; }
     .hint { font-weight: 500; font-size: .78rem; color: #5a6b82; }
     @media (max-width: 800px) { .layout { grid-template-columns: 1fr; } .result { position: static; } .fields { grid-template-columns: 1fr; } }
   </style>
@@ -171,6 +174,7 @@
         <tbody id="compare"></tbody>
       </table>
       <p class="note">Transparent arithmetic from your inputs — not Amazon’s current fee schedule. Referral, fulfillment, storage, and inbound vary by category, size, season, and account. Verify against your Amazon fee preview before buying inventory.</p>
+      <div id="buyCheck" class="buy-check" aria-live="polite"></div>
     </section>
   </main>
   <section class="faq" aria-labelledby="faq-heading">
@@ -201,6 +205,7 @@
       applyCategoryPreset,
       applyStoragePreset,
       calculateListing,
+      buyCostCheck,
     } from "./calc.mjs";
     import { recordUsage } from "./usage.mjs";
 
@@ -263,6 +268,17 @@
         const extra = result.fbaAdvantage;
         document.getElementById("advantage").textContent =
           extra > 0 ? `${money(extra)} more with FBA` : extra < 0 ? `${money(-extra)} more with FBM` : "same profit";
+        const buyCheck = buyCostCheck(result, readInput().costOfGoods);
+        const checkClass = buyCheck.status === "above_ceiling" ? "warning" : "clear";
+        const checkCopy = buyCheck.status === "above_ceiling"
+          ? `Current cost is ${money(-buyCheck.headroom)} above the selected path's zero-profit ceiling.`
+          : buyCheck.status === "at_ceiling"
+            ? "Current cost is exactly at the selected path's zero-profit ceiling."
+            : `${money(buyCheck.headroom)} of arithmetic headroom remains before the selected path reaches zero profit.`;
+        const targetCopy = Number.isFinite(buyCheck.targetMarginPrice)
+          ? ` To reach the ${readInput().targetMargin}% target net margin, the sale price would be ${money(buyCheck.targetMarginPrice)}.`
+          : " The supplied target margin is unreachable with these rates.";
+        document.getElementById("buyCheck").innerHTML = `<strong class="${checkClass}">Sourcing check</strong><span>${checkCopy}${targetCopy}</span>`;
         document.getElementById("compare").innerHTML = [
           ["FBA", result.fba],
           ["FBM (you ship)", result.fbm],
@@ -276,6 +292,7 @@
         ["revenue", "fees", "invested", "margin", "roi", "breakEven", "maxBuy", "targetMarginPrice", "advantage"].forEach((id) => {
           document.getElementById(id).textContent = "";
         });
+        document.getElementById("buyCheck").textContent = "Fix the inputs to see the sourcing check.";
         document.getElementById("compare").innerHTML = "";
       }
     }
@@ -306,7 +323,7 @@
       recordUsage(
         localStorage,
         document.getElementById("usageOptOut").checked,
-        id === "targetMargin" ? "target_margin_calculated" : "listing_profit_calculated",
+        id === "targetMargin" ? "target_margin_calculated" : id === "costOfGoods" ? "sourcing_check_used" : "listing_profit_calculated",
       );
     }));
     document.querySelectorAll('input[name="fulfillmentMethod"]').forEach((el) => {

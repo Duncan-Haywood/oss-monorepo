@@ -9,6 +9,7 @@ import {
   cubicFeet,
   defaultFulfillmentFee,
   STORAGE_PRESETS,
+  buyCostCheck,
 } from "./calc.mjs";
 
 const near = (actual, expected, msg) =>
@@ -163,6 +164,18 @@ test("honors an explicit fulfillment-fee override", () => {
   near(r.fulfillmentFee, 4.25, "override");
   near(r.fba.fees.fulfillment, 4.25, "used in FBA");
   assert.ok(r.suggestedFulfillment !== 4.25);
+});
+
+test("turns max buy cost into a sourcing checkpoint", () => {
+  const result = calculateListing(base);
+  const below = buyCostCheck(result, result.selected.breakEvenBuyCost - 1);
+  assert.equal(below.status, "below_ceiling");
+  assert.equal(below.headroom, 1);
+  const above = buyCostCheck(result, result.selected.breakEvenBuyCost + 1);
+  assert.equal(above.status, "above_ceiling");
+  assert.equal(above.headroom, -1);
+  const at = buyCostCheck(result, result.selected.breakEvenBuyCost);
+  assert.equal(at.status, "at_ceiling");
 });
 
 test("applyCategoryPreset and applyStoragePreset fill illustrative rates", () => {

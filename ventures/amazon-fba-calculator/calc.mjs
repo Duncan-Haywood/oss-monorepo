@@ -238,3 +238,18 @@ export function calculateListing(input) {
     cheaperPath: fbaAdvantage > 0 ? "fba" : fbaAdvantage < 0 ? "fbm" : "tie",
   };
 }
+
+// Turns the selected path's max-buy calculation into a sourcing checkpoint.
+// This is an arithmetic comparison, not a recommendation to purchase.
+export function buyCostCheck(result, costOfGoods) {
+  const cost = number(costOfGoods, "Cost of goods");
+  const maxBuy = result.selected.breakEvenBuyCost;
+  const headroom = maxBuy - cost;
+  return {
+    cost,
+    maxBuy,
+    headroom,
+    status: headroom > 0 ? "below_ceiling" : headroom < 0 ? "above_ceiling" : "at_ceiling",
+    targetMarginPrice: result.selected.targetMarginPrice,
+  };
+}
