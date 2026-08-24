@@ -224,5 +224,5 @@ The staleness corrected here is the failure mode `CLAUDE.md` and
 [`../pipeline/channel-inventory.md`](../pipeline/channel-inventory.md) both
 record at length — a document that keeps recommending something already done
 costs the next session the time it spends re-deriving it. `session_gate.py`
-links this file from its NO-OP text, so it is read by exactly the sessions
+links this file from its BUILD text, so it is read by exactly the sessions
 least able to afford that.

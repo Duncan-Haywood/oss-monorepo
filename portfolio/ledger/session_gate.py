@@ -1,17 +1,11 @@
 #!/usr/bin/env python3
-"""Answer, before a generic scheduled session does any work: is there any?
+"""Answer, before a generic scheduled session does any work: what kind?
 
 `break-even.md` establishes the economics — today's revenue ceiling is exactly
 $0, the fleet breaks even only below $0.12 per session, and 48% of this month's
 ledger entries record re-verifying what another session had already verified.
 It ends by calling the current state incoherent: "the cadence of a portfolio
 racing to capture revenue, running against a ceiling of zero."
-
-Nothing acts on that. `CLAUDE.md` has warned about duplicate and re-derived work
-since 2026-08-18, in progressively more detail, and the re-verification share
-has not fallen. Prose addressed to a session that has not read it yet is the
-wrong instrument; the sessions that most need the warning are the ones that
-skim. This is the same finding as a command that runs in two seconds.
 
     python3 portfolio/ledger/session_gate.py           # print the reading
     python3 portfolio/ledger/session_gate.py --json    # machine-readable
@@ -22,6 +16,11 @@ paraphrases, the briefs that arrive on a schedule with no specific target. It
 never speaks to venture work, a red CI run, a PR being driven to green, a
 review comment, or a named task. Those have their own trigger and their own
 value; the gate is silent about them by construction.
+
+Verdicts:
+  PROCEED — conditions allow any work, including portfolio meta-work.
+  BUILD   — portfolio meta-work is wasteful right now; redirect to venture
+            development, pipeline graduation, or genuinely new candidates.
 
 Unlike `break_even.py`, this reads live and is checked against no snapshot. A
 dated measurement is right for a document that is read later; a gate consulted
@@ -315,6 +314,27 @@ def break_even_per_session() -> float | None:
     return json.loads(SNAPSHOT.read_text()).get("break_even_per_session_usd")
 
 
+def recommended_actions() -> list[str]:
+    """What a generic session should do instead of portfolio meta-work."""
+    return [
+        "Run `python3 portfolio/router/allocate.py` and pick the highest-merit "
+        "venture with in-repo work available — ship code, tests, or docs in "
+        "`ventures/*`.",
+        "If every venture's next hypothesis needs customer contact, develop the "
+        "product anyway: features, UX, performance, test coverage, and "
+        "deployment readiness are all in-repo and move the portfolio toward "
+        "revenue even while unpublished.",
+        "Check open PRs only to extend or consolidate existing work — do not "
+        "re-verify, re-triage, or open a duplicate PR for something already covered.",
+        "If no venture has meaningful in-repo work left, graduate a pipeline "
+        "candidate from `portfolio/pipeline/` into `ventures/<name>/VENTURE.yaml`, "
+        "or add a genuinely new candidate per `screened-out.md` — do not produce "
+        "another duplicate screening pass of the existing eight.",
+        "Do not write a ledger-only entry recording that you looked. Ship a PR "
+        "with venture or pipeline work instead.",
+    ]
+
+
 def verdict(
     *,
     revenue: bool,
@@ -322,7 +342,8 @@ def verdict(
     cadence: float,
     cadence_reliable: bool = True,
 ) -> tuple[str, list[str]]:
-    """NO-OP only when every condition holds. Any one of them clears the gate.
+    """BUILD when every condition holds (redirect away from meta-work). Any one
+    of them clears the gate to PROCEED (any work, including portfolio).
 
     `cadence_reliable` gates the cadence condition specifically: an
     undercounted reading (see `sessions_per_hour`) must never manufacture a
@@ -342,22 +363,24 @@ def verdict(
             "the $0-ceiling branch implies."
         ]
     reasons = [
-        "No revenue is recorded, so the ceiling on justifiable spend is the one "
-        "break-even.md derives, and it is $0.",
+        "No revenue is recorded yet — portfolio meta-work (ledger entries, PR "
+        "re-verification, re-triage) has negative expected value at the current "
+        "cadence. Redirect compute to venture development instead.",
         f"{meta:.0%} of the last {WINDOW} ledger entries are portfolio meta-work, "
         "not venture work.",
     ]
     if cadence_reliable:
         reasons.append(
-            f"The fleet is running at {cadence:.2f} sessions/hour, far above the "
-            "event-driven rate that regime implies."
+            f"The fleet is running at {cadence:.2f} sessions/hour — high throughput "
+            "is intentional; use it on `ventures/*` or new venture creation, not "
+            "on re-reading the same open PRs."
         )
     else:
         reasons.append(
             "Cadence could not be reliably measured this run (shallow clone "
             "truncates history) — not treated as evidence either way."
         )
-    return "NO-OP", reasons
+    return "BUILD", reasons
 
 
 def report(
@@ -391,9 +414,11 @@ def report(
             "if you found something the latest entry doesn't have (a new PR, a changed "
             "finding, or an action you actually took)."
         ]
+    actions = recommended_actions() if call == "BUILD" else []
     return {
         "verdict": call,
         "reasons": reasons,
+        "recommended_actions": actions,
         "entries_total": len(entries),
         "revenue_recorded": revenue,
         "meta_share_recent": round(meta, 4),
@@ -453,13 +478,14 @@ def render(r: dict) -> str:
             "  truncate `git log --since`). The cadence figure above is a floor, not a",
             "  reading, and was excluded from clearing the gate this run.",
         ]
-    if r["verdict"] == "NO-OP":
+    if r["verdict"] == "BUILD":
         lines += [
             "",
-            "  For a generic brief the highest-value output is nothing: no new",
-            "  analysis document, no re-verification of a PR another session already",
-            "  verified, no ledger entry recording that you looked. Say what the gate",
-            "  read, and stop.",
+            "  For a generic brief: do not idle. Skip portfolio meta-work and ship",
+            "  venture or pipeline work instead:",
+        ]
+        lines += [f"  {i}. {action}" for i, action in enumerate(r.get("recommended_actions", []), 1)]
+        lines += [
             "",
             "  This does not apply to venture work, a red CI run, a PR being driven to",
             "  green, a review comment, or any named task. Those clear the gate by",

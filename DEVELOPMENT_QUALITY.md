@@ -20,7 +20,8 @@ code are still routed through the human-gated review path in `CLAUDE.md`
 ("Breaking changes to deployable `ventures/*` code"), the same as any other
 change there, regardless of how safe or well-tested. A generic scheduled
 brief should run `portfolio/ledger/session_gate.py` first, as `CLAUDE.md`
-directs, before treating this framework's roadmap as the default next task.
+directs. When the gate reads **BUILD**, redirect to venture development or
+pipeline graduation — do not idle.
 
 ## Quality Tiers
 

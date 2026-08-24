@@ -24,9 +24,9 @@ def entry(venture="portfolio", mrr=None, outcomes=()):
 # --- the verdict is a conjunction: any single condition clears it -------------
 
 
-def test_no_op_only_when_every_condition_holds():
+def test_build_only_when_every_condition_holds():
     call, _ = sg.verdict(revenue=False, meta=0.9, cadence=2.5)
-    assert call == "NO-OP"
+    assert call == "BUILD"
 
 
 def test_recorded_revenue_clears_the_gate():
@@ -48,8 +48,8 @@ def test_maintenance_cadence_clears_the_gate():
 
 def test_thresholds_are_boundaries_not_ranges():
     """At exactly the threshold the condition still holds — no off-by-one drift."""
-    assert sg.verdict(revenue=False, meta=sg.META_SHARE_THRESHOLD, cadence=2.0)[0] == "NO-OP"
-    assert sg.verdict(revenue=False, meta=1.0, cadence=sg.CADENCE_THRESHOLD_PER_HOUR)[0] == "NO-OP"
+    assert sg.verdict(revenue=False, meta=sg.META_SHARE_THRESHOLD, cadence=2.0)[0] == "BUILD"
+    assert sg.verdict(revenue=False, meta=1.0, cadence=sg.CADENCE_THRESHOLD_PER_HOUR)[0] == "BUILD"
 
 
 # --- the reading comes from the ledger, not from constants -------------------
@@ -109,8 +109,10 @@ def test_meta_threshold_is_crossable_by_the_real_ledger():
 
 def test_live_report_is_well_formed():
     r = sg.report(yaml.safe_load(sg.LEDGER.read_text())["entries"], cadence=2.0)
-    assert r["verdict"] in {"NO-OP", "PROCEED"}
+    assert r["verdict"] in {"BUILD", "PROCEED"}
     assert r["reasons"]
+    if r["verdict"] == "BUILD":
+        assert r["recommended_actions"]
     assert 0.0 <= r["meta_share_recent"] <= 1.0
     assert 0.0 <= r["reverification_share_recent"] <= 1.0
     assert sg.render(r).startswith("Session gate")
@@ -218,7 +220,7 @@ def test_unreliable_cadence_does_not_clear_the_gate():
     reliable = sg.report(entries, cadence=0.0, cadence_reliable=True)
     unreliable = sg.report(entries, cadence=0.0, cadence_reliable=False)
     assert reliable["verdict"] == "PROCEED"
-    assert unreliable["verdict"] == "NO-OP"
+    assert unreliable["verdict"] == "BUILD"
     assert unreliable["sessions_per_hour"] == 0.0  # still reported, just not trusted
     assert not unreliable["cadence_reliable"]
 
@@ -410,6 +412,16 @@ def test_report_stale_streak_reason_does_not_flip_the_verdict():
     assert r["verdict"] == "PROCEED"
 
 
+def test_build_verdict_includes_recommended_actions():
+    entries = [entry("portfolio")] * sg.WINDOW
+    r = sg.report(entries, cadence=2.0)
+    assert r["verdict"] == "BUILD"
+    assert len(r["recommended_actions"]) >= 3
+    rendered = sg.render(r)
+    assert "do not idle" in rendered
+    assert "ventures/*" in rendered
+
+
 def test_render_shows_the_stale_streak_count():
     entries = [entry()] * sg.WINDOW
     r = sg.report(entries, cadence=2.0)
@@ -494,5 +506,5 @@ def test_main_does_not_trust_a_reading_the_fetch_could_not_refresh(monkeypatch, 
     sg.main()
 
     out = capsys.readouterr().out
-    assert "VERDICT: NO-OP" in out
+    assert "VERDICT: BUILD" in out
     assert "git fetch origin main` failed" in out

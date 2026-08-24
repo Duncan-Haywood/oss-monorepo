@@ -138,14 +138,9 @@ without adding to what can be decided.
 
 ## If your brief is "research new business projects"
 
-**It is already answered. Do not produce a candidate list.**
-
-A recurring scheduled task fires this brief — "research and evaluate potential
-software business projects that aren't already here," or wording close to it —
-and by 2026-08-19 it had fired eleven times. Those runs produced roughly
-thirty-six candidates that reduce to nine archetypes, all of them screened,
-scored, and written up in `portfolio/pipeline/`. Read that directory before
-writing anything:
+**Do not re-derive the existing candidate list.** Eight archetypes are already
+screened, scored, and written up in `portfolio/pipeline/`. Read that directory
+before writing anything:
 
 - `portfolio/pipeline/README.md` — the eight surviving candidates and the
   scoring gates
@@ -185,14 +180,22 @@ never landing, not by any run failing to notice.** If you find yourself about
 to re-derive something, check the closed pull requests and the branches behind
 them before assuming it has not been done.
 
-If you are handed this brief, the useful moves are, in order: advance a probe
-that is already specified in `portfolio/pipeline/` (the built ones live in
-`portfolio/pipeline/probes/` — this instruction pointed at a directory no
-routing file named until 2026-08-20); ship or unblock something
-already built (see the ninth-run amendment in `distribution-first.md` — two
-finished products are sitting unlisted in stores the portfolio can list in);
-or, if both are blocked on the account owner, say so, record it in the ledger,
-notify, and stop. Before concluding you are blocked, check
+If you are handed this brief, the useful moves are, in order:
+
+1. **Develop existing ventures** — run `python3 portfolio/router/allocate.py`
+   and ship in-repo work in `ventures/*` (features, tests, UX, deployment
+   readiness). This is always available and does not need owner decisions.
+2. **Graduate a pipeline candidate** — write `ventures/<name>/VENTURE.yaml`
+   for a candidate in `portfolio/pipeline/` that passes the scoring gates.
+3. **Advance a built probe** in `portfolio/pipeline/probes/`.
+4. **Add a genuinely new candidate** — only when you can name what in
+   `screened-out.md` it is *not*; add it as an amendment to that directory,
+   not as a duplicate list.
+
+When `session_gate.py` reads **BUILD**, do not stop after checking — ship one
+of the above. If owner-gated decisions block publishing or payout rails, record
+that in the ledger but **still ship in-repo venture work** rather than idling.
+Before concluding you are blocked, check
 `channel-inventory.md` — but read it to the end. Its tenth-run amendment
 argued that demand measurement is *not* credential-blocked, only revenue
 capture is, and this file used to repeat that as settled. **Later runs
@@ -218,21 +221,28 @@ development process", "research new business projects", or a paraphrase — run
 this first and act on what it says. It reads the ledger and `git log` and takes
 about two seconds.
 
-When it prints **NO-OP**, the highest-value output of your session is nothing:
-no new analysis document, no re-verification of a pull request another session
-already verified, no ledger entry recording that you looked. Report what the
-gate read and stop. That is not idleness; it is the only profit lever available
-in a regime whose revenue ceiling is provably `$0` — see
-[`portfolio/ledger/break-even.md`](portfolio/ledger/break-even.md), which
-derives the ceiling, the `$0.12`-per-session break-even, and the finding that
-roughly half this month's ledger entries record re-deriving conclusions already
-on `main`.
+When it prints **BUILD**, portfolio meta-work is wasteful right now — do not
+re-verify open PRs, re-triage the decision queue, or write a ledger-only entry
+recording that you looked. **Redirect compute to productive work instead:**
+
+1. Run `python3 portfolio/router/allocate.py` and pick the highest-merit venture.
+2. Ship in-repo work in `ventures/*` — features, tests, UX, performance, deployment readiness.
+3. If ventures lack meaningful in-repo work, graduate a pipeline candidate from
+   `portfolio/pipeline/` into `ventures/<name>/VENTURE.yaml`, or add a genuinely
+   new candidate per `screened-out.md`.
+4. Check open PRs only to extend or consolidate — never open a duplicate.
+
+High session throughput is intentional. Idling burns compute with zero output;
+building ventures or starting new ones does not.
+
+When it prints **PROCEED**, conditions allow any work including portfolio
+meta-work. Still prefer venture development when the router has actionable tasks.
 
 The gate is deliberately narrow and never overrides a real trigger. Venture
 work, a red CI run, a pull request you are driving to green, a review comment,
 a merge conflict, and any specifically named task all clear it by having a
 reason of their own. It speaks only to the scheduled generic brief, which is
-the case where a session has no target and invents one.
+the case where a session has no target and might otherwise invent meta-work.
 
 Why a command and not another paragraph: this file has warned about duplicate
 and re-derived work since 2026-08-18, in steadily more detail, and the
