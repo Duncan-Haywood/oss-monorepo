@@ -112,10 +112,12 @@ def test_build_targets_skips_what_has_already_graduated(tmp_path, monkeypatch):
     candidates = tmp_path / "portfolio" / "pipeline" / "candidates.yaml"
     candidates.write_text(
         "candidates:\n"
-        "  - {slug: graduated, verdict: build-now, graduate_as: venture, composite: 9}\n"
+        "  - {slug: graduated, verdict: build-now, graduate_as: venture, composite: 9,"
+        " name: G, doc: g.md}\n"
         "  - {slug: shipped, verdict: build-now, graduate_as: product-line,"
-        " host_venture: host, composite: 8}\n"
-        "  - {slug: pending, verdict: build-now, graduate_as: venture, composite: 7}\n"
+        " host_venture: host, composite: 8, name: S, doc: s.md}\n"
+        "  - {slug: pending, verdict: build-now, graduate_as: venture, composite: 7,"
+        " name: P, doc: p.md}\n"
         "  - {slug: scored, verdict: probe, graduate_as: venture, composite: 10}\n"
     )
     monkeypatch.setattr(sg, "REPO", tmp_path)
@@ -151,9 +153,10 @@ def test_a_not_a_venture_marker_means_the_candidate_has_not_graduated(tmp_path, 
         tmp_path,
         monkeypatch,
         "candidates:\n"
-        "  - {slug: marked, verdict: build-now, graduate_as: venture, composite: 9}\n"
+        "  - {slug: marked, verdict: build-now, graduate_as: venture, composite: 9,"
+        " name: M, doc: m.md}\n"
         "  - {slug: line, verdict: build-now, graduate_as: product-line,"
-        " host_venture: marked-host, composite: 8}\n",
+        " host_venture: marked-host, composite: 8, name: L, doc: l.md}\n",
     )
 
     assert sorted(c["slug"] for c in sg.build_targets()) == ["line", "marked"]
@@ -199,8 +202,10 @@ def test_a_quoted_composite_sorts_rather_than_crashing(tmp_path, monkeypatch):
         tmp_path,
         monkeypatch,
         "candidates:\n"
-        "  - {slug: numeric, verdict: build-now, graduate_as: venture, composite: 7.0}\n"
-        "  - {slug: quoted, verdict: build-now, graduate_as: venture, composite: '7.5'}\n",
+        "  - {slug: numeric, verdict: build-now, graduate_as: venture, composite: 7.0,"
+        " name: N, doc: n.md}\n"
+        "  - {slug: quoted, verdict: build-now, graduate_as: venture, composite: '7.5',"
+        " name: Q, doc: q.md}\n",
     )
     assert [c["slug"] for c in sg.build_targets()] == ["quoted", "numeric"]
 
@@ -213,13 +218,23 @@ def test_an_incomplete_build_now_record_is_malformed_not_a_target(tmp_path, monk
     silently took the venture path.
     """
     for record in (
+        # Each record is complete except for the one field named, so the case
+        # isolates that field rather than passing for some unrelated reason.
         "{verdict: build-now}",
-        "{verdict: build-now, graduate_as: venture, composite: 7}",  # no slug
-        "{slug: s, verdict: build-now, composite: 7}",  # no graduate_as
-        "{slug: s, verdict: build-now, graduate_as: nonsense, composite: 7}",
-        "{slug: s, verdict: build-now, graduate_as: venture}",  # no composite
-        "{slug: s, verdict: build-now, graduate_as: venture, composite: abc}",
-        "{slug: s, verdict: build-now, graduate_as: product-line, composite: 7}",  # no host
+        "{verdict: build-now, graduate_as: venture, composite: 7, name: N, doc: d.md}",  # slug
+        "{slug: s, verdict: build-now, composite: 7, name: N, doc: d.md}",  # graduate_as
+        "{slug: s, verdict: build-now, graduate_as: nonsense, composite: 7,"
+        " name: N, doc: d.md}",
+        "{slug: s, verdict: build-now, graduate_as: venture, name: N, doc: d.md}",  # composite
+        "{slug: s, verdict: build-now, graduate_as: venture, composite: abc,"
+        " name: N, doc: d.md}",
+        "{slug: s, verdict: build-now, graduate_as: product-line, composite: 7,"
+        " name: N, doc: d.md}",  # host_venture
+        # `name` and `doc` are not path components but land in the same
+        # instruction; a missing `doc` renders a brief at
+        # `portfolio/pipeline/None`, which looks like a pointer and is not one.
+        "{slug: s, verdict: build-now, graduate_as: venture, composite: 7, doc: d.md}",  # name
+        "{slug: s, verdict: build-now, graduate_as: venture, composite: 7, name: N}",  # doc
     ):
         _pipeline(tmp_path, monkeypatch, f"candidates:\n  - {record}\n")
         assert sg.build_targets() is None, record
@@ -236,7 +251,7 @@ def test_a_non_list_product_lines_does_not_crash_the_gate(tmp_path, monkeypatch)
         monkeypatch,
         "candidates:\n"
         "  - {slug: line, verdict: build-now, graduate_as: product-line,"
-        " host_venture: host, composite: 7}\n",
+        " host_venture: host, composite: 7, name: L, doc: l.md}\n",
     )
     assert [c["slug"] for c in sg.build_targets()] == ["line"]
 

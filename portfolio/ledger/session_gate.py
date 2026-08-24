@@ -385,6 +385,13 @@ def build_targets() -> list[dict] | None:
         graduate_as = c.get("graduate_as")
         if graduate_as not in ("venture", "product-line"):
             return None
+        # `name` and `doc` are not path components, but they are interpolated
+        # into the same instruction, where a missing one reads as the literal
+        # "None" -- and `doc` becomes a brief at `portfolio/pipeline/None`,
+        # which is worse than no pointer because it looks like one.
+        # validate_candidates.py does not require either field.
+        if not all(isinstance(c.get(k), str) and c.get(k) for k in ("name", "doc")):
+            return None
         try:
             # Coerced, because validate_candidates.py:73 normalises with
             # float() and so accepts a quoted numeric composite. A missing or
