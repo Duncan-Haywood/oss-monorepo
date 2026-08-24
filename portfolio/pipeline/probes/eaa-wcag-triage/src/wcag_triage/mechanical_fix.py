@@ -32,6 +32,9 @@ The patches here are the ones that do not add words:
   stay
 - underline a colour-only in-prose link (1.4.1). The rule's own first
   remediation is this one mark; the words and the colours stay.
+- wrap body content that is not the navigation block in ``<main>``
+  (2.4.1). The rule's own second remediation is this landmark. A
+  skip-link would invent words; this pass will not write one.
 
 A low close rate on blocking findings is a result, not a bug. The
 remainder is the contractor step.
@@ -96,6 +99,18 @@ _BARE_TYPE_RULE = re.compile(
 )
 _ONLY_ROTATE = re.compile(
     r"^\s*rotate\(\s*-?[\d.]+\s*(?:deg|grad|rad|turn)?\s*\)\s*$",
+    re.I,
+)
+_BODY_OPEN = re.compile(r"<body\b[^>]*>", re.I)
+_BODY_CLOSE = re.compile(r"</body\s*>", re.I)
+_NAV_BLOCK = re.compile(r"<nav\b[^>]*>.*?</nav\s*>", re.I | re.S)
+_NAV_ROLE_BLOCK = re.compile(
+    r"<(?P<tag>[a-zA-Z][\w:-]*)\b[^>]*\brole\s*=\s*(?P<q>['\"])"
+    r"navigation(?P=q)[^>]*>.*?</(?P=tag)\s*>",
+    re.I | re.S,
+)
+_HAS_MAIN = re.compile(
+    r"<main\b|role\s*=\s*(['\"])main\1",
     re.I,
 )
 
@@ -227,6 +242,13 @@ def try_patch(html: str, finding: Finding) -> tuple[Optional[str], str]:
             return nxt, (
                 "underlined a colour-only in-prose link; "
                 "the words and colours stay"
+            )
+    if finding.criterion == "2.4.1":
+        nxt = _wrap_content_in_main(html)
+        if nxt is not None:
+            return nxt, (
+                "wrapped content after the navigation block in <main>; "
+                "no skip-link text was invented"
             )
     return None, skip_reason(finding)
 
@@ -794,3 +816,46 @@ def _underline_color_only_link(html: str, finding: Finding) -> Optional[str]:
         return None
     lines[idx] = lines[idx][: match.start()] + new_tag + lines[idx][match.end() :]
     return "".join(lines)
+
+
+def _first_nav_end(inner: str) -> int | None:
+    """End offset of the first navigation block, if one is uniquely there."""
+    ends = []
+    for pat in (_NAV_BLOCK, _NAV_ROLE_BLOCK):
+        match = pat.search(inner)
+        if match:
+            ends.append(match.end())
+    return min(ends) if ends else None
+
+
+def _wrap_content_in_main(html: str) -> Optional[str]:
+    """Wrap body content that is not the navigation block in ``<main>``.
+
+    The 2.4.1 finding fires only when there is a repeated block, enough
+    non-nav text, and no heading, skip-link, or main landmark. Wrapping
+    the content after the first navigation element is the rule's own
+    second remediation. It adds a landmark, not words. A skip-link
+    would invent a name; this pass will not write one.
+
+    When the finding fired because of link count rather than a ``<nav>``
+    / ``role=navigation`` element, the whole body inner is wrapped.
+    An empty remainder, or a page that already has a main, is left
+    alone.
+    """
+    if _HAS_MAIN.search(html):
+        return None
+    body_open = _BODY_OPEN.search(html)
+    body_close = _BODY_CLOSE.search(html)
+    if body_open is None or body_close is None:
+        return None
+    if body_close.start() <= body_open.end():
+        return None
+    inner_start = body_open.end()
+    inner_end = body_close.start()
+    inner = html[inner_start:inner_end]
+    nav_end = _first_nav_end(inner)
+    wrap_at = inner_start + nav_end if nav_end is not None else inner_start
+    region = html[wrap_at:inner_end]
+    if not region.strip():
+        return None
+    return html[:wrap_at] + "<main>" + region + "</main>" + html[inner_end:]

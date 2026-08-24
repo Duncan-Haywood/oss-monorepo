@@ -1,19 +1,20 @@
 # Quality Improvement Quick Start
 
-A practical, step-by-step guide to bringing a venture to Tier 2 (Maturity)
-quality standards.
+A practical, step-by-step guide to bringing your venture to Tier 2 (Maturity) quality standards.
 
-> **Not the default work.** Per [`portfolio/DIRECTION.md`](portfolio/DIRECTION.md),
-> a session's default output is a shipped product feature, not a tier score. Use
-> this guide when a product has users and one of these steps fixes something
-> they hit, or when you are already in that venture's code. To take a product
-> from nothing to usable, use [`PRODUCT_PLAYBOOK.md`](PRODUCT_PLAYBOOK.md)
-> instead — and note that its "every product ships these five things" (license,
-> disclaimer, privacy line, usage counting, discoverability) outranks everything
-> below.
->
-> The week-by-week framing below is a sequence, not a schedule to protect: take
-> the steps that help, in any order, in the time they take.
+**This is optional reference material, not a blocker.** Per
+`portfolio/DIRECTION.md` and `CLAUDE.md`, shipping a product people can use
+beats spending a session or two working through this checklist on something
+nobody has used yet. Reach for this when you're already improving a venture
+that has real users and want to harden it — not as a prerequisite to
+launching. The "2-3 weeks" below describes total effort if you did it all at
+once; in practice, do it incrementally, a step at a time, whenever you're
+already touching the relevant code.
+
+**Building a product from nothing?** [`PRODUCT_PLAYBOOK.md`](PRODUCT_PLAYBOOK.md)
+is the guide for that, and its "five things every product ships" (license,
+disclaimer, privacy line, usage counting, discoverability) come before anything
+on this page.
 
 ## Before You Start
 

@@ -569,40 +569,36 @@ decisions:
     left to accept or decline in #836 is specifically the removal of those
     four gates, not the product-first direction, which is already on `main`.
 
-- id: github-sponsors
-  asks: [10]
-  prs: []
+- id: funding-sponsors-live
+  asks: []
+  prs: [839]
   gates: revenue
   exposure: legal-person
   opened: "2026-08-24"
   action: >-
-    Enable GitHub Sponsors on the account that should receive support (bank
-    account and tax forms are part of GitHub's own onboarding, which is why
-    no session can do this), then say which handle a `.github/FUNDING.yml`
-    should name.
+    Merge or decline #839 (`.github/FUNDING.yml`, `github: [Duncan-Haywood]`).
   unlocks:
     - >-
-      The only inbound-support mechanism the current direction permits.
-      Products ship free and full-feature with no payment collection, so
-      Sponsors is the one route by which a user who values a product can
-      support it -- and the only revenue-shaped signal available at all
-      while nothing is priced.
-    - >-
-      A one-line `.github/FUNDING.yml` per shipped product, which a session
-      can add in minutes once the handle exists. Until then a FUNDING.yml
-      would point at an account with Sponsors disabled and render nothing,
-      so nothing is built against this in the meantime.
+      A live "Sponsor" button on the repo pointed at the owner's real GitHub
+      Sponsors profile -- the first funding surface tied to a real legal
+      person's account that this repo would carry, if the owner already has
+      Sponsors enabled.
   blocked_by: []
   note: >-
-    Opened 2026-08-24. `portfolio/DIRECTION.md` and `AGENTS.md` both say a
-    GitHub Sponsors or donation link is allowed, and neither says who would
-    enable it -- this row is that gap, not a new policy. Deliberately
-    narrow: GitHub Sponsors only, no third-party donation processor, no
-    checkout, and no donation prompt in front of any feature. This is *not*
-    the `payout-rail` row above, which is about charging customers; granting
-    one does not grant the other, and this one is reversible by turning
-    Sponsors off. Same identity caveat that `session-gate-economics-premise`
-    and `governance-rewrite-836` raise applies to any session's attribution
-    of a direction: what can be checked here is that nothing depends on the
-    answer -- the products ship free either way, and declining costs the
-    portfolio nothing built.
+    Not agent-decidable: it names and activates a real funding channel under
+    the owner's own identity, the same class of decision `CLAUDE.md` reserves
+    for "taking or moving money" and "registering any account" tied to a
+    legal person, even though the mechanism here (a repo config file) is far
+    lighter-weight than a merchant-of-record account. Worth flagging
+    precisely because a session already crossed a line here once: the PR's
+    first commit (`237f834`, author `Duncan Haywood
+    <...@users.noreply.github.com>`, consistent with GitHub's own web editor)
+    left the `github:` key as an empty template comment -- "No funding
+    accounts are actually set", per the PR's own bugbot summary. A second
+    commit (`991abe3`, author "Cursor Agent
+    <cursoragent@cursor.com>") then edited that same open PR to fill in
+    `github: [Duncan-Haywood]`, unilaterally turning a no-op placeholder into
+    a live funding config, with no queue entry recording that an agent -- not
+    the PR's opener -- made that call. Left unmerged pending the owner's
+    decision on whether that Sponsors profile should be surfaced here at
+    all.

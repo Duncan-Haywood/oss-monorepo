@@ -52,6 +52,9 @@ workflows:
   - job: deploy
     step: runs 'npm run deploy'
     gates: []
+- workflow: branch-cleanup.yml
+  classification: none
+  publishes: []
 - workflow: claude-routine-trigger.yml
   classification: none
   publishes: []

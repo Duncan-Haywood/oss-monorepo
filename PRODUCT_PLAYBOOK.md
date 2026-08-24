@@ -185,7 +185,8 @@ account and a tax identity.
 
 The one thing that may exist is GitHub Sponsors, via `.github/FUNDING.yml`
 pointing at the owner's account, once the owner has enabled it (queued as the
-`github-sponsors` decision — `python3 portfolio/ledger/decision_queue.py`). No
+`funding-sponsors-live` decision, PR #839 — read the queue with
+`python3 portfolio/ledger/decision_queue.py`; do not open a second one). No
 third-party donation links, and never in front of a feature — a donation prompt
 lives in the README and the footer, nowhere a user has to pass through.
 

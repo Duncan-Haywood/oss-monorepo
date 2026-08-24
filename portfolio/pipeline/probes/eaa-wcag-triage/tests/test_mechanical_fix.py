@@ -436,6 +436,82 @@ def test_already_underlined_link_is_not_rewritten():
     assert not any(p.criterion == "1.4.1" for p in result.applied)
 
 
+_BYPASS_NAV = "<nav><a href='/a'>a</a><a href='/b'>b</a></nav>"
+_BYPASS_CONTENT = (
+    "<div><p>"
+    + ("Every survey you answer sharpens the next one. " * 6)
+    + "</p></div>"
+)
+_BYPASS_PAGE = (
+    '<html lang="en"><head><title>t</title></head><body>'
+    + _BYPASS_NAV
+    + _BYPASS_CONTENT
+    + "</body></html>"
+)
+
+
+def test_nav_without_bypass_gets_a_main_landmark_words_stay():
+    assert any(f.criterion == "2.4.1" for f in audit_html(_BYPASS_PAGE).findings)
+    result = apply_mechanical_fixes(_BYPASS_PAGE)
+    assert not any(f.criterion == "2.4.1" for f in result.after.findings)
+    assert "<main>" in result.html
+    assert "</main>" in result.html
+    assert _BYPASS_NAV in result.html
+    assert "Every survey you answer sharpens the next one." in result.html
+    assert "Skip to content" not in result.html
+    assert "skip to" not in result.html.lower()
+    assert any(p.criterion == "2.4.1" for p in result.applied)
+    # Navigation stays outside the landmark so the landmark is the bypass.
+    nav_end = result.html.find("</nav>") + len("</nav>")
+    main_at = result.html.find("<main>")
+    assert 0 < nav_end <= main_at
+
+
+def test_role_navigation_without_bypass_gets_a_main_landmark():
+    html = (
+        '<html lang="en"><head><title>t</title></head><body>'
+        "<div role='navigation'><a href='/a'>a</a></div>"
+        + _BYPASS_CONTENT
+        + "</body></html>"
+    )
+    assert any(f.criterion == "2.4.1" for f in audit_html(html).findings)
+    result = apply_mechanical_fixes(html)
+    assert not any(f.criterion == "2.4.1" for f in result.after.findings)
+    assert "<main>" in result.html
+    assert "Every survey you answer sharpens the next one." in result.html
+    assert "Skip to content" not in result.html
+
+
+def test_link_count_block_without_nav_wraps_the_body_inner():
+    links = "".join(f"<a href='/p{i}'>p{i}</a>" for i in range(12))
+    html = (
+        '<html lang="en"><head><title>t</title></head><body>'
+        f"<div>{links}</div>"
+        + _BYPASS_CONTENT
+        + "</body></html>"
+    )
+    assert any(f.criterion == "2.4.1" for f in audit_html(html).findings)
+    result = apply_mechanical_fixes(html)
+    assert not any(f.criterion == "2.4.1" for f in result.after.findings)
+    assert result.html.count("<main>") == 1
+    assert f"<div>{links}</div>" in result.html
+    assert "Skip to content" not in result.html
+
+
+def test_heading_already_bypasses_so_main_is_not_invented():
+    html = (
+        '<html lang="en"><head><title>t</title></head><body>'
+        + _BYPASS_NAV
+        + "<div><h1>T</h1>"
+        + _BYPASS_CONTENT
+        + "</div></body></html>"
+    )
+    result = apply_mechanical_fixes(html)
+    assert result.html == html
+    assert not any(p.criterion == "2.4.1" for p in result.applied)
+    assert result.html.count("<main>") == 0
+
+
 def test_search_field_with_no_label_is_not_invented():
     # search.liquid:22 — no <label for> in the file. Detection can name
     # the gap; this pass cannot write a name.

@@ -504,15 +504,79 @@ def _run_package_handoff_brief_command(args: argparse.Namespace, *, stdout: Text
         trusted_plan=trusted_plan,
         final_manifest=final_manifest,
     )
-    stdout.write(
+    brief = _package_handoff_brief(
+        report,
+        trusted_plan=trusted_plan,
+        final_manifest=final_manifest,
+        ingest_manifest_path=manifest_path,
+        workspace=workspace,
+    )
+    if args.format == "text":
+        stdout.write(_package_handoff_brief_text(brief))
+    else:
+        stdout.write(
+            _package_handoff_brief_json(
+                report,
+                trusted_plan=trusted_plan,
+                final_manifest=final_manifest,
+                ingest_manifest_path=manifest_path,
+                workspace=workspace,
+            )
+        )
+
+
+def _package_handoff_brief(
+    report: DryRunProductionSchedulerReport,
+    *,
+    trusted_plan: ProductionPlan,
+    final_manifest: ProductionStatusManifest,
+    ingest_manifest_path: Path,
+    workspace: Path,
+) -> dict[str, object]:
+    return json.loads(
         _package_handoff_brief_json(
             report,
             trusted_plan=trusted_plan,
             final_manifest=final_manifest,
-            ingest_manifest_path=manifest_path,
+            ingest_manifest_path=ingest_manifest_path,
             workspace=workspace,
         )
     )
+
+
+def _package_handoff_brief_text(brief: dict[str, object]) -> str:
+    readiness = brief["package_readiness"]
+    if not isinstance(readiness, dict):
+        raise ShootFlowCliError("package readiness must be an object")
+    status = readiness["status"]
+    completed = readiness["completed_package_job_ids"]
+    review_required = readiness["review_required_package_job_ids"]
+    materialized = readiness["materialized_package_outputs"]
+    if not all(isinstance(value, list) for value in (completed, review_required, materialized)):
+        raise ShootFlowCliError("package readiness lists are invalid")
+    lines = [
+        "ShootFlow package handoff brief",
+        f"Shoot: {brief['shoot_slug']}",
+        f"Status: {status}",
+        f"Package jobs: {readiness['package_job_count']}",
+        f"Completed: {len(completed)}",
+        f"Review required: {len(review_required)}",
+        f"Materialized outputs: {len(materialized)}",
+        "",
+        "Outputs:",
+    ]
+    lines.extend(f"- {output}" for output in materialized)
+    if not materialized:
+        lines.append("- none")
+    lines.extend(
+        [
+            "",
+            "Safety:",
+            "- observe-only presentation; native file-changing controls remain disabled",
+            "- no copy, retry, materialization, cleanup, overwrite, or deletion authority",
+        ]
+    )
+    return "\n".join(lines) + "\n"
 
 
 def _run_workspace_health_command(args: argparse.Namespace, *, stdout: TextIO) -> None:
@@ -848,6 +912,12 @@ def _build_parser() -> argparse.ArgumentParser:
         "--ingest-manifest",
         required=True,
         help="Trusted ingest_manifest.json whose workspace contains production status/report files.",
+    )
+    package_brief.add_argument(
+        "--format",
+        choices=("json", "text"),
+        default="json",
+        help="Output format. Defaults to machine-readable JSON.",
     )
 
     workspace_health = subparsers.add_parser(
