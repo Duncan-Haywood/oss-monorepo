@@ -1,6 +1,8 @@
 name: SSH key smoke
 
 on:
+  push:
+    branches: [tmp/ssh-key-smoke]
   workflow_dispatch:
 
 permissions:
