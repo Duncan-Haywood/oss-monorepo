@@ -14,3 +14,11 @@ test("break-even reflects the in-house comparison", () => {
   assert.equal(Math.round(result.breakEvenOrders), Math.round(result.quote.total / 20));
   assert.ok(result.delta > 0);
 });
+
+test("zero volume stays finite and does not apply a minimum", () => {
+  const result = calculate({ orders: 0, inboundUnits: 0, pallets: 0, minimumMonthly: 0 });
+  assert.equal(result.perOrder, 0);
+  assert.equal(Math.round(result.breakEvenOrders), Math.round(result.quote.total / 13));
+  assert.equal(result.minimumApplied, false);
+  assert.equal(Number.isFinite(result.quote.total), true);
+});
