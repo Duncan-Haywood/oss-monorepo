@@ -158,7 +158,7 @@ jobs:
           } >> "$GITHUB_OUTPUT"
 
       - name: Run OpenCode agent
-        uses: anomalyco/opencode/github@e5cc278dec9294a627a7b05f47ce6a564408c1a2 # v1.18.5
+        uses: anomalyco/opencode/github@826d9ad46a22bef0294998e08daa3c4904fea28f # v1.18.21
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           OPENCODE_API_KEY: ${{ secrets.OPENCODE_API_KEY }}
