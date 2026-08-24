@@ -60,6 +60,11 @@ any check fails and `2` for an unreadable input file. Pass a directory to scan
 all `.json` files recursively; batch JSON includes per-file errors and batch
 SARIF uses paths relative to the input directory. An empty directory is an
 input error and exits `2`.
+JSON output uses the same summary fields for single files and directories:
+`status`, `files_checked`, `files_failed`, `observations`, `rules`, and
+`read_errors`. Single-file output also includes `file` and `errors`; directory
+output includes the per-file `reports` array. Rule counts let a CI or ERP
+adapter show a compact defect summary without parsing human text.
 `--format markdown` produces a reviewable report with filenames, rule IDs,
 observations, and fixes for single files and recursive directory scans.
 

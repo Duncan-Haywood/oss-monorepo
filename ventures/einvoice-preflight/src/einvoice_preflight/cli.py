@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import argparse
+from collections import Counter
 import json
 import sys
 from pathlib import Path
@@ -86,17 +87,19 @@ def _json_report(
     reports: list[tuple[Path, list[dict[str, str]]]],
     read_errors: list[dict[str, str]],
 ) -> dict[str, Any]:
-    """Return one stable envelope for both single-file and batch consumers."""
-    observations = sum(len(errors) for _, errors in reports)
-    failed = sum(bool(errors) for _, errors in reports)
-    return {
-        "status": "pass" if not observations and not read_errors else "fail",
+    """Build one stable adapter payload for every input mode."""
+    rule_counts = Counter(error["rule"] for _, errors in reports for error in errors)
+    errors = [error for _, invoice_errors in reports for error in invoice_errors]
+    output: dict[str, Any] = {
+        "status": "pass" if not errors and not read_errors else "fail",
         "files_checked": len(reports),
-        "files_failed": failed,
-        "observations": observations,
-        "reports": [{"file": path.as_posix(), "errors": errors} for path, errors in reports],
+        "files_failed": sum(bool(invoice_errors) for _, invoice_errors in reports),
+        "observations": len(errors),
+        "rules": dict(sorted(rule_counts.items())),
         "read_errors": read_errors,
     }
+    output["reports"] = [{"file": path.as_posix(), "errors": invoice_errors} for path, invoice_errors in reports]
+    return output
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -124,12 +127,12 @@ def main(argv: list[str] | None = None) -> int:
         sources = [(args.invoice, None)]
 
     for invoice_path, source in sources:
+        report_path = invoice_path if args.invoice.is_dir() or str(args.invoice) == "-" else Path(invoice_path.name)
         try:
             invoice = json.loads(source if source is not None else invoice_path.read_text())
         except (OSError, json.JSONDecodeError) as exc:
-            read_errors.append({"file": invoice_path.as_posix(), "error": str(exc)})
+            read_errors.append({"file": report_path.as_posix(), "error": str(exc)})
             continue
-        report_path = invoice_path if args.invoice.is_dir() or str(args.invoice) == "-" else Path(invoice_path.name)
         reports.append((report_path, check_invoice(invoice)))
         if args.usage_file:
             _record_usage(args.usage_file)
