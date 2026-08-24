@@ -23036,17 +23036,11 @@ entries:
         #949 had already removed the duplicate `shopify-permission-drift`
         score, so #951's patch would have deleted the only remaining entry.
     mrr_end: null
-<<<<<<< HEAD
   - venture: ai-engineering-academy
-=======
-
-  - venture: portfolio
->>>>>>> origin/main
     agent_spend_usd: null
     human_hours: 0
     outcomes:
       - >-
-<<<<<<< HEAD
         Triage first (scheduled brief, webhook-triggered on PR #955):
         #955 turned out to be a byte-identical duplicate of #954, which a
         concurrent session had already merged to main, so closed #955
@@ -23119,7 +23113,13 @@ entries:
         it does: hub entries versus direct entries to a single tool. All
         five portfolio validators re-run clean (16 VENTURE.yaml, 18
         candidates x2, 17 venture scores, 42 workflows).
-=======
+    mrr_end: null
+
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
           Webhook-triggered session (pull_request.closed on #720, branch
           claude/festive-mccarthy-k5sapz). #720 (deployment platform pick)
           had closed unmerged -- blocked on the repo-wide self-approval
@@ -23233,5 +23233,4 @@ entries:
           count one plan, and plan copies get their own counter. The README told
           users to open `index.html` from disk, which cannot work, since
           browsers refuse ES module imports over `file://`.
->>>>>>> origin/main
     mrr_end: null
