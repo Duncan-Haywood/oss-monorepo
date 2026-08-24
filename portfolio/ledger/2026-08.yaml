@@ -22021,3 +22021,56 @@ entries:
           content to #792's original head, already merged upstream by the
           time this session looked -- no unique work was lost.
     mrr_end: null
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+          `pull_request.opened` on #794, folded into a generic "continue
+          work, maintain the process, review open PRs" brief.
+          `session_gate.py` -> PROCEED, flagging a 3-session burst in a
+          15-minute window. Designated branch was already fully merged
+          (tip identical to its merge-base with `main`); restarted it from
+          current `main` per the already-merged-branch rule before doing
+          anything else.
+      - >-
+          Merged #794 (`28600e7`, agent-decidable, ledger-only): verified
+          both #794 and the concurrently-open #795 merged cleanly in
+          sequence against the live `main` tip (`git merge-tree` on each,
+          then a local trial merge of both) before merging #794 first via
+          the API.
+      - >-
+          #795 then failed GitHub's own merge check once #794 landed --
+          not the trivial append-conflict the local trial predicted, but
+          because a third session's #796 had merged in the same window and
+          already recorded the #791 merge and this window's open-PR review.
+          Closed #795 as a duplicate of #796's already-merged content,
+          pointing there; its one non-duplicate finding (#731's subtree
+          merge having rewritten `local-site-studio`'s `page.tsx`
+          bundle-pricing section out from under #531) was already preserved
+          as a standalone PR comment on #531, so nothing was lost.
+      - >-
+          A fourth session had independently reached the same rebase-and-push
+          impasse and opened #798 with identical content to #795 (its body
+          says so explicitly). Closed #798 the same way, pointing to #796.
+      - >-
+          Also closed #764 (`kilo-code-bot[bot]`, opened 09:46, `dirty`
+          against current `main`): it proposed merging #368 (the Dependabot
+          workflow) and removing the `dependabot` decision row outright.
+          Both are stale -- #368 was merged and then deliberately reverted
+          (`8662727`/`3a5dc20`, #777) as an unattended-automation
+          gate-crossing, and the decision row was corrected in place rather
+          than removed (`c5a2659`, `e0f3d6f`, `9d2fc25`) to keep tracking the
+          now-open re-enable-or-not question. No content from #764 survives
+          to carry forward.
+      - >-
+          Remaining open PRs need no action: #788 and #720 are self-flagged
+          human-gated and already tracked in `asks.yaml`; #531 is
+          human-gated and already tracked, with the #731-conflict detail
+          above as a PR comment; #790 is still author-marked draft. #785
+          (the other a11y-evidence-record suggestion) merged during this
+          session, by someone else.
+      - >-
+          `payout-rail` remains the only queue item that moves the revenue
+          ceiling off $0.
+    mrr_end: null
