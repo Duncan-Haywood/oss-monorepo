@@ -1,5 +1,7 @@
 import Link from "next/link";
 import ProductDetailPreviewCTA from "@/components/ProductDetailPreviewCTA";
+import StorefrontCheckoutCTA from "@/components/StorefrontCheckoutCTA";
+import { validateCheckoutLineItem } from "@/lib/checkout";
 import {
   evaluateSeoPagePublishability,
   getSeoIntentLabel,
@@ -36,6 +38,9 @@ export default function PrintLandingPage({ page, publishState }: PrintLandingPag
   const artwork = catalogArtworks.find((item) => item.slug === page.artworkSlug);
   const consentGate = buildListingConsentGate(catalogArtworks, defaultListingConsentRecords);
   const consentItem = consentGate.items.find((item) => item.artwork.slug === page.artworkSlug);
+  const checkoutEligibility = artwork
+    ? validateCheckoutLineItem(artwork)
+    : { artworkSlug: page.artworkSlug, eligible: false, blockers: ["Listing is not in the live catalog"] };
 
   return (
     <div className="min-h-screen bg-stone-50 dark:bg-gray-950 text-gray-900 dark:text-gray-100">
@@ -93,17 +98,17 @@ export default function PrintLandingPage({ page, publishState }: PrintLandingPag
             </div>
 
             <div className="flex flex-wrap gap-3">
-              <button
-                type="button"
-                disabled={!state.publishable}
-                className={`px-5 py-3 rounded-lg font-medium transition ${
-                  state.publishable
-                    ? "bg-indigo-600 text-white hover:bg-indigo-700"
-                    : "bg-gray-200 dark:bg-gray-800 text-gray-600 dark:text-gray-400 cursor-not-allowed"
-                }`}
-              >
-                {page.primaryCta}
-              </button>
+              <StorefrontCheckoutCTA
+                artworkSlug={page.artworkSlug}
+                eligible={Boolean(artwork) && checkoutEligibility.eligible}
+                blockers={
+                  artwork
+                    ? checkoutEligibility.blockers
+                    : ["Listing is not in the live catalog"]
+                }
+                label={page.primaryCta}
+                variant="hero"
+              />
               <Link
                 href="/storefront"
                 className="px-5 py-3 rounded-lg border border-stone-300 dark:border-gray-700 font-medium hover:bg-stone-100 dark:hover:bg-gray-800 transition"
@@ -124,6 +129,16 @@ export default function PrintLandingPage({ page, publishState }: PrintLandingPag
           <ProductDetailPreviewCTA artwork={artwork} compact />
         )}
       </main>
+
+      <footer className="max-w-5xl mx-auto px-4 pb-10 text-xs leading-5 text-gray-500 dark:text-gray-400">
+        <p>
+          <strong>No warranty.</strong> Print listings and checkout totals are a free demo, not
+          financial, tax, or legal advice. You remain responsible for reviewing proofs, rights,
+          and payout decisions. Anonymous feature events are counted (never people or cart
+          contents). To the maximum extent permitted by law, the authors accept no liability for
+          loss arising from its use.
+        </p>
+      </footer>
     </div>
   );
 }

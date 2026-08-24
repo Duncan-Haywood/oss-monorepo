@@ -1,13 +1,18 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 import {
+  buildCheckoutAddHref,
   buildCheckoutFunnelMetrics,
   buildCheckoutReadiness,
   buildCheckoutSessionPayload,
   buildFulfillmentRoute,
   buildSampleCheckoutCart,
   calculateCheckoutTotals,
+  ensureCheckoutLine,
   getCheckoutEnvStatus,
+  resolveCheckoutLineFromSlug,
+  seedCheckoutCart,
+  upsertCheckoutLine,
   validateCheckoutLineItem,
 } from "../src/lib/checkout.ts";
 import { catalogArtworks, defaultListingConsentRecords } from "../src/lib/marketplace.ts";
@@ -95,6 +100,43 @@ test("buildCheckoutFunnelMetrics tracks cart-to-session readiness stages", () =>
   assert.equal(funnel.stages.length, 5);
   assert.ok(funnel.overallReadiness >= 0 && funnel.overallReadiness <= 100);
   assert.equal(funnel.checkoutSessionReady, false);
+});
+
+test("buildCheckoutAddHref encodes the listing slug for checkout", () => {
+  assert.equal(buildCheckoutAddHref("midnight-coast"), "/checkout?add=midnight-coast");
+  assert.equal(buildCheckoutAddHref(""), "/checkout");
+});
+
+test("resolveCheckoutLineFromSlug maps live catalog slugs and rejects unknown ones", () => {
+  const line = resolveCheckoutLineFromSlug("midnight-coast");
+  assert.ok(line);
+  assert.equal(line?.title, "Midnight Coast");
+  assert.equal(line?.quantity, 1);
+  assert.equal(resolveCheckoutLineFromSlug("not-a-print"), null);
+});
+
+test("upsertCheckoutLine increments quantity; ensureCheckoutLine does not", () => {
+  const first = resolveCheckoutLineFromSlug("midnight-coast");
+  assert.ok(first);
+  const once = upsertCheckoutLine([], first);
+  const twice = upsertCheckoutLine(once, first);
+  assert.equal(twice[0]?.quantity, 2);
+
+  const ensured = ensureCheckoutLine(once, first);
+  assert.equal(ensured[0]?.quantity, 1);
+});
+
+test("seedCheckoutCart honors ?add= instead of the sample two-item cart", () => {
+  const seeded = seedCheckoutCart([], "urban-geometry");
+  assert.equal(seeded.length, 1);
+  assert.equal(seeded[0]?.artworkSlug, "urban-geometry");
+
+  const withExisting = seedCheckoutCart(seeded, "urban-geometry");
+  assert.equal(withExisting[0]?.quantity, 1);
+
+  const unknown = seedCheckoutCart([], "missing-print");
+  assert.ok(unknown.length >= 1);
+  assert.notEqual(unknown[0]?.artworkSlug, "missing-print");
 });
 
 test("buildCheckoutFunnelMetrics marks live checkout ready when env and POD configured", () => {

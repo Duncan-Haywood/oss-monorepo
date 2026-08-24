@@ -114,6 +114,71 @@ export function artworkToCheckoutLine(
   };
 }
 
+export function buildCheckoutAddHref(artworkSlug: string): string {
+  const slug = artworkSlug.trim();
+  if (!slug) return "/checkout";
+  return `/checkout?add=${encodeURIComponent(slug)}`;
+}
+
+export function resolveCheckoutLineFromSlug(
+  slug: string,
+  artworks: CatalogArtwork[] = catalogArtworks,
+): CheckoutLineItem | null {
+  const artwork = artworks.find((item) => item.slug === slug.trim());
+  if (!artwork) return null;
+  return artworkToCheckoutLine(artwork, 1);
+}
+
+export function upsertCheckoutLine(
+  cart: CheckoutLineItem[],
+  line: CheckoutLineItem,
+): CheckoutLineItem[] {
+  const quantity = Math.max(1, line.quantity);
+  const existing = cart.find((item) => item.artworkSlug === line.artworkSlug);
+  if (!existing) {
+    return [...cart, { ...line, quantity }];
+  }
+  return cart.map((item) =>
+    item.artworkSlug === line.artworkSlug
+      ? { ...item, quantity: item.quantity + quantity }
+      : item,
+  );
+}
+
+export function ensureCheckoutLine(
+  cart: CheckoutLineItem[],
+  line: CheckoutLineItem,
+): CheckoutLineItem[] {
+  if (cart.some((item) => item.artworkSlug === line.artworkSlug)) {
+    return cart;
+  }
+  return [...cart, { ...line, quantity: Math.max(1, line.quantity) }];
+}
+
+/** Seed the checkout cart from localStorage plus an optional listing `?add=` slug. */
+export function seedCheckoutCart(
+  stored: CheckoutLineItem[],
+  addSlug?: string,
+  artworks: CatalogArtwork[] = catalogArtworks,
+): CheckoutLineItem[] {
+  const added = addSlug ? resolveCheckoutLineFromSlug(addSlug, artworks) : null;
+  if (added) {
+    return ensureCheckoutLine(stored, added);
+  }
+  return stored.length > 0 ? stored : buildSampleCheckoutCart(artworks);
+}
+
+export function addArtworkToCheckoutCart(
+  slug: string,
+  artworks: CatalogArtwork[] = catalogArtworks,
+): CheckoutLineItem[] {
+  const line = resolveCheckoutLineFromSlug(slug, artworks);
+  const stored = loadCheckoutCartFromStorage();
+  const next = line ? upsertCheckoutLine(stored, line) : stored;
+  saveCheckoutCartToStorage(next);
+  return next;
+}
+
 export function validateCheckoutLineItem(
   artwork: CatalogArtwork,
   consentRecords: ListingConsentRecord[] = defaultListingConsentRecords,

@@ -8,7 +8,9 @@ import {
   calculateCheckoutTotals,
   formatCheckoutCurrency,
   loadCheckoutCartFromStorage,
+  resolveCheckoutLineFromSlug,
   saveCheckoutCartToStorage,
+  seedCheckoutCart,
   type CheckoutEnvStatus,
   type CheckoutLineItem,
   type CheckoutShippingRegion,
@@ -37,17 +39,25 @@ type CheckoutApiResponse = CheckoutEnvStatus & {
 
 const regions: CheckoutShippingRegion[] = ["US", "EU", "UK", "APAC"];
 
-export default function CheckoutLab() {
-  const [cart, setCart] = useState<CheckoutLineItem[]>([]);
+type CheckoutLabProps = {
+  addSlug?: string;
+};
+
+export default function CheckoutLab({ addSlug }: CheckoutLabProps) {
+  const listingLine = addSlug ? resolveCheckoutLineFromSlug(addSlug) : null;
+  const [cart, setCart] = useState<CheckoutLineItem[]>(() => seedCheckoutCart([], addSlug));
   const [region, setRegion] = useState<CheckoutShippingRegion>("US");
   const [envStatus, setEnvStatus] = useState<CheckoutEnvStatus | null>(null);
   const [sessionPreview, setSessionPreview] = useState<CheckoutApiResponse | null>(null);
   const [loading, setLoading] = useState(false);
+  const [addedFromListing, setAddedFromListing] = useState<CheckoutLineItem | null>(listingLine);
 
   useEffect(() => {
     const stored = loadCheckoutCartFromStorage();
-    setCart(stored.length > 0 ? stored : buildSampleCheckoutCart());
-  }, []);
+    const next = seedCheckoutCart(stored, addSlug);
+    setCart(next);
+    setAddedFromListing(addSlug ? resolveCheckoutLineFromSlug(addSlug) : null);
+  }, [addSlug]);
 
   useEffect(() => {
     if (cart.length > 0) {
@@ -122,6 +132,11 @@ export default function CheckoutLab() {
           Consent-gated cart → Stripe Checkout session → POD fulfillment routing → Connect artist
           transfer. Cart persists in localStorage until Convex order records ship.
         </p>
+        {addedFromListing ? (
+          <p className="mt-3 rounded-lg border border-emerald-200 bg-emerald-50 px-3 py-2 text-sm text-emerald-800">
+            Added {addedFromListing.title} by {addedFromListing.artistName} from the listing.
+          </p>
+        ) : null}
       </header>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
