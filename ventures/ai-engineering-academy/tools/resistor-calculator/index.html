@@ -209,7 +209,7 @@
     DIGIT_COLORS, MULTIPLIER_COLORS, TOLERANCE_COLORS, TEMP_COEFFICIENT_COLORS,
      decodeResistor4Band, decodeResistor5Band, solveOhmsLaw, calculateLedResistor, formatResistance,
   } from "./calc.mjs";
-  import { recordEvent, isUsageCountingEnabled, setUsageCountingEnabled } from "./usage.mjs";
+  import { recordEvent, recordEventSettled, isUsageCountingEnabled, setUsageCountingEnabled } from "./usage.mjs";
 
   const swatch = (name) => ({
     black: "#000", brown: "#7B3F00", red: "#e53e3e", orange: "#dd6b20",
@@ -258,7 +258,14 @@
 
   let mode = "4band";
 
-  function updateResistor() {
+  // `update` runs both on page load (to render a first result from the
+  // prefilled defaults) and whenever a person changes something. Only the
+  // second is somebody using the tool, so only it is counted -- previously
+  // the on-load call recorded a calculation for every page view, bounces
+  // included, which is exactly the difference portfolio/usage/ exists to
+  // measure. Real-interaction call sites pass `true`; the on-load call
+  // passes nothing.
+  function updateResistor(userAction) {
     try {
       const result = mode === "4band"
         ? decodeResistor4Band(band1.value, band2.value, bandMult.value, bandTol.value)
@@ -267,7 +274,7 @@
       const tc = result.ppmPerC ? `, ${result.ppmPerC} ppm/°C` : "";
       rcResult.innerHTML = `<strong>${result.formatted}</strong> ±${result.tolerancePercent}%${tc}`;
       rcResult.classList.remove("error");
-      recordEvent("resistor_decoded");
+      if (userAction) recordEvent("resistor_decoded");
     } catch (err) {
       rcResult.textContent = err.message;
       rcResult.classList.add("error");
@@ -280,7 +287,7 @@
     document.getElementById("btn-5band").setAttribute("aria-pressed", "false");
     band3Wrap.style.display = "none";
     tempWrap.style.display = "none";
-    updateResistor();
+    updateResistor(true);
   });
   document.getElementById("btn-5band").addEventListener("click", () => {
     mode = "5band";
@@ -288,10 +295,10 @@
     document.getElementById("btn-5band").setAttribute("aria-pressed", "true");
     band3Wrap.style.display = "";
     tempWrap.style.display = "";
-    updateResistor();
+    updateResistor(true);
   });
   for (const el of [band1, band2, band3, bandMult, bandTol, bandTemp]) {
-    el.addEventListener("change", updateResistor);
+    el.addEventListener("change", () => updateResistor(true));
   }
   updateResistor();
 
@@ -301,7 +308,7 @@
   const ohmP = document.getElementById("ohm-p");
   const ohmResult = document.getElementById("ohm-result");
 
-  function updateOhm() {
+  function updateOhm(userAction) {
     const raw = { v: ohmV.value, i: ohmI.value, r: ohmR.value, p: ohmP.value };
     const known = {};
     for (const k of ["v", "i", "r", "p"]) known[k] = raw[k] === "" ? undefined : Number(raw[k]);
@@ -316,19 +323,19 @@
       const fmt = (n) => (Math.round(n * 1e6) / 1e6).toString();
       ohmResult.innerHTML = `V = <strong>${fmt(v)} V</strong> &nbsp; I = <strong>${fmt(i)} A</strong> &nbsp; R = <strong>${fmt(r)} Ω</strong> &nbsp; P = <strong>${fmt(p)} W</strong>`;
       ohmResult.classList.remove("error");
-      recordEvent("ohms_law_solved");
+      if (userAction) recordEventSettled("ohms_law_solved");
     } catch (err) {
       ohmResult.textContent = err.message;
       ohmResult.classList.add("error");
     }
   }
-  for (const el of [ohmV, ohmI, ohmR, ohmP]) el.addEventListener("input", updateOhm);
+  for (const el of [ohmV, ohmI, ohmR, ohmP]) el.addEventListener("input", () => updateOhm(true));
 
   const ledSupply = document.getElementById("led-supply");
   const ledForward = document.getElementById("led-forward");
   const ledCurrent = document.getElementById("led-current");
   const ledResult = document.getElementById("led-result");
-  function updateLed() {
+  function updateLed(userAction) {
     const values = [ledSupply.value, ledForward.value, ledCurrent.value];
     if (values.some((value) => value === "")) {
       ledResult.textContent = "Enter all three values above.";
@@ -339,13 +346,13 @@
       const result = calculateLedResistor({ supplyVoltage: ledSupply.value, ledForwardVoltage: ledForward.value, targetCurrent: Number(ledCurrent.value) / 1000 });
       ledResult.innerHTML = `Use at least <strong>${formatResistance(result.resistance)}</strong> &nbsp; Dissipation: <strong>${result.power} W</strong> &nbsp; Choose a <strong>${result.recommendedWattage} W</strong> resistor or larger.`;
       ledResult.classList.remove("error");
-      recordEvent("led_resistor_calculated");
+      if (userAction) recordEventSettled("led_resistor_calculated");
     } catch (err) {
       ledResult.textContent = err.message;
       ledResult.classList.add("error");
     }
   }
-  for (const el of [ledSupply, ledForward, ledCurrent]) el.addEventListener("input", updateLed);
+  for (const el of [ledSupply, ledForward, ledCurrent]) el.addEventListener("input", () => updateLed(true));
 
   const usageToggle = document.getElementById("usage-toggle");
   const usageStatus = document.getElementById("usage-status");

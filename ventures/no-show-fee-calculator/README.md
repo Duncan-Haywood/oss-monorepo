@@ -74,7 +74,10 @@ Everything runs in your browser. There is no server, no account, and no
 third-party analytics vendor — your prices and business details are never
 uploaded anywhere. The page counts a small number of anonymous local events
 (e.g. "a calculation ran", "the policy was copied") so it can tell whether
-anyone is using it at all; each event is just a name and a date, stored only
+anyone is using it at all. The page recalculates as you type, but a
+calculation is only *counted* once a field is settled — the count is meant to
+measure calculations, not keystrokes, and the result shown on first load is
+not counted at all, since nobody asked for it. Each event is just a name and a date, stored only
 in `localStorage` on your own device, visible to you in the page's "Usage"
 section, and clearable or disable-able at any time (a "don't count my usage"
 checkbox is right there, and the tool also honors your browser's Do Not

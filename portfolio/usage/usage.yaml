@@ -56,6 +56,31 @@ products:
           component from a target cutoff and snaps it to a buyable
           preferred value, 24 passing unit tests). Same publishing gate as
           above — no traffic signal yet. Baseline row for the fourth tool.
+      - as_of: 2026-08-24
+        signals:
+          live_url_visitors: null
+          local_events_reported: 0
+        note: >-
+          Correction, not a new surface: all four tools were counting
+          calculations that nobody performed. Each `update()` ran on page
+          load to render a first result from the prefilled defaults, and
+          recorded an event while doing it — so a visit that bounced
+          immediately still logged a calculation. On top of that the
+          continuous-input handlers recorded per keystroke, so typing "220"
+          into one field logged three more. A single arrive-type-leave
+          visit could log a dozen calculations.
+          Fixed both: the on-load render no longer counts, and keystroke
+          bursts collapse into one event once the input settles (800 ms).
+          Verified in headless Chromium — a bare page load now records 0,
+          and typing a value records exactly 1.
+          No past reading is invalidated, because every reading so far is
+          0/null: nothing is deployed, so no inflated number was ever
+          recorded. The point of fixing it before launch is that the first
+          real reading will mean what it says.
+          The fourth tool shipped from a concurrent branch carrying the same
+          defect, so the fix covers it too rather than leaving one tool of
+          four inflating its own numbers — which would be worse than uniform
+          over-counting, because it makes the tools incomparable.
   - slug: quote-margin-check
     surface: repository-cli
     readings:
@@ -130,6 +155,16 @@ products:
         note: >-
           Shipped a local stock-cut planning baseline for makers; public URL
           remains owner-gated and the browser counter is local and opt-out.
+  - slug: janitorial-bid-calculator
+    surface: static-page-in-repo
+    readings:
+      - as_of: 2026-08-24
+        signals:
+          live_url_visitors: null
+          local_events_reported: 0
+        note: >-
+          Shipped a local commercial cleaning bid calculator with a copyable
+          proposal summary; public URL remains owner-gated.
   - slug: shopify-fee-calculator
     surface: static-page-in-repo
     readings:
@@ -166,6 +201,18 @@ products:
           Shipped browser-local no-show exposure calculator and policy draft
           generator. Public URL remains owner-gated; the local counter is
           anonymous, event-only, and opt-out. Baseline row.
+  - slug: amazon-fba-calculator
+    surface: static-page-in-repo
+    readings:
+      - as_of: 2026-08-24
+        signals:
+          live_url_visitors: null
+          local_events_reported: 0
+        note: >-
+          Shipped local Amazon FBA vs FBM profit calculator (size-tier
+          fulfillment, storage, inbound, max buy cost, both-path comparison).
+          Public URL remains owner-gated; the local-first counter reports only
+          to the user's own browser and is opt-out. Baseline row.
   - slug: einvoice-preflight
     surface: local-cli
     readings:
@@ -174,6 +221,24 @@ products:
           local_preflights: 1
           qualified_pilots: 0
         note: Shipped local JSON preflight; format coverage and customer demand remain untested.
+  - slug: backup-verification-evidence
+    surface: local-cli
+    readings:
+      - as_of: 2026-08-24
+        signals:
+          local_artifacts_verified: 0
+          local_runs_recorded: 0
+          qualified_operators: 0
+        note: >-
+          Baseline row, opened alongside the artifact-integrity slice (`verify`
+          subcommand; tar/gzip/bzip2/xz/zip/SQLite/text-dump structural checks).
+          The counters map to the local `--usage-file` event names
+          (`artifact_verified`, `run_recorded`) and are opt-in and local-only,
+          so a nonzero reading requires a user to both pass the flag and send
+          the file back — treat zero here as "no signal", not "no users".
+          Distribution is still repo-only: no release, no package, no public
+          URL, so there is no download or traffic signal to read yet. Getting
+          one is the next step that would actually move this venture.
   - slug: eaa-remediation-pipeline
     surface: local-site-studio-browser
     readings:

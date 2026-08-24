@@ -1,0 +1,26 @@
+{
+  "_comment": "The case size and age cannot catch. pg_dump died halfway; the shell reported gzip's exit code, so this run looks flawless from the outside: exit 0, 41 MB (well over the 1 MB floor), written seconds before the run finished. Only reading the artifact back finds it, which is what --verify-integrity does. Classified `failed`.",
+  "tool": "pg_dump|gzip",
+  "command": ["/usr/local/bin/nightly-dump.sh"],
+  "exit_code": 0,
+  "started_at": "2026-08-26T03:00:00Z",
+  "finished_at": "2026-08-26T03:04:12Z",
+  "duration_seconds": 252.0,
+  "artifact": {
+    "path": "/backups/app-db.sql.gz",
+    "exists": true,
+    "size_bytes": 41203114,
+    "modified_at": "2026-08-26T03:04:09Z",
+    "integrity": {
+      "result": "corrupt",
+      "format": "gzip",
+      "detail": "the gzip stream did not decompress to a clean end (EOFError: Compressed file ended before the end-of-stream marker was reached). A truncated or checksum-failing stream means the writer did not finish -- the artifact is incomplete.",
+      "bytes_read": 118293504
+    }
+  },
+  "expected": {
+    "max_age_hours": 26,
+    "min_size_bytes": 1000000
+  },
+  "log_tail": "gzip: /backups/app-db.sql.gz: complete"
+}
