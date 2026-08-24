@@ -91,6 +91,29 @@ ventures:
       liability_containment: pass
       ethical_robustness: pass
 
+  - slug: ebay-fee-calculator
+    scores:
+      ai_leverage: 2
+      autonomous_ops: 10
+      time_to_revenue: 7
+      gross_margin: 10
+      defensibility: 3
+      distribution: 6
+    composite: 6.333
+    rater_b: null
+    floor: 2
+    floor_dimension: ai_leverage
+    floor_note: AI is intentionally absent from the arithmetic core.
+    basis: >-
+      Graduated on 2026-08-24 as a browser-local eBay reseller fee, profit and
+      ROI calculator. Scored one below its etsy-profit-calculator sibling on
+      defensibility and distribution: "eBay fee calculator" is a more saturated
+      SERP with entrenched ad-funded incumbents, so the cost-of-goods/ROI
+      differentiator is thinner cover there than on Etsy's.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+
   - slug: quote-margin-check
     scores:
       ai_leverage: 3
