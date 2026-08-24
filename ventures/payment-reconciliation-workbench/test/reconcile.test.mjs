@@ -13,3 +13,9 @@ test('normalizes common CSV headers and matches within settlement tolerance', ()
 test('rejects files without recognizable columns', () => {
   assert.throws(() => readRecords('name,total\nA,4', 'payouts'), /date and amount/);
 });
+
+test('parses quoted commas and rejects malformed rows instead of silently dropping them', () => {
+  const records = readRecords('date,net,note\n2026-08-20,"100.00","monthly, batch"', 'payouts');
+  assert.equal(records[0].cents, 10000);
+  assert.throws(() => readRecords('date,net\n2026-08-20,100.00\nnot-a-date,25.50', 'payouts'), /invalid date or amount/);
+});
