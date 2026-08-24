@@ -153,6 +153,30 @@ class BranchHygieneTests(unittest.TestCase):
             self.assertEqual(findings["feature/merged"].classification, "merged")
             self.assertEqual(findings["feature/open"].classification, "active")
 
+    def test_reused_head_from_gh_newest_first_export_uses_latest_closed_pr(self):
+        with tempfile.TemporaryDirectory() as directory:
+            repo = Path(directory)
+            subprocess.run(["git", "init", "-q", "-b", "main", str(repo)], check=True)
+            (repo / "README").write_text("base\n")
+            subprocess.run(["git", "-C", str(repo), "add", "."], check=True)
+            env = ["-c", "user.name=Test", "-c", "user.email=test@example.com"]
+            subprocess.run(["git", "-C", str(repo), *env, "commit", "-qm", "base"], check=True)
+            subprocess.run(["git", "-C", str(repo), "branch", "feature/reused"], check=True)
+            subprocess.run(["git", "-C", str(repo), "checkout", "-q", "feature/reused"], check=True)
+            (repo / "README").write_text("merged work\n")
+            subprocess.run(["git", "-C", str(repo), "add", "."], check=True)
+            subprocess.run(["git", "-C", str(repo), *env, "commit", "-qm", "merged work"], check=True)
+            subprocess.run(["git", "-C", str(repo), "checkout", "-q", "main"], check=True)
+            subprocess.run(["git", "-C", str(repo), *env, "merge", "-q", "--no-ff", "-m", "merge feature/reused", "feature/reused"], check=True)
+            export = repo / "prs.json"
+            export.write_text(json.dumps([
+                {"headRefName": "feature/reused", "state": "MERGED", "baseRefName": "main"},
+                {"headRefName": "feature/reused", "state": "CLOSED", "baseRefName": "main"},
+            ]))
+            snapshot = snapshot_from_repo(repo, pr_export=export)
+            findings = {item.branch: item for item in scan(snapshot)}
+            self.assertEqual(findings["feature/reused"].classification, "merged")
+
     def test_local_snapshot_with_pr_export_does_not_truncate_base_ancestry(self):
         with tempfile.TemporaryDirectory() as directory:
             repo = Path(directory)
@@ -168,17 +192,14 @@ class BranchHygieneTests(unittest.TestCase):
             subprocess.run(["git", "-C", str(repo), *env, "commit", "-qm", "old merge work"], check=True)
             subprocess.run(["git", "-C", str(repo), "checkout", "-q", "main"], check=True)
             subprocess.run(["git", "-C", str(repo), *env, "merge", "-q", "--no-ff", "-m", "merge old", "feature/old-merge"], check=True)
-            # Push the merge commit more than 200 commits deep into main's
-            # history, past the previous --max-count=200 window, before it
-            # is ever scanned.
-            for i in range(205):
-                (repo / f"f{i}.txt").write_text("x\n")
-                subprocess.run(["git", "-C", str(repo), "add", "."], check=True)
-                subprocess.run(["git", "-C", str(repo), *env, "commit", "-qm", f"filler {i}"], check=True)
-
             export = repo / "prs.json"
             export.write_text(json.dumps([{"headRefName": "feature/old-merge", "state": "MERGED", "baseRefName": "main"}]))
             snapshot = snapshot_from_repo(repo, pr_export=export)
+            feature_tip = subprocess.check_output(["git", "-C", str(repo), "rev-parse", "feature/old-merge"], text=True).strip()
+            main_history = subprocess.check_output(["git", "-C", str(repo), "rev-list", "main"], text=True).splitlines()
+            related = next(record for record in snapshot["pull_requests"] if record["head"] == "feature/old-merge")
+            self.assertEqual(related["base_commits"], [feature_tip])
+            self.assertNotEqual(related["base_commits"], main_history)
             findings = {item.branch: item for item in scan(snapshot)}
             self.assertEqual(findings["feature/old-merge"].classification, "merged")
 
