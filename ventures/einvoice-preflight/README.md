@@ -10,6 +10,7 @@ cd ventures/einvoice-preflight
 PYTHONPATH=src python3 -m einvoice_preflight examples/valid-invoice.json
 PYTHONPATH=src python3 -m einvoice_preflight examples/valid-invoice.json --format json
 PYTHONPATH=src python3 -m einvoice_preflight examples/valid-invoice.json --format sarif > preflight.sarif
+PYTHONPATH=src python3 -m einvoice_preflight ./invoices/ --format markdown > review.md
 cat invoice.json | PYTHONPATH=src python3 -m einvoice_preflight - --format json
 PYTHONPATH=src python3 -m einvoice_preflight examples/valid-invoice.json --usage-file ~/.local/state/einvoice-preflight/usage.json
 PYTHONPATH=src python3 -m einvoice_preflight ./invoices/ --format json
@@ -56,6 +57,8 @@ any check fails and `2` for an unreadable input file. Pass a directory to scan
 all `.json` files recursively; batch JSON includes per-file errors and batch
 SARIF uses paths relative to the input directory. An empty directory is an
 input error and exits `2`.
+`--format markdown` produces a reviewable report with filenames, rule IDs,
+observations, and fixes for single files and recursive directory scans.
 
 ## Privacy and usage
 

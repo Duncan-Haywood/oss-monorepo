@@ -49,10 +49,30 @@ def _sarif_report(reports: list[tuple[Path, list[dict[str, str]]]]) -> dict[str,
     }
 
 
+def _markdown_report(reports: list[tuple[Path, list[dict[str, str]]]], read_errors: list[dict[str, str]]) -> str:
+    """Build a reviewable report containing filenames and observations only."""
+    observations = sum(len(errors) for _, errors in reports)
+    lines = ["# E-invoice preflight", "", f"Checked: {len(reports)} invoice(s)", f"Observations: {observations}", ""]
+    for path, errors in reports:
+        lines.append(f"## `{path.as_posix()}`")
+        if not errors:
+            lines.extend(["", "Pass: no defects found in the supported checks.", ""])
+            continue
+        lines.append("")
+        for error in errors:
+            lines.extend([f"- **{error['rule']}**: {error['message']}", f"  Fix: {error['fix']}"])
+        lines.append("")
+    if read_errors:
+        lines.extend(["## Read errors", ""])
+        lines.extend(f"- `{error['file']}`: {error['error']}" for error in read_errors)
+        lines.append("")
+    return "\n".join(lines).rstrip() + "\n"
+
+
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description="Check a local JSON e-invoice before submission. No tax advice or submission.")
     parser.add_argument("invoice", type=Path, help="JSON file, directory of JSON files, or '-' for stdin")
-    parser.add_argument("--format", choices=("text", "json", "sarif"), default="text")
+    parser.add_argument("--format", choices=("text", "json", "markdown", "sarif"), default="text")
     parser.add_argument("--usage-file", help="opt-in local aggregate event counter")
     args = parser.parse_args(argv)
     reports: list[tuple[Path, list[dict[str, str]]]] = []
@@ -98,6 +118,8 @@ def main(argv: list[str] | None = None) -> int:
         else:
             output = {"status": "pass" if not errors and not has_read_errors else "fail", "errors": errors}
         print(json.dumps(output, indent=2))
+    elif args.format == "markdown":
+        print(_markdown_report(reports, read_errors), end="")
     elif args.format == "sarif":
         print(json.dumps(_sarif_report(reports), indent=2))
     elif errors:

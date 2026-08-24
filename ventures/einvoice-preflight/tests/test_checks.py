@@ -163,6 +163,36 @@ class ChecksTest(unittest.TestCase):
             self.assertEqual(report["files_checked"], 0)
             self.assertEqual(report["read_errors"][0]["file"], "broken.json")
 
+    def test_cli_emits_markdown_review_for_single_invoice(self):
+        with tempfile.TemporaryDirectory() as directory:
+            invoice_path = Path(directory) / "invoice.json"
+            invoice = json.loads(json.dumps(VALID))
+            invoice["totals"]["gross"] = 200
+            invoice_path.write_text(json.dumps(invoice))
+            output = io.StringIO()
+            with contextlib.redirect_stdout(output):
+                self.assertEqual(main([str(invoice_path), "--format", "markdown"]), 1)
+            markdown = output.getvalue()
+            self.assertIn("# E-invoice preflight", markdown)
+            self.assertIn("## `invoice.json`", markdown)
+            self.assertIn("**INV-017**", markdown)
+            self.assertIn("Fix:", markdown)
+            self.assertNotIn("INV-1", markdown)
+
+    def test_cli_emits_markdown_for_batch_with_read_errors(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            (root / "pass.json").write_text(json.dumps(VALID))
+            (root / "broken.json").write_text("not json")
+            output = io.StringIO()
+            with contextlib.redirect_stdout(output):
+                self.assertEqual(main([directory, "--format", "markdown"]), 2)
+            markdown = output.getvalue()
+            self.assertIn("Checked: 1 invoice(s)", markdown)
+            self.assertIn("## `pass.json`", markdown)
+            self.assertIn("## Read errors", markdown)
+            self.assertIn("`broken.json`", markdown)
+
 
 if __name__ == "__main__":
     unittest.main()
