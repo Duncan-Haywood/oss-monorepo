@@ -140,6 +140,39 @@ class ChecksTest(unittest.TestCase):
             report = json.loads(output.getvalue())
             self.assertEqual(report["runs"][0]["results"], [])
 
+    def test_cli_emits_github_annotations_without_invoice_contents(self):
+        with tempfile.TemporaryDirectory() as directory:
+            invoice_path = Path(directory) / "invoice,review.json"
+            invoice = json.loads(json.dumps(VALID))
+            invoice["totals"]["gross"] = 200
+            invoice_path.write_text(json.dumps(invoice))
+            output = io.StringIO()
+            with contextlib.redirect_stdout(output):
+                self.assertEqual(main([str(invoice_path), "--format", "github"]), 1)
+            annotation = output.getvalue()
+            self.assertIn("::error file=invoice%2Creview.json,line=1,title=INV-017::", annotation)
+            self.assertIn("Gross total does not equal net plus tax.", annotation)
+            self.assertIn("Fix:", annotation)
+            self.assertNotIn("INV-1", annotation)
+
+    def test_cli_emits_github_annotation_for_read_errors(self):
+        with tempfile.TemporaryDirectory() as directory:
+            invoice_path = Path(directory) / "broken.json"
+            invoice_path.write_text("not json")
+            output = io.StringIO()
+            with contextlib.redirect_stdout(output):
+                self.assertEqual(main([str(invoice_path), "--format", "github"]), 2)
+            self.assertIn("::error file=broken.json,line=1,title=Unreadable invoice::", output.getvalue())
+
+    def test_cli_emits_no_github_annotations_for_valid_invoice(self):
+        with tempfile.TemporaryDirectory() as directory:
+            invoice_path = Path(directory) / "invoice.json"
+            invoice_path.write_text(json.dumps(VALID))
+            output = io.StringIO()
+            with contextlib.redirect_stdout(output):
+                self.assertEqual(main([str(invoice_path), "--format", "github"]), 0)
+            self.assertEqual(output.getvalue(), "")
+
     def test_cli_reads_valid_invoice_from_stdin(self):
         output = io.StringIO()
         with patch("sys.stdin", io.StringIO(json.dumps(VALID))), contextlib.redirect_stdout(output):
