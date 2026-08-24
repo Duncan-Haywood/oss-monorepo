@@ -103,6 +103,34 @@ def _markdown_report(reports: list[tuple[Path, list[dict[str, str]]]], read_erro
     return "\n".join(lines).rstrip() + "\n"
 
 
+def _github_report(reports: list[tuple[Path, list[dict[str, str]]]], read_errors: list[dict[str, str]]) -> str:
+    """Build GitHub Actions workflow commands without emitting invoice data."""
+    lines = []
+    for path, errors in reports:
+        for error in errors:
+            message = f"{error['message']} Fix: {error['fix']}"
+            lines.append(
+                f"::error file={_github_property(path.as_posix())},line=1,"
+                f"title={_github_property(error['rule'])}::{_github_message(message)}"
+            )
+    for error in read_errors:
+        lines.append(
+            f"::error file={_github_property(error['file'])},line=1,title=Unreadable invoice::"
+            f"{_github_message(error['error'])}"
+        )
+    return "\n".join(lines) + ("\n" if lines else "")
+
+
+def _github_property(value: str) -> str:
+    """Escape a workflow-command property value."""
+    return value.replace("%", "%25").replace("\r", "%0D").replace("\n", "%0A").replace(",", "%2C")
+
+
+def _github_message(value: str) -> str:
+    """Escape a workflow-command message value."""
+    return value.replace("%", "%25").replace("\r", "%0D").replace("\n", "%0A")
+
+
 def _json_report(
     reports: list[tuple[Path, list[dict[str, str]]]],
     read_errors: list[dict[str, str]],
@@ -165,7 +193,7 @@ def _markdown_text(value: str) -> str:
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description="Check a local JSON e-invoice before submission. No tax advice or submission.")
     parser.add_argument("invoice", type=Path, help="JSON file, directory of JSON files, or '-' for stdin")
-    parser.add_argument("--format", choices=("text", "json", "markdown", "csv", "sarif"), default="text")
+    parser.add_argument("--format", choices=("text", "json", "markdown", "csv", "sarif", "github"), default="text")
     parser.add_argument("--usage-file", help="opt-in local aggregate event counter")
     args = parser.parse_args(argv)
     reports: list[tuple[Path, list[dict[str, str]]]] = []
@@ -207,6 +235,8 @@ def main(argv: list[str] | None = None) -> int:
         print(_csv_report(reports, read_errors), end="")
     elif args.format == "sarif":
         print(json.dumps(_sarif_report(reports), indent=2))
+    elif args.format == "github":
+        print(_github_report(reports, read_errors), end="")
     elif errors:
         print(f"Preflight failed: {len(errors)} observation(s) across {len(reports)} invoice(s)")
         for path, invoice_errors in reports:
