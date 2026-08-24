@@ -17,7 +17,10 @@ Standard library only; no network.
 
 from __future__ import annotations
 
+import contextlib
+import io
 import json
+import re
 import sys
 import tempfile
 import textwrap
@@ -835,6 +838,123 @@ class TestAgentInstructionClosure(RepoCase):
 # --------------------------------------------------------------------------
 # Reporting
 # --------------------------------------------------------------------------
+
+class TestCensusMasking(unittest.TestCase):
+    """`--check` must ignore the repository census and nothing else.
+
+    R7 counts the transitive closure of the documents the agent's prompt sends
+    it to, which is a census of the whole repository. Byte-comparing a committed
+    copy of the report therefore failed on merges that had nothing to do with
+    this probe -- on 2026-08-24 the job was red on eight consecutive pushes to
+    `main`, and two open pull requests (#954, #955) existed only to re-pin the
+    number, which went stale again within minutes of each landing.
+
+    The two tests that matter are the pair: masking has to be wide enough that
+    closure growth passes, and narrow enough that a real change still fails. A
+    mask that swallowed the findings would turn a red check into a useless one,
+    which is worse than the churn it replaced.
+    """
+
+    def setUp(self):
+        findings = analyse(REPO_ROOT)
+        self.report = harness.RESULTS_HEADER + "\n" + render_markdown(findings, summarise(findings))
+
+    def _write(self, text):
+        path = Path(tempfile.mkdtemp()) / "results.md"
+        path.write_text(text)
+        return path
+
+    def _check(self, text):
+        """Run `--check` against `text`, returning its exit status."""
+        stdout, stderr = io.StringIO(), io.StringIO()
+        with contextlib.redirect_stdout(stdout), contextlib.redirect_stderr(stderr):
+            status = harness.main(["--check", str(self._write(text))])
+        return status, stdout.getvalue() + stderr.getvalue()
+
+    def test_a_freshly_generated_report_checks_clean(self):
+        status, _ = self._check(self.report)
+        self.assertEqual(status, 0)
+
+    def test_closure_growth_alone_is_not_a_failure(self):
+        # What every unrelated pull request does: adds a document, so the
+        # closure count, its per-depth breakdown, and which six files the
+        # sample names all move. None of that is a finding changing.
+        grown = self.report
+        grown = re.sub(
+            r"(?<=instruction set is )\d+(?= repository files)", "4211", grown
+        )
+        grown = re.sub(
+            r"(?<=the fixed point of that is )\d+ files \([^)]*\)",
+            "4211 files (4 at depth 1, 900 at depth 2, 3307 at depth 3)",
+            grown,
+        )
+        grown = re.sub(
+            r", among them (?:`[^`]*`, )*`[^`]*`(?=\. Every one is)",
+            ", among them `NEW-A.md`, `NEW-B.md`",
+            grown,
+        )
+        self.assertNotEqual(grown, self.report, "the census rewrite matched nothing")
+
+        status, output = self._check(grown)
+        self.assertEqual(status, 0, output)
+        # Silence would be wrong: a reader of the committed file should be told
+        # its numbers are old even though that is not a failure.
+        self.assertIn("stale", output)
+
+    def test_a_changed_line_number_still_fails(self):
+        status, output = self._check(self.report.replace("(line 109)", "(line 999)"))
+        self.assertEqual(status, 1)
+        self.assertIn("line 999", output)
+
+    def test_a_dropped_finding_still_fails(self):
+        without_r7 = "\n".join(
+            line for line in self.report.split("\n") if "instruction set is" not in line
+        )
+        status, _ = self._check(without_r7)
+        self.assertEqual(status, 1)
+
+    def test_a_changed_privilege_label_still_fails(self):
+        status, _ = self._check(self.report.replace("token:contents,id-token", "token:contents"))
+        self.assertEqual(status, 1)
+
+    def test_a_changed_severity_count_still_fails(self):
+        status, _ = self._check(self.report.replace("1 defects and 3 posture", "9 defects and 3 posture"))
+        self.assertEqual(status, 1)
+
+    def test_masking_changes_only_the_census_spans(self):
+        # Guards the mask itself: everything outside the three census spans has
+        # to survive verbatim, or a future widening could hide a real finding
+        # without any other test noticing.
+        masked = harness.mask_census(self.report)
+        self.assertEqual(masked.count(harness.CENSUS_MASK), 3)
+        for line in self.report.split("\n"):
+            if "instruction set is" in line or "the fixed point of that is" in line:
+                continue
+            self.assertIn(line, masked)
+
+    def test_write_then_check_round_trips(self):
+        # The header used to document a regeneration command that dropped the
+        # header. `--write` is the documented command now, so the file it
+        # produces has to be one `--check` accepts, or the instruction printed
+        # inside the artifact is wrong again.
+        path = Path(tempfile.mkdtemp()) / "written.md"
+        with contextlib.redirect_stdout(io.StringIO()):
+            self.assertEqual(harness.main(["--write", str(path)]), 0)
+            self.assertEqual(harness.main(["--check", str(path)]), 0)
+        self.assertTrue(path.read_text().startswith(harness.RESULTS_HEADER))
+
+    def test_the_committed_results_file_is_current(self):
+        # The check CI runs, run here too: a contributor who edits a rule sees
+        # it fail locally instead of on the pull request.
+        committed = Path(__file__).parent / "results-2026-08-23.md"
+        with contextlib.redirect_stdout(io.StringIO()):
+            self.assertEqual(harness.main(["--check", str(committed)]), 0)
+
+    def test_a_missing_file_is_a_failure_not_a_pass(self):
+        missing = Path(tempfile.mkdtemp()) / "absent.md"
+        with contextlib.redirect_stderr(io.StringIO()):
+            self.assertEqual(harness.main(["--check", str(missing)]), 1)
+
 
 class TestReporting(unittest.TestCase):
     def _finding(self, rule="R1-missing-referenced-script", severity="defect", replay=False):

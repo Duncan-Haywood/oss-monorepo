@@ -54,7 +54,9 @@ itself in exactly those terms. Writer sets are ordered, widest last:
 ## The result
 
 Full report: [`results-2026-08-23.md`](results-2026-08-23.md). Regenerate with
-`python3 harness.py`. [`results-2026-08-21.md`](results-2026-08-21.md) is kept
+`python3 harness.py --write results-2026-08-23.md`; its closure count is a
+census of the repository at generation time and is expected to run behind.
+[`results-2026-08-21.md`](results-2026-08-21.md) is kept
 as the prior snapshot: the two differ only in R7, and the difference is the
 subject of the amendment below.
 
@@ -534,15 +536,27 @@ verifiable in full from this checkout, and are fixed above.
 python3 harness.py                     # markdown report over this repository
 python3 harness.py --json              # machine-readable findings
 python3 harness.py --repo-root PATH    # another checkout
+python3 harness.py --write  results-2026-08-23.md   # regenerate the committed report
+python3 harness.py --check  results-2026-08-23.md   # what CI runs
 python3 -m unittest discover -p 'test_*.py'
 ```
+
+`--check` compares the findings and deliberately ignores three spans of R7 that
+count the whole repository rather than the workflows (`CENSUS_SPANS` in
+`harness.py`). Those move whenever any document anywhere names a path it did not
+name before, so byte-comparing them made this job fail on unrelated merges — red
+on eight consecutive pushes to `main` on 2026-08-24, with two open pull requests
+whose entire content was re-pinning the number. Everything else still fails the
+check: a changed rule, finding, line number, severity, or privilege label.
+`TestCensusMasking` pins both directions, because a mask wide enough to hide a
+real finding would be worse than the churn it replaced.
 
 No network, no writes, no credentials. PyYAML is the only dependency and it is
 already in `portfolio/router/requirements.txt`.
 
 ## Tests
 
-84 tests. Each rule is pinned on a synthetic repository in both directions —
+94 tests. Each rule is pinned on a synthetic repository in both directions —
 the negative cases matter more than the positive ones, since a rule that fires
 on everything is worth less than no rule.
 
