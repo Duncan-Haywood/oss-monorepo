@@ -58,9 +58,11 @@ def parse_ubl_invoice(source: bytes | str) -> dict[str, Any]:
     supplier = next(iter(_children(root, "AccountingSupplierParty")), root)
     customer = next(iter(_children(root, "AccountingCustomerParty")), root)
     total = next(iter(_children(root, "LegalMonetaryTotal")), root)
+    due_date = _text(root, "DueDate", required=False)
     return {
         "invoice_number": _text(root, "ID"),
         "issue_date": _text(root, "IssueDate"),
+        **({"due_date": due_date} if due_date else {}),
         "currency": _text(root, "DocumentCurrencyCode"),
         "supplier": _party(supplier),
         "customer": _party(customer),

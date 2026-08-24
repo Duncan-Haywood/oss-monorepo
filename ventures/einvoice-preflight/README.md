@@ -46,6 +46,7 @@ elements into this shape:
 {
   "invoice_number": "INV-1001",
   "issue_date": "2026-08-24",
+  "due_date": "2026-09-23",
   "currency": "EUR",
   "supplier": {"id": "DE123", "name": "Supplier GmbH"},
   "customer": {"id": "DE456", "name": "Customer GmbH"},
@@ -53,6 +54,11 @@ elements into this shape:
   "totals": {"net": 200, "tax": 38, "gross": 238}
 }
 ```
+
+`due_date` is optional. When supplied, it must use `YYYY-MM-DD` and cannot be
+earlier than `issue_date`; this is a date-shape and document-consistency check,
+not a judgment about payment terms or legal requirements. UBL `DueDate` is
+mapped into the same optional field.
 
 Amounts use the currency's major unit and are compared to cent precision. Each
 line must include a numeric `net` amount matching quantity times unit price. Each
