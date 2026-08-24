@@ -1,0 +1,8 @@
+{
+  "url": "https://vendor.example/legal/subprocessors",
+  "section": "Subprocessors",
+  "fetched_at": "2026-07-24T10:00:00Z",
+  "fetch_status": "ok",
+  "http_status": 200,
+  "text": "Analytics: Example Metrics\nSupport: Helpdesk Co\n"
+}
