@@ -20,12 +20,22 @@ export type PreflightSummary = {
   ok: boolean;
 };
 
-export async function preflightDir(dir: string): Promise<PreflightSummary> {
+/**
+ * `excludeFilenames` — agent branding assets (headshot/logo) that
+ * cli-microsite.ts's --agent-headshot/--agent-logo intentionally co-locate
+ * in the delivery dir for the microsite, same convention as
+ * microsite.ts's listGalleryPhotos(). Without this, a complete
+ * enhance+Brand delivery always trips branding_filename on the agent's own
+ * logo/headshot even though nothing MLS-bound is actually branded.
+ */
+export async function preflightDir(dir: string, excludeFilenames: string[] = []): Promise<PreflightSummary> {
+  const exclude = new Set(excludeFilenames);
   const entries = await readdir(dir, { withFileTypes: true });
   const names = entries
     .filter((e) => e.isFile())
     .map((e) => e.name)
-    .filter(isListingPhoto);
+    .filter(isListingPhoto)
+    .filter((name) => !exclude.has(name));
 
   const files = await Promise.all(
     names.map(async (name) => ({

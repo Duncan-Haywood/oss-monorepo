@@ -68,6 +68,28 @@ async function run() {
       await rm(cleanDir, { recursive: true, force: true });
     }
 
+    // A complete enhance+Brand delivery co-locates the agent's own
+    // logo/headshot with the listing photos (cli-microsite.ts's
+    // --agent-logo/--agent-headshot). Those must be excludable so they
+    // don't trip branding_filename as if they were MLS-bound photos.
+    const brandedDir = await mkdtemp(join(tmpdir(), "listing-lens-preflight-branded-"));
+    try {
+      await makePhoto(join(brandedDir, "living-room.png"), 1600, 1200);
+      await makePhoto(join(brandedDir, "agent-logo.png"), 1600, 1200);
+      await makePhoto(join(brandedDir, "agent-headshot.png"), 1600, 1200);
+
+      const uncheckedSummary = await preflightDir(brandedDir);
+      assert(!uncheckedSummary.ok, "without exclusions, branding assets should still fail preflight");
+      assert(uncheckedSummary.blockingCount === 2, "both branding assets should fail without exclusions");
+
+      const excludedSummary = await preflightDir(brandedDir, ["agent-logo.png", "agent-headshot.png"]);
+      assert(excludedSummary.reports.length === 1, "excluded branding assets must not appear in reports");
+      assert(excludedSummary.ok, "delivery should pass once branding assets are excluded");
+      assert(excludedSummary.blockingCount === 0, "excluded branding assets contribute no findings");
+    } finally {
+      await rm(brandedDir, { recursive: true, force: true });
+    }
+
     // Empty / non-image folders must not report ok — nothing was checked.
     const emptyDir = await mkdtemp(join(tmpdir(), "listing-lens-preflight-empty-"));
     try {

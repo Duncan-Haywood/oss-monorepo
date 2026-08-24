@@ -59,8 +59,15 @@ and `photo-spec.ts`'s `UNIMPLEMENTED_RULES` for what this does not check
 
 ```bash
 cd pipeline
-npm run preflight -- --dir ./delivery
+npm run preflight -- --dir ./delivery \
+  [--agent-headshot <filename-in-dir>] [--agent-logo <filename-in-dir>]
 ```
+
+`--agent-headshot`/`--agent-logo` mirror `cli-microsite.ts`'s flags of the
+same name — exclude those files from the check since they're the agent's
+own branding assets co-located for the microsite, not MLS-bound listing
+photos (without this, a complete enhance+Brand delivery always trips
+`branding_filename` on its own logo/headshot).
 
 Exits non-zero when any blocking finding is present.
 

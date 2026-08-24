@@ -8,6 +8,12 @@
  * is present, so it composes with `npm run enhance` the same way `coverage`
  * does inside cli.ts.
  *
+ * --agent-headshot/--agent-logo mirror cli-microsite.ts's flags of the same
+ * name: those files are agent branding assets intentionally co-located in
+ * the delivery dir for the microsite, not MLS-bound listing photos, so they
+ * must be excluded here the same way microsite.ts's listGalleryPhotos()
+ * excludes them from the gallery.
+ *
  * This is a floor spec, not a board-specific compliance guarantee — it does
  * not check visual watermarks, burned-in contact info, or board-specific
  * rules (photo-spec.ts's UNIMPLEMENTED_RULES). See process/mls-compliance.ts.
@@ -15,20 +21,33 @@
 
 import { preflightDir } from "./preflight";
 
-function parseArgs(argv: string[]): { dir: string } {
-  const i = argv.indexOf("--dir");
-  const dir = i === -1 ? undefined : argv[i + 1];
+type CliArgs = { dir: string; excludeFilenames: string[] };
+
+function parseArgs(argv: string[]): CliArgs {
+  const get = (flag: string): string | undefined => {
+    const i = argv.indexOf(flag);
+    return i === -1 ? undefined : argv[i + 1];
+  };
+
+  const dir = get("--dir");
 
   if (!dir) {
-    throw new Error("Usage: npm run preflight -- --dir <delivery-dir>");
+    throw new Error(
+      "Usage: npm run preflight -- --dir <delivery-dir> " +
+        "[--agent-headshot <filename-in-dir>] [--agent-logo <filename-in-dir>]",
+    );
   }
 
-  return { dir };
+  const excludeFilenames = [get("--agent-headshot"), get("--agent-logo")].filter(
+    (name): name is string => Boolean(name),
+  );
+
+  return { dir, excludeFilenames };
 }
 
 async function main() {
-  const { dir } = parseArgs(process.argv.slice(2));
-  const summary = await preflightDir(dir);
+  const { dir, excludeFilenames } = parseArgs(process.argv.slice(2));
+  const summary = await preflightDir(dir, excludeFilenames);
 
   console.log(`\nListing Lens MLS preflight — ${dir}\n`);
 
