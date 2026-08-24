@@ -1,7 +1,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 
-import { loadQuote, calculate, overrunScenarios } from "./calc.mjs";
+import { loadQuote, calculate, overrunScenarios, encodeQuote, decodeQuote } from "./calc.mjs";
 
 test("calculates hidden time and target price", () => {
   const quote = loadQuote({
@@ -69,4 +69,14 @@ test("calculates transparent overrun sensitivity without changing the quote", ()
   assert.deepEqual(overrunScenarios(quote, report).map((scenario) => scenario.total_hours), [38.5, 43.75, 52.5]);
   assert.equal(overrunScenarios(quote, report)[0].effective_hourly_rate, 49.87012987012987);
   assert.equal(report.total_hours, 35);
+});
+
+test("share links round-trip validated quote inputs", () => {
+  const quote = loadQuote({ currency: "EUR", price: 1800, delivery_hours: 12, admin_hours: 2.5, revision_hours: 1, overhead: 40, subcontractor_cost: 120, target_hourly_rate: 90 });
+  assert.deepEqual(decodeQuote(`?${encodeQuote(quote)}`), quote);
+});
+
+test("share links require the core quote fields", () => {
+  assert.equal(decodeQuote("currency=USD&price=100"), null);
+  assert.throws(() => decodeQuote("price=100&delivery_hours=2&target_hourly_rate=50&admin_hours=not-a-number"));
 });
