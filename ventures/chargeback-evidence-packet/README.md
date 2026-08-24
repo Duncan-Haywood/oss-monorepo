@@ -2,7 +2,7 @@
 
 Small ecommerce sellers often assemble a dispute response from scattered order, fulfillment, delivery, and support records. This free browser-local tool turns those records into a structured checklist and a copyable factual response draft. **After using it, you can now prepare a reviewable packet before a processor deadline, which used to take searching across several systems and rewriting the same timeline.**
 
-Open `index.html` in a browser. No account, server, API key, or paid dependency is required. Order details and notes stay in the browser; only anonymous feature counts are stored locally and can be disabled or cleared through browser storage.
+Open `index.html` in a browser. No account, server, API key, or paid dependency is required. Order details and notes stay in the browser; only anonymous feature counts are stored locally and can be disabled or cleared through browser storage. The counter also stays off when the browser sends Do Not Track or Global Privacy Control.
 
 ## Safety boundary
 

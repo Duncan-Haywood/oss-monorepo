@@ -22,3 +22,11 @@ test("generated draft preserves factual-input and review language", () => {
   assert.match(html, /Review before submitting/);
   assert.match(html, /This is an observation, not a decision/);
 });
+
+test("discovery and privacy controls are explicit", () => {
+  assert.match(html, /Chargeback response FAQ/);
+  assert.match(html, /navigator\.doNotTrack==='1'/);
+  assert.match(html, /navigator\.globalPrivacyControl===true/);
+  assert.match(html, /Do Not Track and Global Privacy Control/);
+  assert.match(html, /draft_copied/);
+});
