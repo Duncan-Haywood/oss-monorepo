@@ -150,6 +150,21 @@ button:hover {
   color: var(--muted);
 }
 
+.table-wrap { overflow-x: auto; }
+
+table { border-collapse: collapse; width: 100%; min-width: 30rem; }
+
+th, td { border-bottom: 1px solid var(--border); padding: 0.65rem 0.5rem; text-align: left; }
+
+thead th { color: var(--muted); font-size: 0.875rem; }
+
+.selected-scenario { background: color-mix(in srgb, var(--accent) 12%, var(--bg)); }
+
+.sr-only {
+  position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px;
+  overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0;
+}
+
 section {
   margin-bottom: 2.5rem;
 }

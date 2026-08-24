@@ -1,0 +1,11 @@
+{
+  "invoice_number": "INV-1001",
+  "issue_date": "2026-08-24",
+  "currency": "EUR",
+  "supplier": {"id": "DE123", "name": "Supplier GmbH"},
+  "customer": {"id": "DE456", "name": "Customer GmbH"},
+  "lines": [
+    {"description": "Consulting", "quantity": 2, "unit_price": 100, "tax_percent": 19, "net": 200}
+  ],
+  "totals": {"net": 200, "tax": 38, "gross": 238}
+}
