@@ -137,6 +137,17 @@ jobs:
         working-directory: portfolio/pipeline/probes
         run: python3 -m unittest test_validate_probe_index
 
+      # The index above checks a probe's *figures*; it does not run the probe.
+      # A probe whose tests never execute in CI can rot while its row still
+      # reads "built, tested".
+      - name: Branch-hygiene probe tests
+        working-directory: portfolio/pipeline/probes/repository-branch-hygiene
+        run: python3 -m pytest tests -q
+
+      - name: MLS photo-spec probe tests
+        working-directory: portfolio/pipeline/probes/mls-photo-spec
+        run: python3 -m pytest tests -q
+
       - name: Check the measurement record in candidates.yaml is still readable
         run: python3 portfolio/pipeline/score_sensitivity.py
 
