@@ -107,6 +107,7 @@ what each pass established and are kept for provenance; where they disagree with
 | [`runtime-data-reachability/`](runtime-data-reachability/) | A third question the other two do not answer: can a product **fetch its own input data**? For only one of eight candidates. A candidate can be publishable and still impossible to develop |
 | [`data-reachability/`](data-reachability/) | Probe every distribution channel a feed publishes, not just its canonical one. Under that rule the policy is not "registries only" but **general-web hosts denied, code/package/object-storage infrastructure allowed** — OSV's bulk export and the CISA KEV git mirror both answer while their APIs do not |
 | [`forge-surface-reachability/`](forge-surface-reachability/) | The git-surface amendment below was measured on **one forge**. Asked of twenty: **git is allowlisted host-by-host, exactly like HTTP — 4 reachable, 16 egress-denied**, with four of five GitLab CE instances denied while `gitlab.com` answers, so the allowance tracks the host, not the protocol. `gitlab.com` is the **only forge reachable on every surface** (git, `/api/v4/` anonymously, raw), and its project search is the "repository search" [`register-change-rate/`](register-change-rate/) named as scope-denied — run, with working controls, it finds **no live register mirror** in any of `public-record-watch`'s verticals, strengthening that directory's self-declared weakest claim |
+| [`artifact-channel-match/`](artifact-channel-match/) | **The other half of the join, asked for the first time: does this portfolio own anything it could publish to the channel it is asking for?** No. Ask 0's four registries (Packagist, RubyGems, crates.io, Hex) have **zero manifests** in this repository, so granting it produces a token and a porting project, not a listing. The only two publishable packages here are Python probes, and PyPI's upload host is the one endpoint denied by name; all 18 `package.json` files set `"private": true`, so npm's open write path has nothing to publish either. **Publishable today: none.** Also corrects `publish-endpoint-reachability`'s "strictly worse than Ask 0" ranking of the PyPI route, which counted credentials but omitted the port |
 | [`egress-reachability/`](egress-reachability/) | **Current.** All nine passes reconciled: 92 hosts, **25 reachable, 64 egress-denied, 3 GitHub-scope-denied**. Establishes that this environment denies egress in *three* signatures, one of which fires intermittently on ~6% of requests and is indistinguishable from an origin 403 by status code — enough on its own to generate ~4 spurious "reachable" verdicts per pass, a different four each time. **Amended 2026-08-20:** the three GitHub scope-denials are verdicts about the *HTTP* surface. Git's smart-HTTP transport is a fourth surface and is not scoped — full-history `git clone` of repositories this session has no scope over succeeds, on `github.com` and `codeload.github.com` alike (`consolidate.py --git-surface`) |
 
 ### The bottom line these converge on
@@ -116,6 +117,17 @@ what each pass established and are kept for provenance; where they disagree with
 > NuGet, not the Go-module route, not PyPI (its upload host is denied even
 > though its read host is not). No egress change, no payment rail, no card, no
 > domain, no company.
+
+**Amended 2026-08-24 — that ask is necessary but not sufficient, and the gap is
+on the artifact side.** This repository contains no `composer.json`, `Gemfile`,
+`*.gemspec`, `Cargo.toml` or `mix.exs` — nothing in any of the four languages
+those registries distribute. Granting Ask 0 as written yields a live token with
+an empty shelf; a port has to be paid for before any listing exists. That cost
+was never in the comparison, and with it included the ranking of Ask 0 against
+the `upload.pypi.org` allowlist route (which would publish two already-built,
+already-green Python probes) is **no longer settled** — see
+[`artifact-channel-match/`](artifact-channel-match/). Ask 0 is still cheap and
+still a real option; it is just not, on its own, a listing.
 
 That is the cheapest action that produces the demand number this portfolio has
 been asking for since its sixth screening cycle. It is tracked, with the other
@@ -168,6 +180,17 @@ Stated once here so a tenth pass does not rediscover them:
 > `Host not in allowlist`, and `no rule allows host` as one verdict; re-probe
 > anything that would overturn a recorded verdict.
 > `egress-reachability/consolidate.py` does all three.
+
+> **3. A reachable channel is half a join, and this chain only ever measured
+> that half.** Added 2026-08-24. Every directory above scores *channels*; none
+> asked whether this portfolio holds an artifact that could be published to the
+> channel it is asking for. Made, the join comes out disjoint: the only two
+> publishable packages here are Python, and PyPI's upload host is the one
+> endpoint the filter refuses by name, while all four registries on Ask 0's menu
+> have **zero** manifests in this repository. Before pricing a channel ask, check
+> the artifact side — an open endpoint with nothing to publish to it is a
+> porting project wearing a credential's clothes
+> ([`artifact-channel-match/`](artifact-channel-match/)).
 
 ## Why these landed together
 

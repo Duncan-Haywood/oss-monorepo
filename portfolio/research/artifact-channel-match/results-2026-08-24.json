@@ -1,0 +1,287 @@
+{
+  "root": "monorepo-projects",
+  "verdicts_source": "results-2026-08-24.json",
+  "manifests": [
+    {
+      "path": "portfolio/pipeline/probes/eaa-wcag-triage/pyproject.toml",
+      "ecosystem": "Python",
+      "publishable": true,
+      "reason": "publishable in principle"
+    },
+    {
+      "path": "portfolio/pipeline/probes/npm-reachability-triage/pyproject.toml",
+      "ecosystem": "Python",
+      "publishable": true,
+      "reason": "publishable in principle"
+    },
+    {
+      "path": "portfolio/research/a11y-axe-recall/package.json",
+      "ecosystem": "JavaScript/TypeScript",
+      "publishable": false,
+      "reason": "package.json sets \"private\": true; npm refuses to publish"
+    },
+    {
+      "path": "portfolio/research/a11y-delivered-contrast/package.json",
+      "ecosystem": "JavaScript/TypeScript",
+      "publishable": false,
+      "reason": "package.json sets \"private\": true; npm refuses to publish"
+    },
+    {
+      "path": "pyproject.toml",
+      "ecosystem": "Python",
+      "publishable": false,
+      "reason": "pyproject.toml declares no [project] name (tooling config only)"
+    },
+    {
+      "path": "ventures/ai-engineering-academy/site/package.json",
+      "ecosystem": "JavaScript/TypeScript",
+      "publishable": false,
+      "reason": "package.json sets \"private\": true; npm refuses to publish"
+    },
+    {
+      "path": "ventures/ai-first-markets/package.json",
+      "ecosystem": "JavaScript/TypeScript",
+      "publishable": false,
+      "reason": "package.json sets \"private\": true; npm refuses to publish"
+    },
+    {
+      "path": "ventures/garmin-world-traveler-watchface/monkey.jungle",
+      "ecosystem": "Monkey C",
+      "publishable": null,
+      "reason": "not machine-checked for this ecosystem"
+    },
+    {
+      "path": "ventures/local-site-studio/package.json",
+      "ecosystem": "JavaScript/TypeScript",
+      "publishable": false,
+      "reason": "package.json sets \"private\": true; npm refuses to publish"
+    },
+    {
+      "path": "ventures/photo-editing/docs-site/package.json",
+      "ecosystem": "JavaScript/TypeScript",
+      "publishable": false,
+      "reason": "package.json sets \"private\": true; npm refuses to publish"
+    },
+    {
+      "path": "ventures/photo-editing/pyproject.toml",
+      "ecosystem": "Python",
+      "publishable": false,
+      "reason": "pyproject.toml declares no [project] name (tooling config only)"
+    },
+    {
+      "path": "ventures/photos-import-tools/pyproject.toml",
+      "ecosystem": "Python",
+      "publishable": false,
+      "reason": "pyproject.toml declares no [project] name (tooling config only)"
+    },
+    {
+      "path": "ventures/print-atelier/package.json",
+      "ecosystem": "JavaScript/TypeScript",
+      "publishable": false,
+      "reason": "package.json sets \"private\": true; npm refuses to publish"
+    },
+    {
+      "path": "ventures/quick-pick-survey/package.json",
+      "ecosystem": "JavaScript/TypeScript",
+      "publishable": false,
+      "reason": "package.json sets \"private\": true; npm refuses to publish"
+    },
+    {
+      "path": "ventures/real-estate-agent-photo-app/docs-site/package.json",
+      "ecosystem": "JavaScript/TypeScript",
+      "publishable": false,
+      "reason": "package.json sets \"private\": true; npm refuses to publish"
+    },
+    {
+      "path": "ventures/real-estate-agent-photo-app/pipeline/package.json",
+      "ecosystem": "JavaScript/TypeScript",
+      "publishable": false,
+      "reason": "package.json sets \"private\": true; npm refuses to publish"
+    },
+    {
+      "path": "ventures/real-estate-agent-photo-app/research/package.json",
+      "ecosystem": "JavaScript/TypeScript",
+      "publishable": false,
+      "reason": "package.json sets \"private\": true; npm refuses to publish"
+    },
+    {
+      "path": "ventures/retail-pilot-intel/apps/docs/package.json",
+      "ecosystem": "JavaScript/TypeScript",
+      "publishable": false,
+      "reason": "package.json sets \"private\": true; npm refuses to publish"
+    },
+    {
+      "path": "ventures/retail-pilot-intel/apps/portal/package.json",
+      "ecosystem": "JavaScript/TypeScript",
+      "publishable": false,
+      "reason": "package.json sets \"private\": true; npm refuses to publish"
+    },
+    {
+      "path": "ventures/retail-pilot-intel/package.json",
+      "ecosystem": "JavaScript/TypeScript",
+      "publishable": false,
+      "reason": "package.json sets \"private\": true; npm refuses to publish"
+    },
+    {
+      "path": "ventures/retail-pilot-intel/packages/analytics/package.json",
+      "ecosystem": "JavaScript/TypeScript",
+      "publishable": false,
+      "reason": "package.json sets \"private\": true; npm refuses to publish"
+    },
+    {
+      "path": "ventures/retail-pilot-intel/packages/edge/package.json",
+      "ecosystem": "JavaScript/TypeScript",
+      "publishable": false,
+      "reason": "package.json sets \"private\": true; npm refuses to publish"
+    },
+    {
+      "path": "ventures/retail-pilot-intel/packages/pos/package.json",
+      "ecosystem": "JavaScript/TypeScript",
+      "publishable": false,
+      "reason": "package.json sets \"private\": true; npm refuses to publish"
+    },
+    {
+      "path": "ventures/retail-pilot-intel/packages/schemas/package.json",
+      "ecosystem": "JavaScript/TypeScript",
+      "publishable": false,
+      "reason": "package.json sets \"private\": true; npm refuses to publish"
+    },
+    {
+      "path": "ventures/ubuntu-agent-server/pyproject.toml",
+      "ecosystem": "Python",
+      "publishable": false,
+      "reason": "pyproject.toml declares no [project] name (tooling config only)"
+    },
+    {
+      "path": "ventures/world-clock-widget/Package.swift",
+      "ecosystem": "Swift",
+      "publishable": null,
+      "reason": "not machine-checked for this ecosystem"
+    }
+  ],
+  "rows": [
+    {
+      "ecosystem": ".NET",
+      "channel": "NuGet",
+      "publish_endpoint": "https://www.nuget.org/api/v2/package",
+      "publish_verdict": "REACHED",
+      "publish_http_code": 404,
+      "publish_path_open": true,
+      "manifests": 0,
+      "publishable_packages": 0,
+      "applications_only": 0,
+      "on_ask0_menu": false
+    },
+    {
+      "ecosystem": "Elixir",
+      "channel": "Hex",
+      "publish_endpoint": "https://hex.pm/api/packages",
+      "publish_verdict": "REACHED",
+      "publish_http_code": 200,
+      "publish_path_open": true,
+      "manifests": 0,
+      "publishable_packages": 0,
+      "applications_only": 0,
+      "on_ask0_menu": true
+    },
+    {
+      "ecosystem": "JavaScript/TypeScript",
+      "channel": "npm",
+      "publish_endpoint": "https://registry.npmjs.org/-/npm/v1/user",
+      "publish_verdict": "REACHED",
+      "publish_http_code": 401,
+      "publish_path_open": true,
+      "manifests": 18,
+      "publishable_packages": 0,
+      "applications_only": 18,
+      "on_ask0_menu": false
+    },
+    {
+      "ecosystem": "Monkey C",
+      "channel": null,
+      "publish_endpoint": null,
+      "publish_verdict": null,
+      "publish_http_code": null,
+      "publish_path_open": null,
+      "manifests": 1,
+      "publishable_packages": 0,
+      "applications_only": 0,
+      "on_ask0_menu": false
+    },
+    {
+      "ecosystem": "PHP",
+      "channel": "Packagist",
+      "publish_endpoint": "https://packagist.org/api/create-package",
+      "publish_verdict": "REACHED",
+      "publish_http_code": 405,
+      "publish_path_open": true,
+      "manifests": 0,
+      "publishable_packages": 0,
+      "applications_only": 0,
+      "on_ask0_menu": true
+    },
+    {
+      "ecosystem": "Python",
+      "channel": "PyPI",
+      "publish_endpoint": "https://upload.pypi.org/legacy/",
+      "publish_verdict": "BLOCKED_EGRESS_FILTER",
+      "publish_http_code": null,
+      "publish_path_open": false,
+      "manifests": 6,
+      "publishable_packages": 2,
+      "applications_only": 4,
+      "on_ask0_menu": false
+    },
+    {
+      "ecosystem": "Ruby",
+      "channel": "RubyGems",
+      "publish_endpoint": "https://rubygems.org/api/v1/gems",
+      "publish_verdict": "REACHED",
+      "publish_http_code": 401,
+      "publish_path_open": true,
+      "manifests": 0,
+      "publishable_packages": 0,
+      "applications_only": 0,
+      "on_ask0_menu": true
+    },
+    {
+      "ecosystem": "Rust",
+      "channel": "crates.io",
+      "publish_endpoint": "https://crates.io/api/v1/crates/new",
+      "publish_verdict": "REACHED",
+      "publish_http_code": 404,
+      "publish_path_open": true,
+      "manifests": 0,
+      "publishable_packages": 0,
+      "applications_only": 0,
+      "on_ask0_menu": true
+    },
+    {
+      "ecosystem": "Swift",
+      "channel": null,
+      "publish_endpoint": null,
+      "publish_verdict": null,
+      "publish_http_code": null,
+      "publish_path_open": null,
+      "manifests": 1,
+      "publishable_packages": 0,
+      "applications_only": 0,
+      "on_ask0_menu": false
+    }
+  ],
+  "summary": {
+    "shippable_today": [],
+    "built_but_publish_blocked": [
+      "Python"
+    ],
+    "publish_open_but_nothing_built": [
+      ".NET",
+      "Elixir",
+      "JavaScript/TypeScript",
+      "PHP",
+      "Ruby",
+      "Rust"
+    ],
+    "ask0_channels_with_a_publishable_artifact": []
+  }
+}
