@@ -22677,3 +22677,59 @@ entries:
           been sitting on #868's abandoned commit and was restarted from
           `main` rather than resurrecting it.
     mrr_end: null
+  - venture: real-estate-agent-photo-app
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+          Shipped the `mls-photo-spec-preflight` product line as something a
+          stranger can actually use: a free, no-account, entirely
+          client-side MLS listing photo preflight check at
+          `research/src/app/photo-check/`. The product line had graduated
+          earlier the same day but existed only as a Python CLI probe in
+          `portfolio/pipeline/probes/mls-photo-spec/` -- no surface any
+          agent or photographer could reach. Merged as PR #902.
+      - >-
+          Ported the probe's spec/check/image-header logic to a
+          self-contained TypeScript module (`src/lib/photo-spec.ts`) that
+          parses JPEG/PNG headers in the browser. Photos never leave the
+          tab: no upload, no network call, no server. The Python probe
+          stays the CLI/CI-testable reference implementation, and
+          `src/lib/photo-spec.test.ts` is ported from that probe's own
+          fixture corpus and test file (`tests/test_check.py`) so the two
+          implementations are held to the same 6 fixtures and the same
+          expected findings.
+      - >-
+          Keeps the candidate's honesty guardrails intact: the page
+          discloses `visual_watermark`, `burned_in_contact`, and
+          `board_specific` as unimplemented, states that a clean findings
+          table is not a clean photo, and refuses the "MLS-ready" warranty
+          the host venture's own outreach copy still uses. Local-first
+          usage counting only -- event name plus timestamp in the user's
+          own localStorage, no photo bytes, no filenames, no IDs, nothing
+          transmitted.
+      - >-
+          Verified: `npm test` 6/6, `npm run lint` clean, `npm run build`
+          static export with the `/photo-check` route generated, and all
+          six PR checks green. Also driven in a real Chromium via
+          Playwright against the static export -- a 64x48 photo reports
+          `long_edge`, a 1024x768 photo reports no findings, and
+          `agent-logo-1200x800.png` reports `branding_filename`, with a
+          clean console. Re-ran tests and build against `main` after the
+          merge; both still pass. Not deployed to a public URL --
+          publishing under the portfolio's name stays owner-gated, so
+          there is no traffic signal yet.
+      - >-
+          Triage: this session was triggered by #869 closing. Open-PR
+          review found #870 (four-agent cross-review auto-merge) already
+          correctly self-flagged owner-only as new unattended automation
+          needing three nonexistent GitHub App registrations -- left open,
+          not merged; it was closed by another session mid-run. The
+          remaining open PRs (#890, #891, #904, #905) were all opened
+          within minutes by concurrent sessions and are actively driven by
+          them, so they were left alone rather than merged out from under
+          their authors. No remote branches without PRs existed to
+          recover. #903 shipped the EAA probe's public surface, which was
+          this session's own next-step candidate -- checking first avoided
+          the duplicate.
+    mrr_end: null
