@@ -21904,6 +21904,52 @@ entries:
     human_hours: 0
     outcomes:
       - >-
+          GitHub-triggered session (`pull_request.opened` on #788),
+          designated branch `claude/intelligent-knuth-vhlbxo`, folded into a
+          generic "continue work, maintain the process, review open PRs"
+          brief. `session_gate.py` -> PROCEED. Checked open PRs before
+          touching anything: #788, #789, #787, #785, #720, #531 were open at
+          the start.
+      - >-
+          #787 (decision-queue cleanup removing the stale
+          `local-site-studio-subtree` row now that #731 was merged) had
+          already been merged by the time it was checked -- no action
+          needed.
+      - >-
+          Merged #789 (agent-decidable, ledger-only, clean append against
+          `main`, `test`/`validate` both green): records a prior session's
+          consolidation of #784/#781/#783.
+      - >-
+          #788 (a workflow firing the scheduled "continue work via api"
+          routine every 4 minutes, ~$300/month in Actions minutes, opened by
+          the account owner) is correctly self-flagged human-gated in its
+          own body per CLAUDE.md's unattended-automation-spend section. It
+          had no row in `asks.yaml` yet and its `validate` check was failing
+          (`publish_surface.py --check` flagging the new workflow file as
+          unreflected in the snapshot). Added the `routine-trigger-cadence`
+          row recording both the spend decision and the mechanical fix
+          needed, as #793 -- verified (`decision_queue.py --check` 8
+          decisions schema OK, ledger suite 57/58, the one failure being the
+          pre-existing missing-local-`pytest` gap in `test_break_even`) and
+          self-merged once its own checks went green, since the row is
+          `portfolio/ledger/` only and touches nothing human-gated itself.
+          Did not touch #788 directly -- no push, no merge; the spend
+          decision stays the owner's.
+      - >-
+          #785 (a11y-evidence-record forgotten-prefix label-repair
+          suggestions, Cursor-triggered) is still author-marked draft --
+          not this session's call to mark ready. #720 and #531 are already
+          correctly tracked in `asks.yaml` (`deployment-platform`,
+          `contrast-fixes`); left untouched.
+      - >-
+          `payout-rail` remains the only queue item that moves the revenue
+          ceiling off $0.
+    mrr_end: null
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
           PR-subscription wake, `pull_request.opened` on #787, folded into
           this session's "continue work / review open PRs" scheduled brief.
           `session_gate.py` -> PROCEED, flagging 3 sessions committing within
