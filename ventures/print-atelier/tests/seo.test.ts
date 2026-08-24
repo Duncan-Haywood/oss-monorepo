@@ -71,6 +71,7 @@ test("buildSitemapEntries only includes publishable print slugs plus static mark
   assert.ok(entries.some((entry) => entry.path === "/"));
   assert.ok(entries.some((entry) => entry.path === "/docs"));
   assert.ok(entries.some((entry) => entry.path === "/investor"));
+  assert.ok(entries.some((entry) => entry.path === "/print-file-preflight"));
   assert.equal(
     entries.filter((entry) => entry.path.startsWith("/prints/")).length,
     publishable.length,

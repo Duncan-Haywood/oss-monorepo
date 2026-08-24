@@ -316,6 +316,7 @@ const staticMarketRoutes: SitemapEntry[] = [
   { path: "/docs", changeFrequency: "weekly", priority: 0.9 },
   { path: "/investor", changeFrequency: "weekly", priority: 0.85 },
   { path: "/storefront", changeFrequency: "daily", priority: 0.8 },
+  { path: "/print-file-preflight", changeFrequency: "weekly", priority: 0.75 },
   { path: "/artist-portal", changeFrequency: "weekly", priority: 0.75 },
   { path: "/capture", changeFrequency: "weekly", priority: 0.7 },
 ];
