@@ -189,3 +189,29 @@ test("fetchRepoFacts uses the user .github default FUNDING.yml when the scanned 
     globalThis.fetch = originalFetch;
   }
 });
+
+test("fetchRepoFacts does not recurse into .github/.github when scanning the .github repo itself", async () => {
+  const originalFetch = globalThis.fetch;
+  const requested = [];
+  globalThis.fetch = async (url) => {
+    const path = String(url);
+    requested.push(path);
+    if (path.endsWith("/repos/octocat/.github")) {
+      return jsonResponse(200, { description: "hi", homepage: "", topics: [], license: { key: "mit" }, pushed_at: "2026-08-01T00:00:00Z", archived: false, owner: { login: "octocat", type: "User" } }, "10");
+    }
+    if (path.includes("/community/profile")) {
+      return jsonResponse(200, { files: {} }, "9");
+    }
+    if (path.includes("/readme")) {
+      return jsonResponse(200, { content: Buffer.from("# Hello").toString("base64") }, "8");
+    }
+    return jsonResponse(404, { message: "Not Found" }, "7");
+  };
+  try {
+    const facts = await fetchRepoFacts("octocat", ".github");
+    assert.equal(facts.funding.present, false);
+    assert.equal(requested.filter((p) => p.includes("/repos/octocat/.github/contents")).length, 2);
+  } finally {
+    globalThis.fetch = originalFetch;
+  }
+});
