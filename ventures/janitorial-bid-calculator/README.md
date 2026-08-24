@@ -47,7 +47,9 @@ who price off the raw wage are short before they start.
 4. **Overhead.** A percentage markup on that direct cost — office, admin, and
    sales recovery. It is not applied to itself or to profit.
 5. **Price.** Cost ÷ (1 − target margin %), because margin is quoted as a share
-   of price, not a markup on cost.
+   of price, not a markup on cost. An optional minimum monthly charge floors that
+   result for small or inconvenient accounts without changing the cost or
+   walk-away calculation.
 
 It then reports the numbers a contractor sanity-checks a bid against: price per
 square foot per month, effective hourly billing rate, annual contract value,
@@ -80,7 +82,7 @@ automatically when the browser sends Do Not Track or Global Privacy Control.
 See [`usage.mjs`](usage.mjs) and [`portfolio/usage/`](../../portfolio/usage/README.md).
 
 Events counted: `bid_calculated`, `area_added`, `area_removed`,
-`proposed_price_compared`, `summary_copied`.
+`proposed_price_compared`, `minimum_price_used`, `summary_copied`.
 
 ## Limitations
 

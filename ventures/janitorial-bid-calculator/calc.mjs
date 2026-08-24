@@ -61,6 +61,8 @@ function number(value, name, { min = 0, allowZero = true } = {}) {
  * @param {number} input.otherMonthly       Anything else billed to this job monthly.
  * @param {number} input.overheadRate       Business overhead as a % on direct cost.
  * @param {number} input.targetMargin       Net profit as a % of the final price.
+ * @param {number|null} input.minimumMonthlyPrice Optional floor for small or
+ *   inconvenient accounts. The target-margin price is used when it is higher.
  * @param {number|null} input.proposedPrice Optional: a price already on the
  *   table, so the contractor can see the margin it actually leaves.
  */
@@ -76,6 +78,13 @@ export function calculateBid(input) {
   const overheadRate = number(input.overheadRate ?? 0, 'Overhead');
   const targetMargin = number(input.targetMargin ?? 0, 'Target margin');
   if (targetMargin >= 100) throw new Error('Target margin must be less than 100%');
+
+  const hasMinimumPrice = input.minimumMonthlyPrice !== null
+    && input.minimumMonthlyPrice !== undefined
+    && input.minimumMonthlyPrice !== '';
+  const minimumMonthlyPrice = hasMinimumPrice
+    ? number(input.minimumMonthlyPrice, 'Minimum monthly price')
+    : null;
 
   const loadedWage = hourlyWage * (1 + burdenRate / 100);
 
@@ -114,7 +123,10 @@ export function calculateBid(input) {
 
   // Margin is a share of price, not a markup on cost, because that is how the
   // customer's number is quoted and how the contractor's P&L reads it.
-  const monthlyPrice = monthlyCost / (1 - targetMargin / 100);
+  const targetMarginPrice = monthlyCost / (1 - targetMargin / 100);
+  const monthlyPrice = minimumMonthlyPrice === null
+    ? targetMarginPrice
+    : Math.max(targetMarginPrice, minimumMonthlyPrice);
   const monthlyProfit = monthlyPrice - monthlyCost;
 
   const hasProposed = input.proposedPrice !== null && input.proposedPrice !== undefined && input.proposedPrice !== '';
@@ -137,6 +149,9 @@ export function calculateBid(input) {
     otherMonthly,
     monthlyOverhead,
     monthlyCost,
+    targetMarginPrice,
+    minimumMonthlyPrice,
+    minimumPriceApplied: minimumMonthlyPrice !== null && minimumMonthlyPrice > targetMarginPrice,
     monthlyPrice,
     monthlyProfit,
     annualPrice: monthlyPrice * 12,

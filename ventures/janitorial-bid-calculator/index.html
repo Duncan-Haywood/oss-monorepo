@@ -94,7 +94,8 @@
           <label>Other cost / month <input id="otherMonthly" type="number" min="0" step="1" value="0"></label>
           <label>Overhead on direct cost (%) <input id="overheadRate" type="number" min="0" step="0.5" value="15"></label>
           <label>Target net margin (%) <input id="targetMargin" type="number" min="0" max="99.9" step="0.5" value="20"></label>
-          <label>Price you&rsquo;re considering (optional) <input id="proposedPrice" type="number" min="0" step="10" placeholder="e.g. 1650"></label>
+           <label>Minimum monthly charge (optional) <input id="minimumMonthlyPrice" type="number" min="0" step="10" placeholder="e.g. 500"></label>
+           <label>Price you&rsquo;re considering (optional) <input id="proposedPrice" type="number" min="0" step="10" placeholder="e.g. 1650"></label>
         </div>
         <p class="hint" style="margin-top:14px;margin-bottom:0">Payroll burden covers employer taxes, workers&rsquo; compensation, liability insurance, and paid time off &mdash; the part of a cleaner&rsquo;s cost that never shows up on their pay rate. Underestimating it is the most common reason a janitorial bid that looked profitable was not.</p>
       </section>
@@ -142,7 +143,7 @@
     import { calculateBid, PRODUCTION_RATE_PRESETS } from './calc.mjs';
     import { recordUsage } from './usage.mjs';
 
-    const COST_IDS = ['hourlyWage','burdenRate','suppliesPerSqFtMonth','equipmentMonthly','otherMonthly','overheadRate','targetMargin','proposedPrice'];
+    const COST_IDS = ['hourlyWage','burdenRate','suppliesPerSqFtMonth','equipmentMonthly','otherMonthly','overheadRate','targetMargin','minimumMonthlyPrice','proposedPrice'];
     const money = value => `$${value.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
     const el = id => document.getElementById(id);
 
@@ -247,7 +248,7 @@
       try {
         result = calculateBid({
           areas,
-          ...Object.fromEntries(COST_IDS.map(id => [id, el(id).value])),
+         ...Object.fromEntries(COST_IDS.map(id => [id, el(id).value])),
           proposedPrice: el('proposedPrice').value,
         });
       } catch (error) {
@@ -302,7 +303,8 @@
       return [
         'COMMERCIAL CLEANING BID',
         '',
-        `Proposed monthly service: ${money(result.monthlyPrice)}`,
+         `Proposed monthly service: ${money(result.monthlyPrice)}`,
+         ...(result.minimumPriceApplied ? [`Minimum charge floor applied: ${money(result.minimumMonthlyPrice)}`] : []),
         `Annual contract value: ${money(result.annualPrice)}`,
         `Service labor: ${result.monthlyHours.toFixed(1)} hours/month`,
         `Price per square foot: $${result.pricePerSqFtMonth === null ? 'n/a' : result.pricePerSqFtMonth.toFixed(3)}/sq ft/month`,
@@ -347,9 +349,12 @@
       update();
     });
 
-    COST_IDS.forEach(id => {
+     COST_IDS.forEach(id => {
       el(id).addEventListener('input', update);
-      el(id).addEventListener('change', () => count(id === 'proposedPrice' ? 'proposed_price_compared' : 'bid_calculated'));
+      el(id).addEventListener('change', () => count(
+        id === 'proposedPrice' ? 'proposed_price_compared'
+          : id === 'minimumMonthlyPrice' && el(id).value !== '' ? 'minimum_price_used' : 'bid_calculated',
+      ));
     });
     el('usageOptOut').addEventListener('change', update);
     el('copySummary').addEventListener('click', () => {
