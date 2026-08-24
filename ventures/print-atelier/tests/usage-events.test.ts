@@ -40,3 +40,11 @@ test("counts storefront search events separately from page views", () => {
   assert.equal(summary.pageViews, 0);
   assert.equal(summary.featureEvents, 1);
 });
+
+test("counts checkout add events as feature usage", () => {
+  clearUsageEventsForTests();
+  recordUsageEvent({ name: "checkout_add", path: "/checkout?add=midnight-coast", createdAt: "2026-08-24T00:03:00.000Z" });
+
+  assert.equal(getUsageEventSummary().searches, 0);
+  assert.equal(getUsageEventSummary().featureEvents, 1);
+});
