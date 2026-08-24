@@ -136,7 +136,9 @@ hypotheses:
 the top of the queue with work no session can start. `rank()` sorts
 dispatchable work above blocked work — below a venture that needs a kill
 decision, which still comes first — and `allocate.py` prints how many of the
-ten a session could actually pick up.
+ten a session could settle a hypothesis on. Blocked ventures still have in-repo
+work available (features, tests, UX); `dispatchable` only means the next
+hypothesis needs customer contact.
 
 **This is a reporting change, not a discovery.** Searching the parsed
 outcome text of `2026-08.yaml` finds at least three entries, from separate

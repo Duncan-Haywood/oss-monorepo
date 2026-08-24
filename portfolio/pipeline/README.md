@@ -11,6 +11,26 @@ Nothing here is committed to. A candidate graduates by someone writing
 `ventures/<name>/VENTURE.yaml`; until that file exists the router cannot see it
 and no agent budget flows to it.
 
+## What agents should do here
+
+When `session_gate.py` reads **BUILD** or ventures lack dispatchable
+customer-contact work, this directory is productive — not a place to stop.
+
+1. **Graduate a candidate** — pick one from the table below whose verdict is
+   `Build now` or `Probe` with gates passed. Copy
+   `platform/VENTURE.template.yaml` to `ventures/<slug>/VENTURE.yaml`, fill
+   in stage, economics, hypotheses, and budget, then start building the product
+   in that directory. Run `python3 portfolio/router/validate.py` before opening
+   a PR.
+2. **Advance a built probe** — see [`probes/README.md`](probes/README.md). Probes
+   test claims; graduating is a separate step when the evidence supports it.
+3. **Add a genuinely new candidate** — only when you can name what in
+   [`screened-out.md`](screened-out.md) it is *not*. Amend that file and
+   `candidates.yaml`; do not produce another duplicate list of the eight above.
+
+Do **not** re-run the screening brief, re-score candidates for sport, or write
+ledger-only entries recording that you read this directory.
+
 ## Why this is separate from `ventures/ai-first-markets`
 
 That venture is a **product**: a market map and scored idea library for solo

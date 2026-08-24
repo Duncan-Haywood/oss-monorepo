@@ -117,7 +117,7 @@ def observed_session_rate(days: tuple[str, ...] = ("2026-08-19", "2026-08-20")) 
     """Distinct agent sessions per hour, counted from commit trailers.
 
     A lower bound by construction: a session that only commented on an issue,
-    or found everything blocked and stopped, leaves no commit and is invisible
+    or found everything blocked and exited without shipping, leaves no commit and is invisible
     here. Returns rate 0.0 in a checkout with no session trailers (e.g. a
     shallow clone), which callers should treat as "unmeasured", not "idle".
     """

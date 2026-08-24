@@ -211,14 +211,13 @@ document was the last place still stating them as pending.
   for — *"Only payout-rail changes what this portfolio can earn."* Run the
   renderer rather than reasoning from the table this section describes.
 
-**What has not changed is the binary itself**, and it is the reason to leave
-the rest of this file standing: commit to a payout rail, or accept that the
-portfolio cannot earn and set the cadence to match. As of this amendment it
-has waited five days, and one of the eight queued decisions was answered in
-that window while the fleet kept running at roughly its full cadence. The
-arithmetic in "Deriving the spend side" is unchanged and still the only thing
-needed to price that: the per-session threshold derived there is a figure the
-owner can check privately in seconds.
+**What has not changed is the revenue ceiling**, and it is the reason to leave
+the derivation above standing: without a payout rail the portfolio cannot
+capture revenue. That does **not** mean sessions should idle — high throughput
+is intentional. Redirect compute to in-repo venture development, pipeline
+graduation, and new venture creation (`session_gate.py` **BUILD**). The
+$0.12/session figure prices whether *portfolio meta-work* is worth running,
+not whether building products is.
 
 The staleness corrected here is the failure mode `CLAUDE.md` and
 [`../pipeline/channel-inventory.md`](../pipeline/channel-inventory.md) both

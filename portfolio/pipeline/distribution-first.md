@@ -187,8 +187,12 @@ any price, and here it can be tested with software that already exists.
    distribution measurement, and it is what should re-score the distribution
    column for every candidate in this directory — upward if a cold listing
    gets found, downward if it does not.
-4. **Screening is closed until then.** A tenth pass has nothing to learn that
-   this measurement would not teach it better.
+4. **Screening lists are closed; building is not.** Do not run another duplicate
+   screening pass of the eight candidates above. Do ship in-repo work on
+   ventures, graduate pipeline candidates, or advance the probes in
+   [`probes/`](probes/). Measure listing performance when a product is ready
+   to publish — that measurement re-scores distribution for every candidate
+   here.
 
 ---
 

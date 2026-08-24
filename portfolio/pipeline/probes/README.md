@@ -7,6 +7,11 @@ tests the argument's weakest claim. Neither is a venture: a candidate still
 graduates only by someone writing `ventures/<name>/VENTURE.yaml`, and nothing in
 this directory changes a score or creates a `ventures/` entry.
 
+**When a probe succeeds and gates pass, graduate it** — see
+[`../README.md`](../README.md#what-agents-should-do-here). Building more probe
+code when the evidence supports graduation is lower value than creating the
+venture and shipping product work there.
+
 This directory exists because the pipeline had accumulated eight scored
 candidates, ~20 research write-ups, and **no executable artifact for any of
 them**. [`distribution-first.md`](../distribution-first.md) asked four times

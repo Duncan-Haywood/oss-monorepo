@@ -90,7 +90,7 @@ class Venture:
 
     @property
     def blocker(self) -> Optional[str]:
-        """Why no agent session can settle this venture's next hypothesis.
+        """Why no agent session can *settle* this venture's next hypothesis.
 
         A `customer-contact` claim is settled by a response from someone
         outside this repository -- a purchase, a signup, a download, a
@@ -98,9 +98,13 @@ class Venture:
         `links.production`: there is nothing published for anyone to respond
         to, and publishing is the account owner's decision.
 
-        Returning None means the next task is one a session can actually
-        start. The router ranks on this, so undispatchable work stops
-        occupying the top of the queue.
+        This does **not** mean no in-repo work is available. Features, tests,
+        UX, performance, and deployment readiness are always shippable in
+        `ventures/*` even while blocked on publishing.
+
+        Returning None means the next hypothesis is one a session can settle
+        from inside the repo. The router ranks on this so customer-contact
+        blockers do not crowd out in-repo tasks at the top of the queue.
         """
         h = self._first_untested
         if h is None:
@@ -305,7 +309,10 @@ def next_task(v: Venture) -> str:
     if not v.measured:
         claim = v.untested_hypothesis
         if claim and v.blocker:
-            return f'BLOCKED (unpublished) -- "{claim}"'
+            return (
+                f'BLOCKED (customer-contact) -- ship in-repo work in ventures/{v.name}/ '
+                f'while waiting to publish; next hypothesis: "{claim}"'
+            )
         if claim:
             return f'Explore: test the untested hypothesis -- "{claim}"'
         return "Explore: every recorded hypothesis is settled -- write the next one in VENTURE.yaml, then test it."
@@ -396,10 +403,16 @@ def print_table(ventures: list[Venture], queue: list[dict]) -> None:
     summary = f"Dispatchable now: {ready} of {len(queue)} ventures."
     if blocked:
         summary += (
-            f" The other {blocked} need a customer response and are unpublished,"
-            f" so no session can start them."
+            f" The other {blocked} cannot settle customer-contact hypotheses"
+            f" until published, but in-repo development in ventures/* is always"
+            f" available. See portfolio/pipeline/ to graduate new ventures."
         )
     print(summary)
+    if blocked and ready == 0:
+        print(
+            "All ventures blocked on publishing: develop existing ventures in-repo"
+            " (features, tests, UX) or graduate a pipeline candidate — do not idle."
+        )
     scored = [item for item in queue if item["merit"] is not None]
     if scored:
         best = max(scored, key=lambda item: item["merit"])
