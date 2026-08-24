@@ -49,6 +49,12 @@ All the arithmetic is in [`src/calc.mjs`](src/calc.mjs), covered by
 [`test/calc.test.mjs`](test/calc.test.mjs). Nothing here is AI-generated
 guesswork — it's your numbers, run through a fixed formula you can read.
 
+After calculating, use **Copy share link** to create a bookmarkable URL that
+restores the form and results on another device. The link contains the values
+in its query string, including any business or service names, so treat it like
+any other link containing business information. It is not uploaded or stored
+by this tool.
+
 ## Disclaimer
 
 **No warranty.** This tool is provided free and as-is, without warranty of

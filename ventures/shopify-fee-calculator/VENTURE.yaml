@@ -1,0 +1,27 @@
+name: shopify-fee-calculator
+description: A private browser calculator for Shopify merchants to see order profit after Shopify Payments or third-party processor fees, the extra Shopify transaction fee, shipping, and cost of goods — and to compare the two payment paths on the same order.
+stage: prototype
+owner: duncan
+hypotheses:
+  - claim: Shopify merchants will return to a calculator that compares Shopify Payments against PayPal or Stripe on the same order, because generic fee pages hide the extra Shopify third-party transaction fee.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: Seeing the extra cost of a third-party processor, plus the listing price needed for a target margin, changes a merchant's payment-method or pricing decision.
+    status: untested
+    checked: null
+    evidence: customer-contact
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+budget:
+  monthly_cap: 1
+  protected: true
+kill_criteria:
+  - Fewer than three qualified Shopify merchants use the calculator twice within 90 days.
+  - Users do not find the Shopify Payments vs third-party comparison materially different from a single-path fee estimate.
+links:
+  production: null
+  analytics: null
