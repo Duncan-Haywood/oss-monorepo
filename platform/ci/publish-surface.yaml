@@ -76,6 +76,9 @@ workflows:
 - workflow: error-rate-disclosure-ci.yml
   classification: none
   publishes: []
+- workflow: etsy-profit-calculator-ci.yml
+  classification: none
+  publishes: []
 - workflow: forge-surface-reachability-ci.yml
   classification: none
   publishes: []
