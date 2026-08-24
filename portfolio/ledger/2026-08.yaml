@@ -22958,3 +22958,114 @@ entries:
           by hand instead of regenerating) rather than re-diagnosing it
           from scratch.
     mrr_end: null
+  - venture: photos-import-tools
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Product-first autonomous session (scheduled brief, branch
+        claude/exciting-brown-8zpx3z). `session_gate.py` said BUILD (84%
+        of last 25 entries meta-work, no revenue). Sampled 4 of the 10
+        open PRs (#934, #933, #922, #926) before starting: all in "dirty"
+        mergeable state from a burst of concurrent sessions committing to
+        `main` faster than any one PR could be rebased -- not this
+        session's PRs to fix, and re-litigating a fleet-wide collision
+        already flagged by `session_gate.py` would itself be more
+        meta-work. Checked `decision_queue.py`: every venture's
+        `links.production` is `null`, deployment is entirely gated on
+        owner-supplied hosting credentials (Ask 9 open), so a ninth new
+        thin venture PR would not reach any user this repo doesn't already
+        have candidates queued for.
+      - >-
+        Shipped instead: a "Usage" section in
+        `ventures/photos-import-tools/README.md` (96 lines) documenting
+        the `init`/`run`/`status`/`preflight`/`skip-uncertain` commands,
+        the unattended watchdog and `start_import.sh`'s env vars
+        (`STATE_DIR`, `ROOT_DIR`, `BATCH_SIZE`, `INCLUDE_RAWS`,
+        `RAW_BATCH_SIZE`, `RAW_TIMEOUT`), and SD-offload flags -- all
+        sourced from each script's own `argparse` definitions, not
+        invented. This is the one product in the portfolio with real,
+        working, daily use (91 tests, dozens of hardened edge cases per
+        its own hypotheses list) and it had no documented invocation
+        sequence; a reader previously had to trace 1000+ lines of
+        `resumable_photos_import.py` to learn it. PR #938.
+      - >-
+        Verified rather than assumed: reran the venture's own test suite
+        (91 passed) and cross-checked every flag, default, and env var in
+        the new section directly against the `argparse` calls and
+        `start_import.sh` source before writing it. Also ran
+        `validate_doc_consistency.py` and `validate_candidates.py`
+        (unaffected, both pass). Doc-only diff; no code, deployment, or
+        owner-only action.
+    mrr_end: null
+  - venture: quote-margin-check
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Resolved a duplicate-PR deadlock that had silently destroyed real
+        product value. Two concurrent sessions independently built the same
+        browser calculator for this venture -- #948 at `site/` and #953 at
+        `web/` -- both adding the same
+        `.github/workflows/quote-margin-check-ci.yml` path, so whichever
+        merged second would have conflicted. Each PR was then closed in
+        favour of the other within about a minute: `kilo-code-bot` closed
+        #948 as "superseded by #953" on branch recency alone at 16:04:20,
+        and this session closed #953 on the merits at 16:05. Net result was
+        both closed and the venture left with no browser tool at all.
+        Rather than reopen either branch and continue the ping-pong, took
+        ownership on a fresh branch and landed the consolidated work once.
+      - >-
+        Shipped `ventures/quote-margin-check/site/`: a zero-dependency,
+        zero-build static calculator whose `calc.mjs` ports
+        `load_quote()`/`calculate()` from `src/quote_margin.py`
+        field-for-field, so the CLI and browser tool cannot quietly
+        diverge. Re-verified that port against the current `main` after
+        #939 (`--batch`) and #924 (CSV export) landed -- neither touched
+        the two ported functions, so it is still accurate. Kept #948's
+        `site/` naming (matches `ventures/ai-engineering-academy/site/`)
+        and its copy-as-CSV export, which emits the same
+        `measure,value,unit` schema as the CLI's `--format csv`.
+      - >-
+        Wired `.github/workflows/quote-margin-check-ci.yml`: this venture's
+        Python tests had never run in CI at all (`portfolio-validate.yml`
+        only covers portfolio infra). Now the CLI's `unittest` suite and
+        the site's `node --test` suite both run on PRs touching the
+        venture. Registered the workflow in
+        `platform/ci/publish-surface.yaml` -- it classifies as `none`
+        (`contents: read`, no deploy steps), so the snapshot still reads
+        43 workflows / 0 live and the owner-only publishing gate is
+        untouched by this change.
+      - >-
+        Product improvement beyond the consolidation: the page ships
+        pre-filled so a first visit shows a worked result instead of an
+        empty form, but those unlabelled sample numbers rendered a red
+        "Below target" verdict before the visitor had entered anything of
+        their own -- reading as a judgement on their quote. Added an
+        example-quote note that clears on the first edit to any field, so
+        the pre-filled state is honest without costing the fast
+        time-to-first-value.
+      - >-
+        Verified rather than assumed. Unit: 10/10 Python CLI tests, 12/12
+        node site tests. Validators: `validate_workflows.py` (43/43),
+        `publish_surface.py --check` (43 workflows, 0 live),
+        `router/validate.py` (15/15 VENTURE.yaml). Browser, in real
+        headless Chromium against a served copy of the page: the CLI's own
+        website-redesign fixture (4200 / 30h / 4h admin / 6h revisions /
+        150 overhead / 400 subcontractor / 90 target) renders 40.00 hours,
+        USD 550.00 direct costs, USD 91.25/hour effective rate, USD
+        4,150.00 target price and a USD 50.00 gap -- matching hand-computed
+        arithmetic; an invalid price of 0 renders "price must be greater
+        than zero" instead of a bogus report; the example note clears on
+        first edit and does not return; copy-as-CSV puts the correct
+        eight-row `measure,value,unit` block on the clipboard. Zero console
+        errors throughout.
+      - >-
+        Not deployed to a public URL -- publishing under the portfolio's
+        name stays owner-gated per `portfolio/DIRECTION.md`. The `site/`
+        directory is a ready-to-deploy static site the moment that gate
+        opens. Also closed #937 (voltage-divider calculator, fully
+        superseded by merged #944) and #951, which would have re-broken CI:
+        #949 had already removed the duplicate `shopify-permission-drift`
+        score, so #951's patch would have deleted the only remaining entry.
+    mrr_end: null

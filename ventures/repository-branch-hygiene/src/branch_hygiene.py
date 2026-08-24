@@ -39,6 +39,15 @@ def _git(repo: Path, *args: str) -> str:
     return result.stdout
 
 
+def _is_ancestor(repo: Path, commit: str, ref: str) -> bool:
+    result = subprocess.run(
+        ["git", "-C", str(repo), "merge-base", "--is-ancestor", commit, ref],
+        capture_output=True,
+        text=True,
+    )
+    return result.returncode == 0
+
+
 def load_pr_export(path: Path) -> list[dict[str, Any]]:
     """Normalize a `gh pr list --json headRefName,state,baseRefName` export.
 
@@ -62,6 +71,9 @@ def load_pr_export(path: Path) -> list[dict[str, Any]]:
             "state": "open" if state == "OPEN" else "closed",
             "merged": state == "MERGED",
         })
+    # `gh pr list` is newest-first; scan treats the last closed record per
+    # head as authoritative, so keep oldest-first order here.
+    normalized.reverse()
     return normalized
 
 def snapshot_from_repo(repo: Path, protected: set[str] | None = None, pr_export: Path | None = None) -> dict[str, Any]:
@@ -86,14 +98,13 @@ def snapshot_from_repo(repo: Path, protected: set[str] | None = None, pr_export:
         if commits:
             branches.append({"name": name, "tip": commits[0], "commits": commits})
     protected_branches = {default, *(protected or set())}
+    tip_by_name = {branch["name"]: branch["tip"] for branch in branches}
     pull_requests = []
     if pr_export is not None:
         for record in load_pr_export(pr_export):
             base = record["base"] or default
-            try:
-                base_commits = _git(repo, "rev-list", "--max-count=200", base).splitlines()
-            except subprocess.CalledProcessError:
-                base_commits = []
+            tip = tip_by_name.get(record["head"])
+            base_commits = [tip] if tip and _is_ancestor(repo, tip, base) else []
             pull_requests.append({
                 "head": record["head"],
                 "state": record["state"],
@@ -129,7 +140,13 @@ def scan(snapshot: dict[str, Any]) -> list[Finding]:
     for branch in branches:
         name, tip = branch["name"], branch["tip"]
         commits = tuple(branch.get("commits", []))
-        related = by_head.get(name, [])[-1] if by_head.get(name) else None
+        records = by_head.get(name, [])
+        # A reused branch name can carry more than one PR record (an old
+        # closed/merged PR plus a new open one). An open record always wins,
+        # so active work never inherits a stale closed record and lands as a
+        # delete candidate; otherwise fall back to the last record, matching
+        # prior behavior for the common single-record case.
+        related = next((record for record in records if record.get("state") == "open"), records[-1] if records else None)
         if name in protected:
             classification, reason = "protected", "branch is explicitly protected"
         elif len(tips[tip]) > 1:
