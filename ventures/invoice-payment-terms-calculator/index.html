@@ -17,7 +17,7 @@
   <header><div class="eyebrow">FOR FREELANCERS AND SMALL SERVICE FIRMS</div><h1>Price the wait, not just the work.</h1><p>Calculate an invoice due date, see what 30, 60, or 90 days of delay costs, and copy clear payment terms before cash flow becomes a problem.</p></header>
   <main class="layout"><section><h2>Invoice and cash-flow assumptions</h2><div class="fields">
     <label>Invoice amount <input id="amount" type="number" min="0" step="0.01" value="1200"></label>
-    <label>Invoice date <input id="invoiceDate" type="date" value="2026-08-24"></label>
+    <label>Invoice date <input id="invoiceDate" type="date"></label>
     <label>Payment terms (days) <input id="termsDays" type="number" min="0" step="1" value="30"></label>
     <label>Annual late rate (%) <input id="annualLateRate" type="number" min="0" step="0.1" value="18"></label>
     <label>Grace period (days) <input id="graceDays" type="number" min="0" step="1" value="10"></label>
@@ -32,6 +32,6 @@
     function update(count = true) { try { const input = Object.fromEntries(ids.map(id => [id, $(id).value])); const result = calculateTerms(input); $('due').textContent = `Due ${result.dueDate}`; $('exposure').textContent = money(result.exposure); $('runway').textContent = result.monthlyBurn ? `${result.runwayDays.toFixed(1)} days` : 'not set'; $('scenarios').replaceChildren(...result.fees.map(row => { const tr = document.createElement('tr'); [row.days, money(row.fee), money(row.total)].forEach(value => { const td = tr.insertCell(); td.textContent = value; }); return tr; })); $('copyText').textContent = termsCopy(result); if (count) recordUsage(safe(() => localStorage), $('usageOptOut').checked); } catch (error) { $('due').textContent = error.message; } }
     ids.forEach(id => { $(id).addEventListener('input', () => { update(false); clearTimeout(usageTimer); usageTimer = setTimeout(() => update(), 800); }); $(id).addEventListener('change', () => update(false)); }); $('usageOptOut').addEventListener('change', () => update(false));
     $('copy').addEventListener('click', async () => { try { await navigator.clipboard.writeText($('copyText').textContent); $('status').textContent = 'Payment terms copied.'; } catch { $('status').textContent = 'Select and copy the terms shown above.'; } recordUsage(safe(() => localStorage), $('usageOptOut').checked, 'terms_copied'); });
-    $('reset').addEventListener('click', () => { ['amount','termsDays','annualLateRate','graceDays','monthlyBurn','outstanding'].forEach((id, i) => $(id).value = ['1200','30','18','10','3000','3'][i]); $('invoiceDate').value = '2026-08-24'; update(); }); update(false);
+    $('reset').addEventListener('click', () => { ['amount','termsDays','annualLateRate','graceDays','monthlyBurn','outstanding'].forEach((id, i) => $(id).value = ['1200','30','18','10','3000','3'][i]); $('invoiceDate').value = new Date().toISOString().slice(0, 10); update(); }); $('invoiceDate').value = new Date().toISOString().slice(0, 10); update(false);
   </script>
 </body></html>
