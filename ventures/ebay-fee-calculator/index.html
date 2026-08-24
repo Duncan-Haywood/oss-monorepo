@@ -7,7 +7,7 @@
   <meta name="description" content="Calculate eBay order profit, margin, ROI, and break-even resale price after final value fee, per-order fee, promoted listings, shipping, and cost of goods — then compare nearby listing prices before you reprice.">
   <meta property="og:title" content="eBay Fee &amp; Profit Calculator">
   <meta property="og:description" content="See what an eBay sale really leaves after fees and your cost of goods — profit, margin, ROI, and break-even price.">
-  <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"eBay Fee & Profit Calculator","applicationCategory":"BusinessApplication","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"featureList":"eBay fee breakdown, net profit, margin, return on investment, break-even resale price, target-margin price, batch profit, repricing sensitivity table"}</script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"eBay Fee & Profit Calculator","applicationCategory":"BusinessApplication","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"featureList":"eBay fee breakdown, net profit, margin, return on investment, invested-cash recovery checkpoint, break-even resale price, target-margin price, batch profit, repricing sensitivity table"}</script>
   <style>
     :root { color-scheme: light; font-family: system-ui, sans-serif; color: #1d2530; background: #eef2f7; }
     body { max-width: 980px; margin: 0 auto; padding: 32px 18px; }
@@ -67,6 +67,9 @@
           <dt>Total revenue</dt><dd id="revenue"></dd>
           <dt>eBay &amp; payment fees</dt><dd id="fees"></dd>
           <dt>Cash you invested</dt><dd id="invested"></dd>
+          <dt>Cash recovered after fees</dt><dd id="cashRecovered"></dd>
+          <dt>Recovery of invested cash</dt><dd id="cashRecoveryPct"></dd>
+          <dt>Cash surplus / shortfall</dt><dd id="cashSurplus"></dd>
           <dt>Net margin</dt><dd id="margin"></dd>
           <dt>Return on investment</dt><dd id="roi"></dd>
           <dt>Profit per unit</dt><dd id="unitProfit"></dd>
@@ -74,6 +77,7 @@
           <dt>Price for target margin</dt><dd id="targetMarginPrice"></dd>
         </dl>
         <hr>
+        <p class="note">Cash recovered is sale revenue after modeled fees. The checkpoint compares it with your modeled cash outlay; it does not account for sell-through speed, returns, taxes, storage, labor, or opportunity cost.</p>
         <p class="note">Transparent arithmetic from your inputs — not a statement of eBay's current fee schedule. Fees vary by category, store subscription, and seller status.</p>
       </section>
     </div>
@@ -137,6 +141,11 @@
         document.getElementById('revenue').textContent = money(result.revenue);
         document.getElementById('fees').textContent = money(result.feeTotal);
         document.getElementById('invested').textContent = money(result.cashInvested);
+        document.getElementById('cashRecovered').textContent = money(result.cashRecovered);
+        document.getElementById('cashRecoveryPct').textContent = result.cashRecoveryPct === null ? 'n/a' : `${result.cashRecoveryPct.toFixed(1)}%`;
+        const cashSurplus = document.getElementById('cashSurplus');
+        cashSurplus.textContent = signedMoney(result.cashSurplus);
+        cashSurplus.className = result.cashSurplus < 0 ? 'negative' : 'positive';
         document.getElementById('margin').textContent = `${result.margin.toFixed(1)}%`;
         document.getElementById('roi').textContent = result.roi === null ? 'n/a' : `${result.roi.toFixed(1)}%`;
         document.getElementById('unitProfit').textContent = money(result.unitProfit);
@@ -149,6 +158,10 @@
         document.getElementById('revenue').textContent = '';
         document.getElementById('fees').textContent = '';
         document.getElementById('invested').textContent = '';
+        document.getElementById('cashRecovered').textContent = '';
+        document.getElementById('cashRecoveryPct').textContent = '';
+        document.getElementById('cashSurplus').textContent = '';
+        document.getElementById('cashSurplus').className = '';
         document.getElementById('margin').textContent = '';
         document.getElementById('roi').textContent = '';
         document.getElementById('unitProfit').textContent = '';

@@ -18,6 +18,16 @@ test('computes fees, profit, margin and ROI for a typical resale order', () => {
   near(r.profit, 46 - 6.395 - 18, 'profit');
   near(r.margin, (46 - 6.395 - 18) / 46 * 100, 'margin');
   near(r.roi, (46 - 6.395 - 18) / 18 * 100, 'roi');
+  near(r.cashRecovered, 46 - 6.395, 'cash recovered');
+  near(r.cashRecoveryPct, (46 - 6.395) / 18 * 100, 'cash recovery percentage');
+  near(r.cashSurplus, r.profit, 'cash surplus agrees with profit');
+});
+
+test('reports a cash shortfall when fees leave less than the invested cash', () => {
+  const r = calculateOrder({ price: 10, finalValueRate: 20, fixedFee: 1, costOfGoods: 12 });
+  assert.ok(r.cashRecovered < r.cashInvested);
+  assert.ok(r.cashSurplus < 0);
+  near(r.cashSurplus, r.profit, 'shortfall agrees with profit');
 });
 
 test('applies promoted-listings and international rates on the full order total', () => {
@@ -50,6 +60,8 @@ test('reports an unreachable target margin when fees leave no margin room', () =
 test('ROI is null when no cash was invested', () => {
   const r = calculateOrder({ price: 20, shippingCharged: 0, costOfGoods: 0, shippingCost: 0, packagingCost: 0, otherCost: 0 });
   assert.equal(r.roi, null);
+  assert.equal(r.cashRecoveryPct, null);
+  near(r.cashSurplus, r.profit, 'zero-investment surplus agrees with profit');
 });
 
 test('margin is zero rather than NaN when revenue is zero', () => {
@@ -71,6 +83,9 @@ test('scales batch economics while keeping price thresholds per unit', () => {
   near(batch.feeTotal, single.feeTotal * 3, 'batch fees');
   near(batch.cashInvested, single.cashInvested * 3, 'batch investment');
   near(batch.profit, single.profit * 3, 'batch profit');
+  near(batch.cashRecovered, single.cashRecovered * 3, 'batch cash recovered');
+  near(batch.cashSurplus, single.cashSurplus * 3, 'batch cash surplus');
+  near(batch.cashRecoveryPct, single.cashRecoveryPct, 'batch recovery percentage');
   near(batch.unitProfit, single.profit, 'unit profit');
   near(batch.breakEvenPrice, single.breakEvenPrice, 'per-unit break-even');
 });

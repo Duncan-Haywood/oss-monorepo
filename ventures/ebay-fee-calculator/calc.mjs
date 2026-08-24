@@ -63,6 +63,10 @@ export function calculateOrder(input) {
   const cashInvested = (costOfGoods + shippingCost + packagingCost + otherCost) * quantity;
   const costs = feeTotal + cashInvested;
   const profit = revenue - costs;
+  // Net sale proceeds available to recover the cash spent on this order. This
+  // deliberately excludes modeled operating outlays because those are what
+  // the checkpoint compares against as invested cash.
+  const cashRecovered = revenue - feeTotal;
 
   // Fixed (non-percentage) cash outlay that must be recovered before the
   // percentage-based fees are covered, used to solve for break-even price.
@@ -75,6 +79,9 @@ export function calculateOrder(input) {
     fees,
     feeTotal,
     cashInvested,
+    cashRecovered,
+    cashRecoveryPct: cashInvested === 0 ? null : cashRecovered / cashInvested * 100,
+    cashSurplus: cashRecovered - cashInvested,
     costs,
     profit,
     unitProfit: profit / quantity,
