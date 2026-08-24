@@ -6,6 +6,7 @@ import csv
 import io
 import json
 import sys
+import xml.etree.ElementTree as ET
 from pathlib import Path
 from typing import Any
 
@@ -194,6 +195,30 @@ def _csv_report(
     return output.getvalue()
 
 
+def _junit_report(
+    reports: list[tuple[Path, list[dict[str, str]]]],
+    read_errors: list[dict[str, str]],
+) -> str:
+    """Build a privacy-safe JUnit report for CI result viewers."""
+    suite = ET.Element("testsuite", name="einvoice-preflight")
+    for path, errors in reports:
+        if not errors:
+            ET.SubElement(suite, "testcase", name=path.as_posix())
+            continue
+        for error in errors:
+            testcase = ET.SubElement(suite, "testcase", name=f"{path.as_posix()} [{error['rule']}]")
+            failure = ET.SubElement(testcase, "failure", message=error["message"])
+            failure.text = f"{error['message']} Fix: {error['fix']} Path: {error['path']}"
+    for error in read_errors:
+        testcase = ET.SubElement(suite, "testcase", name=error["file"])
+        failure = ET.SubElement(testcase, "failure", message="Unreadable invoice")
+        failure.text = error["error"]
+    suite.set("tests", str(len(suite)))
+    suite.set("failures", str(sum(bool(errors) for _, errors in reports) + len(read_errors)))
+    suite.set("errors", "0")
+    return ET.tostring(suite, encoding="unicode") + "\n"
+
+
 def _add_batch_duplicate_findings(
     reports: list[tuple[Path, list[dict[str, str]]]],
     invoices: list[tuple[Path, Any]],
@@ -224,7 +249,7 @@ def _markdown_text(value: str) -> str:
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description="Check a local JSON e-invoice before submission. No tax advice or submission.")
     parser.add_argument("invoice", type=Path, help="JSON file, directory of JSON files, or '-' for stdin")
-    parser.add_argument("--format", choices=("text", "json", "markdown", "csv", "sarif", "github"), default="text")
+    parser.add_argument("--format", choices=("text", "json", "markdown", "csv", "junit", "sarif", "github"), default="text")
     parser.add_argument("--usage-file", help="opt-in local aggregate event counter")
     args = parser.parse_args(argv)
     reports: list[tuple[Path, list[dict[str, str]]]] = []
@@ -269,6 +294,8 @@ def main(argv: list[str] | None = None) -> int:
         print(_markdown_report(reports, read_errors), end="")
     elif args.format == "csv":
         print(_csv_report(reports, read_errors), end="")
+    elif args.format == "junit":
+        print(_junit_report(reports, read_errors), end="")
     elif args.format == "sarif":
         print(json.dumps(_sarif_report(reports), indent=2))
     elif args.format == "github":

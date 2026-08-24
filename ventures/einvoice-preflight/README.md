@@ -13,6 +13,7 @@ PYTHONPATH=src python3 -m einvoice_preflight examples/valid-invoice.json --forma
 PYTHONPATH=src python3 -m einvoice_preflight ./invoices/ --format github
 PYTHONPATH=src python3 -m einvoice_preflight ./invoices/ --format markdown > review.md
 PYTHONPATH=src python3 -m einvoice_preflight ./invoices/ --format csv > triage.csv
+PYTHONPATH=src python3 -m einvoice_preflight ./invoices/ --format junit > preflight.xml
 cat invoice.json | PYTHONPATH=src python3 -m einvoice_preflight - --format json
 PYTHONPATH=src python3 -m einvoice_preflight examples/valid-invoice.json --usage-file ~/.local/state/einvoice-preflight/usage.json
 PYTHONPATH=src python3 -m einvoice_preflight ./invoices/ --format json
@@ -84,6 +85,10 @@ findings and `2` for read errors.
 read-error rows. Its stable columns are `file`, `status`, `rule`, `path`,
 `message`, `fix`, and `error`, making it suitable for triage queues without
 exposing invoice values or contents.
+`--format junit` produces a standard JUnit XML test suite for CI result viewers.
+It creates one passing testcase per clean invoice and one failing testcase per
+finding or read error. The XML contains filenames, rule IDs, observations, fixes,
+and JSON Pointer paths only; invoice values and line contents are never emitted.
 
 ## Privacy and usage
 
