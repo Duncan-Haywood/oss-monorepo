@@ -46,7 +46,16 @@ built or verified it should merge it rather than leave it for the owner:
 
 - It touches only internal surfaces — `portfolio/` (pipeline, research,
   router, ledger), `platform/`, CI config, docs, tests — **not** any
-  `ventures/*` app code that deploys to a live site.
+  `ventures/*` app code that deploys to a live site. Do not hand-derive which
+  code that is; `python3 platform/ci/publish_surface.py` reads it off the
+  workflow files. As of 2026-08-24 the answer is *none of it*: no workflow
+  publishes anything on a push to `main`, because the two Pages deploys skip
+  their publish jobs for want of credentials the owner has not set and the
+  third is `workflow_dispatch`-only. Sessions had been asserting the opposite
+  in the decision queue. That does not make venture app code agent-decidable
+  on its own — the human-gated list below still covers breaking changes to it
+  — but it does mean "a wrong merge ships a regression to a live site" is
+  currently false, and a claim that it is true needs the tool to agree.
 - It publishes nothing to the outside world, registers no account, and uses no
   credential belonging to a legal person.
 - It spends nothing beyond agent time and enables no unattended paid spend.

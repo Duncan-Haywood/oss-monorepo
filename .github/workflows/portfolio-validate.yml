@@ -143,6 +143,13 @@ jobs:
         working-directory: platform/ci
         run: python3 -m unittest test_validate_workflows
 
+      - name: Check what a merge to main can publish still matches the snapshot
+        run: python3 platform/ci/publish_surface.py --check
+
+      - name: Publish-surface unit tests
+        working-directory: platform/ci
+        run: python3 -m unittest test_publish_surface
+
       - name: Check break-even.md agrees with its pinned snapshot
         run: python3 portfolio/ledger/break_even.py --check
 
