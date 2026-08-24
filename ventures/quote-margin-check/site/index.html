@@ -104,6 +104,8 @@
   .sensitivity th:first-child, .sensitivity td:first-child { text-align: left; }
   .table-scroll { overflow-x: auto; }
   .actions { margin-top: 1rem; display: flex; gap: 0.5rem; flex-wrap: wrap; }
+  .draft-actions { border-top: 1px solid var(--border); margin-top: 1rem; padding-top: 1rem; }
+  .draft-actions input[type="file"] { width: auto; max-width: 100%; padding: 0.35rem; }
   button { font: inherit; padding: 0.5rem 0.9rem; border-radius: 6px; border: 1px solid var(--border); background: var(--bg); color: var(--fg); cursor: pointer; }
   button:hover { border-color: var(--accent); }
   footer { border-top: 1px solid var(--border); margin-top: 2rem; padding-top: 1.5rem; font-size: 0.85rem; color: var(--muted); }
@@ -186,6 +188,16 @@
       <button type="button" id="copy-csv">Copy as CSV row</button>
       <span id="copy-status" class="hint" role="status" aria-live="polite"></span>
     </div>
+    <div class="draft-actions">
+      <strong>Save this quote setup</strong>
+      <p class="hint">Download a private JSON backup to reopen on another browser or device. Nothing is uploaded.</p>
+      <div class="actions">
+        <button type="button" id="download-draft">Download draft</button>
+        <label for="import-draft" class="hint">Open draft JSON</label>
+        <input type="file" id="import-draft" accept="application/json,.json" />
+        <span id="draft-status" class="hint" role="status" aria-live="polite"></span>
+      </div>
+    </div>
   </section>
 
   <section aria-labelledby="about-heading">
@@ -253,6 +265,7 @@
   import { loadQuote, calculate, overrunScenarios } from "./calc.mjs";
   import { reviewQuote } from "./review.mjs";
   import { recordEvent, createReportCounter, isUsageCountingEnabled, setUsageCountingEnabled } from "./usage.mjs";
+  import { serializeDraft, parseDraft, draftFileName } from "./drafts.mjs";
 
   // Counts settled quotes rather than keystrokes — see usage.mjs.
   const reportCounter = createReportCounter();
@@ -362,6 +375,54 @@
     } catch {
       copyStatus.textContent = "Couldn't access the clipboard in this browser.";
     }
+  });
+
+  const downloadDraft = document.getElementById("download-draft");
+  const importDraft = document.getElementById("import-draft");
+  const draftStatus = document.getElementById("draft-status");
+  downloadDraft.addEventListener("click", () => {
+    if (!lastReport) {
+      draftStatus.textContent = "Fix the inputs above first.";
+      return;
+    }
+    const blob = new Blob([serializeDraft(lastReport.quote)], { type: "application/json" });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = draftFileName;
+    link.click();
+    setTimeout(() => URL.revokeObjectURL(url), 0);
+    draftStatus.textContent = "Draft downloaded locally.";
+    recordEvent("draft_exported");
+  });
+  importDraft.addEventListener("change", () => {
+    const file = importDraft.files?.[0];
+    if (!file) return;
+    if (file.size > 32 * 1024) {
+      draftStatus.textContent = "Draft file is too large.";
+      importDraft.value = "";
+      return;
+    }
+    const reader = new FileReader();
+    reader.onload = () => {
+      try {
+        const quote = parseDraft(reader.result, loadQuote);
+        for (const id of ids) el[id].value = quote[id];
+        exampleNote.hidden = true;
+        update();
+        draftStatus.textContent = "Draft opened locally.";
+        recordEvent("draft_imported");
+      } catch (err) {
+        draftStatus.textContent = err.message;
+      } finally {
+        importDraft.value = "";
+      }
+    };
+    reader.onerror = () => {
+      draftStatus.textContent = "Couldn't read that draft file.";
+      importDraft.value = "";
+    };
+    reader.readAsText(file);
   });
 
   const usageToggle = document.getElementById("usage-toggle");

@@ -44,6 +44,10 @@ quoted price and direct costs fixed while showing how the effective hourly rate
 and gap to the supplied target change. They are arithmetic what-if comparisons,
 not a forecast of project delivery time.
 
+The browser can download the current quote inputs as a small JSON draft and
+open that draft later or on another device. Draft files contain only the
+entered quote fields, are validated before use, and are never uploaded.
+
 **No warranty.** This tool is provided free and as-is, without warranty of any
 kind, express or implied. It is not tax, financial, or business advice, and it
 does not replace a qualified professional. **You are responsible for reviewing
@@ -63,7 +67,8 @@ stop changing, skips the pre-filled example on first load, and ignores a repeat
 of a quote it already counted. Reading it as "reports", not "keystrokes", is
 what makes it comparable to the CLI's own count. The browser also counts
 `quote_review_checked` locally when a valid quote is reviewed; it stores no quote
-values and sends nothing anywhere.
+values and sends nothing anywhere. Downloading or opening a draft adds only
+aggregate `draft_exported` or `draft_imported` events to the same local counter.
 
 ## Input
 
