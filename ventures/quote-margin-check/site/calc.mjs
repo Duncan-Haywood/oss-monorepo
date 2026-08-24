@@ -51,6 +51,8 @@ export function calculate(quote) {
     target_price: targetPrice,
     gap_to_target: quote.price - targetPrice,
     cost_coverage: quote.price - directCosts,
+    target_hours: (quote.price - directCosts) / quote.target_hourly_rate,
+    hours_over_target: totalHours - ((quote.price - directCosts) / quote.target_hourly_rate),
   };
 }
 

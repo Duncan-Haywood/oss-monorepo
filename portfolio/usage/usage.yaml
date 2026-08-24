@@ -6,6 +6,14 @@
 # retired honestly instead of quietly.
 period: 2026-08
 products:
+  - slug: quote-margin-check
+    surface: github-pages
+    readings:
+      - as_of: 2026-08-24
+        signals:
+          repo_views_14d: 0
+          release_downloads_total: 0
+        note: Added target-rate time budget to the local quote review workflow.
   - slug: shopify-permission-drift
     surface: local-cli
     readings:

@@ -301,6 +301,8 @@
            <dt>Price at your target rate</dt><dd>${safeCurrency} ${fmt(r.target_price)}</dd>
            <dt>Gap to target price</dt><dd>${safeCurrency} ${fmt(r.gap_to_target)}</dd>
            <dt>Left after direct costs</dt><dd>${safeCurrency} ${fmt(r.cost_coverage)}</dd>
+           <dt>Target-rate time budget</dt><dd>${fmt(Math.max(0, r.target_hours))} hours</dd>
+           <dt>Hours over target budget</dt><dd>${fmt(Math.max(0, r.hours_over_target))} hours</dd>
         </dl>
        `;
        review.querySelector(".checks").innerHTML = reviewQuote(quote, r).map((check) => `<li class="${check.level}"><strong>${escapeHtml(check.title)}</strong>${escapeHtml(check.detail)}</li>`).join("");
@@ -353,7 +355,9 @@
       `effective_hourly_rate,${r.effective_hourly_rate.toFixed(2)},${quote.currency}/hour`,
       `target_price,${r.target_price.toFixed(2)},${quote.currency}`,
       `gap_to_target,${r.gap_to_target.toFixed(2)},${quote.currency}`,
-      `cost_coverage,${r.cost_coverage.toFixed(2)},${quote.currency}`,
+       `cost_coverage,${r.cost_coverage.toFixed(2)},${quote.currency}`,
+       `target_hours,${r.target_hours.toFixed(2)},hours`,
+       `hours_over_target,${r.hours_over_target.toFixed(2)},hours`,
     ].join("\n");
     try {
       await navigator.clipboard.writeText(rows);

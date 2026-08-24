@@ -44,6 +44,12 @@ quoted price and direct costs fixed while showing how the effective hourly rate
 and gap to the supplied target change. They are arithmetic what-if comparisons,
 not a forecast of project delivery time.
 
+The report also shows the **target-rate time budget**: the total hours the quote
+can support after direct costs at the supplied target rate. A positive
+hours-over-target value means the current plan exceeds that arithmetic budget;
+it is a scope-review prompt, not a recommendation about what to charge or
+promise.
+
 **No warranty.** This tool is provided free and as-is, without warranty of any
 kind, express or implied. It is not tax, financial, or business advice, and it
 does not replace a qualified professional. **You are responsible for reviewing
