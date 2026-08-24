@@ -52,7 +52,7 @@ turned off.
 |---|---|---|---|
 | Image alt | 1.1.1 | blocking | `<img>` has no `alt` attribute (`alt=""` is respected as decorative) |
 | Page language | 3.1.1 | blocking | `<html>` has no `lang` |
-| Control label | 1.3.1 | blocking | a form control has no label, `aria-label`, `title`, or wrapping label |
+| Control label | 1.3.1 | blocking | a form control has no label, `aria-label`, `title`, or wrapping label; on theme source, a `<label for>` that can never match any id |
 | Link purpose | 2.4.4 | blocking | `<a href>` exposes no text or accessible name |
 | Button name | 4.1.2 | blocking | `<button>` has no accessible name |
 | Interactive aria-hidden | 4.1.2 | blocking | a focusable control is `aria-hidden="true"` |
@@ -676,6 +676,24 @@ attachment point is `not_exercised` rather than a fabricated catch, a page
 that already fails the target check is not a miss, a constructed miss stays
 a miss, the record omits the section when the control was not run and prints
 it above the findings when it was, and a miss is named in the header.
+
+## Expression-aware `<label for>` matching (2026-08-24)
+
+Finding 3 of [`a11y-theme-resolution`](../../../research/a11y-theme-resolution/)
+named a concrete improvement this engine and its sibling `audit.py` could
+adopt: match `<label for>` against control ids on raw template text, not on
+the expression-stripped literal. `audit.py` already had it. This probe did
+not -- exact-string match only -- so the 64 same-file cases that differ only
+by expression spacing would have been unnamed false positives, and the
+fassbender-shopify-theme newsletter defect (`for="mce-NAME"` against
+`id="{{ idPrefix }}_mce-NAME"`) would have been reported as "no label"
+rather than as a label that can never resolve.
+
+[`expressions.py`](src/wcag_triage/expressions.py) ports the matching helpers.
+Rendered HTML (no `{{ }}` / `{% %}` / etc.) is unchanged: fixture validation
+stays byte-identical. On theme source, a certain match is silent, a
+possible-but-not-certain match is silent (precision over recall), and a
+proven mismatch is a blocking 1.3.1. No score moved.
 
 ## Scope and honesty, in one place
 
