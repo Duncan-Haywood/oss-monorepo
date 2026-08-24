@@ -19,6 +19,7 @@ cat invoice.json | PYTHONPATH=src python3 -m einvoice_preflight - --format json
 PYTHONPATH=src python3 -m einvoice_preflight examples/valid-invoice.json --usage-file ~/.local/state/einvoice-preflight/usage.json
 PYTHONPATH=src python3 -m einvoice_preflight ./invoices/ --format json
 PYTHONPATH=src python3 -m einvoice_preflight ./invoices/ --format jsonl
+PYTHONPATH=src python3 -m einvoice_preflight ./invoices/ --format json --max-files 500
 PYTHONPATH=src python3 -m einvoice_preflight invoice.xml --format json
 ```
 
@@ -28,7 +29,10 @@ as the filename to read one JSON or UBL XML invoice from standard input, which
 is useful for ERP adapters and CI pipelines. SARIF reports use `stdin.json` as
 the artifact name for piped input. Directories are scanned recursively for both
 `.json` and `.xml` files. XML input maps common UBL Invoice elements into the
-same checks; it is not a full Peppol or EN 16931 conformance validator.
+same checks; it is not a full Peppol or EN 16931 conformance validator. Use
+`--max-files N` in CI or ERP jobs to refuse a directory scan when more than `N`
+invoice files are present. This bounds accidental scans of a broad working
+tree; the command exits `2` without reading any invoice contents.
 
 The tool never submits an invoice, chooses a tax rate, contacts a tax
 authority, or claims that an invoice is legally valid. It only checks the
