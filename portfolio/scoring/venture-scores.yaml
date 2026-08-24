@@ -830,3 +830,36 @@ ventures:
       The shipped production rates are labelled ballpark starting points rather
       than a standard or benchmark, and nothing the user enters leaves the
       browser.
+  - slug: pest-control-bid-calculator
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 7
+      gross_margin: 10
+      defensibility: 5
+      distribution: 7
+    composite: 6.667
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      There is no AI anywhere in the product. The value is a domain model —
+      on-site minutes, station counts, and drive time — that is arithmetic,
+      and adding inference to it would only make the result less checkable.
+    basis: >-
+      Graduated on 2026-08-24 as a browser-local pest control bid calculator.
+      Scored with the other trade-bid calculators: defensibility 5 because
+      the stop-time model encodes how a route actually pays (stations and
+      drive, not house size) rather than restating a published fee schedule.
+      Distribution 7: "pest control bid calculator" and "how to price a pest
+      control route" are searchable operator queries with less saturation
+      than marketplace-fee pages, bought by someone with a real stop on the
+      line.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Pass: the output is arithmetic on the operator's own inputs, never a
+      recommended price, a treatment recommendation, a label instruction, or
+      a guarantee of control. Starting minutes are labelled ballpark figures
+      rather than a standard, and nothing the user enters leaves the browser.
