@@ -23,6 +23,10 @@ class ReportTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, "same register"):
             build_report(snapshot([]), {**snapshot([]), "register": "other"})
 
+    def test_source_mismatch_rejected(self):
+        with self.assertRaisesRegex(ValueError, "same source_url"):
+            build_report(snapshot([]), {**snapshot([]), "source_url": "https://other.test/register"})
+
     def test_duplicate_and_unauthorized_inputs_rejected(self):
         with tempfile.TemporaryDirectory() as directory:
             path = Path(directory) / "snapshot.json"
