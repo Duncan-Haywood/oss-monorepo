@@ -12,7 +12,7 @@ entries:
         opt-out aggregate usage counter, SEO metadata, sitemap, robots.txt, MIT
         license, and three passing Node tests. Shopify App Store measurement,
         live publishing, and hosted history remain unresolved dependencies.
-    mrr_end: null
+        mrr_end: null
   - venture: etsy-profit-calculator
     agent_spend_usd: null
     human_hours: 0
