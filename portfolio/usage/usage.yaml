@@ -126,6 +126,14 @@ products:
           target-gap, hidden-time, and revision-assumption observations. No
           public URL yet; the feature counter stores only aggregate local
           events and remains opt-out.
+      - as_of: 2026-08-24
+        signals:
+          live_url_visitors: null
+          local_events_reported: 0
+        note: >-
+          Browser CSV export now quotes currency labels containing separators,
+          quotes, or line breaks; 24 browser tests pass and public URL remains
+          owner-gated.
   - slug: etsy-profit-calculator
     surface: static-page-in-repo
     readings:
