@@ -117,11 +117,12 @@ decisions:
   exposure: credential
   opened: "2026-08-19"
   action: >-
-    Set repository settings and secrets, all inside GitHub: Pages source to
-    "GitHub Actions" plus variable `GITHUB_PAGES_ENABLED=true` (or
-    `VERCEL_DEPLOY=true` with the three `VERCEL_*` secrets instead), and
-    `CLOUDFLARE_API_TOKEN` / `CLOUDFLARE_ACCOUNT_ID` (plus `AUTH_SECRET` for
-    `ai-first-markets`).
+    Create one Vercel account, set Spend Management to *pause* at a chosen
+    amount before deploying anything, then add secrets `VERCEL_TOKEN`,
+    `VERCEL_ORG_ID`, `VERCEL_PROJECT_ID` and variable `VERCEL_DEPLOY=true`,
+    plus `AUTH_SECRET` for `ai-first-markets`. Leave `GITHUB_PAGES_ENABLED`
+    and the `CLOUDFLARE_*` secrets unset. Cost is $20/seat/month; the cap is
+    the point.
   unlocks:
     - Three ventures whose builds already pass but which deploy nothing.
     - "`retail-pilot-intel`'s docs deploy, which since #347 is green *and publishes nothing* -- the workflow skips the publish job rather than failing, so the record shows success for a site that does not exist."
@@ -143,6 +144,37 @@ decisions:
     workflows from `gated` to `live`, and that flip is what will turn the
     check red until the snapshot is rewritten to record it.
 
+
+    Narrowed 2026-08-24 from a menu to one step. This row previously offered
+    the owner a choice between GitHub Pages, Vercel and Cloudflare and asked
+    them to make it -- which is why it read as three settings and sat for five
+    days. `platform/deployment/README.md` makes that choice, on two criteria
+    the owner set: one platform that fits everything, and a spend cap built
+    into the vendor rather than assembled from alerts and scripts. That second
+    test eliminates AWS, GCP and Azure outright -- none has a native
+    halt-at-an-amount control, and the cap you can build for them is itself
+    unattended automation that fails silently -- and it also eliminates
+    Cloudflare, whose free-tier safety is a quota rather than a cap and whose
+    paid tier has no stop control. Vercel and Railway pass it; Vercel wins on
+    fit, because seven of the nine venture apps are Next.js and every other
+    host runs Next.js through a translation layer. The cost is real and is the
+    main argument against: $20/seat/month standing, against a portfolio
+    earning $0. Railway is the named fallback at roughly a quarter of that if
+    the floor is the objection.
+
+    Deliberately decided *without* weighting what is already wired, at the
+    owner''s instruction. Migration cost is recorded in that document rather
+    than counted: two workflows target Cloudflare today, and porting them is a
+    separate agent-decidable change once the account exists.
+
+    Not re-verified first-hand -- every vendor documentation host is
+    egress-denied from an agent session (`platform/deployment/probe_control_planes.py`
+    measures this over 22 hosts with both controls), so three load-bearing
+    Vercel claims are flagged in that document for a browser check before
+    granting; if the pause action or the price has changed, the fallback is
+    Railway and the criterion is unaffected. `quick-pick-survey`''s Postgres is
+    covered only via Vercel''s marketplace, billed through Vercel and so under
+    the same cap.
 - id: publication-identity
   asks: [0, 1, 5]
   prs: []

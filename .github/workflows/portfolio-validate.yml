@@ -60,6 +60,7 @@ on:
       - "portfolio/ledger/asks.yaml"
       - "portfolio/ledger/2026-08.yaml"
       - "platform/ci/**"
+      - "platform/deployment/**"
       - ".github/workflows/**"
   pull_request:
     paths:
@@ -83,6 +84,7 @@ on:
       - "portfolio/ledger/asks.yaml"
       - "portfolio/ledger/2026-08.yaml"
       - "platform/ci/**"
+      - "platform/deployment/**"
       - ".github/workflows/**"
   workflow_dispatch:
 
@@ -149,6 +151,13 @@ jobs:
       - name: Publish-surface unit tests
         working-directory: platform/ci
         run: python3 -m unittest test_publish_surface
+
+      - name: Check the deployment-platform decision still matches its probe
+        run: python3 platform/deployment/probe_control_planes.py --check
+
+      - name: Control-plane probe unit tests
+        working-directory: platform/deployment
+        run: python3 -m unittest test_probe_control_planes
 
       - name: Check break-even.md agrees with its pinned snapshot
         run: python3 portfolio/ledger/break_even.py --check
