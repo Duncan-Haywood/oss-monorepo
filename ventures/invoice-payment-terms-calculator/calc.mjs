@@ -13,7 +13,12 @@ export function calculateTerms(input) {
   const monthlyBurn = Math.max(0, number(input.monthlyBurn));
   const outstanding = Math.max(0, Math.round(number(input.outstanding)));
   const invoiceDate = new Date(`${input.invoiceDate}T00:00:00Z`);
-  if (!input.invoiceDate || Number.isNaN(invoiceDate.getTime())) throw new Error('Enter a valid invoice date.');
+  const dateParts = typeof input.invoiceDate === 'string' && input.invoiceDate.match(/^(\d{4})-(\d{2})-(\d{2})$/);
+  const validDate = dateParts && !Number.isNaN(invoiceDate.getTime())
+    && invoiceDate.getUTCFullYear() === Number(dateParts[1])
+    && invoiceDate.getUTCMonth() + 1 === Number(dateParts[2])
+    && invoiceDate.getUTCDate() === Number(dateParts[3]);
+  if (!validDate) throw new Error('Enter a valid invoice date.');
 
   const due = new Date(invoiceDate.getTime() + termsDays * DAY);
   const feeAt = daysLate => amount * (annualLateRate / 100) * (Math.max(0, daysLate - graceDays) / 365);
