@@ -24,6 +24,12 @@ The patches here are the ones that do not add words:
   control id that already ends with that literal (forgotten-prefix).
   A search field with no label in the file is still skipped: there is
   no ``for`` to rewrite, and inventing a name is content.
+- add ``muted`` to ``<video>`` / ``<audio autoplay>`` (1.4.2). The
+  rule's own first remediation is a boolean attribute, not a word.
+- drop a visual ``transform: rotate()`` on a bare ``html`` / ``body``
+  rule inside a pure orientation media query (1.3.4). Combined
+  queries, no-op turns, and transforms that carry other functions
+  stay.
 
 A low close rate on blocking findings is a result, not a bug. The
 remainder is the contractor step.
@@ -45,7 +51,7 @@ from .expressions import (
     strip_expressions,
 )
 from .parser import parse
-from .rules import Finding
+from .rules import Finding, _has_visual_rotation
 
 _INTERACTIVE = frozenset({"a", "button", "input", "select", "textarea"})
 _NAME_FROM_CONTENT = frozenset({"a", "button", "input"})
@@ -71,6 +77,19 @@ _CONTROL_OPEN = re.compile(
 _LABEL_OPEN = re.compile(r"""<label\b(?P<body>[^>]*)>""", re.I | re.S)
 _SEPARATOR_ONLY = re.compile(r"^[\W_]*$")
 _MISMATCH_MARK = "dead in the rendered page"
+_STYLE_BLOCK = re.compile(r"(<style\b[^>]*>)(.*?)(</style\s*>)", re.I | re.S)
+_PURE_ORIENTATION = re.compile(
+    r"@media\s*\(\s*orientation\s*:\s*(?:portrait|landscape)\s*\)\s*\{",
+    re.I,
+)
+_BARE_TYPE_RULE = re.compile(
+    r"(?P<prefix>^|[{};])\s*(?P<sel>html|body)\s*\{(?P<decls>[^}]*)\}",
+    re.I | re.S,
+)
+_ONLY_ROTATE = re.compile(
+    r"^\s*rotate\(\s*-?[\d.]+\s*(?:deg|grad|rad|turn)?\s*\)\s*$",
+    re.I,
+)
 
 LIMITS = (
     "Fixture or supplied markup, not a live shop theme.",
@@ -182,6 +201,17 @@ def try_patch(html: str, finding: Finding) -> tuple[Optional[str], str]:
             return nxt, (
                 "rewrote a dead <label for> onto the unique "
                 "expression-prefixed control id"
+            )
+    if finding.criterion == "1.4.2":
+        nxt = _mute_autoplay(html, finding)
+        if nxt is not None:
+            return nxt, "added muted to autoplaying media"
+    if finding.criterion == "1.3.4":
+        nxt = _drop_orientation_rotate(html)
+        if nxt is not None:
+            return nxt, (
+                "removed a visual rotate() on <html>/<body> under a "
+                "pure orientation media query"
             )
     return None, skip_reason(finding)
 
@@ -542,4 +572,134 @@ def _rewrite_forgotten_prefix(html: str) -> Optional[str]:
             count=1,
         )
         changed = True
+    return updated if changed else None
+
+
+def _mute_autoplay(html: str, finding: Finding) -> Optional[str]:
+    """Add ``muted`` to the autoplaying media the finding named.
+
+    The rule's first remediation is this boolean. It is not a name, a
+    caption, or a language. Media that is already muted, or that does
+    not autoplay, is left alone.
+    """
+    if finding.element not in {"video", "audio"}:
+        return None
+    lines = html.splitlines(keepends=True)
+    if finding.line < 1 or finding.line > len(lines):
+        return None
+    idx = finding.line - 1
+    pattern = re.compile(
+        rf"<(?P<tag>{re.escape(finding.element)})\b(?P<body>[^>]*)>",
+        re.I | re.S,
+    )
+
+    def insert_muted(match: re.Match) -> str:
+        body = match.group("body")
+        if not re.search(r"\bautoplay\b", body, flags=re.I):
+            return match.group(0)
+        if re.search(r"\bmuted\b", body, flags=re.I):
+            return match.group(0)
+        return f"<{match.group('tag')} muted{body}>"
+
+    new, n = pattern.subn(insert_muted, lines[idx], count=1)
+    if n != 1 or new == lines[idx]:
+        return None
+    lines[idx] = new
+    return "".join(lines)
+
+
+def _matching_brace_block(text: str, open_idx: int) -> tuple[int, int] | None:
+    """Return ``(content_start, close_idx)`` for ``{`` at ``open_idx``."""
+    if open_idx < 0 or open_idx >= len(text) or text[open_idx] != "{":
+        return None
+    depth = 0
+    for i in range(open_idx, len(text)):
+        if text[i] == "{":
+            depth += 1
+        elif text[i] == "}":
+            depth -= 1
+            if depth == 0:
+                return open_idx + 1, i
+    return None
+
+
+def _is_only_visual_rotate(value: str) -> bool:
+    return bool(_ONLY_ROTATE.match(value)) and _has_visual_rotation(value)
+
+
+def _strip_html_body_rotates(body: str) -> tuple[str, bool]:
+    """Drop a bare html/body ``transform: rotate()``; keep every other decl."""
+    changed = False
+
+    def repl(match: re.Match) -> str:
+        nonlocal changed
+        kept: list[str] = []
+        removed = False
+        for part in match.group("decls").split(";"):
+            raw = part.strip()
+            if not raw:
+                continue
+            key, sep, val = raw.partition(":")
+            if sep and key.strip().lower() == "transform" and _is_only_visual_rotate(
+                val
+            ):
+                removed = True
+                continue
+            kept.append(raw)
+        if not removed:
+            return match.group(0)
+        changed = True
+        if not kept:
+            return match.group("prefix")
+        return (
+            f"{match.group('prefix')}{match.group('sel')} "
+            f"{{ {'; '.join(kept)}; }}"
+        )
+
+    return _BARE_TYPE_RULE.sub(repl, body), changed
+
+
+def _strip_orientation_rotates(css_text: str) -> tuple[str, bool]:
+    """Remove visual rotates from pure orientation queries only."""
+    changed = False
+    parts: list[str] = []
+    last = 0
+    for match in _PURE_ORIENTATION.finditer(css_text):
+        span = _matching_brace_block(css_text, match.end() - 1)
+        if span is None:
+            continue
+        content_start, close_idx = span
+        new_body, did = _strip_html_body_rotates(css_text[content_start:close_idx])
+        if not did:
+            continue
+        parts.append(css_text[last : match.start()])
+        if new_body.strip():
+            parts.append(css_text[match.start() : content_start])
+            parts.append(new_body)
+            parts.append("}")
+        last = close_idx + 1
+        changed = True
+    if not changed:
+        return css_text, False
+    parts.append(css_text[last:])
+    return "".join(parts), True
+
+
+def _drop_orientation_rotate(html: str) -> Optional[str]:
+    """Remove the classic html/body orientation-lock rotate from ``<style>``.
+
+    Combined queries (a breakpoint plus orientation), no-op turns, class
+    selectors, and a ``transform`` that carries anything besides
+    ``rotate()`` are left alone — those are not uniquely the lock.
+    """
+    changed = False
+
+    def patch_style(match: re.Match) -> str:
+        nonlocal changed
+        new_css, did = _strip_orientation_rotates(match.group(2))
+        if did:
+            changed = True
+        return f"{match.group(1)}{new_css}{match.group(3)}"
+
+    updated = _STYLE_BLOCK.sub(patch_style, html)
     return updated if changed else None
