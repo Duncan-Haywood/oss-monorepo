@@ -142,6 +142,9 @@ workflows:
 - workflow: ubuntu-agent-server-ci.yml
   classification: none
   publishes: []
+- workflow: vendor-watch-ci.yml
+  classification: none
+  publishes: []
 - workflow: world-clock-widget-ci.yml
   classification: none
   publishes: []
