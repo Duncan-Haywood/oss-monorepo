@@ -40,6 +40,14 @@ class ChecksTest(unittest.TestCase):
             self.assertEqual(main([str(invoice_path), "--format", "json", "--usage-file", str(usage_path)]), 0)
             self.assertEqual(json.loads(usage_path.read_text()), {"events": {"invoice_preflight_checked": 1}})
 
+    def test_cli_returns_failure_for_bad_invoice(self):
+        with tempfile.TemporaryDirectory() as directory:
+            invoice_path = Path(directory) / "invoice.json"
+            invoice = json.loads(json.dumps(VALID))
+            invoice["totals"]["gross"] = 200
+            invoice_path.write_text(json.dumps(invoice))
+            self.assertEqual(main([str(invoice_path), "--format", "json"]), 1)
+
 
 if __name__ == "__main__":
     unittest.main()

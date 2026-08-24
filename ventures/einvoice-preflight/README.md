@@ -6,10 +6,14 @@ mistakes, then prints rule IDs and plain-language fixes. It is aimed at
 bookkeepers and ERP integrators searching for an e-invoice preflight check.
 
 ```sh
-python3 -m einvoice_preflight invoice.json
-python3 -m einvoice_preflight invoice.json --format json
-python3 -m einvoice_preflight invoice.json --usage-file ~/.local/state/einvoice-preflight/usage.json
+cd ventures/einvoice-preflight
+PYTHONPATH=src python3 -m einvoice_preflight examples/valid-invoice.json
+PYTHONPATH=src python3 -m einvoice_preflight examples/valid-invoice.json --format json
+PYTHONPATH=src python3 -m einvoice_preflight examples/valid-invoice.json --usage-file ~/.local/state/einvoice-preflight/usage.json
 ```
+
+For an installed command, run `python3 -m pip install .` from this directory,
+then use `python3 -m einvoice_preflight invoice.json` from anywhere.
 
 The tool never submits an invoice, chooses a tax rate, contacts a tax
 authority, or claims that an invoice is legally valid. It only checks the
@@ -27,7 +31,7 @@ The supported v0 shape is intentionally small and format-neutral:
   "currency": "EUR",
   "supplier": {"id": "DE123", "name": "Supplier GmbH"},
   "customer": {"id": "DE456", "name": "Customer GmbH"},
-  "lines": [{"description": "Consulting", "quantity": 2, "unit_price": 100, "tax_percent": 19}],
+   "lines": [{"description": "Consulting", "quantity": 2, "unit_price": 100, "tax_percent": 19, "net": 200}],
   "totals": {"net": 200, "tax": 38, "gross": 238}
 }
 ```
