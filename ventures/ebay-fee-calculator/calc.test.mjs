@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { calculateOrder } from './calc.mjs';
+import { calculateOrder, calculatePriceScenarios } from './calc.mjs';
 
 const near = (actual, expected, msg) => assert.ok(Math.abs(actual - expected) < 1e-6, `${msg}: ${actual} vs ${expected}`);
 
@@ -63,9 +63,36 @@ test('applies documented defaults when rates are omitted', () => {
   near(r.fees.fixed, 0.3, 'default fixed fee');
 });
 
+test('scales batch economics while keeping price thresholds per unit', () => {
+  const input = { price: 40, shippingCharged: 6, finalValueRate: 13.25, fixedFee: 0.3, costOfGoods: 12, shippingCost: 5, packagingCost: 1 };
+  const single = calculateOrder(input);
+  const batch = calculateOrder({ ...input, quantity: 3 });
+  near(batch.revenue, single.revenue * 3, 'batch revenue');
+  near(batch.feeTotal, single.feeTotal * 3, 'batch fees');
+  near(batch.cashInvested, single.cashInvested * 3, 'batch investment');
+  near(batch.profit, single.profit * 3, 'batch profit');
+  near(batch.unitProfit, single.profit, 'unit profit');
+  near(batch.breakEvenPrice, single.breakEvenPrice, 'per-unit break-even');
+});
+
+test('rejects fractional or zero batch quantities', () => {
+  assert.throws(() => calculateOrder({ price: 10, quantity: 0 }), /whole number/);
+  assert.throws(() => calculateOrder({ price: 10, quantity: 1.5 }), /whole number/);
+});
+
 test('rejects negative and non-numeric inputs', () => {
   assert.throws(() => calculateOrder({ price: -1 }), /Item price/);
   assert.throws(() => calculateOrder({ price: 'abc' }), /Item price/);
   assert.throws(() => calculateOrder({ price: 10, costOfGoods: -5 }), /Cost of goods/);
   assert.throws(() => calculateOrder({ price: 10, targetMargin: 100 }), /less than 100/);
+});
+
+test('compares profit at multiple listing prices using the same assumptions', () => {
+  const input = { price: 40, shippingCharged: 6, finalValueRate: 13.25, fixedFee: 0.3, costOfGoods: 12, shippingCost: 5, packagingCost: 1 };
+  const scenarios = calculatePriceScenarios(input, [30, 40, 50]);
+  assert.deepEqual(scenarios.map(scenario => scenario.price), [30, 40, 50]);
+  near(scenarios[1].profit, calculateOrder(input).profit, 'current price profit');
+  assert.ok(scenarios[0].profit < scenarios[1].profit);
+  assert.ok(scenarios[1].profit < scenarios[2].profit);
+  assert.throws(() => calculatePriceScenarios(input, []), /scenario price/);
 });

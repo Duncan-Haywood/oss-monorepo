@@ -5,7 +5,7 @@ from pathlib import Path
 import sys
 
 sys.path.insert(0, str(Path(__file__).parents[1] / "src"))
-from permission_drift import compare, load_inventory, usage_event
+from permission_drift import compare, load_inventory, usage_event, write_report
 
 
 class PermissionDriftTests(unittest.TestCase):
@@ -33,6 +33,15 @@ class PermissionDriftTests(unittest.TestCase):
             self.assertEqual(event["event"], "inventory_compared")
             self.assertEqual(event["finding_count"], 2)
             self.assertEqual(set(event), {"event", "day", "finding_count"})
+
+    def test_report_can_be_saved_as_portable_json(self):
+        with tempfile.TemporaryDirectory() as directory:
+            path = Path(directory) / "report.json"
+            report = compare(self.before, self.after)
+            write_report(path, report)
+            saved = json.loads(path.read_text(encoding="utf-8"))
+            self.assertEqual(saved, report)
+            self.assertNotIn("scopes", saved["metadata"])
 
     def test_rejects_invalid_capture_time_and_duplicate_scopes(self):
         invalid_time = dict(self.before, captured_at="not-a-timestamp")

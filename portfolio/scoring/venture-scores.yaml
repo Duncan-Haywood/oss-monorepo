@@ -114,6 +114,30 @@ ventures:
       liability_containment: pass
       ethical_robustness: pass
 
+  - slug: shopify-fee-calculator
+    scores:
+      ai_leverage: 2
+      autonomous_ops: 10
+      time_to_revenue: 7
+      gross_margin: 10
+      defensibility: 4
+      distribution: 8
+    composite: 6.833
+    rater_b: null
+    floor: 2
+    floor_dimension: ai_leverage
+    floor_note: AI is intentionally absent from the arithmetic core.
+    basis: >-
+      Graduated on 2026-08-24 as a browser-local Shopify merchant fee and
+      profit calculator. The wedge is the Shopify Payments vs third-party
+      (PayPal/Stripe) comparison, including the extra Shopify transaction fee
+      generic calculators omit. Scored one above ebay-fee-calculator on
+      distribution: "Shopify fee calculator" and "Shopify PayPal fees" are
+      high-intent merchant queries with a clearer payment-path decision.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+
   - slug: no-show-fee-calculator
     scores:
       ai_leverage: 1
@@ -632,12 +656,37 @@ ventures:
     gates:
       liability_containment: pass
       ethical_robustness: pass
+
+  - slug: cut-list-optimizer
+    scores:
+      ai_leverage: 2
+      autonomous_ops: 10
+      time_to_revenue: 6
+      gross_margin: 10
+      defensibility: 4
+      distribution: 7
+    composite: 6.5
+    rater_b: null
+    floor: 2
+    floor_dimension: ai_leverage
+    floor_note: AI is intentionally absent from the deterministic packing core.
+    basis: >-
+      Graduated on 2026-08-24 as a browser-local cut-list planner for
+      woodworkers, sign shops, and makers. The first slice expands required
+      quantities, accounts for saw kerf, and produces a transparent heuristic
+      stock plan without uploads, accounts, or paid dependencies. Distribution
+      is supported by the specific low-waste and kerf-aware planning search
+      intent, while defensibility remains modest until repeat usage creates
+      niche templates or workflow data.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
     gate_note: >-
       Pass, conditionally: `verified` is scoped in both the CLI output and
       the README to "exit code 0 and artifact meets the stated size/age
       expectations", never to restorability, completeness, or data safety.
       Testing restores and maintaining an independent backup strategy remain
-      customer responsibilities.
+       customer responsibilities.
 
   - slug: shopify-a11y-evidence
     scores:

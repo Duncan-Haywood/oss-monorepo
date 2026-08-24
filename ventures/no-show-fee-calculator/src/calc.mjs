@@ -174,6 +174,39 @@ export function generatePolicyText({
   return lines.join("\n");
 }
 
+const SHARE_FIELDS = [
+  "price",
+  "bookingsPerWeek",
+  "noShowRatePct",
+  "noticeHours",
+  "feePercent",
+  "enforcementRatePct",
+  "businessName",
+  "serviceName",
+];
+
+/** @param {Record<string, unknown>} raw @param {string} baseUrl */
+export function buildShareUrl(raw, baseUrl) {
+  const url = new URL(baseUrl);
+  for (const field of SHARE_FIELDS) {
+    const value = String(raw[field] ?? "").trim();
+    if (value) url.searchParams.set(field, value);
+  }
+  return url.toString();
+}
+
+/** @param {string} urlString */
+export function readShareValues(urlString) {
+  const params = new URL(urlString).searchParams;
+  /** @type {Record<string, string>} */
+  const values = {};
+  for (const field of SHARE_FIELDS) {
+    const value = params.get(field);
+    if (value !== null) values[field] = value;
+  }
+  return values;
+}
+
 function formatHours(hours) {
   if (hours % 24 === 0 && hours > 0) {
     const days = hours / 24;

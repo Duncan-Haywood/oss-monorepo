@@ -12,6 +12,8 @@ import {
   computeAll,
   compareFeeScenarios,
   generatePolicyText,
+  buildShareUrl,
+  readShareValues,
 } from "../src/calc.mjs";
 
 test("parseInputs accepts valid numeric input", () => {
@@ -184,6 +186,16 @@ test("generatePolicyText falls back to placeholders when name/service are blank"
 test("generatePolicyText always ends with the non-warranty disclaimer", () => {
   const text = generatePolicyText({ noticeHours: 24, feePercent: 100, feeAmount: 10 });
   assert.ok(text.trim().endsWith("before publishing it to clients."));
+});
+
+test("buildShareUrl encodes supported inputs without server state", () => {
+  const url = buildShareUrl({ price: "75", bookingsPerWeek: "20", noShowRatePct: "8", noticeHours: "24", feePercent: "100", enforcementRatePct: "70", businessName: "Riverside & Co", serviceName: "training session", ignored: "secret" }, "https://example.test/calculator");
+  assert.equal(url, "https://example.test/calculator?price=75&bookingsPerWeek=20&noShowRatePct=8&noticeHours=24&feePercent=100&enforcementRatePct=70&businessName=Riverside+%26+Co&serviceName=training+session");
+  assert.equal(url.includes("ignored"), false);
+});
+
+test("readShareValues returns only supported parameters", () => {
+  assert.deepEqual(readShareValues("https://example.test/?price=75&feePercent=100&unknown=bad"), { price: "75", feePercent: "100" });
 });
 
 test("index.html's embedded JSON-LD blocks are valid JSON", () => {
