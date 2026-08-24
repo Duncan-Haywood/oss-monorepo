@@ -131,6 +131,10 @@
 
       <div id="errors" role="alert" hidden></div>
 
+      <!-- Starts hidden and is revealed by src/app.mjs on load. Keeping the
+           default hidden means a visitor with JavaScript disabled sees the form
+           and the guidance rather than a row of $0.00 placeholders that will
+           never fill in. -->
       <div id="results" hidden aria-live="polite">
         <h2>Results</h2>
         <dl class="results-grid">

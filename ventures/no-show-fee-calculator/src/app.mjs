@@ -79,10 +79,18 @@ function syncOptOutUI() {
   optOutCheckbox.checked = isOptedOut();
 }
 
-form.addEventListener("submit", (event) => {
-  event.preventDefault();
-  const formData = new FormData(form);
-  const raw = Object.fromEntries(formData.entries());
+/**
+ * Recompute and repaint from the form's current values.
+ *
+ * Pure rendering — it records no usage. Counting lives in `countCalculation`
+ * below, so that running this on load and on every keystroke cannot inflate the
+ * usage log into a measure of typing rather than of calculations.
+ *
+ * Returns true when the inputs parsed, which is what tells the callers whether
+ * there is a real result on screen worth counting.
+ */
+function render() {
+  const raw = Object.fromEntries(new FormData(form).entries());
   const parsed = parseInputs(raw);
 
   if (!parsed.ok) {
@@ -92,7 +100,7 @@ form.addEventListener("submit", (event) => {
     // Hide the comparison too: a stale table next to fresh errors reads as if
     // the old numbers still apply to the edited inputs.
     scenarioSection.hidden = true;
-    return;
+    return false;
   }
 
   renderErrors([]);
@@ -100,19 +108,48 @@ form.addEventListener("submit", (event) => {
   renderResults(result);
   renderScenarios(parsed.values);
 
-  const policyText = generatePolicyText({
+  policyEl.value = generatePolicyText({
     businessName: String(raw.businessName ?? ""),
     serviceName: String(raw.serviceName ?? ""),
     noticeHours: parsed.values.noticeHours,
     feePercent: parsed.values.feePercent,
     feeAmount: result.feeAmount,
   });
-  policyEl.value = policyText;
   policySection.hidden = false;
+  return true;
+}
 
+/** Count one calculation, but only when the screen actually shows one. */
+function countCalculation() {
+  if (!render()) return;
   recordEvent("calculation_run");
   recordEvent("fee_scenarios_viewed");
   renderUsageSummary();
+}
+
+// The Calculate button still works and still counts, for anyone who reaches for
+// it or submits with the keyboard. With live recalculation below it is now a
+// confirmation rather than the only way to see a number.
+form.addEventListener("submit", (event) => {
+  event.preventDefault();
+  countCalculation();
+});
+
+// Repaint as the visitor types. `input` fires per keystroke, which is right for
+// rendering and wrong for counting -- hence the split above.
+form.addEventListener("input", () => { render(); });
+
+// `change` fires once a field is settled (blur, or a committed spinner/step),
+// so it is the honest place to count a calculation the visitor actually asked
+// for. The two text fields only feed the policy wording, so editing them is not
+// a new calculation.
+form.addEventListener("change", (event) => {
+  if (event.target instanceof HTMLInputElement && event.target.type === "text") {
+    render();
+    return;
+  }
+  if (event.target === optOutCheckbox) return;
+  countCalculation();
 });
 
 shareBtn.addEventListener("click", async () => {
@@ -164,12 +201,28 @@ syncOptOutUI();
 renderUsageSummary();
 
 const sharedValues = readShareValues(window.location.href);
-if (Object.keys(sharedValues).length > 0) {
+const openedFromShareLink = Object.keys(sharedValues).length > 0;
+if (openedFromShareLink) {
   for (const [key, value] of Object.entries(sharedValues)) {
     const input = form.elements.namedItem(key);
     if (input && "value" in input) input.value = value;
   }
-  form.requestSubmit();
+}
+
+// Show a worked result immediately, from the shipped defaults or from a share
+// link's values. Before this the page opened with the results panel hidden, so
+// a first-time visitor saw a form and had to guess that pressing Calculate
+// would do something -- on a page whose entire promise is a specific number.
+// Every other calculator in this portfolio computes on load; this one now does
+// too.
+if (openedFromShareLink) {
+  // Opening someone's shared numbers is a calculation the visitor asked for, so
+  // it counts exactly as it did when this path called requestSubmit().
+  countCalculation();
   recordEvent("shared_calculation_opened");
   renderUsageSummary();
+} else {
+  // The default render is not counted: nobody asked for it, and counting it
+  // would make `calculation_run` a synonym for `page_view`.
+  render();
 }

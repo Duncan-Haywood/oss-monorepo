@@ -215,3 +215,133 @@ test("index.html contains the required disclaimer wording", () => {
   assert.match(html, /No warranty\./);
   assert.match(html, /not legal, tax, or financial\s*\n?\s*advice/);
 });
+// --------------------------------------------------------------------------
+// Missing input is not the number zero.
+//
+// `Number("")` is 0, and 0 passes every range check in parseInputs, so a
+// cleared field used to validate as a deliberate zero: the calculator answered
+// "$0.00 suggested fee" with no error shown. Now that the page recalculates as
+// the visitor types, that path is reached by anyone who clears a field to
+// retype it, so it is worth pinning in both directions.
+// --------------------------------------------------------------------------
+
+const VALID_RAW = {
+  price: "75",
+  bookingsPerWeek: "20",
+  noShowRatePct: "8",
+  noticeHours: "24",
+  feePercent: "100",
+  enforcementRatePct: "70",
+};
+
+for (const field of Object.keys(VALID_RAW)) {
+  test(`parseInputs rejects an empty ${field} rather than reading it as zero`, () => {
+    const result = parseInputs({ ...VALID_RAW, [field]: "" });
+    assert.equal(result.ok, false);
+    assert.ok(
+      result.errors.some((e) => e.includes("required")),
+      `expected a "required" error for ${field}, got ${JSON.stringify(result.errors)}`,
+    );
+  });
+
+  test(`parseInputs rejects a whitespace-only ${field}`, () => {
+    assert.equal(parseInputs({ ...VALID_RAW, [field]: "   " }).ok, false);
+  });
+
+  test(`parseInputs rejects a missing ${field}`, () => {
+    const raw = { ...VALID_RAW };
+    delete raw[field];
+    assert.equal(parseInputs(raw).ok, false);
+  });
+}
+
+test("parseInputs still accepts a deliberate zero", () => {
+  // The distinction being drawn is absent vs. zero, so an explicit "0" has to
+  // keep working -- a business with no no-shows yet is a real case.
+  const result = parseInputs({ ...VALID_RAW, noShowRatePct: "0" });
+  assert.equal(result.ok, true);
+  assert.equal(result.values.noShowRatePct, 0);
+});
+
+// --------------------------------------------------------------------------
+// Page wiring.
+//
+// The cut-list optimizer shipped with an unclosed <textarea> that swallowed its
+// own <script> tag, so the tool never calculated anything -- and its unit tests
+// stayed green the whole time because they imported calc.mjs and never looked
+// at the page. These assert that this venture's markup and its script agree.
+// --------------------------------------------------------------------------
+
+function readHtml() {
+  const here = path.dirname(fileURLToPath(import.meta.url));
+  return readFileSync(path.join(here, "..", "index.html"), "utf8");
+}
+
+function readApp() {
+  const here = path.dirname(fileURLToPath(import.meta.url));
+  return readFileSync(path.join(here, "..", "src", "app.mjs"), "utf8");
+}
+
+test("index.html loads the module script after the markup it queries", () => {
+  const html = readHtml();
+  const scriptIndex = html.indexOf('<script type="module" src="src/app.mjs">');
+  assert.ok(scriptIndex > 0, "src/app.mjs is not loaded as a module script");
+  assert.ok(html.indexOf('id="calc-form"') < scriptIndex, "the form must be parsed before the script");
+});
+
+test("every id src/app.mjs looks up exists in index.html", () => {
+  const html = readHtml();
+  const ids = [...readApp().matchAll(/getElementById\("([^"]+)"\)/g)].map((m) => m[1]);
+  assert.ok(ids.length > 0, "expected app.mjs to query some ids");
+  for (const id of new Set(ids)) {
+    assert.ok(
+      html.includes(`id="${id}"`),
+      `src/app.mjs queries #${id}, which does not exist in index.html`,
+    );
+  }
+});
+
+test("raw-text elements in index.html are closed", () => {
+  // The exact cut-list failure: <textarea> and <script> are raw-text elements,
+  // so an unclosed one makes the browser swallow the rest of the document as
+  // literal text and the page silently stops working.
+  const html = readHtml();
+  for (const tag of ["textarea", "script", "title"]) {
+    const opens = (html.match(new RegExp(`<${tag}[\\s>]`, "gi")) || []).length;
+    const closes = (html.match(new RegExp(`</${tag}>`, "gi")) || []).length;
+    assert.equal(opens, closes, `<${tag}> opened ${opens} time(s) but closed ${closes}`);
+  }
+});
+
+test("the results panel is revealed by script rather than shipped visible", () => {
+  // It must start hidden so a visitor without JavaScript sees the form instead
+  // of a row of $0.00 placeholders that will never fill in -- and app.mjs must
+  // be the thing that unhides it, or the page opens showing nothing.
+  assert.match(readHtml(), /<div id="results" hidden/);
+  assert.match(readApp(), /resultsEl\.hidden = false/);
+});
+
+test("app.mjs computes on load instead of waiting for a submit", () => {
+  // The whole point of this page is a specific number, so one should be on
+  // screen before the visitor does anything. Checked structurally: the module's
+  // epilogue -- everything after the last listener is registered, which is code
+  // that runs at import time -- has to paint a result.
+  const app = readApp();
+  const epilogue = app.slice(app.lastIndexOf("addEventListener("));
+  assert.ok(
+    /\brender\(\);/.test(epilogue) || /\bcountCalculation\(\);/.test(epilogue),
+    "nothing renders at import time, so the page would open with no result",
+  );
+});
+
+test("app.mjs does not count usage on every keystroke", () => {
+  // A usage log that ticks per keystroke measures typing, not calculations.
+  // The `input` listener must render only; counting belongs on `change`.
+  const app = readApp();
+  const inputListener = app.match(/addEventListener\("input",([\s\S]*?)\);/);
+  assert.ok(inputListener, "expected an input listener");
+  assert.ok(
+    !inputListener[1].includes("recordEvent") && !inputListener[1].includes("countCalculation"),
+    "the input listener must not record usage",
+  );
+});
