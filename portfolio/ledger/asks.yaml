@@ -490,3 +490,38 @@ decisions:
     repo found 220 branches it would delete (166 already-merged, 107 whose
     tip moved after their PR closed, 7 still in grace) out of 608 total.
     No ledger hunk riding along, so it stays mergeable while it waits.
+
+- id: direction-rewrite
+  asks: []
+  prs: [836]
+  gates: deployment
+  exposure: none
+  opened: "2026-08-24"
+  action: >-
+    Merge or decline #836 (adds `portfolio/DIRECTION.md` and `AGENTS.md`,
+    and rewrites `CLAUDE.md` and `session_gate.py`'s BUILD-verdict text to
+    match).
+  unlocks:
+    - >-
+      Settles `venture-gate-premise` (ask 9) and more by fiat rather than by
+      owner answer: the new `CLAUDE.md` text drops "Breaking changes to
+      deployable `ventures/*` code" as its own human-gated category and
+      folds it into "agent-decidable ... while nothing is live on push to
+      `main`" outright, and it removes the "Never bundle a ledger entry into
+      a pull request that is waiting on a human decision" section, the
+      re-verification-index pointers, and the "no human code review gate"
+      framing is new, not a rewording of anything currently on `main`.
+  blocked_by: []
+  note: >-
+    Not merged by this session. Distinct from the other rows here: most
+    entries are ordinary PRs waiting on an owner decision the PR's *content*
+    needs; this one edits the decision-making document itself, including
+    the exact clause (`venture-gate-premise`) already queued as its own ask,
+    and does so with a self-consistent CI-green diff a session could
+    otherwise treat as agent-decidable "docs only" content. Flagging instead
+    of merging because a session should not get to answer its own open
+    governance question by rewriting the rule that poses it. The substance
+    (ship product value, stop re-verification churn) already has support in
+    `session_gate.py`'s existing BUILD verdict and is not itself contested
+    here -- only the unilateral rewrite of the human-gated/agent-decidable
+    boundary and the review/ledger norms is.
