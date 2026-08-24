@@ -635,7 +635,7 @@ ventures:
       Testing restores and maintaining an independent backup strategy remain
        customer responsibilities.
 
-   - slug: shopify-a11y-evidence
+  - slug: shopify-a11y-evidence
     scores:
       ai_leverage: 3
       autonomous_ops: 10
