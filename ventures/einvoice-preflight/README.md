@@ -12,6 +12,7 @@ PYTHONPATH=src python3 -m einvoice_preflight examples/valid-invoice.json --forma
 PYTHONPATH=src python3 -m einvoice_preflight examples/valid-invoice.json --format sarif > preflight.sarif
 cat invoice.json | PYTHONPATH=src python3 -m einvoice_preflight - --format json
 PYTHONPATH=src python3 -m einvoice_preflight examples/valid-invoice.json --usage-file ~/.local/state/einvoice-preflight/usage.json
+PYTHONPATH=src python3 -m einvoice_preflight ./invoices/ --format json
 ```
 
 For an installed command, run `python3 -m pip install .` from this directory,
@@ -51,7 +52,10 @@ decide whether a tax percentage is legally correct.
 2.1.0 for GitHub code scanning, CI annotations, and
 editor integrations. It contains the rule IDs, fixes, and the local invoice
 filename, never invoice fields or line contents. Both formats exit `1` when
-any check fails and `2` for an unreadable input file.
+any check fails and `2` for an unreadable input file. Pass a directory to scan
+all `.json` files recursively; batch JSON includes per-file errors and batch
+SARIF uses paths relative to the input directory. An empty directory is an
+input error and exits `2`.
 
 ## Privacy and usage
 
