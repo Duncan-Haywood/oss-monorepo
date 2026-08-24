@@ -59,6 +59,14 @@ ventures:
     composite: 6.5
     floor: 2
     floor_dimension: ai_leverage
+    floor_note: >-
+      AI is deliberately not part of the first release: the product is a
+      deterministic local calculator, so defensibility depends on workflow
+      adoption and quote-specific benchmarks that have not been validated.
+    basis: >-
+      Initial estimate on 2026-08-24. The product has zero runtime cost and
+      deterministic arithmetic, but no customer evidence yet; distribution is
+      based on search intent around 3PL pricing and fulfillment costs.
     gates:
       liability_containment: pass
       ethical_robustness: pass
