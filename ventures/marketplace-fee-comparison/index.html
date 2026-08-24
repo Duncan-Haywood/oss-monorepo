@@ -1,0 +1,275 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Where Should I Sell This? | eBay vs Etsy vs Amazon vs Shopify Fee Comparison</title>
+  <meta name="description" content="Compare what one item nets on eBay, Etsy, Amazon, Shopify and your own site after fees and cost of goods. Ranked profit, margin, ROI, break-even price, and the price each channel needs to match the best one.">
+  <meta property="og:title" content="Where Should I Sell This? Marketplace Fee Comparison">
+  <meta property="og:description" content="One item, every channel: see what eBay, Etsy, Amazon, Shopify and your own site each leave you after fees — and what the choice is worth.">
+  <link rel="canonical" href="https://example.invalid/marketplace-fee-comparison/">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Marketplace Fee Comparison","applicationCategory":"BusinessApplication","operatingSystem":"Any browser","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"featureList":"Side-by-side net profit on eBay, Etsy, Amazon, Shopify Payments, Shopify with an outside processor, and direct sales; margin; return on invested cash; break-even price per channel; price needed to match the best channel"}</script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Is it cheaper to sell on eBay or Etsy?","acceptedAnswer":{"@type":"Answer","text":"It depends on the item's price and your costs, because eBay's fee is almost entirely a percentage while Etsy adds several fixed fees per order. Enter one item's price and costs and the calculator ranks both channels by what you actually keep."}},{"@type":"Question","name":"Does this calculator know current marketplace fees?","acceptedAnswer":{"@type":"Answer","text":"No. Every rate is an editable starting point, not a claim about a marketplace's current schedule. Fees vary by category, seller tier and country, so you enter the rates from your own statements and the tool does the arithmetic."}},{"@type":"Question","name":"Does it upload my prices or costs?","acceptedAnswer":{"@type":"Answer","text":"No. The whole calculation runs in your browser. There is no account, no network request, and no analytics vendor."}}]}</script>
+  <style>
+    :root { color-scheme: light; font-family: system-ui, sans-serif; color: #1d2530; background: #eef2f7; }
+    body { max-width: 1080px; margin: 0 auto; padding: 32px 18px; }
+    header { max-width: 720px; margin-bottom: 26px; }
+    h1 { font-size: clamp(2rem, 6vw, 3.5rem); line-height: .98; margin: 0 0 12px; letter-spacing: -.05em; }
+    p { line-height: 1.5; }
+    .eyebrow { font-size: .8rem; font-weight: 700; letter-spacing: .08em; color: #2f5fb8; margin: 0 0 6px; }
+    .layout { display: grid; grid-template-columns: minmax(280px, .72fr) minmax(0, 1fr); gap: 18px; align-items: start; }
+    /* The ranked list is far taller than the inputs, so on a wide screen the
+       inputs follow you down it — every result updates as you type. */
+    .inputs { position: sticky; top: 16px; }
+    section { background: #ffffff; border: 1px solid #d3dce6; border-radius: 14px; padding: 20px; box-shadow: 0 8px 24px #1a2a4a0d; }
+    h2 { margin-top: 0; font-size: 1.15rem; }
+    .fields { display: grid; grid-template-columns: repeat(2, 1fr); gap: 13px; }
+    label { display: grid; gap: 5px; font-size: .87rem; font-weight: 650; }
+    input { width: 100%; box-sizing: border-box; border: 1px solid #8e9db0; border-radius: 7px; padding: 10px; font: inherit; background: white; color: inherit; }
+    input:focus-visible { outline: 3px solid #2f5fb8; outline-offset: 1px; }
+    .verdict { background: #16324f; color: #f4f8fc; border-color: #16324f; margin-bottom: 18px; }
+    .verdict h2 { color: #cfe0f2; font-size: .82rem; letter-spacing: .08em; text-transform: uppercase; margin-bottom: 6px; }
+    .hero-number { font-size: clamp(2.2rem, 7vw, 3rem); font-weight: 750; letter-spacing: -.05em; margin: 4px 0; font-variant-numeric: tabular-nums; }
+    .verdict p { margin: 6px 0 0; }
+    .negative { color: #ffb0a2; } .positive { color: #a9e6b0; }
+    ol.rank { list-style: none; margin: 0; padding: 0; display: grid; gap: 10px; }
+    .row { border: 1px solid #d3dce6; border-radius: 12px; padding: 14px 16px; background: #fff; }
+    .row.best { border-color: #1f7a45; box-shadow: inset 4px 0 0 #1f7a45; }
+    .row.loss { box-shadow: inset 4px 0 0 #b3261e; }
+    .row-head { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 8px; }
+    .row-name { font-weight: 700; font-size: 1.02rem; }
+    .badge { font-size: .7rem; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; background: #1f7a45; color: #fff; border-radius: 999px; padding: 3px 9px; }
+    .row-profit { font-size: 1.5rem; font-weight: 720; font-variant-numeric: tabular-nums; }
+    .row-profit.neg { color: #9a1c15; }
+    .delta { font-size: .85rem; color: #4a5666; font-variant-numeric: tabular-nums; }
+    dl.facts { display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 4px 14px; margin: 12px 0 0; font-size: .84rem; }
+    dl.facts div { display: flex; justify-content: space-between; gap: 8px; border-bottom: 1px dotted #ccd6e0; padding: 3px 0; }
+    dt { color: #4a5666; } dd { margin: 0; font-variant-numeric: tabular-nums; font-weight: 600; }
+    details { margin-top: 10px; }
+    summary { cursor: pointer; font-size: .84rem; font-weight: 650; color: #2f5fb8; }
+    summary:focus-visible { outline: 3px solid #2f5fb8; outline-offset: 2px; }
+    .rate-fields { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px; margin-top: 10px; }
+    .rate-fields label { font-size: .8rem; font-weight: 600; }
+    .channel-note { font-size: .82rem; color: #4a5666; margin: 8px 0 0; }
+    .error { background: #fdeceb; border: 1px solid #b3261e; color: #7a170f; border-radius: 10px; padding: 12px 14px; margin-bottom: 14px; font-size: .9rem; }
+    .siblings { margin-top: 18px; }
+    .siblings ul { padding-left: 20px; line-height: 1.7; }
+    footer { margin-top: 25px; font-size: .82rem; color: #414d5d; }
+    /* The global `label` rule stacks its control above its text, which is right
+       for the numeric fields and wrong for a checkbox. */
+    footer label { display: flex; align-items: center; gap: 8px; font-weight: 600; }
+    footer label input { width: auto; }
+    footer a, .siblings a { color: #2f5fb8; }
+    .support { margin-top: 14px; }
+    .actions { margin-top: 14px; display: flex; flex-wrap: wrap; gap: 8px; }
+    button { font: inherit; font-weight: 650; border: 1px solid #8e9db0; background: #fff; color: #1d2530; border-radius: 8px; padding: 9px 14px; cursor: pointer; }
+    button:hover { background: #f2f6fb; }
+    button:focus-visible { outline: 3px solid #2f5fb8; outline-offset: 1px; }
+    @media (max-width: 820px) { .layout { grid-template-columns: 1fr; } .fields { grid-template-columns: 1fr 1fr; } .inputs { position: static; } }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="eyebrow">FOR SELLERS LISTING ON MORE THAN ONE CHANNEL</p>
+    <h1>Where should you sell this item?</h1>
+    <p>Enter one item's price and costs once. See what eBay, Etsy, Amazon, Shopify and your own site each leave you after fees — ranked by what you keep, with the price every other channel would need to match the winner. Everything stays in your browser.</p>
+  </header>
+
+  <main class="layout">
+    <section class="inputs" aria-labelledby="inputs-heading">
+      <h2 id="inputs-heading">This item, on every channel</h2>
+      <div class="fields" id="shared-fields"></div>
+      <p class="channel-note">Costs entered here are the same wherever the item sells. Each channel's own fee rates are editable under its result.</p>
+      <div class="actions">
+        <button type="button" id="reset">Reset to example numbers</button>
+      </div>
+    </section>
+
+    <div>
+      <section class="verdict" aria-labelledby="verdict-heading" aria-live="polite">
+        <h2 id="verdict-heading">What the channel choice is worth</h2>
+        <div id="spread" class="hero-number">$—</div>
+        <p id="verdict-text">Enter your numbers to compare channels.</p>
+      </section>
+      <div id="error" class="error" role="alert" hidden></div>
+      <section aria-labelledby="results-heading">
+        <h2 id="results-heading">Ranked by what you keep</h2>
+        <ol class="rank" id="results"></ol>
+        <p class="channel-note">Transparent arithmetic on the numbers you entered — not a statement of any marketplace's current fee schedule. Rates differ by category, seller tier and country; check yours against a recent statement.</p>
+      </section>
+    </div>
+  </main>
+
+  <section class="siblings">
+    <h2>Going deeper on one channel</h2>
+    <ul>
+      <li><a href="../ebay-fee-calculator/">eBay fee &amp; profit calculator</a> — batch economics, promoted listings, ROI per unit.</li>
+      <li><a href="../etsy-profit-calculator/">Etsy profit calculator</a> — listing fees, Offsite Ads, saved and shareable assumptions.</li>
+      <li><a href="../shopify-fee-calculator/">Shopify fee calculator</a> — plan tiers and Shopify Payments versus an outside processor.</li>
+      <li><a href="../quote-margin-check/">Quote margin check</a> — for quoted work rather than listed products.</li>
+    </ul>
+  </section>
+
+  <footer>
+    <label><input id="usageOptOut" type="checkbox"> Do not keep anonymous local usage counts</label>
+    <p><strong>No warranty.</strong> This free tool is not tax, financial, or business advice. It compares arithmetic on rates you supply; it does not know what any marketplace charges you. <strong>Verify every output and fee against your own account statements and a qualified professional before relying on it.</strong> To the maximum extent permitted by law, the authors accept no liability for loss or damage from its use.</p>
+    <p>Nothing you type is uploaded. There are no accounts, cookies, tracking pixels, or analytics vendors — only an optional local count of how often the tool was used, which never records your inputs.</p>
+    <p class="support">Free and open source. If it saved you from listing in the wrong place, the <a href="https://github.com/Duncan-Haywood/monorepo-projects" rel="noopener">project is on GitHub</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">GitHub Sponsors</a> is optional and never changes what the tool does. MIT licensed.</p>
+  </footer>
+
+  <script type="module">
+    import { compareChannels } from './calc.mjs';
+    import { CHANNELS, SHARED_FIELDS, defaultInput } from './channels.mjs';
+    import { recordUsage } from './usage.mjs';
+
+    const money = value => (value < 0 ? `-$${Math.abs(value).toFixed(2)}` : `$${value.toFixed(2)}`);
+    const percent = value => `${value.toFixed(1)}%`;
+    const priceOrNever = value => (Number.isFinite(value) ? money(value) : 'not reachable');
+
+    const optOut = document.getElementById('usageOptOut');
+    const resultsEl = document.getElementById('results');
+    const errorEl = document.getElementById('error');
+    const spreadEl = document.getElementById('spread');
+    const verdictEl = document.getElementById('verdict-text');
+
+    // The form is generated from the same declarations the arithmetic reads, so
+    // a new channel or rate cannot appear in one and be missing from the other.
+    const sharedContainer = document.getElementById('shared-fields');
+    for (const field of SHARED_FIELDS) {
+      const label = document.createElement('label');
+      label.textContent = `${field.label} `;
+      const input = document.createElement('input');
+      Object.assign(input, { id: field.id, type: 'number', min: '0', step: String(field.step), value: String(field.default) });
+      if (field.id === 'targetMargin') input.max = '99.99';
+      label.append(input);
+      sharedContainer.append(label);
+    }
+
+    // Each channel's card is built once; only the numbers inside it are
+    // rewritten on input, so an open rate panel stays open while you type.
+    const cards = new Map();
+    for (const channel of CHANNELS) {
+      const li = document.createElement('li');
+      li.className = 'row';
+      li.innerHTML = `
+        <div class="row-head">
+          <span class="row-name"></span>
+          <span class="row-profit"></span>
+        </div>
+        <div class="delta"></div>
+        <dl class="facts">
+          <div><dt>Net margin</dt><dd data-fact="margin"></dd></div>
+          <div><dt>Return on cash</dt><dd data-fact="roi"></dd></div>
+          <div><dt>Fees on this order</dt><dd data-fact="fees"></dd></div>
+          <div><dt>Break-even price</dt><dd data-fact="breakEven"></dd></div>
+          <div><dt>Price for target margin</dt><dd data-fact="targetPrice"></dd></div>
+          <div><dt>Price to match the best</dt><dd data-fact="matchPrice"></dd></div>
+        </dl>
+        <details>
+          <summary>Fee rates for this channel</summary>
+          <div class="rate-fields"></div>
+          <p class="channel-note"></p>
+        </details>`;
+      li.querySelector('.row-name').textContent = channel.label;
+      li.querySelector('.channel-note').textContent = channel.note;
+      const rateFields = li.querySelector('.rate-fields');
+      for (const rate of channel.rates) {
+        const label = document.createElement('label');
+        label.textContent = `${rate.label} `;
+        const input = document.createElement('input');
+        Object.assign(input, { id: rate.id, type: 'number', min: '0', step: String(rate.step), value: String(rate.default) });
+        label.append(input);
+        rateFields.append(label);
+      }
+      li.querySelector('details').addEventListener('toggle', event => {
+        if (event.target.open) recordUsage(localStorage, optOut.checked, 'channel_rates_opened');
+      });
+      cards.set(channel.id, li);
+      // Attached up front: the rate inputs must be in the document before the
+      // first read, and `render()` only reorders what is already there.
+      resultsEl.append(li);
+    }
+
+    const allIds = Object.keys(defaultInput());
+    const readInput = () => Object.fromEntries(allIds.map(id => [id, document.getElementById(id).value]));
+
+    function render() {
+      let comparison;
+      try {
+        comparison = compareChannels(readInput());
+      } catch (error) {
+        errorEl.hidden = false;
+        errorEl.textContent = `Check your inputs: ${error.message}.`;
+        spreadEl.textContent = '$—';
+        spreadEl.className = 'hero-number';
+        verdictEl.textContent = 'Fix the highlighted value to see the comparison.';
+        return;
+      }
+      errorEl.hidden = true;
+
+      spreadEl.textContent = money(comparison.spread);
+      spreadEl.className = 'hero-number positive';
+      verdictEl.textContent = comparison.spread === 0
+        ? 'Every channel leaves you the same on this order with these rates.'
+        : `${comparison.best.label} keeps you ${money(comparison.spread)} better off on this order than ${comparison.worst.label}. `
+          + `${comparison.best.profit < 0 ? 'Every channel loses money at this price — even the best one.' : `You keep ${money(comparison.best.profit)} there.`}`;
+
+      for (const row of comparison.ranked) {
+        const li = cards.get(row.id);
+        const isBest = row.id === comparison.best.id;
+        li.className = `row${isBest ? ' best' : ''}${row.profit < 0 ? ' loss' : ''}`;
+        const head = li.querySelector('.row-head');
+        head.querySelector('.badge')?.remove();
+        if (isBest && comparison.spread > 0) {
+          const badge = document.createElement('span');
+          badge.className = 'badge';
+          badge.textContent = 'Keeps the most';
+          head.querySelector('.row-name').after(badge);
+        }
+        const profitEl = li.querySelector('.row-profit');
+        profitEl.textContent = money(row.profit);
+        profitEl.className = `row-profit${row.profit < 0 ? ' neg' : ''}`;
+        li.querySelector('.delta').textContent = isBest
+          ? (row.profit < 0 ? 'Loses the least of the channels compared' : 'Highest net on this order')
+          : `${money(Math.abs(row.profitVsBest))} less than ${comparison.best.label}`;
+        const fact = name => li.querySelector(`[data-fact="${name}"]`);
+        fact('margin').textContent = percent(row.margin);
+        fact('roi').textContent = row.roi === null ? 'n/a — no cash invested' : percent(row.roi);
+        fact('fees').textContent = money(row.feeTotal);
+        fact('breakEven').textContent = priceOrNever(row.breakEvenPrice);
+        fact('targetPrice').textContent = priceOrNever(row.targetMarginPrice);
+        fact('matchPrice').textContent = isBest ? '— already the best' : priceOrNever(row.priceToMatchBest);
+      }
+      reorder(comparison.ranked.map(row => cards.get(row.id)));
+    }
+
+    // Keeps the DOM order equal to the ranked order, so keyboard and screen
+    // reader users meet the channels in the same sequence they are shown in.
+    // Moving a node blurs anything focused inside it, so the reorder is skipped
+    // when the ranking has not changed and focus is restored when it has —
+    // otherwise editing a rate that flips the ranking would eject you from the
+    // field mid-keystroke.
+    function reorder(desired) {
+      const current = [...resultsEl.children];
+      if (desired.every((node, index) => current[index] === node)) return;
+      const focusedId = document.activeElement?.id;
+      resultsEl.append(...desired);
+      if (focusedId && document.activeElement !== document.getElementById(focusedId)) {
+        document.getElementById(focusedId)?.focus();
+      }
+    }
+
+    document.addEventListener('input', event => {
+      if (event.target.matches('input[type="number"]')) render();
+    });
+    document.addEventListener('change', event => {
+      if (event.target.matches('input[type="number"]')) recordUsage(localStorage, optOut.checked, 'channels_compared');
+    });
+    document.getElementById('reset').addEventListener('click', () => {
+      for (const [id, value] of Object.entries(defaultInput())) document.getElementById(id).value = String(value);
+      render();
+    });
+    render();
+  </script>
+</body>
+</html>

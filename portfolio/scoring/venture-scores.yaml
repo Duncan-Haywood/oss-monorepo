@@ -114,6 +114,42 @@ ventures:
       liability_containment: pass
       ethical_robustness: pass
 
+  - slug: marketplace-fee-comparison
+    scores:
+      ai_leverage: 2
+      autonomous_ops: 10
+      time_to_revenue: 6
+      gross_margin: 10
+      defensibility: 4
+      distribution: 8
+    composite: 6.667
+    rater_b: null
+    floor: 2
+    floor_dimension: ai_leverage
+    floor_note: AI is intentionally absent from the arithmetic core, as in its
+      single-channel siblings.
+    basis: >-
+      Graduated on 2026-08-24 as the cross-channel entry point to the fee
+      calculators the portfolio already owns. Distribution scored at 8, above
+      ebay-fee-calculator's 6: comparison queries ("etsy vs ebay fees",
+      "amazon vs ebay seller fees") are answered today by static rate tables
+      in blog posts rather than by anything taking the seller's own numbers,
+      and the page is the shape an AI assistant reaches for on "where should I
+      sell this". Time to revenue one below the single-channel calculators'
+      7 — a comparison page is a router to them, so its own conversion is
+      second-hand. Defensibility 4 rather than 3: the arithmetic is trivially
+      copied, but the multi-channel cost model plus the sibling depth to route
+      into is not a single page.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Pass, conditionally: every fee rate is an editable input rather than a
+      claim about a marketplace's current schedule, and the UI, README and
+      disclaimer all say so. The tool ranks arithmetic on numbers the seller
+      supplies; choosing a channel, a price, and the correct fee rates
+      remains the seller's decision.
+
   - slug: shopify-fee-calculator
     scores:
       ai_leverage: 2
