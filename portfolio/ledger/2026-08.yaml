@@ -22021,3 +22021,45 @@ entries:
           content to #792's original head, already merged upstream by the
           time this session looked -- no unique work was lost.
     mrr_end: null
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+          PR-subscription wake, `pull_request.opened` on #799, folded into
+          this session's "continue work / review open PRs" scheduled brief.
+          `session_gate.py` -> PROCEED, flagging 3 sessions committing within
+          a 15-minute window in the last 6h; listed open PRs (6: #800, #799,
+          #790, #788, #720, #531) before touching anything.
+      - >-
+          Merged #799 (`f0fcba4`, "Decision queue: correct contrast-fixes
+          note, #531 conflict is real now"): verified on the PR's own head in
+          an isolated worktree rather than trusting the diff --
+          `decision_queue.py --check` (9 decisions, schema OK),
+          `platform/ci/publish_surface.py` confirms nothing publishes on a
+          push to `main`, `git merge-tree` against the live `main` tip clean,
+          both CI checks (`test`, `validate`) green. Agent-decidable:
+          `portfolio/ledger/` only, no `ventures/*` code, publishes and
+          spends nothing.
+      - >-
+          #800 (bot-authored consolidation of #783/#781) was already closed
+          by a concurrent session as redundant before this session reached
+          it -- both pieces it carried were already on `main` via other
+          merges. No action taken.
+      - >-
+          Remaining open PRs reviewed, no action taken, same conclusions as
+          the immediately preceding entries: #788 (4-minute routine-trigger
+          workflow) and #720 (deployment platform choice) are both
+          explicitly self-flagged human-gated and already tracked on the
+          decision queue. #531 (venture-code contrast-token fix) is also
+          human-gated `ventures/*` app code, and #799's merge is exactly what
+          keeps its queue note accurate -- it now correctly says the merge
+          conflict with `main` is real, not a trivial rebase. #790
+          (cursor[bot] a11y-evidence-record fix suggestion) is a draft, not
+          ready to merge.
+      - >-
+          `payout-rail` remains the only queue item that moves the revenue
+          ceiling off $0. No push notification sent from this session: the
+          one action taken (#799) is a routine agent-decidable merge and
+          every other open PR was left exactly as already flagged.
+    mrr_end: null
