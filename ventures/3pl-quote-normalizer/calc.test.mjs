@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { calculate } from "./calc.mjs";
+import { calculate, summary } from "./calc.mjs";
 
 test("normalizes the full monthly quote and minimum", () => {
   const result = calculate({ orders: 100, unitsPerOrder: 1.5, pallets: 1, minimumMonthly: 2000 });
@@ -21,4 +21,13 @@ test("zero volume stays finite and does not apply a minimum", () => {
   assert.equal(Math.round(result.breakEvenOrders), Math.round(result.quote.total / 13));
   assert.equal(result.minimumApplied, false);
   assert.equal(Number.isFinite(result.quote.total), true);
+});
+
+test("summary exposes every normalized line item and minimum warning", () => {
+  const text = summary(calculate({ orders: 100, unitsPerOrder: 1.5, pallets: 1, minimumMonthly: 2000 }));
+  assert.match(text, /Receiving:/);
+  assert.match(text, /Shipping:/);
+  assert.match(text, /Fixed fees:/);
+  assert.match(text, /Minimum monthly charge applied: yes/);
+  assert.match(text, /signed rate card/);
 });

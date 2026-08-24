@@ -31,3 +31,27 @@ export function calculate(input) {
 export function money(value) {
   return new Intl.NumberFormat("en-US", { style: "currency", currency: "USD" }).format(value);
 }
+
+export function summary(result) {
+  return [
+    "3PL quote normalization",
+    `Monthly orders: ${result.orders}`,
+    `3PL total: ${money(result.quote.total)}`,
+    `In-house estimate: ${money(result.inHouse)}`,
+    `Difference (in-house minus 3PL): ${money(result.delta)}`,
+    `True 3PL cost per order: ${money(result.perOrder)}`,
+    `Break-even volume: about ${Math.ceil(result.breakEvenOrders)} orders/month`,
+    "",
+    "Line items",
+    `Receiving: ${money(result.quote.receiving)}`,
+    `Storage: ${money(result.quote.storage)}`,
+    `Pick and pack: ${money(result.quote.pickPack)}`,
+    `Packaging: ${money(result.quote.packaging)}`,
+    `Shipping: ${money(result.quote.shipping)}`,
+    `Returns: ${money(result.quote.returns)}`,
+    `Fixed fees: ${money(result.quote.fixed)}`,
+    `Minimum monthly charge applied: ${result.quote.total > result.quote.subtotal ? "yes" : "no"}`,
+    "",
+    "Review these figures against the signed rate card before relying on them.",
+  ].join("\n");
+}
