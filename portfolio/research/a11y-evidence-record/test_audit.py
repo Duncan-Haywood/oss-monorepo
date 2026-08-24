@@ -1144,6 +1144,139 @@ class UseOfColor(unittest.TestCase):
         self.assertEqual(record["summary"]["by_check"].get("color-only-link"), 1)
 
 
+class OrientationLock(unittest.TestCase):
+    """1.3.4, ported 2026-08-24 from the sibling engine's CSS decision.
+
+    Same adapter 1.4.1 used: reuse the sibling's rotate-under-orientation
+    test, refuse a transform value that is a template expression. Absence
+    of a lock is a pass, not an undecidable -- the criterion is one
+    document-level yes/no.
+    """
+
+    _LOCK = (
+        "@media (orientation: portrait) { html { transform: rotate(90deg); } }"
+    )
+    _PAGE = (
+        "<html lang='en'><head><title>t</title></head>"
+        "<body><p>Some ordinary page content.</p></body></html>"
+    )
+
+    def _audit(self, css, html=None):
+        sheet = audit.merge_stylesheets([css])
+        return audit.audit_source(html or self._PAGE, "p.html", stylesheet=sheet)
+
+    def _locks(self, result):
+        return [f for f in result["findings"] if f["check"] == "orientation-lock"]
+
+    def _undecided(self, result):
+        return [u for u in result["undecidable"] if u["check"] == "orientation-lock"]
+
+    def test_portrait_lock_rotating_html_is_blocking(self):
+        found = self._locks(self._audit(self._LOCK))
+        self.assertEqual(len(found), 1)
+        self.assertEqual(found[0]["success_criterion"], "1.3.4 Orientation")
+        self.assertEqual(found[0]["severity"], "blocking")
+        self.assertEqual(found[0]["element"], "html")
+        self.assertIn("rotate(90deg)", found[0]["detail"])
+        self.assertIn("portrait", found[0]["detail"])
+
+    def test_landscape_lock_rotating_body_names_its_orientation(self):
+        css = (
+            "@media (orientation: landscape) { "
+            "body { transform: rotate(-90deg); } }"
+        )
+        found = self._locks(self._audit(css))
+        self.assertEqual(len(found), 1)
+        self.assertEqual(found[0]["element"], "body")
+        self.assertIn("landscape", found[0]["detail"])
+
+    def test_inline_style_block_is_enough_without_an_external_sheet(self):
+        # The fixture a11y-external-coverage-reference runs through both
+        # engines: a <style> in the head, no --stylesheet argument.
+        source = (
+            "<html lang='en'><head><title>t</title>"
+            "<style>@media(orientation:portrait)"
+            "{html{transform:rotate(90deg)}}</style></head>"
+            "<body><p>x</p></body></html>"
+        )
+        result = audit.audit_source(source, "p.html")
+        self.assertEqual(len(self._locks(result)), 1)
+
+    def test_breakpoint_combined_with_orientation_is_left_alone(self):
+        css = (
+            "@media (orientation: portrait) and (min-width: 40rem) "
+            "{ html { transform: rotate(90deg); } }"
+        )
+        result = self._audit(css)
+        self.assertEqual(self._locks(result), [])
+        self.assertEqual(self._undecided(result), [])
+
+    def test_rotate_zero_and_full_turns_are_no_ops(self):
+        for value in ("rotate(0deg)", "rotate(360deg)", "rotate(-360deg)",
+                      "rotate(400grad)"):
+            css = (
+                f"@media (orientation: portrait) {{ html {{ transform: {value}; }} }}"
+            )
+            with self.subTest(value=value):
+                result = self._audit(css)
+                self.assertEqual(self._locks(result), [])
+                self.assertEqual(self._undecided(result), [])
+
+    def test_class_selector_lock_is_out_of_scope(self):
+        css = (
+            "@media (orientation: portrait) { "
+            ".rotator { transform: rotate(90deg); } }"
+        )
+        html = (
+            "<html lang='en'><head><title>t</title></head>"
+            "<body><div class='rotator'>Some ordinary page content.</div>"
+            "</body></html>"
+        )
+        result = self._audit(css, html)
+        self.assertEqual(self._locks(result), [])
+        self.assertEqual(self._undecided(result), [])
+
+    def test_unconditional_transform_is_not_an_orientation_lock(self):
+        result = self._audit("html { transform: rotate(90deg); }")
+        self.assertEqual(self._locks(result), [])
+        self.assertEqual(self._undecided(result), [])
+
+    def test_only_one_finding_even_if_both_elements_are_locked(self):
+        css = (
+            "@media (orientation: portrait) { "
+            "html { transform: rotate(90deg); } "
+            "body { transform: rotate(90deg); } }"
+        )
+        self.assertEqual(len(self._locks(self._audit(css))), 1)
+
+    def test_no_stylesheet_is_a_pass_not_an_undecidable(self):
+        result = audit.audit_source(self._PAGE, "p.html")
+        self.assertEqual(self._locks(result), [])
+        self.assertEqual(self._undecided(result), [])
+
+    def test_transform_value_from_an_expression_is_undecidable(self):
+        css = (
+            "@media (orientation: portrait) { "
+            "html { transform: rotate({{ angle }}deg); } }"
+        )
+        result = self._audit(css)
+        self.assertEqual(self._locks(result), [])
+        self.assertEqual(
+            [u["reason"] for u in self._undecided(result)],
+            ["transform-is-template-expression"],
+        )
+
+    def test_1_3_4_is_checked_not_declared_untested(self):
+        self.assertIn("orientation-lock", audit.CHECKS)
+        untested_numbers = {c.split()[0] for c, _ in audit.NOT_TESTED}
+        self.assertNotIn("1.3.4", untested_numbers)
+
+    def test_evidence_record_counts_orientation_findings(self):
+        result = self._audit(self._LOCK)
+        record = audit.evidence_record([result], "Test", date="2026-08-24")
+        self.assertEqual(record["summary"]["by_check"].get("orientation-lock"), 1)
+
+
 class CoverageBoundaryIsComplete(unittest.TestCase):
     """The invariant that would have caught 1.2.2 going missing.
 
@@ -1169,8 +1302,8 @@ class CoverageBoundaryIsComplete(unittest.TestCase):
         # Criteria the sibling engine demonstrates are reachable from static
         # markup. Any of these missing from both lists is a silent gap.
         statically_reachable = {
-            "1.1.1", "1.2.2", "1.3.1", "1.4.1", "1.4.2", "1.4.3", "1.4.4",
-            "2.2.1", "2.2.2", "2.4.1", "2.4.2", "2.4.3", "2.4.4",
+            "1.1.1", "1.2.2", "1.3.1", "1.3.4", "1.4.1", "1.4.2", "1.4.3",
+            "1.4.4", "2.2.1", "2.2.2", "2.4.1", "2.4.2", "2.4.3", "2.4.4",
             "2.5.3", "3.1.1", "3.1.2", "3.3.2", "4.1.2",
         }
         self.assertEqual(statically_reachable - checked - declared, set())

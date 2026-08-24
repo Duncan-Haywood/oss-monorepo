@@ -560,3 +560,8 @@ moved.
 the two leftover markup rows. Both engines now claim them. 1.3.4 stays
 probe-only (it needs the CSS adapter). The worktree results file was
 regenerated; no score moved.
+
+**Amended 2026-08-24, once more.** `audit.py` gained 1.3.4 — the leftover
+CSS-adapter row. Both engines now claim every criterion either one can
+decide from the artifact. The worktree results file was regenerated; no
+score moved.

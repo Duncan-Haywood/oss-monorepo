@@ -280,6 +280,14 @@ The disclosed remainder is 1.3.4 (CSS adapter, not markup).
 `results-2026-08-21.json` was regenerated; the catalog move is the only
 change this directory records. No score moved.
 
+## Amendment (2026-08-24): 1.3.4 moved into `audit.py`
+
+The leftover CSS-adapter row is now in `audit.py`'s checked catalog, so
+the two engines' disclosed remainder is empty on every criterion either
+one can decide from the artifact. `results-2026-08-21.json` was
+regenerated; the catalog move is the only change this directory records.
+No score moved.
+
 ## Status of these claims
 
 Primary measurement, re-derivable offline. Every number in this document comes
