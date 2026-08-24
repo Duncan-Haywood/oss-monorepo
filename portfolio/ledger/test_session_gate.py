@@ -21,35 +21,277 @@ def entry(venture="portfolio", mrr=None, outcomes=()):
     return {"venture": venture, "mrr_end": mrr, "outcomes": list(outcomes)}
 
 
-# --- the verdict is a conjunction: any single condition clears it -------------
+# --- the verdict routes into a lane; it never stops a session ----------------
 
 
-def test_no_op_only_when_every_condition_holds():
-    call, _ = sg.verdict(revenue=False, meta=0.9, cadence=2.5)
-    assert call == "NO-OP"
+TARGET = {
+    "slug": "some-candidate",
+    "name": "Some candidate",
+    "doc": "candidates/some-candidate.md",
+    "composite": 7.0,
+    "graduate_as": "venture",
+}
 
 
-def test_recorded_revenue_clears_the_gate():
+def test_the_gate_never_returns_a_stop():
+    """The saturated case routes to BUILD. NO-OP is gone; nothing may reinstate it."""
+    call, _ = sg.verdict(revenue=False, meta=0.9, cadence=2.5, targets=[TARGET])
+    assert call == "BUILD"
+    calls = {
+        sg.verdict(revenue=r, meta=m, cadence=c, cadence_reliable=rel, targets=t)[0]
+        for r in (True, False)
+        for m in (0.0, sg.META_SHARE_THRESHOLD, 1.0)
+        for c in (0.0, 99.0)
+        for rel in (True, False)
+        for t in ([], [TARGET])
+    }
+    assert calls <= {"BUILD", "PROCEED"}
+    assert "NO-OP" not in calls
+
+
+def test_recorded_revenue_routes_to_the_earning_venture():
     call, reasons = sg.verdict(revenue=True, meta=1.0, cadence=10.0)
     assert call == "PROCEED"
-    assert "regime has ended" in reasons[0]
+    assert "earning" in reasons[0]
 
 
-def test_venture_work_clears_the_gate():
+def test_venture_work_proceeds_as_briefed():
     """Meta-share below threshold means the fleet is spending on ventures."""
     call, _ = sg.verdict(revenue=False, meta=sg.META_SHARE_THRESHOLD - 0.01, cadence=99.0)
     assert call == "PROCEED"
 
 
-def test_maintenance_cadence_clears_the_gate():
-    call, _ = sg.verdict(revenue=False, meta=1.0, cadence=sg.CADENCE_THRESHOLD_PER_HOUR - 0.01)
-    assert call == "PROCEED"
-
-
-def test_thresholds_are_boundaries_not_ranges():
+def test_meta_threshold_is_a_boundary_not_a_range():
     """At exactly the threshold the condition still holds — no off-by-one drift."""
-    assert sg.verdict(revenue=False, meta=sg.META_SHARE_THRESHOLD, cadence=2.0)[0] == "NO-OP"
-    assert sg.verdict(revenue=False, meta=1.0, cadence=sg.CADENCE_THRESHOLD_PER_HOUR)[0] == "NO-OP"
+    at = sg.verdict(revenue=False, meta=sg.META_SHARE_THRESHOLD, cadence=2.0, targets=[TARGET])
+    assert at[0] == "BUILD"
+
+
+def test_cadence_no_longer_participates_in_the_verdict():
+    """The regression this rewrite exists for.
+
+    Cadence was the only input derived from `git log`, so on a shallow clone it
+    was unmeasurable, its PROCEED branch was skipped rather than cleared, and
+    the session fell through to a stop. Two containers seconds apart returned
+    opposite verdicts on identical ledger facts. Whatever cadence says now, and
+    whether or not it is trustworthy, the lane must not move.
+    """
+    lanes = {
+        sg.verdict(
+            revenue=False, meta=1.0, cadence=c, cadence_reliable=rel, targets=[TARGET]
+        )[0]
+        for c in (0.0, 0.5, sg.CADENCE_THRESHOLD_PER_HOUR, 99.0)
+        for rel in (True, False)
+    }
+    assert lanes == {"BUILD"}
+
+
+def test_build_names_the_candidate_to_start():
+    _, reasons = sg.verdict(revenue=False, meta=1.0, cadence=2.0, targets=[TARGET])
+    joined = " ".join(reasons)
+    assert "some-candidate" in joined
+    assert "candidates/some-candidate.md" in joined
+
+
+def test_build_falls_back_to_researching_a_new_candidate():
+    """An empty pipeline is a reason to research one, not a reason to stop."""
+    call, reasons = sg.verdict(revenue=False, meta=1.0, cadence=2.0, targets=[])
+    assert call == "BUILD"
+    assert "screened-out.md" in " ".join(reasons)
+
+
+def test_build_targets_skips_what_has_already_graduated(tmp_path, monkeypatch):
+    """Graduation is a fact on disk: a VENTURE.yaml, or a product_lines entry."""
+    (tmp_path / "portfolio" / "pipeline").mkdir(parents=True)
+    (tmp_path / "ventures" / "graduated").mkdir(parents=True)
+    (tmp_path / "ventures" / "host").mkdir(parents=True)
+    (tmp_path / "ventures" / "graduated" / "VENTURE.yaml").write_text("name: graduated\n")
+    (tmp_path / "ventures" / "host" / "VENTURE.yaml").write_text(
+        "name: host\nproduct_lines:\n  - slug: shipped\n"
+    )
+    candidates = tmp_path / "portfolio" / "pipeline" / "candidates.yaml"
+    candidates.write_text(
+        "candidates:\n"
+        "  - {slug: graduated, verdict: build-now, graduate_as: venture, composite: 9,"
+        " name: G, doc: g.md}\n"
+        "  - {slug: shipped, verdict: build-now, graduate_as: product-line,"
+        " host_venture: host, composite: 8, name: S, doc: s.md}\n"
+        "  - {slug: pending, verdict: build-now, graduate_as: venture, composite: 7,"
+        " name: P, doc: p.md}\n"
+        "  - {slug: scored, verdict: probe, graduate_as: venture, composite: 10}\n"
+    )
+    monkeypatch.setattr(sg, "REPO", tmp_path)
+    monkeypatch.setattr(sg, "CANDIDATES", candidates)
+
+    assert [c["slug"] for c in sg.build_targets()] == ["pending"]
+
+
+def _pipeline(tmp_path, monkeypatch, body: str):
+    (tmp_path / "portfolio" / "pipeline").mkdir(parents=True, exist_ok=True)
+    candidates = tmp_path / "portfolio" / "pipeline" / "candidates.yaml"
+    candidates.write_text(body)
+    monkeypatch.setattr(sg, "REPO", tmp_path)
+    monkeypatch.setattr(sg, "CANDIDATES", candidates)
+    return candidates
+
+
+def test_a_not_a_venture_marker_means_the_candidate_has_not_graduated(tmp_path, monkeypatch):
+    """The marker wins over a VENTURE.yaml beside it, so the router sees nothing.
+
+    `ventures/ai-first-markets/` carries both in the live repo, and
+    `test_allocate.py` pins that allocate.py skips such a directory. Reading
+    only for VENTURE.yaml would drop an unbuilt candidate on the strength of a
+    graduation that routes no budget.
+    """
+    for name in ("marked", "marked-host"):
+        (tmp_path / "ventures" / name).mkdir(parents=True)
+        (tmp_path / "ventures" / name / "VENTURE.yaml").write_text(
+            f"name: {name}\nproduct_lines:\n  - slug: line\n"
+        )
+        (tmp_path / "ventures" / name / "NOT-A-VENTURE").write_text("infra, not a business\n")
+    _pipeline(
+        tmp_path,
+        monkeypatch,
+        "candidates:\n"
+        "  - {slug: marked, verdict: build-now, graduate_as: venture, composite: 9,"
+        " name: M, doc: m.md}\n"
+        "  - {slug: line, verdict: build-now, graduate_as: product-line,"
+        " host_venture: marked-host, composite: 8, name: L, doc: l.md}\n",
+    )
+
+    assert sorted(c["slug"] for c in sg.build_targets()) == ["line", "marked"]
+
+
+def test_an_unreadable_pipeline_is_not_an_empty_one(tmp_path, monkeypatch):
+    """None (could not read) and [] (read it, nothing eligible) are different facts."""
+    missing = tmp_path / "portfolio" / "pipeline" / "candidates.yaml"
+    missing.parent.mkdir(parents=True)
+    monkeypatch.setattr(sg, "REPO", tmp_path)
+    monkeypatch.setattr(sg, "CANDIDATES", missing)
+    assert sg.build_targets() is None  # file absent
+
+    _pipeline(tmp_path, monkeypatch, "candidates: [oops\n")
+    assert sg.build_targets() is None  # malformed YAML
+
+    _pipeline(tmp_path, monkeypatch, "scored: 2026-01-01\n")
+    assert sg.build_targets() is None  # no `candidates` key at all
+
+    _pipeline(tmp_path, monkeypatch, "candidates: {oops: true}\n")
+    assert sg.build_targets() is None  # iterable, but not the expected sequence
+
+    _pipeline(tmp_path, monkeypatch, "candidates: just-a-string\n")
+    assert sg.build_targets() is None  # also iterable, also not a list
+
+    _pipeline(tmp_path, monkeypatch, "candidates: [oops]\n")
+    assert sg.build_targets() is None  # a list, but of scalars rather than records
+
+    _pipeline(tmp_path, monkeypatch, "candidates: []\n")
+    assert sg.build_targets() == []  # read fine, genuinely nothing eligible
+
+
+def test_a_quoted_composite_sorts_rather_than_crashing(tmp_path, monkeypatch):
+    """validate_candidates.py:73 normalises with float(), so it accepts '7.5'.
+
+    Sorting on the raw value compared str against float and raised. This
+    fixture is not a full validator-clean record (it carries no `scores`
+    mapping, which the validator requires and reports on first); what it pins
+    is only that the gate tolerates the quoted-number shape the validator's
+    own coercion lets through.
+    """
+    _pipeline(
+        tmp_path,
+        monkeypatch,
+        "candidates:\n"
+        "  - {slug: numeric, verdict: build-now, graduate_as: venture, composite: 7.0,"
+        " name: N, doc: n.md}\n"
+        "  - {slug: quoted, verdict: build-now, graduate_as: venture, composite: '7.5',"
+        " name: Q, doc: q.md}\n",
+    )
+    assert [c["slug"] for c in sg.build_targets()] == ["quoted", "numeric"]
+
+
+def test_an_incomplete_build_now_record_is_malformed_not_a_target(tmp_path, monkeypatch):
+    """Every field here builds a path or the instruction; none may be missing.
+
+    Without this, `{verdict: build-now}` produced a target whose slug was the
+    literal string "None", naming `ventures/None/`, and an unset `graduate_as`
+    silently took the venture path.
+    """
+    for record in (
+        # Each record is complete except for the one field named, so the case
+        # isolates that field rather than passing for some unrelated reason.
+        "{verdict: build-now}",
+        "{verdict: build-now, graduate_as: venture, composite: 7, name: N, doc: d.md}",  # slug
+        "{slug: s, verdict: build-now, composite: 7, name: N, doc: d.md}",  # graduate_as
+        "{slug: s, verdict: build-now, graduate_as: nonsense, composite: 7,"
+        " name: N, doc: d.md}",
+        "{slug: s, verdict: build-now, graduate_as: venture, name: N, doc: d.md}",  # composite
+        "{slug: s, verdict: build-now, graduate_as: venture, composite: abc,"
+        " name: N, doc: d.md}",
+        "{slug: s, verdict: build-now, graduate_as: product-line, composite: 7,"
+        " name: N, doc: d.md}",  # host_venture
+        # `name` and `doc` are not path components but land in the same
+        # instruction; a missing `doc` renders a brief at
+        # `portfolio/pipeline/None`, which looks like a pointer and is not one.
+        "{slug: s, verdict: build-now, graduate_as: venture, composite: 7, doc: d.md}",  # name
+        "{slug: s, verdict: build-now, graduate_as: venture, composite: 7, name: N}",  # doc
+    ):
+        _pipeline(tmp_path, monkeypatch, f"candidates:\n  - {record}\n")
+        assert sg.build_targets() is None, record
+
+
+def test_a_non_list_product_lines_does_not_crash_the_gate(tmp_path, monkeypatch):
+    """`product_lines: true` reached any() and took the whole gate down."""
+    (tmp_path / "ventures" / "host").mkdir(parents=True)
+    (tmp_path / "ventures" / "host" / "VENTURE.yaml").write_text(
+        "name: host\nproduct_lines: true\n"
+    )
+    _pipeline(
+        tmp_path,
+        monkeypatch,
+        "candidates:\n"
+        "  - {slug: line, verdict: build-now, graduate_as: product-line,"
+        " host_venture: host, composite: 7, name: L, doc: l.md}\n",
+    )
+    assert [c["slug"] for c in sg.build_targets()] == ["line"]
+
+
+def test_a_directory_named_venture_yaml_is_not_routable(tmp_path, monkeypatch):
+    """allocate.py:229 and validate.py:114 both use is_file(), so this must too."""
+    (tmp_path / "ventures" / "odd" / "VENTURE.yaml").mkdir(parents=True)
+    monkeypatch.setattr(sg, "REPO", tmp_path)
+    assert sg.routable("odd") is False
+
+
+def test_the_build_footer_does_not_promise_a_candidate_that_was_not_named(monkeypatch):
+    """The footer renders on every BUILD, including the two recovery paths.
+
+    With no target the reasons say "research a new candidate"; with an
+    unreadable pipeline they say "repair candidates.yaml". A footer telling the
+    session to build "the candidate named above" contradicts both.
+    """
+    entries = [entry("portfolio")] * sg.WINDOW
+
+    named = sg.render(sg.report(entries, cadence=2.0, targets=[TARGET]))
+    assert "some-candidate" in named
+
+    nothing_eligible = sg.render(sg.report(entries, cadence=2.0, targets=[]))
+    monkeypatch.setattr(sg, "build_targets", lambda: None)
+    unreadable = sg.render(sg.report(entries, cadence=2.0))
+
+    for rendered in (named, nothing_eligible, unreadable):
+        assert "VERDICT: BUILD" in rendered
+        assert "named above" not in rendered
+
+
+def test_an_unreadable_pipeline_does_not_send_a_session_off_to_research(tmp_path, monkeypatch):
+    """The failure must be reported as a failure, not laundered into a fallback."""
+    monkeypatch.setattr(sg, "build_targets", lambda: None)
+    call, reasons = sg.verdict(revenue=False, meta=1.0, cadence=2.0)
+    joined = " ".join(reasons)
+    assert call == "BUILD"
+    assert "could not be read or parsed" in joined
+    assert "screened-out.md" not in joined  # the research fallback must not fire
 
 
 # --- the reading comes from the ledger, not from constants -------------------
@@ -109,7 +351,7 @@ def test_meta_threshold_is_crossable_by_the_real_ledger():
 
 def test_live_report_is_well_formed():
     r = sg.report(yaml.safe_load(sg.LEDGER.read_text())["entries"], cadence=2.0)
-    assert r["verdict"] in {"NO-OP", "PROCEED"}
+    assert r["verdict"] in {"BUILD", "PROCEED"}
     assert r["reasons"]
     assert 0.0 <= r["meta_share_recent"] <= 1.0
     assert 0.0 <= r["reverification_share_recent"] <= 1.0
@@ -166,10 +408,12 @@ def test_report_adds_a_burst_reason_only_at_or_above_threshold():
 
 
 def test_report_burst_reason_does_not_flip_the_verdict():
-    """Burst is a caution added to the reasons, not a new gate condition."""
+    """Burst is a caution added to the reasons, not a new routing condition."""
     entries = [entry()] * sg.WINDOW
-    r = sg.report(entries, cadence=0.1, burst=10)
-    assert r["verdict"] == "PROCEED"
+    without = sg.report(entries, cadence=0.1, burst=0, targets=[TARGET])
+    with_burst = sg.report(entries, cadence=0.1, burst=10, targets=[TARGET])
+    assert with_burst["verdict"] == without["verdict"]
+    assert len(with_burst["reasons"]) > len(without["reasons"])
 
 
 def test_commits_with_sessions_parses_multiline_bodies():
@@ -212,14 +456,18 @@ def test_history_span_hours_empty_is_zero():
     assert sg.history_span_hours([]) == 0.0
 
 
-def test_unreliable_cadence_does_not_clear_the_gate():
-    """Same (falsely low) cadence reading; only the reliable one may PROCEED on it."""
+def test_clone_depth_cannot_change_the_lane():
+    """Same falsely-low cadence, trusted and not: the verdict must not move.
+
+    This pair used to return PROCEED and NO-OP respectively — the live bug. The
+    reading is still reported both ways, because it is a useful collision
+    signal; it just no longer decides anything.
+    """
     entries = [entry("portfolio")] * sg.WINDOW  # meta_share = 1.0, no revenue recorded
-    reliable = sg.report(entries, cadence=0.0, cadence_reliable=True)
-    unreliable = sg.report(entries, cadence=0.0, cadence_reliable=False)
-    assert reliable["verdict"] == "PROCEED"
-    assert unreliable["verdict"] == "NO-OP"
-    assert unreliable["sessions_per_hour"] == 0.0  # still reported, just not trusted
+    reliable = sg.report(entries, cadence=0.0, cadence_reliable=True, targets=[TARGET])
+    unreliable = sg.report(entries, cadence=0.0, cadence_reliable=False, targets=[TARGET])
+    assert reliable["verdict"] == unreliable["verdict"] == "BUILD"
+    assert unreliable["sessions_per_hour"] == 0.0  # still reported
     assert not unreliable["cadence_reliable"]
 
 
@@ -406,8 +654,11 @@ def test_report_stale_streak_reason_does_not_flip_the_verdict():
             "correctly human-gated, nothing to consolidate."
         ]
     )
-    r = sg.report([unchanged] * sg.STALE_PR_STREAK_THRESHOLD, cadence=0.1)
-    assert r["verdict"] == "PROCEED"
+    entries = [unchanged] * sg.STALE_PR_STREAK_THRESHOLD
+    with_streak = sg.report(entries, cadence=0.1, targets=[TARGET])
+    without = sg.report([entry()] * sg.WINDOW, cadence=0.1, targets=[TARGET])
+    assert with_streak["verdict"] == without["verdict"]
+    assert len(with_streak["reasons"]) > len(without["reasons"])
 
 
 def test_render_shows_the_stale_streak_count():
@@ -483,7 +734,16 @@ def test_render_flags_a_failed_fetch_distinctly_from_shallow_truncation():
 def test_main_does_not_trust_a_reading_the_fetch_could_not_refresh(monkeypatch, capsys):
     """Reproduces the exact live bug: a stale `origin/main` reads as a reliable
     0.00 sessions/hour (deep-but-old history passes `history_span_hours`), which
-    would clear the gate to PROCEED unless the failed fetch overrides it."""
+    used to clear the gate to PROCEED unless the failed fetch overrode it."""
+    captured: dict = {}
+    real_report = sg.report
+
+    def spy(*a, **kw):
+        r = real_report(*a, **kw)
+        captured.update(r)
+        return r
+
+    monkeypatch.setattr(sg, "report", spy)
     monkeypatch.setattr(sg, "refresh_origin_main", lambda: False)
     monkeypatch.setattr(sg, "sessions_per_hour", lambda: (0.0, True))
     monkeypatch.setattr(sg, "max_concurrent_sessions", lambda *_a, **_k: 0)
@@ -494,5 +754,10 @@ def test_main_does_not_trust_a_reading_the_fetch_could_not_refresh(monkeypatch, 
     sg.main()
 
     out = capsys.readouterr().out
-    assert "VERDICT: NO-OP" in out
+    assert "VERDICT: BUILD" in out
     assert "git fetch origin main` failed" in out
+    # The wiring this test is named for: a failed fetch must still mark the
+    # reading untrusted. Cadence no longer moves the verdict, so asserting the
+    # lane alone would pass even if main() stopped propagating `fetched`.
+    assert captured["cadence_reliable"] is False
+    assert captured["origin_fetched"] is False

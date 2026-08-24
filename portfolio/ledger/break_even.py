@@ -328,8 +328,15 @@ def check_doc(r: dict) -> int:
     want("wordpress cold", f"${r['wordpress']['cold_weighted']:,.0f}")
     # Both headline figures are restated several times. Pin the count so a
     # single drifted instance fails instead of hiding behind its siblings.
+    #
+    # The per-session count went 3 -> 5 on 2026-08-24, when the amendment that
+    # retires the NO-OP verdict restated the threshold twice more: once to name
+    # what the old conclusion rested on, once to say the marginal cost is $0
+    # rather than that figure. The threshold itself is unchanged and still
+    # derived from the snapshot -- only the number of places the document
+    # mentions it moved.
     want("ceiling, every occurrence", ceiling, times=7)
-    want("per-session threshold, every occurrence", per_session, times=3)
+    want("per-session threshold, every occurrence", per_session, times=5)
 
     # The reference table's rows are the figures a reader actually compares
     # their bill against, and are easy to get wrong by rounding the cadence
