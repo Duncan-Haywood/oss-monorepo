@@ -18,6 +18,8 @@ export function calculateOrder(input) {
   const shippingCost = number(input.shippingCost ?? 0, 'Shipping cost');
   const packagingCost = number(input.packagingCost ?? 0, 'Packaging cost');
   const otherCost = number(input.otherCost ?? 0, 'Other cost');
+  const targetMargin = number(input.targetMargin ?? 0, 'Target margin');
+  if (targetMargin >= 100) throw new Error('Target margin must be less than 100%');
 
   // eBay charges the final value fee on the full order total (item + shipping),
   // so promoted-listings and international-fee percentages are modelled the same
@@ -42,6 +44,8 @@ export function calculateOrder(input) {
   // Fixed (non-percentage) cash outlay that must be recovered before the
   // percentage-based fees are covered, used to solve for break-even price.
   const fixedCash = fixedFee + cashInvested;
+  const targetMarginRate = targetMargin / 100;
+  const targetRevenueDenominator = 1 - percentRate - targetMarginRate;
   return {
     revenue,
     fees,
@@ -59,5 +63,9 @@ export function calculateOrder(input) {
     breakEvenPrice: percentRate >= 1
       ? Infinity
       : Math.max(0, fixedCash / (1 - percentRate) - shippingCharged),
+    // Solve for the item price needed to reach the requested net margin.
+    targetMarginPrice: targetRevenueDenominator <= 0
+      ? Infinity
+      : Math.max(0, fixedCash / targetRevenueDenominator - shippingCharged),
   };
 }
