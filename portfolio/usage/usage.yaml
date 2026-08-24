@@ -29,6 +29,15 @@ products:
           live_url_visitors: null
           quote_csv_exports: 0
         note: Added one-click export of the current normalized result; public URL remains owner-gated.
+
+  - slug: medical-courier-route-margin
+    surface: static-page-in-repo
+    readings:
+      - as_of: 2026-08-24
+        signals:
+          live_url_visitors: null
+         local_events_reported: 0
+        note: Shipped browser-local route margin calculator; public URL remains owner-gated.
   - slug: shopify-permission-drift
     surface: local-cli
     readings:
