@@ -56,6 +56,13 @@ export default function ProductBundlesDocPage() {
             <td>Sell online, not just inform</td>
             <td>Retail, restaurant pickup, salon deposits</td>
           </tr>
+          <tr>
+            <td>
+              <DocLink href="/docs/eaa-evidence">Accessibility evidence</DocLink>
+            </td>
+            <td>A dated record, not a certificate</td>
+            <td>Obligated EU shops — not a site-bundle tier</td>
+          </tr>
         </tbody>
       </table>
 
@@ -194,6 +201,15 @@ export default function ProductBundlesDocPage() {
         <DocLink href="/docs/business-model">Business model</DocLink>. (No SMS send capability
         exists in this codebase; platform voice explaining tiers is unbuilt — see{" "}
         <DocLink href="/docs/roadmap">Roadmap</DocLink>.)
+      </p>
+
+      <h2>Accessibility evidence — not a bundle</h2>
+      <p>
+        A separate product line, not a fourth site-bundle tier:{" "}
+        <DocLink href="/docs/eaa-evidence">Accessibility evidence</DocLink> on{" "}
+        <DocLink href="/accessibility-evidence">/accessibility-evidence</DocLink>.
+        It sells a dated record to obligated EU shops. Checkout is not live and it
+        does not share <code>BUNDLES</code> Price IDs.
       </p>
     </DocPage>
   );
