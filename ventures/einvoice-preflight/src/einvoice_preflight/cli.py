@@ -208,6 +208,28 @@ def _jsonl_report(
     return "\n".join(lines) + ("\n" if lines else "")
 
 
+def _summary_report(
+    reports: list[tuple[Path, list[dict[str, str]]]],
+    read_errors: list[dict[str, str]],
+) -> str:
+    """Build a compact, privacy-safe batch summary for CI logs."""
+    findings = [error for _, errors in reports for error in errors]
+    rule_counts = Counter(error["rule"] for error in findings)
+    status = "FAIL" if findings or read_errors else "PASS"
+    lines = [
+        "E-invoice preflight summary",
+        f"Overall: {status}",
+        f"Checked: {len(reports)}",
+        f"Passed: {sum(not errors for _, errors in reports)}",
+        f"Failed: {sum(bool(errors) for _, errors in reports)}",
+        f"Observations: {len(findings)}",
+        f"Read errors: {len(read_errors)}",
+    ]
+    if rule_counts:
+        lines.append("Rules: " + ", ".join(f"{rule}={count}" for rule, count in sorted(rule_counts.items())))
+    return "\n".join(lines) + "\n"
+
+
 def _csv_report(
     reports: list[tuple[Path, list[dict[str, str]]]],
     read_errors: list[dict[str, str]],
@@ -366,7 +388,7 @@ def _markdown_text(value: str) -> str:
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description="Check a local JSON or UBL XML e-invoice before submission. No tax advice or submission.")
     parser.add_argument("invoice", type=Path, help="JSON/XML file, directory of JSON/XML files, or '-' for stdin")
-    parser.add_argument("--format", choices=("text", "json", "jsonl", "markdown", "html", "csv", "junit", "sarif", "github"), default="text")
+    parser.add_argument("--format", choices=("text", "summary", "json", "jsonl", "markdown", "html", "csv", "junit", "sarif", "github"), default="text")
     parser.add_argument("--usage-file", help="opt-in local aggregate event counter")
     args = parser.parse_args(argv)
     reports: list[tuple[Path, list[dict[str, str]]]] = []
@@ -424,6 +446,8 @@ def main(argv: list[str] | None = None) -> int:
     has_read_errors = bool(read_errors)
     if args.format == "json":
         print(json.dumps(_json_report(reports, read_errors), indent=2))
+    elif args.format == "summary":
+        print(_summary_report(reports, read_errors), end="")
     elif args.format == "jsonl":
         print(_jsonl_report(reports, read_errors), end="")
     elif args.format == "markdown":
