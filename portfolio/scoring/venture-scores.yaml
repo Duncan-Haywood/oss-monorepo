@@ -830,3 +830,38 @@ ventures:
       The shipped production rates are labelled ballpark starting points rather
       than a standard or benchmark, and nothing the user enters leaves the
       browser.
+
+  - slug: gutter-cleaning-bid-calculator
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 7
+      gross_margin: 10
+      defensibility: 5
+      distribution: 7
+    composite: 6.667
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      There is no AI anywhere in the product. The value is a domain model —
+      story, pitch, guard, and debris multipliers on a timed baseline — that
+      is arithmetic, and adding inference to it would only make the result
+      less checkable.
+    basis: >-
+      Graduated on 2026-08-24 as a browser-local gutter-cleaning bid
+      calculator. Scored with the other trade bid calculators: defensibility
+      5 because the run-by-run model encodes how the expensive house actually
+      differs from the cheap one, rather than restating a published fee
+      schedule. Distribution 7: "gutter cleaning cost calculator" and
+      "two-story gutter cleaning price" are lower-volume than marketplace-fee
+      queries but far less saturated and bought by an operator with a real
+      Saturday on the line.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Pass: the output is arithmetic on the contractor's own inputs, never a
+      recommended price or an engineering opinion. The shipped difficulty
+      factors are labelled ballpark starting points rather than a standard,
+      and nothing the user enters leaves the browser.

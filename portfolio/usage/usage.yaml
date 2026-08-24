@@ -176,6 +176,17 @@ products:
         note: >-
           Shipped a local commercial cleaning bid calculator with a copyable
           proposal summary; public URL remains owner-gated.
+  - slug: gutter-cleaning-bid-calculator
+    surface: static-page-in-repo
+    readings:
+      - as_of: 2026-08-24
+        signals:
+          live_url_visitors: null
+          local_events_reported: 0
+        note: >-
+          Shipped a local gutter-cleaning bid calculator (stories, guards,
+          downspouts, minimum stop, seasonal contract); public URL remains
+          owner-gated.
   - slug: shopify-fee-calculator
     surface: static-page-in-repo
     readings:
