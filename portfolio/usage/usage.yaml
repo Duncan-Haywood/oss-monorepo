@@ -45,6 +45,17 @@ products:
           mode that snaps R2 to a buyable E24 value, 14 passing unit
           tests). Same publishing gate as above — no traffic signal yet.
           Baseline row for the third tool.
+      - as_of: 2026-08-24
+        signals:
+          live_url_visitors: null
+          local_events_reported: 0
+        note: >-
+          Fourth tool shipped: rc-filter-calculator (first-order RC/RL
+          filter cutoff frequency and time constant across all four
+          topologies, plus a design mode that solves for the missing
+          component from a target cutoff and snaps it to a buyable
+          preferred value, 24 passing unit tests). Same publishing gate as
+          above — no traffic signal yet. Baseline row for the fourth tool.
   - slug: quote-margin-check
     surface: repository-cli
     readings:
@@ -54,6 +65,17 @@ products:
           repo_views_14d: 0
           release_downloads_total: 0
         note: Shipped calculator baseline; no public distribution or usage yet.
+      - as_of: 2026-08-24
+        signals:
+          live_url_visitors: null
+          local_events_reported: 0
+        note: >-
+          Second surface: site/index.html, a zero-dependency static page
+          running the same math as the Python CLI (most of this venture's
+          target freelancers will not run a script). Publishing is
+          owner-gated, so there is no traffic signal to read yet; the
+          page's counter reports only to the visitor's own browser.
+          Baseline row for the browser surface.
   - slug: etsy-profit-calculator
     surface: static-page-in-repo
     readings:

@@ -25,7 +25,7 @@ platform design not yet started. `site/` is a static build (`npm run build`)
 that renders the constitution's markdown into a browsable HTML site
 (`docs/00-overview.md` and friends).
 
-Three learner-facing artifacts now exist, all free, zero-dependency,
+Four learner-facing artifacts now exist, all free, zero-dependency,
 client-side static pages (LICENSE, disclaimer, privacy line, local-first
 usage counting, unit tested):
 
@@ -39,11 +39,16 @@ usage counting, unit tested):
   a voltage divider calculator with a load-loading correction (the sag a
   real load causes that the textbook formula ignores) and a target-output
   design mode that snaps R2 to a buyable E24 value (14 passing unit tests).
+- [`tools/rc-filter-calculator/`](tools/rc-filter-calculator/) — a first-order
+  RC/RL filter cutoff-frequency calculator covering all four topologies
+  (RC/RL × low/high-pass), with a design mode that solves for the missing
+  component from a target cutoff and snaps it to a buyable standard value
+  (24 passing unit tests).
 
-All three are deliberately narrower than "the MVP": small, self-contained
+All four are deliberately narrower than "the MVP": small, self-contained
 tools for the Circuits corner of the planned EE track, not a curriculum.
 None is yet deployed to a live URL — publishing under the portfolio's name
-is owner-gated per `portfolio/DIRECTION.md`; all three are ready to deploy
+is owner-gated per `portfolio/DIRECTION.md`; all four are ready to deploy
 once that gate opens.
 
 ## Next steps
@@ -51,7 +56,7 @@ once that gate opens.
 - Review, argue with, and revise the constitution in `docs/` — it's a v1
   draft meant to be tightened, not treated as settled.
 - Add more small, self-contained EE tools in `tools/` (e.g. a capacitor
-  charge/discharge time calculator, an RC/RL filter cutoff-frequency
+  charge/discharge time calculator, a 555-timer astable/monostable
   calculator) as further seeds of the Circuits track, each shippable and
   testable independently of the full curriculum design.
 - Prototype the fuller MVP scope: Electrical Engineering track (Circuits,
