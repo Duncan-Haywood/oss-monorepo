@@ -330,6 +330,8 @@
         if (shared.shared[id] !== undefined) document.getElementById(id).value = shared.shared[id];
       }
       document.getElementById("includeSubscription").checked = shared.includeSubscription;
+      const linkedRank = document.querySelector(`input[name="rankBy"][value="${shared.rankBy}"]`);
+      if (linkedRank) linkedRank.checked = true;
       if (shared.channels.length) {
         channels = freshChannels().map((channel) => {
           const incoming = shared.channels.find((candidate) => candidate.id === channel.id);
