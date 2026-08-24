@@ -830,3 +830,29 @@ ventures:
       The shipped production rates are labelled ballpark starting points rather
       than a standard or benchmark, and nothing the user enters leaves the
       browser.
+  - slug: tender-bid-readiness
+    scores:
+      ai_leverage: 2
+      autonomous_ops: 10
+      time_to_revenue: 6
+      gross_margin: 10
+      defensibility: 4
+      distribution: 6
+    composite: 6.333
+    rater_b: null
+    floor: 2
+    floor_dimension: ai_leverage
+    floor_note: >-
+      The first release is deterministic text matching because a transparent
+      evidence excerpt is safer than an invented tender requirement.
+    basis: >-
+      Graduated on 2026-08-24 as a browser-local readiness checker for small
+      contractors. It addresses the qualification and paperwork decision before
+      the portfolio's bid calculators, with high-intent tender checklist search
+      terms and no portal credentials, uploads, or paid dependencies.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Pass: findings are explicitly heuristic observations with source excerpts;
+      the tool never determines eligibility, gives legal advice, or submits a bid.
