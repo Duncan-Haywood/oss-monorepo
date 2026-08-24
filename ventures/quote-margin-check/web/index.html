@@ -84,6 +84,16 @@
   .status.above { background: color-mix(in srgb, var(--accent) 18%, transparent); color: var(--accent); }
   .status.below { background: color-mix(in srgb, var(--bad) 18%, transparent); color: var(--bad); }
   .error { color: var(--bad); margin-top: 0.75rem; }
+  .actions { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-top: 1rem; }
+  button.action {
+    font: inherit; font-size: 0.9rem; padding: 0.45rem 0.85rem; cursor: pointer;
+    border: 1px solid var(--border); border-radius: 6px;
+    background: var(--bg); color: var(--fg);
+  }
+  button.action:hover { border-color: var(--accent); }
+  button.action:focus-visible { outline: 2px solid var(--focus); outline-offset: 1px; }
+  .empty { color: var(--muted); font-size: 0.9rem; margin: 1rem 0 0; }
+  .action-status { font-size: 0.85rem; color: var(--muted); margin-top: 0.5rem; min-height: 1.2em; }
   footer { border-top: 1px solid var(--border); margin-top: 2rem; padding-top: 1.5rem; font-size: 0.85rem; color: var(--muted); }
   footer h2 { font-size: 0.95rem; }
   a { color: var(--accent); }
@@ -146,7 +156,18 @@
     <div class="result" id="result-wrap" hidden>
       <table id="result-table"></table>
       <div class="status" id="result-status" role="status" aria-live="polite"></div>
+      <div class="actions">
+        <button type="button" class="action" id="copy-report">Copy report (Markdown)</button>
+        <button type="button" class="action" id="copy-link">Copy link to this quote</button>
+        <button type="button" class="action" id="reset">Clear</button>
+      </div>
+      <p class="action-status" id="action-status" role="status" aria-live="polite"></p>
     </div>
+    <p class="empty" id="empty-state">
+      Fill in a quoted price, delivery hours, and your target hourly rate to see
+      the result — or
+      <button type="button" class="action" id="load-example">try a worked example</button>
+    </p>
     <p class="error" id="result-error" role="alert"></p>
   </section>
 
@@ -176,10 +197,15 @@
     <h2 id="privacy-heading">Privacy</h2>
     <p>
       Everything runs in your browser. Your prices, project names, and
-      figures are never uploaded — there is no server for them to go to. This
-      page counts anonymous, local feature-use events (e.g. "a report was
-      generated") in your own browser's <code>localStorage</code>, only to
-      help this project's maintainers tell whether the tool is used at all.
+      figures are never uploaded — there is no server for them to go to. A
+      "copy link" URL carries your figures in the <code>#</code> fragment,
+      which browsers never send to a server; treat that link as private
+      anyway, since anyone you send it to can read the numbers in it.
+      This page counts anonymous, local feature-use events in your own
+      browser's <code>localStorage</code> — the event name and the day, never
+      your figures — only to help this project's maintainers tell whether the
+      tool is used at all. The full list: a result was shown, a report was
+      copied, a link was copied, the example was loaded, a link was opened.
       <button type="button" id="usage-toggle" style="background:none;border:none;color:var(--accent);text-decoration:underline;cursor:pointer;padding:0;font:inherit;">
         Turn off local usage counting
       </button>
@@ -188,10 +214,12 @@
 
     <p>
       Prefer a spreadsheet workflow or scripting several quotes at once? The
-      same math runs as a local command-line tool —
-      see the <a href="../README.md">Quote Margin Check README</a> for the
-      Python CLI (supports Markdown, JSON, and CSV output). MIT licensed —
-      see <a href="../LICENSE">LICENSE</a>.
+      same math runs as a local command-line tool — see the
+      <a href="https://github.com/Duncan-Haywood/monorepo-projects/tree/main/ventures/quote-margin-check#readme">Quote
+      Margin Check README</a> for the Python CLI (Markdown, JSON, and CSV
+      output; the Markdown is byte-identical to the report this page copies).
+      MIT licensed — see
+      <a href="https://github.com/Duncan-Haywood/monorepo-projects/blob/main/ventures/quote-margin-check/LICENSE">LICENSE</a>.
     </p>
   </footer>
 </main>
@@ -199,6 +227,7 @@
 <script type="module">
   import { loadQuote, calculate } from "./calc.mjs";
   import { recordEvent, isUsageCountingEnabled, setUsageCountingEnabled } from "./usage.mjs";
+  import { toMarkdown, encodeQuoteToHash, decodeQuoteFromHash, EXAMPLE_QUOTE } from "./report.mjs";
 
   const ids = ["currency", "price", "delivery_hours", "target_hourly_rate", "admin_hours", "revision_hours", "overhead", "subcontractor_cost"];
   const fields = Object.fromEntries(ids.map((id) => [id, document.getElementById(id)]));
@@ -206,6 +235,13 @@
   const resultTable = document.getElementById("result-table");
   const resultStatus = document.getElementById("result-status");
   const resultError = document.getElementById("result-error");
+  const emptyState = document.getElementById("empty-state");
+  const actionStatus = document.getElementById("action-status");
+
+  // The last successfully calculated quote, so the copy/share buttons act on
+  // what is actually on screen rather than re-reading a form the visitor may
+  // have started editing again.
+  let current = null;
 
   function fmt(value, currency) {
     const rounded = Math.round(value * 100) / 100;
@@ -224,12 +260,15 @@
     }
     if (fields.price.value === "" || fields.delivery_hours.value === "" || fields.target_hourly_rate.value === "") {
       resultWrap.hidden = true;
+      emptyState.hidden = false;
       resultError.textContent = "";
+      current = null;
       return;
     }
     try {
       const quote = loadQuote({ currency: fields.currency.value, ...numeric });
       const result = calculate(quote);
+      current = { quote, result };
       const c = quote.currency;
       resultTable.innerHTML = [
         row("Total working hours", `${result.total_hours.toFixed(2)} h`),
@@ -245,15 +284,117 @@
         : "Below target rate (arithmetic comparison only)";
       resultStatus.className = `status ${above ? "above" : "below"}`;
       resultWrap.hidden = false;
+      emptyState.hidden = true;
       resultError.textContent = "";
-      recordEvent("report_generated");
+      countReportOnce();
     } catch (err) {
       resultWrap.hidden = true;
+      emptyState.hidden = false;
+      current = null;
       resultError.textContent = err.message;
     }
   }
 
+  // The result recalculates on every keystroke, which is the right behaviour
+  // for the display and the wrong one for the counter: typing "4200" used to
+  // log four reports, so the only metric this venture has said more about
+  // keyboards than about use. One event per visit answers the question the
+  // counter actually exists for — did anyone get a result out of this page.
+  let countedThisVisit = false;
+  function countReportOnce() {
+    if (countedThisVisit) return;
+    countedThisVisit = true;
+    recordEvent("report_generated");
+  }
+
   for (const id of ids) fields[id].addEventListener("input", update);
+
+  function announce(message) {
+    actionStatus.textContent = message;
+    window.setTimeout(() => {
+      if (actionStatus.textContent === message) actionStatus.textContent = "";
+    }, 4000);
+  }
+
+  // navigator.clipboard is unavailable on insecure origins and in some
+  // browsers' private modes. Falling back to a selected textarea keeps the
+  // copy buttons working when this page is opened straight off the filesystem,
+  // which is one of the documented ways to run it.
+  async function copyText(text) {
+    try {
+      if (navigator.clipboard?.writeText) {
+        await navigator.clipboard.writeText(text);
+        return true;
+      }
+    } catch {
+      // fall through to the manual path
+    }
+    try {
+      const scratch = document.createElement("textarea");
+      scratch.value = text;
+      scratch.setAttribute("readonly", "");
+      scratch.style.position = "fixed";
+      scratch.style.opacity = "0";
+      document.body.appendChild(scratch);
+      scratch.select();
+      const ok = document.execCommand("copy");
+      scratch.remove();
+      return ok;
+    } catch {
+      return false;
+    }
+  }
+
+  function rawInputs() {
+    return Object.fromEntries(ids.map((id) => [id, fields[id].value]));
+  }
+
+  document.getElementById("copy-report").addEventListener("click", async () => {
+    if (!current) return;
+    const ok = await copyText(toMarkdown(current.quote, current.result));
+    announce(ok ? "Report copied — paste it into your notes or a client email." : "Couldn't reach the clipboard. Select the table above and copy it manually.");
+    if (ok) recordEvent("report_copied");
+  });
+
+  document.getElementById("copy-link").addEventListener("click", async () => {
+    if (!current) return;
+    const hash = encodeQuoteToHash(rawInputs());
+    // Write it to the address bar too, so bookmarking works even if the
+    // clipboard is unavailable and so a reload keeps the quote.
+    history.replaceState(null, "", hash || window.location.pathname);
+    const ok = await copyText(window.location.href);
+    announce(ok
+      ? "Link copied. The figures travel in the '#' part of the URL, which browsers never send to a server."
+      : "Couldn't reach the clipboard — the address bar now holds the link, so copy it from there.");
+    if (ok) recordEvent("link_copied");
+  });
+
+  document.getElementById("reset").addEventListener("click", () => {
+    for (const id of ids) fields[id].value = id === "currency" ? "USD" : "";
+    history.replaceState(null, "", window.location.pathname);
+    actionStatus.textContent = "";
+    update();
+    fields.price.focus();
+  });
+
+  document.getElementById("load-example").addEventListener("click", () => {
+    for (const [key, value] of Object.entries(EXAMPLE_QUOTE)) {
+      if (fields[key]) fields[key].value = value;
+    }
+    update();
+    recordEvent("example_loaded");
+    announce("A quote that clears its delivery hours but not its real ones — change any figure to see yours.");
+  });
+
+  // A shared or bookmarked link restores the form before the first render.
+  const restored = decodeQuoteFromHash(window.location.hash);
+  if (Object.keys(restored).length > 0) {
+    for (const [key, value] of Object.entries(restored)) {
+      if (fields[key]) fields[key].value = value;
+    }
+    recordEvent("quote_restored_from_link");
+  }
+  update();
 
   const usageToggle = document.getElementById("usage-toggle");
   const usageStatus = document.getElementById("usage-status");

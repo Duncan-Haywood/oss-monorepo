@@ -66,6 +66,14 @@ products:
           there is no traffic signal to read; the page's local-first event
           counter reports only to the visitor's own browser. Baseline row
           for the second surface.
+
+          Events counted locally: report_generated (once per visit, not per
+          keystroke -- the first version fired on every input event, so the
+          count measured typing rather than use), example_loaded,
+          report_copied, link_copied, quote_restored_from_link. The last
+          three are the ones worth reading: copying a report or reopening a
+          saved link is a visitor getting something out of the tool, where a
+          bare visit is not.
 # Example of the shape, once a product has shipped:
 #
 # products:

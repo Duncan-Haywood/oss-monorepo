@@ -106,6 +106,9 @@ workflows:
 - workflow: quick-pick-survey-ci.yml
   classification: none
   publishes: []
+- workflow: quote-margin-check-ci.yml
+  classification: none
+  publishes: []
 - workflow: real-estate-agent-photo-app-ci.yml
   classification: none
   publishes: []

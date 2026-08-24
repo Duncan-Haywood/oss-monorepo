@@ -18,9 +18,20 @@ cd web && python3 -m http.server 8000
 # then open http://localhost:8000/
 ```
 
+The page has no account and no server, so the two things it would otherwise be
+unable to do are built in:
+
+- **Copy report (Markdown)** — the same report `--format markdown` prints, ready
+  to paste into notes or a client email.
+- **Copy link to this quote** — the figures ride in the URL's `#` fragment,
+  which browsers never send to a server, so a link is a private bookmark you can
+  reopen or send to yourself. Opening one restores the form.
+
 `web/calc.mjs` mirrors `src/quote_margin.py`'s `load_quote()`/`calculate()`
 field-for-field so the two can't quietly diverge — `node --test` in `web/`
-covers the same cases as the CLI's test suite.
+covers the same cases as the CLI's test suite, and `web/report.test.mjs` asserts
+the copied Markdown against the CLI's own output byte for byte rather than
+against a fixture that could drift away from it.
 
 ## Command line
 
