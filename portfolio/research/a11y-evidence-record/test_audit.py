@@ -1508,5 +1508,299 @@ class PositiveControl(unittest.TestCase):
             self.assertIn("caught", md)
 
 
+FASSBENDER_NEWSLETTER = (
+    "<form>"
+    "<label for='mce-NAME'>Name</label>"
+    "<input type='text' id='{{ idPrefix }}_mce-NAME'>"
+    "<label for='mce-EMAIL'>Email</label>"
+    "<input type='email' id='{{ idPrefix }}_mce-EMAIL'>"
+    "</form>"
+)
+
+
+class ForgottenPrefixRepairs(unittest.TestCase):
+    """The audit-and-fix half, for the one class that is uniquely determined.
+
+    Finding 2 of ../a11y-theme-resolution/: every unnamed defect that
+    pass recovered by hand is a form control whose <label for> does not
+    resolve, and the sharp three are a theme that prefixed the control
+    id and forgot the label. That pairing is two strings. Inventing alt
+    text, a visible name, or a colour is not.
+    """
+
+    def test_fassbender_newsletter_yields_two_unique_repairs(self):
+        repairs = audit.suggest_fixes([
+            ("theme/sections/newsletter.liquid", FASSBENDER_NEWSLETTER),
+        ])
+        self.assertEqual(
+            [(r["replace"], r["with"]) for r in repairs],
+            [
+                ("mce-NAME", "{{ idPrefix }}_mce-NAME"),
+                ("mce-EMAIL", "{{ idPrefix }}_mce-EMAIL"),
+            ],
+        )
+        self.assertTrue(all(r["check"] == "label-for-id-mismatch" for r in repairs))
+
+    def test_applying_the_repairs_clears_the_mismatch(self):
+        source = FASSBENDER_NEWSLETTER
+        self.assertEqual(checks(source), ["label-for-id-mismatch", "label-for-id-mismatch"])
+        for repair in audit.suggest_fixes([("n.liquid", source)]):
+            source = audit.apply_repair(source, repair)
+        self.assertEqual(checks(source), [])
+        self.assertEqual(undecidable(source), [])
+
+    def test_ambiguous_suffix_is_not_a_repair(self):
+        # Two controls share the same trailing literal. Accusing either
+        # pairing would be a guess.
+        source = (
+            "<form><label for='NAME'>Name</label>"
+            "<input type='text' id='{{ a }}_NAME'>"
+            "<input type='text' id='{{ b }}_NAME'></form>"
+        )
+        self.assertEqual(audit.suggest_fixes([("x.liquid", source)]), [])
+
+    def test_expression_that_could_render_empty_is_not_a_repair(self):
+        # `{{ p }}mce-NAME` can render as `mce-NAME`. Not a proven mismatch.
+        source = (
+            "<form><label for='mce-NAME'>Name</label>"
+            "<input type='text' id='{{ p }}mce-NAME'></form>"
+        )
+        self.assertEqual(checks(source), [])
+        self.assertEqual(undecidable(source), ["control-no-label"])
+        self.assertEqual(audit.suggest_fixes([("x.liquid", source)]), [])
+
+    def test_does_not_invent_a_label_when_none_exists(self):
+        # search.liquid:22 -- no <label for> in the file. The package
+        # index can promote this to a finding; it cannot write a name.
+        source = "<form><input type='search' id='{{ idPrefix }}_q'></form>"
+        self.assertEqual(audit.suggest_fixes([("search.liquid", source)]), [])
+
+    def test_does_not_rewrite_a_label_in_another_file(self):
+        repairs = audit.suggest_fixes([
+            ("search.liquid", "<form><input type='search' id='{{ idPrefix }}_q'></form>"),
+            ("header.liquid", "<label for='q'>Search</label>"),
+        ])
+        self.assertEqual(repairs, [])
+
+    def test_hidden_input_is_not_paired(self):
+        source = (
+            "<form><label for='mce-NAME'>Name</label>"
+            "<input type='hidden' id='{{ idPrefix }}_mce-NAME'></form>"
+        )
+        self.assertEqual(audit.suggest_fixes([("x.liquid", source)]), [])
+
+    def test_record_omits_the_section_when_repairs_are_not_supplied(self):
+        record = audit.evidence_record(
+            [audit.audit_source(FASSBENDER_NEWSLETTER, "n.liquid")],
+            "Test", date="2026-08-24",
+        )
+        md = audit.render_record(record)
+        self.assertNotIn("Proposed repairs", md)
+
+    def test_record_states_repairs_are_not_applied(self):
+        files = [("n.liquid", FASSBENDER_NEWSLETTER)]
+        record = audit.evidence_record(
+            audit.audit_sources(files),
+            "Test", date="2026-08-24",
+            proposed_repairs=audit.suggest_fixes(files),
+        )
+        md = audit.render_record(record)
+        self.assertIn("Proposed repairs (not applied)", md)
+        self.assertIn("not applied", md.lower())
+        self.assertIn("not a claim", md.lower())
+        self.assertIn("for='mce-NAME'", md)
+        self.assertIn("{{ idPrefix }}_mce-NAME", md)
+        self.assertIn("None have been written", md)
+
+    def test_cli_never_writes_the_source(self):
+        import os
+        import tempfile
+        from io import StringIO
+        from contextlib import redirect_stdout
+
+        with tempfile.TemporaryDirectory() as tmp:
+            page = os.path.join(tmp, "newsletter.liquid")
+            with open(page, "w", encoding="utf-8") as handle:
+                handle.write(FASSBENDER_NEWSLETTER)
+            with open(page, encoding="utf-8") as handle:
+                before = handle.read()
+            buf = StringIO()
+            old = sys.argv
+            try:
+                sys.argv = [
+                    "audit.py", page, "--record",
+                    "--scope", "cli-fix", "--date", "2026-08-24",
+                ]
+                with redirect_stdout(buf):
+                    code = audit.main()
+            finally:
+                sys.argv = old
+            self.assertEqual(code, 0)
+            with open(page, encoding="utf-8") as handle:
+                self.assertEqual(handle.read(), before)
+            md = buf.getvalue()
+            self.assertIn("Proposed repairs (not applied)", md)
+            self.assertIn("for='mce-NAME'", md)
+
+
+LOCKED_VIEWPORT = (
+    "<html lang='en'><head><title>t</title>"
+    "<meta name='viewport' content='width=device-width, initial-scale=1, "
+    "user-scalable=no'></head><body></body></html>"
+)
+
+
+class ViewportZoomRepairs(unittest.TestCase):
+    """The second uniquely determined class: drop the zoom-lock tokens.
+
+    Finding 3 recorded one `viewport-scaling-blocked` in the 22-package
+    corpus (`create-shopify-theme@0.0.5`). The edit is two strings: the
+    content that the 1.4.4 check already flagged, minus the token(s)
+    that made it fire. Inventing a new descriptor, or dropping an
+    expression-bearing `maximum-scale={{ n }}`, is not.
+    """
+
+    def test_user_scalable_no_is_dropped(self):
+        repairs = audit.suggest_fixes([("layout.liquid", LOCKED_VIEWPORT)])
+        self.assertEqual(
+            [(r["replace"], r["with"], r["check"]) for r in repairs],
+            [(
+                "width=device-width, initial-scale=1, user-scalable=no",
+                "width=device-width, initial-scale=1",
+                "viewport-scaling-blocked",
+            )],
+        )
+
+    def test_maximum_scale_below_two_is_dropped(self):
+        source = (
+            "<html lang='en'><head><title>t</title>"
+            "<meta name='viewport' content='width=device-width, maximum-scale=1.0'>"
+            "</head><body></body></html>"
+        )
+        repairs = audit.suggest_fixes([("x.html", source)])
+        self.assertEqual(
+            [(r["replace"], r["with"]) for r in repairs],
+            [("width=device-width, maximum-scale=1.0", "width=device-width")],
+        )
+
+    def test_both_lock_tokens_are_dropped_together(self):
+        source = (
+            "<html lang='en'><head><title>t</title>"
+            "<meta name='viewport' content='width=device-width, "
+            "maximum-scale=1, user-scalable=no'></head><body></body></html>"
+        )
+        repairs = audit.suggest_fixes([("x.html", source)])
+        self.assertEqual(
+            [r["with"] for r in repairs],
+            ["width=device-width"],
+        )
+
+    def test_applying_the_repair_clears_the_finding(self):
+        source = LOCKED_VIEWPORT
+        self.assertEqual(checks(source, "page.html"), ["viewport-scaling-blocked"])
+        for repair in audit.suggest_fixes([("page.html", source)]):
+            source = audit.apply_repair(source, repair)
+        self.assertEqual(checks(source, "page.html"), [])
+
+    def test_ordinary_viewport_is_not_a_repair(self):
+        source = (
+            "<html lang='en'><head><title>t</title>"
+            "<meta name='viewport' content='width=device-width, initial-scale=1'>"
+            "</head><body></body></html>"
+        )
+        self.assertEqual(checks(source, "page.html"), [])
+        self.assertEqual(audit.suggest_fixes([("page.html", source)]), [])
+
+    def test_maximum_scale_of_two_is_not_a_repair(self):
+        source = (
+            "<html lang='en'><head><title>t</title>"
+            "<meta name='viewport' content='width=device-width, maximum-scale=2'>"
+            "</head><body></body></html>"
+        )
+        self.assertEqual(checks(source, "page.html"), [])
+        self.assertEqual(audit.suggest_fixes([("page.html", source)]), [])
+
+    def test_expression_bearing_scale_is_not_dropped(self):
+        # Might render as 3. Guessing would invent the defect-clearing edit.
+        source = (
+            "<html lang='en'><head><title>t</title>"
+            "<meta name='viewport' content='width=device-width, "
+            "maximum-scale={{ settings.max }}'></head><body></body></html>"
+        )
+        self.assertEqual(audit.suggest_fixes([("x.liquid", source)]), [])
+
+    def test_literal_lock_beside_an_expression_is_still_dropped(self):
+        source = (
+            "<html lang='en'><head><title>t</title>"
+            "<meta name='viewport' content='width={{ w }}, user-scalable=no'>"
+            "</head><body></body></html>"
+        )
+        repairs = audit.suggest_fixes([("x.liquid", source)])
+        self.assertEqual(
+            [(r["replace"], r["with"]) for r in repairs],
+            [("width={{ w }}, user-scalable=no", "width={{ w }}")],
+        )
+
+    def test_duplicate_content_string_is_not_a_repair(self):
+        source = (
+            "<html lang='en'><head><title>t</title>"
+            "<meta name='viewport' content='user-scalable=no'>"
+            "<meta name='viewport' content='user-scalable=no'>"
+            "</head><body></body></html>"
+        )
+        self.assertEqual(audit.suggest_fixes([("x.html", source)]), [])
+
+    def test_does_not_touch_a_non_viewport_meta(self):
+        source = (
+            "<html lang='en'><head><title>t</title>"
+            "<meta name='description' content='user-scalable=no'>"
+            "</head><body></body></html>"
+        )
+        self.assertEqual(audit.suggest_fixes([("x.html", source)]), [])
+
+    def test_record_lists_the_viewport_edit(self):
+        files = [("layout.liquid", LOCKED_VIEWPORT)]
+        record = audit.evidence_record(
+            audit.audit_sources(files),
+            "Test", date="2026-08-24",
+            proposed_repairs=audit.suggest_fixes(files),
+        )
+        md = audit.render_record(record)
+        self.assertIn("Proposed repairs (not applied)", md)
+        self.assertIn("user-scalable=no", md)
+        self.assertIn("width=device-width, initial-scale=1", md)
+        self.assertIn("None have been written", md)
+
+    def test_cli_never_writes_the_source(self):
+        import os
+        import tempfile
+        from io import StringIO
+        from contextlib import redirect_stdout
+
+        with tempfile.TemporaryDirectory() as tmp:
+            page = os.path.join(tmp, "layout.liquid")
+            with open(page, "w", encoding="utf-8") as handle:
+                handle.write(LOCKED_VIEWPORT)
+            with open(page, encoding="utf-8") as handle:
+                before = handle.read()
+            buf = StringIO()
+            old = sys.argv
+            try:
+                sys.argv = [
+                    "audit.py", page, "--record",
+                    "--scope", "cli-viewport", "--date", "2026-08-24",
+                ]
+                with redirect_stdout(buf):
+                    code = audit.main()
+            finally:
+                sys.argv = old
+            self.assertEqual(code, 0)
+            with open(page, encoding="utf-8") as handle:
+                self.assertEqual(handle.read(), before)
+            md = buf.getvalue()
+            self.assertIn("Proposed repairs (not applied)", md)
+            self.assertIn("user-scalable=no", md)
+
+
 if __name__ == "__main__":
     unittest.main()

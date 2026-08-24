@@ -4,7 +4,7 @@ Built and measured 2026-08-20. Re-runnable:
 
 ```bash
 cd portfolio/research/a11y-evidence-record
-python3 -m unittest discover                          # 89 tests, no dependencies
+python3 -m unittest discover                          # 186 tests, no dependencies
 python3 measure_themes.py --recompute-from results-2026-08-20.json   # offline, pre-contrast
 python3 measure_themes.py --recompute-from results-2026-08-21-contrast.json  # offline, with 1.4.3
 python3 audit.py <path> --record --scope "<subject>"  # produce a record
@@ -447,10 +447,29 @@ undecidable, never a guessed lock. Absence of a lock is a pass. Own-site
   *"Kill it if … AT verification finds that generated fixes close less than half
   of blocking issues"* needs a contractor with a screen reader. Nothing here
   moves that.
-- **No generated fixes.** This is the audit half of "audit-and-fix". Fix
-  generation against a customer's theme is a write path into someone else's
-  site, and the write-up's own rule — staging-only, rollback, first ten reviewed
-  — describes work with a human in it.
+- **~~No generated fixes.~~ Closed 2026-08-24 for two classes, still true of
+  every class that needs a name or a colour invented.** The audit half of
+  "audit-and-fix" has been here since this directory was built. The first
+  defect finding 2 of the theme-resolution pass recovered by hand -- a
+  theme that prefixes the control id and forgets the matching
+  `<label for>` -- is two strings, and the pairing is unique when exactly
+  one control in the file has that literal as its trailing text after a
+  separator. The CLI now prints those edits in the record as *proposed,
+  not applied*, with the same "not a conformance claim" framing the
+  findings already carry, and it never writes the customer's files.
+  Applying a suggestion, reviewing it, and rolling it back remain the
+  merchant's (or a contractor's) step, which is the write-up's own rule.
+  Inventing alt text, a visible name, or a contrast colour is still not
+  attempted: those are not determined by the markup. The third fassbender
+  defect (a search field with no `<label for>` anywhere) still has no
+  repair, because there is no label to rewrite -- the package-wide index
+  can promote it to a finding and cannot write a name. A second class
+  joined the same day: a viewport meta that lists literal
+  `user-scalable=no` and/or `maximum-scale` below 2. Dropping those
+  tokens, and only those tokens, is uniquely determined -- finding 3's
+  single `viewport-scaling-blocked` row on `create-shopify-theme@0.0.5`
+  is this shape. An expression-bearing token is left alone, because
+  `maximum-scale={{ n }}` might already render at 3. No score moved.
 - **~~`audit.py` over-reports `control-no-label` as undecidable, by 64.~~**
   Found 2026-08-20 by [`../a11y-theme-resolution/`](../a11y-theme-resolution/);
   **fixed in `audit.py` on 2026-08-21, and the predicted 64 was confirmed
