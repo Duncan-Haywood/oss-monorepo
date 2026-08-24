@@ -53,3 +53,16 @@ export function calculate(quote) {
     cost_coverage: quote.price - directCosts,
   };
 }
+
+/** Shows how the supplied quote behaves if the work takes longer than planned. */
+export function overrunScenarios(quote, report, percentages = [10, 25, 50]) {
+  return percentages.map((percent) => {
+    const hours = report.total_hours * (1 + percent / 100);
+    return {
+      percent,
+      total_hours: hours,
+      effective_hourly_rate: (quote.price - report.direct_costs) / hours,
+      gap_to_target: quote.price - (hours * quote.target_hourly_rate + report.direct_costs),
+    };
+  });
+}

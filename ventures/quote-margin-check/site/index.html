@@ -99,6 +99,10 @@
   .checks li.attention { border-color: var(--bad); }
   .checks li.clear { border-color: var(--good); }
   .checks strong { display: block; }
+  .sensitivity { width: 100%; border-collapse: collapse; margin-top: 0.75rem; font-size: 0.9rem; }
+  .sensitivity th, .sensitivity td { padding: 0.45rem; border-bottom: 1px solid var(--border); text-align: right; }
+  .sensitivity th:first-child, .sensitivity td:first-child { text-align: left; }
+  .table-scroll { overflow-x: auto; }
   .actions { margin-top: 1rem; display: flex; gap: 0.5rem; flex-wrap: wrap; }
   button { font: inherit; padding: 0.5rem 0.9rem; border-radius: 6px; border: 1px solid var(--border); background: var(--bg); color: var(--fg); cursor: pointer; }
   button:hover { border-color: var(--accent); }
@@ -174,8 +178,9 @@
     <input type="number" id="target_hourly_rate" inputmode="decimal" value="75" min="0" step="any" />
     <p class="hint">What you'd want to be paid per hour if you were billing hourly instead.</p>
 
-       <div class="result" id="result" role="status" aria-live="polite"></div>
-     <div class="result" id="review" aria-live="polite"><strong>Before you send it</strong><ul class="checks"></ul></div>
+    <div class="result" id="result" role="status" aria-live="polite"></div>
+    <div class="result" id="sensitivity" aria-live="polite"><strong>If the work takes longer</strong><p class="hint">A scenario view, not a prediction. Direct costs stay unchanged.</p><div class="table-scroll"><table class="sensitivity"><thead><tr><th>Extra time</th><th>Total hours</th><th>Effective rate</th><th>Gap to target</th></tr></thead><tbody></tbody></table></div></div>
+      <div class="result" id="review" aria-live="polite"><strong>Before you send it</strong><ul class="checks"></ul></div>
 
     <div class="actions">
       <button type="button" id="copy-csv">Copy as CSV row</button>
@@ -245,7 +250,7 @@
 </main>
 
 <script type="module">
-  import { loadQuote, calculate } from "./calc.mjs";
+  import { loadQuote, calculate, overrunScenarios } from "./calc.mjs";
   import { reviewQuote } from "./review.mjs";
   import { recordEvent, createReportCounter, isUsageCountingEnabled, setUsageCountingEnabled } from "./usage.mjs";
 
@@ -256,8 +261,10 @@
   const el = Object.fromEntries(ids.map((id) => [id, document.getElementById(id)]));
   const result = document.getElementById("result");
   const review = document.getElementById("review");
+  const sensitivity = document.getElementById("sensitivity");
 
   let lastReport = null;
+  let sensitivityRecorded = false;
 
   function readInputs() {
     return {
@@ -298,6 +305,7 @@
         </dl>
        `;
        review.querySelector(".checks").innerHTML = reviewQuote(quote, r).map((check) => `<li class="${check.level}"><strong>${escapeHtml(check.title)}</strong>${escapeHtml(check.detail)}</li>`).join("");
+       sensitivity.querySelector("tbody").innerHTML = overrunScenarios(quote, r).map((scenario) => `<tr><th scope="row">+${scenario.percent}%</th><td>${fmt(scenario.total_hours)}</td><td>${safeCurrency} ${fmt(scenario.effective_hourly_rate)}/hour</td><td>${safeCurrency} ${fmt(scenario.gap_to_target)}</td></tr>`).join("");
        recordEvent("quote_review_checked");
       result.classList.remove("error");
       reportCounter.count(JSON.stringify(quote));
@@ -317,8 +325,16 @@
     if (exampleNote) exampleNote.hidden = true;
   }
 
+  function handleInput() {
+    update();
+    if (!sensitivityRecorded && lastReport) {
+      recordEvent("overrun_sensitivity_viewed");
+      sensitivityRecorded = true;
+    }
+  }
+
   for (const id of ids) {
-    el[id].addEventListener("input", update);
+    el[id].addEventListener("input", handleInput);
     el[id].addEventListener("input", dismissExampleNote, { once: true });
   }
   update();

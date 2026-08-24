@@ -83,11 +83,13 @@ products:
         signals:
           live_url_visitors: null
           quote_review_checked: 0
+          overrun_sensitivity_viewed: 0
         note: >-
           Added a browser-local pre-send review that surfaces direct-cost,
-          target-gap, hidden-time, and revision-assumption observations. No
-          public URL yet; the feature counter stores only aggregate local
-          events and remains opt-out.
+          target-gap, hidden-time, and revision-assumption observations, plus
+          fixed time-overrun sensitivity scenarios. No public URL yet; the
+          feature counter stores only aggregate local events and remains
+          opt-out.
   - slug: etsy-profit-calculator
     surface: static-page-in-repo
     readings:
