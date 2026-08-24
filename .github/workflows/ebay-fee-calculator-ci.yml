@@ -4,8 +4,12 @@ on:
     paths: ['ventures/ebay-fee-calculator/**', '.github/workflows/ebay-fee-calculator-ci.yml']
   pull_request:
     paths: ['ventures/ebay-fee-calculator/**', '.github/workflows/ebay-fee-calculator-ci.yml']
+permissions:
+  contents: read
 jobs:
   test:
+    permissions:
+      contents: read
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
