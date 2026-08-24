@@ -172,6 +172,12 @@ class Render(unittest.TestCase):
         ], TODAY)
         self.assertIn("Oldest has waited 5 days", out)
 
+    def test_all_resolved_renders_an_empty_queue(self):
+        out = render([decision(resolved="2026-08-24")], TODAY)
+        self.assertIn("0 decisions, collapsed from 0 asks and 0 open", out)
+        self.assertNotIn("Oldest has waited", out)
+        self.assertNotIn("payout-rail", out)
+
 
 class RealFile(unittest.TestCase):
     def test_committed_file_passes_its_own_schema(self):

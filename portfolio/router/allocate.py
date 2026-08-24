@@ -302,11 +302,6 @@ def next_task(v: Venture) -> str:
                 f'HELD (external-service) -- develop in ventures/{v.name}/; '
                 f'owner must grant store/account access before: "{claim}"'
             )
-        if claim and v.blocker:
-            return (
-                f'HELD -- develop in ventures/{v.name}/ meanwhile; '
-                f'{v.blocker}; hypothesis: "{claim}"'
-            )
         if claim and h and h.get("evidence") == "customer-contact":
             if v.production_url:
                 return f'Explore: measure user response at {v.production_url} -- "{claim}"'

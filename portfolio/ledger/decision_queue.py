@@ -177,14 +177,15 @@ def render(decisions: list[dict], today: dt.date) -> str:
     n_prs = sum(len(d["prs"]) for d in decisions)
     blocked = [d for d in ordered if d["blocked_by"]]
     revenue = [d for d in ordered if d["gates"] == "revenue"]
-    oldest = max(age_days(d["opened"], today) for d in decisions)
 
     out = ["The account owner's decision queue", ""]
     out.append(
         f"  {len(decisions)} decisions, collapsed from {n_asks} asks and "
         f"{n_prs} open pull requests."
     )
-    out.append(f"  Oldest has waited {oldest} days.")
+    if decisions:
+        oldest = max(age_days(d["opened"], today) for d in decisions)
+        out.append(f"  Oldest has waited {oldest} days.")
     out.append(
         f"  {len(revenue)} of {len(decisions)} moves the revenue ceiling off $0; "
         f"{len(blocked)} cannot be acted on yet."
