@@ -140,7 +140,7 @@ is issue further reading orders: the pipeline directory, the ledger README and
 its `break-even.md`, `re-verification.md`, the research index, the router
 README. None of those is named by the prompt. Taking the closure to its fixed
 point, as [the amendment below](#amendment-2026-08-23-the-closure-is-transitive-and-was-measured-one-hop-deep)
-records, the instruction set is **120 files at a maximum depth of 4**.
+records, the instruction set is **122 files at a maximum depth of 4**.
 
 Every one is an ordinary repository file. Every one is one merged pull request
 away from saying something else. And the agent reads all of them while holding
@@ -148,9 +148,9 @@ away from saying something else. And the agent reads all of them while holding
 `OPENCODE_API_KEY`.
 
 An attack-replay harness pointed at this agent tests the `prompt:` input. That
-input is 1 of the 120 files in the instruction set, and it is the only one of
-the 120 that an attacker has no particular reason to write to. The harness would
-test the surface at a ratio of 1:120, and it would test the wrong end of it.
+input is 1 of the 122 files in the instruction set, and it is the only one of
+the 122 that an attacker has no particular reason to write to. The harness would
+test the surface at a ratio of 1:122, and it would test the wrong end of it.
 
 This is not a subtle property that needed a clever tool. It is four regexes over
 a markdown file, a glob expansion, and a worklist that keeps going until it
@@ -190,10 +190,10 @@ that flatters it.
 |---|---:|
 | prompt input | 1 |
 | depth 1 — paths the prompt names | 21 |
-| depth 2 | 55 |
-| depth 3 | 39 |
+| depth 2 | 57 |
+| depth 3 | 40 |
 | depth 4 | 4 |
-| **instruction set (fixed point)** | **120** |
+| **instruction set (fixed point)** | **122** |
 
 The first-hop number is unchanged, so nothing above it is retracted; what
 changed is that the walk no longer stops there. Three things are worth naming
@@ -342,6 +342,33 @@ security, and **only the artifact check makes it visible.** The widened path
 filter earned its keep for the second time — CI went red before the merge, and
 the results file and all four prose figures were corrected in the pull request
 that moved them.
+
+**Fourth instance, 2026-08-24: `120` became `122`, and this one was self-
+inflicted by a *security-adjacent* edit.** A session consolidating
+`portfolio/research/egress-reachability/` added two files —
+`check_ask_hosts.py` and `unindexed-hosts.json` — and named them from two
+documents already inside the closure: `CLAUDE.md` (depth 1) and that
+directory's own README. Naming them is what pulled them in (`57` at depth 2,
+`40` at depth 3).
+
+The three prior instances were all authors with no reason to think they were
+touching security — a ledger correction, a research index row, an ask record.
+This one is the opposite and lands in the same place: the session was **writing
+a check to stop a table from going stale**, which is as security-adjacent as
+ordinary upkeep in this repository gets, and it still moved the surface by two
+files without noticing until CI said so. The mechanism does not care what the
+edit is *about*; it cares only that a document the agent is directed to read
+now names one more path. Four instances in four days, three different authors,
+one direction.
+
+Corrected in the same pull request that moved the number, per the discipline
+[#708](https://github.com/Duncan-Haywood/monorepo-projects/pull/708)
+established. The depth table above also had a stale row that this pass
+repaired: it read `55` at depth 2 while the committed results file read `56`,
+so the four rows summed to 119 against a headline of 120. Nothing checks a
+sum, which is why it survived — the depth breakdown is prose that no artifact
+check re-derives, and it is one more instance of this table's own lesson about
+figures nothing recomputes.
 
 ## What this probe deliberately does not do
 
