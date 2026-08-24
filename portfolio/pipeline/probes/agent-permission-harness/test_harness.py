@@ -28,6 +28,8 @@ import harness
 from harness import (
     Finding,
     _delimited_span,
+    check_fingerprint,
+    fingerprint,
     _expand_prompt_path,
     analyse,
     effective_write_scopes,
@@ -1011,6 +1013,88 @@ class TestHeadlineNumbersAgainstThisRepo(unittest.TestCase):
     def test_json_output_is_serialisable(self):
         payload = json.dumps({"summary": self.summary, "findings": [f.__dict__ for f in self.findings]})
         self.assertIn("R7-agent-instruction-closure", payload)
+
+
+class TestFingerprint(unittest.TestCase):
+    """The drift check must track workflow posture and nothing else.
+
+    The committed prose snapshot could not do this: R7's detail quotes the size
+    of the repository's documentation closure, so adding an unrelated markdown
+    file anywhere changed it and failed the check on every open PR. These tests
+    pin the property that replaced it.
+    """
+
+    def base_finding(self, **overrides):
+        defaults = dict(
+            rule="R7-agent-instruction-closure",
+            severity="defect",
+            workflow=".github/workflows/w.yml",
+            job="agent",
+            line=10,
+            summary="agent instruction set is 77 repository files",
+            detail="the fixed point of that is 77 files",
+            input_writer_set="REPO_WRITE",
+            privilege="token:contents",
+            observable_by_replay=False,
+        )
+        defaults.update(overrides)
+        return Finding(**defaults)
+
+    def test_prose_is_excluded_from_the_identity(self):
+        # The exact regression: only the narrated file count moved.
+        before = [self.base_finding()]
+        after = [
+            self.base_finding(
+                summary="agent instruction set is 80 repository files",
+                detail="the fixed point of that is 80 files",
+            )
+        ]
+        self.assertEqual(fingerprint(before), fingerprint(after))
+
+    def test_line_numbers_are_excluded_from_the_identity(self):
+        # Adding a comment to a workflow shifts every line below it without
+        # changing any grant.
+        self.assertEqual(
+            fingerprint([self.base_finding(line=10)]),
+            fingerprint([self.base_finding(line=42)]),
+        )
+
+    def test_a_changed_grant_changes_the_identity(self):
+        self.assertNotEqual(
+            fingerprint([self.base_finding(privilege="token:contents")]),
+            fingerprint([self.base_finding(privilege="token:contents,packages")]),
+        )
+
+    def test_a_removed_finding_changes_the_identity(self):
+        self.assertNotEqual(fingerprint([self.base_finding()]), fingerprint([]))
+
+    def test_order_does_not_affect_the_identity(self):
+        a = self.base_finding(job="one")
+        b = self.base_finding(job="two")
+        self.assertEqual(fingerprint([a, b]), fingerprint([b, a]))
+
+    def test_check_passes_against_its_own_output(self):
+        findings = [self.base_finding()]
+        with tempfile.TemporaryDirectory() as raw:
+            path = Path(raw) / "fp.json"
+            path.write_text(json.dumps(fingerprint(findings)))
+            self.assertEqual(check_fingerprint(findings, path), 0)
+
+    def test_check_fails_on_drift_and_on_a_missing_file(self):
+        with tempfile.TemporaryDirectory() as raw:
+            path = Path(raw) / "fp.json"
+            path.write_text(json.dumps(fingerprint([self.base_finding()])))
+            drifted = [self.base_finding(privilege="token:contents,packages")]
+            self.assertEqual(check_fingerprint(drifted, path), 1)
+            self.assertEqual(check_fingerprint(drifted, Path(raw) / "absent.json"), 1)
+
+    def test_committed_fingerprint_matches_this_checkout(self):
+        # The committed file is the baseline CI compares against, so a workflow
+        # edit that changes the posture without regenerating it fails here too,
+        # not only in CI.
+        committed = Path(__file__).parent / "findings-fingerprint.json"
+        self.assertTrue(committed.exists(), "findings-fingerprint.json is missing")
+        self.assertEqual(json.loads(committed.read_text()), fingerprint(analyse(REPO_ROOT)))
 
 
 if __name__ == "__main__":

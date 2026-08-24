@@ -53,10 +53,14 @@ itself in exactly those terms. Writer sets are ordered, widest last:
 
 ## The result
 
-Full report: [`results-2026-08-23.md`](results-2026-08-23.md). Regenerate with
-`python3 harness.py`. [`results-2026-08-21.md`](results-2026-08-21.md) is kept
-as the prior snapshot: the two differ only in R7, and the difference is the
-subject of the amendment below.
+Full report: [`results-2026-08-23.md`](results-2026-08-23.md) — a dated record
+of the run on that date, so the file counts in its R7 prose are what the
+closure measured then, not what it measures today. Take a fresh reading with
+`python3 harness.py`, under a new date-stamped filename.
+[`results-2026-08-21.md`](results-2026-08-21.md) is kept as the prior snapshot:
+the two differ only in R7, and the difference is the subject of the amendment
+below. Neither file is what CI checks — see
+[the drift check](#why-the-drift-check-is-a-fingerprint-and-not-a-diff-of-the-report).
 
 **7 findings across 2 of 31 workflow files — 1 defect, 6 posture records. All
 7 are decided from the artifact with nothing running. Zero require a running
@@ -533,8 +537,38 @@ verifiable in full from this checkout, and are fixed above.
 ```
 python3 harness.py                     # markdown report over this repository
 python3 harness.py --json              # machine-readable findings
+python3 harness.py --fingerprint       # stable finding identities, no prose
 python3 harness.py --repo-root PATH    # another checkout
 python3 -m unittest discover -p 'test_*.py'
+
+# what CI runs: fails if the workflow permission posture drifted
+python3 harness.py --check-fingerprint findings-fingerprint.json
+```
+
+### Why the drift check is a fingerprint and not a diff of the report
+
+CI used to diff the rendered markdown against a committed snapshot. That check
+had to be abandoned because it did not measure what it claimed to. R7's prose
+quotes the size of the repository's documentation closure, so any commit that
+added a markdown file to that closure — a venture write-up, a candidate
+write-up — changed the rendered text. The step then failed on every open pull
+request simultaneously, reporting a permission change where no workflow had
+been touched. Regenerating the snapshot moved the number without fixing
+anything: the next merge invalidated it again.
+
+[`findings-fingerprint.json`](findings-fingerprint.json) holds each finding's
+rule, severity, workflow, job, input writer set, privilege, and replay
+visibility. Deliberately *not* the summary and detail prose (which carry the
+volatile counts) and not line numbers (which shift when a comment is added
+above them). Those fields change when a workflow's permission posture changes
+and at no other time, which is the drift this probe exists to catch.
+
+If CI fails this step, read the printed finding list first — it names what
+appeared or disappeared. Regenerate only once you have confirmed the new
+posture is intended:
+
+```
+python3 harness.py --fingerprint > findings-fingerprint.json
 ```
 
 No network, no writes, no credentials. PyYAML is the only dependency and it is
