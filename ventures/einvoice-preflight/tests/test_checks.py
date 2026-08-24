@@ -174,7 +174,10 @@ class ChecksTest(unittest.TestCase):
                 self.assertEqual(main([str(invoice_path), "--format", "markdown"]), 1)
             markdown = output.getvalue()
             self.assertIn("# E-invoice preflight", markdown)
+            self.assertIn("Overall: **FAIL**", markdown)
+            self.assertIn("Failed: 1", markdown)
             self.assertIn("## `invoice.json`", markdown)
+            self.assertIn("Status: **FAIL**", markdown)
             self.assertIn("**INV-017**", markdown)
             self.assertIn("Fix:", markdown)
             self.assertNotIn("INV-1", markdown)
@@ -188,10 +191,27 @@ class ChecksTest(unittest.TestCase):
             with contextlib.redirect_stdout(output):
                 self.assertEqual(main([directory, "--format", "markdown"]), 2)
             markdown = output.getvalue()
+            self.assertIn("Overall: **FAIL**", markdown)
             self.assertIn("Checked: 1 invoice(s)", markdown)
+            self.assertIn("Passed: 1", markdown)
+            self.assertIn("Read errors: 1", markdown)
             self.assertIn("## `pass.json`", markdown)
+            self.assertIn("Status: **PASS**", markdown)
             self.assertIn("## Read errors", markdown)
             self.assertIn("`broken.json`", markdown)
+
+    def test_cli_emits_pass_summary_for_valid_batch(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            (root / "pass.json").write_text(json.dumps(VALID))
+            output = io.StringIO()
+            with contextlib.redirect_stdout(output):
+                self.assertEqual(main([directory, "--format", "markdown"]), 0)
+            markdown = output.getvalue()
+            self.assertIn("Overall: **PASS**", markdown)
+            self.assertIn("Passed: 1", markdown)
+            self.assertIn("Failed: 0", markdown)
+            self.assertIn("Status: **PASS**", markdown)
 
 
 if __name__ == "__main__":
