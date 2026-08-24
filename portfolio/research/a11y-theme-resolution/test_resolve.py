@@ -364,5 +364,32 @@ class TestPopulationFaithfulness(unittest.TestCase):
                          sum(expected.values()))
 
 
+class SummaryMatchesItsRows(unittest.TestCase):
+    """`--recompute-from` derived this and then threw the comparison away.
+
+    That is what CI runs against the committed artifact, so until 2026-08-24 no
+    disagreement between the stored summary and the rows it is computed from
+    could turn the step red -- it printed the re-derived summary and returned 0
+    either way.
+    """
+
+    def setUp(self):
+        import json
+        import os.path
+        path = os.path.join(os.path.dirname(os.path.abspath(__file__)),
+                            "results-2026-08-20.json")
+        with open(path) as handle:
+            self.data = json.load(handle)
+
+    def test_committed_summary_is_what_the_rows_derive(self):
+        self.assertEqual(R.summarise(self.data["packages"]),
+                         self.data["summary"])
+
+    def test_an_edited_row_desyncs_the_summary(self):
+        self.data["packages"][0]["theme_recoverable"] += 1
+        self.assertNotEqual(R.summarise(self.data["packages"]),
+                            self.data["summary"])
+
+
 if __name__ == "__main__":
     unittest.main()

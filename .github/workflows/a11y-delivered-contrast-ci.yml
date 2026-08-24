@@ -71,6 +71,11 @@ jobs:
       # Standard-library unittest only: no pip install, no npm install, no
       # browser. The tests that need a built venture skip themselves.
       - run: python3 -m unittest discover -p 'test_*.py'
-      # The committed result set must still re-derive with no network and no
-      # browser. Catches a hand-edited number.
+      # This asserts that the committed file parses and its report still
+      # renders. It does NOT catch a hand-edited number, as this comment claimed
+      # until 2026-08-24: the file stores aggregates only, with no per-element
+      # rows to re-derive them from, so there is no offline invariant to check
+      # — unlike a11y-contrast-decidability and a11y-theme-resolution, whose
+      # equivalent steps now do compare. The committed figures are pinned by the
+      # test step above, which reads this same file; that is the real check.
       - run: python3 measure.py --recompute-from results-2026-08-21.json
