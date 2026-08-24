@@ -15,7 +15,7 @@ function validInventory(data) {
   data.apps.forEach(app => {
     if (!app || typeof app.id !== 'string' || !app.id || ids.has(app.id)) throw new Error('Every app needs a unique, non-empty id.');
     ids.add(app.id);
-    ['scopes', 'webhooks'].forEach(field => { if (!Array.isArray(app[field]) || app[field].some(item => typeof item !== 'string')) throw new Error(`App ${app.id} needs a string ${field} list.`); });
+    ['scopes', 'webhooks'].forEach(field => { if (!Array.isArray(app[field]) || app[field].some(item => typeof item !== 'string') || new Set(app[field]).size !== app[field].length) throw new Error(`App ${app.id} needs a unique string ${field} list.`); });
   });
   return data;
 }
