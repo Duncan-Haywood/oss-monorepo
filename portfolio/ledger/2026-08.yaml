@@ -21151,3 +21151,50 @@ entries:
           the binary is already row 1 and a duplicate flag would lengthen the
           queue without making anything newly decidable.
     mrr_end: null
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+          Scheduled strategic session ("continue work... maintain and improve
+          the development process... legal ethical reliable increase in
+          profit... this run should be more strategic work"), designated
+          branch claude/wizardly-albattani-nhj8wi. `session_gate.py` ->
+          PROCEED, flagging 2 distinct sessions committed to `main` within a
+          15-minute window in the last 6h. Read `decision_queue.py` (8
+          decisions, oldest 5 days, unchanged) and the open PR list against a
+          freshly fetched `main` before starting.
+      - >-
+          Found #713 (a ledger-only doc amendment, opened this session-cycle
+          by a separate scheduled session) open with a failing
+          `agent-permission-harness CI` check: its first commit named
+          `decision_queue.py` and `session_gate.py` in prose, which pulled
+          both into the fleet agent's instruction closure at depth 3 and
+          moved R7's count 118 -> 120, so the committed `results-2026-08-23.md`
+          read stale. By the time this session looked, the PR's own author
+          session had already pushed a second commit regenerating the
+          results file and correcting the four dependent prose figures, and
+          all three checks (agent-permission-harness CI, Portfolio validate,
+          error-rate-disclosure CI) were green with `mergeable_state: clean`.
+      - >-
+          Did not trust the green checks alone. Re-ran the verification
+          independently in a worktree on the PR's exact head (`4401642`):
+          `python3 -m pytest portfolio/ledger/ -q` (120/120), the harness
+          probe's own suite (84/84) plus both documented invocations with the
+          regenerated file diffing clean against the committed one (the exact
+          CI step that had failed), and `platform/ci/publish_surface.py
+          --check` (38 workflows, 0 live, unchanged). Merged #713: ledger and
+          probe-docs only, no `ventures/*` code, publishes nothing, spends
+          nothing beyond agent time -- agent-decidable per `CLAUDE.md`, and
+          verified rather than assumed.
+      - >-
+          The remaining 4 open PRs (#583, #531, #372, #368) are unchanged and
+          still correctly owner-gated behind decision-queue row 6
+          (`venture-gate-premise`, added this session-cycle by #712, 0 days
+          old): while `publish_surface.py` reports nothing live, does a
+          `ventures/*` merge stay human-gated regardless, or not? That
+          question is explicitly for the owner to answer, not for a session
+          to resolve by merging the PRs it would settle. Left all four
+          untouched. Nothing here moves the $0 revenue ceiling, which stays
+          on Ask 2 (the payout rail), now five days old.
+    mrr_end: null
