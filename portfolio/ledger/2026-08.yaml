@@ -22884,3 +22884,60 @@ entries:
           by hand instead of regenerating) rather than re-diagnosing it
           from scratch.
     mrr_end: null
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+          Fleet-wide CI unblock, same session (claude/exciting-brown-7crc4d)
+          after shipping three ai-engineering-academy tools (#932, #944)
+          and one prior CI fix (#936). This PR's own "test" and "validate"
+          checks came back red on both #944 and, before that, #936's own
+          re-verification -- traced both to concurrent sessions' commits
+          on `main`, not to anything in this session's diffs, using the
+          same "does this fail on main's own push-triggered run too"
+          check each time.
+      - >-
+          Two independent checks were currently red on `main` itself,
+          blocking the "test" and "validate" jobs on every open PR whose
+          diff touches the broad path sets those workflows watch
+          (portfolio/**, .github/workflows/**, README.md, etc.). (1) The
+          "validate" break was a duplicate `shopify-permission-drift`
+          entry in `portfolio/scoring/venture-scores.yaml` (composite
+          6.333 and 5.833): #923 added the first deliberately, #920
+          ("DNS evidence...") merged 15 minutes later off a stale base
+          and reintroduced a second as an incidental side effect. A
+          concurrent session (#949) fixed this while this session was
+          mid-work; on rebasing onto that, this session's own identical
+          dedup was dropped as redundant rather than duplicated. (2) The
+          "test" break -- `agent-permission-harness/results-2026-08-23.md`
+          drifted again (whitespace-only this time) minutes after this
+          session's #936 fix landed, from a different concurrent commit's
+          hand-edit -- #949 did NOT cover, so this session regenerated it
+          with the exact command CI runs. Net change pushed here: the
+          harness snapshot regeneration (the score fix went in via #949).
+      - >-
+          Verified rather than assumed: ran every step
+          `portfolio-validate.yml` and `agent-permission-harness-ci.yml`
+          run, locally, in order -- VENTURE.yaml schema (15 files),
+          candidate score consistency (17 candidates x3 sources), probe
+          index freshness, harness unit tests (84) + `harness.py` +
+          `harness.py --json` + the freshness diff, score_ventures unit
+          tests (37), router unit tests (51), workflow-file parsing (42
+          files), publish-surface snapshot, break-even snapshot,
+          verification-record schema, session gate, decision-queue
+          schema, score-sensitivity, and both egress-reachability checks.
+          All pass now; both were failing before this fix.
+      - >-
+          Left the underlying pattern for whoever picks it up next rather
+          than trying to eliminate it in this session: both breaks are
+          symptoms of concurrent sessions hand-editing generated files
+          (a results snapshot, a scores roster) instead of regenerating/
+          re-running the tool that owns them, combined with a very broad
+          CI trigger surface that makes the drift visible on unrelated
+          PRs rather than only on the PR that caused it. Worth a
+          structural fix (e.g. a merge-time regeneration step, or scoring
+          entries keyed so a duplicate can't silently coexist) if this
+          keeps recurring, but that's a larger, more opinionated change
+          than fits inside "fix what's red right now."
+    mrr_end: null
