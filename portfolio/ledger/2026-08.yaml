@@ -22935,50 +22935,6 @@ entries:
         (unaffected, both pass). Doc-only diff; no code, deployment, or
         owner-only action.
     mrr_end: null
-  - venture: dns-configuration-evidence
-    agent_spend_usd: null
-    human_hours: 0
-    outcomes:
-      - >-
-          Deepened an existing, uncontested venture instead of adding a new
-          micro-tool to an already-saturated area (today's PR queue had 5+
-          concurrent sessions independently building calculators/CI fixes;
-          this venture had zero same-day collisions). Added SPF/DKIM/DMARC
-          change tagging: every finding in the DNS diff report now carries
-          an `email_auth: "SPF" | "DKIM" | "DMARC" | null` field, detected
-          by name convention (`_dmarc.<domain>`, `<selector>._domainkey.
-          <domain>`) or apex-TXT content (`v=spf1` prefix) -- not by
-          validating the record, which the tool is explicit it does not do.
-          The markdown report gets a distinct callout when any
-          email-auth-relevant record changed, and the CLI gained
-          `--fail-on email-auth-changed` alongside the existing
-          `changed`/`inconclusive` gates, so a CI pipeline can treat "someone
-          changed how our mail authenticates" as higher-priority than an
-          ordinary A-record change (the single most common "why is our email
-          going to spam" support scenario for a small business).
-      - >-
-          Verified: 8 new unit tests (17/17 total passing, up from 9),
-          covering DMARC/DKIM/SPF detection by name and content, that an
-          unrelated apex TXT record is not misclassified as SPF, that an
-          unchanged email-auth record is correctly excluded from the changed
-          count, and both markdown-callout paths (present/absent). Manually
-          drove the CLI end-to-end against a hand-built before/after pair
-          with a changed SPF record and an unchanged DMARC record --
-          confirmed the markdown output, JSON `email_auth_changed_count`,
-          and `--fail-on email-auth-changed` exit code (2) all agree.
-          Re-ran the existing example fixtures to confirm the new field
-          doesn't change any pre-existing finding's status.
-      - >-
-          Also found and fixed a real gap unrelated to this feature: the
-          venture had no CI workflow at all (its 9-then-17-test suite has
-          never run automatically). Added
-          `.github/workflows/dns-configuration-evidence-ci.yml`, matching
-          the sibling `backup-verification-evidence-ci.yml` pattern
-          (test + ruff lint jobs, path-scoped triggers). Registered it in
-          `platform/ci/publish-surface.yaml` via `--write` (classified
-          `none` -- no live publish, matching every sibling CLI venture).
-          Added a usage.yaml baseline row per `portfolio/usage/README.md`.
-    mrr_end: null
   - venture: quote-margin-check
     agent_spend_usd: null
     human_hours: 0
@@ -23049,4 +23005,48 @@ entries:
         superseded by merged #944) and #951, which would have re-broken CI:
         #949 had already removed the duplicate `shopify-permission-drift`
         score, so #951's patch would have deleted the only remaining entry.
+    mrr_end: null
+  - venture: dns-configuration-evidence
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+          Deepened an existing, uncontested venture instead of adding a new
+          micro-tool to an already-saturated area (today's PR queue had 5+
+          concurrent sessions independently building calculators/CI fixes;
+          this venture had zero same-day collisions). Added SPF/DKIM/DMARC
+          change tagging: every finding in the DNS diff report now carries
+          an `email_auth: "SPF" | "DKIM" | "DMARC" | null` field, detected
+          by name convention (`_dmarc.<domain>`, `<selector>._domainkey.
+          <domain>`) or apex-TXT content (`v=spf1` prefix) -- not by
+          validating the record, which the tool is explicit it does not do.
+          The markdown report gets a distinct callout when any
+          email-auth-relevant record changed, and the CLI gained
+          `--fail-on email-auth-changed` alongside the existing
+          `changed`/`inconclusive` gates, so a CI pipeline can treat "someone
+          changed how our mail authenticates" as higher-priority than an
+          ordinary A-record change (the single most common "why is our email
+          going to spam" support scenario for a small business).
+      - >-
+          Verified: 8 new unit tests (17/17 total passing, up from 9),
+          covering DMARC/DKIM/SPF detection by name and content, that an
+          unrelated apex TXT record is not misclassified as SPF, that an
+          unchanged email-auth record is correctly excluded from the changed
+          count, and both markdown-callout paths (present/absent). Manually
+          drove the CLI end-to-end against a hand-built before/after pair
+          with a changed SPF record and an unchanged DMARC record --
+          confirmed the markdown output, JSON `email_auth_changed_count`,
+          and `--fail-on email-auth-changed` exit code (2) all agree.
+          Re-ran the existing example fixtures to confirm the new field
+          doesn't change any pre-existing finding's status.
+      - >-
+          Also found and fixed a real gap unrelated to this feature: the
+          venture had no CI workflow at all (its 9-then-17-test suite has
+          never run automatically). Added
+          `.github/workflows/dns-configuration-evidence-ci.yml`, matching
+          the sibling `backup-verification-evidence-ci.yml` pattern
+          (test + ruff lint jobs, path-scoped triggers). Registered it in
+          `platform/ci/publish-surface.yaml` via `--write` (classified
+          `none` -- no live publish, matching every sibling CLI venture).
+          Added a usage.yaml baseline row per `portfolio/usage/README.md`.
     mrr_end: null

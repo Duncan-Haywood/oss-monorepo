@@ -97,7 +97,9 @@ def build_report(before: dict[str, Any], after: dict[str, Any]) -> dict[str, Any
         else:
             status = "changed"
         email_auth = classify_email_auth(
-            key[0], key[1], before["domain"], previous_value or current_value
+            key[0], key[1], before["domain"], previous_value
+        ) or classify_email_auth(
+            key[0], key[1], before["domain"], current_value
         )
         findings.append({
             "name": key[0], "type": key[1], "resolver": key[2], "status": status,

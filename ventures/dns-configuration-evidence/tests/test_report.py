@@ -94,6 +94,17 @@ class ReportTests(unittest.TestCase):
         self.assertEqual(finding["email_auth"], "SPF")
         self.assertEqual(finding["status"], "changed")
 
+    def test_report_flags_spf_added_to_existing_apex_txt(self):
+        before = snapshot([observation("example.test", ["google-site-verification=abc"])])
+        after = snapshot([
+            observation("example.test", ["google-site-verification=abc", "v=spf1 -all"]),
+        ])
+        report = build_report(before, after)
+        self.assertEqual(report["email_auth_changed_count"], 1)
+        finding = report["findings"][0]
+        self.assertEqual(finding["email_auth"], "SPF")
+        self.assertEqual(finding["status"], "changed")
+
     def test_report_does_not_count_an_unchanged_email_auth_record(self):
         before = snapshot([observation("_dmarc.example.test", ["v=DMARC1; p=reject"])])
         after = snapshot([observation("_dmarc.example.test", ["v=DMARC1; p=reject"])])
