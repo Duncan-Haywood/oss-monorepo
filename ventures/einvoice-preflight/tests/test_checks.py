@@ -448,6 +448,38 @@ class ChecksTest(unittest.TestCase):
             self.assertIn("| `INV-017` | 2 | Gross total does not equal net plus tax. |", markdown)
             self.assertIn("## `second\\|review.json`", markdown)
 
+    def test_cli_emits_standalone_html_report_without_invoice_contents(self):
+        with tempfile.TemporaryDirectory() as directory:
+            invoice_path = Path(directory) / "invoice<review>.json"
+            invoice = json.loads(json.dumps(VALID))
+            invoice["invoice_number"] = "PRIVATE-123"
+            invoice["totals"]["gross"] = 200
+            invoice_path.write_text(json.dumps(invoice))
+            output = io.StringIO()
+            with contextlib.redirect_stdout(output):
+                self.assertEqual(main([str(invoice_path), "--format", "html"]), 1)
+            report = output.getvalue()
+            self.assertIn("<!doctype html>", report)
+            self.assertIn("Overall: FAIL", report)
+            self.assertIn("INV-017", report)
+            self.assertIn("invoice&lt;review&gt;.json", report)
+            self.assertNotIn("PRIVATE-123", report)
+            self.assertNotIn("<script", report.lower())
+
+    def test_cli_html_batch_includes_pass_and_read_error_sections(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            (root / "pass.json").write_text(json.dumps(VALID))
+            (root / "broken.json").write_text("not json")
+            output = io.StringIO()
+            with contextlib.redirect_stdout(output):
+                self.assertEqual(main([directory, "--format", "html"]), 2)
+            report = output.getvalue()
+            self.assertIn("pass.json", report)
+            self.assertIn("PASS", report)
+            self.assertIn("Read errors", report)
+            self.assertIn("broken.json", report)
+
 
 if __name__ == "__main__":
     unittest.main()
