@@ -250,6 +250,18 @@ products:
           Distribution is still repo-only: no release, no package, no public
           URL, so there is no download or traffic signal to read yet. Getting
           one is the next step that would actually move this venture.
+  - slug: owner-operator-cpm-calculator
+    surface: static-page-in-repo
+    readings:
+      - as_of: 2026-08-24
+        signals:
+          live_url_visitors: null
+          local_events_reported: 0
+        note: >-
+          Shipped a local owner-operator cost-per-mile calculator (deadhead-
+          adjusted break-even loaded rate, factoring on an offered rate,
+          copyable week summary). Public URL remains owner-gated; the local
+          counter is anonymous, event-only, and opt-out. Baseline row.
   - slug: eaa-remediation-pipeline
     surface: local-site-studio-browser
     readings:
