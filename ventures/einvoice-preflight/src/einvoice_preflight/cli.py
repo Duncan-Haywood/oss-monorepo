@@ -159,6 +159,28 @@ def _json_report(
     return output
 
 
+def _add_batch_duplicate_findings(
+    reports: list[tuple[Path, list[dict[str, str]]]],
+    invoices: list[tuple[Path, Any]],
+) -> None:
+    """Flag repeated invoice numbers without including the number in output."""
+    number_paths: dict[str, list[Path]] = {}
+    for path, invoice in invoices:
+        if isinstance(invoice, dict) and isinstance(invoice.get("invoice_number"), str):
+            number = invoice["invoice_number"].strip()
+            if number:
+                number_paths.setdefault(number, []).append(path)
+    duplicates = {path for paths in number_paths.values() if len(paths) > 1 for path in paths}
+    for path, errors in reports:
+        if path in duplicates:
+            errors.append({
+                "rule": "INV-019",
+                "message": "Invoice number is repeated in this batch.",
+                "fix": "Use a unique invoice number or remove the duplicate before submission.",
+                "path": "/invoice_number",
+            })
+
+
 def _markdown_text(value: str) -> str:
     """Keep local filenames and validator text from changing report structure."""
     return value.replace("\\", "\\\\").replace("|", "\\|").replace("`", "\\`")
@@ -171,6 +193,7 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--usage-file", help="opt-in local aggregate event counter")
     args = parser.parse_args(argv)
     reports: list[tuple[Path, list[dict[str, str]]]] = []
+    invoices: list[tuple[Path, Any]] = []
     read_errors: list[dict[str, str]] = []
     if str(args.invoice) == "-":
         sources = [(Path("stdin.json"), sys.stdin.read())]
@@ -196,8 +219,12 @@ def main(argv: list[str] | None = None) -> int:
             read_errors.append({"file": report_path.as_posix(), "error": str(exc)})
             continue
         reports.append((report_path, check_invoice(invoice)))
+        invoices.append((report_path, invoice))
         if args.usage_file:
             _record_usage(args.usage_file)
+
+    if args.invoice.is_dir():
+        _add_batch_duplicate_findings(reports, invoices)
 
     errors = [error for _, invoice_errors in reports for error in invoice_errors]
     has_read_errors = bool(read_errors)
