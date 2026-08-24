@@ -1,5 +1,17 @@
 period: 2026-08
 entries:
+  - venture: construction-evidence-log
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Graduated a new construction documentation candidate and shipped a
+        zero-dependency browser-local vertical slice: daily log capture,
+        missing-field review notes, dated JSON evidence-pack download, copyable
+        summary, visible evidence-only disclaimer, opt-out anonymous local usage
+        events, SEO metadata, sitemap, robots.txt, and MIT license. Public URL,
+        customer demand, and any hosted aggregation remain unresolved.
+    mrr_end: null
   - venture: shopify-a11y-evidence
     agent_spend_usd: null
     human_hours: 0
