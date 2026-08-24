@@ -334,30 +334,3 @@ decisions:
     (`platform/deployment/probe_control_planes.py`, 22 control-plane hosts) is
     read-only tooling and is the agent-decidable half; the decision is not.
 
-- id: local-site-studio-subtree
-  asks: []
-  prs: [731]
-  gates: deployment
-  exposure: none
-  opened: "2026-08-24"
-  action: "Merge or decline #731."
-  unlocks:
-    - >-
-      The 1,405 commits and 301 files of upstream `local-site-studio` work that
-      the 2026-07-29 subtree merge left in the standalone repo -- the `convex/`
-      test suite, `convex/lib/apiSecret.ts`, `src/app/api/client-error/`,
-      `src/lib/db/sqlite-queries.ts` and `.github/workflows/pr-checks.yml` --
-      gathered into the monorepo with history preserved.
-  blocked_by: []
-  note: >-
-    Opened 2026-08-24 by the session that audited whether the eight standalone
-    repos were safe to delete and found `local-site-studio` was not (it is by
-    far the largest gap; five other repos have nothing upstream-only).
-    Verified by its own session -- tsc 0 errors, lint clean, 4,030 tests
-    passing, build compiled, `npm audit` 0 high/critical -- and 2/2 CI checks
-    green, `mergeable_state` clean. Still human-gated: it is `ventures/*` app
-    code, and the session that built it deliberately did not self-merge
-    pending the `venture-gate-premise` answer. The ten conflict resolutions
-    are documented in the PR body; a regression it introduced (three
-    transitives downgraded by regenerating the lockfile) was caught and
-    restored before it was merged anywhere.
