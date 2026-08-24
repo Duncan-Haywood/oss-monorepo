@@ -10,8 +10,8 @@ test("dailySummary computes conversion_rate from entries and purchases on the sa
     insertAggregate(db, aggregateEvent({ event_id: "e1", metric: "entry", value: 5, bucket_start: "2026-08-19T09:00:00Z" }));
     insertAggregate(db, aggregateEvent({ event_id: "e2", metric: "entry", value: 5, bucket_start: "2026-08-19T14:00:00Z" }));
     insertAggregate(db, aggregateEvent({ event_id: "b1", metric: "bounce", value: 2, bucket_start: "2026-08-19T09:00:00Z" }));
-    insertSale(db, saleEvent({ event_id: "s1", closed_at: "2026-08-19T09:30:00Z" }));
-    insertSale(db, saleEvent({ event_id: "s2", closed_at: "2026-08-19T10:00:00Z" }));
+    insertSale(db, saleEvent({ event_id: "s1", closed_at: "2026-08-19T09:30:00Z", total_cents: 1500 }));
+    insertSale(db, saleEvent({ event_id: "s2", closed_at: "2026-08-19T10:00:00Z", total_cents: 2500 }));
 
     const summary = dailySummary(dbPath, "2026-08-19");
     assert.deepEqual(summary, {
@@ -20,6 +20,8 @@ test("dailySummary computes conversion_rate from entries and purchases on the sa
       bounces: 2,
       purchases: 2,
       conversion_rate: 0.2,
+      revenue_cents: 4000,
+      revenue_per_entrant_cents: 400,
     });
   });
 });
@@ -47,6 +49,8 @@ test("dailySummary returns zeroed conversion_rate (not NaN) when there are no en
       bounces: 0,
       purchases: 0,
       conversion_rate: 0,
+      revenue_cents: 0,
+      revenue_per_entrant_cents: 0,
     });
   });
 });
@@ -60,5 +64,32 @@ test("dailySummary rounds conversion_rate to 4 decimal places", () => {
     const summary = dailySummary(dbPath, "2026-08-19");
     // 1 / 3 = 0.3333333... -> rounded to 0.3333
     assert.equal(summary.conversion_rate, 0.3333);
+  });
+});
+
+test("dailySummary rounds revenue_per_entrant_cents to the nearest cent", () => {
+  withTempDb((dbPath) => {
+    const db = openDb(dbPath);
+    insertAggregate(db, aggregateEvent({ event_id: "e1", metric: "entry", value: 3, bucket_start: "2026-08-19T09:00:00Z" }));
+    insertSale(db, saleEvent({ event_id: "s1", closed_at: "2026-08-19T09:00:00Z", total_cents: 1000 }));
+
+    const summary = dailySummary(dbPath, "2026-08-19");
+    // 1000 / 3 = 333.33... -> rounded to 333
+    assert.equal(summary.revenue_cents, 1000);
+    assert.equal(summary.revenue_per_entrant_cents, 333);
+  });
+});
+
+test("dailySummary excludes a sale with no recorded total from revenue, without zeroing the day", () => {
+  withTempDb((dbPath) => {
+    const db = openDb(dbPath);
+    insertAggregate(db, aggregateEvent({ event_id: "e1", metric: "entry", value: 2, bucket_start: "2026-08-19T09:00:00Z" }));
+    insertSale(db, saleEvent({ event_id: "s1", closed_at: "2026-08-19T09:00:00Z", total_cents: 1200 }));
+    insertSale(db, saleEvent({ event_id: "s2", closed_at: "2026-08-19T09:30:00Z", total_cents: undefined }));
+
+    const summary = dailySummary(dbPath, "2026-08-19");
+    assert.equal(summary.purchases, 2);
+    assert.equal(summary.revenue_cents, 1200);
+    assert.equal(summary.revenue_per_entrant_cents, 600);
   });
 });

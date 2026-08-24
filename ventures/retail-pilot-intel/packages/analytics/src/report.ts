@@ -6,6 +6,8 @@ export interface DailySummary {
   bounces: number;
   purchases: number;
   conversion_rate: number;
+  revenue_cents: number;
+  revenue_per_entrant_cents: number;
 }
 
 export function dailySummary(dbPath: string, day: string): DailySummary {
@@ -27,8 +29,17 @@ export function dailySummary(dbPath: string, day: string): DailySummary {
       `SELECT COUNT(*) AS c FROM sale_events WHERE date(closed_at) = ?`,
     )
     .get(day) as { c: number };
+  // SUM ignores NULL total_cents rows rather than treating them as zero, so a
+  // sale recorded without a total does not silently zero out the day's revenue.
+  const revenue = db
+    .prepare(
+      `SELECT COALESCE(SUM(total_cents), 0) AS v FROM sale_events
+       WHERE date(closed_at) = ? AND total_cents IS NOT NULL`,
+    )
+    .get(day) as { v: number };
   const entryCount = Number(entries.v);
   const purchaseCount = Number(purchases.c);
+  const revenueCents = Number(revenue.v);
   return {
     date: day,
     entries: entryCount,
@@ -38,6 +49,9 @@ export function dailySummary(dbPath: string, day: string): DailySummary {
       entryCount > 0
         ? Math.round((purchaseCount / entryCount) * 10000) / 10000
         : 0,
+    revenue_cents: revenueCents,
+    revenue_per_entrant_cents:
+      entryCount > 0 ? Math.round(revenueCents / entryCount) : 0,
   };
 }
 
