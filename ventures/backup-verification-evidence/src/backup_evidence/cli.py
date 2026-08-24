@@ -1,4 +1,4 @@
-"""Command-line interface: record a backup run, and report on recorded runs."""
+"""Command-line interface: record a backup run, verify artifacts, report on runs."""
 
 from __future__ import annotations
 
@@ -10,6 +10,7 @@ import time
 from datetime import datetime, timezone
 from pathlib import Path
 
+from .integrity import CORRUPT, INTACT, inspect_artifact
 from .report import build_history_report, markdown_report
 
 
@@ -67,6 +68,10 @@ def cmd_record(args: argparse.Namespace) -> int:
     }
     if args.artifact:
         record["artifact"] = _stat_artifact(Path(args.artifact))
+        if args.verify_integrity and record["artifact"].get("exists"):
+            record["artifact"]["integrity"] = inspect_artifact(
+                Path(args.artifact), max_bytes=args.integrity_max_bytes
+            )
     expected: dict = {}
     if args.max_age_hours is not None:
         expected["max_age_hours"] = args.max_age_hours
@@ -81,6 +86,51 @@ def cmd_record(args: argparse.Namespace) -> int:
     if args.usage_file:
         _bump_usage(args.usage_file, "run_recorded")
     return result.returncode
+
+
+# Exit codes for `verify`. Three states rather than two on purpose: an alerting
+# rule wants to page loudly for a corrupt archive and quietly for one this tool
+# cannot open, and collapsing those into a single nonzero would force the user
+# to parse text to tell them apart.
+VERIFY_EXIT_INTACT = 0
+VERIFY_EXIT_CORRUPT = 1
+VERIFY_EXIT_UNCHECKED = 2
+
+
+def cmd_verify(args: argparse.Namespace) -> int:
+    """Inspect artifacts that already exist, without wrapping a backup command.
+
+    This is the shortest path to an answer: a user with a directory of nightly
+    archives can point this at them and learn whether they are readable in one
+    command, before deciding whether to wire `record` into their cron job.
+    """
+    results = []
+    for path in args.artifacts:
+        result = inspect_artifact(path, max_bytes=args.integrity_max_bytes)
+        result["path"] = str(path)
+        results.append(result)
+
+    if args.format == "json":
+        print(json.dumps({"artifacts": results}, indent=2))
+    else:
+        for result in results:
+            print(f"{result['result'].upper()}  {result['path']}  [{result['format']}]")
+            print(f"    {result['detail']}")
+        print(
+            "\nIntact means the artifact read to its end with the format's own checksums "
+            "matching. It does not mean the backup holds the right data, or that a restore "
+            "will succeed -- test restores separately.",
+            file=sys.stderr,
+        )
+
+    if args.usage_file:
+        _bump_usage(args.usage_file, "artifact_verified")
+
+    if any(result["result"] == CORRUPT for result in results):
+        return VERIFY_EXIT_CORRUPT
+    if all(result["result"] == INTACT for result in results):
+        return VERIFY_EXIT_INTACT
+    return VERIFY_EXIT_UNCHECKED
 
 
 def cmd_check(args: argparse.Namespace) -> int:
@@ -118,10 +168,35 @@ def build_parser() -> argparse.ArgumentParser:
     record.add_argument("--max-age-hours", type=float, default=None)
     record.add_argument("--min-size-bytes", type=int, default=None)
     record.add_argument("--log-lines", type=int, default=20)
+    record.add_argument(
+        "--verify-integrity",
+        action="store_true",
+        help="also read the artifact end-to-end and record whether it is structurally intact",
+    )
+    record.add_argument(
+        "--integrity-max-bytes",
+        type=int,
+        default=None,
+        help="stop the integrity read after this many bytes and report it as inconclusive "
+        "rather than intact (default: read the whole artifact)",
+    )
     record.add_argument("--output", type=Path, required=True, help="where to write the run-record JSON")
     record.add_argument("--usage-file", type=Path, help="optional local event-count file")
     record.add_argument("command", nargs=argparse.REMAINDER, help="-- the backup command to run")
     record.set_defaults(func=cmd_record)
+
+    verify = sub.add_parser(
+        "verify",
+        help="read existing backup artifacts and report whether each one is structurally intact",
+        description="Inspect backup artifacts that already exist. Exits 0 if every artifact is "
+        f"intact, {VERIFY_EXIT_CORRUPT} if any is provably corrupt, and "
+        f"{VERIFY_EXIT_UNCHECKED} if none is corrupt but at least one could not be checked.",
+    )
+    verify.add_argument("artifacts", nargs="+", type=Path)
+    verify.add_argument("--format", choices=("text", "json"), default="text")
+    verify.add_argument("--integrity-max-bytes", type=int, default=None)
+    verify.add_argument("--usage-file", type=Path, help="optional local event-count file")
+    verify.set_defaults(func=cmd_verify)
 
     check = sub.add_parser("check", help="classify one or more saved run records")
     check.add_argument("records", nargs="+", type=Path)

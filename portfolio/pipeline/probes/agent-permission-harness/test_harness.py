@@ -1059,9 +1059,35 @@ class TestResultsCurrencyNormalisation(unittest.TestCase):
             check_results_current.normalise(after),
         )
 
-    def test_a_moved_finding_still_differs(self):
+    def test_a_line_shift_alone_is_not_a_failure(self):
+        # Reversed on 2026-08-24. This previously asserted that a moved line
+        # *is* a failure, which made the gate red on a workflow edit that
+        # altered no grant: inserting a comment, a step, or the `permissions:`
+        # block R5 recommends shifts every finding below it. That is the same
+        # unactionable drift the census masking was added to remove, and the
+        # only remedy it offers is regenerating without reading -- the reflex
+        # that would let a real posture change through.
         before = self._render(77, 4, "4 at depth 1", "`a.md`")
         after = before.replace("(line 109)", "(line 250)")
+        self.assertNotEqual(before, after)
+        self.assertEqual(
+            check_results_current.normalise(before),
+            check_results_current.normalise(after),
+        )
+
+    def test_a_finding_moving_to_another_job_still_differs(self):
+        # What masking the line number must not cost: relocation that is a
+        # posture change is still caught, because the job name is compared.
+        before = self._render(77, 4, "4 at depth 1", "`a.md`")
+        after = before.replace("job `agent`", "job `deploy`")
+        self.assertNotEqual(
+            check_results_current.normalise(before),
+            check_results_current.normalise(after),
+        )
+
+    def test_a_finding_changing_rule_still_differs(self):
+        before = self._render(77, 4, "4 at depth 1", "`a.md`")
+        after = before.replace("agent instruction set is", "agent step runs with")
         self.assertNotEqual(
             check_results_current.normalise(before),
             check_results_current.normalise(after),

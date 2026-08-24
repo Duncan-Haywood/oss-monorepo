@@ -175,7 +175,7 @@
 
 <script type="module">
   import { calculateVoltageDivider, suggestDividerForTarget, formatResistance } from "./calc.mjs";
-  import { recordEvent, isUsageCountingEnabled, setUsageCountingEnabled } from "./usage.mjs";
+  import { recordEventSettled, isUsageCountingEnabled, setUsageCountingEnabled } from "./usage.mjs";
 
   const vin = document.getElementById("vin");
   const r1 = document.getElementById("r1");
@@ -183,7 +183,14 @@
   const load = document.getElementById("load");
   const dividerResult = document.getElementById("divider-result");
 
-  function updateDivider() {
+  // `update` runs both on page load (to render a first result from the
+  // prefilled defaults) and whenever a person changes something. Only the
+  // second is somebody using the tool, so only it is counted -- previously
+  // the on-load call recorded a calculation for every page view, bounces
+  // included, which is exactly the difference portfolio/usage/ exists to
+  // measure. Real-interaction call sites pass `true`; the on-load call
+  // passes nothing.
+  function updateDivider(userAction) {
     const inputs = {
       vin: Number(vin.value),
       r1: Number(r1.value),
@@ -209,13 +216,13 @@
       html += "</dl>";
       dividerResult.innerHTML = html;
       dividerResult.classList.remove("error");
-      recordEvent("divider_calculated");
+      if (userAction) recordEventSettled("divider_calculated");
     } catch (err) {
       dividerResult.textContent = err.message;
       dividerResult.classList.add("error");
     }
   }
-  for (const el of [vin, r1, r2, load]) el.addEventListener("input", updateDivider);
+  for (const el of [vin, r1, r2, load]) el.addEventListener("input", () => updateDivider(true));
   updateDivider();
 
   const tVin = document.getElementById("t-vin");
@@ -223,7 +230,7 @@
   const tR1 = document.getElementById("t-r1");
   const targetResult = document.getElementById("target-result");
 
-  function updateTarget() {
+  function updateTarget(userAction) {
     try {
       const s = suggestDividerForTarget({
         vin: Number(tVin.value),
@@ -239,13 +246,13 @@
         </dl>
       `;
       targetResult.classList.remove("error");
-      recordEvent("target_suggested");
+      if (userAction) recordEventSettled("target_suggested");
     } catch (err) {
       targetResult.textContent = err.message;
       targetResult.classList.add("error");
     }
   }
-  for (const el of [tVin, tTarget, tR1]) el.addEventListener("input", updateTarget);
+  for (const el of [tVin, tTarget, tR1]) el.addEventListener("input", () => updateTarget(true));
   updateTarget();
 
   const usageToggle = document.getElementById("usage-toggle");

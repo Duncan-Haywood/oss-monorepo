@@ -1,0 +1,488 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Where to Sell Calculator | eBay vs Etsy vs Amazon vs Your Own Store</title>
+  <meta name="description" content="Free marketplace fee comparison calculator: enter one item once and see net profit after fees on eBay, Etsy, Amazon, your own store, and a local sale — plus the price each channel needs to match the best one.">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href=".">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%234b32a8'/%3E%3Cg fill='%23fff'%3E%3Crect x='7' y='18' width='4' height='7' rx='1'/%3E%3Crect x='14' y='13' width='4' height='12' rx='1'/%3E%3Crect x='21' y='7' width='4' height='18' rx='1'/%3E%3C/g%3E%3C/svg%3E">
+  <meta property="og:title" content="Where to Sell Calculator — compare marketplace fees on one item">
+  <meta property="og:description" content="One item, every channel. See what eBay, Etsy, Amazon, your own store, and a direct sale each leave you after fees.">
+  <meta property="og:type" content="website">
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "SoftwareApplication",
+    "name": "Where to Sell Calculator",
+    "applicationCategory": "BusinessApplication",
+    "operatingSystem": "Any (runs in a web browser)",
+    "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
+    "featureList": "Cross-marketplace fee comparison, net profit per channel, margin and ROI, monthly-plan amortisation, break-even price, price needed to match the best channel"
+  }
+  </script>
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "mainEntity": [
+      {
+        "@type": "Question",
+        "name": "Is it cheaper to sell on eBay or Etsy?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "It depends on the item, because the two fee shapes are different rather than one simply being lower. eBay charges a percentage of the order total that normally includes payment processing, plus a small fixed fee. Etsy charges a per-listing fee whether or not the item sells, a transaction percentage, and a separate payment-processing percentage and fixed fee. On a low-priced item the per-listing and fixed fees matter most; on a high-priced item the percentages dominate. Enter your own numbers above — this page does no more than the arithmetic on the rates you give it."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "How do I compare marketplace fees fairly?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Put the same item through every channel with the same cost of goods, then make three adjustments most comparisons skip. Spread any monthly subscription over the orders you actually expect that month. Count per-listing fees, which are charged whether or not the item sells. And compare the price each channel needs to reach the same profit, not just the fee percentage, because a channel with higher fees can still win if you can list higher there."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Does selling on my own store beat a marketplace?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "On fees alone an own store usually wins, because there is no marketplace commission — only card processing and the monthly plan spread over your orders. What it does not include is the buyers. A marketplace fee is partly a payment for demand you do not have to create, so the honest comparison is the fee gap against what it would cost you to bring the same number of buyers yourself."
+        }
+      }
+    ]
+  }
+  </script>
+  <style>
+    :root { color-scheme: light; font-family: system-ui, sans-serif; color: #191430; background: #eeecf8; }
+    body { max-width: 1120px; margin: 0 auto; padding: 32px 18px; }
+    header { max-width: 760px; margin-bottom: 26px; }
+    h1 { font-size: clamp(2rem, 6vw, 3.5rem); line-height: .98; margin: 0 0 12px; letter-spacing: -.05em; }
+    p { line-height: 1.5; }
+    .eyebrow { font-size: .8rem; font-weight: 700; letter-spacing: .08em; color: #4b32a8; margin: 0 0 6px; }
+    .layout { display: grid; grid-template-columns: minmax(300px, .8fr) minmax(0, 1.4fr); gap: 18px; align-items: start; }
+    /* Grid and flex children default to a min-width of their content, which
+       lets the wide results table push the whole page sideways on a phone.
+       The table is allowed to scroll inside .scroller; the page is not. */
+    .layout > * { min-width: 0; }
+    section { background: #fff; border: 1px solid #d0cbe8; border-radius: 14px; padding: 20px; box-shadow: 0 8px 24px #1c164010; }
+    h2 { margin-top: 0; font-size: 1.15rem; }
+    .fields { display: grid; grid-template-columns: repeat(2, 1fr); gap: 13px; }
+    label { display: grid; gap: 5px; font-size: .87rem; font-weight: 650; }
+    input, select { width: 100%; box-sizing: border-box; border: 1px solid #a49bd0; border-radius: 7px; padding: 10px; font: inherit; background: white; }
+    .span2 { grid-column: 1 / -1; }
+    .check { display: flex; gap: .5rem; align-items: center; font-weight: 600; }
+    .check input { width: auto; }
+    .verdict { background: #241a52; color: #f5f2ff; border-color: #241a52; }
+    .verdict a { color: #c9bcff; }
+    .hero-number { font-size: 2.8rem; font-weight: 750; letter-spacing: -.05em; margin: 8px 0 2px; }
+    .negative { color: #ffb0a2; } .positive { color: #bdf0c6; }
+    .verdict .note { font-size: .85rem; opacity: .85; }
+    .scroller { overflow-x: auto; }
+    table { width: 100%; border-collapse: collapse; font-size: .92rem; min-width: 560px; }
+    th, td { padding: 9px 6px; text-align: right; border-bottom: 1px solid #ded9f0; vertical-align: top; }
+    th:first-child, td:first-child { text-align: left; }
+    thead th { font-size: .78rem; text-transform: uppercase; letter-spacing: .04em; color: #574d80; }
+    /* The results table sits inside the dark verdict panel, so the winning row
+       is marked with a lighter shade of that panel rather than a light tint,
+       which would leave light text on a light background. */
+    tbody tr.best { background: #3b2c80; }
+    tbody tr.best th::after { content: " · best"; color: #c9bcff; font-weight: 700; font-size: .8rem; }
+    td.money { font-variant-numeric: tabular-nums; }
+    .rates { margin-top: 18px; }
+    details { border: 1px solid #ded9f0; border-radius: 10px; padding: 10px 12px; margin-bottom: 9px; background: #faf9ff; }
+    summary { cursor: pointer; font-weight: 650; }
+    details .fields { margin-top: 12px; grid-template-columns: repeat(3, 1fr); }
+    details p.note { font-size: .84rem; color: #574d80; margin: 8px 0 0; }
+    .error { color: #b3241c; font-weight: 650; }
+    .verdict .error { color: #ffb0a2; }
+    button { font: inherit; font-weight: 650; padding: 9px 14px; border-radius: 8px; border: 1px solid #a49bd0; background: #fff; cursor: pointer; }
+    button:hover { background: #f0ecff; }
+    .actions { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 14px; }
+    .status { font-size: .85rem; color: #574d80; min-height: 1.3em; }
+    .faq { margin-top: 18px; }
+    .faq h3 { margin-bottom: 4px; }
+    footer { margin-top: 25px; font-size: .82rem; color: #4a4270; }
+    footer a { color: #4b32a8; }
+    @media (max-width: 900px) { .layout { grid-template-columns: 1fr; } .fields, details .fields { grid-template-columns: 1fr; } }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="eyebrow">FOR PEOPLE SELLING THE SAME ITEM IN MORE THAN ONE PLACE</p>
+    <h1>One item. Every channel. See where the money actually lands.</h1>
+    <p>
+      Enter what an item cost you and what you would sell it for, once. This
+      compares what <strong>eBay, Etsy, Amazon, your own store and a direct
+      sale</strong> each leave you after their fees — including the per-listing
+      fees and monthly plans that flat “X% fee” comparisons skip — and tells you
+      the price each channel would need to match the best one. Everything runs
+      in this page; nothing is uploaded.
+    </p>
+  </header>
+
+  <main class="layout">
+    <section aria-labelledby="item-heading">
+      <h2 id="item-heading">Your item</h2>
+      <div class="fields">
+        <label>Sale price <input id="price" type="number" min="0" step="0.01" value="48"></label>
+        <label>Shipping charged to buyer <input id="shippingCharged" type="number" min="0" step="0.01" value="6"></label>
+        <label>Shipping you pay <input id="shippingCost" type="number" min="0" step="0.01" value="5"></label>
+        <label>What you paid for the item <input id="itemCost" type="number" min="0" step="0.01" value="14"></label>
+        <label>Packaging cost <input id="packagingCost" type="number" min="0" step="0.01" value="1"></label>
+        <label>Other per-item cost <input id="otherCost" type="number" min="0" step="0.01" value="0"></label>
+        <label class="span2">Orders you expect per month
+          <input id="monthlyOrders" type="number" min="0" step="1" value="100">
+        </label>
+        <label class="span2 check">
+          <input id="includeSubscription" type="checkbox" checked>
+          Spread monthly plans over those orders
+        </label>
+      </div>
+      <p class="note" style="font-size:.84rem;color:#574d80">
+        These apply to every channel. Anything a particular channel does
+        differently — a higher price on Etsy, no postage on a local sale —
+        goes in that channel’s own panel below the table.
+      </p>
+      <div class="actions">
+        <button id="reset" type="button">Reset everything</button>
+        <button id="share" type="button">Copy share link</button>
+      </div>
+      <p id="share-status" class="status" aria-live="polite"></p>
+    </section>
+
+    <section class="verdict" aria-labelledby="verdict-heading">
+      <h2 id="verdict-heading">Where to sell it</h2>
+      <div id="live" aria-live="polite">
+        <div id="bestLabel">—</div>
+        <div id="bestProfit" class="hero-number">$—</div>
+        <p id="spread" class="note"></p>
+      </div>
+      <div class="scroller">
+        <table>
+          <caption class="note" style="text-align:left;padding-bottom:8px">
+            Same item on every channel, ranked by what you keep.
+          </caption>
+          <thead>
+            <tr>
+              <th scope="col">Channel</th>
+              <th scope="col">Price</th>
+              <th scope="col">Fees</th>
+              <th scope="col">You keep</th>
+              <th scope="col">Margin</th>
+              <th scope="col" title="Profit as a percentage of the cash you laid out to source, pack and ship.">Return on cash</th>
+              <th scope="col">Gives up</th>
+              <th scope="col" title="List below this and the sale loses money on this channel.">Break-even price</th>
+              <th scope="col">Price to match best</th>
+            </tr>
+          </thead>
+          <tbody id="rows"></tbody>
+        </table>
+      </div>
+      <p class="note">
+        <strong>Break-even price</strong> is how low you can list before the
+        sale costs you money — your floor when you discount, and it differs by
+        channel because the fee shapes do. It is shown in red where your
+        current price is already under it.
+        <strong>Return on cash</strong> is profit against what you actually
+        laid out to source, pack and ship; fees come out of the sale rather
+        than your pocket, so they are not counted as invested. It reads “—”
+        when nothing was invested.
+      </p>
+      <p class="note">
+        Transparent arithmetic from the rates you entered — not any
+        marketplace’s current published schedule. Rates vary by category,
+        country, plan and account. Check yours against a recent statement.
+      </p>
+    </section>
+  </main>
+
+  <section class="rates" aria-labelledby="rates-heading">
+    <h2 id="rates-heading">Each channel’s rates and costs</h2>
+    <p style="margin-top:0;font-size:.9rem;color:#4a4270">
+      Opened defaults are illustrative US rates, not a live fee schedule.
+      Replace them with the rates on your own statements — that is what makes
+      the comparison yours rather than a generic estimate.
+    </p>
+    <div id="channelPanels"></div>
+  </section>
+
+  <section class="faq" aria-labelledby="faq-heading">
+    <h2 id="faq-heading">What this does, and what it does not</h2>
+    <h3>Three things flat fee comparisons get wrong</h3>
+    <p>
+      A per-listing fee is charged whether or not the item sells, so it hurts
+      most on cheap items. A monthly plan is only a real per-order cost once
+      you spread it over the orders you actually expect — at ten orders a month
+      a $39 plan is $3.90 an order, at two hundred it is 20¢. And the fee
+      percentage is not the decision: what matters is the price each channel
+      needs to leave you the same money, which is the last column above.
+      <a href="etsy-vs-ebay-fees.html">eBay vs Etsy fees on the same item</a>
+      works one example through in full.
+    </p>
+    <h3>What it deliberately leaves out</h3>
+    <p>
+      Fees are not the only difference between channels. A marketplace fee buys
+      you demand you would otherwise have to create, and this page has no way
+      to know how many buyers each channel puts in front of you, how fast an
+      item sells there, or what returns cost. Read the fee gap as one input to
+      the decision, not the decision. It does not recommend a price, a channel,
+      or a business model, and it is not tax, financial or business advice.
+    </p>
+  </section>
+
+  <footer>
+    <label class="check"><input id="usageOptOut" type="checkbox"> Do not keep anonymous local usage counts</label>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not tax, financial, or business advice, and it does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for meeting any obligation it helps you prepare for. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p>Everything runs in your browser. Your prices, costs and rates are never uploaded. There are no accounts, cookies, tracking pixels, or analytics vendors. Your entries are saved in this browser only, so the page remembers them next time; clearing site data removes them. The optional local counter records only an event name and the day, never your inputs — turn it off above, or with Do Not Track / Global Privacy Control.</p>
+    <p>Free and open source. If it stopped you listing in the wrong place, the <a href="https://github.com/Duncan-Haywood/monorepo-projects">project is on GitHub</a> — <a href="https://github.com/sponsors/Duncan-Haywood">GitHub Sponsors</a> is optional and never changes what the tool does. MIT licensed.</p>
+    <p>More seller arithmetic: <a href="../ebay-fee-calculator/">eBay fee calculator</a> · <a href="../etsy-profit-calculator/">Etsy profit calculator</a> · <a href="../shopify-fee-calculator/">Shopify fee calculator</a>.</p>
+  </footer>
+
+  <script type="module">
+    import { CHANNEL_PRESETS, compareChannels } from "./calc.mjs";
+    import { decodeComparison, encodeComparison } from "./share.mjs";
+    import { readOptOut, recordUsage, writeOptOut } from "./usage.mjs";
+
+    const SHARED_FIELDS = [
+      "price", "shippingCharged", "shippingCost", "itemCost",
+      "packagingCost", "otherCost", "monthlyOrders",
+    ];
+    // Per-channel fields, in the order they appear in each channel's panel.
+    const CHANNEL_FIELDS = [
+      { key: "price", label: "Price on this channel", step: "0.01" },
+      { key: "shippingCharged", label: "Shipping charged", step: "0.01" },
+      { key: "shippingCost", label: "Shipping you pay", step: "0.01" },
+      { key: "fulfilmentCost", label: "Fulfilment / FBA cost", step: "0.01" },
+      { key: "commissionRate", label: "Commission (%)", step: "0.01" },
+      { key: "paymentRate", label: "Payment processing (%)", step: "0.01" },
+      { key: "paymentFixed", label: "Payment fixed fee", step: "0.01" },
+      { key: "perListingFee", label: "Per-listing fee", step: "0.01" },
+      { key: "monthlyFee", label: "Monthly plan", step: "0.01" },
+      { key: "adRate", label: "Ads / promoted (%)", step: "0.01" },
+    ];
+    const SAVE_KEY = "where-to-sell-inputs";
+    const money = (value) => `$${value.toFixed(2)}`;
+
+    // Deep-ish clone so editing a channel never mutates the shipped presets.
+    const freshChannels = () => CHANNEL_PRESETS.map((channel) => ({ ...channel }));
+    let channels = freshChannels();
+
+    function readShared() {
+      const shared = Object.fromEntries(
+        SHARED_FIELDS.map((id) => [id, document.getElementById(id).value]),
+      );
+      shared.includeSubscription = document.getElementById("includeSubscription").checked;
+      return shared;
+    }
+
+    function optedOut() {
+      return document.getElementById("usageOptOut").checked;
+    }
+
+    function save() {
+      try {
+        localStorage.setItem(SAVE_KEY, JSON.stringify({ shared: readShared(), channels }));
+      } catch {
+        // Saving is a convenience; a blocked or full storage must not stop the
+        // calculator from working.
+      }
+    }
+
+    function restore() {
+      let saved;
+      try {
+        saved = JSON.parse(localStorage.getItem(SAVE_KEY) || "null");
+      } catch {
+        saved = null;
+      }
+      if (!saved || typeof saved !== "object") return;
+      if (saved.shared) {
+        for (const id of SHARED_FIELDS) {
+          if (saved.shared[id] !== undefined) document.getElementById(id).value = saved.shared[id];
+        }
+        if (saved.shared.includeSubscription !== undefined) {
+          document.getElementById("includeSubscription").checked = Boolean(saved.shared.includeSubscription);
+        }
+      }
+      // Merge onto the current presets by id, so a channel added in a later
+      // version still appears for someone with older saved input.
+      if (Array.isArray(saved.channels)) {
+        channels = freshChannels().map((channel) => {
+          const stored = saved.channels.find((candidate) => candidate?.id === channel.id);
+          return stored ? { ...channel, ...stored, label: channel.label, note: channel.note } : channel;
+        });
+      }
+    }
+
+    function restoreSharedLink() {
+      const value = new URLSearchParams(window.location.search).get("c");
+      const shared = decodeComparison(value);
+      if (!shared) return false;
+      for (const id of SHARED_FIELDS) {
+        if (shared.shared[id] !== undefined) document.getElementById(id).value = shared.shared[id];
+      }
+      document.getElementById("includeSubscription").checked = shared.includeSubscription;
+      if (shared.channels.length) {
+        channels = freshChannels().map((channel) => {
+          const incoming = shared.channels.find((candidate) => candidate.id === channel.id);
+          return incoming ? { ...channel, ...incoming } : channel;
+        });
+      }
+      return true;
+    }
+
+    function renderPanels() {
+      document.getElementById("channelPanels").innerHTML = channels.map((channel, index) => `
+        <details data-index="${index}">
+          <summary>${channel.label}${channel.enabled === false ? " — not compared" : ""}</summary>
+          <label class="check" style="margin-top:10px">
+            <input type="checkbox" data-index="${index}" data-enable="1" ${channel.enabled === false ? "" : "checked"}>
+            Compare this channel
+          </label>
+          ${channel.note ? `<p class="note">${channel.note}</p>` : ""}
+          <div class="fields">
+            ${CHANNEL_FIELDS.map((field) => `
+              <label>${field.label}
+                <input type="number" min="0" step="${field.step}" data-index="${index}" data-key="${field.key}"
+                       value="${channel[field.key] ?? ""}">
+              </label>`).join("")}
+          </div>
+        </details>`).join("");
+
+      for (const input of document.querySelectorAll("#channelPanels input[data-key]")) {
+        input.addEventListener("input", (event) => {
+          const { index, key } = event.target.dataset;
+          channels[Number(index)][key] = event.target.value;
+          update();
+        });
+        input.addEventListener("change", () => {
+          recordUsage(localStorage, optedOut(), "channel_rates_edited");
+          save();
+        });
+      }
+      for (const toggle of document.querySelectorAll("#channelPanels input[data-enable]")) {
+        toggle.addEventListener("change", (event) => {
+          const index = Number(event.target.dataset.index);
+          channels[index].enabled = event.target.checked;
+          // Re-render so the summary line reflects what is in the comparison
+          // without the seller having to open the panel to check.
+          const openIndexes = [...document.querySelectorAll("#channelPanels details[open]")]
+            .map((el) => el.dataset.index);
+          renderPanels();
+          for (const openIndex of openIndexes) {
+            const el = document.querySelector(`#channelPanels details[data-index="${openIndex}"]`);
+            if (el) el.open = true;
+          }
+          update();
+          recordUsage(localStorage, optedOut(), "channel_toggled");
+          save();
+        });
+      }
+    }
+
+    function showError(message) {
+      document.getElementById("bestLabel").textContent = "Check the inputs";
+      const profit = document.getElementById("bestProfit");
+      profit.textContent = message;
+      profit.className = "hero-number error";
+      profit.style.fontSize = "1.1rem";
+      document.getElementById("spread").textContent = "";
+      document.getElementById("rows").innerHTML = "";
+    }
+
+    function update() {
+      let comparison;
+      try {
+        comparison = compareChannels(channels, readShared());
+      } catch (error) {
+        showError(error.message);
+        return;
+      }
+
+      const profit = document.getElementById("bestProfit");
+      profit.style.fontSize = "";
+      document.getElementById("bestLabel").textContent =
+        `Best on fees: ${comparison.best.label} — you keep`;
+      profit.textContent = money(comparison.best.profit);
+      profit.className = `hero-number ${comparison.best.profit < 0 ? "negative" : "positive"}`;
+      document.getElementById("spread").textContent = comparison.spread > 0
+        ? `${money(comparison.spread)} separates the best channel from the worst on this one item — ${comparison.best.margin.toFixed(1)}% margin at the top.`
+        : "Every channel leaves you the same on this item.";
+
+      document.getElementById("rows").innerHTML = comparison.results
+        .slice()
+        .sort((a, b) => a.rank - b.rank)
+        .map((result) => `
+          <tr class="${result.isBest ? "best" : ""}">
+            <th scope="row" style="text-align:left;font-weight:650">${result.label}</th>
+            <td class="money">${money(result.price)}</td>
+            <td class="money">${money(result.feeTotal)}</td>
+            <td class="money">${money(result.profit)}</td>
+            <td class="money">${result.margin.toFixed(1)}%</td>
+            <td class="money">${result.roi === null ? "—" : `${result.roi.toFixed(0)}%`}</td>
+            <td class="money">${result.isBest ? "—" : money(result.gapVsBest)}</td>
+            <td class="money${result.price < result.breakEvenPrice ? " negative" : ""}">${money(result.breakEvenPrice)}</td>
+            <td class="money">${result.priceToMatchBest === null ? "—" : money(result.priceToMatchBest)}</td>
+          </tr>`).join("");
+    }
+
+    for (const id of SHARED_FIELDS) {
+      document.getElementById(id).addEventListener("input", update);
+      document.getElementById(id).addEventListener("change", () => {
+        recordUsage(localStorage, optedOut(), "comparison_calculated");
+        save();
+      });
+    }
+    document.getElementById("includeSubscription").addEventListener("change", () => {
+      update();
+      recordUsage(localStorage, optedOut(), "subscription_toggled");
+      save();
+    });
+    document.getElementById("usageOptOut").addEventListener("change", (event) => {
+      writeOptOut(localStorage, event.target.checked);
+    });
+    document.getElementById("share").addEventListener("click", async () => {
+      const status = document.getElementById("share-status");
+      try {
+        compareChannels(channels, readShared());
+        const url = new URL(window.location.href);
+        url.search = `?c=${encodeComparison(readShared(), channels)}`;
+        if (navigator.clipboard?.writeText) {
+          await navigator.clipboard.writeText(url.href);
+          status.textContent = "Share link copied. It contains your assumptions, not your saved usage data.";
+        } else {
+          window.prompt("Copy this share link:", url.href);
+          status.textContent = "Share link ready to copy.";
+        }
+        recordUsage(localStorage, optedOut(), "share_link_copied");
+      } catch (error) {
+        status.textContent = error.message || "Fix the inputs before creating a share link.";
+      }
+    });
+    document.getElementById("reset").addEventListener("click", () => {
+      try {
+        localStorage.removeItem(SAVE_KEY);
+      } catch {
+        // Nothing to clear.
+      }
+      channels = freshChannels();
+      const defaults = {
+        price: 48, shippingCharged: 6, shippingCost: 5, itemCost: 14,
+        packagingCost: 1, otherCost: 0, monthlyOrders: 100,
+      };
+      for (const [id, value] of Object.entries(defaults)) document.getElementById(id).value = value;
+      document.getElementById("includeSubscription").checked = true;
+      renderPanels();
+      update();
+    });
+
+    document.getElementById("usageOptOut").checked = readOptOut(localStorage);
+    restore();
+    restoreSharedLink();
+    renderPanels();
+    update();
+  </script>
+</body>
+</html>

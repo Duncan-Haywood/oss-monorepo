@@ -39,7 +39,11 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
+<<<<<<< HEAD
         tool: [resistor-calculator, led-resistor-calculator, voltage-divider-calculator, 555-timer-calculator]
+=======
+        tool: [resistor-calculator, led-resistor-calculator, voltage-divider-calculator, rc-filter-calculator]
+>>>>>>> origin/main
     defaults:
       run:
         working-directory: ventures/ai-engineering-academy/tools/${{ matrix.tool }}

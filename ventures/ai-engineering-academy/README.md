@@ -49,11 +49,16 @@ existing pages:
   duty cycles a standard astable cannot reach, an R1 that over-currents the
   discharge pin, drift-prone resistor values, electrolytic-cap tolerance
   (29 passing unit tests).
+- [`tools/rc-filter-calculator/`](tools/rc-filter-calculator/) — a first-order
+  RC/RL filter cutoff-frequency calculator covering all four topologies
+  (RC/RL × low/high-pass), with a design mode that solves for the missing
+  component from a target cutoff and snaps it to a buyable standard value
+  (24 passing unit tests).
 
-All four are deliberately narrower than "the MVP": small, self-contained
+All five are deliberately narrower than "the MVP": small, self-contained
 tools for the Circuits corner of the planned EE track, not a curriculum.
 None is yet deployed to a live URL — publishing under the portfolio's name
-is owner-gated per `portfolio/DIRECTION.md`; all four are ready to deploy
+is owner-gated per `portfolio/DIRECTION.md`; all five are ready to deploy
 once that gate opens.
 
 ## Next steps
@@ -61,7 +66,7 @@ once that gate opens.
 - Review, argue with, and revise the constitution in `docs/` — it's a v1
   draft meant to be tightened, not treated as settled.
 - Add more small, self-contained EE tools in `tools/` (e.g. a capacitor
-  charge/discharge time calculator, an RC/RL filter cutoff-frequency
+  charge/discharge time calculator, a 555-timer astable/monostable
   calculator) as further seeds of the Circuits track, each shippable and
   testable independently of the full curriculum design. Add each one to
   `tools/index.html` and to the CI matrix in

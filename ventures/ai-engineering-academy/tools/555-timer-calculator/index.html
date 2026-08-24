@@ -338,7 +338,7 @@
     formatTime,
     formatFrequency,
   } from "./calc.mjs";
-  import { recordEvent, isUsageCountingEnabled, setUsageCountingEnabled } from "./usage.mjs";
+  import { recordEventSettled, isUsageCountingEnabled, setUsageCountingEnabled } from "./usage.mjs";
 
   const $ = (id) => document.getElementById(id);
 
@@ -360,21 +360,31 @@
    * Wraps a calculation so every panel behaves the same way: render on
    * success, show the thrown message on invalid input, and only count a
    * usage event when something was actually computed.
+   *
+   * `update(userAction)` splits rendering from counting. The on-load call
+   * passes nothing, so painting a first result from the prefilled defaults no
+   * longer records a calculation -- otherwise every page view, bounces
+   * included, logged one and `calculation` became a synonym for `page_view`.
+   * Interaction handlers pass `true` and route through recordEventSettled(),
+   * so a burst of typing collapses into a single count rather than one per
+   * keystroke. This is the same correction the other tools carry on `main`
+   * (#992); this tool was built on a concurrent branch and would otherwise
+   * have shipped the defect the others just had removed.
    */
   function wire(inputIds, resultId, compute, eventName) {
     const result = $(resultId);
-    function update() {
+    function update(userAction) {
       try {
         result.innerHTML = compute();
         result.classList.remove("error");
-        recordEvent(eventName);
+        if (userAction) recordEventSettled(eventName);
       } catch (err) {
         result.textContent = err.message;
         result.classList.add("error");
       }
     }
-    for (const id of inputIds) $(id).addEventListener("input", update);
-    for (const id of inputIds) $(id).addEventListener("change", update);
+    for (const id of inputIds) $(id).addEventListener("input", () => update(true));
+    for (const id of inputIds) $(id).addEventListener("change", () => update(true));
     update();
   }
 
