@@ -53,3 +53,24 @@ export function calculate(quote) {
     cost_coverage: quote.price - directCosts,
   };
 }
+
+/** Escape one CSV field the way Python's csv.writer (QUOTE_MINIMAL) does. */
+export function csvField(value) {
+  const text = String(value);
+  return /[",\n\r]/.test(text) ? `"${text.replace(/"/g, '""')}"` : text;
+}
+
+/** Spreadsheet-ready report matching src/quote_margin.py's csv_report(). */
+export function csvReport(quote, result) {
+  const rows = [
+    ["measure", "value", "unit"],
+    ["quoted_price", quote.price.toFixed(2), quote.currency],
+    ["total_working_hours", result.total_hours.toFixed(2), "hours"],
+    ["direct_costs", result.direct_costs.toFixed(2), quote.currency],
+    ["effective_hourly_rate", result.effective_hourly_rate.toFixed(2), `${quote.currency}/hour`],
+    ["target_price", result.target_price.toFixed(2), quote.currency],
+    ["gap_to_target", result.gap_to_target.toFixed(2), quote.currency],
+    ["cost_coverage", result.cost_coverage.toFixed(2), quote.currency],
+  ];
+  return rows.map((row) => row.map(csvField).join(",")).join("\n");
+}

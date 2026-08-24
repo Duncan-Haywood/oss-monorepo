@@ -1,7 +1,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 
-import { loadQuote, calculate } from "./calc.mjs";
+import { loadQuote, calculate, csvField, csvReport } from "./calc.mjs";
 
 test("calculates hidden time and target price", () => {
   const quote = loadQuote({
@@ -61,4 +61,35 @@ test("rejects an empty or over-long currency label", () => {
   assert.throws(() =>
     loadQuote({ currency: "WAY TOO LONG A LABEL", price: 1000, delivery_hours: 10, target_hourly_rate: 100 }),
   );
+});
+
+test("csv report matches the CLI spreadsheet rows", () => {
+  const quote = loadQuote({ currency: "EUR", price: 2400, delivery_hours: 24, target_hourly_rate: 75 });
+  assert.equal(
+    csvReport(quote, calculate(quote)),
+    [
+      "measure,value,unit",
+      "quoted_price,2400.00,EUR",
+      "total_working_hours,24.00,hours",
+      "direct_costs,0.00,EUR",
+      "effective_hourly_rate,100.00,EUR/hour",
+      "target_price,1800.00,EUR",
+      "gap_to_target,600.00,EUR",
+      "cost_coverage,2400.00,EUR",
+    ].join("\n"),
+  );
+});
+
+test("csv fields quote commas, quotes, and newlines", () => {
+  assert.equal(csvField("USD"), "USD");
+  assert.equal(csvField("USD,CAD"), '"USD,CAD"');
+  assert.equal(csvField('USD "eq"'), '"USD ""eq"""');
+  assert.equal(csvField("USD\nCAD"), '"USD\nCAD"');
+});
+
+test("csv report quotes a currency label that would split a column", () => {
+  const quote = loadQuote({ currency: 'USD, "eq"', price: 1000, delivery_hours: 10, target_hourly_rate: 100 });
+  const csv = csvReport(quote, calculate(quote));
+  assert.match(csv, /quoted_price,1000.00,"USD, ""eq"""/);
+  assert.match(csv, /effective_hourly_rate,100.00,"USD, ""eq""\/hour"/);
 });
