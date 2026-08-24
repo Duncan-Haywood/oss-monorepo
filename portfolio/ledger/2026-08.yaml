@@ -20741,7 +20741,7 @@ entries:
           owner can move, so every session's output is queued behind decisions
           no agent may make. Between 2026-08-19 and 2026-08-24 exactly one
           item on that queue was answered. The queue is not slow because the
-          owner is slow; it is 9 asks plus 4 pull requests presented as ~82KB
+          owner is slow; it is 8 live asks plus 4 pull requests presented as ~82KB
           of prose on #139, sorted cheapest-first, and it had never been
           rendered in a form that supports being answered.
       - >-
@@ -20764,7 +20764,8 @@ entries:
           still lists it as available to grant. `exposure`: a repository
           Settings toggle and opening a merchant-of-record account are
           adjacent rows in a cheapest-first sort and are not the same kind of
-          decision. With both applied, 9 asks and 4 open PRs collapse to SEVEN
+          decision. With both applied, the 8 live asks (#139 lists nine; Ask 8 is
+          superseded, with nothing to grant) and 4 open PRs collapse to SEVEN
           decisions, of which exactly one (Ask 2, the payout rail) moves the
           ceiling off `$0`, and one is blocked. No new evidence is claimed
           here: every input was already committed somewhere in this

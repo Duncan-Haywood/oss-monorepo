@@ -16,15 +16,17 @@ The queue was never presented in a form that supports being answered. Issue
 #139 carries it as ~82KB of prose sorted cheapest-first, and two axes that
 decide the answer are absent from that sort:
 
-  - Three of the nine asks are *blocked* by another ask, so granting them
-    today changes nothing. `CLAUDE.md` says this of Ask 5 in prose and the
-    table still lists it as available.
+  - Three of the asks are *blocked* by another ask, so granting them today
+    changes nothing. `CLAUDE.md` says this of Ask 5 in prose and the table
+    still lists it as available.
   - Granting a repo Settings toggle and opening a merchant-of-record account
     are adjacent rows, and are not the same kind of decision. `exposure`
     separates them.
 
-Reading those two axes off `asks.yaml` collapses nine asks and four open pull
-requests into seven decisions, of which exactly one moves the revenue ceiling.
+Reading those two axes off `asks.yaml` collapses the eight live asks (#139
+lists nine; Ask 8 is superseded by `break-even.md` and has nothing to grant)
+and four open pull requests into seven decisions, of which exactly one moves
+the revenue ceiling.
 
 This is a renderer, not a judge: every ordering rule below is a fixed rank over
 declared fields, so what it prints is a function of the data file and the data

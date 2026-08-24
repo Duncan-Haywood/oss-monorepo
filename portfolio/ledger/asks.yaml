@@ -17,10 +17,13 @@
 # cheapest-first, which `break-even.md` already faulted for burying the only
 # ask that unlocks any revenue. Two axes it does not carry at all:
 #
-#   - `blocked_by` -- three of the nine asks cannot do anything if granted
-#     today, because a different ask gates them. `CLAUDE.md` states this for
-#     Ask 5 in prose ("Ask 5 is currently inert") and the table still lists it
-#     as available to grant.
+#   - `blocked_by` -- three of the asks cannot do anything if granted today,
+#     because a different ask gates them. `CLAUDE.md` states this for Ask 5 in
+#     prose ("Ask 5 is currently inert") and the table still lists it as
+#     available to grant.
+#
+# Ask 8 is deliberately absent: `break-even.md` superseded it, so #139's nine
+# rows are eight live asks and one with nothing left to grant.
 #   - `exposure` -- what granting it actually costs the owner in risk. A repo
 #     Settings toggle and opening a merchant-of-record account are adjacent
 #     rows in a cheapest-first table and are not the same kind of decision.
