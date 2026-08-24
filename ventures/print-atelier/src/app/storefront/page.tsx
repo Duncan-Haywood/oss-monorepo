@@ -2,7 +2,9 @@ import DemoNav from "@/components/shared/DemoNav";
 import ProductDetailPreviewCTA from "@/components/ProductDetailPreviewCTA";
 import RoomPreviewExperiment from "@/components/RoomPreviewExperiment";
 import StorefrontSearchForm from "@/components/StorefrontSearchForm";
+import StorefrontCheckoutCTA from "@/components/StorefrontCheckoutCTA";
 import { calculatePrintEconomics, catalogArtworks } from "@/lib/marketplace";
+import { validateCheckoutLineItem } from "@/lib/checkout";
 import { resolvePrintHref } from "@/lib/seo";
 import {
   buildStorefrontHref,
@@ -258,6 +260,16 @@ export default async function StorefrontPage({ searchParams }: StorefrontPagePro
                     </p>
                     <p className="text-sm font-medium text-stone-900 mt-1">From ${art.retailPrice}</p>
                     <p className="text-xs text-stone-400 mt-1">Artist earns ${economics.artistShare.toFixed(2)} per print</p>
+                    {(() => {
+                      const eligibility = validateCheckoutLineItem(art);
+                      return (
+                        <StorefrontCheckoutCTA
+                          artworkSlug={art.slug}
+                          eligible={eligibility.eligible}
+                          blockers={eligibility.blockers}
+                        />
+                      );
+                    })()}
                   </article>
                 );
               })}
