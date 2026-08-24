@@ -698,3 +698,42 @@ candidates:
       agency partner or measure repeatable App Store search demand.
     first_experiment_days: 14
     first_experiment_budget_usd: 150
+
+  - slug: oss-sponsor-readiness
+    name: OSS sponsor readiness checklist
+    doc: candidates/oss-sponsor-readiness.md
+    verdict: build-now
+    graduate_as: venture
+    host_venture: null
+    scores:
+      ai_leverage: 3
+      autonomous_ops: 10
+      time_to_revenue: 3
+      gross_margin: 10
+      defensibility: 3
+      distribution: 6
+      liability_containment: 9
+      ethical_robustness: 8
+    composite: 6.5
+    floor: 3
+    floor_dimension: defensibility
+    floor_note: >-
+      Three dimensions tie at the floor (ai_leverage, time_to_revenue,
+      defensibility). `floor_dimension` names defensibility because a
+      copyable checklist is the risk most likely to end this candidate;
+      the other two are accepted trade-offs of shipping a free tool in
+      the portfolio's current no-payment-rails phase, not open questions.
+    mitigation: >-
+      Ship the free scorer now (zero cost either way) and differentiate on
+      a sponsor-conversion-specific checklist rather than GitHub's own
+      generic community-health score, plus whatever audience/SEO trust the
+      content earns. Revisit ai_leverage with a v2 "explain this repo in
+      plain English" pass and time_to_revenue with a paid GitHub App tier
+      only if usage shows return visits.
+    note: >-
+      Added 2026-08-24 after session_gate reported no unbuilt build-now
+      candidate. Not GitHub's own community-health score restated, not
+      GEO/AI-visibility monitoring, not docs-debt-service. See
+      screened-out.md and the doc for the distinctions.
+    first_experiment_days: 3
+    first_experiment_budget_usd: 0
