@@ -192,11 +192,11 @@
       "why_unindexed": "The host that actually serves the EUVD API; euvd.enisa.europa.eu, the host the ask names, serves only the website. Probed 2026-08-23 by a pass living under portfolio/pipeline/probes/, outside this walk's tree."
     },
     {
-      "detail": "URLError: <urlopen error Tunnel connection failed: 403 Forbidden>",
+      "detail": "Tunnel connection failed: 403 Forbidden",
       "host": "api.cloudflare.com",
       "same_run_controls": {
         "example.com": "egress_denied",
-        "registry.npmjs.org": "reachable"
+        "ghcr.io": "reachable"
       },
       "second_attempt": {
         "detail": "Tunnel connection failed: 403 Forbidden",
@@ -208,14 +208,14 @@
       "status": 0,
       "url": "https://api.cloudflare.com/",
       "verdict": "egress_denied",
-      "why_unindexed": "Hosting control plane measured by platform/deployment/probe_control_planes.py, which lives outside the portfolio/research/ tree --ingest walks. That document's claim is not that every vendor control plane is unreachable: cloudresourcemanager.googleapis.com is a reachable write API and is carried there as a named exception. `same_run_controls` records the controls observed in the same run as this verdict, so a run whose network was broken -- which denies everything twice and therefore looks stable -- cannot be mistaken for evidence."
+      "why_unindexed": "Hosting control plane measured by platform/deployment/probe_control_planes.py, which lives outside the portfolio/research/ tree --ingest walks. That document's claim is not that every vendor control plane is unreachable: cloudresourcemanager.googleapis.com is a reachable write API and is carried there as a named exception. `same_run_controls` records the controls observed in the same run as this verdict. Re-probed 2026-08-24 after review: the earlier reachable control (registry.npmjs.org) is in this environment's no_proxy and so was fetched directly, which would not have detected a proxy that was rejecting every CONNECT -- the exact failure the control exists to catch. ghcr.io traverses the proxy, so these denials are bound to a control on the same path."
     },
     {
-      "detail": "URLError: <urlopen error Tunnel connection failed: 403 Forbidden>",
+      "detail": "Tunnel connection failed: 403 Forbidden",
       "host": "dash.cloudflare.com",
       "same_run_controls": {
         "example.com": "egress_denied",
-        "registry.npmjs.org": "reachable"
+        "ghcr.io": "reachable"
       },
       "second_attempt": {
         "detail": "Tunnel connection failed: 403 Forbidden",
@@ -227,14 +227,14 @@
       "status": 0,
       "url": "https://dash.cloudflare.com/",
       "verdict": "egress_denied",
-      "why_unindexed": "Hosting control plane measured by platform/deployment/probe_control_planes.py, which lives outside the portfolio/research/ tree --ingest walks. That document's claim is not that every vendor control plane is unreachable: cloudresourcemanager.googleapis.com is a reachable write API and is carried there as a named exception. `same_run_controls` records the controls observed in the same run as this verdict, so a run whose network was broken -- which denies everything twice and therefore looks stable -- cannot be mistaken for evidence."
+      "why_unindexed": "Hosting control plane measured by platform/deployment/probe_control_planes.py, which lives outside the portfolio/research/ tree --ingest walks. That document's claim is not that every vendor control plane is unreachable: cloudresourcemanager.googleapis.com is a reachable write API and is carried there as a named exception. `same_run_controls` records the controls observed in the same run as this verdict. Re-probed 2026-08-24 after review: the earlier reachable control (registry.npmjs.org) is in this environment's no_proxy and so was fetched directly, which would not have detected a proxy that was rejecting every CONNECT -- the exact failure the control exists to catch. ghcr.io traverses the proxy, so these denials are bound to a control on the same path."
     },
     {
-      "detail": "URLError: <urlopen error Tunnel connection failed: 403 Forbidden>",
+      "detail": "Tunnel connection failed: 403 Forbidden",
       "host": "pages.dev",
       "same_run_controls": {
         "example.com": "egress_denied",
-        "registry.npmjs.org": "reachable"
+        "ghcr.io": "reachable"
       },
       "second_attempt": {
         "detail": "Tunnel connection failed: 403 Forbidden",
@@ -246,14 +246,14 @@
       "status": 0,
       "url": "https://pages.dev/",
       "verdict": "egress_denied",
-      "why_unindexed": "Hosting control plane measured by platform/deployment/probe_control_planes.py, which lives outside the portfolio/research/ tree --ingest walks. That document's claim is not that every vendor control plane is unreachable: cloudresourcemanager.googleapis.com is a reachable write API and is carried there as a named exception. `same_run_controls` records the controls observed in the same run as this verdict, so a run whose network was broken -- which denies everything twice and therefore looks stable -- cannot be mistaken for evidence."
+      "why_unindexed": "Hosting control plane measured by platform/deployment/probe_control_planes.py, which lives outside the portfolio/research/ tree --ingest walks. That document's claim is not that every vendor control plane is unreachable: cloudresourcemanager.googleapis.com is a reachable write API and is carried there as a named exception. `same_run_controls` records the controls observed in the same run as this verdict. Re-probed 2026-08-24 after review: the earlier reachable control (registry.npmjs.org) is in this environment's no_proxy and so was fetched directly, which would not have detected a proxy that was rejecting every CONNECT -- the exact failure the control exists to catch. ghcr.io traverses the proxy, so these denials are bound to a control on the same path."
     },
     {
-      "detail": "URLError: <urlopen error Tunnel connection failed: 403 Forbidden>",
+      "detail": "Tunnel connection failed: 403 Forbidden",
       "host": "workers.dev",
       "same_run_controls": {
         "example.com": "egress_denied",
-        "registry.npmjs.org": "reachable"
+        "ghcr.io": "reachable"
       },
       "second_attempt": {
         "detail": "Tunnel connection failed: 403 Forbidden",
@@ -265,14 +265,14 @@
       "status": 0,
       "url": "https://workers.dev/",
       "verdict": "egress_denied",
-      "why_unindexed": "Hosting control plane measured by platform/deployment/probe_control_planes.py, which lives outside the portfolio/research/ tree --ingest walks. That document's claim is not that every vendor control plane is unreachable: cloudresourcemanager.googleapis.com is a reachable write API and is carried there as a named exception. `same_run_controls` records the controls observed in the same run as this verdict, so a run whose network was broken -- which denies everything twice and therefore looks stable -- cannot be mistaken for evidence."
+      "why_unindexed": "Hosting control plane measured by platform/deployment/probe_control_planes.py, which lives outside the portfolio/research/ tree --ingest walks. That document's claim is not that every vendor control plane is unreachable: cloudresourcemanager.googleapis.com is a reachable write API and is carried there as a named exception. `same_run_controls` records the controls observed in the same run as this verdict. Re-probed 2026-08-24 after review: the earlier reachable control (registry.npmjs.org) is in this environment's no_proxy and so was fetched directly, which would not have detected a proxy that was rejecting every CONNECT -- the exact failure the control exists to catch. ghcr.io traverses the proxy, so these denials are bound to a control on the same path."
     },
     {
-      "detail": "URLError: <urlopen error Tunnel connection failed: 403 Forbidden>",
+      "detail": "Tunnel connection failed: 403 Forbidden",
       "host": "api.vercel.com",
       "same_run_controls": {
         "example.com": "egress_denied",
-        "registry.npmjs.org": "reachable"
+        "ghcr.io": "reachable"
       },
       "second_attempt": {
         "detail": "Tunnel connection failed: 403 Forbidden",
@@ -284,14 +284,14 @@
       "status": 0,
       "url": "https://api.vercel.com/",
       "verdict": "egress_denied",
-      "why_unindexed": "Hosting control plane measured by platform/deployment/probe_control_planes.py, which lives outside the portfolio/research/ tree --ingest walks. That document's claim is not that every vendor control plane is unreachable: cloudresourcemanager.googleapis.com is a reachable write API and is carried there as a named exception. `same_run_controls` records the controls observed in the same run as this verdict, so a run whose network was broken -- which denies everything twice and therefore looks stable -- cannot be mistaken for evidence."
+      "why_unindexed": "Hosting control plane measured by platform/deployment/probe_control_planes.py, which lives outside the portfolio/research/ tree --ingest walks. That document's claim is not that every vendor control plane is unreachable: cloudresourcemanager.googleapis.com is a reachable write API and is carried there as a named exception. `same_run_controls` records the controls observed in the same run as this verdict. Re-probed 2026-08-24 after review: the earlier reachable control (registry.npmjs.org) is in this environment's no_proxy and so was fetched directly, which would not have detected a proxy that was rejecting every CONNECT -- the exact failure the control exists to catch. ghcr.io traverses the proxy, so these denials are bound to a control on the same path."
     },
     {
-      "detail": "URLError: <urlopen error Tunnel connection failed: 403 Forbidden>",
+      "detail": "Tunnel connection failed: 403 Forbidden",
       "host": "vercel.com",
       "same_run_controls": {
         "example.com": "egress_denied",
-        "registry.npmjs.org": "reachable"
+        "ghcr.io": "reachable"
       },
       "second_attempt": {
         "detail": "Tunnel connection failed: 403 Forbidden",
@@ -303,14 +303,14 @@
       "status": 0,
       "url": "https://vercel.com/",
       "verdict": "egress_denied",
-      "why_unindexed": "Hosting control plane measured by platform/deployment/probe_control_planes.py, which lives outside the portfolio/research/ tree --ingest walks. That document's claim is not that every vendor control plane is unreachable: cloudresourcemanager.googleapis.com is a reachable write API and is carried there as a named exception. `same_run_controls` records the controls observed in the same run as this verdict, so a run whose network was broken -- which denies everything twice and therefore looks stable -- cannot be mistaken for evidence."
+      "why_unindexed": "Hosting control plane measured by platform/deployment/probe_control_planes.py, which lives outside the portfolio/research/ tree --ingest walks. That document's claim is not that every vendor control plane is unreachable: cloudresourcemanager.googleapis.com is a reachable write API and is carried there as a named exception. `same_run_controls` records the controls observed in the same run as this verdict. Re-probed 2026-08-24 after review: the earlier reachable control (registry.npmjs.org) is in this environment's no_proxy and so was fetched directly, which would not have detected a proxy that was rejecting every CONNECT -- the exact failure the control exists to catch. ghcr.io traverses the proxy, so these denials are bound to a control on the same path."
     },
     {
-      "detail": "URLError: <urlopen error Tunnel connection failed: 403 Forbidden>",
+      "detail": "Tunnel connection failed: 403 Forbidden",
       "host": "api.hetzner.cloud",
       "same_run_controls": {
         "example.com": "egress_denied",
-        "registry.npmjs.org": "reachable"
+        "ghcr.io": "reachable"
       },
       "second_attempt": {
         "detail": "Tunnel connection failed: 403 Forbidden",
@@ -322,14 +322,14 @@
       "status": 0,
       "url": "https://api.hetzner.cloud/",
       "verdict": "egress_denied",
-      "why_unindexed": "Hosting control plane measured by platform/deployment/probe_control_planes.py, which lives outside the portfolio/research/ tree --ingest walks. That document's claim is not that every vendor control plane is unreachable: cloudresourcemanager.googleapis.com is a reachable write API and is carried there as a named exception. `same_run_controls` records the controls observed in the same run as this verdict, so a run whose network was broken -- which denies everything twice and therefore looks stable -- cannot be mistaken for evidence."
+      "why_unindexed": "Hosting control plane measured by platform/deployment/probe_control_planes.py, which lives outside the portfolio/research/ tree --ingest walks. That document's claim is not that every vendor control plane is unreachable: cloudresourcemanager.googleapis.com is a reachable write API and is carried there as a named exception. `same_run_controls` records the controls observed in the same run as this verdict. Re-probed 2026-08-24 after review: the earlier reachable control (registry.npmjs.org) is in this environment's no_proxy and so was fetched directly, which would not have detected a proxy that was rejecting every CONNECT -- the exact failure the control exists to catch. ghcr.io traverses the proxy, so these denials are bound to a control on the same path."
     },
     {
-      "detail": "URLError: <urlopen error Tunnel connection failed: 403 Forbidden>",
+      "detail": "Tunnel connection failed: 403 Forbidden",
       "host": "console.hetzner.cloud",
       "same_run_controls": {
         "example.com": "egress_denied",
-        "registry.npmjs.org": "reachable"
+        "ghcr.io": "reachable"
       },
       "second_attempt": {
         "detail": "Tunnel connection failed: 403 Forbidden",
@@ -341,14 +341,14 @@
       "status": 0,
       "url": "https://console.hetzner.cloud/",
       "verdict": "egress_denied",
-      "why_unindexed": "Hosting control plane measured by platform/deployment/probe_control_planes.py, which lives outside the portfolio/research/ tree --ingest walks. That document's claim is not that every vendor control plane is unreachable: cloudresourcemanager.googleapis.com is a reachable write API and is carried there as a named exception. `same_run_controls` records the controls observed in the same run as this verdict, so a run whose network was broken -- which denies everything twice and therefore looks stable -- cannot be mistaken for evidence."
+      "why_unindexed": "Hosting control plane measured by platform/deployment/probe_control_planes.py, which lives outside the portfolio/research/ tree --ingest walks. That document's claim is not that every vendor control plane is unreachable: cloudresourcemanager.googleapis.com is a reachable write API and is carried there as a named exception. `same_run_controls` records the controls observed in the same run as this verdict. Re-probed 2026-08-24 after review: the earlier reachable control (registry.npmjs.org) is in this environment's no_proxy and so was fetched directly, which would not have detected a proxy that was rejecting every CONNECT -- the exact failure the control exists to catch. ghcr.io traverses the proxy, so these denials are bound to a control on the same path."
     },
     {
-      "detail": "URLError: <urlopen error Tunnel connection failed: 403 Forbidden>",
+      "detail": "Tunnel connection failed: 403 Forbidden",
       "host": "www.hetzner.com",
       "same_run_controls": {
         "example.com": "egress_denied",
-        "registry.npmjs.org": "reachable"
+        "ghcr.io": "reachable"
       },
       "second_attempt": {
         "detail": "Tunnel connection failed: 403 Forbidden",
@@ -360,14 +360,14 @@
       "status": 0,
       "url": "https://www.hetzner.com/",
       "verdict": "egress_denied",
-      "why_unindexed": "Hosting control plane measured by platform/deployment/probe_control_planes.py, which lives outside the portfolio/research/ tree --ingest walks. That document's claim is not that every vendor control plane is unreachable: cloudresourcemanager.googleapis.com is a reachable write API and is carried there as a named exception. `same_run_controls` records the controls observed in the same run as this verdict, so a run whose network was broken -- which denies everything twice and therefore looks stable -- cannot be mistaken for evidence."
+      "why_unindexed": "Hosting control plane measured by platform/deployment/probe_control_planes.py, which lives outside the portfolio/research/ tree --ingest walks. That document's claim is not that every vendor control plane is unreachable: cloudresourcemanager.googleapis.com is a reachable write API and is carried there as a named exception. `same_run_controls` records the controls observed in the same run as this verdict. Re-probed 2026-08-24 after review: the earlier reachable control (registry.npmjs.org) is in this environment's no_proxy and so was fetched directly, which would not have detected a proxy that was rejecting every CONNECT -- the exact failure the control exists to catch. ghcr.io traverses the proxy, so these denials are bound to a control on the same path."
     },
     {
-      "detail": "URLError: <urlopen error Tunnel connection failed: 403 Forbidden>",
+      "detail": "Tunnel connection failed: 403 Forbidden",
       "host": "aws.amazon.com",
       "same_run_controls": {
         "example.com": "egress_denied",
-        "registry.npmjs.org": "reachable"
+        "ghcr.io": "reachable"
       },
       "second_attempt": {
         "detail": "Tunnel connection failed: 403 Forbidden",
@@ -379,33 +379,33 @@
       "status": 0,
       "url": "https://aws.amazon.com/",
       "verdict": "egress_denied",
-      "why_unindexed": "Hosting control plane measured by platform/deployment/probe_control_planes.py, which lives outside the portfolio/research/ tree --ingest walks. That document's claim is not that every vendor control plane is unreachable: cloudresourcemanager.googleapis.com is a reachable write API and is carried there as a named exception. `same_run_controls` records the controls observed in the same run as this verdict, so a run whose network was broken -- which denies everything twice and therefore looks stable -- cannot be mistaken for evidence."
+      "why_unindexed": "Hosting control plane measured by platform/deployment/probe_control_planes.py, which lives outside the portfolio/research/ tree --ingest walks. That document's claim is not that every vendor control plane is unreachable: cloudresourcemanager.googleapis.com is a reachable write API and is carried there as a named exception. `same_run_controls` records the controls observed in the same run as this verdict. Re-probed 2026-08-24 after review: the earlier reachable control (registry.npmjs.org) is in this environment's no_proxy and so was fetched directly, which would not have detected a proxy that was rejecting every CONNECT -- the exact failure the control exists to catch. ghcr.io traverses the proxy, so these denials are bound to a control on the same path."
     },
     {
-      "detail": "URLError: <urlopen error Tunnel connection failed: 403 Forbidden>",
+      "detail": "HTTP 301 from origin",
       "host": "ec2.amazonaws.com",
       "same_run_controls": {
         "example.com": "egress_denied",
-        "registry.npmjs.org": "reachable"
+        "ghcr.io": "reachable"
       },
       "second_attempt": {
-        "detail": "Tunnel connection failed: 403 Forbidden",
-        "status": 0,
-        "verdict": "egress_denied"
+        "detail": "HTTP 301 from origin",
+        "status": 301,
+        "verdict": "reachable"
       },
       "source": "platform/deployment/README.md",
       "stable": true,
-      "status": 0,
+      "status": 301,
       "url": "https://ec2.amazonaws.com/",
-      "verdict": "egress_denied",
-      "why_unindexed": "Hosting control plane measured by platform/deployment/probe_control_planes.py, which lives outside the portfolio/research/ tree --ingest walks. That document's claim is not that every vendor control plane is unreachable: cloudresourcemanager.googleapis.com is a reachable write API and is carried there as a named exception. `same_run_controls` records the controls observed in the same run as this verdict, so a run whose network was broken -- which denies everything twice and therefore looks stable -- cannot be mistaken for evidence."
+      "verdict": "reachable",
+      "why_unindexed": "Hosting control plane measured by platform/deployment/probe_control_planes.py, which lives outside the portfolio/research/ tree --ingest walks. That document's claim is not that every vendor control plane is unreachable: cloudresourcemanager.googleapis.com is a reachable write API and is carried there as a named exception. `same_run_controls` records the controls observed in the same run as this verdict. Re-probed 2026-08-24 after review: the earlier reachable control (registry.npmjs.org) is in this environment's no_proxy and so was fetched directly, which would not have detected a proxy that was rejecting every CONNECT -- the exact failure the control exists to catch. ghcr.io traverses the proxy, so these denials are bound to a control on the same path."
     },
     {
-      "detail": "URLError: <urlopen error Tunnel connection failed: 403 Forbidden>",
+      "detail": "Tunnel connection failed: 403 Forbidden",
       "host": "management.azure.com",
       "same_run_controls": {
         "example.com": "egress_denied",
-        "registry.npmjs.org": "reachable"
+        "ghcr.io": "reachable"
       },
       "second_attempt": {
         "detail": "Tunnel connection failed: 403 Forbidden",
@@ -417,14 +417,14 @@
       "status": 0,
       "url": "https://management.azure.com/",
       "verdict": "egress_denied",
-      "why_unindexed": "Hosting control plane measured by platform/deployment/probe_control_planes.py, which lives outside the portfolio/research/ tree --ingest walks. That document's claim is not that every vendor control plane is unreachable: cloudresourcemanager.googleapis.com is a reachable write API and is carried there as a named exception. `same_run_controls` records the controls observed in the same run as this verdict, so a run whose network was broken -- which denies everything twice and therefore looks stable -- cannot be mistaken for evidence."
+      "why_unindexed": "Hosting control plane measured by platform/deployment/probe_control_planes.py, which lives outside the portfolio/research/ tree --ingest walks. That document's claim is not that every vendor control plane is unreachable: cloudresourcemanager.googleapis.com is a reachable write API and is carried there as a named exception. `same_run_controls` records the controls observed in the same run as this verdict. Re-probed 2026-08-24 after review: the earlier reachable control (registry.npmjs.org) is in this environment's no_proxy and so was fetched directly, which would not have detected a proxy that was rejecting every CONNECT -- the exact failure the control exists to catch. ghcr.io traverses the proxy, so these denials are bound to a control on the same path."
     },
     {
       "detail": "HTTP 200",
       "host": "portal.azure.com",
       "same_run_controls": {
         "example.com": "egress_denied",
-        "registry.npmjs.org": "reachable"
+        "ghcr.io": "reachable"
       },
       "second_attempt": {
         "detail": "HTTP 200",
@@ -436,17 +436,17 @@
       "status": 200,
       "url": "https://portal.azure.com/",
       "verdict": "reachable",
-      "why_unindexed": "Hosting control plane measured by platform/deployment/probe_control_planes.py, which lives outside the portfolio/research/ tree --ingest walks. That document's claim is not that every vendor control plane is unreachable: cloudresourcemanager.googleapis.com is a reachable write API and is carried there as a named exception. `same_run_controls` records the controls observed in the same run as this verdict, so a run whose network was broken -- which denies everything twice and therefore looks stable -- cannot be mistaken for evidence."
+      "why_unindexed": "Hosting control plane measured by platform/deployment/probe_control_planes.py, which lives outside the portfolio/research/ tree --ingest walks. That document's claim is not that every vendor control plane is unreachable: cloudresourcemanager.googleapis.com is a reachable write API and is carried there as a named exception. `same_run_controls` records the controls observed in the same run as this verdict. Re-probed 2026-08-24 after review: the earlier reachable control (registry.npmjs.org) is in this environment's no_proxy and so was fetched directly, which would not have detected a proxy that was rejecting every CONNECT -- the exact failure the control exists to catch. ghcr.io traverses the proxy, so these denials are bound to a control on the same path."
     },
     {
-      "detail": "HTTP 404",
+      "detail": "HTTP 404 from origin",
       "host": "cloudresourcemanager.googleapis.com",
       "same_run_controls": {
         "example.com": "egress_denied",
-        "registry.npmjs.org": "reachable"
+        "ghcr.io": "reachable"
       },
       "second_attempt": {
-        "detail": "HTTP 404",
+        "detail": "HTTP 404 from origin",
         "status": 404,
         "verdict": "reachable"
       },
@@ -455,14 +455,14 @@
       "status": 404,
       "url": "https://cloudresourcemanager.googleapis.com/",
       "verdict": "reachable",
-      "why_unindexed": "Hosting control plane measured by platform/deployment/probe_control_planes.py, which lives outside the portfolio/research/ tree --ingest walks. That document's claim is not that every vendor control plane is unreachable: cloudresourcemanager.googleapis.com is a reachable write API and is carried there as a named exception. `same_run_controls` records the controls observed in the same run as this verdict, so a run whose network was broken -- which denies everything twice and therefore looks stable -- cannot be mistaken for evidence."
+      "why_unindexed": "Hosting control plane measured by platform/deployment/probe_control_planes.py, which lives outside the portfolio/research/ tree --ingest walks. That document's claim is not that every vendor control plane is unreachable: cloudresourcemanager.googleapis.com is a reachable write API and is carried there as a named exception. `same_run_controls` records the controls observed in the same run as this verdict. Re-probed 2026-08-24 after review: the earlier reachable control (registry.npmjs.org) is in this environment's no_proxy and so was fetched directly, which would not have detected a proxy that was rejecting every CONNECT -- the exact failure the control exists to catch. ghcr.io traverses the proxy, so these denials are bound to a control on the same path."
     },
     {
-      "detail": "URLError: <urlopen error Tunnel connection failed: 403 Forbidden>",
+      "detail": "Tunnel connection failed: 403 Forbidden",
       "host": "console.cloud.google.com",
       "same_run_controls": {
         "example.com": "egress_denied",
-        "registry.npmjs.org": "reachable"
+        "ghcr.io": "reachable"
       },
       "second_attempt": {
         "detail": "Tunnel connection failed: 403 Forbidden",
@@ -474,14 +474,14 @@
       "status": 0,
       "url": "https://console.cloud.google.com/",
       "verdict": "egress_denied",
-      "why_unindexed": "Hosting control plane measured by platform/deployment/probe_control_planes.py, which lives outside the portfolio/research/ tree --ingest walks. That document's claim is not that every vendor control plane is unreachable: cloudresourcemanager.googleapis.com is a reachable write API and is carried there as a named exception. `same_run_controls` records the controls observed in the same run as this verdict, so a run whose network was broken -- which denies everything twice and therefore looks stable -- cannot be mistaken for evidence."
+      "why_unindexed": "Hosting control plane measured by platform/deployment/probe_control_planes.py, which lives outside the portfolio/research/ tree --ingest walks. That document's claim is not that every vendor control plane is unreachable: cloudresourcemanager.googleapis.com is a reachable write API and is carried there as a named exception. `same_run_controls` records the controls observed in the same run as this verdict. Re-probed 2026-08-24 after review: the earlier reachable control (registry.npmjs.org) is in this environment's no_proxy and so was fetched directly, which would not have detected a proxy that was rejecting every CONNECT -- the exact failure the control exists to catch. ghcr.io traverses the proxy, so these denials are bound to a control on the same path."
     },
     {
-      "detail": "URLError: <urlopen error Tunnel connection failed: 403 Forbidden>",
+      "detail": "Tunnel connection failed: 403 Forbidden",
       "host": "api.netlify.com",
       "same_run_controls": {
         "example.com": "egress_denied",
-        "registry.npmjs.org": "reachable"
+        "ghcr.io": "reachable"
       },
       "second_attempt": {
         "detail": "Tunnel connection failed: 403 Forbidden",
@@ -493,14 +493,14 @@
       "status": 0,
       "url": "https://api.netlify.com/",
       "verdict": "egress_denied",
-      "why_unindexed": "Hosting control plane measured by platform/deployment/probe_control_planes.py, which lives outside the portfolio/research/ tree --ingest walks. That document's claim is not that every vendor control plane is unreachable: cloudresourcemanager.googleapis.com is a reachable write API and is carried there as a named exception. `same_run_controls` records the controls observed in the same run as this verdict, so a run whose network was broken -- which denies everything twice and therefore looks stable -- cannot be mistaken for evidence."
+      "why_unindexed": "Hosting control plane measured by platform/deployment/probe_control_planes.py, which lives outside the portfolio/research/ tree --ingest walks. That document's claim is not that every vendor control plane is unreachable: cloudresourcemanager.googleapis.com is a reachable write API and is carried there as a named exception. `same_run_controls` records the controls observed in the same run as this verdict. Re-probed 2026-08-24 after review: the earlier reachable control (registry.npmjs.org) is in this environment's no_proxy and so was fetched directly, which would not have detected a proxy that was rejecting every CONNECT -- the exact failure the control exists to catch. ghcr.io traverses the proxy, so these denials are bound to a control on the same path."
     },
     {
-      "detail": "URLError: <urlopen error Tunnel connection failed: 403 Forbidden>",
+      "detail": "Tunnel connection failed: 403 Forbidden",
       "host": "api.fly.io",
       "same_run_controls": {
         "example.com": "egress_denied",
-        "registry.npmjs.org": "reachable"
+        "ghcr.io": "reachable"
       },
       "second_attempt": {
         "detail": "Tunnel connection failed: 403 Forbidden",
@@ -512,14 +512,14 @@
       "status": 0,
       "url": "https://api.fly.io/",
       "verdict": "egress_denied",
-      "why_unindexed": "Hosting control plane measured by platform/deployment/probe_control_planes.py, which lives outside the portfolio/research/ tree --ingest walks. That document's claim is not that every vendor control plane is unreachable: cloudresourcemanager.googleapis.com is a reachable write API and is carried there as a named exception. `same_run_controls` records the controls observed in the same run as this verdict, so a run whose network was broken -- which denies everything twice and therefore looks stable -- cannot be mistaken for evidence."
+      "why_unindexed": "Hosting control plane measured by platform/deployment/probe_control_planes.py, which lives outside the portfolio/research/ tree --ingest walks. That document's claim is not that every vendor control plane is unreachable: cloudresourcemanager.googleapis.com is a reachable write API and is carried there as a named exception. `same_run_controls` records the controls observed in the same run as this verdict. Re-probed 2026-08-24 after review: the earlier reachable control (registry.npmjs.org) is in this environment's no_proxy and so was fetched directly, which would not have detected a proxy that was rejecting every CONNECT -- the exact failure the control exists to catch. ghcr.io traverses the proxy, so these denials are bound to a control on the same path."
     },
     {
-      "detail": "URLError: <urlopen error Tunnel connection failed: 403 Forbidden>",
+      "detail": "Tunnel connection failed: 403 Forbidden",
       "host": "api.render.com",
       "same_run_controls": {
         "example.com": "egress_denied",
-        "registry.npmjs.org": "reachable"
+        "ghcr.io": "reachable"
       },
       "second_attempt": {
         "detail": "Tunnel connection failed: 403 Forbidden",
@@ -531,14 +531,14 @@
       "status": 0,
       "url": "https://api.render.com/",
       "verdict": "egress_denied",
-      "why_unindexed": "Hosting control plane measured by platform/deployment/probe_control_planes.py, which lives outside the portfolio/research/ tree --ingest walks. That document's claim is not that every vendor control plane is unreachable: cloudresourcemanager.googleapis.com is a reachable write API and is carried there as a named exception. `same_run_controls` records the controls observed in the same run as this verdict, so a run whose network was broken -- which denies everything twice and therefore looks stable -- cannot be mistaken for evidence."
+      "why_unindexed": "Hosting control plane measured by platform/deployment/probe_control_planes.py, which lives outside the portfolio/research/ tree --ingest walks. That document's claim is not that every vendor control plane is unreachable: cloudresourcemanager.googleapis.com is a reachable write API and is carried there as a named exception. `same_run_controls` records the controls observed in the same run as this verdict. Re-probed 2026-08-24 after review: the earlier reachable control (registry.npmjs.org) is in this environment's no_proxy and so was fetched directly, which would not have detected a proxy that was rejecting every CONNECT -- the exact failure the control exists to catch. ghcr.io traverses the proxy, so these denials are bound to a control on the same path."
     },
     {
-      "detail": "URLError: <urlopen error Tunnel connection failed: 403 Forbidden>",
+      "detail": "Tunnel connection failed: 403 Forbidden",
       "host": "api.digitalocean.com",
       "same_run_controls": {
         "example.com": "egress_denied",
-        "registry.npmjs.org": "reachable"
+        "ghcr.io": "reachable"
       },
       "second_attempt": {
         "detail": "Tunnel connection failed: 403 Forbidden",
@@ -550,14 +550,14 @@
       "status": 0,
       "url": "https://api.digitalocean.com/",
       "verdict": "egress_denied",
-      "why_unindexed": "Hosting control plane measured by platform/deployment/probe_control_planes.py, which lives outside the portfolio/research/ tree --ingest walks. That document's claim is not that every vendor control plane is unreachable: cloudresourcemanager.googleapis.com is a reachable write API and is carried there as a named exception. `same_run_controls` records the controls observed in the same run as this verdict, so a run whose network was broken -- which denies everything twice and therefore looks stable -- cannot be mistaken for evidence."
+      "why_unindexed": "Hosting control plane measured by platform/deployment/probe_control_planes.py, which lives outside the portfolio/research/ tree --ingest walks. That document's claim is not that every vendor control plane is unreachable: cloudresourcemanager.googleapis.com is a reachable write API and is carried there as a named exception. `same_run_controls` records the controls observed in the same run as this verdict. Re-probed 2026-08-24 after review: the earlier reachable control (registry.npmjs.org) is in this environment's no_proxy and so was fetched directly, which would not have detected a proxy that was rejecting every CONNECT -- the exact failure the control exists to catch. ghcr.io traverses the proxy, so these denials are bound to a control on the same path."
     },
     {
-      "detail": "URLError: <urlopen error Tunnel connection failed: 403 Forbidden>",
+      "detail": "Tunnel connection failed: 403 Forbidden",
       "host": "deno.com",
       "same_run_controls": {
         "example.com": "egress_denied",
-        "registry.npmjs.org": "reachable"
+        "ghcr.io": "reachable"
       },
       "second_attempt": {
         "detail": "Tunnel connection failed: 403 Forbidden",
@@ -569,14 +569,14 @@
       "status": 0,
       "url": "https://deno.com/",
       "verdict": "egress_denied",
-      "why_unindexed": "Hosting control plane measured by platform/deployment/probe_control_planes.py, which lives outside the portfolio/research/ tree --ingest walks. That document's claim is not that every vendor control plane is unreachable: cloudresourcemanager.googleapis.com is a reachable write API and is carried there as a named exception. `same_run_controls` records the controls observed in the same run as this verdict, so a run whose network was broken -- which denies everything twice and therefore looks stable -- cannot be mistaken for evidence."
+      "why_unindexed": "Hosting control plane measured by platform/deployment/probe_control_planes.py, which lives outside the portfolio/research/ tree --ingest walks. That document's claim is not that every vendor control plane is unreachable: cloudresourcemanager.googleapis.com is a reachable write API and is carried there as a named exception. `same_run_controls` records the controls observed in the same run as this verdict. Re-probed 2026-08-24 after review: the earlier reachable control (registry.npmjs.org) is in this environment's no_proxy and so was fetched directly, which would not have detected a proxy that was rejecting every CONNECT -- the exact failure the control exists to catch. ghcr.io traverses the proxy, so these denials are bound to a control on the same path."
     },
     {
       "detail": "Tunnel connection failed: 403 Forbidden",
       "host": "backboard.railway.app",
       "same_run_controls": {
         "example.com": "egress_denied",
-        "registry.npmjs.org": "reachable"
+        "ghcr.io": "reachable"
       },
       "second_attempt": {
         "detail": "Tunnel connection failed: 403 Forbidden",
@@ -588,14 +588,14 @@
       "status": 0,
       "url": "https://backboard.railway.app/",
       "verdict": "egress_denied",
-      "why_unindexed": "Hosting control plane measured by platform/deployment/probe_control_planes.py, which lives outside the portfolio/research/ tree --ingest walks. That document's claim is not that every vendor control plane is unreachable: cloudresourcemanager.googleapis.com is a reachable write API and is carried there as a named exception. `same_run_controls` records the controls observed in the same run as this verdict, so a run whose network was broken -- which denies everything twice and therefore looks stable -- cannot be mistaken for evidence."
+      "why_unindexed": "Hosting control plane measured by platform/deployment/probe_control_planes.py, which lives outside the portfolio/research/ tree --ingest walks. That document's claim is not that every vendor control plane is unreachable: cloudresourcemanager.googleapis.com is a reachable write API and is carried there as a named exception. `same_run_controls` records the controls observed in the same run as this verdict. Re-probed 2026-08-24 after review: the earlier reachable control (registry.npmjs.org) is in this environment's no_proxy and so was fetched directly, which would not have detected a proxy that was rejecting every CONNECT -- the exact failure the control exists to catch. ghcr.io traverses the proxy, so these denials are bound to a control on the same path."
     },
     {
       "detail": "Tunnel connection failed: 403 Forbidden",
       "host": "railway.app",
       "same_run_controls": {
         "example.com": "egress_denied",
-        "registry.npmjs.org": "reachable"
+        "ghcr.io": "reachable"
       },
       "second_attempt": {
         "detail": "Tunnel connection failed: 403 Forbidden",
@@ -607,14 +607,14 @@
       "status": 0,
       "url": "https://railway.app/",
       "verdict": "egress_denied",
-      "why_unindexed": "Hosting control plane measured by platform/deployment/probe_control_planes.py, which lives outside the portfolio/research/ tree --ingest walks. That document's claim is not that every vendor control plane is unreachable: cloudresourcemanager.googleapis.com is a reachable write API and is carried there as a named exception. `same_run_controls` records the controls observed in the same run as this verdict, so a run whose network was broken -- which denies everything twice and therefore looks stable -- cannot be mistaken for evidence."
+      "why_unindexed": "Hosting control plane measured by platform/deployment/probe_control_planes.py, which lives outside the portfolio/research/ tree --ingest walks. That document's claim is not that every vendor control plane is unreachable: cloudresourcemanager.googleapis.com is a reachable write API and is carried there as a named exception. `same_run_controls` records the controls observed in the same run as this verdict. Re-probed 2026-08-24 after review: the earlier reachable control (registry.npmjs.org) is in this environment's no_proxy and so was fetched directly, which would not have detected a proxy that was rejecting every CONNECT -- the exact failure the control exists to catch. ghcr.io traverses the proxy, so these denials are bound to a control on the same path."
     },
     {
       "detail": "Tunnel connection failed: 403 Forbidden",
       "host": "railway.com",
       "same_run_controls": {
         "example.com": "egress_denied",
-        "registry.npmjs.org": "reachable"
+        "ghcr.io": "reachable"
       },
       "second_attempt": {
         "detail": "Tunnel connection failed: 403 Forbidden",
@@ -626,7 +626,7 @@
       "status": 0,
       "url": "https://railway.com/",
       "verdict": "egress_denied",
-      "why_unindexed": "Hosting control plane measured by platform/deployment/probe_control_planes.py, which lives outside the portfolio/research/ tree --ingest walks. That document's claim is not that every vendor control plane is unreachable: cloudresourcemanager.googleapis.com is a reachable write API and is carried there as a named exception. `same_run_controls` records the controls observed in the same run as this verdict, so a run whose network was broken -- which denies everything twice and therefore looks stable -- cannot be mistaken for evidence."
+      "why_unindexed": "Hosting control plane measured by platform/deployment/probe_control_planes.py, which lives outside the portfolio/research/ tree --ingest walks. That document's claim is not that every vendor control plane is unreachable: cloudresourcemanager.googleapis.com is a reachable write API and is carried there as a named exception. `same_run_controls` records the controls observed in the same run as this verdict. Re-probed 2026-08-24 after review: the earlier reachable control (registry.npmjs.org) is in this environment's no_proxy and so was fetched directly, which would not have detected a proxy that was rejecting every CONNECT -- the exact failure the control exists to catch. ghcr.io traverses the proxy, so these denials are bound to a control on the same path."
     }
   ],
   "why_this_file_exists": "consolidate.py --ingest walks portfolio/research/ for machine-readable results files. A host measured in prose, or measured by a pass living outside that tree, is invisible to it -- and because --probe iterates the table --ingest builds, an invisible host is also never re-measured. These two were invisible on both counts. Each record names, in `source`, the document that first measured it; the verdict fields are this pass's own re-measurement, taken with probe_host() so the body-based classification rule this directory established applies. Extended 2026-08-24 with the hosting control planes measured by platform/deployment/probe_control_planes.py, for the same reason: a pass living outside portfolio/research/ is invisible to --ingest, so its hosts would sit in a second table nobody re-probes. One table, one command."

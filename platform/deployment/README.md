@@ -320,17 +320,27 @@ exists only to make Next.js run somewhere it is not native.
 
 ## What is measured here, and what is not
 
-**Measured, with one exception that is stated up front rather than buried.**
-Ten of the eleven vendor write surfaces — the API a deploy, a scale-up or a
-teardown would call — are `egress_denied` from an agent session:
+**Measured, with two exceptions stated up front rather than buried.** Nine of
+the eleven vendor write surfaces — the API a deploy, a scale-up or a teardown
+would call — are `egress_denied` from an agent session:
 `backboard.railway.app`, `api.vercel.com`, `api.cloudflare.com`,
-`api.hetzner.cloud`, `management.azure.com`, `ec2.amazonaws.com`,
-`api.netlify.com`, `api.fly.io`, `api.render.com`, `api.digitalocean.com`.
+`api.hetzner.cloud`, `management.azure.com`, `api.netlify.com`, `api.fly.io`,
+`api.render.com`, `api.digitalocean.com`.
 
-**The eleventh answers.** `cloudresourcemanager.googleapis.com` is reachable,
-and it is a write API — details below. So the claim this section supports is
-"a session cannot reach *these* control planes", not "a session cannot reach
-any", and `check()` enforces exactly that narrower statement.
+**Two answer.** `cloudresourcemanager.googleapis.com` (404) and
+`ec2.amazonaws.com` (301) — both real write APIs. So the claim this section
+supports is "a session cannot reach *these* control planes", not "a session
+cannot reach any", and `check()` enforces exactly that narrower statement.
+
+The EC2 one is worth reading as a caution about this whole document. It was
+recorded as denied until 2026-08-24, and that was **this probe's own bug**, not
+the network: the first implementation followed redirects, chased EC2's 301 to a
+destination that is itself denied, and filed the denial against EC2. When that
+was pointed out the code was switched to the canonical no-redirect prober — and
+the committed verdicts were left alone, so the false denial outlived its fix by
+several rounds. **Fixing a prober does not fix the data it produced.** All 23
+hosts were re-measured and only this one moved, but the lesson generalises: a
+corrected tool and a corrected record are two separate pieces of work.
 
 ```
 python3 platform/deployment/probe_control_planes.py --report   # offline
@@ -398,11 +408,19 @@ recommendation.
 1. Create the Hetzner account and take one CX-class VPS (~€4/month, 20 TB
    traffic). Fixed monthly price, with the traffic caveat below — there is no
    vendor-side stop to configure, because Hetzner does not offer one.
-2. Point `ventures/ubuntu-agent-server/inventory.ini` at it and run the
-   playbook, over the box's public IP. **Keep using the public address**: the
-   CI-provisioned posture needs it, because a GitHub runner is not on your
-   tailnet. Switching to a Tailscale address is the other posture, and it means
-   running the playbook by hand from a tailnet machine instead.
+2. Provision it — and pick one path, because they use different inventories
+   and an earlier draft of this step mixed them:
+
+   - **From CI (the posture this document describes).** Dispatch
+     `agent-server-provision.yml`. It ignores the tracked `inventory.ini` and
+     generates its own from `AGENT_SERVER_HOST` / `AGENT_SERVER_SSH_USER`,
+     with the pinned host key. Nothing to edit; keep the public address,
+     because a GitHub runner is not on your tailnet.
+   - **By hand.** Then `inventory.ini` is the file, and note it ships
+     `ansible_user=duncan` and `StrictHostKeyChecking=accept-new` — neither
+     right for a fresh cloud image, which has only `root` and whose host key
+     you should pin rather than trust on first use. Edit both before running,
+     or you will either fail to connect or accept whatever key answers.
 3. Leave `agent_runner_start_disabled: true`. Turning the fleet on is a
    separate decision and this is not it.
 4. Leave `GITHUB_PAGES_ENABLED`, `VERCEL_DEPLOY` and the `CLOUDFLARE_*`
@@ -583,5 +601,12 @@ account in check mode, so every later task targeting it fails against a user
 that does not exist. `--check` is for re-runs against a box that is already up;
 the first run has to be a real one.
 
-Expect `platform/ci/publish_surface.py --check` to go red once any deploy job
-goes live; rewriting the snapshot is the correct follow-up, not a regression.
+One expectation to drop, because it was wrong: an earlier draft said
+`platform/ci/publish_surface.py --check` would go red once a deploy job went
+live. It will not. That check derives its classification from the workflow
+*YAML* — a job guarded by `vars.GITHUB_PAGES_ENABLED` is recorded as `gated`
+whatever the variable's value — so setting the variable changes nothing it can
+see. It goes red when workflow code or its gates change, not when an owner
+enables an existing gate. Which is itself worth knowing: **the publish-surface
+snapshot does not observe configuration, only code**, so "0 live" means "no
+workflow publishes unconditionally", not "nothing is publishing".

@@ -533,9 +533,12 @@ decisions:
     the agent-decidable half; the decision is not. It keeps no host table of
     its own -- its 23 control planes were folded into the consolidated egress
     table, now 121 hosts, and it asserts its claim against that. Note the
-    measured exception: `cloudresourcemanager.googleapis.com` is reachable and
-    is a write API, so the claim is "every vendor control plane probed except
-    GCP's Resource Manager", not a blanket one.
+    measured exceptions: `cloudresourcemanager.googleapis.com` and
+    `ec2.amazonaws.com` are both reachable write APIs, so the claim is "every
+    vendor control plane probed except GCP's Resource Manager and AWS EC2", not
+    a blanket one. The EC2 verdict was a false denial produced by this probe's
+    own redirect-following bug and only corrected on re-measurement, which is
+    worth knowing about the confidence of the rest.
 
 - id: local-site-studio-subtree-gate-crossing
   asks: []

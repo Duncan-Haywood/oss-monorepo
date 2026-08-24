@@ -630,11 +630,11 @@
     },
     "ec2.amazonaws.com": {
       "n_observations": 1,
-      "prior_consensus": "egress_denied",
+      "prior_consensus": "reachable",
       "prior_disputed": false,
       "prior_tied": false,
       "prior_verdicts": {
-        "egress_denied": 1
+        "reachable": 1
       },
       "probe_url": "https://ec2.amazonaws.com/",
       "sources": [

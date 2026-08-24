@@ -88,6 +88,16 @@ WRITE_SURFACES = {
 # becomes reachable, and equally if this one goes quiet, because a table that
 # silently stops recording a known-reachable host is drifting too.
 EXPECTED_REACHABLE = {
+    "ec2.amazonaws.com": (
+        "answers 301 from the origin, stable across two attempts. Recorded as "
+        "denied until 2026-08-24, and that was this probe's own bug rather "
+        "than a change in the network: the first implementation followed "
+        "redirects, so it chased the 301 to a destination that *is* denied and "
+        "filed the denial against EC2. The code was switched to "
+        "`consolidate.py`'s no-redirect prober when that was pointed out, but "
+        "the committed verdicts were not re-measured, so the false denial "
+        "outlived the fix. Fixing a prober does not fix the data it produced."
+    ),
     "cloudresourcemanager.googleapis.com": (
         "answers 404 unauthenticated -- the network path to GCP's control "
         "plane exists from a session, though using it would still need a "
@@ -107,7 +117,17 @@ CONTEXT_HOSTS = {
 }
 
 # Without both, a blanket denial cannot be told from a broken probe.
-CONTROL_REACHABLE = "registry.npmjs.org"
+#
+# The reachable control must traverse the *same proxy* as the vendor targets,
+# and the obvious choice does not. `registry.npmjs.org` is in this
+# environment's `no_proxy`, so it is fetched directly: if the egress proxy were
+# down or rejecting every CONNECT, npm would still answer, `example.com` would
+# still be denied, and this check would certify a batch of false vendor
+# denials. That is precisely the broken-probe case the controls exist to
+# exclude, and the control was blind to it because it was not on the path being
+# measured. `ghcr.io` is reachable, undisputed in the consolidated table, and
+# not in `no_proxy`, so a proxy failure takes it down with everything else.
+CONTROL_REACHABLE = "ghcr.io"
 CONTROL_DENIED = "example.com"
 
 ALL_HOSTS = sorted(set(WRITE_SURFACES) | CONTEXT_HOSTS)
