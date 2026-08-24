@@ -1,4 +1,8 @@
+import json
+import tempfile
 from pathlib import Path
+
+import pytest
 
 from dns_diff import build_report, load_snapshot
 
@@ -52,12 +56,40 @@ def test_domain_mismatch_is_unknown():
     assert report["reason"] == "snapshot domains differ"
 
 
+@pytest.mark.parametrize("status", ["refused", "servfail", "dnssec_failure"])
+def test_other_failure_statuses_are_inconclusive(status):
+    """Any non-ok status forces inconclusive, not just the ones named in fixtures."""
+    after = json.loads(json.dumps(snapshot("unchanged-before.json")))
+    after["resolvers"][1] = {"resolver": "8.8.8.8", "query_status": status}
+    report = build_report(snapshot("unchanged-before.json"), after)
+    assert report["status"] == "inconclusive"
+    assert status in report["reason"]
+
+
+def test_loader_rejects_snapshot_missing_context():
+    with tempfile.TemporaryDirectory() as directory:
+        path = Path(directory) / "bad.json"
+        path.write_text(json.dumps({"domain": "example.test"}), encoding="utf-8")
+        with pytest.raises(ValueError, match="snapshot missing fields"):
+            load_snapshot(path)
+
+
+def test_loader_rejects_resolver_missing_status():
+    with tempfile.TemporaryDirectory() as directory:
+        path = Path(directory) / "bad.json"
+        payload = {
+            "domain": "example.test",
+            "captured_at": "2026-08-24T12:00:00Z",
+            "resolvers": [{"resolver": "1.1.1.1"}],
+        }
+        path.write_text(json.dumps(payload), encoding="utf-8")
+        with pytest.raises(ValueError, match="resolver entry missing fields"):
+            load_snapshot(path)
+
+
 def test_added_and_removed_record_types_are_flagged():
     before = snapshot("unchanged-before.json")
-    after = snapshot("unchanged-before.json")
-    import json
-
-    after = json.loads(json.dumps(after))  # deep copy
+    after = json.loads(json.dumps(snapshot("unchanged-before.json")))  # deep copy
     for resolver in after["resolvers"]:
         del resolver["records"]["MX"]
         resolver["records"]["CAA"] = ["0 issue \"letsencrypt.org\""]

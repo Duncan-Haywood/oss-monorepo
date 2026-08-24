@@ -34,8 +34,18 @@ snapshot pair where one resolver times out, and a separate pair where two
 resolvers return different `TXT` answers for the same domain, both report
 `inconclusive` with the specific resolver and reason named — neither is
 reported as `unchanged`. A domain mismatch between the two snapshots reports
-`unknown`. All seven cases are asserted in `test_dns_diff.py`
-(`python3 -m pytest -q` → 7 passed).
+`unknown`.
+
+The candidate's boundary names four failure states, not one, so the rule is
+written against `query_status != "ok"` rather than against a list: `refused`,
+`servfail`, and `dnssec_failure` are each asserted to force `inconclusive`
+alongside `timeout`, and a status the candidate has not thought of yet
+behaves the same way rather than falling through to `observed`. The loader
+rejects a snapshot missing its domain/timestamp context, and a resolver entry
+missing its status, rather than reading an absent field as a passing one.
+
+All twelve cases are asserted in `test_dns_diff.py`
+(`python3 -m pytest -q` → 12 passed).
 
 This is a local diff experiment over hand-written fixtures, not a live
 resolver poller and not demand evidence. The candidate write-up's first
