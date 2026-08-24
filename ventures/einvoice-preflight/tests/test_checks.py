@@ -275,8 +275,10 @@ class ChecksTest(unittest.TestCase):
             errors = io.StringIO()
             with contextlib.redirect_stdout(output), contextlib.redirect_stderr(errors):
                 self.assertEqual(main([directory, "--max-files", "1", "--format", "json"]), 2)
-            self.assertEqual(output.getvalue(), "")
-            self.assertIn("exceeding --max-files 1", errors.getvalue())
+            report = json.loads(output.getvalue())
+            self.assertEqual(report["exit_code"], 2)
+            self.assertIn("exceeding --max-files 1", report["read_errors"][0]["error"])
+            self.assertEqual(errors.getvalue(), "")
 
     def test_cli_rejects_non_positive_max_files(self):
         with self.assertRaises(SystemExit) as result:
