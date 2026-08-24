@@ -98,9 +98,21 @@ jobs:
     # NOTE: this binding does nothing until the Environment exists *with a
     # required reviewer*. GitHub creates an unprotected Environment implicitly
     # otherwise. Configure `agent-server` under Settings -> Environments with
-    # the account owner as required reviewer, and move AGENT_SERVER_SSH_KEY,
-    # AGENT_SERVER_KNOWN_HOSTS and TAILSCALE_AUTHKEY into it as environment
-    # secrets, before treating this as gated.
+    # the account owner as required reviewer, then move **all five** of these
+    # into it before treating this as gated:
+    #
+    #   secrets    AGENT_SERVER_SSH_KEY, AGENT_SERVER_KNOWN_HOSTS,
+    #              TAILSCALE_AUTHKEY
+    #   variables  AGENT_SERVER_PUBKEY, AGENT_SERVER_HOST
+    #
+    # The two variables matter as much as the secrets and an earlier version of
+    # this note listed only the secrets -- which, followed literally, left both
+    # repository-scoped and recreated the two bypasses this PR closed. They are
+    # not confidential; they are *integrity*-sensitive. The public key decides
+    # whose key lands in `authorized_keys` on a root-equivalent account, and
+    # the host decides where that key is sent. Either one, left repository-
+    # scoped, lets a write-access collaborator swap or retarget it and have a
+    # routine-looking approval carry it out.
     environment: agent-server
     steps:
       - uses: actions/checkout@v4
