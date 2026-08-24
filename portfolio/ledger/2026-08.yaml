@@ -1,5 +1,18 @@
 period: 2026-08
 entries:
+  - venture: shopify-a11y-evidence
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Graduated the Shopify accessibility evidence candidate into a useful
+        static vertical slice: paste axe-core JSON, generate a dated readable
+        evidence record, and download it as text. The workflow is local-only,
+        requires no Shopify account or API key, includes a visible disclaimer,
+        opt-out aggregate usage counter, SEO metadata, sitemap, robots.txt, MIT
+        license, and three passing Node tests. Shopify App Store measurement,
+        live publishing, and hosted history remain unresolved dependencies.
+    mrr_end: null
   - venture: etsy-profit-calculator
     agent_spend_usd: null
     human_hours: 0
@@ -23005,4 +23018,124 @@ entries:
         superseded by merged #944) and #951, which would have re-broken CI:
         #949 had already removed the duplicate `shopify-permission-drift`
         score, so #951's patch would have deleted the only remaining entry.
+    mrr_end: null
+
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+          Webhook-triggered session (pull_request.closed on #720, branch
+          claude/festive-mccarthy-k5sapz). #720 (deployment platform pick)
+          had closed unmerged -- blocked on the repo-wide self-approval
+          branch-protection quirk, and human-gated regardless (account
+          registration, standing spend). Corrected `portfolio/ledger/asks.yaml`
+          to match: removed the resolved `deployment-platform` row and fixed
+          `deploy-settings`'s note, which had pointed at
+          `agent-server-provision.yml` and `platform/deployment/README.md` --
+          both of which existed only on #720's closed branch, never merged
+          to `main`. Opened as #879; closed by a concurrent session
+          ("administrative cleanup is not the current product priority")
+          before its CI reported. Left it closed rather than re-litigating.
+      - >-
+          session_gate.py printed BUILD, no pipeline candidate carried an
+          unbuilt build-now verdict. Advanced `repository-branch-hygiene`
+          instead (a `probe`-verdict candidate, `graduate_as: product-line`,
+          whose first experiment's steps 1-2 are fully network-free, with
+          real supporting evidence already in the repo: PR #829's 608-branch
+          sweep). Built a read-only git-ref classifier at
+          `portfolio/pipeline/probes/repository-branch-hygiene/`: six
+          categories (protected/shared/duplicate/moved/unique/uncertain), a
+          synthetic fixture that declares its own oracle, and a recovery
+          manifest where no category ever says "delete". Opened as #915, 29
+          tests passing, recoverability checked by test including a race the
+          write-up hadn't anticipated (two refs at one tip are individually
+          safe to delete and not jointly safe).
+      - >-
+          The fix chain that followed is the finding worth keeping. #915
+          auto-merged (`kilo-code-bot[bot]`) at its first commit, before
+          Cursor Bugbot's review reported a real, high-severity defect
+          (grouping refs by name compared only each name's primary tip, so a
+          diverged remote copy at another branch's exact SHA could leave a
+          commit reported as exclusively "unique" while a live ref elsewhere
+          still reached it -- a direct violation of the probe's
+          recoverability claim). Cursor's own Bugbot Autofix agent pushed a
+          fix independently of one written locally in this session; adopted
+          Autofix's version. Opened the fix as #933 (32 tests passing) --
+          closed by `kilo-code-bot[bot]`, citing supersession by #935.
+          Checked #935's diff: it is a wholly separate, independently built
+          implementation at `ventures/repository-branch-hygiene/` (a
+          different concurrent session graduated the same pipeline candidate
+          as a full venture, unaware of this probe) that never touches
+          `scanner.py`. Rebased and re-opened as #943 -- closed again by the
+          same bot, citing supersession by #952, which turned out to be a
+          *third* PR, also confined entirely to `ventures/repository-branch-
+          hygiene/`, also never touching `scanner.py`. Rebased a third time
+          and opened as #978, this time with the mismatch stated at the top
+          of the PR body in the hope it isn't closed on the same false
+          premise again.
+      - >-
+          Two findings flagged for the owner rather than absorbed silently:
+          (1) `kilo-code-bot[bot]` closed two consecutive, unrelated PRs on
+          an identical false-supersession pattern -- matching by candidate
+          *name* (`repository-branch-hygiene`) without diffing which files
+          each PR actually touches. Worth the owner's attention if a
+          confirmed defect fix gets auto-closed a third time on the same
+          mistake. (2) `repository-branch-hygiene` has two independent,
+          unreconciled implementations on `main` (this probe and the
+          `ventures/` graduation) from concurrent sessions that could not
+          see each other's work -- not resolved here to keep the code PR
+          scoped to the one confirmed defect.
+      - >-
+          Also confirmed, in passing, that two other CI-red base-branch
+          issues encountered mid-session (the `agent-permission-harness`
+          snapshot drifting from `harness.py`'s output, and a duplicate
+          `shopify-permission-drift` score row) were independently fixed by
+          concurrent sessions (#954, #949) before this session's own PRs
+          needed to touch either -- no action taken on either, per the
+          CI-red rule against fixing what a base-branch failure someone else
+          already owns.
+    mrr_end: null
+  - venture: cut-list-optimizer
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+          Shipped #1023: the cut list optimizer had never worked. `index.html`
+          opened `<textarea id="cuts">` and never closed it, so the HTML parser
+          swallowed the rest of the document as raw text -- the results panel,
+          the copy button, the liability disclaimer, the usage opt-out,
+          `</main>`, and the entire `<script type="module">`. The script was
+          never an element and never executed. The summary panel it writes into
+          was absent from the markup entirely. Confirmed in Chromium before and
+          after; the primary journey (calculate, switch unit, error, recover,
+          copy to job ticket) now works end to end on `main`.
+      - >-
+          The defect shipped in the venture's first commit (`1a8feb3`) and
+          survived two further feature PRs (#1017, #1020) built on top of a dead
+          page. Nothing caught it: `calc.test.mjs` imports `calc.mjs` directly
+          and never loads the page, and the venture had no CI workflow at all --
+          `get_check_runs` on #1020 returned zero checks.
+      - >-
+          The generalisable lesson, and the reason this entry is worth keeping:
+          **no venture in this repo had any DOM-level test**, so a static
+          product could be completely non-functional while its unit tests stayed
+          green and its PRs read as verified. Added `page.test.mjs`, which
+          parses `index.html` the way a browser does (honouring raw-text
+          elements) and asserts the script would execute and every id it queries
+          exists. It was checked in both directions -- all five assertions fail
+          against the pre-fix file and pass against the repaired one, because a
+          structural test that cannot fail on the broken input proves nothing.
+      - >-
+          Swept all eleven other `ventures/**/index.html` pages in Chromium:
+          each loads and resolves its element lookups, so this was the only dead
+          one. A shared `page.test.mjs` across the static calculators would turn
+          that one-off sweep into a standing check.
+      - >-
+          Also fixed in passing: the usage counter called `recordUsage` on both
+          `input` and `change`, so it measured keystrokes rather than
+          calculations -- the same problem class as #992. Settled edits now
+          count one plan, and plan copies get their own counter. The README told
+          users to open `index.html` from disk, which cannot work, since
+          browsers refuse ES module imports over `file://`.
     mrr_end: null

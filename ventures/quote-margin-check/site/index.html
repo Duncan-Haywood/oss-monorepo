@@ -94,6 +94,11 @@
   .result dt:first-child { margin-top: 0; }
   .result dd { margin: 0; font-size: 1.1rem; }
   .error { color: var(--bad); }
+  .checks { margin: 0.75rem 0 0; padding: 0; list-style: none; }
+  .checks li { border-left: 4px solid var(--border); padding: 0.55rem 0.75rem; margin-top: 0.55rem; background: var(--panel); }
+  .checks li.attention { border-color: var(--bad); }
+  .checks li.clear { border-color: var(--good); }
+  .checks strong { display: block; }
   .actions { margin-top: 1rem; display: flex; gap: 0.5rem; flex-wrap: wrap; }
   button { font: inherit; padding: 0.5rem 0.9rem; border-radius: 6px; border: 1px solid var(--border); background: var(--bg); color: var(--fg); cursor: pointer; }
   button:hover { border-color: var(--accent); }
@@ -169,7 +174,8 @@
     <input type="number" id="target_hourly_rate" inputmode="decimal" value="75" min="0" step="any" />
     <p class="hint">What you'd want to be paid per hour if you were billing hourly instead.</p>
 
-    <div class="result" id="result" role="status" aria-live="polite"></div>
+       <div class="result" id="result" role="status" aria-live="polite"></div>
+     <div class="result" id="review" aria-live="polite"><strong>Before you send it</strong><ul class="checks"></ul></div>
 
     <div class="actions">
       <button type="button" id="copy-csv">Copy as CSV row</button>
@@ -240,11 +246,16 @@
 
 <script type="module">
   import { loadQuote, calculate } from "./calc.mjs";
-  import { recordEvent, isUsageCountingEnabled, setUsageCountingEnabled } from "./usage.mjs";
+  import { reviewQuote } from "./review.mjs";
+  import { recordEvent, createReportCounter, isUsageCountingEnabled, setUsageCountingEnabled } from "./usage.mjs";
+
+  // Counts settled quotes rather than keystrokes — see usage.mjs.
+  const reportCounter = createReportCounter();
 
   const ids = ["currency", "price", "delivery_hours", "admin_hours", "revision_hours", "overhead", "subcontractor_cost", "target_hourly_rate"];
   const el = Object.fromEntries(ids.map((id) => [id, document.getElementById(id)]));
   const result = document.getElementById("result");
+  const review = document.getElementById("review");
 
   let lastReport = null;
 
@@ -264,30 +275,38 @@
   function fmt(n) {
     return n.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
   }
+  function escapeHtml(value) {
+    return String(value).replace(/[&<>\"']/g, (character) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", "\"": "&quot;", "'": "&#39;" }[character]));
+  }
 
   function update() {
     try {
       const quote = loadQuote(readInputs());
       const r = calculate(quote);
-      const above = r.gap_to_target >= 0;
-      lastReport = { quote, r };
+       const above = r.gap_to_target >= 0;
+       lastReport = { quote, r };
+       const safeCurrency = escapeHtml(quote.currency);
       result.innerHTML = `
         <div class="status ${above ? "good" : "bad"}">${above ? "Above target" : "Below target"} (arithmetic comparison only)</div>
         <dl>
           <dt>Total working hours</dt><dd>${fmt(r.total_hours)}</dd>
-          <dt>Direct costs</dt><dd>${quote.currency} ${fmt(r.direct_costs)}</dd>
-          <dt>Effective hourly rate</dt><dd><strong>${quote.currency} ${fmt(r.effective_hourly_rate)}/hour</strong></dd>
-          <dt>Price at your target rate</dt><dd>${quote.currency} ${fmt(r.target_price)}</dd>
-          <dt>Gap to target price</dt><dd>${quote.currency} ${fmt(r.gap_to_target)}</dd>
-          <dt>Left after direct costs</dt><dd>${quote.currency} ${fmt(r.cost_coverage)}</dd>
+           <dt>Direct costs</dt><dd>${safeCurrency} ${fmt(r.direct_costs)}</dd>
+           <dt>Effective hourly rate</dt><dd><strong>${safeCurrency} ${fmt(r.effective_hourly_rate)}/hour</strong></dd>
+           <dt>Price at your target rate</dt><dd>${safeCurrency} ${fmt(r.target_price)}</dd>
+           <dt>Gap to target price</dt><dd>${safeCurrency} ${fmt(r.gap_to_target)}</dd>
+           <dt>Left after direct costs</dt><dd>${safeCurrency} ${fmt(r.cost_coverage)}</dd>
         </dl>
-      `;
+       `;
+       review.querySelector(".checks").innerHTML = reviewQuote(quote, r).map((check) => `<li class="${check.level}"><strong>${escapeHtml(check.title)}</strong>${escapeHtml(check.detail)}</li>`).join("");
+       recordEvent("quote_review_checked");
       result.classList.remove("error");
-      recordEvent("report_generated");
+      reportCounter.count(JSON.stringify(quote));
     } catch (err) {
       lastReport = null;
-      result.textContent = err.message;
-      result.classList.add("error");
+      reportCounter.drop();
+       result.textContent = err.message;
+       result.classList.add("error");
+       review.querySelector(".checks").textContent = "Fix the inputs above to review this quote.";
     }
   }
 
@@ -303,6 +322,13 @@
     el[id].addEventListener("input", dismissExampleNote, { once: true });
   }
   update();
+  // The first render is the pre-filled example, not a quote the visitor asked
+  // for. Seed it so it isn't counted, and so their first real edit still is.
+  try {
+    reportCounter.seed(JSON.stringify(loadQuote(readInputs())));
+  } catch {
+    // defaults don't validate — nothing to seed, the first valid quote counts
+  }
 
   const copyBtn = document.getElementById("copy-csv");
   const copyStatus = document.getElementById("copy-status");

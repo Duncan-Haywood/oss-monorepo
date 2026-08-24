@@ -43,6 +43,15 @@ first-hop count, and the sampled file list. Both sides are normalised, so a
 change to any of them alone is not a failure; a change to anything around them
 still is.
 
+Also each finding's line number, added 2026-08-24 after the census masking
+landed. It is the same argument one level in: a line number is where a finding
+is, not which finding it is, and every finding below an edit shifts. Without
+masking it the gate fails on a workflow change that alters no grant -- adding a
+comment, a step, or the very `permissions:` block R5 recommends -- which is
+again drift the author cannot act on except by regenerating. The finding's
+rule, workflow, job and severity are still compared, so a finding relocating to
+a *different job* still fails; only a pure line shift stops failing.
+
 Dropping the exact number from the gate loses no assertion, because the test
 suite never pinned it either. `TestHeadlineNumbersAgainstThisRepo` deliberately
 asserts the *claim* -- that the closure is an order of magnitude larger than
@@ -92,6 +101,21 @@ VOLATILE = (
     # the sentence that follows so an empty sample stays distinguishable.
     (re.compile(r", among them .*?\. Every one is", re.DOTALL),
      ", among them <sample>. Every one is"),
+    # "job `opencode-agent` (line 109)** --" -- where a finding is, not which
+    # finding it is. Every finding below an edit shifts, so without this the
+    # gate fails on a workflow change that alters no grant at all: adding a
+    # comment, a step, or the very `permissions:` block R5 recommends. That is
+    # the same shape as the census problem this file was written to fix -- a
+    # gate reporting drift that the author cannot act on -- one level in, and
+    # it trains the "regenerate without reading" reflex that would let a real
+    # posture change through unexamined.
+    #
+    # This is not a hole in the gate. The rule, workflow, job, severity,
+    # writer set, privilege and every surrounding sentence are still compared
+    # byte for byte, so a finding that appears, disappears, changes rule or
+    # moves to a *different job* still fails here. Only a pure line shift
+    # stops failing, and a pure line shift is not a posture change.
+    (re.compile(r"\(line \d+\)"), "(line <n>)"),
 )
 
 
