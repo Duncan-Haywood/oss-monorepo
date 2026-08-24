@@ -47,6 +47,15 @@ test('usage is opt-out and the off switch exists', () => {
   assert.match(scriptSource, /recordUsage/);
 });
 
+test('recurring drafts have visible local controls and aggregate events', () => {
+  assert.match(markup, /id="saveDraft"/);
+  assert.match(markup, /id="loadDraft"/);
+  assert.match(markup, /id="clearDraft"/);
+  assert.match(scriptSource, /draft_saved/);
+  assert.match(scriptSource, /draft_loaded/);
+  assert.match(scriptSource, /draft_cleared/);
+});
+
 test('figures named in schema.org featureList are actually rendered', () => {
   const featureList = html.match(/"featureList":\s*"([^"]+)"/);
   assert.ok(featureList, 'no schema.org featureList found');

@@ -59,7 +59,8 @@ It then reports the numbers a contractor sanity-checks a bid against: price
 per square foot, price per cubic yard, effective hourly rate, and the
 **walk-away price**. Entering a price already on the table scores it against
 the same cost base. **Copy bid summary** turns the result into a plain-text
-draft ready to paste into a proposal.
+draft ready to paste into a proposal. Save and reload recurring bid drafts
+locally on the same device without creating an account.
 
 A satellite page, [`how-much-concrete-for-a-driveway.html`](how-much-concrete-for-a-driveway.html),
 answers the search question in the homeowner's words and links into the bid
@@ -87,7 +88,8 @@ automatically when the browser sends Do Not Track or Global Privacy Control.
 See [`usage.mjs`](usage.mjs) and [`portfolio/usage/`](../../portfolio/usage/README.md).
 
 Events counted: `bid_calculated`, `slab_added`, `slab_removed`,
-`proposed_price_compared`, `summary_copied`.
+`proposed_price_compared`, `summary_copied`, `draft_saved`, `draft_loaded`,
+`draft_cleared`.
 
 ## Limitations
 
