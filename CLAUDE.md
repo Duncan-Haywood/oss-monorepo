@@ -104,6 +104,30 @@ and re-deriving it is how a duplicate becomes a triplicate. Prefer
 reopening the one a reasoned merits comparison picked over one closed on
 arrival order alone.
 
+**Never close a PR as "already on main" without running:**
+
+```
+python3 portfolio/ledger/supersede_check.py <pr-number>
+```
+
+Exit 0 means the branch adds nothing `main` lacks and the close is safe.
+Exit 1 prints the lines the close would destroy. The rule above covers a
+survivor that is *another PR*; this covers a survivor that is *`main`
+itself*, which is the claim that has actually been wrong.
+
+On 2026-08-24 between 17:24 and 17:25, two sessions closed finished,
+tested features minutes apart — #1006 ("superseded by the merged eBay
+calculator follow-up work") and #1016 ("already represented on main"). In
+both cases `main` did not contain the feature: no `share.mjs`, no
+`compareFeeScenarios`. #1006 had to be reopened and #1016 recovered as
+#1022, spending two more sessions to get back to work that was already
+written. Run against those two commits the check exits 1 and names
+`share.mjs` and `compareFeeScenarios` as absent from the base.
+
+Overlap is not supersession. A branch touching the same venture, the same
+file, or the same feature area as recent work on `main` is the normal case
+here, not evidence that its work already landed.
+
 ## Ledger (minimal)
 
 Record outcomes per `portfolio/ledger/README.md` when you **shipped or learned

@@ -75,6 +75,8 @@ on:
       - "portfolio/ledger/test_session_gate.py"
       - "portfolio/ledger/decision_queue.py"
       - "portfolio/ledger/test_decision_queue.py"
+      - "portfolio/ledger/supersede_check.py"
+      - "portfolio/ledger/test_supersede_check.py"
       - "portfolio/ledger/asks.yaml"
       - "portfolio/ledger/2026-08.yaml"
       - "platform/ci/**"
@@ -99,6 +101,8 @@ on:
       - "portfolio/ledger/test_session_gate.py"
       - "portfolio/ledger/decision_queue.py"
       - "portfolio/ledger/test_decision_queue.py"
+      - "portfolio/ledger/supersede_check.py"
+      - "portfolio/ledger/test_supersede_check.py"
       - "portfolio/ledger/asks.yaml"
       - "portfolio/ledger/2026-08.yaml"
       - "platform/ci/**"
@@ -165,6 +169,16 @@ jobs:
       - name: Router ranking-logic unit tests
         working-directory: portfolio/router
         run: python3 -m unittest test_allocate
+
+      # The check itself needs a repository to read, and builds throwaway ones
+      # rather than mocking git -- so it needs an identity to commit with, which
+      # a bare runner does not have.
+      - name: Supersede-check unit tests
+        working-directory: portfolio/ledger
+        run: |
+          git config --global user.email "ci@example.com"
+          git config --global user.name "CI"
+          python3 -m unittest test_supersede_check
 
       - name: Validate workflow files are parseable
         run: python3 platform/ci/validate_workflows.py
