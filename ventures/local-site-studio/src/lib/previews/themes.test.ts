@@ -13,11 +13,17 @@ const CATEGORIES: BusinessCategory[] = [
   "restaurant",
   "salon",
   "trades",
+  "retail",
+  "health",
+  "automotive",
+  "cleaning",
+  "fitness",
+  "legal",
   "generic",
 ];
 
 describe("CATEGORY_THEMES", () => {
-  it("defines exactly the four BusinessCategory keys", () => {
+  it("defines exactly the BusinessCategory keys", () => {
     expect(Object.keys(CATEGORY_THEMES).sort()).toEqual(
       [...CATEGORIES].sort(),
     );
@@ -47,6 +53,36 @@ describe("CATEGORY_THEMES", () => {
       heroEyebrow: "Home services preview",
       accentTextClass: "text-teal-900",
       ctaClass: "bg-teal-950 text-teal-50 hover:bg-teal-900",
+    });
+    expect(CATEGORY_THEMES.retail).toMatchObject({
+      label: "Retail & shops",
+      heroEyebrow: "Retail preview",
+      accentTextClass: "text-violet-800",
+      ctaClass: "bg-violet-950 text-violet-50 hover:bg-violet-900",
+    });
+    expect(CATEGORY_THEMES.automotive).toMatchObject({
+      label: "Automotive & auto repair",
+      heroEyebrow: "Auto shop preview",
+      accentTextClass: "text-red-800",
+      ctaClass: "bg-red-950 text-red-50 hover:bg-red-900",
+    });
+    expect(CATEGORY_THEMES.cleaning).toMatchObject({
+      label: "Cleaning services",
+      heroEyebrow: "Cleaning service preview",
+      accentTextClass: "text-emerald-800",
+      ctaClass: "bg-emerald-950 text-emerald-50 hover:bg-emerald-900",
+    });
+    expect(CATEGORY_THEMES.fitness).toMatchObject({
+      label: "Fitness & gyms",
+      heroEyebrow: "Gym & studio preview",
+      accentTextClass: "text-indigo-800",
+      ctaClass: "bg-indigo-950 text-indigo-50 hover:bg-indigo-900",
+    });
+    expect(CATEGORY_THEMES.legal).toMatchObject({
+      label: "Legal & attorneys",
+      heroEyebrow: "Law firm preview",
+      accentTextClass: "text-blue-900",
+      ctaClass: "bg-blue-950 text-blue-50 hover:bg-blue-900",
     });
     expect(CATEGORY_THEMES.generic).toMatchObject({
       label: "Local business",

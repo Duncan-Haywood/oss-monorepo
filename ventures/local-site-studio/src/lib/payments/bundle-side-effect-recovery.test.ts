@@ -5,6 +5,7 @@ import {
   hasBundleDnsHandoffEmailNote,
   hasBundleReceiptEmailNote,
   handoffNoteMentionsStripeSession,
+  isBundleHandoffMissingBuyerEmail,
   planBundleWebhookSideEffects,
 } from "./bundle-side-effect-recovery";
 
@@ -145,5 +146,72 @@ describe("planBundleWebhookSideEffects", () => {
       runDnsHandoffEmail: false,
       reason: "no_customer_email",
     });
+  });
+});
+
+describe("isBundleHandoffMissingBuyerEmail", () => {
+  const sessionId = "cs_test_bundle_missing_buyer_email";
+
+  it("is true when no marker exists and a customer email is on file", () => {
+    expect(
+      isBundleHandoffMissingBuyerEmail({
+        customerEmail: "buyer@example.com",
+        stripeSessionId: sessionId,
+        notes: [],
+      }),
+    ).toBe(true);
+  });
+
+  it("is true when only the receipt marker exists (DNS still missing)", () => {
+    expect(
+      isBundleHandoffMissingBuyerEmail({
+        customerEmail: "buyer@example.com",
+        stripeSessionId: sessionId,
+        notes: [bundleReceiptEmailSentNote(sessionId)],
+      }),
+    ).toBe(true);
+  });
+
+  it("is true when only the DNS marker exists (receipt still missing)", () => {
+    expect(
+      isBundleHandoffMissingBuyerEmail({
+        customerEmail: "buyer@example.com",
+        stripeSessionId: sessionId,
+        notes: [bundleDnsHandoffEmailSentNote(sessionId)],
+      }),
+    ).toBe(true);
+  });
+
+  it("is false once both markers exist", () => {
+    expect(
+      isBundleHandoffMissingBuyerEmail({
+        customerEmail: "buyer@example.com",
+        stripeSessionId: sessionId,
+        notes: [
+          bundleReceiptEmailSentNote(sessionId),
+          bundleDnsHandoffEmailSentNote(sessionId),
+        ],
+      }),
+    ).toBe(false);
+  });
+
+  it("is false with no customer email on file, even with no markers", () => {
+    expect(
+      isBundleHandoffMissingBuyerEmail({
+        customerEmail: "",
+        stripeSessionId: sessionId,
+        notes: [],
+      }),
+    ).toBe(false);
+  });
+
+  it("is false with a whitespace-only customer email", () => {
+    expect(
+      isBundleHandoffMissingBuyerEmail({
+        customerEmail: "   ",
+        stripeSessionId: sessionId,
+        notes: [],
+      }),
+    ).toBe(false);
   });
 });

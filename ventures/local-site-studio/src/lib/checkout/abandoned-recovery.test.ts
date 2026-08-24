@@ -7,8 +7,13 @@ import {
   isBundleCheckoutSession,
   isCommerceSkuCheckoutSession,
   isRecoveryDue,
+  leadSlugsEligibleForCommerceAbandonedRecovery,
   listAbandonedCheckoutsDue,
   listCommerceAbandonedCheckoutsDue,
+  normalizeCheckoutCustomerEmailForMatch,
+  oldestCheckoutSessionAgeHours,
+  openBundleCheckoutSessionsToClose,
+  openCommerceCheckoutSessionsToClose,
 } from "./abandoned-recovery";
 import type { CheckoutSessionRecord } from "./types";
 
@@ -162,7 +167,248 @@ describe("listCommerceAbandonedCheckoutsDue", () => {
     const due = listCommerceAbandonedCheckoutsDue(
       [commerceNewer, bundleDue, commerceFresh, commerceOlder],
       NOW,
+      // Default makeSession leadSlug — entitlement set is required (no omit→allow-all).
+      new Set(["blue-river-salon"]),
     );
     expect(due.map((s) => s.stripeSessionId)).toEqual(["c1", "c2"]);
+  });
+
+  it("filters out carts for leadSlugs not in the entitlement set", () => {
+    const eligible = makeSession({
+      stripeSessionId: "c_ok",
+      leadSlug: "live-shop",
+      kind: "commerce_sku",
+      skuId: "sku_a",
+      tier: "",
+      createdAt: new Date(NOW - 5 * HOUR_MS).toISOString(),
+    });
+    const paused = makeSession({
+      stripeSessionId: "c_paused",
+      leadSlug: "paused-shop",
+      kind: "commerce_sku",
+      skuId: "sku_b",
+      tier: "",
+      createdAt: new Date(NOW - 5 * HOUR_MS).toISOString(),
+    });
+    const due = listCommerceAbandonedCheckoutsDue(
+      [eligible, paused],
+      NOW,
+      new Set(["live-shop"]),
+    );
+    expect(due.map((s) => s.stripeSessionId)).toEqual(["c_ok"]);
+  });
+
+  it("returns no carts when the entitlement set is empty (fail closed)", () => {
+    const cart = makeSession({
+      stripeSessionId: "c_any",
+      leadSlug: "any-shop",
+      kind: "commerce_sku",
+      skuId: "sku_a",
+      tier: "",
+      createdAt: new Date(NOW - 5 * HOUR_MS).toISOString(),
+    });
+    expect(listCommerceAbandonedCheckoutsDue([cart], NOW, new Set())).toEqual([]);
+  });
+});
+
+describe("oldestCheckoutSessionAgeHours", () => {
+  it("returns null for an empty list", () => {
+    expect(oldestCheckoutSessionAgeHours([], NOW)).toBeNull();
+  });
+
+  it("returns the age in hours of the single oldest session, order-agnostic", () => {
+    const sessions = [
+      { createdAt: new Date(NOW - 3 * HOUR_MS).toISOString() },
+      { createdAt: new Date(NOW - 9 * HOUR_MS).toISOString() },
+      { createdAt: new Date(NOW - 5 * HOUR_MS).toISOString() },
+    ];
+    expect(oldestCheckoutSessionAgeHours(sessions, NOW)).toBe(9);
+    expect(oldestCheckoutSessionAgeHours([...sessions].reverse(), NOW)).toBe(9);
+  });
+
+  it("clamps a future createdAt to 0 rather than a negative age", () => {
+    const sessions = [{ createdAt: new Date(NOW + HOUR_MS).toISOString() }];
+    expect(oldestCheckoutSessionAgeHours(sessions, NOW)).toBe(0);
+  });
+
+  it("skips unparsable createdAt values instead of throwing", () => {
+    const sessions = [
+      { createdAt: "not-a-date" },
+      { createdAt: new Date(NOW - 4 * HOUR_MS).toISOString() },
+    ];
+    expect(oldestCheckoutSessionAgeHours(sessions, NOW)).toBe(4);
+  });
+});
+
+describe("leadSlugsEligibleForCommerceAbandonedRecovery", () => {
+  it("includes paid commerceAddon leads and excludes paused recurring", () => {
+    const eligible = leadSlugsEligibleForCommerceAbandonedRecovery(
+      [
+        { slug: "live-shop", stage: "live" },
+        { slug: "paused-shop", stage: "paid" },
+        { slug: "outreach", stage: "outreach_sent" },
+      ],
+      [
+        { leadSlug: "live-shop", commerceAddon: true },
+        {
+          leadSlug: "paused-shop",
+          commerceAddon: true,
+          recurringCanceledAt: Date.parse("2026-07-01T00:00:00.000Z"),
+        },
+      ],
+    );
+    expect([...eligible].sort()).toEqual(["live-shop"]);
+  });
+});
+
+describe("openBundleCheckoutSessionsToClose", () => {
+  it("closes other open bundle rows for the lead, keeps the paid session and commerce_sku", () => {
+    const paid = makeSession({ stripeSessionId: "cs_paid", status: "open" });
+    const orphan = makeSession({
+      stripeSessionId: "cs_orphan",
+      createdAt: new Date(NOW - 5 * HOUR_MS).toISOString(),
+    });
+    const legacy = makeSession({
+      stripeSessionId: "cs_legacy",
+      kind: undefined,
+    });
+    const otherLead = makeSession({
+      stripeSessionId: "cs_other",
+      leadSlug: "other-biz",
+    });
+    const commerce = makeSession({
+      stripeSessionId: "cs_sku",
+      kind: "commerce_sku",
+      skuId: "sku_1",
+      tier: "",
+    });
+    const alreadyComplete = makeSession({
+      stripeSessionId: "cs_done",
+      status: "complete",
+    });
+
+    const toClose = openBundleCheckoutSessionsToClose(
+      [paid, orphan, legacy, otherLead, commerce, alreadyComplete],
+      { leadSlug: "blue-river-salon", exceptStripeSessionId: "cs_paid" },
+    );
+    expect(toClose.map((s) => s.stripeSessionId).sort()).toEqual([
+      "cs_legacy",
+      "cs_orphan",
+    ]);
+  });
+
+  it("returns empty when leadSlug or except id is blank", () => {
+    expect(
+      openBundleCheckoutSessionsToClose([makeSession()], {
+        leadSlug: "  ",
+        exceptStripeSessionId: "cs_paid",
+      }),
+    ).toEqual([]);
+    expect(
+      openBundleCheckoutSessionsToClose([makeSession()], {
+        leadSlug: "blue-river-salon",
+        exceptStripeSessionId: "",
+      }),
+    ).toEqual([]);
+  });
+});
+
+describe("normalizeCheckoutCustomerEmailForMatch", () => {
+  it("trims and lowercases", () => {
+    expect(normalizeCheckoutCustomerEmailForMatch("  Shopper@Example.COM ")).toBe(
+      "shopper@example.com",
+    );
+  });
+
+  it("maps blank/nullish to empty string", () => {
+    expect(normalizeCheckoutCustomerEmailForMatch(undefined)).toBe("");
+    expect(normalizeCheckoutCustomerEmailForMatch(null)).toBe("");
+    expect(normalizeCheckoutCustomerEmailForMatch("   ")).toBe("");
+  });
+});
+
+describe("openCommerceCheckoutSessionsToClose", () => {
+  it("closes matching open commerce_sku rows for lead+sku+email", () => {
+    const paid = makeSession({
+      stripeSessionId: "cs_paid",
+      kind: "commerce_sku",
+      skuId: "sku_latte",
+      tier: "",
+      customerEmail: "shopper@example.com",
+    });
+    const orphan = makeSession({
+      stripeSessionId: "cs_orphan",
+      kind: "commerce_sku",
+      skuId: "sku_latte",
+      tier: "",
+      customerEmail: "  Shopper@Example.COM ",
+    });
+    const otherSku = makeSession({
+      stripeSessionId: "cs_other_sku",
+      kind: "commerce_sku",
+      skuId: "sku_muffin",
+      tier: "",
+      customerEmail: "shopper@example.com",
+    });
+    const otherEmail = makeSession({
+      stripeSessionId: "cs_other_email",
+      kind: "commerce_sku",
+      skuId: "sku_latte",
+      tier: "",
+      customerEmail: "other@example.com",
+    });
+    const blankEmail = makeSession({
+      stripeSessionId: "cs_blank",
+      kind: "commerce_sku",
+      skuId: "sku_latte",
+      tier: "",
+      customerEmail: undefined,
+    });
+    const bundle = makeSession({ stripeSessionId: "cs_bundle" });
+    const alreadyComplete = makeSession({
+      stripeSessionId: "cs_done",
+      kind: "commerce_sku",
+      skuId: "sku_latte",
+      tier: "",
+      customerEmail: "shopper@example.com",
+      status: "complete",
+    });
+
+    const toClose = openCommerceCheckoutSessionsToClose(
+      [paid, orphan, otherSku, otherEmail, blankEmail, bundle, alreadyComplete],
+      {
+        leadSlug: "blue-river-salon",
+        skuId: "sku_latte",
+        customerEmail: "shopper@example.com",
+        exceptStripeSessionId: "cs_paid",
+      },
+    );
+    expect(toClose.map((s) => s.stripeSessionId)).toEqual(["cs_orphan"]);
+  });
+
+  it("returns empty when email/sku/lead/except is blank (never close by lead+sku alone)", () => {
+    const orphan = makeSession({
+      stripeSessionId: "cs_orphan",
+      kind: "commerce_sku",
+      skuId: "sku_latte",
+      tier: "",
+      customerEmail: "shopper@example.com",
+    });
+    expect(
+      openCommerceCheckoutSessionsToClose([orphan], {
+        leadSlug: "blue-river-salon",
+        skuId: "sku_latte",
+        customerEmail: "  ",
+        exceptStripeSessionId: "cs_paid",
+      }),
+    ).toEqual([]);
+    expect(
+      openCommerceCheckoutSessionsToClose([orphan], {
+        leadSlug: "blue-river-salon",
+        skuId: "",
+        customerEmail: "shopper@example.com",
+        exceptStripeSessionId: "cs_paid",
+      }),
+    ).toEqual([]);
   });
 });

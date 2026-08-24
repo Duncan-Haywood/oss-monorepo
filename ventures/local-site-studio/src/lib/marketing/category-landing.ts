@@ -1,0 +1,438 @@
+/**
+ * Single source of truth for the /websites-for-* category landing pages —
+ * shared by each page's own module (title/copy) and the marketing sitemap
+ * (src/app/sitemap.ts), so a new landing page can't ship indexable-but-
+ * unlisted the same way 9 of 12 /docs pages once did (sitemap-docs-route-sync).
+ *
+ * These pages exist to earn organic search traffic for long-tail queries
+ * ("website for a restaurant", "salon website builder", "website for a
+ * plumber") that convert straight to /checkout — an acquisition channel an
+ * agent can build entirely with content and routing, unlike lead-ingestion
+ * (Places API), which stays legal-gated. See category-landing-pages in
+ * BUSINESS_DECISIONS (prompt_process.tsx) for the full rationale.
+ */
+import { getBundle, minBundleSetupPriceUsd, type BundleTier } from "@/lib/pricing/bundles";
+import type { BusinessCategory } from "@/lib/leads/types";
+import { monthlyMarketingEmailCount, monthlyMarketingSocialPostCount } from "./monthly-pack";
+
+// Same drift-risk class as startingSetupPriceUsd above, but for the
+// marketing-pack cadence (see monthly-marketing-pack-cadence-single-source-of-truth
+// in prompt_process.tsx) — never hand-type "8 social/GBP posts + 2 emails" again.
+const monthlyMarketingCadence = `${monthlyMarketingSocialPostCount()} social/GBP posts + ${monthlyMarketingEmailCount()} emails`;
+
+// "$500" quoted below always derives from src/lib/pricing/bundles.ts (the
+// same source Stripe checkout charges from), never a hardcoded literal — a
+// future bundle price change (BUSINESS_DECISIONS) must not leave these SEO
+// meta descriptions / FAQ answers advertising a stale figure to organic
+// search traffic while checkout charges the new one.
+const startingSetupPriceUsd = minBundleSetupPriceUsd();
+
+// Google truncates SERP snippets at roughly this width — a metaDescription
+// past it doesn't 404 or misrender, it just silently loses its own closing
+// words to an ellipsis in search results, which is real (if quiet) organic-CTR
+// drag on the exact acquisition channel this file exists to build. See
+// category-landing-meta-description-length-cap in BUSINESS_DECISIONS.
+export const MAX_CATEGORY_META_DESCRIPTION_LENGTH = 155;
+
+// Same organic-CTR concern as MAX_CATEGORY_META_DESCRIPTION_LENGTH above, but
+// for the SERP title, which Google truncates at a much narrower width — see
+// MAX_META_TITLE_LENGTH in seo.ts (the shared cap staticPageMetadata applies
+// to every title, including these). See lead-preview-meta-title-length-cap.
+export const MAX_CATEGORY_SEO_TITLE_LENGTH = 60;
+
+export interface CategoryLandingFaqEntry {
+  question: string;
+  answer: string;
+}
+
+export interface CategoryLandingPage {
+  category: BusinessCategory;
+  href: string;
+  navLabel: string;
+  seoTitle: string;
+  metaDescription: string;
+  heroHeadline: string;
+  heroSubhead: string;
+  painPoints: string[];
+  features: string[];
+  recommendedTier: BundleTier;
+  /** A curated DEMO_LEADS slug (always publicly indexable) to show as a live example. */
+  exampleLeadSlug: string;
+  faq: CategoryLandingFaqEntry[];
+}
+
+export const CATEGORY_LANDING_PAGES: readonly CategoryLandingPage[] = [
+  {
+    category: "restaurant",
+    href: "/websites-for-restaurants",
+    navLabel: "Restaurants",
+    seoTitle: "Website for Restaurants — menu, hours, ordering",
+    metaDescription:
+      `A restaurant website with menu, hours, and location — previewed free before you pay. Optional online ordering (Commerce add-on). From $${startingSetupPriceUsd}.`,
+    heroHeadline: "A website for your restaurant, ready before you decide",
+    heroSubhead:
+      "Menu, hours, location, and a contact form — built from your public business details and previewed for free. Add online ordering when you're ready.",
+    painPoints: [
+      "Your hours and menu are scattered across a review site, a social profile, and word of mouth",
+      "Customers can't find you on Google or don't trust a listing with no real website",
+      "A custom build from a local agency costs thousands and takes months",
+    ],
+    features: [
+      "Menu, hours, and location on one fast page",
+      "Contact form and Google Maps embed",
+      "Basic SEO so nearby diners can find you",
+      "Optional online ordering and pickup checkout (Commerce add-on)",
+    ],
+    recommendedTier: "growth",
+    exampleLeadSlug: "example-bakery",
+    faq: [
+      {
+        question: "Can customers order food directly from the site?",
+        answer:
+          "Yes — the Commerce add-on stacks on any bundle and adds Stripe checkout for pickup ordering, with order notifications sent straight to you.",
+      },
+      {
+        question: "Do I need to give you my menu before I see anything?",
+        answer:
+          "No. You can preview a working example first (see the Restaurant preview below), then buy and we tailor it to your business.",
+      },
+      {
+        question: "How is this different from a delivery-app page?",
+        answer:
+          "This is your own website on your own domain — not a listing you're renting inside someone else's app, with their branding and their fees on every order.",
+      },
+    ],
+  },
+  {
+    category: "salon",
+    href: "/websites-for-salons",
+    navLabel: "Salons",
+    seoTitle: "Salon Website Builder — booking, services, and reviews",
+    metaDescription:
+      `A salon or spa website with your services, hours, and booking info — built and previewed before you pay. From $${startingSetupPriceUsd}, with optional monthly marketing.`,
+    heroHeadline: "A website that makes your salon look as good as your work",
+    heroSubhead:
+      "Services, hours, and a booking-ready contact form — previewed for free before you buy. Add monthly social posts once you're live.",
+    painPoints: [
+      "New clients judge your work by your online presence before they ever sit in the chair",
+      "A booking app alone doesn't explain your services, pricing tiers, or specialties",
+      "Keeping social posts consistent every week is its own part-time job",
+    ],
+    features: [
+      "Services and pricing tiers laid out clearly",
+      "Contact form and map for walk-in-friendly locations",
+      "Basic SEO so \"salon near me\" searches find you",
+      `${monthlyMarketingCadence} a month (Growth/Complete)`,
+    ],
+    recommendedTier: "complete",
+    exampleLeadSlug: "serene-salon",
+    faq: [
+      {
+        question: "Can I keep using my existing booking app?",
+        answer:
+          "Yes — the site links out to whatever booking tool you already use; we don't force a migration.",
+      },
+      {
+        question: "Do you write the social posts every month?",
+        answer:
+          `Growth and Complete include ${monthlyMarketingCadence} a month, generated from your site's own brand voice and ready to copy-post — no separate marketing hire.`,
+      },
+      {
+        question: "Is there a phone agent for booking calls?",
+        answer:
+          "Complete adds an AI phone agent for your business line so a missed call during a service doesn't become a lost client.",
+      },
+    ],
+  },
+  {
+    category: "trades",
+    href: "/websites-for-trades",
+    navLabel: "Trades & home services",
+    seoTitle: "Website for Trades & Home Services — plumbers, electricians",
+    metaDescription:
+      `Websites for plumbers, electricians, and contractors — services, service area, and a quote form, previewed free before you pay. From $${startingSetupPriceUsd}.`,
+    heroHeadline: "A website that turns emergency calls into booked jobs",
+    heroSubhead:
+      "Services, service area, and a quote-request form — previewed for free before you pay. Simple and fast, built for calls, not browsing.",
+    painPoints: [
+      "Homeowners searching \"emergency plumber near me\" bounce off a slow or missing website",
+      "Your only online presence is a directory listing you don't control",
+      "You need estimates and calls, not a shopping cart",
+    ],
+    features: [
+      "Services and service area up front",
+      "Quote-request contact form and map",
+      "Basic SEO for local emergency + scheduled-service searches",
+      "Click-to-call phone number on every page",
+    ],
+    recommendedTier: "starter",
+    exampleLeadSlug: "mountain-plumbing",
+    faq: [
+      {
+        question: "I just need something simple and fast — is that an option?",
+        answer:
+          `Yes — Starter ($${getBundle("starter")!.setupPriceUsd}, one-time) covers exactly this: a professional page, contact form, map, and basic SEO, no recurring fee required.`,
+      },
+      {
+        question: "Can I add online payment for deposits later?",
+        answer:
+          "Yes — the Commerce add-on can be added at checkout or later for booking deposits and gift cards.",
+      },
+      {
+        question: "Do you build a shopping cart for my services?",
+        answer:
+          "Trades businesses are usually quote-based, so Starter or Complete (with the AI phone agent for after-hours calls) fits better than the Commerce add-on.",
+      },
+    ],
+  },
+  {
+    category: "retail",
+    href: "/websites-for-retail",
+    navLabel: "Retail & shops",
+    seoTitle: "Website for Retail Shops — catalog, hours, orders",
+    metaDescription:
+      `A retail shop website with your catalog, hours, and location — previewed free before you pay. Optional online ordering (Commerce add-on). From $${startingSetupPriceUsd}.`,
+    heroHeadline: "A website for your shop, ready before you decide",
+    heroSubhead:
+      "Catalog highlights, hours, location, and a contact form — built from your public business details and previewed for free. Add online ordering when you're ready.",
+    painPoints: [
+      "Your hours and product highlights are scattered across social media and a directory listing",
+      "Shoppers can't tell if you're open, in stock, or trustworthy without a real website",
+      "A custom e-commerce build from an agency costs thousands and takes months",
+    ],
+    features: [
+      "Catalog highlights, hours, and location on one fast page",
+      "Contact form and Google Maps embed",
+      "Basic SEO so nearby shoppers can find you",
+      "Optional online ordering, gift cards, and pickup checkout (Commerce add-on)",
+    ],
+    recommendedTier: "growth",
+    exampleLeadSlug: "corner-mercantile",
+    faq: [
+      {
+        question: "Can customers buy directly from the site?",
+        answer:
+          "Yes — the Commerce add-on stacks on any bundle and adds Stripe checkout for products, gift cards, and pickup orders, with order notifications sent straight to you.",
+      },
+      {
+        question: "Do I need a full product catalog before I see anything?",
+        answer:
+          "No. You can preview a working example first (see the Retail preview below), then buy and we tailor it to your shop.",
+      },
+      {
+        question: "How is this different from a marketplace listing?",
+        answer:
+          "This is your own website on your own domain — not a listing you're renting inside someone else's marketplace, with their branding and their fees on every sale.",
+      },
+    ],
+  },
+  {
+    category: "health",
+    href: "/websites-for-health",
+    navLabel: "Health & wellness",
+    seoTitle: "Website for Health & Wellness Clinics — booking, services",
+    metaDescription:
+      `A health & wellness clinic website with your services, hours, and booking info — previewed free before you pay. From $${startingSetupPriceUsd}, with optional monthly marketing.`,
+    heroHeadline: "A website that earns patient trust before the first visit",
+    heroSubhead:
+      "Services, hours, location, and a booking-ready contact form — built from your public practice details and previewed for free. Add monthly patient outreach when you're ready.",
+    painPoints: [
+      "New patients research a provider online before ever calling — a missing or dated website costs you the visit",
+      "A booking app alone doesn't explain your services, specialties, or what a first visit looks like",
+      "A custom healthcare-compliant website from an agency costs thousands and takes months",
+    ],
+    features: [
+      "Services, specialties, and hours laid out clearly",
+      "Contact form and Google Maps embed for easy directions",
+      "Basic SEO so \"near me\" searches for your specialty find you",
+      `${monthlyMarketingCadence} a month (Growth/Complete)`,
+    ],
+    recommendedTier: "growth",
+    exampleLeadSlug: "clearview-wellness-clinic",
+    faq: [
+      {
+        question: "Can I keep using my existing scheduling/EHR system?",
+        answer:
+          "Yes — the site links out to whatever booking or patient-portal tool you already use; we don't force a migration.",
+      },
+      {
+        question: "Do you write the patient outreach content every month?",
+        answer:
+          `Growth and Complete include ${monthlyMarketingCadence} a month, generated from your practice's own voice and ready to copy-post — no separate marketing hire.`,
+      },
+      {
+        question: "Is there a phone agent for appointment calls?",
+        answer:
+          "Complete adds an AI phone agent for your practice line so a missed call after hours doesn't become a lost patient.",
+      },
+    ],
+  },
+  {
+    category: "automotive",
+    href: "/websites-for-automotive",
+    navLabel: "Automotive & auto repair",
+    seoTitle: "Website for Auto Repair Shops — services, hours, booking",
+    metaDescription:
+      `An auto repair shop website with your services, hours, and location — previewed free before you pay. From $${startingSetupPriceUsd}, with optional monthly marketing.`,
+    heroHeadline: "A website that earns driver trust before the first visit",
+    heroSubhead:
+      "Services, hours, location, and a contact form for scheduling — built from your public shop details and previewed for free. Add monthly customer outreach when you're ready.",
+    painPoints: [
+      "Drivers search for a repair shop online before they ever call — a missing or dated website costs you the job",
+      "A phone number alone doesn't explain your specialties, warranty, or what to expect from a visit",
+      "A custom website from an agency costs thousands and takes months, longer than most drivers will wait",
+    ],
+    features: [
+      "Services, specialties, and hours laid out clearly",
+      "Contact form and Google Maps embed for easy directions",
+      "Basic SEO so \"near me\" repair searches find you",
+      `${monthlyMarketingCadence} a month (Growth/Complete)`,
+    ],
+    recommendedTier: "growth",
+    exampleLeadSlug: "trailhead-auto-repair",
+    faq: [
+      {
+        question: "Can customers request an appointment online?",
+        answer:
+          "Yes — the contact form routes straight to your inbox with the customer's vehicle and issue details, so you can call back to confirm a time.",
+      },
+      {
+        question: "Do you write the customer outreach content every month?",
+        answer:
+          `Growth and Complete include ${monthlyMarketingCadence} a month, generated from your shop's own voice and ready to copy-post — no separate marketing hire.`,
+      },
+      {
+        question: "Is there a phone agent for after-hours calls?",
+        answer:
+          "Complete adds an AI phone agent for your shop line so a missed call after hours doesn't become a lost job.",
+      },
+    ],
+  },
+  {
+    category: "cleaning",
+    href: "/websites-for-cleaning",
+    navLabel: "Cleaning services",
+    seoTitle: "Website for Cleaning Services — quotes & booking",
+    metaDescription:
+      `A cleaning company website with your services, service area, and a quote form — previewed free before you pay. From $${startingSetupPriceUsd}, with optional monthly marketing.`,
+    heroHeadline: "A website that turns quote requests into booked cleans",
+    heroSubhead:
+      "Services, service area, and a quote-request form — built from your public business details and previewed for free. Add recurring-customer outreach when you're ready.",
+    painPoints: [
+      "Homeowners and offices searching \"cleaning service near me\" bounce off a slow or missing website",
+      "Your only online presence is a directory listing or a Facebook page you don't control",
+      "You need recurring bookings and trust signals, not a shopping cart",
+    ],
+    features: [
+      "Services and service area up front",
+      "Quote-request contact form and map",
+      "Basic SEO for local \"near me\" cleaning searches",
+      `${monthlyMarketingCadence} a month (Growth/Complete)`,
+    ],
+    recommendedTier: "growth",
+    exampleLeadSlug: "brightside-cleaning-co",
+    faq: [
+      {
+        question: "Can customers request a quote online?",
+        answer:
+          "Yes — the contact form routes straight to your inbox with the customer's address and job details, so you can follow up with a quote or booking link.",
+      },
+      {
+        question: "Do you write the recurring-customer outreach content every month?",
+        answer:
+          `Growth and Complete include ${monthlyMarketingCadence} a month, generated from your company's own voice and ready to copy-post — no separate marketing hire.`,
+      },
+      {
+        question: "Is there a phone agent for after-hours booking calls?",
+        answer:
+          "Complete adds an AI phone agent for your business line so a missed call after hours doesn't become a lost booking.",
+      },
+    ],
+  },
+  {
+    category: "fitness",
+    href: "/websites-for-fitness",
+    navLabel: "Fitness & gyms",
+    seoTitle: "Website for Gyms & Fitness Studios — schedules, sign-ups",
+    metaDescription:
+      `A gym or studio website with class schedules, memberships, and a signup form — previewed free before you pay. From $${startingSetupPriceUsd}, with optional monthly marketing.`,
+    heroHeadline: "A website that turns class schedules into member signups",
+    heroSubhead:
+      "Class schedule, membership tiers, and a signup-ready contact form — built from your public gym details and previewed for free. Add monthly member outreach when you're ready.",
+    painPoints: [
+      "Prospective members can't find your class schedule or membership pricing without calling",
+      "Your only online presence is a class-booking app with no real website behind it",
+      "A custom website from an agency costs thousands and takes months, longer than a trial-membership window",
+    ],
+    features: [
+      "Class schedule and membership tiers laid out clearly",
+      "Signup / trial-membership contact form and map",
+      "Basic SEO so \"gym near me\" and \"yoga studio near me\" searches find you",
+      `${monthlyMarketingCadence} a month (Growth/Complete)`,
+    ],
+    recommendedTier: "growth",
+    exampleLeadSlug: "ironclad-fitness-studio",
+    faq: [
+      {
+        question: "Can I keep using my existing class-booking or membership app?",
+        answer:
+          "Yes — the site links out to whatever booking or membership-management tool you already use; we don't force a migration.",
+      },
+      {
+        question: "Do you write the member outreach content every month?",
+        answer:
+          `Growth and Complete include ${monthlyMarketingCadence} a month, generated from your gym's own voice and ready to copy-post — no separate marketing hire.`,
+      },
+      {
+        question: "Is there a phone agent for membership calls?",
+        answer:
+          "Complete adds an AI phone agent for your front desk line so a missed call after hours doesn't become a lost membership.",
+      },
+    ],
+  },
+  {
+    category: "legal",
+    href: "/websites-for-legal",
+    navLabel: "Law firms",
+    seoTitle: "Website for Law Firms — intake, hours, contact",
+    metaDescription:
+      `A law firm website with practice areas, hours, and a confidential intake form — previewed free before you pay. From $${startingSetupPriceUsd}, with optional monthly marketing.`,
+    heroHeadline: "A website that earns client trust before the first call",
+    heroSubhead:
+      "Practice areas, hours, and a confidential intake form — built from your public firm details and previewed for free. Add monthly client outreach when you're ready.",
+    painPoints: [
+      "Prospective clients research an attorney online before ever calling — a missing or dated website costs you the case",
+      "A directory listing alone doesn't explain your practice areas, experience, or what a consultation involves",
+      "A custom website from an agency costs thousands and takes months, longer than most clients will wait to find help",
+    ],
+    features: [
+      "Practice areas and attorney bios laid out clearly",
+      "Confidential intake form and Google Maps embed for easy directions",
+      "Basic SEO so \"near me\" searches for your practice area find you",
+      `${monthlyMarketingCadence} a month (Growth/Complete)`,
+    ],
+    recommendedTier: "growth",
+    exampleLeadSlug: "westbrook-law-group",
+    faq: [
+      {
+        question: "Is the intake form confidential?",
+        answer:
+          "Yes — submissions route straight to your firm's inbox; nothing submitted through the form is publicly visible or indexed.",
+      },
+      {
+        question: "Do you write the client outreach content every month?",
+        answer:
+          `Growth and Complete include ${monthlyMarketingCadence} a month, generated from your firm's own voice and ready to copy-post — no separate marketing hire.`,
+      },
+      {
+        question: "Is there a phone agent for after-hours calls?",
+        answer:
+          "Complete adds an AI phone agent for your firm line so a missed call after hours doesn't become a lost client.",
+      },
+    ],
+  },
+] as const;
+
+export function categoryLandingPageByHref(href: string): CategoryLandingPage | undefined {
+  return CATEGORY_LANDING_PAGES.find((page) => page.href === href);
+}

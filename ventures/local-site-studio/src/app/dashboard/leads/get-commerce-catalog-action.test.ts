@@ -6,8 +6,10 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
  *
  * catalog.test.ts / catalog-persist.test.ts / save + sync action suites cover
  * eligibility, normalize, preserve Stripe ids, and requireConvex writes. This
- * suite locks the thin dashboard read glue: requireOperatorAuth, empty slug,
- * getCommerceCatalog pass-through (row or null), and Error / non-Error throws.
+ * suite locks the thin dashboard read glue: requireOperatorAuth, the per-IP
+ * rate limit (see dashboard-action-rate-limit-gaps; auth alone is not a
+ * throttle), empty slug, getCommerceCatalog pass-through (row or null), and
+ * Error / non-Error throws.
  */
 
 const requireOperatorAuth = vi.fn();
@@ -19,9 +21,18 @@ vi.mock("next/cache", () => ({
   revalidatePath: vi.fn(),
 }));
 
+const headersMock = vi.fn();
 vi.mock("next/headers", () => ({
-  headers: vi.fn(),
+  headers: (...args: unknown[]) => headersMock(...args),
 }));
+
+function headerStore(entries: Record<string, string | null> = {}) {
+  return {
+    get(name: string) {
+      return entries[name] ?? null;
+    },
+  };
+}
 
 const getCommerceCatalog = vi.fn();
 
@@ -37,6 +48,7 @@ vi.mock("@/lib/db", () => ({
   recordClientInquiryReply: vi.fn(),
   getLeads: vi.fn(),
   listOrders: vi.fn(),
+  listOrdersByLeadSlug: vi.fn(),
   recordLeadOutreach: vi.fn(),
   listUnrepliedInquiries: vi.fn(),
   updateLeadNotes: vi.fn(),
@@ -71,10 +83,17 @@ const sampleCatalog = {
   ],
 };
 
+const captureError = vi.fn();
+vi.mock("@/lib/observability/error-tracking", () => ({
+  captureError: (...args: unknown[]) => captureError(...args),
+}));
+
 describe("getCommerceCatalogAction", () => {
   beforeEach(() => {
+    captureError.mockReset().mockResolvedValue(undefined);
     vi.resetModules();
     requireOperatorAuth.mockReset().mockResolvedValue({ ok: true });
+    headersMock.mockReset().mockResolvedValue(headerStore());
     getCommerceCatalog.mockReset().mockResolvedValue(sampleCatalog);
   });
 
@@ -88,6 +107,22 @@ describe("getCommerceCatalogAction", () => {
     expect(res).toEqual({
       success: false,
       error: "Unauthorized — sign in at /dashboard/login",
+    });
+    expect(getCommerceCatalog).not.toHaveBeenCalled();
+  });
+
+  it("rate-limits repeated catalog reads from the same IP (auth alone is not a throttle)", async () => {
+    const { getCommerceCatalogAction } = await import("./actions");
+    // DEFAULT_RATE_LIMIT is 20 requests/60s per key — exhaust the window.
+    for (let i = 0; i < 20; i++) {
+      const res = await getCommerceCatalogAction("demo-cafe");
+      expect(res.success).toBe(true);
+    }
+    getCommerceCatalog.mockClear();
+    const res = await getCommerceCatalogAction("demo-cafe");
+    expect(res).toEqual({
+      success: false,
+      error: "Too many requests — please try again shortly.",
     });
     expect(getCommerceCatalog).not.toHaveBeenCalled();
   });
@@ -125,6 +160,10 @@ describe("getCommerceCatalogAction", () => {
     expect(res).toEqual({
       success: false,
       error: "convex timeout",
+    });
+    expect(captureError).toHaveBeenCalledWith(expect.any(Error), {
+      component: "dashboard-leads-actions",
+      failureKind: "getCommerceCatalogAction",
     });
   });
 

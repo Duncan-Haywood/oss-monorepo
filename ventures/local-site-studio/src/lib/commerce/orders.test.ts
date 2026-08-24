@@ -1,7 +1,16 @@
 import { describe, expect, it } from "vitest";
 import {
+  commerceMarkPaidOutAriaLabel,
+  commerceOrderNeedsClawback,
+  commerceOrdersByLeadSummaryNeedsAttention,
+  isCommerceOrderDisputed,
+  isCommerceOrderOwed,
   isCommerceOrderPaidOut,
+  isCommerceOrderRefunded,
+  mergeCommerceOrdersForReview,
   newCommerceOrderId,
+  sortCommerceOrdersNewestFirst,
+  sumCommerceOrdersByLeadOrderCount,
   sumCommerceOrdersRevenueUsd,
   summarizeCommerceOrdersByLead,
   type CommerceOrderRecord,
@@ -20,6 +29,8 @@ function order(
     stripeSessionId: partial.stripeSessionId ?? `cs_${partial.createdAt}`,
     createdAt: partial.createdAt,
     paidOutAt: partial.paidOutAt,
+    refundedAt: partial.refundedAt,
+    disputedAt: partial.disputedAt,
   };
 }
 
@@ -34,6 +45,54 @@ describe("newCommerceOrderId", () => {
   it("generates distinct ids across calls", () => {
     const ids = new Set(Array.from({ length: 20 }, () => newCommerceOrderId()));
     expect(ids.size).toBe(20);
+  });
+});
+
+describe("sortCommerceOrdersNewestFirst", () => {
+  it("sorts by app createdAt descending (not input order)", () => {
+    const sorted = sortCommerceOrdersNewestFirst([
+      order({
+        leadSlug: "a",
+        amountPaidUsd: 10,
+        createdAt: "2026-07-12T09:00:00.000Z",
+      }),
+      order({
+        leadSlug: "b",
+        amountPaidUsd: 20,
+        createdAt: "2026-07-12T11:00:00.000Z",
+      }),
+      order({
+        leadSlug: "c",
+        amountPaidUsd: 15,
+        createdAt: "2026-07-12T10:00:00.000Z",
+      }),
+    ]);
+    expect(sorted.map((o) => o.leadSlug)).toEqual(["b", "c", "a"]);
+  });
+
+  it("does not mutate the input array", () => {
+    const input = [
+      order({
+        leadSlug: "old",
+        amountPaidUsd: 1,
+        createdAt: "2026-07-12T09:00:00.000Z",
+      }),
+      order({
+        leadSlug: "new",
+        amountPaidUsd: 2,
+        createdAt: "2026-07-12T11:00:00.000Z",
+      }),
+    ];
+    const before = input.map((o) => o.leadSlug);
+    sortCommerceOrdersNewestFirst(input);
+    expect(input.map((o) => o.leadSlug)).toEqual(before);
+  });
+
+  it("returns a new empty array for empty input", () => {
+    const empty: CommerceOrderRecord[] = [];
+    const result = sortCommerceOrdersNewestFirst(empty);
+    expect(result).toEqual([]);
+    expect(result).not.toBe(empty);
   });
 });
 
@@ -58,6 +117,52 @@ describe("sumCommerceOrdersRevenueUsd", () => {
         { amountPaidUsd: Number.NaN },
       ]),
     ).toBe(10);
+  });
+});
+
+describe("commerceMarkPaidOutAriaLabel", () => {
+  it("includes business name, sku name, and amount", () => {
+    expect(
+      commerceMarkPaidOutAriaLabel(
+        { skuName: "Latte", amountPaidUsd: 15, quantity: undefined },
+        "Example Bakery",
+      ),
+    ).toBe("Mark paid out — Example Bakery: Latte ($15.00)");
+  });
+
+  it("appends a quantity suffix only when quantity is known and greater than 1", () => {
+    expect(
+      commerceMarkPaidOutAriaLabel(
+        { skuName: "Latte", amountPaidUsd: 45, quantity: 3 },
+        "Example Bakery",
+      ),
+    ).toBe("Mark paid out — Example Bakery: Latte × 3 ($45.00)");
+    expect(
+      commerceMarkPaidOutAriaLabel(
+        { skuName: "Latte", amountPaidUsd: 15, quantity: 1 },
+        "Example Bakery",
+      ),
+    ).toBe("Mark paid out — Example Bakery: Latte ($15.00)");
+  });
+
+  it("produces distinct labels for two different orders on the same lead", () => {
+    const businessName = "Example Bakery";
+    const a = commerceMarkPaidOutAriaLabel(
+      { skuName: "Latte", amountPaidUsd: 15, quantity: undefined },
+      businessName,
+    );
+    const b = commerceMarkPaidOutAriaLabel(
+      { skuName: "Croissant", amountPaidUsd: 6, quantity: undefined },
+      businessName,
+    );
+    expect(a).not.toBe(b);
+  });
+
+  it("produces distinct labels for the same sku/amount across two different leads", () => {
+    const order = { skuName: "Latte", amountPaidUsd: 15, quantity: undefined };
+    expect(commerceMarkPaidOutAriaLabel(order, "Example Bakery")).not.toBe(
+      commerceMarkPaidOutAriaLabel(order, "Other Cafe"),
+    );
   });
 });
 
@@ -163,6 +268,122 @@ describe("summarizeCommerceOrdersByLead", () => {
   });
 });
 
+describe("summarizeCommerceOrdersByLead excludes refunded orders from owed totals", () => {
+  it("drops a refunded, never-paid-out order from unpaidTotalUsd/unpaidCount", () => {
+    const summaries = summarizeCommerceOrdersByLead([
+      order({
+        leadSlug: "cafe",
+        amountPaidUsd: 40,
+        createdAt: "2026-07-12T09:00:00.000Z",
+        refundedAt: "2026-07-13T09:00:00.000Z",
+      }),
+      order({
+        leadSlug: "cafe",
+        amountPaidUsd: 10,
+        createdAt: "2026-07-12T10:00:00.000Z",
+      }),
+    ]);
+    expect(summaries).toHaveLength(1);
+    expect(summaries[0]).toMatchObject({
+      leadSlug: "cafe",
+      orderCount: 2,
+      totalUsd: 50,
+      unpaidTotalUsd: 10,
+      unpaidCount: 1,
+    });
+  });
+});
+
+describe("summarizeCommerceOrdersByLead excludes disputed orders from owed totals", () => {
+  it("drops a disputed, never-paid-out order from unpaidTotalUsd/unpaidCount", () => {
+    const summaries = summarizeCommerceOrdersByLead([
+      order({
+        leadSlug: "cafe",
+        amountPaidUsd: 40,
+        createdAt: "2026-07-12T09:00:00.000Z",
+        disputedAt: "2026-07-13T09:00:00.000Z",
+      }),
+      order({
+        leadSlug: "cafe",
+        amountPaidUsd: 10,
+        createdAt: "2026-07-12T10:00:00.000Z",
+      }),
+    ]);
+    expect(summaries).toHaveLength(1);
+    expect(summaries[0]).toMatchObject({
+      leadSlug: "cafe",
+      orderCount: 2,
+      totalUsd: 50,
+      unpaidTotalUsd: 10,
+      unpaidCount: 1,
+    });
+  });
+});
+
+describe("summarizeCommerceOrdersByLead excludes $0 (100%-off promo) orders from owed totals", () => {
+  it("drops a free, never-paid-out order from unpaidTotalUsd/unpaidCount", () => {
+    const summaries = summarizeCommerceOrdersByLead([
+      order({
+        leadSlug: "cafe",
+        amountPaidUsd: 0,
+        createdAt: "2026-07-12T09:00:00.000Z",
+      }),
+      order({
+        leadSlug: "cafe",
+        amountPaidUsd: 10,
+        createdAt: "2026-07-12T10:00:00.000Z",
+      }),
+    ]);
+    expect(summaries).toHaveLength(1);
+    expect(summaries[0]).toMatchObject({
+      leadSlug: "cafe",
+      orderCount: 2,
+      totalUsd: 10,
+      unpaidTotalUsd: 10,
+      unpaidCount: 1,
+    });
+  });
+
+  it("drops the lead's summary entirely when its only order is $0 and nothing else needs attention", () => {
+    const summaries = summarizeCommerceOrdersByLead([
+      order({
+        leadSlug: "cafe",
+        amountPaidUsd: 0,
+        createdAt: "2026-07-12T09:00:00.000Z",
+      }),
+    ]).filter(commerceOrdersByLeadSummaryNeedsAttention);
+    expect(summaries).toHaveLength(0);
+  });
+});
+
+describe("isCommerceOrderOwed", () => {
+  it("is true for a fresh, positive-amount, unresolved order", () => {
+    expect(isCommerceOrderOwed({ amountPaidUsd: 10 })).toBe(true);
+  });
+
+  it("is false once paidOutAt is set", () => {
+    expect(
+      isCommerceOrderOwed({ amountPaidUsd: 10, paidOutAt: "2026-07-12T10:00:00.000Z" }),
+    ).toBe(false);
+  });
+
+  it("is false once refundedAt is set", () => {
+    expect(
+      isCommerceOrderOwed({ amountPaidUsd: 10, refundedAt: "2026-07-12T10:00:00.000Z" }),
+    ).toBe(false);
+  });
+
+  it("is false once disputedAt is set", () => {
+    expect(
+      isCommerceOrderOwed({ amountPaidUsd: 10, disputedAt: "2026-07-12T10:00:00.000Z" }),
+    ).toBe(false);
+  });
+
+  it("is false for a $0 order even with no paidOutAt/refundedAt/disputedAt set (100%-off promo)", () => {
+    expect(isCommerceOrderOwed({ amountPaidUsd: 0 })).toBe(false);
+  });
+});
+
 describe("isCommerceOrderPaidOut", () => {
   it("is false when paidOutAt is unset", () => {
     expect(isCommerceOrderPaidOut({ paidOutAt: undefined })).toBe(false);
@@ -174,6 +395,97 @@ describe("isCommerceOrderPaidOut", () => {
 
   it("is true once paidOutAt is set", () => {
     expect(isCommerceOrderPaidOut({ paidOutAt: "2026-07-12T10:00:00.000Z" })).toBe(true);
+  });
+});
+
+describe("isCommerceOrderRefunded", () => {
+  it("is false when refundedAt is unset", () => {
+    expect(isCommerceOrderRefunded({ refundedAt: undefined })).toBe(false);
+  });
+
+  it("is false when refundedAt is an empty string (SQLite/Convex parity)", () => {
+    expect(isCommerceOrderRefunded({ refundedAt: "" })).toBe(false);
+  });
+
+  it("is true once refundedAt is set", () => {
+    expect(isCommerceOrderRefunded({ refundedAt: "2026-07-17T10:00:00.000Z" })).toBe(true);
+  });
+});
+
+describe("isCommerceOrderDisputed", () => {
+  it("is false when disputedAt is unset", () => {
+    expect(isCommerceOrderDisputed({ disputedAt: undefined })).toBe(false);
+  });
+
+  it("is false when disputedAt is an empty string (SQLite/Convex parity)", () => {
+    expect(isCommerceOrderDisputed({ disputedAt: "" })).toBe(false);
+  });
+
+  it("is true once disputedAt is set", () => {
+    expect(isCommerceOrderDisputed({ disputedAt: "2026-07-17T10:00:00.000Z" })).toBe(true);
+  });
+});
+
+describe("commerceOrderNeedsClawback", () => {
+  it("is false when never paid out, even if refunded", () => {
+    expect(
+      commerceOrderNeedsClawback({
+        paidOutAt: undefined,
+        refundedAt: "2026-07-17T10:00:00.000Z",
+      }),
+    ).toBe(false);
+  });
+
+  it("is false when paid out but not refunded", () => {
+    expect(
+      commerceOrderNeedsClawback({
+        paidOutAt: "2026-07-10T10:00:00.000Z",
+        refundedAt: undefined,
+      }),
+    ).toBe(false);
+  });
+
+  it("is true once an order is both paid out and refunded, regardless of order", () => {
+    expect(
+      commerceOrderNeedsClawback({
+        paidOutAt: "2026-07-10T10:00:00.000Z",
+        refundedAt: "2026-07-17T10:00:00.000Z",
+      }),
+    ).toBe(true);
+  });
+
+  it("is false when paid out but not disputed", () => {
+    expect(
+      commerceOrderNeedsClawback({
+        paidOutAt: "2026-07-10T10:00:00.000Z",
+        disputedAt: undefined,
+      }),
+    ).toBe(false);
+  });
+
+  it("is true once an order is both paid out and disputed, regardless of order", () => {
+    expect(
+      commerceOrderNeedsClawback({
+        paidOutAt: "2026-07-10T10:00:00.000Z",
+        disputedAt: "2026-07-17T10:00:00.000Z",
+      }),
+    ).toBe(true);
+  });
+
+  it("is true when paid out and BOTH refunded and disputed", () => {
+    expect(
+      commerceOrderNeedsClawback({
+        paidOutAt: "2026-07-10T10:00:00.000Z",
+        refundedAt: "2026-07-16T10:00:00.000Z",
+        disputedAt: "2026-07-17T10:00:00.000Z",
+      }),
+    ).toBe(true);
+  });
+
+  it("treats empty-string fields as unset (SQLite/Convex parity)", () => {
+    expect(
+      commerceOrderNeedsClawback({ paidOutAt: "", refundedAt: "", disputedAt: "" }),
+    ).toBe(false);
   });
 });
 
@@ -213,5 +525,143 @@ describe("owed totals need unpaid completeness", () => {
         (row) => row.leadSlug === "old-client",
       ),
     ).toBeUndefined();
+  });
+});
+
+describe("mergeCommerceOrdersForReview", () => {
+  it("dedupes an order present in more than one source list by id", () => {
+    const refundedNeverPaid = order({
+      id: "corder_1",
+      leadSlug: "cafe",
+      amountPaidUsd: 20,
+      createdAt: "2026-07-01T00:00:00.000Z",
+      refundedAt: "2026-07-02T00:00:00.000Z",
+    });
+    // Same order appears in both the "unpaid" feed (paidOutAt unset) and the
+    // "refunded" feed (refundedAt set) — a raw concat would double-count it.
+    const merged = mergeCommerceOrdersForReview([refundedNeverPaid], [refundedNeverPaid], []);
+    expect(merged).toHaveLength(1);
+    expect(merged[0]?.id).toBe("corder_1");
+  });
+
+  it("unions distinct orders across sources and sorts newest-first", () => {
+    const unpaid = order({
+      id: "corder_unpaid",
+      leadSlug: "cafe",
+      amountPaidUsd: 10,
+      createdAt: "2026-07-01T00:00:00.000Z",
+    });
+    const clawback = order({
+      id: "corder_clawback",
+      leadSlug: "salon",
+      amountPaidUsd: 30,
+      createdAt: "2026-07-03T00:00:00.000Z",
+      paidOutAt: "2026-07-04T00:00:00.000Z",
+      disputedAt: "2026-07-05T00:00:00.000Z",
+    });
+    const merged = mergeCommerceOrdersForReview([unpaid], [], [clawback]);
+    expect(merged.map((o) => o.id)).toEqual(["corder_clawback", "corder_unpaid"]);
+  });
+
+  it("returns an empty array when every source is empty", () => {
+    expect(mergeCommerceOrdersForReview([], [], [])).toEqual([]);
+  });
+
+  it("last source wins when the same id appears with different field values", () => {
+    const stale = order({
+      id: "corder_1",
+      leadSlug: "cafe",
+      amountPaidUsd: 20,
+      createdAt: "2026-07-01T00:00:00.000Z",
+    });
+    const fresh = { ...stale, disputedAt: "2026-07-02T00:00:00.000Z" };
+    const merged = mergeCommerceOrdersForReview([stale], [fresh]);
+    expect(merged).toEqual([fresh]);
+  });
+});
+
+describe("commerceOrdersByLeadSummaryNeedsAttention", () => {
+  it("is true when unpaidCount is positive", () => {
+    expect(
+      commerceOrdersByLeadSummaryNeedsAttention({ unpaidCount: 1, orders: [] }),
+    ).toBe(true);
+  });
+
+  it("is false when unpaidCount is zero and no order needs clawback", () => {
+    const paidClean = order({
+      leadSlug: "cafe",
+      amountPaidUsd: 20,
+      createdAt: "2026-07-01T00:00:00.000Z",
+      paidOutAt: "2026-07-02T00:00:00.000Z",
+    });
+    expect(
+      commerceOrdersByLeadSummaryNeedsAttention({
+        unpaidCount: 0,
+        orders: [paidClean],
+      }),
+    ).toBe(false);
+  });
+
+  it("is true when unpaidCount is zero but a clawback-needed order is present (the bug this fixes)", () => {
+    const clawback = order({
+      leadSlug: "cafe",
+      amountPaidUsd: 20,
+      createdAt: "2026-07-01T00:00:00.000Z",
+      paidOutAt: "2026-07-02T00:00:00.000Z",
+      refundedAt: "2026-07-03T00:00:00.000Z",
+    });
+    expect(
+      commerceOrdersByLeadSummaryNeedsAttention({
+        unpaidCount: 0,
+        orders: [clawback],
+      }),
+    ).toBe(true);
+  });
+});
+
+describe("sumCommerceOrdersByLeadOrderCount", () => {
+  it("returns 0 for an empty summary list", () => {
+    expect(sumCommerceOrdersByLeadOrderCount([])).toBe(0);
+  });
+
+  it("sums orderCount across every summary, not just unpaidCount", () => {
+    expect(
+      sumCommerceOrdersByLeadOrderCount([
+        { orderCount: 3 },
+        { orderCount: 2 },
+      ]),
+    ).toBe(5);
+  });
+
+  it("matches only the leads the payouts panel actually renders (the bug this fixes)", () => {
+    // A lead whose only order was refunded before ever being paid out owes
+    // nothing and correctly drops out of commerceOrdersByLeadSummaryNeedsAttention,
+    // but it still arrives in the merged review feed passed into
+    // summarizeCommerceOrdersByLead (mergeCommerceOrdersForReview includes every
+    // refunded/disputed order regardless of payout status) — so a naive
+    // "count every order in the merged feed" header would keep growing from
+    // this fully-resolved, nothing-owed order forever, while the visible list
+    // below never shows it. The panel must instead sum orderCount only across
+    // the summaries that survive the needsAttention filter.
+    const resolvedRefund = order({
+      leadSlug: "resolved-cafe",
+      amountPaidUsd: 15,
+      createdAt: "2026-07-01T00:00:00.000Z",
+      refundedAt: "2026-07-02T00:00:00.000Z",
+    });
+    const owedOrder = order({
+      leadSlug: "owed-cafe",
+      amountPaidUsd: 30,
+      createdAt: "2026-07-01T00:00:00.000Z",
+    });
+    const allSummaries = summarizeCommerceOrdersByLead([resolvedRefund, owedOrder]);
+    const rendered = allSummaries.filter(commerceOrdersByLeadSummaryNeedsAttention);
+
+    // Only owed-cafe's 1 order needs attention — resolved-cafe's refunded
+    // order must not inflate the header count even though it's in the input.
+    expect(sumCommerceOrdersByLeadOrderCount(rendered)).toBe(1);
+    // Sanity check: summing across every summary (the old, buggy behavior)
+    // would have counted both orders (2), not just the rendered one (1).
+    expect(sumCommerceOrdersByLeadOrderCount(allSummaries)).toBe(2);
   });
 });

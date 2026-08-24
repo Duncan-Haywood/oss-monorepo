@@ -1,5 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import type { DeployHandoff } from "@/lib/deploy/types";
+import { MAX_VERCEL_PROJECT_ID_LENGTH } from "@/lib/deploy/vercel-project-id";
 
 /**
  * Action-level orchestration for assignVercelProjectAction — the operator
@@ -8,7 +9,8 @@ import type { DeployHandoff } from "@/lib/deploy/types";
  *
  * handoff-persist / handoff helper suites cover the requireConvex constant
  * and the field writes. This suite locks the dashboard action glue:
- * requireOperatorAuth, empty slug, trim / clear project id, no-handoff null,
+ * requireOperatorAuth, empty slug, trim / clear project id, over-long
+ * hard-reject (parseVercelProjectId), no-handoff null,
  * ConvexPrimaryWriteError fail-closed (no revalidate), success revalidate,
  * and Error / non-Error throws.
  */
@@ -23,9 +25,18 @@ vi.mock("next/cache", () => ({
   revalidatePath: (...args: unknown[]) => revalidatePath(...args),
 }));
 
+const headersMock = vi.fn();
 vi.mock("next/headers", () => ({
-  headers: vi.fn(),
+  headers: (...args: unknown[]) => headersMock(...args),
 }));
+
+function headerStore(entries: Record<string, string | null> = {}) {
+  return {
+    get(name: string) {
+      return entries[name] ?? null;
+    },
+  };
+}
 
 vi.mock("@/lib/db", () => ({
   listOpenCheckoutSessions: vi.fn(),
@@ -39,6 +50,7 @@ vi.mock("@/lib/db", () => ({
   recordClientInquiryReply: vi.fn(),
   getLeads: vi.fn(),
   listOrders: vi.fn(),
+  listOrdersByLeadSlug: vi.fn(),
   recordLeadOutreach: vi.fn(),
   listUnrepliedInquiries: vi.fn(),
   updateLeadNotes: vi.fn(),
@@ -102,12 +114,37 @@ const clearedHandoff: DeployHandoff = {
   notes: ["Cleared dedicated Vercel project"],
 };
 
+const captureError = vi.fn();
+vi.mock("@/lib/observability/error-tracking", () => ({
+  captureError: (...args: unknown[]) => captureError(...args),
+}));
+
 describe("assignVercelProjectAction", () => {
   beforeEach(() => {
+    captureError.mockReset().mockResolvedValue(undefined);
     vi.resetModules();
     requireOperatorAuth.mockReset().mockResolvedValue({ ok: true });
     revalidatePath.mockReset();
+    headersMock.mockReset().mockResolvedValue(headerStore());
     assignVercelProjectAndProvision.mockReset().mockResolvedValue(assignedHandoff);
+  });
+
+  it("rate-limits repeated calls from the same IP (auth alone is not a throttle)", async () => {
+    const { assignVercelProjectAction } = await import("./actions");
+    // DEFAULT_RATE_LIMIT is 20 requests/60s per key — exhaust the window.
+    for (let i = 0; i < 20; i++) {
+      const res = await assignVercelProjectAction("demo-cafe", "prj_demo_isolated");
+      expect(res.success).toBe(true);
+    }
+    assignVercelProjectAndProvision.mockClear();
+    revalidatePath.mockClear();
+    const res = await assignVercelProjectAction("demo-cafe", "prj_demo_isolated");
+    expect(res).toEqual({
+      success: false,
+      error: "Too many requests — please try again shortly.",
+    });
+    expect(assignVercelProjectAndProvision).not.toHaveBeenCalled();
+    expect(revalidatePath).not.toHaveBeenCalled();
   });
 
   it("returns auth error without assigning a project", async () => {
@@ -154,6 +191,34 @@ describe("assignVercelProjectAction", () => {
     const res = await assignVercelProjectAction("demo-cafe", "   ");
     expect(res).toEqual({ success: true, handoff: clearedHandoff });
     expect(assignVercelProjectAndProvision).toHaveBeenCalledWith("demo-cafe", null);
+    expect(revalidatePath).toHaveBeenCalledWith("/dashboard/leads");
+  });
+
+  it("hard-rejects an over-long project id before provisioning", async () => {
+    const { assignVercelProjectAction } = await import("./actions");
+    const over = "a".repeat(MAX_VERCEL_PROJECT_ID_LENGTH + 1);
+    const res = await assignVercelProjectAction("demo-cafe", over);
+    expect(res).toEqual({
+      success: false,
+      error: "Vercel project ID is too long",
+    });
+    expect(assignVercelProjectAndProvision).not.toHaveBeenCalled();
+    expect(revalidatePath).not.toHaveBeenCalled();
+  });
+
+  it("accepts a project id at the max length", async () => {
+    const exact = "a".repeat(MAX_VERCEL_PROJECT_ID_LENGTH);
+    assignVercelProjectAndProvision.mockResolvedValue({
+      ...assignedHandoff,
+      vercelProjectId: exact,
+    });
+    const { assignVercelProjectAction } = await import("./actions");
+    const res = await assignVercelProjectAction("demo-cafe", exact);
+    expect(res).toEqual({
+      success: true,
+      handoff: { ...assignedHandoff, vercelProjectId: exact },
+    });
+    expect(assignVercelProjectAndProvision).toHaveBeenCalledWith("demo-cafe", exact);
     expect(revalidatePath).toHaveBeenCalledWith("/dashboard/leads");
   });
 
@@ -211,6 +276,10 @@ describe("assignVercelProjectAction", () => {
       error: "Vercel Domains API offline",
     });
     expect(revalidatePath).not.toHaveBeenCalled();
+    expect(captureError).toHaveBeenCalledWith(expect.any(Error), {
+      component: "dashboard-leads-actions",
+      failureKind: "assignVercelProjectAction",
+    });
   });
 
   it("surfaces non-Error throws as Unknown error", async () => {

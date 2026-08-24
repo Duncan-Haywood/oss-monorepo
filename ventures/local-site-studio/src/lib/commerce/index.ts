@@ -1,17 +1,30 @@
 export {
+  MAX_COMMERCE_SKU_ID_LENGTH,
   MAX_COMMERCE_SKUS,
   MAX_SKU_DESCRIPTION_LENGTH,
   MAX_SKU_NAME_LENGTH,
   MAX_SKU_PRICE_CENTS,
+  MIN_SKU_PRICE_CENTS,
   type CommerceCatalog,
   type CommerceSku,
   type UpsertCommerceCatalogInput,
 } from "./types";
 
 export {
+  MAX_COMMERCE_CHECKOUT_SKU_ID_LENGTH,
+  MAX_COMMERCE_CHECKOUT_SLUG_LENGTH,
+  parseCommerceCheckoutSkuId,
+  parseCommerceCheckoutSlug,
+  type ParseCommerceCheckoutFieldResult,
+} from "./checkout-fields";
+
+export {
   catalogHasUnsyncedSku,
+  commerceBuyNowAriaLabel,
+  commerceDraftItemsAfterSync,
   commerceOrderPaidInquiryMessage,
   commerceOrderRequestMessage,
+  commerceRequestOrderAriaLabel,
   formatPriceUsd,
   leadEligibleForCommerceCatalog,
   leadStageEligibleForCommerceCatalog,
@@ -19,11 +32,19 @@ export {
   listCommerceCatalogsUnsynced,
   newCommerceSkuId,
   normalizeCommerceItems,
+  oldestCommerceCatalogCandidateAgeHours,
   preserveCommerceStripeIds,
   type NormalizeCommerceItemsResult,
 } from "./catalog";
 
+// Do NOT re-export loadPreviewCommerceItems from this barrel — it lazy-imports
+// `@/lib/db` (`server-only`), and leads-client.tsx (`"use client"`) imports from
+// `@/lib/commerce`. A barrel re-export pulls db into the client graph and breaks
+// `next build` (PR #313 regression). Import from `@/lib/commerce/preview-commerce`
+// in Server Components / route handlers only.
+
 export {
+  archiveCommerceStripeProducts,
   archiveOrphanCommerceStripeProducts,
   commerceSkuStripeKey,
   listOrphanCommerceStripeProducts,
@@ -34,8 +55,17 @@ export {
 } from "./stripe-sync";
 
 export {
+  commerceMarkPaidOutAriaLabel,
+  commerceOrderNeedsClawback,
+  commerceOrdersByLeadSummaryNeedsAttention,
+  isCommerceOrderDisputed,
+  isCommerceOrderOwed,
   isCommerceOrderPaidOut,
+  isCommerceOrderRefunded,
+  mergeCommerceOrdersForReview,
   newCommerceOrderId,
+  sortCommerceOrdersNewestFirst,
+  sumCommerceOrdersByLeadOrderCount,
   sumCommerceOrdersRevenueUsd,
   summarizeCommerceOrdersByLead,
   type CommerceOrderRecord,

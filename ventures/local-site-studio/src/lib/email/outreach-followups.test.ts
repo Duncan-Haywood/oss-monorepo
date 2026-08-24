@@ -9,6 +9,7 @@ import {
   listFollowUpsDue,
   nextFollowUpStep,
   normalizeOutreachStep,
+  oldestLastOutreachAgeHours,
 } from "./outreach-followups";
 import type { Lead } from "../leads/types";
 
@@ -242,5 +243,33 @@ describe("listColdLeads", () => {
 
     const cold = listColdLeads([stillDue, coldNewer, coldOlder], NOW);
     expect(cold.map((l) => l.slug)).toEqual(["cold-a", "cold-b"]);
+  });
+});
+
+describe("oldestLastOutreachAgeHours", () => {
+  it("returns null for an empty list", () => {
+    expect(oldestLastOutreachAgeHours([], NOW)).toBeNull();
+  });
+
+  it("returns null when no lead has a parseable lastOutreachAt", () => {
+    const noTimestamp = makeLead({ lastOutreachAt: undefined });
+    const badTimestamp = makeLead({ slug: "bad", lastOutreachAt: "not-a-date" });
+    expect(oldestLastOutreachAgeHours([noTimestamp, badTimestamp], NOW)).toBeNull();
+  });
+
+  it("returns the age of the oldest lastOutreachAt, ignoring order and unparseable entries", () => {
+    const newer = makeLead({
+      slug: "newer",
+      lastOutreachAt: new Date(NOW - 5 * DAY_MS).toISOString(),
+    });
+    const older = makeLead({
+      slug: "older",
+      lastOutreachAt: new Date(NOW - 10 * DAY_MS).toISOString(),
+    });
+    const noTimestamp = makeLead({ slug: "none", lastOutreachAt: undefined });
+
+    expect(oldestLastOutreachAgeHours([newer, older, noTimestamp], NOW)).toBe(10 * 24);
+    // Order-agnostic: same result regardless of input order.
+    expect(oldestLastOutreachAgeHours([older, newer, noTimestamp], NOW)).toBe(10 * 24);
   });
 });

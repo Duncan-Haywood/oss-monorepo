@@ -1,10 +1,14 @@
+import type { Metadata } from "next";
 import { DocLink, DocPage } from "@/components/docs/doc-page";
 import { brand } from "@/lib/brand";
+import { docPageMetadata } from "@/lib/seo";
+
+export const metadata: Metadata = docPageMetadata("/docs/legal");
 
 export default function LegalDocPage() {
   return (
     <DocPage
-      title="Legal — Maris Stella Labs"
+      title={`Legal — ${brand.legalEntity}`}
       subtitle="Operational guidance, not legal advice. Have counsel review before launch."
       related={[
         { href: "/docs/compliance", label: "Compliance" },
@@ -16,9 +20,9 @@ export default function LegalDocPage() {
       <table>
         <thead>
           <tr>
-            <th>Layer</th>
-            <th>Name</th>
-            <th>Used for</th>
+            <th scope="col">Layer</th>
+            <th scope="col">Name</th>
+            <th scope="col">Used for</th>
           </tr>
         </thead>
         <tbody>

@@ -1,18 +1,28 @@
 import Link from "next/link";
+import { leadPreviewPath } from "@/lib/leads/slug-path";
 import type { PipelineHealth } from "@/lib/metrics/pipeline-health";
 import { formatAbandonedAgeHours, formatUsd } from "@/lib/metrics/pipeline-health";
+import { stageFunnelBarWidthClass } from "@/lib/metrics/stage-funnel-bar-width";
 
 interface PipelineHealthPanelProps {
   health: PipelineHealth;
 }
 
+const PIPELINE_HEALTH_HEADING_ID = "pipeline-health-heading";
+
 export function PipelineHealthPanel({ health }: PipelineHealthPanelProps) {
   const maxStage = Math.max(1, ...health.stageFunnel.map((s) => s.count));
 
   return (
-    <section className="mb-8 rounded-2xl border border-zinc-200 bg-white p-5 shadow-sm">
+    <section
+      aria-labelledby={PIPELINE_HEALTH_HEADING_ID}
+      className="mb-8 rounded-2xl border border-zinc-200 bg-white p-5 shadow-sm"
+    >
       <div className="flex flex-wrap items-baseline justify-between gap-2">
-        <h2 className="text-lg font-semibold tracking-tight text-zinc-900">
+        <h2
+          id={PIPELINE_HEALTH_HEADING_ID}
+          className="text-lg font-semibold tracking-tight text-zinc-900"
+        >
           Pipeline health
         </h2>
         <p className="text-xs text-zinc-500">
@@ -29,13 +39,29 @@ export function PipelineHealthPanel({ health }: PipelineHealthPanelProps) {
         <MetricCard
           label="Open deploy handoffs"
           value={String(health.openHandoffCount)}
-          hint={health.openHandoffCount > 0 ? "Paid sites awaiting DNS / Mark live" : "None pending"}
+          hint={
+            health.openHandoffCount > 0
+              ? `Paid sites awaiting DNS / Mark live${
+                  health.oldestOpenHandoffAgeHours !== null
+                    ? ` · oldest ${formatAbandonedAgeHours(health.oldestOpenHandoffAgeHours)}`
+                    : ""
+                }`
+              : "None pending"
+          }
           attention={health.openHandoffCount > 0}
         />
         <MetricCard
           label="Paid, not live"
           value={String(health.paidNotLiveCount)}
-          hint="Leads stuck in paid stage"
+          hint={
+            health.paidNotLiveCount > 0
+              ? `See the Paid, not live panel on /dashboard/leads${
+                  health.oldestPaidNotLiveAgeHours !== null
+                    ? ` · oldest ${formatAbandonedAgeHours(health.oldestPaidNotLiveAgeHours)}`
+                    : ""
+                }`
+              : "None pending"
+          }
           attention={health.paidNotLiveCount > 0}
         />
         <MetricCard
@@ -59,7 +85,11 @@ export function PipelineHealthPanel({ health }: PipelineHealthPanelProps) {
           value={String(health.commerceAbandonedCheckoutCount)}
           hint={
             health.commerceRecoveryDueCount > 0
-              ? `${health.commerceRecoveryDueCount} recovery due`
+              ? `${health.commerceRecoveryDueCount} recovery due${
+                  health.oldestCommerceAbandonedAgeHours !== null
+                    ? ` · oldest ${formatAbandonedAgeHours(health.oldestCommerceAbandonedAgeHours)}`
+                    : ""
+                }`
               : "Commerce SKU checkouts past 2h"
           }
           attention={health.commerceAbandonedCheckoutCount > 0}
@@ -124,50 +154,312 @@ export function PipelineHealthPanel({ health }: PipelineHealthPanelProps) {
           value={String(health.marketingPacksDueCount)}
           hint={
             health.marketingPacksDueCount > 0
-              ? `${health.marketingPacksDueMonth} Growth/Complete fulfillment`
+              ? `${health.marketingPacksDueMonth} Growth/Complete fulfillment${
+                  health.oldestMarketingPacksDueAgeHours !== null
+                    ? ` · oldest ${formatAbandonedAgeHours(health.oldestMarketingPacksDueAgeHours)}`
+                    : ""
+                }`
               : `${health.marketingPacksDueMonth} packs complete`
           }
           attention={health.marketingPacksDueCount > 0}
+        />
+        <MetricCard
+          label="Marketing packs not emailed"
+          value={String(health.marketingPacksMissingClientSendCount)}
+          hint={
+            health.marketingPacksMissingClientSendCount > 0
+              ? `Generated but never sent to the client${
+                  health.oldestMarketingPacksMissingClientSendAgeHours !== null
+                    ? ` · oldest ${formatAbandonedAgeHours(health.oldestMarketingPacksMissingClientSendAgeHours)}`
+                    : ""
+                }`
+              : "Every generated pack has been emailed"
+          }
+          attention={health.marketingPacksMissingClientSendCount > 0}
+        />
+        <MetricCard
+          label="MRR paused / canceled"
+          value={String(health.recurringEntitlementPausedCount)}
+          hint={
+            health.recurringEntitlementPausedCount > 0
+              ? health.oldestRecurringEntitlementPausedAgeHours !== null
+                ? `Oldest pause ${formatAbandonedAgeHours(health.oldestRecurringEntitlementPausedAgeHours)} — chase Billing Portal`
+                : "Chase Billing Portal / Manage billing"
+              : "Active Growth/Complete/Commerce entitlement"
+          }
+          attention={health.recurringEntitlementPausedCount > 0}
+        />
+        <MetricCard
+          label="Billing notice send failed"
+          value={String(health.billingNoticeSendFailedCount)}
+          hint={
+            health.billingNoticeSendFailedCount > 0
+              ? `Dunning/paused/resumed email never reached the customer${
+                  health.oldestBillingNoticeSendFailedAgeHours !== null
+                    ? ` · oldest ${formatAbandonedAgeHours(health.oldestBillingNoticeSendFailedAgeHours)}`
+                    : ""
+                }`
+              : "Every billing-status email reached the customer"
+          }
+          attention={health.billingNoticeSendFailedCount > 0}
+        />
+        <MetricCard
+          label="Starter → MRR upsell"
+          value={String(health.starterUpsellCandidatesCount)}
+          hint={
+            health.starterUpsellCandidatesCount > 0
+              ? health.oldestStarterUpsellCandidateAgeHours !== null
+                ? `Oldest since ${formatAbandonedAgeHours(health.oldestStarterUpsellCandidateAgeHours)} — send Growth/Complete nudge`
+                : "Send Growth/Complete upsell nudge"
+              : "No Starter-only paid leads to upsell"
+          }
+          attention={health.starterUpsellCandidatesCount > 0}
+        />
+        <MetricCard
+          label="Growth → Complete upsell"
+          value={String(health.growthUpsellCandidatesCount)}
+          hint={
+            health.growthUpsellCandidatesCount > 0
+              ? health.oldestGrowthUpsellCandidateAgeHours !== null
+                ? `Oldest since ${formatAbandonedAgeHours(health.oldestGrowthUpsellCandidateAgeHours)} — send Complete nudge`
+                : "Send Complete upsell nudge"
+              : "No Growth-only paid leads to upsell"
+          }
+          attention={health.growthUpsellCandidatesCount > 0}
         />
         <MetricCard
           label="Commerce catalogs missing"
           value={String(health.commerceCatalogsMissingCount)}
           hint={
             health.commerceCatalogsMissingCount > 0
-              ? "Paid Commerce add-on fulfillment"
+              ? `Paid Commerce add-on fulfillment${
+                  health.oldestCommerceCatalogsMissingAgeHours !== null
+                    ? ` · oldest ${formatAbandonedAgeHours(health.oldestCommerceCatalogsMissingAgeHours)}`
+                    : ""
+                }`
               : "All Commerce catalogs created"
           }
           attention={health.commerceCatalogsMissingCount > 0}
         />
         <MetricCard
-          label="Commerce Sync to Stripe"
+          label="Commerce Sync to Stripe due"
           value={String(health.commerceCatalogsUnsyncedCount)}
           hint={
             health.commerceCatalogsUnsyncedCount > 0
-              ? "Saved catalogs still need Buy now"
+              ? `Saved catalogs still need Buy now${
+                  health.oldestCommerceCatalogsUnsyncedAgeHours !== null
+                    ? ` · oldest ${formatAbandonedAgeHours(health.oldestCommerceCatalogsUnsyncedAgeHours)}`
+                    : ""
+                }`
               : "Saved catalogs synced for Buy now"
           }
           attention={health.commerceCatalogsUnsyncedCount > 0}
         />
         <MetricCard
-          label="Voice packs due"
+          label="Stripe Connect onboarding incomplete"
+          value={String(health.connectOnboardingIncompleteCount)}
+          hint={
+            health.connectOnboardingIncompleteCount > 0
+              ? `Connect account created but not confirmed fully onboarded${
+                  health.oldestConnectOnboardingIncompleteAgeHours !== null
+                    ? ` · oldest ${formatAbandonedAgeHours(health.oldestConnectOnboardingIncompleteAgeHours)}`
+                    : ""
+                }`
+              : "Every Connect account is fully onboarded (or none created yet)"
+          }
+          attention={health.connectOnboardingIncompleteCount > 0}
+        />
+        <MetricCard
+          label="Buffer profile mapping missing"
+          value={String(health.bufferProfileMappingMissingCount)}
+          hint={
+            health.bufferProfileMappingMissingCount > 0
+              ? `Growth/Complete leads with no Buffer profiles selected yet${
+                  health.oldestBufferProfileMappingMissingAgeHours !== null
+                    ? ` · oldest ${formatAbandonedAgeHours(health.oldestBufferProfileMappingMissingAgeHours)}`
+                    : ""
+                }`
+              : "Every eligible lead has Buffer profiles mapped (or Buffer scheduling isn't enabled yet)"
+          }
+          attention={health.bufferProfileMappingMissingCount > 0}
+        />
+        <MetricCard
+          label="Buffer packs not posted"
+          value={String(health.marketingPacksMissingBufferPostCount)}
+          hint={
+            health.marketingPacksMissingBufferPostCount > 0
+              ? `Buffer-mapped leads whose current pack was never posted${
+                  health.oldestMarketingPacksMissingBufferPostAgeHours !== null
+                    ? ` · oldest ${formatAbandonedAgeHours(health.oldestMarketingPacksMissingBufferPostAgeHours)}`
+                    : ""
+                }`
+              : "Every Buffer-mapped lead's pack this month has been posted"
+          }
+          attention={health.marketingPacksMissingBufferPostCount > 0}
+        />
+        <MetricCard
+          label="Complete voice packs due"
           value={String(health.clientVoicePacksDueCount)}
           hint={
             health.clientVoicePacksDueCount > 0
-              ? "Complete phone fulfillment"
+              ? `Complete phone fulfillment${
+                  health.oldestClientVoicePacksDueAgeHours !== null
+                    ? ` · oldest ${formatAbandonedAgeHours(health.oldestClientVoicePacksDueAgeHours)}`
+                    : ""
+                }`
               : "Complete voice packs ready"
           }
           attention={health.clientVoicePacksDueCount > 0}
+        />
+        <MetricCard
+          label="Complete voice packs not emailed"
+          value={String(health.clientVoicePacksMissingClientSendCount)}
+          hint={
+            health.clientVoicePacksMissingClientSendCount > 0
+              ? `Generated but never sent to the client${
+                  health.oldestClientVoicePacksMissingClientSendAgeHours !== null
+                    ? ` · oldest ${formatAbandonedAgeHours(health.oldestClientVoicePacksMissingClientSendAgeHours)}`
+                    : ""
+                }`
+              : "Every generated voice pack has been emailed"
+          }
+          attention={health.clientVoicePacksMissingClientSendCount > 0}
         />
         <MetricCard
           label="Commerce sales (pass-through)"
           value={formatUsd(health.commerceOrdersRevenueUsd)}
           hint={
             health.commerceOrdersCount > 0
-              ? `${health.commerceOrdersCount} Buy now order${health.commerceOrdersCount === 1 ? "" : "s"} still owed to clients — not your revenue · Mark paid out on Commerce payouts panel`
+              ? `${health.commerceOrdersCount} Buy now order${health.commerceOrdersCount === 1 ? "" : "s"} still owed to clients — not your revenue · Mark paid out on Commerce payouts panel${
+                  health.oldestCommerceOrdersOwedAgeHours !== null
+                    ? ` · oldest ${formatAbandonedAgeHours(health.oldestCommerceOrdersOwedAgeHours)}`
+                    : ""
+                }`
               : "No unpaid Buy now orders"
           }
           attention={health.commerceOrdersCount > 0}
+        />
+        <MetricCard
+          label="Refund clawback needed"
+          value={formatUsd(health.commerceOrdersRefundClawbackUsd)}
+          hint={
+            health.commerceOrdersRefundClawbackCount > 0
+              ? `${health.commerceOrdersRefundClawbackCount} Buy now order${health.commerceOrdersRefundClawbackCount === 1 ? "" : "s"} paid out to a client, then refunded by Stripe — claw back from client${
+                  health.oldestCommerceOrdersRefundClawbackAgeHours !== null
+                    ? ` · oldest ${formatAbandonedAgeHours(health.oldestCommerceOrdersRefundClawbackAgeHours)}`
+                    : ""
+                }`
+              : "No payouts refunded after the fact"
+          }
+          attention={health.commerceOrdersRefundClawbackCount > 0}
+        />
+        <MetricCard
+          label="Dispute clawback needed"
+          value={formatUsd(health.commerceOrdersDisputeClawbackUsd)}
+          hint={
+            health.commerceOrdersDisputeClawbackCount > 0
+              ? `${health.commerceOrdersDisputeClawbackCount} Buy now order${health.commerceOrdersDisputeClawbackCount === 1 ? "" : "s"} paid out to a client, then disputed by the shopper's bank — claw back from client${
+                  health.oldestCommerceOrdersDisputeClawbackAgeHours !== null
+                    ? ` · oldest ${formatAbandonedAgeHours(health.oldestCommerceOrdersDisputeClawbackAgeHours)}`
+                    : ""
+                }`
+              : "No payouts disputed after the fact"
+          }
+          attention={health.commerceOrdersDisputeClawbackCount > 0}
+        />
+        <MetricCard
+          label="Missing client receipt"
+          value={String(health.commerceOrdersMissingClientReceiptCount)}
+          hint={
+            health.commerceOrdersMissingClientReceiptCount > 0
+              ? `Buy now sale${health.commerceOrdersMissingClientReceiptCount === 1 ? "" : "s"} never notified to the client${
+                  health.oldestCommerceOrdersMissingClientReceiptAgeHours !== null
+                    ? ` · oldest ${formatAbandonedAgeHours(health.oldestCommerceOrdersMissingClientReceiptAgeHours)}`
+                    : ""
+                }`
+              : "Every Buy now sale has notified the client"
+          }
+          attention={health.commerceOrdersMissingClientReceiptCount > 0}
+        />
+        <MetricCard
+          label="Bundle revenue refunded"
+          value={formatUsd(health.bundleOrdersRefundedUsd)}
+          hint={
+            health.bundleOrdersRefundedCount > 0
+              ? `${health.bundleOrdersRefundedCount} Starter/Growth/Complete order${health.bundleOrdersRefundedCount === 1 ? "" : "s"} refunded by Stripe — already excluded from Recorded revenue${
+                  health.oldestBundleOrdersRefundedAgeHours !== null
+                    ? ` · oldest ${formatAbandonedAgeHours(health.oldestBundleOrdersRefundedAgeHours)}`
+                    : ""
+                } — see the Bundle order refunds & disputes panel`
+              : "No bundle orders refunded"
+          }
+          attention={health.bundleOrdersRefundedCount > 0}
+        />
+        <MetricCard
+          label="Bundle revenue disputed"
+          value={formatUsd(health.bundleOrdersDisputedUsd)}
+          hint={
+            health.bundleOrdersDisputedCount > 0
+              ? `${health.bundleOrdersDisputedCount} Starter/Growth/Complete order${health.bundleOrdersDisputedCount === 1 ? "" : "s"} disputed by Stripe — already excluded from Recorded revenue${
+                  health.oldestBundleOrdersDisputedAgeHours !== null
+                    ? ` · oldest ${formatAbandonedAgeHours(health.oldestBundleOrdersDisputedAgeHours)}`
+                    : ""
+                } — see the Bundle order refunds & disputes panel`
+              : "No bundle orders disputed"
+          }
+          attention={health.bundleOrdersDisputedCount > 0}
+        />
+        <MetricCard
+          label="Bundle buyer email missing"
+          value={String(health.bundleOrdersMissingBuyerEmailCount)}
+          hint={
+            health.bundleOrdersMissingBuyerEmailCount > 0
+              ? `Bundle order${health.bundleOrdersMissingBuyerEmailCount === 1 ? "" : "s"} never sent a receipt and/or DNS go-live email${
+                  health.oldestBundleOrdersMissingBuyerEmailAgeHours !== null
+                    ? ` · oldest ${formatAbandonedAgeHours(health.oldestBundleOrdersMissingBuyerEmailAgeHours)}`
+                    : ""
+                }`
+              : "Every bundle order has notified the buyer"
+          }
+          attention={health.bundleOrdersMissingBuyerEmailCount > 0}
+        />
+        <MetricCard
+          label="Vercel domain provisioning failed"
+          value={String(health.vercelDomainProvisioningFailedCount)}
+          hint={
+            health.vercelDomainProvisioningFailedCount > 0
+              ? `Handoff${health.vercelDomainProvisioningFailedCount === 1 ? "" : "s"} where our own Vercel domain automation hard-failed — needs a manual fix in the Vercel console, will never self-resolve from DNS${
+                  health.oldestVercelDomainProvisioningFailedAgeHours !== null
+                    ? ` · oldest ${formatAbandonedAgeHours(health.oldestVercelDomainProvisioningFailedAgeHours)}`
+                    : ""
+                } — see the Production deploy handoffs panel`
+              : "No Vercel domain provisioning failures"
+          }
+          attention={health.vercelDomainProvisioningFailedCount > 0}
+        />
+        <MetricCard
+          label="Cron automation health"
+          value={String(health.staleOrFailingCronJobsCount)}
+          hint={
+            health.staleOrFailingCronJobsCount > 0
+              ? `${health.staleOrFailingCronJobNames.join(", ")} — hasn't run recently or last run failed, check Vercel Cron`
+              : "All Vercel Cron jobs running (or CRON_SECRET not set yet)"
+          }
+          attention={health.staleOrFailingCronJobsCount > 0}
+        />
+        <MetricCard
+          label="Bounces/complaints (7d)"
+          value={String(health.recentBounceOrComplaintSuppressionCount)}
+          hint={
+            health.recentBounceOrComplaintSuppressionCount > 0
+              ? `Hard bounce${health.recentBounceOrComplaintSuppressionCount === 1 ? "" : "s"}/spam complaints suppressed in the last 7 days — sender-reputation risk${
+                  health.newestBounceOrComplaintSuppressionAgeHours !== null
+                    ? ` · most recent ${formatAbandonedAgeHours(health.newestBounceOrComplaintSuppressionAgeHours)} ago`
+                    : ""
+                }`
+              : "No bounces or complaints in the last 7 days"
+          }
+          attention={health.recentBounceOrComplaintSuppressionCount > 0}
         />
       </div>
 
@@ -240,11 +532,28 @@ export function PipelineHealthPanel({ health }: PipelineHealthPanelProps) {
           {health.marketingPacksDueCount} Growth/Complete lead
           {health.marketingPacksDueCount === 1 ? "" : "s"} still need a{" "}
           {health.marketingPacksDueMonth} marketing pack — generate from the Marketing packs
-          panel on{" "}
+          due panel on{" "}
           <Link href="/dashboard/leads" className="underline underline-offset-2">
             /dashboard/leads
           </Link>{" "}
           (sold monthly promise).
+        </p>
+      ) : null}
+
+      {health.recurringEntitlementPausedCount > 0 ? (
+        <p className="mt-3 text-xs text-rose-900">
+          {health.recurringEntitlementPausedCount} Growth/Complete/Commerce subscriber
+          {health.recurringEntitlementPausedCount === 1 ? "" : "s"} have paused or canceled
+          recurring entitlement
+          {health.oldestRecurringEntitlementPausedAgeHours !== null
+            ? ` (oldest ${formatAbandonedAgeHours(health.oldestRecurringEntitlementPausedAgeHours)})`
+            : ""}
+          — they drop out of packs/catalog panels; open{" "}
+          <strong>Manage billing</strong> on{" "}
+          <Link href="/dashboard/leads" className="underline underline-offset-2">
+            /dashboard/leads
+          </Link>{" "}
+          so they can update payment or resubscribe (MRR recovery).
         </p>
       ) : null}
 
@@ -264,7 +573,8 @@ export function PipelineHealthPanel({ health }: PipelineHealthPanelProps) {
         <p className="mt-3 text-xs text-amber-900">
           {health.commerceCatalogsUnsyncedCount} Commerce catalog
           {health.commerceCatalogsUnsyncedCount === 1 ? "" : "s"} still need{" "}
-          <strong>Sync to Stripe</strong> so Buy now works — open the catalog editor on{" "}
+          <strong>Sync to Stripe</strong> so Buy now works — see the Commerce catalogs
+          unsynced panel on{" "}
           <Link href="/dashboard/leads" className="underline underline-offset-2">
             /dashboard/leads
           </Link>
@@ -276,7 +586,7 @@ export function PipelineHealthPanel({ health }: PipelineHealthPanelProps) {
         <p className="mt-3 text-xs text-violet-900">
           {health.clientVoicePacksDueCount} Complete lead
           {health.clientVoicePacksDueCount === 1 ? "" : "s"} still need a voice FAQ pack —
-          generate from the Generate voice controls on{" "}
+          generate from the Voice packs due panel on{" "}
           <Link href="/dashboard/leads" className="underline underline-offset-2">
             /dashboard/leads
           </Link>{" "}
@@ -288,6 +598,13 @@ export function PipelineHealthPanel({ health }: PipelineHealthPanelProps) {
         <h3 className="text-sm font-semibold text-zinc-800">Stage funnel</h3>
         <p className="mt-0.5 text-xs text-zinc-500">
           {health.leadCount} lead{health.leadCount === 1 ? "" : "s"} total
+          {health.leadWinRatePercent !== null ? (
+            <>
+              {" "}
+              · Win rate {health.leadWinRatePercent}% ({health.leadWinRateDecidedCount} decided
+              paid/live vs. closed)
+            </>
+          ) : null}
         </p>
         <ul className="mt-3 space-y-2">
           {health.stageFunnel.map((row) => (
@@ -297,8 +614,7 @@ export function PipelineHealthPanel({ health }: PipelineHealthPanelProps) {
               </span>
               <div className="h-2 flex-1 overflow-hidden rounded-full bg-zinc-100">
                 <div
-                  className="h-full rounded-full bg-zinc-800 transition-[width]"
-                  style={{ width: `${Math.round((row.count / maxStage) * 100)}%` }}
+                  className={`h-full rounded-full bg-zinc-800 transition-[width] ${stageFunnelBarWidthClass(row.count, maxStage)}`}
                 />
               </div>
               <span className="w-8 text-right text-xs font-semibold tabular-nums text-zinc-900">
@@ -320,6 +636,30 @@ export function PipelineHealthPanel({ health }: PipelineHealthPanelProps) {
         ) : null}
       </div>
 
+      {health.acquisitionSourceBreakdown.length > 0 ? (
+        <div className="mt-6 border-t border-zinc-100 pt-4">
+          <h3 className="text-sm font-semibold text-zinc-800">Revenue by acquisition source</h3>
+          <p className="mt-0.5 text-xs text-zinc-500">
+            Which marketing surface drove each paid bundle order — compare the homepage against
+            the /websites-for-* landing pages.
+          </p>
+          <ul className="mt-3 space-y-1.5">
+            {health.acquisitionSourceBreakdown.map((row) => (
+              <li
+                key={row.source}
+                className="flex items-center justify-between gap-3 text-sm text-zinc-700"
+              >
+                <span>{row.label}</span>
+                <span className="tabular-nums text-zinc-900">
+                  {formatUsd(row.revenueUsd)} · {row.orderCount} order
+                  {row.orderCount === 1 ? "" : "s"}
+                </span>
+              </li>
+            ))}
+          </ul>
+        </div>
+      ) : null}
+
       {health.leadsMissingEmail.length > 0 ? (
         <div className="mt-6 border-t border-zinc-100 pt-4">
           <h3 className="text-sm font-semibold text-amber-900">
@@ -333,11 +673,11 @@ export function PipelineHealthPanel({ health }: PipelineHealthPanelProps) {
               >
                 <span>
                   <span className="font-medium">{lead.businessName}</span>{" "}
-                  <span className="text-zinc-400">({lead.slug})</span> ·{" "}
+                  <span className="text-zinc-500">({lead.slug})</span> ·{" "}
                   <code>{lead.stage}</code>
                 </span>
                 <Link
-                  href={`/preview/${lead.slug}`}
+                  href={leadPreviewPath(lead.slug)}
                   className="underline underline-offset-2"
                   target="_blank"
                 >

@@ -5,11 +5,31 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
  * operator Email voice pack path for sold Complete phone-script handoff.
  *
  * deliver-pack.test.ts covers eligibility + HTML formatting; resend/voice
- * helpers cover transport. This suite locks the dashboard action glue:
- * requireOperatorAuth, eligibility (paid/live Complete + email), existing
- * pack gate, suppression / send failure, preview URL from
- * NEXT_PUBLIC_APP_URL, and revalidate on success.
+ * helpers cover transport (including skipSuppression on sold pack delivery).
+ * This suite locks the dashboard action glue: requireOperatorAuth, eligibility
+ * (paid/live Complete + email), existing pack gate, send failure, preview URL
+ * from NEXT_PUBLIC_APP_URL, and revalidate on success. A suppressed helper
+ * return is defense-in-depth only — sendClientVoicePackToClientEmail now
+ * passes skipSuppression: true (marketing-voice-pack-skip-suppression).
+ *
+ * The sent-marker reservation now runs BEFORE the send, and is released on a
+ * failed send (marketing-voice-pack-client-send-race-guard-ordering-fix),
+ * mirroring sendMarketingPackToClientAction's own fix.
  */
+
+class MockConvexPrimaryWriteError extends Error {
+  constructor(message = "Convex primary write failed") {
+    super(message);
+    this.name = "ConvexPrimaryWriteError";
+  }
+}
+
+// Mocked (not imported from the real module) so the class reference stays
+// identical across this suite's per-test vi.resetModules() calls — mirrors
+// send-starter-upsell-action.test.ts / send-marketing-pack-to-client-action.test.ts.
+vi.mock("@/lib/payments/convex-primary", () => ({
+  ConvexPrimaryWriteError: MockConvexPrimaryWriteError,
+}));
 
 const requireOperatorAuth = vi.fn();
 vi.mock("@/lib/auth/operator", () => ({
@@ -21,13 +41,24 @@ vi.mock("next/cache", () => ({
   revalidatePath: (...args: unknown[]) => revalidatePath(...args),
 }));
 
+const headersMock = vi.fn();
 vi.mock("next/headers", () => ({
-  headers: vi.fn(),
+  headers: (...args: unknown[]) => headersMock(...args),
 }));
 
+function headerStore(entries: Record<string, string | null> = {}) {
+  return {
+    get(name: string) {
+      return entries[name] ?? null;
+    },
+  };
+}
+
 const getLeadBySlug = vi.fn();
-const listOrders = vi.fn();
+const listOrdersByLeadSlug = vi.fn();
 const getClientVoicePackByLeadSlug = vi.fn();
+const markClientVoicePackSentToClient = vi.fn();
+const clearClientVoicePackSentToClient = vi.fn();
 
 vi.mock("@/lib/db", () => ({
   listOpenCheckoutSessions: vi.fn(),
@@ -40,7 +71,8 @@ vi.mock("@/lib/db", () => ({
   getClientInquiryById: vi.fn(),
   recordClientInquiryReply: vi.fn(),
   getLeads: vi.fn(),
-  listOrders: (...args: unknown[]) => listOrders(...args),
+  listOrdersByLeadSlug: (...args: unknown[]) => listOrdersByLeadSlug(...args),
+  listOrders: vi.fn(),
   recordLeadOutreach: vi.fn(),
   listUnrepliedInquiries: vi.fn(),
   updateLeadNotes: vi.fn(),
@@ -58,6 +90,10 @@ vi.mock("@/lib/db", () => ({
     getClientVoicePackByLeadSlug(...args),
   listClientVoicePacks: vi.fn(),
   listUnpaidCommerceOrders: vi.fn(),
+  markClientVoicePackSentToClient: (...args: unknown[]) =>
+    markClientVoicePackSentToClient(...args),
+  clearClientVoicePackSentToClient: (...args: unknown[]) =>
+    clearClientVoicePackSentToClient(...args),
 }));
 
 const sendClientVoicePackToClientEmail = vi.fn();
@@ -98,7 +134,6 @@ const completeOrder = {
   tier: "complete",
   commerceAddon: false,
   amountPaid: 699,
-  status: "paid",
   createdAt: "2026-07-13T10:00:00.000Z",
 };
 
@@ -110,17 +145,24 @@ const packVariants = [
   },
 ];
 
+const captureError = vi.fn();
+vi.mock("@/lib/observability/error-tracking", () => ({
+  captureError: (...args: unknown[]) => captureError(...args),
+}));
+
 describe("sendClientVoicePackToClientAction", () => {
   const originalEnv = { ...process.env };
 
   beforeEach(() => {
+    captureError.mockReset().mockResolvedValue(undefined);
     vi.resetModules();
     process.env = { ...originalEnv };
     delete process.env.NEXT_PUBLIC_APP_URL;
     requireOperatorAuth.mockReset().mockResolvedValue({ ok: true });
+    headersMock.mockReset().mockResolvedValue(headerStore());
     revalidatePath.mockReset();
     getLeadBySlug.mockReset().mockResolvedValue(eligibleLead);
-    listOrders.mockReset().mockResolvedValue([completeOrder]);
+    listOrdersByLeadSlug.mockReset().mockResolvedValue([completeOrder]);
     getClientVoicePackByLeadSlug.mockReset().mockResolvedValue({
       id: "voice_pack_1",
       leadSlug: "demo-cafe",
@@ -132,6 +174,8 @@ describe("sendClientVoicePackToClientAction", () => {
       success: true,
       id: "email_1",
     });
+    markClientVoicePackSentToClient.mockReset().mockResolvedValue(true);
+    clearClientVoicePackSentToClient.mockReset().mockResolvedValue(true);
   });
 
   afterEach(() => {
@@ -151,6 +195,22 @@ describe("sendClientVoicePackToClientAction", () => {
     });
     expect(getLeadBySlug).not.toHaveBeenCalled();
     expect(sendClientVoicePackToClientEmail).not.toHaveBeenCalled();
+  });
+
+  it("rate-limits repeated pack sends from the same IP (auth alone is not a throttle)", async () => {
+    const { sendClientVoicePackToClientAction } = await import("./actions");
+    // DEFAULT_RATE_LIMIT is 20 requests/60s per key — exhaust the window.
+    for (let i = 0; i < 20; i++) {
+      const res = await sendClientVoicePackToClientAction("demo-cafe");
+      expect(res.success).toBe(true);
+    }
+    getLeadBySlug.mockClear();
+    const res = await sendClientVoicePackToClientAction("demo-cafe");
+    expect(res).toEqual({
+      success: false,
+      error: "Too many requests — please try again shortly.",
+    });
+    expect(getLeadBySlug).not.toHaveBeenCalled();
   });
 
   it("rejects an empty slug", async () => {
@@ -175,7 +235,7 @@ describe("sendClientVoicePackToClientAction", () => {
   });
 
   it("rejects Growth-only / unpaid leads (eligibility)", async () => {
-    listOrders.mockResolvedValue([
+    listOrdersByLeadSlug.mockResolvedValue([
       { ...completeOrder, tier: "growth", amountPaid: 599 },
     ]);
     const { sendClientVoicePackToClientAction } = await import("./actions");
@@ -231,15 +291,26 @@ describe("sendClientVoicePackToClientAction", () => {
     expect(sendClientVoicePackToClientEmail).not.toHaveBeenCalled();
   });
 
-  it("sends the pack with preview URL and revalidates on success", async () => {
+  it("reserves the sent-marker before sending, and revalidates on success", async () => {
     process.env.NEXT_PUBLIC_APP_URL = "https://app.example.com";
+    const callOrder: string[] = [];
+    markClientVoicePackSentToClient.mockImplementation(async () => {
+      callOrder.push("mark");
+      return true;
+    });
+    sendClientVoicePackToClientEmail.mockImplementation(async () => {
+      callOrder.push("send");
+      return { success: true, id: "email_1" };
+    });
     const { sendClientVoicePackToClientAction } = await import("./actions");
     const res = await sendClientVoicePackToClientAction("demo-cafe");
 
     expect(res).toEqual({
       success: true,
       mock: false,
+      sentToClientAt: expect.any(String),
     });
+    expect(callOrder).toEqual(["mark", "send"]);
     expect(sendClientVoicePackToClientEmail).toHaveBeenCalledOnce();
     expect(sendClientVoicePackToClientEmail).toHaveBeenCalledWith({
       to: "hello@demo-cafe.example",
@@ -249,6 +320,116 @@ describe("sendClientVoicePackToClientAction", () => {
       previewUrl: "https://app.example.com/preview/demo-cafe",
     });
     expect(revalidatePath).toHaveBeenCalledWith("/dashboard/leads");
+    expect(markClientVoicePackSentToClient).toHaveBeenCalledWith(
+      "demo-cafe",
+      "2026-07-13T12:00:00.000Z",
+      expect.any(String),
+      expect.objectContaining({ requireConvex: true }),
+    );
+    expect(clearClientVoicePackSentToClient).not.toHaveBeenCalled();
+  });
+
+  it("skips the send entirely and reports a duplicate-risk error when a concurrent request already reserved the marker (marketing-voice-pack-client-send-race-guard-ordering-fix)", async () => {
+    // markClientVoicePackSentToClient's atomic CAS write resolves false (not
+    // throw) when a second tab or a double-click before the button's
+    // isPending-disabled state applied already reserved this exact marker —
+    // since the reservation now runs BEFORE the send, this must skip the
+    // send entirely, mirroring sendMarketingPackToClientAction's twin fix.
+    // The re-fetch used to distinguish this from a version mismatch sees the
+    // SAME generatedAt (no regenerate happened), so the duplicate-send
+    // message applies.
+    markClientVoicePackSentToClient.mockResolvedValue(false);
+    const { sendClientVoicePackToClientAction } = await import("./actions");
+    const res = await sendClientVoicePackToClientAction("demo-cafe");
+    expect(res).toEqual({
+      success: false,
+      error:
+        "Client voice pack was already marked sent by a concurrent request — skipped duplicate send.",
+    });
+    expect(sendClientVoicePackToClientEmail).not.toHaveBeenCalled();
+    expect(revalidatePath).not.toHaveBeenCalled();
+  });
+
+  it("skips the send and reports a regenerated-pack error (not the duplicate-send message) when the pack was regenerated while the send was in flight (marketing-voice-pack-send-stale-content-race-guard)", async () => {
+    // Simulates a concurrent Regenerate landing between this action's read of
+    // the pack and its reservation call — see the matching marketing-pack
+    // test for the full reasoning; this test only proves the action surfaces
+    // the right operator-facing message.
+    markClientVoicePackSentToClient.mockResolvedValue(false);
+    getClientVoicePackByLeadSlug.mockResolvedValueOnce({
+      id: "voice_pack_1",
+      leadSlug: "demo-cafe",
+      generator: "stub",
+      variants: packVariants,
+      generatedAt: "2026-07-13T12:00:00.000Z",
+    });
+    getClientVoicePackByLeadSlug.mockResolvedValueOnce({
+      id: "voice_pack_1_v2",
+      leadSlug: "demo-cafe",
+      generator: "stub",
+      variants: [{ scriptType: "inbound_greeting" as const, title: "Greeting", body: "Regenerated" }],
+      generatedAt: "2026-07-14T00:00:00.000Z",
+    });
+    const { sendClientVoicePackToClientAction } = await import("./actions");
+    const res = await sendClientVoicePackToClientAction("demo-cafe");
+    expect(res).toEqual({
+      success: false,
+      error:
+        "Client voice pack was regenerated while this send was in flight — refresh and resend to deliver the current version.",
+    });
+    expect(sendClientVoicePackToClientEmail).not.toHaveBeenCalled();
+    expect(revalidatePath).not.toHaveBeenCalled();
+  });
+
+  it("skips the send and reports a not-sent error when the reservation write fails closed on Convex (ConvexPrimaryWriteError)", async () => {
+    markClientVoicePackSentToClient.mockRejectedValue(new MockConvexPrimaryWriteError());
+    const { sendClientVoicePackToClientAction } = await import("./actions");
+    const res = await sendClientVoicePackToClientAction("demo-cafe");
+    expect(res).toEqual({
+      success: false,
+      error:
+        "Could not reserve the client voice pack sent-to-client marker in the shared store — email was not sent. Retry in a moment.",
+    });
+    expect(sendClientVoicePackToClientEmail).not.toHaveBeenCalled();
+    expect(revalidatePath).not.toHaveBeenCalled();
+  });
+
+  it("re-throws a non-ConvexPrimaryWriteError from the reservation write (unexpected bug, not a fail-closed guard)", async () => {
+    markClientVoicePackSentToClient.mockRejectedValue(new Error("unexpected bug"));
+    const { sendClientVoicePackToClientAction } = await import("./actions");
+    const res = await sendClientVoicePackToClientAction("demo-cafe");
+    expect(res).toEqual({ success: false, error: "unexpected bug" });
+    expect(sendClientVoicePackToClientEmail).not.toHaveBeenCalled();
+    expect(captureError).toHaveBeenCalledWith(expect.any(Error), {
+      component: "dashboard-leads-actions",
+      failureKind: "sendClientVoicePackToClientAction",
+    });
+  });
+
+  it("releases the reservation and reports the send failure when the email fails after a successful reservation", async () => {
+    sendClientVoicePackToClientEmail.mockResolvedValue({
+      success: false,
+      error: "Resend 429",
+    });
+    const { sendClientVoicePackToClientAction } = await import("./actions");
+    const res = await sendClientVoicePackToClientAction("demo-cafe");
+    expect(res).toEqual({ success: false, error: "Resend 429" });
+    expect(clearClientVoicePackSentToClient).toHaveBeenCalledWith(
+      "demo-cafe",
+      expect.any(String),
+    );
+    expect(revalidatePath).not.toHaveBeenCalled();
+  });
+
+  it("still reports the original send failure when the release itself also fails (logged, not thrown)", async () => {
+    sendClientVoicePackToClientEmail.mockResolvedValue({
+      success: false,
+      error: "Resend 429",
+    });
+    clearClientVoicePackSentToClient.mockRejectedValue(new Error("convex outage"));
+    const { sendClientVoicePackToClientAction } = await import("./actions");
+    const res = await sendClientVoicePackToClientAction("demo-cafe");
+    expect(res).toEqual({ success: false, error: "Resend 429" });
   });
 
   it("defaults preview base URL to localhost when NEXT_PUBLIC_APP_URL is unset", async () => {
@@ -262,7 +443,9 @@ describe("sendClientVoicePackToClientAction", () => {
     );
   });
 
-  it("surfaces suppression without revalidate", async () => {
+  it("surfaces a suppressed helper return without revalidate (defense-in-depth)", async () => {
+    // Pack delivery passes skipSuppression: true, so production should not hit
+    // this path — keep the action mapping if a future helper regresses.
     sendClientVoicePackToClientEmail.mockResolvedValue({
       success: false,
       reason: "suppressed",
@@ -300,14 +483,29 @@ describe("sendClientVoicePackToClientAction", () => {
     expect(res).toEqual({
       success: true,
       mock: true,
+      sentToClientAt: expect.any(String),
     });
     expect(revalidatePath).toHaveBeenCalledWith("/dashboard/leads");
   });
 
-  it("filters orders to the requested lead slug before eligibility", async () => {
-    listOrders.mockResolvedValue([
-      { ...completeOrder, leadSlug: "other-cafe", tier: "complete" },
+  it("loads orders via listOrdersByLeadSlug (growth-only does not pass Complete gate)", async () => {
+    listOrdersByLeadSlug.mockResolvedValue([
       { ...completeOrder, leadSlug: "demo-cafe", tier: "growth" },
+    ]);
+    const { sendClientVoicePackToClientAction } = await import("./actions");
+    const res = await sendClientVoicePackToClientAction("demo-cafe");
+    expect(listOrdersByLeadSlug).toHaveBeenCalledWith("demo-cafe");
+    expect(res).toEqual({
+      success: false,
+      error:
+        "Email voice pack requires a paid/live Complete lead with an email on file",
+    });
+    expect(sendClientVoicePackToClientEmail).not.toHaveBeenCalled();
+  });
+
+  it("rejects Complete orders after recurringCanceledAt (paused/canceled MRR)", async () => {
+    listOrdersByLeadSlug.mockResolvedValue([
+      { ...completeOrder, recurringCanceledAt: 1_720_000_000_000 },
     ]);
     const { sendClientVoicePackToClientAction } = await import("./actions");
     const res = await sendClientVoicePackToClientAction("demo-cafe");
@@ -316,6 +514,7 @@ describe("sendClientVoicePackToClientAction", () => {
       error:
         "Email voice pack requires a paid/live Complete lead with an email on file",
     });
+    expect(getClientVoicePackByLeadSlug).not.toHaveBeenCalled();
     expect(sendClientVoicePackToClientEmail).not.toHaveBeenCalled();
   });
 });

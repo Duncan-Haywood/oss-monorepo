@@ -20,11 +20,21 @@ vi.mock("next/cache", () => ({
   revalidatePath: (...args: unknown[]) => revalidatePath(...args),
 }));
 
+const headersMock = vi.fn();
 vi.mock("next/headers", () => ({
-  headers: vi.fn(),
+  headers: (...args: unknown[]) => headersMock(...args),
 }));
 
+function headerStore(entries: Record<string, string | null> = {}) {
+  return {
+    get(name: string) {
+      return entries[name] ?? null;
+    },
+  };
+}
+
 const getLeadBySlug = vi.fn();
+const listOrdersByLeadSlug = vi.fn();
 const getCommerceCatalog = vi.fn();
 const upsertCommerceCatalog = vi.fn();
 
@@ -40,6 +50,7 @@ vi.mock("@/lib/db", () => ({
   recordClientInquiryReply: vi.fn(),
   getLeads: vi.fn(),
   listOrders: vi.fn(),
+  listOrdersByLeadSlug: (...args: unknown[]) => listOrdersByLeadSlug(...args),
   recordLeadOutreach: vi.fn(),
   listUnrepliedInquiries: vi.fn(),
   updateLeadNotes: vi.fn(),
@@ -110,6 +121,18 @@ const eligibleLead = {
   dataSource: "manual_entry" as const,
 };
 
+const commerceOrder = {
+  id: "ord_commerce_1",
+  leadSlug: "demo-cafe",
+  stripeSessionId: "cs_test_commerce",
+  tier: "growth" as const,
+  amountPaid: 899,
+  currency: "usd",
+  customerEmail: "owner@demo-cafe.example",
+  commerceAddon: true,
+  createdAt: "2026-07-13T11:00:00.000Z",
+};
+
 const catalogItems = [
   {
     id: "sku_latte",
@@ -140,17 +163,25 @@ const updatedCatalog = {
   updatedAt: "2026-07-13T12:05:00.000Z",
 };
 
+const captureError = vi.fn();
+vi.mock("@/lib/observability/error-tracking", () => ({
+  captureError: (...args: unknown[]) => captureError(...args),
+}));
+
 describe("syncCommerceCatalogToStripeAction", () => {
   const originalEnv = { ...process.env };
 
   beforeEach(() => {
+    captureError.mockReset().mockResolvedValue(undefined);
     vi.resetModules();
     process.env = { ...originalEnv };
     process.env.STRIPE_SECRET_KEY = "sk_test_commerce_sync";
     requireOperatorAuth.mockReset().mockResolvedValue({ ok: true });
     revalidatePath.mockReset();
     stripeCtor.mockReset();
+    headersMock.mockReset().mockResolvedValue(headerStore());
     getLeadBySlug.mockReset().mockResolvedValue(eligibleLead);
+    listOrdersByLeadSlug.mockReset().mockResolvedValue([commerceOrder]);
     getCommerceCatalog.mockReset().mockResolvedValue(savedCatalog);
     upsertCommerceCatalog.mockReset().mockResolvedValue(updatedCatalog);
     syncCommerceCatalogToStripe.mockReset().mockResolvedValue(syncedItems);
@@ -172,6 +203,24 @@ describe("syncCommerceCatalogToStripeAction", () => {
       error: "Unauthorized — sign in at /dashboard/login",
     });
     expect(getLeadBySlug).not.toHaveBeenCalled();
+    expect(syncCommerceCatalogToStripe).not.toHaveBeenCalled();
+    expect(stripeCtor).not.toHaveBeenCalled();
+  });
+
+  it("rate-limits repeated syncs from the same IP (auth alone is not a throttle)", async () => {
+    const { syncCommerceCatalogToStripeAction } = await import("./actions");
+    // DEFAULT_RATE_LIMIT is 20 requests/60s per key — exhaust the window.
+    for (let i = 0; i < 20; i++) {
+      const res = await syncCommerceCatalogToStripeAction("demo-cafe");
+      expect(res.success).toBe(true);
+    }
+    syncCommerceCatalogToStripe.mockClear();
+    stripeCtor.mockClear();
+    const res = await syncCommerceCatalogToStripeAction("demo-cafe");
+    expect(res).toEqual({
+      success: false,
+      error: "Too many requests — please try again shortly.",
+    });
     expect(syncCommerceCatalogToStripe).not.toHaveBeenCalled();
     expect(stripeCtor).not.toHaveBeenCalled();
   });
@@ -205,6 +254,36 @@ describe("syncCommerceCatalogToStripeAction", () => {
     expect(res).toEqual({
       success: false,
       error: "Lead not found",
+    });
+    expect(syncCommerceCatalogToStripe).not.toHaveBeenCalled();
+  });
+
+  it("rejects when commerceAddon recurring entitlement is paused", async () => {
+    listOrdersByLeadSlug.mockResolvedValue([
+      { ...commerceOrder, recurringCanceledAt: 1_720_000_000_000 },
+    ]);
+    const { syncCommerceCatalogToStripeAction } = await import("./actions");
+    const res = await syncCommerceCatalogToStripeAction("demo-cafe");
+    expect(res).toEqual({
+      success: false,
+      error:
+        "Commerce catalogs require a paid/live lead with a Commerce add-on order",
+    });
+    expect(listOrdersByLeadSlug).toHaveBeenCalledWith("demo-cafe");
+    expect(getCommerceCatalog).not.toHaveBeenCalled();
+    expect(syncCommerceCatalogToStripe).not.toHaveBeenCalled();
+  });
+
+  it("rejects paid leads without a Commerce add-on order", async () => {
+    listOrdersByLeadSlug.mockResolvedValue([
+      { ...commerceOrder, commerceAddon: false, amountPaid: 599 },
+    ]);
+    const { syncCommerceCatalogToStripeAction } = await import("./actions");
+    const res = await syncCommerceCatalogToStripeAction("demo-cafe");
+    expect(res).toEqual({
+      success: false,
+      error:
+        "Commerce catalogs require a paid/live lead with a Commerce add-on order",
     });
     expect(syncCommerceCatalogToStripe).not.toHaveBeenCalled();
   });
@@ -288,6 +367,10 @@ describe("syncCommerceCatalogToStripeAction", () => {
       error: "disk full",
     });
     expect(revalidatePath).not.toHaveBeenCalled();
+    expect(captureError).toHaveBeenCalledWith(expect.any(Error), {
+      component: "dashboard-leads-actions",
+      failureKind: "syncCommerceCatalogToStripeAction",
+    });
   });
 
   it("surfaces Stripe sync throws as Unknown Stripe error for non-Error", async () => {
@@ -307,5 +390,50 @@ describe("syncCommerceCatalogToStripeAction", () => {
     await syncCommerceCatalogToStripeAction("demo-cafe");
     expect(getLeadBySlug).toHaveBeenCalledWith("demo-cafe");
     expect(getCommerceCatalog).toHaveBeenCalledWith("demo-cafe");
+  });
+
+  it("re-reads the catalog before the final write so a concurrent saveCommerceCatalogAction survives the sync", async () => {
+    // Simulate: the catalog read at the top of the action (used to build the
+    // Stripe sync request) is stale by the time the sequential per-SKU sync
+    // loop finishes — an operator (or a second tab) saved a newer catalog
+    // (edited price on sku_latte, added sku_muffin) while the sync was in
+    // flight. Writing `synced` (derived from the stale first read) verbatim
+    // would silently discard that concurrent edit.
+    const concurrentlyEditedCatalog = {
+      ...savedCatalog,
+      items: [
+        { id: "sku_latte", name: "Latte", description: "12oz", priceCents: 500 }, // price changed mid-sync
+        { id: "sku_muffin", name: "Muffin", description: "Blueberry", priceCents: 350 }, // added mid-sync
+      ],
+    };
+    getCommerceCatalog
+      .mockReset()
+      .mockResolvedValueOnce(savedCatalog) // initial read, before the Stripe loop
+      .mockResolvedValueOnce(concurrentlyEditedCatalog); // re-read, right before the write
+
+    const { syncCommerceCatalogToStripeAction } = await import("./actions");
+    const res = await syncCommerceCatalogToStripeAction("demo-cafe");
+
+    expect(res.success).toBe(true);
+    const written = upsertCommerceCatalog.mock.calls[0]![0].items;
+    // sku_latte: Stripe product id carries over, but the just-created price
+    // was for the OLD ($4.50) amount — it must NOT be attached to the now
+    // $5.00 item (a stale stripePriceId would charge the wrong amount).
+    expect(written.find((i: { id: string }) => i.id === "sku_latte")).toEqual({
+      id: "sku_latte",
+      name: "Latte",
+      description: "12oz",
+      priceCents: 500,
+      stripeProductId: "prod_latte",
+    });
+    // sku_muffin: added after the sync loop started — not yet synced, so no
+    // Stripe ids, but the concurrent edit itself is preserved (not dropped).
+    expect(written.find((i: { id: string }) => i.id === "sku_muffin")).toEqual({
+      id: "sku_muffin",
+      name: "Muffin",
+      description: "Blueberry",
+      priceCents: 350,
+    });
+    expect(written).toHaveLength(2);
   });
 });

@@ -1,5 +1,6 @@
 import { mutation, query } from "./_generated/server";
 import { v } from "convex/values";
+import { requireApiSecret } from "./lib/apiSecret";
 
 const skuValidator = v.object({
   id: v.string(),
@@ -21,9 +22,11 @@ export const upsert = mutation({
     leadSlug: v.string(),
     items: v.array(skuValidator),
     updatedAt: v.string(),
+    apiSecret: v.string(),
   },
   returns: catalogReturn,
   handler: async (ctx, args) => {
+    requireApiSecret(args.apiSecret);
     const existing = await ctx.db
       .query("commerceCatalogs")
       .withIndex("by_leadSlug", (q) => q.eq("leadSlug", args.leadSlug))
@@ -51,9 +54,10 @@ export const upsert = mutation({
 });
 
 export const getByLeadSlug = query({
-  args: { leadSlug: v.string() },
+  args: { leadSlug: v.string(), apiSecret: v.string() },
   returns: v.union(catalogReturn, v.null()),
   handler: async (ctx, args) => {
+    requireApiSecret(args.apiSecret);
     const row = await ctx.db
       .query("commerceCatalogs")
       .withIndex("by_leadSlug", (q) => q.eq("leadSlug", args.leadSlug))
@@ -75,9 +79,10 @@ export const getByLeadSlug = query({
  * Optional `limit` is ignored (kept for call-site compatibility).
  */
 export const list = query({
-  args: { limit: v.optional(v.number()) },
+  args: { limit: v.optional(v.number()), apiSecret: v.string() },
   returns: v.array(catalogReturn),
   handler: async (ctx, args) => {
+    requireApiSecret(args.apiSecret);
     void args.limit;
     const rows = await ctx.db.query("commerceCatalogs").collect();
     // Newest-first to match SQLite ORDER BY updatedAt DESC.

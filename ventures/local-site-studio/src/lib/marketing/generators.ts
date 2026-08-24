@@ -1,3 +1,11 @@
+import { captureError } from "@/lib/observability/error-tracking";
+import {
+  MAX_PACK_VARIANT_CTA_LENGTH,
+  MAX_PACK_VARIANT_TITLE_LENGTH,
+  softCapOptionalPackField,
+  softCapPackBody,
+  softCapPackHashtags,
+} from "@/lib/packs/variant-fields";
 import type {
   GenerateMarketingRequest,
   GenerateMarketingResponse,
@@ -8,6 +16,11 @@ import type {
 
 const ANTHROPIC_API_URL = "https://api.anthropic.com/v1/messages";
 const ANTHROPIC_MODEL = "claude-haiku-4-5-20251001";
+// No application-layer timeout meant a hung/stalled Anthropic connection tied up the
+// request for however long the hosting platform's own function-duration ceiling allows,
+// instead of failing fast into the existing stub fallback like every other failure mode
+// (HTTP error, malformed JSON) already does. See anthropic-generator-fetch-timeout.
+const ANTHROPIC_REQUEST_TIMEOUT_MS = 30_000;
 
 /**
  * Placeholder marketing generator — returns structured stubs until LLM keys are set.
@@ -44,24 +57,37 @@ function stubVariant(
   const phoneBit = business.phone ? `Reach us at ${business.phone}.` : "";
   const angle =
     index % 3 === 0 ? "this week" : index % 3 === 1 ? "for locals" : "with a special offer";
+  // campaignContext (a named sale/event, e.g. "Labor Day weekend") only
+  // shapes seasonal_promo/ad_copy — every other content type ignores it.
+  const isCampaignContentType = contentType === "seasonal_promo" || contentType === "ad_copy";
+  const campaignBit =
+    isCampaignContentType && business.campaignContext ? ` ${business.campaignContext}.` : "";
 
   const body =
-    `[Stub ${index + 1}] ${businessName} in ${location} — ${service} ${angle}. ${hoursBit} ${phoneBit}`.trim();
+    `[Stub ${index + 1}] ${businessName} in ${location} — ${service} ${angle}.${campaignBit} ${hoursBit} ${phoneBit}`.trim();
 
+  // Soft-cap at stub emit too — parseVariantsJson only covers the Anthropic path;
+  // default/fallback packs still upsert + skipSuppression email (PR #312 twin).
   return {
     contentType,
-    title:
+    title: softCapOptionalPackField(
       contentType === "local_seo_meta" || contentType === "email_campaign"
         ? `${businessName} | ${service} in ${business.city}`
         : contentType === "gbp_post"
           ? `${service} ${angle} — ${business.city}`
           : undefined,
-    body,
-    cta: business.phone ? `Call ${business.phone}` : "Visit us today",
-    hashtags:
+      MAX_PACK_VARIANT_TITLE_LENGTH,
+    ),
+    body: softCapPackBody(body),
+    cta: softCapOptionalPackField(
+      business.phone ? `Call ${business.phone}` : "Visit us today",
+      MAX_PACK_VARIANT_CTA_LENGTH,
+    ),
+    hashtags: softCapPackHashtags(
       contentType === "instagram_caption" || contentType === "facebook_caption"
         ? [`#${business.city.replace(/\s+/g, "")}`, `#${business.category}`, "#LocalBusiness"]
         : undefined,
+    ),
   };
 }
 
@@ -95,6 +121,15 @@ export class AnthropicMarketingGenerator implements MarketingGenerator {
       };
     } catch (error) {
       console.error("Anthropic marketing generation failed; using stub fallback", error);
+      // Sold-capability degradation: a Growth/Complete customer paid for
+      // AI-generated marketing content and silently receives generic stub
+      // copy instead — the only prior signal was this console.error, with
+      // zero operator-facing visibility that the fallback fired at all.
+      await captureError(error, {
+        component: "marketing-generators",
+        failureKind: "anthropic_marketing_generation",
+        leadId: request.leadId,
+      });
       return this.fallback.generate(request);
     }
   }
@@ -111,6 +146,7 @@ export class AnthropicMarketingGenerator implements MarketingGenerator {
       "You write local small-business marketing copy.",
       "Every piece must include the business name, city, concrete services, accurate hours when provided, and a relevant CTA.",
       "Forbidden: generic AI slop, invented awards, wrong city, hashtag spam, fake statistics.",
+      "When campaignContext is provided, center every seasonal_promo and ad_copy piece specifically around it (a named sale, holiday, or event) — every other content type must ignore it.",
       "Return ONLY valid JSON: an array of objects with keys contentType, title (optional string), body (string), cta (optional string), hashtags (optional string array).",
       "Array length and contentType values must match the requested contentTypes exactly, in order.",
     ].join(" ");
@@ -125,6 +161,7 @@ export class AnthropicMarketingGenerator implements MarketingGenerator {
         services: business.services,
         tagline: business.tagline,
         tone: business.tone ?? "friendly",
+        campaignContext: business.campaignContext,
       },
       contentTypes,
     });
@@ -142,6 +179,7 @@ export class AnthropicMarketingGenerator implements MarketingGenerator {
         system,
         messages: [{ role: "user", content: user }],
       }),
+      signal: AbortSignal.timeout(ANTHROPIC_REQUEST_TIMEOUT_MS),
     });
 
     if (!response.ok) {
@@ -181,19 +219,17 @@ function parseVariantsJson(
       throw new Error(`Variant ${index} is not an object`);
     }
     const row = item as Record<string, unknown>;
-    const body = typeof row.body === "string" ? row.body.trim() : "";
-    if (!body) {
+    const bodyRaw = typeof row.body === "string" ? row.body.trim() : "";
+    if (!bodyRaw) {
       throw new Error(`Variant ${index} missing body`);
     }
     const expected = expectedTypes[index]!;
     return {
       contentType: expected,
-      title: typeof row.title === "string" ? row.title : undefined,
-      body,
-      cta: typeof row.cta === "string" ? row.cta : undefined,
-      hashtags: Array.isArray(row.hashtags)
-        ? row.hashtags.filter((h): h is string => typeof h === "string").slice(0, 8)
-        : undefined,
+      title: softCapOptionalPackField(row.title, MAX_PACK_VARIANT_TITLE_LENGTH),
+      body: softCapPackBody(bodyRaw),
+      cta: softCapOptionalPackField(row.cta, MAX_PACK_VARIANT_CTA_LENGTH),
+      hashtags: softCapPackHashtags(row.hashtags),
     };
   });
 }

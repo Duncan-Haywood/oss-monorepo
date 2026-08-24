@@ -10,32 +10,99 @@
  * + client-voice-packs-missing-visibility
  * + commerce-order-revenue-ledger
  * + commerce-abandoned-checkout-tracking
- * + commerce-pipeline-health-unpaid-owed).
+ * + commerce-pipeline-health-unpaid-owed
+ * + recurring-entitlement-paused-pipeline-digest
+ * + marketing-voice-pack-client-send-visibility
+ * + stripe-connect-onboarding-pipeline-health-visibility
+ * + bundle-order-missing-buyer-email-visibility
+ * + suppression-reason-visibility
+ * + lead-win-rate-conversion-metric).
  */
 
 import type { Lead, LeadPipelineStage } from "@/lib/leads/types";
 import type { DeployHandoff } from "@/lib/deploy/types";
 import type { ClientInquiry, ClientInquiryStatus } from "@/lib/inquiries/types";
-import type { OrderRecord } from "@/lib/orders/types";
+import {
+  checkoutAcquisitionSourceLabel,
+  type CheckoutAcquisitionSource,
+} from "@/lib/checkout/acquisition-source";
+import {
+  isOrderDisputed,
+  isOrderRefunded,
+  orderCountsTowardRevenue,
+  orderLifetimeRevenueUsd,
+  type OrderRecord,
+} from "@/lib/orders/types";
 import type { CheckoutSessionRecord } from "@/lib/checkout/types";
 import {
   isAbandonedCheckout,
   isBundleCheckoutSession,
   isCommerceSkuCheckoutSession,
   isRecoveryDue,
+  leadSlugsEligibleForCommerceAbandonedRecovery,
+  oldestCheckoutSessionAgeHours,
 } from "@/lib/checkout/abandoned-recovery";
-import { listCommerceCatalogsMissing, listCommerceCatalogsUnsynced } from "@/lib/commerce/catalog";
-import { listClientVoicePacksDue } from "@/lib/voice/faq-pack";
-import { isColdLead, isFollowUpDue } from "@/lib/email/outreach-followups";
+import {
+  listCommerceCatalogsMissing,
+  listCommerceCatalogsUnsynced,
+  oldestCommerceCatalogCandidateAgeHours,
+} from "@/lib/commerce/catalog";
+import {
+  listClientVoicePacksDue,
+  oldestClientVoicePacksDueAgeHours,
+  listClientVoicePacksMissingClientSend,
+  oldestClientVoicePackMissingClientSendAgeHours,
+} from "@/lib/voice/faq-pack";
+import {
+  isColdLead,
+  isFollowUpDue,
+  oldestLastOutreachAgeHours,
+} from "@/lib/email/outreach-followups";
 import { isLeadSnoozed } from "@/lib/leads/snooze";
+import {
+  newestBounceOrComplaintSuppressionAgeHours,
+  recentBounceOrComplaintSuppressionCount,
+  type SuppressionRecord,
+} from "@/lib/email/suppression";
 import {
   listMarketingPacksDue,
   marketingMonthKey,
+  oldestMarketingPacksDueAgeHours,
+  listMarketingPacksMissingClientSend,
+  oldestMarketingPackMissingClientSendAgeHours,
 } from "@/lib/marketing/monthly-pack";
 import {
-  isCommerceOrderPaidOut,
+  commerceOrderNeedsClawback,
+  isCommerceOrderOwed,
   sumCommerceOrdersRevenueUsd,
 } from "@/lib/commerce/orders";
+import {
+  listRecurringEntitlementPaused,
+  oldestRecurringEntitlementPausedAgeHours,
+  listOrdersWithFailedBillingNotice,
+  oldestBillingNoticeSendFailedAgeHours,
+} from "@/lib/orders/recurring";
+import {
+  listStarterUpsellCandidates,
+  oldestStarterUpsellCandidateAgeHours,
+} from "@/lib/billing/starter-upsell";
+import {
+  listGrowthUpsellCandidates,
+  oldestGrowthUpsellCandidateAgeHours,
+} from "@/lib/billing/growth-upsell";
+import {
+  listLeadsWithIncompleteConnectOnboarding,
+  oldestConnectOnboardingIncompleteAgeHours,
+} from "@/lib/commerce/stripe-connect";
+import {
+  listLeadsMissingBufferProfileMapping,
+  oldestBufferProfileMappingMissingAgeHours,
+  listMarketingPacksMissingBufferPost,
+  oldestMarketingPackMissingBufferPostAgeHours,
+} from "@/lib/marketing/buffer";
+import { isBundleHandoffMissingBuyerEmail } from "@/lib/payments/bundle-side-effect-recovery";
+import { isVercelDomainProvisioningFailed } from "@/lib/deploy/handoff-preserve";
+import { cronJobsNeedingAttention, type CronRunRecord } from "@/lib/cron/cron-run-health";
 
 export interface StageCount {
   stage: LeadPipelineStage;
@@ -50,14 +117,59 @@ export interface MissingEmailLead {
 }
 
 export interface PipelineHealth {
-  /** Sum of paid order amounts (USD dollars, as stored by the webhook). */
+  /**
+   * Sum of paid order amounts (USD dollars, as stored by the webhook),
+   * excluding orders Stripe has since refunded or disputed (see
+   * bundleOrdersRefundedCount / bundleOrdersDisputedCount —
+   * bundle-order-refund-tracking / bundle-order-dispute-tracking) — a
+   * refunded or disputed bundle purchase is not revenue.
+   */
   revenueTotalUsd: number;
   orderCount: number;
+  /**
+   * Bundle order count + revenue grouped by which marketing surface drove
+   * the checkout (homepage vs. a /websites-for-* category landing page),
+   * sorted revenue-descending. Empty when there are no bundle orders at all.
+   * See acquisition-source-checkout-attribution.
+   */
+  acquisitionSourceBreakdown: AcquisitionSourceBreakdownRow[];
+  /**
+   * Count of bundle (Starter/Growth/Complete/Commerce-addon) orders Stripe
+   * has refunded (charge.refunded, full or partial) — already excluded from
+   * revenueTotalUsd above. Surfaced for operator awareness only: unlike
+   * Commerce Buy now clawback tracking, this ledger has no manual-payout
+   * double-loss risk, so there is no Mark-paid-out reject or clawback UI
+   * here (see bundle-order-refund-tracking).
+   */
+  bundleOrdersRefundedCount: number;
+  /** Sum of amountPaid across bundleOrdersRefundedCount orders (USD dollars). */
+  bundleOrdersRefundedUsd: number;
+  /** Age in whole hours of the oldest bundle order refund; null when none. */
+  oldestBundleOrdersRefundedAgeHours: number | null;
+  /**
+   * Count of bundle orders Stripe has disputed (charge.dispute.created, or
+   * dispute.closed lost) — already excluded from revenueTotalUsd. Visibility
+   * only; cleared on dispute.closed won / warning_closed. See
+   * bundle-order-dispute-tracking.
+   */
+  bundleOrdersDisputedCount: number;
+  /** Sum of amountPaid across bundleOrdersDisputedCount orders (USD dollars). */
+  bundleOrdersDisputedUsd: number;
+  /** Age in whole hours of the oldest open/lost bundle dispute; null when none. */
+  oldestBundleOrdersDisputedAgeHours: number | null;
   leadCount: number;
   stageCounts: Record<LeadPipelineStage, number>;
   /** Ordered for display (funnel top → bottom). */
   stageFunnel: StageCount[];
   openHandoffCount: number;
+  /**
+   * Age in whole hours of the oldest open (status !== "live") deploy handoff;
+   * null when none. Staleness signal for post-payment fulfillment debt — how
+   * long a paid site has been awaiting DNS / Mark live — matching every other
+   * due-queue card on the grid (see the pipeline-health staleness invariant in
+   * prompt_process.tsx AGENT_PROTOCOL).
+   */
+  oldestOpenHandoffAgeHours: number | null;
   /** Paid / discovery_call / outreach leads with no email — cannot convert or follow up. */
   leadsMissingEmailCount: number;
   leadsMissingEmail: MissingEmailLead[];
@@ -72,6 +184,16 @@ export interface PipelineHealth {
   oldestUnrepliedInquiryAgeHours: number | null;
   /** Paid but not yet live — fulfillment debt. */
   paidNotLiveCount: number;
+  /**
+   * Age in whole hours since the oldest paid-not-live lead's earliest bundle
+   * order was created; null when none of those leads has a matching order at
+   * all. See oldestPaidNotLiveAgeHours for why a lead promoted to stage=paid
+   * via the dashboard stage dropdown or a CSV backfill (no order row, and
+   * Lead itself carries no createdAt/updatedAt — see src/lib/leads/types.ts)
+   * is silently skipped from this age signal while still counted in
+   * paidNotLiveCount above.
+   */
+  oldestPaidNotLiveAgeHours: number | null;
   /** Open checkout sessions past the abandoned threshold (see abandoned-recovery). Bundle plan checkouts only. */
   abandonedCheckoutCount: number;
   /** Abandoned sessions due for an operator recovery nudge. Bundle plan checkouts only. */
@@ -82,6 +204,8 @@ export interface PipelineHealth {
   commerceAbandonedCheckoutCount: number;
   /** Commerce Buy now sessions due for an operator recovery nudge. */
   commerceRecoveryDueCount: number;
+  /** Age in whole hours of the oldest abandoned open Commerce Buy now session; null when none. */
+  oldestCommerceAbandonedAgeHours: number | null;
   /** Leads that exhausted Email 1-3 with no reply — see isColdLead. */
   coldLeadCount: number;
   /** Age in whole hours since the oldest cold lead's last outreach send; null when none. */
@@ -106,6 +230,18 @@ export interface PipelineHealth {
    */
   closedLeadCount: number;
   /**
+   * Win rate among leads that reached a sales decision: (paid + live) as a
+   * percentage of (paid + live + closed), one decimal place. Excludes
+   * discovered/site_built/outreach_sent/discovery_call — those leads
+   * haven't reached a decision yet and would dilute the rate toward zero
+   * for a young, still-working pipeline. Null when zero leads have been
+   * decided (a 0%/100% rate off a denominator of zero is a false signal).
+   * See lead-win-rate-conversion-metric.
+   */
+  leadWinRatePercent: number | null;
+  /** Denominator behind leadWinRatePercent (paid + live + closed) — lets the operator judge how much signal a small rate is based on. */
+  leadWinRateDecidedCount: number;
+  /**
    * Paid/live Growth/Complete leads missing this UTC month's marketing pack.
    * Fulfillment debt for sold MRR — not a second priority queue.
    */
@@ -113,29 +249,220 @@ export interface PipelineHealth {
   /** UTC YYYY-MM key used for the packs-due count (from nowMs). */
   marketingPacksDueMonth: string;
   /**
+   * Age in whole hours since the current month's pack first became due for
+   * the oldest due lead (later of month start and their qualifying order's
+   * createdAt); null when none due. See oldestMarketingPacksDueAgeHours.
+   */
+  oldestMarketingPacksDueAgeHours: number | null;
+  /**
+   * Current month's marketing packs generated but never emailed to the
+   * client — delivery debt on packs that already exist, distinct from
+   * marketingPacksDueCount (generation debt on leads with no pack row at
+   * all). See marketing-voice-pack-client-send-visibility.
+   */
+  marketingPacksMissingClientSendCount: number;
+  /** Age in whole hours since the oldest such pack was generated; null when none. */
+  oldestMarketingPacksMissingClientSendAgeHours: number | null;
+  /**
    * Paid/live commerceAddon leads missing any catalog row.
    * Commerce fulfillment debt — not a second priority queue.
    */
   commerceCatalogsMissingCount: number;
+  /** Age in whole hours since the oldest missing-catalog lead's qualifying order; null when none. */
+  oldestCommerceCatalogsMissingAgeHours: number | null;
   /**
    * Paid/live commerceAddon leads with a saved catalog that still has ≥1 SKU
    * without stripePriceId (Sync to Stripe still due). Distinct from missing.
    */
   commerceCatalogsUnsyncedCount: number;
+  /** Age in whole hours since the oldest unsynced-catalog lead's qualifying order; null when none. */
+  oldestCommerceCatalogsUnsyncedAgeHours: number | null;
   /**
    * Paid/live Complete leads missing a client voice FAQ pack.
    * Fulfillment debt for the sold phone promise — not a second priority queue.
    */
   clientVoicePacksDueCount: number;
+  /** Age in whole hours since the oldest voice-pack-due lead's qualifying order; null when none. */
+  oldestClientVoicePacksDueAgeHours: number | null;
+  /**
+   * Client voice packs generated but never emailed to the client — delivery
+   * debt on packs that already exist, distinct from clientVoicePacksDueCount
+   * (generation debt). See marketing-voice-pack-client-send-visibility.
+   */
+  clientVoicePacksMissingClientSendCount: number;
+  /** Age in whole hours since the oldest such pack was generated; null when none. */
+  oldestClientVoicePacksMissingClientSendAgeHours: number | null;
   /**
    * USD still owed to Commerce clients from Buy now orders (excludes rows with
-   * paidOutAt). Deliberately separate from revenueTotalUsd — this is NOT Local
+   * paidOutAt OR refundedAt — a refunded end-customer sale owes the client
+   * nothing). Deliberately separate from revenueTotalUsd — this is NOT Local
    * Site Studio's own revenue. Matches the Commerce payouts panel + digest
    * unpaid totals until Stripe Connect ships.
    */
   commerceOrdersRevenueUsd: number;
-  /** Count of unpaid Commerce Buy now orders still owed to clients. */
+  /** Count of unpaid, unrefunded Commerce Buy now orders still owed to clients. */
   commerceOrdersCount: number;
+  /**
+   * Age in whole hours since the oldest still-owed Commerce Buy now order's
+   * createdAt; null when none owed. Same staleness-signal convention as every
+   * other due-queue field in this interface (oldestOpenHandoffAgeHours,
+   * oldestCommerceOrdersRefundClawbackAgeHours below, etc.) — this is the
+   * "not yet paid out at all" axis, distinct from the clawback axis (an
+   * order already paid out, then refunded/disputed after the fact).
+   */
+  oldestCommerceOrdersOwedAgeHours: number | null;
+  /**
+   * Count of Commerce Buy now orders refunded by Stripe AFTER the operator
+   * already marked them paid out to the client — the operator is out that
+   * money and must claw it back from the client (see
+   * commerce-order-refund-clawback-tracking). Zero risk otherwise: a refund
+   * on an order never paid out simply drops out of commerceOrdersRevenueUsd
+   * above with nothing further to do.
+   */
+  commerceOrdersRefundClawbackCount: number;
+  /** Sum of amountPaidUsd across commerceOrdersRefundClawbackCount orders. */
+  commerceOrdersRefundClawbackUsd: number;
+  /** Age in whole hours since the oldest refund-after-payout was flagged; null when none. */
+  oldestCommerceOrdersRefundClawbackAgeHours: number | null;
+  /**
+   * Count of Commerce Buy now orders disputed (charged back) by Stripe AFTER
+   * the operator already marked them paid out to the client — same clawback
+   * exposure as commerceOrdersRefundClawbackCount, on the dispute axis (see
+   * commerce-order-dispute-clawback-tracking). Zero risk otherwise: a dispute
+   * on an order never paid out simply drops out of commerceOrdersRevenueUsd
+   * above with nothing further to do.
+   */
+  commerceOrdersDisputeClawbackCount: number;
+  /** Sum of amountPaidUsd across commerceOrdersDisputeClawbackCount orders. */
+  commerceOrdersDisputeClawbackUsd: number;
+  /** Age in whole hours since the oldest dispute-after-payout was flagged; null when none. */
+  oldestCommerceOrdersDisputeClawbackAgeHours: number | null;
+  /**
+   * Count of Commerce Buy now orders with no client-receipt-sent marker —
+   * the local business was never notified they made a sale (see
+   * commerce-buy-now-client-receipt-visibility). Independent of payout
+   * status: distinct from commerceOrdersCount (money owed) above.
+   */
+  commerceOrdersMissingClientReceiptCount: number;
+  /** Age in whole hours since the oldest order still missing a client receipt; null when none. */
+  oldestCommerceOrdersMissingClientReceiptAgeHours: number | null;
+  /**
+   * Paid/live Growth/Complete/Commerce leads with recurringCanceledAt and no
+   * still-active recurring order — MRR recovery debt (Billing Portal chase).
+   * Distinct from marketingPacksDue (those drop out when entitlement pauses).
+   */
+  recurringEntitlementPausedCount: number;
+  /** Age in whole hours of the oldest recurring entitlement pause; null when none. */
+  oldestRecurringEntitlementPausedAgeHours: number | null;
+  /**
+   * Bundle/Commerce orders whose most recent best-effort billing-notice send
+   * (dunning / payment-recovered / subscription-paused / subscription-resumed)
+   * resolved success:false and hasn't since been superseded by a successful
+   * one — a sustained Resend outage or a persistently-bad customer email
+   * leaves the customer with zero signal their billing status changed. See
+   * billing-notice-send-failure-visibility.
+   */
+  billingNoticeSendFailedCount: number;
+  /** Age in whole hours since the oldest still-failing billing-notice send; null when none. */
+  oldestBillingNoticeSendFailedAgeHours: number | null;
+  /**
+   * Paid/live Starter-only leads with a usable email and no Growth/Complete/
+   * Commerce order yet — the MRR upsell nudge queue (see
+   * paid-starter-upsell-nudge). Already shipped in the digest email and its
+   * own dashboard panel; folded into pipeline-health too so it gets the same
+   * always-on summary-card + staleness signal as every other due queue.
+   */
+  starterUpsellCandidatesCount: number;
+  /** Age in whole hours since the oldest qualifying Starter order; null when none. */
+  oldestStarterUpsellCandidateAgeHours: number | null;
+  /**
+   * Paid/live Growth-only leads with a usable email and no Complete order
+   * yet — the second-step MRR upsell nudge queue (see growth-upsell-nudge).
+   * Same always-on summary-card + staleness signal as starterUpsellCandidatesCount.
+   */
+  growthUpsellCandidatesCount: number;
+  /** Age in whole hours since the oldest qualifying Growth order; null when none. */
+  oldestGrowthUpsellCandidateAgeHours: number | null;
+  /**
+   * Leads with a Stripe Connect Express account created but not yet
+   * confirmed fully onboarded (both charges_enabled and payouts_enabled) —
+   * dormant scaffold visibility (see
+   * stripe-connect-onboarding-pipeline-health-visibility). This scaffold
+   * moves no money yet (commerce-payouts-stripe-connect stays operator/legal
+   * gated), so this is an operator-awareness queue, not a money signal.
+   */
+  connectOnboardingIncompleteCount: number;
+  /** Age in whole hours since the oldest incomplete account was created; null when none/unanchored. */
+  oldestConnectOnboardingIncompleteAgeHours: number | null;
+  /**
+   * Paid/live Growth/Complete leads with no saved Buffer profile mapping —
+   * scheduleMarketingPackToBufferAction hard-fails for every one of these
+   * until the operator maps at least one profile (see
+   * marketing-scheduling-buffer-profile-mapping-missing-visibility). Always 0
+   * while ALLOW_MARKETING_SCHEDULING is off (input.marketingSchedulingEnabled
+   * unset/false) — every eligible lead would otherwise report "missing"
+   * forever with nothing for the operator to act on, since the mapping
+   * action itself is gated behind the same flag.
+   */
+  bufferProfileMappingMissingCount: number;
+  /** Age in whole hours since the oldest missing-mapping lead's qualifying order; null when none/disabled. */
+  oldestBufferProfileMappingMissingAgeHours: number | null;
+  /**
+   * Current month's marketing packs generated for a lead who HAS mapped
+   * Buffer profiles but whose pack was never actually posted (see
+   * marketing-buffer-pack-post-visibility) — the counterpart to
+   * marketingPacksMissingClientSendCount for the Buffer-posting flow instead
+   * of email. Always 0 while ALLOW_MARKETING_SCHEDULING is off (same gate as
+   * bufferProfileMappingMissingCount).
+   */
+  marketingPacksMissingBufferPostCount: number;
+  /** Age in whole hours since the oldest such pack was generated; null when none/disabled. */
+  oldestMarketingPacksMissingBufferPostAgeHours: number | null;
+  /**
+   * Bundle (Starter/Growth/Complete/Commerce-addon) deploy handoffs with a
+   * customer email on file but no durable buyer-receipt-sent and/or
+   * DNS-handoff-sent note — the buyer was never notified their payment
+   * succeeded and/or never got go-live instructions (see
+   * bundle-order-missing-buyer-email-visibility). Same visibility-gap class
+   * already closed for Commerce Buy now via
+   * commerceOrdersMissingClientReceiptCount above.
+   */
+  bundleOrdersMissingBuyerEmailCount: number;
+  /** Age in whole hours since the oldest such handoff was created; null when none. */
+  oldestBundleOrdersMissingBuyerEmailAgeHours: number | null;
+  /**
+   * Deploy handoffs whose own tryProvisionVercelDomain automation hard-failed
+   * (vercelDomainStatus starting with "error_") and haven't since been marked
+   * live — distinct from an ordinary handoff still awaiting the customer's
+   * own DNS change, which looks identical in `status` alone (see
+   * vercel-domain-provisioning-failure-visibility). An operator needs to fix
+   * this in the Vercel console; it will never self-resolve from DNS.
+   */
+  vercelDomainProvisioningFailedCount: number;
+  /** Age in whole hours since the oldest such handoff was created; null when none. */
+  oldestVercelDomainProvisioningFailedAgeHours: number | null;
+  /**
+   * Count of the 3 Vercel Cron jobs (daily-digest / checkout-recovery /
+   * outreach-followups) that have either never recorded a run, gone stale
+   * (no recorded run in CRON_RUN_STALE_THRESHOLD_HOURS), or whose most
+   * recent recorded run failed — see cron-run-health-visibility. Stays 0
+   * while cronSecretConfigured is false/unset, since a cron that's
+   * intentionally never been enabled isn't a health problem.
+   */
+  staleOrFailingCronJobsCount: number;
+  /** Display labels for the jobs counted above (e.g. ["Checkout recovery"]) — empty when none. */
+  staleOrFailingCronJobNames: string[];
+  /**
+   * Count of hard bounces/spam complaints (see src/lib/email/suppression.ts)
+   * recorded in the last 7 days — a rolling sender-reputation signal, unlike
+   * the permanently-suppressed total which only ever grows and is never
+   * actionable on its own (see suppression-reason-visibility). Always 0 when
+   * no suppression records were passed (input.suppressions unset) or none
+   * are bounce/complaint.
+   */
+  recentBounceOrComplaintSuppressionCount: number;
+  /** Hours since the most recent bounce/complaint; null when there has never been one. */
+  newestBounceOrComplaintSuppressionAgeHours: number | null;
 }
 
 /** new + read still need a human reply; replied/archived are closed. */
@@ -197,7 +524,137 @@ export function emptyStageCounts(): Record<LeadPipelineStage, number> {
   };
 }
 
+/**
+ * Win rate among leads that reached a sales decision: (paid + live) as a
+ * percentage of (paid + live + closed), rounded to one decimal place. Takes
+ * a structural subset (not the full stage record) so digest.ts — which
+ * tracks paid/live/closed counts independently rather than a full
+ * stageCounts record — can call this directly. Returns null when the
+ * denominator is zero (no leads have reached a decision yet).
+ */
+export function leadWinRatePercent(counts: {
+  paid: number;
+  live: number;
+  closed: number;
+}): number | null {
+  const decided = counts.paid + counts.live + counts.closed;
+  if (decided <= 0) return null;
+  const won = counts.paid + counts.live;
+  return Math.round((won / decided) * 1000) / 10;
+}
+
+/** Per-source aggregate row for the acquisition-source revenue breakdown. */
+export interface AcquisitionSourceBreakdownRow {
+  /** Allowlisted CheckoutAcquisitionSource token, or "unknown" for a bundle order with no recorded source. */
+  source: string;
+  /** Human-readable label for dashboard display. */
+  label: string;
+  orderCount: number;
+  /** Sum of orderLifetimeRevenueUsd across this source's still-counting (non-refunded/disputed) orders. */
+  revenueUsd: number;
+}
+
+/**
+ * Groups bundle orders by which marketing surface (homepage vs. a
+ * /websites-for-* category landing page) drove the checkout — answers "is
+ * the restaurants/salons/trades page, or the homepage, actually converting?"
+ * for an operator who has invested in dedicated SEO landing pages with no
+ * other way to compare their performance (no analytics tool is integrated in
+ * this app). Excludes refunded/disputed orders from revenue the same way
+ * revenueTotalUsd does. Orders predating this field (or arriving with no
+ * ?source= — a direct /checkout visit, an outreach email link) group under
+ * "unknown". Sorted by revenue descending so the dashboard's top row is the
+ * best-performing surface. See acquisition-source-checkout-attribution.
+ */
+export function acquisitionSourceBreakdown(
+  orders: ReadonlyArray<
+    Pick<OrderRecord, "acquisitionSource" | "refundedAt" | "disputedAt" | "lifetimeRevenueUsd"> & {
+      amountPaid: number;
+    }
+  >,
+): AcquisitionSourceBreakdownRow[] {
+  const totals = new Map<string, { orderCount: number; revenueUsd: number }>();
+  for (const order of orders) {
+    if (!orderCountsTowardRevenue(order)) continue;
+    const key = order.acquisitionSource ?? "unknown";
+    const existing = totals.get(key) ?? { orderCount: 0, revenueUsd: 0 };
+    existing.orderCount += 1;
+    const lifetimeUsd = orderLifetimeRevenueUsd(order);
+    if (Number.isFinite(lifetimeUsd)) {
+      existing.revenueUsd += lifetimeUsd;
+    }
+    totals.set(key, existing);
+  }
+  return [...totals.entries()]
+    .map(([source, agg]) => ({
+      source,
+      label:
+        source === "unknown"
+          ? "Unknown / direct"
+          : checkoutAcquisitionSourceLabel(source as CheckoutAcquisitionSource),
+      orderCount: agg.orderCount,
+      revenueUsd: Math.round(agg.revenueUsd * 100) / 100,
+    }))
+    .sort((a, b) => b.revenueUsd - a.revenueUsd);
+}
+
 const HOUR_MS = 60 * 60 * 1000;
+
+/**
+ * Age in whole hours since the oldest paid-not-live lead's earliest bundle
+ * order was created; null when there are no candidates or none of their
+ * orders parse — including the case where a candidate has no order at all.
+ *
+ * Design decision (deferred from open-deploy-handoff-staleness-signal):
+ * "time since payment" has no reliable anchor for a stage=paid lead created
+ * via the dashboard stage dropdown or a CSV backfill, since Lead itself
+ * carries no createdAt/updatedAt/stage-transition timestamp (see
+ * src/lib/leads/types.ts) and no order row exists for a manually-promoted
+ * lead. Rather than fabricate a fake anchor (e.g. treating "now" as the
+ * payment time, which would hide the debt entirely), this skips a candidate
+ * with no matching order from the age computation — same skip-if-no-anchor
+ * contract as oldestColdLeadAgeHours skipping a lead with no lastOutreachAt,
+ * or oldestMarketingPacksDueAgeHours skipping a lead with no qualifying
+ * order. The count (paidNotLiveCount) still includes every stage=paid lead
+ * regardless — only the staleness signal is order-anchored.
+ *
+ * Only orders that still count toward revenue (orderCountsTowardRevenue —
+ * excludes refunded/disputed) anchor the age: a refund/dispute never reverts
+ * `stage`, so a lead can carry an old refunded order alongside a genuinely
+ * fresh later payment, and the oldest-of-all-orders selection must not let
+ * the stale refunded row report a false decades-old staleness signal over
+ * the real, recent one (paid-not-live-refund-dispute-age-guard — same
+ * refund/dispute-aware filtering as oldestStarterUpsellCandidateAgeHours via
+ * isStarterOnlyOrder and the revenueTotalUsd loop earlier in this file).
+ *
+ * Pass nowMs from the caller — never Date.now() inside list/age helpers.
+ */
+export function oldestPaidNotLiveAgeHours(
+  candidates: ReadonlyArray<{ slug: string }>,
+  orders: ReadonlyArray<{
+    leadSlug: string;
+    createdAt?: string;
+    refundedAt?: string;
+    disputedAt?: string;
+  }>,
+  nowMs: number,
+): number | null {
+  const candidateSlugs = new Set(candidates.map((candidate) => candidate.slug));
+  let oldestCreatedAtMs: number | null = null;
+  for (const order of orders) {
+    if (!candidateSlugs.has(order.leadSlug)) continue;
+    if (!orderCountsTowardRevenue(order)) continue;
+    if (order.createdAt === undefined) continue;
+    const createdAtMs = Date.parse(order.createdAt);
+    if (Number.isNaN(createdAtMs)) continue;
+    if (oldestCreatedAtMs === null || createdAtMs < oldestCreatedAtMs) {
+      oldestCreatedAtMs = createdAtMs;
+    }
+  }
+  if (oldestCreatedAtMs === null) return null;
+  if (nowMs < oldestCreatedAtMs) return 0;
+  return Math.max(0, Math.floor((nowMs - oldestCreatedAtMs) / HOUR_MS));
+}
 
 /**
  * Pure aggregation — safe to call from server pages or client components.
@@ -219,16 +676,89 @@ export function computePipelineHealth(input: {
   inquiries: ClientInquiry[];
   openCheckoutSessions?: CheckoutSessionRecord[];
   /** Packs already generated for the current UTC month (optional). */
-  marketingPacksThisMonth?: ReadonlyArray<{ leadSlug: string; yearMonth: string }>;
+  marketingPacksThisMonth?: ReadonlyArray<{
+    leadSlug: string;
+    yearMonth: string;
+    /** Anchors marketingPacksMissingClientSendCount's age signal. */
+    generatedAt?: string;
+    /** Unset means never emailed to the client — see marketing-voice-pack-client-send-visibility. */
+    sentToClientAt?: string;
+  }>;
   /** Existing commerce catalogs (optional) — missing/unsynced counts reuse list* helpers. */
   commerceCatalogs?: ReadonlyArray<{
     leadSlug: string;
     items?: ReadonlyArray<{ stripePriceId?: string }>;
   }>;
   /** Existing client voice FAQ packs (one row per Complete lead). */
-  clientVoicePacks?: ReadonlyArray<{ leadSlug: string }>;
-  /** Recorded Commerce Buy now orders (optional) — unpaid owed uses paidOutAt. */
-  commerceOrders?: ReadonlyArray<{ amountPaidUsd: number; paidOutAt?: string }>;
+  clientVoicePacks?: ReadonlyArray<{
+    leadSlug: string;
+    /** Anchors clientVoicePacksMissingClientSendCount's age signal. */
+    generatedAt?: string;
+    /** Unset means never emailed to the client — see marketing-voice-pack-client-send-visibility. */
+    sentToClientAt?: string;
+  }>;
+  /** Recorded Commerce Buy now orders (optional) — unpaid owed uses paidOutAt/refundedAt/disputedAt. */
+  commerceOrders?: ReadonlyArray<{
+    amountPaidUsd: number;
+    /** Anchors oldestCommerceOrdersOwedAgeHours; skipped (no staleness signal) when absent. */
+    createdAt?: string;
+    paidOutAt?: string;
+    refundedAt?: string;
+    disputedAt?: string;
+  }>;
+  /**
+   * Every refunded Commerce Buy now order regardless of paidOutAt (optional) —
+   * pass listCommerceOrdersRefunded() (uncapped). listUnpaidCommerceOrders /
+   * `commerceOrders` above drops a row once paidOutAt is set, so the
+   * refund-after-payout clawback case needs this separate, uncapped feed to
+   * be visible at all (see commerce-order-refund-clawback-tracking).
+   */
+  commerceOrdersRefunded?: ReadonlyArray<{
+    amountPaidUsd: number;
+    paidOutAt?: string;
+    refundedAt?: string;
+  }>;
+  /**
+   * Every disputed Commerce Buy now order regardless of paidOutAt (optional) —
+   * pass listCommerceOrdersDisputed() (uncapped). Same rationale as
+   * commerceOrdersRefunded, on the dispute axis (see
+   * commerce-order-dispute-clawback-tracking).
+   */
+  commerceOrdersDisputed?: ReadonlyArray<{
+    amountPaidUsd: number;
+    paidOutAt?: string;
+    disputedAt?: string;
+  }>;
+  /**
+   * Every Commerce Buy now order with no client-receipt-sent marker
+   * (optional) — pass listCommerceOrdersMissingClientReceipt() (uncapped).
+   * Independent of paidOutAt/refundedAt/disputedAt: this tracks whether the
+   * local business was ever notified of the sale, not whether they've been
+   * paid (see commerce-buy-now-client-receipt-visibility).
+   */
+  commerceOrdersMissingClientReceipt?: ReadonlyArray<{
+    createdAt?: string;
+  }>;
+  /**
+   * Pass isMarketingSchedulingAllowed() (ALLOW_MARKETING_SCHEDULING=1) — gates
+   * bufferProfileMappingMissingCount so it stays 0 while the Buffer scaffold
+   * is dormant, rather than flagging every eligible lead with no possible
+   * resolution. Defaults to false (not read from process.env here — this
+   * function stays a pure aggregator like every sibling in this file).
+   */
+  marketingSchedulingEnabled?: boolean;
+  /** Pass getSuppressedEmails() (optional) — powers the bounce/complaint reputation signal. */
+  suppressions?: ReadonlyArray<SuppressionRecord>;
+  /** Pass listCronRuns() (optional) — powers staleOrFailingCronJobsCount. */
+  cronRuns?: ReadonlyArray<CronRunRecord>;
+  /**
+   * Pass !!process.env.CRON_SECRET?.trim() — gates staleOrFailingCronJobsCount
+   * so a deployment that has never enabled Vercel Cron isn't flagged as
+   * having a stale automation (see cron-run-health-visibility). Defaults to
+   * false (not read from process.env here — pure aggregator, like every
+   * sibling flag in this file).
+   */
+  cronSecretConfigured?: boolean;
   nowMs?: number;
 }): PipelineHealth {
   const stageCounts = emptyStageCounts();
@@ -244,12 +774,21 @@ export function computePipelineHealth(input: {
     count: stageCounts[stage],
   }));
 
+  // A refunded or disputed bundle order is not revenue — exclude it the same
+  // way commerce Buy now excludes refunded/disputed orders from its owed
+  // total (see bundle-order-refund-tracking / bundle-order-dispute-tracking).
+  // orderLifetimeRevenueUsd (not the first-period-only amountPaid) so a
+  // Growth/Complete/Commerce-addon subscriber's renewal invoices count past
+  // their first billing cycle — see revenue-total-usd-renewal-gap.
   let revenueTotalUsd = 0;
   for (const order of input.orders) {
-    if (typeof order.amountPaid === "number" && Number.isFinite(order.amountPaid)) {
-      revenueTotalUsd += order.amountPaid;
+    if (!orderCountsTowardRevenue(order)) continue;
+    const lifetimeUsd = orderLifetimeRevenueUsd(order);
+    if (Number.isFinite(lifetimeUsd)) {
+      revenueTotalUsd += lifetimeUsd;
     }
   }
+  const acquisitionSourceRows = acquisitionSourceBreakdown(input.orders);
 
   const leadsMissingEmail: MissingEmailLead[] = input.leads
     .filter(leadIsMissingCriticalEmail)
@@ -260,18 +799,38 @@ export function computePipelineHealth(input: {
     }))
     .slice(0, 8);
 
-  const openHandoffCount = input.handoffs.filter((h) => h.status !== "live").length;
+  const openHandoffs = input.handoffs.filter((h) => h.status !== "live");
+  const openHandoffCount = openHandoffs.length;
   const newInquiryCount = input.inquiries.filter((inq) => inq.status === "new").length;
   const unrepliedInquiries = input.inquiries.filter((inq) =>
     isUnrepliedInquiryStatus(inq.status),
   );
   const unrepliedInquiryCount = unrepliedInquiries.length;
-  const paidNotLiveCount = input.leads.filter((l) => l.stage === "paid").length;
 
   const nowMs = input.nowMs ?? 0;
+
+  const paidNotLiveLeads = input.leads.filter((l) => l.stage === "paid");
+  const paidNotLiveCount = paidNotLiveLeads.length;
+  const oldestPaidNotLive = oldestPaidNotLiveAgeHours(paidNotLiveLeads, input.orders, nowMs);
+
+  // Oldest open deploy handoff by createdAt — anchor the staleness signal to
+  // when the handoff was created (not calendar-cadence), mirroring the
+  // oldestAbandoned/oldestUnrepliedInquiry loops below.
+  const oldestOpenHandoffHours = oldestOpenHandoffAgeHours(openHandoffs, nowMs);
+
   const sessions = input.openCheckoutSessions ?? [];
   const bundleSessions = sessions.filter(isBundleCheckoutSession);
-  const commerceSessions = sessions.filter(isCommerceSkuCheckoutSession);
+  const commerceRecoveryEligibleSlugs = leadSlugsEligibleForCommerceAbandonedRecovery(
+    input.leads,
+    input.orders,
+  );
+  // Drop carts for paused/canceled Commerce leads — same predicate as
+  // sendCommerceCheckoutRecoveryAction / digest due queue (#348–#350 twins).
+  const commerceSessions = sessions.filter(
+    (session) =>
+      isCommerceSkuCheckoutSession(session) &&
+      commerceRecoveryEligibleSlugs.has(session.leadSlug),
+  );
   const abandoned = bundleSessions.filter((session) => isAbandonedCheckout(session, nowMs));
   const recoveryDueCount = abandoned.filter((session) => isRecoveryDue(session, nowMs)).length;
   const commerceAbandoned = commerceSessions.filter((session) =>
@@ -281,52 +840,20 @@ export function computePipelineHealth(input: {
     isRecoveryDue(session, nowMs),
   ).length;
 
-  let oldestAbandonedAgeHours: number | null = null;
-  for (const session of abandoned) {
-    const createdAtMs = Date.parse(session.createdAt);
-    if (Number.isNaN(createdAtMs)) continue;
-    const ageHours = Math.floor((nowMs - createdAtMs) / HOUR_MS);
-    if (oldestAbandonedAgeHours === null || ageHours > oldestAbandonedAgeHours) {
-      oldestAbandonedAgeHours = Math.max(0, ageHours);
-    }
-  }
+  const oldestAbandonedAgeHours = oldestCheckoutSessionAgeHours(abandoned, nowMs);
 
-  let oldestUnrepliedInquiryAgeHours: number | null = null;
-  for (const inquiry of unrepliedInquiries) {
-    const createdAtMs = Date.parse(inquiry.createdAt);
-    if (Number.isNaN(createdAtMs)) continue;
-    const ageHours = Math.floor((nowMs - createdAtMs) / HOUR_MS);
-    if (
-      oldestUnrepliedInquiryAgeHours === null ||
-      ageHours > oldestUnrepliedInquiryAgeHours
-    ) {
-      oldestUnrepliedInquiryAgeHours = Math.max(0, ageHours);
-    }
-  }
+  const oldestCommerceAbandonedAgeHours = oldestCheckoutSessionAgeHours(commerceAbandoned, nowMs);
+
+  const oldestUnrepliedInquiryAgeHours = oldestUnrepliedInquiryAgeHoursFor(
+    unrepliedInquiries,
+    nowMs,
+  );
 
   const coldLeads = input.leads.filter((lead) => isColdLead(lead, nowMs));
-  let oldestColdLeadAgeHours: number | null = null;
-  for (const lead of coldLeads) {
-    if (!lead.lastOutreachAt) continue;
-    const lastOutreachMs = Date.parse(lead.lastOutreachAt);
-    if (Number.isNaN(lastOutreachMs)) continue;
-    const ageHours = Math.floor((nowMs - lastOutreachMs) / HOUR_MS);
-    if (oldestColdLeadAgeHours === null || ageHours > oldestColdLeadAgeHours) {
-      oldestColdLeadAgeHours = Math.max(0, ageHours);
-    }
-  }
+  const oldestColdLeadAgeHours = oldestLastOutreachAgeHours(coldLeads, nowMs);
 
   const followUpsDue = input.leads.filter((lead) => isFollowUpDue(lead, nowMs));
-  let oldestFollowUpDueAgeHours: number | null = null;
-  for (const lead of followUpsDue) {
-    if (!lead.lastOutreachAt) continue;
-    const lastOutreachMs = Date.parse(lead.lastOutreachAt);
-    if (Number.isNaN(lastOutreachMs)) continue;
-    const ageHours = Math.floor((nowMs - lastOutreachMs) / HOUR_MS);
-    if (oldestFollowUpDueAgeHours === null || ageHours > oldestFollowUpDueAgeHours) {
-      oldestFollowUpDueAgeHours = Math.max(0, ageHours);
-    }
-  }
+  const oldestFollowUpDueAgeHours = oldestLastOutreachAgeHours(followUpsDue, nowMs);
 
   const snoozedLeads = input.leads.filter((lead) =>
     isLeadSnoozed(lead.snoozedUntil, nowMs),
@@ -372,31 +899,251 @@ export function computePipelineHealth(input: {
     input.orders,
     input.clientVoicePacks ?? [],
   );
+  const marketingPacksMissingClientSend = listMarketingPacksMissingClientSend(
+    packsThisMonth,
+    input.leads,
+    input.orders,
+  );
+  const oldestMarketingPacksMissingClientSendHours = oldestMarketingPackMissingClientSendAgeHours(
+    marketingPacksMissingClientSend,
+    nowMs,
+  );
+  const clientVoicePacksMissingClientSend = listClientVoicePacksMissingClientSend(
+    input.clientVoicePacks ?? [],
+    input.leads,
+    input.orders,
+  );
+  const oldestClientVoicePacksMissingClientSendHours =
+    oldestClientVoicePackMissingClientSendAgeHours(clientVoicePacksMissingClientSend, nowMs);
+  const oldestMarketingPacksDueHours = oldestMarketingPacksDueAgeHours(
+    marketingPacksDue,
+    input.orders,
+    marketingPacksDueMonth,
+    nowMs,
+  );
+  const oldestCommerceCatalogsMissingHours = oldestCommerceCatalogCandidateAgeHours(
+    commerceCatalogsMissing,
+    input.orders,
+    nowMs,
+  );
+  const oldestCommerceCatalogsUnsyncedHours = oldestCommerceCatalogCandidateAgeHours(
+    commerceCatalogsUnsynced,
+    input.orders,
+    nowMs,
+  );
+  const oldestClientVoicePacksDueHours = oldestClientVoicePacksDueAgeHours(
+    clientVoicePacksDue,
+    input.orders,
+    nowMs,
+  );
 
   const commerceOrders = input.commerceOrders ?? [];
-  const unpaidCommerceOrders = commerceOrders.filter(
-    (order) => !isCommerceOrderPaidOut(order),
-  );
+  // A refunded, disputed, or $0 (100%-off promo) order owes the client
+  // nothing — exclude it from "owed" the same way a paid-out order is
+  // excluded (see commerce-order-refund-clawback-tracking,
+  // commerce-order-dispute-clawback-tracking,
+  // commerce-order-zero-amount-owed-exclusion).
+  const unpaidCommerceOrders = commerceOrders.filter(isCommerceOrderOwed);
   const commerceOrdersRevenueUsd = sumCommerceOrdersRevenueUsd(unpaidCommerceOrders);
+  const oldestCommerceOrdersOwedHours = oldestCommerceOrdersOwedAgeHours(
+    unpaidCommerceOrders,
+    nowMs,
+  );
+
+  const commerceOrdersRefunded = input.commerceOrdersRefunded ?? [];
+  const commerceOrdersRefundClawback = commerceOrdersRefunded.filter(
+    commerceOrderNeedsClawback,
+  );
+  const commerceOrdersRefundClawbackUsd = sumCommerceOrdersRevenueUsd(
+    commerceOrdersRefundClawback,
+  );
+  let oldestCommerceOrdersRefundClawbackAgeHours: number | null = null;
+  for (const order of commerceOrdersRefundClawback) {
+    if (!order.refundedAt) continue;
+    const refundedAtMs = Date.parse(order.refundedAt);
+    if (Number.isNaN(refundedAtMs)) continue;
+    const ageHours = Math.floor((nowMs - refundedAtMs) / HOUR_MS);
+    if (
+      oldestCommerceOrdersRefundClawbackAgeHours === null ||
+      ageHours > oldestCommerceOrdersRefundClawbackAgeHours
+    ) {
+      oldestCommerceOrdersRefundClawbackAgeHours = Math.max(0, ageHours);
+    }
+  }
+
+  const commerceOrdersDisputed = input.commerceOrdersDisputed ?? [];
+  const commerceOrdersDisputeClawback = commerceOrdersDisputed.filter(
+    commerceOrderNeedsClawback,
+  );
+  const commerceOrdersDisputeClawbackUsd = sumCommerceOrdersRevenueUsd(
+    commerceOrdersDisputeClawback,
+  );
+  let oldestCommerceOrdersDisputeClawbackAgeHours: number | null = null;
+  for (const order of commerceOrdersDisputeClawback) {
+    if (!order.disputedAt) continue;
+    const disputedAtMs = Date.parse(order.disputedAt);
+    if (Number.isNaN(disputedAtMs)) continue;
+    const ageHours = Math.floor((nowMs - disputedAtMs) / HOUR_MS);
+    if (
+      oldestCommerceOrdersDisputeClawbackAgeHours === null ||
+      ageHours > oldestCommerceOrdersDisputeClawbackAgeHours
+    ) {
+      oldestCommerceOrdersDisputeClawbackAgeHours = Math.max(0, ageHours);
+    }
+  }
+
+  // Bundle order refunds — visibility only (no payout-panel double-loss risk
+  // on this ledger, unlike Commerce Buy now; see bundle-order-refund-tracking).
+  const bundleOrdersRefunded = input.orders.filter(isOrderRefunded);
+  let bundleOrdersRefundedUsd = 0;
+  let oldestBundleOrdersRefundedAgeHours: number | null = null;
+  for (const order of bundleOrdersRefunded) {
+    if (typeof order.amountPaid === "number" && Number.isFinite(order.amountPaid)) {
+      bundleOrdersRefundedUsd += order.amountPaid;
+    }
+    if (!order.refundedAt) continue;
+    const refundedAtMs = Date.parse(order.refundedAt);
+    if (Number.isNaN(refundedAtMs)) continue;
+    const ageHours = Math.floor((nowMs - refundedAtMs) / HOUR_MS);
+    if (
+      oldestBundleOrdersRefundedAgeHours === null ||
+      ageHours > oldestBundleOrdersRefundedAgeHours
+    ) {
+      oldestBundleOrdersRefundedAgeHours = Math.max(0, ageHours);
+    }
+  }
+
+  // Bundle order disputes — same visibility-only shape as refunds
+  // (bundle-order-dispute-tracking). Cleared on dispute.closed won.
+  const bundleOrdersDisputed = input.orders.filter(isOrderDisputed);
+  let bundleOrdersDisputedUsd = 0;
+  let oldestBundleOrdersDisputedAgeHours: number | null = null;
+  for (const order of bundleOrdersDisputed) {
+    if (typeof order.amountPaid === "number" && Number.isFinite(order.amountPaid)) {
+      bundleOrdersDisputedUsd += order.amountPaid;
+    }
+    if (!order.disputedAt) continue;
+    const disputedAtMs = Date.parse(order.disputedAt);
+    if (Number.isNaN(disputedAtMs)) continue;
+    const ageHours = Math.floor((nowMs - disputedAtMs) / HOUR_MS);
+    if (
+      oldestBundleOrdersDisputedAgeHours === null ||
+      ageHours > oldestBundleOrdersDisputedAgeHours
+    ) {
+      oldestBundleOrdersDisputedAgeHours = Math.max(0, ageHours);
+    }
+  }
+
+  const commerceOrdersMissingClientReceipt =
+    input.commerceOrdersMissingClientReceipt ?? [];
+  const oldestCommerceOrdersMissingClientReceiptAgeHoursValue =
+    oldestCommerceOrdersOwedAgeHours(commerceOrdersMissingClientReceipt, nowMs);
+
+  const recurringEntitlementPaused = listRecurringEntitlementPaused(
+    input.leads,
+    input.orders,
+  );
+  const recurringEntitlementPausedCount = recurringEntitlementPaused.length;
+  const oldestRecurringPausedAgeHours = oldestRecurringEntitlementPausedAgeHours(
+    recurringEntitlementPaused,
+    nowMs,
+  );
+
+  const billingNoticeSendFailed = listOrdersWithFailedBillingNotice(input.leads, input.orders);
+  const oldestBillingNoticeSendFailedHours = oldestBillingNoticeSendFailedAgeHours(
+    billingNoticeSendFailed,
+    nowMs,
+  );
+
+  const starterUpsellCandidates = listStarterUpsellCandidates(input.leads, input.orders);
+  const oldestStarterUpsellAgeHours = oldestStarterUpsellCandidateAgeHours(
+    starterUpsellCandidates,
+    input.orders,
+    nowMs,
+  );
+
+  const growthUpsellCandidates = listGrowthUpsellCandidates(input.leads, input.orders);
+  const oldestGrowthUpsellAgeHours = oldestGrowthUpsellCandidateAgeHours(
+    growthUpsellCandidates,
+    input.orders,
+    nowMs,
+  );
+
+  const connectOnboardingIncomplete = listLeadsWithIncompleteConnectOnboarding(input.leads);
+  const oldestConnectOnboardingIncompleteHours = oldestConnectOnboardingIncompleteAgeHours(
+    connectOnboardingIncomplete,
+    nowMs,
+  );
+
+  const bufferProfileMappingMissing = input.marketingSchedulingEnabled
+    ? listLeadsMissingBufferProfileMapping(input.leads, input.orders)
+    : [];
+  const oldestBufferProfileMappingMissingHours = input.marketingSchedulingEnabled
+    ? oldestBufferProfileMappingMissingAgeHours(bufferProfileMappingMissing, input.orders, nowMs)
+    : null;
+
+  const marketingPacksMissingBufferPost = input.marketingSchedulingEnabled
+    ? listMarketingPacksMissingBufferPost(packsThisMonth, input.leads, input.orders)
+    : [];
+  const oldestMarketingPacksMissingBufferPostHours = input.marketingSchedulingEnabled
+    ? oldestMarketingPackMissingBufferPostAgeHours(marketingPacksMissingBufferPost, nowMs)
+    : null;
+
+  const bundleOrdersMissingBuyerEmail = input.handoffs.filter(isBundleHandoffMissingBuyerEmail);
+  const oldestBundleOrdersMissingBuyerEmailHours = oldestOpenHandoffAgeHours(
+    bundleOrdersMissingBuyerEmail,
+    nowMs,
+  );
+
+  const vercelDomainProvisioningFailed = input.handoffs.filter(isVercelDomainProvisioningFailed);
+  const oldestVercelDomainProvisioningFailedHours = oldestOpenHandoffAgeHours(
+    vercelDomainProvisioningFailed,
+    nowMs,
+  );
+
+  const staleOrFailingCronJobs = input.cronSecretConfigured
+    ? cronJobsNeedingAttention(input.cronRuns ?? [], nowMs)
+    : [];
+
+  const suppressions = input.suppressions ?? [];
+  const recentBounceOrComplaintCount = recentBounceOrComplaintSuppressionCount(
+    suppressions,
+    nowMs,
+    24 * 7,
+  );
+  const newestBounceOrComplaintAgeHours = newestBounceOrComplaintSuppressionAgeHours(
+    suppressions,
+    nowMs,
+  );
 
   return {
     revenueTotalUsd,
     orderCount: input.orders.length,
+    acquisitionSourceBreakdown: acquisitionSourceRows,
+    bundleOrdersRefundedCount: bundleOrdersRefunded.length,
+    bundleOrdersRefundedUsd,
+    oldestBundleOrdersRefundedAgeHours,
+    bundleOrdersDisputedCount: bundleOrdersDisputed.length,
+    bundleOrdersDisputedUsd,
+    oldestBundleOrdersDisputedAgeHours,
     leadCount: input.leads.length,
     stageCounts,
     stageFunnel,
     openHandoffCount,
+    oldestOpenHandoffAgeHours: oldestOpenHandoffHours,
     leadsMissingEmailCount: input.leads.filter(leadIsMissingCriticalEmail).length,
     leadsMissingEmail,
     newInquiryCount,
     unrepliedInquiryCount,
     oldestUnrepliedInquiryAgeHours,
     paidNotLiveCount,
+    oldestPaidNotLiveAgeHours: oldestPaidNotLive,
     abandonedCheckoutCount: abandoned.length,
     recoveryDueCount,
     oldestAbandonedAgeHours,
     commerceAbandonedCheckoutCount: commerceAbandoned.length,
     commerceRecoveryDueCount,
+    oldestCommerceAbandonedAgeHours,
     coldLeadCount: coldLeads.length,
     oldestColdLeadAgeHours,
     snoozedLeadCount: snoozedLeads.length,
@@ -404,13 +1151,55 @@ export function computePipelineHealth(input: {
     followUpsDueCount: followUpsDue.length,
     oldestFollowUpDueAgeHours,
     closedLeadCount: stageCounts.closed,
+    leadWinRatePercent: leadWinRatePercent(stageCounts),
+    leadWinRateDecidedCount: stageCounts.paid + stageCounts.live + stageCounts.closed,
     marketingPacksDueCount: marketingPacksDue.length,
     marketingPacksDueMonth,
+    oldestMarketingPacksDueAgeHours: oldestMarketingPacksDueHours,
+    marketingPacksMissingClientSendCount: marketingPacksMissingClientSend.length,
+    oldestMarketingPacksMissingClientSendAgeHours: oldestMarketingPacksMissingClientSendHours,
     commerceCatalogsMissingCount: commerceCatalogsMissing.length,
+    oldestCommerceCatalogsMissingAgeHours: oldestCommerceCatalogsMissingHours,
     commerceCatalogsUnsyncedCount: commerceCatalogsUnsynced.length,
+    oldestCommerceCatalogsUnsyncedAgeHours: oldestCommerceCatalogsUnsyncedHours,
     clientVoicePacksDueCount: clientVoicePacksDue.length,
+    oldestClientVoicePacksDueAgeHours: oldestClientVoicePacksDueHours,
+    clientVoicePacksMissingClientSendCount: clientVoicePacksMissingClientSend.length,
+    oldestClientVoicePacksMissingClientSendAgeHours: oldestClientVoicePacksMissingClientSendHours,
     commerceOrdersRevenueUsd,
     commerceOrdersCount: unpaidCommerceOrders.length,
+    oldestCommerceOrdersOwedAgeHours: oldestCommerceOrdersOwedHours,
+    commerceOrdersRefundClawbackCount: commerceOrdersRefundClawback.length,
+    commerceOrdersRefundClawbackUsd,
+    oldestCommerceOrdersRefundClawbackAgeHours,
+    commerceOrdersDisputeClawbackCount: commerceOrdersDisputeClawback.length,
+    commerceOrdersDisputeClawbackUsd,
+    oldestCommerceOrdersDisputeClawbackAgeHours,
+    commerceOrdersMissingClientReceiptCount: commerceOrdersMissingClientReceipt.length,
+    oldestCommerceOrdersMissingClientReceiptAgeHours:
+      oldestCommerceOrdersMissingClientReceiptAgeHoursValue,
+    recurringEntitlementPausedCount,
+    oldestRecurringEntitlementPausedAgeHours: oldestRecurringPausedAgeHours,
+    billingNoticeSendFailedCount: billingNoticeSendFailed.length,
+    oldestBillingNoticeSendFailedAgeHours: oldestBillingNoticeSendFailedHours,
+    starterUpsellCandidatesCount: starterUpsellCandidates.length,
+    oldestStarterUpsellCandidateAgeHours: oldestStarterUpsellAgeHours,
+    growthUpsellCandidatesCount: growthUpsellCandidates.length,
+    oldestGrowthUpsellCandidateAgeHours: oldestGrowthUpsellAgeHours,
+    connectOnboardingIncompleteCount: connectOnboardingIncomplete.length,
+    oldestConnectOnboardingIncompleteAgeHours: oldestConnectOnboardingIncompleteHours,
+    bufferProfileMappingMissingCount: bufferProfileMappingMissing.length,
+    oldestBufferProfileMappingMissingAgeHours: oldestBufferProfileMappingMissingHours,
+    marketingPacksMissingBufferPostCount: marketingPacksMissingBufferPost.length,
+    oldestMarketingPacksMissingBufferPostAgeHours: oldestMarketingPacksMissingBufferPostHours,
+    bundleOrdersMissingBuyerEmailCount: bundleOrdersMissingBuyerEmail.length,
+    oldestBundleOrdersMissingBuyerEmailAgeHours: oldestBundleOrdersMissingBuyerEmailHours,
+    vercelDomainProvisioningFailedCount: vercelDomainProvisioningFailed.length,
+    oldestVercelDomainProvisioningFailedAgeHours: oldestVercelDomainProvisioningFailedHours,
+    staleOrFailingCronJobsCount: staleOrFailingCronJobs.length,
+    staleOrFailingCronJobNames: staleOrFailingCronJobs.map((job) => job.label),
+    recentBounceOrComplaintSuppressionCount: recentBounceOrComplaintCount,
+    newestBounceOrComplaintSuppressionAgeHours: newestBounceOrComplaintAgeHours,
   };
 }
 
@@ -420,6 +1209,137 @@ export function formatUsd(amount: number): string {
     currency: "USD",
     maximumFractionDigits: amount % 1 === 0 ? 0 : 2,
   }).format(amount);
+}
+
+/**
+ * Age in whole hours since a single deploy handoff's createdAt; null when
+ * createdAt fails to parse. Factored out of the oldestOpenHandoffAgeHours
+ * loop above (same Date.parse + NaN-guard + Math.max(0, …) contract) as a
+ * per-item pure function so leads-client.tsx's "Production deploy handoffs"
+ * panel can render each row's own staleness — not just the aggregate
+ * oldest — without inlining untested Date-math in JSX (per AGENT_PROTOCOL's
+ * no-test-harness-for-client-components note: extract such computations
+ * into a pure, unit-testable helper instead).
+ */
+export function deployHandoffAgeHours(createdAt: string, nowMs: number): number | null {
+  const createdAtMs = Date.parse(createdAt);
+  if (Number.isNaN(createdAtMs)) return null;
+  return Math.max(0, Math.floor((nowMs - createdAtMs) / HOUR_MS));
+}
+
+/**
+ * Age in whole hours since the oldest open (status !== "live") deploy
+ * handoff's createdAt; null when `handoffs` is empty or every createdAt
+ * fails to parse. Callers pass the already-filtered open set (see
+ * computePipelineHealth above) — reuses deployHandoffAgeHours per item, same
+ * shape as oldestCommerceOrdersOwedAgeHours below. Factored out of
+ * computePipelineHealth's inline loop so leads-client.tsx's "Production
+ * deploy handoffs" panel header can render the same aggregate staleness
+ * signal pipeline-health/digest already show, instead of a bare count.
+ */
+export function oldestOpenHandoffAgeHours(
+  handoffs: ReadonlyArray<{ createdAt: string }>,
+  nowMs: number,
+): number | null {
+  let oldest: number | null = null;
+  for (const handoff of handoffs) {
+    const ageHours = deployHandoffAgeHours(handoff.createdAt, nowMs);
+    if (ageHours === null) continue;
+    if (oldest === null || ageHours > oldest) {
+      oldest = ageHours;
+    }
+  }
+  return oldest;
+}
+
+/**
+ * Age in whole hours since the oldest still-owed Commerce Buy now order's
+ * createdAt; null when `orders` is empty or every createdAt fails to parse.
+ * Callers pass the unpaid/unrefunded/undisputed set (see commerceOrdersRevenueUsd
+ * above and its digest twin) — reuses deployHandoffAgeHours per item rather than
+ * duplicating the Date.parse/NaN-guard/clamp logic a third time, same as the
+ * oldestOpenHandoffAgeHours loop above. This is the "money never yet paid out"
+ * axis, distinct from oldestCommerceOrdersRefundClawbackAgeHours /
+ * oldestCommerceOrdersDisputeClawbackAgeHours below (money paid out, then
+ * clawed back by Stripe after the fact).
+ */
+export function oldestCommerceOrdersOwedAgeHours(
+  orders: ReadonlyArray<{ createdAt?: string }>,
+  nowMs: number,
+): number | null {
+  let oldest: number | null = null;
+  for (const order of orders) {
+    if (order.createdAt === undefined) continue;
+    const ageHours = deployHandoffAgeHours(order.createdAt, nowMs);
+    if (ageHours === null) continue;
+    if (oldest === null || ageHours > oldest) {
+      oldest = ageHours;
+    }
+  }
+  return oldest;
+}
+
+/**
+ * Age in whole hours since the oldest still-unreplied (new/read) inquiry's
+ * createdAt; null when `inquiries` is empty, none are unreplied, or every
+ * candidate's createdAt fails to parse. Callers should pass whatever
+ * inquiry set they already have on hand (computePipelineHealth uses this
+ * for the aggregate above; leads-client.tsx's "Website inquiries" panel
+ * reuses it directly so its own header staleness signal matches
+ * pipeline-health/digest instead of re-deriving the same Date-math a third
+ * time inline in JSX — same precedent as oldestCommerceOrdersOwedAgeHours).
+ */
+export function oldestUnrepliedInquiryAgeHoursFor(
+  inquiries: ReadonlyArray<{ status: ClientInquiryStatus; createdAt: string }>,
+  nowMs: number,
+): number | null {
+  let oldest: number | null = null;
+  for (const inquiry of inquiries) {
+    if (!isUnrepliedInquiryStatus(inquiry.status)) continue;
+    const ageHours = deployHandoffAgeHours(inquiry.createdAt, nowMs);
+    if (ageHours === null) continue;
+    if (oldest === null || ageHours > oldest) {
+      oldest = ageHours;
+    }
+  }
+  return oldest;
+}
+
+/**
+ * Age in whole hours since the oldest bundle order refund or dispute
+ * (whichever is older) among the given refunded/disputed order sets; null
+ * when both are empty or every candidate's refundedAt/disputedAt fails to
+ * parse. Mirrors the two separate oldestBundleOrdersRefundedAgeHours /
+ * oldestBundleOrdersDisputedAgeHours loops in computePipelineHealth above,
+ * but combined for leads-client.tsx's "Bundle order refunds & disputes"
+ * panel, which shows both refunds and disputes under one header count —
+ * same precedent as oldestCommerceOrdersOwedAgeHours / deployHandoffAgeHours
+ * (extract Date-math into a pure, unit-testable helper instead of inlining
+ * it in JSX, per AGENT_PROTOCOL's no-test-harness-for-client-components note).
+ */
+export function oldestBundleOrderRefundOrDisputeAgeHours(
+  refunds: ReadonlyArray<{ refundedAt?: string }>,
+  disputes: ReadonlyArray<{ disputedAt?: string }>,
+  nowMs: number,
+): number | null {
+  let oldest: number | null = null;
+  for (const order of refunds) {
+    if (order.refundedAt === undefined) continue;
+    const ageHours = deployHandoffAgeHours(order.refundedAt, nowMs);
+    if (ageHours === null) continue;
+    if (oldest === null || ageHours > oldest) {
+      oldest = ageHours;
+    }
+  }
+  for (const order of disputes) {
+    if (order.disputedAt === undefined) continue;
+    const ageHours = deployHandoffAgeHours(order.disputedAt, nowMs);
+    if (ageHours === null) continue;
+    if (oldest === null || ageHours > oldest) {
+      oldest = ageHours;
+    }
+  }
+  return oldest;
 }
 
 /** Human-readable abandoned-cart age for the pipeline health panel. */

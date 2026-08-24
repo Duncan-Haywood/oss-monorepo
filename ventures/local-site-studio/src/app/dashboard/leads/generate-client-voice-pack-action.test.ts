@@ -21,12 +21,15 @@ vi.mock("next/cache", () => ({
   revalidatePath: (...args: unknown[]) => revalidatePath(...args),
 }));
 
+const headerGet = vi.fn();
 vi.mock("next/headers", () => ({
-  headers: vi.fn(),
+  headers: vi.fn(async () => ({
+    get: (...args: unknown[]) => headerGet(...(args as [string])),
+  })),
 }));
 
 const getLeadBySlug = vi.fn();
-const listOrders = vi.fn();
+const listOrdersByLeadSlug = vi.fn();
 const upsertClientVoicePack = vi.fn();
 
 vi.mock("@/lib/db", () => ({
@@ -40,7 +43,8 @@ vi.mock("@/lib/db", () => ({
   getClientInquiryById: vi.fn(),
   recordClientInquiryReply: vi.fn(),
   getLeads: vi.fn(),
-  listOrders: (...args: unknown[]) => listOrders(...args),
+  listOrdersByLeadSlug: (...args: unknown[]) => listOrdersByLeadSlug(...args),
+  listOrders: vi.fn(),
   recordLeadOutreach: vi.fn(),
   listUnrepliedInquiries: vi.fn(),
   updateLeadNotes: vi.fn(),
@@ -110,7 +114,6 @@ const completeOrder = {
   tier: "complete",
   commerceAddon: false,
   amountPaid: 699,
-  status: "paid",
   createdAt: "2026-07-13T10:00:00.000Z",
 };
 
@@ -122,17 +125,24 @@ const stubVariants = [
   },
 ];
 
+const captureError = vi.fn();
+vi.mock("@/lib/observability/error-tracking", () => ({
+  captureError: (...args: unknown[]) => captureError(...args),
+}));
+
 describe("generateClientVoicePackAction", () => {
   const originalEnv = { ...process.env };
 
   beforeEach(() => {
+    captureError.mockReset().mockResolvedValue(undefined);
     vi.resetModules();
     process.env = { ...originalEnv };
     delete process.env.ANTHROPIC_API_KEY;
     requireOperatorAuth.mockReset().mockResolvedValue({ ok: true });
+    headerGet.mockReset().mockReturnValue("203.0.113.5");
     revalidatePath.mockReset();
     getLeadBySlug.mockReset().mockResolvedValue(eligibleLead);
-    listOrders.mockReset().mockResolvedValue([completeOrder]);
+    listOrdersByLeadSlug.mockReset().mockResolvedValue([completeOrder]);
     upsertClientVoicePack.mockReset().mockImplementation(async (input) => ({
       id: "voice_pack_1",
       ...input,
@@ -164,6 +174,22 @@ describe("generateClientVoicePackAction", () => {
     expect(generate).not.toHaveBeenCalled();
   });
 
+  it("rate-limits repeated generation from the same IP (auth alone is not a throttle)", async () => {
+    const { generateClientVoicePackAction } = await import("./actions");
+    // DEFAULT_RATE_LIMIT is 20 requests/60s per key — exhaust the window.
+    for (let i = 0; i < 20; i++) {
+      const res = await generateClientVoicePackAction("demo-cafe");
+      expect(res.success).toBe(true);
+    }
+    generate.mockClear();
+    const res = await generateClientVoicePackAction("demo-cafe");
+    expect(res).toEqual({
+      success: false,
+      error: "Too many requests — please try again shortly.",
+    });
+    expect(generate).not.toHaveBeenCalled();
+  });
+
   it("rejects an empty slug", async () => {
     const { generateClientVoicePackAction } = await import("./actions");
     const res = await generateClientVoicePackAction("");
@@ -186,7 +212,7 @@ describe("generateClientVoicePackAction", () => {
   });
 
   it("rejects Growth-only / unpaid leads (eligibility)", async () => {
-    listOrders.mockResolvedValue([
+    listOrdersByLeadSlug.mockResolvedValue([
       { ...completeOrder, tier: "growth", amountPaid: 599 },
     ]);
     const { generateClientVoicePackAction } = await import("./actions");
@@ -290,12 +316,30 @@ describe("generateClientVoicePackAction", () => {
       error: "disk full",
     });
     expect(revalidatePath).not.toHaveBeenCalled();
+    expect(captureError).toHaveBeenCalledWith(expect.any(Error), {
+      component: "dashboard-leads-actions",
+      failureKind: "generateClientVoicePackAction",
+    });
   });
 
-  it("filters orders to the requested lead slug before eligibility", async () => {
-    listOrders.mockResolvedValue([
-      { ...completeOrder, leadSlug: "other-cafe", tier: "complete" },
+  it("loads orders via listOrdersByLeadSlug (growth-only does not pass Complete gate)", async () => {
+    listOrdersByLeadSlug.mockResolvedValue([
       { ...completeOrder, leadSlug: "demo-cafe", tier: "growth" },
+    ]);
+    const { generateClientVoicePackAction } = await import("./actions");
+    const res = await generateClientVoicePackAction("demo-cafe");
+    expect(listOrdersByLeadSlug).toHaveBeenCalledWith("demo-cafe");
+    expect(res).toEqual({
+      success: false,
+      error:
+        "Client voice FAQ packs require a paid/live lead with a Complete order",
+    });
+    expect(generate).not.toHaveBeenCalled();
+  });
+
+  it("rejects Complete orders after recurringCanceledAt (paused/canceled MRR)", async () => {
+    listOrdersByLeadSlug.mockResolvedValue([
+      { ...completeOrder, recurringCanceledAt: 1_720_000_000_000 },
     ]);
     const { generateClientVoicePackAction } = await import("./actions");
     const res = await generateClientVoicePackAction("demo-cafe");
@@ -305,5 +349,6 @@ describe("generateClientVoicePackAction", () => {
         "Client voice FAQ packs require a paid/live lead with a Complete order",
     });
     expect(generate).not.toHaveBeenCalled();
+    expect(upsertClientVoicePack).not.toHaveBeenCalled();
   });
 });

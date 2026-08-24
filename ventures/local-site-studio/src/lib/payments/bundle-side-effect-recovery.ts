@@ -113,3 +113,28 @@ export function planBundleWebhookSideEffects(input: {
     reason: input.alreadyRecorded ? "redelivery_recovery" : "first_delivery",
   };
 }
+
+/**
+ * True when a bundle deploy handoff should have received a buyer email
+ * (receipt and/or DNS go-live instructions) but is missing at least one
+ * durable sent-marker note — the same sold-capability visibility gap already
+ * closed for Commerce Buy now via commerceOrders.clientReceiptEmailSentAt
+ * (see commerce-buy-now-client-receipt-visibility). Stripe redelivers
+ * checkout.session.completed for a finite window; a permanently-bad
+ * customerEmail or a sustained Resend outage past that window leaves the
+ * buyer never notified with no operator-visible signal (see
+ * bundle-order-missing-buyer-email-visibility). Only meaningful when
+ * customerEmail is present — planBundleWebhookSideEffects never attempts
+ * either send otherwise (reason: "no_customer_email").
+ */
+export function isBundleHandoffMissingBuyerEmail(handoff: {
+  customerEmail: string;
+  stripeSessionId: string;
+  notes: ReadonlyArray<string>;
+}): boolean {
+  if (!handoff.customerEmail.trim()) return false;
+  return (
+    !hasBundleReceiptEmailNote(handoff.notes, handoff.stripeSessionId) ||
+    !hasBundleDnsHandoffEmailNote(handoff.notes, handoff.stripeSessionId)
+  );
+}

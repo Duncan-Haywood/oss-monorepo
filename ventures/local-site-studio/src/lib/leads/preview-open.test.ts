@@ -1,7 +1,15 @@
 import { describe, expect, it } from "vitest";
 import {
+  MAX_PREVIEW_OPEN_ATTR_PARAM_LENGTH,
+  MAX_PREVIEW_OPENED_AT_FUTURE_SKEW_MS,
+  MAX_PREVIEW_OPENED_AT_LENGTH,
+  MAX_PREVIEW_OPENED_AT_PAST_SKEW_MS,
   OUTREACH_PREVIEW_SRC,
+  buildPreviewOpenBeaconPath,
   previewUrlWithOutreachTracking,
+  resolvePreviewOpenAttrParam,
+  resolvePreviewOpenedAt,
+  shouldFirePreviewOpenBeacon,
   shouldPersistPreviewOpen,
   shouldRecordPreviewOpen,
 } from "./preview-open";
@@ -53,5 +61,152 @@ describe("shouldPersistPreviewOpen", () => {
   it("debounces recent opens", () => {
     expect(shouldPersistPreviewOpen("2026-07-12T11:45:00.000Z", now)).toBe(false);
     expect(shouldPersistPreviewOpen("2026-07-12T11:00:00.000Z", now)).toBe(true);
+  });
+});
+
+describe("resolvePreviewOpenAttrParam", () => {
+  it("returns null for missing / empty / non-string", () => {
+    expect(resolvePreviewOpenAttrParam(undefined)).toBeNull();
+    expect(resolvePreviewOpenAttrParam(null)).toBeNull();
+    expect(resolvePreviewOpenAttrParam("")).toBeNull();
+  });
+
+  it("returns null for over-long probes (fall-back, never soft-cap)", () => {
+    const overLong = "a".repeat(MAX_PREVIEW_OPEN_ATTR_PARAM_LENGTH + 1);
+    expect(resolvePreviewOpenAttrParam(overLong)).toBeNull();
+  });
+
+  it("accepts genuine short attribution tokens at exact max", () => {
+    expect(resolvePreviewOpenAttrParam("outreach")).toBe("outreach");
+    expect(resolvePreviewOpenAttrParam("email")).toBe("email");
+    expect(resolvePreviewOpenAttrParam("resend")).toBe("resend");
+    const exact = "x".repeat(MAX_PREVIEW_OPEN_ATTR_PARAM_LENGTH);
+    expect(resolvePreviewOpenAttrParam(exact)).toBe(exact);
+  });
+});
+
+describe("shouldFirePreviewOpenBeacon", () => {
+  it("fires for short attribution tokens", () => {
+    expect(shouldFirePreviewOpenBeacon({ src: "outreach" })).toBe(true);
+    expect(shouldFirePreviewOpenBeacon({ utmSource: "resend" })).toBe(true);
+  });
+
+  it("fires for trackByStage even without query attrs", () => {
+    expect(shouldFirePreviewOpenBeacon({ trackByStage: true })).toBe(true);
+  });
+
+  it("does not treat over-long src/utm as attribution (fall-back)", () => {
+    const overLong = "a".repeat(MAX_PREVIEW_OPEN_ATTR_PARAM_LENGTH + 1);
+    expect(shouldFirePreviewOpenBeacon({ src: overLong })).toBe(false);
+    expect(shouldFirePreviewOpenBeacon({ utmSource: overLong })).toBe(false);
+  });
+
+  it("still fires trackByStage when over-long attrs are present", () => {
+    const overLong = "a".repeat(MAX_PREVIEW_OPEN_ATTR_PARAM_LENGTH + 1);
+    expect(
+      shouldFirePreviewOpenBeacon({ src: overLong, trackByStage: true }),
+    ).toBe(true);
+  });
+});
+
+describe("buildPreviewOpenBeaconPath", () => {
+  it("omits over-long src/utm_source from the fetch URL (page twin)", () => {
+    const overLong = "a".repeat(MAX_PREVIEW_OPEN_ATTR_PARAM_LENGTH + 1);
+    expect(
+      buildPreviewOpenBeaconPath("demo-cafe", {
+        src: overLong,
+        utmSource: overLong,
+      }),
+    ).toBe("/api/preview/demo-cafe/open");
+  });
+
+  it("includes short attribution tokens", () => {
+    expect(
+      buildPreviewOpenBeaconPath("demo-cafe", { src: "outreach" }),
+    ).toBe("/api/preview/demo-cafe/open?src=outreach");
+    expect(
+      buildPreviewOpenBeaconPath("demo-cafe", { utmSource: "resend" }),
+    ).toBe("/api/preview/demo-cafe/open?utm_source=resend");
+  });
+
+  it("keeps short tokens and drops only the over-long twin", () => {
+    const overLong = "a".repeat(MAX_PREVIEW_OPEN_ATTR_PARAM_LENGTH + 1);
+    expect(
+      buildPreviewOpenBeaconPath("demo-cafe", {
+        src: "outreach",
+        utmSource: overLong,
+      }),
+    ).toBe("/api/preview/demo-cafe/open?src=outreach");
+  });
+});
+
+describe("resolvePreviewOpenedAt", () => {
+  const serverNow = "2026-07-16T09:00:00.000Z";
+
+  it("falls back to server now for missing / non-string / empty", () => {
+    expect(resolvePreviewOpenedAt(undefined, serverNow)).toBe(serverNow);
+    expect(resolvePreviewOpenedAt(null, serverNow)).toBe(serverNow);
+    expect(resolvePreviewOpenedAt(123, serverNow)).toBe(serverNow);
+    expect(resolvePreviewOpenedAt("", serverNow)).toBe(serverNow);
+  });
+
+  it("falls back to server now for over-long probes before Date.parse", () => {
+    const overLong = `${"2".repeat(MAX_PREVIEW_OPENED_AT_LENGTH + 1)}Z`;
+    expect(overLong.length).toBeGreaterThan(MAX_PREVIEW_OPENED_AT_LENGTH);
+    expect(resolvePreviewOpenedAt(overLong, serverNow)).toBe(serverNow);
+  });
+
+  it("accepts exact-max length when parseable", () => {
+    // 24-char ISO padded conceptually — use a real ISO under the ceiling,
+    // close enough to serverNow to stay inside the past-skew tolerance.
+    const iso = "2026-07-16T08:59:00.000Z";
+    expect(iso.length).toBeLessThanOrEqual(MAX_PREVIEW_OPENED_AT_LENGTH);
+    expect(resolvePreviewOpenedAt(iso, serverNow)).toBe(iso);
+  });
+
+  it("falls back when unparseable within the length ceiling", () => {
+    expect(resolvePreviewOpenedAt("not-a-date", serverNow)).toBe(serverNow);
+  });
+
+  it("normalizes parseable non-ISO dates to toISOString", () => {
+    expect(resolvePreviewOpenedAt("2026-07-16T08:59:00+00:00", serverNow)).toBe(
+      "2026-07-16T08:59:00.000Z",
+    );
+  });
+
+  it("falls back to server now for a far-future spoofed timestamp", () => {
+    expect(resolvePreviewOpenedAt("2099-01-01T00:00:00.000Z", serverNow)).toBe(serverNow);
+  });
+
+  it("falls back to server now just past the future-skew tolerance", () => {
+    const justOver = new Date(
+      Date.parse(serverNow) + MAX_PREVIEW_OPENED_AT_FUTURE_SKEW_MS + 1,
+    ).toISOString();
+    expect(resolvePreviewOpenedAt(justOver, serverNow)).toBe(serverNow);
+  });
+
+  it("accepts a timestamp within the future-skew tolerance", () => {
+    const withinSkew = new Date(
+      Date.parse(serverNow) + MAX_PREVIEW_OPENED_AT_FUTURE_SKEW_MS - 1,
+    ).toISOString();
+    expect(resolvePreviewOpenedAt(withinSkew, serverNow)).toBe(withinSkew);
+  });
+
+  it("falls back to server now for an implausibly old spoofed timestamp", () => {
+    expect(resolvePreviewOpenedAt("2001-01-01T00:00:00.000Z", serverNow)).toBe(serverNow);
+  });
+
+  it("falls back to server now just past the past-skew tolerance", () => {
+    const justOver = new Date(
+      Date.parse(serverNow) - MAX_PREVIEW_OPENED_AT_PAST_SKEW_MS - 1,
+    ).toISOString();
+    expect(resolvePreviewOpenedAt(justOver, serverNow)).toBe(serverNow);
+  });
+
+  it("accepts a timestamp within the past-skew tolerance", () => {
+    const withinSkew = new Date(
+      Date.parse(serverNow) - MAX_PREVIEW_OPENED_AT_PAST_SKEW_MS + 1,
+    ).toISOString();
+    expect(resolvePreviewOpenedAt(withinSkew, serverNow)).toBe(withinSkew);
   });
 });

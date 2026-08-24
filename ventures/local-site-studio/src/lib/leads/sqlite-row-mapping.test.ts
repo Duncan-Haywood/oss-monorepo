@@ -1,8 +1,10 @@
 import { describe, expect, it } from "vitest";
 import {
   mapSqliteRowToLead,
+  parseLeadBufferProfileIds,
   parseLeadHours,
   parseLeadServices,
+  serializeLeadBufferProfileIds,
   serializeLeadHours,
   serializeLeadServices,
   type SqliteLeadRow,
@@ -42,6 +44,17 @@ describe("serializeLeadHours / parseLeadHours round-trip", () => {
     });
   });
 
+  it("preserves additional · characters in the weekend value (CSV import default bug regression)", () => {
+    const stored = serializeLeadHours({
+      weekday: "Mon–Fri 9am–5pm",
+      weekend: "Sat 10am–2pm · Closed Sun",
+    });
+    expect(parseLeadHours(stored)).toEqual({
+      weekday: "Mon–Fri 9am–5pm",
+      weekend: "Sat 10am–2pm · Closed Sun",
+    });
+  });
+
   it("falls back to the documented default hours when the column is null/undefined/empty", () => {
     const fallback = { weekday: "Mon–Fri 9am–5pm", weekend: "Sat–Sun Closed" };
     expect(parseLeadHours(null)).toEqual(fallback);
@@ -72,6 +85,31 @@ describe("serializeLeadServices / parseLeadServices round-trip", () => {
 
   it("returns [] when the JSON parses but isn't an array", () => {
     expect(parseLeadServices('{"weekday":"x"}')).toEqual([]);
+  });
+});
+
+describe("serializeLeadBufferProfileIds / parseLeadBufferProfileIds round-trip", () => {
+  it("round-trips an ordinary profile id array", () => {
+    const ids = ["p1", "p2"];
+    expect(parseLeadBufferProfileIds(serializeLeadBufferProfileIds(ids))).toEqual(ids);
+  });
+
+  it("returns undefined (not []) for an empty array, so the dormant-state check stays a simple truthy length check", () => {
+    expect(parseLeadBufferProfileIds(serializeLeadBufferProfileIds([]))).toBeUndefined();
+  });
+
+  it("returns undefined for a null/undefined/empty column instead of throwing", () => {
+    expect(parseLeadBufferProfileIds(null)).toBeUndefined();
+    expect(parseLeadBufferProfileIds(undefined)).toBeUndefined();
+    expect(parseLeadBufferProfileIds("")).toBeUndefined();
+  });
+
+  it("returns undefined for malformed JSON instead of throwing", () => {
+    expect(parseLeadBufferProfileIds("{not valid json")).toBeUndefined();
+  });
+
+  it("returns undefined when the JSON parses but isn't an array", () => {
+    expect(parseLeadBufferProfileIds('{"weekday":"x"}')).toBeUndefined();
   });
 });
 
@@ -126,7 +164,7 @@ describe("mapSqliteRowToLead", () => {
     expect(lead.phone).toBe("(555) 000-0000");
     expect(lead.address).toBeUndefined();
     expect(lead.email).toBeUndefined();
-    expect(lead.tagline).toBe("Local favorites made fresh daily");
+    expect(lead.tagline).toBe("Your neighborhood business, online");
     expect(lead.description).toContain("Acme Cafe");
     expect(lead.recommendedTier).toBe("growth");
     expect(lead.services).toEqual([]);
@@ -141,6 +179,12 @@ describe("mapSqliteRowToLead", () => {
     const salon = mapSqliteRowToLead(baseRow({ category: "salon", tagline: null }));
     expect(salon.recommendedTier).toBe("complete");
     expect(salon.tagline).toBe("Tailored styling and care");
+
+    const restaurant = mapSqliteRowToLead(baseRow({ category: "restaurant", tagline: null }));
+    expect(restaurant.tagline).toBe("Local favorites made fresh daily");
+
+    const generic = mapSqliteRowToLead(baseRow({ category: "generic", tagline: null }));
+    expect(generic.tagline).toBe("Your neighborhood business, online");
   });
 
   it("ignores an out-of-range recommendedTier column and falls back to the category default", () => {
@@ -153,5 +197,41 @@ describe("mapSqliteRowToLead", () => {
   it("normalizes an out-of-range outreachStep to 0", () => {
     expect(mapSqliteRowToLead(baseRow({ outreachStep: 99 })).outreachStep).toBe(0);
     expect(mapSqliteRowToLead(baseRow({ outreachStep: null })).outreachStep).toBe(0);
+  });
+
+  it("parses bufferProfileIds JSON and leaves it undefined when absent", () => {
+    const withProfiles = mapSqliteRowToLead(
+      baseRow({ bufferProfileIds: JSON.stringify(["p1", "p2"]) }),
+    );
+    expect(withProfiles.bufferProfileIds).toEqual(["p1", "p2"]);
+
+    expect(mapSqliteRowToLead(baseRow()).bufferProfileIds).toBeUndefined();
+  });
+
+  it("round-trips Stripe Connect status fields, distinguishing never-checked (undefined) from confirmed false", () => {
+    const neverChecked = mapSqliteRowToLead(
+      baseRow({ stripeConnectAccountId: "acct_1" }),
+    );
+    expect(neverChecked.stripeConnectAccountCreatedAt).toBeUndefined();
+    expect(neverChecked.stripeConnectChargesEnabled).toBeUndefined();
+    expect(neverChecked.stripeConnectPayoutsEnabled).toBeUndefined();
+    expect(neverChecked.stripeConnectDetailsSubmitted).toBeUndefined();
+    expect(neverChecked.stripeConnectStatusCheckedAt).toBeUndefined();
+
+    const checked = mapSqliteRowToLead(
+      baseRow({
+        stripeConnectAccountId: "acct_1",
+        stripeConnectAccountCreatedAt: "2026-07-20T00:00:00.000Z",
+        stripeConnectChargesEnabled: 1,
+        stripeConnectPayoutsEnabled: 0,
+        stripeConnectDetailsSubmitted: 1,
+        stripeConnectStatusCheckedAt: "2026-07-23T00:00:00.000Z",
+      }),
+    );
+    expect(checked.stripeConnectAccountCreatedAt).toBe("2026-07-20T00:00:00.000Z");
+    expect(checked.stripeConnectChargesEnabled).toBe(true);
+    expect(checked.stripeConnectPayoutsEnabled).toBe(false);
+    expect(checked.stripeConnectDetailsSubmitted).toBe(true);
+    expect(checked.stripeConnectStatusCheckedAt).toBe("2026-07-23T00:00:00.000Z");
   });
 });

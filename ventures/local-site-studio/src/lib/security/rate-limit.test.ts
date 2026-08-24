@@ -2,6 +2,9 @@ import { beforeEach, describe, expect, it } from "vitest";
 import {
   checkRateLimit,
   clientIpFromHeaders,
+  getRateLimiterBucketCountForTests,
+  MAX_CLIENT_IP_LENGTH,
+  MAX_RATE_LIMIT_BUCKETS,
   resetRateLimiterForTests,
 } from "./rate-limit";
 
@@ -96,6 +99,26 @@ describe("checkRateLimit", () => {
 
     expect(checkRateLimit(key, CONFIG, 0).allowed).toBe(true);
   });
+
+  it("evicts expired buckets before admitting a new key", () => {
+    checkRateLimit("stale-key", CONFIG, 0);
+    checkRateLimit("fresh-key", CONFIG, 1_000);
+
+    // The stale bucket must not remain resident after a later request.
+    expect(getRateLimiterBucketCountForTests()).toBe(1);
+  });
+
+  it("caps active buckets by evicting the oldest key", () => {
+    checkRateLimit("oldest-key", CONFIG, 0);
+    for (let i = 0; i < MAX_RATE_LIMIT_BUCKETS - 1; i += 1) {
+      checkRateLimit(`active-key-${i}`, CONFIG, 0);
+    }
+
+    // Adding a new distinct key at capacity evicts oldest-key, so the old
+    // identifier starts a fresh window instead of growing the Map further.
+    checkRateLimit("new-key-at-capacity", CONFIG, 0);
+    expect(checkRateLimit("oldest-key", CONFIG, 0).allowed).toBe(true);
+  });
 });
 
 describe("clientIpFromHeaders", () => {
@@ -118,5 +141,33 @@ describe("clientIpFromHeaders", () => {
 
   it("falls back to a fixed placeholder when neither header is present", () => {
     expect(clientIpFromHeaders(new Headers())).toBe("unknown");
+  });
+
+  it("falls back to the placeholder when x-forwarded-for exceeds MAX_CLIENT_IP_LENGTH", () => {
+    const headers = new Headers({
+      "x-forwarded-for": "9".repeat(MAX_CLIENT_IP_LENGTH + 1),
+    });
+    expect(clientIpFromHeaders(headers)).toBe("unknown");
+  });
+
+  it("accepts an x-forwarded-for entry at exactly MAX_CLIENT_IP_LENGTH", () => {
+    const value = "9".repeat(MAX_CLIENT_IP_LENGTH);
+    const headers = new Headers({ "x-forwarded-for": value });
+    expect(clientIpFromHeaders(headers)).toBe(value);
+  });
+
+  it("falls through to x-real-ip when x-forwarded-for is oversized", () => {
+    const headers = new Headers({
+      "x-forwarded-for": "9".repeat(MAX_CLIENT_IP_LENGTH + 1),
+      "x-real-ip": "198.51.100.7",
+    });
+    expect(clientIpFromHeaders(headers)).toBe("198.51.100.7");
+  });
+
+  it("falls back to the placeholder when x-real-ip exceeds MAX_CLIENT_IP_LENGTH", () => {
+    const headers = new Headers({
+      "x-real-ip": "8".repeat(MAX_CLIENT_IP_LENGTH + 1),
+    });
+    expect(clientIpFromHeaders(headers)).toBe("unknown");
   });
 });

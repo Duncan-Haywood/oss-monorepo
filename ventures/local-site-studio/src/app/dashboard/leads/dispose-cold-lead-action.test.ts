@@ -24,9 +24,18 @@ vi.mock("next/cache", () => ({
   revalidatePath: (...args: unknown[]) => revalidatePath(...args),
 }));
 
+const headersMock = vi.fn();
 vi.mock("next/headers", () => ({
-  headers: vi.fn(),
+  headers: (...args: unknown[]) => headersMock(...args),
 }));
+
+function headerStore(entries: Record<string, string | null> = {}) {
+  return {
+    get(name: string) {
+      return entries[name] ?? null;
+    },
+  };
+}
 
 const getLeadBySlug = vi.fn();
 const applyColdLeadDisposition = vi.fn();
@@ -44,6 +53,7 @@ vi.mock("@/lib/db", () => ({
   recordClientInquiryReply: vi.fn(),
   getLeads: vi.fn(),
   listOrders: vi.fn(),
+  listOrdersByLeadSlug: vi.fn(),
   recordLeadOutreach: (...args: unknown[]) => recordLeadOutreach(...args),
   listUnrepliedInquiries: vi.fn(),
   updateLeadNotes: vi.fn(),
@@ -116,13 +126,20 @@ const coldLead = {
   dataSource: "manual_entry" as const,
 };
 
+const captureError = vi.fn();
+vi.mock("@/lib/observability/error-tracking", () => ({
+  captureError: (...args: unknown[]) => captureError(...args),
+}));
+
 describe("disposeColdLeadAction", () => {
   beforeEach(() => {
+    captureError.mockReset().mockResolvedValue(undefined);
     vi.resetModules();
     requireOperatorAuth.mockReset().mockResolvedValue({ ok: true });
+    headersMock.mockReset().mockResolvedValue(headerStore());
     revalidatePath.mockReset();
     getLeadBySlug.mockReset().mockResolvedValue(coldLead);
-    applyColdLeadDisposition.mockReset().mockResolvedValue(undefined);
+    applyColdLeadDisposition.mockReset().mockResolvedValue(true);
     recordLeadOutreach.mockReset().mockResolvedValue(undefined);
     sendOutreachEmail.mockReset().mockResolvedValue({
       success: true,
@@ -143,6 +160,36 @@ describe("disposeColdLeadAction", () => {
     });
     expect(getLeadBySlug).not.toHaveBeenCalled();
     expect(applyColdLeadDisposition).not.toHaveBeenCalled();
+  });
+
+  it("surfaces unexpected Error messages from the lead lookup and reports it via captureError", async () => {
+    getLeadBySlug.mockRejectedValue(new Error("db offline"));
+    const { disposeColdLeadAction } = await import("./actions");
+    const res = await disposeColdLeadAction("cold-bakery", "close");
+    expect(res).toEqual({
+      success: false,
+      error: "db offline",
+    });
+    expect(captureError).toHaveBeenCalledWith(expect.any(Error), {
+      component: "dashboard-leads-actions",
+      failureKind: "disposeColdLeadAction",
+    });
+  });
+
+  it("rate-limits repeated dispositions from the same IP (auth alone is not a throttle)", async () => {
+    const { disposeColdLeadAction } = await import("./actions");
+    // DEFAULT_RATE_LIMIT is 20 requests/60s per key — exhaust the window.
+    for (let i = 0; i < 20; i++) {
+      const res = await disposeColdLeadAction("cold-bakery", "close");
+      expect(res.success).toBe(true);
+    }
+    getLeadBySlug.mockClear();
+    const res = await disposeColdLeadAction("cold-bakery", "close");
+    expect(res).toEqual({
+      success: false,
+      error: "Too many requests — please try again shortly.",
+    });
+    expect(getLeadBySlug).not.toHaveBeenCalled();
   });
 
   it("rejects an empty slug", async () => {
@@ -267,6 +314,40 @@ describe("disposeColdLeadAction", () => {
     expect(recordLeadOutreach).not.toHaveBeenCalled();
     expect(sendOutreachEmail).not.toHaveBeenCalled();
     expect(revalidatePath).toHaveBeenCalledWith("/dashboard/leads");
+  });
+
+  it("rejects when the lead went paid/live after this page loaded (write no-op race)", async () => {
+    // applyColdLeadDisposition atomically re-checks paid/live at write time
+    // and returns false when a concurrent Stripe checkout beat this action
+    // to the write — the stale snapshot read at the top of the action still
+    // saw a cold, unpaid lead (cold-lead-disposition-paid-live-race-guard).
+    applyColdLeadDisposition.mockResolvedValue(false);
+    const { disposeColdLeadAction } = await import("./actions");
+    const res = await disposeColdLeadAction("cold-bakery", "close");
+    expect(res).toEqual({
+      success: false,
+      error:
+        "Lead was paid or went live after this page loaded — refresh and check its status; the cold-lead disposition was not applied",
+    });
+    expect(applyColdLeadDisposition).toHaveBeenCalledOnce();
+    expect(recordLeadOutreach).not.toHaveBeenCalled();
+    expect(sendOutreachEmail).not.toHaveBeenCalled();
+    expect(revalidatePath).not.toHaveBeenCalled();
+  });
+
+  it("does not send Email 1 when re-engage + sendEmail1 loses the paid/live write race", async () => {
+    applyColdLeadDisposition.mockResolvedValue(false);
+    const { disposeColdLeadAction } = await import("./actions");
+    const res = await disposeColdLeadAction("cold-bakery", "reengage", {
+      sendEmail1: true,
+    });
+    expect(res).toEqual({
+      success: false,
+      error:
+        "Lead was paid or went live after this page loaded — refresh and check its status; the cold-lead disposition was not applied",
+    });
+    expect(recordLeadOutreach).not.toHaveBeenCalled();
+    expect(sendOutreachEmail).not.toHaveBeenCalled();
   });
 
   it("skips Email 1 when the disposition write fails closed on Convex", async () => {

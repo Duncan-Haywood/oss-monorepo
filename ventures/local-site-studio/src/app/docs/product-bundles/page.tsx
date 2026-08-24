@@ -1,5 +1,20 @@
+import type { Metadata } from "next";
 import { DocLink, DocPage } from "@/components/docs/doc-page";
 import { brand } from "@/lib/brand";
+import {
+  monthlyMarketingEmailCount,
+  monthlyMarketingSocialPostCount,
+} from "@/lib/marketing/monthly-pack";
+import { docPageMetadata } from "@/lib/seo";
+import {
+  annualBillingSavingsUsd,
+  bundleAnnualPriceHeadingLabel,
+  bundlePriceHeadingLabel,
+  commerceAddonPriceHeadingLabel,
+  getBundle,
+} from "@/lib/pricing/bundles";
+
+export const metadata: Metadata = docPageMetadata("/docs/product-bundles");
 
 export default function ProductBundlesDocPage() {
   return (
@@ -15,9 +30,9 @@ export default function ProductBundlesDocPage() {
       <table>
         <thead>
           <tr>
-            <th>Bundle</th>
-            <th>Tagline</th>
-            <th>Best for</th>
+            <th scope="col">Bundle</th>
+            <th scope="col">Tagline</th>
+            <th scope="col">Best for</th>
           </tr>
         </thead>
         <tbody>
@@ -44,7 +59,7 @@ export default function ProductBundlesDocPage() {
         </tbody>
       </table>
 
-      <h2>Starter — $500 one-time</h2>
+      <h2>Starter — {bundlePriceHeadingLabel(getBundle("starter")!)}</h2>
       <ul>
         <li>Category template landing page, mobile responsive</li>
         <li>Contact form, Google Maps, hours, basic SEO (form + map live on /preview/[slug])</li>
@@ -52,18 +67,34 @@ export default function ProductBundlesDocPage() {
         <li>Self-serve Stripe checkout</li>
       </ul>
 
-      <h2>Growth — $500 + $99/mo</h2>
+      <h2>Growth — {bundlePriceHeadingLabel(getBundle("growth")!)}</h2>
       <p>
-        Everything in Starter plus AI marketing engine: 8 social/GBP posts + 2 emails/month,
-        brand voice from site data. Operators generate a monthly pack on the leads dashboard and
+        Billed monthly by default. Choosing annual billing at checkout is{" "}
+        {bundleAnnualPriceHeadingLabel(getBundle("growth")!)} — {annualBillingSavingsUsd(getBundle("growth")!)}
+        /yr cheaper than paying monthly (2 months free). Annual billing can&apos;t be combined
+        with the Commerce add-on, since a Stripe subscription&apos;s recurring line items share
+        one billing interval and the add-on has no annual Price of its own.
+      </p>
+      <p>
+        Everything in Starter plus AI marketing engine: {monthlyMarketingSocialPostCount()}{" "}
+        social/GBP posts + {monthlyMarketingEmailCount()} emails/month, brand voice from site
+        data. Operators generate a monthly pack on the leads dashboard and
         can <strong>Email pack</strong> to the client (Resend) so they can post themselves;
         when Convex is configured, Generate pack fails closed (<code>requireConvex</code>) so a
         multi-instance deploy cannot claim success after a SQLite-only write that leaves Email
-        pack / packs-due blind elsewhere. Buffer / GBP / Meta auto-scheduling stays optional
-        once OAuth is configured.
+        pack / packs-due blind elsewhere. Buffer auto-scheduling is available as a dormant
+        scaffold once the operator sets <code>ALLOW_MARKETING_SCHEDULING</code> +{" "}
+        <code>BUFFER_ACCESS_TOKEN</code>; GBP / Meta auto-scheduling stays fully gated on
+        per-business OAuth.
       </p>
 
-      <h2>Complete — $500 + $199/mo</h2>
+      <h2>Complete — {bundlePriceHeadingLabel(getBundle("complete")!)}</h2>
+      <p>
+        Billed monthly by default. Choosing annual billing at checkout is{" "}
+        {bundleAnnualPriceHeadingLabel(getBundle("complete")!)} —{" "}
+        {annualBillingSavingsUsd(getBundle("complete")!)}/yr cheaper than paying monthly (2
+        months free). Same Commerce add-on restriction as Growth applies.
+      </p>
       <p>
         Everything in Growth plus full marketing tier and client AI phone agent (answers their
         business line — booking, FAQ, lead capture). Until Twilio is live, operators fulfill with
@@ -75,7 +106,7 @@ export default function ProductBundlesDocPage() {
         voice pack / voice-packs-due blind elsewhere.
       </p>
 
-      <h2>Commerce — +$300 + $49/mo</h2>
+      <h2>Commerce — {commerceAddonPriceHeadingLabel()}</h2>
       <p>
         Stacks on any bundle. Operator-editable catalog ≤50 SKUs on the live preview. Operator
         clicks Sync to Stripe on a saved catalog to create real Stripe Products/Prices per SKU
@@ -93,7 +124,8 @@ export default function ProductBundlesDocPage() {
         <code>archive-orphan-commerce-stripe-products-action.test.ts</code>). A
         completed Buy now also emails the local business (<code>lead.email</code>
         ) with the SKU/amount so they can fulfill — the sold order-notification promise — separate
-        from the operator inquiry inbox and from Stripe Connect payouts. Stripe redeliveries of the
+        from the operator inquiry inbox and from the manual Commerce payouts reconciliation below
+        (there is no automated Stripe Connect payout yet — see the Operator note). Stripe redeliveries of the
         same Checkout Session recover a missing inquiry and a missing client email independently
         when the <code>commerceOrders</code> ledger row exists: inquiry when no prior{" "}
         <code>commerce_checkout</code> inquiry embeds that session id (uncapped{" "}
@@ -121,6 +153,19 @@ export default function ProductBundlesDocPage() {
         commerce-payouts-stripe-connect).
       </p>
 
+      <h2>Discounts / promo codes</h2>
+      <p>
+        Every Checkout Session (bundle + Commerce add-on at <code>/api/stripe/checkout</code>,
+        Commerce Buy now at <code>/api/commerce/checkout</code>) sets{" "}
+        <code>allow_promotion_codes: true</code>, so Stripe&apos;s own promo-code field appears on
+        the hosted Checkout page with no app code change per campaign. Create a Coupon and a
+        Promotion Code (the customer-facing string, e.g. <code>LAUNCH20</code>) directly in the
+        Stripe Dashboard (Product catalog → Coupons) — a launch discount, referral-partner code, or
+        win-back offer for a churned Growth/Complete subscriber all work this way. The webhook
+        already records <code>session.amount_total</code> (the post-discount charged amount), so a
+        redeemed code needs no ledger, entitlement, or pipeline-health change to stay accurate.
+      </p>
+
       <h2>Recommendation logic</h2>
       <ul>
         <li>High phone volume → Complete</li>
@@ -139,7 +184,17 @@ export default function ProductBundlesDocPage() {
       </p>
 
       <h2>Upsell path</h2>
-      <p>Preview tier cards → self-serve Stripe, or platform voice explains tiers → checkout link via SMS.</p>
+      <p>
+        Preview tier comparison cards → self-serve Stripe checkout. Two operator-triggered
+        one-tier-up nudges cover the post-purchase path: paid/live Starter →
+        Growth/Complete, and paid/live Growth → Complete (the only tier with real
+        differentiated value over Growth — seasonal promos, the AI phone agent, appointment
+        booking) — both a dashboard panel/row action + Resend email, both also surfaced in
+        pipeline health and the daily digest. See{" "}
+        <DocLink href="/docs/business-model">Business model</DocLink>. (No SMS send capability
+        exists in this codebase; platform voice explaining tiers is unbuilt — see{" "}
+        <DocLink href="/docs/roadmap">Roadmap</DocLink>.)
+      </p>
     </DocPage>
   );
 }

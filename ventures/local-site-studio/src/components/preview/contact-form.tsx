@@ -1,6 +1,7 @@
 "use client";
 
-import { useEffect, useState, type FormEvent } from "react";
+import { useEffect, useRef, useState, type FormEvent } from "react";
+import { leadContactApiPath } from "@/lib/leads/slug-path";
 import {
   COMMERCE_ORDER_EVENT,
   commerceOrderStorageKey,
@@ -48,16 +49,44 @@ export function PreviewContactForm({
   const [message, setMessage] = useState(() => readPendingCommerceOrder(slug));
   const [status, setStatus] = useState<SubmitState>("idle");
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const messageFieldRef = useRef<HTMLTextAreaElement>(null);
+  const successMessageRef = useRef<HTMLParagraphElement>(null);
+  const hadPendingOrderOnMount = useRef(message.length > 0);
+
+  // "Request order" only scrolls the browser to #contact (native hash-jump on
+  // the <a> in commerce-catalog.tsx) — it never moves programmatic focus, so a
+  // keyboard-only or screen-reader shopper gets no indication they landed on a
+  // new section with a message already filled in. Move focus to the message
+  // field ourselves, both for the same-page event below and for this
+  // cross-navigation (sessionStorage) case on first mount.
+  useEffect(() => {
+    if (hadPendingOrderOnMount.current) {
+      messageFieldRef.current?.focus();
+    }
+  }, []);
 
   useEffect(() => {
     const onOrderRequest = (event: Event) => {
       const detail = (event as CustomEvent<CommerceOrderEventDetail>).detail;
       if (!detail || detail.slug !== slug || !detail.message) return;
       setMessage(detail.message);
+      messageFieldRef.current?.focus();
     };
     window.addEventListener(COMMERCE_ORDER_EVENT, onOrderRequest);
     return () => window.removeEventListener(COMMERCE_ORDER_EVENT, onOrderRequest);
   }, [slug]);
+
+  // A successful submit unmounts the <form> — including whichever control
+  // (the submit button, on a keyboard/screen-reader flow) held focus at that
+  // moment — and swaps in the success message below. Without this, focus
+  // silently resets to <body> and the next Tab restarts from the top of the
+  // page. Move focus onto the (tabIndex={-1}, programmatically-focusable)
+  // success message itself so it's both announced and where focus lands.
+  useEffect(() => {
+    if (status === "success") {
+      successMessageRef.current?.focus();
+    }
+  }, [status]);
 
   async function onSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -65,7 +94,7 @@ export function PreviewContactForm({
     setErrorMessage(null);
 
     try {
-      const response = await fetch(`/api/contact/${encodeURIComponent(slug)}`, {
+      const response = await fetch(leadContactApiPath(slug), {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ name, email, phone, message }),
@@ -107,7 +136,9 @@ export function PreviewContactForm({
 
       {status === "success" ? (
         <p
-          className="mt-6 rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-900"
+          ref={successMessageRef}
+          tabIndex={-1}
+          className="mt-6 rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-900 outline-none"
           role="status"
         >
           Thanks — your message was received. We&apos;ll follow up soon.
@@ -152,6 +183,7 @@ export function PreviewContactForm({
           <label className="block text-sm text-zinc-700">
             <span className="font-medium text-zinc-900">Message</span>
             <textarea
+              ref={messageFieldRef}
               name="message"
               rows={4}
               required

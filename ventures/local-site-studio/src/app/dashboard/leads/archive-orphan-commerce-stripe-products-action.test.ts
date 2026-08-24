@@ -21,9 +21,18 @@ vi.mock("next/cache", () => ({
   revalidatePath: (...args: unknown[]) => revalidatePath(...args),
 }));
 
+const headersMock = vi.fn();
 vi.mock("next/headers", () => ({
-  headers: vi.fn(),
+  headers: (...args: unknown[]) => headersMock(...args),
 }));
+
+function headerStore(entries: Record<string, string | null> = {}) {
+  return {
+    get(name: string) {
+      return entries[name] ?? null;
+    },
+  };
+}
 
 const getLeadBySlug = vi.fn();
 const getCommerceCatalog = vi.fn();
@@ -40,6 +49,7 @@ vi.mock("@/lib/db", () => ({
   recordClientInquiryReply: vi.fn(),
   getLeads: vi.fn(),
   listOrders: vi.fn(),
+  listOrdersByLeadSlug: vi.fn(),
   recordLeadOutreach: vi.fn(),
   listUnrepliedInquiries: vi.fn(),
   updateLeadNotes: vi.fn(),
@@ -58,14 +68,17 @@ vi.mock("@/lib/db", () => ({
   listUnpaidCommerceOrders: vi.fn(),
 }));
 
-const archiveOrphanCommerceStripeProducts = vi.fn();
+const listOrphanCommerceStripeProducts = vi.fn();
+const archiveCommerceStripeProducts = vi.fn();
 
 vi.mock("@/lib/commerce", async (importOriginal) => {
   const actual = await importOriginal<typeof import("@/lib/commerce")>();
   return {
     ...actual,
-    archiveOrphanCommerceStripeProducts: (...args: unknown[]) =>
-      archiveOrphanCommerceStripeProducts(...args),
+    listOrphanCommerceStripeProducts: (...args: unknown[]) =>
+      listOrphanCommerceStripeProducts(...args),
+    archiveCommerceStripeProducts: (...args: unknown[]) =>
+      archiveCommerceStripeProducts(...args),
   };
 });
 
@@ -113,28 +126,36 @@ const savedCatalog = {
   updatedAt: "2026-07-13T12:00:00.000Z",
 };
 
-const archivedOrphans = [
+const orphanCandidates = [
   {
     productId: "prod_old_muffin",
     skuId: "sku_muffin",
-    name: "Old Muffin",
+    key: "commerce_sku_demo-cafe_sku_muffin",
   },
 ];
+
+const captureError = vi.fn();
+vi.mock("@/lib/observability/error-tracking", () => ({
+  captureError: (...args: unknown[]) => captureError(...args),
+}));
 
 describe("archiveOrphanCommerceStripeProductsAction", () => {
   const originalEnv = { ...process.env };
 
   beforeEach(() => {
+    captureError.mockReset().mockResolvedValue(undefined);
     vi.resetModules();
     process.env = { ...originalEnv };
     process.env.STRIPE_SECRET_KEY = "sk_test_commerce_archive";
     requireOperatorAuth.mockReset().mockResolvedValue({ ok: true });
     revalidatePath.mockReset();
     stripeCtor.mockReset();
+    headersMock.mockReset().mockResolvedValue(headerStore());
     getLeadBySlug.mockReset().mockResolvedValue(eligibleLead);
     getCommerceCatalog.mockReset().mockResolvedValue(savedCatalog);
-    archiveOrphanCommerceStripeProducts.mockReset().mockResolvedValue({
-      archived: archivedOrphans,
+    listOrphanCommerceStripeProducts.mockReset().mockResolvedValue(orphanCandidates);
+    archiveCommerceStripeProducts.mockReset().mockResolvedValue({
+      archived: orphanCandidates,
     });
   });
 
@@ -156,7 +177,30 @@ describe("archiveOrphanCommerceStripeProductsAction", () => {
       error: "Unauthorized — sign in at /dashboard/login",
     });
     expect(getLeadBySlug).not.toHaveBeenCalled();
-    expect(archiveOrphanCommerceStripeProducts).not.toHaveBeenCalled();
+    expect(listOrphanCommerceStripeProducts).not.toHaveBeenCalled();
+    expect(archiveCommerceStripeProducts).not.toHaveBeenCalled();
+    expect(stripeCtor).not.toHaveBeenCalled();
+  });
+
+  it("rate-limits repeated archive sweeps from the same IP (auth alone is not a throttle)", async () => {
+    const { archiveOrphanCommerceStripeProductsAction } = await import(
+      "./actions"
+    );
+    // DEFAULT_RATE_LIMIT is 20 requests/60s per key — exhaust the window.
+    for (let i = 0; i < 20; i++) {
+      const res = await archiveOrphanCommerceStripeProductsAction("demo-cafe");
+      expect(res.success).toBe(true);
+    }
+    listOrphanCommerceStripeProducts.mockClear();
+    archiveCommerceStripeProducts.mockClear();
+    stripeCtor.mockClear();
+    const res = await archiveOrphanCommerceStripeProductsAction("demo-cafe");
+    expect(res).toEqual({
+      success: false,
+      error: "Too many requests — please try again shortly.",
+    });
+    expect(listOrphanCommerceStripeProducts).not.toHaveBeenCalled();
+    expect(archiveCommerceStripeProducts).not.toHaveBeenCalled();
     expect(stripeCtor).not.toHaveBeenCalled();
   });
 
@@ -196,7 +240,7 @@ describe("archiveOrphanCommerceStripeProductsAction", () => {
       success: false,
       error: "Lead not found",
     });
-    expect(archiveOrphanCommerceStripeProducts).not.toHaveBeenCalled();
+    expect(listOrphanCommerceStripeProducts).not.toHaveBeenCalled();
   });
 
   it("archives orphans for the saved catalog and revalidates", async () => {
@@ -211,18 +255,68 @@ describe("archiveOrphanCommerceStripeProductsAction", () => {
       archivedSkuIds: ["sku_muffin"],
     });
     expect(stripeCtor).toHaveBeenCalledWith("sk_test_commerce_archive");
-    expect(archiveOrphanCommerceStripeProducts).toHaveBeenCalledOnce();
-    expect(archiveOrphanCommerceStripeProducts).toHaveBeenCalledWith(
+    expect(listOrphanCommerceStripeProducts).toHaveBeenCalledOnce();
+    expect(listOrphanCommerceStripeProducts).toHaveBeenCalledWith(
       expect.anything(),
       "demo-cafe",
       catalogItems,
     );
+    expect(archiveCommerceStripeProducts).toHaveBeenCalledWith(
+      expect.anything(),
+      orphanCandidates,
+      expect.objectContaining({ isStillOrphan: expect.any(Function) }),
+    );
     expect(revalidatePath).toHaveBeenCalledWith("/dashboard/leads");
+  });
+
+  it("passes an isStillOrphan callback that re-reads the catalog before EACH archive, not just once before the batch (concurrent save)", async () => {
+    // The actual per-candidate drop logic now lives inside
+    // archiveCommerceStripeProducts (stripe-sync.test.ts covers it directly,
+    // including the mid-loop case), which is mocked at this action-boundary
+    // level — so this test captures the callback the action wires up and
+    // exercises it directly, proving it correctly re-reads the catalog and
+    // reports false (no longer orphaned) once a SKU reappears. Simulates:
+    // sku_muffin looked orphaned when the initial catalog was read (and when
+    // listOrphanCommerceStripeProducts's account-wide pagination ran), but an
+    // operator (or a second tab) re-added it via saveCommerceCatalogAction
+    // before this candidate's own archive turn. Archiving it anyway would
+    // break that SKU's live Buy now checkout with no operator signal.
+    getCommerceCatalog
+      .mockReset()
+      .mockResolvedValueOnce(savedCatalog) // initial read (for `items`)
+      .mockResolvedValueOnce({
+        ...savedCatalog,
+        items: [...catalogItems, { id: "sku_muffin", name: "Muffin", description: "", priceCents: 300 }],
+      }); // re-read inside the callback, right before this candidate's archive
+
+    const { archiveOrphanCommerceStripeProductsAction } = await import(
+      "./actions"
+    );
+    await archiveOrphanCommerceStripeProductsAction("demo-cafe");
+
+    const [, , options] = archiveCommerceStripeProducts.mock.calls[0]!;
+    const stillOrphan = await options.isStillOrphan(orphanCandidates[0]);
+    expect(stillOrphan).toBe(false);
+    expect(getCommerceCatalog).toHaveBeenCalledTimes(2);
+  });
+
+  it("the isStillOrphan callback reports true (still orphaned) when the SKU has not reappeared", async () => {
+    getCommerceCatalog.mockReset().mockResolvedValue(savedCatalog);
+
+    const { archiveOrphanCommerceStripeProductsAction } = await import(
+      "./actions"
+    );
+    await archiveOrphanCommerceStripeProductsAction("demo-cafe");
+
+    const [, , options] = archiveCommerceStripeProducts.mock.calls[0]!;
+    const stillOrphan = await options.isStillOrphan(orphanCandidates[0]);
+    expect(stillOrphan).toBe(true);
   });
 
   it("passes an empty items array when no catalog exists", async () => {
     getCommerceCatalog.mockResolvedValue(null);
-    archiveOrphanCommerceStripeProducts.mockResolvedValue({ archived: [] });
+    listOrphanCommerceStripeProducts.mockResolvedValue([]);
+    archiveCommerceStripeProducts.mockResolvedValue({ archived: [] });
     const { archiveOrphanCommerceStripeProductsAction } = await import(
       "./actions"
     );
@@ -233,7 +327,7 @@ describe("archiveOrphanCommerceStripeProductsAction", () => {
       archivedCount: 0,
       archivedSkuIds: [],
     });
-    expect(archiveOrphanCommerceStripeProducts).toHaveBeenCalledWith(
+    expect(listOrphanCommerceStripeProducts).toHaveBeenCalledWith(
       expect.anything(),
       "demo-cafe",
       [],
@@ -242,7 +336,7 @@ describe("archiveOrphanCommerceStripeProductsAction", () => {
   });
 
   it("surfaces Stripe archive throws", async () => {
-    archiveOrphanCommerceStripeProducts.mockRejectedValue(
+    archiveCommerceStripeProducts.mockRejectedValue(
       new Error("rate limited"),
     );
     const { archiveOrphanCommerceStripeProductsAction } = await import(
@@ -254,10 +348,14 @@ describe("archiveOrphanCommerceStripeProductsAction", () => {
       error: "rate limited",
     });
     expect(revalidatePath).not.toHaveBeenCalled();
+    expect(captureError).toHaveBeenCalledWith(expect.any(Error), {
+      component: "dashboard-leads-actions",
+      failureKind: "archiveOrphanCommerceStripeProductsAction",
+    });
   });
 
   it("surfaces Stripe archive throws as Unknown Stripe error for non-Error", async () => {
-    archiveOrphanCommerceStripeProducts.mockRejectedValue("stripe blew up");
+    archiveCommerceStripeProducts.mockRejectedValue("stripe blew up");
     const { archiveOrphanCommerceStripeProductsAction } = await import(
       "./actions"
     );

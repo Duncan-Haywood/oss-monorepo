@@ -1,5 +1,17 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 import {
+  MAX_PACK_HASHTAG_LENGTH,
+  MAX_PACK_VARIANT_BODY_LENGTH,
+  MAX_PACK_VARIANT_CTA_LENGTH,
+  MAX_PACK_VARIANT_TITLE_LENGTH,
+} from "@/lib/packs/variant-fields";
+
+const captureError = vi.fn();
+vi.mock("@/lib/observability/error-tracking", () => ({
+  captureError: (...args: unknown[]) => captureError(...args),
+}));
+
+import {
   AnthropicMarketingGenerator,
   createDefaultMarketingGenerator,
   getMarketingGenerator,
@@ -38,6 +50,7 @@ afterEach(() => {
   vi.restoreAllMocks();
   resetMarketingGeneratorForTests();
   delete process.env.ANTHROPIC_API_KEY;
+  captureError.mockReset().mockResolvedValue(undefined);
 });
 
 describe("StubMarketingGenerator", () => {
@@ -76,6 +89,51 @@ describe("StubMarketingGenerator", () => {
       }),
     );
     expect(result.variants[0]?.body).toContain("our services");
+  });
+
+  it("soft-caps over-long title/body/cta/hashtag from create-path-max business fields", async () => {
+    const longName = "N".repeat(MAX_PACK_VARIANT_TITLE_LENGTH);
+    const longCity = "C".repeat(MAX_PACK_VARIANT_TITLE_LENGTH);
+    const longService = "S".repeat(MAX_PACK_VARIANT_TITLE_LENGTH);
+    const longHours = "H".repeat(MAX_PACK_VARIANT_BODY_LENGTH);
+    const longPhone = "P".repeat(MAX_PACK_VARIANT_CTA_LENGTH + 20);
+    const longCategory = "K".repeat(MAX_PACK_HASHTAG_LENGTH + 20);
+    const result = await new StubMarketingGenerator().generate(
+      request({
+        contentTypes: ["local_seo_meta", "instagram_caption"],
+        business: {
+          businessName: longName,
+          category: longCategory,
+          city: longCity,
+          services: [longService],
+          hours: longHours,
+          phone: longPhone,
+        },
+      }),
+    );
+    expect(result.variants[0]?.title).toHaveLength(MAX_PACK_VARIANT_TITLE_LENGTH);
+    expect(result.variants[0]?.body.length).toBeLessThanOrEqual(
+      MAX_PACK_VARIANT_BODY_LENGTH,
+    );
+    expect(result.variants[0]?.cta).toHaveLength(MAX_PACK_VARIANT_CTA_LENGTH);
+    expect(result.variants[1]?.hashtags?.[0]?.length).toBeLessThanOrEqual(
+      MAX_PACK_HASHTAG_LENGTH,
+    );
+    expect(result.variants[1]?.hashtags?.[1]?.length).toBeLessThanOrEqual(
+      MAX_PACK_HASHTAG_LENGTH,
+    );
+  });
+
+  it("includes campaignContext only in seasonal_promo/ad_copy bodies, never other content types", async () => {
+    const result = await new StubMarketingGenerator().generate(
+      request({
+        contentTypes: ["seasonal_promo", "ad_copy", "gbp_post"],
+        business: { ...baseBusiness, campaignContext: "Labor Day weekend" },
+      }),
+    );
+    expect(result.variants[0]?.body).toContain("Labor Day weekend");
+    expect(result.variants[1]?.body).toContain("Labor Day weekend");
+    expect(result.variants[2]?.body).not.toContain("Labor Day weekend");
   });
 
   it("sets titles for local_seo_meta / email_campaign / gbp_post and hashtags for social", async () => {
@@ -186,6 +244,46 @@ describe("AnthropicMarketingGenerator", () => {
     });
   });
 
+  it("soft-caps over-long title/body/cta/hashtag strings from the model", async () => {
+    const longTitle = "T".repeat(MAX_PACK_VARIANT_TITLE_LENGTH + 20);
+    const longBody = "B".repeat(MAX_PACK_VARIANT_BODY_LENGTH + 20);
+    const longCta = "C".repeat(MAX_PACK_VARIANT_CTA_LENGTH + 20);
+    const longTag = "#".repeat(MAX_PACK_HASHTAG_LENGTH + 20);
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async () => ({
+        ok: true,
+        json: async () => ({
+          content: [
+            {
+              type: "text",
+              text: JSON.stringify([
+                {
+                  contentType: "gbp_post",
+                  title: longTitle,
+                  body: longBody,
+                  cta: longCta,
+                  hashtags: [longTag, "#ok"],
+                },
+                { contentType: "instagram_caption", body: "short two" },
+                { contentType: "email_campaign", body: "short three" },
+              ]),
+            },
+          ],
+        }),
+      })),
+    );
+
+    const result = await new AnthropicMarketingGenerator("sk-test").generate(
+      request(),
+    );
+    expect(result.variants[0]?.title).toHaveLength(MAX_PACK_VARIANT_TITLE_LENGTH);
+    expect(result.variants[0]?.body).toHaveLength(MAX_PACK_VARIANT_BODY_LENGTH);
+    expect(result.variants[0]?.cta).toHaveLength(MAX_PACK_VARIANT_CTA_LENGTH);
+    expect(result.variants[0]?.hashtags?.[0]).toHaveLength(MAX_PACK_HASHTAG_LENGTH);
+    expect(result.variants[0]?.hashtags?.[1]).toBe("#ok");
+  });
+
   it("sets social_email packageTier for non-optimize automation", async () => {
     vi.stubGlobal(
       "fetch",
@@ -229,7 +327,7 @@ describe("AnthropicMarketingGenerator", () => {
     expect(result.variants[0]?.body).toContain("[Stub");
   });
 
-  it("falls back on HTTP errors", async () => {
+  it("falls back on HTTP errors and reports the failure via captureError", async () => {
     const fallback = new StubMarketingGenerator();
     const spy = vi.spyOn(fallback, "generate");
     vi.stubGlobal(
@@ -245,6 +343,56 @@ describe("AnthropicMarketingGenerator", () => {
     await new AnthropicMarketingGenerator("sk-test", fallback).generate(request());
     expect(spy).toHaveBeenCalledOnce();
     expect(errorSpy).toHaveBeenCalled();
+    // Sold-capability degradation: a paid customer's marketing pack silently
+    // fell back to generic stub copy — this must be reported, not just logged.
+    expect(captureError).toHaveBeenCalledWith(expect.any(Error), {
+      component: "marketing-generators",
+      failureKind: "anthropic_marketing_generation",
+      leadId: "pine-cafe",
+    });
+  });
+
+  it("passes an AbortSignal request timeout to fetch", async () => {
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async () => ({
+        ok: true,
+        json: async () => ({
+          content: [{ type: "text", text: JSON.stringify([{ body: "hi" }]) }],
+        }),
+      })),
+    );
+
+    await new AnthropicMarketingGenerator("sk-test").generate(
+      request({ contentTypes: ["gbp_post"] }),
+    );
+
+    const [, init] = (fetch as ReturnType<typeof vi.fn>).mock.calls[0]!;
+    expect((init as RequestInit).signal).toBeInstanceOf(AbortSignal);
+  });
+
+  it("falls back when the request times out (AbortError)", async () => {
+    const fallback = new StubMarketingGenerator();
+    const spy = vi.spyOn(fallback, "generate");
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async () => {
+        throw new DOMException("The operation was aborted.", "TimeoutError");
+      }),
+    );
+    const errorSpy = vi.spyOn(console, "error").mockImplementation(() => {});
+
+    const result = await new AnthropicMarketingGenerator("sk-test", fallback).generate(
+      request(),
+    );
+    expect(spy).toHaveBeenCalledOnce();
+    expect(errorSpy).toHaveBeenCalled();
+    expect(result.leadId).toBe(request().leadId);
+    expect(captureError).toHaveBeenCalledWith(expect.any(Error), {
+      component: "marketing-generators",
+      failureKind: "anthropic_marketing_generation",
+      leadId: "pine-cafe",
+    });
   });
 
   it("falls back when response has no text content", async () => {
@@ -297,6 +445,39 @@ describe("AnthropicMarketingGenerator", () => {
     );
     await new AnthropicMarketingGenerator("sk-test", fallback).generate(request());
     expect(spy).toHaveBeenCalledOnce();
+  });
+
+  it("passes campaignContext through to the Anthropic request body", async () => {
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async () => ({
+        ok: true,
+        json: async () => ({
+          content: [
+            {
+              type: "text",
+              text: JSON.stringify([{ contentType: "seasonal_promo", body: "Sale copy" }]),
+            },
+          ],
+        }),
+      })),
+    );
+
+    await new AnthropicMarketingGenerator("sk-test").generate(
+      request({
+        contentTypes: ["seasonal_promo"],
+        business: { ...baseBusiness, campaignContext: "Labor Day weekend" },
+      }),
+    );
+
+    const [, init] = (fetch as ReturnType<typeof vi.fn>).mock.calls[0]!;
+    const body = JSON.parse((init as RequestInit).body as string) as {
+      messages: Array<{ content: string }>;
+    };
+    const userPayload = JSON.parse(body.messages[0]!.content) as {
+      business: { campaignContext?: string };
+    };
+    expect(userPayload.business.campaignContext).toBe("Labor Day weekend");
   });
 
   it("extracts JSON array from prose wrappers and forces expected contentTypes", async () => {

@@ -26,9 +26,16 @@ vi.mock("stripe", () => ({
 }));
 
 const recordCheckoutSessionCreated = vi.fn();
+const listOrdersByLeadSlug = vi.fn();
 vi.mock("@/lib/db", () => ({
   recordCheckoutSessionCreated: (...args: unknown[]) =>
     recordCheckoutSessionCreated(...args),
+  listOrdersByLeadSlug: (...args: unknown[]) => listOrdersByLeadSlug(...args),
+}));
+
+const captureError = vi.fn();
+vi.mock("@/lib/observability/error-tracking", () => ({
+  captureError: (...args: unknown[]) => captureError(...args),
 }));
 
 function checkoutRequest(body: unknown) {
@@ -44,8 +51,10 @@ function setBundlePriceEnv() {
   process.env.STRIPE_PRICE_ID_STARTER_SETUP = "price_starter_setup";
   process.env.STRIPE_PRICE_ID_GROWTH_SETUP = "price_growth_setup";
   process.env.STRIPE_PRICE_ID_GROWTH_MONTHLY = "price_growth_monthly";
+  process.env.STRIPE_PRICE_ID_GROWTH_ANNUAL = "price_growth_annual";
   process.env.STRIPE_PRICE_ID_COMPLETE_SETUP = "price_complete_setup";
   process.env.STRIPE_PRICE_ID_COMPLETE_MONTHLY = "price_complete_monthly";
+  process.env.STRIPE_PRICE_ID_COMPLETE_ANNUAL = "price_complete_annual";
   process.env.STRIPE_PRICE_ID_COMMERCE_SETUP = "price_commerce_setup";
   process.env.STRIPE_PRICE_ID_COMMERCE_MONTHLY = "price_commerce_monthly";
   process.env.NEXT_PUBLIC_APP_URL = "https://app.example.com";
@@ -57,6 +66,8 @@ describe("POST /api/stripe/checkout", () => {
   beforeEach(() => {
     sessionsCreate.mockReset();
     recordCheckoutSessionCreated.mockReset().mockResolvedValue(undefined);
+    listOrdersByLeadSlug.mockReset().mockResolvedValue([]);
+    captureError.mockReset().mockResolvedValue(undefined);
     // Each `it` below issues its own POST(s) from the same synthetic (no
     // x-forwarded-for) client — reset the limiter so route-level tests don't
     // interfere with each other regardless of run order.
@@ -92,6 +103,23 @@ describe("POST /api/stripe/checkout", () => {
     const res = await POST(checkoutRequest("{not-json"));
     expect(res.status).toBe(400);
     expect(await res.json()).toEqual({ error: "Invalid JSON body" });
+  });
+
+  it("returns 400 when the raw JSON body exceeds MAX_PUBLIC_JSON_BODY_BYTES", async () => {
+    setBundlePriceEnv();
+    const { MAX_PUBLIC_JSON_BODY_BYTES } = await import(
+      "@/lib/security/json-body"
+    );
+    const { POST } = await import("./route");
+    const huge = JSON.stringify({
+      tier: "starter",
+      slug: "demo-cafe",
+      pad: "p".repeat(MAX_PUBLIC_JSON_BODY_BYTES),
+    });
+    const res = await POST(checkoutRequest(huge));
+    expect(res.status).toBe(400);
+    expect(await res.json()).toEqual({ error: "Request body is too large" });
+    expect(sessionsCreate).not.toHaveBeenCalled();
   });
 
   it("returns 400 for an unknown tier", async () => {
@@ -158,6 +186,7 @@ describe("POST /api/stripe/checkout", () => {
       mode: string;
       line_items: { price: string; quantity: number }[];
       customer_email?: string;
+      allow_promotion_codes?: boolean;
       success_url: string;
       cancel_url: string;
       metadata: Record<string, string>;
@@ -167,6 +196,7 @@ describe("POST /api/stripe/checkout", () => {
       { price: "price_starter_setup", quantity: 1 },
     ]);
     expect(createArgs.customer_email).toBe("owner@demo-cafe.test");
+    expect(createArgs.allow_promotion_codes).toBe(true);
     expect(createArgs.success_url).toContain("/checkout/success?session_id={CHECKOUT_SESSION_ID}");
     expect(createArgs.cancel_url).toBe(
       "https://app.example.com/checkout?cancelled=1&slug=demo-cafe&tier=starter",
@@ -174,6 +204,7 @@ describe("POST /api/stripe/checkout", () => {
     expect(createArgs.metadata).toEqual({
       tier: "starter",
       commerceAddon: "false",
+      billingInterval: "monthly",
       slug: "demo-cafe",
     });
 
@@ -185,7 +216,71 @@ describe("POST /api/stripe/checkout", () => {
         commerceAddon: false,
         customerEmail: "owner@demo-cafe.test",
         kind: "bundle",
+        billingInterval: "monthly",
       },
+      CHECKOUT_SESSION_CREATE_CONVEX_PRIMARY,
+    );
+  });
+
+  it("soft-caps over-long customerEmail before Stripe + session tracking", async () => {
+    setBundlePriceEnv();
+    sessionsCreate.mockResolvedValue({
+      id: "cs_test_email_cap",
+      url: "https://checkout.stripe.com/email-cap",
+    });
+    const { MAX_CHECKOUT_CUSTOMER_EMAIL_LENGTH } = await import(
+      "@/lib/checkout/customer-email"
+    );
+    const overlong = `${"a".repeat(MAX_CHECKOUT_CUSTOMER_EMAIL_LENGTH + 50)}@x.com`;
+    const { POST } = await import("./route");
+    const res = await POST(
+      checkoutRequest({
+        tier: "starter",
+        slug: "demo-cafe",
+        customerEmail: `  ${overlong}  `,
+      }),
+    );
+    expect(res.status).toBe(200);
+    const capped = overlong.trim().slice(0, MAX_CHECKOUT_CUSTOMER_EMAIL_LENGTH);
+    const createArgs = sessionsCreate.mock.calls[0]![0] as {
+      customer_email?: string;
+    };
+    expect(createArgs.customer_email).toBe(capped);
+    expect(createArgs.customer_email).toHaveLength(
+      MAX_CHECKOUT_CUSTOMER_EMAIL_LENGTH,
+    );
+    expect(recordCheckoutSessionCreated).toHaveBeenCalledWith(
+      expect.objectContaining({
+        customerEmail: capped,
+        kind: "bundle",
+      }),
+      CHECKOUT_SESSION_CREATE_CONVEX_PRIMARY,
+    );
+  });
+
+  it("omits blank customerEmail rather than sending whitespace to Stripe", async () => {
+    setBundlePriceEnv();
+    sessionsCreate.mockResolvedValue({
+      id: "cs_test_blank_email",
+      url: "https://checkout.stripe.com/blank-email",
+    });
+    const { POST } = await import("./route");
+    const res = await POST(
+      checkoutRequest({
+        tier: "starter",
+        slug: "demo-cafe",
+        customerEmail: "   ",
+      }),
+    );
+    expect(res.status).toBe(200);
+    const createArgs = sessionsCreate.mock.calls[0]![0] as {
+      customer_email?: string;
+    };
+    expect(createArgs.customer_email).toBeUndefined();
+    expect(recordCheckoutSessionCreated).toHaveBeenCalledWith(
+      expect.objectContaining({
+        customerEmail: undefined,
+      }),
       CHECKOUT_SESSION_CREATE_CONVEX_PRIMARY,
     );
   });
@@ -209,6 +304,365 @@ describe("POST /api/stripe/checkout", () => {
       { price: "price_growth_setup", quantity: 1 },
       { price: "price_growth_monthly", quantity: 1 },
     ]);
+  });
+
+  describe("annual billing (annual-billing-option)", () => {
+    it("creates a Growth subscription session with the annual Price when billingInterval=annual", async () => {
+      setBundlePriceEnv();
+      sessionsCreate.mockResolvedValue({
+        id: "cs_test_growth_annual",
+        url: "https://checkout.stripe.com/growth-annual",
+      });
+      const { POST } = await import("./route");
+      const res = await POST(
+        checkoutRequest({ tier: "growth", slug: "demo-cafe", billingInterval: "annual" }),
+      );
+      expect(res.status).toBe(200);
+
+      const createArgs = sessionsCreate.mock.calls[0]![0] as {
+        mode: string;
+        line_items: { price: string; quantity: number }[];
+        metadata: Record<string, string>;
+      };
+      expect(createArgs.mode).toBe("subscription");
+      expect(createArgs.line_items).toEqual([
+        { price: "price_growth_setup", quantity: 1 },
+        { price: "price_growth_annual", quantity: 1 },
+      ]);
+      expect(createArgs.metadata.billingInterval).toBe("annual");
+      // checkout-recovery-billing-interval-carry-through: the persisted
+      // checkout_sessions row must carry the same interval, so an abandoned
+      // annual shopper's recovery email links back to annual, not monthly.
+      expect(recordCheckoutSessionCreated).toHaveBeenCalledWith(
+        expect.objectContaining({ billingInterval: "annual" }),
+        CHECKOUT_SESSION_CREATE_CONVEX_PRIMARY,
+      );
+    });
+
+    it("defaults to monthly when billingInterval is omitted, malformed, or unrecognized", async () => {
+      setBundlePriceEnv();
+      for (const billingInterval of [undefined, "yearly", "ANNUAL", ""]) {
+        sessionsCreate.mockReset().mockResolvedValue({
+          id: "cs_test_growth_default",
+          url: "https://checkout.stripe.com/growth",
+        });
+        const { POST } = await import("./route");
+        const res = await POST(
+          checkoutRequest({ tier: "growth", slug: "demo-cafe", billingInterval }),
+        );
+        expect(res.status).toBe(200);
+        const createArgs = sessionsCreate.mock.calls[0]![0] as {
+          line_items: { price: string; quantity: number }[];
+          metadata: Record<string, string>;
+        };
+        expect(createArgs.line_items).toEqual([
+          { price: "price_growth_setup", quantity: 1 },
+          { price: "price_growth_monthly", quantity: 1 },
+        ]);
+        expect(createArgs.metadata.billingInterval).toBe("monthly");
+      }
+    });
+
+    it("returns 400 rejecting annual billing combined with the Commerce add-on, without creating a Stripe session", async () => {
+      setBundlePriceEnv();
+      const { POST } = await import("./route");
+      const res = await POST(
+        checkoutRequest({
+          tier: "growth",
+          slug: "demo-cafe",
+          billingInterval: "annual",
+          commerceAddon: true,
+        }),
+      );
+      expect(res.status).toBe(400);
+      expect(sessionsCreate).not.toHaveBeenCalled();
+    });
+
+    it("returns 501 when the Growth annual Price ID env is missing", async () => {
+      setBundlePriceEnv();
+      delete process.env.STRIPE_PRICE_ID_GROWTH_ANNUAL;
+      const { POST } = await import("./route");
+      const res = await POST(
+        checkoutRequest({ tier: "growth", slug: "demo-cafe", billingInterval: "annual" }),
+      );
+      expect(res.status).toBe(501);
+      expect(sessionsCreate).not.toHaveBeenCalled();
+    });
+
+    it("Starter (no recurring price at all) is unaffected by billingInterval=annual", async () => {
+      setBundlePriceEnv();
+      sessionsCreate.mockResolvedValue({
+        id: "cs_test_starter_annual_noop",
+        url: "https://checkout.stripe.com/starter",
+      });
+      const { POST } = await import("./route");
+      const res = await POST(
+        checkoutRequest({ tier: "starter", slug: "demo-cafe", billingInterval: "annual" }),
+      );
+      expect(res.status).toBe(200);
+      const createArgs = sessionsCreate.mock.calls[0]![0] as {
+        mode: string;
+        line_items: { price: string; quantity: number }[];
+      };
+      expect(createArgs.mode).toBe("payment");
+      expect(createArgs.line_items).toEqual([{ price: "price_starter_setup", quantity: 1 }]);
+    });
+
+    it("carries billing=annual onto cancel_url so a back-out/retry doesn't lose the selection", async () => {
+      setBundlePriceEnv();
+      sessionsCreate.mockResolvedValue({
+        id: "cs_test_growth_annual_cancel",
+        url: "https://checkout.stripe.com/growth-annual",
+      });
+      const { POST } = await import("./route");
+      const res = await POST(
+        checkoutRequest({ tier: "growth", slug: "demo-cafe", billingInterval: "annual" }),
+      );
+      expect(res.status).toBe(200);
+      const createArgs = sessionsCreate.mock.calls[0]![0] as { cancel_url: string };
+      expect(createArgs.cancel_url).toBe(
+        "https://app.example.com/checkout?cancelled=1&slug=demo-cafe&tier=growth&billing=annual",
+      );
+    });
+  });
+
+  describe("recurring-upgrade Customer reuse (stripe-checkout-recurring-upgrade-dedup)", () => {
+    it("uses customer_email as before for a first-time subscriber with no prior orders", async () => {
+      setBundlePriceEnv();
+      listOrdersByLeadSlug.mockResolvedValue([]);
+      sessionsCreate.mockResolvedValue({
+        id: "cs_test_growth_first",
+        url: "https://checkout.stripe.com/growth",
+      });
+      const { POST } = await import("./route");
+      const res = await POST(
+        checkoutRequest({
+          tier: "growth",
+          slug: "demo-cafe",
+          customerEmail: "owner@demo-cafe.test",
+        }),
+      );
+      expect(res.status).toBe(200);
+      expect(listOrdersByLeadSlug).toHaveBeenCalledWith("demo-cafe");
+
+      const createArgs = sessionsCreate.mock.calls[0]![0] as {
+        customer?: string;
+        customer_email?: string;
+      };
+      expect(createArgs.customer_email).toBe("owner@demo-cafe.test");
+      expect(createArgs.customer).toBeUndefined();
+    });
+
+    it("reuses the existing Stripe Customer for a lead with a live recurring order, instead of customer_email", async () => {
+      setBundlePriceEnv();
+      listOrdersByLeadSlug.mockResolvedValue([
+        { stripeCustomerId: "cus_existing", tier: "growth", commerceAddon: false },
+      ]);
+      sessionsCreate.mockResolvedValue({
+        id: "cs_test_complete_upgrade",
+        url: "https://checkout.stripe.com/complete",
+      });
+      const { POST } = await import("./route");
+      const res = await POST(
+        checkoutRequest({
+          tier: "complete",
+          slug: "demo-cafe",
+          customerEmail: "owner@demo-cafe.test",
+        }),
+      );
+      expect(res.status).toBe(200);
+
+      const createArgs = sessionsCreate.mock.calls[0]![0] as {
+        customer?: string;
+        customer_email?: string;
+      };
+      expect(createArgs.customer).toBe("cus_existing");
+      expect(createArgs.customer_email).toBeUndefined();
+    });
+
+    it("reuses the existing Customer even when the prior order's recurringCanceledAt is set (past_due/unpaid pause, not necessarily a fully-canceled Stripe Subscription — recurring-upgrade-dedup-past-due-customer-reuse-gap)", async () => {
+      setBundlePriceEnv();
+      listOrdersByLeadSlug.mockResolvedValue([
+        {
+          stripeCustomerId: "cus_past_due",
+          tier: "growth",
+          commerceAddon: false,
+          recurringCanceledAt: 1_720_000_000_000,
+        },
+      ]);
+      sessionsCreate.mockResolvedValue({
+        id: "cs_test_complete_upgrade_past_due",
+        url: "https://checkout.stripe.com/complete",
+      });
+      const { POST } = await import("./route");
+      const res = await POST(
+        checkoutRequest({
+          tier: "complete",
+          slug: "demo-cafe",
+          customerEmail: "owner@demo-cafe.test",
+        }),
+      );
+      expect(res.status).toBe(200);
+      const createArgs = sessionsCreate.mock.calls[0]![0] as {
+        customer?: string;
+        customer_email?: string;
+      };
+      expect(createArgs.customer).toBe("cus_past_due");
+      expect(createArgs.customer_email).toBeUndefined();
+    });
+
+    it("does not reuse a Customer for a one-time Starter (non-recurring) checkout, even though orders are now looked up for the setup-fee-skip check (checkout-setup-fee-skip-on-upgrade)", async () => {
+      setBundlePriceEnv();
+      listOrdersByLeadSlug.mockResolvedValue([]);
+      sessionsCreate.mockResolvedValue({
+        id: "cs_test_starter_no_lookup",
+        url: "https://checkout.stripe.com/starter",
+      });
+      const { POST } = await import("./route");
+      const res = await POST(
+        checkoutRequest({
+          tier: "starter",
+          slug: "demo-cafe",
+          customerEmail: "owner@demo-cafe.test",
+        }),
+      );
+      expect(res.status).toBe(200);
+      expect(listOrdersByLeadSlug).toHaveBeenCalledWith("demo-cafe");
+      const createArgs = sessionsCreate.mock.calls[0]![0] as {
+        customer?: string;
+        customer_email?: string;
+      };
+      expect(createArgs.customer).toBeUndefined();
+      expect(createArgs.customer_email).toBe("owner@demo-cafe.test");
+    });
+
+    it("falls back to customer_email when the lead's prior recurring order has no Stripe Customer id", async () => {
+      setBundlePriceEnv();
+      listOrdersByLeadSlug.mockResolvedValue([
+        { stripeCustomerId: undefined, tier: "growth", commerceAddon: false },
+      ]);
+      sessionsCreate.mockResolvedValue({
+        id: "cs_test_growth_no_customer",
+        url: "https://checkout.stripe.com/growth",
+      });
+      const { POST } = await import("./route");
+      const res = await POST(
+        checkoutRequest({
+          tier: "growth",
+          slug: "demo-cafe",
+          customerEmail: "owner@demo-cafe.test",
+        }),
+      );
+      expect(res.status).toBe(200);
+      const createArgs = sessionsCreate.mock.calls[0]![0] as {
+        customer?: string;
+        customer_email?: string;
+      };
+      expect(createArgs.customer).toBeUndefined();
+      expect(createArgs.customer_email).toBe("owner@demo-cafe.test");
+    });
+  });
+
+  describe("setup-fee skip on upgrade (checkout-setup-fee-skip-on-upgrade)", () => {
+    it("omits the setup-fee line item for a Growth checkout when the lead already has a prior order (e.g. Starter -> Growth upsell)", async () => {
+      setBundlePriceEnv();
+      listOrdersByLeadSlug.mockResolvedValue([
+        { stripeCustomerId: "cus_starter", tier: "starter", commerceAddon: false },
+      ]);
+      sessionsCreate.mockResolvedValue({
+        id: "cs_test_upgrade_no_setup",
+        url: "https://checkout.stripe.com/growth",
+      });
+      const { POST } = await import("./route");
+      const res = await POST(
+        checkoutRequest({ tier: "growth", slug: "demo-cafe", customerEmail: "owner@demo-cafe.test" }),
+      );
+      expect(res.status).toBe(200);
+      const createArgs = sessionsCreate.mock.calls[0]![0] as {
+        line_items: { price: string; quantity: number }[];
+      };
+      expect(createArgs.line_items).toEqual([{ price: "price_growth_monthly", quantity: 1 }]);
+    });
+
+    it("still charges the setup fee for a brand-new lead with no prior orders", async () => {
+      setBundlePriceEnv();
+      listOrdersByLeadSlug.mockResolvedValue([]);
+      sessionsCreate.mockResolvedValue({
+        id: "cs_test_new_lead_setup",
+        url: "https://checkout.stripe.com/growth",
+      });
+      const { POST } = await import("./route");
+      const res = await POST(
+        checkoutRequest({ tier: "growth", slug: "brand-new-cafe", customerEmail: "owner@brand-new-cafe.test" }),
+      );
+      expect(res.status).toBe(200);
+      const createArgs = sessionsCreate.mock.calls[0]![0] as {
+        line_items: { price: string; quantity: number }[];
+      };
+      expect(createArgs.line_items).toEqual([
+        { price: "price_growth_setup", quantity: 1 },
+        { price: "price_growth_monthly", quantity: 1 },
+      ]);
+    });
+
+    it("does not require the setup-fee Stripe Price ID to be configured when the lead already has a prior order", async () => {
+      setBundlePriceEnv();
+      delete process.env.STRIPE_PRICE_ID_GROWTH_SETUP;
+      listOrdersByLeadSlug.mockResolvedValue([
+        { stripeCustomerId: "cus_starter", tier: "starter", commerceAddon: false },
+      ]);
+      sessionsCreate.mockResolvedValue({
+        id: "cs_test_upgrade_no_setup_env",
+        url: "https://checkout.stripe.com/growth",
+      });
+      const { POST } = await import("./route");
+      const res = await POST(
+        checkoutRequest({ tier: "growth", slug: "demo-cafe", customerEmail: "owner@demo-cafe.test" }),
+      );
+      expect(res.status).toBe(200);
+    });
+
+    it("returns 400 rather than sending an empty line_items array to Stripe for a repeat Starter request from a lead that already has an order", async () => {
+      setBundlePriceEnv();
+      listOrdersByLeadSlug.mockResolvedValue([
+        { stripeCustomerId: "cus_starter", tier: "starter", commerceAddon: false },
+      ]);
+      const { POST } = await import("./route");
+      const res = await POST(
+        checkoutRequest({ tier: "starter", slug: "demo-cafe", customerEmail: "owner@demo-cafe.test" }),
+      );
+      expect(res.status).toBe(400);
+      expect(sessionsCreate).not.toHaveBeenCalled();
+    });
+
+    it("still charges the Commerce add-on setup fee for an existing lead adding Commerce for the first time, even though the bundle setup fee is skipped", async () => {
+      setBundlePriceEnv();
+      listOrdersByLeadSlug.mockResolvedValue([
+        { stripeCustomerId: "cus_growth", tier: "growth", commerceAddon: false },
+      ]);
+      sessionsCreate.mockResolvedValue({
+        id: "cs_test_upgrade_add_commerce",
+        url: "https://checkout.stripe.com/growth",
+      });
+      const { POST } = await import("./route");
+      const res = await POST(
+        checkoutRequest({
+          tier: "growth",
+          commerceAddon: true,
+          slug: "demo-cafe",
+          customerEmail: "owner@demo-cafe.test",
+        }),
+      );
+      expect(res.status).toBe(200);
+      const createArgs = sessionsCreate.mock.calls[0]![0] as {
+        line_items: { price: string; quantity: number }[];
+      };
+      expect(createArgs.line_items).toEqual([
+        { price: "price_growth_monthly", quantity: 1 },
+        { price: "price_commerce_setup", quantity: 1 },
+        { price: "price_commerce_monthly", quantity: 1 },
+      ]);
+    });
   });
 
   it("adds Commerce add-on line items and cancel URL commerce=1", async () => {
@@ -272,6 +726,34 @@ describe("POST /api/stripe/checkout", () => {
     );
   });
 
+  it("mints the SAME organic-* slug across a retry that reuses the client idempotency key", async () => {
+    // Regression for the bug this fix closes: resolveBundleCheckoutLeadSlug
+    // used to mint a fresh random slug on every call even when the client
+    // sent the same Idempotency-Key for a same-params retry (network-error
+    // resend, double-click) — a different metadata.slug on that retry would
+    // make Stripe itself reject the reused key with idempotency_error, since
+    // Stripe treats a key reused with different parameters as an error.
+    setBundlePriceEnv();
+    sessionsCreate.mockResolvedValue({
+      id: "cs_test_organic_retry",
+      url: "https://checkout.stripe.com/organic-retry",
+    });
+    const { POST } = await import("./route");
+    const idempotencyKey = "3fa85f64-5717-4562-b3fc-2c963f66afa6";
+
+    const first = await POST(checkoutRequest({ tier: "starter", idempotencyKey }));
+    expect(first.status).toBe(200);
+    const second = await POST(checkoutRequest({ tier: "starter", idempotencyKey }));
+    expect(second.status).toBe(200);
+
+    const firstSlug = (sessionsCreate.mock.calls[0]![0] as { metadata: Record<string, string> })
+      .metadata.slug;
+    const secondSlug = (sessionsCreate.mock.calls[1]![0] as { metadata: Record<string, string> })
+      .metadata.slug;
+    expect(firstSlug).toMatch(/^organic-[0-9a-f]+$/);
+    expect(secondSlug).toBe(firstSlug);
+  });
+
   it("treats whitespace-only slug as missing and mints organic-*", async () => {
     setBundlePriceEnv();
     sessionsCreate.mockResolvedValue({
@@ -289,6 +771,122 @@ describe("POST /api/stripe/checkout", () => {
     expect(createArgs.metadata.organicAttribution).toBe("1");
   });
 
+  it("includes a valid acquisitionSource in Stripe Checkout metadata", async () => {
+    setBundlePriceEnv();
+    sessionsCreate.mockResolvedValue({
+      id: "cs_test_source",
+      url: "https://checkout.stripe.com/source",
+    });
+    const { POST } = await import("./route");
+    const res = await POST(
+      checkoutRequest({ tier: "starter", slug: "demo-cafe", acquisitionSource: "cat-salon" }),
+    );
+    expect(res.status).toBe(200);
+    const createArgs = sessionsCreate.mock.calls[0]![0] as {
+      metadata: Record<string, string>;
+    };
+    expect(createArgs.metadata.acquisitionSource).toBe("cat-salon");
+  });
+
+  it("drops an unrecognized acquisitionSource rather than passing it through", async () => {
+    setBundlePriceEnv();
+    sessionsCreate.mockResolvedValue({
+      id: "cs_test_bad_source",
+      url: "https://checkout.stripe.com/bad-source",
+    });
+    const { POST } = await import("./route");
+    const res = await POST(
+      checkoutRequest({
+        tier: "starter",
+        slug: "demo-cafe",
+        acquisitionSource: "<script>alert(1)</script>",
+      }),
+    );
+    expect(res.status).toBe(200);
+    const createArgs = sessionsCreate.mock.calls[0]![0] as {
+      metadata: Record<string, string>;
+    };
+    expect(createArgs.metadata).toEqual({
+      tier: "starter",
+      commerceAddon: "false",
+      billingInterval: "monthly",
+      slug: "demo-cafe",
+    });
+    expect(createArgs.metadata.acquisitionSource).toBeUndefined();
+  });
+
+  it("includes a trimmed businessName/businessPhone in Stripe Checkout metadata when supplied (organic no-preexisting-lead path)", async () => {
+    setBundlePriceEnv();
+    sessionsCreate.mockResolvedValue({
+      id: "cs_test_business_fields",
+      url: "https://checkout.stripe.com/business-fields",
+    });
+    const { POST } = await import("./route");
+    const res = await POST(
+      checkoutRequest({
+        tier: "starter",
+        businessName: "  Riverside Plumbing  ",
+        businessPhone: "  555-867-5309  ",
+      }),
+    );
+    expect(res.status).toBe(200);
+    const createArgs = sessionsCreate.mock.calls[0]![0] as {
+      metadata: Record<string, string>;
+    };
+    expect(createArgs.metadata.businessName).toBe("Riverside Plumbing");
+    expect(createArgs.metadata.businessPhone).toBe("555-867-5309");
+  });
+
+  it("omits businessName/businessPhone from Stripe Checkout metadata when absent or blank", async () => {
+    setBundlePriceEnv();
+    sessionsCreate.mockResolvedValue({
+      id: "cs_test_no_business_fields",
+      url: "https://checkout.stripe.com/no-business-fields",
+    });
+    const { POST } = await import("./route");
+    const res = await POST(
+      checkoutRequest({ tier: "starter", slug: "demo-cafe", businessName: "   " }),
+    );
+    expect(res.status).toBe(200);
+    const createArgs = sessionsCreate.mock.calls[0]![0] as {
+      metadata: Record<string, string>;
+    };
+    expect(createArgs.metadata.businessName).toBeUndefined();
+    expect(createArgs.metadata.businessPhone).toBeUndefined();
+  });
+
+  it("carries a valid acquisitionSource onto cancel_url so a Stripe back-out/retry doesn't lose attribution", async () => {
+    setBundlePriceEnv();
+    sessionsCreate.mockResolvedValue({
+      id: "cs_test_source_cancel",
+      url: "https://checkout.stripe.com/source-cancel",
+    });
+    const { POST } = await import("./route");
+    const res = await POST(
+      checkoutRequest({ tier: "starter", slug: "demo-cafe", acquisitionSource: "outreach-email" }),
+    );
+    expect(res.status).toBe(200);
+    const createArgs = sessionsCreate.mock.calls[0]![0] as {
+      cancel_url: string;
+    };
+    expect(createArgs.cancel_url).toContain("source=outreach-email");
+  });
+
+  it("omits source from cancel_url when acquisitionSource is absent or unrecognized", async () => {
+    setBundlePriceEnv();
+    sessionsCreate.mockResolvedValue({
+      id: "cs_test_no_source_cancel",
+      url: "https://checkout.stripe.com/no-source-cancel",
+    });
+    const { POST } = await import("./route");
+    const res = await POST(checkoutRequest({ tier: "starter", slug: "demo-cafe" }));
+    expect(res.status).toBe(200);
+    const createArgs = sessionsCreate.mock.calls[0]![0] as {
+      cancel_url: string;
+    };
+    expect(createArgs.cancel_url).not.toContain("source=");
+  });
+
   it("returns 502 when Stripe session has no checkout URL", async () => {
     setBundlePriceEnv();
     sessionsCreate.mockResolvedValue({ id: "cs_test_nourl", url: null });
@@ -300,45 +898,133 @@ describe("POST /api/stripe/checkout", () => {
     expect(recordCheckoutSessionCreated).not.toHaveBeenCalled();
   });
 
-  it("returns 502 when Stripe session creation throws", async () => {
+  it("returns 502 when Stripe session creation throws, and reports it via captureError (session_create)", async () => {
     setBundlePriceEnv();
-    sessionsCreate.mockRejectedValue(new Error("card_declined_sim"));
+    const stripeError = new Error("card_declined_sim");
+    sessionsCreate.mockRejectedValue(stripeError);
     const { POST } = await import("./route");
     const res = await POST(checkoutRequest({ tier: "starter", slug: "demo-cafe" }));
     expect(res.status).toBe(502);
     const body = await res.json();
     expect(body.error).toBe("Stripe session creation failed");
     expect(body.message).toBe("card_declined_sim");
+    expect(captureError).toHaveBeenCalledWith(stripeError, {
+      component: "stripe-checkout",
+      failureKind: "session_create",
+    });
   });
 
-  it("returns 502 (fail-closed) when checkout tracking hits ConvexPrimaryWriteError", async () => {
+  it("returns 502 (fail-closed) when checkout tracking hits ConvexPrimaryWriteError, and reports it via captureError (checkout_session_record)", async () => {
     setBundlePriceEnv();
     sessionsCreate.mockResolvedValue({
       id: "cs_test_convex",
       url: "https://checkout.stripe.com/convex",
     });
-    recordCheckoutSessionCreated.mockRejectedValue(
-      new ConvexPrimaryWriteError("checkout_session_create", new Error("convex down")),
-    );
+    const convexError = new ConvexPrimaryWriteError("checkout_session_create", new Error("convex down"));
+    recordCheckoutSessionCreated.mockRejectedValue(convexError);
     const { POST } = await import("./route");
     const res = await POST(checkoutRequest({ tier: "starter", slug: "demo-cafe" }));
     expect(res.status).toBe(502);
     const body = await res.json();
     expect(body.error).toBe("Checkout tracking unavailable");
     // Must not leak the Stripe URL after a failed durable track
+    expect(captureError).toHaveBeenCalledWith(convexError, {
+      component: "stripe-checkout",
+      failureKind: "checkout_session_record",
+    });
   });
 
-  it("returns 502 when checkout tracking fails for a non-Convex reason", async () => {
+  it("returns 502 when checkout tracking fails for a non-Convex reason, and reports it via captureError", async () => {
     setBundlePriceEnv();
     sessionsCreate.mockResolvedValue({
       id: "cs_test_track",
       url: "https://checkout.stripe.com/track",
     });
-    recordCheckoutSessionCreated.mockRejectedValue(new Error("sqlite busy"));
+    const trackingError = new Error("sqlite busy");
+    recordCheckoutSessionCreated.mockRejectedValue(trackingError);
     const { POST } = await import("./route");
     const res = await POST(checkoutRequest({ tier: "starter", slug: "demo-cafe" }));
     expect(res.status).toBe(502);
     expect(await res.json()).toMatchObject({ error: "Checkout tracking unavailable" });
+    expect(captureError).toHaveBeenCalledWith(trackingError, {
+      component: "stripe-checkout",
+      failureKind: "checkout_session_record",
+    });
+  });
+
+  it("does not call captureError when checkout session creation succeeds", async () => {
+    setBundlePriceEnv();
+    sessionsCreate.mockResolvedValue({
+      id: "cs_test_clean",
+      url: "https://checkout.stripe.com/clean",
+    });
+    const { POST } = await import("./route");
+    await POST(checkoutRequest({ tier: "starter", slug: "demo-cafe" }));
+    expect(captureError).not.toHaveBeenCalled();
+  });
+
+  it("never trusts a spoofed request origin for success_url / cancel_url when APP_URL is unset", async () => {
+    setBundlePriceEnv();
+    delete process.env.NEXT_PUBLIC_APP_URL;
+    delete process.env.VERCEL_URL;
+    sessionsCreate.mockResolvedValue({
+      id: "cs_test_host_spoof",
+      url: "https://checkout.stripe.com/spoof",
+    });
+    const { POST } = await import("./route");
+    const res = await POST(
+      new Request("https://attacker.example.com/api/stripe/checkout", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ tier: "starter", slug: "demo-cafe" }),
+      }),
+    );
+    expect(res.status).toBe(200);
+    const createArgs = sessionsCreate.mock.calls[0]![0] as {
+      success_url: string;
+      cancel_url: string;
+    };
+    expect(createArgs.success_url).toBe(
+      "http://localhost:3000/checkout/success?session_id={CHECKOUT_SESSION_ID}",
+    );
+    expect(createArgs.cancel_url).toContain("http://localhost:3000/checkout?");
+    expect(createArgs.success_url).not.toContain("attacker.example.com");
+  });
+
+  it("passes a valid client idempotencyKey through to Stripe as the request options", async () => {
+    setBundlePriceEnv();
+    sessionsCreate.mockResolvedValue({
+      id: "cs_test_idem",
+      url: "https://checkout.stripe.com/idem",
+    });
+    const { POST } = await import("./route");
+    const res = await POST(
+      checkoutRequest({
+        tier: "starter",
+        slug: "demo-cafe",
+        idempotencyKey: "3fa85f64-5717-4562-b3fc-2c963f66afa6",
+      }),
+    );
+    expect(res.status).toBe(200);
+    expect(sessionsCreate).toHaveBeenCalledOnce();
+    const options = sessionsCreate.mock.calls[0]![1] as
+      | { idempotencyKey?: string }
+      | undefined;
+    expect(options).toEqual({ idempotencyKey: "3fa85f64-5717-4562-b3fc-2c963f66afa6" });
+  });
+
+  it("omits Stripe request options when idempotencyKey is missing or malformed", async () => {
+    setBundlePriceEnv();
+    sessionsCreate.mockResolvedValue({
+      id: "cs_test_no_idem",
+      url: "https://checkout.stripe.com/no-idem",
+    });
+    const { POST } = await import("./route");
+    const res = await POST(
+      checkoutRequest({ tier: "starter", slug: "demo-cafe", idempotencyKey: "not-a-uuid" }),
+    );
+    expect(res.status).toBe(200);
+    expect(sessionsCreate.mock.calls[0]![1]).toBeUndefined();
   });
 
   it("returns 429 with Retry-After once a client IP exceeds the rate limit", async () => {

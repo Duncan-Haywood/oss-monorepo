@@ -4,6 +4,7 @@
  */
 
 import type { LeadPipelineStage } from "@/lib/leads/types";
+import { orderGrantsSoldCapabilityEntitlement } from "@/lib/orders/recurring";
 import type { MarketingContentType, MarketingPackageTier } from "./types";
 
 /** Calendar month key in UTC (YYYY-MM) — packs are one per lead per month. */
@@ -49,16 +50,68 @@ export function leadStageEligibleForMarketingPack(stage: LeadPipelineStage): boo
   return stage === "paid" || stage === "live";
 }
 
+const SOCIAL_POST_CONTENT_TYPES: ReadonlySet<MarketingContentType> = new Set([
+  "gbp_post",
+  "facebook_caption",
+  "instagram_caption",
+]);
+const EMAIL_CONTENT_TYPES: ReadonlySet<MarketingContentType> = new Set([
+  "email_campaign",
+  "review_request_email",
+]);
+
 /**
- * Eligible when the lead is paid/live AND has at least one Growth/Complete order.
- * Starter + Commerce alone does not unlock the marketing engine (Commerce is checkout add-on).
+ * "8 social/GBP posts" — the count of MONTHLY_MARKETING_PACK_TYPES entries
+ * that are social/GBP posts rather than emails. Marketing/docs copy
+ * (homepage, /docs/product-bundles, /docs/marketing-automation,
+ * /docs/business-model, /docs/roadmap, /docs/launch-checklist) hand-typed
+ * this number as literal prose for months; derive it here so a future change
+ * to the pack composition can't leave that copy silently stale — the same
+ * drift class the pricing constants above closed for USD amounts (see
+ * homepage-bundle-pricing-single-source-of-truth).
+ */
+export function monthlyMarketingSocialPostCount(): number {
+  return MONTHLY_MARKETING_PACK_TYPES.filter((type) => SOCIAL_POST_CONTENT_TYPES.has(type))
+    .length;
+}
+
+/** "2 emails" — the email half of the same sold-promise count. */
+export function monthlyMarketingEmailCount(): number {
+  return MONTHLY_MARKETING_PACK_TYPES.filter((type) => EMAIL_CONTENT_TYPES.has(type)).length;
+}
+
+/**
+ * Occurrences of a single content type within one monthly pack — backs the
+ * per-row counts in /docs/marketing-automation's Content types table so
+ * those numbers (2 GBP posts, 3 Facebook captions, etc.) can't drift from
+ * the actual generated set either.
+ */
+export function monthlyMarketingContentTypeCount(type: MarketingContentType): number {
+  return MONTHLY_MARKETING_PACK_TYPES.filter((t) => t === type).length;
+}
+
+/**
+ * Eligible when the lead is paid/live AND has at least one Growth/Complete order
+ * that still grants active entitlement (active recurring, never refunded/disputed
+ * — see orderGrantsSoldCapabilityEntitlement). Starter + Commerce alone does not
+ * unlock the marketing engine (Commerce is checkout add-on).
  */
 export function leadEligibleForMarketingPack(
   lead: { stage: LeadPipelineStage },
-  orders: ReadonlyArray<{ tier: string }>,
+  orders: ReadonlyArray<{
+    tier: string;
+    commerceAddon?: boolean;
+    recurringCanceledAt?: number | null;
+    refundedAt?: string;
+    disputedAt?: string;
+  }>,
 ): boolean {
   if (!leadStageEligibleForMarketingPack(lead.stage)) return false;
-  return orders.some((o) => isMarketingBundleTier(o.tier));
+  return orders.some(
+    (o) =>
+      isMarketingBundleTier(o.tier) &&
+      orderGrantsSoldCapabilityEntitlement({ ...o, commerceAddon: Boolean(o.commerceAddon) }),
+  );
 }
 
 /**
@@ -66,9 +119,22 @@ export function leadEligibleForMarketingPack(
  * Pass yearMonth from marketingMonthKey(nowMs) — never Date.now() inside callers that
  * must stay pure.
  */
+const HOUR_MS = 60 * 60 * 1000;
+
+/** UTC epoch ms for the first instant of a "YYYY-MM" month key. */
+export function marketingMonthStartMs(yearMonth: string): number {
+  const match = /^(\d{4})-(\d{2})$/.exec(yearMonth);
+  if (!match) {
+    throw new Error(`marketingMonthStartMs: invalid yearMonth "${yearMonth}"`);
+  }
+  const year = Number(match[1]);
+  const month = Number(match[2]);
+  return Date.UTC(year, month - 1, 1);
+}
+
 export function leadNeedsMarketingPackForMonth(
   lead: { slug: string; stage: LeadPipelineStage },
-  ordersForLead: ReadonlyArray<{ tier: string }>,
+  ordersForLead: ReadonlyArray<{ tier: string; recurringCanceledAt?: number | null }>,
   packsThisMonth: ReadonlyArray<{ leadSlug: string; yearMonth: string }>,
   yearMonth: string,
 ): boolean {
@@ -86,7 +152,11 @@ export function listMarketingPacksDue<
   T extends { slug: string; stage: LeadPipelineStage },
 >(
   leads: T[],
-  orders: ReadonlyArray<{ leadSlug: string; tier: string }>,
+  orders: ReadonlyArray<{
+    leadSlug: string;
+    tier: string;
+    recurringCanceledAt?: number | null;
+  }>,
   packsThisMonth: ReadonlyArray<{ leadSlug: string; yearMonth: string }>,
   yearMonth: string,
 ): T[] {
@@ -102,12 +172,163 @@ export function listMarketingPacksDue<
     .sort((a, b) => a.slug.localeCompare(b.slug));
 }
 
-/** Prefer Complete over Growth when both exist (newest-first lists still work). */
+/**
+ * Age in whole hours since the current month's pack first became due for the
+ * oldest of `candidates` (as returned by listMarketingPacksDue); null when
+ * there are no candidates or none of their qualifying orders parse. "Due
+ * since" is the later of the month start and the qualifying order's
+ * createdAt — a lead who signed up mid-month isn't shown as having an
+ * 800-hour-old debt on day one of the following month, and a long-time
+ * subscriber's age resets with the calendar month like the pack itself does
+ * (unlike oldestStarterUpsellCandidateAgeHours, whose candidates are
+ * evaluated once, not month-keyed). Pass nowMs from the caller — never
+ * Date.now() inside list/age helpers.
+ *
+ * Must gate on orderGrantsSoldCapabilityEntitlement (not a raw
+ * recurringCanceledAt check) — see refund-dispute-oldest-age-parity: a lead
+ * can carry an older refunded/disputed Growth/Complete order alongside a
+ * newer active one, and that refunded order's createdAt must never pull the
+ * reported "due since" earlier than the entitlement that actually grants
+ * the pack.
+ */
+export function oldestMarketingPacksDueAgeHours(
+  candidates: ReadonlyArray<{ slug: string }>,
+  orders: ReadonlyArray<{
+    leadSlug: string;
+    tier: string;
+    commerceAddon?: boolean;
+    recurringCanceledAt?: number | null;
+    refundedAt?: string;
+    disputedAt?: string;
+    createdAt?: string;
+  }>,
+  yearMonth: string,
+  nowMs: number,
+): number | null {
+  const candidateSlugs = new Set(candidates.map((candidate) => candidate.slug));
+  const monthStartMs = marketingMonthStartMs(yearMonth);
+  let oldestDueSinceMs: number | null = null;
+  for (const order of orders) {
+    if (!candidateSlugs.has(order.leadSlug)) continue;
+    if (!isMarketingBundleTier(order.tier)) continue;
+    if (
+      !orderGrantsSoldCapabilityEntitlement({
+        ...order,
+        commerceAddon: Boolean(order.commerceAddon),
+      })
+    ) {
+      continue;
+    }
+    if (typeof order.createdAt !== "string") continue;
+    const createdAtMs = Date.parse(order.createdAt);
+    if (Number.isNaN(createdAtMs)) continue;
+    const dueSinceMs = Math.max(monthStartMs, createdAtMs);
+    if (oldestDueSinceMs === null || dueSinceMs < oldestDueSinceMs) {
+      oldestDueSinceMs = dueSinceMs;
+    }
+  }
+  if (oldestDueSinceMs === null) return null;
+  if (nowMs < oldestDueSinceMs) return 0;
+  return Math.max(0, Math.floor((nowMs - oldestDueSinceMs) / HOUR_MS));
+}
+
+/**
+ * Current month's marketing packs that were generated but never emailed to
+ * the client — the same "generated ≠ delivered" gap already closed for
+ * Commerce Buy now orders (commerce-buy-now-client-receipt-visibility).
+ * Independent of listMarketingPacksDue (that tracks generation debt on
+ * leads with no pack row at all; this tracks delivery debt on packs that
+ * already exist). Gated on leadEligibleForMarketingPack so a pack generated
+ * for a lead whose entitlement has since lapsed doesn't chase a send that's
+ * no longer this lead's active promise — the client already paid for the
+ * content that was generated, so the pack itself (not the lead's current
+ * status) is what's tracked. See marketing-voice-pack-client-send-visibility.
+ */
+export function listMarketingPacksMissingClientSend<
+  T extends { leadSlug: string; sentToClientAt?: string },
+>(
+  packsThisMonth: ReadonlyArray<T>,
+  leads: ReadonlyArray<{ slug: string; stage: LeadPipelineStage }>,
+  orders: ReadonlyArray<{
+    leadSlug: string;
+    tier: string;
+    commerceAddon?: boolean;
+    recurringCanceledAt?: number | null;
+    refundedAt?: string;
+    disputedAt?: string;
+  }>,
+): T[] {
+  const eligibleSlugs = new Set(
+    leads
+      .filter((lead) =>
+        leadEligibleForMarketingPack(
+          lead,
+          orders.filter((o) => o.leadSlug === lead.slug),
+        ),
+      )
+      .map((lead) => lead.slug),
+  );
+  return packsThisMonth
+    .filter(
+      (pack) =>
+        eligibleSlugs.has(pack.leadSlug) &&
+        !(typeof pack.sentToClientAt === "string" && pack.sentToClientAt.length > 0),
+    )
+    .sort((a, b) => a.leadSlug.localeCompare(b.leadSlug));
+}
+
+/**
+ * Age in whole hours since the oldest of `candidates` (as returned by
+ * listMarketingPacksMissingClientSend) was generated; null when there are no
+ * candidates or none of their generatedAt values parse. Anchored to
+ * generatedAt (not a qualifying order) since the debt is "this specific pack
+ * hasn't been emailed yet," not "this lead's entitlement has been active for
+ * N hours" — see oldestMarketingPacksDueAgeHours for the sibling generation-debt
+ * age signal, which anchors differently for that reason. Pass nowMs from the
+ * caller — never Date.now() inside list/age helpers.
+ */
+export function oldestMarketingPackMissingClientSendAgeHours(
+  candidates: ReadonlyArray<{ generatedAt?: string }>,
+  nowMs: number,
+): number | null {
+  let oldestMs: number | null = null;
+  for (const candidate of candidates) {
+    if (typeof candidate.generatedAt !== "string") continue;
+    const generatedAtMs = Date.parse(candidate.generatedAt);
+    if (Number.isNaN(generatedAtMs)) continue;
+    if (oldestMs === null || generatedAtMs < oldestMs) {
+      oldestMs = generatedAtMs;
+    }
+  }
+  if (oldestMs === null) return null;
+  if (nowMs < oldestMs) return 0;
+  return Math.max(0, Math.floor((nowMs - oldestMs) / HOUR_MS));
+}
+
+/**
+ * Prefer Complete over Growth among *active* marketing entitlement rows.
+ * Paused/canceled Complete must not outrank an still-active Growth after
+ * recurringCanceledAt CRM sync — same predicate as leadEligibleForMarketingPack.
+ */
 export function bestMarketingOrderTier(
-  orders: ReadonlyArray<{ tier: string }>,
+  orders: ReadonlyArray<{
+    tier: string;
+    commerceAddon?: boolean;
+    recurringCanceledAt?: number | null;
+    refundedAt?: string;
+    disputedAt?: string;
+  }>,
 ): "growth" | "complete" | null {
   let best: "growth" | "complete" | null = null;
   for (const order of orders) {
+    if (
+      !orderGrantsSoldCapabilityEntitlement({
+        ...order,
+        commerceAddon: Boolean(order.commerceAddon),
+      })
+    ) {
+      continue;
+    }
     if (order.tier === "complete") return "complete";
     if (order.tier === "growth") best = "growth";
   }

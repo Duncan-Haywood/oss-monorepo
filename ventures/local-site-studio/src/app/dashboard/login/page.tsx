@@ -4,6 +4,7 @@ import {
   isOperatorAuthConfigured,
   isOperatorAuthenticated,
 } from "@/lib/auth/operator";
+import { safeNextPath } from "@/lib/auth/safe-next-path";
 import { brand } from "@/lib/brand";
 import { loginOperatorAction } from "./actions";
 
@@ -13,7 +14,10 @@ type LoginPageProps = {
 
 export default async function DashboardLoginPage({ searchParams }: LoginPageProps) {
   const params = await searchParams;
-  const next = params.next && params.next.startsWith("/") ? params.next : "/dashboard";
+  // Same guard as loginOperatorAction — never trust startsWith("/") alone
+  // (protocol-relative //evil.example is an open redirect for already-
+  // authenticated visitors who hit /dashboard/login?next=...).
+  const next = safeNextPath(params.next);
 
   if (!isOperatorAuthConfigured()) {
     redirect("/dashboard?auth=unconfigured");
@@ -24,6 +28,7 @@ export default async function DashboardLoginPage({ searchParams }: LoginPageProp
   }
 
   const invalid = params.error === "invalid";
+  const rateLimited = params.error === "rate_limited";
 
   return (
     <main className="mx-auto flex min-h-[70vh] max-w-md flex-col justify-center px-6 py-16">
@@ -40,8 +45,17 @@ export default async function DashboardLoginPage({ searchParams }: LoginPageProp
         <code className="text-xs">OPERATOR_DASHBOARD_PASSWORD</code> in the environment.
       </p>
 
-      {invalid ? (
+      {rateLimited ? (
         <p
+          id="operator-login-error"
+          className="mt-6 rounded-lg border border-orange-200 bg-orange-50 px-4 py-3 text-sm text-orange-800"
+          role="alert"
+        >
+          Too many attempts. Please wait before signing in again.
+        </p>
+      ) : invalid ? (
+        <p
+          id="operator-login-error"
           className="mt-6 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800"
           role="alert"
         >
@@ -58,6 +72,8 @@ export default async function DashboardLoginPage({ searchParams }: LoginPageProp
             name="password"
             required
             autoComplete="current-password"
+            aria-invalid={invalid || rateLimited}
+            aria-describedby={invalid || rateLimited ? "operator-login-error" : undefined}
             className="mt-1 w-full rounded-lg border border-zinc-300 px-3 py-2 text-zinc-900 shadow-sm focus:border-zinc-500 focus:outline-none"
           />
         </label>

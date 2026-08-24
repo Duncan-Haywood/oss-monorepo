@@ -26,7 +26,7 @@ export function SiteHeader() {
             </Link>
           ))}
           <Link
-            href="/checkout"
+            href="/checkout?source=nav"
             className="rounded-full bg-zinc-900 px-4 py-2 font-medium text-white transition-colors hover:bg-zinc-700"
           >
             Get started

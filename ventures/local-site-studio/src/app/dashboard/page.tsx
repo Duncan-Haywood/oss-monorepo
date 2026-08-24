@@ -10,8 +10,16 @@ import {
   listCommerceCatalogs,
   listClientVoicePacks,
   listUnpaidCommerceOrders,
+  listCommerceOrdersRefunded,
+  listCommerceOrdersDisputed,
+  listCommerceOrdersMissingClientReceipt,
+  listCronRuns,
 } from "@/lib/db";
-import { computePipelineHealth, formatUsd } from "@/lib/metrics/pipeline-health";
+import {
+  computePipelineHealth,
+  formatAbandonedAgeHours,
+  formatUsd,
+} from "@/lib/metrics/pipeline-health";
 import type { PipelineHealth } from "@/lib/metrics/pipeline-health";
 import { marketingMonthKey } from "@/lib/marketing/monthly-pack";
 import { isStripeBootstrapAllowed } from "@/lib/pricing/bootstrap-gate";
@@ -21,6 +29,7 @@ import { assessResendEmailEnvReadiness } from "@/lib/email/resend-env-readiness"
 import { assessEmailFromEnvReadiness } from "@/lib/email/email-from-env-readiness";
 import { assessAnthropicEnvReadiness } from "@/lib/ai/anthropic-env-readiness";
 import { assessOperatorDigestEmailEnvReadiness } from "@/lib/digest/operator-digest-email-env-readiness";
+import { assessOperatorDigestCronEnvReadiness } from "@/lib/digest/operator-digest-cron-env-readiness";
 import { assessOperatorAuthEnvReadiness } from "@/lib/auth/operator-auth-env-readiness";
 import { assessBrandNameEnvReadiness } from "@/lib/brand/brand-name-env-readiness";
 import { assessCompanyAddressEnvReadiness } from "@/lib/brand/company-address-env-readiness";
@@ -29,12 +38,15 @@ import { assessProductionDomainEnvReadiness } from "@/lib/deploy/production-doma
 import { assessVercelTokenEnvReadiness } from "@/lib/deploy/vercel-token-env-readiness";
 import { assessVercelProjectIdEnvReadiness } from "@/lib/deploy/vercel-project-id-env-readiness";
 import { assessConvexUrlEnvReadiness } from "@/lib/convex/convex-url-env-readiness";
+import { assessConvexApiSecretEnvReadiness } from "@/lib/convex/convex-api-secret-env-readiness";
+import { getBundle } from "@/lib/pricing/bundles";
 import { BundlePriceEnvBanner } from "@/components/dashboard/bundle-price-env-banner";
 import { StripeCoreEnvBanner } from "@/components/dashboard/stripe-core-env-banner";
 import { ResendEnvBanner } from "@/components/dashboard/resend-env-banner";
 import { EmailFromEnvBanner } from "@/components/dashboard/email-from-env-banner";
 import { AnthropicEnvBanner } from "@/components/dashboard/anthropic-env-banner";
 import { OperatorDigestEmailEnvBanner } from "@/components/dashboard/operator-digest-email-env-banner";
+import { OperatorDigestCronEnvBanner } from "@/components/dashboard/operator-digest-cron-env-banner";
 import { OperatorAuthEnvBanner } from "@/components/dashboard/operator-auth-env-banner";
 import { BrandNameEnvBanner } from "@/components/dashboard/brand-name-env-banner";
 import { CompanyAddressEnvBanner } from "@/components/dashboard/company-address-env-banner";
@@ -43,6 +55,7 @@ import { ProductionDomainEnvBanner } from "@/components/dashboard/production-dom
 import { VercelTokenEnvBanner } from "@/components/dashboard/vercel-token-env-banner";
 import { VercelProjectIdEnvBanner } from "@/components/dashboard/vercel-project-id-env-banner";
 import { ConvexUrlEnvBanner } from "@/components/dashboard/convex-url-env-banner";
+import { ConvexApiSecretEnvBanner } from "@/components/dashboard/convex-api-secret-env-banner";
 import { DashboardAuthChrome } from "./auth-chrome";
 
 const sections = [
@@ -58,7 +71,7 @@ const sections = [
   },
   {
     title: "Stripe checkout",
-    description: "Payment flow for the $500 website package.",
+    description: `Payment flow for the $${getBundle("starter")!.setupPriceUsd} website package.`,
     href: "/checkout",
   },
 ];
@@ -83,6 +96,10 @@ async function loadDashboardHealth(): Promise<PipelineHealth> {
     commerceCatalogs,
     clientVoicePacks,
     commerceOrders,
+    commerceOrdersRefunded,
+    commerceOrdersDisputed,
+    commerceOrdersMissingClientReceipt,
+    cronRuns,
   ] = await Promise.all([
     getLeads(),
     listDeployHandoffs(),
@@ -93,6 +110,10 @@ async function loadDashboardHealth(): Promise<PipelineHealth> {
     listCommerceCatalogs(),
     listClientVoicePacks(),
     listUnpaidCommerceOrders(),
+    listCommerceOrdersRefunded(),
+    listCommerceOrdersDisputed(),
+    listCommerceOrdersMissingClientReceipt(),
+    listCronRuns(),
   ]);
   return computePipelineHealth({
     leads,
@@ -104,6 +125,11 @@ async function loadDashboardHealth(): Promise<PipelineHealth> {
     commerceCatalogs,
     clientVoicePacks,
     commerceOrders,
+    commerceOrdersRefunded,
+    commerceOrdersDisputed,
+    commerceOrdersMissingClientReceipt,
+    cronRuns,
+    cronSecretConfigured: !!process.env.CRON_SECRET?.trim(),
     nowMs,
   });
 }
@@ -117,6 +143,7 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
   const emailFromEnv = assessEmailFromEnvReadiness();
   const anthropicEnv = assessAnthropicEnvReadiness();
   const digestEmailEnv = assessOperatorDigestEmailEnvReadiness();
+  const digestCronEnv = assessOperatorDigestCronEnvReadiness();
   const operatorAuthEnv = assessOperatorAuthEnvReadiness();
   const brandNameEnv = assessBrandNameEnvReadiness();
   const companyAddressEnv = assessCompanyAddressEnvReadiness();
@@ -125,6 +152,7 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
   const vercelTokenEnv = assessVercelTokenEnvReadiness();
   const vercelProjectIdEnv = assessVercelProjectIdEnvReadiness();
   const convexUrlEnv = assessConvexUrlEnvReadiness();
+  const convexApiSecretEnv = assessConvexApiSecretEnvReadiness();
   const bootstrapAllowed = isStripeBootstrapAllowed();
 
   return (
@@ -144,6 +172,7 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
         <VercelTokenEnvBanner readiness={vercelTokenEnv} />
         <VercelProjectIdEnvBanner readiness={vercelProjectIdEnv} />
         <ConvexUrlEnvBanner readiness={convexUrlEnv} />
+        <ConvexApiSecretEnvBanner readiness={convexApiSecretEnv} />
         <StripeCoreEnvBanner readiness={coreEnv} />
         <BundlePriceEnvBanner
           readiness={priceEnv}
@@ -155,6 +184,7 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
         <CompanyAddressEnvBanner readiness={companyAddressEnv} />
         <AnthropicEnvBanner readiness={anthropicEnv} />
         <OperatorDigestEmailEnvBanner readiness={digestEmailEnv} />
+        <OperatorDigestCronEnvBanner readiness={digestCronEnv} />
       </div>
 
       <h1 className="mt-10 text-3xl font-semibold tracking-tight">Dashboard</h1>
@@ -163,13 +193,113 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
         require a signed operator session when auth is configured.
       </p>
 
-      <div className="mt-8 grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
+      <div className="mt-8 grid gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-11">
         <div className="rounded-xl border border-zinc-200 px-4 py-3">
           <p className="text-[11px] font-medium uppercase tracking-wide text-zinc-500">
             Revenue
           </p>
           <p className="mt-1 text-xl font-semibold tabular-nums text-zinc-900">
             {formatUsd(health.revenueTotalUsd)}
+          </p>
+        </div>
+        <div
+          className={`rounded-xl border px-4 py-3 ${
+            health.bundleOrdersRefundedCount > 0
+              ? "border-amber-200 bg-amber-50/50"
+              : "border-zinc-200"
+          }`}
+        >
+          <p className="text-[11px] font-medium uppercase tracking-wide text-zinc-500">
+            Bundle revenue refunded
+          </p>
+          <p className="mt-1 text-xl font-semibold tabular-nums text-zinc-900">
+            {formatUsd(health.bundleOrdersRefundedUsd)}
+          </p>
+          <p className="mt-1 text-[11px] text-zinc-500">
+            {health.bundleOrdersRefundedCount > 0
+              ? `${health.bundleOrdersRefundedCount} Starter/Growth/Complete order${
+                  health.bundleOrdersRefundedCount === 1 ? "" : "s"
+                } refunded${
+                  health.oldestBundleOrdersRefundedAgeHours !== null
+                    ? ` · oldest ${formatAbandonedAgeHours(health.oldestBundleOrdersRefundedAgeHours)}`
+                    : ""
+                }`
+              : "None refunded"}
+          </p>
+        </div>
+        <div
+          className={`rounded-xl border px-4 py-3 ${
+            health.bundleOrdersDisputedCount > 0
+              ? "border-amber-200 bg-amber-50/50"
+              : "border-zinc-200"
+          }`}
+        >
+          <p className="text-[11px] font-medium uppercase tracking-wide text-zinc-500">
+            Bundle revenue disputed
+          </p>
+          <p className="mt-1 text-xl font-semibold tabular-nums text-zinc-900">
+            {formatUsd(health.bundleOrdersDisputedUsd)}
+          </p>
+          <p className="mt-1 text-[11px] text-zinc-500">
+            {health.bundleOrdersDisputedCount > 0
+              ? `${health.bundleOrdersDisputedCount} Starter/Growth/Complete order${
+                  health.bundleOrdersDisputedCount === 1 ? "" : "s"
+                } disputed${
+                  health.oldestBundleOrdersDisputedAgeHours !== null
+                    ? ` · oldest ${formatAbandonedAgeHours(health.oldestBundleOrdersDisputedAgeHours)}`
+                    : ""
+                }`
+              : "None disputed"}
+          </p>
+        </div>
+        <div
+          className={`rounded-xl border px-4 py-3 ${
+            health.commerceOrdersRefundClawbackCount > 0
+              ? "border-amber-200 bg-amber-50/50"
+              : "border-zinc-200"
+          }`}
+        >
+          <p className="text-[11px] font-medium uppercase tracking-wide text-zinc-500">
+            Refund clawback needed
+          </p>
+          <p className="mt-1 text-xl font-semibold tabular-nums text-zinc-900">
+            {formatUsd(health.commerceOrdersRefundClawbackUsd)}
+          </p>
+          <p className="mt-1 text-[11px] text-zinc-500">
+            {health.commerceOrdersRefundClawbackCount > 0
+              ? `${health.commerceOrdersRefundClawbackCount} paid-out order${
+                  health.commerceOrdersRefundClawbackCount === 1 ? "" : "s"
+                } refunded${
+                  health.oldestCommerceOrdersRefundClawbackAgeHours !== null
+                    ? ` · oldest ${formatAbandonedAgeHours(health.oldestCommerceOrdersRefundClawbackAgeHours)}`
+                    : ""
+                }`
+              : "No payouts refunded after the fact"}
+          </p>
+        </div>
+        <div
+          className={`rounded-xl border px-4 py-3 ${
+            health.commerceOrdersDisputeClawbackCount > 0
+              ? "border-amber-200 bg-amber-50/50"
+              : "border-zinc-200"
+          }`}
+        >
+          <p className="text-[11px] font-medium uppercase tracking-wide text-zinc-500">
+            Dispute clawback needed
+          </p>
+          <p className="mt-1 text-xl font-semibold tabular-nums text-zinc-900">
+            {formatUsd(health.commerceOrdersDisputeClawbackUsd)}
+          </p>
+          <p className="mt-1 text-[11px] text-zinc-500">
+            {health.commerceOrdersDisputeClawbackCount > 0
+              ? `${health.commerceOrdersDisputeClawbackCount} paid-out order${
+                  health.commerceOrdersDisputeClawbackCount === 1 ? "" : "s"
+                } disputed${
+                  health.oldestCommerceOrdersDisputeClawbackAgeHours !== null
+                    ? ` · oldest ${formatAbandonedAgeHours(health.oldestCommerceOrdersDisputeClawbackAgeHours)}`
+                    : ""
+                }`
+              : "No payouts disputed after the fact"}
           </p>
         </div>
         <div
@@ -184,6 +314,34 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
           </p>
           <p className="mt-1 text-xl font-semibold tabular-nums text-zinc-900">
             {health.openHandoffCount}
+          </p>
+          {health.openHandoffCount > 0 && health.oldestOpenHandoffAgeHours !== null ? (
+            <p className="mt-1 text-[11px] text-zinc-500">
+              oldest {formatAbandonedAgeHours(health.oldestOpenHandoffAgeHours)}
+            </p>
+          ) : null}
+        </div>
+        <div
+          className={`rounded-xl border px-4 py-3 ${
+            health.paidNotLiveCount > 0
+              ? "border-amber-200 bg-amber-50/50"
+              : "border-zinc-200"
+          }`}
+        >
+          <p className="text-[11px] font-medium uppercase tracking-wide text-zinc-500">
+            Paid, not live
+          </p>
+          <p className="mt-1 text-xl font-semibold tabular-nums text-zinc-900">
+            {health.paidNotLiveCount}
+          </p>
+          <p className="mt-1 text-[11px] text-zinc-500">
+            {health.paidNotLiveCount > 0
+              ? `See the Paid, not live panel on /dashboard/leads${
+                  health.oldestPaidNotLiveAgeHours !== null
+                    ? ` · oldest ${formatAbandonedAgeHours(health.oldestPaidNotLiveAgeHours)}`
+                    : ""
+                }`
+              : "None pending"}
           </p>
         </div>
         <div
@@ -202,6 +360,32 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
           <p className="mt-1 text-[11px] text-zinc-500">
             {health.abandonedCheckoutCount} abandoned cart
             {health.abandonedCheckoutCount === 1 ? "" : "s"}
+            {health.oldestAbandonedAgeHours !== null
+              ? ` · oldest ${formatAbandonedAgeHours(health.oldestAbandonedAgeHours)}`
+              : ""}
+          </p>
+        </div>
+        <div
+          className={`rounded-xl border px-4 py-3 ${
+            health.commerceAbandonedCheckoutCount > 0
+              ? "border-amber-200 bg-amber-50/50"
+              : "border-zinc-200"
+          }`}
+        >
+          <p className="text-[11px] font-medium uppercase tracking-wide text-zinc-500">
+            Buy now carts
+          </p>
+          <p className="mt-1 text-xl font-semibold tabular-nums text-zinc-900">
+            {health.commerceAbandonedCheckoutCount}
+          </p>
+          <p className="mt-1 text-[11px] text-zinc-500">
+            {health.commerceRecoveryDueCount > 0
+              ? `${health.commerceRecoveryDueCount} recovery due${
+                  health.oldestCommerceAbandonedAgeHours !== null
+                    ? ` · oldest ${formatAbandonedAgeHours(health.oldestCommerceAbandonedAgeHours)}`
+                    : ""
+                }`
+              : "Commerce SKU checkouts past 2h"}
           </p>
         </div>
         <div
@@ -221,6 +405,9 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
             {health.newInquiryCount > 0
               ? `${health.newInquiryCount} new · reply on Lead pipeline`
               : "new or read awaiting reply"}
+            {health.oldestUnrepliedInquiryAgeHours !== null
+              ? ` · oldest ${formatAbandonedAgeHours(health.oldestUnrepliedInquiryAgeHours)}`
+              : ""}
           </p>
         </div>
         <div

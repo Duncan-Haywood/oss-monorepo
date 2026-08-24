@@ -33,6 +33,78 @@ export default defineSchema({
     notes: v.optional(v.string()),
     /** ISO timestamp until which this lead is parked off Work next. */
     snoozedUntil: v.optional(v.string()),
+    /**
+     * Stripe Connect Express account id for this local business (dormant
+     * scaffold — see commerce-payouts-stripe-connect / stripe-connect-gate.ts).
+     * Account creation/status-checking only; no payout/transfer flow reads
+     * this yet.
+     */
+    stripeConnectAccountId: v.optional(v.string()),
+    /**
+     * ISO timestamp when the Connect account above was first created/found —
+     * set once, never updated again. Anchors the onboarding-incomplete
+     * staleness signal (see stripe-connect-onboarding-pipeline-health-visibility).
+     */
+    stripeConnectAccountCreatedAt: v.optional(v.string()),
+    /**
+     * Cached Stripe Connect Express onboarding status from the operator's
+     * most recent "Check status" click — display cache only, not the source
+     * of truth (Stripe's own account object is). See
+     * stripe-connect-onboarding-pipeline-health-visibility.
+     */
+    stripeConnectChargesEnabled: v.optional(v.boolean()),
+    stripeConnectPayoutsEnabled: v.optional(v.boolean()),
+    stripeConnectDetailsSubmitted: v.optional(v.boolean()),
+    stripeConnectStatusCheckedAt: v.optional(v.string()),
+    /**
+     * Buffer profile ids the operator has chosen to auto-post this lead's
+     * generated marketing pack content to (dormant scaffold — see
+     * marketing-content-scheduling / src/lib/marketing/buffer-gate.ts).
+     * Profile ids come from the operator's own Buffer account (listBufferProfiles);
+     * no per-lead OAuth. Empty/absent means auto-posting is not set up for this lead.
+     */
+    bufferProfileIds: v.optional(v.array(v.string())),
+    /**
+     * Idempotency markers (bufferPostedVariantKey) for pack variants already
+     * queued to Buffer this pack — prevents a repeated click from re-posting
+     * the same content (buffer-schedule-duplicate-post-guard).
+     */
+    bufferPostedVariantKeys: v.optional(v.array(v.string())),
+    /**
+     * Monotonic count of Starter→Growth/Complete upsell emails sent to this
+     * lead — CAS guard for sendStarterUpsellAction (recordStarterUpsellSent),
+     * mirroring checkoutSessions.recoverySentCount rather than
+     * marketingPacks.sentToClientAt's one-shot gate: this does NOT block a
+     * later, deliberate resend, only an exact concurrent duplicate (see
+     * starter-upsell-send-race-guard). Absent/0 means never sent.
+     */
+    starterUpsellSentCount: v.optional(v.number()),
+    /** ISO timestamp of the most recent Starter upsell send. */
+    lastStarterUpsellSentAt: v.optional(v.string()),
+    /**
+     * Monotonic count of Stripe Connect onboarding-link emails sent to this
+     * lead's client — CAS guard for sendStripeConnectOnboardingLinkToClientAction
+     * (recordStripeConnectOnboardingLinkSent), mirroring
+     * starterUpsellSentCount's expected-count shape rather than
+     * marketingPacks.sentToClientAt's one-shot gate: this does NOT block a
+     * later, deliberate resend, only an exact concurrent duplicate (see
+     * stripe-connect-onboarding-link-send-race-guard). Absent/0 means never
+     * sent.
+     */
+    stripeConnectOnboardingLinkSentCount: v.optional(v.number()),
+    /** ISO timestamp of the most recent Stripe Connect onboarding-link send. */
+    lastStripeConnectOnboardingLinkSentAt: v.optional(v.string()),
+    /**
+     * Monotonic count of Growth→Complete upsell emails sent to this lead —
+     * CAS guard for sendGrowthUpsellAction (recordGrowthUpsellSent),
+     * mirroring starterUpsellSentCount's expected-count shape rather than
+     * marketingPacks.sentToClientAt's one-shot gate: this does NOT block a
+     * later, deliberate resend, only an exact concurrent duplicate (see
+     * growth-upsell-send-race-guard). Absent/0 means never sent.
+     */
+    growthUpsellSentCount: v.optional(v.number()),
+    /** ISO timestamp of the most recent Growth upsell send. */
+    lastGrowthUpsellSentAt: v.optional(v.string()),
   })
     .index("by_slug", ["slug"])
     .index("by_stage", ["stage"]),
@@ -45,11 +117,61 @@ export default defineSchema({
     customerEmail: v.string(),
     tier: v.string(),
     commerceAddon: v.boolean(),
+    /**
+     * Unix ms when customer.subscription.deleted canceled recurring entitlement.
+     * Optional — absent means still active (or never had recurring Prices).
+     */
+    recurringCanceledAt: v.optional(v.number()),
     amountTotal: v.number(),
     createdAt: v.number(),
+    /**
+     * ISO timestamp when Stripe charge.refunded (full or partial) resolved to
+     * this order's Checkout Session. Optional — absent means never refunded.
+     * See bundle-order-refund-tracking.
+     */
+    refundedAt: v.optional(v.string()),
+    /**
+     * ISO timestamp when Stripe charge.dispute.created (or dispute.closed lost)
+     * resolved to this order's Checkout Session. Cleared on won / warning_closed.
+     * See bundle-order-dispute-tracking.
+     */
+    disputedAt: v.optional(v.string()),
+    /**
+     * Cumulative USD collected across this order's full lifetime (initial
+     * checkout amount plus every subscription-cycle renewal invoice recorded
+     * via recordSubscriptionRenewalPayment). Absent means no renewal has been
+     * recorded yet — read via orderLifetimeRevenueUsd, which falls back to
+     * amountTotal. See revenue-total-usd-renewal-gap.
+     */
+    lifetimeRevenueUsd: v.optional(v.number()),
+    /**
+     * Stripe Invoice id of the last subscription-cycle renewal counted into
+     * lifetimeRevenueUsd — redelivery idempotency marker. See
+     * revenue-total-usd-renewal-gap.
+     */
+    lastRenewalInvoiceId: v.optional(v.string()),
+    /**
+     * Unix ms of the most recent best-effort billing-notice send (dunning /
+     * payment-recovered / subscription-paused / subscription-resumed /
+     * subscription-canceled) that resolved success:false. Cleared the next
+     * time any of the five sends for this order succeeds. See
+     * billing-notice-send-failure-visibility.
+     */
+    lastBillingNoticeSendFailedAt: v.optional(v.number()),
+    /** Which of the five notice types most recently failed. */
+    lastBillingNoticeSendFailedType: v.optional(v.string()),
+    /**
+     * Which marketing surface (homepage vs. a /websites-for-* category
+     * landing page) drove this bundle checkout — validated against the
+     * CheckoutAcquisitionSource allowlist before being set. Absent means the
+     * checkout predates this field or arrived with no ?source= at all. See
+     * acquisition-source-checkout-attribution.
+     */
+    acquisitionSource: v.optional(v.string()),
   })
     .index("by_leadSlug", ["leadSlug"])
-    .index("by_stripeSessionId", ["stripeSessionId"]),
+    .index("by_stripeSessionId", ["stripeSessionId"])
+    .index("by_stripeCustomerId", ["stripeCustomerId"]),
 
   /** End-customer contact-form submissions (not outreach leads). */
   clientInquiries: defineTable({
@@ -66,6 +188,8 @@ export default defineSchema({
     operatorReply: v.optional(v.string()),
     /** Unix ms when the last dashboard reply was sent. */
     repliedAt: v.optional(v.number()),
+    /** CAS marker for recordReply — see inquiry-reply-send-race-guard. */
+    replySentCount: v.optional(v.number()),
     createdAt: v.number(),
     updatedAt: v.number(),
   })
@@ -85,6 +209,8 @@ export default defineSchema({
     createdAt: v.string(),
     /** ISO timestamp of the last operator-triggered abandoned-checkout recovery email. */
     recoverySentAt: v.optional(v.string()),
+    /** How many recovery nudges have been sent — drives escalating email copy. */
+    recoverySentCount: v.optional(v.number()),
     /**
      * "bundle" | "commerce_sku". Optional for legacy rows (treat as bundle).
      * Required when writing new commerce Buy now sessions.
@@ -92,6 +218,12 @@ export default defineSchema({
     kind: v.optional(v.string()),
     /** Present when kind === "commerce_sku". */
     skuId: v.optional(v.string()),
+    /**
+     * "monthly" | "annual" — billing cadence selected at checkout creation
+     * (kind=bundle only, see annual-billing-option). Loose v.optional(v.string())
+     * rather than a closed union, matching kind/status/tier's own looseness above.
+     */
+    billingInterval: v.optional(v.string()),
   })
     .index("by_stripeSessionId", ["stripeSessionId"])
     .index("by_status", ["status"])
@@ -118,6 +250,14 @@ export default defineSchema({
     generatedAt: v.string(),
     generator: v.string(), // "stub" | "anthropic"
     packageTier: v.optional(v.string()),
+    /**
+     * Set once sendMarketingPackToClientEmail succeeded for this pack —
+     * upsert always clears it on regenerate (new content, not yet sent).
+     * Closes the "generated but never emailed" gap (see
+     * marketing-voice-pack-client-send-visibility), mirroring
+     * commerceOrders.clientReceiptEmailSentAt.
+     */
+    sentToClientAt: v.optional(v.string()),
   })
     .index("by_lead_month", ["leadSlug", "yearMonth"])
     .index("by_month", ["yearMonth"])
@@ -162,17 +302,67 @@ export default defineSchema({
      * redelivery recovers sendCommerceBuyNowClientReceipt while unset.
      */
     clientReceiptEmailSentAt: v.optional(v.string()),
+    /**
+     * Set once the Stripe webhook's charge.refunded handler resolves this
+     * order's Checkout Session — a refunded end-customer sale owes the client
+     * nothing (see commerce-order-refund-clawback-tracking). If paidOutAt was
+     * already set before the refund landed, the operator already paid the
+     * client out of pocket and must claw that amount back.
+     */
+    refundedAt: v.optional(v.string()),
+    /**
+     * Set once the Stripe webhook's charge.dispute.created handler resolves
+     * this order's Checkout Session — Stripe debits the disputed amount from
+     * the platform the moment a dispute opens (see
+     * commerce-order-dispute-clawback-tracking), same payout-safety exposure
+     * as refundedAt. If paidOutAt was already set before the dispute landed,
+     * the operator already paid the client out of pocket and must claw that
+     * amount back.
+     */
+    disputedAt: v.optional(v.string()),
+    /**
+     * Units of skuId actually purchased (Stripe adjustable_quantity line-item
+     * quantity — see commerce-checkout-adjustable-quantity /
+     * commerce-order-quantity-visibility). Optional: absent on rows recorded
+     * before quantity capture shipped, or if a Session's line item ever lacks
+     * a valid quantity.
+     */
+    quantity: v.optional(v.number()),
+    /**
+     * The shopper's own email (Stripe customer_details.email/customer_email)
+     * — captured so the dashboard's manual "Resend receipt" action can pass
+     * it through as sendCommerceBuyNowClientReceipt's replyTo the same way
+     * the live webhook send already does (see
+     * commerce-buy-now-client-receipt-reply-to-shopper). Optional: absent on
+     * rows recorded before this capture shipped, or when Checkout collected
+     * no customer email.
+     */
+    customerEmail: v.optional(v.string()),
   })
     .index("by_leadSlug", ["leadSlug"])
     .index("by_stripeSessionId", ["stripeSessionId"]),
 
   /**
-   * CAN-SPAM unsubscribe suppression list — every automated send (outreach,
-   * follow-ups, digest, marketing/voice pack email) must check this before
-   * sending. One row per suppressed email address.
+   * CAN-SPAM unsubscribe + deliverability suppression list — every automated
+   * send (outreach, follow-ups, digest, marketing/voice pack email) must
+   * check this before sending. One row per suppressed email address.
+   *
+   * `reason` distinguishes a routine CAN-SPAM opt-out (customer preference,
+   * safe to reconsider) from a Resend delivery-event hard bounce/spam
+   * complaint (a deliverability/sender-reputation signal — see
+   * suppression-reason-visibility) — before this field existed the two were
+   * indistinguishable in both the data model and the operator dashboard.
+   * Optional so rows written before this field shipped (reason always
+   * undefined) keep loading; every new write always sets it.
    */
   suppressions: defineTable({
     email: v.string(),
+    reason: v.optional(
+      v.union(v.literal("unsubscribe"), v.literal("bounce"), v.literal("complaint")),
+    ),
+    // Epoch ms of the most recent reason upgrade — see suppressionRecencyMs
+    // in src/lib/email/suppression.ts. Undefined until the first upgrade.
+    reasonUpdatedAt: v.optional(v.number()),
   }).index("by_email", ["email"]),
 
   /**
@@ -192,6 +382,8 @@ export default defineSchema({
     ),
     generatedAt: v.string(),
     generator: v.string(), // "stub" | "anthropic"
+    /** Set once sendClientVoicePackToClientEmail succeeded — mirrors marketingPacks.sentToClientAt. */
+    sentToClientAt: v.optional(v.string()),
   })
     .index("by_leadSlug", ["leadSlug"])
     .index("by_packId", ["packId"]),
@@ -232,4 +424,20 @@ export default defineSchema({
     .index("by_handoffId", ["handoffId"])
     .index("by_status", ["status"])
     .index("by_customDomain", ["customDomain"]),
+
+  /**
+   * Operational run-health marker for the Vercel Cron-triggered routes
+   * (daily-digest / checkout-recovery / outreach-followups) — one row per
+   * job name, written on every invocation (success or failure) so a stopped
+   * or failing automation is visible in-app instead of only in Vercel's own
+   * cron run history. See cron-run-health-visibility.
+   */
+  cronRuns: defineTable({
+    job: v.string(), // "daily-digest" | "checkout-recovery" | "outreach-followups"
+    lastRunAt: v.string(), // ISO — set on every invocation regardless of outcome
+    lastRunSuccess: v.boolean(),
+    lastSuccessAt: v.optional(v.string()),
+    lastFailureAt: v.optional(v.string()),
+    lastError: v.optional(v.string()),
+  }).index("by_job", ["job"]),
 });
