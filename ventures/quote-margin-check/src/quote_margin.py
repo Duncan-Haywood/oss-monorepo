@@ -117,7 +117,11 @@ def main() -> int:
     else:
         print(markdown(quote, result), end="")
     if args.usage_log:
-        event = {"event": "report_generated", "at": datetime.now(timezone.utc).isoformat()}
+        event = {
+            "event": "report_generated",
+            "format": args.format,
+            "at": datetime.now(timezone.utc).isoformat(),
+        }
         with args.usage_log.open("a", encoding="utf-8") as handle:
             handle.write(json.dumps(event) + "\n")
     return 0

@@ -1,8 +1,11 @@
 import contextlib
 import io
+import json
+import tempfile
 import unittest
+from pathlib import Path
 
-from src.quote_margin import calculate, csv_report, load_quote
+from src.quote_margin import calculate, csv_report, load_quote, main
 
 
 class QuoteMarginTests(unittest.TestCase):
@@ -59,3 +62,21 @@ class QuoteMarginTests(unittest.TestCase):
     def test_currency_defaults_and_is_trimmed(self) -> None:
         quote = load_quote({"currency": " USD ", "price": 1000, "delivery_hours": 10, "target_hourly_rate": 100})
         self.assertEqual(quote.currency, "USD")
+
+    def test_usage_event_records_format_without_quote_contents(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            usage_path = Path(directory) / "usage.jsonl"
+            input_path = Path(directory) / "quote.json"
+            input_path.write_text(json.dumps({"price": 1000, "delivery_hours": 10, "target_hourly_rate": 100}), encoding="utf-8")
+            import sys
+            original_argv = sys.argv
+            try:
+                sys.argv = ["quote_margin.py", str(input_path), "--format", "csv", "--usage-log", str(usage_path)]
+                with contextlib.redirect_stdout(io.StringIO()):
+                    self.assertEqual(main(), 0)
+            finally:
+                sys.argv = original_argv
+            event = json.loads(usage_path.read_text(encoding="utf-8"))
+            self.assertEqual(event["event"], "report_generated")
+            self.assertEqual(event["format"], "csv")
+            self.assertNotIn("price", event)
