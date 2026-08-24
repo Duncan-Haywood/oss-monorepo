@@ -2,6 +2,8 @@ from __future__ import annotations
 
 import argparse
 from collections import Counter
+import csv
+import io
 import json
 import sys
 from pathlib import Path
@@ -159,6 +161,39 @@ def _json_report(
     return output
 
 
+def _csv_report(
+    reports: list[tuple[Path, list[dict[str, str]]]],
+    read_errors: list[dict[str, str]],
+) -> str:
+    """Build a spreadsheet-friendly triage report without invoice values."""
+    rows: list[dict[str, str]] = []
+    for path, errors in reports:
+        if errors:
+            rows.extend(
+                {
+                    "file": path.as_posix(),
+                    "status": "fail",
+                    "rule": error["rule"],
+                    "path": error["path"],
+                    "message": error["message"],
+                    "fix": error["fix"],
+                    "error": "",
+                }
+                for error in errors
+            )
+        else:
+            rows.append({"file": path.as_posix(), "status": "pass", "rule": "", "path": "", "message": "", "fix": "", "error": ""})
+    rows.extend(
+        {"file": error["file"], "status": "read_error", "rule": "", "path": "", "message": "", "fix": "", "error": error["error"]}
+        for error in read_errors
+    )
+    output = io.StringIO()
+    writer = csv.DictWriter(output, fieldnames=("file", "status", "rule", "path", "message", "fix", "error"), lineterminator="\n")
+    writer.writeheader()
+    writer.writerows(rows)
+    return output.getvalue()
+
+
 def _markdown_text(value: str) -> str:
     """Keep local filenames and validator text from changing report structure."""
     return value.replace("\\", "\\\\").replace("|", "\\|").replace("`", "\\`")
@@ -167,7 +202,7 @@ def _markdown_text(value: str) -> str:
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description="Check a local JSON e-invoice before submission. No tax advice or submission.")
     parser.add_argument("invoice", type=Path, help="JSON file, directory of JSON files, or '-' for stdin")
-    parser.add_argument("--format", choices=("text", "json", "markdown", "sarif", "github"), default="text")
+    parser.add_argument("--format", choices=("text", "json", "markdown", "csv", "sarif", "github"), default="text")
     parser.add_argument("--usage-file", help="opt-in local aggregate event counter")
     args = parser.parse_args(argv)
     reports: list[tuple[Path, list[dict[str, str]]]] = []
@@ -205,6 +240,8 @@ def main(argv: list[str] | None = None) -> int:
         print(json.dumps(_json_report(reports, read_errors), indent=2))
     elif args.format == "markdown":
         print(_markdown_report(reports, read_errors), end="")
+    elif args.format == "csv":
+        print(_csv_report(reports, read_errors), end="")
     elif args.format == "sarif":
         print(json.dumps(_sarif_report(reports), indent=2))
     elif args.format == "github":
