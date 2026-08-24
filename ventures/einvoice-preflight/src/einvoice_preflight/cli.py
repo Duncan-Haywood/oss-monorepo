@@ -82,6 +82,23 @@ def _markdown_report(reports: list[tuple[Path, list[dict[str, str]]]], read_erro
     return "\n".join(lines).rstrip() + "\n"
 
 
+def _json_report(
+    reports: list[tuple[Path, list[dict[str, str]]]],
+    read_errors: list[dict[str, str]],
+) -> dict[str, Any]:
+    """Return one stable envelope for both single-file and batch consumers."""
+    observations = sum(len(errors) for _, errors in reports)
+    failed = sum(bool(errors) for _, errors in reports)
+    return {
+        "status": "pass" if not observations and not read_errors else "fail",
+        "files_checked": len(reports),
+        "files_failed": failed,
+        "observations": observations,
+        "reports": [{"file": path.as_posix(), "errors": errors} for path, errors in reports],
+        "read_errors": read_errors,
+    }
+
+
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description="Check a local JSON e-invoice before submission. No tax advice or submission.")
     parser.add_argument("invoice", type=Path, help="JSON file, directory of JSON files, or '-' for stdin")
@@ -120,17 +137,7 @@ def main(argv: list[str] | None = None) -> int:
     errors = [error for _, invoice_errors in reports for error in invoice_errors]
     has_read_errors = bool(read_errors)
     if args.format == "json":
-        if args.invoice.is_dir():
-            output = {
-                "status": "pass" if not errors and not has_read_errors else "fail",
-                "files_checked": len(reports),
-                "files_failed": sum(bool(invoice_errors) for _, invoice_errors in reports),
-                "reports": [{"file": path.as_posix(), "errors": invoice_errors} for path, invoice_errors in reports],
-                "read_errors": read_errors,
-            }
-        else:
-            output = {"status": "pass" if not errors and not has_read_errors else "fail", "errors": errors}
-        print(json.dumps(output, indent=2))
+        print(json.dumps(_json_report(reports, read_errors), indent=2))
     elif args.format == "markdown":
         print(_markdown_report(reports, read_errors), end="")
     elif args.format == "sarif":

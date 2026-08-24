@@ -49,7 +49,10 @@ line's tax is calculated from its rounded line net and the supplied
 `tax_percent`; the invoice tax total must equal the sum of those per-line
 rounded amounts. This reports arithmetic discrepancies only and does not
 decide whether a tax percentage is legally correct.
-`--format json` is suitable for an ERP adapter. `--format sarif` emits SARIF
+`--format json` is suitable for an ERP adapter. It always returns the same
+envelope, whether the input is one file or a directory: `status`,
+`files_checked`, `files_failed`, `observations`, per-file `reports`, and
+`read_errors`. `--format sarif` emits SARIF
 2.1.0 for GitHub code scanning, CI annotations, and
 editor integrations. It contains the rule IDs, fixes, and the local invoice
 filename, never invoice fields or line contents. Both formats exit `1` when
