@@ -15,6 +15,10 @@ test("records anonymous events and returns aggregate counts", () => {
     totalEvents: 2,
     pageViews: 1,
     searches: 0,
+    storefrontSearches: 0,
+    b2bSearches: 0,
+    b2bProjectAdds: 0,
+    b2bOrdersSubmitted: 0,
     featureEvents: 1,
     recentEvents: [
       { name: "catalog_cta", path: "/storefront", createdAt: "2026-08-24T00:01:00.000Z" },
@@ -37,6 +41,21 @@ test("counts storefront search events separately from page views", () => {
   recordUsageEvent({ name: "storefront_search", path: "/storefront?q=blue", createdAt: "2026-08-24T00:02:00.000Z" });
   const summary = getUsageEventSummary();
   assert.equal(summary.searches, 1);
+  assert.equal(summary.storefrontSearches, 1);
+  assert.equal(summary.b2bSearches, 0);
   assert.equal(summary.pageViews, 0);
   assert.equal(summary.featureEvents, 1);
+});
+
+test("counts designer-portal search, add, and submit events", () => {
+  clearUsageEventsForTests();
+  recordUsageEvent({ name: "b2b_search", path: "/b2b-portal?q=blue", createdAt: "2026-08-24T00:03:00.000Z" });
+  recordUsageEvent({ name: "b2b_add_to_project", path: "/b2b-portal#midnight-coast", createdAt: "2026-08-24T00:03:10.000Z" });
+  recordUsageEvent({ name: "b2b_submit_order", path: "/checkout?from=b2b", createdAt: "2026-08-24T00:03:20.000Z" });
+  const summary = getUsageEventSummary();
+  assert.equal(summary.searches, 1);
+  assert.equal(summary.b2bSearches, 1);
+  assert.equal(summary.b2bProjectAdds, 1);
+  assert.equal(summary.b2bOrdersSubmitted, 1);
+  assert.equal(summary.featureEvents, 3);
 });

@@ -37,7 +37,7 @@ type CheckoutApiResponse = CheckoutEnvStatus & {
 
 const regions: CheckoutShippingRegion[] = ["US", "EU", "UK", "APAC"];
 
-export default function CheckoutLab() {
+export default function CheckoutLab({ fromB2b = false }: { fromB2b?: boolean }) {
   const [cart, setCart] = useState<CheckoutLineItem[]>([]);
   const [region, setRegion] = useState<CheckoutShippingRegion>("US");
   const [envStatus, setEnvStatus] = useState<CheckoutEnvStatus | null>(null);
@@ -122,6 +122,16 @@ export default function CheckoutLab() {
           Consent-gated cart → Stripe Checkout session → POD fulfillment routing → Connect artist
           transfer. Cart persists in localStorage until Convex order records ship.
         </p>
+        {fromB2b ? (
+          <p className="mt-3 rounded-lg border border-indigo-200 bg-indigo-50 px-4 py-3 text-sm text-indigo-900">
+            Trade order loaded from the designer portal. Line prices are the 32% trade rate, not
+            retail.{" "}
+            <Link href="/b2b-portal" className="font-medium underline">
+              Return to the trade catalog
+            </Link>
+            .
+          </p>
+        ) : null}
       </header>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">

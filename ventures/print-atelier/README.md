@@ -50,7 +50,7 @@ Visit [http://localhost:3000](http://localhost:3000) for the business plan dashb
 | `/storefront` | Consumer e-commerce storefront (demand side) |
 | `/buyer-portal` | Full buyer shop with filters and AI room visualization |
 | `/artist-portal` | Artist dashboard with portfolio, payouts, settings |
-| `/b2b-portal` | B2B trade portal for interior designers |
+| `/b2b-portal` | Designer trade portal: live catalog search, project boards, checkout handoff |
 | `/designer-portal` | Designer portal (Phase 4 GTM) |
 | `/capture` | Mobile capture app with AI processing pipeline |
 | `/capture-demo` | Interactive AI capture pipeline demo |
