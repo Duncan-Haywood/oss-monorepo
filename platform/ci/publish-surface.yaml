@@ -64,6 +64,9 @@ workflows:
 - workflow: demand-signal-reachability-ci.yml
   classification: none
   publishes: []
+- workflow: dns-configuration-evidence-ci.yml
+  classification: none
+  publishes: []
 - workflow: eaa-wcag-triage-ci.yml
   classification: none
   publishes: []

@@ -16,7 +16,17 @@ python3 -m unittest discover -s tests -v
 PYTHONPATH=src python3 -m dns_evidence.cli --before before.json --after after.json --format markdown
 # Exit 2 if any DNS observation changed, suitable for a review gate:
 PYTHONPATH=src python3 -m dns_evidence.cli --before examples/before.json --after examples/after.json --fail-on changed
+# Exit 2 only if an SPF, DKIM, or DMARC record changed -- the DNS change most
+# likely to silently break outbound mail delivery or open a spoofing gap:
+PYTHONPATH=src python3 -m dns_evidence.cli --before before.json --after after.json --fail-on email-auth-changed
 ```
+
+Every finding is tagged `email_auth: "SPF" | "DKIM" | "DMARC" | null` by name
+and content convention (an apex TXT record starting `v=spf1`, `_dmarc.<domain>`,
+or `<selector>._domainkey.<domain>`). This is a naming/content convention, not
+validation — it flags which changes touch mail authentication, it does not
+check whether the record is syntactically valid or whether mail actually
+authenticates.
 
 The input is customer-supplied JSON. It must contain `authorized: true`, a
 `domain`, and observations with `name`, `type`, `resolver`, `observed_at`, and

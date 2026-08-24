@@ -16,7 +16,7 @@ def main() -> None:
     parser.add_argument("--usage-file", type=Path, help="optional local event-count file")
     parser.add_argument(
         "--fail-on",
-        choices=("never", "changed", "inconclusive"),
+        choices=("never", "changed", "inconclusive", "email-auth-changed"),
         default="never",
         help="return exit status 2 when the report includes this result (useful in CI)",
     )
@@ -31,7 +31,10 @@ def main() -> None:
         usage = json.loads(args.usage_file.read_text(encoding="utf-8")) if args.usage_file.exists() else {}
         usage["report_generated"] = int(usage.get("report_generated", 0)) + 1
         args.usage_file.write_text(json.dumps(usage, indent=2) + "\n", encoding="utf-8")
-    if args.fail_on in report["finding_counts"]:
+    if args.fail_on == "email-auth-changed":
+        if report["email_auth_changed_count"] > 0:
+            raise SystemExit(2)
+    elif args.fail_on in report["finding_counts"]:
         raise SystemExit(2)
 
 
