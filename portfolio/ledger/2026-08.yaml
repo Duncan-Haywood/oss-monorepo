@@ -22736,58 +22736,6 @@ entries:
     human_hours: 0
     outcomes:
       - >-
-          Triggered by pull_request.opened on #867 (Print Atelier: instrument
-          storefront usage journey), designated branch
-          claude/festive-mccarthy-xrn3ua. Reviewed all six open PRs. #867 was
-          additive-only (usage-tracking API routes, functional storefront
-          CTAs, disclaimer copy), CI green, `mergeable_state: clean` -- merged
-          as agent-decidable product/instrumentation work. #829
-          (branch-cleanup automation), #814 (EAA evidence product line), #720
-          (deployment platform choice), and #531 (contrast-token fixes) were
-          each already correctly self-flagged owner-gated in their own PR
-          bodies (unattended automation that writes; breaking change to
-          deployable `ventures/local-site-studio`; blocked on branch
-          protection needing non-author approval; deployable `ventures/*`
-          styling) -- left alone, nothing new to add. #857 (pod-print-file
-          product line) is draft, another session's in-progress work, left
-          alone.
-      - >-
-          Sampled the branch backlog again (600+ `claude/*`/`cursor/*`
-          branches against ~6 open PRs): `agent/software-evidence-provenance`
-          and `candidate/shopify-permission-drift` reconfirmed stale/superseded
-          (matches this ledger's photos-import-tools entry from earlier
-          today), `claude/dev-instructions-pr-review-ugsthb` predates the
-          monorepo migration entirely. No unmerged worthwhile work found; the
-          backlog is exactly what the already-queued branch-cleanup
-          automation (#829) exists to clear, not a new decision.
-      - >-
-          `session_gate.py` read BUILD (100% of last 25 entries meta-work, no
-          revenue, no unbuilt build-now candidate). Graduated the
-          `vendor-change-evidence` pipeline candidate (composite 6.75,
-          `portfolio/pipeline/candidates/vendor-change-evidence.md`) directly
-          to `verdict: build-now` and shipped it as a new venture,
-          `ventures/vendor-watch`: a free, no-account tool that fetches a
-          visitor-supplied public URL (vendor terms/privacy/subprocessor
-          page), stores a snapshot, and on a later check shows a
-          timestamped, source-linked word-diff -- explicitly labelling fetch
-          failures/non-2xx as inconclusive, never "no change", per the
-          candidate doc's boundary. This overrides the doc's own
-          practitioner-outreach-probe requirement, per this session's
-          explicit brief to ship-and-measure real usage instead; noted as
-          such in `candidates.yaml`/README rather than silently skipping the
-          probe. 18/18 unit tests, `npm run build`, and `npx eslint .` all
-          clean; also smoke-tested live (`npm run start`, hit `/`,
-          `POST /api/watch/check`, `GET /api/usage/summary`) and the build
-          agent separately drove the real fetch/diff path against a local
-          fixture server (first-snapshot -> changed -> unchanged ->
-          inconclusive-on-503 -> inconclusive-on-unreachable-host).
-          `portfolio/pipeline/validate_candidates.py`,
-          `validate_doc_consistency.py`, and `portfolio/router/validate.py`
-          all pass. Opened as #905 rather than self-merged: new venture
-          directory, worth a beat for the owner to see even though nothing
-          in it needs their sign-off (no payment, no external account, no
-          breaking change) -- subscribed to its PR activity.
-      - >-
         Scheduled "review every open PR, clear the backlog, then build"
         session, designated branch claude/festive-mccarthy-eysttq.
         session_gate.py said BUILD. Triaged all 7 open PRs first (#867,
@@ -22986,4 +22934,61 @@ entries:
         `validate_doc_consistency.py` and `validate_candidates.py`
         (unaffected, both pass). Doc-only diff; no code, deployment, or
         owner-only action.
+    mrr_end: null
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+          Triggered by pull_request.opened on #867 (Print Atelier: instrument
+          storefront usage journey), designated branch
+          claude/festive-mccarthy-xrn3ua. Reviewed all six open PRs. #867 was
+          additive-only (usage-tracking API routes, functional storefront
+          CTAs, disclaimer copy), CI green, `mergeable_state: clean` -- merged
+          as agent-decidable product/instrumentation work. #829
+          (branch-cleanup automation), #814 (EAA evidence product line), #720
+          (deployment platform choice), and #531 (contrast-token fixes) were
+          each already correctly self-flagged owner-gated in their own PR
+          bodies (unattended automation that writes; breaking change to
+          deployable `ventures/local-site-studio`; blocked on branch
+          protection needing non-author approval; deployable `ventures/*`
+          styling) -- left alone, nothing new to add. #857 (pod-print-file
+          product line) is draft, another session's in-progress work, left
+          alone.
+      - >-
+          Sampled the branch backlog again (600+ `claude/*`/`cursor/*`
+          branches against ~6 open PRs): `agent/software-evidence-provenance`
+          and `candidate/shopify-permission-drift` reconfirmed stale/superseded
+          (matches this ledger's photos-import-tools entry from earlier
+          today), `claude/dev-instructions-pr-review-ugsthb` predates the
+          monorepo migration entirely. No unmerged worthwhile work found; the
+          backlog is exactly what the already-queued branch-cleanup
+          automation (#829) exists to clear, not a new decision.
+      - >-
+          `session_gate.py` read BUILD (100% of last 25 entries meta-work, no
+          revenue, no unbuilt build-now candidate). Graduated the
+          `vendor-change-evidence` pipeline candidate (composite 6.75,
+          `portfolio/pipeline/candidates/vendor-change-evidence.md`) directly
+          to `verdict: build-now` and shipped it as a new venture,
+          `ventures/vendor-watch`: a free, no-account tool that fetches a
+          visitor-supplied public URL (vendor terms/privacy/subprocessor
+          page), stores a snapshot, and on a later check shows a
+          timestamped, source-linked word-diff -- explicitly labelling fetch
+          failures/non-2xx as inconclusive, never "no change", per the
+          candidate doc's boundary. This overrides the doc's own
+          practitioner-outreach-probe requirement, per this session's
+          explicit brief to ship-and-measure real usage instead; noted as
+          such in `candidates.yaml`/README rather than silently skipping the
+          probe. 18/18 unit tests, `npm run build`, and `npx eslint .` all
+          clean; also smoke-tested live (`npm run start`, hit `/`,
+          `POST /api/watch/check`, `GET /api/usage/summary`) and the build
+          agent separately drove the real fetch/diff path against a local
+          fixture server (first-snapshot -> changed -> unchanged ->
+          inconclusive-on-503 -> inconclusive-on-unreachable-host).
+          `portfolio/pipeline/validate_candidates.py`,
+          `validate_doc_consistency.py`, and `portfolio/router/validate.py`
+          all pass. Opened as #905 rather than self-merged: new venture
+          directory, worth a beat for the owner to see even though nothing
+          in it needs their sign-off (no payment, no external account, no
+          breaking change) -- subscribed to its PR activity.
     mrr_end: null
