@@ -163,6 +163,9 @@ workflows:
 - workflow: shopify-fee-calculator-ci.yml
   classification: none
   publishes: []
+- workflow: sod-install-bid-calculator-ci.yml
+  classification: none
+  publishes: []
 - workflow: source-silence-detector-ci.yml
   classification: none
   publishes: []
