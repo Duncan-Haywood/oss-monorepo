@@ -196,6 +196,32 @@ const SHARE_FIELDS = [
   "serviceName",
 ];
 
+export const DRAFT_FIELDS = ["currency", ...SHARE_FIELDS.filter((field) => field !== "currency")];
+export const DRAFT_STORAGE_KEY = "no-show-fee-calculator:draft:v1";
+
+/** @param {Record<string, unknown>} raw @param {Storage|undefined|null} storage */
+export function saveDraft(raw, storage) {
+  try {
+    storage?.setItem(DRAFT_STORAGE_KEY, JSON.stringify(
+      Object.fromEntries(DRAFT_FIELDS.map((field) => [field, String(raw[field] ?? "")])),
+    ));
+    return Boolean(storage);
+  } catch {
+    return false;
+  }
+}
+
+/** @param {Storage|undefined|null} storage @returns {Record<string, string>|null} */
+export function readDraft(storage) {
+  try {
+    const parsed = JSON.parse(storage?.getItem(DRAFT_STORAGE_KEY) ?? "null");
+    if (!parsed || typeof parsed !== "object" || Array.isArray(parsed)) return null;
+    return Object.fromEntries(DRAFT_FIELDS.map((field) => [field, typeof parsed[field] === "string" ? parsed[field] : ""]));
+  } catch {
+    return null;
+  }
+}
+
 /** @param {Record<string, unknown>} raw @param {string} baseUrl */
 export function buildShareUrl(raw, baseUrl) {
   const url = new URL(baseUrl);

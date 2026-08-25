@@ -14,6 +14,10 @@ import {
   generatePolicyText,
   buildShareUrl,
   readShareValues,
+  DRAFT_FIELDS,
+  DRAFT_STORAGE_KEY,
+  saveDraft,
+  readDraft,
 } from "../src/calc.mjs";
 
 test("parseInputs accepts valid numeric input", () => {
@@ -208,6 +212,20 @@ test("buildShareUrl encodes supported inputs without server state", () => {
 
 test("readShareValues returns only supported parameters", () => {
   assert.deepEqual(readShareValues("https://example.test/?price=75&feePercent=100&unknown=bad"), { price: "75", feePercent: "100" });
+});
+
+test("draft helpers round-trip form values without storing extra fields", () => {
+  const values = new Map();
+  const storage = { setItem: (key, value) => values.set(key, value), getItem: (key) => values.get(key) ?? null };
+  const raw = Object.fromEntries(DRAFT_FIELDS.map((field, index) => [field, String(index + 1)]));
+  assert.equal(saveDraft(raw, storage), true);
+  assert.deepEqual(readDraft(storage), raw);
+  assert.equal(JSON.parse(values.get(DRAFT_STORAGE_KEY)).ignored, undefined);
+});
+
+test("readDraft ignores malformed or non-string values", () => {
+  assert.equal(readDraft({ getItem: () => "not json" }), null);
+  assert.deepEqual(readDraft({ getItem: () => JSON.stringify({ price: 75 }) }).price, "");
 });
 
 test("index.html's embedded JSON-LD blocks are valid JSON", () => {

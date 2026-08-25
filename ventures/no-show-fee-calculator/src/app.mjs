@@ -1,4 +1,4 @@
-import { parseInputs, computeAll, compareFeeScenarios, generatePolicyText, buildShareUrl, readShareValues } from "./calc.mjs";
+import { parseInputs, computeAll, compareFeeScenarios, generatePolicyText, buildShareUrl, readShareValues, DRAFT_FIELDS, saveDraft, readDraft } from "./calc.mjs";
 import { recordEvent, isOptedOut, setOptedOut, getUsageSummary, clearUsageLog } from "./usage.mjs";
 
 const form = document.getElementById("calc-form");
@@ -15,6 +15,16 @@ const clearUsageBtn = document.getElementById("clear-usage");
 const scenarioSection = document.getElementById("scenario-section");
 const scenarioBody = document.getElementById("scenario-body");
 const currencySelect = document.getElementById("currency");
+const draftStatus = document.getElementById("draft-status");
+const draftStorage = (() => { try { return window.localStorage; } catch { return null; } })();
+
+function rawFormValues() {
+  return Object.fromEntries(new FormData(form).entries());
+}
+
+function saveCurrentDraft() {
+  if (saveDraft(rawFormValues(), draftStorage)) draftStatus.textContent = "Draft saved privately in this browser.";
+}
 
 const currencyOptions = {
   USD: { currency: "USD", symbol: "$" },
@@ -98,7 +108,7 @@ function syncOptOutUI() {
  * there is a real result on screen worth counting.
  */
 function render() {
-  const raw = Object.fromEntries(new FormData(form).entries());
+  const raw = rawFormValues();
   const parsed = parseInputs(raw);
 
   if (!parsed.ok) {
@@ -147,13 +157,14 @@ form.addEventListener("submit", (event) => {
 
 // Repaint as the visitor types. `input` fires per keystroke, which is right for
 // rendering and wrong for counting -- hence the split above.
-form.addEventListener("input", () => { render(); });
+form.addEventListener("input", () => { render(); saveCurrentDraft(); });
 
 // `change` fires once a field is settled (blur, or a committed spinner/step),
 // so it is the honest place to count a calculation the visitor actually asked
 // for. The two text fields only feed the policy wording, so editing them is not
 // a new calculation.
 form.addEventListener("change", (event) => {
+  saveCurrentDraft();
   if (event.target instanceof HTMLInputElement && event.target.type === "text") {
     render();
     return;
@@ -212,11 +223,13 @@ renderUsageSummary();
 
 const sharedValues = readShareValues(window.location.href);
 const openedFromShareLink = Object.keys(sharedValues).length > 0;
-if (openedFromShareLink) {
-  for (const [key, value] of Object.entries(sharedValues)) {
+const savedDraft = openedFromShareLink ? null : readDraft(draftStorage);
+if (openedFromShareLink || savedDraft) {
+  for (const [key, value] of Object.entries(sharedValues || savedDraft)) {
     const input = form.elements.namedItem(key);
     if (input && "value" in input) input.value = value;
   }
+  if (savedDraft) draftStatus.textContent = "Restored your last draft from this browser.";
 }
 
 // Show a worked result immediately, from the shipped defaults or from a share
