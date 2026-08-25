@@ -176,6 +176,14 @@ products:
         note: >-
           Shipped browser-local axe JSON evidence report; public URL remains
           owner-gated and the local counter has no external reporting path.
+      - as_of: 2026-08-25
+        signals:
+          live_url_visitors: null
+          local_events_reported: 0
+        note: >-
+          Shipped browser-local remediation quote (hours + range) at
+          quote.html. Complementary to #1514 before/after compare — keep
+          quote.html as a sibling. Public URL remains owner-gated.
   - slug: ebay-fee-calculator
     surface: static-page-in-repo
     readings:
