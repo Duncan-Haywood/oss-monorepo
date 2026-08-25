@@ -6,11 +6,27 @@ from typing import Any
 
 
 def _money(value: Any) -> Decimal | None:
+    result = _number(value)
+    return result.quantize(Decimal("0.01"), rounding=ROUND_HALF_UP) if result is not None else None
+
+
+def _number(value: Any) -> Decimal | None:
+    """Parse a finite number without applying currency-specific rounding."""
     try:
         result = Decimal(str(value))
     except (InvalidOperation, ValueError, TypeError):
         return None
-    return result.quantize(Decimal("0.01"), rounding=ROUND_HALF_UP) if result.is_finite() else None
+    return result if result.is_finite() else None
+
+
+def _iso_date(value: Any) -> date | None:
+    """Accept the documented extended YYYY-MM-DD form only."""
+    if not isinstance(value, str) or len(value) != 10 or value[4] != "-" or value[7] != "-":
+        return None
+    try:
+        return date.fromisoformat(value)
+    except ValueError:
+        return None
 
 
 def check_invoice(invoice: Any) -> list[dict[str, str]]:
@@ -26,10 +42,15 @@ def check_invoice(invoice: Any) -> list[dict[str, str]]:
             fail("INV-001", f"Required field '{field}' is missing.", f"Add a '{field}' field.", f"/{field}")
     if not isinstance(invoice.get("invoice_number"), str) or not invoice.get("invoice_number", "").strip():
         fail("INV-002", "Invoice number is empty or not text.", "Provide a non-empty invoice number.", "/invoice_number")
-    try:
-        date.fromisoformat(invoice.get("issue_date", ""))
-    except (ValueError, TypeError):
+    issue_date = _iso_date(invoice.get("issue_date"))
+    if issue_date is None:
         fail("INV-003", "Issue date is not an ISO date.", "Use YYYY-MM-DD, for example 2026-08-24.", "/issue_date")
+    if "due_date" in invoice and invoice.get("due_date") not in (None, ""):
+        due_date = _iso_date(invoice["due_date"])
+        if due_date is None:
+            fail("INV-020", "Due date is not an ISO date.", "Use YYYY-MM-DD, for example 2026-09-23.", "/due_date")
+        if due_date is not None and issue_date is not None and due_date < issue_date:
+            fail("INV-021", "Due date is earlier than the issue date.", "Set due date to the issue date or a later date.", "/due_date")
     if not isinstance(invoice.get("currency"), str) or len(invoice.get("currency", "")) != 3 or not invoice.get("currency", "").isupper():
         fail("INV-004", "Currency is not a three-letter uppercase code.", "Use an ISO-style code such as EUR or GBP.", "/currency")
     for party_name in ("supplier", "customer"):
@@ -50,7 +71,7 @@ def check_invoice(invoice: Any) -> list[dict[str, str]]:
             continue
         if not isinstance(line.get("description"), str) or not line.get("description", "").strip():
             fail("INV-008", f"Line {index} has no description.", "Add a human-readable line description.", f"/lines/{index - 1}/description")
-        quantity, price, tax = (_money(line.get(key)) for key in ("quantity", "unit_price", "tax_percent"))
+        quantity, price, tax = _number(line.get("quantity")), _money(line.get("unit_price")), _number(line.get("tax_percent"))
         if quantity is None or quantity <= 0:
             fail("INV-009", f"Line {index} quantity is invalid.", "Use a positive numeric quantity.", f"/lines/{index - 1}/quantity")
         if price is None or price < 0:

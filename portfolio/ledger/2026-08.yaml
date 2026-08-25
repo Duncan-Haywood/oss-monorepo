@@ -1,5 +1,19 @@
 period: 2026-08
 entries:
+  - venture: retainage-cashflow-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Graduated and implemented a browser-local construction retainage and
+        payment-delay worksheet. It models retainage withheld, earned-but-unpaid
+        cash, user-supplied carrying-cost scenarios, and a factual payment
+        follow-up draft without accounts, uploads, integrations, or payments.
+        The product includes a visible no-warranty disclaimer, privacy boundary,
+        opt-out local usage counter, MIT license, SEO metadata, sitemap, and
+        robots.txt. Public publishing remains owner-gated; first usage reading
+        is recorded as zero.
+    mrr_end: null
   - venture: shopify-a11y-evidence
     agent_spend_usd: null
     human_hours: 0
