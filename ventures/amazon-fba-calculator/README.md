@@ -13,8 +13,10 @@ an estimate of the fees Amazon will charge: enter the rates from your current
 fee preview, and verify them there.
 
 **After using this, you can now see whether FBA or FBM leaves more on a real
-SKU, and the most you can pay a supplier for that unit** — which used to mean
-a spreadsheet that forgot storage, inbound, or the professional plan.
+SKU, the most you can pay a supplier for that unit, and whether staying
+under Amazon’s Low-Price FBA threshold still beats a real raise** — which
+used to mean a spreadsheet that forgot storage, inbound, or the pick-fee
+jump at $10.
 
 ## Why it's different
 
@@ -33,6 +35,10 @@ units, and shows **both paths on the same listing**.
 
 [FBA vs FBM: which path leaves more?](fba-vs-fbm.html) answers that search
 question directly.
+[Should I stay under Low-Price FBA?](should-i-price-over-amazons-low-price-fba.html)
+answers the $9.99-versus-$12 pricing question: a one-cent raise usually
+loses, and the raise that matches the cheaper pick fee is
+`stayPrice + (regularFee − lowPriceFee) / (1 − referralRate)`.
 
 **No warranty.** This tool is provided free and as-is, without warranty of any
 kind, express or implied. It is not tax, financial, or business advice, and it
@@ -40,6 +46,12 @@ does not replace a qualified professional. **You are responsible for reviewing
 and verifying its output before relying on it**, and for meeting any obligation
 it helps you prepare for. To the maximum extent permitted by law, the authors
 accept no liability for any loss or damage arising from its use.
+
+**Best-effort hosting, no SLA.** These tools are free, experimental, and
+may be slow, broken, moved, or taken offline without notice. We do not
+promise uptime, backups of anything you type, or that a URL will keep
+working. Do not use this as a system of record. If a tool needs to
+survive, export your inputs and run it yourself.
 
 ## Privacy and usage
 
