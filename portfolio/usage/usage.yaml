@@ -36,7 +36,10 @@ products:
         signals:
           live_url_visitors: null
           local_events_reported: 0
-        note: Shipped private local-first booking price and utilization calculator; public URL remains owner-gated.
+        note: >-
+          Shipped private local-first booking price and utilization calculator;
+          added named local drafts for recurring pricing reviews. Public URL
+          remains owner-gated; draft names and values never leave the browser.
   - slug: shopify-permission-drift
     surface: local-cli
     readings:

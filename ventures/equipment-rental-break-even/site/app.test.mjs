@@ -9,6 +9,8 @@ test("landing page exposes searchable product, safety copy, and local app", () =
   assert.match(html, /No warranty/);
   assert.match(html, /application\/ld\+json/);
   assert.match(html, /app\.mjs/);
+  assert.match(html, /Save draft/);
+  assert.match(html, /Saved local drafts/);
 });
 test("browser output treats the currency label as text and honors privacy signals", () => {
   assert.match(app, /replaceChildren\(\)/);

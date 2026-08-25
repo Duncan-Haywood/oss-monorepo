@@ -2,6 +2,7 @@ import { calculate } from "./model.mjs";
 const ids = ["currency", "booking", "rental_days", "delivery", "cleaning", "damage", "purchase", "life", "fixed_monthly", "available", "target_margin"];
 const $ = (id) => document.getElementById(id);
 const values = () => Object.fromEntries(ids.map((id) => [id, id === "currency" ? $(id).value.trim() || "units" : Number($(id).value)]));
+const DRAFTS_KEY = "rental-drafts";
 let last;
 function render(count = true) {
   try {
@@ -44,7 +45,13 @@ function usage(event) {
   showUsage();
 }
 function showUsage() { const data = JSON.parse(localStorage.getItem("rental-usage") || "{}"); $("usage").textContent = `Local usage: ${data.calculation || 0} calculations, ${data.export || 0} exports. No usage is sent anywhere.`; }
+function drafts() { try { return JSON.parse(localStorage.getItem(DRAFTS_KEY) || "[]"); } catch { return []; } }
+function showDrafts() { const select = $("drafts"); select.replaceChildren(new Option("Choose a draft", "")); drafts().forEach((draft) => select.add(new Option(`${draft.name} (${draft.savedAt.slice(0, 10)})`, draft.id))); $("delete-draft").disabled = !select.value; }
+function applyDraft(draft) { ids.forEach((id) => { if (draft.values[id] !== undefined) $(id).value = draft.values[id]; }); render(false); }
 ids.forEach((id) => $(id).addEventListener("input", () => render(false)));
 $("export").addEventListener("click", () => { if (!last) return; const { v, r } = last; const text = `Equipment Rental Break-Even\nBooking price: ${v.currency} ${v.booking}\nMinimum price: ${v.currency} ${r.minimumPrice.toFixed(2)}\nTarget-margin price: ${v.currency} ${r.targetPrice.toFixed(2)}\nBreak-even utilization: ${Number.isFinite(r.utilization) ? (r.utilization * 100).toFixed(1) + "%" : "Not reached"}\nGenerated: ${new Date().toISOString()}`; const a = document.createElement("a"); a.href = URL.createObjectURL(new Blob([text], { type: "text/plain" })); a.download = "equipment-rental-price-snapshot.txt"; a.click(); URL.revokeObjectURL(a.href); usage("export"); });
+$("save-draft").addEventListener("click", () => { if (!last) return; const name = window.prompt("Name this pricing draft:", "Untitled rental"); if (!name?.trim()) return; const saved = drafts().filter((draft) => draft.name !== name.trim()); saved.push({ id: crypto.randomUUID(), name: name.trim().slice(0, 80), savedAt: new Date().toISOString(), values: last.v }); localStorage.setItem(DRAFTS_KEY, JSON.stringify(saved.slice(-20))); showDrafts(); usage("draft_save"); });
+$("drafts").addEventListener("change", (event) => { const draft = drafts().find((item) => item.id === event.target.value); if (draft) { applyDraft(draft); usage("draft_load"); } $("delete-draft").disabled = !event.target.value; });
+$("delete-draft").addEventListener("click", () => { const id = $("drafts").value; if (!id) return; localStorage.setItem(DRAFTS_KEY, JSON.stringify(drafts().filter((draft) => draft.id !== id))); showDrafts(); usage("draft_delete"); });
 $("clear-usage").addEventListener("click", () => { localStorage.removeItem("rental-usage"); localStorage.setItem("rental-usage-off", "1"); showUsage(); });
-render(false); showUsage();
+render(false); showUsage(); showDrafts();
