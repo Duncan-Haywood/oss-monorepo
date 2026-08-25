@@ -9,9 +9,12 @@ import {
   compareCoupons,
   compareLowPriceFba,
   compareMcf,
+  compareSubscribeSave,
   couponDiscount,
   couponedListing,
   couponSummary,
+  subscribeSaveListing,
+  subscribeSaveSummary,
   cubicFeet,
   DEFAULT_COUPON_FEE,
   defaultFulfillmentFee,
@@ -496,6 +499,114 @@ test("website price can differ from the Amazon list price", () => {
 test("rejects an impossible website card rate and unknown MCF tiers", () => {
   assert.throws(() => compareMcf({ ...base, dtcProcessorRate: 100 }), /less than 100/);
   assert.throws(() => defaultMcfFee("envelope", 1), /Unknown size tier/);
+});
+
+test("Subscribe & Save cuts referral on the buyer price and does not add a coupon fee", () => {
+  const list = calculateListing(base);
+  const sns = subscribeSaveListing(base, { snsPercent: 15 });
+  const buyerPays = 29.99 * 0.85;
+  near(sns.buyerPays, buyerPays, "buyer pays");
+  near(sns.referral, buyerPays * 0.15, "referral on discounted price");
+  near(sns.fulfillment, list.fba.fees.fulfillment, "fulfillment unchanged");
+  near(sns.cashInvested, list.fba.cashInvested, "cash unchanged");
+  near(
+    sns.profit,
+    buyerPays - buyerPays * 0.15 - list.fba.fees.fulfillment - list.fba.cashInvested,
+    "recomputed",
+  );
+  const couponed = couponedListing(base, { couponPercent: 15, couponFee: 0.6 });
+  near(sns.profit - couponed.profit, 0.6, "S&S is the coupon without the redemption fee");
+});
+
+test("compareSubscribeSave shows 0/5/10/15 and the mixed month at the enroll share", () => {
+  const comparison = compareSubscribeSave({
+    ...base,
+    snsPercent: 5,
+    snsEnrollPct: 40,
+  });
+  assert.deepEqual(
+    comparison.rows.map((row) => row.label),
+    ["List price", "5% S&S (1 item)", "10% S&S (5+ items)", "15% S&S (promo)"],
+  );
+  assert.equal(comparison.typed.isCurrent, true);
+  assert.equal(comparison.typed.snsPercent, 5);
+  assert.equal(comparison.cheaper, "list");
+  near(comparison.none.profit, calculateListing(base).fba.profit, "list row");
+  near(comparison.enrolledUnits, 32, "40% of 80");
+  near(comparison.listUnits, 48, "remaining list units");
+  near(
+    comparison.mixedMonthlyProfit,
+    48 * comparison.none.profit + 32 * comparison.typed.profit,
+    "mixed month",
+  );
+  near(
+    comparison.mixedDelta,
+    32 * (comparison.typed.profit - comparison.none.profit),
+    "enroll delta",
+  );
+  near(
+    comparison.offsetUnits,
+    (32 * (comparison.none.profit - comparison.typed.profit)) / comparison.typed.profit,
+    "new units to offset converts",
+  );
+
+  // Worked example locked for the SEO page: $29.99 home listing, 15%
+  // referral, large-standard FBA. 5% S&S leaves about $1.27 less per unit
+  // than list — $0.60 more than the same 5% coupon — and 40% enroll needs
+  // a handful of new S&S-only sales to hold the month.
+  near(comparison.none.profit, 10.993291666666668, "list profit");
+  near(comparison.typed.buyerPays, 28.4905, "5% buyer pays");
+  near(comparison.typed.profit, 9.718716666666668, "5% profit");
+  near(comparison.typed.profitDelta, -1.274575, "5% vs list");
+  assert.equal(comparison.typed.hitsTarget, true);
+  assert.ok(comparison.offsetUnits > 4.1 && comparison.offsetUnits < 4.3);
+});
+
+test("a custom Subscribe & Save percent is appended instead of replacing a standard row", () => {
+  const comparison = compareSubscribeSave({ ...base, snsPercent: 8, snsEnrollPct: 40 });
+  assert.equal(comparison.rows.length, 5);
+  assert.equal(comparison.typed.label, "8% S&S");
+  assert.equal(comparison.typed.isCustom, true);
+  near(comparison.typed.buyerPays, 29.99 * 0.92, "buyer pays");
+});
+
+test("zero Subscribe & Save discount ties list and needs no offset units", () => {
+  const comparison = compareSubscribeSave({ ...base, snsPercent: 0, snsEnrollPct: 40 });
+  near(comparison.typed.profit, comparison.none.profit, "typed is list");
+  assert.equal(comparison.cheaper, "tie");
+  near(comparison.offsetUnits, 0, "no offset");
+  assert.match(subscribeSaveSummary(comparison), /No Subscribe & Save discount/);
+});
+
+test("an unprofitable Subscribe & Save discount cannot be offset with more volume", () => {
+  const comparison = compareSubscribeSave({
+    ...base,
+    snsPercent: 80,
+    snsEnrollPct: 40,
+  });
+  assert.ok(comparison.none.profit > 0, "list still pays");
+  assert.ok(comparison.typed.profit < 0, "80% S&S does not");
+  assert.equal(comparison.offsetUnits, Infinity);
+  assert.equal(comparison.breakEvenUnits, Infinity);
+  assert.match(subscribeSaveSummary(comparison), /cannot recover/i);
+});
+
+test("subscribeSaveSummary names the buyer price, the mixed month, and the offset units", () => {
+  const text = subscribeSaveSummary(compareSubscribeSave({
+    ...base,
+    snsPercent: 5,
+    snsEnrollPct: 40,
+  }));
+  assert.match(text, /\$28\.49/);
+  assert.match(text, /40%/);
+  assert.match(text, /32\.0/);
+  assert.match(text, /4\.2 new S&S-only sales/);
+  assert.match(text, /no coupon redemption fee/i);
+});
+
+test("rejects a Subscribe & Save percent or enroll share above 100", () => {
+  assert.throws(() => subscribeSaveListing(base, { snsPercent: 101 }), /at most 100/);
+  assert.throws(() => compareSubscribeSave({ ...base, snsEnrollPct: 101 }), /at most 100/);
 });
 
 test("rejects unknown presets and invalid inputs", () => {

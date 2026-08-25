@@ -18,7 +18,7 @@
     "applicationCategory": "BusinessApplication",
     "operatingSystem": "Any (runs in a web browser)",
     "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
-    "featureList": "FBA vs FBM comparison, size-tier fulfillment, storage, inbound, net profit, margin, ROI, break-even price, max buy cost, target-margin price, Low-Price FBA vs raising the list price, coupon vs list profit, coupon break-even volume, Multi-Channel Fulfillment vs Amazon vs you-ship"
+    "featureList": "FBA vs FBM comparison, size-tier fulfillment, storage, inbound, net profit, margin, ROI, break-even price, max buy cost, target-margin price, Low-Price FBA vs raising the list price, coupon vs list profit, coupon break-even volume, Subscribe & Save vs list profit, S&S enroll-share mixed month, Multi-Channel Fulfillment vs Amazon vs you-ship"
   }
   </script>
   <script type="application/ld+json">
@@ -56,6 +56,14 @@
           "acceptedAnswer": {
             "@type": "Answer",
             "text": "A coupon cuts the price the buyer pays, so the referral fee falls with it, and Amazon also charges a per-redemption coupon fee. Fulfillment, inbound, and storage stay the same. Compare the list-price unit to 5%, 10%, 15%, and 20% coupons, then see how many extra couponed sales you would need to match this month's list-price profit. The page does not recommend running a coupon."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Does Amazon Subscribe & Save still leave a profit?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Subscribe & Save cuts the price enrolled buyers pay, so referral falls with that price. Fulfillment, inbound, and storage stay the same, and there is typically no coupon redemption fee. Compare list to 5%, 10%, and 15%, then see what a mixed month still keeps when only some units enroll — and how many new S&S-only sales would offset those converted buyers. The page does not recommend enrolling the listing."
           }
         },
         {
@@ -191,6 +199,10 @@
         <label>Expected volume lift (%) <span class="hint">extra units if the coupon is on</span>
           <input id="couponLiftPct" type="number" min="0" step="1" value="0">
         </label>
+        <label>Subscribe &amp; Save percent (%) <input id="snsPercent" type="number" min="0" max="100" step="0.1" value="5"></label>
+        <label>Share of units that enroll (%) <span class="hint">mixed month: list + S&amp;S</span>
+          <input id="snsEnrollPct" type="number" min="0" max="100" step="1" value="40">
+        </label>
         <label>Website sale price <input id="dtcSalePrice" type="number" min="0" step="0.01" value=""></label>
         <label>MCF fulfillment fee <span class="hint" id="mcfFeeHint"></span>
           <input id="mcfFulfillmentFee" type="number" min="0" step="0.01" value="">
@@ -252,6 +264,22 @@
       </table>
       <p id="couponSummary" class="note"></p>
       <hr>
+      <h2>Same listing, Subscribe &amp; Save vs list</h2>
+      <table>
+        <thead>
+          <tr>
+            <th scope="col">Offer</th>
+            <th scope="col">Buyer pays</th>
+            <th scope="col">Profit</th>
+            <th scope="col">vs list</th>
+            <th scope="col">Hits target?</th>
+          </tr>
+        </thead>
+        <tbody id="snsCompare"></tbody>
+      </table>
+      <p id="snsSummary" class="note"></p>
+      <p class="note">S&amp;S is a standing percent off for enrolled deliveries. Referral falls with the buyer price; fulfillment does not, and there is typically no coupon fee. The mixed month uses the enroll share you typed. <a href="does-subscribe-and-save-still-pay.html" style="color:#9ec5ff">Does Subscribe &amp; Save still pay?</a></p>
+      <hr>
       <h2>Website order: MCF vs Amazon vs you ship</h2>
       <p id="mcfSummary" class="note"></p>
       <dl>
@@ -271,7 +299,7 @@
         <tbody id="mcfCompare"></tbody>
       </table>
       <p class="note">MCF ships a website, eBay, or Walmart order from FBA inventory: no Amazon referral, a higher pick fee, plus your card processor. You-ship assumes the unit is already outside Amazon unless you add a removal fee. <a href="should-i-use-amazon-mcf-for-website-orders.html" style="color:#9ec5ff">Should I use Amazon MCF for website orders?</a></p>
-      <p class="note">Transparent arithmetic from your inputs — not Amazon’s current fee schedule. Referral, fulfillment, storage, inbound, coupon fees, MCF, and Low-Price bands vary by category, size, season, and account. Verify against your Amazon fee preview before buying inventory, launching a coupon, or turning on MCF.</p>
+      <p class="note">Transparent arithmetic from your inputs — not Amazon’s current fee schedule. Referral, fulfillment, storage, inbound, coupon fees, Subscribe &amp; Save discounts, MCF, and Low-Price bands vary by category, size, season, and account. Verify against your Amazon fee preview before buying inventory, launching a coupon, enrolling in Subscribe &amp; Save, or turning on MCF.</p>
     </section>
   </main>
   <section class="faq" aria-labelledby="faq-heading">
@@ -296,7 +324,14 @@
       shows the lift you would need to match this month’s list-price profit.
     </p>
     <p>
-      A website order is a third decision on the same SKU sitting in FBA:
+      Subscribe &amp; Save is the standing version of that discount: same
+      referral cut, usually no redemption fee, and only some units enroll.
+      <a href="does-subscribe-and-save-still-pay.html">Does Subscribe &amp; Save still pay?</a>
+      shows the mixed month and the new S&amp;S-only sales that would
+      offset converted buyers.
+    </p>
+    <p>
+      A website order is a further decision on the same SKU sitting in FBA:
       sell it on Amazon, let Amazon ship the website order (MCF), or ship
       it yourself.
       <a href="should-i-use-amazon-mcf-for-website-orders.html">Should I use Amazon MCF for website orders?</a>
@@ -304,9 +339,10 @@
       and the card.
     </p>
     <p>
-      It does not recommend a price, a category, a fulfillment method, or a
-      coupon, and it is not tax or financial advice. The gap between paths
-      is an arithmetic comparison of the rates you entered.
+      It does not recommend a price, a category, a fulfillment method, a
+      coupon, or Subscribe &amp; Save enrollment, and it is not tax or
+      financial advice. The gap between paths is an arithmetic comparison
+      of the rates you entered.
     </p>
   </section>
   <footer>
@@ -324,7 +360,9 @@
       compareCoupons,
       compareLowPriceFba,
       compareMcf,
+      compareSubscribeSave,
       couponSummary,
+      subscribeSaveSummary,
     } from "./calc.mjs";
     import { recordUsage } from "./usage.mjs";
 
@@ -335,6 +373,7 @@
       "otherCost", "monthlySellerFee", "monthlyUnits", "targetMargin",
       "lowPriceThreshold", "lowPriceSalePrice", "raisePrice", "lowPriceFulfillmentFee",
       "couponPercent", "couponFixed", "couponFee", "couponLiftPct",
+      "snsPercent", "snsEnrollPct",
       "dtcSalePrice", "mcfFulfillmentFee", "dtcProcessorRate", "dtcProcessorFixed", "removalFee",
     ];
     const money = (value) => `$${value.toFixed(2)}`;
@@ -475,6 +514,11 @@
           `<tr class="${row.isCurrent ? "current" : ""}"><td>${row.label}</td><td>${money(row.buyerPays)}</td><td>${money(row.profit)}</td><td>${signed(row.profitDelta)}</td><td>${row.hitsTarget ? "yes" : "no"}</td></tr>`
         ).join("");
         document.getElementById("couponSummary").textContent = couponSummary(coupons);
+        const sns = compareSubscribeSave(readInput());
+        document.getElementById("snsCompare").innerHTML = sns.rows.map((row) =>
+          `<tr class="${row.isCurrent ? "current" : ""}"><td>${row.label}</td><td>${money(row.buyerPays)}</td><td>${money(row.profit)}</td><td>${signed(row.profitDelta)}</td><td>${row.hitsTarget ? "yes" : "no"}</td></tr>`
+        ).join("");
+        document.getElementById("snsSummary").textContent = subscribeSaveSummary(sns);
         const mcf = compareMcf(readInput());
         document.getElementById("mcfSummary").textContent = mcf.summary;
         document.getElementById("mcfBreakEven").textContent = Number.isFinite(mcf.breakEvenMcfFee)
@@ -498,6 +542,8 @@
         document.getElementById("lowPriceCompare").innerHTML = "";
         document.getElementById("couponCompare").innerHTML = "";
         document.getElementById("couponSummary").textContent = "";
+        document.getElementById("snsCompare").innerHTML = "";
+        document.getElementById("snsSummary").textContent = "";
         document.getElementById("mcfCompare").innerHTML = "";
       }
     }
@@ -533,6 +579,7 @@
         document.getElementById("usageOptOut").checked,
         id === "targetMargin" ? "target_margin_calculated"
           : id.startsWith("coupon") ? "coupon_compared"
+          : id.startsWith("sns") ? "subscribe_save_compared"
           : mcfFields.has(id) ? "mcf_compared"
           : lowPriceFields.has(id) ? "low_price_fba_compared"
             : "listing_profit_calculated",
