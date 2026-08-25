@@ -346,6 +346,41 @@ def _summary_report(
     return "\n".join(lines) + "\n"
 
 
+def _remediation_report(
+    reports: list[tuple[Path, list[dict[str, str]]]],
+    read_errors: list[dict[str, str]],
+) -> dict[str, Any]:
+    """Build a per-invoice remediation queue for ERP and ticket adapters."""
+    items: list[dict[str, Any]] = []
+    for path, errors in reports:
+        grouped: dict[str, dict[str, Any]] = {}
+        for error in errors:
+            item = grouped.setdefault(
+                error["rule"],
+                {
+                    "file": path.as_posix(),
+                    "rule": error["rule"],
+                    "occurrences": 0,
+                    "paths": [],
+                    "message": error["message"],
+                    "fix": error["fix"],
+                },
+            )
+            item["occurrences"] += 1
+            if error["path"] not in item["paths"]:
+                item["paths"].append(error["path"])
+        items.extend(grouped[rule] for rule in sorted(grouped))
+    return {
+        "schema_version": 1,
+        "status": "pass" if not items and not read_errors else "fail",
+        "exit_code": 2 if read_errors else (1 if items else 0),
+        "files_checked": len(reports),
+        "observations": sum(len(errors) for _, errors in reports),
+        "items": items,
+        "read_errors": read_errors,
+    }
+
+
 def _csv_report(
     reports: list[tuple[Path, list[dict[str, str]]]],
     read_errors: list[dict[str, str]],
@@ -506,7 +541,7 @@ def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description="Check a local JSON or UBL XML e-invoice before submission. No tax advice or submission.")
     parser.add_argument("--version", action="version", version=f"einvoice-preflight {VERSION}")
     parser.add_argument("invoice", type=Path, help="JSON/XML file, directory of JSON/XML files, or '-' for stdin")
-    parser.add_argument("--format", choices=("text", "summary", "json", "jsonl", "markdown", "html", "csv", "junit", "sarif", "github"), default="text")
+    parser.add_argument("--format", choices=("text", "summary", "json", "jsonl", "remediation", "markdown", "html", "csv", "junit", "sarif", "github"), default="text")
     parser.add_argument("--usage-file", help="opt-in local aggregate event counter")
     parser.add_argument("--output", help="write the report to this local file atomically instead of stdout")
     parser.add_argument(
@@ -594,6 +629,8 @@ def main(argv: list[str] | None = None) -> int:
         report = _summary_report(reports, read_errors)
     elif args.format == "jsonl":
         report = _jsonl_report(reports, read_errors)
+    elif args.format == "remediation":
+        report = json.dumps(_remediation_report(reports, read_errors), indent=2) + "\n"
     elif args.format == "markdown":
         report = _markdown_report(reports, read_errors)
     elif args.format == "html":
