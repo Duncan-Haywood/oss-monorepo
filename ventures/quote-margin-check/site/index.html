@@ -178,7 +178,8 @@
     <input type="number" id="target_hourly_rate" inputmode="decimal" value="75" min="0" step="any" />
     <p class="hint">What you'd want to be paid per hour if you were billing hourly instead.</p>
 
-    <div class="result" id="result" role="status" aria-live="polite"></div>
+  <div class="result" id="result" role="status" aria-live="polite"></div>
+    <div class="result" id="hours-budget" aria-live="polite"></div>
     <div class="result" id="sensitivity" aria-live="polite"><strong>If the work takes longer</strong><p class="hint">A scenario view, not a prediction. Direct costs stay unchanged.</p><div class="table-scroll"><table class="sensitivity"><thead><tr><th>Extra time</th><th>Total hours</th><th>Effective rate</th><th>Gap to target</th></tr></thead><tbody></tbody></table></div></div>
       <div class="result" id="review" aria-live="polite"><strong>Before you send it</strong><ul class="checks"></ul></div>
 
@@ -262,6 +263,7 @@
   const result = document.getElementById("result");
   const review = document.getElementById("review");
   const sensitivity = document.getElementById("sensitivity");
+  const hoursBudget = document.getElementById("hours-budget");
 
   let lastReport = null;
 
@@ -302,6 +304,12 @@
            <dt>Gap to target price</dt><dd>${safeCurrency} ${fmt(r.gap_to_target)}</dd>
            <dt>Left after direct costs</dt><dd>${safeCurrency} ${fmt(r.cost_coverage)}</dd>
         </dl>
+       `;
+       const budgetStatus = r.hours_over_target_budget > 0 ? "over the supplied target-rate hours budget" : "within the supplied target-rate hours budget";
+       hoursBudget.innerHTML = `
+         <strong>Hours budget at your target rate</strong>
+         <p>You can spend <strong>${fmt(r.target_hours_at_price)} total hours</strong> at ${safeCurrency} ${fmt(quote.target_hourly_rate)}/hour after direct costs, based on this quoted price.</p>
+         <p class="hint">Your estimate is ${fmt(Math.abs(r.hours_over_target_budget))} hours ${budgetStatus}. This is an arithmetic comparison, not a recommendation.</p>
        `;
        review.querySelector(".checks").innerHTML = reviewQuote(quote, r).map((check) => `<li class="${check.level}"><strong>${escapeHtml(check.title)}</strong>${escapeHtml(check.detail)}</li>`).join("");
        sensitivity.querySelector("tbody").innerHTML = overrunScenarios(quote, r).map((scenario) => `<tr><th scope="row">+${scenario.percent}%</th><td>${fmt(scenario.total_hours)}</td><td>${safeCurrency} ${fmt(scenario.effective_hourly_rate)}/hour</td><td>${safeCurrency} ${fmt(scenario.gap_to_target)}</td></tr>`).join("");
@@ -354,6 +362,8 @@
       `target_price,${r.target_price.toFixed(2)},${quote.currency}`,
       `gap_to_target,${r.gap_to_target.toFixed(2)},${quote.currency}`,
       `cost_coverage,${r.cost_coverage.toFixed(2)},${quote.currency}`,
+      `target_hours_at_price,${r.target_hours_at_price.toFixed(2)},hours`,
+      `hours_over_target_budget,${r.hours_over_target_budget.toFixed(2)},hours`,
     ].join("\n");
     try {
       await navigator.clipboard.writeText(rows);

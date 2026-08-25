@@ -51,6 +51,20 @@ test("reports price left after direct costs", () => {
   assert.equal(calculate(quote).cost_coverage, 800);
 });
 
+test("calculates the target-rate hours supported by the quoted price", () => {
+  const quote = loadQuote({ price: 2400, delivery_hours: 24, admin_hours: 5, revision_hours: 6, overhead: 180, subcontractor_cost: 300, target_hourly_rate: 75 });
+  const result = calculate(quote);
+  assert.equal(result.target_hours_at_price, 25.6);
+  assert.ok(Math.abs(result.hours_over_target_budget - 9.4) < 1e-9);
+});
+
+test("does not report negative target-rate hours when direct costs exceed price", () => {
+  const quote = loadQuote({ price: 100, delivery_hours: 2, overhead: 150, target_hourly_rate: 50 });
+  const result = calculate(quote);
+  assert.equal(result.target_hours_at_price, 0);
+  assert.equal(result.hours_over_target_budget, 2);
+});
+
 test("currency defaults and is trimmed", () => {
   const quote = loadQuote({ currency: " USD ", price: 1000, delivery_hours: 10, target_hourly_rate: 100 });
   assert.equal(quote.currency, "USD");

@@ -39,6 +39,11 @@ direct costs above the price, a gap below the supplied target, hidden time, and
 quotes with no revision hours. These are prompts to review your own assumptions,
 not a profitability verdict or pricing advice.
 
+It also shows the **hours budget at your target rate**: how many total hours the
+quoted price supports after direct costs, and how far the estimate is from that
+number. This makes hidden scope visible before you send a fixed-price quote;
+it is an arithmetic comparison, not a recommendation about what to charge.
+
 It also shows +10%, +25%, and +50% time-overrun scenarios. These keep the
 quoted price and direct costs fixed while showing how the effective hourly rate
 and gap to the supplied target change. They are arithmetic what-if comparisons,
