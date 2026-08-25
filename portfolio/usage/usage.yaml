@@ -398,6 +398,20 @@ products:
           rough-in, haul/wax-free/bidet extras, copyable proposal summary).
           Public URL remains owner-gated; the local-first counter reports
           only to the user's own browser and is opt-out. Baseline row.
+  - slug: egress-window-bid-calculator
+    surface: static-page-in-repo
+    readings:
+      - as_of: 2026-08-25
+        signals:
+          live_url_visitors: null
+          local_events_reported: 0
+        note: >-
+          Shipped a local egress window bid calculator (window count,
+          hopper vs slider vs casement vs fiberglass, retrofit vs wood-cut
+          vs masonry-cut vs poured-cut, plastic vs steel vs stone well,
+          cover/ladder/drain/haul/finish extras, copyable proposal summary).
+          Public URL remains owner-gated; the local-first counter reports
+          only to the user's own browser and is opt-out. Baseline row.
   - slug: freelance-retainer-calculator
     surface: static-page-in-repo
     readings:
