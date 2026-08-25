@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Amazon FBA vs FBM Profit Calculator | Max Buy Cost</title>
-  <meta name="description" content="Free Amazon FBA vs FBM calculator: see referral fees, fulfillment, storage, and inbound on the same listing. Get net profit, ROI, break-even sale price, and the maximum you can pay for inventory.">
+  <meta name="description" content="Free Amazon FBA vs FBM calculator: compare referral, fulfillment, storage, and inbound on one listing, then see whether a smaller carton drops a size-tier fee cliff.">
   <meta name="robots" content="index, follow">
   <link rel="canonical" href=".">
   <meta property="og:title" content="Amazon FBA vs FBM Profit Calculator">
@@ -18,7 +18,7 @@
     "applicationCategory": "BusinessApplication",
     "operatingSystem": "Any (runs in a web browser)",
     "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
-    "featureList": "FBA vs FBM comparison, size-tier fulfillment, storage, inbound, net profit, margin, ROI, break-even price, max buy cost, target-margin price"
+    "featureList": "FBA vs FBM comparison, size-tier fulfillment, size-tier packaging cliff, storage, inbound, net profit, margin, ROI, break-even price, max buy cost, target-margin price"
   }
   </script>
   <script type="application/ld+json">
@@ -40,6 +40,14 @@
         "acceptedAnswer": {
           "@type": "Answer",
           "text": "Start with the sale price. Subtract the category referral fee, the FBA fulfillment fee for the size tier, allocated storage, inbound to Amazon, cost of goods, prep, ads, and a share of the professional seller fee. What remains is the unit's net contribution. Enter the rates from your current Amazon fee preview — this page does not publish Amazon's live schedule."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Does a smaller box drop my Amazon FBA size tier?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "A carton that is slightly over a dimensional gate pays the next tier's fulfillment fee. Flattening an 8×6×2 inch pack to 0.75 inch on the shortest side is what moves the default example from large standard to small standard. This page compares the current carton, that next-lower-tier pack, and the next cheaper weight band from the rates you enter — it does not publish Amazon's live schedule."
         }
       },
       {
@@ -85,6 +93,11 @@
     .faq { margin-top: 18px; }
     .error { color: #ffb0a2; }
     .hint { font-weight: 500; font-size: .78rem; color: #5a6b82; }
+    .pack { margin-top: 18px; }
+    .pack .verdict { font-weight: 700; }
+    .pack table { background: #fff; color: #1b2433; border: 1px solid #c5d0e0; border-radius: 14px; overflow: hidden; }
+    .pack th, .pack td { border-bottom: 1px solid #d5deea; }
+    .pack tr.winner { background: #eef7ef; }
     @media (max-width: 800px) { .layout { grid-template-columns: 1fr; } .result { position: static; } .fields { grid-template-columns: 1fr; } }
   </style>
 </head>
@@ -95,8 +108,9 @@
     <p>
       Enter the listing price, category, size, and what you paid. The
       calculator shows referral, fulfillment, storage, and inbound on FBA
-      against the shipping you pay on FBM. Everything runs in this page;
-      nothing is uploaded.
+      against the shipping you pay on FBM, then whether
+      <a href="#size-tier-pack">a smaller carton drops a size-tier fee cliff</a>.
+      Everything runs in this page; nothing is uploaded.
     </p>
   </header>
   <main class="layout">
@@ -173,6 +187,37 @@
       <p class="note">Transparent arithmetic from your inputs — not Amazon’s current fee schedule. Referral, fulfillment, storage, and inbound vary by category, size, season, and account. Verify against your Amazon fee preview before buying inventory.</p>
     </section>
   </main>
+  <section class="pack" id="size-tier-pack" aria-labelledby="pack-heading">
+    <h2 id="pack-heading">Does a smaller box drop the FBA size tier?</h2>
+    <p>
+      A carton that is a quarter-inch over a gate pays the next tier.
+      The table clamps your current pack to the next-lower tier’s
+      dimensional limits and, separately, to the next cheaper weight
+      band. It is not a claim the product still fits that box.
+      <a href="does-smaller-box-cut-amazon-fba-fees.html">Does a smaller box cut Amazon FBA fees?</a>
+    </p>
+    <div class="fields" style="max-width: 320px; margin-bottom: 14px;">
+      <label>Extra prep for the smaller carton
+        <input id="repackCostPerUnit" type="number" min="0" step="0.01" value="0">
+      </label>
+    </div>
+    <p id="packVerdict" class="verdict"></p>
+    <table id="packTable">
+      <thead>
+        <tr>
+          <th scope="col">Carton</th>
+          <th scope="col">Size tier</th>
+          <th scope="col">Fulfillment</th>
+          <th scope="col">Storage</th>
+          <th scope="col">Extra prep</th>
+          <th scope="col">FBA profit</th>
+          <th scope="col">vs current</th>
+        </tr>
+      </thead>
+      <tbody id="packRows"></tbody>
+    </table>
+    <p id="packNote" class="note"></p>
+  </section>
   <section class="faq" aria-labelledby="faq-heading">
     <h2 id="faq-heading">What this checks</h2>
     <p>
@@ -183,6 +228,8 @@
       still works.
       <a href="fba-vs-fbm.html">FBA vs FBM: which path leaves more?</a>
       walks through that in search-query words.
+      After the path is chosen,
+      <a href="does-smaller-box-cut-amazon-fba-fees.html">a smaller carton can still drop a size-tier cliff</a>.
     </p>
     <p>
       It does not recommend a price, a category, or a fulfillment method, and
@@ -193,6 +240,7 @@
   <footer>
     <label><input id="usageOptOut" type="checkbox" style="width:auto"> Do not keep anonymous local usage counts</label>
     <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not tax, financial, or business advice, and it does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for meeting any obligation it helps you prepare for. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record. If a tool needs to survive, export your inputs and run it yourself.</p>
     <p>Everything runs in your browser. Your prices and costs are never uploaded. There are no accounts, cookies, tracking pixels, or analytics vendors. The optional local counter records only the event name and day; never the inputs. Turn it off above, or with Do Not Track / Global Privacy Control.</p>
     <p>Free and open source. If it saved you from an unprofitable buy, the <a href="https://github.com/Duncan-Haywood/monorepo-projects">project is on GitHub</a> — <a href="https://github.com/sponsors/Duncan-Haywood">GitHub Sponsors</a> is optional and never changes what the tool does. MIT licensed.</p>
   </footer>
@@ -201,6 +249,8 @@
       applyCategoryPreset,
       applyStoragePreset,
       calculateListing,
+      compareSizeTierPackaging,
+      sizeTierPackagingNote,
     } from "./calc.mjs";
     import { recordUsage } from "./usage.mjs";
 
@@ -209,9 +259,67 @@
       "monthsInStorage", "storageRate", "fulfillmentFee", "costOfGoods",
       "inboundPerUnit", "fbmShippingCost", "packagingCost", "adsPerUnit",
       "otherCost", "monthlySellerFee", "monthlyUnits", "targetMargin",
+      "repackCostPerUnit",
     ];
     const money = (value) => `$${value.toFixed(2)}`;
+    const signedMoney = (value) => `${value < 0 ? "−" : "+"}${money(Math.abs(value))}`;
     let syncingFee = false;
+
+    function packCell(row, text) {
+      const cell = row.insertCell();
+      cell.textContent = text;
+      return cell;
+    }
+
+    function cartonLabel(pack) {
+      return `${Number(pack.length).toFixed(2)}×${Number(pack.width).toFixed(2)}×${Number(pack.height).toFixed(2)} in, ${Number(pack.weightLb).toFixed(2)} lb`;
+    }
+
+    function renderPack(input) {
+      const comparison = compareSizeTierPackaging(input);
+      const verdict = document.getElementById("packVerdict");
+      if (comparison.winner === "drop_tier") {
+        verdict.textContent = `A smaller carton keeps ${money(comparison.dropTier.profitDelta)} more per unit (${money(comparison.dropTier.monthlyDelta)} / month at this volume).`;
+      } else if (comparison.winner === "drop_weight") {
+        verdict.textContent = `Dropping a weight band keeps ${money(comparison.dropWeight.profitDelta)} more per unit. The size tier does not change.`;
+      } else if (comparison.alreadyCheapestStandardBand) {
+        verdict.textContent = "This carton is already in the cheapest illustrative small-standard band.";
+      } else {
+        verdict.textContent = "A smaller carton does not keep more on these rates after the extra prep you entered.";
+      }
+      const rows = [
+        { key: "current", label: "Current carton", item: comparison.current, delta: null },
+      ];
+      if (comparison.dropTier) {
+        rows.push({
+          key: "drop_tier",
+          label: `Drop to ${comparison.dropTier.targetTierLabel}`,
+          item: comparison.dropTier,
+          delta: comparison.dropTier.profitDelta,
+        });
+      }
+      if (comparison.dropWeight) {
+        rows.push({
+          key: "drop_weight",
+          label: "Next cheaper weight band",
+          item: comparison.dropWeight,
+          delta: comparison.dropWeight.profitDelta,
+        });
+      }
+      document.getElementById("packRows").replaceChildren(...rows.map((row) => {
+        const tr = document.createElement("tr");
+        if (row.key === comparison.winner) tr.className = "winner";
+        packCell(tr, `${row.label} (${cartonLabel(row.item.pack)})`);
+        packCell(tr, row.item.sizeTierLabel);
+        packCell(tr, money(row.item.fulfillmentFee));
+        packCell(tr, money(row.item.storagePerUnit));
+        packCell(tr, money(row.item.packExtra));
+        packCell(tr, money(row.item.profit));
+        packCell(tr, row.delta === null ? "—" : signedMoney(row.delta));
+        return tr;
+      }));
+      document.getElementById("packNote").textContent = sizeTierPackagingNote(comparison);
+    }
 
     function fulfillmentMethod() {
       return document.querySelector('input[name="fulfillmentMethod"]:checked').value;
@@ -269,6 +377,7 @@
         ].map(([name, path]) =>
           `<tr><td>${name}</td><td>${money(path.feeTotal)}</td><td>${money(path.profit)}</td><td>${money(path.breakEvenBuyCost)}</td></tr>`
         ).join("");
+        renderPack(readInput());
       } catch (error) {
         document.getElementById("profit").textContent = error.message;
         document.getElementById("profit").className = "hero-number error";
@@ -277,6 +386,9 @@
           document.getElementById(id).textContent = "";
         });
         document.getElementById("compare").innerHTML = "";
+        document.getElementById("packRows").replaceChildren();
+        document.getElementById("packVerdict").textContent = "";
+        document.getElementById("packNote").textContent = "";
       }
     }
 
@@ -303,11 +415,12 @@
       update();
     }));
     ids.forEach((id) => document.getElementById(id).addEventListener("change", () => {
-      recordUsage(
-        localStorage,
-        document.getElementById("usageOptOut").checked,
-        id === "targetMargin" ? "target_margin_calculated" : "listing_profit_calculated",
-      );
+      const event = id === "targetMargin"
+        ? "target_margin_calculated"
+        : id === "repackCostPerUnit"
+          ? "size_tier_packaging_compared"
+          : "listing_profit_calculated";
+      recordUsage(localStorage, document.getElementById("usageOptOut").checked, event);
     }));
     document.querySelectorAll('input[name="fulfillmentMethod"]').forEach((el) => {
       el.addEventListener("change", () => {
