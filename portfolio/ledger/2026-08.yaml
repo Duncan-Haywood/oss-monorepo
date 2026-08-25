@@ -1,5 +1,21 @@
 period: 2026-08
 entries:
+  - venture: window-replacement-bid-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Graduated and implemented a browser-local window replacement bid
+        calculator for independent contractors. It prices each opening by
+        United Inches, unit type, story, frame, install method, tear-out
+        condition, loaded labor, disposal, access equipment, overhead, and
+        target margin, then compares a proposed price with the modeled
+        break-even cost. The product includes local quote sharing and plain
+        text summary export, a visible no-warranty disclaimer, opt-out
+        aggregate usage counting, MIT license, SEO content, sitemap, and
+        robots.txt. Public publishing remains owner-gated; baseline usage is
+        recorded as zero until a public URL exists.
+    mrr_end: null
   - venture: retainage-cashflow-calculator
     agent_spend_usd: null
     human_hours: 0
