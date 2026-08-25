@@ -36,6 +36,8 @@ spec:
                   value: /etc/governor/queue
                 - name: GOVERNOR_NAMESPACE
                   value: agents
+                - name: GOVERNOR_STATE_CONFIGMAP
+                  value: governor-state
               volumeMounts:
                 - name: script
                   mountPath: /opt/governor

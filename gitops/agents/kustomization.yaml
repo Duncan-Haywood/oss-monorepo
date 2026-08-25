@@ -7,6 +7,7 @@ resources:
   - quota.yaml
   - governor/rbac.yaml
   - governor/cronjob.yaml
+  - governor/state.yaml
 configMapGenerator:
   - name: governor-policy
     files:

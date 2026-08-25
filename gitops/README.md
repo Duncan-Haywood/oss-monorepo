@@ -38,6 +38,9 @@ quota. It is not a second copy of every product.
   not eight always-on Codex processes.
 - The governor is **suspended** and `enabled: false` until you seal
   tokens and flip both knobs in git.
+- Budget counters live in ConfigMap `governor-state`. Argo ignores
+  `/data` so a sync cannot reset the 5-hour / weekly accounting. A 429
+  (worker exit 42) writes `last_limit_at` and the next ticks sleep.
 
 ## What this must not do
 

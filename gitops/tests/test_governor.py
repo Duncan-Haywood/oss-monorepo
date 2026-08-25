@@ -206,3 +206,68 @@ def test_minimal_yaml_reads_prompt_block() -> None:
 def test_effective_window_budget_leaves_interactive_slack() -> None:
     policy = _policy(target_utilization=0.90, reserve_for_interactive=0.10)
     assert policy.effective_window_budget() == 16_200
+
+
+def test_state_roundtrip() -> None:
+    original = _state(estimated_seconds_used=120.5, accounted_job_uids=["a"])
+    restored = g.state_from_dict(g.state_to_dict(original), NOW)
+    assert restored.estimated_seconds_used == 120.5
+    assert restored.accounted_job_uids == ["a"]
+    assert restored.last_limit_at is None
+
+
+def test_absorb_finished_job_counts_duration_once() -> None:
+    state = _state()
+    job = g.JobView(uid="job-1", succeeded=True, duration_seconds=600)
+    state = g.absorb_finished_jobs(state, [job], NOW)
+    state = g.absorb_finished_jobs(state, [job], NOW)
+    assert state.estimated_seconds_used == 600
+    assert state.week_seconds_used == 600
+    assert state.accounted_job_uids == ["job-1"]
+
+
+def test_absorb_limit_exit_sets_cooldown() -> None:
+    state = _state()
+    job = g.JobView(uid="job-429", failed=True, duration_seconds=90, limit_hit=True)
+    state = g.absorb_finished_jobs(state, [job], NOW)
+    assert state.last_limit_at == NOW
+    decision = g.decide(_policy(), state, 0, [_item()], NOW)
+    assert decision.action == "hold"
+    assert "cooldown" in decision.reason
+
+
+def test_job_view_reads_exit_42() -> None:
+    job = {
+        "metadata": {"uid": "u1", "name": "codex-task-1"},
+        "status": {
+            "active": 0,
+            "failed": 1,
+            "startTime": "2026-08-25T12:00:00Z",
+            "completionTime": "2026-08-25T12:10:00Z",
+        },
+    }
+    pods = [
+        {
+            "metadata": {"labels": {"job-name": "codex-task-1"}},
+            "status": {
+                "containerStatuses": [
+                    {"state": {"terminated": {"exitCode": 42, "message": "limit reached"}}}
+                ]
+            },
+        }
+    ]
+    view = g.job_view_from_k8s(job, pods)
+    assert view.limit_hit is True
+    assert view.failed is True
+    assert view.duration_seconds == 600
+
+
+def test_tick_starts_then_holds_while_active() -> None:
+    policy = _policy()
+    state = _state()
+    decision, state = g.tick(policy, state, [], [_item()], NOW)
+    assert decision.action == "start"
+    assert state.jobs_started_this_window == 1
+    active = [g.JobView(uid="running", active=1)]
+    decision, _ = g.tick(policy, state, active, [_item(id="other")], NOW)
+    assert decision.action == "hold"

@@ -76,6 +76,8 @@ jobs:
           shellcheck bootstrap/install-k3s-server.sh \
             bootstrap/install-k3s-agent.sh \
             bootstrap/install-argocd.sh \
+            bootstrap/preflight.sh \
+            bootstrap/label-existing.sh \
             bootstrap/scripts/gen-age-key.sh \
             infra/scripts/discover.sh \
             gitops/agents/workers/worker.sh

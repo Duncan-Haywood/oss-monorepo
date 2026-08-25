@@ -29,7 +29,8 @@ import sys
 import time
 import urllib.error
 import urllib.request
-from dataclasses import dataclass, field
+from dataclasses import asdict, dataclass, field
+from datetime import datetime
 from pathlib import Path
 from typing import Any, Iterable, Literal
 
@@ -75,6 +76,17 @@ class BudgetState:
     week_seconds_used: float
     last_limit_at: float | None = None
     jobs_started_this_window: int = 0
+    accounted_job_uids: list[str] = field(default_factory=list)
+
+
+@dataclass(frozen=True)
+class JobView:
+    uid: str
+    active: int = 0
+    succeeded: bool = False
+    failed: bool = False
+    duration_seconds: float | None = None
+    limit_hit: bool = False
 
 
 @dataclass(frozen=True)
@@ -238,6 +250,108 @@ def record_job_finished(state: BudgetState, duration_seconds: float) -> BudgetSt
 def record_job_started(state: BudgetState) -> BudgetState:
     state.jobs_started_this_window += 1
     return state
+
+
+def state_to_dict(state: BudgetState) -> dict[str, Any]:
+    return asdict(state)
+
+
+def state_from_dict(raw: dict[str, Any] | None, now: float) -> BudgetState:
+    data = raw or {}
+    last = data.get("last_limit_at")
+    return BudgetState(
+        window_started_at=float(data.get("window_started_at") or now),
+        estimated_seconds_used=float(data.get("estimated_seconds_used") or 0),
+        week_started_at=float(data.get("week_started_at") or now),
+        week_seconds_used=float(data.get("week_seconds_used") or 0),
+        last_limit_at=None if last is None else float(last),
+        jobs_started_this_window=int(data.get("jobs_started_this_window") or 0),
+        accounted_job_uids=[str(u) for u in (data.get("accounted_job_uids") or [])],
+    )
+
+
+def parse_rfc3339(value: str | None) -> float | None:
+    if not value:
+        return None
+    text = value.replace("Z", "+00:00")
+    try:
+        return datetime.fromisoformat(text).timestamp()
+    except ValueError:
+        return None
+
+
+def job_view_from_k8s(job: dict[str, Any], pods: Iterable[dict[str, Any]] = ()) -> JobView:
+    meta = job.get("metadata") or {}
+    status = job.get("status") or {}
+    uid = str(meta.get("uid") or meta.get("name") or "")
+    active = int(status.get("active") or 0)
+    succeeded = int(status.get("succeeded") or 0) > 0
+    failed = int(status.get("failed") or 0) > 0
+    start = parse_rfc3339(status.get("startTime"))
+    end = parse_rfc3339(status.get("completionTime"))
+    duration = None
+    if start is not None and end is not None and end >= start:
+        duration = end - start
+    job_name = str(meta.get("name") or "")
+    limit_hit = False
+    for pod in pods:
+        labels = (pod.get("metadata") or {}).get("labels") or {}
+        if labels.get("job-name") != job_name:
+            continue
+        for container in (pod.get("status") or {}).get("containerStatuses") or []:
+            terminated = ((container.get("state") or {}).get("terminated")) or {}
+            if int(terminated.get("exitCode") or 0) == EXIT_LIMIT:
+                limit_hit = True
+            if parse_limit_error(str(terminated.get("message") or "")):
+                limit_hit = True
+    return JobView(
+        uid=uid,
+        active=active,
+        succeeded=succeeded,
+        failed=failed,
+        duration_seconds=duration,
+        limit_hit=limit_hit,
+    )
+
+
+def count_running(jobs: Iterable[JobView]) -> int:
+    return sum(job.active for job in jobs)
+
+
+def absorb_finished_jobs(state: BudgetState, jobs: Iterable[JobView], now: float) -> BudgetState:
+    seen = set(state.accounted_job_uids)
+    for job in jobs:
+        if not job.uid or job.uid in seen:
+            continue
+        if job.active:
+            continue
+        if not (job.succeeded or job.failed):
+            continue
+        if job.duration_seconds:
+            record_job_finished(state, job.duration_seconds)
+        if job.limit_hit:
+            record_limit(state, now)
+        seen.add(job.uid)
+        state.accounted_job_uids.append(job.uid)
+    if len(state.accounted_job_uids) > 200:
+        state.accounted_job_uids = state.accounted_job_uids[-200:]
+    return state
+
+
+def tick(
+    policy: Policy,
+    state: BudgetState,
+    jobs: Iterable[JobView],
+    queue: Iterable[QueueItem],
+    now: float,
+) -> tuple[Decision, BudgetState]:
+    jobs = list(jobs)
+    state = absorb_finished_jobs(state, jobs, now)
+    state = rollover(state, now, policy)
+    decision = decide(policy, state, count_running(jobs), queue, now)
+    if decision.action == "start":
+        record_job_started(state)
+    return decision, state
 
 
 def build_job_manifest(
@@ -419,60 +533,116 @@ def _minimal_yaml_mapping(text: str) -> dict[str, Any]:
     return data
 
 
+def _load_cluster_jobs(namespace: str) -> list[JobView]:
+    jobs_code, jobs_payload = _k8s(
+        "GET",
+        f"/apis/batch/v1/namespaces/{namespace}/jobs"
+        "?labelSelector=app.kubernetes.io/name%3Dcodex-worker",
+    )
+    if jobs_code != 200:
+        print(f"list jobs failed: {jobs_code} {jobs_payload}", file=sys.stderr)
+        return []
+    pods_code, pods_payload = _k8s("GET", f"/api/v1/namespaces/{namespace}/pods")
+    pods = pods_payload.get("items", []) if pods_code == 200 else []
+    return [job_view_from_k8s(job, pods) for job in jobs_payload.get("items", [])]
+
+
+def _load_state(namespace: str, cm_name: str, file_path: Path, now: float) -> tuple[BudgetState, dict[str, Any] | None]:
+    if os.environ.get("KUBERNETES_SERVICE_HOST") and cm_name:
+        code, payload = _k8s("GET", f"/api/v1/namespaces/{namespace}/configmaps/{cm_name}")
+        if code == 200:
+            raw = {}
+            blob = (payload.get("data") or {}).get("state.json")
+            if blob:
+                try:
+                    raw = json.loads(blob)
+                except json.JSONDecodeError:
+                    raw = {}
+            return state_from_dict(raw, now), payload
+    return state_from_dict(_read_json(file_path) or {}, now), None
+
+
+def _save_state(
+    state: BudgetState,
+    namespace: str,
+    cm_name: str,
+    file_path: Path,
+    existing: dict[str, Any] | None,
+) -> None:
+    blob = json.dumps(state_to_dict(state), separators=(",", ":"))
+    file_path.parent.mkdir(parents=True, exist_ok=True)
+    file_path.write_text(blob)
+    if not (os.environ.get("KUBERNETES_SERVICE_HOST") and cm_name):
+        return
+    body = {
+        "apiVersion": "v1",
+        "kind": "ConfigMap",
+        "metadata": {
+            "name": cm_name,
+            "namespace": namespace,
+        },
+        "data": {"state.json": blob},
+    }
+    if existing and (existing.get("metadata") or {}).get("resourceVersion"):
+        body["metadata"]["resourceVersion"] = existing["metadata"]["resourceVersion"]
+        _k8s("PUT", f"/api/v1/namespaces/{namespace}/configmaps/{cm_name}", body)
+        return
+    _k8s("POST", f"/api/v1/namespaces/{namespace}/configmaps/{cm_name}", body)
+
+
 def main(argv: list[str] | None = None) -> int:
     del argv
     policy_path = Path(os.environ.get("GOVERNOR_POLICY", "/etc/governor/policy.json"))
     state_path = Path(os.environ.get("GOVERNOR_STATE", "/var/run/governor/state.json"))
     queue_dir = Path(os.environ.get("GOVERNOR_QUEUE", "/etc/governor/queue"))
     namespace = os.environ.get("GOVERNOR_NAMESPACE", "agents")
+    state_cm = os.environ.get("GOVERNOR_STATE_CONFIGMAP", "governor-state")
 
-    raw_policy = _read_json(policy_path) or {}
-    policy = policy_from_dict(raw_policy)
+    policy = policy_from_dict(_read_json(policy_path) or {})
     now = time.time()
-    raw_state = _read_json(state_path) or {}
-    state = BudgetState(
-        window_started_at=float(raw_state.get("window_started_at") or now),
-        estimated_seconds_used=float(raw_state.get("estimated_seconds_used") or 0),
-        week_started_at=float(raw_state.get("week_started_at") or now),
-        week_seconds_used=float(raw_state.get("week_seconds_used") or 0),
-        last_limit_at=raw_state.get("last_limit_at"),
-        jobs_started_this_window=int(raw_state.get("jobs_started_this_window") or 0),
-    )
-    if state.last_limit_at is not None:
-        state.last_limit_at = float(state.last_limit_at)
-
+    state, existing_cm = _load_state(namespace, state_cm, state_path, now)
     queue = _load_queue_dir(queue_dir)
-    running = 0
+    jobs: list[JobView] = []
     if os.environ.get("KUBERNETES_SERVICE_HOST"):
-        code, payload = _k8s(
-            "GET",
-            f"/apis/batch/v1/namespaces/{namespace}/jobs"
-            "?labelSelector=app.kubernetes.io/name%3Dcodex-worker",
+        jobs = _load_cluster_jobs(namespace)
+
+    decision, state = tick(policy, state, jobs, queue, now)
+    print(
+        json.dumps(
+            {
+                "action": decision.action,
+                "reason": decision.reason,
+                "model": decision.model,
+                "window_used": state.estimated_seconds_used,
+                "week_used": state.week_seconds_used,
+            }
         )
-        if code == 200:
-            for job in payload.get("items", []):
-                status = job.get("status") or {}
-                if status.get("active"):
-                    running += int(status["active"])
-        else:
-            print(f"list jobs failed: {code} {payload}", file=sys.stderr)
-
-    decision = decide(policy, state, running, queue, now)
-    print(json.dumps({"action": decision.action, "reason": decision.reason, "model": decision.model}))
-    if decision.action != "start" or decision.item is None or decision.model is None:
-        return 0
-
-    manifest = build_job_manifest(decision.item, decision.model, now=now, namespace=namespace)
-    if not os.environ.get("KUBERNETES_SERVICE_HOST"):
-        print(json.dumps(manifest))
-        return 0
-    code, payload = _k8s(
-        "POST",
-        f"/apis/batch/v1/namespaces/{namespace}/jobs",
-        manifest,
     )
-    print(json.dumps({"created": code, "name": manifest["metadata"]["name"], "body": payload.get("reason") or payload.get("message")}))
-    return 0 if code in {200, 201} else 1
+
+    created_ok = True
+    if decision.action == "start" and decision.item is not None and decision.model is not None:
+        manifest = build_job_manifest(decision.item, decision.model, now=now, namespace=namespace)
+        if not os.environ.get("KUBERNETES_SERVICE_HOST"):
+            print(json.dumps(manifest))
+        else:
+            code, payload = _k8s(
+                "POST",
+                f"/apis/batch/v1/namespaces/{namespace}/jobs",
+                manifest,
+            )
+            print(
+                json.dumps(
+                    {
+                        "created": code,
+                        "name": manifest["metadata"]["name"],
+                        "body": payload.get("reason") or payload.get("message"),
+                    }
+                )
+            )
+            created_ok = code in {200, 201}
+
+    _save_state(state, namespace, state_cm, state_path, existing_cm)
+    return 0 if created_ok else 1
 
 
 if __name__ == "__main__":

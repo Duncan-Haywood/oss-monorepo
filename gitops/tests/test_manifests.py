@@ -109,3 +109,13 @@ def test_infra_adopts_existing_servers() -> None:
     assert "163580094" in inventory
     assert "cpx52" in inventory
     assert "cpx22" in inventory
+
+
+def test_agents_app_does_not_reset_governor_state() -> None:
+    app = yaml.safe_load((ROOT / "apps" / "agents.yaml").read_text())
+    diffs = app["spec"]["ignoreDifferences"]
+    assert diffs[0]["name"] == "governor-state"
+    assert "/data" in diffs[0]["jsonPointers"]
+    assert "RespectIgnoreDifferences=true" in app["spec"]["syncPolicy"]["syncOptions"]
+    state = yaml.safe_load((AGENTS / "governor" / "state.yaml").read_text())
+    assert state["metadata"]["name"] == "governor-state"

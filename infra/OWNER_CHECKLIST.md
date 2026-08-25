@@ -20,8 +20,9 @@ Do not create a third VM. The next `tofu apply` must import / attach, not replac
    GitHub Actions for `tofu plan` only). Never mount it into the `agents`
    namespace.
 2. **SSH key you control** — confirm you can reach both public IPv4s.
-   Tell me (or check yourself) whether k3s is already running on the
-   cpx52 before running `bootstrap/install-k3s-server.sh`.
+   From the laptop: `bootstrap/preflight.sh`. If k3s is already on the
+   cpx52, run `bootstrap/label-existing.sh` there instead of
+   `install-k3s-server.sh`.
 3. **`make discover`** — paste `firewall_id` and `volume_id` into
    `infra/terraform.tfvars` (gitignored).
 4. **GitHub identities** — two, not one:

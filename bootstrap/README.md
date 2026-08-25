@@ -4,6 +4,12 @@ These scripts run **over SSH, from a laptop, against the two existing
 Helsinki boxes**. They are not cloud-init: both servers have already
 booted.
 
+Laptop helpers (read-only until you decide):
+
+- `preflight.sh` — SSH to both public IPs and say whether k3s is already there.
+- `label-existing.sh` — if the cpx52 already has k3s, add the labels GitOps
+  expects instead of re-installing.
+
 Order:
 
 1. OpenTofu has imported the servers and (ideally) attached `10.42.0.0/24`.
