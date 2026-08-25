@@ -5,7 +5,7 @@ import tempfile
 import unittest
 from pathlib import Path
 
-from src.quote_margin import batch_csv_report, calculate, csv_report, load_quote, load_reports, main
+from src.quote_margin import batch_csv_report, billing_model_summary, calculate, compare_billing_models, csv_report, load_quote, load_reports, main, markdown
 
 
 class QuoteMarginTests(unittest.TestCase):
@@ -56,6 +56,8 @@ class QuoteMarginTests(unittest.TestCase):
                 "target_price,1800.00,EUR",
                 "gap_to_target,600.00,EUR",
                 "cost_coverage,2400.00,EUR",
+                "hourly_bill_at_planned_hours,1800.00,EUR",
+                "hourly_minus_fixed_at_planned_hours,-600.00,EUR",
             ],
         )
 
@@ -92,3 +94,20 @@ class QuoteMarginTests(unittest.TestCase):
                 batch_csv_report(reports)
             self.assertEqual(output.getvalue().splitlines()[1].split(",")[0], "a.json")
             self.assertEqual(len(output.getvalue().splitlines()), 3)
+
+    def test_compares_fixed_quote_to_hourly_at_same_hours(self) -> None:
+        quote = load_quote({"price": 2400, "delivery_hours": 24, "admin_hours": 5, "revision_hours": 6, "overhead": 180, "subcontractor_cost": 300, "target_hourly_rate": 75})
+        result = calculate(quote)
+        rows = compare_billing_models(quote, result)
+        self.assertEqual([row["percent"] for row in rows], [0, 10, 25, 50])
+        self.assertEqual(rows[0]["hourly_total"], 3105)
+        self.assertEqual(rows[0]["hourly_minus_fixed"], 705)
+        self.assertEqual(rows[3]["total_hours"], 52.5)
+        self.assertEqual(rows[3]["hourly_total"], 4417.5)
+        self.assertEqual(rows[3]["hourly_minus_fixed"], 2017.5)
+        summary = billing_model_summary(quote, result)
+        self.assertTrue(summary["fixed_is_below_hourly"])
+        text = markdown(quote, result)
+        self.assertIn("Fixed quote vs hourly at your target", text)
+        self.assertIn("3105.00", text)
+        self.assertIn("+50%", text)

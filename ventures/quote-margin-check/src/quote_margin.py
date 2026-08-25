@@ -60,8 +60,42 @@ def calculate(quote: Quote) -> dict[str, float]:
     }
 
 
+def compare_billing_models(
+    quote: Quote,
+    result: dict[str, float],
+    percentages: tuple[float, ...] = (0, 10, 25, 50),
+) -> list[dict[str, float]]:
+    """Fixed quote vs hourly at the same hours and direct costs.
+
+    Fixed keeps ``quote.price``. Hourly bills the hours at the supplied
+    target rate plus the same direct costs. Planned hours (0%) answers
+    whether the fixed quote is already a discount vs hourly.
+    """
+    rows = []
+    for percent in percentages:
+        hours = result["total_hours"] * (1 + percent / 100)
+        hourly_total = hours * quote.target_hourly_rate + result["direct_costs"]
+        rows.append(
+            {
+                "percent": float(percent),
+                "total_hours": hours,
+                "fixed_effective_rate": (quote.price - result["direct_costs"]) / hours,
+                "hourly_total": hourly_total,
+                "hourly_minus_fixed": hourly_total - quote.price,
+            }
+        )
+    return rows
+
+
+def billing_model_summary(quote: Quote, result: dict[str, float]) -> dict[str, float | bool]:
+    planned = compare_billing_models(quote, result, (0,))[0]
+    return {**planned, "fixed_is_below_hourly": planned["hourly_minus_fixed"] > 0}
+
+
 def markdown(quote: Quote, result: dict[str, float]) -> str:
     status = "above target" if result["gap_to_target"] >= 0 else "below target"
+    billing = compare_billing_models(quote, result)
+    planned = billing[0]
     lines = [
         "# Quote Margin Check",
         "",
@@ -77,8 +111,28 @@ def markdown(quote: Quote, result: dict[str, float]) -> str:
         f"| Gap to target price | {quote.currency} {result['gap_to_target']:.2f} |",
         f"| After direct costs | {quote.currency} {result['cost_coverage']:.2f} |",
         "",
-        "This is a customer-supplied estimate, not tax, financial, or business advice. It does not certify profitability or account for every cost. Review the assumptions before using the result.",
+        "## Fixed quote vs hourly at your target",
+        "",
+        (
+            f"At planned hours, hourly at the supplied target would bill the same as this fixed quote ({quote.currency} {planned['hourly_total']:.2f}). Comparison only, not a recommendation of which to send."
+            if planned["hourly_minus_fixed"] == 0
+            else f"At planned hours, hourly at the supplied target would bill {quote.currency} {planned['hourly_total']:.2f} — {quote.currency} {abs(planned['hourly_minus_fixed']):.2f} {'more' if planned['hourly_minus_fixed'] > 0 else 'less'} than this fixed quote. Comparison only, not a recommendation of which to send."
+        ),
+        "",
+        "| Extra time | Hours | Fixed effective rate | Hourly bill | Hourly minus fixed |",
+        "|---|---:|---:|---:|---:|",
     ]
+    for row in billing:
+        extra = "planned" if row["percent"] == 0 else f"+{row['percent']:.0f}%"
+        lines.append(
+            f"| {extra} | {row['total_hours']:.2f} | {quote.currency} {row['fixed_effective_rate']:.2f}/hour | {quote.currency} {row['hourly_total']:.2f} | {quote.currency} {row['hourly_minus_fixed']:.2f} |"
+        )
+    lines.extend(
+        [
+            "",
+            "This is a customer-supplied estimate, not tax, financial, or business advice. It does not certify profitability or account for every cost. Review the assumptions before using the result.",
+        ]
+    )
     return "\n".join(lines) + "\n"
 
 
@@ -95,6 +149,8 @@ def csv_report(quote: Quote, result: dict[str, float]) -> None:
             ("target_price", f"{result['target_price']:.2f}", quote.currency),
             ("gap_to_target", f"{result['gap_to_target']:.2f}", quote.currency),
             ("cost_coverage", f"{result['cost_coverage']:.2f}", quote.currency),
+            ("hourly_bill_at_planned_hours", f"{result['target_price']:.2f}", quote.currency),
+            ("hourly_minus_fixed_at_planned_hours", f"{result['target_price'] - quote.price:.2f}", quote.currency),
         )
     )
 
@@ -142,7 +198,7 @@ def main() -> int:
         quote = load_quote(json.loads(args.input.read_text(encoding="utf-8")))
         result = calculate(quote)
         if args.format == "json":
-            print(json.dumps({"inputs": quote.__dict__, "result": result, "disclaimer": "Arithmetic only; not tax, financial, or business advice."}, indent=2))
+            print(json.dumps({"inputs": quote.__dict__, "result": result, "billing_models": compare_billing_models(quote, result), "disclaimer": "Arithmetic only; not tax, financial, or business advice."}, indent=2))
         elif args.format == "csv":
             csv_report(quote, result)
         else:

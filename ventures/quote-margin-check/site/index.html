@@ -42,6 +42,14 @@
         "@type": "Answer",
         "text": "Fixed-price quotes usually price only the visible delivery work. Admin time (calls, invoicing, project management), revision rounds, and subcontractor or tool costs quietly eat into the same fixed price, so the effective hourly rate ends up well below the rate you meant to charge."
       }
+    },
+    {
+      "@type": "Question",
+      "name": "Should I send a fixed-price quote or bill hourly?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Compare the same hours and direct costs both ways. A fixed quote stays the same if the work takes longer, so your effective hourly rate falls. Hourly at your target rate bills those extra hours to the client. The comparison is arithmetic only — it does not tell you which billing model to send."
+      }
     }
   ]
 }
@@ -180,6 +188,25 @@
 
     <div class="result" id="result" role="status" aria-live="polite"></div>
     <div class="result" id="sensitivity" aria-live="polite"><strong>If the work takes longer</strong><p class="hint">A scenario view, not a prediction. Direct costs stay unchanged.</p><div class="table-scroll"><table class="sensitivity"><thead><tr><th>Extra time</th><th>Total hours</th><th>Effective rate</th><th>Gap to target</th></tr></thead><tbody></tbody></table></div></div>
+    <div class="result" id="billing" aria-live="polite">
+      <strong>Fixed quote vs hourly at your target</strong>
+      <p class="hint">Same hours and direct costs. The fixed quote does not change if the work takes longer; hourly bills those hours at your target rate. Comparison only — not a recommendation of which to send.</p>
+      <p class="hint" id="billing-summary"></p>
+      <div class="table-scroll">
+        <table class="sensitivity">
+          <thead>
+            <tr>
+              <th>Time</th>
+              <th>Hours</th>
+              <th>Fixed effective rate</th>
+              <th>Hourly bill</th>
+              <th>Hourly minus fixed</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </div>
       <div class="result" id="review" aria-live="polite"><strong>Before you send it</strong><ul class="checks"></ul></div>
 
     <div class="actions">
@@ -200,9 +227,17 @@
     <p>
       It does not recommend a price, does not provide tax or financial
       advice, and does not claim a quote is profitable. The
-      <strong>gap to target price</strong> and <strong>after direct
-      costs</strong> figures are arithmetic comparisons only — you decide
-      what costs and target rate are appropriate for the job.
+      <strong>gap to target price</strong>, <strong>after direct
+      costs</strong>, and <strong>fixed vs hourly</strong> figures are
+      arithmetic comparisons only — you decide what costs, target rate,
+      and billing model are appropriate for the job.
+    </p>
+    <p>
+      The fixed-vs-hourly table answers the pre-send fork that the overrun
+      rows alone cannot: if this work slips, does the extra time come out
+      of your rate, or does the client pay it? Planned hours are included
+      so you can see whether the fixed quote is already a discount versus
+      hourly at your target, before any overrun.
     </p>
     <p>
       Prefer the command line, or need to batch several quotes into a
@@ -250,7 +285,7 @@
 </main>
 
 <script type="module">
-  import { loadQuote, calculate, overrunScenarios } from "./calc.mjs";
+  import { loadQuote, calculate, overrunScenarios, compareBillingModels, billingModelSummary } from "./calc.mjs";
   import { reviewQuote } from "./review.mjs";
   import { recordEvent, createReportCounter, isUsageCountingEnabled, setUsageCountingEnabled } from "./usage.mjs";
 
@@ -262,6 +297,8 @@
   const result = document.getElementById("result");
   const review = document.getElementById("review");
   const sensitivity = document.getElementById("sensitivity");
+  const billing = document.getElementById("billing");
+  const billingSummary = document.getElementById("billing-summary");
 
   let lastReport = null;
 
@@ -305,7 +342,20 @@
        `;
        review.querySelector(".checks").innerHTML = reviewQuote(quote, r).map((check) => `<li class="${check.level}"><strong>${escapeHtml(check.title)}</strong>${escapeHtml(check.detail)}</li>`).join("");
        sensitivity.querySelector("tbody").innerHTML = overrunScenarios(quote, r).map((scenario) => `<tr><th scope="row">+${scenario.percent}%</th><td>${fmt(scenario.total_hours)}</td><td>${safeCurrency} ${fmt(scenario.effective_hourly_rate)}/hour</td><td>${safeCurrency} ${fmt(scenario.gap_to_target)}</td></tr>`).join("");
+       const billingRows = compareBillingModels(quote, r);
+       const planned = billingModelSummary(quote, r);
+       if (planned.hourly_minus_fixed === 0) {
+         billingSummary.textContent = `At planned hours, hourly at your target would bill the same as this fixed quote (${quote.currency} ${fmt(planned.hourly_total)}).`;
+       } else {
+         const direction = planned.hourly_minus_fixed > 0 ? "more than" : "less than";
+         billingSummary.textContent = `At planned hours, hourly at your target would bill ${quote.currency} ${fmt(planned.hourly_total)} — ${quote.currency} ${fmt(Math.abs(planned.hourly_minus_fixed))} ${direction} this fixed quote.`;
+       }
+       billing.querySelector("tbody").innerHTML = billingRows.map((row) => {
+         const label = row.percent === 0 ? "planned" : `+${row.percent}%`;
+         return `<tr><th scope="row">${label}</th><td>${fmt(row.total_hours)}</td><td>${safeCurrency} ${fmt(row.fixed_effective_rate)}/hour</td><td>${safeCurrency} ${fmt(row.hourly_total)}</td><td>${safeCurrency} ${fmt(row.hourly_minus_fixed)}</td></tr>`;
+       }).join("");
        recordEvent("quote_review_checked");
+       recordEvent("billing_model_compared");
       result.classList.remove("error");
       reportCounter.count(JSON.stringify(quote));
     } catch (err) {
@@ -314,6 +364,8 @@
        result.textContent = err.message;
        result.classList.add("error");
        review.querySelector(".checks").textContent = "Fix the inputs above to review this quote.";
+       billing.querySelector("tbody").innerHTML = "";
+       billingSummary.textContent = "";
     }
   }
 
@@ -354,6 +406,8 @@
       `target_price,${r.target_price.toFixed(2)},${quote.currency}`,
       `gap_to_target,${r.gap_to_target.toFixed(2)},${quote.currency}`,
       `cost_coverage,${r.cost_coverage.toFixed(2)},${quote.currency}`,
+      `hourly_bill_at_planned_hours,${r.target_price.toFixed(2)},${quote.currency}`,
+      `hourly_minus_fixed_at_planned_hours,${(r.target_price - quote.price).toFixed(2)},${quote.currency}`,
     ].join("\n");
     try {
       await navigator.clipboard.writeText(rows);

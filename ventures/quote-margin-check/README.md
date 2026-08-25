@@ -44,6 +44,15 @@ quoted price and direct costs fixed while showing how the effective hourly rate
 and gap to the supplied target change. They are arithmetic what-if comparisons,
 not a forecast of project delivery time.
 
+The browser and CLI also compare the same hours and direct costs as a
+**fixed quote vs hourly at the supplied target rate**. Planned hours are
+included so you can see whether the fixed price is already a discount versus
+hourly, then how that gap grows if the work takes +10%, +25%, or +50% longer.
+Hourly bills the extra hours; the fixed quote does not. This is a comparison
+only — it does not recommend which billing model to send. The browser counts
+a local `billing_model_compared` event when a valid quote is reviewed; it
+stores no quote values and sends nothing anywhere.
+
 **No warranty.** This tool is provided free and as-is, without warranty of any
 kind, express or implied. It is not tax, financial, or business advice, and it
 does not replace a qualified professional. **You are responsible for reviewing

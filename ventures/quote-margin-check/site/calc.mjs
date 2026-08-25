@@ -66,3 +66,35 @@ export function overrunScenarios(quote, report, percentages = [10, 25, 50]) {
     };
   });
 }
+
+/**
+ * Side-by-side billing-model comparison at the same hours and direct costs.
+ *
+ * Fixed keeps the quoted price (you eat extra hours). Hourly bills those
+ * hours at the supplied target rate plus the same direct costs (the client
+ * pays the extra hours). Planned hours (0%) is included so the table answers
+ * "is this fixed quote already a discount vs hourly?" not only the overrun
+ * case already covered by overrunScenarios().
+ */
+export function compareBillingModels(quote, report, percentages = [0, 10, 25, 50]) {
+  return percentages.map((percent) => {
+    const hours = report.total_hours * (1 + percent / 100);
+    const hourlyTotal = hours * quote.target_hourly_rate + report.direct_costs;
+    return {
+      percent,
+      total_hours: hours,
+      fixed_effective_rate: (quote.price - report.direct_costs) / hours,
+      hourly_total: hourlyTotal,
+      hourly_minus_fixed: hourlyTotal - quote.price,
+    };
+  });
+}
+
+/** One-line planned-hours comparison used by the page summary and CLI. */
+export function billingModelSummary(quote, report) {
+  const planned = compareBillingModels(quote, report, [0])[0];
+  return {
+    ...planned,
+    fixed_is_below_hourly: planned.hourly_minus_fixed > 0,
+  };
+}
