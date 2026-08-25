@@ -323,6 +323,19 @@ products:
           freelancers to price monthly retainers from billable capacity, costs,
           and scope risk. Public URL remains owner-gated; counters are local,
           aggregate, and opt-out.
+  - slug: countertop-bid-calculator
+    surface: static-page-in-repo
+    readings:
+      - as_of: 2026-08-25
+        signals:
+          live_url_visitors: null
+          local_calculations: 0
+          local_summary_copies: 0
+        note: >-
+          Shipped a zero-dependency browser calculator for stone fabricators
+          to price quartz and granite jobs from slabs, cutouts, and
+          waterfalls. Public URL remains owner-gated; counters are local,
+          aggregate, and opt-out.
 
 # Example of the shape, once a product has shipped:
 #
