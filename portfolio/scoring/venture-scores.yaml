@@ -977,3 +977,38 @@ ventures:
       opinion. The shipped hours and boiler invoices are labelled ballpark
       starting points rather than a standard or benchmark, and nothing the
       user enters leaves the browser.
+
+  - slug: plantation-shutter-bid-calculator
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 7
+      gross_margin: 10
+      defensibility: 5
+      distribution: 8
+    composite: 6.833
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      There is no AI anywhere in the product. The value is a domain model —
+      openings, mount, grade, and payroll burden — that is arithmetic, and
+      adding inference to it would only make the result less checkable.
+    basis: >-
+      Graduated on 2026-08-25 as a browser-local plantation shutter bid
+      calculator. Distinct from window replacement (glass, united inches,
+      nailing flange), window cleaning (panes), and patio door (sliders).
+      Distribution 8: "how much to charge to install plantation shutters"
+      and "plantation shutter cost calculator" are high-intent operator
+      queries; defensibility 5 because the opening-versus-scope model
+      encodes how the trade estimates labor rather than restating a
+      published per-window special.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Pass: the output is arithmetic on the shop's own inputs, never a
+      recommended price, a window-design determination, or a building-code
+      opinion. The shipped hours and shutter invoices are labelled ballpark
+      starting points rather than a standard or benchmark, and nothing the
+      user enters leaves the browser.

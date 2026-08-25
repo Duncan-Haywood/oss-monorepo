@@ -356,6 +356,20 @@ products:
           liner/indirect/oil-to-gas extras, copyable proposal summary).
           Public URL remains owner-gated; the local-first counter reports
           only to the user's own browser and is opt-out. Baseline row.
+  - slug: plantation-shutter-bid-calculator
+    surface: static-page-in-repo
+    readings:
+      - as_of: 2026-08-25
+        signals:
+          live_url_visitors: null
+          local_events_reported: 0
+        note: >-
+          Shipped a local plantation shutter bid calculator (openings,
+          inside vs outside mount, paint-grade vs stain-grade, hang vs
+          measure vs template-and-custom, removal/bypass/café extras,
+          copyable proposal summary). Public URL remains owner-gated;
+          the local-first counter reports only to the user's own browser
+          and is opt-out. Baseline row.
   - slug: freelance-retainer-calculator
     surface: static-page-in-repo
     readings:
