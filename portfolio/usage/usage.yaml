@@ -126,13 +126,13 @@ products:
           target-gap, hidden-time, and revision-assumption observations. No
            public URL yet; the feature counter stores only aggregate local
            events and remains opt-out.
-       - as_of: 2026-08-25
-         signals:
-           live_url_visitors: null
-           decision_summary_copied: 0
-         note: >-
-           Added a privacy-safe copyable decision summary for private review
-           handoffs. Public URL remains owner-gated; baseline until deployment.
+      - as_of: 2026-08-25
+        signals:
+          live_url_visitors: null
+          decision_summary_copied: 0
+        note: >-
+          Added a privacy-safe copyable decision summary for private review
+          handoffs. Public URL remains owner-gated; baseline until deployment.
   - slug: etsy-profit-calculator
     surface: static-page-in-repo
     readings:
