@@ -1,5 +1,26 @@
 const $ = (id) => document.getElementById(id);
 const symbols = { USD: '$', EUR: '€', GBP: '£', CAD: '$', AUD: '$' };
+export const inputIds = ['income', 'costs', 'hours', 'utilization', 'retainerHours', 'buffer'];
+export const DRAFT_KEY = 'frc-draft-v1';
+
+export function saveDraft(values, storage) {
+  try {
+    storage.setItem(DRAFT_KEY, JSON.stringify(Object.fromEntries(inputIds.map((id) => [id, String(values[id] ?? '')]))));
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+export function loadDraft(storage) {
+  try {
+    const draft = JSON.parse(storage.getItem(DRAFT_KEY) || 'null');
+    if (!draft || typeof draft !== 'object' || Array.isArray(draft)) return null;
+    return Object.fromEntries(inputIds.map((id) => [id, typeof draft[id] === 'string' ? draft[id] : '']));
+  } catch {
+    return null;
+  }
+}
 
 export function calculatePlan(values) {
   const income = Number(values.income), costs = Number(values.costs), hours = Number(values.hours);
@@ -17,7 +38,17 @@ export function calculatePlan(values) {
 if (typeof document !== 'undefined') {
   const form = $('calculator');
   const money = (n) => `${symbols[$('currency').value]}${n.toLocaleString(undefined, { maximumFractionDigits: 0 })}`;
-  const read = () => Object.fromEntries(['income', 'costs', 'hours', 'utilization', 'retainerHours', 'buffer'].map((id) => [id, $(id).value]));
+  const read = () => Object.fromEntries(inputIds.map((id) => [id, $(id).value]));
+  const storage = (() => { try { return window.localStorage; } catch { return null; } })();
+  const save = () => storage && saveDraft(read(), storage) && ($('draftStatus').textContent = 'Draft saved locally.');
+  if (storage) {
+    const draft = loadDraft(storage);
+    if (draft) {
+      inputIds.forEach((id) => { if (draft[id] !== '') $(id).value = draft[id]; });
+      $('draftStatus').textContent = 'Restored your last draft from this browser.';
+    }
+    inputIds.forEach((id) => $(id).addEventListener('input', save));
+  }
   const track = (event) => {
     if ($('optOut').checked || navigator.doNotTrack === '1' || navigator.globalPrivacyControl === true) return;
     try {
