@@ -4,9 +4,17 @@ Shopify merchants and agencies can paste an `axe-core` JSON export and create a 
 
 ## Run it
 
-Open `index.html` in a browser, paste the JSON exported by axe-core, and choose **Generate evidence record**. Use **Download .txt** to save a reviewable record. No account, network call, Shopify permission, or API key is required.
+Open `index.html` in a browser and paste the JSON exported by axe-core:
 
-Everything runs in the browser. The JSON is never uploaded and there are no cookies or analytics vendors. The tool keeps only an anonymous aggregate `report_generated` count in localStorage, with a visible opt-out.
+1. **Generate after record** — dated summary of violations, impact, passes, incomplete checks, and WCAG tags from the current export.
+2. **Compare before → after** — paste an earlier export of the same storefront to see which rules were resolved, still present (with node-count change), or new.
+3. **Copy record** or **Download .txt** for an agency or client handoff.
+
+No account, network call, Shopify permission, or API key is required.
+
+After using this, you can now hand a client a dated before/after record of what two automated scans contained, which used to mean reading two raw axe JSON files side by side.
+
+Everything runs in the browser. The JSON is never uploaded and there are no cookies or analytics vendors. Optional "Remember these pastes" stores only on this device. The tool keeps anonymous aggregate event counts in localStorage (`report_generated`, `comparison_generated`, `report_downloaded`, `report_copied`), with a visible opt-out and Do Not Track / Global Privacy Control honored.
 
 **No warranty.** This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, financial, or compliance advice, and it does not replace a qualified professional. **You are responsible for reviewing and verifying its output before relying on it**, and for meeting any obligation it helps you prepare for. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.
 

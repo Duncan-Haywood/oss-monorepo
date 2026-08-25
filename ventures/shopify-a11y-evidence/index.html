@@ -1,23 +1,245 @@
 <!doctype html>
 <html lang="en">
 <head>
-  <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Shopify Accessibility Evidence Report | axe JSON</title>
-  <meta name="description" content="Turn a Shopify storefront's axe-core JSON export into a dated, readable accessibility evidence record. Runs locally in your browser.">
-  <meta property="og:title" content="Shopify Accessibility Evidence Report"><meta property="og:description" content="Create a dated accessibility test record from axe-core JSON without uploading storefront data.">
-  <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Shopify Accessibility Evidence Report","applicationCategory":"BusinessApplication","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"}}</script>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Shopify Accessibility Evidence | Compare axe scans before and after a fix</title>
+  <meta name="description" content="Paste two axe-core JSON exports from a Shopify storefront and see which accessibility rules were resolved, still present, or new. Runs locally in your browser. Not a compliance determination.">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href=".">
+  <meta property="og:title" content="Shopify Accessibility Evidence — before vs after">
+  <meta property="og:description" content="Turn axe-core JSON into a dated evidence record, then diff two scans to see what a remediation pass changed.">
+  <meta property="og:type" content="website">
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "SoftwareApplication",
+    "name": "Shopify Accessibility Evidence Report",
+    "applicationCategory": "BusinessApplication",
+    "operatingSystem": "Any (runs in a web browser)",
+    "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
+    "featureList": "axe-core JSON evidence record, before/after remediation comparison, impact breakdown, WCAG tags, local download"
+  }
+  </script>
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "mainEntity": [
+      {
+        "@type": "Question",
+        "name": "Does a clean axe scan mean a Shopify store is compliant?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "No. This tool only records what the supplied automated axe-core export contained. Automated tests miss many issues. You still need manual review, and this page never determines compliance."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "How do I compare accessibility scans before and after a Shopify fix?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Export axe-core JSON from the same storefront URL before the change and after it. Paste the earlier export in Before and the later export in After, then choose Compare scans. The page lists rules that disappeared, rules that remain (with node-count change), and rules that appeared only in the later scan."
+        }
+      }
+    ]
+  }
+  </script>
   <style>
-    :root{font-family:system-ui,sans-serif;color:#17221f;background:#eaf1ec}body{max-width:960px;margin:auto;padding:28px 18px}h1{font-size:clamp(2.2rem,7vw,5rem);line-height:.95;letter-spacing:-.06em;max-width:720px}p{line-height:1.5}.grid{display:grid;grid-template-columns:1fr 1fr;gap:18px}section{background:#fff;border:1px solid #c8d8ce;border-radius:14px;padding:20px;box-shadow:0 8px 24px #17382a12}textarea{width:100%;min-height:270px;box-sizing:border-box;font:14px ui-monospace,monospace;padding:12px;border:1px solid #9eb5a5;border-radius:8px}button{background:#17633f;color:white;border:0;border-radius:8px;padding:11px 15px;font:inherit;font-weight:700;cursor:pointer}.muted{color:#50675a;font-size:.9rem}.stat{font-size:2rem;font-weight:750}.error{color:#a12727}.report{white-space:pre-wrap;font:13px ui-monospace,monospace;background:#f4f8f5;padding:14px;border-radius:8px;max-height:500px;overflow:auto}@media(max-width:700px){.grid{grid-template-columns:1fr}}
+    :root { color-scheme: light; font-family: system-ui, sans-serif; color: #17221f; background: #eaf1ec; }
+    body { max-width: 1100px; margin: 0 auto; padding: 28px 18px; }
+    h1 { font-size: clamp(2rem, 6vw, 3.8rem); line-height: .95; letter-spacing: -.05em; max-width: 820px; margin: 0 0 12px; }
+    p { line-height: 1.5; }
+    .muted { color: #50675a; font-size: .9rem; }
+    .eyebrow { font-size: .78rem; font-weight: 700; letter-spacing: .08em; color: #17633f; margin: 0 0 8px; }
+    .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
+    section { background: #fff; border: 1px solid #c8d8ce; border-radius: 14px; padding: 20px; box-shadow: 0 8px 24px #17382a12; }
+    h2 { margin-top: 0; font-size: 1.15rem; }
+    textarea { width: 100%; min-height: 220px; box-sizing: border-box; font: 13px ui-monospace, monospace; padding: 12px; border: 1px solid #9eb5a5; border-radius: 8px; }
+    label { display: grid; gap: 6px; font-weight: 650; font-size: .9rem; margin: 0 0 12px; }
+    .actions { display: flex; flex-wrap: wrap; gap: 8px; margin: 12px 0; }
+    button { background: #17633f; color: white; border: 0; border-radius: 8px; padding: 11px 15px; font: inherit; font-weight: 700; cursor: pointer; }
+    button.secondary { background: #fff; color: #17633f; border: 1px solid #17633f; }
+    .error { color: #a12727; min-height: 1.2em; }
+    .stats { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; margin: 0 0 14px; }
+    .stat { background: #f4f8f5; border-radius: 8px; padding: 10px 12px; }
+    .stat b { display: block; font-size: 1.35rem; }
+    .report { white-space: pre-wrap; font: 13px ui-monospace, monospace; background: #f4f8f5; padding: 14px; border-radius: 8px; max-height: 540px; overflow: auto; }
+    footer { margin-top: 22px; }
+    @media (max-width: 800px) { .grid, .stats { grid-template-columns: 1fr; } }
   </style>
 </head>
 <body>
-  <p class="muted">SHOPIFY ACCESSIBILITY EVIDENCE</p><h1>Turn an axe scan into a record you can review.</h1><p>Paste an axe-core JSON export to get a dated summary of violations, passes, and items needing review. Nothing leaves this browser.</p>
-  <main class="grid"><section><h2>Paste axe JSON</h2><textarea id="input" aria-label="axe-core JSON">{"url":"https://example.com","testEngine":{"name":"axe-core"},"violations":[{"id":"color-contrast","impact":"serious","help":"Elements must meet minimum color contrast ratio","nodes":[{"html":"&lt;button&gt;Buy&lt;/button&gt;"}]}],"passes":[{"id":"html-has-lang"}],"incomplete":[]}</textarea><p><button id="generate">Generate evidence record</button> <button id="download" type="button">Download .txt</button></p><label class="muted"><input id="optout" type="checkbox"> Do not keep an anonymous local usage count</label><p id="error" class="error" role="alert"></p></section><section><h2>Evidence record</h2><div id="stats" class="muted">No report generated yet.</div><pre id="report" class="report">Your report will appear here.</pre></section></main>
-  <footer><p class="muted"><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind. It is not legal, tax, financial, or compliance advice, and it does not replace a qualified professional. You are responsible for reviewing and verifying its output before relying on it. It does not determine whether a site is compliant.</p><p class="muted">Local-only privacy: your JSON is never uploaded. We count only anonymous feature events in localStorage, with an opt-out. <a href="LICENSE">License</a></p></footer>
+  <p class="eyebrow">SHOPIFY ACCESSIBILITY EVIDENCE</p>
+  <h1>Show what changed after you fixed a scan.</h1>
+  <p>Paste an axe-core JSON export to get a dated evidence record. Paste an earlier export next to it to see which rules were resolved, still present, or new. Nothing leaves this browser. This is not a compliance determination.</p>
+
+  <main class="grid">
+    <section>
+      <h2>1. After scan (current)</h2>
+      <label for="after">Later axe-core JSON
+        <textarea id="after" aria-label="After scan axe-core JSON">{"url":"https://example-shop.myshopify.com","testEngine":{"name":"axe-core","version":"4.10.0"},"violations":[{"id":"color-contrast","impact":"serious","help":"Elements must meet minimum color contrast ratio","helpUrl":"https://dequeuniversity.com/rules/axe/4.10/color-contrast","tags":["cat.color","wcag2aa","wcag143"],"nodes":[{}]},{"id":"button-name","impact":"critical","help":"Buttons must have discernible text","tags":["cat.name-role-value","wcag2a","wcag412"],"nodes":[{}]}],"passes":[{"id":"html-has-lang"},{"id":"image-alt"},{"id":"label"}],"incomplete":[]}</textarea>
+      </label>
+      <label for="before">Earlier axe-core JSON (optional, for comparison)
+        <textarea id="before" aria-label="Before scan axe-core JSON">{"url":"https://example-shop.myshopify.com","testEngine":{"name":"axe-core","version":"4.10.0"},"violations":[{"id":"color-contrast","impact":"serious","help":"Elements must meet minimum color contrast ratio","tags":["cat.color","wcag2aa","wcag143"],"nodes":[{},{}]},{"id":"image-alt","impact":"critical","help":"Images must have alternate text","tags":["cat.text-alternatives","wcag2a","wcag111"],"nodes":[{}]},{"id":"label","impact":"serious","help":"Form elements must have labels","tags":["cat.forms","wcag2a","wcag332"],"nodes":[{}]}],"passes":[{"id":"html-has-lang"}],"incomplete":[{"id":"link-in-text-block","impact":"moderate","help":"Links must be distinguishable from surrounding text","nodes":[{}]}]}</textarea>
+      </label>
+      <div class="actions">
+        <button id="generate" type="button">Generate after record</button>
+        <button id="compare" type="button" class="secondary">Compare before → after</button>
+        <button id="download" type="button" class="secondary">Download .txt</button>
+        <button id="copy" type="button" class="secondary">Copy record</button>
+      </div>
+      <label class="muted"><input id="remember" type="checkbox"> Remember these pastes on this device</label>
+      <label class="muted"><input id="optout" type="checkbox"> Do not keep an anonymous local usage count</label>
+      <p id="error" class="error" role="alert"></p>
+    </section>
+    <section>
+      <h2>2. Evidence</h2>
+      <div id="stats" class="muted">No report generated yet. Use the sample JSON or paste your own export.</div>
+      <pre id="report" class="report">Your report will appear here.</pre>
+    </section>
+  </main>
+
+  <footer>
+    <p class="muted"><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, financial, or compliance advice, and it does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for meeting any obligation it helps you prepare for. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use. It does not determine whether a site is compliant.</p>
+    <p class="muted">Local-only privacy: your JSON is never uploaded. If you opt in, the pastes stay in this browser only. We count anonymous feature events in localStorage (report generated, comparison generated, download, copy), never people, IPs, or scan content. Honor Do Not Track / Global Privacy Control. <a href="LICENSE">License</a>. Optional <a href="https://github.com/sponsors/Duncan-Haywood">GitHub Sponsors</a> never changes what the tool does.</p>
+  </footer>
   <script type="module">
-    import { buildReport, reportAsText } from './calc.mjs'; import { recordUsage } from './usage.mjs';
-    let latest = null; const input = document.querySelector('#input'); const reportEl = document.querySelector('#report');
-    document.querySelector('#generate').addEventListener('click', () => { try { latest = buildReport(JSON.parse(input.value)); reportEl.textContent = reportAsText(latest); document.querySelector('#stats').textContent = `${latest.counts.violations} violation rules, ${latest.counts.nodes} affected nodes, ${latest.counts.passes} passing rules, ${latest.counts.incomplete} needing review`; document.querySelector('#error').textContent = ''; recordUsage(localStorage, document.querySelector('#optout').checked); } catch (error) { document.querySelector('#error').textContent = error.message; } });
-    document.querySelector('#download').addEventListener('click', () => { if (!latest) return; const blob = new Blob([reportAsText(latest)], { type: 'text/plain' }); const link = document.createElement('a'); link.href = URL.createObjectURL(blob); link.download = `accessibility-evidence-${latest.date}.txt`; link.click(); URL.revokeObjectURL(link.href); });
+    import { buildReport, reportAsText, compareReports, comparisonAsText, formatImpact } from "./calc.mjs";
+    import { recordUsage } from "./usage.mjs";
+
+    const afterEl = document.querySelector("#after");
+    const beforeEl = document.querySelector("#before");
+    const reportEl = document.querySelector("#report");
+    const statsEl = document.querySelector("#stats");
+    const errorEl = document.querySelector("#error");
+    const rememberEl = document.querySelector("#remember");
+    const optOutEl = document.querySelector("#optout");
+    const draftKey = "shopify-a11y-evidence-draft";
+    let latestText = "";
+    let latestName = "accessibility-evidence";
+
+    function optedOut() { return optOutEl.checked; }
+    function count(event) { recordUsage(localStorage, optedOut(), event); }
+
+    function parseJson(value, label) {
+      const trimmed = String(value || "").trim();
+      if (!trimmed) throw new Error(`${label} JSON is empty.`);
+      try {
+        return JSON.parse(trimmed);
+      } catch {
+        throw new Error(`${label} JSON is not valid JSON.`);
+      }
+    }
+
+    function rememberDraft() {
+      if (!rememberEl.checked) {
+        localStorage.removeItem(draftKey);
+        return;
+      }
+      try {
+        localStorage.setItem(draftKey, JSON.stringify({ after: afterEl.value, before: beforeEl.value }));
+      } catch { /* local drafts are optional */ }
+    }
+
+    function restoreDraft() {
+      try {
+        const draft = JSON.parse(localStorage.getItem(draftKey) || "null");
+        if (!draft || typeof draft !== "object") return;
+        if (typeof draft.after === "string") afterEl.value = draft.after;
+        if (typeof draft.before === "string") beforeEl.value = draft.before;
+        rememberEl.checked = true;
+      } catch {
+        localStorage.removeItem(draftKey);
+      }
+    }
+
+    function showRecord(text, stats, filename) {
+      latestText = text;
+      latestName = filename;
+      reportEl.textContent = text;
+      statsEl.innerHTML = stats;
+      errorEl.textContent = "";
+    }
+
+    function afterStats(report) {
+      return `<div class="stats">
+        <div class="stat"><span>Violation rules</span><b>${report.counts.violations}</b></div>
+        <div class="stat"><span>Affected nodes</span><b>${report.counts.nodes}</b></div>
+        <div class="stat"><span>Passing rules</span><b>${report.counts.passes}</b></div>
+        <div class="stat"><span>Needs review</span><b>${report.counts.incomplete}</b></div>
+      </div><p class="muted">Impact: ${formatImpact(report.impact)}. This is a record of the supplied automated test, not a compliance determination.</p>`;
+    }
+
+    function comparisonStats(comparison) {
+      const delta = comparison.counts.nodeDelta;
+      const node = delta === 0 ? "unchanged" : delta < 0 ? `${-delta} fewer` : `${delta} more`;
+      return `<div class="stats">
+        <div class="stat"><span>Resolved rules</span><b>${comparison.counts.resolved}</b></div>
+        <div class="stat"><span>Still present</span><b>${comparison.counts.remaining}</b></div>
+        <div class="stat"><span>New rules</span><b>${comparison.counts.introduced}</b></div>
+        <div class="stat"><span>Affected nodes</span><b>${node}</b></div>
+      </div><p class="muted">Impact ${formatImpact(comparison.impact.before)} → ${formatImpact(comparison.impact.after)}. Diff of two supplied exports only — not a compliance determination.</p>`;
+    }
+
+    document.querySelector("#generate").addEventListener("click", () => {
+      try {
+        const report = buildReport(parseJson(afterEl.value, "After"));
+        showRecord(reportAsText(report), afterStats(report), `accessibility-evidence-${report.date}`);
+        rememberDraft();
+        count("report_generated");
+      } catch (error) {
+        errorEl.textContent = error.message;
+      }
+    });
+
+    document.querySelector("#compare").addEventListener("click", () => {
+      try {
+        const after = buildReport(parseJson(afterEl.value, "After"));
+        const before = buildReport(parseJson(beforeEl.value, "Before"));
+        const comparison = compareReports(before, after);
+        showRecord(
+          comparisonAsText(comparison),
+          comparisonStats(comparison),
+          `accessibility-comparison-${before.date}-to-${after.date}`,
+        );
+        rememberDraft();
+        count("comparison_generated");
+      } catch (error) {
+        errorEl.textContent = error.message;
+      }
+    });
+
+    document.querySelector("#download").addEventListener("click", () => {
+      if (!latestText) {
+        errorEl.textContent = "Generate a record or comparison first.";
+        return;
+      }
+      const link = document.createElement("a");
+      link.href = URL.createObjectURL(new Blob([latestText], { type: "text/plain" }));
+      link.download = `${latestName}.txt`;
+      link.click();
+      URL.revokeObjectURL(link.href);
+      count("report_downloaded");
+    });
+
+    document.querySelector("#copy").addEventListener("click", async () => {
+      if (!latestText) {
+        errorEl.textContent = "Generate a record or comparison first.";
+        return;
+      }
+      try {
+        await navigator.clipboard.writeText(latestText);
+        document.querySelector("#copy").textContent = "Copied";
+        count("report_copied");
+        setTimeout(() => { document.querySelector("#copy").textContent = "Copy record"; }, 1500);
+      } catch {
+        errorEl.textContent = "Copy is unavailable. Use Download .txt instead.";
+      }
+    });
+
+    rememberEl.addEventListener("change", rememberDraft);
+    restoreDraft();
   </script>
-</body></html>
+</body>
+</html>

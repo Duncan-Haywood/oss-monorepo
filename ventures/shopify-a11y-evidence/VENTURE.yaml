@@ -1,5 +1,5 @@
 name: shopify-a11y-evidence
-description: A browser-local accessibility evidence report for Shopify merchants and agencies using axe-core JSON exports.
+description: A browser-local accessibility evidence report for Shopify merchants and agencies using axe-core JSON exports, including a before/after remediation comparison.
 stage: prototype
 owner: duncan
 hypotheses:
