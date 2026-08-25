@@ -166,6 +166,9 @@ workflows:
     step: uses amondnet/vercel-action
     gates:
     - ${{ vars.VERCEL_DEPLOY == 'true' }}
+- workflow: shopify-a11y-evidence-ci.yml
+  classification: none
+  publishes: []
 - workflow: shopify-fee-calculator-ci.yml
   classification: none
   publishes: []
