@@ -1,7 +1,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 
-import { loadQuote, calculate, overrunScenarios } from "./calc.mjs";
+import { loadQuote, calculate, overrunScenarios, QUOTE_PRESETS } from "./calc.mjs";
 
 test("calculates hidden time and target price", () => {
   const quote = loadQuote({
@@ -69,4 +69,11 @@ test("calculates transparent overrun sensitivity without changing the quote", ()
   assert.deepEqual(overrunScenarios(quote, report).map((scenario) => scenario.total_hours), [38.5, 43.75, 52.5]);
   assert.equal(overrunScenarios(quote, report)[0].effective_hourly_rate, 49.87012987012987);
   assert.equal(report.total_hours, 35);
+});
+
+test("presets are valid editable starting points", () => {
+  for (const preset of Object.values(QUOTE_PRESETS)) {
+    const quote = loadQuote({ currency: "USD", ...preset });
+    assert.ok(calculate(quote).total_hours > 0);
+  }
 });

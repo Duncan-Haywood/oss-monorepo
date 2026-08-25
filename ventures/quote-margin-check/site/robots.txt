@@ -1,2 +1,3 @@
 User-agent: *
 Allow: /
+Sitemap: https://duncan-haywood.github.io/monorepo-projects/ventures/quote-margin-check/site/sitemap.xml
