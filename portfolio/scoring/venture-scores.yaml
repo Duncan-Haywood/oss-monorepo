@@ -48,6 +48,33 @@ scoring_rule: >-
   near-zero-price norm is a real property of the business on any host.
 
 ventures:
+  - slug: 3pl-quote-normalizer
+    scores:
+      ai_leverage: 2
+      autonomous_ops: 10
+      time_to_revenue: 7
+      gross_margin: 10
+      defensibility: 4
+      distribution: 6
+    composite: 6.5
+    floor: 2
+    floor_dimension: ai_leverage
+    floor_note: >-
+      The first slice is deterministic arithmetic on a rate card. There is no
+      model in the loop, and adding one would not make a 3PL quote easier to
+      check against the PDF the warehouse sent.
+    basis: >-
+      Graduated on 2026-08-25 as a browser-local 3PL quote normalizer. The
+      product compares receiving, storage, pick/pack, and minimums against
+      in-house fulfillment at a volume the merchant already knows. Defensibility
+      4: the method is a transparent cost roll-up, not a proprietary data
+      network. Distribution 6: "3PL quote comparison" and "fulfillment cost
+      calculator" are searchable operator queries, less saturated than
+      marketplace-fee tools.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: Deterministic estimates only; users must verify provider quotes and business assumptions.
   - slug: shopify-permission-drift
     scores:
       ai_leverage: 2
