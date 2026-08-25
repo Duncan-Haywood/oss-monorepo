@@ -307,6 +307,30 @@ class ChecksTest(unittest.TestCase):
             main([".", "--max-files", "0"])
         self.assertEqual(result.exception.code, 2)
 
+    def test_cli_max_bytes_rejects_oversized_file_before_parsing(self):
+        with tempfile.TemporaryDirectory() as directory:
+            invoice_path = Path(directory) / "large.json"
+            invoice_path.write_text(json.dumps(VALID))
+            output = io.StringIO()
+            with contextlib.redirect_stdout(output):
+                self.assertEqual(main([str(invoice_path), "--max-bytes", "10", "--format", "json"]), 2)
+            report = json.loads(output.getvalue())
+            self.assertEqual(report["files_checked"], 0)
+            self.assertIn("exceeds --max-bytes 10", report["read_errors"][0]["error"])
+
+    def test_cli_max_bytes_limits_stdin_without_parsing(self):
+        output = io.StringIO()
+        with patch("einvoice_preflight.cli.sys.stdin", io.StringIO(json.dumps(VALID))), contextlib.redirect_stdout(output):
+            self.assertEqual(main(["-", "--max-bytes", "10", "--format", "json"]), 2)
+        report = json.loads(output.getvalue())
+        self.assertEqual(report["read_errors"][0]["file"], "stdin.json")
+        self.assertIn("exceeding --max-bytes 10", report["read_errors"][0]["error"])
+
+    def test_cli_rejects_non_positive_max_bytes(self):
+        with self.assertRaises(SystemExit) as result:
+            main([".", "--max-bytes", "0"])
+        self.assertEqual(result.exception.code, 2)
+
     def test_cli_batch_flags_duplicate_invoice_numbers_without_disclosing_number(self):
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)
