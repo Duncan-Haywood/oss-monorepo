@@ -208,6 +208,14 @@ products:
         note: >-
           Shipped a local commercial cleaning bid calculator with a copyable
           proposal summary; public URL remains owner-gated.
+      - as_of: 2026-08-25
+        signals:
+          live_url_visitors: null
+          local_events_reported: 0
+        note: >-
+          Added one-time project work (strip and wax, carpet extraction,
+          initial clean) kept off the monthly price, plus a first-month
+          invoice and named Other-space rows. Public URL remains owner-gated.
   - slug: shopify-fee-calculator
     surface: static-page-in-repo
     readings:

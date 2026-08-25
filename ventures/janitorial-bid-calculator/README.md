@@ -40,7 +40,9 @@ who price off the raw wage are short before they start.
    footage, production rate (sq ft per cleaner-hour), and cleanings per week.
    Hours per visit = square feet ÷ production rate. Monthly hours multiply that
    by the weekly frequency and by 52/12 weeks — not 4, which understates the
-   month by about 8%, more than the margin on a typical contract.
+   month by about 8%, more than the margin on a typical contract. **Other
+   space** rows take a custom name so a server room or vacant wing does not
+   show up as `Area N`.
 2. **Loaded labor.** Hourly wage × (1 + payroll burden %).
 3. **Other direct cost.** Supplies per square foot per month, plus equipment,
    travel, and anything else billed to the job monthly.
@@ -53,9 +55,17 @@ It then reports the numbers a contractor sanity-checks a bid against: price per
 square foot per month, effective hourly billing rate, annual contract value,
 the labor split across spaces, and the **walk-away price** — total monthly cost,
 below which the job makes nothing. Entering a price already on the table scores
-it against the same cost base and says plainly whether it is under water. **Copy
-bid summary** turns the result into a plain-text draft with the price, annual
-value, service hours, and service areas ready to paste into a proposal.
+it against the same cost base and says plainly whether it is under water.
+
+**One-time project work** — strip and wax, carpet extraction, an initial deep
+clean, post-construction, or a named custom job — is priced with the same
+loaded wage, overhead, and margin, then kept off the monthly contract. Hours
+are square feet ÷ production rate × coats or passes, plus materials. The
+result is a one-time project total and a **first-month invoice** (monthly
+service + project work) so the contractor does not amortize a floor job across
+eleven months they will never recoup. **Copy bid summary** turns the result
+into a plain-text draft with the monthly price, the project lines, the
+first-month invoice, and the service areas ready to paste into a proposal.
 
 The arithmetic lives in [`calc.mjs`](calc.mjs) with no DOM or network
 dependency, so it is testable and auditable on its own. See
@@ -63,10 +73,10 @@ dependency, so it is testable and auditable on its own. See
 
 ## Production rates
 
-The space types ship with common ballpark rates as a starting point. **They are
-not an industry standard, a benchmark, or a guarantee.** Real rates depend on
-the crew, the equipment, the layout, how congested the space is, and how much
-is actually done on each visit. Every rate is editable, and picking a space
+The space types and project types ship with common ballpark rates as a starting
+point. **They are not an industry standard, a benchmark, or a guarantee.** Real
+rates depend on the crew, the equipment, the layout, soil, finish buildup, and
+how much is actually done on each visit. Every rate is editable, and picking a
 type never overwrites a rate the contractor has already changed — a rate timed
 from their own crew is worth more than any published figure.
 
@@ -80,16 +90,16 @@ automatically when the browser sends Do Not Track or Global Privacy Control.
 See [`usage.mjs`](usage.mjs) and [`portfolio/usage/`](../../portfolio/usage/README.md).
 
 Events counted: `bid_calculated`, `area_added`, `area_removed`,
-`proposed_price_compared`, `summary_copied`.
+`proposed_price_compared`, `summary_copied`, `project_added`,
+`project_priced`, `project_removed`.
 
 ## Limitations
 
 - Single currency and no tax handling; the contractor enters their own numbers.
-- One periodic-service model. Project work (strip and wax, carpet extraction,
-  post-construction) is not priced separately yet.
-- "Other space" rows are labelled `Area N` rather than a custom name.
 - Day porter or fixed-headcount contracts are not modelled; this prices from
   production rates, not from a scheduled shift.
+- Project-work rates and coat counts are starter figures. Real strip, extract,
+  and initial-clean times depend on soil, finish buildup, furniture, and access.
 
 ## Disclaimer
 
