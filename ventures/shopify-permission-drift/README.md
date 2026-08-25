@@ -2,9 +2,18 @@
 
 Shopify agencies and merchants can compare two customer-authorized app inventories and see exactly which scopes, webhook topics, or authorization states changed.
 
-The tool is a local, read-only evidence record. It does not connect to Shopify,
+After using this, you can now hand a merchant a before-and-after permission
+record in one page load, which used to take a side-by-side JSON diff or a
+local Python run.
+
+Open `site/index.html` in a browser (or serve the `site/` directory). The
+page loads the shipped fixture so you can see a changed record immediately,
+then paste or file-load your own exports. Comparison, the JSON report, and
+the ticket summary all stay in the browser.
+
+The same comparison is a local, read-only CLI. It does not connect to Shopify,
 request credentials, inspect orders or customers, declare an app unsafe, or
-recommend removing a vendor. Start with the included fixture:
+recommend removing a vendor. From the command line:
 
 ```bash
 python3 src/permission_drift.py examples/before.json examples/after.json
@@ -45,11 +54,16 @@ does not query Shopify or infer either value from an app's name.
 2. Keep exports, reports, and the optional usage log in customer-controlled storage.
 3. Review every change with the merchant. The report is evidence, not a security certification or Shopify policy interpretation.
 
-Usage is opt-in with `--usage-log`; it records only an event name, day, and
-aggregate finding count. It never records store names, app names, scopes,
-webhooks, customer data, IP addresses, or identifiers. Omit the flag to disable
-it entirely. There are no accounts, cookies, network calls, paid APIs, or
+Usage is opt-in. The CLI records only when you pass `--usage-log` — an event
+name, day, and aggregate finding count. The browser page keeps the same shape
+in `localStorage` (event name and day only) and honors the on-page opt-out
+plus Do Not Track / Global Privacy Control. Neither surface records store
+names, app names, scopes, webhooks, customer data, IP addresses, or
+identifiers. There are no accounts, cookies, network calls, paid APIs, or
 analytics vendors.
+
+Optional [GitHub Sponsors](https://github.com/sponsors/Duncan-Haywood) never
+changes what the tool does.
 
 **No warranty.** This tool is provided free and as-is, without warranty of any
 kind, express or implied. It is not legal, financial, security, or compliance
