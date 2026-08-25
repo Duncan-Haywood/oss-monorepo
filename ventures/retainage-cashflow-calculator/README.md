@@ -1,6 +1,6 @@
 # Construction Retainage Calculator
 
-If a general contractor or customer is holding retainage, this free browser tool shows how much cash is tied up, how much remains unpaid, and what that delay costs under your own carrying-cost assumption. It also creates a factual payment-status email you can review and send yourself.
+If a general contractor or customer is holding retainage, this free browser tool shows how much cash is tied up, how much remains unpaid, and what that delay costs under your own carrying-cost assumption. It also compares the modeled cash impact of another 30, 60, or 90 days of delay and creates a factual payment-status email you can review and send yourself.
 
 After using this, you can now quantify the cash tied up in an unpaid construction project, prepare a clear follow-up, and download a plain-text worksheet for your project records, which used to take a spreadsheet and manual arithmetic.
 
