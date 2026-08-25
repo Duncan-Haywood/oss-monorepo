@@ -84,6 +84,7 @@ ventures:
       defensibility: 4
       distribution: 6
     composite: 6.5
+    rater_b: null
     floor: 2
     floor_dimension: ai_leverage
     floor_note: >-
@@ -909,3 +910,38 @@ ventures:
       Pass: output is a planning floor from user-supplied assumptions, not
       financial advice or a guarantee of income, tax treatment, or contract
       enforceability; all data stays in the browser.
+
+  - slug: water-heater-bid-calculator
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 7
+      gross_margin: 10
+      defensibility: 5
+      distribution: 7
+    composite: 6.667
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      There is no AI anywhere in the product. The value is a domain model —
+      heater type, location, vent, and gas or electrical path — that is
+      arithmetic, and adding inference to it would only make the result
+      less checkable.
+    basis: >-
+      Graduated on 2026-08-25 as a browser-local residential water-heater
+      replacement bid calculator. Scored with the other trade bid calculators:
+      defensibility 5 because the model encodes how the trade actually
+      estimates labor (tank vs tankless, garage vs attic, existing 1/2-inch
+      vs 3/4-inch upsize) rather than restating a published fee schedule;
+      distribution 7 because "how much to replace a water heater" and
+      "tankless water heater install cost" are bought by an operator with a
+      real install on the line.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Pass: the output is arithmetic on the installer's own inputs, never a
+      recommended price, a first-hour rating they can stamp, or a code ruling.
+      Starting hours and material dollars are labelled takeoff points rather
+      than a standard, and nothing the user enters leaves the browser.
