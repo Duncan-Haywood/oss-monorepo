@@ -391,7 +391,16 @@ def _checklist_report(
         # Validator fixes may include calculated amounts; keep the action but not the value.
         return re.sub(r"\b\d+(?:\.\d+)?\b", "[value]", text)
 
-    lines = ["E-invoice preflight repair checklist", ""]
+    observations = sum(len(errors) for _, errors in reports)
+    lines = [
+        "E-invoice preflight repair checklist",
+        "",
+        f"Status: {'FAIL' if observations or read_errors else 'PASS'}",
+        f"Checked: {len(reports)} invoice(s)",
+        f"Observations: {observations}",
+        f"Read errors: {len(read_errors)}",
+        "",
+    ]
     for path, errors in reports:
         lines.append(f"[ ] Review {path.as_posix()}")
         if not errors:

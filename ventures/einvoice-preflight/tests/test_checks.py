@@ -50,6 +50,9 @@ class ChecksTest(unittest.TestCase):
             with contextlib.redirect_stdout(output):
                 self.assertEqual(main([str(path), "--format", "checklist"]), 1)
             checklist = output.getvalue()
+            self.assertIn("Status: FAIL", checklist)
+            self.assertIn("Checked: 1 invoice(s)", checklist)
+            self.assertIn("Observations: 1", checklist)
             self.assertIn("[ ] Review invoice.json", checklist)
             self.assertIn("INV-017", checklist)
             self.assertIn("/totals/gross", checklist)
