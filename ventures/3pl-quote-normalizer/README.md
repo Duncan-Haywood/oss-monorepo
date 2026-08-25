@@ -4,7 +4,9 @@ Compare a third-party logistics quote with in-house fulfillment costs before
 you sign. Enter the rate-card lines for receiving, storage, pick and pack,
 packaging, shipping, returns, fixed fees, and minimum monthly spend. The
 browser calculates a comparable monthly total, cost per order, and an
-approximate break-even volume. Enter a second provider's normalized monthly
+approximate break-even volume based on fixed costs and the difference between
+in-house and variable 3PL cost. If in-house cannot beat variable 3PL cost, it
+reports that no crossover exists at the entered rates. Enter a second provider's normalized monthly
 total to compare two quotes at the same volume before negotiating.
 
 ## Run it

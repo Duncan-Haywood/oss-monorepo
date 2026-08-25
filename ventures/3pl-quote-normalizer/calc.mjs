@@ -20,7 +20,13 @@ export function calculate(input) {
   const delta = inHouse - quote.total;
   const perOrder = orders ? quote.total / orders : 0;
   const inHouseRate = n(input.inHousePerOrder, 13);
-  return { orders, quote, inHouse, delta, perOrder, breakEvenOrders: inHouseRate ? quote.total / inHouseRate : 0, minimumApplied: quote.total > quote.subtotal, winner: delta >= 0 ? "3PL" : "in-house", components: ["receiving", "storage", "pickPack", "packaging", "shipping", "returns", "fixed"] };
+  const fixedCosts = quote.storage + quote.fixed;
+  const variableCosts = quote.receiving + quote.pickPack + quote.packaging + quote.shipping + quote.returns;
+  const variablePerOrder = orders ? variableCosts / orders : 0;
+  const effectiveFixedCosts = Math.max(fixedCosts, quote.total - variableCosts);
+  const breakEvenMargin = inHouseRate - variablePerOrder;
+  const breakEvenOrders = breakEvenMargin > 0 ? effectiveFixedCosts / breakEvenMargin : null;
+  return { orders, quote, inHouse, delta, perOrder, variablePerOrder, fixedCosts: effectiveFixedCosts, breakEvenOrders, minimumApplied: quote.total > quote.subtotal, winner: delta >= 0 ? "3PL" : "in-house", components: ["receiving", "storage", "pickPack", "packaging", "shipping", "returns", "fixed"] };
 }
 
 export function money(value) {
@@ -60,7 +66,7 @@ export function summary(result) {
     `In-house estimate: ${money(result.inHouse)}`,
     `Difference (in-house minus 3PL): ${money(result.delta)}`,
     `True 3PL cost per order: ${money(result.perOrder)}`,
-    `Break-even volume: about ${Math.ceil(result.breakEvenOrders)} orders/month`,
+    `Break-even volume: ${result.breakEvenOrders === null ? "none at this in-house rate" : `about ${Math.ceil(result.breakEvenOrders)} orders/month`}`,
     "",
     "Line items",
     `Receiving: ${money(result.quote.receiving)}`,
