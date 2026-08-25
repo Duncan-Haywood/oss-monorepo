@@ -1,25 +1,50 @@
 # E-invoice preflight
 
 **Validate a structured invoice before submission.** This free local CLI checks
-a small, transparent JSON invoice shape for missing fields and arithmetic
-mistakes, then prints rule IDs and plain-language fixes. It is aimed at
-bookkeepers and ERP integrators searching for an e-invoice preflight check.
+a small, transparent JSON or UBL XML invoice shape for missing fields and
+arithmetic mistakes, then prints rule IDs and plain-language fixes. It is aimed
+at bookkeepers and ERP integrators searching for an e-invoice preflight check.
 
 ```sh
 cd ventures/einvoice-preflight
 PYTHONPATH=src python3 -m einvoice_preflight examples/valid-invoice.json
 PYTHONPATH=src python3 -m einvoice_preflight examples/valid-invoice.json --format json
 PYTHONPATH=src python3 -m einvoice_preflight examples/valid-invoice.json --format sarif > preflight.sarif
+PYTHONPATH=src python3 -m einvoice_preflight ./invoices/ --format github
+PYTHONPATH=src python3 -m einvoice_preflight ./invoices/ --format markdown > review.md
+PYTHONPATH=src python3 -m einvoice_preflight ./invoices/ --format html > review.html
+PYTHONPATH=src python3 -m einvoice_preflight ./invoices/ --format csv > triage.csv
+PYTHONPATH=src python3 -m einvoice_preflight ./invoices/ --format junit > preflight.junit.xml
+PYTHONPATH=src python3 -m einvoice_preflight ./invoices/ --format summary
+PYTHONPATH=src python3 -m einvoice_preflight ./invoices/ --format remediation
+PYTHONPATH=src python3 -m einvoice_preflight ./invoices/ --format checklist
+PYTHONPATH=src python3 -m einvoice_preflight ./invoices/ --max-files 500 --format json
+PYTHONPATH=src python3 -m einvoice_preflight ./invoices/ --max-files 500 --max-bytes 1048576 --format json
 cat invoice.json | PYTHONPATH=src python3 -m einvoice_preflight - --format json
 PYTHONPATH=src python3 -m einvoice_preflight examples/valid-invoice.json --usage-file ~/.local/state/einvoice-preflight/usage.json
+PYTHONPATH=src python3 -m einvoice_preflight ./invoices/ --format json
+PYTHONPATH=src python3 -m einvoice_preflight ./invoices/ --format jsonl
+PYTHONPATH=src python3 -m einvoice_preflight ./invoices/ --format json --max-files 500
+PYTHONPATH=src python3 -m einvoice_preflight invoice.json --max-bytes 1048576 --format json
+PYTHONPATH=src python3 -m einvoice_preflight invoice.xml --format json
+PYTHONPATH=src python3 -m einvoice_preflight ./invoices/ --format sarif --output preflight.sarif
 ```
 
 For an installed command, run `python3 -m pip install .` from this directory,
-then use `python3 -m einvoice_preflight invoice.json` from anywhere. Pass `-`
-as the filename to read one JSON invoice from standard input, which is useful
-for ERP adapters and CI pipelines. SARIF reports use `stdin.json` as the
-artifact name for piped input.
-
+then use `einvoice-preflight invoice.json` from anywhere. The installed command
+also supports `einvoice-preflight --version` for CI logs and adapter diagnostics.
+Pass `-`
+as the filename to read one JSON or UBL XML invoice from standard input, which
+is useful for ERP adapters and CI pipelines. SARIF reports use `stdin.json` as
+the artifact name for piped input. Directories are scanned recursively for both
+`.json` and `.xml` files. XML input maps common UBL Invoice elements into the
+same checks; it is not a full Peppol or EN 16931 conformance validator. Use
+`--max-files N` in CI or ERP jobs to refuse a directory scan when more than `N`
+invoice files are present. This bounds accidental scans of a broad working
+tree; the command exits `2` without reading any invoice contents.
+Use `--max-bytes N` to refuse an individual file or stdin stream larger than
+`N` bytes before parsing it. This provides a memory and denial-of-service guard
+for CI and ERP jobs; oversized inputs are reported as read errors and exit `2`.
 The tool never submits an invoice, chooses a tax rate, contacts a tax
 authority, or claims that an invoice is legally valid. It only checks the
 document facts represented in the input schema. The user remains responsible
@@ -27,12 +52,18 @@ for selecting the correct format, tax treatment, and submission process.
 
 ## Input shape
 
-The supported v0 shape is intentionally small and format-neutral:
+The supported v0 JSON shape is intentionally small and format-neutral. UBL XML
+input maps common `Invoice`, `InvoiceLine`, party, tax, and monetary-total
+elements into this shape. When an invoice contains multiple UBL `TaxTotal`
+elements, their `TaxAmount` values are added to obtain the invoice tax total.
+This keeps split tax schemes from being silently ignored; it is still an
+arithmetic check, not a tax-law determination:
 
 ```json
 {
   "invoice_number": "INV-1001",
   "issue_date": "2026-08-24",
+  "due_date": "2026-09-23",
   "currency": "EUR",
   "supplier": {"id": "DE123", "name": "Supplier GmbH"},
   "customer": {"id": "DE456", "name": "Customer GmbH"},
@@ -41,19 +72,118 @@ The supported v0 shape is intentionally small and format-neutral:
 }
 ```
 
-Amounts use the currency's major unit and are compared to cent precision.
-`--format json` is suitable for an ERP adapter. `--format sarif` emits SARIF
+`due_date` is optional. When supplied, it must use `YYYY-MM-DD` and cannot be
+earlier than `issue_date`; this is a date-shape and document-consistency check,
+not a judgment about payment terms or legal requirements. UBL `DueDate` is
+mapped into the same optional field.
+
+Amounts use the currency's major unit and are compared to cent precision. Each
+line must include a numeric `net` amount matching quantity times unit price. Each
+line's tax is calculated from its rounded line net and the supplied
+`tax_percent`; the invoice tax total must equal the sum of those per-line
+rounded amounts. This reports arithmetic discrepancies only and does not
+decide whether a tax percentage is legally correct.
+`--format json` is suitable for an ERP adapter. It always returns the same
+envelope, whether the input is one file or a directory: `status`,
+`files_checked`, `files_failed`, `observations`, per-file `reports`, and
+`read_errors`. Each flattened finding in `errors` includes its source `file` as
+well as the rule, message, fix, and JSON Pointer, so a batch adapter can route a
+finding without joining against `reports`. Each `reports` item also includes an explicit `status` (`pass` or
+`fail`) and `observations` count, so adapters can render a batch queue without
+inferring state from the errors array. Each finding also includes a `path` JSON Pointer (for example,
+`/totals/gross`), so adapters can focus a field-level repair UI without
+reimplementing the rules. `--format sarif` emits SARIF
 2.1.0 for GitHub code scanning, CI annotations, and
-editor integrations. It contains the rule IDs, fixes, and the local invoice
-filename, never invoice fields or line contents. Both formats exit `1` when
-any check fails and `2` for an unreadable input file.
+editor integrations. It contains the rule IDs, fixes, JSON Pointer paths, and the local invoice
+filename, never invoice fields or line contents. Unreadable files are emitted as `INV-READ`
+results so a CI consumer cannot mistake a skipped file for a clean check. Both formats exit `1` when
+any check fails and `2` for an unreadable input file. Pass a directory to scan
+all `.json` files recursively; batch JSON includes per-file errors and batch
+SARIF uses paths relative to the input directory. An empty directory is an
+input error and exits `2`. Batch scans also flag duplicate `invoice_number`
+values as `INV-019`; the number itself is never emitted.
+JSON output uses the same versioned summary fields for single files and
+directories: `schema_version` (currently `1`), `status`, `exit_code`,
+`files_checked`, `files_failed`, `observations`, `rules`, `fixes`, and `read_errors`.
+`exit_code` mirrors the process result (`0` pass, `1` findings, `2` read/input
+errors), so an adapter can handle captured output without reimplementing exit
+logic. `fixes` is a sorted, privacy-safe remediation queue with one item per
+rule, its occurrence count, check message, and recommended fix. Single-file output also includes `file` and `errors`; directory output
+includes the per-file `reports` array. Rule counts let a CI or ERP adapter show
+a compact defect summary without parsing human text.
+`--format jsonl` emits one compact JSON object per invoice (or read error),
+which is suitable for streaming directory results into CI or an ERP adapter
+without parsing an aggregate document. Each record has `schema_version`,
+`status`, `file`, `observations`, `fixes`, and `errors`; read-error records also
+have `error`. `fixes` is the per-invoice remediation queue grouped by rule, with
+occurrence counts, the check message, and recommended fix. The line-oriented
+mode uses the same privacy boundary and exit codes as JSON.
+`--format markdown` produces a reviewable report with filenames, rule IDs,
+observations, and fixes for single files and recursive directory scans. Batch
+reports also include a finding summary grouped by rule, so repeated defects can
+be triaged before reviewing individual invoices. Markdown-sensitive local names
+and messages are escaped in the report.
+`--format github` emits GitHub Actions `::error` annotations for each finding and
+read error, so a CI job can place defects directly in its Checks UI. It uses the
+same privacy boundary as SARIF: only the local filename, rule ID, observation,
+and fix are emitted, never invoice numbers or line contents. It exits `1` for
+findings and `2` for read errors.
+`--format csv` produces one spreadsheet row per finding, plus explicit pass and
+read-error rows. Its stable columns are `file`, `status`, `rule`, `path`,
+`message`, `fix`, and `error`, making it suitable for triage queues without
+ exposing invoice values or contents.
+`--format junit` produces a JUnit XML report for CI dashboards. Each invoice is
+one testcase; failed checks are failures and unreadable files are errors. The
+report contains only local filenames, rule IDs, JSON Pointer paths, observations,
+ and fixes, never invoice values or line contents. Directory scans do not follow
+symbolic links; linked JSON files are reported as read errors so a scan stays
+bounded to its selected directory.
+`--format html` produces a standalone browser report with summary cards, finding
+counts, and per-file review sections. It has the same privacy boundary as the
+other report formats and can be opened locally without a server.
+`--format summary` prints a compact batch result for CI logs, followed by sorted
+rule counts when findings exist. It includes counts and rule IDs only, never
+invoice values, numbers, or line contents.
+`--format remediation` emits a versioned JSON queue grouped by invoice and rule.
+Each item includes the local file, rule ID, occurrence count, distinct JSON
+Pointer paths, check message, and recommended fix. This is intended for ERP or
+ticket adapters that need a repair queue without parsing the full finding
+report; it never includes invoice values, numbers, or line contents. Read errors
+remain in `read_errors`, and the output uses exit code `2` for those errors.
+`--format checklist` emits a plain-text, copyable repair checklist grouped by
+local filename and rule. It starts with status and counts, making it useful for
+handing a complete batch triage summary to a reviewer without asking them to
+parse JSON. It does not modify invoices or decide whether they may be submitted.
+Use `--output PATH` with any format to write the report atomically to a local
+file instead of stdout. Parent directories are created when needed. A failed
+write returns exit code `2` and never replaces an existing report with a partial
+file.
+
+`--max-files N` accepts a positive integer, including the usual `+N` CLI
+notation, and rejects zero, negative, or non-numeric values before any invoice
+is read.
+`--max-bytes N` uses the same positive-integer syntax and rejects zero,
+negative, or non-numeric values before any invoice is read. It refuses an
+oversized regular file before reading it and reads stdin only through `N+1`
+bytes, returning a structured exit-2 read error when the limit is exceeded.
+
+Machine-readable formats remain valid JSON, JSONL, SARIF, CSV, JUnit, Markdown,
+or HTML when a directory is empty or a `--max-files` limit refuses the scan.
+These input errors are reported in the selected format and the command exits
+`2`, so CI and ERP adapters do not need to special-case an unstructured stderr
+or stdout message.
 
 ## Privacy and usage
 
 Everything is local. Invoice contents are never uploaded or retained by this
-tool, including when read from standard input. Usage counting is opt-in with `--usage-file` and stores only aggregate
-event counts, never invoice data, paths, IPs, or identifiers. Omit the flag to
-disable it. There are no accounts, cookies, or analytics vendors.
+tool, including when read from standard input. Usage counting is opt-in with
+`--usage-file` and stores only aggregate event counts, never invoice data,
+paths, IPs, or identifiers. It records `invoice_preflight_attempted` once per
+command invocation and `invoice_preflight_checked` once per successfully parsed
+invoice, so failed input is not silently missing from adoption signals. Usage
+recording is best effort and never changes
+the validation result if its state file cannot be read or written. Omit the
+flag to disable it. There are no accounts, cookies, or analytics vendors.
 
 ## Safety boundary
 
