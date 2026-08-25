@@ -82,6 +82,9 @@ workflows:
 - workflow: etsy-profit-calculator-ci.yml
   classification: none
   publishes: []
+- workflow: fireplace-insert-bid-calculator-ci.yml
+  classification: none
+  publishes: []
 - workflow: forge-surface-reachability-ci.yml
   classification: none
   publishes: []
