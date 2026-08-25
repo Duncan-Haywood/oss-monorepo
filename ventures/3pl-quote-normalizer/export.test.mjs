@@ -1,7 +1,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import { calculate } from "./calc.mjs";
-import { exportCsv } from "./export.mjs";
+import { exportComparisonCsv, exportCsv } from "./export.mjs";
 
 test("exports the calculated quote and review safeguard as CSV", () => {
   const result = calculate({
@@ -29,4 +29,12 @@ test("quotes CSV values and preserves input warnings", () => {
 
 test("rejects an incomplete result instead of creating a misleading file", () => {
   assert.throws(() => exportCsv(null), { name: "TypeError" });
+});
+
+test("exports a named comparison and optional target as CSV", () => {
+  const csv = exportComparisonCsv({ first: 1200, second: 1350, cheaper: "first", difference: 150, annualDifference: 1800, equal: false, target: 1250, firstWithinTarget: true, secondWithinTarget: false }, "Northstar 3PL", "Harbor Fulfillment");
+  assert.match(csv, /"Northstar 3PL","1200\.00"/);
+  assert.match(csv, /"Lower quote","Northstar 3PL"/);
+  assert.match(csv, /"First within target","yes"/);
+  assert.match(csv, /"Review note","Verify every rate, assumption/);
 });
