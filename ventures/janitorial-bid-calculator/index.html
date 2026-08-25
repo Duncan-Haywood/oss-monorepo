@@ -7,7 +7,7 @@
   <meta name="description" content="Price a commercial cleaning contract from production rates: labor hours per visit, payroll burden, supplies, overhead, and margin — plus price per square foot, effective hourly rate, and the walk-away number.">
   <meta property="og:title" content="Janitorial Bid Calculator">
   <meta property="og:description" content="Bid commercial cleaning the way the trade does — square feet divided by production rate — and see the margin before you send the price.">
-  <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Janitorial Bid Calculator","applicationCategory":"BusinessApplication","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"featureList":"Production-rate labor hours by area, payroll burden, supplies and overhead, monthly contract price, price per square foot, effective hourly rate, break-even walk-away price, proposed-price margin check"}</script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Janitorial Bid Calculator","applicationCategory":"BusinessApplication","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"featureList":"Production-rate labor hours by area, custom names for unlisted spaces, payroll burden, supplies and overhead, monthly contract price, price per square foot, effective hourly rate, break-even walk-away price, proposed-price margin check, copyable bid summary"}</script>
   <style>
     :root { color-scheme: light; font-family: system-ui, sans-serif; color: #1d2530; background: #eef2f7; }
     body { max-width: 1060px; margin: 0 auto; padding: 32px 18px; }
@@ -24,6 +24,13 @@
     input, select { width: 100%; box-sizing: border-box; border: 1px solid #a9b6c6; border-radius: 7px; padding: 10px; font: inherit; background: #fff; }
     .area-row { display: grid; grid-template-columns: minmax(0, 2.9fr) repeat(3, minmax(0, 1fr)) auto; gap: 8px; align-items: end; margin-bottom: 10px; }
     .area-row select, .area-row input { padding: 10px 7px; }
+    .space-cell { display: grid; gap: 6px; min-width: 0; }
+    .a-name-wrap { display: none; }
+    .area-row.is-other .a-name-wrap { display: grid; gap: 5px; }
+    /* The column header says "Space type", not "name", so the name field
+       needs a visible label on desktop or contractors will not know what
+       to type. The shared .lbl rule is sr-only; undo that here. */
+    .area-row .a-name-wrap .lbl { position: static; width: auto; height: auto; margin: 0; overflow: visible; clip-path: none; white-space: normal; font-size: .72rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; color: #5a6779; }
     .area-head { font-size: .74rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; color: #5a6779; }
     /* The header row already names the columns on desktop, so each field's own
        label is hidden visually but left in the accessibility tree — and shown
@@ -60,7 +67,7 @@
       .area-row { grid-template-columns: 1fr 1fr; border: 1px solid #e0e6ee; border-radius: 9px; padding: 11px; }
       .area-row label { font-size: .78rem; gap: 5px; }
       .area-row .lbl { position: static; width: auto; height: auto; margin: 0; overflow: visible; clip-path: none; white-space: normal; }
-      .area-row label:first-child { grid-column: 1 / -1; }
+      .area-row .space-cell { grid-column: 1 / -1; }
       .remove { grid-column: 1 / -1; }
     }
   </style>
@@ -76,7 +83,7 @@
     <div>
       <section>
         <h2>The building</h2>
-        <p class="hint">One row per space type. Production rate is cleanable square feet one cleaner covers per hour — pick a space type to start from a common figure, then replace it with a rate timed from your own crew.</p>
+        <p class="hint">One row per space type. Production rate is cleanable square feet one cleaner covers per hour — pick a space type to start from a common figure, then replace it with a rate timed from your own crew. A space that is not on the list (gym, server room, loading dock) is Other space: name it so the labor split and the copied bid say what you actually clean.</p>
         <div class="area-row area-head" aria-hidden="true">
           <span>Space type</span><span>Cleanable sq ft</span><span>Sq ft / hour</span><span>Cleans / week</span><span></span>
         </div>
@@ -140,6 +147,7 @@
 
   <script type="module">
     import { calculateBid, PRODUCTION_RATE_PRESETS } from './calc.mjs';
+    import { escapeHtml, nameForRow } from './area-name.mjs';
     import { recordUsage } from './usage.mjs';
 
     const COST_IDS = ['hourlyWage','burdenRate','suppliesPerSqFtMonth','equipmentMonthly','otherMonthly','overheadRate','targetMargin','proposedPrice'];
@@ -167,24 +175,40 @@
     const areasHost = el('areas');
     let rowSeq = 0;
 
+    function syncOtherState(row) {
+      const isOther = row.querySelector('.a-type').value === 'other';
+      row.classList.toggle('is-other', isOther);
+      row.querySelector('.a-name').placeholder = isOther
+        ? 'e.g. Server room, gym, loading dock'
+        : '';
+    }
+
     function addAreaRow(area) {
       const id = `a${++rowSeq}`;
       const row = document.createElement('div');
       row.className = 'area-row';
       row.innerHTML = `
-        <label for="${id}-type"><span class="lbl">Space type</span><select class="a-type" id="${id}-type">${TYPE_OPTIONS}</select></label>
+        <div class="space-cell">
+          <label for="${id}-type"><span class="lbl">Space type</span><select class="a-type" id="${id}-type">${TYPE_OPTIONS}</select></label>
+          <label for="${id}-name" class="a-name-wrap"><span class="lbl">Name this space</span><input class="a-name" id="${id}-name" type="text" maxlength="80" autocomplete="off" spellcheck="false"></label>
+        </div>
         <label for="${id}-sqft"><span class="lbl">Cleanable sq ft</span><input class="a-sqft" id="${id}-sqft" type="number" min="0" step="10"></label>
         <label for="${id}-rate"><span class="lbl">Sq ft cleaned per hour</span><input class="a-rate" id="${id}-rate" type="number" min="1" step="50"></label>
         <label for="${id}-freq"><span class="lbl">Cleans per week</span><input class="a-freq" id="${id}-freq" type="number" min="0" max="21" step="1"></label>
         <button type="button" class="remove">Remove<span class="lbl"> this space</span></button>`;
 
       const typeField = row.querySelector('.a-type');
+      const nameField = row.querySelector('.a-name');
       const rateField = row.querySelector('.a-rate');
       const presetIndex = PRODUCTION_RATE_PRESETS.findIndex(p => p.label === area.name);
       typeField.value = presetIndex === -1 ? 'other' : String(presetIndex);
+      // Only an Other row keeps a typed name. A preset match uses the
+      // catalog label so a later local-draft restore can still look it up.
+      nameField.value = presetIndex === -1 ? (area.name || '') : '';
       row.querySelector('.a-sqft').value = area.squareFeet;
       rateField.value = area.productionRate;
       row.querySelector('.a-freq').value = area.cleaningsPerWeek;
+      syncOtherState(row);
 
       // Picking a space type fills in its starting production rate, but never
       // overwrites a rate the contractor has already changed themselves —
@@ -192,13 +216,20 @@
       typeField.addEventListener('change', () => {
         const preset = PRODUCTION_RATE_PRESETS[Number(typeField.value)];
         if (preset && !rateField.dataset.edited) rateField.value = preset.rate;
+        syncOtherState(row);
         count('bid_calculated');
         update();
       });
       rateField.addEventListener('input', () => { rateField.dataset.edited = '1'; });
+      nameField.addEventListener('change', () => {
+        if (nameField.value.trim()) count('space_named');
+      });
       row.querySelectorAll('input').forEach(input => {
         input.addEventListener('input', update);
-        input.addEventListener('change', () => count('bid_calculated'));
+        input.addEventListener('change', () => {
+          if (input.classList.contains('a-name')) return;
+          count('bid_calculated');
+        });
       });
       row.querySelector('.remove').addEventListener('click', () => {
         row.remove();
@@ -209,12 +240,13 @@
     }
 
     function readAreas() {
-      return [...areasHost.querySelectorAll('.area-row')].map(row => {
+      return [...areasHost.querySelectorAll('.area-row')].map((row, index) => {
         const preset = PRODUCTION_RATE_PRESETS[Number(row.querySelector('.a-type').value)];
         return {
-          // An "Other" row has no name, so the calculator falls back to a
-          // stable "Area N" label rather than several identical rows.
-          name: preset ? preset.label : '',
+          // Other rows take the typed name; presets keep the catalog label so
+          // a later local-draft restore can still match the space type. A
+          // leftover name in a hidden field is ignored on purpose.
+          name: nameForRow(preset?.label, row.querySelector('.a-name').value, index),
           squareFeet: row.querySelector('.a-sqft').value,
           productionRate: row.querySelector('.a-rate').value,
           cleaningsPerWeek: row.querySelector('.a-freq').value,
@@ -277,7 +309,7 @@
         : worked
           .slice()
           .sort((a, b) => b.monthlyHours - a.monthlyHours)
-          .map(area => `<li><span>${area.name}</span><span>${area.hoursShare.toFixed(0)}% of hours</span>
+          .map(area => `<li><span>${escapeHtml(area.name)}</span><span>${area.hoursShare.toFixed(0)}% of hours</span>
             <span class="bar"><span style="width:${area.hoursShare.toFixed(1)}%"></span></span></li>`)
           .join('');
 

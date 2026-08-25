@@ -107,6 +107,19 @@ test('an area cleaned zero times a week costs nothing and is left out of the vis
   assert.equal(result.totalSquareFeet, 11000);
 });
 
+test('a custom Other-space name is what the labor split reports', () => {
+  const result = calculateBid({
+    ...office(),
+    areas: [
+      { name: 'Server room', squareFeet: 200, productionRate: 1500, cleaningsPerWeek: 5 },
+      { name: 'Loading dock', squareFeet: 800, productionRate: 6000, cleaningsPerWeek: 3 },
+    ],
+  });
+  assert.equal(result.areas[0].name, 'Server room');
+  assert.equal(result.areas[1].name, 'Loading dock');
+  assert.ok(result.areas[0].hoursShare > 0);
+});
+
 test('a nameless area still reports under a stable label', () => {
   const result = calculateBid({
     ...office(),
