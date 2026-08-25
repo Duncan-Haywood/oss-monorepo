@@ -40,8 +40,39 @@ class ChecksTest(unittest.TestCase):
         self.assertEqual(raised.exception.code, 0)
         self.assertEqual(output.getvalue(), "einvoice-preflight 0.1.0\n")
 
+    def test_cli_checklist_groups_findings_without_invoice_values(self):
+        with tempfile.TemporaryDirectory() as directory:
+            path = Path(directory) / "invoice.json"
+            invoice = json.loads(json.dumps(VALID))
+            invoice["totals"]["gross"] = 200
+            path.write_text(json.dumps(invoice))
+            output = io.StringIO()
+            with contextlib.redirect_stdout(output):
+                self.assertEqual(main([str(path), "--format", "checklist"]), 1)
+            checklist = output.getvalue()
+            self.assertIn("Status: FAIL", checklist)
+            self.assertIn("Checked: 1 invoice(s)", checklist)
+            self.assertIn("Observations: 1", checklist)
+            self.assertIn("[ ] Review invoice.json", checklist)
+            self.assertIn("INV-017", checklist)
+            self.assertIn("/totals/gross", checklist)
+            self.assertIn("Fix:", checklist)
+            self.assertNotIn("INV-1", checklist)
+            self.assertNotIn("200", checklist)
+            self.assertNotIn("238", checklist)
+
     def test_ubl_invoice_maps_to_supported_shape(self):
         self.assertEqual(check_invoice(parse_ubl_invoice(UBL_VALID)), [])
+
+    def test_ubl_multiple_tax_totals_are_added(self):
+        source = UBL_VALID.replace(
+            b'<cac:TaxTotal><cbc:TaxAmount currencyID="EUR">38</cbc:TaxAmount></cac:TaxTotal>',
+            b'<cac:TaxTotal><cbc:TaxAmount currencyID="EUR">19</cbc:TaxAmount></cac:TaxTotal>'
+            b'<cac:TaxTotal><cbc:TaxAmount currencyID="EUR">19</cbc:TaxAmount></cac:TaxTotal>',
+        )
+        invoice = parse_ubl_invoice(source)
+        self.assertEqual(invoice["totals"]["tax"], 38)
+        self.assertEqual(check_invoice(invoice), [])
 
     def test_ubl_due_date_is_preserved_for_date_checks(self):
         invoice = parse_ubl_invoice(UBL_VALID.replace(
@@ -132,7 +163,45 @@ class ChecksTest(unittest.TestCase):
             usage_path = Path(directory) / "usage.json"
             invoice_path.write_text(json.dumps(VALID))
             self.assertEqual(main([str(invoice_path), "--format", "json", "--usage-file", str(usage_path)]), 0)
-            self.assertEqual(json.loads(usage_path.read_text()), {"events": {"invoice_preflight_checked": 1}})
+            self.assertEqual(
+                json.loads(usage_path.read_text()),
+                {"events": {"invoice_preflight_attempted": 1, "invoice_preflight_checked": 1}},
+            )
+
+    def test_cli_counts_attempted_use_when_input_cannot_be_parsed(self):
+        with tempfile.TemporaryDirectory() as directory:
+            invoice_path = Path(directory) / "broken.json"
+            usage_path = Path(directory) / "usage.json"
+            invoice_path.write_text("{not-json")
+            output = io.StringIO()
+            with contextlib.redirect_stdout(output):
+                self.assertEqual(
+                    main([str(invoice_path), "--format", "json", "--usage-file", str(usage_path)]),
+                    2,
+                )
+            self.assertEqual(
+                json.loads(usage_path.read_text()),
+                {"events": {"invoice_preflight_attempted": 1}},
+            )
+
+    def test_cli_counts_attempt_once_and_checked_per_valid_invoice_in_batch(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            invoices = root / "invoices"
+            invoices.mkdir()
+            (invoices / "valid.json").write_text(json.dumps(VALID))
+            (invoices / "broken.json").write_text("{not-json")
+            usage_path = root / "usage.json"
+            output = io.StringIO()
+            with contextlib.redirect_stdout(output):
+                self.assertEqual(
+                    main([str(invoices), "--format", "json", "--usage-file", str(usage_path)]),
+                    2,
+                )
+            self.assertEqual(
+                json.loads(usage_path.read_text()),
+                {"events": {"invoice_preflight_attempted": 1, "invoice_preflight_checked": 1}},
+            )
 
     def test_cli_writes_report_to_output_file(self):
         with tempfile.TemporaryDirectory() as directory:
@@ -163,7 +232,10 @@ class ChecksTest(unittest.TestCase):
             invoice_path.write_text(json.dumps(VALID))
             usage_path.write_text(json.dumps({"events": {"invoice_preflight_checked": "unknown"}}))
             self.assertEqual(main([str(invoice_path), "--format", "json", "--usage-file", str(usage_path)]), 0)
-            self.assertEqual(json.loads(usage_path.read_text()), {"events": {"invoice_preflight_checked": 1}})
+            self.assertEqual(
+                json.loads(usage_path.read_text()),
+                {"events": {"invoice_preflight_attempted": 1, "invoice_preflight_checked": 1}},
+            )
 
     def test_usage_write_failure_does_not_fail_preflight(self):
         with tempfile.TemporaryDirectory() as directory:
@@ -247,6 +319,37 @@ class ChecksTest(unittest.TestCase):
             self.assertEqual(report["fixes"][0]["occurrences"], 2)
             self.assertNotIn("INV-1", output.getvalue())
 
+    def test_cli_remediation_groups_findings_by_file_and_rule(self):
+        with tempfile.TemporaryDirectory() as directory:
+            invoice_path = Path(directory) / "invoice.json"
+            invoice = json.loads(json.dumps(VALID))
+            invoice["totals"]["gross"] = 200
+            invoice["lines"][0]["net"] = 201
+            invoice_path.write_text(json.dumps(invoice))
+            output = io.StringIO()
+            with contextlib.redirect_stdout(output):
+                self.assertEqual(main([str(invoice_path), "--format", "remediation"]), 1)
+            report = json.loads(output.getvalue())
+            self.assertEqual(report["schema_version"], 1)
+            self.assertEqual(report["status"], "fail")
+            self.assertEqual(report["files_checked"], 1)
+            self.assertEqual({item["rule"] for item in report["items"]}, {"INV-012", "INV-017"})
+            gross = next(item for item in report["items"] if item["rule"] == "INV-017")
+            self.assertEqual(gross["occurrences"], 1)
+            self.assertEqual(gross["paths"], ["/totals/gross"])
+            self.assertNotIn("INV-1", output.getvalue())
+
+    def test_cli_remediation_reports_read_errors(self):
+        with tempfile.TemporaryDirectory() as directory:
+            output = io.StringIO()
+            with contextlib.redirect_stdout(output):
+                self.assertEqual(main([str(Path(directory)), "--format", "remediation"]), 2)
+            report = json.loads(output.getvalue())
+            self.assertEqual(report["status"], "fail")
+            self.assertEqual(report["exit_code"], 2)
+            self.assertEqual(report["items"], [])
+            self.assertEqual(len(report["read_errors"]), 1)
+
     def test_cli_json_success_reports_machine_result_contract(self):
         with tempfile.TemporaryDirectory() as directory:
             invoice_path = Path(directory) / "invoice.json"
@@ -286,8 +389,23 @@ class ChecksTest(unittest.TestCase):
             records = [json.loads(line) for line in output.getvalue().splitlines()]
             self.assertEqual([record["file"] for record in records], ["fail.json", "pass.json"])
             self.assertEqual(records[0]["status"], "fail")
+            self.assertEqual(records[0]["schema_version"], 1)
+            self.assertEqual(records[0]["observations"], 1)
+            self.assertEqual(records[0]["fixes"], [{
+                "rule": "INV-017",
+                "occurrences": 1,
+                "message": "Gross total does not equal net plus tax.",
+                "fix": "Set gross total to 238.00 or correct the totals.",
+            }])
             self.assertEqual(records[0]["errors"][0]["rule"], "INV-017")
-            self.assertEqual(records[1], {"status": "pass", "file": "pass.json", "errors": []})
+            self.assertEqual(records[1], {
+                "schema_version": 1,
+                "status": "pass",
+                "file": "pass.json",
+                "observations": 0,
+                "fixes": [],
+                "errors": [],
+            })
             self.assertNotIn("INV-1", output.getvalue())
 
     def test_cli_emits_privacy_safe_summary(self):
@@ -315,8 +433,11 @@ class ChecksTest(unittest.TestCase):
             with contextlib.redirect_stdout(output):
                 self.assertEqual(main([directory, "--format", "jsonl"]), 2)
             record = json.loads(output.getvalue())
+            self.assertEqual(record["schema_version"], 1)
             self.assertEqual(record["status"], "read_error")
             self.assertEqual(record["file"], "broken.json")
+            self.assertEqual(record["observations"], 0)
+            self.assertEqual(record["fixes"], [])
             self.assertEqual(record["errors"], [])
             self.assertIn("Expecting value", record["error"])
 
@@ -356,7 +477,7 @@ class ChecksTest(unittest.TestCase):
             self.assertEqual(main(["-", "--max-bytes", "10", "--format", "json"]), 2)
         report = json.loads(output.getvalue())
         self.assertEqual(report["read_errors"][0]["file"], "stdin.json")
-        self.assertIn("exceeding --max-bytes 10", report["read_errors"][0]["error"])
+        self.assertIn("exceeds --max-bytes 10", report["read_errors"][0]["error"])
 
     def test_cli_rejects_non_positive_max_bytes(self):
         with self.assertRaises(SystemExit) as result:
@@ -378,6 +499,31 @@ class ChecksTest(unittest.TestCase):
             main([".", "--max-files", "many"])
         self.assertEqual(result.exception.code, 2)
         self.assertIn("--max-files: must be a positive integer", output.getvalue())
+
+    def test_cli_max_bytes_rejects_oversized_file_before_reading(self):
+        with tempfile.TemporaryDirectory() as directory:
+            invoice_path = Path(directory) / "invoice.json"
+            invoice_path.write_text(json.dumps(VALID))
+            output = io.StringIO()
+            with contextlib.redirect_stdout(output):
+                self.assertEqual(main([str(invoice_path), "--max-bytes", "10", "--format", "json"]), 2)
+            report = json.loads(output.getvalue())
+            self.assertEqual(report["files_checked"], 0)
+            self.assertIn("exceeds --max-bytes 10", report["read_errors"][0]["error"])
+
+    def test_cli_max_bytes_rejects_oversized_stdin(self):
+        output = io.StringIO()
+        with patch("sys.stdin", io.StringIO(json.dumps(VALID))), contextlib.redirect_stdout(output):
+            self.assertEqual(main(["-", "--max-bytes", "10", "--format", "json"]), 2)
+        report = json.loads(output.getvalue())
+        self.assertIn("exceeds --max-bytes 10", report["read_errors"][0]["error"])
+
+    def test_cli_rejects_non_integer_max_bytes_with_actionable_error(self):
+        output = io.StringIO()
+        with contextlib.redirect_stderr(output), self.assertRaises(SystemExit) as result:
+            main([".", "--max-bytes", "many"])
+        self.assertEqual(result.exception.code, 2)
+        self.assertIn("--max-bytes: must be a positive integer", output.getvalue())
 
     def test_cli_batch_flags_duplicate_invoice_numbers_without_disclosing_number(self):
         with tempfile.TemporaryDirectory() as directory:
@@ -740,6 +886,11 @@ class ChecksTest(unittest.TestCase):
             self.assertIn("Overall: FAIL", report)
             self.assertIn("INV-017", report)
             self.assertIn("invoice&lt;review&gt;.json", report)
+            self.assertIn('href="#invoice-0"', report)
+            self.assertIn('id="invoice-0"', report)
+            self.assertIn('caption>Findings grouped by validation rule', report)
+            self.assertIn('scope="col"', report)
+            self.assertIn('href="#report-content"', report)
             self.assertNotIn("PRIVATE-123", report)
             self.assertNotIn("<script", report.lower())
 

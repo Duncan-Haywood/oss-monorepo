@@ -58,6 +58,10 @@ def parse_ubl_invoice(source: bytes | str) -> dict[str, Any]:
     supplier = next(iter(_children(root, "AccountingSupplierParty")), root)
     customer = next(iter(_children(root, "AccountingCustomerParty")), root)
     total = next(iter(_children(root, "LegalMonetaryTotal")), root)
+    tax_totals = _children(root, "TaxTotal")
+    if not tax_totals:
+        raise ValueError("UBL field TaxAmount is missing")
+    tax_total = sum((Decimal(_text(item, "TaxAmount")) for item in tax_totals), Decimal("0"))
     due_date = _text(root, "DueDate", required=False)
     return {
         "invoice_number": _text(root, "ID"),
@@ -69,7 +73,8 @@ def parse_ubl_invoice(source: bytes | str) -> dict[str, Any]:
         "lines": lines,
         "totals": {
             "net": _number(_text(total, "TaxExclusiveAmount")),
-            "tax": _number(_text(root, "TaxAmount")),
+            # UBL permits a TaxTotal per tax scheme; the invoice tax is their sum.
+            "tax": _number(str(tax_total)),
             "gross": _number(_text(total, "TaxInclusiveAmount")),
         },
     }
