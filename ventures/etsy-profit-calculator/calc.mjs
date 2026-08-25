@@ -14,6 +14,8 @@ export function calculateOrder(input) {
   const shippingCost = number(input.shippingCost ?? 0, 'Shipping cost');
   const materialCost = number(input.materialCost ?? 0, 'Material cost');
   const otherCost = number(input.otherCost ?? 0, 'Other cost');
+  const percentageRate = transactionRate + paymentRate + offsiteAdRate;
+  if (percentageRate >= 100) throw new Error('Combined percentage fee rates must be below 100%');
   const revenue = price + shippingCharged;
   const fees = {
     listing: listingFee,
@@ -26,8 +28,10 @@ export function calculateOrder(input) {
   return {
     revenue, fees, costs, profit,
     margin: revenue === 0 ? 0 : profit / revenue * 100,
+    // Percentage fees apply to shipping revenue too, so solve for the item
+    // price after subtracting the shipping amount the customer already pays.
     breakEvenPrice: Math.max(0, (listingFee + paymentFixed + shippingCost + materialCost + otherCost) /
-      (1 - (transactionRate + paymentRate + offsiteAdRate) / 100)),
+      (1 - percentageRate / 100) - shippingCharged),
   };
 }
 
