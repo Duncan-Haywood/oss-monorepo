@@ -14,6 +14,12 @@ prices for one unit.
 Below the result, an **If you repriced** table prices the same order 20% and
 10% either side of what you entered, so you can see what a price move is
 actually worth before making it — no re-entering numbers.
+A buyer’s **Best Offer** is a different decision from repricing: taking $34
+now is not the same as listing $34. The **If a buyer offered** table prices
+that offer, a midpoint counter, and the price that holds your target margin,
+then compares accepting to waiting (list profit × your guessed chance the
+item still sells at list). A miss this cycle is treated as $0 — the cash is
+still sitting in the item.
 
 Open `index.html` in a browser. The calculation is local and works without an
 account, network request, or API key. It is arithmetic, not an estimate of the
@@ -40,6 +46,11 @@ drive that decision:
   Percentage fees scale with the price, so a $1 increase never leaves $1 more
   in the seller's pocket; the table makes that visible instead of leaving it to
   be re-derived by hand.
+- **Best Offer accept-versus-wait** — profit at the buyer’s number, at a
+  midpoint counter, and at your target-margin price, plus whether that offer
+  beats waiting given the chance you still sell at list. Generic fee pages
+  stop at “fees on $34”; they never ask whether declining is actually worth
+  more.
 
 **No warranty.** This tool is provided free and as-is, without warranty of any
 kind, express or implied. It is not tax, financial, or business advice, and it
@@ -57,10 +68,10 @@ browser; it never records the inputs. Turn it off with the checkbox in the
 footer, or your browser's Do Not Track / Global Privacy Control setting.
 
 The counted events are `order_profit_calculated`, `target_margin_calculated`,
-`batch_calculated`, and `price_sensitivity_viewed`. The last one is counted at
-most once per visit and only after an input is edited — counting the table's
-first paint would just re-count page loads and say nothing about whether the
-repricing view is used.
+`batch_calculated`, `price_sensitivity_viewed`, and `best_offer_compared`.
+The last two are counted at most once per visit and only after an input is
+edited — counting the tables' first paint would just re-count page loads and
+say nothing about whether the comparison views are used.
 
 ## Support
 
@@ -70,11 +81,15 @@ support is entirely voluntary and never changes what the tool does.
 
 ## Save and share
 
-The calculator saves its ten numeric assumptions in your browser so returning
-sellers do not re-enter them. **Copy shareable link** puts those assumptions in
-the URL fragment for a collaborator; anyone with the link can read the figures,
-so do not share sensitive information. Nothing is uploaded. Use **Reset saved
-inputs** to remove the local setup.
+The calculator saves its numeric assumptions (including the Best Offer and
+close-rate) in your browser so returning sellers do not re-enter them.
+**Copy shareable link** puts those assumptions in the URL fragment for a
+collaborator; anyone with the link can read the figures, so do not share
+sensitive information. Nothing is uploaded. Use **Reset saved inputs** to
+remove the local setup.
+
+A short answer to the search query lives in
+`should-i-accept-this-ebay-offer.html`.
 
 ## Development
 

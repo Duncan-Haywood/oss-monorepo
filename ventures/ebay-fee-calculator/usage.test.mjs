@@ -73,3 +73,11 @@ test('can count a named feature event without recording content', () => {
   recordUsage(storage, false, 'share_link_copied');
   assert.equal(JSON.parse(storage.getItem('ebay-fee-usage')).share_link_copied, 1);
 });
+
+test('counts a Best Offer comparison without storing the offer', () => {
+  const storage = fakeStorage();
+  recordUsage(storage, false, 'best_offer_compared');
+  const stored = JSON.parse(storage.getItem('ebay-fee-usage'));
+  assert.equal(stored.best_offer_compared, 1);
+  assert.deepEqual(Object.keys(stored).sort(), ['best_offer_compared', 'last_day']);
+});

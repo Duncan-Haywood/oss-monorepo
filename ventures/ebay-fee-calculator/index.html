@@ -4,10 +4,10 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>eBay Fee &amp; Profit Calculator | Reseller Margin and ROI</title>
-  <meta name="description" content="Calculate eBay order profit, margin, ROI, and break-even resale price after final value fee, per-order fee, promoted listings, shipping, and cost of goods — then compare nearby listing prices before you reprice.">
+  <meta name="description" content="Calculate eBay order profit, margin, ROI, and break-even resale price after final value fee, per-order fee, promoted listings, shipping, and cost of goods — then see whether a Best Offer still pays, or waiting for list price does.">
   <meta property="og:title" content="eBay Fee &amp; Profit Calculator">
-  <meta property="og:description" content="See what an eBay sale really leaves after fees and your cost of goods — profit, margin, ROI, and break-even price.">
-  <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"eBay Fee & Profit Calculator","applicationCategory":"BusinessApplication","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"featureList":"eBay fee breakdown, net profit, margin, return on investment, break-even resale price, target-margin price, batch profit, repricing sensitivity table"}</script>
+  <meta property="og:description" content="See what an eBay sale really leaves after fees and your cost of goods — including whether to accept a Best Offer.">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"eBay Fee & Profit Calculator","applicationCategory":"BusinessApplication","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"featureList":"eBay fee breakdown, net profit, margin, return on investment, break-even resale price, target-margin price, batch profit, repricing sensitivity table, Best Offer accept-versus-wait comparison"}</script>
   <style>
     :root { color-scheme: light; font-family: system-ui, sans-serif; color: #1d2530; background: #eef2f7; }
     body { max-width: 980px; margin: 0 auto; padding: 32px 18px; }
@@ -38,7 +38,7 @@
   <header>
     <p class="eyebrow">FOR EBAY RESELLERS</p>
     <h1>Know what each sale really leaves.</h1>
-    <p>Enter your eBay fees, shipping, and what you paid for the item to see net profit, margin, return on your invested cash, and the lowest resale price that still breaks even. Then compare nearby listing prices to see exactly what a price move is worth — before you list or reprice.</p>
+    <p>Enter your eBay fees, shipping, and what you paid for the item to see net profit, margin, return on your invested cash, and the lowest resale price that still breaks even. Then compare nearby listing prices — and a buyer’s Best Offer against waiting for list — before you accept, counter, or reprice.</p>
   </header>
   <main>
     <div class="layout">
@@ -57,6 +57,8 @@
           <label>Packaging cost <input id="packagingCost" type="number" min="0" step="0.01" value="1"></label>
           <label>Other per-order cost <input id="otherCost" type="number" min="0" step="0.01" value="0"></label>
           <label>Target net margin (%) <input id="targetMargin" type="number" min="0" max="99.99" step="0.1" value="20"></label>
+          <label>Best offer on the item <input id="bestOffer" type="number" min="0" step="0.01" value="34"></label>
+          <label>Chance it still sells at list if you decline (%) <input id="listChance" type="number" min="0" max="100" step="1" value="50"></label>
         </div>
       </section>
       <section class="result">
@@ -90,14 +92,27 @@
       </div>
       <p id="scenariosEmpty" class="note" hidden>Enter a valid item price to compare repricing options.</p>
     </section>
+    <section class="sensitivity" id="offerSection">
+      <h2>If a buyer offered</h2>
+      <p id="offerNote" class="note">The same fees and cash outlay at this Best Offer, at a midpoint counter, and at the price that holds your target margin. Waiting assumes a miss this cycle is $0 — the item is still sitting — times the chance you typed that it still sells at list.</p>
+      <p id="offerSummary" class="note"></p>
+      <div class="table-scroll">
+        <table id="offerTable" aria-describedby="offerNote">
+          <thead><tr><th scope="col">Price</th><th scope="col">Net profit</th><th scope="col">Net margin</th><th scope="col">vs list</th></tr></thead>
+          <tbody id="offers"></tbody>
+        </table>
+      </div>
+      <p id="offersEmpty" class="note" hidden>Enter a valid Best Offer to compare accepting it against waiting.</p>
+      <p class="note"><a href="should-i-accept-this-ebay-offer.html">Should you accept this eBay offer?</a> — the same arithmetic as a short answer.</p>
+    </section>
   </main>
   <footer>
     <label><input id="usageOptOut" type="checkbox" style="width:auto"> Do not keep anonymous local usage counts</label>
-    <p><strong>No warranty.</strong> This free tool is not tax, financial, or business advice. Verify every output and fee against your eBay account and a qualified professional before relying on it. To the maximum extent permitted by law, the authors accept no liability for loss or damage from its use.</p>
+    <p><strong>No warranty.</strong> This free tool is not tax, financial, or business advice. Verify every output and fee against your eBay account and a qualified professional before relying on it. Hosted copies, if any, carry no uptime or availability SLA. To the maximum extent permitted by law, the authors accept no liability for loss or damage from its use.</p>
     <p class="support">Free and open source. If it saves you time, the <a href="https://github.com/Duncan-Haywood/monorepo-projects" rel="noopener">project is on GitHub</a> — support is entirely optional and never changes what the tool does.</p>
   </footer>
   <script type="module">
-    import { calculateOrder, calculateRepricingTable, INPUT_FIELDS as ids } from './calc.mjs';
+    import { calculateOrder, calculateRepricingTable, compareBestOffer, bestOfferRows, bestOfferSummary, INPUT_FIELDS as ids } from './calc.mjs';
     import { recordUsage } from './usage.mjs';
     import { decodeInputs, encodeInputs } from './share.mjs';
     const money = value => `$${value.toFixed(2)}`;
@@ -106,6 +121,7 @@
     // changed an input. Counting the table's first render instead would just
     // re-count page views, which says nothing about whether anyone used it.
     let sensitivityCounted = false;
+    let offerCounted = false;
     let sellerEditedInputs = false;
     function renderScenarios(input) {
       const rows = calculateRepricingTable(input);
@@ -124,12 +140,41 @@
         recordUsage(localStorage, document.getElementById('usageOptOut').checked, 'price_sensitivity_viewed');
       }
     }
+    function renderOffers(input) {
+      const comparison = compareBestOffer(input);
+      const rows = bestOfferRows(comparison);
+      document.getElementById('offerSummary').textContent = bestOfferSummary(comparison);
+      document.getElementById('offers').innerHTML = rows.map(row => {
+        const vsList = row.kind === 'listing' ? 0 : row.profit - comparison.listing.profit;
+        return `
+        <tr class="${row.kind === 'offer' ? 'current' : ''}">
+          <td>${row.label}: ${money(row.price)}</td>
+          <td class="${row.profit < 0 ? 'down' : ''}">${money(row.profit)}</td>
+          <td>${row.margin.toFixed(1)}%</td>
+          <td class="${vsList > 0 ? 'up' : vsList < 0 ? 'down' : ''}">${row.kind === 'listing' ? '—' : signedMoney(vsList)}</td>
+        </tr>`;
+      }).join('');
+      document.getElementById('offersEmpty').hidden = true;
+      document.getElementById('offerTable').hidden = false;
+      if (sellerEditedInputs && !offerCounted) {
+        offerCounted = true;
+        recordUsage(localStorage, document.getElementById('usageOptOut').checked, 'best_offer_compared');
+      }
+    }
     function readInputs() { return Object.fromEntries(ids.map(id => [id, document.getElementById(id).value])); }
     function update() {
       try {
         const input = readInputs();
         const result = calculateOrder(input);
         renderScenarios(input);
+        try {
+          renderOffers(input);
+        } catch {
+          document.getElementById('offers').innerHTML = '';
+          document.getElementById('offerSummary').textContent = '';
+          document.getElementById('offerTable').hidden = true;
+          document.getElementById('offersEmpty').hidden = false;
+        }
         const profitEl = document.getElementById('profit');
         profitEl.textContent = money(result.profit);
         profitEl.className = `hero-number ${result.profit < 0 ? 'negative' : 'positive'}`;
@@ -156,6 +201,10 @@
         document.getElementById('targetMarginPrice').textContent = '';
         document.getElementById('scenarios').innerHTML = '';
         document.getElementById('scenariosEmpty').hidden = false;
+        document.getElementById('offers').innerHTML = '';
+        document.getElementById('offerSummary').textContent = '';
+        document.getElementById('offerTable').hidden = true;
+        document.getElementById('offersEmpty').hidden = false;
       }
     }
     ids.forEach(id => document.getElementById(id).addEventListener('input', () => { sellerEditedInputs = true; update(); }));

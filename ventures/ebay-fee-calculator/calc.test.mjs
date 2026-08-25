@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { calculateOrder, calculatePriceScenarios, calculateRepricingTable } from './calc.mjs';
+import { calculateOrder, calculatePriceScenarios, calculateRepricingTable, compareBestOffer, bestOfferRows, bestOfferSummary } from './calc.mjs';
 
 const near = (actual, expected, msg) => assert.ok(Math.abs(actual - expected) < 1e-6, `${msg}: ${actual} vs ${expected}`);
 
@@ -133,4 +133,70 @@ test('rejects repricing offsets that cannot produce a listable price', () => {
   assert.throws(() => calculateRepricingTable({ price: 40 }, [-100]), /greater than -100/);
   assert.throws(() => calculateRepricingTable({ price: 40 }, ['abc']), /greater than -100/);
   assert.throws(() => calculateRepricingTable({ price: -1 }, [0]), /Item price/);
+});
+
+const workedOffer = {
+  price: 40, shippingCharged: 6, finalValueRate: 13.25, fixedFee: 0.3,
+  costOfGoods: 12, shippingCost: 5, packagingCost: 1, targetMargin: 20,
+};
+
+test('compares a typical Best Offer against list, midpoint, and waiting', () => {
+  // $34 offer on the $40 worked example: $40 revenue, 13.25% of that is $5.30,
+  // plus $0.30 fixed, $18 cash → $16.40 profit. List still leaves $21.605, so
+  // the seller gives up $5.205 to take the cash now. At a 50% chance of later
+  // selling at list, waiting is only worth $10.8025 — so the offer wins.
+  const comparison = compareBestOffer(workedOffer, 34, 50);
+  near(comparison.listing.profit, 21.605, 'list profit');
+  near(comparison.offer.price, 34, 'offer price');
+  near(comparison.offer.profit, 16.4, 'offer profit');
+  near(comparison.offer.margin, 41, 'offer margin');
+  near(comparison.cashLeftOnTable, 5.205, 'cash left on the table');
+  near(comparison.midpoint.price, 37, 'midpoint counter');
+  near(comparison.expectedWaitProfit, 10.8025, '50% of list profit');
+  assert.equal(comparison.aboveBreakEven, true);
+  assert.equal(comparison.meetsTargetMargin, true);
+  assert.equal(comparison.acceptBeatsWait, true);
+  const rows = bestOfferRows(comparison);
+  assert.deepEqual(rows.map(row => row.kind), ['listing', 'offer', 'midpoint', 'target']);
+  assert.match(bestOfferSummary(comparison), /still leaves \$16\.40/);
+  assert.match(bestOfferSummary(comparison), /Accepting beats waiting/);
+});
+
+test('flags an offer that still pays but misses the target margin', () => {
+  const comparison = compareBestOffer(workedOffer, 16, 50);
+  near(comparison.offer.profit, 0.785, 'thin offer profit');
+  assert.equal(comparison.aboveBreakEven, true);
+  assert.equal(comparison.meetsTargetMargin, false);
+  assert.equal(comparison.acceptBeatsWait, false);
+  assert.match(bestOfferSummary(comparison), /misses your target margin/);
+  assert.match(bestOfferSummary(comparison), /Counter \$21\.42/);
+});
+
+test('flags a Best Offer that loses money after fees', () => {
+  const comparison = compareBestOffer(workedOffer, 15, 50);
+  near(comparison.offer.profit, -0.0825, 'below break-even');
+  assert.equal(comparison.aboveBreakEven, false);
+  assert.equal(comparison.acceptBeatsWait, false);
+  assert.match(bestOfferSummary(comparison), /loses \$0\.08/);
+  assert.match(bestOfferSummary(comparison), /Counter at least \$15\.10/);
+});
+
+test('waiting wins when the seller is sure the item still sells at list', () => {
+  const comparison = compareBestOffer(workedOffer, 34, 100);
+  near(comparison.expectedWaitProfit, 21.605, 'certain list sale');
+  assert.equal(comparison.acceptBeatsWait, false);
+  assert.match(bestOfferSummary(comparison), /Waiting still has the higher expected profit/);
+});
+
+test('reads offer and close-rate from the shared input fields', () => {
+  const comparison = compareBestOffer({ ...workedOffer, bestOffer: 34, listChance: 50 });
+  near(comparison.offer.profit, 16.4, 'offer from input');
+  near(comparison.chanceOfFullPricePct, 50, 'chance from input');
+});
+
+test('rejects an impossible Best Offer or close-rate', () => {
+  assert.throws(() => compareBestOffer(workedOffer, -1, 50), /Best offer/);
+  assert.throws(() => compareBestOffer(workedOffer, 34, 101), /at most 100/);
+  assert.throws(() => compareBestOffer(workedOffer, 34, -5), /Chance of selling at list/);
+  assert.throws(() => compareBestOffer({ price: -1 }, 34, 50), /Item price/);
 });
