@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Amazon FBA vs FBM Profit Calculator | Max Buy Cost</title>
-  <meta name="description" content="Free Amazon FBA vs FBM calculator: see referral fees, fulfillment, storage, and inbound on the same listing. Get net profit, ROI, break-even sale price, and the maximum you can pay for inventory.">
+  <meta name="description" content="Free Amazon FBA vs FBM calculator: compare fulfillment paths and Individual vs Professional on the same listing. Get net profit, max buy cost, and when the monthly plan pays.">
   <meta name="robots" content="index, follow">
   <link rel="canonical" href=".">
   <meta property="og:title" content="Amazon FBA vs FBM Profit Calculator">
@@ -18,7 +18,7 @@
     "applicationCategory": "BusinessApplication",
     "operatingSystem": "Any (runs in a web browser)",
     "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
-    "featureList": "FBA vs FBM comparison, size-tier fulfillment, storage, inbound, net profit, margin, ROI, break-even price, max buy cost, target-margin price"
+    "featureList": "FBA vs FBM comparison, Individual vs Professional seller plan, size-tier fulfillment, storage, inbound, net profit, margin, ROI, break-even price, max buy cost, target-margin price"
   }
   </script>
   <script type="application/ld+json">
@@ -48,6 +48,14 @@
         "acceptedAnswer": {
           "@type": "Answer",
           "text": "The max buy cost is the cost of goods that drives net profit to zero after the referral fee and the fulfillment-path costs you entered. Buy above that number and the unit loses money on these assumptions."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Is Amazon Professional worth it vs Individual?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Professional pays for itself on the account fee when monthly units exceed the monthly plan price divided by the Individual per-item fee. At the illustrative US defaults that is about 41 units a month. This page also applies each plan to the same FBA or FBM listing so you can see profit and max buy cost, not only the subscription math. It does not recommend an account type."
         }
       }
     ]
@@ -91,11 +99,12 @@
 <body>
   <header>
     <p class="eyebrow">FOR AMAZON SELLERS</p>
-    <h1>Know whether FBA or FBM leaves more — and the most you can pay for the unit.</h1>
+    <h1>Know whether FBA or FBM leaves more — and whether Individual still pays.</h1>
     <p>
       Enter the listing price, category, size, and what you paid. The
       calculator shows referral, fulfillment, storage, and inbound on FBA
-      against the shipping you pay on FBM. Everything runs in this page;
+      against the shipping you pay on FBM, then applies Individual and
+      Professional to the same unit. Everything runs in this page;
       nothing is uploaded.
     </p>
   </header>
@@ -145,6 +154,7 @@
         <label>Ads per unit <input id="adsPerUnit" type="number" min="0" step="0.01" value="0"></label>
         <label>Other per-unit cost <input id="otherCost" type="number" min="0" step="0.01" value="0"></label>
         <label>Professional plan / month <input id="monthlySellerFee" type="number" min="0" step="0.01" value="39.99"></label>
+        <label>Individual per item sold <input id="individualPerUnit" type="number" min="0" step="0.01" value="0.99"></label>
         <label>Units sold per month <input id="monthlyUnits" type="number" min="0" step="1" value="80"></label>
         <label>Target net margin (%) <input id="targetMargin" type="number" min="0" max="99.99" step="0.1" value="30"></label>
       </div>
@@ -170,7 +180,14 @@
         <thead><tr><th>Path</th><th>Fees</th><th>Profit</th><th>Max buy</th></tr></thead>
         <tbody id="compare"></tbody>
       </table>
-      <p class="note">Transparent arithmetic from your inputs — not Amazon’s current fee schedule. Referral, fulfillment, storage, and inbound vary by category, size, season, and account. Verify against your Amazon fee preview before buying inventory.</p>
+      <hr>
+      <h2>Individual vs Professional</h2>
+      <p id="planVerdict" class="note"></p>
+      <table>
+        <thead><tr><th>Account</th><th>Fee / unit</th><th>Profit</th><th>Max buy</th></tr></thead>
+        <tbody id="planCompare"></tbody>
+      </table>
+      <p class="note">Transparent arithmetic from your inputs — not Amazon’s current fee schedule. Referral, fulfillment, storage, inbound, and seller-plan fees vary by category, size, season, and account. Verify against your Amazon fee preview before buying inventory or changing plans.</p>
     </section>
   </main>
   <section class="faq" aria-labelledby="faq-heading">
@@ -183,6 +200,8 @@
       still works.
       <a href="fba-vs-fbm.html">FBA vs FBM: which path leaves more?</a>
       walks through that in search-query words.
+      <a href="individual-vs-professional.html">Individual vs Professional: when does the monthly plan pay?</a>
+      answers the account-type question on the same listing.
     </p>
     <p>
       It does not recommend a price, a category, or a fulfillment method, and
@@ -193,6 +212,7 @@
   <footer>
     <label><input id="usageOptOut" type="checkbox" style="width:auto"> Do not keep anonymous local usage counts</label>
     <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not tax, financial, or business advice, and it does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for meeting any obligation it helps you prepare for. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record. If a tool needs to survive, export your inputs and run it yourself.</p>
     <p>Everything runs in your browser. Your prices and costs are never uploaded. There are no accounts, cookies, tracking pixels, or analytics vendors. The optional local counter records only the event name and day; never the inputs. Turn it off above, or with Do Not Track / Global Privacy Control.</p>
     <p>Free and open source. If it saved you from an unprofitable buy, the <a href="https://github.com/Duncan-Haywood/monorepo-projects">project is on GitHub</a> — <a href="https://github.com/sponsors/Duncan-Haywood">GitHub Sponsors</a> is optional and never changes what the tool does. MIT licensed.</p>
   </footer>
@@ -201,6 +221,7 @@
       applyCategoryPreset,
       applyStoragePreset,
       calculateListing,
+      compareSellerPlans,
     } from "./calc.mjs";
     import { recordUsage } from "./usage.mjs";
 
@@ -208,7 +229,7 @@
       "salePrice", "referralRate", "length", "width", "height", "weightLb",
       "monthsInStorage", "storageRate", "fulfillmentFee", "costOfGoods",
       "inboundPerUnit", "fbmShippingCost", "packagingCost", "adsPerUnit",
-      "otherCost", "monthlySellerFee", "monthlyUnits", "targetMargin",
+      "otherCost", "monthlySellerFee", "individualPerUnit", "monthlyUnits", "targetMargin",
     ];
     const money = (value) => `$${value.toFixed(2)}`;
     let syncingFee = false;
@@ -269,6 +290,34 @@
         ].map(([name, path]) =>
           `<tr><td>${name}</td><td>${money(path.feeTotal)}</td><td>${money(path.profit)}</td><td>${money(path.breakEvenBuyCost)}</td></tr>`
         ).join("");
+        try {
+          const plans = compareSellerPlans(readInput(), {
+            individualPerUnit: document.getElementById("individualPerUnit").value,
+            professionalMonthly: document.getElementById("monthlySellerFee").value,
+          });
+          const winner =
+            plans.cheaperPlan === "professional"
+              ? `Professional keeps ${money(plans.profitDelta)} more per unit on the selected path`
+              : plans.cheaperPlan === "individual"
+                ? `Individual keeps ${money(-plans.profitDelta)} more per unit on the selected path`
+                : "Same profit on both account types";
+          const breakEven =
+            plans.breakEvenUnits === null
+              ? "no account fee on either plan"
+              : !Number.isFinite(plans.breakEvenUnits)
+                ? "Professional never catches Individual at a $0 per-item fee"
+                : `Professional’s monthly fee matches Individual at ${plans.breakEvenUnits.toFixed(1)} units/mo`;
+          document.getElementById("planVerdict").textContent = `${winner}. ${breakEven}.`;
+          document.getElementById("planCompare").innerHTML = [
+            ["Individual", plans.individualPerUnit, plans.individual.selected],
+            ["Professional", plans.professionalAllocatedFee, plans.professional.selected],
+          ].map(([name, fee, path]) =>
+            `<tr><td>${name}</td><td>${money(fee)}</td><td>${money(path.profit)}</td><td>${money(path.breakEvenBuyCost)}</td></tr>`
+          ).join("");
+        } catch (planError) {
+          document.getElementById("planCompare").innerHTML = "";
+          document.getElementById("planVerdict").textContent = planError.message;
+        }
       } catch (error) {
         document.getElementById("profit").textContent = error.message;
         document.getElementById("profit").className = "hero-number error";
@@ -277,6 +326,8 @@
           document.getElementById(id).textContent = "";
         });
         document.getElementById("compare").innerHTML = "";
+        document.getElementById("planCompare").innerHTML = "";
+        document.getElementById("planVerdict").textContent = "";
       }
     }
 
@@ -306,7 +357,11 @@
       recordUsage(
         localStorage,
         document.getElementById("usageOptOut").checked,
-        id === "targetMargin" ? "target_margin_calculated" : "listing_profit_calculated",
+        id === "targetMargin"
+          ? "target_margin_calculated"
+          : id === "monthlySellerFee" || id === "individualPerUnit" || id === "monthlyUnits"
+            ? "seller_plan_compared"
+            : "listing_profit_calculated",
       );
     }));
     document.querySelectorAll('input[name="fulfillmentMethod"]').forEach((el) => {

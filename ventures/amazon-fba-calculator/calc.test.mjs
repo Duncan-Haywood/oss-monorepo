@@ -6,8 +6,10 @@ import {
   calculateListing,
   CATEGORY_PRESETS,
   classifySizeTier,
+  compareSellerPlans,
   cubicFeet,
   defaultFulfillmentFee,
+  SELLER_PLAN_DEFAULTS,
   STORAGE_PRESETS,
 } from "./calc.mjs";
 
@@ -170,6 +172,79 @@ test("applyCategoryPreset and applyStoragePreset fill illustrative rates", () =>
   assert.equal(clothing.referralRate, CATEGORY_PRESETS.clothing.referralRate);
   const peak = applyStoragePreset({}, "peak");
   assert.equal(peak.storageRate, STORAGE_PRESETS.peak.perCuFt);
+});
+
+test("Individual vs Professional break-even is monthly fee divided by per-item fee", () => {
+  const compared = compareSellerPlans(base);
+  near(
+    compared.breakEvenUnits,
+    SELLER_PLAN_DEFAULTS.professionalMonthly / SELLER_PLAN_DEFAULTS.individualPerUnit,
+    "break-even units",
+  );
+  near(compared.individualPerUnit, 0.99, "Individual default");
+  near(compared.professionalMonthly, 39.99, "Professional default");
+  near(compared.individual.allocatedSellerFee, 0.99, "Individual allocated");
+  near(compared.professional.allocatedSellerFee, 39.99 / 80, "Professional allocated");
+});
+
+test("Individual keeps more per unit below the plan break-even volume", () => {
+  const compared = compareSellerPlans({ ...base, monthlyUnits: 10 });
+  assert.equal(compared.cheaperPlan, "individual");
+  assert.ok(compared.profitDelta < 0);
+  near(compared.monthlyProfitDelta, compared.profitDelta * 10, "monthly delta");
+});
+
+test("Professional keeps more per unit above the plan break-even volume", () => {
+  const compared = compareSellerPlans({ ...base, monthlyUnits: 200 });
+  assert.equal(compared.cheaperPlan, "professional");
+  assert.ok(compared.profitDelta > 0);
+  near(compared.professionalAllocatedFee, 39.99 / 200, "allocated Professional");
+  near(compared.individualMonthlyFee, 0.99 * 200, "monthly Individual total");
+});
+
+test("plans tie when the account fee per unit is the same", () => {
+  const compared = compareSellerPlans(
+    { ...base, monthlyUnits: 40, monthlySellerFee: 39.6 },
+    { individualPerUnit: 0.99, professionalMonthly: 39.6 },
+  );
+  assert.equal(compared.cheaperPlan, "tie");
+  near(compared.profitDelta, 0, "same allocated fee");
+  near(compared.maxBuyDelta, 0, "same max buy");
+  near(compared.breakEvenUnits, 40, "exact 40 units");
+});
+
+test("seller-plan comparison reuses FBA and FBM paths on the same listing", () => {
+  const compared = compareSellerPlans({ ...base, fulfillmentMethod: "fbm" });
+  assert.equal(compared.individual.fulfillmentMethod, "fbm");
+  assert.equal(compared.professional.selected.profit, compared.professional.fbm.profit);
+  near(
+    compared.profitDelta,
+    compared.professional.fbm.profit - compared.individual.fbm.profit,
+    "FBM-selected delta",
+  );
+  assert.ok(compared.individual.fba.profit !== compared.individual.fbm.profit);
+});
+
+test("editable Individual and Professional rates change the winner", () => {
+  const cheapPro = compareSellerPlans(base, {
+    individualPerUnit: 1.99,
+    professionalMonthly: 1,
+  });
+  assert.equal(cheapPro.cheaperPlan, "professional");
+  const cheapInd = compareSellerPlans({ ...base, monthlyUnits: 80 }, {
+    individualPerUnit: 0.01,
+    professionalMonthly: 399,
+  });
+  assert.equal(cheapInd.cheaperPlan, "individual");
+});
+
+test("seller-plan comparison rejects zero units and negative rates", () => {
+  assert.throws(
+    () => compareSellerPlans({ ...base, monthlyUnits: 0 }),
+    /greater than zero to compare seller plans/,
+  );
+  assert.throws(() => compareSellerPlans(base, { individualPerUnit: -1 }), /Individual per-unit fee/);
+  assert.throws(() => compareSellerPlans(base, { professionalMonthly: -1 }), /Professional monthly fee/);
 });
 
 test("rejects unknown presets and invalid inputs", () => {

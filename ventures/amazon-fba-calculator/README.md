@@ -13,8 +13,9 @@ an estimate of the fees Amazon will charge: enter the rates from your current
 fee preview, and verify them there.
 
 **After using this, you can now see whether FBA or FBM leaves more on a real
-SKU, and the most you can pay a supplier for that unit** — which used to mean
-a spreadsheet that forgot storage, inbound, or the professional plan.
+SKU, the most you can pay a supplier for that unit, and whether Individual
+or Professional still pays at your monthly volume** — which used to mean a
+spreadsheet that forgot storage, inbound, or the per-item selling fee.
 
 ## Why it's different
 
@@ -29,10 +30,14 @@ The decision sellers actually make is the fulfillment path:
 This tool keeps every assumption editable, fills illustrative US defaults from
 a category and storage-season picker, classifies a size tier from dimensions
 and weight, allocates the professional seller plan across expected monthly
-units, and shows **both paths on the same listing**.
+units, shows **both paths on the same listing**, and compares **Individual
+($/item) against Professional (flat/month)** so the account fee is not a
+hidden line in only one plan.
 
 [FBA vs FBM: which path leaves more?](fba-vs-fbm.html) answers that search
 question directly.
+[Individual vs Professional: when does the monthly plan pay?](individual-vs-professional.html)
+answers the account-type question on the same listing.
 
 **No warranty.** This tool is provided free and as-is, without warranty of any
 kind, express or implied. It is not tax, financial, or business advice, and it
@@ -40,6 +45,12 @@ does not replace a qualified professional. **You are responsible for reviewing
 and verifying its output before relying on it**, and for meeting any obligation
 it helps you prepare for. To the maximum extent permitted by law, the authors
 accept no liability for any loss or damage arising from its use.
+
+**Best-effort hosting, no SLA.** These tools are free, experimental, and
+may be slow, broken, moved, or taken offline without notice. We do not
+promise uptime, backups of anything you type, or that a URL will keep
+working. Do not use this as a system of record. If a tool needs to
+survive, export your inputs and run it yourself.
 
 ## Privacy and usage
 
@@ -61,7 +72,7 @@ optional and never changes what the tool does.
 Pure ES modules, no build step, no dependencies.
 
 ```
-node --test        # runs calc.test.mjs and usage.test.mjs
+node --test        # runs calc.test.mjs, usage.test.mjs, and page.test.mjs
 ```
 
 `calc.mjs` holds the fee/profit/ROI arithmetic, size-tier classification, and

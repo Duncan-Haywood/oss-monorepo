@@ -145,6 +145,71 @@ function pathResult({
   };
 }
 
+export const SELLER_PLAN_DEFAULTS = {
+  individualPerUnit: 0.99,
+  professionalMonthly: 39.99,
+};
+
+/**
+ * Compare Amazon Individual ($/item sold) against Professional (flat/month)
+ * on the same listing. Reuses calculateListing so FBA/FBM, referral, storage,
+ * and inbound stay on one code path. The Individual selling plan is modeled
+ * as a monthly fee of per-item × units so the allocated per-unit fee equals
+ * the Individual charge.
+ */
+export function compareSellerPlans(input = {}, plans = {}) {
+  const monthlyUnits = number(input.monthlyUnits, "Monthly units", 1);
+  const individualPerUnit = number(
+    plans.individualPerUnit ?? input.individualPerUnit,
+    "Individual per-unit fee",
+    SELLER_PLAN_DEFAULTS.individualPerUnit,
+  );
+  const professionalMonthly = number(
+    plans.professionalMonthly ?? input.monthlySellerFee,
+    "Professional monthly fee",
+    SELLER_PLAN_DEFAULTS.professionalMonthly,
+  );
+
+  if (monthlyUnits === 0) {
+    throw new Error("Monthly units must be greater than zero to compare seller plans");
+  }
+
+  const individual = calculateListing({
+    ...input,
+    monthlyUnits,
+    monthlySellerFee: individualPerUnit * monthlyUnits,
+  });
+  const professional = calculateListing({
+    ...input,
+    monthlyUnits,
+    monthlySellerFee: professionalMonthly,
+  });
+
+  const breakEvenUnits =
+    individualPerUnit === 0
+      ? professionalMonthly === 0
+        ? null
+        : Infinity
+      : professionalMonthly / individualPerUnit;
+  const profitDelta = professional.selected.profit - individual.selected.profit;
+  const cheaperPlan = profitDelta > 0 ? "professional" : profitDelta < 0 ? "individual" : "tie";
+
+  return {
+    monthlyUnits,
+    individualPerUnit,
+    professionalMonthly,
+    individualMonthlyFee: individualPerUnit * monthlyUnits,
+    professionalAllocatedFee: professionalMonthly / monthlyUnits,
+    individual,
+    professional,
+    breakEvenUnits,
+    cheaperPlan,
+    profitDelta,
+    monthlyProfitDelta: profitDelta * monthlyUnits,
+    maxBuyDelta: professional.selected.breakEvenBuyCost - individual.selected.breakEvenBuyCost,
+  };
+}
+
 export function calculateListing(input) {
   const salePrice = number(input.salePrice, "Sale price");
   const referralRate = number(input.referralRate, "Referral rate", 15);
