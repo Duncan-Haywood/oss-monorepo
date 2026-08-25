@@ -114,11 +114,16 @@ export function computeAll(values) {
     noShowsPerYear,
     enforcementRatePct: values.enforcementRatePct,
   });
+  // Compare modeled fee income with the original value of the lost slots.
+  const annualRecoveryPct = annualLostRevenue === 0
+    ? 0
+    : round2((annualFeeRevenue / annualLostRevenue) * 100);
   return {
     feeAmount,
     noShowsPerYear,
     annualLostRevenue,
     annualFeeRevenue,
+    annualRecoveryPct,
     inputs: values,
   };
 }

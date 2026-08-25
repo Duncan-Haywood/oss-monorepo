@@ -55,6 +55,7 @@ function renderResults(result) {
   document.getElementById("out-noshows-year").textContent = result.noShowsPerYear.toFixed(1);
   document.getElementById("out-annual-lost").textContent = fmtMoney(result.annualLostRevenue);
   document.getElementById("out-annual-fee-revenue").textContent = fmtMoney(result.annualFeeRevenue);
+  document.getElementById("out-annual-recovery").textContent = `${result.annualRecoveryPct.toFixed(1)}%`;
 }
 
 function renderScenarios(values) {

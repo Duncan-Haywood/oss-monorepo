@@ -43,7 +43,8 @@ No build step, no install, no dependencies. It's plain HTML/CSS/JS.
    in USD, EUR, GBP, CAD, or AUD; it does not convert between currencies.
 4. Get: the fee amount, how many no-shows/late-cancels you can expect in a
    year at your rate, what that time is worth, and an estimate of fee
-   revenue you could collect if you enforce the policy — plus a plain-text
+   revenue you could collect if you enforce the policy, including the share of
+   lost slot value that modeled revenue recovers — plus a plain-text
    cancellation policy you can copy straight into your booking system,
    client agreement, or website.
 

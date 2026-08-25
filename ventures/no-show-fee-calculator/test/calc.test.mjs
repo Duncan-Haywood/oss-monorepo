@@ -142,6 +142,20 @@ test("computeAll composes the individual calculations consistently", () => {
       enforcementRatePct: values.enforcementRatePct,
     }),
   );
+  assert.equal(result.annualRecoveryPct, 70);
+});
+
+test("computeAll reports zero recovery when there is no lost slot value", () => {
+  const result = computeAll({
+    price: 75,
+    bookingsPerWeek: 20,
+    noShowRatePct: 0,
+    noticeHours: 24,
+    feePercent: 100,
+    enforcementRatePct: 70,
+  });
+  assert.equal(result.annualLostRevenue, 0);
+  assert.equal(result.annualRecoveryPct, 0);
 });
 
 test("compareFeeScenarios shows standard levels and preserves a custom selection", () => {
