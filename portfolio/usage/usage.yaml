@@ -31,7 +31,16 @@ products:
         signals:
           local_comparisons: 1
           qualified_pilots: 0
-          note: Shipped fixture-backed local comparison; customer demand remains untested.
+        note: Shipped fixture-backed local comparison; customer demand remains untested.
+  - slug: dns-configuration-evidence
+    surface: local-cli
+    readings:
+      - as_of: 2026-08-25
+        signals:
+          local_report_generated: 1
+          local_usage_opt_out_tests: 1
+          qualified_pilots: 0
+        note: Added portable before/after value reporting and explicit local usage opt-out; customer demand remains untested.
   - slug: einvoice-preflight
     surface: repository-cli
     readings:

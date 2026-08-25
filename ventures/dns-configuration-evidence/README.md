@@ -24,7 +24,8 @@ either `answers` or an explicit `status` such as `timeout` or `refused`.
 
 The CLI writes one anonymized local usage counter when `--usage-file` is given.
 It records event names and counts only, never domains, answers, IP addresses,
-or request content.
+or request content. Use `--no-usage` to opt out for a run; there is no network
+beacon or analytics vendor.
 
 **No warranty.** This tool is provided free and as-is, without warranty of any
 kind, express or implied. It is not legal, tax, financial, medical, or

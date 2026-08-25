@@ -102,9 +102,19 @@ def markdown_report(report: dict[str, Any]) -> str:
     lines = [f"# DNS evidence: `{report['domain']}`", "", "This is an observation record, not a security, deliverability, or compliance warranty.", "", "## Summary", ""]
     counts = report["finding_counts"]
     lines.append(" · ".join(f"**{key}:** {counts.get(key, 0)}" for key in ("changed", "unchanged", "inconclusive")))
-    lines.extend(["", "## Findings", "", "| Name | Type | Resolver | Result |", "|---|---|---|---|"])
+    lines.extend(["", "## Findings", "", "| Name | Type | Resolver | Result | Before | After |", "|---|---|---|---|---|---|"])
     for finding in report["findings"]:
-        lines.append(f"| `{finding['name']}` | `{finding['type']}` | `{finding['resolver']}` | **{finding['status']}** |")
+        before = _display_answers(finding["before_answers"], finding["before_status"])
+        after = _display_answers(finding["after_answers"], finding["after_status"])
+        lines.append(f"| `{finding['name']}` | `{finding['type']}` | `{finding['resolver']}` | **{finding['status']}** | {before} | {after} |")
     lines.extend(["", "## Limits", ""])
     lines.extend(f"- {limit}" for limit in report["limitations"])
     return "\n".join(lines) + "\n"
+
+
+def _display_answers(answers: list[str] | None, status: str) -> str:
+    if answers is None:
+        return f"{status} (not observed)"
+    if not answers:
+        return "(no answers)"
+    return "<br>".join(f"`{answer}`" for answer in answers)
