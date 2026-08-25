@@ -221,6 +221,24 @@ def _positive_int(value: str) -> int:
     return parsed
 
 
+def _read_limited(stream: Any, limit: int | None) -> bytes:
+    """Read at most one byte beyond a configured input limit."""
+    raw = stream.read() if limit is None else stream.read(limit + 1)
+    if isinstance(raw, str):
+        raw = raw.encode()
+    if limit is not None and len(raw) > limit:
+        raise ValueError(f"Input exceeds --max-bytes {limit}; refusing to read it.")
+    return raw
+
+
+def _read_file_limited(path: Path, limit: int | None) -> bytes:
+    """Reject oversized files before allocating their contents."""
+    if limit is not None and path.stat().st_size > limit:
+        raise ValueError(f"File exceeds --max-bytes {limit}; refusing to read it.")
+    with path.open("rb") as stream:
+        return _read_limited(stream, limit)
+
+
 def _json_report(
     reports: list[tuple[Path, list[dict[str, str]]]],
     read_errors: list[dict[str, str]],
@@ -507,16 +525,12 @@ def main(argv: list[str] | None = None) -> int:
     read_errors: list[dict[str, str]] = []
     if str(args.invoice) == "-":
         stdin = getattr(sys.stdin, "buffer", sys.stdin)
-        source = stdin.read(args.max_bytes + 1 if args.max_bytes is not None else -1)
-        source = source.encode() if isinstance(source, str) else source
-        if args.max_bytes is not None and len(source) > args.max_bytes:
-            read_errors.append({
-                "file": "stdin.json",
-                "error": f"Input is {len(source)} bytes, exceeding --max-bytes {args.max_bytes}. Refusing to parse.",
-            })
-            sources = []
-        else:
-            sources = [(Path("stdin.json"), source)]
+        try:
+            source = _read_limited(stdin, args.max_bytes)
+        except ValueError as exc:
+            read_errors.append({"file": "stdin.json", "error": str(exc)})
+            source = None
+        sources = [] if source is None else [(Path("stdin.json"), source)]
     elif args.invoice.is_dir():
         # Keep a directory scan inside its selected root instead of following
         # symlinks into an unrelated location.
@@ -548,14 +562,8 @@ def main(argv: list[str] | None = None) -> int:
                     })
                     continue
                 try:
-                    if args.max_bytes is not None and path.stat().st_size > args.max_bytes:
-                        read_errors.append({
-                            "file": relative_path.as_posix(),
-                            "error": f"Input exceeds --max-bytes {args.max_bytes}. Refusing to read.",
-                        })
-                        continue
-                    sources.append((path.relative_to(args.invoice), path.read_bytes()))
-                except OSError as exc:
+                    sources.append((path.relative_to(args.invoice), _read_file_limited(path, args.max_bytes)))
+                except (OSError, ValueError) as exc:
                     read_errors.append({"file": relative_path.as_posix(), "error": str(exc)})
     else:
         sources = [(args.invoice, None)]
@@ -563,19 +571,7 @@ def main(argv: list[str] | None = None) -> int:
     for invoice_path, source in sources:
         report_path = invoice_path if args.invoice.is_dir() or str(args.invoice) == "-" else Path(invoice_path.name)
         try:
-            if source is None and args.max_bytes is not None and invoice_path.stat().st_size > args.max_bytes:
-                read_errors.append({
-                    "file": report_path.as_posix(),
-                    "error": f"Input exceeds --max-bytes {args.max_bytes}. Refusing to read.",
-                })
-                continue
-            raw = source if source is not None else invoice_path.read_bytes()
-            if args.max_bytes is not None and len(raw) > args.max_bytes:
-                read_errors.append({
-                    "file": report_path.as_posix(),
-                    "error": f"Input exceeds --max-bytes {args.max_bytes}. Refusing to parse.",
-                })
-                continue
+            raw = source if source is not None else _read_file_limited(invoice_path, args.max_bytes)
             is_xml = report_path.suffix.lower() == ".xml" or raw.lstrip().startswith(b"<")
             invoice = parse_ubl_invoice(raw) if is_xml else json.loads(raw)
         except (OSError, UnicodeDecodeError, ValueError, json.JSONDecodeError) as exc:

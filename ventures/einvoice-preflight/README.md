@@ -23,6 +23,7 @@ PYTHONPATH=src python3 -m einvoice_preflight examples/valid-invoice.json --usage
 PYTHONPATH=src python3 -m einvoice_preflight ./invoices/ --format json
 PYTHONPATH=src python3 -m einvoice_preflight ./invoices/ --format jsonl
 PYTHONPATH=src python3 -m einvoice_preflight ./invoices/ --format json --max-files 500
+PYTHONPATH=src python3 -m einvoice_preflight invoice.json --max-bytes 1048576 --format json
 PYTHONPATH=src python3 -m einvoice_preflight invoice.xml --format json
 PYTHONPATH=src python3 -m einvoice_preflight ./invoices/ --format sarif --output preflight.sarif
 ```
@@ -147,6 +148,10 @@ file.
 `--max-files N` accepts a positive integer, including the usual `+N` CLI
 notation, and rejects zero, negative, or non-numeric values before any invoice
 is read.
+`--max-bytes N` uses the same positive-integer syntax and rejects zero,
+negative, or non-numeric values before any invoice is read. It refuses an
+oversized regular file before reading it and reads stdin only through `N+1`
+bytes, returning a structured exit-2 read error when the limit is exceeded.
 
 Machine-readable formats remain valid JSON, JSONL, SARIF, CSV, JUnit, Markdown,
 or HTML when a directory is empty or a `--max-files` limit refuses the scan.
