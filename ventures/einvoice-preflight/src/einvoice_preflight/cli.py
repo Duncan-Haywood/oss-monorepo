@@ -381,6 +381,35 @@ def _remediation_report(
     }
 
 
+def _checklist_report(
+    reports: list[tuple[Path, list[dict[str, str]]]],
+    read_errors: list[dict[str, str]],
+) -> str:
+    """Build a copyable repair checklist without invoice values or contents."""
+    lines = ["E-invoice preflight repair checklist", ""]
+    for path, errors in reports:
+        lines.append(f"[ ] Review {path.as_posix()}")
+        if not errors:
+            lines.append("    No supported defects found.")
+            continue
+        grouped: dict[str, dict[str, Any]] = {}
+        for error in errors:
+            item = grouped.setdefault(error["rule"], {"count": 0, "paths": [], "message": error["message"], "fix": error["fix"]})
+            item["count"] += 1
+            if error["path"] not in item["paths"]:
+                item["paths"].append(error["path"])
+        for rule in sorted(grouped):
+            item = grouped[rule]
+            suffix = f" ({item['count']} occurrence(s))" if item["count"] != 1 else ""
+            lines.append(f"    - [ ] {rule}{suffix} at {', '.join(item['paths'])}: {item['message']}")
+            lines.append(f"      Fix: {item['fix']}")
+    if read_errors:
+        lines.extend(["", "Unreadable inputs:"])
+        lines.extend(f"- [ ] Review {error['file']}: {error['error']}" for error in read_errors)
+    lines.extend(["", "This is a local observation checklist, not a declaration of legal validity or compliance.", "Review and verify each change before submitting an invoice."])
+    return "\n".join(lines) + "\n"
+
+
 def _csv_report(
     reports: list[tuple[Path, list[dict[str, str]]]],
     read_errors: list[dict[str, str]],
@@ -541,7 +570,7 @@ def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description="Check a local JSON or UBL XML e-invoice before submission. No tax advice or submission.")
     parser.add_argument("--version", action="version", version=f"einvoice-preflight {VERSION}")
     parser.add_argument("invoice", type=Path, help="JSON/XML file, directory of JSON/XML files, or '-' for stdin")
-    parser.add_argument("--format", choices=("text", "summary", "json", "jsonl", "remediation", "markdown", "html", "csv", "junit", "sarif", "github"), default="text")
+    parser.add_argument("--format", choices=("text", "summary", "json", "jsonl", "remediation", "checklist", "markdown", "html", "csv", "junit", "sarif", "github"), default="text")
     parser.add_argument("--usage-file", help="opt-in local aggregate event counter")
     parser.add_argument("--output", help="write the report to this local file atomically instead of stdout")
     parser.add_argument(
@@ -631,6 +660,8 @@ def main(argv: list[str] | None = None) -> int:
         report = _jsonl_report(reports, read_errors)
     elif args.format == "remediation":
         report = json.dumps(_remediation_report(reports, read_errors), indent=2) + "\n"
+    elif args.format == "checklist":
+        report = _checklist_report(reports, read_errors)
     elif args.format == "markdown":
         report = _markdown_report(reports, read_errors)
     elif args.format == "html":
