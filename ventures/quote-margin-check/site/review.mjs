@@ -4,6 +4,7 @@
 export function reviewQuote(quote, report) {
   const checks = [];
   const hiddenHours = quote.admin_hours + quote.revision_hours;
+  const hoursBudget = (quote.price - report.direct_costs) / quote.target_hourly_rate;
 
   if (report.direct_costs > quote.price) {
     checks.push({ level: "attention", title: "Direct costs exceed the quoted price", detail: `The supplied direct costs are ${quote.currency} ${report.direct_costs.toFixed(2)} against ${quote.currency} ${quote.price.toFixed(2)}.` });
@@ -16,6 +17,11 @@ export function reviewQuote(quote, report) {
   }
   if (quote.revision_hours === 0) {
     checks.push({ level: "note", title: "No revision hours are included", detail: "Confirm that the quote scope and revision assumptions match the work you expect to deliver." });
+  }
+  if (hoursBudget < report.total_hours) {
+    checks.push({ level: "attention", title: "The quote exceeds its target-rate hours budget", detail: `At the supplied target rate, the quote supports ${hoursBudget.toFixed(2)} total hours, but the estimate includes ${report.total_hours.toFixed(2)}.` });
+  } else {
+    checks.push({ level: "note", title: "Target-rate hours budget", detail: `The supplied price supports up to ${hoursBudget.toFixed(2)} total hours after direct costs at the target rate.` });
   }
   if (!checks.some((check) => check.level === "attention")) {
     checks.push({ level: "clear", title: "No review flags from these inputs", detail: "Review the scope, assumptions, and arithmetic before relying on this result." });
