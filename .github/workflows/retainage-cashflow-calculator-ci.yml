@@ -1,0 +1,40 @@
+name: retainage-cashflow-calculator CI
+
+# The venture is a static, browser-local calculator: plain ES modules run with
+# node's built-in test runner, no package.json, no dependencies, no network.
+# calc.mjs is the cash and release-schedule arithmetic; share.mjs is the URL
+# hash transform behind the worksheet link. Each has a sibling test file.
+
+on:
+  pull_request:
+    paths:
+      - "ventures/retainage-cashflow-calculator/**"
+      - ".github/workflows/retainage-cashflow-calculator-ci.yml"
+  push:
+    branches: [main]
+    paths:
+      - "ventures/retainage-cashflow-calculator/**"
+      - ".github/workflows/retainage-cashflow-calculator-ci.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: retainage-cashflow-calculator-ci-${{ github.ref }}
+  cancel-in-progress: true
+
+defaults:
+  run:
+    working-directory: ventures/retainage-cashflow-calculator
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Run module tests
+        run: node --test
