@@ -19,6 +19,10 @@ class FifoEvidenceTests(unittest.TestCase):
         kinds = {item["kind"] for item in check_rows(rows)}
         self.assertEqual(kinds, {"missing-data"})
 
+    def test_reports_timezone_less_time_instead_of_crashing(self):
+        rows = [{"order_id": "x", "sku": "A", "lot": "1", "received_at": "2026-01-01T00:00:00", "picked_at": "2026-01-01T01:00:00Z"}]
+        self.assertEqual(check_rows(rows)[0]["kind"], "invalid-timestamp")
+
     def test_usage_is_anonymous_and_opt_in(self):
         with tempfile.TemporaryDirectory() as directory:
             path = Path(directory) / "usage.json"
