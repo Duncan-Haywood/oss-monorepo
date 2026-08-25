@@ -209,9 +209,17 @@ Ship when every line is true:
 - [ ] `VENTURE.yaml` exists (or the slug is under `product_lines` in its host
       venture's) so the router can see it — `python3 portfolio/router/validate.py`.
 - [ ] CI green, merged, one ledger line in `portfolio/ledger/YYYY-MM.yaml`.
+- [ ] A stranger can reach it without cloning this repo — a public URL or an
+      install command. Merged-to-`main` is not deployed. If publishing under
+      the portfolio name is still owner-gated, the next session on this
+      product prepares that deploy and points at the existing
+      `deploy-settings` ask; it does not start a sibling product.
 
 ## 8. After it ships
 
+- **Deploy before you build the next one.** An undeployed product on `main`
+  outranks every unbuilt candidate. Usage cannot be read from a file nobody
+  can open.
 - **Watch usage, not opinions.** A product with real users outranks every
   candidate in the pipeline. If people come back, put the fleet's time there.
 - **If nobody uses it after a fair run**, say so plainly in one ledger line and

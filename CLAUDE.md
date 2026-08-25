@@ -19,6 +19,11 @@ free, with usage tracked and disclaimers in place. Features, fixes, landing
 pages, SEO, integrations (behind env vars), and VM-runnable apps beat ledger
 entries and analysis documents.
 
+**Deploy-first.** Products already on `main` with no public URL outrank new
+candidates. Prepare the live URL; do not clone another undeployed calculator.
+The owner flip is already queued as `deploy-settings` — do not add a second
+ask. See `portfolio/DIRECTION.md`.
+
 Target super-niches where users have money and a real problem — especially
 tools that help them earn more. Low variable cost, traditional software, AI
 only where it clearly helps. Payment and payout rails stay off; GitHub
@@ -77,8 +82,11 @@ do not re-verify unchanged PRs.
 Screening is done — see `portfolio/pipeline/README.md`. Do not produce another
 candidate list. Either:
 
-1. Build a `build-now` candidate (`session_gate.py` names the top one), or
-2. Graduate and build a new niche not in `screened-out.md`.
+1. Deploy a product that is already on `main` and still has no public URL, or
+2. Build a `build-now` candidate (`session_gate.py` names the top one), or
+3. Graduate and build a new niche not in `screened-out.md`.
+
+(1) comes first while `publish_surface.py` reports nothing live.
 
 A candidate becomes routable when it has `ventures/<slug>/VENTURE.yaml` or a
 `product_lines` entry on its host venture.

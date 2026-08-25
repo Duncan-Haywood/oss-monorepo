@@ -35,6 +35,29 @@ Revenue comes later. For now:
 - **Do** add GitHub Sponsors or a donation link where it fits — optional
   support, not a paywall.
 
+## Current priority: deploy what is already built
+
+A product that only exists as `index.html` in this repo is not yet a product
+people use. As of 2026-08-25 a cluster of calculators and CLIs is on `main`
+(seller-fee tools, trade bids, quote-margin, retainage, e-invoice preflight,
+and others) and **none of them have a public URL**. Every usage reading is
+still a zero baseline. `python3 platform/ci/publish_surface.py` still
+reports nothing live on a push to `main`.
+
+Until at least one already-built user-facing surface is reachable by a
+stranger, **deploy beats another build**:
+
+1. Get a live URL (or install command) in front of a niche user.
+2. Record a usage reading that is not `null`.
+3. Only then graduate a new candidate or clone another bid calculator.
+
+The owner flip that turns gated Pages / Cloudflare / Vercel workflows live
+is already queued as `deploy-settings` (and the platform choice as
+`deployment-platform`) — do not open a second ask. Agents prepare the
+deploy artifact and the one-line owner action; they do not register a
+domain, store listing, or npm publish. Building privately remains allowed.
+Cloning a twelfth undeployed calculator is not.
+
 ## What a good product looks like here
 
 | Criterion | Why it matters |
@@ -67,8 +90,10 @@ could use and benefit from.
 - Expanding the owner decision queue with items that do not block product work
 
 Run `python3 portfolio/ledger/session_gate.py` on a generic brief ("continue
-work", "improve the process", etc.). If it says **BUILD**, build — do not
-meta-work. If it says **PROCEED**, keep building what you were building.
+work", "improve the process", etc.). If it says **BUILD**, build — and if
+anything already on `main` still has no public URL, that deploy is the
+build. Do not meta-work. If it says **PROCEED**, keep building what you
+were building.
 
 ## Development flow
 
@@ -109,7 +134,9 @@ to deployable venture code stay owner-gated until Ask 9
      its host venture's `VENTURE.yaml` (the host must already be routable).
      Do not open a second venture directory.
 3. Ship on the VM or a preview deploy; record usage, not opinions.
-4. Let organic traffic and return usage decide what gets more investment.
+4. If the product is already on `main` and still has no public URL, **that
+   deploy is the next task** — not a second product in the same niche.
+5. Let organic traffic and return usage decide what gets more investment.
 
 Pipeline candidates with a `build-now` verdict are pre-researched starting
 points — graduate and build them instead of re-screening.

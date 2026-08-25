@@ -628,4 +628,17 @@ export const progressLog: ProgressEntry[] = [
       "Agent (next session): once a real delivery folder exists (from a real or realistic test shoot), run `npm run preflight -- --dir <delivery>` against it and fold the result into the candidate write-up's first-experiment section as real evidence instead of the current fixture-only precision/recall claim.",
     ],
   },
+  {
+    date: "2026-08-25",
+    agent: "cursor/deploy-built-products-priority-ffdc",
+    summary:
+      "Added a deploy-first task to the Listing Lens roadmap so already-built public surfaces (research report, /photo-check) outrank more process work, matching the portfolio Current priority in DIRECTION.md.",
+    changes: [
+      "process/roadmap.ts: new p0-deploy-built-surfaces (not_started, owner both) — done when a stranger can open the existing research report and /photo-check without cloning the repo. Points at the existing deploy-settings owner ask; does not open a second one.",
+    ],
+    nextUp: [
+      "Agent: prepare the public deploy artifact for the already-built research / photo-check surfaces; do not start p3-app-scope or another tool.",
+      "Human: flip deploy-settings (Pages / Cloudflare credentials) if that is what unblocks the URL. Same long-open blockers in process/blockers.ts otherwise stand.",
+    ],
+  },
 ];
