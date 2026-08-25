@@ -96,10 +96,11 @@ input error and exits `2`. Batch scans also flag duplicate `invoice_number`
 values as `INV-019`; the number itself is never emitted.
 JSON output uses the same versioned summary fields for single files and
 directories: `schema_version` (currently `1`), `status`, `exit_code`,
-`files_checked`, `files_failed`, `observations`, `rules`, and `read_errors`.
+`files_checked`, `files_failed`, `observations`, `rules`, `fixes`, and `read_errors`.
 `exit_code` mirrors the process result (`0` pass, `1` findings, `2` read/input
 errors), so an adapter can handle captured output without reimplementing exit
-logic. Single-file output also includes `file` and `errors`; directory output
+logic. `fixes` is a sorted, privacy-safe remediation queue with one item per
+rule, its occurrence count, check message, and recommended fix. Single-file output also includes `file` and `errors`; directory output
 includes the per-file `reports` array. Rule counts let a CI or ERP adapter show
 a compact defect summary without parsing human text.
 `--format jsonl` emits one compact JSON object per invoice (or read error),
@@ -137,6 +138,10 @@ Use `--output PATH` with any format to write the report atomically to a local
 file instead of stdout. Parent directories are created when needed. A failed
 write returns exit code `2` and never replaces an existing report with a partial
 file.
+
+`--max-files N` accepts a positive integer, including the usual `+N` CLI
+notation, and rejects zero, negative, or non-numeric values before any invoice
+is read.
 
 Machine-readable formats remain valid JSON, JSONL, SARIF, CSV, JUnit, Markdown,
 or HTML when a directory is empty or a `--max-files` limit refuses the scan.
