@@ -7,7 +7,7 @@
   <meta name="description" content="Price a kitchen tile backsplash from wall square feet, subway versus herringbone versus mosaic versus large-format, tile-only versus new-prep versus demo-and-replace, and extras — plus the walk-away price a $35 / SF special cannot see.">
   <meta property="og:title" content="Kitchen Tile Backsplash Bid Calculator">
   <meta property="og:description" content="Bid a kitchen backsplash the way the trade does — wall, pattern, and extras, not a published per-SF dump — and see the margin before you send the price.">
-  <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Kitchen Tile Backsplash Bid Calculator","applicationCategory":"BusinessApplication","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"featureList":"Wall square feet, subway vs herringbone vs mosaic vs large-format comparison, tile-only vs new-prep vs demo-and-replace comparison, outlet cooktop Schluter extras, walk-away price, proposed-price margin check, copyable bid summary"}</script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Kitchen Tile Backsplash Bid Calculator","applicationCategory":"BusinessApplication","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"featureList":"Wall square feet, subway vs herringbone vs mosaic vs large-format comparison, tile-only vs new-prep vs demo-and-replace comparison, leftover box credit and box round-up, second-wall leftover coverage, outlet cooktop Schluter extras, walk-away price, proposed-price margin check, copyable bid summary"}</script>
   <style>
     :root { color-scheme: light; font-family: system-ui, sans-serif; color: #3a2d24; background: #f3ebe3; }
     body { max-width: 1060px; margin: 0 auto; padding: 32px 18px; }
@@ -130,6 +130,16 @@
         </div>
         <p class="hint" style="margin-top:14px;margin-bottom:0">Payroll burden covers employer taxes, workers&rsquo; compensation, liability insurance, and paid time off. Underestimating it is how a $35 / SF splash that looked profitable was not.</p>
       </section>
+
+      <section>
+        <h2>Leftover boxes and the next wall</h2>
+        <p class="hint">Tile is sold by the box. A 33 SF buy is not 3.3 boxes — it is four boxes at 10 SF each, and leftover after the kitchen may or may not cover a laundry return. Leftover already on the van is already-paid stock unless you decide to credit it; this does not change the headline bid.</p>
+        <div class="fields">
+          <label>Square feet per box <input id="sfPerBox" type="number" min="0.01" step="0.1" value="10"></label>
+          <label>Leftover boxes on the van <input id="leftoverBoxes" type="number" min="0" step="0.5" value="0"></label>
+          <label>Second wall SF (laundry / pantry) <input id="secondWallSf" type="number" min="0" step="1" value="0"></label>
+        </div>
+      </section>
     </div>
 
     <section class="result" aria-live="polite">
@@ -171,6 +181,17 @@
         <tbody id="patterns"></tbody>
       </table>
       <hr>
+      <p class="note" style="margin-bottom:4px"><strong>Leftover boxes</strong></p>
+      <p class="note" style="margin-top:0">The kitchen buy is rounded up to whole boxes. Leftover on the van credits the buy. A second wall is covered only if leftover after this splash still has the waste you already assumed.</p>
+      <dl>
+        <dt>Boxes to buy</dt><dd id="boxesToBuy"></dd>
+        <dt>Leftover after kitchen</dt><dd id="leftoverAfter"></dd>
+        <dt>Box round-up you eat</dt><dd id="boxRoundUp"></dd>
+        <dt>Leftover credit (if stock is free)</dt><dd id="leftoverCredit"></dd>
+        <dt>Second wall</dt><dd id="secondWall"></dd>
+      </dl>
+      <div id="boxVerdict" class="verdict" hidden></div>
+      <hr>
       <p class="note" style="margin-bottom:4px"><strong>Where the hours go</strong></p>
       <ul class="split" id="split"></ul>
       <hr>
@@ -192,6 +213,7 @@
       calculateBid,
       compareScope,
       comparePattern,
+      leftoverBoxPlan,
       formatBidSummary,
       suggestedScopeKit,
       suggestedPatternKit,
@@ -219,6 +241,7 @@
       'hourlyWage', 'burdenRate', 'travelAndEquipment', 'otherCost',
       'overheadRate', 'targetMargin', 'proposedPrice',
     ];
+    const BOX_IDS = ['sfPerBox', 'leftoverBoxes', 'secondWallSf'];
     const SCOPE_RATE_IDS = ['prepHoursPerSf', 'demoHoursPerSf', 'boardPerSf'];
     const PATTERN_RATE_IDS = ['hoursTilePerSf', 'wasteRate', 'tilePerSf'];
     const WALL_RATE_IDS = ['hoursWallPerSf', 'wallInvoicePerSf'];
@@ -267,7 +290,7 @@
 
     function readInput() {
       const values = Object.fromEntries(
-        [...JOB_IDS, ...RATE_IDS, ...COST_IDS].map(id => [id, el(id).value]),
+        [...JOB_IDS, ...RATE_IDS, ...COST_IDS, ...BOX_IDS].map(id => [id, el(id).value]),
       );
       for (const id of FLAG_IDS) values[id] = el(id).checked;
       return values;
@@ -281,18 +304,22 @@
       el('price').textContent = message;
       el('price').className = `hero-number ${isError ? 'negative' : ''}`;
       el('priceLabel').textContent = isError ? 'check the highlighted input' : 'kitchen-backsplash price';
-      ['area','buy','travel','hours','labor','finishCost','extra','soft','overhead','cost','profit','perSf','hourlyRate','breakEven']
+      ['area','buy','travel','hours','labor','finishCost','extra','soft','overhead','cost','profit','perSf','hourlyRate','breakEven','boxesToBuy','leftoverAfter','boxRoundUp','leftoverCredit','secondWall']
         .forEach(id => { el(id).textContent = ''; });
       el('split').innerHTML = '';
       el('compare').innerHTML = '';
       el('patterns').innerHTML = '';
       el('verdict').hidden = true;
+      el('boxVerdict').hidden = true;
     }
 
     function update() {
       let result;
+      let boxes;
       try {
-        result = calculateBid(readInput());
+        const values = readInput();
+        result = calculateBid(values);
+        boxes = leftoverBoxPlan(values);
       } catch (error) {
         clearOutputs(error.message, true);
         return;
@@ -355,6 +382,34 @@
         <td>${upgrade}</td>
       </tr>`;
       }).join('');
+
+      el('boxesToBuy').textContent = `${boxes.boxesToBuy} box${boxes.boxesToBuy === 1 ? '' : 'es'} (${boxes.purchasedSf.toFixed(1)} SF)`;
+      el('leftoverAfter').textContent = `${boxes.leftoverAfterKitchen.toFixed(1)} SF · ${boxes.leftoverAfterKitchenBoxes.toFixed(1)} boxes`;
+      el('boxRoundUp').textContent = `${boxes.boxRoundUpSf.toFixed(1)} SF · ${money(boxes.boxRoundUpCost)}`;
+      el('leftoverCredit').textContent = boxes.leftoverCredit === 0
+        ? 'none — van is empty'
+        : `${boxes.usedFromStock.toFixed(1)} SF already paid · ${money(boxes.leftoverCredit)}`;
+      el('secondWall').textContent = boxes.secondWallSf === 0
+        ? 'no second wall entered'
+        : boxes.secondCoveredByLeftover
+          ? `${boxes.secondNeedSf.toFixed(1)} SF with waste — leftover covers it`
+          : `${boxes.secondNeedSf.toFixed(1)} SF with waste — still ${boxes.secondBoxesToBuy} box${boxes.secondBoxesToBuy === 1 ? '' : 'es'}`;
+
+      const boxVerdict = el('boxVerdict');
+      boxVerdict.hidden = false;
+      if (boxes.secondWallSf > 0 && !boxes.secondCoveredByLeftover) {
+        boxVerdict.className = 'verdict bad';
+        boxVerdict.innerHTML = `After the kitchen you have <strong>${boxes.leftoverAfterKitchen.toFixed(1)} SF</strong> left. The second wall still needs <strong>${boxes.secondBoxesToBuy} box${boxes.secondBoxesToBuy === 1 ? '' : 'es'}</strong> — leftover does not cover the laundry / pantry return.`;
+      } else if (boxes.secondWallSf > 0 && boxes.secondCoveredByLeftover) {
+        boxVerdict.className = 'verdict';
+        boxVerdict.innerHTML = `Leftover after the kitchen covers the second wall. Do not buy another box for that return.`;
+      } else if (boxes.boxRoundUpSf > 0) {
+        boxVerdict.className = 'verdict';
+        boxVerdict.innerHTML = `You buy <strong>${boxes.boxesToBuy} box${boxes.boxesToBuy === 1 ? '' : 'es'}</strong> and eat <strong>${boxes.boxRoundUpSf.toFixed(1)} SF</strong> of round-up. Enter a laundry / pantry wall to see whether that leftover still covers it.`;
+      } else {
+        boxVerdict.className = 'verdict';
+        boxVerdict.innerHTML = `The leftover on the van covers this kitchen buy. No new boxes.`;
+      }
 
       const verdict = el('verdict');
       if (result.proposed === null) {
@@ -440,6 +495,10 @@
       if (id === 'scope' || id === 'pattern' || id === 'wall') return;
       el(id).addEventListener('input', update);
       el(id).addEventListener('change', () => count(id === 'proposedPrice' ? 'proposed_price_compared' : 'bid_calculated'));
+    });
+    BOX_IDS.forEach(id => {
+      el(id).addEventListener('input', update);
+      el(id).addEventListener('change', () => count('boxes_compared'));
     });
     FLAG_IDS.forEach(id => {
       el(id).addEventListener('change', () => {
