@@ -184,6 +184,7 @@
 
     <div class="actions">
       <button type="button" id="copy-csv">Copy as CSV row</button>
+      <button type="button" id="copy-summary">Copy review summary</button>
       <span id="copy-status" class="hint" role="status" aria-live="polite"></span>
     </div>
   </section>
@@ -252,6 +253,7 @@
 <script type="module">
   import { loadQuote, calculate, overrunScenarios } from "./calc.mjs";
   import { reviewQuote } from "./review.mjs";
+  import { formatReviewSummary } from "./summary.mjs";
   import { recordEvent, createReportCounter, isUsageCountingEnabled, setUsageCountingEnabled } from "./usage.mjs";
 
   // Counts settled quotes rather than keystrokes — see usage.mjs.
@@ -338,6 +340,7 @@
   }
 
   const copyBtn = document.getElementById("copy-csv");
+  const summaryBtn = document.getElementById("copy-summary");
   const copyStatus = document.getElementById("copy-status");
   copyBtn.addEventListener("click", async () => {
     if (!lastReport) {
@@ -359,6 +362,22 @@
       await navigator.clipboard.writeText(rows);
       copyStatus.textContent = "Copied — paste into a spreadsheet.";
       recordEvent("csv_copied");
+    } catch {
+      copyStatus.textContent = "Couldn't access the clipboard in this browser.";
+    }
+  });
+
+  summaryBtn.addEventListener("click", async () => {
+    if (!lastReport) {
+      copyStatus.textContent = "Fix the inputs above first.";
+      return;
+    }
+    const { quote, r } = lastReport;
+    const summary = formatReviewSummary(quote, r, reviewQuote(quote, r));
+    try {
+      await navigator.clipboard.writeText(summary);
+      copyStatus.textContent = "Copied — paste into notes or a project record.";
+      recordEvent("review_summary_copied");
     } catch {
       copyStatus.textContent = "Couldn't access the clipboard in this browser.";
     }
