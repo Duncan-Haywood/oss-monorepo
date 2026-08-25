@@ -433,6 +433,21 @@ products:
           cover/ladder/drain/haul/finish extras, copyable proposal summary).
           Public URL remains owner-gated; the local-first counter reports
           only to the user's own browser and is opt-out. Baseline row.
+  - slug: walk-in-tub-bid-calculator
+    surface: static-page-in-repo
+    readings:
+      - as_of: 2026-08-25
+        signals:
+          live_url_visitors: null
+          local_events_reported: 0
+        note: >-
+          Shipped a local walk-in tub bid calculator (tub count,
+          acrylic soaker vs cast vs whirlpool vs air-jet vs extra-wide,
+          alcove swap vs relocate vs new-construction vs custom-opening,
+          inward vs outward vs walk-through door, demo/tile/grab/handheld/
+          floor/permit extras, copyable proposal summary).
+          Public URL remains owner-gated; the local-first counter reports
+          only to the user's own browser and is opt-out. Baseline row.
   - slug: freelance-retainer-calculator
     surface: static-page-in-repo
     readings:
