@@ -6,6 +6,17 @@
 # retired honestly instead of quietly.
 period: 2026-08
 products:
+  - slug: saas-seat-true-up
+    surface: static-page-in-repo
+    readings:
+      - as_of: 2026-08-25
+        signals:
+          live_url_visitors: null
+          true_up_calculated: 0
+        note: >-
+          Shipped a browser-local SaaS seat renewal calculator. Public URL
+          remains owner-gated; the local event counter is opt-out and stores no
+          plan values.
   - slug: retainage-cashflow-calculator
     surface: static-page-in-repo
     readings:
