@@ -1,5 +1,5 @@
 name: amazon-fba-calculator
-description: A private browser calculator for Amazon sellers to compare FBA vs FBM profit on the same listing after referral, fulfillment, storage, inbound, and cost of goods — including the maximum inventory buy cost.
+description: A private browser calculator for Amazon sellers to compare FBA vs FBM profit on the same listing after referral, fulfillment, storage, inbound, cost of goods, and the low-inventory-level fee — including whether restocking to 28 days beats staying thin.
 stage: prototype
 owner: duncan
 hypotheses:

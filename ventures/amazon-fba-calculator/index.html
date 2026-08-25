@@ -3,8 +3,8 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Amazon FBA vs FBM Profit Calculator | Max Buy Cost</title>
-  <meta name="description" content="Free Amazon FBA vs FBM calculator: see referral fees, fulfillment, storage, and inbound on the same listing. Get net profit, ROI, break-even sale price, and the maximum you can pay for inventory.">
+  <title>Amazon FBA vs FBM Profit Calculator | Low-Inventory Fee</title>
+  <meta name="description" content="Free Amazon FBA vs FBM calculator: compare referral, fulfillment, storage, inbound, and the low-inventory-level fee. See whether restocking to 28 days beats staying thin.">
   <meta name="robots" content="index, follow">
   <link rel="canonical" href=".">
   <meta property="og:title" content="Amazon FBA vs FBM Profit Calculator">
@@ -18,7 +18,7 @@
     "applicationCategory": "BusinessApplication",
     "operatingSystem": "Any (runs in a web browser)",
     "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
-    "featureList": "FBA vs FBM comparison, size-tier fulfillment, storage, inbound, net profit, margin, ROI, break-even price, max buy cost, target-margin price"
+    "featureList": "FBA vs FBM comparison, size-tier fulfillment, storage, inbound, low-inventory-level fee, restock vs stay thin, net profit, margin, ROI, break-even price, max buy cost, target-margin price"
   }
   </script>
   <script type="application/ld+json">
@@ -48,6 +48,14 @@
         "acceptedAnswer": {
           "@type": "Answer",
           "text": "The max buy cost is the cost of goods that drives net profit to zero after the referral fee and the fulfillment-path costs you entered. Buy above that number and the unit loses money on these assumptions."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Is Amazon's low-inventory-level fee worth restocking to avoid?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "The fee applies on FBA shipments when both the 30-day and 90-day historical days of supply sit below 28. Restocking adds inbound and monthly storage on the extra units. This page compares those two cash drains from the rates you enter. It does not publish Amazon's live schedule."
         }
       }
     ]
@@ -91,12 +99,13 @@
 <body>
   <header>
     <p class="eyebrow">FOR AMAZON SELLERS</p>
-    <h1>Know whether FBA or FBM leaves more — and the most you can pay for the unit.</h1>
+    <h1>Know whether FBA or FBM leaves more — and whether thin stock is costing you the listing.</h1>
     <p>
       Enter the listing price, category, size, and what you paid. The
       calculator shows referral, fulfillment, storage, and inbound on FBA
-      against the shipping you pay on FBM. Everything runs in this page;
-      nothing is uploaded.
+      against the shipping you pay on FBM, then whether a low-inventory-level
+      surcharge is cheaper than sending enough units to stay at 28 days.
+      Everything runs in this page; nothing is uploaded.
     </p>
   </header>
   <main class="layout">
@@ -147,6 +156,13 @@
         <label>Professional plan / month <input id="monthlySellerFee" type="number" min="0" step="0.01" value="39.99"></label>
         <label>Units sold per month <input id="monthlyUnits" type="number" min="0" step="1" value="80"></label>
         <label>Target net margin (%) <input id="targetMargin" type="number" min="0" max="99.99" step="0.1" value="30"></label>
+        <label>Units on hand <input id="onHandUnits" type="number" min="0" step="1" value="80"></label>
+        <label>Units sold last 30 days <input id="soldLast30Days" type="number" min="0" step="1" value="80"></label>
+        <label>Units sold last 90 days <input id="soldLast90Days" type="number" min="0" step="1" value="240"></label>
+        <label>Low-inventory fee / unit <span class="hint" id="lilHint"></span>
+          <input id="lowInventoryFee" type="number" min="0" step="0.01" value="">
+        </label>
+        <label class="span2 paths"><input id="newFnskuExempt" type="checkbox"> New FNSKU (first 180 days — illustrative exemption)</label>
       </div>
     </section>
     <section class="result">
@@ -163,6 +179,8 @@
         <dt>Max buy cost</dt><dd id="maxBuy"></dd>
         <dt>Price for target margin</dt><dd id="targetMarginPrice"></dd>
         <dt>FBA vs FBM</dt><dd id="advantage"></dd>
+        <dt>Low-inventory fee / unit</dt><dd id="lilFee"></dd>
+        <dt>30-day / 90-day supply</dt><dd id="lilDays"></dd>
       </dl>
       <hr>
       <h2>Same listing, both paths</h2>
@@ -170,7 +188,15 @@
         <thead><tr><th>Path</th><th>Fees</th><th>Profit</th><th>Max buy</th></tr></thead>
         <tbody id="compare"></tbody>
       </table>
-      <p class="note">Transparent arithmetic from your inputs — not Amazon’s current fee schedule. Referral, fulfillment, storage, and inbound vary by category, size, season, and account. Verify against your Amazon fee preview before buying inventory.</p>
+      <hr>
+      <h2>Stay thin vs restock to 28 days</h2>
+      <p id="lilSummary" class="note"></p>
+      <table>
+        <thead><tr><th>Policy</th><th>LIL / month</th><th>Extra storage / month</th><th>Monthly gap</th></tr></thead>
+        <tbody id="lilCompare"></tbody>
+      </table>
+      <p id="lilPayback" class="note"></p>
+      <p class="note">Transparent arithmetic from your inputs — not Amazon’s current fee schedule. Referral, fulfillment, storage, inbound, and the low-inventory-level surcharge vary by category, size, season, and account. Verify against your Amazon fee preview before buying or sending inventory.</p>
     </section>
   </main>
   <section class="faq" aria-labelledby="faq-heading">
@@ -183,6 +209,13 @@
       still works.
       <a href="fba-vs-fbm.html">FBA vs FBM: which path leaves more?</a>
       walks through that in search-query words.
+    </p>
+    <p>
+      A second decision is whether thin FBA stock is cheaper than sending
+      more units.
+      <a href="low-inventory-level-fee.html">Low-inventory-level fee: restock or stay thin?</a>
+      compares the surcharge on each sale against inbound and storage on the
+      extra units that would get you to 28 days of supply.
     </p>
     <p>
       It does not recommend a price, a category, or a fulfillment method, and
@@ -209,6 +242,7 @@
       "monthsInStorage", "storageRate", "fulfillmentFee", "costOfGoods",
       "inboundPerUnit", "fbmShippingCost", "packagingCost", "adsPerUnit",
       "otherCost", "monthlySellerFee", "monthlyUnits", "targetMargin",
+      "onHandUnits", "soldLast30Days", "soldLast90Days", "lowInventoryFee",
     ];
     const money = (value) => `$${value.toFixed(2)}`;
     let syncingFee = false;
@@ -220,7 +254,13 @@
     function readInput() {
       const raw = Object.fromEntries(ids.map((id) => [id, document.getElementById(id).value]));
       if (raw.fulfillmentFee === "") delete raw.fulfillmentFee;
-      return { ...raw, fulfillmentMethod: fulfillmentMethod() };
+      if (raw.lowInventoryFee === "") delete raw.lowInventoryFee;
+      return {
+        ...raw,
+        fulfillmentMethod: fulfillmentMethod(),
+        newFnskuExempt: document.getElementById("newFnskuExempt").checked,
+        groceryExempt: document.getElementById("category").value === "grocery",
+      };
     }
 
     function updateFeePlaceholder() {
@@ -263,20 +303,48 @@
         const extra = result.fbaAdvantage;
         document.getElementById("advantage").textContent =
           extra > 0 ? `${money(extra)} more with FBA` : extra < 0 ? `${money(-extra)} more with FBM` : "same profit";
+        const lil = result.lowInventory;
+        document.getElementById("lilFee").textContent = money(lil.feePerUnit);
+        const fmtDays = (value) => Number.isFinite(value) ? `${value.toFixed(1)} days` : "n/a";
+        document.getElementById("lilDays").textContent = `${fmtDays(lil.shortTermDays)} / ${fmtDays(lil.longTermDays)}`;
+        document.getElementById("lilHint").textContent = lil.applies
+          ? `(${lil.bandLabel}, default $${lil.suggestedFee.toFixed(2)})`
+          : `(${lil.bandLabel})`;
         document.getElementById("compare").innerHTML = [
           ["FBA", result.fba],
           ["FBM (you ship)", result.fbm],
         ].map(([name, path]) =>
           `<tr><td>${name}</td><td>${money(path.feeTotal)}</td><td>${money(path.profit)}</td><td>${money(path.breakEvenBuyCost)}</td></tr>`
         ).join("");
+        document.getElementById("lilSummary").textContent = lil.applies
+          ? `Both supply windows are below 28 days (${lil.bandLabel}). FBA shipments pick up ${money(lil.feePerUnit)} per unit on these rates.`
+          : lil.reason === "above_threshold"
+            ? "At least one supply window is 28 days or more, so this model does not add a low-inventory surcharge."
+            : `No low-inventory surcharge on these assumptions (${lil.bandLabel}).`;
+        document.getElementById("lilCompare").innerHTML = [
+          ["Stay at current stock", money(lil.monthlyFee), money(0), money(0)],
+          ["Restock to 28 days", money(0), money(lil.extraStoragePerMonth), money(lil.restockSavesPerMonth)],
+        ].map((cells) => `<tr>${cells.map((text, i) => `<td>${text}</td>`).join("")}</tr>`).join("");
+        const payback = lil.inboundPaybackMonths;
+        document.getElementById("lilPayback").textContent = lil.extraUnitsTo28 === 0
+          ? "You already cover 28 days at the faster of the two sales windows."
+          : lil.cheaperPolicy === "restock" && Number.isFinite(payback)
+            ? `Sending ${lil.extraUnitsTo28.toFixed(0)} more units costs ${money(lil.extraInbound)} inbound and pays back in ${payback.toFixed(1)} months if the surcharge stays on.`
+            : lil.cheaperPolicy === "stay_thin"
+              ? `Extra storage on ${lil.extraUnitsTo28.toFixed(0)} units is higher than the monthly surcharge — staying thin is cheaper on these rates.`
+              : `Extra inbound to reach 28 days: ${money(lil.extraInbound)}.`;
       } catch (error) {
         document.getElementById("profit").textContent = error.message;
         document.getElementById("profit").className = "hero-number error";
         document.getElementById("label").textContent = "fix the inputs to see a result";
-        ["revenue", "fees", "invested", "margin", "roi", "breakEven", "maxBuy", "targetMarginPrice", "advantage"].forEach((id) => {
+        ["revenue", "fees", "invested", "margin", "roi", "breakEven", "maxBuy", "targetMarginPrice", "advantage", "lilFee", "lilDays"].forEach((id) => {
           document.getElementById(id).textContent = "";
         });
         document.getElementById("compare").innerHTML = "";
+        document.getElementById("lilCompare").innerHTML = "";
+        document.getElementById("lilSummary").textContent = "";
+        document.getElementById("lilPayback").textContent = "";
+        document.getElementById("lilHint").textContent = "";
       }
     }
 
@@ -302,13 +370,20 @@
       }
       update();
     }));
+    const inventoryIds = new Set(["onHandUnits", "soldLast30Days", "soldLast90Days", "lowInventoryFee"]);
     ids.forEach((id) => document.getElementById(id).addEventListener("change", () => {
       recordUsage(
         localStorage,
         document.getElementById("usageOptOut").checked,
-        id === "targetMargin" ? "target_margin_calculated" : "listing_profit_calculated",
+        inventoryIds.has(id)
+          ? "low_inventory_compared"
+          : id === "targetMargin" ? "target_margin_calculated" : "listing_profit_calculated",
       );
     }));
+    document.getElementById("newFnskuExempt").addEventListener("change", () => {
+      update();
+      recordUsage(localStorage, document.getElementById("usageOptOut").checked, "low_inventory_compared");
+    });
     document.querySelectorAll('input[name="fulfillmentMethod"]').forEach((el) => {
       el.addEventListener("change", () => {
         update();

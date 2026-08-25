@@ -195,6 +195,22 @@ export function calculateListing(input) {
     return path;
   }
 
+  const lowInventory = compareLowInventory({
+    onHandUnits: input.onHandUnits,
+    soldLast30Days: input.soldLast30Days,
+    soldLast90Days: input.soldLast90Days,
+    sizeTier,
+    weightLb,
+    cubicFeet: cuFt,
+    storageRate,
+    inboundPerUnit,
+    monthlyUnits,
+    lowInventoryFee: input.lowInventoryFee,
+    newFnskuExempt: input.newFnskuExempt,
+    groceryExempt: input.groceryExempt,
+    fulfillmentMethod: "fba",
+  });
+
   const fbaCash = sharedCash + inboundPerUnit + storagePerUnit;
   const fba = finish(
     pathResult({
@@ -202,7 +218,7 @@ export function calculateListing(input) {
       percentRate,
       cashInvested: fbaCash,
       targetMarginRate,
-      feeParts: { referral, fulfillment: fulfillmentFee },
+      feeParts: { referral, fulfillment: fulfillmentFee, lowInventory: lowInventory.feePerUnit },
     }),
     costOfGoods,
   );
@@ -214,7 +230,7 @@ export function calculateListing(input) {
       percentRate,
       cashInvested: fbmCash,
       targetMarginRate,
-      feeParts: { referral, fulfillment: 0 },
+      feeParts: { referral, fulfillment: 0, lowInventory: 0 },
     }),
     costOfGoods,
   );
@@ -236,5 +252,216 @@ export function calculateListing(input) {
     fbm,
     fbaAdvantage,
     cheaperPath: fbaAdvantage > 0 ? "fba" : fbaAdvantage < 0 ? "fbm" : "tie",
+    lowInventory,
+  };
+}
+
+// Illustrative US low-inventory-level (LIL) bands. Amazon charges a per-unit
+// surcharge on FBA shipments when both the 30-day and 90-day historical days
+// of supply sit below 28. These defaults are editable starting points — not
+// Amazon's live schedule. Extra-large is treated as exempt unless the seller
+// types a fee.
+export const LOW_INVENTORY_THRESHOLD_DAYS = 28;
+
+export const LOW_INVENTORY_FEE_PRESETS = {
+  small_standard: [
+    { maxDays: 13, fee: 0.89, label: "0–13 days" },
+    { maxDays: 20, fee: 0.63, label: "14–20 days" },
+    { maxDays: 27, fee: 0.32, label: "21–27 days" },
+  ],
+  large_standard_light: [
+    { maxDays: 13, fee: 0.97, label: "0–13 days" },
+    { maxDays: 20, fee: 0.7, label: "14–20 days" },
+    { maxDays: 27, fee: 0.36, label: "21–27 days" },
+  ],
+  large_standard_heavy: [
+    { maxDays: 13, fee: 1.11, label: "0–13 days" },
+    { maxDays: 20, fee: 0.87, label: "14–20 days" },
+    { maxDays: 27, fee: 0.47, label: "21–27 days" },
+  ],
+  large_bulky: [
+    { maxDays: 13, fee: 2.09, label: "0–13 days" },
+    { maxDays: 20, fee: 1.44, label: "14–20 days" },
+    { maxDays: 27, fee: 1.08, label: "21–27 days" },
+  ],
+};
+
+export function daysOfSupply({ averageDailyInventory, unitsSold, windowDays }) {
+  const inventory = number(averageDailyInventory, "On-hand units");
+  const sold = number(unitsSold, "Units sold");
+  const window = number(windowDays, "Window days");
+  if (window === 0) throw new Error("Window days must be greater than zero");
+  const dailyShipped = sold / window;
+  if (dailyShipped === 0) return Infinity;
+  return inventory / dailyShipped;
+}
+
+export function lowInventoryBandKey(sizeTier, weightLb) {
+  if (!SIZE_TIER_LABELS[sizeTier]) throw new Error(`Unknown size tier: ${sizeTier}`);
+  if (sizeTier === "small_standard") return "small_standard";
+  if (sizeTier === "large_standard") {
+    return number(weightLb, "Weight") <= 3 ? "large_standard_light" : "large_standard_heavy";
+  }
+  if (sizeTier === "large_bulky") return "large_bulky";
+  return "exempt";
+}
+
+export function defaultLowInventoryFee({ sizeTier, weightLb, daysOfSupply: days }) {
+  const supply = number(days, "Days of supply");
+  if (supply >= LOW_INVENTORY_THRESHOLD_DAYS) return 0;
+  const key = lowInventoryBandKey(sizeTier, weightLb);
+  const bands = LOW_INVENTORY_FEE_PRESETS[key];
+  if (!bands) return 0;
+  for (const band of bands) {
+    if (supply <= band.maxDays) return band.fee;
+  }
+  return bands[bands.length - 1].fee;
+}
+
+export function compareLowInventory(input = {}) {
+  const hasInventory =
+    input.onHandUnits !== undefined &&
+    input.onHandUnits !== null &&
+    input.onHandUnits !== "" &&
+    input.soldLast30Days !== undefined &&
+    input.soldLast30Days !== null &&
+    input.soldLast30Days !== "" &&
+    input.soldLast90Days !== undefined &&
+    input.soldLast90Days !== null &&
+    input.soldLast90Days !== "";
+
+  if (!hasInventory) {
+    return {
+      applies: false,
+      reason: "not_entered",
+      shortTermDays: null,
+      longTermDays: null,
+      bandDays: null,
+      bandLabel: "not entered",
+      suggestedFee: 0,
+      feePerUnit: 0,
+      monthlyFee: 0,
+      extraUnitsTo28: 0,
+      extraStoragePerMonth: 0,
+      extraInbound: 0,
+      restockSavesPerMonth: 0,
+      inboundPaybackMonths: null,
+      cheaperPolicy: "tie",
+      exempt: false,
+    };
+  }
+
+  const onHandUnits = number(input.onHandUnits, "On-hand units");
+  const soldLast30Days = number(input.soldLast30Days, "Units sold last 30 days");
+  const soldLast90Days = number(input.soldLast90Days, "Units sold last 90 days");
+  const storageRate = number(input.storageRate, "Storage rate", 0);
+  const inboundPerUnit = number(input.inboundPerUnit, "Inbound per unit", 0);
+  const monthlyUnits = number(input.monthlyUnits, "Monthly units", 0);
+  const cuFt = number(input.cubicFeet ?? 0, "Cubic feet", 0);
+  const fulfillmentMethod = input.fulfillmentMethod ?? "fba";
+  const newFnskuExempt = Boolean(input.newFnskuExempt);
+  const groceryExempt = Boolean(input.groceryExempt);
+
+  const shortTermDays = daysOfSupply({
+    averageDailyInventory: onHandUnits,
+    unitsSold: soldLast30Days,
+    windowDays: 30,
+  });
+  const longTermDays = daysOfSupply({
+    averageDailyInventory: onHandUnits,
+    unitsSold: soldLast90Days,
+    windowDays: 90,
+  });
+
+  const bothFinite = Number.isFinite(shortTermDays) && Number.isFinite(longTermDays);
+  const bothBelow =
+    bothFinite &&
+    shortTermDays < LOW_INVENTORY_THRESHOLD_DAYS &&
+    longTermDays < LOW_INVENTORY_THRESHOLD_DAYS;
+  // When both windows are thin, the fee band follows the thinner one. If
+  // either window is 28 days or more, Amazon's published rule waives the fee.
+  const bandDays = bothBelow ? Math.min(shortTermDays, longTermDays) : Math.max(shortTermDays, longTermDays);
+
+  let reason = "above_threshold";
+  let exempt = false;
+  if (fulfillmentMethod === "fbm") {
+    reason = "fbm";
+    exempt = true;
+  } else if (newFnskuExempt) {
+    reason = "new_fnsku";
+    exempt = true;
+  } else if (groceryExempt) {
+    reason = "grocery";
+    exempt = true;
+  } else if (!bothBelow) {
+    reason = "above_threshold";
+  } else {
+    reason = "below_threshold";
+  }
+
+  const applies = reason === "below_threshold";
+  const suggestedFee = applies
+    ? defaultLowInventoryFee({
+        sizeTier: input.sizeTier ?? "large_standard",
+        weightLb: input.weightLb ?? 0,
+        daysOfSupply: bandDays,
+      })
+    : 0;
+
+  const overrideEmpty =
+    input.lowInventoryFee === undefined || input.lowInventoryFee === null || input.lowInventoryFee === "";
+  const feePerUnit = applies
+    ? overrideEmpty
+      ? suggestedFee
+      : number(input.lowInventoryFee, "Low-inventory fee")
+    : 0;
+
+  const monthlyFee = feePerUnit * monthlyUnits;
+
+  const dailyShipped = Math.max(soldLast30Days / 30, soldLast90Days / 90);
+  const unitsFor28 = dailyShipped * LOW_INVENTORY_THRESHOLD_DAYS;
+  const extraUnitsTo28 = Math.max(0, unitsFor28 - onHandUnits);
+  const extraStoragePerMonth = extraUnitsTo28 * cuFt * storageRate;
+  const extraInbound = extraUnitsTo28 * inboundPerUnit;
+  const restockSavesPerMonth = monthlyFee - extraStoragePerMonth;
+  const inboundPaybackMonths =
+    restockSavesPerMonth > 0 ? extraInbound / restockSavesPerMonth : extraInbound === 0 ? 0 : Infinity;
+
+  let cheaperPolicy = "tie";
+  if (restockSavesPerMonth > 0) cheaperPolicy = "restock";
+  if (restockSavesPerMonth < 0) cheaperPolicy = "stay_thin";
+
+  const bandLabel = applies
+    ? (LOW_INVENTORY_FEE_PRESETS[lowInventoryBandKey(input.sizeTier ?? "large_standard", input.weightLb ?? 0)] ?? [])
+        .find((band) => bandDays <= band.maxDays)?.label ?? "below 28 days"
+    : reason === "above_threshold"
+      ? "28+ days"
+      : reason === "fbm"
+        ? "FBM (not charged)"
+        : reason === "new_fnsku"
+          ? "new FNSKU exempt"
+          : reason === "grocery"
+            ? "grocery exempt"
+            : "not entered";
+
+  return {
+    applies,
+    reason,
+    shortTermDays,
+    longTermDays,
+    bandDays,
+    bandLabel,
+    suggestedFee,
+    feePerUnit,
+    monthlyFee,
+    extraUnitsTo28,
+    extraStoragePerMonth,
+    extraInbound,
+    restockSavesPerMonth,
+    inboundPaybackMonths,
+    cheaperPolicy,
+    exempt,
+    dailyShipped,
+    unitsFor28,
   };
 }

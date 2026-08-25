@@ -2,10 +2,12 @@
 
 A free Amazon FBA calculator for sellers. It compares **Fulfillment by
 Amazon** against **merchant fulfilled (FBM)** on the same listing — referral
-fee, size-tier fulfillment, monthly storage, inbound, and the shipping label
-you buy yourself — then reports net profit, margin, return on the cash in the
-unit, the break-even sale price, the price that hits a target margin, and the
-**maximum you can pay for inventory** before the unit loses money.
+fee, size-tier fulfillment, monthly storage, inbound, the shipping label
+you buy yourself, and the **low-inventory-level surcharge** when both
+supply windows sit below 28 days — then reports net profit, margin, return
+on the cash in the unit, the break-even sale price, the price that hits a
+target margin, and the **maximum you can pay for inventory** before the
+unit loses money.
 
 Open [`index.html`](index.html) in a browser. The calculation is local and
 works without an account, network request, or API key. It is arithmetic, not
@@ -13,7 +15,8 @@ an estimate of the fees Amazon will charge: enter the rates from your current
 fee preview, and verify them there.
 
 **After using this, you can now see whether FBA or FBM leaves more on a real
-SKU, and the most you can pay a supplier for that unit** — which used to mean
+SKU, the most you can pay a supplier for that unit, and whether restocking
+to 28 days beats paying the low-inventory-level fee** — which used to mean
 a spreadsheet that forgot storage, inbound, or the professional plan.
 
 ## Why it's different
@@ -33,6 +36,8 @@ units, and shows **both paths on the same listing**.
 
 [FBA vs FBM: which path leaves more?](fba-vs-fbm.html) answers that search
 question directly.
+[Low-inventory-level fee: restock or stay thin?](low-inventory-level-fee.html)
+answers the restock decision.
 
 **No warranty.** This tool is provided free and as-is, without warranty of any
 kind, express or implied. It is not tax, financial, or business advice, and it
@@ -61,7 +66,7 @@ optional and never changes what the tool does.
 Pure ES modules, no build step, no dependencies.
 
 ```
-node --test        # runs calc.test.mjs and usage.test.mjs
+node --test        # runs calc.test.mjs, usage.test.mjs, and page.test.mjs
 ```
 
 `calc.mjs` holds the fee/profit/ROI arithmetic, size-tier classification, and
