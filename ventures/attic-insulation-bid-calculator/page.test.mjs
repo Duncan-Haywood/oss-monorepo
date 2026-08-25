@@ -20,6 +20,13 @@ test('calculator page is findable and usable without a build step', () => {
   assert.match(html, /engineering/);
 });
 
+test('calculator page has a paper-friendly quote layout', () => {
+  const html = page('index.html');
+  assert.match(html, /@media print/);
+  assert.match(html, /break-inside: avoid/);
+  assert.match(html, /result-card/);
+});
+
 test('SEO page answers the search question and does not claim a code table', () => {
   const html = page('how-much-to-charge.html');
   assert.match(html, /How much should I charge for blown-in attic insulation/i);

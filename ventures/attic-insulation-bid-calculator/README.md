@@ -69,9 +69,10 @@ billing rate, the share of labor that is air sealing (not blowing), the
 area split, and the **walk-away price** — total cost, below which the job
 makes nothing. Entering a price already on the table scores it against
 the same cost base and says plainly whether it is under water. **Copy
-quote summary** turns the result into a plain-text draft. **Copy share
-link** puts the same figures in the page hash so the recipient computes
-the same profit the sender saw.
+ quote summary** turns the result into a plain-text draft. **Copy share
+ link** puts the same figures in the page hash so the recipient computes
+ the same profit the sender saw. The result card is also formatted for printing
+ or saving as a PDF from the browser, without printing the input controls.
 
 The arithmetic lives in [`calc.mjs`](calc.mjs) with no DOM or network
 dependency. Share encoding is an allowlist ([`share.mjs`](share.mjs)) so a
