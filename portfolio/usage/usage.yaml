@@ -318,11 +318,12 @@ products:
           live_url_visitors: null
           local_calculations: 0
           local_summary_copies: 0
+          local_payment_term_float_views: 0
         note: >-
           Shipped a zero-dependency browser calculator for independent
           freelancers to price monthly retainers from billable capacity, costs,
-          and scope risk. Public URL remains owner-gated; counters are local,
-          aggregate, and opt-out.
+          and scope risk, including payment-term cash float. Public URL remains
+          owner-gated; counters are local, aggregate, and opt-out.
 
 # Example of the shape, once a product has shipped:
 #
