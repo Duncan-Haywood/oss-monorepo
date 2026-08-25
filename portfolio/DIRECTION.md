@@ -86,6 +86,11 @@ usage tracking, bug fixes, performance, SEO content, integrations behind
 env vars. Every session should leave a venture closer to something a stranger
 could use and benefit from.
 
+**Rely on the owner as little as possible.** Merge product PRs. Do not
+ask whether product code may land. Flag only when the session cannot
+finish without a secret, a legal-person account, taking money, publishing
+under the public name, or turning on unattended paid spend.
+
 **Not the default job:**
 
 - Re-verifying pull requests another session already verified
@@ -93,6 +98,7 @@ could use and benefit from.
 - Debating whether a prior rule was followed
 - Opening analysis documents when code could ship instead
 - Expanding the owner decision queue with items that do not block product work
+- Asking whether a green product PR may merge — that is yes
 
 Run `python3 portfolio/ledger/session_gate.py` on a generic brief ("continue
 work", "improve the process", etc.). If it says **BUILD**, build — and if
@@ -120,13 +126,12 @@ when product work is actually blocked):
 - **Publishing** under the portfolio's public name (store listing, npm publish,
   production domain cutover) — building privately is always allowed
 - Enabling unattended automation that spends paid API budget
-- Breaking changes to deployable `ventures/*` code
+- Pasting a secret they hold (Pages enable, deploy tokens, a GitHub PAT)
 
-Internal surfaces (`platform/`, `portfolio/`, docs, tests, CI) are
-**agent-decidable**: verify, merge, ship. Nothing live on `main` does not
-make `ventures/*` app code agent-decidable on its own — breaking changes
-to deployable venture code stay owner-gated until Ask 9
-(`venture-gate-premise`) is answered.
+Internal surfaces and `ventures/*` product code are **agent-decidable**:
+verify, merge, ship. Answered 2026-08-25: yes, merge product PRs. Do not
+re-ask. `python3 platform/ci/publish_surface.py` still tells you whether a
+merge publishes anything live; it does not block the merge.
 
 ## Graduating new products
 
