@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { calculate, compareQuotes, comparisonSummary, inputWarnings, negotiationLines, summary, volumeSensitivity } from "./calc.mjs";
+import { calculate, compareQuotes, comparisonSummary, inputWarnings, largestCostDriver, negotiationLines, summary, volumeSensitivity } from "./calc.mjs";
 
 test("normalizes the full monthly quote and minimum", () => {
   const result = calculate({ orders: 100, unitsPerOrder: 1.5, pallets: 1, minimumMonthly: 2000 });
@@ -65,4 +65,23 @@ test("shows how minimums and unit economics change with volume", () => {
   assert.equal(rows[1].minimumApplied, true);
   assert.equal(rows[2].minimumApplied, false);
   assert.ok(rows[2].perOrder < rows[0].perOrder);
+});
+
+test("identifies the largest normalized cost driver for negotiation", () => {
+  const result = calculate({ orders: 100, shipping: 12, fixedFee: 50 });
+  const driver = largestCostDriver(result);
+  assert.equal(driver.component, "shipping");
+  assert.equal(driver.label, "Shipping");
+  assert.equal(driver.amount, result.quote.shipping);
+  assert.equal(driver.share, Math.round((result.quote.shipping / result.quote.subtotal) * 100));
+  assert.match(summary(result), /Largest cost driver: Shipping/);
+  assert.match(negotiationLines(result).join("\n"), /Largest normalized cost driver: Shipping/);
+});
+
+test("uses the first component when the quote is tied or empty", () => {
+  const result = calculate({ orders: 0, unitsPerOrder: 0, pallets: 0, inboundUnits: 0, fixedFee: 0 });
+  const driver = largestCostDriver(result);
+  assert.equal(driver.component, "receiving");
+  assert.equal(driver.amount, 0);
+  assert.equal(driver.share, 0);
 });
