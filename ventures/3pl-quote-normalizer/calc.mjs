@@ -74,8 +74,10 @@ export function volumeSensitivity(input, volumes = [25, 50, 100, 250, 500]) {
 }
 
 export function negotiationLines(result) {
+  const driver = largestCostDriver(result);
   return [
     `Monthly volume: ${result.orders} orders`,
+    `Largest normalized cost driver: ${driver.label} (${money(driver.amount)}, ${driver.share}% of subtotal)`,
     ...result.components.map((component) => `${component}: ${money(result.quote[component])}`),
     `Subtotal before minimum: ${money(result.quote.subtotal)}`,
     `Minimum monthly spend applied: ${money(Math.max(0, result.quote.total - result.quote.subtotal))}`,
@@ -84,7 +86,20 @@ export function negotiationLines(result) {
   ];
 }
 
+const componentLabels = { receiving: "Receiving", storage: "Storage", pickPack: "Pick and pack", packaging: "Packaging", shipping: "Shipping", returns: "Returns", fixed: "Fixed fees" };
+
+export function largestCostDriver(result) {
+  const component = result.components.reduce((largest, current) =>
+    result.quote[current] > result.quote[largest] ? current : largest,
+    result.components[0],
+  );
+  const amount = result.quote[component] || 0;
+  const subtotal = result.quote.subtotal || 0;
+  return { component, label: componentLabels[component] || component, amount, share: subtotal ? Math.round((amount / subtotal) * 100) : 0 };
+}
+
 export function summary(result) {
+  const driver = largestCostDriver(result);
   return [
     "3PL quote normalization",
     ...(result.warnings.length ? ["", "Input warnings", ...result.warnings] : []),
@@ -93,6 +108,7 @@ export function summary(result) {
     `In-house estimate: ${money(result.inHouse)}`,
     `Difference (in-house minus 3PL): ${money(result.delta)}`,
     `True 3PL cost per order: ${money(result.perOrder)}`,
+    `Largest cost driver: ${driver.label} (${money(driver.amount)}, ${driver.share}% of subtotal)`,
     `Break-even volume: about ${Math.ceil(result.breakEvenOrders)} orders/month`,
     "",
     "Line items",
