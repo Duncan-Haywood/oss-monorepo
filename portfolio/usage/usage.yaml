@@ -13,7 +13,7 @@ products:
         signals:
           local_comparisons: 1
           qualified_pilots: 0
-         note: Shipped fixture-backed local comparison; customer demand remains untested.
+          note: Shipped fixture-backed local comparison; customer demand remains untested.
   - slug: einvoice-preflight
     surface: repository-cli
     readings:
@@ -247,19 +247,19 @@ products:
           markdown_reports: 1
           qualified_pilots: 0
         note: Markdown review reports shipped for single files and batch scans; customer demand remains untested.
-       - as_of: 2026-08-24
-         signals:
-           local_preflights: 1
-           markdown_reports: 1
-           csv_triage_exports: 1
-           qualified_pilots: 0
-         note: Added spreadsheet-friendly batch triage export; customer demand remains untested.
-       - as_of: 2026-08-24
-         signals:
-           local_preflights: 1
-           report_files_written: 1
-           qualified_pilots: 0
-         note: Added atomic --output report artifacts for CI and ERP workflows; customer demand remains untested.
+      - as_of: 2026-08-24
+        signals:
+          local_preflights: 1
+          markdown_reports: 1
+          csv_triage_exports: 1
+          qualified_pilots: 0
+        note: Added spreadsheet-friendly batch triage export; customer demand remains untested.
+      - as_of: 2026-08-24
+        signals:
+          local_preflights: 1
+          report_files_written: 1
+          qualified_pilots: 0
+        note: Added atomic --output report artifacts for CI and ERP workflows; customer demand remains untested.
   - slug: backup-verification-evidence
     surface: local-cli
     readings:
