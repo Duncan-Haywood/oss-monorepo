@@ -824,6 +824,11 @@ class ChecksTest(unittest.TestCase):
             self.assertIn("Overall: FAIL", report)
             self.assertIn("INV-017", report)
             self.assertIn("invoice&lt;review&gt;.json", report)
+            self.assertIn('href="#invoice-0"', report)
+            self.assertIn('id="invoice-0"', report)
+            self.assertIn('caption>Findings grouped by validation rule', report)
+            self.assertIn('scope="col"', report)
+            self.assertIn('href="#report-content"', report)
             self.assertNotIn("PRIVATE-123", report)
             self.assertNotIn("<script", report.lower())
 
