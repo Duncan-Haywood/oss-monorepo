@@ -2,6 +2,11 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import { calculate, compareQuotes, comparisonSummary, inputWarnings, largestCostDriver, negotiationLines, summary, volumeSensitivity } from "./calc.mjs";
 
+test("custom return and restocking fees flow into the normalized quote", () => {
+  const result = calculate({ orders: 100, unitsPerOrder: 1, returnsRate: 10, returnFee: 7, restockFee: 3 });
+  assert.equal(result.quote.returns, 100);
+});
+
 test("normalizes the full monthly quote and minimum", () => {
   const result = calculate({ orders: 100, unitsPerOrder: 1.5, pallets: 1, minimumMonthly: 2000 });
   assert.equal(Math.round(result.quote.subtotal), 1419);
@@ -49,10 +54,12 @@ test("comparison identifies the cheaper quote at the same volume", () => {
 });
 
 test("flags malformed and negative rate-card inputs", () => {
-  const result = calculate({ orders: -10, shipping: "not-a-number" });
+  const result = calculate({ orders: -10, shipping: "not-a-number", returnFee: -1, restockFee: "unknown" });
   assert.deepEqual(result.warnings, [
     "Orders / month cannot be negative; the negative value was treated as zero.",
     "Shipping / order was not a number and was ignored.",
+    "Return handling / order cannot be negative; the negative value was treated as zero.",
+    "Restocking / returned order was not a number and was ignored.",
   ]);
   assert.deepEqual(inputWarnings({}), []);
   assert.match(summary(result), /Input warnings/);
