@@ -42,6 +42,7 @@ export function comparisonSummary(first, second, firstName = "Quote A", secondNa
 }
 
 export function negotiationLines(result) {
+  const driver = largestCostComponent(result);
   return [
     `Monthly volume: ${result.orders} orders`,
     ...result.components.map((component) => `${component}: ${money(result.quote[component])}`),
@@ -49,10 +50,29 @@ export function negotiationLines(result) {
     `Minimum monthly spend applied: ${money(Math.max(0, result.quote.total - result.quote.subtotal))}`,
     `Total estimated 3PL cost: ${money(result.quote.total)}`,
     `True cost per order: ${money(result.perOrder)}`,
+    `Largest cost component: ${driver.label} (${money(driver.amount)})`,
   ];
 }
 
+export function largestCostComponent(result) {
+  const labels = {
+    receiving: "Receiving",
+    storage: "Storage",
+    pickPack: "Pick and pack",
+    packaging: "Packaging",
+    shipping: "Shipping",
+    returns: "Returns",
+    fixed: "Fixed fees",
+  };
+  const component = result.components.reduce((largest, name) =>
+    result.quote[name] > result.quote[largest] ? name : largest,
+    result.components[0],
+  );
+  return { name: component, label: labels[component], amount: result.quote[component] };
+}
+
 export function summary(result) {
+  const driver = largestCostComponent(result);
   return [
     "3PL quote normalization",
     `Monthly orders: ${result.orders}`,
@@ -61,6 +81,7 @@ export function summary(result) {
     `Difference (in-house minus 3PL): ${money(result.delta)}`,
     `True 3PL cost per order: ${money(result.perOrder)}`,
     `Break-even volume: about ${Math.ceil(result.breakEvenOrders)} orders/month`,
+    `Largest cost component: ${driver.label} (${money(driver.amount)})`,
     "",
     "Line items",
     `Receiving: ${money(result.quote.receiving)}`,
