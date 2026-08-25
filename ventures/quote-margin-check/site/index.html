@@ -111,6 +111,11 @@
   a { color: var(--accent); }
   .hint { font-size: 0.8rem; color: var(--muted); margin: 0.25rem 0 0; }
   code { background: var(--panel); padding: 0.1rem 0.3rem; border-radius: 4px; }
+  .history-list { list-style: none; padding: 0; margin: 0.75rem 0 0; }
+  .history-list li { display: flex; justify-content: space-between; gap: 1rem; align-items: center; border-top: 1px solid var(--border); padding: 0.65rem 0; }
+  .history-list li:first-child { border-top: 0; }
+  .history-meta { color: var(--muted); font-size: 0.85rem; }
+  .history-list button { padding: 0.3rem 0.6rem; }
 </style>
 </head>
 <body>
@@ -188,6 +193,17 @@
     </div>
   </section>
 
+  <section aria-labelledby="history-heading">
+    <h2 id="history-heading">Private review history</h2>
+    <p class="hint">Save up to eight dated reviews in this browser to compare recurring quotes. Nothing is uploaded.</p>
+    <div class="actions">
+      <button type="button" id="save-review">Save this review</button>
+      <button type="button" id="clear-history">Clear history</button>
+      <span id="history-status" class="hint" role="status" aria-live="polite"></span>
+    </div>
+    <ul class="history-list" id="history-list"><li class="history-meta">No saved reviews yet.</li></ul>
+  </section>
+
   <section aria-labelledby="about-heading">
     <h2 id="about-heading">What this checks</h2>
     <p>
@@ -252,6 +268,7 @@
 <script type="module">
   import { loadQuote, calculate, overrunScenarios } from "./calc.mjs";
   import { reviewQuote } from "./review.mjs";
+  import { listReviews, saveReview, clearReviews } from "./history.mjs";
   import { recordEvent, createReportCounter, isUsageCountingEnabled, setUsageCountingEnabled } from "./usage.mjs";
 
   // Counts settled quotes rather than keystrokes — see usage.mjs.
@@ -262,6 +279,7 @@
   const result = document.getElementById("result");
   const review = document.getElementById("review");
   const sensitivity = document.getElementById("sensitivity");
+  const historyList = document.getElementById("history-list");
 
   let lastReport = null;
 
@@ -317,6 +335,15 @@
     }
   }
 
+  function renderHistory() {
+    const reviews = listReviews();
+    historyList.innerHTML = reviews.length ? reviews.map((item, index) => {
+      const date = new Date(item.savedAt).toLocaleString(undefined, { dateStyle: "medium", timeStyle: "short" });
+      const currency = escapeHtml(item.quote.currency);
+      return `<li><span><strong>${currency} ${fmt(item.quote.price)}</strong><br><span class="history-meta">${date} · ${fmt(item.report.effective_hourly_rate)}/hour</span></span><button type="button" data-history-index="${index}">Load</button></li>`;
+    }).join("") : '<li class="history-meta">No saved reviews yet.</li>';
+  }
+
   // Once the visitor edits anything, the numbers are theirs — drop the
   // "this is an example" note rather than leaving it contradicting the form.
   const exampleNote = document.getElementById("example-note");
@@ -363,6 +390,34 @@
       copyStatus.textContent = "Couldn't access the clipboard in this browser.";
     }
   });
+
+  document.getElementById("save-review").addEventListener("click", () => {
+    const status = document.getElementById("history-status");
+    if (!lastReport || !saveReview(lastReport.quote, lastReport.r)) {
+      status.textContent = "Fix the inputs first, or allow local storage.";
+      return;
+    }
+    status.textContent = "Saved privately in this browser.";
+    recordEvent("review_saved");
+    renderHistory();
+  });
+  document.getElementById("clear-history").addEventListener("click", () => {
+    clearReviews();
+    document.getElementById("history-status").textContent = "History cleared from this browser.";
+    renderHistory();
+  });
+  historyList.addEventListener("click", (event) => {
+    const button = event.target.closest("button[data-history-index]");
+    if (!button) return;
+    const item = listReviews()[Number(button.dataset.historyIndex)];
+    if (!item) return;
+    for (const id of ids) el[id].value = item.quote[id] ?? "";
+    exampleNote.hidden = true;
+    update();
+    document.getElementById("history-status").textContent = "Loaded a saved review.";
+    recordEvent("review_loaded");
+  });
+  renderHistory();
 
   const usageToggle = document.getElementById("usage-toggle");
   const usageStatus = document.getElementById("usage-status");

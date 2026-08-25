@@ -65,6 +65,12 @@ what makes it comparable to the CLI's own count. The browser also counts
 `quote_review_checked` locally when a valid quote is reviewed; it stores no quote
 values and sends nothing anywhere.
 
+The browser can also save up to eight explicit reviews in its own `localStorage`,
+with the saved date, inputs, and derived report. This is useful when comparing
+recurring proposals, but it is not a cloud backup: clearing browser storage or
+using another device removes access. `review_saved` and `review_loaded` are
+aggregate local events only; they contain no quote values or identifiers.
+
 ## Input
 
 Required non-negative numbers are `price`, `delivery_hours`, and `target_hourly_rate`.
