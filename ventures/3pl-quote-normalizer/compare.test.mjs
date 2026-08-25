@@ -14,5 +14,6 @@ test("calculates savings against the higher quote", () => {
 });
 test("rejects malformed and negative totals", () => {
   assert.equal(normalizeComparison({ first: "", second: "100" }).error, "Enter a valid monthly total for both quotes.");
+  assert.equal(normalizeComparison({ first: "   ", second: "100" }).error, "Enter a valid monthly total for both quotes.");
   assert.equal(normalizeComparison({ first: "-1", second: "100" }).error, "Monthly totals cannot be negative.");
 });

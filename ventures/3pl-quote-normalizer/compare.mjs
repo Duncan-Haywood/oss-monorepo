@@ -1,7 +1,9 @@
 export function normalizeComparison(input) {
-  if (input?.first === "" || input?.second === "" || input?.first == null || input?.second == null) return { error: "Enter a valid monthly total for both quotes." };
-  const first = Number(input?.first);
-  const second = Number(input?.second);
+  const firstInput = input?.first;
+  const secondInput = input?.second;
+  if (firstInput == null || secondInput == null || String(firstInput).trim() === "" || String(secondInput).trim() === "") return { error: "Enter a valid monthly total for both quotes." };
+  const first = Number(firstInput);
+  const second = Number(secondInput);
   if (!Number.isFinite(first) || !Number.isFinite(second)) return { error: "Enter a valid monthly total for both quotes." };
   if (first < 0 || second < 0) return { error: "Monthly totals cannot be negative." };
   const difference = Math.abs(first - second);
