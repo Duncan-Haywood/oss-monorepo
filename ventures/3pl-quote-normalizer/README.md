@@ -12,6 +12,8 @@ Use [Volume sensitivity](./sensitivity.html) to see how minimum charges and
 true cost per order change at 25, 50, 100, 250, and 500 monthly orders.
 After normalizing, use **Download CSV record** to save the exact on-screen
 calculation for a spreadsheet or quote review without retyping figures.
+Use the [negotiation brief](./negotiation.html) to turn two normalized totals
+into a factual request for the higher quote to explain or match the gap.
 If a pasted value is malformed or negative, the copied line-by-line report
 includes an explicit warning instead of hiding the normalization rule.
 Blank fields are also called out with the default value used, so a missing

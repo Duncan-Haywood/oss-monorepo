@@ -44,3 +44,11 @@ test('sensitivity page exposes volume assumptions, results, and disclaimer', asy
   assert.match(page, /volumeSensitivity/);
   assert.match(page, /not financial, tax, legal, or engineering advice/);
 });
+
+test('negotiation page exposes a copyable brief workflow and disclaimer', async () => {
+  const page = await readFile(new URL('./negotiation.html', import.meta.url), 'utf8');
+  assert.match(page, /Create a 3PL negotiation brief/);
+  assert.match(page, /id="copy"/);
+  assert.match(page, /negotiation_brief_completed/);
+  assert.match(page, /not financial, tax, legal, or engineering advice/);
+});
