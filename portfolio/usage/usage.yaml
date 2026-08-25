@@ -125,7 +125,7 @@ products:
           Added a browser-local pre-send review that surfaces direct-cost,
           target-gap, hidden-time, and revision-assumption observations. No
           public URL yet; the feature counter stores only aggregate local
-           events and remains opt-out.
+          events and remains opt-out.
   - slug: einvoice-preflight
     surface: repository-cli
     readings:
