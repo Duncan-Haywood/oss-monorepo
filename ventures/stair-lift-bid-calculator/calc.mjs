@@ -1,0 +1,561 @@
+// Pure bid arithmetic for residential stair-lift / chair-lift install.
+// No network, no state: every rail, chair, attach, wage, and
+// fixture invoice is an input, so the result stays a transparent
+// calculation the contractor can check against their own tickets
+// rather than a claim about what any stair "should" cost.
+//
+// The method is the one the trade actually loses money on: a
+// published "$3,995 stair lift installed" special treats a
+// straight indoor rail, a standard seated chair, and wood
+// treads as the same job as a curved custom-bent rail, a
+// heavy-duty power-swivel chair, open-riser attach, a folding
+// rail for the door, a dedicated circuit, and pulling the old
+// lift. Homeowners (and a lot of estimator sheets) count the
+// same kind of number. The bend, the swivel, the fold, and the
+// electrician do not live in that dump. Matching the cheap
+// straight-rail special on a curved-plus-circuit job is how a
+// sold aging-in-place install becomes a loss when the custom
+// rail and the extras eat the margin.
+//
+// Distinct from *wheelchair ramp* (carpentry: rise-to-run,
+// landings, slope — a platform, not a chair on a rail),
+// *walk-in tub* (bathroom plumbing and an alcove), *walk-in
+// shower* (tile, slope, glass), *entry door*, and *home
+// elevator* (a shaft). This prices a stair lift: the rail,
+// the chair, the attach, and the extras.
+
+export const RAIL_PRESETS = Object.freeze([
+  { id: 'straight-one', label: 'Straight one-flight — the cheap special' },
+  { id: 'straight-landing', label: 'Straight with mid-landing / two-piece' },
+  { id: 'outdoor-straight', label: 'Outdoor straight — weatherized rail' },
+  { id: 'curved', label: 'Curved / custom-bent rail' },
+]);
+
+export const CHAIR_PRESETS = Object.freeze([
+  { id: 'perch', label: 'Perch / standing — cheaper, less common' },
+  { id: 'standard', label: 'Standard seated — the cheap special' },
+  { id: 'power-swivel', label: 'Power swivel seat' },
+  { id: 'power-pack', label: 'Power swivel + powered footrest' },
+  { id: 'heavy-duty', label: 'Heavy-duty / 350–400 lb' },
+]);
+
+export const ATTACH_PRESETS = Object.freeze([
+  { id: 'wood', label: 'Wood treads — the cheap special' },
+  { id: 'concrete', label: 'Concrete / masonry stairs' },
+  { id: 'open-riser', label: 'Open riser / metal — more hardware' },
+]);
+
+export const JOB_PRESETS = Object.freeze([
+  {
+    label: 'Cheap special: 1 straight rail, standard chair, wood treads',
+    liftCount: 1,
+    rail: 'straight-one',
+    chair: 'standard',
+    attach: 'wood',
+    travelMiles: 8,
+    includeFoldingRail: false,
+    includeExtraCharge: false,
+    includeCircuit: false,
+    includeRemoveExisting: false,
+    includePermit: false,
+    includeWeatherKit: false,
+  },
+  {
+    label: 'Typical aging-in-place: 1 straight rail, power swivel, wood, fold, circuit, permit',
+    liftCount: 1,
+    rail: 'straight-one',
+    chair: 'power-swivel',
+    attach: 'wood',
+    travelMiles: 14,
+    includeFoldingRail: true,
+    includeExtraCharge: false,
+    includeCircuit: true,
+    includeRemoveExisting: false,
+    includePermit: true,
+    includeWeatherKit: false,
+  },
+  {
+    label: 'Losing job: 1 curved rail, heavy-duty, open-riser, fold, circuit, pull existing',
+    liftCount: 1,
+    rail: 'curved',
+    chair: 'heavy-duty',
+    attach: 'open-riser',
+    travelMiles: 22,
+    includeFoldingRail: true,
+    includeExtraCharge: true,
+    includeCircuit: true,
+    includeRemoveExisting: true,
+    includePermit: true,
+    includeWeatherKit: false,
+  },
+  {
+    label: 'Two-flight house: 2 straight rails, standard chairs, wood, fold on the lower',
+    liftCount: 2,
+    rail: 'straight-one',
+    chair: 'standard',
+    attach: 'wood',
+    travelMiles: 18,
+    includeFoldingRail: true,
+    includeExtraCharge: false,
+    includeCircuit: true,
+    includeRemoveExisting: false,
+    includePermit: true,
+    includeWeatherKit: false,
+  },
+]);
+
+function number(value, name, { min = 0, allowZero = true } = {}) {
+  const result = Number(value);
+  if (!Number.isFinite(result)) throw new Error(`${name} must be a number`);
+  if (result < min) throw new Error(`${name} must be at least ${min}`);
+  if (!allowZero && result === 0) throw new Error(`${name} must be greater than zero`);
+  return result;
+}
+
+function flag(value) {
+  if (value === true || value === 'true' || value === '1' || value === 1) return true;
+  if (value === false || value === 'false' || value === '0' || value === 0 || value === '' || value == null) {
+    return false;
+  }
+  return Boolean(value);
+}
+
+function requirePreset(presets, id, label) {
+  const found = presets.find((item) => item.id === id);
+  if (!found) throw new Error(`Unknown ${label}`);
+  return found;
+}
+
+/**
+ * Travel hours from a trip plus miles. Miles of zero is a local
+ * stop, not a missing input.
+ */
+export function travelHours(hoursTrip, travelMiles, hoursPerMile) {
+  return number(hoursTrip, 'Trip hours')
+    + number(travelMiles, 'Travel miles') * number(hoursPerMile, 'Hours per mile');
+}
+
+/**
+ * Starting rail and set hours from how much of the stair is
+ * actually sold. Straight one-flight is the cheap special.
+ * A landing is a second piece. Outdoor is weatherized.
+ * Curved is a template and a custom bend.
+ */
+export function suggestedRailKit(rail) {
+  const id = String(rail);
+  if (id === 'straight-one') {
+    return { hoursRailEach: 3.5, hoursSetBase: 2.5, railInvoice: 2200 };
+  }
+  if (id === 'straight-landing') {
+    return { hoursRailEach: 5.5, hoursSetBase: 4.0, railInvoice: 3100 };
+  }
+  if (id === 'outdoor-straight') {
+    return { hoursRailEach: 5.0, hoursSetBase: 3.5, railInvoice: 3800 };
+  }
+  if (id === 'curved') {
+    return { hoursRailEach: 9.0, hoursSetBase: 6.5, railInvoice: 8200 };
+  }
+  throw new Error('Unknown rail');
+}
+
+/**
+ * Standard seated is the cheap-special chair. Perch is cheaper.
+ * Power swivel is the upgrade homeowners ask for at the last
+ * minute. Power-pack adds a powered footrest. Heavy-duty is
+ * weight rating and a heavier chassis.
+ */
+export function suggestedChairKit(chair) {
+  const id = String(chair);
+  if (id === 'perch') {
+    return { hoursChairEach: 1.4, chairInvoice: 350 };
+  }
+  if (id === 'standard') {
+    return { hoursChairEach: 2.0, chairInvoice: 650 };
+  }
+  if (id === 'power-swivel') {
+    return { hoursChairEach: 2.8, chairInvoice: 1450 };
+  }
+  if (id === 'power-pack') {
+    return { hoursChairEach: 3.4, chairInvoice: 2100 };
+  }
+  if (id === 'heavy-duty') {
+    return { hoursChairEach: 3.8, chairInvoice: 2400 };
+  }
+  throw new Error('Unknown chair');
+}
+
+/**
+ * Wood treads are the cheap-special attach. Concrete needs
+ * masonry bits. Open-riser / metal needs more hardware.
+ */
+export function suggestedAttachKit(attach) {
+  const id = String(attach);
+  if (id === 'wood') {
+    return { hoursAttachEach: 1.2, attachInvoice: 80 };
+  }
+  if (id === 'concrete') {
+    return { hoursAttachEach: 2.4, attachInvoice: 220 };
+  }
+  if (id === 'open-riser') {
+    return { hoursAttachEach: 3.0, attachInvoice: 340 };
+  }
+  throw new Error('Unknown attach');
+}
+
+/**
+ * Starting extras that do not live in a $3,995 installed special.
+ */
+export function suggestedExtraKit() {
+  return {
+    hoursTrip: 1.6,
+    hoursPerMile: 0.035,
+    hoursFoldEach: 1.8,
+    hoursChargeEach: 1.1,
+    hoursCircuitEach: 2.2,
+    hoursRemoveEach: 2.5,
+    hoursPermitEach: 1.2,
+    hoursWeatherEach: 1.6,
+    siteHours: 1.0,
+    foldEach: 480,
+    chargeEach: 220,
+    circuitEach: 380,
+    removeEach: 180,
+    permitEach: 225,
+    weatherEach: 320,
+    travelPerMile: 3.2,
+  };
+}
+
+/**
+ * Price a stair-lift install from the count, the rail, the
+ * chair, the attach, and the extras.
+ *
+ * @param {object} input
+ */
+export function calculateBid(input) {
+  const rail = requirePreset(RAIL_PRESETS, input.rail, 'rail').id;
+  const chair = requirePreset(CHAIR_PRESETS, input.chair, 'chair').id;
+  const attach = requirePreset(ATTACH_PRESETS, input.attach, 'attach').id;
+
+  const liftCount = number(input.liftCount ?? 0, 'Lift count');
+  const travelMiles = number(input.travelMiles ?? 0, 'Travel miles');
+  const includeFoldingRail = flag(input.includeFoldingRail);
+  const includeExtraCharge = flag(input.includeExtraCharge);
+  const includeCircuit = flag(input.includeCircuit);
+  const includeRemoveExisting = flag(input.includeRemoveExisting);
+  const includePermit = flag(input.includePermit);
+  const includeWeatherKit = flag(input.includeWeatherKit);
+
+  const hourlyWage = number(input.hourlyWage ?? 0, 'Hourly wage');
+  const burdenRate = number(input.burdenRate ?? 0, 'Payroll burden');
+  const overheadRate = number(input.overheadRate ?? 0, 'Overhead');
+  const targetMargin = number(input.targetMargin ?? 0, 'Target margin');
+  if (targetMargin >= 100) throw new Error('Target margin must be less than 100%');
+  const travelAndEquipment = number(input.travelAndEquipment ?? 0, 'Travel and equipment');
+  const otherCost = number(input.otherCost ?? 0, 'Other cost');
+
+  const hoursTrip = number(input.hoursTrip ?? 0, 'Trip hours');
+  const hoursPerMile = number(input.hoursPerMile ?? 0, 'Hours per mile');
+  const hoursRailEach = number(input.hoursRailEach ?? 0, 'Rail hours each');
+  const hoursSetBase = number(input.hoursSetBase ?? 0, 'Set-base hours each');
+  const hoursChairEach = number(input.hoursChairEach ?? 0, 'Chair hours each');
+  const hoursAttachEach = number(input.hoursAttachEach ?? 0, 'Attach hours each');
+  const hoursFoldEach = number(input.hoursFoldEach ?? 0, 'Fold hours each');
+  const hoursChargeEach = number(input.hoursChargeEach ?? 0, 'Charge-point hours each');
+  const hoursCircuitEach = number(input.hoursCircuitEach ?? 0, 'Circuit hours each');
+  const hoursRemoveEach = number(input.hoursRemoveEach ?? 0, 'Removal hours each');
+  const hoursPermitEach = number(input.hoursPermitEach ?? 0, 'Permit hours each');
+  const hoursWeatherEach = number(input.hoursWeatherEach ?? 0, 'Weather-kit hours each');
+  const siteHours = number(input.siteHours ?? 0, 'Site hours');
+
+  const railInvoice = number(input.railInvoice ?? 0, 'Rail invoice');
+  const chairInvoice = number(input.chairInvoice ?? 0, 'Chair invoice');
+  const attachInvoice = number(input.attachInvoice ?? 0, 'Attach invoice');
+  const foldEach = number(input.foldEach ?? 0, 'Folding rail each');
+  const chargeEach = number(input.chargeEach ?? 0, 'Charge point each');
+  const circuitEach = number(input.circuitEach ?? 0, 'Circuit each');
+  const removeEach = number(input.removeEach ?? 0, 'Removal each');
+  const permitEach = number(input.permitEach ?? 0, 'Permit each');
+  const weatherEach = number(input.weatherEach ?? 0, 'Weather kit each');
+  const travelPerMile = number(input.travelPerMile ?? 0, 'Travel per mile');
+
+  const hoursTravel = travelHours(hoursTrip, travelMiles, hoursPerMile);
+  const hoursRail = liftCount * hoursRailEach;
+  const hoursSet = liftCount * hoursSetBase;
+  const hoursChair = liftCount * hoursChairEach;
+  const hoursAttach = liftCount * hoursAttachEach;
+  const hoursFoldApplied = includeFoldingRail ? liftCount * hoursFoldEach : 0;
+  const hoursChargeApplied = includeExtraCharge ? liftCount * hoursChargeEach : 0;
+  const hoursCircuitApplied = includeCircuit ? liftCount * hoursCircuitEach : 0;
+  const hoursRemoveApplied = includeRemoveExisting ? liftCount * hoursRemoveEach : 0;
+  const hoursPermitApplied = includePermit ? liftCount * hoursPermitEach : 0;
+  const hoursWeatherApplied = includeWeatherKit ? liftCount * hoursWeatherEach : 0;
+  const extraWorkHours = hoursSet + hoursChair + hoursAttach + hoursFoldApplied
+    + hoursChargeApplied + hoursCircuitApplied + hoursRemoveApplied
+    + hoursPermitApplied + hoursWeatherApplied;
+  const totalHours = hoursTravel + hoursRail + extraWorkHours + siteHours;
+
+  const loadedWage = hourlyWage * (1 + burdenRate / 100);
+  const laborCost = totalHours * loadedWage;
+
+  const railMaterial = liftCount * railInvoice;
+  const chairMaterial = liftCount * chairInvoice;
+  const attachMaterial = liftCount * attachInvoice;
+  const foldMaterial = includeFoldingRail ? liftCount * foldEach : 0;
+  const chargeMaterial = includeExtraCharge ? liftCount * chargeEach : 0;
+  const circuitMaterial = includeCircuit ? liftCount * circuitEach : 0;
+  const removeMaterial = includeRemoveExisting ? liftCount * removeEach : 0;
+  const permitMaterial = includePermit ? liftCount * permitEach : 0;
+  const weatherMaterial = includeWeatherKit ? liftCount * weatherEach : 0;
+  const travelInvoice = travelMiles * travelPerMile;
+  const fixtureMaterial = railMaterial + chairMaterial + attachMaterial;
+  const extraHardware = foldMaterial + chargeMaterial + circuitMaterial
+    + removeMaterial + permitMaterial + weatherMaterial + travelInvoice;
+  const materialCost = fixtureMaterial + extraHardware;
+
+  const softCost = travelAndEquipment + otherCost;
+  const directCost = laborCost + materialCost + softCost;
+  const overhead = directCost * overheadRate / 100;
+  const totalCost = directCost + overhead;
+  const price = totalCost / (1 - targetMargin / 100);
+  const profit = price - totalCost;
+
+  const hasProposed = input.proposedPrice !== null && input.proposedPrice !== undefined && input.proposedPrice !== '';
+  const proposedPrice = hasProposed ? number(input.proposedPrice, 'Price you are considering') : null;
+
+  const costShare = (amount) => (totalCost === 0 ? 0 : amount / totalCost * 100);
+  const hourShare = (amount) => (totalHours === 0 ? 0 : amount / totalHours * 100);
+  const extraCost = extraHardware
+    + hoursSet * loadedWage
+    + hoursChair * loadedWage
+    + hoursAttach * loadedWage
+    + hoursFoldApplied * loadedWage
+    + hoursChargeApplied * loadedWage
+    + hoursCircuitApplied * loadedWage
+    + hoursRemoveApplied * loadedWage
+    + hoursPermitApplied * loadedWage
+    + hoursWeatherApplied * loadedWage
+    + hoursTravel * loadedWage;
+
+  return {
+    rail,
+    chair,
+    attach,
+    liftCount,
+    travelMiles,
+    includeFoldingRail,
+    includeExtraCharge,
+    includeCircuit,
+    includeRemoveExisting,
+    includePermit,
+    includeWeatherKit,
+    loadedWage,
+    hoursTravel,
+    hoursRail,
+    hoursSet,
+    hoursChair,
+    hoursAttach,
+    hoursFold: hoursFoldApplied,
+    hoursCharge: hoursChargeApplied,
+    hoursCircuit: hoursCircuitApplied,
+    hoursRemove: hoursRemoveApplied,
+    hoursPermit: hoursPermitApplied,
+    hoursWeather: hoursWeatherApplied,
+    siteHours,
+    totalHours,
+    laborCost,
+    railMaterial,
+    chairMaterial,
+    attachMaterial,
+    foldMaterial,
+    chargeMaterial,
+    circuitMaterial,
+    removeMaterial,
+    permitMaterial,
+    weatherMaterial,
+    travelInvoice,
+    extraHardware,
+    extraCost,
+    fixtureMaterial,
+    materialCost,
+    travelAndEquipment,
+    softCost,
+    overhead,
+    directCost,
+    totalCost,
+    price,
+    profit,
+    pricePerLift: liftCount === 0 ? null : price / liftCount,
+    effectiveHourlyRate: totalHours === 0 ? null : price / totalHours,
+    breakEvenPrice: totalCost,
+    shares: {
+      labor: costShare(laborCost),
+      fixture: costShare(fixtureMaterial),
+      extra: costShare(extraCost),
+      soft: costShare(softCost),
+      overhead: costShare(overhead),
+    },
+    hourShares: {
+      travel: hourShare(hoursTravel),
+      rail: hourShare(hoursRail),
+      set: hourShare(hoursSet),
+      chair: hourShare(hoursChair),
+      attach: hourShare(hoursAttach),
+      fold: hourShare(hoursFoldApplied),
+      charge: hourShare(hoursChargeApplied),
+      circuit: hourShare(hoursCircuitApplied),
+      remove: hourShare(hoursRemoveApplied),
+      permit: hourShare(hoursPermitApplied),
+      weather: hourShare(hoursWeatherApplied),
+      site: hourShare(siteHours),
+    },
+    proposed: proposedPrice === null ? null : {
+      price: proposedPrice,
+      profit: proposedPrice - totalCost,
+      margin: proposedPrice === 0 ? 0 : (proposedPrice - totalCost) / proposedPrice * 100,
+      perLift: liftCount === 0 ? null : proposedPrice / liftCount,
+      hourlyRate: totalHours === 0 ? null : proposedPrice / totalHours,
+      belowBreakEven: proposedPrice < totalCost,
+    },
+  };
+}
+
+/**
+ * Price the same stair four ways — straight one-flight, landing,
+ * outdoor, curved — from the suggested rail kits so the
+ * contractor can see when a custom bend flips the cheap $3,995
+ * special. User-typed rail rates are not reused here: the
+ * comparison is apples-to-apples on the starting figures. Chair
+ * and attach kits stay with the current job.
+ */
+export function compareRail(input) {
+  const chairKit = suggestedChairKit(String(input.chair ?? 'standard'));
+  const attachKit = suggestedAttachKit(String(input.attach ?? 'wood'));
+  const extraKit = suggestedExtraKit();
+  const rows = RAIL_PRESETS.map((preset) => {
+    const kit = suggestedRailKit(preset.id);
+    const bid = calculateBid({
+      ...input,
+      rail: preset.id,
+      ...chairKit,
+      ...attachKit,
+      ...extraKit,
+      ...kit,
+    });
+    return {
+      rail: preset.id,
+      label: preset.label,
+      price: bid.price,
+      totalCost: bid.totalCost,
+      totalHours: bid.totalHours,
+      pricePerLift: bid.pricePerLift,
+      extraCost: bid.extraCost,
+      extraShare: bid.shares.extra,
+      hoursRail: bid.hoursRail,
+      hoursSet: bid.hoursSet,
+      fixtureMaterial: bid.fixtureMaterial,
+      breakEvenPrice: bid.breakEvenPrice,
+    };
+  });
+  const cheapest = Math.min(...rows.map((row) => row.price));
+  return rows
+    .map((row) => ({
+      ...row,
+      cheapest: row.price === cheapest,
+      delta: row.price - cheapest,
+    }))
+    .sort((a, b) => a.price - b.price);
+}
+
+/**
+ * Price the same stair five ways — perch, standard, power
+ * swivel, power-pack, heavy-duty — from the suggested chair
+ * kits so the contractor can see the upgrade a homeowner is
+ * actually asking for. User-typed chair rates are not reused
+ * here. Rail and attach kits stay with the current job.
+ */
+export function compareChair(input) {
+  const railKit = suggestedRailKit(String(input.rail ?? 'straight-one'));
+  const attachKit = suggestedAttachKit(String(input.attach ?? 'wood'));
+  const extraKit = suggestedExtraKit();
+  const rows = CHAIR_PRESETS.map((preset) => {
+    const kit = suggestedChairKit(preset.id);
+    const bid = calculateBid({
+      ...input,
+      chair: preset.id,
+      ...railKit,
+      ...attachKit,
+      ...extraKit,
+      ...kit,
+    });
+    return {
+      chair: preset.id,
+      label: preset.label,
+      price: bid.price,
+      totalCost: bid.totalCost,
+      totalHours: bid.totalHours,
+      pricePerLift: bid.pricePerLift,
+      hoursChair: bid.hoursChair,
+      chairMaterial: bid.chairMaterial,
+      extraCost: bid.extraCost,
+      breakEvenPrice: bid.breakEvenPrice,
+    };
+  });
+  const cheapest = Math.min(...rows.map((row) => row.price));
+  const standard = rows.find((row) => row.chair === 'standard');
+  return rows
+    .map((row) => ({
+      ...row,
+      cheapest: row.price === cheapest,
+      delta: row.price - cheapest,
+      upgradeFromStandard: standard ? row.price - standard.price : 0,
+    }))
+    .sort((a, b) => a.price - b.price);
+}
+
+function money(value) {
+  return `$${value.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+}
+
+/**
+ * Format a bid as a plain-text draft the contractor can paste
+ * into a proposal. Costs, wages, and invoices are omitted on
+ * purpose — this is the customer-facing side.
+ */
+export function formatBidSummary(result, jobLabel = 'Stair lift install') {
+  const perLift = result.pricePerLift === null
+    ? 'n/a'
+    : `${money(result.pricePerLift)} / lift`;
+  const rail = RAIL_PRESETS.find((item) => item.id === result.rail)?.label ?? result.rail;
+  const chair = CHAIR_PRESETS.find((item) => item.id === result.chair)?.label ?? result.chair;
+  const attach = ATTACH_PRESETS.find((item) => item.id === result.attach)?.label ?? result.attach;
+  const extras = [
+    `${result.travelMiles} travel miles`,
+    rail,
+    chair,
+    attach,
+    `${result.liftCount} lift${result.liftCount === 1 ? '' : 's'}`,
+    result.includeFoldingRail ? 'folding rail included' : 'no folding rail',
+    result.includeExtraCharge ? 'extra charge point included' : 'no extra charge point',
+    result.includeCircuit ? 'dedicated circuit included' : 'no dedicated circuit',
+    result.includeRemoveExisting ? 'existing-lift removal included' : 'no existing-lift removal',
+    result.includePermit ? 'permit included' : 'no permit',
+    result.includeWeatherKit ? 'weather kit included' : 'no weather kit',
+  ].join('; ');
+  return [
+    'STAIR LIFT INSTALL BID',
+    '',
+    `Proposed installed price: ${money(result.price)}`,
+    `Scope: ${jobLabel}; ${rail}`,
+    `Price per lift: ${perLift}`,
+    `Lifts: ${result.liftCount.toLocaleString('en-US')}`,
+    `Crew labor: ${result.totalHours.toFixed(1)} crew-hours`,
+    '',
+    'SCOPE BASIS',
+    `- ${result.liftCount} lift${result.liftCount === 1 ? '' : 's'}; ${rail}; ${chair}; ${attach}`,
+    `- ${extras}`,
+    `- Travel: ${result.hoursTravel.toFixed(1)} h; rail: ${result.hoursRail.toFixed(1)} h; extras: ${(result.hoursSet + result.hoursChair + result.hoursAttach + result.hoursFold + result.hoursCharge + result.hoursCircuit + result.hoursRemove + result.hoursPermit + result.hoursWeather).toFixed(1)} h`,
+    '',
+    'This is a draft for review. Confirm lift count, rail, chair, attach, extras, and all pricing before sending. It is not a building-code determination, an accessibility approval, a medical device prescription, a wheelchair-ramp bid, a walk-in-tub bid, a home-elevator bid, or a product warranty.',
+  ].join('\n');
+}

@@ -178,6 +178,9 @@ workflows:
 - workflow: source-silence-detector-ci.yml
   classification: none
   publishes: []
+- workflow: stair-lift-bid-calculator-ci.yml
+  classification: none
+  publishes: []
 - workflow: substitute-supply-ci.yml
   classification: none
   publishes: []
