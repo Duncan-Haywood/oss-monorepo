@@ -2,6 +2,7 @@ const $ = (id) => document.getElementById(id);
 const symbols = { USD: '$', EUR: '€', GBP: '£', CAD: '$', AUD: '$' };
 export const inputIds = ['income', 'costs', 'hours', 'utilization', 'retainerHours', 'buffer'];
 export const DRAFT_KEY = 'frc-draft-v1';
+export const DISCLAIMER = 'Planning aid only. No warranty. Review and verify this output before relying on it; it is not financial advice.';
 
 export function saveDraft(values, storage) {
   try {
@@ -35,6 +36,12 @@ export function calculatePlan(values) {
   return { capacity, remainingCapacity: capacity - retainerHours, target, rate, retainer };
 }
 
+export function formatProposalSummary(input, plan, currency = 'USD') {
+  const symbol = symbols[currency] || symbols.USD;
+  const money = (value) => `${symbol}${value.toLocaleString(undefined, { maximumFractionDigits: 0 })}`;
+  return `Monthly retainer proposal\n\nIncluded: ${input.retainerHours} hours per month\nMonthly price: ${money(plan.retainer)}\nAdditional work: ${money(plan.rate)} per hour\nCapacity left after retainer: ${plan.remainingCapacity.toFixed(1)} hours\n\nPricing assumptions\nTake-home goal: ${money(Number(input.income))} per month\nBusiness costs and taxes: ${money(Number(input.costs))} per month\nAvailable work hours: ${input.hours} per month\nBillable utilization: ${input.utilization}%\nScope / revision buffer: ${input.buffer}%\n\nResponse time and out-of-scope work: define in the agreement.\n\n${DISCLAIMER}`;
+}
+
 if (typeof document !== 'undefined') {
   const form = $('calculator');
   const money = (n) => `${symbols[$('currency').value]}${n.toLocaleString(undefined, { maximumFractionDigits: 0 })}`;
@@ -59,7 +66,7 @@ if (typeof document !== 'undefined') {
       // Usage measurement is best-effort and must never block the calculator.
     }
   };
-  form.addEventListener('submit', (event) => { event.preventDefault(); try { const input = read(); const plan = calculatePlan(input); $('errors').hidden = true; $('results').hidden = false; $('rate').textContent = money(plan.rate); $('retainer').textContent = money(plan.retainer); $('capacity').textContent = `${plan.capacity.toFixed(1)} hrs`; $('remaining').textContent = `${plan.remainingCapacity.toFixed(1)} hrs`; $('target').textContent = money(plan.target); $('explanation').textContent = `Your ${input.utilization}% utilization leaves ${plan.capacity.toFixed(1)} billable hours from ${input.hours} available hours. After this retainer, ${plan.remainingCapacity.toFixed(1)} hours remain for other work, admin, and recovery. The retainer includes a ${input.buffer}% buffer for scope drift; it is a planning floor, not a promise of results.`; $('summary').value = `Monthly retainer proposal\n\nIncluded: ${input.retainerHours} hours per month\nMonthly price: ${money(plan.retainer)}\nAdditional work: ${money(plan.rate)} per hour\nCapacity left after retainer: ${plan.remainingCapacity.toFixed(1)} hours\nResponse time and out-of-scope work: define in the agreement.`; track('calculate'); } catch (error) { $('errors').textContent = error.message; $('errors').hidden = false; $('results').hidden = true; } });
+  form.addEventListener('submit', (event) => { event.preventDefault(); try { const input = read(); const plan = calculatePlan(input); $('errors').hidden = true; $('results').hidden = false; $('rate').textContent = money(plan.rate); $('retainer').textContent = money(plan.retainer); $('capacity').textContent = `${plan.capacity.toFixed(1)} hrs`; $('remaining').textContent = `${plan.remainingCapacity.toFixed(1)} hrs`; $('target').textContent = money(plan.target); $('explanation').textContent = `Your ${input.utilization}% utilization leaves ${plan.capacity.toFixed(1)} billable hours from ${input.hours} available hours. After this retainer, ${plan.remainingCapacity.toFixed(1)} hours remain for other work, admin, and recovery. The retainer includes a ${input.buffer}% buffer for scope drift; it is a planning floor, not a promise of results.`; $('summary').value = formatProposalSummary(input, plan, $('currency').value); $('copyStatus').textContent = ''; track('calculate'); } catch (error) { $('errors').textContent = error.message; $('errors').hidden = false; $('results').hidden = true; } });
   $('copy').addEventListener('click', async () => {
     try {
       await navigator.clipboard.writeText($('summary').value);
@@ -68,5 +75,16 @@ if (typeof document !== 'undefined') {
     } catch {
       $('copyStatus').textContent = ' Copy was blocked. Select the summary and copy it manually.';
     }
+  });
+  $('download').addEventListener('click', () => {
+    if (!$('summary').value) return;
+    const blob = new Blob([$('summary').value], { type: 'text/plain;charset=utf-8' });
+    const link = document.createElement('a');
+    link.href = URL.createObjectURL(blob);
+    link.download = 'freelance-retainer-proposal.txt';
+    link.click();
+    URL.revokeObjectURL(link.href);
+    $('copyStatus').textContent = ' Proposal downloaded.';
+    track('download-summary');
   });
 }
