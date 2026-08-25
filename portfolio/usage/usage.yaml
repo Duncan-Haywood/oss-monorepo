@@ -454,6 +454,23 @@ products:
           floor/permit extras, copyable proposal summary).
           Public URL remains owner-gated; the local-first counter reports
           only to the user's own browser and is opt-out. Baseline row.
+  - slug: stair-lift-bid-calculator
+    surface: static-page-in-repo
+    readings:
+      - as_of: 2026-08-25
+        signals:
+          live_url_visitors: null
+          local_events_reported: 0
+        note: >-
+          Shipped a local stair lift / chair lift bid calculator (lift
+          count, straight vs landing vs outdoor vs curved rail, perch vs
+          standard vs power-swivel vs power-pack vs heavy-duty chair,
+          wood vs concrete vs open-riser attach, fold/charge/circuit/
+          removal/permit/weather extras, copyable proposal summary).
+          Distinct from wheelchair ramp (carpentry), walk-in tub
+          (alcove plumbing), and home elevator (a shaft). Public URL
+          remains owner-gated; the local-first counter reports only to
+          the user's own browser and is opt-out. Baseline row.
   - slug: freelance-retainer-calculator
     surface: static-page-in-repo
     readings:

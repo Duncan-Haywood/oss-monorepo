@@ -1085,3 +1085,39 @@ ventures:
       opinion. The shipped hours and tub invoices are labelled ballpark
       starting points rather than a standard or benchmark, and nothing the
       user enters leaves the browser.
+
+  - slug: stair-lift-bid-calculator
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 7
+      gross_margin: 10
+      defensibility: 5
+      distribution: 8
+    composite: 6.833
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      There is no AI anywhere in the product. The value is a domain model —
+      lift count, rail, chair, and payroll burden — that is arithmetic, and
+      adding inference to it would only make the result less checkable.
+    basis: >-
+      Graduated on 2026-08-25 as a browser-local stair lift / chair lift
+      bid calculator. Distinct from wheelchair ramp (carpentry:
+      rise-to-run, landings, slope — a platform, not a chair on a rail),
+      walk-in tub (bathroom plumbing and an alcove), walk-in shower
+      (tile, slope, glass), and home elevator (a shaft). Distribution 8:
+      "how much to charge to install a stair lift" and "stair lift cost
+      calculator" are high-intent operator queries; defensibility 5
+      because the rail-versus-chair model encodes how the trade estimates
+      labor rather than restating a published installed special.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Pass: the output is arithmetic on the contractor's own inputs, never a
+      recommended price, an accessibility determination, or a medical-device
+      opinion. The shipped hours and rail invoices are labelled ballpark
+      starting points rather than a standard or benchmark, and nothing the
+      user enters leaves the browser.
