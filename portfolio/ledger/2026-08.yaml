@@ -1,5 +1,17 @@
 period: 2026-08
 entries:
+  - venture: fifo-pick-evidence
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Graduated a new, non-duplicate 3PL warehouse niche into a standard-library
+        CLI. It checks local pick CSVs for FIFO exceptions, missing data, and
+        timestamp ordering, with an opt-in anonymous local run counter, visible
+        disclaimer, privacy boundary, MIT license, and four passing tests.
+        No hosting, accounts, uploads, payment, or API key is required; demand
+        and public distribution remain unmeasured.
+    mrr_end: null
   - venture: shopify-a11y-evidence
     agent_spend_usd: null
     human_hours: 0
