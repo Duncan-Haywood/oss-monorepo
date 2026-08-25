@@ -20,9 +20,10 @@ pages, SEO, integrations (behind env vars), and VM-runnable apps beat ledger
 entries and analysis documents.
 
 **Deploy-first.** Products already on `main` with no public URL outrank new
-candidates. Prepare the live URL; do not clone another undeployed calculator.
-The owner flip is already queued as `deploy-settings` — do not add a second
-ask. See `portfolio/DIRECTION.md`.
+candidates. Prepare a GitHub Pages artifact or a Hetzner product-box
+deploy; do not clone another undeployed calculator. The host is decided
+([`portfolio/hosting/`](portfolio/hosting/README.md)). The owner flip is
+`deploy-settings` — do not add a second ask. See `portfolio/DIRECTION.md`.
 
 Target super-niches where users have money and a real problem — especially
 tools that help them earn more. Low variable cost, traditional software, AI

@@ -73,9 +73,10 @@ already been asked; do not duplicate asks.
 
 ## Every user-facing product includes
 
-1. **Liability disclaimers** — no advice-of-record, no compliance warranties.
-   Copy the wording from [`PRODUCT_PLAYBOOK.md`](PRODUCT_PLAYBOOK.md) §5b; it
-   goes in the README *and* somewhere the user sees it (footer, about, `--help`).
+1. **Liability disclaimers** — no advice-of-record, no compliance warranties,
+   and no SLA on hosted URLs. Copy the wording from
+   [`PRODUCT_PLAYBOOK.md`](PRODUCT_PLAYBOOK.md) §5b; it goes in the README
+   *and* somewhere the user sees it (footer, about, `--help`).
 2. **Usage stats** — anonymous events only (feature used, page viewed), never
    people: no PII, no IPs, no content, no analytics vendor. Rules and the file
    readings land in: [`portfolio/usage/`](portfolio/usage/README.md).
@@ -93,7 +94,9 @@ of done.
 ## Graduating from the pipeline
 
 If anything already on `main` still has no public URL, deploy that first
-(prepare the artifact; the owner flip is `deploy-settings`). Only then:
+(prepare a GitHub Pages artifact or a Hetzner product-box deploy; the
+owner flip is `deploy-settings`). See [`portfolio/hosting/`](portfolio/hosting/README.md).
+Do not add Cloudflare or Vercel. Only then:
 
 If `session_gate.py` names a `build-now` candidate, graduate it:
 

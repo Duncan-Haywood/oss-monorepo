@@ -23248,3 +23248,17 @@ entries:
           users to open `index.html` from disk, which cannot work, since
           browsers refuse ES module imports over `file://`.
     mrr_end: null
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Owner decided the host: GitHub Pages for static products, the
+        existing Hetzner boxes for processes, no Cloudflare, no Vercel as
+        a portfolio default. Documented in `portfolio/hosting/README.md`,
+        the no-SLA clause in `PRODUCT_PLAYBOOK.md` §5b, and the operating
+        docs that pointed at an open platform menu. Removed the stale
+        `deployment-platform` queue row (#720 already closed unmerged).
+        Remaining owner flip for static URLs is still `deploy-settings`
+        (enable GitHub Pages).
+    mrr_end: null
