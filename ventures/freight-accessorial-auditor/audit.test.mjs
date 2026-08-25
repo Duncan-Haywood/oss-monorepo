@@ -22,3 +22,16 @@ test('escapes review CSV values', () => {
   const csv = csvForReview(auditCharges([{ invoice: 'I"1', reference: 'R', code: 'FUEL', billed: 10, expected: 10 }]));
   assert.match(csv, /"I""1"/);
 });
+
+test('flags malformed and negative amounts instead of treating them as zero', () => {
+  const results = auditCharges([
+    { invoice: 'INV-3', reference: 'PO-10', code: 'FUEL', billed: 'not-a-number', expected: '10' },
+    { invoice: 'INV-4', reference: 'PO-11', code: 'DET', billed: '-5', expected: '0' },
+  ]);
+  assert.deepEqual(results.map(row => row.flags), [
+    ['Invalid billed amount'],
+    ['Invalid billed amount'],
+  ]);
+  assert.equal(results[0].billed, 0);
+  assert.equal(results[1].variance, -5);
+});

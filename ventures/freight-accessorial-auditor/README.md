@@ -1,6 +1,6 @@
 # Freight Accessorial Auditor
 
-Small shippers can now audit freight accessorial invoices for duplicate lines, charges above an expected contract amount, and missing accessorial codes. Paste rows, run the deterministic audit, and download a review queue without uploading invoice data.
+Small shippers can now audit freight accessorial invoices for duplicate lines, charges above an expected contract amount, and missing accessorial codes. Paste rows, run the deterministic audit, and download a review queue without uploading invoice data. Malformed or negative amounts are flagged instead of being silently treated as zero.
 
 After using this, you can now identify invoice lines worth disputing and hand a dated CSV to your finance team, which used to take a manual spreadsheet review.
 

@@ -1,13 +1,17 @@
 export function auditCharges(rows) {
   const seen = new Set();
   return rows.map((row, index) => {
-    const billed = Number(row.billed) || 0;
-    const expected = Number(row.expected) || 0;
+    const billedInput = Number(row.billed);
+    const expectedInput = Number(row.expected);
+    const billed = Number.isFinite(billedInput) ? billedInput : 0;
+    const expected = Number.isFinite(expectedInput) ? expectedInput : 0;
     const key = `${row.invoice}|${row.reference}|${row.code}|${billed.toFixed(2)}`;
     const flags = [];
+    if (!Number.isFinite(billedInput) || billed < 0) flags.push('Invalid billed amount');
+    if (!Number.isFinite(expectedInput) || expected < 0) flags.push('Invalid expected amount');
     if (seen.has(key)) flags.push('Possible duplicate');
     seen.add(key);
-    if (billed > expected) flags.push(`Over expected by $${(billed - expected).toFixed(2)}`);
+    if (billed > expected && billed >= 0 && expected >= 0) flags.push(`Over expected by $${(billed - expected).toFixed(2)}`);
     if (!row.code.trim()) flags.push('Missing accessorial code');
     return { ...row, billed, expected, variance: billed - expected, flags, index };
   });
