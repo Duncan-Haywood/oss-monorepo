@@ -2,7 +2,7 @@
 
 Independent music teachers can use this free browser calculator to find a sustainable lesson price after cancellations, preparation, travel, and monthly teaching costs. After using it, you can state the lesson price that reaches your annual pay target, which used to take a spreadsheet and guesswork.
 
-Open `index.html` directly or serve this directory with `python3 -m http.server`. Run `node --test` for the pricing tests. The default example models 20 weekly lessons, 10% cancellations, 48 teaching weeks, 10 minutes of preparation, and $200 monthly costs.
+Serve this directory with `python3 -m http.server` before opening the page (ES module imports are blocked from `file://`). Run `node --test` for the pricing tests. The default example models 20 weekly lessons, 10% cancellations, 48 teaching weeks, 10 minutes of preparation, and $200 monthly costs. Submitted assumptions are saved locally so a teacher can revisit a recurring pricing decision; use **Reset saved inputs** to remove them.
 
 ## Opportunity and differentiation
 
