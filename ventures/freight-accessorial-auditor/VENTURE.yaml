@@ -1,0 +1,27 @@
+name: freight-accessorial-auditor
+description: Browser-local LTL and freight invoice checker that identifies unsupported accessorial charges and drafts evidence-led disputes.
+stage: prototype
+owner: duncan
+hypotheses:
+  - claim: Small freight brokers and shippers will use a free local checker to find recoverable accessorial overcharges before the dispute window closes.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: A line-by-line evidence checklist and ready-to-copy dispute draft saves enough AP time to earn repeat use.
+    status: untested
+    checked: null
+    evidence: customer-contact
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+budget:
+  monthly_cap: 1
+  protected: true
+kill_criteria:
+  - No repeat audit use or organic referrals after 60 days of public availability.
+  - Users do not report at least one actionable invoice discrepancy in early pilots.
+links:
+  production: null
+  analytics: null

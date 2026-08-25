@@ -6,6 +6,18 @@
 # retired honestly instead of quietly.
 period: 2026-08
 products:
+  - slug: freight-accessorial-auditor
+    surface: static-page-in-repo
+    readings:
+      - as_of: 2026-08-25
+        signals:
+          live_url_visitors: null
+          local_audit_events: 0
+          dispute_draft_copies: 0
+        note: >-
+          Shipped a browser-local freight accessorial invoice review vertical
+          slice. It identifies potential variance, evidence status, and drafts
+          a factual dispute request; public URL remains owner-gated.
   - slug: retainage-cashflow-calculator
     surface: static-page-in-repo
     readings:
