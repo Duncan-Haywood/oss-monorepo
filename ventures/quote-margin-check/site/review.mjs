@@ -14,6 +14,9 @@ export function reviewQuote(quote, report) {
   if (hiddenHours > 0) {
     checks.push({ level: "note", title: "Hidden time is included", detail: `${hiddenHours.toFixed(2)} hours of admin and revisions are included in the effective rate.` });
   }
+  if (report.hidden_time_percent >= 25) {
+    checks.push({ level: "attention", title: "Hidden time is at least a quarter of the work", detail: `${report.hidden_time_percent.toFixed(1)}% of the supplied hours are admin or revisions. Confirm the scope, revision limit, and client communication time before sending.` });
+  }
   if (quote.revision_hours === 0) {
     checks.push({ level: "note", title: "No revision hours are included", detail: "Confirm that the quote scope and revision assumptions match the work you expect to deliver." });
   }

@@ -295,7 +295,8 @@
       result.innerHTML = `
         <div class="status ${above ? "good" : "bad"}">${above ? "Above target" : "Below target"} (arithmetic comparison only)</div>
         <dl>
-          <dt>Total working hours</dt><dd>${fmt(r.total_hours)}</dd>
+           <dt>Total working hours</dt><dd>${fmt(r.total_hours)}</dd>
+           <dt>Time mix</dt><dd>${fmt(r.delivery_hours)} delivery + ${fmt(r.hidden_hours)} admin/revision (${fmt(r.hidden_time_percent)}% hidden time)</dd>
            <dt>Direct costs</dt><dd>${safeCurrency} ${fmt(r.direct_costs)}</dd>
            <dt>Effective hourly rate</dt><dd><strong>${safeCurrency} ${fmt(r.effective_hourly_rate)}/hour</strong></dd>
            <dt>Price at your target rate</dt><dd>${safeCurrency} ${fmt(r.target_price)}</dd>

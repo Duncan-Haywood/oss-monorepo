@@ -44,6 +44,11 @@ quoted price and direct costs fixed while showing how the effective hourly rate
 and gap to the supplied target change. They are arithmetic what-if comparisons,
 not a forecast of project delivery time.
 
+The result also separates delivery hours from hidden admin and revision hours.
+When hidden time reaches at least 25% of the supplied total, the pre-send review
+asks you to confirm the scope and revision limit. This is a prompt about your
+inputs, not a recommendation or a profitability determination.
+
 **No warranty.** This tool is provided free and as-is, without warranty of any
 kind, express or implied. It is not tax, financial, or business advice, and it
 does not replace a qualified professional. **You are responsible for reviewing
