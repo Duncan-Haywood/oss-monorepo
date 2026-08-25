@@ -4,7 +4,9 @@ A free, static calculator for appointment-based service businesses — personal
 trainers, salons, tutors, therapists, and similar solo/small operators —
 that turns your own price, booking volume, and no-show rate into a specific
 cancellation fee, an estimate of what no-shows cost you a year, and a
-ready-to-copy cancellation policy.
+ready-to-copy cancellation policy. It also separates monthly slot exposure from
+the fee revenue your policy might recover, so you can see what still needs a
+waitlist, reminder, or rebooking process.
 
 **After using this, you can now** state and defend a specific
 no-show/late-cancellation fee — and hand clients a ready-to-use policy —
@@ -43,7 +45,8 @@ No build step, no install, no dependencies. It's plain HTML/CSS/JS.
    in USD, EUR, GBP, CAD, or AUD; it does not convert between currencies.
 4. Get: the fee amount, how many no-shows/late-cancels you can expect in a
    year at your rate, what that time is worth, and an estimate of fee
-   revenue you could collect if you enforce the policy — plus a plain-text
+   revenue you could collect if you enforce the policy, a monthly exposure and
+   recovery view — plus a plain-text
    cancellation policy you can copy straight into your booking system,
    client agreement, or website.
 

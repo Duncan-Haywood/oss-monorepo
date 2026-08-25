@@ -9,6 +9,7 @@ import {
   computeFeeAmount,
   computeAnnualExposure,
   computeAnnualFeeRevenue,
+  computeRecoverySummary,
   computeAll,
   compareFeeScenarios,
   generatePolicyText,
@@ -118,6 +119,18 @@ test("computeAnnualFeeRevenue is bounded by full enforcement", () => {
   assert.equal(full, 500);
   assert.equal(half, 250);
   assert.ok(half < full);
+});
+
+test("computeRecoverySummary gives a monthly exposure and recovery view", () => {
+  assert.deepEqual(computeRecoverySummary({ annualLostRevenue: 6240, annualFeeRevenue: 4368 }), {
+    monthlyExposure: 520, monthlyFeeRevenue: 364, monthlyUnrecovered: 156, recoveryRatePct: 70,
+  });
+});
+
+test("computeRecoverySummary avoids divide-by-zero claims", () => {
+  assert.deepEqual(computeRecoverySummary({ annualLostRevenue: 0, annualFeeRevenue: 0 }), {
+    monthlyExposure: 0, monthlyFeeRevenue: 0, monthlyUnrecovered: 0, recoveryRatePct: 0,
+  });
 });
 
 test("computeAll composes the individual calculations consistently", () => {

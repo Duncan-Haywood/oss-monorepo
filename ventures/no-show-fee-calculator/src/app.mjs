@@ -55,6 +55,10 @@ function renderResults(result) {
   document.getElementById("out-noshows-year").textContent = result.noShowsPerYear.toFixed(1);
   document.getElementById("out-annual-lost").textContent = fmtMoney(result.annualLostRevenue);
   document.getElementById("out-annual-fee-revenue").textContent = fmtMoney(result.annualFeeRevenue);
+  document.getElementById("out-monthly-exposure").textContent = fmtMoney(result.monthlyExposure);
+  document.getElementById("out-monthly-fee-revenue").textContent = fmtMoney(result.monthlyFeeRevenue);
+  document.getElementById("out-monthly-unrecovered").textContent = fmtMoney(result.monthlyUnrecovered);
+  document.getElementById("out-recovery-rate").textContent = `${result.recoveryRatePct.toFixed(1)}%`;
 }
 
 function renderScenarios(values) {
@@ -134,6 +138,7 @@ function countCalculation() {
   if (!render()) return;
   recordEvent("calculation_run");
   recordEvent("fee_scenarios_viewed");
+  recordEvent("recovery_summary_viewed");
   renderUsageSummary();
 }
 

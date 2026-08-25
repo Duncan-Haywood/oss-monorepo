@@ -102,6 +102,18 @@ export function computeAnnualFeeRevenue({ feeAmount, noShowsPerYear, enforcement
   return round2(feeAmount * noShowsPerYear * (enforcementRatePct / 100));
 }
 
+export function computeRecoverySummary({ annualLostRevenue, annualFeeRevenue }) {
+  const recoveryRatePct = annualLostRevenue > 0
+    ? round2((annualFeeRevenue / annualLostRevenue) * 100)
+    : 0;
+  return {
+    monthlyExposure: round2(annualLostRevenue / 12),
+    monthlyFeeRevenue: round2(annualFeeRevenue / 12),
+    monthlyUnrecovered: round2((annualLostRevenue - annualFeeRevenue) / 12),
+    recoveryRatePct,
+  };
+}
+
 /**
  * Runs every calculation from a single validated input set.
  * @param {{ price: number, bookingsPerWeek: number, noShowRatePct: number, noticeHours: number, feePercent: number, enforcementRatePct: number }} values
@@ -114,11 +126,13 @@ export function computeAll(values) {
     noShowsPerYear,
     enforcementRatePct: values.enforcementRatePct,
   });
+  const recovery = computeRecoverySummary({ annualLostRevenue, annualFeeRevenue });
   return {
     feeAmount,
     noShowsPerYear,
     annualLostRevenue,
     annualFeeRevenue,
+    ...recovery,
     inputs: values,
   };
 }
