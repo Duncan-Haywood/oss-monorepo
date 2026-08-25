@@ -4,6 +4,8 @@ from datetime import date
 from decimal import Decimal, InvalidOperation, ROUND_HALF_UP
 from typing import Any
 
+from .vat import inspect_party_vat
+
 
 def _money(value: Any) -> Decimal | None:
     result = _number(value)
@@ -59,6 +61,9 @@ def check_invoice(invoice: Any) -> list[dict[str, str]]:
             fail("INV-005", f"{party_name.title()} identifier is missing.", f"Add the {party_name} identifier from the source system.", f"/{party_name}/id")
         if not isinstance(party, dict) or not isinstance(party.get("name"), str) or not party.get("name", "").strip():
             fail("INV-006", f"{party_name.title()} name is missing.", f"Add the {party_name} name.", f"/{party_name}/name")
+        if isinstance(party, dict):
+            for finding in inspect_party_vat(party, party_name):
+                fail(finding["rule"], finding["message"], finding["fix"], finding["path"])
     lines = invoice.get("lines")
     if not isinstance(lines, list) or not lines:
         fail("INV-007", "Invoice has no line items.", "Add at least one line item.", "/lines")
