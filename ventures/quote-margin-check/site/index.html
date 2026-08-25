@@ -104,6 +104,7 @@
   .sensitivity th:first-child, .sensitivity td:first-child { text-align: left; }
   .table-scroll { overflow-x: auto; }
   .actions { margin-top: 1rem; display: flex; gap: 0.5rem; flex-wrap: wrap; }
+  .draft-actions { margin-top: 0.75rem; padding-top: 0.75rem; border-top: 1px solid var(--border); }
   button { font: inherit; padding: 0.5rem 0.9rem; border-radius: 6px; border: 1px solid var(--border); background: var(--bg); color: var(--fg); cursor: pointer; }
   button:hover { border-color: var(--accent); }
   footer { border-top: 1px solid var(--border); margin-top: 2rem; padding-top: 1.5rem; font-size: 0.85rem; color: var(--muted); }
@@ -186,6 +187,12 @@
       <button type="button" id="copy-csv">Copy as CSV row</button>
       <span id="copy-status" class="hint" role="status" aria-live="polite"></span>
     </div>
+    <div class="actions draft-actions" aria-label="Local draft controls">
+      <button type="button" id="save-draft">Save draft on this device</button>
+      <button type="button" id="load-draft">Load saved draft</button>
+      <button type="button" id="clear-draft">Clear saved draft</button>
+      <span id="draft-status" class="hint" role="status" aria-live="polite"></span>
+    </div>
   </section>
 
   <section aria-labelledby="about-heading">
@@ -253,6 +260,7 @@
   import { loadQuote, calculate, overrunScenarios } from "./calc.mjs";
   import { reviewQuote } from "./review.mjs";
   import { recordEvent, createReportCounter, isUsageCountingEnabled, setUsageCountingEnabled } from "./usage.mjs";
+  import { saveDraft, loadDraft, clearDraft, hasDraft } from "./drafts.mjs";
 
   // Counts settled quotes rather than keystrokes — see usage.mjs.
   const reportCounter = createReportCounter();
@@ -262,6 +270,7 @@
   const result = document.getElementById("result");
   const review = document.getElementById("review");
   const sensitivity = document.getElementById("sensitivity");
+  const draftStatus = document.getElementById("draft-status");
 
   let lastReport = null;
 
@@ -317,6 +326,14 @@
     }
   }
 
+  function applyQuote(quote) {
+    for (const id of ids) {
+      if (quote[id] !== undefined) el[id].value = quote[id];
+    }
+    dismissExampleNote();
+    update();
+  }
+
   // Once the visitor edits anything, the numbers are theirs — drop the
   // "this is an example" note rather than leaving it contradicting the form.
   const exampleNote = document.getElementById("example-note");
@@ -363,6 +380,44 @@
       copyStatus.textContent = "Couldn't access the clipboard in this browser.";
     }
   });
+
+  document.getElementById("save-draft").addEventListener("click", () => {
+    if (!lastReport) {
+      draftStatus.textContent = "Fix the inputs above before saving.";
+      return;
+    }
+    if (saveDraft(lastReport.quote)) {
+      draftStatus.textContent = "Saved on this device. Nothing was uploaded.";
+      recordEvent("draft_saved");
+    } else {
+      draftStatus.textContent = "Couldn't save locally in this browser.";
+    }
+  });
+
+  document.getElementById("load-draft").addEventListener("click", () => {
+    const draft = loadDraft();
+    if (!draft) {
+      draftStatus.textContent = "No saved draft found on this device.";
+      return;
+    }
+    try {
+      applyQuote(loadQuote(draft));
+      draftStatus.textContent = "Loaded the saved draft.";
+      recordEvent("draft_loaded");
+    } catch {
+      draftStatus.textContent = "The saved draft is invalid and was not loaded.";
+    }
+  });
+
+  document.getElementById("clear-draft").addEventListener("click", () => {
+    if (clearDraft()) {
+      draftStatus.textContent = "Saved draft cleared from this device.";
+      recordEvent("draft_cleared");
+    } else {
+      draftStatus.textContent = "Couldn't clear local storage in this browser.";
+    }
+  });
+  if (hasDraft()) draftStatus.textContent = "A saved draft is available.";
 
   const usageToggle = document.getElementById("usage-toggle");
   const usageStatus = document.getElementById("usage-status");
