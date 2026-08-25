@@ -120,11 +120,13 @@ class IbanInvoiceIntegrationTest(unittest.TestCase):
         self.assertTrue(any(item["rule"] == "INV-025" for item in errors))
         self.assertTrue(any(item["path"] == "/payment/iban" for item in errors))
 
-    def test_ubl_payee_account_id_is_mapped_not_the_bic(self):
+    def test_ubl_payee_account_id_and_branch_bic_are_mapped(self):
         invoice = parse_ubl_invoice(UBL_WITH_ACCOUNT)
         self.assertEqual(invoice["payment"]["iban"], "DE89370400440532013001")
+        self.assertEqual(invoice["payment"]["bic"], "COBADEFFXXX")
         errors = check_invoice(invoice)
         self.assertTrue(any(item["rule"] == "INV-025" and item["path"] == "/payment/iban" for item in errors))
+        self.assertFalse(any(item["rule"] == "INV-027" for item in errors))
         self.assertFalse(any("370400440532013001" in item["message"] for item in errors))
         self.assertFalse(any("COBADEFFXXX" in item["message"] for item in errors))
 

@@ -4,6 +4,7 @@ from datetime import date
 from decimal import Decimal, InvalidOperation, ROUND_HALF_UP
 from typing import Any
 
+from .bic import inspect_payment_bic
 from .iban import inspect_payment_iban
 from .vat import inspect_party_vat
 
@@ -66,6 +67,8 @@ def check_invoice(invoice: Any) -> list[dict[str, str]]:
             for finding in inspect_party_vat(party, party_name):
                 fail(finding["rule"], finding["message"], finding["fix"], finding["path"])
     for finding in inspect_payment_iban(invoice):
+        fail(finding["rule"], finding["message"], finding["fix"], finding["path"])
+    for finding in inspect_payment_bic(invoice):
         fail(finding["rule"], finding["message"], finding["fix"], finding["path"])
     lines = invoice.get("lines")
     if not isinstance(lines, list) or not lines:
