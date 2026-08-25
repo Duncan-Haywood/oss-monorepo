@@ -101,6 +101,15 @@ and build.
   GitHub closes the PR unmerged. Say "per #109" or "resolved the conflict on #109".
 - One logical change per commit; push branch `cursor/<name>-<id>`.
 
+When a generic product brief arrives, inspect open PRs and remote branches once,
+then spend the session on the highest-value unblocked product. Merge small,
+low-risk internal fixes when their checks are green; do not create duplicate
+work when an existing PR already contains the candidate. A red check that fails
+before executing steps is a repository/CI blocker to repair, not evidence that
+the product itself is broken. For new opportunities, prefer a narrow searchable
+workflow with deterministic value, local-first data handling, and a runnable
+vertical slice over a research-only proposal.
+
 ## Venture-specific notes
 
 Each venture may have its own `AGENTS.md` (framework rules, doc conventions).
