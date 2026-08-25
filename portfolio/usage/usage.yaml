@@ -305,6 +305,17 @@ products:
           preaudit_checklist_events: 0
           handoff_exports: 0
         note: Shipped browser-local pre-audit checklist; public deployment remains owner-gated.
+  - slug: epoxy-garage-floor-bid-calculator
+    surface: static-page-in-repo
+    readings:
+      - as_of: 2026-08-25
+        signals:
+          live_url_visitors: null
+          local_calculation_events: 0
+        note: >-
+          Shipped browser-local epoxy / polyaspartic garage-floor bid
+          calculator; public URL remains owner-gated. Local counter records
+          feature events only (never slab, wages, or prices). Baseline row.
 # Example of the shape, once a product has shipped:
 #
 # products:

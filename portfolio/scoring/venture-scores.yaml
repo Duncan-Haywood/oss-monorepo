@@ -86,6 +86,13 @@ ventures:
     composite: 6.5
     floor: 2
     floor_dimension: ai_leverage
+    floor_note: >-
+      The first release is intentionally deterministic: the defensible wedge is
+      a private quote-normalization worksheet, not generated negotiation advice.
+    basis: >-
+      Graduated on 2026-08-24 as a browser-local 3PL quote normalizer. It
+      produces a comparable cost picture from the user's own rate cards without
+      credentials, network access, uploads, or a recommended vendor.
     gates:
       liability_containment: pass
       ethical_robustness: pass
@@ -872,3 +879,37 @@ ventures:
       The shipped production rates are labelled ballpark starting points rather
       than a standard or benchmark, and nothing the user enters leaves the
       browser.
+
+  - slug: epoxy-garage-floor-bid-calculator
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 7
+      gross_margin: 10
+      defensibility: 5
+      distribution: 7
+    composite: 6.667
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      There is no AI anywhere in the product. The value is a domain model —
+      grind hours, flake load, and waste — that is arithmetic, and adding
+      inference to it would only make the result less checkable.
+    basis: >-
+      Graduated on 2026-08-25 as a browser-local garage-floor coating bid
+      calculator. Distinct from concrete pours (cubic yards) and interior
+      flooring (LVP / hardwood / tile): the unit of work is a profiled slab
+      plus a coating system. Distribution 7: "how much to charge for an epoxy
+      garage floor" and "polyaspartic garage floor cost" are searchable,
+      cash-paying queries with thin free tools. Defensibility 5: incumbents
+      are generic $/sq ft estimators that cannot see grind hours or flake bags.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Pass: the output is arithmetic on the contractor's own inputs, never a
+      recommended price, a moisture-test result, a surface-profile
+      specification, or a product warranty. Starting kit prices and grind
+      rates are labelled ballpark starting points, and nothing the user
+      enters leaves the browser.
