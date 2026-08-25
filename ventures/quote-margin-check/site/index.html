@@ -252,6 +252,7 @@
 <script type="module">
   import { loadQuote, calculate, overrunScenarios } from "./calc.mjs";
   import { reviewQuote } from "./review.mjs";
+  import { quoteReportCsv } from "./export.mjs";
   import { recordEvent, createReportCounter, isUsageCountingEnabled, setUsageCountingEnabled } from "./usage.mjs";
 
   // Counts settled quotes rather than keystrokes — see usage.mjs.
@@ -345,16 +346,7 @@
       return;
     }
     const { quote, r } = lastReport;
-    const rows = [
-      "measure,value,unit",
-      `quoted_price,${quote.price.toFixed(2)},${quote.currency}`,
-      `total_working_hours,${r.total_hours.toFixed(2)},hours`,
-      `direct_costs,${r.direct_costs.toFixed(2)},${quote.currency}`,
-      `effective_hourly_rate,${r.effective_hourly_rate.toFixed(2)},${quote.currency}/hour`,
-      `target_price,${r.target_price.toFixed(2)},${quote.currency}`,
-      `gap_to_target,${r.gap_to_target.toFixed(2)},${quote.currency}`,
-      `cost_coverage,${r.cost_coverage.toFixed(2)},${quote.currency}`,
-    ].join("\n");
+    const rows = quoteReportCsv(quote, r);
     try {
       await navigator.clipboard.writeText(rows);
       copyStatus.textContent = "Copied — paste into a spreadsheet.";
