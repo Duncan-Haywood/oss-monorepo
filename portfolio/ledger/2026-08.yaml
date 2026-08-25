@@ -1,5 +1,20 @@
 period: 2026-08
 entries:
+  - venture: change-order-margin-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Refreshed the existing change-order margin calculator work from PR #1217
+        onto current main in PR #1369. The browser-local tool prices added scope
+        from loaded labor, direct costs, overhead, and target margin, then creates
+        a cost floor and approval-ready summary. Added non-finite input hardening
+        and a focused edge-case test. Product tests pass 4/4 and the served-page
+        smoke test passes; public publishing remains owner-gated and PR checks
+        remain red because the repository harness lacks unrelated dependencies.
+        PR #1217 remains open because supersede_check.py confirmed its product
+        files are not on main.
+    mrr_end: null
   - venture: retainage-cashflow-calculator
     agent_spend_usd: null
     human_hours: 0
