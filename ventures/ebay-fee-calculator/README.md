@@ -14,6 +14,13 @@ prices for one unit.
 Below the result, an **If you repriced** table prices the same order 20% and
 10% either side of what you entered, so you can see what a price move is
 actually worth before making it — no re-entering numbers.
+Enter an expected return rate to see **expected profit after returns**, the
+cash one returned unit still eats (outbound label, packaging, return
+postage, and any fees that are not refunded), and the return rate that takes
+expected profit to zero. The completed-sale profit stays visible; the return
+view mixes that profit with the return loss at the rate you typed. It assumes
+the item comes back into inventory. [Why a 10% return rate can erase a thin
+listing](do-ebay-returns-wipe-the-profit.html).
 
 Open `index.html` in a browser. The calculation is local and works without an
 account, network request, or API key. It is arithmetic, not an estimate of the
@@ -40,6 +47,9 @@ drive that decision:
   Percentage fees scale with the price, so a $1 increase never leaves $1 more
   in the seller's pocket; the table makes that visible instead of leaving it to
   be re-derived by hand.
+- **Expected profit after returns** — the completed-sale profit mixed with
+  the cash a return still eats, at the return rate you enter. A thin listing
+  can look fine on one sale and lose money once 8–12% of orders come back.
 
 **No warranty.** This tool is provided free and as-is, without warranty of any
 kind, express or implied. It is not tax, financial, or business advice, and it
@@ -57,10 +67,10 @@ browser; it never records the inputs. Turn it off with the checkbox in the
 footer, or your browser's Do Not Track / Global Privacy Control setting.
 
 The counted events are `order_profit_calculated`, `target_margin_calculated`,
-`batch_calculated`, and `price_sensitivity_viewed`. The last one is counted at
-most once per visit and only after an input is edited — counting the table's
-first paint would just re-count page loads and say nothing about whether the
-repricing view is used.
+`batch_calculated`, `return_rate_viewed`, and `price_sensitivity_viewed`.
+`price_sensitivity_viewed` is counted at most once per visit and only after
+an input is edited — counting the table's first paint would just re-count
+page loads and say nothing about whether the repricing view is used.
 
 ## Support
 
@@ -70,11 +80,12 @@ support is entirely voluntary and never changes what the tool does.
 
 ## Save and share
 
-The calculator saves its ten numeric assumptions in your browser so returning
-sellers do not re-enter them. **Copy shareable link** puts those assumptions in
-the URL fragment for a collaborator; anyone with the link can read the figures,
-so do not share sensitive information. Nothing is uploaded. Use **Reset saved
-inputs** to remove the local setup.
+The calculator saves its numeric assumptions in your browser so returning
+sellers do not re-enter them, including the expected return rate and return
+postage. **Copy shareable link** puts those assumptions in the URL fragment
+for a collaborator; anyone with the link can read the figures, so do not
+share sensitive information. Nothing is uploaded. Use **Reset saved inputs**
+to remove the local setup.
 
 ## Development
 

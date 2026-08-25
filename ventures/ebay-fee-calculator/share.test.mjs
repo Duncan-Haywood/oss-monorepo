@@ -19,6 +19,15 @@ test('carries batch quantity and target margin', () => {
   assert.equal(restored.targetMargin, 25);
 });
 
+test('carries expected return-rate fields so a shared link does not drop them', () => {
+  const restored = decodeInputs(encodeInputs({
+    price: 40, returnRatePercent: 12, returnShippingCost: 7.5, feeRefundOnReturnPercent: 80,
+  }));
+  assert.equal(restored.returnRatePercent, 12);
+  assert.equal(restored.returnShippingCost, 7.5);
+  assert.equal(restored.feeRefundOnReturnPercent, 80);
+});
+
 test('round-trips known numeric inputs in stable order', () => {
   const encoded = encodeInputs({ price: 40, shippingCharged: 6, finalValueRate: 13.25 });
   assert.equal(encoded, 'price=40&shippingCharged=6&finalValueRate=13.25');

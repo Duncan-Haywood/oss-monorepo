@@ -21,6 +21,9 @@ export const INPUT_FIELDS = [
   'packagingCost',
   'otherCost',
   'targetMargin',
+  'returnRatePercent',
+  'returnShippingCost',
+  'feeRefundOnReturnPercent',
 ];
 
 export function calculateOrder(input) {
@@ -40,9 +43,14 @@ export function calculateOrder(input) {
   const packagingCost = number(input.packagingCost ?? 0, 'Packaging cost');
   const otherCost = number(input.otherCost ?? 0, 'Other cost');
   const targetMargin = number(input.targetMargin ?? 0, 'Target margin');
+  const returnRatePercent = number(input.returnRatePercent ?? 0, 'Expected return rate');
+  const returnShippingCost = number(input.returnShippingCost ?? 0, 'Return shipping cost');
+  const feeRefundOnReturnPercent = number(input.feeRefundOnReturnPercent ?? 100, 'Fee refund on return');
   const quantity = number(input.quantity ?? 1, 'Units');
   if (!Number.isInteger(quantity) || quantity < 1) throw new Error('Units must be a whole number of at least 1');
   if (targetMargin >= 100) throw new Error('Target margin must be less than 100%');
+  if (returnRatePercent > 100) throw new Error('Expected return rate must be at most 100%');
+  if (feeRefundOnReturnPercent > 100) throw new Error('Fee refund on return must be at most 100%');
 
   // eBay charges the final value fee on the full order total (item + shipping),
   // so promoted-listings and international-fee percentages are modelled the same
@@ -69,6 +77,24 @@ export function calculateOrder(input) {
   const fixedCash = fixedFee + costOfGoods + shippingCost + packagingCost + otherCost;
   const targetMarginRate = targetMargin / 100;
   const targetRevenueDenominator = 1 - percentRate - targetMarginRate;
+
+  // A completed sale keeps the profit above. A return typically refunds the
+  // buyer, often refunds percentage/fixed fees, and still eats the outbound
+  // label, packaging, other cash, and return postage. The item is treated as
+  // back in inventory, so cost of goods is not counted again as a loss.
+  const returnRate = returnRatePercent / 100;
+  const feeRefundRate = feeRefundOnReturnPercent / 100;
+  const sunkOnReturn = (shippingCost + packagingCost + otherCost + returnShippingCost) * quantity;
+  const unrefundedFees = feeTotal * (1 - feeRefundRate);
+  const returnProfit = -sunkOnReturn - unrefundedFees;
+  const expectedProfit = (1 - returnRate) * profit + returnRate * returnProfit;
+  const expectedRevenue = revenue * (1 - returnRate);
+  const profitReturnGap = profit - returnProfit;
+  const breakEvenReturnRate = profit <= 0
+    ? 0
+    : profitReturnGap <= 0
+      ? Infinity
+      : Math.min(100, profit / profitReturnGap * 100);
   return {
     revenue,
     quantity,
@@ -92,6 +118,20 @@ export function calculateOrder(input) {
     targetMarginPrice: targetRevenueDenominator <= 0
       ? Infinity
       : Math.max(0, fixedCash / targetRevenueDenominator - shippingCharged),
+    returnRatePercent,
+    returnShippingCost,
+    feeRefundOnReturnPercent,
+    returnProfit,
+    cashEatenPerReturn: quantity === 0 ? 0 : -returnProfit / quantity,
+    expectedProfit,
+    expectedUnitProfit: expectedProfit / quantity,
+    expectedRevenue,
+    expectedMargin: expectedRevenue === 0 ? 0 : expectedProfit / expectedRevenue * 100,
+    expectedProfitDelta: expectedProfit - profit,
+    // Highest return rate at which expected profit is still non-negative.
+    // Null-equivalent Infinity means even every order coming back still pays
+    // (no sunk shipping/fees). Zero means the completed sale already loses.
+    breakEvenReturnRate,
   };
 }
 
