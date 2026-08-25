@@ -4,6 +4,8 @@ import {
   calculateBid,
   compareScope,
   compareToilet,
+  compareOwnerSupply,
+  ownerSupplyNote,
   formatBidSummary,
   travelHours,
   suggestedScopeKit,
@@ -266,6 +268,83 @@ test('every shipped job preset calculates without throwing', () => {
     assert.ok(result.price > 0, preset.label);
     assert.ok(result.toiletCount > 0, preset.label);
   }
+});
+
+test('compareOwnerSupply zeros the bowl invoice and keeps the set hours', () => {
+  const rows = compareOwnerSupply(special());
+  assert.equal(rows.length, 3);
+  const plumber = rows.find((row) => row.supply === 'plumber-supplied');
+  const fits = rows.find((row) => row.supply === 'owner-fits');
+  const wrong = rows.find((row) => row.supply === 'owner-wrong');
+  assert.ok(plumber.fixtureMaterial > 0);
+  assert.equal(fits.fixtureMaterial, 0);
+  assert.equal(wrong.fixtureMaterial, 0);
+  assert.ok(Math.abs(fits.totalHours - plumber.totalHours) < 1e-9);
+  assert.ok(wrong.totalHours > fits.totalHours);
+  assert.ok(wrong.hoursTravel > plumber.hoursTravel);
+  assert.ok(wrong.offsetMaterial > plumber.offsetMaterial);
+  assert.ok(fits.price < plumber.price);
+  assert.ok(wrong.price > fits.price);
+  assert.ok(fits.cheapest);
+  assert.equal(plumber.savedVsPlumber, 0);
+  assert.ok(fits.savedVsPlumber > 0);
+});
+
+test('compareOwnerSupply does not leak a typed invoice into the owner-supplied rows', () => {
+  const baseline = compareOwnerSupply(special()).find((row) => row.supply === 'owner-fits');
+  const overridden = compareOwnerSupply({
+    ...special(),
+    toiletInvoice: 4000,
+  });
+  const plumber = overridden.find((row) => row.supply === 'plumber-supplied');
+  const fits = overridden.find((row) => row.supply === 'owner-fits');
+  assert.ok(plumber.fixtureMaterial > 1000);
+  assert.equal(fits.fixtureMaterial, 0);
+  assert.ok(Math.abs(fits.price - baseline.price) < 1e-9);
+});
+
+test('a $249 install-only special still loses when they bought a two-piece that fits', () => {
+  const rows = compareOwnerSupply(special(), { installOnlyPrice: 249 });
+  const plumber = rows.find((row) => row.supply === 'plumber-supplied');
+  const fits = rows.find((row) => row.supply === 'owner-fits');
+  const wrong = rows.find((row) => row.supply === 'owner-wrong');
+  assert.equal(plumber.installOnly.belowBreakEven, true);
+  assert.equal(fits.installOnly.belowBreakEven, true);
+  assert.equal(wrong.installOnly.belowBreakEven, true);
+  assert.ok(plumber.installOnly.profit < fits.installOnly.profit);
+  assert.ok(fits.installOnly.profit < 0);
+  const note = ownerSupplyNote(rows);
+  assert.match(note, /lose money even when they bought the bowl/i);
+  assert.match(note, /Walk-away on the owner-supplied set/i);
+});
+
+test('an install-only number can cover the set but not the plumber-supplied bowl', () => {
+  const plumberBid = calculateBid(special());
+  const ownerBid = calculateBid({ ...special(), toiletInvoice: 0 });
+  const between = (plumberBid.totalCost + ownerBid.totalCost) / 2;
+  const rows = compareOwnerSupply(special(), { installOnlyPrice: between });
+  const plumber = rows.find((row) => row.supply === 'plumber-supplied');
+  const fits = rows.find((row) => row.supply === 'owner-fits');
+  assert.equal(plumber.installOnly.belowBreakEven, true);
+  assert.equal(fits.installOnly.belowBreakEven, false);
+  assert.match(ownerSupplyNote(rows), /covers the set if their bowl actually fits/i);
+});
+
+test('proposed price on the bid is the default install-only number', () => {
+  const rows = compareOwnerSupply({ ...special(), proposedPrice: 249 });
+  assert.equal(rows[0].installOnlyPrice, 249);
+  assert.equal(rows[0].installOnly.price, 249);
+});
+
+test('ownerSupplyNote names the bid drop when no install-only price is set', () => {
+  const note = ownerSupplyNote(compareOwnerSupply(special()));
+  assert.match(note, /Zeroing the bowl invoice drops the bid/i);
+  assert.match(note, /wrong-rough-in callback/i);
+});
+
+test('ownerSupplyNote rejects a short row list', () => {
+  assert.throws(() => ownerSupplyNote([]), /missing rows/);
+  assert.throws(() => ownerSupplyNote([{ supply: 'plumber-supplied' }]), /missing rows/);
 });
 
 test('the customer summary names the closet and omits wages', () => {

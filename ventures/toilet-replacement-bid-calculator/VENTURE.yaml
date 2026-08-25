@@ -1,5 +1,5 @@
 name: toilet-replacement-bid-calculator
-description: A private browser calculator for plumbers that prices a toilet replacement from toilet count, two-piece versus comfort-height versus one-piece versus bidet-combo, swap-only versus new-supply versus flange-repair versus full-reset, 10- versus 12- versus 14-inch rough-in, and extras — and shows the extra-work share and the walk-away price below which the job loses money.
+description: A private browser calculator for plumbers that prices a toilet replacement from toilet count, two-piece versus comfort-height versus one-piece versus bidet-combo, swap-only versus new-supply versus flange-repair versus full-reset, owner-supplied versus plumber-supplied, 10- versus 12- versus 14-inch rough-in, and extras — and shows the extra-work share and the walk-away price below which the job loses money.
 stage: prototype
 owner: duncan
 hypotheses:
