@@ -8,7 +8,7 @@ Serve this directory with `python3 -m http.server` and open `index.html`. It has
 
 ## Privacy and usage
 
-Calculations stay in the browser. There are no accounts, cookies, uploads, or analytics vendor. The optional anonymous local counter records only feature names and can be disabled in the footer.
+Calculations and optional saved drafts stay in the browser. There are no accounts, cookies, uploads, or analytics vendor. The optional anonymous local counter records only feature names and can be disabled in the footer. Saved drafts can be loaded for repeat invoice reviews and are never sent anywhere.
 
 ## Safety
 
