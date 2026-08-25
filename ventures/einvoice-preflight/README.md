@@ -1,9 +1,13 @@
 # E-invoice preflight
 
-**Validate a structured invoice before submission.** This free local CLI checks
-a small, transparent JSON or UBL XML invoice shape for missing fields and
-arithmetic mistakes, then prints rule IDs and plain-language fixes. It is aimed
-at bookkeepers and ERP integrators searching for an e-invoice preflight check.
+**Validate a structured invoice before submission.** After using this, you can
+now see which fields or totals would fail a local preflight — in the browser or
+in CI — which used to mean waiting for a network rejection or rebuilding the
+arithmetic in a spreadsheet.
+
+Open [`index.html`](index.html) in a browser and drop a JSON or UBL XML invoice
+(or paste the JSON shape). The page reports rule IDs and suggested fixes. Nothing
+is uploaded. The same checks are also a local CLI for ERP adapters and CI:
 
 ```sh
 cd ventures/einvoice-preflight
@@ -173,17 +177,37 @@ These input errors are reported in the selected format and the command exits
 `2`, so CI and ERP adapters do not need to special-case an unstructured stderr
 or stdout message.
 
+## Browser checker
+
+Open `index.html` directly, or serve this directory:
+
+```sh
+python3 -m http.server 8000     # then visit /ventures/einvoice-preflight/
+cd ventures/einvoice-preflight && node --test
+```
+
+Drop one or more `.json` / `.xml` files, or paste one JSON invoice. The page
+uses the same rule IDs as the CLI, flags repeated invoice numbers in a batch,
+and can copy a privacy-safe checklist or download Markdown/JSON for your own
+records. Shared checklists contain filenames and rule IDs, not invoice numbers
+or line contents.
+
 ## Privacy and usage
 
 Everything is local. Invoice contents are never uploaded or retained by this
-tool, including when read from standard input. Usage counting is opt-in with
-`--usage-file` and stores only aggregate event counts, never invoice data,
-paths, IPs, or identifiers. It records `invoice_preflight_attempted` once per
-command invocation and `invoice_preflight_checked` once per successfully parsed
-invoice, so failed input is not silently missing from adoption signals. Usage
-recording is best effort and never changes
-the validation result if its state file cannot be read or written. Omit the
-flag to disable it. There are no accounts, cookies, or analytics vendors.
+tool, including when read from standard input or dropped in the browser. The
+CLI usage counter is opt-in with `--usage-file` and stores only aggregate event
+counts, never invoice data, paths, IPs, or identifiers. It records
+`invoice_preflight_attempted` once per command invocation and
+`invoice_preflight_checked` once per successfully parsed invoice, so failed
+input is not silently missing from adoption signals. Usage recording is best
+effort and never changes the validation result if its state file cannot be
+read or written. Omit the flag to disable it.
+
+The browser page counts the same two events in `localStorage` (on by default,
+off-switchable in the footer, and honors Do Not Track / Global Privacy Control).
+It may also count `checklist_copied` and `report_downloaded`. There are no
+accounts, cookies, or analytics vendors.
 
 ## Safety boundary
 
@@ -202,7 +226,13 @@ needed before submission.
 
 ### Does this submit invoices?
 
-No. It reads one local JSON file and writes a report to stdout.
+No. The browser page and the CLI only read a local JSON or UBL XML invoice and
+write a report. Neither contacts a tax authority or submission network.
+
+### Can I check an invoice without installing Python?
+
+Yes. Open `index.html` in a browser, drop the file or paste the JSON, and review
+the observations. Use the CLI when you want the same checks in CI or an ERP job.
 
 ### Does it calculate VAT?
 
