@@ -106,6 +106,9 @@ workflows:
 - workflow: opencode-high-throughput.yml
   classification: none
   publishes: []
+- workflow: paver-patio-bid-calculator-ci.yml
+  classification: none
+  publishes: []
 - workflow: photo-editing-ci.yml
   classification: none
   publishes: []
