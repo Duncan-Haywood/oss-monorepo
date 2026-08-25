@@ -275,6 +275,7 @@ class ChecksTest(unittest.TestCase):
             self.assertEqual(report["reports"][0]["status"], "fail")
             self.assertEqual(report["reports"][0]["observations"], 1)
             self.assertEqual(report["reports"][0]["errors"][0]["rule"], "INV-017")
+            self.assertEqual(report["errors"][0]["file"], "invoice.json")
 
     def test_cli_json_single_file_includes_adapter_summary(self):
         with tempfile.TemporaryDirectory() as directory:
@@ -300,6 +301,7 @@ class ChecksTest(unittest.TestCase):
                 "fix": "Set gross total to 238.00 or correct the totals.",
             }])
             self.assertEqual(report["errors"][0]["rule"], "INV-017")
+            self.assertEqual(report["errors"][0]["file"], "invoice.json")
 
     def test_cli_json_groups_repeated_fixes_without_invoice_values(self):
         with tempfile.TemporaryDirectory() as directory:
@@ -317,6 +319,10 @@ class ChecksTest(unittest.TestCase):
             report = json.loads(output.getvalue())
             self.assertEqual(report["fixes"][0]["rule"], "INV-017")
             self.assertEqual(report["fixes"][0]["occurrences"], 2)
+            self.assertEqual(
+                {(error["file"], error["rule"]) for error in report["errors"]},
+                {("first.json", "INV-017"), ("second.json", "INV-017")},
+            )
             self.assertNotIn("INV-1", output.getvalue())
 
     def test_cli_remediation_groups_findings_by_file_and_rule(self):
