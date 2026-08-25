@@ -1,4 +1,4 @@
-import { parseInputs, computeAll, compareFeeScenarios, generatePolicyText, buildShareUrl, readShareValues } from "./calc.mjs";
+import { parseInputs, computeAll, compareFeeScenarios, compareNoticeWindows, noticeWindowSummary, generatePolicyText, buildShareUrl, readShareValues } from "./calc.mjs";
 import { recordEvent, isOptedOut, setOptedOut, getUsageSummary, clearUsageLog } from "./usage.mjs";
 
 const form = document.getElementById("calc-form");
@@ -14,6 +14,9 @@ const usageSummaryEl = document.getElementById("usage-summary");
 const clearUsageBtn = document.getElementById("clear-usage");
 const scenarioSection = document.getElementById("scenario-section");
 const scenarioBody = document.getElementById("scenario-body");
+const noticeSection = document.getElementById("notice-section");
+const noticeBody = document.getElementById("notice-body");
+const noticeSummaryEl = document.getElementById("notice-summary");
 const currencySelect = document.getElementById("currency");
 
 const currencyOptions = {
@@ -71,6 +74,29 @@ function renderScenarios(values) {
   scenarioSection.hidden = false;
 }
 
+function renderNoticeWindows(values) {
+  noticeBody.replaceChildren();
+  const rows = compareNoticeWindows(values);
+  for (const row of rows) {
+    const tr = document.createElement("tr");
+    if (row.selected) tr.className = "selected-scenario";
+    const label = row.selected
+      ? `${row.label} (your policy)`
+      : row.nearest
+        ? `${row.label} (closest to your policy)`
+        : row.label;
+    tr.appendChild(Object.assign(document.createElement("th"), { scope: "row", textContent: label }));
+    tr.insertCell().textContent = `${row.fillPct}%`;
+    tr.insertCell().textContent = row.slotsFilled.toFixed(1);
+    tr.insertCell().textContent = fmtMoney(row.recoveredByRefill);
+    tr.insertCell().textContent = fmtMoney(row.leftoverLost);
+    tr.insertCell().textContent = fmtMoney(row.extraVsSameDay);
+    noticeBody.appendChild(tr);
+  }
+  noticeSummaryEl.textContent = noticeWindowSummary(rows);
+  noticeSection.hidden = false;
+}
+
 function renderUsageSummary() {
   const { total, byEvent } = getUsageSummary();
   if (total === 0) {
@@ -109,6 +135,7 @@ function render() {
     // the old numbers still apply to the edited inputs. This is #1022's fix;
     // a later merge on `main` dropped the line, so this restores it.
     scenarioSection.hidden = true;
+    noticeSection.hidden = true;
     return false;
   }
 
@@ -116,6 +143,7 @@ function render() {
   const result = computeAll(parsed.values);
   renderResults(result);
   renderScenarios(parsed.values);
+  renderNoticeWindows(parsed.values);
 
   policyEl.value = generatePolicyText({
     businessName: String(raw.businessName ?? ""),
@@ -134,6 +162,7 @@ function countCalculation() {
   if (!render()) return;
   recordEvent("calculation_run");
   recordEvent("fee_scenarios_viewed");
+  recordEvent("notice_windows_compared");
   renderUsageSummary();
 }
 

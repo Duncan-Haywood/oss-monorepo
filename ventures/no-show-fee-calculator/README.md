@@ -7,9 +7,10 @@ cancellation fee, an estimate of what no-shows cost you a year, and a
 ready-to-copy cancellation policy.
 
 **After using this, you can now** state and defend a specific
-no-show/late-cancellation fee — and hand clients a ready-to-use policy —
-**which used to take** guessing a number or copying a boilerplate template
-that doesn't match your prices.
+no-show/late-cancellation fee, see whether a 24-hour or 48-hour notice
+window actually recovers more empty-slot cash on your waitlist, and hand
+clients a ready-to-use policy — **which used to take** guessing a number
+or copying a boilerplate template that doesn't match your prices.
 
 ## Who this is for
 
@@ -47,6 +48,14 @@ No build step, no install, no dependencies. It's plain HTML/CSS/JS.
    cancellation policy you can copy straight into your booking system,
    client agreement, or website.
 
+**Compare notice windows** answers the 24-hour vs 48-hour question with
+your own waitlist fill-rate assumption. Same-day, 24-hour, and 48-hour
+rows show how many late cancels you refill, how much empty-slot cash that
+recovers, and the extra versus a same-day rule. The fee table stays
+separate: collecting a fee does not put another client in the chair. A
+crawlable explainer lives at
+[`24h-vs-48h-cancellation-notice.html`](24h-vs-48h-cancellation-notice.html).
+
 All the arithmetic is in [`src/calc.mjs`](src/calc.mjs), covered by
 [`test/calc.test.mjs`](test/calc.test.mjs). Nothing here is AI-generated
 guesswork — it's your numbers, run through a fixed formula you can read.
@@ -68,12 +77,18 @@ cancellation/no-show fee is permitted for your business type and location
 before you publish a policy. To the maximum extent permitted by law, the
 authors accept no liability for any loss or damage arising from its use.
 
+**Best-effort hosting, no SLA.** These tools are free, experimental, and may
+be slow, broken, moved, or taken offline without notice. We do not promise
+uptime, backups of anything you type, or that a URL will keep working. Do not
+use this as a system of record. If a tool needs to survive, export your
+inputs and run it yourself.
+
 ## Privacy
 
 Everything runs in your browser. There is no server, no account, and no
 third-party analytics vendor — your prices and business details are never
 uploaded anywhere. The page counts a small number of anonymous local events
-(e.g. "a calculation ran", "the policy was copied") so it can tell whether
+(e.g. "a calculation ran", "the policy was copied", "notice windows compared") so it can tell whether
 anyone is using it at all. The page recalculates as you type, but a
 calculation is only *counted* once a field is settled — the count is meant to
 measure calculations, not keystrokes, and the result shown on first load is

@@ -244,6 +244,15 @@ products:
           Shipped browser-local no-show exposure calculator and policy draft
           generator. Public URL remains owner-gated; the local counter is
           anonymous, event-only, and opt-out. Baseline row.
+      - as_of: 2026-08-25
+        signals:
+          live_url_visitors: null
+          notice_windows_compared: 0
+        note: >-
+          Added 4-hour vs 24-hour vs 48-hour waitlist-fill comparison so a
+          longer cancellation window is scored as empty-slot cash recovered,
+          not policy wording. Public URL remains owner-gated; the new event
+          is local and opt-out.
   - slug: amazon-fba-calculator
     surface: static-page-in-repo
     readings:

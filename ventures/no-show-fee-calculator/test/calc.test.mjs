@@ -11,6 +11,9 @@ import {
   computeAnnualFeeRevenue,
   computeAll,
   compareFeeScenarios,
+  compareNoticeWindows,
+  nearestNoticeHours,
+  noticeWindowSummary,
   generatePolicyText,
   buildShareUrl,
   readShareValues,
@@ -33,6 +36,9 @@ test("parseInputs accepts valid numeric input", () => {
     noticeHours: 24,
     feePercent: 100,
     enforcementRatePct: 70,
+    fillSameDayPct: 10,
+    fillDayAheadPct: 40,
+    fillTwoDayPct: 65,
   });
 });
 
@@ -151,6 +157,132 @@ test("compareFeeScenarios shows standard levels and preserves a custom selection
   assert.deepEqual(scenarios.map(({ annualFeeRevenue }) => annualFeeRevenue), [1040, 1248, 1560, 2080]);
 });
 
+test("parseInputs applies waitlist fill defaults when the fields are omitted", () => {
+  const result = parseInputs({
+    price: "75",
+    bookingsPerWeek: "20",
+    noShowRatePct: "8",
+    noticeHours: "24",
+    feePercent: "100",
+    enforcementRatePct: "70",
+  });
+  assert.equal(result.ok, true);
+  assert.equal(result.values.fillSameDayPct, 10);
+  assert.equal(result.values.fillDayAheadPct, 40);
+  assert.equal(result.values.fillTwoDayPct, 65);
+});
+
+test("parseInputs accepts explicit waitlist fill rates", () => {
+  const result = parseInputs({
+    price: "75",
+    bookingsPerWeek: "20",
+    noShowRatePct: "8",
+    noticeHours: "24",
+    feePercent: "100",
+    enforcementRatePct: "70",
+    fillSameDayPct: "5",
+    fillDayAheadPct: "30",
+    fillTwoDayPct: "80",
+  });
+  assert.equal(result.ok, true);
+  assert.equal(result.values.fillSameDayPct, 5);
+  assert.equal(result.values.fillDayAheadPct, 30);
+  assert.equal(result.values.fillTwoDayPct, 80);
+});
+
+test("parseInputs rejects an out-of-range waitlist fill rate", () => {
+  const result = parseInputs({
+    price: "75",
+    bookingsPerWeek: "20",
+    noShowRatePct: "8",
+    noticeHours: "24",
+    feePercent: "100",
+    enforcementRatePct: "70",
+    fillTwoDayPct: "150",
+  });
+  assert.equal(result.ok, false);
+  assert.ok(result.errors.some((e) => e.includes("48-hour waitlist fill rate")));
+});
+
+test("compareNoticeWindows recovers more empty-slot cash at a higher fill rate", () => {
+  const rows = compareNoticeWindows({
+    price: 75,
+    bookingsPerWeek: 20,
+    noShowRatePct: 8,
+    noticeHours: 24,
+    fillSameDayPct: 10,
+    fillDayAheadPct: 40,
+    fillTwoDayPct: 65,
+  });
+  // 20 * 0.08 * 52 = 83.2 no-shows; 83.2 * 75 = 6240 of empty-slot cash.
+  assert.deepEqual(rows.map(({ hours }) => hours), [4, 24, 48]);
+  assert.equal(rows[0].slotsFilled, 8.32);
+  assert.equal(rows[0].recoveredByRefill, 624);
+  assert.equal(rows[0].leftoverLost, 5616);
+  assert.equal(rows[0].extraVsSameDay, 0);
+  assert.equal(rows[1].slotsFilled, 33.28);
+  assert.equal(rows[1].recoveredByRefill, 2496);
+  assert.equal(rows[1].leftoverLost, 3744);
+  assert.equal(rows[1].extraVsSameDay, 1872);
+  assert.equal(rows[1].selected, true);
+  assert.equal(rows[1].nearest, true);
+  assert.equal(rows[2].slotsFilled, 54.08);
+  assert.equal(rows[2].recoveredByRefill, 4056);
+  assert.equal(rows[2].leftoverLost, 2184);
+  assert.equal(rows[2].extraVsSameDay, 3432);
+  assert.equal(rows[2].selected, false);
+});
+
+test("compareNoticeWindows does not invent a waitlist when every fill rate is zero", () => {
+  const rows = compareNoticeWindows({
+    price: 100,
+    bookingsPerWeek: 10,
+    noShowRatePct: 10,
+    noticeHours: 48,
+    fillSameDayPct: 0,
+    fillDayAheadPct: 0,
+    fillTwoDayPct: 0,
+  });
+  assert.ok(rows.every((row) => row.recoveredByRefill === 0 && row.extraVsSameDay === 0));
+  assert.equal(rows[2].selected, true);
+});
+
+test("nearestNoticeHours picks the closest standard window", () => {
+  assert.equal(nearestNoticeHours(24), 24);
+  assert.equal(nearestNoticeHours(4), 4);
+  assert.equal(nearestNoticeHours(36), 24);
+  assert.equal(nearestNoticeHours(12), 4);
+});
+
+test("noticeWindowSummary names the extra cash a 48-hour window recovers", () => {
+  const rows = compareNoticeWindows({
+    price: 75,
+    bookingsPerWeek: 20,
+    noShowRatePct: 8,
+    noticeHours: 24,
+    fillSameDayPct: 10,
+    fillDayAheadPct: 40,
+    fillTwoDayPct: 65,
+  });
+  const text = noticeWindowSummary(rows);
+  assert.match(text, /\$3432\.00 more/);
+  assert.match(text, /\$1872\.00 more/);
+  assert.match(text, /does not refill the chair/);
+});
+
+test("noticeWindowSummary stays honest when a longer window does not refill more", () => {
+  const rows = compareNoticeWindows({
+    price: 80,
+    bookingsPerWeek: 5,
+    noShowRatePct: 10,
+    noticeHours: 24,
+    fillSameDayPct: 20,
+    fillDayAheadPct: 20,
+    fillTwoDayPct: 20,
+  });
+  assert.match(noticeWindowSummary(rows), /does not recover more/);
+});
+
 test("compareFeeScenarios does not duplicate a standard selected level", () => {
   const scenarios = compareFeeScenarios({ price: 100, bookingsPerWeek: 1, noShowRatePct: 10, feePercent: 75, enforcementRatePct: 100 });
   assert.deepEqual(scenarios.map(({ feePercent }) => feePercent), [50, 75, 100]);
@@ -226,6 +358,21 @@ test("index.html contains the required disclaimer wording", () => {
   const html = readFileSync(path.join(here, "..", "index.html"), "utf8");
   assert.match(html, /No warranty\./);
   assert.match(html, /not legal, tax, or financial\s*\n?\s*advice/);
+  assert.match(html, /Best-effort hosting, no SLA/);
+});
+
+test("index.html wires the notice-window comparison the script paints", () => {
+  const html = readHtml();
+  assert.match(html, /id="notice-section"/);
+  assert.match(html, /id="notice-body"/);
+  assert.match(html, /id="notice-summary"/);
+  assert.match(html, /id="fillSameDayPct"/);
+  assert.match(html, /id="fillDayAheadPct"/);
+  assert.match(html, /id="fillTwoDayPct"/);
+  assert.match(html, /24h-vs-48h-cancellation-notice\.html/);
+  const app = readApp();
+  assert.match(app, /compareNoticeWindows/);
+  assert.match(app, /notice_windows_compared/);
 });
 // --------------------------------------------------------------------------
 // Missing input is not the number zero.
