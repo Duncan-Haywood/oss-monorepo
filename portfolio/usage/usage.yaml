@@ -6,6 +6,15 @@
 # retired honestly instead of quietly.
 period: 2026-08
 products:
+  - slug: cam-reconciliation-check
+    surface: static-page-in-repo
+    readings:
+      - as_of: 2026-08-25
+        signals:
+          live_url_visitors: null
+          local_reconciliation_checks: 0
+          private_review_downloads: 0
+        note: Shipped browser-local CAM area-share reconciliation baseline; public URL remains owner-gated.
   - slug: retainage-cashflow-calculator
     surface: static-page-in-repo
     readings:
