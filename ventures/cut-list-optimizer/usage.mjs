@@ -2,11 +2,12 @@
 // counters in localStorage that the visitor can switch off, not analytics events.
 //
 // `event` separates the things worth knowing apart — how many cut plans were
-// actually calculated ('runs', 'sheet-runs') and how many were carried into a
-// job ticket ('copies', 'sheet-copies'). Counting them into one key made the
-// number unreadable, and the sheet and linear tools answer different questions
-// about which half of the product people come back for.
-export const EVENTS = ['runs', 'copies', 'sheet-runs', 'sheet-copies'];
+// actually calculated ('runs', 'sheet-runs'), how many were carried into a
+// job ticket ('copies', 'sheet-copies'), and how many times a shop ranked
+// two sheet sizes before buying ('sheet-compares'). Counting them into one
+// key made the number unreadable, and the sheet and linear tools answer
+// different questions about which half of the product people come back for.
+export const EVENTS = ['runs', 'copies', 'sheet-runs', 'sheet-copies', 'sheet-compares'];
 
 // A visitor who has asked their browser to say "do not track me" has already
 // answered this question, so the opt-out checkbox is not the only way to say no.
