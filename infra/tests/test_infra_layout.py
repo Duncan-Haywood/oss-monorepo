@@ -63,7 +63,9 @@ def test_checklist_refuses_write_hcloud_in_ci() -> None:
     assert "no hard euro" in checklist
     assert "Read+Write" in checklist
     assert "OPENAI_API_KEY" in checklist
-    assert "HETZNER_SSH_PRIVATE_KEY" in checklist
+    assert "HETZNERSSHKEY" in checklist
+    assert "HETZNERREADAPIKEY" in checklist
+    assert "CLAUDETRIGGERAPIKEY" in checklist
 
 
 def test_ci_never_applies_tofu() -> None:
@@ -71,6 +73,10 @@ def test_ci_never_applies_tofu() -> None:
     assert not re.search(r"(?m)^\s+tofu apply\b", wf)
     assert "assert_hcloud_read_only.sh" in wf
     assert "preflight.sh" in wf
+    assert "secrets.HETZNERREADAPIKEY" in wf
+    assert "secrets.HETZNERSSHKEY" in wf
+    assert "secrets.HCLOUD_TOKEN" not in wf
+    assert "HETZNER_SSH_PRIVATE_KEY" not in wf
 
 
 if __name__ == "__main__":
