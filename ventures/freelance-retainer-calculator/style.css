@@ -5,3 +5,13 @@
 @media (max-width:720px) { .shell { padding:30px 15px; } .workspace { grid-template-columns:1fr; } .grid { grid-template-columns:1fr; gap:0; } h1 { font-size:3rem; } }
 .actions { display:flex; flex-wrap:wrap; gap:8px; }
 .actions button { flex:1 1 210px; margin-top:0; }
+.scenarios { margin-top:20px; }
+.scroller { overflow-x:auto; }
+table { width:100%; border-collapse:collapse; font:14px/1.4 Arial,sans-serif; }
+th,td { text-align:left; padding:10px 8px; border-bottom:1px solid var(--line); vertical-align:middle; }
+th { color:var(--muted); font-size:12px; letter-spacing:.04em; text-transform:uppercase; }
+tr.selected { background:#fff4ee; }
+tr.overflow { color:var(--muted); }
+button.apply { width:auto; margin:0; padding:8px 10px; font-size:12px; }
+.visually-hidden { position:absolute; width:1px; height:1px; padding:0; margin:-1px; overflow:hidden; clip:rect(0,0,0,0); white-space:nowrap; border:0; }
+a { color:var(--accent); }

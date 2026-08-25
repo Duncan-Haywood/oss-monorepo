@@ -11,7 +11,8 @@
   <meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/freelance-retainer-calculator/">
   <link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/freelance-retainer-calculator/">
   <link rel="stylesheet" href="style.css">
-  <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Freelance Retainer Pricing Calculator","applicationCategory":"BusinessApplication","operatingSystem":"Any","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"description":"A private browser calculator for sustainable freelance retainer pricing."}</script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Freelance Retainer Pricing Calculator","applicationCategory":"BusinessApplication","operatingSystem":"Any","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"description":"A private browser calculator for sustainable freelance retainer pricing.","featureList":"Sustainable hourly floor, monthly retainer price, capacity leftover, package comparison, copyable proposal summary"}</script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"How do I price a freelance retainer?","acceptedAnswer":{"@type":"Answer","text":"Start from the monthly income you need, add business costs and taxes, then divide by realistic billable hours — not calendar hours. Multiply that floor by the hours you will include and add a visible scope buffer. The result is a planning price, not a promise of results."}},{"@type":"Question","name":"How many hours should a monthly retainer include?","acceptedAnswer":{"@type":"Answer","text":"Include only hours you can deliver inside your billable capacity, and avoid selling more than half of that capacity to one client. Compare 10, 15, 20, 25, and 30 hour packages against the same income goal so you can quote a range instead of one number."}},{"@type":"Question","name":"Why isn't my hourly rate just desired income divided by hours?","acceptedAnswer":{"@type":"Answer","text":"Because only part of a month is billable, and tools, taxes, and revisions still have to be paid. A calculator that ignores utilization and a scope buffer overstates capacity and underprices the retainer."}}]}</script>
 </head>
 <body>
   <main class="shell">
@@ -52,11 +53,32 @@
        <span id="copyStatus" role="status"></span>
       </section>
     </section>
+    <section id="scenarios" class="card scenarios" aria-live="polite" hidden>
+      <h2>Compare retainer sizes</h2>
+      <p class="note">Same income goal and capacity. Use a smaller package if the hours you typed will not fit this month.</p>
+      <div class="scroller">
+        <table>
+          <caption class="visually-hidden">Monthly price and leftover capacity for common retainer sizes</caption>
+          <thead>
+            <tr>
+              <th scope="col">Included hours</th>
+              <th scope="col">Monthly price</th>
+              <th scope="col">Effective rate</th>
+              <th scope="col">Capacity left</th>
+              <th scope="col">Share of capacity</th>
+              <th scope="col"><span class="visually-hidden">Choose package</span></th>
+            </tr>
+          </thead>
+          <tbody id="scenarioRows"></tbody>
+        </table>
+      </div>
+      <p id="scenarioInsight" class="note"></p>
+    </section>
     <section class="copy card">
       <h2>Why this is different from a basic hourly-rate calculator</h2>
       <p>A $75 rate means little if only 65% of your month is billable, your tools and taxes cost $1,800, and a vague retainer absorbs unplanned revisions. This calculator makes each assumption visible so you can change it before making a promise.</p>
       <h2>Common question: how many hours should a retainer include?</h2>
-      <p>Start with a scope you can deliver inside your billable capacity, then leave the buffer intact. A retainer is a commitment of access and work, not permission for unlimited requests. Put included hours, response time, and out-of-scope pricing in your agreement.</p>
+      <p>Start with a scope you can deliver inside your billable capacity, then leave the buffer intact. A retainer is a commitment of access and work, not permission for unlimited requests. Compare 10, 15, 20, 25, and 30 hour packages on this page, or read the longer answer in <a href="how-many-retainer-hours.html">how many hours a retainer should include</a>. Put included hours, response time, and out-of-scope pricing in your agreement.</p>
     </section>
     <footer>
       <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not financial advice and does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for meeting any obligation it helps you prepare for. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
