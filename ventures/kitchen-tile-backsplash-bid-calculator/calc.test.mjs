@@ -4,6 +4,7 @@ import {
   calculateBid,
   compareScope,
   comparePattern,
+  leftoverBoxPlan,
   formatBidSummary,
   travelHours,
   suggestedScopeKit,
@@ -257,6 +258,63 @@ test('every shipped job preset calculates without throwing', () => {
     assert.ok(result.price > 0, preset.label);
     assert.ok(result.wallSf > 0, preset.label);
   }
+});
+
+test('leftoverBoxPlan rounds a 33 SF kitchen buy up to whole boxes', () => {
+  const plan = leftoverBoxPlan({ ...special(), sfPerBox: 10, leftoverBoxes: 0, secondWallSf: 0 });
+  assert.equal(plan.kitchenNeedSf, 33);
+  assert.equal(plan.boxesToBuy, 4);
+  assert.equal(plan.purchasedSf, 40);
+  assert.ok(Math.abs(plan.leftoverAfterKitchen - 7) < 1e-9);
+  assert.ok(Math.abs(plan.boxRoundUpSf - 7) < 1e-9);
+  assert.equal(plan.leftoverCredit, 0);
+  assert.ok(Math.abs(plan.tileInvoiceAfterBoxes - 40 * special().tilePerSf) < 1e-9);
+});
+
+test('leftover boxes on the van credit the kitchen buy', () => {
+  const plan = leftoverBoxPlan({ ...special(), sfPerBox: 10, leftoverBoxes: 2, secondWallSf: 0 });
+  assert.equal(plan.leftoverSf, 20);
+  assert.equal(plan.usedFromStock, 20);
+  assert.equal(plan.stillNeedSf, 13);
+  assert.equal(plan.boxesToBuy, 2);
+  assert.equal(plan.purchasedSf, 20);
+  assert.ok(Math.abs(plan.leftoverAfterKitchen - 7) < 1e-9);
+  assert.ok(Math.abs(plan.leftoverCredit - 20 * special().tilePerSf) < 1e-9);
+});
+
+test('enough leftover covers the kitchen without a buy', () => {
+  const plan = leftoverBoxPlan({ ...special(), sfPerBox: 10, leftoverBoxes: 4, secondWallSf: 0 });
+  assert.equal(plan.boxesToBuy, 0);
+  assert.equal(plan.purchasedSf, 0);
+  assert.ok(Math.abs(plan.usedFromStock - 33) < 1e-9);
+  assert.ok(Math.abs(plan.leftoverAfterKitchen - 7) < 1e-9);
+  assert.equal(plan.boxRoundUpSf, 0);
+});
+
+test('leftover after the kitchen may still miss a laundry return', () => {
+  const plan = leftoverBoxPlan({ ...special(), sfPerBox: 10, leftoverBoxes: 0, secondWallSf: 8 });
+  assert.ok(Math.abs(plan.secondNeedSf - 8.8) < 1e-9);
+  assert.equal(plan.secondCoveredByLeftover, false);
+  assert.ok(Math.abs(plan.secondShortfallSf - 1.8) < 1e-9);
+  assert.equal(plan.secondBoxesToBuy, 1);
+});
+
+test('leftover after the kitchen can cover a smaller second wall', () => {
+  const plan = leftoverBoxPlan({ ...special(), sfPerBox: 10, leftoverBoxes: 0, secondWallSf: 6 });
+  assert.ok(Math.abs(plan.secondNeedSf - 6.6) < 1e-9);
+  assert.equal(plan.secondCoveredByLeftover, true);
+  assert.equal(plan.secondBoxesToBuy, 0);
+  assert.equal(plan.secondShortfallSf, 0);
+});
+
+test('leftoverBoxPlan rejects a missing box size and does not change the headline bid', () => {
+  const bid = calculateBid(special());
+  const plan = leftoverBoxPlan({ ...special(), sfPerBox: 10, leftoverBoxes: 2, secondWallSf: 8 });
+  const bidAgain = calculateBid({ ...special(), leftoverBoxes: 2, secondWallSf: 8 });
+  assert.ok(Math.abs(bid.price - bidAgain.price) < 1e-9);
+  assert.ok(plan.leftoverCredit > 0);
+  assert.throws(() => leftoverBoxPlan({ ...special(), sfPerBox: 0 }), /greater than zero/);
+  assert.throws(() => leftoverBoxPlan({ ...special(), sfPerBox: 10, leftoverBoxes: -1 }), /at least 0/);
 });
 
 test('the customer summary names the wall and omits wages', () => {

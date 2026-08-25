@@ -50,6 +50,7 @@ test('the module script survives parsing and would actually execute', () => {
   assert.match(scriptSource, /calculateBid/, 'the app script did not parse as a script element');
   assert.match(scriptSource, /compareScope/, 'scope comparison is missing from the executable script');
   assert.match(scriptSource, /comparePattern/, 'pattern comparison is missing from the executable script');
+  assert.match(scriptSource, /leftoverBoxPlan/, 'leftover-box plan is missing from the executable script');
   assert.match(scriptSource, /formatBidSummary/, 'copy-summary helper is missing from the executable script');
 });
 
@@ -68,6 +69,7 @@ test('inputs and result fields for the primary journey are present', () => {
     'scope', 'pattern', 'wall', 'wallSf', 'outlets', 'travelMiles',
     'hourlyWage', 'targetMargin', 'proposedPrice',
     'price', 'breakEven', 'compare', 'patterns', 'copySummary', 'usageOptOut', 'jobPresets',
+    'sfPerBox', 'leftoverBoxes', 'secondWallSf', 'boxesToBuy', 'leftoverAfter', 'boxVerdict',
   ]) {
     assert.ok(declaredIds.has(id), `missing #${id}`);
   }
@@ -80,6 +82,8 @@ test('the landing page names the problem in the contractor\'s words', () => {
   assert.match(html, /SoftwareApplication/);
   assert.match(html, /Same wall, four patterns/);
   assert.match(html, /vs subway/);
+  assert.match(html, /Leftover boxes and the next wall/);
+  assert.match(html, /leftoverBoxPlan/);
 });
 
 test('disclaimer and privacy line are visible, not only in the README', () => {
@@ -95,6 +99,7 @@ test('the SEO article answers the search phrase and stays crawlable', () => {
   assert.match(seo, /HowTo/);
   assert.match(seo, /tile-only/i);
   assert.match(seo, /Subway versus herringbone on the same wall/i);
+  assert.match(seo, /Leftover boxes do not automatically cover the laundry wall/i);
   assert.match(seo, /index\.html/);
   assert.doesNotMatch(seo, /<textarea/i);
 });
