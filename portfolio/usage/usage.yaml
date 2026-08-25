@@ -219,6 +219,17 @@ products:
         note: >-
           Shipped a local commercial cleaning bid calculator with a copyable
           proposal summary; public URL remains owner-gated.
+      - as_of: 2026-08-25
+        signals:
+          live_url_visitors: null
+          frequency_reduction_compared: 0
+          frequency_note_copied: 0
+        note: >-
+          Recovered the 5×-to-3× schedule-cut comparison (labor scales,
+          travel and equipment do not) after #1527 was closed with unique
+          lines still absent from main. Building-level currentWeekly now
+          rebases area rows when they disagree. Public URL remains
+          owner-gated.
   - slug: shopify-fee-calculator
     surface: static-page-in-repo
     readings:
