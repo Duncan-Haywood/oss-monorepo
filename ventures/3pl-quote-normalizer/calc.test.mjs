@@ -2,6 +2,11 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import { calculate, compareQuotes, comparisonSummary, inputWarnings, largestCostDriver, negotiationLines, summary, volumeSensitivity } from "./calc.mjs";
 
+test("custom return and restocking fees flow into the normalized quote", () => {
+  const result = calculate({ orders: 100, unitsPerOrder: 1, returnsRate: 10, returnFee: 7, restockFee: 3 });
+  assert.equal(result.quote.returns, 100);
+});
+
 test("normalizes the full monthly quote and minimum", () => {
   const result = calculate({ orders: 100, unitsPerOrder: 1.5, pallets: 1, minimumMonthly: 2000 });
   assert.equal(Math.round(result.quote.subtotal), 1419);
