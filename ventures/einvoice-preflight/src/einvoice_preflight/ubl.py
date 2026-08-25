@@ -26,7 +26,15 @@ def _party(element: ElementTree.Element) -> dict[str, str]:
     party = next(iter(_children(element, "Party")), element)
     identifier = _text(party, "ID")
     name = _text(party, "Name")
-    return {"id": identifier, "name": name}
+    mapped = {"id": identifier, "name": name}
+    vat_id = ""
+    for scheme in _children(party, "PartyTaxScheme"):
+        vat_id = _text(scheme, "CompanyID", required=False)
+        if vat_id:
+            break
+    if vat_id:
+        mapped["vat_id"] = vat_id
+    return mapped
 
 
 def parse_ubl_invoice(source: bytes | str) -> dict[str, Any]:

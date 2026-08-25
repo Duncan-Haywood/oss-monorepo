@@ -65,12 +65,22 @@ arithmetic check, not a tax-law determination:
   "issue_date": "2026-08-24",
   "due_date": "2026-09-23",
   "currency": "EUR",
-  "supplier": {"id": "DE123", "name": "Supplier GmbH"},
-  "customer": {"id": "DE456", "name": "Customer GmbH"},
+  "supplier": {"id": "DE123", "name": "Supplier GmbH", "vat_id": "DE136695976"},
+  "customer": {"id": "DE456", "name": "Customer GmbH"}
    "lines": [{"description": "Consulting", "quantity": 2, "unit_price": 100, "tax_percent": 19, "net": 200}],
   "totals": {"net": 200, "tax": 38, "gross": 238}
 }
 ```
+
+`supplier.vat_id` and `customer.vat_id` are optional. When supplied, they are
+checked against published national VAT shapes and checksums (DE, FR, BE, NL,
+AT, IT, ES, PL, SE, DK, FI, PT, LU, IE, GB, and length-only checks for other
+EU prefixes). A matching complete VAT in `id` is checked the same way. Short
+codes such as `DE123` stay internal ERP identifiers and are not treated as
+VAT numbers. Failed checksums are `INV-023`; a `vat_id` that is not a known
+shape is `INV-022`. Messages never repeat the identifier. This is a typo
+catch, not a VIES registration lookup and not a determination that a party
+may charge tax. UBL `PartyTaxScheme/CompanyID` maps into `vat_id`.
 
 `due_date` is optional. When supplied, it must use `YYYY-MM-DD` and cannot be
 earlier than `issue_date`; this is a date-shape and document-consistency check,
@@ -208,3 +218,9 @@ No. It reads one local JSON file and writes a report to stdout.
 
 No. It checks the arithmetic for the tax percentage supplied in each line; it
 does not decide whether that percentage is legally correct.
+
+### Does it look up VAT registrations?
+
+No. Optional `vat_id` values (and a complete VAT shape in `id`) are checked
+with published checksums only. The tool never calls VIES or any network
+service, never stores the identifier, and never claims a party is registered.
