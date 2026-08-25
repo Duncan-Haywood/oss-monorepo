@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { calculateOrder, calculatePriceScenarios, calculateRepricingTable } from './calc.mjs';
+import { calculateOrder, calculatePriceScenarios, calculateRepricingTable, calculateSourcingCeiling } from './calc.mjs';
 
 const near = (actual, expected, msg) => assert.ok(Math.abs(actual - expected) < 1e-6, `${msg}: ${actual} vs ${expected}`);
 
@@ -50,6 +50,25 @@ test('reports an unreachable target margin when fees leave no margin room', () =
 test('ROI is null when no cash was invested', () => {
   const r = calculateOrder({ price: 20, shippingCharged: 0, costOfGoods: 0, shippingCost: 0, packagingCost: 0, otherCost: 0 });
   assert.equal(r.roi, null);
+});
+
+test('solves the maximum acquisition cost for a target ROI', () => {
+  const input = { price: 40, shippingCharged: 6, finalValueRate: 13.25, fixedFee: 0.3, costOfGoods: 12, shippingCost: 5, packagingCost: 1 };
+  const ceiling = calculateSourcingCeiling(input, 50);
+  near(ceiling.maximumAcquisitionCost, ((40 + 6) * (1 - 0.1325) - 0.3 - 5 - 1 - 0.5 * (5 + 1)) / 1.5, '50% ROI sourcing ceiling');
+  const atCeiling = calculateOrder({ ...input, costOfGoods: ceiling.maximumAcquisitionCost });
+  near(atCeiling.roi, 50, 'ROI at sourcing ceiling');
+  assert.equal(ceiling.isReachable, true);
+  assert.equal(ceiling.amountOverCeiling, 0);
+});
+
+test('sourcing ceiling handles batches and unreachable targets', () => {
+  const input = { price: 40, shippingCharged: 6, quantity: 3, finalValueRate: 13.25, fixedFee: 0.3, shippingCost: 5, packagingCost: 1 };
+  const single = calculateSourcingCeiling({ ...input, quantity: 1 }, 100);
+  const batch = calculateSourcingCeiling(input, 100);
+  near(batch.maximumAcquisitionCost, single.maximumAcquisitionCost, 'batch ceiling remains per item');
+  assert.equal(calculateSourcingCeiling({ price: 10, finalValueRate: 90, shippingCost: 5 }, 100).isReachable, false);
+  assert.throws(() => calculateSourcingCeiling(input, -1), /non-negative/);
 });
 
 test('margin is zero rather than NaN when revenue is zero', () => {
