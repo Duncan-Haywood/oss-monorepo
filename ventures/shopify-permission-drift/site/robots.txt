@@ -1,0 +1,3 @@
+User-agent: *
+Allow: /
+Sitemap: https://duncan-haywood.github.io/monorepo-projects/ventures/shopify-permission-drift/site/sitemap.xml

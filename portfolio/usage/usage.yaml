@@ -37,6 +37,11 @@ products:
           local_comparisons: 1
           qualified_pilots: 0
           note: Shipped fixture-backed local comparison; customer demand remains untested.
+      - as_of: 2026-08-25
+        signals:
+          live_url_visitors: null
+          inventory_normalized: 0
+        note: Added local capture/normalize for Admin GraphQL dumps; public URL remains owner-gated.
   - slug: einvoice-preflight
     surface: repository-cli
     readings:
