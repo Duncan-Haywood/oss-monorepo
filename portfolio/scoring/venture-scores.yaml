@@ -909,3 +909,40 @@ ventures:
       Pass: output is a planning floor from user-supplied assumptions, not
       financial advice or a guarantee of income, tax treatment, or contract
       enforceability; all data stays in the browser.
+
+  - slug: asphalt-driveway-pave-bid-calculator
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 7
+      gross_margin: 10
+      defensibility: 5
+      distribution: 7
+    composite: 6.667
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      There is no AI anywhere in the product. The value is a domain model —
+      mix tons from thickness, overlay versus mill-and-overlay versus
+      full-depth, and failed-base extras — that is arithmetic, and adding
+      inference to it would only make the result less checkable.
+    basis: >-
+      Graduated on 2026-08-25 as a browser-local asphalt driveway paving bid
+      calculator. Distinct from asphalt sealcoating (coats and crack fill)
+      and from concrete driveway pours (cubic yards of slab). Scored above
+      the marketplace fee calculators on defensibility (5): those restate a
+      published fee schedule, whereas the method-and-thickness model encodes
+      how paving shops actually estimate mix and extra work. Distribution 7:
+      "how much to pave a driveway" and "asphalt driveway cost calculator"
+      are high-intent queries bought by an operator with a real takeoff on
+      the line.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Pass: the output is arithmetic on the contractor's own inputs, never a
+      recommended price, a wage determination, or a paving specification.
+      The shipped hours and mix rates are labelled ballpark starting points
+      rather than a standard or benchmark, and nothing the user enters
+      leaves the browser.
