@@ -52,7 +52,7 @@
     footer { margin-top: 25px; font-size: .82rem; color: #4a5666; }
     footer a { color: #1c7a5e; }
     .support { margin-top: 14px; }
-    .summary-actions { display: flex; gap: 8px; align-items: center; margin-top: 14px; }
+    .summary-actions { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; margin-top: 14px; }
     .summary-status { font-size: .8rem; color: #bce8cf; }
     @media (max-width: 780px) {
       .layout { grid-template-columns: 1fr; } .result { position: static; } .fields { grid-template-columns: 1fr; }
@@ -121,6 +121,7 @@
       <div id="verdict" class="verdict" hidden></div>
       <div class="summary-actions">
         <button type="button" id="copySummary">Copy bid summary</button>
+         <button type="button" id="downloadSummary">Download .txt</button>
         <span id="summaryStatus" class="summary-status" role="status" aria-live="polite"></span>
       </div>
       <hr>
@@ -341,6 +342,28 @@
       setTimeout(() => { el('summaryStatus').textContent = ''; }, 2500);
     }
 
+    function downloadSummary() {
+      const areas = readAreas();
+      const result = calculateBid({
+        areas,
+        ...Object.fromEntries(COST_IDS.map(id => [id, el(id).value])),
+        proposedPrice: el('proposedPrice').value,
+      });
+      const blob = new Blob([summaryText(result)], { type: 'text/plain;charset=utf-8' });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = 'janitorial-bid-summary.txt';
+      link.hidden = true;
+      document.body.append(link);
+      link.click();
+      link.remove();
+      URL.revokeObjectURL(url);
+      count('summary_downloaded');
+      el('summaryStatus').textContent = 'Downloaded bid summary';
+      setTimeout(() => { el('summaryStatus').textContent = ''; }, 2500);
+    }
+
     el('addArea').addEventListener('click', () => {
       addAreaRow({ name: '', squareFeet: 0, productionRate: 3000, cleaningsPerWeek: 5 });
       count('area_added');
@@ -355,6 +378,13 @@
     el('copySummary').addEventListener('click', () => {
       try {
         copySummary().catch(() => { el('summaryStatus').textContent = 'Copy failed; select and copy the figures above.'; });
+      } catch (error) {
+        el('summaryStatus').textContent = error.message;
+      }
+    });
+    el('downloadSummary').addEventListener('click', () => {
+      try {
+        downloadSummary();
       } catch (error) {
         el('summaryStatus').textContent = error.message;
       }

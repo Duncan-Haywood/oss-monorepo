@@ -55,7 +55,9 @@ the labor split across spaces, and the **walk-away price** — total monthly cos
 below which the job makes nothing. Entering a price already on the table scores
 it against the same cost base and says plainly whether it is under water. **Copy
 bid summary** turns the result into a plain-text draft with the price, annual
-value, service hours, and service areas ready to paste into a proposal.
+value, service hours, and service areas ready to paste into a proposal. **Download
+.txt** saves that same draft locally so it can be attached to a CRM record or
+opened in a word processor without retyping the figures.
 
 The arithmetic lives in [`calc.mjs`](calc.mjs) with no DOM or network
 dependency, so it is testable and auditable on its own. See
@@ -80,7 +82,7 @@ automatically when the browser sends Do Not Track or Global Privacy Control.
 See [`usage.mjs`](usage.mjs) and [`portfolio/usage/`](../../portfolio/usage/README.md).
 
 Events counted: `bid_calculated`, `area_added`, `area_removed`,
-`proposed_price_compared`, `summary_copied`.
+`proposed_price_compared`, `summary_copied`, `summary_downloaded`.
 
 ## Limitations
 
