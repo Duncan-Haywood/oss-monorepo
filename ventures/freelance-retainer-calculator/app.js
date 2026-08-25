@@ -7,10 +7,11 @@ export function calculatePlan(values) {
   const buffer = Number(values.buffer) / 100;
   if (![income, costs, hours, utilization, retainerHours, buffer].every(Number.isFinite) || income < 0 || costs < 0 || hours <= 0 || utilization <= 0 || utilization > 1 || retainerHours <= 0 || buffer < 0 || buffer > 1) throw new Error('Enter valid positive values. Utilization and buffer must be percentages from 0 to 100.');
   const capacity = hours * utilization;
+  if (retainerHours > capacity) throw new Error(`The retainer needs ${retainerHours} hours, but your plan has only ${capacity.toFixed(1)} billable hours available.`);
   const target = income + costs;
   const rate = target / capacity;
   const retainer = Math.round(rate * retainerHours * (1 + buffer) * 100) / 100;
-  return { capacity, target, rate, retainer };
+  return { capacity, remainingCapacity: capacity - retainerHours, target, rate, retainer };
 }
 
 if (typeof document !== 'undefined') {
@@ -27,6 +28,6 @@ if (typeof document !== 'undefined') {
       // Usage measurement is best-effort and must never block the calculator.
     }
   };
-  form.addEventListener('submit', (event) => { event.preventDefault(); try { const input = read(); const plan = calculatePlan(input); $('errors').hidden = true; $('results').hidden = false; $('rate').textContent = money(plan.rate); $('retainer').textContent = money(plan.retainer); $('capacity').textContent = `${plan.capacity.toFixed(1)} hrs`; $('target').textContent = money(plan.target); $('explanation').textContent = `Your ${input.utilization}% utilization leaves ${plan.capacity.toFixed(1)} billable hours from ${input.hours} available hours. The retainer includes a ${input.buffer}% buffer for scope drift; it is a planning floor, not a promise of results.`; $('summary').value = `Monthly retainer proposal\n\nIncluded: ${input.retainerHours} hours per month\nMonthly price: ${money(plan.retainer)}\nAdditional work: ${money(plan.rate)} per hour\nResponse time and out-of-scope work: define in the agreement.`; track('calculate'); } catch (error) { $('errors').textContent = error.message; $('errors').hidden = false; $('results').hidden = true; } });
+  form.addEventListener('submit', (event) => { event.preventDefault(); try { const input = read(); const plan = calculatePlan(input); $('errors').hidden = true; $('results').hidden = false; $('rate').textContent = money(plan.rate); $('retainer').textContent = money(plan.retainer); $('capacity').textContent = `${plan.capacity.toFixed(1)} hrs`; $('remaining').textContent = `${plan.remainingCapacity.toFixed(1)} hrs`; $('target').textContent = money(plan.target); $('explanation').textContent = `Your ${input.utilization}% utilization leaves ${plan.capacity.toFixed(1)} billable hours from ${input.hours} available hours. After this retainer, ${plan.remainingCapacity.toFixed(1)} hours remain for other work, admin, and recovery. The retainer includes a ${input.buffer}% buffer for scope drift; it is a planning floor, not a promise of results.`; $('summary').value = `Monthly retainer proposal\n\nIncluded: ${input.retainerHours} hours per month\nMonthly price: ${money(plan.retainer)}\nAdditional work: ${money(plan.rate)} per hour\nCapacity left after retainer: ${plan.remainingCapacity.toFixed(1)} hours\nResponse time and out-of-scope work: define in the agreement.`; track('calculate'); } catch (error) { $('errors').textContent = error.message; $('errors').hidden = false; $('results').hidden = true; } });
   $('copy').addEventListener('click', async () => { await navigator.clipboard.writeText($('summary').value); $('copyStatus').textContent = ' Copied.'; track('copy-summary'); });
 }
