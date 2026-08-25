@@ -253,6 +253,7 @@
 <script type="module">
   import { loadQuote, calculate, overrunScenarios } from "./calc.mjs";
   import { reviewQuote } from "./review.mjs";
+  import { reviewSummary } from "./summary.mjs";
   import { recordEvent, createReportCounter, isUsageCountingEnabled, setUsageCountingEnabled } from "./usage.mjs";
 
   // Counts settled quotes rather than keystrokes — see usage.mjs.
@@ -347,25 +348,7 @@
       return;
     }
     const { quote, r } = lastReport;
-    const summary = [
-      "QUOTE MARGIN REVIEW",
-      "Arithmetic comparison for the quote supplied by the user",
-      "",
-      `Quoted price: ${quote.currency} ${quote.price.toFixed(2)}`,
-      `Total working hours: ${r.total_hours.toFixed(2)}`,
-      `Direct costs: ${quote.currency} ${r.direct_costs.toFixed(2)}`,
-      `Effective hourly rate: ${quote.currency} ${r.effective_hourly_rate.toFixed(2)}/hour`,
-      `Supplied target hourly rate: ${quote.currency} ${quote.target_hourly_rate.toFixed(2)}/hour`,
-      `Price at supplied target: ${quote.currency} ${r.target_price.toFixed(2)}`,
-      `Gap to supplied target: ${quote.currency} ${r.gap_to_target.toFixed(2)}`,
-      `Left after direct costs: ${quote.currency} ${r.cost_coverage.toFixed(2)}`,
-      "",
-      "Review observations:",
-      ...reviewQuote(quote, r).map((check) => `- ${check.title}: ${check.detail}`),
-      "",
-      "Assumptions: figures are supplied by the user; time overruns, taxes, payment fees, and other costs may change the result.",
-      "This is not a profitability determination, pricing advice, tax advice, or financial advice. Review and verify before relying on it.",
-    ].join("\n");
+    const summary = reviewSummary(quote, r, reviewQuote(quote, r));
     const url = URL.createObjectURL(new Blob([summary], { type: "text/plain;charset=utf-8" }));
     const link = document.createElement("a");
     link.href = url;
