@@ -6,8 +6,10 @@ packaging, shipping, returns, return handling, restocking, fixed fees, and
 minimum monthly spend. The
 browser calculates a comparable monthly total, cost per order, and an
 approximate break-even volume. Enter a second provider's normalized monthly
-total to compare two quotes at the same volume before negotiating. The comparison
-page validates totals before rendering and remembers its draft locally.
+total to compare two quotes at the same volume before negotiating. Optionally
+enter a target monthly total to see which provider fits your budget and how far
+an over-target quote must move. The comparison page validates totals before
+rendering and remembers its draft locally.
 Use [Volume sensitivity](./sensitivity.html) to see how minimum charges and
 true cost per order change at 25, 50, 100, 250, and 500 monthly orders.
 After normalizing, use **Download CSV record** to save the exact on-screen
@@ -63,5 +65,5 @@ The page saves the current form values in browser local storage and restores
 them on the next visit, so recurring quote reviews do not require retyping a
 rate card. It also copies a line-by-line negotiation report. Saved values never
 leave the browser. The quote comparison page counts completed and copied
-comparisons as anonymous local events. The product is free while demand is
+comparisons and target views as anonymous local events. The product is free while demand is
 measured. There is no payment collection.

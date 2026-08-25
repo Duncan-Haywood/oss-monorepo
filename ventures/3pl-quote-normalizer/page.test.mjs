@@ -14,6 +14,8 @@ test('comparison page exposes two monthly quote inputs and disclaimer', async ()
   assert.match(page, /name="first"/);
   assert.match(page, /name="second"/);
   assert.match(page, /not financial, tax, legal, or engineering advice/);
+  assert.match(page, /name="target"/);
+  assert.match(page, /comparison_target_viewed/);
 });
 
 test('calculator keeps input warnings in the copied report path', async () => {
