@@ -17,6 +17,7 @@ PYTHONPATH=src python3 -m einvoice_preflight ./invoices/ --format csv > triage.c
 PYTHONPATH=src python3 -m einvoice_preflight ./invoices/ --format junit > preflight.junit.xml
 PYTHONPATH=src python3 -m einvoice_preflight ./invoices/ --format summary
 PYTHONPATH=src python3 -m einvoice_preflight ./invoices/ --format remediation
+PYTHONPATH=src python3 -m einvoice_preflight ./invoices/ --format checklist
 PYTHONPATH=src python3 -m einvoice_preflight ./invoices/ --max-files 500 --format json
 PYTHONPATH=src python3 -m einvoice_preflight ./invoices/ --max-files 500 --max-bytes 1048576 --format json
 cat invoice.json | PYTHONPATH=src python3 -m einvoice_preflight - --format json
@@ -147,6 +148,10 @@ Pointer paths, check message, and recommended fix. This is intended for ERP or
 ticket adapters that need a repair queue without parsing the full finding
 report; it never includes invoice values, numbers, or line contents. Read errors
 remain in `read_errors`, and the output uses exit code `2` for those errors.
+`--format checklist` emits a plain-text, copyable repair checklist grouped by
+local filename and rule. It is useful for handing a batch to a reviewer without
+asking them to parse JSON. It does not modify invoices or decide whether they
+may be submitted.
 Use `--output PATH` with any format to write the report atomically to a local
 file instead of stdout. Parent directories are created when needed. A failed
 write returns exit code `2` and never replaces an existing report with a partial

@@ -40,6 +40,24 @@ class ChecksTest(unittest.TestCase):
         self.assertEqual(raised.exception.code, 0)
         self.assertEqual(output.getvalue(), "einvoice-preflight 0.1.0\n")
 
+    def test_cli_checklist_groups_findings_without_invoice_values(self):
+        with tempfile.TemporaryDirectory() as directory:
+            path = Path(directory) / "invoice.json"
+            invoice = json.loads(json.dumps(VALID))
+            invoice["totals"]["gross"] = 200
+            path.write_text(json.dumps(invoice))
+            output = io.StringIO()
+            with contextlib.redirect_stdout(output):
+                self.assertEqual(main([str(path), "--format", "checklist"]), 1)
+            checklist = output.getvalue()
+            self.assertIn("[ ] Review invoice.json", checklist)
+            self.assertIn("INV-017", checklist)
+            self.assertIn("/totals/gross", checklist)
+            self.assertIn("Fix:", checklist)
+            self.assertNotIn("INV-1", checklist)
+            self.assertNotIn("200", checklist)
+            self.assertNotIn("238", checklist)
+
     def test_ubl_invoice_maps_to_supported_shape(self):
         self.assertEqual(check_invoice(parse_ubl_invoice(UBL_VALID)), [])
 
