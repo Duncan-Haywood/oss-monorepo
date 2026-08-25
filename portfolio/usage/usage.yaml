@@ -310,6 +310,20 @@ products:
           preaudit_checklist_events: 0
           handoff_exports: 0
         note: Shipped browser-local pre-audit checklist; public deployment remains owner-gated.
+  - slug: kitchen-tile-backsplash-bid-calculator
+    surface: static-page-in-repo
+    readings:
+      - as_of: 2026-08-25
+        signals:
+          live_url_visitors: null
+          local_events_reported: 0
+        note: >-
+          Shipped a local kitchen tile backsplash bid calculator (wall SF,
+          subway vs herringbone vs mosaic vs large-format, tile-only vs
+          new-prep vs demo-and-replace, outlet/cooktop/Schluter extras,
+          copyable proposal summary). Public URL remains owner-gated; the
+          local-first counter reports only to the user's own browser and
+          is opt-out. Baseline row.
   - slug: freelance-retainer-calculator
     surface: static-page-in-repo
     readings:

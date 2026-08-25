@@ -94,6 +94,9 @@ workflows:
 - workflow: janitorial-bid-calculator-ci.yml
   classification: none
   publishes: []
+- workflow: kitchen-tile-backsplash-bid-calculator-ci.yml
+  classification: none
+  publishes: []
 - workflow: local-site-studio-ci.yml
   classification: none
   publishes: []
