@@ -21,6 +21,7 @@ export const INPUT_FIELDS = [
   'packagingCost',
   'otherCost',
   'targetMargin',
+  'targetRoi',
 ];
 
 export function calculateOrder(input) {
@@ -92,6 +93,27 @@ export function calculateOrder(input) {
     targetMarginPrice: targetRevenueDenominator <= 0
       ? Infinity
       : Math.max(0, fixedCash / targetRevenueDenominator - shippingCharged),
+  };
+}
+
+// Solve the ROI definition for the maximum per-item acquisition cost.
+export function calculateSourcingCeiling(input, targetRoi) {
+  const target = Number(targetRoi);
+  if (!Number.isFinite(target) || target < 0) throw new Error('Target ROI must be a non-negative number');
+  // Validate all input fields before replacing acquisition cost with zero.
+  const current = calculateOrder(input);
+  const baseline = calculateOrder({ ...input, costOfGoods: 0 });
+  const currentAcquisitionCost = Number(input.costOfGoods ?? 0);
+  const otherCashPerUnit = current.cashInvested / current.quantity - currentAcquisitionCost;
+  const numerator = baseline.unitProfit - (target / 100) * otherCashPerUnit;
+  const maximumAcquisitionCost = Math.max(0, numerator / (1 + target / 100));
+  return {
+    targetRoi: target,
+    maximumAcquisitionCost,
+    maximumBatchAcquisitionCost: maximumAcquisitionCost * current.quantity,
+    currentAcquisitionCost,
+    isReachable: numerator >= 0,
+    amountOverCeiling: Math.max(0, currentAcquisitionCost - maximumAcquisitionCost),
   };
 }
 

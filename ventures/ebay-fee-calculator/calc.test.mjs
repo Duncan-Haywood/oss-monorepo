@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { calculateOrder, calculatePriceScenarios, calculateRepricingTable } from './calc.mjs';
+import { calculateOrder, calculatePriceScenarios, calculateRepricingTable, calculateSourcingCeiling } from './calc.mjs';
 
 const near = (actual, expected, msg) => assert.ok(Math.abs(actual - expected) < 1e-6, `${msg}: ${actual} vs ${expected}`);
 
@@ -133,4 +133,20 @@ test('rejects repricing offsets that cannot produce a listable price', () => {
   assert.throws(() => calculateRepricingTable({ price: 40 }, [-100]), /greater than -100/);
   assert.throws(() => calculateRepricingTable({ price: 40 }, ['abc']), /greater than -100/);
   assert.throws(() => calculateRepricingTable({ price: -1 }, [0]), /Item price/);
+});
+
+test('calculates a per-item and batch sourcing budget for a target ROI', () => {
+  const input = { price: 40, shippingCharged: 6, finalValueRate: 13.25, fixedFee: 0.3, quantity: 3, costOfGoods: 12, shippingCost: 5, packagingCost: 1 };
+  const ceiling = calculateSourcingCeiling(input, 50);
+  const atCeiling = calculateOrder({ ...input, costOfGoods: ceiling.maximumAcquisitionCost });
+  near(atCeiling.roi, 50, 'ROI at sourcing ceiling');
+  near(ceiling.maximumBatchAcquisitionCost, ceiling.maximumAcquisitionCost * 3, 'batch sourcing budget');
+  near(ceiling.currentAcquisitionCost, 12, 'current acquisition cost');
+  near(ceiling.amountOverCeiling, 0, 'amount over ceiling');
+});
+
+test('does not hide invalid acquisition costs in sourcing calculations', () => {
+  assert.throws(() => calculateSourcingCeiling({ price: 40, costOfGoods: 'not-a-number' }, 50), /Cost of goods/);
+  assert.throws(() => calculateSourcingCeiling({ price: 40, costOfGoods: -1 }, 50), /Cost of goods/);
+  assert.throws(() => calculateSourcingCeiling({ price: 40, quantity: 1.5 }, 50), /whole number/);
 });

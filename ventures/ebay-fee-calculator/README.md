@@ -8,6 +8,8 @@ reports net profit, margin, return on your invested cash (ROI), and the lowest
 resale price that still breaks even. Set a target net margin to get the listing
 price required to reach it, which makes the calculator useful for repricing as
 well as sourcing.
+Set a target ROI to see the maximum acquisition price per item and the total
+buying budget for a batch before spending cash on inventory.
 Enter multiple units to see total batch economics and profit per unit without
 repeating the calculation. Break-even and target-margin prices remain listing
 prices for one unit.
@@ -35,6 +37,8 @@ drive that decision:
   money, holding shipping charged constant.
 - **Target-margin item price** — the price needed to reach a chosen net margin
   after the same fees and cash costs.
+- **Sourcing ceiling** — the highest acquisition cost per item, plus the batch
+  budget, that still reaches the target ROI after all other cash costs.
 - **Repricing sensitivity** — profit, margin, and the signed change against
   your current price at listing prices 10% and 20% either side of it.
   Percentage fees scale with the price, so a $1 increase never leaves $1 more
@@ -57,7 +61,8 @@ browser; it never records the inputs. Turn it off with the checkbox in the
 footer, or your browser's Do Not Track / Global Privacy Control setting.
 
 The counted events are `order_profit_calculated`, `target_margin_calculated`,
-`batch_calculated`, and `price_sensitivity_viewed`. The last one is counted at
+`sourcing_ceiling_calculated`, `batch_calculated`, and `price_sensitivity_viewed`.
+The last one is counted at
 most once per visit and only after an input is edited — counting the table's
 first paint would just re-count page loads and say nothing about whether the
 repricing view is used.

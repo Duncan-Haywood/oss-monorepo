@@ -30,7 +30,7 @@
     .sensitivity th, .sensitivity td { padding: 9px 6px; text-align: right; border-bottom: 1px solid #e2e8f0; font-variant-numeric: tabular-nums; } .sensitivity th:first-child, .sensitivity td:first-child { text-align: left; }
     .sensitivity thead th { font-size: .8rem; letter-spacing: .03em; color: #4a5666; } .sensitivity tr.current { background: #eaf1fc; font-weight: 700; } .sensitivity .down { color: #a3391f; } .sensitivity .up { color: #1c6b34; }
     footer { margin-top: 25px; font-size: .82rem; color: #4a5666; } footer a { color: #386fd6; }
-    .support { margin-top: 14px; }
+    .support { margin-top: 14px; } .ceiling { margin-top: 18px; background: #edf7ef; border-color: #b9d9c0; } .ceiling h2, .ceiling strong { color: #184d27; } .ceiling .warning { color: #8b321e; }
     @media (max-width: 700px) { .layout { grid-template-columns: minmax(0, 1fr); } .result { position: static; } .fields { grid-template-columns: 1fr; } }
   </style>
 </head>
@@ -57,6 +57,7 @@
           <label>Packaging cost <input id="packagingCost" type="number" min="0" step="0.01" value="1"></label>
           <label>Other per-order cost <input id="otherCost" type="number" min="0" step="0.01" value="0"></label>
           <label>Target net margin (%) <input id="targetMargin" type="number" min="0" max="99.99" step="0.1" value="20"></label>
+          <label>Target ROI for sourcing (%) <input id="targetRoi" type="number" min="0" step="1" value="50"></label>
         </div>
       </section>
       <section class="result">
@@ -77,6 +78,7 @@
         <p class="note">Transparent arithmetic from your inputs — not a statement of eBay's current fee schedule. Fees vary by category, store subscription, and seller status.</p>
       </section>
     </div>
+    <section class="ceiling" aria-live="polite"><h2>Your sourcing ceiling</h2><p id="ceilingResult"><strong>Buy at or below $— per item</strong></p><p id="ceilingBatch" class="note">Batch acquisition budget: $—</p><p id="ceilingStatus" class="note">Uses your target ROI and the same fee and cash-investment assumptions above.</p></section>
     <section class="sensitivity">
       <h2>If you repriced</h2>
       <p id="sensitivityNote" class="note">The same order listed a little higher or lower, with your costs, fees, and unit count unchanged. Percentage fees move with the price, so profit does not change one-for-one with it.</p>
@@ -97,7 +99,7 @@
     <p class="support">Free and open source. If it saves you time, the <a href="https://github.com/Duncan-Haywood/monorepo-projects" rel="noopener">project is on GitHub</a> — support is entirely optional and never changes what the tool does.</p>
   </footer>
   <script type="module">
-    import { calculateOrder, calculateRepricingTable, INPUT_FIELDS as ids } from './calc.mjs';
+    import { calculateOrder, calculateRepricingTable, calculateSourcingCeiling, INPUT_FIELDS as ids } from './calc.mjs';
     import { recordUsage } from './usage.mjs';
     import { decodeInputs, encodeInputs } from './share.mjs';
     const money = value => `$${value.toFixed(2)}`;
@@ -106,6 +108,7 @@
     // changed an input. Counting the table's first render instead would just
     // re-count page views, which says nothing about whether anyone used it.
     let sensitivityCounted = false;
+    let ceilingCounted = false;
     let sellerEditedInputs = false;
     function renderScenarios(input) {
       const rows = calculateRepricingTable(input);
@@ -129,6 +132,7 @@
       try {
         const input = readInputs();
         const result = calculateOrder(input);
+        const ceiling = calculateSourcingCeiling(input, input.targetRoi);
         renderScenarios(input);
         const profitEl = document.getElementById('profit');
         profitEl.textContent = money(result.profit);
@@ -142,6 +146,10 @@
         document.getElementById('unitProfit').textContent = money(result.unitProfit);
         document.getElementById('breakEven').textContent = Number.isFinite(result.breakEvenPrice) ? money(result.breakEvenPrice) : 'never';
         document.getElementById('targetMarginPrice').textContent = Number.isFinite(result.targetMarginPrice) ? money(result.targetMarginPrice) : 'unreachable';
+        document.getElementById('ceilingResult').innerHTML = ceiling.isReachable ? `<strong>Buy at or below ${money(ceiling.maximumAcquisitionCost)} per item</strong>` : '<strong class="warning">No purchase price reaches this target</strong>';
+        document.getElementById('ceilingBatch').textContent = ceiling.isReachable ? `Batch acquisition budget for ${result.quantity} unit${result.quantity === 1 ? '' : 's'}: ${money(ceiling.maximumBatchAcquisitionCost)}` : '';
+        document.getElementById('ceilingStatus').textContent = ceiling.isReachable ? (ceiling.amountOverCeiling > 0 ? `Your current cost is ${money(ceiling.amountOverCeiling)} over the ceiling for ${ceiling.targetRoi.toFixed(1)}% ROI.` : `Your current cost is within the ceiling for ${ceiling.targetRoi.toFixed(1)}% ROI.`) : `At zero acquisition cost, the order cannot reach ${ceiling.targetRoi.toFixed(1)}% ROI with these other costs.`;
+        if (sellerEditedInputs && !ceilingCounted) { ceilingCounted = true; recordUsage(localStorage, document.getElementById('usageOptOut').checked, 'sourcing_ceiling_calculated'); }
       } catch (error) {
         document.getElementById('profit').textContent = error.message;
         document.getElementById('profit').className = 'hero-number negative';
@@ -154,6 +162,9 @@
         document.getElementById('unitProfit').textContent = '';
         document.getElementById('breakEven').textContent = '';
         document.getElementById('targetMarginPrice').textContent = '';
+        document.getElementById('ceilingResult').textContent = error.message;
+        document.getElementById('ceilingBatch').textContent = '';
+        document.getElementById('ceilingStatus').textContent = '';
         document.getElementById('scenarios').innerHTML = '';
         document.getElementById('scenariosEmpty').hidden = false;
       }
@@ -183,7 +194,7 @@
     }
     ids.forEach(id => document.getElementById(id).addEventListener('change', () => {
       saveInputs();
-      recordUsage(localStorage, document.getElementById('usageOptOut').checked, id === 'targetMargin' ? 'target_margin_calculated' : id === 'quantity' ? 'batch_calculated' : 'order_profit_calculated');
+       recordUsage(localStorage, document.getElementById('usageOptOut').checked, id === 'targetMargin' ? 'target_margin_calculated' : id === 'targetRoi' ? 'sourcing_ceiling_calculated' : id === 'quantity' ? 'batch_calculated' : 'order_profit_calculated');
     }));
     document.getElementById('usageOptOut').addEventListener('change', update);
     const actions = document.createElement('p');
