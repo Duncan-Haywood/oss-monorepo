@@ -14,4 +14,7 @@ test('comparison page exposes two monthly quote inputs and disclaimer', async ()
   assert.match(page, /name="first"/);
   assert.match(page, /name="second"/);
   assert.match(page, /not financial, tax, legal, or engineering advice/);
+  assert.match(page, /localStorage\.setItem\(saveKey/);
+  assert.match(page, /localStorage\.getItem\(saveKey/);
+  assert.match(page, /record\('quote_compared'\)/);
 });
