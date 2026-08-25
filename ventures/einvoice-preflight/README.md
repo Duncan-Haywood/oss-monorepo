@@ -86,7 +86,9 @@ decide whether a tax percentage is legally correct.
 `--format json` is suitable for an ERP adapter. It always returns the same
 envelope, whether the input is one file or a directory: `status`,
 `files_checked`, `files_failed`, `observations`, per-file `reports`, and
-`read_errors`. Each `reports` item also includes an explicit `status` (`pass` or
+`read_errors`. Each flattened finding in `errors` includes its source `file` as
+well as the rule, message, fix, and JSON Pointer, so a batch adapter can route a
+finding without joining against `reports`. Each `reports` item also includes an explicit `status` (`pass` or
 `fail`) and `observations` count, so adapters can render a batch queue without
 inferring state from the errors array. Each finding also includes a `path` JSON Pointer (for example,
 `/totals/gross`), so adapters can focus a field-level repair UI without

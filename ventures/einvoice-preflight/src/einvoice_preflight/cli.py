@@ -246,7 +246,11 @@ def _json_report(
 ) -> dict[str, Any]:
     """Build one versioned adapter payload for every input mode."""
     rule_counts = Counter(error["rule"] for _, errors in reports for error in errors)
-    errors = [error for _, invoice_errors in reports for error in invoice_errors]
+    errors = [
+        {**error, "file": path.as_posix()}
+        for path, invoice_errors in reports
+        for error in invoice_errors
+    ]
     fix_details: dict[str, dict[str, str | int]] = {}
     for error in errors:
         detail = fix_details.setdefault(

@@ -48,6 +48,58 @@ scoring_rule: >-
   near-zero-price norm is a real property of the business on any host.
 
 ventures:
+  - slug: retainage-cashflow-calculator
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 7
+      gross_margin: 10
+      defensibility: 4
+      distribution: 6
+    composite: 6.333
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      The first release is intentionally deterministic: the defensible wedge is
+      a private cash-flow workflow and factual follow-up, not generated advice.
+    basis: >-
+      Graduated on 2026-08-24 as a browser-local construction retainage and
+      payment-delay worksheet. It produces a modeled cash snapshot without
+      credentials, network access, uploads, or legal entitlement claims.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Pass, conditionally: assumptions are shown as scenarios, outputs are
+      labeled modeled, and the user remains responsible for checking contracts,
+      records, and local requirements before acting.
+
+  - slug: 3pl-quote-normalizer
+    scores:
+      ai_leverage: 2
+      autonomous_ops: 10
+      time_to_revenue: 7
+      gross_margin: 10
+      defensibility: 4
+      distribution: 6
+    composite: 6.5
+    rater_b: null
+    floor: 2
+    floor_dimension: ai_leverage
+    floor_note: >-
+      The first release is intentionally deterministic: it restates and
+      compares provider quote lines the user already has, with no inference
+      and no claim that any 3PL rate is the market rate.
+    basis: >-
+      Graduated on 2026-08-25 as a browser-local 3PL quote normalizer. It
+      lines up inbound quotes on one cost base so an operator can see the
+      largest driver and the real break-even volume without uploading a
+      customer file or calling a carrier API.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: Deterministic estimates only; users must verify provider quotes and business assumptions.
   - slug: shopify-permission-drift
     scores:
       ai_leverage: 2
