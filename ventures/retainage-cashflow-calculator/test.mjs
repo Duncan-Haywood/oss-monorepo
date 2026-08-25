@@ -27,6 +27,7 @@ test('shows incremental carrying cost for future delay scenarios', () => {
     { days: 60, totalCashOutstanding: 26232.88, additionalCarryingCost: 493.15 },
     { days: 90, totalCashOutstanding: 26479.45, additionalCarryingCost: 739.72 },
   ]);
+});
 
 test('worksheet summary preserves project context and model assumptions', () => {
   const parsed = parseInputs({ contractValue: '100000', retainagePct: '10', paidToDate: '75000', daysOutstanding: '90', annualCarryingRatePct: '12' });
