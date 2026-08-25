@@ -909,3 +909,37 @@ ventures:
       Pass: output is a planning floor from user-supplied assumptions, not
       financial advice or a guarantee of income, tax treatment, or contract
       enforceability; all data stays in the browser.
+
+  - slug: kitchen-tile-backsplash-bid-calculator
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 7
+      gross_margin: 10
+      defensibility: 5
+      distribution: 8
+    composite: 6.833
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      There is no AI anywhere in the product. The value is a domain model —
+      wall SF, pattern waste, and payroll burden — that is arithmetic, and
+      adding inference to it would only make the result less checkable.
+    basis: >-
+      Graduated on 2026-08-25 as a browser-local kitchen tile backsplash bid
+      calculator. Distinct from walk-in shower (wet area, slope, glass),
+      flooring (floor waste), and countertop (slabs). Distribution 8:
+      "how much to charge for a backsplash" and "kitchen backsplash cost
+      calculator" are high-intent operator queries; defensibility 5 because
+      the pattern-versus-scope model encodes how the trade estimates labor
+      rather than restating a published per-SF special.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Pass: the output is arithmetic on the setter's own inputs, never a
+      recommended price, a wage determination, or a building-code opinion.
+      The shipped hours and tile rates are labelled ballpark starting points
+      rather than a standard or benchmark, and nothing the user enters
+      leaves the browser.
