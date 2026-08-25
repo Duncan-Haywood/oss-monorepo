@@ -977,3 +977,38 @@ ventures:
       opinion. The shipped hours and boiler invoices are labelled ballpark
       starting points rather than a standard or benchmark, and nothing the
       user enters leaves the browser.
+
+  - slug: crown-molding-bid-calculator
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 7
+      gross_margin: 10
+      defensibility: 5
+      distribution: 8
+    composite: 6.833
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      There is no AI anywhere in the product. The value is a domain model —
+      linear feet, corners, grade, and payroll burden — that is arithmetic, and
+      adding inference to it would only make the result less checkable.
+    basis: >-
+      Graduated on 2026-08-25 as a browser-local crown molding bid
+      calculator. Distinct from interior painting (a coat), drywall (gypsum),
+      cabinet refinishing (doors), popcorn-ceiling (a scrape), and plantation
+      shutters (louvered panels). Distribution 8: "how much to charge to
+      install crown molding" and "crown molding cost calculator" are
+      high-intent operator queries; defensibility 5 because the
+      run-versus-corner model encodes how the trade estimates labor rather
+      than restating a published per-foot special.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Pass: the output is arithmetic on the carpenter's own inputs, never a
+      recommended price, a millwork shop drawing, or a structural opinion.
+      The shipped hours and millwork invoices are labelled ballpark
+      starting points rather than a standard or benchmark, and nothing the
+      user enters leaves the browser.
