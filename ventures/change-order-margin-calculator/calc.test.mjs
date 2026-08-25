@@ -21,3 +21,15 @@ test('summary is proposal-ready and contains no hidden input data', () => {
   assert.match(text, /Extra outlets/);
   assert.match(text, /Target change-order price/);
 });
+
+test('treats non-finite and negative numeric input as zero', () => {
+  const result = calculateChangeOrder({
+    hours: 'Infinity',
+    wage: -40,
+    materials: 'not a number',
+    targetMarginPercent: 'NaN',
+  });
+  assert.equal(result.loadedLabor, 0);
+  assert.equal(result.walkAwayPrice, 0);
+  assert.equal(result.targetPrice, 0);
+});

@@ -1,5 +1,8 @@
 export function calculateChangeOrder(input) {
-  const n = (value) => Math.max(0, Number(value) || 0);
+  const n = (value) => {
+    const number = Number(value);
+    return Number.isFinite(number) ? Math.max(0, number) : 0;
+  };
   const hours = n(input.hours);
   const wage = n(input.wage);
   const burden = n(input.burdenPercent) / 100;
