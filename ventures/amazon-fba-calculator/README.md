@@ -5,7 +5,10 @@ Amazon** against **merchant fulfilled (FBM)** on the same listing — referral
 fee, size-tier fulfillment, monthly storage, inbound, and the shipping label
 you buy yourself — then reports net profit, margin, return on the cash in the
 unit, the break-even sale price, the price that hits a target margin, and the
-**maximum you can pay for inventory** before the unit loses money.
+**maximum you can pay for inventory** before the unit loses money. For units
+already in a fulfillment center it also compares **holding leftover inventory**
+against a removal or disposal order, including future storage and an editable
+aged-inventory surcharge.
 
 Open [`index.html`](index.html) in a browser. The calculation is local and
 works without an account, network request, or API key. It is arithmetic, not
@@ -13,8 +16,9 @@ an estimate of the fees Amazon will charge: enter the rates from your current
 fee preview, and verify them there.
 
 **After using this, you can now see whether FBA or FBM leaves more on a real
-SKU, and the most you can pay a supplier for that unit** — which used to mean
-a spreadsheet that forgot storage, inbound, or the professional plan.
+SKU, the most you can pay a supplier for that unit, and whether leftover
+units are still worth holding** — which used to mean a spreadsheet that
+forgot storage, inbound, aged surcharge, or the professional plan.
 
 ## Why it's different
 
@@ -33,6 +37,8 @@ units, and shows **both paths on the same listing**.
 
 [FBA vs FBM: which path leaves more?](fba-vs-fbm.html) answers that search
 question directly.
+[Should I remove aged FBA inventory?](aged-inventory-removal.html) answers
+the leftover-stock question: future warehouse cost versus a removal fee.
 
 **No warranty.** This tool is provided free and as-is, without warranty of any
 kind, express or implied. It is not tax, financial, or business advice, and it
@@ -64,9 +70,9 @@ Pure ES modules, no build step, no dependencies.
 node --test        # runs calc.test.mjs and usage.test.mjs
 ```
 
-`calc.mjs` holds the fee/profit/ROI arithmetic, size-tier classification, and
-category presets; `usage.mjs` holds the anonymous local counter; `index.html`
-is the calculator UI.
+`calc.mjs` holds the fee/profit/ROI arithmetic, size-tier classification,
+category presets, and the hold-vs-remove comparison; `usage.mjs` holds the
+anonymous local counter; `index.html` is the calculator UI.
 
 Not yet deployed to a public URL — publishing under the portfolio's name is
 owner-gated per `portfolio/DIRECTION.md` — but the page is ready to host as

@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Amazon FBA vs FBM Profit Calculator | Max Buy Cost</title>
-  <meta name="description" content="Free Amazon FBA vs FBM calculator: see referral fees, fulfillment, storage, and inbound on the same listing. Get net profit, ROI, break-even sale price, and the maximum you can pay for inventory.">
+  <meta name="description" content="Free Amazon FBA vs FBM calculator: see referral fees, fulfillment, storage, and inbound on the same listing. Compare hold vs remove for leftover units, net profit, ROI, and the maximum you can pay for inventory.">
   <meta name="robots" content="index, follow">
   <link rel="canonical" href=".">
   <meta property="og:title" content="Amazon FBA vs FBM Profit Calculator">
@@ -18,7 +18,7 @@
     "applicationCategory": "BusinessApplication",
     "operatingSystem": "Any (runs in a web browser)",
     "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
-    "featureList": "FBA vs FBM comparison, size-tier fulfillment, storage, inbound, net profit, margin, ROI, break-even price, max buy cost, target-margin price"
+    "featureList": "FBA vs FBM comparison, size-tier fulfillment, storage, inbound, hold vs remove leftover inventory, aged inventory surcharge, net profit, margin, ROI, break-even price, max buy cost, target-margin price"
   }
   </script>
   <script type="application/ld+json">
@@ -48,6 +48,14 @@
         "acceptedAnswer": {
           "@type": "Answer",
           "text": "The max buy cost is the cost of goods that drives net profit to zero after the referral fee and the fulfillment-path costs you entered. Buy above that number and the unit loses money on these assumptions."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Should I keep leftover FBA inventory or pay to remove it?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Compare the leftover FBA sale after future storage and any aged-inventory surcharge against a removal or disposal fee plus what you would recover if you pulled the units. Cost of goods and inbound already paid are sunk and do not change the decision. Enter the surcharge and removal rates from your current Amazon fee preview — this page does not publish Amazon's live schedule."
         }
       }
     ]
@@ -91,11 +99,12 @@
 <body>
   <header>
     <p class="eyebrow">FOR AMAZON SELLERS</p>
-    <h1>Know whether FBA or FBM leaves more — and the most you can pay for the unit.</h1>
+    <h1>Know whether FBA or FBM leaves more — and whether leftover units are still worth holding.</h1>
     <p>
       Enter the listing price, category, size, and what you paid. The
       calculator shows referral, fulfillment, storage, and inbound on FBA
-      against the shipping you pay on FBM. Everything runs in this page;
+      against the shipping you pay on FBM, then compares holding leftover
+      units against paying to remove them. Everything runs in this page;
       nothing is uploaded.
     </p>
   </header>
@@ -147,6 +156,12 @@
         <label>Professional plan / month <input id="monthlySellerFee" type="number" min="0" step="0.01" value="39.99"></label>
         <label>Units sold per month <input id="monthlyUnits" type="number" min="0" step="1" value="80"></label>
         <label>Target net margin (%) <input id="targetMargin" type="number" min="0" max="99.99" step="0.1" value="30"></label>
+        <label>Units still in FBA <input id="remainingUnits" type="number" min="1" step="1" value="20"></label>
+        <label>Months until you expect to sell them <input id="expectedMonthsToSell" type="number" min="0" step="0.1" value="3"></label>
+        <label>Aged surcharge starts after (months) <input id="agedStartsAfterMonths" type="number" min="0" step="0.1" value="6"></label>
+        <label>Aged surcharge ($ / cu ft / mo) <input id="agedSurchargePerCuFt" type="number" min="0" step="0.01" value="1.50"></label>
+        <label>Removal / disposal fee per unit <input id="removalFeePerUnit" type="number" min="0" step="0.01" value="1.04"></label>
+        <label>What you'd recover if you remove <input id="salvagePerUnit" type="number" min="0" step="0.01" value="0"></label>
       </div>
     </section>
     <section class="result">
@@ -170,7 +185,22 @@
         <thead><tr><th>Path</th><th>Fees</th><th>Profit</th><th>Max buy</th></tr></thead>
         <tbody id="compare"></tbody>
       </table>
-      <p class="note">Transparent arithmetic from your inputs — not Amazon’s current fee schedule. Referral, fulfillment, storage, and inbound vary by category, size, season, and account. Verify against your Amazon fee preview before buying inventory.</p>
+      <hr>
+      <h2>Hold leftover units vs remove them</h2>
+      <div id="holdLabel" class="note">future warehouse cost against a removal order</div>
+      <div id="holdHero" class="hero-number">$—</div>
+      <dl>
+        <dt>Hold and sell (all remaining)</dt><dd id="holdTotal"></dd>
+        <dt>Remove now (all remaining)</dt><dd id="removeTotal"></dd>
+        <dt>Future storage + surcharge / unit</dt><dd id="holdWarehouse"></dd>
+        <dt>Removal net / unit</dt><dd id="removeNet"></dd>
+        <dt>Remove starts winning after</dt><dd id="removeFlip"></dd>
+      </dl>
+      <table>
+        <thead><tr><th>More months in FBA</th><th>Warehouse / unit</th><th>Hold net / unit</th><th>Vs remove</th></tr></thead>
+        <tbody id="holdScenarios"></tbody>
+      </table>
+      <p class="note">Transparent arithmetic from your inputs — not Amazon’s current fee schedule. Referral, fulfillment, storage, inbound, aged surcharge, and removal fees vary by category, size, season, and account. Cost of goods and inbound already paid are sunk and left out of hold vs remove. Verify against your Amazon fee preview before buying or removing inventory.</p>
     </section>
   </main>
   <section class="faq" aria-labelledby="faq-heading">
@@ -183,11 +213,14 @@
       still works.
       <a href="fba-vs-fbm.html">FBA vs FBM: which path leaves more?</a>
       walks through that in search-query words.
+      For units already sitting in a fulfillment center,
+      <a href="aged-inventory-removal.html">should I remove aged FBA inventory?</a>
+      compares future storage and surcharge against a removal order.
     </p>
     <p>
-      It does not recommend a price, a category, or a fulfillment method, and
-      it is not tax or financial advice. The gap between paths is an
-      arithmetic comparison of the rates you entered.
+      It does not recommend a price, a category, a fulfillment method, or a
+      removal, and it is not tax or financial advice. The gap between paths is
+      an arithmetic comparison of the rates you entered.
     </p>
   </section>
   <footer>
@@ -201,15 +234,21 @@
       applyCategoryPreset,
       applyStoragePreset,
       calculateListing,
+      compareHoldVsRemove,
     } from "./calc.mjs";
     import { recordUsage } from "./usage.mjs";
 
-    const ids = [
+    const listingIds = [
       "salePrice", "referralRate", "length", "width", "height", "weightLb",
       "monthsInStorage", "storageRate", "fulfillmentFee", "costOfGoods",
       "inboundPerUnit", "fbmShippingCost", "packagingCost", "adsPerUnit",
       "otherCost", "monthlySellerFee", "monthlyUnits", "targetMargin",
     ];
+    const holdIds = [
+      "remainingUnits", "expectedMonthsToSell", "agedStartsAfterMonths",
+      "agedSurchargePerCuFt", "removalFeePerUnit", "salvagePerUnit",
+    ];
+    const ids = [...listingIds, ...holdIds];
     const money = (value) => `$${value.toFixed(2)}`;
     let syncingFee = false;
 
@@ -218,9 +257,61 @@
     }
 
     function readInput() {
-      const raw = Object.fromEntries(ids.map((id) => [id, document.getElementById(id).value]));
+      const raw = Object.fromEntries(listingIds.map((id) => [id, document.getElementById(id).value]));
       if (raw.fulfillmentFee === "") delete raw.fulfillmentFee;
       return { ...raw, fulfillmentMethod: fulfillmentMethod() };
+    }
+
+    function readHoldInput(listing) {
+      const raw = Object.fromEntries(holdIds.map((id) => [id, document.getElementById(id).value]));
+      return {
+        ...raw,
+        monthsAlreadyStored: document.getElementById("monthsInStorage").value,
+        storageRate: document.getElementById("storageRate").value,
+        cubicFeet: listing.cubicFeet,
+        salePrice: listing.salePrice,
+        referralRate: document.getElementById("referralRate").value,
+        fulfillmentFee: listing.fulfillmentFee,
+        adsPerUnit: document.getElementById("adsPerUnit").value,
+      };
+    }
+
+    function renderHold(listing) {
+      const decision = compareHoldVsRemove(readHoldInput(listing));
+      const hero = document.getElementById("holdHero");
+      const extra = decision.holdAdvantage;
+      hero.textContent = extra > 0
+        ? `${money(extra)} more if you hold`
+        : extra < 0
+          ? `${money(-extra)} more if you remove`
+          : "same either way";
+      hero.className = `hero-number ${extra < 0 ? "negative" : "positive"}`;
+      document.getElementById("holdLabel").textContent = extra < 0
+        ? "removal beats holding these leftover units"
+        : "holding still beats a removal order";
+      document.getElementById("holdTotal").textContent = money(decision.holdTotal);
+      document.getElementById("removeTotal").textContent = money(decision.removeTotal);
+      document.getElementById("holdWarehouse").textContent = money(decision.warehousePerUnit);
+      document.getElementById("removeNet").textContent = money(decision.removeNetPerUnit);
+      document.getElementById("removeFlip").textContent = decision.monthsUntilRemoveWins === null
+        ? "not within 36 months"
+        : decision.monthsUntilRemoveWins === 0
+          ? "already"
+          : `${decision.monthsUntilRemoveWins} more month${decision.monthsUntilRemoveWins === 1 ? "" : "s"}`;
+      document.getElementById("holdScenarios").innerHTML = decision.scenarios.map((row) =>
+        `<tr><td>+${row.additionalMonths}</td><td>${money(row.warehousePerUnit)}</td><td>${money(row.holdNetPerUnit)}</td><td>${
+          row.holdAdvantage > 0 ? `${money(row.holdAdvantage)} hold` : row.holdAdvantage < 0 ? `${money(-row.holdAdvantage)} remove` : "tie"
+        }</td></tr>`
+      ).join("");
+    }
+
+    function clearHold() {
+      document.getElementById("holdHero").textContent = "";
+      document.getElementById("holdLabel").textContent = "fix the inputs to see hold vs remove";
+      ["holdTotal", "removeTotal", "holdWarehouse", "removeNet", "removeFlip"].forEach((id) => {
+        document.getElementById(id).textContent = "";
+      });
+      document.getElementById("holdScenarios").innerHTML = "";
     }
 
     function updateFeePlaceholder() {
@@ -269,6 +360,17 @@
         ].map(([name, path]) =>
           `<tr><td>${name}</td><td>${money(path.feeTotal)}</td><td>${money(path.profit)}</td><td>${money(path.breakEvenBuyCost)}</td></tr>`
         ).join("");
+        try {
+          renderHold(result);
+        } catch (holdError) {
+          document.getElementById("holdHero").textContent = holdError.message;
+          document.getElementById("holdHero").className = "hero-number error";
+          document.getElementById("holdLabel").textContent = "fix the leftover-inventory inputs";
+          ["holdTotal", "removeTotal", "holdWarehouse", "removeNet", "removeFlip"].forEach((id) => {
+            document.getElementById(id).textContent = "";
+          });
+          document.getElementById("holdScenarios").innerHTML = "";
+        }
       } catch (error) {
         document.getElementById("profit").textContent = error.message;
         document.getElementById("profit").className = "hero-number error";
@@ -277,6 +379,7 @@
           document.getElementById(id).textContent = "";
         });
         document.getElementById("compare").innerHTML = "";
+        clearHold();
       }
     }
 
@@ -306,7 +409,7 @@
       recordUsage(
         localStorage,
         document.getElementById("usageOptOut").checked,
-        id === "targetMargin" ? "target_margin_calculated" : "listing_profit_calculated",
+        holdIds.includes(id) ? "hold_vs_remove_compared" : id === "targetMargin" ? "target_margin_calculated" : "listing_profit_calculated",
       );
     }));
     document.querySelectorAll('input[name="fulfillmentMethod"]').forEach((el) => {

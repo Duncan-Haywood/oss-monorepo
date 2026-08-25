@@ -1,5 +1,5 @@
 name: amazon-fba-calculator
-description: A private browser calculator for Amazon sellers to compare FBA vs FBM profit on the same listing after referral, fulfillment, storage, inbound, and cost of goods — including the maximum inventory buy cost.
+description: A private browser calculator for Amazon sellers to compare FBA vs FBM profit on the same listing after referral, fulfillment, storage, inbound, and cost of goods — including the maximum inventory buy cost and whether leftover FBA units are still worth holding.
 stage: prototype
 owner: duncan
 hypotheses:
@@ -8,6 +8,10 @@ hypotheses:
     checked: null
     evidence: customer-contact
   - claim: Seeing the maximum buy cost next to both fulfillment paths changes a sourcing decision before the seller pays for inventory.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: Sellers with leftover FBA units will use a hold-vs-remove comparison that treats inbound and cost of goods as sunk and prices future storage plus aged surcharge against a removal fee.
     status: untested
     checked: null
     evidence: customer-contact
