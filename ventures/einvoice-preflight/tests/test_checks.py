@@ -331,6 +331,22 @@ class ChecksTest(unittest.TestCase):
             main([".", "--max-files", "0"])
         self.assertEqual(result.exception.code, 2)
 
+    def test_cli_accepts_positive_max_files_with_cli_integer_syntax(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            (root / "invoice.json").write_text(json.dumps(VALID))
+            output = io.StringIO()
+            with contextlib.redirect_stdout(output):
+                self.assertEqual(main([directory, "--max-files", "+1", "--format", "json"]), 0)
+            self.assertEqual(json.loads(output.getvalue())["files_checked"], 1)
+
+    def test_cli_rejects_non_integer_max_files_with_actionable_error(self):
+        output = io.StringIO()
+        with contextlib.redirect_stderr(output), self.assertRaises(SystemExit) as result:
+            main([".", "--max-files", "many"])
+        self.assertEqual(result.exception.code, 2)
+        self.assertIn("--max-files: must be a positive integer", output.getvalue())
+
     def test_cli_batch_flags_duplicate_invoice_numbers_without_disclosing_number(self):
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)
