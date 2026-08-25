@@ -310,6 +310,20 @@ products:
           preaudit_checklist_events: 0
           handoff_exports: 0
         note: Shipped browser-local pre-audit checklist; public deployment remains owner-gated.
+  - slug: standby-generator-bid-calculator
+    surface: static-page-in-repo
+    readings:
+      - as_of: 2026-08-25
+        signals:
+          live_url_visitors: null
+          local_calculation_events: 0
+          summary_copies: 0
+          share_link_copies: 0
+        note: >-
+          Shipped browser-local standby-generator install bid calculator;
+          public URL remains owner-gated. Local counter reports only to the
+          visitor's own browser (bid_calculated, proposed_price_compared,
+          summary_copied, share_link_copied, quote_printed).
 # Example of the shape, once a product has shipped:
 #
 # products:

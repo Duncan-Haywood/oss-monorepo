@@ -84,8 +84,17 @@ ventures:
       defensibility: 4
       distribution: 6
     composite: 6.5
+    rater_b: null
     floor: 2
     floor_dimension: ai_leverage
+    floor_note: >-
+      The first release is intentionally deterministic: it normalizes a 3PL
+      quote the operator already has, rather than generating advice. AI
+      leverage stays low so the comparison stays checkable.
+    basis: >-
+      Browser-local 3PL quote normalizer. It turns inbound pick/pack/storage
+      quotes into a comparable monthly cost without credentials, uploads, or
+      a claim that any provider "should" charge a given rate.
     gates:
       liability_containment: pass
       ethical_robustness: pass
@@ -872,3 +881,38 @@ ventures:
       The shipped production rates are labelled ballpark starting points rather
       than a standard or benchmark, and nothing the user enters leaves the
       browser.
+
+  - slug: standby-generator-bid-calculator
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 7
+      gross_margin: 10
+      defensibility: 5
+      distribution: 7
+    composite: 6.667
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      There is no AI anywhere in the product. The value is a domain model —
+      nameplate feeder, transfer-switch rating, fuel line, and setback — that
+      is arithmetic, and adding inference to it would only make the result
+      less checkable.
+    basis: >-
+      Graduated on 2026-08-25 as a browser-local residential standby-generator
+      install bid calculator. Scored with the other trade bid calculators:
+      defensibility 5 because the model encodes how the trade actually
+      estimates labor (feeder vs ATS, NG vs propane, beside-house vs far
+      yard) rather than restating a published fee schedule; distribution 7
+      because "how much to install a standby generator" and "whole-house
+      generator cost calculator" are bought by an operator with a real
+      install on the line.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Pass: the output is arithmetic on the installer's own inputs, never a
+      recommended price, a load calculation they can stamp, or a code ruling.
+      Starting hours and material dollars are labelled takeoff points rather
+      than a standard, and nothing the user enters leaves the browser.
