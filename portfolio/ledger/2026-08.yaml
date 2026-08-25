@@ -14,6 +14,18 @@ entries:
         robots.txt. Public publishing remains owner-gated; first usage reading
         is recorded as zero.
     mrr_end: null
+  - venture: equipment-rental-break-even
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Graduated and implemented a local-first equipment-rental booking
+        calculator with ownership recovery, delivery, cleaning, damage reserve,
+        utilization break-even, export, visible disclaimer, opt-out local usage
+        counting, SEO metadata, sitemap, robots.txt, MIT license, and focused
+        Node tests. Public publishing remains owner-gated; no network or paid
+        dependency was added.
+    mrr_end: null
   - venture: shopify-a11y-evidence
     agent_spend_usd: null
     human_hours: 0

@@ -28,7 +28,11 @@ portfolio/    the ledger, the router that allocates agent effort, and the
 Each venture is self-contained and carries a `VENTURE.yaml` at its root. That
 file is the interface between "this business exists" and "the router knows
 about it" — adding a venture means adding that file; nothing else needs to
-change.
+change. The portfolio is product-first: prefer shipping a narrow, runnable
+free product with local-first usage measurement over administrative work. New
+products still include the safety, privacy, and discoverability basics in
+[`PRODUCT_PLAYBOOK.md`](PRODUCT_PLAYBOOK.md); public production publishing and
+paid services remain owner-gated.
 
 Venture directories are kept cleanly bounded so a venture can be extracted
 with `git filter-repo` if it is ever sold or spun off.
