@@ -265,6 +265,37 @@ ventures:
       liability_containment: pass
       ethical_robustness: pass
 
+  - slug: consent-change-record
+    scores:
+      ai_leverage: 7
+      autonomous_ops: 7
+      time_to_revenue: 5
+      gross_margin: 8
+      defensibility: 5
+      distribution: 4
+    composite: 6.0
+    rater_b: null
+    floor: 4
+    floor_dimension: distribution
+    floor_note: >-
+      No web-agency or privacy-implementation partner has seen this tool yet;
+      distribution remains the named open question. Defensibility is also soft:
+      the HAR-diff logic and tracker list are easy to reimplement, though
+      customer-specific evidence history could compound with repeat use.
+    basis: >-
+      Graduated on 2026-08-24 from the consent-change-record candidate as a
+      zero-dependency, client-side HAR diff. It reports observed request and
+      cookie changes without accounts, network calls, paid dependencies, or
+      compliance claims. Scores preserve the candidate estimate until usage and
+      partner evidence exists.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      The tool reports observations from two customer-supplied captures and
+      keeps unclassified domains visible; it does not determine compliance or
+      issue legal advice.
+
   - slug: local-site-studio
     scores:
       ai_leverage: 7

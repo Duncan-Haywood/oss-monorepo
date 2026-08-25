@@ -6,6 +6,17 @@
 # retired honestly instead of quietly.
 period: 2026-08
 products:
+  - slug: consent-change-record
+    surface: static-page-in-repo
+    readings:
+      - as_of: 2026-08-24
+        signals:
+          live_url_visitors: null
+          local_events_reported: 0
+        note: >-
+          Shipped a client-side HAR before/after consent diff with opt-out local
+          usage events; public URL remains owner-gated and partner demand is
+          unmeasured.
   - slug: shopify-permission-drift
     surface: local-cli
     readings:

@@ -1,0 +1,40 @@
+name: consent-change-record
+description: Free browser tool that diffs two HAR network captures (before/after a consent choice) into a dated evidence report of requests and cookies that changed.
+stage: prototype
+owner: duncan
+
+hypotheses:
+  - claim: >-
+      Web agencies and privacy implementers will use a before/after HAR diff
+      to verify a consent-banner change actually stopped the requests it
+      claims to, rather than re-reading network logs by eye.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: >-
+      At least three qualified practitioners, shown the tool, will name a
+      recurring review workflow they would pay roughly EUR50/month for
+      (one customer site, monthly evidence pack) rather than treating this
+      as a one-off free utility.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - No web agency or privacy-implementation partner is identified within 90 days of shipping this v0.
+  - Fewer than three of ten shown practitioners can name a recurring review workflow the tool fits.
+  - The tracker classification cannot keep "not observed" distinguishable from "not present" without a user reading it as a compliance claim.
+
+links:
+  production: null
+  analytics: null
