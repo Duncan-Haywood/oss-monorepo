@@ -1,7 +1,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import { loadQuote, calculate } from "./calc.mjs";
-import { reviewQuote } from "./review.mjs";
+import { reviewQuote, decisionSummary } from "./review.mjs";
 
 function reportFor(data) { const quote = loadQuote(data); return [quote, calculate(quote)]; }
 
@@ -20,4 +20,15 @@ test("flags direct costs and missing revision time", () => {
 test("returns a clear check when there are no flags", () => {
   const [quote, report] = reportFor({ currency: "USD", price: 1000, delivery_hours: 5, revision_hours: 1, target_hourly_rate: 50 });
   assert.equal(reviewQuote(quote, report).at(-1).level, "clear");
+});
+
+test("creates a factual decision summary without exposing unrelated input fields", () => {
+  const [quote, report] = reportFor({ currency: "USD", price: 1000, delivery_hours: 10, admin_hours: 2, revision_hours: 3, target_hourly_rate: 100 });
+  const checks = reviewQuote(quote, report);
+  const summary = decisionSummary(quote, report, checks);
+  assert.match(summary, /REVIEW BEFORE SENDING/);
+  assert.match(summary, /Effective hourly rate: USD 66\.67\/hour/);
+  assert.match(summary, /The quote is below the supplied target/);
+  assert.doesNotMatch(summary, /1000.*10.*2.*3/);
+  assert.match(summary, /Arithmetic comparison only/);
 });

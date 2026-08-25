@@ -22,3 +22,23 @@ export function reviewQuote(quote, report) {
   }
   return checks;
 }
+
+// Keep the handoff factual: the user decides whether to send or revise.
+export function decisionSummary(quote, report, checks) {
+  const attention = checks.filter((check) => check.level === "attention");
+  const action = attention.length ? "REVIEW BEFORE SENDING" : "READY FOR YOUR REVIEW";
+  const lines = [
+    "QUOTE MARGIN CHECK",
+    action,
+    `Quoted price: ${quote.currency} ${quote.price.toFixed(2)}`,
+    `Effective hourly rate: ${quote.currency} ${report.effective_hourly_rate.toFixed(2)}/hour`,
+    `Target-price gap: ${quote.currency} ${report.gap_to_target.toFixed(2)}`,
+    `Total working hours: ${report.total_hours.toFixed(2)}`,
+    "",
+    attention.length ? "REVIEW FLAGS:" : "REVIEW NOTES:",
+    ...checks.map((check) => `- ${check.title}: ${check.detail}`),
+    "",
+    "Arithmetic comparison only. Review the scope, assumptions, and figures before relying on this summary.",
+  ];
+  return lines.join("\n");
+}
