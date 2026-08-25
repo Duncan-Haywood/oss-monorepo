@@ -19,6 +19,45 @@ type RunSummary = {
   checkedAt: string;
 };
 
+function reportMarkdown(run: RunSummary): string {
+  const findings = run.reports.flatMap((report) =>
+    report.findings.map((finding) => `| ${report.info.name} | ${finding.rule} | ${finding.severity} | ${finding.detail} |`),
+  );
+  return [
+    "# Listing photo preflight record",
+    "",
+    `- Checked at: ${new Date(run.checkedAt).toISOString()}`,
+    `- Spec: ${SPEC_ID} (dated ${SPEC_DATE})`,
+    `- Photos checked: ${run.reports.length}`,
+    `- Non-photo files skipped: ${run.skipped.length}`,
+    "",
+    "## Findings",
+    "",
+    "| File | Rule | Severity | Observation |",
+    "| --- | --- | --- | --- |",
+    findings.length > 0 ? findings.join("\n") : "| None | None | None | No findings in the checked files. |",
+    "",
+    "## Scope",
+    "",
+    "Checked: long edge, byte size, format, aspect ratio, branding filename, and staged-photo pairing.",
+    `Not checked: ${UNIMPLEMENTED_RULES.join(", ")}. A clean table is not a clean photo or a promise of MLS acceptance.`,
+    "",
+    "**No warranty.** This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, financial, medical, or engineering advice, and it does not replace a qualified professional. **You are responsible for reviewing and verifying its output before relying on it**, and for meeting any obligation it helps you prepare for. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.",
+    "",
+  ].join("\n");
+}
+
+function downloadReport(run: RunSummary): void {
+  const blob = new Blob([reportMarkdown(run)], { type: "text/markdown;charset=utf-8" });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement("a");
+  link.href = url;
+  link.download = `listing-photo-preflight-${run.checkedAt.slice(0, 10)}.md`;
+  link.click();
+  URL.revokeObjectURL(url);
+  recordUsageEvent("report_exported");
+}
+
 async function toFileList(files: File[]): Promise<Array<{ name: string; data: Uint8Array }>> {
   return Promise.all(
     files.map(async (file) => ({
@@ -96,6 +135,13 @@ export function PhotoCheckTool() {
               <> Skipped {run.skipped.length} non-photo file{run.skipped.length === 1 ? "" : "s"}.</>
             )}
           </p>
+          <button
+            type="button"
+            onClick={() => downloadReport(run)}
+            className="mt-4 rounded-lg border border-brand-300/40 bg-brand-400/10 px-4 py-2 text-sm font-semibold text-brand-100 hover:bg-brand-400/20"
+          >
+            Download dated Markdown report
+          </button>
 
           <ul className="mt-4 divide-y divide-white/10 overflow-hidden rounded-xl border border-white/10">
             {run.reports.map((report) => (
@@ -150,6 +196,18 @@ export function PhotoCheckTool() {
           {UNIMPLEMENTED_RULES.join(", ")} — those need a human look or a specific MLS
           board&apos;s own rules, which vary by board. No portal account is used, nothing is
           uploaded, and this is not a warranty that any specific MLS will accept your photos.
+        </p>
+        <p className="mt-3">
+          Everything runs in your browser. Your photos are never uploaded, and we do not use
+          accounts, tracking cookies, or an analytics vendor. We count anonymous feature events
+          locally in this browser, and you can clear them by clearing site data.
+        </p>
+        <p className="mt-3">
+          <strong className="text-slate-300">No warranty.</strong> This tool is provided free
+          and as-is, without warranty of any kind, express or implied. It is not legal, tax,
+          financial, medical, or engineering advice, and it does not replace a qualified
+          professional. <strong className="text-slate-300">You are responsible for reviewing
+          and verifying its output before relying on it.</strong>
         </p>
       </div>
     </div>
