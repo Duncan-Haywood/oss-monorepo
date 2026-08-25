@@ -224,6 +224,8 @@ export function compareChannels(channels, shared = {}) {
   const active = channels.filter((channel) => channel?.enabled !== false);
   if (active.length === 0) throw new Error("Switch on at least one channel to compare");
   const results = active.map((channel) => calculateChannel(channel, shared));
+  const hasTargetProfit = shared.targetProfit !== undefined && shared.targetProfit !== null && shared.targetProfit !== "";
+  const targetProfit = hasTargetProfit ? number(shared.targetProfit, "Target profit") : null;
   const best = results.reduce((winner, result) => (result.profit > winner.profit ? result : winner));
 
   const ranked = [...results].sort((a, b) => b.profit - a.profit);
@@ -240,6 +242,7 @@ export function compareChannels(channels, shared = {}) {
       // What this channel would have to charge to match the winner's profit.
       // Null on the winner itself, where the question is meaningless.
       priceToMatchBest: result === best ? null : result.priceForProfit(best.profit),
+      priceForTargetProfit: targetProfit === null ? null : result.priceForProfit(targetProfit),
     })),
     ranked: ranked.map((result) => result.label),
     best: {

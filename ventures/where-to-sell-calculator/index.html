@@ -19,7 +19,7 @@
     "applicationCategory": "BusinessApplication",
     "operatingSystem": "Any (runs in a web browser)",
     "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
-    "featureList": "Cross-marketplace fee comparison, net profit per channel, margin and ROI, monthly-plan amortisation, break-even price, price needed to match the best channel"
+   "featureList": "Cross-marketplace fee comparison, net profit per channel, margin and ROI, monthly-plan amortisation, break-even price, price needed to match the best channel, price needed to reach a target profit"
   }
   </script>
   <script type="application/ld+json">
@@ -135,6 +135,9 @@
         <label class="span2">Orders you expect per month
           <input id="monthlyOrders" type="number" min="0" step="1" value="100">
         </label>
+        <label class="span2">Target profit per item
+          <input id="targetProfit" type="number" min="0" step="0.01" value="20">
+        </label>
         <label class="span2 check">
           <input id="includeSubscription" type="checkbox" checked>
           Spread monthly plans over those orders
@@ -174,7 +177,8 @@
               <th scope="col" title="Profit as a percentage of the cash you laid out to source, pack and ship.">Return on cash</th>
               <th scope="col">Gives up</th>
               <th scope="col" title="List below this and the sale loses money on this channel.">Break-even price</th>
-              <th scope="col">Price to match best</th>
+               <th scope="col">Price to match best</th>
+               <th scope="col" title="Item price needed to keep the target profit entered above">Price for target profit</th>
             </tr>
           </thead>
           <tbody id="rows"></tbody>
@@ -247,7 +251,7 @@
 
     const SHARED_FIELDS = [
       "price", "shippingCharged", "shippingCost", "itemCost",
-      "packagingCost", "otherCost", "monthlyOrders",
+      "packagingCost", "otherCost", "monthlyOrders", "targetProfit",
     ];
     // Per-channel fields, in the order they appear in each channel's panel.
     const CHANNEL_FIELDS = [
@@ -424,7 +428,8 @@
             <td class="money">${result.roi === null ? "—" : `${result.roi.toFixed(0)}%`}</td>
             <td class="money">${result.isBest ? "—" : money(result.gapVsBest)}</td>
             <td class="money${result.price < result.breakEvenPrice ? " negative" : ""}">${money(result.breakEvenPrice)}</td>
-            <td class="money">${result.priceToMatchBest === null ? "—" : money(result.priceToMatchBest)}</td>
+             <td class="money">${result.priceToMatchBest === null ? "—" : money(result.priceToMatchBest)}</td>
+             <td class="money">${result.priceForTargetProfit === null ? "—" : money(result.priceForTargetProfit)}</td>
           </tr>`).join("");
     }
 
@@ -470,7 +475,7 @@
       channels = freshChannels();
       const defaults = {
         price: 48, shippingCharged: 6, shippingCost: 5, itemCost: 14,
-        packagingCost: 1, otherCost: 0, monthlyOrders: 100,
+         packagingCost: 1, otherCost: 0, monthlyOrders: 100, targetProfit: 20,
       };
       for (const [id, value] of Object.entries(defaults)) document.getElementById(id).value = value;
       document.getElementById("includeSubscription").checked = true;

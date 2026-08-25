@@ -3,6 +3,7 @@
 const SHARED_FIELDS = [
   "price", "shippingCharged", "shippingCost", "itemCost",
   "packagingCost", "otherCost", "monthlyOrders",
+  "targetProfit",
 ];
 const CHANNEL_FIELDS = [
   "price", "shippingCharged", "shippingCost", "fulfilmentCost",

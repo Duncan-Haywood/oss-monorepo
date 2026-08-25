@@ -111,6 +111,15 @@ test("price to match the best channel actually matches it", () => {
   close(repriced.profit, comparison.best.profit, "repriced profit matches the winner");
 });
 
+test("price for target profit solves the same fee equation on every channel", () => {
+  const comparison = compareChannels([preset("ebay"), preset("etsy")], { ...shared, targetProfit: 20 });
+  for (const result of comparison.results) {
+    assert.ok(result.priceForTargetProfit > 0, `${result.label} should need a positive price`);
+    const repriced = calculateChannel({ ...preset(result.id), price: result.priceForTargetProfit }, shared);
+    close(repriced.profit, 20, `${result.label} target profit`);
+  }
+});
+
 test("a fee-free direct sale beats the marketplaces at the same price", () => {
   const comparison = compareChannels(CHANNEL_PRESETS, { ...shared, shippingCharged: 0, shippingCost: 0 });
   assert.equal(comparison.best.id, "local", "no fees and no shipping wins on the same price");
