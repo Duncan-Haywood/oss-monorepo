@@ -48,6 +48,31 @@ scoring_rule: >-
   near-zero-price norm is a real property of the business on any host.
 
 ventures:
+  - slug: fifo-pick-evidence
+    scores:
+      ai_leverage: 3
+      autonomous_ops: 9
+      time_to_revenue: 7
+      gross_margin: 10
+      defensibility: 5
+      distribution: 6
+    composite: 6.667
+    rater_b: null
+    floor: 3
+    floor_dimension: ai_leverage
+    basis: >-
+      Graduated on 2026-08-25 as a local CSV checker for small 3PL warehouses.
+      It produces source-row-linked FIFO observations without WMS credentials,
+      network access, customer uploads, or hosted storage. Its deterministic
+      evidence workflow is distinct from pricing, invoice, DNS, and accessibility
+      products already in the portfolio.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Output is explicitly an observation of supplied rows, never an audit,
+      compliance determination, chain-of-custody record, or warranty that FIFO
+      was followed. Users must review warehouse semantics and each observation.
   - slug: retainage-cashflow-calculator
     scores:
       ai_leverage: 1
@@ -71,6 +96,7 @@ ventures:
       liability_containment: pass
       ethical_robustness: pass
     gate_note: >-
+<<<<<<< HEAD
       Pass, conditionally: assumptions are shown as scenarios, outputs are
       labeled modeled, and the user remains responsible for checking contracts,
       records, and local requirements before acting.
@@ -90,6 +116,11 @@ ventures:
       liability_containment: pass
       ethical_robustness: pass
     gate_note: Deterministic estimates only; users must verify provider quotes and business assumptions.
+=======
+      Output is explicitly an observation of supplied rows, never an audit,
+      compliance determination, chain-of-custody record, or warranty that FIFO
+      was followed. Users must review warehouse semantics and each observation.
+>>>>>>> e1768432 (Ship FIFO pick evidence checker)
   - slug: shopify-permission-drift
     scores:
       ai_leverage: 2

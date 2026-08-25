@@ -1,5 +1,6 @@
 period: 2026-08
 entries:
+  - venture: fifo-pick-evidence
   - venture: retainage-cashflow-calculator
     agent_spend_usd: null
     human_hours: 0

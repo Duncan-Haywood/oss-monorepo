@@ -6,6 +6,15 @@
 # retired honestly instead of quietly.
 period: 2026-08
 products:
+  - slug: fifo-pick-evidence
+    surface: local-cli
+    readings:
+      - as_of: 2026-08-25
+        signals:
+          local_report_runs: 0
+          repo_views_14d: 0
+          release_downloads_total: 0
+        note: Shipped local FIFO exception checker; customer demand and public distribution remain unmeasured.
   - slug: retainage-cashflow-calculator
     surface: static-page-in-repo
     readings:
