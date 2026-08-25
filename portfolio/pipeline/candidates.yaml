@@ -838,3 +838,26 @@ candidates:
       component for distribution.
     first_experiment_days: 14
     first_experiment_budget_usd: 100
+  - slug: vendor-change-evidence
+    name: Vendor-change evidence monitor
+    doc: candidates/vendor-change-evidence.md
+    verdict: graduated
+    graduate_as: venture
+    host_venture: null
+    initiated: 2026-08-25
+    initiated_path: ventures/vendor-change-evidence
+    scores:
+      ai_leverage: 7
+      autonomous_ops: 9
+      time_to_revenue: 6
+      gross_margin: 9
+      defensibility: 4
+      distribution: 4
+      liability_containment: 7
+      ethical_robustness: 8
+    composite: 6.75
+    floor: 4
+    floor_dimension: defensibility
+    mitigation: Retain portable source-linked snapshots and secure a named procurement, security, or privacy practitioner channel before adding hosted scheduling.
+    first_experiment_days: 14
+    first_experiment_budget_usd: 0
