@@ -186,6 +186,16 @@
       <button type="button" id="copy-csv">Copy as CSV row</button>
       <span id="copy-status" class="hint" role="status" aria-live="polite"></span>
     </div>
+    <div class="actions">
+      <button type="button" id="save-history">Save this review locally</button>
+      <span id="history-status" class="hint" role="status" aria-live="polite"></span>
+    </div>
+    <div id="history" class="result" hidden>
+      <strong>Recent local reviews</strong>
+      <p class="hint">Only the quote inputs are stored in this browser. Nothing is uploaded.</p>
+      <ul id="history-list" class="checks"></ul>
+      <button type="button" id="clear-history">Clear local history</button>
+    </div>
   </section>
 
   <section aria-labelledby="about-heading">
@@ -253,6 +263,7 @@
   import { loadQuote, calculate, overrunScenarios } from "./calc.mjs";
   import { reviewQuote } from "./review.mjs";
   import { recordEvent, createReportCounter, isUsageCountingEnabled, setUsageCountingEnabled } from "./usage.mjs";
+  import { loadHistory, saveHistory, clearHistory } from "./history.mjs";
 
   // Counts settled quotes rather than keystrokes — see usage.mjs.
   const reportCounter = createReportCounter();
@@ -262,6 +273,9 @@
   const result = document.getElementById("result");
   const review = document.getElementById("review");
   const sensitivity = document.getElementById("sensitivity");
+  const historyPanel = document.getElementById("history");
+  const historyList = document.getElementById("history-list");
+  const historyStatus = document.getElementById("history-status");
 
   let lastReport = null;
 
@@ -317,6 +331,16 @@
     }
   }
 
+  function renderHistory() {
+    const entries = loadHistory();
+    historyPanel.hidden = entries.length === 0;
+    historyList.innerHTML = entries.map((entry, index) => {
+      const quote = entry.quote;
+      const date = new Date(entry.saved_at).toLocaleString();
+      return `<li><strong>${escapeHtml(quote.currency)} ${fmt(quote.price)} quote</strong><span>${escapeHtml(date)} · ${fmt(quote.delivery_hours + quote.admin_hours + quote.revision_hours)} hours</span> <button type="button" data-history-index="${index}">Load</button></li>`;
+    }).join("");
+  }
+
   // Once the visitor edits anything, the numbers are theirs — drop the
   // "this is an example" note rather than leaving it contradicting the form.
   const exampleNote = document.getElementById("example-note");
@@ -364,6 +388,30 @@
     }
   });
 
+  document.getElementById("save-history").addEventListener("click", () => {
+    if (!lastReport) { historyStatus.textContent = "Fix the inputs above first."; return; }
+    saveHistory(lastReport.quote);
+    historyStatus.textContent = "Saved in this browser only.";
+    recordEvent("quote_history_saved");
+    renderHistory();
+  });
+  historyList.addEventListener("click", (event) => {
+    const button = event.target.closest("button[data-history-index]");
+    if (!button) return;
+    const entry = loadHistory()[Number(button.dataset.historyIndex)];
+    if (!entry?.quote) return;
+    for (const id of ids) el[id].value = entry.quote[id] ?? (id === "currency" ? "units" : 0);
+    update();
+    historyStatus.textContent = "Loaded local review.";
+    recordEvent("quote_history_loaded");
+  });
+  document.getElementById("clear-history").addEventListener("click", () => {
+    clearHistory();
+    historyStatus.textContent = "Local history cleared.";
+    renderHistory();
+    recordEvent("quote_history_cleared");
+  });
+
   const usageToggle = document.getElementById("usage-toggle");
   const usageStatus = document.getElementById("usage-status");
   function renderUsageStatus() {
@@ -376,6 +424,7 @@
     renderUsageStatus();
   });
   renderUsageStatus();
+  renderHistory();
 </script>
 </body>
 </html>

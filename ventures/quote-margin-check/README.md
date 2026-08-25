@@ -44,6 +44,10 @@ quoted price and direct costs fixed while showing how the effective hourly rate
 and gap to the supplied target change. They are arithmetic what-if comparisons,
 not a forecast of project delivery time.
 
+Use **Save this review locally** to keep up to ten recent quote reviews in the
+same browser. Loading a saved review restores only its inputs; there are no
+accounts, sync, or uploads. Clear the history at any time from the page.
+
 **No warranty.** This tool is provided free and as-is, without warranty of any
 kind, express or implied. It is not tax, financial, or business advice, and it
 does not replace a qualified professional. **You are responsible for reviewing
@@ -64,6 +68,9 @@ of a quote it already counted. Reading it as "reports", not "keystrokes", is
 what makes it comparable to the CLI's own count. The browser also counts
 `quote_review_checked` locally when a valid quote is reviewed; it stores no quote
 values and sends nothing anywhere.
+
+Saving, loading, and clearing local history count only the feature names
+`quote_history_saved`, `quote_history_loaded`, and `quote_history_cleared`.
 
 ## Input
 
