@@ -26,6 +26,7 @@ const base = {
   monthsInStorage: 1,
   storageRate: 0.87,
   fbmShippingCost: 4.75,
+  fbmHandlingCost: 0,
   packagingCost: 0.6,
   otherCost: 0,
   adsPerUnit: 0,
@@ -98,6 +99,15 @@ test("FBM drops fulfillment and storage/inbound, and uses the seller's own label
   near(r.fbm.cashInvested, cash, "FBM cash");
   near(r.fbm.profit, 29.99 - referral - cash, "FBM profit");
   assert.equal(r.selected.profit, r.fbm.profit);
+});
+
+test("FBM can include optional handling labor in path cash and comparison", () => {
+  const withoutLabor = calculateListing(base);
+  const withLabor = calculateListing({ ...base, fbmHandlingCost: 2.5 });
+  near(withLabor.fbm.cashInvested, withoutLabor.fbm.cashInvested + 2.5, "FBM cash includes labor");
+  near(withLabor.fbm.profit, withoutLabor.fbm.profit - 2.5, "FBM profit includes labor");
+  near(withLabor.fbm.breakEvenBuyCost, withoutLabor.fbm.breakEvenBuyCost - 2.5, "FBM max buy includes labor");
+  assert.equal(withoutLabor.fbm.profit, calculateListing({ ...base, fbmHandlingCost: 0 }).fbm.profit);
 });
 
 test("reports which path leaves more on the same listing", () => {
@@ -179,6 +189,7 @@ test("rejects unknown presets and invalid inputs", () => {
   assert.throws(() => calculateListing({ salePrice: "abc" }), /Sale price/);
   assert.throws(() => calculateListing({ salePrice: 10, targetMargin: 100 }), /less than 100/);
   assert.throws(() => calculateListing({ salePrice: 10, fulfillmentMethod: "sfp" }), /fba or fbm/);
+  assert.throws(() => calculateListing({ salePrice: 10, fbmHandlingCost: -1 }), /FBM handling cost/);
   assert.throws(
     () => calculateListing({ salePrice: 10, monthlySellerFee: 39.99, monthlyUnits: 0 }),
     /Monthly units/,

@@ -141,6 +141,9 @@
         <label>You paid for the item <input id="costOfGoods" type="number" min="0" step="0.01" value="8"></label>
         <label>Inbound to Amazon / unit <input id="inboundPerUnit" type="number" min="0" step="0.01" value="1.20"></label>
         <label>FBM shipping you pay <input id="fbmShippingCost" type="number" min="0" step="0.01" value="4.75"></label>
+        <label>FBM handling labor / unit <span class="hint">optional</span>
+          <input id="fbmHandlingCost" type="number" min="0" step="0.01" value="0">
+        </label>
         <label>Prep / packaging <input id="packagingCost" type="number" min="0" step="0.01" value="0.60"></label>
         <label>Ads per unit <input id="adsPerUnit" type="number" min="0" step="0.01" value="0"></label>
         <label>Other per-unit cost <input id="otherCost" type="number" min="0" step="0.01" value="0"></label>
@@ -156,7 +159,7 @@
       <dl>
         <dt>Sale price</dt><dd id="revenue"></dd>
         <dt>Fees on this path</dt><dd id="fees"></dd>
-        <dt>Cash + storage + inbound</dt><dd id="invested"></dd>
+        <dt>Cash + path costs</dt><dd id="invested"></dd>
         <dt>Net margin</dt><dd id="margin"></dd>
         <dt>Return on investment</dt><dd id="roi"></dd>
         <dt>Break-even sale price</dt><dd id="breakEven"></dd>
@@ -170,7 +173,7 @@
         <thead><tr><th>Path</th><th>Fees</th><th>Profit</th><th>Max buy</th></tr></thead>
         <tbody id="compare"></tbody>
       </table>
-      <p class="note">Transparent arithmetic from your inputs — not Amazon’s current fee schedule. Referral, fulfillment, storage, and inbound vary by category, size, season, and account. Verify against your Amazon fee preview before buying inventory.</p>
+      <p class="note">Transparent arithmetic from your inputs — not Amazon’s current fee schedule. FBM handling labor is an optional per-unit opportunity cost. Referral, fulfillment, storage, and inbound vary by category, size, season, and account. Verify against your Amazon fee preview before buying inventory.</p>
     </section>
   </main>
   <section class="faq" aria-labelledby="faq-heading">
@@ -208,7 +211,7 @@
       "salePrice", "referralRate", "length", "width", "height", "weightLb",
       "monthsInStorage", "storageRate", "fulfillmentFee", "costOfGoods",
       "inboundPerUnit", "fbmShippingCost", "packagingCost", "adsPerUnit",
-      "otherCost", "monthlySellerFee", "monthlyUnits", "targetMargin",
+      "otherCost", "fbmHandlingCost", "monthlySellerFee", "monthlyUnits", "targetMargin",
     ];
     const money = (value) => `$${value.toFixed(2)}`;
     let syncingFee = false;
@@ -306,7 +309,7 @@
       recordUsage(
         localStorage,
         document.getElementById("usageOptOut").checked,
-        id === "targetMargin" ? "target_margin_calculated" : "listing_profit_calculated",
+        id === "targetMargin" ? "target_margin_calculated" : id === "fbmHandlingCost" ? "fbm_labor_calculated" : "listing_profit_calculated",
       );
     }));
     document.querySelectorAll('input[name="fulfillmentMethod"]').forEach((el) => {
