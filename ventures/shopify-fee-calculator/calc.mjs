@@ -8,6 +8,8 @@ export const PLAN_PRESETS = {
     label: "Basic",
     paymentsRate: 2.9,
     paymentsFixed: 0.3,
+    posPaymentsRate: 2.6,
+    posPaymentsFixed: 0.1,
     shopifyTxnRate: 2,
     monthlyPlan: 39,
   },
@@ -15,6 +17,8 @@ export const PLAN_PRESETS = {
     label: "Grow",
     paymentsRate: 2.7,
     paymentsFixed: 0.3,
+    posPaymentsRate: 2.5,
+    posPaymentsFixed: 0.1,
     shopifyTxnRate: 1,
     monthlyPlan: 105,
   },
@@ -22,6 +26,8 @@ export const PLAN_PRESETS = {
     label: "Advanced",
     paymentsRate: 2.5,
     paymentsFixed: 0.3,
+    posPaymentsRate: 2.4,
+    posPaymentsFixed: 0.1,
     shopifyTxnRate: 0.5,
     monthlyPlan: 399,
   },
@@ -29,6 +35,8 @@ export const PLAN_PRESETS = {
     label: "Plus",
     paymentsRate: 2.4,
     paymentsFixed: 0.3,
+    posPaymentsRate: 2.4,
+    posPaymentsFixed: 0.1,
     shopifyTxnRate: 0,
     monthlyPlan: 2300,
   },
@@ -54,6 +62,8 @@ export function applyPlanPreset(input, planId) {
     ...input,
     paymentsRate: preset.paymentsRate,
     paymentsFixed: preset.paymentsFixed,
+    posPaymentsRate: preset.posPaymentsRate,
+    posPaymentsFixed: preset.posPaymentsFixed,
     shopifyTxnRate: preset.shopifyTxnRate,
     monthlyPlan: preset.monthlyPlan,
   };
@@ -158,5 +168,74 @@ export function calculateOrder(input) {
     thirdParty,
     extraCostVsShopifyPayments: thirdParty.feeTotal - shopifyPayments.feeTotal,
     extraCostVsThirdParty: shopifyPayments.feeTotal - thirdParty.feeTotal,
+  };
+}
+
+function winnerFromDelta(delta) {
+  if (delta > 1e-9) return "in_person";
+  if (delta < -1e-9) return "online";
+  return "tie";
+}
+
+/**
+ * Online Shopify Payments vs tapping the same SKU in person.
+ *
+ * Two in-person rows, because merchants mix them up:
+ *   - same ticket at the counter still ships, so postage stays — this isolates
+ *     the cheaper card rate;
+ *   - pickup zeros shipping charged and shipping you pay — postage markup can
+ *     beat the cheaper tap, which is the usual surprise on a $5–$6 label.
+ *
+ * Rates are inputs. Plan presets fill illustrative US defaults only.
+ */
+export function compareOnlineVsPos(input) {
+  const posPaymentsRate = number(input.posPaymentsRate, "In-person card rate", 2.6);
+  const posPaymentsFixed = number(input.posPaymentsFixed, "In-person fixed fee", 0.1);
+  const posHardwareCost = number(input.posHardwareCost, "Card reader cost", 0);
+
+  const onlineOrder = calculateOrder({ ...input, paymentMethod: "shopify_payments" });
+  const sameTicketOrder = calculateOrder({
+    ...input,
+    paymentMethod: "shopify_payments",
+    paymentsRate: posPaymentsRate,
+    paymentsFixed: posPaymentsFixed,
+  });
+  const pickupOrder = calculateOrder({
+    ...input,
+    paymentMethod: "shopify_payments",
+    paymentsRate: posPaymentsRate,
+    paymentsFixed: posPaymentsFixed,
+    shippingCharged: 0,
+    shippingCost: 0,
+  });
+
+  const extraKeptOnSameTicket = sameTicketOrder.shopifyPayments.profit - onlineOrder.shopifyPayments.profit;
+  const extraKeptOnPickup = pickupOrder.shopifyPayments.profit - onlineOrder.shopifyPayments.profit;
+  const recoveryGap = extraKeptOnPickup > 0 ? extraKeptOnPickup : extraKeptOnSameTicket;
+  const ordersToRecoverHardware =
+    posHardwareCost > 0 && recoveryGap > 1e-9 ? posHardwareCost / recoveryGap : null;
+
+  return {
+    online: {
+      label: "Online checkout",
+      revenue: onlineOrder.revenue,
+      ...onlineOrder.shopifyPayments,
+    },
+    inPersonSameTicket: {
+      label: "Same order tapped in person",
+      revenue: sameTicketOrder.revenue,
+      ...sameTicketOrder.shopifyPayments,
+    },
+    inPersonPickup: {
+      label: "In-person pickup",
+      revenue: pickupOrder.revenue,
+      ...pickupOrder.shopifyPayments,
+    },
+    extraKeptOnSameTicket,
+    extraKeptOnPickup,
+    pickupWinner: winnerFromDelta(extraKeptOnPickup),
+    sameTicketWinner: winnerFromDelta(extraKeptOnSameTicket),
+    posHardwareCost,
+    ordersToRecoverHardware,
   };
 }

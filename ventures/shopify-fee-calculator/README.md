@@ -32,6 +32,14 @@ expected monthly orders, and shows **both paths on the same order**.
 
 [Why PayPal can cost more on Shopify](why-paypal-costs-more.html) answers that
 search question directly.
+[Shopify POS vs online fees](shopify-pos-vs-online-fees.html) answers the
+counter-vs-checkout question: whether a cheaper in-person tap still beats
+the same SKU sold online after postage markup, and how many taps recover a
+card reader.
+
+**After using the POS page, you can now see whether a market table or
+retail tap keeps more than checkout on that SKU** — which used to mean
+comparing two rate cards and forgetting the postage line.
 
 **No warranty.** This tool is provided free and as-is, without warranty of any
 kind, express or implied. It is not tax, financial, or business advice, and it
@@ -39,6 +47,12 @@ does not replace a qualified professional. **You are responsible for reviewing
 and verifying its output before relying on it**, and for meeting any obligation
 it helps you prepare for. To the maximum extent permitted by law, the authors
 accept no liability for any loss or damage arising from its use.
+
+**Best-effort hosting, no SLA.** These tools are free, experimental, and may
+be slow, broken, moved, or taken offline without notice. We do not promise
+uptime, backups of anything you type, or that a URL will keep working. Do not
+use this as a system of record. If a tool needs to survive, export your
+inputs and run it yourself.
 
 ## Privacy and usage
 
