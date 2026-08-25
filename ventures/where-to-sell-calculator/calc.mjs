@@ -25,51 +25,55 @@ export const CHANNEL_PRESETS = [
   {
     id: "ebay",
     label: "eBay",
-    note: "The final value fee normally covers payment processing, so the separate processor rate is 0 here.",
+    note: "The final value fee normally covers payment processing, so the separate processor rate is 0 here. Days-to-sell is an illustrative starting point, not a claim about how fast eBay actually sells.",
     commissionRate: 13.25,
     paymentRate: 0,
     paymentFixed: 0.3,
     perListingFee: 0,
     monthlyFee: 0,
     adRate: 0,
+    daysToSell: 14,
   },
   {
     id: "etsy",
     label: "Etsy",
-    note: "Listing fee is charged per listing whether or not it sells; transaction fee and Etsy Payments are billed separately.",
+    note: "Listing fee is charged per listing whether or not it sells; transaction fee and Etsy Payments are billed separately. Days-to-sell is an illustrative starting point, not a claim about Etsy sell-through.",
     commissionRate: 6.5,
     paymentRate: 3,
     paymentFixed: 0.25,
     perListingFee: 0.2,
     monthlyFee: 0,
     adRate: 0,
+    daysToSell: 21,
   },
   {
     id: "amazon",
     label: "Amazon (Professional)",
-    note: "Referral fee plus the monthly Professional plan. Put FBA or pick-and-pack under fulfilment cost, not here.",
+    note: "Referral fee plus the monthly Professional plan. Put FBA or pick-and-pack under fulfilment cost, not here. Days-to-sell is an illustrative starting point, not a claim about Amazon velocity.",
     commissionRate: 15,
     paymentRate: 0,
     paymentFixed: 0,
     perListingFee: 0,
     monthlyFee: 39.99,
     adRate: 0,
+    daysToSell: 7,
   },
   {
     id: "own-store",
     label: "Own store (Shopify Basic)",
-    note: "No marketplace commission — you pay the plan and card processing, and you supply the traffic.",
+    note: "No marketplace commission — you pay the plan and card processing, and you supply the traffic. Days-to-sell is an illustrative starting point: you bring the buyers.",
     commissionRate: 0,
     paymentRate: 2.9,
     paymentFixed: 0.3,
     perListingFee: 0,
     monthlyFee: 39,
     adRate: 0,
+    daysToSell: 30,
   },
   {
     id: "local",
     label: "Local / direct",
-    note: "No platform fee and usually no shipping — the cost is your time and a smaller audience.",
+    note: "No platform fee and usually no shipping — the cost is your time and a smaller audience. Days-to-sell starts slower because the audience is whoever you can reach yourself.",
     commissionRate: 0,
     paymentRate: 0,
     paymentFixed: 0,
@@ -80,6 +84,7 @@ export const CHANNEL_PRESETS = [
     // shipping zeroed rather than inheriting the shared shipping numbers.
     shippingCharged: 0,
     shippingCost: 0,
+    daysToSell: 45,
   },
   {
     id: "other",
@@ -108,6 +113,18 @@ function wholeNumber(value, name, fallback = 0) {
   const result = number(value, name, fallback);
   if (!Number.isInteger(result)) throw new Error(`${name} must be a whole number`);
   return result;
+}
+
+// Days-to-sell is optional. Empty or zero means "I do not know yet" and
+// profit-per-day stays null rather than inventing a pace. A negative value
+// is a real mistake and is refused.
+function optionalPositive(value, name) {
+  if (value === undefined || value === null || value === "") return null;
+  const result = Number(value);
+  if (!Number.isFinite(result) || result < 0) {
+    throw new Error(`${name} must be a non-negative number`);
+  }
+  return result === 0 ? null : result;
 }
 
 /**
@@ -139,6 +156,12 @@ export function calculateChannel(channel, shared = {}) {
   const otherCost = number(shared.otherCost, "Other per-item cost", 0);
   const monthlyOrders = wholeNumber(shared.monthlyOrders, "Orders per month", 0);
   const includeSubscription = shared.includeSubscription !== false;
+  const daysToSell = optionalPositive(
+    channel.daysToSell !== undefined && channel.daysToSell !== ""
+      ? channel.daysToSell
+      : shared.daysToSell,
+    `${label} days to sell`,
+  );
 
   // A subscription is only a per-order cost once it is spread over the orders
   // it carries. Comparing a $39/month store against a per-sale marketplace
@@ -196,6 +219,12 @@ export function calculateChannel(channel, shared = {}) {
     percentRate: percentRate * 100,
     fixedCash,
     breakEvenPrice: Math.max(0, fixedCash / (1 - percentRate) - shippingCharged),
+    daysToSell,
+    // Cash this sale leaves you per day it sits unsold. Null when the seller
+    // has not given a pace — inventing one would rank channels on a guess
+    // they never entered. 30-day month is a planning figure, not a calendar.
+    profitPerDay: daysToSell === null ? null : profit / daysToSell,
+    monthlyProfitAtVelocity: daysToSell === null ? null : profit * (30 / daysToSell),
     /**
      * Item price this channel needs, holding shipping charged constant, to
      * clear `targetProfit`. This is the number that turns a comparison into a
@@ -225,6 +254,12 @@ export function compareChannels(channels, shared = {}) {
   if (active.length === 0) throw new Error("Switch on at least one channel to compare");
   const results = active.map((channel) => calculateChannel(channel, shared));
   const best = results.reduce((winner, result) => (result.profit > winner.profit ? result : winner));
+  const withPace = results.filter((result) => result.profitPerDay !== null);
+  const bestOnVelocity = withPace.length === 0
+    ? null
+    : withPace.reduce((winner, result) => (
+      result.profitPerDay > winner.profitPerDay ? result : winner
+    ));
 
   const ranked = [...results].sort((a, b) => b.profit - a.profit);
   const rankById = new Map(ranked.map((result, index) => [result, index + 1]));
@@ -234,9 +269,13 @@ export function compareChannels(channels, shared = {}) {
       ...result,
       rank: rankById.get(result),
       isBest: result === best,
+      isBestOnVelocity: result === bestOnVelocity,
       // Negative or zero for the winner; for everyone else, the cash this
       // channel gives up on the same item.
       gapVsBest: best.profit - result.profit,
+      gapVsBestPerDay: bestOnVelocity === null || result.profitPerDay === null
+        ? null
+        : bestOnVelocity.profitPerDay - result.profitPerDay,
       // What this channel would have to charge to match the winner's profit.
       // Null on the winner itself, where the question is meaningless.
       priceToMatchBest: result === best ? null : result.priceForProfit(best.profit),
@@ -247,6 +286,13 @@ export function compareChannels(channels, shared = {}) {
       label: best.label,
       profit: best.profit,
       margin: best.margin,
+    },
+    bestOnVelocity: bestOnVelocity === null ? null : {
+      id: bestOnVelocity.id,
+      label: bestOnVelocity.label,
+      profitPerDay: bestOnVelocity.profitPerDay,
+      daysToSell: bestOnVelocity.daysToSell,
+      monthlyProfitAtVelocity: bestOnVelocity.monthlyProfitAtVelocity,
     },
     // How much the channel choice is worth on this one item, before any
     // difference in how many buyers each channel actually reaches.

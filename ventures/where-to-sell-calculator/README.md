@@ -65,10 +65,16 @@ questions the ranking alone does not:
   not counted as invested; that keeps the figure comparable across channels
   whose fee structures differ. It reads "—" when nothing was invested (a
   giveaway, or an item with no per-unit cost), rather than an infinite return.
+- **You keep / day** — profit divided by the days you expect that channel to
+  take to sell. A no-fee local sale can still lose this comparison if the item
+  sits for a month while a marketplace sells next week. Each channel ships with
+  an illustrative pace you are expected to replace with how long your last
+  similar listings actually took. The column reads "—" when no pace is set,
+  rather than inventing one.
 
 Margin answers "how good is this sale", return on cash answers "how hard is my
-money working", and break-even answers "how far can I move the price" — which
-is usually the one a seller can act on today.
+money working", break-even answers "how far can I move the price", and cash
+per day answers "do I wait on the cheaper channel or list where it moves".
 
 ## Rates are inputs, not a published schedule
 
@@ -80,10 +86,11 @@ makes the comparison yours rather than a generic estimate.
 
 ## What it deliberately does not model
 
-Fees are the part that is easy to calculate, not the whole decision. This has
-no way to know how many buyers each channel puts in front of you, how fast an
-item sells there, or what returns cost. A marketplace fee is partly a payment
-for demand you would otherwise have to create. Read the fee gap as one input.
+Fees are the part that is easy to calculate, not the whole decision. Days to
+sell is your estimate of demand, not a measured marketplace statistic, and
+this still has no way to know what returns cost. A marketplace fee is partly
+a payment for demand you would otherwise have to create. Read the fee gap and
+the cash-per-day gap as inputs, not the decision.
 
 ## Tests
 
@@ -95,8 +102,10 @@ Covers each channel's fee shape, monthly-plan amortisation (including the
 refusal to divide a plan by zero orders), per-channel overrides, break-even and
 target-profit solving round-tripping through the calculator, ranking and the
 gap against the best channel, the switched-off-channel rule, input validation,
-and the usage counter's opt-out, Do Not Track / Global Privacy Control, and
-hostile-storage behaviour.
+profit-per-day from expected days to sell (including the refusal to invent a
+pace when days are missing), the case where the fastest channel is not the
+highest-fee-profit channel, and the usage counter's opt-out, Do Not Track /
+Global Privacy Control, and hostile-storage behaviour.
 
 `page.test.mjs` adds structural checks on `index.html` itself, because
 `calc.test.mjs` imports `calc.mjs` directly and never looks at the page. It

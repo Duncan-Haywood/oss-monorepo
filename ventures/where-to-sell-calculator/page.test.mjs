@@ -87,6 +87,7 @@ test('figures named in schema.org featureList are actually rendered', () => {
     ['break-even price', /result\.breakEvenPrice/],
     ['price needed to match the best channel', /result\.priceToMatchBest/],
     ['net profit per channel', /result\.profit/],
+    ['profit per day', /result\.profitPerDay/],
   ];
 
   for (const [claim, rendered] of claims) {
@@ -116,5 +117,15 @@ test('figures that can be absent are rendered defensively', () => {
     rowTemplate[0],
     /result\.priceToMatchBest === null/,
     'priceToMatchBest is null on the best channel; render a placeholder instead of formatting null',
+  );
+  assert.match(
+    rowTemplate[0],
+    /result\.profitPerDay === null/,
+    'profitPerDay is null when no days-to-sell was given; render a placeholder instead of formatting null',
+  );
+  assert.match(
+    rowTemplate[0],
+    /result\.daysToSell === null/,
+    'daysToSell is null when no pace was given; render a placeholder instead of a blank cell',
   );
 });

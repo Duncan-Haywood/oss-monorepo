@@ -2,18 +2,18 @@
 // browser except when the user explicitly copies a link.
 const SHARED_FIELDS = [
   "price", "shippingCharged", "shippingCost", "itemCost",
-  "packagingCost", "otherCost", "monthlyOrders",
+  "packagingCost", "otherCost", "monthlyOrders", "daysToSell",
 ];
 const CHANNEL_FIELDS = [
   "price", "shippingCharged", "shippingCost", "fulfilmentCost",
   "commissionRate", "paymentRate", "paymentFixed", "perListingFee",
-  "monthlyFee", "adRate",
+  "monthlyFee", "adRate", "daysToSell",
 ];
 
 export function encodeComparison(shared = {}, channels = []) {
   const payload = {
     shared: Object.fromEntries(SHARED_FIELDS
-      .filter((key) => shared[key] !== undefined)
+      .filter((key) => shared[key] !== undefined && shared[key] !== "")
       .map((key) => [key, shared[key]])),
     includeSubscription: shared.includeSubscription !== false,
     channels: channels.map((channel) => ({
