@@ -496,6 +496,169 @@ export function compareToilet(input) {
     .sort((a, b) => a.price - b.price);
 }
 
+export const SUPPLY_PRESETS = Object.freeze([
+  {
+    id: 'plumber-supplied',
+    label: 'You supply the bowl',
+    detail: 'Fixture invoice stays in the bid',
+  },
+  {
+    id: 'owner-fits',
+    label: 'Owner supplies — it fits',
+    detail: 'No fixture invoice, same set hours',
+  },
+  {
+    id: 'owner-wrong',
+    label: 'Owner supplies — wrong rough-in',
+    detail: 'Second trip plus an offset flange',
+  },
+]);
+
+/**
+ * Starting callback hours and offset hardware when the
+ * owner's store-bought bowl does not match the closet.
+ * Taken from the extra-kit trip and the 10-inch rough-in
+ * kit so a typed 9-hour swap does not inflate the callback.
+ */
+export function suggestedOwnerCallbackKit() {
+  const extra = suggestedExtraKit();
+  const offset = suggestedRoughInKit('10-inch');
+  return {
+    hoursCallbackTrip: extra.hoursTrip,
+    hoursWrongRoughInPerToilet: offset.hoursRoughInPerToilet,
+    offsetFlangeEach: offset.offsetFlangeEach,
+  };
+}
+
+function scoreInstallOnly(bid, installPrice) {
+  if (installPrice === null) return null;
+  return {
+    price: installPrice,
+    profit: installPrice - bid.totalCost,
+    margin: installPrice === 0 ? 0 : (installPrice - bid.totalCost) / installPrice * 100,
+    hourlyRate: bid.totalHours === 0 ? null : installPrice / bid.totalHours,
+    belowBreakEven: installPrice < bid.totalCost,
+  };
+}
+
+/**
+ * Price the same closet three ways: you supply the bowl, the
+ * owner supplies one that fits, or the owner supplies one that
+ * does not fit and costs a second trip.
+ *
+ * Owner rows zero the fixture invoice and keep the current set
+ * hours — pulling a Home Depot box is still a set. The
+ * wrong-rough-in row adds a starting callback trip and a 10-inch
+ * offset kit on top of the current rates so a typed invoice does
+ * not leak into the "they bought it" case.
+ *
+ * An install-only price (options.installOnlyPrice, else the
+ * proposed price on the bid) is scored against each cost base.
+ * That is the $249 "just set what I bought" number plumbers
+ * actually get shopped on.
+ */
+export function compareOwnerSupply(input, options = {}) {
+  const callback = suggestedOwnerCallbackKit();
+  const hoursTrip = number(input.hoursTrip ?? 0, 'Trip hours');
+  const hoursRoughInPerToilet = number(input.hoursRoughInPerToilet ?? 0, 'Rough-in hours per toilet');
+  const offsetFlangeEach = number(input.offsetFlangeEach ?? 0, 'Offset flange each');
+
+  let installPrice = null;
+  const rawInstall = options.installOnlyPrice !== undefined
+    ? options.installOnlyPrice
+    : input.proposedPrice;
+  if (rawInstall !== null && rawInstall !== undefined && rawInstall !== '') {
+    installPrice = number(rawInstall, 'Install-only price');
+  }
+
+  const plumber = calculateBid(input);
+  const ownerFits = calculateBid({ ...input, toiletInvoice: 0 });
+  const ownerWrong = calculateBid({
+    ...input,
+    toiletInvoice: 0,
+    hoursTrip: hoursTrip + callback.hoursCallbackTrip,
+    hoursRoughInPerToilet: hoursRoughInPerToilet + callback.hoursWrongRoughInPerToilet,
+    offsetFlangeEach: offsetFlangeEach + callback.offsetFlangeEach,
+  });
+
+  const rows = [
+    {
+      supply: 'plumber-supplied',
+      label: SUPPLY_PRESETS[0].label,
+      detail: SUPPLY_PRESETS[0].detail,
+      bid: plumber,
+    },
+    {
+      supply: 'owner-fits',
+      label: SUPPLY_PRESETS[1].label,
+      detail: SUPPLY_PRESETS[1].detail,
+      bid: ownerFits,
+    },
+    {
+      supply: 'owner-wrong',
+      label: SUPPLY_PRESETS[2].label,
+      detail: SUPPLY_PRESETS[2].detail,
+      bid: ownerWrong,
+    },
+  ].map((row) => ({
+    supply: row.supply,
+    label: row.label,
+    detail: row.detail,
+    price: row.bid.price,
+    totalCost: row.bid.totalCost,
+    totalHours: row.bid.totalHours,
+    fixtureMaterial: row.bid.fixtureMaterial,
+    offsetMaterial: row.bid.offsetMaterial,
+    hoursTravel: row.bid.hoursTravel,
+    hoursRoughIn: row.bid.hoursRoughIn,
+    breakEvenPrice: row.bid.breakEvenPrice,
+    installOnly: scoreInstallOnly(row.bid, installPrice),
+    savedVsPlumber: plumber.price - row.bid.price,
+  }));
+
+  const cheapest = Math.min(...rows.map((row) => row.price));
+  return rows.map((row) => ({
+    ...row,
+    cheapest: row.price === cheapest,
+    delta: row.price - cheapest,
+    installOnlyPrice: installPrice,
+  }));
+}
+
+/**
+ * One-line verdict for the owner-supplied table. Names the
+ * install-only loss when that number is on the table; otherwise
+ * names the bid drop from zeroing the bowl.
+ */
+export function ownerSupplyNote(rows) {
+  if (!Array.isArray(rows) || rows.length < 3) {
+    throw new Error('Owner-supply comparison is missing rows');
+  }
+  const plumber = rows.find((row) => row.supply === 'plumber-supplied');
+  const fits = rows.find((row) => row.supply === 'owner-fits');
+  const wrong = rows.find((row) => row.supply === 'owner-wrong');
+  if (!plumber || !fits || !wrong) {
+    throw new Error('Owner-supply comparison is missing a supply row');
+  }
+
+  const drop = plumber.price - fits.price;
+  const callbackLift = wrong.price - fits.price;
+  if (plumber.installOnly && fits.installOnly) {
+    const asked = plumber.installOnly.price;
+    if (plumber.installOnly.belowBreakEven && fits.installOnly.belowBreakEven) {
+      return `At ${money(asked)} install-only you lose money even when they bought the bowl. Walk-away on the owner-supplied set is ${money(fits.breakEvenPrice)}.`;
+    }
+    if (plumber.installOnly.belowBreakEven && !fits.installOnly.belowBreakEven) {
+      return `At ${money(asked)} the plumber-supplied job loses ${money(Math.abs(plumber.installOnly.profit))}. The same install-only number covers the set if their bowl actually fits.`;
+    }
+    if (wrong.installOnly?.belowBreakEven) {
+      return `At ${money(asked)} the set covers if their bowl fits. A wrong-rough-in callback still loses ${money(Math.abs(wrong.installOnly.profit))} — walk-away then is ${money(wrong.breakEvenPrice)}.`;
+    }
+    return `At ${money(asked)} both supply paths hold a margin. A wrong-rough-in callback still adds ${money(callbackLift)} to the bid.`;
+  }
+  return `Zeroing the bowl invoice drops the bid ${money(drop)}. A wrong-rough-in callback puts ${money(callbackLift)} back on.`;
+}
+
 function money(value) {
   return `$${value.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
 }
