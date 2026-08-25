@@ -909,3 +909,37 @@ ventures:
       Pass: output is a planning floor from user-supplied assumptions, not
       financial advice or a guarantee of income, tax treatment, or contract
       enforceability; all data stays in the browser.
+
+  - slug: popcorn-ceiling-bid-calculator
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 7
+      gross_margin: 10
+      defensibility: 5
+      distribution: 7
+    composite: 6.667
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      There is no AI anywhere in the product. The value is a domain model —
+      scrape-and-prime versus Level 4 skim versus Level 5 plus paint, 8-foot
+      versus vaulted versus two-story access — that is arithmetic, and
+      adding inference to it would only make the result less checkable.
+    basis: >-
+      Graduated on 2026-08-25 as a browser-local popcorn ceiling removal
+      bid calculator. Distinct from interior painting (walls and a flat
+      ceiling as a coat), drywall hang-and-finish (new gypsum and a Level
+      5 on new board), exterior painting (house elevations), cabinet
+      refinishing, and hardwood refinishing. Search intent is explicit
+      in queries such as how much to charge to remove popcorn ceiling
+      and popcorn ceiling removal cost calculator.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Pass: output is a draft bid from user-supplied rates, not a
+      drywall specification, an asbestos clearance, a lead-paint
+      determination, or a standard or benchmark, and nothing the user
+      enters leaves the browser.

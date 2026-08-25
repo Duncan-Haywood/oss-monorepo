@@ -118,6 +118,9 @@ workflows:
 - workflow: photos-import-tools-ci.yml
   classification: none
   publishes: []
+- workflow: popcorn-ceiling-bid-calculator-ci.yml
+  classification: none
+  publishes: []
 - workflow: portfolio-validate.yml
   classification: none
   publishes: []
