@@ -6,9 +6,13 @@ Shopify merchants and agencies can paste an `axe-core` JSON export and create a 
 
 Open `index.html` in a browser, paste the JSON exported by axe-core, and choose **Generate evidence record**. Use **Download .txt** to save a reviewable record. No account, network call, Shopify permission, or API key is required.
 
-Everything runs in the browser. The JSON is never uploaded and there are no cookies or analytics vendors. The tool keeps only an anonymous aggregate `report_generated` count in localStorage, with a visible opt-out.
+After you have the record, open `theme-areas.html` with the same JSON. It groups affected nodes by likely Shopify theme area (product form, header, cart, collection) so a developer opens the right Liquid section first. Classification is a selector/HTML heuristic, not a file-path guarantee.
+
+Everything runs in the browser. The JSON is never uploaded and there are no cookies or analytics vendors. The tool keeps only anonymous aggregate counts in localStorage (`report_generated` on the evidence page; `theme_areas_generated`, `theme_areas_copied`, and `theme_areas_downloaded` on the theme-area page), with a visible opt-out.
 
 **No warranty.** This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, financial, or compliance advice, and it does not replace a qualified professional. **You are responsible for reviewing and verifying its output before relying on it**, and for meeting any obligation it helps you prepare for. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.
+
+**Best-effort hosting, no SLA.** These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record. If a tool needs to survive, export your inputs and run it yourself.
 
 ## Opportunity assessment
 

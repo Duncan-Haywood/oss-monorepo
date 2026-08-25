@@ -176,6 +176,18 @@ products:
         note: >-
           Shipped browser-local axe JSON evidence report; public URL remains
           owner-gated and the local counter has no external reporting path.
+      - as_of: 2026-08-25
+        signals:
+          live_url_visitors: null
+          theme_areas_generated: 0
+          theme_areas_copied: 0
+          theme_areas_downloaded: 0
+        note: >-
+          Added theme-area routing (product form / header / cart / collection)
+          from the same local axe JSON. Public URL remains owner-gated; counts
+          stay in the user's browser with an opt-out. Complementary to the
+          quote (#1545) and before/after compare (#1514) PRs — do not close
+          those; they answer hours and progress, not which Liquid file to open.
   - slug: ebay-fee-calculator
     surface: static-page-in-repo
     readings:
