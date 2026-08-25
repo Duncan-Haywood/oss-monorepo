@@ -1,5 +1,5 @@
 name: amazon-fba-calculator
-description: A private browser calculator for Amazon sellers to compare FBA vs FBM profit on the same listing after referral, fulfillment, storage, inbound, and cost of goods — including the maximum inventory buy cost.
+description: A private browser calculator for Amazon sellers to compare FBA vs FBM profit on the same listing after referral, fulfillment, storage, inbound, and cost of goods — including the maximum inventory buy cost and the break-even ACOS each path can still carry.
 stage: prototype
 owner: duncan
 hypotheses:
@@ -8,6 +8,10 @@ hypotheses:
     checked: null
     evidence: customer-contact
   - claim: Seeing the maximum buy cost next to both fulfillment paths changes a sourcing decision before the seller pays for inventory.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: Seeing break-even ACOS next to both fulfillment paths changes a PPC spend decision before the seller raises a campaign budget.
     status: untested
     checked: null
     evidence: customer-contact

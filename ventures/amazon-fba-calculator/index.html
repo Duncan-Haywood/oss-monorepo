@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Amazon FBA vs FBM Profit Calculator | Max Buy Cost</title>
-  <meta name="description" content="Free Amazon FBA vs FBM calculator: see referral fees, fulfillment, storage, and inbound on the same listing. Get net profit, ROI, break-even sale price, and the maximum you can pay for inventory.">
+  <meta name="description" content="Free Amazon FBA vs FBM calculator: see referral fees, fulfillment, storage, inbound, and break-even ACOS on the same listing. Get net profit, ROI, max buy cost, and the most you can spend on ads.">
   <meta name="robots" content="index, follow">
   <link rel="canonical" href=".">
   <meta property="og:title" content="Amazon FBA vs FBM Profit Calculator">
@@ -18,7 +18,7 @@
     "applicationCategory": "BusinessApplication",
     "operatingSystem": "Any (runs in a web browser)",
     "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
-    "featureList": "FBA vs FBM comparison, size-tier fulfillment, storage, inbound, net profit, margin, ROI, break-even price, max buy cost, target-margin price"
+    "featureList": "FBA vs FBM comparison, size-tier fulfillment, storage, inbound, net profit, margin, ROI, break-even price, max buy cost, target-margin price, break-even ACOS, target-margin ACOS"
   }
   </script>
   <script type="application/ld+json">
@@ -48,6 +48,14 @@
         "acceptedAnswer": {
           "@type": "Answer",
           "text": "The max buy cost is the cost of goods that drives net profit to zero after the referral fee and the fulfillment-path costs you entered. Buy above that number and the unit loses money on these assumptions."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "What is my Amazon break-even ACOS?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Break-even ACOS is the advertising spend, as a percent of the sale price, that drives net profit to zero after referral, fulfillment, storage, inbound, and cost of goods on the selected path. Spend above that rate and the unit loses money on these assumptions. The calculator also shows the ACOS that still leaves your target net margin."
         }
       }
     ]
@@ -95,8 +103,8 @@
     <p>
       Enter the listing price, category, size, and what you paid. The
       calculator shows referral, fulfillment, storage, and inbound on FBA
-      against the shipping you pay on FBM. Everything runs in this page;
-      nothing is uploaded.
+      against the shipping you pay on FBM — and the <strong>break-even ACOS</strong>
+      each path can still carry. Everything runs in this page; nothing is uploaded.
     </p>
   </header>
   <main class="layout">
@@ -142,7 +150,9 @@
         <label>Inbound to Amazon / unit <input id="inboundPerUnit" type="number" min="0" step="0.01" value="1.20"></label>
         <label>FBM shipping you pay <input id="fbmShippingCost" type="number" min="0" step="0.01" value="4.75"></label>
         <label>Prep / packaging <input id="packagingCost" type="number" min="0" step="0.01" value="0.60"></label>
-        <label>Ads per unit <input id="adsPerUnit" type="number" min="0" step="0.01" value="0"></label>
+        <label>Ads per unit <span class="hint">PPC allocated to this sale; ACOS is that spend ÷ price</span>
+          <input id="adsPerUnit" type="number" min="0" step="0.01" value="0">
+        </label>
         <label>Other per-unit cost <input id="otherCost" type="number" min="0" step="0.01" value="0"></label>
         <label>Professional plan / month <input id="monthlySellerFee" type="number" min="0" step="0.01" value="39.99"></label>
         <label>Units sold per month <input id="monthlyUnits" type="number" min="0" step="1" value="80"></label>
@@ -162,12 +172,16 @@
         <dt>Break-even sale price</dt><dd id="breakEven"></dd>
         <dt>Max buy cost</dt><dd id="maxBuy"></dd>
         <dt>Price for target margin</dt><dd id="targetMarginPrice"></dd>
+        <dt>Current ACOS</dt><dd id="currentAcos"></dd>
+        <dt>Break-even ACOS</dt><dd id="breakEvenAcos"></dd>
+        <dt>ACOS for target margin</dt><dd id="targetMarginAcos"></dd>
+        <dt>Do these ads still pay?</dt><dd id="adsStillPay"></dd>
         <dt>FBA vs FBM</dt><dd id="advantage"></dd>
       </dl>
       <hr>
       <h2>Same listing, both paths</h2>
       <table>
-        <thead><tr><th>Path</th><th>Fees</th><th>Profit</th><th>Max buy</th></tr></thead>
+        <thead><tr><th>Path</th><th>Fees</th><th>Profit</th><th>Max buy</th><th>Break-even ACOS</th></tr></thead>
         <tbody id="compare"></tbody>
       </table>
       <p class="note">Transparent arithmetic from your inputs — not Amazon’s current fee schedule. Referral, fulfillment, storage, and inbound vary by category, size, season, and account. Verify against your Amazon fee preview before buying inventory.</p>
@@ -183,6 +197,8 @@
       still works.
       <a href="fba-vs-fbm.html">FBA vs FBM: which path leaves more?</a>
       walks through that in search-query words.
+      After the path is chosen, the next decision is usually ads:
+      <a href="break-even-acos.html">what break-even ACOS can this listing still carry?</a>
     </p>
     <p>
       It does not recommend a price, a category, or a fulfillment method, and
@@ -260,6 +276,15 @@
         document.getElementById("maxBuy").textContent = money(result.selected.breakEvenBuyCost);
         document.getElementById("targetMarginPrice").textContent = Number.isFinite(result.selected.targetMarginPrice)
           ? money(result.selected.targetMarginPrice) : "unreachable";
+        const formatAcos = (value) => value === null ? "n/a" : `${value.toFixed(1)}%`;
+        document.getElementById("currentAcos").textContent = formatAcos(result.selected.currentAcos);
+        document.getElementById("breakEvenAcos").textContent = formatAcos(result.selected.breakEvenAcos);
+        document.getElementById("targetMarginAcos").textContent = result.selected.targetMarginReachableWithAds
+          ? formatAcos(result.selected.targetMarginAcos) : "unreachable at $0 ads";
+        const extraAds = result.selected.breakEvenAds - result.adsPerUnit;
+        document.getElementById("adsStillPay").textContent = result.selected.adsStillPay
+          ? extraAds > 0.005 ? `yes — ${money(extraAds)} more headroom` : "yes — at the break-even spend"
+          : "no — this ACOS already loses money";
         const extra = result.fbaAdvantage;
         document.getElementById("advantage").textContent =
           extra > 0 ? `${money(extra)} more with FBA` : extra < 0 ? `${money(-extra)} more with FBM` : "same profit";
@@ -267,13 +292,13 @@
           ["FBA", result.fba],
           ["FBM (you ship)", result.fbm],
         ].map(([name, path]) =>
-          `<tr><td>${name}</td><td>${money(path.feeTotal)}</td><td>${money(path.profit)}</td><td>${money(path.breakEvenBuyCost)}</td></tr>`
+          `<tr><td>${name}</td><td>${money(path.feeTotal)}</td><td>${money(path.profit)}</td><td>${money(path.breakEvenBuyCost)}</td><td>${formatAcos(path.breakEvenAcos)}</td></tr>`
         ).join("");
       } catch (error) {
         document.getElementById("profit").textContent = error.message;
         document.getElementById("profit").className = "hero-number error";
         document.getElementById("label").textContent = "fix the inputs to see a result";
-        ["revenue", "fees", "invested", "margin", "roi", "breakEven", "maxBuy", "targetMarginPrice", "advantage"].forEach((id) => {
+        ["revenue", "fees", "invested", "margin", "roi", "breakEven", "maxBuy", "targetMarginPrice", "currentAcos", "breakEvenAcos", "targetMarginAcos", "adsStillPay", "advantage"].forEach((id) => {
           document.getElementById(id).textContent = "";
         });
         document.getElementById("compare").innerHTML = "";
@@ -306,7 +331,8 @@
       recordUsage(
         localStorage,
         document.getElementById("usageOptOut").checked,
-        id === "targetMargin" ? "target_margin_calculated" : "listing_profit_calculated",
+        id === "adsPerUnit" ? "break_even_acos_calculated"
+          : id === "targetMargin" ? "target_margin_calculated" : "listing_profit_calculated",
       );
     }));
     document.querySelectorAll('input[name="fulfillmentMethod"]').forEach((el) => {

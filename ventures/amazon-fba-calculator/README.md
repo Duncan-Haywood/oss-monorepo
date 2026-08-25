@@ -5,7 +5,8 @@ Amazon** against **merchant fulfilled (FBM)** on the same listing — referral
 fee, size-tier fulfillment, monthly storage, inbound, and the shipping label
 you buy yourself — then reports net profit, margin, return on the cash in the
 unit, the break-even sale price, the price that hits a target margin, and the
-**maximum you can pay for inventory** before the unit loses money.
+**maximum you can pay for inventory** before the unit loses money, and the
+**break-even ACOS** each path can still carry.
 
 Open [`index.html`](index.html) in a browser. The calculation is local and
 works without an account, network request, or API key. It is arithmetic, not
@@ -13,8 +14,10 @@ an estimate of the fees Amazon will charge: enter the rates from your current
 fee preview, and verify them there.
 
 **After using this, you can now see whether FBA or FBM leaves more on a real
-SKU, and the most you can pay a supplier for that unit** — which used to mean
-a spreadsheet that forgot storage, inbound, or the professional plan.
+SKU, the most you can pay a supplier for that unit, and the highest ACOS
+the listing can still carry** — which used to mean a spreadsheet that forgot
+storage, inbound, or treated a 30% ACOS target as if every SKU had the same
+leftover margin.
 
 ## Why it's different
 
@@ -33,6 +36,8 @@ units, and shows **both paths on the same listing**.
 
 [FBA vs FBM: which path leaves more?](fba-vs-fbm.html) answers that search
 question directly.
+[Amazon break-even ACOS](break-even-acos.html) answers the advertising
+follow-up: how much PPC the leftover profit can still fund.
 
 **No warranty.** This tool is provided free and as-is, without warranty of any
 kind, express or implied. It is not tax, financial, or business advice, and it
@@ -61,7 +66,7 @@ optional and never changes what the tool does.
 Pure ES modules, no build step, no dependencies.
 
 ```
-node --test        # runs calc.test.mjs and usage.test.mjs
+node --test        # runs calc.test.mjs, page.test.mjs, and usage.test.mjs
 ```
 
 `calc.mjs` holds the fee/profit/ROI arithmetic, size-tier classification, and
