@@ -86,6 +86,10 @@ export function classifySizeTier({ length, width, height, weightLb }) {
 
 // Illustrative 2026 US non-peak, non-apparel FBA fulfillment defaults.
 // Sellers should replace these with the fees on their current Amazon fee preview.
+function roundMoney(n) {
+  return Math.round((n + Number.EPSILON) * 100) / 100;
+}
+
 export function defaultFulfillmentFee(tier, weightLb) {
   if (!SIZE_TIER_LABELS[tier]) throw new Error(`Unknown size tier: ${tier}`);
   const weight = number(weightLb, "Weight");
@@ -113,6 +117,187 @@ export function defaultFulfillmentFee(tier, weightLb) {
     return 9.61 + Math.max(0, weight - 2) * 0.38;
   }
   return 26.33 + Math.max(0, weight - 5) * 0.42;
+}
+
+// Illustrative Low-Price FBA pick fees: the same size-tier bands minus a
+// typical discount. Extra-large and large bulky usually sit outside the
+// program, so they return the regular fee. Sellers should replace these
+// with the Low-Price line on their current Amazon fee preview.
+export function defaultLowPriceFulfillmentFee(tier, weightLb) {
+  const regular = defaultFulfillmentFee(tier, weightLb);
+  if (tier === "small_standard") return roundMoney(regular - 0.9);
+  if (tier === "large_standard") return roundMoney(regular - 0.7);
+  return regular;
+}
+
+/**
+ * Sale price on regular FBA that matches Low-Price FBA profit at `stayPrice`.
+ * Cash, inbound, storage, and ads cancel — only referral (a percent of price)
+ * and the two fulfillment fees differ. Below this price, staying under the
+ * threshold keeps more; at or above it, leaving the program pays for the
+ * extra pick fee after referral.
+ */
+export function lowPriceBreakEvenRaise({ stayPrice, referralRate, lowPriceFee, regularFee }) {
+  const stay = number(stayPrice, "Stay price");
+  const rate = number(referralRate, "Referral rate") / 100;
+  const cheap = number(lowPriceFee, "Low-price fulfillment fee");
+  const regular = number(regularFee, "Regular fulfillment fee");
+  if (rate >= 1) return Infinity;
+  return stay + (regular - cheap) / (1 - rate);
+}
+
+function listingTruthy(value) {
+  return !(value === false || value === "false" || value === 0 || value === "0");
+}
+
+/**
+ * Compare staying at or under Amazon's Low-Price FBA threshold against
+ * listing above it on regular FBA. When the typed sale price is already
+ * above the threshold, the stay row is the cut-to-threshold path — the
+ * decision sellers actually make on a $12–$30 SKU that could drop to $10
+ * to keep the cheaper pick fee.
+ */
+export function compareLowPriceFba(input) {
+  const threshold = number(input.lowPriceThreshold, "Low-price threshold", 10);
+  if (threshold <= 0) throw new Error("Low-price threshold must be greater than zero");
+
+  const salePrice = number(input.salePrice, "Sale price");
+  const referralRate = number(input.referralRate, "Referral rate", 15);
+  const sizeTier =
+    input.sizeTier && SIZE_TIER_LABELS[input.sizeTier]
+      ? input.sizeTier
+      : classifySizeTier({
+          length: input.length ?? 8,
+          width: input.width ?? 6,
+          height: input.height ?? 2,
+          weightLb: input.weightLb ?? 0.75,
+        });
+  const suggestedRegular = defaultFulfillmentFee(sizeTier, input.weightLb ?? 0.75);
+  const suggestedLow = defaultLowPriceFulfillmentFee(sizeTier, input.weightLb ?? 0.75);
+  const regularFee =
+    input.fulfillmentFee === undefined || input.fulfillmentFee === null || input.fulfillmentFee === ""
+      ? suggestedRegular
+      : number(input.fulfillmentFee, "Fulfillment fee");
+  const lowPriceFee =
+    input.lowPriceFulfillmentFee === undefined ||
+    input.lowPriceFulfillmentFee === null ||
+    input.lowPriceFulfillmentFee === ""
+      ? suggestedLow
+      : number(input.lowPriceFulfillmentFee, "Low-price fulfillment fee");
+  const eligible = listingTruthy(input.lowPriceEligible ?? true);
+
+  const stayPrice =
+    input.lowPriceSalePrice === undefined ||
+    input.lowPriceSalePrice === null ||
+    input.lowPriceSalePrice === ""
+      ? Math.min(salePrice, threshold)
+      : number(input.lowPriceSalePrice, "Low-price sale price");
+  if (stayPrice > threshold) {
+    throw new Error("Low-price sale price must be at or below the threshold");
+  }
+
+  const defaultRaise = salePrice > threshold ? salePrice : roundMoney(threshold + 0.01);
+  const raisePrice =
+    input.raisePrice === undefined || input.raisePrice === null || input.raisePrice === ""
+      ? defaultRaise
+      : number(input.raisePrice, "Raise-above-threshold price");
+  if (raisePrice <= threshold) {
+    throw new Error("Raise-above-threshold price must be greater than the low-price threshold");
+  }
+
+  const listingInput = { ...input, fulfillmentMethod: "fba" };
+  delete listingInput.lowPriceThreshold;
+  delete listingInput.lowPriceFulfillmentFee;
+  delete listingInput.lowPriceEligible;
+  delete listingInput.lowPriceSalePrice;
+  delete listingInput.raisePrice;
+
+  const stay = calculateListing({
+    ...listingInput,
+    salePrice: stayPrice,
+    fulfillmentFee: eligible ? lowPriceFee : regularFee,
+  });
+  const raise = calculateListing({
+    ...listingInput,
+    salePrice: raisePrice,
+    fulfillmentFee: regularFee,
+  });
+
+  const justOverPrice = roundMoney(threshold + 0.01);
+  const justOver =
+    Math.abs(raisePrice - justOverPrice) < 1e-9
+      ? raise
+      : calculateListing({
+          ...listingInput,
+          salePrice: justOverPrice,
+          fulfillmentFee: regularFee,
+        });
+
+  const extraProfit = raise.fba.profit - stay.fba.profit;
+  let winner = "tie";
+  if (extraProfit > 1e-9) winner = "raise";
+  else if (extraProfit < -1e-9) winner = "stay";
+  if (!eligible) winner = "raise";
+
+  const breakEvenRaise = eligible
+    ? lowPriceBreakEvenRaise({
+        stayPrice,
+        referralRate,
+        lowPriceFee,
+        regularFee,
+      })
+    : Infinity;
+
+  return {
+    threshold,
+    eligible,
+    stayPrice,
+    raisePrice,
+    justOverPrice,
+    regularFee,
+    lowPriceFee,
+    suggestedRegular,
+    suggestedLow,
+    sizeTier,
+    stay,
+    raise,
+    justOver,
+    extraProfit,
+    winner,
+    breakEvenRaise,
+    raiseBeatsBreakEven: Number.isFinite(breakEvenRaise) && raisePrice + 1e-9 >= breakEvenRaise,
+    summary: lowPriceSummary({
+      eligible,
+      winner,
+      extraProfit,
+      stayPrice,
+      raisePrice,
+      breakEvenRaise,
+    }),
+  };
+}
+
+function moneyLabel(value) {
+  const abs = Math.abs(value);
+  const formatted = abs.toFixed(2);
+  return value < 0 ? `-$${formatted}` : `$${formatted}`;
+}
+
+function lowPriceSummary({ eligible, winner, extraProfit, stayPrice, raisePrice, breakEvenRaise }) {
+  const stay = moneyLabel(stayPrice);
+  const raise = moneyLabel(raisePrice);
+  const gap = moneyLabel(Math.abs(extraProfit));
+  const breakEven = Number.isFinite(breakEvenRaise) ? moneyLabel(breakEvenRaise) : "an unreachable price";
+  if (!eligible) {
+    return `This listing is marked outside Low-Price FBA, so only the regular fulfillment fee applies at ${raise}.`;
+  }
+  if (winner === "stay") {
+    return `Staying at ${stay} on Low-Price FBA keeps ${gap} more than listing at ${raise}. Regular FBA needs about ${breakEven} to match.`;
+  }
+  if (winner === "raise") {
+    return `Listing at ${raise} on regular FBA keeps ${gap} more than staying at ${stay}. The raise that matches Low-Price profit is about ${breakEven}.`;
+  }
+  return `Staying at ${stay} and listing at ${raise} leave the same profit on these rates.`;
 }
 
 function pathResult({
