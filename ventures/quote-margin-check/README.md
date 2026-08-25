@@ -61,9 +61,9 @@ anywhere in either case. One `report_generated` means one *settled* quote: the
 page recomputes on every keystroke, so the counter waits for the figures to
 stop changing, skips the pre-filled example on first load, and ignores a repeat
 of a quote it already counted. Reading it as "reports", not "keystrokes", is
-what makes it comparable to the CLI's own count. The browser also counts
-`quote_review_checked` locally when a valid quote is reviewed; it stores no quote
-values and sends nothing anywhere.
+what makes it comparable to the CLI's own count. The page does not separately
+count review renders, because doing so would count
+every keystroke rather than meaningful settled quote reviews.
 
 ## Input
 
