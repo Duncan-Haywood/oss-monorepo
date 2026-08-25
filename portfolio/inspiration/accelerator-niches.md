@@ -5,6 +5,11 @@ super-niche, $0-marginal-cost tools. This is **not** a candidate pipeline
 and it does not rescore `portfolio/pipeline/`. Screening there is done.
 A niche graduates by shipping `ventures/<slug>/` or a `product_lines` entry.
 
+The full idea inventory (YC paste + Techstars unicorn names + SPC homepage
++ Seedcamp featured + well-known VC cores) is
+[`portfolio-ideas.md`](portfolio-ideas.md). This file keeps the legal line
+and the short ship/skip table.
+
 ## Legal line (read before copying a URL into a crawler)
 
 Checked 2026-08-25 against published robots.txt and terms. We did **not**
@@ -13,9 +18,11 @@ fetch filtered company directories.
 | Source | robots.txt | Terms / practice we follow |
 |---|---|---|
 | [ycombinator.com](https://www.ycombinator.com/robots.txt) | `Disallow: /companies?*` (and several `/library?*` query forms). `/` is otherwise allowed. | [Terms of Use](https://www.ycombinator.com/legal): no scraping, data mining, or commercial reuse of Site Content; no copying the directory, trademarks, or company write-ups. A user-pasted list may be read as *their* notes. Do not republish YC's directory. Do not hit `/companies?batch=…`. |
-| [techstars.com](https://www.techstars.com/robots.txt) | `Allow: /` | Still no bulk scrape of the portfolio, no clone of their UI, no trademark use. Public company names are facts; their site content is not ours to extract. |
-| [southparkcommons.com](https://www.southparkcommons.com/robots.txt) | `Allow: /` except member, newsletter, and some demo paths | Same: no member-area access, no scrape. |
-| [seedcamp.com](https://seedcamp.com/robots.txt) | `Allow: /` (Yoast empty Disallow) | Same. |
+| [techstars.com](https://www.techstars.com/robots.txt) | `Allow: /` | [Terms](https://www.techstars.com/terms-of-use) (2026-07-16) forbid reproducing Site Content and “record, process, or mine information about other companies and/or users.” We opened the public unicorn-registry **names** only. No searchable-portfolio dump, no blurbs. |
+| [southparkcommons.com](https://www.southparkcommons.com/robots.txt) | `Allow: /` except member, newsletter, and some demo paths | Homepage featured names only. No `/members`, no JS companies index. |
+| [seedcamp.com](https://seedcamp.com/robots.txt) | `Allow: /` (Yoast empty Disallow) | Featured hero names only. Do not republish the 550-row directory. No public site ToS found (privacy policy only). |
+| [a16z.com](https://a16z.com/robots.txt) | Empty `Disallow` | Public [portfolio](https://a16z.com/portfolio/) tickers only. No Speedrun directory dump. |
+| Sequoia and the other named VCs | Sequoia `robots.txt` timed out 2026-08-25 | Not fetched. Use well-known public company names only. |
 
 Also out, regardless of robots.txt:
 
@@ -66,5 +73,5 @@ startup”; it is “the spreadsheet their customer still opens.”
 - Ship anything that needs a Faire / Whatnot / GOAT account, API, or listing.
 - Claim affiliation.
 
-If a later session picks the next row, graduate it as a product — do not
-extend this table as a substitute for shipping.
+If a later session picks a row, graduate it as a product. The inventory in
+`portfolio-ideas.md` is already the list; do not open a third notes file.
