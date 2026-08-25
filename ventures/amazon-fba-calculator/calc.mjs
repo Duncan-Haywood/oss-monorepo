@@ -596,6 +596,137 @@ export function couponSummary(comparison) {
   return `${perUnit} ${volume}`;
 }
 
+// Subscribe & Save is a standing percent off the list price for enrolled
+// deliveries. Referral is charged on that discounted price. Fulfillment,
+// inbound, and storage do not change. Unlike a coupon there is typically
+// no per-redemption fee — the same percent usually leaves more than a
+// coupon. This models a seller-funded discount (the conservative case).
+// If Amazon funds the discount on the settlement, leftover matches list;
+// type 0% then. Defaults 5% (one-item delivery) and 10% (five or more
+// S&S items) are illustrative; sellers replace them from their offer.
+export const SNS_PERCENTS = [0, 5, 10, 15];
+
+function snsLabel(percent) {
+  if (percent === 0) return "List price";
+  if (percent === 5) return "5% S&S (1 item)";
+  if (percent === 10) return "10% S&S (5+ items)";
+  if (percent === 15) return "15% S&S (promo)";
+  return `${percent}% S&S`;
+}
+
+export function subscribeSaveListing(input, offer = {}) {
+  const listPrice = number(input.salePrice, "Sale price");
+  const snsPercent = number(offer.snsPercent ?? 0, "Subscribe & Save percent");
+  if (snsPercent > 100) throw new Error("Subscribe & Save percent must be at most 100");
+  const targetMargin = number(input.targetMargin, "Target margin");
+  const discount = listPrice * (snsPercent / 100);
+  const buyerPays = listPrice - discount;
+  const listing = calculateListing({ ...input, salePrice: buyerPays });
+  const path = listing.selected;
+  return {
+    listPrice,
+    snsPercent,
+    discount,
+    buyerPays,
+    feeTotal: path.feeTotal,
+    cashInvested: path.cashInvested,
+    referral: path.fees.referral,
+    fulfillment: path.fees.fulfillment,
+    profit: path.profit,
+    margin: path.margin,
+    roi: path.roi,
+    hitsTarget: buyerPays === 0 ? path.profit >= 0 : path.margin + 1e-9 >= targetMargin,
+    breakEvenBuyCost: path.breakEvenBuyCost,
+  };
+}
+
+export function compareSubscribeSave(input) {
+  const snsPercent = number(input.snsPercent ?? 5, "Subscribe & Save percent");
+  const snsEnrollPct = number(input.snsEnrollPct ?? 40, "Subscribe & Save enroll percent");
+  if (snsPercent > 100) throw new Error("Subscribe & Save percent must be at most 100");
+  if (snsEnrollPct > 100) throw new Error("Subscribe & Save enroll percent must be at most 100");
+  const monthlyUnits = number(input.monthlyUnits, "Monthly units", 1);
+
+  const rows = SNS_PERCENTS.map((percent) => ({
+    ...subscribeSaveListing(input, { snsPercent: percent }),
+    label: snsLabel(percent),
+    isCustom: false,
+    isCurrent: percent === snsPercent,
+  }));
+
+  if (!SNS_PERCENTS.includes(snsPercent)) {
+    rows.push({
+      ...subscribeSaveListing(input, { snsPercent }),
+      label: snsLabel(snsPercent),
+      isCustom: true,
+      isCurrent: true,
+    });
+  }
+
+  const withDeltas = rows.map((row) => ({
+    ...row,
+    profitDelta: row.profit - rows[0].profit,
+    monthlyProfit: row.profit * monthlyUnits,
+  }));
+  const noneRow = withDeltas[0];
+  const typedRow = withDeltas.find((row) => row.isCurrent) ?? withDeltas[withDeltas.length - 1];
+
+  const enrolledUnits = monthlyUnits * (snsEnrollPct / 100);
+  const listUnits = monthlyUnits - enrolledUnits;
+  const mixedMonthlyProfit = listUnits * noneRow.profit + enrolledUnits * typedRow.profit;
+  const listMonthlyProfit = noneRow.profit * monthlyUnits;
+  const mixedDelta = mixedMonthlyProfit - listMonthlyProfit;
+
+  // New S&S-only units that restore the all-list month after enrolled
+  // buyers convert. Infinity when the S&S unit itself does not pay.
+  let offsetUnits = 0;
+  if (snsPercent === 0 || enrolledUnits === 0 || typedRow.profit >= noneRow.profit) {
+    offsetUnits = 0;
+  } else if (typedRow.profit <= 0) {
+    offsetUnits = noneRow.profit > 0 ? Infinity : 0;
+  } else {
+    offsetUnits = (enrolledUnits * (noneRow.profit - typedRow.profit)) / typedRow.profit;
+  }
+
+  let breakEvenUnits = null;
+  if (noneRow.profit > 0 && typedRow.profit <= 0) breakEvenUnits = Infinity;
+  else if (typedRow.profit > 0) breakEvenUnits = (noneRow.profit * monthlyUnits) / typedRow.profit;
+
+  return {
+    rows: withDeltas,
+    none: noneRow,
+    typed: typedRow,
+    monthlyUnits,
+    snsEnrollPct,
+    enrolledUnits,
+    listUnits,
+    mixedMonthlyProfit,
+    listMonthlyProfit,
+    mixedDelta,
+    offsetUnits,
+    breakEvenUnits,
+    cheaper: typedRow.profit > noneRow.profit ? "sns" : typedRow.profit < noneRow.profit ? "list" : "tie",
+  };
+}
+
+export function subscribeSaveSummary(comparison) {
+  const money = (value) => `$${value.toFixed(2)}`;
+  const typed = comparison.typed;
+  if (typed.snsPercent === 0) {
+    return "No Subscribe & Save discount is entered, so every row but the list-price line is a what-if against this listing.";
+  }
+  const offer = typed.label;
+  const perUnit = `${offer} drops the buyer price from ${money(typed.listPrice)} to ${money(typed.buyerPays)} and leaves ${money(typed.profit)} — ${money(Math.abs(typed.profitDelta))} ${typed.profitDelta < 0 ? "less" : "more"} than list. There is no coupon redemption fee on this path.`;
+  if (comparison.offsetUnits === Infinity) {
+    return `${perUnit} Extra Subscribe & Save volume cannot recover the converted buyers: the discounted unit itself does not pay.`;
+  }
+  const enroll = `If ${comparison.snsEnrollPct}% of ${comparison.monthlyUnits} units enroll (${comparison.enrolledUnits.toFixed(1)}), this month keeps ${money(comparison.mixedMonthlyProfit)} against ${money(comparison.listMonthlyProfit)} at list.`;
+  if (comparison.offsetUnits === 0) {
+    return `${perUnit} ${enroll}`;
+  }
+  return `${perUnit} ${enroll} You need about ${comparison.offsetUnits.toFixed(1)} new S&S-only sales to offset those converted buyers.`;
+}
+
 // Illustrative 2026 US Multi-Channel Fulfillment Standard defaults: the
 // same size-tier FBA band plus a typical MCF premium. Sellers replace
 // these with the MCF line on their current Amazon fee preview. MCF is

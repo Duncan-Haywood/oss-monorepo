@@ -15,7 +15,8 @@ fee preview, and verify them there.
 **After using this, you can now see whether FBA or FBM leaves more on a real
 SKU, the most you can pay a supplier for that unit, whether staying under
 Amazon’s Low-Price FBA threshold still beats a real raise, and whether a
-coupon still hits your target after the redemption fee, and whether a
+coupon still hits your target after the redemption fee, whether
+Subscribe & Save still pays when only some units enroll, and whether a
 website order shipped MCF still beats selling the unit on Amazon** —
 which used to mean a spreadsheet that forgot storage, inbound, or the
 pick-fee jump at $10.
@@ -48,7 +49,13 @@ fee. [Does this Amazon coupon still pay?](does-this-amazon-coupon-still-pay.html
 compares list against 5%, 10%, 15%, and 20%, then shows the volume lift
 needed to match this month’s list-price profit.
 
-A website order on the same FBA unit is a third decision. MCF skips
+Subscribe & Save is the standing version of that discount: same
+referral cut, typically no redemption fee, and only a share of units
+enroll. [Does Subscribe & Save still pay?](does-subscribe-and-save-still-pay.html)
+compares list against 5%, 10%, and 15%, then shows the mixed month and
+the new S&S-only sales that would offset converted buyers.
+
+A website order on the same FBA unit is a further decision. MCF skips
 Amazon referral and pays a higher pick fee plus your card processor.
 [Should I use Amazon MCF for website orders?](should-i-use-amazon-mcf-for-website-orders.html)
 shows leftover profit against Amazon FBA and against shipping it
@@ -91,8 +98,8 @@ node --test        # runs calc.test.mjs, usage.test.mjs, and page.test.mjs
 ```
 
 `calc.mjs` holds the fee/profit/ROI arithmetic, size-tier classification,
-category presets, coupon comparison, and Multi-Channel Fulfillment
-comparison; `usage.mjs` holds the anonymous
+category presets, coupon comparison, Subscribe & Save comparison, and
+Multi-Channel Fulfillment comparison; `usage.mjs` holds the anonymous
 local counter; `index.html` is the calculator UI.
 
 Not yet deployed to a public URL — publishing under the portfolio's name is
