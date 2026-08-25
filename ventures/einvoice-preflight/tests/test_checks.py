@@ -120,6 +120,24 @@ class ChecksTest(unittest.TestCase):
         invoice["totals"] = {"net": 0.06, "tax": 0.02, "gross": 0.08}
         self.assertEqual(check_invoice(invoice), [])
 
+    def test_fractional_quantity_is_not_rounded_before_line_calculation(self):
+        invoice = json.loads(json.dumps(VALID))
+        invoice["lines"] = [{
+            "description": "Fabric",
+            "quantity": 1.25,
+            "unit_price": 10,
+            "tax_percent": 19,
+            "net": 12.50,
+        }]
+        invoice["totals"] = {"net": 12.50, "tax": 2.38, "gross": 14.88}
+        self.assertEqual(check_invoice(invoice), [])
+
+    def test_fractional_tax_percentage_is_not_rounded_before_tax_calculation(self):
+        invoice = json.loads(json.dumps(VALID))
+        invoice["lines"][0]["tax_percent"] = 19.5
+        invoice["totals"] = {"net": 200, "tax": 39, "gross": 239}
+        self.assertEqual(check_invoice(invoice), [])
+
     def test_line_net_is_required(self):
         invoice = json.loads(json.dumps(VALID))
         del invoice["lines"][0]["net"]

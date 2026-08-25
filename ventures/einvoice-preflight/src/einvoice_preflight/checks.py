@@ -6,11 +6,17 @@ from typing import Any
 
 
 def _money(value: Any) -> Decimal | None:
+    result = _number(value)
+    return result.quantize(Decimal("0.01"), rounding=ROUND_HALF_UP) if result is not None else None
+
+
+def _number(value: Any) -> Decimal | None:
+    """Parse a finite number without applying currency-specific rounding."""
     try:
         result = Decimal(str(value))
     except (InvalidOperation, ValueError, TypeError):
         return None
-    return result.quantize(Decimal("0.01"), rounding=ROUND_HALF_UP) if result.is_finite() else None
+    return result if result.is_finite() else None
 
 
 def _iso_date(value: Any) -> date | None:
@@ -65,7 +71,7 @@ def check_invoice(invoice: Any) -> list[dict[str, str]]:
             continue
         if not isinstance(line.get("description"), str) or not line.get("description", "").strip():
             fail("INV-008", f"Line {index} has no description.", "Add a human-readable line description.", f"/lines/{index - 1}/description")
-        quantity, price, tax = (_money(line.get(key)) for key in ("quantity", "unit_price", "tax_percent"))
+        quantity, price, tax = _number(line.get("quantity")), _money(line.get("unit_price")), _number(line.get("tax_percent"))
         if quantity is None or quantity <= 0:
             fail("INV-009", f"Line {index} quantity is invalid.", "Use a positive numeric quantity.", f"/lines/{index - 1}/quantity")
         if price is None or price < 0:
