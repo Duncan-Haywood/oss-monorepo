@@ -628,4 +628,17 @@ export const progressLog: ProgressEntry[] = [
       "Agent (next session): once a real delivery folder exists (from a real or realistic test shoot), run `npm run preflight -- --dir <delivery>` against it and fold the result into the candidate write-up's first-experiment section as real evidence instead of the current fixture-only precision/recall claim.",
     ],
   },
+  {
+    date: "2026-08-25",
+    agent: "cursor/mls-photo-record-download-20260825",
+    summary:
+      "Added a downloadable dated Markdown evidence record to the free MLS photo preflight browser tool.",
+    changes: [
+      "PhotoCheckTool now exports checked filenames, findings, skipped files, spec identity/date, and explicitly unimplemented checks without uploading photo data.",
+      "Added an opt-out local report_downloaded usage event and recorded the product-line baseline in portfolio/usage/usage.yaml.",
+    ],
+    nextUp: [
+      "Human: publish the static tool or run the first real delivery-folder check to measure demand and validate board-specific assumptions.",
+    ],
+  },
 ];

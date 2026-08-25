@@ -1,5 +1,17 @@
 period: 2026-08
 entries:
+  - venture: real-estate-agent-photo-app
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Advanced the MLS photo-spec preflight product line with a browser-local
+        Markdown evidence-record download. Agents can retain checked filenames,
+        dated spec identity, findings, skipped files, and explicitly untested
+        rules next to a delivery without uploading photo data. Added an opt-out
+        local report-download event; public deployment and board-specific
+        validation remain owner-gated.
+    mrr_end: null
   - venture: shopify-a11y-evidence
     agent_spend_usd: null
     human_hours: 0

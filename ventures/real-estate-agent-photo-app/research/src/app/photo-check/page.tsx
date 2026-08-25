@@ -22,7 +22,8 @@ export default function PhotoCheckPage() {
         <p className="mt-4 max-w-2xl text-lg leading-8 text-slate-300">
           Drop a folder of listing photos in and get a dated findings report — resolution,
           file size, format, aspect ratio, branding/watermark filenames, and staged-photo
-          pairing. Free, unlimited, and your photos never leave this browser tab.
+          pairing. Download the evidence record for your delivery folder. Free, unlimited,
+          and your photos never leave this browser tab.
         </p>
         <PhotoCheckTool />
       </div>

@@ -22,6 +22,18 @@ products:
           local_comparisons: 1
           qualified_pilots: 0
           note: Shipped fixture-backed local comparison; customer demand remains untested.
+  - slug: mls-photo-spec-preflight
+    surface: static-page-in-repo
+    readings:
+      - as_of: 2026-08-25
+        signals:
+          live_url_visitors: null
+          local_batch_checks: 0
+          local_report_downloads: 0
+        note: >-
+          Added a browser-local Markdown evidence-record download for checked
+          listing-photo batches. Public URL remains owner-gated; counters are
+          opt-out and never include photos, filenames, or findings.
   - slug: einvoice-preflight
     surface: repository-cli
     readings:

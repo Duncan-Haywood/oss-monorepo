@@ -19,6 +19,51 @@ type RunSummary = {
   checkedAt: string;
 };
 
+export function reportMarkdown(run: RunSummary): string {
+  const checkedAt = new Date(run.checkedAt).toISOString();
+  const lines = [
+    "# Listing photo preflight record",
+    "",
+    `- Checked at: ${checkedAt}`,
+    `- Spec: ${SPEC_ID} (dated ${SPEC_DATE})`,
+    `- Photos checked: ${run.reports.length}`,
+    `- Non-photo files skipped: ${run.skipped.length}`,
+    "",
+    "> This is an evidence record of the checks performed, not a board-specific acceptance or compliance warranty.",
+    "",
+    "## Findings",
+    "",
+  ];
+
+  for (const report of run.reports) {
+    lines.push(`### ${report.info.name}`);
+    lines.push("");
+    lines.push(
+      report.findings.length === 0
+        ? "- No findings from the implemented checks."
+        : report.findings.map((finding) => `- **${finding.rule}** (${finding.severity}): ${finding.detail}`).join("\n"),
+    );
+    lines.push("");
+  }
+
+  if (run.skipped.length > 0) {
+    lines.push("## Skipped files");
+    lines.push("");
+    lines.push(...run.skipped.map((name) => `- ${name}`));
+    lines.push("");
+  }
+
+  lines.push("## Not tested");
+  lines.push("");
+  lines.push(...UNIMPLEMENTED_RULES.map((rule) => `- ${rule}`));
+  lines.push("- Board-specific rules and portal acceptance");
+  lines.push("");
+  lines.push(
+    "Review the original photos and the applicable board rules before relying on this record. A silent pass can still be wrong.",
+  );
+  return `${lines.join("\n")}\n`;
+}
+
 async function toFileList(files: File[]): Promise<Array<{ name: string; data: Uint8Array }>> {
   return Promise.all(
     files.map(async (file) => ({
@@ -38,6 +83,18 @@ export function PhotoCheckTool() {
   const [run, setRun] = useState<RunSummary | null>(null);
   const [isProcessing, setIsProcessing] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
+
+  const downloadReport = useCallback(() => {
+    if (!run) return;
+    const blob = new Blob([reportMarkdown(run)], { type: "text/markdown;charset=utf-8" });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = `listing-photo-preflight-${run.checkedAt.slice(0, 10)}.md`;
+    link.click();
+    window.setTimeout(() => URL.revokeObjectURL(url), 0);
+    recordUsageEvent("report_downloaded");
+  }, [run]);
 
   const handleFiles = useCallback(async (fileList: FileList | null) => {
     if (!fileList || fileList.length === 0) return;
@@ -96,6 +153,13 @@ export function PhotoCheckTool() {
               <> Skipped {run.skipped.length} non-photo file{run.skipped.length === 1 ? "" : "s"}.</>
             )}
           </p>
+          <button
+            type="button"
+            onClick={downloadReport}
+            className="mt-4 rounded-lg bg-brand-500 px-4 py-2 text-sm font-semibold text-slate-950 transition hover:bg-brand-400"
+          >
+            Download dated Markdown record
+          </button>
 
           <ul className="mt-4 divide-y divide-white/10 overflow-hidden rounded-xl border border-white/10">
             {run.reports.map((report) => (
