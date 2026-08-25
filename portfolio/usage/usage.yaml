@@ -14,7 +14,8 @@ products:
           live_url_visitors: null
           local_calculation_events: 0
           payment_draft_copies: 0
-        note: Shipped browser-local retainage and payment-delay worksheet; public URL remains owner-gated.
+          summary_downloads: 0
+        note: Added private summary export to the browser-local retainage worksheet; public URL remains owner-gated.
 
   - slug: 3pl-quote-normalizer
     surface: static-page-in-repo
