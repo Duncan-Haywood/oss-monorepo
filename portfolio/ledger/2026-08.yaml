@@ -1,5 +1,21 @@
 period: 2026-08
 entries:
+  - venture: vendor-change-evidence
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Graduated and implemented a local-first vendor change evidence workflow.
+        Users can capture customer-selected public SaaS policy pages or offline
+        files, compare source-linked snapshots, and export a dated raw diff
+        without accounts, hosted storage, paid APIs, or payment collection.
+        Failed fetches remain explicitly inconclusive and are excluded from
+        later comparison baselines. The product includes a visible disclaimer,
+        privacy boundary, opt-out aggregate usage counter, MIT license, sitemap,
+        and robots.txt. Practitioner demand and public distribution remain
+        unmeasured; GitHub Actions checks are currently blocked by repository
+        billing rather than a code failure.
+    mrr_end: null
   - venture: retainage-cashflow-calculator
     agent_spend_usd: null
     human_hours: 0

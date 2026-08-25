@@ -1,3 +1,4 @@
+import hashlib
 import json
 import subprocess
 import sys
@@ -34,6 +35,26 @@ class VendorEvidenceTests(unittest.TestCase):
             report = self.run_cli("diff", "--url", url, "--store", store).stdout
             self.assertIn("Changed since prior snapshot: inconclusive", report)
             self.assertIn("Fetch failed", report)
+
+    def test_failed_snapshot_does_not_become_comparison_baseline(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            tmp = Path(tmp); store = tmp / "snapshots"; url = "https://vendor.example/terms"
+            store.mkdir()
+            text = "same\n"
+            digest = hashlib.sha256(text.encode()).hexdigest()
+            snapshots = [
+                {"captured_at": "2026-08-25T01:00:00Z", "source": url,
+                 "source_type": "url", "status": 200, "sha256": digest, "text": text},
+                {"captured_at": "2026-08-25T02:00:00Z", "source": url,
+                 "source_type": "url", "status": None, "sha256": hashlib.sha256(b"").hexdigest(),
+                 "text": "", "inconclusive": True, "error": "timeout"},
+                {"captured_at": "2026-08-25T03:00:00Z", "source": url,
+                 "source_type": "url", "status": 200, "sha256": digest, "text": text},
+            ]
+            for index, snapshot in enumerate(snapshots):
+                (store / f"snapshot-{index}.json").write_text(json.dumps(snapshot), encoding="utf-8")
+            report = self.run_cli("diff", "--url", url, "--store", store).stdout
+            self.assertIn("Changed since prior snapshot: no", report)
 
 
 if __name__ == "__main__":

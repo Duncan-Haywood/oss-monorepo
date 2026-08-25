@@ -64,14 +64,21 @@ def records(store, source):
     return [record for _, record in sorted(found)]
 
 
+def source_from_args(args):
+    if bool(args.url) == bool(args.file):
+        raise SystemExit("provide exactly one of --url or --file")
+    return args.url or str(pathlib.Path(args.file).resolve())
+
+
 def diff_report(args):
-    source = args.url or str(pathlib.Path(args.file).resolve())
+    source = source_from_args(args)
     history = records(args.store, source)
     if not history:
         raise SystemExit("no snapshots found for this source")
     current = history[-1]
-    previous = history[-2] if len(history) > 1 else None
     inconclusive = current.get("inconclusive", False)
+    valid_history = [record for record in history[:-1] if not record.get("inconclusive", False)]
+    previous = valid_history[-1] if valid_history else None
     changed = not inconclusive and previous is not None and current["sha256"] != previous["sha256"]
     lines = ["# Vendor change evidence", "", f"Source: {source}", f"Checked: {current['captured_at']}",
              f"Fetch status: {current.get('status') or 'local file'}", "Changed since prior snapshot: inconclusive" if inconclusive else f"Changed since prior snapshot: {'yes' if changed else 'no'}", ""]
@@ -107,7 +114,10 @@ def main():
     report = sub.add_parser("diff")
     report.add_argument("--url"); report.add_argument("--file"); report.add_argument("--store", default="snapshots"); report.add_argument("--format", choices=["markdown", "json"], default="markdown"); report.add_argument("--usage-file")
     report.set_defaults(func=diff_report)
-    args = parser.parse_args(); args.func(args)
+    args = parser.parse_args()
+    if args.func is capture:
+        source_from_args(args)
+    args.func(args)
 
 
 if __name__ == "__main__":
