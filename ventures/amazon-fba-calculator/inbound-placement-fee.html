@@ -1,0 +1,91 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Amazon inbound placement fee vs splitting the shipment</title>
+  <meta name="description" content="Is Amazon inbound placement cheaper than splitting a shipment? Add one-warehouse freight plus the placement fee and compare it with extra freight on Amazon's optimized split.">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="inbound-placement-fee.html">
+  <meta property="og:title" content="Amazon inbound placement fee vs splitting the shipment">
+  <meta property="og:description" content="The inbound decision is not the blended per-unit number. It is freight to one warehouse plus Amazon's placement fee versus extra freight to follow the split.">
+  <meta property="og:type" content="article">
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "mainEntity": [
+      {
+        "@type": "Question",
+        "name": "What is the Amazon inbound placement service fee?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "It is a per-unit fee Amazon charges when a shipment is sent to fewer fulfillment centers than the Amazon-optimized split. Sending to one warehouse usually costs the highest placement fee. Following Amazon's split usually costs $0 placement and more freight."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Is it cheaper to pay inbound placement or split the shipment?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Compare three totals at the same unit count: freight to one warehouse plus the minimal placement fee; freight for a partial split plus the partial placement fee; and freight for the Amazon-optimized split plus its placement fee (often $0). The cheaper total inbound is the one to send. Paste the fees from your inbound preview — this page does not publish Amazon's live schedule."
+        }
+      }
+    ]
+  }
+  </script>
+  <style>
+    :root { font-family: system-ui, sans-serif; color: #1b2433; background: #eef2f8; }
+    body { max-width: 720px; margin: 0 auto; padding: 32px 18px 64px; line-height: 1.55; }
+    a { color: #1f4f8a; }
+    h1 { font-size: clamp(1.8rem, 5vw, 2.6rem); letter-spacing: -.04em; line-height: 1.1; }
+    footer { margin-top: 2rem; font-size: .85rem; color: #445064; }
+  </style>
+</head>
+<body>
+  <p><a href="./">← Amazon FBA vs FBM calculator</a></p>
+  <h1>Is Amazon inbound placement cheaper than splitting the shipment?</h1>
+  <p>
+    Sellers search for “Amazon inbound placement fee” because the listing
+    calculator’s inbound field hides the real trade. That number is usually
+    freight plus placement blended into one unit cost. The decision Amazon
+    actually offers on a create-shipment flow is three splits:
+  </p>
+  <p>
+    <strong>Send to one warehouse</strong> — cheapest freight, highest
+    per-unit inbound placement fee.
+    <strong>Partial split</strong> — more destinations, a mid placement fee.
+    <strong>Amazon-optimized split</strong> — the destinations Amazon asks
+    for, usually $0 placement, more freight and more labels.
+  </p>
+  <p>
+    On a 200-unit large-standard example — $85 to one warehouse, $140 for a
+    partial split, $210 to follow Amazon’s split, and illustrative placement
+    of $0.43 / $0.27 / $0 — one warehouse totals $171, the partial split
+    $194, and the optimized split $210. Paying placement is $23 cheaper
+    than the next option. Flip the freight quotes to $90 / $105 / $120 and
+    a $0.55 minimal placement fee, and the optimized split wins by $80.
+  </p>
+  <p>
+    The extra freight the optimized split can absorb before one warehouse
+    wins is the placement fee you avoid: units × (minimal − optimized
+    placement). If your extra freight is under that number, follow the
+    split. If it is over, send to one warehouse and pay placement.
+  </p>
+  <p>
+    Rates change by size tier, weight, and account. This page does not
+    publish Amazon’s live inbound-placement schedule. Open the
+    <a href="./#inbound-placement">inbound placement comparison</a>, paste
+    the per-unit fees from your current inbound preview and the freight
+    quotes you actually have, and send the cheaper total.
+  </p>
+  <p>
+    The calculator is arithmetic, not advice. It does not recommend a split,
+    and it does not claim a shipment is cheaper after Amazon reprices
+    freight or placement.
+  </p>
+  <footer>
+    <p><strong>No warranty.</strong> This is not tax, financial, or business advice. Verify every rate against your Amazon inbound preview and carrier quote before relying on it.</p>
+  </footer>
+</body>
+</html>

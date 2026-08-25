@@ -28,6 +28,26 @@ export const SIZE_TIER_LABELS = {
   extra_large: "Extra-large",
 };
 
+// Illustrative 2025–26 US inbound placement mid-band defaults.
+// Amazon charges a per-unit placement fee when a shipment is sent to fewer
+// fulfillment centers than its "optimized" split. Sellers replace these with
+// the fees on their current inbound-placement preview — this is not Amazon's
+// live schedule.
+export const PLACEMENT_PRESETS = {
+  small_standard: { label: "Small standard", minimalPerUnit: 0.32, partialPerUnit: 0.21 },
+  large_standard: { label: "Large standard", minimalPerUnit: 0.43, partialPerUnit: 0.27 },
+  large_bulky: { label: "Large bulky", minimalPerUnit: 1.86, partialPerUnit: 1.11 },
+  extra_large: { label: "Extra-large", minimalPerUnit: 3.12, partialPerUnit: 1.87 },
+};
+
+export const PLACEMENT_PATH_LABELS = {
+  minimal: "Send to one warehouse",
+  partial: "Partial split",
+  optimized: "Amazon-optimized split",
+};
+
+const PLACEMENT_PATHS = /** @type {const} */ (["minimal", "partial", "optimized"]);
+
 const FULFILLMENT_METHODS = new Set(["fba", "fbm"]);
 
 function number(value, name, fallback = 0) {
@@ -55,6 +75,16 @@ export function applyStoragePreset(input, seasonId) {
   const preset = STORAGE_PRESETS[seasonId];
   if (!preset) throw new Error(`Unknown storage season: ${seasonId}`);
   return { ...input, storageRate: preset.perCuFt };
+}
+
+export function applyPlacementPreset(input, sizeTier) {
+  const preset = PLACEMENT_PRESETS[sizeTier];
+  if (!preset) throw new Error(`Unknown size tier: ${sizeTier}`);
+  return {
+    ...input,
+    placementMinimalPerUnit: preset.minimalPerUnit,
+    placementPartialPerUnit: preset.partialPerUnit,
+  };
 }
 
 export function cubicFeet({ length, width, height }) {
@@ -236,5 +266,63 @@ export function calculateListing(input) {
     fbm,
     fbaAdvantage,
     cheaperPath: fbaAdvantage > 0 ? "fba" : fbaAdvantage < 0 ? "fbm" : "tie",
+  };
+}
+
+// Freight to one FC vs Amazon's inbound placement fee is the weekly inbound
+// decision. The listing calculator's "inbound / unit" field is a blended
+// number; this comparison keeps freight and placement on separate lines so a
+// seller can see whether following Amazon's split actually costs less.
+export function compareInboundPlacement(input) {
+  const units = number(input.units, "Shipment units");
+  if (units === 0) {
+    throw new Error("Shipment units must be greater than zero");
+  }
+
+  const freight = {
+    minimal: number(input.freightMinimal, "Single-destination freight"),
+    partial: number(input.freightPartial, "Partial-split freight"),
+    optimized: number(input.freightOptimized, "Amazon-optimized freight"),
+  };
+  const placementPerUnit = {
+    minimal: number(input.placementMinimalPerUnit, "Minimal placement fee per unit"),
+    partial: number(input.placementPartialPerUnit, "Partial placement fee per unit"),
+    optimized: number(input.placementOptimizedPerUnit, "Optimized placement fee per unit", 0),
+  };
+
+  /** @type {Record<string, {id: string, label: string, freight: number, placementPerUnit: number, placementTotal: number, total: number, perUnit: number}>} */
+  const paths = {};
+  for (const id of PLACEMENT_PATHS) {
+    const placementTotal = units * placementPerUnit[id];
+    const total = freight[id] + placementTotal;
+    paths[id] = {
+      id,
+      label: PLACEMENT_PATH_LABELS[id],
+      freight: freight[id],
+      placementPerUnit: placementPerUnit[id],
+      placementTotal,
+      total,
+      perUnit: total / units,
+    };
+  }
+
+  const ranked = PLACEMENT_PATHS.map((id) => paths[id]).sort((a, b) => a.total - b.total);
+  const cheapestTotal = ranked[0].total;
+  const cheapestIds = ranked.filter((path) => Math.abs(path.total - cheapestTotal) < 1e-9).map((path) => path.id);
+  const winner = cheapestIds.length === 1 ? cheapestIds[0] : "tie";
+  const nextBestDelta = ranked.length > 1 ? ranked[1].total - cheapestTotal : 0;
+
+  return {
+    units,
+    paths,
+    ranked,
+    winner,
+    cheapestIds,
+    extraVsCheapest: Object.fromEntries(
+      PLACEMENT_PATHS.map((id) => [id, paths[id].total - cheapestTotal]),
+    ),
+    nextBestDelta,
+    extraFreightOptimizedCanCarry: paths.minimal.placementTotal - paths.optimized.placementTotal,
+    extraFreightPartialCanCarry: paths.minimal.placementTotal - paths.partial.placementTotal,
   };
 }

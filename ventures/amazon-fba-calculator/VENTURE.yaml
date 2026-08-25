@@ -1,5 +1,5 @@
 name: amazon-fba-calculator
-description: A private browser calculator for Amazon sellers to compare FBA vs FBM profit on the same listing after referral, fulfillment, storage, inbound, and cost of goods — including the maximum inventory buy cost.
+description: A private browser calculator for Amazon sellers to compare FBA vs FBM profit on the same listing after referral, fulfillment, storage, inbound, and cost of goods — including inbound placement vs split freight and the maximum inventory buy cost.
 stage: prototype
 owner: duncan
 hypotheses:
@@ -8,6 +8,10 @@ hypotheses:
     checked: null
     evidence: customer-contact
   - claim: Seeing the maximum buy cost next to both fulfillment paths changes a sourcing decision before the seller pays for inventory.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: Sellers will return to compare inbound placement against split freight on a real shipment, because the listing inbound field hides that trade.
     status: untested
     checked: null
     evidence: customer-contact

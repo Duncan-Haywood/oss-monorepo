@@ -256,6 +256,14 @@ products:
           fulfillment, storage, inbound, max buy cost, both-path comparison).
           Public URL remains owner-gated; the local-first counter reports only
           to the user's own browser and is opt-out. Baseline row.
+      - as_of: 2026-08-25
+        signals:
+          live_url_visitors: null
+          local_events_reported: 0
+        note: >-
+          Added inbound-placement vs split-freight comparison
+          (compareInboundPlacement). Public URL remains owner-gated; the
+          local counter now also records inbound_placement_compared.
   - slug: einvoice-preflight
     surface: local-cli
     readings:

@@ -29,8 +29,10 @@ test("honors opt out", () => {
 test("records named feature events without storing inputs", () => {
   const storage = fakeStorage();
   recordUsage(storage, false, "fulfillment_path_compared");
+  recordUsage(storage, false, "inbound_placement_compared");
   const stored = JSON.parse(storage.getItem("amazon-fba-usage"));
   assert.equal(stored.fulfillment_path_compared, 1);
+  assert.equal(stored.inbound_placement_compared, 1);
   assert.ok(stored.last_day);
 });
 

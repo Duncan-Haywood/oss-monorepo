@@ -2,12 +2,15 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import {
   applyCategoryPreset,
+  applyPlacementPreset,
   applyStoragePreset,
   calculateListing,
   CATEGORY_PRESETS,
   classifySizeTier,
+  compareInboundPlacement,
   cubicFeet,
   defaultFulfillmentFee,
+  PLACEMENT_PRESETS,
   STORAGE_PRESETS,
 } from "./calc.mjs";
 
@@ -175,6 +178,7 @@ test("applyCategoryPreset and applyStoragePreset fill illustrative rates", () =>
 test("rejects unknown presets and invalid inputs", () => {
   assert.throws(() => applyCategoryPreset({}, "widgets"), /Unknown Amazon category/);
   assert.throws(() => applyStoragePreset({}, "summer"), /Unknown storage season/);
+  assert.throws(() => applyPlacementPreset({}, "envelope"), /Unknown size tier/);
   assert.throws(() => calculateListing({ salePrice: -1 }), /Sale price/);
   assert.throws(() => calculateListing({ salePrice: "abc" }), /Sale price/);
   assert.throws(() => calculateListing({ salePrice: 10, targetMargin: 100 }), /less than 100/);
@@ -184,4 +188,75 @@ test("rejects unknown presets and invalid inputs", () => {
     /Monthly units/,
   );
   assert.throws(() => defaultFulfillmentFee("envelope", 1), /Unknown size tier/);
+});
+
+test("applyPlacementPreset fills illustrative inbound placement rates", () => {
+  const filled = applyPlacementPreset({}, "large_standard");
+  assert.equal(filled.placementMinimalPerUnit, PLACEMENT_PRESETS.large_standard.minimalPerUnit);
+  assert.equal(filled.placementPartialPerUnit, PLACEMENT_PRESETS.large_standard.partialPerUnit);
+});
+
+// 200 large-standard units. One-warehouse freight is cheap; Amazon's placement
+// fee on that path still beats paying much more freight to split the shipment.
+test("one-warehouse inbound wins when extra freight exceeds the placement fee", () => {
+  const r = compareInboundPlacement({
+    units: 200,
+    freightMinimal: 85,
+    freightPartial: 140,
+    freightOptimized: 210,
+    placementMinimalPerUnit: 0.43,
+    placementPartialPerUnit: 0.27,
+    placementOptimizedPerUnit: 0,
+  });
+  near(r.paths.minimal.placementTotal, 86, "200 × $0.43");
+  near(r.paths.minimal.total, 171, "85 + 86");
+  near(r.paths.partial.total, 194, "140 + 54");
+  near(r.paths.optimized.total, 210, "210 + 0");
+  assert.equal(r.winner, "minimal");
+  near(r.nextBestDelta, 23, "partial is next");
+  near(r.extraVsCheapest.optimized, 39, "optimized costs $39 more");
+  near(r.paths.minimal.perUnit, 171 / 200, "blended inbound / unit");
+  near(r.extraFreightOptimizedCanCarry, 86, "placement avoided by splitting");
+});
+
+// Same 200 units, but the split only costs a little more in freight. Paying
+// Amazon to accept a single destination is then the expensive path.
+test("Amazon-optimized split wins when extra freight is less than placement", () => {
+  const r = compareInboundPlacement({
+    units: 200,
+    freightMinimal: 90,
+    freightPartial: 105,
+    freightOptimized: 120,
+    placementMinimalPerUnit: 0.55,
+    placementPartialPerUnit: 0.32,
+    placementOptimizedPerUnit: 0,
+  });
+  near(r.paths.minimal.total, 200, "90 + 110");
+  near(r.paths.partial.total, 169, "105 + 64");
+  near(r.paths.optimized.total, 120, "120 + 0");
+  assert.equal(r.winner, "optimized");
+  near(r.nextBestDelta, 49, "partial is next");
+  near(r.extraVsCheapest.minimal, 80, "one warehouse costs $80 more");
+});
+
+test("reports a tie when every inbound path costs the same", () => {
+  const r = compareInboundPlacement({
+    units: 100,
+    freightMinimal: 50,
+    freightPartial: 40,
+    freightOptimized: 30,
+    placementMinimalPerUnit: 0.2,
+    placementPartialPerUnit: 0.3,
+    placementOptimizedPerUnit: 0.4,
+  });
+  near(r.paths.minimal.total, 70, "tie total");
+  assert.equal(r.winner, "tie");
+  assert.deepEqual(r.cheapestIds, ["minimal", "partial", "optimized"]);
+  near(r.nextBestDelta, 0, "no cheaper alternative");
+});
+
+test("rejects empty or invalid inbound-placement inputs", () => {
+  assert.throws(() => compareInboundPlacement({ units: 0, freightMinimal: 10 }), /greater than zero/);
+  assert.throws(() => compareInboundPlacement({ units: -2, freightMinimal: 10 }), /Shipment units/);
+  assert.throws(() => compareInboundPlacement({ units: 10, freightMinimal: "abc" }), /Single-destination freight/);
 });

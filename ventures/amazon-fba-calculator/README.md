@@ -13,8 +13,9 @@ an estimate of the fees Amazon will charge: enter the rates from your current
 fee preview, and verify them there.
 
 **After using this, you can now see whether FBA or FBM leaves more on a real
-SKU, and the most you can pay a supplier for that unit** — which used to mean
-a spreadsheet that forgot storage, inbound, or the professional plan.
+SKU, the most you can pay a supplier for that unit, and whether Amazon's
+inbound placement fee is cheaper than splitting the shipment** — which used
+to mean a spreadsheet that forgot storage, inbound, or the professional plan.
 
 ## Why it's different
 
@@ -33,6 +34,13 @@ units, and shows **both paths on the same listing**.
 
 [FBA vs FBM: which path leaves more?](fba-vs-fbm.html) answers that search
 question directly.
+
+A second weekly decision sits on the inbound create-shipment flow:
+**pay Amazon's inbound placement fee and send to one warehouse, or pay extra
+freight to follow the split.**
+[Is Amazon inbound placement cheaper than splitting the shipment?](inbound-placement-fee.html)
+keeps freight and placement on separate lines. The listing "inbound / unit"
+field is a blended number and hides that trade.
 
 **No warranty.** This tool is provided free and as-is, without warranty of any
 kind, express or implied. It is not tax, financial, or business advice, and it
@@ -64,9 +72,9 @@ Pure ES modules, no build step, no dependencies.
 node --test        # runs calc.test.mjs and usage.test.mjs
 ```
 
-`calc.mjs` holds the fee/profit/ROI arithmetic, size-tier classification, and
-category presets; `usage.mjs` holds the anonymous local counter; `index.html`
-is the calculator UI.
+`calc.mjs` holds the fee/profit/ROI arithmetic, size-tier classification,
+category presets, and inbound-placement comparison; `usage.mjs` holds the
+anonymous local counter; `index.html` is the calculator UI.
 
 Not yet deployed to a public URL — publishing under the portfolio's name is
 owner-gated per `portfolio/DIRECTION.md` — but the page is ready to host as

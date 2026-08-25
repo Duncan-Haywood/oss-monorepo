@@ -3,8 +3,8 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Amazon FBA vs FBM Profit Calculator | Max Buy Cost</title>
-  <meta name="description" content="Free Amazon FBA vs FBM calculator: see referral fees, fulfillment, storage, and inbound on the same listing. Get net profit, ROI, break-even sale price, and the maximum you can pay for inventory.">
+  <title>Amazon FBA vs FBM Profit Calculator | Inbound Placement vs Split Freight</title>
+  <meta name="description" content="Free Amazon FBA vs FBM calculator: see referral fees, fulfillment, storage, and inbound on the same listing. Compare Amazon inbound placement fees against split freight, then get net profit, ROI, and the maximum you can pay for inventory.">
   <meta name="robots" content="index, follow">
   <link rel="canonical" href=".">
   <meta property="og:title" content="Amazon FBA vs FBM Profit Calculator">
@@ -18,7 +18,7 @@
     "applicationCategory": "BusinessApplication",
     "operatingSystem": "Any (runs in a web browser)",
     "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
-    "featureList": "FBA vs FBM comparison, size-tier fulfillment, storage, inbound, net profit, margin, ROI, break-even price, max buy cost, target-margin price"
+    "featureList": "FBA vs FBM comparison, inbound placement vs split freight, size-tier fulfillment, storage, inbound, net profit, margin, ROI, break-even price, max buy cost, target-margin price"
   }
   </script>
   <script type="application/ld+json">
@@ -48,6 +48,14 @@
         "acceptedAnswer": {
           "@type": "Answer",
           "text": "The max buy cost is the cost of goods that drives net profit to zero after the referral fee and the fulfillment-path costs you entered. Buy above that number and the unit loses money on these assumptions."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Is Amazon inbound placement cheaper than splitting a shipment?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Add the freight you would pay to one warehouse plus Amazon's per-unit inbound placement fee, then compare that total with the extra freight of a partial or Amazon-optimized split. The cheaper total inbound is the one to send. This page does the arithmetic from the rates you enter; it does not publish Amazon's live placement schedule."
         }
       }
     ]
@@ -83,6 +91,13 @@
     footer { margin-top: 25px; font-size: .82rem; color: #445064; }
     footer a { color: #1f4f8a; }
     .faq { margin-top: 18px; }
+    .placement { margin-top: 18px; }
+    .placement .fields { max-width: 760px; }
+    .placement-verdict { font-size: 1.25rem; font-weight: 700; margin: 0 0 12px; }
+    .placement table { color: inherit; }
+    .placement th, .placement td { border-bottom: 1px solid #d5deea; text-align: right; }
+    .placement th:first-child, .placement td:first-child { text-align: left; }
+    .winner-row { font-weight: 700; }
     .error { color: #ffb0a2; }
     .hint { font-weight: 500; font-size: .78rem; color: #5a6b82; }
     @media (max-width: 800px) { .layout { grid-template-columns: 1fr; } .result { position: static; } .fields { grid-template-columns: 1fr; } }
@@ -173,6 +188,44 @@
       <p class="note">Transparent arithmetic from your inputs — not Amazon’s current fee schedule. Referral, fulfillment, storage, and inbound vary by category, size, season, and account. Verify against your Amazon fee preview before buying inventory.</p>
     </section>
   </main>
+  <section class="placement" id="inbound-placement" aria-labelledby="placement-heading">
+    <h2 id="placement-heading">Inbound placement vs split freight</h2>
+    <p>
+      Amazon’s inbound placement fee is what you pay to send a shipment to
+      fewer warehouses than its “optimized” split. The listing field above
+      is a blended inbound per unit. This table keeps freight and placement
+      on separate lines so you can see whether following the split actually
+      costs less.
+    </p>
+    <div class="fields">
+      <label>Units in this inbound shipment <input id="placementUnits" type="number" min="1" step="1" value="200"></label>
+      <label>Freight to one warehouse ($) <input id="freightMinimal" type="number" min="0" step="0.01" value="85"></label>
+      <label>Freight for a partial split ($) <input id="freightPartial" type="number" min="0" step="0.01" value="140"></label>
+      <label>Freight for Amazon-optimized split ($) <input id="freightOptimized" type="number" min="0" step="0.01" value="210"></label>
+      <label>Placement fee / unit, one warehouse <span class="hint" id="placementMinimalHint"></span>
+        <input id="placementMinimalPerUnit" type="number" min="0" step="0.01" value="0.43">
+      </label>
+      <label>Placement fee / unit, partial split <span class="hint" id="placementPartialHint"></span>
+        <input id="placementPartialPerUnit" type="number" min="0" step="0.01" value="0.27">
+      </label>
+    </div>
+    <p class="placement-verdict" id="placementVerdict">—</p>
+    <table>
+      <thead>
+        <tr>
+          <th>Split</th>
+          <th>Freight</th>
+          <th>Placement</th>
+          <th>Total inbound</th>
+          <th>Per unit</th>
+          <th>vs cheapest</th>
+        </tr>
+      </thead>
+      <tbody id="placementCompare"></tbody>
+    </table>
+    <p class="note" id="placementCarry"></p>
+    <p class="note">Illustrative US placement defaults from the size tier — not Amazon’s live inbound-placement schedule. Paste the per-unit fees from your inbound preview and the freight quotes you actually have.</p>
+  </section>
   <section class="faq" aria-labelledby="faq-heading">
     <h2 id="faq-heading">What this checks</h2>
     <p>
@@ -183,6 +236,9 @@
       still works.
       <a href="fba-vs-fbm.html">FBA vs FBM: which path leaves more?</a>
       walks through that in search-query words.
+      After you pick a path, the inbound decision is
+      <strong>placement fee versus extra freight</strong>:
+      <a href="inbound-placement-fee.html">Is Amazon inbound placement cheaper than splitting the shipment?</a>
     </p>
     <p>
       It does not recommend a price, a category, or a fulfillment method, and
@@ -199,8 +255,10 @@
   <script type="module">
     import {
       applyCategoryPreset,
+      applyPlacementPreset,
       applyStoragePreset,
       calculateListing,
+      compareInboundPlacement,
     } from "./calc.mjs";
     import { recordUsage } from "./usage.mjs";
 
@@ -210,8 +268,13 @@
       "inboundPerUnit", "fbmShippingCost", "packagingCost", "adsPerUnit",
       "otherCost", "monthlySellerFee", "monthlyUnits", "targetMargin",
     ];
+    const placementIds = [
+      "placementUnits", "freightMinimal", "freightPartial", "freightOptimized",
+      "placementMinimalPerUnit", "placementPartialPerUnit",
+    ];
     const money = (value) => `$${value.toFixed(2)}`;
     let syncingFee = false;
+    let syncingPlacement = false;
 
     function fulfillmentMethod() {
       return document.querySelector('input[name="fulfillmentMethod"]:checked').value;
@@ -236,13 +299,74 @@
           field.dataset.auto = "1";
           syncingFee = false;
         }
+        syncPlacementRates(result.sizeTier, result.sizeTierLabel);
       } catch {
         document.getElementById("sizeHint").textContent = "";
       }
     }
 
+    function syncPlacementRates(sizeTier, sizeTierLabel) {
+      try {
+        const filled = applyPlacementPreset({}, sizeTier);
+        const minimal = document.getElementById("placementMinimalPerUnit");
+        const partial = document.getElementById("placementPartialPerUnit");
+        document.getElementById("placementMinimalHint").textContent =
+          `(${sizeTierLabel} default $${filled.placementMinimalPerUnit.toFixed(2)})`;
+        document.getElementById("placementPartialHint").textContent =
+          `(${sizeTierLabel} default $${filled.placementPartialPerUnit.toFixed(2)})`;
+        if (minimal.dataset.auto !== "0") {
+          syncingPlacement = true;
+          minimal.value = filled.placementMinimalPerUnit.toFixed(2);
+          minimal.dataset.auto = "1";
+          syncingPlacement = false;
+        }
+        if (partial.dataset.auto !== "0") {
+          syncingPlacement = true;
+          partial.value = filled.placementPartialPerUnit.toFixed(2);
+          partial.dataset.auto = "1";
+          syncingPlacement = false;
+        }
+      } catch {
+        document.getElementById("placementMinimalHint").textContent = "";
+        document.getElementById("placementPartialHint").textContent = "";
+      }
+    }
+
+    function updatePlacement() {
+      try {
+        const raw = Object.fromEntries(placementIds.map((id) => [id, document.getElementById(id).value]));
+        const result = compareInboundPlacement({
+          units: raw.placementUnits,
+          freightMinimal: raw.freightMinimal,
+          freightPartial: raw.freightPartial,
+          freightOptimized: raw.freightOptimized,
+          placementMinimalPerUnit: raw.placementMinimalPerUnit,
+          placementPartialPerUnit: raw.placementPartialPerUnit,
+          placementOptimizedPerUnit: 0,
+        });
+        const winnerLabel = result.winner === "tie"
+          ? "These splits cost the same"
+          : `${result.paths[result.winner].label} — ${money(result.nextBestDelta)} less than the next option`;
+        document.getElementById("placementVerdict").textContent = winnerLabel;
+        document.getElementById("placementCompare").innerHTML = result.ranked.map((path) => {
+          const vs = result.extraVsCheapest[path.id];
+          const rowClass = result.cheapestIds.includes(path.id) ? "winner-row" : "";
+          return `<tr class="${rowClass}"><td>${path.label}</td><td>${money(path.freight)}</td><td>${money(path.placementTotal)}</td><td>${money(path.total)}</td><td>${money(path.perUnit)}</td><td>${vs === 0 ? "cheapest" : `+${money(vs)}`}</td></tr>`;
+        }).join("");
+        const carry = result.extraFreightOptimizedCanCarry;
+        document.getElementById("placementCarry").textContent = carry > 0
+          ? `The Amazon-optimized split can cost up to ${money(carry)} more in freight before one warehouse plus placement is cheaper.`
+          : `One-warehouse placement is ${money(-carry)} cheaper than the optimized split's placement line, so extra freight on the split has to be even smaller to win.`;
+      } catch (error) {
+        document.getElementById("placementVerdict").textContent = error.message;
+        document.getElementById("placementCompare").innerHTML = "";
+        document.getElementById("placementCarry").textContent = "Fix the inbound shipment inputs to see the comparison.";
+      }
+    }
+
     function update() {
       updateFeePlaceholder();
+      updatePlacement();
       try {
         const result = calculateListing(readInput());
         const profitEl = document.getElementById("profit");
@@ -315,6 +439,15 @@
         recordUsage(localStorage, document.getElementById("usageOptOut").checked, "fulfillment_path_compared");
       });
     });
+    placementIds.forEach((id) => document.getElementById(id).addEventListener("input", () => {
+      if ((id === "placementMinimalPerUnit" || id === "placementPartialPerUnit") && !syncingPlacement) {
+        document.getElementById(id).dataset.auto = "0";
+      }
+      updatePlacement();
+    }));
+    placementIds.forEach((id) => document.getElementById(id).addEventListener("change", () => {
+      recordUsage(localStorage, document.getElementById("usageOptOut").checked, "inbound_placement_compared");
+    }));
     document.getElementById("usageOptOut").addEventListener("change", update);
     update();
   </script>
