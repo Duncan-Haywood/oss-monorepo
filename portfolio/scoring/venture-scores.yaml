@@ -909,3 +909,39 @@ ventures:
       Pass: output is a planning floor from user-supplied assumptions, not
       financial advice or a guarantee of income, tax treatment, or contract
       enforceability; all data stays in the browser.
+
+  - slug: crawl-space-encapsulation-bid-calculator
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 7
+      gross_margin: 10
+      defensibility: 5
+      distribution: 7
+    composite: 6.667
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      There is no AI anywhere in the product. The value is a domain model —
+      liner versus sealed encapsulate, hatch versus belly-crawl versus wet
+      access — that is arithmetic, and adding inference to it would
+      only make the result less checkable.
+    basis: >-
+      Graduated on 2026-08-25 as a browser-local crawl space encapsulation
+      bid calculator. Distinct from basement waterproofing (an interior
+      perimeter drain in a finished basement, window wells, a sump pit),
+      French drain (a yard trench), sump-pump (a pit and a discharge),
+      radon (SSD pipes), foundation repair (piers as the job), mold
+      (containment), spray-foam (board-foot insulation as the job), and
+      attic blown-in (bags above a ceiling). Search intent is explicit
+      in queries such as how much to charge for crawl space encapsulation
+      and crawl space encapsulation cost calculator.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Pass: output is a draft bid from user-supplied rates, not a
+      waterproofing specification, an engineered stamp, a radon or mold
+      clearance, or a standard or benchmark, and nothing the user enters
+      leaves the browser.
