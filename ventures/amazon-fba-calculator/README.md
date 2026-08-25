@@ -15,8 +15,10 @@ fee preview, and verify them there.
 **After using this, you can now see whether FBA or FBM leaves more on a real
 SKU, the most you can pay a supplier for that unit, whether staying under
 Amazon’s Low-Price FBA threshold still beats a real raise, and whether a
-coupon still hits your target after the redemption fee** — which used to
-mean a spreadsheet that forgot storage, inbound, or the pick-fee jump at $10.
+coupon still hits your target after the redemption fee, and whether a
+website order shipped MCF still beats selling the unit on Amazon** —
+which used to mean a spreadsheet that forgot storage, inbound, or the
+pick-fee jump at $10.
 
 ## Why it's different
 
@@ -45,6 +47,12 @@ referral falls, but fulfillment does not, and Amazon adds a per-redemption
 fee. [Does this Amazon coupon still pay?](does-this-amazon-coupon-still-pay.html)
 compares list against 5%, 10%, 15%, and 20%, then shows the volume lift
 needed to match this month’s list-price profit.
+
+A website order on the same FBA unit is a third decision. MCF skips
+Amazon referral and pays a higher pick fee plus your card processor.
+[Should I use Amazon MCF for website orders?](should-i-use-amazon-mcf-for-website-orders.html)
+shows leftover profit against Amazon FBA and against shipping it
+yourself, and the MCF fee that still matches Amazon.
 
 **No warranty.** This tool is provided free and as-is, without warranty of any
 kind, express or implied. It is not tax, financial, or business advice, and it
@@ -83,7 +91,8 @@ node --test        # runs calc.test.mjs, usage.test.mjs, and page.test.mjs
 ```
 
 `calc.mjs` holds the fee/profit/ROI arithmetic, size-tier classification,
-category presets, and coupon comparison; `usage.mjs` holds the anonymous
+category presets, coupon comparison, and Multi-Channel Fulfillment
+comparison; `usage.mjs` holds the anonymous
 local counter; `index.html` is the calculator UI.
 
 Not yet deployed to a public URL — publishing under the portfolio's name is

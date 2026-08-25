@@ -8,6 +8,7 @@ import {
   classifySizeTier,
   compareCoupons,
   compareLowPriceFba,
+  compareMcf,
   couponDiscount,
   couponedListing,
   couponSummary,
@@ -15,6 +16,7 @@ import {
   DEFAULT_COUPON_FEE,
   defaultFulfillmentFee,
   defaultLowPriceFulfillmentFee,
+  defaultMcfFee,
   lowPriceBreakEvenRaise,
   STORAGE_PRESETS,
 } from "./calc.mjs";
@@ -398,6 +400,102 @@ test("profit at the break-even raise matches Low-Price stay profit", () => {
   const atBreak = compareLowPriceFba({ ...cheapSku, raisePrice: r.breakEvenRaise });
   near(atBreak.raise.fba.profit, r.stay.fba.profit, "equal profit at break-even raise");
   assert.equal(atBreak.winner, "tie");
+});
+
+test("illustrative MCF fees add a size-tier premium to the FBA band", () => {
+  near(defaultMcfFee("small_standard", 0.2), 3.06 + 2.1, "4 oz MCF");
+  near(defaultMcfFee("large_standard", 0.75), 4.15 + 2.4, "12 oz MCF");
+  near(defaultMcfFee("large_bulky", 2), 9.61 + 4.8, "bulky MCF");
+  near(defaultMcfFee("extra_large", 5), 26.33 + 8, "XL MCF");
+});
+
+test("website + MCF skips referral, pays MCF plus card, and keeps inbound and storage", () => {
+  const amazon = calculateListing(base);
+  const r = compareMcf(base);
+  const processor = 29.99 * 0.029 + 0.3;
+  near(r.suggestedMcfFee, 6.55, "default MCF");
+  near(r.mcfFee, 6.55, "used fee");
+  near(r.processorFee, processor, "card");
+  near(r.amazon.profit, amazon.fba.profit, "Amazon row is FBA");
+  near(r.mcf.fees.referral, 0, "no Amazon referral on the website order");
+  near(r.mcf.fees.fulfillment, 6.55, "MCF pick fee");
+  near(r.mcf.fees.processor, processor, "card on website price");
+  near(r.mcf.cashInvested, amazon.fba.cashInvested, "same warehouse cash");
+  near(r.mcf.profit, 29.99 - 6.55 - processor - amazon.fba.cashInvested, "MCF profit");
+});
+
+test("website + you ship skips Amazon warehouse costs and uses the seller label", () => {
+  const amazon = calculateListing(base);
+  const r = compareMcf(base);
+  const processor = 29.99 * 0.029 + 0.3;
+  near(r.selfShip.fees.referral, 0, "no referral");
+  near(r.selfShip.fees.fulfillment, 0, "no MCF");
+  near(r.selfShip.cashInvested, amazon.fbm.cashInvested, "FBM-like cash");
+  near(r.selfShip.profit, 29.99 - processor - amazon.fbm.cashInvested, "self-ship profit");
+});
+
+test("worked example: local stock wins, MCF still beats Amazon by skipping referral", () => {
+  const r = compareMcf(base);
+  assert.equal(r.winner, "self");
+  assert.equal(r.mcfBeatsAmazon, true);
+  near(r.amazon.profit, 10.993291666666668, "Amazon FBA");
+  near(r.mcf.profit, 11.922081666666667, "MCF");
+  near(r.selfShip.profit, 14.970415, "you ship");
+  near(r.mcf.profitDelta, r.mcf.profit - r.amazon.profit, "MCF vs Amazon");
+  near(r.breakEvenMcfFee, 7.47879, "MCF fee that matches Amazon");
+  assert.match(r.summary, /you ship keeps \$14\.97/i);
+  assert.match(r.summary, /\$11\.92/);
+  assert.match(r.summary, /\$10\.99/);
+});
+
+test("MCF profit matches Amazon at the break-even MCF fee", () => {
+  const r = compareMcf(base);
+  const atBreak = compareMcf({ ...base, mcfFulfillmentFee: r.breakEvenMcfFee });
+  near(atBreak.mcf.profit, r.amazon.profit, "equal at break-even MCF fee");
+  assert.equal(atBreak.mcfBeatsAmazon, true);
+});
+
+test("Amazon ads stay on the Amazon row and do not tax the website paths", () => {
+  const r = compareMcf({ ...base, adsPerUnit: 2 });
+  const none = compareMcf(base);
+  near(r.amazon.cashInvested - none.amazon.cashInvested, 2, "ads on Amazon");
+  near(r.mcf.cashInvested, none.mcf.cashInvested, "MCF ignores Amazon ads");
+  near(r.selfShip.cashInvested, none.selfShip.cashInvested, "you-ship ignores Amazon ads");
+});
+
+test("a removal fee is cash on the you-ship path only", () => {
+  const r = compareMcf({ ...base, removalFee: 1.04 });
+  const none = compareMcf(base);
+  near(r.selfShip.cashInvested - none.selfShip.cashInvested, 1.04, "removal");
+  near(r.mcf.profit, none.mcf.profit, "MCF unchanged");
+  near(r.amazon.profit, none.amazon.profit, "Amazon unchanged");
+});
+
+test("MCF wins the table when the seller label is expensive", () => {
+  const r = compareMcf({ ...base, fbmShippingCost: 12 });
+  assert.equal(r.winner, "mcf");
+  assert.ok(r.mcf.profit > r.selfShip.profit);
+  assert.ok(r.mcf.profit > r.amazon.profit);
+  assert.match(r.summary, /Website \+ MCF keeps/);
+});
+
+test("Amazon wins when MCF is expensive and you-ship has no cheap local stock", () => {
+  const r = compareMcf({ ...base, mcfFulfillmentFee: 12, fbmShippingCost: 20 });
+  assert.equal(r.winner, "amazon");
+  assert.match(r.summary, /Amazon FBA keeps/);
+});
+
+test("website price can differ from the Amazon list price", () => {
+  const r = compareMcf({ ...base, dtcSalePrice: 34.99 });
+  near(r.dtcSalePrice, 34.99, "website price");
+  near(r.amazon.salePrice, 29.99, "Amazon stays at list");
+  near(r.mcf.salePrice, 34.99, "MCF uses website price");
+  assert.ok(r.mcf.profit > compareMcf(base).mcf.profit);
+});
+
+test("rejects an impossible website card rate and unknown MCF tiers", () => {
+  assert.throws(() => compareMcf({ ...base, dtcProcessorRate: 100 }), /less than 100/);
+  assert.throws(() => defaultMcfFee("envelope", 1), /Unknown size tier/);
 });
 
 test("rejects unknown presets and invalid inputs", () => {

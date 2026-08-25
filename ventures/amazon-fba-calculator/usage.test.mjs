@@ -31,10 +31,12 @@ test("records named feature events without storing inputs", () => {
   recordUsage(storage, false, "fulfillment_path_compared");
   recordUsage(storage, false, "coupon_compared");
   recordUsage(storage, false, "low_price_fba_compared");
+  recordUsage(storage, false, "mcf_compared");
   const stored = JSON.parse(storage.getItem("amazon-fba-usage"));
   assert.equal(stored.fulfillment_path_compared, 1);
   assert.equal(stored.coupon_compared, 1);
   assert.equal(stored.low_price_fba_compared, 1);
+  assert.equal(stored.mcf_compared, 1);
   assert.ok(stored.last_day);
 });
 

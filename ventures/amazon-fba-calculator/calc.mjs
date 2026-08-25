@@ -595,3 +595,187 @@ export function couponSummary(comparison) {
   }
   return `${perUnit} ${volume}`;
 }
+
+// Illustrative 2026 US Multi-Channel Fulfillment Standard defaults: the
+// same size-tier FBA band plus a typical MCF premium. Sellers replace
+// these with the MCF line on their current Amazon fee preview. MCF is
+// how a website, eBay, or Walmart order ships from FBA inventory — no
+// Amazon referral, but the pick/pack/ship fee is higher than FBA.
+const MCF_SURCHARGE = {
+  small_standard: 2.1,
+  large_standard: 2.4,
+  large_bulky: 4.8,
+  extra_large: 8,
+};
+
+export function defaultMcfFee(tier, weightLb) {
+  if (!SIZE_TIER_LABELS[tier]) throw new Error(`Unknown size tier: ${tier}`);
+  const surcharge = MCF_SURCHARGE[tier];
+  return roundMoney(defaultFulfillmentFee(tier, weightLb) + surcharge);
+}
+
+function websitePathResult({
+  salePrice,
+  processorRate,
+  processorFixed,
+  fulfillment,
+  cashInvested,
+  targetMarginRate,
+  costOfGoods,
+}) {
+  const processor = salePrice * (processorRate / 100) + processorFixed;
+  const path = pathResult({
+    revenue: salePrice,
+    percentRate: processorRate / 100,
+    cashInvested,
+    targetMarginRate,
+    feeParts: { referral: 0, fulfillment, processor },
+  });
+  path.salePrice = salePrice;
+  path.breakEvenBuyCost = Math.max(
+    0,
+    salePrice - path.feeTotal - (cashInvested - costOfGoods),
+  );
+  path.hitsTarget = salePrice === 0 ? path.profit >= 0 : path.margin + 1e-9 >= targetMarginRate * 100;
+  return path;
+}
+
+function mcfSummary({ winner, amazon, mcf, selfShip, mcfFee, breakEvenMcfFee }) {
+  const amazonProfit = moneyLabel(amazon.profit);
+  const mcfProfit = moneyLabel(mcf.profit);
+  const selfProfit = moneyLabel(selfShip.profit);
+  const fee = moneyLabel(mcfFee);
+  const cap = Number.isFinite(breakEvenMcfFee) ? moneyLabel(breakEvenMcfFee) : "an unreachable fee";
+  if (winner === "mcf") {
+    return `Website + MCF keeps ${mcfProfit} after a ${fee} MCF fee and card processing — ${moneyLabel(Math.abs(mcf.profit - amazon.profit))} more than Amazon FBA at ${amazonProfit}. MCF still beats Amazon up to about ${cap}.`;
+  }
+  if (winner === "self") {
+    return `Website + you ship keeps ${selfProfit}, ahead of MCF at ${mcfProfit} and Amazon FBA at ${amazonProfit}. That path assumes the unit is already outside Amazon (or the removal fee is in the inputs).`;
+  }
+  if (winner === "amazon") {
+    return `Amazon FBA keeps ${amazonProfit}, ahead of website + MCF at ${mcfProfit}. The MCF fee that would match Amazon is about ${cap}; the typed MCF fee is ${fee}.`;
+  }
+  return `Amazon FBA, website + MCF, and website + you ship leave the same profit on these rates.`;
+}
+
+/**
+ * Compare selling the next unit on Amazon (FBA referral + FBA pick fee)
+ * against a website order fulfilled from the same FBA inventory (MCF,
+ * no referral, card fees) and a website order you ship yourself (card
+ * fees + your label, no Amazon referral or warehouse stay). Amazon ads
+ * stay on the Amazon row only. Inbound and storage stay on Amazon and
+ * MCF. You-ship adds an optional removal fee when the unit has to leave
+ * the Amazon warehouse first.
+ */
+export function compareMcf(input) {
+  const amazonPrice = number(input.salePrice, "Sale price");
+  const dtcSalePrice =
+    input.dtcSalePrice === undefined || input.dtcSalePrice === null || input.dtcSalePrice === ""
+      ? amazonPrice
+      : number(input.dtcSalePrice, "Website sale price");
+  const processorRate = number(input.dtcProcessorRate, "Website card rate", 2.9);
+  const processorFixed = number(input.dtcProcessorFixed, "Website card fixed fee", 0.3);
+  const removalFee = number(input.removalFee, "Removal fee");
+  const adsPerUnit = number(input.adsPerUnit, "Ads per unit");
+  const costOfGoods = number(input.costOfGoods, "Cost of goods");
+  const targetMargin = number(input.targetMargin, "Target margin");
+  if (processorRate >= 100) throw new Error("Website card rate must be less than 100%");
+
+  const amazonListing = calculateListing({ ...input, fulfillmentMethod: "fba" });
+  const suggestedMcfFee = defaultMcfFee(amazonListing.sizeTier, input.weightLb ?? 0.75);
+  const mcfFee =
+    input.mcfFulfillmentFee === undefined ||
+    input.mcfFulfillmentFee === null ||
+    input.mcfFulfillmentFee === ""
+      ? suggestedMcfFee
+      : number(input.mcfFulfillmentFee, "MCF fulfillment fee");
+
+  const targetMarginRate = targetMargin / 100;
+  const warehouseCash = amazonListing.fba.cashInvested - adsPerUnit;
+  const selfCash = amazonListing.fbm.cashInvested - adsPerUnit + removalFee;
+  const processorFee = dtcSalePrice * (processorRate / 100) + processorFixed;
+
+  const amazon = {
+    id: "amazon",
+    label: "Amazon FBA",
+    salePrice: amazonPrice,
+    fees: { ...amazonListing.fba.fees, processor: 0 },
+    feeTotal: amazonListing.fba.feeTotal,
+    cashInvested: amazonListing.fba.cashInvested,
+    profit: amazonListing.fba.profit,
+    margin: amazonListing.fba.margin,
+    roi: amazonListing.fba.roi,
+    breakEvenBuyCost: amazonListing.fba.breakEvenBuyCost,
+    hitsTarget:
+      amazonPrice === 0
+        ? amazonListing.fba.profit >= 0
+        : amazonListing.fba.margin + 1e-9 >= targetMargin,
+  };
+
+  const mcf = {
+    id: "mcf",
+    label: "Website + MCF",
+    ...websitePathResult({
+      salePrice: dtcSalePrice,
+      processorRate,
+      processorFixed,
+      fulfillment: mcfFee,
+      cashInvested: warehouseCash,
+      targetMarginRate,
+      costOfGoods,
+    }),
+  };
+
+  const selfShip = {
+    id: "self",
+    label: "Website + you ship",
+    ...websitePathResult({
+      salePrice: dtcSalePrice,
+      processorRate,
+      processorFixed,
+      fulfillment: 0,
+      cashInvested: selfCash,
+      targetMarginRate,
+      costOfGoods,
+    }),
+  };
+
+  const rows = [amazon, mcf, selfShip].map((row) => ({
+    ...row,
+    profitDelta: row.profit - amazon.profit,
+  }));
+  const maxProfit = Math.max(...rows.map((row) => row.profit));
+  const leaders = rows.filter((row) => Math.abs(row.profit - maxProfit) < 1e-9);
+  const winner = leaders.length === 1 ? leaders[0].id : "tie";
+
+  // MCF fulfillment fee that matches Amazon FBA profit on this website price.
+  // Cash and card fees are held constant. Null-safe Infinity when the
+  // website price cannot cover processor + warehouse cash + Amazon profit.
+  const breakEvenMcfFee = dtcSalePrice - processorFee - warehouseCash - amazon.profit;
+
+  return {
+    rows,
+    amazon: rows[0],
+    mcf: rows[1],
+    selfShip: rows[2],
+    winner,
+    suggestedMcfFee,
+    mcfFee,
+    dtcSalePrice,
+    processorRate,
+    processorFixed,
+    processorFee,
+    removalFee,
+    sizeTier: amazonListing.sizeTier,
+    breakEvenMcfFee,
+    mcfBeatsAmazon: mcf.profit + 1e-9 >= amazon.profit,
+    summary: mcfSummary({
+      winner,
+      amazon: rows[0],
+      mcf: rows[1],
+      selfShip: rows[2],
+      mcfFee,
+      breakEvenMcfFee,
+    }),
+  };
+}

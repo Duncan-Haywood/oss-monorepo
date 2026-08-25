@@ -18,7 +18,7 @@
     "applicationCategory": "BusinessApplication",
     "operatingSystem": "Any (runs in a web browser)",
     "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
-    "featureList": "FBA vs FBM comparison, size-tier fulfillment, storage, inbound, net profit, margin, ROI, break-even price, max buy cost, target-margin price, Low-Price FBA vs raising the list price, coupon vs list profit, coupon break-even volume"
+    "featureList": "FBA vs FBM comparison, size-tier fulfillment, storage, inbound, net profit, margin, ROI, break-even price, max buy cost, target-margin price, Low-Price FBA vs raising the list price, coupon vs list profit, coupon break-even volume, Multi-Channel Fulfillment vs Amazon vs you-ship"
   }
   </script>
   <script type="application/ld+json">
@@ -56,6 +56,14 @@
           "acceptedAnswer": {
             "@type": "Answer",
             "text": "A coupon cuts the price the buyer pays, so the referral fee falls with it, and Amazon also charges a per-redemption coupon fee. Fulfillment, inbound, and storage stay the same. Compare the list-price unit to 5%, 10%, 15%, and 20% coupons, then see how many extra couponed sales you would need to match this month's list-price profit. The page does not recommend running a coupon."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Should I fulfill a website order with Amazon MCF or sell it on Amazon?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "A website order fulfilled from FBA inventory pays Multi-Channel Fulfillment and your card processor, not Amazon's referral fee. Compare that leftover to the same unit sold on Amazon and to shipping it yourself. The page does the arithmetic from the rates you enter; it does not recommend a sales channel."
           }
         },
         {
@@ -183,6 +191,16 @@
         <label>Expected volume lift (%) <span class="hint">extra units if the coupon is on</span>
           <input id="couponLiftPct" type="number" min="0" step="1" value="0">
         </label>
+        <label>Website sale price <input id="dtcSalePrice" type="number" min="0" step="0.01" value=""></label>
+        <label>MCF fulfillment fee <span class="hint" id="mcfFeeHint"></span>
+          <input id="mcfFulfillmentFee" type="number" min="0" step="0.01" value="">
+        </label>
+        <label>Website card rate (%) <input id="dtcProcessorRate" type="number" min="0" step="0.01" value="2.9"></label>
+        <label>Website card fixed fee <input id="dtcProcessorFixed" type="number" min="0" step="0.01" value="0.30"></label>
+        <label class="span2">Removal fee if you pull the unit from Amazon
+          <input id="removalFee" type="number" min="0" step="0.01" value="0">
+          <span class="hint">Leave $0 when the you-ship unit is already outside Amazon. Add the removal line from your fee preview when you would un-fulfill it first.</span>
+        </label>
       </div>
     </section>
     <section class="result">
@@ -233,7 +251,27 @@
         <tbody id="couponCompare"></tbody>
       </table>
       <p id="couponSummary" class="note"></p>
-      <p class="note">Transparent arithmetic from your inputs — not Amazon’s current fee schedule. Referral, fulfillment, storage, inbound, coupon fees, and Low-Price bands vary by category, size, season, and account. Verify against your Amazon fee preview before buying inventory or launching a coupon.</p>
+      <hr>
+      <h2>Website order: MCF vs Amazon vs you ship</h2>
+      <p id="mcfSummary" class="note"></p>
+      <dl>
+        <dt>MCF fee that matches Amazon</dt><dd id="mcfBreakEven"></dd>
+        <dt>Which path keeps more</dt><dd id="mcfWinner"></dd>
+      </dl>
+      <table>
+        <thead>
+          <tr>
+            <th scope="col">Path</th>
+            <th scope="col">Price</th>
+            <th scope="col">Fees</th>
+            <th scope="col">Profit</th>
+            <th scope="col">vs Amazon</th>
+          </tr>
+        </thead>
+        <tbody id="mcfCompare"></tbody>
+      </table>
+      <p class="note">MCF ships a website, eBay, or Walmart order from FBA inventory: no Amazon referral, a higher pick fee, plus your card processor. You-ship assumes the unit is already outside Amazon unless you add a removal fee. <a href="should-i-use-amazon-mcf-for-website-orders.html" style="color:#9ec5ff">Should I use Amazon MCF for website orders?</a></p>
+      <p class="note">Transparent arithmetic from your inputs — not Amazon’s current fee schedule. Referral, fulfillment, storage, inbound, coupon fees, MCF, and Low-Price bands vary by category, size, season, and account. Verify against your Amazon fee preview before buying inventory, launching a coupon, or turning on MCF.</p>
     </section>
   </main>
   <section class="faq" aria-labelledby="faq-heading">
@@ -258,6 +296,14 @@
       shows the lift you would need to match this month’s list-price profit.
     </p>
     <p>
+      A website order is a third decision on the same SKU sitting in FBA:
+      sell it on Amazon, let Amazon ship the website order (MCF), or ship
+      it yourself.
+      <a href="should-i-use-amazon-mcf-for-website-orders.html">Should I use Amazon MCF for website orders?</a>
+      shows when skipping the referral still covers the higher pick fee
+      and the card.
+    </p>
+    <p>
       It does not recommend a price, a category, a fulfillment method, or a
       coupon, and it is not tax or financial advice. The gap between paths
       is an arithmetic comparison of the rates you entered.
@@ -277,6 +323,7 @@
       calculateListing,
       compareCoupons,
       compareLowPriceFba,
+      compareMcf,
       couponSummary,
     } from "./calc.mjs";
     import { recordUsage } from "./usage.mjs";
@@ -288,6 +335,7 @@
       "otherCost", "monthlySellerFee", "monthlyUnits", "targetMargin",
       "lowPriceThreshold", "lowPriceSalePrice", "raisePrice", "lowPriceFulfillmentFee",
       "couponPercent", "couponFixed", "couponFee", "couponLiftPct",
+      "dtcSalePrice", "mcfFulfillmentFee", "dtcProcessorRate", "dtcProcessorFixed", "removalFee",
     ];
     const money = (value) => `$${value.toFixed(2)}`;
     let syncingFee = false;
@@ -302,6 +350,8 @@
       if (raw.lowPriceFulfillmentFee === "") delete raw.lowPriceFulfillmentFee;
       if (raw.lowPriceSalePrice === "") delete raw.lowPriceSalePrice;
       if (raw.raisePrice === "") delete raw.raisePrice;
+      if (raw.dtcSalePrice === "") delete raw.dtcSalePrice;
+      if (raw.mcfFulfillmentFee === "") delete raw.mcfFulfillmentFee;
       return {
         ...raw,
         fulfillmentMethod: fulfillmentMethod(),
@@ -345,9 +395,26 @@
         fillAuto("lowPriceFulfillmentFee", compared.suggestedLow.toFixed(2));
         fillAuto("lowPriceSalePrice", compared.stayPrice.toFixed(2));
         fillAuto("raisePrice", compared.raisePrice.toFixed(2));
+
+        const mcfAuto = document.getElementById("mcfFulfillmentFee").dataset.auto === "1"
+          || document.getElementById("mcfFulfillmentFee").value === "";
+        const dtcAuto = document.getElementById("dtcSalePrice").dataset.auto === "1"
+          || document.getElementById("dtcSalePrice").value === "";
+        const mcfCompared = compareMcf({
+          ...readInput(),
+          fulfillmentFee: undefined,
+          ...(mcfAuto ? { mcfFulfillmentFee: undefined } : {}),
+          ...(dtcAuto ? { dtcSalePrice: undefined } : {}),
+        });
+        document.getElementById("mcfFulfillmentFee").placeholder = mcfCompared.suggestedMcfFee.toFixed(2);
+        document.getElementById("mcfFeeHint").textContent =
+          `(default $${mcfCompared.suggestedMcfFee.toFixed(2)})`;
+        fillAuto("mcfFulfillmentFee", mcfCompared.suggestedMcfFee.toFixed(2));
+        fillAuto("dtcSalePrice", mcfCompared.dtcSalePrice.toFixed(2));
       } catch {
         document.getElementById("sizeHint").textContent = "";
         document.getElementById("lowPriceFeeHint").textContent = "";
+        document.getElementById("mcfFeeHint").textContent = "";
       }
     }
 
@@ -408,17 +475,30 @@
           `<tr class="${row.isCurrent ? "current" : ""}"><td>${row.label}</td><td>${money(row.buyerPays)}</td><td>${money(row.profit)}</td><td>${signed(row.profitDelta)}</td><td>${row.hitsTarget ? "yes" : "no"}</td></tr>`
         ).join("");
         document.getElementById("couponSummary").textContent = couponSummary(coupons);
+        const mcf = compareMcf(readInput());
+        document.getElementById("mcfSummary").textContent = mcf.summary;
+        document.getElementById("mcfBreakEven").textContent = Number.isFinite(mcf.breakEvenMcfFee)
+          ? money(mcf.breakEvenMcfFee) : "unreachable";
+        document.getElementById("mcfWinner").textContent =
+          mcf.winner === "amazon" ? "Amazon FBA keeps more"
+            : mcf.winner === "mcf" ? "Website + MCF keeps more"
+              : mcf.winner === "self" ? "Website + you ship keeps more"
+                : "same profit";
+        document.getElementById("mcfCompare").innerHTML = mcf.rows.map((row) =>
+          `<tr class="${row.id === mcf.winner ? "current" : ""}"><td>${row.label}</td><td>${money(row.salePrice)}</td><td>${money(row.feeTotal)}</td><td>${money(row.profit)}</td><td>${signed(row.profitDelta)}</td></tr>`
+        ).join("");
       } catch (error) {
         document.getElementById("profit").textContent = error.message;
         document.getElementById("profit").className = "hero-number error";
         document.getElementById("label").textContent = "fix the inputs to see a result";
-        ["revenue", "fees", "invested", "margin", "roi", "breakEven", "maxBuy", "targetMarginPrice", "advantage", "lowPriceSummary", "lowPriceBreakEven", "lowPriceWinner"].forEach((id) => {
+        ["revenue", "fees", "invested", "margin", "roi", "breakEven", "maxBuy", "targetMarginPrice", "advantage", "lowPriceSummary", "lowPriceBreakEven", "lowPriceWinner", "mcfSummary", "mcfBreakEven", "mcfWinner"].forEach((id) => {
           document.getElementById(id).textContent = "";
         });
         document.getElementById("compare").innerHTML = "";
         document.getElementById("lowPriceCompare").innerHTML = "";
         document.getElementById("couponCompare").innerHTML = "";
         document.getElementById("couponSummary").textContent = "";
+        document.getElementById("mcfCompare").innerHTML = "";
       }
     }
 
@@ -438,7 +518,8 @@
 
     document.getElementById("category").addEventListener("change", applyCategory);
     document.getElementById("storageSeason").addEventListener("change", applyStorage);
-    const autoFields = new Set(["fulfillmentFee", "lowPriceFulfillmentFee", "lowPriceSalePrice", "raisePrice"]);
+    const autoFields = new Set(["fulfillmentFee", "lowPriceFulfillmentFee", "lowPriceSalePrice", "raisePrice", "mcfFulfillmentFee", "dtcSalePrice"]);
+    const mcfFields = new Set(["dtcSalePrice", "mcfFulfillmentFee", "dtcProcessorRate", "dtcProcessorFixed", "removalFee"]);
     const lowPriceFields = new Set(["lowPriceThreshold", "lowPriceSalePrice", "raisePrice", "lowPriceFulfillmentFee"]);
     ids.forEach((id) => document.getElementById(id).addEventListener("input", () => {
       if (autoFields.has(id) && !syncingFee) {
@@ -452,6 +533,7 @@
         document.getElementById("usageOptOut").checked,
         id === "targetMargin" ? "target_margin_calculated"
           : id.startsWith("coupon") ? "coupon_compared"
+          : mcfFields.has(id) ? "mcf_compared"
           : lowPriceFields.has(id) ? "low_price_fba_compared"
             : "listing_profit_calculated",
       );
