@@ -16,6 +16,12 @@ test("break-even reflects the in-house comparison", () => {
   assert.ok(result.delta > 0);
 });
 
+test("reports the order volume needed to clear a minimum", () => {
+  const result = calculate({ orders: 100, minimumMonthly: 2000 });
+  assert.equal(Math.ceil(result.minimumOrders), 147);
+  assert.ok(result.minimumOrders > result.orders);
+});
+
 test("zero volume stays finite and does not apply a minimum", () => {
   const result = calculate({ orders: 0, inboundUnits: 0, pallets: 0, minimumMonthly: 0 });
   assert.equal(result.perOrder, 0);
@@ -40,6 +46,7 @@ test("summary exposes every normalized line item and minimum warning", () => {
   assert.match(text, /Fixed fees:/);
   assert.match(text, /Minimum monthly charge applied: yes/);
   assert.match(text, /signed rate card/);
+  assert.match(text, /Orders to clear minimum spend: 147 orders\/month/);
 });
 
 test("comparison identifies the cheaper quote at the same volume", () => {

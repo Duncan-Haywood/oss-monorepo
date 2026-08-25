@@ -20,7 +20,10 @@ export function calculate(input) {
   const delta = inHouse - quote.total;
   const perOrder = orders ? quote.total / orders : 0;
   const inHouseRate = n(input.inHousePerOrder, 13);
-  return { orders, quote, inHouse, delta, perOrder, breakEvenOrders: inHouseRate ? quote.total / inHouseRate : 0, minimumApplied: quote.total > quote.subtotal, winner: delta >= 0 ? "3PL" : "in-house", components: ["receiving", "storage", "pickPack", "packaging", "shipping", "returns", "fixed"] };
+  const orderVariableCost = orders ? (quote.receiving + quote.pickPack + quote.packaging + quote.shipping + quote.returns) / orders : 0;
+  const nonOrderCost = quote.storage + quote.fixed;
+  const minimumOrders = orderVariableCost ? Math.max(0, (quote.total - nonOrderCost) / orderVariableCost) : 0;
+  return { orders, quote, inHouse, delta, perOrder, breakEvenOrders: inHouseRate ? quote.total / inHouseRate : 0, minimumOrders, minimumApplied: quote.total > quote.subtotal, winner: delta >= 0 ? "3PL" : "in-house", components: ["receiving", "storage", "pickPack", "packaging", "shipping", "returns", "fixed"] };
 }
 
 export function money(value) {
@@ -49,6 +52,7 @@ export function negotiationLines(result) {
     `Minimum monthly spend applied: ${money(Math.max(0, result.quote.total - result.quote.subtotal))}`,
     `Total estimated 3PL cost: ${money(result.quote.total)}`,
     `True cost per order: ${money(result.perOrder)}`,
+    `Orders to clear minimum spend: ${Math.ceil(result.minimumOrders)} orders/month`,
   ];
 }
 
@@ -61,6 +65,7 @@ export function summary(result) {
     `Difference (in-house minus 3PL): ${money(result.delta)}`,
     `True 3PL cost per order: ${money(result.perOrder)}`,
     `Break-even volume: about ${Math.ceil(result.breakEvenOrders)} orders/month`,
+    `Orders to clear minimum spend: ${Math.ceil(result.minimumOrders)} orders/month`,
     "",
     "Line items",
     `Receiving: ${money(result.quote.receiving)}`,
