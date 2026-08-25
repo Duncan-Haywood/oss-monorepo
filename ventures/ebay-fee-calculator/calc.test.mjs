@@ -1,6 +1,12 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { calculateOrder, calculatePriceScenarios, calculateRepricingTable } from './calc.mjs';
+import {
+  calculateOrder,
+  calculatePriceScenarios,
+  calculateRepricingTable,
+  compareStoreTiers,
+  storeBreakEvenOrders,
+} from './calc.mjs';
 
 const near = (actual, expected, msg) => assert.ok(Math.abs(actual - expected) < 1e-6, `${msg}: ${actual} vs ${expected}`);
 
@@ -133,4 +139,91 @@ test('rejects repricing offsets that cannot produce a listable price', () => {
   assert.throws(() => calculateRepricingTable({ price: 40 }, [-100]), /greater than -100/);
   assert.throws(() => calculateRepricingTable({ price: 40 }, ['abc']), /greater than -100/);
   assert.throws(() => calculateRepricingTable({ price: -1 }, [0]), /Item price/);
+});
+
+const storeExample = {
+  price: 40, shippingCharged: 6, finalValueRate: 13.25, fixedFee: 0.3,
+  costOfGoods: 12, shippingCost: 5, packagingCost: 1, monthlyOrders: 40,
+};
+
+test('store break-even is monthly fee divided by final-value savings per order', () => {
+  // $46 revenue × 0.30% lower FVF = $0.138 saved per order. $7.95 / $0.138
+  // is the volume where a $7.95 Starter example starts to pay.
+  const orders = storeBreakEvenOrders({
+    revenue: 46, currentFinalValueRate: 13.25, storeFinalValueRate: 12.95, monthlyFee: 7.95,
+  });
+  near(orders, 7.95 / 0.138, 'starter break-even orders');
+});
+
+test('a store that does not cut the final-value rate never breaks even', () => {
+  assert.equal(storeBreakEvenOrders({
+    revenue: 46, currentFinalValueRate: 13.25, storeFinalValueRate: 13.25, monthlyFee: 7.95,
+  }), null);
+  assert.equal(storeBreakEvenOrders({
+    revenue: 46, currentFinalValueRate: 12.55, storeFinalValueRate: 13.25, monthlyFee: 0,
+  }), null);
+});
+
+test('example store tiers lose money at 40 default-order sales a month', () => {
+  // Worked example locked to the calculator defaults: $40 + $6 shipping,
+  // 13.25% FVF, $0.30, $18 cash in, 40 orders, no current store fee.
+  // Starter saves $0.138/order and costs $7.95 → −$2.43 / month.
+  const rows = compareStoreTiers(storeExample);
+  assert.deepEqual(rows.map((row) => row.id), ['current', 'starter', 'basic', 'premium']);
+  assert.equal(rows[0].isCurrent, true);
+  assert.equal(rows[0].isWinner, true);
+  near(rows[0].monthlyProfit, 21.605 * 40, 'current monthly profit');
+  near(rows[1].monthlyDelta, 40 * 0.138 - 7.95, 'starter monthly delta');
+  near(rows[2].monthlyDelta, 40 * 0.322 - 27.95, 'basic monthly delta');
+  near(rows[3].monthlyDelta, 40 * 0.644 - 74.95, 'premium monthly delta');
+  assert.equal(rows[1].pays, false);
+  assert.equal(rows[2].pays, false);
+  assert.equal(rows[3].pays, false);
+});
+
+test('Basic example wins once volume covers its fee and still beats Starter', () => {
+  const rows = compareStoreTiers({ ...storeExample, monthlyOrders: 120 });
+  const byId = Object.fromEntries(rows.map((row) => [row.id, row]));
+  near(byId.starter.monthlyDelta, 120 * 0.138 - 7.95, 'starter at 120');
+  near(byId.basic.monthlyDelta, 120 * 0.322 - 27.95, 'basic at 120');
+  near(byId.premium.monthlyDelta, 120 * 0.644 - 74.95, 'premium at 120');
+  assert.equal(byId.basic.isWinner, true);
+  assert.equal(byId.basic.pays, true);
+  assert.ok(byId.basic.monthlyDelta > byId.starter.monthlyDelta);
+  near(byId.basic.breakEvenOrders, 27.95 / 0.322, 'basic break-even');
+});
+
+test('current monthly store fee is deducted from the stay-put row', () => {
+  const rows = compareStoreTiers({ ...storeExample, monthlyStoreFee: 27.95, finalValueRate: 12.55 });
+  const current = rows.find((row) => row.isCurrent);
+  const starter = rows.find((row) => row.id === 'starter');
+  const order = calculateOrder({ ...storeExample, finalValueRate: 12.55 });
+  near(current.monthlyProfit, order.profit * 40 - 27.95, 'current includes the store already paid');
+  // Starter is a cheaper subscription at a higher FVF — the table has to
+  // show the net of both, not treat the current $27.95 as sunk.
+  assert.ok(starter, 'starter row still compared');
+  assert.ok(starter.monthlyProfit !== current.monthlyProfit);
+});
+
+test('skips a preset that is identical to the seller\'s current setup', () => {
+  const rows = compareStoreTiers({
+    ...storeExample, finalValueRate: 12.95, monthlyStoreFee: 7.95,
+  });
+  assert.deepEqual(rows.map((row) => row.id), ['current', 'basic', 'premium']);
+});
+
+test('carries batch quantity into every store-tier order', () => {
+  const input = { ...storeExample, quantity: 3 };
+  const rows = compareStoreTiers(input, [{ id: 'starter', label: 'Starter (example)', monthlyFee: 7.95, finalValueRate: 12.95 }]);
+  const direct = calculateOrder({ ...input, finalValueRate: 12.95 });
+  near(rows[1].profit, direct.profit, 'batch order profit');
+  near(rows[1].revenue, 46 * 3, 'batch revenue');
+});
+
+test('rejects invalid store comparison inputs', () => {
+  assert.throws(() => compareStoreTiers(storeExample, []), /At least one store tier/);
+  assert.throws(() => compareStoreTiers({ ...storeExample, monthlyOrders: 0 }), /Monthly orders/);
+  assert.throws(() => compareStoreTiers({ ...storeExample, monthlyOrders: 1.5 }), /Monthly orders/);
+  assert.throws(() => compareStoreTiers({ ...storeExample, monthlyStoreFee: -1 }), /Current monthly store fee/);
+  assert.throws(() => compareStoreTiers({ price: -4, monthlyOrders: 10 }), /Item price/);
 });

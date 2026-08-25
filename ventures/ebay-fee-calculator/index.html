@@ -4,10 +4,10 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>eBay Fee &amp; Profit Calculator | Reseller Margin and ROI</title>
-  <meta name="description" content="Calculate eBay order profit, margin, ROI, and break-even resale price after final value fee, per-order fee, promoted listings, shipping, and cost of goods — then compare nearby listing prices before you reprice.">
+  <meta name="description" content="Calculate eBay order profit, margin, ROI, and break-even resale price after final value fee, per-order fee, promoted listings, shipping, and cost of goods — then see whether an example store subscription still pays at your monthly volume.">
   <meta property="og:title" content="eBay Fee &amp; Profit Calculator">
-  <meta property="og:description" content="See what an eBay sale really leaves after fees and your cost of goods — profit, margin, ROI, and break-even price.">
-  <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"eBay Fee & Profit Calculator","applicationCategory":"BusinessApplication","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"featureList":"eBay fee breakdown, net profit, margin, return on investment, break-even resale price, target-margin price, batch profit, repricing sensitivity table"}</script>
+  <meta property="og:description" content="See what an eBay sale really leaves after fees and your cost of goods — and whether a store subscription is worth the monthly fee.">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"eBay Fee & Profit Calculator","applicationCategory":"BusinessApplication","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"featureList":"eBay fee breakdown, net profit, margin, return on investment, break-even resale price, target-margin price, batch profit, repricing sensitivity table, store subscription comparison"}</script>
   <style>
     :root { color-scheme: light; font-family: system-ui, sans-serif; color: #1d2530; background: #eef2f7; }
     body { max-width: 980px; margin: 0 auto; padding: 32px 18px; }
@@ -38,7 +38,7 @@
   <header>
     <p class="eyebrow">FOR EBAY RESELLERS</p>
     <h1>Know what each sale really leaves.</h1>
-    <p>Enter your eBay fees, shipping, and what you paid for the item to see net profit, margin, return on your invested cash, and the lowest resale price that still breaks even. Then compare nearby listing prices to see exactly what a price move is worth — before you list or reprice.</p>
+    <p>Enter your eBay fees, shipping, and what you paid for the item to see net profit, margin, return on your invested cash, and the lowest resale price that still breaks even. Then compare nearby listing prices and example store subscriptions to see whether a monthly store fee still pays at your volume. <a href="is-an-ebay-store-worth-it.html">Is an eBay store worth it?</a></p>
   </header>
   <main>
     <div class="layout">
@@ -74,7 +74,7 @@
           <dt>Price for target margin</dt><dd id="targetMarginPrice"></dd>
         </dl>
         <hr>
-        <p class="note">Transparent arithmetic from your inputs — not a statement of eBay's current fee schedule. Fees vary by category, store subscription, and seller status.</p>
+        <p class="note">Transparent arithmetic from your inputs — not a statement of eBay's current fee schedule. Fees vary by category, store subscription, and seller status. The store table below uses example subscription assumptions you can treat as a starting point.</p>
       </section>
     </div>
     <section class="sensitivity">
@@ -90,6 +90,32 @@
       </div>
       <p id="scenariosEmpty" class="note" hidden>Enter a valid item price to compare repricing options.</p>
     </section>
+    <section class="sensitivity" id="storeSection">
+      <h2>If you paid for a store</h2>
+      <p id="storeNote" class="note">The same order at example store final-value rates, minus that tier's monthly subscription, compared with staying at the rate you typed. Replace the example rates with the ones on your eBay invoice. <a href="is-an-ebay-store-worth-it.html">Worked example</a></p>
+      <div class="fields" style="max-width:420px;margin-bottom:14px">
+        <label>Orders like this one / month <input id="monthlyOrders" type="number" min="1" max="100000" step="1" value="40"></label>
+        <label>Store fee you already pay / month <input id="monthlyStoreFee" type="number" min="0" step="0.01" value="0"></label>
+      </div>
+      <p id="storeSummary" class="note"></p>
+      <div class="table-scroll">
+        <table id="storeTable" aria-describedby="storeNote">
+          <thead>
+            <tr>
+              <th scope="col">Setup</th>
+              <th scope="col">Final value fee</th>
+              <th scope="col">Monthly store fee</th>
+              <th scope="col">Profit / order</th>
+              <th scope="col">Profit / month</th>
+              <th scope="col">vs staying put</th>
+              <th scope="col">Orders to break even</th>
+            </tr>
+          </thead>
+          <tbody id="storeRows"></tbody>
+        </table>
+      </div>
+      <p id="storeEmpty" class="note" hidden>Enter a valid order and a whole-number monthly volume to compare store subscriptions.</p>
+    </section>
   </main>
   <footer>
     <label><input id="usageOptOut" type="checkbox" style="width:auto"> Do not keep anonymous local usage counts</label>
@@ -97,7 +123,7 @@
     <p class="support">Free and open source. If it saves you time, the <a href="https://github.com/Duncan-Haywood/monorepo-projects" rel="noopener">project is on GitHub</a> — support is entirely optional and never changes what the tool does.</p>
   </footer>
   <script type="module">
-    import { calculateOrder, calculateRepricingTable, INPUT_FIELDS as ids } from './calc.mjs';
+    import { calculateOrder, calculateRepricingTable, compareStoreTiers, INPUT_FIELDS as ids } from './calc.mjs';
     import { recordUsage } from './usage.mjs';
     import { decodeInputs, encodeInputs } from './share.mjs';
     const money = value => `$${value.toFixed(2)}`;
@@ -106,7 +132,31 @@
     // changed an input. Counting the table's first render instead would just
     // re-count page views, which says nothing about whether anyone used it.
     let sensitivityCounted = false;
+    let storeCounted = false;
     let sellerEditedInputs = false;
+    function renderStore(input) {
+      const rows = compareStoreTiers(input);
+      const winner = rows.find(row => row.isWinner);
+      const breakEven = value => value === null ? 'never' : value === 0 ? '—' : `${Math.ceil(value)}`;
+      document.getElementById('storeRows').innerHTML = rows.map(row => `
+        <tr class="${row.isCurrent ? 'current' : ''}">
+          <td>${row.label}${row.isWinner ? ' (best)' : row.isCurrent ? ' (now)' : ''}</td>
+          <td>${row.finalValueRate.toFixed(2)}%</td>
+          <td>${money(row.monthlyFee)}</td>
+          <td class="${row.profit < 0 ? 'down' : ''}">${money(row.profit)}</td>
+          <td class="${row.monthlyProfit < 0 ? 'down' : ''}">${money(row.monthlyProfit)}</td>
+          <td class="${row.monthlyDelta > 0 ? 'up' : row.monthlyDelta < 0 ? 'down' : ''}">${row.isCurrent ? '—' : signedMoney(row.monthlyDelta)}</td>
+          <td>${breakEven(row.breakEvenOrders)}</td>
+        </tr>`).join('');
+      document.getElementById('storeEmpty').hidden = true;
+      document.getElementById('storeSummary').textContent = winner.isCurrent
+        ? `At ${winner.monthlyOrders} orders like this one, staying at ${winner.finalValueRate.toFixed(2)}% beats the example store subscriptions.`
+        : `At ${winner.monthlyOrders} orders like this one, the ${winner.label} assumption leaves ${signedMoney(winner.monthlyDelta)} more per month than staying put.`;
+      if (sellerEditedInputs && !storeCounted) {
+        storeCounted = true;
+        recordUsage(localStorage, document.getElementById('usageOptOut').checked, 'store_comparison_viewed');
+      }
+    }
     function renderScenarios(input) {
       const rows = calculateRepricingTable(input);
       document.getElementById('scenarioTable').classList.toggle('single-unit', rows[0].quantity === 1);
@@ -130,6 +180,13 @@
         const input = readInputs();
         const result = calculateOrder(input);
         renderScenarios(input);
+        try {
+          renderStore(input);
+        } catch {
+          document.getElementById('storeRows').innerHTML = '';
+          document.getElementById('storeEmpty').hidden = false;
+          document.getElementById('storeSummary').textContent = '';
+        }
         const profitEl = document.getElementById('profit');
         profitEl.textContent = money(result.profit);
         profitEl.className = `hero-number ${result.profit < 0 ? 'negative' : 'positive'}`;
@@ -156,6 +213,9 @@
         document.getElementById('targetMarginPrice').textContent = '';
         document.getElementById('scenarios').innerHTML = '';
         document.getElementById('scenariosEmpty').hidden = false;
+        document.getElementById('storeRows').innerHTML = '';
+        document.getElementById('storeEmpty').hidden = false;
+        document.getElementById('storeSummary').textContent = '';
       }
     }
     ids.forEach(id => document.getElementById(id).addEventListener('input', () => { sellerEditedInputs = true; update(); }));

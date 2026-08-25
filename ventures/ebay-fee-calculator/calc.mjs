@@ -21,6 +21,8 @@ export const INPUT_FIELDS = [
   'packagingCost',
   'otherCost',
   'targetMargin',
+  'monthlyOrders',
+  'monthlyStoreFee',
 ];
 
 export function calculateOrder(input) {
@@ -130,4 +132,136 @@ export function calculateRepricingTable(input, offsets = [-20, -10, 0, 10, 20]) 
     // "what does moving the price actually buy me" without mental arithmetic.
     profitDelta: scenario.profit - current.profit,
   }));
+}
+
+// Example store-subscription assumptions a reseller can treat as a starting
+// point, not a statement of eBay's current published prices. Each row is a
+// monthly subscription plus the final-value rate that tier is assumed to
+// unlock. The seller's typed rate stays the "current" comparison baseline.
+export const STORE_TIER_PRESETS = [
+  { id: 'starter', label: 'Starter (example)', monthlyFee: 7.95, finalValueRate: 12.95 },
+  { id: 'basic', label: 'Basic (example)', monthlyFee: 27.95, finalValueRate: 12.55 },
+  { id: 'premium', label: 'Premium (example)', monthlyFee: 74.95, finalValueRate: 11.85 },
+];
+
+function wholeOrders(value, name, fallback) {
+  const raw = value === undefined || value === null || value === '' ? fallback : value;
+  const result = Number(raw);
+  if (!Number.isInteger(result) || result < 1) {
+    throw new Error(`${name} must be a whole number of at least 1`);
+  }
+  return result;
+}
+
+function nonNegativeNumber(value, name, fallback = 0) {
+  const raw = value === undefined || value === null || value === '' ? fallback : value;
+  const result = Number(raw);
+  if (!Number.isFinite(result) || result < 0) {
+    throw new Error(`${name} must be a non-negative number`);
+  }
+  return result;
+}
+
+// Orders needed at this order's revenue for a lower final-value rate to cover
+// the extra monthly subscription. Null when the store rate is not cheaper —
+// paying more per order never recovers a subscription.
+export function storeBreakEvenOrders({
+  revenue,
+  currentFinalValueRate,
+  storeFinalValueRate,
+  monthlyFee,
+}) {
+  const orderRevenue = nonNegativeNumber(revenue, 'Order revenue');
+  const currentRate = nonNegativeNumber(currentFinalValueRate, 'Current final value fee rate');
+  const storeRate = nonNegativeNumber(storeFinalValueRate, 'Store final value fee rate');
+  const fee = nonNegativeNumber(monthlyFee, 'Store monthly fee');
+  const savingsPerOrder = orderRevenue * (currentRate - storeRate) / 100;
+  if (savingsPerOrder <= 0) return null;
+  return fee / savingsPerOrder;
+}
+
+function storeRow({
+  id,
+  label,
+  monthlyFee,
+  finalValueRate,
+  order,
+  monthlyOrders,
+  currentMonthlyProfit,
+  currentFinalValueRate,
+  isCurrent,
+}) {
+  const monthlyProfit = order.profit * monthlyOrders - monthlyFee;
+  return {
+    id,
+    label,
+    monthlyFee,
+    finalValueRate,
+    monthlyOrders,
+    revenue: order.revenue,
+    feeTotal: order.feeTotal,
+    profit: order.profit,
+    monthlyProfit,
+    monthlyDelta: monthlyProfit - currentMonthlyProfit,
+    breakEvenOrders: isCurrent
+      ? 0
+      : storeBreakEvenOrders({
+        revenue: order.revenue,
+        currentFinalValueRate,
+        storeFinalValueRate: finalValueRate,
+        monthlyFee,
+      }),
+    isCurrent,
+    pays: monthlyProfit > currentMonthlyProfit,
+  };
+}
+
+// Same order at the seller's current rate and at example store tiers. The
+// monthly subscription is taken out of monthly profit, not folded into the
+// per-order cash-invested figure — that keeps ROI honest for a single sale
+// and still answers "does the store pay at my volume?"
+export function compareStoreTiers(input, tiers = STORE_TIER_PRESETS) {
+  if (!Array.isArray(tiers) || tiers.length === 0) {
+    throw new Error('At least one store tier is required');
+  }
+  const monthlyOrders = wholeOrders(input.monthlyOrders, 'Monthly orders', 40);
+  const currentStoreFee = nonNegativeNumber(input.monthlyStoreFee, 'Current monthly store fee');
+  const currentRate = nonNegativeNumber(input.finalValueRate ?? 13.25, 'Final value fee rate');
+  const currentOrder = calculateOrder(input);
+  const currentMonthlyProfit = currentOrder.profit * monthlyOrders - currentStoreFee;
+  const current = storeRow({
+    id: 'current',
+    label: 'Your current rate',
+    monthlyFee: currentStoreFee,
+    finalValueRate: currentRate,
+    order: currentOrder,
+    monthlyOrders,
+    currentMonthlyProfit,
+    currentFinalValueRate: currentRate,
+    isCurrent: true,
+  });
+
+  const rows = [current];
+  for (const tier of tiers) {
+    const monthlyFee = nonNegativeNumber(tier.monthlyFee, 'Store monthly fee');
+    const finalValueRate = nonNegativeNumber(tier.finalValueRate, 'Store final value fee rate');
+    if (finalValueRate === currentRate && monthlyFee === currentStoreFee) continue;
+    const order = calculateOrder({ ...input, finalValueRate });
+    rows.push(storeRow({
+      id: String(tier.id ?? finalValueRate),
+      label: String(tier.label ?? `${finalValueRate}% store`),
+      monthlyFee,
+      finalValueRate,
+      order,
+      monthlyOrders,
+      currentMonthlyProfit,
+      currentFinalValueRate: currentRate,
+      isCurrent: false,
+    }));
+  }
+
+  const winner = rows.reduce((best, row) => (
+    row.monthlyProfit > best.monthlyProfit ? row : best
+  ));
+  return rows.map((row) => ({ ...row, isWinner: row.id === winner.id }));
 }

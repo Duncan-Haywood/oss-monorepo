@@ -1,5 +1,5 @@
 name: ebay-fee-calculator
-description: A private browser calculator for eBay resellers to see order profit, margin, ROI, and break-even resale price after eBay fees and cost of goods.
+description: A private browser calculator for eBay resellers to see order profit, margin, ROI, break-even resale price, and whether an example store subscription pays at their monthly volume.
 stage: prototype
 owner: duncan
 hypotheses:

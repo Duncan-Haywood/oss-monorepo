@@ -14,6 +14,10 @@ prices for one unit.
 Below the result, an **If you repriced** table prices the same order 20% and
 10% either side of what you entered, so you can see what a price move is
 actually worth before making it — no re-entering numbers.
+An **If you paid for a store** table then compares that same order at example
+store final-value rates, minus each tier's monthly subscription, so you can
+see whether a store still pays at your monthly volume. The example rates are
+assumptions, not eBay's live price list.
 
 Open `index.html` in a browser. The calculation is local and works without an
 account, network request, or API key. It is arithmetic, not an estimate of the
@@ -40,6 +44,9 @@ drive that decision:
   Percentage fees scale with the price, so a $1 increase never leaves $1 more
   in the seller's pocket; the table makes that visible instead of leaving it to
   be re-derived by hand.
+- **Store subscription comparison** — monthly profit at the rate you already
+  pay versus example Starter / Basic / Premium assumptions, plus the order
+  count where each subscription's final-value saving covers its monthly fee.
 
 **No warranty.** This tool is provided free and as-is, without warranty of any
 kind, express or implied. It is not tax, financial, or business advice, and it
@@ -57,10 +64,10 @@ browser; it never records the inputs. Turn it off with the checkbox in the
 footer, or your browser's Do Not Track / Global Privacy Control setting.
 
 The counted events are `order_profit_calculated`, `target_margin_calculated`,
-`batch_calculated`, and `price_sensitivity_viewed`. The last one is counted at
-most once per visit and only after an input is edited — counting the table's
-first paint would just re-count page loads and say nothing about whether the
-repricing view is used.
+`batch_calculated`, `price_sensitivity_viewed`, and `store_comparison_viewed`.
+The last two are counted at most once per visit and only after an input is
+edited — counting a table's first paint would just re-count page loads and say
+nothing about whether the comparison was used.
 
 ## Support
 
@@ -81,7 +88,7 @@ inputs** to remove the local setup.
 Pure ES modules, no build step, no dependencies.
 
 ```
-node --test        # runs calc.test.mjs and usage.test.mjs
+node --test        # runs calc.test.mjs, usage.test.mjs, share.test.mjs, and page.test.mjs
 ```
 
 `calc.mjs` holds the fee/profit/ROI arithmetic; `usage.mjs` holds the
