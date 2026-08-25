@@ -5,7 +5,9 @@ residential boiler replacement the way the trade actually loses
 money — like-for-like versus a condensing upgrade versus a
 steam-to-hot-water conversion, hot water versus steam, gas versus oil
 versus propane, then zones, a chimney liner, an indirect tank, and
-oil-to-gas — and shows the margin before the price goes out.
+oil-to-gas — and shows the margin before the price goes out. It also prices the
+9 p.m. “just patch it for $280” call against this winter’s callbacks
+and the plant bid.
 
 **After using this, you can now** send a walk-away boiler-replacement
 price that sees the plant and the extras, **which used to take**
@@ -67,13 +69,17 @@ prices a boiler changeout.
 It then reports price per input MBH, effective hourly rate, the hour
 split, a three-scope comparison on the same plant, and the **walk-away
 price**. Entering a price already on the table scores it against the
-same cost base. **Copy bid summary** turns the result into a
-plain-text draft ready to paste into a proposal.
+same cost base. **One more winter of patches** scores a $280 circulator
+special against this visit, stacks extra no-heat calls and later
+seasons, and sets that horizon next to the plant bid. **Copy bid
+summary** turns the replacement result into a plain-text draft ready
+to paste into a proposal.
 
 The arithmetic lives in [`calc.mjs`](calc.mjs). See
 [`calc.test.mjs`](calc.test.mjs).
 
-Search phrase: [`how-much-to-charge-to-replace-a-boiler.html`](how-much-to-charge-to-replace-a-boiler.html).
+Search phrases: [`how-much-to-charge-to-replace-a-boiler.html`](how-much-to-charge-to-replace-a-boiler.html),
+[`should-i-patch-this-boiler-for-one-more-winter.html`](should-i-patch-this-boiler-for-one-more-winter.html).
 
 ## Privacy
 
@@ -94,7 +100,7 @@ when the browser sends Do Not Track or Global Privacy Control. See
 
 Events counted: `bid_calculated`, `preset_applied`, `scope_changed`,
 `system_changed`, `fuel_changed`, `proposed_price_compared`,
-`summary_copied`.
+`repair_compared`, `summary_copied`.
 
 ## Limitations
 

@@ -15,6 +15,10 @@ hypotheses:
     status: untested
     checked: null
     evidence: customer-contact
+  - claim: Techs will use a this-visit versus this-winter versus replace comparison on a no-heat call because the $280 circulator special they are shopped on cannot see the extra callbacks a leaking heat exchanger generates before spring.
+    status: untested
+    checked: null
+    evidence: customer-contact
 economics:
   currency: USD
   mrr: null
