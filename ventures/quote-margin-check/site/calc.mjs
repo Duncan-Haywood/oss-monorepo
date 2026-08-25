@@ -66,3 +66,47 @@ export function overrunScenarios(quote, report, percentages = [10, 25, 50]) {
     };
   });
 }
+
+/**
+ * Shows how the same fixed price behaves if overhead and subcontractor
+ * costs rise before work starts. Hours stay unchanged. Complements
+ * overrunScenarios, which scale time and hold direct costs fixed.
+ *
+ * The 0% row is the quote as entered so the table can be read without
+ * scrolling back to the main result.
+ */
+export function directCostSpikeScenarios(quote, report, percentages = [10, 25, 50]) {
+  const percents = [0, ...percentages.filter((percent) => percent !== 0)];
+  return percents.map((percent) => {
+    const direct_costs = report.direct_costs * (1 + percent / 100);
+    const effective_hourly_rate = (quote.price - direct_costs) / report.total_hours;
+    const target_price = report.total_hours * quote.target_hourly_rate + direct_costs;
+    const gap_to_target = quote.price - target_price;
+    return {
+      percent,
+      direct_costs,
+      effective_hourly_rate,
+      target_price,
+      gap_to_target,
+      extra_gap: gap_to_target - report.gap_to_target,
+      cost_coverage: quote.price - direct_costs,
+    };
+  });
+}
+
+/** One-line arithmetic observation for the default +25% cost-rise row. */
+export function directCostSpikeSummary(quote, report, rows = directCostSpikeScenarios(quote, report)) {
+  if (report.direct_costs === 0) {
+    return "No overhead or subcontractor cost is entered, so a cost rise does not change these figures.";
+  }
+  const asQuoted = rows.find((row) => row.percent === 0) ?? rows[0];
+  const spike = rows.find((row) => row.percent === 25) ?? rows[rows.length - 1];
+  const currency = quote.currency;
+  return (
+    `If overhead and subcontractors rise ${spike.percent}% before you start, ` +
+    `the effective rate falls from ${currency} ${asQuoted.effective_hourly_rate.toFixed(2)} ` +
+    `to ${currency} ${spike.effective_hourly_rate.toFixed(2)}/hour, and you would need ` +
+    `${currency} ${spike.target_price.toFixed(2)} instead of ${currency} ${quote.price.toFixed(2)} ` +
+    `to hold ${currency} ${quote.target_hourly_rate.toFixed(2)}/hour.`
+  );
+}

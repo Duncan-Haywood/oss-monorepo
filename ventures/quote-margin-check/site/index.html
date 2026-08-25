@@ -42,6 +42,14 @@
         "@type": "Answer",
         "text": "Fixed-price quotes usually price only the visible delivery work. Admin time (calls, invoicing, project management), revision rounds, and subcontractor or tool costs quietly eat into the same fixed price, so the effective hourly rate ends up well below the rate you meant to charge."
       }
+    },
+    {
+      "@type": "Question",
+      "name": "What if materials or a subcontractor quote go up after I send a fixed price?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Keep the quoted price and hours fixed and raise only overhead plus subcontractor cost. The calculator shows the new effective hourly rate and the price that would still hit your target rate at +10%, +25%, and +50%. That is arithmetic on your inputs, not a forecast of supplier prices."
+      }
     }
   ]
 }
@@ -180,6 +188,25 @@
 
     <div class="result" id="result" role="status" aria-live="polite"></div>
     <div class="result" id="sensitivity" aria-live="polite"><strong>If the work takes longer</strong><p class="hint">A scenario view, not a prediction. Direct costs stay unchanged.</p><div class="table-scroll"><table class="sensitivity"><thead><tr><th>Extra time</th><th>Total hours</th><th>Effective rate</th><th>Gap to target</th></tr></thead><tbody></tbody></table></div></div>
+    <div class="result" id="cost-spike" aria-live="polite">
+      <strong>If costs rise before you start</strong>
+      <p class="hint">Hours and the quoted price stay unchanged. Only overhead and subcontractor cost move. <a href="if-costs-go-up-is-this-quote-still-alive.html">Worked example</a>.</p>
+      <p class="hint" id="cost-spike-summary"></p>
+      <div class="table-scroll">
+        <table class="sensitivity">
+          <thead>
+            <tr>
+              <th>Cost rise</th>
+              <th>Direct costs</th>
+              <th>Effective rate</th>
+              <th>Price to hold target</th>
+              <th>Gap to target</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </div>
       <div class="result" id="review" aria-live="polite"><strong>Before you send it</strong><ul class="checks"></ul></div>
 
     <div class="actions">
@@ -205,6 +232,13 @@
       what costs and target rate are appropriate for the job.
     </p>
     <p>
+      It also shows what happens if overhead and subcontractor costs rise
+      +10%, +25%, or +50% before you start. Hours and the quoted price stay
+      fixed — the table is the cash you lose, or the new price that would
+      still hit your target rate. That is not a forecast of supplier prices.
+      See <a href="if-costs-go-up-is-this-quote-still-alive.html">if costs go up, is this quote still alive</a>.
+    </p>
+    <p>
       Prefer the command line, or need to batch several quotes into a
       spreadsheet? The same logic ships as a
       <a href="https://github.com/Duncan-Haywood/monorepo-projects/tree/main/ventures/quote-margin-check">Python CLI</a>
@@ -223,6 +257,11 @@
       obligation it helps you prepare for. To the maximum extent permitted by
       law, the authors accept no liability for any loss or damage arising
       from its use.
+    </p>
+    <p>
+      <strong>Best-effort hosting, no SLA.</strong> These tools are free,
+      experimental, and may be slow, broken, moved, or taken offline without
+      notice.
     </p>
 
     <h2 id="privacy-heading">Privacy</h2>
@@ -250,7 +289,7 @@
 </main>
 
 <script type="module">
-  import { loadQuote, calculate, overrunScenarios } from "./calc.mjs";
+  import { loadQuote, calculate, overrunScenarios, directCostSpikeScenarios, directCostSpikeSummary } from "./calc.mjs";
   import { reviewQuote } from "./review.mjs";
   import { recordEvent, createReportCounter, isUsageCountingEnabled, setUsageCountingEnabled } from "./usage.mjs";
 
@@ -262,6 +301,7 @@
   const result = document.getElementById("result");
   const review = document.getElementById("review");
   const sensitivity = document.getElementById("sensitivity");
+  const costSpike = document.getElementById("cost-spike");
 
   let lastReport = null;
 
@@ -305,7 +345,14 @@
        `;
        review.querySelector(".checks").innerHTML = reviewQuote(quote, r).map((check) => `<li class="${check.level}"><strong>${escapeHtml(check.title)}</strong>${escapeHtml(check.detail)}</li>`).join("");
        sensitivity.querySelector("tbody").innerHTML = overrunScenarios(quote, r).map((scenario) => `<tr><th scope="row">+${scenario.percent}%</th><td>${fmt(scenario.total_hours)}</td><td>${safeCurrency} ${fmt(scenario.effective_hourly_rate)}/hour</td><td>${safeCurrency} ${fmt(scenario.gap_to_target)}</td></tr>`).join("");
+       const spikeRows = directCostSpikeScenarios(quote, r);
+       costSpike.querySelector("#cost-spike-summary").textContent = directCostSpikeSummary(quote, r, spikeRows);
+       costSpike.querySelector("tbody").innerHTML = spikeRows.map((scenario) => {
+         const label = scenario.percent === 0 ? "As quoted" : `+${scenario.percent}%`;
+         return `<tr><th scope="row">${label}</th><td>${safeCurrency} ${fmt(scenario.direct_costs)}</td><td>${safeCurrency} ${fmt(scenario.effective_hourly_rate)}/hour</td><td>${safeCurrency} ${fmt(scenario.target_price)}</td><td>${safeCurrency} ${fmt(scenario.gap_to_target)}</td></tr>`;
+       }).join("");
        recordEvent("quote_review_checked");
+       recordEvent("cost_spike_compared");
       result.classList.remove("error");
       reportCounter.count(JSON.stringify(quote));
     } catch (err) {
@@ -314,6 +361,8 @@
        result.textContent = err.message;
        result.classList.add("error");
        review.querySelector(".checks").textContent = "Fix the inputs above to review this quote.";
+       costSpike.querySelector("#cost-spike-summary").textContent = "Fix the inputs above to compare a cost rise.";
+       costSpike.querySelector("tbody").innerHTML = "";
     }
   }
 
