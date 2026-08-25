@@ -31,3 +31,18 @@ export function exportCsv(result) {
   rows.push(["Review note", "Verify every rate, assumption, contract term, and operational requirement before relying on this record."]);
   return rows.map((row) => row.map(csvCell).join(",")).join("\n") + "\n";
 }
+
+export function exportComparisonCsv(result, firstName = "Quote A", secondName = "Quote B") {
+  if (!result || result.error) throw new TypeError("A valid comparison result is required");
+  const rows = [["3PL quote comparison", "Value"],
+    [firstName, result.first.toFixed(2)],
+    [secondName, result.second.toFixed(2)],
+    ["Lower quote", result.equal ? "equal" : result.cheaper === "first" ? firstName : secondName],
+    ["Monthly difference", result.difference.toFixed(2)],
+    ["Annual difference", result.annualDifference.toFixed(2)],
+    ["Savings percentage", `${((result.difference / Math.max(result.first, result.second || 1)) * 100).toFixed(2)}%`],
+  ];
+  if (result.target != null) rows.push(["Target monthly total", result.target.toFixed(2)], ["First within target", result.firstWithinTarget ? "yes" : "no"], ["Second within target", result.secondWithinTarget ? "yes" : "no"]);
+  rows.push(["Review note", "Verify every rate, assumption, contract term, and operational requirement before relying on this record."]);
+  return rows.map((row) => row.map(csvCell).join(",")).join("\n") + "\n";
+}
