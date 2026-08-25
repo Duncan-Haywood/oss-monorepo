@@ -27,8 +27,9 @@ const round2 = value => Math.round((value + Number.EPSILON) * 100) / 100;
 export function computeAll(values) {
   const retainageWithheld = round2(values.contractValue * values.retainagePct / 100);
   const earnedUnpaid = round2(Math.max(0, values.contractValue - values.paidToDate));
+  const retainageStillUnpaid = round2(Math.min(retainageWithheld, earnedUnpaid));
   const carryingCost = round2(earnedUnpaid * values.annualCarryingRatePct / 100 * values.daysOutstanding / 365);
-  return { retainageWithheld, earnedUnpaid, carryingCost, totalCashOutstanding: round2(earnedUnpaid + carryingCost) };
+  return { retainageWithheld, retainageStillUnpaid, earnedUnpaid, carryingCost, totalCashOutstanding: round2(earnedUnpaid + carryingCost) };
 }
 
 export function delayScenarios(values, additionalDays = [30, 60, 90]) {
@@ -48,7 +49,8 @@ export function followUpDraft({ projectName, payerName, invoiceReference, dueDat
   const payer = payerName?.trim() || '[payer / GC name]';
   const invoice = invoiceReference?.trim() || '[invoice or pay application reference]';
   const due = dueDate?.trim() || '[due date]';
-  return [`Subject: Payment status request — ${project}`, '', `Hello ${payer},`, '', `I am checking the payment status for ${invoice}, due ${due}. My records show ${currency}${result.earnedUnpaid.toFixed(2)} remains unpaid, including approximately ${currency}${result.retainageWithheld.toFixed(2)} in retainage based on the figures in my worksheet.`, '', 'Please confirm the expected payment date and let me know if any documentation is still needed from me. This is a factual account-record request, not a waiver of any rights or a demand for a particular legal remedy.', '', 'Thank you,', '[your name]', '', 'Review the figures, contract, payment terms, and local requirements before sending. This draft is not legal advice.'].join('\n');
+  const retainage = result.retainageStillUnpaid ?? result.retainageWithheld;
+  return [`Subject: Payment status request — ${project}`, '', `Hello ${payer},`, '', `I am checking the payment status for ${invoice}, due ${due}. My records show ${currency}${result.earnedUnpaid.toFixed(2)} remains unpaid, including approximately ${currency}${retainage.toFixed(2)} in retainage based on the figures in my worksheet.`, '', 'Please confirm the expected payment date and let me know if any documentation is still needed from me. This is a factual account-record request, not a waiver of any rights or a demand for a particular legal remedy.', '', 'Thank you,', '[your name]', '', 'Review the figures, contract, payment terms, and local requirements before sending. This draft is not legal advice.'].join('\n');
 }
 
 export function worksheetSummary({ projectName, payerName, invoiceReference, dueDate, values, result }) {
@@ -63,6 +65,7 @@ export function worksheetSummary({ projectName, payerName, invoiceReference, due
     '',
     `Contract value: $${values.contractValue.toFixed(2)}`,
     `Retainage withheld (${values.retainagePct.toFixed(1)}%): $${result.retainageWithheld.toFixed(2)}`,
+    `Retainage still unpaid: $${(result.retainageStillUnpaid ?? result.retainageWithheld).toFixed(2)}`,
     `Paid to date: $${values.paidToDate.toFixed(2)}`,
     `Earned but unpaid: $${result.earnedUnpaid.toFixed(2)}`,
     `Days since payment was due: ${values.daysOutstanding}`,

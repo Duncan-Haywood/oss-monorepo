@@ -6,7 +6,7 @@ import { worksheetSummary } from './calc.mjs';
 test('calculates retainage and carrying cost without rounding drift', () => {
   const parsed = parseInputs({ contractValue: '100000', retainagePct: '10', paidToDate: '75000', daysOutstanding: '90', annualCarryingRatePct: '12' });
   assert.equal(parsed.ok, true);
-  assert.deepEqual(computeAll(parsed.values), { retainageWithheld: 10000, earnedUnpaid: 25000, carryingCost: 739.73, totalCashOutstanding: 25739.73 });
+  assert.deepEqual(computeAll(parsed.values), { retainageWithheld: 10000, retainageStillUnpaid: 10000, earnedUnpaid: 25000, carryingCost: 739.73, totalCashOutstanding: 25739.73 });
 });
 
 test('rejects missing and inconsistent inputs', () => {
@@ -18,6 +18,14 @@ test('draft names the measured amount and keeps the decision with the user', () 
   const draft = followUpDraft({ result: { earnedUnpaid: 25000, retainageWithheld: 10000 }, currency: '$' });
   assert.match(draft, /\$25000\.00/);
   assert.match(draft, /not legal advice/);
+});
+
+test('caps retainage still unpaid at the total unpaid balance', () => {
+  const parsed = parseInputs({ contractValue: '100000', retainagePct: '10', paidToDate: '95000', daysOutstanding: '30', annualCarryingRatePct: '12' });
+  const result = computeAll(parsed.values);
+  assert.equal(result.retainageWithheld, 10000);
+  assert.equal(result.retainageStillUnpaid, 5000);
+  assert.match(followUpDraft({ result }), /including approximately \$5000\.00 in retainage/);
 });
 
 test('shows incremental carrying cost for future delay scenarios', () => {
