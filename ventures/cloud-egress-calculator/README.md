@@ -8,6 +8,7 @@ Open `index.html` directly, or serve this directory with any static HTTP server.
 
 - Compares two monthly scenarios using storage, request, and egress charges.
 - Shows the cheaper option, total savings, and a break-even outbound-transfer volume when applicable.
+- Copies a short decision summary for a migration ticket or internal review without including raw workload inputs.
 - Runs without an account, API key, network call, or paid dependency.
 - Includes crawler-readable metadata, JSON-LD, sitemap, and `robots.txt`.
 

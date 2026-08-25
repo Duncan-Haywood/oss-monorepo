@@ -29,3 +29,19 @@ export function compareScenarios(input) {
     savings: Math.abs(difference),
   };
 }
+
+export function decisionSummary(input) {
+  const result = compareScenarios(input);
+  const firstName = input.first.name || 'Option A';
+  const secondName = input.second.name || 'Option B';
+  const cheaperName = result.cheaper === 'first' ? firstName : result.cheaper === 'second' ? secondName : null;
+  const lines = [
+    'Cloud egress cost comparison',
+    `${firstName}: $${result.first.total.toFixed(2)}/month`,
+    `${secondName}: $${result.second.total.toFixed(2)}/month`,
+  ];
+  if (cheaperName) lines.push(`${cheaperName} is cheaper by $${result.savings.toFixed(2)}/month.`);
+  else lines.push('Both options have the same monthly cost.');
+  lines.push('Review current provider price sheets before relying on this estimate.');
+  return lines.join('\n');
+}

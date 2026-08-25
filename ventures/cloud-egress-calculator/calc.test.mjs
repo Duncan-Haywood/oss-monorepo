@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { scenarioCost, compareScenarios } from './calc.mjs';
+import { scenarioCost, compareScenarios, decisionSummary } from './calc.mjs';
 
 test('calculates storage, request, and egress charges', () => {
   const result = scenarioCost({ storageGb: 500, requestsMillion: 2, egressGb: 100, storageRate: .02, requestRate: .4, egressRate: .01 });
@@ -19,4 +19,13 @@ test('compares scenarios and reports savings', () => {
 test('rejects invalid inputs', () => {
   assert.throws(() => scenarioCost({ storageGb: -1 }), /Storage/);
   assert.throws(() => scenarioCost({ storageGb: 'unknown' }), /Storage/);
+});
+
+test('creates a copyable decision summary without raw inputs', () => {
+  const summary = decisionSummary({
+    first: { name: 'Current', storageGb: 1000, egressGb: 500, storageRate: .023, egressRate: .09 },
+    second: { name: 'Alternative', storageGb: 1000, egressGb: 500, storageRate: .006, egressRate: 0 },
+  });
+  assert.match(summary, /Alternative is cheaper by \$62\.00\/month/);
+  assert.doesNotMatch(summary, /1000|0\.023/);
 });
