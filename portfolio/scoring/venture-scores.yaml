@@ -909,3 +909,37 @@ ventures:
       Pass: output is a planning floor from user-supplied assumptions, not
       financial advice or a guarantee of income, tax treatment, or contract
       enforceability; all data stays in the browser.
+
+  - slug: holiday-light-bid-calculator
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 7
+      gross_margin: 10
+      defensibility: 5
+      distribution: 7
+    composite: 6.667
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      There is no AI anywhere in the product. The value is a domain model —
+      hang-only versus hang-and-takedown versus full-service storage,
+      1-story versus 2-story versus 3-story access — that is arithmetic,
+      and adding inference to it would only make the result less checkable.
+    basis: >-
+      Graduated on 2026-08-25 as a browser-local holiday light bid
+      calculator. Distinct from soffit and fascia (wrap / replace the
+      eave board), gutter install (K-style trough), landscape lighting
+      (low-voltage path and uplights), electrical panel (service amps),
+      and exterior painting (a coat). Search intent is explicit in
+      queries such as how much to charge to hang Christmas lights and
+      holiday light installation cost calculator.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Pass: output is a draft bid from user-supplied rates, not an
+      electrical design, a load calculation, a permit determination, a
+      landscape-lighting design, or a standard or benchmark, and nothing
+      the user enters leaves the browser.
