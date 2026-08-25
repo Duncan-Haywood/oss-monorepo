@@ -86,19 +86,37 @@ def parse_ubl_invoice(source: bytes | str) -> dict[str, Any]:
             "gross": _number(_text(total, "TaxInclusiveAmount")),
         },
     }
-    iban = _payee_iban(root)
-    if iban:
-        invoice["payment"] = {"iban": iban}
+    payment = _payee_payment(root)
+    if payment:
+        invoice["payment"] = payment
     return invoice
 
 
-def _payee_iban(root: ElementTree.Element) -> str:
-    """Map PayeeFinancialAccount/ID only. Nested branch IDs stay unused."""
+def _payee_payment(root: ElementTree.Element) -> dict[str, str]:
+    """Map PayeeFinancialAccount/ID and the nested branch BIC when present."""
     for means in _children(root, "PaymentMeans"):
         for account in _children(means, "PayeeFinancialAccount"):
+            payment: dict[str, str] = {}
             for child in list(account):
-                if child.tag.rsplit("}", 1)[-1] == "ID":
+                tag = child.tag.rsplit("}", 1)[-1]
+                if tag == "ID":
                     value = (child.text or "").strip()
                     if value:
-                        return value
+                        payment["iban"] = value
+                elif tag == "FinancialInstitutionBranch":
+                    bic = _branch_bic(child)
+                    if bic:
+                        payment["bic"] = bic
+            if payment:
+                return payment
+    return {}
+
+
+def _branch_bic(branch: ElementTree.Element) -> str:
+    """Accept branch/ID or branch/FinancialInstitution/ID."""
+    for child in branch.iter():
+        if child.tag.rsplit("}", 1)[-1] == "ID":
+            value = (child.text or "").strip()
+            if value:
+                return value
     return ""
