@@ -104,6 +104,7 @@
   .sensitivity th:first-child, .sensitivity td:first-child { text-align: left; }
   .table-scroll { overflow-x: auto; }
   .actions { margin-top: 1rem; display: flex; gap: 0.5rem; flex-wrap: wrap; }
+  .draft-status { flex-basis: 100%; min-height: 1.2em; }
   button { font: inherit; padding: 0.5rem 0.9rem; border-radius: 6px; border: 1px solid var(--border); background: var(--bg); color: var(--fg); cursor: pointer; }
   button:hover { border-color: var(--accent); }
   footer { border-top: 1px solid var(--border); margin-top: 2rem; padding-top: 1.5rem; font-size: 0.85rem; color: var(--muted); }
@@ -184,7 +185,10 @@
 
     <div class="actions">
       <button type="button" id="copy-csv">Copy as CSV row</button>
+      <button type="button" id="save-draft">Save draft in this browser</button>
+      <button type="button" id="clear-draft">Clear saved draft</button>
       <span id="copy-status" class="hint" role="status" aria-live="polite"></span>
+      <span id="draft-status" class="hint draft-status" role="status" aria-live="polite"></span>
     </div>
   </section>
 
@@ -253,6 +257,7 @@
   import { loadQuote, calculate, overrunScenarios } from "./calc.mjs";
   import { reviewQuote } from "./review.mjs";
   import { recordEvent, createReportCounter, isUsageCountingEnabled, setUsageCountingEnabled } from "./usage.mjs";
+  import { saveDraft, loadDraft, clearDraft } from "./drafts.mjs";
 
   // Counts settled quotes rather than keystrokes — see usage.mjs.
   const reportCounter = createReportCounter();
@@ -262,6 +267,7 @@
   const result = document.getElementById("result");
   const review = document.getElementById("review");
   const sensitivity = document.getElementById("sensitivity");
+  const draftStatus = document.getElementById("draft-status");
 
   let lastReport = null;
 
@@ -276,6 +282,12 @@
       subcontractor_cost: Number(el.subcontractor_cost.value),
       target_hourly_rate: Number(el.target_hourly_rate.value),
     };
+  }
+
+  function fillInputs(quote) {
+    for (const id of ids) {
+      if (quote[id] !== undefined) el[id].value = quote[id];
+    }
   }
 
   function fmt(n) {
@@ -328,6 +340,13 @@
     el[id].addEventListener("input", update);
     el[id].addEventListener("input", dismissExampleNote, { once: true });
   }
+  const savedDraft = loadDraft();
+  if (savedDraft) {
+    fillInputs(savedDraft);
+    dismissExampleNote();
+    draftStatus.textContent = "Saved draft restored from this browser.";
+    recordEvent("draft_loaded");
+  }
   update();
   // The first render is the pre-filled example, not a quote the visitor asked
   // for. Seed it so it isn't counted, and so their first real edit still is.
@@ -362,6 +381,26 @@
     } catch {
       copyStatus.textContent = "Couldn't access the clipboard in this browser.";
     }
+  });
+
+  document.getElementById("save-draft").addEventListener("click", () => {
+    if (!lastReport) {
+      draftStatus.textContent = "Fix the inputs above first.";
+      return;
+    }
+    const saved = saveDraft(lastReport.quote);
+    draftStatus.textContent = saved
+      ? "Draft saved in this browser."
+      : "This browser could not save a draft.";
+    if (saved) recordEvent("draft_saved");
+  });
+
+  document.getElementById("clear-draft").addEventListener("click", () => {
+    const cleared = clearDraft();
+    draftStatus.textContent = cleared
+      ? "Saved draft cleared from this browser."
+      : "This browser could not clear the draft.";
+    if (cleared) recordEvent("draft_cleared");
   });
 
   const usageToggle = document.getElementById("usage-toggle");
