@@ -25,7 +25,7 @@ export function calculate(input, includeSensitivity = true) {
   const delta = inHouse - quote.total;
   const perOrder = orders ? quote.total / orders : 0;
   const inHouseRate = n(input.inHousePerOrder, 13);
-  const result = { orders, quote, inHouse, delta, perOrder, breakEvenOrders: inHouseRate ? quote.total / inHouseRate : 0, minimumApplied: quote.total > quote.subtotal, winner: delta >= 0 ? "3PL" : "in-house", components: ["receiving", "storage", "pickPack", "packaging", "shipping", "returns", "fixed"], warnings };
+  const result = { orders, unitsPerOrder: units, quote, inHouse, delta, perOrder, breakEvenOrders: inHouseRate ? quote.total / inHouseRate : 0, minimumApplied: quote.total > quote.subtotal, winner: delta >= 0 ? "3PL" : "in-house", components: ["receiving", "storage", "pickPack", "packaging", "shipping", "returns", "fixed"], warnings };
   if (includeSensitivity) result.sensitivity = volumeSensitivity(input);
   return result;
 }
@@ -84,8 +84,9 @@ export function comparisonSummary(first, second, firstName = "Quote A", secondNa
 }
 
 export function volumeSensitivity(input, volumes = [25, 50, 100, 250, 500]) {
-  const baseOrders = Math.max(1, Number(input?.orders) || 1);
-  const units = Number(input?.unitsPerOrder) || 0;
+  const base = calculate(input, false);
+  const baseOrders = Math.max(1, base.orders || 1);
+  const units = base.unitsPerOrder;
   return volumes.map((orders) => {
     const result = calculate({ ...input, orders, inboundUnits: orders * units }, false);
     return {

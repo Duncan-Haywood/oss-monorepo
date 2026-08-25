@@ -92,6 +92,11 @@ test("shows how minimums and unit economics change with volume", () => {
   assert.ok(rows[2].perOrder < rows[0].perOrder);
 });
 
+test("volume sensitivity applies the same defaults as the main quote", () => {
+  const rows = volumeSensitivity({ orders: 100, unitsPerOrder: "", receivingPerUnit: "" }, [100]);
+  assert.equal(rows[0].total, calculate({ orders: 100 }).quote.total);
+});
+
 test("identifies the largest normalized cost driver for negotiation", () => {
   const result = calculate({ orders: 100, shipping: 12, fixedFee: 50 });
   const driver = largestCostDriver(result);
