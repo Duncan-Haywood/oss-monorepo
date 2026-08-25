@@ -6,6 +6,14 @@
 # retired honestly instead of quietly.
 period: 2026-08
 products:
+  - slug: cloud-egress-calculator
+    surface: static-page-in-repo
+    readings:
+      - as_of: 2026-08-25
+        signals:
+          live_url_visitors: null
+          local_calculations_reported: 0
+        note: Shipped browser-local storage and egress comparison baseline; public URL is owner-gated.
   - slug: shopify-permission-drift
     surface: local-cli
     readings:
