@@ -100,6 +100,12 @@ to deployable venture code stay owner-gated until Ask 9
 
 ## Graduating new products
 
+The portfolio may expand beyond its current venture list when a candidate is
+genuinely new, addresses a narrow painful problem, and can ship a useful free
+slice with the safeguards below. Existing ventures remain the default home for
+adjacent features, but historical limits on the number of ventures are not a
+reason to defer a strong, non-duplicative product.
+
 1. Pick a niche from `portfolio/pipeline/` or invent one that is **not** in
    `screened-out.md`.
 2. Graduate it matching its `graduate_as` field:
