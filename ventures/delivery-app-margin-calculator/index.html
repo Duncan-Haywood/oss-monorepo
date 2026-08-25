@@ -142,6 +142,8 @@
         <div id="bestProfit" class="hero-number">$—</div>
         <p id="spread" class="note"></p>
         <p id="monthly" class="note"></p>
+        <button id="copySummary" type="button">Copy decision summary</button>
+        <span id="copyStatus" class="note" role="status" aria-live="polite"></span>
       </div>
       <div class="scroller">
         <table>
@@ -372,7 +374,28 @@
             <td class="money">${result.gapVsDineIn === null || result.gapVsDineIn === 0 ? "—" : signedMoney(result.gapVsDineIn)}</td>
             <td class="money">${result.priceToMatchDineIn === null ? "—" : money(result.priceToMatchDineIn)}</td>
             <td class="money">${result.monthlyGapVsDineIn === null || result.monthlyGapVsDineIn === 0 ? "—" : signedMoney(result.monthlyGapVsDineIn)}</td>
-          </tr>`).join("");
+        </tr>`).join("");
+
+      document.getElementById("copySummary").onclick = async () => {
+        const ticketPrice = Number(document.getElementById("ticketPrice").value);
+        const monthlyOrders = Number(document.getElementById("monthlyOrders").value);
+        const lines = [
+          "Restaurant delivery margin comparison",
+          document.getElementById("bestLabel").textContent,
+          `Best path keeps ${money(comparison.best.profit)} on a ${money(ticketPrice)} ticket (${comparison.best.margin.toFixed(1)}% margin).`,
+          `At ${monthlyOrders} expected orders/month, the best path contributes ${money(comparison.best.profit * monthlyOrders)} before fixed overhead.`,
+          ...comparison.results.slice().sort((a, b) => a.rank - b.rank).map((result) =>
+            `${result.label}: keeps ${money(result.profit)}; price to match dine-in ${result.priceToMatchDineIn === null ? "not available" : money(result.priceToMatchDineIn)}.`),
+          "Rates are operator-entered assumptions. Verify against current statements before relying on this draft.",
+        ];
+        try {
+          await navigator.clipboard.writeText(lines.join("\n"));
+          document.getElementById("copyStatus").textContent = " Summary copied.";
+          recordUsage(localStorage, optedOut(), "summary_copied");
+        } catch {
+          document.getElementById("copyStatus").textContent = " Clipboard unavailable; use the table above.";
+        }
+      };
     }
 
     for (const id of SHARED_FIELDS) {

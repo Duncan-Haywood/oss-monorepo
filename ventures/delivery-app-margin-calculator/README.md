@@ -47,6 +47,10 @@ channel" starts switched off and blank.
 Entries are saved in your own browser so the page remembers them next time.
 "Reset everything" clears them.
 
+After calculating, use **Copy decision summary** to copy a compact owner-review
+note with the winning path, monthly contribution, and each path's price needed
+to match dine-in.
+
 A worked example of the default ticket is on
 [doordash-fees-for-restaurants.html](doordash-fees-for-restaurants.html).
 
@@ -87,7 +91,8 @@ tracking pixels, or analytics vendors. Saved entries stay in `localStorage`
 on that device.
 
 The optional usage counter records only an event name
-(`comparison_calculated`, `channel_rates_edited`, `channel_toggled`) and the
+(`comparison_calculated`, `channel_rates_edited`, `channel_toggled`,
+`summary_copied`) and the
 current day, in the visitor's own `localStorage`. It never records inputs,
 it never leaves the device, it is off for anyone sending Do Not Track or
 Global Privacy Control, and the footer checkbox turns it off and discards
