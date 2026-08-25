@@ -213,7 +213,31 @@ class ChecksTest(unittest.TestCase):
             self.assertEqual(report["files_failed"], 1)
             self.assertEqual(report["observations"], 1)
             self.assertEqual(report["rules"], {"INV-017": 1})
+            self.assertEqual(report["fixes"], [{
+                "rule": "INV-017",
+                "occurrences": 1,
+                "message": "Gross total does not equal net plus tax.",
+                "fix": "Set gross total to 238.00 or correct the totals.",
+            }])
             self.assertEqual(report["errors"][0]["rule"], "INV-017")
+
+    def test_cli_json_groups_repeated_fixes_without_invoice_values(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            first = json.loads(json.dumps(VALID))
+            first["totals"]["gross"] = 200
+            second = json.loads(json.dumps(VALID))
+            second["invoice_number"] = "INV-2"
+            second["totals"]["gross"] = 201
+            (root / "first.json").write_text(json.dumps(first))
+            (root / "second.json").write_text(json.dumps(second))
+            output = io.StringIO()
+            with contextlib.redirect_stdout(output):
+                self.assertEqual(main([directory, "--format", "json"]), 1)
+            report = json.loads(output.getvalue())
+            self.assertEqual(report["fixes"][0]["rule"], "INV-017")
+            self.assertEqual(report["fixes"][0]["occurrences"], 2)
+            self.assertNotIn("INV-1", output.getvalue())
 
     def test_cli_json_success_reports_machine_result_contract(self):
         with tempfile.TemporaryDirectory() as directory:
