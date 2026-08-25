@@ -86,6 +86,13 @@ ventures:
     composite: 6.5
     floor: 2
     floor_dimension: ai_leverage
+    floor_note: >-
+      The first release is intentionally deterministic and local-first. Its
+      defensibility depends on workflow adoption and customer evidence not yet
+      measured.
+    basis: >-
+      Browser-local 3PL quote comparison and negotiation workflow shipped in
+      August 2026; score remains an agent estimate, not customer measurement.
     gates:
       liability_containment: pass
       ethical_robustness: pass
