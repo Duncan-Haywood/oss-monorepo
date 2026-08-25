@@ -13,7 +13,16 @@ products:
         signals:
           local_comparisons: 1
           qualified_pilots: 0
-        note: Shipped fixture-backed local comparison; customer demand remains untested.
+         note: Shipped fixture-backed local comparison; customer demand remains untested.
+  - slug: einvoice-preflight
+    surface: repository-cli
+    readings:
+      - as_of: 2026-08-25
+        signals:
+          local_checklist_runs: 0
+          repo_views_14d: 0
+          release_downloads_total: 0
+        note: Added copyable checklist status summary; public distribution and usage remain unmeasured.
   - slug: ai-engineering-academy
     surface: static-page-in-repo
     readings:

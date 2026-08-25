@@ -149,9 +149,9 @@ ticket adapters that need a repair queue without parsing the full finding
 report; it never includes invoice values, numbers, or line contents. Read errors
 remain in `read_errors`, and the output uses exit code `2` for those errors.
 `--format checklist` emits a plain-text, copyable repair checklist grouped by
-local filename and rule. It is useful for handing a batch to a reviewer without
-asking them to parse JSON. It does not modify invoices or decide whether they
-may be submitted.
+local filename and rule. It starts with status and counts, making it useful for
+handing a complete batch triage summary to a reviewer without asking them to
+parse JSON. It does not modify invoices or decide whether they may be submitted.
 Use `--output PATH` with any format to write the report atomically to a local
 file instead of stdout. Parent directories are created when needed. A failed
 write returns exit code `2` and never replaces an existing report with a partial
