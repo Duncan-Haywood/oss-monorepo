@@ -1,5 +1,17 @@
 period: 2026-08
 entries:
+  - venture: subscription-price-impact
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Graduated a distinct SaaS pricing workflow: a browser-local calculator
+        for price-change revenue break-even, churn tolerance, fixed-cost
+        contribution, and five churn scenarios. Includes visible disclaimer,
+        privacy-safe opt-out usage counter, SEO metadata, sitemap, robots.txt,
+        MIT license, and focused Node tests. Public URL and observed demand
+        remain unresolved because publishing is owner-gated.
+    mrr_end: null
   - venture: shopify-a11y-evidence
     agent_spend_usd: null
     human_hours: 0

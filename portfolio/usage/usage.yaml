@@ -6,6 +6,14 @@
 # retired honestly instead of quietly.
 period: 2026-08
 products:
+  - slug: subscription-price-impact
+    surface: static-page-in-repo
+    readings:
+      - as_of: 2026-08-25
+        signals:
+          live_url_visitors: null
+          local_events_reported: 0
+        note: Shipped browser-local SaaS price increase churn calculator; public URL remains owner-gated.
   - slug: shopify-permission-drift
     surface: local-cli
     readings:
