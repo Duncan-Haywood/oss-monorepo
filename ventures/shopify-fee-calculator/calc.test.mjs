@@ -1,6 +1,12 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { applyPlanPreset, calculateOrder, PLAN_PRESETS } from "./calc.mjs";
+import {
+  applyPlanPreset,
+  calculateOrder,
+  expectedProfitAfterRefunds,
+  PLAN_PRESETS,
+  refundRateSweep,
+} from "./calc.mjs";
 
 const near = (actual, expected, msg) =>
   assert.ok(Math.abs(actual - expected) < 1e-6, `${msg}: ${actual} vs ${expected}`);
@@ -141,5 +147,166 @@ test("rejects unknown plans and invalid inputs", () => {
   assert.throws(
     () => calculateOrder({ price: 10, monthlyPlan: 39, monthlyOrders: 0 }),
     /Monthly orders/,
+  );
+});
+
+const refundBase = {
+  price: 48,
+  shippingCharged: 6,
+  paymentsRate: 2.9,
+  paymentsFixed: 0.3,
+  shopifyTxnRate: 2,
+  processorRate: 3.49,
+  processorFixed: 0.49,
+  costOfGoods: 14,
+  shippingCost: 5,
+  packagingCost: 1,
+  otherCost: 0,
+  monthlyPlan: 39,
+  monthlyOrders: 100,
+  paymentMethod: "shopify_payments",
+};
+
+test("a 0% refund rate leaves completed-order profit unchanged", () => {
+  const order = calculateOrder(refundBase);
+  const mix = expectedProfitAfterRefunds({ ...refundBase, refundRatePercent: 0 });
+  near(mix.shopifyPayments.expectedProfit, order.shopifyPayments.profit, "Shopify expected");
+  near(mix.thirdParty.expectedProfit, order.thirdParty.profit, "third-party expected");
+  assert.equal(mix.refundsFlipPath, false);
+  assert.equal(mix.completedWinner, "shopify_payments");
+  assert.equal(mix.expectedWinner, "shopify_payments");
+});
+
+test("a 100% refund with fee refunds still loses outbound shipping and packaging", () => {
+  // Shopify Payments fee refunded in full; goods restocked; return label $4.
+  // Remaining cash out: $5 outbound + $1 pack + $0.39 plan + $4 return = $10.39.
+  const mix = expectedProfitAfterRefunds({
+    ...refundBase,
+    refundRatePercent: 100,
+    returnShippingCost: 4,
+    restockablePercent: 100,
+    shopifyPaymentsFeeRefundPercent: 100,
+  });
+  near(mix.shopifyPayments.remainingFeesOnRefund, 0, "Shopify fees refunded");
+  near(mix.shopifyPayments.refundOutcomeProfit, -10.39, "refunded order cash");
+  near(mix.shopifyPayments.expectedProfit, -10.39, "100% refund expected");
+});
+
+test("PayPal keeping its fee makes a refund cost more than Shopify Payments", () => {
+  const mix = expectedProfitAfterRefunds({
+    ...refundBase,
+    refundRatePercent: 100,
+    returnShippingCost: 4,
+    restockablePercent: 100,
+    shopifyPaymentsFeeRefundPercent: 100,
+    thirdPartyFeeRefundPercent: 0,
+    shopifyThirdPartyFeeRefundPercent: 100,
+  });
+  const processorKept = 54 * 0.0349 + 0.49;
+  near(mix.thirdParty.remainingFeesOnRefund, processorKept, "PayPal keeps processor fee");
+  assert.ok(
+    mix.thirdParty.expectedProfit < mix.shopifyPayments.expectedProfit,
+    "third-party refund outcome should be worse when the processor keeps its fee",
+  );
+  near(
+    mix.expectedExtraVsShopifyPayments,
+    mix.thirdParty.expectedProfit - mix.shopifyPayments.expectedProfit,
+    "expected extra",
+  );
+});
+
+test("expected profit is the mix of completed and refunded outcomes", () => {
+  const mix = expectedProfitAfterRefunds({
+    ...refundBase,
+    refundRatePercent: 10,
+    returnShippingCost: 4,
+    restockablePercent: 100,
+  });
+  const expected = 0.9 * mix.shopifyPayments.completedProfit + 0.1 * mix.shopifyPayments.refundOutcomeProfit;
+  near(mix.selected.expectedProfit, expected, "10% mix");
+  near(mix.monthlyExpectedProfit, expected * 100, "monthly mix");
+});
+
+test("unsellable returns keep cost of goods in the refunded loss", () => {
+  const restocked = expectedProfitAfterRefunds({
+    ...refundBase,
+    refundRatePercent: 100,
+    restockablePercent: 100,
+    returnShippingCost: 0,
+  });
+  const discarded = expectedProfitAfterRefunds({
+    ...refundBase,
+    refundRatePercent: 100,
+    restockablePercent: 0,
+    returnShippingCost: 0,
+  });
+  near(
+    discarded.shopifyPayments.expectedProfit - restocked.shopifyPayments.expectedProfit,
+    -14,
+    "lost goods",
+  );
+});
+
+test("break-even refund rate is the mix that zeros expected profit", () => {
+  const mix = expectedProfitAfterRefunds({
+    ...refundBase,
+    refundRatePercent: 0,
+    returnShippingCost: 4,
+  });
+  const rate = mix.shopifyPayments.breakEvenRefundRate;
+  assert.ok(rate > 0 && rate < 100, `rate should be inside 0-100, got ${rate}`);
+  const atEdge = expectedProfitAfterRefunds({
+    ...refundBase,
+    refundRatePercent: rate,
+    returnShippingCost: 4,
+  });
+  near(atEdge.shopifyPayments.expectedProfit, 0, "profit at break-even refund rate");
+});
+
+test("refunds can flip which payment path still wins", () => {
+  // Completed order slightly prefers third-party. PayPal keeps its fee on
+  // refunds, so a high refund rate prefers Shopify Payments.
+  const input = {
+    price: 40,
+    shippingCharged: 0,
+    paymentsRate: 5,
+    paymentsFixed: 0.3,
+    shopifyTxnRate: 0,
+    processorRate: 2.9,
+    processorFixed: 0.3,
+    costOfGoods: 8,
+    shippingCost: 4,
+    packagingCost: 1,
+    monthlyPlan: 0,
+    monthlyOrders: 1,
+    returnShippingCost: 0,
+    restockablePercent: 100,
+    shopifyPaymentsFeeRefundPercent: 100,
+    thirdPartyFeeRefundPercent: 0,
+    shopifyThirdPartyFeeRefundPercent: 100,
+  };
+  const none = expectedProfitAfterRefunds({ ...input, refundRatePercent: 0 });
+  const many = expectedProfitAfterRefunds({ ...input, refundRatePercent: 50 });
+  assert.equal(none.completedWinner, "third_party");
+  assert.equal(many.expectedWinner, "shopify_payments");
+  assert.equal(many.refundsFlipPath, true);
+});
+
+test("refund rate sweep keeps 0% aligned with completed profit", () => {
+  const order = calculateOrder(refundBase);
+  const sweep = refundRateSweep(refundBase, [0, 10]);
+  assert.equal(sweep.length, 2);
+  near(sweep[0].shopifyPayments, order.shopifyPayments.profit, "sweep 0%");
+  assert.ok(sweep[1].shopifyPayments < sweep[0].shopifyPayments, "higher refund rate lowers expected profit");
+});
+
+test("rejects refund rates outside 0-100", () => {
+  assert.throws(
+    () => expectedProfitAfterRefunds({ ...refundBase, refundRatePercent: 101 }),
+    /Refund rate/,
+  );
+  assert.throws(
+    () => expectedProfitAfterRefunds({ ...refundBase, restockablePercent: -1 }),
+    /Restockable/,
   );
 });

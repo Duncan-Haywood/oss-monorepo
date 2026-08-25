@@ -33,6 +33,11 @@ expected monthly orders, and shows **both paths on the same order**.
 [Why PayPal can cost more on Shopify](why-paypal-costs-more.html) answers that
 search question directly.
 
+[What a refund rate still leaves](refunds.html) mixes completed-order profit
+with a full-refund outcome so a merchant can see whether PayPal keeping its
+fee on returns flips the comparison. Refund fields stay on that sibling page
+so share/handoff work on `index.html` does not have to allowlist them.
+
 **No warranty.** This tool is provided free and as-is, without warranty of any
 kind, express or implied. It is not tax, financial, or business advice, and it
 does not replace a qualified professional. **You are responsible for reviewing
@@ -60,11 +65,12 @@ optional and never changes what the tool does.
 Pure ES modules, no build step, no dependencies.
 
 ```
-node --test        # runs calc.test.mjs and usage.test.mjs
+node --test        # calc, refund mix, page smoke, and usage tests
 ```
 
-`calc.mjs` holds the fee/profit/ROI arithmetic and plan presets; `usage.mjs`
-holds the anonymous local counter; `index.html` is the calculator UI.
+`calc.mjs` holds the fee/profit/ROI arithmetic, plan presets, and the refund
+mix; `usage.mjs` holds the anonymous local counter; `index.html` is the
+completed-order calculator; `refunds.html` is the refund-rate mix.
 
 Not yet deployed to a public URL — publishing under the portfolio's name is
 owner-gated per `portfolio/DIRECTION.md` — but the page is ready to host as
