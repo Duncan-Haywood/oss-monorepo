@@ -1,7 +1,9 @@
 export function normalizeComparison(input) {
-  if (input?.first === "" || input?.second === "" || input?.first == null || input?.second == null) return { error: "Enter a valid monthly total for both quotes." };
-  const first = Number(input?.first);
-  const second = Number(input?.second);
+  const firstInput = input?.first;
+  const secondInput = input?.second;
+  if (firstInput == null || secondInput == null || String(firstInput).trim() === "" || String(secondInput).trim() === "") return { error: "Enter a valid monthly total for both quotes." };
+  const first = Number(firstInput);
+  const second = Number(secondInput);
   if (!Number.isFinite(first) || !Number.isFinite(second)) return { error: "Enter a valid monthly total for both quotes." };
   if (first < 0 || second < 0) return { error: "Monthly totals cannot be negative." };
   const difference = Math.abs(first - second);
@@ -21,6 +23,12 @@ export function comparisonMessage(result, firstName = "Quote A", secondName = "Q
   if (result.equal) return "Both normalized totals are equal.";
   const cheaperName = result.cheaper === "first" ? firstName : secondName;
   return `${cheaperName} is lower by ${money(result.difference)} per month at this volume (${money(result.annualDifference)} per year).`;
+}
+
+export function savingsPercent(result) {
+  if (!result || result.error || result.equal) return 0;
+  const higher = Math.max(result.first, result.second);
+  return higher === 0 ? 0 : (result.difference / higher) * 100;
 }
 
 function money(value) { return new Intl.NumberFormat("en-US", { style: "currency", currency: "USD" }).format(value); }
