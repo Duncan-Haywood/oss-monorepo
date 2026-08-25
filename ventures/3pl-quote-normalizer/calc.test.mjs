@@ -77,6 +77,12 @@ test("whitespace-only rate-card inputs use the disclosed default", () => {
   assert.match(result.warnings.join("\n"), /Shipping \/ order was blank; the default 8\.5 was used/);
 });
 
+test("blank inbound units disclose the derived fallback", () => {
+  const result = calculate({ orders: 120, unitsPerOrder: 2, inboundUnits: "" }, false);
+  assert.equal(Math.round(result.quote.receiving * 100) / 100, 28.8);
+  assert.deepEqual(result.warnings, ["Inbound units / month was blank; orders × units / order was used."]);
+});
+
 test("explicit zero rate-card inputs remain zero", () => {
   const result = calculate({ orders: 100, shipping: 0 }, false);
   assert.equal(result.quote.shipping, 0);
