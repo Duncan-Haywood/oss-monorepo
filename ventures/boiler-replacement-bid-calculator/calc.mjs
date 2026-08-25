@@ -463,6 +463,287 @@ export function compareScope(input) {
     .sort((a, b) => a.price - b.price);
 }
 
+/**
+ * Starting figures for the no-heat "just patch it" call. A
+ * circulator or relief-valve swap, plus the extra visits a
+ * leaking heat exchanger actually generates before spring.
+ * Replacement site-hours and van-pack stay off these visits —
+ * a service call is a trip and parts, not a changeout punch list.
+ */
+export function suggestedRepairKit() {
+  return {
+    hoursRepair: 2.2,
+    repairParts: 210,
+    extraCallsThisWinter: 2,
+    hoursPerExtraCall: 1.8,
+    partsPerExtraCall: 165,
+    remainingWinters: 3,
+    callsPerLaterWinter: 3,
+    patchPrice: 280,
+  };
+}
+
+function wholeNumber(value, name, { min = 0 } = {}) {
+  const result = number(value, name, { min, allowZero: min === 0 });
+  if (!Number.isInteger(result)) throw new Error(`${name} must be a whole number`);
+  return result;
+}
+
+/**
+ * Price one service call from trip, on-site hours, and parts.
+ * Uses the same loaded wage, overhead, and target margin as the
+ * plant bid so a $280 circulator special is scored against the
+ * same shop — not a different margin story. Replacement
+ * travelAndEquipment and siteHours stay out: those are changeout
+ * costs, not a no-heat dispatch.
+ */
+export function priceRepairVisit(input) {
+  const hoursLabor = number(input.hoursLabor ?? 0, 'Repair hours');
+  const parts = number(input.parts ?? 0, 'Repair parts');
+  const travelMiles = number(input.travelMiles ?? 0, 'Travel miles');
+  const hoursTrip = number(input.hoursTrip ?? 0, 'Trip hours');
+  const hoursPerMile = number(input.hoursPerMile ?? 0, 'Hours per mile');
+  const travelPerMile = number(input.travelPerMile ?? 0, 'Travel per mile');
+  const hourlyWage = number(input.hourlyWage ?? 0, 'Hourly wage');
+  const burdenRate = number(input.burdenRate ?? 0, 'Payroll burden');
+  const overheadRate = number(input.overheadRate ?? 0, 'Overhead');
+  const targetMargin = number(input.targetMargin ?? 0, 'Target margin');
+  if (targetMargin >= 100) throw new Error('Target margin must be less than 100%');
+
+  const hoursTravel = travelHours(hoursTrip, travelMiles, hoursPerMile);
+  const totalHours = hoursTravel + hoursLabor;
+  const loadedWage = hourlyWage * (1 + burdenRate / 100);
+  const laborCost = totalHours * loadedWage;
+  const travelInvoice = travelMiles * travelPerMile;
+  const materialCost = parts + travelInvoice;
+  const directCost = laborCost + materialCost;
+  const overhead = directCost * overheadRate / 100;
+  const totalCost = directCost + overhead;
+  const price = totalCost / (1 - targetMargin / 100);
+  return {
+    hoursTravel,
+    hoursLabor,
+    totalHours,
+    loadedWage,
+    laborCost,
+    parts,
+    travelInvoice,
+    materialCost,
+    directCost,
+    overhead,
+    totalCost,
+    price,
+    profit: price - totalCost,
+    breakEvenPrice: totalCost,
+  };
+}
+
+function scorePatchPrice(visit, patchPrice) {
+  if (patchPrice === null) return null;
+  return {
+    price: patchPrice,
+    profit: patchPrice - visit.totalCost,
+    margin: patchPrice === 0 ? 0 : (patchPrice - visit.totalCost) / patchPrice * 100,
+    hourlyRate: visit.totalHours === 0 ? null : patchPrice / visit.totalHours,
+    belowBreakEven: patchPrice < visit.totalCost,
+  };
+}
+
+/**
+ * Price the no-heat "just fix it for $280" call against the
+ * replacement bid on the same plant.
+ *
+ * This visit is a trip plus the parts on the truck. This winter
+ * adds the extra callbacks a cracked section actually produces.
+ * Remaining winters stack later seasons of the same call so the
+ * owner can see when band-aids catch the plant price. The $280
+ * (options.patchPrice, else input.patchPrice) is scored only
+ * against this visit — that is the number techs get shopped on
+ * at 9 p.m., not the season total.
+ */
+export function compareRepairVsReplace(input, options = {}) {
+  const extra = suggestedExtraKit();
+  const repair = suggestedRepairKit();
+  const hoursTrip = number(input.hoursTrip ?? extra.hoursTrip, 'Trip hours');
+  const hoursPerMile = number(input.hoursPerMile ?? extra.hoursPerMile, 'Hours per mile');
+  const travelPerMile = number(input.travelPerMile ?? extra.travelPerMile, 'Travel per mile');
+  const hoursRepair = number(input.hoursRepair ?? repair.hoursRepair, 'Repair hours');
+  const repairParts = number(input.repairParts ?? repair.repairParts, 'Repair parts');
+  const extraCallsThisWinter = wholeNumber(
+    input.extraCallsThisWinter ?? repair.extraCallsThisWinter,
+    'Extra calls this winter',
+  );
+  const hoursPerExtraCall = number(
+    input.hoursPerExtraCall ?? repair.hoursPerExtraCall,
+    'Hours per extra call',
+  );
+  const partsPerExtraCall = number(
+    input.partsPerExtraCall ?? repair.partsPerExtraCall,
+    'Parts per extra call',
+  );
+  const remainingWinters = wholeNumber(
+    input.remainingWinters ?? repair.remainingWinters,
+    'Remaining winters',
+    { min: 1 },
+  );
+  const callsPerLaterWinter = wholeNumber(
+    input.callsPerLaterWinter ?? repair.callsPerLaterWinter,
+    'Calls per later winter',
+  );
+
+  let patchPrice = null;
+  const rawPatch = options.patchPrice !== undefined ? options.patchPrice : input.patchPrice;
+  if (rawPatch !== null && rawPatch !== undefined && rawPatch !== '') {
+    patchPrice = number(rawPatch, 'Patch price');
+  }
+
+  const visitRates = {
+    travelMiles: input.travelMiles,
+    hoursTrip,
+    hoursPerMile,
+    travelPerMile,
+    hourlyWage: input.hourlyWage,
+    burdenRate: input.burdenRate,
+    overheadRate: input.overheadRate,
+    targetMargin: input.targetMargin,
+  };
+  const thisVisit = priceRepairVisit({
+    ...visitRates,
+    hoursLabor: hoursRepair,
+    parts: repairParts,
+  });
+  const extraCall = priceRepairVisit({
+    ...visitRates,
+    hoursLabor: hoursPerExtraCall,
+    parts: partsPerExtraCall,
+  });
+  const replace = calculateBid(input);
+
+  const thisWinterPrice = thisVisit.price + extraCallsThisWinter * extraCall.price;
+  const laterWinterCount = remainingWinters - 1;
+  const laterWinterPrice = laterWinterCount * callsPerLaterWinter * extraCall.price;
+  const horizonPrice = thisWinterPrice + laterWinterPrice;
+
+  let wintersUntilReplaceCatches = null;
+  if (thisWinterPrice >= replace.price) {
+    wintersUntilReplaceCatches = 1;
+  } else if (callsPerLaterWinter > 0 && extraCall.price > 0) {
+    const afterThisWinter = replace.price - thisWinterPrice;
+    const perLaterWinter = callsPerLaterWinter * extraCall.price;
+    wintersUntilReplaceCatches = 1 + Math.ceil(afterThisWinter / perLaterWinter);
+  }
+
+  const rows = [
+    {
+      id: 'this-visit',
+      label: 'This patch visit',
+      price: thisVisit.price,
+      totalCost: thisVisit.totalCost,
+      totalHours: thisVisit.totalHours,
+      patchOnly: scorePatchPrice(thisVisit, patchPrice),
+    },
+    {
+      id: 'this-winter',
+      label: 'This winter of patches',
+      price: thisWinterPrice,
+      totalCost: thisVisit.totalCost + extraCallsThisWinter * extraCall.totalCost,
+      totalHours: thisVisit.totalHours + extraCallsThisWinter * extraCall.totalHours,
+      patchOnly: null,
+    },
+    {
+      id: 'horizon',
+      label: `${remainingWinters} winter${remainingWinters === 1 ? '' : 's'} of patches`,
+      price: horizonPrice,
+      totalCost: thisVisit.totalCost
+        + extraCallsThisWinter * extraCall.totalCost
+        + laterWinterCount * callsPerLaterWinter * extraCall.totalCost,
+      totalHours: thisVisit.totalHours
+        + extraCallsThisWinter * extraCall.totalHours
+        + laterWinterCount * callsPerLaterWinter * extraCall.totalHours,
+      patchOnly: null,
+    },
+    {
+      id: 'replace',
+      label: 'Replace the plant',
+      price: replace.price,
+      totalCost: replace.totalCost,
+      totalHours: replace.totalHours,
+      patchOnly: null,
+    },
+  ];
+  const cheapest = Math.min(...rows.map((row) => row.price));
+  return {
+    thisVisit,
+    extraCall,
+    extraCallsThisWinter,
+    remainingWinters,
+    callsPerLaterWinter,
+    laterWinterCount,
+    thisWinterPrice,
+    laterWinterPrice,
+    horizonPrice,
+    replace: {
+      price: replace.price,
+      totalCost: replace.totalCost,
+      totalHours: replace.totalHours,
+      breakEvenPrice: replace.breakEvenPrice,
+    },
+    patchStillCheaper: horizonPrice < replace.price,
+    wintersUntilReplaceCatches,
+    patchPrice,
+    rows: rows.map((row) => ({
+      ...row,
+      cheapest: row.price === cheapest,
+      delta: row.price - cheapest,
+    })),
+  };
+}
+
+/**
+ * One-line verdict: name the $280 visit loss first (that is the
+ * number on the table tonight), then whether remaining winters of
+ * patches still undercut the plant bid.
+ */
+export function repairVsReplaceNote(comparison) {
+  if (!comparison || !Array.isArray(comparison.rows) || comparison.rows.length < 4) {
+    throw new Error('Repair-vs-replace comparison is missing rows');
+  }
+  const visit = comparison.rows.find((row) => row.id === 'this-visit');
+  const horizon = comparison.rows.find((row) => row.id === 'horizon');
+  const replace = comparison.rows.find((row) => row.id === 'replace');
+  if (!visit || !horizon || !replace) {
+    throw new Error('Repair-vs-replace comparison is missing a row');
+  }
+
+  const winters = comparison.remainingWinters;
+  const winterWord = winters === 1 ? 'winter' : 'winters';
+  const catchLine = comparison.wintersUntilReplaceCatches === null
+    ? 'Later winters never catch replacement at these call rates.'
+    : comparison.wintersUntilReplaceCatches <= winters
+      ? `${winters} ${winterWord} of patches already catch the plant bid.`
+      : `Replacement catches around winter ${comparison.wintersUntilReplaceCatches} at these call rates.`;
+
+  if (visit.patchOnly) {
+    const asked = visit.patchOnly.price;
+    if (visit.patchOnly.belowBreakEven) {
+      const loss = Math.abs(visit.patchOnly.profit);
+      if (comparison.patchStillCheaper) {
+        return `At ${money(asked)} this patch loses ${money(loss)} — walk-away on the visit is ${money(visit.totalCost)}. ${winters} ${winterWord} of patches (${money(horizon.price)}) still undercut replacement (${money(replace.price)}). ${catchLine}`;
+      }
+      return `At ${money(asked)} this patch loses ${money(loss)} — walk-away on the visit is ${money(visit.totalCost)}. ${winters} ${winterWord} of patches (${money(horizon.price)}) already cost more than replacing (${money(replace.price)}).`;
+    }
+    if (comparison.patchStillCheaper) {
+      return `At ${money(asked)} this visit holds a margin. ${winters} ${winterWord} of patches (${money(horizon.price)}) still undercut replacement (${money(replace.price)}). ${catchLine}`;
+    }
+    return `At ${money(asked)} this visit holds a margin, but ${winters} ${winterWord} of patches (${money(horizon.price)}) already cost more than replacing (${money(replace.price)}).`;
+  }
+
+  if (comparison.patchStillCheaper) {
+    return `${winters} ${winterWord} of patches come to ${money(horizon.price)} and still undercut replacement at ${money(replace.price)}. ${catchLine}`;
+  }
+  return `${winters} ${winterWord} of patches come to ${money(horizon.price)} — more than replacing the plant at ${money(replace.price)}.`;
+}
+
 function money(value) {
   return `$${value.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
 }

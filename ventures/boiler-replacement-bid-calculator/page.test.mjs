@@ -10,6 +10,7 @@ import { readFileSync } from 'node:fs';
 
 const html = readFileSync(new URL('./index.html', import.meta.url), 'utf8');
 const seo = readFileSync(new URL('./how-much-to-charge-to-replace-a-boiler.html', import.meta.url), 'utf8');
+const patch = readFileSync(new URL('./should-i-patch-this-boiler-for-one-more-winter.html', import.meta.url), 'utf8');
 
 const RAW_TEXT_ELEMENTS = ['textarea', 'script', 'style'];
 
@@ -49,6 +50,8 @@ test('the module script survives parsing and would actually execute', () => {
   assert.match(markup, /<script type="module">/, 'the app script tag is missing or was swallowed by an earlier element');
   assert.match(scriptSource, /calculateBid/, 'the app script did not parse as a script element');
   assert.match(scriptSource, /compareScope/, 'scope comparison is missing from the executable script');
+  assert.match(scriptSource, /compareRepairVsReplace/, 'repair comparison is missing from the executable script');
+  assert.match(scriptSource, /repairVsReplaceNote/, 'repair verdict helper is missing from the executable script');
   assert.match(scriptSource, /formatBidSummary/, 'copy-summary helper is missing from the executable script');
 });
 
@@ -66,7 +69,8 @@ test('inputs and result fields for the primary journey are present', () => {
   for (const id of [
     'scope', 'system', 'fuel', 'inputMbh', 'zones', 'travelMiles',
     'hourlyWage', 'targetMargin', 'proposedPrice',
-    'price', 'breakEven', 'compare', 'copySummary', 'usageOptOut', 'jobPresets',
+    'hoursRepair', 'repairParts', 'extraCallsThisWinter', 'remainingWinters', 'patchPrice',
+    'price', 'breakEven', 'compare', 'repair', 'repairNote', 'copySummary', 'usageOptOut', 'jobPresets',
   ]) {
     assert.ok(declaredIds.has(id), `missing #${id}`);
   }
@@ -92,5 +96,16 @@ test('the SEO article answers the search phrase and stays crawlable', () => {
   assert.match(seo, /HowTo/);
   assert.match(seo, /like-for-like/i);
   assert.match(seo, /index\.html/);
+  assert.match(seo, /should-i-patch-this-boiler-for-one-more-winter\.html/);
   assert.doesNotMatch(seo, /<textarea/i);
+});
+
+test('the patch article answers the no-heat question and stays crawlable', () => {
+  assert.match(patch, /Should I patch this boiler for one more winter/i);
+  assert.match(patch, /FAQPage/);
+  assert.match(patch, /\$280/);
+  assert.match(patch, /index\.html/);
+  assert.match(patch, /No warranty/);
+  assert.match(patch, /Best-effort hosting, no SLA/);
+  assert.doesNotMatch(patch, /<textarea/i);
 });

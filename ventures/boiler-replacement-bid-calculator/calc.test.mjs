@@ -3,12 +3,16 @@ import assert from 'node:assert/strict';
 import {
   calculateBid,
   compareScope,
+  compareRepairVsReplace,
   formatBidSummary,
+  priceRepairVisit,
+  repairVsReplaceNote,
   travelHours,
   suggestedScopeKit,
   suggestedSystemKit,
   suggestedFuelKit,
   suggestedExtraKit,
+  suggestedRepairKit,
   JOB_PRESETS,
 } from './calc.mjs';
 
@@ -217,6 +221,92 @@ test('every shipped job preset calculates without throwing', () => {
     assert.ok(result.price > 0, preset.label);
     assert.ok(result.inputMbh > 0, preset.label);
   }
+});
+
+test('a $280 circulator special loses on this visit under starting repair rates', () => {
+  const kit = suggestedRepairKit();
+  const comparison = compareRepairVsReplace(special(), { patchPrice: kit.patchPrice });
+  assert.equal(kit.patchPrice, 280);
+  assert.ok(comparison.thisVisit.price > 280);
+  assert.equal(comparison.rows[0].patchOnly.belowBreakEven, true);
+  assert.ok(comparison.rows[0].patchOnly.profit < 0);
+  assert.equal(comparison.extraCallsThisWinter, 2);
+  assert.equal(comparison.remainingWinters, 3);
+  assert.ok(comparison.thisWinterPrice > comparison.thisVisit.price);
+  assert.ok(comparison.horizonPrice > comparison.thisWinterPrice);
+  assert.ok(comparison.replace.price > comparison.thisVisit.price);
+});
+
+test('repair visits omit the replacement van pack and punch-list hours', () => {
+  const visit = priceRepairVisit({
+    hoursLabor: 2.2,
+    parts: 210,
+    travelMiles: 10,
+    hoursTrip: 1.4,
+    hoursPerMile: 0.035,
+    travelPerMile: 2.8,
+    hourlyWage: 48,
+    burdenRate: 32,
+    overheadRate: 15,
+    targetMargin: 20,
+  });
+  assert.ok(Math.abs(visit.totalHours - (1.4 + 0.35 + 2.2)) < 1e-9);
+  assert.equal(visit.parts, 210);
+  assert.ok(Math.abs(visit.profit / visit.price * 100 - 20) < 1e-9);
+  assert.ok(visit.directCost < 48 * 1.32 * visit.totalHours + 210 + 28 + 95);
+});
+
+test('more winters of the same callback raise the patch horizon, not the plant bid', () => {
+  const short = compareRepairVsReplace({ ...special(), remainingWinters: 1, extraCallsThisWinter: 2, callsPerLaterWinter: 3 });
+  const long = compareRepairVsReplace({ ...special(), remainingWinters: 5, extraCallsThisWinter: 2, callsPerLaterWinter: 3 });
+  assert.equal(short.laterWinterCount, 0);
+  assert.equal(short.laterWinterPrice, 0);
+  assert.ok(Math.abs(short.horizonPrice - short.thisWinterPrice) < 1e-9);
+  assert.ok(long.horizonPrice > short.horizonPrice);
+  assert.equal(long.replace.price, short.replace.price);
+  assert.equal(long.thisVisit.price, short.thisVisit.price);
+});
+
+test('a cracked-section winter of patches can outrun replacement', () => {
+  const comparison = compareRepairVsReplace({
+    ...special(),
+    hoursRepair: 4,
+    repairParts: 890,
+    extraCallsThisWinter: 3,
+    hoursPerExtraCall: 3.2,
+    partsPerExtraCall: 640,
+    remainingWinters: 2,
+    callsPerLaterWinter: 4,
+  });
+  assert.equal(comparison.patchStillCheaper, false);
+  assert.ok(comparison.horizonPrice > comparison.replace.price);
+  assert.ok(comparison.wintersUntilReplaceCatches <= comparison.remainingWinters);
+  assert.match(repairVsReplaceNote(comparison), /more than replacing/i);
+});
+
+test('the $280 note names the visit loss before the horizon', () => {
+  const comparison = compareRepairVsReplace(special(), { patchPrice: 280 });
+  const note = repairVsReplaceNote(comparison);
+  assert.match(note, /\$280/);
+  assert.match(note, /loses/);
+  assert.match(note, /walk-away/);
+  if (comparison.patchStillCheaper) {
+    assert.match(note, /undercut replacement/i);
+  }
+});
+
+test('fractional winters or a 100% margin on a patch are rejected', () => {
+  assert.throws(() => compareRepairVsReplace({ ...special(), remainingWinters: 1.5 }), /whole number/);
+  assert.throws(() => compareRepairVsReplace({ ...special(), remainingWinters: 0 }), /at least 1/);
+  assert.throws(() => compareRepairVsReplace({ ...special(), extraCallsThisWinter: 1.2 }), /whole number/);
+  assert.throws(
+    () => priceRepairVisit({
+      hoursLabor: 2, parts: 100, travelMiles: 10, hoursTrip: 1, hoursPerMile: 0.03,
+      travelPerMile: 2, hourlyWage: 48, burdenRate: 32, overheadRate: 15, targetMargin: 100,
+    }),
+    /less than 100/,
+  );
+  assert.throws(() => repairVsReplaceNote({ rows: [] }), /missing rows/);
 });
 
 test('the customer summary names the plant and omits wages', () => {
