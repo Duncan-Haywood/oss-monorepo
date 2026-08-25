@@ -830,3 +830,31 @@ ventures:
       The shipped production rates are labelled ballpark starting points rather
       than a standard or benchmark, and nothing the user enters leaves the
       browser.
+
+  - slug: notary-trip-quote
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 7
+      gross_margin: 10
+      defensibility: 4
+      distribution: 7
+    composite: 6.5
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      The product is intentionally deterministic: travel, time, and fee
+      arithmetic is more useful when a notary can audit every line.
+    basis: >-
+      Graduated on 2026-08-25 as a browser-local quote calculator for mobile
+      notaries. It targets an appointment-and-travel workflow rather than
+      recurring trade bids or marketplace fees, with searchable problem
+      language and zero hosting or inference cost.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Pass: the tool does not determine statutory fees or claim that a quote is
+      legally permitted. It calculates only the user's inputs, states the
+      jurisdictional limitation, and keeps appointment data in the browser.

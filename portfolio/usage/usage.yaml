@@ -6,6 +6,16 @@
 # retired honestly instead of quietly.
 period: 2026-08
 products:
+  - slug: notary-trip-quote
+    surface: static-browser-app
+    readings:
+      - as_of: 2026-08-25
+        signals:
+          live_url_visitors: null
+          local_events_reported: 0
+        note: >-
+          New local-first vertical slice for mobile notaries. No public URL yet;
+          baseline recorded before owner-authorized publishing.
   - slug: shopify-permission-drift
     surface: local-cli
     readings:
