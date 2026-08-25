@@ -18,7 +18,7 @@
     "applicationCategory": "BusinessApplication",
     "operatingSystem": "Any (runs in a web browser)",
     "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
-    "featureList": "FBA vs FBM comparison, size-tier fulfillment, storage, inbound, net profit, margin, ROI, break-even price, max buy cost, target-margin price"
+    "featureList": "FBA vs FBM comparison, size-tier fulfillment, storage, inbound, net profit, margin, ROI, break-even price, max buy cost, target-margin price, Low-Price FBA vs raising the list price"
   }
   </script>
   <script type="application/ld+json">
@@ -48,6 +48,14 @@
         "acceptedAnswer": {
           "@type": "Answer",
           "text": "The max buy cost is the cost of goods that drives net profit to zero after the referral fee and the fulfillment-path costs you entered. Buy above that number and the unit loses money on these assumptions."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Should I stay under Amazon Low-Price FBA or raise the price?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "A one-cent raise above the Low-Price threshold usually loses, because the regular pick fee jumps by more than the extra revenue after referral. The calculator shows the raise that matches Low-Price profit on the fees you enter. It does not publish Amazon's live schedule or say a listing is eligible."
         }
       }
     ]
@@ -147,6 +155,19 @@
         <label>Professional plan / month <input id="monthlySellerFee" type="number" min="0" step="0.01" value="39.99"></label>
         <label>Units sold per month <input id="monthlyUnits" type="number" min="0" step="1" value="80"></label>
         <label>Target net margin (%) <input id="targetMargin" type="number" min="0" max="99.99" step="0.1" value="30"></label>
+        <label class="span2">Low-Price FBA threshold ($)
+          <input id="lowPriceThreshold" type="number" min="0.01" step="0.01" value="10">
+          <span class="hint">Illustrative US $10 standard-size band. Apparel and other categories sometimes use a different cutoff — type the one on your fee preview.</span>
+        </label>
+        <label>Low-Price sale price <input id="lowPriceSalePrice" type="number" min="0" step="0.01" value=""></label>
+        <label>Price if you leave the program <input id="raisePrice" type="number" min="0" step="0.01" value=""></label>
+        <label>Low-Price fulfillment fee <span class="hint" id="lowPriceFeeHint"></span>
+          <input id="lowPriceFulfillmentFee" type="number" min="0" step="0.01" value="">
+        </label>
+        <label class="span2" style="display:flex;gap:.5rem;align-items:center;font-weight:600">
+          <input id="lowPriceEligible" type="checkbox" checked style="width:auto">
+          Listing can use Low-Price FBA (standard-size, at or under the threshold — you confirm, this page does not)
+        </label>
       </div>
     </section>
     <section class="result">
@@ -170,6 +191,18 @@
         <thead><tr><th>Path</th><th>Fees</th><th>Profit</th><th>Max buy</th></tr></thead>
         <tbody id="compare"></tbody>
       </table>
+      <hr>
+      <h2>Low-Price FBA vs raising the price</h2>
+      <p id="lowPriceSummary" class="note"></p>
+      <dl>
+        <dt>Raise that matches Low-Price profit</dt><dd id="lowPriceBreakEven"></dd>
+        <dt>Which path keeps more</dt><dd id="lowPriceWinner"></dd>
+      </dl>
+      <table>
+        <thead><tr><th>Path</th><th>Price</th><th>Pick fee</th><th>Profit</th></tr></thead>
+        <tbody id="lowPriceCompare"></tbody>
+      </table>
+      <p class="note">A one-cent raise above the threshold usually loses — the regular pick fee jumps by more than that extra revenue after referral. <a href="should-i-price-over-amazons-low-price-fba.html" style="color:#9ec5ff">Should I stay under Low-Price FBA?</a></p>
       <p class="note">Transparent arithmetic from your inputs — not Amazon’s current fee schedule. Referral, fulfillment, storage, and inbound vary by category, size, season, and account. Verify against your Amazon fee preview before buying inventory.</p>
     </section>
   </main>
@@ -183,6 +216,9 @@
       still works.
       <a href="fba-vs-fbm.html">FBA vs FBM: which path leaves more?</a>
       walks through that in search-query words.
+      On a cheap SKU the next decision is
+      <a href="should-i-price-over-amazons-low-price-fba.html">whether staying under Low-Price FBA still beats a real raise</a>
+      — a one-cent move over $10 usually does not.
     </p>
     <p>
       It does not recommend a price, a category, or a fulfillment method, and
@@ -193,6 +229,7 @@
   <footer>
     <label><input id="usageOptOut" type="checkbox" style="width:auto"> Do not keep anonymous local usage counts</label>
     <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not tax, financial, or business advice, and it does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for meeting any obligation it helps you prepare for. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record. If a tool needs to survive, export your inputs and run it yourself.</p>
     <p>Everything runs in your browser. Your prices and costs are never uploaded. There are no accounts, cookies, tracking pixels, or analytics vendors. The optional local counter records only the event name and day; never the inputs. Turn it off above, or with Do Not Track / Global Privacy Control.</p>
     <p>Free and open source. If it saved you from an unprofitable buy, the <a href="https://github.com/Duncan-Haywood/monorepo-projects">project is on GitHub</a> — <a href="https://github.com/sponsors/Duncan-Haywood">GitHub Sponsors</a> is optional and never changes what the tool does. MIT licensed.</p>
   </footer>
@@ -201,6 +238,7 @@
       applyCategoryPreset,
       applyStoragePreset,
       calculateListing,
+      compareLowPriceFba,
     } from "./calc.mjs";
     import { recordUsage } from "./usage.mjs";
 
@@ -209,6 +247,7 @@
       "monthsInStorage", "storageRate", "fulfillmentFee", "costOfGoods",
       "inboundPerUnit", "fbmShippingCost", "packagingCost", "adsPerUnit",
       "otherCost", "monthlySellerFee", "monthlyUnits", "targetMargin",
+      "lowPriceThreshold", "lowPriceSalePrice", "raisePrice", "lowPriceFulfillmentFee",
     ];
     const money = (value) => `$${value.toFixed(2)}`;
     let syncingFee = false;
@@ -220,7 +259,24 @@
     function readInput() {
       const raw = Object.fromEntries(ids.map((id) => [id, document.getElementById(id).value]));
       if (raw.fulfillmentFee === "") delete raw.fulfillmentFee;
-      return { ...raw, fulfillmentMethod: fulfillmentMethod() };
+      if (raw.lowPriceFulfillmentFee === "") delete raw.lowPriceFulfillmentFee;
+      if (raw.lowPriceSalePrice === "") delete raw.lowPriceSalePrice;
+      if (raw.raisePrice === "") delete raw.raisePrice;
+      return {
+        ...raw,
+        fulfillmentMethod: fulfillmentMethod(),
+        lowPriceEligible: document.getElementById("lowPriceEligible").checked,
+      };
+    }
+
+    function fillAuto(id, value) {
+      const field = document.getElementById(id);
+      if (field.value === "" || field.dataset.auto === "1") {
+        syncingFee = true;
+        field.value = value;
+        field.dataset.auto = "1";
+        syncingFee = false;
+      }
     }
 
     function updateFeePlaceholder() {
@@ -230,14 +286,28 @@
         field.placeholder = result.suggestedFulfillment.toFixed(2);
         document.getElementById("sizeHint").textContent =
           `(${result.sizeTierLabel}, default $${result.suggestedFulfillment.toFixed(2)})`;
-        if (field.value === "" || field.dataset.auto === "1") {
-          syncingFee = true;
-          field.value = result.suggestedFulfillment.toFixed(2);
-          field.dataset.auto = "1";
-          syncingFee = false;
-        }
+        fillAuto("fulfillmentFee", result.suggestedFulfillment.toFixed(2));
+
+        const stayAuto = document.getElementById("lowPriceSalePrice").dataset.auto === "1"
+          || document.getElementById("lowPriceSalePrice").value === "";
+        const raiseAuto = document.getElementById("raisePrice").dataset.auto === "1"
+          || document.getElementById("raisePrice").value === "";
+        const compared = compareLowPriceFba({
+          ...readInput(),
+          fulfillmentFee: undefined,
+          lowPriceFulfillmentFee: undefined,
+          ...(stayAuto ? { lowPriceSalePrice: undefined } : {}),
+          ...(raiseAuto ? { raisePrice: undefined } : {}),
+        });
+        document.getElementById("lowPriceFulfillmentFee").placeholder = compared.suggestedLow.toFixed(2);
+        document.getElementById("lowPriceFeeHint").textContent =
+          `(default $${compared.suggestedLow.toFixed(2)})`;
+        fillAuto("lowPriceFulfillmentFee", compared.suggestedLow.toFixed(2));
+        fillAuto("lowPriceSalePrice", compared.stayPrice.toFixed(2));
+        fillAuto("raisePrice", compared.raisePrice.toFixed(2));
       } catch {
         document.getElementById("sizeHint").textContent = "";
+        document.getElementById("lowPriceFeeHint").textContent = "";
       }
     }
 
@@ -269,14 +339,39 @@
         ].map(([name, path]) =>
           `<tr><td>${name}</td><td>${money(path.feeTotal)}</td><td>${money(path.profit)}</td><td>${money(path.breakEvenBuyCost)}</td></tr>`
         ).join("");
+
+        const low = compareLowPriceFba(readInput());
+        document.getElementById("lowPriceSummary").textContent = low.summary;
+        document.getElementById("lowPriceBreakEven").textContent = Number.isFinite(low.breakEvenRaise)
+          ? money(low.breakEvenRaise) : "unreachable";
+        document.getElementById("lowPriceWinner").textContent =
+          low.winner === "stay" ? "Low-Price FBA keeps more"
+            : low.winner === "raise" ? "Listing above the threshold keeps more"
+              : "same profit";
+        const rows = [
+          [`Low-Price FBA at ${money(low.stayPrice)}`, low.stayPrice, low.eligible ? low.lowPriceFee : low.regularFee, low.stay.fba.profit],
+          [`Regular FBA at ${money(low.raisePrice)}`, low.raisePrice, low.regularFee, low.raise.fba.profit],
+        ];
+        if (Math.abs(low.raisePrice - low.justOverPrice) > 1e-9) {
+          rows.splice(1, 0, [
+            `Penny over threshold (${money(low.justOverPrice)})`,
+            low.justOverPrice,
+            low.regularFee,
+            low.justOver.fba.profit,
+          ]);
+        }
+        document.getElementById("lowPriceCompare").innerHTML = rows.map(([name, price, fee, profit]) =>
+          `<tr><td>${name}</td><td>${money(price)}</td><td>${money(fee)}</td><td>${money(profit)}</td></tr>`
+        ).join("");
       } catch (error) {
         document.getElementById("profit").textContent = error.message;
         document.getElementById("profit").className = "hero-number error";
         document.getElementById("label").textContent = "fix the inputs to see a result";
-        ["revenue", "fees", "invested", "margin", "roi", "breakEven", "maxBuy", "targetMarginPrice", "advantage"].forEach((id) => {
+        ["revenue", "fees", "invested", "margin", "roi", "breakEven", "maxBuy", "targetMarginPrice", "advantage", "lowPriceSummary", "lowPriceBreakEven", "lowPriceWinner"].forEach((id) => {
           document.getElementById(id).textContent = "";
         });
         document.getElementById("compare").innerHTML = "";
+        document.getElementById("lowPriceCompare").innerHTML = "";
       }
     }
 
@@ -296,9 +391,11 @@
 
     document.getElementById("category").addEventListener("change", applyCategory);
     document.getElementById("storageSeason").addEventListener("change", applyStorage);
+    const autoFields = new Set(["fulfillmentFee", "lowPriceFulfillmentFee", "lowPriceSalePrice", "raisePrice"]);
+    const lowPriceFields = new Set(["lowPriceThreshold", "lowPriceSalePrice", "raisePrice", "lowPriceFulfillmentFee"]);
     ids.forEach((id) => document.getElementById(id).addEventListener("input", () => {
-      if (id === "fulfillmentFee" && !syncingFee) {
-        document.getElementById("fulfillmentFee").dataset.auto = "0";
+      if (autoFields.has(id) && !syncingFee) {
+        document.getElementById(id).dataset.auto = "0";
       }
       update();
     }));
@@ -306,9 +403,15 @@
       recordUsage(
         localStorage,
         document.getElementById("usageOptOut").checked,
-        id === "targetMargin" ? "target_margin_calculated" : "listing_profit_calculated",
+        id === "targetMargin" ? "target_margin_calculated"
+          : lowPriceFields.has(id) ? "low_price_fba_compared"
+            : "listing_profit_calculated",
       );
     }));
+    document.getElementById("lowPriceEligible").addEventListener("change", () => {
+      update();
+      recordUsage(localStorage, document.getElementById("usageOptOut").checked, "low_price_fba_compared");
+    });
     document.querySelectorAll('input[name="fulfillmentMethod"]').forEach((el) => {
       el.addEventListener("change", () => {
         update();
