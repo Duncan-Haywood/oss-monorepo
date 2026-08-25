@@ -1,5 +1,18 @@
 period: 2026-08
 entries:
+  - venture: grant-deadline-tracker
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Graduated and implemented a browser-local grant deadline and reporting
+        tracker for small nonprofits. It highlights overdue and near-term
+        obligations, calculates award funds remaining, and exports a private
+        CSV without accounts, uploads, paid APIs, or payment collection. The
+        product includes a visible disclaimer, local privacy boundary, opt-in
+        draft storage, opt-out anonymous usage counter, MIT license, SEO
+        metadata, sitemap, and robots.txt. Public publishing remains owner-gated.
+    mrr_end: null
   - venture: retainage-cashflow-calculator
     agent_spend_usd: null
     human_hours: 0

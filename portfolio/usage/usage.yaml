@@ -6,6 +6,15 @@
 # retired honestly instead of quietly.
 period: 2026-08
 products:
+  - slug: grant-deadline-tracker
+    surface: static-page-in-repo
+    readings:
+      - as_of: 2026-08-25
+        signals:
+          live_url_visitors: null
+          local_grants_added: 0
+          csv_exports: 0
+        note: Shipped browser-local nonprofit grant deadline tracker; public URL remains owner-gated.
   - slug: retainage-cashflow-calculator
     surface: static-page-in-repo
     readings:
