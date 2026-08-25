@@ -62,6 +62,14 @@
           "@type": "Answer",
           "text": "24 hours is the most common default because it usually gives enough time to fill the slot from a waitlist. Businesses with longer sessions or harder-to-fill slots (e.g. multi-hour bookings) often require 48 hours instead. The calculator defaults to 24 hours and you can change it."
         }
+      },
+      {
+        "@type": "Question",
+        "name": "Should I take a deposit instead of charging a no-show fee?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "A deposit is collected when the client books, so a late cancel does not depend on a second collection attempt. A no-show fee is invoiced after the missed slot and only arrives at the rate you actually enforce. This calculator compares those policies on your own price, volume, no-show rate, and assumed enforcement rate. It is not legal advice."
+        }
       }
     ]
   }
@@ -123,6 +131,11 @@
           <label for="enforcementRatePct">Assumed enforcement rate (%)</label>
           <input type="number" id="enforcementRatePct" name="enforcementRatePct" min="0" max="100" step="1" value="70" required />
           <p class="hint">How often you expect to actually collect the fee once the policy is in place. This is your assumption, not a measured number — the tool shows it back to you rather than hiding it.</p>
+        </div>
+        <div class="field">
+          <label for="depositPercent">Booking deposit you could require (% of the price)</label>
+          <input type="number" id="depositPercent" name="depositPercent" min="0" max="100" step="1" value="50" required />
+          <p class="hint">Compared against chasing the no-show fee after the fact. The deposit is treated as already collected when the slot is reserved — not as a second invoice you have to chase.</p>
         </div>
 
         <fieldset>
@@ -186,6 +199,34 @@
         </div>
       </div>
 
+      <div id="collection-section" hidden>
+        <h2>Deposit or chase the fee?</h2>
+        <p class="note">
+          Same bookings and no-show rate as above. The deposit is treated as already
+          in hand; the after-the-fact fee uses your assumed enforcement rate. This
+          answers whether requiring a deposit recovers more cash from the same missed
+          slots than sending a no-show invoice later.
+        </p>
+        <div class="table-wrap">
+          <table>
+            <caption class="sr-only">Modeled cash recovered under deposit versus after-the-fact fee policies</caption>
+            <thead>
+              <tr>
+                <th scope="col">Policy</th>
+                <th scope="col">Recovered per no-show</th>
+                <th scope="col">Estimated annual recovered</th>
+                <th scope="col">Still unrecovered</th>
+              </tr>
+            </thead>
+            <tbody id="collection-body"></tbody>
+          </table>
+        </div>
+        <p id="collection-note" class="note"></p>
+        <h3>Draft deposit policy</h3>
+        <textarea id="deposit-policy-text" rows="10" readonly></textarea>
+        <button type="button" id="copy-deposit-policy">Copy deposit policy</button>
+      </div>
+
       <div id="policy-section" hidden>
         <h2>Your draft policy</h2>
         <textarea id="policy-text" rows="10" readonly></textarea>
@@ -219,6 +260,14 @@
         waitlist. Businesses with longer or harder-to-fill sessions often use 48 hours
         instead.
       </p>
+      <h3>Should I take a deposit instead of charging a no-show fee?</h3>
+      <p>
+        A deposit is collected when the client books, so a late cancel does not depend
+        on a second collection attempt. A no-show fee is invoiced after the missed
+        slot, so it only comes in at the rate you actually enforce. Compare the two
+        on your own numbers above — this tool does not decide which is lawful or
+        appropriate for your business.
+      </p>
     </section>
 
     <section aria-labelledby="usage-heading">
@@ -248,6 +297,13 @@
         obligation it helps you prepare for. To the maximum extent permitted by law, the
         authors accept no liability for any loss or damage arising from its use.
       </p>
+      <p>
+        <strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and
+        may be slow, broken, moved, or taken offline without notice. We do not
+        promise uptime, backups of anything you type, or that a URL will keep
+        working. Do not use this as a system of record. If a tool needs to
+        survive, export your inputs and run it yourself.
+      </p>
     </section>
   </main>
 
@@ -255,6 +311,7 @@
     <p>
       Free, open source (MIT licensed), no account required.
       <a href="https://github.com/Duncan-Haywood/monorepo-projects/tree/main/ventures/no-show-fee-calculator">Source on GitHub</a>.
+      <a href="https://github.com/sponsors/Duncan-Haywood">GitHub Sponsors</a> is optional and never changes what the tool does.
     </p>
   </footer>
 

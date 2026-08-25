@@ -1,4 +1,13 @@
-import { parseInputs, computeAll, compareFeeScenarios, generatePolicyText, buildShareUrl, readShareValues } from "./calc.mjs";
+import {
+  parseInputs,
+  computeAll,
+  compareFeeScenarios,
+  compareCollectionPolicies,
+  generatePolicyText,
+  generateDepositPolicyText,
+  buildShareUrl,
+  readShareValues,
+} from "./calc.mjs";
 import { recordEvent, isOptedOut, setOptedOut, getUsageSummary, clearUsageLog } from "./usage.mjs";
 
 const form = document.getElementById("calc-form");
@@ -14,6 +23,11 @@ const usageSummaryEl = document.getElementById("usage-summary");
 const clearUsageBtn = document.getElementById("clear-usage");
 const scenarioSection = document.getElementById("scenario-section");
 const scenarioBody = document.getElementById("scenario-body");
+const collectionSection = document.getElementById("collection-section");
+const collectionBody = document.getElementById("collection-body");
+const collectionNote = document.getElementById("collection-note");
+const depositPolicyEl = document.getElementById("deposit-policy-text");
+const copyDepositBtn = document.getElementById("copy-deposit-policy");
 const currencySelect = document.getElementById("currency");
 
 const currencyOptions = {
@@ -71,6 +85,43 @@ function renderScenarios(values) {
   scenarioSection.hidden = false;
 }
 
+function renderCollectionPolicies(values, raw) {
+  const comparison = compareCollectionPolicies(values);
+  collectionBody.replaceChildren();
+  for (const policy of comparison.policies) {
+    const row = document.createElement("tr");
+    const selected = policy.id === comparison.recommendedId;
+    if (selected) row.className = "selected-scenario";
+    row.appendChild(Object.assign(document.createElement("th"), {
+      scope: "row",
+      textContent: `${policy.label}${selected ? " (recovers more)" : ""}`,
+    }));
+    row.insertCell().textContent = fmtMoney(policy.recoveredPerNoShow);
+    row.insertCell().textContent = fmtMoney(policy.annualRecovered);
+    row.insertCell().textContent = fmtMoney(policy.annualStillLost);
+    collectionBody.appendChild(row);
+  }
+
+  const winner = comparison.policies.find((policy) => policy.id === comparison.recommendedId);
+  const advantage = comparison.annualAdvantage;
+  if (winner && advantage > 0) {
+    collectionNote.textContent = `On these numbers, ${winner.label.toLowerCase()} recovers ${fmtMoney(advantage)} more per year than the next-best option. The deposit rows treat the deposit as already collected at booking; the after-the-fact row uses your assumed enforcement rate. This is a model, not legal advice.`;
+  } else if (winner) {
+    collectionNote.textContent = "On these numbers the policies recover the same modeled cash. Prefer the deposit if you want the money in hand before the slot, or the after-the-fact fee if you do not want to collect anything at booking. This is a model, not legal advice.";
+  }
+
+  depositPolicyEl.value = generateDepositPolicyText({
+    businessName: String(raw.businessName ?? ""),
+    serviceName: String(raw.serviceName ?? ""),
+    noticeHours: values.noticeHours,
+    depositPercent: values.depositPercent,
+    depositAmount: comparison.depositAmount,
+    remainderAmount: comparison.remainderAmount,
+    currencySymbol: (currencyOptions[currencySelect.value] ?? currencyOptions.USD).symbol,
+  });
+  collectionSection.hidden = false;
+}
+
 function renderUsageSummary() {
   const { total, byEvent } = getUsageSummary();
   if (total === 0) {
@@ -109,6 +160,7 @@ function render() {
     // the old numbers still apply to the edited inputs. This is #1022's fix;
     // a later merge on `main` dropped the line, so this restores it.
     scenarioSection.hidden = true;
+    collectionSection.hidden = true;
     return false;
   }
 
@@ -116,6 +168,7 @@ function render() {
   const result = computeAll(parsed.values);
   renderResults(result);
   renderScenarios(parsed.values);
+  renderCollectionPolicies(parsed.values, raw);
 
   policyEl.value = generatePolicyText({
     businessName: String(raw.businessName ?? ""),
@@ -134,6 +187,7 @@ function countCalculation() {
   if (!render()) return;
   recordEvent("calculation_run");
   recordEvent("fee_scenarios_viewed");
+  recordEvent("collection_policies_viewed");
   renderUsageSummary();
 }
 
@@ -180,6 +234,21 @@ shareBtn.addEventListener("click", async () => {
     window.prompt("Copy this share link:", shareUrl);
   }
   setTimeout(() => { copyStatus.textContent = ""; }, 5000);
+});
+
+copyDepositBtn.addEventListener("click", async () => {
+  try {
+    await navigator.clipboard.writeText(depositPolicyEl.value);
+    copyStatus.textContent = "Deposit policy copied.";
+    recordEvent("deposit_policy_copied");
+    renderUsageSummary();
+  } catch {
+    depositPolicyEl.select();
+    copyStatus.textContent = "Press Ctrl/Cmd+C to copy (clipboard access was blocked).";
+  }
+  setTimeout(() => {
+    copyStatus.textContent = "";
+  }, 4000);
 });
 
 copyBtn.addEventListener("click", async () => {

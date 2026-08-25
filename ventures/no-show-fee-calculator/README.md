@@ -41,9 +41,12 @@ No build step, no install, no dependencies. It's plain HTML/CSS/JS.
    price you'd charge as a fee.
 3. Choose the currency your prices already use. The calculator labels amounts
    in USD, EUR, GBP, CAD, or AUD; it does not convert between currencies.
-4. Get: the fee amount, how many no-shows/late-cancels you can expect in a
+4. Optionally enter the booking deposit you could require instead of (or
+   together with) chasing a no-show invoice after the fact.
+5. Get: the fee amount, how many no-shows/late-cancels you can expect in a
    year at your rate, what that time is worth, and an estimate of fee
-   revenue you could collect if you enforce the policy — plus a plain-text
+   revenue you could collect if you enforce the policy — plus a comparison of
+   that after-the-fact fee against keeping a deposit, and a plain-text
    cancellation policy you can copy straight into your booking system,
    client agreement, or website.
 
@@ -53,9 +56,15 @@ guesswork — it's your numbers, run through a fixed formula you can read.
 
 After calculating, use **Copy share link** to create a bookmarkable URL that
 restores the form and results on another device. The link contains the values
-in its query string, including the selected currency and any business or
-service names, so treat it like any other link containing business information.
-It is not uploaded or stored by this tool.
+in its query string, including the selected currency, deposit percentage, and
+any business or service names, so treat it like any other link containing
+business information. It is not uploaded or stored by this tool.
+
+The deposit comparison is complementary to a standalone appointment-deposit
+calculator if one is opened later. This page does not replace that tool; it
+answers a different question on numbers the user already entered here: for the
+same missed slots, does keeping a deposit recover more cash than chasing a
+no-show fee after the fact.
 
 ## Disclaimer
 
@@ -67,6 +76,12 @@ obligation it helps you prepare for — including checking that a
 cancellation/no-show fee is permitted for your business type and location
 before you publish a policy. To the maximum extent permitted by law, the
 authors accept no liability for any loss or damage arising from its use.
+
+**Best-effort hosting, no SLA.** These tools are free, experimental, and
+may be slow, broken, moved, or taken offline without notice. We do not
+promise uptime, backups of anything you type, or that a URL will keep
+working. Do not use this as a system of record. If a tool needs to
+survive, export your inputs and run it yourself.
 
 ## Privacy
 
