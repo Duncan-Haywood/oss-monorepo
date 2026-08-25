@@ -4,10 +4,11 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Janitorial Bid Calculator | Commercial Cleaning Price Per Month</title>
-  <meta name="description" content="Price a commercial cleaning contract from production rates: labor hours per visit, payroll burden, supplies, overhead, and margin — plus price per square foot, effective hourly rate, and the walk-away number.">
+  <meta name="description" content="Price a commercial cleaning contract from production rates and day-porter shifts: labor hours, payroll burden, supplies, overhead, and margin — plus price per square foot, effective hourly rate, and the walk-away number.">
   <meta property="og:title" content="Janitorial Bid Calculator">
-  <meta property="og:description" content="Bid commercial cleaning the way the trade does — square feet divided by production rate — and see the margin before you send the price.">
-  <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Janitorial Bid Calculator","applicationCategory":"BusinessApplication","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"featureList":"Production-rate labor hours by area, payroll burden, supplies and overhead, monthly contract price, price per square foot, effective hourly rate, break-even walk-away price, proposed-price margin check"}</script>
+  <meta property="og:description" content="Bid commercial cleaning the way the trade does — square feet divided by production rate, plus scheduled day-porter coverage — and see the margin before you send the price.">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Janitorial Bid Calculator","applicationCategory":"BusinessApplication","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"featureList":"Production-rate labor hours by area, day-porter and attendant shift pricing, payroll burden, supplies and overhead, monthly contract price, price per square foot, effective hourly rate, break-even walk-away price, proposed-price margin check"}</script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"How do I price a day porter on a janitorial contract?","acceptedAnswer":{"@type":"Answer","text":"Price the day porter as scheduled coverage: people × hours per shift × shifts per week × 52/12, then the same loaded wage, overhead, and margin as the night clean. Do not convert the porter into extra square feet or a faster production rate."}},{"@type":"Question","name":"Should I bake the day porter into the monthly cleaning price?","acceptedAnswer":{"@type":"Answer","text":"No. The night clean is production-rate work; the day porter is a person on site during business hours. Combining them hides how much of the bid is coverage and makes the eleven months after a cut look cheaper than they are."}},{"@type":"Question","name":"What if the day porter is paid more than the night crew?","acceptedAnswer":{"@type":"Answer","text":"Enter a different hourly wage on that shift. Payroll burden, overhead, and target margin still apply the same way. Leave the wage blank to use the contract cleaner rate."}}]}</script>
   <style>
     :root { color-scheme: light; font-family: system-ui, sans-serif; color: #1d2530; background: #eef2f7; }
     body { max-width: 1060px; margin: 0 auto; padding: 32px 18px; }
@@ -24,13 +25,19 @@
     input, select { width: 100%; box-sizing: border-box; border: 1px solid #a9b6c6; border-radius: 7px; padding: 10px; font: inherit; background: #fff; }
     .area-row { display: grid; grid-template-columns: minmax(0, 2.9fr) repeat(3, minmax(0, 1fr)) auto; gap: 8px; align-items: end; margin-bottom: 10px; }
     .area-row select, .area-row input { padding: 10px 7px; }
+    .shift-row { display: grid; grid-template-columns: minmax(12rem, 2.8fr) repeat(4, minmax(0, 1fr)) auto; gap: 8px; align-items: end; margin-bottom: 10px; }
+    .shift-row select, .shift-row input { padding: 10px 7px; }
     .area-head { font-size: .74rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; color: #5a6779; }
+    details.faq { border-top: 1px solid #e0e6ee; }
+    details.faq:first-of-type { border-top: 0; }
+    details.faq summary { cursor: pointer; font-weight: 700; padding: 10px 0; }
+    details.faq p { margin: 0 0 8px; color: #4a5666; }
     /* The header row already names the columns on desktop, so each field's own
        label is hidden visually but left in the accessibility tree — and shown
        again on mobile, where the header row is dropped. Hiding it with
        font-size:0 would be inherited by the input itself and make what the
        contractor types invisible. */
-    .area-row .lbl { position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0; overflow: hidden; clip-path: inset(50%); white-space: nowrap; border: 0; }
+    .area-row .lbl, .shift-row .lbl { position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0; overflow: hidden; clip-path: inset(50%); white-space: nowrap; border: 0; }
     button { font: inherit; border-radius: 7px; border: 1px solid #a9b6c6; background: #f3f6fa; padding: 10px 14px; cursor: pointer; font-weight: 650; }
     button:hover { background: #e6ecf4; }
     .remove { padding: 10px; color: #9b2c1f; border-color: #d8b6b0; background: #fdf3f1; }
@@ -57,10 +64,10 @@
     @media (max-width: 780px) {
       .layout { grid-template-columns: 1fr; } .result { position: static; } .fields { grid-template-columns: 1fr; }
       .area-head { display: none; }
-      .area-row { grid-template-columns: 1fr 1fr; border: 1px solid #e0e6ee; border-radius: 9px; padding: 11px; }
-      .area-row label { font-size: .78rem; gap: 5px; }
-      .area-row .lbl { position: static; width: auto; height: auto; margin: 0; overflow: visible; clip-path: none; white-space: normal; }
-      .area-row label:first-child { grid-column: 1 / -1; }
+      .area-row, .shift-row { grid-template-columns: 1fr 1fr; border: 1px solid #e0e6ee; border-radius: 9px; padding: 11px; }
+      .area-row label, .shift-row label { font-size: .78rem; gap: 5px; }
+      .area-row .lbl, .shift-row .lbl { position: static; width: auto; height: auto; margin: 0; overflow: visible; clip-path: none; white-space: normal; }
+      .area-row label:first-child, .shift-row label:first-child { grid-column: 1 / -1; }
       .remove { grid-column: 1 / -1; }
     }
   </style>
@@ -69,7 +76,7 @@
   <header>
     <p class="eyebrow">FOR COMMERCIAL CLEANING CONTRACTORS</p>
     <h1>Bid the building, not the square footage.</h1>
-    <p>Price a janitorial contract the way the trade actually does: each space divided by the production rate your crew really hits, then wage burden, supplies, overhead, and the margin you intend to keep. You get the monthly price, what it works out to per square foot and per labor hour, and the number below which the job loses money.</p>
+    <p>Price a janitorial contract the way the trade actually does: each space divided by the production rate your crew really hits, optional day-porter shifts priced as scheduled coverage, then wage burden, supplies, overhead, and the margin you intend to keep. You get the monthly price, what it works out to per square foot and per labor hour, and the number below which the job loses money.</p>
   </header>
 
   <main class="layout">
@@ -82,6 +89,16 @@
         </div>
         <div id="areas"></div>
         <button type="button" id="addArea">+ Add a space</button>
+      </section>
+
+      <section>
+        <h2>Day porter / scheduled shifts</h2>
+        <p class="hint">Optional. A day porter is a person on site during business hours, not extra square feet on the night clean. Hours = people &times; hours per shift &times; shifts per week &times; 52/12. Leave the wage blank to use the cleaner rate above; fill it in when the porter is paid more.</p>
+        <div class="shift-row area-head" aria-hidden="true">
+          <span>Role</span><span>People</span><span>Hours / shift</span><span>Shifts / week</span><span>Hourly wage</span><span></span>
+        </div>
+        <div id="shifts"></div>
+        <button type="button" id="addShift">+ Add a day-porter shift</button>
       </section>
 
       <section>
@@ -106,6 +123,7 @@
       <div id="priceLabel">monthly contract price</div>
       <dl>
         <dt>Labor hours per visit</dt><dd id="hoursPerVisit"></dd>
+        <dt>Day-porter hours per month</dt><dd id="shiftHours"></dd>
         <dt>Labor hours per month</dt><dd id="monthlyHours"></dd>
         <dt>Loaded labor cost</dt><dd id="labor"></dd>
         <dt>Supplies</dt><dd id="supplies"></dd>
@@ -131,6 +149,22 @@
     </section>
   </main>
 
+  <section>
+    <h2>Questions contractors actually type</h2>
+    <details class="faq">
+      <summary>How do I price a day porter on a janitorial contract?</summary>
+      <p>Price the person, not the floor. Hours = people &times; hours per shift &times; shifts per week &times; 52/12, then the same loaded wage, overhead, and margin as the night clean. An 8-hour weekday porter is about 173 hours a month &mdash; usually more labor than the entire after-hours production clean.</p>
+    </details>
+    <details class="faq">
+      <summary>Should I bake the day porter into the monthly cleaning price?</summary>
+      <p>No. The night clean is production-rate work; the day porter is coverage during business hours. Combining them hides how much of the bid is a body on site, and it makes the months after a cut look cheaper than they are. This calculator keeps the two numbers separate and adds them into one monthly contract price.</p>
+    </details>
+    <details class="faq">
+      <summary>What if the day porter is paid more than the night crew?</summary>
+      <p>Enter a wage on that shift. Payroll burden, overhead, and target margin still apply. Leave the wage blank to use the cleaner rate in Your costs.</p>
+    </details>
+  </section>
+
   <footer>
     <label style="display:inline-flex;gap:6px;align-items:center;font-weight:400"><input id="usageOptOut" type="checkbox" style="width:auto"> Do not keep anonymous local usage counts</label>
     <p><strong>No warranty.</strong> This free tool is not legal, tax, financial, or business advice, and it does not tell you what to charge. Verify every figure against your own payroll, insurance, and supply costs, and against a qualified professional, before relying on it or submitting a bid. To the maximum extent permitted by law, the authors accept no liability for loss or damage from its use.</p>
@@ -139,7 +173,7 @@
   </footer>
 
   <script type="module">
-    import { calculateBid, PRODUCTION_RATE_PRESETS } from './calc.mjs';
+    import { calculateBid, PRODUCTION_RATE_PRESETS, SHIFT_ROLE_PRESETS } from './calc.mjs';
     import { recordUsage } from './usage.mjs';
 
     const COST_IDS = ['hourlyWage','burdenRate','suppliesPerSqFtMonth','equipmentMonthly','otherMonthly','overheadRate','targetMargin','proposedPrice'];
@@ -164,8 +198,14 @@
       .map((preset, index) => `<option value="${index}">${preset.label}</option>`)
       .join('') + '<option value="other">Other space</option>';
 
+    const SHIFT_OPTIONS = SHIFT_ROLE_PRESETS
+      .map((preset, index) => `<option value="${index}">${preset.label}</option>`)
+      .join('') + '<option value="other">Other role</option>';
+
     const areasHost = el('areas');
+    const shiftsHost = el('shifts');
     let rowSeq = 0;
+    let shiftSeq = 0;
 
     function addAreaRow(area) {
       const id = `a${++rowSeq}`;
@@ -222,6 +262,53 @@
       });
     }
 
+    function addShiftRow(shift = {}) {
+      const id = `s${++shiftSeq}`;
+      const row = document.createElement('div');
+      row.className = 'shift-row';
+      row.innerHTML = `
+        <label for="${id}-role"><span class="lbl">Role</span><select class="s-role" id="${id}-role">${SHIFT_OPTIONS}</select></label>
+        <label for="${id}-people"><span class="lbl">People</span><input class="s-people" id="${id}-people" type="number" min="0" step="1"></label>
+        <label for="${id}-hours"><span class="lbl">Hours per shift</span><input class="s-hours" id="${id}-hours" type="number" min="0" step="0.5"></label>
+        <label for="${id}-freq"><span class="lbl">Shifts per week</span><input class="s-freq" id="${id}-freq" type="number" min="0" max="21" step="1"></label>
+        <label for="${id}-wage"><span class="lbl">Hourly wage (optional)</span><input class="s-wage" id="${id}-wage" type="number" min="0" step="0.25" placeholder="cleaner rate"></label>
+        <button type="button" class="remove">Remove<span class="lbl"> this shift</span></button>`;
+
+      const roleField = row.querySelector('.s-role');
+      const presetIndex = SHIFT_ROLE_PRESETS.findIndex(p => p.label === shift.name);
+      roleField.value = presetIndex === -1 && shift.name ? 'other' : String(presetIndex === -1 ? 0 : presetIndex);
+      row.querySelector('.s-people').value = shift.people ?? 1;
+      row.querySelector('.s-hours').value = shift.hoursPerShift ?? 8;
+      row.querySelector('.s-freq').value = shift.shiftsPerWeek ?? 5;
+      if (shift.hourlyWage !== undefined && shift.hourlyWage !== '') {
+        row.querySelector('.s-wage').value = shift.hourlyWage;
+      }
+
+      row.querySelectorAll('input, select').forEach(input => {
+        input.addEventListener('input', update);
+        input.addEventListener('change', () => count(input.classList.contains('s-role') ? 'shift_priced' : 'bid_calculated'));
+      });
+      row.querySelector('.remove').addEventListener('click', () => {
+        row.remove();
+        count('shift_removed');
+        update();
+      });
+      shiftsHost.append(row);
+    }
+
+    function readShifts() {
+      return [...shiftsHost.querySelectorAll('.shift-row')].map(row => {
+        const preset = SHIFT_ROLE_PRESETS[Number(row.querySelector('.s-role').value)];
+        return {
+          name: preset ? preset.label : '',
+          people: row.querySelector('.s-people').value,
+          hoursPerShift: row.querySelector('.s-hours').value,
+          shiftsPerWeek: row.querySelector('.s-freq').value,
+          hourlyWage: row.querySelector('.s-wage').value,
+        };
+      });
+    }
+
     function count(event) {
       recordUsage(localStorage, el('usageOptOut').checked, event);
     }
@@ -230,7 +317,7 @@
       el('price').textContent = message;
       el('price').className = `hero-number ${isError ? 'negative' : ''}`;
       el('priceLabel').textContent = isError ? 'check the highlighted input' : 'monthly contract price';
-      ['hoursPerVisit','monthlyHours','labor','supplies','equipment','overhead','cost','profit','perSqFt','hourlyRate','breakEven','annual']
+      ['hoursPerVisit','shiftHours','monthlyHours','labor','supplies','equipment','overhead','cost','profit','perSqFt','hourlyRate','breakEven','annual']
         .forEach(id => { el(id).textContent = ''; });
       el('split').innerHTML = '';
       el('verdict').hidden = true;
@@ -238,15 +325,17 @@
 
     function update() {
       const areas = readAreas();
-      if (areas.length === 0) {
-        clearOutputs('Add a space to price', false);
-        el('split').innerHTML = '<li class="empty">Add at least one space above and the labor split appears here.</li>';
+      const shifts = readShifts();
+      if (areas.length === 0 && shifts.length === 0) {
+        clearOutputs('Add a space or a day-porter shift', false);
+        el('split').innerHTML = '<li class="empty">Add a space or a day-porter shift and the labor split appears here.</li>';
         return;
        }
       let result;
       try {
         result = calculateBid({
           areas,
+          shifts,
           ...Object.fromEntries(COST_IDS.map(id => [id, el(id).value])),
           proposedPrice: el('proposedPrice').value,
         });
@@ -259,6 +348,7 @@
       el('price').className = 'hero-number';
       el('priceLabel').textContent = 'monthly contract price';
       el('hoursPerVisit').textContent = `${result.hoursPerVisitTotal.toFixed(2)} h`;
+      el('shiftHours').textContent = result.shiftMonthlyHours === 0 ? 'none' : `${result.shiftMonthlyHours.toFixed(1)} h`;
       el('monthlyHours').textContent = `${result.monthlyHours.toFixed(1)} h`;
       el('labor').textContent = money(result.monthlyLaborCost);
       el('supplies').textContent = money(result.monthlySupplies);
@@ -271,14 +361,17 @@
       el('breakEven').textContent = money(result.breakEvenMonthlyPrice);
       el('annual').textContent = money(result.annualPrice);
 
-      const worked = result.areas.filter(area => area.monthlyHours > 0);
+      const worked = [
+        ...result.areas.filter(area => area.monthlyHours > 0),
+        ...result.shifts.filter(shift => shift.monthlyHours > 0),
+      ];
       el('split').innerHTML = worked.length === 0
-        ? '<li class="empty">No space is scheduled to be cleaned yet — set cleans per week above.</li>'
+        ? '<li class="empty">No space or shift is scheduled yet — set cleans per week or add a day-porter shift.</li>'
         : worked
           .slice()
           .sort((a, b) => b.monthlyHours - a.monthlyHours)
-          .map(area => `<li><span>${area.name}</span><span>${area.hoursShare.toFixed(0)}% of hours</span>
-            <span class="bar"><span style="width:${area.hoursShare.toFixed(1)}%"></span></span></li>`)
+          .map(item => `<li><span>${item.name}</span><span>${item.hoursShare.toFixed(0)}% of hours</span>
+            <span class="bar"><span style="width:${item.hoursShare.toFixed(1)}%"></span></span></li>`)
           .join('');
 
       const verdict = el('verdict');
@@ -299,6 +392,12 @@
         .filter(area => area.squareFeet > 0 && area.cleaningsPerWeek > 0)
         .map(area => `- ${area.name}: ${area.squareFeet.toLocaleString('en-US')} sq ft, ${area.cleaningsPerWeek}x/week`)
         .join('\n');
+      const porterLines = result.shifts
+        .filter(shift => shift.monthlyHours > 0)
+        .map(shift => `- ${shift.name}: ${shift.people} × ${shift.hoursPerShift} h × ${shift.shiftsPerWeek}/week (${shift.monthlyHours.toFixed(1)} h/month)`);
+      const porterBlock = porterLines.length === 0
+        ? []
+        : ['', 'DAY PORTER / SCHEDULED SHIFTS', ...porterLines, `Day-porter labor: ${result.shiftMonthlyHours.toFixed(1)} hours/month`];
       return [
         'COMMERCIAL CLEANING BID',
         '',
@@ -309,8 +408,10 @@
         '',
         'SERVICE AREAS',
         spaces || '- No service areas entered',
+        ...porterBlock,
         '',
-        `Scope basis: ${result.hoursPerVisitTotal.toFixed(2)} labor hours per visit at the entered frequencies.`,
+        `Scope basis: ${result.hoursPerVisitTotal.toFixed(2)} labor hours per night-clean visit at the entered frequencies.`,
+        'Day-porter coverage is scheduled headcount, not extra square feet on the night clean.',
         'This is a draft for review. Confirm scope, schedule, insurance, taxes, and all pricing before sending.',
       ].join('\n');
     }
@@ -319,6 +420,7 @@
       const areas = readAreas();
       const result = calculateBid({
         areas,
+        shifts: readShifts(),
         ...Object.fromEntries(COST_IDS.map(id => [id, el(id).value])),
         proposedPrice: el('proposedPrice').value,
       });
@@ -344,6 +446,11 @@
     el('addArea').addEventListener('click', () => {
       addAreaRow({ name: '', squareFeet: 0, productionRate: 3000, cleaningsPerWeek: 5 });
       count('area_added');
+      update();
+    });
+    el('addShift').addEventListener('click', () => {
+      addShiftRow({ name: 'Day porter / lobby attendant', people: 1, hoursPerShift: 8, shiftsPerWeek: 5 });
+      count('shift_added');
       update();
     });
 

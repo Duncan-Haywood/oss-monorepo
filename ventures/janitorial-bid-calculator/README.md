@@ -41,12 +41,18 @@ who price off the raw wage are short before they start.
    Hours per visit = square feet ÷ production rate. Monthly hours multiply that
    by the weekly frequency and by 52/12 weeks — not 4, which understates the
    month by about 8%, more than the margin on a typical contract.
-2. **Loaded labor.** Hourly wage × (1 + payroll burden %).
-3. **Other direct cost.** Supplies per square foot per month, plus equipment,
+2. **Day-porter / scheduled shifts (optional).** A day porter is priced as
+   coverage, not extra square feet: people × hours per shift × shifts per week
+   × 52/12. The night-clean hours stay unchanged so the porter is not amortized
+   into a cheaper production rate. A shift can use the contract cleaner wage or
+   its own rate when the porter is paid more. A porter-only contract (lobby
+   attendant, no night clean) is valid.
+3. **Loaded labor.** Hourly wage × (1 + payroll burden %).
+4. **Other direct cost.** Supplies per square foot per month, plus equipment,
    travel, and anything else billed to the job monthly.
-4. **Overhead.** A percentage markup on that direct cost — office, admin, and
+5. **Overhead.** A percentage markup on that direct cost — office, admin, and
    sales recovery. It is not applied to itself or to profit.
-5. **Price.** Cost ÷ (1 − target margin %), because margin is quoted as a share
+6. **Price.** Cost ÷ (1 − target margin %), because margin is quoted as a share
    of price, not a markup on cost.
 
 It then reports the numbers a contractor sanity-checks a bid against: price per
@@ -55,7 +61,8 @@ the labor split across spaces, and the **walk-away price** — total monthly cos
 below which the job makes nothing. Entering a price already on the table scores
 it against the same cost base and says plainly whether it is under water. **Copy
 bid summary** turns the result into a plain-text draft with the price, annual
-value, service hours, and service areas ready to paste into a proposal.
+value, service hours, service areas, and any day-porter shifts ready to paste
+into a proposal.
 
 The arithmetic lives in [`calc.mjs`](calc.mjs) with no DOM or network
 dependency, so it is testable and auditable on its own. See
@@ -80,16 +87,18 @@ automatically when the browser sends Do Not Track or Global Privacy Control.
 See [`usage.mjs`](usage.mjs) and [`portfolio/usage/`](../../portfolio/usage/README.md).
 
 Events counted: `bid_calculated`, `area_added`, `area_removed`,
-`proposed_price_compared`, `summary_copied`.
+`shift_added`, `shift_removed`, `shift_priced`, `proposed_price_compared`,
+`summary_copied`.
 
 ## Limitations
 
 - Single currency and no tax handling; the contractor enters their own numbers.
 - One periodic-service model. Project work (strip and wax, carpet extraction,
   post-construction) is not priced separately yet.
-- "Other space" rows are labelled `Area N` rather than a custom name.
-- Day porter or fixed-headcount contracts are not modelled; this prices from
-  production rates, not from a scheduled shift.
+- "Other space" and "Other role" rows are labelled `Area N` / `Shift N`
+  rather than a custom name.
+- Day-porter shifts do not model lunch relief, holidays, or PTO coverage
+  beyond the payroll-burden percentage; enter the hours you actually staff.
 
 ## Disclaimer
 

@@ -36,6 +36,17 @@ export const PRODUCTION_RATE_PRESETS = Object.freeze([
   { label: 'Stairwells', rate: 1500 },
 ]);
 
+// Common day-porter / attendant roles. These are priced as scheduled shifts,
+// not production rates — the customer is buying a person on site during
+// business hours, not a cleaned square-foot count.
+export const SHIFT_ROLE_PRESETS = Object.freeze([
+  { label: 'Day porter / lobby attendant' },
+  { label: 'Restroom attendant' },
+  { label: 'Floor walker / floater' },
+  { label: 'After-hours supervisor' },
+  { label: 'Mailroom / dock attendant' },
+]);
+
 function number(value, name, { min = 0, allowZero = true } = {}) {
   const result = Number(value);
   if (!Number.isFinite(result)) throw new Error(`${name} must be a number`);
@@ -51,7 +62,11 @@ function number(value, name, { min = 0, allowZero = true } = {}) {
  * @param {Array<{name?: string, squareFeet: number, productionRate: number, cleaningsPerWeek: number}>} input.areas
  *   One row per distinct space type. Splitting the building this way is the
  *   whole point: a single blended rate hides the restroom labor that sinks
- *   underpriced bids.
+ *   underpriced bids. May be empty when the contract is shift-only.
+ * @param {Array<{name?: string, people: number, hoursPerShift: number, shiftsPerWeek: number, hourlyWage?: number|string}>} [input.shifts]
+ *   Optional day-porter / attendant rows. Priced as scheduled headcount, not
+ *   square feet: people × hours × shifts/week × 52/12. An omitted hourly
+ *   wage uses the contract cleaner wage.
  * @param {number} input.hourlyWage         What the cleaner is paid per hour.
  * @param {number} input.burdenRate         Payroll burden as a % on top of wage
  *   (employer taxes, workers' compensation, insurance, paid time off).
@@ -66,7 +81,10 @@ function number(value, name, { min = 0, allowZero = true } = {}) {
  */
 export function calculateBid(input) {
   const areasInput = Array.isArray(input.areas) ? input.areas : [];
-  if (areasInput.length === 0) throw new Error('Add at least one area to price');
+  const shiftsInput = Array.isArray(input.shifts) ? input.shifts : [];
+  if (areasInput.length === 0 && shiftsInput.length === 0) {
+    throw new Error('Add at least one area or day-porter shift to price');
+  }
 
   const hourlyWage = number(input.hourlyWage ?? 0, 'Hourly wage');
   const burdenRate = number(input.burdenRate ?? 0, 'Payroll burden');
@@ -100,9 +118,37 @@ export function calculateBid(input) {
     };
   });
 
+  const shifts = shiftsInput.map((shift, index) => {
+    const label = shift.name?.trim() || `Shift ${index + 1}`;
+    const people = number(shift.people ?? 0, `${label}: people`);
+    const hoursPerShift = number(shift.hoursPerShift ?? 0, `${label}: hours per shift`);
+    const shiftsPerWeek = number(shift.shiftsPerWeek ?? 0, `${label}: shifts per week`);
+    const hasOwnWage = shift.hourlyWage !== null && shift.hourlyWage !== undefined && shift.hourlyWage !== '';
+    const shiftWage = hasOwnWage ? number(shift.hourlyWage, `${label}: hourly wage`) : hourlyWage;
+    const shiftLoadedWage = shiftWage * (1 + burdenRate / 100);
+    // The customer is buying coverage, not a production rate: one person on
+    // an 8-hour weekday shift is 8 × 5 × 52/12 hours a month, whether they
+    // spend that time on restrooms, trash, or standing in the lobby.
+    const monthlyHours = people * hoursPerShift * shiftsPerWeek * WEEKS_PER_MONTH;
+    return {
+      name: label,
+      people,
+      hoursPerShift,
+      shiftsPerWeek,
+      hourlyWage: shiftWage,
+      loadedWage: shiftLoadedWage,
+      monthlyHours,
+      monthlyLaborCost: monthlyHours * shiftLoadedWage,
+    };
+  });
+
   const totalSquareFeet = areas.reduce((sum, a) => sum + a.squareFeet, 0);
-  const monthlyHours = areas.reduce((sum, a) => sum + a.monthlyHours, 0);
-  const monthlyLaborCost = monthlyHours * loadedWage;
+  const areaMonthlyHours = areas.reduce((sum, a) => sum + a.monthlyHours, 0);
+  const shiftMonthlyHours = shifts.reduce((sum, s) => sum + s.monthlyHours, 0);
+  const monthlyHours = areaMonthlyHours + shiftMonthlyHours;
+  const areaMonthlyLaborCost = areaMonthlyHours * loadedWage;
+  const shiftMonthlyLaborCost = shifts.reduce((sum, s) => sum + s.monthlyLaborCost, 0);
+  const monthlyLaborCost = areaMonthlyLaborCost + shiftMonthlyLaborCost;
   const monthlySupplies = totalSquareFeet * suppliesPerSqFtMonth;
 
   // Overhead is a markup on the direct cost of servicing this job, which is
@@ -120,17 +166,28 @@ export function calculateBid(input) {
   const hasProposed = input.proposedPrice !== null && input.proposedPrice !== undefined && input.proposedPrice !== '';
   const proposedPrice = hasProposed ? number(input.proposedPrice, 'Price you are considering') : null;
 
+  const share = hours => (monthlyHours === 0 ? 0 : hours / monthlyHours * 100);
+
   return {
     areas: areas.map(area => ({
       ...area,
-      // Share of total labor hours. This is the line that shows a contractor
-      // that 8% of the floor area is eating 30% of the labor.
-      hoursShare: monthlyHours === 0 ? 0 : area.monthlyHours / monthlyHours * 100,
+      // Share of total labor hours (production + shifts). This is the line
+      // that shows a contractor that 8% of the floor area is eating 30% of
+      // the labor — and that a day porter can dwarf both.
+      hoursShare: share(area.monthlyHours),
+    })),
+    shifts: shifts.map(shift => ({
+      ...shift,
+      hoursShare: share(shift.monthlyHours),
     })),
     totalSquareFeet,
     loadedWage,
     hoursPerVisitTotal: areas.reduce((sum, a) => sum + (a.cleaningsPerWeek > 0 ? a.hoursPerCleaning : 0), 0),
+    areaMonthlyHours,
+    shiftMonthlyHours,
     monthlyHours,
+    areaMonthlyLaborCost,
+    shiftMonthlyLaborCost,
     monthlyLaborCost,
     monthlySupplies,
     equipmentMonthly,

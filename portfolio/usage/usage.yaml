@@ -208,6 +208,14 @@ products:
         note: >-
           Shipped a local commercial cleaning bid calculator with a copyable
           proposal summary; public URL remains owner-gated.
+      - as_of: 2026-08-25
+        signals:
+          live_url_visitors: null
+          local_events_reported: 0
+        note: >-
+          Added optional day-porter / scheduled-shift pricing so coverage
+          hours stay separate from the night-clean production rate. Public
+          URL remains owner-gated.
   - slug: shopify-fee-calculator
     surface: static-page-in-repo
     readings:

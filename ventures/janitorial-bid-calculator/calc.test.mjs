@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { calculateBid, WEEKS_PER_MONTH, PRODUCTION_RATE_PRESETS } from './calc.mjs';
+import { calculateBid, WEEKS_PER_MONTH, PRODUCTION_RATE_PRESETS, SHIFT_ROLE_PRESETS } from './calc.mjs';
 
 const office = () => ({
   areas: [
@@ -156,4 +156,145 @@ test('production-rate presets are usable positive numbers', () => {
 test('monthly conversion uses averaged weeks, not a flat four', () => {
   assert.ok(Math.abs(WEEKS_PER_MONTH - 52 / 12) < 1e-12);
   assert.ok(WEEKS_PER_MONTH > 4.3);
+});
+
+const weekdayPorter = () => ({
+  name: 'Day porter / lobby attendant',
+  people: 1,
+  hoursPerShift: 8,
+  shiftsPerWeek: 5,
+});
+
+test('omitting shifts leaves the production-rate bid unchanged', () => {
+  const without = calculateBid(office());
+  const empty = calculateBid({ ...office(), shifts: [] });
+  assert.deepEqual(empty.shifts, []);
+  assert.equal(empty.shiftMonthlyHours, 0);
+  assert.equal(empty.shiftMonthlyLaborCost, 0);
+  assert.equal(empty.monthlyPrice, without.monthlyPrice);
+  assert.equal(empty.monthlyHours, without.monthlyHours);
+  assert.equal(empty.areaMonthlyHours, without.monthlyHours);
+});
+
+test('a weekday day porter is priced as scheduled coverage, not square feet', () => {
+  const production = calculateBid(office());
+  const withPorter = calculateBid({ ...office(), shifts: [weekdayPorter()] });
+  const expectedHours = 1 * 8 * 5 * WEEKS_PER_MONTH;
+  assert.ok(Math.abs(withPorter.shiftMonthlyHours - expectedHours) < 1e-9);
+  assert.ok(Math.abs(withPorter.areaMonthlyHours - production.monthlyHours) < 1e-9);
+  assert.ok(Math.abs(withPorter.monthlyHours - (production.monthlyHours + expectedHours)) < 1e-9);
+  assert.ok(Math.abs(withPorter.shiftMonthlyLaborCost - expectedHours * 17 * 1.28) < 1e-9);
+  // Production hours are unchanged: the porter is extra labor, not a faster clean.
+  assert.equal(withPorter.hoursPerVisitTotal, production.hoursPerVisitTotal);
+  assert.ok(withPorter.monthlyPrice > production.monthlyPrice);
+  // An 8-hour weekday porter dwarfs a 2.4-hour night clean.
+  const porter = withPorter.shifts[0];
+  assert.ok(porter.hoursShare > 70);
+  assert.ok(porter.hoursShare < 90);
+});
+
+test('day-porter hours are not amortized into a cheaper monthly production rate', () => {
+  const production = calculateBid(office());
+  const withPorter = calculateBid({ ...office(), shifts: [weekdayPorter()] });
+  // The failure mode this feature exists to prevent: baking the porter into
+  // the night-clean price so the eleven months after "they already have
+  // someone there" look cheaper than they are.
+  assert.ok(Math.abs(withPorter.areaMonthlyLaborCost - production.monthlyLaborCost) < 1e-9);
+  assert.ok(withPorter.shiftMonthlyLaborCost > 0);
+});
+
+test('a porter-only contract can be priced without production areas', () => {
+  const result = calculateBid({
+    ...office(),
+    areas: [],
+    shifts: [weekdayPorter()],
+    suppliesPerSqFtMonth: 0.005,
+  });
+  assert.equal(result.areas.length, 0);
+  assert.equal(result.totalSquareFeet, 0);
+  assert.equal(result.hoursPerVisitTotal, 0);
+  assert.equal(result.pricePerSqFtMonth, null);
+  assert.ok(Math.abs(result.monthlyHours - 8 * 5 * WEEKS_PER_MONTH) < 1e-9);
+  assert.ok(result.monthlyPrice > 0);
+  assert.equal(result.shifts[0].name, 'Day porter / lobby attendant');
+});
+
+test('a shift can use its own wage when the porter is paid more than the night crew', () => {
+  const same = calculateBid({ ...office(), shifts: [weekdayPorter()] });
+  const higher = calculateBid({
+    ...office(),
+    shifts: [{ ...weekdayPorter(), hourlyWage: 20 }],
+  });
+  assert.equal(same.shifts[0].hourlyWage, 17);
+  assert.equal(higher.shifts[0].hourlyWage, 20);
+  assert.ok(Math.abs(higher.shifts[0].loadedWage - 20 * 1.28) < 1e-9);
+  assert.ok(higher.shiftMonthlyLaborCost > same.shiftMonthlyLaborCost);
+  assert.equal(higher.areaMonthlyLaborCost, same.areaMonthlyLaborCost);
+});
+
+test('blank or omitted shift wages fall back to the contract cleaner wage', () => {
+  const fallback = calculateBid({
+    ...office(),
+    shifts: [
+      { ...weekdayPorter(), hourlyWage: '' },
+      { ...weekdayPorter(), name: 'Floater', hourlyWage: null },
+    ],
+  });
+  assert.equal(fallback.shifts[0].hourlyWage, 17);
+  assert.equal(fallback.shifts[1].hourlyWage, 17);
+});
+
+test('two people on the same shift double the hours', () => {
+  const one = calculateBid({ ...office(), areas: office().areas, shifts: [weekdayPorter()] });
+  const two = calculateBid({
+    ...office(),
+    shifts: [{ ...weekdayPorter(), people: 2 }],
+  });
+  assert.ok(Math.abs(two.shiftMonthlyHours - one.shiftMonthlyHours * 2) < 1e-9);
+});
+
+test('a nameless shift still reports under a stable label', () => {
+  const result = calculateBid({
+    ...office(),
+    shifts: [{ people: 1, hoursPerShift: 4, shiftsPerWeek: 5 }, { name: '   ', people: 1, hoursPerShift: 4, shiftsPerWeek: 3 }],
+  });
+  assert.equal(result.shifts[0].name, 'Shift 1');
+  assert.equal(result.shifts[1].name, 'Shift 2');
+});
+
+test('a zero-hour or zero-headcount shift costs nothing', () => {
+  const result = calculateBid({
+    ...office(),
+    shifts: [
+      { name: 'Vacant desk', people: 0, hoursPerShift: 8, shiftsPerWeek: 5 },
+      { name: 'Unscheduled', people: 1, hoursPerShift: 0, shiftsPerWeek: 5 },
+    ],
+  });
+  assert.equal(result.shiftMonthlyHours, 0);
+  assert.equal(result.shiftMonthlyLaborCost, 0);
+  assert.equal(result.monthlyPrice, calculateBid(office()).monthlyPrice);
+});
+
+test('shift inputs that would silently produce a nonsense bid are rejected', () => {
+  assert.throws(
+    () => calculateBid({ ...office(), areas: [], shifts: [] }),
+    /at least one area or day-porter shift/,
+  );
+  assert.throws(
+    () => calculateBid({ ...office(), shifts: [{ name: 'Porter', people: -1, hoursPerShift: 8, shiftsPerWeek: 5 }] }),
+    /Porter: people must be at least 0/,
+  );
+  assert.throws(
+    () => calculateBid({ ...office(), shifts: [{ name: 'Porter', people: 1, hoursPerShift: 'abc', shiftsPerWeek: 5 }] }),
+    /Porter: hours per shift must be a number/,
+  );
+});
+
+test('shift-role presets are named roles, not production rates', () => {
+  assert.ok(SHIFT_ROLE_PRESETS.length >= 4);
+  assert.ok(SHIFT_ROLE_PRESETS.some(role => /day porter/i.test(role.label)));
+  for (const preset of SHIFT_ROLE_PRESETS) {
+    assert.ok(preset.label.length > 0);
+    assert.equal(preset.rate, undefined);
+  }
 });
