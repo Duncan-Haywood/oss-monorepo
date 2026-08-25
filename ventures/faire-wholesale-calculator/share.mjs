@@ -18,6 +18,7 @@ export const FIELD_IDS = [
   "paymentRate",
   "paymentFixed",
   "targetMargin",
+  "expectedReorders",
 ];
 
 export const RETAILER_FIELD_IDS = [

@@ -4,7 +4,8 @@ The free Faire seller fee calculator shows what a wholesale order leaves after
 marketplace commission, the one-time new-customer fee, payout-speed processing,
 and your cost of goods. It puts the **same invoice** through a marketplace first
 order, a reorder, Faire Direct, and an off-Faire invoice so a brand can see
-whether the opening order still clears the floor.
+whether the opening order still clears the floor — and, if that retailer
+reorders, how the first-order fee looks across the relationship.
 
 Open `index.html` in a browser. Independent retailers use `retailer.html` to
 see landed cost versus shelf price after an opening-order discount and the
@@ -16,7 +17,8 @@ key. It is arithmetic, not an estimate of the fees Faire will charge: enter the
 rates from your payout summary and verify them there.
 
 After using this, you can now **set a wholesale price that still works on a
-first marketplace order**, which used to take reconciling Faire’s help articles
+first marketplace order, and see whether expected reorders recover that
+opening-order fee**, which used to take reconciling Faire’s help articles
 against a spreadsheet.
 
 ## What it checks that a flat 15% page does not
@@ -61,7 +63,8 @@ uploaded. There are no accounts, cookies, tracking pixels, or analytics vendor.
 Two things are stored locally, on your device only: the numbers you enter and,
 unless you opt out, an anonymous counter that records only an event name and
 the day. Turn the counter off with the checkbox in the footer, or your
-browser’s Do Not Track / Global Privacy Control setting.
+browser’s Do Not Track / Global Privacy Control setting. Both signals skip
+the counter in the same way as the checkbox.
 
 ## Opportunity
 

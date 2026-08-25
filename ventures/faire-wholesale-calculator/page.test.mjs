@@ -62,6 +62,7 @@ test("figures named in schema.org featureList are actually rendered", () => {
     ["ROI", /first\.roi/],
     ["wholesale price for a target margin", /wholesaleForMargin/],
     ["Faire Direct", /faire_direct|Faire Direct/],
+    ["retailer lifetime", /compareRetailerLifetime/],
   ];
   for (const [claim, rendered] of claims) {
     assert.ok(
@@ -78,6 +79,16 @@ test("brand and retailer pages show the disclaimer a user can actually read", ()
     assert.match(html, /not tax, financial, or business advice/i);
     assert.match(html, /Not affiliated with Faire/);
   }
+});
+
+test("lifetime table columns match the relationship-row template", () => {
+  const lifetimeTemplate = brandParsed.scripts.join("\n").match(/row\.innerHTML = `<td>\$\{result\.label\}<\/td><td>\$\{result\.orders\}[\s\S]*?`;/);
+  assert.ok(lifetimeTemplate, "could not find the lifetime <tr> innerHTML template");
+  const headers = [...brandParsed.markup.matchAll(/<th scope="col"[^>]*>([\s\S]*?)<\/th>/g)]
+    .map((m) => m[1].replace(/\s+/g, " ").trim())
+    .filter((text) => ["Relationship", "Orders", "Lifetime fees", "Lifetime profit", "vs best path"].includes(text));
+  const cells = (lifetimeTemplate[0].match(/<td[\s>]/g) || []).length;
+  assert.equal(cells, headers.length, `lifetime table declares ${headers.length} columns but the row emits ${cells} cells`);
 });
 
 test("retailer page renders landed cost, unsold units, and target retail price", () => {

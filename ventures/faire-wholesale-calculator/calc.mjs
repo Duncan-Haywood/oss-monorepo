@@ -218,6 +218,82 @@ export function compareBrandScenarios(input) {
   };
 }
 
+function wholeNumberOrZero(value, name, fallback = 0) {
+  const result = number(value, name, fallback);
+  if (!Number.isInteger(result)) throw new Error(`${name} must be a whole number`);
+  return result;
+}
+
+/**
+ * One retailer relationship: the opening marketplace order plus the reorders
+ * you expect from them, versus sending every order through Direct or invoicing
+ * them yourself. The first-order fee is a one-time hit; this is how it looks
+ * after they come back.
+ */
+export function compareRetailerLifetime(input = {}, expectedReorders) {
+  const reorders = wholeNumberOrZero(
+    expectedReorders === undefined ? input.expectedReorders : expectedReorders,
+    "Expected reorders",
+    0,
+  );
+  const first = calculateBrandOrder(input, "marketplace_first");
+  const reorder = calculateBrandOrder(input, "marketplace_reorder");
+  const direct = calculateBrandOrder(input, "faire_direct");
+  const own = calculateBrandOrder(input, "own_invoice");
+  const orders = 1 + reorders;
+
+  const pack = (label, profit, fees, payout) => ({
+    label,
+    orders,
+    profit,
+    fees,
+    payout,
+    profitPerOrder: profit / orders,
+  });
+
+  const paths = [
+    pack(
+      "Marketplace (first + reorders)",
+      first.profit + reorder.profit * reorders,
+      first.feeTotal + reorder.feeTotal * reorders,
+      first.payoutAmount + reorder.payoutAmount * reorders,
+    ),
+    pack(
+      "Faire Direct every order",
+      direct.profit * orders,
+      direct.feeTotal * orders,
+      direct.payoutAmount * orders,
+    ),
+    pack(
+      "Own invoice every order",
+      own.profit * orders,
+      own.feeTotal * orders,
+      own.payoutAmount * orders,
+    ),
+  ];
+  const best = paths.reduce((winner, row) => (row.profit > winner.profit ? row : winner));
+
+  let reordersUntilPositive = 0;
+  if (first.profit < 0) {
+    reordersUntilPositive = reorder.profit <= 0 ? null : Math.ceil(-first.profit / reorder.profit);
+  }
+
+  return {
+    expectedReorders: reorders,
+    orders,
+    first,
+    reorder,
+    amortizedFirstOrderFee: first.fees.firstOrder / orders,
+    reordersUntilPositive,
+    paths: paths.map((row) => ({
+      ...row,
+      isBest: row === best,
+      gapVsBest: best.profit - row.profit,
+    })),
+    best: { label: best.label, profit: best.profit },
+  };
+}
+
 export function comparePayoutSpeeds(input, scenarioId = "marketplace_reorder") {
   return Object.entries(PAYOUT_PRESETS).map(([id, preset]) => {
     const result = calculateBrandOrder({

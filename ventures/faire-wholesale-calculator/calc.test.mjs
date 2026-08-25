@@ -5,6 +5,7 @@ import {
   calculateRetailerOrder,
   compareBrandScenarios,
   comparePayoutSpeeds,
+  compareRetailerLifetime,
   retailPriceForMargin,
   wholesaleForMargin,
 } from "./calc.mjs";
@@ -134,6 +135,37 @@ test("finds the retail price that hits a target margin after store processing", 
   const price = retailPriceForMargin(input, 50);
   const result = calculateRetailerOrder({ ...input, unitRetail: price });
   assert.ok(Math.abs(result.margin - 50) < 1e-9);
+});
+
+test("lifetime view amortizes the first-order fee across expected reorders", () => {
+  const life = compareRetailerLifetime(naReorder, 2);
+  assert.equal(life.orders, 3);
+  assert.equal(life.amortizedFirstOrderFee, 10 / 3);
+  const marketplace = life.paths.find((row) => row.label.startsWith("Marketplace"));
+  const direct = life.paths.find((row) => row.label.startsWith("Faire Direct"));
+  const own = life.paths.find((row) => row.label.startsWith("Own invoice"));
+  assert.equal(marketplace.profit, 75.9 + 85.9 * 2);
+  assert.equal(direct.profit, 115.9 * 3);
+  assert.equal(own.profit, 120 * 3);
+  assert.equal(life.best.label, "Own invoice every order");
+  assert.equal(life.reordersUntilPositive, 0);
+});
+
+test("counts how many reorders recover a loss-making first marketplace order", () => {
+  // Reorder profit is first-order profit plus the $10 fee, so a $16 COGS
+  // loses on the opening order and clears a few dollars on each reorder.
+  const tight = { ...naReorder, unitCogs: 16 };
+  const life = compareRetailerLifetime(tight, 0);
+  assert.ok(life.first.profit < 0);
+  assert.ok(life.reorder.profit > 0);
+  assert.equal(life.reordersUntilPositive, Math.ceil(-life.first.profit / life.reorder.profit));
+  const recovered = compareRetailerLifetime(tight, life.reordersUntilPositive);
+  const marketplace = recovered.paths.find((row) => row.label.startsWith("Marketplace"));
+  assert.ok(marketplace.profit >= 0);
+});
+
+test("rejects a fractional expected-reorder count", () => {
+  assert.throws(() => compareRetailerLifetime(naReorder, 1.5), /whole number/);
 });
 
 test("rejects selling more units than the retailer bought", () => {
