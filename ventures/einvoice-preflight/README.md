@@ -16,6 +16,7 @@ PYTHONPATH=src python3 -m einvoice_preflight ./invoices/ --format html > review.
 PYTHONPATH=src python3 -m einvoice_preflight ./invoices/ --format csv > triage.csv
 PYTHONPATH=src python3 -m einvoice_preflight ./invoices/ --format junit > preflight.junit.xml
 PYTHONPATH=src python3 -m einvoice_preflight ./invoices/ --format summary
+PYTHONPATH=src python3 -m einvoice_preflight ./invoices/ --format remediation
 PYTHONPATH=src python3 -m einvoice_preflight ./invoices/ --max-files 500 --format json
 PYTHONPATH=src python3 -m einvoice_preflight ./invoices/ --max-files 500 --max-bytes 1048576 --format json
 cat invoice.json | PYTHONPATH=src python3 -m einvoice_preflight - --format json
@@ -140,6 +141,12 @@ other report formats and can be opened locally without a server.
 `--format summary` prints a compact batch result for CI logs, followed by sorted
 rule counts when findings exist. It includes counts and rule IDs only, never
 invoice values, numbers, or line contents.
+`--format remediation` emits a versioned JSON queue grouped by invoice and rule.
+Each item includes the local file, rule ID, occurrence count, distinct JSON
+Pointer paths, check message, and recommended fix. This is intended for ERP or
+ticket adapters that need a repair queue without parsing the full finding
+report; it never includes invoice values, numbers, or line contents. Read errors
+remain in `read_errors`, and the output uses exit code `2` for those errors.
 Use `--output PATH` with any format to write the report atomically to a local
 file instead of stdout. Parent directories are created when needed. A failed
 write returns exit code `2` and never replaces an existing report with a partial

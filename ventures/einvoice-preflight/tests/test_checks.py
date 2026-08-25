@@ -257,6 +257,37 @@ class ChecksTest(unittest.TestCase):
             self.assertEqual(report["fixes"][0]["occurrences"], 2)
             self.assertNotIn("INV-1", output.getvalue())
 
+    def test_cli_remediation_groups_findings_by_file_and_rule(self):
+        with tempfile.TemporaryDirectory() as directory:
+            invoice_path = Path(directory) / "invoice.json"
+            invoice = json.loads(json.dumps(VALID))
+            invoice["totals"]["gross"] = 200
+            invoice["lines"][0]["net"] = 201
+            invoice_path.write_text(json.dumps(invoice))
+            output = io.StringIO()
+            with contextlib.redirect_stdout(output):
+                self.assertEqual(main([str(invoice_path), "--format", "remediation"]), 1)
+            report = json.loads(output.getvalue())
+            self.assertEqual(report["schema_version"], 1)
+            self.assertEqual(report["status"], "fail")
+            self.assertEqual(report["files_checked"], 1)
+            self.assertEqual({item["rule"] for item in report["items"]}, {"INV-012", "INV-017"})
+            gross = next(item for item in report["items"] if item["rule"] == "INV-017")
+            self.assertEqual(gross["occurrences"], 1)
+            self.assertEqual(gross["paths"], ["/totals/gross"])
+            self.assertNotIn("INV-1", output.getvalue())
+
+    def test_cli_remediation_reports_read_errors(self):
+        with tempfile.TemporaryDirectory() as directory:
+            output = io.StringIO()
+            with contextlib.redirect_stdout(output):
+                self.assertEqual(main([str(Path(directory)), "--format", "remediation"]), 2)
+            report = json.loads(output.getvalue())
+            self.assertEqual(report["status"], "fail")
+            self.assertEqual(report["exit_code"], 2)
+            self.assertEqual(report["items"], [])
+            self.assertEqual(len(report["read_errors"]), 1)
+
     def test_cli_json_success_reports_machine_result_contract(self):
         with tempfile.TemporaryDirectory() as directory:
             invoice_path = Path(directory) / "invoice.json"
