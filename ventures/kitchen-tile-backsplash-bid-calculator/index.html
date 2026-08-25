@@ -215,6 +215,7 @@
       comparePattern,
       leftoverBoxPlan,
       formatBidSummary,
+      formatBoxPlanNote,
       suggestedScopeKit,
       suggestedPatternKit,
       suggestedWallKit,
@@ -427,7 +428,11 @@
     async function copySummary() {
       const result = calculateBid(readInput());
       const preset = JOB_PRESETS[Number(el('jobPresets').value)];
-      const text = formatBidSummary(result, preset ? preset.label : 'Kitchen tile backsplash');
+      const text = [
+        formatBidSummary(result, preset ? preset.label : 'Kitchen tile backsplash'),
+        '',
+        formatBoxPlanNote(leftoverBoxPlan(readInput())),
+      ].join('\n');
       try {
         await navigator.clipboard.writeText(text);
       } catch {

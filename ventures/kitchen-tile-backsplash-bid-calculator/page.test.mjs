@@ -52,6 +52,7 @@ test('the module script survives parsing and would actually execute', () => {
   assert.match(scriptSource, /comparePattern/, 'pattern comparison is missing from the executable script');
   assert.match(scriptSource, /leftoverBoxPlan/, 'leftover-box plan is missing from the executable script');
   assert.match(scriptSource, /formatBidSummary/, 'copy-summary helper is missing from the executable script');
+  assert.match(scriptSource, /formatBoxPlanNote/, 'box-plan copy helper is missing from the executable script');
 });
 
 test('every element the script reaches for exists in the markup', () => {

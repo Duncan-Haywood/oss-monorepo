@@ -6,6 +6,7 @@ import {
   comparePattern,
   leftoverBoxPlan,
   formatBidSummary,
+  formatBoxPlanNote,
   travelHours,
   suggestedScopeKit,
   suggestedPatternKit,
@@ -326,4 +327,18 @@ test('the customer summary names the wall and omits wages', () => {
   assert.doesNotMatch(text, /wage/i);
   assert.doesNotMatch(text, /burden/i);
   assert.match(text, /not a tile specification/i);
+});
+
+test('the box-plan note names leftover without changing the customer draft', () => {
+  const miss = formatBoxPlanNote(leftoverBoxPlan({ ...special(), sfPerBox: 10, leftoverBoxes: 0, secondWallSf: 8 }));
+  assert.match(miss, /Buy 4 boxes \(40\.0 SF\)/);
+  assert.match(miss, /Leftover after kitchen: 7\.0 SF/);
+  assert.match(miss, /leftover misses it — still 1 box/);
+  assert.doesNotMatch(miss, /wage/i);
+  const covered = formatBoxPlanNote(leftoverBoxPlan({ ...special(), sfPerBox: 10, leftoverBoxes: 0, secondWallSf: 6 }));
+  assert.match(covered, /leftover covers it/);
+  const none = formatBoxPlanNote(leftoverBoxPlan({ ...special(), sfPerBox: 10, leftoverBoxes: 0, secondWallSf: 0 }));
+  assert.match(none, /No second wall entered/);
+  const customer = formatBidSummary(calculateBid(special()), 'Subway kitchen splash');
+  assert.doesNotMatch(customer, /BOX PLAN/);
 });

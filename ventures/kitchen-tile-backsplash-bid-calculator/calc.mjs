@@ -568,6 +568,30 @@ function money(value) {
   return `$${value.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
 }
 
+function boxWord(count) {
+  return count === 1 ? 'box' : 'boxes';
+}
+
+/**
+ * Setter-facing leftover note. Costs stay out of the customer draft —
+ * this is the box count they lose when leftover is only on the screen.
+ */
+export function formatBoxPlanNote(plan) {
+  const lines = [
+    'BOX PLAN (internal — leftover does not change the installed price)',
+    `- Buy ${plan.boxesToBuy} ${boxWord(plan.boxesToBuy)} (${plan.purchasedSf.toFixed(1)} SF)`,
+    `- Leftover after kitchen: ${plan.leftoverAfterKitchen.toFixed(1)} SF`,
+  ];
+  if (plan.secondWallSf > 0) {
+    lines.push(plan.secondCoveredByLeftover
+      ? `- Second wall ${plan.secondWallSf} SF: leftover covers it`
+      : `- Second wall ${plan.secondWallSf} SF: leftover misses it — still ${plan.secondBoxesToBuy} ${boxWord(plan.secondBoxesToBuy)}`);
+  } else {
+    lines.push('- No second wall entered');
+  }
+  return lines.join('\n');
+}
+
 /**
  * Format a bid as a plain-text draft the setter can paste into
  * a proposal. Costs, wages, and invoices are omitted on purpose —
