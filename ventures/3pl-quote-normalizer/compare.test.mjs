@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { comparisonMessage, normalizeComparison, savingsPercent } from "./compare.mjs";
+import { comparisonMessage, negotiationBrief, normalizeComparison, savingsPercent } from "./compare.mjs";
 import { targetMessage } from "./compare.mjs";
 
 test("compares finite non-negative totals", () => {
@@ -33,6 +33,14 @@ test("uses provider names in the shareable decision summary", () => {
 test("uses provider names in the shareable decision summary", () => {
   const result = normalizeComparison({ first: "1200", second: "1350" });
   assert.equal(comparisonMessage(result, "Northstar 3PL", "Harbor Fulfillment"), "Northstar 3PL is lower by $150.00 per month at this volume ($1,800.00 per year).");
-  assert.equal(targetMessage({ ...result, target: 1250, firstWithinTarget: true, secondWithinTarget: false }, "Northstar 3PL", "Harbor Fulfillment"), "Northstar 3PL is within the $1,250.00 target by $50.00. Harbor Fulfillment is above the $1,250.00 target by $100.00.");
+  assert.equal(targetMessage({ ...result, target: 1250, firstWithinTarget: true, secondWithinTarget: false }, "Northstar 3PL", "Harbor Fulfillment"), "Northstar 3PL is within the $1,250.00 target ($50.00 under). Harbor Fulfillment is above the $1,250.00 target by $100.00.");
 });
 test("rejects an invalid optional target", () => assert.equal(normalizeComparison({ first: "100", second: "120", target: "-1" }).error, "The target monthly total must be a non-negative number."));
+test("creates a target-based negotiation brief without making a recommendation", () => {
+  const result = normalizeComparison({ first: "1350", second: "1400", target: "1200" });
+  assert.equal(negotiationBrief(result, "Northstar 3PL", "Harbor Fulfillment"), "The lower quote from Northstar 3PL is $150.00 per month above the $1,200.00 target. Ask both providers whether they can remove at least $150.00 in recurring cost at this volume, and verify any revised rate card before relying on it.");
+});
+test("brief confirms a quote already at target", () => {
+  const result = normalizeComparison({ first: "1200", second: "1400", target: "1200" });
+  assert.match(negotiationBrief(result), /at or below/);
+});

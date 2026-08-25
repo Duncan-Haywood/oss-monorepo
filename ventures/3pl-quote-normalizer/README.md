@@ -12,6 +12,9 @@ enter a target monthly total to see which provider fits your budget and how far
 an over-target quote must move. Optional provider names make the result easier to
 share, and the page shows monthly, annual, and percentage savings against the
 higher quote.
+Add a target monthly total to get a deterministic negotiation starting point: a
+measurable gap to discuss with both providers, not a recommendation to accept
+either quote.
 Download the comparison as a named CSV record for spreadsheet review, including
 an optional target-budget decision and the review safeguard.
 Use [Volume sensitivity](./sensitivity.html) to see how minimum charges and

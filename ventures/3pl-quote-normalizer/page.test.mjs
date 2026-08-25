@@ -27,6 +27,14 @@ test('comparison page loads savings insights and provider labels', async () => {
   assert.match(script, /annualDifference/);
 });
 
+test('comparison page renders a target-based negotiation starting point', async () => {
+  const page = await readFile(new URL('./compare.html', import.meta.url), 'utf8');
+  assert.match(page, /id="negotiation"/);
+  assert.match(page, /Negotiation starting point/);
+  assert.match(page, /negotiationBrief/);
+  assert.match(page, /negotiation_brief_viewed/);
+});
+
 test('comparison page exposes a local CSV export', async () => {
   const page = await readFile(new URL('./compare.html', import.meta.url), 'utf8');
   assert.match(page, /exportComparisonCsv/);

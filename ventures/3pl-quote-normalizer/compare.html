@@ -32,15 +32,16 @@
     <p id="error" class="error" role="alert"></p>
     <p id="result" class="result" aria-live="polite"></p>
     <p id="targetResult" class="target" aria-live="polite"></p>
+    <p id="negotiation" class="insight" aria-live="polite"></p>
      <button class="secondary" id="copy" type="button">Copy comparison</button> <button class="secondary" id="download" type="button">Download CSV record</button>
     <p class="note"><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not financial, tax, legal, or engineering advice, and it does not replace a qualified professional. You are responsible for reviewing and verifying its output before relying on it.</p>
     <p class="note">Your inputs stay in this browser. No account, tracking cookie, or analytics vendor is used.</p>
   </main>
   <script type="module">
-     import { comparisonMessage, normalizeComparison, targetMessage } from "./compare.mjs";
+    import { comparisonMessage, negotiationBrief, normalizeComparison, targetMessage } from "./compare.mjs";
      import { exportComparisonCsv } from "./export.mjs";
     import { record } from "./usage.mjs";
-     const form = document.querySelector("#compare"), result = document.querySelector("#result"), targetResult = document.querySelector("#targetResult"), error = document.querySelector("#error"), copy = document.querySelector("#copy"), download = document.querySelector("#download"), saveKey = "3pl-quote-normalizer-comparison";
+     const form = document.querySelector("#compare"), result = document.querySelector("#result"), targetResult = document.querySelector("#targetResult"), negotiation = document.querySelector("#negotiation"), error = document.querySelector("#error"), copy = document.querySelector("#copy"), download = document.querySelector("#download"), saveKey = "3pl-quote-normalizer-comparison";
     let latest = "";
     function values() { return Object.fromEntries(new FormData(form)); }
     function render(track = false) {
@@ -48,8 +49,10 @@
       error.textContent = comparison.error || "";
       result.textContent = comparison.error ? "" : comparisonMessage(comparison, firstName, secondName);
       targetResult.textContent = comparison.error ? "" : target;
-      latest = comparison.error ? "" : `3PL quote comparison\n${comparisonMessage(comparison, firstName, secondName)}${target ? `\n${target}` : ""}`;
-      if (track && !comparison.error) { record("comparison_completed"); if (comparison.target != null) record("comparison_target_viewed"); }
+       const brief = comparison.error ? "" : negotiationBrief(comparison, firstName, secondName);
+       negotiation.textContent = comparison.error || comparison.target == null ? "" : `Negotiation starting point: ${brief}`;
+       latest = comparison.error ? "" : `3PL quote comparison\n${comparisonMessage(comparison, firstName, secondName)}${target ? `\n${target}\n${brief}` : ""}`;
+       if (track && !comparison.error) { record("comparison_completed"); if (comparison.target != null) { record("comparison_target_viewed"); record("negotiation_brief_viewed"); } }
     }
     try { const saved = JSON.parse(localStorage.getItem(saveKey) || "null"); if (saved && typeof saved === "object") for (const [name, value] of Object.entries(saved)) { const input = form.elements.namedItem(name); if (input && typeof value === "string") input.value = value; } } catch { /* local drafts are optional */ }
     form.addEventListener("submit", event => { event.preventDefault(); render(true); });

@@ -38,3 +38,12 @@ export function targetMessage(result, firstName = "Quote A", secondName = "Quote
   const status = (name, total, within) => `${name} ${within ? `is within the ${money(result.target)} target (${money(result.target - total)} under)` : `is above the ${money(result.target)} target by ${money(total - result.target)}`}.`;
   return `${status(firstName, result.first, result.firstWithinTarget)} ${status(secondName, result.second, result.secondWithinTarget)}`;
 }
+
+export function negotiationBrief(result, firstName = "Quote A", secondName = "Quote B") {
+  if (result.error || result.target == null) return "Add a target monthly total to generate a negotiation brief.";
+  const provider = result.first <= result.second ? firstName : secondName;
+  const total = result.first <= result.second ? result.first : result.second;
+  const gap = Math.max(0, total - result.target);
+  if (gap === 0) return `${provider} is at or below the ${money(result.target)} target. Ask the provider to confirm the rates, minimums, and contract terms in writing.`;
+  return `The lower quote from ${provider} is ${money(gap)} per month above the ${money(result.target)} target. Ask both providers whether they can remove at least ${money(gap)} in recurring cost at this volume, and verify any revised rate card before relying on it.`;
+}
