@@ -6,6 +6,7 @@ function number(value, fallback = 0) {
 }
 
 export function calculateTerms(input) {
+  if (!input || typeof input !== 'object') throw new Error('Enter invoice details.');
   const amount = Math.max(0, number(input.amount));
   const termsDays = Math.max(0, Math.round(number(input.termsDays, 30)));
   const annualLateRate = Math.max(0, number(input.annualLateRate));
