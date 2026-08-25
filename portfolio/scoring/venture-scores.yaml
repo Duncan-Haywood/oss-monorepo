@@ -48,6 +48,34 @@ scoring_rule: >-
   near-zero-price norm is a real property of the business on any host.
 
 ventures:
+  - slug: cam-reconciliation-check
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 7
+      gross_margin: 10
+      defensibility: 4
+      distribution: 6
+    composite: 6.333
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      AI is intentionally absent from the first release: transparent area-share
+      arithmetic and a portable review record are the user value.
+    basis: >-
+      Graduated on 2026-08-25 as a browser-local CAM reconciliation worksheet.
+      It is distinct from the portfolio's construction retainage tool because it
+      checks commercial lease common-area expense allocation, credits, and billed
+      variance rather than contractor cash flow. The niche has direct search
+      intent in CAM reconciliation calculator and triple-net expense audit.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Pass, conditionally: the output is arithmetic and review prompts, not lease
+      interpretation, a payment demand, or a claim that an expense is recoverable;
+      users must verify statements, leases, and supporting records.
   - slug: retainage-cashflow-calculator
     scores:
       ai_leverage: 1

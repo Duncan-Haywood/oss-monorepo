@@ -1,5 +1,18 @@
 period: 2026-08
 entries:
+  - venture: cam-reconciliation-check
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Graduated and implemented a browser-local commercial lease CAM
+        reconciliation worksheet. It exposes tenant area-share math, credits,
+        billed-versus-modeled variance, review prompts, and a private text export
+        without uploads, accounts, integrations, or payment collection. Includes
+        visible disclaimer, opt-out local event counter, MIT license, SEO metadata,
+        sitemap, robots.txt, and focused arithmetic tests. Public publishing and
+        customer demand remain unmeasured.
+    mrr_end: null
   - venture: retainage-cashflow-calculator
     agent_spend_usd: null
     human_hours: 0
