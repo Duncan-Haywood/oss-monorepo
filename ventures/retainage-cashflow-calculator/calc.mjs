@@ -38,3 +38,24 @@ export function followUpDraft({ projectName, payerName, invoiceReference, dueDat
   const due = dueDate?.trim() || '[due date]';
   return [`Subject: Payment status request — ${project}`, '', `Hello ${payer},`, '', `I am checking the payment status for ${invoice}, due ${due}. My records show ${currency}${result.earnedUnpaid.toFixed(2)} remains unpaid, including approximately ${currency}${result.retainageWithheld.toFixed(2)} in retainage based on the figures in my worksheet.`, '', 'Please confirm the expected payment date and let me know if any documentation is still needed from me. This is a factual account-record request, not a waiver of any rights or a demand for a particular legal remedy.', '', 'Thank you,', '[your name]', '', 'Review the figures, contract, payment terms, and local requirements before sending. This draft is not legal advice.'].join('\n');
 }
+
+export function summaryText({ projectName, invoiceReference, dueDate, result, currency = '$', generatedDate = new Date().toISOString().slice(0, 10) }) {
+  const project = projectName?.trim() || '[project name]';
+  const invoice = invoiceReference?.trim() || '[invoice or pay application reference]';
+  const due = dueDate?.trim() || '[due date]';
+  return [
+    'CONSTRUCTION RETAINAGE CASH-FLOW RECORD',
+    `Generated: ${generatedDate}`,
+    `Project: ${project}`,
+    `Invoice / pay application: ${invoice}`,
+    `Payment due: ${due}`,
+    '',
+    `Retainage withheld: ${currency}${result.retainageWithheld.toFixed(2)}`,
+    `Earned but unpaid: ${currency}${result.earnedUnpaid.toFixed(2)}`,
+    `Modeled carrying cost: ${currency}${result.carryingCost.toFixed(2)}`,
+    `Total modeled cash outstanding: ${currency}${result.totalCashOutstanding.toFixed(2)}`,
+    '',
+    'This is a user-entered scenario and account-record aid, not a determination of interest, payment deadline, lien right, entitlement, or legal remedy.',
+    'Review the figures and supporting records before relying on or sharing this record.'
+  ].join('\n');
+}
