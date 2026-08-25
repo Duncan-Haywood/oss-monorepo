@@ -66,3 +66,24 @@ export function overrunScenarios(quote, report, percentages = [10, 25, 50]) {
     };
   });
 }
+
+/** Escapes one spreadsheet value according to RFC 4180-style CSV rules. */
+export function csvValue(value) {
+  const text = String(value);
+  return /[",\n\r]/.test(text) ? `"${text.replaceAll('"', '""')}"` : text;
+}
+
+/** Builds the browser export with safe handling for user-provided labels. */
+export function csvReport(quote, report) {
+  const rows = [
+    ["measure", "value", "unit"],
+    ["quoted_price", quote.price.toFixed(2), quote.currency],
+    ["total_working_hours", report.total_hours.toFixed(2), "hours"],
+    ["direct_costs", report.direct_costs.toFixed(2), quote.currency],
+    ["effective_hourly_rate", report.effective_hourly_rate.toFixed(2), `${quote.currency}/hour`],
+    ["target_price", report.target_price.toFixed(2), quote.currency],
+    ["gap_to_target", report.gap_to_target.toFixed(2), quote.currency],
+    ["cost_coverage", report.cost_coverage.toFixed(2), quote.currency],
+  ];
+  return rows.map((row) => row.map(csvValue).join(",")).join("\n");
+}
