@@ -97,6 +97,9 @@ workflows:
 - workflow: mcp-drift-watch-ci.yml
   classification: none
   publishes: []
+- workflow: metal-roof-bid-calculator-ci.yml
+  classification: none
+  publishes: []
 - workflow: no-show-fee-calculator-ci.yml
   classification: none
   publishes: []
