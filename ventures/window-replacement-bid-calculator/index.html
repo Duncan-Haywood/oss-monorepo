@@ -1,0 +1,445 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Window Replacement Bid Calculator | Price the Opening, Not the Window</title>
+  <meta name="description" content="Price a window replacement job from United Inches, story, and tear-out — not a flat price per window. See walk-away price, average per opening, and the margin a $550-a-window special actually leaves.">
+  <meta property="og:title" content="Window Replacement Bid Calculator">
+  <meta property="og:description" content="Bid window replacement the way the trade does — United Inches, the second story, and rot decide whether the job pays.">
+  <link rel="canonical" href="./">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Window Replacement Bid Calculator","applicationCategory":"BusinessApplication","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"featureList":"Per-opening takeoff, United Inches material, story access hours, rot and lead-safe adders, vinyl/fiberglass/wood frames, insert vs full-frame, scaffolding, disposal, payroll burden, walk-away price, proposed-price margin check, private share link"}</script>
+  <style>
+    :root { color-scheme: light; font-family: system-ui, sans-serif; color: #1a2430; background: #e8eef4; }
+    body { max-width: 1140px; margin: 0 auto; padding: 32px 18px; }
+    header { max-width: 760px; margin-bottom: 26px; }
+    h1 { font-size: clamp(2rem, 6vw, 3.4rem); line-height: .98; margin: 0 0 12px; letter-spacing: -.05em; }
+    p { line-height: 1.5; }
+    .eyebrow { font-size: .8rem; font-weight: 700; letter-spacing: .08em; color: #1a5f8a; margin: 0 0 6px; }
+    .layout { display: grid; grid-template-columns: minmax(0, 1fr) minmax(300px, .68fr); gap: 18px; align-items: start; }
+    section { background: #f7fafc; border: 1px solid #c5d2de; border-radius: 14px; padding: 20px; box-shadow: 0 8px 24px #1220330d; margin-bottom: 18px; }
+    h2 { margin-top: 0; font-size: 1.15rem; }
+    .hint { font-size: .82rem; color: #4a5666; margin: -6px 0 14px; }
+    .fields { display: grid; grid-template-columns: repeat(2, 1fr); gap: 13px; }
+    label { display: grid; gap: 5px; font-size: .87rem; font-weight: 650; }
+    input, select { width: 100%; box-sizing: border-box; border: 1px solid #a9b6c6; border-radius: 7px; padding: 10px; font: inherit; background: #fff; }
+    .opening-row { display: grid; grid-template-columns: 1.4fr 1.2fr repeat(4, .7fr); gap: 8px; align-items: end; margin-bottom: 12px; border: 1px solid #d3dce6; border-radius: 9px; padding: 11px; }
+    .opening-head { display: none; }
+    .opening-row .lbl { font-size: .74rem; font-weight: 700; letter-spacing: .03em; text-transform: uppercase; color: #5a6779; }
+    .trim-check { display: flex; gap: 6px; align-items: center; font-weight: 550; padding-bottom: 8px; }
+    .trim-check input { width: auto; }
+    button { font: inherit; border-radius: 7px; border: 1px solid #a9b6c6; background: #e8eef4; padding: 10px 14px; cursor: pointer; font-weight: 650; }
+    button:hover { background: #d7e2ec; }
+    .remove { padding: 10px; color: #9b2c1f; border-color: #d8b6b0; background: #fdf3f1; }
+    .checks { display: grid; gap: 8px; margin: 4px 0 0; }
+    .checks label { display: flex; gap: 8px; align-items: center; font-weight: 550; }
+    .checks input { width: auto; }
+    .result { position: sticky; top: 15px; background: #16324a; color: #eef6fb; border-color: #16324a; }
+    .hero-number { font-size: 2.8rem; font-weight: 750; letter-spacing: -.05em; margin: 8px 0; }
+    .negative { color: #ffb0a2; }
+    dl { display: grid; grid-template-columns: 1fr auto; gap: 9px; margin: 20px 0; }
+    dt, dd { margin: 0; } dd { font-variant-numeric: tabular-nums; }
+    hr { border: 0; border-top: 1px solid #ffffff2b; }
+    .note { font-size: .82rem; opacity: .84; }
+    .split { margin: 14px 0 0; padding: 0; list-style: none; font-size: .84rem; }
+    .split li { display: grid; grid-template-columns: 1fr auto; gap: 8px; padding: 3px 0; }
+    .bar { grid-column: 1 / -1; height: 4px; border-radius: 2px; background: #ffffff2e; }
+    .bar > span { display: block; height: 100%; border-radius: 2px; background: #7ec4e3; }
+    .verdict { margin-top: 14px; padding: 12px; border-radius: 9px; font-size: .87rem; background: #ffffff1a; }
+    .verdict.bad { background: #7d2317; }
+    .empty { font-size: .87rem; opacity: .84; }
+    footer { margin-top: 25px; font-size: .82rem; color: #4a5666; }
+    footer a { color: #1a5f8a; }
+    .support { margin-top: 14px; }
+    .summary-actions { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin-top: 14px; }
+    .summary-status { font-size: .8rem; color: #b7d7ea; }
+    .seo-link { margin: 10px 0 0; font-size: .9rem; }
+    .opening-row label:first-child { grid-column: 1 / 3; }
+    .opening-row .remove { grid-column: 1 / -1; }
+    @media (max-width: 980px) {
+      .layout { grid-template-columns: 1fr; } .result { position: static; } .fields { grid-template-columns: 1fr; }
+      .opening-row { grid-template-columns: 1fr 1fr; }
+      .opening-row label { font-size: .78rem; gap: 5px; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="eyebrow">FOR WINDOW REPLACEMENT CONTRACTORS</p>
+    <h1>Bid the opening, not the window.</h1>
+    <p>A 3040 double-hung is not a 6048 picture window, a second-floor bedroom is not a first-floor insert, and a rotten sill is a carpentry job hiding inside a “window” line. A flat price per window cannot see any of that. Price United Inches, the story, and the tear-out — then see the walk-away number before a $550-a-window special eats the week.</p>
+    <p class="seo-link"><a href="./how-much-to-charge.html">How much should I charge to replace windows?</a></p>
+  </header>
+
+  <main class="layout">
+    <div>
+      <section>
+        <h2>The openings</h2>
+        <p class="hint">One row per distinct size and condition. Width + height in inches is United Inches — the unit the glass shop prices. Quantity groups identical units. Story, frame, install method, and tear-out decide the hours a per-window special hides.</p>
+        <div class="opening-row opening-head" aria-hidden="true">
+          <span>Name</span><span>Type</span><span>W in</span><span>H in</span><span>Qty</span><span>Story</span><span>Frame</span><span>Install</span><span>Condition</span><span>Trim</span><span></span>
+        </div>
+        <div id="openings"></div>
+        <button type="button" id="addOpening">+ Add an opening</button>
+      </section>
+
+      <section>
+        <h2>The job</h2>
+        <div class="fields">
+          <label>Miles one way <input id="milesOneWay" type="number" min="0" step="0.5" value="12"></label>
+          <label>Travel speed (mph) <input id="speedMph" type="number" min="1" step="1" value="28"></label>
+          <label>Disposal / old unit <input id="disposalPerOpening" type="number" min="0" step="1" value="18"></label>
+          <label>Scaffolding / lift (2nd+ story) <input id="scaffoldingCost" type="number" min="0" step="5" value="375"></label>
+          <label>Permit <input id="permitCost" type="number" min="0" step="1" value="85"></label>
+        </div>
+        <div class="checks">
+          <label><input id="addOn-interiorCasing" type="checkbox"> Interior casing / returns on every opening</label>
+          <label><input id="addOn-exteriorCapping" type="checkbox"> Exterior vinyl / aluminum capping on every opening</label>
+        </div>
+        <p class="hint" style="margin-top:14px;margin-bottom:0">Unit prices and hours follow common ballpark figures as a time-and-material budget you can edit — not a manufacturer size chart, an Energy Star list, or a finding that any opening is permitted, structurally sound, or lead-safe. Scaffolding is charged only when a priced opening sits on the second story or higher.</p>
+      </section>
+
+      <section>
+        <h2>Your costs</h2>
+        <div class="fields">
+          <label>Installer hourly wage <input id="hourlyWage" type="number" min="0" step="0.25" value="38"></label>
+          <label>Payroll burden (%) <input id="burdenRate" type="number" min="0" step="0.5" value="32"></label>
+          <label>Setup / breakdown (hours) <input id="setupHours" type="number" min="0" step="0.05" value="1"></label>
+          <label>Minimum on-site hours <input id="minOnSiteHours" type="number" min="0" step="0.25" value="6"></label>
+          <label>Trip / truck fee <input id="tripFee" type="number" min="0" step="1" value="95"></label>
+          <label>Other cost <input id="otherCost" type="number" min="0" step="1" value="0"></label>
+          <label>Overhead on direct cost (%) <input id="overheadRate" type="number" min="0" step="0.5" value="15"></label>
+          <label>Target net margin (%) <input id="targetMargin" type="number" min="0" max="99.9" step="0.5" value="25"></label>
+          <label>Price you&rsquo;re considering (optional) <input id="proposedPrice" type="number" min="0" step="25" placeholder="e.g. 3850"></label>
+        </div>
+        <p class="hint" style="margin-top:14px;margin-bottom:0">Payroll burden covers employer taxes, workers&rsquo; compensation, liability insurance, and paid time off. An installer paid $38 often costs more than $50 on the wall. Underestimating that is how a $550-a-window special loses money.</p>
+      </section>
+    </div>
+
+    <section class="result" aria-live="polite">
+      <h2>Your quote</h2>
+      <div id="price" class="hero-number">$&mdash;</div>
+      <div id="priceLabel">job price</div>
+      <dl>
+        <dt>Openings</dt><dd id="count"></dd>
+        <dt>Install hours</dt><dd id="installHours"></dd>
+        <dt>2nd+ story share of labor</dt><dd id="storyShare"></dd>
+        <dt>On-site hours</dt><dd id="onSiteHours"></dd>
+        <dt>Travel hours (round trip)</dt><dd id="travelHours"></dd>
+        <dt>Total labor hours</dt><dd id="totalHours"></dd>
+        <dt>Loaded labor cost</dt><dd id="labor"></dd>
+        <dt>Unit material</dt><dd id="unitMat"></dd>
+        <dt>Add-on parts</dt><dd id="parts"></dd>
+        <dt>Disposal</dt><dd id="disposal"></dd>
+        <dt>Scaffolding + trip + permit</dt><dd id="trip"></dd>
+        <dt>Overhead</dt><dd id="overhead"></dd>
+        <dt>Total cost</dt><dd id="cost"></dd>
+        <dt>Profit</dt><dd id="profit"></dd>
+        <dt>Average per opening</dt><dd id="perOpening"></dd>
+        <dt>Effective hourly rate</dt><dd id="hourlyRate"></dd>
+        <dt>Walk-away price</dt><dd id="breakEven"></dd>
+      </dl>
+      <div id="verdict" class="verdict" hidden></div>
+      <div class="summary-actions">
+        <button type="button" id="copySummary">Copy quote summary</button>
+        <button type="button" id="copyShare">Copy share link</button>
+        <span id="summaryStatus" class="summary-status" role="status" aria-live="polite"></span>
+      </div>
+      <hr>
+      <p class="note" style="margin-bottom:4px"><strong>Where the labor goes</strong></p>
+      <ul class="split" id="split"></ul>
+      <hr>
+      <p class="note">Transparent arithmetic from your own inputs. The starting unit prices and hours are common ballpark numbers, not a manufacturer size chart, an Energy Star list, or a guarantee &mdash; time your own crews and replace them. This is not a finding that any opening is permitted, structurally sound, or lead-safe.</p>
+    </section>
+  </main>
+
+  <footer>
+    <label style="display:inline-flex;gap:6px;align-items:center;font-weight:400"><input id="usageOptOut" type="checkbox" style="width:auto"> Do not keep anonymous local usage counts</label>
+    <p><strong>No warranty.</strong> This free tool is not legal, tax, financial, or engineering advice, and it does not tell you what to charge or whether an opening may be replaced. It is not a manufacturer, building-code, Energy Star, lead, or insurance inspection. Verify every figure against your own payroll, insurance, and supply costs, and against a qualified professional, before relying on it or submitting a bid. To the maximum extent permitted by law, the authors accept no liability for loss or damage from its use.</p>
+    <p><strong>Nothing leaves your browser.</strong> Every number stays on this device. Usage counts are anonymous tallies of which features were used, stored locally, and never include the address, opening sizes, wages, or prices. A share link encodes only the quote fields in the page hash; it is not sent to us.</p>
+    <p class="support">Free and open source. If it wins you a job, the <a href="https://github.com/Duncan-Haywood/monorepo-projects" rel="noopener">project is on GitHub</a> &mdash; support is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { calculateBid, UNIT_TYPE_PRESETS, FRAME_PRESETS, INSTALL_PRESETS, CONDITION_PRESETS, ADD_ON_PRESETS } from './calc.mjs';
+    import { recordUsage } from './usage.mjs';
+    import { encodeShare, decodeShare } from './share.mjs';
+
+    const COST_IDS = [
+      'milesOneWay','speedMph','disposalPerOpening','scaffoldingCost','permitCost',
+      'hourlyWage','burdenRate','setupHours','minOnSiteHours','tripFee','otherCost',
+      'overheadRate','targetMargin','proposedPrice',
+    ];
+    const money = value => `$${value.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+    const el = id => document.getElementById(id);
+    const options = (list, selected) => list.map(item =>
+      `<option value="${item.id}"${item.id === selected ? ' selected' : ''}>${item.label}</option>`
+    ).join('');
+
+    const STARTING_OPENINGS = [
+      { name: 'Living picture', type: 'picture', widthIn: 60, heightIn: 48, quantity: 1, story: 1, frame: 'vinyl', install: 'insert', condition: 'clean', trim: false },
+      { name: 'Bedrooms', type: 'double-hung', widthIn: 30, heightIn: 54, quantity: 4, story: 2, frame: 'vinyl', install: 'insert', condition: 'clean', trim: false },
+      { name: 'Kitchen slider', type: 'slider', widthIn: 60, heightIn: 36, quantity: 1, story: 1, frame: 'vinyl', install: 'insert', condition: 'clean', trim: false },
+      { name: 'Master casement', type: 'casement', widthIn: 32, heightIn: 60, quantity: 1, story: 2, frame: 'vinyl', install: 'insert', condition: 'rot', trim: false },
+    ];
+
+    const openingsHost = el('openings');
+    let rowSeq = 0;
+
+    function addOpeningRow(opening) {
+      const id = `o${++rowSeq}`;
+      const row = document.createElement('div');
+      row.className = 'opening-row';
+      row.innerHTML = `
+        <label for="${id}-name"><span class="lbl">Name</span><input class="o-name" id="${id}-name" type="text"></label>
+        <label for="${id}-type"><span class="lbl">Type</span><select class="o-type" id="${id}-type">${options(UNIT_TYPE_PRESETS, opening.type)}</select></label>
+        <label for="${id}-w"><span class="lbl">Width (in)</span><input class="o-w" id="${id}-w" type="number" min="0" step="1"></label>
+        <label for="${id}-h"><span class="lbl">Height (in)</span><input class="o-h" id="${id}-h" type="number" min="0" step="1"></label>
+        <label for="${id}-qty"><span class="lbl">Qty</span><input class="o-qty" id="${id}-qty" type="number" min="0" step="1"></label>
+        <label for="${id}-story"><span class="lbl">Story</span><input class="o-story" id="${id}-story" type="number" min="1" step="1"></label>
+        <label for="${id}-frame"><span class="lbl">Frame</span><select class="o-frame" id="${id}-frame">${options(FRAME_PRESETS, opening.frame)}</select></label>
+        <label for="${id}-install"><span class="lbl">Install</span><select class="o-install" id="${id}-install">${options(INSTALL_PRESETS, opening.install)}</select></label>
+        <label for="${id}-cond"><span class="lbl">Condition</span><select class="o-cond" id="${id}-cond">${options(CONDITION_PRESETS, opening.condition)}</select></label>
+        <label class="trim-check" for="${id}-trim"><input class="o-trim" id="${id}-trim" type="checkbox"><span class="lbl">Trim</span></label>
+        <button type="button" class="remove">Remove<span class="lbl"> this opening</span></button>`;
+      row.querySelector('.o-name').value = opening.name || '';
+      row.querySelector('.o-w').value = opening.widthIn;
+      row.querySelector('.o-h').value = opening.heightIn;
+      row.querySelector('.o-qty').value = opening.quantity ?? 1;
+      row.querySelector('.o-story').value = opening.story ?? 1;
+      row.querySelector('.o-trim').checked = Boolean(opening.trim);
+      row.querySelectorAll('input, select').forEach(field => {
+        field.addEventListener('input', update);
+        field.addEventListener('change', () => count('bid_calculated'));
+      });
+      row.querySelector('.remove').addEventListener('click', () => {
+        row.remove();
+        count('opening_removed');
+        update();
+      });
+      openingsHost.append(row);
+    }
+
+    function readOpenings() {
+      return [...openingsHost.querySelectorAll('.opening-row')].map(row => ({
+        name: row.querySelector('.o-name').value,
+        type: row.querySelector('.o-type').value,
+        widthIn: row.querySelector('.o-w').value,
+        heightIn: row.querySelector('.o-h').value,
+        quantity: row.querySelector('.o-qty').value,
+        story: row.querySelector('.o-story').value,
+        frame: row.querySelector('.o-frame').value,
+        install: row.querySelector('.o-install').value,
+        condition: row.querySelector('.o-cond').value,
+        trim: row.querySelector('.o-trim').checked,
+      }));
+    }
+
+    function readAddOns() {
+      return ADD_ON_PRESETS.map(preset => ({
+        ...preset,
+        enabled: el(`addOn-${preset.id}`).checked,
+      }));
+    }
+
+    function readInput() {
+      return {
+        openings: readOpenings(),
+        ...Object.fromEntries(COST_IDS.map(id => [id, el(id).value])),
+        addOns: readAddOns(),
+        proposedPrice: el('proposedPrice').value,
+      };
+    }
+
+    function count(event) {
+      recordUsage(localStorage, el('usageOptOut').checked, event);
+    }
+
+    const OUTPUT_IDS = [
+      'count','installHours','storyShare','onSiteHours','travelHours','totalHours','labor',
+      'unitMat','parts','disposal','trip','overhead','cost','profit','perOpening','hourlyRate','breakEven',
+    ];
+
+    function clearOutputs(message, isError) {
+      el('price').textContent = message;
+      el('price').className = `hero-number ${isError ? 'negative' : ''}`;
+      el('priceLabel').textContent = isError ? 'check the highlighted input' : 'job price';
+      OUTPUT_IDS.forEach(id => { el(id).textContent = ''; });
+      el('split').innerHTML = '';
+      el('verdict').hidden = true;
+    }
+
+    function applyShare(payload) {
+      if (!payload) return;
+      COST_IDS.forEach(id => {
+        if (payload[id] !== undefined && el(id)) el(id).value = payload[id];
+      });
+      if (Array.isArray(payload.addOns)) {
+        ADD_ON_PRESETS.forEach(preset => {
+          const match = payload.addOns.find(item => item.id === preset.id);
+          if (match) el(`addOn-${preset.id}`).checked = match.enabled !== false;
+        });
+      }
+      if (Array.isArray(payload.openings) && payload.openings.length) {
+        openingsHost.innerHTML = '';
+        payload.openings.forEach(addOpeningRow);
+      }
+    }
+
+    function update() {
+      const input = readInput();
+      if (input.openings.length === 0) {
+        clearOutputs('Add an opening to price', false);
+        el('split').innerHTML = '<li class="empty">Add at least one opening above and the labor split appears here.</li>';
+        return;
+      }
+      let result;
+      try {
+        result = calculateBid(input);
+      } catch (error) {
+        clearOutputs(error.message, true);
+        return;
+      }
+
+      el('price').textContent = money(result.price);
+      el('price').className = 'hero-number';
+      el('priceLabel').textContent = 'job price';
+      el('count').textContent = `${result.openingCount} (max story ${result.maxStory})`;
+      el('installHours').textContent = `${result.installHours.toFixed(2)} h`;
+      el('storyShare').textContent = result.secondStoryShareOfLabor === null ? 'n/a' : `${result.secondStoryShareOfLabor.toFixed(0)}%`;
+      el('onSiteHours').textContent = `${result.onSiteHours.toFixed(2)} h${result.minimumApplied ? ' (minimum)' : ''}`;
+      el('travelHours').textContent = `${result.travelHours.toFixed(2)} h`;
+      el('totalHours').textContent = `${result.totalHours.toFixed(2)} h`;
+      el('labor').textContent = money(result.laborCost);
+      el('unitMat').textContent = money(result.unitMaterial);
+      el('parts').textContent = money(result.addOnParts);
+      el('disposal').textContent = money(result.disposal);
+      el('trip').textContent = money(result.scaffolding + result.tripFee + result.permitCost);
+      el('overhead').textContent = money(result.overhead);
+      el('cost').textContent = money(result.totalCost);
+      el('profit').textContent = money(result.profit);
+      el('perOpening').textContent = result.pricePerOpening === null ? 'n/a' : money(result.pricePerOpening);
+      el('hourlyRate').textContent = result.effectiveHourlyRate === null ? 'n/a' : `${money(result.effectiveHourlyRate)}/h`;
+      el('breakEven').textContent = money(result.breakEvenPrice);
+
+      const worked = result.openings.filter(row => row.quantity > 0);
+      el('split').innerHTML = worked.length === 0
+        ? '<li class="empty">No opening has a quantity yet.</li>'
+        : worked
+          .slice()
+          .sort((a, b) => b.hours - a.hours)
+          .map(row => {
+            const note = `${row.widthIn}×${row.heightIn} (${row.ui} UI), story ${row.story}${row.condition !== 'clean' ? `, ${row.conditionLabel}` : ''}`;
+            return `<li><span>${row.quantity}× ${row.name} — ${row.typeLabel}, ${note}</span><span>${row.hoursShare.toFixed(0)}% of hours</span>
+            <span class="bar"><span style="width:${row.hoursShare.toFixed(1)}%"></span></span></li>`;
+          })
+          .join('');
+
+      const verdict = el('verdict');
+      if (result.proposed === null) {
+        verdict.hidden = true;
+      } else {
+        verdict.hidden = false;
+        verdict.className = `verdict${result.proposed.belowBreakEven ? ' bad' : ''}`;
+        const each = result.proposed.pricePerOpening === null ? 'n/a' : money(result.proposed.pricePerOpening);
+        verdict.innerHTML = result.proposed.belowBreakEven
+          ? `At ${money(result.proposed.price)} (${each} / opening) this job <strong>loses ${money(Math.abs(result.proposed.profit))}</strong> before you take anything out of it. Your walk-away price is ${money(result.breakEvenPrice)}.`
+          : `At ${money(result.proposed.price)} (${each} / opening) you keep <strong>${money(result.proposed.profit)}</strong> — a ${result.proposed.margin.toFixed(1)}% margin.`;
+      }
+    }
+
+    function summaryText(result) {
+      const rows = result.openings
+        .filter(row => row.quantity > 0)
+        .map(row => `- ${row.quantity}× ${row.name}: ${row.widthIn}×${row.heightIn} in (${row.ui} UI), ${row.typeLabel}, ${row.frameLabel}, story ${row.story}, ${row.installLabel}, ${row.conditionLabel}`)
+        .join('\n');
+      const extras = result.addOns.map(item => item.label).join('; ');
+      return [
+        'WINDOW REPLACEMENT QUOTE',
+        '',
+        `Proposed price: ${money(result.price)}`,
+        `Walk-away (cost): ${money(result.breakEvenPrice)}`,
+        `Openings: ${result.openingCount} → ${money(result.pricePerOpening)} average`,
+        `Labor: ${result.totalHours.toFixed(2)} hours (${result.installHours.toFixed(2)} install)`,
+        extras ? `Scope extras: ${extras}` : 'Scope extras: none',
+        result.needsAccess ? 'Access: scaffolding / lift included (2nd story or higher)' : 'Access: first floor only',
+        '',
+        'OPENINGS',
+        rows || '- No openings entered',
+        '',
+        'This is a draft for review. Confirm measurements, United Inches, access, structural condition, lead status, permits, taxes, and all pricing before sending. It is not a manufacturer, building-code, Energy Star, or lead inspection.',
+      ].join('\n');
+    }
+
+    async function writeClipboard(text) {
+      try {
+        await navigator.clipboard.writeText(text);
+      } catch {
+        const fallback = document.createElement('textarea');
+        fallback.value = text;
+        fallback.setAttribute('readonly', '');
+        fallback.style.position = 'fixed';
+        fallback.style.opacity = '0';
+        document.body.append(fallback);
+        fallback.select();
+        document.execCommand('copy');
+        fallback.remove();
+      }
+    }
+
+    async function copySummary() {
+      const result = calculateBid(readInput());
+      await writeClipboard(summaryText(result));
+      count('summary_copied');
+      el('summaryStatus').textContent = 'Copied to clipboard';
+      setTimeout(() => { el('summaryStatus').textContent = ''; }, 2500);
+    }
+
+    async function copyShare() {
+      const hash = encodeShare(readInput());
+      const url = `${location.origin}${location.pathname}#${hash}`;
+      await writeClipboard(url);
+      history.replaceState(null, '', `#${hash}`);
+      count('share_copied');
+      el('summaryStatus').textContent = 'Share link copied';
+      setTimeout(() => { el('summaryStatus').textContent = ''; }, 2500);
+    }
+
+    el('addOpening').addEventListener('click', () => {
+      addOpeningRow({ name: '', type: 'double-hung', widthIn: 30, heightIn: 40, quantity: 1, story: 1, frame: 'vinyl', install: 'insert', condition: 'clean', trim: false });
+      count('opening_added');
+      update();
+    });
+    COST_IDS.forEach(id => {
+      el(id).addEventListener('input', update);
+      el(id).addEventListener('change', () => count(id === 'proposedPrice' ? 'proposed_price_compared' : 'bid_calculated'));
+    });
+    ADD_ON_PRESETS.forEach(preset => {
+      el(`addOn-${preset.id}`).addEventListener('change', () => {
+        count('bid_calculated');
+        update();
+      });
+    });
+    el('usageOptOut').addEventListener('change', update);
+    el('copySummary').addEventListener('click', () => {
+      try {
+        copySummary().catch(() => { el('summaryStatus').textContent = 'Copy failed; select and copy the figures above.'; });
+      } catch (error) {
+        el('summaryStatus').textContent = error.message;
+      }
+    });
+    el('copyShare').addEventListener('click', () => {
+      try {
+        copyShare().catch(() => { el('summaryStatus').textContent = 'Copy failed.'; });
+      } catch (error) {
+        el('summaryStatus').textContent = error.message;
+      }
+    });
+
+    const shared = decodeShare(location.hash);
+    if (shared) applyShare(shared);
+    if (!openingsHost.querySelector('.opening-row')) STARTING_OPENINGS.forEach(addOpeningRow);
+    update();
+  </script>
+</body>
+</html>
