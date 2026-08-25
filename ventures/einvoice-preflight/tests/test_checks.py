@@ -118,6 +118,14 @@ class ChecksTest(unittest.TestCase):
         invoice["due_date"] = "2026-08-24"
         self.assertEqual(check_invoice(invoice), [])
 
+    def test_dates_require_extended_iso_yyyy_mm_dd_form(self):
+        invoice = json.loads(json.dumps(VALID))
+        invoice["issue_date"] = "20260824"
+        invoice["due_date"] = "2026-W35-1"
+        rules = {error["rule"] for error in check_invoice(invoice)}
+        self.assertIn("INV-003", rules)
+        self.assertIn("INV-020", rules)
+
     def test_cli_writes_only_aggregate_usage(self):
         with tempfile.TemporaryDirectory() as directory:
             invoice_path = Path(directory) / "invoice.json"
