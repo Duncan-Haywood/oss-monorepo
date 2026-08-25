@@ -16,6 +16,13 @@ Download the comparison as a named CSV record for spreadsheet review, including
 an optional target-budget decision and the review safeguard.
 Use [Volume sensitivity](./sensitivity.html) to see how minimum charges and
 true cost per order change at 25, 50, 100, 250, and 500 monthly orders.
+Use [Inbound methods](./inbound.html) to compare pallet inbound, carton
+inbound, and loose / per-unit receiving on the same quote — the rate-card
+decision most warehouses leave as three unexplained lines. A monthly
+minimum that swallows the receiving difference is called out instead of
+hidden. The search page
+[Why pallet inbound usually beats carton inbound](./pallet-vs-carton-inbound.html)
+explains the fee-per-container arithmetic.
 After normalizing, use **Download CSV record** to save the exact on-screen
 calculation for a spreadsheet or quote review without retyping figures.
 If a pasted value is malformed or negative, the copied line-by-line report

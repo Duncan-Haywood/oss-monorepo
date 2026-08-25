@@ -63,6 +63,30 @@ test('calculator exposes a local CSV export from its live form', async () => {
   assert.match(page, /return-fields\.js/);
 });
 
+test('inbound page compares pallet, carton, and loose receiving', async () => {
+  const page = await readFile(new URL('./inbound.html', import.meta.url), 'utf8');
+  assert.match(page, /name="palletInboundFee"/);
+  assert.match(page, /name="cartonInboundFee"/);
+  assert.match(page, /name="receivingPerUnit"/);
+  assert.match(page, /compareInboundMethods/);
+  assert.match(page, /inbound_methods_compared/);
+  assert.match(page, /not financial, tax, legal/);
+  assert.match(page, /Best-effort hosting, no SLA/);
+  assert.match(page, /github.com\/sponsors\/Duncan-Haywood/);
+});
+
+test('inbound SEO page explains the container-fee arithmetic', async () => {
+  const page = await readFile(new URL('./pallet-vs-carton-inbound.html', import.meta.url), 'utf8');
+  assert.match(page, /\$10/);
+  assert.match(page, /inbound.html/);
+  assert.match(page, /not financial, tax, legal/);
+});
+
+test('main calculator links to the inbound comparison', async () => {
+  const page = await readFile(new URL('./index.html', import.meta.url), 'utf8');
+  assert.match(page, /inbound.html/);
+});
+
 test('sensitivity page exposes volume assumptions, results, and disclaimer', async () => {
   const page = await readFile(new URL('./sensitivity.html', import.meta.url), 'utf8');
   assert.match(page, /Volume Sensitivity/);
