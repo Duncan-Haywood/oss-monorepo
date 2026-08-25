@@ -63,7 +63,10 @@ stop changing, skips the pre-filled example on first load, and ignores a repeat
 of a quote it already counted. Reading it as "reports", not "keystrokes", is
 what makes it comparable to the CLI's own count. The browser also counts
 `quote_review_checked` locally when a valid quote is reviewed; it stores no quote
-values and sends nothing anywhere.
+values and sends nothing anywhere. After the review, the page offers three
+user-controlled workflow choices (send, revise, or hold) and counts the selected
+`quote_decision_*` event locally. These events contain no quote values and are
+never uploaded.
 
 ## Input
 

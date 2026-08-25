@@ -96,9 +96,14 @@
   .error { color: var(--bad); }
   .checks { margin: 0.75rem 0 0; padding: 0; list-style: none; }
   .checks li { border-left: 4px solid var(--border); padding: 0.55rem 0.75rem; margin-top: 0.55rem; background: var(--panel); }
-  .checks li.attention { border-color: var(--bad); }
-  .checks li.clear { border-color: var(--good); }
-  .checks strong { display: block; }
+   .checks li.attention { border-color: var(--bad); }
+   .checks li.clear { border-color: var(--good); }
+   .checks strong { display: block; }
+   .decision { border-top: 1px solid var(--border); margin-top: 1rem; padding-top: 1rem; }
+   .decision.attention { border-left: 4px solid var(--bad); padding-left: 0.75rem; }
+   .decision.clear { border-left: 4px solid var(--good); padding-left: 0.75rem; }
+   .decision p { margin: 0.25rem 0 0; }
+   .decision .actions { margin-top: 0.75rem; }
   .sensitivity { width: 100%; border-collapse: collapse; margin-top: 0.75rem; font-size: 0.9rem; }
   .sensitivity th, .sensitivity td { padding: 0.45rem; border-bottom: 1px solid var(--border); text-align: right; }
   .sensitivity th:first-child, .sensitivity td:first-child { text-align: left; }
@@ -180,7 +185,7 @@
 
     <div class="result" id="result" role="status" aria-live="polite"></div>
     <div class="result" id="sensitivity" aria-live="polite"><strong>If the work takes longer</strong><p class="hint">A scenario view, not a prediction. Direct costs stay unchanged.</p><div class="table-scroll"><table class="sensitivity"><thead><tr><th>Extra time</th><th>Total hours</th><th>Effective rate</th><th>Gap to target</th></tr></thead><tbody></tbody></table></div></div>
-      <div class="result" id="review" aria-live="polite"><strong>Before you send it</strong><ul class="checks"></ul></div>
+      <div class="result" id="review" aria-live="polite"><strong>Before you send it</strong><ul class="checks"></ul><div class="decision" hidden><strong class="decision-title"></strong><p class="decision-detail"></p><div class="actions"><button type="button" data-decision="send">I'll send it</button><button type="button" data-decision="revise">I'll revise it</button><button type="button" data-decision="hold">I'll hold it</button><span class="hint decision-status" role="status" aria-live="polite"></span></div></div></div>
 
     <div class="actions">
       <button type="button" id="copy-csv">Copy as CSV row</button>
@@ -251,7 +256,7 @@
 
 <script type="module">
   import { loadQuote, calculate, overrunScenarios } from "./calc.mjs";
-  import { reviewQuote } from "./review.mjs";
+  import { reviewQuote, reviewDecision } from "./review.mjs";
   import { recordEvent, createReportCounter, isUsageCountingEnabled, setUsageCountingEnabled } from "./usage.mjs";
 
   // Counts settled quotes rather than keystrokes — see usage.mjs.
@@ -262,6 +267,10 @@
   const result = document.getElementById("result");
   const review = document.getElementById("review");
   const sensitivity = document.getElementById("sensitivity");
+  const decision = review.querySelector(".decision");
+  const decisionTitle = review.querySelector(".decision-title");
+  const decisionDetail = review.querySelector(".decision-detail");
+  const decisionStatus = review.querySelector(".decision-status");
 
   let lastReport = null;
 
@@ -304,6 +313,12 @@
         </dl>
        `;
        review.querySelector(".checks").innerHTML = reviewQuote(quote, r).map((check) => `<li class="${check.level}"><strong>${escapeHtml(check.title)}</strong>${escapeHtml(check.detail)}</li>`).join("");
+       const nextStep = reviewDecision(r, quote);
+       decision.hidden = false;
+       decision.className = `decision ${nextStep.tone}`;
+       decisionTitle.textContent = nextStep.title;
+       decisionDetail.textContent = nextStep.detail;
+       decisionStatus.textContent = "";
        sensitivity.querySelector("tbody").innerHTML = overrunScenarios(quote, r).map((scenario) => `<tr><th scope="row">+${scenario.percent}%</th><td>${fmt(scenario.total_hours)}</td><td>${safeCurrency} ${fmt(scenario.effective_hourly_rate)}/hour</td><td>${safeCurrency} ${fmt(scenario.gap_to_target)}</td></tr>`).join("");
        recordEvent("quote_review_checked");
       result.classList.remove("error");
@@ -314,6 +329,7 @@
        result.textContent = err.message;
        result.classList.add("error");
        review.querySelector(".checks").textContent = "Fix the inputs above to review this quote.";
+       decision.hidden = true;
     }
   }
 
@@ -363,6 +379,14 @@
       copyStatus.textContent = "Couldn't access the clipboard in this browser.";
     }
   });
+
+  for (const button of review.querySelectorAll("[data-decision]")) {
+    button.addEventListener("click", () => {
+      const action = button.dataset.decision;
+      recordEvent(`quote_decision_${action}`);
+      decisionStatus.textContent = `Recorded locally: ${button.textContent}.`;
+    });
+  }
 
   const usageToggle = document.getElementById("usage-toggle");
   const usageStatus = document.getElementById("usage-status");
