@@ -13,7 +13,8 @@ an estimate of the fees Amazon will charge: enter the rates from your current
 fee preview, and verify them there.
 
 **After using this, you can now see whether FBA or FBM leaves more on a real
-SKU, and the most you can pay a supplier for that unit** — which used to mean
+SKU, the most you can pay a supplier for that unit, and whether sending
+inventory before Q4 still beats waiting until January** — which used to mean
 a spreadsheet that forgot storage, inbound, or the professional plan.
 
 ## Why it's different
@@ -29,10 +30,13 @@ The decision sellers actually make is the fulfillment path:
 This tool keeps every assumption editable, fills illustrative US defaults from
 a category and storage-season picker, classifies a size tier from dimensions
 and weight, allocates the professional seller plan across expected monthly
-units, and shows **both paths on the same listing**.
+units, and shows **both paths on the same listing**. It also ranks
+**waiting until January** against a stay that includes October–December
+peak months, so inbound timing is a number instead of a guess.
 
-[FBA vs FBM: which path leaves more?](fba-vs-fbm.html) answers that search
-question directly.
+[FBA vs FBM: which path leaves more?](fba-vs-fbm.html) and
+[Should you send inventory before Q4 peak storage?](peak-vs-off-peak-storage.html)
+answer those search questions directly.
 
 **No warranty.** This tool is provided free and as-is, without warranty of any
 kind, express or implied. It is not tax, financial, or business advice, and it
@@ -64,9 +68,9 @@ Pure ES modules, no build step, no dependencies.
 node --test        # runs calc.test.mjs and usage.test.mjs
 ```
 
-`calc.mjs` holds the fee/profit/ROI arithmetic, size-tier classification, and
-category presets; `usage.mjs` holds the anonymous local counter; `index.html`
-is the calculator UI.
+`calc.mjs` holds the fee/profit/ROI arithmetic, size-tier classification,
+category presets, and the peak vs off-peak storage comparison; `usage.mjs`
+holds the anonymous local counter; `index.html` is the calculator UI.
 
 Not yet deployed to a public URL — publishing under the portfolio's name is
 owner-gated per `portfolio/DIRECTION.md` — but the page is ready to host as

@@ -18,7 +18,7 @@
     "applicationCategory": "BusinessApplication",
     "operatingSystem": "Any (runs in a web browser)",
     "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
-    "featureList": "FBA vs FBM comparison, size-tier fulfillment, storage, inbound, net profit, margin, ROI, break-even price, max buy cost, target-margin price"
+    "featureList": "FBA vs FBM comparison, size-tier fulfillment, storage, inbound, peak vs off-peak storage, inbound timing, net profit, margin, ROI, break-even price, max buy cost, target-margin price"
   }
   </script>
   <script type="application/ld+json">
@@ -48,6 +48,14 @@
         "acceptedAnswer": {
           "@type": "Answer",
           "text": "The max buy cost is the cost of goods that drives net profit to zero after the referral fee and the fulfillment-path costs you entered. Buy above that number and the unit loses money on these assumptions."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Should I send FBA inventory before Q4 peak storage?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "October through December is billed at a higher storage rate per cubic foot than January through September. Compare waiting until January against the months of your stay that fall in peak. This page does the arithmetic from the rates you enter; it does not tell you to inbound or to wait."
         }
       }
     ]
@@ -133,7 +141,8 @@
             <option value="peak">Oct–Dec peak ($2.40 / cu ft)</option>
           </select>
         </label>
-        <label>Months in storage <input id="monthsInStorage" type="number" min="0" step="0.1" value="1"></label>
+        <label>Months in storage <input id="monthsInStorage" type="number" min="0" step="0.1" value="3"></label>
+        <label>Months of that stay in Oct–Dec (peak) <input id="peakMonths" type="number" min="0" step="0.1" value="2"></label>
         <label>Storage rate ($ / cu ft / mo) <input id="storageRate" type="number" min="0" step="0.01" value="0.87"></label>
         <label>FBA fulfillment fee <span class="hint" id="sizeHint"></span>
           <input id="fulfillmentFee" type="number" min="0" step="0.01" value="">
@@ -171,6 +180,15 @@
         <tbody id="compare"></tbody>
       </table>
       <p class="note">Transparent arithmetic from your inputs — not Amazon’s current fee schedule. Referral, fulfillment, storage, and inbound vary by category, size, season, and account. Verify against your Amazon fee preview before buying inventory.</p>
+      <hr>
+      <h2 id="storage-season">Peak vs off-peak storage</h2>
+      <p class="note">Oct–Dec is billed at a higher cubic-foot rate. The rows keep freight and inbound where they are and change only the storage season, so you can see whether sending now and sitting through Q4 still beats waiting until January.</p>
+      <p id="storageVerdict"></p>
+      <table>
+        <thead><tr><th>Timing</th><th>Storage / unit</th><th>On these units</th><th>FBA profit / unit</th></tr></thead>
+        <tbody id="storageCompare"></tbody>
+      </table>
+      <p id="storageSit" class="note"></p>
     </section>
   </main>
   <section class="faq" aria-labelledby="faq-heading">
@@ -183,6 +201,8 @@
       still works.
       <a href="fba-vs-fbm.html">FBA vs FBM: which path leaves more?</a>
       walks through that in search-query words.
+      <a href="peak-vs-off-peak-storage.html">Should you send inventory before Q4 peak storage?</a>
+      is the inbound-timing question.
     </p>
     <p>
       It does not recommend a price, a category, or a fulfillment method, and
@@ -200,13 +220,15 @@
     import {
       applyCategoryPreset,
       applyStoragePreset,
+      blendedStorageRate,
       calculateListing,
+      compareStorageSeasons,
     } from "./calc.mjs";
     import { recordUsage } from "./usage.mjs";
 
     const ids = [
       "salePrice", "referralRate", "length", "width", "height", "weightLb",
-      "monthsInStorage", "storageRate", "fulfillmentFee", "costOfGoods",
+      "monthsInStorage", "peakMonths", "storageRate", "fulfillmentFee", "costOfGoods",
       "inboundPerUnit", "fbmShippingCost", "packagingCost", "adsPerUnit",
       "otherCost", "monthlySellerFee", "monthlyUnits", "targetMargin",
     ];
@@ -223,9 +245,28 @@
       return { ...raw, fulfillmentMethod: fulfillmentMethod() };
     }
 
+    // The listing form still has one storage-rate field. When the seller has
+    // said how many months of the stay fall in Oct–Dec, the hero number has
+    // to use that mix — otherwise it quietly prices a January stay.
+    function listingInput() {
+      const input = readInput();
+      const months = Number(input.monthsInStorage);
+      const peak = Number(input.peakMonths);
+      if (!Number.isFinite(months) || !Number.isFinite(peak) || peak <= 0 || peak > months) {
+        return input;
+      }
+      return {
+        ...input,
+        storageRate: blendedStorageRate({
+          offPeakMonths: months - peak,
+          peakMonths: peak,
+        }),
+      };
+    }
+
     function updateFeePlaceholder() {
       try {
-        const result = calculateListing({ ...readInput(), fulfillmentFee: undefined });
+        const result = calculateListing({ ...listingInput(), fulfillmentFee: undefined });
         const field = document.getElementById("fulfillmentFee");
         field.placeholder = result.suggestedFulfillment.toFixed(2);
         document.getElementById("sizeHint").textContent =
@@ -244,7 +285,7 @@
     function update() {
       updateFeePlaceholder();
       try {
-        const result = calculateListing(readInput());
+        const result = calculateListing(listingInput());
         const profitEl = document.getElementById("profit");
         profitEl.textContent = money(result.selected.profit);
         profitEl.className = `hero-number ${result.selected.profit < 0 ? "negative" : "positive"}`;
@@ -269,6 +310,13 @@
         ].map(([name, path]) =>
           `<tr><td>${name}</td><td>${money(path.feeTotal)}</td><td>${money(path.profit)}</td><td>${money(path.breakEvenBuyCost)}</td></tr>`
         ).join("");
+        try {
+          renderStorage(readInput());
+        } catch (storageError) {
+          document.getElementById("storageCompare").innerHTML = "";
+          document.getElementById("storageVerdict").textContent = storageError.message;
+          document.getElementById("storageSit").textContent = "";
+        }
       } catch (error) {
         document.getElementById("profit").textContent = error.message;
         document.getElementById("profit").className = "hero-number error";
@@ -277,6 +325,46 @@
           document.getElementById(id).textContent = "";
         });
         document.getElementById("compare").innerHTML = "";
+        document.getElementById("storageCompare").innerHTML = "";
+        document.getElementById("storageVerdict").textContent = "";
+        document.getElementById("storageSit").textContent = "";
+      }
+    }
+
+    function renderStorage(input) {
+      const compared = compareStorageSeasons(input);
+      const winnerIds = new Set(compared.cheapestIds);
+      document.getElementById("storageCompare").innerHTML = [
+        compared.scenarios.off_peak,
+        compared.scenarios.mixed,
+        compared.scenarios.peak,
+      ].map((row) => {
+        const mark = winnerIds.has(row.id) ? " (keeps more)" : "";
+        return `<tr><td>${row.label}${mark}</td><td>${money(row.storagePerUnit)}</td><td>${money(row.storageOnUnits)}</td><td>${money(row.fbaProfit)}</td></tr>`;
+      }).join("");
+
+      const unitsLabel = compared.units === 1 ? "1 unit" : `${compared.units} units`;
+      if (compared.waitUntilJanuarySaves > 1e-9) {
+        document.getElementById("storageVerdict").textContent =
+          `Waiting until January keeps ${money(compared.waitUntilJanuarySavesPerUnit)} more per unit than your stay (${money(compared.waitUntilJanuarySaves)} on ${unitsLabel}).`;
+      } else if (compared.peakCostsExtra > 1e-9) {
+        document.getElementById("storageVerdict").textContent =
+          `None of this stay is in peak. The same ${compared.months} month${compared.months === 1 ? "" : "s"} at the Oct–Dec rate costs ${money(compared.peakCostsExtraPerUnit)} more per unit (${money(compared.peakCostsExtra)} on ${unitsLabel}).`;
+      } else {
+        document.getElementById("storageVerdict").textContent =
+          "Peak and off-peak leave the same FBA profit on these storage rates.";
+      }
+
+      const sit = compared.peakMonthsUntilUnprofitable;
+      if (!Number.isFinite(sit)) {
+        document.getElementById("storageSit").textContent =
+          "Peak storage is free on these rates, so it never wipes the unit by itself.";
+      } else if (sit === 0) {
+        document.getElementById("storageSit").textContent =
+          "FBA profit is already gone before storage. Peak months do not create the loss; they add to it.";
+      } else {
+        document.getElementById("storageSit").textContent =
+          `FBA profit before storage is ${money(compared.profitBeforeStorage)}. At the peak rate, storage alone wipes that after ${sit.toFixed(1)} months.`;
       }
     }
 
@@ -306,7 +394,8 @@
       recordUsage(
         localStorage,
         document.getElementById("usageOptOut").checked,
-        id === "targetMargin" ? "target_margin_calculated" : "listing_profit_calculated",
+        id === "peakMonths" ? "storage_season_compared"
+          : id === "targetMargin" ? "target_margin_calculated" : "listing_profit_calculated",
       );
     }));
     document.querySelectorAll('input[name="fulfillmentMethod"]').forEach((el) => {

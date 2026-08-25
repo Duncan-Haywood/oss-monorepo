@@ -238,3 +238,117 @@ export function calculateListing(input) {
     cheaperPath: fbaAdvantage > 0 ? "fba" : fbaAdvantage < 0 ? "fbm" : "tie",
   };
 }
+
+// Oct–Dec storage is billed at a higher cubic-foot rate than Jan–Sep. The
+// listing calculator takes one blended rate; this comparison keeps the two
+// seasons on separate rows so a seller can see whether sending now and sitting
+// through Q4 still beats waiting until January.
+export function blendedStorageRate({
+  offPeakMonths,
+  peakMonths,
+  offPeakRate = STORAGE_PRESETS.off_peak.perCuFt,
+  peakRate = STORAGE_PRESETS.peak.perCuFt,
+}) {
+  const offM = number(offPeakMonths, "Off-peak months");
+  const peakM = number(peakMonths, "Peak months");
+  const offR = number(offPeakRate, "Off-peak storage rate");
+  const peakR = number(peakRate, "Peak storage rate");
+  const total = offM + peakM;
+  if (total === 0) return 0;
+  return (offM * offR + peakM * peakR) / total;
+}
+
+export function compareStorageSeasons(input) {
+  const months = number(input.monthsInStorage ?? input.months, "Months in storage", 1);
+  const peakMonths = number(input.peakMonths ?? 0, "Peak months");
+  if (peakMonths > months) {
+    throw new Error("Peak months cannot exceed months in storage");
+  }
+  const offPeakMonths = months - peakMonths;
+  const offPeakRate = number(
+    input.offPeakRate,
+    "Off-peak storage rate",
+    STORAGE_PRESETS.off_peak.perCuFt,
+  );
+  const peakRate = number(input.peakRate, "Peak storage rate", STORAGE_PRESETS.peak.perCuFt);
+  const typedUnits = input.units ?? input.monthlyUnits;
+  const units = number(typedUnits === undefined || typedUnits === "" ? 1 : typedUnits, "Units", 1);
+  if (units === 0) throw new Error("Units must be greater than zero");
+
+  function scenario(id, label, offM, peakM) {
+    const storageRate = blendedStorageRate({
+      offPeakMonths: offM,
+      peakMonths: peakM,
+      offPeakRate,
+      peakRate,
+    });
+    const listing = calculateListing({
+      ...input,
+      monthsInStorage: offM + peakM,
+      storageRate,
+    });
+    return {
+      id,
+      label,
+      offPeakMonths: offM,
+      peakMonths: peakM,
+      storageRate,
+      storagePerUnit: listing.storagePerUnit,
+      storageOnUnits: listing.storagePerUnit * units,
+      fbaProfit: listing.fba.profit,
+      fbaProfitOnUnits: listing.fba.profit * units,
+      maxBuyCost: listing.fba.breakEvenBuyCost,
+    };
+  }
+
+  const scenarios = {
+    off_peak: scenario("off_peak", "Wait until January (all off-peak)", months, 0),
+    mixed: scenario("mixed", "Your stay (peak months at Oct–Dec rate)", offPeakMonths, peakMonths),
+    peak: scenario("peak", "All peak (Oct–Dec rate)", 0, months),
+  };
+  const ranked = ["off_peak", "mixed", "peak"]
+    .map((id) => scenarios[id])
+    .sort((a, b) => b.fbaProfit - a.fbaProfit);
+  const bestProfit = ranked[0].fbaProfit;
+  const cheapestIds = ranked
+    .filter((row) => Math.abs(row.fbaProfit - bestProfit) < 1e-9)
+    .map((row) => row.id);
+  const winner = cheapestIds.length === 1 ? cheapestIds[0] : "tie";
+
+  const zeroStorage = calculateListing({ ...input, monthsInStorage: 0, storageRate: 0 });
+  const cuFt = cubicFeet({
+    length: input.length,
+    width: input.width,
+    height: input.height,
+  });
+  const peakCostPerMonth = cuFt * peakRate;
+  let peakMonthsUntilUnprofitable;
+  if (peakCostPerMonth === 0) {
+    peakMonthsUntilUnprofitable = zeroStorage.fba.profit > 0 ? Infinity : 0;
+  } else if (zeroStorage.fba.profit <= 0) {
+    peakMonthsUntilUnprofitable = 0;
+  } else {
+    peakMonthsUntilUnprofitable = zeroStorage.fba.profit / peakCostPerMonth;
+  }
+
+  return {
+    months,
+    peakMonths,
+    offPeakMonths,
+    units,
+    cubicFeet: cuFt,
+    offPeakRate,
+    peakRate,
+    scenarios,
+    ranked,
+    winner,
+    cheapestIds,
+    waitUntilJanuarySavesPerUnit:
+      scenarios.mixed.storagePerUnit - scenarios.off_peak.storagePerUnit,
+    waitUntilJanuarySaves: scenarios.mixed.storageOnUnits - scenarios.off_peak.storageOnUnits,
+    peakCostsExtraPerUnit: scenarios.peak.storagePerUnit - scenarios.off_peak.storagePerUnit,
+    peakCostsExtra: scenarios.peak.storageOnUnits - scenarios.off_peak.storageOnUnits,
+    peakMonthsUntilUnprofitable,
+    profitBeforeStorage: zeroStorage.fba.profit,
+  };
+}

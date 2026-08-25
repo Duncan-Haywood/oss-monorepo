@@ -11,6 +11,10 @@ hypotheses:
     status: untested
     checked: null
     evidence: customer-contact
+  - claim: Showing January versus a Q4 storage stay changes whether a seller inbounds before peak rates begin.
+    status: untested
+    checked: null
+    evidence: customer-contact
 economics:
   currency: USD
   mrr: null
