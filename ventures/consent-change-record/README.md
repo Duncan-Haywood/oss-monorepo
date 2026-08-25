@@ -128,3 +128,5 @@ question this ships to start answering, not a solved one. See
 ## License
 
 [MIT](LICENSE).
+
+The target user is an agency or publisher that needs repeatable evidence of what a consent sequence changed. Existing Shopify permission and accessibility products inspect different inputs and produce different records. The free core deliberately has zero hosting or inference cost. The report does not select a legal basis, determine compliance, inspect page content, capture form values, or prove that an unobserved request is absent in every browser or region.
