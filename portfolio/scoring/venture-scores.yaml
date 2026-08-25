@@ -86,6 +86,16 @@ ventures:
     composite: 6.5
     floor: 2
     floor_dimension: ai_leverage
+    floor_note: >-
+      The first release is deterministic quote normalization and arithmetic;
+      AI is not required to compare a provider's stated fees with the user's
+      own fulfillment assumptions.
+    basis: >-
+      Graduated as a browser-local 3PL quote comparison tool. It is useful for
+      small ecommerce brands because it normalizes receiving, storage, pick
+      and pack, shipping, returns, fixed fees, and minimum monthly spend into
+      a comparable total and break-even volume without requiring provider
+      integrations or exposing quote data to a server.
     gates:
       liability_containment: pass
       ethical_robustness: pass
