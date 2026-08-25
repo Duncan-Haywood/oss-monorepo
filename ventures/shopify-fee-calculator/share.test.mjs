@@ -18,7 +18,8 @@ test("share state round-trips as validated numeric inputs", () => {
 test("rejects malformed, extra-field, and invalid share states", () => {
   assert.throws(() => decodeShareState("not-a-link"), /Invalid shared/);
   const payload = encodeShareState(input);
-  const decoded = JSON.parse(atob(payload.replace(/-/g, "+").replace(/_/g, "/") + "===".slice((payload.length + 3) % 4)));
+  const padding = "=".repeat((4 - (payload.length % 4)) % 4);
+  const decoded = JSON.parse(atob(payload.replace(/-/g, "+").replace(/_/g, "/") + padding));
   decoded.extra = "unexpected";
   const tampered = btoa(JSON.stringify(decoded)).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
   assert.throws(() => decodeShareState(tampered), /Invalid shared/);

@@ -15,7 +15,8 @@ function toBase64Url(value) {
 
 function fromBase64Url(value) {
   if (!/^[A-Za-z0-9_-]+$/.test(value)) throw new Error("Invalid shared calculation link");
-  const binary = atob(value.replace(/-/g, "+").replace(/_/g, "/") + "===".slice((value.length + 3) % 4));
+  const padding = "=".repeat((4 - (value.length % 4)) % 4);
+  const binary = atob(value.replace(/-/g, "+").replace(/_/g, "/") + padding);
   return new TextDecoder().decode(Uint8Array.from(binary, (char) => char.charCodeAt(0)));
 }
 
