@@ -380,9 +380,9 @@ products:
           live_url_visitors: null
           local_events_reported: 0
         note: >-
-          Added leftover-box round-up, van leftover credit, and second-wall
-          coverage (laundry / pantry) without changing the headline bid.
-          Public URL remains owner-gated.
+          Added leftover-box round-up, van leftover credit, second-wall
+          coverage (laundry / pantry), leftoverBoxNote, and a crawlable
+          leftover-box article. Public URL remains owner-gated.
   - slug: boiler-replacement-bid-calculator
     surface: static-page-in-repo
     readings:

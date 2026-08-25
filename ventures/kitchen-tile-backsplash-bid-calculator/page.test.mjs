@@ -8,8 +8,18 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 
+import {
+  leftoverBoxPlan,
+  leftoverBoxNote,
+  suggestedScopeKit,
+  suggestedPatternKit,
+  suggestedWallKit,
+  suggestedExtraKit,
+} from './calc.mjs';
+
 const html = readFileSync(new URL('./index.html', import.meta.url), 'utf8');
 const seo = readFileSync(new URL('./how-much-to-charge-for-a-kitchen-tile-backsplash.html', import.meta.url), 'utf8');
+const leftoverSeo = readFileSync(new URL('./do-leftover-tile-boxes-cover-the-next-wall.html', import.meta.url), 'utf8');
 
 const RAW_TEXT_ELEMENTS = ['textarea', 'script', 'style'];
 
@@ -51,6 +61,7 @@ test('the module script survives parsing and would actually execute', () => {
   assert.match(scriptSource, /compareScope/, 'scope comparison is missing from the executable script');
   assert.match(scriptSource, /comparePattern/, 'pattern comparison is missing from the executable script');
   assert.match(scriptSource, /leftoverBoxPlan/, 'leftover-box plan is missing from the executable script');
+  assert.match(scriptSource, /leftoverBoxNote/, 'leftover-box note is missing from the executable script');
   assert.match(scriptSource, /formatBidSummary/, 'copy-summary helper is missing from the executable script');
   assert.match(scriptSource, /formatBoxPlanNote/, 'box-plan copy helper is missing from the executable script');
 });
@@ -85,6 +96,51 @@ test('the landing page names the problem in the contractor\'s words', () => {
   assert.match(html, /vs subway/);
   assert.match(html, /Leftover boxes and the next wall/);
   assert.match(html, /leftoverBoxPlan/);
+  assert.match(html, /leftoverBoxNote/);
+  assert.match(html, /do-leftover-tile-boxes-cover-the-next-wall\.html/);
+});
+
+test('leftover SEO page uses the same worked example the tests lock', () => {
+  const miss = leftoverBoxPlan({
+    wallSf: 30,
+    edgeLf: 12,
+    outlets: 2,
+    scope: 'tile-only',
+    pattern: 'subway-running',
+    wall: 'painted-drywall',
+    travelMiles: 8,
+    includeCooktop: false,
+    includeSchluter: false,
+    includeAccent: false,
+    hourlyWage: 38,
+    burdenRate: 30,
+    overheadRate: 15,
+    targetMargin: 20,
+    travelAndEquipment: 55,
+    otherCost: 0,
+    ...suggestedScopeKit('tile-only'),
+    ...suggestedPatternKit('subway-running'),
+    ...suggestedWallKit('painted-drywall'),
+    ...suggestedExtraKit(),
+    sfPerBox: 10,
+    leftoverBoxes: 0,
+    secondWallSf: 8,
+  });
+  assert.equal(miss.kitchenNeedSf, 33);
+  assert.equal(miss.boxesToBuy, 4);
+  assert.ok(Math.abs(miss.leftoverAfterKitchen - 7) < 1e-9);
+  assert.ok(Math.abs(miss.secondNeedSf - 8.8) < 1e-9);
+  assert.equal(miss.secondBoxesToBuy, 1);
+  assert.match(leftoverSeo, /33 SF/);
+  assert.match(leftoverSeo, /four boxes/);
+  assert.match(leftoverSeo, /7\.0 SF/);
+  assert.match(leftoverSeo, /8\.8 SF/);
+  assert.match(leftoverSeo, /1 box/);
+  assert.match(leftoverSeo, /6\.6 SF/);
+  assert.match(leftoverSeo, /No warranty/);
+  assert.match(leftoverSeo, /Best-effort hosting, no SLA/);
+  assert.match(leftoverSeo, /github\.com\/sponsors\/Duncan-Haywood/);
+  assert.match(leftoverBoxNote(miss), /does not cover/);
 });
 
 test('disclaimer and privacy line are visible, not only in the README', () => {
