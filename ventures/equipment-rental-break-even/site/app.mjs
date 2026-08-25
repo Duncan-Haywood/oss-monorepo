@@ -3,8 +3,46 @@ const ids = ["currency", "booking", "rental_days", "delivery", "cleaning", "dama
 const $ = (id) => document.getElementById(id);
 const values = () => Object.fromEntries(ids.map((id) => [id, id === "currency" ? $(id).value.trim() || "units" : Number($(id).value)]));
 let last;
-function render(count = true) { try { const v = values(); last = { v, r: calculate(v) }; const { r } = last; $("result").innerHTML = `<dl><dt>Booking-specific costs</dt><dd>${v.currency} ${r.bookingCosts.toFixed(2)}</dd><dt>Ownership recovery per rental day</dt><dd>${v.currency} ${r.ownershipPerDay.toFixed(2)}</dd><dt>Minimum price at expected utilization</dt><dd>${v.currency} ${r.minimumPrice.toFixed(2)}</dd><dt>Price at target contribution margin</dt><dd>${v.currency} ${r.targetPrice.toFixed(2)}</dd><dt>Contribution after booking and ownership costs</dt><dd class="${r.contribution >= 0 ? "good" : "bad"}">${v.currency} ${r.contribution.toFixed(2)}</dd><dt>Break-even utilization</dt><dd class="${r.utilization <= 1 ? "good" : "bad"}">${Number.isFinite(r.utilization) ? (r.utilization * 100).toFixed(1) + "%" : "Not reached"}</dd></dl>`; if (count) usage("calculation"); } catch (e) { $("result").innerHTML = `<p class="bad">${e.message}</p>`; } }
-function usage(event) { if (localStorage.getItem("rental-usage-off") === "1") return; const data = JSON.parse(localStorage.getItem("rental-usage") || "{}"); data[event] = (data[event] || 0) + 1; localStorage.setItem("rental-usage", JSON.stringify(data)); showUsage(); }
+function render(count = true) {
+  try {
+    const v = values();
+    last = { v, r: calculate(v) };
+    const { r } = last;
+    const rows = [
+      ["Booking-specific costs", `${v.currency} ${r.bookingCosts.toFixed(2)}`],
+      ["Ownership recovery per rental day", `${v.currency} ${r.ownershipPerDay.toFixed(2)}`],
+      ["Minimum price at expected utilization", `${v.currency} ${r.minimumPrice.toFixed(2)}`],
+      ["Price at target contribution margin", `${v.currency} ${r.targetPrice.toFixed(2)}`],
+      ["Contribution after booking and ownership costs", `${v.currency} ${r.contribution.toFixed(2)}`, r.contribution >= 0],
+      ["Break-even utilization", Number.isFinite(r.utilization) ? `${(r.utilization * 100).toFixed(1)}%` : "Not reached", r.utilization <= 1],
+    ];
+    const result = $("result");
+    result.replaceChildren();
+    const dl = document.createElement("dl");
+    rows.forEach(([label, value, positive]) => {
+      const dt = document.createElement("dt");
+      dt.textContent = label;
+      const dd = document.createElement("dd");
+      dd.textContent = value;
+      if (positive !== undefined) dd.className = positive ? "good" : "bad";
+      dl.append(dt, dd);
+    });
+    result.append(dl);
+    if (count) usage("calculation");
+  } catch (e) {
+    const error = document.createElement("p");
+    error.className = "bad";
+    error.textContent = e.message;
+    $("result").replaceChildren(error);
+  }
+}
+function usage(event) {
+  if (localStorage.getItem("rental-usage-off") === "1" || navigator.doNotTrack === "1" || navigator.globalPrivacyControl === true) return;
+  const data = JSON.parse(localStorage.getItem("rental-usage") || "{}");
+  data[event] = (data[event] || 0) + 1;
+  localStorage.setItem("rental-usage", JSON.stringify(data));
+  showUsage();
+}
 function showUsage() { const data = JSON.parse(localStorage.getItem("rental-usage") || "{}"); $("usage").textContent = `Local usage: ${data.calculation || 0} calculations, ${data.export || 0} exports. No usage is sent anywhere.`; }
 ids.forEach((id) => $(id).addEventListener("input", () => render(false)));
 $("export").addEventListener("click", () => { if (!last) return; const { v, r } = last; const text = `Equipment Rental Break-Even\nBooking price: ${v.currency} ${v.booking}\nMinimum price: ${v.currency} ${r.minimumPrice.toFixed(2)}\nTarget-margin price: ${v.currency} ${r.targetPrice.toFixed(2)}\nBreak-even utilization: ${Number.isFinite(r.utilization) ? (r.utilization * 100).toFixed(1) + "%" : "Not reached"}\nGenerated: ${new Date().toISOString()}`; const a = document.createElement("a"); a.href = URL.createObjectURL(new Blob([text], { type: "text/plain" })); a.download = "equipment-rental-price-snapshot.txt"; a.click(); URL.revokeObjectURL(a.href); usage("export"); });
