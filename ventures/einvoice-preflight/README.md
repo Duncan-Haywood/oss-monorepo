@@ -14,6 +14,7 @@ PYTHONPATH=src python3 -m einvoice_preflight ./invoices/ --format github
 PYTHONPATH=src python3 -m einvoice_preflight ./invoices/ --format markdown > review.md
 PYTHONPATH=src python3 -m einvoice_preflight ./invoices/ --format html > review.html
 PYTHONPATH=src python3 -m einvoice_preflight ./invoices/ --format csv > triage.csv
+PYTHONPATH=src python3 -m einvoice_preflight ./invoices/ --format remediation > remediation.csv
 PYTHONPATH=src python3 -m einvoice_preflight ./invoices/ --format junit > preflight.junit.xml
 PYTHONPATH=src python3 -m einvoice_preflight ./invoices/ --format summary
 PYTHONPATH=src python3 -m einvoice_preflight ./invoices/ --max-files 500 --format json
@@ -117,7 +118,12 @@ findings and `2` for read errors.
 `--format csv` produces one spreadsheet row per finding, plus explicit pass and
 read-error rows. Its stable columns are `file`, `status`, `rule`, `path`,
 `message`, `fix`, and `error`, making it suitable for triage queues without
- exposing invoice values or contents.
+exposing invoice values or contents.
+`--format remediation` produces one row per rule across the batch, with an
+occurrence count, check message, and recommended fix. It is useful when an
+operator wants a compact queue of repeated fixes rather than one row per
+invoice. Read errors are represented as `INV-READ`; invoice values, numbers,
+and line contents are never included.
 `--format junit` produces a JUnit XML report for CI dashboards. Each invoice is
 one testcase; failed checks are failures and unreadable files are errors. The
 report contains only local filenames, rule IDs, JSON Pointer paths, observations,

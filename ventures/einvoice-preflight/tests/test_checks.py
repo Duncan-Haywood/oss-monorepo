@@ -139,6 +139,32 @@ class ChecksTest(unittest.TestCase):
             self.assertEqual(report["status"], "pass")
             self.assertFalse(list(report_path.parent.glob(".preflight.json.*")))
 
+    def test_cli_remediation_report_groups_findings_without_invoice_values(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            first = json.loads(json.dumps(VALID))
+            first["totals"]["gross"] = 200
+            second = json.loads(json.dumps(VALID))
+            second["invoice_number"] = "INV-2"
+            second["totals"]["gross"] = 201
+            (root / "first.json").write_text(json.dumps(first))
+            (root / "second.json").write_text(json.dumps(second))
+            output = io.StringIO()
+            with contextlib.redirect_stdout(output):
+                self.assertEqual(main([directory, "--format", "remediation"]), 1)
+            lines = output.getvalue().splitlines()
+            self.assertEqual(lines[0], "rule,occurrences,message,fix")
+            self.assertIn("INV-017,2,Gross total does not equal net plus tax.", lines[1])
+            self.assertNotIn("INV-1", output.getvalue())
+
+    def test_cli_remediation_report_surfaces_read_errors(self):
+        with tempfile.TemporaryDirectory() as directory:
+            (Path(directory) / "broken.json").write_text("not json")
+            output = io.StringIO()
+            with contextlib.redirect_stdout(output):
+                self.assertEqual(main([directory, "--format", "remediation"]), 2)
+            self.assertIn("INV-READ,1,Invoice could not be read.", output.getvalue())
+
     def test_cli_reports_output_write_failure_without_partial_file(self):
         with tempfile.TemporaryDirectory() as directory:
             invoice_path = Path(directory) / "invoice.json"
