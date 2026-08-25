@@ -125,7 +125,16 @@ products:
           Added a browser-local pre-send review that surfaces direct-cost,
           target-gap, hidden-time, and revision-assumption observations. No
           public URL yet; the feature counter stores only aggregate local
-          events and remains opt-out.
+           events and remains opt-out.
+  - slug: einvoice-preflight
+    surface: repository-cli
+    readings:
+      - as_of: 2026-08-25
+        signals:
+          remediation_checklists_generated: 0
+          repo_views_14d: 0
+          release_downloads_total: 0
+        note: Added local repair checklist output; public distribution and usage remain unmeasured.
   - slug: etsy-profit-calculator
     surface: static-page-in-repo
     readings:

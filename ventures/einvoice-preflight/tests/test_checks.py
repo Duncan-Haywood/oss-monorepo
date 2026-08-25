@@ -157,6 +157,21 @@ class ChecksTest(unittest.TestCase):
             self.assertEqual(report["status"], "pass")
             self.assertFalse(list(report_path.parent.glob(".preflight.json.*")))
 
+    def test_remediation_report_is_a_copyable_checklist_without_invoice_values(self):
+        with tempfile.TemporaryDirectory() as directory:
+            invoice_path = Path(directory) / "invoice.json"
+            invoice = json.loads(json.dumps(VALID))
+            invoice["totals"]["gross"] = 200
+            invoice_path.write_text(json.dumps(invoice))
+            output = io.StringIO()
+            with contextlib.redirect_stdout(output):
+                self.assertEqual(main([str(invoice_path), "--format", "remediation"]), 1)
+            checklist = output.getvalue()
+            self.assertIn("- [ ] `INV-017` at `/totals/gross`", checklist)
+            self.assertIn("Set gross total", checklist)
+            self.assertNotIn("INV-1", checklist)
+            self.assertIn("Review each change", checklist)
+
     def test_cli_reports_output_write_failure_without_partial_file(self):
         with tempfile.TemporaryDirectory() as directory:
             invoice_path = Path(directory) / "invoice.json"
