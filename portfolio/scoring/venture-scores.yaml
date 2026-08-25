@@ -67,6 +67,13 @@ ventures:
       Graduated on 2026-08-24 as a browser-local construction retainage and
       payment-delay worksheet. It produces a modeled cash snapshot without
       credentials, network access, uploads, or legal entitlement claims.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Pass, conditionally: assumptions are shown as scenarios, outputs are
+      labeled modeled, and the user remains responsible for checking contracts,
+      records, and local requirements before acting.
   - slug: public-record-watch
     scores:
       ai_leverage: 3
@@ -88,7 +95,7 @@ ventures:
       URLs, making it distinct from vendor-page monitoring, DNS evidence, and
       business calculators. Buyer distribution and repeat usage remain
       unmeasured; the first experiment is credentialing practitioners.
-    gates: 
+    gates:
       liability_containment: pass
       ethical_robustness: pass
     gate_note: >-
@@ -107,6 +114,13 @@ ventures:
     composite: 6.5
     floor: 2
     floor_dimension: ai_leverage
+    floor_note: >-
+      The first release is intentionally deterministic; AI is not required for
+      quote normalization or the evidence needed to compare provider offers.
+    basis: >-
+      Shipped as a local quote normalization workflow for 3PL buyers. It
+      produces deterministic estimates without credentials, network access, or
+      claims about provider pricing or service quality.
     gates:
       liability_containment: pass
       ethical_robustness: pass
