@@ -22,3 +22,10 @@ out/
 coverage/
 
 tmp/
+
+# OpenTofu (infra/)
+**/.terraform/
+**/*.tfstate
+**/*.tfstate.*
+infra/*.tfvars
+!infra/terraform.tfvars.example
