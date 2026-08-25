@@ -448,6 +448,55 @@ export function compareScope(input) {
     .sort((a, b) => a.price - b.price);
 }
 
+/**
+ * Price the same wall four ways — subway running-bond, herringbone,
+ * mosaic, large-format — from the suggested pattern kits so the
+ * setter can see the upgrade a homeowner is actually asking for.
+ * User-typed pattern rates are not reused here: the comparison is
+ * apples-to-apples on the starting figures. Scope and wall kits
+ * stay with the current job.
+ */
+export function comparePattern(input) {
+  const scopeKit = suggestedScopeKit(String(input.scope ?? 'tile-only'));
+  const wallKit = suggestedWallKit(String(input.wall ?? 'painted-drywall'));
+  const extraKit = suggestedExtraKit();
+  const rows = PATTERN_PRESETS.map((preset) => {
+    const kit = suggestedPatternKit(preset.id);
+    const bid = calculateBid({
+      ...input,
+      pattern: preset.id,
+      ...scopeKit,
+      ...wallKit,
+      ...extraKit,
+      ...kit,
+    });
+    return {
+      pattern: preset.id,
+      label: preset.label,
+      price: bid.price,
+      totalCost: bid.totalCost,
+      totalHours: bid.totalHours,
+      pricePerSf: bid.pricePerSf,
+      buySf: bid.buySf,
+      hoursTile: bid.hoursTile,
+      tileMaterial: bid.tileMaterial,
+      wasteRate: kit.wasteRate,
+      extraCost: bid.extraCost,
+      breakEvenPrice: bid.breakEvenPrice,
+    };
+  });
+  const cheapest = Math.min(...rows.map((row) => row.price));
+  const subway = rows.find((row) => row.pattern === 'subway-running');
+  return rows
+    .map((row) => ({
+      ...row,
+      cheapest: row.price === cheapest,
+      delta: row.price - cheapest,
+      upgradeFromSubway: subway ? row.price - subway.price : 0,
+    }))
+    .sort((a, b) => a.price - b.price);
+}
+
 function money(value) {
   return `$${value.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
 }

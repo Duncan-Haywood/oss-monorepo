@@ -3,6 +3,7 @@ import assert from 'node:assert/strict';
 import {
   calculateBid,
   compareScope,
+  comparePattern,
   formatBidSummary,
   travelHours,
   suggestedScopeKit,
@@ -163,6 +164,44 @@ test('compareScope prices three scopes on the same wall', () => {
   assert.ok(demo.hoursDemo > tileOnly.hoursDemo);
   assert.ok(prep.boardMaterial > tileOnly.boardMaterial);
   assert.ok(demo.delta > 0);
+});
+
+test('comparePattern prices four patterns on the same wall', () => {
+  const rows = comparePattern(special());
+  assert.equal(rows.length, 4);
+  assert.ok(rows.every((row, index) => index === 0 || row.price >= rows[index - 1].price));
+  assert.equal(rows.filter((row) => row.cheapest).length, 1);
+  const subway = rows.find((row) => row.pattern === 'subway-running');
+  const herringbone = rows.find((row) => row.pattern === 'herringbone');
+  const mosaic = rows.find((row) => row.pattern === 'mosaic');
+  const large = rows.find((row) => row.pattern === 'large-format');
+  assert.ok(subway);
+  assert.ok(herringbone.price > subway.price);
+  assert.ok(mosaic.price > subway.price);
+  assert.ok(large.price > subway.price);
+  assert.ok(herringbone.buySf > subway.buySf);
+  assert.ok(herringbone.hoursTile > subway.hoursTile);
+  assert.ok(herringbone.upgradeFromSubway > 0);
+  assert.equal(subway.upgradeFromSubway, 0);
+  assert.ok(subway.cheapest);
+  assert.ok(herringbone.delta > 0);
+});
+
+test('comparePattern keeps the current scope and does not reuse a typed pattern rate', () => {
+  const demoRows = comparePattern(losingJob());
+  const cheapRows = comparePattern(special());
+  const demoSubway = demoRows.find((row) => row.pattern === 'subway-running');
+  const cheapSubway = cheapRows.find((row) => row.pattern === 'subway-running');
+  assert.ok(demoSubway.price > cheapSubway.price);
+  const overridden = comparePattern({
+    ...special(),
+    hoursTilePerSf: 9,
+    wasteRate: 0.9,
+    tilePerSf: 40,
+  });
+  const subway = overridden.find((row) => row.pattern === 'subway-running');
+  const baseline = comparePattern(special()).find((row) => row.pattern === 'subway-running');
+  assert.ok(Math.abs(subway.price - baseline.price) < 1e-9);
 });
 
 test('travel miles add hours and invoice without changing the wall', () => {
