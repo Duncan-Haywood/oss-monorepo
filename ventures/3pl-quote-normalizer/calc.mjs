@@ -21,7 +21,8 @@ export function calculate(input, includeSensitivity = true, includeBreakEven = t
   const delta = inHouse - quote.total;
   const perOrder = orders ? quote.total / orders : 0;
   const inHouseRate = n(input.inHousePerOrder, 13);
-  const result = { orders, quote, inHouse, delta, perOrder, breakEvenOrders: includeBreakEven ? estimateBreakEven(input, inHouseRate) : 0, minimumApplied: quote.total > quote.subtotal, winner: delta >= 0 ? "3PL" : "in-house", components: ["receiving", "storage", "pickPack", "packaging", "shipping", "returns", "fixed"], warnings };
+  const breakEven = includeBreakEven ? estimateBreakEven(input, inHouseRate) : { orders: 0, found: false };
+  const result = { orders, quote, inHouse, delta, perOrder, breakEvenOrders: breakEven.orders, breakEvenFound: breakEven.found, minimumApplied: quote.total > quote.subtotal, winner: delta >= 0 ? "3PL" : "in-house", components: ["receiving", "storage", "pickPack", "packaging", "shipping", "returns", "fixed"], warnings };
   if (includeSensitivity) result.sensitivity = volumeSensitivity(input);
   return result;
 }
@@ -34,17 +35,17 @@ function estimateBreakEven(input, inHouseRate) {
     const result = calculate({ ...input, orders, inboundUnits: orders * units }, false, false);
     return result.inHouse - result.quote.total;
   };
-  if (deltaAt(0) >= 0) return 0;
+  if (deltaAt(0) >= 0) return { orders: 0, found: true };
   let high = 1;
   while (high < 1_000_000 && deltaAt(high) < 0) high *= 2;
-  if (deltaAt(high) < 0) return 0;
+  if (deltaAt(high) < 0) return { orders: 0, found: false };
   let low = Math.floor(high / 2);
   while (low + 1 < high) {
     const middle = Math.floor((low + high) / 2);
     if (deltaAt(middle) >= 0) high = middle;
     else low = middle;
   }
-  return high;
+  return { orders: high, found: true };
 }
 
 const inputLabels = { orders: "Orders / month", unitsPerOrder: "Units / order", pallets: "Pallets stored", inboundUnits: "Inbound units / month", receivingPerUnit: "Receiving / unit", storagePerPallet: "Storage / pallet", firstPick: "First pick / order", additionalPick: "Additional pick / unit", packaging: "Packaging / order", shipping: "Shipping / order", returnsRate: "Returns rate", fixedFee: "Fixed monthly fee", minimumMonthly: "Minimum monthly spend", inHousePerOrder: "In-house cost / order" };
@@ -114,7 +115,7 @@ export function summary(result) {
     `In-house estimate: ${money(result.inHouse)}`,
     `Difference (in-house minus 3PL): ${money(result.delta)}`,
     `True 3PL cost per order: ${money(result.perOrder)}`,
-    `Break-even volume: ${result.breakEvenOrders ? `about ${result.breakEvenOrders} orders/month` : "not found within 1,000,000 orders/month"}`,
+    `Break-even volume: ${result.breakEvenFound ? (result.breakEvenOrders ? `about ${result.breakEvenOrders} orders/month` : "already favorable at zero orders") : "not found within 1,000,000 orders/month"}`,
     "",
     "Line items",
     `Receiving: ${money(result.quote.receiving)}`,

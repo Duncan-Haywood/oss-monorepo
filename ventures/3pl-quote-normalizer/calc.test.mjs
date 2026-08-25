@@ -22,6 +22,7 @@ test("break-even reflects the in-house comparison", () => {
 test("reports no break-even when 3PL variable cost always exceeds in-house", () => {
   const result = calculate({ orders: 100, shipping: 20, inHousePerOrder: 10 });
   assert.equal(result.breakEvenOrders, 0);
+  assert.equal(result.breakEvenFound, false);
 });
 
 test("zero volume stays finite and does not apply a minimum", () => {

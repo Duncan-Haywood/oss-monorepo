@@ -6,8 +6,8 @@ packaging, shipping, returns, fixed fees, and minimum monthly spend. The
 browser calculates a comparable monthly total, cost per order, and the first
 volume where the full 3PL estimate reaches the in-house estimate. The
 break-even search includes variable charges, fixed fees, and minimum monthly
-spend; a result of zero means the 3PL does not become cheaper within the
-supported volume range. Enter a second provider's normalized monthly total to
+spend; the copied summary identifies when the 3PL does not become cheaper
+within the supported volume range. Enter a second provider's normalized monthly total to
 compare two quotes at the same volume before negotiating.
 Use [Volume sensitivity](./sensitivity.html) to see how minimum charges and
 true cost per order change at 25, 50, 100, 250, and 500 monthly orders.
