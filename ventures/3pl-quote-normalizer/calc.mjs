@@ -36,9 +36,18 @@ export function compareQuotes(first, second) {
 }
 
 export function negotiationLines(result) {
+  const labels = {
+    receiving: "Receiving",
+    storage: "Storage",
+    pickPack: "Pick and pack",
+    packaging: "Packaging",
+    shipping: "Shipping",
+    returns: "Returns",
+    fixed: "Fixed fees",
+  };
   return [
     `Monthly volume: ${result.orders} orders`,
-    ...result.components.map((component) => `${component}: ${money(result.quote[component])}`),
+    ...result.components.map((component) => `${labels[component]}: ${money(result.quote[component])}`),
     `Subtotal before minimum: ${money(result.quote.subtotal)}`,
     `Minimum monthly spend applied: ${money(Math.max(0, result.quote.total - result.quote.subtotal))}`,
     `Total estimated 3PL cost: ${money(result.quote.total)}`,

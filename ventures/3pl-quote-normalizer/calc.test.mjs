@@ -29,8 +29,15 @@ test("compares two normalized quotes and creates a negotiation report", () => {
   const comparison = compareQuotes(first, second);
   assert.equal(comparison.cheaper, "first");
   assert.equal(comparison.totalDelta, second.quote.total - first.quote.total);
-  assert.match(negotiationLines(first).join("\n"), /shipping: \$800\.00/);
+  assert.match(negotiationLines(first).join("\n"), /Shipping: \$800\.00/);
   assert.match(negotiationLines(first).join("\n"), /Subtotal before minimum/);
+});
+
+test("negotiation report uses buyer-facing line item labels", () => {
+  const result = calculate({ orders: 10, unitsPerOrder: 1 });
+  const report = negotiationLines(result).join("\n");
+  assert.match(report, /Pick and pack:/);
+  assert.doesNotMatch(report, /pickPack:/);
 });
 
 test("summary exposes every normalized line item and minimum warning", () => {
