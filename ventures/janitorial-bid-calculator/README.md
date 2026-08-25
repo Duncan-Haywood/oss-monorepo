@@ -72,6 +72,12 @@ from their own crew is worth more than any published figure.
 
 ## Privacy
 
+The calculator automatically saves the current bid draft in this browser only,
+so a contractor can return to an unfinished estimate after a refresh. Use
+**Clear saved draft** to remove it. Draft areas, costs, and prices are never
+included in anonymous usage counts or sent anywhere. Anonymous local usage
+counts remain optional and can be disabled with the checkbox in the footer.
+
 Nothing is uploaded. Every figure stays in the browser. The only thing stored
 is an anonymous local tally of which features were used and the current date,
 in `localStorage` under `janitorial-bid-usage` — never the building, wages,

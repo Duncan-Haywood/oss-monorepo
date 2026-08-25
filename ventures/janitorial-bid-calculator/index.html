@@ -54,6 +54,8 @@
     .support { margin-top: 14px; }
     .summary-actions { display: flex; gap: 8px; align-items: center; margin-top: 14px; }
     .summary-status { font-size: .8rem; color: #bce8cf; }
+    .draft-actions { display: flex; gap: 9px; align-items: center; margin-top: 12px; }
+    .draft-status { font-size: .8rem; color: #4a5666; }
     @media (max-width: 780px) {
       .layout { grid-template-columns: 1fr; } .result { position: static; } .fields { grid-template-columns: 1fr; }
       .area-head { display: none; }
@@ -97,6 +99,10 @@
           <label>Price you&rsquo;re considering (optional) <input id="proposedPrice" type="number" min="0" step="10" placeholder="e.g. 1650"></label>
         </div>
         <p class="hint" style="margin-top:14px;margin-bottom:0">Payroll burden covers employer taxes, workers&rsquo; compensation, liability insurance, and paid time off &mdash; the part of a cleaner&rsquo;s cost that never shows up on their pay rate. Underestimating it is the most common reason a janitorial bid that looked profitable was not.</p>
+        <div class="draft-actions">
+          <button type="button" id="clearDraft">Clear saved draft</button>
+          <span id="draftStatus" class="draft-status" role="status" aria-live="polite"></span>
+        </div>
       </section>
     </div>
 
@@ -141,6 +147,7 @@
   <script type="module">
     import { calculateBid, PRODUCTION_RATE_PRESETS } from './calc.mjs';
     import { recordUsage } from './usage.mjs';
+    import { clearDraft, loadDraft, saveDraft } from './draft.mjs';
 
     const COST_IDS = ['hourlyWage','burdenRate','suppliesPerSqFtMonth','equipmentMonthly','otherMonthly','overheadRate','targetMargin','proposedPrice'];
     const money = value => `$${value.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
@@ -166,6 +173,7 @@
 
     const areasHost = el('areas');
     let rowSeq = 0;
+    const savedDraft = loadDraft(localStorage);
 
     function addAreaRow(area) {
       const id = `a${++rowSeq}`;
@@ -222,6 +230,13 @@
       });
     }
 
+    function saveCurrentDraft() {
+      saveDraft(localStorage, {
+        areas: readAreas(),
+        costs: Object.fromEntries(COST_IDS.map(id => [id, el(id).value])),
+      });
+    }
+
     function count(event) {
       recordUsage(localStorage, el('usageOptOut').checked, event);
     }
@@ -237,6 +252,7 @@
     }
 
     function update() {
+      saveCurrentDraft();
       const areas = readAreas();
       if (areas.length === 0) {
         clearOutputs('Add a space to price', false);
@@ -360,7 +376,18 @@
       }
     });
 
-    STARTING_AREAS.forEach(addAreaRow);
+    el('clearDraft').addEventListener('click', () => {
+      clearDraft(localStorage);
+      el('draftStatus').textContent = 'Saved draft cleared';
+      setTimeout(() => { el('draftStatus').textContent = ''; }, 2500);
+    });
+
+    (savedDraft?.areas?.length ? savedDraft.areas : STARTING_AREAS).forEach(addAreaRow);
+    if (savedDraft?.costs) {
+      COST_IDS.forEach(id => {
+        if (Object.hasOwn(savedDraft.costs, id)) el(id).value = savedDraft.costs[id];
+      });
+    }
     update();
   </script>
 </body>
