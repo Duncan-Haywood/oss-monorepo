@@ -2,7 +2,7 @@
 
 Independent consultants and freelancers can use this free browser calculator to turn a take-home income goal into a sustainable hourly floor and monthly retainer. It accounts for non-billable time, business costs, and a visible scope buffer instead of hiding those assumptions inside a generic rate.
 
-**Value:** After using this, you can send a retainer price with included hours and an out-of-scope rate, which used to take guesswork or a spreadsheet. The proposal summary can be copied or downloaded as a plain-text file for reliable handoff.
+**Value:** After using this, you can send a retainer price with included hours and an out-of-scope rate, which used to take guesswork or a spreadsheet. You can also see how the retainer sits in a month that already has other clients, and whether a cheaper offered price still clears your floor. The proposal summary can be copied, downloaded, or restored from a private planning link.
 
 ## Run and test
 
@@ -18,11 +18,13 @@ Operating cost is zero at launch: all calculations and anonymous event counts st
 
 ## Privacy and usage
 
-Everything runs in your browser. Your data is never uploaded, and there are no accounts, tracking cookies, or analytics vendors. The product counts only aggregate local `calculate`, `copy-summary`, and `download-summary` events, never people, IPs, content, or cross-site identifiers. The checkbox in the footer turns counting off; clearing browser storage removes the local count.
+Everything runs in your browser. Your data is never uploaded, and there are no accounts, tracking cookies, or analytics vendors. The product counts only aggregate local `calculate`, `copy-summary`, `download-summary`, `compare-offer`, and `copy-share-link` events, never people, IPs, content, or cross-site identifiers. The checkbox in the footer turns counting off; clearing browser storage removes the local count. A planning link stores the numbers in the URL hash so you can bookmark or send a scenario without uploading anything.
 
 ## Disclaimer
 
 **No warranty.** This tool is provided free and as-is, without warranty of any kind, express or implied. It is not financial advice and it does not replace a qualified professional. **You are responsible for reviewing and verifying its output before relying on it**, and for meeting any obligation it helps you prepare for. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.
+
+[GitHub Sponsors](https://github.com/sponsors/Duncan-Haywood) is optional and never changes what the tool does.
 
 ## License
 

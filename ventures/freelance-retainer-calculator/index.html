@@ -3,22 +3,22 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Freelance Retainer Pricing Calculator</title>
-  <meta name="description" content="Calculate a sustainable freelance retainer price from your income goal, billable capacity, overhead, utilization, and scope buffer. Free and private in your browser.">
+  <title>Freelance Retainer Pricing Calculator — Floor, Book Load, and Discount Walk-Away</title>
+  <meta name="description" content="Price a freelance retainer from income goal, utilization, and scope buffer, then see how many retainers fill your month and whether a client's offered price sits below your floor. Free and private in your browser.">
   <meta property="og:type" content="website">
   <meta property="og:title" content="Freelance Retainer Pricing Calculator">
-  <meta property="og:description" content="Stop guessing what to charge for a monthly retainer. Price your work from capacity, costs, and scope risk.">
+  <meta property="og:description" content="Stop guessing what to charge for a monthly retainer. Price from capacity, see remaining book load, and compare a client's offered price to your floor.">
   <meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/freelance-retainer-calculator/">
   <link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/freelance-retainer-calculator/">
   <link rel="stylesheet" href="style.css">
-  <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Freelance Retainer Pricing Calculator","applicationCategory":"BusinessApplication","operatingSystem":"Any","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"description":"A private browser calculator for sustainable freelance retainer pricing."}</script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"SoftwareApplication","name":"Freelance Retainer Pricing Calculator","applicationCategory":"BusinessApplication","operatingSystem":"Any","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"description":"A private browser calculator for sustainable freelance retainer pricing, remaining book load, and client-offer comparison.","featureList":"Sustainable hourly floor, monthly retainer with scope buffer, remaining book load after existing clients, identical-retainer fill count, client offer vs floor, hours you can include at the floor, private draft and shareable planning link"},{"@type":"FAQPage","mainEntity":[{"@type":"Question","name":"How many hours should a freelance retainer include?","acceptedAnswer":{"@type":"Answer","text":"Start with a scope you can deliver inside your remaining billable capacity after existing clients, then leave the scope buffer intact. Put included hours, response time, and out-of-scope pricing in the agreement."}},{"@type":"Question","name":"What if a client asks for a cheaper retainer?","acceptedAnswer":{"@type":"Answer","text":"Enter the offered monthly price. The calculator shows the gap to your planning floor, the effective hourly rate on included hours and on buffered hours, and how many hours you can include if you keep your floor. It does not decide whether to accept."}},{"@type":"Question","name":"How many retainers can I take this month?","acceptedAnswer":{"@type":"Answer","text":"After you enter hours already sold to other clients, the calculator shows remaining billable hours, how many identical retainers fit that remainder, and the monthly revenue if you filled the remaining capacity with this retainer."}}]}]}</script>
 </head>
 <body>
   <main class="shell">
     <header>
       <p class="eyebrow">INDEPENDENT WORK / PRICING TOOL</p>
       <h1>Price the retainer around your life, not an arbitrary hourly rate.</h1>
-      <p class="lede">Turn your income goal, real billable capacity, operating costs, and scope buffer into a minimum hourly rate and a client-ready monthly retainer.</p>
+      <p class="lede">Turn your income goal, real billable capacity, operating costs, and scope buffer into a minimum hourly rate and a client-ready monthly retainer. Then see how the rest of your book fits — and whether a cheaper offer still clears your floor.</p>
     </header>
     <section class="workspace" aria-label="Retainer pricing calculator">
       <form id="calculator" class="card">
@@ -30,6 +30,8 @@
           <label>Realistic billable utilization <span>%</span><input id="utilization" type="number" min="1" max="100" step="1" value="65" required></label>
           <label>Retainer hours included <span>hours</span><input id="retainerHours" type="number" min="1" step="1" value="20" required></label>
           <label>Scope / revision buffer <span>%</span><input id="buffer" type="number" min="0" max="100" step="1" value="15" required></label>
+          <label>Hours already sold this month <span>hours</span><input id="committedHours" type="number" min="0" step="1" value="0"></label>
+          <label>Client's offered monthly price <span>optional</span><input id="offeredPrice" type="number" min="0" step="0.01" placeholder="Leave blank to skip"></label>
         </div>
         <label>Currency <select id="currency"><option value="USD">USD ($)</option><option value="EUR">EUR (€)</option><option value="GBP">GBP (£)</option><option value="CAD">CAD ($)</option><option value="AUD">AUD ($)</option></select></label>
         <p id="draftStatus" class="draft-status" role="status">Your inputs stay in this browser as a private local draft.</p>
@@ -43,11 +45,25 @@
         <div class="answer"><span>Billable capacity available</span><strong id="capacity">0 hrs</strong></div>
         <div class="answer"><span>Capacity left after retainer</span><strong id="remaining">0 hrs</strong></div>
         <div class="answer"><span>Monthly revenue target</span><strong id="target">$0</strong></div>
+        <div class="answer"><span>Hours already sold</span><strong id="committedOut">0 hrs</strong></div>
+        <div class="answer"><span>Booked after this retainer</span><strong id="bookedOut">0 hrs</strong></div>
+        <div class="answer"><span>Identical retainers that still fit</span><strong id="fillCount">0</strong></div>
+        <div class="answer"><span>If you filled remaining capacity</span><strong id="fillRevenue">$0</strong></div>
+        <div id="offerBlock" class="offer" hidden>
+          <p class="eyebrow">CLIENT OFFER</p>
+          <div class="answer"><span>Offered monthly price</span><strong id="offered">$0</strong></div>
+          <div class="answer"><span>Gap to your floor</span><strong id="offerGap">$0</strong></div>
+          <div class="answer"><span>Effective rate on included hours</span><strong id="offerIncluded">$0</strong></div>
+          <div class="answer"><span>Effective rate if buffer is used</span><strong id="offerBuffered">$0</strong></div>
+          <div class="answer"><span>Hours you can include at your floor</span><strong id="offerHours">0 hrs</strong></div>
+          <p id="offerVerdict" class="note"></p>
+        </div>
         <p id="explanation" class="note"></p>
-        <textarea id="summary" rows="7" readonly aria-label="Copyable proposal summary"></textarea>
+        <textarea id="summary" rows="12" readonly aria-label="Copyable proposal summary"></textarea>
        <div class="actions">
          <button id="copy" type="button" class="secondary">Copy proposal summary</button>
          <button id="download" type="button" class="secondary">Download proposal (.txt)</button>
+         <button id="share" type="button" class="secondary">Copy private planning link</button>
        </div>
        <span id="copyStatus" role="status"></span>
       </section>
@@ -56,11 +72,16 @@
       <h2>Why this is different from a basic hourly-rate calculator</h2>
       <p>A $75 rate means little if only 65% of your month is billable, your tools and taxes cost $1,800, and a vague retainer absorbs unplanned revisions. This calculator makes each assumption visible so you can change it before making a promise.</p>
       <h2>Common question: how many hours should a retainer include?</h2>
-      <p>Start with a scope you can deliver inside your billable capacity, then leave the buffer intact. A retainer is a commitment of access and work, not permission for unlimited requests. Put included hours, response time, and out-of-scope pricing in your agreement.</p>
+      <p>Start with a scope you can deliver inside your remaining billable capacity after existing clients, then leave the buffer intact. A retainer is a commitment of access and work, not permission for unlimited requests. Put included hours, response time, and out-of-scope pricing in your agreement.</p>
+      <h2>What if the client asks for a cheaper retainer?</h2>
+      <p>Enter the monthly price they offered. The calculator shows the gap to your planning floor, the effective hourly rate on included hours and on buffered hours, and how many hours you can still include if you keep the floor. That is arithmetic on your assumptions, not a recommendation to accept or walk away.</p>
+      <h2>How many retainers can I take this month?</h2>
+      <p>Enter hours already sold to other clients. The result shows remaining billable hours, how many identical retainers fit that remainder, and the monthly revenue if you filled the leftover capacity with this same retainer. One client at 40% or more of billable capacity is flagged as a concentration observation, not as advice.</p>
     </section>
     <footer>
       <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not financial advice and does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for meeting any obligation it helps you prepare for. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
-      <p>Everything runs in your browser. Your numbers are never uploaded. There are no accounts, cookies, or analytics vendors. We count only anonymous feature events in this browser; <label><input id="optOut" type="checkbox"> don't count my usage</label>. Your browser's Do Not Track or Global Privacy Control signal also disables counting.</p>
+      <p>Everything runs in your browser. Your numbers are never uploaded. There are no accounts, cookies, or analytics vendors. We count only anonymous feature events in this browser (<code>calculate</code>, <code>copy-summary</code>, <code>download-summary</code>, <code>compare-offer</code>, <code>copy-share-link</code>); <label><input id="optOut" type="checkbox"> don't count my usage</label>. Your browser's Do Not Track or Global Privacy Control signal also disables counting. A shared planning link is just the numbers in the address bar — it is never sent to us.</p>
+      <p>Free and open source. If it stopped you from underpricing a retainer, the <a href="https://github.com/Duncan-Haywood/monorepo-projects">project is on GitHub</a> — <a href="https://github.com/sponsors/Duncan-Haywood">GitHub Sponsors</a> is optional and never changes what the tool does. MIT licensed.</p>
     </footer>
   </main>
   <script type="module" src="app.js"></script>
