@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { applyPlanPreset, calculateOrder, PLAN_PRESETS } from "./calc.mjs";
+import { applyPlanPreset, calculateOrder, formatOrderSummary, PLAN_PRESETS } from "./calc.mjs";
 
 const near = (actual, expected, msg) =>
   assert.ok(Math.abs(actual - expected) < 1e-6, `${msg}: ${actual} vs ${expected}`);
@@ -130,6 +130,15 @@ test("applyPlanPreset fills illustrative Basic rates", () => {
   assert.equal(filled.paymentsRate, PLAN_PRESETS.basic.paymentsRate);
   assert.equal(filled.shopifyTxnRate, 2);
   assert.equal(filled.monthlyPlan, 39);
+});
+
+test("formats a handoff summary from derived results", () => {
+  const input = { price: 48, shippingCharged: 6, paymentMethod: "shopify_payments" };
+  const result = calculateOrder(input);
+  const summary = formatOrderSummary(input, result);
+  assert.match(summary, /Shopify fee calculator summary/);
+  assert.match(summary, /Estimated net profit: \$52\.13/);
+  assert.match(summary, /Rates and costs are user-entered assumptions/);
 });
 
 test("rejects unknown plans and invalid inputs", () => {

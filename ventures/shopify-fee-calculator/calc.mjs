@@ -160,3 +160,22 @@ export function calculateOrder(input) {
     extraCostVsThirdParty: shopifyPayments.feeTotal - thirdParty.feeTotal,
   };
 }
+
+export function formatOrderSummary(input, result, currency = "$") {
+  const path = result.paymentMethod === "shopify_payments" ? "Shopify Payments" : "PayPal / Stripe / other";
+  const money = (value) => `${currency}${value.toFixed(2)}`;
+  return [
+    "Shopify fee calculator summary",
+    `Payment path: ${path}`,
+    `Item price + shipping charged: ${money(result.revenue)}`,
+    `Fees on this path: ${money(result.selected.feeTotal)}`,
+    `Cash + allocated plan: ${money(result.selected.cashInvested)}`,
+    `Estimated net profit: ${money(result.selected.profit)}`,
+    `Net margin: ${result.selected.margin.toFixed(1)}%`,
+    `Return on investment: ${result.selected.roi === null ? "n/a" : `${result.selected.roi.toFixed(1)}%`}`,
+    `Break-even item price: ${Number.isFinite(result.selected.breakEvenPrice) ? money(result.selected.breakEvenPrice) : "never"}`,
+    `Price for target margin: ${Number.isFinite(result.selected.targetMarginPrice) ? money(result.selected.targetMarginPrice) : "unreachable"}`,
+    `Extra vs Shopify Payments: ${money(result.extraCostVsShopifyPayments)}`,
+    "Rates and costs are user-entered assumptions; verify them against current statements.",
+  ].join("\n");
+}

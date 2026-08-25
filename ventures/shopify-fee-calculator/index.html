@@ -76,6 +76,12 @@
     footer a { color: #0d6b45; }
     .faq { margin-top: 18px; }
     .error { color: #ffb0a2; }
+    .handoff { margin: 18px 0; padding: 14px; background: #f4faf6; border: 1px solid #c5d9cc; border-radius: 10px; }
+    .handoff h2 { margin-bottom: 6px; }
+    .actions { display: flex; gap: 8px; flex-wrap: wrap; }
+    button { border: 1px solid #6f9b80; border-radius: 7px; padding: 9px 12px; background: white; color: #12241c; font: inherit; cursor: pointer; }
+    button:hover, button:focus-visible { border-color: #0d6b45; outline: 2px solid #b6efc0; outline-offset: 1px; }
+    .status { font-size: .85rem; color: #3d5649; }
     @media (max-width: 800px) { .layout { grid-template-columns: 1fr; } .result { position: static; } .fields { grid-template-columns: 1fr; } }
   </style>
 </head>
@@ -145,6 +151,15 @@
       <p class="note">Transparent arithmetic from your inputs — not Shopify's current fee schedule. Rates vary by country, plan, card type, and processor contract. Verify against your statements.</p>
     </section>
   </main>
+  <section class="handoff" aria-labelledby="handoff-heading">
+    <h2 id="handoff-heading">Keep or hand off this scenario</h2>
+    <p class="status">The link contains these calculator inputs in the URL. It is not uploaded or sent to a server.</p>
+    <div class="actions">
+      <button type="button" id="copy-link">Copy private link</button>
+      <button type="button" id="copy-summary">Copy order summary</button>
+      <span id="handoff-status" class="status" role="status" aria-live="polite"></span>
+    </div>
+  </section>
   <section class="faq" aria-labelledby="faq-heading">
     <h2 id="faq-heading">What this checks</h2>
     <p>
@@ -169,8 +184,9 @@
     <p>Selling the same item somewhere else too? The <a href="../where-to-sell-calculator/">where-to-sell calculator</a> ranks your own store against eBay, Etsy, Amazon and a direct sale on one item.</p>
   </footer>
   <script type="module">
-    import { applyPlanPreset, calculateOrder } from "./calc.mjs";
+    import { applyPlanPreset, calculateOrder, formatOrderSummary } from "./calc.mjs";
     import { recordUsage } from "./usage.mjs";
+    import { encodeShareState, decodeShareState } from "./share.mjs";
 
     const ids = [
       "price", "shippingCharged", "paymentsRate", "paymentsFixed", "shopifyTxnRate",
@@ -178,6 +194,7 @@
       "otherCost", "monthlyPlan", "monthlyOrders", "targetMargin",
     ];
     const money = (value) => `$${value.toFixed(2)}`;
+    let latestResult = null;
 
     function paymentMethod() {
       return document.querySelector('input[name="paymentMethod"]:checked').value;
@@ -193,6 +210,7 @@
     function update() {
       try {
         const result = calculateOrder(readInput());
+        latestResult = result;
         const profitEl = document.getElementById("profit");
         profitEl.textContent = money(result.selected.profit);
         profitEl.className = `hero-number ${result.selected.profit < 0 ? "negative" : "positive"}`;
@@ -253,6 +271,49 @@
       });
     });
     document.getElementById("usageOptOut").addEventListener("change", update);
+
+    function setHandoffStatus(message) {
+      document.getElementById("handoff-status").textContent = message;
+    }
+
+    async function copyText(text) {
+      if (navigator.clipboard?.writeText) return navigator.clipboard.writeText(text);
+      const area = document.createElement("textarea");
+      area.value = text; area.setAttribute("readonly", ""); area.style.position = "fixed"; area.style.opacity = "0";
+      document.body.append(area); area.select();
+      const copied = document.execCommand("copy"); area.remove();
+      if (!copied) throw new Error("Clipboard is unavailable");
+    }
+
+    document.getElementById("copy-link").addEventListener("click", async () => {
+      try {
+        const payload = encodeShareState(readInput());
+        const url = `${location.href.split("?")[0]}?share=${payload}`;
+        await copyText(url);
+        setHandoffStatus("Private link copied.");
+        recordUsage(localStorage, document.getElementById("usageOptOut").checked, "share_link_copied");
+      } catch (error) { setHandoffStatus(error.message); }
+    });
+
+    document.getElementById("copy-summary").addEventListener("click", async () => {
+      try {
+        if (!latestResult) throw new Error("Fix the inputs before copying a summary");
+        await copyText(formatOrderSummary(readInput(), latestResult));
+        setHandoffStatus("Order summary copied.");
+        recordUsage(localStorage, document.getElementById("usageOptOut").checked, "order_summary_copied");
+      } catch (error) { setHandoffStatus(error.message); }
+    });
+
+    const shared = new URLSearchParams(location.search).get("share");
+    if (shared) {
+      try {
+        const state = decodeShareState(shared);
+        ids.forEach((id) => { document.getElementById(id).value = state[id]; });
+        document.querySelector(`input[name="paymentMethod"][value="${state.paymentMethod}"]`).checked = true;
+        setHandoffStatus("Shared calculation restored.");
+        recordUsage(localStorage, document.getElementById("usageOptOut").checked, "shared_calculation_restored");
+      } catch (error) { setHandoffStatus(`${error.message}; using the form defaults.`); }
+    }
     update();
   </script>
 </body>
