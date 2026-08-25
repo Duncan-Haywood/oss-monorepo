@@ -57,6 +57,17 @@ it against the same cost base and says plainly whether it is under water. **Copy
 bid summary** turns the result into a plain-text draft with the price, annual
 value, service hours, and service areas ready to paste into a proposal.
 
+**If they cut the schedule** answers the renewal question contractors actually
+get: a prospect who wants 3×/week instead of 5× and offers 60% of today’s
+price. Labor hours scale with the visits; supplies, equipment, and travel in
+this model do not. The table shows the reduced-schedule price that still holds
+the target margin, the margin left if the linear number is accepted, and a
+pasteable reply. If the building-level current week disagrees with the
+area-row frequencies (the rows still say 3× while the comparison is 5→3),
+labor is rebased onto the building week so the table is not a mix of the
+two. A crawlable explainer lives at
+[`5x-vs-3x-cleaning-price.html`](5x-vs-3x-cleaning-price.html).
+
 The arithmetic lives in [`calc.mjs`](calc.mjs) with no DOM or network
 dependency, so it is testable and auditable on its own. See
 [`calc.test.mjs`](calc.test.mjs).
@@ -80,7 +91,8 @@ automatically when the browser sends Do Not Track or Global Privacy Control.
 See [`usage.mjs`](usage.mjs) and [`portfolio/usage/`](../../portfolio/usage/README.md).
 
 Events counted: `bid_calculated`, `area_added`, `area_removed`,
-`proposed_price_compared`, `summary_copied`.
+`proposed_price_compared`, `summary_copied`, `frequency_reduction_compared`,
+`frequency_note_copied`.
 
 ## Limitations
 
@@ -99,5 +111,11 @@ Verify every figure against real payroll, insurance, and supply costs and
 against a qualified professional before relying on it or submitting a bid. To
 the maximum extent permitted by law, the authors accept no liability for loss
 or damage arising from its use.
+
+**Best-effort hosting, no SLA.** These tools are free, experimental, and may
+be slow, broken, moved, or taken offline without notice. We do not promise
+uptime, backups of anything you type, or that a URL will keep working. Do not
+use this as a system of record. If a tool needs to survive, export your
+inputs and run it yourself.
 
 MIT licensed — see [`LICENSE`](LICENSE).
