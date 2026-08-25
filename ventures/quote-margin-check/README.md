@@ -44,6 +44,11 @@ quoted price and direct costs fixed while showing how the effective hourly rate
 and gap to the supplied target change. They are arithmetic what-if comparisons,
 not a forecast of project delivery time.
 
+The browser also breaks the target price into delivery labor, hidden admin and
+revision time, and direct costs. This makes the arithmetic auditable instead
+of leaving the user to reverse-engineer one total; it is not a recommendation
+about what to charge.
+
 **No warranty.** This tool is provided free and as-is, without warranty of any
 kind, express or implied. It is not tax, financial, or business advice, and it
 does not replace a qualified professional. **You are responsible for reviewing

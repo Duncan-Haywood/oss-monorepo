@@ -179,6 +179,11 @@
     <p class="hint">What you'd want to be paid per hour if you were billing hourly instead.</p>
 
     <div class="result" id="result" role="status" aria-live="polite"></div>
+    <div class="result" id="target-breakdown" aria-live="polite">
+      <strong>What makes up the target price</strong>
+      <p class="hint">A transparent decomposition of the supplied target rate and direct costs.</p>
+      <div class="table-scroll"><table class="sensitivity"><thead><tr><th>Component</th><th>Amount</th></tr></thead><tbody></tbody><tfoot><tr><th scope="row">Total target price</th><td></td></tr></tfoot></table></div>
+    </div>
     <div class="result" id="sensitivity" aria-live="polite"><strong>If the work takes longer</strong><p class="hint">A scenario view, not a prediction. Direct costs stay unchanged.</p><div class="table-scroll"><table class="sensitivity"><thead><tr><th>Extra time</th><th>Total hours</th><th>Effective rate</th><th>Gap to target</th></tr></thead><tbody></tbody></table></div></div>
       <div class="result" id="review" aria-live="polite"><strong>Before you send it</strong><ul class="checks"></ul></div>
 
@@ -249,8 +254,8 @@
   </footer>
 </main>
 
-<script type="module">
-  import { loadQuote, calculate, overrunScenarios } from "./calc.mjs";
+  <script type="module">
+  import { loadQuote, calculate, overrunScenarios, targetPriceBreakdown } from "./calc.mjs";
   import { reviewQuote } from "./review.mjs";
   import { recordEvent, createReportCounter, isUsageCountingEnabled, setUsageCountingEnabled } from "./usage.mjs";
 
@@ -261,7 +266,8 @@
   const el = Object.fromEntries(ids.map((id) => [id, document.getElementById(id)]));
   const result = document.getElementById("result");
   const review = document.getElementById("review");
-  const sensitivity = document.getElementById("sensitivity");
+   const sensitivity = document.getElementById("sensitivity");
+   const targetBreakdown = document.getElementById("target-breakdown");
 
   let lastReport = null;
 
@@ -305,6 +311,9 @@
        `;
        review.querySelector(".checks").innerHTML = reviewQuote(quote, r).map((check) => `<li class="${check.level}"><strong>${escapeHtml(check.title)}</strong>${escapeHtml(check.detail)}</li>`).join("");
        sensitivity.querySelector("tbody").innerHTML = overrunScenarios(quote, r).map((scenario) => `<tr><th scope="row">+${scenario.percent}%</th><td>${fmt(scenario.total_hours)}</td><td>${safeCurrency} ${fmt(scenario.effective_hourly_rate)}/hour</td><td>${safeCurrency} ${fmt(scenario.gap_to_target)}</td></tr>`).join("");
+       const breakdown = targetPriceBreakdown(quote);
+       targetBreakdown.querySelector("tbody").innerHTML = [["Delivery work", breakdown.delivery_labor], ["Admin and revisions", breakdown.hidden_time_labor], ["Direct costs", breakdown.direct_costs]].map(([label, value]) => `<tr><th scope="row">${label}</th><td>${safeCurrency} ${fmt(value)}</td></tr>`).join("");
+       targetBreakdown.querySelector("tfoot td").textContent = `${safeCurrency} ${fmt(breakdown.total)}`;
        recordEvent("quote_review_checked");
       result.classList.remove("error");
       reportCounter.count(JSON.stringify(quote));
