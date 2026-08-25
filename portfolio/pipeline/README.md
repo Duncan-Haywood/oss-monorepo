@@ -2,9 +2,11 @@
 
 Businesses that have been researched and scored but are **not** ventures yet.
 
-**Portfolio direction (2026-08-24):** candidates exist to be **built**, not
-re-screened. Graduate a `build-now` item and ship a free full-feature product
-with usage tracking. See [`../DIRECTION.md`](../DIRECTION.md) and
+**Portfolio direction (2026-08-24, deploy-first as of 2026-08-25):**
+candidates exist to be **built**, not re-screened — and a built product
+with no public URL outranks the next `build-now` item. Graduate only after
+something already on `main` is reachable by a stranger. See
+[`../DIRECTION.md`](../DIRECTION.md) "Current priority" and
 [`PRODUCT_PLAYBOOK.md`](../../PRODUCT_PLAYBOOK.md).
 
 Two of the scoring dimensions below read differently under that direction, and

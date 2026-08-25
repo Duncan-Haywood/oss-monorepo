@@ -29,6 +29,11 @@ Prefer products that:
 - Can go live free and full-featured while usage is recorded
 - Need only an API key (or similar) to unlock — build the product, document the key
 
+**Deploy what is already built before starting another product.** If a
+venture on `main` still has no public URL, that deploy is the next task.
+See [`portfolio/DIRECTION.md`](portfolio/DIRECTION.md) "Current priority".
+Do not open a second `deploy-settings` ask.
+
 Use traditional software patterns. Add AI where it clearly helps; do not
 AI-wrap by default.
 
@@ -86,6 +91,9 @@ fully without a key; a user's own key unlocks the AI parts), and the definition
 of done.
 
 ## Graduating from the pipeline
+
+If anything already on `main` still has no public URL, deploy that first
+(prepare the artifact; the owner flip is `deploy-settings`). Only then:
 
 If `session_gate.py` names a `build-now` candidate, graduate it:
 
