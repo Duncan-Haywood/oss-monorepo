@@ -888,6 +888,11 @@ ventures:
     floor_note: >-
       The first release is intentionally deterministic: its value is a private
       renewal decision worksheet, not generated procurement advice.
+    basis: >-
+      Graduated on 2026-08-25 as a browser-local SaaS seat renewal calculator.
+      It estimates unused seats and avoidable spend from customer-supplied
+      figures without credentials, network access, uploads, or server-side
+      data retention.
     gates:
       liability_containment: pass
       ethical_robustness: pass
