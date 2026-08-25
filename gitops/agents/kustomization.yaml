@@ -1,0 +1,24 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+namespace: agents
+resources:
+  - rbac.yaml
+  - networkpolicy.yaml
+  - quota.yaml
+  - governor/rbac.yaml
+  - governor/cronjob.yaml
+configMapGenerator:
+  - name: governor-policy
+    files:
+      - policy.json=governor/policy.json
+  - name: governor-script
+    files:
+      - governor.py=governor/governor.py
+  - name: codex-worker-script
+    files:
+      - worker.sh=workers/worker.sh
+  - name: governor-queue
+    files:
+      - example.item.yaml=queue/example.item.yaml
+generatorOptions:
+  disableNameSuffixHash: true
