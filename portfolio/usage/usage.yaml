@@ -166,6 +166,14 @@ products:
           live_url_visitors: null
           local_events_reported: 0
         note: Shipped local Etsy order-profit calculator; public URL remains owner-gated.
+      - as_of: 2026-08-25
+        signals:
+          live_url_visitors: null
+          listing_renewal_compared: 0
+        note: >-
+          Added listing auto-renew allocation (sales in one renewal window,
+          including zero). Public URL remains owner-gated; the local counter
+          records only listing_renewal_compared.
   - slug: shopify-a11y-evidence
     surface: static-page-in-repo
     readings:

@@ -61,3 +61,14 @@ Enter a target margin to calculate the item price needed to reach it, then
 compare prices $10 below and above the current price. This turns a fee
 calculation into a quick pricing decision without uploading product data or
 relying on Etsy's changing fee schedule.
+
+## Listing auto-renew
+
+Open `listing-renewal.html` when the question is not "what does one order
+leave?" but "does this listing sell enough in one auto-renew window to cover
+the listing fee?" Etsy charges that fee when a listing publishes or renews,
+not once per sale. A listing that sells twice in four months has a $0.10
+listing cost per sale; a listing that sells nothing still costs the listing
+fee. The page keeps the same per-order stack, then allocates the listing fee
+across the sales you type in — including zero. It does not turn auto-renew on
+or off, and it does not decide whether a listing should stay published.

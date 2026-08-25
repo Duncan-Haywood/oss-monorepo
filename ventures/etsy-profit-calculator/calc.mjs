@@ -39,3 +39,59 @@ export function priceForMargin(input, targetMargin) {
   if (denominator <= 0) throw new Error('Target margin is not possible with these fee rates');
   return Math.max(0, (n('listingFee') + n('paymentFixed') + n('shippingCost') + n('materialCost') + n('otherCost')) / denominator - n('shippingCharged'));
 }
+
+const RENEWAL_SALES_SCENARIOS = [0, 1, 2, 5, 10, 20];
+
+// Etsy charges the listing fee when the listing is published or auto-renews,
+// not once per sale. The order calculator subtracts that fee from every order,
+// which overstates cost on a listing that sells more than once and hides the
+// fee entirely on a listing that sells nothing. This function keeps the same
+// per-order stack, then allocates the listing fee across the sales expected
+// in one renewal window. It does not decide whether auto-renew should stay on.
+export function calculateListingRenewal(input) {
+  const listingFee = Number(input.listingFee ?? 0.2);
+  if (!Number.isFinite(listingFee) || listingFee < 0) throw new Error('Listing fee must be a non-negative number');
+  const renewalMonths = Number(input.renewalMonths ?? 4);
+  if (!Number.isFinite(renewalMonths) || renewalMonths <= 0) throw new Error('Renewal months must be greater than zero');
+  const expectedSales = Number(input.expectedSales ?? 0);
+  if (!Number.isFinite(expectedSales) || expectedSales < 0) throw new Error('Expected sales must be a non-negative number');
+
+  const withoutListing = calculateOrder({ ...input, listingFee: 0 });
+  const withPerOrderListing = calculateOrder({ ...input, listingFee });
+  const listingPerSale = expectedSales === 0 ? null : listingFee / expectedSales;
+  const withAllocatedListing = listingPerSale === null
+    ? null
+    : calculateOrder({ ...input, listingFee: listingPerSale });
+  const renewalsPerYear = 12 / renewalMonths;
+  const annualListingCost = listingFee * renewalsPerYear;
+  const salesToRecover = withoutListing.profit > 0 ? Math.ceil(listingFee / withoutListing.profit) : null;
+  const periodProfitAfterListing = expectedSales * withoutListing.profit - listingFee;
+  const annualSales = expectedSales * renewalsPerYear;
+  const annualProfitAfterListing = annualSales * withoutListing.profit - annualListingCost;
+  const overstatedInPeriod = expectedSales > 1 ? listingFee * (expectedSales - 1) : 0;
+
+  return {
+    listingFee,
+    renewalMonths,
+    expectedSales,
+    renewalsPerYear,
+    annualListingCost,
+    listingPerSale,
+    contributionExListing: withoutListing.profit,
+    revenue: withoutListing.revenue,
+    profitIfChargedEveryOrder: withPerOrderListing.profit,
+    profitIfAllocated: withAllocatedListing ? withAllocatedListing.profit : null,
+    salesToRecover,
+    periodProfitAfterListing,
+    annualProfitAfterListing,
+    overstatedInPeriod,
+    coversListing: periodProfitAfterListing >= 0,
+    unpaidRenewal: expectedSales === 0,
+    scenarios: RENEWAL_SALES_SCENARIOS.map((sales) => ({
+      sales,
+      listingPerSale: sales === 0 ? null : listingFee / sales,
+      periodProfitAfterListing: sales * withoutListing.profit - listingFee,
+      periodProfitIfListingPerOrder: sales * (withoutListing.profit - listingFee),
+    })),
+  };
+}
