@@ -7,7 +7,15 @@ export function normalizeComparison(input) {
   if (!Number.isFinite(first) || !Number.isFinite(second)) return { error: "Enter a valid monthly total for both quotes." };
   if (first < 0 || second < 0) return { error: "Monthly totals cannot be negative." };
   const difference = Math.abs(first - second);
-  return { first, second, equal: first === second, cheaper: first <= second ? "first" : "second", difference, annualDifference: difference * 12 };
+  const result = { first, second, equal: first === second, cheaper: first <= second ? "first" : "second", difference, annualDifference: difference * 12 };
+  if (input?.target !== "" && input?.target != null) {
+    const target = Number(input.target);
+    if (!Number.isFinite(target) || target < 0) return { error: "The target monthly total must be a non-negative number." };
+    result.target = target;
+    result.firstWithinTarget = first <= target;
+    result.secondWithinTarget = second <= target;
+  }
+  return result;
 }
 
 export function comparisonMessage(result, firstName = "Quote A", secondName = "Quote B") {
@@ -24,3 +32,9 @@ export function savingsPercent(result) {
 }
 
 function money(value) { return new Intl.NumberFormat("en-US", { style: "currency", currency: "USD" }).format(value); }
+
+export function targetMessage(result, firstName = "Quote A", secondName = "Quote B") {
+  if (result.error || result.target == null) return "";
+  const status = (name, total, within) => `${name} ${within ? "is within" : "is above"} the ${money(result.target)} target by ${money(Math.abs(total - result.target))}.`;
+  return `${status(firstName, result.first, result.firstWithinTarget)} ${status(secondName, result.second, result.secondWithinTarget)}`;
+}
