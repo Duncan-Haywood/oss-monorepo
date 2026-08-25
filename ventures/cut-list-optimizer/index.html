@@ -4,10 +4,10 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Cut List Optimizer | Sheet Goods and Linear Stock Cutting Plans</title>
-  <meta name="description" content="Free cut list optimizer for woodworkers, sign shops, and makers. Turn a parts list into a sheet layout diagram or a linear cutting plan, with saw kerf and edge trim, in your browser. Nothing is uploaded.">
+  <meta name="description" content="Free cut list optimizer for woodworkers, sign shops, and makers. Turn a parts list into a sheet layout or linear cutting plan, then compare 4x8 vs 5x5 vs 4x10 — or 8ft vs 10ft vs 12ft stock — before you buy. Nothing is uploaded.">
   <meta property="og:type" content="website">
   <meta property="og:title" content="Cut List Optimizer for Woodworkers and Sign Shops">
-  <meta property="og:description" content="Lay out plywood, MDF, and acrylic sheets or linear stock, see the offcut before you buy, and print the plan. Free and entirely in your browser.">
+  <meta property="og:description" content="Lay out plywood, MDF, and acrylic, compare common sheet and board sizes, see the offcut before you buy, and print the plan. Free and entirely in your browser.">
   <script type="application/ld+json">
   {
     "@context": "https://schema.org",
@@ -16,8 +16,8 @@
     "applicationCategory": "BusinessApplication",
     "operatingSystem": "Any browser",
     "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
-    "featureList": "sheet goods layout diagrams, guillotine cutting plans, saw kerf allowance, edge trim, grain direction lock, offcut list, linear stock optimization, material cost estimate, printable job ticket",
-    "description": "A free browser tool that turns a parts list into a low-waste cutting plan for sheet goods or linear stock. Runs entirely on the visitor's device."
+    "featureList": "sheet goods layout diagrams, guillotine cutting plans, saw kerf allowance, edge trim, grain direction lock, offcut list, compare 4x8 vs 5x5 vs 4x10 sheet sizes, linear stock optimization, compare 8ft vs 10ft vs 12ft boards, material cost estimate, printable job ticket",
+    "description": "A free browser tool that turns a parts list into a low-waste cutting plan and ranks common sheet and board sizes by the material you would actually buy. Runs entirely on the visitor's device."
   }
   </script>
   <style>
@@ -70,6 +70,20 @@
     footer { font-size: .8rem; color: #5c5b52; margin-top: 28px; }
     footer p { line-height: 1.5; }
     .empty { color: #5c5b52; font-size: .9rem; }
+    .compare-block { margin-top: 18px; }
+    .compare-block h2 { margin-bottom: 6px; }
+    .compare-table { width: 100%; border-collapse: collapse; font-size: .88rem; margin-top: 14px; }
+    .compare-table th, .compare-table td { text-align: left; padding: 8px 6px; border-bottom: 1px solid #d6d0c3; vertical-align: top; }
+    .compare-table th { font-size: .75rem; letter-spacing: .04em; text-transform: uppercase; color: #5c5b52; }
+    .compare-table tr[data-winner="true"] { background: #e8f0e6; }
+    .compare-table tr[data-fits="false"] { opacity: .7; }
+    .compare-table tr[data-apply-sheet], .compare-table tr[data-apply-stock] { cursor: pointer; }
+    .compare-table button {
+      font: inherit; font-weight: 700; cursor: pointer; padding: 6px 12px; border-radius: 999px;
+      border: 1px solid #24392b; background: #24392b; color: #f8f5eb;
+    }
+    .compare-table button[disabled] { opacity: .45; cursor: default; }
+    .winner-tag { color: #24392b; font-weight: 800; }
     @media (max-width: 760px) {
       .layout { grid-template-columns: 1fr; }
       .fields { grid-template-columns: 1fr; }
@@ -88,8 +102,8 @@
     <h1>Buy less stock. Cut with a plan.</h1>
     <p>
       Paste the pieces you need. Get a sheet-by-sheet layout for plywood, MDF, or acrylic,
-      or a bar-by-bar plan for linear stock — with your saw kerf accounted for and the
-      offcut shown before you buy material. Everything runs in this browser.
+      or a bar-by-bar plan for linear stock — then see whether a 4×8, 5×5, or 4×10
+      (or 8 ft, 10 ft, or 12 ft board) buys less material for the same list. Everything runs in this browser.
     </p>
   </header>
 
@@ -158,6 +172,20 @@ Top: 31.5 x 11.25 x 2</textarea>
     <section class="sheets" id="sheet-diagrams" aria-label="Sheet layout diagrams">
       <p class="empty">The layout for each sheet appears here.</p>
     </section>
+
+    <section class="compare-block" id="sheet-compare-block" aria-labelledby="sheet-compare-heading">
+      <h2 id="sheet-compare-heading">Which sheet size should you buy?</h2>
+      <p class="muted">
+        Same parts, the sizes a lumberyard actually stocks. Ranked by the material you would
+        purchase — not by how many sheets you handle. Cost uses the same price per square
+        unit as the sheet above, when you entered one.
+      </p>
+      <div id="sheet-compare"><p class="empty">Enter a parts list to compare common sheet sizes.</p></div>
+      <div class="actions">
+        <button type="button" id="sheet-compare-copy" disabled>Copy size comparison</button>
+        <span class="muted" id="sheet-compare-status" role="status" aria-live="polite"></span>
+      </div>
+    </section>
   </div>
 
   <!-- ================= Linear stock ================= -->
@@ -203,6 +231,19 @@ Top: 31.5 x 11.25 x 2</textarea>
         </div>
       </section>
     </main>
+
+    <section class="compare-block" id="linear-compare-block" aria-labelledby="linear-compare-heading">
+      <h2 id="linear-compare-heading">Which board length should you buy?</h2>
+      <p class="muted">
+        Same cuts, the lengths a yard sells. Ranked by purchased length, so an 8 ft
+        stick wins over a 12 ft stick when both cover the list with one bar.
+      </p>
+      <div id="linear-compare"><p class="empty">Enter required cuts to compare common stock lengths.</p></div>
+      <div class="actions">
+        <button type="button" id="linear-compare-copy" disabled>Copy length comparison</button>
+        <span class="muted" id="linear-compare-status" role="status" aria-live="polite"></span>
+      </div>
+    </section>
   </div>
 
   <footer>
@@ -222,11 +263,16 @@ Top: 31.5 x 11.25 x 2</textarea>
       Everything runs in your browser. Your cut list is never uploaded. Anonymous calculation events are counted only
       in local storage, can be switched off above, and are never sent to an analytics vendor.
     </p>
+    <p>
+      Free and open source. If it saved you a sheet or a stick of stock, the
+      <a href="https://github.com/Duncan-Haywood/monorepo-projects">project is on GitHub</a> —
+      <a href="https://github.com/sponsors/Duncan-Haywood">GitHub Sponsors</a> is optional and never changes what the tool does.
+    </p>
   </footer>
 
   <script type="module">
-    import { parseCuts, optimizeCutList, formatCutPlan } from './calc.mjs';
-    import { parsePanels, optimizeSheets, formatSheetPlan } from './sheet.mjs';
+    import { parseCuts, optimizeCutList, formatCutPlan, compareStockLengths, formatStockComparison } from './calc.mjs';
+    import { parsePanels, optimizeSheets, formatSheetPlan, compareSheetSizes, formatSheetComparison } from './sheet.mjs';
     import { recordUsage, clearUsage } from './usage.mjs';
 
     const $ = (id) => document.getElementById(id);
@@ -292,6 +338,69 @@ Top: 31.5 x 11.25 x 2</textarea>
       }).join('');
     }
 
+    function renderSheetCompareTable(comparison, unit) {
+      const rows = comparison.rows.map((row) => {
+        const winner = comparison.winner && row.id === comparison.winner.id;
+        const name = `${escapeHtml(row.label)}${row.current ? ' <span class="muted">on the form</span>' : ''}`;
+        if (!row.fits) {
+          const why = row.error
+            ? escapeHtml(row.error)
+            : `${row.oversize} piece${row.oversize === 1 ? '' : 's'} do not fit`;
+          return `<tr data-fits="false"><td>${name}</td><td colspan="4">${why}</td><td></td></tr>`;
+        }
+        const cost = row.cost != null ? row.cost.toFixed(2) : '—';
+        const action = row.current
+          ? '<button type="button" disabled>Using this size</button>'
+          : `<button type="button">Use this size</button>`;
+        const apply = row.current ? '' : ` data-apply-sheet data-width="${row.width}" data-height="${row.height}"`;
+        return `<tr data-fits="true" data-winner="${winner}"${apply}>
+            <td>${name}${winner ? ' <span class="winner-tag">buy this</span>' : ''}</td>
+            <td>${row.sheets}</td>
+            <td>${row.buyArea.toFixed(2)} sq ${escapeHtml(unit)}</td>
+            <td>${(row.utilization * 100).toFixed(1)}%</td>
+            <td>${cost}</td>
+            <td>${action}</td>
+          </tr>`;
+      }).join('');
+      return `<table class="compare-table">
+          <thead><tr><th>Stock</th><th>Sheets</th><th>Material bought</th><th>Used</th><th>Est. cost</th><th></th></tr></thead>
+          <tbody>${rows}</tbody>
+        </table>`;
+    }
+
+    function renderSheetComparison(panels) {
+      const unit = $('sheet-unit').value;
+      const width = Number($('sheet-width').value);
+      const height = Number($('sheet-height').value);
+      const rawCost = Number($('sheet-cost').value);
+      const sheetCost = Number.isFinite(rawCost) && rawCost > 0 ? rawCost : null;
+      const pricePerArea = sheetCost && width > 0 && height > 0 ? sheetCost / (width * height) : null;
+      try {
+        const comparison = compareSheetSizes({
+          panels,
+          kerf: Number($('sheet-kerf').value),
+          trim: Number($('sheet-trim').value),
+          allowRotation: $('sheet-rotate').checked,
+          unit,
+          current: (width > 0 && height > 0) ? { width, height } : null,
+          pricePerArea,
+        });
+        $('sheet-compare').innerHTML = renderSheetCompareTable(comparison, unit);
+        $('sheet-compare-copy').disabled = false;
+        $('sheet-compare-copy').dataset.plan = formatSheetComparison(comparison, { unit });
+      } catch (error) {
+        $('sheet-compare').innerHTML = `<p class="empty">${escapeHtml(error.message)}</p>`;
+        $('sheet-compare-copy').disabled = true;
+        $('sheet-compare-copy').dataset.plan = '';
+      }
+    }
+
+    function clearSheetComparison() {
+      $('sheet-compare').innerHTML = '<p class="empty">Enter a parts list to compare common sheet sizes.</p>';
+      $('sheet-compare-copy').disabled = true;
+      $('sheet-compare-copy').dataset.plan = '';
+    }
+
     function renderSheet() {
       const unit = $('sheet-unit').value;
       const rawCost = Number($('sheet-cost').value);
@@ -323,6 +432,7 @@ Top: 31.5 x 11.25 x 2</textarea>
         renderSheetPlan(result, unit);
         $('sheet-copy').disabled = false;
         $('sheet-copy').dataset.plan = formatSheetPlan(result, { unit, sheetCost });
+        renderSheetComparison(parsePanels($('sheet-parts').value));
         ready.sheet = true;
       } catch (error) {
         // Every message thrown by sheet.mjs is written for the user, so it is
@@ -335,12 +445,68 @@ Top: 31.5 x 11.25 x 2</textarea>
         $('sheet-copy').disabled = true;
         $('sheet-copy').dataset.plan = '';
         ready.sheet = false;
+        try {
+          renderSheetComparison(parsePanels($('sheet-parts').value));
+        } catch {
+          clearSheetComparison();
+        }
       }
     }
 
     /* ---------------- Linear stock ---------------- */
 
     const LINEAR_STATS = ['bars', 'used', 'waste', 'utilization'];
+
+    function renderLinearCompareTable(comparison, unit) {
+      const rows = comparison.rows.map((row) => {
+        const winner = comparison.winner && row.id === comparison.winner.id;
+        const name = `${escapeHtml(row.label)}${row.current ? ' <span class="muted">on the form</span>' : ''}`;
+        if (!row.fits) {
+          return `<tr data-fits="false"><td>${name}</td><td colspan="3">${escapeHtml(row.error || 'At least one cut does not fit')}</td><td></td></tr>`;
+        }
+        const action = row.current
+          ? '<button type="button" disabled>Using this length</button>'
+          : `<button type="button">Use this length</button>`;
+        const apply = row.current ? '' : ` data-apply-stock data-length="${row.length}"`;
+        return `<tr data-fits="true" data-winner="${winner}"${apply}>
+            <td>${name}${winner ? ' <span class="winner-tag">buy this</span>' : ''}</td>
+            <td>${row.bars}</td>
+            <td>${row.buyLength.toFixed(2)} ${escapeHtml(unit)}</td>
+            <td>${(row.utilization * 100).toFixed(1)}%</td>
+            <td>${action}</td>
+          </tr>`;
+      }).join('');
+      return `<table class="compare-table">
+          <thead><tr><th>Stock</th><th>Pieces</th><th>Material bought</th><th>Used</th><th></th></tr></thead>
+          <tbody>${rows}</tbody>
+        </table>`;
+    }
+
+    function renderLinearComparison(cuts) {
+      const unit = $('unit').value;
+      const current = Number($('stock').value);
+      try {
+        const comparison = compareStockLengths({
+          cuts,
+          kerf: Number($('kerf').value),
+          unit,
+          current: current > 0 ? current : null,
+        });
+        $('linear-compare').innerHTML = renderLinearCompareTable(comparison, unit);
+        $('linear-compare-copy').disabled = false;
+        $('linear-compare-copy').dataset.plan = formatStockComparison(comparison, { unit });
+      } catch (error) {
+        $('linear-compare').innerHTML = `<p class="empty">${escapeHtml(error.message)}</p>`;
+        $('linear-compare-copy').disabled = true;
+        $('linear-compare-copy').dataset.plan = '';
+      }
+    }
+
+    function clearLinearComparison() {
+      $('linear-compare').innerHTML = '<p class="empty">Enter required cuts to compare common stock lengths.</p>';
+      $('linear-compare-copy').disabled = true;
+      $('linear-compare-copy').dataset.plan = '';
+    }
 
     function renderLinear() {
       const unit = $('unit').value;
@@ -367,6 +533,7 @@ Top: 31.5 x 11.25 x 2</textarea>
           stockLength: $('stock').value,
           kerf: $('kerf').value,
         });
+        renderLinearComparison(parseCuts($('cuts').value));
         ready.linear = true;
       } catch (error) {
         $('headline').textContent = 'Check your list';
@@ -376,6 +543,11 @@ Top: 31.5 x 11.25 x 2</textarea>
         $('copy-plan').disabled = true;
         $('copy-plan').dataset.plan = '';
         ready.linear = false;
+        try {
+          renderLinearComparison(parseCuts($('cuts').value));
+        } catch {
+          clearLinearComparison();
+        }
       }
     }
 
@@ -425,7 +597,30 @@ Top: 31.5 x 11.25 x 2</textarea>
 
     wireCopy('sheet-copy', 'sheet-copy-status', 'sheet-copies');
     wireCopy('copy-plan', 'copy-status', 'copies');
+    wireCopy('sheet-compare-copy', 'sheet-compare-status', 'sheet-compares');
+    wireCopy('linear-compare-copy', 'linear-compare-status', 'compares');
     $('sheet-print').addEventListener('click', () => window.print());
+
+    function closestFromEvent(event, selector) {
+      const start = event.target instanceof Element ? event.target : event.target.parentElement;
+      return start?.closest(selector) ?? null;
+    }
+
+    $('sheet-compare').addEventListener('click', (event) => {
+      const row = closestFromEvent(event, '[data-apply-sheet]');
+      if (!row) return;
+      $('sheet-width').value = row.dataset.width;
+      $('sheet-height').value = row.dataset.height;
+      renderSheet();
+      if (ready.sheet) recordUsage(localStorage, optedOut(), 'sheet-compares');
+    });
+    $('linear-compare').addEventListener('click', (event) => {
+      const row = closestFromEvent(event, '[data-apply-stock]');
+      if (!row) return;
+      $('stock').value = row.dataset.length;
+      renderLinear();
+      if (ready.linear) recordUsage(localStorage, optedOut(), 'compares');
+    });
 
     // Opting out is not only "stop counting" — it clears what was already
     // counted, so the checkbox means what a visitor reads it to mean.

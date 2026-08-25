@@ -243,3 +243,173 @@ export function formatSheetPlan(result, { unit = 'in', sheetCost = null } = {}) 
   lines.push('Verify every dimension against your own stock and saw before cutting.');
   return lines.join('\n');
 }
+
+// Common sheet goods a lumberyard actually stocks. Dimensions are the face
+// the shop writes on the ticket (longer side first), not a second orientation
+// of the same panel — 96×48 and 48×96 are the same 4×8.
+export const COMMON_SHEET_SIZES = {
+  in: [
+    { id: '4x8', label: '4×8', width: 96, height: 48 },
+    { id: '5x8', label: '5×8', width: 96, height: 60 },
+    { id: '4x10', label: '4×10', width: 120, height: 48 },
+    { id: '5x5', label: '5×5', width: 60, height: 60 },
+    { id: '4x4', label: '4×4', width: 48, height: 48 },
+  ],
+  cm: [
+    { id: '244x122', label: '244 × 122 cm', width: 244, height: 122 },
+    { id: '250x125', label: '250 × 125 cm', width: 250, height: 125 },
+    { id: '305x122', label: '305 × 122 cm', width: 305, height: 122 },
+    { id: '152x152', label: '152 × 152 cm', width: 152.5, height: 152.5 },
+    { id: '122x122', label: '122 × 122 cm', width: 122, height: 122 },
+  ],
+  mm: [
+    { id: '2440x1220', label: '2440 × 1220 mm', width: 2440, height: 1220 },
+    { id: '2500x1250', label: '2500 × 1250 mm', width: 2500, height: 1250 },
+    { id: '3050x1220', label: '3050 × 1220 mm', width: 3050, height: 1220 },
+    { id: '1525x1525', label: '1525 × 1525 mm', width: 1525, height: 1525 },
+    { id: '1220x1220', label: '1220 × 1220 mm', width: 1220, height: 1220 },
+  ],
+};
+
+export function sameSheetSize(a, b) {
+  if (!a || !b) return false;
+  return (
+    (Math.abs(a.width - b.width) < EPS && Math.abs(a.height - b.height) < EPS)
+    || (Math.abs(a.width - b.height) < EPS && Math.abs(a.height - b.width) < EPS)
+  );
+}
+
+function catalogForUnit(unit) {
+  return COMMON_SHEET_SIZES[unit] || COMMON_SHEET_SIZES.in;
+}
+
+function rankSheetRows(a, b) {
+  // A size that cannot take the whole list is not a buying option, even if
+  // the leftover pieces make its purchased area look small.
+  if (a.fits !== b.fits) return a.fits ? -1 : 1;
+  if (Math.abs(a.buyArea - b.buyArea) > EPS) return a.buyArea - b.buyArea;
+  if (a.sheets !== b.sheets) return a.sheets - b.sheets;
+  if (Math.abs(a.wasteArea - b.wasteArea) > EPS) return a.wasteArea - b.wasteArea;
+  return b.utilization - a.utilization;
+}
+
+function packSheetCandidate(size, { panels, kerf, trim, allowRotation, pricePerArea }) {
+  try {
+    const result = optimizeSheets({
+      sheetWidth: size.width,
+      sheetHeight: size.height,
+      kerf,
+      trim,
+      panels,
+      allowRotation,
+    });
+    const sheetArea = size.width * size.height;
+    const buyArea = result.sheets.length * sheetArea;
+    const cost = Number.isFinite(pricePerArea) && pricePerArea > 0 ? buyArea * pricePerArea : null;
+    return {
+      id: size.id,
+      label: size.label,
+      width: size.width,
+      height: size.height,
+      current: Boolean(size.current),
+      sheets: result.sheets.length,
+      oversize: result.oversize.length,
+      wasteArea: result.wasteArea,
+      utilization: result.utilization,
+      buyArea,
+      cost,
+      fits: result.oversize.length === 0 && result.sheets.length > 0,
+    };
+  } catch (error) {
+    return {
+      id: size.id,
+      label: size.label,
+      width: size.width,
+      height: size.height,
+      current: Boolean(size.current),
+      sheets: Infinity,
+      oversize: panels.length,
+      wasteArea: Infinity,
+      utilization: 0,
+      buyArea: Infinity,
+      cost: null,
+      fits: false,
+      error: error.message,
+    };
+  }
+}
+
+/**
+ * Packs the same parts list onto the sheet sizes a lumberyard stocks, plus
+ * the size already on the form when it is not one of those.
+ *
+ * Ranked by purchased area (the money) among sizes that take every piece.
+ * `pricePerArea` is optional: when the shop has a price on their current
+ * sheet, divide it by that sheet's area so every size is compared at the
+ * same dollars-per-square-unit rather than the same dollars-per-sheet.
+ */
+export function compareSheetSizes({
+  panels,
+  kerf = 0,
+  trim = 0,
+  allowRotation = true,
+  unit = 'in',
+  current = null,
+  pricePerArea = null,
+}) {
+  if (!Array.isArray(panels) || panels.length === 0) throw new Error('Add at least one panel');
+
+  const sizes = catalogForUnit(unit).map((size) => ({ ...size }));
+  const currentUsable = current && current.width > 0 && current.height > 0;
+  if (currentUsable) {
+    const match = sizes.find((size) => sameSheetSize(size, current));
+    if (match) {
+      match.current = true;
+    } else {
+      sizes.unshift({
+        id: 'current',
+        label: 'Your sheet',
+        width: current.width,
+        height: current.height,
+        current: true,
+      });
+    }
+  }
+
+  const options = { panels, kerf, trim, allowRotation, pricePerArea };
+  const rows = sizes.map((size) => packSheetCandidate(size, options)).sort(rankSheetRows);
+  const winner = rows.find((row) => row.fits) || null;
+  return { unit, rows, winner };
+}
+
+/** Plain-text comparison for a shop note or supplier call. */
+export function formatSheetComparison(comparison, { unit = 'in' } = {}) {
+  const usedUnit = comparison.unit || unit;
+  const lines = [
+    `Sheet size comparison (${usedUnit}) — ranked by material you would buy`,
+    '',
+  ];
+  for (const row of comparison.rows) {
+    const marker = comparison.winner && row.id === comparison.winner.id ? ' ← buy this' : '';
+    const yours = row.current ? ' (the size on the form)' : '';
+    if (row.error) {
+      lines.push(`${row.label}${yours}: cannot pack — ${row.error}`);
+      continue;
+    }
+    if (!row.fits) {
+      lines.push(
+        `${row.label}${yours}: ${row.oversize} piece${row.oversize === 1 ? '' : 's'} do not fit a ${round(row.width)} × ${round(row.height)} ${usedUnit} sheet`,
+      );
+      continue;
+    }
+    const cost = row.cost != null ? `; estimated material ${round(row.cost)}` : '';
+    lines.push(
+      `${row.label}${yours}: ${row.sheets} sheet${row.sheets === 1 ? '' : 's'} of ${round(row.width)} × ${round(row.height)} ${usedUnit}`
+      + ` (${round(row.buyArea)} sq ${usedUnit} bought, ${(row.utilization * 100).toFixed(1)}% used, ${round(row.wasteArea)} sq ${usedUnit} offcut)${cost}${marker}`,
+    );
+  }
+  lines.push('');
+  lines.push('Estimated cost uses the same price per square unit as the sheet on the form. Confirm the yard’s actual price before you buy.');
+  lines.push('Verify every dimension against your own stock and saw before cutting.');
+  return lines.join('\n');
+}

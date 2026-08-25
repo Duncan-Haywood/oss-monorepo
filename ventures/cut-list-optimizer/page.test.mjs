@@ -77,7 +77,7 @@ test('every element the script reaches for exists in the markup', () => {
 });
 
 test('inputs and result fields for the primary journey are present', () => {
-  for (const id of ['stock', 'kerf', 'unit', 'cuts', 'headline', 'message', 'bars', 'used', 'waste', 'utilization', 'plan', 'copy-plan', 'copy-status', 'optout']) {
+  for (const id of ['stock', 'kerf', 'unit', 'cuts', 'headline', 'message', 'bars', 'used', 'waste', 'utilization', 'plan', 'copy-plan', 'copy-status', 'optout', 'linear-compare-block', 'linear-compare', 'linear-compare-copy', 'linear-compare-status']) {
     assert.ok(declaredIds.has(id), `#${id} is missing from index.html`);
   }
 });
@@ -99,6 +99,7 @@ test('the sheet-goods inputs and result fields are present', () => {
     'sheet-rotate', 'sheet-parts', 'sheet-headline', 'sheet-message', 'sheet-count',
     'sheet-utilization', 'sheet-used', 'sheet-waste', 'sheet-total-cost', 'sheet-oversize',
     'sheet-copy', 'sheet-print', 'sheet-copy-status', 'sheet-diagrams',
+    'sheet-compare-block', 'sheet-compare', 'sheet-compare-copy', 'sheet-compare-status',
   ]) {
     assert.ok(declaredIds.has(id), `#${id} is missing from index.html`);
   }
@@ -132,6 +133,15 @@ test('every module the page imports exists and exports what it names', async () 
       assert.equal(typeof module[name], 'function', `${specifier} does not export ${name}`);
     }
   }
+});
+
+test('the size-comparison tables are present and their apply buttons escape labels', () => {
+  assert.match(markup, /Which sheet size should you buy\?/, 'sheet size comparison heading is missing');
+  assert.match(markup, /Which board length should you buy\?/, 'stock length comparison heading is missing');
+  assert.match(scriptSource, /escapeHtml\(row\.label\)/, 'comparison row labels must be escaped');
+  assert.match(scriptSource, /data-apply-sheet/, 'sheet comparison has no apply action');
+  assert.match(scriptSource, /data-apply-stock/, 'linear comparison has no apply action');
+  assert.match(scriptSource, /closestFromEvent/, 'comparison apply does not handle clicks on row text');
 });
 
 test('user-supplied part labels are escaped before they reach innerHTML', () => {

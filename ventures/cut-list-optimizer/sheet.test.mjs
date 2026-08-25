@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { parsePanels, optimizeSheets, formatSheetPlan, MAX_PANELS } from './sheet.mjs';
+import { parsePanels, optimizeSheets, formatSheetPlan, compareSheetSizes, formatSheetComparison, sameSheetSize, MAX_PANELS } from './sheet.mjs';
 
 const EPS = 1e-6;
 
@@ -262,4 +262,98 @@ test('the plan names the pieces that did not fit', () => {
     panels: parsePanels('Countertop: 120 x 60\nShelf: 24 x 12'),
   });
   assert.match(formatSheetPlan(result, { unit: 'in' }), /Does not fit on a sheet[\s\S]*Countertop: 120\.00 × 60\.00 in/);
+});
+
+test('treats 4×8 and 8×4 as the same sheet', () => {
+  assert.equal(sameSheetSize({ width: 96, height: 48 }, { width: 48, height: 96 }), true);
+  assert.equal(sameSheetSize({ width: 96, height: 48 }, { width: 60, height: 60 }), false);
+});
+
+test('compares common sheet sizes and ranks by purchased area among sizes that fit', () => {
+  // One 24×24 tile fits a 4×4 and a 4×8. Buying the 4×8 wastes a half-sheet
+  // the shop did not need — that is the decision this comparison exists for.
+  const comparison = compareSheetSizes({
+    panels: parsePanels('Tile: 24 x 24'),
+    kerf: 0,
+    unit: 'in',
+    current: { width: 96, height: 48 },
+  });
+  const fourByEight = comparison.rows.find((row) => row.id === '4x8');
+  const fourByFour = comparison.rows.find((row) => row.id === '4x4');
+  assert.ok(fourByEight.fits && fourByFour.fits);
+  assert.equal(fourByEight.sheets, 1);
+  assert.equal(fourByFour.sheets, 1);
+  assert.ok(fourByFour.buyArea < fourByEight.buyArea);
+  assert.equal(fourByEight.current, true);
+  assert.equal(comparison.winner.id, '4x4');
+  for (const row of comparison.rows) {
+    if (!row.fits) assert.ok(comparison.rows.indexOf(row) > comparison.rows.indexOf(comparison.winner));
+  }
+});
+
+test('a size that cannot take every piece loses to one that can, even with less area', () => {
+  const comparison = compareSheetSizes({
+    panels: parsePanels('Door: 72 x 24 x 2'),
+    kerf: 0,
+    unit: 'in',
+    current: { width: 96, height: 48 },
+  });
+  const fourByFour = comparison.rows.find((row) => row.id === '4x4');
+  const fourByEight = comparison.rows.find((row) => row.id === '4x8');
+  assert.equal(fourByFour.fits, false);
+  assert.equal(fourByEight.fits, true);
+  assert.equal(comparison.winner.id, fourByEight.id);
+  assert.ok(comparison.rows.indexOf(fourByEight) < comparison.rows.indexOf(fourByFour));
+});
+
+test('includes a custom current size that is not in the catalog', () => {
+  const comparison = compareSheetSizes({
+    panels: parsePanels('10 x 10'),
+    unit: 'in',
+    current: { width: 36, height: 36 },
+  });
+  const custom = comparison.rows.find((row) => row.id === 'current');
+  assert.ok(custom);
+  assert.equal(custom.width, 36);
+  assert.equal(custom.height, 36);
+  assert.equal(custom.current, true);
+  assert.equal(custom.fits, true);
+});
+
+test('estimates cost from price per square unit, not per sheet', () => {
+  const comparison = compareSheetSizes({
+    panels: parsePanels('24 x 24 x 4'),
+    kerf: 0,
+    unit: 'in',
+    current: { width: 96, height: 48 },
+    pricePerArea: 62 / (96 * 48),
+  });
+  const fourByEight = comparison.rows.find((row) => row.id === '4x8');
+  assert.ok(Math.abs(fourByEight.cost - 62) < 1e-6);
+});
+
+test('formats a comparison a shop can read to the yard', () => {
+  const comparison = compareSheetSizes({
+    panels: parsePanels('Shelf: 30 x 12 x 2'),
+    kerf: 0.125,
+    unit: 'in',
+    current: { width: 96, height: 48 },
+    pricePerArea: 62 / (96 * 48),
+  });
+  const text = formatSheetComparison(comparison, { unit: 'in' });
+  assert.match(text, /Sheet size comparison \(in\)/);
+  assert.match(text, /4×8 \(the size on the form\)/);
+  assert.match(text, /← buy this/);
+  assert.match(text, /estimated material/);
+  assert.match(text, /Confirm the yard/);
+});
+
+test('the same parts list always ranks sizes the same way', () => {
+  const run = () => compareSheetSizes({
+    panels: parsePanels('A: 30 x 20 x 3\nB: 12 x 8 x 5'),
+    kerf: 0.125,
+    unit: 'in',
+    current: { width: 96, height: 48 },
+  });
+  assert.deepEqual(run(), run());
 });

@@ -5,7 +5,7 @@ Cut List Optimizer is a free browser tool for woodworkers, sign shops, and maker
 - **Sheet goods** — plywood, MDF, acrylic, ACM, coroplast. Paste your parts and get a labelled layout diagram for every sheet, the offcuts worth racking, and what the material will cost.
 - **Linear stock** — boards, extrusion, trim, tube. Paste your lengths and get a bar-by-bar plan.
 
-Both account for saw kerf, both are deterministic, and both run entirely on your own device.
+Both account for saw kerf, both are deterministic, and both run entirely on your own device. After the plan, the page ranks the sheet sizes and board lengths a lumberyard actually stocks — 4×8 vs 5×5 vs 4×10, or 8 ft vs 10 ft vs 12 ft — by the material you would buy for the same list.
 
 Serve this directory as static files — for example `python3 -m http.server` in this folder, then open `http://localhost:8000/`. The page loads its logic as ES modules, which browsers refuse to fetch from a `file://` path, so opening `index.html` straight off disk leaves the calculator blank.
 
@@ -26,6 +26,8 @@ Enter the sheet size, your saw kerf, and one part per line:
 
 **Copy cut plan** puts a plain-text version on the clipboard for a job ticket or shop note. **Print** produces a paper copy of the diagrams with the controls hidden.
 
+**Which sheet size should you buy?** packs the same parts onto 4×8, 5×8, 4×10, 5×5, and 4×4 (or the metric equivalents) and ranks them by purchased area. A size that cannot take every piece loses, even if the leftover bits make its footage look small. **Use this size** writes the winner onto the form so the diagrams match the buying decision. If you entered a sheet price, the comparison estimates cost at the same price per square unit — not the same price per sheet — and says so. **Copy size comparison** is the version you read to the yard.
+
 ### How the layouts are produced, and what that means for you
 
 Every cut in a sheet plan runs edge to edge across whatever is left of the sheet — a **guillotine** layout. That is not a simplification, it is what a table saw, track saw, or panel saw can physically do. Nesting layouts that need an interior cut score better on paper and cannot be cut on the machines this tool's users own.
@@ -36,11 +38,13 @@ The plan is a **heuristic**, not a proof. It is not guaranteed to be the best po
 
 Kerf and edge trim are counted as **waste**, not as usable material, so the utilization figure is the honest one. Pieces that cannot fit a sheet in any allowed orientation are reported separately rather than dropped, so one mistyped line never hides a usable plan for the rest of the list.
 
-**Known limitations:** guillotine layouts only, so a shop with a CNC router could nest more tightly; one sheet size per plan, so mixed stock needs separate runs; no thickness or material tracking, so a plan is per material, per thickness.
+**Known limitations:** guillotine layouts only, so a shop with a CNC router could nest more tightly; one sheet size per *layout*, so a job that mixes 4×8 and 5×5 still needs two runs (the comparison only tells you which single size to buy); no thickness or material tracking, so a plan is per material, per thickness. Complementary work already in flight: draft recovery (#1399) and rejecting non-finite measurements (#1401). This comparison does not persist a draft and does not change packing validation.
 
 ## Linear stock
 
 Enter one required length per line. Add `x quantity` when several identical pieces are needed, such as `24 x 3`. The deterministic first-fit decreasing plan is a planning aid, not a guarantee of the optimal arrangement. Use **Copy cut plan** to put a plain-text version into a job ticket or shop note; it stays in your browser and is not uploaded.
+
+**Which board length should you buy?** packs the same cuts onto 8 ft, 10 ft, 12 ft, and 16 ft stock (or the metric / feet equivalents) and ranks them by purchased length. An 8 ft stick wins over a 12 ft stick when both cover the list with one bar. **Use this length** writes that size onto the form.
 
 ## Privacy
 
@@ -50,17 +54,19 @@ Everything runs in the browser. The cut list never leaves your device, there are
 | --- | --- |
 | `cut-list-optimizer-runs` | A linear cut plan was calculated from a settled edit |
 | `cut-list-optimizer-copies` | A linear plan was copied out for a job ticket |
+| `cut-list-optimizer-compares` | A stock-length comparison was copied or applied to the form |
 | `cut-list-optimizer-sheet-runs` | A sheet layout was calculated from a settled edit |
 | `cut-list-optimizer-sheet-copies` | A sheet plan was copied out for a job ticket |
+| `cut-list-optimizer-sheet-compares` | A sheet-size comparison was copied or applied to the form |
 
-Keeping them apart is what makes the numbers readable: `runs` shows the tool was used, `copies` shows a plan was good enough to carry into the shop, and the `sheet-` pair shows which half of the product people come back for. None of the counters records the cut list itself — no dimension, label, quantity, or price — and nothing is transmitted.
+Keeping them apart is what makes the numbers readable: `runs` shows the tool was used, `copies` shows a plan was good enough to carry into the shop, the `sheet-` pair shows which half of the product people come back for, and the `compares` pair shows the buying-decision step was used. None of the counters records the cut list itself — no dimension, label, quantity, or price — and nothing is transmitted.
 
 Counting is skipped entirely when the browser sends Do Not Track or Global Privacy Control. Ticking the footer checkbox both stops counting and **clears the counts already kept**, which is what the label promises.
 
 ## Development
 
 ```sh
-node --test             # 51 tests: sheet, calc, usage, and page structure
+node --test             # sheet, calc, usage, and page structure
 python3 -m http.server  # then verify the page at http://localhost:8000/
 ```
 
