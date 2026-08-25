@@ -909,3 +909,38 @@ ventures:
       Pass: output is a planning floor from user-supplied assumptions, not
       financial advice or a guarantee of income, tax treatment, or contract
       enforceability; all data stays in the browser.
+
+  - slug: cabinet-refinishing-bid-calculator
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 7
+      gross_margin: 10
+      defensibility: 5
+      distribution: 7
+    composite: 6.667
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      There is no AI anywhere in the product. The value is a domain model —
+      doors versus drawer fronts, finish-method labor, and a dark-to-light
+      extra coat — that is arithmetic, and adding inference to it would
+      only make the result less checkable.
+    basis: >-
+      Graduated on 2026-08-25 as a browser-local kitchen cabinet
+      refinishing bid calculator. Distinct from interior painting (walls
+      by the square foot): this prices millwork — removable pieces, boxes
+      that stay on the wall, and every hinge. Defensibility 5 because the
+      door/drawer/frame/hardware split encodes how the trade actually
+      loses money, not a published fee schedule. Distribution 7: "how
+      much to charge to paint kitchen cabinets" and "cabinet refinishing
+      cost per door" are operator queries with a real job on the line.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Pass: the output is arithmetic on the contractor's own inputs, never
+      a recommended market price, a paint specification, or an adhesion
+      warranty. Starting hours and coverage are labelled ballpark figures,
+      and nothing the user enters leaves the browser.
