@@ -3,12 +3,12 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Shopify Fee Calculator | Shopify Payments vs PayPal Profit</title>
-  <meta name="description" content="Free Shopify fee calculator: see order profit after Shopify Payments or PayPal/Stripe, including the extra Shopify third-party transaction fee, shipping, and cost of goods. Compare both paths on the same order.">
+  <title>Shopify Fee Calculator | Payments vs PayPal, and when Grow pays</title>
+  <meta name="description" content="Free Shopify fee calculator: see order profit after Shopify Payments or PayPal/Stripe, including the extra Shopify third-party transaction fee. Then compare Basic, Grow, Advanced, and Plus at your monthly volume.">
   <meta name="robots" content="index, follow">
   <link rel="canonical" href=".">
-  <meta property="og:title" content="Shopify Fee Calculator — Payments vs PayPal">
-  <meta property="og:description" content="See what a Shopify order really leaves after fees — and how much extra PayPal or Stripe costs on your plan.">
+  <meta property="og:title" content="Shopify Fee Calculator — Payments vs PayPal, plan upgrade volume">
+  <meta property="og:description" content="See what a Shopify order really leaves after fees, and how many orders it takes for Grow or Advanced to pay for itself.">
   <meta property="og:type" content="website">
   <script type="application/ld+json">
   {
@@ -18,7 +18,7 @@
     "applicationCategory": "BusinessApplication",
     "operatingSystem": "Any (runs in a web browser)",
     "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
-    "featureList": "Shopify Payments vs third-party comparison, third-party transaction fee, net profit, margin, ROI, break-even price, target-margin price"
+    "featureList": "Shopify Payments vs third-party comparison, third-party transaction fee, net profit, margin, ROI, break-even price, target-margin price, Basic vs Grow vs Advanced vs Plus at monthly volume"
   }
   </script>
   <script type="application/ld+json">
@@ -40,6 +40,14 @@
         "acceptedAnswer": {
           "@type": "Answer",
           "text": "Add the item price and shipping charged. Apply the payment-path rates that apply to you: Shopify Payments percentage plus fixed fee, or the third-party processor rates plus any Shopify third-party transaction fee. Subtract cost of goods, shipping you pay, packaging, and a share of the monthly Shopify plan. What remains is the order's net contribution."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "When does upgrading from Shopify Basic to Grow pay for itself?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Grow costs more each month but usually charges a lower Shopify Payments rate and a lower third-party transaction fee. The upgrade starts paying from rates alone when monthly orders times the per-order fee savings exceed the extra monthly plan cost. Enter your own rates and volume — this page does not publish Shopify's live schedule or recommend a plan."
         }
       }
     ]
@@ -86,7 +94,9 @@
     <p>
       Enter your plan, payment path, and costs to see net profit, margin, and
       the listing price that hits your target. The comparison shows the extra
-      Shopify third-party transaction fee that generic calculators skip.
+      Shopify third-party transaction fee that generic calculators skip, then
+      ranks Basic, Grow, Advanced, and Plus at your monthly volume so you can
+      see whether a higher plan’s lower rates cover its extra subscription.
       Everything runs in this page; nothing is uploaded.
     </p>
   </header>
@@ -143,6 +153,26 @@
         <tbody id="compare"></tbody>
       </table>
       <p class="note">Transparent arithmetic from your inputs — not Shopify's current fee schedule. Rates vary by country, plan, card type, and processor contract. Verify against your statements.</p>
+      <hr>
+      <h2>Same volume, every plan</h2>
+      <p id="planHeadline" class="note">Enter monthly orders to compare plans.</p>
+      <table>
+        <thead>
+          <tr>
+            <th>Plan</th>
+            <th>Monthly</th>
+            <th>Fees / order</th>
+            <th>Profit / month</th>
+            <th>vs current</th>
+          </tr>
+        </thead>
+        <tbody id="planCompare"></tbody>
+      </table>
+      <p id="planBreakEven" class="note"></p>
+      <p class="note">
+        <a href="basic-vs-grow.html">Should I upgrade from Shopify Basic to Grow?</a>
+        walks through that search question with the same arithmetic.
+      </p>
     </section>
   </main>
   <section class="faq" aria-labelledby="faq-heading">
@@ -157,8 +187,12 @@
     </p>
     <p>
       It does not recommend a price, a plan, or a processor, and it is not tax
-      or financial advice. The gap between paths is an arithmetic comparison
-      of the rates you entered.
+      or financial advice. The gap between paths, and the volume at which a
+      higher plan’s lower rates cover its extra monthly fee, are arithmetic
+      comparisons of the rates you entered.
+    </p>
+    <p>
+      <a href="basic-vs-grow.html">When does Shopify Grow beat Basic?</a>
     </p>
   </section>
   <footer>
@@ -169,7 +203,7 @@
     <p>Selling the same item somewhere else too? The <a href="../where-to-sell-calculator/">where-to-sell calculator</a> ranks your own store against eBay, Etsy, Amazon and a direct sale on one item.</p>
   </footer>
   <script type="module">
-    import { applyPlanPreset, calculateOrder } from "./calc.mjs";
+    import { applyPlanPreset, calculateOrder, comparePlans } from "./calc.mjs";
     import { recordUsage } from "./usage.mjs";
 
     const ids = [
@@ -178,6 +212,16 @@
       "otherCost", "monthlyPlan", "monthlyOrders", "targetMargin",
     ];
     const money = (value) => `$${value.toFixed(2)}`;
+    const signedMoney = (value) => {
+      if (Math.abs(value) < 0.005) return "same";
+      return value > 0 ? `+${money(value)}` : money(value);
+    };
+    const ordersLabel = (value) => {
+      if (!Number.isFinite(value)) return "never from rates alone";
+      if (value <= 0) return "already cheaper";
+      const rounded = Math.ceil(value - 1e-9);
+      return `${rounded} order${rounded === 1 ? "" : "s"}/month`;
+    };
 
     function paymentMethod() {
       return document.querySelector('input[name="paymentMethod"]:checked').value;
@@ -187,6 +231,7 @@
       return {
         ...Object.fromEntries(ids.map((id) => [id, document.getElementById(id).value])),
         paymentMethod: paymentMethod(),
+        planId: document.getElementById("plan").value,
       };
     }
 
@@ -216,6 +261,34 @@
         ].map(([name, path]) =>
           `<tr><td>${name}</td><td>${money(path.feeTotal)}</td><td>${money(path.profit)}</td><td>${path.margin.toFixed(1)}%</td></tr>`
         ).join("");
+
+        const comparison = comparePlans(readInput());
+        const current = comparison.plans.find((plan) => plan.isCurrent) ?? comparison.plans[0];
+        const best = comparison.plans.find((plan) => plan.isBest);
+        const pathLabel = comparison.paymentMethod === "third_party"
+          ? "PayPal / Stripe / other"
+          : "Shopify Payments";
+        const vsBest = best.monthlyProfit - current.monthlyProfit;
+        document.getElementById("planHeadline").textContent = best.id === current.id
+          ? `At ${comparison.monthlyOrders} orders/month on ${pathLabel}, ${current.label} leaves the most of the four illustrative plans.`
+          : `At ${comparison.monthlyOrders} orders/month on ${pathLabel}, ${best.label} leaves ${money(vsBest)} more this month than ${current.label}.`;
+        document.getElementById("planCompare").innerHTML = comparison.plans.map((plan) => {
+          const name = plan.isCurrent ? `${plan.label} (current)` : plan.label;
+          const mark = plan.isBest ? " ★" : "";
+          return `<tr><td>${name}${mark}</td><td>${money(plan.monthlyPlan)}</td><td>${money(plan.perOrderFees)}</td><td>${money(plan.monthlyProfit)}</td><td>${signedMoney(plan.vsCurrentMonthly)}</td></tr>`;
+        }).join("");
+        const nextUp = comparison.upgrades.find((step) => step.fromPlanId === current.id);
+        if (!nextUp) {
+          document.getElementById("planBreakEven").textContent =
+            "There is no higher illustrative plan above the one you selected.";
+        } else if (nextUp.neverPays) {
+          document.getElementById("planBreakEven").textContent =
+            `The next plan’s rates do not save enough per order to cover its extra ${money(nextUp.extraMonthly)} monthly fee.`;
+        } else {
+          const toLabel = comparison.plans.find((plan) => plan.id === nextUp.toPlanId)?.label ?? nextUp.toPlanId;
+          document.getElementById("planBreakEven").textContent =
+            `${toLabel} starts covering its extra ${money(nextUp.extraMonthly)} / month at ${ordersLabel(nextUp.breakEvenOrders)} on this payment path (about ${money(nextUp.feeSavings)} less in fees per order).`;
+        }
       } catch (error) {
         document.getElementById("profit").textContent = error.message;
         document.getElementById("profit").className = "hero-number error";
@@ -224,6 +297,9 @@
           document.getElementById(id).textContent = "";
         });
         document.getElementById("compare").innerHTML = "";
+        document.getElementById("planCompare").innerHTML = "";
+        document.getElementById("planHeadline").textContent = "Fix the inputs to compare plans.";
+        document.getElementById("planBreakEven").textContent = "";
       }
     }
 
@@ -235,21 +311,24 @@
       document.getElementById("monthlyPlan").value = filled.monthlyPlan;
       update();
       recordUsage(localStorage, document.getElementById("usageOptOut").checked, "plan_preset_applied");
+      recordUsage(localStorage, document.getElementById("usageOptOut").checked, "plan_upgrade_compared");
     }
 
     document.getElementById("plan").addEventListener("change", applyPlan);
     ids.forEach((id) => document.getElementById(id).addEventListener("input", update));
     ids.forEach((id) => document.getElementById(id).addEventListener("change", () => {
-      recordUsage(
-        localStorage,
-        document.getElementById("usageOptOut").checked,
-        id === "targetMargin" ? "target_margin_calculated" : "order_profit_calculated",
-      );
+      const event = id === "targetMargin"
+        ? "target_margin_calculated"
+        : id === "monthlyOrders"
+          ? "plan_upgrade_compared"
+          : "order_profit_calculated";
+      recordUsage(localStorage, document.getElementById("usageOptOut").checked, event);
     }));
     document.querySelectorAll('input[name="paymentMethod"]').forEach((el) => {
       el.addEventListener("change", () => {
         update();
         recordUsage(localStorage, document.getElementById("usageOptOut").checked, "payment_path_compared");
+        recordUsage(localStorage, document.getElementById("usageOptOut").checked, "plan_upgrade_compared");
       });
     });
     document.getElementById("usageOptOut").addEventListener("change", update);

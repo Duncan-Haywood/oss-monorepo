@@ -1,5 +1,5 @@
 name: shopify-fee-calculator
-description: A private browser calculator for Shopify merchants to see order profit after Shopify Payments or third-party processor fees, the extra Shopify transaction fee, shipping, and cost of goods — and to compare the two payment paths on the same order.
+description: A private browser calculator for Shopify merchants to see order profit after Shopify Payments or third-party processor fees, the extra Shopify transaction fee, shipping, and cost of goods — and to compare payment paths and Shopify plans at the same monthly volume.
 stage: prototype
 owner: duncan
 hypotheses:
@@ -8,6 +8,10 @@ hypotheses:
     checked: null
     evidence: customer-contact
   - claim: Seeing the extra cost of a third-party processor, plus the listing price needed for a target margin, changes a merchant's payment-method or pricing decision.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: Merchants deciding whether to upgrade from Basic to Grow will use a volume break-even (extra monthly plan cost divided by per-order fee savings) more than a single-plan fee page.
     status: untested
     checked: null
     evidence: customer-contact
