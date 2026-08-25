@@ -134,3 +134,70 @@ test('rejects repricing offsets that cannot produce a listable price', () => {
   assert.throws(() => calculateRepricingTable({ price: 40 }, ['abc']), /greater than -100/);
   assert.throws(() => calculateRepricingTable({ price: -1 }, [0]), /Item price/);
 });
+
+test('expected profit equals completed-sale profit when no orders come back', () => {
+  const r = calculateOrder({
+    price: 40, shippingCharged: 6, finalValueRate: 13.25, fixedFee: 0.3,
+    costOfGoods: 12, shippingCost: 5, packagingCost: 1,
+  });
+  near(r.expectedProfit, r.profit, 'zero return rate leaves completed-sale profit');
+  near(r.expectedProfitDelta, 0, 'no expected-profit change');
+  near(r.returnProfit, -(5 + 1), 'one return still eats the outbound label and packaging');
+  near(r.cashEatenPerReturn, 6, 'cash eaten per returned unit');
+});
+
+test('blends completed-sale profit with the cash a return still eats', () => {
+  // Completed sale on the documented $40 order is $21.605. A return that
+  // refunds every fee still eats the $5 label, $1 packaging, and $7 return
+  // postage — $13 — so a 10% return rate is 0.9 * 21.605 + 0.1 * -13.
+  const r = calculateOrder({
+    price: 40, shippingCharged: 6, finalValueRate: 13.25, fixedFee: 0.3,
+    costOfGoods: 12, shippingCost: 5, packagingCost: 1,
+    returnRatePercent: 10, returnShippingCost: 7, feeRefundOnReturnPercent: 100,
+  });
+  near(r.profit, 21.605, 'completed-sale profit is unchanged');
+  near(r.returnProfit, -13, 'return profit');
+  near(r.expectedProfit, 0.9 * 21.605 + 0.1 * -13, 'expected profit');
+  near(r.expectedProfitDelta, r.expectedProfit - r.profit, 'delta vs completed sale');
+  near(r.expectedRevenue, 46 * 0.9, 'expected revenue after refunds');
+  near(r.cashEatenPerReturn, 13, 'cash eaten per return');
+  near(r.breakEvenReturnRate, 21.605 / (21.605 - -13) * 100, 'break-even return rate');
+});
+
+test('unrefunded fees stay in the return loss', () => {
+  const r = calculateOrder({
+    price: 100, shippingCharged: 0, finalValueRate: 10, fixedFee: 0.4,
+    shippingCost: 0, packagingCost: 0, otherCost: 0,
+    returnRatePercent: 100, returnShippingCost: 0, feeRefundOnReturnPercent: 0,
+  });
+  near(r.feeTotal, 10.4, 'fees on the completed sale');
+  near(r.returnProfit, -10.4, 'all fees stay with the seller');
+  near(r.expectedProfit, -10.4, 'every order comes back');
+});
+
+test('break-even return rate is zero when the completed sale already loses', () => {
+  const r = calculateOrder({
+    price: 10, shippingCharged: 0, finalValueRate: 13.25, fixedFee: 0.3,
+    costOfGoods: 20, shippingCost: 5,
+  });
+  assert.ok(r.profit < 0, 'losing sale');
+  assert.equal(r.breakEvenReturnRate, 0);
+});
+
+test('rejects a return rate or fee-refund rate above 100%', () => {
+  assert.throws(() => calculateOrder({ price: 10, returnRatePercent: 101 }), /at most 100/);
+  assert.throws(() => calculateOrder({ price: 10, feeRefundOnReturnPercent: 101 }), /at most 100/);
+});
+
+test('carries expected return profit into each repricing row', () => {
+  const input = {
+    price: 40, shippingCharged: 6, costOfGoods: 12, shippingCost: 5, packagingCost: 1,
+    returnRatePercent: 20, returnShippingCost: 4,
+  };
+  const rows = calculateRepricingTable(input, [0, 10]);
+  const current = calculateOrder(input);
+  const higher = calculateOrder({ ...input, price: 44 });
+  near(rows[0].expectedProfit, current.expectedProfit, 'current expected profit');
+  near(rows[1].expectedProfit, higher.expectedProfit, 'repriced expected profit');
+  assert.ok(rows[1].expectedProfit > rows[0].expectedProfit, 'a higher price still helps after returns');
+});

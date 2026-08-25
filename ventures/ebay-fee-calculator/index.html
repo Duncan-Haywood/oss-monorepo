@@ -4,10 +4,10 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>eBay Fee &amp; Profit Calculator | Reseller Margin and ROI</title>
-  <meta name="description" content="Calculate eBay order profit, margin, ROI, and break-even resale price after final value fee, per-order fee, promoted listings, shipping, and cost of goods — then compare nearby listing prices before you reprice.">
+  <meta name="description" content="Calculate eBay order profit, margin, ROI, and break-even resale price after fees, shipping, and cost of goods — then see what a return rate still leaves, and compare nearby listing prices before you reprice.">
   <meta property="og:title" content="eBay Fee &amp; Profit Calculator">
-  <meta property="og:description" content="See what an eBay sale really leaves after fees and your cost of goods — profit, margin, ROI, and break-even price.">
-  <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"eBay Fee & Profit Calculator","applicationCategory":"BusinessApplication","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"featureList":"eBay fee breakdown, net profit, margin, return on investment, break-even resale price, target-margin price, batch profit, repricing sensitivity table"}</script>
+  <meta property="og:description" content="See what an eBay sale really leaves after fees, cost of goods, and the returns that eat the label.">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"eBay Fee & Profit Calculator","applicationCategory":"BusinessApplication","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"featureList":"eBay fee breakdown, net profit, margin, return on investment, break-even resale price, target-margin price, batch profit, expected profit after returns, repricing sensitivity table"}</script>
   <style>
     :root { color-scheme: light; font-family: system-ui, sans-serif; color: #1d2530; background: #eef2f7; }
     body { max-width: 980px; margin: 0 auto; padding: 32px 18px; }
@@ -27,6 +27,7 @@
        profit, so the column is dropped rather than shown twice — that keeps the
        "vs your price" column on screen on a phone. */
     .sensitivity table.single-unit .unit { display: none; }
+    .sensitivity table.no-returns .after-returns { display: none; }
     .sensitivity th, .sensitivity td { padding: 9px 6px; text-align: right; border-bottom: 1px solid #e2e8f0; font-variant-numeric: tabular-nums; } .sensitivity th:first-child, .sensitivity td:first-child { text-align: left; }
     .sensitivity thead th { font-size: .8rem; letter-spacing: .03em; color: #4a5666; } .sensitivity tr.current { background: #eaf1fc; font-weight: 700; } .sensitivity .down { color: #a3391f; } .sensitivity .up { color: #1c6b34; }
     footer { margin-top: 25px; font-size: .82rem; color: #4a5666; } footer a { color: #386fd6; }
@@ -38,7 +39,7 @@
   <header>
     <p class="eyebrow">FOR EBAY RESELLERS</p>
     <h1>Know what each sale really leaves.</h1>
-    <p>Enter your eBay fees, shipping, and what you paid for the item to see net profit, margin, return on your invested cash, and the lowest resale price that still breaks even. Then compare nearby listing prices to see exactly what a price move is worth — before you list or reprice.</p>
+    <p>Enter your eBay fees, shipping, and what you paid for the item to see net profit, margin, return on your invested cash, and the lowest resale price that still breaks even. Then see what a realistic return rate still leaves — the outbound label and return postage usually stay with you — and compare nearby listing prices before you reprice.</p>
   </header>
   <main>
     <div class="layout">
@@ -57,6 +58,9 @@
           <label>Packaging cost <input id="packagingCost" type="number" min="0" step="0.01" value="1"></label>
           <label>Other per-order cost <input id="otherCost" type="number" min="0" step="0.01" value="0"></label>
           <label>Target net margin (%) <input id="targetMargin" type="number" min="0" max="99.99" step="0.1" value="20"></label>
+          <label>Expected return rate (%) <input id="returnRatePercent" type="number" min="0" max="100" step="0.1" value="10"></label>
+          <label>Return shipping you pay <input id="returnShippingCost" type="number" min="0" step="0.01" value="5"></label>
+          <label>Fees refunded on return (%) <input id="feeRefundOnReturnPercent" type="number" min="0" max="100" step="1" value="100"></label>
         </div>
       </section>
       <section class="result">
@@ -72,6 +76,9 @@
           <dt>Profit per unit</dt><dd id="unitProfit"></dd>
           <dt>Break-even item price</dt><dd id="breakEven"></dd>
           <dt>Price for target margin</dt><dd id="targetMarginPrice"></dd>
+          <dt>Expected profit after returns</dt><dd id="expectedProfit"></dd>
+          <dt>Cash one return still eats</dt><dd id="cashEatenPerReturn"></dd>
+          <dt>Return rate that zeros expected profit</dt><dd id="breakEvenReturnRate"></dd>
         </dl>
         <hr>
         <p class="note">Transparent arithmetic from your inputs — not a statement of eBay's current fee schedule. Fees vary by category, store subscription, and seller status.</p>
@@ -84,11 +91,15 @@
         <!-- The note sits outside the scrolling box so it wraps on a phone
              instead of being clipped with the table. -->
         <table id="scenarioTable" aria-describedby="sensitivityNote">
-          <thead><tr><th scope="col">Item price</th><th scope="col">Net profit</th><th scope="col">Net margin</th><th scope="col" class="unit">Profit per unit</th><th scope="col">vs your price</th></tr></thead>
+          <thead><tr><th scope="col">Item price</th><th scope="col">Net profit</th><th scope="col" class="after-returns">After returns</th><th scope="col">Net margin</th><th scope="col" class="unit">Profit per unit</th><th scope="col">vs your price</th></tr></thead>
           <tbody id="scenarios"></tbody>
         </table>
       </div>
       <p id="scenariosEmpty" class="note" hidden>Enter a valid item price to compare repricing options.</p>
+    </section>
+    <section class="sensitivity" id="returns">
+      <h2>If some come back</h2>
+      <p class="note">A completed sale can look fine and still lose money once returns start. This assumes the item comes back into inventory — so you do not lose the sourcing cost again — and that you refund the buyer. The outbound label, packaging, other cash, return postage, and any fees you do not get back stay with you. It is arithmetic from the rate you type, not a forecast of your category or a statement of eBay’s refund rules. <a href="do-ebay-returns-wipe-the-profit.html">Why a 10% return rate can erase a thin listing</a>.</p>
     </section>
   </main>
   <footer>
@@ -110,10 +121,12 @@
     function renderScenarios(input) {
       const rows = calculateRepricingTable(input);
       document.getElementById('scenarioTable').classList.toggle('single-unit', rows[0].quantity === 1);
+      document.getElementById('scenarioTable').classList.toggle('no-returns', Number(input.returnRatePercent) === 0);
       document.getElementById('scenarios').innerHTML = rows.map(row => `
         <tr class="${row.isCurrent ? 'current' : ''}">
           <td>${money(row.price)}${row.isCurrent ? ' (now)' : ''}</td>
           <td class="${row.profit < 0 ? 'down' : ''}">${money(row.profit)}</td>
+          <td class="after-returns ${row.expectedProfit < 0 ? 'down' : ''}">${money(row.expectedProfit)}</td>
           <td>${row.margin.toFixed(1)}%</td>
           <td class="unit">${money(row.unitProfit)}</td>
           <td class="${row.profitDelta > 0 ? 'up' : row.profitDelta < 0 ? 'down' : ''}">${row.isCurrent ? '—' : signedMoney(row.profitDelta)}</td>
@@ -142,6 +155,11 @@
         document.getElementById('unitProfit').textContent = money(result.unitProfit);
         document.getElementById('breakEven').textContent = Number.isFinite(result.breakEvenPrice) ? money(result.breakEvenPrice) : 'never';
         document.getElementById('targetMarginPrice').textContent = Number.isFinite(result.targetMarginPrice) ? money(result.targetMarginPrice) : 'unreachable';
+        document.getElementById('expectedProfit').textContent = money(result.expectedProfit);
+        document.getElementById('cashEatenPerReturn').textContent = money(result.cashEatenPerReturn);
+        document.getElementById('breakEvenReturnRate').textContent = Number.isFinite(result.breakEvenReturnRate)
+          ? `${result.breakEvenReturnRate.toFixed(1)}%`
+          : 'still pays at 100%';
       } catch (error) {
         document.getElementById('profit').textContent = error.message;
         document.getElementById('profit').className = 'hero-number negative';
@@ -154,6 +172,9 @@
         document.getElementById('unitProfit').textContent = '';
         document.getElementById('breakEven').textContent = '';
         document.getElementById('targetMarginPrice').textContent = '';
+        document.getElementById('expectedProfit').textContent = '';
+        document.getElementById('cashEatenPerReturn').textContent = '';
+        document.getElementById('breakEvenReturnRate').textContent = '';
         document.getElementById('scenarios').innerHTML = '';
         document.getElementById('scenariosEmpty').hidden = false;
       }
@@ -183,7 +204,7 @@
     }
     ids.forEach(id => document.getElementById(id).addEventListener('change', () => {
       saveInputs();
-      recordUsage(localStorage, document.getElementById('usageOptOut').checked, id === 'targetMargin' ? 'target_margin_calculated' : id === 'quantity' ? 'batch_calculated' : 'order_profit_calculated');
+      recordUsage(localStorage, document.getElementById('usageOptOut').checked, id === 'targetMargin' ? 'target_margin_calculated' : id === 'quantity' ? 'batch_calculated' : (id === 'returnRatePercent' || id === 'returnShippingCost' || id === 'feeRefundOnReturnPercent') ? 'return_rate_viewed' : 'order_profit_calculated');
     }));
     document.getElementById('usageOptOut').addEventListener('change', update);
     const actions = document.createElement('p');
