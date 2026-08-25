@@ -31,7 +31,7 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
-      - run: python3 -m unittest discover -s tests -v
+      - run: PYTHONPATH=. python3 -m unittest discover -s tests -v
 
   site-test:
     runs-on: ubuntu-latest
