@@ -153,11 +153,20 @@ products:
         signals:
           live_url_visitors: null
           quote_review_checked: 0
-        note: >-
-          Added a browser-local pre-send review that surfaces direct-cost,
-          target-gap, hidden-time, and revision-assumption observations. No
-          public URL yet; the feature counter stores only aggregate local
-          events and remains opt-out.
+         note: >-
+           Added a browser-local pre-send review that surfaces direct-cost,
+           target-gap, hidden-time, and revision-assumption observations. No
+           public URL yet; the feature counter stores only aggregate local
+           events and remains opt-out.
+       - as_of: 2026-08-25
+         signals:
+           live_url_visitors: null
+           local_review_saves: 0
+           local_review_deletes: 0
+         note: >-
+           Added browser-local history for up to 12 quote reviews. Saved fields
+           and derived numbers stay in localStorage; publishing remains
+           owner-gated, so public traffic is still unmeasured.
   - slug: etsy-profit-calculator
     surface: static-page-in-repo
     readings:

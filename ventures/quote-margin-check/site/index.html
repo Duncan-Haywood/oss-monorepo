@@ -104,6 +104,11 @@
   .sensitivity th:first-child, .sensitivity td:first-child { text-align: left; }
   .table-scroll { overflow-x: auto; }
   .actions { margin-top: 1rem; display: flex; gap: 0.5rem; flex-wrap: wrap; }
+  .history-list { margin: 0; padding: 0; list-style: none; }
+  .history-list li { display: flex; justify-content: space-between; gap: 1rem; align-items: center; border-top: 1px solid var(--border); padding: 0.7rem 0; }
+  .history-list li:first-child { border-top: 0; }
+  .history-meta { color: var(--muted); font-size: 0.85rem; }
+  .history-list button { padding: 0.25rem 0.5rem; font-size: 0.85rem; }
   button { font: inherit; padding: 0.5rem 0.9rem; border-radius: 6px; border: 1px solid var(--border); background: var(--bg); color: var(--fg); cursor: pointer; }
   button:hover { border-color: var(--accent); }
   footer { border-top: 1px solid var(--border); margin-top: 2rem; padding-top: 1.5rem; font-size: 0.85rem; color: var(--muted); }
@@ -184,8 +189,17 @@
 
     <div class="actions">
       <button type="button" id="copy-csv">Copy as CSV row</button>
+      <button type="button" id="save-history">Save this review locally</button>
       <span id="copy-status" class="hint" role="status" aria-live="polite"></span>
     </div>
+  </section>
+
+  <section aria-labelledby="history-heading">
+    <h2 id="history-heading">Saved reviews</h2>
+    <p class="hint">Keep up to 12 reviews in this browser to compare recurring proposals. Nothing is uploaded.</p>
+    <ul class="history-list" id="history-list"></ul>
+    <p class="hint" id="history-empty">No saved reviews yet.</p>
+    <div class="actions"><button type="button" id="clear-history">Clear saved reviews</button><span id="history-status" class="hint" role="status" aria-live="polite"></span></div>
   </section>
 
   <section aria-labelledby="about-heading">
@@ -253,6 +267,7 @@
   import { loadQuote, calculate, overrunScenarios } from "./calc.mjs";
   import { reviewQuote } from "./review.mjs";
   import { recordEvent, createReportCounter, isUsageCountingEnabled, setUsageCountingEnabled } from "./usage.mjs";
+  import { listHistory, saveHistory, deleteHistory, clearHistory } from "./history.mjs";
 
   // Counts settled quotes rather than keystrokes — see usage.mjs.
   const reportCounter = createReportCounter();
@@ -262,6 +277,9 @@
   const result = document.getElementById("result");
   const review = document.getElementById("review");
   const sensitivity = document.getElementById("sensitivity");
+  const historyList = document.getElementById("history-list");
+  const historyEmpty = document.getElementById("history-empty");
+  const historyStatus = document.getElementById("history-status");
 
   let lastReport = null;
 
@@ -376,6 +394,37 @@
     renderUsageStatus();
   });
   renderUsageStatus();
+
+  function renderHistory() {
+    const entries = listHistory();
+    historyEmpty.hidden = entries.length > 0;
+    historyList.innerHTML = entries.map((entry) => {
+      const date = new Date(entry.savedAt).toLocaleString();
+      const currency = escapeHtml(entry.quote.currency);
+      return `<li><span><strong>${currency} ${fmt(entry.quote.price)}</strong> <span class="history-meta">${date} · ${fmt(entry.report.effective_hourly_rate)}/hour · gap ${currency} ${fmt(entry.report.gap_to_target)}</span></span><button type="button" data-history-id="${escapeHtml(entry.id)}">Delete</button></li>`;
+    }).join("");
+  }
+  document.getElementById("save-history").addEventListener("click", () => {
+    if (!lastReport) { historyStatus.textContent = "Fix the inputs above first."; return; }
+    historyStatus.textContent = saveHistory(lastReport.quote, lastReport.r) ? "Saved only in this browser." : "This browser could not save the review.";
+    recordEvent("history_saved");
+    renderHistory();
+  });
+  historyList.addEventListener("click", (event) => {
+    const button = event.target.closest("[data-history-id]");
+    if (!button) return;
+    deleteHistory(button.dataset.historyId);
+    recordEvent("history_deleted");
+    historyStatus.textContent = "Saved review deleted.";
+    renderHistory();
+  });
+  document.getElementById("clear-history").addEventListener("click", () => {
+    clearHistory();
+    recordEvent("history_cleared");
+    historyStatus.textContent = "Saved reviews cleared.";
+    renderHistory();
+  });
+  renderHistory();
 </script>
 </body>
 </html>
