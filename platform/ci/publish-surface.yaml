@@ -187,6 +187,9 @@ workflows:
 - workflow: ubuntu-agent-server-ci.yml
   classification: none
   publishes: []
+- workflow: walk-in-tub-bid-calculator-ci.yml
+  classification: none
+  publishes: []
 - workflow: where-to-sell-calculator-ci.yml
   classification: none
   publishes: []
