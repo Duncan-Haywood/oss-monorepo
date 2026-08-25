@@ -266,16 +266,39 @@ def _jsonl_report(
     read_errors: list[dict[str, str]],
 ) -> str:
     """Build one line-delimited result per invoice or read error."""
-    lines = [
-        json.dumps(
-            {"status": "pass" if not errors else "fail", "file": path.as_posix(), "errors": errors},
-            separators=(",", ":"),
+    lines = []
+    for path, errors in reports:
+        fix_details: dict[str, dict[str, str | int]] = {}
+        for error in errors:
+            detail = fix_details.setdefault(
+                error["rule"],
+                {"rule": error["rule"], "occurrences": 0, "message": error["message"], "fix": error["fix"]},
+            )
+            detail["occurrences"] = int(detail["occurrences"]) + 1
+        lines.append(
+            json.dumps(
+                {
+                    "schema_version": 1,
+                    "status": "pass" if not errors else "fail",
+                    "file": path.as_posix(),
+                    "observations": len(errors),
+                    "fixes": [fix_details[rule] for rule in sorted(fix_details)],
+                    "errors": errors,
+                },
+                separators=(",", ":"),
+            )
         )
-        for path, errors in reports
-    ]
     lines.extend(
         json.dumps(
-            {"status": "read_error", "file": error["file"], "errors": [], "error": error["error"]},
+            {
+                "schema_version": 1,
+                "status": "read_error",
+                "file": error["file"],
+                "observations": 0,
+                "fixes": [],
+                "errors": [],
+                "error": error["error"],
+            },
             separators=(",", ":"),
         )
         for error in read_errors

@@ -108,9 +108,11 @@ includes the per-file `reports` array. Rule counts let a CI or ERP adapter show
 a compact defect summary without parsing human text.
 `--format jsonl` emits one compact JSON object per invoice (or read error),
 which is suitable for streaming directory results into CI or an ERP adapter
-without parsing an aggregate document. Each invoice record has `status`, `file`,
-and `errors`; read-error records also have `error`. The line-oriented mode uses
-the same privacy boundary and exit codes as JSON.
+without parsing an aggregate document. Each record has `schema_version`,
+`status`, `file`, `observations`, `fixes`, and `errors`; read-error records also
+have `error`. `fixes` is the per-invoice remediation queue grouped by rule, with
+occurrence counts, the check message, and recommended fix. The line-oriented
+mode uses the same privacy boundary and exit codes as JSON.
 `--format markdown` produces a reviewable report with filenames, rule IDs,
 observations, and fixes for single files and recursive directory scans. Batch
 reports also include a finding summary grouped by rule, so repeated defects can

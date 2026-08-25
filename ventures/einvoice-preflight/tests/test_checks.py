@@ -296,8 +296,23 @@ class ChecksTest(unittest.TestCase):
             records = [json.loads(line) for line in output.getvalue().splitlines()]
             self.assertEqual([record["file"] for record in records], ["fail.json", "pass.json"])
             self.assertEqual(records[0]["status"], "fail")
+            self.assertEqual(records[0]["schema_version"], 1)
+            self.assertEqual(records[0]["observations"], 1)
+            self.assertEqual(records[0]["fixes"], [{
+                "rule": "INV-017",
+                "occurrences": 1,
+                "message": "Gross total does not equal net plus tax.",
+                "fix": "Set gross total to 238.00 or correct the totals.",
+            }])
             self.assertEqual(records[0]["errors"][0]["rule"], "INV-017")
-            self.assertEqual(records[1], {"status": "pass", "file": "pass.json", "errors": []})
+            self.assertEqual(records[1], {
+                "schema_version": 1,
+                "status": "pass",
+                "file": "pass.json",
+                "observations": 0,
+                "fixes": [],
+                "errors": [],
+            })
             self.assertNotIn("INV-1", output.getvalue())
 
     def test_cli_emits_privacy_safe_summary(self):
@@ -325,8 +340,11 @@ class ChecksTest(unittest.TestCase):
             with contextlib.redirect_stdout(output):
                 self.assertEqual(main([directory, "--format", "jsonl"]), 2)
             record = json.loads(output.getvalue())
+            self.assertEqual(record["schema_version"], 1)
             self.assertEqual(record["status"], "read_error")
             self.assertEqual(record["file"], "broken.json")
+            self.assertEqual(record["observations"], 0)
+            self.assertEqual(record["fixes"], [])
             self.assertEqual(record["errors"], [])
             self.assertIn("Expecting value", record["error"])
 
