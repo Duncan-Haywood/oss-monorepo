@@ -213,7 +213,24 @@ class VerifyCommandTests(unittest.TestCase):
             artifact = _tar_gz(Path(directory) / "nightly.tar.gz")
             usage = Path(directory) / "usage.json"
             self._run(["verify", str(artifact), "--usage-file", str(usage)])
-            self.assertEqual(json.loads(usage.read_text())["artifact_verified"], 1)
+            self.assertEqual(json.loads(usage.read_text())["artifact_intact"], 1)
+
+    def test_json_evidence_can_be_written_to_a_local_handoff_file(self):
+        with tempfile.TemporaryDirectory() as directory:
+            artifact = _tar_gz(Path(directory) / "nightly.tar.gz")
+            output = Path(directory) / "evidence.json"
+            self.assertEqual(self._run(["verify", "--format", "json", "--output", str(output), str(artifact)]), 0)
+            payload = json.loads(output.read_text(encoding="utf-8"))
+            self.assertEqual(payload["artifacts"][0]["result"], "intact")
+
+    def test_usage_file_distinguishes_corrupt_artifacts(self):
+        with tempfile.TemporaryDirectory() as directory:
+            artifact = _tar_gz(Path(directory) / "nightly.tar.gz", truncate_tar=True)
+            usage = Path(directory) / "usage.json"
+            self.assertEqual(self._run(["verify", str(artifact), "--usage-file", str(usage)]), 1)
+            counts = json.loads(usage.read_text(encoding="utf-8"))
+            self.assertEqual(counts["artifact_corrupt"], 1)
+            self.assertNotIn("artifact_verified", counts)
 
 
 class RecordIntegrityTests(unittest.TestCase):

@@ -294,8 +294,17 @@ products:
           so a nonzero reading requires a user to both pass the flag and send
           the file back — treat zero here as "no signal", not "no users".
           Distribution is still repo-only: no release, no package, no public
-          URL, so there is no download or traffic signal to read yet. Getting
-          one is the next step that would actually move this venture.
+           URL, so there is no download or traffic signal to read yet. Getting
+           one is the next step that would actually move this venture.
+      - as_of: 2026-08-25
+        signals:
+          artifact_intact: 0
+          artifact_corrupt: 0
+          artifact_unsupported: 0
+          artifact_inconclusive: 0
+          repo_views_14d: 0
+          release_downloads_total: 0
+        note: Added portable JSON evidence handoff and result-specific local counters; distribution remains unmeasured.
   - slug: eaa-remediation-pipeline
     surface: local-site-studio-browser
     readings:

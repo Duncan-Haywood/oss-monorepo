@@ -23,6 +23,12 @@ point it at backups you already have:
 PYTHONPATH=src python3 -m backup_evidence.cli verify /backups/*.tar.gz
 ```
 
+After installing the local package, the same workflow is available as
+`backup-evidence verify`. Add `--format json --output evidence.json` to create
+a portable, dated-by-the-input-path JSON handoff for a ticket or review. The
+file contains artifact paths and structural findings only; it is written on the
+operator's machine and is never uploaded by this tool.
+
 ```
 INTACT  /backups/2026-08-23.tar.gz  [tar.gz]
     walked all 812 member(s) to the end-of-archive marker and read 4182034 bytes of member data without error
@@ -115,7 +121,10 @@ without depending on this tool for the alerting itself. See
 run-record format and what triggers each state.
 
 The `--usage-file` flag on any subcommand appends one local, anonymized
-event-count file — see "Privacy" below.
+event-count file — `artifact_intact`, `artifact_corrupt`,
+`artifact_unsupported`, or `artifact_inconclusive` for `verify`, and
+`artifact_intact` when an integrity check in `record` passes. A failed check is
+never counted as a successful verification. See "Privacy" below.
 
 ## What this is not
 

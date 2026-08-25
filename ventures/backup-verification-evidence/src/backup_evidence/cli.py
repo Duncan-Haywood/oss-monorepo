@@ -85,6 +85,8 @@ def cmd_record(args: argparse.Namespace) -> int:
     print(f"wrote {args.output} (exit {result.returncode})", file=sys.stderr)
     if args.usage_file:
         _bump_usage(args.usage_file, "run_recorded")
+        if record.get("artifact", {}).get("integrity", {}).get("result") == INTACT:
+            _bump_usage(args.usage_file, "artifact_intact")
     return result.returncode
 
 
@@ -110,8 +112,13 @@ def cmd_verify(args: argparse.Namespace) -> int:
         result["path"] = str(path)
         results.append(result)
 
+    payload = {"artifacts": results}
+    if args.output:
+        args.output.parent.mkdir(parents=True, exist_ok=True)
+        args.output.write_text(json.dumps(payload, indent=2) + "\n", encoding="utf-8")
     if args.format == "json":
-        print(json.dumps({"artifacts": results}, indent=2))
+        if not args.output:
+            print(json.dumps(payload, indent=2))
     else:
         for result in results:
             print(f"{result['result'].upper()}  {result['path']}  [{result['format']}]")
@@ -124,7 +131,8 @@ def cmd_verify(args: argparse.Namespace) -> int:
         )
 
     if args.usage_file:
-        _bump_usage(args.usage_file, "artifact_verified")
+        for result in results:
+            _bump_usage(args.usage_file, f"artifact_{result['result']}")
 
     if any(result["result"] == CORRUPT for result in results):
         return VERIFY_EXIT_CORRUPT
@@ -195,6 +203,7 @@ def build_parser() -> argparse.ArgumentParser:
     verify.add_argument("artifacts", nargs="+", type=Path)
     verify.add_argument("--format", choices=("text", "json"), default="text")
     verify.add_argument("--integrity-max-bytes", type=int, default=None)
+    verify.add_argument("--output", type=Path, help="write the JSON evidence record to this local file")
     verify.add_argument("--usage-file", type=Path, help="optional local event-count file")
     verify.set_defaults(func=cmd_verify)
 
