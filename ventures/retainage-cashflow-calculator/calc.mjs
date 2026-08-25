@@ -50,3 +50,26 @@ export function followUpDraft({ projectName, payerName, invoiceReference, dueDat
   const due = dueDate?.trim() || '[due date]';
   return [`Subject: Payment status request — ${project}`, '', `Hello ${payer},`, '', `I am checking the payment status for ${invoice}, due ${due}. My records show ${currency}${result.earnedUnpaid.toFixed(2)} remains unpaid, including approximately ${currency}${result.retainageWithheld.toFixed(2)} in retainage based on the figures in my worksheet.`, '', 'Please confirm the expected payment date and let me know if any documentation is still needed from me. This is a factual account-record request, not a waiver of any rights or a demand for a particular legal remedy.', '', 'Thank you,', '[your name]', '', 'Review the figures, contract, payment terms, and local requirements before sending. This draft is not legal advice.'].join('\n');
 }
+
+export function worksheetSummary({ projectName, payerName, invoiceReference, dueDate, values, result }) {
+  const field = (label, value) => `${label}: ${String(value || '').trim() || '[not provided]'}`;
+  return [
+    'Construction retainage cash-flow worksheet',
+    '============================================',
+    field('Project', projectName),
+    field('Payer / GC', payerName),
+    field('Invoice / pay application', invoiceReference),
+    field('Due date', dueDate),
+    '',
+    `Contract value: $${values.contractValue.toFixed(2)}`,
+    `Retainage withheld (${values.retainagePct.toFixed(1)}%): $${result.retainageWithheld.toFixed(2)}`,
+    `Paid to date: $${values.paidToDate.toFixed(2)}`,
+    `Earned but unpaid: $${result.earnedUnpaid.toFixed(2)}`,
+    `Days since payment was due: ${values.daysOutstanding}`,
+    `Annual carrying-cost assumption: ${values.annualCarryingRatePct.toFixed(1)}%`,
+    `Modeled carrying cost: $${result.carryingCost.toFixed(2)}`,
+    `Total modeled cash outstanding: $${result.totalCashOutstanding.toFixed(2)}`,
+    '',
+    'This is a private worksheet export, not advice or evidence of entitlement. Verify the figures, contract, payment terms, and local requirements before relying on it.'
+  ].join('\n');
+}

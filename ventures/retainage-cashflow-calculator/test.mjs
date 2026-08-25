@@ -1,6 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { parseInputs, computeAll, delayScenarios, followUpDraft } from './calc.mjs';
+import { worksheetSummary } from './calc.mjs';
 
 test('calculates retainage and carrying cost without rounding drift', () => {
   const parsed = parseInputs({ contractValue: '100000', retainagePct: '10', paidToDate: '75000', daysOutstanding: '90', annualCarryingRatePct: '12' });
@@ -26,4 +27,12 @@ test('shows incremental carrying cost for future delay scenarios', () => {
     { days: 60, totalCashOutstanding: 26232.88, additionalCarryingCost: 493.15 },
     { days: 90, totalCashOutstanding: 26479.45, additionalCarryingCost: 739.72 },
   ]);
+
+test('worksheet summary preserves project context and model assumptions', () => {
+  const parsed = parseInputs({ contractValue: '100000', retainagePct: '10', paidToDate: '75000', daysOutstanding: '90', annualCarryingRatePct: '12' });
+  const summary = worksheetSummary({ projectName: 'Main Street remodel', payerName: 'Acme Construction', invoiceReference: 'Pay application #4', dueDate: 'August 30, 2026', values: parsed.values, result: computeAll(parsed.values) });
+  assert.match(summary, /Project: Main Street remodel/);
+  assert.match(summary, /Retainage withheld \(10\.0%\): \$10000\.00/);
+  assert.match(summary, /Annual carrying-cost assumption: 12\.0%/);
+  assert.match(summary, /Verify the figures/);
 });
