@@ -4,6 +4,10 @@ Mobile notaries can now quote an appointment from round-trip mileage, drive time
 
 Open `index.html` directly or serve this directory statically. It is a zero-dependency browser app: no account, network call, or API key. Run `node --test` for the arithmetic tests.
 
+Your latest figures are saved in this browser only, so repeat quotes start where
+you left off. Use **Clear saved draft** when sharing the device or resetting your
+default pricing.
+
 ## Opportunity assessment
 
 This is distinct from the portfolio's contractor bid calculators: the buyer is an independent mobile notary, and the unit of work is a travel appointment rather than a recurring contract or construction job. Search phrases include “mobile notary fee calculator”, “how much should a mobile notary charge for travel”, and “notary mileage fee calculator”. Existing alternatives explain state rules or offer generic invoices; this tool makes the notary's own travel and time economics visible and produces a booking-ready summary. A future paid hosted tier could add saved service zones, but the free local tool needs no storage or variable infrastructure.
