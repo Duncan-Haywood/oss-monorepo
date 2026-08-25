@@ -84,8 +84,18 @@ ventures:
       defensibility: 4
       distribution: 6
     composite: 6.5
+    rater_b: null
     floor: 2
     floor_dimension: ai_leverage
+    floor_note: >-
+      The first release is intentionally deterministic: it restates and
+      compares provider quote lines the user already has, with no inference
+      and no claim that any 3PL rate is the market rate.
+    basis: >-
+      Graduated on 2026-08-25 as a browser-local 3PL quote normalizer. It
+      lines up inbound quotes on one cost base so an operator can see the
+      largest driver and the real break-even volume without uploading a
+      customer file or calling a carrier API.
     gates:
       liability_containment: pass
       ethical_robustness: pass
