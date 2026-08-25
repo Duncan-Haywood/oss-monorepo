@@ -29,6 +29,14 @@ test('calculator exposes editable return fee assumptions', async () => {
   assert.match(script, /Return handling \/ order/);
 });
 
+test('calculator exposes a local CSV export from its live form', async () => {
+  const page = await readFile(new URL('./index.html', import.meta.url), 'utf8');
+  const script = await readFile(new URL('./export-page.mjs', import.meta.url), 'utf8');
+  assert.match(script, /new FormData\(form\)/);
+  assert.match(script, /quote_csv_exported/);
+  assert.match(page, /return-fields\.js/);
+});
+
 test('sensitivity page exposes volume assumptions, results, and disclaimer', async () => {
   const page = await readFile(new URL('./sensitivity.html', import.meta.url), 'utf8');
   assert.match(page, /Volume Sensitivity/);
