@@ -103,6 +103,79 @@ export function volumeSensitivity(input, volumes = [25, 50, 100, 250, 500]) {
   });
 }
 
+const DEFAULT_RETURN_RATES = [0, 5, 8, 12, 15, 20];
+
+function normalizeReturnRates(rates) {
+  const unique = [...new Set((rates || DEFAULT_RETURN_RATES).map((rate) => {
+    const number = Number(rate);
+    return Number.isFinite(number) ? Math.max(0, number) : 0;
+  }))];
+  unique.sort((left, right) => left - right);
+  return unique;
+}
+
+export function returnsSensitivity(input, rates = DEFAULT_RETURN_RATES) {
+  return normalizeReturnRates(rates).map((returnsRate) => {
+    const result = calculate({ ...input, returnsRate }, false);
+    return {
+      returnsRate,
+      returnsCost: result.quote.returns,
+      total: result.quote.total,
+      subtotal: result.quote.subtotal,
+      perOrder: result.perOrder,
+      inHouse: result.inHouse,
+      savingsVsInHouse: result.delta,
+      winner: result.winner,
+      minimumApplied: result.minimumApplied,
+    };
+  });
+}
+
+export function returnsFlip(rows) {
+  if (!rows.length) return { kind: "empty" };
+  if (rows[0].winner === "in-house") return { kind: "already-in-house", rate: rows[0].returnsRate };
+  const flip = rows.find((row) => row.winner === "in-house");
+  if (!flip) return { kind: "stays-3pl", rate: rows[rows.length - 1].returnsRate };
+  return { kind: "flips", rate: flip.returnsRate, gap: flip.savingsVsInHouse };
+}
+
+export function returnsMinimumMask(rows) {
+  const masked = rows.filter((row) => row.minimumApplied);
+  if (!masked.length) return { masked: false };
+  const firstUnmasked = rows.find((row) => !row.minimumApplied);
+  return {
+    masked: true,
+    maskedThrough: masked[masked.length - 1].returnsRate,
+    unmaskedAt: firstUnmasked ? firstUnmasked.returnsRate : null,
+  };
+}
+
+export function returnsSensitivitySummary(input, rates = DEFAULT_RETURN_RATES) {
+  const rows = returnsSensitivity(input, rates);
+  const flip = returnsFlip(rows);
+  const mask = returnsMinimumMask(rows);
+  const flipLine = flip.kind === "already-in-house"
+    ? `In-house is already lower at ${flip.rate}% returns. Return fees are not the reason this quote loses.`
+    : flip.kind === "stays-3pl"
+      ? `3PL stays lower through ${flip.rate}% returns at these assumptions.`
+      : `3PL stays lower until ${flip.rate}% returns, where in-house is lower by ${money(Math.abs(flip.gap))} per month.`;
+  const maskLine = mask.masked
+    ? mask.unmaskedAt == null
+      ? `A monthly minimum hides return-fee growth through ${mask.maskedThrough}% returns.`
+      : `A monthly minimum hides return-fee growth through ${mask.maskedThrough}% returns. The quote rises again at ${mask.unmaskedAt}%.`
+    : "No monthly minimum is hiding the return-fee line.";
+  return [
+    "3PL returns-rate sensitivity",
+    flipLine,
+    maskLine,
+    "",
+    "Return rate, 3PL total, returns cost, winner",
+    ...rows.map((row) => `${row.returnsRate}%: ${money(row.total)} total, ${money(row.returnsCost)} returns, ${row.winner}`),
+    "",
+    "Review these figures against the signed rate card before relying on them.",
+  ].join("\n");
+}
+
 export function negotiationLines(result) {
   const driver = largestCostDriver(result);
   return [

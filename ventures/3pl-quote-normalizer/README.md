@@ -16,6 +16,10 @@ Download the comparison as a named CSV record for spreadsheet review, including
 an optional target-budget decision and the review safeguard.
 Use [Volume sensitivity](./sensitivity.html) to see how minimum charges and
 true cost per order change at 25, 50, 100, 250, and 500 monthly orders.
+Use [When return fees flip the quote](./returns-sensitivity.html) to hold the
+rest of the rate card still and raise the return rate. That shows the first
+rate where in-house is cheaper, and whether a monthly minimum is hiding the
+returns line until the subtotal clears the floor.
 After normalizing, use **Download CSV record** to save the exact on-screen
 calculation for a spreadsheet or quote review without retyping figures.
 If a pasted value is malformed or negative, the copied line-by-line report
@@ -54,6 +58,12 @@ for reviewing and verifying its output before relying on it**, and for meeting
 any obligation it helps prepare for. To the maximum extent permitted by law,
 the authors accept no liability for any loss or damage arising from its use.
 
+**Best-effort hosting, no SLA.** These tools are free, experimental, and may
+be slow, broken, moved, or taken offline without notice. We do not promise
+uptime, backups of anything you type, or that a URL will keep working. Do not
+use this as a system of record. If a tool needs to survive, export your inputs
+and run it yourself.
+
 The result is an arithmetic comparison of your inputs, not a carrier quote,
 financial recommendation, or claim that one fulfillment method is suitable for
 your business. Verify every rate, assumption, contract term, and operational
@@ -62,7 +72,7 @@ requirement yourself.
 ## Development
 
 ```sh
-node --test calc.test.mjs
+node --test calc.test.mjs page.test.mjs
 ```
 
 The page saves the current form values in browser local storage and restores

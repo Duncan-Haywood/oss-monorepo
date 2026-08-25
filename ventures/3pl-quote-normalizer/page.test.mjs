@@ -70,3 +70,19 @@ test('sensitivity page exposes volume assumptions, results, and disclaimer', asy
   assert.match(page, /volumeSensitivity/);
   assert.match(page, /not financial, tax, legal, or engineering advice/);
 });
+
+test('returns sensitivity page sweeps return rates and names the flip', async () => {
+  const page = await readFile(new URL('./returns-sensitivity.html', import.meta.url), 'utf8');
+  const index = await readFile(new URL('./index.html', import.meta.url), 'utf8');
+  const sitemap = await readFile(new URL('./sitemap.xml', import.meta.url), 'utf8');
+  assert.match(page, /When Do 3PL Return Fees Make In-House Cheaper/);
+  assert.match(page, /returnsSensitivity/);
+  assert.match(page, /returnsSensitivitySummary/);
+  assert.match(page, /name="returnFee"/);
+  assert.match(page, /name="restockFee"/);
+  assert.match(page, /returns_sensitivity_viewed/);
+  assert.match(page, /not financial, tax, legal, or engineering advice/);
+  assert.match(page, /Best-effort hosting, no SLA/);
+  assert.match(index, /returns-sensitivity\.html/);
+  assert.match(sitemap, /returns-sensitivity\.html/);
+});
