@@ -277,23 +277,15 @@ products:
           Distribution is still repo-only: no release, no package, no public
           URL, so there is no download or traffic signal to read yet. Getting
           one is the next step that would actually move this venture.
-   - slug: eaa-remediation-pipeline
-     surface: local-site-studio-browser
-     readings:
+  - slug: eaa-remediation-pipeline
+    surface: local-site-studio-browser
+    readings:
       - as_of: 2026-08-24
         signals:
           public_url_visitors: null
           preaudit_checklist_events: 0
           handoff_exports: 0
         note: Shipped browser-local pre-audit checklist; public deployment remains owner-gated.
-   - slug: cloud-egress-calculator
-     surface: static-page-in-repo
-     readings:
-       - as_of: 2026-08-25
-         signals:
-           live_url_visitors: null
-           local_calculation_events: 0
-         note: Shipped provider-neutral egress comparison baseline; public URL remains owner-gated.
 # Example of the shape, once a product has shipped:
 #
 # products:
