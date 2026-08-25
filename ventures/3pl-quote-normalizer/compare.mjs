@@ -15,4 +15,10 @@ export function comparisonMessage(result, firstName = "Quote A", secondName = "Q
   return `${cheaperName} is lower by ${money(result.difference)} per month at this volume (${money(result.annualDifference)} per year).`;
 }
 
+export function savingsPercent(result) {
+  if (!result || result.error || result.equal) return 0;
+  const higher = Math.max(result.first, result.second);
+  return higher === 0 ? 0 : (result.difference / higher) * 100;
+}
+
 function money(value) { return new Intl.NumberFormat("en-US", { style: "currency", currency: "USD" }).format(value); }
