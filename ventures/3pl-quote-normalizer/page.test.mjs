@@ -7,6 +7,7 @@ test('page persists quote inputs locally', async () => {
   assert.match(page, /localStorage\.setItem\(saveKey/);
   assert.match(page, /localStorage\.getItem\(saveKey/);
   assert.match(page, /Saved locally in this browser/);
+  assert.match(page, /id="report"/);
 });
 
 test('comparison page exposes two monthly quote inputs and disclaimer', async () => {
