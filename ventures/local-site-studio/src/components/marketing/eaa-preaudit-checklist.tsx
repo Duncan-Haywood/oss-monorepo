@@ -19,38 +19,43 @@ function recordUsage(event: string) {
 }
 
 export function EaaPreauditChecklist() {
-  const [checked, setChecked] = useState<string[]>(() => {
-    try {
-      const saved = JSON.parse(localStorage.getItem(DRAFT_KEY) || "[]");
-      return Array.isArray(saved) && saved.every((item) => typeof item === "string") ? saved : [];
-    } catch {
-      return [];
-    }
-  });
-  const [optedOut, setOptedOut] = useState(() => {
-    try {
-      return localStorage.getItem(OPT_OUT_KEY) === "true";
-    } catch {
-      return false;
-    }
-  });
+  const [checked, setChecked] = useState<string[]>([]);
+  const [optedOut, setOptedOut] = useState(false);
+  const [hydrated, setHydrated] = useState(false);
   const percent = checklistPercent(checked);
 
   useEffect(() => {
+    let active = true;
     try {
-      recordUsage("preaudit_opened");
+      const saved = JSON.parse(localStorage.getItem(DRAFT_KEY) || "[]");
+      const savedChecked = Array.isArray(saved) && saved.every((item) => typeof item === "string") ? saved : [];
+      const savedOptedOut = localStorage.getItem(OPT_OUT_KEY) === "true";
+      queueMicrotask(() => {
+        if (!active) return;
+        setChecked(savedChecked);
+        setOptedOut(savedOptedOut);
+        recordUsage("preaudit_opened");
+        setHydrated(true);
+      });
     } catch {
       // The control remains useful without browser storage.
+      queueMicrotask(() => {
+        if (active) setHydrated(true);
+      });
     }
+    return () => {
+      active = false;
+    };
   }, []);
 
   useEffect(() => {
+    if (!hydrated) return;
     try {
       localStorage.setItem(DRAFT_KEY, JSON.stringify(checked));
     } catch {
       // Draft recovery is best effort; the checklist remains usable without storage.
     }
-  }, [checked]);
+  }, [checked, hydrated]);
 
   function toggle(id: string) {
     setChecked((current) => {
