@@ -1,7 +1,12 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 
-import { loadQuote, calculate, overrunScenarios } from "./calc.mjs";
+import { EXAMPLE_QUOTE, loadQuote, calculate, overrunScenarios } from "./calc.mjs";
+
+test("keeps the worked example complete and valid", () => {
+  assert.deepEqual(loadQuote(EXAMPLE_QUOTE), EXAMPLE_QUOTE);
+  assert.equal(calculate(EXAMPLE_QUOTE).total_hours, 35);
+});
 
 test("calculates hidden time and target price", () => {
   const quote = loadQuote({

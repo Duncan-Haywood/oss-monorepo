@@ -12,6 +12,19 @@ const FIELDS = [
   "target_hourly_rate",
 ];
 
+// A worked example gives first-time visitors an immediate result and a stable
+// destination for the reset action.
+export const EXAMPLE_QUOTE = Object.freeze({
+  currency: "USD",
+  price: 2400,
+  delivery_hours: 24,
+  admin_hours: 5,
+  revision_hours: 6,
+  overhead: 180,
+  subcontractor_cost: 300,
+  target_hourly_rate: 75,
+});
+
 /**
  * Validates and normalizes raw quote input, matching src/quote_margin.py's
  * load_quote(). Throws Error with a human-readable message on invalid input.

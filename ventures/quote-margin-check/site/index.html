@@ -183,6 +183,7 @@
       <div class="result" id="review" aria-live="polite"><strong>Before you send it</strong><ul class="checks"></ul></div>
 
     <div class="actions">
+      <button type="button" id="reset-example">Reset to example</button>
       <button type="button" id="copy-csv">Copy as CSV row</button>
       <span id="copy-status" class="hint" role="status" aria-live="polite"></span>
     </div>
@@ -250,7 +251,7 @@
 </main>
 
 <script type="module">
-  import { loadQuote, calculate, overrunScenarios } from "./calc.mjs";
+  import { EXAMPLE_QUOTE, loadQuote, calculate, overrunScenarios } from "./calc.mjs";
   import { reviewQuote } from "./review.mjs";
   import { recordEvent, createReportCounter, isUsageCountingEnabled, setUsageCountingEnabled } from "./usage.mjs";
 
@@ -264,6 +265,10 @@
   const sensitivity = document.getElementById("sensitivity");
 
   let lastReport = null;
+
+  function setInputs(quote) {
+    for (const id of ids) el[id].value = quote[id];
+  }
 
   function readInputs() {
     return {
@@ -339,6 +344,15 @@
 
   const copyBtn = document.getElementById("copy-csv");
   const copyStatus = document.getElementById("copy-status");
+  const resetExampleBtn = document.getElementById("reset-example");
+  resetExampleBtn.addEventListener("click", () => {
+    setInputs(EXAMPLE_QUOTE);
+    exampleNote.hidden = false;
+    copyStatus.textContent = "Reset to the worked example.";
+    recordEvent("example_reset");
+    update();
+    reportCounter.seed(JSON.stringify(EXAMPLE_QUOTE));
+  });
   copyBtn.addEventListener("click", async () => {
     if (!lastReport) {
       copyStatus.textContent = "Fix the inputs above first.";
