@@ -1,0 +1,26 @@
+name: retainage cash-flow calculator CI
+
+on:
+  pull_request:
+    paths:
+      - 'ventures/retainage-cashflow-calculator/**'
+      - '.github/workflows/retainage-cashflow-calculator-ci.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'ventures/retainage-cashflow-calculator/**'
+      - '.github/workflows/retainage-cashflow-calculator-ci.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Run calculator and page tests
+        run: node --test ventures/retainage-cashflow-calculator/test.mjs ventures/retainage-cashflow-calculator/page.test.mjs
