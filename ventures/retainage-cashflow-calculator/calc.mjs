@@ -31,6 +31,18 @@ export function computeAll(values) {
   return { retainageWithheld, earnedUnpaid, carryingCost, totalCashOutstanding: round2(earnedUnpaid + carryingCost) };
 }
 
+export function delayScenarios(values, additionalDays = [30, 60, 90]) {
+  const base = computeAll(values);
+  return additionalDays.map(days => {
+    const future = computeAll({ ...values, daysOutstanding: values.daysOutstanding + days });
+    return {
+      days,
+      totalCashOutstanding: future.totalCashOutstanding,
+      additionalCarryingCost: round2(future.carryingCost - base.carryingCost),
+    };
+  });
+}
+
 export function followUpDraft({ projectName, payerName, invoiceReference, dueDate, result, currency = '$' }) {
   const project = projectName?.trim() || '[project name]';
   const payer = payerName?.trim() || '[payer / GC name]';
