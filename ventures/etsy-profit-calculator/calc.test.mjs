@@ -27,6 +27,11 @@ test('rejects negative or non-numeric inputs', () => {
   assert.throws(() => calculateOrder({ price: 'nope' }));
 });
 
+test('rejects impossible combined percentage fees', () => {
+  assert.throws(() => calculateOrder({ price: 10, transactionRate: 70, paymentRate: 30 }), /must total less than 100%/);
+  assert.throws(() => priceForMargin({ transactionRate: 101 }, 0), /must total less than 100%/);
+});
+
 test('finds the item price for a target margin', () => {
   const input = { shippingCharged: 5, listingFee: .2, paymentFixed: .25, transactionRate: 6.5, paymentRate: 3, shippingCost: 6, materialCost: 4 };
   const price = priceForMargin(input, 50);
