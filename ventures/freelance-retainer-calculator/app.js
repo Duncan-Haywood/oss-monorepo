@@ -29,5 +29,13 @@ if (typeof document !== 'undefined') {
     }
   };
   form.addEventListener('submit', (event) => { event.preventDefault(); try { const input = read(); const plan = calculatePlan(input); $('errors').hidden = true; $('results').hidden = false; $('rate').textContent = money(plan.rate); $('retainer').textContent = money(plan.retainer); $('capacity').textContent = `${plan.capacity.toFixed(1)} hrs`; $('remaining').textContent = `${plan.remainingCapacity.toFixed(1)} hrs`; $('target').textContent = money(plan.target); $('explanation').textContent = `Your ${input.utilization}% utilization leaves ${plan.capacity.toFixed(1)} billable hours from ${input.hours} available hours. After this retainer, ${plan.remainingCapacity.toFixed(1)} hours remain for other work, admin, and recovery. The retainer includes a ${input.buffer}% buffer for scope drift; it is a planning floor, not a promise of results.`; $('summary').value = `Monthly retainer proposal\n\nIncluded: ${input.retainerHours} hours per month\nMonthly price: ${money(plan.retainer)}\nAdditional work: ${money(plan.rate)} per hour\nCapacity left after retainer: ${plan.remainingCapacity.toFixed(1)} hours\nResponse time and out-of-scope work: define in the agreement.`; track('calculate'); } catch (error) { $('errors').textContent = error.message; $('errors').hidden = false; $('results').hidden = true; } });
-  $('copy').addEventListener('click', async () => { await navigator.clipboard.writeText($('summary').value); $('copyStatus').textContent = ' Copied.'; track('copy-summary'); });
+  $('copy').addEventListener('click', async () => {
+    try {
+      await navigator.clipboard.writeText($('summary').value);
+      $('copyStatus').textContent = ' Copied.';
+      track('copy-summary');
+    } catch {
+      $('copyStatus').textContent = ' Copy was blocked. Select the summary and copy it manually.';
+    }
+  });
 }
