@@ -45,3 +45,10 @@ test('worksheet summary preserves project context and model assumptions', () => 
   assert.match(summary, /Annual carrying-cost assumption: 12\.0%/);
   assert.match(summary, /Verify the figures/);
 });
+
+test('worksheet summary includes optional delay scenarios for project review', () => {
+  const values = parseInputs({ contractValue: '100000', retainagePct: '10', paidToDate: '75000', daysOutstanding: '90', annualCarryingRatePct: '12' }).values;
+  const summary = worksheetSummary({ values, result: computeAll(values), scenarios: delayScenarios(values) });
+  assert.match(summary, /Further-delay scenarios \(modeled\):/);
+  assert.match(summary, /\+90 days: \$26479\.45 outstanding; \$739\.72 added carrying cost/);
+});
