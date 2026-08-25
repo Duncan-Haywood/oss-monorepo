@@ -6,6 +6,15 @@
 # retired honestly instead of quietly.
 period: 2026-08
 products:
+  - slug: contractor-bid-readiness
+    surface: static-page-in-repo
+    readings:
+      - as_of: 2026-08-25
+        signals:
+          live_url_visitors: null
+          local_readiness_checks: 0
+          local_report_downloads: 0
+        note: Shipped browser-local RFP artifact readiness matrix; public URL remains owner-gated.
   - slug: retainage-cashflow-calculator
     surface: static-page-in-repo
     readings:

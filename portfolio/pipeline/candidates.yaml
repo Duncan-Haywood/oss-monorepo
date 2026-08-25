@@ -33,6 +33,29 @@ rescore_note: >-
   rescore-2026-08-20.md.
 
 candidates:
+  - slug: contractor-bid-readiness
+    name: Contractor bid readiness
+    doc: candidates/contractor-bid-readiness.md
+    verdict: graduated
+    graduate_as: venture
+    host_venture: null
+    initiated: 2026-08-25
+    initiated_path: ventures/contractor-bid-readiness
+    scores:
+      ai_leverage: 2
+      autonomous_ops: 10
+      time_to_revenue: 7
+      gross_margin: 10
+      defensibility: 4
+      distribution: 6
+      liability_containment: 8
+      ethical_robustness: 9
+    composite: 7.0
+    floor: 2
+    floor_dimension: ai_leverage
+    mitigation: Keep the deterministic checklist as the complete free core; never claim bid compliance or interpret requirements for the user.
+    first_experiment_days: 14
+    first_experiment_budget_usd: 0
   - slug: cut-list-optimizer
     name: Cut-list optimizer
     doc: candidates/cut-list-optimizer.md
