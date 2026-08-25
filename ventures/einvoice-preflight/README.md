@@ -134,6 +134,10 @@ file instead of stdout. Parent directories are created when needed. A failed
 write returns exit code `2` and never replaces an existing report with a partial
 file.
 
+`--max-files N` accepts a positive integer, including the usual `+N` CLI
+notation, and rejects zero, negative, or non-numeric values before any invoice
+is read.
+
 Machine-readable formats remain valid JSON, JSONL, SARIF, CSV, JUnit, Markdown,
 or HTML when a directory is empty or a `--max-files` limit refuses the scan.
 These input errors are reported in the selected format and the command exits
