@@ -29,8 +29,10 @@ profitable. The customer decides what costs and target rate are appropriate.
 The `After direct costs` line makes the amount left before the user's own
 compensation visible, while `Gap to target price` compares the quote with the
 supplied target rate. Both are arithmetic signals, not a profitability verdict.
-The CSV format emits stable `measure,value,unit` columns so you can append
-results from several proposals to a spreadsheet without retyping calculations.
+The CSV format emits stable `measure,value,unit` columns with spreadsheet-safe
+escaping for currency labels containing commas, quotes, or line breaks, so you
+can append results from several proposals to a spreadsheet without retyping
+calculations.
 Batch CSV emits one comparison row per filename, making a folder of recurring
 proposal reviews easy to sort and filter without exposing the proposal data.
 
