@@ -37,6 +37,7 @@ export function inputWarnings(input) {
     const raw = input?.[name];
     if (raw === undefined || raw === null) return [];
     if (raw === "" || (typeof raw === "string" && raw.trim() === "")) {
+      if (name === "inboundUnits") return [`${label} was blank; orders × units / order was used.`];
       const fallback = defaultInputs[name];
       return fallback === undefined ? [] : [`${label} was blank; the default ${fallback} was used.`];
     }
