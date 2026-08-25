@@ -65,6 +65,11 @@ test("flags malformed and negative rate-card inputs", () => {
   assert.match(summary(result), /Input warnings/);
 });
 
+test("blank rate-card inputs disclose the fallback used", () => {
+  const result = calculate({ orders: 100, shipping: "" }, false);
+  assert.match(result.warnings.join("\n"), /Shipping \/ order was blank; the default 8\.5 was used/);
+});
+
 test("shows how minimums and unit economics change with volume", () => {
   const rows = volumeSensitivity({ orders: 100, unitsPerOrder: 1.5, minimumMonthly: 2000 }, [50, 100, 500]);
   assert.deepEqual(rows.map((row) => row.orders), [50, 100, 500]);
