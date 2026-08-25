@@ -26,6 +26,15 @@ class VendorEvidenceTests(unittest.TestCase):
             self.assertEqual(json.loads(usage.read_text())["snapshot_captured"], 2)
             self.assertEqual(json.loads(usage.read_text())["report_generated"], 1)
 
+    def test_failed_url_capture_is_inconclusive(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            store = Path(tmp) / "snapshots"
+            url = "http://127.0.0.1:1/privacy"
+            self.run_cli("capture", "--url", url, "--store", store)
+            report = self.run_cli("diff", "--url", url, "--store", store).stdout
+            self.assertIn("Changed since prior snapshot: inconclusive", report)
+            self.assertIn("Fetch failed", report)
+
 
 if __name__ == "__main__":
     unittest.main()

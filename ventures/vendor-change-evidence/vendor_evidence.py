@@ -6,6 +6,7 @@ import difflib
 import hashlib
 import json
 import pathlib
+import urllib.error
 import urllib.request
 
 
@@ -17,17 +18,28 @@ def load_source(url, file):
     if file:
         return pathlib.Path(file).read_text(encoding="utf-8"), "file", None
     request = urllib.request.Request(url, headers={"User-Agent": "vendor-change-evidence/0.1"})
-    with urllib.request.urlopen(request, timeout=15) as response:
-        return response.read().decode("utf-8", errors="replace"), "url", response.status
+    try:
+        with urllib.request.urlopen(request, timeout=15) as response:
+            return response.read().decode("utf-8", errors="replace"), "url", response.status, None
+    except (urllib.error.URLError, TimeoutError) as error:
+        return "", "url", None, str(error)
 
 
 def capture(args):
     if bool(args.url) == bool(args.file):
         raise SystemExit("provide exactly one of --url or --file")
-    text, source_type, status = load_source(args.url, args.file)
+    loaded = load_source(args.url, args.file)
+    if args.file:
+        text, source_type, status = loaded
+        error = None
+    else:
+        text, source_type, status, error = loaded
     source = args.url or str(pathlib.Path(args.file).resolve())
     record = {"captured_at": now(), "source": source, "source_type": source_type,
               "status": status, "sha256": hashlib.sha256(text.encode()).hexdigest(), "text": text}
+    if error:
+        record["inconclusive"] = True
+        record["error"] = error
     store = pathlib.Path(args.store)
     store.mkdir(parents=True, exist_ok=True)
     key = hashlib.sha256(source.encode()).hexdigest()[:16]
@@ -59,10 +71,13 @@ def diff_report(args):
         raise SystemExit("no snapshots found for this source")
     current = history[-1]
     previous = history[-2] if len(history) > 1 else None
-    changed = previous is not None and current["sha256"] != previous["sha256"]
+    inconclusive = current.get("inconclusive", False)
+    changed = not inconclusive and previous is not None and current["sha256"] != previous["sha256"]
     lines = ["# Vendor change evidence", "", f"Source: {source}", f"Checked: {current['captured_at']}",
-             f"Fetch status: {current.get('status') or 'local file'}", f"Changed since prior snapshot: {'yes' if changed else 'no'}", ""]
-    if previous is None:
+             f"Fetch status: {current.get('status') or 'local file'}", "Changed since prior snapshot: inconclusive" if inconclusive else f"Changed since prior snapshot: {'yes' if changed else 'no'}", ""]
+    if inconclusive:
+        lines.append(f"Fetch failed; no change conclusion was made: {current.get('error', 'unknown error')}.")
+    elif previous is None:
         lines.append("Baseline captured; there is no earlier snapshot to compare.")
     elif changed:
         lines += ["## Raw line diff", "", "```diff"]
