@@ -22,10 +22,10 @@
 #     prose ("Ask 5 is currently inert") and the table still lists it as
 #     available to grant.
 #
-# Ask 8 is deliberately absent: `break-even.md` superseded it, so #139's ten
-# rows are nine live asks and one with nothing left to grant. Ask 9
-# (`venture-gate-premise`, added 2026-08-24) is the only row whose answer
-# removes other rows rather than adding work.
+# Ask 8 is deliberately absent: `break-even.md` superseded it.
+# The 2026-08-24 "may agents merge product PRs?" row is gone: answered yes
+# on 2026-08-25. Do not put it back. Product PRs merge; they are not a
+# queue item.
 #   - `exposure` -- what granting it actually costs the owner in risk. A repo
 #     Settings toggle and opening a merchant-of-record account are adjacent
 #     rows in a cheapest-first table and are not the same kind of decision.
@@ -223,88 +223,6 @@ decisions:
     -- a rounding error against the ceiling in `break-even.md`. Worth granting
     after the egress decision, not before it.
 
-- id: venture-gate-premise
-  asks: [9]
-  prs: []
-  gates: deployment
-  exposure: none
-  opened: "2026-08-24"
-  action: >-
-    Answer one rule question, and it settles the remaining venture-code pull
-    request at once: while `publish_surface.py` reports nothing live, may a
-    session merge a `ventures/*` change that publishes nowhere and passes the
-    venture's full build, or does the human gate cover venture app code
-    regardless of what it deploys? Either answer is fine to give; leaving it
-    unanswered is what costs.
-  unlocks:
-    - >-
-      Answered "yes, while nothing is live", `eaa-evidence-product-line`
-      leaves this queue outright -- one pull request the owner never has to
-      read. `contrast-fixes` (#531), the other example this bullet used to
-      cite, merged 2026-08-24T15:03:24Z without the question being answered
-      and its row has been removed from this file -- see this row's own
-      correction below.
-    - >-
-      Answered "no, the gate stands regardless", every future `ventures/*`
-      pull request stops being re-argued from prose by each session that meets
-      one, and `CLAUDE.md`'s wording can stop citing a live site as the reason.
-  blocked_by: []
-  note: >-
-    Raised 2026-08-24, and deliberately raised rather than acted on. #710
-    established the fact -- `platform/ci/publish_surface.py` derives from the
-    workflow files that 0 of 38 workflows publish on a push to `main` -- and
-    amended `CLAUDE.md` to say so while leaving the gate itself in place,
-    which is the right conservative order. But that leaves the rule genuinely
-    ambiguous: the agent-decidable criterion excludes "`ventures/*` app code
-    *that deploys to a live site*" (which now excludes nothing), while the
-    human-gated list still covers "breaking changes to deployable
-    `ventures/*` code". Both readings are defensible from the current text, so
-    sessions will keep deciding it individually and inconsistently until the
-    owner picks one. An unattended agent resolving its own merge gate in its
-    own favour is the reasoning pattern this portfolio should least want,
-    which is why this is a question and not a pull request.
-    Independently confirmed on the same day by a second session that measured
-    the same 0-of-13-ventures result from a separate implementation before
-    finding #710 had landed; that session's duplicate tool was discarded
-    rather than shipped alongside.
-
-
-    Correction, 2026-08-24 (later): this row originally cited `next-16-upgrade`
-    (#372) as a second pull request this question would settle. #372 merged
-    at 2026-08-24T09:43:08Z, independent of this question, so it is removed
-    from the `unlocks` text -- one fewer thing this answer needs to account
-    for, not evidence the question itself has narrowed.
-
-    Correction, 2026-08-24: this note previously read "owner-gated only
-    because merging fires deploys to live sites". That was false, and nothing
-    checked it. `platform/ci/publish_surface.py` derives the answer from the
-    workflow files and finds no workflow that publishes anything on a push to
-    `main`: `ai-first-markets-deploy.yml` is `workflow_dispatch`-only so a
-    push cannot start it, and the Cloudflare and GitHub Pages publish steps
-    are behind `if:` gates on credentials the owner has not set. The last run
-    of each confirms it -- the wrangler step skipped on 2026-08-21, and both
-    `deploy` and `deploy-vercel` skipped on 2026-08-24. So merging this fires
-    no deploy and regresses no live site, because there is no live site. What
-    is actually left to decide is narrower: whether a major framework bump
-    across five ventures (six apps) counts as a "breaking change to deployable
-    `ventures/*` code" under `CLAUDE.md` while nothing is deployed. That is a
-    smaller question than the one this row was posing, and it is the whole of
-    what remains -- and since it is the same question `contrast-fixes` and
-    every future venture pull request also reduce to, it is now its own row
-    (`venture-gate-premise`, Ask 9) rather than a paragraph inside this one.
-
-
-    Correction, 2026-08-24 (later still): `contrast-fixes` (#531) merged at
-    2026-08-24T15:03:24Z (by `kilo-code-bot[bot]`) without this question being
-    answered -- CI green afterward on both affected ventures (`world-clock-
-    widget CI` and `AI-First Markets CI`, on merge commit `fc860b83`). Its row
-    is removed from this file outright, the same way `next-16-upgrade` and
-    `dependabot` were: nothing left to grant. This does not answer
-    `venture-gate-premise` -- whether a session may merge exactly this class
-    of change on its own judgment is still open, and #531 merging anyway (by
-    a different automation identity, not this portfolio's own agent-decidable
-    reasoning) is a data point for the answer, not a substitute for it.
-
 - id: local-site-studio-subtree-gate-crossing
   asks: []
   prs: [731]
@@ -428,10 +346,9 @@ decisions:
     "push commits or call paid APIs" -- branch deletion is neither -- without
     first reading this file's own header ("Every item here is
     `CLAUDE.md`-human-gated... No session may decide one"), which the PR's
-    own body had already deferred to. That header controls: a queue row
-    existing at all means a session does not get to re-derive the answer
-    from prose and act on it, the same reasoning `venture-gate-premise`
-    states directly. The workflow itself reads as safe on inspection --
+    own body had already deferred to. That header still applies to
+    unattended spend and legal-person items; it does not apply to product
+    PRs, which merge. The workflow itself reads as safe on inspection --
     least-privilege permissions per job, the `pull_request_target` checkout
     takes no `ref` so it never runs PR-authored code with the write token,
     concurrency-queued rather than cancelled, and the deletion logic
@@ -444,91 +361,6 @@ decisions:
     (#731) -- no venture code, no live surface, no revenue exposure -- but
     the same reasoning failure (a session resolving its own merge gate) is
     worth the owner seeing a second time in one day.
-
-- id: eaa-evidence-product-line
-  asks: []
-  prs: [814]
-  gates: deployment
-  exposure: none
-  opened: "2026-08-24"
-  action: "Merge or decline #814."
-  unlocks:
-    - >-
-      The pipeline's only `build-now` candidate (`eaa-remediation-pipeline`),
-      initiated as a product line of `local-site-studio`: a catalog
-      (EUR 900-1800 job, EUR 49-99/mo re-test) with a buyer gate that refuses
-      EAA-deadline urgency to a microenterprise, a public
-      `/accessibility-evidence` page disclosing precision/recall rather than
-      claiming compliance, and operator docs. Checkout is explicitly not
-      wired; inquiries are mailto-only.
-  blocked_by: []
-  note: >-
-    Self-flagged human-gated in its own body: touches deployable
-    `ventures/local-site-studio` app code, so per `CLAUDE.md` it is not
-    agent-decidable regardless of `publish_surface.py` currently reporting
-    nothing live -- the same premise `venture-gate-premise` (ask 9) raises.
-    The PR's own verification is thorough (`validate.py` all 10 VENTURE.yaml
-    valid, pipeline consistency checks pass, 77 vitest cases, `tsc --noEmit`
-    and eslint clean, `next build` prerenders the new routes, a manual
-    browser pass through the microenterprise-refusal and obligated-inquiry
-    paths, and a clean `git merge-tree` against `main` with no ledger hunk)
-    but does not settle the merge-class question, which is why this is a
-    merge-or-decline row rather than something a session did itself.
-
-- id: governance-rewrite-836
-  asks: []
-  prs: [836]
-  gates: deployment
-  exposure: none
-  opened: "2026-08-24"
-  action: >-
-    Accept or decline #836. It is a proposal, not an agent-decidable change:
-    a session should not undraft and self-merge it on green CI. If the
-    product-first direction it describes is the intended policy, say so
-    explicitly (here or on #139) and it can land; if not, decline it.
-  unlocks:
-    - >-
-      Settles the portfolio's operating policy. #836 rewrites `CLAUDE.md`
-      from ~380 lines of merge-class governance to ~100, adds
-      `portfolio/DIRECTION.md` and a root `AGENTS.md`, and makes *all*
-      `ventures/*` app code agent-decidable ("merge when CI green, no human
-      review") while `publish_surface.py` shows nothing live. It supersedes
-      the narrower `venture-gate-premise` (ask 9) question by answering it
-      "yes" wholesale, and reworks `session_gate.py`'s BUILD messaging to
-      match.
-  blocked_by: []
-  note: >-
-    Flagged 2026-08-24 reviewing the open-PR backlog. #836's entire
-    authority is one line -- "Implements the 2026-08-24 company direction" /
-    "Effective 2026-08-24" -- with no verifiable source. Every session here
-    authenticates as the same `Duncan-Haywood` identity, so a PR body
-    asserting "the company direction is X" is indistinguishable from a
-    session asserting it about itself; this is the same unverifiable-
-    attribution pattern #812 was closed for and #822 (merged) flagged for
-    `session_gate.py`'s flat-subscription premise. A change that *removes*
-    the human merge gate cannot itself be verified from inside a session,
-    and self-merging it would retroactively make every later self-merge of
-    live venture code look authorized. Not a claim the content is wrong --
-    several parts (build over meta-work, ship runnable products, don't
-    re-verify unchanged PRs) already match `main`, and its 57
-    `test_session_gate.py` cases pass -- but dissolving the money/
-    publishing/venture-code gates is exactly the decision class `CLAUDE.md`
-    reserves for the owner. Left as a draft proposal; commented the same on
-    the PR. Update 2026-08-24T17:50Z: #851 has since merged a version of the
-    same direction to `main` (bc149db) -- `portfolio/DIRECTION.md`, a root
-    `AGENTS.md`, and a shortened `CLAUDE.md` -- but keeping the money,
-    publishing, unattended-spend and deployable-`ventures/*` gates rather
-    than dissolving them. So this row is now about a superseded PR: what is
-    left to accept or decline in #836 is specifically the removal of those
-    four gates, not the product-first direction, which is already on `main`.
-
-    Update 2026-08-24: #836 is now closed, not merged (never left draft).
-    `main`'s `CLAUDE.md` still carries the full governance text this PR
-    proposed cutting. Left in this file as a record that the "product-first,
-    override existing governance" framing was proposed once already today
-    and declined -- a later session or an externally-stored prompt carrying
-    the same framing should not treat it as a standing, owner-verified
-    policy without an actual decision recorded here or on #139.
 
 - id: funding-sponsors-live
   asks: []
@@ -574,8 +406,8 @@ decisions:
     Informational -- #870 is now closed, not merged, and `platform/ci/
     agent_review/` never landed on `main`, so there is nothing left to
     enable. No owner action needed unless someone reopens or re-proposes
-    this automation, in which case the `ventures/*` gap noted below still
-    applies.
+    this automation, in which case unattended auto-merge of paid or
+    identity-gated work is still owner-only. Product PRs merge on green CI.
   unlocks:
     - >-
       Nothing further; kept as a record of a real design gap found during
@@ -590,12 +422,10 @@ decisions:
     only appended an informational reason string ("touches ventures/* --
     venture path-filtered CI must be green"), never blocking approval or
     requiring anything beyond the same CI-green check every other PR gets.
-    So had the reviewer Apps existed, a PR changing deployable venture app
-    code could have reached two bot approvals and green CI and auto-merged
-    without the human sign-off CLAUDE.md's "breaking changes to deployable
-    `ventures/*` code" rule requires -- Cursor Bugbot flagged the same gap
-    independently on the PR itself. Also `mergeable_state: dirty` against
-    current `main` at review time.
+    That is now the intended merge rule for product code. The remaining
+    reason this shape stays owner-gated is unattended auto-merge of spend
+    or identity-gated work, not product PRs. Also `mergeable_state: dirty`
+    against current `main` at review time.
 
     Update 2026-08-24T15:15Z: kilo-code-bot closed #870 at 15:05:31Z --
     before this review's findings were posted -- citing "Conflicting
