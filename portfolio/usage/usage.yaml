@@ -36,7 +36,7 @@ products:
       - as_of: 2026-08-24
         signals:
           live_url_visitors: null
-         local_events_reported: 0
+          local_events_reported: 0
         note: Shipped browser-local route margin calculator; public URL remains owner-gated.
   - slug: shopify-permission-drift
     surface: local-cli
