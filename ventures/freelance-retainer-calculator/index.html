@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Freelance Retainer Pricing Calculator</title>
+  <meta name="description" content="Calculate a sustainable freelance retainer price from your income goal, billable capacity, overhead, utilization, and scope buffer. Free and private in your browser.">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="Freelance Retainer Pricing Calculator">
+  <meta property="og:description" content="Stop guessing what to charge for a monthly retainer. Price your work from capacity, costs, and scope risk.">
+  <meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/freelance-retainer-calculator/">
+  <link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/freelance-retainer-calculator/">
+  <link rel="stylesheet" href="style.css">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Freelance Retainer Pricing Calculator","applicationCategory":"BusinessApplication","operatingSystem":"Any","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"description":"A private browser calculator for sustainable freelance retainer pricing."}</script>
+</head>
+<body>
+  <main class="shell">
+    <header>
+      <p class="eyebrow">INDEPENDENT WORK / PRICING TOOL</p>
+      <h1>Price the retainer around your life, not an arbitrary hourly rate.</h1>
+      <p class="lede">Turn your income goal, real billable capacity, operating costs, and scope buffer into a minimum hourly rate and a client-ready monthly retainer.</p>
+    </header>
+    <section class="workspace" aria-label="Retainer pricing calculator">
+      <form id="calculator" class="card">
+        <h2>Your monthly plan</h2>
+        <div class="grid">
+          <label>Income you want to take home <span>$</span><input id="income" type="number" min="0" step="100" value="6000" required></label>
+          <label>Business costs and taxes <span>$</span><input id="costs" type="number" min="0" step="100" value="1800" required></label>
+          <label>Available work hours / month <span>hours</span><input id="hours" type="number" min="1" step="1" value="160" required></label>
+          <label>Realistic billable utilization <span>%</span><input id="utilization" type="number" min="1" max="100" step="1" value="65" required></label>
+          <label>Retainer hours included <span>hours</span><input id="retainerHours" type="number" min="1" step="1" value="20" required></label>
+          <label>Scope / revision buffer <span>%</span><input id="buffer" type="number" min="0" max="100" step="1" value="15" required></label>
+        </div>
+        <label>Currency <select id="currency"><option value="USD">USD ($)</option><option value="EUR">EUR (€)</option><option value="GBP">GBP (£)</option><option value="CAD">CAD ($)</option><option value="AUD">AUD ($)</option></select></label>
+        <button type="submit">Calculate sustainable price</button>
+        <p id="errors" class="error" role="alert" hidden></p>
+      </form>
+      <section id="results" class="card result" aria-live="polite" hidden>
+        <p class="eyebrow">YOUR FLOOR</p>
+        <p class="price" id="rate">$0</p><p class="muted">minimum sustainable hourly rate</p>
+        <div class="answer"><span>Recommended monthly retainer</span><strong id="retainer">$0</strong></div>
+        <div class="answer"><span>Billable capacity available</span><strong id="capacity">0 hrs</strong></div>
+        <div class="answer"><span>Monthly revenue target</span><strong id="target">$0</strong></div>
+        <p id="explanation" class="note"></p>
+        <textarea id="summary" rows="7" readonly aria-label="Copyable proposal summary"></textarea>
+        <button id="copy" type="button" class="secondary">Copy proposal summary</button><span id="copyStatus" role="status"></span>
+      </section>
+    </section>
+    <section class="copy card">
+      <h2>Why this is different from a basic hourly-rate calculator</h2>
+      <p>A $75 rate means little if only 65% of your month is billable, your tools and taxes cost $1,800, and a vague retainer absorbs unplanned revisions. This calculator makes each assumption visible so you can change it before making a promise.</p>
+      <h2>Common question: how many hours should a retainer include?</h2>
+      <p>Start with a scope you can deliver inside your billable capacity, then leave the buffer intact. A retainer is a commitment of access and work, not permission for unlimited requests. Put included hours, response time, and out-of-scope pricing in your agreement.</p>
+    </section>
+    <footer>
+      <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not financial advice and does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for meeting any obligation it helps you prepare for. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+      <p>Everything runs in your browser. Your numbers are never uploaded. There are no accounts, cookies, or analytics vendors. We count only anonymous feature events in this browser; <label><input id="optOut" type="checkbox"> don't count my usage</label>.</p>
+    </footer>
+  </main>
+  <script type="module" src="app.js"></script>
+</body>
+</html>
