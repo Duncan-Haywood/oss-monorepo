@@ -96,7 +96,6 @@ ventures:
       liability_containment: pass
       ethical_robustness: pass
     gate_note: >-
-<<<<<<< HEAD
       Pass, conditionally: assumptions are shown as scenarios, outputs are
       labeled modeled, and the user remains responsible for checking contracts,
       records, and local requirements before acting.
@@ -116,11 +115,6 @@ ventures:
       liability_containment: pass
       ethical_robustness: pass
     gate_note: Deterministic estimates only; users must verify provider quotes and business assumptions.
-=======
-      Output is explicitly an observation of supplied rows, never an audit,
-      compliance determination, chain-of-custody record, or warranty that FIFO
-      was followed. Users must review warehouse semantics and each observation.
->>>>>>> e1768432 (Ship FIFO pick evidence checker)
   - slug: shopify-permission-drift
     scores:
       ai_leverage: 2
