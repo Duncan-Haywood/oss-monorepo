@@ -48,6 +48,21 @@ scoring_rule: >-
   near-zero-price norm is a real property of the business on any host.
 
 ventures:
+  - slug: 3pl-quote-normalizer
+    scores:
+      ai_leverage: 2
+      autonomous_ops: 10
+      time_to_revenue: 7
+      gross_margin: 10
+      defensibility: 4
+      distribution: 6
+    composite: 6.5
+    floor: 2
+    floor_dimension: ai_leverage
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: Deterministic estimates only; users must verify provider quotes and business assumptions.
   - slug: shopify-permission-drift
     scores:
       ai_leverage: 2
