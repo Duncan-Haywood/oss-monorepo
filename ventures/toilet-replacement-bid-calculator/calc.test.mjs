@@ -1,0 +1,280 @@
+import { test } from 'node:test';
+import assert from 'node:assert/strict';
+import {
+  calculateBid,
+  compareScope,
+  compareToilet,
+  formatBidSummary,
+  travelHours,
+  suggestedScopeKit,
+  suggestedToiletKit,
+  suggestedRoughInKit,
+  suggestedExtraKit,
+  JOB_PRESETS,
+} from './calc.mjs';
+
+function special() {
+  const kit = {
+    ...suggestedScopeKit('swap-only'),
+    ...suggestedToiletKit('two-piece-standard'),
+    ...suggestedRoughInKit('12-inch'),
+    ...suggestedExtraKit(),
+  };
+  return {
+    toiletCount: 1,
+    scope: 'swap-only',
+    toilet: 'two-piece-standard',
+    roughIn: '12-inch',
+    travelMiles: 6,
+    includeHaul: false,
+    includeWaxFree: false,
+    includeBidetSeat: false,
+    hourlyWage: 42,
+    burdenRate: 30,
+    overheadRate: 15,
+    targetMargin: 20,
+    travelAndEquipment: 45,
+    otherCost: 0,
+    ...kit,
+  };
+}
+
+function losingJob() {
+  const kit = {
+    ...suggestedScopeKit('flange-repair'),
+    ...suggestedToiletKit('one-piece'),
+    ...suggestedRoughInKit('10-inch'),
+    ...suggestedExtraKit(),
+  };
+  return {
+    toiletCount: 1,
+    scope: 'flange-repair',
+    toilet: 'one-piece',
+    roughIn: '10-inch',
+    travelMiles: 18,
+    includeHaul: true,
+    includeWaxFree: true,
+    includeBidetSeat: true,
+    hourlyWage: 42,
+    burdenRate: 30,
+    overheadRate: 15,
+    targetMargin: 20,
+    travelAndEquipment: 85,
+    otherCost: 0,
+    ...kit,
+  };
+}
+
+test('travel hours stack trip plus miles', () => {
+  assert.ok(Math.abs(travelHours(0.9, 6, 0.035) - (0.9 + 0.21)) < 1e-9);
+  assert.throws(() => travelHours('x', 6, 0.035), /must be a number/);
+});
+
+test('the cheap special is a two-piece 12-inch swap, not a flange repair', () => {
+  const result = calculateBid(special());
+  assert.equal(result.toiletCount, 1);
+  assert.equal(result.hoursFlange, 0);
+  assert.equal(result.hoursRoughIn, 0);
+  assert.equal(result.hoursHaul, 0);
+  assert.equal(result.hoursBidet, 0);
+  assert.equal(result.hoursWaxFree, 0);
+  assert.equal(result.flangeMaterial, 0);
+  assert.equal(result.offsetMaterial, 0);
+  assert.equal(result.haulMaterial, 0);
+  assert.equal(result.bidetMaterial, 0);
+  assert.ok(result.hoursSwap > 0);
+  assert.ok(result.hoursTravel > 0);
+  assert.ok(result.hoursSupply > 0);
+  assert.ok(result.shares.finish + result.shares.labor > result.shares.extra);
+  assert.ok(result.pricePerToilet > 180 && result.pricePerToilet < 650);
+});
+
+test('a flange-repair one-piece on a 10-inch rough-in is a different bid than the cheap special', () => {
+  const cheap = calculateBid(special());
+  const heavy = calculateBid(losingJob());
+  assert.equal(heavy.toiletCount, 1);
+  assert.ok(heavy.hoursSwap > 0);
+  assert.ok(heavy.hoursFlange > 0);
+  assert.ok(heavy.hoursRoughIn > 0);
+  assert.ok(heavy.hoursHaul > 0);
+  assert.ok(heavy.hoursBidet > 0);
+  assert.ok(heavy.hoursType > cheap.hoursType);
+  assert.ok(heavy.flangeMaterial > 0);
+  assert.ok(heavy.offsetMaterial > 0);
+  assert.ok(heavy.haulMaterial > 0);
+  assert.ok(heavy.bidetMaterial > 0);
+  assert.ok(heavy.shares.extra > cheap.shares.extra);
+  const matchedSpecial = calculateBid({
+    ...losingJob(),
+    proposedPrice: cheap.pricePerToilet * heavy.toiletCount,
+  });
+  assert.equal(matchedSpecial.proposed.belowBreakEven, true);
+  assert.ok(matchedSpecial.proposed.profit < 0);
+  assert.ok(heavy.price / heavy.toiletCount > cheap.price / cheap.toiletCount);
+});
+
+test('price stacks burden, material, overhead, then margin as a share of price', () => {
+  const result = calculateBid(special());
+  assert.equal(result.loadedWage, 42 * 1.3);
+  const direct = result.laborCost + result.materialCost + result.softCost;
+  assert.ok(Math.abs(result.directCost - direct) < 1e-9);
+  assert.ok(Math.abs(result.overhead - direct * 0.15) < 1e-9);
+  assert.ok(Math.abs(result.totalCost - direct * 1.15) < 1e-9);
+  assert.ok(Math.abs(result.profit / result.price * 100 - 20) < 1e-9);
+  assert.equal(result.breakEvenPrice, result.totalCost);
+});
+
+test('a zero-margin bid prices at cost', () => {
+  const result = calculateBid({ ...special(), targetMargin: 0 });
+  assert.ok(Math.abs(result.price - result.totalCost) < 1e-9);
+  assert.ok(Math.abs(result.profit) < 1e-9);
+});
+
+test('a proposed price is scored against the same cost base', () => {
+  const bid = calculateBid(special());
+  const scored = calculateBid({ ...special(), proposedPrice: bid.price });
+  assert.ok(Math.abs(scored.proposed.margin - 20) < 1e-9);
+  assert.equal(scored.proposed.belowBreakEven, false);
+  assert.ok(Math.abs(scored.proposed.hourlyRate - bid.effectiveHourlyRate) < 1e-9);
+});
+
+test('a proposed price under cost is flagged as a losing bid', () => {
+  const bid = calculateBid(special());
+  const scored = calculateBid({ ...special(), proposedPrice: bid.totalCost - 50 });
+  assert.equal(scored.proposed.belowBreakEven, true);
+  assert.ok(scored.proposed.profit < 0);
+  assert.ok(scored.proposed.margin < 0);
+});
+
+test('no proposed price means no comparison, and empty string counts as none', () => {
+  assert.equal(calculateBid(special()).proposed, null);
+  assert.equal(calculateBid({ ...special(), proposedPrice: '' }).proposed, null);
+});
+
+test('compareScope prices four scopes on the same closet', () => {
+  const rows = compareScope(losingJob());
+  assert.equal(rows.length, 4);
+  assert.ok(rows.every((row, index) => index === 0 || row.price >= rows[index - 1].price));
+  assert.equal(rows.filter((row) => row.cheapest).length, 1);
+  const swap = rows.find((row) => row.scope === 'swap-only');
+  const supply = rows.find((row) => row.scope === 'new-supply');
+  const flange = rows.find((row) => row.scope === 'flange-repair');
+  const reset = rows.find((row) => row.scope === 'full-reset');
+  assert.ok(supply.price > swap.price);
+  assert.ok(flange.price > swap.price);
+  assert.ok(reset.price > swap.price);
+  assert.ok(flange.hoursFlange > swap.hoursFlange);
+  assert.ok(reset.flangeMaterial > swap.flangeMaterial);
+  assert.ok(supply.supplyMaterial > swap.supplyMaterial);
+  assert.ok(flange.delta > 0);
+});
+
+test('compareToilet prices four bowls on the same closet', () => {
+  const rows = compareToilet(special());
+  assert.equal(rows.length, 4);
+  assert.ok(rows.every((row, index) => index === 0 || row.price >= rows[index - 1].price));
+  assert.equal(rows.filter((row) => row.cheapest).length, 1);
+  const twoPiece = rows.find((row) => row.toilet === 'two-piece-standard');
+  const comfort = rows.find((row) => row.toilet === 'comfort-height');
+  const onePiece = rows.find((row) => row.toilet === 'one-piece');
+  const bidet = rows.find((row) => row.toilet === 'bidet-combo');
+  assert.ok(twoPiece);
+  assert.ok(comfort.price > twoPiece.price);
+  assert.ok(onePiece.price > twoPiece.price);
+  assert.ok(bidet.price > twoPiece.price);
+  assert.ok(onePiece.hoursType > twoPiece.hoursType);
+  assert.ok(bidet.fixtureMaterial > twoPiece.fixtureMaterial);
+  assert.ok(comfort.upgradeFromTwoPiece > 0);
+  assert.equal(twoPiece.upgradeFromTwoPiece, 0);
+  assert.ok(twoPiece.cheapest);
+  assert.ok(comfort.delta > 0);
+});
+
+test('compareToilet keeps the current scope and does not reuse a typed toilet rate', () => {
+  const flangeRows = compareToilet(losingJob());
+  const cheapRows = compareToilet(special());
+  const flangeTwo = flangeRows.find((row) => row.toilet === 'two-piece-standard');
+  const cheapTwo = cheapRows.find((row) => row.toilet === 'two-piece-standard');
+  assert.ok(flangeTwo.price > cheapTwo.price);
+  const overridden = compareToilet({
+    ...special(),
+    hoursTypePerToilet: 9,
+    toiletInvoice: 4000,
+  });
+  const twoPiece = overridden.find((row) => row.toilet === 'two-piece-standard');
+  const baseline = compareToilet(special()).find((row) => row.toilet === 'two-piece-standard');
+  assert.ok(Math.abs(twoPiece.price - baseline.price) < 1e-9);
+});
+
+test('travel miles add hours and invoice without changing the closet', () => {
+  const near = calculateBid({ ...special(), travelMiles: 6 });
+  const far = calculateBid({ ...special(), travelMiles: 40 });
+  assert.ok(far.hoursTravel > near.hoursTravel);
+  assert.ok(far.travelInvoice > near.travelInvoice);
+  assert.equal(far.hoursSwap, near.hoursSwap);
+  assert.equal(far.toiletCount, near.toiletCount);
+});
+
+test('a second toilet on the same trip scales the closet, not the drive', () => {
+  const one = calculateBid(special());
+  const two = calculateBid({ ...special(), toiletCount: 2 });
+  assert.equal(two.hoursTravel, one.hoursTravel);
+  assert.ok(Math.abs(two.hoursSwap - one.hoursSwap * 2) < 1e-9);
+  assert.ok(Math.abs(two.fixtureMaterial - one.fixtureMaterial * 2) < 1e-9);
+  assert.ok(two.price > one.price);
+  assert.ok(two.price < one.price * 2);
+});
+
+test('wax-free replaces the wax ring instead of stacking both seals', () => {
+  const wax = calculateBid(special());
+  const waxFree = calculateBid({ ...special(), includeWaxFree: true });
+  assert.ok(wax.waxMaterial > 0);
+  assert.equal(wax.waxFreeMaterial, 0);
+  assert.equal(waxFree.waxMaterial, 0);
+  assert.ok(waxFree.waxFreeMaterial > 0);
+  assert.ok(waxFree.hoursWaxFree > 0);
+});
+
+test('unknown scope, toilet, rough-in, or a 100% margin is rejected', () => {
+  assert.throws(() => calculateBid({ ...special(), scope: 'walk-in-shower' }), /Unknown scope/);
+  assert.throws(() => calculateBid({ ...special(), toilet: 'wall-hung-carrier' }), /Unknown toilet/);
+  assert.throws(() => calculateBid({ ...special(), roughIn: '16-inch' }), /Unknown rough-in/);
+  assert.throws(() => calculateBid({ ...special(), targetMargin: 100 }), /less than 100/);
+  assert.throws(() => suggestedScopeKit('walk-in-shower'), /Unknown scope/);
+  assert.throws(() => suggestedToiletKit('wall-hung-carrier'), /Unknown toilet/);
+  assert.throws(() => suggestedRoughInKit('16-inch'), /Unknown rough-in/);
+});
+
+test('every shipped job preset calculates without throwing', () => {
+  for (const preset of JOB_PRESETS) {
+    const kit = {
+      ...suggestedScopeKit(preset.scope),
+      ...suggestedToiletKit(preset.toilet),
+      ...suggestedRoughInKit(preset.roughIn),
+      ...suggestedExtraKit(),
+    };
+    const result = calculateBid({
+      ...preset,
+      hourlyWage: 42,
+      burdenRate: 30,
+      overheadRate: 15,
+      targetMargin: 20,
+      travelAndEquipment: 45,
+      otherCost: 0,
+      ...kit,
+    });
+    assert.ok(result.price > 0, preset.label);
+    assert.ok(result.toiletCount > 0, preset.label);
+  }
+});
+
+test('the customer summary names the closet and omits wages', () => {
+  const text = formatBidSummary(calculateBid(special()), 'Two-piece hall bath');
+  assert.match(text, /TOILET REPLACEMENT BID/);
+  assert.match(text, /Two-piece hall bath/);
+  assert.match(text, /Swap only/i);
+  assert.match(text, /two-piece/i);
+  assert.doesNotMatch(text, /wage/i);
+  assert.doesNotMatch(text, /burden/i);
+  assert.match(text, /not a plumbing-code determination/i);
+});
