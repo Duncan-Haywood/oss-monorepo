@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { AlertTriangle, CheckCircle2, ShieldAlert, UploadCloud } from "lucide-react";
 
 import {
@@ -11,7 +11,7 @@ import {
   isListingPhoto,
   type PhotoReport,
 } from "@/lib/photo-spec";
-import { recordUsageEvent } from "@/lib/usage";
+import { isUsageEnabled, recordUsageEvent, setUsageEnabled } from "@/lib/usage";
 
 type RunSummary = {
   reports: PhotoReport[];
@@ -34,10 +34,48 @@ function severityStyle(severity: "blocking" | "degrading"): string {
     : "border-amber-400/30 bg-amber-500/10 text-amber-200";
 }
 
+function downloadReport(run: RunSummary): void {
+  const payload = {
+    product: "Listing Lens MLS Photo Preflight",
+    spec_id: SPEC_ID,
+    spec_date: SPEC_DATE,
+    checked_at: run.checkedAt,
+    scope: "File headers and filenames only; not an MLS acceptance determination.",
+    photos: run.reports.map((report) => ({
+      name: report.info.name,
+      format: report.info.format,
+      width: report.info.width,
+      height: report.info.height,
+      bytes: report.info.nbytes,
+      findings: report.findings,
+    })),
+    skipped_non_photo_files: run.skipped,
+  };
+  const blob = new Blob([JSON.stringify(payload, null, 2)], { type: "application/json" });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement("a");
+  link.href = url;
+  link.download = `listing-lens-photo-preflight-${SPEC_DATE}.json`;
+  link.click();
+  URL.revokeObjectURL(url);
+  recordUsageEvent("report_downloaded");
+}
+
 export function PhotoCheckTool() {
   const [run, setRun] = useState<RunSummary | null>(null);
   const [isProcessing, setIsProcessing] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
+  const [usageEnabled, setUsageState] = useState(false);
+
+  useEffect(() => {
+    setUsageState(isUsageEnabled());
+  }, []);
+
+  const toggleUsage = useCallback(() => {
+    const next = !isUsageEnabled();
+    setUsageEnabled(next);
+    setUsageState(next);
+  }, []);
 
   const handleFiles = useCallback(async (fileList: FileList | null) => {
     if (!fileList || fileList.length === 0) return;
@@ -72,7 +110,7 @@ export function PhotoCheckTool() {
         <UploadCloud className="h-8 w-8 text-brand-300" aria-hidden="true" />
         <p className="text-base font-medium text-white">
           Drag listing photos here, or click to choose files
-        </p>
+           </p>
         <p className="text-sm text-slate-400">JPEG or PNG. Nothing is uploaded — checks run in this tab.</p>
         <input
           ref={inputRef}
@@ -94,8 +132,19 @@ export function PhotoCheckTool() {
             {new Date(run.checkedAt).toLocaleString()}.
             {run.skipped.length > 0 && (
               <> Skipped {run.skipped.length} non-photo file{run.skipped.length === 1 ? "" : "s"}.</>
-            )}
-          </p>
+             )}
+           </p>
+
+           <div className="mt-4 flex flex-wrap items-center gap-3">
+             <button
+               type="button"
+               onClick={() => downloadReport(run)}
+               className="rounded-lg border border-brand-400/40 bg-brand-500/10 px-3 py-2 text-sm font-medium text-brand-100 hover:bg-brand-500/20"
+             >
+               Download dated JSON report
+             </button>
+             <span className="text-xs text-slate-500">Contains filenames and findings, never photo pixels.</span>
+           </div>
 
           <ul className="mt-4 divide-y divide-white/10 overflow-hidden rounded-xl border border-white/10">
             {run.reports.map((report) => (
@@ -150,6 +199,16 @@ export function PhotoCheckTool() {
           {UNIMPLEMENTED_RULES.join(", ")} — those need a human look or a specific MLS
           board&apos;s own rules, which vary by board. No portal account is used, nothing is
           uploaded, and this is not a warranty that any specific MLS will accept your photos.
+        </p>
+        <p className="mt-3 text-xs text-slate-500">
+          <strong className="text-slate-300">No warranty.</strong> This free tool is provided as-is,
+          is not legal, financial, or professional real-estate advice, and does not replace a qualified
+          MLS professional. Review and verify every result before relying on it; the authors accept no
+          liability to the maximum extent permitted by law.
+        </p>
+        <p className="mt-3 text-xs text-slate-500">
+          Local usage counting is currently {usageEnabled ? "on" : "off"}. It records only feature names
+          in this browser and never sends data anywhere. <button type="button" onClick={toggleUsage} className="text-brand-200 underline">Turn {usageEnabled ? "off" : "on"}</button>
         </p>
       </div>
     </div>

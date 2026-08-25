@@ -158,7 +158,16 @@ products:
           target-gap, hidden-time, and revision-assumption observations. No
           public URL yet; the feature counter stores only aggregate local
           events and remains opt-out.
-  - slug: etsy-profit-calculator
+   - slug: mls-photo-spec-preflight
+     surface: listing-lens-photo-check
+     readings:
+       - as_of: 2026-08-25
+         signals:
+           live_url_visitors: null
+           local_events_reported: 0
+           report_downloads: 0
+         note: Shipped browser preflight and portable JSON report; public URL remains owner-gated.
+   - slug: etsy-profit-calculator
     surface: static-page-in-repo
     readings:
       - as_of: 2026-08-24
