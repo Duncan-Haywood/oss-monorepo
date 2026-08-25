@@ -88,6 +88,9 @@ workflows:
 - workflow: garmin-world-traveler-watchface-ci.yml
   classification: none
   publishes: []
+- workflow: gutter-install-bid-calculator-ci.yml
+  classification: none
+  publishes: []
 - workflow: janitorial-bid-calculator-ci.yml
   classification: none
   publishes: []
