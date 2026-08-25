@@ -27,7 +27,9 @@ Added 2026-08-19, one pass after the consolidation in
 > deploying it. Search cannot find a file that only exists in this repo.
 > While `publish_surface.py` reports nothing live, the next distribution
 > task is a public URL for an already-built product, not another candidate
-> write-up. See [`../DIRECTION.md`](../DIRECTION.md) "Current priority".
+> write-up. Host is GitHub Pages or the Hetzner product box
+> ([`../hosting/README.md`](../hosting/README.md)). See
+> [`../DIRECTION.md`](../DIRECTION.md) "Current priority".
 
 ## The finding this directory already contains
 

@@ -163,30 +163,37 @@ decisions:
   exposure: credential
   opened: "2026-08-19"
   action: >-
-    Set repository settings and secrets, all inside GitHub: Pages source to
-    "GitHub Actions" plus variable `GITHUB_PAGES_ENABLED=true` (or
-    `VERCEL_DEPLOY=true` with the three `VERCEL_*` secrets instead), and
-    `CLOUDFLARE_API_TOKEN` / `CLOUDFLARE_ACCOUNT_ID` (plus `AUTH_SECRET` for
-    `ai-first-markets`).
+    Enable GitHub Pages for this repo: Settings → Pages → Source "GitHub
+    Actions", and set repository variable `GITHUB_PAGES_ENABLED=true`.
+    That is the remaining flip for static products. The host is already
+    decided (GitHub Pages + existing Hetzner boxes; see
+    `portfolio/hosting/README.md`) — do not add Cloudflare or Vercel
+    secrets as the way the portfolio goes live.
   unlocks:
     - Three ventures whose builds already pass but which deploy nothing.
     - "`retail-pilot-intel`'s docs deploy, which since #347 is green *and publishes nothing* -- the workflow skips the publish job rather than failing, so the record shows success for a site that does not exist."
   blocked_by: []
   note: >-
-    Grouped because both are repository settings the owner changes in one
-    sitting, with no third party involved and no ongoing spend commitment.
-    Note the correction recorded in #696 and on #139 (comment 5389301893):
-    Ask 6 as originally written described a *failing* deploy; it is now a
-    silently-skipped one, which is worse for the record and unchanged for the
-    site. Sequenced after `egress-policy` in the printed queue only because it
-    buys deployment rather than measurement -- nothing blocks it.
+    Narrowed 2026-08-25: the owner chose GitHub Pages for static products
+    and the existing Hetzner boxes for processes. Vercel/Cloudflare are
+    not the portfolio default. Hetzner account and GHA SSH keys already
+    exist, so this ask is no longer "pick a vendor" — it is the Pages
+    source toggle that flips gated `deploy-pages` jobs to live.
+
+
+    Grouped originally because both Asks 4 and 6 were repository settings
+    in one sitting. Ask 4 (Cloudflare token) is no longer the requested
+    path; leave those workflows gated and unused. Note the correction
+    recorded in #696 and on #139 (comment 5389301893): Ask 6 as originally
+    written described a *failing* deploy; it is now a silently-skipped
+    one, which is worse for the record and unchanged for the site.
 
 
     As of 2026-08-24 the two `unlocks:` claims above are no longer prose:
     `platform/ci/publish_surface.py --check` re-derives them from
     `.github/workflows/` on every CI run, so "deploys nothing" cannot quietly
-    stop being true. Granting this ask is the thing that flips those two
-    workflows from `gated` to `live`, and that flip is what will turn the
+    stop being true. Granting this ask is the thing that flips the Pages
+    workflow from `gated` to `live`, and that flip is what will turn the
     check red until the snapshot is rewritten to record it.
 
 - id: publication-identity
@@ -297,30 +304,6 @@ decisions:
     of change on its own judgment is still open, and #531 merging anyway (by
     a different automation identity, not this portfolio's own agent-decidable
     reasoning) is a data point for the answer, not a substitute for it.
-
-- id: deployment-platform
-  asks: []
-  prs: [720]
-  gates: deployment
-  exposure: credential
-  opened: "2026-08-24"
-  action: "Merge or decline #720."
-  unlocks:
-    - >-
-      One named deployment platform (Vercel, with the spend cap built into the
-      vendor) in place of the three-way menu `deploy-settings` had carried for
-      five days; Railway is the named fallback if the load-bearing Vercel
-      claims fail the browser check the document itself flags.
-  blocked_by: []
-  note: >-
-    #720 answers the menu that `deploy-settings` (asks 4/6) posed as an open
-    choice. Its own body says the deciding criterion is "spend cap built into
-    the vendor", applies it to the shortlist, and names Vercel. Human-gated
-    regardless of the quality of the analysis: the document commits to an
-    account registration and standing spend that only the owner may authorise,
-    so this is a merge-or-decline call, not a session's. The probe it ships
-    (`platform/deployment/probe_control_planes.py`, 22 control-plane hosts) is
-    read-only tooling and is the agent-decidable half; the decision is not.
 
 - id: local-site-studio-subtree-gate-crossing
   asks: []
