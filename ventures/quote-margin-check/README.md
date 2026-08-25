@@ -44,6 +44,11 @@ quoted price and direct costs fixed while showing how the effective hourly rate
 and gap to the supplied target change. They are arithmetic what-if comparisons,
 not a forecast of project delivery time.
 
+The browser can copy a plain-text decision summary containing the supplied
+figures, target gap, review observations, and an assumptions warning. It is
+intended for an internal quote review or proposal workflow, not as a
+profitability determination or pricing recommendation.
+
 **No warranty.** This tool is provided free and as-is, without warranty of any
 kind, express or implied. It is not tax, financial, or business advice, and it
 does not replace a qualified professional. **You are responsible for reviewing
@@ -51,7 +56,8 @@ and verifying its output before relying on it**, and for meeting any obligation
 it helps you prepare for. To the maximum extent permitted by law, the authors
 accept no liability for any loss or damage arising from its use.
 
-Only aggregate `report_generated` events are optionally appended to the usage
+Only aggregate `report_generated`, `quote_review_checked`, and
+`decision_summary_copied` events are optionally appended to the usage
 log. Inputs, project names, prices, and file contents never leave the machine.
 Pass `--usage-log PATH` to opt in; omit it to keep usage counting off. The
 browser version counts the same event locally in `localStorage` (on by
