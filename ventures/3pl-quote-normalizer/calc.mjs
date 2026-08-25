@@ -31,13 +31,35 @@ const inputLabels = { orders: "Orders / month", unitsPerOrder: "Units / order", 
 export function inputWarnings(input) {
   return Object.entries(inputLabels).flatMap(([name, label]) => {
     const raw = input?.[name];
-    if (raw === undefined || raw === null || raw === "") return [];
+    if (raw === undefined || raw === null) return [];
+    if (raw === "") {
+      const fallback = defaultInputs[name];
+      return fallback === undefined ? [] : [`${label} was blank; the default ${fallback} was used.`];
+    }
     const value = Number(raw);
     if (!Number.isFinite(value)) return [`${label} was not a number and was ignored.`];
     if (value < 0) return [`${label} cannot be negative; the negative value was treated as zero.`];
     return [];
   });
 }
+
+const defaultInputs = {
+  orders: 100,
+  unitsPerOrder: 1.5,
+  pallets: 1,
+  receivingPerUnit: 0.12,
+  storagePerPallet: 18,
+  firstPick: 2.75,
+  additionalPick: 0.5,
+  packaging: 0.6,
+  shipping: 8.5,
+  returnsRate: 8,
+  returnFee: 2.5,
+  restockFee: 0.4,
+  fixedFee: 150,
+  minimumMonthly: 0,
+  inHousePerOrder: 13,
+};
 
 export function money(value) {
   return new Intl.NumberFormat("en-US", { style: "currency", currency: "USD" }).format(value);

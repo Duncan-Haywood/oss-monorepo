@@ -12,6 +12,8 @@ Use [Volume sensitivity](./sensitivity.html) to see how minimum charges and
 true cost per order change at 25, 50, 100, 250, and 500 monthly orders.
 If a pasted value is malformed or negative, the copied line-by-line report
 includes an explicit warning instead of hiding the normalization rule.
+Blank fields are also called out with the default value used, so a missing
+line on a rate card cannot look like a verified zero or custom quote input.
 Return handling and restocking default to $2.50 and $0.40 per returned order;
 the calculator page exposes both assumptions for rate-card-specific estimates.
 
