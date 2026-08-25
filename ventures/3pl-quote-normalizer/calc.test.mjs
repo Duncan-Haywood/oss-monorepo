@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { calculate, compareQuotes, comparisonSummary, inputWarnings, largestCostDriver, negotiationLines, summary, volumeSensitivity } from "./calc.mjs";
+import { calculate, compareQuotes, comparisonSummary, inputWarnings, largestCostDriver, negotiationLines, returnsFlip, returnsMinimumMask, returnsSensitivity, returnsSensitivitySummary, summary, volumeSensitivity } from "./calc.mjs";
 
 test("custom return and restocking fees flow into the normalized quote", () => {
   const result = calculate({ orders: 100, unitsPerOrder: 1, returnsRate: 10, returnFee: 7, restockFee: 3 });
@@ -121,6 +121,139 @@ test("identifies the largest normalized cost driver for negotiation", () => {
   assert.equal(driver.share, Math.round((result.quote.shipping / result.quote.subtotal) * 100));
   assert.match(summary(result), /Largest cost driver: Shipping/);
   assert.match(negotiationLines(result).join("\n"), /Largest normalized cost driver: Shipping/);
+});
+
+test("sweeps return rates and keeps other rate-card lines fixed", () => {
+  const rows = returnsSensitivity({
+    orders: 100,
+    unitsPerOrder: 1,
+    inboundUnits: 100,
+    returnFee: 10,
+    restockFee: 0,
+    minimumMonthly: 0,
+    inHousePerOrder: 16,
+  }, [0, 8, 20]);
+  assert.deepEqual(rows.map((row) => row.returnsRate), [0, 8, 20]);
+  assert.equal(rows[0].returnsCost, 0);
+  assert.equal(rows[1].returnsCost, 80);
+  assert.equal(rows[2].returnsCost, 200);
+  assert.equal(rows[2].total - rows[0].total, 200);
+  assert.equal(rows[0].inHouse, rows[2].inHouse);
+});
+
+test("names the return rate where in-house overtakes a 3PL quote", () => {
+  const rows = returnsSensitivity({
+    orders: 100,
+    unitsPerOrder: 1,
+    inboundUnits: 100,
+    shipping: 4,
+    firstPick: 1,
+    additionalPick: 0,
+    packaging: 0,
+    receivingPerUnit: 0,
+    storagePerPallet: 0,
+    pallets: 0,
+    fixedFee: 0,
+    returnFee: 12,
+    restockFee: 0,
+    minimumMonthly: 0,
+    inHousePerOrder: 6,
+  }, [0, 8, 20]);
+  assert.equal(rows[0].winner, "3PL");
+  assert.equal(rows[2].winner, "in-house");
+  const flip = returnsFlip(rows);
+  assert.equal(flip.kind, "flips");
+  assert.equal(flip.rate, 20);
+  assert.match(returnsSensitivitySummary({
+    orders: 100,
+    unitsPerOrder: 1,
+    inboundUnits: 100,
+    shipping: 4,
+    firstPick: 1,
+    additionalPick: 0,
+    packaging: 0,
+    receivingPerUnit: 0,
+    storagePerPallet: 0,
+    pallets: 0,
+    fixedFee: 0,
+    returnFee: 12,
+    restockFee: 0,
+    minimumMonthly: 0,
+    inHousePerOrder: 6,
+  }, [0, 8, 20]), /until 20% returns/);
+});
+
+test("says when a monthly minimum hides return-fee growth", () => {
+  const rows = returnsSensitivity({
+    orders: 100,
+    unitsPerOrder: 1,
+    inboundUnits: 100,
+    shipping: 4,
+    firstPick: 1,
+    additionalPick: 0,
+    packaging: 0,
+    receivingPerUnit: 0,
+    storagePerPallet: 0,
+    pallets: 0,
+    fixedFee: 100,
+    returnFee: 10,
+    restockFee: 0,
+    minimumMonthly: 700,
+    inHousePerOrder: 16,
+  }, [0, 8, 30]);
+  assert.equal(rows[0].minimumApplied, true);
+  assert.equal(rows[1].minimumApplied, true);
+  assert.equal(rows[0].total, rows[1].total);
+  assert.equal(rows[2].minimumApplied, false);
+  assert.ok(rows[2].total > rows[1].total);
+  const mask = returnsMinimumMask(rows);
+  assert.equal(mask.masked, true);
+  assert.equal(mask.maskedThrough, 8);
+  assert.equal(mask.unmaskedAt, 30);
+  assert.match(returnsSensitivitySummary({
+    orders: 100,
+    unitsPerOrder: 1,
+    inboundUnits: 100,
+    shipping: 4,
+    firstPick: 1,
+    additionalPick: 0,
+    packaging: 0,
+    receivingPerUnit: 0,
+    storagePerPallet: 0,
+    pallets: 0,
+    fixedFee: 100,
+    returnFee: 10,
+    restockFee: 0,
+    minimumMonthly: 700,
+    inHousePerOrder: 16,
+  }, [0, 8, 30]), /hides return-fee growth through 8%/);
+});
+
+test("says when the quote already loses before return fees grow", () => {
+  const rows = returnsSensitivity({ orders: 100, minimumMonthly: 2000, inHousePerOrder: 13 }, [0, 8]);
+  assert.equal(returnsFlip(rows).kind, "already-in-house");
+  assert.match(returnsSensitivitySummary({ orders: 100, minimumMonthly: 2000, inHousePerOrder: 13 }, [0, 8]), /already lower/);
+});
+
+test("default returns-page assumptions flip to in-house at 20% by $36", () => {
+  const input = { orders: 100, returnFee: 8, restockFee: 4, shipping: 8.5, minimumMonthly: 0, inHousePerOrder: 16 };
+  const rows = returnsSensitivity(input);
+  const flip = returnsFlip(rows);
+  assert.deepEqual(rows.map((row) => row.returnsRate), [0, 5, 8, 12, 15, 20]);
+  assert.equal(rows[0].winner, "3PL");
+  assert.equal(Math.round(rows[0].total), 1396);
+  assert.equal(rows[5].winner, "in-house");
+  assert.equal(Math.round(rows[5].total), 1636);
+  assert.equal(flip.kind, "flips");
+  assert.equal(flip.rate, 20);
+  assert.equal(Math.round(flip.gap), -36);
+  assert.match(returnsSensitivitySummary(input), /until 20% returns/);
+  assert.match(returnsSensitivitySummary(input), /\$36\.00 per month/);
+});
+
+test("ignores negative or non-numeric return-rate sweep values", () => {
+  const rows = returnsSensitivity({ orders: 100 }, [-5, "n/a", 8, 8]);
+  assert.deepEqual(rows.map((row) => row.returnsRate), [0, 8]);
 });
 
 test("uses the first component when the quote is tied or empty", () => {
