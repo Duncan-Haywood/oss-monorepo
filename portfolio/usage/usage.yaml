@@ -337,6 +337,21 @@ products:
           freelancers to price monthly retainers from billable capacity, costs,
           and scope risk. Public URL remains owner-gated; counters are local,
           aggregate, and opt-out.
+  - slug: real-estate-agent-photo-app
+    surface: static-page-in-repo
+    readings:
+      - as_of: 2026-08-25
+        signals:
+          live_url_visitors: null
+          batch_checked_with_blockers: 0
+          reshoot_list_viewed: 0
+          reshoot_list_copied: 0
+        note: >-
+          Added a copyable reshoot / desk-fix list on the existing MLS
+          photo preflight (browser + CLI). Complementary to open download
+          PRs #1333, #1358, and #1385 — those export the evidence record;
+          this tells the photographer which rooms to recapture. Public URL
+          remains owner-gated (`deploy-settings`).
 
 # Example of the shape, once a product has shipped:
 #
