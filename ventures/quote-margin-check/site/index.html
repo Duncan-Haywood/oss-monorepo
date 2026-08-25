@@ -183,6 +183,7 @@
       <div class="result" id="review" aria-live="polite"><strong>Before you send it</strong><ul class="checks"></ul></div>
 
     <div class="actions">
+      <button type="button" id="clear-draft">Reset to example</button>
       <button type="button" id="copy-csv">Copy as CSV row</button>
       <span id="copy-status" class="hint" role="status" aria-live="polite"></span>
     </div>
@@ -253,6 +254,7 @@
   import { loadQuote, calculate, overrunScenarios } from "./calc.mjs";
   import { reviewQuote } from "./review.mjs";
   import { recordEvent, createReportCounter, isUsageCountingEnabled, setUsageCountingEnabled } from "./usage.mjs";
+  import { loadDraft, saveDraft, clearDraft } from "./draft.mjs";
 
   // Counts settled quotes rather than keystrokes — see usage.mjs.
   const reportCounter = createReportCounter();
@@ -306,6 +308,7 @@
        review.querySelector(".checks").innerHTML = reviewQuote(quote, r).map((check) => `<li class="${check.level}"><strong>${escapeHtml(check.title)}</strong>${escapeHtml(check.detail)}</li>`).join("");
        sensitivity.querySelector("tbody").innerHTML = overrunScenarios(quote, r).map((scenario) => `<tr><th scope="row">+${scenario.percent}%</th><td>${fmt(scenario.total_hours)}</td><td>${safeCurrency} ${fmt(scenario.effective_hourly_rate)}/hour</td><td>${safeCurrency} ${fmt(scenario.gap_to_target)}</td></tr>`).join("");
        recordEvent("quote_review_checked");
+       saveDraft(Object.fromEntries(ids.map((id) => [id, el[id].value])));
       result.classList.remove("error");
       reportCounter.count(JSON.stringify(quote));
     } catch (err) {
@@ -328,6 +331,21 @@
     el[id].addEventListener("input", update);
     el[id].addEventListener("input", dismissExampleNote, { once: true });
   }
+  const existingDraft = loadDraft();
+  if (existingDraft) {
+    for (const id of ids) if (typeof existingDraft[id] === "string") el[id].value = existingDraft[id];
+    exampleNote.hidden = true;
+    recordEvent("draft_restored");
+  }
+  document.getElementById("clear-draft").addEventListener("click", () => {
+    clearDraft();
+    const defaults = { currency: "USD", price: "2400", delivery_hours: "24", admin_hours: "5", revision_hours: "6", overhead: "180", subcontractor_cost: "300", target_hourly_rate: "75" };
+    for (const id of ids) el[id].value = defaults[id];
+    exampleNote.hidden = false;
+    update();
+    clearDraft();
+    recordEvent("draft_reset");
+  });
   update();
   // The first render is the pre-filled example, not a quote the visitor asked
   // for. Seed it so it isn't counted, and so their first real edit still is.
