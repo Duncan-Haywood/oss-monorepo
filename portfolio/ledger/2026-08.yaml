@@ -10,8 +10,9 @@ entries:
         from loaded labor, direct costs, overhead, and target margin, then creates
         a cost floor and approval-ready summary. Added non-finite input hardening
         and a focused edge-case test. Product tests pass 4/4 and the served-page
-        smoke test passes; public publishing remains owner-gated and PR checks
-        remain red because the repository harness lacks unrelated dependencies.
+        smoke test passes; public publishing remains owner-gated. Required PR
+        checks are currently blocked before startup by the GitHub account billing
+        or spending-limit condition, not by a product test failure.
         PR #1217 remains open because supersede_check.py confirmed its product
         files are not on main.
     mrr_end: null
