@@ -7,12 +7,15 @@ import {
   CATEGORY_PRESETS,
   classifySizeTier,
   compareCoupons,
+  compareLowPriceFba,
   couponDiscount,
   couponedListing,
   couponSummary,
   cubicFeet,
   DEFAULT_COUPON_FEE,
   defaultFulfillmentFee,
+  defaultLowPriceFulfillmentFee,
+  lowPriceBreakEvenRaise,
   STORAGE_PRESETS,
 } from "./calc.mjs";
 
@@ -281,6 +284,120 @@ test("couponSummary names the buyer price, the fee, and the lift needed", () => 
 
 test("rejects a coupon percent above 100", () => {
   assert.throws(() => couponDiscount({ salePrice: 10, couponPercent: 101 }), /at most 100/);
+});
+
+const cheapSku = {
+  salePrice: 9.99,
+  referralRate: 15,
+  length: 8,
+  width: 6,
+  height: 0.5,
+  weightLb: 0.4,
+  costOfGoods: 4,
+  inboundPerUnit: 0.8,
+  monthsInStorage: 1,
+  storageRate: 0.87,
+  fbmShippingCost: 4.75,
+  packagingCost: 0.4,
+  otherCost: 0,
+  adsPerUnit: 0,
+  monthlySellerFee: 0,
+  monthlyUnits: 80,
+  targetMargin: 20,
+  fulfillmentMethod: "fba",
+  sizeTier: "small_standard",
+  fulfillmentFee: 3.47,
+  lowPriceFulfillmentFee: 2.57,
+  lowPriceThreshold: 10,
+};
+
+test("illustrative Low-Price FBA fees discount standard tiers only", () => {
+  near(defaultLowPriceFulfillmentFee("small_standard", 0.2), 3.06 - 0.9, "4 oz cheap");
+  near(defaultLowPriceFulfillmentFee("small_standard", 0.9), 3.47 - 0.9, "14.4 oz cheap");
+  near(defaultLowPriceFulfillmentFee("large_standard", 1), 4.4 - 0.7, "16 oz cheap");
+  near(defaultLowPriceFulfillmentFee("extra_large", 5), 26.33, "XL stays regular");
+});
+
+test("break-even raise is stay price plus the fulfillment jump after referral", () => {
+  near(lowPriceBreakEvenRaise({
+    stayPrice: 9.99,
+    referralRate: 15,
+    lowPriceFee: 2.57,
+    regularFee: 3.47,
+  }), 9.99 + 0.9 / 0.85, "penny-plus is not enough");
+  assert.equal(
+    lowPriceBreakEvenRaise({ stayPrice: 9.99, referralRate: 100, lowPriceFee: 2, regularFee: 3 }),
+    Infinity,
+  );
+});
+
+test("a one-cent raise above $10 loses to Low-Price FBA", () => {
+  const r = compareLowPriceFba({ ...cheapSku, raisePrice: 10.01 });
+  assert.equal(r.winner, "stay");
+  assert.equal(r.stayPrice, 9.99);
+  assert.ok(r.extraProfit < 0);
+  near(r.stay.fba.fees.fulfillment, 2.57, "cheap pick fee");
+  near(r.raise.fba.fees.fulfillment, 3.47, "regular pick fee");
+  near(r.breakEvenRaise, 9.99 + 0.9 / 0.85, "locked break-even");
+  assert.equal(r.raiseBeatsBreakEven, false);
+  assert.match(r.summary, /Staying at \$9\.99/);
+});
+
+test("raising to $12 beats staying under the $10 Low-Price band", () => {
+  const r = compareLowPriceFba({ ...cheapSku, raisePrice: 12 });
+  assert.equal(r.winner, "raise");
+  assert.ok(r.extraProfit > 0);
+  assert.equal(r.raiseBeatsBreakEven, true);
+  near(r.justOver.salePrice, 10.01, "penny-over row is still computed");
+  assert.ok(r.justOver.fba.profit < r.stay.fba.profit, "penny-over still loses");
+  assert.match(r.summary, /Listing at \$12\.00/);
+});
+
+test("dropping a $29.99 listing to $10 for cheaper fulfillment loses cash", () => {
+  const r = compareLowPriceFba({
+    ...base,
+    fulfillmentFee: 3.47,
+    lowPriceFulfillmentFee: 2.57,
+    lowPriceThreshold: 10,
+  });
+  assert.equal(r.stayPrice, 10);
+  assert.equal(r.raisePrice, 29.99);
+  assert.equal(r.winner, "raise");
+  assert.ok(r.extraProfit > 10, "the lost revenue dwarfs the $0.90 pick-fee save");
+});
+
+test("ineligible listings only use the regular fulfillment fee", () => {
+  const r = compareLowPriceFba({
+    ...cheapSku,
+    raisePrice: 10.01,
+    lowPriceEligible: false,
+  });
+  assert.equal(r.eligible, false);
+  assert.equal(r.winner, "raise");
+  near(r.stay.fba.fees.fulfillment, 3.47, "stay loses the cheap fee");
+  assert.match(r.summary, /outside Low-Price FBA/);
+});
+
+test("rejects a stay price above the threshold or a raise that stays under it", () => {
+  assert.throws(
+    () => compareLowPriceFba({ ...cheapSku, lowPriceSalePrice: 10.5 }),
+    /at or below the threshold/,
+  );
+  assert.throws(
+    () => compareLowPriceFba({ ...cheapSku, raisePrice: 9.5 }),
+    /greater than the low-price threshold/,
+  );
+  assert.throws(
+    () => compareLowPriceFba({ ...cheapSku, lowPriceThreshold: 0 }),
+    /greater than zero/,
+  );
+});
+
+test("profit at the break-even raise matches Low-Price stay profit", () => {
+  const r = compareLowPriceFba({ ...cheapSku, raisePrice: 12 });
+  const atBreak = compareLowPriceFba({ ...cheapSku, raisePrice: r.breakEvenRaise });
+  near(atBreak.raise.fba.profit, r.stay.fba.profit, "equal profit at break-even raise");
+  assert.equal(atBreak.winner, "tie");
 });
 
 test("rejects unknown presets and invalid inputs", () => {

@@ -158,3 +158,106 @@ export function calculateBid(input) {
     },
   };
 }
+
+/**
+ * Compare a building-wide frequency cut (or increase) against a linear
+ * discount of the current monthly price.
+ *
+ * Prospects routinely ask for 3×/week instead of 5× and offer 60% of the
+ * current price. Labor hours do scale with visits. In this model, supplies
+ * are a monthly-per-square-foot line, and equipment/travel stay on the job
+ * regardless of how many days you show up — so a 40% cut in days is not a
+ * 40% cut in cost. Accepting the linear number silently eats the margin
+ * the original bid was built on.
+ *
+ * Each area's own weekly frequency is scaled so a mixed schedule (restrooms
+ * 5×, offices 3×) stays proportional. The building-level currentWeekly is
+ * the cadence the comparison is about: if the area rows still say 3× while
+ * the contractor typed 5× as today's building week, baseline labor follows
+ * the 5× cut, not a mix of the two.
+ *
+ * @param {object} input                 Same shape as calculateBid.
+ * @param {object} options
+ * @param {number} options.currentWeekly How many days a week the building is
+ *   currently cleaned — the number the contractor quotes, not a per-area max.
+ * @param {number} options.proposedWeekly The schedule the prospect is asking for.
+ * @param {number|string|null} [options.clientOfferMonthly] Optional price they
+ *   put on the reduced schedule, scored against the reduced cost base.
+ */
+export function compareFrequencyReduction(input, options = {}) {
+  const currentWeekly = number(options.currentWeekly ?? 0, 'Current cleanings per week', { allowZero: false });
+  const proposedWeekly = number(options.proposedWeekly ?? 0, 'Proposed cleanings per week');
+  const factor = proposedWeekly / currentWeekly;
+
+  const areas = Array.isArray(input.areas) ? input.areas : [];
+  const areaFreqs = areas.map((area, index) => {
+    const label = area.name?.trim() || `Area ${index + 1}`;
+    return number(area.cleaningsPerWeek ?? 0, `${label}: cleanings per week`);
+  });
+  // Highest scheduled area is the building week the rows already encode.
+  // Rebase onto currentWeekly when that disagrees, so a 5→3 comparison is
+  // actually priced at 5 days then 3 days rather than 3 days then 1.8.
+  const typicalAreaWeek = Math.max(0, ...areaFreqs);
+  const alignFactor = typicalAreaWeek > 0 ? currentWeekly / typicalAreaWeek : 1;
+
+  const alignedAreas = areas.map((area, index) => ({
+    ...area,
+    cleaningsPerWeek: areaFreqs[index] * alignFactor,
+  }));
+  const scaledAreas = alignedAreas.map((area, index) => ({
+    ...area,
+    cleaningsPerWeek: areaFreqs[index] * alignFactor * factor,
+  }));
+
+  const baseline = calculateBid({ ...input, areas: alignedAreas, proposedPrice: undefined });
+  const reduced = calculateBid({
+    ...input,
+    areas: scaledAreas,
+    proposedPrice: options.clientOfferMonthly,
+  });
+
+  const naiveLinearPrice = baseline.monthlyPrice * factor;
+  const naiveProfit = naiveLinearPrice - reduced.monthlyCost;
+  const naiveMargin = naiveLinearPrice === 0 ? 0 : naiveProfit / naiveLinearPrice * 100;
+  const leftOnTable = reduced.monthlyPrice - naiveLinearPrice;
+
+  return {
+    currentWeekly,
+    proposedWeekly,
+    reductionFactor: factor,
+    baseline,
+    reduced,
+    naiveLinearPrice,
+    naiveProfit,
+    naiveMargin,
+    naiveBelowBreakEven: naiveLinearPrice < reduced.monthlyCost,
+    priceToHoldTargetMargin: reduced.monthlyPrice,
+    walkAwayAtReduced: reduced.breakEvenMonthlyPrice,
+    leftOnTable,
+    laborHoursDropped: baseline.monthlyHours - reduced.monthlyHours,
+    laborCostDropped: baseline.monthlyLaborCost - reduced.monthlyLaborCost,
+    unscaledMonthly: baseline.monthlySupplies + baseline.equipmentMonthly + baseline.otherMonthly,
+    suppliesUnchanged: Math.abs(reduced.monthlySupplies - baseline.monthlySupplies) < 1e-9,
+    equipmentUnchanged: Math.abs(reduced.equipmentMonthly - baseline.equipmentMonthly) < 1e-9,
+    clientOffer: reduced.proposed,
+  };
+}
+
+/**
+ * One paragraph a contractor can paste into a renewal reply. Arithmetic only —
+ * it does not tell them to accept or refuse.
+ */
+export function frequencyReductionNote(comparison, { targetMargin } = {}) {
+  const money = value => `$${value.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+  const pct = comparison.reductionFactor * 100;
+  const marginPct = Number.isFinite(targetMargin) ? targetMargin : 20;
+  const direction = comparison.proposedWeekly < comparison.currentWeekly ? 'cut' : 'change';
+  const naiveLine = comparison.naiveBelowBreakEven
+    ? `Accepting ${pct.toFixed(0)}% of the ${comparison.currentWeekly}× price (${money(comparison.naiveLinearPrice)}) would lose ${money(Math.abs(comparison.naiveProfit))} a month against the ${comparison.proposedWeekly}× cost base. Walk-away on the reduced schedule is ${money(comparison.walkAwayAtReduced)}.`
+    : `A linear ${pct.toFixed(0)}% of the ${comparison.currentWeekly}× price is ${money(comparison.naiveLinearPrice)}, which leaves a ${comparison.naiveMargin.toFixed(1)}% margin at ${comparison.proposedWeekly}× — ${money(Math.abs(comparison.leftOnTable))} a month ${comparison.leftOnTable > 0 ? 'below' : 'above'} the price that holds a ${marginPct}% target.`;
+  return [
+    `At ${comparison.proposedWeekly}×/week the monthly price that still holds a ${marginPct}% margin is ${money(comparison.priceToHoldTargetMargin)}, not a linear ${direction} of the ${comparison.currentWeekly}× price (${money(comparison.baseline.monthlyPrice)}).`,
+    `Labor drops with the visits (${comparison.baseline.monthlyHours.toFixed(1)} h → ${comparison.reduced.monthlyHours.toFixed(1)} h). Supplies, equipment, and travel stay on the job (${money(comparison.unscaledMonthly)}/month in this bid).`,
+    naiveLine,
+  ].join(' ');
+}

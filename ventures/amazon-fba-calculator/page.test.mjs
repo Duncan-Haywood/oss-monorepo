@@ -6,7 +6,11 @@ import { readFileSync } from "node:fs";
 import { compareCoupons } from "./calc.mjs";
 
 const html = readFileSync(new URL("./index.html", import.meta.url), "utf8");
-const seo = readFileSync(new URL("./does-this-amazon-coupon-still-pay.html", import.meta.url), "utf8");
+const couponSeo = readFileSync(new URL("./does-this-amazon-coupon-still-pay.html", import.meta.url), "utf8");
+const lowPriceSeo = readFileSync(
+  new URL("./should-i-price-over-amazons-low-price-fba.html", import.meta.url),
+  "utf8",
+);
 
 function parse(source) {
   const RAW = /<(textarea|script|style)\b[^>]*>/i;
@@ -47,16 +51,26 @@ test("the coupon row template has one cell per column", () => {
   assert.match(scriptSource, /couponSummary\(coupons\)/);
 });
 
-test("schema.org featureList names the coupon comparison the page actually renders", () => {
+test("schema.org featureList names the comparisons the page actually renders", () => {
   const featureList = html.match(/"featureList":\s*"([^"]+)"/);
   assert.ok(featureList, "featureList missing");
   assert.match(featureList[1], /coupon vs list profit/i);
+  assert.match(featureList[1], /Low-Price FBA/i);
   assert.match(markup, /id="couponCompare"/);
   assert.match(markup, /id="couponPercent"/);
   assert.match(markup, /does-this-amazon-coupon-still-pay\.html/);
 });
 
-test("SEO page uses the same worked example the tests lock", () => {
+test("calculator page wires the Low-Price FBA comparison", () => {
+  assert.match(html, /compareLowPriceFba/);
+  assert.match(html, /id="lowPriceCompare"/);
+  assert.match(html, /id="lowPriceBreakEven"/);
+  assert.match(html, /low_price_fba_compared/);
+  assert.match(html, /should-i-price-over-amazons-low-price-fba.html/);
+  assert.match(html, /Best-effort hosting, no SLA/);
+});
+
+test("SEO page uses the same coupon worked example the tests lock", () => {
   const comparison = compareCoupons({
     salePrice: 29.99,
     referralRate: 15,
@@ -79,19 +93,26 @@ test("SEO page uses the same worked example the tests lock", () => {
     couponPercent: 15,
     couponFee: 0.6,
   });
-  assert.match(seo, /\$25\.49/);
-  assert.match(seo, /\$6\.57/);
-  assert.match(seo, /\$4\.42/);
-  assert.match(seo, /67% lift/);
-  assert.match(seo, /\$10\.99/);
+  assert.match(couponSeo, /\$25\.49/);
+  assert.match(couponSeo, /\$6\.57/);
+  assert.match(couponSeo, /\$4\.42/);
+  assert.match(couponSeo, /67% lift/);
+  assert.match(couponSeo, /\$10\.99/);
   assert.ok(comparison.typed.profit > 6.56 && comparison.typed.profit < 6.58);
+});
+
+test("Low-Price SEO page states the penny-raise trap and the break-even raise", () => {
+  assert.match(lowPriceSeo, /Low-Price FBA/);
+  assert.match(lowPriceSeo, /\$11\.05/);
+  assert.match(lowPriceSeo, /one-cent raise/);
+  assert.match(lowPriceSeo, /No warranty/);
 });
 
 test("pages keep the disclaimer and optional sponsor link", () => {
   assert.match(html, /No warranty/);
   assert.match(html, /Best-effort hosting, no SLA/);
   assert.match(html, /github\.com\/sponsors\/Duncan-Haywood/);
-  assert.match(seo, /No warranty/);
-  assert.match(seo, /Best-effort hosting, no SLA/);
-  assert.match(seo, /github\.com\/sponsors\/Duncan-Haywood/);
+  assert.match(couponSeo, /No warranty/);
+  assert.match(couponSeo, /Best-effort hosting, no SLA/);
+  assert.match(couponSeo, /github\.com\/sponsors\/Duncan-Haywood/);
 });
