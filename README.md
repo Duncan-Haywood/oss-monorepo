@@ -6,8 +6,9 @@ platform that works on it.
 **Strategy:** [`portfolio/DIRECTION.md`](portfolio/DIRECTION.md) — build
 products people use (free, full-feature, usage-tracked), ship fast, minimize
 variable cost. Agent instructions: [`AGENTS.md`](AGENTS.md). How to build one:
-[`PRODUCT_PLAYBOOK.md`](PRODUCT_PLAYBOOK.md). What to count and where it lands:
-[`portfolio/usage/`](portfolio/usage/README.md).
+[`PRODUCT_PLAYBOOK.md`](PRODUCT_PLAYBOOK.md). Adapting a known business
+without cloning it: [`portfolio/inspiration/ADAPTATION.md`](portfolio/inspiration/ADAPTATION.md).
+What to count and where it lands: [`portfolio/usage/`](portfolio/usage/README.md).
 
 The point of consolidating: agent automation is repo-scoped. In a polyrepo
 setup every new venture costs a fresh onboarding pass across every agent

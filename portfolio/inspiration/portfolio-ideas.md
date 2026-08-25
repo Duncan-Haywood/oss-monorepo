@@ -6,6 +6,9 @@ This is **not** a second screening pipeline and it does not rescore
 `portfolio/pipeline/`. A row graduates only by shipping
 `ventures/<slug>/` or a `product_lines` entry.
 
+How to pick, gate, and adapt a row:
+[`ADAPTATION.md`](ADAPTATION.md).
+
 Company **names** are facts. We do not copy directory write-ups, logos,
 application answers, or help-center prose. Rates in any shipped tool stay
 user-editable, sourced from a public fee article the user can check.

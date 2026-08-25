@@ -32,6 +32,9 @@ Prefer products that:
 Use traditional software patterns. Add AI where it clearly helps; do not
 AI-wrap by default.
 
+Adapting a known business: leftover worksheet only — legal gate and build
+order in [`portfolio/inspiration/ADAPTATION.md`](portfolio/inspiration/ADAPTATION.md).
+
 ## Ship fast
 
 - **Merge when CI is green.** No human code review gate. Fix forward.

@@ -100,8 +100,10 @@ to deployable venture code stay owner-gated until Ask 9
 
 ## Graduating new products
 
-1. Pick a niche from `portfolio/pipeline/` or invent one that is **not** in
-   `screened-out.md`.
+1. Pick a niche from `portfolio/pipeline/`, from the adaptation plan in
+   [`inspiration/ADAPTATION.md`](inspiration/ADAPTATION.md) (leftover
+   worksheet of a known business — not a clone), or invent one that is
+   **not** in `screened-out.md`.
 2. Graduate it matching its `graduate_as` field:
    - `graduate_as: venture` — create `ventures/<slug>/` with `VENTURE.yaml`,
      a runnable app, disclaimers, and basic usage tracking.

@@ -5,8 +5,9 @@ super-niche, $0-marginal-cost tools. This is **not** a candidate pipeline
 and it does not rescore `portfolio/pipeline/`. Screening there is done.
 A niche graduates by shipping `ventures/<slug>/` or a `product_lines` entry.
 
-The full idea inventory (YC paste + Techstars unicorn names + SPC homepage
-+ Seedcamp featured + well-known VC cores) is
+How to adapt a known business without cloning it:
+[`ADAPTATION.md`](ADAPTATION.md). The idea inventory (YC paste + Techstars
+unicorn names + SPC homepage + Seedcamp featured + well-known VC cores) is
 [`portfolio-ideas.md`](portfolio-ideas.md). This file keeps the legal line
 and the short ship/skip table.
 
@@ -73,5 +74,6 @@ startup”; it is “the spreadsheet their customer still opens.”
 - Ship anything that needs a Faire / Whatnot / GOAT account, API, or listing.
 - Claim affiliation.
 
-If a later session picks a row, graduate it as a product. The inventory in
-`portfolio-ideas.md` is already the list; do not open a third notes file.
+If a later session picks a row, follow [`ADAPTATION.md`](ADAPTATION.md) and
+graduate it as a product. The inventory in `portfolio-ideas.md` is already
+the list; do not open a third notes file.

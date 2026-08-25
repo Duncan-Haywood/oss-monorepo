@@ -33,6 +33,12 @@ spreadsheets; and the long tail of "I do this manually every week" posts.
 `portfolio/pipeline/` already holds screened candidates with `build-now`
 verdicts — start there before inventing a new one.
 
+**Adapting a successful company** is also a source, with a harder legal
+line: mimic the leftover spreadsheet, not the product. Robots.txt, terms,
+copyright, and trademark gates, plus the default build order, are in
+[`portfolio/inspiration/ADAPTATION.md`](portfolio/inspiration/ADAPTATION.md).
+Do not scrape their directory or clone their core.
+
 **The value test:** finish this sentence in the product's own README — *"After
 using this, you can now ___ , which used to take ___ ."* If you can't, the aim
 is wrong, and no amount of code fixes it. The strongest version of that sentence
