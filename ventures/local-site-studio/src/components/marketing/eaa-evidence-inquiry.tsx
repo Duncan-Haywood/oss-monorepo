@@ -9,6 +9,20 @@ import {
   type BuyerObligation,
 } from "@/lib/pricing/eaa-evidence";
 
+const USAGE_KEY = "local-site-studio:eaa-evidence-events";
+const OPT_OUT_KEY = "local-site-studio:eaa-evidence-usage-opt-out";
+
+function recordUsage(event: string) {
+  try {
+    if (localStorage.getItem(OPT_OUT_KEY) === "true") return;
+    const current = JSON.parse(localStorage.getItem(USAGE_KEY) || "{}") as Record<string, number>;
+    current[event] = (current[event] || 0) + 1;
+    localStorage.setItem(USAGE_KEY, JSON.stringify(current));
+  } catch {
+    // Private browsing and disabled storage must not break the inquiry form.
+  }
+}
+
 type TurnoverBand = "" | "under-2m" | "over-2m";
 
 /** Whole numbers only — the input has step=1, so a fractional entry is rejected rather than silently floored. */
@@ -58,6 +72,7 @@ export function EaaEvidenceInquiry() {
       onSubmit={(event) => {
         event.preventDefault();
         if (mailto.ok) {
+          recordUsage("qualified_inquiry_started");
           window.location.href = mailto.href;
         }
       }}
@@ -182,6 +197,19 @@ export function EaaEvidenceInquiry() {
       >
         Email an inquiry
       </button>
+      <label className="flex items-center gap-2 text-xs text-zinc-500">
+        <input
+          type="checkbox"
+          onChange={(event) => {
+            try {
+              localStorage.setItem(OPT_OUT_KEY, String(event.target.checked));
+            } catch {
+              // Preference is best effort; the inquiry remains functional.
+            }
+          }}
+        />
+        Don&apos;t count anonymous inquiry events on this device
+      </label>
     </form>
   );
 }
