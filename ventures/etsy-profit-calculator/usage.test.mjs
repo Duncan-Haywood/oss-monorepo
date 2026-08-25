@@ -20,6 +20,19 @@ test('honors opt out', () => {
 test('supports a named aggregate event without recording inputs', () => {
   const values = new Map();
   const storage = { getItem: key => values.get(key) ?? null, setItem: (key, value) => values.set(key, value) };
-  recordUsage(storage, false, 'scenario_compared');
-  assert.equal(JSON.parse(values.get('etsy-profit-usage')).scenario_compared, 1);
+  recordUsage(storage, false, 'etsy_plus_compared');
+  assert.equal(JSON.parse(values.get('etsy-profit-usage')).etsy_plus_compared, 1);
+});
+
+test('honors Do Not Track without recording', () => {
+  const previous = globalThis.navigator;
+  Object.defineProperty(globalThis, 'navigator', { configurable: true, value: { doNotTrack: '1' } });
+  let called = false;
+  try {
+    recordUsage({ setItem: () => { called = true; } });
+    assert.equal(called, false);
+  } finally {
+    if (previous === undefined) delete globalThis.navigator;
+    else Object.defineProperty(globalThis, 'navigator', { configurable: true, value: previous });
+  }
 });

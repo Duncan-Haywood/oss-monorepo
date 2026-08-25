@@ -61,3 +61,27 @@ Enter a target margin to calculate the item price needed to reach it, then
 compare prices $10 below and above the current price. This turns a fee
 calculation into a quick pricing decision without uploading product data or
 relying on Etsy's changing fee schedule.
+
+## Is Etsy Plus worth it this month?
+
+The calculator also compares staying off Plus with using the listing credits
+and Etsy Ads credit you would actually spend. Unused credits expire and are
+not counted as savings. Extra listings past the credit cap cost the same on
+both paths, so volume alone does not make Plus cheaper. Shop customization
+and restock requests are left at $0 unless you assign them a dollar value.
+
+At the published $10 / 15 listing credits / $5 Ads credit example and a
+$0.20 listing fee, using every credit still leaves Plus $2 more expensive
+than paying the listing fees and Ads yourself. Change the inputs to match
+your Plus invoice. The SEO page
+[is-etsy-plus-worth-it.html](is-etsy-plus-worth-it.html) walks through the
+same worked examples.
+
+[GitHub Sponsors](https://github.com/sponsors/Duncan-Haywood) is entirely
+optional and never changes what the calculator does.
+
+**Best-effort hosting, no SLA.** These tools are free, experimental, and may
+be slow, broken, moved, or taken offline without notice. We do not promise
+uptime, backups of anything you type, or that a URL will keep working. Do
+not use this as a system of record. If a tool needs to survive, export your
+inputs and run it yourself.
