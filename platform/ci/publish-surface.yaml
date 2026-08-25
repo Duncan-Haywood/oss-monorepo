@@ -70,6 +70,9 @@ workflows:
 - workflow: demand-signal-reachability-ci.yml
   classification: none
   publishes: []
+- workflow: drywall-bid-calculator-ci.yml
+  classification: none
+  publishes: []
 - workflow: eaa-wcag-triage-ci.yml
   classification: none
   publishes: []
