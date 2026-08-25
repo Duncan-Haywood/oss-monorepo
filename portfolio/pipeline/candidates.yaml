@@ -838,3 +838,27 @@ candidates:
       component for distribution.
     first_experiment_days: 14
     first_experiment_budget_usd: 100
+
+  - slug: 3pl-quote-normalizer
+    name: 3PL quote normalizer
+    doc: candidates/3pl-quote-normalizer.md
+    verdict: graduated
+    graduate_as: venture
+    host_venture: null
+    initiated: 2026-08-25
+    initiated_path: ventures/3pl-quote-normalizer
+    scores:
+      ai_leverage: 2
+      autonomous_ops: 10
+      time_to_revenue: 7
+      gross_margin: 10
+      defensibility: 4
+      distribution: 7
+      liability_containment: 8
+      ethical_robustness: 9
+    composite: 7.125
+    floor: 2
+    floor_dimension: ai_leverage
+    mitigation: Keep deterministic arithmetic as the complete free core and label every result as an input comparison, not a fulfillment or financial recommendation.
+    first_experiment_days: 14
+    first_experiment_budget_usd: 0
