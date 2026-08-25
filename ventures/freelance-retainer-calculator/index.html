@@ -32,8 +32,11 @@
           <label>Scope / revision buffer <span>%</span><input id="buffer" type="number" min="0" max="100" step="1" value="15" required></label>
         </div>
         <label>Currency <select id="currency"><option value="USD">USD ($)</option><option value="EUR">EUR (€)</option><option value="GBP">GBP (£)</option><option value="CAD">CAD ($)</option><option value="AUD">AUD ($)</option></select></label>
-        <p id="draftStatus" class="draft-status" role="status">Your inputs stay in this browser as a private local draft.</p>
-        <button type="submit">Calculate sustainable price</button>
+        <p id="draftStatus" class="draft-status" role="status">Your inputs stay in this browser as a private local draft. A shareable link puts the same numbers in the URL hash so a partner can open the exact plan — nothing is uploaded.</p>
+        <div class="actions">
+          <button type="submit">Calculate sustainable price</button>
+          <button id="share" type="button" class="secondary">Copy shareable link</button>
+        </div>
         <p id="errors" class="error" role="alert" hidden></p>
       </form>
       <section id="results" class="card result" aria-live="polite" hidden>
@@ -48,6 +51,7 @@
        <div class="actions">
          <button id="copy" type="button" class="secondary">Copy proposal summary</button>
          <button id="download" type="button" class="secondary">Download proposal (.txt)</button>
+         <button id="shareResult" type="button" class="secondary">Copy shareable link</button>
        </div>
        <span id="copyStatus" role="status"></span>
       </section>
@@ -60,7 +64,8 @@
     </section>
     <footer>
       <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not financial advice and does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for meeting any obligation it helps you prepare for. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
-      <p>Everything runs in your browser. Your numbers are never uploaded. There are no accounts, cookies, or analytics vendors. We count only anonymous feature events in this browser; <label><input id="optOut" type="checkbox"> don't count my usage</label>. Your browser's Do Not Track or Global Privacy Control signal also disables counting.</p>
+      <p>Everything runs in your browser. Your numbers are never uploaded. There are no accounts, cookies, or analytics vendors. A shareable link stores only the planning fields in the URL hash on the recipient's device. We count only anonymous feature events in this browser; <label><input id="optOut" type="checkbox"> don't count my usage</label>. Your browser's Do Not Track or Global Privacy Control signal also disables counting.</p>
+      <p>Free and open source. If it helped you send a defensible retainer, the <a href="https://github.com/Duncan-Haywood/monorepo-projects">project is on GitHub</a> — <a href="https://github.com/sponsors/Duncan-Haywood">GitHub Sponsors</a> is optional and never changes what the tool does.</p>
     </footer>
   </main>
   <script type="module" src="app.js"></script>

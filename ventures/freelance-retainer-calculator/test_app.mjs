@@ -1,5 +1,6 @@
 import assert from 'node:assert/strict';
 import { calculatePlan, DRAFT_KEY, DISCLAIMER, formatProposalSummary, loadDraft, saveDraft } from './app.js';
+import { buildShareUrl, decodeInputs, encodeInputs } from './share.mjs';
 
 const plan = calculatePlan({ income: 6000, costs: 1800, hours: 160, utilization: 65, retainerHours: 20, buffer: 15 });
 assert.equal(plan.capacity, 104);
@@ -20,4 +21,8 @@ assert.equal(saveDraft(draft, storage), true);
 assert.deepEqual(loadDraft(storage), draft);
 assert.equal(loadDraft({ getItem: () => '{broken' }), null);
 assert.equal(data.has(DRAFT_KEY), true);
+const shared = { income: 6000, costs: 1800, hours: 160, utilization: 65, retainerHours: 20, buffer: 15, currency: 'USD' };
+const restored = decodeInputs(encodeInputs(shared));
+assert.deepEqual(calculatePlan(restored), plan);
+assert.match(buildShareUrl('https://example.test/app/', shared), /#income=6000/);
 console.log('freelance retainer calculator tests passed');
