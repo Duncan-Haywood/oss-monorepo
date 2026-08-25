@@ -497,8 +497,99 @@ export function comparePattern(input) {
     .sort((a, b) => a.price - b.price);
 }
 
+/**
+ * Tile is sold by the box. A 33 SF kitchen buy at 10 SF / box is
+ * four boxes (40 SF), not 3.3. Leftover boxes already on the van
+ * credit against that buy. After the splash, leftover may or may
+ * not cover a laundry / pantry return — matching the kitchen tile
+ * invoice on that second wall is how leftover gets wasted or a
+ * second supplier trip gets eaten. This does not change the
+ * headline bid: leftover is already-paid stock unless the setter
+ * decides to credit it.
+ *
+ * @param {object} input same shape as calculateBid, plus sfPerBox,
+ *   leftoverBoxes, and secondWallSf
+ */
+export function leftoverBoxPlan(input) {
+  const bid = calculateBid(input);
+  const sfPerBox = number(input.sfPerBox ?? 0, 'Square feet per box', { allowZero: false });
+  const leftoverBoxes = number(input.leftoverBoxes ?? 0, 'Leftover boxes');
+  const secondWallSf = number(input.secondWallSf ?? 0, 'Second wall square feet');
+  const wasteRate = number(input.wasteRate ?? 0, 'Waste rate');
+  const tilePerSf = number(input.tilePerSf ?? 0, 'Tile per SF');
+
+  const kitchenNeedSf = bid.buySf;
+  const leftoverSf = leftoverBoxes * sfPerBox;
+  const usedFromStock = Math.min(leftoverSf, kitchenNeedSf);
+  const stillNeedSf = kitchenNeedSf - usedFromStock;
+  const boxesToBuy = stillNeedSf <= 1e-9 ? 0 : Math.ceil((stillNeedSf / sfPerBox) - 1e-9);
+  const purchasedSf = boxesToBuy * sfPerBox;
+  const leftoverAfterKitchen = leftoverSf + purchasedSf - kitchenNeedSf;
+  const leftoverAfterKitchenBoxes = leftoverAfterKitchen / sfPerBox;
+
+  const secondNeedSf = secondWallSf * (1 + wasteRate);
+  const secondShortfallSf = Math.max(0, secondNeedSf - leftoverAfterKitchen);
+  const secondCoveredByLeftover = secondNeedSf <= leftoverAfterKitchen + 1e-9;
+  const secondBoxesToBuy = secondShortfallSf <= 1e-9
+    ? 0
+    : Math.ceil((secondShortfallSf / sfPerBox) - 1e-9);
+
+  const leftoverCredit = usedFromStock * tilePerSf;
+  const boxRoundUpSf = purchasedSf - stillNeedSf;
+  const boxRoundUpCost = boxRoundUpSf * tilePerSf;
+  const naiveTileInvoice = kitchenNeedSf * tilePerSf;
+  const tileInvoiceAfterBoxes = purchasedSf * tilePerSf;
+
+  return {
+    sfPerBox,
+    leftoverBoxes,
+    leftoverSf,
+    kitchenNeedSf,
+    usedFromStock,
+    stillNeedSf,
+    boxesToBuy,
+    purchasedSf,
+    leftoverAfterKitchen,
+    leftoverAfterKitchenBoxes,
+    secondWallSf,
+    secondNeedSf,
+    secondCoveredByLeftover,
+    secondShortfallSf,
+    secondBoxesToBuy,
+    leftoverCredit,
+    boxRoundUpSf,
+    boxRoundUpCost,
+    naiveTileInvoice,
+    tileInvoiceAfterBoxes,
+  };
+}
+
 function money(value) {
   return `$${value.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+}
+
+function boxWord(count) {
+  return count === 1 ? 'box' : 'boxes';
+}
+
+/**
+ * Setter-facing leftover note. Costs stay out of the customer draft —
+ * this is the box count they lose when leftover is only on the screen.
+ */
+export function formatBoxPlanNote(plan) {
+  const lines = [
+    'BOX PLAN (internal — leftover does not change the installed price)',
+    `- Buy ${plan.boxesToBuy} ${boxWord(plan.boxesToBuy)} (${plan.purchasedSf.toFixed(1)} SF)`,
+    `- Leftover after kitchen: ${plan.leftoverAfterKitchen.toFixed(1)} SF`,
+  ];
+  if (plan.secondWallSf > 0) {
+    lines.push(plan.secondCoveredByLeftover
+      ? `- Second wall ${plan.secondWallSf} SF: leftover covers it`
+      : `- Second wall ${plan.secondWallSf} SF: leftover misses it — still ${plan.secondBoxesToBuy} ${boxWord(plan.secondBoxesToBuy)}`);
+  } else {
+    lines.push('- No second wall entered');
+  }
+  return lines.join('\n');
 }
 
 /**
