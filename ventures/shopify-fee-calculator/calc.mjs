@@ -160,3 +160,98 @@ export function calculateOrder(input) {
     extraCostVsThirdParty: shopifyPayments.feeTotal - thirdParty.feeTotal,
   };
 }
+
+const PROMO_KINDS = new Set(["list", "percent_off", "amount_off", "free_shipping"]);
+
+/**
+ * Apply one checkout offer to a calculateOrder input.
+ *
+ * percent_off / amount_off cut the item price (amount floors at $0).
+ * free_shipping zeros shippingCharged and leaves shippingCost alone — the
+ * label still has to be paid. Percentage fees then run on the new revenue.
+ */
+export function applyPromo(input, promo = {}) {
+  const kind = promo.kind ?? "list";
+  if (!PROMO_KINDS.has(kind)) throw new Error(`Unknown promo kind: ${kind}`);
+  if (kind === "list") return { ...input };
+
+  const price = number(input.price, "Item price");
+
+  if (kind === "percent_off") {
+    const percent = number(promo.percent, "Promo percent");
+    if (percent > 100) throw new Error("Promo percent must be at most 100");
+    return { ...input, price: price * (1 - percent / 100) };
+  }
+  if (kind === "amount_off") {
+    const amount = number(promo.amount, "Promo amount");
+    return { ...input, price: Math.max(0, price - amount) };
+  }
+  return { ...input, price, shippingCharged: 0 };
+}
+
+export function defaultPromoSet({ percentOff = 10, amountOff = 10 } = {}) {
+  const percent = number(percentOff, "Promo percent");
+  const amount = number(amountOff, "Promo amount");
+  if (percent > 100) throw new Error("Promo percent must be at most 100");
+  const amountLabel = Number.isInteger(amount) ? `$${amount} off item` : `$${amount.toFixed(2)} off item`;
+  return [
+    { id: "list", kind: "list", label: "List price" },
+    { id: "percent_off", kind: "percent_off", percent, label: `${percent}% off item` },
+    { id: "amount_off", kind: "amount_off", amount, label: amountLabel },
+    { id: "free_shipping", kind: "free_shipping", label: "Free shipping" },
+  ];
+}
+
+function promoRow(input, promo, listProfit) {
+  const applied = applyPromo(input, promo);
+  const order = calculateOrder(applied);
+  return {
+    id: promo.id ?? promo.kind ?? "list",
+    label: promo.label ?? promo.kind ?? "list",
+    kind: promo.kind ?? "list",
+    price: number(applied.price, "Item price"),
+    shippingCharged: number(applied.shippingCharged, "Shipping charged"),
+    revenue: order.revenue,
+    feeTotal: order.selected.feeTotal,
+    cashInvested: order.selected.cashInvested,
+    profit: order.selected.profit,
+    margin: order.selected.margin,
+    profitDelta: order.selected.profit - listProfit,
+    isLoss: order.selected.profit < 0,
+  };
+}
+
+/**
+ * Rank checkout offers on the selected payment path. List price is the
+ * baseline; cash invested does not change when shipping charged goes to $0.
+ */
+export function comparePromos(input, promos = defaultPromoSet()) {
+  if (!Array.isArray(promos) || promos.length === 0) {
+    throw new Error("At least one promo is required");
+  }
+  const listProfit = calculateOrder(input).selected.profit;
+  const rows = promos.map((promo) => promoRow(input, promo, listProfit));
+  const ranked = [...rows].sort((a, b) => b.profit - a.profit || a.label.localeCompare(b.label));
+  return { listProfit, rows, ranked, best: ranked[0] };
+}
+
+export function promoComparisonSummary(comparison) {
+  const money = (value) =>
+    `$${value.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+  const promoRows = comparison.rows.filter((row) => row.kind !== "list");
+  if (promoRows.length === 0) return "Enter a promo to compare it against list price.";
+
+  const bestPromo = [...promoRows].sort((a, b) => b.profit - a.profit)[0];
+  const freeShipping = promoRows.find((row) => row.kind === "free_shipping");
+  const vsList = `${money(Math.abs(bestPromo.profitDelta))} ${bestPromo.profitDelta >= 0 ? "above" : "below"} list`;
+
+  let sentence = `${bestPromo.label} keeps the most of the compared promos (${money(bestPromo.profit)}, ${vsList}).`;
+  if (promoRows.every((row) => row.isLoss)) {
+    sentence = `Every compared promo loses money. ${bestPromo.label} loses the least (${money(bestPromo.profit)}).`;
+  }
+  if (freeShipping && bestPromo.kind !== "free_shipping") {
+    sentence += ` Free shipping keeps ${money(bestPromo.profit - freeShipping.profit)} less than ${bestPromo.label}.`;
+    if (freeShipping.isLoss) sentence += " Free shipping turns the order into a loss.";
+  }
+  return sentence;
+}

@@ -220,6 +220,15 @@ products:
           (plan presets, both-path comparison, break-even and target-margin
           price). Public URL remains owner-gated; the local-first counter
           reports only to the user's own browser and is opt-out. Baseline row.
+      - as_of: 2026-08-25
+        signals:
+          live_url_visitors: null
+          local_events_reported: 0
+          promos_compared: 0
+        note: >-
+          Added 10% off vs dollar-off vs free-shipping comparison on the
+          selected payment path. Public URL remains owner-gated; the local
+          promos_compared event is opt-out and never stores inputs.
   - slug: where-to-sell-calculator
     surface: static-page-in-repo
     readings:

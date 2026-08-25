@@ -13,8 +13,10 @@ an estimate of the fees Shopify will charge: enter the rates from your current
 statements, and verify them there.
 
 **After using this, you can now see whether PayPal or Stripe costs more than
-Shopify Payments on a real order, and what to charge to keep a target
-margin** — which used to mean a spreadsheet that forgot the extra Shopify fee.
+Shopify Payments on a real order, what to charge to keep a target margin, and
+which sale still leaves a profit — 10% off, a dollar-off coupon, or free
+shipping** — which used to mean a spreadsheet that forgot the extra Shopify
+fee and treated every promo as the same discount.
 
 ## Why it's different
 
@@ -32,6 +34,9 @@ expected monthly orders, and shows **both paths on the same order**.
 
 [Why PayPal can cost more on Shopify](why-paypal-costs-more.html) answers that
 search question directly.
+[Which Shopify promo still pays](which-shopify-promo-costs-less.html) is the
+same idea for 10% off vs a coupon vs free shipping: percentage fees follow
+the new total, and the label still costs money when shipping charged is $0.
 
 **No warranty.** This tool is provided free and as-is, without warranty of any
 kind, express or implied. It is not tax, financial, or business advice, and it
@@ -60,11 +65,12 @@ optional and never changes what the tool does.
 Pure ES modules, no build step, no dependencies.
 
 ```
-node --test        # runs calc.test.mjs and usage.test.mjs
+node --test        # runs calc.test.mjs, page.test.mjs, and usage.test.mjs
 ```
 
-`calc.mjs` holds the fee/profit/ROI arithmetic and plan presets; `usage.mjs`
-holds the anonymous local counter; `index.html` is the calculator UI.
+`calc.mjs` holds the fee/profit/ROI arithmetic, plan presets, and the promo
+comparison; `usage.mjs` holds the anonymous local counter; `index.html` is
+the calculator UI.
 
 Not yet deployed to a public URL — publishing under the portfolio's name is
 owner-gated per `portfolio/DIRECTION.md` — but the page is ready to host as
