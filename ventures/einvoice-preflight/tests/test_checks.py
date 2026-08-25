@@ -163,7 +163,45 @@ class ChecksTest(unittest.TestCase):
             usage_path = Path(directory) / "usage.json"
             invoice_path.write_text(json.dumps(VALID))
             self.assertEqual(main([str(invoice_path), "--format", "json", "--usage-file", str(usage_path)]), 0)
-            self.assertEqual(json.loads(usage_path.read_text()), {"events": {"invoice_preflight_checked": 1}})
+            self.assertEqual(
+                json.loads(usage_path.read_text()),
+                {"events": {"invoice_preflight_attempted": 1, "invoice_preflight_checked": 1}},
+            )
+
+    def test_cli_counts_attempted_use_when_input_cannot_be_parsed(self):
+        with tempfile.TemporaryDirectory() as directory:
+            invoice_path = Path(directory) / "broken.json"
+            usage_path = Path(directory) / "usage.json"
+            invoice_path.write_text("{not-json")
+            output = io.StringIO()
+            with contextlib.redirect_stdout(output):
+                self.assertEqual(
+                    main([str(invoice_path), "--format", "json", "--usage-file", str(usage_path)]),
+                    2,
+                )
+            self.assertEqual(
+                json.loads(usage_path.read_text()),
+                {"events": {"invoice_preflight_attempted": 1}},
+            )
+
+    def test_cli_counts_attempt_once_and_checked_per_valid_invoice_in_batch(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            invoices = root / "invoices"
+            invoices.mkdir()
+            (invoices / "valid.json").write_text(json.dumps(VALID))
+            (invoices / "broken.json").write_text("{not-json")
+            usage_path = root / "usage.json"
+            output = io.StringIO()
+            with contextlib.redirect_stdout(output):
+                self.assertEqual(
+                    main([str(invoices), "--format", "json", "--usage-file", str(usage_path)]),
+                    2,
+                )
+            self.assertEqual(
+                json.loads(usage_path.read_text()),
+                {"events": {"invoice_preflight_attempted": 1, "invoice_preflight_checked": 1}},
+            )
 
     def test_cli_writes_report_to_output_file(self):
         with tempfile.TemporaryDirectory() as directory:
@@ -194,7 +232,10 @@ class ChecksTest(unittest.TestCase):
             invoice_path.write_text(json.dumps(VALID))
             usage_path.write_text(json.dumps({"events": {"invoice_preflight_checked": "unknown"}}))
             self.assertEqual(main([str(invoice_path), "--format", "json", "--usage-file", str(usage_path)]), 0)
-            self.assertEqual(json.loads(usage_path.read_text()), {"events": {"invoice_preflight_checked": 1}})
+            self.assertEqual(
+                json.loads(usage_path.read_text()),
+                {"events": {"invoice_preflight_attempted": 1, "invoice_preflight_checked": 1}},
+            )
 
     def test_usage_write_failure_does_not_fail_preflight(self):
         with tempfile.TemporaryDirectory() as directory:
