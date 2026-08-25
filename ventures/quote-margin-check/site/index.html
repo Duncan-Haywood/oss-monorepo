@@ -183,7 +183,8 @@
       <div class="result" id="review" aria-live="polite"><strong>Before you send it</strong><ul class="checks"></ul></div>
 
     <div class="actions">
-      <button type="button" id="copy-csv">Copy as CSV row</button>
+      <button type="button" id="copy-csv">Copy as CSV</button>
+      <button type="button" id="download-csv">Download CSV</button>
       <span id="copy-status" class="hint" role="status" aria-live="polite"></span>
     </div>
   </section>
@@ -251,11 +252,17 @@
 
 <script type="module">
   import { loadQuote, calculate, overrunScenarios } from "./calc.mjs";
+  import { quoteCsv } from "./export.mjs";
   import { reviewQuote } from "./review.mjs";
   import { recordEvent, createReportCounter, isUsageCountingEnabled, setUsageCountingEnabled } from "./usage.mjs";
 
   // Counts settled quotes rather than keystrokes — see usage.mjs.
-  const reportCounter = createReportCounter();
+  const reportCounter = createReportCounter({
+    record: (event) => {
+      recordEvent(event);
+      if (event === "report_generated") recordEvent("quote_review_checked");
+    },
+  });
 
   const ids = ["currency", "price", "delivery_hours", "admin_hours", "revision_hours", "overhead", "subcontractor_cost", "target_hourly_rate"];
   const el = Object.fromEntries(ids.map((id) => [id, document.getElementById(id)]));
@@ -305,8 +312,7 @@
        `;
        review.querySelector(".checks").innerHTML = reviewQuote(quote, r).map((check) => `<li class="${check.level}"><strong>${escapeHtml(check.title)}</strong>${escapeHtml(check.detail)}</li>`).join("");
        sensitivity.querySelector("tbody").innerHTML = overrunScenarios(quote, r).map((scenario) => `<tr><th scope="row">+${scenario.percent}%</th><td>${fmt(scenario.total_hours)}</td><td>${safeCurrency} ${fmt(scenario.effective_hourly_rate)}/hour</td><td>${safeCurrency} ${fmt(scenario.gap_to_target)}</td></tr>`).join("");
-       recordEvent("quote_review_checked");
-      result.classList.remove("error");
+       result.classList.remove("error");
       reportCounter.count(JSON.stringify(quote));
     } catch (err) {
       lastReport = null;
@@ -345,16 +351,7 @@
       return;
     }
     const { quote, r } = lastReport;
-    const rows = [
-      "measure,value,unit",
-      `quoted_price,${quote.price.toFixed(2)},${quote.currency}`,
-      `total_working_hours,${r.total_hours.toFixed(2)},hours`,
-      `direct_costs,${r.direct_costs.toFixed(2)},${quote.currency}`,
-      `effective_hourly_rate,${r.effective_hourly_rate.toFixed(2)},${quote.currency}/hour`,
-      `target_price,${r.target_price.toFixed(2)},${quote.currency}`,
-      `gap_to_target,${r.gap_to_target.toFixed(2)},${quote.currency}`,
-      `cost_coverage,${r.cost_coverage.toFixed(2)},${quote.currency}`,
-    ].join("\n");
+    const rows = quoteCsv(quote, r);
     try {
       await navigator.clipboard.writeText(rows);
       copyStatus.textContent = "Copied — paste into a spreadsheet.";
@@ -362,6 +359,22 @@
     } catch {
       copyStatus.textContent = "Couldn't access the clipboard in this browser.";
     }
+  });
+
+  document.getElementById("download-csv").addEventListener("click", () => {
+    if (!lastReport) {
+      copyStatus.textContent = "Fix the inputs above first.";
+      return;
+    }
+    const { quote, r } = lastReport;
+    const blob = new Blob([quoteCsv(quote, r)], { type: "text/csv;charset=utf-8" });
+    const link = document.createElement("a");
+    link.href = URL.createObjectURL(blob);
+    link.download = "quote-margin-review.csv";
+    link.click();
+    setTimeout(() => URL.revokeObjectURL(link.href), 0);
+    copyStatus.textContent = "Downloaded quote-margin-review.csv.";
+    recordEvent("csv_downloaded");
   });
 
   const usageToggle = document.getElementById("usage-toggle");

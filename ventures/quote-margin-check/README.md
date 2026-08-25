@@ -51,19 +51,22 @@ and verifying its output before relying on it**, and for meeting any obligation
 it helps you prepare for. To the maximum extent permitted by law, the authors
 accept no liability for any loss or damage arising from its use.
 
-Only aggregate `report_generated` events are optionally appended to the usage
-log. Inputs, project names, prices, and file contents never leave the machine.
+Only aggregate `report_generated`, `quote_review_checked`, `csv_copied`, and
+`csv_downloaded` events are optionally appended to the usage log. Inputs,
+project names, prices, and file contents never leave the machine.
 Pass `--usage-log PATH` to opt in; omit it to keep usage counting off. The
 browser version counts the same event locally in `localStorage` (on by
 default, off-switchable in the page footer, and honors Do Not Track/Global
 Privacy Control) — see [`site/usage.mjs`](site/usage.mjs); nothing is sent
-anywhere in either case. One `report_generated` means one *settled* quote: the
+anywhere in either case. One `report_generated` and its paired
+`quote_review_checked` mean one *settled* quote: the
 page recomputes on every keystroke, so the counter waits for the figures to
 stop changing, skips the pre-filled example on first load, and ignores a repeat
 of a quote it already counted. Reading it as "reports", not "keystrokes", is
-what makes it comparable to the CLI's own count. The browser also counts
-`quote_review_checked` locally when a valid quote is reviewed; it stores no quote
-values and sends nothing anywhere.
+what makes it comparable to the CLI's own count. CSV copy and download events
+happen only when the user invokes those actions. The export contains the same
+arithmetic report as the page and quotes currency labels safely for spreadsheet
+import.
 
 ## Input
 
