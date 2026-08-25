@@ -323,6 +323,18 @@ products:
           freelancers to price monthly retainers from billable capacity, costs,
           and scope risk. Public URL remains owner-gated; counters are local,
           aggregate, and opt-out.
+  - slug: artificial-turf-bid-calculator
+    surface: static-page-in-repo
+    readings:
+      - as_of: 2026-08-25
+        signals:
+          live_url_visitors: null
+          local_calculation_events: 0
+          summary_copies: 0
+        note: >-
+          Shipped browser-local landscape / pet / putting-green artificial
+          turf bid calculator; public URL remains owner-gated. Local
+          counters are anonymous, event-only, and opt-out. Baseline row.
 
 # Example of the shape, once a product has shipped:
 #
