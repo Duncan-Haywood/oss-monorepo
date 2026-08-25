@@ -32,3 +32,10 @@ test('does not ship a stale hardcoded invoice date', () => {
   assert.doesNotMatch(page, /id="invoiceDate"[^>]*value="\d{4}-\d{2}-\d{2}"/);
   assert.match(page, /invoiceDate.*new Date\(\)\.toISOString\(\)/s);
 });
+
+test('offers local draft persistence without an upload path', () => {
+  const page = fs.readFileSync(new URL('./index.html', import.meta.url), 'utf8');
+  assert.match(page, /invoice-terms-draft-v1/);
+  assert.match(page, /Save draft in this browser/);
+  assert.doesNotMatch(page, /fetch\(/);
+});
