@@ -44,6 +44,12 @@ quoted price and direct costs fixed while showing how the effective hourly rate
 and gap to the supplied target change. They are arithmetic what-if comparisons,
 not a forecast of project delivery time.
 
+The browser also shows the quote's **target-rate time capacity**: the total hours
+the supplied price can support after direct costs at the supplied target rate,
+plus the remaining buffer or overage against the hours entered. This is a
+break-even arithmetic comparison for reviewing scope, not a recommendation about
+what to charge or a promise about delivery time.
+
 **No warranty.** This tool is provided free and as-is, without warranty of any
 kind, express or implied. It is not tax, financial, or business advice, and it
 does not replace a qualified professional. **You are responsible for reviewing

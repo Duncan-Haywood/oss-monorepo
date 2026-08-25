@@ -103,6 +103,7 @@
   .sensitivity th, .sensitivity td { padding: 0.45rem; border-bottom: 1px solid var(--border); text-align: right; }
   .sensitivity th:first-child, .sensitivity td:first-child { text-align: left; }
   .table-scroll { overflow-x: auto; }
+  .capacity { border-left: 4px solid var(--accent); }
   .actions { margin-top: 1rem; display: flex; gap: 0.5rem; flex-wrap: wrap; }
   button { font: inherit; padding: 0.5rem 0.9rem; border-radius: 6px; border: 1px solid var(--border); background: var(--bg); color: var(--fg); cursor: pointer; }
   button:hover { border-color: var(--accent); }
@@ -180,7 +181,8 @@
 
     <div class="result" id="result" role="status" aria-live="polite"></div>
     <div class="result" id="sensitivity" aria-live="polite"><strong>If the work takes longer</strong><p class="hint">A scenario view, not a prediction. Direct costs stay unchanged.</p><div class="table-scroll"><table class="sensitivity"><thead><tr><th>Extra time</th><th>Total hours</th><th>Effective rate</th><th>Gap to target</th></tr></thead><tbody></tbody></table></div></div>
-      <div class="result" id="review" aria-live="polite"><strong>Before you send it</strong><ul class="checks"></ul></div>
+    <div class="result" id="review" aria-live="polite"><strong>Before you send it</strong><ul class="checks"></ul></div>
+    <div class="result capacity" id="capacity" aria-live="polite"></div>
 
     <div class="actions">
       <button type="button" id="copy-csv">Copy as CSV row</button>
@@ -262,6 +264,7 @@
   const result = document.getElementById("result");
   const review = document.getElementById("review");
   const sensitivity = document.getElementById("sensitivity");
+  const capacity = document.getElementById("capacity");
 
   let lastReport = null;
 
@@ -305,6 +308,9 @@
        `;
        review.querySelector(".checks").innerHTML = reviewQuote(quote, r).map((check) => `<li class="${check.level}"><strong>${escapeHtml(check.title)}</strong>${escapeHtml(check.detail)}</li>`).join("");
        sensitivity.querySelector("tbody").innerHTML = overrunScenarios(quote, r).map((scenario) => `<tr><th scope="row">+${scenario.percent}%</th><td>${fmt(scenario.total_hours)}</td><td>${safeCurrency} ${fmt(scenario.effective_hourly_rate)}/hour</td><td>${safeCurrency} ${fmt(scenario.gap_to_target)}</td></tr>`).join("");
+       const buffer = r.hours_buffer_to_target;
+       const bufferLabel = buffer >= 0 ? `${fmt(buffer)} hours remaining` : `${fmt(Math.abs(buffer))} hours over capacity`;
+       capacity.innerHTML = `<strong>Target-rate time capacity</strong><p class="hint">At the supplied target rate and direct costs, this quoted price supports up to <strong>${fmt(r.target_hours_capacity)} total hours</strong>. That leaves <strong>${bufferLabel}</strong> against the hours currently entered.</p>`;
        recordEvent("quote_review_checked");
       result.classList.remove("error");
       reportCounter.count(JSON.stringify(quote));
@@ -314,6 +320,7 @@
        result.textContent = err.message;
        result.classList.add("error");
        review.querySelector(".checks").textContent = "Fix the inputs above to review this quote.";
+       capacity.textContent = "Enter valid quote details to see the target-rate time capacity.";
     }
   }
 
@@ -354,6 +361,8 @@
       `target_price,${r.target_price.toFixed(2)},${quote.currency}`,
       `gap_to_target,${r.gap_to_target.toFixed(2)},${quote.currency}`,
       `cost_coverage,${r.cost_coverage.toFixed(2)},${quote.currency}`,
+      `target_hours_capacity,${r.target_hours_capacity.toFixed(2)},hours`,
+      `hours_buffer_to_target,${r.hours_buffer_to_target.toFixed(2)},hours`,
     ].join("\n");
     try {
       await navigator.clipboard.writeText(rows);

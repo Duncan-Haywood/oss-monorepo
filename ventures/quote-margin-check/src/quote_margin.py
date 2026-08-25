@@ -50,6 +50,7 @@ def calculate(quote: Quote) -> dict[str, float]:
     direct_costs = quote.overhead + quote.subcontractor_cost
     effective_rate = (quote.price - direct_costs) / total_hours
     target_price = total_hours * quote.target_hourly_rate + direct_costs
+    target_hours_capacity = (quote.price - direct_costs) / quote.target_hourly_rate
     return {
         "total_hours": total_hours,
         "direct_costs": direct_costs,
@@ -57,6 +58,8 @@ def calculate(quote: Quote) -> dict[str, float]:
         "target_price": target_price,
         "gap_to_target": quote.price - target_price,
         "cost_coverage": quote.price - direct_costs,
+        "target_hours_capacity": target_hours_capacity,
+        "hours_buffer_to_target": target_hours_capacity - total_hours,
     }
 
 
@@ -76,6 +79,8 @@ def markdown(quote: Quote, result: dict[str, float]) -> str:
         f"| Price at supplied target rate | {quote.currency} {result['target_price']:.2f} |",
         f"| Gap to target price | {quote.currency} {result['gap_to_target']:.2f} |",
         f"| After direct costs | {quote.currency} {result['cost_coverage']:.2f} |",
+        f"| Target-rate time capacity | {result['target_hours_capacity']:.2f} hours |",
+        f"| Hours buffer to target | {result['hours_buffer_to_target']:.2f} hours |",
         "",
         "This is a customer-supplied estimate, not tax, financial, or business advice. It does not certify profitability or account for every cost. Review the assumptions before using the result.",
     ]
@@ -95,6 +100,8 @@ def csv_report(quote: Quote, result: dict[str, float]) -> None:
             ("target_price", f"{result['target_price']:.2f}", quote.currency),
             ("gap_to_target", f"{result['gap_to_target']:.2f}", quote.currency),
             ("cost_coverage", f"{result['cost_coverage']:.2f}", quote.currency),
+            ("target_hours_capacity", f"{result['target_hours_capacity']:.2f}", "hours"),
+            ("hours_buffer_to_target", f"{result['hours_buffer_to_target']:.2f}", "hours"),
         )
     )
 
