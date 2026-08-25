@@ -13,10 +13,10 @@ an estimate of the fees Amazon will charge: enter the rates from your current
 fee preview, and verify them there.
 
 **After using this, you can now see whether FBA or FBM leaves more on a real
-SKU, the most you can pay a supplier for that unit, and whether staying
-under Amazon’s Low-Price FBA threshold still beats a real raise** — which
-used to mean a spreadsheet that forgot storage, inbound, or the pick-fee
-jump at $10.
+SKU, the most you can pay a supplier for that unit, whether staying under
+Amazon’s Low-Price FBA threshold still beats a real raise, and whether a
+coupon still hits your target after the redemption fee** — which used to
+mean a spreadsheet that forgot storage, inbound, or the pick-fee jump at $10.
 
 ## Why it's different
 
@@ -39,6 +39,12 @@ question directly.
 answers the $9.99-versus-$12 pricing question: a one-cent raise usually
 loses, and the raise that matches the cheaper pick fee is
 `stayPrice + (regularFee − lowPriceFee) / (1 − referralRate)`.
+
+A coupon is a second decision on the same SKU. The buyer pays less, so
+referral falls, but fulfillment does not, and Amazon adds a per-redemption
+fee. [Does this Amazon coupon still pay?](does-this-amazon-coupon-still-pay.html)
+compares list against 5%, 10%, 15%, and 20%, then shows the volume lift
+needed to match this month’s list-price profit.
 
 **No warranty.** This tool is provided free and as-is, without warranty of any
 kind, express or implied. It is not tax, financial, or business advice, and it
@@ -73,12 +79,12 @@ optional and never changes what the tool does.
 Pure ES modules, no build step, no dependencies.
 
 ```
-node --test        # runs calc.test.mjs and usage.test.mjs
+node --test        # runs calc.test.mjs, usage.test.mjs, and page.test.mjs
 ```
 
-`calc.mjs` holds the fee/profit/ROI arithmetic, size-tier classification, and
-category presets; `usage.mjs` holds the anonymous local counter; `index.html`
-is the calculator UI.
+`calc.mjs` holds the fee/profit/ROI arithmetic, size-tier classification,
+category presets, and coupon comparison; `usage.mjs` holds the anonymous
+local counter; `index.html` is the calculator UI.
 
 Not yet deployed to a public URL — publishing under the portfolio's name is
 owner-gated per `portfolio/DIRECTION.md` — but the page is ready to host as
