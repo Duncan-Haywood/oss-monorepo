@@ -23262,3 +23262,14 @@ entries:
         Remaining owner flip for static URLs is still `deploy-settings`
         (enable GitHub Pages).
     mrr_end: null
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Owner answered 2026-08-25: agents merge product PRs. Rely on the
+        owner as little as possible. Removed the "may we merge venture
+        code?" queue row. Remaining owner flags are money, legal-person
+        accounts, public publishing, unattended paid spend, and secrets
+        only they can paste.
+    mrr_end: null
