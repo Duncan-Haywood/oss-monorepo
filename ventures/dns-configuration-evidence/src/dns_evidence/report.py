@@ -117,4 +117,9 @@ def _display_answers(answers: list[str] | None, status: str) -> str:
         return f"{status} (not observed)"
     if not answers:
         return "(no answers)"
-    return "<br>".join(f"`{answer}`" for answer in answers)
+    return "<br>".join(f"`{_escape_cell(answer)}`" for answer in answers)
+
+
+def _escape_cell(value: str) -> str:
+    """Keep arbitrary DNS text inside a Markdown table cell."""
+    return value.replace("&", "&amp;").replace("|", "&#124;").replace("`", "&#96;").replace("\n", "<br>")

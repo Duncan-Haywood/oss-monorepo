@@ -49,6 +49,15 @@ class ReportTests(unittest.TestCase):
         output = markdown_report(build_report(snapshot([observation("a", status="timeout")]), snapshot([observation("a", ["one"])])))
         self.assertIn("timeout (not observed)", output)
 
+    def test_markdown_escapes_answers_for_table_cells(self):
+        output = markdown_report(build_report(
+            snapshot([observation("a", ["v|1", "quoted`value", "line\nbreak"])]),
+            snapshot([observation("a", ["v|1", "quoted`value", "line\nbreak"])]),
+        ))
+        self.assertIn("v&#124;1", output)
+        self.assertIn("quoted&#96;value", output)
+        self.assertIn("line<br>break", output)
+
     def test_duplicate_observations_are_rejected(self):
         duplicate = observation("a", ["one"])
         with tempfile.TemporaryDirectory() as directory:

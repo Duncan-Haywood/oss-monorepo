@@ -34,7 +34,9 @@ def main() -> None:
     if args.usage_file and not args.no_usage:
         usage = json.loads(args.usage_file.read_text(encoding="utf-8")) if args.usage_file.exists() else {}
         usage["report_generated"] = int(usage.get("report_generated", 0)) + 1
-        args.usage_file.write_text(json.dumps(usage, indent=2) + "\n", encoding="utf-8")
+        temporary = args.usage_file.with_name(f".{args.usage_file.name}.tmp-{os.getpid()}")
+        temporary.write_text(json.dumps(usage, indent=2) + "\n", encoding="utf-8")
+        os.replace(temporary, args.usage_file)
     if args.fail_on in report["finding_counts"]:
         raise SystemExit(2)
 
