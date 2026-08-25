@@ -13,6 +13,16 @@ def _money(value: Any) -> Decimal | None:
     return result.quantize(Decimal("0.01"), rounding=ROUND_HALF_UP) if result.is_finite() else None
 
 
+def _iso_date(value: Any) -> date | None:
+    """Accept the documented extended YYYY-MM-DD form only."""
+    if not isinstance(value, str) or len(value) != 10 or value[4] != "-" or value[7] != "-":
+        return None
+    try:
+        return date.fromisoformat(value)
+    except ValueError:
+        return None
+
+
 def check_invoice(invoice: Any) -> list[dict[str, str]]:
     errors: list[dict[str, str]] = []
 
@@ -26,16 +36,12 @@ def check_invoice(invoice: Any) -> list[dict[str, str]]:
             fail("INV-001", f"Required field '{field}' is missing.", f"Add a '{field}' field.", f"/{field}")
     if not isinstance(invoice.get("invoice_number"), str) or not invoice.get("invoice_number", "").strip():
         fail("INV-002", "Invoice number is empty or not text.", "Provide a non-empty invoice number.", "/invoice_number")
-    try:
-        issue_date = date.fromisoformat(invoice.get("issue_date", ""))
-    except (ValueError, TypeError):
-        issue_date = None
+    issue_date = _iso_date(invoice.get("issue_date"))
+    if issue_date is None:
         fail("INV-003", "Issue date is not an ISO date.", "Use YYYY-MM-DD, for example 2026-08-24.", "/issue_date")
     if "due_date" in invoice and invoice.get("due_date") not in (None, ""):
-        try:
-            due_date = date.fromisoformat(invoice["due_date"])
-        except (ValueError, TypeError):
-            due_date = None
+        due_date = _iso_date(invoice["due_date"])
+        if due_date is None:
             fail("INV-020", "Due date is not an ISO date.", "Use YYYY-MM-DD, for example 2026-09-23.", "/due_date")
         if due_date is not None and issue_date is not None and due_date < issue_date:
             fail("INV-021", "Due date is earlier than the issue date.", "Set due date to the issue date or a later date.", "/due_date")
