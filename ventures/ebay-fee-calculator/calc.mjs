@@ -131,3 +131,53 @@ export function calculateRepricingTable(input, offsets = [-20, -10, 0, 10, 20]) 
     profitDelta: scenario.profit - current.profit,
   }));
 }
+
+// Default promoted-listings rates a reseller actually types into eBay's
+// campaign picker, plus 0% so "do not promote" is always on the table.
+export const PROMOTED_RATE_PRESETS = [0, 2, 4, 6, 8, 10, 12];
+
+// Highest promoted-listings rate that still meets a goal, holding every other
+// assumption still. Each extra ad point takes 1% of order revenue, so the
+// unpromoted margin *is* the remaining budget for ads.
+//
+// forTargetMargin: false → profit stays non-negative (break-even).
+// forTargetMargin: true  → net margin stays at the seller's target.
+// A negative result means the goal is already missed with ads off.
+export function maxAffordablePromotedRate(input, options = {}) {
+  const forTargetMargin = options.forTargetMargin === true;
+  const unpromoted = calculateOrder({ ...input, promotedRate: 0 });
+  const target = forTargetMargin ? Number(input.targetMargin ?? 0) : 0;
+  return unpromoted.margin - target;
+}
+
+// Same order at several ad rates. The seller's typed rate is always included
+// so the "now" row cannot drift from the headline result, even when it is not
+// one of the presets. profitDelta is against the unpromoted (0%) row — that
+// is the cash promoting this listing actually costs, not a price-move delta.
+export function calculatePromotedTable(input, rates = PROMOTED_RATE_PRESETS) {
+  if (!Array.isArray(rates) || rates.length === 0) {
+    throw new Error('At least one promoted-listings rate is required');
+  }
+  const currentRate = Number(input.promotedRate ?? 0);
+  if (!Number.isFinite(currentRate) || currentRate < 0) {
+    throw new Error('Promoted listings rate must be a non-negative number');
+  }
+  const uniqueRates = [...new Set([...rates.map(Number), currentRate])];
+  for (const rate of uniqueRates) {
+    if (!Number.isFinite(rate) || rate < 0) {
+      throw new Error('Promoted listings rate must be a non-negative number');
+    }
+  }
+  uniqueRates.sort((a, b) => a - b);
+  const unpromoted = calculateOrder({ ...input, promotedRate: 0 });
+  return uniqueRates.map((rate) => {
+    const scenario = calculateOrder({ ...input, promotedRate: rate });
+    return {
+      ...scenario,
+      promotedRate: rate,
+      isCurrent: rate === currentRate,
+      isUnpromoted: rate === 0,
+      profitDelta: scenario.profit - unpromoted.profit,
+    };
+  });
+}

@@ -188,6 +188,14 @@ products:
           unit tests). Public URL remains owner-gated, so there is no traffic
           signal to read; the local-first counter reports only to the user's
           own browser and is opt-out. Baseline row.
+      - as_of: 2026-08-25
+        signals:
+          live_url_visitors: null
+          local_events_reported: 0
+        note: >-
+          Added promoted-listings comparison (max affordable ad rate and
+          0–12% table). Public URL remains owner-gated; local counter still
+          reports only in the visitor's browser.
   - slug: cut-list-optimizer
     surface: static-page-in-repo
     readings:

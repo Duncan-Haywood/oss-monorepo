@@ -14,6 +14,11 @@ prices for one unit.
 Below the result, an **If you repriced** table prices the same order 20% and
 10% either side of what you entered, so you can see what a price move is
 actually worth before making it — no re-entering numbers.
+A second table, **If you promoted**, holds the price still and only changes the
+promoted-listings rate. It reports the highest ad rate that still breaks even
+and the highest rate that still hits your target margin. Those caps do not
+assume extra sales from the ads; they answer the cash question first, so you
+can decide whether a campaign has to earn its keep with lift.
 
 Open `index.html` in a browser. The calculation is local and works without an
 account, network request, or API key. It is arithmetic, not an estimate of the
@@ -40,6 +45,10 @@ drive that decision:
   Percentage fees scale with the price, so a $1 increase never leaves $1 more
   in the seller's pocket; the table makes that visible instead of leaving it to
   be re-derived by hand.
+- **Promoted-listings sensitivity** — the same order at 0–12% ad rates, plus
+  the rate you typed, with the cash cost of ads shown against the unpromoted
+  row. The highest rate that still breaks even is the unpromoted net margin;
+  the highest rate that still hits your target is that margin minus the target.
 
 **No warranty.** This tool is provided free and as-is, without warranty of any
 kind, express or implied. It is not tax, financial, or business advice, and it
@@ -57,10 +66,10 @@ browser; it never records the inputs. Turn it off with the checkbox in the
 footer, or your browser's Do Not Track / Global Privacy Control setting.
 
 The counted events are `order_profit_calculated`, `target_margin_calculated`,
-`batch_calculated`, and `price_sensitivity_viewed`. The last one is counted at
-most once per visit and only after an input is edited — counting the table's
-first paint would just re-count page loads and say nothing about whether the
-repricing view is used.
+`batch_calculated`, `price_sensitivity_viewed`, and
+`promoted_sensitivity_viewed`. The last two are counted at most once per visit
+and only after an input is edited — counting a table's first paint would just
+re-count page loads and say nothing about whether the comparison is used.
 
 ## Support
 

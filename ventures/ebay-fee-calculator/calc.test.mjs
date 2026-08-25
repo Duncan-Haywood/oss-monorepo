@@ -1,6 +1,12 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { calculateOrder, calculatePriceScenarios, calculateRepricingTable } from './calc.mjs';
+import {
+  calculateOrder,
+  calculatePriceScenarios,
+  calculatePromotedTable,
+  calculateRepricingTable,
+  maxAffordablePromotedRate,
+} from './calc.mjs';
 
 const near = (actual, expected, msg) => assert.ok(Math.abs(actual - expected) < 1e-6, `${msg}: ${actual} vs ${expected}`);
 
@@ -133,4 +139,68 @@ test('rejects repricing offsets that cannot produce a listable price', () => {
   assert.throws(() => calculateRepricingTable({ price: 40 }, [-100]), /greater than -100/);
   assert.throws(() => calculateRepricingTable({ price: 40 }, ['abc']), /greater than -100/);
   assert.throws(() => calculateRepricingTable({ price: -1 }, [0]), /Item price/);
+});
+
+test('max affordable promoted rate is the unpromoted margin', () => {
+  const input = {
+    price: 40, shippingCharged: 6, finalValueRate: 13.25, fixedFee: 0.3,
+    costOfGoods: 12, shippingCost: 5, packagingCost: 1, promotedRate: 8,
+  };
+  const unpromoted = calculateOrder({ ...input, promotedRate: 0 });
+  const cap = maxAffordablePromotedRate(input);
+  near(cap, unpromoted.margin, 'break-even ad cap equals unpromoted margin');
+  // At that exact rate the order should neither make nor lose money.
+  const atCap = calculateOrder({ ...input, promotedRate: cap });
+  near(atCap.profit, 0, 'profit at the break-even ad rate');
+});
+
+test('max affordable promoted rate for a target margin subtracts that target', () => {
+  const input = {
+    price: 40, shippingCharged: 6, finalValueRate: 13.25, fixedFee: 0.3,
+    costOfGoods: 12, shippingCost: 5, packagingCost: 1, targetMargin: 20,
+  };
+  const unpromoted = calculateOrder({ ...input, promotedRate: 0 });
+  const cap = maxAffordablePromotedRate(input, { forTargetMargin: true });
+  near(cap, unpromoted.margin - 20, 'target-margin ad cap');
+  const atCap = calculateOrder({ ...input, promotedRate: cap });
+  near(atCap.margin, 20, 'margin at the target-margin ad cap');
+});
+
+test('reports a negative ad cap when the order is already underwater', () => {
+  const cap = maxAffordablePromotedRate({
+    price: 10, shippingCharged: 0, finalValueRate: 13.25, fixedFee: 0.3,
+    costOfGoods: 20, shippingCost: 5, packagingCost: 1,
+  });
+  assert.ok(cap < 0, `expected a negative cap, got ${cap}`);
+});
+
+test('builds a promoted-listings table that includes the typed rate', () => {
+  const input = {
+    price: 40, shippingCharged: 6, finalValueRate: 13.25, fixedFee: 0.3,
+    costOfGoods: 12, shippingCost: 5, packagingCost: 1, promotedRate: 5,
+  };
+  const rows = calculatePromotedTable(input, [0, 2, 8]);
+  assert.deepEqual(rows.map((row) => row.promotedRate), [0, 2, 5, 8]);
+  assert.deepEqual(rows.map((row) => row.isCurrent), [false, false, true, false]);
+  assert.equal(rows[0].isUnpromoted, true);
+  near(rows[2].profit, calculateOrder(input).profit, 'current row matches headline');
+  near(rows[0].profitDelta, 0, 'unpromoted row has no ad cost');
+  assert.ok(rows[3].profitDelta < rows[2].profitDelta, 'higher ad rate costs more');
+  // 8% of $46 revenue is $3.68 of ads on this order.
+  near(rows[3].profitDelta, -46 * 0.08, 'ad cost is a share of order revenue');
+});
+
+test('carries batch quantity into every promoted-listings row', () => {
+  const input = { price: 40, shippingCharged: 6, quantity: 3, promotedRate: 2 };
+  const rows = calculatePromotedTable(input, [0, 2]);
+  const direct = calculateOrder({ ...input, promotedRate: 2 });
+  near(rows[1].profit, direct.profit, 'batch profit');
+  assert.equal(rows[1].quantity, 3);
+});
+
+test('rejects invalid promoted-listings rate lists', () => {
+  assert.throws(() => calculatePromotedTable({ price: 40 }, []), /At least one promoted-listings rate/);
+  assert.throws(() => calculatePromotedTable({ price: 40 }, [-1]), /non-negative/);
+  assert.throws(() => calculatePromotedTable({ price: 40 }, ['nope']), /non-negative/);
+  assert.throws(() => calculatePromotedTable({ price: -4 }, [0]), /Item price/);
 });

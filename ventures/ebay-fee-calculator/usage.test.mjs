@@ -73,3 +73,12 @@ test('can count a named feature event without recording content', () => {
   recordUsage(storage, false, 'share_link_copied');
   assert.equal(JSON.parse(storage.getItem('ebay-fee-usage')).share_link_copied, 1);
 });
+
+test('can count a promoted-listings comparison without storing rates', () => {
+  const storage = fakeStorage();
+  recordUsage(storage, false, 'promoted_sensitivity_viewed');
+  const stored = JSON.parse(storage.getItem('ebay-fee-usage'));
+  assert.equal(stored.promoted_sensitivity_viewed, 1);
+  assert.equal(stored['8'], undefined);
+  assert.equal(stored.promotedRate, undefined);
+});
