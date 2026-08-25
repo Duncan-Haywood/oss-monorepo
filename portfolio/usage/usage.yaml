@@ -324,6 +324,19 @@ products:
           and scope risk. Public URL remains owner-gated; counters are local,
           aggregate, and opt-out.
 
+  - slug: landscape-lighting-bid-calculator
+    surface: static-page-in-repo
+    readings:
+      - as_of: 2026-08-25
+        signals:
+          live_url_visitors: null
+          local_calculation_events: 0
+          summary_copies: 0
+        note: >-
+          Shipped browser-local landscape lighting bid calculator
+          (fixtures vs trench vs transformer). Public URL remains
+          owner-gated; counters are local, aggregate, and opt-out.
+
 # Example of the shape, once a product has shipped:
 #
 # products:
