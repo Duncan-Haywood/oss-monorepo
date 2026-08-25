@@ -94,6 +94,9 @@ workflows:
 - workflow: hetzner-gitops-ci.yml
   classification: none
   publishes: []
+- workflow: interior-door-bid-calculator-ci.yml
+  classification: none
+  publishes: []
 - workflow: janitorial-bid-calculator-ci.yml
   classification: none
   publishes: []
