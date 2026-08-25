@@ -71,7 +71,7 @@ def parse_ubl_invoice(source: bytes | str) -> dict[str, Any]:
         raise ValueError("UBL field TaxAmount is missing")
     tax_total = sum((Decimal(_text(item, "TaxAmount")) for item in tax_totals), Decimal("0"))
     due_date = _text(root, "DueDate", required=False)
-    return {
+    invoice = {
         "invoice_number": _text(root, "ID"),
         "issue_date": _text(root, "IssueDate"),
         **({"due_date": due_date} if due_date else {}),
@@ -86,3 +86,19 @@ def parse_ubl_invoice(source: bytes | str) -> dict[str, Any]:
             "gross": _number(_text(total, "TaxInclusiveAmount")),
         },
     }
+    iban = _payee_iban(root)
+    if iban:
+        invoice["payment"] = {"iban": iban}
+    return invoice
+
+
+def _payee_iban(root: ElementTree.Element) -> str:
+    """Map PayeeFinancialAccount/ID only. Nested branch IDs stay unused."""
+    for means in _children(root, "PaymentMeans"):
+        for account in _children(means, "PayeeFinancialAccount"):
+            for child in list(account):
+                if child.tag.rsplit("}", 1)[-1] == "ID":
+                    value = (child.text or "").strip()
+                    if value:
+                        return value
+    return ""

@@ -57,6 +57,12 @@ products:
           repo_views_14d: 0
           release_downloads_total: 0
         note: Added offline VAT checksum observations (INV-022/INV-023); public distribution remains unmeasured.
+      - as_of: 2026-08-25
+        signals:
+          local_iban_checksum_runs: 0
+          repo_views_14d: 0
+          release_downloads_total: 0
+        note: Added offline IBAN checksum observations (INV-024/INV-025); public distribution remains unmeasured.
   - slug: ai-engineering-academy
     surface: static-page-in-repo
     readings:

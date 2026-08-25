@@ -4,6 +4,7 @@
   "currency": "EUR",
   "supplier": {"id": "DE123", "name": "Supplier GmbH", "vat_id": "DE136695976"},
   "customer": {"id": "DE456", "name": "Customer GmbH"},
+  "payment": {"iban": "DE89370400440532013000"},
   "lines": [
     {"description": "Consulting", "quantity": 2, "unit_price": 100, "tax_percent": 19, "net": 200}
   ],
