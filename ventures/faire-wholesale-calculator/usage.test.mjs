@@ -29,3 +29,37 @@ test("supports a named aggregate event without recording inputs", () => {
   recordUsage(storage, false, "scenario_compared");
   assert.equal(JSON.parse(values.get("faire-wholesale-usage")).scenario_compared, 1);
 });
+
+test("honors Do Not Track and Global Privacy Control", () => {
+  const previous = Object.getOwnPropertyDescriptor(globalThis, "navigator");
+  const restore = () => {
+    if (previous) Object.defineProperty(globalThis, "navigator", previous);
+    else delete globalThis.navigator;
+  };
+  const memory = () => {
+    const values = new Map();
+    return {
+      getItem: (key) => values.get(key) ?? null,
+      setItem: (key, value) => values.set(key, value),
+    };
+  };
+  try {
+    const dnt = memory();
+    Object.defineProperty(globalThis, "navigator", {
+      value: { doNotTrack: "1" },
+      configurable: true,
+    });
+    recordUsage(dnt, false);
+    assert.equal(dnt.getItem("faire-wholesale-usage"), null);
+
+    const gpc = memory();
+    Object.defineProperty(globalThis, "navigator", {
+      value: { globalPrivacyControl: true },
+      configurable: true,
+    });
+    recordUsage(gpc, false);
+    assert.equal(gpc.getItem("faire-wholesale-usage"), null);
+  } finally {
+    restore();
+  }
+});
