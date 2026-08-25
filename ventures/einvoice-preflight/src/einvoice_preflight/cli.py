@@ -473,14 +473,27 @@ def main(argv: list[str] | None = None) -> int:
         type=_positive_int,
         help="refuse a directory scan when it contains more invoice files than this",
     )
+    parser.add_argument(
+        "--max-bytes",
+        type=_positive_int,
+        help="refuse an input invoice larger than this many bytes",
+    )
     args = parser.parse_args(argv)
     reports: list[tuple[Path, list[dict[str, str]]]] = []
     invoices: list[tuple[Path, Any]] = []
     read_errors: list[dict[str, str]] = []
     if str(args.invoice) == "-":
         stdin = getattr(sys.stdin, "buffer", sys.stdin)
-        source = stdin.read()
-        sources = [(Path("stdin.json"), source.encode() if isinstance(source, str) else source)]
+        source = stdin.read(args.max_bytes + 1 if args.max_bytes is not None else -1)
+        source = source.encode() if isinstance(source, str) else source
+        if args.max_bytes is not None and len(source) > args.max_bytes:
+            read_errors.append({
+                "file": "stdin.json",
+                "error": f"Input is {len(source)} bytes, exceeding --max-bytes {args.max_bytes}. Refusing to parse.",
+            })
+            sources = []
+        else:
+            sources = [(Path("stdin.json"), source)]
     elif args.invoice.is_dir():
         # Keep a directory scan inside its selected root instead of following
         # symlinks into an unrelated location.
@@ -512,6 +525,12 @@ def main(argv: list[str] | None = None) -> int:
                     })
                     continue
                 try:
+                    if args.max_bytes is not None and path.stat().st_size > args.max_bytes:
+                        read_errors.append({
+                            "file": relative_path.as_posix(),
+                            "error": f"Input exceeds --max-bytes {args.max_bytes}. Refusing to read.",
+                        })
+                        continue
                     sources.append((path.relative_to(args.invoice), path.read_bytes()))
                 except OSError as exc:
                     read_errors.append({"file": relative_path.as_posix(), "error": str(exc)})
@@ -521,7 +540,19 @@ def main(argv: list[str] | None = None) -> int:
     for invoice_path, source in sources:
         report_path = invoice_path if args.invoice.is_dir() or str(args.invoice) == "-" else Path(invoice_path.name)
         try:
+            if source is None and args.max_bytes is not None and invoice_path.stat().st_size > args.max_bytes:
+                read_errors.append({
+                    "file": report_path.as_posix(),
+                    "error": f"Input exceeds --max-bytes {args.max_bytes}. Refusing to read.",
+                })
+                continue
             raw = source if source is not None else invoice_path.read_bytes()
+            if args.max_bytes is not None and len(raw) > args.max_bytes:
+                read_errors.append({
+                    "file": report_path.as_posix(),
+                    "error": f"Input exceeds --max-bytes {args.max_bytes}. Refusing to parse.",
+                })
+                continue
             is_xml = report_path.suffix.lower() == ".xml" or raw.lstrip().startswith(b"<")
             invoice = parse_ubl_invoice(raw) if is_xml else json.loads(raw)
         except (OSError, UnicodeDecodeError, ValueError, json.JSONDecodeError) as exc:

@@ -17,6 +17,7 @@ PYTHONPATH=src python3 -m einvoice_preflight ./invoices/ --format csv > triage.c
 PYTHONPATH=src python3 -m einvoice_preflight ./invoices/ --format junit > preflight.junit.xml
 PYTHONPATH=src python3 -m einvoice_preflight ./invoices/ --format summary
 PYTHONPATH=src python3 -m einvoice_preflight ./invoices/ --max-files 500 --format json
+PYTHONPATH=src python3 -m einvoice_preflight ./invoices/ --max-files 500 --max-bytes 1048576 --format json
 cat invoice.json | PYTHONPATH=src python3 -m einvoice_preflight - --format json
 PYTHONPATH=src python3 -m einvoice_preflight examples/valid-invoice.json --usage-file ~/.local/state/einvoice-preflight/usage.json
 PYTHONPATH=src python3 -m einvoice_preflight ./invoices/ --format json
@@ -38,6 +39,9 @@ same checks; it is not a full Peppol or EN 16931 conformance validator. Use
 `--max-files N` in CI or ERP jobs to refuse a directory scan when more than `N`
 invoice files are present. This bounds accidental scans of a broad working
 tree; the command exits `2` without reading any invoice contents.
+Use `--max-bytes N` to refuse an individual file or stdin stream larger than
+`N` bytes before parsing it. This provides a memory and denial-of-service guard
+for CI and ERP jobs; oversized inputs are reported as read errors and exit `2`.
 The tool never submits an invoice, chooses a tax rate, contacts a tax
 authority, or claims that an invoice is legally valid. It only checks the
 document facts represented in the input schema. The user remains responsible
