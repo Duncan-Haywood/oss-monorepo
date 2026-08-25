@@ -830,3 +830,41 @@ ventures:
       The shipped production rates are labelled ballpark starting points rather
       than a standard or benchmark, and nothing the user enters leaves the
       browser.
+
+  - slug: attic-insulation-bid-calculator
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 7
+      gross_margin: 10
+      defensibility: 5
+      distribution: 7
+    composite: 6.667
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      There is no AI anywhere in the product. The value is a domain model —
+      R-value delta to bag count, air-sealing hours, and payroll burden — that
+      is arithmetic, and adding inference to it would only make the result
+      less checkable.
+    basis: >-
+      Graduated on 2026-08-25 as a browser-local blown-in attic insulation bid
+      calculator. Scored above the marketplace fee calculators on
+      defensibility (5): those restate a published fee schedule, whereas the
+      R-delta bag model encodes how the trade actually estimates material, and
+      the incumbents here are paid bidding suites or manufacturer coverage
+      charts rather than a free walk-away price. Distribution 7: "blown in
+      insulation calculator", "how many bags of insulation for attic", and
+      "how much to charge for blown in insulation" are lower-volume than the
+      marketplace-fee queries but far less saturated and bought by an operator
+      with a real job on the line.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Pass: the output is arithmetic on the contractor's own inputs, never a
+      recommended price, an energy-code determination, or a rebate finding.
+      The shipped R-per-inch and bag yields are labelled ballpark starting
+      points rather than a manufacturer chart or IECC table, and nothing the
+      user enters leaves the browser.
