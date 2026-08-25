@@ -39,3 +39,12 @@ export function priceForMargin(input, targetMargin) {
   if (denominator <= 0) throw new Error('Target margin is not possible with these fee rates');
   return Math.max(0, (n('listingFee') + n('paymentFixed') + n('shippingCost') + n('materialCost') + n('otherCost')) / denominator - n('shippingCharged'));
 }
+
+export function priceForProfit(input, targetProfit) {
+  const profit = Number(targetProfit);
+  if (!Number.isFinite(profit) || profit < 0) throw new Error('Target profit must be a non-negative number');
+  const n = name => Number(input[name] ?? ({ listingFee: .2, paymentFixed: .25, transactionRate: 6.5, paymentRate: 3, offsiteAdRate: 0 }[name] ?? 0));
+  const denominator = 1 - (n('transactionRate') + n('paymentRate') + n('offsiteAdRate')) / 100;
+  if (denominator <= 0) throw new Error('Target profit is not possible with these fee rates');
+  return Math.max(0, (profit + n('listingFee') + n('paymentFixed') + n('shippingCost') + n('materialCost') + n('otherCost')) / denominator - n('shippingCharged'));
+}

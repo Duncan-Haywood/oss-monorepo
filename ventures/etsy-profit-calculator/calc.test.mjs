@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { calculateOrder, priceForMargin } from './calc.mjs';
+import { calculateOrder, priceForMargin, priceForProfit } from './calc.mjs';
 
 test('calculates the complete fee stack and contribution', () => {
   const result = calculateOrder({ price: 30, shippingCharged: 5, listingFee: .2, transactionRate: 6.5, paymentRate: 3, paymentFixed: .25, offsiteAdRate: 0, shippingCost: 6, materialCost: 4, otherCost: 1 });
@@ -35,4 +35,15 @@ test('finds the item price for a target margin', () => {
 
 test('rejects impossible target margins', () => {
   assert.throws(() => priceForMargin({ transactionRate: 60, paymentRate: 40 }, 1), /not possible/);
+});
+
+test('finds the item price for a target dollar profit', () => {
+  const input = { shippingCharged: 5, listingFee: .2, paymentFixed: .25, transactionRate: 6.5, paymentRate: 3, shippingCost: 6, materialCost: 4 };
+  const price = priceForProfit(input, 20);
+  assert.ok(Math.abs(calculateOrder({ ...input, price }).profit - 20) < 0.000001);
+});
+
+test('rejects impossible target profits', () => {
+  assert.throws(() => priceForProfit({ transactionRate: 100 }, 1), /not possible/);
+  assert.throws(() => priceForProfit({}, -1), /non-negative/);
 });
