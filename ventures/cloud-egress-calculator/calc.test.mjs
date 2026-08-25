@@ -19,4 +19,12 @@ test('compares scenarios and reports savings', () => {
 test('rejects invalid inputs', () => {
   assert.throws(() => scenarioCost({ storageGb: -1 }), /Storage/);
   assert.throws(() => scenarioCost({ storageGb: 'unknown' }), /Storage/);
+  assert.throws(() => scenarioCost({ storageGb: Number.NaN }), /Storage/);
+  assert.throws(() => scenarioCost({ storageGb: Infinity }), /Storage/);
+});
+
+test('defaults optional usage dimensions to zero', () => {
+  assert.deepEqual(scenarioCost({ storageGb: 10, storageRate: .02 }), {
+    storage: .2, requests: 0, egress: 0, total: .2,
+  });
 });
