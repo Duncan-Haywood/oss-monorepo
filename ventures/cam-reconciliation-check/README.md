@@ -2,7 +2,7 @@
 
 The free CAM reconciliation calculator helps a small commercial landlord or tenant check common-area-maintenance math before discussing a year-end statement. Enter annual operating expenses, rentable area, the tenant's area, billed charges, and credits to see the area-share calculation and a transparent variance.
 
-Open `index.html` in a browser. It runs without an account, network request, API key, or paid dependency. It does not interpret a lease, determine recoverability, or create a payment obligation. Verify every input against the lease, statement, and supporting records.
+Open `index.html` in a browser. It runs without an account, network request, API key, or paid dependency. It does not interpret a lease, determine recoverability, or create a payment obligation. Verify every input against the lease, statement, and supporting records. After calculating, download either a readable text worksheet or a portable JSON review record to share with a qualified professional; neither export includes the original figures beyond the computed result and checklist.
 
 ## Privacy and usage
 
