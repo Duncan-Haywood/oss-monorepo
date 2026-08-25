@@ -22,7 +22,7 @@ from .ubl import parse_ubl_invoice
 VERSION = "0.1.0"
 
 
-def _record_usage(path: str) -> None:
+def _record_usage(path: str, event: str = "invoice_preflight_checked") -> None:
     """Record an aggregate event without affecting the validation result."""
     temporary_path: str | None = None
     try:
@@ -41,10 +41,10 @@ def _record_usage(path: str) -> None:
                     pass
             events = data.setdefault("events", {})
             try:
-                previous = int(events.get("invoice_preflight_checked", 0))
+                previous = int(events.get(event, 0))
             except (TypeError, ValueError):
                 previous = 0
-            events["invoice_preflight_checked"] = previous + 1
+            events[event] = previous + 1
             with tempfile.NamedTemporaryFile(
                 "w", encoding="utf-8", dir=target.parent, prefix=f".{target.name}.", delete=False
             ) as temporary:
@@ -614,6 +614,9 @@ def main(argv: list[str] | None = None) -> int:
         help="refuse an input invoice larger than this many bytes",
     )
     args = parser.parse_args(argv)
+    if args.usage_file:
+        # Count attempted invocations separately from successfully parsed files.
+        _record_usage(args.usage_file, "invoice_preflight_attempted")
     reports: list[tuple[Path, list[dict[str, str]]]] = []
     invoices: list[tuple[Path, Any]] = []
     read_errors: list[dict[str, str]] = []
