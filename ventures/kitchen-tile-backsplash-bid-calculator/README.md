@@ -65,10 +65,11 @@ kitchen tile backsplash.
    margin is a share of the customer's price.
 
 It then reports price per square foot, effective hourly rate, the hour
-split, a three-scope comparison on the same wall, and the **walk-away
-price**. Entering a price already on the table scores it against the
-same cost base. **Copy bid summary** turns the result into a
-plain-text draft ready to paste into a proposal.
+split, a three-scope comparison on the same wall, a four-pattern
+comparison on the same wall (the herringbone upgrade versus the subway
+special), and the **walk-away price**. Entering a price already on the
+table scores it against the same cost base. **Copy bid summary** turns
+the result into a plain-text draft ready to paste into a proposal.
 
 The arithmetic lives in [`calc.mjs`](calc.mjs). See
 [`calc.test.mjs`](calc.test.mjs).

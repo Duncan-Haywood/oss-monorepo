@@ -49,6 +49,7 @@ test('the module script survives parsing and would actually execute', () => {
   assert.match(markup, /<script type="module">/, 'the app script tag is missing or was swallowed by an earlier element');
   assert.match(scriptSource, /calculateBid/, 'the app script did not parse as a script element');
   assert.match(scriptSource, /compareScope/, 'scope comparison is missing from the executable script');
+  assert.match(scriptSource, /comparePattern/, 'pattern comparison is missing from the executable script');
   assert.match(scriptSource, /formatBidSummary/, 'copy-summary helper is missing from the executable script');
 });
 
@@ -66,7 +67,7 @@ test('inputs and result fields for the primary journey are present', () => {
   for (const id of [
     'scope', 'pattern', 'wall', 'wallSf', 'outlets', 'travelMiles',
     'hourlyWage', 'targetMargin', 'proposedPrice',
-    'price', 'breakEven', 'compare', 'copySummary', 'usageOptOut', 'jobPresets',
+    'price', 'breakEven', 'compare', 'patterns', 'copySummary', 'usageOptOut', 'jobPresets',
   ]) {
     assert.ok(declaredIds.has(id), `missing #${id}`);
   }
@@ -77,6 +78,8 @@ test('the landing page names the problem in the contractor\'s words', () => {
   assert.match(html, /meta name="description"[^>]*backsplash/i);
   assert.match(html, /Bid the wall, the pattern, and the extras/);
   assert.match(html, /SoftwareApplication/);
+  assert.match(html, /Same wall, four patterns/);
+  assert.match(html, /vs subway/);
 });
 
 test('disclaimer and privacy line are visible, not only in the README', () => {
@@ -91,6 +94,7 @@ test('the SEO article answers the search phrase and stays crawlable', () => {
   assert.match(seo, /FAQPage/);
   assert.match(seo, /HowTo/);
   assert.match(seo, /tile-only/i);
+  assert.match(seo, /Subway versus herringbone on the same wall/i);
   assert.match(seo, /index\.html/);
   assert.doesNotMatch(seo, /<textarea/i);
 });

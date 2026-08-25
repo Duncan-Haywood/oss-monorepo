@@ -7,7 +7,7 @@
   <meta name="description" content="Price a kitchen tile backsplash from wall square feet, subway versus herringbone versus mosaic versus large-format, tile-only versus new-prep versus demo-and-replace, and extras — plus the walk-away price a $35 / SF special cannot see.">
   <meta property="og:title" content="Kitchen Tile Backsplash Bid Calculator">
   <meta property="og:description" content="Bid a kitchen backsplash the way the trade does — wall, pattern, and extras, not a published per-SF dump — and see the margin before you send the price.">
-  <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Kitchen Tile Backsplash Bid Calculator","applicationCategory":"BusinessApplication","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"featureList":"Wall square feet, subway vs herringbone vs mosaic vs large-format, tile-only vs new-prep vs demo-and-replace comparison, outlet cooktop Schluter extras, walk-away price, proposed-price margin check, copyable bid summary"}</script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Kitchen Tile Backsplash Bid Calculator","applicationCategory":"BusinessApplication","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"featureList":"Wall square feet, subway vs herringbone vs mosaic vs large-format comparison, tile-only vs new-prep vs demo-and-replace comparison, outlet cooktop Schluter extras, walk-away price, proposed-price margin check, copyable bid summary"}</script>
   <style>
     :root { color-scheme: light; font-family: system-ui, sans-serif; color: #3a2d24; background: #f3ebe3; }
     body { max-width: 1060px; margin: 0 auto; padding: 32px 18px; }
@@ -164,6 +164,13 @@
         <tbody id="compare"></tbody>
       </table>
       <hr>
+      <p class="note" style="margin-bottom:4px"><strong>Same wall, four patterns</strong></p>
+      <p class="note" style="margin-top:0">The upgrade a homeowner is asking for when they say “can we do herringbone instead?” — same wall, same scope, starting pattern kits. Matching the subway special on a herringbone wall is the losing bid.</p>
+      <table>
+        <thead><tr><th>Pattern</th><th>Hours</th><th>Price</th><th>vs subway</th></tr></thead>
+        <tbody id="patterns"></tbody>
+      </table>
+      <hr>
       <p class="note" style="margin-bottom:4px"><strong>Where the hours go</strong></p>
       <ul class="split" id="split"></ul>
       <hr>
@@ -184,6 +191,7 @@
     import {
       calculateBid,
       compareScope,
+      comparePattern,
       formatBidSummary,
       suggestedScopeKit,
       suggestedPatternKit,
@@ -277,6 +285,7 @@
         .forEach(id => { el(id).textContent = ''; });
       el('split').innerHTML = '';
       el('compare').innerHTML = '';
+      el('patterns').innerHTML = '';
       el('verdict').hidden = true;
     }
 
@@ -333,6 +342,19 @@
         <td>${row.totalHours.toFixed(1)} h</td>
         <td>${money(row.price)}</td>
       </tr>`).join('');
+
+      const patterns = comparePattern(readInput());
+      el('patterns').innerHTML = patterns.map(row => {
+        const upgrade = row.upgradeFromSubway === 0
+          ? 'subway'
+          : `+${money(row.upgradeFromSubway)}`;
+        return `<tr class="${row.cheapest ? 'cheap' : ''}">
+        <td>${row.label}${row.cheapest ? ' · lowest' : ''}</td>
+        <td>${row.totalHours.toFixed(1)} h</td>
+        <td>${money(row.price)}</td>
+        <td>${upgrade}</td>
+      </tr>`;
+      }).join('');
 
       const verdict = el('verdict');
       if (result.proposed === null) {
