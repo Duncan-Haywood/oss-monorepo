@@ -356,7 +356,7 @@ class ChecksTest(unittest.TestCase):
             self.assertEqual(main(["-", "--max-bytes", "10", "--format", "json"]), 2)
         report = json.loads(output.getvalue())
         self.assertEqual(report["read_errors"][0]["file"], "stdin.json")
-        self.assertIn("exceeding --max-bytes 10", report["read_errors"][0]["error"])
+        self.assertIn("exceeds --max-bytes 10", report["read_errors"][0]["error"])
 
     def test_cli_rejects_non_positive_max_bytes(self):
         with self.assertRaises(SystemExit) as result:
