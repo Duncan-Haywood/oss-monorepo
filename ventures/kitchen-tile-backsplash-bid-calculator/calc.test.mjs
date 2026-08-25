@@ -5,6 +5,7 @@ import {
   compareScope,
   comparePattern,
   leftoverBoxPlan,
+  leftoverBoxNote,
   formatBidSummary,
   formatBoxPlanNote,
   travelHours,
@@ -306,6 +307,26 @@ test('leftover after the kitchen can cover a smaller second wall', () => {
   assert.equal(plan.secondCoveredByLeftover, true);
   assert.equal(plan.secondBoxesToBuy, 0);
   assert.equal(plan.secondShortfallSf, 0);
+});
+
+test('leftoverBoxNote names the laundry miss and the kitchen round-up', () => {
+  const miss = leftoverBoxPlan({ ...special(), sfPerBox: 10, leftoverBoxes: 0, secondWallSf: 8 });
+  assert.match(leftoverBoxNote(miss), /7\.0 SF left/);
+  assert.match(leftoverBoxNote(miss), /1 box/);
+  assert.match(leftoverBoxNote(miss), /does not cover/);
+
+  const covers = leftoverBoxPlan({ ...special(), sfPerBox: 10, leftoverBoxes: 0, secondWallSf: 6 });
+  assert.match(leftoverBoxNote(covers), /covers the second wall/);
+  assert.match(leftoverBoxNote(covers), /6\.6 SF/);
+
+  const roundUp = leftoverBoxPlan({ ...special(), sfPerBox: 10, leftoverBoxes: 0, secondWallSf: 0 });
+  assert.match(leftoverBoxNote(roundUp), /4 boxes/);
+  assert.match(leftoverBoxNote(roundUp), /7\.0 SF of round-up/);
+
+  const stocked = leftoverBoxPlan({ ...special(), sfPerBox: 10, leftoverBoxes: 4, secondWallSf: 0 });
+  assert.match(leftoverBoxNote(stocked), /covers this kitchen buy/);
+  assert.throws(() => leftoverBoxNote(null), /missing/);
+  assert.throws(() => leftoverBoxNote({}), /coverage figures/);
 });
 
 test('leftoverBoxPlan rejects a missing box size and does not change the headline bid', () => {

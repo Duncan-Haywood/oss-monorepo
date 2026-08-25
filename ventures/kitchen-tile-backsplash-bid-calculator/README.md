@@ -78,6 +78,7 @@ The arithmetic lives in [`calc.mjs`](calc.mjs). See
 [`calc.test.mjs`](calc.test.mjs).
 
 Search phrase: [`how-much-to-charge-for-a-kitchen-tile-backsplash.html`](how-much-to-charge-for-a-kitchen-tile-backsplash.html).
+Leftover boxes: [`do-leftover-tile-boxes-cover-the-next-wall.html`](do-leftover-tile-boxes-cover-the-next-wall.html).
 
 ## Privacy
 

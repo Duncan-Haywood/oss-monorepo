@@ -564,6 +564,40 @@ export function leftoverBoxPlan(input) {
   };
 }
 
+function boxesWord(count) {
+  return `${count} box${count === 1 ? '' : 'es'}`;
+}
+
+/**
+ * One-line leftover verdict. Names the laundry-wall miss when a
+ * second wall is on the ticket; otherwise names the kitchen
+ * round-up the setter is about to eat.
+ */
+export function leftoverBoxNote(plan) {
+  if (!plan || typeof plan !== 'object') {
+    throw new Error('Leftover-box plan is missing');
+  }
+  const leftover = Number(plan.leftoverAfterKitchen);
+  const secondNeed = Number(plan.secondNeedSf);
+  const secondBoxes = Number(plan.secondBoxesToBuy);
+  const buyBoxes = Number(plan.boxesToBuy);
+  const roundUp = Number(plan.boxRoundUpSf);
+  if (![leftover, secondNeed, secondBoxes, buyBoxes, roundUp].every(Number.isFinite)) {
+    throw new Error('Leftover-box plan is missing coverage figures');
+  }
+  const secondWallSf = Number(plan.secondWallSf);
+  if (secondWallSf > 0 && !plan.secondCoveredByLeftover) {
+    return `After the kitchen you have ${leftover.toFixed(1)} SF left. The second wall still needs ${boxesWord(secondBoxes)} — leftover does not cover the laundry / pantry return.`;
+  }
+  if (secondWallSf > 0 && plan.secondCoveredByLeftover) {
+    return `Leftover after the kitchen covers the second wall (${secondNeed.toFixed(1)} SF with waste). Do not buy another box for that return.`;
+  }
+  if (roundUp > 0) {
+    return `You buy ${boxesWord(buyBoxes)} and eat ${roundUp.toFixed(1)} SF of round-up. Enter a laundry / pantry wall to see whether that leftover still covers it.`;
+  }
+  return 'The leftover on the van covers this kitchen buy. No new boxes.';
+}
+
 function money(value) {
   return `$${value.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
 }
