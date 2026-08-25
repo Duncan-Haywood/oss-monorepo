@@ -233,6 +233,16 @@ products:
           subscription amortisation and the price each channel needs to match
           the best. Public URL remains owner-gated; the local-first counter
           reports only to the user's own browser and is opt-out. Baseline row.
+      - as_of: 2026-08-25
+        signals:
+          live_url_visitors: null
+          local_events_reported: 0
+          channel_volume_edited: 0
+        note: >-
+          Added per-channel expected monthly sales and a monthly-keep ranking
+          so a cheaper-per-sale channel can lose the month when another sells
+          more units. Public URL remains owner-gated; watch channel_volume_edited
+          against comparison_calculated once a URL exists.
   - slug: no-show-fee-calculator
     surface: static-page-in-repo
     readings:

@@ -3,7 +3,8 @@
 One item, every channel. Enter what an item cost you and what you would sell it
 for, and see what **eBay, Etsy, Amazon, your own store and a direct sale** each
 leave you after fees — plus the price each channel would need to charge to
-match the best one.
+match the best one — and, when you expect different volumes on each channel,
+which one actually keeps more cash in a month.
 
 It runs entirely in the browser: static ES modules, no build step, no
 dependencies, no server, no account, no API key.
@@ -26,6 +27,10 @@ Three things flat "X% fee" comparisons get wrong, all of which this models:
 - **The fee percentage is not the decision.** What matters is the price each
   channel needs to leave you the same money — a channel with higher fees still
   wins if you can list higher there. That is the last column of the table.
+- **Per-sale profit is not monthly cash.** A direct sale that keeps $33 and
+  happens four times a month loses to a marketplace that keeps $26 and happens
+  forty times. Put expected sales on each channel; a monthly plan is spread
+  over that same number so a $39 store plan on 20 sales is $1.95 a sale.
 
 ## Using it
 
@@ -65,6 +70,10 @@ questions the ranking alone does not:
   not counted as invested; that keeps the figure comparable across channels
   whose fee structures differ. It reads "—" when nothing was invested (a
   giveaway, or an item with no per-unit cost), rather than an infinite return.
+- **Monthly keep** — per-sale profit times the sales you expect on that
+  channel. Leave the per-channel field blank to use the shared monthly-orders
+  figure. When volumes differ, the hero can name a different winner for the
+  month than for a single sale.
 
 Margin answers "how good is this sale", return on cash answers "how hard is my
 money working", and break-even answers "how far can I move the price" — which
@@ -80,10 +89,11 @@ makes the comparison yours rather than a generic estimate.
 
 ## What it deliberately does not model
 
-Fees are the part that is easy to calculate, not the whole decision. This has
-no way to know how many buyers each channel puts in front of you, how fast an
-item sells there, or what returns cost. A marketplace fee is partly a payment
-for demand you would otherwise have to create. Read the fee gap as one input.
+Fees are the part that is easy to calculate, not the whole decision. You can
+now put your own expected sales on each channel so volume can flip the ranking,
+but this still has no way to know how fast an item actually sells or what
+returns cost. A marketplace fee is partly a payment for demand you would
+otherwise have to create. Read the fee-and-volume gap as one input.
 
 ## Tests
 
@@ -94,9 +104,10 @@ node --test
 Covers each channel's fee shape, monthly-plan amortisation (including the
 refusal to divide a plan by zero orders), per-channel overrides, break-even and
 target-profit solving round-tripping through the calculator, ranking and the
-gap against the best channel, the switched-off-channel rule, input validation,
-and the usage counter's opt-out, Do Not Track / Global Privacy Control, and
-hostile-storage behaviour.
+gap against the best channel, per-channel expected volume and the case where
+monthly cash ranks a different winner than a single sale, the switched-off-channel
+rule, input validation, and the usage counter's opt-out, Do Not Track / Global
+Privacy Control, and hostile-storage behaviour.
 
 `page.test.mjs` adds structural checks on `index.html` itself, because
 `calc.test.mjs` imports `calc.mjs` directly and never looks at the page. It
@@ -115,7 +126,7 @@ device.
 
 The optional usage counter records only an event name (`comparison_calculated`,
 `channel_rates_edited`, `channel_toggled`, `subscription_toggled`,
-`share_link_copied`) and the
+`channel_volume_edited`, `share_link_copied`) and the
 current day, in the visitor's own `localStorage`. It never records inputs, it
 never leaves the device, it is off for anyone sending Do Not Track or Global
 Privacy Control, and the footer checkbox turns it off and discards what was

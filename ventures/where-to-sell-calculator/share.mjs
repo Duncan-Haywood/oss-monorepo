@@ -7,7 +7,7 @@ const SHARED_FIELDS = [
 const CHANNEL_FIELDS = [
   "price", "shippingCharged", "shippingCost", "fulfilmentCost",
   "commissionRate", "paymentRate", "paymentFixed", "perListingFee",
-  "monthlyFee", "adRate",
+  "monthlyFee", "adRate", "expectedMonthlySales",
 ];
 
 export function encodeComparison(shared = {}, channels = []) {

@@ -140,17 +140,36 @@ export function calculateChannel(channel, shared = {}) {
   const monthlyOrders = wholeNumber(shared.monthlyOrders, "Orders per month", 0);
   const includeSubscription = shared.includeSubscription !== false;
 
+  // Expected sales on THIS channel. Empty falls back to the shared monthly
+  // figure, so existing comparisons stay unchanged. When a seller overrides
+  // it, that number is also what a monthly plan is spread over — otherwise a
+  // $39 Shopify plan amortized over 100 "portfolio" orders then multiplied by
+  // 20 own-store sales would understate the plan by 5×.
+  const rawChannelVolume = channel.expectedMonthlySales;
+  const hasChannelVolume = rawChannelVolume !== undefined && rawChannelVolume !== null && rawChannelVolume !== "";
+  const expectedMonthlySales = hasChannelVolume
+    ? wholeNumber(rawChannelVolume, `${label} expected monthly sales`)
+    : monthlyOrders;
+
   // A subscription is only a per-order cost once it is spread over the orders
   // it carries. Comparing a $39/month store against a per-sale marketplace
   // without that share is the mistake this line exists to prevent — and with
   // no order volume to spread it over the question has no answer, so say so
   // instead of quietly dividing by zero.
   let subscriptionShare = 0;
+  let unamortizedMonthlyFee = 0;
   if (includeSubscription && monthlyFee > 0) {
-    if (monthlyOrders < 1) {
-      throw new Error("Enter how many orders a month you expect, so monthly fees can be spread over them");
+    if (expectedMonthlySales < 1) {
+      if (hasChannelVolume) {
+        // Explicit zero volume on this channel: there is no per-sale share,
+        // but the plan is still paid that month.
+        unamortizedMonthlyFee = monthlyFee;
+      } else {
+        throw new Error("Enter how many orders a month you expect, so monthly fees can be spread over them");
+      }
+    } else {
+      subscriptionShare = monthlyFee / expectedMonthlySales;
     }
-    subscriptionShare = monthlyFee / monthlyOrders;
   }
 
   const revenue = price + shippingCharged;
@@ -195,6 +214,13 @@ export function calculateChannel(channel, shared = {}) {
     roi: cashInvested === 0 ? null : (profit / cashInvested) * 100,
     percentRate: percentRate * 100,
     fixedCash,
+    expectedMonthlySales,
+    // When volume is at least one, the per-sale profit already carries its
+    // share of the monthly plan, so multiplying recovers the plan once.
+    // At zero volume the plan was not amortized, so subtract it here.
+    monthlyProfit: expectedMonthlySales >= 1
+      ? profit * expectedMonthlySales
+      : -unamortizedMonthlyFee,
     breakEvenPrice: Math.max(0, fixedCash / (1 - percentRate) - shippingCharged),
     /**
      * Item price this channel needs, holding shipping charged constant, to
@@ -225,18 +251,29 @@ export function compareChannels(channels, shared = {}) {
   if (active.length === 0) throw new Error("Switch on at least one channel to compare");
   const results = active.map((channel) => calculateChannel(channel, shared));
   const best = results.reduce((winner, result) => (result.profit > winner.profit ? result : winner));
+  const bestMonthly = results.reduce(
+    (winner, result) => (result.monthlyProfit > winner.monthlyProfit ? result : winner),
+  );
 
   const ranked = [...results].sort((a, b) => b.profit - a.profit);
+  const monthlyRanked = [...results].sort((a, b) => b.monthlyProfit - a.monthlyProfit);
   const rankById = new Map(ranked.map((result, index) => [result, index + 1]));
+  const monthlyRankByResult = new Map(monthlyRanked.map((result, index) => [result, index + 1]));
+  const volumesDiffer = results.some(
+    (result) => result.expectedMonthlySales !== results[0].expectedMonthlySales,
+  );
 
   return {
     results: results.map((result) => ({
       ...result,
       rank: rankById.get(result),
+      monthlyRank: monthlyRankByResult.get(result),
       isBest: result === best,
+      isBestMonthly: result === bestMonthly,
       // Negative or zero for the winner; for everyone else, the cash this
       // channel gives up on the same item.
       gapVsBest: best.profit - result.profit,
+      monthlyGapVsBest: bestMonthly.monthlyProfit - result.monthlyProfit,
       // What this channel would have to charge to match the winner's profit.
       // Null on the winner itself, where the question is meaningless.
       priceToMatchBest: result === best ? null : result.priceForProfit(best.profit),
@@ -248,8 +285,19 @@ export function compareChannels(channels, shared = {}) {
       profit: best.profit,
       margin: best.margin,
     },
+    bestMonthly: {
+      id: bestMonthly.id,
+      label: bestMonthly.label,
+      monthlyProfit: bestMonthly.monthlyProfit,
+      expectedMonthlySales: bestMonthly.expectedMonthlySales,
+    },
     // How much the channel choice is worth on this one item, before any
     // difference in how many buyers each channel actually reaches.
     spread: best.profit - ranked[ranked.length - 1].profit,
+    monthlySpread: bestMonthly.monthlyProfit - monthlyRanked[monthlyRanked.length - 1].monthlyProfit,
+    volumesDiffer,
+    // The decision the fee-only ranking cannot make: a cheaper-per-sale
+    // channel loses the month when another one simply sells more units.
+    rankingsDiverge: best.id !== bestMonthly.id,
   };
 }
