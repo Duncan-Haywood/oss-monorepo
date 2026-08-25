@@ -29,3 +29,30 @@ export function compareScenarios(input) {
     savings: Math.abs(difference),
   };
 }
+
+export function reviewRecord(input) {
+  const workload = {
+    storageGb: input.storageGb,
+    requestsMillion: input.requestsMillion ?? 0,
+    egressGb: input.egressGb ?? 0,
+  };
+  const comparison = compareScenarios({
+    first: { ...workload, ...input.first },
+    second: { ...workload, ...input.second },
+  });
+  return {
+    version: 1,
+    createdAt: new Date().toISOString(),
+    workload: {
+      storageGb: Number(workload.storageGb),
+      requestsMillion: Number(workload.requestsMillion),
+      egressGb: Number(workload.egressGb),
+    },
+    options: [
+      { name: input.first.name || 'Option A', ...comparison.first },
+      { name: input.second.name || 'Option B', ...comparison.second },
+    ],
+    cheaper: comparison.cheaper,
+    savings: comparison.savings,
+  };
+}

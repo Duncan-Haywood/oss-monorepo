@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { scenarioCost, compareScenarios } from './calc.mjs';
+import { scenarioCost, compareScenarios, reviewRecord } from './calc.mjs';
 
 test('calculates storage, request, and egress charges', () => {
   const result = scenarioCost({ storageGb: 500, requestsMillion: 2, egressGb: 100, storageRate: .02, requestRate: .4, egressRate: .01 });
@@ -27,4 +27,19 @@ test('defaults optional usage dimensions to zero', () => {
   assert.deepEqual(scenarioCost({ storageGb: 10, storageRate: .02 }), {
     storage: .2, requests: 0, egress: 0, total: .2,
   });
+});
+
+test('creates a portable review record without rate-sheet secrets', () => {
+  const record = reviewRecord({
+    storageGb: 100,
+    requestsMillion: 1,
+    egressGb: 20,
+    first: { name: 'Current', storageRate: .02, requestRate: .4, egressRate: .09 },
+    second: { name: 'Alternative', storageRate: .01, requestRate: .2, egressRate: 0 },
+  });
+  assert.equal(record.options[0].name, 'Current');
+  assert.equal(record.options[1].total, 1.2);
+  assert.equal(record.cheaper, 'second');
+  assert.equal(typeof record.createdAt, 'string');
+  assert.equal(Object.hasOwn(record.options[0], 'storageRate'), false);
 });
