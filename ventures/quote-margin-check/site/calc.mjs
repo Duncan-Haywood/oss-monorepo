@@ -66,3 +66,8 @@ export function overrunScenarios(quote, report, percentages = [10, 25, 50]) {
     };
   });
 }
+
+/** Builds a portable local review artifact without identifying fields. */
+export function reviewExport(quote, report, checks, scenarios) {
+  return { product: "quote-margin-check", exported_at: new Date().toISOString(), quote, report, review_checks: checks, overrun_scenarios: scenarios };
+}

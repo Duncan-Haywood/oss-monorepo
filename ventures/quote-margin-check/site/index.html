@@ -184,6 +184,7 @@
 
     <div class="actions">
       <button type="button" id="copy-csv">Copy as CSV row</button>
+      <button type="button" id="download-json">Download private review JSON</button>
       <span id="copy-status" class="hint" role="status" aria-live="polite"></span>
     </div>
   </section>
@@ -250,7 +251,7 @@
 </main>
 
 <script type="module">
-  import { loadQuote, calculate, overrunScenarios } from "./calc.mjs";
+  import { loadQuote, calculate, overrunScenarios, reviewExport } from "./calc.mjs";
   import { reviewQuote } from "./review.mjs";
   import { recordEvent, createReportCounter, isUsageCountingEnabled, setUsageCountingEnabled } from "./usage.mjs";
 
@@ -362,6 +363,24 @@
     } catch {
       copyStatus.textContent = "Couldn't access the clipboard in this browser.";
     }
+  });
+
+  const downloadBtn = document.getElementById("download-json");
+  downloadBtn.addEventListener("click", () => {
+    if (!lastReport) {
+      copyStatus.textContent = "Fix the inputs above first.";
+      return;
+    }
+    const { quote, r } = lastReport;
+    const blob = new Blob([JSON.stringify(reviewExport(quote, r, reviewQuote(quote, r), overrunScenarios(quote, r)), null, 2)], { type: "application/json" });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = "quote-margin-review.json";
+    link.click();
+    URL.revokeObjectURL(url);
+    copyStatus.textContent = "Downloaded private review JSON.";
+    recordEvent("review_json_downloaded");
   });
 
   const usageToggle = document.getElementById("usage-toggle");
