@@ -7,6 +7,7 @@ from html import escape as html_escape
 import io
 import json
 import os
+import re
 import sys
 import tempfile
 from pathlib import Path
@@ -386,6 +387,10 @@ def _checklist_report(
     read_errors: list[dict[str, str]],
 ) -> str:
     """Build a copyable repair checklist without invoice values or contents."""
+    def redact_values(text: str) -> str:
+        # Validator fixes may include calculated amounts; keep the action but not the value.
+        return re.sub(r"\b\d+(?:\.\d+)?\b", "[value]", text)
+
     lines = ["E-invoice preflight repair checklist", ""]
     for path, errors in reports:
         lines.append(f"[ ] Review {path.as_posix()}")
@@ -401,8 +406,8 @@ def _checklist_report(
         for rule in sorted(grouped):
             item = grouped[rule]
             suffix = f" ({item['count']} occurrence(s))" if item["count"] != 1 else ""
-            lines.append(f"    - [ ] {rule}{suffix} at {', '.join(item['paths'])}: {item['message']}")
-            lines.append(f"      Fix: {item['fix']}")
+            lines.append(f"    - [ ] {rule}{suffix} at {', '.join(item['paths'])}: {redact_values(item['message'])}")
+            lines.append(f"      Fix: {redact_values(item['fix'])}")
     if read_errors:
         lines.extend(["", "Unreadable inputs:"])
         lines.extend(f"- [ ] Review {error['file']}: {error['error']}" for error in read_errors)

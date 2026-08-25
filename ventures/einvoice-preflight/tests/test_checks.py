@@ -56,6 +56,7 @@ class ChecksTest(unittest.TestCase):
             self.assertIn("Fix:", checklist)
             self.assertNotIn("INV-1", checklist)
             self.assertNotIn("200", checklist)
+            self.assertNotIn("238", checklist)
 
     def test_ubl_invoice_maps_to_supported_shape(self):
         self.assertEqual(check_invoice(parse_ubl_invoice(UBL_VALID)), [])
