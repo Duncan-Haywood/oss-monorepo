@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { parseInputs, computeAll, delayScenarios, followUpDraft } from './calc.mjs';
+import { parseInputs, decodeDraft, computeAll, delayScenarios, followUpDraft } from './calc.mjs';
 import { worksheetSummary } from './calc.mjs';
 
 test('calculates retainage and carrying cost without rounding drift', () => {
@@ -12,6 +12,15 @@ test('calculates retainage and carrying cost without rounding drift', () => {
 test('rejects missing and inconsistent inputs', () => {
   assert.equal(parseInputs({ contractValue: '', retainagePct: 10, paidToDate: 20, daysOutstanding: 1, annualCarryingRatePct: 1 }).ok, false);
   assert.match(parseInputs({ contractValue: 10, retainagePct: 10, paidToDate: 20, daysOutstanding: 1, annualCarryingRatePct: 1 }).errors.at(-1), /cannot exceed/);
+});
+
+test('only restores complete valid worksheet drafts', () => {
+  const valid = JSON.stringify({ contractValue: '100000', retainagePct: '10', paidToDate: '75000', daysOutstanding: '90', annualCarryingRatePct: '12', project: 'Main Street' });
+  assert.equal(decodeDraft(valid).project, 'Main Street');
+  assert.equal(decodeDraft('{broken json'), null);
+  assert.equal(decodeDraft(JSON.stringify({ contractValue: '-1', retainagePct: '10', paidToDate: '0', daysOutstanding: '0', annualCarryingRatePct: '12' })), null);
+  assert.equal(decodeDraft(JSON.stringify({ contractValue: '100000', retainagePct: '10' })), null);
+  assert.equal(decodeDraft(JSON.stringify(['100000', '10'])), null);
 });
 
 test('draft names the measured amount and keeps the decision with the user', () => {
