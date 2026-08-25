@@ -13,7 +13,7 @@ products:
         signals:
           local_comparisons: 1
           qualified_pilots: 0
-         note: Shipped fixture-backed local comparison; customer demand remains untested.
+        note: Shipped fixture-backed local comparison; customer demand remains untested.
   - slug: einvoice-preflight
     surface: repository-cli
     readings:
