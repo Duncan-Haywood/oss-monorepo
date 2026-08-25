@@ -12,7 +12,10 @@ REQUIRED = ("order_id", "sku", "lot", "received_at", "picked_at")
 
 
 def parse_time(value):
-    return datetime.fromisoformat(value.replace("Z", "+00:00"))
+    parsed = datetime.fromisoformat(value.replace("Z", "+00:00"))
+    if parsed.tzinfo is None:
+        raise ValueError("timestamp must include a timezone")
+    return parsed.astimezone(timezone.utc)
 
 
 def check_rows(rows):
