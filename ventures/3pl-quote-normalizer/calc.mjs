@@ -1,5 +1,9 @@
 export function calculate(input, includeSensitivity = true) {
-  const n = (value, fallback = 0) => Number.isFinite(Number(value)) ? Math.max(0, Number(value)) : fallback;
+  const n = (value, fallback = 0) => {
+    if (value === undefined || value === null || (typeof value === "string" && value.trim() === "")) return fallback;
+    const number = Number(value);
+    return Number.isFinite(number) ? Math.max(0, number) : fallback;
+  };
   const warnings = inputWarnings(input);
   const orders = n(input.orders, 100);
   const units = n(input.unitsPerOrder, 1.5);
@@ -32,7 +36,7 @@ export function inputWarnings(input) {
   return Object.entries(inputLabels).flatMap(([name, label]) => {
     const raw = input?.[name];
     if (raw === undefined || raw === null) return [];
-    if (raw === "") {
+    if (raw === "" || (typeof raw === "string" && raw.trim() === "")) {
       const fallback = defaultInputs[name];
       return fallback === undefined ? [] : [`${label} was blank; the default ${fallback} was used.`];
     }
