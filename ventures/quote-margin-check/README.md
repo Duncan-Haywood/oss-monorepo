@@ -44,6 +44,11 @@ quoted price and direct costs fixed while showing how the effective hourly rate
 and gap to the supplied target change. They are arithmetic what-if comparisons,
 not a forecast of project delivery time.
 
+The browser can copy or download a complete Markdown review. It includes the
+supplied inputs, derived arithmetic, pre-send observations, and overrun table so
+you can retain or share a readable handoff without retyping the figures. The
+review is generated locally and contains no project name or identifying data.
+
 **No warranty.** This tool is provided free and as-is, without warranty of any
 kind, express or implied. It is not tax, financial, or business advice, and it
 does not replace a qualified professional. **You are responsible for reviewing
