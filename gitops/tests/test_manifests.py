@@ -81,6 +81,15 @@ def test_worker_script_never_merges() -> None:
     assert "--base" in text
 
 
+def test_worker_accepts_isolated_openai_key_and_hard_limit_429() -> None:
+    text = (AGENTS / "workers" / "worker.sh").read_text()
+    assert "OPENAI_API_KEY" in text
+    assert "spend_limit_exceeded" in text
+    template = (AGENTS / "secrets" / "codex-token.template.yaml").read_text()
+    assert "OPENAI_API_KEY" in template
+    assert "CODEX_ACCESS_TOKEN" not in template
+
+
 def test_job_template_from_governor_hides_sa_token() -> None:
     # The live Job is built in Python; the CronJob (governor) DOES mount a token.
     cron = yaml.safe_load((AGENTS / "governor" / "cronjob.yaml").read_text())

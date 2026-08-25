@@ -7,6 +7,8 @@ booted.
 Laptop helpers (read-only until you decide):
 
 - `preflight.sh` — SSH to both public IPs and say whether k3s is already there.
+  Same script runs from Actions if you dispatch `hetzner-gitops CI` with
+  `preflight: true` (uses `HETZNER_SSH_PRIVATE_KEY` or `SSH_PRIVATE_KEY`).
 - `label-existing.sh` — if the cpx52 already has k3s, add the labels GitOps
   expects instead of re-installing.
 

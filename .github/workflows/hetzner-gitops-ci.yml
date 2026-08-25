@@ -1,7 +1,8 @@
 name: hetzner-gitops CI
 
-# Validate the IaC + GitOps tree. Never tofu apply. Never call Hetzner.
-# Never start a Codex Job.
+# Validate the IaC + GitOps tree. Never tofu apply. Never start a Codex
+# Job. An optional HCLOUD_TOKEN is probed as Read-only (empty POST
+# /servers). SSH preflight is workflow_dispatch only.
 
 on:
   push:
@@ -20,6 +21,11 @@ on:
       - ".sops.yaml"
       - ".github/workflows/hetzner-gitops-ci.yml"
   workflow_dispatch:
+    inputs:
+      preflight:
+        description: SSH to the two hel1 boxes (read-only). Uses HETZNER_SSH_PRIVATE_KEY or SSH_PRIVATE_KEY.
+        type: boolean
+        default: false
 
 permissions:
   contents: read
@@ -39,7 +45,9 @@ jobs:
       - name: pytest
         run: pytest gitops/tests -v
       - name: infra layout
-        run: python3 infra/tests/test_infra_layout.py
+        run: |
+          python3 infra/tests/test_infra_layout.py
+          python3 infra/tests/test_hcloud_scope.py
       - name: kustomize build
         run: |
           curl -sL https://github.com/kubernetes-sigs/kustomize/releases/download/kustomize%2Fv5.6.0/kustomize_v5.6.0_linux_amd64.tar.gz | tar -xz
@@ -80,4 +88,46 @@ jobs:
             bootstrap/label-existing.sh \
             bootstrap/scripts/gen-age-key.sh \
             infra/scripts/discover.sh \
+            infra/scripts/assert_hcloud_read_only.sh \
             gitops/agents/workers/worker.sh
+
+  hcloud-scope:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Prove HCLOUD_TOKEN is Read-only when present
+        env:
+          HCLOUD_TOKEN: ${{ secrets.HCLOUD_TOKEN }}
+        run: |
+          if [ -z "${HCLOUD_TOKEN}" ]; then
+            echo "HCLOUD_TOKEN secret unset — skip. A Read token is optional; a Write token is not allowed."
+            exit 0
+          fi
+          infra/scripts/assert_hcloud_read_only.sh
+
+  preflight:
+    if: github.event_name == 'workflow_dispatch' && inputs.preflight == true
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: SSH preflight (read-only)
+        env:
+          HETZNER_SSH_PRIVATE_KEY: ${{ secrets.HETZNER_SSH_PRIVATE_KEY }}
+          SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+        run: |
+          set -euo pipefail
+          KEY="${HETZNER_SSH_PRIVATE_KEY:-${SSH_PRIVATE_KEY:-}}"
+          if [ -z "${KEY}" ]; then
+            echo "No private key in HETZNER_SSH_PRIVATE_KEY or SSH_PRIVATE_KEY." >&2
+            echo "The key already in Actions secrets needs one of those names as an alias." >&2
+            exit 1
+          fi
+          mkdir -p "${HOME}/.ssh"
+          printf '%s\n' "${KEY}" > "${HOME}/.ssh/id_hetzner"
+          chmod 600 "${HOME}/.ssh/id_hetzner"
+          ssh-keygen -y -f "${HOME}/.ssh/id_hetzner" >/dev/null
+          eval "$(ssh-agent -s)"
+          ssh-add "${HOME}/.ssh/id_hetzner"
+          ssh-keyscan -H 89.167.29.39 157.180.80.188 >> "${HOME}/.ssh/known_hosts"
+          export CP=root@89.167.29.39 AG=root@157.180.80.188
+          bootstrap/preflight.sh

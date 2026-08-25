@@ -15,4 +15,6 @@ terraform {
 
 provider "hcloud" {
   # Token comes from HCLOUD_TOKEN in the environment. Never from git.
+  # CI may hold a Read token. Write stays on the laptop — Hetzner has
+  # no hard euro spend cap, so a Write token in Actions is unbounded.
 }

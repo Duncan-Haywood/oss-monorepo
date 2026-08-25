@@ -45,7 +45,8 @@ quota. It is not a second copy of every product.
 ## What this must not do
 
 - Recreate k3s from Argo (that bricks the node).
-- Store `HCLOUD_TOKEN` in the cluster.
+- Store `HCLOUD_TOKEN` (Read or Write) in the cluster.
+- Store an OpenAI Admin API key in the cluster (it can raise spend limits).
 - Auto-sync agents committing to the branch they deploy from.
 - Bind an Ingress to `marisstella.dev` without an explicit PR that says
   so. The name already points at the cpx52.

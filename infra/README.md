@@ -41,12 +41,18 @@ agent cannot be the first apply of the box it will live on.
 ## Commands
 
 ```bash
-export HCLOUD_TOKEN=...          # you type this; it is never in git
+export HCLOUD_TOKEN=...          # Read is enough for discover/plan
 cd infra
 tofu init
 ./scripts/discover.sh            # prints firewall + volume IDs
+./scripts/assert_hcloud_read_only.sh   # 403 = keep; anything else = rotate
 tofu plan                        # import + in-place attach only
-tofu apply                       # laptop only
+# tofu apply                     # laptop only, and only with a Write token
 ```
 
-GitHub Actions may run `tofu validate` / `tofu fmt`. It must not apply.
+GitHub Actions may run `tofu validate` / `tofu fmt`, and will probe a
+repo-secret `HCLOUD_TOKEN` to prove it is Read-only. It must not apply.
+
+Hetzner has no hard euro spend cap (usage alerts are email-only). A
+Write token in CI is unbounded create/resize. Do not add one. See
+`OWNER_CHECKLIST.md`.

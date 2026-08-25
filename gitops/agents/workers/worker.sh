@@ -18,7 +18,7 @@ fi
 # Detect typical limit language from a command's combined output.
 hit_limit() {
   local text="$1"
-  grep -Eiq '429|rate.?limit|usage.?limit|exceeded.*quota|hit your (usage )?limit|limit reached' <<<"$text"
+  grep -Eiq '429|rate.?limit|usage.?limit|exceeded.*quota|hit your (usage )?limit|limit reached|insufficient_quota|spend_limit_exceeded|organization_spend_limit_exceeded|project_spend_limit_exceeded' <<<"$text"
 }
 
 install_tools() {

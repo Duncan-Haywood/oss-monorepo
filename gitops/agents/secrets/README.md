@@ -8,10 +8,12 @@ Required keys in a Secret named `codex-secrets` (namespace `agents`):
 
 | Key | What |
 |---|---|
-| `CODEX_ACCESS_TOKEN` | ChatGPT/Codex access token. You mint this. |
-| `GH_TOKEN` | GitHub token or app-derived token with contents + PRs, not admin, not ability to push `main`. |
+| `OPENAI_API_KEY` | Project API key on a **separate** OpenAI org from your main ChatGPT login. That org has a dashboard **hard** monthly spend limit. Not an Admin API key (Admin can raise the cap). |
+| `GH_TOKEN` | Fine-grained PAT: this repo, contents + PRs, no admin, cannot push `main`. Different identity from Argo's read-only deploy key. |
 
-Different identity from Argo's read-only git credentials.
+Optional: `CODEX_ACCESS_TOKEN` (ChatGPT device-auth). Do not use your
+main Plus/Pro login — that has no euro hard stop and shares the
+personal 5-hour / weekly quota. Prefer `OPENAI_API_KEY`.
 
-Do not store the Hetzner API token, the SOPS/age private key, or a
-kubeconfig in this namespace.
+Do not store a Hetzner token (Read or Write), an OpenAI Admin key, the
+SOPS/age private key, or a kubeconfig in this namespace.

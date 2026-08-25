@@ -52,6 +52,27 @@ def test_does_not_rewrite_marisstella_dns() -> None:
     assert "hcloud_rdns" not in TEXT
 
 
+def test_make_apply_refuses() -> None:
+    makefile = (ROOT / "Makefile").read_text()
+    assert "Refusing to apply" in makefile
+    assert "tofu apply" in makefile
+
+
+def test_checklist_refuses_write_hcloud_in_ci() -> None:
+    checklist = (ROOT / "OWNER_CHECKLIST.md").read_text()
+    assert "no hard euro" in checklist
+    assert "Read+Write" in checklist
+    assert "OPENAI_API_KEY" in checklist
+    assert "HETZNER_SSH_PRIVATE_KEY" in checklist
+
+
+def test_ci_never_applies_tofu() -> None:
+    wf = (ROOT.parent / ".github" / "workflows" / "hetzner-gitops-ci.yml").read_text()
+    assert not re.search(r"(?m)^\s+tofu apply\b", wf)
+    assert "assert_hcloud_read_only.sh" in wf
+    assert "preflight.sh" in wf
+
+
 if __name__ == "__main__":
     failed = 0
     for name, fn in list(globals().items()):
