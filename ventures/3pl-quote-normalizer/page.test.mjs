@@ -22,6 +22,14 @@ test('calculator keeps input warnings in the copied report path', async () => {
   assert.match(script, /inputWarnings/);
 });
 
+test('calculator surfaces input warnings in the live decision snapshot', async () => {
+  const page = await readFile(new URL('./index.html', import.meta.url), 'utf8');
+  const script = await readFile(new URL('./warnings-page.mjs', import.meta.url), 'utf8');
+  assert.match(page, /warnings-page\.mjs/);
+  assert.match(script, /role/);
+  assert.match(script, /textContent = warning/);
+});
+
 test('calculator exposes editable return fee assumptions', async () => {
   const script = await readFile(new URL('./return-fields.js', import.meta.url), 'utf8');
   assert.match(script, /returnFee/);
