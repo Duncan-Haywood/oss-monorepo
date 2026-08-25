@@ -323,6 +323,20 @@ products:
           freelancers to price monthly retainers from billable capacity, costs,
           and scope risk. Public URL remains owner-gated; counters are local,
           aggregate, and opt-out.
+  - slug: entry-door-bid-calculator
+    surface: static-page-in-repo
+    readings:
+      - as_of: 2026-08-25
+        signals:
+          live_url_visitors: null
+          local_calculation_events: 0
+          summary_copies: 0
+        note: >-
+          Shipped a zero-dependency browser calculator for door and carpentry
+          shops to price an entry-door replacement from sidelights, an
+          out-of-square opening, jamb rot, brickmold, storm door, and paint
+          rather than a published $1,200-installed special. Public URL remains
+          owner-gated; counters are local, aggregate, and opt-out.
 
 # Example of the shape, once a product has shipped:
 #
