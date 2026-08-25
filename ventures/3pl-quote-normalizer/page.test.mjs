@@ -27,6 +27,13 @@ test('comparison page loads savings insights and provider labels', async () => {
   assert.match(script, /annualDifference/);
 });
 
+test('comparison page exposes a local CSV export', async () => {
+  const page = await readFile(new URL('./compare.html', import.meta.url), 'utf8');
+  assert.match(page, /exportComparisonCsv/);
+  assert.match(page, /comparison_csv_exported/);
+  assert.match(page, /3pl-quote-comparison\.csv/);
+});
+
 test('calculator keeps input warnings in the copied report path', async () => {
   const script = await readFile(new URL('./calc.mjs', import.meta.url), 'utf8');
   assert.match(script, /Input warnings/);

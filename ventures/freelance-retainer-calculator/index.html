@@ -32,6 +32,7 @@
           <label>Scope / revision buffer <span>%</span><input id="buffer" type="number" min="0" max="100" step="1" value="15" required></label>
         </div>
         <label>Currency <select id="currency"><option value="USD">USD ($)</option><option value="EUR">EUR (€)</option><option value="GBP">GBP (£)</option><option value="CAD">CAD ($)</option><option value="AUD">AUD ($)</option></select></label>
+        <p id="draftStatus" class="draft-status" role="status">Your inputs stay in this browser as a private local draft.</p>
         <button type="submit">Calculate sustainable price</button>
         <p id="errors" class="error" role="alert" hidden></p>
       </form>
@@ -40,10 +41,15 @@
         <p class="price" id="rate">$0</p><p class="muted">minimum sustainable hourly rate</p>
         <div class="answer"><span>Recommended monthly retainer</span><strong id="retainer">$0</strong></div>
         <div class="answer"><span>Billable capacity available</span><strong id="capacity">0 hrs</strong></div>
+        <div class="answer"><span>Capacity left after retainer</span><strong id="remaining">0 hrs</strong></div>
         <div class="answer"><span>Monthly revenue target</span><strong id="target">$0</strong></div>
         <p id="explanation" class="note"></p>
         <textarea id="summary" rows="7" readonly aria-label="Copyable proposal summary"></textarea>
-        <button id="copy" type="button" class="secondary">Copy proposal summary</button><span id="copyStatus" role="status"></span>
+       <div class="actions">
+         <button id="copy" type="button" class="secondary">Copy proposal summary</button>
+         <button id="download" type="button" class="secondary">Download proposal (.txt)</button>
+       </div>
+       <span id="copyStatus" role="status"></span>
       </section>
     </section>
     <section class="copy card">
