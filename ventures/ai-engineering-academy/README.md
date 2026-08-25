@@ -25,7 +25,7 @@ platform design not yet started. `site/` is a static build (`npm run build`)
 that renders the constitution's markdown into a browsable HTML site
 (`docs/00-overview.md` and friends).
 
-Four learner-facing artifacts now exist, all free, zero-dependency,
+Six learner-facing artifacts now exist, all free, zero-dependency,
 client-side static pages (LICENSE, disclaimer, privacy line, local-first
 usage counting, unit tested), listed together on
 [`tools/index.html`](tools/index.html) — a hub page so someone who lands on
@@ -68,9 +68,8 @@ once that gate opens.
 
 - Review, argue with, and revise the constitution in `docs/` — it's a v1
   draft meant to be tightened, not treated as settled.
-- Add more small, self-contained EE tools in `tools/` (e.g. a capacitor
-  charge/discharge time calculator, a 555-timer astable/monostable
-  calculator) as further seeds of the Circuits track, each shippable and
+- Add more small, self-contained EE tools in `tools/` as further seeds of the
+  Circuits track, each shippable and
   testable independently of the full curriculum design. Add each one to
   `tools/index.html` and to the CI matrix in
   `.github/workflows/ai-engineering-academy-ci.yml`; the per-tool pages only

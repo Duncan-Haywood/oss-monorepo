@@ -94,6 +94,14 @@ products:
           defect, so the fix covers it too rather than leaving one tool of
           four inflating its own numbers — which would be worse than uniform
           over-counting, because it makes the tools incomparable.
+       - as_of: 2026-08-25
+         signals:
+           live_url_visitors: null
+           local_events_reported: 0
+         note: >-
+           Added capacitor charge and discharge timing as the sixth free
+           browser tool; local usage remains opt-out and no public traffic is
+           available before deployment.
   - slug: quote-margin-check
     surface: repository-cli
     readings:
