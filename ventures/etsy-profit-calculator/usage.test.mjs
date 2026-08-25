@@ -23,3 +23,32 @@ test('supports a named aggregate event without recording inputs', () => {
   recordUsage(storage, false, 'scenario_compared');
   assert.equal(JSON.parse(values.get('etsy-profit-usage')).scenario_compared, 1);
 });
+
+test('honors Do Not Track and Global Privacy Control', () => {
+  const previous = Object.getOwnPropertyDescriptor(globalThis, 'navigator');
+  const restore = () => {
+    if (previous) Object.defineProperty(globalThis, 'navigator', previous);
+    else delete globalThis.navigator;
+  };
+  try {
+    const dntValues = new Map();
+    const dntStorage = { getItem: key => dntValues.get(key) ?? null, setItem: (key, value) => dntValues.set(key, value) };
+    Object.defineProperty(globalThis, 'navigator', {
+      value: { doNotTrack: '1' },
+      configurable: true,
+    });
+    recordUsage(dntStorage, false);
+    assert.equal(dntValues.size, 0);
+
+    const gpcValues = new Map();
+    const gpcStorage = { getItem: key => gpcValues.get(key) ?? null, setItem: (key, value) => gpcValues.set(key, value) };
+    Object.defineProperty(globalThis, 'navigator', {
+      value: { globalPrivacyControl: true },
+      configurable: true,
+    });
+    recordUsage(gpcStorage, false);
+    assert.equal(gpcValues.size, 0);
+  } finally {
+    restore();
+  }
+});

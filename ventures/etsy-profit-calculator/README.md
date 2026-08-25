@@ -2,7 +2,9 @@
 
 The free Etsy profit calculator shows what an order leaves after listing fees,
 transaction fees, payment processing, offsite ads, shipping, materials, and
-other per-order costs. Use it before changing a price or publishing a listing.
+other per-order costs — including return on the cash you put into materials and
+shipping, and a side-by-side of organic vs 12% vs 15% Offsite Ads. Use it
+before changing a price, publishing a listing, or taking an attributed ad sale.
 
 Open `index.html` in a browser. The calculation is local and works without an
 account, network request, or API key. It is arithmetic, not an estimate of the
@@ -61,3 +63,21 @@ Enter a target margin to calculate the item price needed to reach it, then
 compare prices $10 below and above the current price. This turns a fee
 calculation into a quick pricing decision without uploading product data or
 relying on Etsy's changing fee schedule.
+
+## Offsite Ads: still worth taking?
+
+Etsy Offsite Ads typically charge **15%** of the order total for shops under
+$10,000 in trailing 12-month sales, or **12%** for shops over that threshold.
+That fee sits on top of listing, transaction, and payment fees. The calculator
+shows the same order at 0%, 12%, and 15%, plus the highest Offsite Ads rate
+that still leaves the order above break-even.
+
+A worked example lives at
+[`are-etsy-offsite-ads-worth-it.html`](are-etsy-offsite-ads-worth-it.html): a
+$14 print that still clears about $2.44 organically loses about $0.12 at 15%.
+The comparison does not assume the sale would have happened without the ad —
+it only shows what the attributed fee does to contribution.
+
+After using this, you can now **see whether an Offsite Ads sale still covers
+materials and shipping**, which used to take a spreadsheet and a guess at
+Etsy's published 12%/15% rates.
