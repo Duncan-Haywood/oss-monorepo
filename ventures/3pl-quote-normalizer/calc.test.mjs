@@ -49,10 +49,12 @@ test("comparison identifies the cheaper quote at the same volume", () => {
 });
 
 test("flags malformed and negative rate-card inputs", () => {
-  const result = calculate({ orders: -10, shipping: "not-a-number" });
+  const result = calculate({ orders: -10, shipping: "not-a-number", returnFee: -1, restockFee: "unknown" });
   assert.deepEqual(result.warnings, [
     "Orders / month cannot be negative; the negative value was treated as zero.",
     "Shipping / order was not a number and was ignored.",
+    "Return fee cannot be negative; the negative value was treated as zero.",
+    "Restock fee was not a number and was ignored.",
   ]);
   assert.deepEqual(inputWarnings({}), []);
   assert.match(summary(result), /Input warnings/);
