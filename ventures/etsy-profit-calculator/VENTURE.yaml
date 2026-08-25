@@ -1,5 +1,5 @@
 name: etsy-profit-calculator
-description: A private browser calculator for Etsy sellers to see order profit after marketplace, ad, shipping, and material costs.
+description: A private browser calculator for Etsy sellers to see order profit after marketplace, ad, shipping, and material costs, and whether Plus credits cover the monthly fee.
 stage: prototype
 owner: duncan
 hypotheses:

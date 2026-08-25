@@ -4,10 +4,10 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Etsy Profit Calculator | See Your Net Profit After Fees</title>
-  <meta name="description" content="Calculate Etsy order profit after listing, transaction, payment, offsite ad, shipping, material, and other costs.">
+  <meta name="description" content="Calculate Etsy order profit after listing, transaction, payment, offsite ad, shipping, material, and other costs. Compare whether Etsy Plus credits cover the $10 fee this month.">
   <meta property="og:title" content="Etsy Profit Calculator">
-  <meta property="og:description" content="See what an Etsy order leaves after the complete fee stack and variable costs.">
-  <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Etsy Profit Calculator","applicationCategory":"BusinessApplication","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"featureList":"Etsy fee breakdown, break-even price, net profit margin"}</script>
+  <meta property="og:description" content="See what an Etsy order leaves after the complete fee stack, and whether Plus listing and Ads credits still beat staying off Plus.">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Etsy Profit Calculator","applicationCategory":"BusinessApplication","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"featureList":"Etsy fee breakdown, break-even price, net profit margin, Etsy Plus credit comparison"}</script>
   <style>
     :root { color-scheme: light; font-family: system-ui, sans-serif; color: #25221f; background: #f8f3eb; }
     body { max-width: 980px; margin: 0 auto; padding: 32px 18px; }
@@ -17,11 +17,12 @@
     .fields { display: grid; grid-template-columns: repeat(2, 1fr); gap: 13px; } label { display: grid; gap: 5px; font-size: .87rem; font-weight: 650; } input { width: 100%; box-sizing: border-box; border: 1px solid #b9ad9f; border-radius: 7px; padding: 10px; font: inherit; background: white; }
     .result { position: sticky; top: 15px; background: #243d35; color: #fffdf9; border-color: #243d35; } .hero-number { font-size: 3rem; font-weight: 750; letter-spacing: -.05em; margin: 8px 0; } .negative { color: #ffb6a6; } .positive { color: #c5edb5; } dl { display: grid; grid-template-columns: 1fr auto; gap: 9px; margin: 20px 0; } dt, dd { margin: 0; } dd { font-variant-numeric: tabular-nums; } hr { border: 0; border-top: 1px solid #ffffff33; } .note { font-size: .82rem; opacity: .8; } table { width: 100%; border-collapse: collapse; } th, td { padding: 8px 4px; text-align: right; border-bottom: 1px solid #ffffff22; } th:first-child, td:first-child { text-align: left; }
     .actions { display: flex; flex-wrap: wrap; gap: 8px; margin: 14px 0 6px; } .actions button { flex: 1 1 auto; cursor: pointer; font: inherit; font-weight: 650; border-radius: 7px; padding: 9px 12px; border: 1px solid #ffffff40; background: #ffffff1a; } #copyLink { background: #c5edb5; color: #16261f; border-color: #c5edb5; } #reset { background: transparent; color: #fffdf9; } .actions button:hover { filter: brightness(1.06); } #status { min-height: 1.1em; margin: 2px 0 0; }
+    .plus { margin-top: 18px; } .plus .fields { margin-bottom: 16px; } .plus table { width: 100%; border-collapse: collapse; } .plus th, .plus td { padding: 8px 4px; text-align: right; border-bottom: 1px solid #ded5c8; font-variant-numeric: tabular-nums; } .plus th:first-child, .plus td:first-child { text-align: left; } .plus tr.winner { font-weight: 750; background: #eef6e8; } .plus .verdict { font-size: 1.1rem; font-weight: 700; margin: 0 0 10px; } .plus .note { margin-top: 12px; }
     footer { margin-top: 25px; font-size: .82rem; color: #5c554d; } @media (max-width: 700px) { .layout { grid-template-columns: 1fr; } .result { position: static; } .fields { grid-template-columns: 1fr; } }
   </style>
 </head>
 <body>
-  <header><p>FOR ETSY SELLERS</p><h1>Know what each order really leaves.</h1><p>Enter the fees and costs from your shop to see net profit, margin, and the break-even price before you publish or reprice a listing.</p></header>
+  <header><p>FOR ETSY SELLERS</p><h1>Know what each order really leaves.</h1><p>Enter the fees and costs from your shop to see net profit, margin, and the break-even price before you publish or reprice a listing. Then check whether <a href="#etsy-plus">Etsy Plus credits cover the subscription this month</a> — or read <a href="is-etsy-plus-worth-it.html">is Etsy Plus worth it</a>.</p></header>
   <main class="layout">
     <section><h2>Order and fee assumptions</h2><div class="fields">
       <label>Item price <input id="price" type="number" min="0" step="0.01" value="30"></label>
@@ -35,11 +36,34 @@
       <label>Materials / supplies <input id="materialCost" type="number" min="0" step="0.01" value="4"></label>
       <label>Other per-order cost <input id="otherCost" type="number" min="0" step="0.01" value="0"></label>
     </div></section>
-    <section class="result"><h2>Order result</h2><div id="profit" class="hero-number">$24.00</div><div id="label">estimated net contribution</div><dl><dt>Total revenue</dt><dd id="revenue"></dd><dt>Marketplace and payment fees</dt><dd id="fees"></dd><dt>Other variable costs</dt><dd id="other"></dd><dt>Net margin</dt><dd id="margin"></dd><dt>Break-even item price</dt><dd id="breakEven"></dd></dl><hr><h2>Reprice for a goal</h2><label>Target margin (%) <input id="targetMargin" type="number" min="0" max="99.9" step="1" value="50"></label><p id="targetPrice"></p><table><thead><tr><th>Item price</th><th>Profit</th><th>Margin</th></tr></thead><tbody id="scenarios"></tbody></table><div class="actions"><button id="copyLink" type="button">Copy shareable link</button><button id="reset" type="button">Reset to defaults</button></div><p id="status" class="note" role="status" aria-live="polite"></p><hr><p class="note">Your numbers stay in this browser and are restored on your next visit. The shareable link puts them in the URL so you can bookmark your shop's fee setup or send it to a partner. This is a transparent arithmetic result using your inputs, not a statement of Etsy's current fee schedule.</p></section>
+    <section class="result"><h2>Order result</h2><div id="profit" class="hero-number">$21.23</div><div id="label">estimated net contribution</div><dl><dt>Total revenue</dt><dd id="revenue"></dd><dt>Marketplace and payment fees</dt><dd id="fees"></dd><dt>Other variable costs</dt><dd id="other"></dd><dt>Net margin</dt><dd id="margin"></dd><dt>Break-even item price</dt><dd id="breakEven"></dd></dl><hr><h2>Reprice for a goal</h2><label>Target margin (%) <input id="targetMargin" type="number" min="0" max="99.9" step="1" value="50"></label><p id="targetPrice"></p><table><thead><tr><th>Item price</th><th>Profit</th><th>Margin</th></tr></thead><tbody id="scenarios"></tbody></table><div class="actions"><button id="copyLink" type="button">Copy shareable link</button><button id="reset" type="button">Reset to defaults</button></div><p id="status" class="note" role="status" aria-live="polite"></p><hr><p class="note">Your numbers stay in this browser and are restored on your next visit. The shareable link puts them in the URL so you can bookmark your shop's fee setup or send it to a partner. This is a transparent arithmetic result using your inputs, not a statement of Etsy's current fee schedule.</p></section>
   </main>
-  <footer><label><input id="usageOptOut" type="checkbox" style="width:auto"> Do not keep anonymous local usage counts</label><p><strong>No warranty.</strong> This free tool is not tax, financial, or business advice. Verify every output and fee against your Etsy account and a qualified professional before relying on it. To the maximum extent permitted by law, the authors accept no liability for loss or damage from its use.</p></footer>
+  <section class="plus" id="etsy-plus">
+    <h2>Is Etsy Plus worth it this month?</h2>
+    <p>Plus is a monthly subscription. The cash it returns is only the listing credits and Etsy Ads credit you would have paid for anyway — unused credits expire. Shop banners and restock requests are not priced unless you assign them a dollar value. This is arithmetic on your inputs, not Etsy's live Plus schedule.</p>
+    <div class="fields">
+      <label>Listings you will create or renew <input id="listingsPerMonth" type="number" min="0" step="1" value="15"></label>
+      <label>Monthly Plus fee <input id="monthlyPlusFee" type="number" min="0" step="0.01" value="10"></label>
+      <label>Listing credits included <input id="listingCredits" type="number" min="0" step="1" value="15"></label>
+      <label>Etsy Ads credit <input id="adsCredit" type="number" min="0" step="0.01" value="5"></label>
+      <label>Etsy Ads you would spend anyway <input id="monthlyAdSpend" type="number" min="0" step="0.01" value="5"></label>
+      <label>Value you assign to Plus shop features <input id="otherPlusValue" type="number" min="0" step="0.01" value="0"></label>
+    </div>
+    <p id="plusVerdict" class="verdict"></p>
+    <table id="plusTable">
+      <thead><tr><th scope="col">Path</th><th scope="col">Listing fees</th><th scope="col">Ads you pay</th><th scope="col">Plus fee</th><th scope="col">Cash out this month</th><th scope="col">vs staying off</th></tr></thead>
+      <tbody id="plusRows"></tbody>
+    </table>
+    <p id="plusNote" class="note"></p>
+  </section>
+  <footer>
+    <label><input id="usageOptOut" type="checkbox" style="width:auto"> Do not keep anonymous local usage counts</label>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not tax, financial, or business advice, and it does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for meeting any obligation it helps you prepare for. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record. If a tool needs to survive, export your inputs and run it yourself.</p>
+    <p>Free and open source. If it stopped you from paying $10 for unused credits, the <a href="https://github.com/Duncan-Haywood/monorepo-projects">project is on GitHub</a> — <a href="https://github.com/sponsors/Duncan-Haywood">GitHub Sponsors</a> is optional and never changes what the tool does. MIT licensed.</p>
+  </footer>
   <script type="module">
-    import { calculateOrder, priceForMargin } from './calc.mjs'; import { recordUsage } from './usage.mjs'; import { encodeInputs, decodeInputs, FIELD_IDS } from './share.mjs';
+    import { calculateOrder, priceForMargin, compareEtsyPlus } from './calc.mjs'; import { recordUsage } from './usage.mjs'; import { encodeInputs, decodeInputs, FIELD_IDS } from './share.mjs';
     const ids = FIELD_IDS;
     const INPUTS_KEY = 'etsy-profit-inputs';
     const field = id => document.getElementById(id);
@@ -53,7 +77,73 @@
 
     function apply(values) { for (const id of ids) { if (values[id] !== undefined) field(id).value = values[id]; } }
 
-    function update() { try { const result = calculateOrder(currentInputs()); document.getElementById('profit').textContent = money(result.profit); document.getElementById('profit').className = `hero-number ${result.profit < 0 ? 'negative' : 'positive'}`; document.getElementById('label').textContent = result.profit < 0 ? 'loss on this order' : 'estimated net contribution'; document.getElementById('revenue').textContent = money(result.revenue); document.getElementById('fees').textContent = money(result.fees.listing + result.fees.transaction + result.fees.payment + result.fees.offsiteAd); document.getElementById('other').textContent = money(result.costs - result.fees.listing - result.fees.transaction - result.fees.payment - result.fees.offsiteAd); document.getElementById('margin').textContent = `${result.margin.toFixed(1)}%`; document.getElementById('breakEven').textContent = money(result.breakEvenPrice); renderRepricing(currentInputs()); } catch (error) { document.getElementById('profit').textContent = error.message; } }
+    function signedMoney(value) { return `${value < 0 ? '−' : '+'}${money(Math.abs(value))}`; }
+
+    function plusCell(row, text) {
+      const cell = row.insertCell();
+      cell.textContent = text;
+      return cell;
+    }
+
+    function renderPlus(input) {
+      const plus = compareEtsyPlus(input);
+      const verdict = document.getElementById('plusVerdict');
+      if (plus.plusPays) {
+        verdict.textContent = `Plus keeps ${money(plus.monthlyDelta)} more this month after credits you would actually use.`;
+      } else if (plus.plusBreaksEven) {
+        verdict.textContent = 'Plus breaks even this month on the credits you would actually use.';
+      } else {
+        verdict.textContent = `Plus costs ${money(-plus.monthlyDelta)} more this month after credits you would actually use.`;
+      }
+      const rows = [
+        { label: 'Stay off Plus', listing: plus.withoutPlus.listingFees, ads: plus.withoutPlus.adsSpend, fee: plus.withoutPlus.plusFee, total: plus.withoutPlus.total, delta: 0, winner: !plus.plusPays && !plus.plusBreaksEven },
+        { label: 'Etsy Plus', listing: plus.withPlus.listingFees, ads: plus.withPlus.adsSpend, fee: plus.withPlus.plusFee, total: plus.withPlus.total, delta: plus.monthlyDelta, winner: plus.plusPays },
+      ];
+      document.getElementById('plusRows').replaceChildren(...rows.map((item) => {
+        const row = document.createElement('tr');
+        if (item.winner) row.className = 'winner';
+        plusCell(row, item.label);
+        plusCell(row, money(item.listing));
+        plusCell(row, money(item.ads));
+        plusCell(row, money(item.fee));
+        plusCell(row, money(item.total));
+        plusCell(row, item.label === 'Stay off Plus' ? '—' : signedMoney(item.delta));
+        return row;
+      }));
+      const unused = [];
+      if (plus.unusedListingCredits > 0) unused.push(`${plus.unusedListingCredits} listing credit${plus.unusedListingCredits === 1 ? '' : 's'} (${money(plus.unusedListingValue)}) expire unused`);
+      if (plus.unusedAdsCredit > 0) unused.push(`${money(plus.unusedAdsCredit)} of Ads credit expires unused`);
+      const breakEven = plus.breakEvenListings === null
+        ? `Even using all ${plus.listingCredits} listing credits cannot cover a ${money(plus.monthlyPlusFee)} fee when the credits are worth at most ${money(plus.maxCreditValue)}.`
+        : plus.breakEvenListings === 0
+          ? 'Ads you would buy anyway and the shop-feature value you entered already cover the Plus fee.'
+          : `Plus breaks even at ${plus.breakEvenListings} listing${plus.breakEvenListings === 1 ? '' : 's'} this month if you keep the other Plus inputs.`;
+      document.getElementById('plusNote').textContent = `${unused.length ? unused.join('. ') + '. ' : ''}${breakEven} Extra listings past the credit cap cost the same on both paths. Offsite Ads are a sale fee, not this Ads credit.`;
+    }
+
+    function update() {
+      try {
+        const result = calculateOrder(currentInputs());
+        document.getElementById('profit').textContent = money(result.profit);
+        document.getElementById('profit').className = `hero-number ${result.profit < 0 ? 'negative' : 'positive'}`;
+        document.getElementById('label').textContent = result.profit < 0 ? 'loss on this order' : 'estimated net contribution';
+        document.getElementById('revenue').textContent = money(result.revenue);
+        document.getElementById('fees').textContent = money(result.fees.listing + result.fees.transaction + result.fees.payment + result.fees.offsiteAd);
+        document.getElementById('other').textContent = money(result.costs - result.fees.listing - result.fees.transaction - result.fees.payment - result.fees.offsiteAd);
+        document.getElementById('margin').textContent = `${result.margin.toFixed(1)}%`;
+        document.getElementById('breakEven').textContent = money(result.breakEvenPrice);
+        renderRepricing(currentInputs());
+      } catch (error) {
+        document.getElementById('profit').textContent = error.message;
+      }
+      try {
+        renderPlus(currentInputs());
+      } catch (error) {
+        document.getElementById('plusVerdict').textContent = error.message;
+        document.getElementById('plusRows').replaceChildren();
+        document.getElementById('plusNote').textContent = '';
+      }
+    }
 
     // Repricing panel: the target-margin price and the +/- $10 scenario rows.
     // Kept separate from update() so the share/persist path above stays readable.
@@ -92,6 +182,9 @@
     // shared/persisted fields, so it re-renders without touching saved inputs.
     field('targetMargin').addEventListener('input', update);
     field('targetMargin').addEventListener('change', () => recordUsage(safe(() => localStorage), document.getElementById('usageOptOut').checked, 'scenario_compared'));
+    ['listingsPerMonth', 'monthlyPlusFee', 'listingCredits', 'adsCredit', 'monthlyAdSpend', 'otherPlusValue'].forEach(id => {
+      field(id).addEventListener('change', () => recordUsage(safe(() => localStorage), document.getElementById('usageOptOut').checked, 'etsy_plus_compared'));
+    });
     document.getElementById('usageOptOut').addEventListener('change', update);
 
     document.getElementById('copyLink').addEventListener('click', async () => {
@@ -105,7 +198,7 @@
     document.getElementById('reset').addEventListener('click', () => {
       safe(() => localStorage.removeItem(INPUTS_KEY));
       history.replaceState(null, '', location.pathname);
-      apply({ price: 30, shippingCharged: 5, listingFee: 0.20, transactionRate: 6.5, paymentRate: 3, paymentFixed: 0.25, offsiteAdRate: 0, shippingCost: 6, materialCost: 4, otherCost: 0 });
+      apply({ price: 30, shippingCharged: 5, listingFee: 0.20, transactionRate: 6.5, paymentRate: 3, paymentFixed: 0.25, offsiteAdRate: 0, shippingCost: 6, materialCost: 4, otherCost: 0, listingsPerMonth: 15, monthlyPlusFee: 10, listingCredits: 15, adsCredit: 5, monthlyAdSpend: 5, otherPlusValue: 0 });
       update(); flash('Reset to the default example order.');
     });
 
