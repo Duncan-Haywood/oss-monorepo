@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { encodeInputs, decodeInputs, FIELD_IDS } from './share.mjs';
+import { encodeInputs, decodeInputs, FIELD_IDS, FREE_SHIPPING_FIELD_IDS } from './share.mjs';
 
 test('round-trips a full set of inputs unchanged', () => {
   const inputs = { price: 30, shippingCharged: 5, listingFee: 0.2, transactionRate: 6.5, paymentRate: 3, paymentFixed: 0.25, offsiteAdRate: 15, shippingCost: 6, materialCost: 4, otherCost: 1 };
@@ -46,4 +46,13 @@ test('every encodable field is a real calculator field', () => {
   // page renders and calculateOrder understands.
   assert.equal(new Set(FIELD_IDS).size, FIELD_IDS.length);
   assert.ok(FIELD_IDS.includes('price'));
+});
+
+test('free-shipping links carry the extra fields without changing the order-profit allowlist', () => {
+  const inputs = { price: 32, shippingCharged: 6, freeShipPrice: 35, monthlyOrders: 40 };
+  assert.equal(encodeInputs(inputs), 'price=32&shippingCharged=6');
+  const encoded = encodeInputs(inputs, FREE_SHIPPING_FIELD_IDS);
+  assert.equal(encoded, 'price=32&shippingCharged=6&freeShipPrice=35&monthlyOrders=40');
+  assert.deepEqual(decodeInputs(encoded, FREE_SHIPPING_FIELD_IDS), inputs);
+  assert.equal(decodeInputs(encoded).freeShipPrice, undefined);
 });

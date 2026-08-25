@@ -11,6 +11,10 @@ hypotheses:
     status: untested
     checked: null
     evidence: customer-contact
+  - claim: Etsy sellers deciding on free shipping will use a charge-vs-free comparison that names the extra-order lift, not a single profit number.
+    status: untested
+    checked: null
+    evidence: customer-contact
 economics:
   currency: USD
   mrr: null

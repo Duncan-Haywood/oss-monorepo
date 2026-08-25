@@ -166,6 +166,13 @@ products:
           live_url_visitors: null
           local_events_reported: 0
         note: Shipped local Etsy order-profit calculator; public URL remains owner-gated.
+      - as_of: 2026-08-25
+        signals:
+          live_url_visitors: null
+          local_events_reported: 0
+        note: >-
+          Added charge-vs-free-shipping comparison (free_shipping_compared).
+          Still no public URL; owner flip remains deploy-settings.
   - slug: shopify-a11y-evidence
     surface: static-page-in-repo
     readings:

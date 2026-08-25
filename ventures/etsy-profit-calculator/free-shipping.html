@@ -1,0 +1,216 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Etsy Free Shipping Calculator | Charge Shipping or Offer Free?</title>
+  <meta name="description" content="Compare charging shipping on an Etsy listing to offering free shipping. See the per-order gap and how many extra sales you need to stay even.">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="free-shipping.html">
+  <meta property="og:title" content="Etsy free shipping: does it still leave a profit?">
+  <meta property="og:description" content="Moving a label into the item price is a tie. Cutting the customer total to offer free shipping needs more orders. See the lift your listing has to earn.">
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "SoftwareApplication",
+    "name": "Etsy Free Shipping Calculator",
+    "applicationCategory": "BusinessApplication",
+    "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
+    "featureList": "Charge vs free shipping comparison, extra-order lift, Etsy fee stack"
+  }
+  </script>
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "mainEntity": [
+      {
+        "@type": "Question",
+        "name": "Does baking shipping into the Etsy item price change my profit?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "No, if the customer pays the same total. Etsy percentage fees apply to item price plus shipping charged, so moving a $6 label into a $32 item is a per-order tie. Free shipping only changes profit when the customer total changes or when it brings more orders."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "How many extra Etsy sales do I need for free shipping to pay?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Divide the per-order profit you give up by the profit left on the free-shipping price. That is the lift. This calculator does that from your fees, label cost, and monthly order count. It is arithmetic, not a forecast of Etsy's ranking."
+        }
+      }
+    ]
+  }
+  </script>
+  <style>
+    :root { color-scheme: light; font-family: system-ui, sans-serif; color: #25221f; background: #f8f3eb; }
+    body { max-width: 980px; margin: 0 auto; padding: 32px 18px; }
+    header { max-width: 720px; margin-bottom: 26px; } h1 { font-size: clamp(2rem, 6vw, 3.4rem); line-height: .98; margin: 0 0 12px; letter-spacing: -.06em; } p { line-height: 1.5; }
+    a { color: #243d35; }
+    .layout { display: grid; grid-template-columns: minmax(0, 1fr) minmax(280px, .85fr); gap: 18px; align-items: start; }
+    section { background: #fffdf9; border: 1px solid #ded5c8; border-radius: 14px; padding: 20px; box-shadow: 0 8px 24px #40301a0d; } h2 { margin-top: 0; font-size: 1.15rem; }
+    .fields { display: grid; grid-template-columns: repeat(2, 1fr); gap: 13px; } label { display: grid; gap: 5px; font-size: .87rem; font-weight: 650; } input { width: 100%; box-sizing: border-box; border: 1px solid #b9ad9f; border-radius: 7px; padding: 10px; font: inherit; background: white; }
+    .result { position: sticky; top: 15px; background: #243d35; color: #fffdf9; border-color: #243d35; } .hero-number { font-size: 2.2rem; font-weight: 750; letter-spacing: -.04em; margin: 8px 0 12px; line-height: 1.15; } .negative { color: #ffb6a6; } .positive { color: #c5edb5; }
+    table { width: 100%; border-collapse: collapse; } th, td { padding: 8px 4px; text-align: right; border-bottom: 1px solid #ffffff22; } th:first-child, td:first-child { text-align: left; }
+    .note { font-size: .82rem; opacity: .85; } .actions { display: flex; flex-wrap: wrap; gap: 8px; margin: 14px 0 6px; } .actions button { flex: 1 1 auto; cursor: pointer; font: inherit; font-weight: 650; border-radius: 7px; padding: 9px 12px; border: 1px solid #ffffff40; background: #ffffff1a; color: #fffdf9; } #copyLink { background: #c5edb5; color: #16261f; border-color: #c5edb5; }
+    footer { margin-top: 25px; font-size: .82rem; color: #5c554d; } @media (max-width: 700px) { .layout { grid-template-columns: 1fr; } .result { position: static; } .fields { grid-template-columns: 1fr; } }
+  </style>
+</head>
+<body>
+  <header>
+    <p><a href="./">← Etsy order profit</a></p>
+    <p>FOR ETSY SELLERS</p>
+    <h1>Does free shipping still leave what charging shipping leaves?</h1>
+    <p>Percentage fees apply to item price plus shipping charged. Baking the label into the item is a tie if the buyer pays the same total. Free shipping only changes the money when you cut (or raise) that total — or when it actually brings more orders. Enter both and see the lift.</p>
+  </header>
+  <main class="layout">
+    <section>
+      <h2>Current listing vs free-shipping price</h2>
+      <div class="fields">
+        <label>Item price <input id="price" type="number" min="0" step="0.01" value="32"></label>
+        <label>Shipping charged <input id="shippingCharged" type="number" min="0" step="0.01" value="6"></label>
+        <label>Free-shipping item price <input id="freeShipPrice" type="number" min="0" step="0.01" value="35"></label>
+        <label>Orders per month <input id="monthlyOrders" type="number" min="0" step="1" value="40"></label>
+        <label>Listing fee <input id="listingFee" type="number" min="0" step="0.01" value="0.20"></label>
+        <label>Transaction fee (%) <input id="transactionRate" type="number" min="0" step="0.1" value="6.5"></label>
+        <label>Payment processing (%) <input id="paymentRate" type="number" min="0" step="0.1" value="3"></label>
+        <label>Payment fixed fee <input id="paymentFixed" type="number" min="0" step="0.01" value="0.25"></label>
+        <label>Offsite ad fee (%) <input id="offsiteAdRate" type="number" min="0" step="0.1" value="0"></label>
+        <label>Shipping cost <input id="shippingCost" type="number" min="0" step="0.01" value="6"></label>
+        <label>Materials / supplies <input id="materialCost" type="number" min="0" step="0.01" value="4"></label>
+        <label>Other per-order cost <input id="otherCost" type="number" min="0" step="0.01" value="0"></label>
+      </div>
+    </section>
+    <section class="result">
+      <h2>Comparison</h2>
+      <div id="headline" class="hero-number">—</div>
+      <p id="lift" class="note"></p>
+      <table>
+        <thead><tr><th>Path</th><th>Buyer pays</th><th>Profit / order</th><th>Monthly</th></tr></thead>
+        <tbody id="rows"></tbody>
+      </table>
+      <p id="absorb" class="note"></p>
+      <div class="actions">
+        <button id="copyLink" type="button">Copy shareable link</button>
+        <button id="reset" type="button">Reset to defaults</button>
+      </div>
+      <p id="status" class="note" role="status" aria-live="polite"></p>
+      <p class="note">Your numbers stay in this browser. The shareable link puts them in the URL. This is arithmetic from your inputs, not Etsy's fee schedule or a ranking forecast.</p>
+    </section>
+  </main>
+  <footer>
+    <label><input id="usageOptOut" type="checkbox" style="width:auto"> Do not keep anonymous local usage counts</label>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not tax, financial, or business advice, and it does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for meeting any obligation it helps you prepare for. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record. If a tool needs to survive, export your inputs and run it yourself.</p>
+  </footer>
+  <script type="module">
+    import { compareFreeShipping } from './calc.mjs';
+    import { recordUsage } from './usage.mjs';
+    import { encodeInputs, decodeInputs, FREE_SHIPPING_FIELD_IDS } from './share.mjs';
+
+    const ids = FREE_SHIPPING_FIELD_IDS;
+    const INPUTS_KEY = 'etsy-free-shipping-inputs';
+    const DEFAULTS = { price: 32, shippingCharged: 6, listingFee: 0.20, transactionRate: 6.5, paymentRate: 3, paymentFixed: 0.25, offsiteAdRate: 0, shippingCost: 6, materialCost: 4, otherCost: 0, freeShipPrice: 35, monthlyOrders: 40 };
+    const field = id => document.getElementById(id);
+    const money = value => `$${value.toFixed(2)}`;
+    const currentInputs = () => Object.fromEntries(ids.map(id => [id, field(id).value]));
+    const safe = fn => { try { return fn(); } catch { return undefined; } };
+    let statusTimer;
+    function flash(message) {
+      const el = document.getElementById('status');
+      el.textContent = message;
+      clearTimeout(statusTimer);
+      statusTimer = setTimeout(() => { el.textContent = ''; }, 3000);
+    }
+    function apply(values) { for (const id of ids) { if (values[id] !== undefined) field(id).value = values[id]; } }
+
+    function addRow(body, label, revenue, profit, monthly) {
+      const row = document.createElement('tr');
+      for (const text of [label, money(revenue), money(profit), money(monthly)]) {
+        row.insertCell().textContent = text;
+      }
+      body.append(row);
+    }
+
+    function update() {
+      try {
+        const result = compareFreeShipping(currentInputs());
+        const headline = document.getElementById('headline');
+        const lift = document.getElementById('lift');
+        if (result.winnerPerOrder === 'tie') {
+          headline.className = 'hero-number';
+          headline.textContent = 'Same customer total — same profit per order.';
+          lift.textContent = 'Free shipping only wins if it brings more orders than you get while charging shipping.';
+        } else if (result.alreadyAhead) {
+          headline.className = 'hero-number positive';
+          headline.textContent = `Free shipping leaves ${money(result.perOrderDelta)} more per order.`;
+          lift.textContent = result.monthlyOrders
+            ? `At ${result.monthlyOrders} orders that is ${money(result.monthlyRaised - result.monthlyCharged)} more this month, before any extra sales.`
+            : 'You do not need extra sales for this free-shipping price to beat charging shipping.';
+        } else if (!result.canWinWithVolume) {
+          headline.className = 'hero-number negative';
+          headline.textContent = 'That free-shipping price does not leave a profit.';
+          lift.textContent = 'More orders cannot close the gap while each free-shipping sale is at or below zero.';
+        } else {
+          headline.className = 'hero-number negative';
+          headline.textContent = `Charging shipping leaves ${money(-result.perOrderDelta)} more per order.`;
+          const extra = result.extraOrdersNeeded;
+          const liftText = `${result.liftPercent.toFixed(1)}% more sales`;
+          lift.textContent = result.monthlyOrders
+            ? `At ${result.monthlyOrders} orders, free shipping needs about ${extra.toFixed(1)} extra orders (${liftText}) to match ${money(result.monthlyCharged)} this month.`
+            : `Free shipping needs ${liftText} to match charging shipping.`;
+        }
+        const body = document.getElementById('rows');
+        body.replaceChildren();
+        addRow(body, 'Charge shipping', result.charged.revenue, result.charged.profit, result.monthlyCharged);
+        addRow(body, `Free shipping at ${money(result.freeShipPrice)}`, result.raised.revenue, result.raised.profit, result.monthlyRaised);
+        addRow(body, 'Free shipping, same item price', result.eatLabel.revenue, result.eatLabel.profit, result.monthlyEatLabel);
+        document.getElementById('absorb').textContent =
+          `Baking the current shipping charge into the item ($${result.absorbPrice.toFixed(2)} free shipping) leaves ${money(result.absorb.profit)} — the same as charging shipping, because the buyer still pays ${money(result.absorb.revenue)}.`;
+      } catch (error) {
+        document.getElementById('headline').textContent = error.message;
+        document.getElementById('lift').textContent = '';
+        document.getElementById('rows').replaceChildren();
+        document.getElementById('absorb').textContent = '';
+      }
+    }
+
+    const fromLink = decodeInputs(location.hash || location.search, ids);
+    if (Object.keys(fromLink).length) apply(fromLink);
+    else {
+      const saved = safe(() => JSON.parse(localStorage.getItem(INPUTS_KEY) || 'null'));
+      if (saved) apply(decodeInputs(encodeInputs(saved, ids), ids));
+    }
+
+    function persist() {
+      const inputs = currentInputs();
+      safe(() => localStorage.setItem(INPUTS_KEY, JSON.stringify(inputs)));
+      if (location.hash || location.search) history.replaceState(null, '', `${location.pathname}#${encodeInputs(inputs, ids)}`);
+    }
+
+    ids.forEach(id => field(id).addEventListener('input', () => { update(); persist(); }));
+    ids.forEach(id => field(id).addEventListener('change', () => {
+      recordUsage(safe(() => localStorage), document.getElementById('usageOptOut').checked, 'free_shipping_compared');
+    }));
+    document.getElementById('usageOptOut').addEventListener('change', update);
+
+    document.getElementById('copyLink').addEventListener('click', async () => {
+      const query = encodeInputs(currentInputs(), ids);
+      history.replaceState(null, '', `${location.pathname}#${query}`);
+      try { await navigator.clipboard.writeText(location.href); flash('Link copied — it reopens this comparison with these numbers.'); }
+      catch { flash('Link is in your address bar — copy it to share these numbers.'); }
+    });
+
+    document.getElementById('reset').addEventListener('click', () => {
+      safe(() => localStorage.removeItem(INPUTS_KEY));
+      history.replaceState(null, '', location.pathname);
+      apply(DEFAULTS);
+      update();
+      flash('Reset to the default $32 + $6 vs $35 free-shipping example.');
+    });
+
+    update();
+  </script>
+</body>
+</html>

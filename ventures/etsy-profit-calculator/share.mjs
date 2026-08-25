@@ -22,6 +22,10 @@ export const FIELD_IDS = [
   'otherCost',
 ];
 
+// Extra fields used only by free-shipping.html. Kept off FIELD_IDS so the
+// order-profit page never reads a missing DOM node when encoding a link.
+export const FREE_SHIPPING_FIELD_IDS = [...FIELD_IDS, 'freeShipPrice', 'monthlyOrders'];
+
 // A field value is only carried if it is a finite, non-negative number — the
 // same contract `calculateOrder` enforces. This keeps a shared link from ever
 // prefilling a field with something the calculator would reject, and drops
@@ -36,9 +40,9 @@ function usableNumber(value) {
 // inputs object -> query string (no leading '?'). Field order follows
 // FIELD_IDS so the same inputs always encode to the same string, which keeps a
 // copied link stable and lets the round-trip test compare strings directly.
-export function encodeInputs(inputs) {
+export function encodeInputs(inputs, fieldIds = FIELD_IDS) {
   const params = new URLSearchParams();
-  for (const id of FIELD_IDS) {
+  for (const id of fieldIds) {
     const value = usableNumber(inputs?.[id]);
     if (value !== null) params.set(id, String(value));
   }
@@ -48,12 +52,12 @@ export function encodeInputs(inputs) {
 // query string -> inputs object. Accepts a bare query string, or one with a
 // leading '?' or '#', so the caller can hand it `location.hash` or
 // `location.search` without trimming first. Only known, valid fields survive.
-export function decodeInputs(source) {
+export function decodeInputs(source, fieldIds = FIELD_IDS) {
   if (typeof source !== 'string') return {};
   const trimmed = source.replace(/^[?#]/, '');
   const params = new URLSearchParams(trimmed);
   const inputs = {};
-  for (const id of FIELD_IDS) {
+  for (const id of fieldIds) {
     if (!params.has(id)) continue;
     const value = usableNumber(params.get(id));
     if (value !== null) inputs[id] = value;
