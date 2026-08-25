@@ -21,12 +21,15 @@ export function compareScenarios(input) {
   const first = scenarioCost(input.first);
   const second = scenarioCost(input.second);
   const difference = first.total - second.total;
+  const expensiveTotal = Math.max(first.total, second.total);
   return {
     first,
     second,
     difference,
     cheaper: difference > 0 ? 'second' : difference < 0 ? 'first' : 'tie',
     savings: Math.abs(difference),
+    annualSavings: Math.abs(difference) * 12,
+    savingsPercentage: expensiveTotal === 0 ? 0 : (Math.abs(difference) / expensiveTotal) * 100,
   };
 }
 

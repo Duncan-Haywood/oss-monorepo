@@ -14,6 +14,14 @@ test('compares scenarios and reports savings', () => {
   });
   assert.equal(result.cheaper, 'second');
   assert.equal(result.savings, 62);
+  assert.equal(result.annualSavings, 744);
+  assert.equal(result.savingsPercentage, 62 / 68 * 100);
+});
+
+test('does not divide by zero for two free scenarios', () => {
+  const result = compareScenarios({ first: { storageGb: 0 }, second: { storageGb: 0 } });
+  assert.equal(result.annualSavings, 0);
+  assert.equal(result.savingsPercentage, 0);
 });
 
 test('rejects invalid inputs', () => {
