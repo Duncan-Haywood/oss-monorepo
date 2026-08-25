@@ -172,6 +172,9 @@ workflows:
 - workflow: ubuntu-agent-server-ci.yml
   classification: none
   publishes: []
+- workflow: walmart-marketplace-calculator-ci.yml
+  classification: none
+  publishes: []
 - workflow: where-to-sell-calculator-ci.yml
   classification: none
   publishes: []

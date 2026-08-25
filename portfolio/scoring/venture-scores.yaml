@@ -880,6 +880,36 @@ ventures:
       than a standard or benchmark, and nothing the user enters leaves the
       browser.
 
+  - slug: walmart-marketplace-calculator
+    scores:
+      ai_leverage: 2
+      autonomous_ops: 10
+      time_to_revenue: 7
+      gross_margin: 10
+      defensibility: 4
+      distribution: 8
+    composite: 6.833
+    rater_b: null
+    floor: 2
+    floor_dimension: ai_leverage
+    floor_note: AI is intentionally absent from the arithmetic core.
+    basis: >-
+      Graduated on 2026-08-25 as a browser-local Walmart Marketplace WFS vs
+      seller-fulfilled profit calculator. Distinct from amazon-fba-calculator
+      (Amazon referral and FBA size tiers), ebay-fee-calculator, etsy-profit-
+      calculator, and the Faire wholesale tool: Walmart's referral floor,
+      WFS size bands, and the competitive-match squeeze are the wedge.
+      Distribution stays at 8 because "Walmart Marketplace fees", "WFS vs
+      seller fulfilled", and "Walmart seller fee calculator" are high-intent
+      sourcing queries.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Pass: outputs are labeled modeled arithmetic from editable rates, not
+      Walmart's live schedule or a profitability determination; all data
+      stays in the browser.
+
   - slug: freelance-retainer-calculator
     scores:
       ai_leverage: 1
