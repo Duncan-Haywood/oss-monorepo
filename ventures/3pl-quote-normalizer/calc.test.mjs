@@ -68,6 +68,19 @@ test("flags malformed and negative rate-card inputs", () => {
 test("blank rate-card inputs disclose the fallback used", () => {
   const result = calculate({ orders: 100, shipping: "" }, false);
   assert.match(result.warnings.join("\n"), /Shipping \/ order was blank; the default 8\.5 was used/);
+  assert.equal(result.quote.shipping, 850);
+});
+
+test("whitespace-only rate-card inputs use the disclosed default", () => {
+  const result = calculate({ orders: 100, shipping: "   " }, false);
+  assert.equal(result.quote.shipping, 850);
+  assert.match(result.warnings.join("\n"), /Shipping \/ order was blank; the default 8\.5 was used/);
+});
+
+test("explicit zero rate-card inputs remain zero", () => {
+  const result = calculate({ orders: 100, shipping: 0 }, false);
+  assert.equal(result.quote.shipping, 0);
+  assert.deepEqual(result.warnings, []);
 });
 
 test("shows how minimums and unit economics change with volume", () => {
