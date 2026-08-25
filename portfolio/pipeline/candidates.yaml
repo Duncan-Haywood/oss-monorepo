@@ -33,6 +33,30 @@ rescore_note: >-
   rescore-2026-08-20.md.
 
 candidates:
+  - slug: freight-accessorial-auditor
+    name: Freight accessorial invoice auditor
+    doc: candidates/freight-accessorial-auditor.md
+    verdict: graduated
+    graduate_as: venture
+    host_venture: null
+    initiated: 2026-08-25
+    initiated_path: ventures/freight-accessorial-auditor
+    scores:
+      ai_leverage: 2
+      autonomous_ops: 10
+      time_to_revenue: 7
+      gross_margin: 10
+      defensibility: 5
+      distribution: 7
+      liability_containment: 7
+      ethical_robustness: 9
+    composite: 7.125
+    floor: 2
+    floor_dimension: ai_leverage
+    mitigation: Keep deterministic invoice arithmetic as the complete free core; disclose that findings require contract and invoice review before a dispute.
+    first_experiment_days: 14
+    first_experiment_budget_usd: 0
+
   - slug: cut-list-optimizer
     name: Cut-list optimizer
     doc: candidates/cut-list-optimizer.md

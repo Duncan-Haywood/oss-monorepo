@@ -872,3 +872,32 @@ ventures:
       The shipped production rates are labelled ballpark starting points rather
       than a standard or benchmark, and nothing the user enters leaves the
       browser.
+  - slug: freight-accessorial-auditor
+    scores:
+      ai_leverage: 2
+      autonomous_ops: 10
+      time_to_revenue: 7
+      gross_margin: 10
+      defensibility: 5
+      distribution: 7
+    composite: 6.833
+    rater_b: null
+    floor: 2
+    floor_dimension: ai_leverage
+    floor_note: >-
+      The first release is deterministic by design: transparent arithmetic is
+      safer than inference for invoice review. Defensibility can come later
+      from carrier-specific templates and repeat workflow usage.
+    basis: >-
+      Graduated on 2026-08-25 as a browser-local freight accessorial invoice
+      auditor for small shippers. It flags duplicate, over-expected, and
+      uncoded lines and exports a review queue without uploading invoice data.
+      It is distinct from the 3PL quote normalizer because it audits billed
+      post-service invoices rather than prospective quotes.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Pass, conditionally: output is a review record, not a carrier dispute
+      determination or financial advice; users must verify contracts and
+      invoices before relying on it.

@@ -23248,3 +23248,13 @@ entries:
           users to open `index.html` from disk, which cannot work, since
           browsers refuse ES module imports over `file://`.
     mrr_end: null
+  - venture: freight-accessorial-auditor
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+          Shipped the browser-local freight accessorial invoice auditor. It
+          flags duplicate, over-expected, and missing-code lines and exports a
+          review CSV without uploading invoice data. Local tests and an HTTP
+          smoke test passed; public deployment remains owner-gated.
+    mrr_end: null
