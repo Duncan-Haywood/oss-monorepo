@@ -58,8 +58,8 @@ test("flags malformed and negative rate-card inputs", () => {
   assert.deepEqual(result.warnings, [
     "Orders / month cannot be negative; the negative value was treated as zero.",
     "Shipping / order was not a number and was ignored.",
-    "Return fee cannot be negative; the negative value was treated as zero.",
-    "Restock fee was not a number and was ignored.",
+    "Return handling / order cannot be negative; the negative value was treated as zero.",
+    "Restocking / returned order was not a number and was ignored.",
   ]);
   assert.deepEqual(inputWarnings({}), []);
   assert.match(summary(result), /Input warnings/);
