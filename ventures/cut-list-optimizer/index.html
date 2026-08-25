@@ -206,6 +206,7 @@ Top: 31.5 x 11.25 x 2</textarea>
   </div>
 
   <footer>
+    <p id="draft-status" class="muted" role="status" aria-live="polite">Drafts are saved only on this device after you edit a field.</p>
     <label class="check"><input id="optout" type="checkbox"> Do not keep anonymous local usage counts</label>
     <p>
       <strong>No warranty.</strong> This free tool is provided as-is, without warranty of any kind, express or implied.
@@ -228,6 +229,7 @@ Top: 31.5 x 11.25 x 2</textarea>
     import { parseCuts, optimizeCutList, formatCutPlan } from './calc.mjs';
     import { parsePanels, optimizeSheets, formatSheetPlan } from './sheet.mjs';
     import { recordUsage, clearUsage } from './usage.mjs';
+    import { saveDraft, loadDraft } from './draft.mjs';
 
     const $ = (id) => document.getElementById(id);
     const optedOut = () => $('optout').checked;
@@ -239,6 +241,31 @@ Top: 31.5 x 11.25 x 2</textarea>
     // ticks per keystroke measures typing, not cut plans. `ready` lets the
     // settled-value ('change') listeners below count one plan per real edit.
     const ready = { sheet: false, linear: false };
+    const draftStatus = $('draft-status');
+
+    function persistDraft(mode, values) {
+      if (saveDraft(localStorage, mode, values)) {
+        draftStatus.textContent = 'Draft saved on this device.';
+        recordUsage(localStorage, optedOut(), 'draft-saves');
+      }
+    }
+
+    function restoreDraft(mode, fields) {
+      const draft = loadDraft(localStorage, mode);
+      if (!draft) return;
+      let restored = false;
+      for (const id of fields) {
+        if (typeof draft[id] === 'string' || typeof draft[id] === 'boolean') {
+          if ($(id).type === 'checkbox') $(id).checked = draft[id];
+          else $(id).value = draft[id];
+          restored = true;
+        }
+      }
+      if (restored) {
+        draftStatus.textContent = `Recovered your ${mode} draft from this device.`;
+        recordUsage(localStorage, optedOut(), 'draft-restores');
+      }
+    }
 
     /* ---------------- Sheet goods ---------------- */
 
@@ -423,6 +450,12 @@ Top: 31.5 x 11.25 x 2</textarea>
     );
     wireInputs(['stock', 'kerf', 'cuts', 'unit'], renderLinear, 'linear', 'runs');
 
+    const sheetFields = ['sheet-width', 'sheet-height', 'sheet-kerf', 'sheet-trim', 'sheet-cost', 'sheet-parts', 'sheet-unit', 'sheet-rotate'];
+    const linearFields = ['stock', 'kerf', 'cuts', 'unit'];
+    const draftValues = (ids) => Object.fromEntries(ids.map((id) => [id, $(id).type === 'checkbox' ? $(id).checked : $(id).value]));
+    sheetFields.forEach((id) => $(id).addEventListener('change', () => persistDraft('sheet', draftValues(sheetFields))));
+    linearFields.forEach((id) => $(id).addEventListener('change', () => persistDraft('linear', draftValues(linearFields))));
+
     wireCopy('sheet-copy', 'sheet-copy-status', 'sheet-copies');
     wireCopy('copy-plan', 'copy-status', 'copies');
     $('sheet-print').addEventListener('click', () => window.print());
@@ -435,6 +468,8 @@ Top: 31.5 x 11.25 x 2</textarea>
       renderLinear();
     });
 
+    restoreDraft('sheet', sheetFields);
+    restoreDraft('linear', linearFields);
     renderSheet();
     renderLinear();
   </script>

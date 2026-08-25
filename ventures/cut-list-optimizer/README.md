@@ -7,7 +7,7 @@ Cut List Optimizer is a free browser tool for woodworkers, sign shops, and maker
 
 Both account for saw kerf, both are deterministic, and both run entirely on your own device.
 
-Serve this directory as static files — for example `python3 -m http.server` in this folder, then open `http://localhost:8000/`. The page loads its logic as ES modules, which browsers refuse to fetch from a `file://` path, so opening `index.html` straight off disk leaves the calculator blank.
+Serve this directory as static files — for example `python3 -m http.server` in this folder, then open `http://localhost:8000/`. The page loads its logic as ES modules, which browsers refuse to fetch from a `file://` path, so opening `index.html` straight off disk leaves the calculator blank. After a field is changed, the current sheet and linear inputs are saved separately in local browser storage and recovered when the page is reopened. No cut list is transmitted.
 
 ## Sheet goods
 
@@ -52,6 +52,8 @@ Everything runs in the browser. The cut list never leaves your device, there are
 | `cut-list-optimizer-copies` | A linear plan was copied out for a job ticket |
 | `cut-list-optimizer-sheet-runs` | A sheet layout was calculated from a settled edit |
 | `cut-list-optimizer-sheet-copies` | A sheet plan was copied out for a job ticket |
+| `cut-list-optimizer-draft-saves` | A changed input draft was saved locally |
+| `cut-list-optimizer-draft-restores` | A saved input draft was recovered locally |
 
 Keeping them apart is what makes the numbers readable: `runs` shows the tool was used, `copies` shows a plan was good enough to carry into the shop, and the `sheet-` pair shows which half of the product people come back for. None of the counters records the cut list itself — no dimension, label, quantity, or price — and nothing is transmitted.
 

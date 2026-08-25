@@ -6,7 +6,7 @@
 // job ticket ('copies', 'sheet-copies'). Counting them into one key made the
 // number unreadable, and the sheet and linear tools answer different questions
 // about which half of the product people come back for.
-export const EVENTS = ['runs', 'copies', 'sheet-runs', 'sheet-copies'];
+export const EVENTS = ['runs', 'copies', 'sheet-runs', 'sheet-copies', 'draft-saves', 'draft-restores'];
 
 // A visitor who has asked their browser to say "do not track me" has already
 // answered this question, so the opt-out checkbox is not the only way to say no.

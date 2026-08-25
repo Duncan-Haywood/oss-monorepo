@@ -145,3 +145,10 @@ test('user-supplied part labels are escaped before they reach innerHTML', () => 
     assert.match(expression, /escapeHtml\(/, `an unescaped label reaches the DOM: ${expression}`);
   }
 });
+
+test('draft recovery is visible and wired to the local-only module', () => {
+  assert.match(scriptSource, /saveDraft\(localStorage/);
+  assert.match(scriptSource, /loadDraft\(localStorage/);
+  assert.match(markup, /id="draft-status"[^>]*>Drafts are saved only on this device/);
+  assert.match(markup, /role="status"[^>]*aria-live="polite"[^>]*>Drafts are saved/);
+});
