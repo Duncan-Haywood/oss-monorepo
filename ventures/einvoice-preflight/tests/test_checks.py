@@ -43,6 +43,16 @@ class ChecksTest(unittest.TestCase):
     def test_ubl_invoice_maps_to_supported_shape(self):
         self.assertEqual(check_invoice(parse_ubl_invoice(UBL_VALID)), [])
 
+    def test_ubl_multiple_tax_totals_are_added(self):
+        source = UBL_VALID.replace(
+            b'<cac:TaxTotal><cbc:TaxAmount currencyID="EUR">38</cbc:TaxAmount></cac:TaxTotal>',
+            b'<cac:TaxTotal><cbc:TaxAmount currencyID="EUR">19</cbc:TaxAmount></cac:TaxTotal>'
+            b'<cac:TaxTotal><cbc:TaxAmount currencyID="EUR">19</cbc:TaxAmount></cac:TaxTotal>',
+        )
+        invoice = parse_ubl_invoice(source)
+        self.assertEqual(invoice["totals"]["tax"], 38)
+        self.assertEqual(check_invoice(invoice), [])
+
     def test_ubl_due_date_is_preserved_for_date_checks(self):
         invoice = parse_ubl_invoice(UBL_VALID.replace(
             b"<cbc:ID>INV-XML-1</cbc:ID>",

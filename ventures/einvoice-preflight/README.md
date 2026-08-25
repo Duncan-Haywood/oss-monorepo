@@ -51,7 +51,10 @@ for selecting the correct format, tax treatment, and submission process.
 
 The supported v0 JSON shape is intentionally small and format-neutral. UBL XML
 input maps common `Invoice`, `InvoiceLine`, party, tax, and monetary-total
-elements into this shape:
+elements into this shape. When an invoice contains multiple UBL `TaxTotal`
+elements, their `TaxAmount` values are added to obtain the invoice tax total.
+This keeps split tax schemes from being silently ignored; it is still an
+arithmetic check, not a tax-law determination:
 
 ```json
 {
