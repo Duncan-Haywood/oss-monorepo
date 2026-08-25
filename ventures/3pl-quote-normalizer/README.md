@@ -5,7 +5,8 @@ you sign. Enter the rate-card lines for receiving, storage, pick and pack,
 packaging, shipping, returns, fixed fees, and minimum monthly spend. The
 browser calculates a comparable monthly total, cost per order, and an
 approximate break-even volume. Enter a second provider's normalized monthly
-total to compare two quotes at the same volume before negotiating.
+total to compare two quotes at the same volume before negotiating. The comparison
+page validates totals before rendering and remembers its draft locally.
 Use [Volume sensitivity](./sensitivity.html) to see how minimum charges and
 true cost per order change at 25, 50, 100, 250, and 500 monthly orders.
 If a pasted value is malformed or negative, the copied line-by-line report
@@ -54,5 +55,6 @@ node --test calc.test.mjs
 The page saves the current form values in browser local storage and restores
 them on the next visit, so recurring quote reviews do not require retyping a
 rate card. It also copies a line-by-line negotiation report. Saved values never
-leave the browser. The product is free while demand is measured. There is no
-payment collection.
+leave the browser. The quote comparison page counts completed and copied
+comparisons as anonymous local events. The product is free while demand is
+measured. There is no payment collection.
