@@ -7,9 +7,12 @@ ledger, or session notes that still treat policy compliance as the primary job.
 Two companion documents carry the parts this one only names:
 
 - [`PRODUCT_PLAYBOOK.md`](../PRODUCT_PLAYBOOK.md) — how to actually build one of
-  these products in a session: picking the niche, product shapes that cost $0
-  per user, the API-key switch, the disclaimer text to copy, the SEO/AI-discovery
-  checklist, and the definition of done.
+    these products in a session: picking the niche, product shapes that cost $0
+    per user, the API-key switch, the disclaimer text to copy, the SEO/AI-discovery
+    checklist, and the definition of done.
+- [`portfolio/hosting/`](hosting/README.md) — where a product goes live:
+    GitHub Pages for static tools, the existing Hetzner boxes for
+    processes. Not Cloudflare. Not Vercel.
 - [`portfolio/usage/`](usage/README.md) — what may be counted (events, never
   people), which free signals already exist, and where readings land
   (`usage/usage.yaml`) so the next session and the router can see them.
@@ -51,12 +54,14 @@ stranger, **deploy beats another build**:
 2. Record a usage reading that is not `null`.
 3. Only then graduate a new candidate or clone another bid calculator.
 
-The owner flip that turns gated Pages / Cloudflare / Vercel workflows live
-is already queued as `deploy-settings` (and the platform choice as
-`deployment-platform`) — do not open a second ask. Agents prepare the
-deploy artifact and the one-line owner action; they do not register a
-domain, store listing, or npm publish. Building privately remains allowed.
-Cloning a twelfth undeployed calculator is not.
+The host is decided: GitHub Pages for static products, the existing
+Hetzner boxes for processes — see [`hosting/README.md`](hosting/README.md).
+The remaining owner flip is `deploy-settings` (enable GitHub Pages). Do
+not open a second platform ask, and do not add Cloudflare or Vercel as
+the way a product goes live. Agents prepare the deploy artifact; they
+do not register a domain, store listing, or npm publish. Building
+privately remains allowed. Cloning a twelfth undeployed calculator is
+not.
 
 ## What a good product looks like here
 
@@ -133,7 +138,7 @@ to deployable venture code stay owner-gated until Ask 9
    - `graduate_as: product-line` — add the slug under `product_lines` in
      its host venture's `VENTURE.yaml` (the host must already be routable).
      Do not open a second venture directory.
-3. Ship on the VM or a preview deploy; record usage, not opinions.
+3. Ship on GitHub Pages or the Hetzner product box; record usage, not opinions.
 4. If the product is already on `main` and still has no public URL, **that
    deploy is the next task** — not a second product in the same niche.
 5. Let organic traffic and return usage decide what gets more investment.
@@ -149,7 +154,8 @@ These stay in every product regardless of the speed mandate:
   Produce evidence, drafts, and monitoring; the user decides and signs.
 - **No "you are compliant" warranties.** Report what was tested and when.
 - **No scraping personal data or bought lead lists.**
-- **Terms/disclaimers** on user-facing surfaces limiting liability.
+- **Terms/disclaimers** on user-facing surfaces limiting liability,
+  including the no-SLA hosting clause in `PRODUCT_PLAYBOOK.md` §5b.
 
 Payment is deferred, not disclaimers.
 

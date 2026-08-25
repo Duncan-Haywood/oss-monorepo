@@ -6,6 +6,10 @@ host that has coding agents — Claude Code, OpenAI Codex CLI, Antigravity CLI
 (including ones they file themselves), running headless, and opening PRs for
 review. (Grok Build is intentionally not automated — see below.)
 
+This is the **agent box**. Public products do not go here — they go on
+GitHub Pages or the separate Hetzner product box. See
+[`portfolio/hosting/README.md`](../../portfolio/hosting/README.md).
+
 **Read "How it runs" below before enabling this for real.** The playbook
 installs everything disabled by default (a kill-switch var, and `dry_run:
 true` on every repo) specifically so you have to make a deliberate choice
