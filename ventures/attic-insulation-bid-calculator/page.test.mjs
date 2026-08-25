@@ -24,7 +24,8 @@ test('calculator page has a paper-friendly quote layout', () => {
   const html = page('index.html');
   assert.match(html, /@media print/);
   assert.match(html, /break-inside: avoid/);
-  assert.match(html, /result-card/);
+  assert.match(html, /\.result \{/);
+  assert.match(html, /\.result \{ break-inside: avoid; \}/);
 });
 
 test('SEO page answers the search question and does not claim a code table', () => {
