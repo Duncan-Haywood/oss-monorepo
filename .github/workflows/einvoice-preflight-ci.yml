@@ -1,0 +1,45 @@
+name: einvoice-preflight CI
+
+on:
+  pull_request:
+    paths:
+      - "ventures/einvoice-preflight/**"
+      - ".github/workflows/einvoice-preflight-ci.yml"
+  push:
+    branches: [main]
+    paths:
+      - "ventures/einvoice-preflight/**"
+      - ".github/workflows/einvoice-preflight-ci.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+defaults:
+  run:
+    working-directory: ventures/einvoice-preflight
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install package
+        run: python3 -m pip install .
+      - name: Run unit tests
+        run: PYTHONPATH=src python3 -m unittest discover -s tests -v
+      - name: Smoke test installed command
+        run: einvoice-preflight examples/valid-invoice.json --format summary
+
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: python3 -m pip install ruff==0.15.8
+      - run: ruff check src tests
