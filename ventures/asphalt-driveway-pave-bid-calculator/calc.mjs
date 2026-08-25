@@ -375,8 +375,9 @@ export function calculateBid(input) {
 export function compareMethods(input) {
   const rows = METHOD_PRESETS.map((preset) => {
     const kit = suggestedMethodKit(preset.id);
+    const typedMill = Number(input.millDepthIn);
     const millDepthIn = preset.id === 'mill-overlay'
-      ? number(input.millDepthIn ?? 1.5, 'Mill depth', { allowZero: false })
+      ? (Number.isFinite(typedMill) && typedMill > 0 ? typedMill : 1.5)
       : 0;
     const bid = calculateBid({
       ...input,

@@ -165,6 +165,24 @@ test('full-depth demos the existing mat and skips tack on a new base', () => {
   assert.ok(full.demoDump > 0);
 });
 
+test('compareMethods still prices mill-and-overlay when the current job has zero mill depth', () => {
+  const rows = compareMethods({
+    ...COSTS,
+    drivewaySqFt: 800,
+    thicknessIn: 2,
+    apronSqFt: 0,
+    apronThicknessIn: 4,
+    failedBaseSqFt: 0,
+    sawcutLf: 20,
+    millDepthIn: 0,
+    existingDepthIn: 2,
+    fabric: false,
+  });
+  assert.equal(rows.length, 3);
+  const milled = rows.find((row) => row.method === 'mill-overlay');
+  assert.ok(milled.price > 0);
+});
+
 test('compareMethods shows overlay beating full-depth on a sound 800 sq ft refresh', () => {
   const rows = compareMethods({
     ...COSTS,
