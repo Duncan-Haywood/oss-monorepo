@@ -166,6 +166,9 @@ workflows:
 - workflow: substitute-supply-ci.yml
   classification: none
   publishes: []
+- workflow: sunroom-bid-calculator-ci.yml
+  classification: none
+  publishes: []
 - workflow: ubuntu-agent-server-ci.yml
   classification: none
   publishes: []
