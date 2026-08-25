@@ -70,15 +70,17 @@ export function money(value) {
 }
 
 export function compareQuotes(first, second) {
+  const totalDelta = second.quote.total - first.quote.total;
   return {
-    totalDelta: second.quote.total - first.quote.total,
+    totalDelta,
     perOrderDelta: second.perOrder - first.perOrder,
-    cheaper: first.quote.total <= second.quote.total ? "first" : "second",
+    cheaper: totalDelta === 0 ? "tie" : totalDelta > 0 ? "first" : "second",
   };
 }
 
 export function comparisonSummary(first, second, firstName = "Quote A", secondName = "Quote B") {
   const comparison = compareQuotes(first, second);
+  if (comparison.cheaper === "tie") return `${firstName} and ${secondName} have the same normalized monthly total.`;
   const cheaperName = comparison.cheaper === "first" ? firstName : secondName;
   return `${cheaperName} is lower by ${money(Math.abs(comparison.totalDelta))} per month (${money(Math.abs(comparison.perOrderDelta))} per order at this volume).`;
 }

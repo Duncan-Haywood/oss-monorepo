@@ -38,6 +38,15 @@ test("compares two normalized quotes and creates a negotiation report", () => {
   assert.match(negotiationLines(first).join("\n"), /Subtotal before minimum/);
 });
 
+test("does not pick a winner when normalized quote totals tie", () => {
+  const first = calculate({ orders: 100, shipping: 10, minimumMonthly: 0 });
+  const second = calculate({ orders: 100, shipping: 10, minimumMonthly: 0 });
+  const comparison = compareQuotes(first, second);
+  assert.equal(comparison.cheaper, "tie");
+  assert.equal(comparison.totalDelta, 0);
+  assert.equal(comparisonSummary(first, second, "Provider A", "Provider B"), "Provider A and Provider B have the same normalized monthly total.");
+});
+
 test("summary exposes every normalized line item and minimum warning", () => {
   const text = summary(calculate({ orders: 100, unitsPerOrder: 1.5, pallets: 1, minimumMonthly: 2000 }));
   assert.match(text, /Receiving:/);
