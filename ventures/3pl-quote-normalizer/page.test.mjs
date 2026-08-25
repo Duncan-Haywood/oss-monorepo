@@ -21,3 +21,11 @@ test('calculator keeps input warnings in the copied report path', async () => {
   assert.match(script, /Input warnings/);
   assert.match(script, /inputWarnings/);
 });
+
+test('sensitivity page exposes volume assumptions, results, and disclaimer', async () => {
+  const page = await readFile(new URL('./sensitivity.html', import.meta.url), 'utf8');
+  assert.match(page, /Volume Sensitivity/);
+  assert.match(page, /minimumMonthly/);
+  assert.match(page, /volumeSensitivity/);
+  assert.match(page, /not financial, tax, legal, or engineering advice/);
+});

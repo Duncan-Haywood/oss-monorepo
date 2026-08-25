@@ -1,4 +1,4 @@
-export function calculate(input) {
+export function calculate(input, includeSensitivity = true) {
   const n = (value, fallback = 0) => Number.isFinite(Number(value)) ? Math.max(0, Number(value)) : fallback;
   const warnings = inputWarnings(input);
   const orders = n(input.orders, 100);
@@ -21,7 +21,9 @@ export function calculate(input) {
   const delta = inHouse - quote.total;
   const perOrder = orders ? quote.total / orders : 0;
   const inHouseRate = n(input.inHousePerOrder, 13);
-  return { orders, quote, inHouse, delta, perOrder, breakEvenOrders: inHouseRate ? quote.total / inHouseRate : 0, minimumApplied: quote.total > quote.subtotal, winner: delta >= 0 ? "3PL" : "in-house", components: ["receiving", "storage", "pickPack", "packaging", "shipping", "returns", "fixed"], warnings };
+  const result = { orders, quote, inHouse, delta, perOrder, breakEvenOrders: inHouseRate ? quote.total / inHouseRate : 0, minimumApplied: quote.total > quote.subtotal, winner: delta >= 0 ? "3PL" : "in-house", components: ["receiving", "storage", "pickPack", "packaging", "shipping", "returns", "fixed"], warnings };
+  if (includeSensitivity) result.sensitivity = volumeSensitivity(input);
+  return result;
 }
 
 const inputLabels = { orders: "Orders / month", unitsPerOrder: "Units / order", pallets: "Pallets stored", inboundUnits: "Inbound units / month", receivingPerUnit: "Receiving / unit", storagePerPallet: "Storage / pallet", firstPick: "First pick / order", additionalPick: "Additional pick / unit", packaging: "Packaging / order", shipping: "Shipping / order", returnsRate: "Returns rate", fixedFee: "Fixed monthly fee", minimumMonthly: "Minimum monthly spend", inHousePerOrder: "In-house cost / order" };
@@ -53,6 +55,22 @@ export function comparisonSummary(first, second, firstName = "Quote A", secondNa
   const comparison = compareQuotes(first, second);
   const cheaperName = comparison.cheaper === "first" ? firstName : secondName;
   return `${cheaperName} is lower by ${money(Math.abs(comparison.totalDelta))} per month (${money(Math.abs(comparison.perOrderDelta))} per order at this volume).`;
+}
+
+export function volumeSensitivity(input, volumes = [25, 50, 100, 250, 500]) {
+  const baseOrders = Math.max(1, Number(input?.orders) || 1);
+  const units = Number(input?.unitsPerOrder) || 0;
+  return volumes.map((orders) => {
+    const result = calculate({ ...input, orders, inboundUnits: orders * units }, false);
+    return {
+      orders,
+      total: result.quote.total,
+      perOrder: result.perOrder,
+      minimumApplied: result.minimumApplied,
+      savingsVsInHouse: result.delta,
+      volumeRatio: orders / baseOrders,
+    };
+  });
 }
 
 export function negotiationLines(result) {

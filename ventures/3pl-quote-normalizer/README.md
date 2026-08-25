@@ -6,6 +6,8 @@ packaging, shipping, returns, fixed fees, and minimum monthly spend. The
 browser calculates a comparable monthly total, cost per order, and an
 approximate break-even volume. Enter a second provider's normalized monthly
 total to compare two quotes at the same volume before negotiating.
+Use [Volume sensitivity](./sensitivity.html) to see how minimum charges and
+true cost per order change at 25, 50, 100, 250, and 500 monthly orders.
 If a pasted value is malformed or negative, the copied line-by-line report
 includes an explicit warning instead of hiding the normalization rule.
 

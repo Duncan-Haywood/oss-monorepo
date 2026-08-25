@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { calculate, compareQuotes, comparisonSummary, inputWarnings, negotiationLines, summary } from "./calc.mjs";
+import { calculate, compareQuotes, comparisonSummary, inputWarnings, negotiationLines, summary, volumeSensitivity } from "./calc.mjs";
 
 test("normalizes the full monthly quote and minimum", () => {
   const result = calculate({ orders: 100, unitsPerOrder: 1.5, pallets: 1, minimumMonthly: 2000 });
@@ -56,4 +56,13 @@ test("flags malformed and negative rate-card inputs", () => {
   ]);
   assert.deepEqual(inputWarnings({}), []);
   assert.match(summary(result), /Input warnings/);
+});
+
+test("shows how minimums and unit economics change with volume", () => {
+  const rows = volumeSensitivity({ orders: 100, unitsPerOrder: 1.5, minimumMonthly: 2000 }, [50, 100, 500]);
+  assert.deepEqual(rows.map((row) => row.orders), [50, 100, 500]);
+  assert.equal(rows[0].minimumApplied, true);
+  assert.equal(rows[1].minimumApplied, true);
+  assert.equal(rows[2].minimumApplied, false);
+  assert.ok(rows[2].perOrder < rows[0].perOrder);
 });
