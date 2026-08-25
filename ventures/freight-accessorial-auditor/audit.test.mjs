@@ -35,3 +35,8 @@ test('flags malformed and negative amounts instead of treating them as zero', ()
   assert.equal(results[0].billed, 0);
   assert.equal(results[1].variance, -5);
 });
+
+test('flags blank amounts as invalid', () => {
+  const results = auditCharges([{ invoice: 'INV-5', reference: 'PO-12', code: 'FUEL', billed: '', expected: ' ' }]);
+  assert.deepEqual(results[0].flags, ['Invalid billed amount', 'Invalid expected amount']);
+});
