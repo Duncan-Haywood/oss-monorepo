@@ -10,5 +10,6 @@ test("compares finite non-negative totals", () => {
 test("reports equal totals", () => assert.equal(comparisonMessage(normalizeComparison({ first: "100", second: "100" })), "Both normalized totals are equal."));
 test("rejects malformed and negative totals", () => {
   assert.equal(normalizeComparison({ first: "", second: "100" }).error, "Enter a valid monthly total for both quotes.");
+  assert.equal(normalizeComparison({ first: "   ", second: "100" }).error, "Enter a valid monthly total for both quotes.");
   assert.equal(normalizeComparison({ first: "-1", second: "100" }).error, "Monthly totals cannot be negative.");
 });
