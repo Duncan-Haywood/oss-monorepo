@@ -12,8 +12,16 @@ test("normalizes the full monthly quote and minimum", () => {
 
 test("break-even reflects the in-house comparison", () => {
   const result = calculate({ orders: 100, inHousePerOrder: 20, minimumMonthly: 0 });
-  assert.equal(Math.round(result.breakEvenOrders), Math.round(result.quote.total / 20));
+  const atBreakEven = calculate({ orders: result.breakEvenOrders, inHousePerOrder: 20, minimumMonthly: 0 });
+  const justBelow = calculate({ orders: Math.max(0, result.breakEvenOrders - 1), inHousePerOrder: 20, minimumMonthly: 0 });
+  assert.ok(atBreakEven.delta >= 0);
+  assert.ok(justBelow.delta < 0);
   assert.ok(result.delta > 0);
+});
+
+test("reports no break-even when 3PL variable cost always exceeds in-house", () => {
+  const result = calculate({ orders: 100, shipping: 20, inHousePerOrder: 10 });
+  assert.equal(result.breakEvenOrders, 0);
 });
 
 test("zero volume stays finite and does not apply a minimum", () => {

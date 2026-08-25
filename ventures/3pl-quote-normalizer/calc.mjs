@@ -1,4 +1,4 @@
-export function calculate(input, includeSensitivity = true) {
+export function calculate(input, includeSensitivity = true, includeBreakEven = true) {
   const n = (value, fallback = 0) => Number.isFinite(Number(value)) ? Math.max(0, Number(value)) : fallback;
   const warnings = inputWarnings(input);
   const orders = n(input.orders, 100);
@@ -21,9 +21,30 @@ export function calculate(input, includeSensitivity = true) {
   const delta = inHouse - quote.total;
   const perOrder = orders ? quote.total / orders : 0;
   const inHouseRate = n(input.inHousePerOrder, 13);
-  const result = { orders, quote, inHouse, delta, perOrder, breakEvenOrders: inHouseRate ? quote.total / inHouseRate : 0, minimumApplied: quote.total > quote.subtotal, winner: delta >= 0 ? "3PL" : "in-house", components: ["receiving", "storage", "pickPack", "packaging", "shipping", "returns", "fixed"], warnings };
+  const result = { orders, quote, inHouse, delta, perOrder, breakEvenOrders: includeBreakEven ? estimateBreakEven(input, inHouseRate) : 0, minimumApplied: quote.total > quote.subtotal, winner: delta >= 0 ? "3PL" : "in-house", components: ["receiving", "storage", "pickPack", "packaging", "shipping", "returns", "fixed"], warnings };
   if (includeSensitivity) result.sensitivity = volumeSensitivity(input);
   return result;
+}
+
+// Find the first whole-order volume where in-house cost covers the full 3PL quote.
+function estimateBreakEven(input, inHouseRate) {
+  if (!inHouseRate) return 0;
+  const units = Number.isFinite(Number(input?.unitsPerOrder)) ? Math.max(0, Number(input.unitsPerOrder)) : 1.5;
+  const deltaAt = (orders) => {
+    const result = calculate({ ...input, orders, inboundUnits: orders * units }, false, false);
+    return result.inHouse - result.quote.total;
+  };
+  if (deltaAt(0) >= 0) return 0;
+  let high = 1;
+  while (high < 1_000_000 && deltaAt(high) < 0) high *= 2;
+  if (deltaAt(high) < 0) return 0;
+  let low = Math.floor(high / 2);
+  while (low + 1 < high) {
+    const middle = Math.floor((low + high) / 2);
+    if (deltaAt(middle) >= 0) high = middle;
+    else low = middle;
+  }
+  return high;
 }
 
 const inputLabels = { orders: "Orders / month", unitsPerOrder: "Units / order", pallets: "Pallets stored", inboundUnits: "Inbound units / month", receivingPerUnit: "Receiving / unit", storagePerPallet: "Storage / pallet", firstPick: "First pick / order", additionalPick: "Additional pick / unit", packaging: "Packaging / order", shipping: "Shipping / order", returnsRate: "Returns rate", fixedFee: "Fixed monthly fee", minimumMonthly: "Minimum monthly spend", inHousePerOrder: "In-house cost / order" };
@@ -93,7 +114,7 @@ export function summary(result) {
     `In-house estimate: ${money(result.inHouse)}`,
     `Difference (in-house minus 3PL): ${money(result.delta)}`,
     `True 3PL cost per order: ${money(result.perOrder)}`,
-    `Break-even volume: about ${Math.ceil(result.breakEvenOrders)} orders/month`,
+    `Break-even volume: ${result.breakEvenOrders ? `about ${result.breakEvenOrders} orders/month` : "not found within 1,000,000 orders/month"}`,
     "",
     "Line items",
     `Receiving: ${money(result.quote.receiving)}`,
