@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import math
 import subprocess
 import sys
 import time
@@ -16,6 +17,13 @@ from .report import build_history_report, markdown_report
 
 def _now_iso() -> str:
     return datetime.now(timezone.utc).isoformat(timespec="seconds")
+
+
+def _positive_hours(value: str) -> float:
+    hours = float(value)
+    if not math.isfinite(hours) or hours < 0:
+        raise argparse.ArgumentTypeError("must be a finite number zero or greater")
+    return hours
 
 
 def _stat_artifact(path: Path) -> dict:
@@ -105,9 +113,28 @@ def cmd_verify(args: argparse.Namespace) -> int:
     command, before deciding whether to wire `record` into their cron job.
     """
     results = []
+    checked_at = datetime.now(timezone.utc)
     for path in args.artifacts:
         result = inspect_artifact(path, max_bytes=args.integrity_max_bytes)
         result["path"] = str(path)
+        if args.max_age_hours is not None:
+            modified_at = _stat_artifact(path).get("modified_at")
+            if not modified_at:
+                freshness = {"result": "unchecked", "detail": "artifact has no modification time to check"}
+            else:
+                modified = datetime.fromisoformat(modified_at)
+                age_hours = (checked_at - modified).total_seconds() / 3600
+                if age_hours < 0:
+                    freshness = {"result": "clock_skew", "detail": f"artifact timestamp is {abs(age_hours):.1f}h in the future"}
+                elif age_hours > args.max_age_hours:
+                    freshness = {"result": "stale", "detail": f"artifact is {age_hours:.1f}h old (limit {args.max_age_hours:g}h)"}
+                else:
+                    freshness = {"result": "fresh", "age_hours": round(age_hours, 3)}
+            result["freshness"] = freshness
+            if freshness["result"] != "fresh":
+                if result["result"] != CORRUPT:
+                    result["result"] = "stale" if freshness["result"] == "stale" else "unchecked"
+                result["detail"] += f"; freshness: {freshness['detail']}"
         results.append(result)
 
     if args.format == "json":
@@ -195,6 +222,12 @@ def build_parser() -> argparse.ArgumentParser:
     verify.add_argument("artifacts", nargs="+", type=Path)
     verify.add_argument("--format", choices=("text", "json"), default="text")
     verify.add_argument("--integrity-max-bytes", type=int, default=None)
+    verify.add_argument(
+        "--max-age-hours",
+        type=_positive_hours,
+        default=None,
+        help="fail freshness checks when an artifact is older than this many hours",
+    )
     verify.add_argument("--usage-file", type=Path, help="optional local event-count file")
     verify.set_defaults(func=cmd_verify)
 

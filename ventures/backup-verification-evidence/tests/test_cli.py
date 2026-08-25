@@ -1,5 +1,7 @@
 import json
+import os
 import sys
+import time
 import tempfile
 import unittest
 from pathlib import Path
@@ -214,6 +216,46 @@ class VerifyCommandTests(unittest.TestCase):
             usage = Path(directory) / "usage.json"
             self._run(["verify", str(artifact), "--usage-file", str(usage)])
             self.assertEqual(json.loads(usage.read_text())["artifact_verified"], 1)
+
+    def test_fresh_intact_archive_passes_age_check(self):
+        with tempfile.TemporaryDirectory() as directory:
+            artifact = _tar_gz(Path(directory) / "nightly.tar.gz")
+            self.assertEqual(self._run(["verify", "--max-age-hours", "1", str(artifact)]), 0)
+
+    def test_old_intact_archive_is_stale_and_exits_two(self):
+        with tempfile.TemporaryDirectory() as directory:
+            artifact = _tar_gz(Path(directory) / "nightly.tar.gz")
+            old = time.time() - 48 * 3600
+            os.utime(artifact, (old, old))
+            buffer = io.StringIO()
+            stdout, sys.stdout = sys.stdout, buffer
+            try:
+                self.assertEqual(self._run(["verify", "--format", "json", "--max-age-hours", "24", str(artifact)]), 2)
+            finally:
+                sys.stdout = stdout
+            result = json.loads(buffer.getvalue())["artifacts"][0]
+            self.assertEqual(result["result"], "stale")
+            self.assertEqual(result["freshness"]["result"], "stale")
+
+    def test_corrupt_artifact_keeps_corrupt_exit_priority_when_stale(self):
+        with tempfile.TemporaryDirectory() as directory:
+            artifact = _tar_gz(Path(directory) / "nightly.tar.gz", truncate_tar=True)
+            old = time.time() - 48 * 3600
+            os.utime(artifact, (old, old))
+            self.assertEqual(self._run(["verify", "--max-age-hours", "24", str(artifact)]), 1)
+
+    def test_missing_artifact_is_unchecked_with_age_check(self):
+        with tempfile.TemporaryDirectory() as directory:
+            missing = Path(directory) / "missing.tar.gz"
+            buffer = io.StringIO()
+            stdout, sys.stdout = sys.stdout, buffer
+            try:
+                self.assertEqual(self._run(["verify", "--format", "json", "--max-age-hours", "24", str(missing)]), 2)
+            finally:
+                sys.stdout = stdout
+            result = json.loads(buffer.getvalue())["artifacts"][0]
+            self.assertEqual(result["result"], "unchecked")
+            self.assertEqual(result["freshness"]["result"], "unchecked")
 
 
 class RecordIntegrityTests(unittest.TestCase):
