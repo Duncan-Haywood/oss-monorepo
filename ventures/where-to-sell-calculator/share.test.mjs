@@ -9,7 +9,7 @@ test("round-trips shared inputs and channel overrides", () => {
   const restored = decodeComparison(encodeComparison(shared, channels));
   assert.deepEqual(restored.shared, { price: 48, itemCost: 14, monthlyOrders: 100 });
   assert.equal(restored.includeSubscription, false);
-  assert.equal(restored.channels.find((channel) => channel.id === "etsy").price, "62");
+  assert.equal(restored.channels.find((channel) => channel.id === "etsy").price, 62);
   assert.equal(restored.channels.find((channel) => channel.id === "other").enabled, false);
 });
 
@@ -21,4 +21,21 @@ test("ignores unknown fields and malformed links", () => {
   assert.deepEqual(restored.shared, { price: 10 });
   assert.deepEqual(restored.channels[0], { id: "ebay", enabled: true, commissionRate: 13 });
   assert.equal(decodeComparison("not-json"), null);
+});
+
+test("drops non-numeric channel values before the page renders them", () => {
+  const restored = decodeComparison(encodeURIComponent(JSON.stringify({
+    channels: [{
+      id: "etsy",
+      enabled: true,
+      label: "<img src=x onerror=alert(1)>",
+      values: {
+        price: "62",
+        commissionRate: "not a number",
+        paymentRate: "<input>",
+        monthlyFee: -1,
+      },
+    }],
+  })));
+  assert.deepEqual(restored.channels, [{ id: "etsy", enabled: true, price: 62 }]);
 });

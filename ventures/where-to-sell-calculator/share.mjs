@@ -41,8 +41,11 @@ export function decodeComparison(value) {
       .map((channel) => ({
         id: channel.id,
         enabled: channel.enabled !== false,
-        ...Object.fromEntries(CHANNEL_FIELDS.map((key) => [key, channel.values?.[key]])
-          .filter(([, value]) => value !== undefined && value !== "")),
+        ...Object.fromEntries(CHANNEL_FIELDS.map((key) => {
+          const raw = channel.values?.[key];
+          const number = raw === undefined || raw === "" ? null : Number(raw);
+          return [key, Number.isFinite(number) && number >= 0 ? number : null];
+        }).filter(([, value]) => value !== null)),
       })) : [];
     return { shared, includeSubscription: parsed.includeSubscription !== false, channels };
   } catch {

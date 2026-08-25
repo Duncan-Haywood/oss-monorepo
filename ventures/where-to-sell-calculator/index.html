@@ -311,7 +311,7 @@
       if (Array.isArray(saved.channels)) {
         channels = freshChannels().map((channel) => {
           const stored = saved.channels.find((candidate) => candidate?.id === channel.id);
-          return stored ? { ...channel, ...stored, label: channel.label, note: channel.note } : channel;
+          return stored ? mergeChannelValues(channel, stored) : channel;
         });
       }
     }
@@ -327,10 +327,23 @@
       if (shared.channels.length) {
         channels = freshChannels().map((channel) => {
           const incoming = shared.channels.find((candidate) => candidate.id === channel.id);
-          return incoming ? { ...channel, ...incoming } : channel;
+          return incoming ? mergeChannelValues(channel, incoming) : channel;
         });
       }
       return true;
+    }
+
+    // Shared URLs and saved state are untrusted data. Keep preset labels and
+    // explanatory copy local, and copy only the numeric fields the form edits.
+    function mergeChannelValues(channel, incoming) {
+      const values = Object.fromEntries(
+        CHANNEL_FIELDS.map(({ key }) => {
+          const raw = incoming[key];
+          const value = raw === undefined || raw === "" ? null : Number(raw);
+          return [key, value];
+        }).filter(([, value]) => Number.isFinite(value) && value >= 0),
+      );
+      return { ...channel, ...values, enabled: incoming.enabled !== false };
     }
 
     function renderPanels() {
