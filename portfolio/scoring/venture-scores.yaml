@@ -909,3 +909,36 @@ ventures:
       Pass: output is a planning floor from user-supplied assumptions, not
       financial advice or a guarantee of income, tax treatment, or contract
       enforceability; all data stays in the browser.
+
+  - slug: spray-foam-bid-calculator
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 7
+      gross_margin: 10
+      defensibility: 5
+      distribution: 7
+    composite: 6.667
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      There is no AI anywhere in the product. The value is a domain model —
+      board-foot geometry and rim / cell extras — that is arithmetic, and
+      adding inference to it would only make the result less checkable.
+    basis: >-
+      Graduated on 2026-08-25 as a browser-local spray-foam bid calculator.
+      Distinct from attic blown-in (bags, R-delta, baffles) and from wall
+      batts: this prices board feet, open vs closed vs hybrid cell, rim-joist
+      footage, and ignition coating. Search intent is explicit in queries
+      such as how much to charge for spray foam insulation and spray foam
+      cost calculator.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Pass: the output is arithmetic on the contractor's own inputs, never a
+      recommended price, an energy-code opinion, or an engineering stamp.
+      The shipped cell rates and waste percents are labelled ballpark
+      starting points rather than a standard, and nothing the user enters
+      leaves the browser.

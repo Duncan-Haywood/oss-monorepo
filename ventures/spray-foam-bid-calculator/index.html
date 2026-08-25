@@ -1,0 +1,454 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Spray Foam Bid Calculator | How Much to Charge for Spray Foam Insulation</title>
+  <meta name="description" content="Price residential spray foam from the board feet an attic-square-foot special cannot see, the rim, the cell, and the ignition coating — plus walk-away price and proposed-price margin check.">
+  <meta property="og:title" content="Spray Foam Bid Calculator">
+  <meta property="og:description" content="Bid the board feet, the rim, and the coating — not the attic-square-foot coupon. See the margin before you send the price.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Spray Foam Bid Calculator","applicationCategory":"BusinessApplication","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"featureList":"Board-foot geometry, open/closed/hybrid cell, rim-joist footage, ignition coating, cathedral pitch factor, walk-away price, proposed-price margin check, copyable customer-facing summary"}</script>
+  <style>
+    :root { color-scheme: light; font-family: system-ui, sans-serif; color: #1d2530; background: #eef2f7; }
+    body { max-width: 1060px; margin: 0 auto; padding: 32px 18px; }
+    header { max-width: 720px; margin-bottom: 26px; }
+    h1 { font-size: clamp(2rem, 6vw, 3.6rem); line-height: .98; margin: 0 0 12px; letter-spacing: -.05em; }
+    p { line-height: 1.5; }
+    .eyebrow { font-size: .8rem; font-weight: 700; letter-spacing: .08em; color: #1c5a3a; margin: 0 0 6px; }
+    .layout { display: grid; grid-template-columns: minmax(0, 1fr) minmax(300px, .75fr); gap: 18px; align-items: start; }
+    section { background: #fff; border: 1px solid #d3dce6; border-radius: 14px; padding: 20px; box-shadow: 0 8px 24px #1a2a4a0d; margin-bottom: 18px; }
+    h2 { margin-top: 0; font-size: 1.15rem; }
+    .hint { font-size: .82rem; color: #4a5666; margin: -6px 0 14px; }
+    .fields { display: grid; grid-template-columns: repeat(2, 1fr); gap: 13px; }
+    label { display: grid; gap: 5px; font-size: .87rem; font-weight: 650; }
+    input, select { width: 100%; box-sizing: border-box; border: 1px solid #a9b6c6; border-radius: 7px; padding: 10px; font: inherit; background: #fff; }
+    .check { display: flex; align-items: center; gap: 8px; font-weight: 650; }
+    .check input { width: auto; }
+    button { font: inherit; border-radius: 7px; border: 1px solid #a9b6c6; background: #f3f6fa; padding: 10px 14px; cursor: pointer; font-weight: 650; }
+    button:hover { background: #e6ecf4; }
+    .result { position: sticky; top: 15px; background: #163c2a; color: #eef6f2; border-color: #163c2a; }
+    .hero-number { font-size: 2.9rem; font-weight: 750; letter-spacing: -.05em; margin: 8px 0; }
+    .negative { color: #ffb0a2; } .positive { color: #a9e6b0; }
+    dl { display: grid; grid-template-columns: 1fr auto; gap: 9px; margin: 20px 0; }
+    dt, dd { margin: 0; } dd { font-variant-numeric: tabular-nums; }
+    hr { border: 0; border-top: 1px solid #ffffff2b; }
+    .note { font-size: .82rem; opacity: .84; }
+    .split { margin: 14px 0 0; padding: 0; list-style: none; font-size: .84rem; }
+    .split li { display: grid; grid-template-columns: 1fr auto; gap: 8px; padding: 3px 0; }
+    .bar { grid-column: 1 / -1; height: 4px; border-radius: 2px; background: #ffffff2e; }
+    .bar > span { display: block; height: 100%; border-radius: 2px; background: #7ec8a0; }
+    .verdict { margin-top: 14px; padding: 12px; border-radius: 9px; font-size: .87rem; background: #ffffff1a; }
+    .verdict.bad { background: #7d2317; }
+    .empty { font-size: .87rem; opacity: .84; }
+    footer { margin-top: 25px; font-size: .82rem; color: #4a5666; }
+    footer a { color: #1c5a3a; }
+    .support { margin-top: 14px; }
+    .summary-actions { display: flex; gap: 8px; align-items: center; margin-top: 14px; }
+    .summary-status { font-size: .8rem; color: #c5e8d8; }
+    @media (max-width: 780px) {
+      .layout { grid-template-columns: 1fr; } .result { position: static; } .fields { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="eyebrow">FOR SPRAY-FOAM INSULATION CREWS</p>
+    <h1>Bid the board feet, the rim, and the coating.</h1>
+    <p>Price residential spray foam the way the trade actually loses money: board feet an attic-square-foot special cannot see, then cell, rim joists, ignition coating, waste, permit, and the margin you intend to keep. You get the job price, what it works out to per square foot of plane, and the number below which the job loses money.</p>
+    <p class="hint" style="margin:0">Looking up <a href="./how-much-to-charge-for-spray-foam-insulation.html">how much to charge for spray foam insulation</a>? Start here, then replace every starting figure with your own crew times.</p>
+  </header>
+
+  <main class="layout">
+    <div>
+      <section>
+        <h2>A starting job</h2>
+        <p class="hint">Pick a common call to fill the plane, cell, rim, and coating. Changing a kit never overwrites hours or material costs you have already typed.</p>
+        <label>Job preset
+          <select id="jobPresets">
+            <option value="">Choose a starting job…</option>
+          </select>
+        </label>
+      </section>
+
+      <section>
+        <h2>The assembly</h2>
+        <p class="hint">Length is the long side. Width is the short side on an attic or cathedral, or the wall height on a crawl. These are starting points, not a drum quote.</p>
+        <div class="fields">
+          <label>Sprayed plane
+            <select id="area"></select>
+          </label>
+          <label>Cell
+            <select id="cell"></select>
+          </label>
+          <label>Roof pitch (cathedral)
+            <select id="pitch"></select>
+          </label>
+          <label>Ignition / thermal coating
+            <select id="barrier"></select>
+          </label>
+          <label>Access
+            <select id="access"></select>
+          </label>
+          <label>Length / perimeter (feet) <input id="lengthFeet" type="number" min="4" step="0.5" value="40"></label>
+          <label>Width / wall height (feet) <input id="widthFeet" type="number" min="2" step="0.5" value="30"></label>
+          <label>Foam thickness (inches) <input id="thicknessInches" type="number" min="0.5" step="0.5" value="8"></label>
+          <label>Rim joist (lineal feet) <input id="rimLf" type="number" min="0" step="1" value="0"></label>
+          <label>Rim height (inches) <input id="rimHeightInches" type="number" min="0" step="0.25" value="9.25"></label>
+          <label>Rim thickness (inches) <input id="rimThicknessInches" type="number" min="0" step="0.5" value="3"></label>
+        </div>
+        <div class="fields" style="margin-top:13px">
+          <label class="check"><input id="includePermit" type="checkbox"> Include permit allowance</label>
+        </div>
+      </section>
+
+      <section>
+        <h2>Hours and counts</h2>
+        <p class="hint">Plane, board feet, rim, waste, and order start from the geometry. Change them when the site disagrees.</p>
+        <div class="fields">
+          <label>Trip / setup hours <input id="hoursTrip" type="number" min="0" step="0.1" value="2.5"></label>
+          <label>Hours per 1,000 board feet <input id="hoursPer1000Bf" type="number" min="0" step="0.1" value="1.4"></label>
+          <label>Hours per lf of rim <input id="hoursRimPerLf" type="number" min="0" step="0.01" value="0.09"></label>
+          <label>Hours per 100 sf of coating <input id="hoursBarrierPer100Sf" type="number" min="0" step="0.1" value="0.8"></label>
+          <label>Access hours <input id="hoursAccess" type="number" min="0" step="0.1" value="0"></label>
+          <label>Travel hours <input id="siteHours" type="number" min="0" step="0.1" value="0.8"></label>
+          <label>Sprayed plane (sf) <input id="areaSf" type="number" min="0" step="1" value="1200"></label>
+          <label>Open-cell board feet <input id="openBf" type="number" min="0" step="1" value="9600"></label>
+          <label>Closed-cell board feet <input id="closedBf" type="number" min="0" step="1" value="0"></label>
+          <label>Rim board feet <input id="rimBf" type="number" min="0" step="1" value="0"></label>
+          <label>Waste percent <input id="wastePercent" type="number" min="0" step="0.5" value="10"></label>
+          <label>Order open-cell (bf) <input id="orderOpenBf" type="number" min="0" step="1" value="10560"></label>
+          <label>Order closed-cell (bf) <input id="orderClosedBf" type="number" min="0" step="1" value="0"></label>
+        </div>
+      </section>
+
+      <section>
+        <h2>Materials and your costs</h2>
+        <div class="fields">
+          <label>Open-cell foam per bf <input id="foamPerBfOpen" type="number" min="0" step="0.05" value="0.55"></label>
+          <label>Closed-cell foam per bf <input id="foamPerBfClosed" type="number" min="0" step="0.05" value="1.25"></label>
+          <label>Ignition coating per sf <input id="barrierPerSf" type="number" min="0" step="0.05" value="1.10"></label>
+          <label>Suits, tape, tips <input id="consumablesLump" type="number" min="0" step="5" value="185"></label>
+          <label>Mobilization <input id="mobilizationFee" type="number" min="0" step="5" value="275"></label>
+          <label>Permit fee <input id="permitFee" type="number" min="0" step="5" value="185"></label>
+          <label>Hourly wage <input id="hourlyWage" type="number" min="0" step="0.25" value="32"></label>
+          <label>Payroll burden (%) <input id="burdenRate" type="number" min="0" step="0.5" value="32"></label>
+          <label>Travel and equipment <input id="travelAndEquipment" type="number" min="0" step="1" value="185"></label>
+          <label>Overhead on direct cost (%) <input id="overheadRate" type="number" min="0" step="0.5" value="15"></label>
+          <label>Target net margin (%) <input id="targetMargin" type="number" min="0" max="99.9" step="0.5" value="25"></label>
+          <label>Price you&rsquo;re considering (optional) <input id="proposedPrice" type="number" min="0" step="25" placeholder="e.g. 4200"></label>
+        </div>
+        <p class="hint" style="margin-top:14px;margin-bottom:0">Payroll burden covers employer taxes, workers&rsquo; compensation, liability insurance, and paid time off. An attic-square-foot special written on the floor never sees it — or the rim.</p>
+      </section>
+    </div>
+
+    <section class="result" aria-live="polite">
+      <h2>Your bid</h2>
+      <div id="price" class="hero-number">$&mdash;</div>
+      <div id="priceLabel">job price</div>
+      <dl>
+        <dt>Sprayed plane</dt><dd id="plane"></dd>
+        <dt>Board feet / ordered</dt><dd id="boardFeet"></dd>
+        <dt>Open / closed / rim</dt><dd id="splitBf"></dd>
+        <dt>Foam share of direct</dt><dd id="foamShare"></dd>
+        <dt>Nominal starting R</dt><dd id="nominalR"></dd>
+        <dt>Crew hours</dt><dd id="totalHours"></dd>
+        <dt>Loaded labor</dt><dd id="labor"></dd>
+        <dt>Materials</dt><dd id="materials"></dd>
+        <dt>Travel, mobilization, extras</dt><dd id="soft"></dd>
+        <dt>Overhead</dt><dd id="overhead"></dd>
+        <dt>Total cost</dt><dd id="cost"></dd>
+        <dt>Profit</dt><dd id="profit"></dd>
+        <dt>Price per plane sf</dt><dd id="perAreaSf"></dd>
+        <dt>Price per board foot</dt><dd id="perBf"></dd>
+        <dt>Effective hourly rate</dt><dd id="hourlyRate"></dd>
+        <dt>Walk-away price</dt><dd id="breakEven"></dd>
+      </dl>
+      <div id="verdict" class="verdict" hidden></div>
+      <div class="summary-actions">
+        <button type="button" id="copySummary">Copy bid summary</button>
+        <span id="summaryStatus" class="summary-status" role="status" aria-live="polite"></span>
+      </div>
+      <hr>
+      <p class="note" style="margin-bottom:4px"><strong>Where the hours go</strong></p>
+      <ul class="split" id="split"></ul>
+      <hr>
+      <p class="note">Transparent arithmetic from your own inputs. The starting spans, cell rates, hours, and material rates are common ballpark figures, not an energy-code opinion, a permit, a warranty, or an engineering stamp. Time your own crews and replace them.</p>
+    </section>
+  </main>
+
+  <footer>
+    <label style="display:inline-flex;gap:6px;align-items:center;font-weight:400"><input id="usageOptOut" type="checkbox" style="width:auto"> Do not keep anonymous local usage counts</label>
+    <p><strong>No warranty.</strong> This free tool is not construction, legal, tax, financial, or engineering advice, and it does not tell you what to charge or whether an assembly is compliant. Verify every figure against your own payroll, insurance, and material costs, and against a qualified professional and the authority having jurisdiction, before relying on it or submitting a bid. To the maximum extent permitted by law, the authors accept no liability for loss or damage from its use.</p>
+    <p><strong>Nothing leaves your browser.</strong> Every number stays on this device. Usage counts are anonymous tallies of which features were used, stored locally, and never include your spans, wages, costs, or prices.</p>
+    <p class="support">Free and open source. If it wins you a job, the <a href="https://github.com/Duncan-Haywood/monorepo-projects" rel="noopener">project is on GitHub</a> &mdash; support is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import {
+      calculateBid,
+      formatBidSummary,
+      JOB_PRESETS,
+      AREA_PRESETS,
+      CELL_PRESETS,
+      PITCH_PRESETS,
+      BARRIER_PRESETS,
+      ACCESS_PRESETS,
+      suggestedAreaSf,
+      suggestedOpenBf,
+      suggestedClosedBf,
+      suggestedRimBf,
+      suggestedWastePercent,
+      suggestedOrderBf,
+      suggestedCellKit,
+      suggestedAccessKit,
+      suggestedBarrierKit,
+    } from './calc.mjs';
+    import { recordUsage } from './usage.mjs';
+
+    const FIELD_IDS = [
+      'area','cell','pitch','barrier','access','lengthFeet','widthFeet','thicknessInches',
+      'rimLf','rimHeightInches','rimThicknessInches',
+      'hoursTrip','hoursPer1000Bf','hoursRimPerLf','hoursBarrierPer100Sf','hoursAccess','siteHours',
+      'areaSf','openBf','closedBf','rimBf','wastePercent','orderOpenBf','orderClosedBf',
+      'foamPerBfOpen','foamPerBfClosed','barrierPerSf','consumablesLump','mobilizationFee','permitFee',
+      'hourlyWage','burdenRate','travelAndEquipment','overheadRate','targetMargin','proposedPrice',
+    ];
+    const KIT_IDS = new Set([
+      'areaSf','openBf','closedBf','rimBf','wastePercent','orderOpenBf','orderClosedBf',
+      'hoursPer1000Bf','foamPerBfOpen','foamPerBfClosed','hoursAccess','hoursBarrierPer100Sf',
+    ]);
+    const money = value => `$${value.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+    const el = id => document.getElementById(id);
+
+    function fillSelect(id, items) {
+      el(id).innerHTML = items.map(item => `<option value="${item.id}">${item.label}</option>`).join('');
+    }
+    fillSelect('area', AREA_PRESETS);
+    fillSelect('cell', CELL_PRESETS);
+    fillSelect('pitch', PITCH_PRESETS);
+    el('pitch').value = '6/12';
+    fillSelect('barrier', BARRIER_PRESETS);
+    fillSelect('access', ACCESS_PRESETS);
+    el('jobPresets').innerHTML = '<option value="">Choose a starting job…</option>'
+      + JOB_PRESETS.map((job, index) => `<option value="${index}">${job.label}</option>`).join('');
+
+    function count(event) {
+      recordUsage(localStorage, el('usageOptOut').checked, event);
+    }
+
+    function applyCellKit() {
+      const kit = suggestedCellKit(el('cell').value);
+      if (!el('hoursPer1000Bf').dataset.edited) el('hoursPer1000Bf').value = kit.hoursPer1000Bf;
+      if (!el('foamPerBfOpen').dataset.edited) el('foamPerBfOpen').value = kit.foamPerBfOpen;
+      if (!el('foamPerBfClosed').dataset.edited) el('foamPerBfClosed').value = kit.foamPerBfClosed;
+    }
+
+    function applyAccessKit() {
+      const kit = suggestedAccessKit(el('access').value);
+      if (!el('hoursAccess').dataset.edited) el('hoursAccess').value = kit.extraHours;
+    }
+
+    function applyBarrierKit() {
+      const kit = suggestedBarrierKit(el('barrier').value);
+      if (!el('hoursBarrierPer100Sf').dataset.edited) el('hoursBarrierPer100Sf').value = kit.hoursPer100Sf;
+    }
+
+    function applyGeometryKits() {
+      const length = Number(el('lengthFeet').value);
+      const width = Number(el('widthFeet').value);
+      const thickness = Number(el('thicknessInches').value);
+      if (![length, width, thickness].every(Number.isFinite) || length <= 0 || width <= 0 || thickness <= 0) return;
+      const area = el('area').value;
+      const cell = el('cell').value;
+      const pitch = el('pitch').value;
+      const plane = suggestedAreaSf(length, width, area, pitch);
+      const openBf = suggestedOpenBf(plane, thickness, cell);
+      const closedBf = suggestedClosedBf(plane, thickness, cell);
+      const rimBf = suggestedRimBf(el('rimLf').value, el('rimHeightInches').value, el('rimThicknessInches').value);
+      const waste = suggestedWastePercent(cell);
+      if (!el('areaSf').dataset.edited) el('areaSf').value = Number(plane.toFixed(4));
+      if (!el('openBf').dataset.edited) el('openBf').value = Number(openBf.toFixed(4));
+      if (!el('closedBf').dataset.edited) el('closedBf').value = Number(closedBf.toFixed(4));
+      if (!el('rimBf').dataset.edited) el('rimBf').value = Number(rimBf.toFixed(4));
+      if (!el('wastePercent').dataset.edited) el('wastePercent').value = waste;
+      if (!el('orderOpenBf').dataset.edited) el('orderOpenBf').value = Number(suggestedOrderBf(openBf, waste).toFixed(4));
+      if (!el('orderClosedBf').dataset.edited) el('orderClosedBf').value = Number(suggestedOrderBf(closedBf + rimBf, waste).toFixed(4));
+    }
+
+    function readInput() {
+      const values = Object.fromEntries(FIELD_IDS.map(id => [id, el(id).value]));
+      values.includePermit = el('includePermit').checked;
+      return values;
+    }
+
+    function clearOutputs(message, isError) {
+      el('price').textContent = message;
+      el('price').className = `hero-number ${isError ? 'negative' : ''}`;
+      el('priceLabel').textContent = isError ? 'check the highlighted input' : 'job price';
+      ['plane','boardFeet','splitBf','foamShare','nominalR','totalHours','labor','materials','soft','overhead','cost','profit','perAreaSf','perBf','hourlyRate','breakEven']
+        .forEach(id => { el(id).textContent = ''; });
+      el('split').innerHTML = '';
+      el('verdict').hidden = true;
+    }
+
+    function update() {
+      let result;
+      try {
+        result = calculateBid(readInput());
+      } catch (error) {
+        clearOutputs(error.message, true);
+        return;
+      }
+
+      el('price').textContent = money(result.price);
+      el('price').className = 'hero-number';
+      el('priceLabel').textContent = 'job price';
+      el('plane').textContent = `${result.areaSf.toFixed(0)} sf`;
+      el('boardFeet').textContent = `${result.planeBf.toFixed(0)} bf / ${result.orderBf.toFixed(0)} ordered`;
+      el('splitBf').textContent = `${result.openBf.toFixed(0)} / ${result.closedBf.toFixed(0)} / ${result.rimBf.toFixed(0)} bf`;
+      el('foamShare').textContent = `${result.foamShareOfDirect.toFixed(0)}%`;
+      el('nominalR').textContent = `R-${result.nominalR.toFixed(1)}`;
+      el('totalHours').textContent = `${result.totalHours.toFixed(1)} h`;
+      el('labor').textContent = money(result.laborCost);
+      el('materials').textContent = money(result.materialCost);
+      el('soft').textContent = money(result.softCost);
+      el('overhead').textContent = money(result.overhead);
+      el('cost').textContent = money(result.totalCost);
+      el('profit').textContent = money(result.profit);
+      el('perAreaSf').textContent = result.pricePerAreaSf === null ? 'n/a' : money(result.pricePerAreaSf);
+      el('perBf').textContent = result.pricePerBoardFoot === null ? 'n/a' : money(result.pricePerBoardFoot);
+      el('hourlyRate').textContent = result.effectiveHourlyRate === null ? 'n/a' : `${money(result.effectiveHourlyRate)}/h`;
+      el('breakEven').textContent = money(result.breakEvenPrice);
+
+      const parts = [
+        ['Trip / setup', result.hourShares.trip],
+        ['Spray', result.hourShares.spray],
+        ['Rim', result.hourShares.rim],
+        ['Coating', result.hourShares.barrier],
+        ['Access', result.hourShares.access],
+        ['Travel', result.hourShares.site],
+      ].filter(part => part[1] > 0.5);
+      el('split').innerHTML = parts.length === 0
+        ? '<li class="empty">Enter a plane and the hour split appears here.</li>'
+        : parts
+          .sort((a, b) => b[1] - a[1])
+          .map(([name, share]) => `<li><span>${name}</span><span>${share.toFixed(0)}% of hours</span>
+            <span class="bar"><span style="width:${share.toFixed(1)}%"></span></span></li>`)
+          .join('');
+
+      const verdict = el('verdict');
+      if (result.proposed === null) {
+        verdict.hidden = true;
+      } else {
+        verdict.hidden = false;
+        verdict.className = `verdict${result.proposed.belowBreakEven ? ' bad' : ''}`;
+        const rate = result.proposed.hourlyRate === null ? 'n/a' : `${money(result.proposed.hourlyRate)}/h`;
+        verdict.innerHTML = result.proposed.belowBreakEven
+          ? `At ${money(result.proposed.price)} this job <strong>loses ${money(Math.abs(result.proposed.profit))}</strong> before you take anything out of it. Your walk-away price is ${money(result.breakEvenPrice)}.`
+          : `At ${money(result.proposed.price)} you keep <strong>${money(result.proposed.profit)}</strong> — a ${result.proposed.margin.toFixed(1)}% margin, billing ${rate} of labor.`;
+      }
+    }
+
+    async function copySummary() {
+      const result = calculateBid(readInput());
+      const preset = JOB_PRESETS[Number(el('jobPresets').value)];
+      const text = formatBidSummary(result, preset ? preset.label : 'Spray foam insulation');
+      try {
+        await navigator.clipboard.writeText(text);
+      } catch {
+        const fallback = document.createElement('textarea');
+        fallback.value = text;
+        fallback.setAttribute('readonly', '');
+        fallback.style.position = 'fixed';
+        fallback.style.opacity = '0';
+        document.body.append(fallback);
+        fallback.select();
+        document.execCommand('copy');
+        fallback.remove();
+      }
+      count('summary_copied');
+      el('summaryStatus').textContent = 'Copied to clipboard';
+      setTimeout(() => { el('summaryStatus').textContent = ''; }, 2500);
+    }
+
+    el('cell').addEventListener('change', () => {
+      applyCellKit();
+      applyGeometryKits();
+      count('bid_calculated');
+      update();
+    });
+    el('access').addEventListener('change', () => {
+      applyAccessKit();
+      count('bid_calculated');
+      update();
+    });
+    el('barrier').addEventListener('change', () => {
+      applyBarrierKit();
+      count('bid_calculated');
+      update();
+    });
+    ['area','pitch'].forEach(id => {
+      el(id).addEventListener('change', () => {
+        applyGeometryKits();
+        count('bid_calculated');
+        update();
+      });
+    });
+    ['lengthFeet','widthFeet','thicknessInches','rimLf','rimHeightInches','rimThicknessInches'].forEach(id => {
+      el(id).addEventListener('input', () => {
+        applyGeometryKits();
+        update();
+      });
+    });
+    FIELD_IDS.forEach(id => {
+      el(id).addEventListener('input', update);
+      el(id).addEventListener('change', () => count(id === 'proposedPrice' ? 'proposed_price_compared' : 'bid_calculated'));
+      if (KIT_IDS.has(id)) {
+        el(id).addEventListener('input', () => { el(id).dataset.edited = '1'; });
+      }
+    });
+    el('includePermit').addEventListener('change', () => {
+      count('bid_calculated');
+      update();
+    });
+    el('jobPresets').addEventListener('change', () => {
+      const preset = JOB_PRESETS[Number(el('jobPresets').value)];
+      if (!preset) return;
+      el('area').value = preset.area;
+      el('cell').value = preset.cell;
+      el('pitch').value = preset.pitch;
+      el('barrier').value = preset.barrier;
+      el('access').value = preset.access;
+      el('lengthFeet').value = preset.lengthFeet;
+      el('widthFeet').value = preset.widthFeet;
+      el('thicknessInches').value = preset.thicknessInches;
+      el('rimLf').value = preset.rimLf;
+      el('rimHeightInches').value = preset.rimHeightInches;
+      el('rimThicknessInches').value = preset.rimThicknessInches;
+      el('includePermit').checked = preset.includePermit;
+      KIT_IDS.forEach(id => { delete el(id).dataset.edited; });
+      applyCellKit();
+      applyAccessKit();
+      applyBarrierKit();
+      applyGeometryKits();
+      count('preset_applied');
+      update();
+    });
+    el('usageOptOut').addEventListener('change', update);
+    el('copySummary').addEventListener('click', () => {
+      try {
+        copySummary().catch(() => { el('summaryStatus').textContent = 'Copy failed; select and copy the figures above.'; });
+      } catch (error) {
+        el('summaryStatus').textContent = error.message;
+      }
+    });
+
+    applyCellKit();
+    applyAccessKit();
+    applyBarrierKit();
+    applyGeometryKits();
+    update();
+  </script>
+</body>
+</html>
