@@ -9,10 +9,13 @@ const labels = {
 };
 
 function csvCell(value) {
-  return `"${String(value).replaceAll('"', '""')}"`;
+  return `"${String(value ?? "").replaceAll('"', '""')}"`;
 }
 
 export function exportCsv(result) {
+  if (!result || !result.quote || !Array.isArray(result.components)) {
+    throw new TypeError("A calculated quote result is required");
+  }
   const rows = [["3PL quote normalization", "Value"],
     ["Monthly orders", result.orders],
     ...result.components.map((component) => [labels[component] || component, result.quote[component].toFixed(2)]),
