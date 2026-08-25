@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { calculate, compareQuotes, comparisonSummary, negotiationLines, summary } from "./calc.mjs";
+import { calculate, compareQuotes, comparisonSummary, inputWarnings, negotiationLines, summary } from "./calc.mjs";
 
 test("normalizes the full monthly quote and minimum", () => {
   const result = calculate({ orders: 100, unitsPerOrder: 1.5, pallets: 1, minimumMonthly: 2000 });
@@ -46,4 +46,14 @@ test("comparison identifies the cheaper quote at the same volume", () => {
   const first = calculate({ orders: 100, shipping: 8, fixedFee: 100 });
   const second = calculate({ orders: 100, shipping: 9, fixedFee: 100 });
   assert.match(comparisonSummary(first, second, "North", "South"), /North is lower by \$100\.00 per month/);
+});
+
+test("flags malformed and negative rate-card inputs", () => {
+  const result = calculate({ orders: -10, shipping: "not-a-number" });
+  assert.deepEqual(result.warnings, [
+    "Orders / month cannot be negative; the negative value was treated as zero.",
+    "Shipping / order was not a number and was ignored.",
+  ]);
+  assert.deepEqual(inputWarnings({}), []);
+  assert.match(summary(result), /Input warnings/);
 });
