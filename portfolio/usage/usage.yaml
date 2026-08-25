@@ -321,7 +321,8 @@ products:
         note: >-
           Shipped a zero-dependency browser calculator for independent
           freelancers to price monthly retainers from billable capacity, costs,
-          and scope risk. Public URL remains owner-gated; counters are local,
+          and scope risk, then compare that price to hourly at 50/75/100/125%
+          usage. Public URL remains owner-gated; counters are local,
           aggregate, and opt-out.
 
 # Example of the shape, once a product has shipped:

@@ -3,15 +3,16 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Freelance Retainer Pricing Calculator</title>
-  <meta name="description" content="Calculate a sustainable freelance retainer price from your income goal, billable capacity, overhead, utilization, and scope buffer. Free and private in your browser.">
+  <title>Freelance Retainer Pricing Calculator — Retainer vs Hourly at Real Usage</title>
+  <meta name="description" content="Price a freelance retainer from capacity and costs, then see whether it still beats hourly when the client uses half the block, the full block, or more. Free and private in your browser.">
   <meta property="og:type" content="website">
   <meta property="og:title" content="Freelance Retainer Pricing Calculator">
-  <meta property="og:description" content="Stop guessing what to charge for a monthly retainer. Price your work from capacity, costs, and scope risk.">
+  <meta property="og:description" content="Stop guessing what to charge for a monthly retainer. Price from capacity, then check whether real usage still pays your hourly floor.">
   <meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/freelance-retainer-calculator/">
   <link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/freelance-retainer-calculator/">
   <link rel="stylesheet" href="style.css">
-  <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Freelance Retainer Pricing Calculator","applicationCategory":"BusinessApplication","operatingSystem":"Any","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"description":"A private browser calculator for sustainable freelance retainer pricing."}</script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Freelance Retainer Pricing Calculator","applicationCategory":"BusinessApplication","operatingSystem":"Any","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"description":"A private browser calculator that prices a freelance retainer and compares it to hourly billing at 50%, 75%, 100%, and 125% usage."}</script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Should I charge a monthly retainer or bill hourly?","acceptedAnswer":{"@type":"Answer","text":"A retainer usually pays you more when the client uses less than the included hours, and less when they use more than the break-even hours without billed overage. This calculator prices the retainer from your capacity, then shows both sides at 50%, 75%, 100%, and 125% of the block."}},{"@type":"Question","name":"When does a retainer drop below my hourly rate?","acceptedAnswer":{"@type":"Answer","text":"Divide the monthly retainer by your hourly floor. That is the unpaid-overage break-even. On the default plan a $1,725 / 20-hour retainer covers a $75 floor up to 23 hours; a 25-hour month with no overage lands at $69/hr."}}]}</script>
 </head>
 <body>
   <main class="shell">
@@ -44,7 +45,29 @@
         <div class="answer"><span>Capacity left after retainer</span><strong id="remaining">0 hrs</strong></div>
         <div class="answer"><span>Monthly revenue target</span><strong id="target">$0</strong></div>
         <p id="explanation" class="note"></p>
-        <textarea id="summary" rows="7" readonly aria-label="Copyable proposal summary"></textarea>
+        <div id="usageCompare" class="usage-compare">
+          <h3>If they use less — or more — than the block</h3>
+          <p class="note">The retainer is a fixed monthly price. Hourly is the same hours at your floor rate. Modeled usage, not a contract interpretation.</p>
+          <div class="answer"><span>Unpaid extras drop below the floor after</span><strong id="usageBreakEven">0 hours</strong></div>
+          <div class="table-wrap">
+            <table class="usage-table">
+              <caption>Retainer vs hourly at 50%, 75%, 100%, and 125% of included hours</caption>
+              <thead>
+                <tr>
+                  <th scope="col">If they use</th>
+                  <th scope="col">Hours</th>
+                  <th scope="col">You collect</th>
+                  <th scope="col">Hourly would collect</th>
+                  <th scope="col">Effective $/hr</th>
+                  <th scope="col">Covers floor?</th>
+                </tr>
+              </thead>
+              <tbody id="usageRows"></tbody>
+            </table>
+          </div>
+          <p id="usageVerdict" class="verdict"></p>
+        </div>
+        <textarea id="summary" rows="8" readonly aria-label="Copyable proposal summary"></textarea>
        <div class="actions">
          <button id="copy" type="button" class="secondary">Copy proposal summary</button>
          <button id="download" type="button" class="secondary">Download proposal (.txt)</button>
@@ -57,10 +80,13 @@
       <p>A $75 rate means little if only 65% of your month is billable, your tools and taxes cost $1,800, and a vague retainer absorbs unplanned revisions. This calculator makes each assumption visible so you can change it before making a promise.</p>
       <h2>Common question: how many hours should a retainer include?</h2>
       <p>Start with a scope you can deliver inside your billable capacity, then leave the buffer intact. A retainer is a commitment of access and work, not permission for unlimited requests. Put included hours, response time, and out-of-scope pricing in your agreement.</p>
+      <h2>Common question: should I sell a retainer or stay hourly?</h2>
+      <p>Price the block first, then look at real usage. If they typically use half the hours, the retainer collects unused-hour cash — and often does not renew. If they can blow past the included hours without billed overage, your effective rate falls below the floor. <a href="retainer-vs-hourly.html">Retainer vs hourly at real usage</a> walks through the default numbers.</p>
     </section>
     <footer>
-      <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not financial advice and does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for meeting any obligation it helps you prepare for. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
-      <p>Everything runs in your browser. Your numbers are never uploaded. There are no accounts, cookies, or analytics vendors. We count only anonymous feature events in this browser; <label><input id="optOut" type="checkbox"> don't count my usage</label>. Your browser's Do Not Track or Global Privacy Control signal also disables counting.</p>
+      <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not financial advice and does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for meeting any obligation it helps you prepare for. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use. Hosted URLs, when they exist, carry no availability SLA.</p>
+      <p>Everything runs in your browser. Your numbers are never uploaded. There are no accounts, cookies, or analytics vendors. We count only anonymous feature events in this browser (<code>calculate</code>, <code>retainer_usage_compared</code>, copy, download); <label><input id="optOut" type="checkbox"> don't count my usage</label>. Your browser's Do Not Track or Global Privacy Control signal also disables counting.</p>
+      <p>Free and open source. If it stopped you from signing an underpriced block, the <a href="https://github.com/Duncan-Haywood/monorepo-projects">project is on GitHub</a> — <a href="https://github.com/sponsors/Duncan-Haywood">GitHub Sponsors</a> is optional and never changes what the tool does.</p>
     </footer>
   </main>
   <script type="module" src="app.js"></script>
