@@ -238,3 +238,175 @@ export function calculateListing(input) {
     cheaperPath: fbaAdvantage > 0 ? "fba" : fbaAdvantage < 0 ? "fbm" : "tie",
   };
 }
+
+// Amazon coupons cut the price the buyer pays. Referral is charged on that
+// discounted price. Fulfillment, inbound, and storage do not change. The
+// per-redemption coupon fee is deducted from proceeds — it is not cash the
+// seller laid out to source the unit. Defaults are illustrative; the seller
+// overwrites them from the coupon fee preview on their account.
+export const COUPON_PERCENTS = [0, 5, 10, 15, 20];
+export const DEFAULT_COUPON_FEE = 0.6;
+
+export function couponDiscount({ salePrice, couponPercent = 0, couponFixed = 0 }) {
+  const price = number(salePrice, "Sale price");
+  const percent = number(couponPercent, "Coupon percent");
+  const fixed = number(couponFixed, "Coupon fixed amount");
+  if (percent > 100) throw new Error("Coupon percent must be at most 100");
+  return Math.min(price, price * (percent / 100) + fixed);
+}
+
+function couponLabel(percent, fixed) {
+  const parts = [];
+  if (percent > 0) parts.push(`${percent}%`);
+  if (fixed > 0) parts.push(`$${fixed.toFixed(2)} off`);
+  if (parts.length === 0) return "No coupon";
+  return `${parts.join(" + ")} coupon`;
+}
+
+// Reprice the selected fulfillment path at the discounted checkout total,
+// then subtract the per-redemption coupon fee from profit. Professional-plan
+// allocation stays at the typed monthly volume so the table is comparable
+// row to row; more couponed units would dilute that fee slightly.
+export function couponedListing(input, offer = {}) {
+  const listPrice = number(input.salePrice, "Sale price");
+  const couponPercent = number(offer.couponPercent ?? 0, "Coupon percent");
+  const couponFixed = number(offer.couponFixed ?? 0, "Coupon fixed amount");
+  const couponFee = number(offer.couponFee ?? 0, "Coupon fee");
+  const targetMargin = number(input.targetMargin, "Target margin");
+  const discount = couponDiscount({ salePrice: listPrice, couponPercent, couponFixed });
+  const buyerPays = listPrice - discount;
+  const listing = calculateListing({ ...input, salePrice: buyerPays });
+  const path = listing.selected;
+  const profit = path.profit - couponFee;
+  const margin = buyerPays === 0 ? 0 : (profit / buyerPays) * 100;
+  return {
+    listPrice,
+    couponPercent,
+    couponFixed,
+    couponFee,
+    discount,
+    buyerPays,
+    feeTotal: path.feeTotal + couponFee,
+    cashInvested: path.cashInvested,
+    referral: path.fees.referral,
+    fulfillment: path.fees.fulfillment,
+    profit,
+    margin,
+    roi: path.cashInvested === 0 ? null : (profit / path.cashInvested) * 100,
+    hitsTarget: buyerPays === 0 ? profit >= 0 : margin + 1e-9 >= targetMargin,
+    breakEvenBuyCost: Math.max(0, path.breakEvenBuyCost - couponFee),
+  };
+}
+
+export function compareCoupons(input) {
+  const couponPercent = number(input.couponPercent ?? 0, "Coupon percent");
+  const couponFixed = number(input.couponFixed ?? 0, "Coupon fixed amount");
+  const couponFee = number(input.couponFee ?? DEFAULT_COUPON_FEE, "Coupon fee");
+  const couponLiftPct = number(input.couponLiftPct ?? 0, "Coupon volume lift");
+  const monthlyUnits = number(input.monthlyUnits, "Monthly units", 1);
+  const feeFor = (percent, fixed) => (percent === 0 && fixed === 0 ? 0 : couponFee);
+
+  const rows = COUPON_PERCENTS.map((percent) => {
+    const offer = couponedListing(input, {
+      couponPercent: percent,
+      couponFixed: 0,
+      couponFee: feeFor(percent, 0),
+    });
+    return {
+      ...offer,
+      label: couponLabel(percent, 0),
+      isCustom: false,
+      isCurrent: percent === couponPercent && couponFixed === 0,
+    };
+  });
+
+  const customMatchesStandard = couponFixed === 0 && COUPON_PERCENTS.includes(couponPercent);
+  if (!customMatchesStandard) {
+    rows.push({
+      ...couponedListing(input, {
+        couponPercent,
+        couponFixed,
+        couponFee: feeFor(couponPercent, couponFixed),
+      }),
+      label: couponLabel(couponPercent, couponFixed),
+      isCustom: true,
+      isCurrent: true,
+    });
+  }
+
+  const none = rows[0];
+  const typed = customMatchesStandard
+    ? rows.find((row) => row.couponPercent === couponPercent && !row.isCustom)
+    : rows[rows.length - 1];
+
+  const withDeltas = rows.map((row) => ({
+    ...row,
+    profitDelta: row.profit - none.profit,
+    monthlyProfit: row.profit * monthlyUnits,
+    monthlyDelta: (row.profit - none.profit) * monthlyUnits,
+  }));
+  const noneRow = withDeltas[0];
+  const typedRow = withDeltas.find((row) => row.isCurrent) ?? withDeltas[withDeltas.length - 1];
+
+  // Units at the couponed per-unit profit that match this month's list-price
+  // profit. Null when list profit is not positive. Infinity when the coupon
+  // unit itself does not pay — extra volume cannot recover the month.
+  let breakEvenUnits = null;
+  if (noneRow.profit > 0 && typedRow.profit <= 0) breakEvenUnits = Infinity;
+  else if (typedRow.profit > 0) breakEvenUnits = (noneRow.profit * monthlyUnits) / typedRow.profit;
+
+  const extraUnitsNeeded = breakEvenUnits === null
+    ? 0
+    : breakEvenUnits === Infinity
+      ? Infinity
+      : Math.max(0, breakEvenUnits - monthlyUnits);
+  const liftPctNeeded = monthlyUnits === 0 || extraUnitsNeeded === Infinity
+    ? extraUnitsNeeded
+    : (extraUnitsNeeded / monthlyUnits) * 100;
+
+  const liftedUnits = monthlyUnits * (1 + couponLiftPct / 100);
+  const liftedMonthlyProfit = typedRow.profit * liftedUnits;
+  const listMonthlyProfit = noneRow.monthlyProfit;
+
+  return {
+    rows: withDeltas,
+    none: noneRow,
+    typed: typedRow,
+    monthlyUnits,
+    couponLiftPct,
+    liftedUnits,
+    liftedMonthlyProfit,
+    listMonthlyProfit,
+    liftBeatsList: liftedMonthlyProfit > listMonthlyProfit,
+    breakEvenUnits,
+    extraUnitsNeeded,
+    liftPctNeeded,
+    cheaper: typedRow.profit > noneRow.profit ? "coupon" : typedRow.profit < noneRow.profit ? "list" : "tie",
+  };
+}
+
+export function couponSummary(comparison) {
+  const money = (value) => `$${value.toFixed(2)}`;
+  const typed = comparison.typed;
+  if (typed.discount === 0 && typed.couponFee === 0) {
+    return "No coupon is entered, so every row but the list-price line is a what-if against this listing.";
+  }
+  const offer = typed.label.toLowerCase();
+  const perUnit = `${offer} drops the buyer price from ${money(typed.listPrice)} to ${money(typed.buyerPays)} and leaves ${money(typed.profit)} after the ${money(typed.couponFee)} redemption fee — ${money(Math.abs(typed.profitDelta))} ${typed.profitDelta < 0 ? "less" : "more"} than list.`;
+  if (comparison.breakEvenUnits === Infinity) {
+    return `${perUnit} Extra volume cannot recover the list-price month: the couponed unit itself does not pay.`;
+  }
+  if (comparison.breakEvenUnits === null) {
+    return `${perUnit} The list-price unit is not profitable on these inputs, so a break-even volume is not defined.`;
+  }
+  const units = comparison.breakEvenUnits;
+  const lift = comparison.liftPctNeeded;
+  const volume = `At ${comparison.monthlyUnits} units you need about ${units.toFixed(1)} couponed sales (${lift.toFixed(0)}% lift) to match list-price monthly profit.`;
+  if (comparison.couponLiftPct > 0) {
+    const liftLine = comparison.liftBeatsList
+      ? `If the coupon lifts volume ${comparison.couponLiftPct}%, the coupon month keeps ${money(comparison.liftedMonthlyProfit)} against ${money(comparison.listMonthlyProfit)} at list.`
+      : `If the coupon lifts volume ${comparison.couponLiftPct}%, the coupon month still keeps only ${money(comparison.liftedMonthlyProfit)} against ${money(comparison.listMonthlyProfit)} at list.`;
+    return `${perUnit} ${volume} ${liftLine}`;
+  }
+  return `${perUnit} ${volume}`;
+}

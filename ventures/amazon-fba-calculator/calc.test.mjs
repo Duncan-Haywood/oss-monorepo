@@ -6,7 +6,12 @@ import {
   calculateListing,
   CATEGORY_PRESETS,
   classifySizeTier,
+  compareCoupons,
+  couponDiscount,
+  couponedListing,
+  couponSummary,
   cubicFeet,
+  DEFAULT_COUPON_FEE,
   defaultFulfillmentFee,
   STORAGE_PRESETS,
 } from "./calc.mjs";
@@ -170,6 +175,112 @@ test("applyCategoryPreset and applyStoragePreset fill illustrative rates", () =>
   assert.equal(clothing.referralRate, CATEGORY_PRESETS.clothing.referralRate);
   const peak = applyStoragePreset({}, "peak");
   assert.equal(peak.storageRate, STORAGE_PRESETS.peak.perCuFt);
+});
+
+test("coupon discount stacks percent and a fixed amount, and never exceeds the list price", () => {
+  near(couponDiscount({ salePrice: 29.99, couponPercent: 15 }), 4.4985, "15%");
+  near(couponDiscount({ salePrice: 29.99, couponPercent: 0, couponFixed: 5 }), 5, "fixed");
+  near(couponDiscount({ salePrice: 29.99, couponPercent: 10, couponFixed: 2 }), 4.999, "stack");
+  near(couponDiscount({ salePrice: 8, couponPercent: 50, couponFixed: 10 }), 8, "capped");
+});
+
+test("couponed listing cuts referral on the buyer price and subtracts the redemption fee from profit", () => {
+  const list = calculateListing(base);
+  const couponed = couponedListing(base, { couponPercent: 15, couponFee: 0.6 });
+  const buyerPays = 29.99 - 4.4985;
+  near(couponed.buyerPays, buyerPays, "buyer pays");
+  near(couponed.referral, buyerPays * 0.15, "referral on discounted price");
+  near(couponed.fulfillment, list.fba.fees.fulfillment, "fulfillment unchanged");
+  near(couponed.cashInvested, list.fba.cashInvested, "cash unchanged");
+  near(couponed.profit, list.fba.profit - 4.4985 + (4.4985 - buyerPays * 0.15) - 0.6, "profit after discount, lower referral, fee");
+  near(couponed.profit, buyerPays - buyerPays * 0.15 - list.fba.fees.fulfillment - 0.6 - list.fba.cashInvested, "recomputed");
+});
+
+test("compareCoupons shows standard percents and the typed offer against list", () => {
+  const comparison = compareCoupons({
+    ...base,
+    couponPercent: 15,
+    couponFixed: 0,
+    couponFee: DEFAULT_COUPON_FEE,
+  });
+  assert.deepEqual(
+    comparison.rows.map((row) => row.label),
+    ["No coupon", "5% coupon", "10% coupon", "15% coupon", "20% coupon"],
+  );
+  assert.equal(comparison.typed.isCurrent, true);
+  assert.equal(comparison.typed.couponPercent, 15);
+  assert.equal(comparison.cheaper, "list");
+  near(comparison.none.profit, calculateListing(base).fba.profit, "list row");
+  near(comparison.typed.profitDelta, comparison.typed.profit - comparison.none.profit, "delta");
+
+  // Worked example locked for the SEO page: $29.99 home listing, 15% referral,
+  // large-standard FBA, $0.60 redemption fee. A 15% coupon leaves about $4.42
+  // less per unit; matching the 80-unit list month needs a ~67% volume lift.
+  near(comparison.none.profit, 10.993291666666668, "list profit");
+  near(comparison.typed.buyerPays, 25.4915, "15% buyer pays");
+  near(comparison.typed.profit, 6.569566666666667, "15% profit");
+  near(comparison.typed.profitDelta, -4.423725, "15% vs list");
+  near(
+    comparison.breakEvenUnits,
+    (comparison.none.profit * 80) / comparison.typed.profit,
+    "units to match list month",
+  );
+  assert.ok(comparison.breakEvenUnits > 133.8 && comparison.breakEvenUnits < 134);
+  assert.ok(comparison.liftPctNeeded > 67 && comparison.liftPctNeeded < 68);
+  assert.equal(comparison.typed.hitsTarget, false);
+  assert.equal(comparison.none.hitsTarget, true);
+});
+
+test("a custom fixed-off coupon is appended instead of replacing a standard row", () => {
+  const comparison = compareCoupons({ ...base, couponPercent: 0, couponFixed: 5, couponFee: 0.6 });
+  assert.equal(comparison.rows.length, 6);
+  assert.equal(comparison.typed.label, "$5.00 off coupon");
+  assert.equal(comparison.typed.isCustom, true);
+  near(comparison.typed.buyerPays, 24.99, "buyer pays");
+});
+
+test("zero coupon fee on the list row; a 0% coupon with no $ off charges nothing", () => {
+  const comparison = compareCoupons({ ...base, couponPercent: 0, couponFixed: 0, couponFee: 0.6 });
+  near(comparison.none.couponFee, 0, "list fee");
+  near(comparison.typed.profit, comparison.none.profit, "typed is list");
+  assert.equal(comparison.cheaper, "tie");
+});
+
+test("an unprofitable coupon cannot recover the month with more volume", () => {
+  const comparison = compareCoupons({
+    ...base,
+    couponPercent: 80,
+    couponFee: 0.6,
+  });
+  assert.ok(comparison.none.profit > 0, "list still pays");
+  assert.ok(comparison.typed.profit < 0, "80% coupon does not");
+  assert.equal(comparison.breakEvenUnits, Infinity);
+  assert.match(couponSummary(comparison), /cannot recover/i);
+});
+
+test("expected lift is compared to the list-price month, not to itself", () => {
+  const comparison = compareCoupons({
+    ...base,
+    couponPercent: 15,
+    couponFee: 0.6,
+    couponLiftPct: 80,
+  });
+  near(comparison.liftedUnits, 144, "80% lift");
+  near(comparison.liftedMonthlyProfit, comparison.typed.profit * 144, "lifted month");
+  assert.equal(comparison.liftBeatsList, comparison.liftedMonthlyProfit > comparison.listMonthlyProfit);
+  assert.match(couponSummary(comparison), /80%/);
+});
+
+test("couponSummary names the buyer price, the fee, and the lift needed", () => {
+  const text = couponSummary(compareCoupons({ ...base, couponPercent: 15, couponFee: 0.6 }));
+  assert.match(text, /\$25\.49/);
+  assert.match(text, /\$0\.60/);
+  assert.match(text, /133\.9 couponed sales/);
+  assert.match(text, /67% lift/);
+});
+
+test("rejects a coupon percent above 100", () => {
+  assert.throws(() => couponDiscount({ salePrice: 10, couponPercent: 101 }), /at most 100/);
 });
 
 test("rejects unknown presets and invalid inputs", () => {

@@ -18,7 +18,7 @@
     "applicationCategory": "BusinessApplication",
     "operatingSystem": "Any (runs in a web browser)",
     "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
-    "featureList": "FBA vs FBM comparison, size-tier fulfillment, storage, inbound, net profit, margin, ROI, break-even price, max buy cost, target-margin price"
+    "featureList": "FBA vs FBM comparison, size-tier fulfillment, storage, inbound, net profit, margin, ROI, break-even price, max buy cost, target-margin price, coupon vs list profit, coupon break-even volume"
   }
   </script>
   <script type="application/ld+json">
@@ -42,14 +42,22 @@
           "text": "Start with the sale price. Subtract the category referral fee, the FBA fulfillment fee for the size tier, allocated storage, inbound to Amazon, cost of goods, prep, ads, and a share of the professional seller fee. What remains is the unit's net contribution. Enter the rates from your current Amazon fee preview — this page does not publish Amazon's live schedule."
         }
       },
-      {
-        "@type": "Question",
-        "name": "What is the maximum I can pay for Amazon inventory?",
-        "acceptedAnswer": {
-          "@type": "Answer",
-          "text": "The max buy cost is the cost of goods that drives net profit to zero after the referral fee and the fulfillment-path costs you entered. Buy above that number and the unit loses money on these assumptions."
+        {
+          "@type": "Question",
+          "name": "What is the maximum I can pay for Amazon inventory?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "The max buy cost is the cost of goods that drives net profit to zero after the referral fee and the fulfillment-path costs you entered. Buy above that number and the unit loses money on these assumptions."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Does this Amazon coupon still leave a profit?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "A coupon cuts the price the buyer pays, so the referral fee falls with it, and Amazon also charges a per-redemption coupon fee. Fulfillment, inbound, and storage stay the same. Compare the list-price unit to 5%, 10%, 15%, and 20% coupons, then see how many extra couponed sales you would need to match this month's list-price profit. The page does not recommend running a coupon."
+          }
         }
-      }
     ]
   }
   </script>
@@ -80,6 +88,7 @@
     table { width: 100%; border-collapse: collapse; font-size: .92rem; }
     th, td { padding: 8px 4px; text-align: right; border-bottom: 1px solid #ffffff22; }
     th:first-child, td:first-child { text-align: left; }
+    tr.current td { font-weight: 700; }
     footer { margin-top: 25px; font-size: .82rem; color: #445064; }
     footer a { color: #1f4f8a; }
     .faq { margin-top: 18px; }
@@ -147,6 +156,12 @@
         <label>Professional plan / month <input id="monthlySellerFee" type="number" min="0" step="0.01" value="39.99"></label>
         <label>Units sold per month <input id="monthlyUnits" type="number" min="0" step="1" value="80"></label>
         <label>Target net margin (%) <input id="targetMargin" type="number" min="0" max="99.99" step="0.1" value="30"></label>
+        <label>Coupon percent (%) <input id="couponPercent" type="number" min="0" max="100" step="0.1" value="15"></label>
+        <label>Coupon $ off <input id="couponFixed" type="number" min="0" step="0.01" value="0"></label>
+        <label>Coupon fee / redemption <input id="couponFee" type="number" min="0" step="0.01" value="0.60"></label>
+        <label>Expected volume lift (%) <span class="hint">extra units if the coupon is on</span>
+          <input id="couponLiftPct" type="number" min="0" step="1" value="0">
+        </label>
       </div>
     </section>
     <section class="result">
@@ -170,7 +185,22 @@
         <thead><tr><th>Path</th><th>Fees</th><th>Profit</th><th>Max buy</th></tr></thead>
         <tbody id="compare"></tbody>
       </table>
-      <p class="note">Transparent arithmetic from your inputs — not Amazon’s current fee schedule. Referral, fulfillment, storage, and inbound vary by category, size, season, and account. Verify against your Amazon fee preview before buying inventory.</p>
+      <hr>
+      <h2>Same listing, coupon vs list</h2>
+      <table>
+        <thead>
+          <tr>
+            <th scope="col">Offer</th>
+            <th scope="col">Buyer pays</th>
+            <th scope="col">Profit</th>
+            <th scope="col">vs list</th>
+            <th scope="col">Hits target?</th>
+          </tr>
+        </thead>
+        <tbody id="couponCompare"></tbody>
+      </table>
+      <p id="couponSummary" class="note"></p>
+      <p class="note">Transparent arithmetic from your inputs — not Amazon’s current fee schedule. Referral, fulfillment, storage, inbound, and coupon fees vary by category, size, season, and account. Verify against your Amazon fee preview before buying inventory or launching a coupon.</p>
     </section>
   </main>
   <section class="faq" aria-labelledby="faq-heading">
@@ -185,14 +215,22 @@
       walks through that in search-query words.
     </p>
     <p>
-      It does not recommend a price, a category, or a fulfillment method, and
-      it is not tax or financial advice. The gap between paths is an
-      arithmetic comparison of the rates you entered.
+      A coupon is a second decision on the same SKU: the buyer pays less,
+      referral falls with that price, and a per-redemption fee is deducted
+      from proceeds. Fulfillment does not get cheaper.
+      <a href="does-this-amazon-coupon-still-pay.html">Does this Amazon coupon still pay?</a>
+      shows the lift you would need to match this month’s list-price profit.
+    </p>
+    <p>
+      It does not recommend a price, a category, a fulfillment method, or a
+      coupon, and it is not tax or financial advice. The gap between paths
+      is an arithmetic comparison of the rates you entered.
     </p>
   </section>
   <footer>
     <label><input id="usageOptOut" type="checkbox" style="width:auto"> Do not keep anonymous local usage counts</label>
     <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not tax, financial, or business advice, and it does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for meeting any obligation it helps you prepare for. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record. If a tool needs to survive, export your inputs and run it yourself.</p>
     <p>Everything runs in your browser. Your prices and costs are never uploaded. There are no accounts, cookies, tracking pixels, or analytics vendors. The optional local counter records only the event name and day; never the inputs. Turn it off above, or with Do Not Track / Global Privacy Control.</p>
     <p>Free and open source. If it saved you from an unprofitable buy, the <a href="https://github.com/Duncan-Haywood/monorepo-projects">project is on GitHub</a> — <a href="https://github.com/sponsors/Duncan-Haywood">GitHub Sponsors</a> is optional and never changes what the tool does. MIT licensed.</p>
   </footer>
@@ -201,6 +239,8 @@
       applyCategoryPreset,
       applyStoragePreset,
       calculateListing,
+      compareCoupons,
+      couponSummary,
     } from "./calc.mjs";
     import { recordUsage } from "./usage.mjs";
 
@@ -209,6 +249,7 @@
       "monthsInStorage", "storageRate", "fulfillmentFee", "costOfGoods",
       "inboundPerUnit", "fbmShippingCost", "packagingCost", "adsPerUnit",
       "otherCost", "monthlySellerFee", "monthlyUnits", "targetMargin",
+      "couponPercent", "couponFixed", "couponFee", "couponLiftPct",
     ];
     const money = (value) => `$${value.toFixed(2)}`;
     let syncingFee = false;
@@ -269,6 +310,12 @@
         ].map(([name, path]) =>
           `<tr><td>${name}</td><td>${money(path.feeTotal)}</td><td>${money(path.profit)}</td><td>${money(path.breakEvenBuyCost)}</td></tr>`
         ).join("");
+        const coupons = compareCoupons(readInput());
+        const signed = (value) => `${value > 0 ? "+" : value < 0 ? "−" : ""}${money(Math.abs(value))}`;
+        document.getElementById("couponCompare").innerHTML = coupons.rows.map((row) =>
+          `<tr class="${row.isCurrent ? "current" : ""}"><td>${row.label}</td><td>${money(row.buyerPays)}</td><td>${money(row.profit)}</td><td>${signed(row.profitDelta)}</td><td>${row.hitsTarget ? "yes" : "no"}</td></tr>`
+        ).join("");
+        document.getElementById("couponSummary").textContent = couponSummary(coupons);
       } catch (error) {
         document.getElementById("profit").textContent = error.message;
         document.getElementById("profit").className = "hero-number error";
@@ -277,6 +324,8 @@
           document.getElementById(id).textContent = "";
         });
         document.getElementById("compare").innerHTML = "";
+        document.getElementById("couponCompare").innerHTML = "";
+        document.getElementById("couponSummary").textContent = "";
       }
     }
 
@@ -306,7 +355,11 @@
       recordUsage(
         localStorage,
         document.getElementById("usageOptOut").checked,
-        id === "targetMargin" ? "target_margin_calculated" : "listing_profit_calculated",
+        id === "targetMargin"
+          ? "target_margin_calculated"
+          : id.startsWith("coupon")
+            ? "coupon_compared"
+            : "listing_profit_calculated",
       );
     }));
     document.querySelectorAll('input[name="fulfillmentMethod"]').forEach((el) => {
