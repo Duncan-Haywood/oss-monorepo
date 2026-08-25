@@ -139,6 +139,11 @@ def _markdown_report(reports: list[tuple[Path, list[dict[str, str]]]], read_erro
         for _, errors in reports
         for error in errors
     }
+    rule_fixes = {
+        error["rule"]: error["fix"]
+        for _, errors in reports
+        for error in errors
+    }
     lines = [
         "# E-invoice preflight",
         "",
@@ -151,9 +156,9 @@ def _markdown_report(reports: list[tuple[Path, list[dict[str, str]]]], read_erro
         "",
     ]
     if rule_counts:
-        lines.extend(["## Finding summary", "", "| Rule | Occurrences | Check |", "| --- | ---: | --- |"])
+        lines.extend(["## Finding summary", "", "| Rule | Occurrences | Check | Recommended fix |", "| --- | ---: | --- | --- |"])
         for rule, count in sorted(rule_counts.items()):
-            lines.append(f"| `{_markdown_text(rule)}` | {count} | {_markdown_text(rule_messages[rule])} |")
+            lines.append(f"| `{_markdown_text(rule)}` | {count} | {_markdown_text(rule_messages[rule])} | {_markdown_text(rule_fixes[rule])} |")
         lines.append("")
     for path, errors in reports:
         lines.append(f"## `{_markdown_text(path.as_posix())}`")
@@ -223,6 +228,13 @@ def _json_report(
     """Build one versioned adapter payload for every input mode."""
     rule_counts = Counter(error["rule"] for _, errors in reports for error in errors)
     errors = [error for _, invoice_errors in reports for error in invoice_errors]
+    fix_details: dict[str, dict[str, str | int]] = {}
+    for error in errors:
+        detail = fix_details.setdefault(
+            error["rule"],
+            {"rule": error["rule"], "occurrences": 0, "message": error["message"], "fix": error["fix"]},
+        )
+        detail["occurrences"] = int(detail["occurrences"]) + 1
     exit_code = 2 if read_errors else (0 if not errors else 1)
     output: dict[str, Any] = {
         "schema_version": 1,
@@ -232,6 +244,7 @@ def _json_report(
         "files_failed": sum(bool(invoice_errors) for _, invoice_errors in reports),
         "observations": len(errors),
         "rules": dict(sorted(rule_counts.items())),
+        "fixes": [fix_details[rule] for rule in sorted(fix_details)],
         "file": reports[0][0].as_posix() if len(reports) == 1 else None,
         "errors": errors,
         "read_errors": read_errors,
@@ -369,6 +382,7 @@ def _html_report(
     passed = len(reports) - failed
     rule_counts = Counter(error["rule"] for _, errors in reports for error in errors)
     rule_messages = {error["rule"]: error["message"] for _, errors in reports for error in errors}
+    rule_fixes = {error["rule"]: error["fix"] for _, errors in reports for error in errors}
     overall = "FAIL" if observations or read_errors else "PASS"
 
     def text(value: str) -> str:
@@ -381,10 +395,10 @@ def _html_report(
     summary = ""
     if rule_counts:
         rows = "".join(
-            f"<tr><td><code>{text(rule)}</code></td><td>{count}</td><td>{text(rule_messages[rule])}</td></tr>"
+            f"<tr><td><code>{text(rule)}</code></td><td>{count}</td><td>{text(rule_messages[rule])}</td><td>{text(rule_fixes[rule])}</td></tr>"
             for rule, count in sorted(rule_counts.items())
         )
-        summary = f'<section><h2>Finding summary</h2><table><thead><tr><th>Rule</th><th>Occurrences</th><th>Check</th></tr></thead><tbody>{rows}</tbody></table></section>'
+        summary = f'<section><h2>Finding summary</h2><table><thead><tr><th>Rule</th><th>Occurrences</th><th>Check</th><th>Recommended fix</th></tr></thead><tbody>{rows}</tbody></table></section>'
 
     sections = []
     for path, errors in reports:
