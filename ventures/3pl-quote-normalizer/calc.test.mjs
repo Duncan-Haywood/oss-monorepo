@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { calculate, compareQuotes, negotiationLines, summary } from "./calc.mjs";
+import { calculate, compareQuotes, comparisonSummary, negotiationLines, summary } from "./calc.mjs";
 
 test("normalizes the full monthly quote and minimum", () => {
   const result = calculate({ orders: 100, unitsPerOrder: 1.5, pallets: 1, minimumMonthly: 2000 });
@@ -40,4 +40,10 @@ test("summary exposes every normalized line item and minimum warning", () => {
   assert.match(text, /Fixed fees:/);
   assert.match(text, /Minimum monthly charge applied: yes/);
   assert.match(text, /signed rate card/);
+});
+
+test("comparison identifies the cheaper quote at the same volume", () => {
+  const first = calculate({ orders: 100, shipping: 8, fixedFee: 100 });
+  const second = calculate({ orders: 100, shipping: 9, fixedFee: 100 });
+  assert.match(comparisonSummary(first, second, "North", "South"), /North is lower by \$100\.00 per month/);
 });

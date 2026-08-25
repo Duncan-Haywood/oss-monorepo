@@ -35,6 +35,12 @@ export function compareQuotes(first, second) {
   };
 }
 
+export function comparisonSummary(first, second, firstName = "Quote A", secondName = "Quote B") {
+  const comparison = compareQuotes(first, second);
+  const cheaperName = comparison.cheaper === "first" ? firstName : secondName;
+  return `${cheaperName} is lower by ${money(Math.abs(comparison.totalDelta))} per month (${money(Math.abs(comparison.perOrderDelta))} per order at this volume).`;
+}
+
 export function negotiationLines(result) {
   return [
     `Monthly volume: ${result.orders} orders`,
