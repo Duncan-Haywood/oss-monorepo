@@ -1,5 +1,6 @@
 export function calculate(input) {
   const n = (value, fallback = 0) => Number.isFinite(Number(value)) ? Math.max(0, Number(value)) : fallback;
+  const warnings = inputWarnings(input);
   const orders = n(input.orders, 100);
   const units = n(input.unitsPerOrder, 1.5);
   const pallets = n(input.pallets, 1);
@@ -20,7 +21,20 @@ export function calculate(input) {
   const delta = inHouse - quote.total;
   const perOrder = orders ? quote.total / orders : 0;
   const inHouseRate = n(input.inHousePerOrder, 13);
-  return { orders, quote, inHouse, delta, perOrder, breakEvenOrders: inHouseRate ? quote.total / inHouseRate : 0, minimumApplied: quote.total > quote.subtotal, winner: delta >= 0 ? "3PL" : "in-house", components: ["receiving", "storage", "pickPack", "packaging", "shipping", "returns", "fixed"] };
+  return { orders, quote, inHouse, delta, perOrder, breakEvenOrders: inHouseRate ? quote.total / inHouseRate : 0, minimumApplied: quote.total > quote.subtotal, winner: delta >= 0 ? "3PL" : "in-house", components: ["receiving", "storage", "pickPack", "packaging", "shipping", "returns", "fixed"], warnings };
+}
+
+const inputLabels = { orders: "Orders / month", unitsPerOrder: "Units / order", pallets: "Pallets stored", inboundUnits: "Inbound units / month", receivingPerUnit: "Receiving / unit", storagePerPallet: "Storage / pallet", firstPick: "First pick / order", additionalPick: "Additional pick / unit", packaging: "Packaging / order", shipping: "Shipping / order", returnsRate: "Returns rate", fixedFee: "Fixed monthly fee", minimumMonthly: "Minimum monthly spend", inHousePerOrder: "In-house cost / order" };
+
+export function inputWarnings(input) {
+  return Object.entries(inputLabels).flatMap(([name, label]) => {
+    const raw = input?.[name];
+    if (raw === undefined || raw === null || raw === "") return [];
+    const value = Number(raw);
+    if (!Number.isFinite(value)) return [`${label} was not a number and was ignored.`];
+    if (value < 0) return [`${label} cannot be negative; the negative value was treated as zero.`];
+    return [];
+  });
 }
 
 export function money(value) {
@@ -55,6 +69,7 @@ export function negotiationLines(result) {
 export function summary(result) {
   return [
     "3PL quote normalization",
+    ...(result.warnings.length ? ["", "Input warnings", ...result.warnings] : []),
     `Monthly orders: ${result.orders}`,
     `3PL total: ${money(result.quote.total)}`,
     `In-house estimate: ${money(result.inHouse)}`,
