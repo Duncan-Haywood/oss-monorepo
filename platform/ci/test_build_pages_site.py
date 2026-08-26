@@ -253,6 +253,15 @@ class LinkChecking(unittest.TestCase):
         )
         self.assertEqual(links.check_site(self.tmp), [])
 
+    def test_ignores_js_template_literal_hrefs(self):
+        """tender-radar builds source links in a script: href="${escapeHtml(href)}".
+        That is not a published path and must not fail the Pages link check."""
+        (self.tmp / "index.html").write_text(
+            '<script>const source = href ? `<a href="${escapeHtml(href)}">Open</a>` : "-";</script>',
+            encoding="utf-8",
+        )
+        self.assertEqual(links.check_site(self.tmp), [])
+
 
 class DescriptionTrimming(unittest.TestCase):
     def test_trims_a_changelog_description_on_a_word_boundary(self):

@@ -3081,3 +3081,18 @@ products:
           levels 0–5, copyable quote summary, and an allowlisted share link;
           public URL remains owner-gated and the browser counter is local and
           opt-out. Baseline row.
+
+  - slug: siding-bid-calculator
+    surface: static-page-in-repo
+    readings:
+      - as_of: 2026-08-25
+        signals:
+          live_url_visitors: null
+          local_events_reported: 0
+        note: >-
+          Shipped browser-local siding bid calculator (net squares × waste ×
+          height, plus tear-off, housewrap, openings, linear trim, dumpster,
+          and a walk-away price). Not yet deployed to a public URL
+          (publishing is owner-gated), so there is no traffic signal to read
+          and its local-first event counter reports only to the user's own
+          browser. Baseline row.
