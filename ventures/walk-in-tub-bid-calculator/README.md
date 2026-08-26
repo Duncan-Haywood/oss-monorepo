@@ -72,15 +72,19 @@ walk-in tub.
 It then reports price per tub, effective hourly rate, the hour
 split, a four-scope comparison on the same bath, a five-unit
 comparison on the same bath (the whirlpool upgrade versus the
-soaker special), and the **walk-away price**. Entering a price
-already on the table scores it against the same cost base. **Copy
-bid summary** turns the result into a plain-text draft ready to
-paste into a proposal.
+soaker special), a three-way **who-supplies** comparison (you
+supply the tub, they supply one that fits, they supply one
+that does not), and the **walk-away price**. Entering a price
+already on the table scores it against the same cost base —
+including the $995 “just install what I bought” special.
+**Copy bid summary** turns the result into a plain-text draft
+ready to paste into a proposal.
 
 The arithmetic lives in [`calc.mjs`](calc.mjs). See
 [`calc.test.mjs`](calc.test.mjs).
 
-Search phrase: [`how-much-to-charge-to-install-a-walk-in-tub.html`](how-much-to-charge-to-install-a-walk-in-tub.html).
+Search phrases: [`how-much-to-charge-to-install-a-walk-in-tub.html`](how-much-to-charge-to-install-a-walk-in-tub.html),
+[`should-i-install-a-customer-supplied-walk-in-tub.html`](should-i-install-a-customer-supplied-walk-in-tub.html).
 
 ## Privacy
 
@@ -101,7 +105,7 @@ when the browser sends Do Not Track or Global Privacy Control. See
 
 Events counted: `bid_calculated`, `preset_applied`, `scope_changed`,
 `tub_changed`, `door_changed`, `proposed_price_compared`,
-`summary_copied`.
+`owner_supply_compared`, `summary_copied`.
 
 ## Limitations
 
