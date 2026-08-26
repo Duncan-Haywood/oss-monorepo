@@ -548,6 +548,17 @@ products:
           unit that fits (walk-away about $878), and loses about $362
           when the drain does not line up (walk-away about $1,357).
           Public URL remains owner-gated.
+      - as_of: 2026-08-26
+        signals:
+          live_url_visitors: null
+          owner_supply_compared: 0
+        note: >-
+          Added the typical whirlpool / $1,499 showroom special on
+          top of #1609's $995 Amazon soaker example. Same
+          compareOwnerSupply: owner-supplied walk-away $2,082.34,
+          $1,499 loses $583.34 even when they bought the tub.
+          Complementary, not a second calculator. Public URL
+          remains owner-gated (`deploy-settings`).
   - slug: stair-lift-bid-calculator
     surface: static-page-in-repo
     readings:

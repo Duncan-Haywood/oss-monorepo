@@ -109,6 +109,8 @@ test('the owner-supply article answers the search phrase and stays crawlable', (
   assert.match(supplySeo, /Should I install a customer-supplied walk-in tub/i);
   assert.match(supplySeo, /FAQPage/);
   assert.match(supplySeo, /\$995/);
+  assert.match(supplySeo, /\$1,499/);
+  assert.match(supplySeo, /\$2,082\.34/);
   assert.match(supplySeo, /wrong drain/i);
   assert.match(supplySeo, /index\.html/);
   assert.match(supplySeo, /No warranty/);

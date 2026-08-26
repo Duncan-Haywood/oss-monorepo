@@ -9,10 +9,11 @@ door, tile, grab bars, and floor work — and shows the margin
 before the price goes out.
 
 **After using this, you can now** send a walk-away walk-in-tub
-price that sees the alcove and the unit, **which used to take**
-matching a published $3,499 installed special that treats a
-soaker alcove swap as the same job as a relocate extra-wide
-tile install.
+price that sees the alcove, the unit, and whether they already
+bought the tub, **which used to take** matching a published
+$3,499 installed special — or a $1,499 “just set what I bought”
+special — that treats a soaker alcove swap as the same job as a
+relocate extra-wide tile install.
 
 **Open [`index.html`](index.html) directly in a browser**, or serve this
 directory statically. It is a self-contained, zero-dependency page: no build
