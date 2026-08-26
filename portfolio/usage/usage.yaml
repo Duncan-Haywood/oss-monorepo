@@ -364,6 +364,14 @@ products:
           chargeback, and local delivery vs carrier label (driver minutes,
           mileage, charge-shipping-and-deliver trap). Public URL remains
           owner-gated; local events are opt-out and store no inputs.
+      - as_of: 2026-08-26
+        signals:
+          live_url_visitors: null
+          gift_card_compared: 0
+        note: >-
+          Added gift card vs selling the SKU now (sale-day fees, leftover
+          swipe, promo off face, breakage mix). Public URL remains
+          owner-gated; local events are opt-out and store no inputs.
   - slug: where-to-sell-calculator
     surface: static-page-in-repo
     readings:

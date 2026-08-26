@@ -11,6 +11,7 @@ import {
   compareManualPayment,
   compareChargeback,
   compareLocalDelivery,
+  compareGiftCard,
   localDeliveryCost,
   DEFAULT_BANK_APR_PCT,
   DEFAULT_CAPITAL_ADVANCE,
@@ -38,6 +39,10 @@ import {
   DEFAULT_LOCAL_HOURLY_RATE,
   DEFAULT_LOCAL_MILES,
   DEFAULT_LOCAL_MILEAGE_RATE,
+  DEFAULT_GIFT_CARD_FACE,
+  DEFAULT_GIFT_CARD_PRICE,
+  DEFAULT_GIFT_CARD_REDEMPTION_PCT,
+  DEFAULT_MONTHLY_GIFT_CARDS,
   PLAN_PRESETS,
 } from "./calc.mjs";
 
@@ -989,4 +994,78 @@ test("summary names the label winner and the run ceiling", () => {
   assert.match(text, /\$6\.16 less/);
   assert.match(text, /\$6\.94/);
   assert.doesNotMatch(text, /should offer|must deliver|turn on local/i);
+});
+
+const GIFT_BASE = {
+  price: 48,
+  shippingCharged: 6,
+  paymentsRate: 2.9,
+  paymentsFixed: 0.3,
+  costOfGoods: 14,
+  shippingCost: 5,
+  packagingCost: 1,
+  monthlyPlan: 39,
+  monthlyOrders: 100,
+  paymentMethod: "shopify_payments",
+};
+
+test("defaults match the published gift-card face and redemption", () => {
+  assert.equal(DEFAULT_GIFT_CARD_FACE, 50);
+  assert.equal(DEFAULT_GIFT_CARD_PRICE, 50);
+  assert.equal(DEFAULT_GIFT_CARD_REDEMPTION_PCT, 80);
+  assert.equal(DEFAULT_MONTHLY_GIFT_CARDS, 20);
+});
+
+test("a $50 card they redeem on the $54 ticket loses the second swipe", () => {
+  // Sell now: $54 revenue, $1.866 fees + $0.39 plan + $20 cash → $31.744.
+  // Gift card sale: $50 × 2.9% + $0.30 = $1.75. $4 leftover swipe = $0.416.
+  // Cycle: $54 collected − $2.166 fees − $0.39 plan − $20 = $31.444.
+  const r = compareGiftCard(GIFT_BASE);
+  near(r.saleFees, 1.75, "sale-day fees");
+  near(r.remainder, 4, "top-up");
+  near(r.remainderFees, 0.416, "second swipe");
+  near(r.sell.kept, 31.744, "sell now");
+  near(r.redeem.kept, 31.444, "redeem cycle");
+  near(r.expected.kept, 34.7272, "80% mix includes breakage");
+  near(r.cashToday, 47.86, "cash after sale-day fees and plan");
+  near(r.extraOnRedeem, -0.3, "second $0.30 is the gap");
+  near(r.monthlyExtraOnRedeem, -6, "20 cards");
+  assert.equal(r.winner, "sell");
+  assert.ok(r.sell.kept > r.redeem.kept, "selling the SKU beats a later redeem");
+  assert.ok(r.expected.kept > r.sell.kept, "breakage makes the mix look better");
+});
+
+test("a $45 sale on a $50 card they redeem loses the discount plus the swipe", () => {
+  const r = compareGiftCard({ ...GIFT_BASE, giftCardPrice: 45 });
+  near(r.promoDiscount, 5, "ten percent off");
+  near(r.saleFees, 1.605, "fees on $45");
+  near(r.redeem.kept, 26.589, "promo redeem leftover");
+  near(r.extraOnRedeem, -5.155, "discount plus second swipe");
+  assert.equal(r.winner, "sell");
+});
+
+test("empty gift-card fields use the published defaults", () => {
+  const r = compareGiftCard(GIFT_BASE);
+  near(r.face, DEFAULT_GIFT_CARD_FACE, "default face");
+  near(r.cardPrice, DEFAULT_GIFT_CARD_PRICE, "default price");
+  near(r.redemptionPct, DEFAULT_GIFT_CARD_REDEMPTION_PCT, "default redeem");
+  near(r.monthlyGiftCards, DEFAULT_MONTHLY_GIFT_CARDS, "default volume");
+});
+
+test("compareGiftCard rejects a zero face and an over-100 redemption", () => {
+  assert.throws(() => compareGiftCard({ ...GIFT_BASE, giftCardFace: 0 }), /Gift card face/);
+  assert.throws(() => compareGiftCard({ ...GIFT_BASE, giftCardFace: -5 }), /Gift card face/);
+  assert.throws(() => compareGiftCard({ ...GIFT_BASE, giftCardRedemptionPct: 101 }), /Gift card redemption percent/);
+  assert.throws(() => compareGiftCard({ ...GIFT_BASE, giftCardPrice: -1 }), /Gift card price/);
+});
+
+test("summary names the sell-now winner and does not treat breakage as a plan", () => {
+  const text = compareGiftCard(GIFT_BASE).summary;
+  assert.match(text, /\$0\.30 more/);
+  assert.match(text, /\$0\.42/);
+  assert.match(text, /\$1\.75/);
+  assert.match(text, /\$34\.73/);
+  assert.match(text, /unredeemed cards/);
+  assert.match(text, /\$6\.00/);
+  assert.doesNotMatch(text, /should sell|must offer|turn on gift/i);
 });
