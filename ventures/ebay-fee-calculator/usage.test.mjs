@@ -130,6 +130,14 @@ test('counts a combined-shipping comparison without storing postage or a charge'
   assert.deepEqual(Object.keys(stored).sort(), ['combined_shipping_compared', 'last_day']);
 });
 
+test('counts a seller-initiated-offer comparison without storing a percent or accept rate', () => {
+  const storage = fakeStorage();
+  recordUsage(storage, false, 'seller_initiated_offer_compared');
+  const stored = JSON.parse(storage.getItem('ebay-fee-usage'));
+  assert.equal(stored.seller_initiated_offer_compared, 1);
+  assert.deepEqual(Object.keys(stored).sort(), ['last_day', 'seller_initiated_offer_compared']);
+});
+
 test('counts the return-rate view without storing a rate or cost', () => {
   const storage = fakeStorage();
   recordUsage(storage, false, 'return_rate_viewed');

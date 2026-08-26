@@ -77,6 +77,10 @@ export const INPUT_FIELDS = [
   'combinedFixedFee',
   'combinedReturnRatePercent',
   'monthlyCombinedOrders',
+  'offerPercent',
+  'waitSellThroughPct',
+  'offerAcceptPct',
+  'monthlyOffers',
 ];
 
 export function calculateOrder(input) {
@@ -1638,4 +1642,158 @@ export function combinedShippingNote(comparison) {
     ? ` Combined shipping charged has to stay at about ${money(comparison.breakEvenCombinedCharged)} before one box matches separate labels.`
     : ' No combined shipping charge on these postage figures can match separate labels.';
   return `${separateLine} ${combinedLine}${charged}`;
+}
+
+/**
+ * Illustrative “send offer to watchers” extras. 10% off is the
+ * coupon eBay surfaces first. 40% vs 55% is a 15-point conversion
+ * lift on the same watchers — wait sell-through versus accept
+ * rate, both typed, not scraped from Seller Hub. Forty offers is
+ * a placeholder volume, not a forecast.
+ */
+export const DEFAULT_OFFER_PERCENT = 10;
+export const DEFAULT_WAIT_SELL_THROUGH = 40;
+export const DEFAULT_OFFER_ACCEPT = 55;
+export const DEFAULT_MONTHLY_OFFERS = 40;
+
+function offerPriceFromPercent(listPrice, offerPercent) {
+  return Math.max(0, listPrice * (1 - offerPercent / 100));
+}
+
+function sioRow({ id, label, price, sellThroughPct, input }) {
+  const sold = calculateOrder({ ...input, price });
+  const expectedProfit = sold.expectedProfit * (sellThroughPct / 100);
+  return {
+    id,
+    label,
+    price,
+    sellThroughPct,
+    soldProfit: sold.profit,
+    soldExpectedProfit: sold.expectedProfit,
+    soldFees: sold.feeTotal,
+    expectedProfit,
+    expectedProfitDelta: 0,
+  };
+}
+
+/**
+ * Same listed SKU, two ways to close the watchers you already have:
+ * wait for Buy It Now, or send a seller-initiated offer.
+ *
+ * This is not incoming Best Offer (open #1538): the buyer is not
+ * naming a price. You are. It is also not auction vs BIN (listing
+ * format before anyone watches) and not the repricing table (a
+ * price move without a typed conversion lift). Insertion is
+ * already sunk — the listing exists. Accept rate and wait
+ * sell-through are inputs, not eBay watcher-conversion policy.
+ *
+ * Open eBay PRs still own promoted, store, Best Offer,
+ * international, Managed Returns, and Top Rated Plus.
+ */
+export function compareSellerInitiatedOffer(input) {
+  const listedPrice = optionalNumber(input.price, 'Item price');
+  if (listedPrice === undefined) {
+    throw new Error('Item price must be a non-negative number');
+  }
+
+  const offerPercent = requiredPercent(
+    input.offerPercent,
+    'Offer percent',
+    DEFAULT_OFFER_PERCENT,
+  );
+  const waitSellThroughPct = requiredPercent(
+    input.waitSellThroughPct,
+    'Wait sell-through',
+    DEFAULT_WAIT_SELL_THROUGH,
+  );
+  const offerAcceptPct = requiredPercent(
+    input.offerAcceptPct,
+    'Offer accept rate',
+    DEFAULT_OFFER_ACCEPT,
+  );
+  const monthlyOffers = optionalNumber(
+    input.monthlyOffers,
+    'Monthly offers',
+    DEFAULT_MONTHLY_OFFERS,
+  );
+
+  const offerPrice = offerPriceFromPercent(listedPrice, offerPercent);
+  const wait = sioRow({
+    id: 'wait',
+    label: 'Wait for Buy It Now',
+    price: listedPrice,
+    sellThroughPct: waitSellThroughPct,
+    input,
+  });
+  const offer = sioRow({
+    id: 'offer',
+    label: `Send a ${offerPercent}% offer`,
+    price: offerPrice,
+    sellThroughPct: offerAcceptPct,
+    input,
+  });
+  wait.expectedProfitDelta = wait.expectedProfit - offer.expectedProfit;
+  offer.expectedProfitDelta = offer.expectedProfit - wait.expectedProfit;
+
+  const extraKeptOnOffer = offer.expectedProfit - wait.expectedProfit;
+  const winner = extraKeptOnOffer > 1e-9
+    ? 'offer'
+    : extraKeptOnOffer < -1e-9
+      ? 'wait'
+      : 'tie';
+
+  const breakEvenAcceptPct = offer.soldExpectedProfit <= 1e-12
+    ? (wait.expectedProfit <= 1e-12 ? 0 : Infinity)
+    : (wait.expectedProfit / offer.soldExpectedProfit) * 100;
+
+  const promotedRate = optionalNumber(input.promotedRate, 'Promoted listings rate', 0);
+  let offerPriceCeiling = Infinity;
+  if (offerAcceptPct > 1e-12) {
+    const neededSoldExpected = wait.expectedProfit / (offerAcceptPct / 100);
+    offerPriceCeiling = priceForExpectedProfit(input, promotedRate, neededSoldExpected);
+  }
+  const offerPercentCeiling = !Number.isFinite(offerPriceCeiling) || listedPrice <= 1e-12
+    ? (listedPrice <= 1e-12 ? 0 : Infinity)
+    : ((listedPrice - offerPriceCeiling) / listedPrice) * 100;
+
+  return {
+    rows: [wait, offer],
+    wait,
+    offer,
+    winner,
+    offerPercent,
+    offerPrice,
+    waitSellThroughPct,
+    offerAcceptPct,
+    monthlyOffers,
+    extraKeptOnOffer,
+    monthlyExtraOnOffer: extraKeptOnOffer * monthlyOffers,
+    breakEvenAcceptPct,
+    offerPriceCeiling,
+    offerPercentCeiling,
+    offerPays: extraKeptOnOffer > 1e-9,
+  };
+}
+
+export function sellerInitiatedOfferNote(comparison) {
+  if (!comparison?.wait || !comparison?.offer) {
+    throw new Error('Seller-initiated-offer comparison is missing rows');
+  }
+  const money = (value) => {
+    const sign = value < 0 ? '-' : '';
+    return `${sign}$${Math.abs(value).toFixed(2)}`;
+  };
+  const { wait, offer } = comparison;
+  const gap = money(Math.abs(offer.expectedProfit - wait.expectedProfit));
+  const ahead = offer.expectedProfit >= wait.expectedProfit ? 'more' : 'less';
+  const waitLine = `Waiting for Buy It Now at ${money(wait.price)} with ${wait.sellThroughPct}% sell-through expects ${money(wait.expectedProfit)} after the typed return rate.`;
+  const offerLine = ` Sending a ${comparison.offerPercent}% offer (${money(offer.price)}) at a ${offer.sellThroughPct}% accept rate expects ${money(offer.expectedProfit)} — ${gap} ${ahead}.`;
+  const packed = ` A packed Buy It Now sale leaves ${money(wait.soldExpectedProfit)}; a packed accepted offer leaves ${money(offer.soldExpectedProfit)}.`;
+  const accept = Number.isFinite(comparison.breakEvenAcceptPct)
+    ? ` The offer has to be accepted about ${comparison.breakEvenAcceptPct.toFixed(1)}% of the time before it matches waiting.`
+    : ' No finite accept rate can match waiting when a packed accepted offer leaves $0.00 or less.';
+  const ceiling = Number.isFinite(comparison.offerPercentCeiling)
+    ? ` At this conversion lift the offer has to stay at or below about ${comparison.offerPercentCeiling.toFixed(1)}% off (${money(comparison.offerPriceCeiling)}).`
+    : '';
+  return `${waitLine}${offerLine}${packed}${accept}${ceiling}`;
 }

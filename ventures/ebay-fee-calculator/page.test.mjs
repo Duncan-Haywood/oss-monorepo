@@ -172,7 +172,9 @@ test('the combined-shipping table has one cell per column and a counted event', 
   assert.match(page, /combined_shipping_compared/);
   assert.match(page, /should-i-offer-ebay-combined-shipping\.html/);
   assert.match(page, /"featureList":\s*"[^"]*combined shipping vs separate labels/);
-  const headerBlock = page.slice(page.indexOf('id="combinedShippingTable"'));
+  const combinedStart = page.indexOf('id="combinedShippingTable"');
+  const combinedEnd = page.indexOf('id="sellerInitiatedOffer"', combinedStart);
+  const headerBlock = page.slice(combinedStart, combinedEnd === -1 ? undefined : combinedEnd);
   const headers = [...headerBlock.matchAll(/<th scope="col">([^<]+)<\/th>/g)].map((m) => m[1]);
   assert.deepEqual(headers, [
     'Path',
@@ -182,5 +184,24 @@ test('the combined-shipping table has one cell per column and a counted event', 
     'If they keep it',
     'Expected after returns',
     'vs separate',
+  ]);
+});
+
+test('the seller-initiated-offer table has one cell per column and a counted event', () => {
+  assert.match(page, /compareSellerInitiatedOffer/);
+  assert.match(page, /id="sellerInitiatedOffer"/);
+  assert.match(page, /id="sellerInitiatedOfferVerdict"/);
+  assert.match(page, /seller_initiated_offer_compared/);
+  assert.match(page, /should-i-send-an-ebay-offer-to-watchers\.html/);
+  assert.match(page, /"featureList":\s*"[^"]*seller-initiated offer vs waiting/);
+  const headerBlock = page.slice(page.indexOf('id="sellerInitiatedOfferTable"'));
+  const headers = [...headerBlock.matchAll(/<th scope="col">([^<]+)<\/th>/g)].map((m) => m[1]);
+  assert.deepEqual(headers, [
+    'Path',
+    'Price',
+    'Close rate',
+    'If it sells',
+    'Expected after sell-through',
+    'vs waiting',
   ]);
 });

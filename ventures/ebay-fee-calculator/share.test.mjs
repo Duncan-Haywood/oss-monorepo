@@ -169,6 +169,20 @@ test('carries combined-shipping fields so a shared link does not drop them', () 
   assert.equal(restored.monthlyCombinedOrders, 12);
 });
 
+test('carries seller-initiated-offer fields so a shared link does not drop them', () => {
+  const restored = decodeInputs(encodeInputs({
+    price: 40,
+    offerPercent: 10,
+    waitSellThroughPct: 40,
+    offerAcceptPct: 55,
+    monthlyOffers: 40,
+  }));
+  assert.equal(restored.offerPercent, 10);
+  assert.equal(restored.waitSellThroughPct, 40);
+  assert.equal(restored.offerAcceptPct, 55);
+  assert.equal(restored.monthlyOffers, 40);
+});
+
 test('round-trips known numeric inputs in stable order', () => {
   const encoded = encodeInputs({ price: 40, shippingCharged: 6, finalValueRate: 13.25 });
   assert.equal(encoded, 'price=40&shippingCharged=6&finalValueRate=13.25');
