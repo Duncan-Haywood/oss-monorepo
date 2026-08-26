@@ -293,68 +293,9 @@ def load_snapshot():
     return yaml.safe_load(SNAPSHOT.read_text())
 
 
-# GitHub serves exactly ONE Pages site per repository, so every one of these
-# actions writes to the same destination. Two workflows behind the same gate is
-# not two deployments -- it is two builds racing for one origin.
-PAGES_DEPLOY_ACTIONS = ("actions/deploy-pages",)
-
-
-def check_one_origin_per_gate(rows) -> list[str]:
-    """No two Pages deployments may hang off the same owner variable.
-
-    Why this check exists
-    ---------------------
-    On 2026-08-26 two sessions independently solved "the portfolio has no public
-    URL" and both landed: `pages.yml` (#1724, a Python builder) and
-    `portfolio-pages.yml` (#1718, a Node one). Each reasoned -- correctly, in
-    isolation -- that it should reuse the existing `GITHUB_PAGES_ENABLED`
-    variable rather than open a second owner ask. Neither could see the other.
-
-    Both trigger on a push to `main`, both match `ventures/**`, and both call
-    `actions/deploy-pages` against the single Pages site GitHub gives a
-    repository. Their `concurrency:` groups differ, so GitHub does not serialise
-    them: they run together and whichever finishes last wins. The owner's one
-    flip would have published a site that changed nondeterministically between
-    two different builds on every push.
-
-    Nothing in the repo caught it, and nothing could have: both workflows are
-    individually valid, both were correctly recorded in the snapshot as gated,
-    and the collision is invisible until the moment someone sets the variable --
-    at which point it presents as a live site that flaps rather than as a failed
-    deploy. The snapshot pins each workflow against its own past self; this looks
-    across them.
-    """
-    by_gate: dict[str, list[str]] = {}
-
-    for row in rows:
-        for step in row["publishes"]:
-            if not any(action in step["step"] for action in PAGES_DEPLOY_ACTIONS):
-                continue
-            for gate in step["gates"] or ["<ungated>"]:
-                # The variable is what the owner actually sets; the rest of the
-                # condition (branch, event type) differs harmlessly between two
-                # workflows that would still collide.
-                for var in re.findall(r"vars\.([A-Za-z_][A-Za-z0-9_]*)", gate) or ["<no vars. gate>"]:
-                    by_gate.setdefault(var, [])
-                    if row["workflow"] not in by_gate[var]:
-                        by_gate[var].append(row["workflow"])
-
-    problems = []
-    for var, workflows in sorted(by_gate.items()):
-        if len(workflows) > 1:
-            problems.append(
-                f"{', '.join(sorted(workflows))}: {len(workflows)} workflows deploy to "
-                f"GitHub Pages behind the same gate `{var}`. GitHub serves one Pages "
-                "site per repository, so setting it would start a race and the live "
-                "site would flap between their builds. Give all but one its own "
-                "variable, or delete the duplicate."
-            )
-    return problems
-
-
 def check(rows) -> list[str]:
     """Compare the derived surface to the committed snapshot."""
-    problems = check_one_origin_per_gate(rows)
+    problems: list[str] = []
     snapshot = load_snapshot()
     if snapshot is None:
         return problems + [f"{SNAPSHOT.name} is missing; run with --write to create it"]
@@ -451,12 +392,31 @@ def check_single_pages_deployer(rows) -> list[str]:
     and that stays legal. Two gated on the *same* variable, or any that is ungated,
     is the bug.
 
-    This is a real incident, not a hypothetical. `pages.yml` and
-    `portfolio-pages.yml` were merged within an hour of each other, both gated on
-    `GITHUB_PAGES_ENABLED`, both triggered by `ventures/**`, with different
-    concurrency groups. Neither PR could see the other. The snapshot recorded both
-    without complaint, because pinning each workflow separately cannot notice that
-    two of them target the same single-instance resource.
+    This is a real incident, not a hypothetical. On 2026-08-26 two sessions
+    independently solved "the portfolio has no public URL" and both landed:
+    `pages.yml` (#1724, a Python builder) and `portfolio-pages.yml` (#1718, a Node
+    one). Each reasoned -- correctly, in isolation -- that it should reuse the
+    existing `GITHUB_PAGES_ENABLED` variable rather than open a second owner ask.
+    Neither could see the other.
+
+    Both trigger on a push to `main`, both match `ventures/**`, and both call
+    `actions/deploy-pages` against the single Pages site GitHub gives a repository.
+    Their `concurrency:` groups differ, so GitHub does not serialise them: they run
+    together and whichever finishes last wins. The owner's one flip would have
+    published a site that changed nondeterministically between two different builds
+    on every push.
+
+    Nothing in the repo caught it, and nothing could have: both workflows are
+    individually valid, both were correctly recorded in the snapshot as gated, and
+    the collision is invisible until the moment someone sets the variable -- at
+    which point it presents as a live site that flaps rather than as a failed
+    deploy. The snapshot pins each workflow against its own past self; this looks
+    across them.
+
+    The same cadence that caused the incident then produced two implementations of
+    this very check -- #1735's, hardened by #1762, and #1776's `check_one_origin_
+    per_gate` -- with duplicate `PAGES_DEPLOY_ACTIONS` constants where the later
+    definition silently rebound the earlier. They were consolidated here into one.
     """
     gated = pages_deploy_gates(rows)
     problems = []
@@ -520,22 +480,23 @@ def main() -> int:
             print(f"  - {error}", file=sys.stderr)
         return 1
 
+    # Ahead of both --write and the snapshot comparison. A second Pages deployer
+    # is wrong whether or not the snapshot happens to record it, so `--write`
+    # must not be the way past it -- which it was while this sat inside the
+    # `--check` branch, contradicting the comment that said otherwise.
+    conflicts = check_single_pages_deployer(rows)
+    if conflicts:
+        print("Publish-surface conflict:\n", file=sys.stderr)
+        for conflict in conflicts:
+            print(f"  - {conflict}", file=sys.stderr)
+        return 1
+
     if args.write:
         write_snapshot(rows)
         print(f"Wrote {SNAPSHOT.relative_to(REPO)} ({len(rows)} workflows).")
         return 0
 
     if args.check:
-        # Checked before the snapshot comparison: a second Pages deployer is wrong
-        # whether or not the snapshot happens to record it, and re-running with
-        # --write must not be able to bless it.
-        conflicts = check_single_pages_deployer(rows)
-        if conflicts:
-            print("Publish-surface conflict:\n", file=sys.stderr)
-            for conflict in conflicts:
-                print(f"  - {conflict}", file=sys.stderr)
-            return 1
-
         problems = check(rows)
         if problems:
             print(f"{len(problems)} publish-surface change(s) not reflected in the snapshot:\n", file=sys.stderr)
