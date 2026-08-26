@@ -329,3 +329,126 @@ export function personalizationNote(comparison) {
     : ` If this request is extra demand you would not have sold otherwise, the personalized order still loses ${money(comparison.personalized.profit)}.`;
   return `${upgradeLine}${ceiling}${incrementalLine}`;
 }
+
+// Illustrative on-site Etsy Ads ACOS. 12% is a common “I will spend $12
+// to make $100” target sellers type into Ads Manager. Offsite Ads are a
+// different fee — a percentage Etsy takes on attributed orders — and
+// stay on the order inputs. These are inputs, not Etsy's live CPC.
+export const ETSY_ADS_DEFAULTS = {
+  etsyAdsAcosPct: 12,
+};
+
+function winnerFromAds(extraKept) {
+  if (extraKept > 1e-9) return 'advertised';
+  if (extraKept < -1e-9) return 'organic';
+  return 'tie';
+}
+
+// Same listing, two ways the order arrives: organic vs an Etsy Ads click.
+// Marketplace fees do not change. Ads cash is ACOS × order revenue, the
+// same definition Ads Manager uses (spend ÷ attributed sales).
+//
+// Two frames, because sellers mix them up:
+//   - cannibalized: this buyer would have bought anyway, so Ads cost you
+//     the click;
+//   - incremental: this click is extra demand (no sale if you stay off).
+export function compareEtsyAds(input = {}) {
+  const etsyAdsAcosPct = nonNegativeNumber(
+    input.etsyAdsAcosPct,
+    'Etsy Ads ACOS',
+    ETSY_ADS_DEFAULTS.etsyAdsAcosPct,
+  );
+  const monthlyAdSpend = nonNegativeNumber(
+    input.monthlyAdSpend,
+    'Monthly Etsy Ads spend',
+    5,
+  );
+
+  const organicOrder = calculateOrder(input);
+  const revenue = organicOrder.revenue;
+  const organicProfitRaw = organicOrder.profit;
+  const organicProfit = roundMoney(organicProfitRaw);
+  const organicFees = roundMoney(orderFeeTotal(organicOrder));
+  const adsCostRaw = revenue * etsyAdsAcosPct / 100;
+  const adsCost = roundMoney(adsCostRaw);
+  const advertisedProfitRaw = organicProfitRaw - adsCostRaw;
+  const advertisedProfit = roundMoney(advertisedProfitRaw);
+  const extraKept = roundMoney(advertisedProfit - organicProfit);
+
+  const breakEvenAcosPct = revenue <= 1e-12
+    ? Infinity
+    : roundMoney((organicProfitRaw / revenue) * 100);
+
+  let advertisedOrdersFromSpend = 0;
+  if (adsCostRaw > 1e-12) {
+    advertisedOrdersFromSpend = monthlyAdSpend / adsCostRaw;
+  } else if (monthlyAdSpend > 1e-12) {
+    advertisedOrdersFromSpend = Infinity;
+  }
+
+  const monthlyIncrementalKept = !Number.isFinite(advertisedOrdersFromSpend)
+    ? advertisedOrdersFromSpend
+    : roundMoney(advertisedOrdersFromSpend * advertisedProfitRaw);
+
+  return {
+    etsyAdsAcosPct: roundMoney(etsyAdsAcosPct),
+    monthlyAdSpend: roundMoney(monthlyAdSpend),
+    revenue: roundMoney(revenue),
+    organic: {
+      id: 'organic',
+      label: 'Organic sale',
+      adsCost: 0,
+      fees: organicFees,
+      profit: organicProfit,
+    },
+    advertised: {
+      id: 'advertised',
+      label: 'Advertised sale',
+      adsCost,
+      fees: organicFees,
+      profit: advertisedProfit,
+    },
+    adsCost,
+    extraKept,
+    breakEvenAcosPct,
+    advertisedOrdersFromSpend: Number.isFinite(advertisedOrdersFromSpend)
+      ? roundMoney(advertisedOrdersFromSpend)
+      : advertisedOrdersFromSpend,
+    monthlyIncrementalKept,
+    incrementalPays: advertisedProfit > 1e-9,
+    incrementalBreaksEven: Math.abs(advertisedProfit) <= 1e-9,
+    cannibalizedCosts: adsCost,
+    winner: winnerFromAds(extraKept),
+  };
+}
+
+export function etsyAdsNote(comparison) {
+  if (!comparison?.organic || !comparison?.advertised) {
+    throw new Error('Etsy Ads comparison is missing rows');
+  }
+  const money = (value) => {
+    const sign = value < 0 ? '−' : '';
+    return `${sign}$${Math.abs(value).toFixed(2)}`;
+  };
+  const pct = (value) => `${Number(value).toFixed(2)}%`;
+  const gap = money(Math.abs(comparison.extraKept));
+  const ahead = comparison.extraKept >= 0 ? 'more' : 'less';
+  const perOrder = `A ${pct(comparison.etsyAdsAcosPct)} ACOS on a ${money(comparison.revenue)} order costs ${money(comparison.adsCost)} and leaves ${money(comparison.advertised.profit)} — ${gap} ${ahead} than the ${money(comparison.organic.profit)} organic sale.`;
+  const ceiling = Number.isFinite(comparison.breakEvenAcosPct)
+    ? ` An extra advertised order still pays until ACOS reaches about ${pct(comparison.breakEvenAcosPct)}.`
+    : ' No finite ACOS can leave a profit on a $0.00 order.';
+  const incrementalLine = comparison.incrementalPays
+    ? ` If this click is extra demand you would not have sold otherwise, the advertised order still leaves ${money(comparison.advertised.profit)} versus $0.00.`
+    : ` If this click is extra demand you would not have sold otherwise, the advertised order still loses ${money(comparison.advertised.profit)}.`;
+  let monthlyLine = '';
+  if (comparison.adsCost <= 1e-9) {
+    monthlyLine = ` At 0% ACOS the monthly ${money(comparison.monthlyAdSpend)} Ads budget is not buying attributed sales in this table.`;
+  } else if (Number.isFinite(comparison.advertisedOrdersFromSpend)) {
+    const orders = comparison.advertisedOrdersFromSpend.toFixed(2);
+    const monthly = Number.isFinite(comparison.monthlyIncrementalKept)
+      ? money(comparison.monthlyIncrementalKept)
+      : 'an unbounded amount';
+    monthlyLine = ` A ${money(comparison.monthlyAdSpend)} monthly budget at this ACOS buys about ${orders} advertised orders and keeps ${monthly} if they are incremental.`;
+  }
+  return `${perOrder}${ceiling}${incrementalLine}${monthlyLine}`;
+}

@@ -97,6 +97,25 @@ versus $0.00. The SEO page
 [should-i-charge-for-etsy-personalization.html](should-i-charge-for-etsy-personalization.html)
 walks through the same examples.
 
+## Do on-site Etsy Ads still pay?
+
+On-site Etsy Ads is a click you buy. Offsite Ads is a percentage Etsy
+takes when it sends the buyer — a different fee, already on the order
+form. ACOS is spend divided by attributed sales. The calculator compares
+an organic sale with the same order after that Ads cash, shows the ACOS
+ceiling where an extra advertised order still breaks even, and turns a
+monthly Ads budget into extra orders kept if the clicks are incremental.
+
+On the default $30 listing, a 12% ACOS costs $4.20 on the $35 order and
+leaves $17.03 — $4.20 less than the $21.23 organic sale. An extra
+advertised order still pays until ACOS reaches about 60.64%. A $5.00
+monthly budget at that ACOS buys about 1.19 advertised orders and keeps
+$20.27 if they are incremental. Raise ACOS to 70% and the advertised
+order loses $3.27 even as extra demand. Turn on 15% Offsite Ads and the
+same 12% ACOS ceiling falls to about 45.64%. The SEO page
+[is-etsy-ads-worth-it.html](is-etsy-ads-worth-it.html) walks through the
+same examples.
+
 [GitHub Sponsors](https://github.com/sponsors/Duncan-Haywood) is entirely
 optional and never changes what the calculator does.
 
