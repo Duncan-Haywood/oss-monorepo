@@ -544,3 +544,21 @@ test('the hub itself is not wrapped in its own navigation', async () => {
   assert.ok(!(await read('index.html')).includes('pf-chrome'));
   assert.ok(!(await read('404.html')).includes('pf-chrome'));
 });
+
+test('no venture ships its package manifest to visitors', async () => {
+  const { outDir } = await site();
+  const leaked = [];
+  for (const file of await fs.readdir(outDir, { recursive: true })) {
+    if (path.basename(file) === 'package.json') leaked.push(file);
+  }
+  assert.deepEqual(leaked, [],
+    'package.json exposes internal script names and dependency versions for no visitor benefit');
+});
+
+test('publishable JSON that a page actually needs is still copied', () => {
+  // The exclusion is by filename, not by extension: a web manifest or a
+  // JSON-LD payload beside a page must keep shipping.
+  assert.equal(isPublishable('package.json'), false);
+  assert.equal(isPublishable('site.webmanifest'), true);
+  assert.equal(isPublishable('rates.json'), true);
+});

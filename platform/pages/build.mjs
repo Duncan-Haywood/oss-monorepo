@@ -56,7 +56,14 @@ const EXCLUDED_SLUGS = new Set([
 // Never shipped to a visitor: test payload they would download for no benefit,
 // repo bookkeeping, or a per-venture robots.txt that crawlers never read
 // (only the one at the origin root counts).
-const EXCLUDED_FILES = new Set(['VENTURE.yaml', 'robots.txt', 'README.md', 'package-lock.json']);
+// `package.json` is on the list for the same reason its lockfile already was:
+// two ventures ship one, a visitor downloads none of it, and publishing it puts
+// internal script names and dependency versions on a public URL for no benefit.
+// The rule below this one is by extension, so `.json` alone does not catch it —
+// and `.json` has to stay publishable for JSON-LD payloads and web manifests.
+const EXCLUDED_FILES = new Set([
+  'VENTURE.yaml', 'robots.txt', 'README.md', 'package.json', 'package-lock.json',
+]);
 const EXCLUDED_DIRS = new Set(['node_modules', '.git', 'dist', 'coverage', '.cache', 'tests', '__pycache__']);
 const isTestFile = (name) => /\.test\.(mjs|js|cjs|py)$/.test(name);
 
