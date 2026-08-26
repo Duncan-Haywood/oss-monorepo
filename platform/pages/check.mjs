@@ -226,6 +226,13 @@ export async function checkSite(site) {
   // A page in no sitemap is built, deployed, and never found.
   for (const page of servedPages) {
     if (page === '404.html') continue;
+    // ...unless it asked not to be found. The offline fallback is a shell, and
+    // indexed it would be the search result for a calculator. A page that
+    // declares noindex and is then listed in a sitemap is the contradiction;
+    // one that declares it and stays out is correct.
+    if (/<meta name="robots" content="noindex">/i.test(await fs.readFile(path.join(site, page), 'utf8'))) {
+      continue;
+    }
     const candidates = [page];
     if (page.endsWith('/index.html')) candidates.push(page.slice(0, -'index.html'.length));
     if (page === 'index.html') candidates.push('');
