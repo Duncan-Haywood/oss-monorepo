@@ -7,7 +7,7 @@
   <meta name="description" content="Price a parking lot striping job from stall lines, ADA hash aisles, arrows, coats, and new-layout hours — plus price per stall, the extra a per-stall special hides, and the walk-away number.">
   <meta property="og:title" content="Parking Lot Striping Bid Calculator">
   <meta property="og:description" content="Bid pavement marking the way the trade does — stall lines, ADA hash, and coats — and see the margin before you send the price.">
-  <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Parking Lot Striping Bid Calculator","applicationCategory":"BusinessApplication","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"featureList":"Stall-line and ADA-hash labor, restripe vs new layout, one coat vs two, arrows and fire lanes, price per stall, break-even walk-away price, proposed-price margin check"}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Parking Lot Striping Bid Calculator", "applicationCategory": "BusinessApplication", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "featureList": "Stall-line and ADA-hash labor, restripe vs new layout, one coat vs two, arrows and fire lanes, price per stall, break-even walk-away price, proposed-price margin check, saved bid that reopens on the next visit, shareable bid link"}</script>
   <style>
     :root { color-scheme: light; font-family: system-ui, sans-serif; color: #1c1f24; background: #ece8dc; }
     body { max-width: 1100px; margin: 0 auto; padding: 32px 18px; }
@@ -132,9 +132,13 @@
       </dl>
       <div id="verdict" class="verdict" hidden></div>
       <div class="summary-actions">
+        <button type="button" id="copyLink">Copy bid link</button>
+        <button type="button" id="clearSaved">Start a fresh bid</button>
         <button type="button" id="copySummary">Copy bid summary</button>
         <span id="summaryStatus" class="summary-status" role="status" aria-live="polite"></span>
       </div>
+      <p id="restoreNote" class="note" role="status" aria-live="polite" hidden></p>
+      <p class="note" style="margin-top:8px">A bid link carries your own rates — wage, burden, overhead, and target margin — so the page reopens exactly as you left it. Send it to yourself or your crew. The customer should get the price, not the link.</p>
       <hr>
       <p class="note" style="margin-bottom:4px"><strong>Where the hours go</strong></p>
       <ul class="split" id="split"></ul>
@@ -155,7 +159,7 @@
     <label style="display:inline-flex;gap:6px;align-items:center;font-weight:400"><input id="usageOptOut" type="checkbox" style="width:auto"> Do not keep anonymous local usage counts</label>
     <p><strong>No warranty.</strong> This free tool is not structural, construction, building-code, legal, tax, financial, traffic-engineering, or ADA advice, and it does not tell you what to charge. Verify every figure against your own payroll, paint tickets, and a qualified professional before relying on it or submitting a bid. To the maximum extent permitted by law, the authors accept no liability for loss or damage from its use.</p>
     <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record.</p>
-    <p><strong>Nothing leaves your browser.</strong> Every number stays on this device. Usage counts are anonymous tallies of which features were used, stored locally, and never include your lot, wages, costs, or prices.</p>
+    <p><strong>Nothing leaves your browser.</strong> Every number stays on this device. Your bid is saved in this browser so it is still here next visit, and &ldquo;Start a fresh bid&rdquo; deletes it; a bid link you copy holds those same numbers in the address itself, so treat one like your rate sheet. Usage counts are anonymous tallies of which features were used, stored locally, and never include your lot, wages, costs, or prices.</p>
     <p class="support">Free and open source. If it wins you a job, the <a href="https://github.com/Duncan-Haywood/monorepo-projects" rel="noopener">project is on GitHub</a> &mdash; support is entirely optional and never changes what the tool does.</p>
   </footer>
 
@@ -165,6 +169,7 @@
       formatBidSummary, suggestedKit, JOB_PRESETS,
     } from './calc.mjs';
     import { recordUsage } from './usage.mjs';
+    import { encodeBid, saveBid, clearBid, restoreBid } from './share.mjs';
 
     const FIELD_IDS = [
       'layout','coats','standardStalls','adaStalls','arrows','stopBars','crosswalks',
@@ -362,7 +367,94 @@
     el('compareCoats').addEventListener('click', showCoatCompare);
 
     applyJob(JOB_PRESETS[0]);
+
+    // FIELD_IDS is every input the form owns; the two selects among them travel
+    // validated against their own options, and the one checkbox as a flag. The
+    // suggestedKit() rates readInput() spreads are derived from the layout
+    // rather than entered, so they are recomputed on the other end instead of
+    // being carried — a link that pinned them would freeze a rate the page
+    // means to keep deriving.
+    const CHOICE_IDS = ['layout', 'coats'];
+    const FLAG_IDS = ['nightWork'];
+    const BID_SPEC = {
+      key: 'parking-lot-striping-bid',
+      numbers: FIELD_IDS.filter(id => !CHOICE_IDS.includes(id)),
+      flags: FLAG_IDS,
+      choices: Object.fromEntries(CHOICE_IDS.map(id => [id, [...el(id).options].map(option => option.value)])),
+    };
+
+    function applyValues(values) {
+      for (const [id, value] of Object.entries(values)) {
+        const field = el(id);
+        if (!field) continue;
+        if (field.type === 'checkbox') field.checked = Boolean(value);
+        else field.value = value;
+        field.dataset.edited = '1';
+      }
+    }
+
+    function persist() {
+      try {
+        saveBid(localStorage, BID_SPEC, readInput());
+      } catch {
+        // A browser with site data blocked throws on access. Losing the save
+        // is survivable; losing the calculator mid-bid is not.
+      }
+    }
+
+    async function copyLink() {
+      const query = encodeBid(BID_SPEC, readInput());
+      const url = `${location.origin}${location.pathname}${query ? `?${query}` : ''}`;
+      try {
+        await navigator.clipboard.writeText(url);
+      } catch {
+        const fallback = document.createElement('textarea');
+        fallback.value = url;
+        fallback.setAttribute('readonly', '');
+        fallback.style.position = 'fixed';
+        fallback.style.opacity = '0';
+        document.body.append(fallback);
+        fallback.select();
+        document.execCommand('copy');
+        fallback.remove();
+      }
+      count('link_copied');
+      el('summaryStatus').textContent = 'Bid link copied \u2014 it reopens this bid';
+      setTimeout(() => { el('summaryStatus').textContent = ''; }, 2500);
+    }
+
+    const restored = restoreBid(BID_SPEC, {
+      search: location.search,
+      storage: (() => { try { return localStorage; } catch { return null; } })(),
+    });
+    applyValues(restored.values);
+
+    if (restored.source !== 'none') {
+      // Say which bid is on screen. Numbers that changed themselves between
+      // visits, with no explanation, are how a striper stops trusting the tool.
+      el('restoreNote').hidden = false;
+      el('restoreNote').textContent = restored.source === 'link'
+        ? 'Opened from a bid link \u2014 these are the sender\u2019s numbers, not yours.'
+        : 'Picked up your last bid from this browser. \u201CStart a fresh bid\u201D clears it.';
+    }
+
+    el('copyLink').addEventListener('click', () => {
+      copyLink().catch(() => { el('summaryStatus').textContent = 'Copy failed; copy the address bar instead.'; });
+    });
+
+    el('clearSaved').addEventListener('click', () => {
+      try { clearBid(localStorage, BID_SPEC); } catch { /* storage blocked; the reload still clears the form */ }
+      location.href = location.pathname;
+    });
+
+    // Every input already calls `update()`; saving here means the bid is kept
+    // as it is typed rather than only when a button is pressed, which is the
+    // difference between surviving a closed tab and not.
+    document.addEventListener('input', persist);
+    document.addEventListener('change', persist);
+
     update();
+    persist();
   </script>
 </body>
 </html>
