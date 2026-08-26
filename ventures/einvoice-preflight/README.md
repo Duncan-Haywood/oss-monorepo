@@ -15,7 +15,8 @@ for an e-invoice preflight check.
 cd ventures/einvoice-preflight
 # Browser: open index.html, or `python3 -m http.server 8765` and visit
 # http://127.0.0.1:8765/ — same rule IDs as the CLI, including VAT/IBAN/BIC/RF
-# and credit-note document type (INV-032 through INV-034).
+# credit-note document type (INV-032 through INV-034), and 0% / exempt
+# tax reasons (INV-035 and INV-036).
 PYTHONPATH=src python3 -m einvoice_preflight examples/valid-invoice.json
 PYTHONPATH=src python3 -m einvoice_preflight examples/valid-credit-note.json
 PYTHONPATH=src python3 -m einvoice_preflight examples/valid-invoice.json --format json
@@ -139,6 +140,18 @@ map into `document_type`; `InvoiceTypeCode` / `CreditNoteTypeCode` /
 `DebitNoteTypeCode` map into `document_code`;
 `BillingReference/InvoiceDocumentReference/ID` maps into
 `original_invoice`.
+
+A line with `tax_percent` of `0`, or a UNECE 5305 category of `E`, `AE`,
+`K`, `G`, `O`, or `Z`, needs an exemption reason. Put it on the line as
+`tax_reason` or `tax_reason_code` (for example `VATEX-EU-IC`), or on the
+invoice as `tax_exemption_reason` / `tax_exemption_reason_code`. A missing
+reason is `INV-035`. An empty reason field is `INV-036`. Messages never
+repeat the reason text. This is a document-shape check — the tool does
+not decide whether 0% is legally correct. UBL
+`ClassifiedTaxCategory/ID` maps into `tax_category`;
+`TaxExemptionReason` and `TaxExemptionReasonCode` map into the line
+reason fields. `TaxTotal/TaxSubtotal/TaxCategory` exemption fields map
+into the invoice-level reason.
 
 `due_date` is optional. When supplied, it must use `YYYY-MM-DD` and cannot be
 earlier than `issue_date`; this is a date-shape and document-consistency check,
@@ -285,6 +298,15 @@ No. It reads one local JSON file and writes a report to stdout.
 
 No. It checks the arithmetic for the tax percentage supplied in each line; it
 does not decide whether that percentage is legally correct.
+
+### Does a 0% line need a reason?
+
+When a line is 0% or uses an exempt / zero-rated category (`E`, `AE`,
+`K`, `G`, `O`, `Z`), the preflight expects `tax_reason` or
+`tax_reason_code` (or an invoice-level exemption reason). That is the
+same shape Peppol and many EN 16931 CIUS reject when the reason is
+missing. The tool never chooses the reason and never claims the
+exemption is legally valid.
 
 ### Does it look up VAT registrations?
 

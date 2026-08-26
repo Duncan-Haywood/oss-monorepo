@@ -126,6 +126,34 @@ const DOCUMENT_ROOTS = {
   DebitNote: { type: "debit_note", line: "DebitNoteLine", quantity: "DebitedQuantity" },
 };
 
+function taxCategoryFields(category) {
+  const extras = {};
+  for (const child of category.children) {
+    if (child.name === "ID") {
+      const value = child.text.trim();
+      if (value) extras.tax_category = value;
+    }
+  }
+  const reason = textOf(category, "TaxExemptionReason", false);
+  if (reason) extras.tax_reason = reason;
+  const reasonCode = textOf(category, "TaxExemptionReasonCode", false);
+  if (reasonCode) extras.tax_reason_code = reasonCode;
+  return extras;
+}
+
+function documentExemption(root) {
+  const extras = {};
+  for (const subtotal of descendants(root, "TaxSubtotal")) {
+    for (const category of descendants(subtotal, "TaxCategory")) {
+      const reason = textOf(category, "TaxExemptionReason", false);
+      if (reason && !extras.tax_exemption_reason) extras.tax_exemption_reason = reason;
+      const reasonCode = textOf(category, "TaxExemptionReasonCode", false);
+      if (reasonCode && !extras.tax_exemption_reason_code) extras.tax_exemption_reason_code = reasonCode;
+    }
+  }
+  return extras;
+}
+
 function billingReference(root) {
   for (const ref of descendants(root, "BillingReference")) {
     for (const invoiceRef of descendants(ref, "InvoiceDocumentReference")) {
@@ -152,6 +180,7 @@ export function parseUblInvoice(source) {
       unit_price: asNumber(textOf(line, "PriceAmount")),
       tax_percent: asNumber(textOf(category, "Percent")),
       net: asNumber(textOf(line, "LineExtensionAmount")),
+      ...taxCategoryFields(category),
     };
   });
 
@@ -186,6 +215,7 @@ export function parseUblInvoice(source) {
   };
   const payment = payeePayment(root);
   if (payment) invoice.payment = payment;
+  Object.assign(invoice, documentExemption(root));
   return invoice;
 }
 

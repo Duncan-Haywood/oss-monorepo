@@ -64,13 +64,15 @@ def parse_ubl_invoice(source: bytes | str) -> dict[str, Any]:
         price = _text(line, "PriceAmount")
         net = _text(line, "LineExtensionAmount")
         category = next(iter(_children(line, "ClassifiedTaxCategory")), line)
-        lines.append({
+        mapped_line = {
             "description": _text(line, "Name"),
             "quantity": _number(quantity),
             "unit_price": _number(price),
             "tax_percent": _number(_text(category, "Percent")),
             "net": _number(net),
-        })
+        }
+        mapped_line.update(_tax_category_fields(category))
+        lines.append(mapped_line)
 
     supplier = next(iter(_children(root, "AccountingSupplierParty")), root)
     customer = next(iter(_children(root, "AccountingCustomerParty")), root)
@@ -108,7 +110,43 @@ def parse_ubl_invoice(source: bytes | str) -> dict[str, Any]:
     payment = _payee_payment(root)
     if payment:
         invoice["payment"] = payment
+    exemption = _document_exemption(root)
+    if exemption:
+        invoice.update(exemption)
     return invoice
+
+
+def _tax_category_fields(category: ElementTree.Element) -> dict[str, str]:
+    """Map ClassifiedTaxCategory ID and exemption reason / code when present."""
+    extras: dict[str, str] = {}
+    tax_id = ""
+    for child in list(category):
+        tag = child.tag.rsplit("}", 1)[-1]
+        if tag == "ID":
+            tax_id = (child.text or "").strip()
+    if tax_id:
+        extras["tax_category"] = tax_id
+    reason = _text(category, "TaxExemptionReason", required=False)
+    if reason:
+        extras["tax_reason"] = reason
+    reason_code = _text(category, "TaxExemptionReasonCode", required=False)
+    if reason_code:
+        extras["tax_reason_code"] = reason_code
+    return extras
+
+
+def _document_exemption(root: ElementTree.Element) -> dict[str, str]:
+    """Map TaxSubtotal/TaxCategory exemption reason when present."""
+    extras: dict[str, str] = {}
+    for subtotal in _children(root, "TaxSubtotal"):
+        for category in _children(subtotal, "TaxCategory"):
+            reason = _text(category, "TaxExemptionReason", required=False)
+            if reason and "tax_exemption_reason" not in extras:
+                extras["tax_exemption_reason"] = reason
+            reason_code = _text(category, "TaxExemptionReasonCode", required=False)
+            if reason_code and "tax_exemption_reason_code" not in extras:
+                extras["tax_exemption_reason_code"] = reason_code
+    return extras
 
 
 def _billing_reference(root: ElementTree.Element) -> str:
