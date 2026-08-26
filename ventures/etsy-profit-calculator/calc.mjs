@@ -188,3 +188,144 @@ export function compareEtsyPlus(input = {}) {
     }),
   };
 }
+
+// Illustrative personalization extras. $8.00 is a common "sounds fair"
+// add-on; $1.50 covers extra ink, thread, or a gift box; $6.00 is twenty
+// minutes at $18/hour. These are inputs, not a wage or fee schedule — the
+// seller overwrites them from the request in front of them.
+export const PERSONALIZATION_DEFAULTS = {
+  personalizationUpcharge: 8,
+  extraMaterialCost: 1.5,
+  extraTimeCost: 6,
+  monthlyCustomOrders: 12,
+};
+
+function orderFeeTotal(order) {
+  return order.fees.listing + order.fees.transaction + order.fees.payment + order.fees.offsiteAd;
+}
+
+function winnerFromExtra(extraKept) {
+  if (extraKept > 1e-9) return 'personalized';
+  if (extraKept < -1e-9) return 'as_listed';
+  return 'tie';
+}
+
+// Same listing, two ways to close the sale: as written vs the personalized
+// request. Percentage fees sit on the higher ticket; listing fee and the
+// payment fixed fee do not change. Extra materials and extra time are cash
+// the seller lays out only on the custom path.
+//
+// Two frames, because sellers mix them up:
+//   - upgrade: this buyer would have bought the standard listing;
+//   - incremental: this request is extra demand (no sale if declined).
+export function comparePersonalization(input = {}) {
+  const personalizationUpcharge = nonNegativeNumber(
+    input.personalizationUpcharge,
+    'Personalization upcharge',
+    PERSONALIZATION_DEFAULTS.personalizationUpcharge,
+  );
+  const extraMaterialCost = nonNegativeNumber(
+    input.extraMaterialCost,
+    'Extra material cost',
+    PERSONALIZATION_DEFAULTS.extraMaterialCost,
+  );
+  const extraTimeCost = nonNegativeNumber(
+    input.extraTimeCost,
+    'Extra time cost',
+    PERSONALIZATION_DEFAULTS.extraTimeCost,
+  );
+  const monthlyCustomOrders = nonNegativeNumber(
+    input.monthlyCustomOrders,
+    'Monthly custom orders',
+    PERSONALIZATION_DEFAULTS.monthlyCustomOrders,
+  );
+
+  const asListedOrder = calculateOrder(input);
+  const personalizedOrder = calculateOrder({
+    ...input,
+    price: Number(input.price) + personalizationUpcharge,
+    materialCost: Number(input.materialCost ?? 0) + extraMaterialCost,
+    otherCost: Number(input.otherCost ?? 0) + extraTimeCost,
+  });
+
+  const asListedProfit = roundMoney(asListedOrder.profit);
+  const personalizedProfit = roundMoney(personalizedOrder.profit);
+  const asListedFees = roundMoney(orderFeeTotal(asListedOrder));
+  const personalizedFees = roundMoney(orderFeeTotal(personalizedOrder));
+  const extraKept = roundMoney(personalizedProfit - asListedProfit);
+  const extraFees = roundMoney(personalizedFees - asListedFees);
+  const extraCashCosts = roundMoney(extraMaterialCost + extraTimeCost);
+
+  const transactionRate = nonNegativeNumber(input.transactionRate, 'Transaction rate', 6.5);
+  const paymentRate = nonNegativeNumber(input.paymentRate, 'Payment rate', 3);
+  const offsiteAdRate = nonNegativeNumber(input.offsiteAdRate, 'Offsite ad rate', 0);
+  const percentRate = (transactionRate + paymentRate + offsiteAdRate) / 100;
+  const keepRate = 1 - percentRate;
+  const breakEvenUpcharge = keepRate <= 1e-12
+    ? Infinity
+    : roundMoney(extraCashCosts / keepRate);
+
+  const asListed = {
+    id: 'as_listed',
+    label: 'Sell as listed',
+    price: roundMoney(Number(input.price)),
+    revenue: roundMoney(asListedOrder.revenue),
+    fees: asListedFees,
+    extraCash: 0,
+    profit: asListedProfit,
+  };
+  const personalized = {
+    id: 'personalized',
+    label: 'Take the personalization',
+    price: roundMoney(Number(input.price) + personalizationUpcharge),
+    revenue: roundMoney(personalizedOrder.revenue),
+    fees: personalizedFees,
+    extraCash: extraCashCosts,
+    profit: personalizedProfit,
+  };
+
+  return {
+    personalizationUpcharge: roundMoney(personalizationUpcharge),
+    extraMaterialCost: roundMoney(extraMaterialCost),
+    extraTimeCost: roundMoney(extraTimeCost),
+    monthlyCustomOrders,
+    asListed,
+    personalized,
+    extraKept,
+    extraFees,
+    extraCashCosts,
+    extraRevenue: roundMoney(personalizationUpcharge),
+    monthlyExtraKept: roundMoney(extraKept * monthlyCustomOrders),
+    breakEvenUpcharge,
+    upgradePays: extraKept > 1e-9,
+    upgradeBreaksEven: Math.abs(extraKept) <= 1e-9,
+    incrementalPays: personalizedProfit > 1e-9,
+    incrementalProfit: personalizedProfit,
+    winner: winnerFromExtra(extraKept),
+  };
+}
+
+export function personalizationNote(comparison) {
+  if (!comparison?.asListed || !comparison?.personalized) {
+    throw new Error('Personalization comparison is missing rows');
+  }
+  const money = (value) => {
+    const sign = value < 0 ? '−' : '';
+    return `${sign}$${Math.abs(value).toFixed(2)}`;
+  };
+  const extras = [];
+  if (comparison.extraMaterialCost > 0) extras.push(`${money(comparison.extraMaterialCost)} extra materials`);
+  if (comparison.extraTimeCost > 0) extras.push(`${money(comparison.extraTimeCost)} extra time`);
+  extras.push(`${money(comparison.extraFees)} extra fees`);
+  const extraPhrase = extras.join(', ');
+  const gap = money(Math.abs(comparison.extraKept));
+  const ahead = comparison.extraKept >= 0 ? 'more' : 'less';
+  const upgradeLine = `A ${money(comparison.personalizationUpcharge)} personalization, after ${extraPhrase}, leaves ${money(comparison.personalized.profit)} — ${gap} ${ahead} than selling the listing as written at ${money(comparison.asListed.profit)}.`;
+  const ceiling = Number.isFinite(comparison.breakEvenUpcharge)
+    ? ` The upcharge has to reach about ${money(comparison.breakEvenUpcharge)} before the upgrade beats the standard sale.`
+    : ' No finite upcharge can cover these extras at these fee rates.';
+  const incrementalLine = comparison.incrementalPays
+    ? ` If this request is extra demand you would not have sold otherwise, the personalized order still leaves ${money(comparison.personalized.profit)} versus $0.00.`
+    : ` If this request is extra demand you would not have sold otherwise, the personalized order still loses ${money(comparison.personalized.profit)}.`;
+  return `${upgradeLine}${ceiling}${incrementalLine}`;
+}

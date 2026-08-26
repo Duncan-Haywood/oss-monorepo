@@ -26,6 +26,10 @@ export const FIELD_IDS = [
   'adsCredit',
   'monthlyAdSpend',
   'otherPlusValue',
+  'personalizationUpcharge',
+  'extraMaterialCost',
+  'extraTimeCost',
+  'monthlyCustomOrders',
 ];
 
 // A field value is only carried if it is a finite, non-negative number — the

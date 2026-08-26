@@ -77,6 +77,26 @@ your Plus invoice. The SEO page
 [is-etsy-plus-worth-it.html](is-etsy-plus-worth-it.html) walks through the
 same worked examples.
 
+## Does this personalization still pay?
+
+Sellers add a name, color, or size and guess at an $8 add-on. Transaction
+and payment fees sit on the higher ticket, and extra time plus materials
+often eat the rest. The calculator compares selling the listing as written
+with taking the custom request, shows the break-even upcharge, and
+separates two frames: this buyer would have bought the standard item
+anyway, versus this request is extra demand.
+
+On the default $30 listing, an $8.00 personalization with $1.50 extra
+materials and $6.00 extra time (twenty minutes at $18/hour) leaves $20.97
+— $0.26 less than the $21.23 standard sale. The upcharge has to reach
+about $8.29 before the upgrade wins. Drop the time cost to $0.00 and the
+same $8.00 keeps $5.74 more. Charge $12.00 and the upgrade keeps $3.36
+more ($40.32 across 12 custom orders). If the request is extra demand you
+would not have sold otherwise, the personalized order still leaves $20.97
+versus $0.00. The SEO page
+[should-i-charge-for-etsy-personalization.html](should-i-charge-for-etsy-personalization.html)
+walks through the same examples.
+
 [GitHub Sponsors](https://github.com/sponsors/Duncan-Haywood) is entirely
 optional and never changes what the calculator does.
 
