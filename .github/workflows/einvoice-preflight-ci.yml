@@ -1,0 +1,60 @@
+name: einvoice-preflight CI
+
+on:
+  pull_request:
+    paths:
+      - "ventures/einvoice-preflight/**"
+      - ".github/workflows/einvoice-preflight-ci.yml"
+  push:
+    branches: [main]
+    paths:
+      - "ventures/einvoice-preflight/**"
+      - ".github/workflows/einvoice-preflight-ci.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: einvoice-preflight-ci-${{ github.ref }}
+  cancel-in-progress: true
+
+defaults:
+  run:
+    working-directory: ventures/einvoice-preflight
+
+jobs:
+  cli-test:
+    runs-on: ubuntu-latest
+    env:
+      PYTHONPATH: src
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: python3 -m unittest discover -s tests -v
+
+  examples:
+    # The shipped examples are the tool's documentation. If a clean one starts
+    # failing preflight, or the defective one stops being caught, the README
+    # is lying to whoever tries the first command in it.
+    runs-on: ubuntu-latest
+    env:
+      PYTHONPATH: src
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Clean examples pass
+        run: |
+          for example in examples/ubl-invoice.xml examples/cii-invoice.xml examples/valid-invoice.json; do
+            python3 -m einvoice_preflight "$example"
+          done
+      - name: The defective example is caught
+        run: |
+          if python3 -m einvoice_preflight examples/ubl-invoice-with-defects.xml; then
+            echo "::error::examples/ubl-invoice-with-defects.xml passed preflight but must fail it"
+            exit 1
+          fi
