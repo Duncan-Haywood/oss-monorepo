@@ -1536,3 +1536,37 @@ test('every number input on the built site carries an inputmode', async () => {
   assert.ok(inputs > 1000, `only ${inputs} number input(s) found`);
   assert.deepEqual(missing, [], `number inputs with no keypad:\n${missing.slice(0, 10).join('\n')}`);
 });
+
+// ---------------------------------------------------------------------------
+// Machine-readable catalog
+// ---------------------------------------------------------------------------
+
+test('catalog.json describes every published tool', async () => {
+  const { surfaces } = await site();
+  const catalog = JSON.parse(await read('catalog.json'));
+  assert.equal(catalog.tools.length, surfaces.length);
+  for (const tool of catalog.tools) {
+    assert.ok(tool.slug && tool.name && tool.description, `incomplete entry: ${tool.slug}`);
+    assert.ok(tool.url.startsWith(BASE), `${tool.slug} url is not on the site origin`);
+    assert.ok(tool.category, `${tool.slug} has no category`);
+  }
+});
+
+test('catalog.json states the product is free and browser-only', async () => {
+  const catalog = JSON.parse(await read('catalog.json'));
+  assert.equal(catalog.price.amount, '0');
+  assert.equal(catalog.privacy, 'client-side-only');
+  assert.equal(catalog.url, BASE);
+});
+
+test('catalog.json does not pre-answer the open funding decision', async () => {
+  // Whether the repo carries a sponsorship surface is queued for the owner
+  // (funding-sponsors-live); a machine-readable file must not decide it.
+  const catalog = JSON.parse(await read('catalog.json'));
+  assert.ok(!('sponsor' in catalog), 'catalog.json must not carry a funding field');
+});
+
+test('the hub links to the machine-readable catalog', async () => {
+  const hub = await read('index.html');
+  assert.ok(hub.includes('catalog.json'), 'catalog.json should be discoverable from the hub');
+});
