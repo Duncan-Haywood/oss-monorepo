@@ -1,28 +1,30 @@
-const PREFIX = 'cut-list-optimizer-draft-';
+export const DRAFT_KEY = 'cut-list-optimizer-draft-v1';
 
-export const DRAFT_KEYS = ['sheet', 'linear'];
-
-export function saveDraft(storage, mode, values) {
-  if (!storage || !DRAFT_KEYS.includes(mode)) return false;
+export function loadDraft(storage) {
   try {
-    storage.setItem(`${PREFIX}${mode}`, JSON.stringify(values));
+    const raw = storage?.getItem(DRAFT_KEY);
+    if (!raw) return null;
+    const draft = JSON.parse(raw);
+    return draft && typeof draft === 'object' ? draft : null;
+  } catch {
+    return null;
+  }
+}
+
+export function saveDraft(storage, draft) {
+  try {
+    storage?.setItem(DRAFT_KEY, JSON.stringify(draft));
     return true;
   } catch {
     return false;
   }
 }
 
-export function loadDraft(storage, mode) {
-  if (!storage || !DRAFT_KEYS.includes(mode)) return null;
+export function clearDraft(storage) {
   try {
-    const value = JSON.parse(storage.getItem(`${PREFIX}${mode}`) || 'null');
-    return value && typeof value === 'object' && !Array.isArray(value) ? value : null;
+    storage?.removeItem(DRAFT_KEY);
+    return true;
   } catch {
-    return null;
+    return false;
   }
-}
-
-export function clearDraft(storage, mode) {
-  if (!storage || !DRAFT_KEYS.includes(mode)) return;
-  try { storage.removeItem(`${PREFIX}${mode}`); } catch { /* storage can be unavailable */ }
 }
