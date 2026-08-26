@@ -168,6 +168,14 @@ test("calculator page persists a local draft and can reset it", async () => {
   assert.match(page, /Reset to example/);
 });
 
+test("calculator page can download a local JSON report", async () => {
+  const page = await readFile(new URL("./index.html", import.meta.url), "utf8");
+  assert.match(page, /id="download-report"/);
+  assert.match(page, /from "\.\/report\.mjs"/);
+  assert.match(page, /report_downloaded/);
+  assert.match(page, /quote-margin-report\.json/);
+});
+
 test("calculator page can save local review history", async () => {
   const page = await readFile(new URL("./index.html", import.meta.url), "utf8");
   assert.match(page, /id="save-history"/);
