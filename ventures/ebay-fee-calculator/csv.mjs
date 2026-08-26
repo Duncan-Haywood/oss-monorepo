@@ -8,9 +8,10 @@ const escapeCell = (value) => {
 
 export function repricingCsv(rows) {
   if (!Array.isArray(rows)) throw new Error("Repricing rows are required");
-  const header = ["Item price", "Price change", "Net profit", "Net margin", "Profit per unit", "Profit change"];
+  const header = ["Item price", "Units", "Price change", "Net profit", "Net margin", "Profit per unit", "Profit change"];
   const body = rows.map((row) => [
     Number(row.price).toFixed(2),
+    String(Number.isInteger(row.quantity) && row.quantity > 0 ? row.quantity : 1),
     `${row.offset > 0 ? "+" : ""}${row.offset}%`,
     Number(row.profit).toFixed(2),
     `${Number(row.margin).toFixed(1)}%`,
