@@ -72,8 +72,7 @@ products:
           release_schedule_views: 0
           share_link_copies: 0
         note: Added modeled retainage-reduction schedule and a shareable worksheet hash link; public URL remains owner-gated.
-
-   - slug: 3pl-quote-normalizer
+  - slug: 3pl-quote-normalizer
     surface: static-page-in-repo
     readings:
       - as_of: 2026-08-24
@@ -2047,6 +2046,17 @@ products:
           event accessorials_compared is opt-out and stores no inputs.
 
   - slug: repository-branch-hygiene
+    surface: repository-cli
+    readings:
+      - as_of: 2026-08-26
+        signals:
+          live_url_visitors: null
+          local_inventory_runs: 0
+        note: >-
+          Baseline row completing a slug-only stub that had carried no surface
+          and no readings. The venture is a read-only branch inventory CLI at
+          prototype stage with no public URL; nothing has been measured yet, so
+          this records an honest zero rather than implying a reading was taken.
   - slug: dns-configuration-evidence
     surface: local-cli
     readings:
