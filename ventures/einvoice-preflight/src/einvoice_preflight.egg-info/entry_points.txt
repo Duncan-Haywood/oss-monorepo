@@ -1,0 +1,2 @@
+[console_scripts]
+einvoice-preflight = einvoice_preflight.cli:main
