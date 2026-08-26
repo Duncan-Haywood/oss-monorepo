@@ -120,6 +120,12 @@ listing two ways: take the buyer’s number now, or wait for list
 profit times your guessed chance it still sells. A $34 offer on
 a $40 listing keeps $5.60 more than waiting at 50%.
 [Should I accept this eBay offer?](should-i-accept-this-ebay-offer.html).
+A **Domestic vs worldwide at this list** table then prices the
+same SKU three ways: keep the listing domestic, turn worldwide
+on while the buyer pays extra postage, or absorb a typed extra
+label. A 1.65% international fee on a $40 sale costs $0.76;
+eating a $12 label drops leftover to $8.85.
+[Should I offer international shipping on eBay?](should-i-offer-international-shipping-on-ebay.html).
 
 **After using the authenticity page, you can now see whether a 3% fee
 and an $8 hub label still beat skip-AG on that SKU** — which used to
@@ -200,6 +206,12 @@ never pricing the month.
 offer still beats waiting for a $40 list after a 50% chance it
 still sells** — which used to mean declining because “it’s under
 list” and never pricing the wait.
+
+**After using the international page, you can now see whether
+worldwide at a $40 list still leaves a profit after a 1.65%
+fee and a $12 extra label** — which used to mean turning
+worldwide on because “more buyers” and never pricing the fee
+or the postage you absorb.
 
 Open `index.html` in a browser. The calculation is local and works without an
 account, network request, or API key. It is arithmetic, not an estimate of the
@@ -305,6 +317,12 @@ drive that decision:
   the final-value rate you type versus example Starter, Basic,
   and Premium mixes after the subscription. The table also names
   the order count that still ties staying off a store.
+- **Domestic vs worldwide at this list** — completed leftover
+  and expected leftover after returns with the listing kept
+  domestic versus worldwide while the buyer pays extra postage
+  versus worldwide if you absorb a typed extra label. The table
+  also names the list prices that still hold the domestic
+  leftover.
 
 **No warranty.** This tool is provided free and as-is, without warranty of any
 kind, express or implied. It is not tax, financial, or business advice, and it
@@ -342,7 +360,8 @@ The counted events are `order_profit_calculated`, `target_margin_calculated`,
 `managed_returns_compared`,
 `global_shipping_compared`,
 `store_compared`,
-`best_offer_compared`, and
+`best_offer_compared`,
+`international_compared`, and
 `price_sensitivity_viewed`.
 `price_sensitivity_viewed`, `listing_format_compared`,
 `partial_refund_compared`, `authenticity_compared`,
@@ -357,8 +376,9 @@ The counted events are `order_profit_calculated`, `target_margin_calculated`,
 `top_rated_plus_compared`,
 `managed_returns_compared`, and
 `global_shipping_compared`,
-`store_compared`, and
-`best_offer_compared` are counted at most
+`store_compared`,
+`best_offer_compared`, and
+`international_compared` are counted at most
 once per visit and only after an input is edited — counting the table's
 first paint would just re-count page loads and say nothing about whether
 the view is used.
