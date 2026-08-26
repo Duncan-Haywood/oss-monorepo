@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://example.invalid/walk-in-shower-bid-calculator/sitemap.xml
