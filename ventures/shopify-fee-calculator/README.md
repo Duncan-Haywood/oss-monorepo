@@ -77,6 +77,10 @@ the cheaper ticket.
 answers the subscribe-and-save question: whether a monthly leftover
 after the discount, billing fee, and skip rate still beats a one-time
 checkout, and when a prepaid pack keeps more.
+[Should I offer pickup on Shopify?](should-i-offer-pickup-on-shopify.html)
+answers the hold question: whether free or paid in-store pickup still
+beats a carrier label after staff time, a lighter bag, and a no-show
+refund mix.
 
 **After using the POS page, you can now see whether a market table or
 retail tap keeps more than checkout on that SKU** — which used to mean
@@ -138,6 +142,11 @@ subscribe-and-save still beats a one-time checkout after the billing
 fee and skip rate** — which used to mean turning on Recharge because
 a subscriber who stays looked free.
 
+**After using the pickup page, you can now see whether an 8-minute
+in-store hold still beats a $5 label after staff time and a 12%
+no-show refund** — which used to mean turning on Local Pickup because
+the postage looked like the only cost.
+
 **No warranty.** This tool is provided free and as-is, without warranty of any
 kind, express or implied. It is not tax, financial, or business advice, and it
 does not replace a qualified professional. **You are responsible for reviewing
@@ -171,7 +180,7 @@ optional and never changes what the tool does.
 Pure ES modules, no build step, no dependencies.
 
 ```
-node --test        # calc, usage, POS / label / installment / return / Capital / bank-transfer / chargeback / local-delivery / gift-card / Markets-duties / abandoned-checkout / subscription page tests
+node --test        # calc, usage, POS / label / installment / return / Capital / bank-transfer / chargeback / local-delivery / gift-card / Markets-duties / abandoned-checkout / subscription / pickup page tests
 ```
 
 `calc.mjs` holds the fee/profit/ROI arithmetic and plan presets; `usage.mjs`
