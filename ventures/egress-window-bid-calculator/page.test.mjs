@@ -7,10 +7,19 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
+import {
+  compareAccess,
+  accessNote,
+  suggestedScopeKit,
+  suggestedWindowKit,
+  suggestedWellKit,
+  suggestedExtraKit,
+} from './calc.mjs';
 
 const html = readFileSync(new URL('./index.html', import.meta.url), 'utf8');
 const seo = readFileSync(new URL('./how-much-to-charge-to-install-an-egress-window.html', import.meta.url), 'utf8');
 const supplySeo = readFileSync(new URL('./should-i-install-a-customer-supplied-egress-window.html', import.meta.url), 'utf8');
+const accessSeo = readFileSync(new URL('./should-i-cut-an-egress-window-on-saturday.html', import.meta.url), 'utf8');
 
 const RAW_TEXT_ELEMENTS = ['textarea', 'script', 'style'];
 
@@ -53,6 +62,8 @@ test('the module script survives parsing and would actually execute', () => {
   assert.match(scriptSource, /compareWindow/, 'window comparison is missing from the executable script');
   assert.match(scriptSource, /compareOwnerSupply/, 'owner-supply comparison is missing from the executable script');
   assert.match(scriptSource, /ownerSupplyNote/, 'owner-supply verdict is missing from the executable script');
+  assert.match(scriptSource, /compareAccess/, 'access comparison is missing from the executable script');
+  assert.match(scriptSource, /accessNote/, 'access note is missing from the executable script');
   assert.match(scriptSource, /formatBidSummary/, 'copy-summary helper is missing from the executable script');
 });
 
@@ -70,7 +81,7 @@ test('inputs and result fields for the primary journey are present', () => {
   for (const id of [
     'scope', 'window', 'well', 'windowCount', 'travelMiles',
     'hourlyWage', 'targetMargin', 'proposedPrice',
-    'price', 'breakEven', 'compare', 'windows', 'supply', 'supplyNote', 'copySummary', 'usageOptOut', 'jobPresets',
+    'price', 'breakEven', 'compare', 'windows', 'supply', 'supplyNote', 'access', 'accessNote', 'copySummary', 'usageOptOut', 'jobPresets',
   ]) {
     assert.ok(declaredIds.has(id), `missing #${id}`);
   }
@@ -85,6 +96,8 @@ test('the landing page names the problem in the contractor\'s words', () => {
   assert.match(html, /vs hopper/);
   assert.match(html, /Same opening, who bought the sash/);
   assert.match(html, /should-i-install-a-customer-supplied-egress-window\.html/);
+  assert.match(html, /Same opening, when you can work/);
+  assert.match(html, /should-i-cut-an-egress-window-on-saturday\.html/);
 });
 
 test('disclaimer and privacy line are visible, not only in the README', () => {
@@ -103,6 +116,7 @@ test('the SEO article answers the search phrase and points back to the calculato
   assert.match(seo, /No warranty/);
   assert.match(seo, /window replacement/i);
   assert.match(seo, /Customer-supplied sash is not a free set/i);
+  assert.match(seo, /Saturday is not the weekday bid/i);
 });
 
 test('the owner-supply article answers the search phrase and stays crawlable', () => {
@@ -117,4 +131,51 @@ test('the owner-supply article answers the search phrase and stays crawlable', (
   assert.match(supplySeo, /No warranty/);
   assert.match(supplySeo, /no SLA/i);
   assert.doesNotMatch(supplySeo, /<textarea/i);
+});
+
+test('the Saturday article quotes the masonry legal bedroom and poured-cut arithmetic', () => {
+  const kit = {
+    ...suggestedScopeKit('new-cut-masonry'),
+    ...suggestedWindowKit('vinyl-slider'),
+    ...suggestedWellKit('steel'),
+    ...suggestedExtraKit(),
+  };
+  const rows = compareAccess({
+    windowCount: 1,
+    scope: 'new-cut-masonry',
+    window: 'vinyl-slider',
+    well: 'steel',
+    travelMiles: 14,
+    includeCover: true,
+    includeLadder: true,
+    includeDrain: true,
+    includeHaul: false,
+    includeInteriorFinish: false,
+    hourlyWage: 42,
+    burdenRate: 30,
+    overheadRate: 15,
+    targetMargin: 20,
+    travelAndEquipment: 95,
+    otherCost: 0,
+    ...kit,
+  }, { installOnlyPrice: 3500 });
+  const afterHours = rows.find((row) => row.access === 'after-hours');
+  assert.equal(afterHours.installOnly.belowBreakEven, true);
+  assert.match(accessNote(rows), /\$492\.54/);
+  assert.match(accessSeo, /Should I cut an egress window on Saturday/i);
+  assert.match(accessSeo, /FAQPage/);
+  assert.match(accessSeo, /\$3,500/);
+  assert.match(accessSeo, /\$492\.54/);
+  assert.match(accessSeo, /\$3,992\.54/);
+  assert.match(accessSeo, /\$3,976\.62/);
+  assert.match(accessSeo, /\$4,990\.68/);
+  assert.match(accessSeo, /\$7,494\.94/);
+  assert.match(accessSeo, /\$9,045\.85/);
+  assert.match(accessSeo, /\$7,236\.68/);
+  assert.match(accessSeo, /\$1,800/);
+  assert.match(accessSeo, /time-and-a-half/i);
+  assert.match(accessSeo, /index\.html/);
+  assert.match(accessSeo, /No warranty/);
+  assert.match(accessSeo, /no SLA/i);
+  assert.doesNotMatch(accessSeo, /<textarea/i);
 });

@@ -6,6 +6,8 @@ import {
   compareWindow,
   compareOwnerSupply,
   ownerSupplyNote,
+  compareAccess,
+  accessNote,
   formatBidSummary,
   travelHours,
   suggestedScopeKit,
@@ -13,6 +15,8 @@ import {
   suggestedWellKit,
   suggestedExtraKit,
   suggestedOwnerCallbackKit,
+  suggestedAccessKit,
+  ACCESS_PRESETS,
   JOB_PRESETS,
 } from './calc.mjs';
 
@@ -362,4 +366,89 @@ test('the owner-callback kit is a second trip plus a legal slider', () => {
   assert.equal(kit.hoursCallbackTrip, extra.hoursTrip);
   assert.equal(kit.hoursWrongSizeEach, slider.hoursWindowEach);
   assert.equal(kit.replacementSashEach, slider.windowInvoice);
+});
+
+test('compareAccess keeps weekday hours and raises after-hours wage plus a second trip', () => {
+  const kit = suggestedAccessKit();
+  const rows = compareAccess(typicalLegalBedroom());
+  const weekday = rows.find((row) => row.access === 'weekday-scheduled');
+  const occupied = rows.find((row) => row.access === 'occupied-weekday');
+  const afterHours = rows.find((row) => row.access === 'after-hours');
+  assert.equal(rows.length, 3);
+  assert.equal(ACCESS_PRESETS[1].id, 'occupied-weekday');
+  assert.equal(ACCESS_PRESETS[2].id, 'after-hours');
+  assert.equal(kit.occupiedPaceMultiplier, 1.25);
+  assert.equal(kit.afterHoursWageMultiplier, 1.5);
+  assert.equal(kit.afterHoursExtraTripHours, suggestedExtraKit().hoursTrip);
+  assert.ok(Math.abs(occupied.hoursWindow - weekday.hoursWindow * 1.25) < 1e-9);
+  assert.ok(Math.abs(occupied.hoursCut - weekday.hoursCut * 1.25) < 1e-9);
+  assert.ok(Math.abs(occupied.siteHours - weekday.siteHours * 1.25) < 1e-9);
+  assert.ok(Math.abs(occupied.loadedWage - weekday.loadedWage) < 1e-9);
+  assert.ok(occupied.totalHours > weekday.totalHours);
+  assert.ok(occupied.price > weekday.price);
+  assert.ok(Math.abs(afterHours.loadedWage - weekday.loadedWage * 1.5) < 1e-9);
+  assert.ok(Math.abs(afterHours.hoursTravel - weekday.hoursTravel - kit.afterHoursExtraTripHours) < 1e-9);
+  assert.ok(Math.abs(afterHours.hoursWindow - weekday.hoursWindow) < 1e-9);
+  assert.ok(afterHours.price > occupied.price);
+  assert.ok(Math.abs(weekday.price - 3976.62) < 1e-2);
+  assert.ok(Math.abs(occupied.price - 4163.03) < 1e-2);
+  assert.ok(Math.abs(afterHours.price - 4990.68) < 1e-2);
+});
+
+test('compareAccess does not leak a typed trip into the extra overnight plate', () => {
+  const baseline = compareAccess(typicalLegalBedroom());
+  const overridden = compareAccess({ ...typicalLegalBedroom(), hoursTrip: 9 });
+  const weekday = overridden.find((row) => row.access === 'weekday-scheduled');
+  const afterHours = overridden.find((row) => row.access === 'after-hours');
+  const baselineAfter = baseline.find((row) => row.access === 'after-hours');
+  const baselineWeekday = baseline.find((row) => row.access === 'weekday-scheduled');
+  assert.ok(Math.abs((afterHours.hoursTravel - weekday.hoursTravel) - (baselineAfter.hoursTravel - baselineWeekday.hoursTravel)) < 1e-9);
+});
+
+test('a $3,500 Saturday special covers a weekday legal bedroom and loses after-hours', () => {
+  const rows = compareAccess(typicalLegalBedroom(), { installOnlyPrice: 3500 });
+  const weekday = rows.find((row) => row.access === 'weekday-scheduled');
+  const occupied = rows.find((row) => row.access === 'occupied-weekday');
+  const afterHours = rows.find((row) => row.access === 'after-hours');
+  assert.equal(weekday.installOnly.belowBreakEven, false);
+  assert.equal(occupied.installOnly.belowBreakEven, false);
+  assert.equal(afterHours.installOnly.belowBreakEven, true);
+  assert.ok(Math.abs(afterHours.breakEvenPrice - 3992.54) < 1e-2);
+  assert.match(accessNote(rows), /empty-weekday set covers/i);
+  assert.match(accessNote(rows), /\$492\.54/);
+  assert.match(accessNote(rows), /\$3,992\.54/);
+});
+
+test('the $1,800 Saturday special on a poured stone well loses even on a weekday', () => {
+  const rows = compareAccess(losingJob(), { installOnlyPrice: 1800 });
+  const weekday = rows.find((row) => row.access === 'weekday-scheduled');
+  const occupied = rows.find((row) => row.access === 'occupied-weekday');
+  const afterHours = rows.find((row) => row.access === 'after-hours');
+  assert.equal(weekday.installOnly.belowBreakEven, true);
+  assert.equal(occupied.installOnly.belowBreakEven, true);
+  assert.equal(afterHours.installOnly.belowBreakEven, true);
+  assert.ok(Math.abs(weekday.price - 7494.94) < 1e-2);
+  assert.ok(Math.abs(afterHours.price - 9045.85) < 1e-2);
+  assert.ok(Math.abs(afterHours.breakEvenPrice - 7236.68) < 1e-2);
+  assert.match(accessNote(rows), /lose money even on an empty weekday/i);
+  assert.match(accessNote(rows), /\$1,800/);
+  assert.match(accessNote(rows), /\$7,236\.68/);
+});
+
+test('accessNote names the bid lift when no Saturday number is on the table', () => {
+  const note = accessNote(compareAccess(typicalLegalBedroom()));
+  assert.match(note, /They-stay-in-the-basement adds \$186\.41/);
+  assert.match(note, /After-hours \/ Saturday adds \$1,014\.06/);
+});
+
+test('accessNote rejects a missing comparison', () => {
+  assert.throws(() => accessNote(null), /missing rows/);
+  assert.throws(() => accessNote([{ access: 'weekday-scheduled' }]), /missing rows/);
+});
+
+test('the access kit is time-and-a-half plus the extra-kit trip', () => {
+  const kit = suggestedAccessKit();
+  assert.equal(kit.occupiedPaceMultiplier, 1.25);
+  assert.equal(kit.afterHoursWageMultiplier, 1.5);
+  assert.equal(kit.afterHoursExtraTripHours, suggestedExtraKit().hoursTrip);
 });

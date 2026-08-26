@@ -4,8 +4,9 @@ A free browser calculator for foundation and basement contractors. It
 prices an egress-window install the way the trade actually loses
 money — retrofit on an existing hole versus a wood, masonry, or
 poured-wall new cut, hopper versus slider versus casement versus
-fiberglass, then well, drain, cover, ladder, and dirt haul — and
-shows the margin before the price goes out.
+fiberglass, then well, drain, cover, ladder, dirt haul, and whether
+Saturday / after-hours still covers — and shows the margin before the
+price goes out.
 
 **After using this, you can now** send a walk-away egress-window
 price that sees the opening and the cut, **which used to take**
@@ -70,17 +71,21 @@ split, a four-scope comparison on the same opening, a four-sash
 comparison on the same opening (the casement upgrade versus the
 hopper special), a **who-supplies comparison** (you buy the sash
 and well versus they already bought a kit that fits versus a kit
-that will not pass), and the **walk-away price**. Entering a price
+that will not pass), a **when-you-can-work comparison** (weekday
+they leave versus they stay in the basement versus Saturday /
+after-hours), and the **walk-away price**. Entering a price
 already on the table scores it against the same cost base — that
-is the $1,800 “just cut and set what I bought” number. **Copy
-bid summary** turns the result into a plain-text draft ready to
-paste into a proposal.
+is the $1,800 “just cut and set what I bought” number and the
+Saturday number on each access window. **Copy bid summary**
+turns the result into a plain-text draft ready to paste into a
+proposal.
 
 The arithmetic lives in [`calc.mjs`](calc.mjs). See
 [`calc.test.mjs`](calc.test.mjs).
 
-Search phrases: [`how-much-to-charge-to-install-an-egress-window.html`](how-much-to-charge-to-install-an-egress-window.html)
-and [`should-i-install-a-customer-supplied-egress-window.html`](should-i-install-a-customer-supplied-egress-window.html).
+Search phrases: [`how-much-to-charge-to-install-an-egress-window.html`](how-much-to-charge-to-install-an-egress-window.html),
+[`should-i-install-a-customer-supplied-egress-window.html`](should-i-install-a-customer-supplied-egress-window.html),
+and [`should-i-cut-an-egress-window-on-saturday.html`](should-i-cut-an-egress-window-on-saturday.html).
 
 ## Privacy
 
@@ -101,7 +106,7 @@ when the browser sends Do Not Track or Global Privacy Control. See
 
 Events counted: `bid_calculated`, `preset_applied`, `scope_changed`,
 `window_changed`, `well_changed`, `proposed_price_compared`,
-`owner_supply_compared`, `summary_copied`.
+`owner_supply_compared`, `access_compared`, `summary_copied`.
 
 ## Limitations
 

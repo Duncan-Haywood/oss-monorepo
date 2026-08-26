@@ -4,10 +4,10 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Egress Window Bid Calculator | How Much to Charge to Install an Egress Window</title>
-  <meta name="description" content="Price an egress window from window count, hopper versus slider versus casement versus fiberglass, retrofit versus wood-cut versus masonry-cut versus poured-cut, plastic versus steel versus stone well, and extras — plus the walk-away price a $1,800 installed special cannot see.">
+  <meta name="description" content="Price an egress window from window count, hopper versus slider versus casement versus fiberglass, retrofit versus wood-cut versus masonry-cut versus poured-cut, plastic versus steel versus stone well, extras, and weekday versus Saturday — plus the walk-away price a $1,800 installed special cannot see.">
   <meta property="og:title" content="Egress Window Bid Calculator">
-  <meta property="og:description" content="Bid an egress window the way the trade does — opening, cut, and extras, not a published installed dump — and see the margin before you send the price.">
-  <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Egress Window Bid Calculator","applicationCategory":"BusinessApplication","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"featureList":"Window count, hopper vs slider vs casement vs fiberglass comparison, retrofit vs wood-cut vs masonry-cut vs poured-cut comparison, plastic vs steel vs stone well, contractor-supplied vs customer-supplied sash and well comparison, $1,800 install-only walk-away, cover drain ladder haul interior-finish extras, proposed-price margin check, copyable bid summary"}</script>
+  <meta property="og:description" content="Bid an egress window the way the trade does — opening, cut, extras, and whether Saturday still pays — not a published installed dump — and see the margin before you send the price.">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Egress Window Bid Calculator","applicationCategory":"BusinessApplication","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"featureList":"Window count, hopper vs slider vs casement vs fiberglass comparison, retrofit vs wood-cut vs masonry-cut vs poured-cut comparison, plastic vs steel vs stone well, contractor-supplied vs customer-supplied sash and well comparison, $1,800 install-only walk-away, weekday vs they-stay-in-the-basement vs Saturday/after-hours comparison, cover drain ladder haul interior-finish extras, proposed-price margin check, copyable bid summary"}</script>
   <style>
     :root { color-scheme: light; font-family: system-ui, sans-serif; color: #1f2a32; background: #e8eef2; }
     body { max-width: 1060px; margin: 0 auto; padding: 32px 18px; }
@@ -177,6 +177,14 @@
       </table>
       <p id="supplyNote" class="note"></p>
       <hr>
+      <p class="note" style="margin-bottom:4px"><strong>Same opening, when you can work</strong></p>
+      <p class="note" style="margin-top:0">The “can you start Saturday? We need the legal bedroom before the listing” special. A weekday they leave is the bid you already have. They-stay-in-the-basement is the same wage on a slower cut. After-hours is time-and-a-half plus a second trip because you cannot leave an open foundation hole overnight. <a href="should-i-cut-an-egress-window-on-saturday.html" style="color:#cde6ea">Should I cut an egress window on Saturday?</a></p>
+      <table>
+        <thead><tr><th>When</th><th>Hours</th><th>Your bid</th><th>At their number</th></tr></thead>
+        <tbody id="access"></tbody>
+      </table>
+      <p id="accessNote" class="note"></p>
+      <hr>
       <p class="note" style="margin-bottom:4px"><strong>Where the hours go</strong></p>
       <ul class="split" id="split"></ul>
       <hr>
@@ -189,7 +197,7 @@
     <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not building-code, egress-size, foundation-design, waterproofing, legal, tax, or financial advice, and it does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for meeting any obligation it helps you prepare for. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
     <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record. If a tool needs to survive, export your inputs and run it yourself.</p>
     <p><strong>Nothing leaves your browser.</strong> Every number stays on this device. Usage counts are anonymous tallies of which features were used, stored locally, and never include your opening, wages, costs, or prices.</p>
-    <p>Looking up <a href="how-much-to-charge-to-install-an-egress-window.html">how much to charge to install an egress window</a>? The article walks the opening-versus-cut math this calculator uses. Customer bought the sash? See <a href="should-i-install-a-customer-supplied-egress-window.html">should I install a customer-supplied egress window</a>.</p>
+    <p>Looking up <a href="how-much-to-charge-to-install-an-egress-window.html">how much to charge to install an egress window</a>? The article walks the opening-versus-cut math this calculator uses. Customer bought the sash? See <a href="should-i-install-a-customer-supplied-egress-window.html">should I install a customer-supplied egress window</a>. They want Saturday? See <a href="should-i-cut-an-egress-window-on-saturday.html">should I cut an egress window on Saturday</a>.</p>
     <p class="support">Free and open source. If it wins you a job, the <a href="https://github.com/Duncan-Haywood/monorepo-projects" rel="noopener">project is on GitHub</a> &mdash; support is entirely optional and never changes what the tool does.</p>
   </footer>
 
@@ -200,6 +208,8 @@
       compareWindow,
       compareOwnerSupply,
       ownerSupplyNote,
+      compareAccess,
+      accessNote,
       formatBidSummary,
       suggestedScopeKit,
       suggestedWindowKit,
@@ -241,6 +251,7 @@
     const money = value => `$${value.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
     const el = id => document.getElementById(id);
     let supplyCounted = false;
+    let accessCounted = false;
 
     function fillSelect(id, presets) {
       el(id).innerHTML = presets.map(item => `<option value="${item.id}">${item.label}</option>`).join('');
@@ -299,6 +310,8 @@
       el('windows').innerHTML = '';
       el('supply').innerHTML = '';
       el('supplyNote').textContent = '';
+      el('access').innerHTML = '';
+      el('accessNote').textContent = '';
       el('verdict').hidden = true;
     }
 
@@ -388,6 +401,26 @@
         supplyCounted = true;
       }
 
+      const access = compareAccess(readInput());
+      el('access').innerHTML = access.map(row => {
+        const atTheirs = row.installOnly === null
+          ? 'enter their number'
+          : row.installOnly.belowBreakEven
+            ? `loses ${money(Math.abs(row.installOnly.profit))}`
+            : `keeps ${money(row.installOnly.profit)}`;
+        return `<tr class="${row.cheapest ? 'cheap' : ''}">
+        <td>${row.label}${row.cheapest ? ' · lowest bid' : ''}</td>
+        <td>${row.totalHours.toFixed(1)} h</td>
+        <td>${money(row.price)}</td>
+        <td>${atTheirs}</td>
+      </tr>`;
+      }).join('');
+      el('accessNote').textContent = accessNote(access);
+      if (!accessCounted) {
+        count('access_compared');
+        accessCounted = true;
+      }
+
       const verdict = el('verdict');
       if (result.proposed === null) {
         verdict.hidden = true;
@@ -471,7 +504,14 @@
     [...JOB_IDS, ...COST_IDS].forEach(id => {
       if (id === 'scope' || id === 'window' || id === 'well') return;
       el(id).addEventListener('input', update);
-      el(id).addEventListener('change', () => count(id === 'proposedPrice' ? 'proposed_price_compared' : 'bid_calculated'));
+      el(id).addEventListener('change', () => {
+        if (id === 'proposedPrice') {
+          count('proposed_price_compared');
+          count('access_compared');
+        } else {
+          count('bid_calculated');
+        }
+      });
     });
     FLAG_IDS.forEach(id => {
       el(id).addEventListener('change', () => {
