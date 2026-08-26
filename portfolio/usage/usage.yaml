@@ -2576,3 +2576,14 @@ products:
           Shipped a local pool plaster / resurfacing bid calculator with
           floor-plus-wall takeoff, finish, chip-out, spa, tile, and a
           copyable proposal summary; public URL remains owner-gated.
+  - slug: stucco-repair-bid-calculator
+    surface: static-page-in-repo
+    readings:
+      - as_of: 2026-08-25
+        signals:
+          live_url_visitors: null
+          local_events_reported: 0
+        note: >-
+          Shipped a local stucco / EIFS repair bid calculator with crack
+          feet, tear-off, stories, and a copyable proposal summary; public
+          URL remains owner-gated.
