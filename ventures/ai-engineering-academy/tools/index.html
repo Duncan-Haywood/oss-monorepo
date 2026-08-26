@@ -57,9 +57,9 @@
           "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" }
         }
       },
-      {
-        "@type": "ListItem",
-        "position": 4,
+       {
+         "@type": "ListItem",
+         "position": 4,
         "item": {
           "@type": "SoftwareApplication",
           "name": "555 Timer Calculator",
@@ -69,7 +69,17 @@
           "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" }
         }
       }
-    ]
+      ,{
+         "@type": "ListItem",
+         "position": 5,
+         "item": {"@type":"SoftwareApplication","name":"RC Charge and Discharge Time Calculator","url":"rc-time-calculator/","applicationCategory":"EducationalApplication","operatingSystem":"Any (runs in a web browser)","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"}}
+       }
+       ,{
+         "@type": "ListItem",
+         "position": 6,
+         "item": {"@type":"SoftwareApplication","name":"RC / RL Filter Calculator","url":"rc-filter-calculator/","applicationCategory":"EducationalApplication","operatingSystem":"Any (runs in a web browser)","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"}}
+        }
+     ]
   }
 }
 </script>
@@ -164,6 +174,11 @@
       </p>
       <p class="answers">"1 kHz low-pass with a 100nF cap?" → 1.59 kΩ, nearest E24 1.6 kΩ.</p>
     </li>
+    <li>
+      <h2><a href="rc-time-calculator/">RC charge and discharge time calculator</a></h2>
+      <p>Find the time to reach a real capacitor voltage threshold, or design a buyable resistor or capacitor for a target delay.</p>
+      <p class="answers">"How long to charge 100 nF through 10 kΩ to 3.16 V from 5 V?" → about 1 ms.</p>
+    </li>
   </ul>
 
   <footer>
@@ -177,6 +192,7 @@
       anything safety-critical. To the maximum extent permitted by law, the
       authors accept no liability for any loss or damage arising from their use.
     </p>
+    <p><strong>Best-effort hosting, no SLA.</strong> This tool is free and experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use it as a system of record; if you need it to survive, export your inputs and run it yourself.</p>
 
     <h2>Privacy</h2>
     <p>
