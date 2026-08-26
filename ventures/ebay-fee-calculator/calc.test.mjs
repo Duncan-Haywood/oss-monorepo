@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { calculateOrder, calculatePriceScenarios, calculateRepricingTable, compareListingFormat, listingFormatNote, comparePartialRefund, partialRefundNote, DEFAULT_PARTIAL_REFUND, DEFAULT_MONTHLY_CASES, compareAuthenticity, authenticityNote, DEFAULT_AUTHENTICITY_FEE_RATE, DEFAULT_AUTHENTICITY_EXTRA_SHIP, DEFAULT_WITHOUT_AG_SELL_THROUGH, DEFAULT_AUTHENTICITY_SELL_THROUGH, DEFAULT_AUTHENTICITY_RETURN_RATE, DEFAULT_MONTHLY_AG_LISTINGS, compareLocalPickup, localPickupNote, DEFAULT_SHIP_SELL_THROUGH, DEFAULT_PICKUP_SELL_THROUGH, DEFAULT_PICKUP_NO_SHOW, DEFAULT_PICKUP_MINUTES, DEFAULT_PICKUP_HOURLY_WAGE, DEFAULT_MONTHLY_PICKUP_LISTINGS, compareLotVsSingles, lotVsSinglesNote, DEFAULT_LOT_PIECE_COUNT, DEFAULT_SINGLE_EXPECTED_PRICE, DEFAULT_LOT_SELL_THROUGH, DEFAULT_SINGLE_SELL_THROUGH, DEFAULT_SINGLE_INSERTION_FEE, DEFAULT_MONTHLY_LOT_DECISIONS, compareStandardEnvelope, standardEnvelopeNote, DEFAULT_ENVELOPE_SHIPPING_COST, DEFAULT_ENVELOPE_PACKAGING_COST, DEFAULT_ENVELOPE_CLAIM_RATE, DEFAULT_ENVELOPE_FEE_REFUND_ON_CLAIM, DEFAULT_TRACKED_SELL_THROUGH, DEFAULT_ENVELOPE_SELL_THROUGH, DEFAULT_MONTHLY_ENVELOPE_LISTINGS, compareCombinedShipping, combinedShippingNote, DEFAULT_COMBINED_ITEM_COUNT, DEFAULT_COMBINED_SHIPPING_CHARGED, DEFAULT_COMBINED_SHIPPING_COST, DEFAULT_COMBINED_PACKAGING_COST, DEFAULT_COMBINED_RETURN_SHIPPING_COST, DEFAULT_COMBINED_FIXED_FEE, DEFAULT_MONTHLY_COMBINED_ORDERS } from './calc.mjs';
+import { calculateOrder, calculatePriceScenarios, calculateRepricingTable, compareListingFormat, listingFormatNote, comparePartialRefund, partialRefundNote, DEFAULT_PARTIAL_REFUND, DEFAULT_MONTHLY_CASES, compareAuthenticity, authenticityNote, DEFAULT_AUTHENTICITY_FEE_RATE, DEFAULT_AUTHENTICITY_EXTRA_SHIP, DEFAULT_WITHOUT_AG_SELL_THROUGH, DEFAULT_AUTHENTICITY_SELL_THROUGH, DEFAULT_AUTHENTICITY_RETURN_RATE, DEFAULT_MONTHLY_AG_LISTINGS, compareLocalPickup, localPickupNote, DEFAULT_SHIP_SELL_THROUGH, DEFAULT_PICKUP_SELL_THROUGH, DEFAULT_PICKUP_NO_SHOW, DEFAULT_PICKUP_MINUTES, DEFAULT_PICKUP_HOURLY_WAGE, DEFAULT_MONTHLY_PICKUP_LISTINGS, compareLotVsSingles, lotVsSinglesNote, DEFAULT_LOT_PIECE_COUNT, DEFAULT_SINGLE_EXPECTED_PRICE, DEFAULT_LOT_SELL_THROUGH, DEFAULT_SINGLE_SELL_THROUGH, DEFAULT_SINGLE_INSERTION_FEE, DEFAULT_MONTHLY_LOT_DECISIONS, compareStandardEnvelope, standardEnvelopeNote, DEFAULT_ENVELOPE_SHIPPING_COST, DEFAULT_ENVELOPE_PACKAGING_COST, DEFAULT_ENVELOPE_CLAIM_RATE, DEFAULT_ENVELOPE_FEE_REFUND_ON_CLAIM, DEFAULT_TRACKED_SELL_THROUGH, DEFAULT_ENVELOPE_SELL_THROUGH, DEFAULT_MONTHLY_ENVELOPE_LISTINGS, compareCombinedShipping, combinedShippingNote, DEFAULT_COMBINED_ITEM_COUNT, DEFAULT_COMBINED_SHIPPING_CHARGED, DEFAULT_COMBINED_SHIPPING_COST, DEFAULT_COMBINED_PACKAGING_COST, DEFAULT_COMBINED_RETURN_SHIPPING_COST, DEFAULT_COMBINED_FIXED_FEE, DEFAULT_MONTHLY_COMBINED_ORDERS, compareSellerInitiatedOffer, sellerInitiatedOfferNote, DEFAULT_OFFER_PERCENT, DEFAULT_WAIT_SELL_THROUGH, DEFAULT_OFFER_ACCEPT, DEFAULT_MONTHLY_OFFERS } from './calc.mjs';
 
 const near = (actual, expected, msg) => assert.ok(Math.abs(actual - expected) < 1e-6, `${msg}: ${actual} vs ${expected}`);
 
@@ -778,4 +778,86 @@ test('rejects a one-item combine, a return rate above 100%, and a missing compar
   assert.throws(() => compareCombinedShipping({ ...agBase, combinedReturnRatePercent: 101 }), /at most 100/);
   assert.throws(() => compareCombinedShipping({ price: -1 }), /Item price/);
   assert.throws(() => combinedShippingNote({}), /missing rows/);
+});
+
+test('compares a 10% seller-initiated offer against waiting on the default listing', () => {
+  // Completed sale $21.605; return −$11; 10% mix → $18.3445.
+  // Wait at 40% → $7.3378. 10% offer ($36): completed $18.135;
+  // expected $15.2215; 55% accept → $8.371825. Offer is ahead.
+  const comparison = compareSellerInitiatedOffer(agBase);
+  assert.equal(comparison.offerPercent, DEFAULT_OFFER_PERCENT);
+  assert.equal(comparison.wait.sellThroughPct, DEFAULT_WAIT_SELL_THROUGH);
+  assert.equal(comparison.offer.sellThroughPct, DEFAULT_OFFER_ACCEPT);
+  assert.equal(comparison.monthlyOffers, DEFAULT_MONTHLY_OFFERS);
+  near(comparison.offer.price, 36, '10% of $40');
+  near(comparison.wait.soldExpectedProfit, 18.3445, 'wait packed leftover');
+  near(comparison.wait.expectedProfit, 18.3445 * 0.40, 'wait listing expected');
+  near(comparison.offer.soldProfit, 18.135, 'offer completed');
+  near(comparison.offer.soldExpectedProfit, 15.2215, 'offer packed leftover');
+  near(comparison.offer.expectedProfit, 15.2215 * 0.55, 'offer listing expected');
+  near(comparison.extraKeptOnOffer, 8.371825 - 7.3378, 'offer vs wait');
+  near(comparison.monthlyExtraOnOffer, (8.371825 - 7.3378) * 40, 'forty offers');
+  near(comparison.breakEvenAcceptPct, 7.3378 / 15.2215 * 100, 'accept floor');
+  assert.equal(comparison.winner, 'offer');
+  assert.equal(comparison.offerPays, true);
+});
+
+test('break-even accept rate and offer-percent ceiling match waiting', () => {
+  const comparison = compareSellerInitiatedOffer(agBase);
+  const atAccept = compareSellerInitiatedOffer({
+    ...agBase,
+    offerAcceptPct: comparison.breakEvenAcceptPct,
+  });
+  near(atAccept.offer.expectedProfit, atAccept.wait.expectedProfit, 'ceiling accept ties wait');
+  const atPercent = compareSellerInitiatedOffer({
+    ...agBase,
+    offerPercent: comparison.offerPercentCeiling,
+  });
+  near(atPercent.offer.expectedProfit, atPercent.wait.expectedProfit, 'ceiling percent ties wait');
+  assert.ok(comparison.breakEvenAcceptPct < 55, 'default 55% accept is above the floor');
+  assert.ok(comparison.offerPercentCeiling > 10, 'default 10% off is below the ceiling');
+  near(comparison.offerPriceCeiling, 33.59200069862894, 'price at the typed lift');
+});
+
+test('a 20% make-them-take-it offer loses to waiting', () => {
+  const comparison = compareSellerInitiatedOffer({ ...agBase, offerPercent: 20 });
+  assert.equal(comparison.winner, 'wait');
+  near(comparison.offer.price, 32, '20% of $40');
+  near(comparison.offer.soldExpectedProfit, 12.0985, '20% packed leftover');
+  near(comparison.offer.expectedProfit, 12.0985 * 0.55, '20% listing expected');
+  assert.equal(comparison.offerPays, false);
+});
+
+test('waiting at 50% sell-through already beats a 10% offer', () => {
+  const comparison = compareSellerInitiatedOffer({ ...agBase, waitSellThroughPct: 50 });
+  assert.equal(comparison.winner, 'wait');
+  near(comparison.wait.expectedProfit, 18.3445 * 0.50, '50% wait');
+  near(comparison.offer.expectedProfit, 15.2215 * 0.55, 'unchanged offer');
+});
+
+test('seller-initiated-offer note reports both paths without telling the seller which to send', () => {
+  const note = sellerInitiatedOfferNote(compareSellerInitiatedOffer(agBase));
+  assert.match(note, /Waiting for Buy It Now/);
+  assert.match(note, /\$40\.00/);
+  assert.match(note, /40% sell-through/);
+  assert.match(note, /\$7\.34/);
+  assert.match(note, /10% offer/);
+  assert.match(note, /\$36\.00/);
+  assert.match(note, /55% accept/);
+  assert.match(note, /\$8\.37/);
+  assert.match(note, /\$1\.03/);
+  assert.match(note, /\$18\.34/);
+  assert.match(note, /\$15\.22/);
+  assert.match(note, /48\.2%/);
+  assert.match(note, /16\.0%/);
+  assert.match(note, /\$33\.59/);
+  assert.doesNotMatch(note, /should send the offer|must wait/i);
+});
+
+test('rejects an offer percent above 100% and a missing comparison', () => {
+  assert.throws(() => compareSellerInitiatedOffer({ ...agBase, offerPercent: 101 }), /at most 100/);
+  assert.throws(() => compareSellerInitiatedOffer({ ...agBase, waitSellThroughPct: 101 }), /at most 100/);
+  assert.throws(() => compareSellerInitiatedOffer({ ...agBase, offerAcceptPct: -1 }), /Offer accept rate/);
+  assert.throws(() => compareSellerInitiatedOffer({ price: -1 }), /Item price/);
+  assert.throws(() => sellerInitiatedOfferNote({}), /missing rows/);
 });
