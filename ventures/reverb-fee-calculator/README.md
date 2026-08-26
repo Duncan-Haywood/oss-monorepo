@@ -15,9 +15,22 @@ After using this, you can now see cash at list, cash on the offer, the
 Reverb offer that matches eBay list cash, whether charging shipping,
 folding postage into the list, absorbing the label, or offering local
 pickup leaves more, whether Reverb Safe Shipping still beats your own
-label after expected claims, and whether consigning at a shop or taking
+label after expected claims, whether a bump still pays if it gets you
+from the offer to list, and whether consigning at a shop or taking
 their cash offer still beats listing it yourself, which used to mean
 opening two seller fee pages and a spreadsheet.
+
+## Pay for a bump, or take the offer
+
+A bump is a fixed cash out of this sale. Paying $3 and still taking the
+$720 offer always leaves $3 less. It only pays if it changes the price
+you take — list instead of the offer, or an offer high enough to cover
+the bump after marketplace and payment take their cut.
+
+The SEO page
+[`should-i-bump-this-reverb-listing.html`](should-i-bump-this-reverb-listing.html)
+walks the default worked example ($3 illustrated bump, $210.65 offer vs
+$281.33 list-with-bump, $70.68 save, $723.26 cover).
 
 ## Offer versus list
 

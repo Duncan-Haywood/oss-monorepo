@@ -7,7 +7,7 @@
   <meta name="description" content="See what a Reverb sale leaves after marketplace, payment, shipping, and gear cost — whether a buyer offer still beats eBay, whether free shipping still beats charging postage, whether Reverb Safe Shipping still beats your own label, and whether consigning or taking a shop cash offer still beats listing it yourself.">
   <meta property="og:title" content="Reverb Fee Calculator">
   <meta property="og:description" content="Net cash on a Reverb list price, on the offer in your inbox, versus eBay, versus baking shipping into the item price, versus absorbing the label, versus buying Reverb's insured label, and versus a shop consignment cut or cash offer.">
-  <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Reverb Fee Calculator","applicationCategory":"BusinessApplication","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"featureList":"Reverb fee breakdown, offer versus list cash, Reverb versus eBay compare, offer that matches eBay list cash, shipping included versus buyer-pays, local pickup versus ship, absorb the label versus include shipping, Reverb Safe Shipping versus own label, shop consignment versus self-list, shop cash offer versus Reverb"}</script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Reverb Fee Calculator","applicationCategory":"BusinessApplication","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"featureList":"Reverb fee breakdown, offer versus list cash, Reverb versus eBay compare, offer that matches eBay list cash, shipping included versus buyer-pays, local pickup versus ship, absorb the label versus include shipping, bump versus take the offer, Reverb Safe Shipping versus own label, shop consignment versus self-list, shop cash offer versus Reverb"}</script>
   <style>
     :root { color-scheme: light; font-family: system-ui, sans-serif; color: #1f2320; background: #f3f1ea; }
     body { max-width: 980px; margin: 0 auto; padding: 32px 18px; }
@@ -31,7 +31,7 @@
   <header>
     <p>FOR REVERB SELLERS</p>
     <h1>See whether that offer still beats eBay.</h1>
-    <p>Enter the rates from your last Reverb payout and the eBay final-value fee you actually pay. The calculator shows cash at your list price, cash if you take the offer, and the Reverb offer that leaves the same cash as selling the same item on eBay. Walk the numbers on <a href="should-i-take-this-reverb-offer.html">should I take this Reverb offer</a>. Marketplace fee sits on the item, so baking postage into the list costs extra — compare that to charging shipping, absorbing the label, or offering pickup on <a href="should-i-include-shipping-on-reverb.html">should I include shipping on Reverb</a> and <a href="should-i-eat-the-shipping-on-reverb.html">should I eat the shipping</a>. Reverb Safe Shipping is a more expensive label, not a different checkout — compare it to your own label on <a href="should-i-buy-reverb-safe-shipping.html">should I buy Reverb Safe Shipping</a>. A shop that will consign or buy the guitar today is a different sale — compare that on <a href="should-i-consign-this-reverb-listing.html">should I consign this Reverb listing</a>.</p>
+    <p>Enter the rates from your last Reverb payout and the eBay final-value fee you actually pay. The calculator shows cash at your list price, cash if you take the offer, and the Reverb offer that leaves the same cash as selling the same item on eBay. Walk the numbers on <a href="should-i-take-this-reverb-offer.html">should I take this Reverb offer</a>. A bump is cash out of this sale — compare it to taking the offer on <a href="should-i-bump-this-reverb-listing.html">should I bump this Reverb listing</a>. Marketplace fee sits on the item, so baking postage into the list costs extra — compare that to charging shipping, absorbing the label, or offering pickup on <a href="should-i-include-shipping-on-reverb.html">should I include shipping on Reverb</a> and <a href="should-i-eat-the-shipping-on-reverb.html">should I eat the shipping</a>. Reverb Safe Shipping is a more expensive label, not a different checkout — compare it to your own label on <a href="should-i-buy-reverb-safe-shipping.html">should I buy Reverb Safe Shipping</a>. A shop that will consign or buy the guitar today is a different sale — compare that on <a href="should-i-consign-this-reverb-listing.html">should I consign this Reverb listing</a>.</p>
   </header>
   <main class="layout">
     <section>
@@ -154,6 +154,24 @@
     <p id="consignmentMatch" class="note"></p>
     <p class="note">Consignment is a percent of the shop's sale, not of your Reverb list. They ship and they collect, so this path does not pay Reverb marketplace, payment processing, a bump, or a label. Their cash offer is a buy today — you walk with that number minus what you paid for the gear. This is not a recommendation to consign or to take their cash — it is the arithmetic on the rates you typed. <a href="should-i-consign-this-reverb-listing.html">Worked example</a>.</p>
   </section>
+  <section class="compare" id="bump-compare">
+    <h2>Pay for a bump, or take the offer</h2>
+    <p id="bumpVerdict" class="verdict"></p>
+    <table>
+      <thead>
+        <tr>
+          <th scope="col">Path</th>
+          <th scope="col">Sale price</th>
+          <th scope="col">Fees</th>
+          <th scope="col">Net cash</th>
+          <th scope="col">vs offer, no bump</th>
+        </tr>
+      </thead>
+      <tbody id="bumpRows"></tbody>
+    </table>
+    <p id="bumpMatch" class="note"></p>
+    <p class="note">A bump is a fixed cash out of this sale. Paying one and still taking the same offer always leaves less by exactly the bump. It only pays if it gets you to list or to a higher offer that covers the bump after percentage fees. A $0 bump is illustrated at $3 so the table is not the same sale twice — overwrite it from your listing. This is not a recommendation to buy a bump. <a href="should-i-bump-this-reverb-listing.html">Worked example</a>.</p>
+  </section>
   <footer>
     <label><input id="usageOptOut" type="checkbox" style="width:auto"> Do not keep anonymous local usage counts</label>
     <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not tax, financial, or business advice, and it does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for meeting any obligation it helps you prepare for. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
@@ -161,7 +179,7 @@
     <p>Free and open source. If it stopped you from taking a $720 offer that left $74 on the table, the <a href="https://github.com/Duncan-Haywood/monorepo-projects">project is on GitHub</a> — <a href="https://github.com/sponsors/Duncan-Haywood">GitHub Sponsors</a> is optional and never changes what the tool does. MIT licensed.</p>
   </footer>
   <script type="module">
-    import { INPUT_FIELDS, REVERB_DEFAULTS, compareOfferToList, compareReverbToEbay, calculateEbaySale, offerThatMatchesEbayList, compareShippingPaths, compareSafeShipping, compareConsignment, consignmentNote } from './calc.mjs';
+    import { INPUT_FIELDS, REVERB_DEFAULTS, compareOfferToList, compareReverbToEbay, calculateEbaySale, offerThatMatchesEbayList, compareShippingPaths, compareSafeShipping, compareConsignment, consignmentNote, compareBump } from './calc.mjs';
     import { recordUsage } from './usage.mjs';
     import { encodeInputs, decodeInputs } from './share.mjs';
 
@@ -272,6 +290,18 @@
         ? `That shop cut also leaves ${money(offerVsConsign)} more than taking the ${money(Number(inputs.offerPrice) || 0)} Reverb offer.`
         : `That shop cut leaves ${money(-offerVsConsign)} less than taking the ${money(Number(inputs.offerPrice) || 0)} Reverb offer.`;
 
+      const bump = compareBump(inputs);
+      const bumpBest = Math.max(...bump.rows.map(row => row.sale.profit));
+      document.getElementById('bumpRows').innerHTML = bump.rows.map(row =>
+        `<tr class="${row.sale.profit === bumpBest ? 'winner' : ''}"><td>${row.label}</td><td>${money(row.sale.salePrice)}</td><td>${money(row.sale.fees.total)}</td><td>${money(row.sale.profit)}</td><td>${signed(row.vsOfferNoBump)}</td></tr>`
+      ).join('');
+      const bumpLabel = bump.usedTypedBump ? money(bump.bump) : `${money(bump.bump)} illustrated`;
+      document.getElementById('bumpVerdict').textContent = bump.bumpPaysIfYouReachList
+        ? `A ${bumpLabel} bump still pays if it gets you from the offer to list — you keep ${money(bump.cashBumpSavesVsOfferIfYouReachList)} more than taking the offer with no bump.`
+        : `A ${bumpLabel} bump does not pay even if you reach list. Taking the offer with no bump still leaves more.`;
+      document.getElementById('bumpMatch').textContent =
+        `To keep no-bump offer cash after paying the bump, you need ${money(bump.offerThatCoversBump)} (${money(bump.extraSaleToCoverBump)} more after percentage fees).`;
+
       safe(() => localStorage.setItem(INPUTS_KEY, JSON.stringify(inputs)));
       const optedOut = field('usageOptOut').checked;
       recordUsage(undefined, optedOut, 'reverb_sale_calculated');
@@ -279,6 +309,7 @@
       recordUsage(undefined, optedOut, 'reverb_shipping_compared');
       recordUsage(undefined, optedOut, 'reverb_safe_shipping_compared');
       recordUsage(undefined, optedOut, 'reverb_consignment_compared');
+      recordUsage(undefined, optedOut, 'reverb_bump_compared');
     }
 
     field('copyLink').addEventListener('click', async () => {
