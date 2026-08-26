@@ -18,6 +18,7 @@ test("calculates hidden time and target price", () => {
   assert.equal(result.total_hours, 35);
   assert.ok(Math.abs(result.effective_hourly_rate - 54.8571428) < 1e-6);
   assert.equal(result.target_price, 3105);
+  assert.equal(result.break_even_price, 480);
   assert.equal(result.gap_to_target, -705);
   assert.equal(result.buffered_hours, 42);
   assert.equal(result.buffered_target_price, 3630);
