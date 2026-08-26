@@ -5,7 +5,7 @@ import tempfile
 import unittest
 from pathlib import Path
 
-from src.quote_margin import batch_csv_report, calculate, csv_report, load_quote, load_reports, main
+from src.quote_margin import batch_csv_report, calculate, csv_report, discount_ask_scenarios, load_quote, load_reports, main
 
 
 class QuoteMarginTests(unittest.TestCase):
@@ -39,6 +39,18 @@ class QuoteMarginTests(unittest.TestCase):
     def test_reports_price_left_after_direct_costs(self) -> None:
         quote = load_quote({"price": 1000, "delivery_hours": 10, "overhead": 125, "subcontractor_cost": 75, "target_hourly_rate": 80})
         self.assertEqual(calculate(quote)["cost_coverage"], 800)
+
+    def test_discount_ask_keeps_hours_and_direct_costs_fixed(self) -> None:
+        quote = load_quote({"price": 2400, "delivery_hours": 24, "admin_hours": 5, "revision_hours": 6, "overhead": 180, "subcontractor_cost": 300, "target_hourly_rate": 75})
+        result = calculate(quote)
+        rows = discount_ask_scenarios(quote, result)
+        self.assertEqual([row["percent"] for row in rows], [0, 5, 10, 15, 20])
+        ten = next(row for row in rows if row["percent"] == 10)
+        self.assertEqual(ten["discounted_price"], 2160)
+        self.assertEqual(ten["effective_hourly_rate"], 48)
+        self.assertAlmostEqual(ten["hours_to_cut"], 12.6, places=9)
+        self.assertEqual(result["total_hours"], 35)
+        self.assertEqual(result["direct_costs"], 480)
 
     def test_csv_report_is_ready_for_spreadsheet_import(self) -> None:
         quote = load_quote({"currency": "EUR", "price": 2400, "delivery_hours": 24, "target_hourly_rate": 75})
