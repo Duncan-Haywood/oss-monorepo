@@ -48,6 +48,14 @@ test("reviewed packets can be downloaded locally", () => {
   assert.match(html, /slice\(0,80\)/);
 });
 
+test("packet export is local and records the reviewable packet fields", () => {
+  assert.match(html, /Download packet JSON/);
+  assert.match(html, /new Blob\(\[JSON\.stringify\(packet,null,2\)\]/);
+  assert.match(html, /packet_exported/);
+  assert.match(html, /orderDate:document\.querySelector\('#date'\)\.value/);
+  assert.match(html, /missingEvidence:missing\.map/);
+});
+
 test("optional sponsors and no-warranty are visible", () => {
   assert.match(html, /GitHub Sponsors/);
   assert.match(html, /No warranty/);
