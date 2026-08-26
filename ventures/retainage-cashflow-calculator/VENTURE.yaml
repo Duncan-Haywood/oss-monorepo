@@ -1,5 +1,5 @@
 name: retainage-cashflow-calculator
-description: Free browser calculator for small contractors to quantify retainage withheld, earned-but-unpaid cash, and carrying cost before sending a factual payment follow-up.
+description: Free browser calculator for small contractors to quantify retainage withheld, earned-but-unpaid cash, carrying cost, and whether a partial retainage check still beats waiting, before sending a factual payment follow-up.
 stage: prototype
 owner: duncan
 hypotheses:
