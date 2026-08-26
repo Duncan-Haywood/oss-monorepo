@@ -3994,3 +3994,38 @@ ventures:
       specification. The shipped hours and material rates are labelled
       ballpark starting points rather than a standard or benchmark, and
       nothing the user enters leaves the browser.
+
+  - slug: delivery-app-margin-calculator
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 7
+      gross_margin: 10
+      defensibility: 4
+      distribution: 8
+    composite: 6.667
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      There is no AI anywhere in the product. The value is a same-ticket
+      commission, packaging, and extra-labor comparison — that is
+      arithmetic, and adding inference to it would only make the result
+      less checkable.
+    basis: >-
+      Graduated on 2026-08-24 as a browser-local restaurant delivery-
+      margin calculator. Distinct from marketplace-seller fee tools
+      (eBay, Etsy, Shopify, Amazon FBA): this is the restaurant side of
+      DoorDash / Uber Eats / Grubhub. Distribution 8: "doordash fee
+      calculator restaurant" and "how much does DoorDash take from
+      restaurants" are high-intent operator queries. Defensibility 4
+      until repeat usage or saved rate templates create a reason to
+      return.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Pass: results are estimates from operator-supplied rates, not a
+      fee schedule or advice to keep or drop a marketplace. The
+      interface tells operators to verify figures against their own
+      payout statements, and nothing the user enters leaves the browser.
