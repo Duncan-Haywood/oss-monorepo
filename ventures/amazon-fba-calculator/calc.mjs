@@ -372,6 +372,7 @@ export function calculateListing(input) {
   const monthsInStorage = number(input.monthsInStorage, "Months in storage", 1);
   const storageRate = number(input.storageRate, "Storage rate", STORAGE_PRESETS.off_peak.perCuFt);
   const fbmShippingCost = number(input.fbmShippingCost, "FBM shipping cost");
+  const fbmHandlingCost = number(input.fbmHandlingCost, "FBM handling cost");
   const packagingCost = number(input.packagingCost, "Packaging cost");
   const otherCost = number(input.otherCost, "Other cost");
   const adsPerUnit = number(input.adsPerUnit, "Ads per unit");
@@ -422,7 +423,7 @@ export function calculateListing(input) {
     costOfGoods,
   );
 
-  const fbmCash = sharedCash + fbmShippingCost;
+  const fbmCash = sharedCash + fbmShippingCost + fbmHandlingCost;
   const fbm = finish(
     pathResult({
       revenue: salePrice,
@@ -478,6 +479,7 @@ export function calculateListing(input) {
     selected,
     fba: fbaAfterReturns,
     fbm: fbmAfterReturns,
+    fbmHandlingCost,
     fbaAdvantage,
     cheaperPath: fbaAdvantage > 0 ? "fba" : fbaAdvantage < 0 ? "fbm" : "tie",
   };

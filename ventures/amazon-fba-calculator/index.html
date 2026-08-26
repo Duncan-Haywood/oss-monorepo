@@ -246,6 +246,9 @@
         <label>You paid for the item <input id="costOfGoods" type="number" min="0" step="0.01" value="8"></label>
         <label>Inbound to Amazon / unit <input id="inboundPerUnit" type="number" min="0" step="0.01" value="1.20"></label>
         <label>FBM shipping you pay <input id="fbmShippingCost" type="number" min="0" step="0.01" value="4.75"></label>
+        <label>FBM handling labor / unit <span class="hint">optional</span>
+          <input id="fbmHandlingCost" type="number" min="0" step="0.01" value="0">
+        </label>
         <p class="note span2">A 2-day Prime badge on your own label is Seller Fulfilled Prime, not this Ground line. <a href="should-i-use-seller-fulfilled-prime.html" style="color:#9ec5ff">Should I use Seller Fulfilled Prime?</a></p>
         <label>Prep / packaging <input id="packagingCost" type="number" min="0" step="0.01" value="0.60"></label>
         <label>Ads per unit <input id="adsPerUnit" type="number" min="0" step="0.01" value="0"></label>
@@ -332,7 +335,7 @@
       <dl>
         <dt>Sale price</dt><dd id="revenue"></dd>
         <dt>Fees on this path</dt><dd id="fees"></dd>
-        <dt>Cash + storage + inbound</dt><dd id="invested"></dd>
+        <dt>Cash + path costs</dt><dd id="invested"></dd>
         <dt>Net margin</dt><dd id="margin"></dd>
         <dt>Return on investment</dt><dd id="roi"></dd>
         <dt>Break-even sale price</dt><dd id="breakEven"></dd>
@@ -533,7 +536,7 @@
         <tbody id="placementCompare"></tbody>
       </table>
       <p class="note">The listing inbound / unit field above is a blended number. This table keeps freight and Amazon’s inbound placement fee on separate lines so you can see whether following the split actually costs less. Illustrative US placement defaults come from the size tier — not Amazon’s live schedule. <a href="inbound-placement-fee.html" style="color:#9ec5ff">Is Amazon inbound placement cheaper than splitting the shipment?</a></p>
-      <p class="note">Transparent arithmetic from your inputs — not Amazon’s current fee schedule. Referral, fulfillment, storage, inbound, coupon fees, Subscribe &amp; Save discounts, MCF, Low-Price bands, prep-service fees, inbound-placement fees, and Individual vs Professional selling fees vary by category, size, season, and account. Verify against your Amazon fee preview before buying inventory, launching a coupon, enrolling in Subscribe &amp; Save, turning on MCF, taking a supplier MOQ, paying Amazon to prep inbound, paying inbound placement, or switching seller plans.</p>
+      <p class="note">Transparent arithmetic from your inputs — not Amazon’s current fee schedule. FBM handling labor is an optional per-unit opportunity cost. Referral, fulfillment, storage, inbound, coupon fees, Subscribe &amp; Save discounts, MCF, Low-Price bands, prep-service fees, inbound-placement fees, and Individual vs Professional selling fees vary by category, size, season, and account. Verify against your Amazon fee preview before buying inventory, launching a coupon, enrolling in Subscribe &amp; Save, turning on MCF, taking a supplier MOQ, paying Amazon to prep inbound, paying inbound placement, or switching seller plans.</p>
     </section>
   </main>
   <section class="faq" aria-labelledby="faq-heading">
@@ -719,7 +722,7 @@
     const ids = [
       "salePrice", "referralRate", "length", "width", "height", "weightLb",
       "monthsInStorage", "storageRate", "fulfillmentFee", "costOfGoods",
-      "inboundPerUnit", "fbmShippingCost", "packagingCost", "adsPerUnit",
+      "inboundPerUnit", "fbmShippingCost", "fbmHandlingCost", "packagingCost", "adsPerUnit",
       "otherCost", "monthlySellerFee", "individualPerUnit", "monthlyUnits", "targetMargin",
       "returnRate", "returnHandlingFee", "unsellableReturnRate",
       "lowPriceThreshold", "lowPriceSalePrice", "raisePrice", "lowPriceFulfillmentFee",
@@ -1096,6 +1099,7 @@
         localStorage,
         document.getElementById("usageOptOut").checked,
         id === "targetMargin" ? "target_margin_calculated"
+          : id === "fbmHandlingCost" ? "fbm_labor_calculated"
           : id === "monthlySellerFee" || id === "individualPerUnit" || id === "monthlyUnits"
             ? "seller_plan_compared"
           : id.startsWith("coupon") ? "coupon_compared"
