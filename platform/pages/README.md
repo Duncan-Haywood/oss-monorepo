@@ -81,6 +81,26 @@ origin root is read), and `node_modules`. `LICENSE` files are kept.
   a nav bar written into ~180 product files would conflict with nearly every
   open branch. Markup is scoped under `.pf-chrome` so it cannot restyle a
   venture's page, and the pass is idempotent.
+- **A machine-readable catalog.** `catalog.json` lists every tool with its URL,
+  category, and description — the flat thing an AI assistant answering "is there
+  a free tool for X" can fetch in one request instead of parsing the hub. The
+  `verify` job below also reads it to pick a product page to test, so a renamed
+  venture cannot make verification pass vacuously.
+
+## The link check
+
+After the tree is assembled and repaired, the build resolves **every** relative
+`href` and `src` in the finished site against the finished site, and fails if
+one resolves to nothing or climbs out of the site root.
+
+`repairLinks` repoints links at files the site does not carry; nothing checked
+the *result*. Two failures it catches are otherwise completely silent: an asset
+filtered out by `isPublishable` that a page still references, and a `../` that
+stops resolving because a venture served from a subdirectory was copied to
+`/<slug>/`. Both build green and 404 for the visitor.
+
+It runs on every build, so it guards new ventures too — a calculator that ships
+linking to a file it forgot to include fails at merge, not in front of a user.
 
 ## Deploying
 
@@ -102,6 +122,15 @@ not a second ask — this workflow is what it now publishes.
 Until it is set, the `deploy` job is skipped and the `build` job still runs, so
 the artifact is always proven buildable. `actions/deploy-pages` 404s while Pages
 is off, which is why the gate exists rather than letting every merge go red.
+
+Once it is set, a third job runs: **`verify`** fetches the live origin the way a
+visitor reaches it — `catalog.json`, the hub, a product page named by the live
+catalog, `sitemap.xml`, and `robots.txt` — and fails if any of them does not
+answer. A completed deploy job says the upload succeeded; only this says a
+stranger can use the site. Its first successful run is the moment the
+deploy-first priority in `portfolio/DIRECTION.md` is actually met, and the point
+at which `live_url_visitors` in `portfolio/usage/usage.yaml` can stop being
+`null`.
 
 Only one workflow may publish to Pages. `retail-pilot-intel-deploy-docs.yml`
 reads `RETAIL_PILOT_INTEL_PAGES` instead, so an owner who wants those docs on

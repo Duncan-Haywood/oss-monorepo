@@ -24,6 +24,7 @@ import {
   renderHub,
   renderRobots,
   renderSitemapIndex,
+  checkLinks,
   truncate,
   REPO_ROOT,
   SOURCE_URL_PREFIX,
@@ -561,4 +562,84 @@ test('publishable JSON that a page actually needs is still copied', () => {
   assert.equal(isPublishable('package.json'), false);
   assert.equal(isPublishable('site.webmanifest'), true);
   assert.equal(isPublishable('rates.json'), true);
+});
+
+// ---------------------------------------------------------------------------
+// Link integrity
+// ---------------------------------------------------------------------------
+
+test('the built site has no broken relative links', async () => {
+  const { brokenLinks } = await site();
+  assert.deepEqual(brokenLinks, [], `dead links in the artifact:\n${brokenLinks.join('\n')}`);
+});
+
+test('a reference to a file the site does not carry is reported', async () => {
+  const { outDir } = await site();
+  const scratch = await fs.mkdtemp(path.join(os.tmpdir(), 'pages-links-'));
+  await fs.writeFile(path.join(scratch, 'page.html'), '<a href="missing.mjs">go</a>');
+  const broken = await checkLinks(scratch);
+  assert.equal(broken.length, 1);
+  assert.match(broken[0], /page\.html -> missing\.mjs/);
+  assert.ok(outDir, 'the real build still stands');
+});
+
+test('a link climbing out of the site root is reported', async () => {
+  const scratch = await fs.mkdtemp(path.join(os.tmpdir(), 'pages-links-'));
+  await fs.mkdir(path.join(scratch, 'tool'));
+  await fs.writeFile(path.join(scratch, 'tool', 'i.html'), '<a href="../../secrets.txt">x</a>');
+  const broken = await checkLinks(scratch);
+  assert.equal(broken.length, 1);
+  assert.match(broken[0], /escapes the site root/);
+});
+
+test('anchors, external URLs, and mailto links are not link-checked', async () => {
+  const scratch = await fs.mkdtemp(path.join(os.tmpdir(), 'pages-links-'));
+  await fs.writeFile(
+    path.join(scratch, 'p.html'),
+    '<a href="#top">t</a><a href="https://example.com/x">e</a>' +
+      '<a href="//cdn.example.com/y">p</a><a href="mailto:a@b.c">m</a>',
+  );
+  assert.deepEqual(await checkLinks(scratch), []);
+});
+
+test('a directory link resolves through its index.html', async () => {
+  const scratch = await fs.mkdtemp(path.join(os.tmpdir(), 'pages-links-'));
+  await fs.mkdir(path.join(scratch, 'tool'));
+  await fs.writeFile(path.join(scratch, 'tool', 'index.html'), '<p>hi</p>');
+  await fs.writeFile(path.join(scratch, 'hub.html'), '<a href="tool/">go</a>');
+  assert.deepEqual(await checkLinks(scratch), []);
+});
+
+// ---------------------------------------------------------------------------
+// Machine-readable catalog
+// ---------------------------------------------------------------------------
+
+test('catalog.json describes every published tool', async () => {
+  const { surfaces } = await site();
+  const catalog = JSON.parse(await read('catalog.json'));
+  assert.equal(catalog.tools.length, surfaces.length);
+  for (const tool of catalog.tools) {
+    assert.ok(tool.slug && tool.name && tool.description, `incomplete entry: ${tool.slug}`);
+    assert.ok(tool.url.startsWith(BASE), `${tool.slug} url is not on the site origin`);
+    assert.ok(tool.category, `${tool.slug} has no category`);
+  }
+});
+
+test('catalog.json states the product is free and browser-only', async () => {
+  const catalog = JSON.parse(await read('catalog.json'));
+  assert.equal(catalog.price.amount, '0');
+  assert.equal(catalog.privacy, 'client-side-only');
+  assert.equal(catalog.url, BASE);
+});
+
+test('catalog.json does not pre-answer the open funding decision', async () => {
+  // Whether the repo carries a sponsorship surface is queued for the owner
+  // (funding-sponsors-live); a machine-readable file must not decide it.
+  const catalog = JSON.parse(await read('catalog.json'));
+  assert.ok(!('sponsor' in catalog), 'catalog.json must not carry a funding field');
+});
+
+test('the hub links to the machine-readable catalog', async () => {
+  const hub = await read('index.html');
+  assert.ok(hub.includes('catalog.json'), 'catalog.json should be discoverable from the hub');
 });

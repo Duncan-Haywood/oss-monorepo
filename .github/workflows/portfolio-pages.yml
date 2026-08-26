@@ -75,7 +75,47 @@ jobs:
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
+    outputs:
+      page_url: ${{ steps.deployment.outputs.page_url }}
     steps:
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4
+
+  verify:
+    name: Verify the public route
+    needs: deploy
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      # A completed deploy job is not evidence that a visitor can use the site.
+      # This fetches the real public origin the way a stranger reaches it, so
+      # "deployed" is a checked claim rather than a workflow status.
+      - name: Fetch the live hub, catalog, and a tool page
+        env:
+          PAGE_URL: ${{ needs.deploy.outputs.page_url }}
+        run: |
+          set -euo pipefail
+          base="${PAGE_URL%/}"
+          echo "Verifying $base/"
+
+          # Pages can serve the previous revision for a few seconds after the
+          # deployment API reports success, so allow for propagation.
+          curl --fail --silent --show-error --retry 5 --retry-delay 10 --retry-all-errors \
+               "$base/catalog.json" -o catalog.json
+          tools=$(python3 -c "import json;print(len(json.load(open('catalog.json'))['tools']))")
+          echo "Catalog lists $tools tool(s)"
+          test "$tools" -ge 20
+
+          curl --fail --silent --show-error "$base/" | grep -qi "calculator"
+
+          # Exercise a real product page, chosen from the live catalog rather
+          # than hardcoded, so a renamed venture cannot make this pass vacuously.
+          slug=$(python3 -c "import json;print(json.load(open('catalog.json'))['tools'][0]['slug'])")
+          curl --fail --silent --show-error "$base/$slug/" | grep -qi "<title>"
+          echo "Product page /$slug/ is reachable"
+
+          curl --fail --silent --show-error -o /dev/null "$base/sitemap.xml"
+          curl --fail --silent --show-error -o /dev/null "$base/robots.txt"
+          echo "Public route verified at $base/"

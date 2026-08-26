@@ -535,6 +535,8 @@ ${DISCLAIMER_HTML}
       </p>
       <p>
         Open source — every tool is a static page you can save and run offline.
+        <a href="catalog.json">Machine-readable catalog</a> ·
+        <a href="sitemap.xml">Sitemap</a>
       </p>
     </footer>
   </div>
@@ -823,6 +825,93 @@ ${urls.join('\n')}
 `;
 }
 
+/**
+ * A machine-readable index of the whole site.
+ *
+ * `renderHub` already emits JSON-LD for a human-facing crawler. This is the
+ * flatter thing an AI assistant answering "is there a free tool that does X"
+ * can fetch and read in one request, without parsing a page of markup. It is
+ * the discoverability half of PRODUCT_PLAYBOOK.md §5e, and it costs one file.
+ *
+ * Deliberately not carrying a sponsorship or funding field: whether this repo
+ * publishes a funding surface is an open owner decision (`funding-sponsors-live`
+ * in the decision queue), and a machine-readable file is the wrong place to
+ * pre-answer it.
+ */
+export function renderCatalog(surfaces, baseUrl) {
+  return `${JSON.stringify(
+    {
+      name: 'Free calculators for sellers, contractors, and small back offices',
+      url: baseUrl,
+      license: 'MIT',
+      price: { amount: '0', currency: 'USD' },
+      privacy: 'client-side-only',
+      source: SOURCE_URL_PREFIX.replace('/blob/main/', ''),
+      generated_by: 'platform/pages/build.mjs',
+      tools: surfaces.map((surface) => ({
+        slug: surface.slug,
+        name: surface.title,
+        url: `${baseUrl}${surface.slug}/`,
+        category: categoryFor(surface.slug).title,
+        description: surface.description,
+        pages: surface.pageCount,
+      })),
+    },
+    null,
+    2,
+  )}\n`;
+}
+
+/**
+ * Every relative link in the built site, resolved against the built site.
+ *
+ * `repairLinks` repoints links at files the site does not carry; nothing until
+ * now checked the *result*. The two failures this catches are both silent: an
+ * asset filtered out by `isPublishable` that a page still references, and a
+ * `../` that no longer resolves because the venture was copied from a
+ * subdirectory to `/<slug>/`. Either one ships a page that builds green and
+ * breaks for the visitor.
+ *
+ * Returns a list of `page -> target` strings; empty means every link resolves.
+ */
+export async function checkLinks(outDir) {
+  const broken = [];
+  const pages = (await listFiles(outDir)).filter((file) => file.endsWith('.html'));
+
+  for (const page of pages) {
+    const markup = await fs.readFile(page, 'utf8');
+    const seen = new Set();
+
+    for (const match of markup.matchAll(/(?:href|src)="([^"]+)"/g)) {
+      const raw = match[1].trim();
+      if (!raw || seen.has(raw)) continue;
+      seen.add(raw);
+      if (/^(#|data:|mailto:|tel:|javascript:)/i.test(raw)) continue;
+      if (/^[a-z][a-z0-9+.-]*:/i.test(raw) || raw.startsWith('//')) continue;
+
+      const [withoutHash] = raw.split('#');
+      const [pathPart] = withoutHash.split('?');
+      if (!pathPart) continue;
+
+      const from = pathPart.startsWith('/') ? outDir : path.dirname(page);
+      let target = path.resolve(from, decodeURIComponent(pathPart.replace(/^\//, '')));
+      if (pathPart.endsWith('/')) target = path.join(target, 'index.html');
+
+      const relative = path.relative(outDir, target);
+      if (relative.startsWith('..') || path.isAbsolute(relative)) {
+        broken.push(`${path.relative(outDir, page)} -> ${raw} (escapes the site root)`);
+        continue;
+      }
+
+      let ok = await exists(target);
+      if (!ok && !path.extname(target)) ok = await exists(path.join(target, 'index.html'));
+      if (!ok) broken.push(`${path.relative(outDir, page)} -> ${raw}`);
+    }
+  }
+
+  return broken.sort();
+}
+
 export function renderNotFound(baseUrl) {
   return `<!doctype html>
 <html lang="en">
@@ -898,6 +987,7 @@ export async function buildSite({
 
   await fs.writeFile(path.join(outDir, 'sitemap.xml'), renderSitemapIndex(surfaces, base));
   await fs.writeFile(path.join(outDir, 'sitemap-hub.xml'), renderHubSitemap(surfaces, base));
+  await fs.writeFile(path.join(outDir, 'catalog.json'), renderCatalog(surfaces, base));
 
   // Tell Jekyll (which GitHub Pages runs by default) to leave the tree alone;
   // without this, any directory starting with `_` is silently dropped.
@@ -905,7 +995,11 @@ export async function buildSite({
 
   const wrapped = await addSiteChrome({ outDir, surfaces });
 
-  return { outDir, baseUrl: base, surfaces, repairs, wrapped };
+  // Checked last, so it sees the generated pages and the injected navigation
+  // as well as the copied ones -- site chrome adds links too.
+  const brokenLinks = await checkLinks(outDir);
+
+  return { outDir, baseUrl: base, surfaces, repairs, wrapped, brokenLinks };
 }
 
 // ---------------------------------------------------------------------------
@@ -928,4 +1022,14 @@ if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.me
     console.log(`Repointed ${result.repairs.length} off-site link(s) at the repository source.`);
   }
   console.log(`Added site navigation to ${result.wrapped.length} page(s).`);
+
+  // A dead link is a page that builds green and breaks for the visitor, so it
+  // fails the build rather than printing a warning nobody reads.
+  if (result.brokenLinks.length > 0) {
+    console.error(`\n${result.brokenLinks.length} broken link(s):`);
+    for (const entry of result.brokenLinks) console.error(`  ${entry}`);
+    process.exitCode = 1;
+  } else {
+    console.log('Link check: every relative link resolves.');
+  }
 }
