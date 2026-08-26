@@ -92,4 +92,10 @@ and for meeting any obligation it helps you prepare for. To the maximum
 extent permitted by law, the authors accept no liability for any loss or
 damage arising from its use.
 
+**Best-effort hosting, no SLA.** These tools are free, experimental, and
+may be slow, broken, moved, or taken offline without notice. We do not
+promise uptime, backups of anything you type, or that a URL will keep
+working. Do not use this as a system of record. If a tool needs to
+survive, export your inputs and run it yourself.
+
 MIT licensed — see [`LICENSE`](LICENSE).

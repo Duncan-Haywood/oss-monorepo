@@ -5,6 +5,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Booth Rent vs Commission Calculator | Stylist Take-Home</title>
   <meta name="description" content="Free booth rent vs commission calculator for hair stylists, barbers, and nail techs. Compare take-home and hourly pay on your own book after rent, card fees, backbar, and unpaid hours.">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href=".">
   <meta property="og:title" content="Booth Rent vs Commission Calculator">
   <meta property="og:description" content="Compare the hour, not just the check. See which salon deal actually pays you more after rent, backbar, and laundry.">
   <meta property="og:type" content="website">
@@ -137,6 +139,7 @@
           <label>Other cost / week ($) <input id="otherWeeklyCost" type="number" min="0" step="1" value="20"></label>
           <label>Unpaid hours / week <input id="unpaidHoursBooth" type="number" min="0" step="0.5" value="7"></label>
           <label>Rent offer to score (optional) <input id="offeredRentAmount" type="number" min="0" step="5" placeholder="e.g. 325"></label>
+          <label>Offer billed <select id="offeredRentCadence"><option value="weekly" selected>weekly</option><option value="monthly">monthly</option></select></label>
         </div>
       </section>
 
@@ -187,6 +190,7 @@
         <button type="button" id="copySummary">Copy comparison</button>
         <button type="button" id="copyLink">Copy share link</button>
         <span id="summaryStatus" class="summary-status" role="status" aria-live="polite"></span>
+        <p class="hint">The share link contains your book, rent, and commission numbers in the URL. Treat it like any other link with business figures.</p>
       </div>
       <hr>
       <p class="note">Transparent arithmetic from your own book. Starting figures are a mid-book colorist example, not a wage claim, a lease recommendation, or tax advice. Replace every input with your numbers before you sign anything.</p>
@@ -196,6 +200,7 @@
   <footer>
     <label style="display:inline-flex;gap:6px;align-items:center;font-weight:400"><input id="usageOptOut" type="checkbox" style="width:auto"> Do not keep anonymous local usage counts</label>
     <p><strong>No warranty.</strong> This free tool is not legal, tax, financial, employment, or career advice, and it does not tell you which deal to take. Outputs are arithmetic on the numbers you enter. Verify every figure against your own book, lease, and a qualified professional before relying on it or changing jobs. To the maximum extent permitted by law, the authors accept no liability for loss or damage arising from its use.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record. If a tool needs to survive, export your inputs and run it yourself.</p>
     <p><strong>Nothing leaves your browser.</strong> Every number stays on this device. Usage counts are anonymous tallies of which features were used, stored locally, and never include your ticket, book, rent, or take-home.</p>
     <p class="support">Free and open source. If it saves you from a bad lease, the <a href="https://github.com/Duncan-Haywood/monorepo-projects" rel="noopener">project is on GitHub</a> &mdash; support is entirely optional and never changes what the tool does.</p>
   </footer>
@@ -209,7 +214,7 @@
       'averageServiceMinutes','commissionPercent','retailCommissionPercent',
       'unpaidHoursCommission','boothRentAmount','boothRentCadence',
       'cardFeePercent','backbarPercent','retailCostPercent','otherWeeklyCost',
-      'unpaidHoursBooth','offeredRentAmount',
+      'unpaidHoursBooth','offeredRentAmount','offeredRentCadence',
     ];
     const money = value => `$${value.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
     const el = id => document.getElementById(id);
