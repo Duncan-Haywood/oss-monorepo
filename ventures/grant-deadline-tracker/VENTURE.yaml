@@ -1,5 +1,5 @@
 name: grant-deadline-tracker
-description: Free browser-local grant deadline and reporting tracker for small nonprofits managing awards in spreadsheets.
+description: Free browser-local grant deadline tracker that also compares hiring a grant writer against the cash a late report puts at risk.
 stage: prototype
 owner: duncan
 hypotheses:

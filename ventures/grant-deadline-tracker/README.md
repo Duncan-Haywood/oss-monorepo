@@ -2,11 +2,13 @@
 
 Small nonprofits can track grant applications, reporting dates, and remaining award funds without rebuilding a fragile spreadsheet every month. Open `index.html` in a browser, add your grants, and export a private CSV for a board or finance meeting.
 
-**After using this, you can now** see which report or application is overdue, how much of each award remains, and hand finance a CSV — which used to take a hand-maintained spreadsheet and a calendar reminder.
+**After using this, you can now** see which report or application is overdue, how much of each award remains, whether a contract grant writer still costs less than the cash a late report puts at risk, and hand finance a CSV — which used to take a hand-maintained spreadsheet and a calendar reminder.
 
 The tracker is free, browser-only, and works without an account, API key, or network connection. It highlights overdue and next-30-day obligations. It is a planning record, not a filing system or grant compliance determination.
 
 If a funder wants a report every six months from the award date, enter the award date and interval and the tracker fills the current (possibly overdue) due date. You can also type the next date yourself.
+
+If the report is the gate on a remaining draw, open [Should I hire a grant writer to file this report?](should-i-hire-a-grant-writer-to-file-this-report.html). The tracker compares missing it, writing it yourself, and hiring a writer against the unspent award, next installment, optional renewal, and optional clawback you type. It does not file the report or decide what the funder will withhold.
 
 ## Run it
 
