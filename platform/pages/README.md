@@ -114,6 +114,37 @@ level down.
 The workflow runs it between building and uploading, so a broken artifact never
 reaches the live site.
 
+## Driving the customer journey
+
+`check.mjs` proves the files are right. It cannot prove the site *works* — that
+search filters, that the opt-out actually stops counting, that a calculator
+computes rather than just paints, that nothing throws in the console.
+`journey.mjs` drives that in a real browser:
+
+```bash
+node platform/pages/build.mjs --out=dist
+python3 -m http.server 8793 --directory dist &
+node platform/pages/journey.mjs
+
+# or against the live site, once publishing is on:
+BASE_URL=https://duncan-haywood.github.io/monorepo-projects node platform/pages/journey.mjs
+```
+
+It covers the hub and its grouping, search (narrowing, the empty state, and
+clearing), the usage opt-out across a reload, a click through into a calculator
+and a computed figure, a cross-product sibling link, a nested product hub,
+sitemap sampling, the 404, and a 375px viewport for horizontal overflow.
+
+Counts are derived from the page, never hardcoded — a venture lands most days,
+and a literal would fail on a healthy site the moment someone ships a
+calculator.
+
+It is deliberately **not** in CI: it needs Playwright, which is not a dependency
+of this repo, and `build.test.mjs` plus `check.mjs` already gate the build. Run
+it before claiming the site works, and again against production after the owner
+flip. If Playwright is installed globally rather than beside the repo, point
+`PLAYWRIGHT` at its module path.
+
 ## Deploying
 
 `.github/workflows/portfolio-pages.yml` builds and tests on every push to `main`
@@ -134,6 +165,16 @@ not a second ask — this workflow is what it now publishes.
 Until it is set, the `deploy` job is skipped and the `build` job still runs, so
 the artifact is always proven buildable. `actions/deploy-pages` 404s while Pages
 is off, which is why the gate exists rather than letting every merge go red.
+
+The gate also requires `github.ref == 'refs/heads/main'`. `workflow_dispatch`
+can be run against any branch, and publishing the live site from a feature
+branch is not a mistake anyone would notice quickly.
+
+After deploying, the workflow fetches the real public URL — the front page,
+both sitemaps, `robots.txt`, and one product — and fails if any of them does not
+return 200, or if `sitemap.xml` comes back without a sitemap index. A completed
+deploy step is not evidence that anything serves; this makes "deployed" a fact
+rather than an inference.
 
 Only one workflow may publish to Pages. `retail-pilot-intel-deploy-docs.yml`
 reads `RETAIL_PILOT_INTEL_PAGES` instead, so an owner who wants those docs on

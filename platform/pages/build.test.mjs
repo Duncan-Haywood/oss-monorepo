@@ -781,3 +781,86 @@ test('opting out is wired to remove the personalised row, not just stop counting
   assert.match(script, /if \(optedOut\(\) \|\| honorsBrowserSignal\(\)\) return \[\]/,
     'DNT/GPC and the opt-out must both suppress it');
 });
+
+// ---------------------------------------------------------------------------
+// Shared-origin head tags, and chrome that follows the page it wraps
+// ---------------------------------------------------------------------------
+
+const everyToolPage = async () => {
+  const { outDir, surfaces } = await site();
+  const out = [];
+  for (const surface of surfaces) {
+    for (const f of await htmlPagesUnder(path.join(outDir, surface.slug))) {
+      out.push({ rel: path.relative(outDir, f), html: await fs.readFile(f, 'utf8') });
+    }
+  }
+  return out;
+};
+
+test('every published page declares exactly one canonical URL', async () => {
+  const missing = [];
+  const duplicated = [];
+  for (const { rel, html } of await everyToolPage()) {
+    const n = (html.match(/rel=["']canonical["']/gi) ?? []).length;
+    if (n === 0) missing.push(rel);
+    // Two canonicals are worse than none: the crawler then picks one at random.
+    if (n > 1) duplicated.push(`${rel} (${n})`);
+  }
+  assert.deepEqual(missing, [], 'a page with no canonical competes with its own /index.html twin');
+  assert.deepEqual(duplicated, [], 'these pages carry more than one canonical');
+});
+
+test('an injected canonical is the directory URL on the real origin', async () => {
+  const entry = await read('ebay-fee-calculator', 'index.html');
+  assert.equal(entry.match(/<link rel="canonical" href="([^"]*)"/)[1], `${BASE}ebay-fee-calculator/`);
+});
+
+test('each tool entry page carries breadcrumb structured data', async () => {
+  const { surfaces } = await site();
+  for (const surface of surfaces) {
+    const html = await read(surface.slug, 'index.html');
+    const crumb = [...html.matchAll(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/g)]
+      .map((m) => JSON.parse(m[1]))
+      .find((b) => b['@type'] === 'BreadcrumbList');
+    assert.ok(crumb, `${surface.slug} has no BreadcrumbList`);
+    assert.equal(crumb.itemListElement[0].item, BASE, 'the first crumb is the hub');
+    assert.equal(crumb.itemListElement.at(-1).item, `${BASE}${surface.slug}/`);
+    assert.equal(crumb.itemListElement.at(-1).name, surface.title);
+  }
+});
+
+test('breadcrumbs go on entry pages only', async () => {
+  // A deep SEO page inside a tool is not a third level of the site; claiming it
+  // is would describe a hierarchy that does not exist.
+  const deep = (await everyToolPage()).filter(({ rel }) => !/^[^/\\]+[/\\]index\.html$/.test(rel));
+  assert.ok(deep.length > 100, `fixture assumption: many sub-pages, saw ${deep.length}`);
+  for (const { rel, html } of deep) {
+    assert.ok(!html.includes('"BreadcrumbList"'), `${rel} should not claim to be a breadcrumb level`);
+  }
+});
+
+test('chrome takes its theme from the host page, not the operating system', async () => {
+  // Regression. The chrome used to paint an opaque band from its own palette
+  // behind `prefers-color-scheme`. Within the band that is perfectly legible —
+  // the problem is what it sits on. Most ventures here are deliberately
+  // light-only, so a visitor whose OS was dark got a near-black slab bolted to
+  // the bottom of a cream page. Measured with a headless browser at the time:
+  // the fixed version holds 13.7:1 or better on every tool in both OS schemes,
+  // and a tool with its own dark mode still flips (17.4:1 light, 15.1:1 dark).
+  const html = await read('etsy-profit-calculator', 'index.html');
+  const style = html.match(/<style id="pf-chrome-style">([\s\S]*?)<\/style>/)[1];
+
+  assert.ok(!/prefers-color-scheme/.test(style),
+    'the chrome must not branch on the OS theme — the host page decides');
+  assert.ok(!/#[0-9a-f]{3,8}\b/i.test(style),
+    `the chrome must not hard-code a colour: ${style.match(/#[0-9a-f]{3,8}\b/i)?.[0]}`);
+  assert.match(style, /color:inherit/, 'text colour comes from the page');
+  assert.match(style, /--pf-line:rgba\(128,128,128/, 'lines are neutral on either background');
+});
+
+test('injected head tags do not disturb the page they land in', async () => {
+  const html = await read('ebay-fee-calculator', 'index.html');
+  assert.equal((html.match(/<\/head>/gi) ?? []).length, 1);
+  assert.equal((html.match(/<body[^>]*>/gi) ?? []).length, 1);
+  assert.ok(html.includes('calc.mjs'), 'the calculator still loads its own module');
+});

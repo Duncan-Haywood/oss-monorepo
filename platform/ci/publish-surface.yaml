@@ -7,6 +7,9 @@
 #
 # classification: live | gated | dispatch | none  (see the module docstring)
 workflows:
+- workflow: 3pl-quote-normalizer-ci.yml
+  classification: none
+  publishes: []
 - workflow: a11y-axe-recall-ci.yml
   classification: none
   publishes: []
@@ -67,6 +70,9 @@ workflows:
 - workflow: backup-verification-evidence-ci.yml
   classification: none
   publishes: []
+- workflow: basement-finishing-bid-calculator-ci.yml
+  classification: none
+  publishes: []
 - workflow: boiler-replacement-bid-calculator-ci.yml
   classification: none
   publishes: []
@@ -113,6 +119,9 @@ workflows:
   classification: none
   publishes: []
 - workflow: forge-surface-reachability-ci.yml
+  classification: none
+  publishes: []
+- workflow: freelance-retainer-calculator-ci.yml
   classification: none
   publishes: []
 - workflow: freight-accessorial-auditor-ci.yml
@@ -200,7 +209,8 @@ workflows:
   - job: deploy
     step: uses actions/deploy-pages
     gates:
-    - ${{ github.event_name != 'pull_request' && vars.GITHUB_PAGES_ENABLED == 'true' }}
+    - ${{ github.ref == 'refs/heads/main' && github.event_name != 'pull_request' && vars.GITHUB_PAGES_ENABLED
+      == 'true' }}
 - workflow: portfolio-validate.yml
   classification: none
   publishes: []
@@ -249,6 +259,9 @@ workflows:
 - workflow: reverb-fee-calculator-ci.yml
   classification: none
   publishes: []
+- workflow: sewer-line-replace-bid-calculator-ci.yml
+  classification: none
+  publishes: []
 - workflow: shed-install-bid-calculator-ci.yml
   classification: none
   publishes: []
@@ -259,6 +272,9 @@ workflows:
   classification: none
   publishes: []
 - workflow: shopify-permission-drift-ci.yml
+  classification: none
+  publishes: []
+- workflow: skylight-install-bid-calculator-ci.yml
   classification: none
   publishes: []
 - workflow: sod-install-bid-calculator-ci.yml
