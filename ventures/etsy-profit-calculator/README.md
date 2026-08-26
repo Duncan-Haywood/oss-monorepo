@@ -137,6 +137,27 @@ page
 [should-i-use-an-etsy-production-partner.html](should-i-use-an-etsy-production-partner.html)
 walks through the same examples.
 
+## Does Star Seller still beat staying unsigned?
+
+The badge is free. The cash it costs is a faster label to stay on-time
+and the minutes you spend answering messages in 24 hours. The cash it
+returns is a higher sell-through on the same listings. Message time is
+paid only on packed sales.
+
+On the default $30 listing, $6.00 unsigned postage vs $9.00 Star Seller
+postage, 8 minutes at $18/hour, and 40% vs 50% sell-through, a packed
+unsigned sale keeps $21.23 and a packed Star Seller sale keeps $15.83.
+Expected keep is $8.49 vs $7.91 — $0.58 less per listing, $23.20 less
+across 40 listings. The badge has to convert about 53.6% before it
+matches staying unsigned. Star Seller postage has to stay at or below
+about $7.85 at this lift. A 20-point lift (40% → 60%) flips Star Seller
+ahead by $1.01 per listing. A $7.00 Star Seller label keeps $0.42 more.
+A shop already converting 70% that only lifts to 75% still loses $2.99
+per listing. A 20% → 35% shop keeps $1.29 more with the badge. The SEO
+page
+[is-etsy-star-seller-worth-it.html](is-etsy-star-seller-worth-it.html)
+walks through the same examples.
+
 [GitHub Sponsors](https://github.com/sponsors/Duncan-Haywood) is entirely
 optional and never changes what the calculator does.
 

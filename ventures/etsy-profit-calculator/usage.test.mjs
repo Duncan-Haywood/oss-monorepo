@@ -28,6 +28,8 @@ test('supports a named aggregate event without recording inputs', () => {
   assert.equal(JSON.parse(values.get('etsy-profit-usage')).etsy_ads_compared, 1);
   recordUsage(storage, false, 'production_partner_compared');
   assert.equal(JSON.parse(values.get('etsy-profit-usage')).production_partner_compared, 1);
+  recordUsage(storage, false, 'star_seller_compared');
+  assert.equal(JSON.parse(values.get('etsy-profit-usage')).star_seller_compared, 1);
 });
 
 test('honors Do Not Track without recording', () => {
