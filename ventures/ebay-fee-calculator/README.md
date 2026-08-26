@@ -462,7 +462,9 @@ The calculator saves its numeric assumptions in your browser so returning
 sellers do not re-enter them, including the expected return rate and return
 postage. **Copy shareable link** puts those assumptions in the URL fragment
 for a collaborator; anyone with the link can read the figures, so do not
-share sensitive information. Nothing is uploaded. Use **Reset saved inputs**
+share sensitive information. Nothing is uploaded. **Download repricing CSV**
+exports the price-sensitivity table (item price, offset, net, margin, unit
+profit, and change versus the current list). Use **Reset saved inputs**
 to remove the local setup.
 
 ## Development

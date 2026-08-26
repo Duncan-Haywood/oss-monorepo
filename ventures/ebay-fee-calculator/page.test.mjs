@@ -527,3 +527,10 @@ test('the eBay-label table has one cell per column and a counted event', () => {
     'vs eBay',
   ]);
 });
+
+test('Download repricing CSV is wired to the calculated table', () => {
+  assert.match(page, /id="download"/);
+  assert.match(page, /repricingCsv/);
+  assert.match(page, /repricing_csv_downloaded/);
+  assert.match(page, /from '\.\/csv\.mjs'/);
+});
