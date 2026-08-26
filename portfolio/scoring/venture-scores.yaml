@@ -5356,3 +5356,39 @@ ventures:
       determination. The starting fleet estimate and daily rents are labelled
       planning figures rather than a code table, and nothing the user enters
       leaves the browser.
+
+  - slug: fence-bid-calculator
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 7
+      gross_margin: 10
+      defensibility: 5
+      distribution: 7
+    composite: 6.667
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      There is no AI anywhere in the product. The value is a domain model —
+      posts from spacing, terminals, gates, and site multipliers — that is
+      arithmetic, and adding inference to it would only make the result less
+      checkable.
+    basis: >-
+      Graduated on 2026-08-24 as a browser-local fence installation bid
+      calculator. Scored with the other trade bid calculators: defensibility 5
+      because the post-and-gate model encodes how the trade actually loses
+      money, rather than restating a published fee schedule, and the
+      incumbents are paid estimating suites plus ad-funded per-foot pages.
+      Distribution 7: "fence installation cost calculator" and "how to bid a
+      fence job" are searchable phrases bought by an operator with a real
+      quote on the line, and less saturated than marketplace-fee queries.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Pass: the output is arithmetic on the contractor's own inputs, never a
+      recommended price, a wage determination, or an engineering or
+      property-line opinion. The shipped material and hour figures are
+      labelled ballpark starting points rather than a price book, and nothing
+      the user enters leaves the browser.

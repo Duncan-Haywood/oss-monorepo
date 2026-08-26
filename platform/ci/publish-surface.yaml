@@ -217,6 +217,9 @@ workflows:
 - workflow: faire-wholesale-calculator-ci.yml
   classification: none
   publishes: []
+- workflow: fence-bid-calculator-ci.yml
+  classification: none
+  publishes: []
 - workflow: fifo-pick-evidence-ci.yml
   classification: none
   publishes: []

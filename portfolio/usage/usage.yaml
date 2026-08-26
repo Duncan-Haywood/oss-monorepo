@@ -3217,3 +3217,16 @@ products:
           optional starting fleet estimate, copyable quote summary). Public
           URL remains owner-gated; the local-first counter reports only to
           the user's own browser. Baseline row.
+
+  - slug: fence-bid-calculator
+    surface: static-page-in-repo
+    readings:
+      - as_of: 2026-08-25
+        signals:
+          live_url_visitors: null
+          local_events_reported: 0
+        note: >-
+          Shipped a local fence install bid calculator (posts from spacing,
+          terminals, gates, site multipliers, walk-away price). Public URL
+          remains owner-gated; the local-first counter reports only to the
+          user's own browser. Baseline row.
