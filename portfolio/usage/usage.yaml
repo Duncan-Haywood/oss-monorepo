@@ -2139,6 +2139,18 @@ products:
           prices bags from the R-value delta, air sealing, and access a
           flat attic special hides; public URL remains owner-gated and
           the browser counter is local and opt-out. Baseline row.
+  - slug: spray-foam-bid-calculator
+    surface: static-page-in-repo
+    readings:
+      - as_of: 2026-08-26
+        signals:
+          live_url_visitors: null
+          local_events_reported: 0
+        note: >-
+          Rematched the unique spray-foam bid calculator (board feet, cell,
+          rim, ignition coating) that an attic-square-foot special cannot
+          see; public URL remains owner-gated and the browser counter is
+          local and opt-out. Baseline row.
   - slug: window-replacement-bid-calculator
     surface: static-page-in-repo
     readings:
