@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://example.invalid/carpet-cleaning-bid-calculator/sitemap.xml
