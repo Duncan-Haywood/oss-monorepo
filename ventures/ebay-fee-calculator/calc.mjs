@@ -85,6 +85,17 @@ export const INPUT_FIELDS = [
   'offsiteExtraOrders',
   'offsitePromotedRate',
   'monthlyOffsiteCampaigns',
+  'qtyDiscountUnits',
+  'qtyDiscountPercent',
+  'qtyShippingCharged',
+  'qtyShippingCost',
+  'qtyPackagingCost',
+  'qtyReturnShippingCost',
+  'qtyFixedFee',
+  'qtyReturnRatePercent',
+  'singlesSellThroughPct',
+  'qtyTakePct',
+  'monthlyQtyOrders',
 ];
 
 export function calculateOrder(input) {
@@ -1972,4 +1983,297 @@ export function promotedOffsiteNote(comparison) {
     ? ` Extra sales have to stay at about ${comparison.breakEvenExtraOrders.toFixed(2)} before Offsite matches skip.`
     : ' No extra-sale count on these rates can match skip-Offsite.';
   return `${skipLine} ${offsiteLine}${floor}`;
+}
+
+/**
+ * Illustrative quantity-discount extras. Two units at 10% off is
+ * the first tier eBay surfaces. $6 charged / $5.50 label / $1.25
+ * pack is one slightly heavier box instead of two $5+$1 singles.
+ * 55% vs 70% is a 15-point multi-buy lift — both typed, not
+ * scraped from Seller Hub. Twenty orders is a placeholder
+ * volume, not a forecast.
+ */
+export const DEFAULT_QTY_DISCOUNT_UNITS = 2;
+export const DEFAULT_QTY_DISCOUNT_PERCENT = 10;
+export const DEFAULT_QTY_SHIPPING_CHARGED = 6;
+export const DEFAULT_QTY_SHIPPING_COST = 5.5;
+export const DEFAULT_QTY_PACKAGING_COST = 1.25;
+export const DEFAULT_QTY_RETURN_SHIPPING_COST = 5.5;
+export const DEFAULT_QTY_FIXED_FEE = 0.3;
+export const DEFAULT_SINGLES_SELL_THROUGH = 55;
+export const DEFAULT_QTY_TAKE_PCT = 70;
+export const DEFAULT_MONTHLY_QTY_ORDERS = 20;
+
+function qtyDiscountUnitPrice(listPrice, discountPercent) {
+  return Math.max(0, listPrice * (1 - discountPercent / 100));
+}
+
+function qtyDiscountSold(input, {
+  units,
+  discountPercent,
+  charged,
+  ship,
+  pack,
+  returnShip,
+  fixed,
+  returnRate,
+}) {
+  const listedPrice = optionalNumber(input.price, 'Item price');
+  const unitPrice = qtyDiscountUnitPrice(listedPrice, discountPercent);
+  const costOfGoods = optionalNumber(input.costOfGoods, 'Cost of goods', 0);
+  const otherCost = optionalNumber(input.otherCost, 'Other cost', 0);
+  return {
+    unitPrice,
+    sold: calculateOrder({
+      ...input,
+      quantity: 1,
+      price: unitPrice * units,
+      costOfGoods: costOfGoods * units,
+      otherCost: otherCost * units,
+      shippingCharged: charged,
+      shippingCost: ship,
+      packagingCost: pack,
+      returnShippingCost: returnShip,
+      fixedFee: fixed,
+      returnRatePercent: returnRate,
+    }),
+  };
+}
+
+function qtyRow({
+  id,
+  label,
+  units,
+  shipments,
+  unitPrice,
+  shippingCharged,
+  postageAndPack,
+  sellThroughPct,
+  completedProfit,
+  soldExpectedProfit,
+}) {
+  return {
+    id,
+    label,
+    units,
+    shipments,
+    unitPrice,
+    shippingCharged,
+    postageAndPack,
+    sellThroughPct,
+    completedProfit,
+    soldExpectedProfit,
+    expectedProfit: soldExpectedProfit * (sellThroughPct / 100),
+    expectedProfitDelta: 0,
+  };
+}
+
+/**
+ * Same multi-quantity SKU, two ways to move N units: sell them
+ * as N separate singles at list, or turn on a quantity discount
+ * so one buyer takes all N at a percent off, one shipping
+ * charge, and one label.
+ *
+ * This is not combined shipping (already-sold different items,
+ * no price cut). It is not lot-versus-singles (one listing of a
+ * pile versus N listings). It is not a seller-initiated offer
+ * (one unit, percent off to watchers). Promoted Offsite (#1653) is a campaign billed either way,
+ * not a price cut. Open eBay PRs still own promoted Standard,
+ * store, incoming Best Offer, international, Managed Returns,
+ * and Top Rated Plus. Postage, the discount,
+ * and both close rates are inputs, not eBay volume-pricing
+ * policy.
+ */
+export function compareQuantityDiscount(input) {
+  const listedPrice = optionalNumber(input.price, 'Item price');
+  if (listedPrice === undefined) {
+    throw new Error('Item price must be a non-negative number');
+  }
+
+  const units = requiredWholeCount(
+    input.qtyDiscountUnits,
+    'Quantity-discount units',
+    DEFAULT_QTY_DISCOUNT_UNITS,
+  );
+  const discountPercent = requiredPercent(
+    input.qtyDiscountPercent,
+    'Quantity-discount percent',
+    DEFAULT_QTY_DISCOUNT_PERCENT,
+  );
+  const charged = optionalNumber(
+    input.qtyShippingCharged,
+    'Quantity-discount shipping charged',
+    DEFAULT_QTY_SHIPPING_CHARGED,
+  );
+  const ship = optionalNumber(
+    input.qtyShippingCost,
+    'Quantity-discount postage',
+    DEFAULT_QTY_SHIPPING_COST,
+  );
+  const pack = optionalNumber(
+    input.qtyPackagingCost,
+    'Quantity-discount packaging',
+    DEFAULT_QTY_PACKAGING_COST,
+  );
+  const returnShip = optionalNumber(
+    input.qtyReturnShippingCost,
+    'Quantity-discount return postage',
+    DEFAULT_QTY_RETURN_SHIPPING_COST,
+  );
+  const fixed = optionalNumber(
+    input.qtyFixedFee,
+    'Quantity-discount per-order fixed fee',
+    DEFAULT_QTY_FIXED_FEE,
+  );
+  const returnRate = requiredPercent(
+    input.qtyReturnRatePercent,
+    'Quantity-discount return rate',
+    optionalNumber(input.returnRatePercent, 'Expected return rate', 0),
+  );
+  const singlesSellThroughPct = requiredPercent(
+    input.singlesSellThroughPct,
+    'Singles sell-through',
+    DEFAULT_SINGLES_SELL_THROUGH,
+  );
+  const qtyTakePct = requiredPercent(
+    input.qtyTakePct,
+    'Quantity-discount take rate',
+    DEFAULT_QTY_TAKE_PCT,
+  );
+  const monthlyQtyOrders = optionalNumber(
+    input.monthlyQtyOrders,
+    'Monthly quantity-discount orders',
+    DEFAULT_MONTHLY_QTY_ORDERS,
+  );
+
+  const singleSold = calculateOrder({ ...input, quantity: 1 });
+  const discountEval = qtyDiscountSold(input, {
+    units,
+    discountPercent,
+    charged,
+    ship,
+    pack,
+    returnShip,
+    fixed,
+    returnRate,
+  });
+
+  const singlesPostage = (optionalNumber(input.shippingCost, 'Shipping cost', 0)
+    + optionalNumber(input.packagingCost, 'Packaging cost', 0)) * units;
+  const singlesCharged = optionalNumber(input.shippingCharged, 'Shipping charged', 0) * units;
+
+  const singles = qtyRow({
+    id: 'singles',
+    label: `Sell ${units} separately`,
+    units,
+    shipments: units,
+    unitPrice: listedPrice,
+    shippingCharged: singlesCharged,
+    postageAndPack: singlesPostage,
+    sellThroughPct: singlesSellThroughPct,
+    completedProfit: singleSold.profit * units,
+    soldExpectedProfit: singleSold.expectedProfit * units,
+  });
+  const discount = qtyRow({
+    id: 'discount',
+    label: `Sell ${units} at ${discountPercent}% off, one box`,
+    units,
+    shipments: 1,
+    unitPrice: discountEval.unitPrice,
+    shippingCharged: charged,
+    postageAndPack: ship + pack,
+    sellThroughPct: qtyTakePct,
+    completedProfit: discountEval.sold.profit,
+    soldExpectedProfit: discountEval.sold.expectedProfit,
+  });
+  singles.expectedProfitDelta = singles.expectedProfit - discount.expectedProfit;
+  discount.expectedProfitDelta = discount.expectedProfit - singles.expectedProfit;
+
+  const extraKeptOnDiscount = discount.expectedProfit - singles.expectedProfit;
+  const extraPackedOnDiscount = discount.soldExpectedProfit - singles.soldExpectedProfit;
+  const winner = extraKeptOnDiscount > 1e-9
+    ? 'discount'
+    : extraKeptOnDiscount < -1e-9
+      ? 'singles'
+      : 'tie';
+
+  const atZero = qtyDiscountSold(input, {
+    units,
+    discountPercent: 0,
+    charged,
+    ship,
+    pack,
+    returnShip,
+    fixed,
+    returnRate,
+  }).sold.expectedProfit;
+  const atTwenty = qtyDiscountSold(input, {
+    units,
+    discountPercent: 20,
+    charged,
+    ship,
+    pack,
+    returnShip,
+    fixed,
+    returnRate,
+  }).sold.expectedProfit;
+  const packedSlope = (atTwenty - atZero) / 20;
+  let breakEvenDiscountPercent = Infinity;
+  if (Math.abs(packedSlope) > 1e-12) {
+    const needed = (singles.soldExpectedProfit - atZero) / packedSlope;
+    breakEvenDiscountPercent = needed < -1e-9 ? Infinity : needed;
+  }
+
+  const breakEvenTakePct = discount.soldExpectedProfit <= 1e-12
+    ? (singles.expectedProfit <= 1e-12 ? 0 : Infinity)
+    : (singles.expectedProfit / discount.soldExpectedProfit) * 100;
+
+  return {
+    rows: [singles, discount],
+    singles,
+    discount,
+    winner,
+    units,
+    discountPercent,
+    charged,
+    ship,
+    pack,
+    returnShip,
+    fixed,
+    returnRate,
+    singlesSellThroughPct,
+    qtyTakePct,
+    monthlyQtyOrders,
+    extraKeptOnDiscount,
+    extraPackedOnDiscount,
+    monthlyExtraOnDiscount: extraKeptOnDiscount * monthlyQtyOrders,
+    breakEvenDiscountPercent,
+    breakEvenTakePct,
+    discountPays: extraKeptOnDiscount > 1e-9,
+  };
+}
+
+export function quantityDiscountNote(comparison) {
+  if (!comparison?.singles || !comparison?.discount) {
+    throw new Error('Quantity-discount comparison is missing rows');
+  }
+  const money = (value) => {
+    const sign = value < 0 ? '-' : '';
+    return `${sign}$${Math.abs(value).toFixed(2)}`;
+  };
+  const { singles, discount } = comparison;
+  const packedGap = money(Math.abs(discount.soldExpectedProfit - singles.soldExpectedProfit));
+  const packedAhead = discount.soldExpectedProfit >= singles.soldExpectedProfit ? 'more' : 'less';
+  const stGap = money(Math.abs(discount.expectedProfit - singles.expectedProfit));
+  const stAhead = discount.expectedProfit >= singles.expectedProfit ? 'more' : 'less';
+  const singlesLine = `Selling ${comparison.units} separately at ${money(singles.unitPrice)} each, collecting ${money(singles.shippingCharged)} postage and paying ${money(singles.postageAndPack)} postage and pack, expects ${money(singles.soldExpectedProfit)} after the typed return rate.`;
+  const discountLine = ` Selling ${comparison.units} at ${comparison.discountPercent}% off (${money(discount.unitPrice)} each) in one box, collecting ${money(discount.shippingCharged)} and paying ${money(discount.postageAndPack)}, expects ${money(discount.soldExpectedProfit)} — ${packedGap} ${packedAhead} on leftover.`;
+  const closeLine = ` At ${singles.sellThroughPct}% singles sell-through versus a ${discount.sellThroughPct}% multi-buy take rate, singles expect ${money(singles.expectedProfit)} and the discount expects ${money(discount.expectedProfit)} — ${stGap} ${stAhead}.`;
+  const take = Number.isFinite(comparison.breakEvenTakePct)
+    ? ` The multi-buy has to be taken about ${comparison.breakEvenTakePct.toFixed(1)}% of the time before it matches selling separately after sell-through.`
+    : ' No finite take rate can match selling separately when a packed multi-buy leaves $0.00 or less.';
+  const ceiling = Number.isFinite(comparison.breakEvenDiscountPercent)
+    ? ` On leftover, the discount has to stay at or below about ${comparison.breakEvenDiscountPercent.toFixed(1)}% off before one box matches ${comparison.units} singles.`
+    : '';
+  return `${singlesLine}${discountLine}${closeLine}${take}${ceiling}`;
 }

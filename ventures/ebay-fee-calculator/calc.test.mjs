@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { calculateOrder, calculatePriceScenarios, calculateRepricingTable, compareListingFormat, listingFormatNote, comparePartialRefund, partialRefundNote, DEFAULT_PARTIAL_REFUND, DEFAULT_MONTHLY_CASES, compareAuthenticity, authenticityNote, DEFAULT_AUTHENTICITY_FEE_RATE, DEFAULT_AUTHENTICITY_EXTRA_SHIP, DEFAULT_WITHOUT_AG_SELL_THROUGH, DEFAULT_AUTHENTICITY_SELL_THROUGH, DEFAULT_AUTHENTICITY_RETURN_RATE, DEFAULT_MONTHLY_AG_LISTINGS, compareLocalPickup, localPickupNote, DEFAULT_SHIP_SELL_THROUGH, DEFAULT_PICKUP_SELL_THROUGH, DEFAULT_PICKUP_NO_SHOW, DEFAULT_PICKUP_MINUTES, DEFAULT_PICKUP_HOURLY_WAGE, DEFAULT_MONTHLY_PICKUP_LISTINGS, compareLotVsSingles, lotVsSinglesNote, DEFAULT_LOT_PIECE_COUNT, DEFAULT_SINGLE_EXPECTED_PRICE, DEFAULT_LOT_SELL_THROUGH, DEFAULT_SINGLE_SELL_THROUGH, DEFAULT_SINGLE_INSERTION_FEE, DEFAULT_MONTHLY_LOT_DECISIONS, compareStandardEnvelope, standardEnvelopeNote, DEFAULT_ENVELOPE_SHIPPING_COST, DEFAULT_ENVELOPE_PACKAGING_COST, DEFAULT_ENVELOPE_CLAIM_RATE, DEFAULT_ENVELOPE_FEE_REFUND_ON_CLAIM, DEFAULT_TRACKED_SELL_THROUGH, DEFAULT_ENVELOPE_SELL_THROUGH, DEFAULT_MONTHLY_ENVELOPE_LISTINGS, compareCombinedShipping, combinedShippingNote, DEFAULT_COMBINED_ITEM_COUNT, DEFAULT_COMBINED_SHIPPING_CHARGED, DEFAULT_COMBINED_SHIPPING_COST, DEFAULT_COMBINED_PACKAGING_COST, DEFAULT_COMBINED_RETURN_SHIPPING_COST, DEFAULT_COMBINED_FIXED_FEE, DEFAULT_MONTHLY_COMBINED_ORDERS, compareSellerInitiatedOffer, sellerInitiatedOfferNote, DEFAULT_OFFER_PERCENT, DEFAULT_WAIT_SELL_THROUGH, DEFAULT_OFFER_ACCEPT, DEFAULT_MONTHLY_OFFERS, comparePromotedOffsite, promotedOffsiteNote, DEFAULT_OFFSITE_SPEND, DEFAULT_OFFSITE_EXTRA_ORDERS, DEFAULT_MONTHLY_OFFSITE_CAMPAIGNS } from './calc.mjs';
+import { calculateOrder, calculatePriceScenarios, calculateRepricingTable, compareListingFormat, listingFormatNote, comparePartialRefund, partialRefundNote, DEFAULT_PARTIAL_REFUND, DEFAULT_MONTHLY_CASES, compareAuthenticity, authenticityNote, DEFAULT_AUTHENTICITY_FEE_RATE, DEFAULT_AUTHENTICITY_EXTRA_SHIP, DEFAULT_WITHOUT_AG_SELL_THROUGH, DEFAULT_AUTHENTICITY_SELL_THROUGH, DEFAULT_AUTHENTICITY_RETURN_RATE, DEFAULT_MONTHLY_AG_LISTINGS, compareLocalPickup, localPickupNote, DEFAULT_SHIP_SELL_THROUGH, DEFAULT_PICKUP_SELL_THROUGH, DEFAULT_PICKUP_NO_SHOW, DEFAULT_PICKUP_MINUTES, DEFAULT_PICKUP_HOURLY_WAGE, DEFAULT_MONTHLY_PICKUP_LISTINGS, compareLotVsSingles, lotVsSinglesNote, DEFAULT_LOT_PIECE_COUNT, DEFAULT_SINGLE_EXPECTED_PRICE, DEFAULT_LOT_SELL_THROUGH, DEFAULT_SINGLE_SELL_THROUGH, DEFAULT_SINGLE_INSERTION_FEE, DEFAULT_MONTHLY_LOT_DECISIONS, compareStandardEnvelope, standardEnvelopeNote, DEFAULT_ENVELOPE_SHIPPING_COST, DEFAULT_ENVELOPE_PACKAGING_COST, DEFAULT_ENVELOPE_CLAIM_RATE, DEFAULT_ENVELOPE_FEE_REFUND_ON_CLAIM, DEFAULT_TRACKED_SELL_THROUGH, DEFAULT_ENVELOPE_SELL_THROUGH, DEFAULT_MONTHLY_ENVELOPE_LISTINGS, compareCombinedShipping, combinedShippingNote, DEFAULT_COMBINED_ITEM_COUNT, DEFAULT_COMBINED_SHIPPING_CHARGED, DEFAULT_COMBINED_SHIPPING_COST, DEFAULT_COMBINED_PACKAGING_COST, DEFAULT_COMBINED_RETURN_SHIPPING_COST, DEFAULT_COMBINED_FIXED_FEE, DEFAULT_MONTHLY_COMBINED_ORDERS, compareSellerInitiatedOffer, sellerInitiatedOfferNote, DEFAULT_OFFER_PERCENT, DEFAULT_WAIT_SELL_THROUGH, DEFAULT_OFFER_ACCEPT, DEFAULT_MONTHLY_OFFERS, comparePromotedOffsite, promotedOffsiteNote, DEFAULT_OFFSITE_SPEND, DEFAULT_OFFSITE_EXTRA_ORDERS, DEFAULT_MONTHLY_OFFSITE_CAMPAIGNS, compareQuantityDiscount, quantityDiscountNote, DEFAULT_QTY_DISCOUNT_UNITS, DEFAULT_QTY_DISCOUNT_PERCENT, DEFAULT_QTY_SHIPPING_CHARGED, DEFAULT_QTY_SHIPPING_COST, DEFAULT_QTY_PACKAGING_COST, DEFAULT_QTY_RETURN_SHIPPING_COST, DEFAULT_QTY_FIXED_FEE, DEFAULT_SINGLES_SELL_THROUGH, DEFAULT_QTY_TAKE_PCT, DEFAULT_MONTHLY_QTY_ORDERS } from './calc.mjs';
 
 const near = (actual, expected, msg) => assert.ok(Math.abs(actual - expected) < 1e-6, `${msg}: ${actual} vs ${expected}`);
 
@@ -947,4 +947,102 @@ test('rejects a missing price, a negative spend, and a missing Offsite compariso
   assert.throws(() => comparePromotedOffsite({ ...offsiteBase, offsiteExtraOrders: -1 }), /Extra Offsite orders/);
   assert.throws(() => comparePromotedOffsite({ ...offsiteBase, offsitePromotedRate: 101 }), /at most 100/);
   assert.throws(() => promotedOffsiteNote({}), /missing rows/);
+});
+
+test('compares 10% off two units against two singles on the default listing', () => {
+  // Two singles: completed $43.21; 10% mix → $36.689 packed; 55% → $20.17895.
+  // 10% off ($36) in one $6 / $5.50 / $1.25 box: completed $36.615;
+  // packed $31.7285; 70% take → $22.20995. Discount is ahead after
+  // sell-through and behind on leftover.
+  const comparison = compareQuantityDiscount(agBase);
+  assert.equal(comparison.units, DEFAULT_QTY_DISCOUNT_UNITS);
+  assert.equal(comparison.discountPercent, DEFAULT_QTY_DISCOUNT_PERCENT);
+  assert.equal(comparison.charged, DEFAULT_QTY_SHIPPING_CHARGED);
+  assert.equal(comparison.ship, DEFAULT_QTY_SHIPPING_COST);
+  assert.equal(comparison.pack, DEFAULT_QTY_PACKAGING_COST);
+  assert.equal(comparison.returnShip, DEFAULT_QTY_RETURN_SHIPPING_COST);
+  assert.equal(comparison.fixed, DEFAULT_QTY_FIXED_FEE);
+  assert.equal(comparison.singles.sellThroughPct, DEFAULT_SINGLES_SELL_THROUGH);
+  assert.equal(comparison.discount.sellThroughPct, DEFAULT_QTY_TAKE_PCT);
+  assert.equal(comparison.monthlyQtyOrders, DEFAULT_MONTHLY_QTY_ORDERS);
+  near(comparison.discount.unitPrice, 36, '10% of $40');
+  near(comparison.singles.completedProfit, 43.21, 'two completed singles');
+  near(comparison.singles.soldExpectedProfit, 36.689, 'two packed singles');
+  near(comparison.singles.expectedProfit, 36.689 * 0.55, 'singles after 55%');
+  near(comparison.discount.completedProfit, 36.615, 'discount completed');
+  near(comparison.discount.soldExpectedProfit, 31.7285, 'discount packed leftover');
+  near(comparison.discount.expectedProfit, 31.7285 * 0.70, 'discount after 70%');
+  near(comparison.extraPackedOnDiscount, 31.7285 - 36.689, 'packed gap');
+  near(comparison.extraKeptOnDiscount, 31.7285 * 0.70 - 36.689 * 0.55, 'ST gap');
+  near(comparison.monthlyExtraOnDiscount, (31.7285 * 0.70 - 36.689 * 0.55) * 20, 'twenty orders');
+  near(comparison.breakEvenTakePct, (36.689 * 0.55) / 31.7285 * 100, 'take floor');
+  assert.equal(comparison.winner, 'discount');
+  assert.equal(comparison.discountPays, true);
+});
+
+test('break-even discount percent and take rate match selling separately', () => {
+  const comparison = compareQuantityDiscount(agBase);
+  const atPercent = compareQuantityDiscount({
+    ...agBase,
+    qtyDiscountPercent: comparison.breakEvenDiscountPercent,
+  });
+  near(atPercent.discount.soldExpectedProfit, atPercent.singles.soldExpectedProfit, 'ceiling percent ties leftover');
+  const atTake = compareQuantityDiscount({
+    ...agBase,
+    qtyTakePct: comparison.breakEvenTakePct,
+  });
+  near(atTake.discount.expectedProfit, atTake.singles.expectedProfit, 'ceiling take ties sell-through');
+  assert.ok(comparison.breakEvenDiscountPercent < 10, 'default 10% off is above the leftover ceiling');
+  assert.ok(comparison.breakEvenTakePct < 70, 'default 70% take is above the floor');
+  near(comparison.breakEvenDiscountPercent, 2.0581171950048014, 'leftover ceiling');
+});
+
+test('a 20% quantity discount loses even at the default take rate', () => {
+  const comparison = compareQuantityDiscount({ ...agBase, qtyDiscountPercent: 20 });
+  assert.equal(comparison.winner, 'singles');
+  near(comparison.discount.unitPrice, 32, '20% of $40');
+  near(comparison.discount.soldExpectedProfit, 25.4825, '20% packed leftover');
+  near(comparison.discount.expectedProfit, 25.4825 * 0.70, '20% after 70%');
+  assert.equal(comparison.discountPays, false);
+});
+
+test('matching the singles sell-through already loses on a 10% discount', () => {
+  const comparison = compareQuantityDiscount({ ...agBase, qtyTakePct: 55 });
+  assert.equal(comparison.winner, 'singles');
+  near(comparison.discount.expectedProfit, 31.7285 * 0.55, 'matched take');
+  near(comparison.singles.expectedProfit, 36.689 * 0.55, 'unchanged singles');
+});
+
+test('expensive singles labels flip leftover in favor of the multi-buy', () => {
+  const comparison = compareQuantityDiscount({ ...agBase, shippingCost: 12 });
+  assert.ok(comparison.extraPackedOnDiscount > 0, 'saving two $12 labels covers 10% off');
+  assert.equal(comparison.winner, 'discount');
+});
+
+test('quantity-discount note reports both frames without telling the seller which to offer', () => {
+  const note = quantityDiscountNote(compareQuantityDiscount(agBase));
+  assert.match(note, /Selling 2 separately/);
+  assert.match(note, /\$40\.00/);
+  assert.match(note, /\$36\.69/);
+  assert.match(note, /10% off/);
+  assert.match(note, /\$36\.00/);
+  assert.match(note, /\$31\.73/);
+  assert.match(note, /\$4\.96/);
+  assert.match(note, /55%/);
+  assert.match(note, /70%/);
+  assert.match(note, /\$20\.18/);
+  assert.match(note, /\$22\.21/);
+  assert.match(note, /\$2\.03/);
+  assert.match(note, /63\.6%/);
+  assert.match(note, /2\.1%/);
+  assert.doesNotMatch(note, /should offer the discount|must sell separately/i);
+});
+
+test('rejects a quantity-discount percent above 100% and a missing comparison', () => {
+  assert.throws(() => compareQuantityDiscount({ ...agBase, qtyDiscountPercent: 101 }), /at most 100/);
+  assert.throws(() => compareQuantityDiscount({ ...agBase, singlesSellThroughPct: 101 }), /at most 100/);
+  assert.throws(() => compareQuantityDiscount({ ...agBase, qtyTakePct: -1 }), /Quantity-discount take rate/);
+  assert.throws(() => compareQuantityDiscount({ ...agBase, qtyDiscountUnits: 1 }), /at least 2/);
+  assert.throws(() => compareQuantityDiscount({ price: -1 }), /Item price/);
+  assert.throws(() => quantityDiscountNote({}), /missing rows/);
 });

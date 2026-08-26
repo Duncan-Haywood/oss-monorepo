@@ -4,10 +4,10 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>eBay Fee &amp; Profit Calculator | Reseller Margin and ROI</title>
-  <meta name="description" content="Calculate eBay order profit, margin, ROI, and break-even resale price after fees, shipping, and cost of goods — then see what a return rate still leaves, whether a partial refund beats taking the return, whether Authenticity Guarantee still pays after the hub label, whether local pickup still beats the label after no-shows, whether keeping a lot still beats splitting it into singles, whether a Standard Envelope still beats a tracked label after item-not-received claims, whether combining two sold items still beats two labels, whether a seller-initiated offer still beats waiting for Buy It Now, whether Promoted Offsite still pays after a bill that is charged even if they bounce, whether auction beats Buy It Now after sell-through, and compare nearby listing prices before you reprice.">
+  <meta name="description" content="Calculate eBay order profit, margin, ROI, and break-even resale price after fees, shipping, and cost of goods — then see what a return rate still leaves, whether a partial refund beats taking the return, whether Authenticity Guarantee still pays after the hub label, whether local pickup still beats the label after no-shows, whether keeping a lot still beats splitting it into singles, whether a Standard Envelope still beats a tracked label after item-not-received claims, whether combining two sold items still beats two labels, whether a seller-initiated offer still beats waiting for Buy It Now, whether Promoted Offsite still pays after a bill that is charged even if they bounce, whether a quantity discount still beats selling separately, whether auction beats Buy It Now after sell-through, and compare nearby listing prices before you reprice.">
   <meta property="og:title" content="eBay Fee &amp; Profit Calculator">
-  <meta property="og:description" content="See what an eBay sale really leaves after fees, cost of goods, returns, a partial refund versus taking the return, Authenticity Guarantee versus skip-AG, local pickup versus the label, a lot versus individual listings, Standard Envelope versus a tracked label, combined shipping versus two labels, a seller-initiated offer versus waiting, Promoted Offsite versus skip after a bill that is charged either way, and auction versus Buy It Now sell-through.">
-  <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"eBay Fee & Profit Calculator","applicationCategory":"BusinessApplication","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"featureList":"eBay fee breakdown, net profit, margin, return on investment, break-even resale price, target-margin price, batch profit, expected profit after returns, partial refund vs take the return, Authenticity Guarantee vs skip-AG after sell-through, local pickup vs ship after no-shows, lot vs individual listings after sell-through, Standard Envelope vs tracked label after item-not-received claims, combined shipping vs separate labels after returns, seller-initiated offer vs waiting after sell-through, Promoted Offsite vs skip after a bill charged either way, auction vs Buy It Now after sell-through, repricing sensitivity table"}</script>
+  <meta property="og:description" content="See what an eBay sale really leaves after fees, cost of goods, returns, a partial refund versus taking the return, Authenticity Guarantee versus skip-AG, local pickup versus the label, a lot versus individual listings, Standard Envelope versus a tracked label, combined shipping versus two labels, a seller-initiated offer versus waiting, Promoted Offsite versus skip after a bill that is charged either way, a quantity discount versus selling separately, and auction versus Buy It Now sell-through.">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"eBay Fee & Profit Calculator","applicationCategory":"BusinessApplication","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"featureList":"eBay fee breakdown, net profit, margin, return on investment, break-even resale price, target-margin price, batch profit, expected profit after returns, partial refund vs take the return, Authenticity Guarantee vs skip-AG after sell-through, local pickup vs ship after no-shows, lot vs individual listings after sell-through, Standard Envelope vs tracked label after item-not-received claims, combined shipping vs separate labels after returns, seller-initiated offer vs waiting after sell-through, Promoted Offsite vs skip after a bill charged either way, quantity discount vs selling separately after sell-through, auction vs Buy It Now after sell-through, repricing sensitivity table"}</script>
   <style>
     :root { color-scheme: light; font-family: system-ui, sans-serif; color: #1d2530; background: #eef2f7; }
     body { max-width: 980px; margin: 0 auto; padding: 32px 18px; }
@@ -40,7 +40,7 @@
   <header>
     <p class="eyebrow">FOR EBAY RESELLERS</p>
     <h1>Know what each sale really leaves.</h1>
-    <p>Enter your eBay fees, shipping, and what you paid for the item to see net profit, margin, return on your invested cash, and the lowest resale price that still breaks even. Then see what a realistic return rate still leaves — the outbound label and return postage usually stay with you — whether a partial refund still beats taking that return, whether Authenticity Guarantee still pays after the hub label, whether local pickup still beats the label after no-shows and meetup time, whether keeping a lot still beats splitting it into singles after five labels and listing time, whether a Standard Envelope still beats a tracked label after item-not-received claims, whether combining two already-sold items still beats two labels after the shipping discount, whether sending a seller-initiated offer still beats waiting for Buy It Now after a typed accept rate, whether a Promoted Offsite campaign still pays after a bill that is charged even if they bounce, whether an auction still beats Buy It Now after sell-through, and nearby listing prices before you reprice.</p>
+    <p>Enter your eBay fees, shipping, and what you paid for the item to see net profit, margin, return on your invested cash, and the lowest resale price that still breaks even. Then see what a realistic return rate still leaves — the outbound label and return postage usually stay with you — whether a partial refund still beats taking that return, whether Authenticity Guarantee still pays after the hub label, whether local pickup still beats the label after no-shows and meetup time, whether keeping a lot still beats splitting it into singles after five labels and listing time, whether a Standard Envelope still beats a tracked label after item-not-received claims, whether combining two already-sold items still beats two labels after the shipping discount, whether sending a seller-initiated offer still beats waiting for Buy It Now after a typed accept rate, whether a Promoted Offsite campaign still pays after a bill that is charged even if they bounce, whether a quantity discount still beats selling those units separately after a typed take rate, whether an auction still beats Buy It Now after sell-through, and nearby listing prices before you reprice.</p>
   </header>
   <main>
     <div class="layout">
@@ -123,6 +123,17 @@
           <label>Extra Offsite sales <input id="offsiteExtraOrders" type="number" min="0" step="0.1" value="2"></label>
           <label>Offsite sale promoted listings (%) <input id="offsitePromotedRate" type="number" min="0" max="100" step="0.1" value="0"></label>
           <label>Offsite campaigns per month <input id="monthlyOffsiteCampaigns" type="number" min="0" step="1" value="4"></label>
+          <label>Quantity-discount units <input id="qtyDiscountUnits" type="number" min="2" max="20" step="1" value="2"></label>
+          <label>Quantity-discount percent off <input id="qtyDiscountPercent" type="number" min="0" max="100" step="0.1" value="10"></label>
+          <label>Quantity-discount shipping charged <input id="qtyShippingCharged" type="number" min="0" step="0.01" value="6"></label>
+          <label>Quantity-discount postage <input id="qtyShippingCost" type="number" min="0" step="0.01" value="5.50"></label>
+          <label>Quantity-discount packaging <input id="qtyPackagingCost" type="number" min="0" step="0.01" value="1.25"></label>
+          <label>Quantity-discount return postage <input id="qtyReturnShippingCost" type="number" min="0" step="0.01" value="5.50"></label>
+          <label>Quantity-discount per-order fixed fee <input id="qtyFixedFee" type="number" min="0" step="0.01" value="0.30"></label>
+          <label>Quantity-discount return rate (%) <input id="qtyReturnRatePercent" type="number" min="0" max="100" step="0.1" value="10"></label>
+          <label>Singles sell-through (%) <input id="singlesSellThroughPct" type="number" min="0" max="100" step="1" value="55"></label>
+          <label>Quantity-discount take rate (%) <input id="qtyTakePct" type="number" min="0" max="100" step="1" value="70"></label>
+          <label>Quantity-discount orders per month <input id="monthlyQtyOrders" type="number" min="0" step="1" value="20"></label>
         </div>
       </section>
       <section class="result">
@@ -359,6 +370,28 @@
       </div>
       <p id="promotedOffsiteEmpty" class="note" hidden>Enter a valid item price to compare Promoted Offsite with skipping the campaign.</p>
     </section>
+    <section class="sensitivity" id="quantityDiscount">
+      <h2>Quantity discount vs selling separately</h2>
+      <p id="quantityDiscountNote" class="note">A quantity discount is not the same decision as combined shipping or a seller-initiated offer. Combined shipping is already-sold different items and no price cut. An offer to watchers is one unit. Promoted Offsite is a campaign billed either way. Here you cut the item price so one buyer takes N of the same SKU, pays shipping once, and gets one box. If they would have bought N anyway, the leftover usually shrinks. The table also multiplies by a typed singles sell-through versus multi-buy take rate. Rates are inputs, not eBay’s volume-pricing policy. <a href="should-i-offer-an-ebay-quantity-discount.html">Should I offer an eBay quantity discount?</a></p>
+      <p id="quantityDiscountVerdict" class="note"></p>
+      <div class="table-scroll">
+        <table id="quantityDiscountTable" aria-describedby="quantityDiscountNote">
+          <thead>
+            <tr>
+              <th scope="col">Path</th>
+              <th scope="col">Shipments</th>
+              <th scope="col">Unit price</th>
+              <th scope="col">Close rate</th>
+              <th scope="col">If they keep it</th>
+              <th scope="col">Expected after sell-through</th>
+              <th scope="col">vs singles</th>
+            </tr>
+          </thead>
+          <tbody id="quantityDiscountRows"></tbody>
+        </table>
+      </div>
+      <p id="quantityDiscountEmpty" class="note" hidden>Enter a valid item price and at least two units to compare a quantity discount with selling separately.</p>
+    </section>
   </main>
   <footer>
     <label><input id="usageOptOut" type="checkbox" style="width:auto"> Do not keep anonymous local usage counts</label>
@@ -367,7 +400,7 @@
     <p class="support">Free and open source. If it saves you time, the <a href="https://github.com/Duncan-Haywood/monorepo-projects" rel="noopener">project is on GitHub</a> — support is entirely optional and never changes what the tool does.</p>
   </footer>
   <script type="module">
-    import { calculateOrder, calculateRepricingTable, compareListingFormat, listingFormatNote, comparePartialRefund, partialRefundNote, compareAuthenticity, authenticityNote, compareLocalPickup, localPickupNote, compareLotVsSingles, lotVsSinglesNote, compareStandardEnvelope, standardEnvelopeNote, compareCombinedShipping, combinedShippingNote, compareSellerInitiatedOffer, sellerInitiatedOfferNote, comparePromotedOffsite, promotedOffsiteNote, INPUT_FIELDS as ids } from './calc.mjs';
+    import { calculateOrder, calculateRepricingTable, compareListingFormat, listingFormatNote, comparePartialRefund, partialRefundNote, compareAuthenticity, authenticityNote, compareLocalPickup, localPickupNote, compareLotVsSingles, lotVsSinglesNote, compareStandardEnvelope, standardEnvelopeNote, compareCombinedShipping, combinedShippingNote, compareSellerInitiatedOffer, sellerInitiatedOfferNote, comparePromotedOffsite, promotedOffsiteNote, compareQuantityDiscount, quantityDiscountNote, INPUT_FIELDS as ids } from './calc.mjs';
     import { recordUsage } from './usage.mjs';
     import { decodeInputs, encodeInputs } from './share.mjs';
     const money = value => `$${value.toFixed(2)}`;
@@ -385,6 +418,7 @@
     let combinedShippingCounted = false;
     let sellerInitiatedOfferCounted = false;
     let promotedOffsiteCounted = false;
+    let quantityDiscountCounted = false;
     let sellerEditedInputs = false;
     function renderScenarios(input) {
       const rows = calculateRepricingTable(input);
@@ -563,6 +597,26 @@
         recordUsage(localStorage, document.getElementById('usageOptOut').checked, 'promoted_offsite_compared');
       }
     }
+    function renderQuantityDiscount(input) {
+      const comparison = compareQuantityDiscount(input);
+      document.getElementById('quantityDiscountRows').innerHTML = comparison.rows.map(row => `
+        <tr class="${comparison.winner === row.id ? 'winner' : ''}">
+          <td>${row.label}${comparison.winner === row.id ? ' (ahead)' : ''}</td>
+          <td>${row.shipments}</td>
+          <td>${money(row.unitPrice)}</td>
+          <td>${row.sellThroughPct}%</td>
+          <td class="${row.soldExpectedProfit < 0 ? 'down' : ''}">${money(row.soldExpectedProfit)}</td>
+          <td class="${row.expectedProfit < 0 ? 'down' : ''}">${money(row.expectedProfit)}</td>
+          <td class="${row.expectedProfitDelta > 0 ? 'up' : row.expectedProfitDelta < 0 ? 'down' : ''}">${row.id === 'singles' ? '—' : signedMoney(row.expectedProfitDelta)}</td>
+        </tr>`).join('');
+      document.getElementById('quantityDiscountVerdict').textContent = quantityDiscountNote(comparison);
+      document.getElementById('quantityDiscountEmpty').hidden = true;
+      document.getElementById('quantityDiscountTable').hidden = false;
+      if (sellerEditedInputs && !quantityDiscountCounted) {
+        quantityDiscountCounted = true;
+        recordUsage(localStorage, document.getElementById('usageOptOut').checked, 'quantity_discount_compared');
+      }
+    }
     function renderAuthenticity(input) {
       const comparison = compareAuthenticity(input);
       document.getElementById('authenticityRows').innerHTML = comparison.rows.map(row => `
@@ -598,6 +652,7 @@
         renderCombinedShipping(input);
         renderSellerInitiatedOffer(input);
         renderPromotedOffsite(input);
+        renderQuantityDiscount(input);
         const profitEl = document.getElementById('profit');
         profitEl.textContent = money(result.profit);
         profitEl.className = `hero-number ${result.profit < 0 ? 'negative' : 'positive'}`;
@@ -668,6 +723,10 @@
         document.getElementById('promotedOffsiteTable').hidden = true;
         document.getElementById('promotedOffsiteEmpty').hidden = false;
         document.getElementById('promotedOffsiteVerdict').textContent = '';
+        document.getElementById('quantityDiscountRows').innerHTML = '';
+        document.getElementById('quantityDiscountTable').hidden = true;
+        document.getElementById('quantityDiscountEmpty').hidden = false;
+        document.getElementById('quantityDiscountVerdict').textContent = '';
       }
     }
     ids.forEach(id => document.getElementById(id).addEventListener('input', () => { sellerEditedInputs = true; update(); }));
@@ -695,7 +754,7 @@
     }
     ids.forEach(id => document.getElementById(id).addEventListener('change', () => {
       saveInputs();
-      recordUsage(localStorage, document.getElementById('usageOptOut').checked, id === 'targetMargin' ? 'target_margin_calculated' : id === 'quantity' ? 'batch_calculated' : (id === 'returnRatePercent' || id === 'returnShippingCost' || id === 'feeRefundOnReturnPercent') ? 'return_rate_viewed' : (id === 'partialRefundAmount' || id === 'monthlyCases') ? 'partial_refund_compared' : (id === 'authenticityFeeRate' || id === 'authenticityExtraShip' || id === 'withoutAgSellThroughPct' || id === 'authenticitySellThroughPct' || id === 'authenticityReturnRatePercent' || id === 'monthlyAgListings') ? 'authenticity_compared' : (id === 'shipSellThroughPct' || id === 'pickupSellThroughPct' || id === 'pickupNoShowPct' || id === 'pickupMinutes' || id === 'pickupHourlyWage' || id === 'pickupFeeCharged' || id === 'pickupPackagingCost' || id === 'pickupReturnRatePercent' || id === 'monthlyPickupListings') ? 'local_pickup_compared' : (id === 'lotPieceCount' || id === 'singleExpectedPrice' || id === 'lotSellThroughPct' || id === 'singleSellThroughPct' || id === 'lotInsertionFee' || id === 'singleInsertionFee' || id === 'singleShippingCharged' || id === 'singleShippingCost' || id === 'singlePackagingCost' || id === 'lotListingMinutes' || id === 'singleListingMinutes' || id === 'lotListingWage' || id === 'monthlyLotDecisions') ? 'lot_vs_singles_compared' : (id === 'envelopeShippingCost' || id === 'envelopePackagingCost' || id === 'envelopeClaimRatePercent' || id === 'envelopeFeeRefundOnClaimPercent' || id === 'trackedSellThroughPct' || id === 'envelopeSellThroughPct' || id === 'monthlyEnvelopeListings') ? 'standard_envelope_compared' : (id === 'combinedItemCount' || id === 'combinedShippingCharged' || id === 'combinedShippingCost' || id === 'combinedPackagingCost' || id === 'combinedReturnShippingCost' || id === 'combinedFixedFee' || id === 'combinedReturnRatePercent' || id === 'monthlyCombinedOrders') ? 'combined_shipping_compared' : (id === 'offerPercent' || id === 'waitSellThroughPct' || id === 'offerAcceptPct' || id === 'monthlyOffers') ? 'seller_initiated_offer_compared' : (id === 'offsiteSpend' || id === 'offsiteExtraOrders' || id === 'offsitePromotedRate' || id === 'monthlyOffsiteCampaigns') ? 'promoted_offsite_compared' : 'order_profit_calculated');
+      recordUsage(localStorage, document.getElementById('usageOptOut').checked, id === 'targetMargin' ? 'target_margin_calculated' : id === 'quantity' ? 'batch_calculated' : (id === 'returnRatePercent' || id === 'returnShippingCost' || id === 'feeRefundOnReturnPercent') ? 'return_rate_viewed' : (id === 'partialRefundAmount' || id === 'monthlyCases') ? 'partial_refund_compared' : (id === 'authenticityFeeRate' || id === 'authenticityExtraShip' || id === 'withoutAgSellThroughPct' || id === 'authenticitySellThroughPct' || id === 'authenticityReturnRatePercent' || id === 'monthlyAgListings') ? 'authenticity_compared' : (id === 'shipSellThroughPct' || id === 'pickupSellThroughPct' || id === 'pickupNoShowPct' || id === 'pickupMinutes' || id === 'pickupHourlyWage' || id === 'pickupFeeCharged' || id === 'pickupPackagingCost' || id === 'pickupReturnRatePercent' || id === 'monthlyPickupListings') ? 'local_pickup_compared' : (id === 'lotPieceCount' || id === 'singleExpectedPrice' || id === 'lotSellThroughPct' || id === 'singleSellThroughPct' || id === 'lotInsertionFee' || id === 'singleInsertionFee' || id === 'singleShippingCharged' || id === 'singleShippingCost' || id === 'singlePackagingCost' || id === 'lotListingMinutes' || id === 'singleListingMinutes' || id === 'lotListingWage' || id === 'monthlyLotDecisions') ? 'lot_vs_singles_compared' : (id === 'envelopeShippingCost' || id === 'envelopePackagingCost' || id === 'envelopeClaimRatePercent' || id === 'envelopeFeeRefundOnClaimPercent' || id === 'trackedSellThroughPct' || id === 'envelopeSellThroughPct' || id === 'monthlyEnvelopeListings') ? 'standard_envelope_compared' : (id === 'combinedItemCount' || id === 'combinedShippingCharged' || id === 'combinedShippingCost' || id === 'combinedPackagingCost' || id === 'combinedReturnShippingCost' || id === 'combinedFixedFee' || id === 'combinedReturnRatePercent' || id === 'monthlyCombinedOrders') ? 'combined_shipping_compared' : (id === 'offerPercent' || id === 'waitSellThroughPct' || id === 'offerAcceptPct' || id === 'monthlyOffers') ? 'seller_initiated_offer_compared' : (id === 'offsiteSpend' || id === 'offsiteExtraOrders' || id === 'offsitePromotedRate' || id === 'monthlyOffsiteCampaigns') ? 'promoted_offsite_compared' : (id === 'qtyDiscountUnits' || id === 'qtyDiscountPercent' || id === 'qtyShippingCharged' || id === 'qtyShippingCost' || id === 'qtyPackagingCost' || id === 'qtyReturnShippingCost' || id === 'qtyFixedFee' || id === 'qtyReturnRatePercent' || id === 'singlesSellThroughPct' || id === 'qtyTakePct' || id === 'monthlyQtyOrders') ? 'quantity_discount_compared' : 'order_profit_calculated');
     }));
     document.getElementById('usageOptOut').addEventListener('change', update);
     const actions = document.createElement('p');

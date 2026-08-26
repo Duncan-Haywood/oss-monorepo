@@ -215,7 +215,9 @@ test('the Promoted Offsite table has one cell per column and a counted event', (
   assert.match(page, /promoted_offsite_compared/);
   assert.match(page, /is-ebay-promoted-offsite-worth-it\.html/);
   assert.match(page, /"featureList":\s*"[^"]*Promoted Offsite vs skip/);
-  const headerBlock = page.slice(page.indexOf('id="promotedOffsiteTable"'));
+  const offsiteStart = page.indexOf('id="promotedOffsiteTable"');
+  const offsiteEnd = page.indexOf('id="quantityDiscount"', offsiteStart);
+  const headerBlock = page.slice(offsiteStart, offsiteEnd === -1 ? undefined : offsiteEnd);
   const headers = [...headerBlock.matchAll(/<th scope="col">([^<]+)<\/th>/g)].map((m) => m[1]);
   assert.deepEqual(headers, [
     'Path',
@@ -225,5 +227,25 @@ test('the Promoted Offsite table has one cell per column and a counted event', (
     'If they keep the extras',
     'Expected after spend',
     'vs skip',
+  ]);
+});
+
+test('the quantity-discount table has one cell per column and a counted event', () => {
+  assert.match(page, /compareQuantityDiscount/);
+  assert.match(page, /id="quantityDiscount"/);
+  assert.match(page, /id="quantityDiscountVerdict"/);
+  assert.match(page, /quantity_discount_compared/);
+  assert.match(page, /should-i-offer-an-ebay-quantity-discount\.html/);
+  assert.match(page, /"featureList":\s*"[^"]*quantity discount vs selling separately/);
+  const headerBlock = page.slice(page.indexOf('id="quantityDiscountTable"'));
+  const headers = [...headerBlock.matchAll(/<th scope="col">([^<]+)<\/th>/g)].map((m) => m[1]);
+  assert.deepEqual(headers, [
+    'Path',
+    'Shipments',
+    'Unit price',
+    'Close rate',
+    'If they keep it',
+    'Expected after sell-through',
+    'vs singles',
   ]);
 });
