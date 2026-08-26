@@ -4,10 +4,10 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Kitchen Tile Backsplash Bid Calculator | How Much to Charge for a Backsplash</title>
-  <meta name="description" content="Price a kitchen tile backsplash from wall square feet, subway versus herringbone versus mosaic versus large-format, tile-only versus new-prep versus demo-and-replace, and extras — plus the walk-away price a $35 / SF special cannot see.">
+  <meta name="description" content="Price a kitchen tile backsplash from wall square feet, subway versus herringbone versus mosaic versus large-format, tile-only versus new-prep versus demo-and-replace, owner-supplied versus you-supply, and extras — plus the walk-away price a $35 / SF special cannot see.">
   <meta property="og:title" content="Kitchen Tile Backsplash Bid Calculator">
   <meta property="og:description" content="Bid a kitchen backsplash the way the trade does — wall, pattern, and extras, not a published per-SF dump — and see the margin before you send the price.">
-  <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Kitchen Tile Backsplash Bid Calculator","applicationCategory":"BusinessApplication","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"featureList":"Wall square feet, subway vs herringbone vs mosaic vs large-format comparison, tile-only vs new-prep vs demo-and-replace comparison, leftover box credit and box round-up, second-wall leftover coverage, outlet cooktop Schluter extras, walk-away price, proposed-price margin check, copyable bid summary"}</script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Kitchen Tile Backsplash Bid Calculator","applicationCategory":"BusinessApplication","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"featureList":"Wall square feet, subway vs herringbone vs mosaic vs large-format comparison, tile-only vs new-prep vs demo-and-replace comparison, owner-supplied vs you-supply install, leftover box credit and box round-up, second-wall leftover coverage, outlet cooktop Schluter extras, walk-away price, proposed-price margin check, copyable bid summary"}</script>
   <style>
     :root { color-scheme: light; font-family: system-ui, sans-serif; color: #3a2d24; background: #f3ebe3; }
     body { max-width: 1060px; margin: 0 auto; padding: 32px 18px; }
@@ -126,7 +126,7 @@
           <label>Other cost <input id="otherCost" type="number" min="0" step="1" value="0"></label>
           <label>Overhead on direct cost (%) <input id="overheadRate" type="number" min="0" step="0.5" value="15"></label>
           <label>Target net margin (%) <input id="targetMargin" type="number" min="0" max="99.9" step="0.5" value="20"></label>
-          <label>Price you&rsquo;re considering (optional) <input id="proposedPrice" type="number" min="0" step="50" placeholder="e.g. 1050"></label>
+          <label>Price you&rsquo;re considering (optional) <input id="proposedPrice" type="number" min="0" step="50" placeholder="e.g. 1470"></label>
         </div>
         <p class="hint" style="margin-top:14px;margin-bottom:0">Payroll burden covers employer taxes, workers&rsquo; compensation, liability insurance, and paid time off. Underestimating it is how a $35 / SF splash that looked profitable was not.</p>
       </section>
@@ -192,6 +192,14 @@
       </dl>
       <div id="boxVerdict" class="verdict" hidden></div>
       <hr>
+      <p class="note" style="margin-bottom:4px"><strong>Same wall, who bought the tile</strong></p>
+      <p class="note" style="margin-top:0">The $35 / SF “just set what I bought at the store” special. Zeroing the tile invoice is not a free install — outlets, cooktop cuts, and the trip still cost money, and a short or wrong-lot buy is a second trip. <a href="should-i-install-customer-supplied-backsplash-tile.html" style="color:#cde6ea">Should I install customer-supplied backsplash tile?</a></p>
+      <table>
+        <thead><tr><th>Who supplies</th><th>Hours</th><th>Your bid</th><th>At their number</th></tr></thead>
+        <tbody id="supply"></tbody>
+      </table>
+      <p id="supplyNote" class="note"></p>
+      <hr>
       <p class="note" style="margin-bottom:4px"><strong>Where the hours go</strong></p>
       <ul class="split" id="split"></ul>
       <hr>
@@ -204,7 +212,7 @@
     <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not tile-specification, waterproofing, building-code, legal, tax, or financial advice, and it does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for meeting any obligation it helps you prepare for. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
     <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record. If a tool needs to survive, export your inputs and run it yourself.</p>
     <p><strong>Nothing leaves your browser.</strong> Every number stays on this device. Usage counts are anonymous tallies of which features were used, stored locally, and never include your wall, wages, costs, or prices.</p>
-    <p>Looking up <a href="how-much-to-charge-for-a-kitchen-tile-backsplash.html">how much to charge for a kitchen tile backsplash</a>? The article walks the wall-versus-pattern math this calculator uses. <a href="do-leftover-tile-boxes-cover-the-next-wall.html">Do leftover tile boxes cover the laundry wall?</a> walks the box-round-up case.</p>
+    <p>Looking up <a href="how-much-to-charge-for-a-kitchen-tile-backsplash.html">how much to charge for a kitchen tile backsplash</a>? The article walks the wall-versus-pattern math this calculator uses. <a href="do-leftover-tile-boxes-cover-the-next-wall.html">Do leftover tile boxes cover the laundry wall?</a> walks the box-round-up case. Customer bought the tile? See <a href="should-i-install-customer-supplied-backsplash-tile.html">should I install customer-supplied backsplash tile</a>.</p>
     <p class="support">Free and open source. If it wins you a job, the <a href="https://github.com/Duncan-Haywood/monorepo-projects" rel="noopener">project is on GitHub</a> &mdash; support is entirely optional and never changes what the tool does.</p>
   </footer>
 
@@ -215,6 +223,8 @@
       comparePattern,
       leftoverBoxPlan,
       leftoverBoxNote,
+      compareOwnerSupply,
+      ownerSupplyNote,
       formatBidSummary,
       formatBoxPlanNote,
       suggestedScopeKit,
@@ -311,6 +321,8 @@
       el('split').innerHTML = '';
       el('compare').innerHTML = '';
       el('patterns').innerHTML = '';
+      el('supply').innerHTML = '';
+      el('supplyNote').textContent = '';
       el('verdict').hidden = true;
       el('boxVerdict').hidden = true;
     }
@@ -318,10 +330,12 @@
     function update() {
       let result;
       let boxes;
+      let supply;
       try {
         const values = readInput();
         result = calculateBid(values);
         boxes = leftoverBoxPlan(values);
+        supply = compareOwnerSupply(values);
       } catch (error) {
         clearOutputs(error.message, true);
         return;
@@ -403,6 +417,21 @@
         ? 'verdict bad'
         : 'verdict';
       boxVerdict.textContent = leftoverBoxNote(boxes);
+
+      el('supply').innerHTML = supply.map(row => {
+        const atTheirs = row.installOnly === null
+          ? '—'
+          : row.installOnly.belowBreakEven
+            ? `loses ${money(Math.abs(row.installOnly.profit))}`
+            : `keeps ${money(row.installOnly.profit)}`;
+        return `<tr class="${row.cheapest ? 'cheap' : ''}">
+        <td>${row.label}${row.cheapest ? ' · lowest bid' : ''}</td>
+        <td>${row.totalHours.toFixed(1)} h</td>
+        <td>${money(row.price)}</td>
+        <td>${atTheirs}</td>
+      </tr>`;
+      }).join('');
+      el('supplyNote').textContent = ownerSupplyNote(supply);
 
       const verdict = el('verdict');
       if (result.proposed === null) {
@@ -491,7 +520,14 @@
     [...JOB_IDS, ...COST_IDS].forEach(id => {
       if (id === 'scope' || id === 'pattern' || id === 'wall') return;
       el(id).addEventListener('input', update);
-      el(id).addEventListener('change', () => count(id === 'proposedPrice' ? 'proposed_price_compared' : 'bid_calculated'));
+      el(id).addEventListener('change', () => {
+        if (id === 'proposedPrice') {
+          count('proposed_price_compared');
+          count('owner_supply_compared');
+        } else {
+          count('bid_calculated');
+        }
+      });
     });
     BOX_IDS.forEach(id => {
       el(id).addEventListener('input', update);

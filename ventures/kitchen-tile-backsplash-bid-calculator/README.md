@@ -4,8 +4,9 @@ A free browser calculator for tile setters and kitchen remodelers. It
 prices a kitchen tile backsplash the way the trade actually loses
 money — tile-only on a ready wall versus new prep versus
 demo-and-replace, subway running-bond versus herringbone versus mosaic
-versus large-format, then outlet cuts, a cooktop cutout, and Schluter
-— and shows the margin before the price goes out.
+versus large-format, you-supply versus a customer-supplied box, then
+outlet cuts, a cooktop cutout, and Schluter — and shows the margin
+before the price goes out.
 
 **After using this, you can now** send a walk-away kitchen-backsplash
 price that sees the wall and the pattern, **which used to take**
@@ -68,7 +69,8 @@ It then reports price per square foot, effective hourly rate, the hour
 split, a three-scope comparison on the same wall, a four-pattern
 comparison on the same wall (the herringbone upgrade versus the subway
 special), leftover boxes after box round-up (and whether a laundry /
-pantry wall still needs a buy), and the **walk-away price**. Entering a
+pantry wall still needs a buy), a who-supplies comparison (you-supply
+versus owner-covers versus short / wrong lot), and the **walk-away price**. Entering a
 price already on the table scores it against the same cost base.
 **Copy bid summary** turns the result into a plain-text draft ready to
 paste into a proposal. Leftover stock does not change the headline bid
@@ -77,7 +79,8 @@ unless you decide that van inventory is already paid for.
 The arithmetic lives in [`calc.mjs`](calc.mjs). See
 [`calc.test.mjs`](calc.test.mjs).
 
-Search phrase: [`how-much-to-charge-for-a-kitchen-tile-backsplash.html`](how-much-to-charge-for-a-kitchen-tile-backsplash.html).
+Search phrases: [`how-much-to-charge-for-a-kitchen-tile-backsplash.html`](how-much-to-charge-for-a-kitchen-tile-backsplash.html),
+[`should-i-install-customer-supplied-backsplash-tile.html`](should-i-install-customer-supplied-backsplash-tile.html).
 Leftover boxes: [`do-leftover-tile-boxes-cover-the-next-wall.html`](do-leftover-tile-boxes-cover-the-next-wall.html).
 
 ## Privacy
@@ -99,7 +102,7 @@ when the browser sends Do Not Track or Global Privacy Control. See
 
 Events counted: `bid_calculated`, `preset_applied`, `scope_changed`,
 `pattern_changed`, `wall_changed`, `proposed_price_compared`,
-`summary_copied`, `boxes_compared`.
+`owner_supply_compared`, `summary_copied`, `boxes_compared`.
 
 ## Limitations
 

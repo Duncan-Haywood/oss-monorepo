@@ -11,6 +11,8 @@ import { readFileSync } from 'node:fs';
 import {
   leftoverBoxPlan,
   leftoverBoxNote,
+  compareOwnerSupply,
+  ownerSupplyNote,
   suggestedScopeKit,
   suggestedPatternKit,
   suggestedWallKit,
@@ -20,6 +22,7 @@ import {
 const html = readFileSync(new URL('./index.html', import.meta.url), 'utf8');
 const seo = readFileSync(new URL('./how-much-to-charge-for-a-kitchen-tile-backsplash.html', import.meta.url), 'utf8');
 const leftoverSeo = readFileSync(new URL('./do-leftover-tile-boxes-cover-the-next-wall.html', import.meta.url), 'utf8');
+const supplySeo = readFileSync(new URL('./should-i-install-customer-supplied-backsplash-tile.html', import.meta.url), 'utf8');
 
 const RAW_TEXT_ELEMENTS = ['textarea', 'script', 'style'];
 
@@ -64,6 +67,8 @@ test('the module script survives parsing and would actually execute', () => {
   assert.match(scriptSource, /leftoverBoxNote/, 'leftover-box note is missing from the executable script');
   assert.match(scriptSource, /formatBidSummary/, 'copy-summary helper is missing from the executable script');
   assert.match(scriptSource, /formatBoxPlanNote/, 'box-plan copy helper is missing from the executable script');
+  assert.match(scriptSource, /compareOwnerSupply/, 'owner-supply comparison is missing from the executable script');
+  assert.match(scriptSource, /ownerSupplyNote/, 'owner-supply note is missing from the executable script');
 });
 
 test('every element the script reaches for exists in the markup', () => {
@@ -82,6 +87,7 @@ test('inputs and result fields for the primary journey are present', () => {
     'hourlyWage', 'targetMargin', 'proposedPrice',
     'price', 'breakEven', 'compare', 'patterns', 'copySummary', 'usageOptOut', 'jobPresets',
     'sfPerBox', 'leftoverBoxes', 'secondWallSf', 'boxesToBuy', 'leftoverAfter', 'boxVerdict',
+    'supply', 'supplyNote',
   ]) {
     assert.ok(declaredIds.has(id), `missing #${id}`);
   }
@@ -98,6 +104,8 @@ test('the landing page names the problem in the contractor\'s words', () => {
   assert.match(html, /leftoverBoxPlan/);
   assert.match(html, /leftoverBoxNote/);
   assert.match(html, /do-leftover-tile-boxes-cover-the-next-wall\.html/);
+  assert.match(html, /Same wall, who bought the tile/);
+  assert.match(html, /should-i-install-customer-supplied-backsplash-tile\.html/);
 });
 
 test('leftover SEO page uses the same worked example the tests lock', () => {
@@ -158,5 +166,49 @@ test('the SEO article answers the search phrase and stays crawlable', () => {
   assert.match(seo, /Subway versus herringbone on the same wall/i);
   assert.match(seo, /Leftover boxes do not automatically cover the laundry wall/i);
   assert.match(seo, /index\.html/);
+  assert.match(seo, /Customer-supplied tile is not a free set/i);
   assert.doesNotMatch(seo, /<textarea/i);
+});
+
+test('the owner-supply article quotes the herringbone demo arithmetic', () => {
+  const kit = {
+    ...suggestedScopeKit('demo-and-replace'),
+    ...suggestedPatternKit('herringbone'),
+    ...suggestedWallKit('existing-tile'),
+    ...suggestedExtraKit(),
+  };
+  const rows = compareOwnerSupply({
+    wallSf: 42,
+    edgeLf: 18,
+    outlets: 6,
+    scope: 'demo-and-replace',
+    pattern: 'herringbone',
+    wall: 'existing-tile',
+    travelMiles: 16,
+    includeCooktop: true,
+    includeSchluter: true,
+    includeAccent: false,
+    hourlyWage: 38,
+    burdenRate: 30,
+    overheadRate: 15,
+    targetMargin: 20,
+    travelAndEquipment: 55,
+    otherCost: 0,
+    ...kit,
+  }, { installOnlyPrice: 1470 });
+  const you = rows.find((row) => row.supply === 'you-supply');
+  const covers = rows.find((row) => row.supply === 'owner-covers');
+  assert.ok(you.installOnly.belowBreakEven);
+  assert.ok(covers.installOnly.belowBreakEven);
+  assert.match(ownerSupplyNote(rows), /\$2,698\.84/);
+  assert.match(supplySeo, /Should I install customer-supplied backsplash tile/i);
+  assert.match(supplySeo, /FAQPage/);
+  assert.match(supplySeo, /\$1,470/);
+  assert.match(supplySeo, /\$2,698\.84/);
+  assert.match(supplySeo, /\$3,858\.00/);
+  assert.match(supplySeo, /short \/ wrong lot/i);
+  assert.match(supplySeo, /index\.html/);
+  assert.match(supplySeo, /No warranty/);
+  assert.match(supplySeo, /no SLA/i);
+  assert.doesNotMatch(supplySeo, /<textarea/i);
 });
