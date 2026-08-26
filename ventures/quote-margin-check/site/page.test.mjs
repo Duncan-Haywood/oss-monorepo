@@ -207,6 +207,16 @@ test("offers portable Markdown review actions", async () => {
   assert.match(page, /quote-margin-review\.md/);
 });
 
+test("calculator page copies a fragment share link and prefers it over a local draft", async () => {
+  const page = await readFile(new URL("./index.html", import.meta.url), "utf8");
+  assert.match(page, /id="copy-share-link"/);
+  assert.match(page, /encodeQuote/);
+  assert.match(page, /decodeQuote/);
+  assert.match(page, /url\.hash = encodeQuote/);
+  assert.match(page, /share_link_copied/);
+  assert.match(page, /decodeQuote\(window\.location\.hash\)/);
+});
+
 test("calculator page copies a proposal-ready review summary", async () => {
   const page = await readFile(new URL("./index.html", import.meta.url), "utf8");
   assert.match(page, /id="copy-summary"/);

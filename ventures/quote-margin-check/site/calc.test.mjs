@@ -1,7 +1,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 
-import { loadQuote, calculate, overrunScenarios, directCostSpikeScenarios, directCostSpikeSummary, discountAskScenarios, discountAskSummary, compareBillingModels, billingModelSummary, billingModelNote, loadKillFeeProgress, compareKillFee, killFeeSummary, targetPriceBreakdown } from "./calc.mjs";
+import { loadQuote, calculate, overrunScenarios, directCostSpikeScenarios, directCostSpikeSummary, discountAskScenarios, discountAskSummary, compareBillingModels, billingModelSummary, billingModelNote, loadKillFeeProgress, compareKillFee, killFeeSummary, targetPriceBreakdown, encodeQuote, decodeQuote } from "./calc.mjs";
 
 test("calculates hidden time and target price", () => {
   const quote = loadQuote({
@@ -412,4 +412,15 @@ test("breaks target price into delivery, hidden time, and direct costs", () => {
     direct_costs: 480,
     total: 3105,
   });
+});
+
+test("share links round-trip validated quote inputs from query or fragment", () => {
+  const quote = loadQuote({ currency: "EUR", price: 1800, delivery_hours: 12, admin_hours: 2.5, revision_hours: 1, overhead: 40, subcontractor_cost: 120, target_hourly_rate: 90 });
+  assert.deepEqual(decodeQuote(`?${encodeQuote(quote)}`), quote);
+  assert.deepEqual(decodeQuote(`#${encodeQuote(quote)}`), quote);
+});
+
+test("share links require the core quote fields", () => {
+  assert.equal(decodeQuote("currency=USD&price=100"), null);
+  assert.throws(() => decodeQuote("price=100&delivery_hours=2&target_hourly_rate=50&admin_hours=not-a-number"));
 });

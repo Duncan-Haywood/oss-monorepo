@@ -331,6 +331,7 @@
       <button type="button" id="download-csv">Download CSV</button>
       <button type="button" id="download-report">Download JSON report</button>
       <button type="button" id="download-draft">Download draft</button>
+      <button type="button" id="copy-share-link">Copy share link</button>
       <label for="import-draft" class="hint">Open draft JSON</label>
       <input type="file" id="import-draft" accept="application/json,.json" />
       <button type="button" id="save-history">Save this review locally</button>
@@ -453,7 +454,7 @@
 </main>
 
 <script type="module">
-  import { loadQuote, calculate, overrunScenarios, directCostSpikeScenarios, directCostSpikeSummary, discountAskScenarios, discountAskSummary, compareBillingModels, billingModelNote, loadKillFeeProgress, compareKillFee, killFeeSummary, targetPriceBreakdown } from "./calc.mjs";
+  import { loadQuote, calculate, overrunScenarios, directCostSpikeScenarios, directCostSpikeSummary, discountAskScenarios, discountAskSummary, compareBillingModels, billingModelNote, loadKillFeeProgress, compareKillFee, killFeeSummary, targetPriceBreakdown, encodeQuote, decodeQuote } from "./calc.mjs";
   import { quoteCsv } from "./export.mjs";
   import { formatReviewSummary } from "./summary.mjs";
   import { markdownReview } from "./markdown.mjs";
@@ -515,6 +516,14 @@
       subcontractor_cost: Number(el.subcontractor_cost.value),
       target_hourly_rate: Number(el.target_hourly_rate.value),
     };
+  }
+
+  function writeInputs(quote) {
+    el.currency.value = quote.currency;
+    for (const id of ids) {
+      if (id === "currency") continue;
+      el[id].value = String(quote[id]);
+    }
   }
 
   function fmt(n) {
@@ -629,13 +638,30 @@
     persistDrafts = true;
   }
   const draftFields = [...ids, ...killIds];
-  const existingDraft = loadDraft();
-  if (existingDraft) {
-    for (const id of draftFields) {
-      if (typeof existingDraft[id] === "string") el[id].value = existingDraft[id];
+  try {
+    const sharedQuote = decodeQuote(window.location.hash) ?? decodeQuote(window.location.search);
+    if (sharedQuote) {
+      writeInputs(sharedQuote);
+      dismissExampleNote();
+    } else {
+      const existingDraft = loadDraft();
+      if (existingDraft) {
+        for (const id of draftFields) {
+          if (typeof existingDraft[id] === "string") el[id].value = existingDraft[id];
+        }
+        dismissExampleNote();
+        recordEvent("draft_restored");
+      }
     }
-    dismissExampleNote();
-    recordEvent("draft_restored");
+  } catch {
+    const existingDraft = loadDraft();
+    if (existingDraft) {
+      for (const id of draftFields) {
+        if (typeof existingDraft[id] === "string") el[id].value = existingDraft[id];
+      }
+      dismissExampleNote();
+      recordEvent("draft_restored");
+    }
   }
 
   for (const id of draftFields) {
@@ -779,6 +805,24 @@
     setTimeout(() => URL.revokeObjectURL(link.href), 0);
     copyStatus.textContent = "Downloaded quote-margin-review.md.";
     recordEvent("markdown_downloaded");
+  });
+  document.getElementById("copy-share-link").addEventListener("click", async () => {
+    if (!lastReport) {
+      copyStatus.textContent = "Fix the inputs above first.";
+      return;
+    }
+    const url = new URL(window.location.href);
+    // Keep quote figures in the fragment so browsers do not send them in a
+    // referrer header when a collaborator opens the link.
+    url.search = "";
+    url.hash = encodeQuote(lastReport.quote);
+    try {
+      await navigator.clipboard.writeText(url.href);
+      copyStatus.textContent = "Share link copied — quote figures stay in the private URL fragment.";
+      recordEvent("share_link_copied");
+    } catch {
+      copyStatus.textContent = `Share link: ${url.href}`;
+    }
   });
   copyBtn.addEventListener("click", async () => {
     if (!lastReport) {

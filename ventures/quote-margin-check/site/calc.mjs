@@ -55,6 +55,27 @@ export function calculate(quote) {
   };
 }
 
+/** Encodes validated inputs for a serverless, shareable URL. */
+export function encodeQuote(quote) {
+  const params = new URLSearchParams();
+  params.set("currency", quote.currency);
+  for (const field of FIELDS) params.set(field, String(quote[field]));
+  return params.toString();
+}
+
+/** Reads a URL query string or fragment and validates it through the same input boundary. */
+export function decodeQuote(search) {
+  const params = new URLSearchParams(search.replace(/^[?#]/, ""));
+  if (!params.has("price") || !params.has("delivery_hours") || !params.has("target_hourly_rate")) {
+    return null;
+  }
+  const data = { currency: params.get("currency") ?? undefined };
+  for (const field of FIELDS) {
+    if (params.has(field)) data[field] = Number(params.get(field));
+  }
+  return loadQuote(data);
+}
+
 /** Breaks the target price into the inputs that produced it. */
 export function targetPriceBreakdown(quote) {
   const hiddenHours = quote.admin_hours + quote.revision_hours;
