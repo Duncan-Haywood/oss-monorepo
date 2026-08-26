@@ -47,6 +47,10 @@ many extra orders cover the gap.
 [Should I offer store credit instead of a refund?](should-i-offer-store-credit-instead-of-a-refund.html)
 answers the return question: whether issuing credit or exchanging still beats
 sending cash after the return label, restock, and expected redemption.
+[What a refund rate still leaves](refunds.html) mixes completed-order profit
+with a full-refund outcome so a merchant can see whether PayPal keeping its
+fee on returns flips the comparison. Refund fields stay on that sibling page
+so share/handoff work on `index.html` does not have to allowlist them.
 [Should I take Shopify Capital?](should-i-take-shopify-capital.html)
 answers the merchant-funding question: whether the Capital fee still beats
 waiting to self-fund leftover profit or a bank line at a typed APR, and
@@ -189,11 +193,12 @@ optional and never changes what the tool does.
 Pure ES modules, no build step, no dependencies.
 
 ```
-node --test        # calc, usage, POS / label / installment / return / Capital / bank-transfer / chargeback / local-delivery / gift-card / Markets-duties / abandoned-checkout / subscription / pickup / upsell page tests
+node --test        # calc, usage, POS / label / installment / return / refund-rate / Capital / bank-transfer / chargeback / local-delivery / gift-card / Markets-duties / abandoned-checkout / subscription / pickup / upsell page tests
 ```
 
-`calc.mjs` holds the fee/profit/ROI arithmetic and plan presets; `usage.mjs`
-holds the anonymous local counter; `index.html` is the calculator UI.
+`calc.mjs` holds the fee/profit/ROI arithmetic, plan presets, and the refund
+mix; `usage.mjs` holds the anonymous local counter; `index.html` is the
+completed-order calculator; `refunds.html` is the refund-rate mix.
 
 Not yet deployed to a public URL — publishing under the portfolio's name is
 owner-gated per `portfolio/DIRECTION.md` — but the page is ready to host as
