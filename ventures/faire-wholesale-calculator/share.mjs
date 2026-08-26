@@ -19,6 +19,9 @@ export const FIELD_IDS = [
   "paymentFixed",
   "targetMargin",
   "expectedReorders",
+  "openHouseDiscountRate",
+  "openHouseCommissionRate",
+  "openHouseExtraRetailers",
 ];
 
 export const RETAILER_FIELD_IDS = [
