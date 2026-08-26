@@ -302,8 +302,117 @@ export function comparePayoutSpeeds(input, scenarioId = "marketplace_reorder") {
       paymentRate: preset.paymentRate,
       paymentFixed: preset.paymentFixed,
     }, scenarioId);
-    return { id, label: preset.label, ...result };
+    return { ...result, id, label: preset.label };
   });
+}
+
+/** Published Faire payout speeds, in calendar days until cash. Next-day is 1. */
+export const PAYOUT_WAIT_DAYS = {
+  next_day: 1,
+  day_30: 30,
+  day_60: 60,
+};
+
+function carryingCost(amount, annualRatePercent, days) {
+  return amount * (annualRatePercent / 100) * (days / 365);
+}
+
+/**
+ * Same payout-speed ladder as `comparePayoutSpeeds`, then subtracts modeled
+ * carrying cost on the cash the brand could have had next day. Waiting is
+ * cheaper on Faire's processing line; it is not cheaper once the brand's
+ * own money costs more than the fee spread.
+ *
+ * Carrying cost is an assumption the brand types (card, inventory line,
+ * opportunity cost). It is not interest Faire charges or a reason to pick
+ * a payout speed.
+ */
+export function comparePayoutSpeedsAfterFloat(input = {}, options = {}) {
+  const annualCarryRate = number(
+    options.annualCarryRate ?? input.annualCarryRate,
+    "Annual carrying-cost rate",
+    24,
+  );
+  if (annualCarryRate >= 1000) {
+    throw new Error("Annual carrying-cost rate must be below 1000%");
+  }
+  const scenarioId = options.scenarioId ?? input.floatScenarioId ?? "marketplace_first";
+  const speeds = comparePayoutSpeeds(input, scenarioId);
+  const fastest = speeds.find((row) => row.id === "next_day") ?? speeds[0];
+  const cashBase = fastest.payoutAmount;
+
+  const rows = speeds.map((row) => {
+    const waitDays = PAYOUT_WAIT_DAYS[row.id] ?? 0;
+    const carry = carryingCost(cashBase, annualCarryRate, waitDays);
+    return {
+      ...row,
+      waitDays,
+      carryingCost: carry,
+      netAfterFloat: row.profit - carry,
+    };
+  });
+  const best = rows.reduce((winner, row) => (
+    row.netAfterFloat > winner.netAfterFloat ? row : winner
+  ));
+  const next = rows.find((row) => row.id === "next_day");
+  const slow = rows.find((row) => row.id === "day_60");
+  const dayGap = next && slow ? slow.waitDays - next.waitDays : 0;
+  const processingSpread = next && slow ? slow.profit - next.profit : 0;
+  let breakEvenAnnualRate = null;
+  if (next && slow && cashBase > 0 && dayGap > 0) {
+    breakEvenAnnualRate = processingSpread * 365 / (cashBase * dayGap) * 100;
+  }
+
+  return {
+    annualCarryRate,
+    scenarioId,
+    cashBase,
+    processingSpread,
+    breakEvenAnnualRate,
+    nextDayBeatsSlow: Boolean(next && slow && next.netAfterFloat > slow.netAfterFloat),
+    nextDayPremium: next && slow ? next.netAfterFloat - slow.netAfterFloat : 0,
+    speeds: rows.map((row) => ({
+      ...row,
+      isBest: row === best,
+      gapVsBest: best.netAfterFloat - row.netAfterFloat,
+    })),
+    best: { id: best.id, label: best.label, netAfterFloat: best.netAfterFloat },
+  };
+}
+
+function money(value) {
+  const sign = value < 0 ? "-" : "";
+  return `${sign}$${Math.abs(value).toFixed(2)}`;
+}
+
+/**
+ * One-sentence readout. Arithmetic only — it does not tell them to take
+ * next-day payout or to wait.
+ */
+export function summarizePayoutFloat(comparison) {
+  const next = comparison.speeds.find((row) => row.id === "next_day");
+  const slow = comparison.speeds.find((row) => row.id === "day_60");
+  if (!next || !slow) return "";
+  const rate = `${comparison.annualCarryRate.toFixed(1)}%`;
+  const breakEven = comparison.breakEvenAnnualRate == null
+    ? ""
+    : ` Next-day and 60-day match at a ${comparison.breakEvenAnnualRate.toFixed(1)}% annual carrying-cost assumption.`;
+  if (comparison.nextDayBeatsSlow) {
+    return (
+      `On this first marketplace order, next-day payout leaves ${money(next.netAfterFloat)} ` +
+      `after ${money(next.carryingCost)} of modeled carrying cost. Waiting 60 days leaves ` +
+      `${money(slow.netAfterFloat)} — ${money(comparison.nextDayPremium)} behind — because ` +
+      `${rate} money for 60 days on the ${money(comparison.cashBase)} you could have had ` +
+      `next day costs more than the ${money(comparison.processingSpread)} processing spread.${breakEven}`
+    );
+  }
+  return (
+    `On this first marketplace order, waiting 60 days still leaves ${money(slow.netAfterFloat)} ` +
+    `after ${money(slow.carryingCost)} of modeled carrying cost — ` +
+    `${money(-comparison.nextDayPremium)} ahead of next-day ` +
+    `(${money(next.netAfterFloat)}). At ${rate}, the ${money(comparison.processingSpread)} ` +
+    `processing savings still covers the wait.${breakEven}`
+  );
 }
 
 export function calculateRetailerOrder(input = {}) {

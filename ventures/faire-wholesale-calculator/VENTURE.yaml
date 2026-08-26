@@ -1,5 +1,5 @@
 name: faire-wholesale-calculator
-description: A private browser calculator for Faire brands and independent retailers that shows net payout after marketplace commission, the first-order new-customer fee, payout-speed processing, and Faire Direct — and, on the buyer side, landed cost versus shelf price after unsold units.
+description: A private browser calculator for Faire brands and independent retailers that shows net payout after marketplace commission, the first-order new-customer fee, payout-speed processing, Faire Direct, and whether next-day payout still beats waiting after modeled carrying cost — and, on the buyer side, landed cost versus shelf price after unsold units.
 
 stage: prototype
 owner: duncan

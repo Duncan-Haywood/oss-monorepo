@@ -9,17 +9,19 @@ reorders, how the first-order fee looks across the relationship.
 
 Open `index.html` in a browser. Independent retailers use `retailer.html` to
 see landed cost versus shelf price after an opening-order discount and the
-units that do not sell. `faire-direct-vs-marketplace.html` answers the search
-question in words.
+units that do not sell. `faire-direct-vs-marketplace.html` answers the Direct
+search question. `should-i-pay-for-faire-next-day-payout.html` answers whether
+the extra next-day processing still beats waiting after your carrying cost.
 
 The calculation is local and works without an account, network request, or API
 key. It is arithmetic, not an estimate of the fees Faire will charge: enter the
 rates from your payout summary and verify them there.
 
 After using this, you can now **set a wholesale price that still works on a
-first marketplace order, and see whether expected reorders recover that
-opening-order fee**, which used to take reconciling Faire’s help articles
-against a spreadsheet.
+first marketplace order, see whether expected reorders recover that
+opening-order fee, and see whether next-day payout still beats waiting
+once your own carrying cost is on the invoice**, which used to take
+reconciling Faire’s help articles against a spreadsheet.
 
 ## What it checks that a flat 15% page does not
 
