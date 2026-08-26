@@ -219,6 +219,12 @@ Ship when every line is true:
 - [ ] Usage counting is in, and off-switchable.
 - [ ] Discoverability checklist above is done.
 - [ ] The venture's tests and linter pass, and you ran the product itself.
+- [ ] Both §5b clauses are on **every** page the venture publishes, not just
+      the calculator — `node platform/pages/clauses.mjs <slug>`. A branch cut
+      before this check existed still merges cleanly and turns `main` red in
+      the Pages job; that has happened twice. The venture's own CI now runs
+      this, so a new venture needs a workflow (see
+      `carpet-install-bid-calculator-ci.yml`) for it to fire.
 - [ ] `VENTURE.yaml` exists (or the slug is under `product_lines` in its host
       venture's) so the router can see it — `python3 portfolio/router/validate.py`.
 - [ ] CI green, merged, one ledger line in `portfolio/ledger/YYYY-MM.yaml`.

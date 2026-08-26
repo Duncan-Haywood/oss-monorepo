@@ -31,6 +31,7 @@ import {
   REPO_ROOT,
   SOURCE_URL_PREFIX,
 } from './build.mjs';
+import { NO_SLA, NO_WARRANTY } from './clauses.mjs';
 
 const BASE = 'https://example.test/site/';
 const VENTURES = path.join(REPO_ROOT, 'ventures');
@@ -246,9 +247,13 @@ test('every published page carries both liability clauses, not just the hub', as
   // voice ("Hosted URLs, when they exist, carry no availability SLA"), and
   // demanding the playbook's exact prose would force a rewrite of correct
   // pages rather than catch a missing one.
+  // The patterns live in clauses.mjs, which is also what each venture's own CI
+  // runs against its sources. Two copies would let the source-level check and
+  // this built-site check drift apart, and the source-level one is the copy a
+  // contributor sees fail first.
   const { outDir, surfaces } = await site();
-  const warranty = /no warranty/i;
-  const noSla = /best-effort hosting|no (availability )?sla|carry no availability|taken offline without notice/i;
+  const warranty = NO_WARRANTY;
+  const noSla = NO_SLA;
 
   const missing = [];
   let checked = 0;

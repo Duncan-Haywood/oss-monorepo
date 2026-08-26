@@ -107,6 +107,37 @@ level down.
 The workflow runs it between building and uploading, so a broken artifact never
 reaches the live site.
 
+## Checking the sources: liability clauses
+
+`clauses.mjs` is the one check here that reads the **sources** rather than the
+built site, and it reads them for a reason. PRODUCT_PLAYBOOK.md §5b requires a
+no-warranty clause and a best-effort/no-SLA clause on every hosted page. That
+is a property of hosting, so a venture's own suite has no reason to look for
+it — the venture does not know it is being published.
+
+The result was that the check lived only in `build.test.mjs`, which runs on
+`platform/pages/**`. A venture branch cut before the check and merged after it
+merges cleanly and turns `main` red in the Pages job, naming a venture whose
+author never saw the requirement. That happened with artificial-turf and
+asphalt-driveway-pave (#1747) and again with sewer-line-replace.
+
+```
+node platform/pages/clauses.mjs                 # every surface
+node platform/pages/clauses.mjs <venture-slug>  # one venture
+```
+
+Each venture's CI now runs the single-slug form, so the venture that is missing
+the clause is the one that goes red, before the merge rather than after it. A
+venture with no browser surface passes trivially, so CLIs and libraries can run
+the same step unconditionally. `portfolio-validate.yml` runs the no-argument
+form as a backstop, which is what covers a venture whose workflow was never
+created at all — how carpet-install-bid-calculator reached `main` with no CI.
+
+The clause patterns are deliberately loose: several ventures word the clause in
+their own voice, and demanding the playbook's exact prose would rewrite correct
+pages instead of catching missing ones. `build.test.mjs` imports the same two
+patterns, so the source check and the built-site check cannot drift.
+
 ## Driving the customer journey
 
 `check.mjs` proves the files are right. It cannot prove the site *works* — that
