@@ -504,6 +504,18 @@
         renderRepricing(currentInputs());
       } catch (error) {
         document.getElementById('profit').textContent = error.message;
+        document.getElementById('profit').className = 'hero-number negative';
+        document.getElementById('label').textContent = 'check your fee assumptions';
+        document.getElementById('revenue').textContent = '';
+        document.getElementById('fees').textContent = '';
+        document.getElementById('cashInvested').textContent = '';
+        document.getElementById('roi').textContent = '';
+        document.getElementById('other').textContent = '';
+        document.getElementById('margin').textContent = '';
+        document.getElementById('breakEven').textContent = '';
+        document.getElementById('targetPrice').textContent = '';
+        document.getElementById('targetProfitPrice').textContent = '';
+        document.getElementById('scenarios').replaceChildren();
       }
       try {
         renderPlus(currentInputs());

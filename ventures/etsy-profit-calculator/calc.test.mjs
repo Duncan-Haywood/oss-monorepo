@@ -55,6 +55,13 @@ test('rejects negative or non-numeric inputs', () => {
 
 test('rejects percentage fee rates that make break-even impossible', () => {
   assert.throws(() => calculateOrder({ price: 10, transactionRate: 60, paymentRate: 40 }), /below 100/);
+  assert.throws(() => calculateOrder({ price: 10, transactionRate: 70, paymentRate: 30 }), /below 100/);
+  assert.throws(() => calculateOrder({ price: 10, transactionRate: 40, paymentRate: 30, offsiteAdRate: 30 }), /below 100/);
+});
+
+test('rejects impossible combined percentage fees for target pricing', () => {
+  assert.throws(() => priceForMargin({ transactionRate: 101 }, 0), /must total less than 100%/);
+  assert.throws(() => priceForProfit({ transactionRate: 101 }, 1), /must total less than 100%/);
 });
 
 test('finds the item price for a target margin', () => {
@@ -74,7 +81,7 @@ test('finds the item price for a target dollar profit', () => {
 });
 
 test('rejects impossible target profits', () => {
-  assert.throws(() => priceForProfit({ transactionRate: 100 }, 1), /not possible/);
+  assert.throws(() => priceForProfit({ transactionRate: 97 }, 1), /not possible/);
   assert.throws(() => priceForProfit({}, -1), /non-negative/);
 });
 
