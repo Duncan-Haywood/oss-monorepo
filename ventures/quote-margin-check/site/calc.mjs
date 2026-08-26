@@ -55,6 +55,7 @@ export function calculate(quote) {
   const bufferedHours = totalHours * (1 + quote.time_buffer_percent / 100);
   const bufferedTargetPrice = bufferedHours * quote.target_hourly_rate + directCosts;
   const hiddenHours = quote.admin_hours + quote.revision_hours;
+  const targetRateHours = (quote.price - directCosts) / quote.target_hourly_rate;
   return {
     total_hours: totalHours,
     direct_costs: directCosts,
@@ -70,6 +71,8 @@ export function calculate(quote) {
     delivery_hours: quote.delivery_hours,
     hidden_hours: hiddenHours,
     hidden_time_percent: (hiddenHours / totalHours) * 100,
+    target_rate_hours: targetRateHours,
+    hours_cushion: targetRateHours - totalHours,
   };
 }
 
@@ -121,7 +124,7 @@ export function overrunScenarios(quote, report, percentages = [10, 25, 50]) {
 
 /** Maximum total hours that still reaches the supplied target rate. */
 export function targetHoursBudget(quote, report) {
-  return (quote.price - report.direct_costs) / quote.target_hourly_rate;
+  return report.target_rate_hours ?? (quote.price - report.direct_costs) / quote.target_hourly_rate;
 }
 
 /** Compares the quote price needed at nearby hourly targets. */

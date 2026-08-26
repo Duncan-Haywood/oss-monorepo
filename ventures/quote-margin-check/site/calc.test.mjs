@@ -25,6 +25,8 @@ test("calculates hidden time and target price", () => {
   assert.equal(result.buffered_target_price, 3630);
   assert.equal(result.hidden_hours, 11);
   assert.equal(result.hidden_time_percent, (11 / 35) * 100);
+  assert.equal(result.target_rate_hours, 25.6);
+  assert.ok(Math.abs(result.hours_cushion + 9.4) < 1e-9);
 });
 
 test("defaults the time buffer to zero", () => {
