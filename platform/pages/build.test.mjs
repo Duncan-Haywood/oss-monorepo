@@ -20,7 +20,9 @@ import {
   renderHub,
   renderRobots,
   renderSitemapIndex,
+  repairSitemaps,
   truncate,
+  verifySitemaps,
   REPO_ROOT,
   SOURCE_URL_PREFIX,
 } from './build.mjs';
@@ -118,6 +120,149 @@ test('no page still points at the placeholder origin', async () => {
 test('venture sitemaps are rewritten to the real origin', async () => {
   const xml = await read('ebay-fee-calculator', 'sitemap.xml');
   assert.ok(xml.includes(`${BASE}ebay-fee-calculator/`));
+});
+
+// ---------------------------------------------------------------------------
+// Sitemaps — the only acquisition channel these free tools have
+//
+// Each venture wrote its sitemap believing its own directory was the site root.
+// Mounted under one origin those `<loc>` values were wrong three different ways,
+// and every one of them fails silently: a crawler drops the entry or spends a
+// fetch on a 404, and nothing in the repo goes red.
+// ---------------------------------------------------------------------------
+
+/** Every `<loc>` the finished artifact advertises, with the file it came from. */
+async function advertisedLocs() {
+  const { outDir } = await site();
+  const maps = (await walk(outDir)).filter((f) => path.basename(f).startsWith('sitemap'));
+  const locs = [];
+  for (const file of maps) {
+    const xml = await fs.readFile(file, 'utf8');
+    for (const m of xml.matchAll(/<loc>([^<]*)<\/loc>/g)) {
+      locs.push({ file: path.relative(outDir, file), loc: m[1].trim() });
+    }
+  }
+  return locs;
+}
+
+test('every advertised sitemap URL exists in the build', async () => {
+  const { outDir } = await site();
+  const broken = [];
+
+  for (const { file, loc } of await advertisedLocs()) {
+    // A sitemap index points at child sitemaps; both kinds must resolve.
+    const rest = loc.slice(BASE.length);
+    const target = rest === '' || rest.endsWith('/') ? `${rest}index.html` : rest;
+    try {
+      await fs.access(path.join(outDir, target));
+    } catch {
+      broken.push(`${file}: ${loc}`);
+    }
+  }
+
+  assert.deepEqual(broken, [], `sitemaps advertise pages this build does not publish:\n${broken.join('\n')}`);
+});
+
+test('every advertised sitemap URL is absolute on this origin', async () => {
+  // `<loc>` is required by the sitemaps schema to be a fully-qualified URL, and
+  // a sitemap may only list URLs on its own origin. Relative entries and links
+  // to the GitHub source are both silently discarded by crawlers.
+  const offending = (await advertisedLocs()).filter(({ loc }) => !loc.startsWith(BASE));
+  assert.deepEqual(offending, [], 'every <loc> must be absolute on the site origin');
+});
+
+test('a page is never advertised under both its file and directory URL', async () => {
+  // `/tool/` and `/tool/index.html` serve identical bytes; advertising both
+  // splits ranking signals between two URLs that compete as duplicates.
+  const locs = (await advertisedLocs()).map((l) => l.loc);
+  const indexUrls = locs.filter((l) => l.endsWith('/index.html'));
+  assert.deepEqual(indexUrls, [], 'index.html should be canonicalised to its directory form');
+});
+
+test('the products whose sitemaps carried a repo path are repaired', async () => {
+  // Regression guard: both of these shipped `<loc>`s containing a `ventures/`
+  // segment, which does not exist on the published site — nine dead URLs from
+  // one of them alone.
+  for (const slug of ['3pl-quote-normalizer', 'invoice-payment-terms-calculator']) {
+    const xml = await read(slug, 'sitemap.xml');
+    assert.ok(!xml.includes('/ventures/'), `${slug} still advertises a repository path`);
+    assert.ok(xml.includes(`${BASE}${slug}/`), `${slug} should advertise its mounted URL`);
+  }
+});
+
+// --- rewrite rules, over a synthetic tree so each case is pinned exactly ---
+
+async function sitemapFixture(locs, publishedFiles) {
+  const outDir = await fs.mkdtemp(path.join(os.tmpdir(), 'pages-sitemap-'));
+  const dir = path.join(outDir, 'demo');
+  await fs.mkdir(dir, { recursive: true });
+  for (const rel of publishedFiles) {
+    const f = path.join(outDir, rel);
+    await fs.mkdir(path.dirname(f), { recursive: true });
+    await fs.writeFile(f, 'x');
+  }
+  const body = locs.map((l) => `  <url><loc>${l}</loc></url>`).join('\n');
+  await fs.writeFile(
+    path.join(dir, 'sitemap.xml'),
+    `<?xml version="1.0" encoding="UTF-8"?>\n<urlset>\n${body}\n</urlset>\n`,
+  );
+  await repairSitemaps({ publishedDir: dir, outDir, baseUrl: BASE });
+  const xml = await fs.readFile(path.join(dir, 'sitemap.xml'), 'utf8');
+  return [...xml.matchAll(/<loc>([^<]*)<\/loc>/g)].map((m) => m[1]);
+}
+
+test('a relative loc becomes an absolute published URL', async () => {
+  const out = await sitemapFixture(
+    ['index.html', './guide.html', 'deep/page.html'],
+    ['demo/index.html', 'demo/guide.html', 'demo/deep/page.html'],
+  );
+  assert.deepEqual(out, [`${BASE}demo/`, `${BASE}demo/guide.html`, `${BASE}demo/deep/page.html`]);
+});
+
+test('a loc carrying the repository ventures/ segment is remounted', async () => {
+  const out = await sitemapFixture([`${BASE}ventures/demo/guide.html`], ['demo/guide.html']);
+  assert.deepEqual(out, [`${BASE}demo/guide.html`]);
+});
+
+test('a loc pointing at the GitHub source is mapped back to the published page', async () => {
+  const out = await sitemapFixture(
+    ['https://github.com/Duncan-Haywood/monorepo-projects/blob/main/ventures/demo/guide.html'],
+    ['demo/guide.html'],
+  );
+  assert.deepEqual(out, [`${BASE}demo/guide.html`]);
+});
+
+test('a loc with no published page is dropped, not left to 404', async () => {
+  const out = await sitemapFixture(
+    ['index.html', 'removed.html', 'https://example.com/elsewhere'],
+    ['demo/index.html'],
+  );
+  assert.deepEqual(out, [`${BASE}demo/`]);
+});
+
+test('a loc that is already correct is left byte-for-byte alone', async () => {
+  const outDir = await fs.mkdtemp(path.join(os.tmpdir(), 'pages-sitemap-'));
+  const dir = path.join(outDir, 'demo');
+  await fs.mkdir(dir, { recursive: true });
+  await fs.writeFile(path.join(dir, 'index.html'), 'x');
+  const original = `<?xml version="1.0" encoding="UTF-8"?>\n<urlset>\n  <url><loc>${BASE}demo/</loc></url>\n</urlset>\n`;
+  await fs.writeFile(path.join(dir, 'sitemap.xml'), original);
+
+  const changes = await repairSitemaps({ publishedDir: dir, outDir, baseUrl: BASE });
+  assert.deepEqual(changes, []);
+  assert.equal(await fs.readFile(path.join(dir, 'sitemap.xml'), 'utf8'), original);
+});
+
+test('verifySitemaps reports a sitemap that advertises a missing page', async () => {
+  // The checker has to be able to fail, or its passing says nothing.
+  const outDir = await fs.mkdtemp(path.join(os.tmpdir(), 'pages-sitemap-'));
+  await fs.writeFile(
+    path.join(outDir, 'sitemap.xml'),
+    `<urlset><url><loc>${BASE}gone.html</loc></url></urlset>`,
+  );
+  const broken = await verifySitemaps({ outDir, baseUrl: BASE });
+  assert.equal(broken.length, 1);
+  assert.match(broken[0].reason, /no such page/);
 });
 
 // ---------------------------------------------------------------------------

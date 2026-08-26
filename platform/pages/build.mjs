@@ -313,6 +313,137 @@ export async function repairLinks({ publishedDir, sourceDir, repoRoot, outDir })
 }
 
 // ---------------------------------------------------------------------------
+// Sitemap repair
+// ---------------------------------------------------------------------------
+
+/** Where a `<loc>` points, expressed relative to the site root, or null. */
+function locToSiteRelative({ loc, baseUrl, publishedDir, outDir }) {
+  const trimmed = loc.trim();
+  if (!trimmed) return null;
+
+  // Absolute on our own origin. `DEFAULT_BASE_URL` counts too: several ventures
+  // hard-coded the production origin into their canonical tags long before this
+  // build existed, so a build pointed at any other base (a preview, or the test
+  // suite) still has to recognise those as ours rather than discard them.
+  //
+  // They are mostly correct already, but a venture that wrote its URLs against
+  // the repository layout carries a `ventures/` segment the published site does
+  // not have — the site mounts each product at `/{slug}/`.
+  for (const origin of [baseUrl, DEFAULT_BASE_URL]) {
+    if (trimmed.startsWith(origin)) {
+      const rest = trimmed.slice(origin.length);
+      return rest.startsWith('ventures/') ? rest.slice('ventures/'.length) : rest;
+    }
+  }
+
+  // Absolute somewhere else. A sitemap may only advertise its own origin, so the
+  // only useful move is to map a URL that names a venture — a GitHub `blob`/`tree`
+  // link to the source, say — back onto the published copy of that same file.
+  // Anything else has no published equivalent and the caller drops it.
+  if (/^https?:\/\//.test(trimmed)) {
+    const m = trimmed.match(/\/ventures\/(.+)$/);
+    return m ? m[1] : null;
+  }
+
+  // Relative. `<loc>` is required to be a fully-qualified URL, so these are
+  // silently discarded by crawlers today; resolve them against the directory the
+  // sitemap was published into.
+  const [pathPart] = trimmed.split(/[#?]/);
+  if (!pathPart) return null;
+  const resolved = path.resolve(publishedDir, pathPart);
+  if (resolved !== outDir && !resolved.startsWith(`${outDir}${path.sep}`)) return null;
+  const rel = path.relative(outDir, resolved).split(path.sep).join('/');
+  return pathPart.endsWith('/') && rel !== '' ? `${rel}/` : rel;
+}
+
+/**
+ * Every venture wrote its `sitemap.xml` believing its own directory was the site
+ * root. Mounted under one shared origin those `<loc>` values are wrong in three
+ * different ways — relative (invalid per the sitemaps schema, so dropped by
+ * crawlers), carrying a `ventures/` segment the published site does not have, or
+ * pointing at the GitHub source rather than the live tool.
+ *
+ * Rewrite each one to the absolute published URL, and drop any `<url>` whose
+ * target this build did not actually publish. Advertising a 404 is worse than
+ * advertising nothing: it spends crawl budget and teaches the indexer that the
+ * origin is unreliable. The invariant this establishes — every advertised URL
+ * exists in the artifact — is what `verifySitemaps` re-checks after the build.
+ *
+ * `index.html` is canonicalised to its directory form so a page is never
+ * advertised under two URLs that would compete as duplicates.
+ */
+export async function repairSitemaps({ publishedDir, outDir, baseUrl }) {
+  const maps = (await listFiles(publishedDir)).filter((f) => path.basename(f) === 'sitemap.xml');
+  const changes = [];
+
+  for (const file of maps) {
+    const xml = await fs.readFile(file, 'utf8');
+    let changed = false;
+
+    const next = xml.replace(/[ \t]*<url>[\s\S]*?<\/url>\s*/g, (block) => {
+      const loc = block.match(/<loc>([^<]*)<\/loc>/)?.[1];
+      if (loc === undefined) return block;
+
+      let rel = locToSiteRelative({ loc, baseUrl, publishedDir: path.dirname(file), outDir });
+
+      // A directory URL is the canonical form; `index.html` is the file that
+      // serves it. Check the file, advertise the directory.
+      let target = rel;
+      if (rel !== null) {
+        if (rel === '' || rel.endsWith('/')) target = `${rel}index.html`;
+        else if (rel.endsWith('/index.html')) rel = rel.slice(0, -'index.html'.length);
+        else if (rel === 'index.html') rel = '';
+      }
+
+      if (rel === null || !existsSync(path.join(outDir, target))) {
+        changed = true;
+        changes.push({ file: path.relative(outDir, file), from: loc, to: null });
+        return '';
+      }
+
+      const absolute = `${baseUrl}${rel}`;
+      if (absolute === loc) return block;
+      changed = true;
+      changes.push({ file: path.relative(outDir, file), from: loc, to: absolute });
+      return block.replace(/<loc>[^<]*<\/loc>/, `<loc>${absolute}</loc>`);
+    });
+
+    if (changed) await fs.writeFile(file, next);
+  }
+
+  return changes;
+}
+
+/**
+ * Re-read the finished artifact and confirm no sitemap advertises a URL the
+ * build did not publish. `repairSitemaps` is supposed to make this impossible;
+ * this is the check that says so out loud, because an SEO regression is
+ * invisible until a crawler finds it weeks later.
+ */
+export async function verifySitemaps({ outDir, baseUrl }) {
+  const maps = (await listFiles(outDir)).filter((f) => path.basename(f).startsWith('sitemap'));
+  const broken = [];
+
+  for (const file of maps) {
+    const xml = await fs.readFile(file, 'utf8');
+    for (const m of xml.matchAll(/<loc>([^<]*)<\/loc>/g)) {
+      const loc = m[1].trim();
+      if (!loc.startsWith(baseUrl)) {
+        broken.push({ file: path.relative(outDir, file), loc, reason: 'not on this origin' });
+        continue;
+      }
+      const rest = loc.slice(baseUrl.length);
+      const target = rest === '' || rest.endsWith('/') ? `${rest}index.html` : rest;
+      if (!existsSync(path.join(outDir, target))) {
+        broken.push({ file: path.relative(outDir, file), loc, reason: 'no such page in the build' });
+      }
+    }
+  }
+
+  return broken;
+}
+
+// ---------------------------------------------------------------------------
 // Hub page
 // ---------------------------------------------------------------------------
 
@@ -675,6 +806,7 @@ export async function buildSite({
   const discovered = await discoverSurfaces(venturesDir);
   const surfaces = [];
   const repairs = [];
+  const sitemapChanges = [];
 
   for (const surface of discovered) {
     const html = await fs.readFile(surface.entryFile, 'utf8');
@@ -690,6 +822,10 @@ export async function buildSite({
         outDir,
       })),
     );
+
+    // After `repairLinks`, so a page this build chose not to publish is already
+    // repointed at the source before the sitemap is asked whether it exists.
+    sitemapChanges.push(...(await repairSitemaps({ publishedDir: destination, outDir, baseUrl: base })));
 
     surfaces.push({
       ...surface,
@@ -712,7 +848,11 @@ export async function buildSite({
   // without this, any directory starting with `_` is silently dropped.
   await fs.writeFile(path.join(outDir, '.nojekyll'), '');
 
-  return { outDir, baseUrl: base, surfaces, repairs };
+  // Runs last: the hub sitemap and the index are written above, so this covers
+  // generated and copied sitemaps alike.
+  const brokenLocs = await verifySitemaps({ outDir, baseUrl: base });
+
+  return { outDir, baseUrl: base, surfaces, repairs, sitemapChanges, brokenLocs };
 }
 
 // ---------------------------------------------------------------------------
@@ -733,5 +873,23 @@ if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.me
   console.log(`Base URL: ${result.baseUrl}`);
   if (result.repairs.length > 0) {
     console.log(`Repointed ${result.repairs.length} off-site link(s) at the repository source.`);
+  }
+  if (result.sitemapChanges.length > 0) {
+    const dropped = result.sitemapChanges.filter((c) => c.to === null).length;
+    const rewritten = result.sitemapChanges.length - dropped;
+    console.log(
+      `Sitemaps: rewrote ${rewritten} <loc> value(s) to absolute published URLs` +
+        `, dropped ${dropped} pointing at nothing this build publishes.`,
+    );
+  }
+
+  // A sitemap full of 404s is an SEO liability that nothing else in CI would
+  // notice, so it fails the build rather than shipping quietly.
+  if (result.brokenLocs.length > 0) {
+    console.error(`\n${result.brokenLocs.length} sitemap URL(s) do not resolve in the build:`);
+    for (const b of result.brokenLocs.slice(0, 20)) {
+      console.error(`  ${b.file}: ${b.loc} — ${b.reason}`);
+    }
+    process.exitCode = 1;
   }
 }
