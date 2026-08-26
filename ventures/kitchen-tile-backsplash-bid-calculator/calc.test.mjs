@@ -6,6 +6,9 @@ import {
   comparePattern,
   leftoverBoxPlan,
   leftoverBoxNote,
+  compareOwnerSupply,
+  ownerSupplyNote,
+  suggestedOwnerCallbackKit,
   formatBidSummary,
   formatBoxPlanNote,
   travelHours,
@@ -66,7 +69,7 @@ function losingJob() {
     burdenRate: 30,
     overheadRate: 15,
     targetMargin: 20,
-    travelAndEquipment: 95,
+    travelAndEquipment: 55,
     otherCost: 0,
     ...kit,
   };
@@ -362,4 +365,83 @@ test('the box-plan note names leftover without changing the customer draft', () 
   assert.match(none, /No second wall entered/);
   const customer = formatBidSummary(calculateBid(special()), 'Subway kitchen splash');
   assert.doesNotMatch(customer, /BOX PLAN/);
+});
+
+test('compareOwnerSupply zeros the tile invoice and keeps set hours when they bought it', () => {
+  const rows = compareOwnerSupply(special());
+  assert.equal(rows.length, 3);
+  const you = rows.find((row) => row.supply === 'you-supply');
+  const covers = rows.find((row) => row.supply === 'owner-covers');
+  const short = rows.find((row) => row.supply === 'owner-short');
+  assert.ok(you.tileMaterial > 0);
+  assert.equal(covers.tileMaterial, 0);
+  assert.equal(short.tileMaterial, 0);
+  assert.ok(Math.abs(covers.totalHours - you.totalHours) < 1e-9);
+  assert.ok(short.totalHours > covers.totalHours);
+  assert.ok(covers.price < you.price);
+  assert.ok(short.price > covers.price);
+  assert.ok(short.shortfallMaterial > 0);
+  assert.equal(covers.cheapest, true);
+  assert.equal(covers.installOnly, null);
+});
+
+test('compareOwnerSupply does not leak a typed tile invoice into the owner-supplied rows', () => {
+  const baseline = compareOwnerSupply(special());
+  const overridden = compareOwnerSupply({ ...special(), tilePerSf: 40 });
+  const you = overridden.find((row) => row.supply === 'you-supply');
+  const covers = overridden.find((row) => row.supply === 'owner-covers');
+  const baselineCovers = baseline.find((row) => row.supply === 'owner-covers');
+  assert.ok(you.tileMaterial > baseline.find((row) => row.supply === 'you-supply').tileMaterial);
+  assert.equal(covers.tileMaterial, 0);
+  assert.ok(Math.abs(covers.price - baselineCovers.price) < 1e-9);
+});
+
+test('an install-only number can cover the set but not the you-supply tile', () => {
+  const youBid = calculateBid(special());
+  const mid = (youBid.totalCost + calculateBid({ ...special(), tilePerSf: 0 }).totalCost) / 2;
+  const rows = compareOwnerSupply(special(), { installOnlyPrice: mid });
+  const you = rows.find((row) => row.supply === 'you-supply');
+  const covers = rows.find((row) => row.supply === 'owner-covers');
+  assert.equal(you.installOnly.belowBreakEven, true);
+  assert.equal(covers.installOnly.belowBreakEven, false);
+  assert.match(ownerSupplyNote(rows), /covers the set if their boxes actually cover/i);
+});
+
+test('the $35 / SF special on a herringbone demo loses even when they bought the tile', () => {
+  const rows = compareOwnerSupply(losingJob(), { installOnlyPrice: 35 * 42 });
+  const you = rows.find((row) => row.supply === 'you-supply');
+  const covers = rows.find((row) => row.supply === 'owner-covers');
+  const short = rows.find((row) => row.supply === 'owner-short');
+  assert.equal(you.installOnly.belowBreakEven, true);
+  assert.equal(covers.installOnly.belowBreakEven, true);
+  assert.equal(short.installOnly.belowBreakEven, true);
+  assert.ok(Math.abs(covers.breakEvenPrice - 2698.8384) < 1e-4);
+  assert.match(ownerSupplyNote(rows), /lose money even when they bought the tile/i);
+  assert.match(ownerSupplyNote(rows), /\$1,470/);
+  assert.match(ownerSupplyNote(rows), /\$2,698\.84/);
+});
+
+test('a $700 just-set special loses on a cheap subway even when they bought the tile', () => {
+  const rows = compareOwnerSupply(special(), { installOnlyPrice: 700 });
+  const covers = rows.find((row) => row.supply === 'owner-covers');
+  assert.equal(covers.installOnly.belowBreakEven, true);
+  assert.match(ownerSupplyNote(rows), /lose money even when they bought the tile/i);
+  assert.match(ownerSupplyNote(rows), /\$736\.75/);
+});
+
+test('ownerSupplyNote names the bid drop when no install-only number is on the table', () => {
+  const note = ownerSupplyNote(compareOwnerSupply(special()));
+  assert.match(note, /Zeroing the tile invoice drops the bid/i);
+  assert.match(note, /short \/ wrong-lot callback/i);
+});
+
+test('ownerSupplyNote rejects a missing comparison', () => {
+  assert.throws(() => ownerSupplyNote(null), /missing rows/);
+  assert.throws(() => ownerSupplyNote([{ supply: 'you-supply' }]), /missing rows/);
+});
+
+test('suggestedOwnerCallbackKit uses the extra-kit trip, not a typed set', () => {
+  const kit = suggestedOwnerCallbackKit();
+  assert.equal(kit.hoursCallbackTrip, suggestedExtraKit().hoursTrip);
+  assert.equal(kit.rushTileMultiplier, 1.5);
 });

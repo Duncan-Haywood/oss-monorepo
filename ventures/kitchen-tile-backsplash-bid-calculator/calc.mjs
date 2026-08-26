@@ -598,6 +598,178 @@ export function leftoverBoxNote(plan) {
   return 'The leftover on the van covers this kitchen buy. No new boxes.';
 }
 
+export const SUPPLY_PRESETS = Object.freeze([
+  {
+    id: 'you-supply',
+    label: 'You supply the tile',
+    detail: 'Tile invoice stays in the bid',
+  },
+  {
+    id: 'owner-covers',
+    label: 'Owner supplies — it covers',
+    detail: 'No tile invoice, same set hours',
+  },
+  {
+    id: 'owner-short',
+    label: 'Owner supplies — short / wrong lot',
+    detail: 'Second trip plus rush tile for the waste they skipped',
+  },
+]);
+
+/**
+ * Starting callback hours and rush-tile multiplier when the
+ * owner's store-bought boxes do not cover the wall. They
+ * usually buy the measured SF, not the waste, or the lot
+ * does not match the leftover from another room. Taken from
+ * the extra-kit trip so a typed 9-hour set does not inflate
+ * the callback.
+ */
+export function suggestedOwnerCallbackKit() {
+  const extra = suggestedExtraKit();
+  return {
+    hoursCallbackTrip: extra.hoursTrip,
+    rushTileMultiplier: 1.5,
+  };
+}
+
+function scoreInstallOnly(bid, installPrice) {
+  if (installPrice === null) return null;
+  return {
+    price: installPrice,
+    profit: installPrice - bid.totalCost,
+    margin: installPrice === 0 ? 0 : (installPrice - bid.totalCost) / installPrice * 100,
+    hourlyRate: bid.totalHours === 0 ? null : installPrice / bid.totalHours,
+    belowBreakEven: installPrice < bid.totalCost,
+  };
+}
+
+/**
+ * Price the same splash three ways: you supply the tile, the
+ * owner supplies boxes that actually cover (including waste),
+ * or the owner supplies a short / wrong-lot buy that costs a
+ * second trip and rush tile.
+ *
+ * Owner rows zero the tile invoice and keep the current set
+ * hours — pulling Home Depot boxes is still a set. Outlets,
+ * cooktop, and Schluter stay. The short/wrong-lot row adds a
+ * starting callback trip and buys the waste they skipped at
+ * a rush multiplier so a typed tile invoice does not leak
+ * into the "they bought it" case.
+ *
+ * An install-only price (options.installOnlyPrice, else the
+ * proposed price on the bid) is scored against each cost base.
+ * That is the $35 / SF "just set what I bought" number setters
+ * actually get shopped on.
+ */
+export function compareOwnerSupply(input, options = {}) {
+  const callback = suggestedOwnerCallbackKit();
+  const hoursTrip = number(input.hoursTrip ?? 0, 'Trip hours');
+  const otherCost = number(input.otherCost ?? 0, 'Other cost');
+  const wallSf = number(input.wallSf ?? 0, 'Wall square feet');
+  const wasteRate = number(input.wasteRate ?? 0, 'Waste rate');
+  const tilePerSf = number(input.tilePerSf ?? 0, 'Tile per SF');
+
+  let installPrice = null;
+  const rawInstall = options.installOnlyPrice !== undefined
+    ? options.installOnlyPrice
+    : input.proposedPrice;
+  if (rawInstall !== null && rawInstall !== undefined && rawInstall !== '') {
+    installPrice = number(rawInstall, 'Install-only price');
+  }
+
+  const shortfallSf = wallSf * wasteRate;
+  const rushBuy = shortfallSf * tilePerSf * callback.rushTileMultiplier;
+
+  const youSupply = calculateBid(input);
+  const ownerCovers = calculateBid({ ...input, tilePerSf: 0 });
+  const ownerShort = calculateBid({
+    ...input,
+    tilePerSf: 0,
+    hoursTrip: hoursTrip + callback.hoursCallbackTrip,
+    otherCost: otherCost + rushBuy,
+  });
+
+  const rows = [
+    {
+      supply: 'you-supply',
+      label: SUPPLY_PRESETS[0].label,
+      detail: SUPPLY_PRESETS[0].detail,
+      bid: youSupply,
+      shortfallMaterial: 0,
+    },
+    {
+      supply: 'owner-covers',
+      label: SUPPLY_PRESETS[1].label,
+      detail: SUPPLY_PRESETS[1].detail,
+      bid: ownerCovers,
+      shortfallMaterial: 0,
+    },
+    {
+      supply: 'owner-short',
+      label: SUPPLY_PRESETS[2].label,
+      detail: SUPPLY_PRESETS[2].detail,
+      bid: ownerShort,
+      shortfallMaterial: rushBuy,
+    },
+  ].map((row) => ({
+    supply: row.supply,
+    label: row.label,
+    detail: row.detail,
+    price: row.bid.price,
+    totalCost: row.bid.totalCost,
+    totalHours: row.bid.totalHours,
+    tileMaterial: row.bid.tileMaterial,
+    shortfallMaterial: row.shortfallMaterial,
+    hoursTravel: row.bid.hoursTravel,
+    breakEvenPrice: row.bid.breakEvenPrice,
+    installOnly: scoreInstallOnly(row.bid, installPrice),
+    savedVsYou: youSupply.price - row.bid.price,
+  }));
+
+  const cheapest = Math.min(...rows.map((row) => row.price));
+  return rows.map((row) => ({
+    ...row,
+    cheapest: row.price === cheapest,
+    delta: row.price - cheapest,
+    installOnlyPrice: installPrice,
+    shortfallSf,
+  }));
+}
+
+/**
+ * One-line verdict for the owner-supplied table. Names the
+ * install-only loss when that number is on the table; otherwise
+ * names the bid drop from zeroing the tile invoice.
+ */
+export function ownerSupplyNote(rows) {
+  if (!Array.isArray(rows) || rows.length < 3) {
+    throw new Error('Owner-supply comparison is missing rows');
+  }
+  const you = rows.find((row) => row.supply === 'you-supply');
+  const covers = rows.find((row) => row.supply === 'owner-covers');
+  const short = rows.find((row) => row.supply === 'owner-short');
+  if (!you || !covers || !short) {
+    throw new Error('Owner-supply comparison is missing a supply row');
+  }
+
+  const drop = you.price - covers.price;
+  const callbackLift = short.price - covers.price;
+  if (you.installOnly && covers.installOnly) {
+    const asked = you.installOnly.price;
+    if (you.installOnly.belowBreakEven && covers.installOnly.belowBreakEven) {
+      return `At ${money(asked)} install-only you lose money even when they bought the tile. Walk-away on the owner-supplied set is ${money(covers.breakEvenPrice)}.`;
+    }
+    if (you.installOnly.belowBreakEven && !covers.installOnly.belowBreakEven) {
+      return `At ${money(asked)} the you-supply job loses ${money(Math.abs(you.installOnly.profit))}. The same install-only number covers the set if their boxes actually cover.`;
+    }
+    if (short.installOnly?.belowBreakEven) {
+      return `At ${money(asked)} the set covers if their boxes cover. A short / wrong-lot callback still loses ${money(Math.abs(short.installOnly.profit))} — walk-away then is ${money(short.breakEvenPrice)}.`;
+    }
+    return `At ${money(asked)} both supply paths hold a margin. A short / wrong-lot callback still adds ${money(callbackLift)} to the bid.`;
+  }
+  return `Zeroing the tile invoice drops the bid ${money(drop)}. A short / wrong-lot callback puts ${money(callbackLift)} back on.`;
+}
+
 function money(value) {
   return `$${value.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
 }
