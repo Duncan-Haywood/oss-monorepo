@@ -47,6 +47,10 @@ const awdSeo = readFileSync(
   new URL("./should-i-use-amazon-awd.html", import.meta.url),
   "utf8",
 );
+const narfSeo = readFileSync(
+  new URL("./should-i-use-amazon-remote-fulfillment.html", import.meta.url),
+  "utf8",
+);
 
 function parse(source) {
   const RAW = /<(textarea|script|style)\b[^>]*>/i;
@@ -107,11 +111,13 @@ test("schema.org featureList names the comparisons the page actually renders", (
   assert.match(featureList[1], /Seller Fulfilled Prime vs FBA vs FBM/i);
   assert.match(featureList[1], /restock vs low-inventory-level fee/i);
   assert.match(featureList[1], /Amazon AWD vs send-all-to-FBA vs you-hold/i);
+  assert.match(featureList[1], /Remote Fulfillment vs skip Canada vs a Canada FBA pile/i);
   assert.match(markup, /peak-vs-off-peak-storage\.html/);
   assert.match(markup, /does-smaller-box-cut-amazon-fba-fees\.html/);
   assert.match(markup, /should-i-use-seller-fulfilled-prime\.html/);
   assert.match(markup, /low-inventory-level-fee\.html/);
   assert.match(markup, /should-i-use-amazon-awd\.html/);
+  assert.match(markup, /should-i-use-amazon-remote-fulfillment\.html/);
   assert.match(markup, /id="returnsCompare"/);
   assert.match(markup, /id="returnRate"/);
   assert.match(markup, /do-amazon-returns-wipe-the-profit\.html/);
@@ -530,4 +536,7 @@ test("pages keep the disclaimer and optional sponsor link", () => {
   assert.match(awdSeo, /No warranty/);
   assert.match(awdSeo, /Best-effort hosting, no SLA/);
   assert.match(awdSeo, /github\.com\/sponsors\/Duncan-Haywood/);
+  assert.match(narfSeo, /No warranty/);
+  assert.match(narfSeo, /Best-effort hosting, no SLA/);
+  assert.match(narfSeo, /github\.com\/sponsors\/Duncan-Haywood/);
 });

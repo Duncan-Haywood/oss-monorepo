@@ -3008,6 +3008,263 @@ export function awdNote(comparison) {
   return comparison.summary;
 }
 
+// Remote Fulfillment with North America is the Canada/Mexico expansion
+// decision on a SKU already sitting in US FBA. Complementary to AWD
+// (where a fresh US PO parks), inbound placement (which US FC), MCF
+// (a website order from FBA stock), and SFP (a US Prime badge). This
+// table is incremental CA/MX demand only — skip, fulfill from US FBA
+// with the remote surcharge, or send a dedicated Canada pile.
+// Defaults are illustrative mid-band figures; sellers overwrite them
+// from the current Remote Fulfillment and CA inbound previews.
+export const DEFAULT_NARF_FEE = 1.25;
+export const DEFAULT_CA_INBOUND = 5.2;
+export const DEFAULT_NARF_TAKE_PCT = 50;
+export const DEFAULT_CA_TAKE_PCT = 65;
+export const DEFAULT_CA_SESSIONS = 40;
+
+function narfPath({
+  id,
+  label,
+  takePct,
+  completedProfit,
+  inboundPerUnit,
+  extraFee,
+}) {
+  const expectedProfit = (takePct / 100) * completedProfit;
+  return {
+    id,
+    label,
+    takePct,
+    inboundPerUnit,
+    extraFee,
+    completedProfit,
+    expectedProfit,
+  };
+}
+
+function narfSummary({
+  winner,
+  skip,
+  narf,
+  canada,
+  extraNarfVsSkip,
+  extraCanadaVsNarf,
+  monthlyExtraOnNarf,
+  monthlySessions,
+  breakEvenNarfFee,
+  breakEvenCaInbound,
+  breakEvenNarfTakePct,
+}) {
+  const narfKeep = moneyLabel(narf.expectedProfit);
+  const caKeep = moneyLabel(canada.expectedProfit);
+  const skipKeep = moneyLabel(skip.expectedProfit);
+  const narfGap = moneyLabel(Math.abs(extraNarfVsSkip));
+  const caGap = moneyLabel(Math.abs(extraCanadaVsNarf));
+  const monthGap = moneyLabel(Math.abs(monthlyExtraOnNarf));
+  const feeCeil = Number.isFinite(breakEvenNarfFee)
+    ? moneyLabel(breakEvenNarfFee)
+    : "an unreachable remote fee";
+  const inboundCeil = Number.isFinite(breakEvenCaInbound)
+    ? moneyLabel(breakEvenCaInbound)
+    : "an unreachable Canada inbound";
+  const takeFloor = Number.isFinite(breakEvenNarfTakePct)
+    ? `${breakEvenNarfTakePct.toFixed(1)}%`
+    : "an unreachable take rate";
+  const volume = `${monthlySessions} Canada session${monthlySessions === 1 ? "" : "s"}`;
+
+  if (winner === "narf") {
+    return (
+      `Remote Fulfillment keeps ${narfGap} more per Canada session than skipping ` +
+      `(${narfKeep} vs ${skipKeep}), ${monthGap} on ${volume}. ` +
+      `A dedicated Canada pile is ${caKeep} (${extraCanadaVsNarf < -1e-9 ? `behind` : extraCanadaVsNarf > 1e-9 ? `ahead` : `tied`} by ${caGap}). ` +
+      `The remote fee can rise to about ${feeCeil} before the Canada pile matches.`
+    );
+  }
+  if (winner === "canada") {
+    return (
+      `A dedicated Canada pile keeps ${caGap} more per session than Remote Fulfillment ` +
+      `(${caKeep} vs ${narfKeep}). Skip is ${skipKeep}. ` +
+      `Canada inbound can rise to about ${inboundCeil} before NARF matches, or NARF take has to rise to about ${takeFloor}.`
+    );
+  }
+  if (winner === "skip") {
+    return (
+      `Skipping Canada keeps more than listing there on these rates ` +
+      `(${skipKeep} vs NARF ${narfKeep} / Canada pile ${caKeep}). ` +
+      `NARF matches skip if the remote fee falls to about ${feeCeil}.`
+    );
+  }
+  return (
+    `Remote Fulfillment and a dedicated Canada pile leave the same expected leftover ` +
+    `on these rates (${narfKeep}). Skip is ${skipKeep}. The remote-fee ceiling is about ${feeCeil}.`
+  );
+}
+
+/**
+ * Same SKU already in US FBA, three Canada/Mexico paths.
+ *
+ *   - Skip — do not list in CA/MX. Incremental leftover is $0.
+ *   - Remote Fulfillment — Amazon ships the US FBA unit across the
+ *     border. US inbound is already sunk; the extra line is the
+ *     remote surcharge. Take is usually lower than local Prime
+ *     because delivery is slower.
+ *   - Dedicated Canada pile — send working stock to CA FBA. Replaces
+ *     the US inbound line with CA inbound. Local Prime take is
+ *     usually higher.
+ *
+ * Expected leftover is take% × completed-sale profit on the same
+ * Canada visitor pool. Return mix and the Professional monthly fee
+ * are forced to zero so this table stays incremental CA demand on
+ * inventory already in US FBA — the $39.99 plan is already covered
+ * by US volume. Rates and take are inputs, not Amazon's live
+ * Remote Fulfillment schedule.
+ */
+export function compareRemoteFulfillment(input = {}) {
+  const narfFee = emptyField(input.narfFee)
+    ? DEFAULT_NARF_FEE
+    : number(input.narfFee, "Remote fulfillment fee");
+  const caInboundPerUnit = emptyField(input.caInboundPerUnit)
+    ? DEFAULT_CA_INBOUND
+    : number(input.caInboundPerUnit, "Canada inbound per unit");
+  const narfTakePct = emptyField(input.narfTakePct)
+    ? DEFAULT_NARF_TAKE_PCT
+    : takePercent(input.narfTakePct, "Remote fulfillment take percent");
+  const caTakePct = emptyField(input.caTakePct)
+    ? DEFAULT_CA_TAKE_PCT
+    : takePercent(input.caTakePct, "Canada FBA take percent");
+  const monthlySessions = emptyField(input.caSessions)
+    ? DEFAULT_CA_SESSIONS
+    : number(input.caSessions, "Canada sessions", 1);
+  if (monthlySessions === 0) throw new Error("Canada sessions must be greater than zero");
+
+  const listing = calculateListing({
+    ...input,
+    returnRate: 0,
+    unsellableReturnRate: 0,
+    returnHandlingFee: 0,
+    monthlySellerFee: 0,
+  });
+  const usInbound = number(input.inboundPerUnit, "Inbound per unit");
+  const usProfit = listing.fba.profit;
+  const skipCompleted = 0;
+  const narfCompleted = usProfit - narfFee;
+  const canadaCompleted = usProfit + usInbound - caInboundPerUnit;
+
+  const skip = narfPath({
+    id: "skip",
+    label: "Skip Canada",
+    takePct: 0,
+    completedProfit: skipCompleted,
+    inboundPerUnit: 0,
+    extraFee: 0,
+  });
+  const narf = narfPath({
+    id: "narf",
+    label: "Remote Fulfillment from US FBA",
+    takePct: narfTakePct,
+    completedProfit: narfCompleted,
+    inboundPerUnit: 0,
+    extraFee: narfFee,
+  });
+  const canada = narfPath({
+    id: "canada",
+    label: "Send a Canada FBA pile",
+    takePct: caTakePct,
+    completedProfit: canadaCompleted,
+    inboundPerUnit: caInboundPerUnit,
+    extraFee: 0,
+  });
+
+  const extraNarfVsSkip = narf.expectedProfit - skip.expectedProfit;
+  const extraCanadaVsNarf = canada.expectedProfit - narf.expectedProfit;
+  const extraCanadaVsSkip = canada.expectedProfit - skip.expectedProfit;
+  const monthlyExtraOnNarf = extraNarfVsSkip * monthlySessions;
+  const monthlyExtraOnCanada = extraCanadaVsSkip * monthlySessions;
+
+  const rows = [skip, narf, canada].map((row) => ({
+    ...row,
+    vsSkip: row.expectedProfit - skip.expectedProfit,
+    monthlyProfit: row.expectedProfit * monthlySessions,
+  }));
+
+  const expectedValues = [skip.expectedProfit, narf.expectedProfit, canada.expectedProfit];
+  const bestExpected = Math.max(...expectedValues);
+  const leaders = [
+    { id: "skip", value: skip.expectedProfit },
+    { id: "narf", value: narf.expectedProfit },
+    { id: "canada", value: canada.expectedProfit },
+  ].filter((row) => Math.abs(row.value - bestExpected) <= 1e-9);
+  const winner = leaders.length === 1 ? leaders[0].id : "tie";
+
+  let breakEvenNarfFee = Infinity;
+  if (narfTakePct > 1e-12) {
+    breakEvenNarfFee = usProfit - canada.expectedProfit / (narfTakePct / 100);
+    if (!Number.isFinite(breakEvenNarfFee)) breakEvenNarfFee = Infinity;
+  }
+
+  let breakEvenCaInbound = Infinity;
+  if (caTakePct > 1e-12) {
+    breakEvenCaInbound = usProfit + usInbound - narf.expectedProfit / (caTakePct / 100);
+    if (!Number.isFinite(breakEvenCaInbound)) breakEvenCaInbound = Infinity;
+  }
+
+  let breakEvenNarfTakePct = Infinity;
+  if (Math.abs(narfCompleted) > 1e-12) {
+    breakEvenNarfTakePct = (canada.expectedProfit / narfCompleted) * 100;
+    if (breakEvenNarfTakePct < -1e-9 || breakEvenNarfTakePct > 100 + 1e-9) {
+      breakEvenNarfTakePct = Infinity;
+    } else {
+      breakEvenNarfTakePct = Math.max(0, Math.min(100, breakEvenNarfTakePct));
+    }
+  }
+
+  return {
+    rows,
+    skip: rows[0],
+    narf: rows[1],
+    canada: rows[2],
+    winner,
+    usProfit,
+    usInbound,
+    narfFee,
+    caInboundPerUnit,
+    narfTakePct,
+    caTakePct,
+    monthlySessions,
+    sizeTier: listing.sizeTier,
+    sizeTierLabel: listing.sizeTierLabel,
+    fulfillmentFee: listing.fulfillmentFee,
+    extraNarfVsSkip,
+    extraCanadaVsNarf,
+    extraCanadaVsSkip,
+    monthlyExtraOnNarf,
+    monthlyExtraOnCanada,
+    breakEvenNarfFee,
+    breakEvenCaInbound,
+    breakEvenNarfTakePct,
+    summary: narfSummary({
+      winner,
+      skip,
+      narf,
+      canada,
+      extraNarfVsSkip,
+      extraCanadaVsNarf,
+      monthlyExtraOnNarf,
+      monthlySessions,
+      breakEvenNarfFee,
+      breakEvenCaInbound,
+      breakEvenNarfTakePct,
+    }),
+  };
+}
+
+export function remoteFulfillmentNote(comparison) {
+  if (!comparison?.narf || !comparison?.canada) {
+    throw new Error("Remote fulfillment comparison is missing rows");
+  }
+  return comparison.summary;
+}
+
 export function sizeTierPackagingNote(comparison) {
   if (!comparison?.current) {
     throw new Error("Size-tier packaging comparison is missing rows");

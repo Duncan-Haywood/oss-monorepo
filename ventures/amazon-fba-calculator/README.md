@@ -29,7 +29,9 @@ whether sending inventory before Q4 still beats waiting until January,
 and whether a smaller carton still drops a size-tier fee cliff, and
 whether Seller Fulfilled Prime still beats FBA after a 2-day label
 and pack time, and whether Amazon AWD still beats sending the whole
-lot to FBA after receive, transfer, and bulk storage** —
+lot to FBA after receive, transfer, and bulk storage, and
+whether Amazon Remote Fulfillment still beats skipping Canada
+or sending a dedicated Canada pile** —
 which used to mean a spreadsheet that forgot storage, inbound, or the
 0.75-inch small-standard gate.
 
@@ -221,6 +223,27 @@ than sending the lot to FBA now ($4723.93 vs $4558.60), and that the
 transfer has to rise to about $1.09 before FBA matches** — which used
 to mean inbounding the whole PO because AWD looked like an extra hop.
 
+Canada or Mexico demand on a SKU already sitting in US FBA is an
+expansion decision: skip that border, fulfill from the US pile with
+Remote Fulfillment, or send a dedicated Canada pile.
+[Should I use Amazon Remote Fulfillment?](should-i-use-amazon-remote-fulfillment.html)
+mixes the remote surcharge with Canada inbound and take rate so a
+blended inbound / unit does not hide the first CA shipment.
+Complementary to [Amazon AWD](should-i-use-amazon-awd.html)
+(where a fresh US PO parks), to
+[inbound placement](inbound-placement-fee.html) (which US FC),
+to [MCF](should-i-use-amazon-mcf-for-website-orders.html)
+(a website order from FBA stock), and to
+[Seller Fulfilled Prime](should-i-use-seller-fulfilled-prime.html)
+(a US Prime badge).
+
+**After using the Remote Fulfillment page, you can now see whether a
+$1.25 remote surcharge still keeps $5.12 more per Canada session
+than skipping ($204.86 on 40 sessions) against a $5.20 first Canada
+inbound, and that the remote fee has to rise to about $1.75 before
+the pile matches** — which used to mean sending a second pile
+because local Prime looked free to open.
+
 **No warranty.** This tool is provided free and as-is, without warranty of any
 kind, express or implied. It is not tax, financial, or business advice, and it
 does not replace a qualified professional. **You are responsible for reviewing
@@ -254,7 +277,7 @@ optional and never changes what the tool does.
 Pure ES modules, no build step, no dependencies.
 
 ```
-node --test        # runs calc.test.mjs, usage.test.mjs, page.test.mjs, vine-page.test.mjs, aged-inventory-page.test.mjs, inbound-page.test.mjs, returns-page.test.mjs, storage-page.test.mjs, packaging-page.test.mjs, sfp-page.test.mjs, low-inventory-page.test.mjs, and awd-page.test.mjs
+node --test        # runs calc.test.mjs, usage.test.mjs, page.test.mjs, vine-page.test.mjs, aged-inventory-page.test.mjs, inbound-page.test.mjs, returns-page.test.mjs, storage-page.test.mjs, packaging-page.test.mjs, sfp-page.test.mjs, low-inventory-page.test.mjs, awd-page.test.mjs, and remote-fulfillment-page.test.mjs
 ```
 
 `calc.mjs` holds the fee/profit/ROI arithmetic, size-tier classification,
@@ -269,7 +292,8 @@ expected profit after returns,
 peak vs off-peak Q4 storage,
 Seller Fulfilled Prime vs FBA vs FBM,
 restock vs low-inventory-level fee,
-and Amazon AWD vs send-all-to-FBA vs you-hold;
+Amazon AWD vs send-all-to-FBA vs you-hold,
+and Remote Fulfillment vs skip Canada vs a Canada FBA pile;
 `usage.mjs` holds the anonymous
 local counter; `index.html` is the calculator UI.
 
