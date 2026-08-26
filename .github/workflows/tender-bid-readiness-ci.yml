@@ -4,6 +4,13 @@ on:
     paths: ["ventures/tender-bid-readiness/**", ".github/workflows/tender-bid-readiness-ci.yml"]
   pull_request:
     paths: ["ventures/tender-bid-readiness/**", ".github/workflows/tender-bid-readiness-ci.yml"]
+
+# The job only checks out the repo and runs the venture's tests, so a
+# read-only token is all it needs. Without this the workflow inherits the
+# repository default, which can be write.
+permissions:
+  contents: read
+
 jobs:
   test:
     runs-on: ubuntu-latest
