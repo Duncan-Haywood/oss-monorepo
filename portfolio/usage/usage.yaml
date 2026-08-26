@@ -2627,3 +2627,15 @@ products:
           prime, extra trim, and hard access instead of a published $3,999
           house special. Public URL remains owner-gated; counters are local,
           aggregate, and opt-out.
+
+  - slug: seller-net-sheet
+    surface: static-page-in-repo
+    readings:
+      - as_of: 2026-08-26
+        signals:
+          live_url_visitors: null
+          local_events_reported: 0
+        note: >-
+          Shipped a local seller net sheet (post-NAR offer comparison,
+          walk-away sale price, copyable worksheet). Public URL remains
+          owner-gated; counters are local, aggregate, and opt-out.
