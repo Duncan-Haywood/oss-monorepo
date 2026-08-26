@@ -79,6 +79,23 @@ as common ballpark figures. **They are not an industry standard, a MUTCD
 requirement, a benchmark, or a guarantee.** Real yield depends on paint,
 surface, temperature, and mil thickness. Every rate is editable.
 
+## Come back to a bid
+
+**Copy link to this bid** puts every number you entered into the URL after the
+`#`, and reopening that link restores them. It is how you get back to a bid
+tomorrow, and how you hand one to whoever prices with you.
+
+Browsers never send a fragment to a server &mdash; not in the request, not in
+the `Referer` header a click through to another site would carry &mdash; so the
+link keeps the same promise as the rest of the page: nothing you typed is
+uploaded. Anyone holding the link can read the numbers in it, so treat it like
+the bid itself.
+
+Nothing is written to the link that is not on the page. The snapshot is taken
+from the form itself rather than from a list of field names, so a field added
+to this calculator later travels the day it ships &mdash; a field silently
+missing from a link is a wrong price for the recipient, not an error message.
+
 ## Privacy
 
 Nothing is uploaded. Every figure stays in the browser. The only thing stored
@@ -89,7 +106,8 @@ automatically when the browser sends Do Not Track or Global Privacy Control.
 See [`usage.mjs`](usage.mjs) and [`portfolio/usage/`](../../portfolio/usage/README.md).
 
 Events counted: `bid_calculated`, `layout_compared`, `ada_compared`,
-`coats_compared`, `proposed_price_compared`, `summary_copied`.
+`coats_compared`, `proposed_price_compared`, `summary_copied`, `bid_link_copied`,
+`bid_link_opened`.
 
 ## Limitations
 

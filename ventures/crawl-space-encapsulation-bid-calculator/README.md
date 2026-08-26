@@ -79,6 +79,23 @@ The arithmetic lives in [`calc.mjs`](calc.mjs). See
 
 Search phrase: [`how-much-to-charge-for-crawl-space-encapsulation.html`](how-much-to-charge-for-crawl-space-encapsulation.html).
 
+## Come back to a bid
+
+**Copy link to this bid** puts every number you entered into the URL after the
+`#`, and reopening that link restores them. It is how you get back to a bid
+tomorrow, and how you hand one to whoever prices with you.
+
+Browsers never send a fragment to a server &mdash; not in the request, not in
+the `Referer` header a click through to another site would carry &mdash; so the
+link keeps the same promise as the rest of the page: nothing you typed is
+uploaded. Anyone holding the link can read the numbers in it, so treat it like
+the bid itself.
+
+Nothing is written to the link that is not on the page. The snapshot is taken
+from the form itself rather than from a list of field names, so a field added
+to this calculator later travels the day it ships &mdash; a field silently
+missing from a link is a wrong price for the recipient, not an error message.
+
 ## Privacy
 
 Everything runs in your browser. Your data is never uploaded, and we don't
@@ -98,7 +115,8 @@ when the browser sends Do Not Track or Global Privacy Control. See
 
 Events counted: `bid_calculated`, `preset_applied`, `scope_changed`,
 `access_changed`, `insulation_changed`, `proposed_price_compared`,
-`summary_copied`.
+`summary_copied`, `bid_link_copied`,
+`bid_link_opened`.
 
 ## Limitations
 

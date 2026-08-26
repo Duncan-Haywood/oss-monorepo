@@ -7,7 +7,7 @@
   <meta name="description" content="Price a parking lot striping job from stall lines, ADA hash aisles, arrows, coats, and new-layout hours — plus price per stall, the extra a per-stall special hides, and the walk-away number.">
   <meta property="og:title" content="Parking Lot Striping Bid Calculator">
   <meta property="og:description" content="Bid pavement marking the way the trade does — stall lines, ADA hash, and coats — and see the margin before you send the price.">
-  <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Parking Lot Striping Bid Calculator","applicationCategory":"BusinessApplication","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"featureList":"Stall-line and ADA-hash labor, restripe vs new layout, one coat vs two, arrows and fire lanes, price per stall, break-even walk-away price, proposed-price margin check"}</script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Parking Lot Striping Bid Calculator","applicationCategory":"BusinessApplication","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"featureList":"Stall-line and ADA-hash labor, restripe vs new layout, one coat vs two, arrows and fire lanes, price per stall, break-even walk-away price, proposed-price margin check, shareable private bid link that restores every input from the URL fragment"}</script>
   <style>
     :root { color-scheme: light; font-family: system-ui, sans-serif; color: #1c1f24; background: #ece8dc; }
     body { max-width: 1100px; margin: 0 auto; padding: 32px 18px; }
@@ -133,8 +133,15 @@
       <div id="verdict" class="verdict" hidden></div>
       <div class="summary-actions">
         <button type="button" id="copySummary">Copy bid summary</button>
+        <button type="button" id="copyBidLink">Copy link to this bid</button>
         <span id="summaryStatus" class="summary-status" role="status" aria-live="polite"></span>
       </div>
+      <p class="note" style="font-size:.78rem;margin-top:6px">
+        The link puts every number you entered after the <code>#</code>, which
+        browsers never send to a server. Reopen it tomorrow to get this bid
+        back, or send it to whoever prices with you &mdash; it still never
+        uploads anything.
+      </p>
       <hr>
       <p class="note" style="margin-bottom:4px"><strong>Where the hours go</strong></p>
       <ul class="split" id="split"></ul>
@@ -165,6 +172,7 @@
       formatBidSummary, suggestedKit, JOB_PRESETS,
     } from './calc.mjs';
     import { recordUsage } from './usage.mjs';
+    import { encodeBid, decodeBid, applyBid, bidLink, copyText, readShareValues } from './share.mjs';
 
     const FIELD_IDS = [
       'layout','coats','standardStalls','adaStalls','arrows','stopBars','crosswalks',
@@ -299,22 +307,39 @@
       const result = calculateBid(readInput());
       const job = JOB_PRESETS[Number(presetSelect.value)]?.label || 'Parking lot striping';
       const text = formatBidSummary(result, job);
-      try {
-        await navigator.clipboard.writeText(text);
-      } catch {
-        const fallback = document.createElement('textarea');
-        fallback.value = text;
-        fallback.setAttribute('readonly', '');
-        fallback.style.position = 'fixed';
-        fallback.style.opacity = '0';
-        document.body.append(fallback);
-        fallback.select();
-        document.execCommand('copy');
-        fallback.remove();
-      }
+      const copied = await copyText(document, text);
       count('summary_copied');
-      el('summaryStatus').textContent = 'Copied to clipboard';
+      showShareStatus(copied ? 'Copied to clipboard' : 'Copy failed; select and copy the figures above.');
+    }
+
+    function showShareStatus(message) {
+      el('summaryStatus').textContent = message;
       setTimeout(() => { el('summaryStatus').textContent = ''; }, 2500);
+    }
+
+    async function copyBidLink() {
+      // Snapshotting the page rather than naming fields is what keeps the
+      // link honest: everything the calculator prices from travels, and so
+      // does the starting-job dropdown the copied summary is titled from.
+      const values = readShareValues(document);
+      const link = bidLink(location.href, values);
+      // Put it in the address bar too, so a reload or a bookmark keeps the
+      // bid even if the copy itself failed or was never pasted anywhere.
+      history.replaceState(null, '', `#${encodeBid(values)}`);
+      const copied = await copyText(document, link);
+      count('bid_link_copied');
+      showShareStatus(copied
+        ? 'Link copied \u2014 it keeps every number you entered'
+        : 'Copy failed; the link is in your address bar.');
+    }
+
+    function restoreSharedBid() {
+      const shared = decodeBid(location.hash);
+      if (!shared) return;
+      const report = applyBid(document, shared);
+      if (!report.restored) return;
+      count('bid_link_opened');
+      showShareStatus('Bid restored from the link');
     }
 
     function showLayoutCompare() {
@@ -357,11 +382,18 @@
         el('summaryStatus').textContent = error.message;
       }
     });
+    el('copyBidLink').addEventListener('click', () => {
+      copyBidLink().catch(() => { el('summaryStatus').textContent = 'Copy failed; the link is in your address bar.'; });
+    });
     el('compareLayout').addEventListener('click', showLayoutCompare);
     el('compareAda').addEventListener('click', showAdaCompare);
     el('compareCoats').addEventListener('click', showCoatCompare);
 
     applyJob(JOB_PRESETS[0]);
+    // After the preset kits, so a shared link's numbers win over the defaults
+    // they would otherwise be overwritten by, and before update() so the first
+    // figures a recipient sees are already the sender's.
+    restoreSharedBid();
     update();
   </script>
 </body>
