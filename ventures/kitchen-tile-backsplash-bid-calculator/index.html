@@ -1,0 +1,588 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Kitchen Tile Backsplash Bid Calculator | How Much to Charge for a Backsplash</title>
+  <meta name="description" content="Price a kitchen tile backsplash from wall square feet, subway versus herringbone versus mosaic versus large-format, tile-only versus new-prep versus demo-and-replace, owner-supplied versus you-supply, weekday versus occupied versus after-hours, and extras — plus the walk-away price a $35 / SF special cannot see.">
+  <meta property="og:title" content="Kitchen Tile Backsplash Bid Calculator">
+  <meta property="og:description" content="Bid a kitchen backsplash the way the trade does — wall, pattern, extras, and whether they want Saturday — not a published per-SF dump — and see the margin before you send the price.">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Kitchen Tile Backsplash Bid Calculator","applicationCategory":"BusinessApplication","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"featureList":"Wall square feet, subway vs herringbone vs mosaic vs large-format comparison, tile-only vs new-prep vs demo-and-replace comparison, owner-supplied vs you-supply install, leftover box credit and box round-up, second-wall leftover coverage, weekday empty vs occupied vs after-hours comparison, outlet cooktop Schluter extras, walk-away price, proposed-price margin check, copyable bid summary"}</script>
+  <style>
+    :root { color-scheme: light; font-family: system-ui, sans-serif; color: #3a2d24; background: #f3ebe3; }
+    body { max-width: 1060px; margin: 0 auto; padding: 32px 18px; }
+    header { max-width: 720px; margin-bottom: 26px; }
+    h1 { font-size: clamp(2rem, 6vw, 3.6rem); line-height: .98; margin: 0 0 12px; letter-spacing: -.05em; }
+    p { line-height: 1.5; }
+    .eyebrow { font-size: .8rem; font-weight: 700; letter-spacing: .08em; color: #8a4b2a; margin: 0 0 6px; }
+    .layout { display: grid; grid-template-columns: minmax(0, 1fr) minmax(300px, .75fr); gap: 18px; align-items: start; }
+    section { background: #fff; border: 1px solid #d8c8b8; border-radius: 14px; padding: 20px; box-shadow: 0 8px 24px #3a2d240d; margin-bottom: 18px; }
+    h2 { margin-top: 0; font-size: 1.15rem; }
+    .hint { font-size: .82rem; color: #6b5a4c; margin: -6px 0 14px; }
+    .fields { display: grid; grid-template-columns: repeat(2, 1fr); gap: 13px; }
+    label { display: grid; gap: 5px; font-size: .87rem; font-weight: 650; }
+    input, select { width: 100%; box-sizing: border-box; border: 1px solid #b89a82; border-radius: 7px; padding: 10px; font: inherit; background: #fff; }
+    .checks { display: grid; gap: 8px; margin-top: 12px; }
+    .checks label { display: flex; gap: 8px; align-items: center; font-weight: 550; }
+    .checks input { width: auto; }
+    button { font: inherit; border-radius: 7px; border: 1px solid #b89a82; background: #f7efe6; padding: 10px 14px; cursor: pointer; font-weight: 650; }
+    button:hover { background: #efe3d6; }
+    .result { position: sticky; top: 15px; background: #3a2618; color: #f7efe6; border-color: #3a2618; }
+    .hero-number { font-size: 2.9rem; font-weight: 750; letter-spacing: -.05em; margin: 8px 0; }
+    .negative { color: #ffb0a2; } .positive { color: #d8e6a9; }
+    dl { display: grid; grid-template-columns: 1fr auto; gap: 9px; margin: 20px 0; }
+    dt, dd { margin: 0; } dd { font-variant-numeric: tabular-nums; }
+    hr { border: 0; border-top: 1px solid #ffffff2b; }
+    .note { font-size: .82rem; opacity: .84; }
+    .split { margin: 14px 0 0; padding: 0; list-style: none; font-size: .84rem; }
+    .split li { display: grid; grid-template-columns: 1fr auto; gap: 8px; padding: 3px 0; }
+    .bar { grid-column: 1 / -1; height: 4px; border-radius: 2px; background: #ffffff2e; }
+    .bar > span { display: block; height: 100%; border-radius: 2px; background: #d4a06a; }
+    .verdict { margin-top: 14px; padding: 12px; border-radius: 9px; font-size: .87rem; background: #ffffff1a; }
+    .verdict.bad { background: #7d2317; }
+    .empty { font-size: .87rem; opacity: .84; }
+    footer { margin-top: 25px; font-size: .82rem; color: #6b5a4c; }
+    footer a { color: #8a4b2a; }
+    .support { margin-top: 14px; }
+    .summary-actions { display: flex; gap: 8px; align-items: center; margin-top: 14px; }
+    .summary-status { font-size: .8rem; color: #ecd8b8; }
+    table { width: 100%; border-collapse: collapse; font-size: .84rem; }
+    th, td { text-align: left; padding: 7px 4px; border-bottom: 1px solid #ffffff24; }
+    th { font-size: .74rem; letter-spacing: .04em; text-transform: uppercase; opacity: .75; }
+    td:last-child, th:last-child { text-align: right; }
+    .cheap { color: #d8e6a9; font-weight: 700; }
+    @media (max-width: 780px) {
+      .layout { grid-template-columns: 1fr; } .result { position: static; } .fields { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="eyebrow">FOR TILE SETTERS AND KITCHEN REMODELERS</p>
+    <h1>Bid the wall, the pattern, and the extras.</h1>
+    <p>Price a kitchen tile backsplash the way the trade actually loses money: 30 SF of subway running-bond on painted drywall versus a herringbone demo with outlets, a cooktop cutout, and Schluter — not the published $35 / SF special. You get the job price, what it works out to per square foot, and the number below which the install loses money.</p>
+  </header>
+
+  <main class="layout">
+    <div>
+      <section>
+        <h2>The kitchen</h2>
+        <p class="hint">Pick a common job to start, then replace every rate with a tile invoice and a crew you have timed. Changing scope, pattern, or wall fills starting hours and material only when you have not already edited that field.</p>
+        <div class="fields">
+          <label>Job preset
+            <select id="jobPresets">
+              <option value="">Choose a starting job…</option>
+            </select>
+          </label>
+          <label>Scope <select id="scope"></select></label>
+          <label>Pattern <select id="pattern"></select></label>
+          <label>Wall <select id="wall"></select></label>
+          <label>Wall square feet <input id="wallSf" type="number" min="0" step="1" value="30"></label>
+          <label>Edge lineal feet <input id="edgeLf" type="number" min="0" step="1" value="12"></label>
+          <label>Outlets / switches <input id="outlets" type="number" min="0" step="1" value="2"></label>
+          <label>Travel miles <input id="travelMiles" type="number" min="0" step="1" value="8"></label>
+        </div>
+        <div class="checks">
+          <label><input id="includeCooktop" type="checkbox"> Cooktop / range cutout</label>
+          <label><input id="includeSchluter" type="checkbox"> Schluter / metal edge trim</label>
+          <label><input id="includeAccent" type="checkbox"> Accent band / listello</label>
+        </div>
+      </section>
+
+      <section>
+        <h2>Hours and material rates</h2>
+        <p class="hint">These start from the scope, pattern, and wall you picked. They are ballpark crew figures, not a tile catalog or a guarantee.</p>
+        <div class="fields">
+          <label>Trip hours <input id="hoursTrip" type="number" min="0" step="0.1"></label>
+          <label>Hours / mile <input id="hoursPerMile" type="number" min="0" step="0.01"></label>
+          <label>Tile hours / SF <input id="hoursTilePerSf" type="number" min="0" step="0.01"></label>
+          <label>Prep hours / SF <input id="prepHoursPerSf" type="number" min="0" step="0.01"></label>
+          <label>Demo hours / SF <input id="demoHoursPerSf" type="number" min="0" step="0.01"></label>
+          <label>Wall hours / SF <input id="hoursWallPerSf" type="number" min="0" step="0.01"></label>
+          <label>Hours / outlet <input id="hoursPerOutlet" type="number" min="0" step="0.05"></label>
+          <label>Cooktop hours <input id="hoursCooktop" type="number" min="0" step="0.1"></label>
+          <label>Schluter hours / LF <input id="hoursSchluterPerLf" type="number" min="0" step="0.01"></label>
+          <label>Accent hours / SF <input id="hoursAccentPerSf" type="number" min="0" step="0.01"></label>
+          <label>Site / punch-list hours <input id="siteHours" type="number" min="0" step="0.1"></label>
+          <label>Waste rate (0.10 = 10%) <input id="wasteRate" type="number" min="0" step="0.01"></label>
+          <label>Tile $ / SF <input id="tilePerSf" type="number" min="0" step="0.1"></label>
+          <label>Grout / thinset $ / SF <input id="groutPerSf" type="number" min="0" step="0.1"></label>
+          <label>Board / membrane $ / SF <input id="boardPerSf" type="number" min="0" step="0.1"></label>
+          <label>Wall prep $ / SF <input id="wallInvoicePerSf" type="number" min="0" step="0.1"></label>
+          <label>Outlet plate $ each <input id="outletEach" type="number" min="0" step="1"></label>
+          <label>Cooktop cutout $ <input id="cooktopInvoice" type="number" min="0" step="1"></label>
+          <label>Schluter $ / LF <input id="schluterPerLf" type="number" min="0" step="0.1"></label>
+          <label>Accent $ / SF <input id="accentPerSf" type="number" min="0" step="0.1"></label>
+          <label>Travel $ / mile <input id="travelPerMile" type="number" min="0" step="0.1"></label>
+        </div>
+      </section>
+
+      <section>
+        <h2>Your costs</h2>
+        <div class="fields">
+          <label>Crew hourly wage <input id="hourlyWage" type="number" min="0" step="0.25" value="38"></label>
+          <label>Payroll burden (%) <input id="burdenRate" type="number" min="0" step="0.5" value="30"></label>
+          <label>Travel &amp; equipment <input id="travelAndEquipment" type="number" min="0" step="1" value="55"></label>
+          <label>Other cost <input id="otherCost" type="number" min="0" step="1" value="0"></label>
+          <label>Overhead on direct cost (%) <input id="overheadRate" type="number" min="0" step="0.5" value="15"></label>
+          <label>Target net margin (%) <input id="targetMargin" type="number" min="0" max="99.9" step="0.5" value="20"></label>
+          <label>Price you&rsquo;re considering (optional) <input id="proposedPrice" type="number" min="0" step="50" placeholder="e.g. 1470"></label>
+        </div>
+        <p class="hint" style="margin-top:14px;margin-bottom:0">Payroll burden covers employer taxes, workers&rsquo; compensation, liability insurance, and paid time off. Underestimating it is how a $35 / SF splash that looked profitable was not.</p>
+      </section>
+
+      <section>
+        <h2>Leftover boxes and the next wall</h2>
+        <p class="hint">Tile is sold by the box. A 33 SF buy is not 3.3 boxes — it is four boxes at 10 SF each, and leftover after the kitchen may or may not cover a laundry return. Leftover already on the van is already-paid stock unless you decide to credit it; this does not change the headline bid.</p>
+        <div class="fields">
+          <label>Square feet per box <input id="sfPerBox" type="number" min="0.01" step="0.1" value="10"></label>
+          <label>Leftover boxes on the van <input id="leftoverBoxes" type="number" min="0" step="0.5" value="0"></label>
+          <label>Second wall SF (laundry / pantry) <input id="secondWallSf" type="number" min="0" step="1" value="0"></label>
+        </div>
+      </section>
+    </div>
+
+    <section class="result" aria-live="polite">
+      <h2>Your bid</h2>
+      <div id="price" class="hero-number">$&mdash;</div>
+      <div id="priceLabel">kitchen-backsplash price</div>
+      <dl>
+        <dt>Wall</dt><dd id="area"></dd>
+        <dt>Buy with waste</dt><dd id="buy"></dd>
+        <dt>Travel</dt><dd id="travel"></dd>
+        <dt>Crew hours</dt><dd id="hours"></dd>
+        <dt>Loaded labor</dt><dd id="labor"></dd>
+        <dt>Tile, grout, board</dt><dd id="finishCost"></dd>
+        <dt>Cuts, demo, extras</dt><dd id="extra"></dd>
+        <dt>Travel &amp; other</dt><dd id="soft"></dd>
+        <dt>Overhead</dt><dd id="overhead"></dd>
+        <dt>Total cost</dt><dd id="cost"></dd>
+        <dt>Profit</dt><dd id="profit"></dd>
+        <dt>Price per SF</dt><dd id="perSf"></dd>
+        <dt>Effective hourly rate</dt><dd id="hourlyRate"></dd>
+        <dt>Walk-away price</dt><dd id="breakEven"></dd>
+      </dl>
+      <div id="verdict" class="verdict" hidden></div>
+      <div class="summary-actions">
+        <button type="button" id="copySummary">Copy bid summary</button>
+        <span id="summaryStatus" class="summary-status" role="status" aria-live="polite"></span>
+      </div>
+      <hr>
+      <p class="note" style="margin-bottom:4px"><strong>Same wall, three scopes</strong></p>
+      <table>
+        <thead><tr><th>Scope</th><th>Hours</th><th>Price</th></tr></thead>
+        <tbody id="compare"></tbody>
+      </table>
+      <hr>
+      <p class="note" style="margin-bottom:4px"><strong>Same wall, four patterns</strong></p>
+      <p class="note" style="margin-top:0">The upgrade a homeowner is asking for when they say “can we do herringbone instead?” — same wall, same scope, starting pattern kits. Matching the subway special on a herringbone wall is the losing bid.</p>
+      <table>
+        <thead><tr><th>Pattern</th><th>Hours</th><th>Price</th><th>vs subway</th></tr></thead>
+        <tbody id="patterns"></tbody>
+      </table>
+      <hr>
+      <p class="note" style="margin-bottom:4px"><strong>Leftover boxes</strong></p>
+      <p class="note" style="margin-top:0">The kitchen buy is rounded up to whole boxes. Leftover on the van credits the buy. A second wall is covered only if leftover after this splash still has the waste you already assumed. <a href="do-leftover-tile-boxes-cover-the-next-wall.html">Do leftover boxes cover the laundry wall?</a></p>
+      <dl>
+        <dt>Boxes to buy</dt><dd id="boxesToBuy"></dd>
+        <dt>Leftover after kitchen</dt><dd id="leftoverAfter"></dd>
+        <dt>Box round-up you eat</dt><dd id="boxRoundUp"></dd>
+        <dt>Leftover credit (if stock is free)</dt><dd id="leftoverCredit"></dd>
+        <dt>Second wall</dt><dd id="secondWall"></dd>
+      </dl>
+      <div id="boxVerdict" class="verdict" hidden></div>
+      <hr>
+      <p class="note" style="margin-bottom:4px"><strong>Same wall, who bought the tile</strong></p>
+      <p class="note" style="margin-top:0">The $35 / SF “just set what I bought at the store” special. Zeroing the tile invoice is not a free install — outlets, cooktop cuts, and the trip still cost money, and a short or wrong-lot buy is a second trip. <a href="should-i-install-customer-supplied-backsplash-tile.html" style="color:#cde6ea">Should I install customer-supplied backsplash tile?</a></p>
+      <table>
+        <thead><tr><th>Who supplies</th><th>Hours</th><th>Your bid</th><th>At their number</th></tr></thead>
+        <tbody id="supply"></tbody>
+      </table>
+      <p id="supplyNote" class="note"></p>
+      <hr>
+      <p class="note" style="margin-bottom:4px"><strong>Same wall, when you can work</strong></p>
+      <p class="note" style="margin-top:0">The “can you do Saturday so I can cook?” special. An empty weekday is the bid you already have. They-cook-around-you is the same wage on a slower set. After-hours is time-and-a-half plus a second evening trip because you cannot leave mud overnight. <a href="should-i-tile-a-backsplash-after-hours.html" style="color:#cde6ea">Should I tile a backsplash after hours?</a></p>
+      <table>
+        <thead><tr><th>Access</th><th>Hours</th><th>Your bid</th><th>At their number</th></tr></thead>
+        <tbody id="access"></tbody>
+      </table>
+      <p id="accessNote" class="note"></p>
+      <hr>
+      <p class="note" style="margin-bottom:4px"><strong>Where the hours go</strong></p>
+      <ul class="split" id="split"></ul>
+      <hr>
+      <p class="note">Transparent arithmetic from your own inputs. The starting hours and material rates are common ballpark figures, not an industry standard, a benchmark, or a guarantee &mdash; time your own crews and replace them.</p>
+    </section>
+  </main>
+
+  <footer>
+    <label style="display:inline-flex;gap:6px;align-items:center;font-weight:400"><input id="usageOptOut" type="checkbox" style="width:auto"> Do not keep anonymous local usage counts</label>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not tile-specification, waterproofing, building-code, legal, tax, or financial advice, and it does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for meeting any obligation it helps you prepare for. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record. If a tool needs to survive, export your inputs and run it yourself.</p>
+    <p><strong>Nothing leaves your browser.</strong> Every number stays on this device. Usage counts are anonymous tallies of which features were used, stored locally, and never include your wall, wages, costs, or prices.</p>
+    <p>Looking up <a href="how-much-to-charge-for-a-kitchen-tile-backsplash.html">how much to charge for a kitchen tile backsplash</a>? The article walks the wall-versus-pattern math this calculator uses. <a href="do-leftover-tile-boxes-cover-the-next-wall.html">Do leftover tile boxes cover the laundry wall?</a> walks the box-round-up case. Customer bought the tile? See <a href="should-i-install-customer-supplied-backsplash-tile.html">should I install customer-supplied backsplash tile</a>. They want Saturday? See <a href="should-i-tile-a-backsplash-after-hours.html">should I tile a backsplash after hours</a>.</p>
+    <p class="support">Free and open source. If it wins you a job, the <a href="https://github.com/Duncan-Haywood/monorepo-projects" rel="noopener">project is on GitHub</a> &mdash; support is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import {
+      calculateBid,
+      compareScope,
+      comparePattern,
+      leftoverBoxPlan,
+      leftoverBoxNote,
+      compareOwnerSupply,
+      ownerSupplyNote,
+      compareAccess,
+      accessNote,
+      formatBidSummary,
+      formatBoxPlanNote,
+      suggestedScopeKit,
+      suggestedPatternKit,
+      suggestedWallKit,
+      suggestedExtraKit,
+      SCOPE_PRESETS,
+      PATTERN_PRESETS,
+      WALL_PRESETS,
+      JOB_PRESETS,
+    } from './calc.mjs';
+    import { recordUsage } from './usage.mjs';
+
+    const JOB_IDS = [
+      'scope', 'pattern', 'wall', 'wallSf', 'edgeLf', 'outlets', 'travelMiles',
+    ];
+    const FLAG_IDS = ['includeCooktop', 'includeSchluter', 'includeAccent'];
+    const RATE_IDS = [
+      'hoursTrip', 'hoursPerMile', 'hoursTilePerSf', 'prepHoursPerSf',
+      'demoHoursPerSf', 'hoursWallPerSf', 'hoursPerOutlet', 'hoursCooktop',
+      'hoursSchluterPerLf', 'hoursAccentPerSf', 'siteHours', 'wasteRate',
+      'tilePerSf', 'groutPerSf', 'boardPerSf', 'wallInvoicePerSf', 'outletEach',
+      'cooktopInvoice', 'schluterPerLf', 'accentPerSf', 'travelPerMile',
+    ];
+    const COST_IDS = [
+      'hourlyWage', 'burdenRate', 'travelAndEquipment', 'otherCost',
+      'overheadRate', 'targetMargin', 'proposedPrice',
+    ];
+    const BOX_IDS = ['sfPerBox', 'leftoverBoxes', 'secondWallSf'];
+    const SCOPE_RATE_IDS = ['prepHoursPerSf', 'demoHoursPerSf', 'boardPerSf'];
+    const PATTERN_RATE_IDS = ['hoursTilePerSf', 'wasteRate', 'tilePerSf'];
+    const WALL_RATE_IDS = ['hoursWallPerSf', 'wallInvoicePerSf'];
+    const EXTRA_RATE_IDS = [
+      'hoursTrip', 'hoursPerMile', 'hoursPerOutlet', 'hoursCooktop',
+      'hoursSchluterPerLf', 'hoursAccentPerSf', 'siteHours', 'groutPerSf',
+      'outletEach', 'cooktopInvoice', 'schluterPerLf', 'accentPerSf',
+      'travelPerMile',
+    ];
+    const money = value => `$${value.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+    const el = id => document.getElementById(id);
+
+    function fillSelect(id, presets) {
+      el(id).innerHTML = presets.map(item => `<option value="${item.id}">${item.label}</option>`).join('');
+    }
+
+    fillSelect('scope', SCOPE_PRESETS);
+    fillSelect('pattern', PATTERN_PRESETS);
+    fillSelect('wall', WALL_PRESETS);
+    el('jobPresets').innerHTML = '<option value="">Choose a starting job…</option>'
+      + JOB_PRESETS.map((job, index) => `<option value="${index}">${job.label}</option>`).join('');
+
+    function applyKit(kit, ids) {
+      for (const id of ids) {
+        const field = el(id);
+        if (field.dataset.edited) continue;
+        if (kit[id] !== undefined) field.value = kit[id];
+      }
+    }
+
+    function applyScopeKit() {
+      applyKit(suggestedScopeKit(el('scope').value), SCOPE_RATE_IDS);
+    }
+
+    function applyPatternKit() {
+      applyKit(suggestedPatternKit(el('pattern').value), PATTERN_RATE_IDS);
+    }
+
+    function applyWallKit() {
+      applyKit(suggestedWallKit(el('wall').value), WALL_RATE_IDS);
+    }
+
+    function applyExtraKit() {
+      applyKit(suggestedExtraKit(), EXTRA_RATE_IDS);
+    }
+
+    function readInput() {
+      const values = Object.fromEntries(
+        [...JOB_IDS, ...RATE_IDS, ...COST_IDS, ...BOX_IDS].map(id => [id, el(id).value]),
+      );
+      for (const id of FLAG_IDS) values[id] = el(id).checked;
+      return values;
+    }
+
+    function count(event) {
+      recordUsage(localStorage, el('usageOptOut').checked, event);
+    }
+
+    function clearOutputs(message, isError) {
+      el('price').textContent = message;
+      el('price').className = `hero-number ${isError ? 'negative' : ''}`;
+      el('priceLabel').textContent = isError ? 'check the highlighted input' : 'kitchen-backsplash price';
+      ['area','buy','travel','hours','labor','finishCost','extra','soft','overhead','cost','profit','perSf','hourlyRate','breakEven','boxesToBuy','leftoverAfter','boxRoundUp','leftoverCredit','secondWall']
+        .forEach(id => { el(id).textContent = ''; });
+      el('split').innerHTML = '';
+      el('compare').innerHTML = '';
+      el('patterns').innerHTML = '';
+      el('supply').innerHTML = '';
+      el('supplyNote').textContent = '';
+      el('access').innerHTML = '';
+      el('accessNote').textContent = '';
+      el('verdict').hidden = true;
+      el('boxVerdict').hidden = true;
+    }
+
+    function update() {
+      let result;
+      let boxes;
+      let supply;
+      let access;
+      try {
+        const values = readInput();
+        result = calculateBid(values);
+        boxes = leftoverBoxPlan(values);
+        supply = compareOwnerSupply(values);
+        access = compareAccess(values);
+      } catch (error) {
+        clearOutputs(error.message, true);
+        return;
+      }
+
+      el('price').textContent = money(result.price);
+      el('price').className = 'hero-number';
+      el('priceLabel').textContent = 'kitchen-backsplash price';
+      el('area').textContent = `${result.wallSf.toLocaleString('en-US')} SF`;
+      el('buy').textContent = `${result.buySf.toLocaleString('en-US')} SF`;
+      el('travel').textContent = `${result.travelMiles} mi · ${result.hoursTravel.toFixed(1)} h`;
+      el('hours').textContent = `${result.totalHours.toFixed(1)} h`;
+      el('labor').textContent = money(result.laborCost);
+      el('finishCost').textContent = money(result.finishMaterial);
+      el('extra').textContent = money(result.extraCost);
+      el('soft').textContent = money(result.softCost);
+      el('overhead').textContent = money(result.overhead);
+      el('cost').textContent = money(result.totalCost);
+      el('profit').textContent = money(result.profit);
+      el('perSf').textContent = result.pricePerSf === null ? 'n/a' : `$${result.pricePerSf.toFixed(2)}`;
+      el('hourlyRate').textContent = result.effectiveHourlyRate === null ? 'n/a' : `${money(result.effectiveHourlyRate)}/h`;
+      el('breakEven').textContent = money(result.breakEvenPrice);
+
+      const hourRows = [
+        ['Travel', result.hourShares.travel],
+        ['Tile set', result.hourShares.tile],
+        ['Prep', result.hourShares.prep],
+        ['Demo', result.hourShares.demo],
+        ['Wall', result.hourShares.wall],
+        ['Outlets', result.hourShares.outlets],
+        ['Cooktop', result.hourShares.cooktop],
+        ['Schluter', result.hourShares.schluter],
+        ['Accent', result.hourShares.accent],
+        ['Site', result.hourShares.site],
+      ].filter(row => row[1] > 0);
+      el('split').innerHTML = hourRows.length === 0
+        ? '<li class="empty">Hours appear here once the wall has square feet.</li>'
+        : hourRows
+          .sort((a, b) => b[1] - a[1])
+          .map(([name, share]) => `<li><span>${name}</span><span>${share.toFixed(0)}% of hours</span>
+            <span class="bar"><span style="width:${share.toFixed(1)}%"></span></span></li>`)
+          .join('');
+
+      const compared = compareScope(readInput());
+      el('compare').innerHTML = compared.map(row => `<tr class="${row.cheapest ? 'cheap' : ''}">
+        <td>${row.label}${row.cheapest ? ' · lowest' : ''}</td>
+        <td>${row.totalHours.toFixed(1)} h</td>
+        <td>${money(row.price)}</td>
+      </tr>`).join('');
+
+      const patterns = comparePattern(readInput());
+      el('patterns').innerHTML = patterns.map(row => {
+        const upgrade = row.upgradeFromSubway === 0
+          ? 'subway'
+          : `+${money(row.upgradeFromSubway)}`;
+        return `<tr class="${row.cheapest ? 'cheap' : ''}">
+        <td>${row.label}${row.cheapest ? ' · lowest' : ''}</td>
+        <td>${row.totalHours.toFixed(1)} h</td>
+        <td>${money(row.price)}</td>
+        <td>${upgrade}</td>
+      </tr>`;
+      }).join('');
+
+      el('boxesToBuy').textContent = `${boxes.boxesToBuy} box${boxes.boxesToBuy === 1 ? '' : 'es'} (${boxes.purchasedSf.toFixed(1)} SF)`;
+      el('leftoverAfter').textContent = `${boxes.leftoverAfterKitchen.toFixed(1)} SF · ${boxes.leftoverAfterKitchenBoxes.toFixed(1)} boxes`;
+      el('boxRoundUp').textContent = `${boxes.boxRoundUpSf.toFixed(1)} SF · ${money(boxes.boxRoundUpCost)}`;
+      el('leftoverCredit').textContent = boxes.leftoverCredit === 0
+        ? 'none — van is empty'
+        : `${boxes.usedFromStock.toFixed(1)} SF already paid · ${money(boxes.leftoverCredit)}`;
+      el('secondWall').textContent = boxes.secondWallSf === 0
+        ? 'no second wall entered'
+        : boxes.secondCoveredByLeftover
+          ? `${boxes.secondNeedSf.toFixed(1)} SF with waste — leftover covers it`
+          : `${boxes.secondNeedSf.toFixed(1)} SF with waste — still ${boxes.secondBoxesToBuy} box${boxes.secondBoxesToBuy === 1 ? '' : 'es'}`;
+
+      const boxVerdict = el('boxVerdict');
+      boxVerdict.hidden = false;
+      boxVerdict.className = boxes.secondWallSf > 0 && !boxes.secondCoveredByLeftover
+        ? 'verdict bad'
+        : 'verdict';
+      boxVerdict.textContent = leftoverBoxNote(boxes);
+
+      el('supply').innerHTML = supply.map(row => {
+        const atTheirs = row.installOnly === null
+          ? '—'
+          : row.installOnly.belowBreakEven
+            ? `loses ${money(Math.abs(row.installOnly.profit))}`
+            : `keeps ${money(row.installOnly.profit)}`;
+        return `<tr class="${row.cheapest ? 'cheap' : ''}">
+        <td>${row.label}${row.cheapest ? ' · lowest bid' : ''}</td>
+        <td>${row.totalHours.toFixed(1)} h</td>
+        <td>${money(row.price)}</td>
+        <td>${atTheirs}</td>
+      </tr>`;
+      }).join('');
+      el('supplyNote').textContent = ownerSupplyNote(supply);
+
+      el('access').innerHTML = access.map(row => {
+        const atTheirs = row.installOnly === null
+          ? '—'
+          : row.installOnly.belowBreakEven
+            ? `loses ${money(Math.abs(row.installOnly.profit))}`
+            : `keeps ${money(row.installOnly.profit)}`;
+        return `<tr class="${row.cheapest ? 'cheap' : ''}">
+        <td>${row.label}${row.cheapest ? ' · lowest bid' : ''}</td>
+        <td>${row.totalHours.toFixed(1)} h</td>
+        <td>${money(row.price)}</td>
+        <td>${atTheirs}</td>
+      </tr>`;
+      }).join('');
+      el('accessNote').textContent = accessNote(access);
+
+      const verdict = el('verdict');
+      if (result.proposed === null) {
+        verdict.hidden = true;
+      } else {
+        verdict.hidden = false;
+        verdict.className = `verdict${result.proposed.belowBreakEven ? ' bad' : ''}`;
+        const rate = result.proposed.hourlyRate === null ? 'n/a' : `${money(result.proposed.hourlyRate)}/h`;
+        verdict.innerHTML = result.proposed.belowBreakEven
+          ? `At ${money(result.proposed.price)} this job <strong>loses ${money(Math.abs(result.proposed.profit))}</strong> before you take anything out of it. Your walk-away price is ${money(result.breakEvenPrice)}.`
+          : `At ${money(result.proposed.price)} you keep <strong>${money(result.proposed.profit)}</strong> — a ${result.proposed.margin.toFixed(1)}% margin, billing ${rate} of labor.`;
+      }
+    }
+
+    async function copySummary() {
+      const result = calculateBid(readInput());
+      const preset = JOB_PRESETS[Number(el('jobPresets').value)];
+      const text = [
+        formatBidSummary(result, preset ? preset.label : 'Kitchen tile backsplash'),
+        '',
+        formatBoxPlanNote(leftoverBoxPlan(readInput())),
+      ].join('\n');
+      try {
+        await navigator.clipboard.writeText(text);
+      } catch {
+        const fallback = document.createElement('textarea');
+        fallback.value = text;
+        fallback.setAttribute('readonly', '');
+        fallback.style.position = 'fixed';
+        fallback.style.opacity = '0';
+        document.body.append(fallback);
+        fallback.select();
+        document.execCommand('copy');
+        fallback.remove();
+      }
+      count('summary_copied');
+      el('summaryStatus').textContent = 'Copied to clipboard';
+      setTimeout(() => { el('summaryStatus').textContent = ''; }, 2500);
+    }
+
+    function applyJob(index) {
+      const job = JOB_PRESETS[index];
+      if (!job) return;
+      for (const id of RATE_IDS) delete el(id).dataset.edited;
+      el('wallSf').value = job.wallSf;
+      el('edgeLf').value = job.edgeLf;
+      el('outlets').value = job.outlets;
+      el('scope').value = job.scope;
+      el('pattern').value = job.pattern;
+      el('wall').value = job.wall;
+      el('travelMiles').value = job.travelMiles;
+      el('includeCooktop').checked = job.includeCooktop;
+      el('includeSchluter').checked = job.includeSchluter;
+      el('includeAccent').checked = job.includeAccent;
+      applyScopeKit();
+      applyPatternKit();
+      applyWallKit();
+      applyExtraKit();
+    }
+
+    el('jobPresets').addEventListener('change', () => {
+      if (el('jobPresets').value === '') return;
+      applyJob(Number(el('jobPresets').value));
+      count('preset_applied');
+      update();
+    });
+    el('scope').addEventListener('change', () => {
+      applyScopeKit();
+      count('scope_changed');
+      update();
+    });
+    el('pattern').addEventListener('change', () => {
+      applyPatternKit();
+      count('pattern_changed');
+      update();
+    });
+    el('wall').addEventListener('change', () => {
+      applyWallKit();
+      count('wall_changed');
+      update();
+    });
+    RATE_IDS.forEach(id => {
+      el(id).addEventListener('input', () => { el(id).dataset.edited = '1'; update(); });
+      el(id).addEventListener('change', () => count('bid_calculated'));
+    });
+    [...JOB_IDS, ...COST_IDS].forEach(id => {
+      if (id === 'scope' || id === 'pattern' || id === 'wall') return;
+      el(id).addEventListener('input', update);
+      el(id).addEventListener('change', () => {
+        if (id === 'proposedPrice') {
+          count('proposed_price_compared');
+          count('owner_supply_compared');
+          count('access_compared');
+        } else {
+          count('bid_calculated');
+        }
+      });
+    });
+    BOX_IDS.forEach(id => {
+      el(id).addEventListener('input', update);
+      el(id).addEventListener('change', () => count('boxes_compared'));
+    });
+    FLAG_IDS.forEach(id => {
+      el(id).addEventListener('change', () => {
+        count('bid_calculated');
+        update();
+      });
+    });
+    el('usageOptOut').addEventListener('change', update);
+    el('copySummary').addEventListener('click', () => {
+      try {
+        copySummary().catch(() => { el('summaryStatus').textContent = 'Copy failed; select and copy the figures above.'; });
+      } catch (error) {
+        el('summaryStatus').textContent = error.message;
+      }
+    });
+
+    applyScopeKit();
+    applyPatternKit();
+    applyWallKit();
+    applyExtraKit();
+    update();
+  </script>
+</body>
+</html>

@@ -3,6 +3,6 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "test": "node test_app.mjs"
+    "test": "node --test"
   }
 }
