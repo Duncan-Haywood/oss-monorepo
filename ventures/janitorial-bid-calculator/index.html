@@ -7,7 +7,7 @@
   <meta name="description" content="Price a commercial cleaning contract from production rates, see what a 5× to 3× cut actually costs, whether letting the building buy the paper still holds your margin, and whether throwing in the initial clean loses month 1.">
   <meta property="og:title" content="Janitorial Bid Calculator">
   <meta property="og:description" content="Bid commercial cleaning the way the trade does — including whether a free takeover clean still leaves a first month.">
-  <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Janitorial Bid Calculator","applicationCategory":"BusinessApplication","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"featureList":"Production-rate labor hours by area, payroll burden, supplies and overhead, monthly contract price, price per square foot, effective hourly rate, break-even walk-away price, proposed-price margin check, 5x vs 3x frequency-cut comparison, who-supplies restroom paper soap and liners, takeover initial-clean one-time vs thrown-in"}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Janitorial Bid Calculator", "applicationCategory": "BusinessApplication", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "featureList": "Production-rate labor hours by area, payroll burden, supplies and overhead, monthly contract price, price per square foot, effective hourly rate, break-even walk-away price, proposed-price margin check, 5x vs 3x frequency-cut comparison, who-supplies restroom paper soap and liners, takeover initial-clean one-time vs thrown-in, saved bid that reopens on the next visit, shareable bid link"}</script>
   <style>
     :root { color-scheme: light; font-family: system-ui, sans-serif; color: #1d2530; background: #eef2f7; }
     body { max-width: 1060px; margin: 0 auto; padding: 32px 18px; }
@@ -162,9 +162,13 @@
       </dl>
       <div id="verdict" class="verdict" hidden></div>
       <div class="summary-actions">
+        <button type="button" id="copyLink">Copy bid link</button>
+        <button type="button" id="clearSaved">Start a fresh bid</button>
         <button type="button" id="copySummary">Copy bid summary</button>
         <span id="summaryStatus" class="summary-status" role="status" aria-live="polite"></span>
       </div>
+      <p id="restoreNote" class="note" role="status" aria-live="polite" hidden></p>
+<p class="note" style="margin-top:8px">A bid link carries your own rates — wage, burden, overhead, and target margin — so the page reopens exactly as you left it. Send it to yourself or your crew. The customer should get the price, not the link.</p>
       <hr>
       <p class="note" style="margin-bottom:4px"><strong>Where the labor goes</strong></p>
       <ul class="split" id="split"></ul>
@@ -326,13 +330,14 @@
     <label style="display:inline-flex;gap:6px;align-items:center;font-weight:400"><input id="usageOptOut" type="checkbox" style="width:auto"> Do not keep anonymous local usage counts</label>
     <p><strong>No warranty.</strong> This free tool is not legal, tax, financial, or business advice, and it does not tell you what to charge. Verify every figure against your own payroll, insurance, and supply costs, and against a qualified professional, before relying on it or submitting a bid. To the maximum extent permitted by law, the authors accept no liability for loss or damage from its use.</p>
     <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record. If a tool needs to survive, export your inputs and run it yourself.</p>
-    <p><strong>Nothing leaves your browser.</strong> Every number stays on this device. Usage counts are anonymous tallies of which features were used, stored locally, and never include your building, wages, costs, or prices.</p>
+    <p><strong>Nothing leaves your browser.</strong> Every number stays on this device. Your bid is saved in this browser so it is still here next visit, and &ldquo;Start a fresh bid&rdquo; deletes it; a bid link you copy holds those same numbers in the address itself, so treat one like your rate sheet. Usage counts are anonymous tallies of which features were used, stored locally, and never include your building, wages, costs, or prices.</p>
     <p class="support">Free and open source. If it wins you a job, the <a href="https://github.com/Duncan-Haywood/monorepo-projects" rel="noopener">project is on GitHub</a> &mdash; support is entirely optional and never changes what the tool does.</p>
   </footer>
 
   <script type="module">
     import { calculateBid, compareFrequencyReduction, frequencyReductionNote, compareSupplyResponsibility, supplyResponsibilityNote, compareInitialClean, initialCleanNote, PRODUCTION_RATE_PRESETS } from './calc.mjs';
     import { recordUsage } from './usage.mjs';
+    import { encodeBid, saveBid, clearBid, restoreBid } from './share.mjs';
 
     const COST_IDS = ['hourlyWage','burdenRate','suppliesPerSqFtMonth','equipmentMonthly','otherMonthly','overheadRate','targetMargin','proposedPrice'];
     const FREQ_IDS = ['currentWeekly','proposedWeekly','clientOfferMonthly'];
@@ -806,8 +811,145 @@
       }
     });
 
-    STARTING_AREAS.forEach(addAreaRow);
+    // Unlike the fixed-form calculators, most of what a cleaner re-enters here
+    // is the building itself: every space, its square feet, its production
+    // rate, and how often it is cleaned. Re-measuring that to re-price a job
+    // costs an hour, so `rows` carries the spaces alongside the flat rates.
+    // The lists come straight from the ones the readers above use, so a field
+    // added to the form is saved and shareable without touching this.
+    const CHOICE_IDS = [];
+    const AREA_TYPE_OPTIONS = [
+      ...PRODUCTION_RATE_PRESETS.map((preset, index) => String(index)),
+      'other',
+    ];
+    const BID_SPEC = {
+      key: 'janitorial-bid',
+      numbers: [...COST_IDS, ...FREQ_IDS, ...SUPPLY_IDS, ...INITIAL_IDS],
+      flags: [],
+      choices: {},
+      rows: {
+        param: 'areas',
+        fields: [
+          { key: 'type', kind: 'choice', options: AREA_TYPE_OPTIONS },
+          { key: 'squareFeet', kind: 'number' },
+          { key: 'productionRate', kind: 'number' },
+          { key: 'cleaningsPerWeek', kind: 'number' },
+        ],
+      },
+    };
+
+    // The rows are read off the live selects rather than through `readAreas()`,
+    // whose shape is what `calculateBid` wants (a preset *label*) rather than
+    // what the form holds. Round-tripping the form's own value is what keeps an
+    // "Other space" row from being restored as the first preset.
+    function readAreaRows() {
+      return [...areasHost.querySelectorAll('.area-row')].map(row => ({
+        type: row.querySelector('.a-type').value,
+        squareFeet: row.querySelector('.a-sqft').value,
+        productionRate: row.querySelector('.a-rate').value,
+        cleaningsPerWeek: row.querySelector('.a-freq').value,
+      }));
+    }
+
+    function readSavable() {
+      return {
+        ...Object.fromEntries([...COST_IDS, ...FREQ_IDS, ...SUPPLY_IDS, ...INITIAL_IDS].map(id => [id, el(id).value])),
+        areas: readAreaRows(),
+      };
+    }
+
+    function applyValues(values) {
+      for (const [id, value] of Object.entries(values)) {
+        if (id === 'areas') continue;
+        const field = el(id);
+        if (!field) continue;
+        field.value = value;
+        field.dataset.edited = '1';
+      }
+      if (!Array.isArray(values.areas)) return false;
+      areasHost.innerHTML = '';
+      for (const area of values.areas) {
+        const preset = PRODUCTION_RATE_PRESETS[Number(area.type)];
+        // addAreaRow() matches a space type by label, so hand it the label the
+        // saved index stands for; an "Other space" row has none by design.
+        addAreaRow({
+          name: preset ? preset.label : '',
+          squareFeet: area.squareFeet ?? 0,
+          productionRate: area.productionRate ?? 3000,
+          cleaningsPerWeek: area.cleaningsPerWeek ?? 5,
+        });
+        // A restored rate is the contractor's own measured number, so the space
+        // type must not overwrite it the next time they change the dropdown.
+        areasHost.lastElementChild.querySelector('.a-rate').dataset.edited = '1';
+      }
+      return true;
+    }
+
+    function persist() {
+      try {
+        saveBid(localStorage, BID_SPEC, readSavable());
+      } catch {
+        // A browser with site data blocked throws on access. Losing the save
+        // is survivable; losing the calculator mid-bid is not.
+      }
+    }
+
+    async function copyLink() {
+      const query = encodeBid(BID_SPEC, readSavable());
+      const url = `${location.origin}${location.pathname}${query ? `?${query}` : ''}`;
+      try {
+        await navigator.clipboard.writeText(url);
+      } catch {
+        const fallback = document.createElement('textarea');
+        fallback.value = url;
+        fallback.setAttribute('readonly', '');
+        fallback.style.position = 'fixed';
+        fallback.style.opacity = '0';
+        document.body.append(fallback);
+        fallback.select();
+        document.execCommand('copy');
+        fallback.remove();
+      }
+      count('link_copied');
+      el('summaryStatus').textContent = 'Bid link copied — it reopens this bid';
+      setTimeout(() => { el('summaryStatus').textContent = ''; }, 2500);
+    }
+
+    const restored = restoreBid(BID_SPEC, {
+      search: location.search,
+      storage: (() => { try { return localStorage; } catch { return null; } })(),
+    });
+    const restoredAreas = applyValues(restored.values);
+    // Only fall back to the starting building when none was restored, or the
+    // sample spaces would be appended to the ones the visitor actually has.
+    if (!restoredAreas) STARTING_AREAS.forEach(addAreaRow);
+
+    if (restored.source !== 'none') {
+      // Say which bid is on screen. Numbers that changed themselves between
+      // visits, with no explanation, are how a contractor stops trusting the tool.
+      el('restoreNote').hidden = false;
+      el('restoreNote').textContent = restored.source === 'link'
+        ? 'Opened from a bid link — these are the sender\u2019s numbers, not yours.'
+        : 'Picked up your last bid from this browser. \u201CStart a fresh bid\u201D clears it.';
+    }
+
+    el('copyLink').addEventListener('click', () => {
+      copyLink().catch(() => { el('summaryStatus').textContent = 'Copy failed; copy the address bar instead.'; });
+    });
+
+    el('clearSaved').addEventListener('click', () => {
+      try { clearBid(localStorage, BID_SPEC); } catch { /* storage blocked; the reload still clears the form */ }
+      location.href = location.pathname;
+    });
+
+    // Every input already calls `update()`; saving here means the bid is kept
+    // as it is typed rather than only when a button is pressed, which is the
+    // difference between surviving a closed tab and not.
+    document.addEventListener('input', persist);
+    document.addEventListener('change', persist);
+
     update();
+    persist();
   </script>
 </body>
 </html>

@@ -9,6 +9,8 @@ Open `index.html` in a browser, or serve this directory with `python3 -m http.se
 ## What it does
 
 - **Imports the carrier's invoice export** (`how-to-audit-a-whole-freight-invoice.html`): CSV, tab-separated, or a range pasted out of a spreadsheet. Columns are guessed from their headings and shown for correction; a contract rate card supplies the expected amounts a carrier file never carries.
+- **Rates accessorials that are not flat.** A rule can be per unit with a free allowance, a minimum, and a cap — `DET 65/hr after 2 hours, max 325`, `STO $40 per day after 1`, `REWEIGH 4.50/cwt min 45` — priced against a quantity column (hours, days, weight) mapped alongside the amount. Detention, storage, and reweigh are the accessorials most worth auditing and the ones a flat card could not price at all. Every priced line carries the reason it expects what it expects, into the review queue, the CSV, and the dispute draft.
+- **Prices lines you type, not just lines you import.** Leave a row's expected amount blank and the rate card fills it from the code and the `Qty / hrs` cell, showing the figure greyed with the contract term behind it. Typing your own figure overrides the card, as a carrier export's own expected column does. Checking one detention charge no longer means building a CSV to import.
 - Flags duplicate lines, billed amounts above expected, missing accessorial codes, and invalid or negative amounts.
 - Ranks a line as high / review / supported / fix-inputs from the overage and the evidence status you select.
 - Copies a factual dispute-review draft that lists only actionable overages and never determines that a charge is wrong.
@@ -32,7 +34,7 @@ Then open `http://localhost:8878`.
 
 The landing page starts with two $125 liftgate lines on INV-1 (expected $75, evidence missing) and a $20 uncoded line that matches its expected amount. That is **$100.00 above expected** across **3 flagged of 3 lines**, **2 actionable**.
 
-The import panel ships a three-code rate card (`LIFT, 75` / `DET, 75` / `RESI, 45`). Feeding it a six-line carrier export with *only import lines whose code is in my rate card* ticked skips line haul and fuel, leaving **4 lines totalling $595.00** of which **$325.00 is above the rate card** across **3 flagged lines** — including a $125.00 liftgate billed twice. `how-to-audit-a-whole-freight-invoice.html` walks that example, and a test recomputes its figures so the write-up cannot drift from the code.
+The import panel ships a three-code rate card (`LIFT, 75` / `DET 65/hr after 2 hours, max 325` / `RESI, 45`). Feeding it a six-line carrier export with *only import lines whose code is in my rate card* ticked skips line haul and fuel, leaving **4 lines totalling $595.00** of which **$325.00 is above the rate card** across **3 flagged lines** — including a $125.00 liftgate billed twice. `how-to-audit-a-whole-freight-invoice.html` walks that example, and a test recomputes its figures so the write-up cannot drift from the code.
 
 The detention page starts with 180 minutes on dock, 120 free, $75/hour, and a $300 billed line. The clock leaves **1.00 billable hour — $75.00 expected**. The invoice bills **$300.00 as if 4.00 hours**, **$225.00 above the clock**.
 
@@ -63,3 +65,20 @@ Everything runs in your browser, including the invoice file you import — it is
 ```bash
 node --test
 ```
+
+## Per-unit rate rules
+
+Units understood are hour, minute, day, cwt, pallet, piece, mile, stop, and
+unit. Clause order does not matter. Two rules keep a wrong number from reaching
+a carrier:
+
+- **A per-unit code with no quantity leaves the expected amount blank**, with
+  the reason shown, and is excluded from the headline recoverable figure. A
+  $0.00 expectation would report the whole billed line as recoverable.
+- **A quantity in the wrong unit is refused, not converted.** The single
+  exception is minutes against a per-hour rate, which is stated on the line —
+  carrier exports report dock time both ways, and reading 210 minutes as 210
+  hours would put $13,000 of expected detention on a $300 line.
+
+A contract minimum applies only to a line with billable units, so a shipment
+that left inside its free time still expects $0.00 rather than the minimum.

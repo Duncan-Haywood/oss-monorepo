@@ -257,3 +257,36 @@ test("pass-through rejects invalid inputs", () => {
     /Freight already collected/,
   );
 });
+
+test("the review CSV and the dispute draft cite how the expected amount was reached", () => {
+  // A shipper asking for a credit has to be able to say what the contract
+  // says the line should have cost. "Expected $65.00" is an assertion; "$65.00
+  // an hour past two free hours, on three hours" is something the carrier's
+  // rating desk can check against the same document.
+  const results = auditCharges([
+    {
+      invoice: "INV-1",
+      reference: "PRO-1",
+      code: "DET",
+      billed: "300.00",
+      expected: "65.00",
+      units: "3",
+      basis: "1 hour past 2 free × $65.00/hour",
+      evidence: "missing",
+    },
+  ]);
+  assert.equal(results[0].basis, "1 hour past 2 free × $65.00/hour");
+  const csv = csvForReview(results);
+  assert.match(csv.split("\n")[0], /^Invoice,Reference,Code,Quantity,Billed,Expected,Basis,Variance,Evidence,Priority,Flags$/);
+  assert.match(csv, /"3","300.00","65.00","1 hour past 2 free × \$65.00\/hour"/);
+  const draft = disputeDraft({ invoice: "INV-1", carrier: "Regional LTL", results });
+  assert.match(draft, /expected from 1 hour past 2 free × \$65\.00\/hour/);
+});
+
+test("a hand-typed expected amount cites no basis rather than inventing one", () => {
+  const results = auditCharges([
+    { invoice: "INV-1", code: "LIFT", billed: "125.00", expected: "75.00", evidence: "missing" },
+  ]);
+  assert.equal(results[0].basis, "");
+  assert.doesNotMatch(disputeDraft({ results }), /expected from/);
+});
