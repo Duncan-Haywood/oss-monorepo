@@ -312,6 +312,9 @@ workflows:
 - workflow: reverb-fee-calculator-ci.yml
   classification: none
   publishes: []
+- workflow: screened-porch-bid-calculator-ci.yml
+  classification: none
+  publishes: []
 - workflow: sewer-line-replace-bid-calculator-ci.yml
   classification: none
   publishes: []
