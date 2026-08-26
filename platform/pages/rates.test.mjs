@@ -26,6 +26,34 @@ const form = SHOP_RATE_FIELDS.map((f) => `<input id="${f.id}" type="number" valu
 // The field spec against the actual products
 // ---------------------------------------------------------------------------
 
+/**
+ * Bid calculators that must NOT share the site-wide shop rates, and why.
+ *
+ * Sharing is only safe where a field means the same quantity everywhere. The
+ * saved `hourlyWage` is what *one* person is paid: "Cleaner hourly wage" $17,
+ * "Operator hourly wage" $22. A calculator whose comparable field means
+ * something else cannot read that value, and giving it the id anyway to
+ * satisfy this test would prefill a wrong number into a real bid -- a worse
+ * outcome than no bar at all.
+ *
+ * `pageCarriesShopRates` already gates injection at build time, so an excluded
+ * venture simply gets no bar. This list exists so the exclusion is a stated
+ * decision rather than a silent absence, and so adding to it needs a reason
+ * that the assertion below actually checks.
+ */
+const NO_SHARED_SHOP_RATES = {
+  'tree-service-bid-calculator':
+    'its wage field is a whole-crew rate (~$180/h), not a per-person wage. ' +
+    'Sharing would prefill one person\'s $17-22 as the crew rate and bid the job ~10x low.',
+  'mobile-detailing-bid-calculator':
+    'it has no wage input at all -- it takes a proposed quote and solves back to ' +
+    'an effective hourly rate -- and its "overhead" is dollars per job, not a percentage rate.',
+  'snow-removal-bid-calculator':
+    'its per-person wage is `operatorWage`; the concept matches and it could join the ' +
+    'shared bar, but the rename reaches calc.mjs\'s input contract and its tests, so it ' +
+    'is the venture\'s change to make rather than a drive-by rename here.',
+};
+
 test('every trade bid calculator on main carries all four shop-rate fields', async () => {
   const slugs = (await fs.readdir(VENTURES, { withFileTypes: true }))
     .filter((entry) => entry.isDirectory() && entry.name.endsWith('-bid-calculator'))
@@ -35,6 +63,7 @@ test('every trade bid calculator on main carries all four shop-rate fields', asy
 
   const missing = [];
   for (const slug of slugs) {
+    if (slug in NO_SHARED_SHOP_RATES) continue;
     const file = path.join(VENTURES, slug, 'index.html');
     const html = await fs.readFile(file, 'utf8').catch(() => null);
     if (html === null) continue;
@@ -45,6 +74,22 @@ test('every trade bid calculator on main carries all four shop-rate fields', asy
   }
 
   assert.deepEqual(missing, []);
+});
+
+test('an excluded calculator is one that really cannot take the shared rates', async () => {
+  // Keeps the list above from becoming a place to park a venture that simply
+  // has not been wired up: an entry only stays legitimate while the page
+  // genuinely lacks the shared fields. Once a venture adopts them, its
+  // exclusion has to go, and this fails until it does.
+  for (const [slug, reason] of Object.entries(NO_SHARED_SHOP_RATES)) {
+    const html = await fs.readFile(path.join(VENTURES, slug, 'index.html'), 'utf8').catch(() => null);
+    assert.ok(html !== null, `${slug} is excluded but no longer exists -- drop the entry`);
+    assert.ok(
+      !pageCarriesShopRates(html),
+      `${slug} now carries all four shop-rate fields, so it should not be excluded any more`,
+    );
+    assert.ok(reason.length > 40, `${slug} needs a real reason for being excluded`);
+  }
 });
 
 test('a percentage field never carries a value its own form would reject', () => {
