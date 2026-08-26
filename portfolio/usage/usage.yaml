@@ -2408,3 +2408,17 @@ products:
           Repair-and-merge of unique #1169 vendor-change evidence onto current
           main. Local snapshot compare only; failed fetches stay inconclusive.
           Keep #1368 open until supersede_check exits 0.
+
+  - slug: tender-radar
+    surface: static-page-in-repo
+    readings:
+      - as_of: 2026-08-26
+        signals:
+          live_url_visitors: null
+          page_viewed: 0
+          shortlist_created: 0
+          shortlist_exported: 0
+        note: >-
+          Repair-and-merge of unique #1200 tender radar onto current main.
+          Import-first CSV shortlist; no portal fetch. Public URL remains
+          owner-gated; local counting honors DNT/GPC and a visible opt-out.

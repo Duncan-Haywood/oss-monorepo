@@ -3461,3 +3461,30 @@ ventures:
     gate_note: >-
       Pass, conditionally: output is observed manifest difference, not a
       safety certification, and findings never echo descriptions or schemas.
+
+  - slug: tender-radar
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 7
+      gross_margin: 10
+      defensibility: 4
+      distribution: 7
+    composite: 6.5
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      The first release is deterministic CSV filter arithmetic; AI is not
+      needed to build a deadline-ordered shortlist.
+    basis: >-
+      Graduated on 2026-08-26 as a browser-local import-first tender
+      shortlist. Distinct from bid calculators: the job is triaging portal
+      CSVs by trade, value, and deadline, not pricing a job. Search intent
+      includes tender shortlist and public tender filter.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Pass, conditionally: the tool does not fetch portals, submit bids, or
+      decide eligibility, and users must verify every listing at the source.
