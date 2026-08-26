@@ -39,6 +39,15 @@ const overbookSection = document.getElementById("overbook-section");
 const overbookBody = document.getElementById("overbook-body");
 const overbookSummary = document.getElementById("overbook-summary");
 const currencySelect = document.getElementById("currency");
+const resetDraftBtn = document.getElementById("reset-draft");
+
+const DRAFT_STORAGE_KEY = "no-show-fee-calculator:draft:v1";
+const DRAFT_FIELDS = [
+  "currency", "price", "bookingsPerWeek", "noShowRatePct", "noticeHours",
+  "feePercent", "enforcementRatePct", "depositPercent", "overflowCost",
+  "fillSameDayPct", "fillDayAheadPct", "fillTwoDayPct",
+  "businessName", "serviceName",
+];
 
 const currencyOptions = {
   USD: { currency: "USD", symbol: "$" },
@@ -203,6 +212,47 @@ function syncOptOutUI() {
   optOutCheckbox.checked = isOptedOut();
 }
 
+function readDraft() {
+  try {
+    const parsed = JSON.parse(localStorage.getItem(DRAFT_STORAGE_KEY) ?? "null");
+    if (!parsed || typeof parsed !== "object") return {};
+    return Object.fromEntries(
+      DRAFT_FIELDS
+        .filter((field) => typeof parsed[field] === "string")
+        .map((field) => [field, parsed[field]]),
+    );
+  } catch {
+    return {};
+  }
+}
+
+function saveDraft() {
+  try {
+    const raw = Object.fromEntries(new FormData(form).entries());
+    localStorage.setItem(
+      DRAFT_STORAGE_KEY,
+      JSON.stringify(Object.fromEntries(DRAFT_FIELDS.map((field) => [field, String(raw[field] ?? "")]))),
+    );
+  } catch {
+    // Draft restoration is best-effort and must never block calculations.
+  }
+}
+
+function clearDraft() {
+  try {
+    localStorage.removeItem(DRAFT_STORAGE_KEY);
+  } catch {
+    // Storage may be disabled; the visible form still resets below.
+  }
+}
+
+function applyValues(values) {
+  for (const [key, value] of Object.entries(values)) {
+    const input = form.elements.namedItem(key);
+    if (input && "value" in input) input.value = value;
+  }
+}
+
 /**
  * Recompute and repaint from the form's current values.
  *
@@ -272,7 +322,10 @@ form.addEventListener("submit", (event) => {
 
 // Repaint as the visitor types. `input` fires per keystroke, which is right for
 // rendering and wrong for counting -- hence the split above.
-form.addEventListener("input", () => { render(); });
+form.addEventListener("input", () => {
+  saveDraft();
+  render();
+});
 
 // `change` fires once a field is settled (blur, or a committed spinner/step),
 // so it is the honest place to count a calculation the visitor actually asked
@@ -362,6 +415,14 @@ optOutCheckbox.addEventListener("change", () => {
   renderUsageSummary();
 });
 
+resetDraftBtn.addEventListener("click", () => {
+  clearDraft();
+  form.reset();
+  render();
+  recordEvent("draft_reset");
+  renderUsageSummary();
+});
+
 clearUsageBtn.addEventListener("click", () => {
   clearUsageLog();
   renderUsageSummary();
@@ -372,11 +433,11 @@ renderUsageSummary();
 
 const sharedValues = readShareValues(window.location.href);
 const openedFromShareLink = Object.keys(sharedValues).length > 0;
-if (openedFromShareLink) {
-  for (const [key, value] of Object.entries(sharedValues)) {
-    const input = form.elements.namedItem(key);
-    if (input && "value" in input) input.value = value;
-  }
+const savedDraft = openedFromShareLink ? {} : readDraft();
+applyValues(openedFromShareLink ? sharedValues : savedDraft);
+if (Object.keys(savedDraft).length > 0) {
+  recordEvent("draft_restored");
+  renderUsageSummary();
 }
 
 // Show a worked result immediately, from the shipped defaults or from a share

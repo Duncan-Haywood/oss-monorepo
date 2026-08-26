@@ -86,6 +86,12 @@ Use **Download .txt** to save the generated policy as a plain-text file for your
 booking system, client agreement, or records. The download is created locally
 in your browser; no policy text is uploaded.
 
+The calculator also saves the current form locally in your browser as you edit,
+so a return visit starts with your own prices and policy assumptions. Use
+**Reset saved numbers** to remove that draft and restore the shipped defaults.
+Shared-link values take precedence over the saved draft. The draft never leaves
+your browser and is separate from the anonymous usage event log.
+
 ## Disclaimer
 
 **No warranty.** This tool is provided free and as-is, without warranty of

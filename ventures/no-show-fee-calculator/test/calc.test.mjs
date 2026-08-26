@@ -575,6 +575,14 @@ test("index.html contains the required disclaimer wording", () => {
   assert.match(html, /not legal, tax, or financial\s*\n?\s*advice/);
   assert.match(html, /Best-effort hosting, no SLA/);
 });
+
+test("index.html explains local draft persistence and provides a reset control", () => {
+  const here = path.dirname(fileURLToPath(import.meta.url));
+  const html = readFileSync(path.join(here, "..", "index.html"), "utf8");
+  assert.match(html, /id="reset-draft"/);
+  assert.match(html, /saved only in this browser/);
+  assert.match(html, /Reset saved numbers/);
+});
 // --------------------------------------------------------------------------
 // Missing input is not the number zero.
 //
