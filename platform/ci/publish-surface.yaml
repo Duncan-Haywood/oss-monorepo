@@ -199,6 +199,9 @@ workflows:
 - workflow: gravel-driveway-bid-calculator-ci.yml
   classification: none
   publishes: []
+- workflow: gutter-install-bid-calculator-ci.yml
+  classification: none
+  publishes: []
 - workflow: hetzner-gitops-ci.yml
   classification: none
   publishes: []
@@ -418,6 +421,9 @@ workflows:
   classification: none
   publishes: []
 - workflow: substitute-supply-ci.yml
+  classification: none
+  publishes: []
+- workflow: sump-pump-bid-calculator-ci.yml
   classification: none
   publishes: []
 - workflow: sunroom-bid-calculator-ci.yml
