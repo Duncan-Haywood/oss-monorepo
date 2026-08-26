@@ -31,9 +31,24 @@ function parseRawText(source) {
     rest = rest.slice(contentStart + closer.index + closer[0].length);
   }
 }
-const { markup, scripts, unclosed } = parseRawText(html);
-const declaredIds = new Set([...markup.matchAll(/\bid="([\w-]+)"/g)].map((m) => m[1]));
-const scriptSource = scripts.join('\n');
+// Every derived value must come from the *parse*, never from the raw source.
+// Kept as one function so the guards below can be re-run against deliberately
+// broken input — see 'the structural guards actually fail on a swallowed
+// document'. This suite has already been loosened once by accident: as the
+// file grew, these two lines were replaced with plain regexes over `html`,
+// which is precisely the blind spot the parse exists to close, and no test
+// failed when that happened because a weakened guard passes.
+function derive(source) {
+  const { markup, scripts, unclosed } = parseRawText(source);
+  return {
+    markup,
+    unclosed,
+    scripts,
+    scriptSource: scripts.join('\n'),
+    declaredIds: new Set([...markup.matchAll(/\bid="([\w-]+)"/g)].map((m) => m[1])),
+  };
+}
+const { markup, scriptSource, declaredIds, unclosed } = derive(html);
 
 test('every raw-text element is closed', () => {
   assert.equal(unclosed, null, `<${unclosed}> is never closed; everything after it is swallowed as text instead of parsed as markup`);
@@ -67,6 +82,43 @@ test('the area-row template and the reader agree on class names', () => {
     assert.ok(inTemplate, `the row template no longer emits .${cls}`);
     assert.ok(scriptSource.includes(`.${cls}`), `nothing reads .${cls} back`);
   }
+});
+
+// A structural guard that cannot fail proves nothing, and this one was
+// silently loosened once already. These cases assert the machinery still
+// *notices* a swallowed document, so a future rewrite back to a raw-source
+// regex breaks a test instead of quietly passing.
+test('the structural guards actually fail on a swallowed document', () => {
+  const broken = html.replace('</style>', '');
+  assert.notEqual(broken, html, 'index.html no longer contains </style>; this case needs updating');
+
+  const d = derive(broken);
+  assert.equal(d.unclosed, 'style', 'an unclosed <style> was not detected');
+  assert.doesNotMatch(d.markup, /<script type="module">/, 'the app script is still visible as markup after being swallowed');
+  assert.doesNotMatch(d.scriptSource, /calculateBid/, 'swallowed script text was still collected as executable script');
+
+  // The load-bearing one: ids after the swallow point must become invisible.
+  // If `declaredIds` is ever re-derived from the raw source again, this set
+  // stays full and this assertion is what catches it.
+  assert.ok(
+    d.declaredIds.size < declaredIds.size,
+    `ids are being read from the raw file, not the parse: ${d.declaredIds.size} of ${declaredIds.size} still visible after the document was swallowed`,
+  );
+});
+
+test('an unclosed module script is caught the same way', () => {
+  // Drop the *last* </script> so the app script itself is the unclosed one.
+  const at = html.lastIndexOf('</script>');
+  assert.ok(at > 0, 'index.html has no </script>; this case needs updating');
+  const d = derive(html.slice(0, at) + html.slice(at + '</script>'.length));
+  assert.equal(d.unclosed, 'script');
+});
+
+test('the guards pass on the unmodified page (control)', () => {
+  const d = derive(html);
+  assert.equal(d.unclosed, null);
+  assert.match(d.scriptSource, /calculateBid/);
+  assert.ok(d.declaredIds.size > 0);
 });
 
 test('the bid page wires the frequency-cut comparison without a build step', () => {
