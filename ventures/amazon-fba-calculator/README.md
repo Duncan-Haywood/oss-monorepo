@@ -12,6 +12,11 @@ works without an account, network request, or API key. It is arithmetic, not
 an estimate of the fees Amazon will charge: enter the rates from your current
 fee preview, and verify them there.
 
+**Save current inputs** keeps named sourcing scenarios (a restock, an FBM
+test) in this browser so you can switch between them without retyping. Nothing
+is uploaded. **Copy decision summary** writes leftover profit, margin, max buy,
+and FBA vs FBM into the clipboard.
+
 **After using this, you can now see whether FBA or FBM leaves more on a real
 SKU, the most you can pay a supplier for that unit, whether staying under
 Amazon’s Low-Price FBA threshold still beats a real raise, and whether a
