@@ -24,6 +24,9 @@ export const INPUT_FIELDS = [
   'bumpFee',
   'ebayFinalValueRate',
   'ebayFixedFee',
+  'shopSalePrice',
+  'consignmentRate',
+  'shopCashOffer',
 ];
 
 // When the seller has not quoted a Safe Shipping label yet, show own-label
@@ -48,6 +51,9 @@ export const REVERB_DEFAULTS = {
   bumpFee: 0,
   ebayFinalValueRate: 13.25,
   ebayFixedFee: 0.3,
+  shopSalePrice: 800,
+  consignmentRate: 30,
+  shopCashOffer: 520,
 };
 
 function number(value, name, fallback) {
@@ -317,4 +323,108 @@ export function compareSafeShipping(input, salePrice = input?.price) {
     safePays: safe.profit >= ownExpectedProfit,
     winner: leaders.length === 1 ? leaders[0].id : 'tie',
   };
+}
+
+// Same guitar, three ways to get paid. Listing it yourself keeps Reverb
+// fees, postage, and packing. A shop consignment cut is a percent of
+// *their* sale — they ship, they collect, you do not pay marketplace or
+// a label. Their cash offer is a buy today: no wait, no fees, no shipping.
+// Distinct from offer-versus-eBay, who pays postage, Safe Shipping, and
+// from open PRs that compare a bump or absorbing the label into the list.
+export function compareConsignment(input, salePrice = input?.price) {
+  const listPrice = number(salePrice, 'Sale price');
+  const offerPrice = number(input.offerPrice, 'Offer price', listPrice);
+  const shopSalePrice = number(input.shopSalePrice, 'Shop sale price', listPrice);
+  const consignmentRate = number(input.consignmentRate, 'Shop consignment cut', 30);
+  const shopCashOffer = number(input.shopCashOffer, 'Shop cash offer', 0);
+  const itemCost = number(input.itemCost, 'What you paid for the item', 0);
+  if (consignmentRate > 100) throw new Error('Shop consignment cut must be at most 100%');
+
+  const selfList = calculateReverbSale(input, listPrice);
+  const selfOffer = calculateReverbSale(input, offerPrice);
+  const shopPayout = shopSalePrice * (1 - consignmentRate / 100);
+  const consignProfit = shopPayout - itemCost;
+  const cashProfit = shopCashOffer - itemCost;
+  const neededToMatchList = selfList.profit + itemCost;
+  const keepRate = 1 - consignmentRate / 100;
+  const breakEvenConsignmentRatePct = shopSalePrice > 0
+    ? (1 - neededToMatchList / shopSalePrice) * 100
+    : -Infinity;
+  const breakEvenShopSalePrice = keepRate > 0 ? neededToMatchList / keepRate : Infinity;
+  const breakEvenShopCash = neededToMatchList;
+  const shopSaleCanMatch = shopSalePrice >= neededToMatchList;
+
+  const rows = [
+    {
+      id: 'selfList',
+      label: 'List it yourself on Reverb',
+      price: listPrice,
+      youReceive: selfList.profit + itemCost,
+      profit: selfList.profit,
+    },
+    {
+      id: 'consign',
+      label: 'Consign at the shop',
+      price: shopSalePrice,
+      youReceive: shopPayout,
+      profit: consignProfit,
+    },
+    {
+      id: 'cash',
+      label: 'Take their cash offer today',
+      price: shopCashOffer,
+      youReceive: shopCashOffer,
+      profit: cashProfit,
+    },
+  ].map((row) => ({
+    ...row,
+    vsSelfList: row.profit - selfList.profit,
+  }));
+
+  const maxProfit = Math.max(...rows.map((row) => row.profit));
+  const leaders = rows.filter((row) => Math.abs(row.profit - maxProfit) < 1e-9);
+  return {
+    selfList,
+    selfOffer,
+    shopSalePrice,
+    consignmentRate,
+    shopCashOffer,
+    shopPayout,
+    consignProfit,
+    cashProfit,
+    itemCost,
+    neededToMatchList,
+    breakEvenConsignmentRatePct,
+    breakEvenShopSalePrice,
+    breakEvenShopCash,
+    shopSaleCanMatch,
+    vsOffer: consignProfit - selfOffer.profit,
+    rows,
+    winner: leaders.length === 1 ? leaders[0].id : 'tie',
+  };
+}
+
+export function consignmentNote(comparison) {
+  const money = (value) => `$${Number(value).toFixed(2)}`;
+  const pct = (value) => `${Number(value).toFixed(2)}%`;
+  const rate = comparison.consignmentRate;
+  const shop = money(comparison.shopSalePrice);
+  const cash = money(comparison.shopCashOffer);
+  const listBeatConsign = comparison.selfList.profit - comparison.consignProfit;
+  const listBeatCash = comparison.selfList.profit - comparison.cashProfit;
+  const cutLine = comparison.shopSaleCanMatch && Number.isFinite(comparison.breakEvenConsignmentRatePct)
+    ? `The shop cut would have to drop to ${pct(comparison.breakEvenConsignmentRatePct)} — or they would have to sell it at ${money(comparison.breakEvenShopSalePrice)} — to match Reverb list cash.`
+    : `Even a 0% shop cut on a ${shop} sale cannot match Reverb list cash.`;
+  const cashLine = `Their cash offer would have to be ${money(comparison.breakEvenShopCash)}.`;
+
+  if (comparison.winner === 'selfList') {
+    return `Listing it yourself on Reverb still leaves ${money(listBeatConsign)} more than a ${rate}% shop cut on a ${shop} shop sale, and ${money(listBeatCash)} more than their ${cash} cash offer. ${cutLine} ${cashLine}`;
+  }
+  if (comparison.winner === 'consign') {
+    return `Consigning at ${rate}% on a ${shop} shop sale still leaves ${money(-listBeatConsign)} more than listing it yourself on Reverb. ${cutLine} ${cashLine}`;
+  }
+  if (comparison.winner === 'cash') {
+    return `Taking their ${cash} cash offer still leaves ${money(-listBeatCash)} more than listing it yourself on Reverb. ${cutLine} ${cashLine}`;
+  }
+  return `Two shop-or-list paths leave the same cash on these inputs. ${cutLine} ${cashLine}`;
 }

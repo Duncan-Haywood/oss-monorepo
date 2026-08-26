@@ -13,9 +13,11 @@ verify them against your current statements.
 
 After using this, you can now see cash at list, cash on the offer, the
 Reverb offer that matches eBay list cash, whether charging shipping,
-folding postage into the list, or offering local pickup leaves more, and
+folding postage into the list, or offering local pickup leaves more,
 whether Reverb Safe Shipping still beats your own label after expected
-claims, which used to mean opening two seller fee pages and a spreadsheet.
+claims, and whether consigning at a shop or taking their cash offer still
+beats listing it yourself, which used to mean opening two seller fee
+pages and a spreadsheet.
 
 ## Offer versus list
 
@@ -87,6 +89,33 @@ expected claim, $269.33 on Safe Shipping, 3.33% break-even). Complementary
 to who pays postage (buyer / included / pickup) and to open PRs that absorb
 the label into the list or compare a bump — those do not compare insured
 label versus own postage.
+
+## List it yourself, consign, or take their cash
+
+A shop that will consign the guitar or buy it today is a different sale
+than a Reverb checkout. Consignment is a percent of *their* sale — they
+ship and they collect, so you do not pay marketplace, payment processing,
+a bump, or a label. Their cash offer is a buy today: that number minus
+what you paid for the gear.
+
+The calculator keeps three paths on one screen:
+
+- **List it yourself on Reverb** — your list, Reverb fees, postage, packing.
+- **Consign at the shop** — shop sale price times (1 − their cut).
+- **Take their cash offer today** — the number they would hand you now.
+
+It also names the shop cut, the shop sale price, and the cash offer that
+leave the same cash as Reverb at list, so a 30% "we'll handle it" quote
+can be checked against the listing you already have.
+
+The SEO page
+[`should-i-consign-this-reverb-listing.html`](should-i-consign-this-reverb-listing.html)
+walks the default worked example ($800 Reverb list / $800 shop sale / 30%
+cut / $520 cash: $284.33 self-list, $110.00 consign, $70.00 cash, 8.21%
+break-even cut, $1049.04 shop sale that matches list, $734.33 cash that
+matches list). Complementary to offer-versus-eBay, who pays postage, Safe
+Shipping, and to open PRs that compare a bump or absorb the label into
+the list — those do not compare a shop cut or a shop cash offer.
 
 This is distinct from the eBay fee calculator (final-value fee on one
 channel), the Etsy profit calculator (listing credits and Plus), Amazon FBA
