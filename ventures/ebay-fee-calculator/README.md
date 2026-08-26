@@ -110,6 +110,11 @@ domestic label, or collect international postage and buy the
 label yourself. An 8% item-not-received claim rate can cost
 more than the extra postage you collected.
 [Should I use eBay Global Shipping Program?](should-i-use-ebay-global-shipping-program.html).
+A **Store subscription vs no-store rate** table then prices the
+same SKU four ways: stay at the final-value rate you type, or
+take example Starter, Basic, and Premium mixes after the monthly
+subscription. Forty $40 sales leave a $7.95 Starter $2.43 behind.
+[Is an eBay store worth it?](is-an-ebay-store-worth-it.html).
 
 **After using the authenticity page, you can now see whether a 3% fee
 and an $8 hub label still beat skip-AG on that SKU** — which used to
@@ -180,6 +185,11 @@ the hub still beats an $18 international label after an 8%
 claim rate** — which used to mean turning GSP off because
 “I can ship cheaper” and never pricing the boxes that never
 arrive.
+
+**After using the store page, you can now see whether a $7.95
+Starter still beats a 13.25% no-store rate after 40 sales** —
+which used to mean subscribing because “the rate is lower” and
+never pricing the month.
 
 Open `index.html` in a browser. The calculation is local and works without an
 account, network request, or API key. It is arithmetic, not an estimate of the
@@ -281,6 +291,10 @@ drive that decision:
   international label you buy. A claim is not a return — the
   item is gone. The table also names the claim rate and
   you-ship sell-through that still tie GSP.
+- **Store subscription vs no-store rate** — monthly leftover at
+  the final-value rate you type versus example Starter, Basic,
+  and Premium mixes after the subscription. The table also names
+  the order count that still ties staying off a store.
 
 **No warranty.** This tool is provided free and as-is, without warranty of any
 kind, express or implied. It is not tax, financial, or business advice, and it
@@ -316,7 +330,8 @@ The counted events are `order_profit_calculated`, `target_margin_calculated`,
 `immediate_payment_compared`,
 `top_rated_plus_compared`,
 `managed_returns_compared`,
-`global_shipping_compared`, and
+`global_shipping_compared`,
+`store_compared`, and
 `price_sensitivity_viewed`.
 `price_sensitivity_viewed`, `listing_format_compared`,
 `partial_refund_compared`, `authenticity_compared`,
@@ -330,7 +345,8 @@ The counted events are `order_profit_calculated`, `target_margin_calculated`,
 `immediate_payment_compared`,
 `top_rated_plus_compared`,
 `managed_returns_compared`, and
-`global_shipping_compared` are counted at most
+`global_shipping_compared`, and
+`store_compared` are counted at most
 once per visit and only after an input is edited — counting the table's
 first paint would just re-count page loads and say nothing about whether
 the view is used.

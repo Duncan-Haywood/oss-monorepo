@@ -1,5 +1,5 @@
 name: ebay-fee-calculator
-description: A private browser calculator for eBay resellers to see order profit, margin, ROI, break-even resale price, expected profit after returns, whether a partial refund still beats taking the return, whether Authenticity Guarantee still pays after the hub label, whether local pickup still beats the label after no-shows, whether keeping a lot still beats splitting it into singles, whether a Standard Envelope still beats a tracked label after item-not-received claims, whether combining two already-sold items still beats two labels, whether a seller-initiated offer still beats waiting for Buy It Now, whether Promoted Offsite still pays after a bill that is charged even if they bounce, whether a seller coupon still beats staying listed, whether requiring immediate payment still beats unpaid checkouts, whether Top Rated Plus still covers free returns after the fee discount, whether Managed Returns still beats buying the return label yourself, whether Global Shipping Program still beats buying the international label, and whether auction still beats Buy It Now after sell-through.
+description: A private browser calculator for eBay resellers to see order profit, margin, ROI, break-even resale price, expected profit after returns, whether a partial refund still beats taking the return, whether Authenticity Guarantee still pays after the hub label, whether local pickup still beats the label after no-shows, whether keeping a lot still beats splitting it into singles, whether a Standard Envelope still beats a tracked label after item-not-received claims, whether combining two already-sold items still beats two labels, whether a seller-initiated offer still beats waiting for Buy It Now, whether Promoted Offsite still pays after a bill that is charged even if they bounce, whether a seller coupon still beats staying listed, whether requiring immediate payment still beats unpaid checkouts, whether Top Rated Plus still covers free returns after the fee discount, whether Managed Returns still beats buying the return label yourself, whether Global Shipping Program still beats buying the international label, whether a store subscription still beats the no-store rate, and whether auction still beats Buy It Now after sell-through.
 stage: prototype
 owner: duncan
 hypotheses:
@@ -20,6 +20,10 @@ hypotheses:
     checked: null
     evidence: customer-contact
   - claim: Resellers will skip or keep Managed Returns when they can see a cheaper program fee against the extra returns an easier path usually brings, because the fee line looks like a save until the rate rises.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: Resellers will skip or keep a store when they can see a $7.95 Starter against forty of the same $40 sales, because the lower rate looks free until the month does not cover the subscription.
     status: untested
     checked: null
     evidence: customer-contact
