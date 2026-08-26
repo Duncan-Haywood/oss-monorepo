@@ -143,6 +143,20 @@ Hetzner). It covers availability. It does **not** let us store personal
 data on a box and call that fine — if anything leaves the browser, the
 privacy line in §5c has to name it.
 
+**Check it before you open the PR**, on every HTML page in the venture, not
+just `index.html`:
+
+```
+cd platform/pages && node --test   # "every published page carries both liability clauses"
+```
+
+That test is the only thing enforcing this, and it will not save you: bot
+PRs authored with `GITHUB_TOKEN` do not trigger Actions here, so it first
+runs *after* the merge, on `main`, where it turns the Pages build red. It
+has caught six pages across three ventures that way — all of them copied a
+sibling's footer that carried the no-warranty paragraph and not this one.
+Copy both paragraphs from this file rather than from another venture.
+
 Non-negotiable positioning, because it is what keeps the liability containable:
 the product produces **evidence, drafts, checks, and monitoring**. The user
 remains the filer, the signer, and the decision-maker. Never phrase output as a

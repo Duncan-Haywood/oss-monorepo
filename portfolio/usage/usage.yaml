@@ -549,6 +549,21 @@ products:
         note: >-
           Shipped a local stock-cut planning baseline for makers; public URL
           remains owner-gated and the browser counter is local and opt-out.
+      - as_of: 2026-08-24
+        signals:
+          live_url_visitors: null
+          local_events_reported: 0
+        note: >-
+          Correction, not a new reading: the page had been broken since its
+          first commit (index.html truncated mid-markup, so the results panel
+          the script drives did not exist and update() threw at load). Every
+          prior local_events_reported figure for this product was counting a
+          page no visitor could have used. Two sessions found this
+          independently; #1023 landed the repair, the venture's first CI
+          workflow, and the split runs/copies counters first, and this change
+          builds the on-hand offcut planning, material cost, and
+          avoided-purchase figures on top of it. Public URL remains
+          owner-gated, so the counters still have no external reporting path.
   - slug: janitorial-bid-calculator
     surface: static-page-in-repo
     readings:
