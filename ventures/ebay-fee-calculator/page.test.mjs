@@ -389,7 +389,9 @@ test('the store-subscription table has one cell per column and a counted event',
   assert.match(page, /store_compared/);
   assert.match(page, /is-an-ebay-store-worth-it\.html/);
   assert.match(page, /"featureList":\s*"[^"]*store subscription vs no-store rate/);
-  const headerBlock = page.slice(page.indexOf('id="storeTiersTable"'));
+  const storeStart = page.indexOf('id="storeTiersTable"');
+  const storeEnd = page.indexOf('id="bestOffer"', storeStart);
+  const headerBlock = page.slice(storeStart, storeEnd === -1 ? undefined : storeEnd);
   const headers = [...headerBlock.matchAll(/<th scope="col">([^<]+)<\/th>/g)].map((m) => m[1]);
   assert.deepEqual(headers, [
     'Path',
@@ -397,5 +399,23 @@ test('the store-subscription table has one cell per column and a counted event',
     'Final value',
     'Monthly leftover',
     'vs no store',
+  ]);
+});
+
+test('the incoming Best Offer table has one cell per column and a counted event', () => {
+  assert.match(page, /compareBestOffer/);
+  assert.match(page, /id="bestOffer"/);
+  assert.match(page, /id="bestOfferVerdict"/);
+  assert.match(page, /best_offer_compared/);
+  assert.match(page, /should-i-accept-this-ebay-offer\.html/);
+  assert.match(page, /"featureList":\s*"[^"]*incoming Best Offer vs waiting/);
+  const headerBlock = page.slice(page.indexOf('id="bestOfferTable"'));
+  const headers = [...headerBlock.matchAll(/<th scope="col">([^<]+)<\/th>/g)].map((m) => m[1]);
+  assert.deepEqual(headers, [
+    'Path',
+    'Price',
+    'If it sells',
+    'Expected leftover',
+    'vs waiting',
   ]);
 });
