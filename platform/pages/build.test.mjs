@@ -12,6 +12,7 @@ import path from 'node:path';
 import os from 'node:os';
 
 import {
+  addOfflineSupport,
   buildSite,
   categoryFor,
   discoverSurfaces,
@@ -416,6 +417,9 @@ test('every page the site serves is listed in some sitemap', async () => {
   const orphans = [];
   for (const page of await allPages(outDir)) {
     if (page === '404.html') continue;
+    // A page that tells crawlers not to index it is not expected in a sitemap;
+    // listing one would be asking for it to be indexed and then refusing.
+    if (/<meta name="robots" content="noindex">/.test(await read(page))) continue;
     const candidates = [`/${page}`];
     if (page.endsWith('/index.html')) candidates.push(`/${page.slice(0, -'index.html'.length)}`);
     if (page === 'index.html') candidates.push('/');
@@ -848,6 +852,207 @@ test('publishable JSON that a page actually needs is still copied', () => {
 });
 
 // ---------------------------------------------------------------------------
+// Offline support
+//
+// The failure mode here is quieter than a broken page: the site looks fine on a
+// connection and simply does nothing when the visitor loses one — which is
+// exactly the moment this audience needs it. So these assert the shipped
+// artefacts, not the helpers that wrote them.
+// ---------------------------------------------------------------------------
+
+test('the site ships a service worker, a manifest, and an offline page', async () => {
+  const { outDir } = await site();
+  for (const file of ['sw.js', 'manifest.webmanifest', 'offline.html']) {
+    await fs.access(path.join(outDir, file));
+  }
+});
+
+test('every published page registers the worker and points at the manifest', async () => {
+  const { outDir } = await site();
+  const pages = (await walk(outDir)).filter((f) => f.endsWith('.html'));
+  assert.ok(pages.length > 100, 'the site is more than a handful of pages');
+
+  const missing = [];
+  for (const page of pages) {
+    const html = await fs.readFile(page, 'utf8');
+    if (!/serviceWorker/.test(html) || !/rel="manifest"/.test(html)) {
+      missing.push(path.relative(outDir, page));
+    }
+  }
+  assert.deepEqual(missing, [], `these pages cannot work offline: ${missing.slice(0, 5).join(', ')}`);
+});
+
+test('the worker and manifest resolve from a page at any depth', async () => {
+  const { outDir } = await site();
+  const pages = (await walk(outDir)).filter((f) => f.endsWith('.html'));
+
+  const broken = [];
+  for (const page of pages) {
+    const html = await fs.readFile(page, 'utf8');
+    const refs = [
+      html.match(/register\('([^']+)'\)/)?.[1],
+      html.match(/rel="manifest" href="([^"]+)"/)?.[1],
+      html.match(/rel="apple-touch-icon" href="([^"]+)"/)?.[1],
+    ].filter(Boolean);
+    for (const ref of refs) {
+      const target = path.resolve(path.dirname(page), ref);
+      try {
+        await fs.access(target);
+      } catch {
+        broken.push(`${path.relative(outDir, page)} -> ${ref}`);
+      }
+    }
+  }
+  assert.deepEqual(broken, [], `unreachable offline assets: ${broken.slice(0, 5).join(', ')}`);
+});
+
+test('registration is feature-detected, so a browser without it is unaffected', async () => {
+  const hub = await read('index.html');
+  assert.match(hub, /'serviceWorker' in navigator/);
+  assert.match(hub, /\.catch\(\(\) => \{\}\)/, 'a rejected registration must not throw into the page');
+});
+
+test('the cache name carries the build, so a deploy cannot serve a stale mix', async () => {
+  const { offline } = await site();
+  const sw = await read('sw.js');
+  assert.match(offline.cacheName, /^portfolio-[0-9a-f]{12}$/);
+  assert.ok(sw.includes(JSON.stringify(offline.cacheName)));
+  // Old caches must be dropped on activation, or cache-first would keep
+  // answering from the previous deploy forever.
+  assert.match(sw, /caches\.delete/);
+  assert.match(sw, /key !== CACHE/);
+});
+
+test('an identical build produces an identical cache name', async () => {
+  const first = await fs.mkdtemp(path.join(os.tmpdir(), 'pages-sw-a-'));
+  const second = await fs.mkdtemp(path.join(os.tmpdir(), 'pages-sw-b-'));
+  const a = await buildSite({ outDir: first, baseUrl: BASE });
+  const b = await buildSite({ outDir: second, baseUrl: BASE });
+  assert.equal(a.offline.cacheName, b.offline.cacheName, 'the hash must not depend on build order or paths');
+});
+
+test('the worker only ever touches same-origin GETs', async () => {
+  const sw = await read('sw.js');
+  assert.match(sw, /request\.method !== 'GET'/);
+  assert.match(sw, /url\.origin !== self\.location\.origin/);
+  // Caching the worker itself is how a site gets permanently stuck on an old one.
+  assert.match(sw, /sw\.js'\)\) return/);
+});
+
+test('a navigation that fails with nothing cached lands on the offline page', async () => {
+  const sw = await read('sw.js');
+  assert.match(sw, /request\.mode === 'navigate'/);
+  assert.match(sw, /caches\.match\(OFFLINE_PAGE\)/);
+  const offlinePage = await read('offline.html');
+  assert.match(offlinePage, /offline/i);
+  assert.ok(offlinePage.includes(BASE), 'it routes back to the hub');
+});
+
+test('the save-for-offline bundle covers every tool and only real files', async () => {
+  const { outDir, surfaces, offline } = await site();
+  for (const surface of surfaces) {
+    assert.ok(
+      offline.bundle.includes(`${surface.slug}/index.html`),
+      `${surface.slug} would not be saved for offline use`,
+    );
+    assert.ok(offline.bundle.includes(`${surface.slug}/`), 'both link forms are cached');
+  }
+
+  const missing = [];
+  for (const asset of offline.bundle) {
+    if (asset.endsWith('/')) continue; // directory form of a page already asserted
+    try {
+      await fs.access(path.join(outDir, asset));
+    } catch {
+      missing.push(asset);
+    }
+  }
+  assert.deepEqual(missing, [], `the worker would fetch files that are not on the site: ${missing.join(', ')}`);
+});
+
+test('the offline bundle stays small enough to fetch on mobile data', async () => {
+  const { outDir, offline } = await site();
+  let bytes = 0;
+  for (const asset of offline.bundle) {
+    if (asset.endsWith('/')) continue;
+    bytes += (await fs.stat(path.join(outDir, asset))).size;
+  }
+  assert.ok(bytes < 8 * 1024 * 1024, `offline bundle is ${(bytes / 1e6).toFixed(1)} MB`);
+});
+
+test('the manifest is installable: real icons, standalone, scoped to the site', async () => {
+  const { outDir } = await site();
+  const manifest = JSON.parse(await read('manifest.webmanifest'));
+
+  assert.equal(manifest.start_url, BASE);
+  assert.equal(manifest.scope, BASE);
+  assert.equal(manifest.display, 'standalone');
+  assert.ok(manifest.icons.length >= 2);
+  assert.ok(manifest.icons.some((i) => i.purpose === 'maskable'), 'Android crops icons without one');
+
+  for (const icon of manifest.icons) {
+    assert.ok(icon.src.startsWith(BASE), 'an icon must not be fetched off-origin');
+    const file = path.join(outDir, icon.src.slice(BASE.length));
+    const bytes = await fs.readFile(file);
+    assert.deepEqual([...bytes.subarray(0, 8)], [0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a], 'real PNG');
+    const [size] = icon.sizes.split('x').map(Number);
+    assert.equal(bytes.readUInt32BE(16), size, `${icon.src} is not ${icon.sizes}`);
+    assert.equal(bytes.readUInt32BE(20), size);
+  }
+});
+
+test('the offline offer is honest and gates nothing', async () => {
+  const hub = await read('index.html');
+  assert.match(hub, /Save all tools for offline/);
+  assert.match(hub, /Nothing is uploaded either way/);
+  // Still no request about a visit leaving the device: the worker fetches
+  // pages, and pages only.
+  assert.ok(!/fetch\(|XMLHttpRequest|sendBeacon/.test(hub));
+});
+
+test('the offline widget is hidden unless the browser can honour it', async () => {
+  const hub = await read('index.html');
+  assert.match(hub, /id="offline-box" hidden/);
+  assert.match(hub, /box\.hidden = false/);
+});
+
+test('the worker can be withdrawn from devices that already have it', async () => {
+  // A service worker outlives the deploy that installed it, so reverting a
+  // commit is not on its own a way to take one back. This is the lever that is.
+  const outDir = await fs.mkdtemp(path.join(os.tmpdir(), 'pages-killswitch-'));
+  await buildSite({ outDir, baseUrl: BASE, disableWorker: true });
+  const sw = await fs.readFile(path.join(outDir, 'sw.js'), 'utf8');
+
+  assert.match(sw, /registration\.unregister\(\)/);
+  assert.match(sw, /caches\.delete/);
+  assert.ok(!/BUNDLE/.test(sw), 'the withdrawn worker caches nothing');
+});
+
+test('taking the offline offer is counted the same private way as everything else', async () => {
+  const hub = await read('index.html');
+  assert.match(hub, /record\('offline_offer_shown'\)/);
+  assert.match(hub, /record\(data\.failed \? 'offline_saved_partial' : 'offline_saved'\)/);
+  // record() is the function that honours the opt-out and DNT/GPC; counting
+  // must not route around it.
+  assert.ok(!/localStorage\.setItem\(KEY/.test(hub.split("record('offline_offer_shown')")[1] || ''));
+});
+
+test('changing the worker itself changes the cache name', async () => {
+  // Otherwise a fix to the worker's own logic ships under the old cache name,
+  // no old cache is deleted, and every existing visitor keeps being served the
+  // previous behaviour from cache indefinitely.
+  const outDir = await fs.mkdtemp(path.join(os.tmpdir(), 'pages-version-'));
+  const built = await buildSite({ outDir, baseUrl: BASE });
+  const rebuilt = await addOfflineSupport({
+    outDir,
+    base: BASE,
+    surfaces: built.surfaces,
+    codeVersion: 'pretend the worker was edited',
+  });
+  assert.notEqual(rebuilt.cacheName, built.offline.cacheName);
+});
+
+// ---------------------------------------------------------------------------
 // A stale real origin, as opposed to the placeholder
 //
 // Three ventures wrote today's Pages address into their canonical tags as a
@@ -958,4 +1163,18 @@ test('injected head tags do not disturb the page they land in', async () => {
   assert.equal((html.match(/<\/head>/gi) ?? []).length, 1);
   assert.equal((html.match(/<body[^>]*>/gi) ?? []).length, 1);
   assert.ok(html.includes('calc.mjs'), 'the calculator still loads its own module');
+});
+
+test('the availability clause is supplied only where a venture lacks its own', async () => {
+  const { surfaces } = await site();
+  // A venture that words the clause itself must not be given a second one in
+  // different prose — two availability statements on one page is how a reader
+  // stops believing either.
+  const own = await read('janitorial-bid-calculator', 'index.html');
+  const supplied = (own.match(/Best-effort hosting/gi) ?? []).length;
+  assert.ok(supplied <= 1, `${supplied} availability clauses on one page`);
+
+  // And the build's own copy says what the playbook requires it to say.
+  const injected = await read(surfaces[0].slug, 'index.html');
+  assert.match(injected, /no warranty|Best-effort hosting/i);
 });
