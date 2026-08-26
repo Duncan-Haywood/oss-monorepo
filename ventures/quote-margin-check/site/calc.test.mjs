@@ -1,7 +1,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 
-import { loadQuote, calculate, overrunScenarios, directCostSpikeScenarios, directCostSpikeSummary, discountAskScenarios, discountAskSummary, loadKillFeeProgress, compareKillFee, killFeeSummary } from "./calc.mjs";
+import { loadQuote, calculate, overrunScenarios, directCostSpikeScenarios, directCostSpikeSummary, discountAskScenarios, discountAskSummary, compareBillingModels, billingModelSummary, billingModelNote, loadKillFeeProgress, compareKillFee, killFeeSummary } from "./calc.mjs";
 
 test("calculates hidden time and target price", () => {
   const quote = loadQuote({
@@ -350,4 +350,50 @@ test("a steep cost rise can leave nothing after direct costs", () => {
   assert.equal(spike50.direct_costs, 1200);
   assert.equal(spike50.cost_coverage, -200);
   assert.equal(spike50.effective_hourly_rate, -20);
+});
+
+test("compares a fixed quote to hourly at the same hours and costs", () => {
+  const quote = loadQuote({
+    price: 2400,
+    delivery_hours: 24,
+    admin_hours: 5,
+    revision_hours: 6,
+    overhead: 180,
+    subcontractor_cost: 300,
+    target_hourly_rate: 75,
+  });
+  const report = calculate(quote);
+  const rows = compareBillingModels(quote, report);
+  assert.deepEqual(rows.map((row) => row.percent), [0, 10, 25, 50]);
+  assert.equal(rows[0].total_hours, 35);
+  assert.equal(rows[0].hourly_total, 3105);
+  assert.equal(rows[0].hourly_minus_fixed, 705);
+  assert.ok(Math.abs(rows[0].fixed_effective_rate - 54.8571428) < 1e-6);
+  assert.equal(rows[3].total_hours, 52.5);
+  assert.equal(rows[3].hourly_total, 4417.5);
+  assert.equal(rows[3].hourly_minus_fixed, 2017.5);
+  assert.equal(rows[3].fixed_effective_rate, (2400 - 480) / 52.5);
+  const summary = billingModelSummary(quote, report);
+  assert.equal(summary.fixed_is_below_hourly, true);
+  assert.equal(summary.hourly_minus_fixed, 705);
+  assert.match(billingModelNote(quote, report), /3105\.00/);
+  assert.match(billingModelNote(quote, report), /705\.00 more than/);
+  assert.match(billingModelNote(quote, report), /not a recommendation/);
+});
+
+test("a fixed quote above hourly at the target is not a discount", () => {
+  const quote = loadQuote({ price: 2000, delivery_hours: 10, target_hourly_rate: 100 });
+  const report = calculate(quote);
+  const planned = compareBillingModels(quote, report, [0])[0];
+  assert.equal(planned.hourly_total, 1000);
+  assert.equal(planned.hourly_minus_fixed, -1000);
+  assert.equal(billingModelSummary(quote, report).fixed_is_below_hourly, false);
+  assert.match(billingModelNote(quote, report), /1000\.00 less than/);
+});
+
+test("a fixed quote that already matches hourly says so", () => {
+  const quote = loadQuote({ price: 3105, delivery_hours: 24, admin_hours: 5, revision_hours: 6, overhead: 180, subcontractor_cost: 300, target_hourly_rate: 75 });
+  const report = calculate(quote);
+  assert.equal(billingModelSummary(quote, report).hourly_minus_fixed, 0);
+  assert.match(billingModelNote(quote, report), /the same as this fixed quote/);
 });

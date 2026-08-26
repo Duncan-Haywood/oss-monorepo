@@ -12,21 +12,27 @@ import path from 'node:path';
 import os from 'node:os';
 
 import {
+  addOfflineSupport,
   buildSite,
   categoryFor,
+  collectPageTitles,
+  injectFavicon,
   discoverSurfaces,
   injectChrome,
+  isPublishable,
+  NO_SLA_PATTERN,
   listFiles,
+  readMeta,
   relatedTools,
   upToRoot,
-  isPublishable,
-  readMeta,
   renderHub,
   pageUrlPath,
   renderFavicon,
+  renderFaviconSvg,
   renderRobots,
   renderSitemapIndex,
   renderVentureSitemap,
+  searchTokens,
   truncate,
   REPO_ROOT,
   SOURCE_URL_PREFIX,
@@ -46,6 +52,23 @@ async function site() {
 
 const read = async (...parts) => fs.readFile(path.join((await site()).outDir, ...parts), 'utf8');
 
+const BASE_PATH = new URL(BASE).pathname; // "/site/"
+
+/**
+ * The file a page's href points at.
+ *
+ * Root-absolute hrefs are resolved against the site root rather than the
+ * filesystem root: on a project site the published tree lives under a path
+ * prefix, so `/site/favicon.ico` is `<outDir>/favicon.ico`. Resolving those
+ * relative to the containing page reports every one of them as broken.
+ */
+function hrefTarget(href, fromFile, outDir) {
+  const resolved = href.startsWith('/')
+    ? path.join(outDir, href.startsWith(BASE_PATH) ? href.slice(BASE_PATH.length) : href.slice(1))
+    : path.resolve(path.dirname(fromFile), href);
+  return href.endsWith('/') ? path.join(resolved, 'index.html') : resolved;
+}
+
 /**
  * Every off-origin URL the given HTML would *fetch* on load, as opposed to
  * link to. `src` covers scripts, images and frames; a <link> that fetches --
@@ -62,8 +85,7 @@ function offOriginResources(html) {
       .filter((m) => FETCHING_REL.test((m[0].match(/rel="([^"]*)"/)?.[1] ?? '').trim()))
       .map((m) => m[0].match(/href="([^"]*)"/)?.[1] ?? '')
       .filter((href) => /^https?:\/\//.test(href)),
-  ];
-}
+  ];}
 
 const exists = (target) => fs.access(target).then(() => true, () => false);
 
@@ -105,8 +127,7 @@ async function sitemapUrlPaths() {
   };
 
   await collect('sitemap.xml');
-  return paths;
-}
+  return paths;}
 
 // ---------------------------------------------------------------------------
 // Discovery
@@ -154,9 +175,16 @@ test('no test payload, CLI source, or repo bookkeeping is published', async () =
   const { outDir } = await site();
   const files = (await walk(outDir)).map((f) => path.relative(outDir, f));
 
+  // `foo.test.mjs` is the convention, not a rule. This check was written to
+  // match only that spelling, so `retainage-cashflow-calculator/test.mjs` and
+  // `freelance-retainer-calculator/test_app.mjs` shipped to the public site
+  // while the test that exists to catch exactly this stayed green. Match the
+  // other spellings too, so the next venture that invents one is caught.
   const leaked = files.filter(
     (f) =>
-      /\.test\.(mjs|js|py)$/.test(f) ||
+      /(^|[./])test\.(mjs|js|py)$/.test(f) ||
+      /(^|\/)test_/.test(f) ||
+      /_test\.(mjs|js|py)$/.test(f) ||
       f.endsWith('.py') ||
       f.endsWith('VENTURE.yaml') ||
       f.endsWith('README.md') ||
@@ -208,9 +236,9 @@ test('every hub link resolves to a file that exists', async () => {
   const hrefs = [...hub.matchAll(/href="([^"]+)"/g)].map((m) => m[1]).filter((h) => !h.startsWith('http'));
   assert.ok(hrefs.length > 20, 'the hub should link to every tool');
 
+  const hub_ = path.join(outDir, 'index.html');
   for (const href of hrefs) {
-    const target = href.endsWith('/') ? path.join(outDir, href, 'index.html') : path.join(outDir, href);
-    await fs.access(target);
+    await fs.access(hrefTarget(href, hub_, outDir));
   }
 });
 
@@ -227,10 +255,8 @@ test('relative links inside each tool resolve', async () => {
         .filter((r) => !/^(https?:|mailto:|data:|\/\/|#)/.test(r) && r !== '');
 
       for (const ref of refs) {
-        const target = path.resolve(path.dirname(file), ref);
-        const check = ref.endsWith('/') ? path.join(target, 'index.html') : target;
         try {
-          await fs.access(check);
+          await fs.access(hrefTarget(ref, file, outDir));
         } catch {
           broken.push(`${path.relative(outDir, file)} -> ${ref}`);
         }
@@ -252,6 +278,17 @@ test('the hub carries the required disclaimers and privacy line', async () => {
   assert.match(hub, /Everything runs in your browser/i);
   assert.match(hub, /never uploaded/i);
 });
+
+/**
+ * The hub's copy with the search index stripped out.
+ *
+ * The index is a bag of words describing what the tools *calculate*, and some
+ * of those tools price subscription programs — Subscribe & Save, Shopify
+ * subscriptions. Those words are vocabulary a visitor searches for, never
+ * anything the hub offers to sell them, so a check on what the page *says*
+ * must not read them.
+ */
+const visibleCopy = (hub) => hub.replace(/ data-search="[^"]*"/g, '');
 
 test('every published page carries both liability clauses, not just the hub', async () => {
   // PRODUCT_PLAYBOOK.md 5b requires the no-warranty clause AND the no-SLA
@@ -300,7 +337,10 @@ test('the sponsor ask is optional and does not gate anything', async () => {
   const hub = await read('index.html');
   assert.match(hub, /github\.com\/sponsors\//);
   assert.match(hub, /entirely optional/i);
-  assert.ok(!/subscribe|upgrade to|paid plan|free trial/i.test(hub), 'no paywall language');
+  assert.ok(
+    !/subscribe|upgrade to|paid plan|free trial/i.test(visibleCopy(hub)),
+    'no paywall language',
+  );
 });
 
 test('the hub declares structured data listing every tool', async () => {
@@ -415,6 +455,9 @@ test('every page the site serves is listed in some sitemap', async () => {
   const orphans = [];
   for (const page of await allPages(outDir)) {
     if (page === '404.html') continue;
+    // A page that tells crawlers not to index it is not expected in a sitemap;
+    // listing one would be asking for it to be indexed and then refusing.
+    if (/<meta name="robots" content="noindex">/.test(await read(page))) continue;
     const candidates = [`/${page}`];
     if (page.endsWith('/index.html')) candidates.push(`/${page.slice(0, -'index.html'.length)}`);
     if (page === 'index.html') candidates.push('/');
@@ -471,6 +514,31 @@ test('the favicon is byte-identical on every build', () => {
   assert.deepEqual(renderFavicon(), renderFavicon());
 });
 
+// The .ico covers the request browsers make on their own, but it is a fixed
+// 16x16 raster and goes soft anywhere it is shown larger — a pinned tab, the
+// bookmark bar, a phone home screen.
+test('an SVG favicon ships alongside the .ico', async () => {
+  const svg = await read('favicon.svg');
+  assert.match(svg, /^<svg /, 'a real SVG document');
+  assert.match(svg, /viewBox="0 0 16 16"/, 'scalable rather than fixed to one size');
+});
+
+test('both favicons draw the same mark', () => {
+  // A drift here means the tab icon and the pinned icon are two different
+  // logos, which is why the geometry lives in constants both renderers read.
+  const svg = renderFaviconSvg();
+  assert.match(svg, /#243d35/, "the hub's ink");
+  assert.equal((svg.match(/#c5edb5/g) ?? []).length, 3, 'three bars in the mark colour');
+  assert.match(svg, /x="3" y="9" width="2" height="4"/, 'the short bar');
+  assert.match(svg, /x="11" y="3" width="2" height="10"/, 'the tall bar');
+});
+
+test('the hub links both favicons', async () => {
+  const hub = await read('index.html');
+  assert.match(hub, /rel="icon" href="favicon\.svg" type="image\/svg\+xml"/);
+  assert.match(hub, /rel="alternate icon" href="favicon\.ico"/);
+});
+
 test('.nojekyll is emitted so Pages serves the tree verbatim', async () => {
   await read('.nojekyll');
 });
@@ -491,7 +559,18 @@ test('readMeta prefers og:title over the SEO title', () => {
   assert.deepEqual(readMeta(html, 'janitorial-bid-calculator'), {
     title: 'Janitorial Bid Calculator',
     description: 'Price a contract.',
+    // Card copy and search copy are the same string only while it fits a card.
+    fullDescription: 'Price a contract.',
   });
+});
+
+test('readMeta keeps the whole description for search, not just the card', () => {
+  const long = `${'word '.repeat(50)}needleword.`;
+  const html = `<title>T</title><meta name="description" content="${long}">`;
+  const { description, fullDescription } = readMeta(html, 'slug');
+  assert.ok(description.endsWith('…'), 'card copy is trimmed');
+  assert.ok(!description.includes('needleword'), 'the trim really does drop the tail');
+  assert.ok(fullDescription.includes('needleword'), 'search copy keeps the tail');
 });
 
 test('readMeta falls back through title, then slug', () => {
@@ -504,14 +583,59 @@ test('readMeta decodes entities rather than showing them raw', () => {
   assert.equal(meta.title, 'Fees & Margin');
 });
 
-// An apostrophe is ordinary English, not an edge case: three shipped ventures
-// carried one in the description a crawler reads. Reading only to the next
-// quote of either kind cut "last night's archive shrank" down to "last night".
+// Three shipped surfaces lost most of their description to this: the value was
+// captured with `content=["']([^"']*)["']`, which ends at whichever quote comes
+// first, so a possessive apostrophe closed a double-quoted attribute early.
+// `shopify-a11y-evidence` reached the hub, its own `<meta description>`, and the
+// JSON-LD ItemList as the fragment "Turn a Shopify storefront".
 test('readMeta keeps an apostrophe inside a double-quoted attribute', () => {
-  const html = `<meta name="description" content="See whether last night's archive shrank.">`;
-  assert.equal(readMeta(html, 'x').description, "See whether last night's archive shrank.");
+  const html = `<meta name="description" content="Turn a Shopify storefront's axe-core JSON export into a dated record.">`;
+  assert.equal(
+    readMeta(html, 'shopify-a11y-evidence').description,
+    "Turn a Shopify storefront's axe-core JSON export into a dated record.",
+  );
 });
 
+test('readMeta keeps a quote inside a single-quoted attribute', () => {
+  const html = `<meta name='description' content='The "walk-away" number before you bid.'>`;
+  assert.equal(readMeta(html, 'x').description, 'The "walk-away" number before you bid.');
+});
+
+test('readMeta reads a description containing a bare > character', () => {
+  const html = `<meta name="description" content="Compare 4×8 > 5×5 before you buy.">`;
+  assert.equal(readMeta(html, 'x').description, 'Compare 4×8 > 5×5 before you buy.');
+});
+
+test('readMeta finds the tag whatever order its attributes are written in', () => {
+  const html = `<meta content="Price the run and the corners." name="description">`;
+  assert.equal(readMeta(html, 'x').description, 'Price the run and the corners.');
+});
+
+// The consequence users would have felt: the hub's search box matches against
+// `data-search`, which is built from the description. A truncated description
+// meant the Shopify tool could not be found by "axe-core".
+test('a description survives into the searchable card text', () => {
+  const html = `<meta property="og:title" content="Shopify Accessibility Evidence Report">
+    <meta name="description" content="Turn a Shopify storefront's axe-core JSON export into a dated record.">`;
+  const { title, description } = readMeta(html, 'shopify-a11y-evidence');
+  assert.match(`${title} ${description}`.toLowerCase(), /axe-core/);
+});
+
+test('readMeta does not confuse one meta tag with the next', () => {
+  const html = `<meta property="og:site_name" content="Portfolio">
+    <meta name="description" content="The real description.">`;
+  assert.equal(readMeta(html, 'x').description, 'The real description.');
+});
+
+// The other two affected surfaces, kept as their own case (from the fix that
+// landed on main in parallel) so all three shipped regressions are pinned.
+test('readMeta keeps an apostrophe in the other affected descriptions', () => {
+  const backup = `<meta name="description" content="See whether last night's archive shrank.">`;
+  assert.equal(readMeta(backup, 'x').description, "See whether last night's archive shrank.");
+});
+
+// og:title and og:description go through the same lookup, so they broke the
+// same way — "Ohm's Law Calculator" would have become "Ohm".
 test('readMeta keeps an apostrophe in og:title and og:description', () => {
   const html = `<meta property="og:title" content="Ohm's Law Calculator">
     <meta property="og:description" content="Resistor codes and Ohm's law.">`;
@@ -520,14 +644,14 @@ test('readMeta keeps an apostrophe in og:title and og:description', () => {
   assert.equal(meta.description, "Resistor codes and Ohm's law.");
 });
 
-test('readMeta still reads a single-quoted attribute, quotes and all', () => {
-  const html = `<meta name='description' content='He said "go" before the run.'>`;
-  assert.equal(readMeta(html, 'x').description, 'He said "go" before the run.');
-});
-
-test('readMeta reads content written before the identifying attribute', () => {
-  const html = `<meta content="Last night's run." name="description">`;
-  assert.equal(readMeta(html, 'x').description, "Last night's run.");
+// A backreferenced `content=(["'])(.*?)\1` — the parallel fix on main — passes
+// every case above but returns the empty string here, because `.` does not
+// match a newline. Losing the whole description is worse than truncating it.
+test('readMeta reads a description wrapped across two lines', () => {
+  const html = `<meta name="description"
+    content="Price the run,
+    the corners, and the extras.">`;
+  assert.match(readMeta(html, 'x').description, /the corners, and the extras\./);
 });
 
 test('truncate cuts on a word boundary', () => {
@@ -535,6 +659,157 @@ test('truncate cuts on a word boundary', () => {
   const long = truncate('a'.repeat(30) + ' tail words here that go on', 40);
   assert.ok(long.endsWith('…'));
   assert.ok(long.length <= 41);
+});
+
+// The hub's search is the only way a visitor narrows 34 tools, so a tool the
+// search cannot find is a tool that does not exist for them. These tests cover
+// the two ways that failed silently: indexing card copy that had already been
+// cut to 180 characters, and matching the query as one substring so any
+// two-word phrase found nothing.
+
+test('searchTokens normalises, dedupes, and drops noise words', () => {
+  assert.equal(searchTokens(['eBay Fee']), 'ebay fee');
+  assert.equal(searchTokens(['fee', 'FEE', 'Fee']), 'fee');
+  // Sorted, so the attribute is stable build to build.
+  assert.equal(searchTokens(['zebra alpha']), 'alpha zebra');
+  // Stopwords and single characters carry no signal and cost bytes on every card.
+  assert.equal(searchTokens(['how much to charge for a deck']), 'charge deck much');
+  // "in" is a stopword and "2" is a single character, so both are dropped —
+  // and the client-side query normaliser must drop them the same way.
+  assert.equal(searchTokens(['walk-in tub, 2 units']), 'tub units walk');
+  assert.equal(searchTokens([null, undefined, '']), '');
+});
+
+test('the search index carries description text the card is too small to show', async () => {
+  const html = await read('index.html');
+  const surfaces = (await site()).surfaces;
+
+  const truncated = surfaces.filter(
+    (s) => s.fullDescription && s.fullDescription.length > s.description.replace(/…$/, '').length + 1,
+  );
+  // If this is ever zero the test is no longer proving anything.
+  assert.ok(truncated.length > 0, 'expected at least one description longer than its card');
+
+  for (const surface of truncated) {
+    const shown = surface.description.replace(/…$/, '');
+    const tail = surface.fullDescription.slice(shown.length);
+    const word = searchTokens([tail]).split(' ').filter((w) => w.length > 4)[0];
+    if (!word) continue;
+    const index = html.match(
+      new RegExp(`data-search="([^"]*)"[^>]*>\\s*<a href="${surface.slug}/`),
+    )?.[1];
+    assert.ok(index, `no card rendered for ${surface.slug}`);
+    assert.ok(
+      ` ${index} `.includes(` ${word} `),
+      `"${word}" is in ${surface.slug}'s description but not in its search index`,
+    );
+  }
+});
+
+test("the search index carries a venture's other page titles", async () => {
+  // A visitor arrives having typed the question one of these pages answers.
+  const titles = await collectPageTitles(
+    path.join(VENTURES, 'ebay-fee-calculator'),
+    path.join(VENTURES, 'ebay-fee-calculator', 'index.html'),
+  );
+  assert.ok(titles.length > 0, 'expected the eBay venture to have article pages');
+
+  const surface = (await site()).surfaces.find((s) => s.slug === 'ebay-fee-calculator');
+  const indexed = new Set(surface.searchIndex.split(' '));
+  const fromTitles = searchTokens(titles).split(' ').filter((w) => w.length > 4);
+  const missing = fromTitles.filter((w) => !indexed.has(w));
+  assert.deepEqual(missing, [], 'page-title words missing from the search index');
+});
+
+test('a query whose words are not adjacent still matches', async () => {
+  const html = await read('index.html');
+  const cards = [...html.matchAll(/data-search="([^"]*)"[\s\S]*?data-tool="([^"]*)"/g)].map(
+    (m) => ({ index: m[1], slug: m[2] }),
+  );
+  assert.equal(cards.length, (await site()).surfaces.length);
+
+  // The rule the page implements: every query word must hit a token boundary.
+  const search = (query) =>
+    cards
+      .filter((c) =>
+        searchTokens([query])
+          .split(' ')
+          .filter(Boolean)
+          .every((word) => ` ${c.index}`.includes(` ${word}`)),
+      )
+      .map((c) => c.slug);
+
+  // Each of these found nothing when the index was one truncated string.
+  assert.ok(search('ebay return').includes('ebay-fee-calculator'));
+  assert.ok(search('freight accessorial').includes('freight-accessorial-auditor'));
+  assert.deepEqual(search('qqzzxx'), []);
+});
+
+test('the query drops exactly the words the index dropped', async () => {
+  // If the two normalisers disagree, a query containing a word the index never
+  // stores can never match anything.
+  const html = await read('index.html');
+  const rendered = JSON.parse(html.match(/const STOPWORDS = new Set\((\[[\s\S]*?\])\)/)[1]);
+  for (const word of rendered) {
+    assert.equal(searchTokens([word]), '', `"${word}" is a query stopword but is still indexed`);
+  }
+  assert.ok(html.includes('word.length >= 2'), 'query must drop single characters as the index does');
+});
+
+test('every published page links the favicon, not just the site root', async () => {
+  // The generated icon sits at the *published tree's* root. On a project site
+  // the browser's automatic /favicon.ico request goes to the origin root
+  // instead — a different place this repo does not serve — so without a link
+  // written into each page the icon is emitted and never fetched.
+  const { outDir, surfaces } = await site();
+
+  const pages = (await listFiles(outDir)).filter((f) => f.endsWith('.html'));
+  assert.ok(pages.length > surfaces.length, 'expected article pages as well as landing pages');
+
+  const missing = [];
+  const unresolved = [];
+  for (const file of pages) {
+    const html = await fs.readFile(file, 'utf8');
+    const href = html.match(/<link[^>]+rel="icon"[^>]+href="([^"]+)"/i)?.[1];
+    if (!href) {
+      missing.push(path.relative(outDir, file));
+      continue;
+    }
+    // A venture that ships its own icon keeps it; several declare a `data:`
+    // URI, which is self-contained and has no file to resolve.
+    if (/^(data:|https?:)/.test(href)) continue;
+    // Relative, not root-absolute: `check.mjs` rejects a link that leaves the
+    // site root, and the site is served under a path prefix in production.
+    assert.ok(!href.startsWith('/'), `${path.relative(outDir, file)} links the icon absolutely`);
+    if (!(await exists(hrefTarget(href, file, outDir)))) {
+      unresolved.push(`${path.relative(outDir, file)} -> ${href}`);
+    }
+  }
+
+  assert.deepEqual(missing, [], 'pages served without an icon');
+  assert.deepEqual(unresolved, [], `icon links that do not resolve:\n${unresolved.join('\n')}`);
+});
+
+test('a venture that declares its own icon keeps it', () => {
+  const own = '<head><link rel="icon" href="mine.png"></head>';
+  assert.equal(injectFavicon(own, '../'), own);
+
+  const injected = injectFavicon('<head>\n<title>t</title></head>', '../');
+  assert.equal((injected.match(/rel="icon"/g) ?? []).length, 1);
+  assert.ok(injected.includes('href="../favicon.ico"'));
+
+  // Depth is the caller's to supply; a page at the root gets './'.
+  assert.ok(injectFavicon('<head></head>', './').includes('href="./favicon.ico"'));
+
+  // The charset declaration has to stay the first thing in the head.
+  const withCharset = injectFavicon('<head><meta charset="utf-8"><title>t</title></head>', '../');
+  assert.ok(
+    withCharset.indexOf('charset') < withCharset.indexOf('rel="icon"'),
+    'the icon must not displace the charset declaration',
+  );
+
+  // A fragment with no <head> must be left exactly as it was, not corrupted.
+  assert.equal(injectFavicon('<p>no head here</p>', '../'), '<p>no head here</p>');
 });
 
 test('categories route each slug shape somewhere sensible', () => {
@@ -560,6 +835,18 @@ test('isPublishable keeps web assets and drops the rest', () => {
   assert.ok(isPublishable('index.html'));
   assert.ok(isPublishable('LICENSE'));
   assert.ok(!isPublishable('calc.test.mjs'));
+
+  // The spellings two ventures actually used, which the original rule missed.
+  assert.ok(!isPublishable('test.mjs'), 'retainage-cashflow-calculator names its suite this');
+  assert.ok(!isPublishable('test_app.mjs'), 'freelance-retainer-calculator names its suite this');
+  assert.ok(!isPublishable('calc_test.mjs'));
+  assert.ok(!isPublishable('test_calc.py'));
+
+  // ...without swallowing product code that merely contains the word.
+  assert.ok(isPublishable('latest.mjs'), 'a substring match would drop this');
+  assert.ok(isPublishable('protest.js'));
+  assert.ok(isPublishable('testimonials.html'));
+
   assert.ok(!isPublishable('checks.py'));
   assert.ok(!isPublishable('pyproject.toml'));
   assert.ok(!isPublishable('VENTURE.yaml'));
@@ -718,6 +1005,35 @@ test('a lone tool advertises no siblings and still renders', () => {
   assert.ok(html.includes('data-pf-to="hub"'));
 });
 
+// The clause is injected rather than required of each venture because the
+// requirement can otherwise only be discovered after the venture is on `main`.
+// Three ventures shipped without it in one day; these two tests are what stop
+// a fourth from turning `main` red.
+
+test('a page with no availability clause is given one', () => {
+  const html = injectChrome('<html><head></head><body>calculator</body></html>', {
+    slug: 'x',
+    toRoot: '../',
+    total: 2,
+    related: [],
+  });
+  assert.match(html, /Best-effort hosting, no SLA/);
+  assert.match(html, NO_SLA_PATTERN);
+});
+
+test('a page that writes its own availability clause is not given a second', () => {
+  // The wording a venture uses is its own; two notices are worse than one.
+  const own = '<p>Hosted URLs, when they exist, carry no availability SLA.</p>';
+  const html = injectChrome(`<html><head></head><body>${own}</body></html>`, {
+    slug: 'x',
+    toRoot: '../',
+    total: 2,
+    related: [],
+  });
+  assert.ok(!html.includes('pf-sla'), 'the venture already says it');
+  assert.ok(html.includes(own), 'and its own wording survives');
+});
+
 test('the chrome escapes venture copy', () => {
   const html = injectChrome('<html><head></head><body>x</body></html>', {
     slug: 'x',
@@ -770,6 +1086,279 @@ test('publishable JSON that a page actually needs is still copied', () => {
   assert.equal(isPublishable('package.json'), false);
   assert.equal(isPublishable('site.webmanifest'), true);
   assert.equal(isPublishable('rates.json'), true);
+});
+
+// ---------------------------------------------------------------------------
+// "Pick up where you left off"
+//
+// The hub leads a returning visitor with the tools their own browser has
+// opened. The behaviour itself is exercised in a browser (see the PR); these
+// pin the parts a Node test can hold: that it degrades to nothing without
+// script or storage, and that it never trusts what it reads back.
+// ---------------------------------------------------------------------------
+
+test('the personalised row is absent until script fills it', async () => {
+  const hub = await read('index.html');
+  assert.match(hub, /<section class="yours" id="yours" hidden>/,
+    'a visitor with script off, no history, or no storage must not see an empty panel');
+  assert.match(hub, /<ul id="yoursList"><\/ul>/, 'the list ships empty — the catalogue is the fallback');
+});
+
+test('the personalised row is built from local counts and says so', async () => {
+  const hub = await read('index.html');
+  assert.match(hub, /never uploaded/i);
+  assert.match(hub, /clearing your browser data clears it/i);
+  // The copy a visitor reads, not the script comments that explain it.
+  const visible = hub.slice(0, hub.indexOf('<script type="module">'));
+  assert.ok(!/sign in|log in|create an account|your profile/i.test(visible), 'no account is involved');
+});
+
+test('a stored slug is validated before it reaches a selector or a link', async () => {
+  const hub = await read('index.html');
+  // Every tool shares one origin, so any page on the site can write this key.
+  assert.match(hub, /\/\^\[a-z0-9\]\[a-z0-9-\]\*\$\//,
+    'the slug shape check must survive; without it a stored value reaches querySelector and href');
+  assert.ok(!/innerHTML\s*=/.test(hub.slice(hub.indexOf('function yourTools'))),
+    'stored values are written as text, never as markup');
+});
+
+test('opting out is wired to remove the personalised row, not just stop counting', async () => {
+  const hub = await read('index.html');
+  const script = hub.slice(hub.indexOf('function yourTools'));
+  assert.match(script, /optout\.addEventListener\('change', showYourTools\)/);
+  assert.match(script, /if \(optedOut\(\) \|\| honorsBrowserSignal\(\)\) return \[\]/,
+    'DNT/GPC and the opt-out must both suppress it');
+});
+
+// ---------------------------------------------------------------------------
+// Offline support
+//
+// The failure mode here is quieter than a broken page: the site looks fine on a
+// connection and simply does nothing when the visitor loses one — which is
+// exactly the moment this audience needs it. So these assert the shipped
+// artefacts, not the helpers that wrote them.
+// ---------------------------------------------------------------------------
+
+test('the site ships a service worker, a manifest, and an offline page', async () => {
+  const { outDir } = await site();
+  for (const file of ['sw.js', 'manifest.webmanifest', 'offline.html']) {
+    await fs.access(path.join(outDir, file));
+  }
+});
+
+test('every published page registers the worker and points at the manifest', async () => {
+  const { outDir } = await site();
+  const pages = (await walk(outDir)).filter((f) => f.endsWith('.html'));
+  assert.ok(pages.length > 100, 'the site is more than a handful of pages');
+
+  const missing = [];
+  for (const page of pages) {
+    const html = await fs.readFile(page, 'utf8');
+    if (!/serviceWorker/.test(html) || !/rel="manifest"/.test(html)) {
+      missing.push(path.relative(outDir, page));
+    }
+  }
+  assert.deepEqual(missing, [], `these pages cannot work offline: ${missing.slice(0, 5).join(', ')}`);
+});
+
+test('the worker and manifest resolve from a page at any depth', async () => {
+  const { outDir } = await site();
+  const pages = (await walk(outDir)).filter((f) => f.endsWith('.html'));
+
+  const broken = [];
+  for (const page of pages) {
+    const html = await fs.readFile(page, 'utf8');
+    const refs = [
+      html.match(/register\('([^']+)'\)/)?.[1],
+      html.match(/rel="manifest" href="([^"]+)"/)?.[1],
+      html.match(/rel="apple-touch-icon" href="([^"]+)"/)?.[1],
+    ].filter(Boolean);
+    for (const ref of refs) {
+      const target = path.resolve(path.dirname(page), ref);
+      try {
+        await fs.access(target);
+      } catch {
+        broken.push(`${path.relative(outDir, page)} -> ${ref}`);
+      }
+    }
+  }
+  assert.deepEqual(broken, [], `unreachable offline assets: ${broken.slice(0, 5).join(', ')}`);
+});
+
+test('registration is feature-detected, so a browser without it is unaffected', async () => {
+  const hub = await read('index.html');
+  assert.match(hub, /'serviceWorker' in navigator/);
+  assert.match(hub, /\.catch\(\(\) => \{\}\)/, 'a rejected registration must not throw into the page');
+});
+
+test('the cache name carries the build, so a deploy cannot serve a stale mix', async () => {
+  const { offline } = await site();
+  const sw = await read('sw.js');
+  assert.match(offline.cacheName, /^portfolio-[0-9a-f]{12}$/);
+  assert.ok(sw.includes(JSON.stringify(offline.cacheName)));
+  // Old caches must be dropped on activation, or cache-first would keep
+  // answering from the previous deploy forever.
+  assert.match(sw, /caches\.delete/);
+  assert.match(sw, /key !== CACHE/);
+});
+
+test('an identical build produces an identical cache name', async () => {
+  const first = await fs.mkdtemp(path.join(os.tmpdir(), 'pages-sw-a-'));
+  const second = await fs.mkdtemp(path.join(os.tmpdir(), 'pages-sw-b-'));
+  const a = await buildSite({ outDir: first, baseUrl: BASE });
+  const b = await buildSite({ outDir: second, baseUrl: BASE });
+  assert.equal(a.offline.cacheName, b.offline.cacheName, 'the hash must not depend on build order or paths');
+});
+
+test('the worker only ever touches same-origin GETs', async () => {
+  const sw = await read('sw.js');
+  assert.match(sw, /request\.method !== 'GET'/);
+  assert.match(sw, /url\.origin !== self\.location\.origin/);
+  // Caching the worker itself is how a site gets permanently stuck on an old one.
+  assert.match(sw, /sw\.js'\)\) return/);
+});
+
+test('a navigation that fails with nothing cached lands on the offline page', async () => {
+  const sw = await read('sw.js');
+  assert.match(sw, /request\.mode === 'navigate'/);
+  assert.match(sw, /caches\.match\(OFFLINE_PAGE\)/);
+  const offlinePage = await read('offline.html');
+  assert.match(offlinePage, /offline/i);
+  assert.ok(offlinePage.includes(BASE), 'it routes back to the hub');
+});
+
+test('the save-for-offline bundle covers every tool and only real files', async () => {
+  const { outDir, surfaces, offline } = await site();
+  for (const surface of surfaces) {
+    assert.ok(
+      offline.bundle.includes(`${surface.slug}/index.html`),
+      `${surface.slug} would not be saved for offline use`,
+    );
+    assert.ok(offline.bundle.includes(`${surface.slug}/`), 'both link forms are cached');
+  }
+
+  const missing = [];
+  for (const asset of offline.bundle) {
+    if (asset.endsWith('/')) continue; // directory form of a page already asserted
+    try {
+      await fs.access(path.join(outDir, asset));
+    } catch {
+      missing.push(asset);
+    }
+  }
+  assert.deepEqual(missing, [], `the worker would fetch files that are not on the site: ${missing.join(', ')}`);
+});
+
+test('the offline bundle stays small enough to fetch on mobile data', async () => {
+  const { outDir, offline } = await site();
+  let bytes = 0;
+  for (const asset of offline.bundle) {
+    if (asset.endsWith('/')) continue;
+    bytes += (await fs.stat(path.join(outDir, asset))).size;
+  }
+  assert.ok(bytes < 8 * 1024 * 1024, `offline bundle is ${(bytes / 1e6).toFixed(1)} MB`);
+});
+
+test('the manifest is installable: real icons, standalone, scoped to the site', async () => {
+  const { outDir } = await site();
+  const manifest = JSON.parse(await read('manifest.webmanifest'));
+
+  assert.equal(manifest.start_url, BASE);
+  assert.equal(manifest.scope, BASE);
+  assert.equal(manifest.display, 'standalone');
+  assert.ok(manifest.icons.length >= 2);
+  assert.ok(manifest.icons.some((i) => i.purpose === 'maskable'), 'Android crops icons without one');
+
+  for (const icon of manifest.icons) {
+    assert.ok(icon.src.startsWith(BASE), 'an icon must not be fetched off-origin');
+    const file = path.join(outDir, icon.src.slice(BASE.length));
+    const bytes = await fs.readFile(file);
+    assert.deepEqual([...bytes.subarray(0, 8)], [0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a], 'real PNG');
+    const [size] = icon.sizes.split('x').map(Number);
+    assert.equal(bytes.readUInt32BE(16), size, `${icon.src} is not ${icon.sizes}`);
+    assert.equal(bytes.readUInt32BE(20), size);
+  }
+});
+
+test('the offline offer is honest and gates nothing', async () => {
+  const hub = await read('index.html');
+  assert.match(hub, /Save all tools for offline/);
+  assert.match(hub, /Nothing is uploaded either way/);
+  // Still no request about a visit leaving the device: the worker fetches
+  // pages, and pages only.
+  assert.ok(!/fetch\(|XMLHttpRequest|sendBeacon/.test(hub));
+});
+
+test('the offline widget is hidden unless the browser can honour it', async () => {
+  const hub = await read('index.html');
+  assert.match(hub, /id="offline-box" hidden/);
+  assert.match(hub, /box\.hidden = false/);
+});
+
+test('the worker can be withdrawn from devices that already have it', async () => {
+  // A service worker outlives the deploy that installed it, so reverting a
+  // commit is not on its own a way to take one back. This is the lever that is.
+  const outDir = await fs.mkdtemp(path.join(os.tmpdir(), 'pages-killswitch-'));
+  await buildSite({ outDir, baseUrl: BASE, disableWorker: true });
+  const sw = await fs.readFile(path.join(outDir, 'sw.js'), 'utf8');
+
+  assert.match(sw, /registration\.unregister\(\)/);
+  assert.match(sw, /caches\.delete/);
+  assert.ok(!/BUNDLE/.test(sw), 'the withdrawn worker caches nothing');
+});
+
+test('taking the offline offer is counted the same private way as everything else', async () => {
+  const hub = await read('index.html');
+  assert.match(hub, /record\('offline_offer_shown'\)/);
+  assert.match(hub, /record\(data\.failed \? 'offline_saved_partial' : 'offline_saved'\)/);
+  // record() is the function that honours the opt-out and DNT/GPC; counting
+  // must not route around it.
+  assert.ok(!/localStorage\.setItem\(KEY/.test(hub.split("record('offline_offer_shown')")[1] || ''));
+});
+
+test('changing the worker itself changes the cache name', async () => {
+  // Otherwise a fix to the worker's own logic ships under the old cache name,
+  // no old cache is deleted, and every existing visitor keeps being served the
+  // previous behaviour from cache indefinitely.
+  const outDir = await fs.mkdtemp(path.join(os.tmpdir(), 'pages-version-'));
+  const built = await buildSite({ outDir, baseUrl: BASE });
+  const rebuilt = await addOfflineSupport({
+    outDir,
+    base: BASE,
+    surfaces: built.surfaces,
+    codeVersion: 'pretend the worker was edited',
+  });
+  assert.notEqual(rebuilt.cacheName, built.offline.cacheName);
+});
+
+// ---------------------------------------------------------------------------
+// A stale real origin, as opposed to the placeholder
+//
+// Three ventures wrote today's Pages address into their canonical tags as a
+// literal rather than using `example.invalid`. That is invisible while the
+// site is served from exactly that URL, and wrong the moment `PAGES_BASE_URL`
+// points somewhere else — which is the whole reason that variable exists.
+//
+// Sitemaps are immune (they are regenerated from what published); canonicals
+// are copied through, so they are not.
+// ---------------------------------------------------------------------------
+
+test('no canonical tag names an origin other than the one the site was built with', async () => {
+  // The suite builds at https://example.test/site/, deliberately not the
+  // default — so a hardcoded production origin shows up here and nowhere else.
+  const { outDir } = await site();
+  const offenders = [];
+
+  for (const file of (await walk(outDir)).filter((f) => f.endsWith('.html'))) {
+    const html = await fs.readFile(file, 'utf8');
+    const canonical = /<link\b[^>]*\brel="canonical"[^>]*\bhref="([^"]+)"/i.exec(html);
+    if (canonical && /^https?:/i.test(canonical[1]) && !canonical[1].startsWith(BASE)) {
+      offenders.push(`${path.relative(outDir, file)} -> ${canonical[1]}`);
+    }
+  }
+
+  assert.deepEqual(offenders, [],
+    `these canonicals ignore the base URL the site was built with:\n${offenders.join('\n')}`);
 });
 
 // ---------------------------------------------------------------------------
@@ -853,4 +1442,18 @@ test('injected head tags do not disturb the page they land in', async () => {
   assert.equal((html.match(/<\/head>/gi) ?? []).length, 1);
   assert.equal((html.match(/<body[^>]*>/gi) ?? []).length, 1);
   assert.ok(html.includes('calc.mjs'), 'the calculator still loads its own module');
+});
+
+test('the availability clause is supplied only where a venture lacks its own', async () => {
+  const { surfaces } = await site();
+  // A venture that words the clause itself must not be given a second one in
+  // different prose — two availability statements on one page is how a reader
+  // stops believing either.
+  const own = await read('janitorial-bid-calculator', 'index.html');
+  const supplied = (own.match(/Best-effort hosting/gi) ?? []).length;
+  assert.ok(supplied <= 1, `${supplied} availability clauses on one page`);
+
+  // And the build's own copy says what the playbook requires it to say.
+  const injected = await read(surfaces[0].slug, 'index.html');
+  assert.match(injected, /no warranty|Best-effort hosting/i);
 });
