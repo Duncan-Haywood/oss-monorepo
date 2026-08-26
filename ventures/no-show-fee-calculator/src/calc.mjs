@@ -50,7 +50,9 @@ export function parseInputs(raw) {
   const noticeHours = num("noticeHours", "Required notice window");
   const feePercent = num("feePercent", "Fee percentage");
   const enforcementRatePct = num("enforcementRatePct", "Assumed enforcement rate");
-  const depositPercent = num("depositPercent", "Booking deposit percentage");
+  // Blank deposit uses the shipped 50% default so existing share links
+  // (and a cleared field) still parse; a typed value is validated.
+  const depositPercent = optionalPercent(raw, "depositPercent", 50, "Booking deposit percentage", errors);
 
   if (price < 0) errors.push("Appointment price cannot be negative.");
   if (bookingsPerWeek < 0) errors.push("Bookings per week cannot be negative.");
@@ -58,7 +60,6 @@ export function parseInputs(raw) {
   if (!isFiniteNonNegative(noticeHours)) errors.push("Required notice window cannot be negative.");
   if (!isFinitePercent(feePercent)) errors.push("Fee percentage must be between 0 and 100.");
   if (!isFinitePercent(enforcementRatePct)) errors.push("Assumed enforcement rate must be between 0 and 100.");
-  if (!isFinitePercent(depositPercent)) errors.push("Booking deposit percentage must be between 0 and 100.");
 
   // Overflow cost is optional: a cleared field means "cost one session,"
   // which is the conservative default for a double-booked chair. An

@@ -78,6 +78,19 @@ test("parseInputs rejects out-of-range percentages", () => {
   assert.equal(result.errors.length, 4);
 });
 
+test("parseInputs defaults a missing deposit so older share links still parse", () => {
+  const result = parseInputs({
+    price: "75",
+    bookingsPerWeek: "20",
+    noShowRatePct: "8",
+    noticeHours: "24",
+    feePercent: "100",
+    enforcementRatePct: "70",
+  });
+  assert.equal(result.ok, true);
+  assert.equal(result.values.depositPercent, 50);
+});
+
 test("parseInputs rejects non-numeric input", () => {
   const result = parseInputs({
     price: "abc",
@@ -582,7 +595,12 @@ const VALID_RAW = {
   depositPercent: "50",
 };
 
-for (const field of Object.keys(VALID_RAW)) {
+// depositPercent is optional (defaults to 50%) so older share links still
+// parse. The required-field loop covers only inputs that must be typed.
+const REQUIRED_RAW = { ...VALID_RAW };
+delete REQUIRED_RAW.depositPercent;
+
+for (const field of Object.keys(REQUIRED_RAW)) {
   test(`parseInputs rejects an empty ${field} rather than reading it as zero`, () => {
     const result = parseInputs({ ...VALID_RAW, [field]: "" });
     assert.equal(result.ok, false);
