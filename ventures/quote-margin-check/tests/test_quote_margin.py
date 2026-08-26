@@ -5,7 +5,7 @@ import tempfile
 import unittest
 from pathlib import Path
 
-from src.quote_margin import batch_csv_report, billing_model_note, billing_model_summary, calculate, compare_billing_models, csv_report, discount_ask_scenarios, load_quote, load_reports, main
+from src.quote_margin import batch_csv_report, billing_model_note, billing_model_summary, calculate, change_order_price, compare_billing_models, csv_report, discount_ask_scenarios, load_quote, load_reports, main
 
 
 class QuoteMarginTests(unittest.TestCase):
@@ -126,3 +126,17 @@ class QuoteMarginTests(unittest.TestCase):
         self.assertIn("3105.00", note)
         self.assertIn("more than", note)
         self.assertIn("not a recommendation", note)
+
+    def test_prices_extra_scope_at_the_quote_target_rate(self) -> None:
+        quote = load_quote({"price": 2400, "delivery_hours": 24, "target_hourly_rate": 75})
+        self.assertEqual(
+            change_order_price(quote, 4, 60),
+            {"extra_hours": 4.0, "extra_direct_costs": 60.0, "target_price": 360.0},
+        )
+
+    def test_rejects_invalid_change_order_inputs(self) -> None:
+        quote = load_quote({"price": 1000, "delivery_hours": 10, "target_hourly_rate": 100})
+        with self.assertRaises(ValueError):
+            change_order_price(quote, -1)
+        with self.assertRaises(ValueError):
+            change_order_price(quote, 1, float("inf"))

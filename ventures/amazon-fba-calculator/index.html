@@ -348,6 +348,7 @@
         <dt>Break-even sale price</dt><dd id="breakEven"></dd>
         <dt>Max buy cost</dt><dd id="maxBuy"></dd>
         <dt>Price for target margin</dt><dd id="targetMarginPrice"></dd>
+        <dt>Sourcing check</dt><dd id="buyCheck"></dd>
         <dt>FBA vs FBM</dt><dd id="advantage"></dd>
         <dt>Profit before returns</dt><dd id="profitBeforeReturns"></dd>
         <dt>Return drag</dt><dd id="returnDrag"></dd>
@@ -718,6 +719,7 @@
       applyPlacementPreset,
       applyStoragePreset,
       calculateListing,
+      buyCostCheck,
       compareBulkBuy,
       compareCoupons,
       compareInboundPlacement,
@@ -916,6 +918,13 @@
         document.getElementById("maxBuy").textContent = money(result.selected.breakEvenBuyCost);
         document.getElementById("targetMarginPrice").textContent = Number.isFinite(result.selected.targetMarginPrice)
           ? money(result.selected.targetMarginPrice) : "unreachable";
+        const buyCheck = buyCostCheck(result, readInput().costOfGoods);
+        const checkCopy = buyCheck.status === "above_ceiling"
+          ? `${money(-buyCheck.headroom)} above the selected path's zero-profit ceiling`
+          : buyCheck.status === "at_ceiling"
+            ? "exactly at the selected path's zero-profit ceiling"
+            : `${money(buyCheck.headroom)} of headroom before the selected path reaches zero profit`;
+        document.getElementById("buyCheck").textContent = checkCopy;
         const extra = result.fbaAdvantage;
         document.getElementById("advantage").textContent =
           extra > 0 ? `${money(extra)} more with FBA` : extra < 0 ? `${money(-extra)} more with FBM` : "same profit";
@@ -1087,7 +1096,7 @@
         document.getElementById("profit").textContent = error.message;
         document.getElementById("profit").className = "hero-number error";
         document.getElementById("label").textContent = "fix the inputs to see a result";
-        ["revenue", "fees", "invested", "margin", "roi", "breakEven", "maxBuy", "targetMarginPrice", "advantage", "profitBeforeReturns", "returnDrag", "breakEvenReturnRate", "returnsSummary", "planVerdict", "lowPriceSummary", "lowPriceBreakEven", "lowPriceWinner", "mcfSummary", "mcfBreakEven", "mcfWinner", "bulkSummary", "bulkBreakEven", "bulkExtraCash", "bulkWinner", "prepSummary", "prepBreakEven", "prepWinner", "placementSummary", "placementVerdict", "placementWinner", "placementCarry"].forEach((id) => {
+        ["revenue", "fees", "invested", "margin", "roi", "breakEven", "maxBuy", "targetMarginPrice", "buyCheck", "advantage", "profitBeforeReturns", "returnDrag", "breakEvenReturnRate", "returnsSummary", "planVerdict", "lowPriceSummary", "lowPriceBreakEven", "lowPriceWinner", "mcfSummary", "mcfBreakEven", "mcfWinner", "bulkSummary", "bulkBreakEven", "bulkExtraCash", "bulkWinner", "prepSummary", "prepBreakEven", "prepWinner", "placementSummary", "placementVerdict", "placementWinner", "placementCarry"].forEach((id) => {
           document.getElementById(id).textContent = "";
         });
         document.getElementById("compare").innerHTML = "";
@@ -1174,6 +1183,7 @@
         localStorage,
         document.getElementById("usageOptOut").checked,
         id === "targetMargin" ? "target_margin_calculated"
+          : id === "costOfGoods" ? "sourcing_check_used"
           : id === "fbmHandlingCost" ? "fbm_labor_calculated"
           : id === "monthlySellerFee" || id === "individualPerUnit" || id === "monthlyUnits"
             ? "seller_plan_compared"

@@ -485,6 +485,21 @@ export function calculateListing(input) {
   };
 }
 
+// Turns the selected path's max-buy calculation into a sourcing checkpoint.
+// Arithmetic comparison only — not a recommendation to purchase.
+export function buyCostCheck(result, costOfGoods) {
+  const cost = number(costOfGoods, "Cost of goods");
+  const maxBuy = result.selected.breakEvenBuyCost;
+  const headroom = maxBuy - cost;
+  return {
+    cost,
+    maxBuy,
+    headroom,
+    status: headroom > 0 ? "below_ceiling" : headroom < 0 ? "above_ceiling" : "at_ceiling",
+    targetMarginPrice: result.selected.targetMarginPrice,
+  };
+}
+
 // Expected unit economics after a share of orders come back. A successful
 // sale keeps the current path result. A return refunds the sale and the
 // referral (Amazon typically does), keeps the outbound fulfillment or FBM
