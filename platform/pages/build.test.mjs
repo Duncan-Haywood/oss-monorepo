@@ -25,8 +25,11 @@ import {
   relatedTools,
   upToRoot,
   renderHub,
+  pageUrlPath,
+  renderFavicon,
   renderRobots,
   renderSitemapIndex,
+  renderVentureSitemap,
   searchTokens,
   truncate,
   REPO_ROOT,
@@ -63,6 +66,48 @@ function hrefTarget(href, fromFile, outDir) {
     : path.resolve(path.dirname(fromFile), href);
   return href.endsWith('/') ? path.join(resolved, 'index.html') : resolved;
 }
+
+const exists = (target) => fs.access(target).then(() => true, () => false);
+
+/** The path component of a base URL, without the leading slash. */
+const pathOf = (baseUrl) => new URL(baseUrl).pathname.replace(/^\//, '');
+
+/** Every `.html` file in the built site, relative to its root. */
+async function allPages(dir, prefix = '') {
+  const entries = await fs.readdir(dir, { withFileTypes: true });
+  const pages = [];
+  for (const entry of entries) {
+    const relative = prefix ? `${prefix}/${entry.name}` : entry.name;
+    if (entry.isDirectory()) pages.push(...(await allPages(path.join(dir, entry.name), relative)));
+    else if (entry.name.endsWith('.html')) pages.push(relative);
+  }
+  return pages;
+}
+
+/**
+ * Every `<loc>` across the whole sitemap tree — the index and each sitemap it
+ * names — as site-root-relative paths. Checking only the root sitemap would
+ * pass while every venture underneath it pointed somewhere that 404s.
+ */
+async function sitemapUrlPaths() {
+  const { outDir } = await site();
+  const paths = new Set();
+
+  const collect = async (relative) => {
+    const file = path.join(outDir, relative);
+    if (!(await exists(file))) return;
+    for (const [, loc] of (await fs.readFile(file, 'utf8')).matchAll(/<loc>([^<]+)<\/loc>/g)) {
+      const urlPath = new URL(loc).pathname.replace(/^\//, '');
+      if (urlPath.endsWith('sitemap.xml') || urlPath.endsWith('sitemap-hub.xml')) {
+        await collect(urlPath.slice(pathOf(BASE).length));
+      } else {
+        paths.add(urlPath);
+      }
+    }
+  };
+
+  await collect('sitemap.xml');
+  return paths;}
 
 // ---------------------------------------------------------------------------
 // Discovery
@@ -218,6 +263,49 @@ test('the hub carries the required disclaimers and privacy line', async () => {
  */
 const visibleCopy = (hub) => hub.replace(/ data-search="[^"]*"/g, '');
 
+test('every published page carries both liability clauses, not just the hub', async () => {
+  // PRODUCT_PLAYBOOK.md 5b requires the no-warranty clause AND the no-SLA
+  // clause on every hosted surface. Until this site existed the second one was
+  // arguably moot -- nothing was hosted -- and eighteen pages across nine
+  // ventures shipped without any availability statement at all. The moment the
+  // owner flips `GITHUB_PAGES_ENABLED` all of them are hosted surfaces, so the
+  // clause is checked here, where a new landing page cannot slip past it.
+  //
+  // Matched loosely on purpose: several ventures word the clause in their own
+  // voice ("Hosted URLs, when they exist, carry no availability SLA"), and
+  // demanding the playbook's exact prose would force a rewrite of correct
+  // pages rather than catch a missing one.
+  const { outDir, surfaces } = await site();
+  const warranty = /no warranty/i;
+  const noSla = /best-effort hosting|no (availability )?sla|carry no availability|taken offline without notice/i;
+
+  const missing = [];
+  let checked = 0;
+  for (const surface of surfaces) {
+    for (const page of await htmlPagesUnder(path.join(outDir, surface.slug))) {
+      const markup = await fs.readFile(page, 'utf8');
+      const relative = path.relative(outDir, page);
+      checked += 1;
+      if (!warranty.test(markup)) missing.push(`${relative} (no-warranty)`);
+      if (!noSla.test(markup)) missing.push(`${relative} (no-SLA)`);
+    }
+  }
+
+  // A silently-empty walk would make the assertion above pass for free.
+  assert.ok(checked > 100, `only ${checked} page(s) checked`);
+  assert.deepEqual(missing, [], `pages missing a required clause:\n${missing.join('\n')}`);
+});
+
+async function htmlPagesUnder(dir) {
+  const found = [];
+  for (const entry of await fs.readdir(dir, { withFileTypes: true })) {
+    const full = path.join(dir, entry.name);
+    if (entry.isDirectory()) found.push(...(await htmlPagesUnder(full)));
+    else if (entry.name.endsWith('.html')) found.push(full);
+  }
+  return found;
+}
+
 test('the sponsor ask is optional and does not gate anything', async () => {
   const hub = await read('index.html');
   assert.match(hub, /github\.com\/sponsors\//);
@@ -285,14 +373,83 @@ test('robots.txt points at a sitemap that reaches the hub and every venture', as
   assert.ok(hubMap.includes(`<loc>${BASE}</loc>`));
 });
 
-test('a tool without its own sitemap is still listed', async () => {
-  const surfaces = [
-    { slug: 'has-one', hasSitemap: true },
-    { slug: 'has-none', hasSitemap: false },
-  ];
-  const index = renderSitemapIndex(surfaces, BASE);
-  assert.ok(index.includes(`${BASE}has-one/sitemap.xml`));
-  assert.ok(!index.includes('has-none/sitemap.xml'), 'do not point at a sitemap that is not there');
+test('the index points at a sitemap for every published tool', async () => {
+  const { surfaces } = await site();
+  const index = await read('sitemap.xml');
+
+  assert.ok(index.includes(`${BASE}sitemap-hub.xml`), 'the hub page needs a crawlable home');
+  for (const surface of surfaces) {
+    assert.ok(
+      index.includes(`${BASE}${surface.slug}/sitemap.xml`),
+      `${surface.slug} is served but its sitemap is not in the index`,
+    );
+  }
+});
+
+// Organic search is the whole acquisition route for these tools, so the two
+// ways a sitemap can quietly fail both get a test over the real artifact.
+
+test('every page the site serves is listed in some sitemap', async () => {
+  const listed = await sitemapUrlPaths();
+  const { outDir } = await site();
+
+  const orphans = [];
+  for (const page of await allPages(outDir)) {
+    if (page === '404.html') continue;
+    const candidates = [`/${page}`];
+    if (page.endsWith('/index.html')) candidates.push(`/${page.slice(0, -'index.html'.length)}`);
+    if (page === 'index.html') candidates.push('/');
+    if (!candidates.some((c) => listed.has(pathOf(BASE) + c.slice(1)))) orphans.push(page);
+  }
+
+  assert.deepEqual(orphans, [], 'served but invisible to crawlers');
+});
+
+test('every sitemap URL resolves to a page that shipped', async () => {
+  const { outDir } = await site();
+  const dead = [];
+
+  for (const urlPath of await sitemapUrlPaths()) {
+    const relative = urlPath.slice(pathOf(BASE).length);
+    // A sitemap index lists sitemaps; a urlset lists pages. Both must exist.
+    const target = relative === '' ? 'index.html' : relative.endsWith('/') ? `${relative}index.html` : relative;
+    if (!(await exists(path.join(outDir, target)))) dead.push(urlPath);
+  }
+
+  assert.deepEqual(dead, [], 'a sitemap URL that 404s is worse than no sitemap at all');
+});
+
+test('a generated sitemap lists directories, not index.html', () => {
+  const xml = renderVentureSitemap('tool', ['index.html', 'compare.html', 'guides/index.html'], BASE);
+  assert.ok(xml.includes(`<loc>${BASE}tool/</loc>`));
+  assert.ok(xml.includes(`<loc>${BASE}tool/compare.html</loc>`));
+  assert.ok(xml.includes(`<loc>${BASE}tool/guides/</loc>`));
+  assert.ok(!xml.includes('index.html'), 'index.html is served as its directory');
+});
+
+test('pageUrlPath maps a published file to the URL it is served at', () => {
+  assert.equal(pageUrlPath('tool', 'index.html'), 'tool/');
+  assert.equal(pageUrlPath('tool', 'compare.html'), 'tool/compare.html');
+  assert.equal(pageUrlPath('tool', 'nested/index.html'), 'tool/nested/');
+});
+
+test('a favicon is emitted, because every page requests one whether or not it links one', async () => {
+  const { outDir } = await site();
+  const ico = await fs.readFile(path.join(outDir, 'favicon.ico'));
+
+  // ICO header: reserved 0, type 1 (icon), one image.
+  assert.deepEqual([...ico.subarray(0, 6)], [0, 0, 1, 0, 1, 0]);
+  assert.equal(ico[6], 16, 'width');
+  assert.equal(ico[7], 16, 'height');
+  // The payload is a PNG, and its signature must survive the offset arithmetic
+  // in the directory entry -- get that wrong and browsers show nothing at all
+  // while the file still looks fine on disk.
+  const offset = ico.readUInt32LE(18);
+  assert.deepEqual([...ico.subarray(offset, offset + 8)], [0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]);
+});
+
+test('the favicon is byte-identical on every build', () => {
+  assert.deepEqual(renderFavicon(), renderFavicon());
 });
 
 test('.nojekyll is emitted so Pages serves the tree verbatim', async () => {
@@ -467,38 +624,15 @@ test('the query drops exactly the words the index dropped', async () => {
   assert.ok(html.includes('word.length >= 2'), 'query must drop single characters as the index does');
 });
 
-test('the site root serves a favicon every page can fall back to', async () => {
-  // Browsers request /favicon.ico from the origin root with or without a link
-  // tag, so its absence was a 404 and a console error on all 35 pages. The
-  // tools are other ventures' markup, which this build does not edit — one file
-  // at the root is what covers them.
-  const icon = await fs.readFile(path.join((await site()).outDir, 'favicon.ico'));
-
-  assert.equal(icon.readUInt16LE(0), 0, 'ICO reserved field');
-  assert.equal(icon.readUInt16LE(2), 1, 'ICO type must be icon, not cursor');
-  assert.equal(icon.readUInt16LE(4), 1, 'one image');
-
-  const width = icon[6];
-  const height = icon[7];
-  const declaredSize = icon.readUInt32LE(14);
-  const offset = icon.readUInt32LE(18);
-  assert.equal(width, 32);
-  assert.equal(height, 32);
-  // A byte count that disagrees with the file is the failure that makes a
-  // browser quietly show a blank tab rather than error.
-  assert.equal(
-    offset + declaredSize,
-    icon.length,
-    'declared image size must account for the whole file',
-  );
-  assert.equal(icon.readUInt32LE(offset), 40, 'BITMAPINFOHEADER size');
-  assert.equal(icon.readInt32LE(offset + 8), 64, 'height field counts image plus AND mask');
-});
-
-test('every published page points at that favicon', async () => {
-  // The href is root-absolute because pages sit at several depths, and it
-  // carries the site's path prefix because a project site is not at the origin
-  // root. Getting either wrong is a broken icon on every page, silently.
+test('every published page links the favicon, not just the site root', async () => {
+  // The generated icon sits at the *published tree's* root. On a project site
+  // the browser's automatic /favicon.ico request goes to the origin root
+  // instead — a different place this repo does not serve — so without a link
+  // written into each page the icon is emitted and never fetched.
+  //
+  // The href is root-absolute because pages sit at several depths, and carries
+  // the site's path prefix for the same reason. Getting either wrong is a
+  // broken icon on every page, silently.
   assert.equal(faviconHref('https://example.test/site/'), '/site/favicon.ico');
   assert.equal(faviconHref('https://example.test'), '/favicon.ico');
 
