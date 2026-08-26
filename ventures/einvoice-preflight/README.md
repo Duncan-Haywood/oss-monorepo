@@ -20,7 +20,8 @@ cd ventures/einvoice-preflight
 # (INV-037 and INV-038), buyer/seller electronic addresses
 # (INV-039 through INV-041), invoice period start/end
 # (INV-042 and INV-043), and payment means vs IBAN
-# (INV-044 through INV-046).
+# (INV-044 through INV-046), and buyer / purchase-order
+# references (INV-047 through INV-049).
 PYTHONPATH=src python3 -m einvoice_preflight examples/valid-invoice.json
 PYTHONPATH=src python3 -m einvoice_preflight examples/valid-credit-note.json
 PYTHONPATH=src python3 -m einvoice_preflight examples/valid-mixed-rate.json
@@ -82,6 +83,8 @@ arithmetic check, not a tax-law determination:
   "issue_date": "2026-08-24",
   "due_date": "2026-09-23",
   "period": {"start": "2026-07-01", "end": "2026-07-31"},
+  "buyer_reference": "COST-441",
+  "order_reference": "PO-9001",
   "document_type": "invoice",
   "currency": "EUR",
   "supplier": {"id": "DE123", "name": "Supplier GmbH", "vat_id": "DE136695976", "endpoint": {"scheme": "0088", "id": "1234567890128"}},
@@ -197,6 +200,17 @@ and optional `TaxCategory/ID` as `tax_category`).
 earlier than `issue_date`; this is a date-shape and document-consistency check,
 not a judgment about payment terms or legal requirements. UBL `DueDate` is
 mapped into the same optional field.
+
+`buyer_reference` and `order_reference` are optional (EN 16931 BT-10 /
+BT-13). When supplied they must be non-empty text, not a placeholder such
+as `N/A` or `none`, and no longer than 70 characters. An empty or
+placeholder buyer reference is `INV-047`. The same defects on the
+purchase-order field are `INV-048`. A purchase-order value that repeats
+the invoice number is `INV-049`. Omitted references stay clean. Messages
+never repeat the typed reference. This is a shape and consistency check,
+not a Peppol profile determination and not a claim that the buyer issued
+that order. UBL `BuyerReference` maps into `buyer_reference` and
+`OrderReference/ID` maps into `order_reference`.
 
 `period` is optional. When supplied it is `{ "start": "YYYY-MM-DD", "end":
 "YYYY-MM-DD" }` — the EN 16931 invoice period (BT-73 / BT-74). A period that

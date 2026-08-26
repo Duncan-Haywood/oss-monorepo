@@ -265,7 +265,20 @@ export function parseUblInvoice(source) {
   if (breakdown.length) invoice.tax_breakdown = breakdown;
   const period = invoicePeriod(root);
   if (period) invoice.period = period;
+  Object.assign(invoice, commercialReferences(root));
   return invoice;
+}
+
+function commercialReferences(root) {
+  const extras = {};
+  for (const child of root.children) {
+    if (child.name === "BuyerReference") {
+      extras.buyer_reference = (child.text || "").trim();
+    } else if (child.name === "OrderReference") {
+      extras.order_reference = textOf(child, "ID", false);
+    }
+  }
+  return extras;
 }
 
 function invoicePeriod(root) {

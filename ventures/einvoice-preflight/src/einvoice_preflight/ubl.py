@@ -137,6 +137,7 @@ def parse_ubl_invoice(source: bytes | str) -> dict[str, Any]:
     period = _invoice_period(root)
     if period:
         invoice["period"] = period
+    invoice.update(_commercial_references(root))
     return invoice
 
 
@@ -199,6 +200,18 @@ def _document_exemption(root: ElementTree.Element) -> dict[str, str]:
             reason_code = _text(category, "TaxExemptionReasonCode", required=False)
             if reason_code and "tax_exemption_reason_code" not in extras:
                 extras["tax_exemption_reason_code"] = reason_code
+    return extras
+
+
+def _commercial_references(root: ElementTree.Element) -> dict[str, str]:
+    """Map invoice-level BuyerReference and OrderReference/ID when present."""
+    extras: dict[str, str] = {}
+    for child in list(root):
+        tag = child.tag.rsplit("}", 1)[-1]
+        if tag == "BuyerReference":
+            extras["buyer_reference"] = (child.text or "").strip()
+        elif tag == "OrderReference":
+            extras["order_reference"] = _text(child, "ID", required=False)
     return extras
 
 

@@ -20,12 +20,14 @@ test("browser page is discoverable and names the user job", () => {
   assert.match(page, /INV-039 through INV-041/);
   assert.match(page, /INV-042 and INV-043/);
   assert.match(page, /INV-044 through INV-046/);
+  assert.match(page, /INV-047 through INV-049/);
   assert.match(page, /Load a credit note without a reference/);
   assert.match(page, /Load a 0% line without a reason/);
   assert.match(page, /Load mixed rates without a breakdown/);
   assert.match(page, /Load a buyer GLN that fails its check/);
   assert.match(page, /Load a period that ends before it starts/);
   assert.match(page, /Load a SEPA transfer without an IBAN/);
+  assert.match(page, /Load a PO that repeats the invoice number/);
 });
 
 test("disclaimer and optional sponsors are visible", () => {
