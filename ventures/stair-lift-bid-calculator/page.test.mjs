@@ -7,10 +7,19 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
+import {
+  compareAccess,
+  accessNote,
+  suggestedRailKit,
+  suggestedChairKit,
+  suggestedAttachKit,
+  suggestedExtraKit,
+} from './calc.mjs';
 
 const html = readFileSync(new URL('./index.html', import.meta.url), 'utf8');
 const seo = readFileSync(new URL('./how-much-to-charge-to-install-a-stair-lift.html', import.meta.url), 'utf8');
 const supplySeo = readFileSync(new URL('./should-i-install-a-customer-supplied-stair-lift.html', import.meta.url), 'utf8');
+const accessSeo = readFileSync(new URL('./should-i-expedite-a-stair-lift-for-hospital-discharge.html', import.meta.url), 'utf8');
 
 const RAW_TEXT_ELEMENTS = ['textarea', 'script', 'style'];
 
@@ -53,6 +62,8 @@ test('the module script survives parsing and would actually execute', () => {
   assert.match(scriptSource, /compareChair/, 'chair comparison is missing from the executable script');
   assert.match(scriptSource, /compareOwnerSupply/, 'owner-supply comparison is missing from the executable script');
   assert.match(scriptSource, /ownerSupplyNote/, 'owner-supply verdict is missing from the executable script');
+  assert.match(scriptSource, /compareAccess/, 'access comparison is missing from the executable script');
+  assert.match(scriptSource, /accessNote/, 'access verdict is missing from the executable script');
   assert.match(scriptSource, /formatBidSummary/, 'copy-summary helper is missing from the executable script');
 });
 
@@ -70,7 +81,7 @@ test('inputs and result fields for the primary journey are present', () => {
   for (const id of [
     'rail', 'chair', 'attach', 'liftCount', 'travelMiles',
     'hourlyWage', 'targetMargin', 'proposedPrice',
-    'price', 'breakEven', 'compare', 'chairs', 'supply', 'supplyNote', 'copySummary', 'usageOptOut', 'jobPresets',
+    'price', 'breakEven', 'compare', 'chairs', 'supply', 'supplyNote', 'access', 'accessNote', 'copySummary', 'usageOptOut', 'jobPresets',
   ]) {
     assert.ok(declaredIds.has(id), `missing #${id}`);
   }
@@ -85,6 +96,8 @@ test('the landing page names the problem in the contractor\'s words', () => {
   assert.match(html, /vs standard/);
   assert.match(html, /Same stair, who bought the lift/);
   assert.match(html, /should-i-install-a-customer-supplied-stair-lift\.html/);
+  assert.match(html, /Same stair, when they need it/);
+  assert.match(html, /should-i-expedite-a-stair-lift-for-hospital-discharge\.html/);
 });
 
 test('disclaimer and privacy line are visible, not only in the README', () => {
@@ -103,6 +116,8 @@ test('the SEO article answers the search phrase and points back to the calculato
   assert.match(seo, /No warranty/);
   assert.match(seo, /wheelchair ramp/i);
   assert.match(seo, /should-i-install-a-customer-supplied-stair-lift\.html/);
+  assert.match(seo, /Hospital discharge is not the weekday bid/);
+  assert.match(seo, /should-i-expedite-a-stair-lift-for-hospital-discharge\.html/);
 });
 
 test('the owner-supply article answers the search phrase and stays crawlable', () => {
@@ -118,4 +133,53 @@ test('the owner-supply article answers the search phrase and stays crawlable', (
 
 test('the landing page links the customer-supplied lift question', () => {
   assert.match(html, /should-i-install-a-customer-supplied-stair-lift\.html/);
+});
+
+test('the discharge article quotes the cheap-special and curved-rail arithmetic', () => {
+  const kit = {
+    ...suggestedRailKit('straight-one'),
+    ...suggestedChairKit('standard'),
+    ...suggestedAttachKit('wood'),
+    ...suggestedExtraKit(),
+  };
+  const rows = compareAccess({
+    liftCount: 1,
+    rail: 'straight-one',
+    chair: 'standard',
+    attach: 'wood',
+    travelMiles: 8,
+    includeFoldingRail: false,
+    includeExtraCharge: false,
+    includeCircuit: false,
+    includeRemoveExisting: false,
+    includePermit: false,
+    includeWeatherKit: false,
+    hourlyWage: 42,
+    burdenRate: 30,
+    overheadRate: 15,
+    targetMargin: 20,
+    travelAndEquipment: 95,
+    otherCost: 0,
+    ...kit,
+  }, { installOnlyPrice: 4500 });
+  const afterHours = rows.find((row) => row.access === 'after-hours');
+  assert.equal(afterHours.installOnly.belowBreakEven, true);
+  assert.match(accessNote(rows), /\$854\.39/);
+  assert.match(accessSeo, /Should I expedite a stair lift for hospital discharge/i);
+  assert.match(accessSeo, /FAQPage/);
+  assert.match(accessSeo, /\$4,500/);
+  assert.match(accessSeo, /\$854\.39/);
+  assert.match(accessSeo, /\$5,354\.39/);
+  assert.match(accessSeo, /\$5,333\.37/);
+  assert.match(accessSeo, /\$6,190\.67/);
+  assert.match(accessSeo, /\$6,692\.99/);
+  assert.match(accessSeo, /\$20,983\.85/);
+  assert.match(accessSeo, /\$23,222\.14/);
+  assert.match(accessSeo, /\$18,577\.71/);
+  assert.match(accessSeo, /\$3,995/);
+  assert.match(accessSeo, /next-day/i);
+  assert.match(accessSeo, /index\.html/);
+  assert.match(accessSeo, /No warranty/);
+  assert.match(accessSeo, /no SLA/i);
+  assert.doesNotMatch(accessSeo, /<textarea/i);
 });
