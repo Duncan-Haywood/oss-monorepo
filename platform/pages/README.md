@@ -67,26 +67,20 @@ origin root is read), and `node_modules`. `LICENSE` files are kept.
 - **Crawlability.** A root `robots.txt`, a `sitemap.xml` index covering the hub
   and every venture's own sitemap, a `404.html`, and `.nojekyll` (without which
   Pages silently drops any directory starting with `_`).
-- **The one-way street out of the hub.** Every venture was written as a
-  standalone site, so nothing in one links to anything outside itself. Assembled
-  under one origin, that left the hub — the only page listing all 36 tools —
-  reachable from the front door alone, while search engines land people on the
-  deep pages (`should-i-offer-free-shipping-on-etsy.html`) that were written to
-  rank. A visitor arriving that way found one calculator and never learned the
-  other 35 existed. The build appends a small footer to every published page:
-  four sibling tools plus a link to the hub.
+- **Dead ends.** Every venture page was written as a standalone site, so none of
+  them linked to any other. The hub linked down into 33 tools and nothing linked
+  back or across: someone arriving from a search result at
+  `does-subscribe-and-save-still-pay.html` saw one calculator and had no route to
+  the other 32. The build injects a bar at the top of every published page ("←
+  All N free tools") and a footer offering four sibling tools — same category
+  first — plus the hub and the optional sponsor link.
 
-  Siblings come from the same category first and **rotate** by slug rather than
-  always taking the first four, so internal links spread across all 36 tools
-  instead of funnelling into whichever sort first, and a returning visitor is
-  offered something different. Links are relative, so they survive a path
-  prefix, a custom domain, or `python3 -m http.server`. The footer sets no
-  colours of its own — it inherits the host page, and so follows whatever theme
-  that tool already has.
-
-  Injected at build time rather than written into 36 ventures: product code
-  stays standalone, a new venture gets it on its first push, and the links
-  cannot disagree with the hub because both come from the same discovery pass.
+  It is injected at build time rather than committed into each venture for two
+  reasons. A calculator lands on `main` most days and injection covers each new
+  one for free. And venture pages are edited concurrently by other sessions, so
+  a nav bar written into ~180 product files would conflict with nearly every
+  open branch. Markup is scoped under `.pf-chrome` so it cannot restyle a
+  venture's page, and the pass is idempotent.
 
 ## Deploying
 
@@ -113,15 +107,6 @@ Only one workflow may publish to Pages. `retail-pilot-intel-deploy-docs.yml`
 reads `RETAIL_PILOT_INTEL_PAGES` instead, so an owner who wants those docs on
 the origin makes that choice explicitly rather than having two deployments race.
 
-After deploying, the job **fetches the public URL** and fails if the hub, a
-product page, the sitemap, or `robots.txt` does not answer `200` with this
-site's content. A green `deploy-pages` only means the artifact was accepted:
-Pages can accept a deployment and still serve a 404 while the first publish
-propagates, and a wrong `PAGES_BASE_URL` produces a site that builds, deploys,
-and then serves canonical tags and sitemaps pointing somewhere nobody can
-reach. The current priority is a URL a stranger can open, so the run does not
-go green on anything less than having opened it.
-
 ## Rollback
 
 The site is rebuilt from `main` on every push and holds no state — no database,
@@ -137,6 +122,13 @@ is uploaded, because there is no server that could receive it. The hub counts
 anonymous aggregate events (a visit, which tool slugs were opened) in the
 visitor's own `localStorage`, with an in-page opt-out, and counts nothing at all
 when the browser sends Do Not Track or Global Privacy Control.
+
+The injected chrome counts on the same terms and under the same key and opt-out:
+`tool_viewed:<slug>` when a page loads and `cross_tool_click:<slug>` when a
+visitor follows the nav. Until then the hub was the only page that counted
+anything, so a visitor arriving from search straight at a deep SEO page — the
+traffic those pages exist for — was invisible. Nothing is transmitted: there is
+no `fetch`, no beacon, and the counts never leave the device.
 
 The hub carries the no-warranty and no-SLA copy from `PRODUCT_PLAYBOOK.md` §5b,
 required on every hosted surface, plus an optional GitHub Sponsors link that

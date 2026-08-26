@@ -12,6 +12,7 @@ import {
   compareAgedWfs,
   compareTwoDay,
   compareReturns,
+  compareWalmartAds,
   cubicFeet,
   DEFAULT_REFERRAL_MINIMUM,
   defaultFulfillmentFee,
@@ -19,8 +20,10 @@ import {
   RETURNS_DEFAULTS,
   STORAGE_PRESETS,
   TWO_DAY_DEFAULTS,
+  WALMART_ADS_DEFAULTS,
   twoDayNote,
   returnsNote,
+  walmartAdsNote,
 } from "./calc.mjs";
 
 const near = (actual, expected, msg) =>
@@ -347,4 +350,58 @@ test("exports the aged WFS defaults the page starts from", () => {
   assert.equal(AGED_WFS_DEFAULTS.agedStorageRate, STORAGE_PRESETS.long_term.perCuFt);
   assert.equal(AGED_WFS_DEFAULTS.removalFee, 1.25);
   assert.equal(AGED_WFS_DEFAULTS.disposalFee, 0.35);
+});
+
+test("skipping Walmart Connect still beats 15% ACOS after last-click on organic", () => {
+  const r = compareWalmartAds(base);
+  const listing = calculateListing({ ...base, adsPerUnit: 0 });
+  const organic = listing.selected.profit;
+  const adSpend = 24.99 * 0.15;
+  const billed = 60 * 0.4 + 12;
+
+  near(r.organicProfit, organic, "organic leftover ignores a typed ads line");
+  near(r.skip.cash, 60 * organic, "skip cash");
+  near(r.sponsored.adSpend, billed * adSpend, "sponsored bill");
+  near(r.sponsored.cash, 60 * organic + 12 * organic - billed * adSpend, "sponsored cash");
+  assert.equal(r.winner, "skip");
+  near(r.skip.cash, 518.99, "locked skip cash");
+  near(r.sponsored.cash, 487.842, "locked sponsored cash");
+  near(r.higher.cash, 384.41633333333334, "locked higher-ACOS cash");
+  near(r.extraSponsoredVsSkip, -31.147999999999968, "locked ads gap");
+  near(r.breakEvenAcosPct, 11.537726201591749, "locked ACOS ceiling");
+  near(r.breakEvenExtraAdUnits, 18.355005440696406, "locked extra-unit floor");
+  near(r.breakEvenAttributedOrganicPct, 26.150904806366995, "locked attribution ceiling");
+  assert.match(walmartAdsNote(r), /keeps \$31\.15 more/);
+  assert.match(walmartAdsNote(r), /\$518\.99 vs \$487\.84/);
+  assert.match(walmartAdsNote(r), /11\.5%/);
+});
+
+test("an 8% ACOS flips Sponsored Products ahead of skipping ads", () => {
+  const r = compareWalmartAds({ ...base, acosPct: 8 });
+  assert.equal(r.winner, "sponsored");
+  near(r.extraSponsoredVsSkip, 31.82680000000005, "locked ACOS flip");
+  assert.match(walmartAdsNote(r), /keeps \$31\.83 more/);
+});
+
+test("does not leak a typed adsPerUnit into the organic leftover", () => {
+  const baseline = compareWalmartAds(base);
+  const overridden = compareWalmartAds({ ...base, adsPerUnit: 9 });
+  near(overridden.organicProfit, baseline.organicProfit, "adsPerUnit is forced to zero");
+  near(overridden.skip.cash, baseline.skip.cash, "skip cash stays organic");
+});
+
+test("rejects invalid ACOS, attribution, and zero volume", () => {
+  assert.throws(() => compareWalmartAds({ ...base, acosPct: 101 }), /at most 100/);
+  assert.throws(() => compareWalmartAds({ ...base, attributedOrganicPct: 101 }), /at most 100/);
+  assert.throws(() => compareWalmartAds({ ...base, monthlyUnits: 0 }), /greater than zero/);
+  assert.throws(() => walmartAdsNote({}), /missing rows/);
+});
+
+test("exports the Walmart Connect defaults the page starts from", () => {
+  assert.equal(WALMART_ADS_DEFAULTS.acosPct, 15);
+  assert.equal(WALMART_ADS_DEFAULTS.extraAdUnits, 12);
+  assert.equal(WALMART_ADS_DEFAULTS.attributedOrganicPct, 40);
+  assert.equal(WALMART_ADS_DEFAULTS.highAcosPct, 25);
+  assert.equal(WALMART_ADS_DEFAULTS.highExtraAdUnits, 22);
+  assert.equal(WALMART_ADS_DEFAULTS.highAttributedOrganicPct, 50);
 });
