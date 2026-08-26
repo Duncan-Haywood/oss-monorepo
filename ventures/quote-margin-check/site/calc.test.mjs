@@ -1,7 +1,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 
-import { loadQuote, calculate, overrunScenarios, directCostSpikeScenarios, directCostSpikeSummary } from "./calc.mjs";
+import { loadQuote, calculate, overrunScenarios, directCostSpikeScenarios, directCostSpikeSummary, discountAskScenarios, discountAskSummary } from "./calc.mjs";
 
 test("calculates hidden time and target price", () => {
   const quote = loadQuote({
@@ -140,6 +140,77 @@ test("a quote with no direct costs is unchanged by a cost rise", () => {
     assert.equal(row.extra_gap, 0);
   }
   assert.match(directCostSpikeSummary(quote, report), /does not change/);
+});
+
+test("compares a client discount ask without changing hours or direct costs", () => {
+  const quote = loadQuote({
+    price: 2400,
+    delivery_hours: 24,
+    admin_hours: 5,
+    revision_hours: 6,
+    overhead: 180,
+    subcontractor_cost: 300,
+    target_hourly_rate: 75,
+  });
+  const report = calculate(quote);
+  const rows = discountAskScenarios(quote, report);
+  assert.deepEqual(rows.map((row) => row.percent), [0, 5, 10, 15, 20]);
+  assert.equal(rows[0].discounted_price, 2400);
+  assert.equal(rows[0].effective_hourly_rate, report.effective_hourly_rate);
+  assert.equal(rows[0].gap_to_target, -705);
+  assert.equal(rows[0].extra_gap, 0);
+  assert.ok(Math.abs(rows[0].hours_at_target - 25.6) < 1e-9);
+  assert.ok(Math.abs(rows[0].hours_to_cut - 9.4) < 1e-9);
+
+  assert.equal(rows[2].discounted_price, 2160);
+  assert.equal(rows[2].cost_coverage, 1680);
+  assert.equal(rows[2].effective_hourly_rate, 48);
+  assert.equal(rows[2].gap_to_target, -945);
+  assert.equal(rows[2].extra_gap, -240);
+  assert.ok(Math.abs(rows[2].hours_at_target - 22.4) < 1e-9);
+  assert.ok(Math.abs(rows[2].hours_to_cut - 12.6) < 1e-9);
+
+  assert.equal(report.total_hours, 35);
+  assert.equal(report.direct_costs, 480);
+});
+
+test("discount-ask summary names the hours that would have to leave", () => {
+  const quote = loadQuote({
+    price: 2400,
+    delivery_hours: 24,
+    admin_hours: 5,
+    revision_hours: 6,
+    overhead: 180,
+    subcontractor_cost: 300,
+    target_hourly_rate: 75,
+  });
+  const report = calculate(quote);
+  assert.match(
+    discountAskSummary(quote, report),
+    /10% off.*2160\.00.*54\.86.*48\.00.*cutting 12\.60 hours/,
+  );
+});
+
+test("a discount that still clears the target needs no scope cut", () => {
+  const quote = loadQuote({ price: 2000, delivery_hours: 10, target_hourly_rate: 100 });
+  const report = calculate(quote);
+  const ten = discountAskScenarios(quote, report).find((row) => row.percent === 10);
+  assert.equal(ten.discounted_price, 1800);
+  assert.equal(ten.effective_hourly_rate, 180);
+  assert.equal(ten.hours_to_cut, 0);
+  assert.match(discountAskSummary(quote, report), /no scope cut is required/);
+});
+
+test("a discount that no longer covers direct costs cannot be fixed by cutting hours", () => {
+  const quote = loadQuote({ price: 1000, delivery_hours: 10, overhead: 800, target_hourly_rate: 80 });
+  const report = calculate(quote);
+  const fifty = discountAskScenarios(quote, report, [50]).find((row) => row.percent === 50);
+  assert.equal(fifty.discounted_price, 500);
+  assert.equal(fifty.cost_coverage, -300);
+  assert.equal(fifty.effective_hourly_rate, -30);
+  assert.equal(fifty.hours_at_target, null);
+  assert.equal(fifty.hours_to_cut, null);
+  assert.match(discountAskSummary(quote, report, discountAskScenarios(quote, report, [50])), /no longer covers/);
 });
 
 test("a steep cost rise can leave nothing after direct costs", () => {

@@ -53,6 +53,14 @@ target rate. See
 The table is arithmetic on the figures you typed, not a forecast of supplier
 prices.
 
+A third table keeps hours and direct costs fixed and knocks 5%, 10%, 15%,
+and 20% off the quoted price. That answers the “can you do 10%?” email:
+what effective rate is left, and how many hours of scope would have to
+leave to still hit the supplied target rate. See
+[`site/if-they-ask-for-10-percent-off.html`](site/if-they-ask-for-10-percent-off.html).
+The table is arithmetic on the figures you typed, not a negotiation
+script or a pricing recommendation.
+
 **No warranty.** This tool is provided free and as-is, without warranty of any
 kind, express or implied. It is not tax, financial, or business advice, and it
 does not replace a qualified professional. **You are responsible for reviewing
@@ -75,7 +83,8 @@ stop changing, skips the pre-filled example on first load, and ignores a repeat
 of a quote it already counted. Reading it as "reports", not "keystrokes", is
 what makes it comparable to the CLI's own count. The browser also counts
 `quote_review_checked` locally when a valid quote is reviewed, and
-`cost_spike_compared` when the cost-rise table is computed; it stores no quote
+`cost_spike_compared` when the cost-rise table is computed, and
+`discount_ask_compared` when the discount-ask table is computed; it stores no quote
 values and sends nothing anywhere.
 
 ## Input
