@@ -5861,3 +5861,43 @@ ventures:
       Pass: only public http(s) URLs, private/loopback ranges are refused,
       failed fetches stay inconclusive, and the product is an evidence feed
       rather than a compliance determination.
+  - slug: spray-foam-bid-calculator
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 7
+      gross_margin: 10
+      defensibility: 5
+      distribution: 7
+    composite: 6.667
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      There is no AI anywhere in the product. The value is a domain model --
+      sprayed plane to board feet by depth, open versus closed versus hybrid
+      cell yield, the closed-cell rim as lineal feet times joist height times
+      inches, and ignition coating on exposed foam -- that is arithmetic, and
+      adding inference to it would only make the result less checkable.
+    basis: >-
+      Graduated on 2026-08-26 as a browser-local spray-foam insulation bid
+      calculator. Distinct from attic-insulation-bid-calculator (blown-in bags
+      and R-delta above a ceiling) and from crawl-space-encapsulation-bid-calculator
+      (liner and sealed encapsulate as the job): this one prices board feet,
+      which is square feet times inches, so the same attic floor at 3" and at 8"
+      are different jobs -- plus the closed-cell rim and the ignition coating
+      that a published "$3.50 / sf of attic" special written for bags cannot
+      see. Distribution 7: "how much to charge for spray foam insulation" and
+      "spray foam board foot calculator" are operator-intent queries bought by
+      a crew with a rig booked, and the incumbents are paid estimating suites
+      or manufacturer yield charts rather than a free walk-away price.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Pass: the output is arithmetic on the contractor's own inputs, never a
+      recommended price, an energy-code or ignition-barrier determination, a
+      manufacturer yield guarantee, or an engineering stamp. The shipped cell
+      yields, waste percents, and coating rates are labelled ballpark starting
+      points rather than a standard, and nothing the user enters leaves the
+      browser.

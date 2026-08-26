@@ -19,7 +19,8 @@ is uploaded. **Copy decision summary** writes leftover profit, margin, max buy,
 and FBA vs FBM into the clipboard.
 
 **After using this, you can now see whether FBA or FBM leaves more on a real
-SKU, the most you can pay a supplier for that unit, whether staying under
+SKU, the most you can pay a supplier for that unit, the highest ACOS each
+path can still carry, whether staying under
 Amazon’s Low-Price FBA threshold still beats a real raise, and whether a
 coupon still hits your target after the redemption fee, whether
 Subscribe & Save still pays when only some units enroll, whether a
