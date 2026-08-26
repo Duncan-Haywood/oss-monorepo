@@ -432,6 +432,9 @@ workflows:
 - workflow: portfolio-validate.yml
   classification: none
   publishes: []
+- workflow: pressure-washing-bid-calculator-ci.yml
+  classification: none
+  publishes: []
 - workflow: print-atelier-ci.yml
   classification: none
   publishes: []

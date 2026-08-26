@@ -3321,3 +3321,16 @@ products:
           dump ticket, special item fees, walk-away vs half-truck special).
           Public URL remains owner-gated; the browser counter is local and
           opt-out. Baseline row.
+
+  - slug: pressure-washing-bid-calculator
+    surface: static-page-in-repo
+    readings:
+      - as_of: 2026-08-26
+        signals:
+          live_url_visitors: null
+          local_events_reported: 0
+        note: >-
+          Repair-and-merge of unique #1074 pressure-washing bid calculator
+          onto current main (surfaces, travel, setup, after-travel hourly).
+          Public URL remains owner-gated; the browser counter is local,
+          opt-out, and honors DNT/GPC. Baseline row.
