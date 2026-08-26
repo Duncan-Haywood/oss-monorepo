@@ -18,6 +18,11 @@ test('the worksheet exposes the partial-offer compare and counts it once', () =>
   assert.match(page, /id="releaseSection"/);
   assert.match(page, /id="share"/);
   assert.match(page, /retainage-cashflow:link-copies/);
+  assert.match(page, /compareRetainageRates/);
+  assert.match(page, /id="rateSection"/);
+  assert.match(page, /id="typicalHoldDays"/);
+  assert.match(page, /What bid keeps the same cash coming in\?/);
+  assert.match(page, /retainage-cashflow:rate-compared/);
   const headerBlock = page.slice(page.indexOf('id="partialReleaseTable"'));
   const headers = [...headerBlock.matchAll(/<th scope="col">([^<]+)<\/th>/g)].map((m) => m[1]);
   assert.deepEqual(headers, [
