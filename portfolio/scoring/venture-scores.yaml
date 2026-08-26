@@ -4066,6 +4066,41 @@ ventures:
       finding, or a mold determination. The shipped hours are labelled
       ballpark starting points rather than a standard or benchmark, and
       nothing the user enters leaves the browser.
+  - slug: exterior-painting-bid-calculator
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 7
+      gross_margin: 10
+      defensibility: 5
+      distribution: 7
+    composite: 6.667
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      There is no AI anywhere in the product. The value is a domain model —
+      extra stories, extra elevation, scrape, primer, and trim as their own
+      hours — that is arithmetic, and adding inference to it would only
+      make the result less checkable.
+    basis: >-
+      Graduated on 2026-08-25 as a browser-local exterior painting bid
+      calculator. Distinct from interior painting (rooms, walls, and
+      ceilings) and from cabinet refinishing (doors and drawers). This
+      prices an exterior paint *job*: the elevation, the stories, the
+      scrape, and the trim. Distribution 7: "how much to charge to paint
+      the exterior of a house" and "exterior painting bid calculator" are
+      lower-volume than marketplace-fee queries but bought by an operator
+      with a real job on the line.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Pass: the output is arithmetic on the contractor's own inputs, never a
+      recommended price, a wage determination, a lead-paint finding, or a
+      building-code opinion. The shipped hours are labelled ballpark starting
+      points rather than a standard or benchmark, and nothing the user
+      enters leaves the browser.
 
   - slug: seller-net-sheet
     scores:
@@ -4082,20 +4117,13 @@ ventures:
     floor_note: >-
       There is no AI anywhere in the product. The value is a post-NAR
       cost model — listing pay, buyer-broker compensation, and
-      concessions as separate lines — that is arithmetic, and adding
-      inference would only make the result less checkable.
+      concessions as separate lines — that is arithmetic.
     basis: >-
-      Graduated on 2026-08-24 as a browser-local seller net sheet.
-      Distinct from marketplace-fee and trade-bid calculators: this
-      models cash at closing after the NAR settlement made buyer-broker
-      pay a negotiated concession. Distribution 8: "seller net sheet"
-      and "higher offer vs cleaner offer" are listing-appointment
-      queries. Defensibility 5: incumbents are paid closing estimators,
-      not a free two-offer comparison.
+      Graduated on 2026-08-24 as a browser-local seller net sheet after
+      NAR made buyer-broker pay a negotiated concession.
     gates:
       liability_containment: pass
       ethical_robustness: pass
     gate_note: >-
-      Pass: the output is arithmetic on the user's own inputs, never a
-      closing disclosure, a tax opinion, or advice to accept or counter
-      an offer. Nothing the user enters leaves the browser.
+      Pass: arithmetic on user inputs, never a closing disclosure or
+      advice to accept an offer. Nothing leaves the browser.
