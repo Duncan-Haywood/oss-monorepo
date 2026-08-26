@@ -16,6 +16,7 @@ import {
   categoryFor,
   discoverSurfaces,
   injectChrome,
+  NO_SLA_PATTERN,
   listFiles,
   relatedTools,
   upToRoot,
@@ -718,6 +719,35 @@ test('a lone tool advertises no siblings and still renders', () => {
   assert.ok(html.includes('data-pf-to="hub"'));
 });
 
+// The clause is injected rather than required of each venture because the
+// requirement can otherwise only be discovered after the venture is on `main`.
+// Three ventures shipped without it in one day; these two tests are what stop
+// a fourth from turning `main` red.
+
+test('a page with no availability clause is given one', () => {
+  const html = injectChrome('<html><head></head><body>calculator</body></html>', {
+    slug: 'x',
+    toRoot: '../',
+    total: 2,
+    related: [],
+  });
+  assert.match(html, /Best-effort hosting, no SLA/);
+  assert.match(html, NO_SLA_PATTERN);
+});
+
+test('a page that writes its own availability clause is not given a second', () => {
+  // The wording a venture uses is its own; two notices are worse than one.
+  const own = '<p>Hosted URLs, when they exist, carry no availability SLA.</p>';
+  const html = injectChrome(`<html><head></head><body>${own}</body></html>`, {
+    slug: 'x',
+    toRoot: '../',
+    total: 2,
+    related: [],
+  });
+  assert.ok(!html.includes('pf-sla'), 'the venture already says it');
+  assert.ok(html.includes(own), 'and its own wording survives');
+});
+
 test('the chrome escapes venture copy', () => {
   const html = injectChrome('<html><head></head><body>x</body></html>', {
     slug: 'x',
@@ -770,6 +800,36 @@ test('publishable JSON that a page actually needs is still copied', () => {
   assert.equal(isPublishable('package.json'), false);
   assert.equal(isPublishable('site.webmanifest'), true);
   assert.equal(isPublishable('rates.json'), true);
+});
+
+// ---------------------------------------------------------------------------
+// A stale real origin, as opposed to the placeholder
+//
+// Three ventures wrote today's Pages address into their canonical tags as a
+// literal rather than using `example.invalid`. That is invisible while the
+// site is served from exactly that URL, and wrong the moment `PAGES_BASE_URL`
+// points somewhere else — which is the whole reason that variable exists.
+//
+// Sitemaps are immune (they are regenerated from what published); canonicals
+// are copied through, so they are not.
+// ---------------------------------------------------------------------------
+
+test('no canonical tag names an origin other than the one the site was built with', async () => {
+  // The suite builds at https://example.test/site/, deliberately not the
+  // default — so a hardcoded production origin shows up here and nowhere else.
+  const { outDir } = await site();
+  const offenders = [];
+
+  for (const file of (await walk(outDir)).filter((f) => f.endsWith('.html'))) {
+    const html = await fs.readFile(file, 'utf8');
+    const canonical = /<link\b[^>]*\brel="canonical"[^>]*\bhref="([^"]+)"/i.exec(html);
+    if (canonical && /^https?:/i.test(canonical[1]) && !canonical[1].startsWith(BASE)) {
+      offenders.push(`${path.relative(outDir, file)} -> ${canonical[1]}`);
+    }
+  }
+
+  assert.deepEqual(offenders, [],
+    `these canonicals ignore the base URL the site was built with:\n${offenders.join('\n')}`);
 });
 
 // ---------------------------------------------------------------------------

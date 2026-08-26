@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { loadQuote, calculate, overrunScenarios, directCostSpikeScenarios, discountAskScenarios, loadKillFeeProgress, compareKillFee } from "./calc.mjs";
+import { loadQuote, calculate, overrunScenarios, directCostSpikeScenarios, discountAskScenarios, compareBillingModels, loadKillFeeProgress, compareKillFee } from "./calc.mjs";
 import { csvCell, quoteCsv } from "./export.mjs";
 
 test("leaves ordinary CSV cells unchanged", () => {
@@ -19,6 +19,8 @@ test("exports stable spreadsheet rows and quotes currency labels safely", () => 
   const csv = quoteCsv(quote, calculate(quote));
   assert.match(csv, /^measure,value,unit\nquoted_price,1000\.00,"USD, ""local"""/);
   assert.match(csv, /effective_hourly_rate,100\.00,"USD, ""local""\/hour"/);
+  assert.match(csv, /hourly_bill_at_planned_hours,1000\.00,"USD, ""local"""/);
+  assert.match(csv, /hourly_minus_fixed_at_planned_hours,0\.00,"USD, ""local"""/);
   assert.doesNotMatch(csv, /discount_/);
   assert.doesNotMatch(csv, /kill_/);
 });
@@ -43,9 +45,13 @@ test("includes discount, cost-rise, overrun, and kill-fee rows when supplied", (
   const csv = quoteCsv(quote, report, {
     overrunRows: overrunScenarios(quote, report),
     spikeRows: directCostSpikeScenarios(quote, report),
+    billingRows: compareBillingModels(quote, report),
     discountRows: discountAskScenarios(quote, report),
     compared,
   });
+  assert.match(csv, /hourly_bill_at_planned_hours,3105\.00,USD/);
+  assert.match(csv, /hourly_minus_fixed_at_planned_hours,705\.00,USD/);
+  assert.match(csv, /hourly_50_bill,4417\.50,USD/);
   assert.match(csv, /discount_10_price,2160\.00,USD/);
   assert.match(csv, /discount_10_hours_to_cut,12\.60,hours/);
   assert.match(csv, /overrun_25_hours,43\.75,hours/);

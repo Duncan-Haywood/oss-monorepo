@@ -23350,6 +23350,7 @@ entries:
         merged one in a real browser instead: 33 tools listed, search,
         primary journey, crawlability, and 288 files with zero dangling
         internal references.
+    mrr_end: null
   - venture: cut-list-optimizer
     agent_spend_usd: null
     human_hours: 0
@@ -23438,4 +23439,55 @@ entries:
         session because it compares added lines exactly and the survivors had
         reworded the same facts -- the flag is about wording, not capability,
         and each close says so rather than hiding it.
+    mrr_end: null
+  - venture: portfolio-pages
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Shipped #1738: the Pages deploy job is now gated on
+        `github.ref == 'refs/heads/main'`, and the workflow fetches the real
+        public URL after deploying -- front page, both sitemaps, robots.txt,
+        one product -- failing on any non-200 or a sitemap.xml served without
+        an index. `workflow_dispatch` runs against any branch, so the old gate
+        would have published the live site from a feature branch. Also landed
+        `journey.mjs` (from #1723): a browser pass over the hub, search and
+        its empty state, the usage opt-out across a reload, a click into a
+        calculator, a cross-product link, sitemap sampling, the 404, and a
+        375px viewport. Ran it for real against the built artifact over HTTP
+        before merging -- 17/17, zero console errors.
+      - >-
+        The finding that started the session: the artifact one owner flip from
+        being public was handing crawlers sitemaps that mostly did not work.
+        53 of 216 `<loc>` values were bare relative paths, which sitemaps.org
+        forbids, so a crawler discards the entire file -- 15 of 35 ventures
+        silently unindexed. 14 more carried a `ventures/` segment the site
+        does not serve, so every URL 404d. 70 published pages were in no
+        sitemap at all. None of it turns anything red: the site builds, each
+        sitemap looks plausible by eye, and the pages just never get indexed.
+        Organic search is the portfolio's whole acquisition plan, so this was
+        worth more than another calculator.
+      - >-
+        The expensive lesson is duplication, not the defect. FOUR sessions
+        found and fixed the same sitemap and disclaimer gaps inside about
+        forty minutes -- #1723, #1736, this one, and a fourth that landed the
+        no-SLA injection while the PR for it was being written. Three of the
+        four fixes were wasted work. What made the difference was checking
+        `main` and the other branch *before* writing, not after: reading
+        #1723's diff showed its generate-from-output approach beat the
+        rewrite-in-place one already written here, so that implementation was
+        dropped rather than defended, and only the part nothing else covered
+        was shipped. Two PRs opened this session were closed as genuinely
+        superseded, each verified by reading the survivor rather than assuming.
+      - >-
+        Chasing per-page compliance loses to the merge rate. `main` went red
+        three times in half an hour on the PRODUCT_PLAYBOOK 5b no-SLA clause:
+        #1731 fixed 20 pages, #1763 fixed 8 more that landed after it, and 2
+        more were already uncovered by the time that merged. A calculator
+        lands here most days, so the sweep can never catch up and each sweep
+        conflicts with the open branches editing those same product files.
+        Injecting the clause at build time -- only where the page does not
+        already word it itself -- ends the recurrence, which is the same
+        reasoning the nav chrome already used and which a fourth session
+        reached independently.
     mrr_end: null

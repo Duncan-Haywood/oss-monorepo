@@ -296,6 +296,56 @@ export function killFeeSummary(quote, report, progress, compared = compareKillFe
   );
 }
 
+/**
+ * Side-by-side billing-model comparison at the same hours and direct costs.
+ *
+ * Fixed keeps the quoted price (you eat extra hours). Hourly bills those
+ * hours at the supplied target rate plus the same direct costs (the client
+ * pays the extra hours). Planned hours (0%) is included so the table answers
+ * "is this fixed quote already a discount vs hourly?" not only the overrun
+ * case already covered by overrunScenarios().
+ */
+export function compareBillingModels(quote, report, percentages = [0, 10, 25, 50]) {
+  return percentages.map((percent) => {
+    const hours = report.total_hours * (1 + percent / 100);
+    const hourly_total = hours * quote.target_hourly_rate + report.direct_costs;
+    return {
+      percent,
+      total_hours: hours,
+      fixed_effective_rate: (quote.price - report.direct_costs) / hours,
+      hourly_total,
+      hourly_minus_fixed: hourly_total - quote.price,
+    };
+  });
+}
+
+/** Planned-hours comparison used by the page summary and CLI. */
+export function billingModelSummary(quote, report) {
+  const planned = compareBillingModels(quote, report, [0])[0];
+  return {
+    ...planned,
+    fixed_is_below_hourly: planned.hourly_minus_fixed > 0,
+  };
+}
+
+/** One-line arithmetic observation for planned hours. */
+export function billingModelNote(quote, report, planned = billingModelSummary(quote, report)) {
+  const currency = quote.currency;
+  const hourly = `${currency} ${planned.hourly_total.toFixed(2)}`;
+  if (Math.abs(planned.hourly_minus_fixed) < 1e-9) {
+    return (
+      `At planned hours, hourly at the supplied target would bill the same as this ` +
+      `fixed quote (${hourly}). Comparison only, not a recommendation of which to send.`
+    );
+  }
+  const gap = `${currency} ${Math.abs(planned.hourly_minus_fixed).toFixed(2)}`;
+  const direction = planned.hourly_minus_fixed > 0 ? "more than" : "less than";
+  return (
+    `At planned hours, hourly at the supplied target would bill ${hourly} — ` +
+    `${gap} ${direction} this fixed quote. Comparison only, not a recommendation of which to send.`
+  );
+}
+
 /** One-line arithmetic observation for the default +25% cost-rise row. */
 export function directCostSpikeSummary(quote, report, rows = directCostSpikeScenarios(quote, report)) {
   if (report.direct_costs === 0) {
