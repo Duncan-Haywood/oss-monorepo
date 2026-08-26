@@ -261,6 +261,9 @@ workflows:
 - workflow: shopify-permission-drift-ci.yml
   classification: none
   publishes: []
+- workflow: skylight-install-bid-calculator-ci.yml
+  classification: none
+  publishes: []
 - workflow: sod-install-bid-calculator-ci.yml
   classification: none
   publishes: []
