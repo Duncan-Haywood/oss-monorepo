@@ -4,10 +4,10 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>eBay Fee &amp; Profit Calculator | Reseller Margin and ROI</title>
-  <meta name="description" content="Calculate eBay order profit, margin, ROI, and break-even resale price after fees, shipping, and cost of goods — then see what a return rate still leaves, and compare nearby listing prices before you reprice.">
+  <meta name="description" content="Calculate eBay order profit, margin, ROI, and break-even resale price after fees, shipping, and cost of goods — then see what a return rate still leaves, whether auction beats Buy It Now after sell-through, and compare nearby listing prices before you reprice.">
   <meta property="og:title" content="eBay Fee &amp; Profit Calculator">
-  <meta property="og:description" content="See what an eBay sale really leaves after fees, cost of goods, and the returns that eat the label.">
-  <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"eBay Fee & Profit Calculator","applicationCategory":"BusinessApplication","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"featureList":"eBay fee breakdown, net profit, margin, return on investment, break-even resale price, target-margin price, batch profit, expected profit after returns, repricing sensitivity table"}</script>
+  <meta property="og:description" content="See what an eBay sale really leaves after fees, cost of goods, returns, and auction versus Buy It Now sell-through.">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"eBay Fee & Profit Calculator","applicationCategory":"BusinessApplication","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"featureList":"eBay fee breakdown, net profit, margin, return on investment, break-even resale price, target-margin price, batch profit, expected profit after returns, auction vs Buy It Now after sell-through, repricing sensitivity table"}</script>
   <style>
     :root { color-scheme: light; font-family: system-ui, sans-serif; color: #1d2530; background: #eef2f7; }
     body { max-width: 980px; margin: 0 auto; padding: 32px 18px; }
@@ -28,6 +28,7 @@
        "vs your price" column on screen on a phone. */
     .sensitivity table.single-unit .unit { display: none; }
     .sensitivity table.no-returns .after-returns { display: none; }
+    .sensitivity tr.winner { background: #e7f6ea; }
     .sensitivity th, .sensitivity td { padding: 9px 6px; text-align: right; border-bottom: 1px solid #e2e8f0; font-variant-numeric: tabular-nums; } .sensitivity th:first-child, .sensitivity td:first-child { text-align: left; }
     .sensitivity thead th { font-size: .8rem; letter-spacing: .03em; color: #4a5666; } .sensitivity tr.current { background: #eaf1fc; font-weight: 700; } .sensitivity .down { color: #a3391f; } .sensitivity .up { color: #1c6b34; }
     footer { margin-top: 25px; font-size: .82rem; color: #4a5666; } footer a { color: #386fd6; }
@@ -39,7 +40,7 @@
   <header>
     <p class="eyebrow">FOR EBAY RESELLERS</p>
     <h1>Know what each sale really leaves.</h1>
-    <p>Enter your eBay fees, shipping, and what you paid for the item to see net profit, margin, return on your invested cash, and the lowest resale price that still breaks even. Then see what a realistic return rate still leaves — the outbound label and return postage usually stay with you — and compare nearby listing prices before you reprice.</p>
+    <p>Enter your eBay fees, shipping, and what you paid for the item to see net profit, margin, return on your invested cash, and the lowest resale price that still breaks even. Then see what a realistic return rate still leaves — the outbound label and return postage usually stay with you — whether an auction still beats Buy It Now after sell-through, and nearby listing prices before you reprice.</p>
   </header>
   <main>
     <div class="layout">
@@ -61,6 +62,14 @@
           <label>Expected return rate (%) <input id="returnRatePercent" type="number" min="0" max="100" step="0.1" value="10"></label>
           <label>Return shipping you pay <input id="returnShippingCost" type="number" min="0" step="0.01" value="5"></label>
           <label>Fees refunded on return (%) <input id="feeRefundOnReturnPercent" type="number" min="0" max="100" step="1" value="100"></label>
+          <label>Auction expected close <input id="auctionExpectedClose" type="number" min="0" step="0.01" placeholder="90% of BIN"></label>
+          <label>Buy It Now sell-through (%) <input id="binSellThroughPct" type="number" min="0" max="100" step="1" value="50"></label>
+          <label>Auction sell-through (%) <input id="auctionSellThroughPct" type="number" min="0" max="100" step="1" value="90"></label>
+          <label>Buy It Now days to sell <input id="binDaysToSell" type="number" min="0.1" step="0.1" value="21"></label>
+          <label>Auction duration (days) <input id="auctionDays" type="number" min="0.1" step="0.1" value="7"></label>
+          <label>Buy It Now insertion fee <input id="binInsertionFee" type="number" min="0" step="0.01" value="0"></label>
+          <label>Auction insertion fee <input id="auctionInsertionFee" type="number" min="0" step="0.01" value="0"></label>
+          <label>Auction promoted listings (%) <input id="auctionPromotedRate" type="number" min="0" step="0.1" value="0"></label>
         </div>
       </section>
       <section class="result">
@@ -101,14 +110,37 @@
       <h2>If some come back</h2>
       <p class="note">A completed sale can look fine and still lose money once returns start. This assumes the item comes back into inventory — so you do not lose the sourcing cost again — and that you refund the buyer. The outbound label, packaging, other cash, return postage, and any fees you do not get back stay with you. It is arithmetic from the rate you type, not a forecast of your category or a statement of eBay’s refund rules. <a href="do-ebay-returns-wipe-the-profit.html">Why a 10% return rate can erase a thin listing</a>.</p>
     </section>
+    <section class="sensitivity" id="listingFormat">
+      <h2>Auction vs Buy It Now</h2>
+      <p id="listingFormatNote" class="note">A completed auction sale is often cheaper than Buy It Now. Auctions still win when they actually sell. Expected listing profit is the sale you already calculated — including the typed return rate — times sell-through, minus the insertion fee that is sunk either way. Promoted Listings Standard stays on Buy It Now; set an auction promoted rate only if that listing uses one. <a href="should-i-list-ebay-auction-or-buy-it-now.html">Should I list this as an auction or Buy It Now?</a></p>
+      <p id="listingFormatVerdict" class="note"></p>
+      <div class="table-scroll">
+        <table id="listingFormatTable" aria-describedby="listingFormatNote">
+          <thead>
+            <tr>
+              <th scope="col">Format</th>
+              <th scope="col">Price</th>
+              <th scope="col">Sell-through</th>
+              <th scope="col">Days</th>
+              <th scope="col">If it sells</th>
+              <th scope="col">Expected after sell-through</th>
+              <th scope="col">Per day</th>
+            </tr>
+          </thead>
+          <tbody id="listingFormatRows"></tbody>
+        </table>
+      </div>
+      <p id="listingFormatEmpty" class="note" hidden>Enter a valid item price to compare auction and Buy It Now.</p>
+    </section>
   </main>
   <footer>
     <label><input id="usageOptOut" type="checkbox" style="width:auto"> Do not keep anonymous local usage counts</label>
     <p><strong>No warranty.</strong> This free tool is not tax, financial, or business advice. Verify every output and fee against your eBay account and a qualified professional before relying on it. To the maximum extent permitted by law, the authors accept no liability for loss or damage from its use.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record. If a tool needs to survive, export your inputs and run it yourself.</p>
     <p class="support">Free and open source. If it saves you time, the <a href="https://github.com/Duncan-Haywood/monorepo-projects" rel="noopener">project is on GitHub</a> — support is entirely optional and never changes what the tool does.</p>
   </footer>
   <script type="module">
-    import { calculateOrder, calculateRepricingTable, INPUT_FIELDS as ids } from './calc.mjs';
+    import { calculateOrder, calculateRepricingTable, compareListingFormat, listingFormatNote, INPUT_FIELDS as ids } from './calc.mjs';
     import { recordUsage } from './usage.mjs';
     import { decodeInputs, encodeInputs } from './share.mjs';
     const money = value => `$${value.toFixed(2)}`;
@@ -117,6 +149,7 @@
     // changed an input. Counting the table's first render instead would just
     // re-count page views, which says nothing about whether anyone used it.
     let sensitivityCounted = false;
+    let listingFormatCounted = false;
     let sellerEditedInputs = false;
     function renderScenarios(input) {
       const rows = calculateRepricingTable(input);
@@ -137,12 +170,33 @@
         recordUsage(localStorage, document.getElementById('usageOptOut').checked, 'price_sensitivity_viewed');
       }
     }
+    function renderListingFormat(input) {
+      const comparison = compareListingFormat(input);
+      document.getElementById('listingFormatRows').innerHTML = comparison.rows.map(row => `
+        <tr class="${comparison.winner === row.format ? 'winner' : ''}">
+          <td>${row.label}${comparison.winner === row.format ? ' (ahead)' : ''}</td>
+          <td>${money(row.price)}</td>
+          <td>${row.sellThroughPct}%</td>
+          <td>${row.days}</td>
+          <td class="${row.soldExpectedProfit < 0 ? 'down' : ''}">${money(row.soldExpectedProfit)}</td>
+          <td class="${row.expectedProfit < 0 ? 'down' : ''}">${money(row.expectedProfit)}</td>
+          <td class="${row.expectedProfitPerDay < 0 ? 'down' : ''}">${money(row.expectedProfitPerDay)}</td>
+        </tr>`).join('');
+      document.getElementById('listingFormatVerdict').textContent = listingFormatNote(comparison);
+      document.getElementById('listingFormatEmpty').hidden = true;
+      document.getElementById('listingFormatTable').hidden = false;
+      if (sellerEditedInputs && !listingFormatCounted) {
+        listingFormatCounted = true;
+        recordUsage(localStorage, document.getElementById('usageOptOut').checked, 'listing_format_compared');
+      }
+    }
     function readInputs() { return Object.fromEntries(ids.map(id => [id, document.getElementById(id).value])); }
     function update() {
       try {
         const input = readInputs();
         const result = calculateOrder(input);
         renderScenarios(input);
+        renderListingFormat(input);
         const profitEl = document.getElementById('profit');
         profitEl.textContent = money(result.profit);
         profitEl.className = `hero-number ${result.profit < 0 ? 'negative' : 'positive'}`;
@@ -177,6 +231,10 @@
         document.getElementById('breakEvenReturnRate').textContent = '';
         document.getElementById('scenarios').innerHTML = '';
         document.getElementById('scenariosEmpty').hidden = false;
+        document.getElementById('listingFormatRows').innerHTML = '';
+        document.getElementById('listingFormatTable').hidden = true;
+        document.getElementById('listingFormatEmpty').hidden = false;
+        document.getElementById('listingFormatVerdict').textContent = '';
       }
     }
     ids.forEach(id => document.getElementById(id).addEventListener('input', () => { sellerEditedInputs = true; update(); }));

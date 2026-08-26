@@ -28,6 +28,28 @@ test('carries expected return-rate fields so a shared link does not drop them', 
   assert.equal(restored.feeRefundOnReturnPercent, 80);
 });
 
+test('carries auction vs Buy It Now fields so a shared link does not drop them', () => {
+  const restored = decodeInputs(encodeInputs({
+    price: 40,
+    auctionExpectedClose: 36,
+    binSellThroughPct: 50,
+    auctionSellThroughPct: 90,
+    binDaysToSell: 21,
+    auctionDays: 7,
+    binInsertionFee: 0.35,
+    auctionInsertionFee: 0.35,
+    auctionPromotedRate: 2,
+  }));
+  assert.equal(restored.auctionExpectedClose, 36);
+  assert.equal(restored.binSellThroughPct, 50);
+  assert.equal(restored.auctionSellThroughPct, 90);
+  assert.equal(restored.binDaysToSell, 21);
+  assert.equal(restored.auctionDays, 7);
+  assert.equal(restored.binInsertionFee, 0.35);
+  assert.equal(restored.auctionInsertionFee, 0.35);
+  assert.equal(restored.auctionPromotedRate, 2);
+});
+
 test('round-trips known numeric inputs in stable order', () => {
   const encoded = encodeInputs({ price: 40, shippingCharged: 6, finalValueRate: 13.25 });
   assert.equal(encoded, 'price=40&shippingCharged=6&finalValueRate=13.25');
