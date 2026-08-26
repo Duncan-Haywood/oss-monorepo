@@ -1,0 +1,32 @@
+name: metal-roof-bid-calculator
+description: A private browser calculator for metal-roofing crews that prices a residential standing-seam or exposed-fastener roof from panel squares, tear-off, stories, and trim — the extras a per-square special cannot see — and shows the walk-away price below which the job loses money.
+stage: prototype
+owner: duncan
+hypotheses:
+  - claim: Metal-roofing crews will use a panel-and-trim-aware bid calculator because a published price-per-square special cannot see that a 26-square mechanical-lock tear-off on a 10/12 two-story is a different job than a 12-square 5V overlay on a 4/12 ranch.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: The walk-away price and the panel share of direct cost are the two numbers a contractor actually decides on when a prospect asks them to match a $950/square coupon, more than the job price itself.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: Switching from an exposed-fastener overlay to a mechanical-lock standing-seam tear-off with valleys and snow guards changes the resulting bid materially versus the same coupon written for roof squares, so making that panel layer a required, explained output changes the price they send.
+    status: untested
+    checked: null
+    evidence: customer-contact
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+budget:
+  monthly_cap: 1
+  protected: true
+kill_criteria:
+  - Fewer than three qualified metal-roofing contractors use the calculator twice within 90 days.
+  - Contractors report that counting panel type and trim is more work than their existing square method without changing the price they would have bid.
+  - The starting waste and panel figures prove so far from real crews' practice that the tool cannot be used without data we have no way to gather.
+links:
+  production: null
+  analytics: null

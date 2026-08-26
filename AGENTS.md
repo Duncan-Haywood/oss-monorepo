@@ -29,6 +29,11 @@ Prefer products that:
 - Can go live free and full-featured while usage is recorded
 - Need only an API key (or similar) to unlock — build the product, document the key
 
+**Deploy what is already built before starting another product.** If a
+venture on `main` still has no public URL, that deploy is the next task.
+See [`portfolio/DIRECTION.md`](portfolio/DIRECTION.md) "Current priority".
+Do not open a second `deploy-settings` ask.
+
 Use traditional software patterns. Add AI where it clearly helps; do not
 AI-wrap by default.
 
@@ -46,31 +51,34 @@ AI-wrap by default.
   wrong three times in one hour, and each time the feature existed only on the
   branch being closed.
 
-Agent-decidable (merge yourself after CI):
+**Rely on the owner as little as possible.** Merge product work. Do not
+invent a review gate.
 
-- `platform/`, `portfolio/`, docs, tests, CI — internal surfaces
+Merge yourself after CI is green:
+
+- `platform/`, `portfolio/`, docs, tests, CI
 - Usage tracking, disclaimers, free-tier features, GitHub Sponsors links
+- `ventures/*` product code. Answered 2026-08-25: yes, merge it. Do not
+  re-ask.
 
-`python3 platform/ci/publish_surface.py` currently reports nothing live on
-push to `main`. That does not make `ventures/*` app code agent-decidable
-on its own — Ask 9 (`venture-gate-premise`) is still open.
-
-Owner-only (flag only when it **blocks** product work you cannot finish):
+Only flag the owner when you cannot finish without them:
 
 - Payment collection, payout rails, live billing
 - Account registration needing card / ID / domain / bank
 - Public publishing (store listing, npm publish, production domain)
 - Unattended paid automation (scheduled jobs calling paid APIs)
-- Breaking changes to deployable `ventures/*` code
+- Pasting a secret they hold (Pages enable, deploy tokens, a GitHub PAT)
 
 See `python3 portfolio/ledger/decision_queue.py` for what the owner has
-already been asked; do not duplicate asks.
+already been asked; do not duplicate asks. Do not add "may I merge a
+product PR?"
 
 ## Every user-facing product includes
 
-1. **Liability disclaimers** — no advice-of-record, no compliance warranties.
-   Copy the wording from [`PRODUCT_PLAYBOOK.md`](PRODUCT_PLAYBOOK.md) §5b; it
-   goes in the README *and* somewhere the user sees it (footer, about, `--help`).
+1. **Liability disclaimers** — no advice-of-record, no compliance warranties,
+   and no SLA on hosted URLs. Copy the wording from
+   [`PRODUCT_PLAYBOOK.md`](PRODUCT_PLAYBOOK.md) §5b; it goes in the README
+   *and* somewhere the user sees it (footer, about, `--help`).
 2. **Usage stats** — anonymous events only (feature used, page viewed), never
    people: no PII, no IPs, no content, no analytics vendor. Rules and the file
    readings land in: [`portfolio/usage/`](portfolio/usage/README.md).
@@ -87,6 +95,11 @@ of done.
 
 ## Graduating from the pipeline
 
+If anything already on `main` still has no public URL, deploy that first
+(prepare a GitHub Pages artifact or a Hetzner product-box deploy; the
+owner flip is `deploy-settings`). See [`portfolio/hosting/`](portfolio/hosting/README.md).
+Do not add Cloudflare or Vercel. Only then:
+
 If `session_gate.py` names a `build-now` candidate, graduate it:
 
 - `graduate_as: venture` → create `ventures/<slug>/VENTURE.yaml` and build
@@ -100,15 +113,6 @@ and build.
 - Never write `fixes #N` / `closes #N` when referring to someone else's PR —
   GitHub closes the PR unmerged. Say "per #109" or "resolved the conflict on #109".
 - One logical change per commit; push branch `cursor/<name>-<id>`.
-
-When a generic product brief arrives, inspect open PRs and remote branches once,
-then spend the session on the highest-value unblocked product. Merge small,
-low-risk internal fixes when their checks are green; do not create duplicate
-work when an existing PR already contains the candidate. A red check that fails
-before executing steps is a repository/CI blocker to repair, not evidence that
-the product itself is broken. For new opportunities, prefer a narrow searchable
-workflow with deterministic value, local-first data handling, and a runnable
-vertical slice over a research-only proposal.
 
 ## Venture-specific notes
 
