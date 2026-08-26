@@ -1,0 +1,32 @@
+name: vinyl-liner-bid-calculator
+description: A private browser calculator for vinyl-liner pool crews that prices a residential liner replacement from liner square feet, hopper extra, stairs, bead, and track — the extras a water-surface special cannot see — and shows the walk-away price below which the job loses money.
+stage: prototype
+owner: duncan
+hypotheses:
+  - claim: Vinyl-liner crews will use a liner-square-foot-aware bid calculator because a published price-per-water-surface special cannot see that an 18×36 hopper oval with wedding-cake stairs is a different job than a 16×32 spoon-bottom 20-mil swap.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: The walk-away price and the liner share of direct cost are the two numbers a contractor actually decides on when a prospect asks them to match a $2,999 coupon, more than the job price itself.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: Switching from a solid 20-mil rectangle to a patterned 27-mil liner with stairs and a new bead track changes the resulting bid materially versus the same coupon written for water surface, so making that liner layer a required, explained output changes the price they send.
+    status: untested
+    checked: null
+    evidence: customer-contact
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+budget:
+  monthly_cap: 1
+  protected: true
+kill_criteria:
+  - Fewer than three qualified vinyl-liner contractors use the calculator twice within 90 days.
+  - Contractors report that counting liner square feet and stairs is more work than their existing water-surface method without changing the price they would have bid.
+  - The starting mil and waste figures prove so far from real crews' practice that the tool cannot be used without data we have no way to gather.
+links:
+  production: null
+  analytics: null
