@@ -96,6 +96,12 @@ export const INPUT_FIELDS = [
   'singlesSellThroughPct',
   'qtyTakePct',
   'monthlyQtyOrders',
+  'couponPercent',
+  'couponRedeemPct',
+  'listedSellThroughPct',
+  'couponSellThroughPct',
+  'dropSellThroughPct',
+  'monthlyCouponListings',
 ];
 
 export function calculateOrder(input) {
@@ -2276,4 +2282,254 @@ export function quantityDiscountNote(comparison) {
     ? ` On leftover, the discount has to stay at or below about ${comparison.breakEvenDiscountPercent.toFixed(1)}% off before one box matches ${comparison.units} singles.`
     : '';
   return `${singlesLine}${discountLine}${closeLine}${take}${ceiling}`;
+}
+
+/**
+ * Illustrative seller-coupon extras. 15% off is the first public
+ * coupon eBay surfaces that is not the 10% watcher offer. 40%
+ * redeem means four in ten coupon-path sales actually apply the
+ * code; the rest still pay Buy It Now. 40% vs 55% vs 50% is a
+ * typed conversion lift on listed / coupon-badge / dropped-BIN
+ * search, not scraped from Seller Hub. Forty listings is a
+ * placeholder volume, not a forecast.
+ */
+export const DEFAULT_COUPON_PERCENT = 15;
+export const DEFAULT_COUPON_REDEEM_PCT = 40;
+export const DEFAULT_LISTED_SELL_THROUGH = 40;
+export const DEFAULT_COUPON_SELL_THROUGH = 55;
+export const DEFAULT_DROP_SELL_THROUGH = 50;
+export const DEFAULT_MONTHLY_COUPON_LISTINGS = 40;
+
+function couponPriceFromPercent(listPrice, couponPercent) {
+  return Math.max(0, listPrice * (1 - couponPercent / 100));
+}
+
+function couponRow({
+  id,
+  label,
+  price,
+  redeemPct,
+  sellThroughPct,
+  soldExpectedProfit,
+  completedProfit,
+}) {
+  return {
+    id,
+    label,
+    price,
+    redeemPct,
+    sellThroughPct,
+    soldExpectedProfit,
+    completedProfit,
+    expectedProfit: soldExpectedProfit * (sellThroughPct / 100),
+    expectedProfitDelta: 0,
+  };
+}
+
+/**
+ * Same listed SKU, three ways to move one unit: keep Buy It Now,
+ * publish a seller coupon so only redeemers pay less, or drop
+ * the list so search shows the cheaper price to everyone.
+ *
+ * This is not a seller-initiated offer (private sent price to
+ * watchers, one accept rate). It is not a quantity discount
+ * (N units, one box). It is not Promoted Offsite (a campaign
+ * billed either way). The listing stays at BIN when the coupon
+ * is on; only the redeem share pays the cut. Dropping the list
+ * writes the cheaper price into sold comps. Rates are inputs,
+ * not eBay coupon policy.
+ *
+ * Open eBay PRs still own promoted Standard, store, incoming
+ * Best Offer, international, Managed Returns, and Top Rated Plus.
+ */
+export function compareSellerCoupon(input) {
+  const listedPrice = optionalNumber(input.price, 'Item price');
+  if (listedPrice === undefined) {
+    throw new Error('Item price must be a non-negative number');
+  }
+
+  const couponPercent = requiredPercent(
+    input.couponPercent,
+    'Coupon percent',
+    DEFAULT_COUPON_PERCENT,
+  );
+  const couponRedeemPct = requiredPercent(
+    input.couponRedeemPct,
+    'Coupon redeem rate',
+    DEFAULT_COUPON_REDEEM_PCT,
+  );
+  const listedSellThroughPct = requiredPercent(
+    input.listedSellThroughPct,
+    'Listed sell-through',
+    DEFAULT_LISTED_SELL_THROUGH,
+  );
+  const couponSellThroughPct = requiredPercent(
+    input.couponSellThroughPct,
+    'Coupon sell-through',
+    DEFAULT_COUPON_SELL_THROUGH,
+  );
+  const dropSellThroughPct = requiredPercent(
+    input.dropSellThroughPct,
+    'Dropped-list sell-through',
+    DEFAULT_DROP_SELL_THROUGH,
+  );
+  const monthlyCouponListings = optionalNumber(
+    input.monthlyCouponListings,
+    'Monthly coupon listings',
+    DEFAULT_MONTHLY_COUPON_LISTINGS,
+  );
+
+  const couponPrice = couponPriceFromPercent(listedPrice, couponPercent);
+  const listedSold = calculateOrder({ ...input, quantity: 1 });
+  const couponSold = calculateOrder({ ...input, quantity: 1, price: couponPrice });
+  const redeemRate = couponRedeemPct / 100;
+  const couponPacked = couponSold.expectedProfit * redeemRate
+    + listedSold.expectedProfit * (1 - redeemRate);
+  const couponCompleted = couponSold.profit * redeemRate
+    + listedSold.profit * (1 - redeemRate);
+
+  const listed = couponRow({
+    id: 'listed',
+    label: 'Stay listed at Buy It Now',
+    price: listedPrice,
+    redeemPct: 0,
+    sellThroughPct: listedSellThroughPct,
+    soldExpectedProfit: listedSold.expectedProfit,
+    completedProfit: listedSold.profit,
+  });
+  const coupon = couponRow({
+    id: 'coupon',
+    label: `Add a ${couponPercent}% coupon`,
+    price: couponPrice,
+    redeemPct: couponRedeemPct,
+    sellThroughPct: couponSellThroughPct,
+    soldExpectedProfit: couponPacked,
+    completedProfit: couponCompleted,
+  });
+  const drop = couponRow({
+    id: 'drop',
+    label: `Drop the list ${couponPercent}%`,
+    price: couponPrice,
+    redeemPct: 100,
+    sellThroughPct: dropSellThroughPct,
+    soldExpectedProfit: couponSold.expectedProfit,
+    completedProfit: couponSold.profit,
+  });
+  listed.expectedProfitDelta = listed.expectedProfit - coupon.expectedProfit;
+  coupon.expectedProfitDelta = coupon.expectedProfit - listed.expectedProfit;
+  drop.expectedProfitDelta = drop.expectedProfit - listed.expectedProfit;
+
+  const extraKeptOnCoupon = coupon.expectedProfit - listed.expectedProfit;
+  const extraPackedOnCoupon = coupon.soldExpectedProfit - listed.soldExpectedProfit;
+  const extraKeptOnDrop = drop.expectedProfit - listed.expectedProfit;
+  const extraPackedOnDrop = drop.soldExpectedProfit - listed.soldExpectedProfit;
+
+  const scored = [
+    { id: 'listed', value: listed.expectedProfit },
+    { id: 'coupon', value: coupon.expectedProfit },
+    { id: 'drop', value: drop.expectedProfit },
+  ];
+  const bestExpected = Math.max(...scored.map((row) => row.value));
+  const tied = scored.filter((row) => Math.abs(row.value - bestExpected) <= 1e-9);
+  const winner = tied.length > 1 ? 'tie' : tied[0].id;
+
+  const breakEvenCouponSellThroughPct = coupon.soldExpectedProfit <= 1e-12
+    ? (listed.expectedProfit <= 1e-12 ? 0 : Infinity)
+    : (listed.expectedProfit / coupon.soldExpectedProfit) * 100;
+
+  const packedGap = listedSold.expectedProfit - couponSold.expectedProfit;
+  let breakEvenRedeemPct = Infinity;
+  if (Math.abs(packedGap) > 1e-12) {
+    const needed = (listed.soldExpectedProfit - listedSold.expectedProfit) / -packedGap;
+    // listed leftover minus listed leftover is 0; redeem rate that
+    // matches listed leftover is 0. The useful floor is the redeem
+    // rate at which coupon leftover * coupon ST still matches listed
+    // expected — solved from mix leftover = listed expected / coupon ST.
+    const targetPacked = couponSellThroughPct <= 1e-12
+      ? Infinity
+      : listed.expectedProfit / (couponSellThroughPct / 100);
+    const redeemForTarget = (listedSold.expectedProfit - targetPacked) / packedGap;
+    breakEvenRedeemPct = redeemForTarget < -1e-9 ? Infinity : redeemForTarget * 100;
+  } else if (coupon.expectedProfit >= listed.expectedProfit - 1e-12) {
+    breakEvenRedeemPct = 100;
+  }
+
+  const atZero = calculateOrder({ ...input, quantity: 1, price: listedPrice }).expectedProfit;
+  const atTwenty = calculateOrder({
+    ...input,
+    quantity: 1,
+    price: couponPriceFromPercent(listedPrice, 20),
+  }).expectedProfit;
+  const packedSlope = (atTwenty - atZero) / 20;
+  let breakEvenCouponPercent = Infinity;
+  if (Math.abs(packedSlope) > 1e-12 && couponRedeemPct > 1e-12) {
+    // Mix leftover at percent p ≈ listed + redeem * (listed + p*slope - listed)
+    // = listed + redeem * p * slope. Match listed leftover → p = 0.
+    // Match listed expected after coupon ST:
+    const targetPacked = couponSellThroughPct <= 1e-12
+      ? Infinity
+      : listed.expectedProfit / (couponSellThroughPct / 100);
+    const needed = (targetPacked - listedSold.expectedProfit)
+      / (redeemRate * packedSlope);
+    breakEvenCouponPercent = needed < -1e-9 ? Infinity : needed;
+  }
+
+  const breakEvenDropSellThroughPct = drop.soldExpectedProfit <= 1e-12
+    ? (coupon.expectedProfit <= 1e-12 ? 0 : Infinity)
+    : (coupon.expectedProfit / drop.soldExpectedProfit) * 100;
+
+  return {
+    rows: [listed, coupon, drop],
+    listed,
+    coupon,
+    drop,
+    winner,
+    couponPercent,
+    couponRedeemPct,
+    couponPrice,
+    listedSellThroughPct,
+    couponSellThroughPct,
+    dropSellThroughPct,
+    monthlyCouponListings,
+    extraKeptOnCoupon,
+    extraPackedOnCoupon,
+    extraKeptOnDrop,
+    extraPackedOnDrop,
+    monthlyExtraOnCoupon: extraKeptOnCoupon * monthlyCouponListings,
+    monthlyExtraOnDrop: extraKeptOnDrop * monthlyCouponListings,
+    breakEvenCouponSellThroughPct,
+    breakEvenRedeemPct,
+    breakEvenCouponPercent,
+    breakEvenDropSellThroughPct,
+    couponPays: extraKeptOnCoupon > 1e-9,
+    dropPays: extraKeptOnDrop > 1e-9,
+  };
+}
+
+export function sellerCouponNote(comparison) {
+  if (!comparison?.listed || !comparison?.coupon || !comparison?.drop) {
+    throw new Error('Seller-coupon comparison is missing rows');
+  }
+  const money = (value) => {
+    const sign = value < 0 ? '-' : '';
+    return `${sign}$${Math.abs(value).toFixed(2)}`;
+  };
+  const { listed, coupon, drop } = comparison;
+  const packedGap = money(Math.abs(coupon.soldExpectedProfit - listed.soldExpectedProfit));
+  const packedAhead = coupon.soldExpectedProfit >= listed.soldExpectedProfit ? 'more' : 'less';
+  const stGap = money(Math.abs(coupon.expectedProfit - listed.expectedProfit));
+  const stAhead = coupon.expectedProfit >= listed.expectedProfit ? 'more' : 'less';
+  const dropGap = money(Math.abs(drop.expectedProfit - coupon.expectedProfit));
+  const dropAhead = drop.expectedProfit >= coupon.expectedProfit ? 'more' : 'less';
+  const listedLine = `Staying listed at ${money(listed.price)}, with every sale at Buy It Now, expects ${money(listed.soldExpectedProfit)} after the typed return rate.`;
+  const couponLine = ` A ${comparison.couponPercent}% coupon (${money(coupon.price)}) that ${comparison.couponRedeemPct}% of sales redeem expects ${money(coupon.soldExpectedProfit)} leftover — ${packedGap} ${packedAhead}.`;
+  const closeLine = ` At ${listed.sellThroughPct}% listed sell-through versus ${coupon.sellThroughPct}% with the coupon badge, listed expects ${money(listed.expectedProfit)} and the coupon expects ${money(coupon.expectedProfit)} — ${stGap} ${stAhead}.`;
+  const dropLine = ` Dropping the list to ${money(drop.price)} so everyone pays the cheaper price expects ${money(drop.soldExpectedProfit)} leftover and ${money(drop.expectedProfit)} at ${drop.sellThroughPct}% sell-through — ${dropGap} ${dropAhead} than the coupon after sell-through.`;
+  const take = Number.isFinite(comparison.breakEvenCouponSellThroughPct)
+    ? ` The coupon has to convert about ${comparison.breakEvenCouponSellThroughPct.toFixed(1)}% of the time before it matches staying listed after sell-through.`
+    : ' No finite coupon sell-through can match staying listed when leftover on the mix is $0.00 or less.';
+  const dropFloor = Number.isFinite(comparison.breakEvenDropSellThroughPct)
+    ? ` Dropping the list has to convert about ${comparison.breakEvenDropSellThroughPct.toFixed(1)}% of the time before it matches the coupon after sell-through.`
+    : '';
+  return `${listedLine}${couponLine}${closeLine}${dropLine}${take}${dropFloor}`;
 }

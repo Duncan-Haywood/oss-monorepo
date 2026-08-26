@@ -73,6 +73,12 @@ once, and gets one box. If they would have bought N anyway, the
 leftover usually shrinks. A 20% “make them take two” coupon can
 leave less than two singles at list.
 [Should I offer an eBay quantity discount?](should-i-offer-an-ebay-quantity-discount.html).
+A **Seller coupon vs stay listed vs drop the list** table then
+prices the same one-unit SKU three ways: keep Buy It Now, publish
+a public code so only redeemers pay less, or drop the list so
+search shows the cheaper price to everyone. A 25% code that
+everyone redeems can leave less than staying listed.
+[Should I offer an eBay coupon?](should-i-offer-an-ebay-coupon.html).
 
 **After using the authenticity page, you can now see whether a 3% fee
 and an $8 hub label still beat skip-AG on that SKU** — which used to
@@ -115,6 +121,12 @@ bounce.
 which used to mean turning Buy 2, get 10% off on because
 “volume always pays” and never pricing leftover on a packed
 multi-buy.
+
+**After using the coupon page, you can now see whether a 15%
+public code still beats staying listed after a typed redeem
+rate** — which used to mean publishing a coupon because Seller
+Hub showed the button and never pricing the leftover the
+redeemers take, or the sold comps a dropped list writes.
 
 Open `index.html` in a browser. The calculation is local and works without an
 account, network request, or API key. It is arithmetic, not an estimate of the

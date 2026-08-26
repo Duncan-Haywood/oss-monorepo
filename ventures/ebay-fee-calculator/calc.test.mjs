@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { calculateOrder, calculatePriceScenarios, calculateRepricingTable, compareListingFormat, listingFormatNote, comparePartialRefund, partialRefundNote, DEFAULT_PARTIAL_REFUND, DEFAULT_MONTHLY_CASES, compareAuthenticity, authenticityNote, DEFAULT_AUTHENTICITY_FEE_RATE, DEFAULT_AUTHENTICITY_EXTRA_SHIP, DEFAULT_WITHOUT_AG_SELL_THROUGH, DEFAULT_AUTHENTICITY_SELL_THROUGH, DEFAULT_AUTHENTICITY_RETURN_RATE, DEFAULT_MONTHLY_AG_LISTINGS, compareLocalPickup, localPickupNote, DEFAULT_SHIP_SELL_THROUGH, DEFAULT_PICKUP_SELL_THROUGH, DEFAULT_PICKUP_NO_SHOW, DEFAULT_PICKUP_MINUTES, DEFAULT_PICKUP_HOURLY_WAGE, DEFAULT_MONTHLY_PICKUP_LISTINGS, compareLotVsSingles, lotVsSinglesNote, DEFAULT_LOT_PIECE_COUNT, DEFAULT_SINGLE_EXPECTED_PRICE, DEFAULT_LOT_SELL_THROUGH, DEFAULT_SINGLE_SELL_THROUGH, DEFAULT_SINGLE_INSERTION_FEE, DEFAULT_MONTHLY_LOT_DECISIONS, compareStandardEnvelope, standardEnvelopeNote, DEFAULT_ENVELOPE_SHIPPING_COST, DEFAULT_ENVELOPE_PACKAGING_COST, DEFAULT_ENVELOPE_CLAIM_RATE, DEFAULT_ENVELOPE_FEE_REFUND_ON_CLAIM, DEFAULT_TRACKED_SELL_THROUGH, DEFAULT_ENVELOPE_SELL_THROUGH, DEFAULT_MONTHLY_ENVELOPE_LISTINGS, compareCombinedShipping, combinedShippingNote, DEFAULT_COMBINED_ITEM_COUNT, DEFAULT_COMBINED_SHIPPING_CHARGED, DEFAULT_COMBINED_SHIPPING_COST, DEFAULT_COMBINED_PACKAGING_COST, DEFAULT_COMBINED_RETURN_SHIPPING_COST, DEFAULT_COMBINED_FIXED_FEE, DEFAULT_MONTHLY_COMBINED_ORDERS, compareSellerInitiatedOffer, sellerInitiatedOfferNote, DEFAULT_OFFER_PERCENT, DEFAULT_WAIT_SELL_THROUGH, DEFAULT_OFFER_ACCEPT, DEFAULT_MONTHLY_OFFERS, comparePromotedOffsite, promotedOffsiteNote, DEFAULT_OFFSITE_SPEND, DEFAULT_OFFSITE_EXTRA_ORDERS, DEFAULT_MONTHLY_OFFSITE_CAMPAIGNS, compareQuantityDiscount, quantityDiscountNote, DEFAULT_QTY_DISCOUNT_UNITS, DEFAULT_QTY_DISCOUNT_PERCENT, DEFAULT_QTY_SHIPPING_CHARGED, DEFAULT_QTY_SHIPPING_COST, DEFAULT_QTY_PACKAGING_COST, DEFAULT_QTY_RETURN_SHIPPING_COST, DEFAULT_QTY_FIXED_FEE, DEFAULT_SINGLES_SELL_THROUGH, DEFAULT_QTY_TAKE_PCT, DEFAULT_MONTHLY_QTY_ORDERS } from './calc.mjs';
+import { calculateOrder, calculatePriceScenarios, calculateRepricingTable, compareListingFormat, listingFormatNote, comparePartialRefund, partialRefundNote, DEFAULT_PARTIAL_REFUND, DEFAULT_MONTHLY_CASES, compareAuthenticity, authenticityNote, DEFAULT_AUTHENTICITY_FEE_RATE, DEFAULT_AUTHENTICITY_EXTRA_SHIP, DEFAULT_WITHOUT_AG_SELL_THROUGH, DEFAULT_AUTHENTICITY_SELL_THROUGH, DEFAULT_AUTHENTICITY_RETURN_RATE, DEFAULT_MONTHLY_AG_LISTINGS, compareLocalPickup, localPickupNote, DEFAULT_SHIP_SELL_THROUGH, DEFAULT_PICKUP_SELL_THROUGH, DEFAULT_PICKUP_NO_SHOW, DEFAULT_PICKUP_MINUTES, DEFAULT_PICKUP_HOURLY_WAGE, DEFAULT_MONTHLY_PICKUP_LISTINGS, compareLotVsSingles, lotVsSinglesNote, DEFAULT_LOT_PIECE_COUNT, DEFAULT_SINGLE_EXPECTED_PRICE, DEFAULT_LOT_SELL_THROUGH, DEFAULT_SINGLE_SELL_THROUGH, DEFAULT_SINGLE_INSERTION_FEE, DEFAULT_MONTHLY_LOT_DECISIONS, compareStandardEnvelope, standardEnvelopeNote, DEFAULT_ENVELOPE_SHIPPING_COST, DEFAULT_ENVELOPE_PACKAGING_COST, DEFAULT_ENVELOPE_CLAIM_RATE, DEFAULT_ENVELOPE_FEE_REFUND_ON_CLAIM, DEFAULT_TRACKED_SELL_THROUGH, DEFAULT_ENVELOPE_SELL_THROUGH, DEFAULT_MONTHLY_ENVELOPE_LISTINGS, compareCombinedShipping, combinedShippingNote, DEFAULT_COMBINED_ITEM_COUNT, DEFAULT_COMBINED_SHIPPING_CHARGED, DEFAULT_COMBINED_SHIPPING_COST, DEFAULT_COMBINED_PACKAGING_COST, DEFAULT_COMBINED_RETURN_SHIPPING_COST, DEFAULT_COMBINED_FIXED_FEE, DEFAULT_MONTHLY_COMBINED_ORDERS, compareSellerInitiatedOffer, sellerInitiatedOfferNote, DEFAULT_OFFER_PERCENT, DEFAULT_WAIT_SELL_THROUGH, DEFAULT_OFFER_ACCEPT, DEFAULT_MONTHLY_OFFERS, comparePromotedOffsite, promotedOffsiteNote, DEFAULT_OFFSITE_SPEND, DEFAULT_OFFSITE_EXTRA_ORDERS, DEFAULT_MONTHLY_OFFSITE_CAMPAIGNS, compareQuantityDiscount, quantityDiscountNote, DEFAULT_QTY_DISCOUNT_UNITS, DEFAULT_QTY_DISCOUNT_PERCENT, DEFAULT_QTY_SHIPPING_CHARGED, DEFAULT_QTY_SHIPPING_COST, DEFAULT_QTY_PACKAGING_COST, DEFAULT_QTY_RETURN_SHIPPING_COST, DEFAULT_QTY_FIXED_FEE, DEFAULT_SINGLES_SELL_THROUGH, DEFAULT_QTY_TAKE_PCT, DEFAULT_MONTHLY_QTY_ORDERS, compareSellerCoupon, sellerCouponNote, DEFAULT_COUPON_PERCENT, DEFAULT_COUPON_REDEEM_PCT, DEFAULT_LISTED_SELL_THROUGH, DEFAULT_COUPON_SELL_THROUGH, DEFAULT_DROP_SELL_THROUGH, DEFAULT_MONTHLY_COUPON_LISTINGS } from './calc.mjs';
 
 const near = (actual, expected, msg) => assert.ok(Math.abs(actual - expected) < 1e-6, `${msg}: ${actual} vs ${expected}`);
 
@@ -1045,4 +1045,107 @@ test('rejects a quantity-discount percent above 100% and a missing comparison', 
   assert.throws(() => compareQuantityDiscount({ ...agBase, qtyDiscountUnits: 1 }), /at least 2/);
   assert.throws(() => compareQuantityDiscount({ price: -1 }), /Item price/);
   assert.throws(() => quantityDiscountNote({}), /missing rows/);
+});
+
+test('compares a 15% coupon against staying listed and dropping the list', () => {
+  // Listed completed $21.605; 10% mix → $18.3445 packed; 40% → $7.3378.
+  // 15% coupon ($34): completed $16.40; packed $13.66. At 40% redeem the
+  // mix leftover is $16.4707; 55% badge ST → $9.058885. Drop everyone
+  // to $34 at 50% → $6.83. Coupon is ahead after sell-through and
+  // behind on leftover.
+  const comparison = compareSellerCoupon(agBase);
+  assert.equal(comparison.couponPercent, DEFAULT_COUPON_PERCENT);
+  assert.equal(comparison.couponRedeemPct, DEFAULT_COUPON_REDEEM_PCT);
+  assert.equal(comparison.listed.sellThroughPct, DEFAULT_LISTED_SELL_THROUGH);
+  assert.equal(comparison.coupon.sellThroughPct, DEFAULT_COUPON_SELL_THROUGH);
+  assert.equal(comparison.drop.sellThroughPct, DEFAULT_DROP_SELL_THROUGH);
+  assert.equal(comparison.monthlyCouponListings, DEFAULT_MONTHLY_COUPON_LISTINGS);
+  near(comparison.coupon.price, 34, '15% of $40');
+  near(comparison.listed.completedProfit, 21.605, 'listed completed');
+  near(comparison.listed.soldExpectedProfit, 18.3445, 'listed packed leftover');
+  near(comparison.listed.expectedProfit, 18.3445 * 0.40, 'listed after 40%');
+  near(comparison.coupon.soldExpectedProfit, 16.4707, 'coupon mix leftover');
+  near(comparison.coupon.expectedProfit, 16.4707 * 0.55, 'coupon after 55%');
+  near(comparison.drop.soldExpectedProfit, 13.66, 'drop leftover');
+  near(comparison.drop.expectedProfit, 13.66 * 0.50, 'drop after 50%');
+  near(comparison.extraPackedOnCoupon, 16.4707 - 18.3445, 'packed gap');
+  near(comparison.extraKeptOnCoupon, 16.4707 * 0.55 - 18.3445 * 0.40, 'ST gap');
+  near(comparison.monthlyExtraOnCoupon, (16.4707 * 0.55 - 18.3445 * 0.40) * 40, 'forty listings');
+  near(comparison.breakEvenCouponSellThroughPct, (18.3445 * 0.40) / 16.4707 * 100, 'coupon ST floor');
+  near(comparison.breakEvenDropSellThroughPct, (16.4707 * 0.55) / 13.66 * 100, 'drop ST floor');
+  assert.equal(comparison.winner, 'coupon');
+  assert.equal(comparison.couponPays, true);
+  assert.equal(comparison.dropPays, false);
+});
+
+test('break-even coupon and drop sell-through match the other path', () => {
+  const comparison = compareSellerCoupon(agBase);
+  const atCouponSt = compareSellerCoupon({
+    ...agBase,
+    couponSellThroughPct: comparison.breakEvenCouponSellThroughPct,
+  });
+  near(atCouponSt.coupon.expectedProfit, atCouponSt.listed.expectedProfit, 'coupon ST floor ties listed');
+  const atDropSt = compareSellerCoupon({
+    ...agBase,
+    dropSellThroughPct: comparison.breakEvenDropSellThroughPct,
+  });
+  near(atDropSt.drop.expectedProfit, atDropSt.coupon.expectedProfit, 'drop ST floor ties coupon');
+  assert.ok(comparison.breakEvenCouponSellThroughPct < 55, 'default 55% coupon ST is above the floor');
+  assert.ok(comparison.breakEvenDropSellThroughPct > 50, 'default 50% drop ST is below the floor');
+});
+
+test('matching listed sell-through already loses on a 15% coupon', () => {
+  const comparison = compareSellerCoupon({ ...agBase, couponSellThroughPct: 40 });
+  assert.equal(comparison.winner, 'listed');
+  near(comparison.coupon.expectedProfit, 16.4707 * 0.40, 'matched coupon ST');
+  near(comparison.listed.expectedProfit, 18.3445 * 0.40, 'unchanged listed');
+  assert.equal(comparison.couponPays, false);
+});
+
+test('a 25% coupon that everyone redeems loses even at the default badge lift', () => {
+  const comparison = compareSellerCoupon({ ...agBase, couponPercent: 25, couponRedeemPct: 100 });
+  assert.equal(comparison.winner, 'listed');
+  near(comparison.coupon.price, 30, '25% of $40');
+  near(comparison.coupon.soldExpectedProfit, 10.537, '25% leftover');
+  near(comparison.coupon.expectedProfit, 10.537 * 0.55, '25% after 55%');
+  assert.equal(comparison.couponPays, false);
+});
+
+test('an 80% dropped-list sell-through flips the cheaper BIN ahead of the coupon', () => {
+  const comparison = compareSellerCoupon({ ...agBase, dropSellThroughPct: 80 });
+  assert.equal(comparison.winner, 'drop');
+  near(comparison.drop.expectedProfit, 13.66 * 0.80, '80% drop');
+  near(comparison.coupon.expectedProfit, 16.4707 * 0.55, 'unchanged coupon');
+  assert.equal(comparison.dropPays, true);
+});
+
+test('seller-coupon note reports all three paths without telling the seller which to publish', () => {
+  const note = sellerCouponNote(compareSellerCoupon(agBase));
+  assert.match(note, /Staying listed/);
+  assert.match(note, /\$40\.00/);
+  assert.match(note, /\$18\.34/);
+  assert.match(note, /15% coupon/);
+  assert.match(note, /\$34\.00/);
+  assert.match(note, /\$16\.47/);
+  assert.match(note, /\$1\.87/);
+  assert.match(note, /40%/);
+  assert.match(note, /55%/);
+  assert.match(note, /\$7\.34/);
+  assert.match(note, /\$9\.06/);
+  assert.match(note, /\$1\.72/);
+  assert.match(note, /\$13\.66/);
+  assert.match(note, /\$6\.83/);
+  assert.match(note, /\$2\.23/);
+  assert.match(note, /44\.6%/);
+  assert.match(note, /66\.3%/);
+  assert.doesNotMatch(note, /should offer the coupon|must stay listed|must drop the list/i);
+});
+
+test('rejects a coupon percent above 100% and a missing comparison', () => {
+  assert.throws(() => compareSellerCoupon({ ...agBase, couponPercent: 101 }), /at most 100/);
+  assert.throws(() => compareSellerCoupon({ ...agBase, couponRedeemPct: 101 }), /at most 100/);
+  assert.throws(() => compareSellerCoupon({ ...agBase, listedSellThroughPct: 101 }), /at most 100/);
+  assert.throws(() => compareSellerCoupon({ ...agBase, couponSellThroughPct: -1 }), /Coupon sell-through/);
+  assert.throws(() => compareSellerCoupon({ price: -1 }), /Item price/);
+  assert.throws(() => sellerCouponNote({}), /missing rows/);
 });

@@ -237,7 +237,9 @@ test('the quantity-discount table has one cell per column and a counted event', 
   assert.match(page, /quantity_discount_compared/);
   assert.match(page, /should-i-offer-an-ebay-quantity-discount\.html/);
   assert.match(page, /"featureList":\s*"[^"]*quantity discount vs selling separately/);
-  const headerBlock = page.slice(page.indexOf('id="quantityDiscountTable"'));
+  const qtyStart = page.indexOf('id="quantityDiscountTable"');
+  const qtyEnd = page.indexOf('id="sellerCoupon"', qtyStart);
+  const headerBlock = page.slice(qtyStart, qtyEnd === -1 ? undefined : qtyEnd);
   const headers = [...headerBlock.matchAll(/<th scope="col">([^<]+)<\/th>/g)].map((m) => m[1]);
   assert.deepEqual(headers, [
     'Path',
@@ -247,5 +249,25 @@ test('the quantity-discount table has one cell per column and a counted event', 
     'If they keep it',
     'Expected after sell-through',
     'vs singles',
+  ]);
+});
+
+test('the seller-coupon table has one cell per column and a counted event', () => {
+  assert.match(page, /compareSellerCoupon/);
+  assert.match(page, /id="sellerCoupon"/);
+  assert.match(page, /id="sellerCouponVerdict"/);
+  assert.match(page, /seller_coupon_compared/);
+  assert.match(page, /should-i-offer-an-ebay-coupon\.html/);
+  assert.match(page, /"featureList":\s*"[^"]*seller coupon vs stay listed vs drop the list/);
+  const headerBlock = page.slice(page.indexOf('id="sellerCouponTable"'));
+  const headers = [...headerBlock.matchAll(/<th scope="col">([^<]+)<\/th>/g)].map((m) => m[1]);
+  assert.deepEqual(headers, [
+    'Path',
+    'Paid price',
+    'Redeem share',
+    'Close rate',
+    'If they keep it',
+    'Expected after sell-through',
+    'vs listed',
   ]);
 });
