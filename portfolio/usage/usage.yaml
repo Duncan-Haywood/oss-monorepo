@@ -2322,3 +2322,15 @@ products:
           Repair-and-merge of unique #1202 pool route pricing calculator
           onto current main. Public URL remains owner-gated; local counting
           is anonymous, honors DNT/GPC, and is off by a visible control.
+
+  - slug: construction-evidence-log
+    surface: static-page-in-repo
+    readings:
+      - as_of: 2026-08-26
+        signals:
+          live_url_visitors: null
+          local_events_reported: 0
+        note: >-
+          Repair-and-merge of unique #1204 construction daily log evidence
+          pack onto current main. Public URL remains owner-gated; local
+          counting is opt-in and honors DNT/GPC.

@@ -3258,3 +3258,26 @@ ventures:
       liability_containment: pass
       ethical_robustness: pass
     gate_note: Output is arithmetic on user-supplied operating assumptions, labelled as a planning threshold rather than a recommendation.
+
+  - slug: construction-evidence-log
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 7
+      gross_margin: 10
+      defensibility: 4
+      distribution: 6
+    composite: 6.333
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: The first release is a deterministic local form; defensibility depends on contractors keeping the dated export, not on generated advice.
+    basis: >-
+      Graduated on 2026-08-24 as a browser-local construction daily log and
+      change-order evidence pack. Distinct from bid calculators: it captures
+      observable site facts and missing-field notes, then exports a JSON
+      record the contractor controls.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: Output is a record of what the user entered. It does not certify work, file a claim, or promise payment.
