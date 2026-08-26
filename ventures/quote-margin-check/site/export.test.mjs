@@ -14,6 +14,43 @@ test("quotes CSV cells containing commas, quotes, and line breaks", () => {
   assert.equal(csvCell("say \"hello\"\nnow"), '"say ""hello""\nnow"');
 });
 
+test("prefixes a free-text cell a spreadsheet would run as a formula", () => {
+  for (const attack of ["=1+1", "+1", "-1+1", "@SUM(A1)", "=cmd|'/c calc'!A1"]) {
+    assert.equal(csvCell(attack, { text: true }), `'${attack}`);
+  }
+});
+
+test("leaves numeric cells alone so a negative gap stays a number", () => {
+  // Without the text flag these must pass through: -250.00 is a value the
+  // recipient needs to sum, not a formula to neutralise.
+  assert.equal(csvCell("-250.00"), "-250.00");
+  assert.equal(csvCell("=1+1"), "=1+1");
+  assert.equal(csvCell("USD", { text: true }), "USD");
+});
+
+test("a formula cell that also needs quoting gets both treatments", () => {
+  assert.equal(csvCell('=1+1,"x"', { text: true }), '"\'=1+1,""x"""');
+});
+
+test("neutralises a formula typed into the currency label", () => {
+  const quote = loadQuote({ currency: "=1+1", price: 1000, delivery_hours: 10, target_hourly_rate: 100 });
+  const csv = quoteCsv(quote, calculate(quote));
+  // The unit column carries the currency on most rows; none may open with "=".
+  const units = csv.split("\n").slice(1).map((line) => line.split(",").at(-1));
+  assert.ok(units.length > 5);
+  for (const unit of units) {
+    assert.ok(!unit.startsWith("="), `unit cell "${unit}" would evaluate as a formula`);
+  }
+  assert.match(csv, /quoted_price,1000\.00,'=1\+1/);
+  assert.match(csv, /effective_hourly_rate,100\.00,'=1\+1\/hour/);
+});
+
+test("a negative gap is still exported as a number, not text", () => {
+  const quote = loadQuote({ currency: "USD", price: 100, delivery_hours: 10, target_hourly_rate: 100 });
+  const csv = quoteCsv(quote, calculate(quote));
+  assert.match(csv, /\ngap_to_target,-\d+\.\d\d,USD/);
+});
+
 test("exports stable spreadsheet rows and quotes currency labels safely", () => {
   const quote = loadQuote({ currency: 'USD, "local"', price: 1000, delivery_hours: 10, target_hourly_rate: 100 });
   const csv = quoteCsv(quote, calculate(quote));

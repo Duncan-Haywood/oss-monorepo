@@ -98,6 +98,29 @@ class QuoteMarginTests(unittest.TestCase):
             ],
         )
 
+    def test_csv_report_neutralises_a_formula_in_the_currency_label(self) -> None:
+        # Mirrors "neutralises a formula typed into the currency label" in
+        # site/export.test.mjs: the two implementations must agree.
+        quote = load_quote({"currency": "=1+1", "price": 2400, "delivery_hours": 24, "target_hourly_rate": 75})
+        output = io.StringIO()
+        with contextlib.redirect_stdout(output):
+            csv_report(quote, calculate(quote))
+        lines = output.getvalue().splitlines()
+        self.assertEqual(lines[1], "quoted_price,2400.00,'=1+1")
+        self.assertIn("effective_hourly_rate,100.00,'=1+1/hour", lines)
+        for line in lines[1:]:
+            unit = line.rsplit(",", 1)[-1]
+            self.assertFalse(unit.startswith("="), f"unit cell {unit!r} would evaluate as a formula")
+
+    def test_csv_report_keeps_a_negative_value_numeric(self) -> None:
+        # The guard must not reach the value column: -600.00 is a number the
+        # recipient sums, and an apostrophe would make it text.
+        quote = load_quote({"currency": "EUR", "price": 2400, "delivery_hours": 24, "target_hourly_rate": 75})
+        output = io.StringIO()
+        with contextlib.redirect_stdout(output):
+            csv_report(quote, calculate(quote))
+        self.assertIn("hourly_minus_fixed_at_planned_hours,-600.00,EUR", output.getvalue().splitlines())
+
     def test_currency_defaults_and_is_trimmed(self) -> None:
         quote = load_quote({"currency": " USD ", "price": 1000, "delivery_hours": 10, "target_hourly_rate": 100})
         self.assertEqual(quote.currency, "USD")
