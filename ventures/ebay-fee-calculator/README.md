@@ -79,6 +79,12 @@ a public code so only redeemers pay less, or drop the list so
 search shows the cheaper price to everyone. A 25% code that
 everyone redeems can leave less than staying listed.
 [Should I offer an eBay coupon?](should-i-offer-an-ebay-coupon.html).
+An **Immediate payment vs unpaid checkouts** table then prices
+the same listing two ways: allow later checkout and eat a typed
+unpaid-item rate, or require payment now and take a typed
+sell-through hit. A 10-point conversion drop can cost more than
+the unpaid cases you avoided.
+[Should I require immediate payment on eBay?](should-i-require-immediate-payment-on-ebay.html).
 
 **After using the authenticity page, you can now see whether a 3% fee
 and an $8 hub label still beat skip-AG on that SKU** — which used to
@@ -127,6 +133,12 @@ public code still beats staying listed after a typed redeem
 rate** — which used to mean publishing a coupon because Seller
 Hub showed the button and never pricing the leftover the
 redeemers take, or the sold comps a dropped list writes.
+
+**After using the immediate-payment page, you can now see
+whether requiring pay-now still beats an 8% unpaid rate after
+a typed sell-through hit** — which used to mean flipping the
+listing setting because unpaid-item cases sat in Seller Hub
+and never pricing the checkouts that never started.
 
 Open `index.html` in a browser. The calculation is local and works without an
 account, network request, or API key. It is arithmetic, not an estimate of the
@@ -200,6 +212,15 @@ drive that decision:
   percent off, one shipping charge, and one label. The table
   also names the take rate and discount-percent ceiling that
   still tie selling separately.
+- **Seller coupon vs stay listed vs drop the list** — expected
+  listing profit after sell-through with Buy It Now versus a
+  public code versus a cheaper BIN. The table also names the
+  coupon and dropped-list sell-through that still tie listed.
+- **Immediate payment vs unpaid checkouts** — expected listing
+  profit after sell-through with later checkout versus
+  require-now. An unpaid case never ships. The table also
+  names the unpaid rate and immediate sell-through that still
+  tie later checkout.
 
 **No warranty.** This tool is provided free and as-is, without warranty of any
 kind, express or implied. It is not tax, financial, or business advice, and it
@@ -229,15 +250,19 @@ The counted events are `order_profit_calculated`, `target_margin_calculated`,
 `standard_envelope_compared`, `combined_shipping_compared`,
 `seller_initiated_offer_compared`,
 `promoted_offsite_compared`,
-`quantity_discount_compared`, and
+`quantity_discount_compared`,
+`seller_coupon_compared`,
+`immediate_payment_compared`, and
 `price_sensitivity_viewed`.
 `price_sensitivity_viewed`, `listing_format_compared`,
 `partial_refund_compared`, `authenticity_compared`,
 `local_pickup_compared`, `lot_vs_singles_compared`,
 `standard_envelope_compared`, `combined_shipping_compared`,
 `seller_initiated_offer_compared`,
-`promoted_offsite_compared`, and
-`quantity_discount_compared` are counted at most
+`promoted_offsite_compared`,
+`quantity_discount_compared`,
+`seller_coupon_compared`, and
+`immediate_payment_compared` are counted at most
 once per visit and only after an input is edited — counting the table's
 first paint would just re-count page loads and say nothing about whether
 the view is used.

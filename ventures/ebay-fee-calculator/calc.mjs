@@ -102,6 +102,13 @@ export const INPUT_FIELDS = [
   'couponSellThroughPct',
   'dropSellThroughPct',
   'monthlyCouponListings',
+  'unpaidRatePercent',
+  'laterSellThroughPct',
+  'immediateSellThroughPct',
+  'unpaidRelistFee',
+  'unpaidMinutes',
+  'unpaidHourlyWage',
+  'monthlyImmediateListings',
 ];
 
 export function calculateOrder(input) {
@@ -2532,4 +2539,207 @@ export function sellerCouponNote(comparison) {
     ? ` Dropping the list has to convert about ${comparison.breakEvenDropSellThroughPct.toFixed(1)}% of the time before it matches the coupon after sell-through.`
     : '';
   return `${listedLine}${couponLine}${closeLine}${dropLine}${take}${dropFloor}`;
+}
+
+/**
+ * Illustrative immediate-payment extras. 8% unpaid is a typed
+ * checkout-that-never-pays share — not scraped from Seller Hub.
+ * 55% vs 45% is a 10-point conversion hit when buyers cannot pay
+ * later. Twenty minutes at $18 is the unpaid-item case plus
+ * relist; $0.35 is a non-store insertion. Forty listings is a
+ * placeholder volume, not a forecast.
+ */
+export const DEFAULT_UNPAID_RATE = 8;
+export const DEFAULT_LATER_SELL_THROUGH = 55;
+export const DEFAULT_IMMEDIATE_SELL_THROUGH = 45;
+export const DEFAULT_UNPAID_RELIST_FEE = 0.35;
+export const DEFAULT_UNPAID_MINUTES = 20;
+export const DEFAULT_UNPAID_HOURLY_WAGE = 18;
+export const DEFAULT_MONTHLY_IMMEDIATE_LISTINGS = 40;
+
+function immediateRow({
+  id,
+  label,
+  unpaidPct,
+  sellThroughPct,
+  soldExpectedProfit,
+  completedProfit,
+  timeCost,
+  relistFee,
+}) {
+  return {
+    id,
+    label,
+    unpaidPct,
+    sellThroughPct,
+    soldExpectedProfit,
+    completedProfit,
+    timeCost,
+    relistFee,
+    expectedProfit: soldExpectedProfit * (sellThroughPct / 100),
+    expectedProfitDelta: 0,
+  };
+}
+
+/**
+ * Same listed SKU, two ways to take the checkout: allow the buyer
+ * to pay later and eat a typed unpaid-item rate, or require
+ * immediate payment and take a typed sell-through hit.
+ *
+ * This is not a seller-initiated offer (a sent price), not a
+ * coupon (a public code), not a quantity discount, not Promoted
+ * Offsite, and not local pickup (a no-show after they committed
+ * to a meetup). An unpaid checkout never ships — cost of goods
+ * stays, the outbound label is not bought, and final value fee
+ * is treated as refunded. You still pay relist insertion and
+ * case time. Immediate payment is modelled as unpaid = 0. Rates
+ * are inputs, not eBay unpaid-item policy.
+ *
+ * Open eBay PRs still own promoted Standard, store, incoming
+ * Best Offer, international, Managed Returns, and Top Rated Plus.
+ */
+export function compareImmediatePayment(input) {
+  const listedPrice = optionalNumber(input.price, 'Item price');
+  if (listedPrice === undefined) {
+    throw new Error('Item price must be a non-negative number');
+  }
+
+  const unpaidRatePercent = requiredPercent(
+    input.unpaidRatePercent,
+    'Unpaid checkout rate',
+    DEFAULT_UNPAID_RATE,
+  );
+  const laterSellThroughPct = requiredPercent(
+    input.laterSellThroughPct,
+    'Later-pay sell-through',
+    DEFAULT_LATER_SELL_THROUGH,
+  );
+  const immediateSellThroughPct = requiredPercent(
+    input.immediateSellThroughPct,
+    'Immediate-pay sell-through',
+    DEFAULT_IMMEDIATE_SELL_THROUGH,
+  );
+  const unpaidRelistFee = optionalNumber(
+    input.unpaidRelistFee,
+    'Unpaid relist fee',
+    DEFAULT_UNPAID_RELIST_FEE,
+  );
+  const unpaidMinutes = optionalNumber(
+    input.unpaidMinutes,
+    'Unpaid case minutes',
+    DEFAULT_UNPAID_MINUTES,
+  );
+  const unpaidHourlyWage = optionalNumber(
+    input.unpaidHourlyWage,
+    'Unpaid hourly wage',
+    DEFAULT_UNPAID_HOURLY_WAGE,
+  );
+  const monthlyImmediateListings = optionalNumber(
+    input.monthlyImmediateListings,
+    'Monthly immediate-payment listings',
+    DEFAULT_MONTHLY_IMMEDIATE_LISTINGS,
+  );
+
+  const paid = calculateOrder({ ...input, quantity: 1 });
+  const timeCost = (unpaidMinutes / 60) * unpaidHourlyWage;
+  const unpaidOutcome = -(unpaidRelistFee + timeCost);
+  const unpaidRate = unpaidRatePercent / 100;
+  const laterPacked = (1 - unpaidRate) * paid.expectedProfit + unpaidRate * unpaidOutcome;
+
+  const later = immediateRow({
+    id: 'later',
+    label: 'Allow checkout later',
+    unpaidPct: unpaidRatePercent,
+    sellThroughPct: laterSellThroughPct,
+    soldExpectedProfit: laterPacked,
+    completedProfit: paid.profit,
+    timeCost,
+    relistFee: unpaidRelistFee,
+  });
+  const immediate = immediateRow({
+    id: 'immediate',
+    label: 'Require immediate payment',
+    unpaidPct: 0,
+    sellThroughPct: immediateSellThroughPct,
+    soldExpectedProfit: paid.expectedProfit,
+    completedProfit: paid.profit,
+    timeCost: 0,
+    relistFee: 0,
+  });
+  later.expectedProfitDelta = later.expectedProfit - immediate.expectedProfit;
+  immediate.expectedProfitDelta = immediate.expectedProfit - later.expectedProfit;
+
+  const extraKeptOnImmediate = immediate.expectedProfit - later.expectedProfit;
+  const extraPackedOnImmediate = immediate.soldExpectedProfit - later.soldExpectedProfit;
+
+  const winner = extraKeptOnImmediate > 1e-9
+    ? 'immediate'
+    : extraKeptOnImmediate < -1e-9
+      ? 'later'
+      : 'tie';
+
+  let breakEvenUnpaidRate = Infinity;
+  if (laterSellThroughPct <= 1e-12) {
+    breakEvenUnpaidRate = laterPacked >= immediate.expectedProfit - 1e-12 ? 0 : Infinity;
+  } else {
+    const targetPacked = immediate.expectedProfit / (laterSellThroughPct / 100);
+    const gap = paid.expectedProfit - unpaidOutcome;
+    if (Math.abs(gap) <= 1e-12) {
+      breakEvenUnpaidRate = laterPacked >= targetPacked - 1e-12 ? 0 : Infinity;
+    } else {
+      const needed = (paid.expectedProfit - targetPacked) / gap;
+      breakEvenUnpaidRate = needed < -1e-9 ? Infinity : needed * 100;
+    }
+  }
+
+  const breakEvenImmediateSellThroughPct = paid.expectedProfit <= 1e-12
+    ? (later.expectedProfit <= 1e-12 ? 0 : Infinity)
+    : (later.expectedProfit / paid.expectedProfit) * 100;
+
+  return {
+    rows: [later, immediate],
+    later,
+    immediate,
+    winner,
+    unpaidRatePercent,
+    laterSellThroughPct,
+    immediateSellThroughPct,
+    unpaidRelistFee,
+    unpaidMinutes,
+    unpaidHourlyWage,
+    timeCost,
+    unpaidOutcome,
+    monthlyImmediateListings,
+    extraKeptOnImmediate,
+    extraPackedOnImmediate,
+    monthlyExtraOnImmediate: extraKeptOnImmediate * monthlyImmediateListings,
+    breakEvenUnpaidRate,
+    breakEvenImmediateSellThroughPct,
+    immediatePays: extraKeptOnImmediate > 1e-9,
+  };
+}
+
+export function immediatePaymentNote(comparison) {
+  if (!comparison?.later || !comparison?.immediate) {
+    throw new Error('Immediate-payment comparison is missing rows');
+  }
+  const money = (value) => {
+    const sign = value < 0 ? '-' : '';
+    return `${sign}$${Math.abs(value).toFixed(2)}`;
+  };
+  const { later, immediate } = comparison;
+  const packedGap = money(Math.abs(immediate.soldExpectedProfit - later.soldExpectedProfit));
+  const packedAhead = immediate.soldExpectedProfit >= later.soldExpectedProfit ? 'more' : 'less';
+  const stGap = money(Math.abs(immediate.expectedProfit - later.expectedProfit));
+  const stAhead = immediate.expectedProfit >= later.expectedProfit ? 'more' : 'less';
+  const laterLine = `Allowing checkout later, with ${comparison.unpaidRatePercent}% of started checkouts never paying, expects ${money(later.soldExpectedProfit)} leftover after the typed return rate on the paid share and ${money(comparison.unpaidOutcome)} on each unpaid case (${money(comparison.unpaidRelistFee)} relist plus ${money(comparison.timeCost)} of case time).`;
+  const immediateLine = ` Requiring immediate payment, with unpaid treated as 0%, expects ${money(immediate.soldExpectedProfit)} leftover — ${packedGap} ${packedAhead}.`;
+  const closeLine = ` At ${later.sellThroughPct}% later-pay sell-through versus ${immediate.sellThroughPct}% when they must pay now, later expects ${money(later.expectedProfit)} and immediate payment expects ${money(immediate.expectedProfit)} — ${stGap} ${stAhead}.`;
+  const unpaidFloor = Number.isFinite(comparison.breakEvenUnpaidRate)
+    ? ` Unpaid checkouts have to reach about ${comparison.breakEvenUnpaidRate.toFixed(1)}% before requiring immediate payment matches allowing later checkout after sell-through.`
+    : ' No finite unpaid rate can make requiring immediate payment match later checkout when leftover on a paid sale is $0.00 or less.';
+  const stFloor = Number.isFinite(comparison.breakEvenImmediateSellThroughPct)
+    ? ` Immediate payment has to convert about ${comparison.breakEvenImmediateSellThroughPct.toFixed(1)}% of the time before it matches allowing later checkout after sell-through.`
+    : '';
+  return `${laterLine}${immediateLine}${closeLine}${unpaidFloor}${stFloor}`;
 }

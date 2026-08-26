@@ -225,6 +225,26 @@ test('carries quantity-discount fields so a shared link does not drop them', () 
   assert.equal(restored.monthlyQtyOrders, 20);
 });
 
+test('carries immediate-payment fields so a shared link does not drop them', () => {
+  const restored = decodeInputs(encodeInputs({
+    price: 40,
+    unpaidRatePercent: 8,
+    laterSellThroughPct: 55,
+    immediateSellThroughPct: 45,
+    unpaidRelistFee: 0.35,
+    unpaidMinutes: 20,
+    unpaidHourlyWage: 18,
+    monthlyImmediateListings: 40,
+  }));
+  assert.equal(restored.unpaidRatePercent, 8);
+  assert.equal(restored.laterSellThroughPct, 55);
+  assert.equal(restored.immediateSellThroughPct, 45);
+  assert.equal(restored.unpaidRelistFee, 0.35);
+  assert.equal(restored.unpaidMinutes, 20);
+  assert.equal(restored.unpaidHourlyWage, 18);
+  assert.equal(restored.monthlyImmediateListings, 40);
+});
+
 test('carries seller-coupon fields so a shared link does not drop them', () => {
   const restored = decodeInputs(encodeInputs({
     price: 40,
