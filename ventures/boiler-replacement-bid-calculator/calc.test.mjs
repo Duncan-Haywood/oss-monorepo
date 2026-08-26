@@ -6,6 +6,8 @@ import {
   compareRepairVsReplace,
   compareOwnerSupply,
   ownerSupplyNote,
+  compareAccess,
+  accessNote,
   formatBidSummary,
   priceRepairVisit,
   repairVsReplaceNote,
@@ -16,6 +18,7 @@ import {
   suggestedExtraKit,
   suggestedRepairKit,
   suggestedOwnerCallbackKit,
+  suggestedAccessKit,
   JOB_PRESETS,
 } from './calc.mjs';
 
@@ -384,6 +387,98 @@ test('ownerSupplyNote names a hang-only that covers only when the unit matches',
 test('ownerSupplyNote rejects a short or incomplete table', () => {
   assert.throws(() => ownerSupplyNote([]), /missing rows/);
   assert.throws(() => ownerSupplyNote([{ supply: 'tech-supplied' }]), /missing rows/);
+});
+
+test('compareAccess keeps weekday hours and raises after-hours wage plus a second trip', () => {
+  const kit = suggestedAccessKit();
+  const rows = compareAccess(special());
+  assert.equal(rows.length, 3);
+  const weekday = rows.find((row) => row.access === 'weekday-scheduled');
+  const occupied = rows.find((row) => row.access === 'same-day-no-heat');
+  const afterHours = rows.find((row) => row.access === 'after-hours');
+  assert.ok(Math.abs(occupied.hoursPlant - weekday.hoursPlant * 1.2) < 1e-9);
+  assert.ok(Math.abs(occupied.siteHours - weekday.siteHours * 1.2) < 1e-9);
+  assert.ok(Math.abs(occupied.loadedWage - weekday.loadedWage) < 1e-9);
+  assert.ok(occupied.totalHours > weekday.totalHours);
+  assert.ok(occupied.price > weekday.price);
+  assert.ok(Math.abs(afterHours.loadedWage - weekday.loadedWage * 1.5) < 1e-9);
+  assert.ok(Math.abs(afterHours.hoursTravel - weekday.hoursTravel - kit.afterHoursExtraTripHours) < 1e-9);
+  assert.ok(Math.abs(afterHours.hoursPlant - weekday.hoursPlant) < 1e-9);
+  assert.ok(afterHours.price > occupied.price);
+  assert.equal(weekday.cheapest, true);
+  assert.equal(weekday.installOnly, null);
+  assert.ok(Math.abs(weekday.price - 6740.9803) < 1e-4);
+  assert.ok(Math.abs(occupied.price - 6899.4595) < 1e-4);
+  assert.ok(Math.abs(afterHours.price - 7634.0197) < 1e-4);
+});
+
+test('compareAccess does not leak a typed trip into the extra emergency dispatch', () => {
+  const baseline = compareAccess(special());
+  const overridden = compareAccess({ ...special(), hoursTrip: 16 });
+  const weekday = overridden.find((row) => row.access === 'weekday-scheduled');
+  const afterHours = overridden.find((row) => row.access === 'after-hours');
+  const baselineAfter = baseline.find((row) => row.access === 'after-hours');
+  const baselineWeekday = baseline.find((row) => row.access === 'weekday-scheduled');
+  assert.ok(weekday.hoursTravel > baselineWeekday.hoursTravel);
+  assert.ok(Math.abs(
+    (afterHours.hoursTravel - weekday.hoursTravel)
+    - (baselineAfter.hoursTravel - baselineWeekday.hoursTravel),
+  ) < 1e-9);
+});
+
+test('a $5,800 Saturday special covers a weekday hang and loses after-hours', () => {
+  const rows = compareAccess(special(), { installOnlyPrice: 5800 });
+  const weekday = rows.find((row) => row.access === 'weekday-scheduled');
+  const occupied = rows.find((row) => row.access === 'same-day-no-heat');
+  const afterHours = rows.find((row) => row.access === 'after-hours');
+  assert.equal(weekday.installOnly.belowBreakEven, false);
+  assert.equal(occupied.installOnly.belowBreakEven, false);
+  assert.equal(afterHours.installOnly.belowBreakEven, true);
+  assert.ok(Math.abs(afterHours.installOnly.profit + 307.2158) < 1e-4);
+  assert.ok(Math.abs(afterHours.breakEvenPrice - 6107.2158) < 1e-4);
+  assert.match(accessNote(rows), /\$5,800/);
+  assert.match(accessNote(rows), /weekday set covers/i);
+  assert.match(accessNote(rows), /loses/);
+});
+
+test('a $4,500 Saturday special loses even on a weekday slot', () => {
+  const rows = compareAccess(special(), { installOnlyPrice: 4500 });
+  const weekday = rows.find((row) => row.access === 'weekday-scheduled');
+  const afterHours = rows.find((row) => row.access === 'after-hours');
+  assert.equal(weekday.installOnly.belowBreakEven, true);
+  assert.equal(afterHours.installOnly.belowBreakEven, true);
+  assert.match(accessNote(rows), /lose money even on a weekday/i);
+  assert.match(accessNote(rows), /Walk-away after-hours/);
+});
+
+test('accessNote names the bid lift when no Saturday price is set', () => {
+  const note = accessNote(compareAccess(special()));
+  assert.match(note, /Same-day with no heat adds/);
+  assert.match(note, /After-hours \/ Saturday adds/);
+});
+
+test('a steam conversion Saturday special loses even more', () => {
+  const rows = compareAccess(losingJob(), { installOnlyPrice: 4500 });
+  const weekday = rows.find((row) => row.access === 'weekday-scheduled');
+  const afterHours = rows.find((row) => row.access === 'after-hours');
+  assert.ok(weekday.price > 19000);
+  assert.ok(afterHours.price > weekday.price);
+  assert.equal(weekday.installOnly.belowBreakEven, true);
+  assert.ok(Math.abs(afterHours.breakEvenPrice - 17598.967) < 1e-3);
+  assert.match(accessNote(rows), /lose money even on a weekday/i);
+});
+
+test('accessNote rejects a short or incomplete table', () => {
+  assert.throws(() => accessNote([]), /missing rows/);
+  assert.throws(() => accessNote([{ access: 'weekday-scheduled' }]), /missing rows/);
+});
+
+test('the access kit is overtime and a second trip, not a second plant invoice', () => {
+  const kit = suggestedAccessKit();
+  const extra = suggestedExtraKit();
+  assert.equal(kit.afterHoursExtraTripHours, extra.hoursTrip);
+  assert.equal(kit.afterHoursWageMultiplier, 1.5);
+  assert.equal(kit.occupiedPaceMultiplier, 1.2);
 });
 
 test('the owner-callback kit is a second trip, not a second plant invoice', () => {

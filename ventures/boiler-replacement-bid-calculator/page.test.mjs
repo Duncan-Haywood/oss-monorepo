@@ -12,6 +12,7 @@ const html = readFileSync(new URL('./index.html', import.meta.url), 'utf8');
 const seo = readFileSync(new URL('./how-much-to-charge-to-replace-a-boiler.html', import.meta.url), 'utf8');
 const patch = readFileSync(new URL('./should-i-patch-this-boiler-for-one-more-winter.html', import.meta.url), 'utf8');
 const supplySeo = readFileSync(new URL('./should-i-install-a-customer-supplied-boiler.html', import.meta.url), 'utf8');
+const saturdaySeo = readFileSync(new URL('./should-i-take-a-saturday-boiler-call.html', import.meta.url), 'utf8');
 
 const RAW_TEXT_ELEMENTS = ['textarea', 'script', 'style'];
 
@@ -55,6 +56,8 @@ test('the module script survives parsing and would actually execute', () => {
   assert.match(scriptSource, /repairVsReplaceNote/, 'repair verdict helper is missing from the executable script');
   assert.match(scriptSource, /compareOwnerSupply/, 'owner-supply comparison is missing from the executable script');
   assert.match(scriptSource, /ownerSupplyNote/, 'owner-supply verdict is missing from the executable script');
+  assert.match(scriptSource, /compareAccess/, 'access comparison is missing from the executable script');
+  assert.match(scriptSource, /accessNote/, 'access verdict is missing from the executable script');
   assert.match(scriptSource, /formatBidSummary/, 'copy-summary helper is missing from the executable script');
 });
 
@@ -73,7 +76,7 @@ test('inputs and result fields for the primary journey are present', () => {
     'scope', 'system', 'fuel', 'inputMbh', 'zones', 'travelMiles',
     'hourlyWage', 'targetMargin', 'proposedPrice',
     'hoursRepair', 'repairParts', 'extraCallsThisWinter', 'remainingWinters', 'patchPrice',
-    'price', 'breakEven', 'compare', 'repair', 'repairNote', 'supply', 'supplyNote', 'copySummary', 'usageOptOut', 'jobPresets',
+    'price', 'breakEven', 'compare', 'repair', 'repairNote', 'supply', 'supplyNote', 'access', 'accessNote', 'copySummary', 'usageOptOut', 'jobPresets',
   ]) {
     assert.ok(declaredIds.has(id), `missing #${id}`);
   }
@@ -101,11 +104,13 @@ test('the SEO article answers the search phrase and stays crawlable', () => {
   assert.match(seo, /index\.html/);
   assert.match(seo, /should-i-patch-this-boiler-for-one-more-winter\.html/);
   assert.match(seo, /should-i-install-a-customer-supplied-boiler\.html/);
+  assert.match(seo, /should-i-take-a-saturday-boiler-call\.html/);
   assert.doesNotMatch(seo, /<textarea/i);
 });
 
-test('the landing page links the customer-supplied boiler question', () => {
+test('the landing page links the customer-supplied and Saturday questions', () => {
   assert.match(html, /should-i-install-a-customer-supplied-boiler\.html/);
+  assert.match(html, /should-i-take-a-saturday-boiler-call\.html/);
 });
 
 test('the patch article answers the no-heat question and stays crawlable', () => {
@@ -126,4 +131,15 @@ test('the supply article answers the customer-supplied question and stays crawla
   assert.match(supplySeo, /No warranty/);
   assert.match(supplySeo, /Best-effort hosting, no SLA/);
   assert.doesNotMatch(supplySeo, /<textarea/i);
+});
+
+test('the Saturday article answers the no-heat overtime question and stays crawlable', () => {
+  assert.match(saturdaySeo, /Should I take a Saturday boiler call/i);
+  assert.match(saturdaySeo, /FAQPage/);
+  assert.match(saturdaySeo, /\$5,800/);
+  assert.match(saturdaySeo, /\$4,500/);
+  assert.match(saturdaySeo, /index\.html/);
+  assert.match(saturdaySeo, /No warranty/);
+  assert.match(saturdaySeo, /Best-effort hosting, no SLA/);
+  assert.doesNotMatch(saturdaySeo, /<textarea/i);
 });
