@@ -123,6 +123,9 @@ test('scales batch economics while keeping price thresholds per unit', () => {
   near(batch.feeTotal, (single.feeTotal - single.fees.fixed) * 3 + single.fees.fixed, 'batch fees charge the fixed fee once');
   near(batch.cashInvested, single.cashInvested * 3, 'batch investment');
   near(batch.profit, batch.revenue - batch.feeTotal - batch.cashInvested, 'batch profit');
+  near(batch.cashRecovered, batch.revenue - batch.feeTotal, 'batch cash recovered');
+  near(batch.cashSurplus, batch.profit, 'batch cash surplus');
+  near(batch.cashRecoveryPct, batch.cashRecovered / batch.cashInvested * 100, 'batch recovery percentage');
   near(batch.unitProfit, batch.profit / 3, 'unit profit');
   assert.ok(batch.breakEvenPrice < single.breakEvenPrice, 'larger batch lowers per-unit break-even');
 });
