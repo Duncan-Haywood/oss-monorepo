@@ -186,6 +186,16 @@ test("calculator page can save local review history", async () => {
   assert.match(page, /history_cleared/);
 });
 
+test("offers portable Markdown review actions", async () => {
+  const page = await readFile(new URL("./index.html", import.meta.url), "utf8");
+  assert.match(page, /id="copy-markdown"/);
+  assert.match(page, /id="download-markdown"/);
+  assert.match(page, /from "\.\/markdown\.mjs"/);
+  assert.match(page, /markdown_copied/);
+  assert.match(page, /markdown_downloaded/);
+  assert.match(page, /quote-margin-review\.md/);
+});
+
 test("calculator page copies a proposal-ready review summary", async () => {
   const page = await readFile(new URL("./index.html", import.meta.url), "utf8");
   assert.match(page, /id="copy-summary"/);

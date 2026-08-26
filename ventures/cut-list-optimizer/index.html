@@ -301,7 +301,7 @@ Top: 31.5 x 11.25 x 2</textarea>
 
   <footer>
     <label class="check"><input id="optout" type="checkbox"> Do not keep anonymous local usage counts or saved drafts</label>
-    <div class="actions"><button type="button" id="clear-draft" class="draft-button">Clear saved draft</button><span id="draft-status" role="status" aria-live="polite"></span></div>
+    <div class="actions"><button type="button" id="clear-draft" class="draft-button">Clear saved draft</button><span id="draft-status" role="status" aria-live="polite">Drafts are saved only on this device.</span></div>
     <p>
       <strong>No warranty.</strong> This free tool is provided as-is, without warranty of any kind, express or implied.
       It is not engineering, financial, or business advice and does not replace a qualified professional.
@@ -685,6 +685,7 @@ Top: 31.5 x 11.25 x 2</textarea>
     function restoreDraft() {
       const draft = loadDraft(localStorage);
       if (!draft) return false;
+      recordUsage(localStorage, optedOut(), 'draft-restores');
       DRAFT_FIELDS.forEach((id) => {
         if (!(id in draft)) return;
         if ($(id).type === 'checkbox') $(id).checked = Boolean(draft[id]);
@@ -694,7 +695,10 @@ Top: 31.5 x 11.25 x 2</textarea>
     }
 
     function persistDraft() {
-      if (!optedOut()) saveDraft(localStorage, draftValues());
+      if (optedOut()) return;
+      // Counted on the settled 'change' edit that calls this, not per keystroke,
+      // so draft-saves stays comparable to the run counts beside it.
+      if (saveDraft(localStorage, draftValues())) recordUsage(localStorage, optedOut(), 'draft-saves');
     }
 
     function wireInputs(ids, render, mode, runEvent) {

@@ -160,3 +160,24 @@ test('user-supplied part labels are escaped before they reach innerHTML', () => 
     assert.match(expression, /escapeHtml\(/, `an unescaped label reaches the DOM: ${expression}`);
   }
 });
+
+// Draft recovery lives in draft.mjs and is covered by draft.test.mjs, but that
+// suite imports the module directly and so stays green even if the page stops
+// calling it -- the same blind spot that let the unclosed <textarea> above ship
+// three times. This checks the page is actually wired to it.
+test('draft recovery is visible and wired to the local-only module', () => {
+  assert.match(scriptSource, /saveDraft\(localStorage/, 'the page never saves a draft');
+  assert.match(scriptSource, /loadDraft\(localStorage/, 'the page never restores a draft');
+  assert.match(scriptSource, /clearDraft\(localStorage/, 'the page never clears a draft');
+  assert.match(html, /id="draft-status"[^>]*>Drafts are saved only on this device/);
+  assert.match(html, /id="draft-status"[^>]*role="status"[^>]*aria-live="polite"/);
+});
+
+test('draft usage events are declared before the page records them', () => {
+  // recordUsage silently drops an event that EVENTS does not list, so a typo
+  // here is invisible at runtime -- it just never counts.
+  const declared = readFileSync(new URL('./usage.mjs', import.meta.url), 'utf8');
+  for (const [, event] of scriptSource.matchAll(/recordUsage\([^)]*?'([\w-]+)'\s*\)/g)) {
+    assert.match(declared, new RegExp(`'${event}'`), `usage.mjs does not declare '${event}'`);
+  }
+});

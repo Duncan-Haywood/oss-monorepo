@@ -108,6 +108,11 @@ Use **Download JSON report** to save the current quote inputs and derived
 result as a portable local artifact. The download contains no hidden
 browser data and does not upload anything.
 
+The browser can also copy or download a complete Markdown review. It
+includes the supplied inputs, derived arithmetic, pre-send observations,
+and the time-overrun table so you can retain or share a readable handoff
+without retyping the figures. The file stays on this device.
+
 The browser also breaks the target price into delivery labor, hidden admin and
 revision time, and direct costs. This makes the arithmetic auditable instead
 of leaving the user to reverse-engineer one total; it is not a recommendation
@@ -134,12 +139,14 @@ anywhere in either case. One `report_generated` means one *settled* quote: the
 page recomputes on every keystroke, so the counter waits for the figures to
 stop changing, skips the pre-filled example on first load, and ignores a repeat
 of a quote it already counted. Reading it as "reports", not "keystrokes", is
-what makes it comparable to the CLI's own count. The browser also counts
-`quote_review_checked` locally when a valid quote is reviewed, and
-`cost_spike_compared` when the cost-rise table is computed, and
-`discount_ask_compared` when the discount-ask table is computed, and
-`kill_fee_compared` when the mid-project cancel table is computed, and
-`billing_model_compared` when the fixed-vs-hourly table is computed. The
+what makes it comparable to the CLI's own count. The per-table events are
+paired to that same settled count rather than recorded as the tables render,
+so one settled quote logs one `quote_review_checked`, one
+`cost_spike_compared`, one `discount_ask_compared`, and one
+`billing_model_compared` — plus one `kill_fee_compared` when the mid-project
+cancel inputs also parsed. Recorded per render they would have counted
+keystrokes, leaving them incomparable both to `report_generated` and to the
+CLI. The
 browser also counts `history_saved`, `history_deleted`, and `history_cleared`
 when local review snapshots are stored or removed. A `report_downloaded`
 event is counted when the JSON report is saved locally. CSV copy

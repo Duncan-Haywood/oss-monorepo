@@ -46,6 +46,10 @@ def check_site(site_dir: Path) -> list[str]:
             target = raw.strip()
             if not target or target.startswith(SKIP_PREFIXES):
                 continue
+            # JS template literals in inline scripts (e.g. href="${escapeHtml(href)}")
+            # are not URLs. Treating them as local paths 404s the Pages build.
+            if "${" in target:
+                continue
 
             path_part = unquote(urldefrag(target)[0])
             if not path_part:

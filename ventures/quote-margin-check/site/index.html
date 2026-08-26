@@ -325,6 +325,8 @@
     <div class="actions">
       <button type="button" id="clear-draft">Reset to example</button>
       <button type="button" id="copy-summary">Copy review summary</button>
+      <button type="button" id="copy-markdown">Copy review as Markdown</button>
+      <button type="button" id="download-markdown">Download review</button>
       <button type="button" id="copy-csv">Copy as CSV</button>
       <button type="button" id="download-csv">Download CSV</button>
       <button type="button" id="download-report">Download JSON report</button>
@@ -451,6 +453,7 @@
   import { loadQuote, calculate, overrunScenarios, directCostSpikeScenarios, directCostSpikeSummary, discountAskScenarios, discountAskSummary, compareBillingModels, billingModelNote, loadKillFeeProgress, compareKillFee, killFeeSummary, targetPriceBreakdown } from "./calc.mjs";
   import { quoteCsv } from "./export.mjs";
   import { formatReviewSummary } from "./summary.mjs";
+  import { markdownReview } from "./markdown.mjs";
   import { reviewQuote } from "./review.mjs";
   import { reportDocument } from "./report.mjs";
   import { recordEvent, createReportCounter, isUsageCountingEnabled, setUsageCountingEnabled } from "./usage.mjs";
@@ -458,7 +461,27 @@
   import { listHistory, saveHistory, deleteHistory, clearHistory } from "./history.mjs";
 
   // Counts settled quotes rather than keystrokes — see usage.mjs.
-  const reportCounter = createReportCounter();
+  //
+  // The per-table events are fanned out from here rather than recorded in
+  // render(), because render() runs on every keystroke. Recorded there they
+  // measured typing, not reviews: a single quote typed in twenty characters
+  // logged twenty `quote_review_checked` events against one `report_generated`,
+  // so the two could never be compared and neither matched the CLI's count.
+  // Paired to the debounced counter, one settled quote logs one of each.
+  let killFeeSettled = false;
+  const reportCounter = createReportCounter({
+    record: (event) => {
+      recordEvent(event);
+      if (event !== "report_generated") return;
+      recordEvent("quote_review_checked");
+      recordEvent("cost_spike_compared");
+      recordEvent("discount_ask_compared");
+      recordEvent("billing_model_compared");
+      // Only when the kill-fee inputs actually parsed on the render that
+      // produced this count — an invalid kill fee is not a comparison.
+      if (killFeeSettled) recordEvent("kill_fee_compared");
+    },
+  });
 
   const ids = ["currency", "price", "delivery_hours", "admin_hours", "revision_hours", "overhead", "subcontractor_cost", "target_hourly_rate"];
   const killIds = ["hours_done", "already_paid", "kill_fee", "sunk_costs"];
@@ -556,18 +579,15 @@
            const vs = row.vs_finish === 0 ? "—" : `${row.vs_finish > 0 ? "+" : ""}${safeCurrency} ${fmt(row.vs_finish)}`;
            return `<tr><th scope="row">${label}</th><td>${safeCurrency} ${fmt(row.cash_kept)}</td><td>${vs}</td><td>${fmt(row.hours_freed)}</td><td>${safeCurrency} ${fmt(row.refill_adjusted)}</td></tr>`;
          }).join("");
-         recordEvent("kill_fee_compared");
+         killFeeSettled = true;
        } catch (killErr) {
+         killFeeSettled = false;
          killFee.querySelector("#kill-fee-summary").textContent = killErr.message;
          killFee.querySelector("tbody").innerHTML = "";
        }
        const breakdown = targetPriceBreakdown(quote);
        targetBreakdown.querySelector("tbody").innerHTML = [["Delivery work", breakdown.delivery_labor], ["Admin and revisions", breakdown.hidden_time_labor], ["Direct costs", breakdown.direct_costs]].map(([label, value]) => `<tr><th scope="row">${label}</th><td>${safeCurrency} ${fmt(value)}</td></tr>`).join("");
        targetBreakdown.querySelector("tfoot td").textContent = `${safeCurrency} ${fmt(breakdown.total)}`;
-       recordEvent("quote_review_checked");
-       recordEvent("cost_spike_compared");
-       recordEvent("discount_ask_compared");
-       recordEvent("billing_model_compared");
       if (persistDrafts) {
         saveDraft(Object.fromEntries([...ids, ...killIds].map((id) => [id, el[id].value])));
       }
@@ -678,6 +698,39 @@
     } catch {
       copyStatus.textContent = "Couldn't access the clipboard in this browser.";
     }
+  });
+  function currentMarkdown() {
+    const { quote, r } = lastReport;
+    return markdownReview(quote, r, reviewQuote(quote, r), {
+      overrunRows: overrunScenarios(quote, r),
+    });
+  }
+  document.getElementById("copy-markdown").addEventListener("click", async () => {
+    if (!lastReport) {
+      copyStatus.textContent = "Fix the inputs above first.";
+      return;
+    }
+    try {
+      await navigator.clipboard.writeText(currentMarkdown());
+      copyStatus.textContent = "Copied Markdown review.";
+      recordEvent("markdown_copied");
+    } catch {
+      copyStatus.textContent = "Couldn't access the clipboard in this browser.";
+    }
+  });
+  document.getElementById("download-markdown").addEventListener("click", () => {
+    if (!lastReport) {
+      copyStatus.textContent = "Fix the inputs above first.";
+      return;
+    }
+    const blob = new Blob([currentMarkdown()], { type: "text/markdown;charset=utf-8" });
+    const link = document.createElement("a");
+    link.href = URL.createObjectURL(blob);
+    link.download = "quote-margin-review.md";
+    link.click();
+    setTimeout(() => URL.revokeObjectURL(link.href), 0);
+    copyStatus.textContent = "Downloaded quote-margin-review.md.";
+    recordEvent("markdown_downloaded");
   });
   copyBtn.addEventListener("click", async () => {
     if (!lastReport) {
