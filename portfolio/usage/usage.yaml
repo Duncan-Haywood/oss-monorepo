@@ -1391,6 +1391,7 @@ products:
           open_house_compared: 0
           promoted_compared: 0
           faire_return_compared: 0
+          pay_now_compared: 0
           link_copied: 0
         note: >-
           Salvage of unique #1489 Faire wholesale fee calculator onto current
@@ -1403,6 +1404,10 @@ products:
           eat one extra first order; a second extra order flips the pile).
           Keep-it credit vs deny vs taking a Faire return added 2026-08-26
           (outbound shipping and the first-order fee are already sunk).
+          Pay Now vs Net terms added 2026-08-26 (same 60-day remittance
+          loses leftover; a faster remittance or an extra first order
+          flips the pile). This is not next-day payout and not generic
+          2/10 Net 30.
           Public URL remains owner-gated; the local-first counter reports only
           to the user's own browser and is opt-out. Baseline row.
   - slug: freight-accessorial-auditor

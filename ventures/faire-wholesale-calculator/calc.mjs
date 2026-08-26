@@ -798,6 +798,252 @@ export function promotedNote(comparison) {
   return comparison.summary ?? promotedSummaryText(comparison);
 }
 
+// Pay Now is a brand-funded extra percent so the retailer pays
+// Faire immediately. It is not next-day payout (the brand paying
+// Faire more processing) and not generic 2/10 Net 30 (Faire still
+// takes commission on the discounted subtotal, and remittance can
+// stay on the brand's payout schedule). Defaults keep remittance
+// at 60 days on both paths — overwrite wait days from the payout
+// summary if Pay Now actually lands cash sooner.
+export const PAY_NOW_DEFAULTS = {
+  payNowRate: 2,
+  payNowTakePct: 40,
+  extraPayNowOrders: 0,
+  netWaitDays: 60,
+  payNowWaitDays: 60,
+};
+
+function waitDays(value, name, fallback) {
+  const result = number(value, name, fallback);
+  if (!Number.isInteger(result)) throw new Error(`${name} must be a whole number of days`);
+  if (result > 365) throw new Error(`${name} must be 365 days or fewer`);
+  return result;
+}
+
+function payNowBrandOrder(input, extraDiscountRate) {
+  const opening = number(input.openingDiscountRate, "Brand-funded discount %", 0);
+  if (opening >= 100) throw new Error("Brand-funded discount must be below 100%");
+  const extra = number(extraDiscountRate, "Pay Now discount %", 0);
+  if (extra >= 100) throw new Error("Pay Now discount must be below 100%");
+  const combined = opening + extra;
+  if (combined >= 100) throw new Error("Pay Now discount plus opening discount must be below 100%");
+  return calculateBrandOrder({ ...input, openingDiscountRate: combined }, "marketplace_first");
+}
+
+function payNowAfterFloat(order, annualCarryRate, days) {
+  const carry = carryingCost(order.payoutAmount, annualCarryRate, days);
+  return { carryingCost: carry, net: order.profit - carry };
+}
+
+function payNowRateCeiling(input, skipNet, annualCarryRate, payNowWaitDays) {
+  const skipAtZero = payNowAfterFloat(payNowBrandOrder(input, 0), annualCarryRate, payNowWaitDays).net;
+  if (skipAtZero + 1e-9 < skipNet) return 0;
+  let low = 0;
+  let high = 99.9;
+  for (let i = 0; i < 40; i += 1) {
+    const mid = (low + high) / 2;
+    const net = payNowAfterFloat(payNowBrandOrder(input, mid), annualCarryRate, payNowWaitDays).net;
+    if (net >= skipNet) low = mid;
+    else high = mid;
+  }
+  return low;
+}
+
+function payNowWaitCeiling(takeProfit, takePayout, skipNet, annualCarryRate) {
+  if (takeProfit + 1e-12 < skipNet) return null;
+  if (annualCarryRate <= 0 || takePayout <= 0) {
+    return takeProfit + 1e-12 >= skipNet ? 365 : null;
+  }
+  const days = (takeProfit - skipNet) * 365 / (takePayout * annualCarryRate / 100);
+  if (!Number.isFinite(days) || days < 0) return null;
+  return Math.min(365, days);
+}
+
+function payNowSummaryText(comparison) {
+  const skip = comparison.skip;
+  const offer = comparison.offer;
+  const take = comparison.take;
+  const skipKeep = moneyLabel(skip.cash);
+  const offerKeep = moneyLabel(offer.cash);
+  const takeKeep = moneyLabel(take.cash);
+  const gap = moneyLabel(Math.abs(comparison.offerVsSkip));
+  const rateCeil = Number.isFinite(comparison.breakEvenPayNowRate)
+    ? `${comparison.breakEvenPayNowRate.toFixed(1)}%`
+    : "an unreachable Pay Now rate";
+  const waitCeil = comparison.breakEvenPayNowWaitDays == null
+    ? "an unreachable remittance wait"
+    : `${comparison.breakEvenPayNowWaitDays.toFixed(1)} days`;
+  const extraFloor = Number.isFinite(comparison.breakEvenExtraOrders)
+    ? comparison.breakEvenExtraOrders.toFixed(2)
+    : "an unreachable extra-order count";
+
+  if (comparison.winner === "offer") {
+    return (
+      `Offering Pay Now keeps ${gap} more than skipping `
+      + `(${offerKeep} vs ${skipKeep}) after Faire remittance wait. `
+      + `The rate can rise to about ${rateCeil} before skip matches. `
+      + `Everyone taking it is ${takeKeep}.`
+    );
+  }
+  if (comparison.winner === "take") {
+    return (
+      `Everyone taking Pay Now keeps ${moneyLabel(Math.abs(comparison.takeVsSkip))} more than skipping `
+      + `(${takeKeep} vs ${skipKeep}) after Faire remittance wait. `
+      + `The mixed offer is ${offerKeep}.`
+    );
+  }
+  if (comparison.winner === "skip") {
+    return (
+      `Skipping Pay Now keeps ${gap} more than offering it `
+      + `(${skipKeep} vs ${offerKeep}) when remittance stays on your payout schedule. `
+      + `The discount matches if the rate falls to about ${rateCeil}, remittance on Pay Now `
+      + `falls to about ${waitCeil}, or extra first orders rise to about ${extraFloor}. `
+      + `Everyone taking it is ${takeKeep}.`
+    );
+  }
+  return "Skipping Pay Now and offering it leave the same leftover on these rates.";
+}
+
+/**
+ * Same first-marketplace-order invoice, three ways to fund Pay Now:
+ * skip the extra discount and wait on Net terms; offer it at a typed
+ * take-rate plus extra first orders; or assume every retailer takes it.
+ * Opening-order discount stays on every path; Pay Now is an extra
+ * percent stacked on top so the listing discount cannot hide the
+ * early-pay cost. Remittance wait is independent of the retailer
+ * paying Faire — default both paths to 60 days. Complementary to
+ * next-day payout (processing you pay Faire) and to generic 2/10
+ * Net 30 (no marketplace commission on the discounted subtotal).
+ */
+export function compareFairePayNow(input = {}) {
+  const payNowRate = number(input.payNowRate, "Pay Now discount %", PAY_NOW_DEFAULTS.payNowRate);
+  if (payNowRate >= 100) throw new Error("Pay Now discount must be below 100%");
+  const payNowTakePct = percentAtMost(
+    input.payNowTakePct,
+    "Pay Now take rate",
+    PAY_NOW_DEFAULTS.payNowTakePct,
+  );
+  const extraOrders = wholeNumberOrZero(
+    input.extraPayNowOrders,
+    "Pay Now extra first orders",
+    PAY_NOW_DEFAULTS.extraPayNowOrders,
+  );
+  const netWaitDays = waitDays(input.netWaitDays, "Net remittance wait", PAY_NOW_DEFAULTS.netWaitDays);
+  const payNowWaitDays = waitDays(
+    input.payNowWaitDays,
+    "Pay Now remittance wait",
+    PAY_NOW_DEFAULTS.payNowWaitDays,
+  );
+  const annualCarryRate = number(input.annualCarryRate, "Annual carrying-cost rate", 24);
+  if (annualCarryRate >= 1000) throw new Error("Annual carrying-cost rate must be below 1000%");
+
+  const skipOrder = payNowBrandOrder(input, 0);
+  const takeOrder = payNowBrandOrder(input, payNowRate);
+  const skipFloat = payNowAfterFloat(skipOrder, annualCarryRate, netWaitDays);
+  const takeFloat = payNowAfterFloat(takeOrder, annualCarryRate, payNowWaitDays);
+  const takeShare = payNowTakePct / 100;
+  const mixNet = takeShare * takeFloat.net + (1 - takeShare) * skipFloat.net;
+
+  const skip = {
+    id: "skip",
+    label: "Skip Pay Now (Net terms)",
+    payNowRate: 0,
+    waitDays: netWaitDays,
+    profit: skipOrder.profit,
+    payout: skipOrder.payoutAmount,
+    discount: skipOrder.brandFundedDiscount,
+    carryingCost: skipFloat.carryingCost,
+    net: skipFloat.net,
+    orders: 1,
+    cash: skipFloat.net,
+  };
+  const offer = {
+    id: "offer",
+    label: "Offer Pay Now (mixed take-rate)",
+    payNowRate,
+    waitDays: payNowWaitDays,
+    profit: takeShare * takeOrder.profit + (1 - takeShare) * skipOrder.profit,
+    payout: takeShare * takeOrder.payoutAmount + (1 - takeShare) * skipOrder.payoutAmount,
+    discount: takeShare * takeOrder.brandFundedDiscount + (1 - takeShare) * skipOrder.brandFundedDiscount,
+    carryingCost: takeShare * takeFloat.carryingCost + (1 - takeShare) * skipFloat.carryingCost,
+    net: mixNet,
+    orders: 1 + extraOrders,
+    cash: mixNet + extraOrders * takeFloat.net,
+  };
+  const take = {
+    id: "take",
+    label: "Everyone takes Pay Now",
+    payNowRate,
+    waitDays: payNowWaitDays,
+    profit: takeOrder.profit,
+    payout: takeOrder.payoutAmount,
+    discount: takeOrder.brandFundedDiscount,
+    carryingCost: takeFloat.carryingCost,
+    net: takeFloat.net,
+    orders: 1 + extraOrders,
+    cash: takeFloat.net * (1 + extraOrders),
+  };
+
+  const rows = [skip, offer, take];
+  const best = rows.reduce((winner, row) => (row.cash > winner.cash ? row : winner));
+  const offerVsSkip = offer.cash - skip.cash;
+  const takeVsSkip = take.cash - skip.cash;
+  let winner = "tie";
+  if (best.cash > skip.cash + 1e-9) winner = best.id;
+  else if (skip.cash > best.cash + 1e-9) winner = "skip";
+  else if (Math.abs(offer.cash - skip.cash) <= 1e-9 && Math.abs(take.cash - skip.cash) <= 1e-9) {
+    winner = "tie";
+  } else {
+    winner = skip.cash >= offer.cash && skip.cash >= take.cash ? "skip" : best.id;
+  }
+
+  const breakEvenPayNowRate = payNowRateCeiling(input, skip.cash, annualCarryRate, payNowWaitDays);
+  const breakEvenPayNowWaitDays = payNowWaitCeiling(
+    takeOrder.profit,
+    takeOrder.payoutAmount,
+    skip.cash,
+    annualCarryRate,
+  );
+  let breakEvenExtraOrders = null;
+  if (takeFloat.net > 1e-12) {
+    const needed = (skip.cash - mixNet) / takeFloat.net;
+    breakEvenExtraOrders = needed <= 0 ? 0 : needed;
+  }
+
+  const result = {
+    skip,
+    offer,
+    take,
+    payNowRate,
+    payNowTakePct,
+    extraOrders,
+    netWaitDays,
+    payNowWaitDays,
+    annualCarryRate,
+    offerVsSkip,
+    takeVsSkip,
+    breakEvenPayNowRate,
+    breakEvenPayNowWaitDays,
+    breakEvenExtraOrders,
+    winner,
+    rows: rows.map((row) => ({
+      ...row,
+      isBest: row === best,
+      vsSkip: row.id === "skip" ? 0 : row.cash - skip.cash,
+    })),
+    best: { id: best.id, label: best.label, cash: best.cash },
+  };
+  result.summary = payNowSummaryText(result);
+  return result;
+}
+
+export function payNowNote(comparison) {
+  if (!comparison?.skip || !comparison?.offer || !comparison?.take) {
+    throw new Error("payNowNote missing rows");
+  }
+  return comparison.summary ?? payNowSummaryText(comparison);
+}
+
 export const FAIRE_RETURN_DEFAULTS = {
   returnUnits: 10,
   returnLabel: 18,

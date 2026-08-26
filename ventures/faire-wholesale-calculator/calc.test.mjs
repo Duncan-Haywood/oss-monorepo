@@ -4,6 +4,7 @@ import {
   calculateBrandOrder,
   calculateRetailerOrder,
   compareBrandScenarios,
+  compareFairePayNow,
   compareFairePromoted,
   compareFaireReturn,
   compareOpenHouse,
@@ -12,6 +13,8 @@ import {
   compareRetailerLifetime,
   faireReturnNote,
   FAIRE_RETURN_DEFAULTS,
+  payNowNote,
+  PAY_NOW_DEFAULTS,
   openHouseNote,
   openHouseSummary,
   OPEN_HOUSE_DEFAULTS,
@@ -364,6 +367,68 @@ test("PROMOTED_DEFAULTS match the page starting point", () => {
   assert.equal(PROMOTED_DEFAULTS.highPromotedRate, 22);
   assert.equal(PROMOTED_DEFAULTS.highExtraPromotedOrders, 2);
   assert.equal(PROMOTED_DEFAULTS.highAttributedOrganicPct, 55);
+});
+
+test("compareFairePayNow skip beats a 2% offer when remittance stays 60 days", () => {
+  const comparison = compareFairePayNow(naReorder);
+  assert.equal(comparison.winner, "skip");
+  assert.ok(Math.abs(comparison.skip.cash - 69.15764383561644) < 1e-9);
+  assert.ok(Math.abs(comparison.offer.cash - 67.88049928767123) < 1e-9);
+  assert.ok(Math.abs(comparison.take.cash - 65.96478246575342) < 1e-9);
+  assert.ok(Math.abs(comparison.offerVsSkip + 1.2771445479452126) < 1e-9);
+  assert.ok(comparison.breakEvenPayNowRate < 0.05);
+  assert.ok(Math.abs(comparison.breakEvenPayNowWaitDays - 31.023237217739936) < 1e-9);
+  assert.ok(Math.abs(comparison.breakEvenExtraOrders - 0.01936100598237038) < 1e-9);
+});
+
+test("one extra first order flips offering Pay Now ahead of skip", () => {
+  const comparison = compareFairePayNow({ ...naReorder, extraPayNowOrders: 1 });
+  assert.equal(comparison.winner, "offer");
+  assert.ok(Math.abs(comparison.offer.cash - 133.84528175342464) < 1e-9);
+  assert.ok(Math.abs(comparison.offerVsSkip - 64.6876379178082) < 1e-9);
+});
+
+test("a 1-day Pay Now remittance flips everyone-takes ahead of skip", () => {
+  const comparison = compareFairePayNow({ ...naReorder, payNowWaitDays: 1 });
+  assert.equal(comparison.winner, "take");
+  assert.ok(Math.abs(comparison.take.cash - 72.46581304109588) < 1e-9);
+  assert.ok(Math.abs(comparison.offer.cash - 70.48091151780822) < 1e-9);
+  assert.ok(comparison.breakEvenPayNowRate > 3.9 && comparison.breakEvenPayNowRate < 4.1);
+});
+
+test("payNowNote names the default leak, remittance ceiling, and extra-order floor", () => {
+  const comparison = compareFairePayNow(naReorder);
+  const text = payNowNote(comparison);
+  assert.equal(text, comparison.summary);
+  assert.match(text, /\$69\.16/);
+  assert.match(text, /\$67\.88/);
+  assert.match(text, /0\.0%/);
+  assert.match(text, /31\.0 days/);
+  assert.match(text, /about 0\.02/);
+  assert.doesNotMatch(text, /you should offer|must skip Pay Now|must turn Pay Now on/i);
+});
+
+test("compareFairePayNow stacks Pay Now on top of the opening discount", () => {
+  const stacked = compareFairePayNow({ ...naReorder, openingDiscountRate: 10, payNowRate: 2 });
+  assert.equal(stacked.skip.discount, 20);
+  assert.equal(stacked.take.discount, 24);
+});
+
+test("compareFairePayNow rejects impossible rates, waits, and fractional extra orders", () => {
+  assert.throws(() => compareFairePayNow({ ...naReorder, payNowRate: 100 }), /below 100/);
+  assert.throws(() => compareFairePayNow({ ...naReorder, payNowTakePct: 140 }), /at most 100/);
+  assert.throws(() => compareFairePayNow({ ...naReorder, extraPayNowOrders: 1.5 }), /whole number/);
+  assert.throws(() => compareFairePayNow({ ...naReorder, payNowWaitDays: 400 }), /365 days or fewer/);
+  assert.throws(() => compareFairePayNow({ ...naReorder, netWaitDays: -1 }), /non-negative/);
+  assert.throws(() => payNowNote({}), /missing rows/);
+});
+
+test("PAY_NOW_DEFAULTS match the page starting point", () => {
+  assert.equal(PAY_NOW_DEFAULTS.payNowRate, 2);
+  assert.equal(PAY_NOW_DEFAULTS.payNowTakePct, 40);
+  assert.equal(PAY_NOW_DEFAULTS.extraPayNowOrders, 0);
+  assert.equal(PAY_NOW_DEFAULTS.netWaitDays, 60);
+  assert.equal(PAY_NOW_DEFAULTS.payNowWaitDays, 60);
 });
 
 test("a 20% keep-it credit still beats denying at 50% and taking the full return", () => {

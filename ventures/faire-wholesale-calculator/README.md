@@ -18,6 +18,8 @@ to Open House at 0% commission after the deeper discount retailers expect.
 Listings to a campaign after last-click organic first orders.
 `should-i-take-this-faire-return.html` compares a keep-it credit, denying
 the request, and taking the return after a completed first order.
+`should-i-offer-faire-pay-now.html` compares skipping a Pay Now discount
+to offering it after Faire remittance wait.
 
 The calculation is local and works without an account, network request, or API
 key. It is arithmetic, not an estimate of the fees Faire will charge: enter the
@@ -29,8 +31,9 @@ opening-order fee, see whether next-day payout still beats waiting
 once your own carrying cost is on the invoice, and see whether a Faire
 Open House discount still leaves more than listing everyday, and see
 whether Promoted Listings still cover last-click organic first
-orders, and see whether a keep-it credit still beats taking a Faire
-return**, which used to take reconciling Faire’s help articles against a spreadsheet.
+orders, see whether a keep-it credit still beats taking a Faire
+return, and see whether a Pay Now discount still covers Faire
+remittance wait**, which used to take reconciling Faire’s help articles against a spreadsheet.
 
 ## What it checks that a flat 15% page does not
 
@@ -86,11 +89,13 @@ the counter in the same way as the checkbox.
 ## Opportunity
 
 Faire brands search for “Faire seller fees”, “Faire commission calculator”,
-“Faire Direct vs marketplace”, “Faire Open House worth it”, and “Faire
-Promoted Listings worth it” because the first-order fee, a seasonal 0%
-window, payout-speed processing, and last-click promoted billing make a 15%
-headline incomplete. Independent retailers search for opening-order margin
-after shipping. Those jobs are deterministic arithmetic with no paid API.
+“Faire Direct vs marketplace”, “Faire Open House worth it”, “Faire
+Promoted Listings worth it”, and “Faire Pay Now discount” because the
+first-order fee, a seasonal 0% window, payout-speed processing, last-click
+promoted billing, and a brand-funded early-pay percent that may not speed
+remittance make a 15% headline incomplete. Independent retailers search for
+opening-order margin after shipping. Those jobs are deterministic arithmetic
+with no paid API.
 [GitHub Sponsors](https://github.com/sponsors/Duncan-Haywood) is optional and
 never changes what the tool does.
 
