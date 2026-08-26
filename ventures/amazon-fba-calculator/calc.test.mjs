@@ -32,6 +32,13 @@ import {
   LOW_INVENTORY_THRESHOLD_DAYS,
   compareAwd,
   awdNote,
+  compareRemoteFulfillment,
+  remoteFulfillmentNote,
+  DEFAULT_NARF_FEE,
+  DEFAULT_CA_INBOUND,
+  DEFAULT_NARF_TAKE_PCT,
+  DEFAULT_CA_TAKE_PCT,
+  DEFAULT_CA_SESSIONS,
   DEFAULT_AWD_LOT_UNITS,
   DEFAULT_AWD_HORIZON_MONTHS,
   DEFAULT_AWD_INBOUND,
@@ -1864,4 +1871,104 @@ test("compareAwd ignores a typed return mix and rejects impossible inputs", () =
   assert.throws(() => compareAwd({ ...AWD_BASE, monthlyUnits: 0 }), /greater than zero/);
   assert.throws(() => compareAwd({ ...AWD_BASE, workingStock: 0 }), /greater than zero/);
   assert.throws(() => awdNote({}), /missing rows/);
+});
+
+const NARF_BASE = {
+  salePrice: 29.99,
+  referralRate: 15,
+  length: 8,
+  width: 6,
+  height: 2,
+  weightLb: 0.75,
+  costOfGoods: 8,
+  inboundPerUnit: 1.2,
+  packagingCost: 0.6,
+  storageRate: 0.87,
+  monthlyUnits: 80,
+};
+
+test("compareRemoteFulfillment: default Canada demand still prefers NARF over a first CA pile", () => {
+  const comparison = compareRemoteFulfillment(NARF_BASE);
+  assert.equal(comparison.winner, "narf");
+  assert.equal(comparison.narfFee, DEFAULT_NARF_FEE);
+  assert.equal(comparison.caInboundPerUnit, DEFAULT_CA_INBOUND);
+  assert.equal(comparison.narfTakePct, DEFAULT_NARF_TAKE_PCT);
+  assert.equal(comparison.caTakePct, DEFAULT_CA_TAKE_PCT);
+  assert.equal(comparison.monthlySessions, DEFAULT_CA_SESSIONS);
+  assert.equal(comparison.sizeTier, "large_standard");
+  near(comparison.fulfillmentFee, 4.15, "large-standard 12 oz band");
+  near(comparison.usProfit, 11.493166666666664, "US FBA leftover");
+  near(comparison.narf.completedProfit, 10.243166666666664, "NARF completed");
+  near(comparison.narf.expectedProfit, 5.121583333333332, "NARF expected");
+  near(comparison.canada.completedProfit, 7.493166666666663, "CA completed");
+  near(comparison.canada.expectedProfit, 4.870558333333331, "CA expected");
+  near(comparison.extraNarfVsSkip, 5.121583333333332, "NARF vs skip");
+  near(comparison.extraCanadaVsNarf, -0.25102500000000116, "CA vs NARF");
+  near(comparison.monthlyExtraOnNarf, 204.8633333333333, "monthly vs skip");
+  near(comparison.breakEvenNarfFee, 1.7520500000000023, "remote-fee ceiling");
+  near(comparison.breakEvenCaInbound, 4.813807692307691, "CA inbound ceiling");
+  near(comparison.breakEvenNarfTakePct, 47.54934183764785, "NARF take floor");
+  assert.equal(comparison.skip.expectedProfit, 0);
+  assert.match(comparison.summary, /\$5\.12 more per Canada session/);
+  assert.match(comparison.summary, /\$204\.86 on 40 Canada sessions/);
+  assert.match(comparison.summary, /behind by \$0\.25/);
+  assert.match(comparison.summary, /\$1\.75/);
+  assert.equal(remoteFulfillmentNote(comparison), comparison.summary);
+});
+
+test("compareRemoteFulfillment: form defaults without monthly units match the locked leftover", () => {
+  const fromForm = compareRemoteFulfillment({
+    salePrice: "29.99",
+    referralRate: "15",
+    length: "8",
+    width: "6",
+    height: "2",
+    weightLb: "0.75",
+    costOfGoods: "8",
+    inboundPerUnit: "1.20",
+    packagingCost: "0.60",
+    narfFee: "1.25",
+    caInboundPerUnit: "5.20",
+    narfTakePct: "50",
+    caTakePct: "65",
+    caSessions: "40",
+  });
+  const fromTests = compareRemoteFulfillment(NARF_BASE);
+  assert.equal(fromForm.winner, "narf");
+  near(fromForm.narf.expectedProfit, fromTests.narf.expectedProfit, "form vs test leftover");
+  near(fromForm.usProfit, 11.493166666666664, "Professional fee not allocated to one unit");
+});
+
+test("compareRemoteFulfillment: a $2.40 Canada inbound flips the dedicated pile ahead", () => {
+  const comparison = compareRemoteFulfillment({ ...NARF_BASE, caInboundPerUnit: 2.4 });
+  assert.equal(comparison.winner, "canada");
+  near(comparison.canada.expectedProfit, 6.690558333333331, "cheap CA expected");
+  near(comparison.extraCanadaVsNarf, 1.5689749999999991, "cheap CA vs NARF");
+  assert.match(comparison.summary, /\$1\.57 more per session/);
+  assert.match(comparison.summary, /can rise to about \$4\.81/);
+});
+
+test("compareRemoteFulfillment: remote fee at the ceiling ties the Canada pile", () => {
+  const comparison = compareRemoteFulfillment(NARF_BASE);
+  const tied = compareRemoteFulfillment({
+    ...NARF_BASE,
+    narfFee: comparison.breakEvenNarfFee,
+  });
+  near(tied.narf.expectedProfit, tied.canada.expectedProfit, "remote-fee ceiling");
+  assert.equal(tied.winner, "tie");
+});
+
+test("compareRemoteFulfillment ignores a typed return mix and rejects impossible inputs", () => {
+  const withReturns = compareRemoteFulfillment({
+    ...NARF_BASE,
+    returnRate: 15,
+    unsellableReturnRate: 20,
+    returnHandlingFee: 2.5,
+  });
+  const completed = compareRemoteFulfillment(NARF_BASE);
+  near(withReturns.narf.expectedProfit, completed.narf.expectedProfit, "return mix forced to 0");
+  assert.throws(() => compareRemoteFulfillment({ salePrice: -1 }), /Sale price/);
+  assert.throws(() => compareRemoteFulfillment({ ...NARF_BASE, caSessions: 0 }), /greater than zero/);
+  assert.throws(() => compareRemoteFulfillment({ ...NARF_BASE, narfTakePct: 140 }), /at most 100/);
+  assert.throws(() => remoteFulfillmentNote({}), /missing rows/);
 });
