@@ -79,6 +79,9 @@ workflows:
 - workflow: branch-cleanup.yml
   classification: none
   publishes: []
+- workflow: carpet-install-bid-calculator-ci.yml
+  classification: none
+  publishes: []
 - workflow: claude-routine-trigger.yml
   classification: none
   publishes: []
