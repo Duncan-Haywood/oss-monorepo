@@ -2,12 +2,13 @@
 
 Small shippers and freight brokers can now audit billed accessorial lines for duplicates, amounts above an expected contract figure, missing codes, and missing or contradictory evidence — then copy a factual review draft and download a CSV. Sibling pages compare a detention line to the dock clock after free time, and compare eating an extra versus billing the customer versus paying first and reviewing for a credit.
 
-**After using this, you can now** identify invoice lines worth handing to AP with a dated review record, which used to take a manual spreadsheet pass against the rate confirmation.
+**After using this, you can now** import the carrier's own invoice export, apply your contract rate card once, and identify invoice lines worth handing to AP with a dated review record — which used to take a manual spreadsheet pass against the rate confirmation, one line at a time.
 
 Open `index.html` in a browser, or serve this directory with `python3 -m http.server`. It works without an account, API key, or paid service. It is distinct from a 3PL quote normalizer: this audits billed invoice lines after service, rather than comparing prospective fulfillment quotes.
 
 ## What it does
 
+- **Imports the carrier's invoice export** (`how-to-audit-a-whole-freight-invoice.html`): CSV, tab-separated, or a range pasted out of a spreadsheet. Columns are guessed from their headings and shown for correction; a contract rate card supplies the expected amounts a carrier file never carries.
 - Flags duplicate lines, billed amounts above expected, missing accessorial codes, and invalid or negative amounts.
 - Ranks a line as high / review / supported / fix-inputs from the overage and the evidence status you select.
 - Copies a factual dispute-review draft that lists only actionable overages and never determines that a charge is wrong.
@@ -31,6 +32,8 @@ Then open `http://localhost:8878`.
 
 The landing page starts with two $125 liftgate lines on INV-1 (expected $75, evidence missing) and a $20 uncoded line that matches its expected amount. That is **$100.00 above expected** across **3 flagged of 3 lines**, **2 actionable**.
 
+The import panel ships a three-code rate card (`LIFT, 75` / `DET, 75` / `RESI, 45`). Feeding it a six-line carrier export with *only import lines whose code is in my rate card* ticked skips line haul and fuel, leaving **4 lines totalling $595.00** of which **$325.00 is above the rate card** across **3 flagged lines** — including a $125.00 liftgate billed twice. `how-to-audit-a-whole-freight-invoice.html` walks that example, and a test recomputes its figures so the write-up cannot drift from the code.
+
 The detention page starts with 180 minutes on dock, 120 free, $75/hour, and a $300 billed line. The clock leaves **1.00 billable hour — $75.00 expected**. The invoice bills **$300.00 as if 4.00 hours**, **$225.00 above the clock**.
 
 The pass-through page starts with **$180.00 already collected**, a **$300.00** billed extra against **$75.00 supported**, a **$300.00** customer back-charge, and **1.5 hours** of review at **$42/hr**. Eating keeps **−$120.00**. Billing the customer keeps **$180.00**. A credit after **$63.00** labor keeps **$42.00**. No credit keeps **−$183.00**.
@@ -45,7 +48,7 @@ This is a different product from `3pl-quote-normalizer` (prospective warehouse q
 
 ## Privacy and usage
 
-Everything runs in your browser. Your data is never uploaded, and we don't have accounts, tracking cookies, or an analytics vendor. We count anonymous events (which features get used, nothing about who used them). Uncheck the box on the page to turn counting off. Do Not Track and Global Privacy Control disable counting automatically.
+Everything runs in your browser, including the invoice file you import — it is read with the browser's local file reader and never uploaded. We don't have accounts, tracking cookies, or an analytics vendor. We count anonymous events (which features get used, nothing about who used them). Uncheck the box on the page to turn counting off. Do Not Track and Global Privacy Control disable counting automatically.
 
 ## Safety
 

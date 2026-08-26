@@ -1,26 +1,31 @@
-# Publish every browser product in `ventures/` to GitHub Pages.
+# Build every browser product in `ventures/` into a Pages artifact, and check it.
 #
-# Why this workflow exists
-# ------------------------
-# As of 2026-08-26 this repo carries 32 finished browser calculators and not one
-# of them has a public URL. `platform/ci/publish_surface.py` reports that no
-# workflow publishes anything on a push to `main`, and the only Pages workflow
-# in the repo ships one venture's docs (`retail-pilot-intel-deploy-docs.yml`).
+# Why this workflow does NOT deploy
+# ---------------------------------
+# It used to. It was written to close a real gap -- 32 finished calculators with
+# no public URL -- and gated its deploy on `GITHUB_PAGES_ENABLED`, deliberately
+# reusing the one owner flip rather than opening a second ask.
 #
-# That is the gap this closes. The owner flip everyone has been waiting on --
-# `GITHUB_PAGES_ENABLED` -- would, on its own, have published none of the
-# products, because nothing built them into a Pages artifact. Now it publishes
-# all of them at once.
+# `portfolio-pages.yml` was written to close the same gap, from the same
+# reasoning, in the same hour. Neither pull request could see the other, and both
+# merged. GitHub serves exactly one Pages site per repository and
+# `actions/deploy-pages` replaces the whole of it, so with both deploying, the
+# single `GITHUB_PAGES_ENABLED` flip would have armed two publishers of two
+# different builds, triggered by the same `ventures/**` paths, in different
+# concurrency groups -- racing on every push, with the live site left as whichever
+# finished last.
 #
-# This deliberately reuses the SAME owner variable the existing Pages workflow
-# gates on rather than introducing a second switch. `portfolio/hosting/README.md`
-# is explicit that `deploy-settings` is the one remaining owner flip and that no
-# second platform ask should be opened.
+# `portfolio-pages.yml` keeps the deploy: it is the more developed of the two
+# (site navigation, favicon, sitemap repair, the no-SLA clause check) and the
+# later Pages work built on it. Nothing here is deleted, because this builder is
+# still worth running: it is an independent implementation of the same site, so
+# when it and the Node builder disagree about what `ventures/` contains, one of
+# them has a bug. `check_pages_links.py` has no equivalent on the other side.
 #
-# The build job runs unconditionally so that a broken site build is a red check
-# on the PR that broke it, whether or not Pages is switched on yet.
+# `publish_surface.py --check` now fails if any one variable would arm two Pages
+# deployments, so this cannot silently come back.
 
-name: Deploy portfolio Pages site
+name: Portfolio Pages site build
 
 on:
   push:
@@ -38,14 +43,10 @@ on:
       - ".github/workflows/pages.yml"
   workflow_dispatch:
 
-# GitHub serves one Pages site per repository, so every workflow that can deploy
-# to it shares this one concurrency group — `github-pages-site`. Different groups
-# would let two publishes run at the same moment and interleave on one site.
-# `cancel-in-progress: false` lets an in-flight publish finish rather than
-# leaving the live site on a half-uploaded artifact.
+# Nothing here publishes, so a superseded run has no value: cancel it.
 concurrency:
-  group: github-pages-site
-  cancel-in-progress: false
+  group: pages-build-${{ github.ref }}
+  cancel-in-progress: true
 
 permissions:
   contents: read
@@ -64,17 +65,6 @@ jobs:
         working-directory: platform/ci
         run: python3 -m unittest test_build_pages_site
 
-      - uses: actions/setup-node@v4
-        with:
-          node-version: "22"
-
-      - name: One Pages site, one publisher
-        # This workflow is the one most likely to break the invariant, since
-        # re-enabling its deploy job is a one-line edit. Check it here too, so
-        # the edit turns this workflow red rather than silently arming a race.
-        working-directory: platform/pages
-        run: node --test publishers.test.mjs
-
       - name: Validate what would be published
         run: python3 platform/ci/build_pages_site.py --check
 
@@ -88,54 +78,12 @@ jobs:
       - name: Check every hub link resolves in the built artifact
         run: python3 platform/ci/check_pages_links.py _site
 
-      - name: Upload Pages artifact
-        # Only the deploy job consumes this, but uploading unconditionally keeps
-        # the artifact inspectable on a PR run where deploying is not wanted.
-        uses: actions/upload-pages-artifact@v3
+      # Kept, though nothing here deploys: the tarball is what a reviewer
+      # downloads to see the site this builder actually produces.
+      - name: Upload the built site for inspection
+        uses: actions/upload-artifact@v4
         with:
+          name: pages-site-python-builder
           path: _site
+          retention-days: 7
 
-  deploy:
-    needs: build
-    # Never publish from a pull request: a PR build is untrusted code, and a
-    # fork PR must not be able to overwrite the live site.
-    #
-    # Held off 2026-08-26. This job and `portfolio-pages.yml`'s deploy job read
-    # the SAME `GITHUB_PAGES_ENABLED` variable, from different `concurrency`
-    # groups (`pages-deploy` here, `portfolio-pages` there). A repository serves
-    # exactly one Pages site, so the owner flip everyone is waiting on would
-    # have started two deployments at once, racing for that one site, and the
-    # public URL would have shown whichever finished last — a coin toss on every
-    # push to `ventures/**`, which is most days.
-    #
-    # `portfolio-pages.yml` keeps the flip because `platform/pages/` is the more
-    # developed line: it carries the cross-tool navigation (#1726), the hub
-    # description fix (#1730), the artifact check, and a post-deploy check of
-    # the real public URL. Nothing here is deleted and this workflow's build,
-    # unit tests, and link check still run on every push, so the Python builder
-    # stays green, inspectable, and one line from being the publisher again.
-    #
-    # If this becomes the publisher, hold off `portfolio-pages.yml`'s deploy in
-    # the same way and give both jobs the same `concurrency` group. Do not let
-    # two `deploy-pages` jobs read one variable.
-    if: >-
-      github.event_name != 'pull_request' &&
-      vars.PAGES_PUBLISHER == 'platform-ci' &&
-      vars.GITHUB_PAGES_ENABLED == 'true'
-    runs-on: ubuntu-latest
-    permissions:
-      pages: write
-      id-token: write
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
-    steps:
-      - name: Deploy to GitHub Pages
-        id: deployment
-        uses: actions/deploy-pages@v4
-
-      - name: Report the public URL
-        run: |
-          echo "### Portfolio site published" >> "$GITHUB_STEP_SUMMARY"
-          echo "" >> "$GITHUB_STEP_SUMMARY"
-          echo "${{ steps.deployment.outputs.page_url }}" >> "$GITHUB_STEP_SUMMARY"

@@ -649,6 +649,41 @@ ${DISCLAIMER_HTML}
 // with nearly every open branch.
 const CHROME_MARKER = 'pf-chrome';
 
+/**
+ * How a page says it carries no availability promise, in any of the wordings
+ * the ventures actually use. Deliberately loose: several write the clause in
+ * their own voice ("Hosted URLs, when they exist, carry no availability SLA"),
+ * and a page that already says it must not be given a second notice.
+ */
+export const NO_SLA_PATTERN =
+  /best-effort hosting|no (availability )?sla|carry no availability|taken offline without notice/i;
+
+/**
+ * The availability clause, injected into any published page that lacks one.
+ *
+ * PRODUCT_PLAYBOOK.md 5b requires it on every hosted surface, and a test has
+ * enforced that since #1731 — but it can only fail *after* the venture is on
+ * `main`, and three ventures shipped without the clause and turned `main` red
+ * in a single day (#1747 for two, and sewer-line-replace after them). That is
+ * not carelessness: a calculator is written as a standalone page, months
+ * before anyone decides it will be hosted, so nothing in front of its author
+ * says an availability promise is now implied.
+ *
+ * Injecting it where it is missing makes the requirement hold by construction
+ * for every tool including the one that lands tomorrow, the same way the
+ * canonical below is injected only where absent.
+ *
+ * Only the *hosting* clause is injected, never the no-warranty one. This build
+ * decides how these pages are hosted, so the availability promise is its
+ * statement to make; what a tool is not advice *about* is the venture's own
+ * ("not landscaping, construction, legal, tax, or financial advice"), and
+ * generic prose there would be worse than what each venture already writes.
+ */
+const NO_SLA_CLAUSE =
+  '<p class="pf-sla"><strong>Best-effort hosting, no SLA.</strong> These tools are free and ' +
+  'experimental, and may be slow, broken, moved, or taken offline without notice. We do not ' +
+  'promise uptime, or that a URL will keep working. Do not use this as a system of record.</p>';
+
 // Scoped under `.pf-chrome` so it cannot restyle a venture's own page, and
 // declared with fallbacks rather than inherited variables because each venture
 // names its theme variables differently.
@@ -755,32 +790,6 @@ export function relatedTools(surfaces, slug, limit = 4) {
  * unchanged when there is no `<body>` to attach to, or when the page has been
  * wrapped already — the pass has to be safe to run twice.
  */
-/**
- * Whether a page already states an availability disclaimer in its own words.
- *
- * Several ventures word it themselves ("Hosted URLs, when they exist, carry no
- * availability SLA"), and PRODUCT_PLAYBOOK 5b cares that the clause is present,
- * not that it is phrased identically — so a page that has one is left alone
- * rather than made to carry it twice. Matches the same loose set of phrasings
- * `build.test.mjs` asserts on.
- */
-export const statesNoSla = (html) =>
-  /best-effort hosting|no (availability )?sla|carry no availability|taken offline without notice/i.test(html);
-
-// PRODUCT_PLAYBOOK 5b requires the no-SLA clause on every *hosted* surface. It
-// is injected rather than required of each venture because requiring it does not
-// hold: #1731 added the rule and fixed the pages that existed, and the suite has
-// gone red twice since as new calculators landed without it — one lands most
-// days. Injection covers each new venture for free, the way the navigation above
-// already does, and cannot be forgotten.
-const NO_SLA_HTML = `    <p>
-      <strong>Best-effort hosting, no SLA.</strong> These tools are free and
-      experimental, and may be slow, broken, moved, or taken offline without
-      notice. We do not promise uptime, or backups of anything you type. Do not
-      use them as a system of record — if one matters to you,
-      <a href="https://github.com/Duncan-Haywood/monorepo-projects">run it yourself</a>.
-    </p>`;
-
 export function injectChrome(html, { slug, toRoot, total, related = [], canonical, isEntry, title }) {
   if (html.includes(CHROME_MARKER)) return html;
   const bodyOpen = html.match(/<body[^>]*>/i);
@@ -838,11 +847,14 @@ export function injectChrome(html, { slug, toRoot, total, related = [], canonica
     )
     .join('\n');
 
+  // Tested against the venture's own markup, before any chrome is added.
+  const noSla = NO_SLA_PATTERN.test(html) ? '' : `    ${NO_SLA_CLAUSE}\n`;
+
   const footer = `<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
   <div class="pf-inner">
     <h2>More free tools</h2>
     <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
-${statesNoSla(html) ? '' : `${NO_SLA_HTML}\n`}${links ? `    <ul>\n${links}\n    </ul>\n` : ''}    <p>
+${noSla}${links ? `    <ul>\n${links}\n    </ul>\n` : ''}    <p>
       <a href="${escapeHtml(hub)}" data-pf-to="hub">Browse all ${total} free tools →</a>
       &nbsp;·&nbsp;
       <a href="https://github.com/sponsors/Duncan-Haywood">Sponsoring on GitHub</a>
