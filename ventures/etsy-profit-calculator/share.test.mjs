@@ -3,9 +3,15 @@ import assert from 'node:assert/strict';
 import { encodeInputs, decodeInputs, FIELD_IDS } from './share.mjs';
 
 test('round-trips a full set of inputs unchanged', () => {
-  const inputs = { price: 30, shippingCharged: 5, listingFee: 0.2, transactionRate: 6.5, paymentRate: 3, paymentFixed: 0.25, offsiteAdRate: 15, shippingCost: 6, materialCost: 4, otherCost: 1 };
+  const inputs = { price: 30, shippingCharged: 5, listingFee: 0.2, transactionRate: 6.5, paymentRate: 3, paymentFixed: 0.25, offsiteAdRate: 15, shippingCost: 6, materialCost: 4, otherCost: 1, etsyAdsAcosPct: 12 };
   const decoded = decodeInputs(encodeInputs(inputs));
   assert.deepEqual(decoded, inputs);
+});
+
+test('carries Etsy Ads ACOS so a shared link does not drop it', () => {
+  const decoded = decodeInputs(encodeInputs({ price: 30, etsyAdsAcosPct: 18, monthlyAdSpend: 40 }));
+  assert.equal(decoded.etsyAdsAcosPct, 18);
+  assert.equal(decoded.monthlyAdSpend, 40);
 });
 
 test('emits fields in a stable order so the same inputs give the same link', () => {
@@ -44,7 +50,8 @@ test('returns an empty object for missing or malformed input', () => {
 test('every encodable field is a real calculator field', () => {
   // Guards against FIELD_IDS drifting from the form: every id here is one the
   // page renders. Order fields feed calculateOrder; Plus fields feed
-  // compareEtsyPlus; personalization fields feed comparePersonalization.
+  // compareEtsyPlus; personalization fields feed comparePersonalization;
+  // etsyAdsAcosPct feeds compareEtsyAds (monthlyAdSpend is shared with Plus).
   assert.equal(new Set(FIELD_IDS).size, FIELD_IDS.length);
   assert.ok(FIELD_IDS.includes('price'));
   assert.ok(FIELD_IDS.includes('listingsPerMonth'));
@@ -54,4 +61,6 @@ test('every encodable field is a real calculator field', () => {
   assert.ok(FIELD_IDS.includes('extraMaterialCost'));
   assert.ok(FIELD_IDS.includes('extraTimeCost'));
   assert.ok(FIELD_IDS.includes('monthlyCustomOrders'));
+  assert.ok(FIELD_IDS.includes('etsyAdsAcosPct'));
+  assert.ok(FIELD_IDS.includes('monthlyAdSpend'));
 });

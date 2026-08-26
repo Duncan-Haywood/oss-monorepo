@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { calculateOrder, priceForMargin, compareEtsyPlus, plusBreakEvenListings, plusCreditValueUsed, ETSY_PLUS_DEFAULTS, comparePersonalization, personalizationNote, PERSONALIZATION_DEFAULTS } from './calc.mjs';
+import { calculateOrder, priceForMargin, compareEtsyPlus, plusBreakEvenListings, plusCreditValueUsed, ETSY_PLUS_DEFAULTS, comparePersonalization, personalizationNote, PERSONALIZATION_DEFAULTS, compareEtsyAds, etsyAdsNote, ETSY_ADS_DEFAULTS } from './calc.mjs';
 
 test('calculates the complete fee stack and contribution', () => {
   const result = calculateOrder({ price: 30, shippingCharged: 5, listingFee: .2, transactionRate: 6.5, paymentRate: 3, paymentFixed: .25, offsiteAdRate: 0, shippingCost: 6, materialCost: 4, otherCost: 1 });
@@ -238,4 +238,64 @@ test('personalization note names both the upgrade gap and the incremental frame'
 test('rejects negative personalization inputs', () => {
   assert.throws(() => comparePersonalization({ ...PAGE_ORDER, personalizationUpcharge: -8 }), /Personalization upcharge/);
   assert.throws(() => comparePersonalization({ ...PAGE_ORDER, extraTimeCost: -1 }), /Extra time cost/);
+});
+
+test('Etsy Ads defaults match the 12% ACOS example', () => {
+  assert.deepEqual(ETSY_ADS_DEFAULTS, { etsyAdsAcosPct: 12 });
+});
+
+test('a 12% ACOS still leaves a profit on an extra $30 order', () => {
+  const result = compareEtsyAds({ ...PAGE_ORDER, monthlyAdSpend: 5 });
+  assert.equal(result.organic.profit, 21.23);
+  assert.equal(result.advertised.profit, 17.03);
+  assert.equal(result.adsCost, 4.2);
+  assert.equal(result.extraKept, -4.2);
+  assert.equal(result.breakEvenAcosPct, 60.64);
+  assert.equal(result.advertisedOrdersFromSpend, 1.19);
+  assert.equal(result.monthlyIncrementalKept, 20.27);
+  assert.equal(result.incrementalPays, true);
+  assert.equal(result.winner, 'organic');
+});
+
+test('a 70% ACOS turns an extra advertised order into a loss', () => {
+  const result = compareEtsyAds({ ...PAGE_ORDER, etsyAdsAcosPct: 70, monthlyAdSpend: 5 });
+  assert.equal(result.adsCost, 24.5);
+  assert.equal(result.advertised.profit, -3.27);
+  assert.equal(result.incrementalPays, false);
+  assert.equal(result.breakEvenAcosPct, 60.64);
+});
+
+test('Offsite Ads lower the ACOS ceiling on the same click', () => {
+  const result = compareEtsyAds({ ...PAGE_ORDER, offsiteAdRate: 15, monthlyAdSpend: 5 });
+  assert.equal(result.organic.profit, 15.98);
+  assert.equal(result.advertised.profit, 11.78);
+  assert.equal(result.adsCost, 4.2);
+  assert.equal(result.breakEvenAcosPct, 45.64);
+});
+
+test('zero ACOS leaves the advertised sale equal to organic', () => {
+  const result = compareEtsyAds({ ...PAGE_ORDER, etsyAdsAcosPct: 0, monthlyAdSpend: 5 });
+  assert.equal(result.adsCost, 0);
+  assert.equal(result.advertised.profit, result.organic.profit);
+  assert.equal(result.extraKept, 0);
+  assert.equal(result.winner, 'tie');
+  assert.equal(result.advertisedOrdersFromSpend, Infinity);
+});
+
+test('Etsy Ads note names the cannibalized gap, the ceiling, and the monthly budget', () => {
+  const note = etsyAdsNote(compareEtsyAds({ ...PAGE_ORDER, monthlyAdSpend: 5 }));
+  assert.match(note, /12\.00% ACOS/);
+  assert.match(note, /\$4\.20/);
+  assert.match(note, /\$17\.03/);
+  assert.match(note, /\$4\.20 less/);
+  assert.match(note, /\$21\.23/);
+  assert.match(note, /60\.64%/);
+  assert.match(note, /\$17\.03 versus \$0\.00/);
+  assert.match(note, /\$5\.00 monthly budget/);
+  assert.match(note, /1\.19 advertised orders/);
+  assert.match(note, /\$20\.27/);
+});
+
+test('rejects a negative Etsy Ads ACOS', () => {
+  assert.throws(() => compareEtsyAds({ ...PAGE_ORDER, etsyAdsAcosPct: -12 }), /Etsy Ads ACOS/);
 });
