@@ -14,7 +14,7 @@ test("flags a quote below target and names hidden time", () => {
 
 test("flags direct costs and missing revision time", () => {
   const [quote, report] = reportFor({ currency: "USD", price: 100, delivery_hours: 2, overhead: 80, subcontractor_cost: 40, target_hourly_rate: 20 });
-  assert.deepEqual(reviewQuote(quote, report).map((check) => check.title), ["Direct costs exceed the quoted price", "The quote is below the supplied target", "No revision hours are included"]);
+  assert.deepEqual(reviewQuote(quote, report).map((check) => check.title), ["Direct costs exceed the quoted price", "The quote is below the supplied target", "No revision hours are included", "Target-rate hours budget"]);
 });
 
 test("flags direct costs that leave no amount after costs", () => {
@@ -51,4 +51,18 @@ test("counts a full-price cost flag as attention, not a send recommendation", ()
   const decision = reviewDecision(report, quote);
   assert.equal(decision.tone, "attention");
   assert.match(decision.detail, /2 arithmetic flags/);
+});
+
+test("shows the target-rate hours budget when the quote has room", () => {
+  const [quote, report] = reportFor({ currency: "USD", price: 1000, delivery_hours: 5, admin_hours: 1, revision_hours: 1, target_hourly_rate: 50 });
+  const budget = reviewQuote(quote, report).find((check) => check.title === "Target-rate hours budget");
+  assert.equal(budget.level, "note");
+  assert.match(budget.detail, /up to 20\.00 total hours/);
+});
+
+test("names the hours the price can absorb when the estimate is longer", () => {
+  const [quote, report] = reportFor({ currency: "USD", price: 500, delivery_hours: 10, admin_hours: 3, revision_hours: 1, target_hourly_rate: 40 });
+  const budget = reviewQuote(quote, report).find((check) => check.title === "Target-rate hours budget");
+  assert.equal(budget.level, "note");
+  assert.match(budget.detail, /supports 12\.50 total hours/);
 });

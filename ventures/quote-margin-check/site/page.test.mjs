@@ -12,13 +12,6 @@ test("calculator page prices extra scope as a change-order floor", async () => {
   assert.match(page, /arithmetic floor/);
 });
 
-test("calculator page prices a time-buffered target", async () => {
-  const page = await readFile(new URL("./index.html", import.meta.url), "utf8");
-  assert.match(page, /id="time_buffer_percent"/);
-  assert.match(page, /buffered_target_price/);
-  assert.match(page, /time_buffer_compared/);
-});
-
 test("calculator page renders the cost-rise table and records the event", async () => {
   const page = await readFile(new URL("./index.html", import.meta.url), "utf8");
   assert.match(page, /id="cost-spike"/);
@@ -297,4 +290,21 @@ test("fixed-vs-hourly SEO page numbers match the calculator defaults", async () 
   assert.match(page, /No warranty/);
   assert.match(page, /no SLA/);
   assert.match(page, /GitHub Sponsors/);
+});
+
+test("calculator page offers editable quote starting points, not recommendations", async () => {
+  const page = await readFile(new URL("./index.html", import.meta.url), "utf8");
+  assert.match(page, /id="preset"/);
+  assert.match(page, /QUOTE_PRESETS/);
+  assert.match(page, /quote_preset_selected/);
+  assert.match(page, /editable examples, not pricing recommendations/);
+  assert.doesNotMatch(page, /should use this preset|must start from/i);
+});
+
+test("calculator page shows the target-rate hours budget without recommending a cut", async () => {
+  const page = await readFile(new URL("./index.html", import.meta.url), "utf8");
+  assert.match(page, /targetHoursBudget/);
+  assert.match(page, /Target-rate hours budget/);
+  assert.match(page, /hours_budget_shown/);
+  assert.doesNotMatch(page, /should cut hours|must reduce scope/i);
 });

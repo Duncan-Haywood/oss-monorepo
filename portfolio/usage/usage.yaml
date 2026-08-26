@@ -376,11 +376,21 @@ products:
       - as_of: 2026-08-26
         signals:
           live_url_visitors: null
-          time_buffer_compared: 0
+          quote_preset_selected: 0
         note: >-
-          Added an optional time-buffer percentage that prices the same
-          target rate against buffered hours. Public URL remains
-          owner-gated; the counter stores only aggregate local events.
+          Added editable website, brand, and consulting quote starting points.
+          Presets are examples only. Public URL remains owner-gated, so this
+          is a zero baseline.
+
+      - as_of: 2026-08-26
+        signals:
+          live_url_visitors: null
+          hours_budget_shown: 0
+        note: >-
+          Added a target-rate hours budget: leftover cash after direct costs
+          divided by the supplied target rate. Counted once per settled quote,
+          not per keystroke. Public URL remains owner-gated.
+
   - slug: mls-photo-spec-preflight
     surface: static-page-in-repo
     readings:
@@ -681,6 +691,15 @@ products:
           claims and upload time (claim-rate floor, quote ceiling,
           time ceiling). Still no public URL; local event
           ebay_labels_compared is opt-out and stores no inputs.
+      - as_of: 2026-08-26
+        signals:
+          live_url_visitors: null
+          max_acquisition_cost_calculated: 0
+        note: >-
+          Added the maximum item cost that still hits the typed target
+          margin at the current sale price, beside the ROI sourcing
+          ceiling. Still no public URL; local event
+          max_acquisition_cost_calculated is opt-out and stores no inputs.
   - slug: cut-list-optimizer
     surface: static-page-in-repo
     readings:

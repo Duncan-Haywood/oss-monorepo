@@ -57,11 +57,7 @@ a recommendation to discount.
 The browser also shows a small pre-send review: arithmetic observations for
 direct costs above the price, a gap below the supplied target, hidden time, and
 quotes with no revision hours. These are prompts to review your own assumptions,
-not a profitability verdict or pricing advice.
-
-You can also supply a time-buffer percentage. The browser shows the price that
-would correspond to your target hourly rate if planned hours grew by that
-percentage. This is a reserve calculation, not a recommendation or forecast. After that review, three
+not a profitability verdict or pricing advice. After that review, three
 buttons let you record send, revise, or hold locally — a workflow note, not a
 recommendation.
 
@@ -70,10 +66,18 @@ quoted price and direct costs fixed while showing how the effective hourly rate
 and gap to the supplied target change. They are arithmetic what-if comparisons,
 not a forecast of project delivery time.
 
+The browser includes editable starting points for website projects, brand
+identity work, and consulting engagements. Presets are examples only and never
+replace the user's own scope, cost, or rate assumptions.
+
 The price ladder compares the quote needed at 50, 75, 100, and 125 per hour,
 using the supplied hours and direct costs. It is a quick way to compare
 negotiation anchors without changing the quote inputs; it is arithmetic only,
 not pricing advice.
+
+The target-rate hours budget is the same leftover cash divided by the supplied
+target rate: how many total hours the quoted price can absorb after direct
+costs. It is a named figure, not a recommendation to add or cut scope.
 
 A second table keeps hours and the quoted price fixed and raises only overhead
 plus subcontractor cost by the same +10% / +25% / +50%. That answers the

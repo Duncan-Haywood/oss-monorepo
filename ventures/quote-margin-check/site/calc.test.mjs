@@ -1,7 +1,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 
-import { loadQuote, calculate, overrunScenarios, targetRateLadder, directCostSpikeScenarios, directCostSpikeSummary, discountAskScenarios, discountAskSummary, compareBillingModels, billingModelSummary, billingModelNote, loadKillFeeProgress, compareKillFee, killFeeSummary, targetPriceBreakdown, encodeQuote, decodeQuote } from "./calc.mjs";
+import { loadQuote, calculate, overrunScenarios, targetRateLadder, targetHoursBudget, directCostSpikeScenarios, directCostSpikeSummary, discountAskScenarios, discountAskSummary, compareBillingModels, billingModelSummary, billingModelNote, loadKillFeeProgress, compareKillFee, killFeeSummary, targetPriceBreakdown, encodeQuote, decodeQuote, QUOTE_PRESETS } from "./calc.mjs";
 
 test("calculates hidden time and target price", () => {
   const quote = loadQuote({
@@ -443,4 +443,24 @@ test("share links round-trip validated quote inputs from query or fragment", () 
 test("share links require the core quote fields", () => {
   assert.equal(decodeQuote("currency=USD&price=100"), null);
   assert.throws(() => decodeQuote("price=100&delivery_hours=2&target_hourly_rate=50&admin_hours=not-a-number"));
+});
+
+test("presets are valid editable starting points", () => {
+  for (const preset of Object.values(QUOTE_PRESETS)) {
+    const quote = loadQuote({ currency: "USD", ...preset });
+    assert.ok(calculate(quote).total_hours > 0);
+  }
+});
+
+test("target-rate hours budget is leftover cash divided by the supplied rate", () => {
+  const quote = loadQuote({
+    price: 2400,
+    delivery_hours: 24,
+    admin_hours: 5,
+    revision_hours: 6,
+    overhead: 180,
+    subcontractor_cost: 300,
+    target_hourly_rate: 75,
+  });
+  assert.equal(targetHoursBudget(quote, calculate(quote)), 25.6);
 });
