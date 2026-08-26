@@ -7,7 +7,7 @@
 // a wrong number, not an error.
 const SHARED_FIELDS = [
   "price", "shippingCharged", "shippingCost", "itemCost",
-  "packagingCost", "otherCost", "monthlyOrders",
+  "packagingCost", "otherCost", "monthlyOrders", "daysToSell",
   "horizonDays", "capitalCostPct", "unsoldRecoveryPct",
 ];
 const CHANNEL_FIELDS = [
@@ -21,7 +21,7 @@ const CHANNEL_FIELDS = [
 export function encodeComparison(shared = {}, channels = []) {
   const payload = {
     shared: Object.fromEntries(SHARED_FIELDS
-      .filter((key) => shared[key] !== undefined)
+      .filter((key) => shared[key] !== undefined && shared[key] !== "")
       .map((key) => [key, shared[key]])),
     includeSubscription: shared.includeSubscription !== false,
     includeReturns: shared.includeReturns !== false,

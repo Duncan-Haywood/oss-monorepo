@@ -31,7 +31,8 @@ export const SIZE_TIER_LABELS = {
 // Illustrative 2025–26 US inbound placement mid-band defaults.
 // Amazon charges a per-unit placement fee when a shipment is sent to fewer
 // fulfillment centers than its "optimized" split. Sellers replace these with
-// the per-unit fees on their current inbound preview.
+// the fees on their current inbound-placement preview — this is not Amazon's
+// live schedule.
 export const PLACEMENT_PRESETS = {
   small_standard: { label: "Small standard", minimalPerUnit: 0.32, partialPerUnit: 0.21 },
   large_standard: { label: "Large standard", minimalPerUnit: 0.43, partialPerUnit: 0.27 },
