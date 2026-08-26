@@ -10,6 +10,8 @@ Everything runs in your browser. Your numbers are never uploaded and there are n
 
 **No warranty.** This tool is provided free and as-is, without warranty of any kind, express or implied. It is not financial or business advice, and it does not replace a qualified professional. **You are responsible for reviewing and verifying its output before relying on it**, and for meeting any obligation it helps you prepare for. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.
 
+[GitHub Sponsors](https://github.com/sponsors/Duncan-Haywood) is optional and never changes what the tool does.
+
 ## Opportunity assessment
 
 Independent SaaS operators often search for “SaaS price increase calculator” or “how much churn can a price increase absorb.” Existing calculators usually show simple percentage changes, while this tool makes fixed-cost contribution and revenue break-even subscribers visible. It complements, rather than duplicates, the portfolio’s quote, marketplace, trade-bid, and fee calculators. A later bring-your-own-key assistant could explain a user’s own cohort export, but the deterministic workflow is complete without AI.
