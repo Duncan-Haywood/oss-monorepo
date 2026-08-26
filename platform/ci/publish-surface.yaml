@@ -262,6 +262,9 @@ workflows:
 - workflow: gravel-driveway-bid-calculator-ci.yml
   classification: none
   publishes: []
+- workflow: gutter-cleaning-bid-calculator-ci.yml
+  classification: none
+  publishes: []
 - workflow: gutter-guard-bid-calculator-ci.yml
   classification: none
   publishes: []
