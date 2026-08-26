@@ -16,7 +16,7 @@ The target user is a small general contractor or subcontractor searching for a c
 
 ## Privacy and usage
 
-Everything runs in the browser. Project data is never uploaded and there is no account, cookie, IP collection, or analytics vendor. The opt-out local counter records only event name and day (`daily_log_created`, `evidence_pack_downloaded`, `summary_copied`), never the log contents. Do Not Track and Global Privacy Control disable counting automatically.
+Everything runs in the browser. Project data is never uploaded and there is no account, cookie, IP collection, or analytics vendor. Local counting is opt-in and records only aggregate event names (`daily_log_created`, `evidence_pack_downloaded`, `summary_copied`), never the log contents. Do Not Track and Global Privacy Control disable counting automatically.
 
 ## Disclaimer
 
