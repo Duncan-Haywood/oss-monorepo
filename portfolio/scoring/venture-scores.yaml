@@ -291,6 +291,39 @@ ventures:
       liability_containment: pass
       ethical_robustness: pass
 
+  - slug: tiktok-shop-fee-calculator
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 7
+      gross_margin: 10
+      defensibility: 5
+      distribution: 8
+    composite: 6.833
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      There is no AI anywhere in the product. The value is a domain model —
+      organic vs affiliate after returns, and the announced October 2026
+      schedule — that is arithmetic, and adding inference would only make
+      the result less checkable.
+    basis: >-
+      Graduated on 2026-08-24 as a browser-local TikTok Shop unit-economics
+      calculator. Scored above amazon-fba-calculator on defensibility (5):
+      generic "TikTok takes 6%" pages omit creator commission kept on a
+      return, which is the decision sellers actually make. Distribution 8:
+      "tiktok shop fees calculator" and "tiktok shop affiliate commission"
+      are high-intent seller queries and less bought-out than Amazon FBA.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Pass: the output is arithmetic on the seller's own inputs, never a
+      recommended price, a claim about TikTok's live schedule, or tax advice.
+      Presets are labelled illustrative starting points. Nothing the user
+      enters leaves the browser.
+
   - slug: where-to-sell-calculator
     scores:
       ai_leverage: 2
@@ -525,6 +558,36 @@ ventures:
     gates:
       liability_containment: pass
       ethical_robustness: pass
+
+  - slug: equipment-rental-break-even
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 8
+      gross_margin: 10
+      defensibility: 4
+      distribution: 7
+    composite: 6.667
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      The v0 is intentionally deterministic: rental operators need transparent
+      ownership recovery and utilization arithmetic, not generated advice.
+    basis: >-
+      Graduated on 2026-08-25 as a browser-local equipment-rental booking
+      calculator. It models booking-specific costs, asset recovery, target
+      contribution price, and break-even utilization without accounts, uploads,
+      integrations, or paid APIs. The niche has direct money value for
+      independent operators, clear calculator search intent, and a low-cost
+      static launch path; customer demand remains untested.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Pass: outputs are labeled arithmetic scenarios rather than profit,
+      financial, tax, or engineering advice; users supply and verify their own
+      assumptions before quoting.
 
   - slug: world-clock-widget
     scores:
@@ -2485,3 +2548,169 @@ ventures:
       Pass: the output is arithmetic on the operator's own inputs, never a
       recommended vendor, a contract opinion, or a tax determination.
       Nothing the user enters leaves the browser.
+  - slug: str-host-payout-calculator
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 7
+      gross_margin: 10
+      defensibility: 5
+      distribution: 8
+    composite: 6.833
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      There is no AI anywhere in the product. The value is the fee-base
+      model — Airbnb's host fee on the subtotal, Vrbo processing on the
+      guest payment, occupancy-keep on direct — and adding inference
+      would only make the payout less checkable.
+    basis: >-
+      Graduated on 2026-08-24 as a browser-local short-term rental host
+      payout calculator. Scored with the marketplace fee calculators on
+      gross margin and ops, one above them on defensibility (5): those
+      restate a published fee schedule, whereas the 2026 Airbnb host-only
+      migration plus Vrbo's split fee bases plus the occupancy-keep
+      break-even is the comparison generic "15% vs 8%" pages flatten.
+      Distribution 8: "Airbnb vs Vrbo host fees" and "Airbnb 15.5% host
+      fee" are high-intent queries after the 2026 cut.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Pass: the output is arithmetic on the host's own inputs, never a
+      recommendation to list or delist. Starting rates are labelled 2026
+      ballparks rather than a quote from Airbnb or Vrbo. The retired
+      split-fee model cannot win the ranking. Nothing the user enters
+      leaves the browser.
+  - slug: owner-operator-cpm-calculator
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 7
+      gross_margin: 10
+      defensibility: 5
+      distribution: 8
+    composite: 6.833
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      There is no AI anywhere in the product. The value is a unit conversion
+      — all-in cost on total miles, quoted as a loaded rate after deadhead
+      and factoring — and adding inference would only make the result less
+      checkable against a fuel receipt.
+    basis: >-
+      Graduated on 2026-08-24 as a browser-local owner-operator cost-per-mile
+      calculator. Distinct from the LTL freight-class estimator (shipper
+      NMFC classification): the buyer here owns the truck. Scored with
+      janitorial on defensibility (5) because the deadhead-adjusted loaded
+      rate is a domain model, not a restated fee schedule, and above it on
+      distribution (8): "owner operator cost per mile calculator" and
+      "truck profit per mile" are high-intent queries with a booking
+      decision attached.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Pass: the output is arithmetic on the operator's own inputs, never a
+      recommended rate, a lane price, or a dispatch instruction. Starting
+      figures are labelled a typical week rather than a benchmark, and
+      nothing the user enters leaves the browser.
+
+
+  - slug: cash-runway-planner
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 7
+      gross_margin: 10
+      defensibility: 4
+      distribution: 7
+    composite: 6.5
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      The forecast is intentionally deterministic and local-first. Its
+      value is invoice timing against recurring bills, not inference.
+    basis: >-
+      Graduated on 2026-08-26 as a browser-local 12-week cash forecast
+      for independent service businesses (repair-and-merge of unique
+      #1230). Distinct from invoice-payment-terms (one invoice's due
+      date and 2/10) and retainage (construction withhold): this models
+      starting cash, collection delay, weekly income, and weekly costs
+      into a low-balance week. Distribution is "cash runway calculator"
+      and "when will I run out of cash".
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Pass: output is arithmetic on the user's own inputs, labeled a
+      projection rather than financial advice, and remains in the
+      browser.
+
+  - slug: ltl-freight-class-estimator
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 7
+      gross_margin: 10
+      defensibility: 4
+      distribution: 7
+    composite: 6.5
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      There is no AI in the estimator. Density-to-class bands are a
+      published planning table; adding inference would only make the
+      result less checkable.
+    basis: >-
+      Graduated on 2026-08-26 as a browser-local LTL density and class
+      band estimator (repair-and-merge of unique #1194). Distinct from
+      freight-accessorial-auditor (invoice charges after the move) and
+      from 3PL quote normalizer (warehouse quotes): the buyer is a
+      small shipper or broker asking "what freight class is this
+      pallet?" before requesting a carrier quote. Distribution is
+      "LTL freight class calculator" and "freight class by density".
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Pass: output is a density-based planning estimate, never an NMFC
+      classification, a carrier quote, or a booking instruction.
+      Nothing the user enters leaves the browser.
+
+  - slug: hvac-maintenance-contract-calculator
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 7
+      gross_margin: 10
+      defensibility: 4
+      distribution: 7
+    composite: 6.5
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      There is no AI in the calculator. Annual visits, callbacks, and
+      target margin are arithmetic; adding inference would make the
+      quoted plan less checkable.
+    basis: >-
+      Graduated on 2026-08-26 as a browser-local HVAC preventive-
+      maintenance agreement calculator (repair-and-merge of unique
+      #1350). Distinct from appliance-repair (one service call) and
+      from trade bid calculators (a one-time install): the buyer is an
+      independent HVAC contractor pricing a recurring plan that hides
+      callback reserve inside a flat monthly fee. Distribution is
+      "HVAC maintenance contract pricing" and "preventive maintenance
+      agreement calculator".
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Pass: output is a modeled price at the user's target margin,
+      never a recommended bid or a code/warranty opinion. Nothing the
+      user enters leaves the browser.
