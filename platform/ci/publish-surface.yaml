@@ -175,7 +175,8 @@ workflows:
   - job: deploy
     step: uses actions/deploy-pages
     gates:
-    - github.event_name != 'pull_request' && vars.GITHUB_PAGES_ENABLED == 'true'
+    - github.event_name != 'pull_request' && vars.PAGES_PUBLISHER == 'platform-ci' && vars.GITHUB_PAGES_ENABLED
+      == 'true'
 - workflow: parking-lot-striping-bid-calculator-ci.yml
   classification: none
   publishes: []
@@ -203,7 +204,8 @@ workflows:
   - job: deploy
     step: uses actions/deploy-pages
     gates:
-    - ${{ github.event_name != 'pull_request' && vars.GITHUB_PAGES_ENABLED == 'true' }}
+    - ${{ github.ref == 'refs/heads/main' && github.event_name != 'pull_request' && vars.GITHUB_PAGES_ENABLED
+      == 'true' }}
 - workflow: portfolio-validate.yml
   classification: none
   publishes: []
@@ -241,7 +243,7 @@ workflows:
   - job: deploy
     step: uses actions/deploy-pages
     gates:
-    - ${{ vars.RETAIL_PILOT_INTEL_PAGES == 'true' }}
+    - ${{ vars.RETAIL_PILOT_INTEL_PAGES == 'true' && vars.GITHUB_PAGES_ENABLED != 'true' }}
   - job: deploy-vercel
     step: uses amondnet/vercel-action
     gates:
