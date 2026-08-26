@@ -673,6 +673,59 @@ const SHARE_FIELDS = [
   "serviceName",
 ];
 
+export const DRAFT_STORAGE_KEY = "no-show-fee-calculator:draft:v1";
+
+// The draft is exactly the shareable field set: anything worth putting in a
+// link is worth getting back after a reload. Deriving it keeps the two from
+// drifting apart, which is how a shared link and a restored draft end up
+// disagreeing about what the user typed.
+export const DRAFT_FIELDS = [...SHARE_FIELDS];
+
+/**
+ * Persist the form's raw values, keeping only known fields as strings.
+ *
+ * Storage is injected rather than reached for so this stays testable and so a
+ * browser with storage disabled degrades to a no-op instead of throwing --
+ * draft recovery is a convenience and must never block a calculation.
+ *
+ * @param {Record<string, unknown>} raw @param {Storage|undefined|null} storage
+ */
+export function saveDraft(raw, storage) {
+  try {
+    storage?.setItem(DRAFT_STORAGE_KEY, JSON.stringify(
+      Object.fromEntries(DRAFT_FIELDS.map((field) => [field, String(raw[field] ?? "")])),
+    ));
+    return Boolean(storage);
+  } catch {
+    return false;
+  }
+}
+
+/** @param {Storage|undefined|null} storage @returns {Record<string, string>} */
+export function readDraft(storage) {
+  try {
+    const parsed = JSON.parse(storage?.getItem(DRAFT_STORAGE_KEY) ?? "null");
+    if (!parsed || typeof parsed !== "object" || Array.isArray(parsed)) return {};
+    return Object.fromEntries(
+      DRAFT_FIELDS
+        .filter((field) => typeof parsed[field] === "string")
+        .map((field) => [field, parsed[field]]),
+    );
+  } catch {
+    return {};
+  }
+}
+
+/** @param {Storage|undefined|null} storage */
+export function clearDraft(storage) {
+  try {
+    storage?.removeItem(DRAFT_STORAGE_KEY);
+    return true;
+  } catch {
+    return false;
+  }
+}
+
 /** @param {Record<string, unknown>} raw @param {string} baseUrl */
 export function buildShareUrl(raw, baseUrl) {
   const url = new URL(baseUrl);
