@@ -219,7 +219,57 @@ async function countPages(sourceDir) {
 // ---------------------------------------------------------------------------
 
 function rewriteOrigin(contents, baseUrl) {
-  return contents.split(PLACEHOLDER_ORIGIN).join(baseUrl);
+  const rewritten = contents.split(PLACEHOLDER_ORIGIN).join(baseUrl);
+
+  // A handful of ventures wrote today's Pages address into their canonical
+  // tags and sitemaps directly, rather than the placeholder. That is correct
+  // by accident: it only holds while the site is served from exactly that
+  // URL. `PAGES_BASE_URL` exists so a custom domain can be attached, and on
+  // that day those pages would go on advertising the github.io origin — a
+  // cross-origin sitemap entry is invalid and a stale canonical points every
+  // crawler at the old address. Treating the default as a second placeholder
+  // makes the whole portfolio follow the base URL it is actually built with.
+  if (baseUrl === DEFAULT_BASE_URL) return rewritten;
+  return rewritten.split(DEFAULT_BASE_URL).join(baseUrl);
+}
+
+/**
+ * Rewrite relative `<loc>` values in a sitemap to absolute URLs under
+ * `dirUrl`, the published address of the directory the sitemap sits in.
+ *
+ * The sitemaps protocol requires every `<loc>` to be a fully-qualified URL;
+ * a relative one is not "resolved relative to the sitemap" but rejected. Half
+ * the ventures here were authored with relative entries (`index.html`, `./`,
+ * `some-page.html`), because each was written as if its own folder were the
+ * site root and there was no real origin to write down. Left alone, every one
+ * of those pages ships to Google as an invalid entry and is not indexed —
+ * which would quietly cost the portfolio most of its organic discovery on the
+ * day the site first goes public.
+ *
+ * Absolute entries are left exactly as they are, so a venture that already
+ * did this correctly is untouched.
+ */
+export function absolutizeSitemapLocs(contents, dirUrl) {
+  const base = dirUrl.endsWith('/') ? dirUrl : `${dirUrl}/`;
+
+  return contents.replace(/(<loc>)\s*([^<]+?)\s*(<\/loc>)/gi, (match, open, loc, close) => {
+    // Already absolute, or a protocol-relative URL that a crawler can resolve.
+    if (/^(?:[a-z][a-z0-9+.-]*:|\/\/)/i.test(loc)) return match;
+
+    // `./` and `index.html` both mean "this directory" — emit the directory
+    // itself rather than a URL ending in `index.html`, which would compete
+    // with the canonical tag on the same page for the same content.
+    const cleaned = loc.replace(/^\.\//, '');
+    if (cleaned === '' || cleaned === 'index.html') return `${open}${base}${close}`;
+
+    try {
+      return `${open}${new URL(cleaned, base).href}${close}`;
+    } catch {
+      // An entry we cannot parse is left untouched rather than mangled; the
+      // artifact checker reports it instead of the builder guessing.
+      return match;
+    }
+  });
 }
 
 export function isPublishable(name) {
@@ -227,11 +277,20 @@ export function isPublishable(name) {
   return !NON_WEB_EXTENSIONS.has(path.extname(name).toLowerCase());
 }
 
-/** Recursively copy `from` into `to`, dropping test payload and repo bookkeeping. */
-export async function copyTree(from, to, baseUrl) {
+/**
+ * Recursively copy `from` into `to`, dropping test payload and repo
+ * bookkeeping.
+ *
+ * `dirUrl` is the published address of `to`. It is threaded through the
+ * recursion so a sitemap found at any depth can have its relative entries
+ * resolved against the directory it actually ships in. Defaults to `baseUrl`
+ * so existing callers keep working.
+ */
+export async function copyTree(from, to, baseUrl, dirUrl = baseUrl) {
   await fs.mkdir(to, { recursive: true });
   const entries = await fs.readdir(from, { withFileTypes: true });
   const copied = [];
+  const parentUrl = dirUrl.endsWith('/') ? dirUrl : `${dirUrl}/`;
 
   for (const entry of entries) {
     const src = path.join(from, entry.name);
@@ -239,7 +298,7 @@ export async function copyTree(from, to, baseUrl) {
 
     if (entry.isDirectory()) {
       if (EXCLUDED_DIRS.has(entry.name)) continue;
-      const nested = await copyTree(src, dest, baseUrl);
+      const nested = await copyTree(src, dest, baseUrl, `${parentUrl}${entry.name}/`);
       // A directory that held only CLI source leaves an empty shell behind.
       if (nested.length === 0) await fs.rm(dest, { recursive: true, force: true });
       copied.push(...nested);
@@ -249,7 +308,12 @@ export async function copyTree(from, to, baseUrl) {
 
     if (REWRITABLE.has(path.extname(entry.name))) {
       const contents = await fs.readFile(src, 'utf8');
-      await fs.writeFile(dest, rewriteOrigin(contents, baseUrl));
+      let rewritten = rewriteOrigin(contents, baseUrl);
+      // Origin rewriting runs first: a venture that wrote absolute URLs
+      // against the placeholder is already correct by this point, and only
+      // genuinely relative entries are left for absolutizing.
+      if (entry.name === 'sitemap.xml') rewritten = absolutizeSitemapLocs(rewritten, parentUrl);
+      await fs.writeFile(dest, rewritten);
     } else {
       await fs.copyFile(src, dest);
     }
@@ -681,7 +745,7 @@ export async function buildSite({
     const { title, description } = readMeta(html, surface.slug);
     const destination = path.join(outDir, surface.slug);
 
-    await copyTree(surface.sourceDir, destination, base);
+    await copyTree(surface.sourceDir, destination, base, `${base}${surface.slug}/`);
     repairs.push(
       ...(await repairLinks({
         publishedDir: destination,

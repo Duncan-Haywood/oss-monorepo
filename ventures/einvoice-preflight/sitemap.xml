@@ -1,12 +1,16 @@
 <?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Relative <loc> entries, resolved to the tool's real published address by
+  platform/pages/build.mjs at build time.
+
+  This file used to list github.com blob/tree URLs, from before the portfolio
+  had anywhere to publish. A sitemap may only advertise URLs on its own host,
+  so those entries were unusable: a crawler reading them from this venture's
+  published home discards every one, and the tool would have gone live with no
+  indexable pages at all. README.md is not published, so it is not listed.
+-->
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
-    <loc>https://github.com/Duncan-Haywood/monorepo-projects/tree/main/ventures/einvoice-preflight/</loc>
-  </url>
-  <url>
-    <loc>https://github.com/Duncan-Haywood/monorepo-projects/blob/main/ventures/einvoice-preflight/index.html</loc>
-  </url>
-  <url>
-    <loc>https://github.com/Duncan-Haywood/monorepo-projects/blob/main/ventures/einvoice-preflight/README.md</loc>
+    <loc>./</loc>
   </url>
 </urlset>

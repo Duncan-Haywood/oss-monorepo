@@ -64,9 +64,51 @@ origin root is read), and `node_modules`. `LICENSE` files are kept.
   public repository, where the link still answers the question it was there to
   answer. Links that resolve inside the site are left untouched. The build
   prints how many it repointed.
+- **Relative sitemap entries.** Half the ventures wrote `<loc>index.html</loc>`
+  or `<loc>./</loc>`, because each was authored as if its own folder were the
+  site root. The sitemaps protocol requires a fully-qualified URL and discards
+  anything else, so those pages would have shipped to crawlers as invalid
+  entries and never been indexed. The build resolves them against the venture's
+  published address. Absolute entries are left exactly as written.
+- **The production origin, when it is not the origin.** Three ventures wrote
+  today's `duncan-haywood.github.io` address directly instead of the
+  placeholder. That is correct only while the site is served from that exact
+  URL; `PAGES_BASE_URL` exists so a custom domain can be attached. The build
+  treats the default as a second placeholder, so the whole portfolio follows
+  the base URL it is actually built with.
 - **Crawlability.** A root `robots.txt`, a `sitemap.xml` index covering the hub
   and every venture's own sitemap, a `404.html`, and `.nojekyll` (without which
   Pages silently drops any directory starting with `_`).
+
+## Checking the artifact
+
+`build.test.mjs` tests the builder's functions against fixtures.
+`check_site.mjs` tests the **output** — the tree that is about to become the
+public site. The two fail in different ways: a builder can pass every unit test
+and still emit a sitemap entry with no page behind it.
+
+```
+node build.mjs --out=dist
+node check_site.mjs dist
+```
+
+It fails the build on a dead internal link, a link that escapes the site root,
+a sitemap entry that is relative, cross-origin, or resolves to nothing, a
+canonical left on a placeholder origin, or a missing `index.html` / `404.html` /
+`robots.txt` / `sitemap.xml`. Placeholder hosts are only flagged in canonical
+tags, `og:url`, and sitemap entries — never in page text, because several tools
+legitimately display `https://example.com` inside sample payloads.
+
+`journey.mjs` drives the primary customer journey through a real browser. It is
+not in CI (Playwright is not a dependency here); it is what you run before
+claiming the site works, and against `BASE_URL` after the flip:
+
+```
+node build.mjs --out=dist
+python3 -m http.server 8792 --directory dist &
+node journey.mjs
+BASE_URL=https://duncan-haywood.github.io/monorepo-projects node journey.mjs
+```
 
 ## Deploying
 
@@ -88,6 +130,16 @@ not a second ask — this workflow is what it now publishes.
 Until it is set, the `deploy` job is skipped and the `build` job still runs, so
 the artifact is always proven buildable. `actions/deploy-pages` 404s while Pages
 is off, which is why the gate exists rather than letting every merge go red.
+
+The deploy job also checks `github.ref == 'refs/heads/main'`. `workflow_dispatch`
+can be run from any branch, and without that guard a dispatch from a feature
+branch would publish that branch's build to the one live site.
+
+After `deploy-pages` reports success, the job curls the real public URL — the
+directory, `sitemap.xml`, `robots.txt`, `404.html`, and two individual tools —
+and fails if any of them does not answer `200` with our content. A completed
+deploy step is not evidence that anything is reachable, and this is the only
+check in the pipeline that touches the public origin over the network.
 
 Only one workflow may publish to Pages. `retail-pilot-intel-deploy-docs.yml`
 reads `RETAIL_PILOT_INTEL_PAGES` instead, so an owner who wants those docs on

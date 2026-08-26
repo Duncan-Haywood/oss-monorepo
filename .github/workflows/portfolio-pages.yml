@@ -48,7 +48,7 @@ jobs:
           node-version: "22"
 
       - name: Test the site builder
-        run: node --test build.test.mjs
+        run: node --test
         working-directory: platform/pages
 
       - name: Build the site
@@ -59,6 +59,17 @@ jobs:
         run: node build.mjs --out=dist
         working-directory: platform/pages
 
+      - name: Check the built artifact
+        # Runs against the output, not the sources. The builder's unit tests
+        # check its functions against fixtures; this checks the tree that is
+        # about to become the public site — dead links, sitemap entries with no
+        # page behind them, canonicals left on a placeholder origin. A broken
+        # artifact must turn this build red rather than turn the live site
+        # broken, because nothing downstream would notice: the site would
+        # deploy successfully and simply be wrong.
+        run: node check_site.mjs dist
+        working-directory: platform/pages
+
       - name: Upload Pages artifact
         if: github.event_name != 'pull_request'
         uses: actions/upload-pages-artifact@v3
@@ -67,7 +78,10 @@ jobs:
 
   deploy:
     needs: build
-    if: ${{ github.event_name != 'pull_request' && vars.GITHUB_PAGES_ENABLED == 'true' }}
+    # `github.ref` is checked as well as the event: `workflow_dispatch` can be
+    # run from any branch, and without this a dispatch from a feature branch
+    # would publish that branch's build to the one live site.
+    if: ${{ github.ref == 'refs/heads/main' && github.event_name != 'pull_request' && vars.GITHUB_PAGES_ENABLED == 'true' }}
     runs-on: ubuntu-latest
     permissions:
       pages: write
@@ -79,3 +93,41 @@ jobs:
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4
+
+      - name: Verify the published site actually serves
+        # A completed deploy step is not evidence that anything is reachable.
+        # This is the only check in the pipeline that touches the real public
+        # URL over the real network, so it is what distinguishes "the workflow
+        # went green" from "a stranger can use the tools".
+        #
+        # Retries cover Pages' propagation delay after a first publish, which
+        # can be a minute or two; a genuine failure still fails after them.
+        env:
+          PAGE_URL: ${{ steps.deployment.outputs.page_url }}
+        run: |
+          set -euo pipefail
+          base="${PAGE_URL%/}"
+          echo "Verifying ${base}"
+
+          for path in "/" "/sitemap.xml" "/robots.txt" "/404.html"; do
+            code=$(curl -sS -o /dev/null -w '%{http_code}' \
+                     --retry 6 --retry-delay 10 --retry-all-errors "${base}${path}")
+            echo "  ${code}  ${base}${path}"
+            [ "$code" = "200" ] || { echo "::error::${base}${path} returned ${code}"; exit 1; }
+          done
+
+          # One real product, end to end, rather than only the shell around
+          # them: the hub can render perfectly while every tool 404s.
+          for slug in ebay-fee-calculator where-to-sell-calculator; do
+            code=$(curl -sS -o /dev/null -w '%{http_code}' \
+                     --retry 6 --retry-delay 10 --retry-all-errors "${base}/${slug}/")
+            echo "  ${code}  ${base}/${slug}/"
+            [ "$code" = "200" ] || { echo "::error::${slug} returned ${code}"; exit 1; }
+          done
+
+          # A 200 proves something answered, not that it is our site — a
+          # misconfigured Pages origin serves someone else's content with a 200.
+          curl -sS "${base}/" | grep -qi "calculator" \
+            || { echo "::error::the directory page served without any tool listing"; exit 1; }
+
+          echo "Published and verified: ${base}/"

@@ -12,6 +12,7 @@ import path from 'node:path';
 import os from 'node:os';
 
 import {
+  absolutizeSitemapLocs,
   buildSite,
   categoryFor,
   discoverSurfaces,
@@ -369,4 +370,69 @@ test('hub markup escapes venture copy', () => {
   );
   assert.ok(!hub.includes('<script>alert(1)</script>'));
   assert.ok(hub.includes('&lt;script&gt;'));
+});
+
+// ---------------------------------------------------------------------------
+// Sitemap absolutization
+//
+// Half the ventures wrote relative <loc> entries, because each was authored as
+// if its own folder were the site root. The sitemaps protocol requires a
+// fully-qualified URL and drops anything else, so left alone those pages ship
+// to crawlers as invalid entries and never get indexed.
+// ---------------------------------------------------------------------------
+
+const DIR = `${BASE}my-tool/`;
+
+test('a relative sitemap entry becomes an absolute URL under its own directory', () => {
+  const xml = absolutizeSitemapLocs('<url><loc>compare.html</loc></url>', DIR);
+  assert.ok(xml.includes(`<loc>${BASE}my-tool/compare.html</loc>`), xml);
+});
+
+test('"./" and "index.html" both become the directory itself', () => {
+  // Not `.../my-tool/index.html`: that would compete with the page's own
+  // canonical tag for the same content.
+  assert.ok(absolutizeSitemapLocs('<loc>./</loc>', DIR).includes(`<loc>${BASE}my-tool/</loc>`));
+  assert.ok(absolutizeSitemapLocs('<loc>index.html</loc>', DIR).includes(`<loc>${BASE}my-tool/</loc>`));
+  assert.ok(absolutizeSitemapLocs('<loc>./x.html</loc>', DIR).includes(`<loc>${BASE}my-tool/x.html</loc>`));
+});
+
+test('an already-absolute entry is left exactly as written', () => {
+  const already = `<loc>${BASE}my-tool/kept.html</loc>`;
+  assert.equal(absolutizeSitemapLocs(already, DIR), already);
+  const offsite = '<loc>https://github.com/Duncan-Haywood/monorepo-projects</loc>';
+  assert.equal(absolutizeSitemapLocs(offsite, DIR), offsite);
+});
+
+test('surrounding whitespace and casing do not defeat the rewrite', () => {
+  const xml = absolutizeSitemapLocs('<LOC>\n  page.html\n</LOC>', DIR);
+  assert.ok(xml.includes(`${BASE}my-tool/page.html`), xml);
+});
+
+test('every sitemap entry in the real built site is absolute and resolves', async () => {
+  // The end-to-end guard: this is the check that would have failed before the
+  // rewrite existed, and it fails again the day a venture lands a sitemap
+  // pointing somewhere the build does not publish.
+  const { outDir, baseUrl } = await site();
+  const root = new URL(baseUrl);
+
+  const sitemaps = (await walk(outDir)).filter((f) => f.endsWith('.xml'));
+  assert.ok(sitemaps.length > 5, `expected several sitemaps, found ${sitemaps.length}`);
+
+  let entries = 0;
+  for (const file of sitemaps) {
+    const xml = await fs.readFile(file, 'utf8');
+    for (const [, loc] of xml.matchAll(/<loc>([^<]+)<\/loc>/gi)) {
+      entries += 1;
+      const url = new URL(loc); // throws on a relative entry
+      assert.equal(url.origin, root.origin, `${file}: ${loc}`);
+      assert.ok(url.pathname.startsWith(root.pathname), `${file}: outside the site root -> ${loc}`);
+
+      const rel = decodeURIComponent(url.pathname.slice(root.pathname.length)).replace(/^\//, '');
+      const target = rel === '' || rel.endsWith('/')
+        ? path.join(outDir, rel, 'index.html')
+        : path.join(outDir, rel);
+      await fs.access(target); // throws, naming the file, if nothing is there
+    }
+  }
+  assert.ok(entries > 100, `expected the portfolio's sitemaps to carry many entries, got ${entries}`);
 });
