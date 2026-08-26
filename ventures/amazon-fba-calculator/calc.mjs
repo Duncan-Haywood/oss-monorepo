@@ -1078,3 +1078,166 @@ export function bulkBuySummary({
   }
   return `The usual ${small.qty}-unit PO and the ${large.qty}-unit MOQ leave the same per-unit profit on these rates. Extra cash on the MOQ is ${cash}.`;
 }
+
+// Amazon FBA Prep Service is charged on inbound shipments: FNSKU labels,
+// polybags, bubble wrap. The listing's packagingCost is you-prep
+// (supplies + your time). Swapping that line is the decision — referral,
+// pick fee, inbound freight, and storage do not change. Defaults are
+// illustrative; the seller overwrites them from the inbound preview.
+export const DEFAULT_AMAZON_LABEL_FEE = 0.3;
+export const DEFAULT_AMAZON_BAG_FEE = 0.55;
+export const DEFAULT_AMAZON_BUBBLE_FEE = 0.8;
+
+function prepPath(listing, targetMargin, bundle) {
+  const path = listing.selected;
+  return {
+    ...bundle,
+    profit: path.profit,
+    margin: path.margin,
+    cashInvested: path.cashInvested,
+    hitsTarget:
+      listing.salePrice === 0
+        ? path.profit >= 0
+        : path.margin + 1e-9 >= targetMargin,
+  };
+}
+
+/**
+ * Compare you-prep against Amazon inbound prep bundles on the same
+ * listing. Label-only, label+bag, and label+bag+bubble are always
+ * shown. A typed shipment-preview total adds a fourth Amazon row.
+ * Profit moves $1 for $1 of prep, so Amazon can charge up to the
+ * typed you-prep cost before you-prep wins. Not a leftover-unit
+ * hold/remove, not inbound placement, and not FBA vs FBM.
+ */
+export function comparePrep(input) {
+  const diyCost = number(input.packagingCost, "Packaging cost");
+  const labelFee = number(
+    emptyField(input.amazonLabelFee) ? DEFAULT_AMAZON_LABEL_FEE : input.amazonLabelFee,
+    "Amazon labeling fee",
+  );
+  const bagFee = number(
+    emptyField(input.amazonBagFee) ? DEFAULT_AMAZON_BAG_FEE : input.amazonBagFee,
+    "Amazon bagging fee",
+  );
+  const bubbleFee = number(
+    emptyField(input.amazonBubbleFee) ? DEFAULT_AMAZON_BUBBLE_FEE : input.amazonBubbleFee,
+    "Amazon bubble-wrap fee",
+  );
+  const targetMargin = number(input.targetMargin, "Target margin");
+  const monthlyUnits = number(input.monthlyUnits, "Monthly units", 1);
+
+  const bundles = [
+    { id: "diy", label: "You prep", prepCost: diyCost },
+    { id: "label", label: "Amazon labeling", prepCost: labelFee },
+    { id: "label_bag", label: "Amazon label + bag", prepCost: labelFee + bagFee },
+    { id: "full", label: "Amazon label + bag + bubble", prepCost: labelFee + bagFee + bubbleFee },
+  ];
+  if (!emptyField(input.amazonPrepFee)) {
+    bundles.push({
+      id: "quote",
+      label: "Your Amazon prep quote",
+      prepCost: number(input.amazonPrepFee, "Amazon prep quote"),
+    });
+  }
+
+  const rows = bundles.map((bundle) => {
+    const listing = calculateListing({ ...input, packagingCost: bundle.prepCost });
+    return prepPath(listing, targetMargin, bundle);
+  }).map((row, _, all) => {
+    const diy = all[0];
+    return {
+      ...row,
+      profitDelta: row.profit - diy.profit,
+      monthlyDelta: (row.profit - diy.profit) * monthlyUnits,
+    };
+  });
+
+  const maxProfit = Math.max(...rows.map((row) => row.profit));
+  const leaders = rows.filter((row) => Math.abs(row.profit - maxProfit) < 1e-9);
+  const winner = leaders.length === 1 ? leaders[0].id : "tie";
+  const byId = (id) => rows.find((row) => row.id === id);
+
+  const comparison = {
+    rows,
+    diy: byId("diy"),
+    label: byId("label"),
+    labelBag: byId("label_bag"),
+    full: byId("full"),
+    quote: byId("quote") ?? null,
+    labelFee,
+    bagFee,
+    bubbleFee,
+    monthlyUnits,
+    breakEvenAmazonFee: diyCost,
+    winner,
+  };
+  comparison.summary = prepSummary(comparison);
+  return comparison;
+}
+
+export function prepSummary(comparison) {
+  const { diy, label, labelBag, full, quote, winner, breakEvenAmazonFee, monthlyUnits } = comparison;
+  const cap = moneyLabel(breakEvenAmazonFee);
+  const month = `${monthlyUnits} unit${monthlyUnits === 1 ? "" : "s"}`;
+  const vsBag =
+    labelBag.profitDelta < -1e-9
+      ? `loses ${moneyLabel(Math.abs(labelBag.profitDelta))}`
+      : labelBag.profitDelta > 1e-9
+        ? `keeps ${moneyLabel(labelBag.profitDelta)} more`
+        : "matches you-prep";
+
+  if (winner === "diy") {
+    const bagGap = moneyLabel(Math.abs(labelBag.profitDelta));
+    const bagMonth = moneyLabel(Math.abs(labelBag.monthlyDelta));
+    const labelLine =
+      label.profitDelta > 1e-9
+        ? `Amazon labeling alone at ${moneyLabel(label.prepCost)} still beats you-prep by ${moneyLabel(label.profitDelta)}`
+        : label.profitDelta < -1e-9
+          ? `Amazon labeling alone at ${moneyLabel(label.prepCost)} costs ${moneyLabel(Math.abs(label.profitDelta))} more`
+          : `Amazon labeling alone at ${moneyLabel(label.prepCost)} matches you-prep`;
+    return (
+      `You-prep at ${moneyLabel(diy.prepCost)} keeps ${bagGap} more per unit than Amazon label + bag ` +
+      `at ${moneyLabel(labelBag.prepCost)} — ${bagMonth} more this month at ${month}. ` +
+      `${labelLine}. Amazon prep can rise to ${cap} before you-prep wins.`
+    );
+  }
+  if (winner === "label") {
+    return (
+      `Amazon labeling at ${moneyLabel(label.prepCost)} keeps ${moneyLabel(label.profitDelta)} more per unit ` +
+      `than you-prep at ${moneyLabel(diy.prepCost)} — ${moneyLabel(label.monthlyDelta)} more this month at ${month}. ` +
+      `Label + bag is ${moneyLabel(labelBag.prepCost)} and ${vsBag} vs you-prep. ` +
+      `Amazon prep can rise to ${cap} before you-prep wins.`
+    );
+  }
+  if (winner === "label_bag") {
+    return (
+      `Amazon label + bag at ${moneyLabel(labelBag.prepCost)} keeps ${moneyLabel(labelBag.profitDelta)} more per unit ` +
+      `than you-prep at ${moneyLabel(diy.prepCost)} — ${moneyLabel(labelBag.monthlyDelta)} more this month at ${month}. ` +
+      `Amazon prep can rise to ${cap} before you-prep wins.`
+    );
+  }
+  if (winner === "full") {
+    return (
+      `Amazon label + bag + bubble at ${moneyLabel(full.prepCost)} keeps ${moneyLabel(full.profitDelta)} more per unit ` +
+      `than you-prep at ${moneyLabel(diy.prepCost)} — ${moneyLabel(full.monthlyDelta)} more this month at ${month}. ` +
+      `Amazon prep can rise to ${cap} before you-prep wins.`
+    );
+  }
+  if (winner === "quote" && quote) {
+    const delta =
+      quote.profitDelta > 1e-9
+        ? `keeps ${moneyLabel(quote.profitDelta)} more`
+        : quote.profitDelta < -1e-9
+          ? `keeps ${moneyLabel(Math.abs(quote.profitDelta))} less`
+          : "matches";
+    return (
+      `Your Amazon prep quote at ${moneyLabel(quote.prepCost)} ${delta} per unit than you-prep ` +
+      `at ${moneyLabel(diy.prepCost)}. Amazon prep can rise to ${cap} before you-prep wins.`
+    );
+  }
+  return (
+    `You-prep and the cheapest Amazon prep leave the same profit on these rates. ` +
+    `Amazon prep can rise to ${cap} before you-prep wins.`
+  );
+}
