@@ -30,10 +30,16 @@ A **Partial refund vs taking the return** table then closes one buyer
 case three ways: send a concession and let them keep it, take the return,
 or refund the whole order without getting the item back.
 [Should I offer a partial refund on eBay?](should-i-offer-a-partial-refund-on-ebay.html).
+An **Authenticity Guarantee vs skip-AG** table then prices the same
+listing two ways: skip the program at a lower sell-through, or pay the
+typed authenticity fee plus extra hub shipping for a higher sell-through
+and a lower authenticity-claim return rate.
+[Is eBay Authenticity Guarantee worth it?](is-ebay-authenticity-guarantee-worth-it.html).
 
-**After using the case page, you can now see whether a $15 concession
-still beats taking the return on that order** — which used to mean
-hitting Return and forgetting the outbound label you already paid.
+**After using the authenticity page, you can now see whether a 3% fee
+and an $8 hub label still beat skip-AG on that SKU** — which used to
+mean enrolling because “buyers trust the badge” and never pricing the
+label.
 
 Open `index.html` in a browser. The calculation is local and works without an
 account, network request, or API key. It is arithmetic, not an estimate of the
@@ -72,6 +78,10 @@ drive that decision:
   Percentage fees usually come back on the refunded amount; the outbound
   label does not. The table also names the concession that still ties a
   return.
+- **Authenticity Guarantee vs skip-AG** — expected listing profit after
+  sell-through with and without the program. The authenticity fee comes
+  back on a return; the extra hub label does not. The table also names
+  the hub-shipping ceiling that still ties skip-AG.
 
 **No warranty.** This tool is provided free and as-is, without warranty of any
 kind, express or implied. It is not tax, financial, or business advice, and it
@@ -96,11 +106,13 @@ footer, or your browser's Do Not Track / Global Privacy Control setting.
 
 The counted events are `order_profit_calculated`, `target_margin_calculated`,
 `batch_calculated`, `return_rate_viewed`, `listing_format_compared`,
-`partial_refund_compared`, and `price_sensitivity_viewed`.
-`price_sensitivity_viewed`, `listing_format_compared`, and
-`partial_refund_compared` are counted at most once per visit and only after
-an input is edited — counting the table's first paint would just re-count
-page loads and say nothing about whether the view is used.
+`partial_refund_compared`, `authenticity_compared`, and
+`price_sensitivity_viewed`.
+`price_sensitivity_viewed`, `listing_format_compared`,
+`partial_refund_compared`, and `authenticity_compared` are counted at most
+once per visit and only after an input is edited — counting the table's
+first paint would just re-count page loads and say nothing about whether
+the view is used.
 
 ## Support
 

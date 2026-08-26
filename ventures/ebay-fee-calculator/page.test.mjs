@@ -63,7 +63,9 @@ test('the partial-refund table has one cell per column and a counted event', () 
   assert.match(page, /partial_refund_compared/);
   assert.match(page, /should-i-offer-a-partial-refund-on-ebay\.html/);
   assert.match(page, /"featureList":\s*"[^"]*partial refund vs take the return/);
-  const headerBlock = page.slice(page.indexOf('id="partialRefundTable"'));
+  const refundStart = page.indexOf('id="partialRefundTable"');
+  const refundEnd = page.indexOf('id="authenticity"', refundStart);
+  const headerBlock = page.slice(refundStart, refundEnd === -1 ? undefined : refundEnd);
   const headers = [...headerBlock.matchAll(/<th scope="col">([^<]+)<\/th>/g)].map((m) => m[1]);
   assert.deepEqual(headers, [
     'Path',
@@ -72,5 +74,25 @@ test('the partial-refund table has one cell per column and a counted event', () 
     'Fees returned',
     'Keep after this case',
     'vs taking the return',
+  ]);
+});
+
+test('the authenticity table has one cell per column and a counted event', () => {
+  assert.match(page, /compareAuthenticity/);
+  assert.match(page, /id="authenticity"/);
+  assert.match(page, /id="authenticityVerdict"/);
+  assert.match(page, /authenticity_compared/);
+  assert.match(page, /is-ebay-authenticity-guarantee-worth-it\.html/);
+  assert.match(page, /"featureList":\s*"[^"]*Authenticity Guarantee vs skip-AG/);
+  const headerBlock = page.slice(page.indexOf('id="authenticityTable"'));
+  const headers = [...headerBlock.matchAll(/<th scope="col">([^<]+)<\/th>/g)].map((m) => m[1]);
+  assert.deepEqual(headers, [
+    'Path',
+    'Sell-through',
+    'Return rate',
+    'Extra on a sale',
+    'If it sells',
+    'Expected after sell-through',
+    'vs skip-AG',
   ]);
 });
