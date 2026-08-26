@@ -35,6 +35,10 @@ const planSeo = readFileSync(
   new URL("./individual-vs-professional.html", import.meta.url),
   "utf8",
 );
+const packSeo = readFileSync(
+  new URL("./does-smaller-box-cut-amazon-fba-fees.html", import.meta.url),
+  "utf8",
+);
 
 function parse(source) {
   const RAW = /<(textarea|script|style)\b[^>]*>/i;
@@ -91,7 +95,9 @@ test("schema.org featureList names the comparisons the page actually renders", (
   assert.match(featureList[1], /expected returns/i);
   assert.match(featureList[1], /return-rate sweep/i);
   assert.match(featureList[1], /peak vs off-peak Q4 storage/i);
+  assert.match(featureList[1], /size-tier packaging cliff/i);
   assert.match(markup, /peak-vs-off-peak-storage\.html/);
+  assert.match(markup, /does-smaller-box-cut-amazon-fba-fees\.html/);
   assert.match(markup, /id="returnsCompare"/);
   assert.match(markup, /id="returnRate"/);
   assert.match(markup, /do-amazon-returns-wipe-the-profit\.html/);
@@ -501,4 +507,7 @@ test("pages keep the disclaimer and optional sponsor link", () => {
   assert.match(placementSeo, /github\.com\/sponsors\/Duncan-Haywood/);
   assert.match(planSeo, /No warranty/);
   assert.match(planSeo, /github\.com\/sponsors\/Duncan-Haywood/);
+  assert.match(packSeo, /No warranty/);
+  assert.match(packSeo, /Best-effort hosting, no SLA/);
+  assert.match(packSeo, /github\.com\/sponsors\/Duncan-Haywood/);
 });
