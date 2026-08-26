@@ -910,6 +910,42 @@ ventures:
       financial advice or a guarantee of income, tax treatment, or contract
       enforceability; all data stays in the browser.
 
+  - slug: flat-roof-bid-calculator
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 7
+      gross_margin: 10
+      defensibility: 5
+      distribution: 7
+    composite: 6.667
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      There is no AI anywhere in the product. The value is a domain model —
+      membrane squares after waste, tear-off, insulation layers, and parapet
+      — that is arithmetic, and adding inference to it would only make the
+      result less checkable.
+    basis: >-
+      Graduated on 2026-08-25 as a browser-local low-slope bid calculator
+      for TPO, EPDM, PVC, and modified-bitumen crews. Distinct from asphalt
+      shingle reroof (bundles and pitch) and metal roof (standing-seam
+      panels and trim). Defensibility 5: the membrane-and-insulation model
+      encodes how the trade actually estimates, and the incumbents are paid
+      estimating suites rather than free ad-funded pages. Distribution 7:
+      "how much to charge for a flat roof" and "TPO roof cost calculator"
+      are lower-volume than marketplace-fee queries but far less saturated
+      and bought by an operator with a real bid on the line.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Pass: the output is arithmetic on the contractor's own inputs, never a
+      recommended price, a wage determination, or a building-code opinion.
+      The shipped membrane, waste, and insulation rates are labelled
+      ballpark starting points rather than a standard or benchmark, and
+      nothing the user enters leaves the browser.
   - slug: patio-door-bid-calculator
     scores:
       ai_leverage: 1
