@@ -199,6 +199,11 @@ def _github_report(reports: list[tuple[Path, list[dict[str, str]]]], read_errors
             f"::error file={_github_property(error['file'])},line=1,title=Unreadable invoice::"
             f"{_github_message(error['error'])}"
         )
+    if not lines:
+        lines.append(
+            f"::notice title=E-invoice preflight::Passed: {len(reports)} invoice(s), "
+            "no defects found in the supported checks."
+        )
     return "\n".join(lines) + ("\n" if lines else "")
 
 
@@ -742,4 +747,6 @@ def main(argv: list[str] | None = None) -> int:
             return 2
     else:
         print(report, end="")
+    if args.usage_file and args.format == "github":
+        _record_usage(args.usage_file, "invoice_preflight_github_report")
     return 2 if has_read_errors else (0 if not errors else 1)
