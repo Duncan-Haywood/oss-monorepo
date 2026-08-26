@@ -4188,3 +4188,31 @@ ventures:
       Pass: output is lockfile observation, not a security verdict,
       attestation, or compliance claim. The lockfile never leaves the
       machine.
+
+  - slug: cra-evidence-desk
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 6
+      gross_margin: 10
+      defensibility: 4
+      distribution: 5
+    composite: 6.0
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      Exact matching and draft assembly are reproducible; adding inference
+      would guess at version ranges the customer already has in their export.
+    basis: >-
+      Graduated on 2026-08-24 as a local SBOM/advisory exact-match report
+      and customer-reviewed Article 14 draft. Distinct from npm-deployment-
+      evidence (lockfile production path) and chargeback packets: the buyer
+      is a small software vendor preparing a CRA incident draft. No filing.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Pass: output is an exact-match observation and a customer-reviewed
+      draft, never a filing, a compliance claim, or a vulnerability
+      determination. Inputs never leave the machine.

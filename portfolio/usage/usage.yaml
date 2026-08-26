@@ -2664,3 +2664,14 @@ products:
           Shipped a local package-lock v2/v3 production-vs-dev reachability
           report. No public URL; usage is an optional local aggregate
           counter only.
+
+  - slug: cra-evidence-desk
+    surface: local-cli
+    readings:
+      - as_of: 2026-08-26
+        signals:
+          local_reports_generated: 0
+          live_url_visitors: null
+        note: >-
+          Shipped exact-match SBOM/advisory evidence draft baseline;
+          customer demand remains untested. No public URL.
