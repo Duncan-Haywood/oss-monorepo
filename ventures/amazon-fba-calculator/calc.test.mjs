@@ -6,6 +6,7 @@ import {
   applyStoragePreset,
   buyCostCheck,
   calculateListing,
+  buyCostCheck,
   PLACEMENT_PRESETS,
   CATEGORY_PRESETS,
   classifySizeTier,
@@ -167,6 +168,18 @@ test("computes FBA fees, storage, profit, margin and ROI", () => {
   near(r.fba.margin, ((29.99 - referral - fulfillment - cash) / 29.99) * 100, "margin");
   near(r.fba.roi, ((29.99 - referral - fulfillment - cash) / cash) * 100, "ROI");
   assert.equal(r.selected.profit, r.fba.profit);
+});
+
+test("turns max buy cost into a sourcing checkpoint", () => {
+  const result = calculateListing(base);
+  const below = buyCostCheck(result, result.selected.breakEvenBuyCost - 1);
+  assert.equal(below.status, "below_ceiling");
+  assert.equal(below.headroom, 1);
+  const above = buyCostCheck(result, result.selected.breakEvenBuyCost + 1);
+  assert.equal(above.status, "above_ceiling");
+  assert.equal(above.headroom, -1);
+  const at = buyCostCheck(result, result.selected.breakEvenBuyCost);
+  assert.equal(at.status, "at_ceiling");
 });
 
 test("FBM drops fulfillment and storage/inbound, and uses the seller's own label", () => {
