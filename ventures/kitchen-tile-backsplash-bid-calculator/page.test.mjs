@@ -276,6 +276,18 @@ test('the after-hours article quotes the herringbone demo and subway Saturday ar
 // field added to the form is covered without anyone remembering to.
 test('save-and-share is wired to the page', () => {
   assert.match(scriptSource, /from '\.\/share\.mjs'/, 'share.mjs is not imported');
+  // The bid rides in the URL fragment, never the query string. A query string
+  // is sent in the request line a server logs and in the `Referer` header a
+  // later off-site click carries; a fragment is sent in neither. On a page that
+  // promises nothing you type is uploaded, that is the difference between the
+  // claim holding and not. Pin it here so a future edit cannot quietly move the
+  // bid into `?...` and start leaking the setter's rates.
+  assert.match(scriptSource, /\$\{query \? `#\$\{query\}` : ''\}/,
+    'the bid link must be built as a URL fragment (#), not a query string (?)');
+  assert.ok(!/`\?\$\{query\}`/.test(scriptSource),
+    'the bid link must not be built with a query string');
+  assert.match(scriptSource, /search: location\.hash/,
+    'the bid must be restored from the fragment, matching how the link is built');
   for (const name of ['encodeBid', 'saveBid', 'clearBid', 'restoreBid']) {
     assert.match(scriptSource, new RegExp(`\\b${name}\\b`), `${name} is imported but never used`);
   }
