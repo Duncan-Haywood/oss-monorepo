@@ -78,6 +78,8 @@ test('every encodable field is a real calculator field', () => {
   assert.ok(FIELD_IDS.includes('listedSellThroughPct'));
   assert.ok(FIELD_IDS.includes('saleSellThroughPct'));
   assert.ok(FIELD_IDS.includes('saleListings'));
+  assert.ok(FIELD_IDS.includes('freeShipPrice'));
+  assert.ok(FIELD_IDS.includes('monthlyOrders'));
 });
 
 test('carries Star Seller fields so a shared link does not drop the badge table', () => {
@@ -108,4 +110,14 @@ test('carries shop-sale fields so a shared link does not drop the sale table', (
   assert.equal(decoded.saleDollar, 5);
   assert.equal(decoded.saleSellThroughPct, 55);
   assert.equal(decoded.saleListings, 40);
+});
+
+test('carries free-shipping fields so a shared link does not drop the shipping table', () => {
+  const decoded = decodeInputs(encodeInputs({
+    price: 30,
+    freeShipPrice: 32,
+    monthlyOrders: 40,
+  }));
+  assert.equal(decoded.freeShipPrice, 32);
+  assert.equal(decoded.monthlyOrders, 40);
 });

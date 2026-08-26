@@ -181,6 +181,26 @@ SEO page
 [should-i-put-my-etsy-shop-on-sale.html](should-i-put-my-etsy-shop-on-sale.html)
 walks through the same examples.
 
+## Does free shipping still leave a profit?
+
+A free-shipping badge looks like a ranking cheat until every packed
+order at a $32 item price leaves $2.72 less than charging $5.00
+shipping. Percentage fees sit on the customer total, so moving the
+whole label into the item price is a tie. The cash free shipping
+returns is extra orders, not a cheaper fee stack. This is not a shop
+sale and it is not on-site Ads.
+
+On the default $30 listing, charging shipping keeps $21.23. Free
+shipping at the same $30 item price keeps $16.70 (−$4.53). Absorbing
+the $5.00 label into a $35.00 item is a tie at $21.23. Free shipping
+at $32.00 keeps $18.51 (−$2.72). At 40 orders/month it needs about
+5.9 extra orders (14.7%) to match $849.00. Eating the label needs
+about 10.8 extra orders. A $40.00 free-shipping price already keeps
+$25.75 (+$4.52) and does not need extra volume. 15% Offsite Ads raise
+the $32 lift to about 6.6 extra orders. The SEO page
+[should-i-offer-free-shipping-on-etsy.html](should-i-offer-free-shipping-on-etsy.html)
+walks through the same examples.
+
 [GitHub Sponsors](https://github.com/sponsors/Duncan-Haywood) is entirely
 optional and never changes what the calculator does.
 
