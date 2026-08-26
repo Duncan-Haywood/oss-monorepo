@@ -2358,3 +2358,17 @@ products:
           Repair-and-merge of unique #1223 consent change record onto current
           main. Public URL remains owner-gated; local counting honors DNT/GPC
           and a visible opt-out. Keep #1258 open for the HAR-diff extra.
+
+  - slug: translator-project-quote
+    surface: static-page-in-repo
+    readings:
+      - as_of: 2026-08-26
+        signals:
+          live_url_visitors: null
+          page_viewed: 0
+          quote_summary_copied: 0
+        note: >-
+          Repair-and-merge of unique #1297 translator project quote calculator
+          onto current main. Labor is hours times hourly rate (words/hour is
+          productivity only). Public URL remains owner-gated; local counting
+          honors DNT/GPC and a visible opt-out.

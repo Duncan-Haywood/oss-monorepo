@@ -3338,3 +3338,32 @@ ventures:
       Pass, conditionally: the output is explicitly limited to the supplied
       browser observations, distinguishes unobserved from absent, and keeps
       legal interpretation with the customer and their qualified advisers.
+
+  - slug: translator-project-quote
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 7
+      gross_margin: 10
+      defensibility: 4
+      distribution: 7
+    composite: 6.5
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      The first release is deterministic weighted-word and hourly arithmetic;
+      AI is not needed to complete a quote-floor comparison.
+    basis: >-
+      Graduated on 2026-08-26 as a browser-local freelance translator quote
+      calculator. Distinct from marketplace fee tools and trade bid
+      calculators: the recurring job is pricing new words, fuzzy matches, QA,
+      and DTP. Search intent includes translation project quote calculator and
+      fuzzy match pricing.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Pass, conditionally: outputs are arithmetic from user-supplied rates,
+      not a recommended quote or a quality judgment, and users must verify
+      their own productivity and client terms.
