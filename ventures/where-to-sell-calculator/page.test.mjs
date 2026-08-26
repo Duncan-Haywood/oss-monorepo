@@ -97,6 +97,7 @@ test('figures named in schema.org featureList are actually rendered', () => {
     ['margin', /result\.margin/],
     ['ROI', /result\.roi/],
     ['break-even price', /result\.breakEvenPrice/],
+    ['orders needed to cover a monthly plan', /result\.ordersToCoverPlan/],
     ['price needed to match the best channel', /result\.priceToMatchBest/],
     ['net profit per channel', /result\.profit/],
     ['expected monthly profit', /result\.monthlyProfit/],
@@ -199,6 +200,11 @@ test('figures that can be absent are rendered defensively', () => {
     rowTemplate[0],
     /result\.priceToMatchBest === null/,
     'priceToMatchBest is null on the best channel; render a placeholder instead of formatting null',
+  );
+  assert.match(
+    rowTemplate[0],
+    /result\.ordersToCoverPlan === null/,
+    'ordersToCoverPlan is null when the unit economics cannot recover a plan; render a placeholder',
   );
   assert.match(
     rowTemplate[0],

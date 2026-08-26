@@ -19,7 +19,7 @@
     "applicationCategory": "BusinessApplication",
     "operatingSystem": "Any (runs in a web browser)",
     "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
-    "featureList": "Cross-marketplace fee comparison, net profit per channel, expected profit after returns, margin and ROI, monthly-plan amortisation, expected monthly profit, break-even price, price needed to match the best channel, profit per day from expected days to sell, listing value per month of shelf time, sell-through needed to match the fastest channel"
+    "featureList": "Cross-marketplace fee comparison, net profit per channel, expected profit after returns, margin and ROI, monthly-plan amortisation, orders needed to cover a monthly plan, expected monthly profit, break-even price, price needed to match the best channel, profit per day from expected days to sell, listing value per month of shelf time, sell-through needed to match the fastest channel"
   }
   </script>
   <script type="application/ld+json">
@@ -270,6 +270,7 @@
               <th scope="col" title="Your estimate of how long this listing sits before it sells. Replace the illustrative starting points with your last similar listings.">Days to sell</th>
               <th scope="col" title="What you keep divided by days to sell. Empty when you have not given a pace.">You keep / day</th>
               <th scope="col" title="List below this and the sale loses money on this channel.">Break-even price</th>
+              <th scope="col" title="Minimum whole orders needed to recover a monthly plan.">Orders to cover plan</th>
               <th scope="col">Price to match best</th>
             </tr>
           </thead>
@@ -299,6 +300,11 @@
         orders come back — return postage, units you cannot list again, and
         fees the channel does not refund. <strong>Return drag</strong> is the
         gap between a completed sale and that expected keep.
+        <strong>Orders to cover plan</strong> is the minimum whole-order volume
+        needed to recover a channel’s monthly subscription from this item’s
+        profit before that plan. “—” means the item’s unit economics cannot
+        recover the plan at any volume; “0” means the channel has no monthly
+        plan.
       </p>
       <p class="note">
         Transparent arithmetic from the rates you entered — not any
@@ -722,6 +728,7 @@
             <td class="money">${result.daysToSell === null ? "—" : result.daysToSell}</td>
             <td class="money" title="${result.monthlyProfitAtVelocity === null ? "" : `About ${money(result.monthlyProfitAtVelocity)} in a 30-day month at this pace.`}">${result.profitPerDay === null ? "—" : money(result.profitPerDay)}</td>
             <td class="money${result.price < result.breakEvenPrice ? " negative" : ""}">${money(result.breakEvenPrice)}</td>
+            <td class="money">${result.ordersToCoverPlan === null ? "—" : result.ordersToCoverPlan}</td>
             <td class="money">${result.priceToMatchBest === null ? "—" : money(result.priceToMatchBest)}</td>
           </tr>`).join("");
 
