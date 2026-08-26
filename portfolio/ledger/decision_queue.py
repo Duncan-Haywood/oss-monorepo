@@ -23,14 +23,11 @@ decide the answer are absent from that sort:
     are adjacent rows, and are not the same kind of decision. `exposure`
     separates them.
 
-Reading those two axes off `asks.yaml` collapses the nine live asks (#139
-lists ten; Ask 8 is superseded by `break-even.md` and has nothing to grant)
-and the open pull requests they cover into a queue of decisions, of which
-exactly one moves the revenue ceiling -- and one, Ask 9, would remove
-another. (This paragraph originally counted six pull requests into ten
-decisions; three of those pull requests -- #372, #368, #583 -- merged on
-2026-08-24. Run the tool for the current count rather than trusting a number
-in a docstring.)
+Reading those two axes off `asks.yaml` collapses the live asks and the open
+pull requests they cover into a queue of decisions, of which exactly one
+moves the revenue ceiling. Product-code merges are not in this queue:
+answered yes on 2026-08-25. Run the tool for the current count rather than
+trusting a number in a docstring.
 
 This is a renderer, not a judge: every ordering rule below is a fixed rank over
 declared fields, so what it prints is a function of the data file and the data
