@@ -103,16 +103,37 @@ function specRows(spec) {
   return rows;
 }
 
+const MAX_TEXT = 80;
+
+function encodeText(value) {
+  const raw = String(value ?? '').trim().slice(0, MAX_TEXT);
+  if (!raw) return '';
+  // URI-encode so a typed name can contain ":" or "," without splitting the row.
+  return encodeURIComponent(raw);
+}
+
+function decodeText(raw) {
+  if (!raw) return null;
+  try {
+    const text = decodeURIComponent(raw).trim().slice(0, MAX_TEXT);
+    return text || null;
+  } catch {
+    return null;
+  }
+}
+
 function encodeCell(field, value) {
   if (field.kind === 'choice') {
     return typeof value === 'string' && field.options.includes(value) ? value : '';
   }
+  if (field.kind === 'text') return encodeText(value);
   const number = usableNumber(value);
   return number === null ? '' : String(number);
 }
 
 function decodeCell(field, raw) {
   if (field.kind === 'choice') return field.options.includes(raw) ? raw : null;
+  if (field.kind === 'text') return decodeText(raw);
   const number = usableNumber(raw);
   return number === null ? null : String(number);
 }

@@ -1,3 +1,5 @@
+import { displayAreaName } from './area-name.mjs';
+
 // Pure bid arithmetic for a commercial cleaning (janitorial) contract. No
 // network, no state: every rate, wage, and production figure is an input, so
 // the result stays a transparent calculation the contractor can check against
@@ -80,7 +82,7 @@ export function calculateBid(input) {
   const loadedWage = hourlyWage * (1 + burdenRate / 100);
 
   const areas = areasInput.map((area, index) => {
-    const label = area.name?.trim() || `Area ${index + 1}`;
+    const label = displayAreaName('', area.name, index);
     const squareFeet = number(area.squareFeet ?? 0, `${label}: cleanable square feet`);
     // A zero production rate would divide by zero and report a free clean, so
     // it is rejected rather than defaulted — the contractor has to state how

@@ -224,7 +224,7 @@ test('every field the form reads is a field the bid link carries', () => {
 test('the building of spaces travels, not just the flat rates', () => {
   const spec = bodyOf(scriptSource, 'const BID_SPEC =');
   assert.match(spec, /rows:/, 'BID_SPEC carries no rows, so a shared link would drop every space');
-  for (const key of ['type', 'squareFeet', 'productionRate', 'cleaningsPerWeek']) {
+  for (const key of ['type', 'name', 'squareFeet', 'productionRate', 'cleaningsPerWeek']) {
     assert.match(spec, new RegExp(`key: '${key}'`), `the area row does not carry ${key}`);
   }
   // The row's space type is a select, so it must travel validated against the
