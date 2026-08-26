@@ -230,3 +230,64 @@ function includedListThatMatchesBuyerPays(input, targetProfit) {
   }
   return listPrice;
 }
+
+// Typical Reverb bump when the seller has not typed one. A $0 bump makes the
+// four-row table collapse to "same sale twice"; the illustration is the
+// cash a bump costs, not a claim about Reverb's current bump prices.
+export const ILLUSTRATED_BUMP_DEFAULT = 3;
+
+function keepRateOnItem(input) {
+  const marketplaceRate = number(input.marketplaceRate, 'Reverb marketplace rate', 5);
+  const paymentRate = number(input.paymentRate, 'Payment rate', 2.9);
+  const givesRate = number(input.givesRate, 'Reverb Gives rate', 0);
+  const keepRate = 1 - marketplaceRate / 100 - paymentRate / 100 - givesRate / 100;
+  if (keepRate <= 0) throw new Error('Combined percentage fees must stay below 100%');
+  return keepRate;
+}
+
+function illustratedBumpFee(input) {
+  const typed = number(input.bumpFee, 'Bump fee on this listing', 0);
+  return typed > 0 ? typed : ILLUSTRATED_BUMP_DEFAULT;
+}
+
+// Same offer and same list, with and without a bump. A bump is a fixed cash
+// out of this sale — it never pays on the same price. It only pays if it
+// changes the price you take (list instead of the offer, or a higher offer).
+export function compareBump(input) {
+  const listPrice = number(input.price, 'List price');
+  const offerPrice = number(input.offerPrice, 'Offer price', listPrice);
+  const bump = illustratedBumpFee(input);
+  const noBump = { ...input, bumpFee: 0 };
+  const withBump = { ...input, bumpFee: bump };
+  const offerNoBump = calculateReverbSale(noBump, offerPrice);
+  const offerWithBump = calculateReverbSale(withBump, offerPrice);
+  const listNoBump = calculateReverbSale(noBump, listPrice);
+  const listWithBump = calculateReverbSale(withBump, listPrice);
+  const extraSaleToCoverBump = bump / keepRateOnItem(input);
+  const rows = [
+    { id: 'offerNoBump', label: 'Take the offer, no bump', sale: offerNoBump },
+    { id: 'offerWithBump', label: 'Take the offer, pay the bump', sale: offerWithBump },
+    { id: 'listNoBump', label: 'Sell at list, no bump', sale: listNoBump },
+    { id: 'listWithBump', label: 'Sell at list, pay the bump', sale: listWithBump },
+  ].map((row) => ({
+    ...row,
+    vsOfferNoBump: row.sale.profit - offerNoBump.profit,
+  }));
+  const maxProfit = Math.max(...rows.map((row) => row.sale.profit));
+  const leaders = rows.filter((row) => Math.abs(row.sale.profit - maxProfit) < 1e-9);
+  return {
+    bump,
+    usedTypedBump: number(input.bumpFee, 'Bump fee on this listing', 0) > 0,
+    offerNoBump,
+    offerWithBump,
+    listNoBump,
+    listWithBump,
+    extraSaleToCoverBump,
+    offerThatCoversBump: offerPrice + extraSaleToCoverBump,
+    listThatCoversBump: listPrice + extraSaleToCoverBump,
+    bumpPaysIfYouReachList: listWithBump.profit > offerNoBump.profit,
+    cashBumpSavesVsOfferIfYouReachList: listWithBump.profit - offerNoBump.profit,
+    rows,
+    winner: leaders.length === 1 ? leaders[0].id : 'tie',
+  };
+}

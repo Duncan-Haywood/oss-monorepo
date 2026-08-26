@@ -12,8 +12,9 @@ fees Reverb or eBay will charge: enter the rates from your last payout and
 verify them against your current statements.
 
 After using this, you can now see cash at list, cash on the offer, the
-Reverb offer that matches eBay list cash, and whether charging shipping,
-folding postage into the list, or offering local pickup leaves more, which
+Reverb offer that matches eBay list cash, whether charging shipping,
+folding postage into the list, or offering local pickup leaves more, and
+whether a bump still pays if it gets you from the offer to list, which
 used to mean opening two seller fee pages and a spreadsheet.
 
 ## Offer versus list
@@ -58,10 +59,31 @@ buyer-pays, $280.58 included, $276.50 pickup, $879.07 included list that
 matches buyer-pays). Comparison is derived from the existing sale fields —
 no second form.
 
+## Pay for a bump, or take the offer
+
+A bump is a fixed cash out of this sale. Paying one and still taking the
+same offer always leaves less by exactly the bump. It only pays if it
+changes the price you take — list instead of the offer, or an offer high
+enough to cover the bump after marketplace and payment take their cut.
+
+When the bump field is $0 the table uses a $3 illustration so the four
+rows are not the same sale twice. Type your own bump to replace it. The
+calculator also names the offer that keeps no-bump offer cash after
+paying the bump.
+
+The SEO page
+[`should-i-bump-this-reverb-listing.html`](should-i-bump-this-reverb-listing.html)
+walks the default worked example ($800 list, $720 offer, $3 illustration:
+$210.65 take the offer, $207.65 offer plus bump, $284.33 list, $281.33
+list plus bump, $723.26 offer that covers the bump). Complementary to
+open PR #1600 (absorb-the-label / meetup) — that changes shipping paths;
+this uses the existing bump field.
+
 This is distinct from the eBay fee calculator (final-value fee on one
 channel), the Etsy profit calculator (listing credits and Plus), Amazon FBA
 (fulfillment and storage), and the where-to-sell ranker (a custom "other
-channel" row, not Reverb's offer-versus-list or shipping-packaging shape).
+channel" row, not Reverb's offer-versus-list, shipping-packaging, or bump
+shape).
 
 ## Save and share your numbers
 

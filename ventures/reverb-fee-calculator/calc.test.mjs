@@ -8,6 +8,8 @@ import {
   compareReverbToEbay,
   offerThatMatchesEbayList,
   compareShippingPaths,
+  compareBump,
+  ILLUSTRATED_BUMP_DEFAULT,
 } from './calc.mjs';
 
 test('Reverb at the default list price keeps the published worked example', () => {
@@ -117,4 +119,43 @@ test('buyer-pays and included match when shipping charged is already zero', () =
   assert.equal(comparison.buyerPays.profit, comparison.included.profit);
   assert.equal(comparison.extraMarketplaceOnIncluded, 0);
   assert.equal(comparison.winner, 'pickup');
+});
+
+test('a $0 bump fee is illustrated at $3 so the table is not the same sale twice', () => {
+  const comparison = compareBump(REVERB_DEFAULTS);
+  assert.equal(comparison.bump, ILLUSTRATED_BUMP_DEFAULT);
+  assert.equal(comparison.usedTypedBump, false);
+  assert.equal(comparison.offerNoBump.profit, calculateReverbSale({ ...REVERB_DEFAULTS, bumpFee: 0 }, 720).profit);
+  assert.equal(comparison.offerWithBump.fees.bump, 3);
+  assert.equal(Number(comparison.offerWithBump.profit.toFixed(3)), Number((comparison.offerNoBump.profit - 3).toFixed(3)));
+  assert.equal(Number(comparison.listWithBump.profit.toFixed(3)), Number((comparison.listNoBump.profit - 3).toFixed(3)));
+  assert.equal(comparison.winner, 'listNoBump');
+});
+
+test('a $3 bump only pays if it gets you from the $720 offer to the $800 list', () => {
+  const comparison = compareBump(REVERB_DEFAULTS);
+  assert.equal(Number(comparison.offerNoBump.profit.toFixed(3)), 210.645);
+  assert.equal(Number(comparison.listWithBump.profit.toFixed(3)), 281.325);
+  assert.equal(comparison.bumpPaysIfYouReachList, true);
+  assert.equal(Number(comparison.cashBumpSavesVsOfferIfYouReachList.toFixed(2)), 70.68);
+  assert.equal(Number(comparison.rows[1].vsOfferNoBump.toFixed(2)), -3);
+  assert.ok(comparison.listWithBump.profit > comparison.offerNoBump.profit);
+  assert.ok(comparison.offerWithBump.profit < comparison.offerNoBump.profit);
+});
+
+test('the extra offer that covers a bump recovers the bump after percentage fees', () => {
+  const comparison = compareBump(REVERB_DEFAULTS);
+  const atCover = calculateReverbSale({ ...REVERB_DEFAULTS, bumpFee: comparison.bump }, comparison.offerThatCoversBump);
+  assert.ok(Math.abs(atCover.profit - comparison.offerNoBump.profit) < 1e-9);
+  assert.ok(comparison.offerThatCoversBump > 720);
+  assert.equal(Number(comparison.extraSaleToCoverBump.toFixed(4)), Number((3 / 0.921).toFixed(4)));
+});
+
+test('a typed bump replaces the $3 illustration', () => {
+  const comparison = compareBump({ ...REVERB_DEFAULTS, bumpFee: 12 });
+  assert.equal(comparison.bump, 12);
+  assert.equal(comparison.usedTypedBump, true);
+  assert.equal(comparison.offerWithBump.fees.bump, 12);
+  assert.equal(Number(comparison.listWithBump.profit.toFixed(3)), 272.325);
+  assert.equal(comparison.bumpPaysIfYouReachList, true);
 });
