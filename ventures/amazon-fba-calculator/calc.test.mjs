@@ -30,6 +30,14 @@ import {
   defaultLowInventoryFee,
   lowInventoryNote,
   LOW_INVENTORY_THRESHOLD_DAYS,
+  compareAwd,
+  awdNote,
+  DEFAULT_AWD_LOT_UNITS,
+  DEFAULT_AWD_HORIZON_MONTHS,
+  DEFAULT_AWD_INBOUND,
+  DEFAULT_AWD_STORAGE_PER_CU_FT,
+  DEFAULT_AWD_TO_FBA,
+  DEFAULT_YOU_HOLD_STORAGE_PER_UNIT,
   clampBoxToTier,
   nextCheaperWeightLb,
   nextLowerSizeTier,
@@ -1769,4 +1777,91 @@ test("rejects negative inventory inputs", () => {
     () => compareLowInventory({ onHandUnits: -1, soldLast30Days: 10, soldLast90Days: 30 }),
     /On-hand units/,
   );
+});
+
+const AWD_BASE = {
+  salePrice: 29.99,
+  referralRate: 15,
+  length: 8,
+  width: 6,
+  height: 2,
+  weightLb: 0.75,
+  costOfGoods: 8,
+  inboundPerUnit: 1.2,
+  packagingCost: 0.6,
+  storageRate: 0.87,
+  monthlyUnits: 80,
+};
+
+test("compareAwd: default 400-unit lot still prefers AWD replenish over FBA now", () => {
+  const comparison = compareAwd(AWD_BASE);
+  assert.equal(comparison.winner, "awd");
+  assert.equal(comparison.lotUnits, DEFAULT_AWD_LOT_UNITS);
+  assert.equal(comparison.horizonMonths, DEFAULT_AWD_HORIZON_MONTHS);
+  assert.equal(comparison.awdInboundPerUnit, DEFAULT_AWD_INBOUND);
+  assert.equal(comparison.awdStoragePerCuFt, DEFAULT_AWD_STORAGE_PER_CU_FT);
+  assert.equal(comparison.awdToFbaPerUnit, DEFAULT_AWD_TO_FBA);
+  assert.equal(comparison.youHoldStoragePerUnit, DEFAULT_YOU_HOLD_STORAGE_PER_UNIT);
+  assert.equal(comparison.sizeTier, "large_standard");
+  near(comparison.fulfillmentFee, 4.15, "large-standard 12 oz band");
+  near(comparison.contribution, 12.7415, "sale minus referral, pick, COGS, prep");
+  near(comparison.fba.cash, 4558.6, "FBA now leftover");
+  near(comparison.awd.cash, 4723.933333333332, "AWD leftover");
+  near(comparison.hold.cash, 4397.2666666666655, "you-hold leftover");
+  near(comparison.extraAwdVsFba, 165.33333333333303, "AWD vs FBA gap");
+  near(comparison.extraHoldVsFba, -161.33333333333303, "you-hold vs FBA gap");
+  near(comparison.breakEvenAwdToFba, 1.0933333333333333, "transfer ceiling");
+  near(comparison.fba.inbound, 480, "FBA inbound on 400");
+  near(comparison.awd.inbound, 60, "AWD receive on 400");
+  near(comparison.awd.transfers, 272, "AWD-to-FBA on 400");
+  near(comparison.hold.transfers, 480, "FBA inbound only as units drip");
+  assert.equal(comparison.fba.sold, 400);
+  assert.equal(comparison.awd.leftover, 0);
+  assert.match(comparison.summary, /\$165\.33 more on 400 units/);
+  assert.match(comparison.summary, /\$4723\.93 vs \$4558\.60/);
+  assert.match(comparison.summary, /\$1\.09/);
+  assert.match(comparison.summary, /loses \$161\.33/);
+  assert.equal(awdNote(comparison), comparison.summary);
+});
+
+test("compareAwd: a $1.20 AWD-to-FBA transfer flips sending the lot to FBA", () => {
+  const comparison = compareAwd({ ...AWD_BASE, awdToFbaPerUnit: 1.2 });
+  assert.equal(comparison.winner, "fba");
+  near(comparison.extraAwdVsFba, -42.66666666666697, "expensive transfer");
+  assert.match(comparison.summary, /\$42\.67 more on 400 units/);
+});
+
+test("compareAwd: cheap you-hold storage beats parking the pile in FBA", () => {
+  const comparison = compareAwd({ ...AWD_BASE, youHoldStoragePerUnit: 0.01 });
+  assert.equal(comparison.winner, "awd");
+  assert.ok(comparison.extraHoldVsFba > 0, "garage cheaper than FBA storage");
+  const atCeiling = compareAwd({
+    ...AWD_BASE,
+    youHoldStoragePerUnit: comparison.breakEvenYouHoldStorage,
+  });
+  near(atCeiling.hold.cash, atCeiling.fba.cash, "you-hold storage floor");
+});
+
+test("compareAwd: transfer at the ceiling ties FBA leftover", () => {
+  const comparison = compareAwd(AWD_BASE);
+  const tied = compareAwd({ ...AWD_BASE, awdToFbaPerUnit: comparison.breakEvenAwdToFba });
+  near(tied.awd.cash, tied.fba.cash, "transfer ceiling");
+  assert.equal(tied.winner, "tie");
+});
+
+test("compareAwd ignores a typed return mix and rejects impossible inputs", () => {
+  const withReturns = compareAwd({
+    ...AWD_BASE,
+    returnRate: 15,
+    unsellableReturnRate: 20,
+    returnHandlingFee: 2.5,
+  });
+  const completed = compareAwd(AWD_BASE);
+  near(withReturns.awd.cash, completed.awd.cash, "return mix forced to 0");
+  assert.throws(() => compareAwd({ salePrice: -1 }), /Sale price/);
+  assert.throws(() => compareAwd({ ...AWD_BASE, lotUnits: 0 }), /greater than zero/);
+  assert.throws(() => compareAwd({ ...AWD_BASE, horizonMonths: 0 }), /greater than zero/);
+  assert.throws(() => compareAwd({ ...AWD_BASE, monthlyUnits: 0 }), /greater than zero/);
+  assert.throws(() => compareAwd({ ...AWD_BASE, workingStock: 0 }), /greater than zero/);
+  assert.throws(() => awdNote({}), /missing rows/);
 });
