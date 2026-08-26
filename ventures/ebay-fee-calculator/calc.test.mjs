@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { calculateOrder, calculatePriceScenarios, calculateRepricingTable, compareListingFormat, listingFormatNote, comparePartialRefund, partialRefundNote, DEFAULT_PARTIAL_REFUND, DEFAULT_MONTHLY_CASES, compareAuthenticity, authenticityNote, DEFAULT_AUTHENTICITY_FEE_RATE, DEFAULT_AUTHENTICITY_EXTRA_SHIP, DEFAULT_WITHOUT_AG_SELL_THROUGH, DEFAULT_AUTHENTICITY_SELL_THROUGH, DEFAULT_AUTHENTICITY_RETURN_RATE, DEFAULT_MONTHLY_AG_LISTINGS, compareLocalPickup, localPickupNote, DEFAULT_SHIP_SELL_THROUGH, DEFAULT_PICKUP_SELL_THROUGH, DEFAULT_PICKUP_NO_SHOW, DEFAULT_PICKUP_MINUTES, DEFAULT_PICKUP_HOURLY_WAGE, DEFAULT_MONTHLY_PICKUP_LISTINGS, compareLotVsSingles, lotVsSinglesNote, DEFAULT_LOT_PIECE_COUNT, DEFAULT_SINGLE_EXPECTED_PRICE, DEFAULT_LOT_SELL_THROUGH, DEFAULT_SINGLE_SELL_THROUGH, DEFAULT_SINGLE_INSERTION_FEE, DEFAULT_MONTHLY_LOT_DECISIONS, compareStandardEnvelope, standardEnvelopeNote, DEFAULT_ENVELOPE_SHIPPING_COST, DEFAULT_ENVELOPE_PACKAGING_COST, DEFAULT_ENVELOPE_CLAIM_RATE, DEFAULT_ENVELOPE_FEE_REFUND_ON_CLAIM, DEFAULT_TRACKED_SELL_THROUGH, DEFAULT_ENVELOPE_SELL_THROUGH, DEFAULT_MONTHLY_ENVELOPE_LISTINGS } from './calc.mjs';
+import { calculateOrder, calculatePriceScenarios, calculateRepricingTable, compareListingFormat, listingFormatNote, comparePartialRefund, partialRefundNote, DEFAULT_PARTIAL_REFUND, DEFAULT_MONTHLY_CASES, compareAuthenticity, authenticityNote, DEFAULT_AUTHENTICITY_FEE_RATE, DEFAULT_AUTHENTICITY_EXTRA_SHIP, DEFAULT_WITHOUT_AG_SELL_THROUGH, DEFAULT_AUTHENTICITY_SELL_THROUGH, DEFAULT_AUTHENTICITY_RETURN_RATE, DEFAULT_MONTHLY_AG_LISTINGS, compareLocalPickup, localPickupNote, DEFAULT_SHIP_SELL_THROUGH, DEFAULT_PICKUP_SELL_THROUGH, DEFAULT_PICKUP_NO_SHOW, DEFAULT_PICKUP_MINUTES, DEFAULT_PICKUP_HOURLY_WAGE, DEFAULT_MONTHLY_PICKUP_LISTINGS, compareLotVsSingles, lotVsSinglesNote, DEFAULT_LOT_PIECE_COUNT, DEFAULT_SINGLE_EXPECTED_PRICE, DEFAULT_LOT_SELL_THROUGH, DEFAULT_SINGLE_SELL_THROUGH, DEFAULT_SINGLE_INSERTION_FEE, DEFAULT_MONTHLY_LOT_DECISIONS, compareStandardEnvelope, standardEnvelopeNote, DEFAULT_ENVELOPE_SHIPPING_COST, DEFAULT_ENVELOPE_PACKAGING_COST, DEFAULT_ENVELOPE_CLAIM_RATE, DEFAULT_ENVELOPE_FEE_REFUND_ON_CLAIM, DEFAULT_TRACKED_SELL_THROUGH, DEFAULT_ENVELOPE_SELL_THROUGH, DEFAULT_MONTHLY_ENVELOPE_LISTINGS, compareCombinedShipping, combinedShippingNote, DEFAULT_COMBINED_ITEM_COUNT, DEFAULT_COMBINED_SHIPPING_CHARGED, DEFAULT_COMBINED_SHIPPING_COST, DEFAULT_COMBINED_PACKAGING_COST, DEFAULT_COMBINED_RETURN_SHIPPING_COST, DEFAULT_COMBINED_FIXED_FEE, DEFAULT_MONTHLY_COMBINED_ORDERS } from './calc.mjs';
 
 const near = (actual, expected, msg) => assert.ok(Math.abs(actual - expected) < 1e-6, `${msg}: ${actual} vs ${expected}`);
 
@@ -707,4 +707,75 @@ test('rejects a claim rate above 100% and a missing envelope comparison', () => 
   assert.throws(() => compareStandardEnvelope({ ...agBase, envelopeSellThroughPct: 101 }), /at most 100/);
   assert.throws(() => compareStandardEnvelope({ price: -1 }), /Item price/);
   assert.throws(() => standardEnvelopeNote({}), /missing rows/);
+});
+
+test('compares combined shipping against two separate labels on the default sales', () => {
+  // One listing: completed $21.605, return −$11, 10% mix → $18.3445.
+  // Separate ×2 → $36.689 after returns, $12 collected, $12 postage and pack.
+  // Combined: $80 + $8, $6.50 + $1.25 pack, $0.30 one checkout. Completed
+  // $44.29; return −$14.25; 10% mix → $38.436. Combined is ahead.
+  const comparison = compareCombinedShipping(agBase);
+  assert.equal(comparison.itemCount, DEFAULT_COMBINED_ITEM_COUNT);
+  assert.equal(comparison.combinedCharged, DEFAULT_COMBINED_SHIPPING_CHARGED);
+  assert.equal(comparison.combinedShip, DEFAULT_COMBINED_SHIPPING_COST);
+  assert.equal(comparison.combinedPack, DEFAULT_COMBINED_PACKAGING_COST);
+  assert.equal(comparison.combinedReturnShip, DEFAULT_COMBINED_RETURN_SHIPPING_COST);
+  assert.equal(comparison.combinedFixed, DEFAULT_COMBINED_FIXED_FEE);
+  assert.equal(comparison.monthlyOrders, DEFAULT_MONTHLY_COMBINED_ORDERS);
+  near(comparison.separate.completedProfit, 43.21, 'separate completed');
+  near(comparison.separate.expectedProfit, 36.689, 'separate after returns');
+  near(comparison.combined.completedProfit, 44.29, 'combined completed');
+  near(comparison.combined.expectedProfit, 38.436, 'combined after returns');
+  near(comparison.extraKeptOnCombined, 1.747, 'combined gap');
+  near(comparison.monthlyExtraOnCombined, 1.747 * 12, 'twelve invoices');
+  near(comparison.separate.postageAndPack, 12, 'two labels and packs');
+  near(comparison.combined.postageAndPack, 7.75, 'one box');
+  assert.equal(comparison.winner, 'combined');
+  assert.equal(comparison.separate.shipments, 2);
+  assert.equal(comparison.combined.shipments, 1);
+});
+
+test('break-even combined charge and postage match separate labels', () => {
+  const comparison = compareCombinedShipping(agBase);
+  const atCharge = compareCombinedShipping({
+    ...agBase,
+    combinedShippingCharged: comparison.breakEvenCombinedCharged,
+  });
+  near(atCharge.combined.expectedProfit, atCharge.separate.expectedProfit, 'ceiling charge ties separate');
+  const atPostage = compareCombinedShipping({
+    ...agBase,
+    combinedShippingCost: comparison.breakEvenCombinedPostage,
+  });
+  near(atPostage.combined.expectedProfit, atPostage.separate.expectedProfit, 'ceiling postage ties separate');
+  assert.ok(comparison.breakEvenCombinedCharged < 8, 'default $8 charged is above the floor');
+  assert.ok(comparison.breakEvenCombinedPostage > 6.5, 'default $6.50 postage is below the ceiling');
+});
+
+test('a $4 combine-cheap invoice flips separate labels ahead', () => {
+  const comparison = compareCombinedShipping({ ...agBase, combinedShippingCharged: 4 });
+  assert.equal(comparison.winner, 'separate');
+  near(comparison.combined.expectedProfit, 35.313, '$4 combined after returns');
+  near(comparison.extraKeptOnCombined, 35.313 - 36.689, 'cheap-combine gap');
+});
+
+test('combined-shipping note reports both paths without telling the seller which to use', () => {
+  const comparison = compareCombinedShipping(agBase);
+  const note = combinedShippingNote(comparison);
+  assert.match(note, /Shipping 2 separately/);
+  assert.match(note, /\$12\.00 postage/);
+  assert.match(note, /\$36\.69/);
+  assert.match(note, /Combining into one box/);
+  assert.match(note, /\$8\.00/);
+  assert.match(note, /\$7\.75 postage and pack/);
+  assert.match(note, /\$38\.44/);
+  assert.match(note, /\$5\.76/);
+  assert.doesNotMatch(note, /should combine|must ship separately/i);
+});
+
+test('rejects a one-item combine, a return rate above 100%, and a missing comparison', () => {
+  assert.throws(() => compareCombinedShipping({ ...agBase, combinedItemCount: 1 }), /at least 2/);
+  assert.throws(() => compareCombinedShipping({ ...agBase, combinedItemCount: 2.5 }), /at least 2/);
+  assert.throws(() => compareCombinedShipping({ ...agBase, combinedReturnRatePercent: 101 }), /at most 100/);
+  assert.throws(() => compareCombinedShipping({ price: -1 }), /Item price/);
+  assert.throws(() => combinedShippingNote({}), /missing rows/);
 });

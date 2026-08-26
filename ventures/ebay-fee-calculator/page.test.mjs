@@ -150,7 +150,9 @@ test('the Standard Envelope table has one cell per column and a counted event', 
   assert.match(page, /standard_envelope_compared/);
   assert.match(page, /is-ebay-standard-envelope-worth-it\.html/);
   assert.match(page, /"featureList":\s*"[^"]*Standard Envelope vs tracked label/);
-  const headerBlock = page.slice(page.indexOf('id="standardEnvelopeTable"'));
+  const envStart = page.indexOf('id="standardEnvelopeTable"');
+  const envEnd = page.indexOf('id="combinedShipping"', envStart);
+  const headerBlock = page.slice(envStart, envEnd === -1 ? undefined : envEnd);
   const headers = [...headerBlock.matchAll(/<th scope="col">([^<]+)<\/th>/g)].map((m) => m[1]);
   assert.deepEqual(headers, [
     'Path',
@@ -160,5 +162,25 @@ test('the Standard Envelope table has one cell per column and a counted event', 
     'If it sells',
     'Expected after sell-through',
     'vs tracked',
+  ]);
+});
+
+test('the combined-shipping table has one cell per column and a counted event', () => {
+  assert.match(page, /compareCombinedShipping/);
+  assert.match(page, /id="combinedShipping"/);
+  assert.match(page, /id="combinedShippingVerdict"/);
+  assert.match(page, /combined_shipping_compared/);
+  assert.match(page, /should-i-offer-ebay-combined-shipping\.html/);
+  assert.match(page, /"featureList":\s*"[^"]*combined shipping vs separate labels/);
+  const headerBlock = page.slice(page.indexOf('id="combinedShippingTable"'));
+  const headers = [...headerBlock.matchAll(/<th scope="col">([^<]+)<\/th>/g)].map((m) => m[1]);
+  assert.deepEqual(headers, [
+    'Path',
+    'Shipments',
+    'Collected',
+    'Postage and pack',
+    'If they keep it',
+    'Expected after returns',
+    'vs separate',
   ]);
 });
