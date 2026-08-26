@@ -47,14 +47,38 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
+      # Discovered rather than listed: a hard-coded list silently stops
+      # covering an example that is added, and fails the whole job over one
+      # that is renamed or removed. Anything named *-with-defects.* must fail
+      # preflight; everything else in examples/ must pass it.
       - name: Clean examples pass
         run: |
-          for example in examples/ubl-invoice.xml examples/cii-invoice.xml examples/valid-invoice.json; do
+          set -eu
+          found=0
+          for example in examples/*; do
+            case "$example" in *-with-defects.*) continue;; esac
+            echo "--- $example"
             python3 -m einvoice_preflight "$example"
+            found=$((found + 1))
           done
-      - name: The defective example is caught
+          if [ "$found" -eq 0 ]; then
+            echo "::error::no clean examples found — examples/ should not be empty"
+            exit 1
+          fi
+      - name: The defective examples are caught
         run: |
-          if python3 -m einvoice_preflight examples/ubl-invoice-with-defects.xml; then
-            echo "::error::examples/ubl-invoice-with-defects.xml passed preflight but must fail it"
+          set -eu
+          found=0
+          for example in examples/*-with-defects.*; do
+            [ -e "$example" ] || continue
+            echo "--- $example"
+            if python3 -m einvoice_preflight "$example"; then
+              echo "::error::$example passed preflight but must fail it"
+              exit 1
+            fi
+            found=$((found + 1))
+          done
+          if [ "$found" -eq 0 ]; then
+            echo "::error::no defective example found — the failing path is then untested"
             exit 1
           fi

@@ -28,6 +28,10 @@ PYTHONPATH=src python3 -m einvoice_preflight examples/valid-invoice.json
 PYTHONPATH=src python3 -m einvoice_preflight examples/valid-credit-note.json
 PYTHONPATH=src python3 -m einvoice_preflight examples/valid-mixed-rate.json
 PYTHONPATH=src python3 -m einvoice_preflight examples/cii-invoice.xml
+PYTHONPATH=src python3 -m einvoice_preflight examples/ubl-invoice.xml
+# The one example that is meant to fail: six planted defects, annotated at the
+# top of the file and pinned by tests/test_examples.py. Exits 1.
+PYTHONPATH=src python3 -m einvoice_preflight examples/ubl-invoice-with-defects.xml
 PYTHONPATH=src python3 -m einvoice_preflight examples/valid-invoice.json --format json
 PYTHONPATH=src python3 -m einvoice_preflight examples/valid-invoice.json --format sarif > preflight.sarif
 PYTHONPATH=src python3 -m einvoice_preflight ./invoices/ --format github
