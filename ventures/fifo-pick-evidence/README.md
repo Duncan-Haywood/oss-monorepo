@@ -32,3 +32,6 @@ arising from its use.
 The report is an observation of the supplied rows, not an audit conclusion,
 compliance determination, chain-of-custody record, or warranty that FIFO was
 followed. Confirm warehouse-system semantics and investigate each observation.
+
+[GitHub Sponsors](https://github.com/sponsors/Duncan-Haywood) is optional and
+never changes what the tool does.

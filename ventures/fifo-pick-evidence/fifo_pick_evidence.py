@@ -74,7 +74,16 @@ def record_usage(path):
 
 
 def main():
-    parser = argparse.ArgumentParser(description="Create a local FIFO pick-order evidence report from CSV.")
+    parser = argparse.ArgumentParser(
+        description="Create a local FIFO pick-order evidence report from CSV.",
+        epilog=(
+            "No warranty. This tool is provided free and as-is, without warranty "
+            "of any kind. It is not engineering, legal, tax, financial, or "
+            "compliance advice. Review and verify every observation before "
+            "relying on it. GitHub Sponsors is optional and never changes what "
+            "the tool does: https://github.com/sponsors/Duncan-Haywood"
+        ),
+    )
     parser.add_argument("csv_file")
     parser.add_argument("--format", choices=("json", "text"), default="text")
     parser.add_argument("--usage-file", help="Optional local counter file; omit to disable usage counting.")

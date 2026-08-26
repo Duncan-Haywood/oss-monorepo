@@ -1,0 +1,40 @@
+name: walk-in-tub-bid-calculator
+description: A private browser calculator for bath remodelers and accessibility contractors that prices a walk-in tub install from tub count, acrylic soaker versus cast versus whirlpool versus air-jet versus extra-wide, alcove-swap versus relocate versus new-construction versus custom-opening, inward versus outward versus walk-through door, extras, contractor-supplied versus customer-supplied tub, and weekday versus only-bath-in-use versus Saturday / after-hours — and shows the extra-work share and the walk-away price below which the job loses money.
+stage: prototype
+owner: duncan
+hypotheses:
+  - claim: Independent bath remodelers will use an alcove-versus-unit bid calculator because the generic "$3,499 installed" special they are shopped on cannot see that an acrylic soaker into an existing alcove with an inward door is a different job from an extra-wide whirlpool with a drain relocate, a tile surround, a cast-iron demo, and a sistered floor.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: The walk-away price and the extra-work share (not the published installed dump) are the two figures a contractor actually decides on when an owner asks them to match a cheaper alcove-swap quote on a relocate-plus-tile job.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: Showing soaker, whirlpool, air-jet, and extra-wide on the same alcove, next to swap versus relocate, changes the bid enough that contractors quote the aging-in-place job instead of matching the $3,499 special.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: Contractors will return to see whether a customer-supplied tub still pays at the $1,499 just-set special, because zeroing the invoice is not a free install and a wrong-unit callback is a second trip.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: Showing weekday-they-leave versus only-bath-still-in-use versus Saturday / after-hours on the same alcove, next to the weekday $3,499 number they asked you to keep, changes the bid enough that contractors refuse the "just start Saturday after a fall" special instead of matching it.
+    status: untested
+    checked: null
+    evidence: customer-contact
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+budget:
+  monthly_cap: 1
+  protected: true
+kill_criteria:
+  - Fewer than three qualified bath remodelers use the calculator twice within 90 days.
+  - Contractors report that splitting alcove, unit, and extras is more work than their existing installed-price method without changing the price they would have bid.
+  - The starting hours and tub invoices prove so far from real crews that the tool cannot be used without data we have no way to gather.
+links:
+  production: null
+  analytics: null
