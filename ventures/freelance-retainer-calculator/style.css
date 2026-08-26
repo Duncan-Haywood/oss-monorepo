@@ -30,3 +30,8 @@ footer a { color:var(--accent); }
 .subgrid .note { margin:0 0 12px; }
 .copy ul { color:var(--muted); padding-left:1.2em; }
 .copy a { color:var(--accent); }
+.scenarios { margin-top:20px; }
+.usage-table tr.selected { background:#fff4ee; }
+.usage-table tr.overflow { color:var(--muted); }
+button.apply { width:auto; margin:0; padding:8px 10px; font-size:12px; }
+.visually-hidden { position:absolute; width:1px; height:1px; padding:0; margin:-1px; overflow:hidden; clip:rect(0,0,0,0); white-space:nowrap; border:0; }
