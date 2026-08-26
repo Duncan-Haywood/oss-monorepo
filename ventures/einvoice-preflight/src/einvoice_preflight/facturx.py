@@ -38,12 +38,23 @@ def looks_like_pdf(data: bytes) -> bool:
     return data.lstrip(b"\xef\xbb\xbf \t\r\n").startswith(b"%PDF-")
 
 
-def extract_embedded_invoice_xml(data: bytes) -> bytes:
-    """Return the embedded invoice XML bytes from a Factur-X-style PDF.
+def safe_attachment_label(name: str) -> str:
+    """Return a known Factur-X attachment name, or a generic label.
 
-    Raises ``DocumentError`` when the file is not a readable unencrypted PDF
-    with an invoice XML attachment.
+    Arbitrary PDF attachment names are attacker-controlled. Only the three
+    standard invoice filenames are echoed back to the operator.
     """
+    key = (name or "").strip().lower()
+    return key if key in PREFERRED_NAMES else "embedded invoice XML"
+
+
+def envelope_note(label: str, syntax: str) -> str:
+    """One-line confirmation that a PDF envelope was opened."""
+    return f"Unwrapped {label} ({syntax.upper()}) from the PDF."
+
+
+def extract_embedded_invoice(data: bytes) -> tuple[bytes, str]:
+    """Return ``(xml_bytes, safe_attachment_label)`` from a Factur-X-style PDF."""
     if not looks_like_pdf(data):
         raise EmbeddedInvoiceError("The file is not a PDF.")
     if _is_encrypted(data):
@@ -65,7 +76,18 @@ def extract_embedded_invoice_xml(data: bytes) -> bytes:
             "This PDF has embedded files, but none of them is UBL or "
             "CrossIndustryInvoice XML."
         )
-    return chosen
+    payload, name = chosen
+    return payload, safe_attachment_label(name)
+
+
+def extract_embedded_invoice_xml(data: bytes) -> bytes:
+    """Return the embedded invoice XML bytes from a Factur-X-style PDF.
+
+    Raises ``EmbeddedInvoiceError`` when the file is not a readable unencrypted
+    PDF with an invoice XML attachment.
+    """
+    payload, _label = extract_embedded_invoice(data)
+    return payload
 
 
 def build_pdf_with_attachment(
@@ -201,15 +223,17 @@ def _read_stream_after(data: bytes, type_at: int) -> bytes | None:
     return payload
 
 
-def _prefer_invoice_attachment(attachments: list[tuple[str, bytes]]) -> bytes | None:
+def _prefer_invoice_attachment(
+    attachments: list[tuple[str, bytes]],
+) -> tuple[bytes, str] | None:
     by_name = {name.lower(): payload for name, payload in attachments}
     for preferred in PREFERRED_NAMES:
         payload = by_name.get(preferred)
         if payload is not None and _looks_like_invoice_xml(payload):
-            return payload
+            return payload, preferred
     for name, payload in attachments:
         if _looks_like_invoice_xml(payload):
-            return payload
+            return payload, name
     return None
 
 

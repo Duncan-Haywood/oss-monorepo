@@ -1,6 +1,6 @@
 import { checkInvoice, flagDuplicateInvoiceNumbers } from "./checks.mjs";
 import { looksLikeCii, parseCiiInvoice } from "./cii.mjs";
-import { extractEmbeddedInvoiceXml, looksLikePdf } from "./facturx.mjs";
+import { envelopeNote, extractEmbeddedInvoice, looksLikePdf } from "./facturx.mjs";
 import { looksLikeXml, parseUblInvoice } from "./ubl.mjs";
 
 export const DEFAULT_MAX_BYTES = 1_048_576;
@@ -10,17 +10,27 @@ function redactValues(text) {
   return String(text).replace(/\b\d+(?:\.\d+)?\b/g, "[value]");
 }
 
-export async function parseInvoiceSource(name, source) {
+export async function inspectInvoiceSource(name, source) {
   let payload = source;
+  let envelope = "";
   if (looksLikePdf(name, source)) {
-    payload = await extractEmbeddedInvoiceXml(source);
+    const extracted = await extractEmbeddedInvoice(source);
+    payload = extracted.payload;
+    const peek = typeof payload === "string" ? payload : new TextDecoder().decode(payload);
+    envelope = envelopeNote(extracted.label, looksLikeCii(peek) ? "cii" : "ubl");
   }
   const text = typeof payload === "string" ? payload : new TextDecoder().decode(payload);
+  let invoice;
   if (looksLikeXml(name, text) || looksLikeCii(text)) {
-    if (looksLikeCii(text)) return parseCiiInvoice(text);
-    return parseUblInvoice(text);
+    invoice = looksLikeCii(text) ? parseCiiInvoice(text) : parseUblInvoice(text);
+  } else {
+    invoice = JSON.parse(text);
   }
-  return JSON.parse(text);
+  return { invoice, envelope };
+}
+
+export async function parseInvoiceSource(name, source) {
+  return (await inspectInvoiceSource(name, source)).invoice;
 }
 
 export async function preflightDocuments(inputs, { maxBytes = DEFAULT_MAX_BYTES, maxFiles = DEFAULT_MAX_FILES } = {}) {
@@ -50,9 +60,9 @@ export async function preflightDocuments(inputs, { maxBytes = DEFAULT_MAX_BYTES,
       continue;
     }
     try {
-      const invoice = await parseInvoiceSource(name, source);
+      const { invoice, envelope } = await inspectInvoiceSource(name, source);
       const errors = checkInvoice(invoice);
-      reports.push({ file: name, errors });
+      reports.push({ file: name, errors, envelope });
       parsed.push({ name, invoice });
     } catch (error) {
       readErrors.push({
@@ -114,6 +124,7 @@ export function buildChecklist({ reports, readErrors }) {
   ];
   for (const report of reports) {
     lines.push(`[ ] Review ${report.file}`);
+    if (report.envelope) lines.push(`    ${report.envelope}`);
     if (report.errors.length === 0) {
       lines.push("    No supported defects found.");
       continue;
@@ -168,6 +179,7 @@ export function buildMarkdown({ reports, readErrors }) {
   }
   for (const report of reports) {
     lines.push(`## \`${escape(report.file)}\``);
+    if (report.envelope) lines.push("", report.envelope);
     if (report.errors.length === 0) {
       lines.push("", "Status: **PASS**", "", "No defects found in the supported checks.", "");
       continue;

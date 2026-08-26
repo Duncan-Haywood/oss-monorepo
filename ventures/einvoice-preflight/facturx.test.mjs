@@ -9,10 +9,13 @@ import { checkInvoice } from "./checks.mjs";
 import { parseCiiInvoice } from "./cii.mjs";
 import {
   buildPdfWithAttachment,
+  envelopeNote,
+  extractEmbeddedInvoice,
   extractEmbeddedInvoiceXml,
   looksLikePdf,
+  safeAttachmentLabel,
 } from "./facturx.mjs";
-import { parseInvoiceSource } from "./report.mjs";
+import { inspectInvoiceSource, parseInvoiceSource, preflightDocuments } from "./report.mjs";
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const example = (name) => readFileSync(path.join(HERE, "examples", name));
@@ -59,4 +62,30 @@ test("a FlateDecode attachment still unwraps in the browser path", async () => {
   });
   const invoice = parseCiiInvoice(await extractEmbeddedInvoiceXml(pdf));
   assert.equal(invoice.invoice_number, "INV-2026-0043");
+});
+
+test("safe attachment labels never echo a custom PDF name", () => {
+  assert.equal(safeAttachmentLabel("factur-x.xml"), "factur-x.xml");
+  assert.equal(safeAttachmentLabel("XRECHNUNG.XML"), "xrechnung.xml");
+  assert.equal(safeAttachmentLabel("notes.txt"), "embedded invoice XML");
+  assert.equal(safeAttachmentLabel("=cmd|calc"), "embedded invoice XML");
+  assert.equal(envelopeNote("factur-x.xml", "cii"), "Unwrapped factur-x.xml (CII) from the PDF.");
+});
+
+test("inspectInvoiceSource names the unwrapped Factur-X attachment", async () => {
+  const { invoice, envelope } = await inspectInvoiceSource(
+    "factur-x-invoice.pdf",
+    example("factur-x-invoice.pdf"),
+  );
+  assert.equal(invoice.invoice_number, "INV-2026-0043");
+  assert.equal(envelope, "Unwrapped factur-x.xml (CII) from the PDF.");
+});
+
+test("preflight of the shipped PDF carries the envelope note and not a custom name", async () => {
+  const result = await preflightDocuments([
+    { name: "factur-x-invoice.pdf", source: example("factur-x-invoice.pdf") },
+  ]);
+  assert.equal(result.reports[0].envelope, "Unwrapped factur-x.xml (CII) from the PDF.");
+  assert.equal(result.reports[0].errors.length, 0);
+  assert.equal(result.reports[0].envelope.includes("notes"), false);
 });

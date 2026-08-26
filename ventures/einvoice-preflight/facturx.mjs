@@ -18,7 +18,16 @@ export function looksLikePdf(name, source) {
   return head.startsWith("%PDF-");
 }
 
-export async function extractEmbeddedInvoiceXml(source) {
+export function safeAttachmentLabel(name) {
+  const key = String(name || "").trim().toLowerCase();
+  return PREFERRED_NAMES.includes(key) ? key : "embedded invoice XML";
+}
+
+export function envelopeNote(label, syntax) {
+  return `Unwrapped ${label} (${String(syntax).toUpperCase()}) from the PDF.`;
+}
+
+export async function extractEmbeddedInvoice(source) {
   const data = toBytes(source);
   if (!looksLikePdf("", data)) {
     throw new Error("The file is not a PDF.");
@@ -46,7 +55,12 @@ export async function extractEmbeddedInvoiceXml(source) {
       "This PDF has embedded files, but none of them is UBL or CrossIndustryInvoice XML.",
     );
   }
-  return chosen;
+  return { payload: chosen.payload, label: safeAttachmentLabel(chosen.name) };
+}
+
+export async function extractEmbeddedInvoiceXml(source) {
+  const extracted = await extractEmbeddedInvoice(source);
+  return extracted.payload;
 }
 
 export function buildPdfWithAttachment(payload, filename = "factur-x.xml", { encrypt = false, filter = "" } = {}) {
@@ -194,13 +208,13 @@ async function inflateZlib(payload) {
 }
 
 function preferInvoiceAttachment(attachments) {
-  const byName = new Map(attachments.map((item) => [item.name.toLowerCase(), item.payload]));
+  const byName = new Map(attachments.map((item) => [item.name.toLowerCase(), item]));
   for (const preferred of PREFERRED_NAMES) {
-    const payload = byName.get(preferred);
-    if (payload && looksLikeInvoiceXml(payload)) return payload;
+    const item = byName.get(preferred);
+    if (item && looksLikeInvoiceXml(item.payload)) return { payload: item.payload, name: preferred };
   }
   for (const item of attachments) {
-    if (looksLikeInvoiceXml(item.payload)) return item.payload;
+    if (looksLikeInvoiceXml(item.payload)) return { payload: item.payload, name: item.name };
   }
   return null;
 }
