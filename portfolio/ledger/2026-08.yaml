@@ -23612,3 +23612,38 @@ entries:
         at one surface, or a claim mechanism before work starts. Five merges of
         main were needed to land a four-file change.
     mrr_end: null
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Added `platform/ci/check_duplicate_symbols.py`, which fails a pull
+        request whose Python defines the same top-level name twice. This is the
+        follow-up flagged on #1787 rather than bundled into it, and it catches
+        that PR's own defect mechanically: run against the commit before #1787
+        it reports "`PAGES_DEPLOY_ACTIONS` is defined at line 299 and again at
+        406", which is exactly what took a manual read of the merged file to
+        find. Python rebinds silently, so two sessions writing the same constant
+        into one module is invisible to git (no shared lines, no conflict), to
+        the interpreter, and to the test suites (each function was tested
+        against itself and each passed).
+      - >-
+        Learned the check needs to be narrow to be worth having. Scoped to
+        top-level `def`/`class` and UPPER_CASE constants only: a `def` inside
+        `if TYPE_CHECKING:` or an `except ImportError:` fallback is a deliberate
+        alternative binding, and flagging those would make it a check people
+        learn to skip. Against all 349 tracked Python files it reports zero,
+        so it lands as a hard failure with no cleanup debt. Nine of its 24 tests
+        are false-positive cases rather than detections, because a check that
+        runs unfiltered over every Python file does more harm wrong than absent.
+      - >-
+        Python-only on purpose, and verified rather than assumed: a second
+        top-level `const X` in an ES module is a parse-time SyntaxError
+        ("Identifier 'X' has already been declared"), so `platform/pages/
+        build.mjs` -- the other file this fleet collides on -- cannot reach
+        `main` carrying one. Also noticed in passing, and deliberately not fixed
+        here to keep the change to its subject:
+        `portfolio/pipeline/probes/validate_probe_index.py` has an invalid
+        escape sequence `'\.'`, a DeprecationWarning on 3.12 that becomes a
+        SyntaxError on 3.14.
+    mrr_end: null
