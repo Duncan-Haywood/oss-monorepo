@@ -2411,6 +2411,304 @@ export function compareSizeTierPackaging(input = {}) {
   };
 }
 
+export const DEFAULT_FBM_SHIPPING_COST = 4.75;
+export const DEFAULT_SFP_SHIPPING = 8.95;
+export const DEFAULT_SFP_MINUTES = 6;
+export const DEFAULT_SFP_HOURLY = 18;
+export const DEFAULT_FBA_TAKE_PCT = 70;
+export const DEFAULT_SFP_TAKE_PCT = 65;
+export const DEFAULT_FBM_TAKE_PCT = 40;
+
+function takePercent(value, name) {
+  const rate = number(value, name);
+  if (rate > 100) throw new Error(`${name} must be at most 100`);
+  return rate;
+}
+
+function sfpLaborCost(minutes, hourlyWage) {
+  return (minutes / 60) * hourlyWage;
+}
+
+function sfpPath({
+  id,
+  label,
+  takePct,
+  shippingCost,
+  laborCost,
+  completedProfit,
+  expectedProfit,
+  monthlyProfit,
+}) {
+  return {
+    id,
+    label,
+    takePct,
+    shippingCost,
+    laborCost,
+    completedProfit,
+    expectedProfit,
+    monthlyProfit,
+  };
+}
+
+function sfpSummary({
+  winner,
+  fba,
+  sfp,
+  fbm,
+  extraKeptOnSfp,
+  extraKeptOnFbm,
+  monthlyExtraOnSfp,
+  monthlyUnits,
+  breakEvenSfpShipping,
+  breakEvenSfpTakePct,
+  breakEvenFbmTakePct,
+}) {
+  const fbaKeep = moneyLabel(fba.expectedProfit);
+  const sfpKeep = moneyLabel(sfp.expectedProfit);
+  const fbmKeep = moneyLabel(fbm.expectedProfit);
+  const sfpGap = moneyLabel(Math.abs(extraKeptOnSfp));
+  const fbmGap = moneyLabel(Math.abs(extraKeptOnFbm));
+  const monthGap = moneyLabel(Math.abs(monthlyExtraOnSfp));
+  const shipCeil = Number.isFinite(breakEvenSfpShipping)
+    ? moneyLabel(breakEvenSfpShipping)
+    : "an unreachable 2-day label";
+  const sfpFloor = Number.isFinite(breakEvenSfpTakePct)
+    ? `${breakEvenSfpTakePct.toFixed(1)}%`
+    : "an unreachable take rate";
+  const fbmFloor = Number.isFinite(breakEvenFbmTakePct)
+    ? `${breakEvenFbmTakePct.toFixed(1)}%`
+    : "an unreachable take rate";
+  const volume = `${monthlyUnits} FBA unit${monthlyUnits === 1 ? "" : "s"}`;
+
+  if (winner === "sfp") {
+    return (
+      `Seller Fulfilled Prime keeps ${sfpGap} more per session than FBA ` +
+      `(${sfpKeep} vs ${fbaKeep}), ${monthGap} on ${volume}. ` +
+      `The 2-day label can rise to about ${shipCeil} before FBA matches.`
+    );
+  }
+  if (winner === "fbm") {
+    return (
+      `Merchant fulfilled without Prime keeps ${fbmGap} more per session than FBA ` +
+      `(${fbmKeep} vs ${fbaKeep}). SFP is ${sfpKeep}. ` +
+      `FBM still needs about ${fbmFloor} take to match FBA.`
+    );
+  }
+  if (winner === "fba") {
+    return (
+      `FBA keeps ${sfpGap} more per session than Seller Fulfilled Prime ` +
+      `(${fbaKeep} vs ${sfpKeep}), ${monthGap} on ${volume}. ` +
+      `SFP matches if the 2-day label falls to about ${shipCeil} ` +
+      `or take rises to about ${sfpFloor}. FBM is ${fbmKeep}.`
+    );
+  }
+  return `FBA, Seller Fulfilled Prime, and merchant fulfilled leave the same expected leftover on these rates.`;
+}
+
+/**
+ * Same SKU, three Amazon badges.
+ *
+ *   - FBA (Prime) — existing listing path: referral, pick fee, inbound,
+ *     storage. Highest typical take because of the Prime filter.
+ *   - Seller Fulfilled Prime — you buy a 2-day label and pack it.
+ *     No Amazon pick, inbound, or storage. Prime badge stays; take is
+ *     usually a little below FBA.
+ *   - Merchant fulfilled (no Prime) — existing FBM path: cheaper
+ *     Ground label, no Prime filter, lower take.
+ *
+ * Expected leftover is take% × completed-sale profit on the same
+ * visitor pool (monthly FBA units / FBA take). Return mix is forced
+ * to zero so this table stays fulfillment-path arithmetic —
+ * complementary to the returns page, to MCF (a website order from
+ * FBA stock), and to FBA vs FBM on the main calculator (which does
+ * not model the Prime badge). Rates and take are inputs, not
+ * Amazon's live SFP SLA or fee schedule.
+ */
+export function compareSfp(input = {}) {
+  const fbmShippingCost = emptyField(input.fbmShippingCost)
+    ? DEFAULT_FBM_SHIPPING_COST
+    : number(input.fbmShippingCost, "FBM shipping cost");
+  const sfpShippingCost = emptyField(input.sfpShippingCost)
+    ? DEFAULT_SFP_SHIPPING
+    : number(input.sfpShippingCost, "SFP shipping cost");
+  const sfpMinutes = emptyField(input.sfpMinutes)
+    ? DEFAULT_SFP_MINUTES
+    : number(input.sfpMinutes, "SFP minutes");
+  const sfpHourlyWage = emptyField(input.sfpHourlyWage)
+    ? DEFAULT_SFP_HOURLY
+    : number(input.sfpHourlyWage, "SFP hourly wage");
+  const fbaTakePct = emptyField(input.fbaTakePct)
+    ? DEFAULT_FBA_TAKE_PCT
+    : takePercent(input.fbaTakePct, "FBA take percent");
+  const sfpTakePct = emptyField(input.sfpTakePct)
+    ? DEFAULT_SFP_TAKE_PCT
+    : takePercent(input.sfpTakePct, "SFP take percent");
+  const fbmTakePct = emptyField(input.fbmTakePct)
+    ? DEFAULT_FBM_TAKE_PCT
+    : takePercent(input.fbmTakePct, "FBM take percent");
+  const monthlyUnits = number(input.monthlyUnits, "Monthly units", 1);
+  if (monthlyUnits === 0) throw new Error("Monthly units must be greater than zero");
+  if (fbaTakePct === 0) throw new Error("FBA take percent must be greater than zero");
+
+  const listing = calculateListing({
+    ...input,
+    fbmShippingCost,
+    returnRate: 0,
+    unsellableReturnRate: 0,
+    returnHandlingFee: 0,
+  });
+
+  const laborCost = sfpLaborCost(sfpMinutes, sfpHourlyWage);
+  const fbaCompleted = listing.fba.profit;
+  const fbmCompleted = listing.fbm.profit;
+  const sfpCompleted = fbmCompleted + fbmShippingCost - sfpShippingCost - laborCost;
+
+  const sessions = monthlyUnits / (fbaTakePct / 100);
+  const fbaExpected = (fbaTakePct / 100) * fbaCompleted;
+  const sfpExpected = (sfpTakePct / 100) * sfpCompleted;
+  const fbmExpected = (fbmTakePct / 100) * fbmCompleted;
+  const fbaMonthly = fbaExpected * sessions;
+  const sfpMonthly = sfpExpected * sessions;
+  const fbmMonthly = fbmExpected * sessions;
+
+  const fba = sfpPath({
+    id: "fba",
+    label: "FBA (Prime)",
+    takePct: fbaTakePct,
+    shippingCost: listing.fulfillmentFee,
+    laborCost: 0,
+    completedProfit: fbaCompleted,
+    expectedProfit: fbaExpected,
+    monthlyProfit: fbaMonthly,
+  });
+  const sfp = sfpPath({
+    id: "sfp",
+    label: "Seller Fulfilled Prime",
+    takePct: sfpTakePct,
+    shippingCost: sfpShippingCost,
+    laborCost,
+    completedProfit: sfpCompleted,
+    expectedProfit: sfpExpected,
+    monthlyProfit: sfpMonthly,
+  });
+  const fbm = sfpPath({
+    id: "fbm",
+    label: "Merchant fulfilled (no Prime)",
+    takePct: fbmTakePct,
+    shippingCost: fbmShippingCost,
+    laborCost: 0,
+    completedProfit: fbmCompleted,
+    expectedProfit: fbmExpected,
+    monthlyProfit: fbmMonthly,
+  });
+
+  const extraKeptOnSfp = sfpExpected - fbaExpected;
+  const extraKeptOnFbm = fbmExpected - fbaExpected;
+  const monthlyExtraOnSfp = extraKeptOnSfp * sessions;
+  const monthlyExtraOnFbm = extraKeptOnFbm * sessions;
+
+  const rows = [fba, sfp, fbm].map((row) => ({
+    ...row,
+    vsFba: row.expectedProfit - fbaExpected,
+  }));
+
+  const expectedValues = [fbaExpected, sfpExpected, fbmExpected];
+  const bestExpected = Math.max(...expectedValues);
+  const leaders = [
+    { id: "fba", value: fbaExpected },
+    { id: "sfp", value: sfpExpected },
+    { id: "fbm", value: fbmExpected },
+  ].filter((row) => Math.abs(row.value - bestExpected) <= 1e-9);
+  const winner = leaders.length === 1 ? leaders[0].id : "tie";
+
+  let breakEvenSfpShipping = Infinity;
+  if (sfpTakePct > 1e-12) {
+    const neededCompleted = fbaExpected / (sfpTakePct / 100);
+    breakEvenSfpShipping = fbmCompleted + fbmShippingCost - laborCost - neededCompleted;
+    if (!Number.isFinite(breakEvenSfpShipping)) breakEvenSfpShipping = Infinity;
+  }
+
+  let breakEvenSfpTakePct = Infinity;
+  if (sfpCompleted > 1e-12) {
+    breakEvenSfpTakePct = (fbaExpected / sfpCompleted) * 100;
+    if (breakEvenSfpTakePct < -1e-9 || breakEvenSfpTakePct > 100 + 1e-9) {
+      breakEvenSfpTakePct = Infinity;
+    } else {
+      breakEvenSfpTakePct = Math.max(0, Math.min(100, breakEvenSfpTakePct));
+    }
+  }
+
+  let breakEvenFbmTakePct = Infinity;
+  if (fbmCompleted > 1e-12) {
+    breakEvenFbmTakePct = (fbaExpected / fbmCompleted) * 100;
+    if (breakEvenFbmTakePct < -1e-9 || breakEvenFbmTakePct > 100 + 1e-9) {
+      breakEvenFbmTakePct = Infinity;
+    } else {
+      breakEvenFbmTakePct = Math.max(0, Math.min(100, breakEvenFbmTakePct));
+    }
+  }
+
+  let breakEvenSfpMinutes = Infinity;
+  if (sfpHourlyWage > 1e-12 && sfpTakePct > 1e-12) {
+    const neededCompleted = fbaExpected / (sfpTakePct / 100);
+    const laborRoom = fbmCompleted + fbmShippingCost - sfpShippingCost - neededCompleted;
+    breakEvenSfpMinutes = (laborRoom / sfpHourlyWage) * 60;
+    if (!Number.isFinite(breakEvenSfpMinutes) || breakEvenSfpMinutes < -1e-9) {
+      breakEvenSfpMinutes = Infinity;
+    }
+  }
+
+  return {
+    rows,
+    fba: rows[0],
+    sfp: rows[1],
+    fbm: rows[2],
+    winner,
+    sessions,
+    monthlyUnits,
+    fbaTakePct,
+    sfpTakePct,
+    fbmTakePct,
+    sfpShippingCost,
+    sfpMinutes,
+    sfpHourlyWage,
+    laborCost,
+    fbmShippingCost,
+    sizeTier: listing.sizeTier,
+    sizeTierLabel: listing.sizeTierLabel,
+    fulfillmentFee: listing.fulfillmentFee,
+    extraKeptOnSfp,
+    extraKeptOnFbm,
+    monthlyExtraOnSfp,
+    monthlyExtraOnFbm,
+    breakEvenSfpShipping,
+    breakEvenSfpTakePct,
+    breakEvenFbmTakePct,
+    breakEvenSfpMinutes,
+    summary: sfpSummary({
+      winner,
+      fba: rows[0],
+      sfp: rows[1],
+      fbm: rows[2],
+      extraKeptOnSfp,
+      extraKeptOnFbm,
+      monthlyExtraOnSfp,
+      monthlyUnits,
+      breakEvenSfpShipping,
+      breakEvenSfpTakePct,
+      breakEvenFbmTakePct,
+    }),
+  };
+}
+
+export function sfpNote(comparison) {
+  if (!comparison?.fba || !comparison?.sfp) {
+    throw new Error("SFP comparison is missing rows");
+  }
+  return comparison.summary;
+}
+
 export function sizeTierPackagingNote(comparison) {
   if (!comparison?.current) {
     throw new Error("Size-tier packaging comparison is missing rows");
