@@ -3444,3 +3444,11 @@ products:
           short-load fee, walk-away price). Distinct from concrete lifting.
           Public URL remains owner-gated; the browser counter is local,
           opt-out, and honors DNT/GPC. Baseline row.
+  - slug: grant-reporting-tracker
+    surface: static-page-in-repo
+    readings:
+      - as_of: 2026-08-24
+        signals:
+          live_url_visitors: null
+          local_events_reported: 0
+        note: Shipped private browser deadline queue and CSV export; public publishing is owner-gated, so this is the initial baseline.

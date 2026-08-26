@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Free Grant Reporting Deadline Tracker for Small Nonprofits</title>
+  <meta name="description" content="Track nonprofit grant reporting deadlines, restricted balances, and award review status in a private browser-based tracker. No account or upload required.">
+  <meta property="og:title" content="Grant Reporting Tracker for Small Nonprofits">
+  <meta property="og:description" content="A private, free grant deadline and reporting review queue that runs in your browser.">
+  <meta property="og:type" content="website">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Grant Reporting Tracker","applicationCategory":"BusinessApplication","operatingSystem":"Any web browser","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"description":"Private browser-based grant reporting deadline tracker for small nonprofits."}</script>
+  <style>
+    :root { color-scheme: light; --ink:#17251f; --muted:#5b6b63; --paper:#f5f1e8; --card:#fffdf8; --accent:#b44f2f; --line:#d9d2c4; }
+    * { box-sizing:border-box; } body { margin:0; background:var(--paper); color:var(--ink); font:16px/1.5 system-ui,sans-serif; } main { max-width:1050px; margin:auto; padding:36px 20px 60px; }
+    h1 { max-width:720px; font:700 clamp(2.2rem,6vw,4.5rem)/.98 Georgia,serif; letter-spacing:-.04em; margin:0 0 16px; } h2 { font:700 1.5rem Georgia,serif; } .intro { max-width:700px; color:var(--muted); font-size:1.12rem; } .value { border-left:4px solid var(--accent); padding:10px 16px; max-width:700px; }
+    .card { background:var(--card); border:1px solid var(--line); border-radius:14px; padding:22px; margin-top:24px; box-shadow:0 8px 28px #3c2e1812; } .row { display:grid; grid-template-columns:repeat(6,1fr); gap:12px; align-items:end; } label { display:grid; gap:5px; color:var(--muted); font-size:.88rem; } input { width:100%; padding:11px; border:1px solid #bdb4a5; border-radius:8px; font:inherit; color:var(--ink); background:white; } button { border:0; border-radius:8px; padding:12px 16px; font-weight:700; cursor:pointer; background:var(--ink); color:white; } button.secondary { background:#e7dfd0; color:var(--ink); } .actions { display:flex; gap:10px; flex-wrap:wrap; margin-top:18px; }
+    table { width:100%; border-collapse:collapse; margin-top:10px; } th,td { text-align:left; padding:12px 8px; border-bottom:1px solid var(--line); } th { color:var(--muted); font-size:.8rem; text-transform:uppercase; } .status { font-weight:700; } .overdue { color:#a42c22; } .soon { color:#9a6100; } .privacy { font-size:.9rem; color:var(--muted); } footer { margin-top:32px; color:var(--muted); font-size:.85rem; } @media(max-width:800px) { .row { grid-template-columns:repeat(2,1fr); } .row button { grid-column:span 2; } table { font-size:.9rem; } th:nth-child(2),td:nth-child(2) { display:none; } }
+  </style>
+</head>
+<body><main>
+  <h1>Know which grant report needs attention next.</h1>
+  <p class="intro">A private deadline tracker for small nonprofits managing several awards in spreadsheets. Add your own award dates and reporting intervals, then get a review queue you can export.</p>
+  <p class="value"><strong>After using this, you can now</strong> see upcoming and overdue grant reporting work with the remaining restricted balance, which used to take a hand-maintained spreadsheet.</p>
+  <section class="card"><h2>Add a grant award</h2><p class="privacy">Awards are saved only in this browser so your review queue is still here next time.</p><form id="grant-form"><div class="row">
+    <label>Grant name<input name="name" required placeholder="Community garden"></label><label>Funder<input name="funder" placeholder="Local foundation"></label><label>Award date<input name="awardDate" type="date" required></label><label>Report every (months)<input name="intervalMonths" type="number" min="1" step="1" value="6" required></label><label>Award amount<input name="awardAmount" type="number" min="0" step="0.01" value="0" required></label><label>Spent so far<input name="spentAmount" type="number" min="0" step="0.01" value="0" required></label>
+  </div><div class="actions"><button type="submit">Add grant</button><button class="secondary" type="button" id="clear">Clear all saved awards</button></div></form></section>
+  <section class="card"><div style="display:flex;justify-content:space-between;gap:12px;align-items:center;flex-wrap:wrap"><h2>Review queue</h2><div><button class="secondary" id="review">Review grants</button> <button class="secondary" id="export">Export CSV</button></div></div><p id="empty" class="privacy">No awards yet. Add the first one above.</p><div style="overflow:auto"><table hidden id="table"><thead><tr><th>Grant</th><th>Funder</th><th>Next report</th><th>Status</th><th>Restricted balance</th></tr></thead><tbody></tbody></table></div></section>
+  <section class="card privacy"><label><input type="checkbox" id="usage"> Count anonymous local feature use in this browser (off by default)</label><p>Grant information stays on this device. Nothing is uploaded. Usage counts contain only feature names and are never sent anywhere.</p></section>
+  <footer><strong>No warranty.</strong> This tool is free and as-is. It is not financial, legal, or tax advice and does not replace a qualified professional. You are responsible for reviewing and verifying its output before relying on it. The authors accept no liability for loss or damage arising from its use. A review queue is not a filing, compliance determination, or funder deadline confirmation.</footer>
+</main><script type="module">
+  import { reviewAll, toCsv } from './calc.mjs';
+  const form=document.querySelector('#grant-form'), tbody=document.querySelector('tbody'), table=document.querySelector('#table'), empty=document.querySelector('#empty'); const storageKey='grant-tracker-awards';
+  const loadGrants=()=>{try{const value=JSON.parse(localStorage.getItem(storageKey)||'[]');return Array.isArray(value)?value:[];}catch{return [];}};
+  const saveGrants=()=>{try{localStorage.setItem(storageKey,JSON.stringify(grants));}catch{} };
+  let grants=loadGrants();
+  const track=(event)=>{if(document.querySelector('#usage').checked){try{const key='grant-tracker-events';const data=JSON.parse(localStorage.getItem(key)||'{}');data[event]=(data[event]||0)+1;localStorage.setItem(key,JSON.stringify(data));}catch{}}};
+  const render=()=>{const rows=reviewAll(grants); tbody.innerHTML=rows.map(r=>`<tr><td>${escapeHtml(r.name)}</td><td>${escapeHtml(r.funder)}</td><td>${r.nextReport||'Check date'}</td><td class="status ${r.status==='Overdue'?'overdue':r.status==='Due soon'?'soon':''}">${r.status}</td><td>${Number(r.restrictedBalance).toFixed(2)}</td></tr>`).join(''); table.hidden=!rows.length; empty.hidden=!!rows.length; return rows;};
+  const escapeHtml=(v)=>String(v).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  form.addEventListener('submit',e=>{e.preventDefault();const data=Object.fromEntries(new FormData(form));grants.push(data);saveGrants();form.reset();form.intervalMonths.value=6;render();track('grant_added');}); document.querySelector('#review').onclick=()=>{render();track('reviewed');}; document.querySelector('#clear').onclick=()=>{grants=[];try{localStorage.removeItem(storageKey);}catch{} render();}; document.querySelector('#export').onclick=()=>{const rows=reviewAll(grants);const blob=new Blob([toCsv(rows)],{type:'text/csv'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='grant-review-queue.csv';a.click();URL.revokeObjectURL(a.href);track('exported');};
+  render();
+</script></body></html>
