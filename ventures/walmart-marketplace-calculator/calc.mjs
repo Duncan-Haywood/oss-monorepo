@@ -823,6 +823,305 @@ export function returnsNote(comparison) {
   return comparison.summary;
 }
 
+function agedWfsKeepPath({
+  units,
+  sellThroughPct,
+  horizonMonths,
+  storagePerUnitMonth,
+  contribution,
+}) {
+  let remaining = units;
+  let cash = 0;
+  let soldTotal = 0;
+  let carryingFees = 0;
+  for (let month = 0; month < horizonMonths; month += 1) {
+    const fees = remaining * storagePerUnitMonth;
+    cash -= fees;
+    carryingFees += fees;
+    const sold = remaining * (sellThroughPct / 100);
+    cash += sold * contribution;
+    soldTotal += sold;
+    remaining -= sold;
+  }
+  return { cash, remaining, soldTotal, carryingFees };
+}
+
+function agedWfsBreakEvenSellThrough(targetCash, args) {
+  if (agedWfsKeepPath({ ...args, sellThroughPct: 100 }).cash + 1e-9 < targetCash) {
+    return Infinity;
+  }
+  if (agedWfsKeepPath({ ...args, sellThroughPct: 0 }).cash >= targetCash - 1e-9) {
+    return 0;
+  }
+  let lo = 0;
+  let hi = 100;
+  for (let i = 0; i < 48; i += 1) {
+    const mid = (lo + hi) / 2;
+    if (agedWfsKeepPath({ ...args, sellThroughPct: mid }).cash >= targetCash) hi = mid;
+    else lo = mid;
+  }
+  return hi;
+}
+
+function agedWfsPath({
+  id,
+  label,
+  cash,
+  leftoverUnits,
+  soldUnits,
+  carryingFees,
+}) {
+  return { id, label, cash, leftoverUnits, soldUnits, carryingFees };
+}
+
+function agedWfsSummary({
+  winner,
+  keep,
+  remove,
+  dispose,
+  extraRemoveVsKeep,
+  leftoverUnits,
+  horizonMonths,
+  breakEvenSellThroughVsRemove,
+  breakEvenAgedRateVsRemove,
+}) {
+  const keepCash = moneyLabel(keep.cash);
+  const removeCash = moneyLabel(remove.cash);
+  const disposeCash = moneyLabel(dispose.cash);
+  const gap = moneyLabel(Math.abs(extraRemoveVsKeep));
+  const pile = `${leftoverUnits} leftover unit${leftoverUnits === 1 ? "" : "s"}`;
+  const months = `${horizonMonths} month${horizonMonths === 1 ? "" : "s"}`;
+  const floor = Number.isFinite(breakEvenSellThroughVsRemove)
+    ? `${breakEvenSellThroughVsRemove.toFixed(1)}%`
+    : "an unreachable sell-through";
+  const rateBit = Number.isFinite(breakEvenAgedRateVsRemove) && breakEvenAgedRateVsRemove > 1e-9
+    ? ` Aged storage can fall to about $${breakEvenAgedRateVsRemove.toFixed(2)}/cu ft before keeping matches.`
+    : "";
+
+  if (winner === "remove") {
+    return (
+      `Pulling the ${pile} and selling them seller fulfilled keeps ${gap} more ` +
+      `than leaving them in WFS over ${months} (${removeCash} vs ${keepCash}). ` +
+      `Disposing is ${disposeCash}. Keeping matches if monthly sell-through ` +
+      `rises to about ${floor}.${rateBit}`
+    );
+  }
+  if (winner === "keep") {
+    return (
+      `Leaving the ${pile} in WFS keeps ${gap} more than pulling them over ` +
+      `${months} (${keepCash} vs ${removeCash}). Disposing is ${disposeCash}. ` +
+      `Keeping still wins down to about ${floor} monthly sell-through.`
+    );
+  }
+  if (winner === "dispose") {
+    return (
+      `Disposing the ${pile} loses ${gap} less than leaving them in WFS over ` +
+      `${months} (${disposeCash} vs ${keepCash}). Pulling them is ${removeCash}. ` +
+      `Keeping needs about ${floor} monthly sell-through to match a removal.`
+    );
+  }
+  return (
+    `Keeping the ${pile} in WFS, pulling them to sell yourself, and disposing ` +
+    `leave the same cash on these rates over ${months}.`
+  );
+}
+
+// Units already inbound to WFS are a different decision from a new
+// listing. Inbound, past storage, and cost of goods are sunk. Aged
+// WFS storage is a higher per-cubic-foot rate on what is still there.
+// Complementary to the completed-sale WFS vs seller table (which
+// assumes you are about to inbound a fresh unit), to 2-day take
+// (Buy Box win vs miss), and to returns (a sold order that comes
+// back). Defaults are illustrative — overwrite the leftover count,
+// sell-through, aged rate, and removal fee from Seller Center.
+export const AGED_WFS_DEFAULTS = {
+  leftoverUnits: 40,
+  monthlySellThroughPct: 12,
+  horizonMonths: 4,
+  agedStorageRate: STORAGE_PRESETS.long_term.perCuFt,
+  removalFee: 1.25,
+  disposalFee: 0.35,
+};
+
+/**
+ * Same leftover WFS pile, three cash paths:
+ *   - Keep — expected WFS sales at the typed monthly sell-through,
+ *     minus aged storage on what is still sitting.
+ *   - Remove and sell yourself — pay the removal fee, then keep the
+ *     seller-fulfilled leftover on every unit (inbound already paid).
+ *   - Dispose — pay the cheaper disposal fee; the units are gone.
+ * Contribution ignores sunk inbound, past storage, and cost of goods.
+ */
+export function compareAgedWfs(input = {}) {
+  const leftoverUnits = number(
+    input.leftoverUnits,
+    "Leftover units",
+    AGED_WFS_DEFAULTS.leftoverUnits,
+  );
+  if (leftoverUnits === 0) throw new Error("Leftover units must be greater than zero");
+  const monthlySellThroughPct = takePercent(
+    input.monthlySellThroughPct,
+    "Monthly sell-through percent",
+    AGED_WFS_DEFAULTS.monthlySellThroughPct,
+  );
+  const horizonMonths = number(
+    input.horizonMonths,
+    "Horizon months",
+    AGED_WFS_DEFAULTS.horizonMonths,
+  );
+  if (horizonMonths === 0) throw new Error("Horizon months must be greater than zero");
+  const agedStorageRate = number(
+    input.agedStorageRate,
+    "Aged storage rate",
+    AGED_WFS_DEFAULTS.agedStorageRate,
+  );
+  const removalFee = number(
+    input.removalFee,
+    "Removal fee",
+    AGED_WFS_DEFAULTS.removalFee,
+  );
+  const disposalFee = number(
+    input.disposalFee,
+    "Disposal fee",
+    AGED_WFS_DEFAULTS.disposalFee,
+  );
+
+  const listing = calculateListing(input);
+  const adsPerUnit = number(input.adsPerUnit, "Ads per unit");
+  const packagingCost = number(input.packagingCost, "Packaging cost");
+  const sellerShippingCost = number(input.sellerShippingCost, "Seller shipping cost", 4.5);
+  const keepContribution = listing.salePrice - listing.referral - listing.fulfillmentFee - adsPerUnit;
+  const sellerContribution = listing.salePrice - listing.referral - sellerShippingCost - packagingCost - adsPerUnit;
+  const storagePerUnitMonth = listing.cubicFeet * agedStorageRate;
+
+  const keepPath = agedWfsKeepPath({
+    units: leftoverUnits,
+    sellThroughPct: monthlySellThroughPct,
+    horizonMonths,
+    storagePerUnitMonth,
+    contribution: keepContribution,
+  });
+  const removeCash = leftoverUnits * (sellerContribution - removalFee);
+  const disposeCash = -disposalFee * leftoverUnits;
+
+  const keep = agedWfsPath({
+    id: "keep",
+    label: "Keep in WFS",
+    cash: keepPath.cash,
+    leftoverUnits: keepPath.remaining,
+    soldUnits: keepPath.soldTotal,
+    carryingFees: keepPath.carryingFees,
+  });
+  const remove = agedWfsPath({
+    id: "remove",
+    label: "Remove and sell yourself",
+    cash: removeCash,
+    leftoverUnits: 0,
+    soldUnits: leftoverUnits,
+    carryingFees: 0,
+  });
+  const dispose = agedWfsPath({
+    id: "dispose",
+    label: "Dispose",
+    cash: disposeCash,
+    leftoverUnits: 0,
+    soldUnits: 0,
+    carryingFees: 0,
+  });
+
+  const rows = [keep, remove, dispose].map((row) => ({
+    ...row,
+    vsKeep: row.cash - keep.cash,
+  }));
+
+  const bestCash = Math.max(keep.cash, removeCash, disposeCash);
+  const leaders = [
+    { id: "keep", value: keep.cash },
+    { id: "remove", value: removeCash },
+    { id: "dispose", value: disposeCash },
+  ].filter((row) => Math.abs(row.value - bestCash) <= 1e-9);
+  const winner = leaders.length === 1 ? leaders[0].id : "tie";
+
+  const keepArgs = {
+    units: leftoverUnits,
+    horizonMonths,
+    storagePerUnitMonth,
+    contribution: keepContribution,
+  };
+  const breakEvenSellThroughVsRemove = agedWfsBreakEvenSellThrough(removeCash, keepArgs);
+  const extraRemoveVsKeep = removeCash - keep.cash;
+
+  let breakEvenAgedRateVsRemove = Infinity;
+  if (listing.cubicFeet > 1e-12) {
+    const atZero = agedWfsKeepPath({ ...keepArgs, storagePerUnitMonth: 0 });
+    if (atZero.cash + 1e-9 < removeCash) {
+      breakEvenAgedRateVsRemove = 0;
+    } else {
+      let lo = 0;
+      let hi = 1;
+      const rateArgs = (rate) => ({
+        ...keepArgs,
+        storagePerUnitMonth: listing.cubicFeet * rate,
+      });
+      while (agedWfsKeepPath(rateArgs(hi)).cash > removeCash && hi < 1e6) hi *= 2;
+      if (agedWfsKeepPath(rateArgs(hi)).cash > removeCash) {
+        breakEvenAgedRateVsRemove = Infinity;
+      } else {
+        for (let i = 0; i < 48; i += 1) {
+          const mid = (lo + hi) / 2;
+          if (agedWfsKeepPath(rateArgs(mid)).cash >= removeCash) lo = mid;
+          else hi = mid;
+        }
+        breakEvenAgedRateVsRemove = lo;
+      }
+    }
+  }
+
+  return {
+    rows,
+    keep: rows[0],
+    remove: rows[1],
+    dispose: rows[2],
+    winner,
+    leftoverUnits,
+    monthlySellThroughPct,
+    horizonMonths,
+    agedStorageRate,
+    removalFee,
+    disposalFee,
+    keepContribution,
+    sellerContribution,
+    storagePerUnitMonth,
+    cubicFeet: listing.cubicFeet,
+    sizeTier: listing.sizeTier,
+    sizeTierLabel: listing.sizeTierLabel,
+    fulfillmentFee: listing.fulfillmentFee,
+    extraRemoveVsKeep,
+    extraRemoveVsDispose: removeCash - disposeCash,
+    extraKeepVsDispose: keep.cash - disposeCash,
+    breakEvenSellThroughVsRemove,
+    breakEvenAgedRateVsRemove,
+    summary: agedWfsSummary({
+      winner,
+      keep: rows[0],
+      remove: rows[1],
+      dispose: rows[2],
+      extraRemoveVsKeep,
+      leftoverUnits,
+      horizonMonths,
+      breakEvenSellThroughVsRemove,
+      breakEvenAgedRateVsRemove,
+    }),
+  };
+}
+
+export function agedWfsNote(comparison) {
+  if (!comparison?.keep || !comparison?.remove || !comparison?.dispose) {
+    throw new Error("Aged WFS comparison is missing rows");
+  }
+  return comparison.summary;
+}
+
 export function calculateListing(input) {
   const salePrice = number(input.salePrice, "Sale price");
   const listed = listingAtPrice(input, salePrice);
