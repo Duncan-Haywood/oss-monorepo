@@ -291,6 +291,50 @@ test('readMeta decodes entities rather than showing them raw', () => {
   assert.equal(meta.title, 'Fees & Margin');
 });
 
+// Three shipped surfaces lost most of their description to this: the value was
+// captured with `content=["']([^"']*)["']`, which ends at whichever quote comes
+// first, so a possessive apostrophe closed a double-quoted attribute early.
+// `shopify-a11y-evidence` reached the hub, its own `<meta description>`, and the
+// JSON-LD ItemList as the fragment "Turn a Shopify storefront".
+test('readMeta keeps an apostrophe inside a double-quoted attribute', () => {
+  const html = `<meta name="description" content="Turn a Shopify storefront's axe-core JSON export into a dated record.">`;
+  assert.equal(
+    readMeta(html, 'shopify-a11y-evidence').description,
+    "Turn a Shopify storefront's axe-core JSON export into a dated record.",
+  );
+});
+
+test('readMeta keeps a quote inside a single-quoted attribute', () => {
+  const html = `<meta name='description' content='The "walk-away" number before you bid.'>`;
+  assert.equal(readMeta(html, 'x').description, 'The "walk-away" number before you bid.');
+});
+
+test('readMeta reads a description containing a bare > character', () => {
+  const html = `<meta name="description" content="Compare 4×8 > 5×5 before you buy.">`;
+  assert.equal(readMeta(html, 'x').description, 'Compare 4×8 > 5×5 before you buy.');
+});
+
+test('readMeta finds the tag whatever order its attributes are written in', () => {
+  const html = `<meta content="Price the run and the corners." name="description">`;
+  assert.equal(readMeta(html, 'x').description, 'Price the run and the corners.');
+});
+
+// The consequence users would have felt: the hub's search box matches against
+// `data-search`, which is built from the description. A truncated description
+// meant the Shopify tool could not be found by "axe-core".
+test('a description survives into the searchable card text', () => {
+  const html = `<meta property="og:title" content="Shopify Accessibility Evidence Report">
+    <meta name="description" content="Turn a Shopify storefront's axe-core JSON export into a dated record.">`;
+  const { title, description } = readMeta(html, 'shopify-a11y-evidence');
+  assert.match(`${title} ${description}`.toLowerCase(), /axe-core/);
+});
+
+test('readMeta does not confuse one meta tag with the next', () => {
+  const html = `<meta property="og:site_name" content="Portfolio">
+    <meta name="description" content="The real description.">`;
+  assert.equal(readMeta(html, 'x').description, 'The real description.');
+});
+
 test('truncate cuts on a word boundary', () => {
   assert.equal(truncate('short', 20), 'short');
   const long = truncate('a'.repeat(30) + ' tail words here that go on', 40);

@@ -175,11 +175,51 @@ const decodeEntities = (value) =>
     .replace(/&quot;/g, '"')
     .replace(/&#0?39;/g, "'");
 
+/**
+ * Every `<meta>` tag in `html`, as raw source.
+ *
+ * The alternation consumes either an ordinary character or a whole quoted
+ * string, so an attribute value is never mistaken for the end of the tag. A
+ * plain `<meta[^>]*>` ends the tag at the first `>` even when that `>` sits
+ * inside a quoted description ("4×8 > 5×5").
+ */
+const metaTags = (html) => html.match(/<meta\b(?:[^>"']|"[^"]*"|'[^']*')*>/gi) ?? [];
+
+const ATTRIBUTE = /([a-zA-Z_:][\w:.-]*)\s*=\s*(?:"([^"]*)"|'([^']*)'|([^\s"'>]+))/g;
+
+/** Attribute name → value for one tag, names lowercased, values still encoded. */
+const parseAttributes = (tag) => {
+  const attrs = {};
+  for (const [, name, dq, sq, bare] of tag.matchAll(ATTRIBUTE)) {
+    attrs[name.toLowerCase()] = dq ?? sq ?? bare ?? '';
+  }
+  return attrs;
+};
+
+/**
+ * The `content` of the first `<meta>` whose `attr` equals `value`.
+ *
+ * Tags are parsed attribute by attribute rather than matched with one regex.
+ * The regex form had to guess where a value ended, and `content=["']([^"']*)["']`
+ * stops at whichever quote comes first — so a description written with a
+ * literal apostrophe inside a double-quoted attribute
+ * (`content="Turn a Shopify storefront's axe-core export…"`) was silently cut
+ * to "Turn a Shopify storefront". That fragment reached the hub card, the
+ * JSON-LD `ItemList`, and the card's `data-search` index — so the hub's own
+ * search box could not find that tool by "axe-core", the term its users would
+ * actually type. A surface's own pages are copied verbatim and were unaffected.
+ * Parsing per attribute also drops the old attribute-order fallback: which of
+ * `name` and `content` is written first no longer matters.
+ */
 const metaContent = (html, attr, value) => {
-  const pattern = new RegExp(`<meta[^>]*${attr}=["']${value}["'][^>]*content=["']([^"']*)["']`, 'i');
-  const reversed = new RegExp(`<meta[^>]*content=["']([^"']*)["'][^>]*${attr}=["']${value}["']`, 'i');
-  const match = html.match(pattern) ?? html.match(reversed);
-  return match ? decodeEntities(match[1]).trim() : '';
+  const wanted = value.toLowerCase();
+  for (const tag of metaTags(html)) {
+    const attrs = parseAttributes(tag);
+    if (attrs[attr.toLowerCase()]?.toLowerCase() === wanted && attrs.content) {
+      return decodeEntities(attrs.content).trim();
+    }
+  }
+  return '';
 };
 
 const titleize = (slug) => slug.split('-').map((word) => word.charAt(0).toUpperCase() + word.slice(1)).join(' ');
