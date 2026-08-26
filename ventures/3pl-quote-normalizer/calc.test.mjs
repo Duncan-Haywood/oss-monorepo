@@ -30,6 +30,25 @@ test("reports no break-even when 3PL variable cost always exceeds in-house", () 
   assert.equal(result.breakEvenFound, false);
 });
 
+test("a high monthly minimum is priced into the searched break-even volume", () => {
+  const result = calculate({ orders: 100, inHousePerOrder: 20, minimumMonthly: 2500, inboundUnits: 150 });
+  assert.equal(result.breakEvenFound, true);
+  const atBreakEven = calculate({
+    orders: result.breakEvenOrders,
+    inHousePerOrder: 20,
+    minimumMonthly: 2500,
+    inboundUnits: result.breakEvenOrders * 1.5,
+  }, false);
+  const justBelow = calculate({
+    orders: Math.max(0, result.breakEvenOrders - 1),
+    inHousePerOrder: 20,
+    minimumMonthly: 2500,
+    inboundUnits: Math.max(0, result.breakEvenOrders - 1) * 1.5,
+  }, false);
+  assert.ok(atBreakEven.delta >= 0);
+  if (result.breakEvenOrders > 0) assert.ok(justBelow.delta < 0);
+});
+
 test("zero volume stays finite and does not apply a minimum", () => {
   const result = calculate({ orders: 0, inboundUnits: 0, pallets: 0, minimumMonthly: 0 });
   assert.equal(result.perOrder, 0);

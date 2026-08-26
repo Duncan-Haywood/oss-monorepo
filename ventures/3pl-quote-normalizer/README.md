@@ -5,7 +5,7 @@ you sign. Enter the rate-card lines for receiving, storage, pick and pack,
 packaging, shipping, returns, return handling, restocking, fixed fees, and
 minimum monthly spend. The
 browser calculates a comparable monthly total, cost per order, and an
-approximate break-even volume. Enter a second provider's normalized monthly
+approximate break-even volume that re-prices the quote as order count changes, instead of dividing this month's total by the in-house rate. Enter a second provider's normalized monthly
 total to compare two quotes at the same volume before negotiating. The comparison
 page validates totals before rendering and remembers its draft locally. Optionally
 enter a target monthly total to see which provider fits your budget and how far
