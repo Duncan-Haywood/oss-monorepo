@@ -259,7 +259,9 @@ test('the seller-coupon table has one cell per column and a counted event', () =
   assert.match(page, /seller_coupon_compared/);
   assert.match(page, /should-i-offer-an-ebay-coupon\.html/);
   assert.match(page, /"featureList":\s*"[^"]*seller coupon vs stay listed vs drop the list/);
-  const headerBlock = page.slice(page.indexOf('id="sellerCouponTable"'));
+  const couponStart = page.indexOf('id="sellerCouponTable"');
+  const couponEnd = page.indexOf('id="immediatePayment"', couponStart);
+  const headerBlock = page.slice(couponStart, couponEnd === -1 ? undefined : couponEnd);
   const headers = [...headerBlock.matchAll(/<th scope="col">([^<]+)<\/th>/g)].map((m) => m[1]);
   assert.deepEqual(headers, [
     'Path',
@@ -269,5 +271,25 @@ test('the seller-coupon table has one cell per column and a counted event', () =
     'If they keep it',
     'Expected after sell-through',
     'vs listed',
+  ]);
+});
+
+test('the immediate-payment table has one cell per column and a counted event', () => {
+  assert.match(page, /compareImmediatePayment/);
+  assert.match(page, /id="immediatePayment"/);
+  assert.match(page, /id="immediatePaymentVerdict"/);
+  assert.match(page, /immediate_payment_compared/);
+  assert.match(page, /should-i-require-immediate-payment-on-ebay\.html/);
+  assert.match(page, /"featureList":\s*"[^"]*immediate payment vs unpaid checkouts/);
+  const headerBlock = page.slice(page.indexOf('id="immediatePaymentTable"'));
+  const headers = [...headerBlock.matchAll(/<th scope="col">([^<]+)<\/th>/g)].map((m) => m[1]);
+  assert.deepEqual(headers, [
+    'Path',
+    'Unpaid share',
+    'Close rate',
+    'Time on unpaid',
+    'If checkout starts',
+    'Expected after sell-through',
+    'vs later',
   ]);
 });

@@ -162,6 +162,14 @@ test('counts a seller-coupon comparison without storing a percent or redeem rate
   assert.deepEqual(Object.keys(stored).sort(), ['last_day', 'seller_coupon_compared']);
 });
 
+test('counts an immediate-payment comparison without storing an unpaid rate', () => {
+  const storage = fakeStorage();
+  recordUsage(storage, false, 'immediate_payment_compared');
+  const stored = JSON.parse(storage.getItem('ebay-fee-usage'));
+  assert.equal(stored.immediate_payment_compared, 1);
+  assert.deepEqual(Object.keys(stored).sort(), ['immediate_payment_compared', 'last_day']);
+});
+
 test('counts the return-rate view without storing a rate or cost', () => {
   const storage = fakeStorage();
   recordUsage(storage, false, 'return_rate_viewed');

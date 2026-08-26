@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { calculateOrder, calculatePriceScenarios, calculateRepricingTable, compareListingFormat, listingFormatNote, comparePartialRefund, partialRefundNote, DEFAULT_PARTIAL_REFUND, DEFAULT_MONTHLY_CASES, compareAuthenticity, authenticityNote, DEFAULT_AUTHENTICITY_FEE_RATE, DEFAULT_AUTHENTICITY_EXTRA_SHIP, DEFAULT_WITHOUT_AG_SELL_THROUGH, DEFAULT_AUTHENTICITY_SELL_THROUGH, DEFAULT_AUTHENTICITY_RETURN_RATE, DEFAULT_MONTHLY_AG_LISTINGS, compareLocalPickup, localPickupNote, DEFAULT_SHIP_SELL_THROUGH, DEFAULT_PICKUP_SELL_THROUGH, DEFAULT_PICKUP_NO_SHOW, DEFAULT_PICKUP_MINUTES, DEFAULT_PICKUP_HOURLY_WAGE, DEFAULT_MONTHLY_PICKUP_LISTINGS, compareLotVsSingles, lotVsSinglesNote, DEFAULT_LOT_PIECE_COUNT, DEFAULT_SINGLE_EXPECTED_PRICE, DEFAULT_LOT_SELL_THROUGH, DEFAULT_SINGLE_SELL_THROUGH, DEFAULT_SINGLE_INSERTION_FEE, DEFAULT_MONTHLY_LOT_DECISIONS, compareStandardEnvelope, standardEnvelopeNote, DEFAULT_ENVELOPE_SHIPPING_COST, DEFAULT_ENVELOPE_PACKAGING_COST, DEFAULT_ENVELOPE_CLAIM_RATE, DEFAULT_ENVELOPE_FEE_REFUND_ON_CLAIM, DEFAULT_TRACKED_SELL_THROUGH, DEFAULT_ENVELOPE_SELL_THROUGH, DEFAULT_MONTHLY_ENVELOPE_LISTINGS, compareCombinedShipping, combinedShippingNote, DEFAULT_COMBINED_ITEM_COUNT, DEFAULT_COMBINED_SHIPPING_CHARGED, DEFAULT_COMBINED_SHIPPING_COST, DEFAULT_COMBINED_PACKAGING_COST, DEFAULT_COMBINED_RETURN_SHIPPING_COST, DEFAULT_COMBINED_FIXED_FEE, DEFAULT_MONTHLY_COMBINED_ORDERS, compareSellerInitiatedOffer, sellerInitiatedOfferNote, DEFAULT_OFFER_PERCENT, DEFAULT_WAIT_SELL_THROUGH, DEFAULT_OFFER_ACCEPT, DEFAULT_MONTHLY_OFFERS, comparePromotedOffsite, promotedOffsiteNote, DEFAULT_OFFSITE_SPEND, DEFAULT_OFFSITE_EXTRA_ORDERS, DEFAULT_MONTHLY_OFFSITE_CAMPAIGNS, compareQuantityDiscount, quantityDiscountNote, DEFAULT_QTY_DISCOUNT_UNITS, DEFAULT_QTY_DISCOUNT_PERCENT, DEFAULT_QTY_SHIPPING_CHARGED, DEFAULT_QTY_SHIPPING_COST, DEFAULT_QTY_PACKAGING_COST, DEFAULT_QTY_RETURN_SHIPPING_COST, DEFAULT_QTY_FIXED_FEE, DEFAULT_SINGLES_SELL_THROUGH, DEFAULT_QTY_TAKE_PCT, DEFAULT_MONTHLY_QTY_ORDERS, compareSellerCoupon, sellerCouponNote, DEFAULT_COUPON_PERCENT, DEFAULT_COUPON_REDEEM_PCT, DEFAULT_LISTED_SELL_THROUGH, DEFAULT_COUPON_SELL_THROUGH, DEFAULT_DROP_SELL_THROUGH, DEFAULT_MONTHLY_COUPON_LISTINGS } from './calc.mjs';
+import { calculateOrder, calculatePriceScenarios, calculateRepricingTable, compareListingFormat, listingFormatNote, comparePartialRefund, partialRefundNote, DEFAULT_PARTIAL_REFUND, DEFAULT_MONTHLY_CASES, compareAuthenticity, authenticityNote, DEFAULT_AUTHENTICITY_FEE_RATE, DEFAULT_AUTHENTICITY_EXTRA_SHIP, DEFAULT_WITHOUT_AG_SELL_THROUGH, DEFAULT_AUTHENTICITY_SELL_THROUGH, DEFAULT_AUTHENTICITY_RETURN_RATE, DEFAULT_MONTHLY_AG_LISTINGS, compareLocalPickup, localPickupNote, DEFAULT_SHIP_SELL_THROUGH, DEFAULT_PICKUP_SELL_THROUGH, DEFAULT_PICKUP_NO_SHOW, DEFAULT_PICKUP_MINUTES, DEFAULT_PICKUP_HOURLY_WAGE, DEFAULT_MONTHLY_PICKUP_LISTINGS, compareLotVsSingles, lotVsSinglesNote, DEFAULT_LOT_PIECE_COUNT, DEFAULT_SINGLE_EXPECTED_PRICE, DEFAULT_LOT_SELL_THROUGH, DEFAULT_SINGLE_SELL_THROUGH, DEFAULT_SINGLE_INSERTION_FEE, DEFAULT_MONTHLY_LOT_DECISIONS, compareStandardEnvelope, standardEnvelopeNote, DEFAULT_ENVELOPE_SHIPPING_COST, DEFAULT_ENVELOPE_PACKAGING_COST, DEFAULT_ENVELOPE_CLAIM_RATE, DEFAULT_ENVELOPE_FEE_REFUND_ON_CLAIM, DEFAULT_TRACKED_SELL_THROUGH, DEFAULT_ENVELOPE_SELL_THROUGH, DEFAULT_MONTHLY_ENVELOPE_LISTINGS, compareCombinedShipping, combinedShippingNote, DEFAULT_COMBINED_ITEM_COUNT, DEFAULT_COMBINED_SHIPPING_CHARGED, DEFAULT_COMBINED_SHIPPING_COST, DEFAULT_COMBINED_PACKAGING_COST, DEFAULT_COMBINED_RETURN_SHIPPING_COST, DEFAULT_COMBINED_FIXED_FEE, DEFAULT_MONTHLY_COMBINED_ORDERS, compareSellerInitiatedOffer, sellerInitiatedOfferNote, DEFAULT_OFFER_PERCENT, DEFAULT_WAIT_SELL_THROUGH, DEFAULT_OFFER_ACCEPT, DEFAULT_MONTHLY_OFFERS, comparePromotedOffsite, promotedOffsiteNote, DEFAULT_OFFSITE_SPEND, DEFAULT_OFFSITE_EXTRA_ORDERS, DEFAULT_MONTHLY_OFFSITE_CAMPAIGNS, compareQuantityDiscount, quantityDiscountNote, DEFAULT_QTY_DISCOUNT_UNITS, DEFAULT_QTY_DISCOUNT_PERCENT, DEFAULT_QTY_SHIPPING_CHARGED, DEFAULT_QTY_SHIPPING_COST, DEFAULT_QTY_PACKAGING_COST, DEFAULT_QTY_RETURN_SHIPPING_COST, DEFAULT_QTY_FIXED_FEE, DEFAULT_SINGLES_SELL_THROUGH, DEFAULT_QTY_TAKE_PCT, DEFAULT_MONTHLY_QTY_ORDERS, compareSellerCoupon, sellerCouponNote, DEFAULT_COUPON_PERCENT, DEFAULT_COUPON_REDEEM_PCT, DEFAULT_LISTED_SELL_THROUGH, DEFAULT_COUPON_SELL_THROUGH, DEFAULT_DROP_SELL_THROUGH, DEFAULT_MONTHLY_COUPON_LISTINGS, compareImmediatePayment, immediatePaymentNote, DEFAULT_UNPAID_RATE, DEFAULT_LATER_SELL_THROUGH, DEFAULT_IMMEDIATE_SELL_THROUGH, DEFAULT_UNPAID_RELIST_FEE, DEFAULT_UNPAID_MINUTES, DEFAULT_UNPAID_HOURLY_WAGE, DEFAULT_MONTHLY_IMMEDIATE_LISTINGS } from './calc.mjs';
 
 const near = (actual, expected, msg) => assert.ok(Math.abs(actual - expected) < 1e-6, `${msg}: ${actual} vs ${expected}`);
 
@@ -1148,4 +1148,117 @@ test('rejects a coupon percent above 100% and a missing comparison', () => {
   assert.throws(() => compareSellerCoupon({ ...agBase, couponSellThroughPct: -1 }), /Coupon sell-through/);
   assert.throws(() => compareSellerCoupon({ price: -1 }), /Item price/);
   assert.throws(() => sellerCouponNote({}), /missing rows/);
+});
+
+test('compares requiring immediate payment against unpaid later checkouts', () => {
+  // Paid completed $21.605; 10% mix → $18.3445 packed. Unpaid leftover
+  // is −$0.35 relist − $6.00 of 20 min at $18 = −$6.35. At 8% unpaid
+  // the later mix is $16.36894; 55% ST → $9.002917. Immediate payment
+  // keeps the $18.3445 packed leftover at 45% → $8.255025. Later is
+  // ahead after sell-through and behind on leftover.
+  const comparison = compareImmediatePayment(agBase);
+  assert.equal(comparison.unpaidRatePercent, DEFAULT_UNPAID_RATE);
+  assert.equal(comparison.later.sellThroughPct, DEFAULT_LATER_SELL_THROUGH);
+  assert.equal(comparison.immediate.sellThroughPct, DEFAULT_IMMEDIATE_SELL_THROUGH);
+  assert.equal(comparison.unpaidRelistFee, DEFAULT_UNPAID_RELIST_FEE);
+  assert.equal(comparison.unpaidMinutes, DEFAULT_UNPAID_MINUTES);
+  assert.equal(comparison.unpaidHourlyWage, DEFAULT_UNPAID_HOURLY_WAGE);
+  assert.equal(comparison.monthlyImmediateListings, DEFAULT_MONTHLY_IMMEDIATE_LISTINGS);
+  near(comparison.timeCost, 6, '20 min at $18');
+  near(comparison.unpaidOutcome, -6.35, 'relist plus time');
+  near(comparison.immediate.soldExpectedProfit, 18.3445, 'paid leftover');
+  near(comparison.later.soldExpectedProfit, 0.92 * 18.3445 + 0.08 * -6.35, 'later mix leftover');
+  near(comparison.later.expectedProfit, (0.92 * 18.3445 + 0.08 * -6.35) * 0.55, 'later after 55%');
+  near(comparison.immediate.expectedProfit, 18.3445 * 0.45, 'immediate after 45%');
+  near(comparison.extraPackedOnImmediate, 18.3445 - (0.92 * 18.3445 + 0.08 * -6.35), 'packed gap');
+  near(
+    comparison.extraKeptOnImmediate,
+    18.3445 * 0.45 - (0.92 * 18.3445 + 0.08 * -6.35) * 0.55,
+    'ST gap',
+  );
+  near(
+    comparison.monthlyExtraOnImmediate,
+    (18.3445 * 0.45 - (0.92 * 18.3445 + 0.08 * -6.35) * 0.55) * 40,
+    'forty listings',
+  );
+  near(
+    comparison.breakEvenUnpaidRate,
+    (18.3445 - (18.3445 * 0.45) / 0.55) / (18.3445 - -6.35) * 100,
+    'unpaid floor',
+  );
+  near(
+    comparison.breakEvenImmediateSellThroughPct,
+    ((0.92 * 18.3445 + 0.08 * -6.35) * 0.55) / 18.3445 * 100,
+    'immediate ST floor',
+  );
+  assert.equal(comparison.winner, 'later');
+  assert.equal(comparison.immediatePays, false);
+});
+
+test('break-even unpaid rate and immediate sell-through match the other path', () => {
+  const comparison = compareImmediatePayment(agBase);
+  const atUnpaid = compareImmediatePayment({
+    ...agBase,
+    unpaidRatePercent: comparison.breakEvenUnpaidRate,
+  });
+  near(atUnpaid.later.expectedProfit, atUnpaid.immediate.expectedProfit, 'unpaid floor ties immediate');
+  const atImmediateSt = compareImmediatePayment({
+    ...agBase,
+    immediateSellThroughPct: comparison.breakEvenImmediateSellThroughPct,
+  });
+  near(atImmediateSt.immediate.expectedProfit, atImmediateSt.later.expectedProfit, 'immediate ST floor ties later');
+  assert.ok(comparison.breakEvenUnpaidRate > 8, 'default 8% unpaid is below the floor');
+  assert.ok(comparison.breakEvenImmediateSellThroughPct > 45, 'default 45% immediate ST is below the floor');
+});
+
+test('matching immediate sell-through already loses on later checkout', () => {
+  const comparison = compareImmediatePayment({ ...agBase, laterSellThroughPct: 45 });
+  assert.equal(comparison.winner, 'immediate');
+  near(comparison.later.expectedProfit, (0.92 * 18.3445 + 0.08 * -6.35) * 0.45, 'matched later ST');
+  near(comparison.immediate.expectedProfit, 18.3445 * 0.45, 'unchanged immediate');
+  assert.equal(comparison.immediatePays, true);
+});
+
+test('a 20% unpaid rate loses even at the default later-pay lift', () => {
+  const comparison = compareImmediatePayment({ ...agBase, unpaidRatePercent: 20 });
+  assert.equal(comparison.winner, 'immediate');
+  near(comparison.later.soldExpectedProfit, 0.80 * 18.3445 + 0.20 * -6.35, '20% mix leftover');
+  near(comparison.later.expectedProfit, (0.80 * 18.3445 + 0.20 * -6.35) * 0.55, '20% after 55%');
+  assert.equal(comparison.immediatePays, true);
+});
+
+test('a 50% immediate-pay sell-through flips require-now ahead of later checkout', () => {
+  const comparison = compareImmediatePayment({ ...agBase, immediateSellThroughPct: 50 });
+  assert.equal(comparison.winner, 'immediate');
+  near(comparison.immediate.expectedProfit, 18.3445 * 0.50, '50% immediate');
+  near(comparison.later.expectedProfit, (0.92 * 18.3445 + 0.08 * -6.35) * 0.55, 'unchanged later');
+  assert.equal(comparison.immediatePays, true);
+});
+
+test('immediate-payment note reports both paths without telling the seller which setting to flip', () => {
+  const note = immediatePaymentNote(compareImmediatePayment(agBase));
+  assert.match(note, /Allowing checkout later/);
+  assert.match(note, /8%/);
+  assert.match(note, /\$16\.37/);
+  assert.match(note, /\$6\.35/);
+  assert.match(note, /\$0\.35/);
+  assert.match(note, /\$6\.00/);
+  assert.match(note, /\$18\.34/);
+  assert.match(note, /\$1\.98/);
+  assert.match(note, /55%/);
+  assert.match(note, /45%/);
+  assert.match(note, /\$9\.00/);
+  assert.match(note, /\$8\.26/);
+  assert.match(note, /\$0\.75/);
+  assert.match(note, /13\.5%/);
+  assert.match(note, /49\.1%/);
+  assert.doesNotMatch(note, /should require immediate|must allow later|must flip/i);
+});
+
+test('rejects an unpaid rate above 100% and a missing comparison', () => {
+  assert.throws(() => compareImmediatePayment({ ...agBase, unpaidRatePercent: 101 }), /at most 100/);
+  assert.throws(() => compareImmediatePayment({ ...agBase, laterSellThroughPct: 101 }), /at most 100/);
+  assert.throws(() => compareImmediatePayment({ ...agBase, immediateSellThroughPct: -1 }), /Immediate-pay sell-through/);
+  assert.throws(() => compareImmediatePayment({ price: -1 }), /Item price/);
+  assert.throws(() => immediatePaymentNote({}), /missing rows/);
 });
