@@ -42,7 +42,7 @@ test('required inputs and result sinks exist in the markup', () => {
     'maintenancePerMile', 'tiresPerMile', 'otherVariablePerMile',
     'factoringRate', 'offeredLoadedRate', 'targetWeeklyTakeHome',
     'hero', 'heroLabel', 'allInCpm',
-    'deadheadShare', 'weeklyCost', 'verdict', 'copySummary', 'usageOptOut',
+    'deadheadShare', 'weeklyCost', 'loadedMilesToBreakEven', 'verdict', 'copySummary', 'usageOptOut',
   ];
   for (const id of requiredIds) {
     assert.match(markup, new RegExp(`id="${id}"`), `missing #${id}`);
@@ -64,6 +64,7 @@ test('the page script reads every input the calculator accepts', () => {
   assert.match(scriptSource, /result\.allInCpm/);
   assert.match(scriptSource, /result\.offered/);
   assert.match(scriptSource, /result\.rateForTarget/);
+  assert.match(scriptSource, /result\.loadedMilesToBreakEven/);
 });
 
 test('figures named in schema.org featureList are actually rendered', () => {

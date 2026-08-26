@@ -137,6 +137,14 @@ test('loaded miles to cover the week use the settled rate, not the posted one', 
   assert.ok(result.loadedMilesToBreakEven > result.loadedMiles);
 });
 
+test('loaded miles to cover the week are unavailable without a usable offer', () => {
+  const noOffer = calculateWeek({ ...week(), offeredLoadedRate: '' });
+  assert.equal(noOffer.loadedMilesToBreakEven, null);
+
+  const freeOffer = calculateWeek({ ...week(), offeredLoadedRate: 0 });
+  assert.equal(freeOffer.loadedMilesToBreakEven, null);
+});
+
 test('inputs that would silently produce a nonsense week are rejected', () => {
   assert.throws(() => calculateWeek({ ...week(), mpg: 0 }), /Miles per gallon must be greater than zero/);
   assert.throws(() => calculateWeek({ ...week(), loadedMiles: -1 }), /Loaded miles must be at least 0/);
