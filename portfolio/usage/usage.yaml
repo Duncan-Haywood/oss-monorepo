@@ -3370,3 +3370,16 @@ products:
           growing-season weeks, walk-away price). Public URL remains
           owner-gated; the local-first counter reports only to the user's
           own browser and is opt-out. Baseline row.
+  - slug: concrete-bid-calculator
+    surface: static-page-in-repo
+    readings:
+      - as_of: 2026-08-26
+        signals:
+          live_url_visitors: null
+          local_events_reported: 0
+        note: >-
+          Shipped browser-local concrete pour bid calculator (yards from
+          thickness, quarter-yard plant ticket, forms, finish, access,
+          short-load fee, walk-away price). Distinct from concrete lifting.
+          Public URL remains owner-gated; the browser counter is local,
+          opt-out, and honors DNT/GPC. Baseline row.

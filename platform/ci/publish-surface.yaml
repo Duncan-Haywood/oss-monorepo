@@ -127,6 +127,9 @@ workflows:
 - workflow: commercial-photo-license-calculator-ci.yml
   classification: none
   publishes: []
+- workflow: concrete-bid-calculator-ci.yml
+  classification: none
+  publishes: []
 - workflow: concrete-lifting-bid-calculator-ci.yml
   classification: none
   publishes: []
