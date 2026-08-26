@@ -22,6 +22,50 @@ type RunSummary = {
   checkedAt: string;
 };
 
+function markdownCell(value: string): string {
+  return value.replaceAll("|", "\\|").replaceAll("\n", " ");
+}
+
+function buildReportMarkdown(run: RunSummary): string {
+  const findingCount = run.reports.reduce((count, report) => count + report.findings.length, 0);
+  const blockingCount = run.reports.reduce(
+    (count, report) => count + report.findings.filter((finding) => finding.severity === "blocking").length,
+    0,
+  );
+  const rows = run.reports.flatMap((report) => {
+    if (report.findings.length === 0) {
+      return [`| ${markdownCell(report.info.name)} | No findings | pass | File header checks passed |`];
+    }
+    return report.findings.map(
+      (finding) =>
+        `| ${markdownCell(report.info.name)} | ${markdownCell(finding.rule)} | ${finding.severity} | ${markdownCell(finding.detail)} |`,
+    );
+  });
+
+  return [
+    "# Listing Lens photo preflight record",
+    "",
+    `- Checked at: ${run.checkedAt}`,
+    `- Spec: ${SPEC_ID} (${SPEC_DATE})`,
+    `- Photos checked: ${run.reports.length}`,
+    `- Findings: ${findingCount} (${blockingCount} blocking)`,
+    `- Non-photo files skipped: ${run.skipped.length}`,
+    "",
+    "## Findings",
+    "",
+    "| File | Rule | Severity | Detail |",
+    "| --- | --- | --- | --- |",
+    ...rows,
+    "",
+    "## Scope and limitations",
+    "",
+    `This record checks file headers and filenames only: format, byte size, long edge, aspect ratio, branding/watermark filename tokens, and staged-photo pairing. It does not check ${UNIMPLEMENTED_RULES.join(", ")}. Those require a human review or the specific MLS board's rules.`,
+    "",
+    "A clean findings table is not a warranty that a board or portal will accept these photos. Review and verify this record before relying on it.",
+    "",
+  ].join("\n");
+}
+
 async function toFileList(files: File[]): Promise<Array<{ name: string; data: Uint8Array }>> {
   return Promise.all(
     files.map(async (file) => ({
@@ -117,6 +161,18 @@ export function PhotoCheckTool() {
   const [isProcessing, setIsProcessing] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
 
+  function downloadReport() {
+    if (!run) return;
+    const blob = new Blob([buildReportMarkdown(run)], { type: "text/markdown;charset=utf-8" });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = `listing-lens-preflight-${run.checkedAt.slice(0, 10)}.md`;
+    link.click();
+    URL.revokeObjectURL(url);
+    recordUsageEvent("report_downloaded");
+  }
+
   const handleFiles = useCallback(async (fileList: FileList | null) => {
     if (!fileList || fileList.length === 0) return;
     setIsProcessing(true);
@@ -177,6 +233,14 @@ export function PhotoCheckTool() {
               <> Skipped {run.skipped.length} non-photo file{run.skipped.length === 1 ? "" : "s"}.</>
             )}
           </p>
+
+          <button
+            type="button"
+            onClick={downloadReport}
+            className="mt-4 rounded-lg border border-brand-300/40 bg-brand-400/10 px-4 py-2 text-sm font-semibold text-brand-100 transition hover:bg-brand-400/20"
+          >
+            Download dated Markdown record
+          </button>
 
           <ul className="mt-4 divide-y divide-white/10 overflow-hidden rounded-xl border border-white/10">
             {run.reports.map((report) => (

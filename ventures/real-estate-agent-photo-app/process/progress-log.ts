@@ -7,6 +7,21 @@ import type { ProgressEntry } from "./types";
  */
 export const progressLog: ProgressEntry[] = [
   {
+    date: "2026-08-24",
+    agent: "session/agent_0f91c692-9c76-4ae5-bc98-79b2014f706e",
+    summary:
+      "Completed the customer-facing artifact for the MLS photo-spec preflight product line: a browser run can now be retained as a dated Markdown findings record.",
+    changes: [
+      "research/src/components/PhotoCheckTool.tsx now creates a local Markdown download with the checked timestamp, dated spec identifier, file-level findings, skipped-file count, and explicit out-of-scope checks. Table values are escaped so imported filenames or parser details cannot corrupt the record format.",
+      "Added an opt-out local report_downloaded usage event. Photo bytes, findings, and filenames remain in the browser; no analytics vendor, account, or server endpoint was introduced.",
+      "Added the p2-photo-preflight-record roadmap task and recorded the local-export product decision.",
+    ],
+    nextUp: [
+      "Human: run the check against a real delivery folder once a concierge listing exists; the current record is still based on the dated generic floor spec, not a board-specific acceptance rule.",
+      "Agent: validate the research build and browser download behavior, then use local usage readings to decide whether a PDF or board-profile feature is worth building.",
+    ],
+  },
+  {
     date: "2026-06-13",
     agent: "initial-scaffold",
     summary:
