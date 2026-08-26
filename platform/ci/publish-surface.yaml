@@ -191,6 +191,9 @@ workflows:
 - workflow: parking-lot-striping-bid-calculator-ci.yml
   classification: none
   publishes: []
+- workflow: patio-door-bid-calculator-ci.yml
+  classification: none
+  publishes: []
 - workflow: photo-editing-ci.yml
   classification: none
   publishes: []
