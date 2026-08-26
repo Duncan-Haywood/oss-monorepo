@@ -245,6 +245,32 @@ test('carries immediate-payment fields so a shared link does not drop them', () 
   assert.equal(restored.monthlyImmediateListings, 40);
 });
 
+test('carries Global Shipping fields so a shared link does not drop them', () => {
+  const restored = decodeInputs(encodeInputs({
+    price: 40,
+    gspReturnRatePercent: 6,
+    gspSellThroughPct: 40,
+    selfShipShippingCharged: 22,
+    selfShipShippingCost: 18,
+    selfShipReturnShippingCost: 18,
+    selfShipIntlFeeRate: 1.65,
+    selfShipReturnRatePercent: 10,
+    selfShipClaimRatePercent: 8,
+    selfShipSellThroughPct: 55,
+    monthlyGspListings: 20,
+  }));
+  assert.equal(restored.gspReturnRatePercent, 6);
+  assert.equal(restored.gspSellThroughPct, 40);
+  assert.equal(restored.selfShipShippingCharged, 22);
+  assert.equal(restored.selfShipShippingCost, 18);
+  assert.equal(restored.selfShipReturnShippingCost, 18);
+  assert.equal(restored.selfShipIntlFeeRate, 1.65);
+  assert.equal(restored.selfShipReturnRatePercent, 10);
+  assert.equal(restored.selfShipClaimRatePercent, 8);
+  assert.equal(restored.selfShipSellThroughPct, 55);
+  assert.equal(restored.monthlyGspListings, 20);
+});
+
 test('carries seller-coupon fields so a shared link does not drop them', () => {
   const restored = decodeInputs(encodeInputs({
     price: 40,

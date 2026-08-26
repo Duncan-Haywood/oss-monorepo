@@ -281,7 +281,9 @@ test('the immediate-payment table has one cell per column and a counted event', 
   assert.match(page, /immediate_payment_compared/);
   assert.match(page, /should-i-require-immediate-payment-on-ebay\.html/);
   assert.match(page, /"featureList":\s*"[^"]*immediate payment vs unpaid checkouts/);
-  const headerBlock = page.slice(page.indexOf('id="immediatePaymentTable"'));
+  const payStart = page.indexOf('id="immediatePaymentTable"');
+  const payEnd = page.indexOf('id="globalShipping"', payStart);
+  const headerBlock = page.slice(payStart, payEnd === -1 ? undefined : payEnd);
   const headers = [...headerBlock.matchAll(/<th scope="col">([^<]+)<\/th>/g)].map((m) => m[1]);
   assert.deepEqual(headers, [
     'Path',
@@ -291,5 +293,25 @@ test('the immediate-payment table has one cell per column and a counted event', 
     'If checkout starts',
     'Expected after sell-through',
     'vs later',
+  ]);
+});
+
+test('the Global Shipping table has one cell per column and a counted event', () => {
+  assert.match(page, /compareGlobalShipping/);
+  assert.match(page, /id="globalShipping"/);
+  assert.match(page, /id="globalShippingVerdict"/);
+  assert.match(page, /global_shipping_compared/);
+  assert.match(page, /should-i-use-ebay-global-shipping-program\.html/);
+  assert.match(page, /"featureList":\s*"[^"]*Global Shipping Program vs you-ship/);
+  const headerBlock = page.slice(page.indexOf('id="globalShippingTable"'));
+  const headers = [...headerBlock.matchAll(/<th scope="col">([^<]+)<\/th>/g)].map((m) => m[1]);
+  assert.deepEqual(headers, [
+    'Path',
+    'Collected',
+    'Close rate',
+    'Loss rate',
+    'If they keep it',
+    'Expected after sell-through',
+    'vs GSP',
   ]);
 });

@@ -85,6 +85,12 @@ unpaid-item rate, or require payment now and take a typed
 sell-through hit. A 10-point conversion drop can cost more than
 the unpaid cases you avoided.
 [Should I require immediate payment on eBay?](should-i-require-immediate-payment-on-ebay.html).
+A **Global Shipping Program vs you-ship** table then prices the
+same international buyer two ways: ship to the US hub on your
+domestic label, or collect international postage and buy the
+label yourself. An 8% item-not-received claim rate can cost
+more than the extra postage you collected.
+[Should I use eBay Global Shipping Program?](should-i-use-ebay-global-shipping-program.html).
 
 **After using the authenticity page, you can now see whether a 3% fee
 and an $8 hub label still beat skip-AG on that SKU** — which used to
@@ -139,6 +145,12 @@ whether requiring pay-now still beats an 8% unpaid rate after
 a typed sell-through hit** — which used to mean flipping the
 listing setting because unpaid-item cases sat in Seller Hub
 and never pricing the checkouts that never started.
+
+**After using the Global Shipping page, you can now see whether
+the hub still beats an $18 international label after an 8%
+claim rate** — which used to mean turning GSP off because
+“I can ship cheaper” and never pricing the boxes that never
+arrive.
 
 Open `index.html` in a browser. The calculation is local and works without an
 account, network request, or API key. It is arithmetic, not an estimate of the
@@ -221,6 +233,11 @@ drive that decision:
   require-now. An unpaid case never ships. The table also
   names the unpaid rate and immediate sell-through that still
   tie later checkout.
+- **Global Shipping Program vs you-ship** — expected listing
+  profit after sell-through with a hub label versus an
+  international label you buy. A claim is not a return — the
+  item is gone. The table also names the claim rate and
+  you-ship sell-through that still tie GSP.
 
 **No warranty.** This tool is provided free and as-is, without warranty of any
 kind, express or implied. It is not tax, financial, or business advice, and it
@@ -252,7 +269,8 @@ The counted events are `order_profit_calculated`, `target_margin_calculated`,
 `promoted_offsite_compared`,
 `quantity_discount_compared`,
 `seller_coupon_compared`,
-`immediate_payment_compared`, and
+`immediate_payment_compared`,
+`global_shipping_compared`, and
 `price_sensitivity_viewed`.
 `price_sensitivity_viewed`, `listing_format_compared`,
 `partial_refund_compared`, `authenticity_compared`,
@@ -261,8 +279,9 @@ The counted events are `order_profit_calculated`, `target_margin_calculated`,
 `seller_initiated_offer_compared`,
 `promoted_offsite_compared`,
 `quantity_discount_compared`,
-`seller_coupon_compared`, and
-`immediate_payment_compared` are counted at most
+`seller_coupon_compared`,
+`immediate_payment_compared`, and
+`global_shipping_compared` are counted at most
 once per visit and only after an input is edited — counting the table's
 first paint would just re-count page loads and say nothing about whether
 the view is used.
