@@ -172,6 +172,77 @@ if (await sibling.count()) {
   check('cross-product link resolves', page.url().includes('/ebay-fee-calculator/'), page.url());
 }
 
+// 5b. The shop rates a contractor saves once, carried to the next trade tool.
+//     This is the one journey that spans two products, so nothing inside either
+//     venture's own suite can cover it: the value only exists because they share
+//     an origin, and it can only break at the seam.
+const ratesReady = () => page.waitForFunction(
+  () => !document.querySelector('[data-pf-rates-root]')?.hidden, null, { timeout: 5000 });
+
+await page.goto(`${BASE}/crown-molding-bid-calculator/`, { waitUntil: 'networkidle' });
+await ratesReady();
+check('shop-rates bar appears on a bid calculator', await page.isVisible('#pf-rates-toggle'));
+
+for (const [id, value] of [['hourlyWage', '56'], ['burdenRate', '34'], ['overheadRate', '12'], ['targetMargin', '26']]) {
+  await page.fill(`#${id}`, value);
+}
+await page.click('#pf-rates-toggle');
+await page.click('[data-pf-rates="save"]');
+
+await page.goto(`${BASE}/interior-door-bid-calculator/`, { waitUntil: 'networkidle' });
+await ratesReady();
+const carried = await page.evaluate(() =>
+  ['hourlyWage', 'burdenRate', 'overheadRate', 'targetMargin']
+    .map((id) => document.getElementById(id).value).join('/'));
+check('saved rates carry into another trade calculator', carried === '56/34/12/26', carried);
+check('the receiving tool still prices the job',
+  /\$[\d,]/.test(await page.textContent('#price')), await page.textContent('#price'));
+
+// The rule `share.mjs` exists to protect: a recipient must see the price the
+// sender saw. Their own saved rates must not quietly reprice someone's bid.
+await page.goto(
+  `${BASE}/interior-door-bid-calculator/?hourlyWage=39&burdenRate=25&overheadRate=10&targetMargin=18`,
+  { waitUntil: 'networkidle' });
+await ratesReady();
+check('a bid link keeps the sender’s rates',
+  (await page.inputValue('#hourlyWage')) === '39', await page.inputValue('#hourlyWage'));
+
+await page.click('#pf-rates-toggle');
+await page.click('[data-pf-rates="apply"]');
+check('...until the visitor asks for their own',
+  (await page.inputValue('#hourlyWage')) === '56', await page.inputValue('#hourlyWage'));
+
+await page.click('[data-pf-rates="clear"]');
+await page.goto(`${BASE}/metal-roof-bid-calculator/`, { waitUntil: 'networkidle' });
+await ratesReady();
+check('forgetting them returns a never-opened tool to its own default',
+  (await page.inputValue('#hourlyWage')) === '36', await page.inputValue('#hourlyWage'));
+
+// Step 3 turned the site-wide opt-out on and never turned it off, so at this
+// point nothing above should have been counted — including the shop rates. That
+// is worth asserting rather than working around: an opt-out that a later feature
+// quietly ignores is a broken promise, not a missing number.
+const silenced = await page.evaluate(
+  () => JSON.parse(localStorage.getItem('portfolio-hub-usage') || '{}'));
+check('the site-wide opt-out silences shop-rate counting too',
+  !silenced.shop_rates_saved && !silenced.shop_rates_applied, JSON.stringify(silenced));
+
+// Then take the opt-out off and do it once more, so the counting itself is
+// covered. A prefill is not a bid the visitor priced: counting it as one would
+// inflate the only adoption number this portfolio has.
+await page.evaluate(() => localStorage.removeItem('portfolio-hub-optout'));
+await page.goto(`${BASE}/metal-roof-bid-calculator/`, { waitUntil: 'networkidle' });
+await ratesReady();
+await page.click('#pf-rates-toggle');
+await page.click('[data-pf-rates="save"]');
+await page.goto(`${BASE}/crown-molding-bid-calculator/`, { waitUntil: 'networkidle' });
+await ratesReady();
+const ratesCounts = await page.evaluate(
+  () => JSON.parse(localStorage.getItem('portfolio-hub-usage') || '{}'));
+check('the prefill records itself and not a false bid',
+  ratesCounts.shop_rates_saved >= 1 && ratesCounts.shop_rates_applied >= 1
+    && !ratesCounts.bid_calculated, JSON.stringify(ratesCounts));
+
 // 6. A product mounted from a subdirectory.
 await page.goto(`${BASE}/ai-engineering-academy/`, { waitUntil: 'networkidle' });
 check('nested product hub renders', (await page.locator('h1').count()) > 0, await page.title());
