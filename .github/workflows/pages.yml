@@ -12,10 +12,13 @@
 # products, because nothing built them into a Pages artifact. Now it publishes
 # all of them at once.
 #
-# This deliberately reuses the SAME owner variable the existing Pages workflow
-# gates on rather than introducing a second switch. `portfolio/hosting/README.md`
-# is explicit that `deploy-settings` is the one remaining owner flip and that no
-# second platform ask should be opened.
+# Superseded in part, 2026-08-26: the paragraph above was accurate when this
+# branch was cut and stale by the time it merged. `portfolio-pages.yml` (#1718)
+# landed first and already assembles every product from
+# `platform/pages/build.mjs`, so this is the second full implementation of one
+# site, not the first. It no longer shares that workflow's owner variable —
+# see the deploy job for why, and `platform/pages/README.md` for the builder
+# that currently owns the origin. `deploy-settings` is still the one owner flip.
 #
 # The build job runs unconditionally so that a broken site build is a red check
 # on the PR that broke it, whether or not Pages is switched on yet.
@@ -85,9 +88,34 @@ jobs:
     needs: build
     # Never publish from a pull request: a PR build is untrusted code, and a
     # fork PR must not be able to overwrite the live site.
+    # Deliberately NOT `GITHUB_PAGES_ENABLED`, despite the header comment above
+    # having chosen it. That comment was written against a `main` where
+    # "the only Pages workflow in the repo ships one venture's docs" — true when
+    # this branch was cut, no longer true when it merged. #1718 landed
+    # `portfolio-pages.yml` first, which assembles the same ~38 products from
+    # `platform/pages/build.mjs`, and gates on that same variable.
+    #
+    # GitHub serves one Pages site per repository. Two workflows reading one
+    # variable, in two different concurrency groups (`pages-deploy` here,
+    # `portfolio-pages` there), would both fire on every push to `main` and the
+    # live site would land on whichever finished last — flapping between two
+    # different builds of the same products, per push. That is the exact failure
+    # `retail-pilot-intel-deploy-docs.yml` already documents and avoids by
+    # holding its own variable, and this follows that precedent.
+    #
+    # `portfolio-pages.yml` keeps `GITHUB_PAGES_ENABLED` because it is the more
+    # developed builder and the one the rest of the repo has built on (#1731
+    # audited its built tree for the no-SLA clause; #1744 gates its artifact).
+    # The build job below still runs on every push and PR, so this workflow's
+    # builder stays exercised and a regression here is still a red check.
+    #
+    # This is not a second owner ask: `deploy-settings` remains the one flip,
+    # and it publishes the portfolio. Setting `PAGES_PY_BUILDER=true` would hand
+    # the origin to this builder instead — a deliberate choice, not a race.
+    # Consolidating the two builders into one is the follow-up; see the PR.
     if: >-
       github.event_name != 'pull_request' &&
-      vars.GITHUB_PAGES_ENABLED == 'true'
+      vars.PAGES_PY_BUILDER == 'true'
     runs-on: ubuntu-latest
     permissions:
       pages: write
