@@ -59,6 +59,7 @@ def calculate(quote: Quote) -> dict[str, float]:
         "gap_to_target": quote.price - target_price,
         "cost_coverage": quote.price - direct_costs,
         "discount_room": max(0, quote.price - target_price),
+        "minimum_price_adjustment": max(0.0, target_price - quote.price),
     }
 
 
@@ -174,6 +175,7 @@ def markdown(quote: Quote, result: dict[str, float]) -> str:
         f"| Gap to target price | {quote.currency} {result['gap_to_target']:.2f} |",
         f"| After direct costs | {quote.currency} {result['cost_coverage']:.2f} |",
         f"| Maximum discount before target | {quote.currency} {result['discount_room']:.2f} |",
+        f"| Minimum increase to reach target | {quote.currency} {result['minimum_price_adjustment']:.2f} |",
         "",
         "## Fixed quote vs hourly at your target",
         "",
@@ -211,6 +213,7 @@ def csv_report(quote: Quote, result: dict[str, float]) -> None:
             ("gap_to_target", f"{result['gap_to_target']:.2f}", quote.currency),
             ("cost_coverage", f"{result['cost_coverage']:.2f}", quote.currency),
             ("discount_room", f"{result['discount_room']:.2f}", quote.currency),
+            ("minimum_price_adjustment", f"{result['minimum_price_adjustment']:.2f}", quote.currency),
             ("hourly_bill_at_planned_hours", f"{result['target_price']:.2f}", quote.currency),
             ("hourly_minus_fixed_at_planned_hours", f"{result['target_price'] - quote.price:.2f}", quote.currency),
         )

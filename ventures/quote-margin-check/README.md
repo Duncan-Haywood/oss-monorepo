@@ -52,7 +52,9 @@ proposal reviews easy to sort and filter without exposing the proposal data.
 When a quote clears the supplied target, `discount_room` shows the arithmetic
 amount by which the quote could be reduced before reaching that target. A zero
 value means the quote is already at or below target; it is a boundary check, not
-a recommendation to discount.
+a recommendation to discount. `minimum_price_adjustment` is the complementary
+raise: how much the quoted price would need to increase to reach the supplied
+target. It is zero when the quote is already at or above target.
 
 The browser also shows a small pre-send review: arithmetic observations for
 direct costs above the price, a gap below the supplied target, hidden time, and

@@ -12,6 +12,7 @@ test("formats a review summary with derived arithmetic and attention flags", () 
   assert.match(summary, /Quoted price: USD 1000\.00/);
   assert.match(summary, /Effective hourly rate: USD 66\.67\/hour/);
   assert.match(summary, /The quote is below the supplied target/);
+  assert.match(summary, /Minimum increase to reach target: USD 500\.00/);
   assert.match(summary, /not pricing or financial advice/);
 });
 

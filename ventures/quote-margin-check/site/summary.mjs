@@ -20,6 +20,7 @@ export function formatReviewSummary(quote, report, checks) {
     `Price at target rate: ${money(report.target_price)}`,
     `Gap to target price: ${money(report.gap_to_target)}`,
     `Left after direct costs: ${money(report.cost_coverage)}`,
+    `Minimum increase to reach target: ${money(report.minimum_price_adjustment)}`,
     "",
     "Review observations:",
     ...(flags.length ? flags : ["- No arithmetic attention flags from these inputs."]),

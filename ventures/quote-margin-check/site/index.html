@@ -604,6 +604,7 @@
            <dt>Left after direct costs</dt><dd>${safeCurrency} ${fmt(r.cost_coverage)}</dd>
            <dt>Target-rate hours budget</dt><dd>${fmt(targetHoursBudget(quote, r))} total hours</dd>
            <dt>Maximum discount before target</dt><dd>${safeCurrency} ${fmt(r.discount_room)}</dd>
+           <dt>Minimum increase to reach target</dt><dd>${safeCurrency} ${fmt(r.minimum_price_adjustment)}</dd>
         </dl>
        `;
        review.querySelector(".checks").innerHTML = reviewQuote(quote, r).map((check) => `<li class="${check.level}"><strong>${escapeHtml(check.title)}</strong>${escapeHtml(check.detail)}</li>`).join("");

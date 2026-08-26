@@ -46,6 +46,7 @@ export function quoteCsv(quote, report, extras = {}) {
     ["cost_coverage", money(report.cost_coverage), currency],
     ["target_rate_hours_budget", hours(targetHoursBudget(quote, report)), "hours"],
     ["discount_room", money(report.discount_room), currency],
+    ["minimum_price_adjustment", money(report.minimum_price_adjustment), currency],
     ["hourly_bill_at_planned_hours", money(report.target_price), currency],
     ["hourly_minus_fixed_at_planned_hours", money(report.target_price - quote.price), currency],
   ];

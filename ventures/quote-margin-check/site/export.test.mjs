@@ -20,6 +20,7 @@ test("exports stable spreadsheet rows and quotes currency labels safely", () => 
   assert.match(csv, /^measure,value,unit\nquoted_price,1000\.00,"USD, ""local"""/);
   assert.match(csv, /effective_hourly_rate,100\.00,"USD, ""local""\/hour"/);
   assert.match(csv, /discount_room,0\.00,"USD, ""local"""/);
+  assert.match(csv, /minimum_price_adjustment,0\.00,"USD, ""local"""/);
   assert.match(csv, /target_rate_hours_budget,10\.00,hours/);
   assert.match(csv, /hourly_bill_at_planned_hours,1000\.00,"USD, ""local"""/);
   assert.match(csv, /hourly_minus_fixed_at_planned_hours,0\.00,"USD, ""local"""/);
