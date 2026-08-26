@@ -187,6 +187,9 @@ workflows:
 - workflow: shopify-fee-calculator-ci.yml
   classification: none
   publishes: []
+- workflow: shopify-permission-drift-ci.yml
+  classification: none
+  publishes: []
 - workflow: source-silence-detector-ci.yml
   classification: none
   publishes: []
