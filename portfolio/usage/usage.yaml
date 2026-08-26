@@ -433,6 +433,15 @@ products:
           volume (example Starter/Basic/Premium, break-even order
           count). Still no public URL; local event store_compared is
           opt-out and stores no inputs.
+      - as_of: 2026-08-26
+        signals:
+          live_url_visitors: null
+          best_offer_compared: 0
+        note: >-
+          Added incoming Best Offer vs waiting (offer in hand versus
+          list profit times a typed chance of list, midpoint counter,
+          target-margin price). Still no public URL; local event
+          best_offer_compared is opt-out and stores no inputs.
   - slug: cut-list-optimizer
     surface: static-page-in-repo
     readings:

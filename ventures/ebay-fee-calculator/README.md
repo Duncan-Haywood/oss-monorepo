@@ -115,6 +115,11 @@ same SKU four ways: stay at the final-value rate you type, or
 take example Starter, Basic, and Premium mixes after the monthly
 subscription. Forty $40 sales leave a $7.95 Starter $2.43 behind.
 [Is an eBay store worth it?](is-an-ebay-store-worth-it.html).
+An **incoming Best Offer vs waiting** table then prices the same
+listing two ways: take the buyer’s number now, or wait for list
+profit times your guessed chance it still sells. A $34 offer on
+a $40 listing keeps $5.60 more than waiting at 50%.
+[Should I accept this eBay offer?](should-i-accept-this-ebay-offer.html).
 
 **After using the authenticity page, you can now see whether a 3% fee
 and an $8 hub label still beat skip-AG on that SKU** — which used to
@@ -190,6 +195,11 @@ arrive.
 Starter still beats a 13.25% no-store rate after 40 sales** —
 which used to mean subscribing because “the rate is lower” and
 never pricing the month.
+
+**After using the Best Offer page, you can now see whether a $34
+offer still beats waiting for a $40 list after a 50% chance it
+still sells** — which used to mean declining because “it’s under
+list” and never pricing the wait.
 
 Open `index.html` in a browser. The calculation is local and works without an
 account, network request, or API key. It is arithmetic, not an estimate of the
@@ -331,7 +341,8 @@ The counted events are `order_profit_calculated`, `target_margin_calculated`,
 `top_rated_plus_compared`,
 `managed_returns_compared`,
 `global_shipping_compared`,
-`store_compared`, and
+`store_compared`,
+`best_offer_compared`, and
 `price_sensitivity_viewed`.
 `price_sensitivity_viewed`, `listing_format_compared`,
 `partial_refund_compared`, `authenticity_compared`,
@@ -345,8 +356,9 @@ The counted events are `order_profit_calculated`, `target_margin_calculated`,
 `immediate_payment_compared`,
 `top_rated_plus_compared`,
 `managed_returns_compared`, and
-`global_shipping_compared`, and
-`store_compared` are counted at most
+`global_shipping_compared`,
+`store_compared`, and
+`best_offer_compared` are counted at most
 once per visit and only after an input is edited — counting the table's
 first paint would just re-count page loads and say nothing about whether
 the view is used.
