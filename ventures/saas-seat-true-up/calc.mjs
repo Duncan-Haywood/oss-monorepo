@@ -1,33 +1,37 @@
-export function calculate({ seats, activeUsers, price, months, overageRate }) {
-  const values = { seats, activeUsers, price, months, overageRate };
-  for (const [key, value] of Object.entries(values)) {
-    if (!Number.isFinite(Number(value)) || Number(value) < 0) throw new Error(`${key} must be a non-negative number`);
+export function calculateTrueUp({ seatsPurchased, seatsUsed, monthlyPrice, monthsRemaining = 12 }) {
+  const purchased = Number(seatsPurchased);
+  const used = Number(seatsUsed);
+  const price = Number(monthlyPrice);
+  const months = Number(monthsRemaining);
+  if (![purchased, used, price, months].every(Number.isFinite) || purchased < 0 || used < 0 || price < 0 || months < 0) {
+    throw new Error('Values must be non-negative numbers');
   }
-  const purchased = Math.floor(Number(seats));
-  const active = Math.floor(Number(activeUsers));
-  const monthlyPrice = Number(price);
-  const termMonths = Number(months);
-  const rate = Number(overageRate);
-  const unusedSeats = Math.max(0, purchased - active);
-  const overageSeats = Math.max(0, active - purchased);
-  const monthlyWaste = unusedSeats * monthlyPrice;
-  const termWaste = monthlyWaste * termMonths;
-  const monthlyOverage = overageSeats * monthlyPrice * (1 + rate / 100);
+  const unused = Math.max(0, purchased - used);
+  const extra = Math.max(0, used - purchased);
+  const monthlyAvoidable = unused * price;
+  const monthlyOverage = extra * price;
   return {
-    purchased, active, unusedSeats, overageSeats, monthlyWaste, termWaste,
-    annualWaste: monthlyWaste * 12, monthlyOverage,
-    recommendedSeats: active,
-    savingsRate: purchased ? (unusedSeats / purchased) * 100 : 0,
+    purchased,
+    used,
+    unused,
+    extra,
+    utilizationPercent: purchased === 0 ? (used === 0 ? 0 : Infinity) : (used / purchased) * 100,
+    monthlyAvoidable,
+    remainingAvoidable: monthlyAvoidable * months,
+    annualAvoidable: monthlyAvoidable * 12,
+    monthlyOverage,
+    remainingOverage: monthlyOverage * months,
+    annualOverage: monthlyOverage * 12,
   };
 }
 
-export function renewalBrief(input) {
-  const result = calculate(input);
-  const money = value => `$${value.toFixed(2)}`;
-  const lines = [`SaaS seat renewal review`, `Current plan: ${result.purchased} seats; active users: ${result.active}.`];
-  if (result.unusedSeats) lines.push(`Potential reduction: ${result.unusedSeats} seats, about ${money(result.termWaste)} over ${input.months} months.`);
-  if (result.overageSeats) lines.push(`Potential overage: ${result.overageSeats} users, about ${money(result.monthlyOverage)} for the next month at the entered overage rate.`);
-  if (!result.unusedSeats && !result.overageSeats) lines.push(`Current seats match active users; no seat-count variance appears in this scenario.`);
-  lines.push(`Review vendor terms, billing dates, shared accounts, and user access before acting.`);
-  return lines.join('\n');
+export function formatMoney(value, currency = '$') {
+  return `${currency}${value.toFixed(2)}`;
+}
+
+export function reviewMessage(result) {
+  if (result.extra > 0) {
+    return `This review is over the purchased count by ${result.extra} seat${result.extra === 1 ? '' : 's'}. That is ${formatMoney(result.annualOverage)} of extra annual spend if the overage continues, or ${formatMoney(result.remainingOverage)} through the remaining term.`;
+  }
+  return `A seat review could release ${formatMoney(result.annualAvoidable)} over a full year if the unused seats are not renewed.`;
 }

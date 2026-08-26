@@ -1,0 +1,304 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Solar PV Install Bid Calculator | Price Per Watt With Roof and Service Extras</title>
+  <meta name="description" content="Price a rooftop solar install from module count, roof difficulty, panel upgrades, permits, and margin — then see dollars per watt, crew hours, and the walk-away number a cheaper per-watt quote hides.">
+  <meta property="og:title" content="Solar PV Install Bid Calculator">
+  <meta property="og:description" content="Bid solar the way the job actually costs — watts, roof factor, and electrical extras — before you match a cheaper dollars-per-watt quote.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Solar PV Install Bid Calculator","applicationCategory":"BusinessApplication","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"featureList":"Module-count system size, roof-difficulty labor factor, electrical extras, battery adder, permit and interconnection, dollars per watt, walk-away price, proposed-price margin check, copyable bid summary"}</script>
+  <style>
+    :root { color-scheme: light; font-family: system-ui, sans-serif; color: #1c2430; background: #f3efe6; }
+    body { max-width: 1080px; margin: 0 auto; padding: 32px 18px; }
+    header { max-width: 740px; margin-bottom: 26px; }
+    h1 { font-size: clamp(2rem, 6vw, 3.5rem); line-height: .98; margin: 0 0 12px; letter-spacing: -.05em; }
+    p { line-height: 1.5; }
+    .eyebrow { font-size: .8rem; font-weight: 700; letter-spacing: .08em; color: #b45309; margin: 0 0 6px; }
+    .layout { display: grid; grid-template-columns: minmax(0, 1fr) minmax(300px, .78fr); gap: 18px; align-items: start; }
+    section { background: #fff; border: 1px solid #ddd4c4; border-radius: 14px; padding: 20px; box-shadow: 0 8px 24px #2a20100d; margin-bottom: 18px; }
+    h2 { margin-top: 0; font-size: 1.15rem; }
+    .hint { font-size: .82rem; color: #5a5246; margin: -6px 0 14px; }
+    .fields { display: grid; grid-template-columns: repeat(2, 1fr); gap: 13px; }
+    label { display: grid; gap: 5px; font-size: .87rem; font-weight: 650; }
+    input, select { width: 100%; box-sizing: border-box; border: 1px solid #b8ad9a; border-radius: 7px; padding: 10px; font: inherit; background: #fff; }
+    button { font: inherit; border-radius: 7px; border: 1px solid #b8ad9a; background: #f6f1e8; padding: 10px 14px; cursor: pointer; font-weight: 650; }
+    button:hover { background: #ece4d4; }
+    .result { position: sticky; top: 15px; background: #1d3a2f; color: #f4f8f4; border-color: #1d3a2f; }
+    .hero-number { font-size: 2.7rem; font-weight: 750; letter-spacing: -.05em; margin: 8px 0; }
+    .negative { color: #ffb0a2; } .positive { color: #a9e6b0; }
+    dl { display: grid; grid-template-columns: 1fr auto; gap: 9px; margin: 20px 0; }
+    dt, dd { margin: 0; } dd { font-variant-numeric: tabular-nums; }
+    hr { border: 0; border-top: 1px solid #ffffff2b; }
+    .note { font-size: .82rem; opacity: .84; }
+    .split { margin: 14px 0 0; padding: 0; list-style: none; font-size: .84rem; }
+    .split li { display: grid; grid-template-columns: 1fr auto; gap: 8px; padding: 3px 0; }
+    .bar { grid-column: 1 / -1; height: 4px; border-radius: 2px; background: #ffffff2e; }
+    .bar > span { display: block; height: 100%; border-radius: 2px; background: #f0c36a; }
+    .verdict { margin-top: 14px; padding: 12px; border-radius: 9px; font-size: .87rem; background: #ffffff1a; }
+    .verdict.bad { background: #7d2317; }
+    footer { margin-top: 25px; font-size: .82rem; color: #5a5246; }
+    footer a { color: #b45309; }
+    .support { margin-top: 14px; }
+    .summary-actions { display: flex; gap: 8px; align-items: center; margin-top: 14px; flex-wrap: wrap; }
+    .summary-status { font-size: .8rem; color: #d7ecc8; }
+    @media (max-width: 780px) {
+      .layout { grid-template-columns: 1fr; } .result { position: static; } .fields { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="eyebrow">FOR SOLAR INSTALLERS</p>
+    <h1>Bid the roof and the service, not the watts.</h1>
+    <p>A flat dollars-per-watt quote treats a 10 kW composition-roof job with a clean 200 A panel as the same job as a 10 kW tile-roof job that needs a 100 A &rarr; 200 A upgrade. Price the array, the roof difficulty, and the electrical extras separately &mdash; then see the price, the dollars per watt, and the number below which the job loses money.</p>
+  </header>
+
+  <main class="layout">
+    <div>
+      <section>
+        <h2>The system</h2>
+        <p class="hint">Start from a common residential size, then replace module count and watts with the layout you actually drew.</p>
+        <div class="fields">
+          <label>Starting size <select id="systemPreset"></select></label>
+          <label>Module count <input id="moduleCount" type="number" min="1" step="1" value="26"></label>
+          <label>Watts per module <input id="wattsPerModule" type="number" min="1" step="1" value="390"></label>
+          <label>Module cost each <input id="moduleCostEach" type="number" min="0" step="1" value="140"></label>
+          <label>Inverter / hybrid cost <input id="inverterCost" type="number" min="0" step="1" value="1800"></label>
+          <label>Racking per module <input id="rackingPerModule" type="number" min="0" step="1" value="45"></label>
+          <label>BOS per watt <input id="bosPerWatt" type="number" min="0" step="0.01" value="0.18"></label>
+        </div>
+      </section>
+
+      <section>
+        <h2>The roof and the service</h2>
+        <p class="hint">Roof factor multiplies array labor only. Electrical extras are a fixed hour-and-material adder &mdash; they do not get cheaper on a smaller array.</p>
+        <div class="fields">
+          <label>Roof / mount <select id="roofPreset"></select></label>
+          <label>Roof labor factor <input id="roofFactor" type="number" min="0.01" step="0.01" value="1"></label>
+          <label>Crew hours per kW (easy roof) <input id="laborHoursPerKw" type="number" min="0.1" step="0.5" value="10"></label>
+          <label>Electrical extra <select id="electricalPreset"></select></label>
+          <label>Electrical extra hours <input id="electricalHours" type="number" min="0" step="0.5" value="0"></label>
+          <label>Electrical extra material <input id="electricalMaterial" type="number" min="0" step="1" value="0"></label>
+          <label>Battery / backup hours <input id="batteryHours" type="number" min="0" step="0.5" value="0"></label>
+          <label>Battery / backup material <input id="batteryMaterial" type="number" min="0" step="1" value="0"></label>
+        </div>
+      </section>
+
+      <section>
+        <h2>Your costs</h2>
+        <div class="fields">
+          <label>Installer hourly wage <input id="hourlyWage" type="number" min="0" step="0.25" value="38"></label>
+          <label>Payroll burden (%) <input id="burdenRate" type="number" min="0" step="0.5" value="30"></label>
+          <label>Permit &amp; interconnection <input id="permitAndInterconnection" type="number" min="0" step="1" value="850"></label>
+          <label>Design &amp; engineering <input id="designEngineering" type="number" min="0" step="1" value="400"></label>
+          <label>Travel, dumpster, lift <input id="travelDumpsterLift" type="number" min="0" step="1" value="250"></label>
+          <label>Overhead on direct cost (%) <input id="overheadRate" type="number" min="0" step="0.5" value="15"></label>
+          <label>Target net margin (%) <input id="targetMargin" type="number" min="0" max="99.9" step="0.5" value="20"></label>
+          <label>Price you&rsquo;re considering (optional) <input id="proposedPrice" type="number" min="0" step="50" placeholder="e.g. 28500"></label>
+        </div>
+        <p class="hint" style="margin-top:14px;margin-bottom:0">Payroll burden covers employer taxes, workers&rsquo; compensation, liability insurance, and paid time off. Matching a cheaper per-watt quote after leaving it out is how a sold job becomes a loss.</p>
+      </section>
+    </div>
+
+    <section class="result" aria-live="polite">
+      <h2>Your bid</h2>
+      <div id="price" class="hero-number">$&mdash;</div>
+      <div id="priceLabel">install price</div>
+      <dl>
+        <dt>System size</dt><dd id="systemSize"></dd>
+        <dt>Crew hours</dt><dd id="hours"></dd>
+        <dt>Loaded labor</dt><dd id="labor"></dd>
+        <dt>Equipment</dt><dd id="equipment"></dd>
+        <dt>Electrical &amp; battery extras</dt><dd id="extras"></dd>
+        <dt>Permits, design, travel</dt><dd id="soft"></dd>
+        <dt>Overhead</dt><dd id="overhead"></dd>
+        <dt>Total cost</dt><dd id="cost"></dd>
+        <dt>Profit</dt><dd id="profit"></dd>
+        <dt>Price per watt</dt><dd id="perWatt"></dd>
+        <dt>Effective hourly rate</dt><dd id="hourlyRate"></dd>
+        <dt>Walk-away price</dt><dd id="breakEven"></dd>
+        <dt>Walk-away $/W</dt><dd id="breakEvenWatt"></dd>
+      </dl>
+      <div id="verdict" class="verdict" hidden></div>
+      <div class="summary-actions">
+        <button type="button" id="copySummary">Copy bid summary</button>
+        <span id="summaryStatus" class="summary-status" role="status" aria-live="polite"></span>
+      </div>
+      <hr>
+      <p class="note" style="margin-bottom:4px"><strong>Where the cost goes</strong></p>
+      <ul class="split" id="split"></ul>
+      <hr>
+      <p class="note">Transparent arithmetic from your own inputs. Roof factors and electrical extras are common ballpark starting points, not an industry standard, a benchmark, or a guarantee. Time your own crews and replace them.</p>
+    </section>
+  </main>
+
+  <footer>
+    <label style="display:inline-flex;gap:6px;align-items:center;font-weight:400"><input id="usageOptOut" type="checkbox" style="width:auto"> Do not keep anonymous local usage counts</label>
+    <p><strong>No warranty.</strong> This free tool is not legal, tax, financial, engineering, or electrical-code advice, and it does not tell you what to charge. It is not a structural, interconnection, or incentive determination. Verify every figure against your own payroll, invoices, AHJ and utility requirements, and a qualified professional before relying on it or submitting a bid. To the maximum extent permitted by law, the authors accept no liability for loss or damage from its use.</p>
+    <p><strong>Nothing leaves your browser.</strong> Every number stays on this device. Usage counts are anonymous tallies of which features were used, stored locally, and never include your system size, wages, costs, or prices.</p>
+    <p>See also: <a href="./how-much-to-charge-to-install-solar-panels.html">how much to charge to install solar panels</a>.</p>
+    <p class="support">Free and open source. If it keeps you from matching a losing per-watt quote, the <a href="https://github.com/Duncan-Haywood/monorepo-projects" rel="noopener">project is on GitHub</a> &mdash; support is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { calculateBid, formatBidSummary, ROOF_PRESETS, ELECTRICAL_PRESETS, SYSTEM_PRESETS } from './calc.mjs';
+    import { recordUsage } from './usage.mjs';
+
+    const FIELD_IDS = [
+      'moduleCount','wattsPerModule','moduleCostEach','inverterCost','rackingPerModule','bosPerWatt',
+      'roofFactor','laborHoursPerKw','electricalHours','electricalMaterial','batteryHours','batteryMaterial',
+      'hourlyWage','burdenRate','permitAndInterconnection','designEngineering','travelDumpsterLift',
+      'overheadRate','targetMargin','proposedPrice',
+    ];
+    const money = value => `$${value.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+    const el = id => document.getElementById(id);
+
+    function fillSelect(select, items, getValue, getLabel) {
+      select.innerHTML = items.map((item, index) =>
+        `<option value="${getValue(item, index)}">${getLabel(item)}</option>`
+      ).join('');
+    }
+
+    fillSelect(el('systemPreset'), SYSTEM_PRESETS, (_, index) => String(index), item => item.label);
+    fillSelect(el('roofPreset'), ROOF_PRESETS, item => item.id, item => item.label);
+    fillSelect(el('electricalPreset'), ELECTRICAL_PRESETS, item => item.id, item => item.label);
+    el('systemPreset').value = '2';
+    el('roofPreset').value = 'comp-easy';
+    el('electricalPreset').value = 'none';
+
+    function count(event) {
+      recordUsage(localStorage, el('usageOptOut').checked, event);
+    }
+
+    function readInput() {
+      return Object.fromEntries(FIELD_IDS.map(id => [id, el(id).value]));
+    }
+
+    function clearOutputs(message, isError) {
+      el('price').textContent = message;
+      el('price').className = `hero-number ${isError ? 'negative' : ''}`;
+      el('priceLabel').textContent = isError ? 'check the highlighted input' : 'install price';
+      ['systemSize','hours','labor','equipment','extras','soft','overhead','cost','profit','perWatt','hourlyRate','breakEven','breakEvenWatt']
+        .forEach(id => { el(id).textContent = ''; });
+      el('split').innerHTML = '';
+      el('verdict').hidden = true;
+    }
+
+    function update() {
+      let result;
+      try {
+        result = calculateBid(readInput());
+      } catch (error) {
+        clearOutputs(error.message, true);
+        return;
+      }
+
+      el('price').textContent = money(result.price);
+      el('price').className = 'hero-number';
+      el('priceLabel').textContent = 'install price';
+      el('systemSize').textContent = `${result.dcKw.toFixed(2)} kW DC`;
+      el('hours').textContent = `${result.totalHours.toFixed(1)} h`;
+      el('labor').textContent = money(result.laborCost);
+      el('equipment').textContent = money(result.equipmentCost);
+      el('extras').textContent = money(result.extraMaterial);
+      el('soft').textContent = money(result.softCost);
+      el('overhead').textContent = money(result.overhead);
+      el('cost').textContent = money(result.totalCost);
+      el('profit').textContent = money(result.profit);
+      el('perWatt').textContent = result.pricePerWatt === null ? 'n/a' : `$${result.pricePerWatt.toFixed(2)}/W`;
+      el('hourlyRate').textContent = result.effectiveHourlyRate === null ? 'n/a' : `${money(result.effectiveHourlyRate)}/h`;
+      el('breakEven').textContent = money(result.breakEvenPrice);
+      el('breakEvenWatt').textContent = result.breakEvenPerWatt === null ? 'n/a' : `$${result.breakEvenPerWatt.toFixed(2)}/W`;
+
+      const parts = [
+        ['Labor', result.shares.labor],
+        ['Equipment', result.shares.equipment],
+        ['Electrical & battery', result.shares.extras],
+        ['Permits & travel', result.shares.soft],
+        ['Overhead', result.shares.overhead],
+      ].filter(part => part[1] > 0);
+      el('split').innerHTML = parts
+        .map(([name, share]) => `<li><span>${name}</span><span>${share.toFixed(0)}%</span>
+          <span class="bar"><span style="width:${Math.min(share, 100).toFixed(1)}%"></span></span></li>`)
+        .join('');
+
+      const verdict = el('verdict');
+      if (result.proposed === null) {
+        verdict.hidden = true;
+      } else {
+        verdict.hidden = false;
+        verdict.className = `verdict${result.proposed.belowBreakEven ? ' bad' : ''}`;
+        const perWatt = result.proposed.perWatt === null ? 'n/a' : `$${result.proposed.perWatt.toFixed(2)}/W`;
+        verdict.innerHTML = result.proposed.belowBreakEven
+          ? `At ${money(result.proposed.price)} (${perWatt}) this job <strong>loses ${money(Math.abs(result.proposed.profit))}</strong> before you take anything out of it. Your walk-away price is ${money(result.breakEvenPrice)}.`
+          : `At ${money(result.proposed.price)} (${perWatt}) you keep <strong>${money(result.proposed.profit)}</strong> — a ${result.proposed.margin.toFixed(1)}% margin.`;
+      }
+    }
+
+    async function copySummary() {
+      const text = formatBidSummary(calculateBid(readInput()));
+      try {
+        await navigator.clipboard.writeText(text);
+      } catch {
+        const fallback = document.createElement('textarea');
+        fallback.value = text;
+        fallback.setAttribute('readonly', '');
+        fallback.style.position = 'fixed';
+        fallback.style.opacity = '0';
+        document.body.append(fallback);
+        fallback.select();
+        document.execCommand('copy');
+        fallback.remove();
+      }
+      count('summary_copied');
+      el('summaryStatus').textContent = 'Copied to clipboard';
+      setTimeout(() => { el('summaryStatus').textContent = ''; }, 2500);
+    }
+
+    el('systemPreset').addEventListener('change', () => {
+      const preset = SYSTEM_PRESETS[Number(el('systemPreset').value)];
+      if (!preset) return;
+      el('moduleCount').value = preset.moduleCount;
+      el('wattsPerModule').value = preset.wattsPerModule;
+      count('system_preset_applied');
+      update();
+    });
+
+    el('roofPreset').addEventListener('change', () => {
+      const preset = ROOF_PRESETS.find(item => item.id === el('roofPreset').value);
+      if (preset && !el('roofFactor').dataset.edited) el('roofFactor').value = preset.factor;
+      count('roof_changed');
+      update();
+    });
+    el('roofFactor').addEventListener('input', () => { el('roofFactor').dataset.edited = '1'; });
+
+    el('electricalPreset').addEventListener('change', () => {
+      const preset = ELECTRICAL_PRESETS.find(item => item.id === el('electricalPreset').value);
+      if (!preset) return;
+      if (!el('electricalHours').dataset.edited) el('electricalHours').value = preset.hours;
+      if (!el('electricalMaterial').dataset.edited) el('electricalMaterial').value = preset.material;
+      count('electrical_changed');
+      update();
+    });
+    el('electricalHours').addEventListener('input', () => { el('electricalHours').dataset.edited = '1'; });
+    el('electricalMaterial').addEventListener('input', () => { el('electricalMaterial').dataset.edited = '1'; });
+
+    FIELD_IDS.forEach(id => {
+      el(id).addEventListener('input', update);
+      el(id).addEventListener('change', () => count(id === 'proposedPrice' ? 'proposed_price_compared' : 'bid_calculated'));
+    });
+    el('usageOptOut').addEventListener('change', update);
+    el('copySummary').addEventListener('click', () => {
+      try {
+        copySummary().catch(() => { el('summaryStatus').textContent = 'Copy failed; select and copy the figures above.'; });
+      } catch (error) {
+        el('summaryStatus').textContent = error.message;
+      }
+    });
+
+    update();
+  </script>
+</body>
+</html>
