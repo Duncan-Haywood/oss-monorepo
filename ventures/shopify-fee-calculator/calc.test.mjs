@@ -9,6 +9,8 @@ import {
   compareShopPayInstallments,
   compareShopifyCapital,
   compareManualPayment,
+  compareLocalDelivery,
+  localDeliveryCost,
   DEFAULT_BANK_APR_PCT,
   DEFAULT_CAPITAL_ADVANCE,
   DEFAULT_CAPITAL_HOLDBACK_PCT,
@@ -24,6 +26,11 @@ import {
   DEFAULT_COLLECTION_PCT,
   DEFAULT_MANUAL_DISCOUNT_PCT,
   DEFAULT_CHASE_COST,
+  DEFAULT_LOCAL_DELIVERY_FEE,
+  DEFAULT_LOCAL_DELIVERY_MINUTES,
+  DEFAULT_LOCAL_HOURLY_RATE,
+  DEFAULT_LOCAL_MILES,
+  DEFAULT_LOCAL_MILEAGE_RATE,
   PLAN_PRESETS,
 } from "./calc.mjs";
 
@@ -807,4 +814,75 @@ test("summary names the hold winner and the collection floor", () => {
   assert.match(text, /\$1\.87/);
   assert.match(text, /94\.4%/);
   assert.match(text, /96\.5%/);
+});
+
+const LOCAL_BASE = {
+  price: 48,
+  shippingCharged: 6,
+  paymentsRate: 2.9,
+  paymentsFixed: 0.3,
+  costOfGoods: 14,
+  shippingCost: 5,
+  packagingCost: 1,
+  monthlyPlan: 39,
+  monthlyOrders: 100,
+  paymentMethod: "shopify_payments",
+};
+
+test("defaults match the published local-delivery run", () => {
+  assert.equal(DEFAULT_LOCAL_DELIVERY_FEE, 8);
+  assert.equal(DEFAULT_LOCAL_DELIVERY_MINUTES, 25);
+  assert.equal(DEFAULT_LOCAL_HOURLY_RATE, 18);
+  assert.equal(DEFAULT_LOCAL_MILES, 8);
+  assert.equal(DEFAULT_LOCAL_MILEAGE_RATE, 0.7);
+  near(localDeliveryCost({ minutes: 25, hourlyRate: 18, miles: 8, mileageRate: 0.7 }), 13.1, "default run");
+});
+
+test("a 25-minute 8-mile drop-off loses to a $5 label on the default ticket", () => {
+  // Ship: $54 revenue, $1.866 fees, $20.39 cash → $31.744.
+  // Local: $8 fee, $13.10 run. $56 revenue, $1.924 fees, $28.49 cash → $25.586.
+  // Charge shipping / deliver: $54 revenue, $1.866 fees, $28.49 cash → $23.644.
+  const r = compareLocalDelivery(LOCAL_BASE);
+  near(r.deliveryCost, 13.1, "run cost");
+  near(r.ship.profit, 31.744, "label leftover");
+  near(r.local.profit, 25.586, "local leftover");
+  near(r.chargeShipDeliver.profit, 23.644, "keep-postage leftover");
+  near(r.extraKeptOnLocal, 25.586 - 31.744, "local vs label");
+  near(r.monthlyExtraOnLocal, (25.586 - 31.744) * 100, "hundred orders");
+  near(r.breakEvenDeliveryCost, 6.942, "run ceiling");
+  assert.equal(r.winner, "ship");
+  assert.ok(r.ship.profit > r.local.profit, "label beats the long run");
+  assert.ok(r.local.profit > r.chargeShipDeliver.profit, "charging a delivery fee beats keeping $6 postage");
+});
+
+test("a short nearby run flips local delivery ahead", () => {
+  const r = compareLocalDelivery({
+    ...LOCAL_BASE,
+    localDeliveryMinutes: 12,
+    localMiles: 3,
+  });
+  near(r.deliveryCost, 12 / 60 * 18 + 3 * 0.7, "12 min / 3 mi");
+  near(r.local.profit, 32.986, "short-run leftover");
+  assert.equal(r.winner, "local");
+  assert.ok(r.extraKeptOnLocal > 0, "nearby drop-off beats the label");
+});
+
+test("empty local-delivery fields use the published defaults", () => {
+  const r = compareLocalDelivery(LOCAL_BASE);
+  near(r.deliveryFee, DEFAULT_LOCAL_DELIVERY_FEE, "default fee");
+  near(r.minutes, DEFAULT_LOCAL_DELIVERY_MINUTES, "default minutes");
+  near(r.miles, DEFAULT_LOCAL_MILES, "default miles");
+});
+
+test("compareLocalDelivery rejects a negative run input", () => {
+  assert.throws(() => compareLocalDelivery({ ...LOCAL_BASE, localDeliveryMinutes: -1 }), /Local delivery minutes/);
+  assert.throws(() => compareLocalDelivery({ ...LOCAL_BASE, localMiles: -2 }), /Local delivery miles/);
+});
+
+test("summary names the label winner and the run ceiling", () => {
+  const text = compareLocalDelivery(LOCAL_BASE).summary;
+  assert.match(text, /\$13\.10 run cost/);
+  assert.match(text, /\$6\.16 less/);
+  assert.match(text, /\$6\.94/);
+  assert.doesNotMatch(text, /should offer|must deliver|turn on local/i);
 });
