@@ -1,0 +1,40 @@
+name: interior-door-bid-calculator
+description: A private browser calculator for carpenters that prices an interior door replacement from door count, hollow-slab versus hollow-prehung versus solid-core versus French-or-barn, hang-only versus prehung-swap versus new-opening versus pocket-conversion, owner-supplied versus carpenter-supplied, weekday they-leave versus they-stay versus Saturday overtime, 80-inch versus 96-inch versus double, and extras — and shows the extra-work share and the walk-away price below which the job loses money.
+stage: prototype
+owner: duncan
+hypotheses:
+  - claim: Independent carpenters will use an opening-versus-scope bid calculator because the generic "$150 a door installed" special they are shopped on cannot see that a hollow-core slab hung on an existing jamb is a different job from a solid-core prehung in a new opening with paint-grade casing, new privacy hardware, and a haul-away.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: The walk-away price and the extra-work share (not the published per-door dump) are the two figures a carpenter actually decides on when an owner asks them to match a cheaper hang quote on a pocket-conversion job.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: Showing hollow slab, hollow prehung, solid-core, and French-or-barn on the same opening, next to hang-only versus pocket-conversion, changes the bid enough that carpenters quote the upgrade instead of matching the $150 special.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: Showing carpenter-supplied versus owner-supplied-it-hangs versus owner-supplied-wrong-size on the same opening changes the bid enough that carpenters walk away from a $150 hang-only special even when the leaf invoice is zero.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: Showing weekday they-leave versus they-stay versus after-hours Saturday on the same opening changes the bid enough that carpenters walk away from a $349 Saturday hang that would have covered a weekday they-leave slot.
+    status: untested
+    checked: null
+    evidence: customer-contact
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+budget:
+  monthly_cap: 1
+  protected: true
+kill_criteria:
+  - Fewer than three qualified carpenters use the calculator twice within 90 days.
+  - Contractors report that splitting opening, leaf, and extras is more work than their existing installed-price method without changing the price they would have bid.
+  - The starting hours and millwork invoices prove so far from real crews that the tool cannot be used without data we have no way to gather.
+links:
+  production: null
+  analytics: null

@@ -1,0 +1,32 @@
+name: patio-door-bid-calculator
+description: A private browser calculator for window and door shops that prices a sliding glass or patio-door replacement from extra panels, impact glass, new-construction wrap, transom, sill pan, and balcony access — and shows the hours the first 4-panel unit actually consumes and the walk-away price below which the job loses money.
+stage: prototype
+owner: duncan
+hypotheses:
+  - claim: Independent window and door shops will use a panels-and-extras bid calculator because the generic "$1,800 installed" 6-foot vinyl 2-panel special they are shopped on cannot see that a ground-floor retrofit pocket is a different job from a 16-foot 4-panel impact-rated new-construction unit with a transom, a sill pan, and balcony access.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: The walk-away price and the hour split (not the published installed special) are the two figures a shop actually decides on when a homeowner asks them to match a cheaper patio-door quote.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: Treating extra panels, impact glass, new-construction wrap, a transom, a sill pan, and balcony access as their own hours, instead of a blended add-on to a $1,800 special, changes the bid enough that shops notice which part of a high number is the first extra panel.
+    status: untested
+    checked: null
+    evidence: customer-contact
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+budget:
+  monthly_cap: 1
+  protected: true
+kill_criteria:
+  - Fewer than three qualified window or door shops use the calculator twice within 90 days.
+  - Shops report that splitting the panels and extras versus a 6-foot vinyl special is more work than their existing per-door method without changing the price they would have bid.
+  - The starting hours and material rates prove so far from real crews that the tool cannot be used without data we have no way to gather.
+links:
+  production: null
+  analytics: null
