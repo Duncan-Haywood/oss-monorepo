@@ -20,6 +20,8 @@ import {
   compareSubscribeSave,
   compareVine,
   compareAgedInventory,
+  agedSurchargeMonths,
+  compareHoldVsRemove,
   compareLiquidation,
   liquidationNote,
   DEFAULT_LIQUIDATION_RECOVERY_PCT,
@@ -1221,6 +1223,143 @@ test("summary names dispose and the sell-through floor", () => {
   assert.match(text, /-\$83\.20/);
   assert.match(text, /6\.7%/);
   assert.doesNotMatch(text, /should dispose|must remove|create a removal/i);
+});
+
+test("aged surcharge months start after the threshold, not on it", () => {
+  assert.equal(
+    agedSurchargeMonths({
+      monthsAlreadyStored: 5,
+      additionalMonths: 3,
+      agedStartsAfterMonths: 6,
+    }),
+    2,
+  );
+  assert.equal(
+    agedSurchargeMonths({
+      monthsAlreadyStored: 0,
+      additionalMonths: 6,
+      agedStartsAfterMonths: 6,
+    }),
+    0,
+  );
+  assert.equal(
+    agedSurchargeMonths({
+      monthsAlreadyStored: 6,
+      additionalMonths: 1,
+      agedStartsAfterMonths: 6,
+    }),
+    1,
+  );
+});
+
+test("hold wins when leftover FBA profit still beats paying to dispose", () => {
+  const cuFt = cubicFeet({ length: 8, width: 6, height: 2 });
+  const fulfillment = defaultFulfillmentFee("large_standard", 0.75);
+  const decision = compareHoldVsRemove({
+    remainingUnits: 20,
+    expectedMonthsToSell: 3,
+    monthsAlreadyStored: 5,
+    agedStartsAfterMonths: 6,
+    storageRate: 0.87,
+    agedSurchargePerCuFt: 1.5,
+    removalFeePerUnit: 1.04,
+    salvagePerUnit: 0,
+    cubicFeet: cuFt,
+    salePrice: 29.99,
+    referralRate: 15,
+    fulfillmentFee: fulfillment,
+    adsPerUnit: 0,
+  });
+
+  const storage = cuFt * 0.87 * 3;
+  const surcharge = cuFt * 1.5 * 2;
+  const holdNet = 29.99 - 29.99 * 0.15 - fulfillment - storage - surcharge;
+  near(decision.surchargeMonths, 2, "two aged months");
+  near(decision.holdNetPerUnit, holdNet, "hold net");
+  near(decision.removeNetPerUnit, -1.04, "dispose cost");
+  near(decision.holdAdvantage, (holdNet + 1.04) * 20, "advantage");
+  assert.equal(decision.betterPath, "hold");
+  assert.equal(decision.monthsUntilRemoveWins, null);
+});
+
+test("remove wins when future warehouse cost erases the leftover sale", () => {
+  const cuFt = cubicFeet({ length: 18, width: 14, height: 8 });
+  const fulfillment = defaultFulfillmentFee("large_standard", 10);
+  const decision = compareHoldVsRemove({
+    remainingUnits: 12,
+    expectedMonthsToSell: 6,
+    monthsAlreadyStored: 8,
+    agedStartsAfterMonths: 6,
+    storageRate: 2.4,
+    agedSurchargePerCuFt: 6,
+    removalFeePerUnit: 1.5,
+    salvagePerUnit: 4,
+    cubicFeet: cuFt,
+    salePrice: 29.99,
+    referralRate: 15,
+    fulfillmentFee: fulfillment,
+    adsPerUnit: 0,
+  });
+
+  const warehouse = cuFt * 2.4 * 6 + cuFt * 6 * 6;
+  const holdNet = 29.99 - 29.99 * 0.15 - fulfillment - warehouse;
+  const removeNet = 4 - 1.5;
+  near(decision.surchargeMonths, 6, "already aged");
+  near(decision.warehousePerUnit, warehouse, "warehouse");
+  near(decision.holdNetPerUnit, holdNet, "hold net");
+  near(decision.removeNetPerUnit, removeNet, "remove net");
+  assert.ok(holdNet < removeNet);
+  assert.equal(decision.betterPath, "remove");
+  assert.equal(decision.monthsUntilRemoveWins, 2);
+});
+
+test("sunk inbound and cost of goods do not change hold vs remove", () => {
+  const shared = {
+    remainingUnits: 5,
+    expectedMonthsToSell: 2,
+    monthsAlreadyStored: 1,
+    storageRate: 0.87,
+    agedSurchargePerCuFt: 0,
+    removalFeePerUnit: 1,
+    salvagePerUnit: 0,
+    cubicFeet: 0.2,
+    salePrice: 20,
+    referralRate: 15,
+    fulfillmentFee: 4,
+    adsPerUnit: 0,
+  };
+  const a = compareHoldVsRemove(shared);
+  const b = compareHoldVsRemove({ ...shared, costOfGoods: 50, inboundPerUnit: 8 });
+  near(a.holdAdvantage, b.holdAdvantage, "sunk costs ignored");
+});
+
+test("reports when extra months of holding would flip the decision", () => {
+  const decision = compareHoldVsRemove({
+    remainingUnits: 1,
+    expectedMonthsToSell: 1,
+    monthsAlreadyStored: 0,
+    agedStartsAfterMonths: 6,
+    storageRate: 10,
+    agedSurchargePerCuFt: 0,
+    removalFeePerUnit: 1,
+    salvagePerUnit: 0,
+    cubicFeet: 1,
+    salePrice: 20,
+    referralRate: 0,
+    fulfillmentFee: 0,
+    adsPerUnit: 0,
+  });
+  assert.equal(decision.betterPath, "hold");
+  assert.equal(decision.monthsUntilRemoveWins, 3);
+  assert.equal(decision.scenarios.length, 4);
+  near(decision.scenarios[0].additionalMonths, 1, "1-month row");
+  near(decision.scenarios[3].additionalMonths, 6, "6-month row");
+});
+
+test("rejects invalid hold-vs-remove inputs", () => {
+  assert.throws(() => compareHoldVsRemove({ remainingUnits: 0, salePrice: 10 }), /at least 1/);
+  assert.throws(() => compareHoldVsRemove({ remainingUnits: 1.5, salePrice: 10 }), /whole number/);
+  assert.throws(() => compareHoldVsRemove({ remainingUnits: 1, salePrice: -1 }), /Sale price/);
 });
 
 test("applyPlacementPreset fills illustrative inbound placement rates", () => {

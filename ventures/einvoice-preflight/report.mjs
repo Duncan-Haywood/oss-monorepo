@@ -1,4 +1,5 @@
 import { checkInvoice, flagDuplicateInvoiceNumbers } from "./checks.mjs";
+import { looksLikeCii, parseCiiInvoice } from "./cii.mjs";
 import { looksLikeXml, parseUblInvoice } from "./ubl.mjs";
 
 export const DEFAULT_MAX_BYTES = 1_048_576;
@@ -10,7 +11,10 @@ function redactValues(text) {
 
 export function parseInvoiceSource(name, source) {
   const text = typeof source === "string" ? source : new TextDecoder().decode(source);
-  if (looksLikeXml(name, text)) return parseUblInvoice(text);
+  if (looksLikeXml(name, text)) {
+    if (looksLikeCii(text)) return parseCiiInvoice(text);
+    return parseUblInvoice(text);
+  }
   return JSON.parse(text);
 }
 

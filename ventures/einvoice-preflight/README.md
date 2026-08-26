@@ -3,7 +3,7 @@
 **Validate a structured invoice before submission.** After using this, you can
 now see which fields, totals, VAT digits, or payment instructions would fail a
 local preflight — in the browser or in CI — which used to mean waiting for a
-network rejection. Open `index.html` and drop a JSON or UBL XML file, or run
+network rejection. Open `index.html` and drop a JSON, UBL, or CII XML file, or run
 the CLI below. The page never uploads the invoice.
 
 This free local CLI also checks a small, transparent JSON, UBL XML, or
@@ -81,8 +81,10 @@ for selecting the correct format, tax treatment, and submission process.
 ## Input shape
 
 The supported v0 JSON shape is intentionally small and format-neutral. UBL XML
-input maps common `Invoice`, `CreditNote`, `DebitNote`, line, party, tax, and
-monetary-total elements into this shape. When an invoice contains multiple UBL `TaxTotal`
+and UN/CEFACT CII (XRechnung CII / Factur-X XML) both map into this shape.
+UBL input maps common `Invoice`, `CreditNote`, `DebitNote`, line, party, tax, and
+monetary-total elements. CII maps `CrossIndustryInvoice` header, parties, lines,
+tax, payment, and totals the same way. When an invoice contains multiple UBL `TaxTotal`
 elements, their `TaxAmount` values are added to obtain the invoice tax total.
 This keeps split tax schemes from being silently ignored; it is still an
 arithmetic check, not a tax-law determination:

@@ -3,13 +3,13 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>E-invoice Preflight | Check JSON or UBL before submission</title>
-  <meta name="description" content="Free local e-invoice preflight: drop a JSON or UBL XML invoice or credit note to catch missing fields, arithmetic mistakes, a header discount that does not match its percent, a purchase-order field that repeats the invoice number, a SEPA payment means without an IBAN, an invoice period that ends before it starts, mixed VAT rates without a per-rate breakdown, a buyer electronic address that fails its GLN or EAS scheme, a credit sent as an invoice, a missing original-invoice reference, a 0% line without an exemption reason, prepaid vs amount-due mismatches, VAT typos, IBAN/BIC mismatches, and a missing remittance before submission. Nothing is uploaded.">
+  <title>E-invoice Preflight | Check JSON, UBL, or CII before submission</title>
+  <meta name="description" content="Free local e-invoice preflight: drop a JSON, UBL, or CII (XRechnung / Factur-X) XML invoice or credit note to catch missing fields, arithmetic mistakes, a header discount that does not match its percent, a purchase-order field that repeats the invoice number, a SEPA payment means without an IBAN, an invoice period that ends before it starts, mixed VAT rates without a per-rate breakdown, a buyer electronic address that fails its GLN or EAS scheme, a credit sent as an invoice, a missing original-invoice reference, a 0% line without an exemption reason, prepaid vs amount-due mismatches, VAT typos, IBAN/BIC mismatches, and a missing remittance before submission. Nothing is uploaded.">
   <meta name="robots" content="index, follow">
   <link rel="canonical" href=".">
   <link rel="sitemap" type="application/xml" href="sitemap.xml">
   <meta property="og:title" content="E-invoice Preflight — catch defects before submission">
-  <meta property="og:description" content="Check a JSON or UBL invoice locally for missing fields, totals, VAT checksums, and IBAN/BIC typos. Rule IDs and fixes stay in your browser.">
+  <meta property="og:description" content="Check a JSON, UBL, or CII invoice locally for missing fields, totals, VAT checksums, and IBAN/BIC typos. Rule IDs and fixes stay in your browser.">
   <meta property="og:type" content="website">
   <script type="application/ld+json">
   {
@@ -19,7 +19,7 @@
     "applicationCategory": "BusinessApplication",
     "operatingSystem": "Any (runs in a web browser)",
     "offers": { "@type": "Offer", "price": "0", "priceCurrency": "EUR" },
-    "featureList": "JSON and UBL invoice and credit-note checks, arithmetic totals, header allowances and charges, buyer and purchase-order references, invoice period start and end dates, payment means versus IBAN, mixed-rate tax breakdown, buyer and seller electronic addresses, prepaid versus amount due, document type and original-invoice reference, 0% tax exemption reason, VAT IBAN BIC and remittance typo catches, copyable repair checklist, local-only processing"
+    "featureList": "JSON, UBL, and CII invoice and credit-note checks, arithmetic totals, header allowances and charges, buyer and purchase-order references, invoice period start and end dates, payment means versus IBAN, mixed-rate tax breakdown, buyer and seller electronic addresses, prepaid versus amount due, document type and original-invoice reference, 0% tax exemption reason, VAT IBAN BIC and remittance typo catches, copyable repair checklist, local-only processing"
   }
   </script>
   <script type="application/ld+json">
@@ -40,7 +40,7 @@
         "name": "How do I check an e-invoice before submission?",
         "acceptedAnswer": {
           "@type": "Answer",
-          "text": "Drop a JSON or UBL XML invoice or credit note, or paste the JSON shape. The checker reports missing fields, date-shape mistakes, a header allowance or charge whose amount does not match its percentage, a purchase-order reference that repeats the invoice number or is a placeholder, a SEPA or credit-transfer payment means without an IBAN, an invoice period that is incomplete or ends before it starts, totals that do not match the line items, mixed tax rates without a per-rate breakdown, a buyer electronic address that fails its GLN or EAS scheme, a credit sent as a commercial invoice, a missing original-invoice reference, a 0% or exempt line without a tax reason, prepaid versus amount-due mismatches, a missing remittance on an IBAN invoice, and optional VAT, IBAN, BIC, and RF typo catches, with a rule ID and a suggested fix. It does not decide tax treatment or legal validity."
+          "text": "Drop a JSON, UBL, or CII (XRechnung / Factur-X) XML invoice or credit note, or paste the JSON shape. The checker reports missing fields, date-shape mistakes, a header allowance or charge whose amount does not match its percentage, a purchase-order reference that repeats the invoice number or is a placeholder, a SEPA or credit-transfer payment means without an IBAN, an invoice period that is incomplete or ends before it starts, totals that do not match the line items, mixed tax rates without a per-rate breakdown, a buyer electronic address that fails its GLN or EAS scheme, a credit sent as a commercial invoice, a missing original-invoice reference, a 0% or exempt line without a tax reason, prepaid versus amount-due mismatches, a missing remittance on an IBAN invoice, and optional VAT, IBAN, BIC, and RF typo catches, with a rule ID and a suggested fix. It does not decide tax treatment or legal validity."
         }
       }
     ]
@@ -86,7 +86,7 @@
     <p class="eyebrow">FOR BOOKKEEPERS AND ERP ADAPTERS</p>
     <h1>Catch invoice defects before you submit.</h1>
     <p>
-      Drop a JSON or UBL XML invoice or credit note — or paste the JSON shape —
+      Drop a JSON, UBL, or CII (XRechnung / Factur-X) XML invoice or credit note — or paste the JSON shape —
       and get rule IDs plus a suggested fix for missing fields, totals that do
       not add up, a credit sent as a commercial invoice, a missing original
       invoice reference, a prepaid that does not leave the stated amount due, a
@@ -158,7 +158,7 @@
       (INV-044 through INV-046), optional buyer or purchase-order
       references (INV-047 through INV-049), and optional header
       allowances or charges (INV-050 through INV-052).
-      UBL XML is mapped into that shape, including CreditNote,
+      UBL XML and UN/CEFACT CII (XRechnung CII / Factur-X XML) are mapped into that shape. UBL mapping includes CreditNote,
       BillingReference, payee account, branch,
       PaymentID, PaymentMeansCode, TaxExemptionReason, TaxSubtotal, EndpointID, InvoicePeriod, BuyerReference, OrderReference, and invoice-level AllowanceCharge. It is <strong>not</strong>
       a Peppol, EN 16931, or tax-law validator and it does not submit anything.
