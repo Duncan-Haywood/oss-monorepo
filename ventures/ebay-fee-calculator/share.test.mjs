@@ -225,6 +225,24 @@ test('carries quantity-discount fields so a shared link does not drop them', () 
   assert.equal(restored.monthlyQtyOrders, 20);
 });
 
+test('carries seller-coupon fields so a shared link does not drop them', () => {
+  const restored = decodeInputs(encodeInputs({
+    price: 40,
+    couponPercent: 15,
+    couponRedeemPct: 40,
+    listedSellThroughPct: 40,
+    couponSellThroughPct: 55,
+    dropSellThroughPct: 50,
+    monthlyCouponListings: 40,
+  }));
+  assert.equal(restored.couponPercent, 15);
+  assert.equal(restored.couponRedeemPct, 40);
+  assert.equal(restored.listedSellThroughPct, 40);
+  assert.equal(restored.couponSellThroughPct, 55);
+  assert.equal(restored.dropSellThroughPct, 50);
+  assert.equal(restored.monthlyCouponListings, 40);
+});
+
 test('round-trips known numeric inputs in stable order', () => {
   const encoded = encodeInputs({ price: 40, shippingCharged: 6, finalValueRate: 13.25 });
   assert.equal(encoded, 'price=40&shippingCharged=6&finalValueRate=13.25');

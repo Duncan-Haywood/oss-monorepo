@@ -370,6 +370,15 @@ products:
           (take-rate floor, leftover discount-percent ceiling). Still no
           public URL; local event quantity_discount_compared is opt-out
           and stores no inputs.
+      - as_of: 2026-08-26
+        signals:
+          live_url_visitors: null
+          seller_coupon_compared: 0
+        note: >-
+          Added seller coupon vs stay listed vs drop the list after
+          sell-through (redeem mix, coupon ST floor, drop ST floor).
+          Still no public URL; local event seller_coupon_compared is
+          opt-out and stores no inputs.
   - slug: cut-list-optimizer
     surface: static-page-in-repo
     readings:
