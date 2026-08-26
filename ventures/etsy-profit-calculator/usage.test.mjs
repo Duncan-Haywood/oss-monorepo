@@ -34,6 +34,8 @@ test('supports a named aggregate event without recording inputs', () => {
   assert.equal(JSON.parse(values.get('etsy-profit-usage')).shop_sale_compared, 1);
   recordUsage(storage, false, 'free_shipping_compared');
   assert.equal(JSON.parse(values.get('etsy-profit-usage')).free_shipping_compared, 1);
+  recordUsage(storage, false, 'etsy_labels_compared');
+  assert.equal(JSON.parse(values.get('etsy-profit-usage')).etsy_labels_compared, 1);
   recordUsage(storage, false, 'listing_renewal_compared');
   assert.equal(JSON.parse(values.get('etsy-profit-usage')).listing_renewal_compared, 1);
   recordUsage(storage, false, 'offsite_ads_compared');

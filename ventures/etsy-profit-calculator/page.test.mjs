@@ -3,7 +3,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
-import { compareEtsyPlus, comparePersonalization, compareEtsyAds, compareOffsiteAdRates, maxAffordableOffsiteRate, compareProductionPartner, compareStarSeller, compareShopSale, compareFreeShipping } from './calc.mjs';
+import { compareEtsyPlus, comparePersonalization, compareEtsyAds, compareOffsiteAdRates, maxAffordableOffsiteRate, compareProductionPartner, compareStarSeller, compareShopSale, compareFreeShipping, compareEtsyLabels } from './calc.mjs';
 
 const html = readFileSync(new URL('./index.html', import.meta.url), 'utf8');
 const seo = readFileSync(new URL('./is-etsy-plus-worth-it.html', import.meta.url), 'utf8');
@@ -14,6 +14,7 @@ const partnerSeo = readFileSync(new URL('./should-i-use-an-etsy-production-partn
 const starSeo = readFileSync(new URL('./is-etsy-star-seller-worth-it.html', import.meta.url), 'utf8');
 const saleSeo = readFileSync(new URL('./should-i-put-my-etsy-shop-on-sale.html', import.meta.url), 'utf8');
 const freeShipSeo = readFileSync(new URL('./should-i-offer-free-shipping-on-etsy.html', import.meta.url), 'utf8');
+const labelsSeo = readFileSync(new URL('./should-i-buy-etsy-shipping-labels.html', import.meta.url), 'utf8');
 
 function parse(source) {
   const RAW = /<(textarea|script|style)\b[^>]*>/i;
@@ -398,7 +399,7 @@ test('the shop-sale SEO page uses the same worked examples the calculator defaul
 });
 
 test('the free-shipping row template has one cell per column', () => {
-  const tableMarkup = markup.split('id="freeShipTable"')[1] || '';
+  const tableMarkup = (markup.split('id="freeShipTable"')[1] || '').split('id="labelsTable"')[0];
   const headers = [...tableMarkup.matchAll(/<th scope="col"[^>]*>([\s\S]*?)<\/th>/g)].map((m) =>
     m[1].replace(/\s+/g, ' ').trim());
   assert.equal(headers.length, 5, `expected 5 free-shipping columns, found ${headers.join(' | ')}`);
@@ -439,4 +440,43 @@ test('the free-shipping SEO page uses the same worked examples the calculator de
   assert.ok(freeShipSeo.includes(money(ads.charged.profit)), `missing ads charged ${money(ads.charged.profit)}`);
   assert.ok(freeShipSeo.includes(money(ads.raised.profit)), `missing ads raised ${money(ads.raised.profit)}`);
   assert.ok(freeShipSeo.includes(signed(ads.perOrderDelta)), `missing ads delta ${signed(ads.perOrderDelta)}`);
+});
+
+test('the Etsy-labels row template has one cell per column', () => {
+  const tableMarkup = markup.split('id="labelsTable"')[1] || '';
+  const headers = [...tableMarkup.matchAll(/<th scope="col"[^>]*>([\s\S]*?)<\/th>/g)].map((m) =>
+    m[1].replace(/\s+/g, ' ').trim());
+  assert.equal(headers.length, 6, `expected 6 label columns, found ${headers.join(' | ')}`);
+  assert.match(scriptSource, /compareEtsyLabels/);
+  assert.match(scriptSource, /etsyLabelsNote/);
+  assert.match(scriptSource, /etsy_labels_compared/);
+  assert.match(markup, /id="etsyLabelCost"/);
+  assert.match(markup, /id="thirdPartyLabelCost"/);
+  assert.match(markup, /id="etsy-labels"/);
+});
+
+test('the Etsy-labels SEO page uses the same worked examples the calculator defaults produce', () => {
+  assert.match(labelsSeo, /Should I buy Etsy shipping labels or use Pirate Ship/i);
+  assert.match(labelsSeo, /href="\.\/#etsy-labels"/);
+  assert.match(labelsSeo, /No warranty/);
+  assert.match(labelsSeo, /no SLA/i);
+  const money = (value) => `$${(Math.round((Number(value) + Number.EPSILON) * 100) / 100).toFixed(2)}`;
+  const signed = (value) => `${value < 0 ? '−' : '+'}${money(Math.abs(value))}`;
+  const pageOrder = {
+    price: 30, shippingCharged: 5, listingFee: 0.2, transactionRate: 6.5,
+    paymentRate: 3, paymentFixed: 0.25, offsiteAdRate: 0, shippingCost: 6,
+    materialCost: 4, otherCost: 0,
+  };
+  const defaults = compareEtsyLabels(pageOrder);
+  const zeroTime = compareEtsyLabels({ ...pageOrder, labelUploadMinutes: 0 });
+  const ads = compareEtsyLabels({ ...pageOrder, offsiteAdRate: 15 });
+  assert.ok(labelsSeo.includes(money(defaults.etsy.expectedProfit)), `missing Etsy ${money(defaults.etsy.expectedProfit)}`);
+  assert.ok(labelsSeo.includes(money(defaults.third.expectedProfit)), `missing third ${money(defaults.third.expectedProfit)}`);
+  assert.ok(labelsSeo.includes(money(defaults.postageOnly.expectedProfit)), `missing postage ${money(defaults.postageOnly.expectedProfit)}`);
+  assert.ok(labelsSeo.includes(signed(defaults.extraKeptOnThird)), `missing extra ${signed(defaults.extraKeptOnThird)}`);
+  assert.ok(labelsSeo.includes(money(Math.abs(defaults.monthlyExtraOnThird))), `missing monthly ${money(Math.abs(defaults.monthlyExtraOnThird))}`);
+  assert.ok(labelsSeo.includes(money(defaults.breakEvenThirdPartyLabelCost)), `missing ceiling ${money(defaults.breakEvenThirdPartyLabelCost)}`);
+  assert.ok(labelsSeo.includes(money(zeroTime.third.expectedProfit)), `missing zero-time ${money(zeroTime.third.expectedProfit)}`);
+  assert.ok(labelsSeo.includes(money(ads.etsy.expectedProfit)), `missing ads Etsy ${money(ads.etsy.expectedProfit)}`);
+  assert.ok(labelsSeo.includes(money(ads.third.expectedProfit)), `missing ads third ${money(ads.third.expectedProfit)}`);
 });

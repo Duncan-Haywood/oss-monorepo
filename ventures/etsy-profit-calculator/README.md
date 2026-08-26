@@ -221,6 +221,28 @@ the $32 lift to about 6.6 extra orders. The SEO page
 [should-i-offer-free-shipping-on-etsy.html](should-i-offer-free-shipping-on-etsy.html)
 walks through the same examples.
 
+## Does an Etsy shipping label still beat Pirate Ship?
+
+Buying the label is not free shipping and it is not Star Seller. An
+Etsy quote auto-uploads tracking and usually keeps a lower
+item-not-received rate because Purchase Protection rides with the
+label. A Pirate Ship, Shippo, or carrier-account quote is often
+cheaper. Tracking is uploaded by hand, so typed upload time sits on
+every box, and the leftover claim rate is usually higher.
+
+On the default $30 listing, a $6.00 Etsy label at 0.8% claims expects
+$20.98. A $5.10 third-party label at 2.5% claims after four minutes
+at $18/hour ($1.20) expects $20.14 — $0.84 less per shipment and
+$33.60 less across 40. The same postage with no extra time expects
+$21.34 (+$0.36). Four minutes wipe a $0.90 postage save. No
+third-party claim rate on the timed path can match Etsy. The quote
+has to stay at about $4.27 before it matches. Drop the minutes to
+zero and Pirate Ship keeps $0.36 more (claim ceiling about 3.7%).
+A $4.00 quote and one upload minute expects $22.14 (+$1.16). 15%
+Offsite Ads still leave Etsy ahead ($15.77 vs $15.03). The SEO page
+[should-i-buy-etsy-shipping-labels.html](should-i-buy-etsy-shipping-labels.html)
+walks through the same examples.
+
 ## Does auto-renew still cover a slow listing?
 
 Etsy charges the listing fee when a listing publishes or auto-renews,

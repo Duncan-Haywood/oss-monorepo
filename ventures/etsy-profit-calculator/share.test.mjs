@@ -80,6 +80,13 @@ test('every encodable field is a real calculator field', () => {
   assert.ok(FIELD_IDS.includes('saleListings'));
   assert.ok(FIELD_IDS.includes('freeShipPrice'));
   assert.ok(FIELD_IDS.includes('monthlyOrders'));
+  assert.ok(FIELD_IDS.includes('etsyLabelCost'));
+  assert.ok(FIELD_IDS.includes('thirdPartyLabelCost'));
+  assert.ok(FIELD_IDS.includes('etsyLabelClaimRatePercent'));
+  assert.ok(FIELD_IDS.includes('thirdPartyClaimRatePercent'));
+  assert.ok(FIELD_IDS.includes('labelUploadMinutes'));
+  assert.ok(FIELD_IDS.includes('labelUploadWage'));
+  assert.ok(FIELD_IDS.includes('monthlyLabelShipments'));
 });
 
 test('carries Star Seller fields so a shared link does not drop the badge table', () => {
@@ -120,4 +127,22 @@ test('carries free-shipping fields so a shared link does not drop the shipping t
   }));
   assert.equal(decoded.freeShipPrice, 32);
   assert.equal(decoded.monthlyOrders, 40);
+});
+
+test('carries Etsy label fields so a shared link does not drop the label table', () => {
+  const decoded = decodeInputs(encodeInputs({
+    price: 30,
+    etsyLabelCost: 6,
+    thirdPartyLabelCost: 5.1,
+    etsyLabelClaimRatePercent: 0.8,
+    thirdPartyClaimRatePercent: 2.5,
+    labelUploadMinutes: 4,
+    labelUploadWage: 18,
+    monthlyLabelShipments: 40,
+  }));
+  assert.equal(decoded.etsyLabelCost, 6);
+  assert.equal(decoded.thirdPartyLabelCost, 5.1);
+  assert.equal(decoded.thirdPartyClaimRatePercent, 2.5);
+  assert.equal(decoded.labelUploadMinutes, 4);
+  assert.equal(decoded.monthlyLabelShipments, 40);
 });
