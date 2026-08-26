@@ -724,6 +724,22 @@ products:
           subscription amortisation and the price each channel needs to match
           the best. Public URL remains owner-gated; the local-first counter
           reports only to the user's own browser and is opt-out. Baseline row.
+      - as_of: 2026-08-26
+        signals:
+          live_url_visitors: null
+          local_events_reported: 0
+        note: >-
+          Added the shelf-time ranking: the same channels ranked on what one
+          listing is worth per 30 days once sell-through, time to sale,
+          renewal listing fees and the cash tied up are counted, alongside the
+          existing keep ranking. On the shipped defaults the two disagree —
+          Etsy keeps $3.36 more per sale than eBay and earns about a third as
+          much per month of shelf — which is the finding the fee table could
+          not show. New signal `shelf_time_compared` fires only when a seller
+          edits a shelf-time input, so adoption of the turnover view is
+          separable from ordinary fee use; event name and day only, opt-out,
+          DNT/GPC honoured, never leaves the browser. Public URL still
+          owner-gated, so this stays a zero baseline.
   - slug: no-show-fee-calculator
     surface: static-page-in-repo
     readings:
