@@ -1435,3 +1435,26 @@ products:
 #           repo_views_14d: 0
 #           release_downloads_total: 0
 #         note: Shipped today; baseline reading.
+  - slug: crawl-space-encapsulation-bid-calculator
+    surface: static-page-in-repo
+    readings:
+      - as_of: 2026-08-25
+        signals:
+          live_url_visitors: null
+          local_events_reported: 0
+        note: >-
+          Shipped a local crawl space encapsulation bid calculator with
+          liner-and-access math, three-scope comparison, and a copyable
+          proposal summary; public URL remains owner-gated.
+
+# Example of the shape, once a product has shipped:
+#
+# products:
+#   - slug: example-product
+#     surface: github-pages
+#     readings:
+#       - as_of: 2026-08-24
+#         signals:
+#           repo_views_14d: 0
+#           release_downloads_total: 0
+#         note: Shipped today; baseline reading.
