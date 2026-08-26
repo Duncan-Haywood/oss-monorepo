@@ -20,6 +20,11 @@ Use [When return fees flip the quote](./returns-sensitivity.html) to hold the
 rest of the rate card still and raise the return rate. That shows the first
 rate where in-house is cheaper, and whether a monthly minimum is hiding the
 returns line until the subtotal clears the floor.
+Use [Does long-term storage flip a 3PL quote](./does-long-term-storage-flip-a-3pl-quote.html)
+to put leftover pallets on the long-term storage line the signed card usually
+omits. That shows the monthly surcharge versus the quote as written, whether
+that aged path still beats in-house, and how many months of the hold eat a
+liquidation recovery.
 After normalizing, use **Download CSV record** to save the exact on-screen
 calculation for a spreadsheet or quote review without retyping figures.
 If a pasted value is malformed or negative, the copied line-by-line report

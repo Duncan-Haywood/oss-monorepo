@@ -86,3 +86,23 @@ test('returns sensitivity page sweeps return rates and names the flip', async ()
   assert.match(index, /returns-sensitivity\.html/);
   assert.match(sitemap, /returns-sensitivity\.html/);
 });
+
+test('aged storage page compares leftover surcharge and names the flip', async () => {
+  const page = await readFile(new URL('./does-long-term-storage-flip-a-3pl-quote.html', import.meta.url), 'utf8');
+  const index = await readFile(new URL('./index.html', import.meta.url), 'utf8');
+  const sitemap = await readFile(new URL('./sitemap.xml', import.meta.url), 'utf8');
+  const robots = await readFile(new URL('./robots.txt', import.meta.url), 'utf8');
+  assert.match(page, /Does Long-Term 3PL Storage Flip the Quote/);
+  assert.match(page, /compareAgedStorage/);
+  assert.match(page, /agedStorageSweep/);
+  assert.match(page, /agedStorageSummary/);
+  assert.match(page, /name="leftoverPallets"/);
+  assert.match(page, /name="longTermStoragePerPallet"/);
+  assert.match(page, /name="liquidationPerPallet"/);
+  assert.match(page, /aged_storage_compared/);
+  assert.match(page, /not financial, tax, legal, or engineering advice/);
+  assert.match(page, /Best-effort hosting, no SLA/);
+  assert.match(index, /does-long-term-storage-flip-a-3pl-quote\.html/);
+  assert.match(sitemap, /does-long-term-storage-flip-a-3pl-quote\.html/);
+  assert.match(robots, /Sitemap:/);
+});

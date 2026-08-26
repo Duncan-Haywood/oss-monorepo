@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { calculate, compareQuotes, comparisonSummary, inputWarnings, largestCostDriver, negotiationLines, returnsFlip, returnsMinimumMask, returnsSensitivity, returnsSensitivitySummary, summary, volumeSensitivity } from "./calc.mjs";
+import { agedStorageFlip, agedStorageSummary, agedStorageSweep, calculate, compareAgedStorage, compareQuotes, comparisonSummary, inputWarnings, largestCostDriver, negotiationLines, returnsFlip, returnsMinimumMask, returnsSensitivity, returnsSensitivitySummary, summary, volumeSensitivity } from "./calc.mjs";
 
 test("custom return and restocking fees flow into the normalized quote", () => {
   const result = calculate({ orders: 100, unitsPerOrder: 1, returnsRate: 10, returnFee: 7, restockFee: 3 });
@@ -254,6 +254,68 @@ test("default returns-page assumptions flip to in-house at 20% by $36", () => {
 test("ignores negative or non-numeric return-rate sweep values", () => {
   const rows = returnsSensitivity({ orders: 100 }, [-5, "n/a", 8, 8]);
   assert.deepEqual(rows.map((row) => row.returnsRate), [0, 8]);
+});
+
+const agedPage = {
+  orders: 100,
+  pallets: 4,
+  leftoverPallets: 2,
+  storagePerPallet: 18,
+  longTermStoragePerPallet: 54,
+  liquidationPerPallet: 80,
+  inHousePerOrder: 15.5,
+};
+
+test("aged storage prices leftover at the long-term rate and names the flip", () => {
+  const comparison = compareAgedStorage(agedPage);
+  assert.equal(comparison.asWritten.storageCost, 72);
+  assert.equal(comparison.aged.storageCost, 144);
+  assert.equal(comparison.liquidate.storageCost, 36);
+  assert.equal(comparison.monthlySurcharge, 72);
+  assert.equal(comparison.liquidationRecovery, 160);
+  assert.equal(Math.round(comparison.asWritten.result.quote.total * 10), 14732);
+  assert.equal(Math.round(comparison.aged.result.quote.total * 10), 15452);
+  assert.equal(comparison.asWritten.result.winner, "3PL");
+  assert.equal(comparison.aged.result.winner, "3PL");
+  assert.equal(comparison.cheapestPath, "liquidate");
+  assert.equal(Math.round(comparison.monthsUntilSurchargeEatsRecovery * 100), 148);
+});
+
+test("aged storage sweep flips to in-house at three leftover pallets", () => {
+  const sweep = agedStorageSweep(agedPage);
+  const flip = agedStorageFlip(sweep);
+  assert.deepEqual(sweep.map((row) => row.leftoverPallets), [0, 1, 2, 3, 4]);
+  assert.equal(sweep[0].winner, "3PL");
+  assert.equal(sweep[2].winner, "3PL");
+  assert.equal(sweep[3].winner, "in-house");
+  assert.equal(flip.kind, "flips");
+  assert.equal(flip.leftoverPallets, 3);
+  assert.equal(Math.round(flip.gap), -31);
+  assert.match(agedStorageSummary(agedPage), /until 3 leftover pallets/);
+  assert.match(agedStorageSummary(agedPage), /\$72\.00 of that is the storage surcharge/);
+  assert.match(agedStorageSummary(agedPage), /1\.5 months/);
+});
+
+test("blank long-term storage doubles the fresh rate", () => {
+  const comparison = compareAgedStorage({ pallets: 2, leftoverPallets: 1, storagePerPallet: 20, longTermStoragePerPallet: "" });
+  assert.equal(comparison.longTermRate, 40);
+  assert.equal(comparison.aged.storageCost, 60);
+});
+
+test("leftover pallets cannot exceed stored pallets", () => {
+  const comparison = compareAgedStorage({ pallets: 2, leftoverPallets: 9, storagePerPallet: 10, longTermStoragePerPallet: 30 });
+  assert.equal(comparison.leftoverPallets, 2);
+  assert.equal(comparison.turningPallets, 0);
+  assert.equal(comparison.aged.storageCost, 60);
+  assert.equal(comparison.liquidate.storageCost, 0);
+});
+
+test("zero leftover matches the quote as written", () => {
+  const comparison = compareAgedStorage({ pallets: 4, leftoverPallets: 0, storagePerPallet: 18, longTermStoragePerPallet: 54 });
+  assert.equal(comparison.monthlySurcharge, 0);
+  assert.equal(comparison.aged.result.quote.total, comparison.asWritten.result.quote.total);
+  assert.equal(comparison.cheapestPath, "tie");
+  assert.match(agedStorageSummary({ pallets: 4, leftoverPallets: 0 }), /No leftover pallets/);
 });
 
 test("uses the first component when the quote is tied or empty", () => {
