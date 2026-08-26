@@ -122,6 +122,14 @@ test('counts a Standard Envelope comparison without storing postage or a claim r
   assert.deepEqual(Object.keys(stored).sort(), ['last_day', 'standard_envelope_compared']);
 });
 
+test('counts a combined-shipping comparison without storing postage or a charge', () => {
+  const storage = fakeStorage();
+  recordUsage(storage, false, 'combined_shipping_compared');
+  const stored = JSON.parse(storage.getItem('ebay-fee-usage'));
+  assert.equal(stored.combined_shipping_compared, 1);
+  assert.deepEqual(Object.keys(stored).sort(), ['combined_shipping_compared', 'last_day']);
+});
+
 test('counts the return-rate view without storing a rate or cost', () => {
   const storage = fakeStorage();
   recordUsage(storage, false, 'return_rate_viewed');

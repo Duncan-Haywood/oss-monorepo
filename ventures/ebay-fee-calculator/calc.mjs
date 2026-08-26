@@ -69,6 +69,14 @@ export const INPUT_FIELDS = [
   'trackedSellThroughPct',
   'envelopeSellThroughPct',
   'monthlyEnvelopeListings',
+  'combinedItemCount',
+  'combinedShippingCharged',
+  'combinedShippingCost',
+  'combinedPackagingCost',
+  'combinedReturnShippingCost',
+  'combinedFixedFee',
+  'combinedReturnRatePercent',
+  'monthlyCombinedOrders',
 ];
 
 export function calculateOrder(input) {
@@ -1384,4 +1392,250 @@ export function standardEnvelopeNote(comparison) {
     ? ` Claims have to stay at about ${comparison.breakEvenClaimRate.toFixed(1)}% before the envelope matches the tracked label.`
     : ' No claim rate on these postage figures can match the tracked label.';
   return `${trackedLine} ${envelopeLine}${claim}`;
+}
+
+/**
+ * Illustrative combined-shipping defaults. Two already-sold $40
+ * listings that each charged $6 postage still usually beat a $4
+ * “I’ll combine them cheap” invoice — the buyer-friendly discount
+ * gives away more shipping revenue than one box saves. Collecting
+ * $8 on the combined box is the one that still pays. Postage and
+ * the combined return rate are inputs, not eBay invoice policy.
+ */
+export const DEFAULT_COMBINED_ITEM_COUNT = 2;
+export const DEFAULT_COMBINED_SHIPPING_CHARGED = 8;
+export const DEFAULT_COMBINED_SHIPPING_COST = 6.5;
+export const DEFAULT_COMBINED_PACKAGING_COST = 1.25;
+export const DEFAULT_COMBINED_RETURN_SHIPPING_COST = 6.5;
+export const DEFAULT_COMBINED_FIXED_FEE = 0.3;
+export const DEFAULT_MONTHLY_COMBINED_ORDERS = 12;
+
+function combinedRow({
+  id,
+  label,
+  items,
+  shipments,
+  postageAndPack,
+  shippingCharged,
+  soldExpectedProfit,
+  completedProfit,
+  expectedProfit,
+}) {
+  return {
+    id,
+    label,
+    items,
+    shipments,
+    postageAndPack,
+    shippingCharged,
+    soldExpectedProfit,
+    completedProfit,
+    expectedProfit,
+    expectedProfitDelta: 0,
+  };
+}
+
+/**
+ * Same two (or N) already-sold listings, shipped as separate
+ * packages or as one combined box.
+ *
+ *   - Ship separately — N completed sales, N shipping charges, N
+ *     labels, N packs, N per-order fixed fees, N return exposures.
+ *     Item price and postage on the form are one listing.
+ *   - Combine into one box — one shipment. Combined shipping
+ *     charged, one label, one pack, and the typed combined fixed
+ *     fee (default one checkout). A return restocks every item in
+ *     the box and eats the one outbound plus the one return label.
+ *
+ * This is a fulfillment decision after the sales already closed.
+ * It is not lot-versus-singles (listing format before anyone
+ * buys) and not Standard Envelope (postage type on one item).
+ * Open eBay PRs still own promoted, store, Best Offer,
+ * international, and Managed Returns. Postage and the combined
+ * return rate are inputs, not eBay combined-invoice policy.
+ */
+export function compareCombinedShipping(input) {
+  const listedPrice = optionalNumber(input.price, 'Item price');
+  if (listedPrice === undefined) {
+    throw new Error('Item price must be a non-negative number');
+  }
+
+  const itemCount = requiredWholeCount(
+    input.combinedItemCount,
+    'Items already sold',
+    DEFAULT_COMBINED_ITEM_COUNT,
+  );
+  const combinedCharged = optionalNumber(
+    input.combinedShippingCharged,
+    'Combined shipping charged',
+    DEFAULT_COMBINED_SHIPPING_CHARGED,
+  );
+  const combinedShip = optionalNumber(
+    input.combinedShippingCost,
+    'Combined postage',
+    DEFAULT_COMBINED_SHIPPING_COST,
+  );
+  const combinedPack = optionalNumber(
+    input.combinedPackagingCost,
+    'Combined packaging',
+    DEFAULT_COMBINED_PACKAGING_COST,
+  );
+  const combinedReturnShip = optionalNumber(
+    input.combinedReturnShippingCost,
+    'Combined return postage',
+    DEFAULT_COMBINED_RETURN_SHIPPING_COST,
+  );
+  const combinedFixed = optionalNumber(
+    input.combinedFixedFee,
+    'Combined per-order fixed fee',
+    DEFAULT_COMBINED_FIXED_FEE,
+  );
+  const combinedReturnRate = requiredPercent(
+    input.combinedReturnRatePercent,
+    'Combined return rate',
+    optionalNumber(input.returnRatePercent, 'Expected return rate', 0),
+  );
+  const monthlyOrders = optionalNumber(
+    input.monthlyCombinedOrders,
+    'Monthly combined invoices',
+    DEFAULT_MONTHLY_COMBINED_ORDERS,
+  );
+
+  const costOfGoods = optionalNumber(input.costOfGoods, 'Cost of goods', 0);
+  const otherCost = optionalNumber(input.otherCost, 'Other cost', 0);
+  const separateSold = calculateOrder({ ...input, quantity: 1 });
+  const combinedSold = calculateOrder({
+    ...input,
+    quantity: 1,
+    price: listedPrice * itemCount,
+    costOfGoods: costOfGoods * itemCount,
+    otherCost: otherCost * itemCount,
+    shippingCharged: combinedCharged,
+    shippingCost: combinedShip,
+    packagingCost: combinedPack,
+    returnShippingCost: combinedReturnShip,
+    fixedFee: combinedFixed,
+    returnRatePercent: combinedReturnRate,
+  });
+
+  const separatePostage = (optionalNumber(input.shippingCost, 'Shipping cost', 0)
+    + optionalNumber(input.packagingCost, 'Packaging cost', 0)) * itemCount;
+  const separateCharged = optionalNumber(input.shippingCharged, 'Shipping charged', 0) * itemCount;
+  const separateExpected = separateSold.expectedProfit * itemCount;
+  const separateCompleted = separateSold.profit * itemCount;
+
+  const separate = combinedRow({
+    id: 'separate',
+    label: `Ship ${itemCount} separately`,
+    items: itemCount,
+    shipments: itemCount,
+    postageAndPack: separatePostage,
+    shippingCharged: separateCharged,
+    soldExpectedProfit: separateExpected,
+    completedProfit: separateCompleted,
+    expectedProfit: separateExpected,
+  });
+  const combined = combinedRow({
+    id: 'combined',
+    label: 'Combine into one box',
+    items: itemCount,
+    shipments: 1,
+    postageAndPack: combinedShip + combinedPack,
+    shippingCharged: combinedCharged,
+    soldExpectedProfit: combinedSold.expectedProfit,
+    completedProfit: combinedSold.profit,
+    expectedProfit: combinedSold.expectedProfit,
+  });
+  separate.expectedProfitDelta = separate.expectedProfit - combined.expectedProfit;
+  combined.expectedProfitDelta = combined.expectedProfit - separate.expectedProfit;
+
+  const winner = combined.expectedProfit > separate.expectedProfit + 1e-9
+    ? 'combined'
+    : combined.expectedProfit < separate.expectedProfit - 1e-9
+      ? 'separate'
+      : 'tie';
+
+  const combinedAtCharged = (shippingCharged) => calculateOrder({
+    ...input,
+    quantity: 1,
+    price: listedPrice * itemCount,
+    costOfGoods: costOfGoods * itemCount,
+    otherCost: otherCost * itemCount,
+    shippingCharged,
+    shippingCost: combinedShip,
+    packagingCost: combinedPack,
+    returnShippingCost: combinedReturnShip,
+    fixedFee: combinedFixed,
+    returnRatePercent: combinedReturnRate,
+  }).expectedProfit;
+  const atZeroCharged = combinedAtCharged(0);
+  const atTenCharged = combinedAtCharged(10);
+  const chargedSlope = (atTenCharged - atZeroCharged) / 10;
+  let breakEvenCombinedCharged = Infinity;
+  if (Math.abs(chargedSlope) > 1e-12) {
+    const needed = (separate.expectedProfit - atZeroCharged) / chargedSlope;
+    breakEvenCombinedCharged = needed < -1e-9 ? Infinity : needed;
+  }
+
+  const combinedAtPostage = (shippingCost) => calculateOrder({
+    ...input,
+    quantity: 1,
+    price: listedPrice * itemCount,
+    costOfGoods: costOfGoods * itemCount,
+    otherCost: otherCost * itemCount,
+    shippingCharged: combinedCharged,
+    shippingCost,
+    packagingCost: combinedPack,
+    returnShippingCost: combinedReturnShip,
+    fixedFee: combinedFixed,
+    returnRatePercent: combinedReturnRate,
+  }).expectedProfit;
+  const atZeroPostage = combinedAtPostage(0);
+  const atTenPostage = combinedAtPostage(10);
+  const postageSlope = (atTenPostage - atZeroPostage) / 10;
+  let breakEvenCombinedPostage = Infinity;
+  if (Math.abs(postageSlope) > 1e-12) {
+    const needed = (separate.expectedProfit - atZeroPostage) / postageSlope;
+    breakEvenCombinedPostage = needed < -1e-9 ? Infinity : needed;
+  }
+
+  return {
+    rows: [separate, combined],
+    separate,
+    combined,
+    winner,
+    itemCount,
+    combinedCharged,
+    combinedShip,
+    combinedPack,
+    combinedReturnShip,
+    combinedFixed,
+    combinedReturnRate,
+    monthlyOrders,
+    extraKeptOnCombined: combined.expectedProfit - separate.expectedProfit,
+    monthlyExtraOnCombined: (combined.expectedProfit - separate.expectedProfit) * monthlyOrders,
+    breakEvenCombinedCharged,
+    breakEvenCombinedPostage,
+    separateCompletedProfit: separateCompleted,
+    combinedCompletedProfit: combinedSold.profit,
+  };
+}
+
+export function combinedShippingNote(comparison) {
+  if (!comparison?.separate || !comparison?.combined) {
+    throw new Error('Combined-shipping comparison is missing rows');
+  }
+  const money = (value) => {
+    const sign = value < 0 ? '-' : '';
+    return `${sign}$${Math.abs(value).toFixed(2)}`;
+  };
+  const { separate, combined } = comparison;
+  const gap = money(Math.abs(combined.expectedProfit - separate.expectedProfit));
+  const ahead = combined.expectedProfit >= separate.expectedProfit ? 'more' : 'less';
+  const separateLine = `Shipping ${comparison.itemCount} separately, collecting ${money(separate.shippingCharged)} postage and paying ${money(separate.postageAndPack)} postage and pack, expects ${money(separate.expectedProfit)} after the typed return rate.`;
+  const combinedLine = `Combining into one box, collecting ${money(combined.shippingCharged)} and paying ${money(combined.postageAndPack)} postage and pack, expects ${money(combined.expectedProfit)} — ${gap} ${ahead}.`;
+  const charged = Number.isFinite(comparison.breakEvenCombinedCharged)
+    ? ` Combined shipping charged has to stay at about ${money(comparison.breakEvenCombinedCharged)} before one box matches separate labels.`
+    : ' No combined shipping charge on these postage figures can match separate labels.';
+  return `${separateLine} ${combinedLine}${charged}`;
 }
