@@ -50,6 +50,7 @@ test("figures named in schema.org featureList are actually rendered", () => {
     ["evidence-aware priority", /evidence/],
     ["private CSV review export", /csvForReview/],
     ["factual dispute draft", /disputeDraft/],
+    ["CSV invoice import with column mapping and a contract rate card", /buildImportedRows/],
   ];
   for (const [claim, pattern] of claims) {
     assert.match(featureList[1], new RegExp(claim.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")));
