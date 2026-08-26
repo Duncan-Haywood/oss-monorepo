@@ -713,6 +713,31 @@ export function relatedTools(surfaces, slug, limit = 4) {
  * unchanged when there is no `<body>` to attach to, or when the page has been
  * wrapped already — the pass has to be safe to run twice.
  */
+/**
+ * Whether a page already states an availability disclaimer in its own words.
+ *
+ * Several ventures word it themselves ("Hosted URLs, when they exist, carry no
+ * availability SLA"), and PRODUCT_PLAYBOOK 5b cares that the clause is present,
+ * not that it is phrased identically — so a page that has one is left alone
+ * rather than made to carry it twice.
+ */
+export const statesNoSla = (html) =>
+  /best-effort hosting|no (availability )?sla|carry no availability|taken offline without notice/i.test(html);
+
+// PRODUCT_PLAYBOOK 5b requires the no-SLA clause on every *hosted* surface. It
+// is injected rather than required of each venture because requiring it does not
+// hold: #1731 added the rule and fixed the pages that existed, and the suite went
+// red again within hours as new calculators landed without it — a calculator
+// lands on `main` most days. Injection covers each new one for free, and cannot
+// be forgotten.
+const NO_SLA_HTML = `    <p>
+      <strong>Best-effort hosting, no SLA.</strong> These tools are free and
+      experimental, and may be slow, broken, moved, or taken offline without
+      notice. We do not promise uptime, or backups of anything you type. Do not
+      use them as a system of record — if one matters to you,
+      <a href="https://github.com/Duncan-Haywood/monorepo-projects">run it yourself</a>.
+    </p>`;
+
 export function injectChrome(html, { slug, toRoot, total, related = [] }) {
   if (html.includes(CHROME_MARKER)) return html;
   const bodyOpen = html.match(/<body[^>]*>/i);
@@ -736,7 +761,7 @@ export function injectChrome(html, { slug, toRoot, total, related = [] }) {
   <div class="pf-inner">
     <h2>More free tools</h2>
     <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
-${links ? `    <ul>\n${links}\n    </ul>\n` : ''}    <p>
+${links ? `    <ul>\n${links}\n    </ul>\n` : ''}${statesNoSla(html) ? '' : `${NO_SLA_HTML}\n`}    <p>
       <a href="${escapeHtml(hub)}" data-pf-to="hub">Browse all ${total} free tools →</a>
       &nbsp;·&nbsp;
       <a href="https://github.com/sponsors/Duncan-Haywood">Sponsoring on GitHub</a>
