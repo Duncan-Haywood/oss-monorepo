@@ -3,13 +3,24 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import type { AggregateEvent, SaleEvent } from "@retail-pilot/schemas";
 
-export function withTempDb<T>(fn: (dbPath: string) => T): T {
+export function withTempDb<T>(fn: (dbPath: string) => T): T;
+export function withTempDb<T>(fn: (dbPath: string) => Promise<T>): Promise<T>;
+export function withTempDb<T>(fn: (dbPath: string) => T | Promise<T>): T | Promise<T> {
   const dir = mkdtempSync(join(tmpdir(), "analytics-test-"));
   const dbPath = join(dir, "pilot.db");
-  try {
-    return fn(dbPath);
-  } finally {
+  const cleanup = (): void => {
     rmSync(dir, { recursive: true, force: true });
+  };
+  try {
+    const result = fn(dbPath);
+    if (result instanceof Promise) {
+      return result.finally(cleanup);
+    }
+    cleanup();
+    return result;
+  } catch (error) {
+    cleanup();
+    throw error;
   }
 }
 
