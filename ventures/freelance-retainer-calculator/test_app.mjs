@@ -4,11 +4,13 @@ import {
   calculatePlan,
   comparePaymentTerms,
   compareRetainerUsage,
+  compareUnusedHourRollover,
   DRAFT_KEY,
   DISCLAIMER,
   formatArrearsComparison,
   formatCashFloatAdvice,
   formatProposalSummary,
+  formatRolloverAdvice,
   loadDraft,
   saveDraft,
 } from './app.js';
@@ -104,6 +106,65 @@ const floatSummary = formatProposalSummary({
 assert.match(floatSummary, /Invoice at month-end, Net 30/);
 assert.match(floatSummary, /\$15,600/);
 assert.match(floatSummary, /Unpaid extras drop below the floor after: 23 hours/);
+assert.match(floatSummary, /Unused-hour rollover:/);
+assert.match(floatSummary, /\$750/);
+
+const rollover = compareUnusedHourRollover(plan);
+assert.equal(rollover.month1Hours, 10);
+assert.equal(rollover.unusedHours, 10);
+assert.equal(rollover.month2NewHours, 20);
+assert.equal(rollover.bufferHours, 3);
+assert.equal(rollover.clauses.length, 3);
+const expire = rollover.clauses[0];
+assert.equal(expire.key, 'expire');
+assert.equal(expire.rolledHours, 0);
+assert.equal(expire.month2Hours, 20);
+assert.equal(expire.month2Effective, 86.25);
+assert.equal(expire.month2CoversFloor, true);
+assert.equal(expire.giftedCash, 0);
+const cap = rollover.clauses[1];
+assert.equal(cap.key, 'cap-buffer');
+assert.equal(cap.rolledHours, 3);
+assert.equal(cap.month2Hours, 23);
+assert.equal(cap.month2Effective, 75);
+assert.equal(cap.month2CoversFloor, true);
+assert.equal(cap.giftedCash, 225);
+const unlimited = rollover.clauses[2];
+assert.equal(unlimited.key, 'unlimited');
+assert.equal(unlimited.rolledHours, 10);
+assert.equal(unlimited.month2Hours, 30);
+assert.equal(unlimited.month2Effective, 57.5);
+assert.equal(unlimited.month2CoversFloor, false);
+assert.equal(unlimited.giftedHours, 10);
+assert.equal(unlimited.giftedCash, 750);
+assert.equal(unlimited.twoMonthHours, 40);
+assert.equal(unlimited.twoMonthRevenue, 3450);
+assert.equal(unlimited.twoMonthEffective, 86.25);
+assert.match(rollover.recommendation, /30 hours/);
+assert.match(rollover.recommendation, /57.5\/hr/);
+assert.match(rollover.recommendation, /3-hour buffer/);
+assert.match(formatRolloverAdvice(rollover, 'USD'), /\$750/);
+assert.match(formatRolloverAdvice(rollover, 'EUR'), /€750/);
+
+const fullUseRoll = compareUnusedHourRollover(plan, { month1Fraction: 1, month2Fraction: 1 });
+assert.equal(fullUseRoll.unusedHours, 0);
+assert.equal(fullUseRoll.clauses[2].rolledHours, 0);
+assert.match(fullUseRoll.recommendation, /nothing to roll/);
+
+const thinRoll = compareUnusedHourRollover({ rate: 100, retainer: 1800, retainerHours: 20 });
+assert.equal(thinRoll.bufferHours, 0);
+assert.equal(thinRoll.clauses[1].rolledHours, 0);
+assert.match(thinRoll.recommendation, /Expire unused hours/);
+
+const idleFirst = compareUnusedHourRollover(plan, { month1Fraction: 0, month2Fraction: 1 });
+assert.equal(idleFirst.month1Hours, 0);
+assert.equal(idleFirst.unusedHours, 20);
+assert.equal(idleFirst.clauses[2].month2Hours, 40);
+assert.equal(idleFirst.clauses[2].giftedCash, 1500);
+
+assert.throws(() => compareUnusedHourRollover({ rate: 0, retainer: 100, retainerHours: 10 }));
+assert.throws(() => compareUnusedHourRollover(plan, { month1Fraction: -1 }), /percentage from 0 to 200/);
+assert.throws(() => compareUnusedHourRollover(plan, { month2Fraction: 3 }), /percentage from 0 to 200/);
 
 const data = new Map();
 const storage = { setItem: (key, value) => data.set(key, value), getItem: (key) => data.get(key) || null };
