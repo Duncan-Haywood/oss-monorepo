@@ -365,6 +365,9 @@ test('every page the site serves is listed in some sitemap', async () => {
   const orphans = [];
   for (const page of await allPages(outDir)) {
     if (page === '404.html') continue;
+    // A page that tells crawlers not to index it is not expected in a sitemap;
+    // listing one would be asking for it to be indexed and then refusing.
+    if (/<meta name="robots" content="noindex">/.test(await read(page))) continue;
     const candidates = [`/${page}`];
     if (page.endsWith('/index.html')) candidates.push(`/${page.slice(0, -'index.html'.length)}`);
     if (page === 'index.html') candidates.push('/');

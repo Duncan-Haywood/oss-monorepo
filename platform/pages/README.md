@@ -166,6 +166,16 @@ Only one workflow may publish to Pages. `retail-pilot-intel-deploy-docs.yml`
 reads `RETAIL_PILOT_INTEL_PAGES` instead, so an owner who wants those docs on
 the origin makes that choice explicitly rather than having two deployments race.
 
+The same applies to `pages.yml`, a **second portfolio site** built independently
+the same day (`platform/ci/build_pages_site.py`). It deployed on the same
+`GITHUB_PAGES_ENABLED` flip from a different concurrency group, so the flip
+would have started two deployments of two different sites to the one origin and
+the live site would have flapped between them on every merge. Its deploy now
+reads `PORTFOLIO_PAGES_PY`, both workflows share the `github-pages-origin`
+concurrency group, and its build and checks still run on every push. Nothing
+about it is deleted — to publish that site instead, set `PORTFOLIO_PAGES_PY` and
+unset `GITHUB_PAGES_ENABLED`. Never both.
+
 ## Rollback
 
 The site is rebuilt from `main` on every push and holds no state — no database,

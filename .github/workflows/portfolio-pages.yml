@@ -28,8 +28,11 @@ on:
 # GitHub serves one Pages site per repository, so two deployments must never
 # race. `cancel-in-progress: false` lets an in-flight publish finish rather
 # than leaving the live site half-swapped.
+# Shared with `pages.yml`, which builds a second implementation of this site.
+# GitHub serialises by group name, so one group is what stops two workflows
+# deploying to the one Pages origin at the same time.
 concurrency:
-  group: portfolio-pages
+  group: github-pages-origin
   cancel-in-progress: false
 
 permissions:

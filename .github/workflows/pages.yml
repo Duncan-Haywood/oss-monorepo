@@ -19,6 +19,27 @@
 #
 # The build job runs unconditionally so that a broken site build is a red check
 # on the PR that broke it, whether or not Pages is switched on yet.
+#
+# 2026-08-26: this workflow no longer deploys.
+# ---------------------------------------------------------------------------
+# Two sessions independently built a portfolio Pages site the same day: this one
+# (`platform/ci/build_pages_site.py`, #1720-era) and `portfolio-pages.yml`
+# (`platform/pages/build.mjs`, #1718). Both deployed on a push to `main` behind
+# the same `GITHUB_PAGES_ENABLED` flip, from *different* concurrency groups — so
+# the flip everyone is waiting on would have started two deployments of two
+# different sites to the one origin GitHub gives a repository. They would have
+# raced on every merge, and the live site would have flapped between them.
+#
+# Neither implementation is discarded. The deploy is kept on the Node build
+# because it is the superset — same automatic discovery, plus cross-tool
+# navigation, offline support, an offline/404 fallback, link repair, and the
+# artifact checks — and because `asks.yaml`, `portfolio/DIRECTION.md` and
+# `platform/pages/README.md` all describe that artifact as what the queued
+# `deploy-settings` flip publishes.
+#
+# This build and its checks still run on every push and PR, so a break here is
+# still a red check. To publish THIS site instead, set `PORTFOLIO_PAGES_PY` to
+# `true` and unset `GITHUB_PAGES_ENABLED` — never both at once.
 
 name: Deploy portfolio Pages site
 
@@ -40,8 +61,12 @@ on:
 
 # Pages allows one deployment at a time. Do not cancel a running publish --
 # an interrupted deploy can leave the live site on a half-uploaded artifact.
+#
+# The group is shared with `portfolio-pages.yml` on purpose: GitHub serialises
+# by group name, and two groups both deploying to the one Pages origin is how
+# the live site ends up half from one build and half from the other.
 concurrency:
-  group: pages-deploy
+  group: github-pages-origin
   cancel-in-progress: false
 
 permissions:
@@ -85,9 +110,12 @@ jobs:
     needs: build
     # Never publish from a pull request: a PR build is untrusted code, and a
     # fork PR must not be able to overwrite the live site.
+    # See the note at the top of this file: the origin is published by
+    # `portfolio-pages.yml`. This job is the deliberate opt-in to publishing the
+    # Python-built site instead, and must never be on at the same time.
     if: >-
       github.event_name != 'pull_request' &&
-      vars.GITHUB_PAGES_ENABLED == 'true'
+      vars.PORTFOLIO_PAGES_PY == 'true'
     runs-on: ubuntu-latest
     permissions:
       pages: write

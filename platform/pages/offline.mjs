@@ -208,6 +208,9 @@ export function renderOfflinePage(baseUrl) {
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Offline</title>
+  <!-- A fallback shell, not a destination. Indexed, it would put "You're
+       offline" in a search result for a calculator. -->
+  <meta name="robots" content="noindex">
   <meta name="theme-color" content="${THEME_COLOR}">
   <style>
     body { font-family: system-ui, sans-serif; max-width: 40rem; margin: 12vh auto;
