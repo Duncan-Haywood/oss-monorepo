@@ -66,6 +66,7 @@ test("inputs and result fields for the primary journey are present", () => {
     "returnRatePct", "returnsCompare", "returnsNote",
     "leftoverUnits", "agedCompare", "agedNote",
     "acosPct", "adsCompare", "adsNote",
+    "holdTakePct", "matchTakeCompare", "matchTakeNote",
   ]) {
     assert.ok(declaredIds.has(id), `#${id} is missing from index.html`);
   }
@@ -108,4 +109,11 @@ test("the Walmart Connect ads table is wired to the comparison", () => {
   assert.match(scriptSource, /walmartAdsNote/);
   assert.match(scriptSource, /ads_compared/);
   assert.match(markup, /should-i-run-walmart-connect-ads\.html/);
+});
+
+test("the Buy Box match-take table is wired to the comparison", () => {
+  assert.match(scriptSource, /compareMatchTake/);
+  assert.match(scriptSource, /matchTakeNote/);
+  assert.match(scriptSource, /match_take_compared/);
+  assert.match(markup, /should-i-match-the-walmart-buy-box\.html/);
 });
