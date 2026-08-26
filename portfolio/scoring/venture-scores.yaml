@@ -4674,3 +4674,39 @@ ventures:
       refrigerant-handling determination. Starting head-type and story
       factors are labelled ballpark starting points rather than a standard,
       and nothing the user enters leaves the browser.
+  - slug: solar-pv-bid-calculator
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 7
+      gross_margin: 10
+      defensibility: 5
+      distribution: 7
+    composite: 6.667
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      There is no AI anywhere in the product. The value is a domain model —
+      roof-difficulty labor and electrical extras that a dollars-per-watt
+      quote hides — that is arithmetic, and adding inference to it would only
+      make the result less checkable.
+    basis: >-
+      Graduated on 2026-08-25 as a browser-local solar PV install bid
+      calculator. Distinct from roofing (squares and tear-off), EV-charger
+      (a branch circuit), standby-generator (transfer switch, pad, and fuel),
+      and water-heater replacement. Defensibility 5: incumbents are paid
+      proposal suites or ad-funded $/W pages, not a free cost stack that
+      keeps roof factor and panel upgrades off the watt. Distribution 7:
+      "how much to charge to install solar panels" and "solar installer bid
+      calculator" are lower-volume than marketplace-fee queries but bought
+      by an operator with a real job on the line.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Pass: the output is arithmetic on the installer's own inputs, never a
+      recommended price, a code determination, an interconnection approval,
+      or an incentive calculation. Starting roof factors are labelled
+      ballpark starting points rather than a standard, and nothing the user
+      enters leaves the browser.
