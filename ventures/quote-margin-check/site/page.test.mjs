@@ -132,6 +132,14 @@ test("sitemap and robots advertise the cost-rise page", async () => {
   assert.match(robots, /Sitemap: sitemap\.xml/);
 });
 
+test("calculator page copies a proposal-ready review summary", async () => {
+  const page = await readFile(new URL("./index.html", import.meta.url), "utf8");
+  assert.match(page, /id="copy-summary"/);
+  assert.match(page, /formatReviewSummary/);
+  assert.match(page, /review_summary_copied/);
+  assert.match(page, /Copy review summary/);
+});
+
 test("calculator page renders the fixed-vs-hourly comparison and records the event", async () => {
   const page = await readFile(new URL("./index.html", import.meta.url), "utf8");
   assert.match(page, /id="billing"/);

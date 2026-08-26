@@ -313,6 +313,7 @@
       <div class="result" id="review" aria-live="polite"><strong>Before you send it</strong><ul class="checks"></ul></div>
 
     <div class="actions">
+      <button type="button" id="copy-summary">Copy review summary</button>
       <button type="button" id="copy-csv">Copy as CSV</button>
       <button type="button" id="download-csv">Download CSV</button>
       <span id="copy-status" class="hint" role="status" aria-live="polite"></span>
@@ -367,7 +368,8 @@
       See <a href="should-i-take-this-kill-fee-or-finish.html">should I take this kill fee or finish</a>.
     </p>
     <p>
-      Copy or download the current review as a spreadsheet-safe CSV. Currency
+      Copy a plain-text review summary for an email or proposal note, or
+      copy or download the current review as a spreadsheet-safe CSV. Currency
       labels with commas or quotes stay in one cell, and the file includes
       the time-overrun, cost-rise, discount-ask, fixed-vs-hourly, and kill-fee rows shown
       above. Prefer the command line, or need to batch several quotes?
@@ -422,6 +424,7 @@
 <script type="module">
   import { loadQuote, calculate, overrunScenarios, directCostSpikeScenarios, directCostSpikeSummary, discountAskScenarios, discountAskSummary, compareBillingModels, billingModelNote, loadKillFeeProgress, compareKillFee, killFeeSummary } from "./calc.mjs";
   import { quoteCsv } from "./export.mjs";
+  import { formatReviewSummary } from "./summary.mjs";
   import { reviewQuote } from "./review.mjs";
   import { recordEvent, createReportCounter, isUsageCountingEnabled, setUsageCountingEnabled } from "./usage.mjs";
 
@@ -579,9 +582,25 @@
     });
   }
 
+  const summaryBtn = document.getElementById("copy-summary");
   const copyBtn = document.getElementById("copy-csv");
   const downloadBtn = document.getElementById("download-csv");
   const copyStatus = document.getElementById("copy-status");
+  summaryBtn.addEventListener("click", async () => {
+    if (!lastReport) {
+      copyStatus.textContent = "Fix the inputs above first.";
+      return;
+    }
+    const { quote, r } = lastReport;
+    const summary = formatReviewSummary(quote, r, reviewQuote(quote, r));
+    try {
+      await navigator.clipboard.writeText(summary);
+      copyStatus.textContent = "Copied — paste into an email or proposal note.";
+      recordEvent("review_summary_copied");
+    } catch {
+      copyStatus.textContent = "Couldn't access the clipboard in this browser.";
+    }
+  });
   copyBtn.addEventListener("click", async () => {
     if (!lastReport) {
       copyStatus.textContent = "Fix the inputs above first.";

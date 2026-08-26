@@ -34,7 +34,11 @@ escaping for currency labels containing commas, quotes, or line breaks, so you
 can append results from several proposals to a spreadsheet without retyping
 calculations. The browser Copy / Download buttons emit the same columns plus
 the time-overrun, cost-rise, discount-ask, and kill-fee rows already on the
-page.
+page. The browser can also copy a plain-text review summary for an email or
+proposal note. It includes the quote's arithmetic, the supplied target
+comparison, and only attention-level review observations. Copying the summary
+records an anonymous `review_summary_copied` event locally; quote values are
+never stored in that event or sent anywhere.
 Batch CSV emits one comparison row per filename, making a folder of recurring
 proposal reviews easy to sort and filter without exposing the proposal data.
 When a quote clears the supplied target, `discount_room` shows the arithmetic
@@ -113,7 +117,8 @@ what makes it comparable to the CLI's own count. The browser also counts
 `discount_ask_compared` when the discount-ask table is computed, and
 `kill_fee_compared` when the mid-project cancel table is computed, and
 `billing_model_compared` when the fixed-vs-hourly table is computed. CSV copy
-and download events happen only when the user invokes those actions. The
+and download events happen only when the user invokes those actions. Copying
+the review summary records `review_summary_copied` the same way. The
 export contains the same arithmetic report as the page and quotes currency
 labels safely for spreadsheet import. It stores no quote values and sends
 nothing anywhere.
