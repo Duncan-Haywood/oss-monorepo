@@ -250,6 +250,13 @@ test('the handoff links are built as nodes, never as markup', () => {
   assert.match(render, /textContent/);
 });
 
+test('Download comparison CSV is wired to the calculated results', () => {
+  assert.match(html, /id="downloadCsv"/);
+  assert.match(scriptSource, /import \{ comparisonCsv \} from "\.\/export\.mjs"/);
+  assert.match(scriptSource, /comparison_csv_downloaded/);
+  assert.match(scriptSource, /comparisonCsv\(comparison\)/);
+});
+
 test('following a handoff is counted, and honours the opt-out', () => {
   const render = html.slice(html.indexOf('function renderContinue'), html.indexOf('function update()'));
   assert.match(render, /recordUsage\(localStorage, optedOut\(\), `handoff_\$\{offer\.channel\}`\)/,

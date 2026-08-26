@@ -68,6 +68,12 @@ only the numeric assumptions and channel settings needed to reproduce the table;
 it does not include local usage counts or browser-saved data. Anyone with the
 link can read those assumptions, so do not include confidential costs.
 
+Use **Download comparison CSV** to take the ranked table into a spreadsheet.
+The file has one row per compared channel and includes fees, keep, expected
+keep after returns, monthly keep, days to sell, profit per day, and the
+break-even / match-the-leader prices. It is calculated results only — not
+your saved usage counts.
+
 ### Reading the table
 
 Alongside net profit and margin, each channel reports two figures that answer
@@ -239,7 +245,7 @@ device.
 The optional usage counter records only an event name (`comparison_calculated`,
 `channel_rates_edited`, `channel_toggled`, `subscription_toggled`,
 `channel_volume_edited`, `returns_compared`, `shelf_time_compared`,
-`share_link_copied`, `handoff_ebay`, `handoff_etsy`) and the
+`share_link_copied`, `comparison_csv_downloaded`, `handoff_ebay`, `handoff_etsy`) and the
 current day, in the visitor's own `localStorage`. It never records inputs, it
 never leaves the device, it is off for anyone sending Do Not Track or Global
 Privacy Control, and the footer checkbox turns it off and discards what was
