@@ -902,6 +902,19 @@ products:
           assertions lived in `test_app.mjs`, which `node --test` does not
           match, so they had never run anywhere. Public URL remains
           owner-gated.
+  - slug: metal-roof-bid-calculator
+    surface: static-page-in-repo
+    readings:
+      - as_of: 2026-08-25
+        signals:
+          live_url_visitors: null
+          local_calculation_events: 0
+          summary_copies: 0
+        note: >-
+          Shipped a zero-dependency browser calculator for metal-roofing
+          crews to price standing-seam and exposed-fastener jobs from panel
+          squares, tear-off, stories, and trim. Public URL remains
+          owner-gated; counters are local, aggregate, and opt-out.
   - slug: flat-roof-bid-calculator
     surface: static-page-in-repo
     readings:
