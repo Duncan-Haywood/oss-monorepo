@@ -82,6 +82,10 @@ crawlable explainer lives at
 A worked example of the overbooking table lives on
 [`should-i-overbook-or-charge-a-no-show-fee.html`](should-i-overbook-or-charge-a-no-show-fee.html).
 
+Use **Download .txt** to save the generated policy as a plain-text file for your
+booking system, client agreement, or records. The download is created locally
+in your browser; no policy text is uploaded.
+
 ## Disclaimer
 
 **No warranty.** This tool is provided free and as-is, without warranty of
