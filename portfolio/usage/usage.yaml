@@ -58,19 +58,21 @@ products:
           two_day_compared: 0
           returns_compared: 0
           aged_wfs_compared: 0
+          ads_compared: 0
         note: >-
           Salvage of unique #1507 Walmart Marketplace WFS vs seller-fulfilled
           profit calculator onto current main, plus the 2-day vs WFS take-rate
-          table, the returns mix, and leftover keep vs remove vs dispose:
-          category referral including the per-item floor, size-tier WFS
-          fulfillment, storage, inbound, the seller-paid label, max buy cost,
-          whether a competitive match still profits, whether a
-          seller-fulfilled 2-day label still beats WFS after take rate,
-          whether WFS still beats seller fulfilled after a refund mix, and
-          whether leftover units already inbound still beat a removal after
-          aged storage. Public URL remains owner-gated; the local-first
-          counter reports only to the user's own browser and is opt-out.
-          Baseline row.
+          table, the returns mix, leftover keep vs remove vs dispose, and
+          Walmart Connect skip vs Sponsored Products: category referral
+          including the per-item floor, size-tier WFS fulfillment, storage,
+          inbound, the seller-paid label, max buy cost, whether a competitive
+          match still profits, whether a seller-fulfilled 2-day label still
+          beats WFS after take rate, whether WFS still beats seller fulfilled
+          after a refund mix, whether leftover units already inbound still
+          beat a removal after aged storage, and whether extra ad units cover
+          last-click ACOS on organic sales. Public URL remains owner-gated;
+          the local-first counter reports only to the user's own browser and
+          is opt-out. Baseline row.
   - slug: faire-wholesale-calculator
     surface: static-page-in-repo
     readings:
@@ -767,6 +769,22 @@ products:
           subscription amortisation and the price each channel needs to match
           the best. Public URL remains owner-gated; the local-first counter
           reports only to the user's own browser and is opt-out. Baseline row.
+      - as_of: 2026-08-26
+        signals:
+          live_url_visitors: null
+          local_events_reported: 0
+        note: >-
+          Added the shelf-time ranking: the same channels ranked on what one
+          listing is worth per 30 days once sell-through, time to sale,
+          renewal listing fees and the cash tied up are counted, alongside the
+          existing keep ranking. On the shipped defaults the two disagree —
+          Etsy keeps $3.36 more per sale than eBay and earns about a third as
+          much per month of shelf — which is the finding the fee table could
+          not show. New signal `shelf_time_compared` fires only when a seller
+          edits a shelf-time input, so adoption of the turnover view is
+          separable from ordinary fee use; event name and day only, opt-out,
+          DNT/GPC honoured, never leaves the browser. Public URL still
+          owner-gated, so this stays a zero baseline.
   - slug: no-show-fee-calculator
     surface: static-page-in-repo
     readings:
@@ -1253,6 +1271,20 @@ products:
           on weekday (after-hours walk-away $82,728.95). Public URL
           remains owner-gated; local event access_compared is
           opt-out and stores no inputs.
+  - slug: plantation-shutter-bid-calculator
+    surface: static-page-in-repo
+    readings:
+      - as_of: 2026-08-25
+        signals:
+          live_url_visitors: null
+          local_events_reported: 0
+        note: >-
+          Shipped a local plantation shutter bid calculator (openings,
+          inside vs outside mount, paint-grade vs stain-grade, hang vs
+          measure vs template-and-custom, removal/bypass/café extras,
+          copyable proposal summary). Public URL remains owner-gated;
+          the local-first counter reports only to the user's own browser
+          and is opt-out. Baseline row.
   - slug: freelance-retainer-calculator
     surface: static-page-in-repo
     readings:
@@ -1393,6 +1425,29 @@ products:
           (single vs dual swing vs slide, columns, loops, solar vs AC).
           Public URL remains owner-gated; counters are local, aggregate,
           and opt-out.
+
+# Example of the shape, once a product has shipped:
+#
+# products:
+#   - slug: example-product
+#     surface: github-pages
+#     readings:
+#       - as_of: 2026-08-24
+#         signals:
+#           repo_views_14d: 0
+#           release_downloads_total: 0
+#         note: Shipped today; baseline reading.
+  - slug: crawl-space-encapsulation-bid-calculator
+    surface: static-page-in-repo
+    readings:
+      - as_of: 2026-08-25
+        signals:
+          live_url_visitors: null
+          local_events_reported: 0
+        note: >-
+          Shipped a local crawl space encapsulation bid calculator with
+          liner-and-access math, three-scope comparison, and a copyable
+          proposal summary; public URL remains owner-gated.
 
 # Example of the shape, once a product has shipped:
 #
