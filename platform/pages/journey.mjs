@@ -13,19 +13,57 @@
 //   # or against production:
 //   BASE_URL=https://duncan-haywood.github.io/monorepo-projects node platform/pages/journey.mjs
 //
-// PLAYWRIGHT overrides the module path when Playwright is installed globally
-// rather than beside this repo.
+// Serve it under a `/monorepo-projects/` prefix when you want the local run to
+// mirror the deployment, because some defects only exist at a path:
+//
+//   mkdir -p sp && cp -r dist sp/monorepo-projects
+//   python3 -m http.server 8793 --directory sp &
+//   BASE_URL=http://localhost:8793/monorepo-projects node platform/pages/journey.mjs
+//
+// A browser with no declared icon asks the ORIGIN root for `/favicon.ico`, so
+// served from `/` a missing icon link is masked by the `favicon.ico` this build
+// writes, and served from `/monorepo-projects/` it is not -- which is the shape
+// GitHub Pages actually serves. Run both.
+//
+// PLAYWRIGHT overrides the module path when Playwright is installed somewhere
+// other than beside this repo. CHROME_PATH reuses a Chromium already on the
+// machine when its build number does not match the installed Playwright, rather
+// than downloading a second browser to sit beside a working one.
 
-const { chromium } = await import(process.env.PLAYWRIGHT || 'playwright');
+// Playwright ships CommonJS, so a PLAYWRIGHT that names its entry *file*
+// resolves the exports under `.default`, while a bare specifier on the
+// resolution path gives them directly. Accept either, and say which it is when
+// neither resolves -- the previous destructure failed with an unhelpful
+// "cannot read properties of undefined" on the documented file-path form.
+const playwright = await import(process.env.PLAYWRIGHT || 'playwright');
+const chromium = playwright.chromium ?? playwright.default?.chromium;
+if (!chromium) {
+  console.error('Could not load Playwright. Set PLAYWRIGHT to its entry point, ' +
+    'e.g. PLAYWRIGHT=./node_modules/playwright/index.js');
+  process.exit(2);
+}
 
 const BASE = (process.env.BASE_URL || 'http://localhost:8793').replace(/\/$/, '');
 
 const errors = [];
-const browser = await chromium.launch();
+const browser = await chromium.launch(
+  process.env.CHROME_PATH ? { executablePath: process.env.CHROME_PATH } : {});
 const page = await browser.newPage();
 page.on('pageerror', (e) => errors.push(`pageerror: ${e.message}`));
 page.on('console', (m) => {
   if (m.type() === 'error') errors.push(`console: ${m.text()}`);
+});
+page.on('requestfailed', (r) => errors.push(`requestfailed: ${r.url()}`));
+
+// Every product here is offline-capable by design: no CDN, no font host, no
+// analytics beacon. The hub says so in as many words ("everything runs in your
+// browser, and nothing you type is uploaded"), which makes an off-origin
+// request a broken promise rather than a performance note -- so it is collected
+// and asserted on rather than ignored.
+const ORIGIN = new URL(BASE).origin;
+const offOrigin = [];
+page.on('request', (r) => {
+  if (!r.url().startsWith(ORIGIN) && !r.url().startsWith('data:')) offOrigin.push(r.url());
 });
 
 let failures = 0;
@@ -150,21 +188,36 @@ check('sitemap index lists a child per venture', children.length >= 30, `${child
 const PRODUCTION = 'https://duncan-haywood.github.io/monorepo-projects';
 const local = (url) => (url.startsWith(PRODUCTION) ? BASE + url.slice(PRODUCTION.length) : url);
 
+// Every sitemap, not a sample -- and every URL fetched rather than
+// pattern-matched. A loc can be absolute, free of repo paths, and still 404,
+// which is the only thing a crawler actually cares about.
 let badLocs = 0;
-let sampled = 0;
-for (const child of children.slice(0, 8)) {
+let checked = 0;
+const dead = [];
+for (const child of children) {
   const xml = await (await page.request.get(local(child))).text();
   for (const loc of [...xml.matchAll(/<loc>([^<]+)<\/loc>/g)].map((m) => m[1])) {
-    sampled += 1;
-    if (!/^https?:\/\//.test(loc) || loc.includes('/ventures/')) badLocs += 1;
+    checked += 1;
+    if (!/^https?:\/\//.test(loc) || loc.includes('/ventures/')) { badLocs += 1; continue; }
+    const res = await page.request.get(local(loc));
+    if (!res.ok()) dead.push(`${loc} -> ${res.status()}`);
   }
 }
-check('sampled sitemap URLs are absolute and repo-path-free',
-  badLocs === 0 && sampled > 0, `${badLocs} bad of ${sampled} sampled`);
+check('every sitemap URL is absolute and repo-path-free',
+  badLocs === 0 && checked > 0, `${badLocs} bad of ${checked}`);
+check(`all ${checked} sitemap URLs resolve`, dead.length === 0, dead.slice(0, 5).join(' | '));
 
 // 8. 404.
+//    This step deliberately provokes errors -- the 404 itself, and on a plain
+//    static server a bare error page with no icon link, which sends the browser
+//    after `/favicon.ico` at the origin root and 404s again. Both belong to this
+//    navigation, so everything it raises is excised by position rather than by
+//    filtering 404s everywhere, which is what let a real one hide for weeks.
+const beforeNotFound = errors.length;
 const notFound = await page.goto(`${BASE}/no-such-page-here`, { waitUntil: 'domcontentloaded' });
 check('unknown path returns 404', notFound.status() === 404, String(notFound.status()));
+await page.waitForTimeout(300); // let the icon fallback land before the cut
+const deliberate = errors.splice(beforeNotFound, errors.length - beforeNotFound);
 
 // 9. Mobile.
 await page.setViewportSize({ width: 375, height: 720 });
@@ -176,7 +229,18 @@ check('no horizontal overflow at 375px', overflow <= 0, `overflow ${overflow}px`
 await browser.close();
 
 // The deliberate 404 above is the only expected console error.
-const realErrors = errors.filter((e) => !/404/.test(e));
+// `errors` no longer contains anything the deliberate 404 step raised, so what
+// is left is unexpected by construction. The previous `!/404/.test(e)` filter
+// dropped every 404 anywhere in the run -- which is how every page shipped with
+// a failing `/favicon.ico` on load until #1746, with this harness green
+// throughout.
+const realErrors = errors;
+if (deliberate.length) {
+  console.log(`\n(${deliberate.length} error(s) from the deliberate 404 step, ignored)`);
+}
+check('no off-origin request was made', offOrigin.length === 0, offOrigin.slice(0, 3).join(' | '));
+check('no unexpected page, console, or resource error', realErrors.length === 0,
+  realErrors.slice(0, 3).join(' | '));
 console.log(`\n${failures} failed check(s), ${realErrors.length} page/console error(s)`);
 for (const e of realErrors.slice(0, 10)) console.log(`  ${e}`);
 if (failures || realErrors.length) process.exitCode = 1;

@@ -387,16 +387,35 @@ def check(rows) -> list[str]:
     return problems
 
 
-# `vars.NAME` / `vars['NAME']` inside an `if:` expression.
-_VARS_REF = re.compile(r"vars\s*(?:\.\s*([A-Za-z_]\w*)|\[\s*['\"]([A-Za-z_]\w*)['\"]\s*\])")
+# `vars.NAME` / `vars['NAME']` / `secrets.NAME` inside an `if:` expression.
+#
+# Secrets count alongside variables because the question this answers is "what
+# one owner action arms this deploy", and a job gated on `secrets.X != ''` is
+# armed by pasting that secret. Reading only `vars.` reported such a workflow as
+# *ungated* -- the right verdict for the wrong reason, and the message then told
+# the reader to add a gate the workflow already had.
+_OWNER_SWITCH_REF = re.compile(
+    r"(?:vars|secrets)\s*(?:\.\s*([A-Za-z_]\w*)|\[\s*['\"]([A-Za-z_]\w*)['\"]\s*\])"
+)
+
+# Every action that replaces this repository's one Pages site. A subset of
+# PUBLISH_ACTIONS, and it has to stay in step with it: matching only
+# `actions/deploy-pages` left the invariant blind to a workflow that deployed
+# with `peaceiris/actions-gh-pages` instead, which is the same single-instance
+# resource reached by a different name.
+PAGES_DEPLOY_ACTIONS = (
+    "actions/deploy-pages",
+    "JamesIves/github-pages-deploy-action",
+    "peaceiris/actions-gh-pages",
+)
 
 
 def pages_deploy_gates(rows) -> dict[str, set[str]]:
     """
     Workflows that publish the repository's GitHub Pages site, mapped to the set of
-    owner-set `vars.*` names that gate them.
+    owner-set `vars.*` / `secrets.*` names that gate them.
 
-    A workflow with no gating variable maps to the empty set: nothing has to be
+    A workflow with no gating switch maps to the empty set: nothing has to be
     switched on for it to publish.
     """
     found = {}
@@ -404,11 +423,14 @@ def pages_deploy_gates(rows) -> dict[str, set[str]]:
         gates = set()
         deploys = False
         for step in row.get("publishes") or []:
-            if "actions/deploy-pages" not in (step.get("step") or ""):
+            marker = step.get("step") or ""
+            if not any(action in marker for action in PAGES_DEPLOY_ACTIONS):
                 continue
             deploys = True
             for gate in step.get("gates") or []:
-                gates.update(name for pair in _VARS_REF.findall(str(gate)) for name in pair if name)
+                gates.update(
+                    name for pair in _OWNER_SWITCH_REF.findall(str(gate)) for name in pair if name
+                )
         if deploys:
             found[row["workflow"]] = gates
     return found
@@ -442,7 +464,7 @@ def check_single_pages_deployer(rows) -> list[str]:
     ungated = sorted(w for w, v in gated.items() if not v)
     if ungated and len(gated) > 1:
         problems.append(
-            "these workflows deploy GitHub Pages with no owner-set variable gating them: "
+            "these workflows deploy GitHub Pages with no owner-set variable or secret gating them: "
             + ", ".join(ungated)
             + ". With another deployer present they can publish over each other unbidden."
         )
@@ -455,7 +477,7 @@ def check_single_pages_deployer(rows) -> list[str]:
     for name, workflows in sorted(by_var.items()):
         if len(workflows) > 1:
             problems.append(
-                f"setting vars.{name} would arm {len(workflows)} GitHub Pages deployments: "
+                f"setting {name} would arm {len(workflows)} GitHub Pages deployments: "
                 + ", ".join(sorted(workflows))
                 + ". The repository has one Pages site, so they would race on every push and "
                 "the live site would be whichever finished last. Exactly one workflow may keep "

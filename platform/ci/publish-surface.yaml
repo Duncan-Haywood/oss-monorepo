@@ -163,6 +163,9 @@ workflows:
 - workflow: invoice-payment-terms-calculator-ci.yml
   classification: none
   publishes: []
+- workflow: irrigation-install-bid-calculator-ci.yml
+  classification: none
+  publishes: []
 - workflow: janitorial-bid-calculator-ci.yml
   classification: none
   publishes: []
