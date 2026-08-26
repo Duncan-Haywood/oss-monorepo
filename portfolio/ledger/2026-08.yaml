@@ -23491,3 +23491,37 @@ entries:
         reasoning the nav chrome already used and which a fourth session
         reached independently.
     mrr_end: null
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Closed two blind spots in the one-Pages-deployer invariant #1735 added.
+        It matched the literal string `actions/deploy-pages`, so a workflow
+        deploying with `peaceiris/actions-gh-pages` or
+        `JamesIves/github-pages-deploy-action` -- the same single Pages site
+        reached by a different name, and both already listed in
+        `PUBLISH_ACTIONS` -- was invisible to it, and the race #1735 had just
+        resolved could come back with nothing turning red. It also read only
+        `vars.*`, so two deploys sharing a `secrets.X != ''` gate were reported
+        as ungated: the right verdict for the wrong reason, with a message
+        telling the reader to add a gate both workflows already had. Both
+        reproduced against `main` first, then fixed. A test now asserts that
+        every Pages-deploying action `PUBLISH_ACTIONS` recognises is one the
+        invariant checks, so the two lists cannot drift apart again.
+      - >-
+        Learned what this fleet's cadence costs when the overlap gate is
+        skipped, by paying it three times in one session. Set out to build the
+        Pages hub, found #1718 already ahead mid-run, and discarded a complete
+        working builder rather than open a fourth competing PR. Rewrote the
+        work as a consolidation of the duplicate publishers -- and #1735 landed
+        that, with an equivalent invariant, before it could merge. Rewrote
+        again as three doc and guard fixes; by the next fetch `main` had fixed
+        the docs, the committed conflict markers in this ledger and in
+        `cut-list-optimizer/VENTURE.yaml`, and three separate calculators
+        missing their no-SLA clause. Four independent Pages hubs were written
+        for the same ~30 calculators on 2026-08-26 (#1718, #1723, #1724, and
+        this session's discarded first attempt). What shipped here is only what
+        `main` genuinely still lacked, re-checked against a fresh fetch
+        immediately before pushing rather than asserted from an earlier read.
+    mrr_end: null
