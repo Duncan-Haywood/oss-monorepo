@@ -101,3 +101,27 @@ test("is a no-op without storage", () => {
   assert.doesNotThrow(() => recordUsage(undefined, false));
   assert.doesNotThrow(() => recordUsage(null, false));
 });
+
+test("recovers from corrupt local usage data", () => {
+  const storage = {
+    getItem: () => "not-json",
+    setItem: (key, value) => {
+      storage.value = JSON.parse(value);
+    },
+  };
+  assert.doesNotThrow(() => recordUsage(storage, false));
+  assert.equal(storage.value.listing_profit_calculated, 1);
+  assert.ok(storage.value.last_day);
+});
+
+test("does not fail when browser storage is unavailable", () => {
+  const storage = {
+    getItem: () => {
+      throw new Error("blocked");
+    },
+    setItem: () => {
+      throw new Error("blocked");
+    },
+  };
+  assert.doesNotThrow(() => recordUsage(storage, false));
+});
