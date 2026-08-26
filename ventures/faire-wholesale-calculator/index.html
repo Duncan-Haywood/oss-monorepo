@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Faire Seller Fee Calculator | First Order vs Reorder vs Faire Direct</title>
-  <meta name="description" content="Free Faire wholesale fee calculator for brands: net payout after 15% commission, the $10 new-customer fee, and payout-speed processing. Compare marketplace first orders, reorders, and Faire Direct.">
+  <meta name="description" content="Free Faire wholesale fee calculator for brands: net payout after 15% commission, the $10 new-customer fee, and payout-speed processing. Compare first orders, Faire Direct, and whether next-day payout still beats waiting after your carrying cost.">
   <meta name="robots" content="index, follow">
   <link rel="canonical" href=".">
   <meta property="og:title" content="Faire Seller Fee Calculator">
@@ -18,7 +18,7 @@
     "applicationCategory": "BusinessApplication",
     "operatingSystem": "Any (runs in a web browser)",
     "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
-    "featureList": "Faire marketplace first-order vs reorder vs Faire Direct comparison, retailer lifetime after expected reorders, Open House waived commission vs a deeper retailer discount, payout-speed processing, net profit, margin, ROI, wholesale price for a target margin"
+    "featureList": "Faire marketplace first-order vs reorder vs Faire Direct comparison, retailer lifetime after expected reorders, Open House waived commission vs a deeper retailer discount, payout-speed processing, payout-speed after carrying cost, net profit, margin, ROI, wholesale price for a target margin"
   }
   </script>
   <script type="application/ld+json">
@@ -56,6 +56,14 @@
         "acceptedAnswer": {
           "@type": "Answer",
           "text": "The new-customer fee is charged once. Enter how many reorders you expect from that retailer to see lifetime marketplace profit next to the same number of Faire Direct or off-Faire invoices, and the first-order fee divided across those orders. This is arithmetic from your count, not a forecast that they will reorder."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Is Faire next-day payout worth the extra processing fee?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "On the calculator defaults — a $200 North America first marketplace order and a 24% annual carrying-cost assumption — next-day payout leaves $72.59 after modeled float. Waiting 60 days leaves $69.28. The $3.20 processing spread does not cover 24% money sitting 60 days. At 6%, waiting still finishes ahead. Enter your own rate. This is not a recommendation to take next-day payout."
         }
       },
       {
@@ -109,11 +117,12 @@
     <p>
       Enter the wholesale price, your cost, and the rates from your payout summary.
       The calculator shows the same order as a marketplace first order, a reorder,
-      Faire Direct, and an off-Faire invoice — plus how next-day payout changes processing.
+      Faire Direct, and an off-Faire invoice — plus whether next-day payout still beats waiting after your carrying cost.
     </p>
     <nav>
       <a href="retailer.html">Retailer margin calculator</a>
       <a href="faire-direct-vs-marketplace.html">Faire Direct vs marketplace fees</a>
+      <a href="should-i-pay-for-faire-next-day-payout.html">Should I pay for next-day payout?</a>
       <a href="should-i-list-during-faire-open-house.html">Open House vs everyday first order</a>
     </nav>
   </header>
@@ -148,6 +157,7 @@
         <label>Promoted listings (%) <input id="promotedRate" type="number" min="0" step="0.1" value="0"></label>
         <label>Other per-order cost <input id="otherCost" type="number" min="0" step="0.01" value="0"></label>
         <label>Expected reorders from this retailer <input id="expectedReorders" type="number" min="0" step="1" value="2"></label>
+        <label>Annual carrying-cost assumption (%) <input id="annualCarryRate" type="number" min="0" step="0.1" value="24"></label>
         <label>Open House discount (%) <input id="openHouseDiscountRate" type="number" min="0" step="0.1" value="20"></label>
         <label>Open House commission (%) <input id="openHouseCommissionRate" type="number" min="0" step="0.1" value="0"></label>
         <label class="span2">Extra new retailers during Open House <input id="openHouseExtraRetailers" type="number" min="0" step="1" value="2"></label>
@@ -217,10 +227,24 @@
       <h2>Reprice for a goal</h2>
       <label>Target margin on the Faire subtotal (%) <input id="targetMargin" type="number" min="0" max="99.9" step="1" value="40"></label>
       <p id="targetPrice"></p>
+      <hr>
+      <h2>Next-day payout vs waiting</h2>
+      <p id="floatNote" class="note"></p>
       <table>
-        <thead><tr><th scope="col">Payout speed</th><th scope="col">Processing</th><th scope="col">Reorder profit</th></tr></thead>
+        <thead>
+          <tr>
+            <th scope="col">Payout speed</th>
+            <th scope="col">Wait</th>
+            <th scope="col">Processing</th>
+            <th scope="col">Before float</th>
+            <th scope="col">Carrying</th>
+            <th scope="col">After float</th>
+          </tr>
+        </thead>
         <tbody id="speeds"></tbody>
       </table>
+      <p id="floatBreakEven" class="note"></p>
+      <p class="note"><a href="should-i-pay-for-faire-next-day-payout.html">Worked example</a> — carrying cost is your assumption, not a Faire fee.</p>
       <div class="actions">
         <button id="copyLink" type="button">Copy shareable link</button>
         <button id="reset" type="button">Reset to defaults</button>
@@ -239,7 +263,8 @@
       to an existing account, whether
       <a href="should-i-list-during-faire-open-house.html">Open House</a>
       still leaves more after the deeper discount retailers expect,
-      and whether next-day payout is worth the extra processing.
+      and whether <a href="should-i-pay-for-faire-next-day-payout.html">next-day payout</a>
+      still beats waiting after the carrying cost you type.
       A <a href="retailer.html">boutique buying the same order</a> has a different question: landed cost versus shelf price.
     </p>
     <p>
@@ -255,7 +280,7 @@
     <p>Free and open source. If it saved you from an underpriced opening order, the <a href="https://github.com/Duncan-Haywood/monorepo-projects">project is on GitHub</a> — <a href="https://github.com/sponsors/Duncan-Haywood">GitHub Sponsors</a> is optional and never changes what the tool does. MIT licensed.</p>
   </footer>
   <script type="module">
-    import { REGION_PRESETS, PAYOUT_PRESETS, compareBrandScenarios, compareOpenHouse, comparePayoutSpeeds, compareRetailerLifetime, openHouseNote, wholesaleForMargin } from "./calc.mjs";
+    import { REGION_PRESETS, PAYOUT_PRESETS, compareBrandScenarios, compareOpenHouse, comparePayoutSpeedsAfterFloat, compareRetailerLifetime, openHouseNote, summarizePayoutFloat, wholesaleForMargin } from "./calc.mjs";
     import { recordUsage } from "./usage.mjs";
     import { encodeInputs, decodeInputs, FIELD_IDS } from "./share.mjs";
 
@@ -344,11 +369,17 @@
         const target = Number(input.targetMargin);
         const needed = wholesaleForMargin(input, target, "marketplace_first");
         field("targetPrice").textContent = `Charge ${money(needed)} wholesale to target a ${target}% margin on a first marketplace order.`;
-        field("speeds").replaceChildren(...comparePayoutSpeeds(input).map((speed) => {
+        const float = comparePayoutSpeedsAfterFloat(input);
+        field("floatNote").textContent = summarizePayoutFloat(float);
+        field("speeds").replaceChildren(...float.speeds.map((speed) => {
           const row = document.createElement("tr");
-          row.innerHTML = `<td>${speed.label}</td><td>${money(speed.fees.processing)}</td><td>${money(speed.profit)}</td>`;
+          row.className = speed.isBest ? "best" : "";
+          row.innerHTML = `<td>${speed.label}</td><td>${speed.waitDays}d</td><td>${money(speed.fees.processing)}</td><td>${money(speed.profit)}</td><td>${money(speed.carryingCost)}</td><td>${money(speed.netAfterFloat)}</td>`;
           return row;
         }));
+        field("floatBreakEven").textContent = float.breakEvenAnnualRate == null
+          ? ""
+          : `Next-day and 60-day match at a ${float.breakEvenAnnualRate.toFixed(1)}% annual carrying-cost assumption on the ${money(float.cashBase)} next-day payout.`;
       } catch (error) {
         field("profit").textContent = error.message;
         field("profit").className = "hero-number negative";
@@ -360,6 +391,8 @@
         field("openHouse").replaceChildren();
         field("openHouseNote").textContent = "";
         field("speeds").replaceChildren();
+        field("floatNote").textContent = "";
+        field("floatBreakEven").textContent = "";
         field("targetPrice").textContent = "";
       }
     }
@@ -379,7 +412,7 @@
 
     FIELD_IDS.forEach((id) => {
       field(id).addEventListener("input", () => { update(); persist(); });
-      field(id).addEventListener("change", () => recordUsage(safe(() => localStorage), field("usageOptOut").checked, id === "targetMargin" ? "scenario_compared" : id.startsWith("openHouse") ? "open_house_compared" : "brand_order_calculated"));
+      field(id).addEventListener("change", () => recordUsage(safe(() => localStorage), field("usageOptOut").checked, id === "annualCarryRate" ? "payout_float_compared" : id === "targetMargin" ? "scenario_compared" : id.startsWith("openHouse") ? "open_house_compared" : "brand_order_calculated"));
     });
     field("region").addEventListener("change", () => {
       applyRegionRates();
@@ -411,6 +444,7 @@
         shippingReimbursement: 15, shippingCost: 15, otherCost: 0, promotedRate: 0,
         commissionRate: 15, firstOrderFlat: 10, firstOrderExtraRate: 0,
         paymentRate: 1.9, paymentFixed: 0.3, targetMargin: 40, expectedReorders: 2,
+        annualCarryRate: 24,
         openHouseDiscountRate: 20, openHouseCommissionRate: 0, openHouseExtraRetailers: 2,
         region: "north_america", payout: "day_60",
       });

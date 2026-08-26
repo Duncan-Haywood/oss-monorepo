@@ -10,7 +10,8 @@ reorders, how the first-order fee looks across the relationship.
 Open `index.html` in a browser. Independent retailers use `retailer.html` to
 see landed cost versus shelf price after an opening-order discount and the
 units that do not sell. `faire-direct-vs-marketplace.html` answers the Direct
-search question in words.
+search question. `should-i-pay-for-faire-next-day-payout.html` answers whether
+the extra next-day processing still beats waiting after your carrying cost.
 `should-i-list-during-faire-open-house.html` compares an everyday first order
 to Open House at 0% commission after the deeper discount retailers expect.
 
@@ -20,9 +21,10 @@ rates from your payout summary and verify them there.
 
 After using this, you can now **set a wholesale price that still works on a
 first marketplace order, see whether expected reorders recover that
-opening-order fee, and see whether a Faire Open House discount still leaves
-more than listing everyday**, which used to take reconciling Faire’s help
-articles against a spreadsheet.
+opening-order fee, see whether next-day payout still beats waiting
+once your own carrying cost is on the invoice, and see whether a Faire
+Open House discount still leaves more than listing everyday**, which used
+to take reconciling Faire’s help articles against a spreadsheet.
 
 ## What it checks that a flat 15% page does not
 

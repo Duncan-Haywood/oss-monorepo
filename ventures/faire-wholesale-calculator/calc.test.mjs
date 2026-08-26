@@ -6,11 +6,13 @@ import {
   compareBrandScenarios,
   compareOpenHouse,
   comparePayoutSpeeds,
+  comparePayoutSpeedsAfterFloat,
   compareRetailerLifetime,
   openHouseNote,
   openHouseSummary,
   OPEN_HOUSE_DEFAULTS,
   retailPriceForMargin,
+  summarizePayoutFloat,
   wholesaleForMargin,
 } from "./calc.mjs";
 
@@ -90,6 +92,54 @@ test("payout-speed comparison only changes the processing line", () => {
   assert.equal(nextDay.fees.commission, slow.fees.commission);
   assert.ok(nextDay.fees.processing > slow.fees.processing);
   assert.ok(slow.profit > nextDay.profit);
+});
+
+test("next-day payout beats waiting 60 days once 24% money eats the processing spread", () => {
+  const comparison = comparePayoutSpeedsAfterFloat(naReorder, { annualCarryRate: 24 });
+  const next = comparison.speeds.find((row) => row.id === "next_day");
+  const mid = comparison.speeds.find((row) => row.id === "day_30");
+  const slow = comparison.speeds.find((row) => row.id === "day_60");
+  assert.equal(next.label, "Next-day payout");
+  assert.equal(slow.label, "60-day payout");
+  assert.equal(comparison.scenarioId, "marketplace_first");
+  assert.ok(Math.abs(next.payoutAmount - 167.7) < 1e-9);
+  assert.ok(Math.abs(next.profit - 72.7) < 1e-9);
+  assert.ok(Math.abs(slow.profit - 75.9) < 1e-9);
+  assert.ok(Math.abs(comparison.processingSpread - 3.2) < 1e-9);
+  assert.ok(Math.abs(next.carryingCost - 167.7 * 0.24 * 1 / 365) < 1e-12);
+  assert.ok(Math.abs(mid.carryingCost - 167.7 * 0.24 * 30 / 365) < 1e-12);
+  assert.ok(Math.abs(slow.carryingCost - 167.7 * 0.24 * 60 / 365) < 1e-12);
+  assert.ok(comparison.nextDayBeatsSlow);
+  assert.equal(comparison.best.id, "next_day");
+  assert.ok(comparison.nextDayPremium > 3);
+  assert.ok(comparison.breakEvenAnnualRate > 11 && comparison.breakEvenAnnualRate < 12);
+  const summary = summarizePayoutFloat(comparison);
+  assert.match(summary, /\$72\.59/);
+  assert.match(summary, /\$69\.28/);
+  assert.match(summary, /behind/);
+});
+
+test("cheap 6% capital still leaves waiting 60 days ahead of next-day", () => {
+  const comparison = comparePayoutSpeedsAfterFloat(naReorder, { annualCarryRate: 6 });
+  assert.equal(comparison.nextDayBeatsSlow, false);
+  assert.equal(comparison.best.id, "day_60");
+  assert.ok(comparison.nextDayPremium < 0);
+  const summary = summarizePayoutFloat(comparison);
+  assert.match(summary, /covers the wait/);
+  assert.match(summary, /\$74\.25/);
+});
+
+test("zero carrying cost keeps the fee-only ranking: 60-day still wins", () => {
+  const comparison = comparePayoutSpeedsAfterFloat(naReorder, { annualCarryRate: 0 });
+  const slow = comparison.speeds.find((row) => row.id === "day_60");
+  assert.equal(slow.carryingCost, 0);
+  assert.equal(comparison.best.id, "day_60");
+  assert.equal(comparison.nextDayBeatsSlow, false);
+});
+
+test("rejects a nonsense carrying-cost rate", () => {
+  assert.throws(() => comparePayoutSpeedsAfterFloat(naReorder, { annualCarryRate: -1 }), /non-negative/);
+  assert.throws(() => comparePayoutSpeedsAfterFloat(naReorder, { annualCarryRate: 1000 }), /below 1000/);
 });
 
 test("finds the wholesale unit price that hits a target margin on a first order", () => {

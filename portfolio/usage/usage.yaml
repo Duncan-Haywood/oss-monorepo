@@ -35,6 +35,7 @@ products:
           brand_order_calculated: 0
           retailer_order_calculated: 0
           scenario_compared: 0
+          payout_float_compared: 0
           open_house_compared: 0
           link_copied: 0
         note: >-
