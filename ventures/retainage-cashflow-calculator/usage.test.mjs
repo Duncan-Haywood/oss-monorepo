@@ -29,3 +29,9 @@ test('Do Not Track disables counting', () => {
   assert.equal(localStorage.getItem('retainage-cashflow:usage:downloaded'), null);
   navigator.doNotTrack = undefined;
 });
+
+test('Global Privacy Control disables counting', () => {
+  navigator.globalPrivacyControl = true; recordUsage('printed');
+  assert.equal(localStorage.getItem('retainage-cashflow:usage:printed'), null);
+  navigator.globalPrivacyControl = undefined;
+});
