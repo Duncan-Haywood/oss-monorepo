@@ -22,6 +22,8 @@ test('supports a named aggregate event without recording inputs', () => {
   const storage = { getItem: key => values.get(key) ?? null, setItem: (key, value) => values.set(key, value) };
   recordUsage(storage, false, 'etsy_plus_compared');
   assert.equal(JSON.parse(values.get('etsy-profit-usage')).etsy_plus_compared, 1);
+  recordUsage(storage, false, 'personalization_compared');
+  assert.equal(JSON.parse(values.get('etsy-profit-usage')).personalization_compared, 1);
 });
 
 test('honors Do Not Track without recording', () => {

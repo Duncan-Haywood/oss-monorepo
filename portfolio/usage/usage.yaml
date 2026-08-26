@@ -236,6 +236,11 @@ products:
           live_url_visitors: null
           etsy_plus_compared: 0
         note: Added stay-off-Plus vs listing-and-Ads-credit comparison; public URL remains owner-gated.
+      - as_of: 2026-08-26
+        signals:
+          live_url_visitors: null
+          personalization_compared: 0
+        note: Added as-listed vs personalization-upcharge comparison; public URL remains owner-gated.
   - slug: shopify-a11y-evidence
     surface: static-page-in-repo
     readings:

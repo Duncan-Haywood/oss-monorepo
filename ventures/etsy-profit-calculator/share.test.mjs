@@ -43,10 +43,15 @@ test('returns an empty object for missing or malformed input', () => {
 
 test('every encodable field is a real calculator field', () => {
   // Guards against FIELD_IDS drifting from the form: every id here is one the
-  // page renders. Order fields feed calculateOrder; Plus fields feed compareEtsyPlus.
+  // page renders. Order fields feed calculateOrder; Plus fields feed
+  // compareEtsyPlus; personalization fields feed comparePersonalization.
   assert.equal(new Set(FIELD_IDS).size, FIELD_IDS.length);
   assert.ok(FIELD_IDS.includes('price'));
   assert.ok(FIELD_IDS.includes('listingsPerMonth'));
   assert.ok(FIELD_IDS.includes('monthlyPlusFee'));
   assert.ok(FIELD_IDS.includes('otherPlusValue'));
+  assert.ok(FIELD_IDS.includes('personalizationUpcharge'));
+  assert.ok(FIELD_IDS.includes('extraMaterialCost'));
+  assert.ok(FIELD_IDS.includes('extraTimeCost'));
+  assert.ok(FIELD_IDS.includes('monthlyCustomOrders'));
 });

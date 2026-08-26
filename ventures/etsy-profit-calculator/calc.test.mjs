@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { calculateOrder, priceForMargin, compareEtsyPlus, plusBreakEvenListings, plusCreditValueUsed, ETSY_PLUS_DEFAULTS } from './calc.mjs';
+import { calculateOrder, priceForMargin, compareEtsyPlus, plusBreakEvenListings, plusCreditValueUsed, ETSY_PLUS_DEFAULTS, comparePersonalization, personalizationNote, PERSONALIZATION_DEFAULTS } from './calc.mjs';
 
 test('calculates the complete fee stack and contribution', () => {
   const result = calculateOrder({ price: 30, shippingCharged: 5, listingFee: .2, transactionRate: 6.5, paymentRate: 3, paymentFixed: .25, offsiteAdRate: 0, shippingCost: 6, materialCost: 4, otherCost: 1 });
@@ -153,4 +153,89 @@ test('rejects negative Plus inputs', () => {
   assert.throws(() => compareEtsyPlus({ listingFee: -0.2 }), /Listing fee/);
   assert.throws(() => compareEtsyPlus({ listingsPerMonth: -1 }), /Listings per month/);
   assert.throws(() => plusBreakEvenListings({ listingFee: 0.2, monthlyPlusFee: -1, listingCredits: 15, adsCredit: 5, monthlyAdSpend: 0 }), /Monthly Plus fee/);
+});
+
+const PAGE_ORDER = {
+  price: 30,
+  shippingCharged: 5,
+  listingFee: 0.2,
+  transactionRate: 6.5,
+  paymentRate: 3,
+  paymentFixed: 0.25,
+  offsiteAdRate: 0,
+  shippingCost: 6,
+  materialCost: 4,
+  otherCost: 0,
+};
+
+test('personalization defaults match the $8 / $1.50 / $6 / 12-order example', () => {
+  assert.deepEqual(PERSONALIZATION_DEFAULTS, {
+    personalizationUpcharge: 8,
+    extraMaterialCost: 1.5,
+    extraTimeCost: 6,
+    monthlyCustomOrders: 12,
+  });
+});
+
+test('an $8 personalization loses cash against the standard $30 listing', () => {
+  const result = comparePersonalization(PAGE_ORDER);
+  assert.equal(result.asListed.profit, 21.23);
+  assert.equal(result.personalized.profit, 20.97);
+  assert.equal(result.extraKept, -0.26);
+  assert.equal(result.extraFees, 0.76);
+  assert.equal(result.extraCashCosts, 7.5);
+  assert.equal(result.extraRevenue, 8);
+  assert.equal(result.breakEvenUpcharge, 8.29);
+  assert.equal(result.monthlyExtraKept, -3.12);
+  assert.equal(result.upgradePays, false);
+  assert.equal(result.incrementalPays, true);
+  assert.equal(result.winner, 'as_listed');
+  assert.equal(result.personalized.price, 38);
+});
+
+test('zero extra time makes the same $8 upcharge keep $5.74 more', () => {
+  const result = comparePersonalization({ ...PAGE_ORDER, extraTimeCost: 0 });
+  assert.equal(result.personalized.profit, 26.97);
+  assert.equal(result.extraKept, 5.74);
+  assert.equal(result.breakEvenUpcharge, 1.66);
+  assert.equal(result.upgradePays, true);
+  assert.equal(result.winner, 'personalized');
+});
+
+test('a $12 upcharge covers the default extras after fees', () => {
+  const result = comparePersonalization({ ...PAGE_ORDER, personalizationUpcharge: 12 });
+  assert.equal(result.personalized.profit, 24.59);
+  assert.equal(result.extraKept, 3.36);
+  assert.equal(result.upgradePays, true);
+  assert.equal(result.monthlyExtraKept, 40.32);
+});
+
+test('Offsite Ads raise extra fees and the break-even upcharge', () => {
+  const result = comparePersonalization({ ...PAGE_ORDER, offsiteAdRate: 15 });
+  assert.equal(result.asListed.profit, 15.98);
+  assert.equal(result.personalized.profit, 14.52);
+  assert.equal(result.extraKept, -1.46);
+  assert.equal(result.extraFees, 1.96);
+  assert.equal(result.breakEvenUpcharge, 9.93);
+});
+
+test('an incremental custom request can still pay when the upgrade loses', () => {
+  const result = comparePersonalization(PAGE_ORDER);
+  assert.equal(result.upgradePays, false);
+  assert.equal(result.incrementalPays, true);
+  assert.equal(result.incrementalProfit, 20.97);
+});
+
+test('personalization note names both the upgrade gap and the incremental frame', () => {
+  const note = personalizationNote(comparePersonalization(PAGE_ORDER));
+  assert.match(note, /\$8\.00 personalization/);
+  assert.match(note, /\$0\.26 less/);
+  assert.match(note, /\$21\.23/);
+  assert.match(note, /\$8\.29/);
+  assert.match(note, /\$20\.97 versus \$0\.00/);
+});
+
+test('rejects negative personalization inputs', () => {
+  assert.throws(() => comparePersonalization({ ...PAGE_ORDER, personalizationUpcharge: -8 }), /Personalization upcharge/);
+  assert.throws(() => comparePersonalization({ ...PAGE_ORDER, extraTimeCost: -1 }), /Extra time cost/);
 });

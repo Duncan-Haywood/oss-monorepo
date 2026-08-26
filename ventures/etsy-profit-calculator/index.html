@@ -4,10 +4,10 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Etsy Profit Calculator | See Your Net Profit After Fees</title>
-  <meta name="description" content="Calculate Etsy order profit after listing, transaction, payment, offsite ad, shipping, material, and other costs. Compare whether Etsy Plus credits cover the $10 fee this month.">
+  <meta name="description" content="Calculate Etsy order profit after listing, transaction, payment, offsite ad, shipping, material, and other costs. Compare whether Etsy Plus credits cover the $10 fee, and whether a personalization upcharge still pays after extra time and fees.">
   <meta property="og:title" content="Etsy Profit Calculator">
-  <meta property="og:description" content="See what an Etsy order leaves after the complete fee stack, and whether Plus listing and Ads credits still beat staying off Plus.">
-  <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Etsy Profit Calculator","applicationCategory":"BusinessApplication","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"featureList":"Etsy fee breakdown, break-even price, net profit margin, Etsy Plus credit comparison"}</script>
+  <meta property="og:description" content="See what an Etsy order leaves after the complete fee stack, whether Plus credits still beat staying off Plus, and whether a personalization upcharge covers extra time and materials.">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Etsy Profit Calculator","applicationCategory":"BusinessApplication","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"featureList":"Etsy fee breakdown, break-even price, net profit margin, Etsy Plus credit comparison, personalization upcharge comparison"}</script>
   <style>
     :root { color-scheme: light; font-family: system-ui, sans-serif; color: #25221f; background: #f8f3eb; }
     body { max-width: 980px; margin: 0 auto; padding: 32px 18px; }
@@ -17,12 +17,12 @@
     .fields { display: grid; grid-template-columns: repeat(2, 1fr); gap: 13px; } label { display: grid; gap: 5px; font-size: .87rem; font-weight: 650; } input { width: 100%; box-sizing: border-box; border: 1px solid #b9ad9f; border-radius: 7px; padding: 10px; font: inherit; background: white; }
     .result { position: sticky; top: 15px; background: #243d35; color: #fffdf9; border-color: #243d35; } .hero-number { font-size: 3rem; font-weight: 750; letter-spacing: -.05em; margin: 8px 0; } .negative { color: #ffb6a6; } .positive { color: #c5edb5; } dl { display: grid; grid-template-columns: 1fr auto; gap: 9px; margin: 20px 0; } dt, dd { margin: 0; } dd { font-variant-numeric: tabular-nums; } hr { border: 0; border-top: 1px solid #ffffff33; } .note { font-size: .82rem; opacity: .8; } table { width: 100%; border-collapse: collapse; } th, td { padding: 8px 4px; text-align: right; border-bottom: 1px solid #ffffff22; } th:first-child, td:first-child { text-align: left; }
     .actions { display: flex; flex-wrap: wrap; gap: 8px; margin: 14px 0 6px; } .actions button { flex: 1 1 auto; cursor: pointer; font: inherit; font-weight: 650; border-radius: 7px; padding: 9px 12px; border: 1px solid #ffffff40; background: #ffffff1a; } #copyLink { background: #c5edb5; color: #16261f; border-color: #c5edb5; } #reset { background: transparent; color: #fffdf9; } .actions button:hover { filter: brightness(1.06); } #status { min-height: 1.1em; margin: 2px 0 0; }
-    .plus { margin-top: 18px; } .plus .fields { margin-bottom: 16px; } .plus table { width: 100%; border-collapse: collapse; } .plus th, .plus td { padding: 8px 4px; text-align: right; border-bottom: 1px solid #ded5c8; font-variant-numeric: tabular-nums; } .plus th:first-child, .plus td:first-child { text-align: left; } .plus tr.winner { font-weight: 750; background: #eef6e8; } .plus .verdict { font-size: 1.1rem; font-weight: 700; margin: 0 0 10px; } .plus .note { margin-top: 12px; }
+    .plus, .personalization { margin-top: 18px; } .plus .fields, .personalization .fields { margin-bottom: 16px; } .plus table, .personalization table { width: 100%; border-collapse: collapse; } .plus th, .plus td, .personalization th, .personalization td { padding: 8px 4px; text-align: right; border-bottom: 1px solid #ded5c8; font-variant-numeric: tabular-nums; } .plus th:first-child, .plus td:first-child, .personalization th:first-child, .personalization td:first-child { text-align: left; } .plus tr.winner, .personalization tr.winner { font-weight: 750; background: #eef6e8; } .plus .verdict, .personalization .verdict { font-size: 1.1rem; font-weight: 700; margin: 0 0 10px; } .plus .note, .personalization .note { margin-top: 12px; }
     footer { margin-top: 25px; font-size: .82rem; color: #5c554d; } @media (max-width: 700px) { .layout { grid-template-columns: 1fr; } .result { position: static; } .fields { grid-template-columns: 1fr; } }
   </style>
 </head>
 <body>
-  <header><p>FOR ETSY SELLERS</p><h1>Know what each order really leaves.</h1><p>Enter the fees and costs from your shop to see net profit, margin, and the break-even price before you publish or reprice a listing. Then check whether <a href="#etsy-plus">Etsy Plus credits cover the subscription this month</a> — or read <a href="is-etsy-plus-worth-it.html">is Etsy Plus worth it</a>.</p></header>
+  <header><p>FOR ETSY SELLERS</p><h1>Know what each order really leaves.</h1><p>Enter the fees and costs from your shop to see net profit, margin, and the break-even price before you publish or reprice a listing. Then check whether <a href="#etsy-plus">Etsy Plus credits cover the subscription this month</a>, or whether <a href="#personalization">a personalization still pays after extra time and fees</a>. Walk the numbers on <a href="is-etsy-plus-worth-it.html">is Etsy Plus worth it</a> and <a href="should-i-charge-for-etsy-personalization.html">should I charge for Etsy personalization</a>.</p></header>
   <main class="layout">
     <section><h2>Order and fee assumptions</h2><div class="fields">
       <label>Item price <input id="price" type="number" min="0" step="0.01" value="30"></label>
@@ -56,6 +56,22 @@
     </table>
     <p id="plusNote" class="note"></p>
   </section>
+  <section class="personalization" id="personalization">
+    <h2>Does this personalization still pay?</h2>
+    <p>A custom name, color, or size looks like easy extra cash until Etsy takes a cut of the higher ticket and you spend twenty minutes plus extra supplies. If this buyer would have bought the listing as written, only the extra keep matters. If they would have walked away, the personalized order is extra demand — take it when that path still leaves a profit. This is arithmetic on your inputs, not Etsy's live fee schedule.</p>
+    <div class="fields">
+      <label>Personalization upcharge <input id="personalizationUpcharge" type="number" min="0" step="0.01" value="8"></label>
+      <label>Extra materials / supplies <input id="extraMaterialCost" type="number" min="0" step="0.01" value="1.50"></label>
+      <label>Extra time cost <input id="extraTimeCost" type="number" min="0" step="0.01" value="6"></label>
+      <label>Custom orders this month <input id="monthlyCustomOrders" type="number" min="0" step="1" value="12"></label>
+    </div>
+    <p id="personalizationVerdict" class="verdict"></p>
+    <table id="personalizationTable">
+      <thead><tr><th scope="col">Path</th><th scope="col">Item price</th><th scope="col">Fees</th><th scope="col">Extra cash out</th><th scope="col">Kept</th><th scope="col">vs as listed</th></tr></thead>
+      <tbody id="personalizationRows"></tbody>
+    </table>
+    <p id="personalizationNote" class="note"></p>
+  </section>
   <footer>
     <label><input id="usageOptOut" type="checkbox" style="width:auto"> Do not keep anonymous local usage counts</label>
     <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not tax, financial, or business advice, and it does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for meeting any obligation it helps you prepare for. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
@@ -63,7 +79,7 @@
     <p>Free and open source. If it stopped you from paying $10 for unused credits, the <a href="https://github.com/Duncan-Haywood/monorepo-projects">project is on GitHub</a> — <a href="https://github.com/sponsors/Duncan-Haywood">GitHub Sponsors</a> is optional and never changes what the tool does. MIT licensed.</p>
   </footer>
   <script type="module">
-    import { calculateOrder, priceForMargin, compareEtsyPlus } from './calc.mjs'; import { recordUsage } from './usage.mjs'; import { encodeInputs, decodeInputs, FIELD_IDS } from './share.mjs';
+    import { calculateOrder, priceForMargin, compareEtsyPlus, comparePersonalization, personalizationNote } from './calc.mjs'; import { recordUsage } from './usage.mjs'; import { encodeInputs, decodeInputs, FIELD_IDS } from './share.mjs';
     const ids = FIELD_IDS;
     const INPUTS_KEY = 'etsy-profit-inputs';
     const field = id => document.getElementById(id);
@@ -121,6 +137,34 @@
       document.getElementById('plusNote').textContent = `${unused.length ? unused.join('. ') + '. ' : ''}${breakEven} Extra listings past the credit cap cost the same on both paths. Offsite Ads are a sale fee, not this Ads credit.`;
     }
 
+    function renderPersonalization(input) {
+      const comparison = comparePersonalization(input);
+      const verdict = document.getElementById('personalizationVerdict');
+      if (comparison.upgradePays) {
+        verdict.textContent = `Personalization keeps ${money(comparison.extraKept)} more than selling as listed — ${money(comparison.monthlyExtraKept)} across ${comparison.monthlyCustomOrders} custom orders.`;
+      } else if (comparison.upgradeBreaksEven) {
+        verdict.textContent = 'Personalization breaks even against selling the listing as written.';
+      } else {
+        verdict.textContent = `Personalization keeps ${money(-comparison.extraKept)} less than selling as listed — ${money(-comparison.monthlyExtraKept)} across ${comparison.monthlyCustomOrders} custom orders.`;
+      }
+      const rows = [
+        { ...comparison.asListed, delta: 0, winner: comparison.winner === 'as_listed' },
+        { ...comparison.personalized, delta: comparison.extraKept, winner: comparison.winner === 'personalized' },
+      ];
+      document.getElementById('personalizationRows').replaceChildren(...rows.map((item) => {
+        const row = document.createElement('tr');
+        if (item.winner) row.className = 'winner';
+        plusCell(row, item.label);
+        plusCell(row, money(item.price));
+        plusCell(row, money(item.fees));
+        plusCell(row, money(item.extraCash));
+        plusCell(row, money(item.profit));
+        plusCell(row, item.id === 'as_listed' ? '—' : signedMoney(item.delta));
+        return row;
+      }));
+      document.getElementById('personalizationNote').textContent = personalizationNote(comparison);
+    }
+
     function update() {
       try {
         const result = calculateOrder(currentInputs());
@@ -142,6 +186,13 @@
         document.getElementById('plusVerdict').textContent = error.message;
         document.getElementById('plusRows').replaceChildren();
         document.getElementById('plusNote').textContent = '';
+      }
+      try {
+        renderPersonalization(currentInputs());
+      } catch (error) {
+        document.getElementById('personalizationVerdict').textContent = error.message;
+        document.getElementById('personalizationRows').replaceChildren();
+        document.getElementById('personalizationNote').textContent = '';
       }
     }
 
@@ -185,6 +236,9 @@
     ['listingsPerMonth', 'monthlyPlusFee', 'listingCredits', 'adsCredit', 'monthlyAdSpend', 'otherPlusValue'].forEach(id => {
       field(id).addEventListener('change', () => recordUsage(safe(() => localStorage), document.getElementById('usageOptOut').checked, 'etsy_plus_compared'));
     });
+    ['personalizationUpcharge', 'extraMaterialCost', 'extraTimeCost', 'monthlyCustomOrders'].forEach(id => {
+      field(id).addEventListener('change', () => recordUsage(safe(() => localStorage), document.getElementById('usageOptOut').checked, 'personalization_compared'));
+    });
     document.getElementById('usageOptOut').addEventListener('change', update);
 
     document.getElementById('copyLink').addEventListener('click', async () => {
@@ -198,7 +252,7 @@
     document.getElementById('reset').addEventListener('click', () => {
       safe(() => localStorage.removeItem(INPUTS_KEY));
       history.replaceState(null, '', location.pathname);
-      apply({ price: 30, shippingCharged: 5, listingFee: 0.20, transactionRate: 6.5, paymentRate: 3, paymentFixed: 0.25, offsiteAdRate: 0, shippingCost: 6, materialCost: 4, otherCost: 0, listingsPerMonth: 15, monthlyPlusFee: 10, listingCredits: 15, adsCredit: 5, monthlyAdSpend: 5, otherPlusValue: 0 });
+      apply({ price: 30, shippingCharged: 5, listingFee: 0.20, transactionRate: 6.5, paymentRate: 3, paymentFixed: 0.25, offsiteAdRate: 0, shippingCost: 6, materialCost: 4, otherCost: 0, listingsPerMonth: 15, monthlyPlusFee: 10, listingCredits: 15, adsCredit: 5, monthlyAdSpend: 5, otherPlusValue: 0, personalizationUpcharge: 8, extraMaterialCost: 1.50, extraTimeCost: 6, monthlyCustomOrders: 12 });
       update(); flash('Reset to the default example order.');
     });
 
