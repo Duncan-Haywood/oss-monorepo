@@ -432,6 +432,16 @@ products:
           Distribution is still repo-only: no release, no package, no public
           URL, so there is no download or traffic signal to read yet. Getting
           one is the next step that would actually move this venture.
+      - as_of: 2026-08-25
+        signals:
+          local_artifacts_verified: 0
+          local_runs_recorded: 0
+          trend_viewed: 0
+          qualified_operators: 0
+        note: >-
+          Added a browser night-over-night trend page and `check --trend`.
+          `trend_viewed` is counted locally (CLI `--usage-file` or browser
+          localStorage). Public URL remains owner-gated (`deploy-settings`).
   - slug: eaa-remediation-pipeline
     surface: local-site-studio-browser
     readings:

@@ -11,7 +11,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 
 from .integrity import CORRUPT, INTACT, inspect_artifact
-from .report import build_history_report, markdown_report
+from .report import DEFAULT_SHRINK_RATIO, build_history_report, build_trend, markdown_report
 
 
 def _now_iso() -> str:
@@ -138,6 +138,8 @@ def cmd_check(args: argparse.Namespace) -> int:
     for path in args.records:
         records.append(json.loads(path.read_text(encoding="utf-8")))
     report = build_history_report(records)
+    if args.trend:
+        report["trend"] = build_trend(records, shrink_ratio=args.shrink_ratio)
     output = markdown_report(report) if args.format == "markdown" else json.dumps(report, indent=2) + "\n"
     if args.output:
         args.output.write_text(output, encoding="utf-8")
@@ -145,6 +147,8 @@ def cmd_check(args: argparse.Namespace) -> int:
         print(output, end="")
     if args.usage_file:
         _bump_usage(args.usage_file, "report_generated")
+        if args.trend:
+            _bump_usage(args.usage_file, "trend_viewed")
     latest = report.get("latest")
     return 0 if latest is None or latest["status"] == "verified" else 1
 
@@ -203,6 +207,18 @@ def build_parser() -> argparse.ArgumentParser:
     check.add_argument("--usage-file", type=Path, help="optional local event-count file")
     check.add_argument("--format", choices=("json", "markdown"), default="json")
     check.add_argument("--output", type=Path)
+    check.add_argument(
+        "--trend",
+        action="store_true",
+        help="also compare consecutive nights for a shrinking artifact or a status regression",
+    )
+    check.add_argument(
+        "--shrink-ratio",
+        type=float,
+        default=DEFAULT_SHRINK_RATIO,
+        help="fractional drop versus the previous night or prior-night median that counts "
+        f"as shrinking (default: {DEFAULT_SHRINK_RATIO})",
+    )
     check.set_defaults(func=cmd_check)
 
     return parser
