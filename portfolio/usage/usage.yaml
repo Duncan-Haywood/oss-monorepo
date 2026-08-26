@@ -578,6 +578,16 @@ products:
           cash). Public URL remains owner-gated; the local-first counter
           reports only to the user's own browser and is opt-out. Baseline
           row.
+      - as_of: 2026-08-26
+        signals:
+          live_url_visitors: null
+          reverb_shipping_compared: 0
+        note: >-
+          Added buyer-pays vs shipping-included vs local-pickup on the
+          existing Reverb calculator. Marketplace fee stays on the item, so
+          folding postage into the list is a different sale. Derived from
+          existing inputs — no second form. Public URL remains owner-gated
+          (`deploy-settings`).
   - slug: interior-door-bid-calculator
     surface: static-page-in-repo
     readings:
