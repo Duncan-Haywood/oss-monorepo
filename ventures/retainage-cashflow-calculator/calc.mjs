@@ -42,6 +42,7 @@ export function parseInputs(raw) {
   const percentComplete = optionalNumber('percentComplete', 'Percent complete', RELEASE_DEFAULTS.percentComplete);
   const reductionAtPct = optionalNumber('reductionAtPct', 'Retainage reduction point', RELEASE_DEFAULTS.reductionAtPct);
   const reducedRetainagePct = optionalNumber('reducedRetainagePct', 'Reduced retainage percentage', RELEASE_DEFAULTS.reducedRetainagePct);
+  const typicalHoldDays = optionalNumber('typicalHoldDays', 'Typical retainage hold (days)', 90, 0, Infinity);
   if (paidToDate > contractValue) errors.push('Paid to date cannot exceed contract value.');
   return errors.length ? { ok: false, errors } : {
     ok: true,
@@ -54,6 +55,7 @@ export function parseInputs(raw) {
       percentComplete,
       reductionAtPct,
       reducedRetainagePct,
+      typicalHoldDays,
     },
   };
 }
@@ -108,6 +110,63 @@ export function releaseNote(schedule, currency = '$') {
     return `At ${schedule.percentComplete}% complete, many contracts have already reduced retainage to ${schedule.reducedRetainagePct}%. About ${money(schedule.shouldHaveReleased)} of the progress retainage is typically already releasable. This is a planning model, not a contract reading.`;
   }
   return `At ${schedule.percentComplete}% complete, the modeled proper hold matches the reduced ${schedule.reducedRetainagePct}% rate. This is a planning model, not a contract reading.`;
+}
+
+/**
+ * Side-by-side retainage rates for a bid not yet signed.
+ * `contractValue` is treated as the price the contractor would accept with
+ * 0% retainage. The cash-now column answers "what bid keeps the same
+ * progress-payment cash"; the economic column only marks up the modeled
+ * carrying cost of the hold. Most contractors price the cash-now gap.
+ */
+export function compareRetainageRates(values, percents = [0, 5, 10]) {
+  if (!values || !Number.isFinite(values.contractValue) || values.contractValue < 0) {
+    throw new Error('Contract value is required to compare retainage rates.');
+  }
+  if (!Number.isFinite(values.annualCarryingRatePct) || values.annualCarryingRatePct < 0) {
+    throw new Error('Annual carrying-cost assumption is required to compare retainage rates.');
+  }
+  const holdDays = Number.isFinite(values.typicalHoldDays) ? values.typicalHoldDays : 90;
+  if (holdDays < 0) throw new Error('Typical retainage hold (days) must be at least 0.');
+
+  const listed = Array.isArray(percents) ? [...percents] : [0, 5, 10];
+  if (Number.isFinite(values.retainagePct)) listed.push(values.retainagePct);
+  const unique = [...new Set(listed.map((pct) => Number(pct)))]
+    .filter((pct) => Number.isFinite(pct) && pct >= 0 && pct <= 100)
+    .sort((a, b) => a - b);
+
+  return unique.map((pct) => {
+    const withheld = round2(values.contractValue * pct / 100);
+    const carryingCost = round2(withheld * values.annualCarryingRatePct / 100 * holdDays / 365);
+    const progressCash = round2(values.contractValue - withheld);
+    const economicNet = round2(values.contractValue - carryingCost);
+    const progressDenom = 1 - pct / 100;
+    const carryFactor = (pct / 100) * (values.annualCarryingRatePct / 100) * (holdDays / 365);
+    const bidToKeepProgress = progressDenom > 0 ? round2(values.contractValue / progressDenom) : null;
+    const extraToKeepProgress = bidToKeepProgress == null ? null : round2(bidToKeepProgress - values.contractValue);
+    const bidToKeepEconomic = carryFactor < 1 ? round2(values.contractValue / (1 - carryFactor)) : null;
+    const extraToKeepEconomic = bidToKeepEconomic == null ? null : round2(bidToKeepEconomic - values.contractValue);
+    return {
+      retainagePct: pct,
+      current: pct === values.retainagePct,
+      withheld,
+      progressCash,
+      carryingCost,
+      economicNet,
+      bidToKeepProgress,
+      extraToKeepProgress,
+      bidToKeepEconomic,
+      extraToKeepEconomic,
+      holdDays,
+    };
+  });
+}
+
+export function rateComparisonNote(rows, currency = '$') {
+  if (!Array.isArray(rows) || rows.length === 0) return '';
+  const current = rows.find((row) => row.current) || rows[rows.length - 1];
+  const money = (value) => (value == null ? 'not modelable at 100% retainage' : `${currency}${value.toFixed(2)}`);
+  return `At ${current.retainagePct.toFixed(1)}% retainage, keeping the same progress-payment cash as a no-retainage job means bidding ${money(current.bidToKeepProgress)} — ${money(current.extraToKeepProgress)} more. The modeled carrying cost of a ${current.holdDays}-day hold is ${money(current.carryingCost)}; matching that economic net only needs ${money(current.extraToKeepEconomic)} extra. Most contractors price the cash-now gap, not the interest. This is a planning model, not a contract reading.`;
 }
 
 export function delayScenarios(values, additionalDays = [30, 60, 90]) {
@@ -236,7 +295,7 @@ export function followUpDraft({ projectName, payerName, invoiceReference, dueDat
   return [`Subject: Payment status request — ${project}`, '', `Hello ${payer},`, '', `I am checking the payment status for ${invoice}, due ${due}. My records show ${currency}${result.earnedUnpaid.toFixed(2)} remains unpaid, including approximately ${currency}${retainage.toFixed(2)} in retainage based on the figures in my worksheet.`, '', 'Please confirm the expected payment date and let me know if any documentation is still needed from me. This is a factual account-record request, not a waiver of any rights or a demand for a particular legal remedy.', '', 'Thank you,', '[your name]', '', 'Review the figures, contract, payment terms, and local requirements before sending. This draft is not legal advice.'].join('\n');
 }
 
-export function worksheetSummary({ projectName, payerName, invoiceReference, dueDate, values, result, scenarios = [], release = null, partialRelease = null }) {
+export function worksheetSummary({ projectName, payerName, invoiceReference, dueDate, values, result, scenarios = [], release = null, partialRelease = null, rateRows = [] }) {
   const field = (label, value) => `${label}: ${String(value || '').trim() || '[not provided]'}`;
   return [
     'Construction retainage cash-flow worksheet',
@@ -266,6 +325,11 @@ export function worksheetSummary({ projectName, payerName, invoiceReference, due
       `Still held above the reduced rate: $${release.overheld.toFixed(2)}`,
     ] : []),
     ...(partialRelease ? ['', 'Partial retainage offer (modeled):', `Typed check today: $${partialRelease.partialOffer.toFixed(2)}`, `Days until full retainage: ${partialRelease.waitDays}`, ...partialRelease.rows.map(row => `${row.label}: cash $${row.cash.toFixed(2)}; added carrying $${row.additionalCarrying.toFixed(2)}; net $${row.net.toFixed(2)}`), `Break-even check that matches waiting: $${partialRelease.breakEvenPartialOffer.toFixed(2)}`, partialReleaseNote(partialRelease)] : []),
+    ...(rateRows.length ? ['', `Retainage rate comparison (modeled on a ${rateRows[0].holdDays}-day hold):`, ...rateRows.map((row) => {
+      const bid = row.bidToKeepProgress == null ? 'not modelable' : `$${row.bidToKeepProgress.toFixed(2)}`;
+      const extra = row.extraToKeepProgress == null ? 'n/a' : `$${row.extraToKeepProgress.toFixed(2)}`;
+      return `${row.retainagePct.toFixed(1)}%${row.current ? ' (this worksheet)' : ''}: withheld $${row.withheld.toFixed(2)}; progress cash $${row.progressCash.toFixed(2)}; bid to keep progress cash ${bid} (${extra} extra)`;
+    }), rateComparisonNote(rateRows)] : []),
     '',
     'This is a private worksheet export, not advice or evidence of entitlement. Verify the figures, contract, payment terms, and local requirements before relying on it.'
   ].join('\n');

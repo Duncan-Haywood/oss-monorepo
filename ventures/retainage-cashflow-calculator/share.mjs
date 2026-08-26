@@ -11,6 +11,7 @@ export const NUMBER_FIELD_IDS = [
   'percentComplete',
   'reductionAtPct',
   'reducedRetainagePct',
+  'typicalHoldDays',
   'partialOffer',
   'waitDays',
 ];
