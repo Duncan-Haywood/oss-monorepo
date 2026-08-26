@@ -286,7 +286,8 @@
       <div class="result" id="review" aria-live="polite"><strong>Before you send it</strong><ul class="checks"></ul></div>
 
     <div class="actions">
-      <button type="button" id="copy-csv">Copy as CSV row</button>
+      <button type="button" id="copy-csv">Copy as CSV</button>
+      <button type="button" id="download-csv">Download CSV</button>
       <span id="copy-status" class="hint" role="status" aria-live="polite"></span>
     </div>
   </section>
@@ -331,8 +332,11 @@
       See <a href="should-i-take-this-kill-fee-or-finish.html">should I take this kill fee or finish</a>.
     </p>
     <p>
-      Prefer the command line, or need to batch several quotes into a
-      spreadsheet? The same logic ships as a
+      Copy or download the current review as a spreadsheet-safe CSV. Currency
+      labels with commas or quotes stay in one cell, and the file includes
+      the time-overrun, cost-rise, discount-ask, and kill-fee rows shown
+      above. Prefer the command line, or need to batch several quotes?
+      The same logic ships as a
       <a href="https://github.com/Duncan-Haywood/monorepo-projects/tree/main/ventures/quote-margin-check">Python CLI</a>
       that reads/writes JSON, Markdown, and CSV.
     </p>
@@ -382,6 +386,7 @@
 
 <script type="module">
   import { loadQuote, calculate, overrunScenarios, directCostSpikeScenarios, directCostSpikeSummary, discountAskScenarios, discountAskSummary, loadKillFeeProgress, compareKillFee, killFeeSummary } from "./calc.mjs";
+  import { quoteCsv } from "./export.mjs";
   import { reviewQuote } from "./review.mjs";
   import { recordEvent, createReportCounter, isUsageCountingEnabled, setUsageCountingEnabled } from "./usage.mjs";
 
@@ -517,44 +522,46 @@
     // defaults don't validate — nothing to seed, the first valid quote counts
   }
 
+  function currentCsv() {
+    const { quote, r, compared } = lastReport;
+    return quoteCsv(quote, r, {
+      overrunRows: overrunScenarios(quote, r),
+      spikeRows: directCostSpikeScenarios(quote, r),
+      discountRows: discountAskScenarios(quote, r),
+      compared,
+    });
+  }
+
   const copyBtn = document.getElementById("copy-csv");
+  const downloadBtn = document.getElementById("download-csv");
   const copyStatus = document.getElementById("copy-status");
   copyBtn.addEventListener("click", async () => {
     if (!lastReport) {
       copyStatus.textContent = "Fix the inputs above first.";
       return;
     }
-    const { quote, r, compared } = lastReport;
-    const discountRows = discountAskScenarios(quote, r);
-    const killRows = compared
-      ? [
-          `kill_finish_cash,${compared.finish.cash_kept.toFixed(2)},${quote.currency}`,
-          `kill_fee_cash,${compared.kill.cash_kept.toFixed(2)},${quote.currency}`,
-          `kill_walk_cash,${compared.walk.cash_kept.toFixed(2)},${quote.currency}`,
-          `kill_finish_rate_from_here,${compared.finish.rate_from_here === null ? "" : compared.finish.rate_from_here.toFixed(2)},${quote.currency}/hour`,
-          `kill_refill_adjusted,${compared.kill.refill_adjusted.toFixed(2)},${quote.currency}`,
-        ]
-      : [];
-    const rows = [
-      "measure,value,unit",
-      `quoted_price,${quote.price.toFixed(2)},${quote.currency}`,
-      `total_working_hours,${r.total_hours.toFixed(2)},hours`,
-      `direct_costs,${r.direct_costs.toFixed(2)},${quote.currency}`,
-      `effective_hourly_rate,${r.effective_hourly_rate.toFixed(2)},${quote.currency}/hour`,
-      `target_price,${r.target_price.toFixed(2)},${quote.currency}`,
-      `gap_to_target,${r.gap_to_target.toFixed(2)},${quote.currency}`,
-      `cost_coverage,${r.cost_coverage.toFixed(2)},${quote.currency}`,
-      ...discountRows.map((row) => `discount_${row.percent}_price,${row.discounted_price.toFixed(2)},${quote.currency}`),
-      ...discountRows.map((row) => `discount_${row.percent}_hours_to_cut,${row.hours_to_cut === null ? "" : row.hours_to_cut.toFixed(2)},hours`),
-      ...killRows,
-    ].join("\n");
     try {
-      await navigator.clipboard.writeText(rows);
+      await navigator.clipboard.writeText(currentCsv());
       copyStatus.textContent = "Copied — paste into a spreadsheet.";
       recordEvent("csv_copied");
     } catch {
       copyStatus.textContent = "Couldn't access the clipboard in this browser.";
     }
+  });
+
+  downloadBtn.addEventListener("click", () => {
+    if (!lastReport) {
+      copyStatus.textContent = "Fix the inputs above first.";
+      return;
+    }
+    const blob = new Blob([currentCsv()], { type: "text/csv;charset=utf-8" });
+    const link = document.createElement("a");
+    link.href = URL.createObjectURL(blob);
+    link.download = "quote-margin-review.csv";
+    link.click();
+    setTimeout(() => URL.revokeObjectURL(link.href), 0);
+    copyStatus.textContent = "Downloaded quote-margin-review.csv.";
+    recordEvent("csv_downloaded");
   });
 
   const usageToggle = document.getElementById("usage-toggle");

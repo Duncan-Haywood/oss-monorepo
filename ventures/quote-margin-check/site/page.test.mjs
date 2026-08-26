@@ -43,7 +43,8 @@ test("calculator page renders the discount-ask table and records the event", asy
   assert.match(page, /discount_ask_compared/);
   assert.match(page, /if-they-ask-for-10-percent-off\.html/);
   assert.match(page, /Hours to cut to hold target/);
-  assert.match(page, /discount_\$\{row\.percent\}_hours_to_cut/);
+  assert.match(page, /quoteCsv/);
+  assert.match(page, /discountRows: discountAskScenarios/);
   assert.match(page, /No warranty/);
 });
 
@@ -78,7 +79,9 @@ test("calculator page renders the kill-fee table and records the event", async (
   assert.match(page, /kill_fee_compared/);
   assert.match(page, /should-i-take-this-kill-fee-or-finish\.html/);
   assert.match(page, /If you refill at target/);
-  assert.match(page, /kill_finish_cash/);
+  assert.match(page, /compared/);
+  assert.match(page, /id="download-csv"/);
+  assert.match(page, /csv_downloaded/);
   assert.match(page, /No warranty/);
 });
 

@@ -22,9 +22,11 @@ import {
   isPublishable,
   readMeta,
   renderHub,
+  pageUrlPath,
   renderFavicon,
   renderRobots,
   renderSitemapIndex,
+  renderVentureSitemap,
   truncate,
   REPO_ROOT,
   SOURCE_URL_PREFIX,
@@ -43,6 +45,49 @@ async function site() {
 }
 
 const read = async (...parts) => fs.readFile(path.join((await site()).outDir, ...parts), 'utf8');
+
+const exists = (target) => fs.access(target).then(() => true, () => false);
+
+/** The path component of a base URL, without the leading slash. */
+const pathOf = (baseUrl) => new URL(baseUrl).pathname.replace(/^\//, '');
+
+/** Every `.html` file in the built site, relative to its root. */
+async function allPages(dir, prefix = '') {
+  const entries = await fs.readdir(dir, { withFileTypes: true });
+  const pages = [];
+  for (const entry of entries) {
+    const relative = prefix ? `${prefix}/${entry.name}` : entry.name;
+    if (entry.isDirectory()) pages.push(...(await allPages(path.join(dir, entry.name), relative)));
+    else if (entry.name.endsWith('.html')) pages.push(relative);
+  }
+  return pages;
+}
+
+/**
+ * Every `<loc>` across the whole sitemap tree — the index and each sitemap it
+ * names — as site-root-relative paths. Checking only the root sitemap would
+ * pass while every venture underneath it pointed somewhere that 404s.
+ */
+async function sitemapUrlPaths() {
+  const { outDir } = await site();
+  const paths = new Set();
+
+  const collect = async (relative) => {
+    const file = path.join(outDir, relative);
+    if (!(await exists(file))) return;
+    for (const [, loc] of (await fs.readFile(file, 'utf8')).matchAll(/<loc>([^<]+)<\/loc>/g)) {
+      const urlPath = new URL(loc).pathname.replace(/^\//, '');
+      if (urlPath.endsWith('sitemap.xml') || urlPath.endsWith('sitemap-hub.xml')) {
+        await collect(urlPath.slice(pathOf(BASE).length));
+      } else {
+        paths.add(urlPath);
+      }
+    }
+  };
+
+  await collect('sitemap.xml');
+  return paths;
+}
 
 // ---------------------------------------------------------------------------
 // Discovery
@@ -296,14 +341,64 @@ test('robots.txt points at a sitemap that reaches the hub and every venture', as
   assert.ok(hubMap.includes(`<loc>${BASE}</loc>`));
 });
 
-test('a tool without its own sitemap is still listed', async () => {
-  const surfaces = [
-    { slug: 'has-one', hasSitemap: true },
-    { slug: 'has-none', hasSitemap: false },
-  ];
-  const index = renderSitemapIndex(surfaces, BASE);
-  assert.ok(index.includes(`${BASE}has-one/sitemap.xml`));
-  assert.ok(!index.includes('has-none/sitemap.xml'), 'do not point at a sitemap that is not there');
+test('the index points at a sitemap for every published tool', async () => {
+  const { surfaces } = await site();
+  const index = await read('sitemap.xml');
+
+  assert.ok(index.includes(`${BASE}sitemap-hub.xml`), 'the hub page needs a crawlable home');
+  for (const surface of surfaces) {
+    assert.ok(
+      index.includes(`${BASE}${surface.slug}/sitemap.xml`),
+      `${surface.slug} is served but its sitemap is not in the index`,
+    );
+  }
+});
+
+// Organic search is the whole acquisition route for these tools, so the two
+// ways a sitemap can quietly fail both get a test over the real artifact.
+
+test('every page the site serves is listed in some sitemap', async () => {
+  const listed = await sitemapUrlPaths();
+  const { outDir } = await site();
+
+  const orphans = [];
+  for (const page of await allPages(outDir)) {
+    if (page === '404.html') continue;
+    const candidates = [`/${page}`];
+    if (page.endsWith('/index.html')) candidates.push(`/${page.slice(0, -'index.html'.length)}`);
+    if (page === 'index.html') candidates.push('/');
+    if (!candidates.some((c) => listed.has(pathOf(BASE) + c.slice(1)))) orphans.push(page);
+  }
+
+  assert.deepEqual(orphans, [], 'served but invisible to crawlers');
+});
+
+test('every sitemap URL resolves to a page that shipped', async () => {
+  const { outDir } = await site();
+  const dead = [];
+
+  for (const urlPath of await sitemapUrlPaths()) {
+    const relative = urlPath.slice(pathOf(BASE).length);
+    // A sitemap index lists sitemaps; a urlset lists pages. Both must exist.
+    const target = relative === '' ? 'index.html' : relative.endsWith('/') ? `${relative}index.html` : relative;
+    if (!(await exists(path.join(outDir, target)))) dead.push(urlPath);
+  }
+
+  assert.deepEqual(dead, [], 'a sitemap URL that 404s is worse than no sitemap at all');
+});
+
+test('a generated sitemap lists directories, not index.html', () => {
+  const xml = renderVentureSitemap('tool', ['index.html', 'compare.html', 'guides/index.html'], BASE);
+  assert.ok(xml.includes(`<loc>${BASE}tool/</loc>`));
+  assert.ok(xml.includes(`<loc>${BASE}tool/compare.html</loc>`));
+  assert.ok(xml.includes(`<loc>${BASE}tool/guides/</loc>`));
+  assert.ok(!xml.includes('index.html'), 'index.html is served as its directory');
+});
+
+test('pageUrlPath maps a published file to the URL it is served at', () => {
+  assert.equal(pageUrlPath('tool', 'index.html'), 'tool/');
+  assert.equal(pageUrlPath('tool', 'compare.html'), 'tool/compare.html');
+  assert.equal(pageUrlPath('tool', 'nested/index.html'), 'tool/nested/');
 });
 
 test('a favicon is emitted, because every page requests one whether or not it links one', async () => {
