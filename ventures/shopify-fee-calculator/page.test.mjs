@@ -1,11 +1,15 @@
-// Structural tests for index.html. calc.test.mjs never looks at the page, so
-// a promo table that advertises five columns and emits four cells would stay
-// green. Same class of defect as where-to-sell-calculator/page.test.mjs.
+// Structural tests for the POS vs online page.
+//
+// calc.test.mjs never looks at the HTML, so it stays green if the page
+// drops a column, forgets to render a advertised figure, or formats null
+// with .toFixed. Kept dependency-free so CI stays `node --test`.
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 
-const html = readFileSync(new URL("./index.html", import.meta.url), "utf8");
+const html = readFileSync(new URL("./shopify-pos-vs-online-fees.html", import.meta.url), "utf8");
+const sitemap = readFileSync(new URL("./sitemap.xml", import.meta.url), "utf8");
+const index = readFileSync(new URL("./index.html", import.meta.url), "utf8");
 
 function parse(source) {
   const RAW = /<(textarea|script|style)\b[^>]*>/i;
@@ -28,38 +32,56 @@ function parse(source) {
 
 const { markup, scripts, unclosed } = parse(html);
 const scriptSource = scripts.join("\n");
-const promoRow = scriptSource.match(/<tr><td>\$\{row\.label\}[\s\S]*?<\/tr>/);
+const rowTemplate = scriptSource.match(/<tr class="\$\{row\.profit === bestProfit[\s\S]*?<\/tr>/);
 
 test("every raw-text element is closed", () => {
   assert.equal(unclosed, null, `<${unclosed}> is never closed`);
 });
 
-test("the promo row template exists", () => {
-  assert.ok(promoRow, "could not find the promo <tr> template in update()");
+test("the page imports the comparison it claims to run", () => {
+  assert.match(scriptSource, /compareOnlineVsPos/);
+  assert.match(scriptSource, /pos_online_compared/);
 });
 
-test("promo table columns match the row template", () => {
-  const headerBlock = markup.match(/<tbody id="promos"><\/tbody>/);
-  assert.ok(headerBlock, "promos tbody missing");
-  const promoTable = markup.match(
-    /<h2>Same order, four checkout offers<\/h2>[\s\S]*?<thead>[\s\S]*?<\/thead>/,
+test("every results column has a cell, and every cell has a column", () => {
+  assert.ok(rowTemplate, "could not find the per-path <tr> template");
+  const headers = [...markup.matchAll(/<th scope="col"[^>]*>([\s\S]*?)<\/th>/g)].map((m) =>
+    m[1].replace(/\s+/g, " ").trim());
+  const cells = (rowTemplate[0].match(/<t[hd][\s>]/g) || []).length;
+  assert.equal(
+    cells,
+    headers.length,
+    `table declares ${headers.length} columns (${headers.join(" | ")}) but the row emits ${cells} cells`,
   );
-  assert.ok(promoTable, "promo table thead missing");
-  const headers = [...promoTable[0].matchAll(/<th scope="col"[^>]*>([\s\S]*?)<\/th>/g)].map((m) =>
-    m[1].replace(/\s+/g, " ").trim(),
-  );
-  const cells = (promoRow[0].match(/<t[hd][\s>]/g) || []).length;
-  assert.deepEqual(headers, ["Offer", "Revenue", "Fees", "Profit", "vs list"]);
-  assert.equal(cells, headers.length, `row emits ${cells} cells for ${headers.length} columns`);
 });
 
-test("advertised promo comparison is actually computed and rendered", () => {
+test("figures named in schema.org featureList are actually rendered", () => {
   const featureList = html.match(/"featureList":\s*"([^"]+)"/);
-  assert.ok(featureList, "no schema.org featureList");
-  assert.match(featureList[1], /free-shipping promo comparison/i);
-  assert.match(scriptSource, /comparePromos/);
-  assert.match(scriptSource, /promoComparisonSummary/);
-  assert.match(scriptSource, /promos_compared/);
-  assert.match(markup, /id="percentOff"/);
-  assert.match(markup, /id="amountOff"/);
+  assert.ok(featureList, "no schema.org featureList found");
+  const claims = [
+    ["same-ticket in-person rate gap", /result\.inPersonSameTicket|result\.extraKeptOnSameTicket/],
+    ["in-person pickup profit", /result\.inPersonPickup/],
+    ["card reader recovery orders", /result\.ordersToRecoverHardware/],
+  ];
+  for (const [claim, rendered] of claims) {
+    assert.ok(
+      featureList[1].toLowerCase().includes(claim.toLowerCase()),
+      `featureList no longer advertises "${claim}"`,
+    );
+    assert.match(scriptSource, rendered, `featureList advertises "${claim}" but the page never renders it`);
+  }
+});
+
+test("null reader recovery is rendered as a placeholder, not .toFixed on null", () => {
+  assert.match(scriptSource, /ordersToRecoverHardware === null/);
+});
+
+test("hosted surface carries the no-SLA sentence the playbook requires", () => {
+  assert.match(markup, /Best-effort hosting, no SLA/);
+  assert.match(markup, /No warranty/);
+});
+
+test("index and sitemap point at the POS comparison", () => {
+  assert.match(index, /shopify-pos-vs-online-fees\.html/);
+  assert.match(sitemap, /shopify-pos-vs-online-fees\.html/);
 });
