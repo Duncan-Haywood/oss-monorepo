@@ -565,6 +565,177 @@ export function compareHoistway(input) {
     .sort((a, b) => a.price - b.price);
 }
 
+export const SUPPLY_PRESETS = Object.freeze([
+  {
+    id: 'contractor-supplied',
+    label: 'You supply the unit',
+    detail: 'Unit invoice stays in the bid',
+  },
+  {
+    id: 'owner-fits',
+    label: 'Owner supplies — it fits',
+    detail: 'No unit invoice, same set hours',
+  },
+  {
+    id: 'owner-wrong',
+    label: 'Owner supplies — wrong opening',
+    detail: 'Second trip plus an adapter / floor-frame kit',
+  },
+]);
+
+/**
+ * Starting callback hours and opening hardware when the
+ * owner's store-bought vacuum unit does not match the
+ * hoistway. Taken from the extra-kit trip, the permit
+ * hours (re-cut / resubmit), and the pit invoice (adapter
+ * plates / floor-frame) so a typed unit invoice does not
+ * leak into the "they bought it" case.
+ */
+export function suggestedOwnerCallbackKit() {
+  const extra = suggestedExtraKit();
+  return {
+    hoursCallbackTrip: extra.hoursTrip,
+    hoursWrongOpening: extra.hoursPermit,
+    wrongOpeningInvoice: extra.pitInvoice,
+  };
+}
+
+function scoreInstallOnly(bid, installPrice) {
+  if (installPrice === null) return null;
+  return {
+    price: installPrice,
+    profit: installPrice - bid.totalCost,
+    margin: installPrice === 0 ? 0 : (installPrice - bid.totalCost) / installPrice * 100,
+    hourlyRate: bid.totalHours === 0 ? null : installPrice / bid.totalHours,
+    belowBreakEven: installPrice < bid.totalCost,
+  };
+}
+
+/**
+ * Price the same house three ways: you supply the unit, the
+ * owner supplies one that fits, or the owner supplies one
+ * that does not fit and costs a second trip.
+ *
+ * Owner rows zero the unit invoice and keep the current set
+ * hours — setting their Stiltz / Savaria is still a set. The
+ * wrong-opening row adds a starting inspect trip and adapter
+ * / floor-frame hardware on top of the current rates so a
+ * typed invoice does not leak into the "they bought it"
+ * case. Cab invoice stays off the owner-row override except
+ * as the callback hardware line so unitInvoice never appears
+ * on an owner row.
+ *
+ * An install-only price (options.installOnlyPrice, else the
+ * proposed price on the bid) is scored against each cost
+ * base. That is the $4,995 "just install what I bought"
+ * number contractors actually get shopped on.
+ */
+export function compareOwnerSupply(input, options = {}) {
+  const callback = suggestedOwnerCallbackKit();
+  const hoursTrip = number(input.hoursTrip ?? 0, 'Trip hours');
+  const hoursCab = number(input.hoursCab ?? 0, 'Cab hours');
+  const cabInvoice = number(input.cabInvoice ?? 0, 'Cab invoice');
+
+  let installPrice = null;
+  const rawInstall = options.installOnlyPrice !== undefined
+    ? options.installOnlyPrice
+    : input.proposedPrice;
+  if (rawInstall !== null && rawInstall !== undefined && rawInstall !== '') {
+    installPrice = number(rawInstall, 'Install-only price');
+  }
+
+  const contractor = calculateBid(input);
+  const ownerFits = calculateBid({ ...input, unitInvoice: 0 });
+  const ownerWrong = calculateBid({
+    ...input,
+    unitInvoice: 0,
+    hoursTrip: hoursTrip + callback.hoursCallbackTrip,
+    hoursCab: hoursCab + callback.hoursWrongOpening,
+    cabInvoice: cabInvoice + callback.wrongOpeningInvoice,
+  });
+
+  const rows = [
+    {
+      supply: 'contractor-supplied',
+      label: SUPPLY_PRESETS[0].label,
+      detail: SUPPLY_PRESETS[0].detail,
+      bid: contractor,
+    },
+    {
+      supply: 'owner-fits',
+      label: SUPPLY_PRESETS[1].label,
+      detail: SUPPLY_PRESETS[1].detail,
+      bid: ownerFits,
+    },
+    {
+      supply: 'owner-wrong',
+      label: SUPPLY_PRESETS[2].label,
+      detail: SUPPLY_PRESETS[2].detail,
+      bid: ownerWrong,
+    },
+  ].map((row) => ({
+    supply: row.supply,
+    label: row.label,
+    detail: row.detail,
+    price: row.bid.price,
+    totalCost: row.bid.totalCost,
+    totalHours: row.bid.totalHours,
+    fixtureMaterial: row.bid.fixtureMaterial,
+    cabMaterial: row.bid.cabMaterial,
+    hoursTravel: row.bid.hoursTravel,
+    hoursCab: row.bid.hoursCab,
+    hoursUnit: row.bid.hoursUnit,
+    breakEvenPrice: row.bid.breakEvenPrice,
+    installOnly: scoreInstallOnly(row.bid, installPrice),
+    savedVsContractor: contractor.price - row.bid.price,
+  }));
+
+  const cheapest = Math.min(...rows.map((row) => row.price));
+  return rows.map((row) => ({
+    ...row,
+    cheapest: row.price === cheapest,
+    delta: row.price - cheapest,
+    installOnlyPrice: installPrice,
+  }));
+}
+
+/**
+ * One-line verdict for the owner-supplied table. Names the
+ * install-only loss when that number is on the table; otherwise
+ * names the bid drop from zeroing the unit invoice.
+ */
+export function ownerSupplyNote(rows) {
+  if (!Array.isArray(rows) || rows.length < 3) {
+    throw new Error('Owner-supply comparison is missing rows');
+  }
+  const contractor = rows.find((row) => row.supply === 'contractor-supplied');
+  const fits = rows.find((row) => row.supply === 'owner-fits');
+  const wrong = rows.find((row) => row.supply === 'owner-wrong');
+  if (!contractor || !fits || !wrong) {
+    throw new Error('Owner-supply comparison is missing a supply row');
+  }
+
+  const drop = contractor.price - fits.price;
+  const callbackLift = wrong.price - fits.price;
+  if (contractor.installOnly && fits.installOnly) {
+    const asked = contractor.installOnly.price;
+    if (contractor.installOnly.belowBreakEven && fits.installOnly.belowBreakEven) {
+      return `At ${money(asked)} install-only you lose money even when they bought the unit. Walk-away on the owner-supplied set is ${money(fits.breakEvenPrice)}.`;
+    }
+    if (contractor.installOnly.belowBreakEven && !fits.installOnly.belowBreakEven) {
+      if (wrong.installOnly?.belowBreakEven) {
+        return `At ${money(asked)} the contractor-supplied job loses ${money(Math.abs(contractor.installOnly.profit))}. The same install-only number covers the set if their unit actually fits. A wrong-opening callback still loses ${money(Math.abs(wrong.installOnly.profit))} — walk-away then is ${money(wrong.breakEvenPrice)}.`;
+      }
+      return `At ${money(asked)} the contractor-supplied job loses ${money(Math.abs(contractor.installOnly.profit))}. The same install-only number covers the set if their unit actually fits.`;
+    }
+    if (wrong.installOnly?.belowBreakEven) {
+      return `At ${money(asked)} the set covers if their unit fits. A wrong-opening callback still loses ${money(Math.abs(wrong.installOnly.profit))} — walk-away then is ${money(wrong.breakEvenPrice)}.`;
+    }
+    return `At ${money(asked)} both supply paths hold a margin. A wrong-opening callback still adds ${money(callbackLift)} to the bid.`;
+  }
+  return `Zeroing the unit invoice drops the bid ${money(drop)}. A wrong-opening callback puts ${money(callbackLift)} back on.`;
+}
+
 function money(value) {
   return `$${value.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
 }

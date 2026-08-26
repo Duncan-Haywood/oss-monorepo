@@ -10,6 +10,7 @@ import { readFileSync } from 'node:fs';
 
 const html = readFileSync(new URL('./index.html', import.meta.url), 'utf8');
 const seo = readFileSync(new URL('./how-much-to-charge-to-install-a-home-elevator.html', import.meta.url), 'utf8');
+const supplySeo = readFileSync(new URL('./should-i-install-a-customer-supplied-home-elevator.html', import.meta.url), 'utf8');
 
 const RAW_TEXT_ELEMENTS = ['textarea', 'script', 'style'];
 
@@ -50,6 +51,8 @@ test('the module script survives parsing and would actually execute', () => {
   assert.match(scriptSource, /calculateBid/, 'the app script did not parse as a script element');
   assert.match(scriptSource, /compareDrive/, 'drive comparison is missing from the executable script');
   assert.match(scriptSource, /compareHoistway/, 'hoistway comparison is missing from the executable script');
+  assert.match(scriptSource, /compareOwnerSupply/, 'owner-supply comparison is missing from the executable script');
+  assert.match(scriptSource, /ownerSupplyNote/, 'owner-supply verdict is missing from the executable script');
   assert.match(scriptSource, /formatBidSummary/, 'copy-summary helper is missing from the executable script');
 });
 
@@ -67,7 +70,7 @@ test('inputs and result fields for the primary journey are present', () => {
   for (const id of [
     'drive', 'hoistway', 'cab', 'stops', 'travelFeet', 'travelMiles',
     'hourlyWage', 'targetMargin', 'proposedPrice',
-    'price', 'breakEven', 'compare', 'drives', 'copySummary', 'usageOptOut', 'jobPresets',
+    'price', 'breakEven', 'compare', 'drives', 'supply', 'supplyNote', 'copySummary', 'usageOptOut', 'jobPresets',
   ]) {
     assert.ok(declaredIds.has(id), `missing #${id}`);
   }
@@ -80,6 +83,25 @@ test('the landing page names the problem in the contractor\'s words', () => {
   assert.match(html, /SoftwareApplication/);
   assert.match(html, /Same house, four drives/);
   assert.match(html, /vs pneumatic/);
+  assert.match(html, /Same house, who bought the unit/);
+});
+
+test('the owner-supply article answers the search phrase and stays crawlable', () => {
+  assert.match(supplySeo, /Should I install a customer-supplied home elevator/i);
+  assert.match(supplySeo, /FAQPage/);
+  assert.match(supplySeo, /\$4,995/);
+  assert.match(supplySeo, /\$6,995/);
+  assert.match(supplySeo, /\$5,811/);
+  assert.match(supplySeo, /\$9,226/);
+  assert.match(supplySeo, /wrong opening/i);
+  assert.match(supplySeo, /index\.html/);
+  assert.match(supplySeo, /No warranty/);
+  assert.match(supplySeo, /no SLA/i);
+  assert.doesNotMatch(supplySeo, /<textarea/i);
+});
+
+test('the landing page links the customer-supplied unit question', () => {
+  assert.match(html, /should-i-install-a-customer-supplied-home-elevator\.html/);
 });
 
 test('disclaimer and privacy line are visible, not only in the README', () => {
@@ -96,5 +118,6 @@ test('the SEO article answers the search phrase and stays crawlable', () => {
   assert.match(seo, /pneumatic/i);
   assert.match(seo, /Pneumatic versus hydraulic on the same house/i);
   assert.match(seo, /index\.html/);
+  assert.match(seo, /should-i-install-a-customer-supplied-home-elevator\.html/);
   assert.doesNotMatch(seo, /<textarea/i);
 });

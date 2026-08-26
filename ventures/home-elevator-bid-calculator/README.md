@@ -8,10 +8,11 @@ masonry shaft versus glass, then a pit, a 240 V feeder, and a permit —
 and shows the margin before the price goes out.
 
 **After using this, you can now** send a walk-away home-elevator
-price that sees the stops and the shaft, **which used to take**
-matching a published $18,995 pneumatic special that treats a
-through-floor tube as the same job as a three-stop hydraulic in a
-new wood hoistway.
+price that sees the stops, the shaft, and whether they already
+bought the unit, **which used to take** matching a published
+$18,995 pneumatic special — or a $4,995 “just set what I bought”
+install-only number — that treats a through-floor tube as the same
+job as a three-stop hydraulic in a new wood hoistway.
 
 **Open [`index.html`](index.html) directly in a browser**, or serve this
 directory statically. It is a self-contained, zero-dependency page: no build
@@ -73,15 +74,18 @@ elevator.
 It then reports price per stop, effective hourly rate, the hour
 split, a four-drive comparison on the same house, a five-hoistway
 comparison on the same house (the shaft upgrade versus the
-through-floor special), and the **walk-away price**. Entering a
-price already on the table scores it against the same cost base.
-**Copy bid summary** turns the result into a plain-text draft ready
-to paste into a proposal.
+through-floor special), a who-supplies comparison (you supply the
+unit versus they already bought one that fits versus a wrong
+opening), and the **walk-away price**. Entering a price already on
+the table scores it against the same cost base, including the
+install-only number they quoted you. **Copy bid summary** turns
+the result into a plain-text draft ready to paste into a proposal.
 
 The arithmetic lives in [`calc.mjs`](calc.mjs). See
 [`calc.test.mjs`](calc.test.mjs).
 
-Search phrase: [`how-much-to-charge-to-install-a-home-elevator.html`](how-much-to-charge-to-install-a-home-elevator.html).
+Search phrases: [`how-much-to-charge-to-install-a-home-elevator.html`](how-much-to-charge-to-install-a-home-elevator.html)
+and [`should-i-install-a-customer-supplied-home-elevator.html`](should-i-install-a-customer-supplied-home-elevator.html).
 
 ## Privacy
 
@@ -102,7 +106,7 @@ when the browser sends Do Not Track or Global Privacy Control. See
 
 Events counted: `bid_calculated`, `preset_applied`, `drive_changed`,
 `hoistway_changed`, `cab_changed`, `proposed_price_compared`,
-`summary_copied`.
+`summary_copied`, `owner_supply_compared`.
 
 ## Limitations
 

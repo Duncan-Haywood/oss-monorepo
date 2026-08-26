@@ -605,6 +605,18 @@ products:
           tub (alcove plumbing). Public URL remains owner-gated; the
           local-first counter reports only to the user's own browser
           and is opt-out. Baseline row.
+      - as_of: 2026-08-26
+        signals:
+          live_url_visitors: null
+          local_events_reported: 0
+        note: >-
+          Added owner-supplied versus contractor-supplied comparison
+          (compareOwnerSupply) plus a should-I-install-a-customer-supplied
+          home elevator page. Default cheap special: $4,995 install-only
+          still loses about $816 when they bought a tube that fits
+          (walk-away about $5,811); $6,995 covers that set (keeps about
+          $1,184) and a wrong opening walks away about $9,226. Public URL
+          remains owner-gated.
   - slug: freelance-retainer-calculator
     surface: static-page-in-repo
     readings:
