@@ -2613,3 +2613,17 @@ products:
           Shipped a local air-duct-cleaning bid calculator with a copyable
           proposal summary; public URL remains owner-gated. Counters are
           local, aggregate, and opt-out.
+  - slug: exterior-painting-bid-calculator
+    surface: static-page-in-repo
+    readings:
+      - as_of: 2026-08-25
+        signals:
+          live_url_visitors: null
+          local_calculations: 0
+          local_summary_copies: 0
+        note: >-
+          Shipped a zero-dependency browser calculator for exterior painting
+          contractors to price extra stories, extra elevation, scrape and
+          prime, extra trim, and hard access instead of a published $3,999
+          house special. Public URL remains owner-gated; counters are local,
+          aggregate, and opt-out.
