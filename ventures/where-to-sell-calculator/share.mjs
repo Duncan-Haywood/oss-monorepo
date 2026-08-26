@@ -8,6 +8,7 @@ const CHANNEL_FIELDS = [
   "price", "shippingCharged", "shippingCost", "fulfilmentCost",
   "commissionRate", "paymentRate", "paymentFixed", "perListingFee",
   "monthlyFee", "adRate",
+  "returnRate", "returnShippingCost", "resellableRate", "feeRefundRate",
 ];
 
 export function encodeComparison(shared = {}, channels = []) {
@@ -16,6 +17,7 @@ export function encodeComparison(shared = {}, channels = []) {
       .filter((key) => shared[key] !== undefined)
       .map((key) => [key, shared[key]])),
     includeSubscription: shared.includeSubscription !== false,
+    includeReturns: shared.includeReturns !== false,
     channels: channels.map((channel) => ({
       id: channel.id,
       enabled: channel.enabled !== false,
@@ -44,7 +46,12 @@ export function decodeComparison(value) {
         ...Object.fromEntries(CHANNEL_FIELDS.map((key) => [key, channel.values?.[key]])
           .filter(([, value]) => value !== undefined && value !== "")),
       })) : [];
-    return { shared, includeSubscription: parsed.includeSubscription !== false, channels };
+    return {
+      shared,
+      includeSubscription: parsed.includeSubscription !== false,
+      includeReturns: parsed.includeReturns !== false,
+      channels,
+    };
   } catch {
     return null;
   }

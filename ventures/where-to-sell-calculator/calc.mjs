@@ -32,6 +32,13 @@ export const CHANNEL_PRESETS = [
     perListingFee: 0,
     monthlyFee: 0,
     adRate: 0,
+    // Illustrative return assumptions, not a published marketplace rate.
+    // eBay buyers usually pay outbound; sellers often eat return postage and
+    // get the final-value fee back. Replace with your own return report.
+    returnRate: 8,
+    returnShippingCost: 6,
+    resellableRate: 90,
+    feeRefundRate: 100,
   },
   {
     id: "etsy",
@@ -43,6 +50,10 @@ export const CHANNEL_PRESETS = [
     perListingFee: 0.2,
     monthlyFee: 0,
     adRate: 0,
+    returnRate: 4,
+    returnShippingCost: 6,
+    resellableRate: 85,
+    feeRefundRate: 100,
   },
   {
     id: "amazon",
@@ -54,6 +65,11 @@ export const CHANNEL_PRESETS = [
     perListingFee: 0,
     monthlyFee: 39.99,
     adRate: 0,
+    // Amazon return rates run higher than most channels, especially apparel.
+    returnRate: 18,
+    returnShippingCost: 7,
+    resellableRate: 80,
+    feeRefundRate: 100,
   },
   {
     id: "own-store",
@@ -65,6 +81,11 @@ export const CHANNEL_PRESETS = [
     perListingFee: 0,
     monthlyFee: 39,
     adRate: 0,
+    // Card processors often keep the processing fee on a refunded order.
+    returnRate: 10,
+    returnShippingCost: 6,
+    resellableRate: 90,
+    feeRefundRate: 0,
   },
   {
     id: "local",
@@ -80,6 +101,10 @@ export const CHANNEL_PRESETS = [
     // shipping zeroed rather than inheriting the shared shipping numbers.
     shippingCharged: 0,
     shippingCost: 0,
+    returnRate: 2,
+    returnShippingCost: 0,
+    resellableRate: 95,
+    feeRefundRate: 100,
   },
   {
     id: "other",
@@ -91,6 +116,10 @@ export const CHANNEL_PRESETS = [
     perListingFee: 0,
     monthlyFee: 0,
     adRate: 0,
+    returnRate: 0,
+    returnShippingCost: 0,
+    resellableRate: 100,
+    feeRefundRate: 100,
     // Off until the seller fills it in: a channel with every rate at zero
     // would otherwise win every comparison by default and say nothing.
     enabled: false,
@@ -107,6 +136,12 @@ function number(value, name, fallback = 0) {
 function wholeNumber(value, name, fallback = 0) {
   const result = number(value, name, fallback);
   if (!Number.isInteger(result)) throw new Error(`${name} must be a whole number`);
+  return result;
+}
+
+function ratePercent(value, name, fallback = 0) {
+  const result = number(value, name, fallback);
+  if (result > 100) throw new Error(`${name} must be between 0 and 100`);
   return result;
 }
 
@@ -178,6 +213,44 @@ export function calculateChannel(channel, shared = {}) {
   // both break-even and the price that reaches a given profit.
   const fixedCash = paymentFixed + perListingFee + subscriptionShare + cashInvested;
 
+  // Expected value of one listing attempt once some share of orders come back.
+  // A completed sale keeps `profit`. A return refunds the buyer, may refund a
+  // share of percentage and fixed payment fees, and still costs outbound
+  // postage, packaging, fulfilment, return postage, the listing / plan share,
+  // and any unit that cannot be sold again. Listing fees and the monthly-plan
+  // share are treated as not refunded — that is how the major channels bill.
+  const returnRate = ratePercent(channel.returnRate, `${label} return rate`, 0);
+  const returnShippingCost = number(channel.returnShippingCost, `${label} return shipping`, 0);
+  const resellableRate = ratePercent(channel.resellableRate, `${label} still-sellable rate`, 100);
+  const feeRefundRate = ratePercent(channel.feeRefundRate, `${label} fee refund rate`, 100);
+  const returnedShare = returnRate / 100;
+  const feeRefundShare = feeRefundRate / 100;
+  const refundableFees = fees.commission + fees.payment + fees.ads;
+  const keptFeesOnReturn = fees.listing + fees.subscription + refundableFees * (1 - feeRefundShare);
+  const spentRegardless = packagingCost + otherCost + shippingCost + fulfilmentCost;
+  const unsellableLoss = itemCost * (1 - resellableRate / 100);
+  const returnedProfit = -keptFeesOnReturn - spentRegardless - returnShippingCost - unsellableLoss;
+  const expectedProfit = (1 - returnedShare) * profit + returnedShare * returnedProfit;
+  const returnDrag = profit - expectedProfit;
+
+  // expectedProfit is linear in revenue, so break-even and a target expected
+  // profit have a closed form. When the return rate is zero this collapses
+  // to the sold-sale break-even already on `breakEvenPrice`.
+  const listingAndSub = fees.listing + fees.subscription;
+  const revCoeff = (1 - returnedShare) * (1 - percentRate)
+    - returnedShare * (1 - feeRefundShare) * percentRate;
+  const expectedConstant = (1 - returnedShare) * (-paymentFixed - listingAndSub - cashInvested)
+    + returnedShare * (
+      -listingAndSub
+      - paymentFixed * (1 - feeRefundShare)
+      - spentRegardless
+      - returnShippingCost
+      - unsellableLoss
+    );
+  const expectedBreakEvenPrice = revCoeff > 0
+    ? Math.max(0, -expectedConstant / revCoeff - shippingCharged)
+    : null;
+
   return {
     id: channel.id ?? null,
     label,
@@ -189,7 +262,16 @@ export function calculateChannel(channel, shared = {}) {
     feeTotal,
     cashInvested,
     profit,
+    expectedProfit,
+    returnedProfit,
+    returnDrag,
+    returnRate,
+    returnShippingCost,
+    resellableRate,
+    feeRefundRate,
+    expectedBreakEvenPrice,
     margin: revenue === 0 ? 0 : (profit / revenue) * 100,
+    expectedMargin: revenue === 0 ? 0 : (expectedProfit / revenue) * 100,
     // Undefined rather than infinite when nothing was invested (a giveaway, a
     // digital item with no per-unit cost).
     roi: cashInvested === 0 ? null : (profit / cashInvested) * 100,
@@ -206,6 +288,19 @@ export function calculateChannel(channel, shared = {}) {
       const target = Number(targetProfit);
       if (!Number.isFinite(target)) throw new Error("Target profit must be a number");
       return Math.max(0, (fixedCash + target) / (1 - percentRate) - shippingCharged);
+    },
+    /**
+     * Item price this channel needs so the *expected* keep after returns
+     * matches `targetProfit`. Same closed form as sold `priceForProfit`
+     * when the return rate is zero.
+     */
+    priceForExpectedProfit(targetProfit) {
+      const target = Number(targetProfit);
+      if (!Number.isFinite(target)) throw new Error("Target profit must be a number");
+      if (revCoeff <= 0) {
+        throw new Error(`${label}: expected profit cannot be solved at these return and fee rates`);
+      }
+      return Math.max(0, (target - expectedConstant) / revCoeff - shippingCharged);
     },
   };
 }
@@ -224,10 +319,17 @@ export function compareChannels(channels, shared = {}) {
   const active = channels.filter((channel) => channel?.enabled !== false);
   if (active.length === 0) throw new Error("Switch on at least one channel to compare");
   const results = active.map((channel) => calculateChannel(channel, shared));
-  const best = results.reduce((winner, result) => (result.profit > winner.profit ? result : winner));
+  // Rank on expected keep after returns unless the seller has turned that
+  // overlay off. Sold-sale profit is still on every row so the table can
+  // show the flip: a channel can win on a completed sale and lose once
+  // returns are counted.
+  const includeReturns = shared.includeReturns !== false;
+  const score = (result) => (includeReturns ? result.expectedProfit : result.profit);
+  const best = results.reduce((winner, result) => (score(result) > score(winner) ? result : winner));
 
-  const ranked = [...results].sort((a, b) => b.profit - a.profit);
+  const ranked = [...results].sort((a, b) => score(b) - score(a));
   const rankById = new Map(ranked.map((result, index) => [result, index + 1]));
+  const bestScore = score(best);
 
   return {
     results: results.map((result) => ({
@@ -235,21 +337,28 @@ export function compareChannels(channels, shared = {}) {
       rank: rankById.get(result),
       isBest: result === best,
       // Negative or zero for the winner; for everyone else, the cash this
-      // channel gives up on the same item.
-      gapVsBest: best.profit - result.profit,
-      // What this channel would have to charge to match the winner's profit.
-      // Null on the winner itself, where the question is meaningless.
-      priceToMatchBest: result === best ? null : result.priceForProfit(best.profit),
+      // channel gives up on the same item (sold, or expected after returns).
+      gapVsBest: bestScore - score(result),
+      // What this channel would have to charge to match the winner. Null on
+      // the winner itself, where the question is meaningless.
+      priceToMatchBest: result === best
+        ? null
+        : includeReturns
+          ? result.priceForExpectedProfit(best.expectedProfit)
+          : result.priceForProfit(best.profit),
     })),
     ranked: ranked.map((result) => result.label),
+    includeReturns,
     best: {
       id: best.id,
       label: best.label,
-      profit: best.profit,
-      margin: best.margin,
+      profit: bestScore,
+      soldProfit: best.profit,
+      expectedProfit: best.expectedProfit,
+      margin: includeReturns ? best.expectedMargin : best.margin,
     },
     // How much the channel choice is worth on this one item, before any
     // difference in how many buyers each channel actually reaches.
-    spread: best.profit - ranked[ranked.length - 1].profit,
+    spread: bestScore - score(ranked[ranked.length - 1]),
   };
 }

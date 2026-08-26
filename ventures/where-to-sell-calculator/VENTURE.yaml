@@ -1,5 +1,5 @@
 name: where-to-sell-calculator
-description: A private browser calculator that puts one item through every channel a small seller can list it on — eBay, Etsy, Amazon, an own store, a direct sale — and reports net profit after each channel's fee shape, plus the price each channel needs to match the best one.
+description: A private browser calculator that puts one item through every channel a small seller can list it on — eBay, Etsy, Amazon, an own store, a direct sale — and reports net profit after each channel's fee shape and expected keep after returns, plus the price each channel needs to match the best one.
 stage: prototype
 owner: duncan
 hypotheses:
