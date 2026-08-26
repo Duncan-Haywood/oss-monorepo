@@ -602,7 +602,7 @@ def _markdown_text(value: str) -> str:
 
 
 def main(argv: list[str] | None = None) -> int:
-    parser = argparse.ArgumentParser(description="Check a local JSON or UBL XML e-invoice before submission. No tax advice or submission.")
+    parser = argparse.ArgumentParser(description="Check a local JSON, UBL XML, or UN/CEFACT CII e-invoice before submission. No tax advice or submission.")
     parser.add_argument("--version", action="version", version=f"einvoice-preflight {VERSION}")
     parser.add_argument("invoice", type=Path, help="JSON/XML file, directory of JSON/XML files, or '-' for stdin")
     parser.add_argument("--format", choices=("text", "summary", "json", "jsonl", "remediation", "checklist", "markdown", "html", "csv", "junit", "sarif", "github"), default="text")
