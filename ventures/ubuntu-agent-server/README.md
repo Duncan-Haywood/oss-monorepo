@@ -1,10 +1,19 @@
 # ubuntu-agent-server
 
+The Hetzner k3s + Argo path for the two Helsinki boxes lives at the repo
+root: [`infra/`](../../infra/), [`bootstrap/`](../../bootstrap/),
+[`gitops/`](../../gitops/). This Ansible playbook stays as the LAN /
+Tailscale single-box runner. Do not dual-drive the same host with both.
+
 Ansible playbook to provision a fresh **Ubuntu Server** install into a 24/7
 host that has coding agents — Claude Code, OpenAI Codex CLI, Antigravity CLI
 (agy), opencode — working on your repos unattended: watching GitHub issues
 (including ones they file themselves), running headless, and opening PRs for
 review. (Grok Build is intentionally not automated — see below.)
+
+This is the **agent box**. Public products do not go here — they go on
+GitHub Pages or the separate Hetzner product box. See
+[`portfolio/hosting/README.md`](../../portfolio/hosting/README.md).
 
 **Read "How it runs" below before enabling this for real.** The playbook
 installs everything disabled by default (a kill-switch var, and `dry_run:

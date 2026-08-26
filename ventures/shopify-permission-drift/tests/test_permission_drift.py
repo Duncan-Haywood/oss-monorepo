@@ -6,7 +6,7 @@ from pathlib import Path
 import sys
 
 sys.path.insert(0, str(Path(__file__).parents[1] / "src"))
-from permission_drift import compare, load_inventory, usage_event, write_report
+from permission_drift import compare, load_inventory, render_markdown, usage_event, write_report
 
 
 class PermissionDriftTests(unittest.TestCase):
@@ -55,6 +55,19 @@ class PermissionDriftTests(unittest.TestCase):
         warnings = [line for line in result.stdout.splitlines() if line.startswith("::warning")]
         self.assertEqual(len(warnings), 2)
         self.assertTrue(all('title=Shopify permission drift::' in line for line in warnings))
+    def test_markdown_report_is_approval_ready_and_discloses_limits(self):
+        report = compare(self.before, self.after)
+        rendered = render_markdown(report)
+        self.assertIn("# Shopify permission drift: changed", rendered)
+        self.assertIn("**Scopes Changed**", rendered)
+        self.assertIn("`read_reports`", rendered)
+        self.assertIn("Evidence only", rendered)
+        self.assertIn("No warranty", rendered)
+
+    def test_markdown_unchanged_report_is_explicit(self):
+        rendered = render_markdown(compare(self.before, self.before))
+        self.assertIn("No app, scope, webhook", rendered)
+        self.assertIn("Review required:** no", rendered)
 
     def test_rejects_invalid_capture_time_and_duplicate_scopes(self):
         invalid_time = dict(self.before, captured_at="not-a-timestamp")
@@ -64,6 +77,12 @@ class PermissionDriftTests(unittest.TestCase):
         duplicate_scopes = dict(self.before, apps=[dict(self.before["apps"][0], scopes=["read_analytics", "read_analytics"])])
         with self.assertRaisesRegex(ValueError, "duplicate scopes"):
             compare(duplicate_scopes, self.after)
+
+    def test_marks_reversed_capture_order_inconclusive(self):
+        report = compare(self.after, self.before)
+        self.assertEqual(report["status"], "inconclusive")
+        self.assertTrue(report["review_required"])
+        self.assertEqual(report["changes"][-1]["kind"], "capture_order_invalid")
 
 
 def load_inventory_from_data(data):
