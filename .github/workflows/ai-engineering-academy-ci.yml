@@ -45,6 +45,7 @@ jobs:
           - voltage-divider-calculator
           - 555-timer-calculator
           - rc-filter-calculator
+          - rc-time-calculator
     defaults:
       run:
         working-directory: ventures/ai-engineering-academy/tools/${{ matrix.tool }}
