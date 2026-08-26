@@ -213,6 +213,7 @@ function pathResult({
   cashInvested,
   shippingCharged,
   targetMarginRate,
+  targetProfit,
   feeParts,
 }) {
   const feeTotal = Object.values(feeParts).reduce((sum, value) => sum + value, 0);
@@ -220,6 +221,7 @@ function pathResult({
   const profit = revenue - costs;
   const fixedCash = processorFixed + cashInvested;
   const targetRevenueDenominator = 1 - percentRate - targetMarginRate;
+  const profitPriceDenominator = 1 - percentRate;
   return {
     fees: feeParts,
     feeTotal,
@@ -234,6 +236,10 @@ function pathResult({
       targetRevenueDenominator <= 0
         ? Infinity
         : Math.max(0, fixedCash / targetRevenueDenominator - shippingCharged),
+    targetProfitPrice:
+      profitPriceDenominator <= 0
+        ? Infinity
+        : Math.max(0, (targetProfit + fixedCash) / profitPriceDenominator - shippingCharged),
   };
 }
 
@@ -252,6 +258,7 @@ export function calculateOrder(input) {
   const monthlyPlan = number(input.monthlyPlan, "Monthly plan cost");
   const monthlyOrders = number(input.monthlyOrders, "Monthly orders", 1);
   const targetMargin = number(input.targetMargin, "Target margin");
+  const targetProfit = number(input.targetProfit, "Target net profit");
   const paymentMethod = input.paymentMethod ?? "shopify_payments";
 
   if (targetMargin >= 100) throw new Error("Target margin must be less than 100%");
@@ -274,6 +281,7 @@ export function calculateOrder(input) {
     cashInvested,
     shippingCharged,
     targetMarginRate,
+    targetProfit,
     feeParts: {
       shopifyPayments: revenue * (paymentsRate / 100) + paymentsFixed,
       shopifyThirdParty: 0,
@@ -288,6 +296,7 @@ export function calculateOrder(input) {
     cashInvested,
     shippingCharged,
     targetMarginRate,
+    targetProfit,
     feeParts: {
       shopifyPayments: 0,
       shopifyThirdParty: revenue * (shopifyTxnRate / 100),
