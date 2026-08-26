@@ -288,6 +288,11 @@ products:
           live_url_visitors: null
           free_shipping_compared: 0
         note: Added charge-shipping vs free-shipping item-price comparison; public URL remains owner-gated.
+      - as_of: 2026-08-26
+        signals:
+          live_url_visitors: null
+          listing_renewal_compared: 0
+        note: Added listing-fee allocation across one auto-renew window; public URL remains owner-gated.
   - slug: shopify-a11y-evidence
     surface: static-page-in-repo
     readings:

@@ -1222,3 +1222,83 @@ export function productionPartnerNote(comparison) {
     : ' No finite listing price can match your handmade leftover on the partner path at these fee rates.';
   return `${perUnitLine}${capacityLine}${ceiling}${reprice}`;
 }
+
+const RENEWAL_SALES_SCENARIOS = [0, 1, 2, 5, 10, 20];
+
+// Etsy charges the listing fee when the listing is published or auto-renews,
+// not once per sale. The order calculator subtracts that fee from every order,
+// which overstates cost on a listing that sells more than once and hides the
+// fee entirely on a listing that sells nothing. This function keeps the same
+// per-order stack, then allocates the listing fee across the sales expected
+// in one renewal window. It does not decide whether auto-renew should stay on.
+export function calculateListingRenewal(input = {}) {
+  const listingFee = nonNegativeNumber(input.listingFee, 'Listing fee', 0.2);
+  const renewalMonths = Number(input.renewalMonths ?? 4);
+  if (!Number.isFinite(renewalMonths) || renewalMonths <= 0) {
+    throw new Error('Renewal months must be greater than zero');
+  }
+  const expectedSales = nonNegativeNumber(input.expectedSales, 'Expected sales', 0);
+
+  const withoutListing = calculateOrder({ ...input, listingFee: 0 });
+  const withPerOrderListing = calculateOrder({ ...input, listingFee });
+  const listingPerSale = expectedSales === 0 ? null : listingFee / expectedSales;
+  const withAllocatedListing = listingPerSale === null
+    ? null
+    : calculateOrder({ ...input, listingFee: listingPerSale });
+  const renewalsPerYear = 12 / renewalMonths;
+  const annualListingCost = listingFee * renewalsPerYear;
+  const salesToRecover = withoutListing.profit > 0 ? Math.ceil(listingFee / withoutListing.profit) : null;
+  const periodProfitAfterListing = expectedSales * withoutListing.profit - listingFee;
+  const annualSales = expectedSales * renewalsPerYear;
+  const annualProfitAfterListing = annualSales * withoutListing.profit - annualListingCost;
+  const overstatedInPeriod = expectedSales > 1 ? listingFee * (expectedSales - 1) : 0;
+
+  return {
+    listingFee,
+    renewalMonths,
+    expectedSales,
+    renewalsPerYear,
+    annualListingCost,
+    listingPerSale,
+    contributionExListing: withoutListing.profit,
+    revenue: withoutListing.revenue,
+    profitIfChargedEveryOrder: withPerOrderListing.profit,
+    profitIfAllocated: withAllocatedListing ? withAllocatedListing.profit : null,
+    salesToRecover,
+    periodProfitAfterListing,
+    annualProfitAfterListing,
+    overstatedInPeriod,
+    coversListing: periodProfitAfterListing >= 0,
+    unpaidRenewal: expectedSales === 0,
+    scenarios: RENEWAL_SALES_SCENARIOS.map((sales) => ({
+      sales,
+      listingPerSale: sales === 0 ? null : listingFee / sales,
+      periodProfitAfterListing: sales * withoutListing.profit - listingFee,
+      periodProfitIfListingPerOrder: sales * (withoutListing.profit - listingFee),
+    })),
+  };
+}
+
+export function listingRenewalNote(result) {
+  if (!result || typeof result.listingFee !== 'number') {
+    throw new Error('Listing-renewal comparison is missing');
+  }
+  const money = (value) => {
+    const sign = value < 0 ? '−' : '';
+    return `${sign}$${Math.abs(value).toFixed(2)}`;
+  };
+  if (result.unpaidRenewal) {
+    return `Auto-renew still charges ${money(result.listingFee)} even if nothing sells. Treating the listing fee as a per-order cost hides that ${money(result.listingFee)} until an order is calculated. Annual listing cost at a ${result.renewalMonths}-month window is ${money(result.annualListingCost)}.`;
+  }
+  const leftover = `${result.expectedSales} sales in ${result.renewalMonths} months leave ${money(result.periodProfitAfterListing)} after the listing fee.`;
+  const allocated = result.listingPerSale === null ? '' : ` Listing cost per sale is ${money(result.listingPerSale)}.`;
+  const recover = result.salesToRecover === null
+    ? ' This order does not recover the listing fee.'
+    : result.salesToRecover === 1
+      ? ' 1 sale recovers the listing fee from leftover contribution.'
+      : ` ${result.salesToRecover} sales recover the listing fee from leftover contribution.`;
+  const overstated = result.overstatedInPeriod > 0
+    ? ` Charging the full listing fee on every order overstates listing cost by ${money(result.overstatedInPeriod)} across ${result.expectedSales} sales.`
+    : '';
+  return `${leftover}${allocated}${recover}${overstated}`;
+}
