@@ -2652,3 +2652,15 @@ products:
           to price extra stories, extra lineal feet, extra miters, and a
           micromesh coil instead of a published $8/ft special. Public URL
           remains owner-gated; counters are local, aggregate, and opt-out.
+
+  - slug: npm-deployment-evidence
+    surface: local-cli
+    readings:
+      - as_of: 2026-08-26
+        signals:
+          local_reports_generated: 1
+          live_url_visitors: null
+        note: >-
+          Shipped a local package-lock v2/v3 production-vs-dev reachability
+          report. No public URL; usage is an optional local aggregate
+          counter only.

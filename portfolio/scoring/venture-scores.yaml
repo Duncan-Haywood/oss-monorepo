@@ -4160,3 +4160,31 @@ ventures:
       recommended price, a leak warranty, or a building-code determination.
       The shipped hours are labelled ballpark starting points rather than a
       standard or protocol, and nothing the user enters leaves the browser.
+
+  - slug: npm-deployment-evidence
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 6
+      gross_margin: 10
+      defensibility: 4
+      distribution: 5
+    composite: 6.0
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      The report is deterministic lockfile classification. Adding inference
+      would guess at runtime loading the lockfile already records.
+    basis: >-
+      Graduated on 2026-08-24 as a local npm package-lock production-path
+      evidence CLI. Distinct from CRA evidence desk and Shopify permission
+      drift: this classifies lockfile install locations as production vs
+      build-only.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Pass: output is lockfile observation, not a security verdict,
+      attestation, or compliance claim. The lockfile never leaves the
+      machine.
