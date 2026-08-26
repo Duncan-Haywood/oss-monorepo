@@ -910,6 +910,150 @@ ventures:
       financial advice or a guarantee of income, tax treatment, or contract
       enforceability; all data stays in the browser.
 
+  - slug: sunroom-bid-calculator
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 7
+      gross_margin: 10
+      defensibility: 5
+      distribution: 7
+    composite: 6.667
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      There is no AI anywhere in the product. The value is a domain model —
+      glazed-wall geometry, enclosure kits, and payroll burden — that is
+      arithmetic, and adding inference to it would only make the result less
+      checkable.
+    basis: >-
+      Graduated on 2026-08-25 as a browser-local sunroom bid calculator.
+      Distinct from screened-porch (mesh), deck (posts and joists), and
+      pergola (open shade). Defensibility 5: the glass-and-slab takeoff
+      encodes how the trade actually estimates, versus paid bidding suites
+      or ad-funded square-foot pages. Distribution 7: "how much to charge to
+      build a sunroom" and "three season room cost calculator" are
+      lower-volume than marketplace-fee queries but bought by an operator
+      with a real contract on the line.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Pass: the output is arithmetic on the contractor's own inputs, never a
+      recommended price, a building-code opinion, or an engineering stamp.
+      The shipped glass and slab figures are labelled ballpark starting
+      points rather than a standard or benchmark, and nothing the user
+      enters leaves the browser.
+  - slug: metal-roof-bid-calculator
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 7
+      gross_margin: 10
+      defensibility: 5
+      distribution: 7
+    composite: 6.667
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      There is no AI anywhere in the product. The value is a domain model —
+      panel squares after waste, tear-off, stories, and trim — that is
+      arithmetic, and adding inference to it would only make the result less
+      checkable.
+    basis: >-
+      Graduated on 2026-08-25 as a browser-local metal-roof bid calculator
+      for standing-seam and exposed-fastener crews. Distinct from asphalt
+      shingle reroof (bundles and tear-off bags), solar (dollars per watt),
+      and gutter install (K-style and miters). Defensibility 5: the panel-
+      and-trim model encodes how the trade actually estimates, and the
+      incumbents are paid estimating suites rather than free ad-funded
+      pages. Distribution 7: "how much to charge for a metal roof" and
+      "standing seam cost calculator" are lower-volume than marketplace-fee
+      queries but far less saturated and bought by an operator with a real
+      bid on the line.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Pass: the output is arithmetic on the contractor's own inputs, never a
+      recommended price, a wage determination, or a building-code opinion.
+      The shipped pitch, waste, and panel rates are labelled ballpark
+      starting points rather than a standard or benchmark, and nothing the
+      user enters leaves the browser.
+  - slug: flat-roof-bid-calculator
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 7
+      gross_margin: 10
+      defensibility: 5
+      distribution: 7
+    composite: 6.667
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      There is no AI anywhere in the product. The value is a domain model —
+      membrane squares after waste, tear-off, insulation layers, and parapet
+      — that is arithmetic, and adding inference to it would only make the
+      result less checkable.
+    basis: >-
+      Graduated on 2026-08-25 as a browser-local low-slope bid calculator
+      for TPO, EPDM, PVC, and modified-bitumen crews. Distinct from asphalt
+      shingle reroof (bundles and pitch) and metal roof (standing-seam
+      panels and trim). Defensibility 5: the membrane-and-insulation model
+      encodes how the trade actually estimates, and the incumbents are paid
+      estimating suites rather than free ad-funded pages. Distribution 7:
+      "how much to charge for a flat roof" and "TPO roof cost calculator"
+      are lower-volume than marketplace-fee queries but far less saturated
+      and bought by an operator with a real bid on the line.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Pass: the output is arithmetic on the contractor's own inputs, never a
+      recommended price, a wage determination, or a building-code opinion.
+      The shipped membrane, waste, and insulation rates are labelled
+      ballpark starting points rather than a standard or benchmark, and
+      nothing the user enters leaves the browser.
+  - slug: patio-door-bid-calculator
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 7
+      gross_margin: 10
+      defensibility: 5
+      distribution: 7
+    composite: 6.667
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      There is no AI anywhere in the product. The value is a domain model —
+      extra panels, impact glass, and new-construction wrap versus a brochure
+      6-foot vinyl special — that is arithmetic, and adding inference to it
+      would only make the result less checkable.
+    basis: >-
+      Graduated on 2026-08-25 as a browser-local sliding-glass / patio-door
+      replacement bid calculator. Distinct from entry-door replacement
+      (prehung, sidelights, jamb rot, storm door) and from window replacement
+      (united inches, flashing): it prices a sliding or patio unit from extra
+      panels, impact glass, new-construction wrap, transom, sill pan, and
+      balcony access. Distribution 7: "how much to charge to replace a
+      sliding glass door" and "patio door installation cost" are
+      lower-volume than marketplace-fee queries but bought by an operator
+      with a real opening on the line.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Pass: the output is arithmetic on the contractor's own inputs, never a
+      recommended price, a wage determination, or a building-code opinion.
+      The shipped hours and material rates are labelled ballpark starting
+      points rather than a standard or benchmark, and nothing the user
+      enters leaves the browser.
   - slug: french-drain-bid-calculator
     scores:
       ai_leverage: 1
