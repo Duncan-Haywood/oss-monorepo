@@ -3098,3 +3098,35 @@ ventures:
       or warranty that FIFO was followed. Logs never leave the
       operator's machine.
 
+  - slug: cleaning-dilution-calculator
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 7
+      gross_margin: 10
+      defensibility: 4
+      distribution: 7
+    composite: 6.5
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      The calculator is deterministic dilution and container-price
+      arithmetic. Adding inference would guess at a label the
+      operator already has on the jug.
+    basis: >-
+      Graduated on 2026-08-26 as a browser-local ready-to-use
+      chemical cost worksheet (repair-and-merge of unique #1251).
+      Distinct from janitorial-bid-calculator (a whole-building
+      bid): the buyer is an independent cleaner converting
+      concentrate sticker price into cost per gallon and bucket.
+      Distribution is "cleaning chemical dilution calculator"
+      and "ready to use chemical cost per gallon".
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Pass: output is arithmetic on user-typed label and price
+      figures, not a safety determination, SDS interpretation,
+      or mixing instruction. Inputs never leave the browser.
+
