@@ -2124,3 +2124,19 @@ products:
           Repair-and-merge of unique #1392 medical courier route margin
           calculator onto current main. Public URL remains owner-gated;
           usage is local-only and honors DNT/GPC. Baseline row.
+<<<<<<< HEAD
+
+  - slug: cam-reconciliation-check
+    surface: static-page-in-repo
+    readings:
+      - as_of: 2026-08-26
+        signals:
+          live_url_visitors: null
+          checked: 0
+          downloaded: 0
+        note: >-
+          Repair-and-merge of unique #1430 CAM reconciliation worksheet
+          onto current main. Public URL remains owner-gated; usage is
+          opt-out and honors DNT/GPC. Baseline row.
+=======
+>>>>>>> origin/main
