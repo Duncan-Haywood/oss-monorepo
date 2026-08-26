@@ -1,0 +1,438 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Porta Potty Event Quote Calculator | Portable Restroom Rental Bid</title>
+  <meta name="description" content="Price a portable restroom (porta potty) event rental from days on site, pump-outs, and two round trips — not a Saturday headcount special. See walk-away price, price per unit-day, and a starting fleet estimate.">
+  <meta property="og:title" content="Porta Potty Event Quote Calculator">
+  <meta property="og:description" content="Bid the extra days and the pump-outs, not the Saturday headcount. A free calculator for portable sanitation yards.">
+  <link rel="canonical" href="./">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Porta Potty Event Quote Calculator","applicationCategory":"BusinessApplication","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"featureList":"Days-on-site rental, pump-out visits, two-round-trip mileage, weekend haul premium, starting fleet estimate from attendance and duration, walk-away price, price per unit-day, proposed-price margin check"}</script>
+  <style>
+    :root { color-scheme: light; font-family: system-ui, sans-serif; color: #2a2218; background: #f4efe6; }
+    body { max-width: 1060px; margin: 0 auto; padding: 32px 18px; }
+    header { max-width: 740px; margin-bottom: 26px; }
+    h1 { font-size: clamp(2rem, 6vw, 3.4rem); line-height: .98; margin: 0 0 12px; letter-spacing: -.05em; }
+    p { line-height: 1.5; }
+    .eyebrow { font-size: .8rem; font-weight: 700; letter-spacing: .08em; color: #8a4b12; margin: 0 0 6px; }
+    .layout { display: grid; grid-template-columns: minmax(0, 1fr) minmax(300px, .75fr); gap: 18px; align-items: start; }
+    section { background: #fff; border: 1px solid #d9d0c2; border-radius: 14px; padding: 20px; box-shadow: 0 8px 24px #3a2a120d; margin-bottom: 18px; }
+    h2 { margin-top: 0; font-size: 1.15rem; }
+    .hint { font-size: .82rem; color: #5c5348; margin: -6px 0 14px; }
+    .fields { display: grid; grid-template-columns: repeat(2, 1fr); gap: 13px; }
+    label { display: grid; gap: 5px; font-size: .87rem; font-weight: 650; }
+    input, select { width: 100%; box-sizing: border-box; border: 1px solid #b7aa96; border-radius: 7px; padding: 10px; font: inherit; background: #fff; }
+    .check { display: flex; align-items: center; gap: 8px; font-weight: 650; font-size: .87rem; }
+    .check input { width: auto; }
+    .unit-row { display: grid; grid-template-columns: minmax(0, 2.4fr) repeat(3, minmax(0, 1fr)) auto; gap: 8px; align-items: end; margin-bottom: 10px; }
+    .unit-row select, .unit-row input { padding: 10px 7px; }
+    .unit-head { font-size: .74rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; color: #6b6154; }
+    .unit-row .lbl { position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0; overflow: hidden; clip-path: inset(50%); white-space: nowrap; border: 0; }
+    button { font: inherit; border-radius: 7px; border: 1px solid #b7aa96; background: #f7f1e6; padding: 10px 14px; cursor: pointer; font-weight: 650; }
+    button:hover { background: #efe4d0; }
+    .remove { padding: 10px; color: #9b2c1f; border-color: #d8b6b0; background: #fdf3f1; }
+    .remove[disabled] { opacity: .4; cursor: not-allowed; }
+    .result { position: sticky; top: 15px; background: #3d2a16; color: #f8f1e6; border-color: #3d2a16; }
+    .hero-number { font-size: 2.9rem; font-weight: 750; letter-spacing: -.05em; margin: 8px 0; }
+    .negative { color: #ffb0a2; } .positive { color: #c8e6a9; }
+    dl { display: grid; grid-template-columns: 1fr auto; gap: 9px; margin: 20px 0; }
+    dt, dd { margin: 0; } dd { font-variant-numeric: tabular-nums; }
+    hr { border: 0; border-top: 1px solid #ffffff2b; }
+    .note { font-size: .82rem; opacity: .84; }
+    .split { margin: 14px 0 0; padding: 0; list-style: none; font-size: .84rem; }
+    .split li { display: grid; grid-template-columns: 1fr auto; gap: 8px; padding: 3px 0; }
+    .bar { grid-column: 1 / -1; height: 4px; border-radius: 2px; background: #ffffff2e; }
+    .bar > span { display: block; height: 100%; border-radius: 2px; background: #e0b36a; }
+    .verdict { margin-top: 14px; padding: 12px; border-radius: 9px; font-size: .87rem; background: #ffffff1a; }
+    .verdict.bad { background: #7d2317; }
+    .verdict.warn { background: #6a4a12; }
+    .empty { font-size: .87rem; opacity: .84; }
+    footer { margin-top: 25px; font-size: .82rem; color: #5c5348; }
+    footer a { color: #8a4b12; }
+    .support { margin-top: 14px; }
+    .summary-actions { display: flex; gap: 8px; align-items: center; margin-top: 14px; flex-wrap: wrap; }
+    .summary-status { font-size: .8rem; color: #e8d3a8; }
+    .suggest { background: #faf6ee; border: 1px dashed #c9b89a; border-radius: 9px; padding: 12px; font-size: .86rem; margin-top: 12px; }
+    .row-actions { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 8px; }
+    @media (max-width: 780px) {
+      .layout { grid-template-columns: 1fr; } .result { position: static; } .fields { grid-template-columns: 1fr; }
+      .unit-head { display: none; }
+      .unit-row { grid-template-columns: 1fr 1fr; border: 1px solid #e6ddd0; border-radius: 9px; padding: 11px; }
+      .unit-row label { font-size: .78rem; gap: 5px; }
+      .unit-row .lbl { position: static; width: auto; height: auto; margin: 0; overflow: visible; clip-path: none; white-space: normal; }
+      .unit-row label:first-child { grid-column: 1 / -1; }
+      .remove { grid-column: 1 / -1; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="eyebrow">FOR PORTABLE SANITATION YARDS</p>
+    <h1>Bid the extra days and the pump-outs, not the Saturday headcount.</h1>
+    <p>Price a porta potty / portable restroom event rental the way the yard actually loses money when it skips the math: every day the boxes sit, every extra pump-out, and two round trips of truck miles. You get the quote, the price per unit-day, and the number below which the job loses money. A starting fleet estimate from attendance is optional — it is not a health-code determination.</p>
+  </header>
+
+  <main class="layout">
+    <div>
+      <section>
+        <h2>The event</h2>
+        <p class="hint">Days on site includes drop day and pickup day. Friday drop through Sunday pickup is three days, not one Saturday. Attendance is optional and only used for a starting fleet estimate.</p>
+        <div class="fields">
+          <label>Attendees (optional) <input id="attendees" type="number" min="0" step="10" value="200"></label>
+          <label>Event length (hours) <input id="eventHours" type="number" min="0" step="0.5" value="8"></label>
+          <label>Days on site <input id="daysOnSite" type="number" min="0" step="1" value="2"></label>
+          <label>Extra pump-out visits <input id="serviceVisits" type="number" min="0" step="1" value="1"></label>
+        </div>
+        <div class="fields" style="margin-top:13px">
+          <label class="check"><input id="alcohol" type="checkbox" checked> Alcohol is served</label>
+          <label class="check"><input id="foodService" type="checkbox"> Food is served</label>
+        </div>
+        <div id="suggestBox" class="suggest" hidden></div>
+        <div class="row-actions">
+          <button type="button" id="applySuggest">Use starting fleet estimate</button>
+        </div>
+      </section>
+
+      <section>
+        <h2>The fleet</h2>
+        <p class="hint">One row per unit type. Daily rent is what the box earns sitting; service each is the pump-out price for that type. Starting rates are ballpark figures — replace them with your book.</p>
+        <div class="unit-row unit-head" aria-hidden="true">
+          <span>Unit type</span><span>Quantity</span><span>Rent / day</span><span>Service each</span><span></span>
+        </div>
+        <div id="units"></div>
+        <button type="button" id="addUnit">+ Add a unit type</button>
+      </section>
+
+      <section>
+        <h2>Haul and costs</h2>
+        <div class="fields">
+          <label>Delivery fee <input id="deliveryFee" type="number" min="0" step="1" value="85"></label>
+          <label>Pickup fee <input id="pickupFee" type="number" min="0" step="1" value="85"></label>
+          <label>Miles one way <input id="milesOneWay" type="number" min="0" step="0.1" value="18"></label>
+          <label>Rate per mile <input id="ratePerMile" type="number" min="0" step="0.1" value="3.50"></label>
+          <label>Weekend / holiday premium on haul (%) <input id="weekendPremiumPct" type="number" min="0" step="1" value="0"></label>
+          <label>Consumables per unit <input id="consumablesPerUnit" type="number" min="0" step="0.5" value="8"></label>
+          <label>Other cost (permit, after-hours) <input id="otherCost" type="number" min="0" step="1" value="0"></label>
+          <label>Overhead on direct cost (%) <input id="overheadRate" type="number" min="0" step="0.5" value="12"></label>
+          <label>Target net margin (%) <input id="targetMargin" type="number" min="0" max="99.9" step="0.5" value="25"></label>
+          <label>Price you&rsquo;re considering (optional) <input id="proposedPrice" type="number" min="0" step="10" placeholder="e.g. 625"></label>
+        </div>
+        <p class="hint" style="margin-top:14px;margin-bottom:0">Mileage is two round trips: one to drop and one to pick up (four times the one-way miles). A Saturday-special that only prices the event day never sees that line, and it is often the largest cost on a short rental.</p>
+      </section>
+    </div>
+
+    <section class="result" aria-live="polite">
+      <h2>Your quote</h2>
+      <div id="price" class="hero-number">$&mdash;</div>
+      <div id="priceLabel">event quote</div>
+      <dl>
+        <dt>Rental (days on site)</dt><dd id="rental"></dd>
+        <dt>Pump-outs</dt><dd id="service"></dd>
+        <dt>Haul (drop, pickup, miles)</dt><dd id="haul"></dd>
+        <dt>Consumables &amp; other</dt><dd id="consumables"></dd>
+        <dt>Overhead</dt><dd id="overhead"></dd>
+        <dt>Total cost</dt><dd id="cost"></dd>
+        <dt>Profit</dt><dd id="profit"></dd>
+        <dt>Price per unit-day</dt><dd id="perUnitDay"></dd>
+        <dt>Price per attendee</dt><dd id="perAttendee"></dd>
+        <dt>Walk-away price</dt><dd id="breakEven"></dd>
+      </dl>
+      <div id="verdict" class="verdict" hidden></div>
+      <div class="summary-actions">
+        <button type="button" id="copySummary">Copy quote summary</button>
+        <span id="summaryStatus" class="summary-status" role="status" aria-live="polite"></span>
+      </div>
+      <hr>
+      <p class="note" style="margin-bottom:4px"><strong>Where the money goes</strong></p>
+      <ul class="split" id="split"></ul>
+      <hr>
+      <p class="note">Transparent arithmetic from your own inputs. The starting daily rents, pump-out prices, and fleet estimate are common ballpark figures, not a tariff, a health-code table, or a guarantee. Replace them with your book and confirm local requirements before sending a quote.</p>
+    </section>
+  </main>
+
+  <footer>
+    <label style="display:inline-flex;gap:6px;align-items:center;font-weight:400"><input id="usageOptOut" type="checkbox" style="width:auto"> Do not keep anonymous local usage counts</label>
+    <p><strong>No warranty.</strong> This free tool is not legal, tax, financial, engineering, or health-department advice, and it does not tell you what to charge or how many units an event requires. It does not determine ADA, OSHA, or local sanitation compliance. Verify every figure against your own rates, insurance, and a qualified professional before relying on it or sending a quote. To the maximum extent permitted by law, the authors accept no liability for loss or damage from its use.</p>
+    <p><strong>Nothing leaves your browser.</strong> Every number stays on this device. Usage counts are anonymous tallies of which features were used, stored locally, and never include the event, fleet, miles, or prices.</p>
+    <p><a href="./how-many.html">How many porta potties for 200 people?</a> — a starting estimate, not a code table.</p>
+    <p class="support">Free and open source. If it wins you a job, the <a href="https://github.com/Duncan-Haywood/monorepo-projects" rel="noopener">project is on GitHub</a> &mdash; support is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { calculateQuote, suggestFleet, UNIT_PRESETS } from './calc.mjs';
+    import { recordUsage } from './usage.mjs';
+
+    const COST_IDS = ['daysOnSite','serviceVisits','deliveryFee','pickupFee','milesOneWay','ratePerMile','weekendPremiumPct','consumablesPerUnit','otherCost','overheadRate','targetMargin','proposedPrice'];
+    const EVENT_IDS = ['attendees','eventHours'];
+    const money = value => `$${value.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+    const el = id => document.getElementById(id);
+
+    const STARTING_UNITS = [
+      { name: 'Standard portable restroom', quantity: 4, rentPerDay: 18, serviceEach: 28 },
+      { name: 'Wheelchair-accessible unit', quantity: 1, rentPerDay: 40, serviceEach: 38 },
+    ];
+
+    const TYPE_OPTIONS = UNIT_PRESETS
+      .map((preset, index) => `<option value="${index}">${preset.label}</option>`)
+      .join('') + '<option value="other">Other unit</option>';
+
+    const unitsHost = el('units');
+    let rowSeq = 0;
+
+    function addUnitRow(unit) {
+      const id = `u${++rowSeq}`;
+      const row = document.createElement('div');
+      row.className = 'unit-row';
+      row.innerHTML = `
+        <label for="${id}-type"><span class="lbl">Unit type</span><select class="u-type" id="${id}-type">${TYPE_OPTIONS}</select></label>
+        <label for="${id}-qty"><span class="lbl">Quantity</span><input class="u-qty" id="${id}-qty" type="number" min="0" step="1"></label>
+        <label for="${id}-rent"><span class="lbl">Rent per day</span><input class="u-rent" id="${id}-rent" type="number" min="0" step="1"></label>
+        <label for="${id}-svc"><span class="lbl">Service each</span><input class="u-svc" id="${id}-svc" type="number" min="0" step="1"></label>
+        <button type="button" class="remove">Remove<span class="lbl"> this unit type</span></button>`;
+
+      const typeField = row.querySelector('.u-type');
+      const rentField = row.querySelector('.u-rent');
+      const svcField = row.querySelector('.u-svc');
+      const presetIndex = UNIT_PRESETS.findIndex(p => p.label === unit.name);
+      typeField.value = presetIndex === -1 ? 'other' : String(presetIndex);
+      row.querySelector('.u-qty').value = unit.quantity;
+      rentField.value = unit.rentPerDay;
+      svcField.value = unit.serviceEach;
+
+      typeField.addEventListener('change', () => {
+        const preset = UNIT_PRESETS[Number(typeField.value)];
+        if (preset && !rentField.dataset.edited) rentField.value = preset.rentPerDay;
+        if (preset && !svcField.dataset.edited) svcField.value = preset.serviceEach;
+        count('quote_calculated');
+        update();
+      });
+      rentField.addEventListener('input', () => { rentField.dataset.edited = '1'; });
+      svcField.addEventListener('input', () => { svcField.dataset.edited = '1'; });
+      row.querySelectorAll('input').forEach(input => {
+        input.addEventListener('input', update);
+        input.addEventListener('change', () => count('quote_calculated'));
+      });
+      row.querySelector('.remove').addEventListener('click', () => {
+        row.remove();
+        count('unit_removed');
+        update();
+      });
+      unitsHost.append(row);
+    }
+
+    function readUnits() {
+      return [...unitsHost.querySelectorAll('.unit-row')].map(row => {
+        const preset = UNIT_PRESETS[Number(row.querySelector('.u-type').value)];
+        return {
+          name: preset ? preset.label : '',
+          quantity: row.querySelector('.u-qty').value,
+          rentPerDay: row.querySelector('.u-rent').value,
+          serviceEach: row.querySelector('.u-svc').value,
+        };
+      });
+    }
+
+    function count(event) {
+      recordUsage(localStorage, el('usageOptOut').checked, event);
+    }
+
+    function readQuoteInput() {
+      return {
+        units: readUnits(),
+        ...Object.fromEntries([...COST_IDS, ...EVENT_IDS].map(id => [id, el(id).value])),
+        alcohol: el('alcohol').checked,
+        foodService: el('foodService').checked,
+        proposedPrice: el('proposedPrice').value,
+      };
+    }
+
+    function clearOutputs(message, isError) {
+      el('price').textContent = message;
+      el('price').className = `hero-number ${isError ? 'negative' : ''}`;
+      el('priceLabel').textContent = isError ? 'check the highlighted input' : 'event quote';
+      ['rental','service','haul','consumables','overhead','cost','profit','perUnitDay','perAttendee','breakEven']
+        .forEach(id => { el(id).textContent = ''; });
+      el('split').innerHTML = '';
+      el('verdict').hidden = true;
+    }
+
+    function updateSuggest() {
+      const box = el('suggestBox');
+      const attendees = el('attendees').value;
+      if (attendees === '' || Number(attendees) === 0) {
+        box.hidden = true;
+        return null;
+      }
+      try {
+        const fleet = suggestFleet({
+          attendees,
+          eventHours: el('eventHours').value,
+          alcohol: el('alcohol').checked,
+          foodService: el('foodService').checked,
+        });
+        const food = fleet.handwash > 0 ? `, plus ${fleet.handwash} handwash station${fleet.handwash === 1 ? '' : 's'}` : '';
+        box.hidden = false;
+        box.innerHTML = `<strong>Starting fleet estimate:</strong> ${fleet.standard} standard + ${fleet.ada} wheelchair-accessible (${fleet.restroomUnits} restrooms${food}). About ${fleet.peoplePerUnit} people per restroom at this duration${el('alcohol').checked ? ' with alcohol' : ''}. This is a planning starting point, not a health-code or ADA determination.`;
+        return fleet;
+      } catch {
+        box.hidden = true;
+        return null;
+      }
+    }
+
+    function update() {
+      updateSuggest();
+      const input = readQuoteInput();
+      if (input.units.length === 0) {
+        clearOutputs('Add a unit type to price', false);
+        el('split').innerHTML = '<li class="empty">Add at least one unit type above and the cost split appears here.</li>';
+        return;
+      }
+      let result;
+      try {
+        result = calculateQuote(input);
+      } catch (error) {
+        clearOutputs(error.message, true);
+        return;
+      }
+
+      el('price').textContent = money(result.price);
+      el('price').className = 'hero-number';
+      el('priceLabel').textContent = 'event quote';
+      el('rental').textContent = money(result.rentalCost);
+      el('service').textContent = money(result.serviceCost);
+      el('haul').textContent = money(result.haulCost);
+      el('consumables').textContent = money(result.consumables + result.otherCost);
+      el('overhead').textContent = money(result.overhead);
+      el('cost').textContent = money(result.totalCost);
+      el('profit').textContent = money(result.profit);
+      el('perUnitDay').textContent = result.pricePerUnitDay === null ? 'n/a' : money(result.pricePerUnitDay);
+      el('perAttendee').textContent = result.pricePerAttendee === null ? 'n/a' : money(result.pricePerAttendee);
+      el('breakEven').textContent = money(result.breakEvenPrice);
+
+      const lines = [
+        { name: 'Rental', amount: result.rentalCost, share: result.directCost === 0 ? 0 : result.rentalCost / result.directCost * 100 },
+        { name: 'Pump-outs', amount: result.serviceCost, share: result.directCost === 0 ? 0 : result.serviceCost / result.directCost * 100 },
+        { name: 'Haul (drop, pickup, miles)', amount: result.haulCost, share: result.directCost === 0 ? 0 : result.haulCost / result.directCost * 100 },
+        { name: 'Consumables & other', amount: result.consumables + result.otherCost, share: result.directCost === 0 ? 0 : (result.consumables + result.otherCost) / result.directCost * 100 },
+      ].filter(line => line.amount > 0);
+
+      el('split').innerHTML = lines.length === 0
+        ? '<li class="empty">No cost lines yet — set days, services, or haul above.</li>'
+        : lines
+          .slice()
+          .sort((a, b) => b.amount - a.amount)
+          .map(line => `<li><span>${line.name}</span><span>${line.share.toFixed(0)}% of direct</span>
+            <span class="bar"><span style="width:${line.share.toFixed(1)}%"></span></span></li>`)
+          .join('');
+
+      const verdict = el('verdict');
+      if (result.proposed !== null) {
+        verdict.hidden = false;
+        verdict.className = `verdict${result.proposed.belowBreakEven ? ' bad' : ''}`;
+        verdict.innerHTML = result.proposed.belowBreakEven
+          ? `At ${money(result.proposed.price)} this job <strong>loses ${money(Math.abs(result.proposed.profit))}</strong> before you take anything out of it. Your walk-away price is ${money(result.breakEvenPrice)}.`
+          : `At ${money(result.proposed.price)} you keep <strong>${money(result.proposed.profit)}</strong> — a ${result.proposed.margin.toFixed(1)}% margin.`;
+      } else if (result.restroomsLookLight) {
+        verdict.hidden = false;
+        verdict.className = 'verdict warn';
+        verdict.innerHTML = `Your quoted restrooms (${result.quotedRestrooms}) are below the starting estimate (${result.suggestion.restroomUnits}) for this attendance and duration. That is a flag to check with the event and the local health department — not a determination that the event is under-served.`;
+      } else {
+        verdict.hidden = true;
+      }
+    }
+
+    function summaryText(result) {
+      const fleet = result.units
+        .filter(unit => unit.quantity > 0)
+        .map(unit => `- ${unit.quantity}× ${unit.name} @ ${money(unit.rentPerDay)}/day`)
+        .join('\n');
+      return [
+        'PORTABLE RESTROOM EVENT QUOTE',
+        '',
+        `Quoted price: ${money(result.price)}`,
+        `Days on site: ${el('daysOnSite').value}`,
+        `Extra pump-out visits: ${el('serviceVisits').value}`,
+        `Price per unit-day: ${result.pricePerUnitDay === null ? 'n/a' : money(result.pricePerUnitDay)}`,
+        '',
+        'FLEET',
+        fleet || '- No units entered',
+        '',
+        'This is a draft for review. Confirm days on site, service schedule, mileage, permits, insurance, taxes, and all pricing before sending. It is not a health-code or accessibility determination.',
+      ].join('\n');
+    }
+
+    async function copySummary() {
+      const result = calculateQuote(readQuoteInput());
+      const text = summaryText(result);
+      try {
+        await navigator.clipboard.writeText(text);
+      } catch {
+        const fallback = document.createElement('textarea');
+        fallback.value = text;
+        fallback.setAttribute('readonly', '');
+        fallback.style.position = 'fixed';
+        fallback.style.opacity = '0';
+        document.body.append(fallback);
+        fallback.select();
+        document.execCommand('copy');
+        fallback.remove();
+      }
+      count('summary_copied');
+      el('summaryStatus').textContent = 'Copied to clipboard';
+      setTimeout(() => { el('summaryStatus').textContent = ''; }, 2500);
+    }
+
+    function applySuggest() {
+      const fleet = updateSuggest();
+      if (!fleet || fleet.restroomUnits === 0) {
+        el('summaryStatus').textContent = 'Enter attendees first.';
+        return;
+      }
+      unitsHost.innerHTML = '';
+      if (fleet.standard > 0) {
+        addUnitRow({ name: 'Standard portable restroom', quantity: fleet.standard, rentPerDay: 18, serviceEach: 28 });
+      }
+      if (fleet.ada > 0) {
+        addUnitRow({ name: 'Wheelchair-accessible unit', quantity: fleet.ada, rentPerDay: 40, serviceEach: 38 });
+      }
+      if (fleet.handwash > 0) {
+        addUnitRow({ name: 'Handwash / sanitizer station', quantity: fleet.handwash, rentPerDay: 22, serviceEach: 22 });
+      }
+      count('fleet_estimate_applied');
+      update();
+    }
+
+    el('addUnit').addEventListener('click', () => {
+      addUnitRow({ name: '', quantity: 1, rentPerDay: 18, serviceEach: 28 });
+      count('unit_added');
+      update();
+    });
+
+    COST_IDS.forEach(id => {
+      el(id).addEventListener('input', update);
+      el(id).addEventListener('change', () => count(id === 'proposedPrice' ? 'proposed_price_compared' : 'quote_calculated'));
+    });
+    EVENT_IDS.forEach(id => {
+      el(id).addEventListener('input', update);
+      el(id).addEventListener('change', () => count('quote_calculated'));
+    });
+    ['alcohol','foodService'].forEach(id => {
+      el(id).addEventListener('change', () => { count('quote_calculated'); update(); });
+    });
+    el('usageOptOut').addEventListener('change', update);
+    el('applySuggest').addEventListener('click', applySuggest);
+    el('copySummary').addEventListener('click', () => {
+      try {
+        copySummary().catch(() => { el('summaryStatus').textContent = 'Copy failed; select and copy the figures above.'; });
+      } catch (error) {
+        el('summaryStatus').textContent = error.message;
+      }
+    });
+
+    STARTING_UNITS.forEach(addUnitRow);
+    update();
+  </script>
+</body>
+</html>

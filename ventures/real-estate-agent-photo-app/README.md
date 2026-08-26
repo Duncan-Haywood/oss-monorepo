@@ -2,6 +2,12 @@
 
 Listing Lens is an AI-first iPhone real estate photography concept: pro-level listing media in 30 minutes, directly from an agent's phone. Its free MLS listing photo preflight check lets agents download a dated, portable findings report before delivery, without uploading photos or using an account.
 
+The free **MLS listing photo preflight checker** is the first usable product
+surface: select JPEG/PNG delivery files, inspect a dated floor spec for
+resolution, size, format, aspect ratio, branding filenames, and staged-photo
+pairing, then download a portable JSON evidence record. This is a file check,
+not a promise that a particular MLS will accept a listing.
+
 **Status:** Concept / market validation
 
 ## Free photo preflight
@@ -168,6 +174,26 @@ npm run microsite -- --dir ./delivery --listing "123 Main St" \
   --agent-brokerage "Acme Realty"
 ```
 
+The same folder can be checked against the MLS floor spec. Findings print
+first; a reshoot / desk-fix list follows so you know which rooms to recapture
+versus which files to rename, recrop, or pair with an original:
+
+```bash
+npm run preflight -- --dir ./delivery
+```
+
+The browser tool at `/photo-check` runs the same rules in-tab (no upload) and
+lets you copy the shot list. This is file-header and filename evidence, not a
+warranty that any MLS will accept the photos. Visual watermarks, burned-in
+contact info, and board-specific extras are disclosed as unimplemented.
+
+**No advice-of-record.** The check reports what was tested and when. It does
+not say a listing is compliant, MLS-ready, or that a portal will accept it.
+
+**Best-effort hosting, no SLA.** Hosted URLs are free, experimental, and may
+be slow, broken, moved, or taken offline without notice. Do not use this as a
+system of record. If you need the result later, copy the shot list.
+
 ## Research report commands
 
 ```bash
@@ -202,4 +228,4 @@ The static export is generated in `research/out/`.
 
 ## License
 
-Private / proprietary.
+MIT — see `LICENSE`. [GitHub Sponsors](https://github.com/sponsors/Duncan-Haywood) is optional and does not change what the preflight check does.
