@@ -98,6 +98,12 @@ freed hours could be rebooked at the supplied target rate. See
 The table is arithmetic on the figures you typed, not advice to
 cancel or finish, and not a forecast of other work.
 
+The browser can save up to 12 review snapshots locally so recurring
+proposals can be compared without retyping them. Saved snapshots contain
+only calculator fields and derived numbers, never project names, client
+content, or identifiers. They can be deleted individually or cleared
+together.
+
 The browser also breaks the target price into delivery labor, hidden admin and
 revision time, and direct costs. This makes the arithmetic auditable instead
 of leaving the user to reverse-engineer one total; it is not a recommendation
@@ -129,7 +135,9 @@ what makes it comparable to the CLI's own count. The browser also counts
 `cost_spike_compared` when the cost-rise table is computed, and
 `discount_ask_compared` when the discount-ask table is computed, and
 `kill_fee_compared` when the mid-project cancel table is computed, and
-`billing_model_compared` when the fixed-vs-hourly table is computed. CSV copy
+`billing_model_compared` when the fixed-vs-hourly table is computed. The
+browser also counts `history_saved`, `history_deleted`, and `history_cleared`
+when local review snapshots are stored or removed. CSV copy
 and download events happen only when the user invokes those actions. Copying
 the review summary records `review_summary_copied` the same way. Restoring
 or resetting a local draft records `draft_restored` or `draft_reset`. The

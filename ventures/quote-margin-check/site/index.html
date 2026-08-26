@@ -327,6 +327,7 @@
       <button type="button" id="copy-summary">Copy review summary</button>
       <button type="button" id="copy-csv">Copy as CSV</button>
       <button type="button" id="download-csv">Download CSV</button>
+      <button type="button" id="save-history">Save this review locally</button>
       <span id="copy-status" class="hint" role="status" aria-live="polite"></span>
     </div>
   </section>
@@ -452,6 +453,7 @@
   import { reviewQuote } from "./review.mjs";
   import { recordEvent, createReportCounter, isUsageCountingEnabled, setUsageCountingEnabled } from "./usage.mjs";
   import { loadDraft, saveDraft, clearDraft } from "./draft.mjs";
+  import { listHistory, saveHistory, deleteHistory, clearHistory } from "./history.mjs";
 
   // Counts settled quotes rather than keystrokes — see usage.mjs.
   const reportCounter = createReportCounter();
@@ -467,6 +469,9 @@
   const billing = document.getElementById("billing");
   const killFee = document.getElementById("kill-fee");
   const targetBreakdown = document.getElementById("target-breakdown");
+  const historyList = document.getElementById("history-list");
+  const historyEmpty = document.getElementById("history-empty");
+  const historyStatus = document.getElementById("history-status");
 
   let lastReport = null;
 
@@ -580,6 +585,12 @@
        billing.querySelector("tbody").innerHTML = "";
        killFee.querySelector("#kill-fee-summary").textContent = "Fix the inputs above to compare a kill fee.";
        killFee.querySelector("tbody").innerHTML = "";
+       if (targetBreakdown) {
+         const breakdownBody = targetBreakdown.querySelector("tbody");
+         const breakdownFoot = targetBreakdown.querySelector("tfoot td");
+         if (breakdownBody) breakdownBody.innerHTML = "";
+         if (breakdownFoot) breakdownFoot.textContent = "";
+       }
     }
   }
 
