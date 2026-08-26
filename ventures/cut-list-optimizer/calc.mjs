@@ -14,10 +14,12 @@ export function parseCuts(text) {
 }
 
 export function optimizeCutList({ stockLength, kerf, cuts }) {
-  if (!(stockLength > 0) || kerf < 0) throw new Error('Stock length must be positive and kerf cannot be negative');
+  if (!Number.isFinite(stockLength) || stockLength <= 0 || !Number.isFinite(kerf) || kerf < 0) {
+    throw new Error('Stock length must be positive and kerf must be a finite, non-negative number');
+  }
   if (!Array.isArray(cuts) || cuts.length === 0) throw new Error('Add at least one required cut');
   const sorted = [...cuts].sort((a, b) => b - a);
-  if (sorted.some(cut => cut <= 0 || cut > stockLength)) throw new Error('Every required cut must fit inside one stock length');
+  if (sorted.some(cut => !Number.isFinite(cut) || cut <= 0 || cut > stockLength)) throw new Error('Every required cut must fit inside one stock length');
   const bars = [];
   for (const cut of sorted) {
     let placed = false;

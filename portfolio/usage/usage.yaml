@@ -253,6 +253,16 @@ products:
           Added finish vs kill-fee vs walk-with-deposit on the browser
           calculator. Public URL remains owner-gated; the counter stores
           only aggregate local events.
+      - as_of: 2026-08-26
+        signals:
+          live_url_visitors: null
+          csv_copied: 0
+          csv_downloaded: 0
+        note: >-
+          Browser CSV copy/download now quotes currency labels and includes
+          the on-screen overrun, cost-rise, discount, and kill-fee rows.
+          Public URL remains owner-gated; the counter stores only aggregate
+          local events.
   - slug: etsy-profit-calculator
     surface: static-page-in-repo
     readings:
@@ -871,6 +881,48 @@ products:
           floats $7,800; month-end plus Net 30 floats $15,600. Currency
           and payment terms persist in the local draft. Public URL
           remains owner-gated.
+  - slug: popcorn-ceiling-bid-calculator
+    surface: static-page-in-repo
+    readings:
+      - as_of: 2026-08-25
+        signals:
+          live_url_visitors: null
+          local_calculation_events: 0
+          summary_copies: 0
+        note: Shipped browser-local popcorn ceiling removal bid calculator; public URL remains owner-gated.
+  - slug: tuckpointing-bid-calculator
+    surface: static-page-in-repo
+    readings:
+      - as_of: 2026-08-25
+        signals:
+          live_url_visitors: null
+          local_events_reported: 0
+        note: >-
+          Shipped a local tuckpointing / brick pointing bid calculator with
+          joint-and-access math, three-method comparison, and a copyable
+          proposal summary; public URL remains owner-gated.
+  - slug: shed-install-bid-calculator
+    surface: static-page-in-repo
+    readings:
+      - as_of: 2026-08-25
+        signals:
+          live_url_visitors: null
+          local_events_reported: 0
+        note: >-
+          Shipped a local backyard shed install bid calculator with
+          pad-and-delivery math, three-pad comparison, and a copyable
+          proposal summary; public URL remains owner-gated.
+  - slug: pole-barn-bid-calculator
+    surface: static-page-in-repo
+    readings:
+      - as_of: 2026-08-25
+        signals:
+          live_url_visitors: null
+          local_events_reported: 0
+        note: >-
+          Shipped a local pole barn / post-frame bid calculator with
+          bay-and-eave math, three-floor comparison, and a copyable
+          proposal summary; public URL remains owner-gated.
   - slug: gravel-driveway-bid-calculator
     surface: static-page-in-repo
     readings:

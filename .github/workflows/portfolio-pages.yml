@@ -48,7 +48,7 @@ jobs:
           node-version: "22"
 
       - name: Test the site builder
-        run: node --test build.test.mjs
+        run: node --test build.test.mjs check.test.mjs
         working-directory: platform/pages
 
       - name: Build the site
@@ -57,6 +57,14 @@ jobs:
           # GitHub serves a project Pages site for this repository.
           PAGES_BASE_URL: ${{ vars.PAGES_BASE_URL }}
         run: node build.mjs --out=dist
+        working-directory: platform/pages
+
+      # Runs against the artifact, not the sources. A dead link, a leftover
+      # placeholder origin, or a sitemap URL that 404s is created by the copy,
+      # so only the output can show it — and publishing one is expensive to
+      # undo once a crawler has read it.
+      - name: Check the built artifact
+        run: node check.mjs dist
         working-directory: platform/pages
 
       - name: Upload Pages artifact

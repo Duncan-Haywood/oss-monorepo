@@ -227,6 +227,29 @@ async function countPages(sourceDir) {
   return entries.filter((e) => e.isFile() && e.name.endsWith('.html')).length;
 }
 
+/**
+ * Every `.html` file published under `dir`, as paths relative to it.
+ *
+ * This reads the built output rather than the sources, so it sees exactly what
+ * a visitor can reach — after exclusions, after nested directories, after any
+ * page a venture added without telling anyone.
+ */
+export async function publishedPages(dir, prefix = '') {
+  const entries = await fs.readdir(dir, { withFileTypes: true });
+  const pages = [];
+
+  for (const entry of entries) {
+    const relative = prefix ? `${prefix}/${entry.name}` : entry.name;
+    if (entry.isDirectory()) {
+      pages.push(...(await publishedPages(path.join(dir, entry.name), relative)));
+    } else if (entry.isFile() && entry.name.endsWith('.html') && entry.name !== '404.html') {
+      pages.push(relative);
+    }
+  }
+
+  return pages.sort();
+}
+
 // ---------------------------------------------------------------------------
 // Copy
 // ---------------------------------------------------------------------------
@@ -795,15 +818,18 @@ export function renderRobots(baseUrl) {
 
 /**
  * The sitemap `robots.txt` names. A `<sitemapindex>` cannot hold `<url>`
- * entries, so the hub itself and any venture without its own sitemap live in
- * `sitemap-hub.xml`, which this index also lists — otherwise a crawler
- * following robots.txt would reach the ventures and never the front page.
+ * entries, so the hub page itself lives in `sitemap-hub.xml`, which this index
+ * also lists — otherwise a crawler following robots.txt would reach the
+ * ventures and never the front page.
+ *
+ * Every published venture gets a generated sitemap (see `renderVentureSitemap`),
+ * so there is no venture the index can leave out.
  */
 export function renderSitemapIndex(surfaces, baseUrl) {
   const entries = [`  <sitemap><loc>${baseUrl}sitemap-hub.xml</loc></sitemap>`].concat(
-    surfaces
-      .filter((surface) => surface.hasSitemap)
-      .map((surface) => `  <sitemap><loc>${baseUrl}${surface.slug}/sitemap.xml</loc></sitemap>`),
+    surfaces.map(
+      (surface) => `  <sitemap><loc>${baseUrl}${surface.slug}/sitemap.xml</loc></sitemap>`,
+    ),
   );
 
   return `<?xml version="1.0" encoding="UTF-8"?>
@@ -813,12 +839,46 @@ ${entries.join('\n')}
 `;
 }
 
-export function renderHubSitemap(surfaces, baseUrl) {
-  const urls = [`  <url><loc>${baseUrl}</loc></url>`].concat(
-    surfaces
-      .filter((surface) => !surface.hasSitemap)
-      .map((surface) => `  <url><loc>${baseUrl}${surface.slug}/</loc></url>`),
-  );
+export function renderHubSitemap(baseUrl) {
+  return `<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <url><loc>${baseUrl}</loc></url>
+</urlset>
+`;
+}
+
+/**
+ * The URL a published page is served at, relative to the site root.
+ * `index.html` is served as its directory, so it is listed that way.
+ */
+export function pageUrlPath(slug, relativePath) {
+  const posix = relativePath.split(path.sep).join('/');
+  if (posix === 'index.html') return `${slug}/`;
+  if (posix.endsWith('/index.html')) return `${slug}/${posix.slice(0, -'index.html'.length)}`;
+  return `${slug}/${posix}`;
+}
+
+/**
+ * A venture's sitemap, generated from the pages the build actually published.
+ *
+ * The ventures ship their own hand-written `sitemap.xml` files, and copying
+ * those verbatim published two defects at once. They go stale — a venture
+ * grows a landing page and nobody edits the sitemap, so 70 of the 186 pages
+ * on this site were in no sitemap at all. And several were written against
+ * `…/monorepo-projects/ventures/<slug>/`, a path this site does not serve
+ * (products are mounted at `/<slug>/`), so every URL they advertised was a
+ * 404 — the worst possible thing to hand a crawler, since organic search is
+ * how these tools are meant to be found.
+ *
+ * Generating from the output makes both impossible by construction: a page is
+ * listed because it shipped, at the URL it actually shipped to.
+ */
+export function renderVentureSitemap(slug, relativePages, baseUrl) {
+  const urls = relativePages
+    .map((relative) => `${baseUrl}${pageUrlPath(slug, relative)}`)
+    .sort()
+    .map((url) => `  <url><loc>${url}</loc></url>`);
+
   return `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
 ${urls.join('\n')}
@@ -861,56 +921,6 @@ export function renderCatalog(surfaces, baseUrl) {
     null,
     2,
   )}\n`;
-}
-
-/**
- * Every relative link in the built site, resolved against the built site.
- *
- * `repairLinks` repoints links at files the site does not carry; nothing until
- * now checked the *result*. The two failures this catches are both silent: an
- * asset filtered out by `isPublishable` that a page still references, and a
- * `../` that no longer resolves because the venture was copied from a
- * subdirectory to `/<slug>/`. Either one ships a page that builds green and
- * breaks for the visitor.
- *
- * Returns a list of `page -> target` strings; empty means every link resolves.
- */
-export async function checkLinks(outDir) {
-  const broken = [];
-  const pages = (await listFiles(outDir)).filter((file) => file.endsWith('.html'));
-
-  for (const page of pages) {
-    const markup = await fs.readFile(page, 'utf8');
-    const seen = new Set();
-
-    for (const match of markup.matchAll(/(?:href|src)="([^"]+)"/g)) {
-      const raw = match[1].trim();
-      if (!raw || seen.has(raw)) continue;
-      seen.add(raw);
-      if (/^(#|data:|mailto:|tel:|javascript:)/i.test(raw)) continue;
-      if (/^[a-z][a-z0-9+.-]*:/i.test(raw) || raw.startsWith('//')) continue;
-
-      const [withoutHash] = raw.split('#');
-      const [pathPart] = withoutHash.split('?');
-      if (!pathPart) continue;
-
-      const from = pathPart.startsWith('/') ? outDir : path.dirname(page);
-      let target = path.resolve(from, decodeURIComponent(pathPart.replace(/^\//, '')));
-      if (pathPart.endsWith('/')) target = path.join(target, 'index.html');
-
-      const relative = path.relative(outDir, target);
-      if (relative.startsWith('..') || path.isAbsolute(relative)) {
-        broken.push(`${path.relative(outDir, page)} -> ${raw} (escapes the site root)`);
-        continue;
-      }
-
-      let ok = await exists(target);
-      if (!ok && !path.extname(target)) ok = await exists(path.join(target, 'index.html'));
-      if (!ok) broken.push(`${path.relative(outDir, page)} -> ${raw}`);
-    }
-  }
-
-  return broken.sort();
 }
 
 export function renderNotFound(baseUrl) {
@@ -972,12 +982,20 @@ export async function buildSite({
       })),
     );
 
+    // Overwrite whatever sitemap the venture shipped with one generated from
+    // what actually published. See `renderVentureSitemap` for why.
+    const pages = await publishedPages(destination);
+    await fs.writeFile(
+      path.join(destination, 'sitemap.xml'),
+      renderVentureSitemap(surface.slug, pages, base),
+    );
+
     surfaces.push({
       ...surface,
       title,
       description,
       pageCount: await countPages(surface.sourceDir),
-      hasSitemap: await exists(path.join(destination, 'sitemap.xml')),
+      publishedPageCount: pages.length,
     });
     log(`  ${surface.slug}`);
   }
@@ -987,7 +1005,7 @@ export async function buildSite({
   await fs.writeFile(path.join(outDir, '404.html'), renderNotFound(base));
 
   await fs.writeFile(path.join(outDir, 'sitemap.xml'), renderSitemapIndex(surfaces, base));
-  await fs.writeFile(path.join(outDir, 'sitemap-hub.xml'), renderHubSitemap(surfaces, base));
+  await fs.writeFile(path.join(outDir, 'sitemap-hub.xml'), renderHubSitemap(base));
   await fs.writeFile(path.join(outDir, 'catalog.json'), renderCatalog(surfaces, base));
 
   await fs.writeFile(path.join(outDir, 'favicon.ico'), renderFavicon());
@@ -998,11 +1016,7 @@ export async function buildSite({
 
   const wrapped = await addSiteChrome({ outDir, surfaces });
 
-  // Checked last, so it sees the generated pages and the injected navigation
-  // as well as the copied ones -- site chrome adds links too.
-  const brokenLinks = await checkLinks(outDir);
-
-  return { outDir, baseUrl: base, surfaces, repairs, wrapped, brokenLinks };
+  return { outDir, baseUrl: base, surfaces, repairs, wrapped };
 }
 
 // ---------------------------------------------------------------------------
@@ -1117,14 +1131,4 @@ if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.me
     console.log(`Repointed ${result.repairs.length} off-site link(s) at the repository source.`);
   }
   console.log(`Added site navigation to ${result.wrapped.length} page(s).`);
-
-  // A dead link is a page that builds green and breaks for the visitor, so it
-  // fails the build rather than printing a warning nobody reads.
-  if (result.brokenLinks.length > 0) {
-    console.error(`\n${result.brokenLinks.length} broken link(s):`);
-    for (const entry of result.brokenLinks) console.error(`  ${entry}`);
-    process.exitCode = 1;
-  } else {
-    console.log('Link check: every relative link resolves.');
-  }
 }

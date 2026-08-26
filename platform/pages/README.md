@@ -6,7 +6,8 @@ that lists and searches them.
 
 ```
 node platform/pages/build.mjs --out=dist          # build
-node --test platform/pages/build.test.mjs         # test
+node platform/pages/check.mjs dist                # check the artifact
+node --test platform/pages/build.test.mjs platform/pages/check.test.mjs
 ```
 
 Then serve it and click around:
@@ -65,8 +66,18 @@ origin root is read), and `node_modules`. `LICENSE` files are kept.
   answer. Links that resolve inside the site are left untouched. The build
   prints how many it repointed.
 - **Crawlability.** A root `robots.txt`, a `sitemap.xml` index covering the hub
-  and every venture's own sitemap, a `404.html`, and `.nojekyll` (without which
-  Pages silently drops any directory starting with `_`).
+  and every venture, a `404.html`, and `.nojekyll` (without which Pages silently
+  drops any directory starting with `_`).
+- **The sitemaps themselves.** Each venture's `sitemap.xml` is *regenerated*
+  from the pages that actually published, replacing the hand-written one. The
+  ventures' own were copied verbatim until 2026-08-26, and three things were
+  wrong with them at once: some listed relative `<loc>` values, which the
+  sitemaps protocol does not allow and crawlers reject; two were written
+  against `…/monorepo-projects/ventures/<slug>/`, a path this site does not
+  serve, so all 11 of their URLs were 404s; and most were simply stale, leaving
+  70 of 186 pages in no sitemap at all. Generating from the output makes all
+  three impossible: a page is listed because it shipped, at the URL it shipped
+  to. Nobody has to remember to update a sitemap again.
 - **Dead ends.** Every venture page was written as a standalone site, so none of
   them linked to any other. The hub linked down into 33 tools and nothing linked
   back or across: someone arriving from a search result at
@@ -89,18 +100,33 @@ origin root is read), and `node_modules`. `LICENSE` files are kept.
 
 ## The link check
 
-After the tree is assembled and repaired, the build resolves **every** relative
-`href` and `src` in the finished site against the finished site, and fails if
-one resolves to nothing or climbs out of the site root.
+The artifact is checked after it is built, by `check.mjs` (run as its own step
+in the workflow, and `node platform/pages/check.mjs dist` locally). It resolves
+every relative reference in the finished site against the finished site and
+fails on one that resolves to nothing, alongside its checks for required root
+files, stale `example.invalid` origins, and sitemap coverage.
 
-`repairLinks` repoints links at files the site does not carry; nothing checked
-the *result*. Two failures it catches are otherwise completely silent: an asset
-filtered out by `isPublishable` that a page still references, and a `../` that
-stops resolving because a venture served from a subdirectory was copied to
-`/<slug>/`. Both build green and 404 for the visitor.
+This matters because `repairLinks` repoints links at files the site does not
+carry, and nothing used to check the *result*. Two failures are otherwise
+completely silent: an asset filtered out by `isPublishable` that a page still
+references, and a `../` that stops resolving because a venture served from a
+subdirectory was copied to `/<slug>/`. Both build green and 404 for the visitor.
+It guards the injected site chrome too — nearly 200 links no test covered when
+they were added.
 
-It runs on every build, so it guards new ventures too — a calculator that ships
-linking to a file it forgot to include fails at merge, not in front of a user.
+## Checking the artifact
+
+`check.mjs` runs over the built directory, not the sources, because that is
+where these defects are created — by the copy, not by the input. It fails the
+build on a missing root file, a leftover `example.invalid`, a relative link
+that resolves to nothing, a link that climbs out of the site root, a product
+directory with no landing page, a page in no sitemap, and a sitemap URL that
+did not ship. It follows the sitemap index into each venture's sitemap; a check
+that read only the root would have passed while every defect above sat one
+level down.
+
+The workflow runs it between building and uploading, so a broken artifact never
+reaches the live site.
 
 ## Deploying
 
