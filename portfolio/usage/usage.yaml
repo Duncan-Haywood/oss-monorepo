@@ -1908,6 +1908,18 @@ products:
           (compareAccessorials). Public URL remains owner-gated; local
           event accessorials_compared is opt-out and stores no inputs.
 
+  - slug: repository-branch-hygiene
+    surface: local-cli
+    readings:
+      - as_of: 2026-08-24
+        signals:
+          local_scans: 1
+          approval_queue_exports: 1
+          qualified_pilots: 0
+        note: >-
+          Shipped read-only branch inventory with text, JSON, and CSV approval
+          queue output. Local verification used the bundled fixture; customer
+          demand remains untested.
 # Example of the shape, once a product has shipped:
 #
 # products:
