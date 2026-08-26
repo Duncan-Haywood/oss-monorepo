@@ -226,6 +226,9 @@ workflows:
 - workflow: flat-roof-bid-calculator-ci.yml
   classification: none
   publishes: []
+- workflow: flooring-bid-calculator-ci.yml
+  classification: none
+  publishes: []
 - workflow: forge-surface-reachability-ci.yml
   classification: none
   publishes: []
