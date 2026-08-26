@@ -9,6 +9,66 @@ const supplySeo = readFileSync(new URL('./should-i-let-them-buy-the-paper.html',
 const initialSeo = readFileSync(new URL('./should-i-throw-in-the-initial-clean.html', import.meta.url), 'utf8');
 const sitemap = readFileSync(new URL('./sitemap.xml', import.meta.url), 'utf8');
 
+// Walk the document the way a browser does so an unclosed raw-text element
+// really does swallow everything after it. A sibling calculator shipped dead
+// that way while its unit tests stayed green by importing calc.mjs directly.
+const RAW_TEXT_ELEMENTS = ['textarea', 'script', 'style'];
+function parseRawText(source) {
+  const RAW = /<(textarea|script|style)\b[^>]*>/i;
+  let rest = source;
+  let markup = '';
+  const scripts = [];
+  for (;;) {
+    const open = rest.match(RAW);
+    if (!open) return { markup: markup + rest, scripts, unclosed: null };
+    const tag = open[1].toLowerCase();
+    const contentStart = open.index + open[0].length;
+    markup += rest.slice(0, contentStart);
+    const closer = new RegExp(`</${tag}\\s*>`, 'i').exec(rest.slice(contentStart));
+    if (!closer) return { markup, scripts, unclosed: tag };
+    if (tag === 'script') scripts.push(rest.slice(contentStart, contentStart + closer.index));
+    markup += closer[0];
+    rest = rest.slice(contentStart + closer.index + closer[0].length);
+  }
+}
+const { markup, scripts, unclosed } = parseRawText(html);
+const declaredIds = new Set([...markup.matchAll(/\bid="([\w-]+)"/g)].map((m) => m[1]));
+const scriptSource = scripts.join('\n');
+
+test('every raw-text element is closed', () => {
+  assert.equal(unclosed, null, `<${unclosed}> is never closed; everything after it is swallowed as text instead of parsed as markup`);
+  for (const tag of RAW_TEXT_ELEMENTS) {
+    const opened = (html.match(new RegExp(`<${tag}[\\s>]`, 'gi')) || []).length;
+    const closed = (html.match(new RegExp(`</${tag}\\s*>`, 'gi')) || []).length;
+    assert.equal(opened, closed, `<${tag}> is opened ${opened}x but closed ${closed}x`);
+  }
+});
+
+test('the module script survives parsing and would actually execute', () => {
+  assert.match(markup, /<script type="module">/, 'the app script tag is missing or was swallowed by an earlier element');
+  assert.match(scriptSource, /calculateBid/, 'the app script did not parse as a script element');
+  assert.match(scriptSource, /from '\.\/calc\.mjs'/, 'the calculation module is not imported');
+  assert.match(scriptSource, /from '\.\/usage\.mjs'/, 'the usage module is not imported');
+});
+
+test('every element the script reaches for exists in the markup', () => {
+  const wanted = new Set([
+    ...[...scriptSource.matchAll(/\bel\(\s*'([\w-]+)'\s*\)/g)].map((m) => m[1]),
+    ...[...scriptSource.matchAll(/getElementById\(\s*'([\w-]+)'\s*\)/g)].map((m) => m[1]),
+  ]);
+  assert.ok(wanted.size > 0, 'no element lookups found; the script probably did not parse');
+  const missing = [...wanted].filter((id) => !declaredIds.has(id));
+  assert.deepEqual(missing, [], `script queries ids that no element declares: ${missing.join(', ')}`);
+});
+
+test('the area-row template and the reader agree on class names', () => {
+  for (const cls of ['a-type', 'a-sqft', 'a-rate', 'a-freq', 'remove']) {
+    const inTemplate = new RegExp(`class="${cls}[ "]`).test(scriptSource);
+    assert.ok(inTemplate, `the row template no longer emits .${cls}`);
+    assert.ok(scriptSource.includes(`.${cls}`), `nothing reads .${cls} back`);
+  }
+});
+
 test('the bid page wires the frequency-cut comparison without a build step', () => {
   assert.match(html, /compareFrequencyReduction/);
   assert.match(html, /frequencyReductionNote/);
@@ -127,11 +187,8 @@ test('the initial-clean landing page uses the same worked example the tests lock
   assert.match(sitemap, /should-i-throw-in-the-initial-clean\.html/);
 });
 
-// This suite predates the shared structural helpers, so it grows only the two
-// it needs for the save-and-share guards below: the app script's own source,
-// and the ids the markup declares.
-const scriptSource = [...html.matchAll(/<script type="module">([\s\S]*?)<\/script>/g)].map((m) => m[1]).join('\n');
-const declaredIds = new Set([...html.matchAll(/\bid="([\w-]+)"/g)].map((m) => m[1]));
+// scriptSource / declaredIds come from parseRawText above so an unclosed
+// raw-text element cannot make these share guards look at swallowed markup.
 
 // The saved-and-shared bid is only trustworthy if it carries every field the
 // calculator reads. This repo has already shipped the opposite once: a
