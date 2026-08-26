@@ -88,6 +88,11 @@ export const INPUT_FIELDS = [
   'promotedStandardRate',
   'promotedStandardExtraOrders',
   'monthlyPromotedListings',
+  'advancedCpc',
+  'advancedClicks',
+  'advancedExtraOrders',
+  'advancedPromotedRate',
+  'monthlyAdvancedCampaigns',
   'qtyDiscountUnits',
   'qtyDiscountPercent',
   'qtyShippingCharged',
@@ -2199,6 +2204,198 @@ export function comparePromotedStandard(input) {
     listingCompletedProfit: skipSale.profit,
     promotedAdFee: promotedSale.fees.promoted,
   };
+}
+
+/**
+ * Illustrative Promoted Listings Advanced extras. $0.40 CPC
+ * on 40 clicks is a $16 campaign bill — charged even if they
+ * bounce. One extra sale at 2.5% conversion is the first
+ * integer lift that can still cover that bill on the default
+ * $40 listing. Twenty campaigns is a placeholder volume, not
+ * a forecast. This is not Standard: there is a campaign bill
+ * if they bounce. This is not Offsite: the clicks are on eBay
+ * search, not Google or Facebook.
+ */
+export const DEFAULT_ADVANCED_CPC = 0.4;
+export const DEFAULT_ADVANCED_CLICKS = 40;
+export const DEFAULT_ADVANCED_EXTRA_ORDERS = 1;
+export const DEFAULT_MONTHLY_ADVANCED_CAMPAIGNS = 20;
+
+function advancedRow({
+  id,
+  label,
+  extraOrders,
+  clicks,
+  cpc,
+  adSpend,
+  extraSalesProfit,
+  completedProfit,
+  expectedProfit,
+  promotedRate,
+}) {
+  return {
+    id,
+    label,
+    extraOrders,
+    clicks,
+    cpc,
+    adSpend,
+    extraSalesProfit,
+    completedProfit,
+    expectedProfit,
+    expectedProfitDelta: 0,
+    promotedRate,
+  };
+}
+
+/**
+ * Same listing, skip Promoted Listings Advanced or turn it on.
+ *
+ *   - Skip Advanced — the sale you already have, no click bill.
+ *   - Add Advanced — that same sale plus N extra completed
+ *     sales, minus CPC × clicks. The click bill is charged
+ *     even if they bounce. Zero extra sales is the
+ *     conservative test: you paid for traffic and kept the
+ *     sale you already had.
+ *
+ * This is not Standard (#1669): Standard is a percent taken
+ * only when the listing sells. This is not Offsite (#1653):
+ * Offsite is a Google/Facebook campaign billed either way.
+ * Open complementary eBay PRs: free shipping (#1674),
+ * international (#1564). Extra-sale counts, CPC, and clicks
+ * are inputs, not eBay’s Promoted Listings attribution.
+ */
+export function comparePromotedAdvanced(input) {
+  const listedPrice = optionalNumber(input.price, 'Item price');
+  if (listedPrice === undefined) {
+    throw new Error('Item price must be a non-negative number');
+  }
+
+  const cpc = optionalNumber(input.advancedCpc, 'Promoted Listings Advanced CPC', DEFAULT_ADVANCED_CPC);
+  const clicks = optionalNumber(input.advancedClicks, 'Promoted Listings Advanced clicks', DEFAULT_ADVANCED_CLICKS);
+  if (!Number.isInteger(clicks)) {
+    throw new Error('Promoted Listings Advanced clicks must be a whole number');
+  }
+  const extraOrders = optionalNumber(
+    input.advancedExtraOrders,
+    'Extra Advanced orders',
+    DEFAULT_ADVANCED_EXTRA_ORDERS,
+  );
+  const listingPromotedRate = optionalNumber(input.promotedRate, 'Promoted listings rate', 0);
+  const advancedPromotedRate = requiredPercent(
+    input.advancedPromotedRate,
+    'Advanced sale promoted rate',
+    listingPromotedRate,
+  );
+  const monthlyCampaigns = optionalNumber(
+    input.monthlyAdvancedCampaigns,
+    'Monthly Advanced campaigns',
+    DEFAULT_MONTHLY_ADVANCED_CAMPAIGNS,
+  );
+
+  const adSpend = cpc * clicks;
+  const listing = calculateOrder(input);
+  const extraSale = calculateOrder({ ...input, promotedRate: advancedPromotedRate });
+  const extraSalesProfit = extraSale.expectedProfit * extraOrders;
+  const extraSalesCompleted = extraSale.profit * extraOrders;
+
+  const skip = advancedRow({
+    id: 'skip',
+    label: 'Skip Promoted Listings Advanced',
+    extraOrders: 0,
+    clicks: 0,
+    cpc,
+    adSpend: 0,
+    extraSalesProfit: 0,
+    completedProfit: listing.profit,
+    expectedProfit: listing.expectedProfit,
+    promotedRate: listingPromotedRate,
+  });
+  const advanced = advancedRow({
+    id: 'advanced',
+    label: 'Add Promoted Listings Advanced',
+    extraOrders,
+    clicks,
+    cpc,
+    adSpend,
+    extraSalesProfit,
+    completedProfit: listing.profit + extraSalesCompleted - adSpend,
+    expectedProfit: listing.expectedProfit + extraSalesProfit - adSpend,
+    promotedRate: advancedPromotedRate,
+  });
+  skip.expectedProfitDelta = skip.expectedProfit - advanced.expectedProfit;
+  advanced.expectedProfitDelta = advanced.expectedProfit - skip.expectedProfit;
+
+  const winner = advanced.expectedProfit > skip.expectedProfit + 1e-9
+    ? 'advanced'
+    : advanced.expectedProfit < skip.expectedProfit - 1e-9
+      ? 'skip'
+      : 'tie';
+
+  let breakEvenExtraOrders = Infinity;
+  if (extraSale.expectedProfit > 1e-12) {
+    breakEvenExtraOrders = adSpend / extraSale.expectedProfit;
+  } else if (adSpend <= 1e-12) {
+    breakEvenExtraOrders = 0;
+  }
+
+  const breakEvenAdSpend = extraOrders * extraSale.expectedProfit;
+  const breakEvenCpc = clicks > 1e-12 ? breakEvenAdSpend / clicks : Infinity;
+  const breakEvenClicks = cpc > 1e-12 ? breakEvenAdSpend / cpc : Infinity;
+  const costPerExtraSale = extraOrders > 1e-12 ? adSpend / extraOrders : Infinity;
+  const conversionPct = clicks > 1e-12 ? extraOrders / clicks * 100 : 0;
+  const breakEvenConversionPct = clicks > 1e-12 && Number.isFinite(breakEvenExtraOrders)
+    ? breakEvenExtraOrders / clicks * 100
+    : Infinity;
+  const noLiftExpectedProfit = listing.expectedProfit - adSpend;
+
+  return {
+    rows: [skip, advanced],
+    skip,
+    advanced,
+    winner,
+    cpc,
+    clicks,
+    adSpend,
+    extraOrders,
+    advancedPromotedRate,
+    listingPromotedRate,
+    extraSaleExpectedProfit: extraSale.expectedProfit,
+    extraSaleCompletedProfit: extraSale.profit,
+    monthlyCampaigns,
+    extraKeptOnAdvanced: advanced.expectedProfit - skip.expectedProfit,
+    monthlyExtraOnAdvanced: (advanced.expectedProfit - skip.expectedProfit) * monthlyCampaigns,
+    breakEvenExtraOrders,
+    breakEvenAdSpend,
+    breakEvenCpc,
+    breakEvenClicks,
+    costPerExtraSale,
+    conversionPct,
+    breakEvenConversionPct,
+    noLiftExpectedProfit,
+    listingExpectedProfit: listing.expectedProfit,
+    listingCompletedProfit: listing.profit,
+  };
+}
+
+export function promotedAdvancedNote(comparison) {
+  if (!comparison?.skip || !comparison?.advanced) {
+    throw new Error('Promoted Listings Advanced comparison is missing rows');
+  }
+  const money = (value) => {
+    const sign = value < 0 ? '-' : '';
+    return `${sign}$${Math.abs(value).toFixed(2)}`;
+  };
+  const { skip, advanced } = comparison;
+  const gap = money(Math.abs(advanced.expectedProfit - skip.expectedProfit));
+  const ahead = advanced.expectedProfit >= skip.expectedProfit ? 'more' : 'less';
+  const skipLine = `Skip Promoted Listings Advanced. The listing you already have expects ${money(skip.expectedProfit)} after the typed return rate.`;
+  const advancedLine = `A ${money(comparison.cpc)} CPC campaign on ${comparison.clicks} click${comparison.clicks === 1 ? '' : 's'} (${money(comparison.adSpend)} billed either way) that produces ${comparison.extraOrders} extra sale${comparison.extraOrders === 1 ? '' : 's'} expects ${money(advanced.expectedProfit)} after that spend — ${gap} ${ahead}.`;
+  const drag = ` With no extra sales the same clicks leave ${money(comparison.noLiftExpectedProfit)} (${money(comparison.adSpend)} less than skip).`;
+  const floor = Number.isFinite(comparison.breakEvenExtraOrders)
+    ? ` Extra sales have to stay at about ${comparison.breakEvenExtraOrders.toFixed(2)} before Advanced matches skip.`
+    : ' No extra-sale count on these rates can match skip.';
+  return `${skipLine} ${advancedLine}${drag}${floor}`;
 }
 
 export function promotedStandardNote(comparison) {
