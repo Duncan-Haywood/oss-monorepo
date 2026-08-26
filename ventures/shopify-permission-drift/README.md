@@ -58,6 +58,12 @@ Use JSON output for an approval queue or CI artifact:
 python3 src/permission_drift.py examples/before.json examples/after.json --format json --usage-log usage.jsonl
 ```
 
+Use Markdown output for a ticket or human approval queue:
+
+```bash
+python3 src/permission_drift.py examples/before.json examples/after.json --format markdown
+```
+
 Save a portable JSON evidence artifact for a ticket or approval queue:
 
 ```bash
