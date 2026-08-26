@@ -2225,3 +2225,15 @@ products:
           calculator onto current main. Public URL remains owner-gated;
           usage is opt-out and honors DNT/GPC. Baseline row.
 
+  - slug: subscription-price-impact
+    surface: static-page-in-repo
+    readings:
+      - as_of: 2026-08-26
+        signals:
+          live_url_visitors: null
+          calculation: 0
+        note: >-
+          Repair-and-merge of unique #1293 SaaS price-change churn
+          calculator onto current main. Public URL remains owner-gated;
+          usage is opt-out and honors DNT/GPC. Baseline row.
+

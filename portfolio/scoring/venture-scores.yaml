@@ -3001,3 +3001,35 @@ ventures:
       fee schedule, legal opinion, or promise that a jurisdiction
       permits the charge. Inputs never leave the browser.
 
+  - slug: subscription-price-impact
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 7
+      gross_margin: 10
+      defensibility: 4
+      distribution: 7
+    composite: 6.5
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      The calculator is deterministic revenue and churn-scenario
+      arithmetic. Adding inference would guess at retention the
+      operator already has in their own cohort data.
+    basis: >-
+      Graduated on 2026-08-26 as a browser-local SaaS price-change
+      worksheet (repair-and-merge of unique #1293). Distinct from
+      quote-margin (one project quote) and marketplace fee tools:
+      the buyer is an independent SaaS operator comparing current
+      and proposed monthly prices against churn they type. Distribution
+      is "SaaS price increase calculator" and "how much churn can a
+      price increase absorb".
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Pass: output is arithmetic on user-typed subscribers and prices,
+      not a forecast, a recommendation to raise the price, or financial
+      advice. Inputs never leave the browser.
+
