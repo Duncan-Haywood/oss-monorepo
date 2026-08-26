@@ -128,6 +128,16 @@ export const INPUT_FIELDS = [
   'managedReturnRatePercent',
   'buyerPaysReturnRatePercent',
   'monthlyManagedListings',
+  'gspReturnRatePercent',
+  'gspSellThroughPct',
+  'selfShipShippingCharged',
+  'selfShipShippingCost',
+  'selfShipReturnShippingCost',
+  'selfShipIntlFeeRate',
+  'selfShipReturnRatePercent',
+  'selfShipClaimRatePercent',
+  'selfShipSellThroughPct',
+  'monthlyGspListings',
   'freeShipPrice',
   'buyerPaysSellThroughPct',
   'freeShipSellThroughPct',
@@ -3400,6 +3410,298 @@ export function managedReturnsNote(comparison) {
 }
 
 /**
+ * Illustrative Global Shipping Program defaults. A $40 listing that
+ * already ships domestically for $6/$5 still usually keeps more
+ * leftover through the hub than buying an $18 international label,
+ * even after GSP sticker-shock sell-through. Postage, the extra
+ * international fee, and the claim rate are inputs, not eBay
+ * invoice policy.
+ */
+export const DEFAULT_GSP_RETURN_RATE = 6;
+export const DEFAULT_GSP_SELL_THROUGH = 40;
+export const DEFAULT_SELF_SHIP_SHIPPING_CHARGED = 22;
+export const DEFAULT_SELF_SHIP_SHIPPING_COST = 18;
+export const DEFAULT_SELF_SHIP_RETURN_SHIPPING_COST = 18;
+export const DEFAULT_SELF_SHIP_INTL_FEE_RATE = 1.65;
+export const DEFAULT_SELF_SHIP_RETURN_RATE = 10;
+export const DEFAULT_SELF_SHIP_CLAIM_RATE = 8;
+export const DEFAULT_SELF_SHIP_SELL_THROUGH = 55;
+export const DEFAULT_MONTHLY_GSP_LISTINGS = 20;
+
+function globalShippingRow({
+  id,
+  label,
+  sellThroughPct,
+  shippingCharged,
+  postageAndPack,
+  intlFeeRate,
+  lossRatePercent,
+  lossKind,
+  soldExpectedProfit,
+  completedProfit,
+  expectedProfit,
+}) {
+  return {
+    id,
+    label,
+    sellThroughPct,
+    shippingCharged,
+    postageAndPack,
+    intlFeeRate,
+    lossRatePercent,
+    lossKind,
+    soldExpectedProfit,
+    completedProfit,
+    expectedProfit,
+    expectedProfitDelta: 0,
+  };
+}
+
+/**
+ * Same listed SKU, one international buyer, two ways to get the
+ * box there: enable Global Shipping Program and ship to the US
+ * hub, or collect international postage and buy the label yourself.
+ *
+ *   - GSP — seller revenue stays item + the domestic shipping they
+ *     already charge. Buyer pays the GSP international bill to
+ *     eBay, not to you. You buy a domestic hub label. The extra
+ *     international fee is treated as 0% because the sale is
+ *     handed to a US hub. After intake, lost-in-transit claims are
+ *     GSP's. You still take a typed GSP return rate.
+ *   - You-ship — you collect international postage, pay the
+ *     international label, and take the typed extra international
+ *     fee. A typed claim rate is an item-not-received or customs
+ *     loss: cost of goods and postage stay gone. That is not a
+ *     return (the item does not come back).
+ *
+ * This is not "should I offer international at all" (open #1564),
+ * not Standard Envelope (domestic cheap postage vs a claim), not
+ * combined shipping, and not Authenticity Guarantee (a hub label
+ * for authentication). Open eBay PRs still own promoted Standard,
+ * store, incoming Best Offer, international, Managed Returns, and
+ * Top Rated Plus. Rates and postage are inputs, not eBay's live
+ * GSP schedule.
+ */
+export function compareGlobalShipping(input) {
+  const listedPrice = optionalNumber(input.price, 'Item price');
+  if (listedPrice === undefined) {
+    throw new Error('Item price must be a non-negative number');
+  }
+
+  const gspReturnRate = requiredPercent(
+    input.gspReturnRatePercent,
+    'GSP return rate',
+    DEFAULT_GSP_RETURN_RATE,
+  );
+  const gspSellThrough = requiredPercent(
+    input.gspSellThroughPct,
+    'GSP sell-through',
+    DEFAULT_GSP_SELL_THROUGH,
+  );
+  const selfShipCharged = optionalNumber(
+    input.selfShipShippingCharged,
+    'Self-ship shipping charged',
+    DEFAULT_SELF_SHIP_SHIPPING_CHARGED,
+  );
+  const selfShipCost = optionalNumber(
+    input.selfShipShippingCost,
+    'Self-ship shipping cost',
+    DEFAULT_SELF_SHIP_SHIPPING_COST,
+  );
+  const selfShipReturnCost = optionalNumber(
+    input.selfShipReturnShippingCost,
+    'Self-ship return shipping',
+    DEFAULT_SELF_SHIP_RETURN_SHIPPING_COST,
+  );
+  const selfShipIntlFee = requiredPercent(
+    input.selfShipIntlFeeRate,
+    'Self-ship international fee',
+    DEFAULT_SELF_SHIP_INTL_FEE_RATE,
+  );
+  const selfShipReturnRate = requiredPercent(
+    input.selfShipReturnRatePercent,
+    'Self-ship return rate',
+    DEFAULT_SELF_SHIP_RETURN_RATE,
+  );
+  const selfShipClaimRate = requiredPercent(
+    input.selfShipClaimRatePercent,
+    'Self-ship claim rate',
+    DEFAULT_SELF_SHIP_CLAIM_RATE,
+  );
+  const selfShipSellThrough = requiredPercent(
+    input.selfShipSellThroughPct,
+    'Self-ship sell-through',
+    DEFAULT_SELF_SHIP_SELL_THROUGH,
+  );
+  const monthlyListings = optionalNumber(
+    input.monthlyGspListings,
+    'Monthly international listings',
+    DEFAULT_MONTHLY_GSP_LISTINGS,
+  );
+
+  const packagingCost = optionalNumber(input.packagingCost, 'Packaging cost', 0);
+  const costOfGoods = optionalNumber(input.costOfGoods, 'Cost of goods', 0);
+  const otherCost = optionalNumber(input.otherCost, 'Other cost', 0);
+  const gspShippingCharged = optionalNumber(input.shippingCharged, 'Shipping charged', 0);
+  const gspShippingCost = optionalNumber(input.shippingCost, 'Shipping cost', 0);
+  const feeRefundOnReturn = requiredPercent(
+    input.feeRefundOnReturnPercent,
+    'Fee refund on return',
+    100,
+  );
+
+  const gspSold = calculateOrder({
+    ...input,
+    intlFeeRate: 0,
+    returnRatePercent: gspReturnRate,
+  });
+  const selfSold = calculateOrder({
+    ...input,
+    shippingCharged: selfShipCharged,
+    shippingCost: selfShipCost,
+    returnShippingCost: selfShipReturnCost,
+    intlFeeRate: selfShipIntlFee,
+    returnRatePercent: selfShipReturnRate,
+  });
+
+  const quantity = selfSold.quantity;
+  const sunkOnClaim = (costOfGoods + selfShipCost + packagingCost + otherCost) * quantity;
+  const unrefundedFees = selfSold.feeTotal * (1 - feeRefundOnReturn / 100);
+  const claimProfit = -sunkOnClaim - unrefundedFees;
+  const claimRateFrac = selfShipClaimRate / 100;
+  const selfAfterClaims = (1 - claimRateFrac) * selfSold.expectedProfit + claimRateFrac * claimProfit;
+
+  const gspPostage = (gspShippingCost + packagingCost) * gspSold.quantity;
+  const selfPostage = (selfShipCost + packagingCost) * quantity;
+
+  const gsp = globalShippingRow({
+    id: 'gsp',
+    label: 'Global Shipping Program',
+    sellThroughPct: gspSellThrough,
+    shippingCharged: gspShippingCharged,
+    postageAndPack: gspPostage,
+    intlFeeRate: 0,
+    lossRatePercent: gspReturnRate,
+    lossKind: 'return',
+    soldExpectedProfit: gspSold.expectedProfit,
+    completedProfit: gspSold.profit,
+    expectedProfit: gspSold.expectedProfit * (gspSellThrough / 100),
+  });
+  const selfShip = globalShippingRow({
+    id: 'self-ship',
+    label: 'You ship internationally',
+    sellThroughPct: selfShipSellThrough,
+    shippingCharged: selfShipCharged,
+    postageAndPack: selfPostage,
+    intlFeeRate: selfShipIntlFee,
+    lossRatePercent: selfShipClaimRate,
+    lossKind: 'claim',
+    soldExpectedProfit: selfAfterClaims,
+    completedProfit: selfSold.profit,
+    expectedProfit: selfAfterClaims * (selfShipSellThrough / 100),
+  });
+  gsp.expectedProfitDelta = gsp.expectedProfit - selfShip.expectedProfit;
+  selfShip.expectedProfitDelta = selfShip.expectedProfit - gsp.expectedProfit;
+
+  const extraKeptOnGsp = gsp.expectedProfit - selfShip.expectedProfit;
+  const winner = extraKeptOnGsp > 1e-9
+    ? 'gsp'
+    : extraKeptOnGsp < -1e-9
+      ? 'self-ship'
+      : 'tie';
+
+  const profitClaimGap = selfSold.expectedProfit - claimProfit;
+  let breakEvenClaimRate = Infinity;
+  if (selfShipSellThrough > 1e-12 && profitClaimGap > 1e-12) {
+    const neededPacked = gsp.expectedProfit / (selfShipSellThrough / 100);
+    const rate = (selfSold.expectedProfit - neededPacked) / profitClaimGap * 100;
+    breakEvenClaimRate = rate < -1e-9 || rate > 100 + 1e-9
+      ? Infinity
+      : Math.max(0, Math.min(100, rate));
+  }
+
+  const breakEvenSelfShipSellThroughPct = selfAfterClaims <= 1e-12
+    ? (gsp.expectedProfit <= 1e-12 ? 0 : Infinity)
+    : (gsp.expectedProfit / selfAfterClaims) * 100;
+
+  const selfAtPostage = (shippingCost) => {
+    const sold = calculateOrder({
+      ...input,
+      shippingCharged: selfShipCharged,
+      shippingCost,
+      returnShippingCost: selfShipReturnCost,
+      intlFeeRate: selfShipIntlFee,
+      returnRatePercent: selfShipReturnRate,
+    });
+    const sunk = (costOfGoods + shippingCost + packagingCost + otherCost) * quantity;
+    const unrefunded = sold.feeTotal * (1 - feeRefundOnReturn / 100);
+    const claim = -sunk - unrefunded;
+    const afterClaims = (1 - claimRateFrac) * sold.expectedProfit + claimRateFrac * claim;
+    return afterClaims * (selfShipSellThrough / 100);
+  };
+  const atZeroPostage = selfAtPostage(0);
+  const atTenPostage = selfAtPostage(10);
+  const postageSlope = (atTenPostage - atZeroPostage) / 10;
+  let breakEvenSelfShipPostage = Infinity;
+  if (Math.abs(postageSlope) > 1e-12) {
+    const neededPostage = (gsp.expectedProfit - atZeroPostage) / postageSlope;
+    breakEvenSelfShipPostage = neededPostage < -1e-9 ? Infinity : neededPostage;
+  }
+
+  return {
+    rows: [gsp, selfShip],
+    gsp,
+    selfShip,
+    winner,
+    gspReturnRate,
+    gspSellThrough,
+    selfShipCharged,
+    selfShipCost,
+    selfShipReturnCost,
+    selfShipIntlFee,
+    selfShipReturnRate,
+    selfShipClaimRate,
+    selfShipSellThrough,
+    claimProfit,
+    monthlyListings,
+    extraKeptOnGsp,
+    extraPackedOnGsp: gsp.soldExpectedProfit - selfShip.soldExpectedProfit,
+    monthlyExtraOnGsp: extraKeptOnGsp * monthlyListings,
+    breakEvenClaimRate,
+    breakEvenSelfShipSellThroughPct,
+    breakEvenSelfShipPostage,
+    gspCompletedProfit: gspSold.profit,
+    selfShipCompletedProfit: selfSold.profit,
+    gspPays: extraKeptOnGsp > 1e-9,
+  };
+}
+
+export function globalShippingNote(comparison) {
+  if (!comparison?.gsp || !comparison?.selfShip) {
+    throw new Error('Global Shipping comparison is missing rows');
+  }
+  const money = (value) => {
+    const sign = value < 0 ? '-' : '';
+    return `${sign}$${Math.abs(value).toFixed(2)}`;
+  };
+  const { gsp, selfShip } = comparison;
+  const packedGap = money(Math.abs(gsp.soldExpectedProfit - selfShip.soldExpectedProfit));
+  const packedAhead = gsp.soldExpectedProfit >= selfShip.soldExpectedProfit ? 'more' : 'less';
+  const stGap = money(Math.abs(gsp.expectedProfit - selfShip.expectedProfit));
+  const stAhead = gsp.expectedProfit >= selfShip.expectedProfit ? 'more' : 'less';
+  const gspLine = `Global Shipping Program, shipping to the hub at ${money(gsp.postageAndPack)} postage and pack with a ${gsp.lossRatePercent}% return rate, expects ${money(gsp.soldExpectedProfit)} leftover after returns.`;
+  const selfLine = ` You-ship, collecting ${money(selfShip.shippingCharged)} postage, paying ${money(selfShip.postageAndPack)} for the international label and pack, a ${comparison.selfShipIntlFee}% international fee, a ${comparison.selfShipReturnRate}% return rate, and an ${selfShip.lossRatePercent}% item-not-received claim rate, expects ${money(selfShip.soldExpectedProfit)} leftover — ${packedGap} ${packedAhead} on a completed international sale.`;
+  const closeLine = ` At ${gsp.sellThroughPct}% GSP sell-through versus ${selfShip.sellThroughPct}% when you set your own international rate, GSP expects ${money(gsp.expectedProfit)} and you-ship expects ${money(selfShip.expectedProfit)} — ${stGap} ${stAhead}.`;
+  const claim = Number.isFinite(comparison.breakEvenClaimRate)
+    ? ` Claims have to stay at about ${comparison.breakEvenClaimRate.toFixed(1)}% before you-ship matches GSP after sell-through.`
+    : ' No claim rate on these postage figures can make you-ship match GSP after sell-through.';
+  const stFloor = Number.isFinite(comparison.breakEvenSelfShipSellThroughPct)
+    ? ` You-ship has to convert about ${comparison.breakEvenSelfShipSellThroughPct.toFixed(1)}% of the time before it matches GSP after sell-through.`
+    : '';
+  return `${gspLine}${selfLine}${closeLine}${claim}${stFloor}`;
+}
+
+/**
  * Illustrative free-shipping extras. 55% vs 70% is a 15-point
  * search-rank lift — both typed, not scraped from Seller Hub.
  * Leaving freeShipPrice empty bakes the typed shipping charged
@@ -3447,8 +3749,8 @@ function freeShipRow({
  * Complementary to local pickup (meetup vs the label, no-show),
  * combined shipping (two already-sold items), Standard Envelope
  * (tracked vs ESE), quantity discount (N units, one box), and
- * seller coupon (public code, not postage). #1671 still owns
- * Global Shipping. Open eBay PRs still own store, incoming Best
+ * seller coupon (public code, not postage). Global Shipping (#1671) is a hub label versus you-ship
+ * international postage. Open eBay PRs still own store, incoming Best
  * Offer, and international. Rates are inputs, not eBay search
  * ranking.
  */

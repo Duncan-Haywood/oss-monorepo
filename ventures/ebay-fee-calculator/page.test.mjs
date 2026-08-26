@@ -348,7 +348,7 @@ test('the Managed Returns table has one cell per column and a counted event', ()
   assert.match(page, /is-ebay-managed-returns-worth-it\.html/);
   assert.match(page, /"featureList":\s*"[^"]*Managed Returns vs your own label/);
   const managedStart = page.indexOf('id="managedReturnsTable"');
-  const managedEnd = page.indexOf('id="freeShipping"', managedStart);
+  const managedEnd = page.indexOf('id="globalShipping"', managedStart);
   const headerBlock = page.slice(managedStart, managedEnd === -1 ? undefined : managedEnd);
   const headers = [...headerBlock.matchAll(/<th scope="col">([^<]+)<\/th>/g)].map((m) => m[1]);
   assert.deepEqual(headers, [
@@ -357,6 +357,28 @@ test('the Managed Returns table has one cell per column and a counted event', ()
     'Return rate',
     'Expected leftover',
     'vs self-label',
+  ]);
+});
+
+test('the Global Shipping table has one cell per column and a counted event', () => {
+  assert.match(page, /compareGlobalShipping/);
+  assert.match(page, /id="globalShipping"/);
+  assert.match(page, /id="globalShippingVerdict"/);
+  assert.match(page, /global_shipping_compared/);
+  assert.match(page, /should-i-use-ebay-global-shipping-program\.html/);
+  assert.match(page, /"featureList":\s*"[^"]*Global Shipping Program vs you-ship/);
+  const gspStart = page.indexOf('id="globalShippingTable"');
+  const gspEnd = page.indexOf('id="freeShipping"', gspStart);
+  const headerBlock = page.slice(gspStart, gspEnd === -1 ? undefined : gspEnd);
+  const headers = [...headerBlock.matchAll(/<th scope="col">([^<]+)<\/th>/g)].map((m) => m[1]);
+  assert.deepEqual(headers, [
+    'Path',
+    'Collected',
+    'Close rate',
+    'Loss rate',
+    'If they keep it',
+    'Expected after sell-through',
+    'vs GSP',
   ]);
 });
 
