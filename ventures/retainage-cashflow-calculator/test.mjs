@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { parseInputs, computeAll, delayScenarios, followUpDraft, comparePartialReleaseOffer, partialReleaseNote, worksheetSummary } from './calc.mjs';
+import { parseInputs, computeAll, delayScenarios, followUpDraft, releaseSchedule, releaseNote, comparePartialReleaseOffer, partialReleaseNote, worksheetSummary } from './calc.mjs';
 
 test('calculates retainage and carrying cost without rounding drift', () => {
   const parsed = parseInputs({ contractValue: '100000', retainagePct: '10', paidToDate: '75000', daysOutstanding: '90', annualCarryingRatePct: '12' });
@@ -50,6 +50,89 @@ test('worksheet summary includes optional delay scenarios for project review', (
   const summary = worksheetSummary({ values, result: computeAll(values), scenarios: delayScenarios(values) });
   assert.match(summary, /Further-delay scenarios \(modeled\):/);
   assert.match(summary, /\+90 days: \$26479\.45 outstanding; \$739\.72 added carrying cost/);
+});
+
+test('defaults release-schedule fields so older worksheets still parse', () => {
+  const parsed = parseInputs({ contractValue: '100000', retainagePct: '10', paidToDate: '75000', daysOutstanding: '90', annualCarryingRatePct: '12' });
+  assert.equal(parsed.ok, true);
+  assert.equal(parsed.values.percentComplete, 75);
+  assert.equal(parsed.values.reductionAtPct, 50);
+  assert.equal(parsed.values.reducedRetainagePct, 5);
+});
+
+test('models AIA-style retainage reduction after the 50% point', () => {
+  const values = parseInputs({
+    contractValue: '100000',
+    retainagePct: '10',
+    paidToDate: '75000',
+    daysOutstanding: '90',
+    annualCarryingRatePct: '12',
+    percentComplete: '80',
+    reductionAtPct: '50',
+    reducedRetainagePct: '5',
+  }).values;
+  assert.deepEqual(releaseSchedule(values), {
+    percentComplete: 80,
+    reductionAtPct: 50,
+    reducedRetainagePct: 5,
+    billed: 80000,
+    progressRetainage: 8000,
+    properHold: 5000,
+    shouldHaveReleased: 3000,
+    overheld: 5000,
+    pastReduction: true,
+  });
+});
+
+test('holds the full rate before the reduction point', () => {
+  const values = parseInputs({
+    contractValue: '100000',
+    retainagePct: '10',
+    paidToDate: '30000',
+    daysOutstanding: '15',
+    annualCarryingRatePct: '12',
+    percentComplete: '40',
+    reductionAtPct: '50',
+    reducedRetainagePct: '5',
+  }).values;
+  const schedule = releaseSchedule(values);
+  assert.equal(schedule.pastReduction, false);
+  assert.equal(schedule.properHold, 4000);
+  assert.equal(schedule.shouldHaveReleased, 0);
+  assert.equal(schedule.overheld, 0);
+});
+
+test('release note names the typically releasable amount', () => {
+  const schedule = releaseSchedule({
+    contractValue: 100000,
+    retainagePct: 10,
+    paidToDate: 75000,
+    daysOutstanding: 90,
+    annualCarryingRatePct: 12,
+    percentComplete: 80,
+    reductionAtPct: 50,
+    reducedRetainagePct: 5,
+  });
+  assert.match(releaseNote(schedule), /\$3000\.00/);
+  assert.match(releaseNote(schedule), /not a contract reading/);
+});
+
+test('worksheet summary includes the modeled release schedule', () => {
+  const values = parseInputs({
+    contractValue: '100000',
+    retainagePct: '10',
+    paidToDate: '75000',
+    daysOutstanding: '90',
+    annualCarryingRatePct: '12',
+    percentComplete: '80',
+  }).values;
+  const summary = worksheetSummary({
+    values,
+    result: computeAll(values),
+    release: releaseSchedule(values),
+  });
+  assert.match(summary, /Proper hold at this percent complete: \$5000\.00/);
+  assert.match(summary, /Typically already releasable: \$3000\.00/);
 });
 
 test('partial retainage offer: $5k waiver trails waiting; acceleration still beats both', () => {

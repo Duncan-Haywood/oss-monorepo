@@ -66,6 +66,12 @@ products:
           live_url_visitors: null
           partial_release_compares: 0
         note: Added a check-today vs wait comparison for a partial retainage offer; public URL remains owner-gated.
+      - as_of: 2026-08-26
+        signals:
+          live_url_visitors: null
+          release_schedule_views: 0
+          share_link_copies: 0
+        note: Added modeled retainage-reduction schedule and a shareable worksheet hash link; public URL remains owner-gated.
 
   - slug: 3pl-quote-normalizer
     surface: static-page-in-repo
