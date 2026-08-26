@@ -1,0 +1,32 @@
+name: epoxy-garage-floor-bid-calculator
+description: A private browser calculator for garage-floor coating contractors that prices epoxy, flake, metallic, and 1-day polyaspartic jobs from grind hours, flake load, waste, cracks, moisture barrier, and travel — and shows the walk-away price below which a $4/sq ft special loses money.
+stage: prototype
+owner: duncan
+hypotheses:
+  - claim: Independent garage-floor coating contractors will use a grind-and-flake bid calculator because the $3–$5/sq ft specials they copy from neighborhood ads cannot see that prep hours and flake bags, not brochure coverage, set the real cost of a two-car slab.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: The walk-away price and a proposed-price check against a cheap special are the numbers a contractor actually decides on when a homeowner asks them to match a flyer, more than the dollars-per-square-foot figure itself.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: Switching the same slab from full-broadcast epoxy to 1-day polyaspartic will change the bid in a way contractors recognize (higher kit, fewer coat hours, same grind), which is more useful than adding a flat premium to an epoxy number.
+    status: untested
+    checked: null
+    evidence: customer-contact
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+budget:
+  monthly_cap: 1
+  protected: true
+kill_criteria:
+  - Fewer than three qualified garage-floor coating contractors use the calculator twice within 90 days.
+  - Contractors report that grind-and-flake inputs are more work than their existing per-square-foot method without changing the price they would have bid.
+  - The starting kit prices and grind rates prove so far from real shops that the tool cannot be used without data we have no way to gather.
+links:
+  production: null
+  analytics: null
