@@ -1,0 +1,44 @@
+name: home-elevator-bid-calculator
+description: A private browser calculator for accessibility and elevator contractors that prices a residential home elevator from stops, travel feet, pneumatic versus winding-drum versus hydraulic versus traction-MRL, through-floor versus existing-shaft versus new-wood versus masonry versus glass, cab finish, weekday they-leave versus discharge-week expedite freight versus Saturday overtime plus a weekend inspector, and extras — and shows the extra-work share and the walk-away price below which the job loses money.
+stage: prototype
+owner: duncan
+hypotheses:
+  - claim: Independent accessibility and elevator contractors will use a stop-versus-shaft bid calculator because the generic "$18,995 pneumatic installed" special they are shopped on cannot see that a two-stop through-floor vacuum tube is a different job from a three-stop hydraulic in a new wood hoistway with a pit, a 240 V feeder, auto doors, battery lowering, and a state inspection.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: The walk-away price and the extra-work share (not the published pneumatic dump) are the two figures a contractor actually decides on when an owner asks them to match a cheaper tube quote on a hydraulic-plus-shaft job.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: Showing pneumatic, winding-drum, hydraulic, and traction MRL on the same house, next to through-floor versus a new shaft, changes the bid enough that contractors quote the shaft job instead of matching the $18,995 special.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: Contractors will return to see whether a customer-supplied unit still pays at the $4,995 just-install number, because zeroing the invoice is not a free set and a wrong opening is a second trip.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: Showing acrylic, standard, wood-panel, and glass on the same house changes the bid enough that contractors quote the glass-cab ticket instead of matching the acrylic-tube number after the owner shops the $18,995 special.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: Showing weekday-they-leave versus discharge-week-with-expedite-freight versus Saturday-overtime-plus-weekend-inspector on the same house changes the bid enough that contractors quote the rush instead of matching the $18,995 weekday special after a hospital discharge.
+    status: untested
+    checked: null
+    evidence: customer-contact
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+budget:
+  monthly_cap: 1
+  protected: true
+kill_criteria:
+  - Fewer than three qualified accessibility or elevator contractors use the calculator twice within 90 days.
+  - Contractors report that splitting stops, drive, and extras is more work than their existing installed-price method without changing the price they would have bid.
+  - The starting hours and unit invoices prove so far from real crews that the tool cannot be used without data we have no way to gather.
+links:
+  production: null
+  analytics: null

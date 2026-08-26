@@ -1,0 +1,10 @@
+{
+  "authorized": true,
+  "register": "state-license-board",
+  "source_url": "https://example.test/register",
+  "captured_at": "2026-08-25T12:00:00Z",
+  "records": [
+    {"id": "license-100", "status": "restricted", "expires": "2027-01-01"},
+    {"id": "license-300", "status": "active", "expires": "2027-04-01"}
+  ]
+}
