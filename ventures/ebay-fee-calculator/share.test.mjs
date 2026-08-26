@@ -209,6 +209,22 @@ test('carries Promoted Listings Standard fields so a shared link does not drop t
   assert.equal(restored.monthlyPromotedListings, 20);
 });
 
+test('carries Promoted Listings Advanced fields so a shared link does not drop them', () => {
+  const restored = decodeInputs(encodeInputs({
+    price: 40,
+    advancedCpc: 0.4,
+    advancedClicks: 40,
+    advancedExtraOrders: 1,
+    advancedPromotedRate: 5,
+    monthlyAdvancedCampaigns: 20,
+  }));
+  assert.equal(restored.advancedCpc, 0.4);
+  assert.equal(restored.advancedClicks, 40);
+  assert.equal(restored.advancedExtraOrders, 1);
+  assert.equal(restored.advancedPromotedRate, 5);
+  assert.equal(restored.monthlyAdvancedCampaigns, 20);
+});
+
 test('carries quantity-discount fields so a shared link does not drop them', () => {
   const restored = decodeInputs(encodeInputs({
     price: 40,

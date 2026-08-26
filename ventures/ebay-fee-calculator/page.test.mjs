@@ -238,7 +238,7 @@ test('the Promoted Listings Standard table has one cell per column and a counted
   assert.match(page, /are-ebay-promoted-listings-worth-it\.html/);
   assert.match(page, /"featureList":\s*"[^"]*Promoted Listings Standard vs skip/);
   const standardStart = page.indexOf('id="promotedStandardTable"');
-  const standardEnd = page.indexOf('id="quantityDiscount"', standardStart);
+  const standardEnd = page.indexOf('id="promotedAdvanced"', standardStart);
   const headerBlock = page.slice(standardStart, standardEnd === -1 ? undefined : standardEnd);
   const headers = [...headerBlock.matchAll(/<th scope="col">([^<]+)<\/th>/g)].map((m) => m[1]);
   assert.deepEqual(headers, [
@@ -248,6 +248,28 @@ test('the Promoted Listings Standard table has one cell per column and a counted
     'Extra sales after returns',
     'If they keep the extras',
     'Expected after ads',
+    'vs skip',
+  ]);
+});
+
+test('the Promoted Listings Advanced table has one cell per column and a counted event', () => {
+  assert.match(page, /comparePromotedAdvanced/);
+  assert.match(page, /id="promotedAdvanced"/);
+  assert.match(page, /id="promotedAdvancedVerdict"/);
+  assert.match(page, /promoted_advanced_compared/);
+  assert.match(page, /are-ebay-promoted-listings-advanced-worth-it\.html/);
+  assert.match(page, /"featureList":\s*"[^"]*Promoted Listings Advanced vs skip/);
+  const advancedStart = page.indexOf('id="promotedAdvancedTable"');
+  const advancedEnd = page.indexOf('id="quantityDiscount"', advancedStart);
+  const headerBlock = page.slice(advancedStart, advancedEnd === -1 ? undefined : advancedEnd);
+  const headers = [...headerBlock.matchAll(/<th scope="col">([^<]+)<\/th>/g)].map((m) => m[1]);
+  assert.deepEqual(headers, [
+    'Path',
+    'Clicks',
+    'Ad spend',
+    'Extra sales after returns',
+    'If they keep the extras',
+    'Expected after spend',
     'vs skip',
   ]);
 });

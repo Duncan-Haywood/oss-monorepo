@@ -72,6 +72,13 @@ or take the typed Standard percent on that sale plus the extra
 sales you type. Zero extra sales is the conservative test — the
 campaign only cuts a sale you already would have made.
 [Are eBay Promoted Listings worth it?](are-ebay-promoted-listings-worth-it.html).
+A **Promoted Listings Advanced vs skip** table then prices the
+same listing two ways: keep the sale you already have, or pay a
+cost-per-click on eBay search that is billed even if they bounce
+and add the extra sales you type. Standard is a percent of a
+completed sale. Offsite is a Google or Facebook bill. Advanced
+is neither.
+[Are eBay Promoted Listings Advanced worth it?](are-ebay-promoted-listings-advanced-worth-it.html).
 A **Quantity discount vs selling separately** table then prices the
 same multi-quantity SKU two ways: sell N units as singles at list,
 or cut the item price so one buyer takes all N, pays shipping
@@ -335,6 +342,7 @@ The counted events are `order_profit_calculated`, `target_margin_calculated`,
 `seller_initiated_offer_compared`,
 `promoted_offsite_compared`,
 `promoted_standard_compared`,
+`promoted_advanced_compared`,
 `quantity_discount_compared`,
 `seller_coupon_compared`,
 `immediate_payment_compared`,
@@ -351,6 +359,7 @@ The counted events are `order_profit_calculated`, `target_margin_calculated`,
 `seller_initiated_offer_compared`,
 `promoted_offsite_compared`,
 `promoted_standard_compared`,
+`promoted_advanced_compared`,
 `quantity_discount_compared`,
 `seller_coupon_compared`,
 `immediate_payment_compared`,
