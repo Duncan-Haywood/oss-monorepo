@@ -26,3 +26,15 @@ test('formats a plan for copying into a job ticket', () => {
   const result = optimizeCutList({ stockLength: 60, kerf: 1, cuts: [36, 20, 10] });
   assert.equal(formatCutPlan(result, { stockUnit: 'in', stockLength: 60, kerf: 1 }), 'Cut plan: 2 stock pieces\nStock length: 60.00 in\nKerf per cut: 1.00 in\nRequired material: 66.00 in\nOffcut after kerf allowance: 53.00 in\n\nStock 1: 36.00 + 20.00 in\n  3.00 in remaining after kerf allowance\nStock 2: 10.00 in\n  50.00 in remaining after kerf allowance');
 });
+
+test('calculates linear-stock material cost from the pieces bought', () => {
+  const result = optimizeCutList({ stockLength: 60, kerf: 1, cuts: [36, 20, 10], stockCost: 12.5 });
+  assert.equal(result.totalCost, 25);
+  assert.match(formatCutPlan(result, { stockUnit: 'in', stockLength: 60, kerf: 1 }), /Material cost: \$25\.00 \(2 × \$12\.50\)/);
+});
+
+test('does not report a cost when no stock price is supplied', () => {
+  const result = optimizeCutList({ stockLength: 60, kerf: 1, cuts: [36] });
+  assert.equal(result.totalCost, null);
+  assert.throws(() => optimizeCutList({ stockLength: 60, kerf: 1, cuts: [36], stockCost: -1 }), /non-negative/);
+});
