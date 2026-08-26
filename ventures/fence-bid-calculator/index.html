@@ -1,0 +1,414 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Fence Bid Calculator | Price Posts, Gates, and Tear-Out — Not Just Linear Feet</title>
+  <meta name="description" content="Price a fence installation from posts, terminals, gates, tear-out, and digging conditions. See installed price per foot, effective hourly rate, and the walk-away number before you send the bid.">
+  <meta property="og:title" content="Fence Bid Calculator">
+  <meta property="og:description" content="Bid fence work the way the job actually costs — posts, gates, and tear-out — and see the margin before you send the price.">
+  <link rel="canonical" href="./">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Fence Bid Calculator","applicationCategory":"BusinessApplication","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"featureList":"Post and terminal counts from spacing, gate openings subtracted from infill, wood vinyl chain-link and aluminum presets, clay and rocky dig multipliers, slope labor, tear-out, payroll burden, overhead and margin, price per linear foot, effective hourly rate, break-even walk-away price, proposed-price margin check"}</script>
+  <style>
+    :root { color-scheme: light; font-family: system-ui, sans-serif; color: #2a241c; background: #f3eee4; }
+    body { max-width: 1100px; margin: 0 auto; padding: 32px 18px; }
+    header { max-width: 740px; margin-bottom: 26px; }
+    h1 { font-size: clamp(2rem, 6vw, 3.5rem); line-height: .98; margin: 0 0 12px; letter-spacing: -.05em; }
+    p { line-height: 1.5; }
+    .eyebrow { font-size: .8rem; font-weight: 700; letter-spacing: .08em; color: #8a5a22; margin: 0 0 6px; }
+    .layout { display: grid; grid-template-columns: minmax(0, 1fr) minmax(300px, .72fr); gap: 18px; align-items: start; }
+    section { background: #fff; border: 1px solid #d9cbb6; border-radius: 14px; padding: 20px; box-shadow: 0 8px 24px #3a2a120d; margin-bottom: 18px; }
+    h2 { margin-top: 0; font-size: 1.15rem; }
+    .hint { font-size: .82rem; color: #5c5348; margin: -6px 0 14px; }
+    .fields { display: grid; grid-template-columns: repeat(2, 1fr); gap: 13px; }
+    label { display: grid; gap: 5px; font-size: .87rem; font-weight: 650; }
+    input, select { width: 100%; box-sizing: border-box; border: 1px solid #b8a78d; border-radius: 7px; padding: 10px; font: inherit; background: #fff; }
+    .run { border: 1px solid #eadfcf; border-radius: 10px; padding: 12px; margin-bottom: 12px; background: #fbf7f0; }
+    .run-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
+    .run-grid label:first-child { grid-column: 1 / -1; }
+    button { font: inherit; border-radius: 7px; border: 1px solid #b8a78d; background: #f6f0e6; padding: 10px 14px; cursor: pointer; font-weight: 650; }
+    button:hover { background: #eee4d4; }
+    .remove { padding: 8px 12px; color: #9b2c1f; border-color: #d8b6b0; background: #fdf3f1; margin-top: 10px; }
+    .remove[disabled] { opacity: .4; cursor: not-allowed; }
+    .result { position: sticky; top: 15px; background: #3a2a16; color: #f7f1e6; border-color: #3a2a16; }
+    .hero-number { font-size: 2.9rem; font-weight: 750; letter-spacing: -.05em; margin: 8px 0; }
+    .negative { color: #ffb0a2; } .positive { color: #c6e6a9; }
+    dl { display: grid; grid-template-columns: 1fr auto; gap: 9px; margin: 20px 0; }
+    dt, dd { margin: 0; } dd { font-variant-numeric: tabular-nums; }
+    hr { border: 0; border-top: 1px solid #ffffff2b; }
+    .note { font-size: .82rem; opacity: .84; }
+    .split { margin: 14px 0 0; padding: 0; list-style: none; font-size: .84rem; }
+    .split li { display: grid; grid-template-columns: 1fr auto; gap: 8px; padding: 3px 0; }
+    .bar { grid-column: 1 / -1; height: 4px; border-radius: 2px; background: #ffffff2e; }
+    .bar > span { display: block; height: 100%; border-radius: 2px; background: #e0b36a; }
+    .verdict { margin-top: 14px; padding: 12px; border-radius: 9px; font-size: .87rem; background: #ffffff1a; }
+    .verdict.bad { background: #7d2317; }
+    .empty { font-size: .87rem; opacity: .84; }
+    footer { margin-top: 25px; font-size: .82rem; color: #5c5348; }
+    footer a { color: #8a5a22; }
+    .support { margin-top: 14px; }
+    .summary-actions { display: flex; gap: 8px; align-items: center; margin-top: 14px; flex-wrap: wrap; }
+    .summary-status { font-size: .8rem; color: #ecd7a8; }
+    @media (max-width: 820px) {
+      .layout { grid-template-columns: 1fr; } .result { position: static; } .fields { grid-template-columns: 1fr; }
+      .run-grid { grid-template-columns: 1fr 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="eyebrow">FOR FENCE CONTRACTORS</p>
+    <h1>Bid the posts and the gates, not the linear feet.</h1>
+    <p>Price a fence install the way the job actually costs: posts from your spacing, heavier terminals at ends, corners, and gates, tear-out, and the extra hours clay or rock will eat. You get the job price, what it works out to per foot and per labor hour, and the number below which the job loses money.</p>
+  </header>
+
+  <main class="layout">
+    <div>
+      <section>
+        <h2>The fence</h2>
+        <p class="hint">One row per run — front vs back, or wood vs chain-link. Pick a material to start from common figures, then replace every cost and hour with numbers from your last invoice and your last timed job.</p>
+        <div id="runs"></div>
+        <button type="button" id="addRun">+ Add a run</button>
+      </section>
+
+      <section>
+        <h2>Site and tear-out</h2>
+        <div class="fields">
+          <label>Existing fence to tear out (ft) <input id="tearOutFeet" type="number" min="0" step="1" value="40"></label>
+          <label>Tear-out hours per foot <input id="hoursPerTearOutLf" type="number" min="0" step="0.01" value="0.18"></label>
+          <label>Haul / dump per tear-out foot <input id="tearOutPerFoot" type="number" min="0" step="0.5" value="4"></label>
+          <label>Dig condition
+            <select id="dig">
+              <option value="normal">Normal soil</option>
+              <option value="clay" selected>Heavy clay</option>
+              <option value="rocky">Rocky / hard dig</option>
+            </select>
+          </label>
+          <label>Slope
+            <select id="slope">
+              <option value="flat" selected>Flat / racked panels</option>
+              <option value="mild">Mild slope (stepped)</option>
+              <option value="steep">Steep / stepped + extra posts</option>
+            </select>
+          </label>
+        </div>
+      </section>
+
+      <section>
+        <h2>Your costs</h2>
+        <div class="fields">
+          <label>Crew hourly wage <input id="hourlyWage" type="number" min="0" step="0.25" value="25"></label>
+          <label>Payroll burden (%) <input id="burdenRate" type="number" min="0" step="0.5" value="28"></label>
+          <label>Permits, dump, travel, extras <input id="otherCost" type="number" min="0" step="1" value="150"></label>
+          <label>Overhead on direct cost (%) <input id="overheadRate" type="number" min="0" step="0.5" value="15"></label>
+          <label>Target net margin (%) <input id="targetMargin" type="number" min="0" max="99.9" step="0.5" value="25"></label>
+          <label>Price you&rsquo;re considering (optional) <input id="proposedPrice" type="number" min="0" step="25" placeholder="e.g. 4900"></label>
+        </div>
+        <p class="hint" style="margin-top:14px;margin-bottom:0">Payroll burden covers employer taxes, workers&rsquo; compensation, liability insurance, and paid time off. Underestimating it — or bidding rocky dirt at a flat per-foot number — is the usual reason a fence job that looked profitable was not.</p>
+      </section>
+    </div>
+
+    <section class="result" aria-live="polite">
+      <h2>Your bid</h2>
+      <div id="price" class="hero-number">$&mdash;</div>
+      <div id="priceLabel">job price</div>
+      <dl>
+        <dt>Labor hours</dt><dd id="laborHours"></dd>
+        <dt>Loaded labor cost</dt><dd id="labor"></dd>
+        <dt>Material &amp; tear-out</dt><dd id="material"></dd>
+        <dt>Permits &amp; extras</dt><dd id="other"></dd>
+        <dt>Overhead</dt><dd id="overhead"></dd>
+        <dt>Total cost</dt><dd id="cost"></dd>
+        <dt>Profit</dt><dd id="profit"></dd>
+        <dt>Price per linear foot</dt><dd id="perLf"></dd>
+        <dt>Effective hourly rate</dt><dd id="hourlyRate"></dd>
+        <dt>Walk-away price</dt><dd id="breakEven"></dd>
+        <dt>Posts on this job</dt><dd id="posts"></dd>
+      </dl>
+      <div id="verdict" class="verdict" hidden></div>
+      <div class="summary-actions">
+        <button type="button" id="copySummary">Copy bid summary</button>
+        <span id="summaryStatus" class="summary-status" role="status" aria-live="polite"></span>
+      </div>
+      <hr>
+      <p class="note" style="margin-bottom:4px"><strong>Where the money goes</strong></p>
+      <ul class="split" id="split"></ul>
+      <hr>
+      <p class="note">Transparent arithmetic from your own inputs. The starting material and hour figures are common ballpark numbers, not a price book, a benchmark, or a guarantee &mdash; replace them with your invoices and your timed crews.</p>
+    </section>
+  </main>
+
+  <footer>
+    <label style="display:inline-flex;gap:6px;align-items:center;font-weight:400"><input id="usageOptOut" type="checkbox" style="width:auto"> Do not keep anonymous local usage counts</label>
+    <p><strong>No warranty.</strong> This free tool is not legal, tax, financial, engineering, or business advice, and it does not tell you what to charge. Verify every figure against your own payroll, insurance, supplier invoices, and site conditions, and against a qualified professional, before relying on it or submitting a bid. To the maximum extent permitted by law, the authors accept no liability for loss or damage from its use.</p>
+    <p><strong>Nothing leaves your browser.</strong> Every number stays on this device. Usage counts are anonymous tallies of which features were used, stored locally, and never include your yard, wages, costs, or prices.</p>
+    <p>Read <a href="./how-to-bid-a-fence-job.html">how to bid a fence job from posts and gates</a> if a homeowner is pushing a flat per-foot number.</p>
+    <p class="support">Free and open source. If it wins you a job, the <a href="https://github.com/Duncan-Haywood/monorepo-projects" rel="noopener">project is on GitHub</a> &mdash; support is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { calculateBid, MATERIAL_PRESETS } from './calc.mjs';
+    import { recordUsage } from './usage.mjs';
+
+    const COST_IDS = ['tearOutFeet','hoursPerTearOutLf','tearOutPerFoot','dig','slope','hourlyWage','burdenRate','otherCost','overheadRate','targetMargin','proposedPrice'];
+    const money = value => `$${value.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+    const el = id => document.getElementById(id);
+
+    const TYPE_OPTIONS = MATERIAL_PRESETS
+      .map((preset, index) => `<option value="${index}">${preset.label}</option>`)
+      .join('') + '<option value="other">Other / custom</option>';
+
+    const runsHost = el('runs');
+    let rowSeq = 0;
+
+    function applyPreset(row, preset, overwriteHours) {
+      if (!preset) return;
+      row.querySelector('.r-space').value = preset.postSpacingFt;
+      ['materialPerLf','linePostCost','terminalPostCost','walkGateCost','driveGateCost','concretePerPost']
+        .forEach(key => { row.querySelector(`.r-${key}`).value = preset[key]; });
+      if (overwriteHours) {
+        ['hoursPerLf','hoursPerPost','hoursPerWalkGate','hoursPerDriveGate']
+          .forEach(key => { row.querySelector(`.r-${key}`).value = preset[key]; });
+        if (!el('hoursPerTearOutLf').dataset.edited) {
+          el('hoursPerTearOutLf').value = preset.hoursPerTearOutLf;
+        }
+      }
+    }
+
+    function addRunRow(run) {
+      const id = `r${++rowSeq}`;
+      const row = document.createElement('div');
+      row.className = 'run';
+      row.innerHTML = `
+        <div class="run-grid">
+          <label for="${id}-type">Material / style
+            <select class="r-type" id="${id}-type">${TYPE_OPTIONS}</select>
+          </label>
+          <label for="${id}-lf">Linear feet <input class="r-lf" id="${id}-lf" type="number" min="0" step="1"></label>
+          <label for="${id}-space">Post spacing (ft) <input class="r-space" id="${id}-space" type="number" min="0.5" step="0.5"></label>
+          <label for="${id}-corners">Corners <input class="r-corners" id="${id}-corners" type="number" min="0" step="1"></label>
+          <label for="${id}-walk">Walk gates <input class="r-walk" id="${id}-walk" type="number" min="0" step="1"></label>
+          <label for="${id}-drive">Drive gates <input class="r-drive" id="${id}-drive" type="number" min="0" step="1"></label>
+          <label for="${id}-mat">Infill $ / ft <input class="r-materialPerLf" id="${id}-mat" type="number" min="0" step="0.5"></label>
+          <label for="${id}-line">Line post $ <input class="r-linePostCost" id="${id}-line" type="number" min="0" step="1"></label>
+          <label for="${id}-term">Terminal post $ <input class="r-terminalPostCost" id="${id}-term" type="number" min="0" step="1"></label>
+          <label for="${id}-wg">Walk gate $ <input class="r-walkGateCost" id="${id}-wg" type="number" min="0" step="5"></label>
+          <label for="${id}-dg">Drive gate $ <input class="r-driveGateCost" id="${id}-dg" type="number" min="0" step="5"></label>
+          <label for="${id}-conc">Concrete / post $ <input class="r-concretePerPost" id="${id}-conc" type="number" min="0" step="0.5"></label>
+          <label for="${id}-hlf">Hours / infill ft <input class="r-hoursPerLf" id="${id}-hlf" type="number" min="0" step="0.01"></label>
+          <label for="${id}-hp">Hours / post <input class="r-hoursPerPost" id="${id}-hp" type="number" min="0" step="0.05"></label>
+          <label for="${id}-hw">Hours / walk gate <input class="r-hoursPerWalkGate" id="${id}-hw" type="number" min="0" step="0.1"></label>
+          <label for="${id}-hd">Hours / drive gate <input class="r-hoursPerDriveGate" id="${id}-hd" type="number" min="0" step="0.1"></label>
+        </div>
+        <button type="button" class="remove">Remove this run</button>`;
+
+      const typeField = row.querySelector('.r-type');
+      const presetIndex = MATERIAL_PRESETS.findIndex(p => p.id === run.presetId || p.label === run.name);
+      typeField.value = presetIndex === -1 ? 'other' : String(presetIndex);
+      row.querySelector('.r-lf').value = run.linearFeet;
+      row.querySelector('.r-corners').value = run.corners;
+      row.querySelector('.r-walk').value = run.walkGates;
+      row.querySelector('.r-drive').value = run.driveGates;
+      applyPreset(row, MATERIAL_PRESETS[presetIndex] ?? run, true);
+      if (run.postSpacingFt) row.querySelector('.r-space').value = run.postSpacingFt;
+
+      typeField.addEventListener('change', () => {
+        const preset = MATERIAL_PRESETS[Number(typeField.value)];
+        applyPreset(row, preset, !row.dataset.hoursEdited);
+        count('bid_calculated');
+        update();
+      });
+      row.querySelectorAll('input[class^="r-hours"]').forEach(input => {
+        input.addEventListener('input', () => { row.dataset.hoursEdited = '1'; });
+      });
+      row.querySelectorAll('input, select').forEach(input => {
+        input.addEventListener('input', update);
+        input.addEventListener('change', () => count('bid_calculated'));
+      });
+      row.querySelector('.remove').addEventListener('click', () => {
+        if (runsHost.querySelectorAll('.run').length === 1) return;
+        row.remove();
+        count('run_removed');
+        update();
+      });
+      runsHost.append(row);
+    }
+
+    function readRuns() {
+      return [...runsHost.querySelectorAll('.run')].map(row => {
+        const preset = MATERIAL_PRESETS[Number(row.querySelector('.r-type').value)];
+        return {
+          name: preset ? preset.label : '',
+          linearFeet: row.querySelector('.r-lf').value,
+          postSpacingFt: row.querySelector('.r-space').value,
+          corners: row.querySelector('.r-corners').value,
+          walkGates: row.querySelector('.r-walk').value,
+          driveGates: row.querySelector('.r-drive').value,
+          materialPerLf: row.querySelector('.r-materialPerLf').value,
+          linePostCost: row.querySelector('.r-linePostCost').value,
+          terminalPostCost: row.querySelector('.r-terminalPostCost').value,
+          walkGateCost: row.querySelector('.r-walkGateCost').value,
+          driveGateCost: row.querySelector('.r-driveGateCost').value,
+          concretePerPost: row.querySelector('.r-concretePerPost').value,
+          hoursPerLf: row.querySelector('.r-hoursPerLf').value,
+          hoursPerPost: row.querySelector('.r-hoursPerPost').value,
+          hoursPerWalkGate: row.querySelector('.r-hoursPerWalkGate').value,
+          hoursPerDriveGate: row.querySelector('.r-hoursPerDriveGate').value,
+        };
+      });
+    }
+
+    function count(event) {
+      recordUsage(localStorage, el('usageOptOut').checked, event);
+    }
+
+    function clearOutputs(message, isError) {
+      el('price').textContent = message;
+      el('price').className = `hero-number ${isError ? 'negative' : ''}`;
+      el('priceLabel').textContent = isError ? 'check the highlighted input' : 'job price';
+      ['laborHours','labor','material','other','overhead','cost','profit','perLf','hourlyRate','breakEven','posts']
+        .forEach(id => { el(id).textContent = ''; });
+      el('split').innerHTML = '';
+      el('verdict').hidden = true;
+    }
+
+    function update() {
+      const runs = readRuns();
+      runsHost.querySelectorAll('.remove').forEach(button => {
+        button.disabled = runsHost.querySelectorAll('.run').length === 1;
+      });
+      if (runs.length === 0) {
+        clearOutputs('Add a run to price', false);
+        el('split').innerHTML = '<li class="empty">Add at least one run above and the cost split appears here.</li>';
+        return;
+      }
+      let result;
+      try {
+        result = calculateBid({
+          runs,
+          ...Object.fromEntries(COST_IDS.map(id => [id, el(id).value])),
+          proposedPrice: el('proposedPrice').value,
+        });
+      } catch (error) {
+        clearOutputs(error.message, true);
+        return;
+      }
+
+      el('price').textContent = money(result.price);
+      el('price').className = 'hero-number';
+      el('priceLabel').textContent = 'job price';
+      el('laborHours').textContent = `${result.laborHours.toFixed(1)} h`;
+      el('labor').textContent = money(result.laborCost);
+      el('material').textContent = money(result.materialCost);
+      el('other').textContent = money(result.otherCost);
+      el('overhead').textContent = money(result.overhead);
+      el('cost').textContent = money(result.totalCost);
+      el('profit').textContent = money(result.profit);
+      el('perLf').textContent = result.pricePerLf === null ? 'n/a' : `$${result.pricePerLf.toFixed(2)}/ft`;
+      el('hourlyRate').textContent = result.effectiveHourlyRate === null ? 'n/a' : `${money(result.effectiveHourlyRate)}/h`;
+      el('breakEven').textContent = money(result.breakEvenPrice);
+      el('posts').textContent = `${result.totalPosts} (${result.totalTerminals} terminals, ${result.totalGates} gates)`;
+
+      const pieces = [
+        { name: 'Infill / panels', share: result.materialCost === 0 ? 0 : result.runs.reduce((s, r) => s + r.infillCost, 0) / result.materialCost * 100 },
+        { name: 'Posts, gates & concrete', share: result.postsAndGatesShare - (result.materialCost === 0 ? 0 : result.tearOutCost / result.materialCost * 100) },
+        { name: 'Tear-out / haul', share: result.materialCost === 0 ? 0 : result.tearOutCost / result.materialCost * 100 },
+      ].filter(item => item.share > 0.5);
+
+      el('split').innerHTML = pieces.length === 0
+        ? '<li class="empty">No material on this job yet.</li>'
+        : pieces
+          .map(item => `<li><span>${item.name}</span><span>${item.share.toFixed(0)}% of material</span>
+            <span class="bar"><span style="width:${Math.min(100, item.share).toFixed(1)}%"></span></span></li>`)
+          .join('');
+
+      const verdict = el('verdict');
+      if (result.proposed === null) {
+        verdict.hidden = true;
+      } else {
+        verdict.hidden = false;
+        verdict.className = `verdict${result.proposed.belowBreakEven ? ' bad' : ''}`;
+        const per = result.proposed.perLf === null ? 'n/a' : `$${result.proposed.perLf.toFixed(2)}/ft`;
+        verdict.innerHTML = result.proposed.belowBreakEven
+          ? `At ${money(result.proposed.price)} (${per}) this job <strong>loses ${money(Math.abs(result.proposed.profit))}</strong> before you take anything out of it. Your walk-away price is ${money(result.breakEvenPrice)}.`
+          : `At ${money(result.proposed.price)} (${per}) you keep <strong>${money(result.proposed.profit)}</strong> — a ${result.proposed.margin.toFixed(1)}% margin.`;
+      }
+    }
+
+    function summaryText(result) {
+      const runs = result.runs
+        .filter(run => run.linearFeet > 0)
+        .map(run => `- ${run.name}: ${run.linearFeet} ft, ${run.totalPosts} posts, ${run.walkGates} walk / ${run.driveGates} drive gates`)
+        .join('\n');
+      return [
+        'FENCE INSTALLATION BID',
+        '',
+        `Proposed job price: ${money(result.price)}`,
+        `Price per linear foot: ${result.pricePerLf === null ? 'n/a' : '$' + result.pricePerLf.toFixed(2) + '/ft'}`,
+        `Labor: ${result.laborHours.toFixed(1)} hours`,
+        `Walk-away (cost): ${money(result.breakEvenPrice)}`,
+        '',
+        'RUNS',
+        runs || '- No runs entered',
+        result.tearOutFeet > 0 ? `\nTear-out: ${result.tearOutFeet} ft` : '',
+        '',
+        'This is a draft for review. Confirm measurements, utilities, permits, HOA rules, insurance, taxes, and all pricing before sending.',
+      ].join('\n');
+    }
+
+    async function copySummary() {
+      const result = calculateBid({
+        runs: readRuns(),
+        ...Object.fromEntries(COST_IDS.map(id => [id, el(id).value])),
+        proposedPrice: el('proposedPrice').value,
+      });
+      const text = summaryText(result);
+      try {
+        await navigator.clipboard.writeText(text);
+      } catch {
+        const fallback = document.createElement('textarea');
+        fallback.value = text;
+        fallback.setAttribute('readonly', '');
+        fallback.style.position = 'fixed';
+        fallback.style.opacity = '0';
+        document.body.append(fallback);
+        fallback.select();
+        document.execCommand('copy');
+        fallback.remove();
+      }
+      count('summary_copied');
+      el('summaryStatus').textContent = 'Copied to clipboard';
+      setTimeout(() => { el('summaryStatus').textContent = ''; }, 2500);
+    }
+
+    el('addRun').addEventListener('click', () => {
+      addRunRow({ presetId: 'wood-privacy-6', linearFeet: 0, corners: 0, walkGates: 0, driveGates: 0 });
+      count('run_added');
+      update();
+    });
+
+    COST_IDS.forEach(id => {
+      el(id).addEventListener('input', update);
+      el(id).addEventListener('change', () => count(id === 'proposedPrice' ? 'proposed_price_compared' : 'bid_calculated'));
+    });
+    el('hoursPerTearOutLf').addEventListener('input', () => { el('hoursPerTearOutLf').dataset.edited = '1'; });
+    el('usageOptOut').addEventListener('change', update);
+    el('copySummary').addEventListener('click', () => {
+      try {
+        copySummary().catch(() => { el('summaryStatus').textContent = 'Copy failed; select and copy the figures above.'; });
+      } catch (error) {
+        el('summaryStatus').textContent = error.message;
+      }
+    });
+
+    addRunRow({
+      presetId: 'wood-privacy-6',
+      linearFeet: 140,
+      corners: 2,
+      walkGates: 1,
+      driveGates: 1,
+    });
+    update();
+  </script>
+</body>
+</html>
