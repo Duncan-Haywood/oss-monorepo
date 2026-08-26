@@ -7,7 +7,7 @@
   <meta name="description" content="Price a commercial cleaning contract from production rates, see what a 5× to 3× cut actually costs, whether letting the building buy the paper still holds your margin, and whether throwing in the initial clean loses month 1.">
   <meta property="og:title" content="Janitorial Bid Calculator">
   <meta property="og:description" content="Bid commercial cleaning the way the trade does — including whether a free takeover clean still leaves a first month.">
-  <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Janitorial Bid Calculator","applicationCategory":"BusinessApplication","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"featureList":"Production-rate labor hours by area, payroll burden, supplies and overhead, monthly contract price, price per square foot, effective hourly rate, break-even walk-away price, proposed-price margin check, 5x vs 3x frequency-cut comparison, who-supplies restroom paper soap and liners, takeover initial-clean one-time vs thrown-in"}</script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Janitorial Bid Calculator","applicationCategory":"BusinessApplication","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"featureList":"Production-rate labor hours by area, payroll burden, supplies and overhead, monthly contract price, price per square foot, effective hourly rate, break-even walk-away price, proposed-price margin check, 5x vs 3x frequency-cut comparison, who-supplies restroom paper soap and liners, takeover initial-clean one-time vs thrown-in, shareable private bid link that restores every input from the URL fragment"}</script>
   <style>
     :root { color-scheme: light; font-family: system-ui, sans-serif; color: #1d2530; background: #eef2f7; }
     body { max-width: 1060px; margin: 0 auto; padding: 32px 18px; }
@@ -163,8 +163,15 @@
       <div id="verdict" class="verdict" hidden></div>
       <div class="summary-actions">
         <button type="button" id="copySummary">Copy bid summary</button>
+        <button type="button" id="copyBidLink">Copy link to this bid</button>
         <span id="summaryStatus" class="summary-status" role="status" aria-live="polite"></span>
       </div>
+      <p class="note" style="font-size:.78rem;margin-top:6px">
+        The link puts every space you measured and every number you entered
+        after the <code>#</code>, which browsers never send to a server. Reopen
+        it tomorrow to get this bid back, or send it to whoever prices with
+        you &mdash; it still never uploads anything.
+      </p>
       <hr>
       <p class="note" style="margin-bottom:4px"><strong>Where the labor goes</strong></p>
       <ul class="split" id="split"></ul>
@@ -333,6 +340,7 @@
   <script type="module">
     import { calculateBid, compareFrequencyReduction, frequencyReductionNote, compareSupplyResponsibility, supplyResponsibilityNote, compareInitialClean, initialCleanNote, PRODUCTION_RATE_PRESETS } from './calc.mjs';
     import { recordUsage } from './usage.mjs';
+    import { encodeBid, decodeBid, applyBid, bidLink, copyText, readShareValues, NEVER_SHARED } from './share.mjs';
 
     const COST_IDS = ['hourlyWage','burdenRate','suppliesPerSqFtMonth','equipmentMonthly','otherMonthly','overheadRate','targetMargin','proposedPrice'];
     const FREQ_IDS = ['currentWeekly','proposedWeekly','clientOfferMonthly'];
@@ -685,22 +693,78 @@
         proposedPrice: el('proposedPrice').value,
       });
       const text = summaryText(result);
-      try {
-        await navigator.clipboard.writeText(text);
-      } catch {
-        const fallback = document.createElement('textarea');
-        fallback.value = text;
-        fallback.setAttribute('readonly', '');
-        fallback.style.position = 'fixed';
-        fallback.style.opacity = '0';
-        document.body.append(fallback);
-        fallback.select();
-        document.execCommand('copy');
-        fallback.remove();
-      }
+      const copied = await copyText(document, text);
       count('summary_copied');
-      el('summaryStatus').textContent = 'Copied to clipboard';
+      showShareStatus(copied ? 'Copied to clipboard' : 'Copy failed; select and copy the figures above.');
+    }
+
+    function showShareStatus(message) {
+      el('summaryStatus').textContent = message;
       setTimeout(() => { el('summaryStatus').textContent = ''; }, 2500);
+    }
+
+    const AREA_FIELDS = ['type', 'sqft', 'rate', 'freq'];
+
+    // Spaces travel by position, not by the id they happen to be carrying.
+    //
+    // Row ids come from a counter that only ever goes up, so removing a space
+    // leaves a gap — a building edited down to three rows can hold a2, a3 and
+    // a6. A recipient rebuilds rows from scratch and always gets a1, a2, a3,
+    // so sharing the raw ids slid every space onto the wrong row: the first
+    // space arrived empty and the last one was dropped, and the recipient
+    // priced a different building without anything looking wrong.
+    function readBidValues() {
+      const rows = [...areasHost.querySelectorAll('.area-row')];
+      const rowIds = new Set();
+      for (const row of rows) {
+        for (const field of row.querySelectorAll('select, input')) {
+          if (field.id) rowIds.add(field.id);
+        }
+      }
+
+      const values = readShareValues(document, new Set([...NEVER_SHARED, ...rowIds]));
+      // Without the count a recipient gets the starting spaces and silently
+      // prices a different building than the sender bid.
+      values.areaCount = String(rows.length);
+      rows.forEach((row, index) => {
+        for (const field of AREA_FIELDS) {
+          values[`a${index + 1}-${field}`] = row.querySelector(`.a-${field}`).value;
+        }
+      });
+      return values;
+    }
+
+    async function copyBidLink() {
+      const values = readBidValues();
+      const link = bidLink(location.href, values);
+      // Put it in the address bar too, so a reload or a bookmark keeps the
+      // bid even if the copy itself failed or was never pasted anywhere.
+      history.replaceState(null, '', `#${encodeBid(values)}`);
+      const copied = await copyText(document, link);
+      count('bid_link_copied');
+      showShareStatus(copied
+        ? 'Link copied \u2014 it keeps every space and every number'
+        : 'Copy failed; the link is in your address bar.');
+    }
+
+    function restoreSharedBid() {
+      const shared = decodeBid(location.hash);
+      if (!shared) return false;
+      const wanted = Number(shared.areaCount);
+      if (!Number.isInteger(wanted) || wanted < 1 || wanted > 60) return false;
+
+      // Rebuild the rows first: applyBid only ever writes to ids that already
+      // exist, and a row that has not been created yet has no ids at all.
+      areasHost.innerHTML = '';
+      rowSeq = 0;
+      for (let index = 0; index < wanted; index += 1) {
+        addAreaRow({ name: '', squareFeet: 0, productionRate: 3000, cleaningsPerWeek: 5 });
+      }
+      const report = applyBid(document, shared);
+      if (!report.restored) return false;
+      count('bid_link_opened');
+      showShareStatus('Bid restored from the link');
+      return true;
     }
 
     el('addArea').addEventListener('click', () => {
@@ -805,8 +869,14 @@
         el('summaryStatus').textContent = error.message;
       }
     });
+    el('copyBidLink').addEventListener('click', () => {
+      copyBidLink().catch(() => { el('summaryStatus').textContent = 'Copy failed; the link is in your address bar.'; });
+    });
 
-    STARTING_AREAS.forEach(addAreaRow);
+    // A shared link replaces the starting spaces outright rather than adding
+    // to them; anything else would price the sender's building plus two rooms
+    // they never measured.
+    if (!restoreSharedBid()) STARTING_AREAS.forEach(addAreaRow);
     update();
   </script>
 </body>

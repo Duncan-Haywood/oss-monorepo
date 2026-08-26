@@ -151,3 +151,18 @@ test('the after-hours article quotes the soaker and whirlpool Saturday arithmeti
   assert.match(accessSeo, /walk-in shower/i);
   assert.doesNotMatch(accessSeo, /<textarea/i);
 });
+
+test('the bid link is wired into the page', () => {
+  // The link is what lets a contractor come back to a bid tomorrow, or hand
+  // it to whoever prices with them. Losing any one of these four pieces
+  // breaks that quietly: the button disappears, or it copies a URL nothing
+  // reads back.
+  assert.match(html, /id="copyBidLink"/);
+  assert.match(html, /from '\.\/share\.mjs'/);
+  assert.match(html, /restoreSharedBid\(\)/);
+  assert.match(html, /bid_link_copied/);
+  assert.match(html, /bid_link_opened/);
+  // The privacy claim on the page has to stay true: the fragment is the only
+  // place the numbers may go, because a query string reaches the server.
+  assert.match(html, /never send to a server/);
+});

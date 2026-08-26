@@ -126,3 +126,33 @@ test('the initial-clean landing page uses the same worked example the tests lock
   assert.ok(Math.abs(comparison.thrownInMonth1Profit + 48.29) < 0.01);
   assert.match(sitemap, /should-i-throw-in-the-initial-clean\.html/);
 });
+
+test('spaces are shared by position, not by the id a row happens to carry', () => {
+  // Regression, caught in a browser pass: row ids come from a counter that
+  // only goes up, so a building edited down to three spaces can hold a2, a3
+  // and a6. A recipient rebuilds rows from scratch and always gets a1, a2,
+  // a3 — sharing the raw ids slid every space onto the wrong row, arriving
+  // with an empty first space and a dropped last one. The recipient priced a
+  // different building with nothing on screen looking wrong.
+  assert.match(html, /values\[`a\$\{index \+ 1\}-\$\{field\}`\]/,
+    'space rows must be written into the link under positional keys');
+  assert.match(html, /new Set\(\[\.\.\.NEVER_SHARED, \.\.\.rowIds\]\)/,
+    'the raw row ids must be excluded from the page snapshot, or both keys travel');
+  assert.match(html, /rowSeq = 0;/,
+    'restoring must reset the row counter so rebuilt rows are a1, a2, a3…');
+});
+
+test('the bid link is wired into the page', () => {
+  // The link is what lets a contractor come back to a bid tomorrow, or hand
+  // it to whoever prices with them. Losing any one of these four pieces
+  // breaks that quietly: the button disappears, or it copies a URL nothing
+  // reads back.
+  assert.match(html, /id="copyBidLink"/);
+  assert.match(html, /from '\.\/share\.mjs'/);
+  assert.match(html, /restoreSharedBid\(\)/);
+  assert.match(html, /bid_link_copied/);
+  assert.match(html, /bid_link_opened/);
+  // The privacy claim on the page has to stay true: the fragment is the only
+  // place the numbers may go, because a query string reaches the server.
+  assert.match(html, /never send to a server/);
+});
