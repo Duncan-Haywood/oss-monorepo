@@ -163,6 +163,9 @@ workflows:
 - workflow: dryer-vent-bid-calculator-ci.yml
   classification: none
   publishes: []
+- workflow: drywall-bid-calculator-ci.yml
+  classification: none
+  publishes: []
 - workflow: duct-cleaning-bid-calculator-ci.yml
   classification: none
   publishes: []
