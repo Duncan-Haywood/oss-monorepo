@@ -1949,6 +1949,7 @@ products:
           event accessorials_compared is opt-out and stores no inputs.
 
   - slug: repository-branch-hygiene
+  - slug: dns-configuration-evidence
     surface: local-cli
     readings:
       - as_of: 2026-08-24
@@ -1977,6 +1978,10 @@ products:
           Added a static landing page so the CLI has a public entry once
           Pages is enabled. Public URL remains owner-gated; no repository
           data is collected.
+          local_observations_compared: 0
+          local_inconclusive_observations: 0
+          qualified_operators: 0
+        note: Shipped fixture-backed comparison baseline; recurring MSP demand remains untested.
 # Example of the shape, once a product has shipped:
 #
 # products:
