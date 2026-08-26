@@ -98,6 +98,28 @@ test('no proposed price means no comparison, and empty string counts as none', (
   assert.equal(calculateBid({ ...office(), proposedPrice: 0 }).proposed.price, 0);
 });
 
+test('a minimum monthly price protects small accounts without lowering the target price', () => {
+  const bid = calculateBid(office());
+  const floored = calculateBid({ ...office(), minimumMonthlyPrice: bid.monthlyPrice + 250 });
+  assert.equal(floored.minimumMonthlyPrice, bid.monthlyPrice + 250);
+  assert.equal(floored.minimumPriceApplied, true);
+  assert.equal(floored.monthlyPrice, bid.monthlyPrice + 250);
+  assert.ok(floored.monthlyProfit > bid.monthlyProfit);
+  assert.match(formatBidSummary(floored), /Minimum charge floor applied/);
+
+  const lowerFloor = calculateBid({ ...office(), minimumMonthlyPrice: bid.monthlyPrice - 250 });
+  assert.equal(lowerFloor.minimumPriceApplied, false);
+  assert.equal(lowerFloor.monthlyPrice, bid.monthlyPrice);
+  assert.doesNotMatch(formatBidSummary(lowerFloor), /Minimum charge floor applied/);
+});
+
+test('an empty minimum monthly price leaves the margin calculation unchanged', () => {
+  const bid = calculateBid(office());
+  const empty = calculateBid({ ...office(), minimumMonthlyPrice: '' });
+  assert.equal(empty.minimumMonthlyPrice, null);
+  assert.equal(empty.monthlyPrice, bid.monthlyPrice);
+});
+
 test('turns labor hours into a per-visit crew capacity check', () => {
   const result = calculateBid({ ...office(), crewSize: 2, shiftHours: 1.5 });
   assert.equal(result.visitCapacityHours, 3);
@@ -186,6 +208,7 @@ test('inputs that would silently produce a nonsense bid are rejected', () => {
   assert.throws(() => calculateBid({ ...office(), hourlyWage: 'abc' }), /Hourly wage must be a number/);
   assert.throws(() => calculateBid({ ...office(), targetMargin: 100 }), /less than 100/);
   assert.throws(() => calculateBid({ ...office(), overheadRate: -1 }), /Overhead must be at least 0/);
+  assert.throws(() => calculateBid({ ...office(), minimumMonthlyPrice: -1 }), /Minimum monthly price must be at least 0/);
 });
 
 test('production-rate presets are usable positive numbers', () => {

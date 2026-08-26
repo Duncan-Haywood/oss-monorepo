@@ -145,6 +145,7 @@
           <label>Target net margin (%) <input id="targetMargin" type="number" min="0" max="99.9" step="0.5" value="20"></label>
           <label>Cleaners on each visit <input id="crewSize" type="number" min="1" step="1" value="1"></label>
           <label>Available hours per cleaner / visit <input id="availableHoursPerCleaner" type="number" min="0.25" step="0.25" value="4"></label>
+          <label>Minimum monthly charge (optional) <input id="minimumMonthlyPrice" type="number" min="0" step="10" placeholder="e.g. 500"></label>
           <label>Price you&rsquo;re considering (optional) <input id="proposedPrice" type="number" min="0" step="10" placeholder="e.g. 1650"></label>
         </div>
         <p class="hint" style="margin-top:14px;margin-bottom:0">Payroll burden covers employer taxes, workers&rsquo; compensation, liability insurance, and paid time off &mdash; the part of a cleaner&rsquo;s cost that never shows up on their pay rate. Underestimating it is the most common reason a janitorial bid that looked profitable was not.</p>
@@ -199,6 +200,7 @@
         <dt>Overhead</dt><dd id="overhead"></dd>
         <dt>Total monthly cost</dt><dd id="cost"></dd>
         <dt>Monthly profit</dt><dd id="profit"></dd>
+        <dt>Minimum charge floor</dt><dd id="minimumFloor"></dd>
         <dt>Price per sq ft / month</dt><dd id="perSqFt"></dd>
         <dt>Effective hourly rate</dt><dd id="hourlyRate"></dd>
         <dt>Walk-away price</dt><dd id="breakEven"></dd>
@@ -406,7 +408,7 @@
     import { recordUsage } from './usage.mjs';
     import { encodeBid, saveBid, clearBid, restoreBid } from './share.mjs';
 
-    const COST_IDS = ['hourlyWage','burdenRate','suppliesPerSqFtMonth','equipmentMonthly','otherMonthly','overheadRate','targetMargin','proposedPrice','crewSize','availableHoursPerCleaner'];
+    const COST_IDS = ['hourlyWage','burdenRate','suppliesPerSqFtMonth','equipmentMonthly','otherMonthly','overheadRate','targetMargin','minimumMonthlyPrice','proposedPrice','crewSize','availableHoursPerCleaner'];
     const FREQ_IDS = ['currentWeekly','proposedWeekly','clientOfferMonthly'];
     const SUPPLY_IDS = ['restroomSharePercent','emergencyFillMonthly','supplyOfferMonthly'];
     const INITIAL_IDS = ['initialVisitMultiplier','initialExtraSupplies','initialAmortizeMonths','initialCancelAfterMonths','initialOfferMonthly'];
@@ -641,7 +643,7 @@
       el('price').textContent = message;
       el('price').className = `hero-number ${isError ? 'negative' : ''}`;
       el('priceLabel').textContent = isError ? 'check the highlighted input' : 'monthly contract price';
-      ['hoursPerVisit','visitCapacity','visitUtilization','shiftHours','monthlyHours','labor','supplies','equipment','overhead','cost','profit','perSqFt','hourlyRate','breakEven','annual','projectHours','projectDirect','projectPrice','firstMonth','firstMonthFloor']
+      ['hoursPerVisit','visitCapacity','visitUtilization','shiftHours','monthlyHours','labor','supplies','equipment','overhead','cost','profit','minimumFloor','perSqFt','hourlyRate','breakEven','annual','projectHours','projectDirect','projectPrice','firstMonth','firstMonthFloor']
         .forEach(id => { el(id).textContent = ''; });
       el('split').innerHTML = '';
       el('projectSplit').innerHTML = '';
@@ -676,7 +678,6 @@
 
       el('price').textContent = money(result.monthlyPrice);
       el('price').className = 'hero-number';
-      el('priceLabel').textContent = 'monthly contract price';
       el('hoursPerVisit').textContent = `${result.hoursPerVisitTotal.toFixed(2)} h`;
       el('visitCapacity').textContent = `${result.visitCapacityHours.toFixed(2)} h`;
       el('visitUtilization').textContent = `${result.visitUtilization.toFixed(0)}%`;
@@ -688,6 +689,12 @@
       el('overhead').textContent = money(result.monthlyOverhead);
       el('cost').textContent = money(result.monthlyCost);
       el('profit').textContent = money(result.monthlyProfit);
+      el('minimumFloor').textContent = result.minimumPriceApplied
+        ? `${money(result.minimumMonthlyPrice)} applied`
+        : 'not applied';
+      el('priceLabel').textContent = result.minimumPriceApplied
+        ? 'monthly contract price (minimum charge applied)'
+        : 'monthly contract price';
       el('perSqFt').textContent = result.pricePerSqFtMonth === null ? 'n/a' : `$${result.pricePerSqFtMonth.toFixed(3)}`;
       el('hourlyRate').textContent = result.effectiveHourlyRate === null ? 'n/a' : `${money(result.effectiveHourlyRate)}/h`;
       el('breakEven').textContent = money(result.breakEvenMonthlyPrice);
@@ -966,7 +973,10 @@
 
     COST_IDS.forEach(id => {
       el(id).addEventListener('input', update);
-      el(id).addEventListener('change', () => count(id === 'proposedPrice' ? 'proposed_price_compared' : 'bid_calculated'));
+      el(id).addEventListener('change', () => count(
+        id === 'proposedPrice' ? 'proposed_price_compared'
+          : id === 'minimumMonthlyPrice' && el(id).value !== '' ? 'minimum_price_used' : 'bid_calculated',
+      ));
     });
     FREQ_IDS.forEach(id => {
       el(id).addEventListener('input', update);
