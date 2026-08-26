@@ -626,6 +626,16 @@ products:
           (install-only scoring, callback trip, rush tile for skipped
           waste). Still no public URL; local event owner_supply_compared
           is opt-out and stores no inputs.
+      - as_of: 2026-08-26
+        signals:
+          live_url_visitors: null
+          local_events_reported: 0
+        note: >-
+          Added empty-weekday vs they-cook-around-you vs after-hours
+          comparison (occupied pace on tile and punch-list, overtime
+          wage plus a second evening trip, Saturday-number scoring).
+          Still no public URL; local event access_compared is opt-out
+          and stores no inputs.
   - slug: boiler-replacement-bid-calculator
     surface: static-page-in-repo
     readings:

@@ -13,6 +13,8 @@ import {
   leftoverBoxNote,
   compareOwnerSupply,
   ownerSupplyNote,
+  compareAccess,
+  accessNote,
   suggestedScopeKit,
   suggestedPatternKit,
   suggestedWallKit,
@@ -23,6 +25,7 @@ const html = readFileSync(new URL('./index.html', import.meta.url), 'utf8');
 const seo = readFileSync(new URL('./how-much-to-charge-for-a-kitchen-tile-backsplash.html', import.meta.url), 'utf8');
 const leftoverSeo = readFileSync(new URL('./do-leftover-tile-boxes-cover-the-next-wall.html', import.meta.url), 'utf8');
 const supplySeo = readFileSync(new URL('./should-i-install-customer-supplied-backsplash-tile.html', import.meta.url), 'utf8');
+const accessSeo = readFileSync(new URL('./should-i-tile-a-backsplash-after-hours.html', import.meta.url), 'utf8');
 
 const RAW_TEXT_ELEMENTS = ['textarea', 'script', 'style'];
 
@@ -69,6 +72,8 @@ test('the module script survives parsing and would actually execute', () => {
   assert.match(scriptSource, /formatBoxPlanNote/, 'box-plan copy helper is missing from the executable script');
   assert.match(scriptSource, /compareOwnerSupply/, 'owner-supply comparison is missing from the executable script');
   assert.match(scriptSource, /ownerSupplyNote/, 'owner-supply note is missing from the executable script');
+  assert.match(scriptSource, /compareAccess/, 'access comparison is missing from the executable script');
+  assert.match(scriptSource, /accessNote/, 'access note is missing from the executable script');
 });
 
 test('every element the script reaches for exists in the markup', () => {
@@ -87,7 +92,7 @@ test('inputs and result fields for the primary journey are present', () => {
     'hourlyWage', 'targetMargin', 'proposedPrice',
     'price', 'breakEven', 'compare', 'patterns', 'copySummary', 'usageOptOut', 'jobPresets',
     'sfPerBox', 'leftoverBoxes', 'secondWallSf', 'boxesToBuy', 'leftoverAfter', 'boxVerdict',
-    'supply', 'supplyNote',
+    'supply', 'supplyNote', 'access', 'accessNote',
   ]) {
     assert.ok(declaredIds.has(id), `missing #${id}`);
   }
@@ -106,6 +111,8 @@ test('the landing page names the problem in the contractor\'s words', () => {
   assert.match(html, /do-leftover-tile-boxes-cover-the-next-wall\.html/);
   assert.match(html, /Same wall, who bought the tile/);
   assert.match(html, /should-i-install-customer-supplied-backsplash-tile\.html/);
+  assert.match(html, /Same wall, when you can work/);
+  assert.match(html, /should-i-tile-a-backsplash-after-hours\.html/);
 });
 
 test('leftover SEO page uses the same worked example the tests lock', () => {
@@ -167,6 +174,7 @@ test('the SEO article answers the search phrase and stays crawlable', () => {
   assert.match(seo, /Leftover boxes do not automatically cover the laundry wall/i);
   assert.match(seo, /index\.html/);
   assert.match(seo, /Customer-supplied tile is not a free set/i);
+  assert.match(seo, /Saturday is not the weekday bid/i);
   assert.doesNotMatch(seo, /<textarea/i);
 });
 
@@ -211,4 +219,50 @@ test('the owner-supply article quotes the herringbone demo arithmetic', () => {
   assert.match(supplySeo, /No warranty/);
   assert.match(supplySeo, /no SLA/i);
   assert.doesNotMatch(supplySeo, /<textarea/i);
+});
+
+test('the after-hours article quotes the herringbone demo and subway Saturday arithmetic', () => {
+  const kit = {
+    ...suggestedScopeKit('demo-and-replace'),
+    ...suggestedPatternKit('herringbone'),
+    ...suggestedWallKit('existing-tile'),
+    ...suggestedExtraKit(),
+  };
+  const rows = compareAccess({
+    wallSf: 42,
+    edgeLf: 18,
+    outlets: 6,
+    scope: 'demo-and-replace',
+    pattern: 'herringbone',
+    wall: 'existing-tile',
+    travelMiles: 16,
+    includeCooktop: true,
+    includeSchluter: true,
+    includeAccent: false,
+    hourlyWage: 38,
+    burdenRate: 30,
+    overheadRate: 15,
+    targetMargin: 20,
+    travelAndEquipment: 55,
+    otherCost: 0,
+    ...kit,
+  }, { installOnlyPrice: 1470 });
+  const empty = rows.find((row) => row.access === 'empty-weekday');
+  const afterHours = rows.find((row) => row.access === 'after-hours');
+  assert.ok(empty.installOnly.belowBreakEven);
+  assert.ok(afterHours.installOnly.belowBreakEven);
+  assert.match(accessNote(rows), /\$4,201\.01/);
+  assert.match(accessSeo, /Should I tile a backsplash after hours/i);
+  assert.match(accessSeo, /FAQPage/);
+  assert.match(accessSeo, /\$1,470/);
+  assert.match(accessSeo, /\$4,201\.01/);
+  assert.match(accessSeo, /\$3,858\.00/);
+  assert.match(accessSeo, /\$5,251\.26/);
+  assert.match(accessSeo, /\$1,134\.41/);
+  assert.match(accessSeo, /\$181\.90/);
+  assert.match(accessSeo, /time-and-a-half/i);
+  assert.match(accessSeo, /index\.html/);
+  assert.match(accessSeo, /No warranty/);
+  assert.match(accessSeo, /no SLA/i);
+  assert.doesNotMatch(accessSeo, /<textarea/i);
 });

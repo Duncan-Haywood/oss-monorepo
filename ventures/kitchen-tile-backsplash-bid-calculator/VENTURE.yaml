@@ -1,5 +1,5 @@
 name: kitchen-tile-backsplash-bid-calculator
-description: A private browser calculator for tile setters and kitchen remodelers that prices a kitchen tile backsplash from wall square feet, subway versus herringbone versus mosaic versus large-format, tile-only versus new-prep versus demo-and-replace, owner-supplied versus you-supply, wall condition, extras, leftover-box round-up, and whether leftover still covers a laundry or pantry wall — and shows the extra-work share and the walk-away price below which the job loses money.
+description: A private browser calculator for tile setters and kitchen remodelers that prices a kitchen tile backsplash from wall square feet, subway versus herringbone versus mosaic versus large-format, tile-only versus new-prep versus demo-and-replace, owner-supplied versus you-supply, weekday versus occupied versus after-hours, wall condition, extras, leftover-box round-up, and whether leftover still covers a laundry or pantry wall — and shows the extra-work share and the walk-away price below which the job loses money.
 stage: prototype
 owner: duncan
 hypotheses:
@@ -20,6 +20,10 @@ hypotheses:
     checked: null
     evidence: customer-contact
   - claim: Showing leftover after box round-up next to a laundry or pantry wall stops setters from assuming van leftover covers the next ticket.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: Seeing empty-weekday versus they-cook-around-you versus after-hours on the same wall, next to their Saturday number, changes the bid enough that setters walk away from a $35 / SF "same as weekday" Saturday herringbone demo.
     status: untested
     checked: null
     evidence: customer-contact
