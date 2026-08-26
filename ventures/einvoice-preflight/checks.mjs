@@ -189,7 +189,34 @@ export function checkInvoice(invoice) {
     fail("INV-017", "Gross total does not equal net plus tax.", `Set gross total to ${formatMoney(roundHalfUpToCents(net + taxTotal))} or correct the totals.`, "/totals/gross");
   }
 
+  const prepaid = optionalMoney(totals, "prepaid");
+  if (prepaid !== undefined) {
+    if (prepaid === null || prepaid < 0) {
+      fail("INV-028", "Prepaid amount is missing or invalid.", "Provide a non-negative numeric prepaid amount, or omit totals.prepaid.", "/totals/prepaid");
+    } else if (gross !== null && gross >= 0 && prepaid > gross) {
+      fail("INV-028", "Prepaid amount is greater than the invoice gross.", `Set prepaid to at most ${formatMoney(gross)} or correct the totals.`, "/totals/prepaid");
+    }
+  }
+  const due = optionalMoney(totals, "due");
+  if (due !== undefined) {
+    if (due === null || due < 0) {
+      fail("INV-029", "Amount due is missing or invalid.", "Provide a non-negative numeric amount due, or omit totals.due.", "/totals/due");
+    } else if (gross !== null && gross >= 0 && (prepaid === undefined || prepaid === null || prepaid >= 0)) {
+      const applied = prepaid !== undefined && prepaid !== null && prepaid >= 0 ? prepaid : 0;
+      let expectedDue = roundHalfUpToCents(gross - applied);
+      if (expectedDue < 0) expectedDue = 0;
+      if (due !== expectedDue) {
+        fail("INV-029", "Amount due does not equal gross minus prepaid.", `Set amount due to ${formatMoney(expectedDue)} or correct prepaid and gross.`, "/totals/due");
+      }
+    }
+  }
+
   return errors;
+}
+
+function optionalMoney(totals, key) {
+  if (!(key in totals) || totals[key] === null || totals[key] === "") return undefined;
+  return money(totals[key]);
 }
 
 function capitalize(value) {

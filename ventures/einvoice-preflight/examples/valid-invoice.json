@@ -8,5 +8,5 @@
   "lines": [
     {"description": "Consulting", "quantity": 2, "unit_price": 100, "tax_percent": 19, "net": 200}
   ],
-  "totals": {"net": 200, "tax": 38, "gross": 238}
+  "totals": {"net": 200, "tax": 38, "gross": 238, "prepaid": 38, "due": 200}
 }

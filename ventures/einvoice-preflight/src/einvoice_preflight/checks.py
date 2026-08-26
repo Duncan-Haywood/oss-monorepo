@@ -113,4 +113,29 @@ def check_invoice(invoice: Any) -> list[dict[str, str]]:
         fail("INV-016", "Invoice gross total is missing or invalid.", "Provide a non-negative numeric gross total.", "/totals/gross")
     elif net is not None and tax_total is not None and gross != net + tax_total:
         fail("INV-017", "Gross total does not equal net plus tax.", f"Set gross total to {net + tax_total} or correct the totals.", "/totals/gross")
+    prepaid = _optional_money(totals, "prepaid")
+    if prepaid is not None:
+        if prepaid < 0:
+            fail("INV-028", "Prepaid amount is missing or invalid.", "Provide a non-negative numeric prepaid amount, or omit totals.prepaid.", "/totals/prepaid")
+        elif gross is not None and gross >= 0 and prepaid > gross:
+            fail("INV-028", "Prepaid amount is greater than the invoice gross.", f"Set prepaid to at most {gross} or correct the totals.", "/totals/prepaid")
+    due = _optional_money(totals, "due")
+    if due is not None:
+        if due < 0:
+            fail("INV-029", "Amount due is missing or invalid.", "Provide a non-negative numeric amount due, or omit totals.due.", "/totals/due")
+        elif gross is not None and gross >= 0 and (prepaid is None or prepaid >= 0):
+            applied = prepaid if prepaid is not None and prepaid >= 0 else Decimal("0")
+            expected_due = (gross - applied).quantize(Decimal("0.01"), rounding=ROUND_HALF_UP)
+            if expected_due < 0:
+                expected_due = Decimal("0.00")
+            if due != expected_due:
+                fail("INV-029", "Amount due does not equal gross minus prepaid.", f"Set amount due to {expected_due} or correct prepaid and gross.", "/totals/due")
     return errors
+
+
+def _optional_money(totals: dict[str, Any], key: str) -> Decimal | None:
+    """Parse an optional money field. Missing or blank is None; unparseable is -1."""
+    if key not in totals or totals.get(key) in (None, ""):
+        return None
+    parsed = _money(totals.get(key))
+    return parsed if parsed is not None else Decimal("-1")

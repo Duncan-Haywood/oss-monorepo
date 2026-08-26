@@ -77,7 +77,7 @@ arithmetic check, not a tax-law determination:
   "customer": {"id": "DE456", "name": "Customer GmbH"},
   "payment": {"iban": "DE89370400440532013000", "bic": "COBADEFFXXX"},
   "lines": [{"description": "Consulting", "quantity": 2, "unit_price": 100, "tax_percent": 19, "net": 200}],
-  "totals": {"net": 200, "tax": 38, "gross": 238}
+  "totals": {"net": 200, "tax": 38, "gross": 238, "prepaid": 38, "due": 200}
 }
 ```
 
@@ -114,6 +114,15 @@ and not a determination that the institution will accept the payment. UBL
 earlier than `issue_date`; this is a date-shape and document-consistency check,
 not a judgment about payment terms or legal requirements. UBL `DueDate` is
 mapped into the same optional field.
+
+`totals.prepaid` and `totals.due` are optional. When `prepaid` is supplied, it
+must be a non-negative amount no greater than `totals.gross` (`INV-028`). When
+`due` is supplied, it must equal gross minus prepaid, treating a missing
+prepaid as zero (`INV-029`). This is remaining-balance arithmetic — the same
+relationship EN 16931 expresses as PrepaidAmount and PayableAmount — not a
+determination that a payment was received or that a balance is legally due.
+UBL `LegalMonetaryTotal/PrepaidAmount` maps into `totals.prepaid` and
+`LegalMonetaryTotal/PayableAmount` maps into `totals.due`.
 
 Amounts use the currency's major unit and are compared to cent precision. Each
 line must include a numeric `net` amount matching quantity times unit price. Each
@@ -252,6 +261,13 @@ does not decide whether that percentage is legally correct.
 No. Optional `vat_id` values (and a complete VAT shape in `id`) are checked
 with published checksums only. The tool never calls VIES or any network
 service, never stores the identifier, and never claims a party is registered.
+
+### Does it confirm a deposit was paid?
+
+No. Optional `totals.prepaid` and `totals.due` (and UBL PrepaidAmount /
+PayableAmount) are checked only as remaining-balance arithmetic against
+`totals.gross`. The tool never contacts a payment processor and never claims
+a balance is legally due.
 
 ### Does it look up bank accounts?
 

@@ -49,6 +49,24 @@ test("non-invoice XML is rejected", () => {
   assert.throws(() => parseUblInvoice("<CreditNote><cbc:ID>1</cbc:ID></CreditNote>"), /Invoice/);
 });
 
+test("UBL prepaid and payable map into remaining-balance checks", () => {
+  const matching = UBL_VALID.replace(
+    "<cbc:TaxInclusiveAmount>238</cbc:TaxInclusiveAmount>",
+    "<cbc:TaxInclusiveAmount>238</cbc:TaxInclusiveAmount><cbc:PrepaidAmount>38</cbc:PrepaidAmount><cbc:PayableAmount>200</cbc:PayableAmount>",
+  );
+  const invoice = parseUblInvoice(matching);
+  assert.equal(invoice.totals.prepaid, 38);
+  assert.equal(invoice.totals.due, 200);
+  assert.deepEqual(checkInvoice(invoice), []);
+
+  const mismatched = UBL_VALID.replace(
+    "<cbc:TaxInclusiveAmount>238</cbc:TaxInclusiveAmount>",
+    "<cbc:TaxInclusiveAmount>238</cbc:TaxInclusiveAmount><cbc:PayableAmount>200</cbc:PayableAmount>",
+  );
+  const errors = checkInvoice(parseUblInvoice(mismatched));
+  assert.ok(errors.some((error) => error.rule === "INV-029"));
+});
+
 test("UBL payee account and branch map into payment IBAN and BIC", () => {
   const source = UBL_VALID.replace(
     "</cac:AccountingCustomerParty>",
