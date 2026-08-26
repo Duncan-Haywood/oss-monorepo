@@ -158,6 +158,9 @@ workflows:
     step: uses actions/deploy-pages
     gates:
     - github.event_name != 'pull_request' && vars.GITHUB_PAGES_ENABLED == 'true'
+- workflow: parking-lot-striping-bid-calculator-ci.yml
+  classification: none
+  publishes: []
 - workflow: photo-editing-ci.yml
   classification: none
   publishes: []
