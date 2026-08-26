@@ -115,7 +115,6 @@ A second building is a different question. Open
 [`second-site.html`](second-site.html) to price the new site the same way,
 then add the drive as loaded labor and extra fuel. The first-building bid
 treats the van as already paid for; the hop to the next address is not free.
->>>>>>> origin/main
 
 The arithmetic lives in [`calc.mjs`](calc.mjs) with no DOM or network
 dependency, so it is testable and auditable on its own. See
