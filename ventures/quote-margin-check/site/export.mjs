@@ -2,6 +2,8 @@
 // Isolated from the DOM so copy/download can be tested without a browser.
 // RFC 4180-style quoting: commas, quotes, and line breaks stay in one cell.
 
+import { targetHoursBudget } from "./calc.mjs";
+
 /**
  * Quote one CSV cell when it contains syntax-significant characters.
  * Ordinary labels (USD, hours) stay unquoted so the file stays readable.
@@ -40,6 +42,7 @@ export function quoteCsv(quote, report, extras = {}) {
     ["target_price", money(report.target_price), currency],
     ["gap_to_target", money(report.gap_to_target), currency],
     ["cost_coverage", money(report.cost_coverage), currency],
+    ["target_rate_hours_budget", hours(targetHoursBudget(quote, report)), "hours"],
     ["discount_room", money(report.discount_room), currency],
     ["hourly_bill_at_planned_hours", money(report.target_price), currency],
     ["hourly_minus_fixed_at_planned_hours", money(report.target_price - quote.price), currency],

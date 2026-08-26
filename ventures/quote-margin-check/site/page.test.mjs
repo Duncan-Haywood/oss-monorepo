@@ -300,3 +300,11 @@ test("calculator page offers editable quote starting points, not recommendations
   assert.match(page, /editable examples, not pricing recommendations/);
   assert.doesNotMatch(page, /should use this preset|must start from/i);
 });
+
+test("calculator page shows the target-rate hours budget without recommending a cut", async () => {
+  const page = await readFile(new URL("./index.html", import.meta.url), "utf8");
+  assert.match(page, /targetHoursBudget/);
+  assert.match(page, /Target-rate hours budget/);
+  assert.match(page, /hours_budget_shown/);
+  assert.doesNotMatch(page, /should cut hours|must reduce scope/i);
+});
