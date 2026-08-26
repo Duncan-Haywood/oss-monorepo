@@ -1539,6 +1539,11 @@ test('every number input on the built site carries an inputmode', async () => {
 
 // ---------------------------------------------------------------------------
 // Machine-readable catalog
+//
+// The flat thing an AI assistant answering "is there a free tool for X" can
+// fetch in one request, instead of parsing the hub. Carried over from #1740
+// after `main` independently landed that branch's Pages race fix; the catalog
+// was the part of it `main` did not already have.
 // ---------------------------------------------------------------------------
 
 test('catalog.json describes every published tool', async () => {
