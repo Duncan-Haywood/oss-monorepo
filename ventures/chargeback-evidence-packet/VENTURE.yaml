@@ -1,0 +1,26 @@
+name: chargeback-evidence-packet
+description: Free browser-local generator for ecommerce sellers to assemble a structured chargeback response packet from order, fulfillment, delivery, and customer-contact evidence.
+stage: prototype
+owner: duncan
+hypotheses:
+  - claim: Small ecommerce sellers lose recoverable revenue because chargeback responses are assembled from scattered screenshots and inconsistent notes.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: A deterministic evidence checklist and copyable response draft is useful without connecting to a store or payment processor.
+    status: untested
+    checked: null
+    evidence: customer-contact
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+budget:
+  monthly_cap: 1
+  protected: true
+kill_criteria:
+  - No repeat usage or organic repository traffic after 60 days of availability.
+links:
+  production: null
+  analytics: null

@@ -113,7 +113,15 @@ def record_usage(path: Path | None) -> None:
 
 
 def main(argv: list[str] | None = None) -> int:
-    parser = argparse.ArgumentParser(description="Show which npm dependencies reach production paths.")
+    parser = argparse.ArgumentParser(
+        description="Show which npm dependencies reach production paths.",
+        epilog=(
+            "No warranty. This is lockfile evidence, not a security verdict, "
+            "attestation, or compliance advice. You are responsible for "
+            "reviewing the output. Best-effort; no SLA. Optional GitHub Sponsors "
+            "never changes what the tool does."
+        ),
+    )
     parser.add_argument("lockfile", type=Path, help="path to package-lock.json v2 or v3")
     parser.add_argument("--format", choices=("json", "markdown"), default="markdown")
     parser.add_argument("--output", type=Path, help="write the report to a file")

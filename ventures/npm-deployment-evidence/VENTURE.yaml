@@ -7,7 +7,7 @@ hypotheses:
   - claim: JavaScript maintainers waste review time on vulnerable packages that are installed only for builds or development.
     status: supported
     checked: 2026-08-21
-    evidence: portfolio/pipeline/probes/npm-reachability-triage/README.md
+    evidence: in-repo
   - claim: A portable, source-linked deployment-surface report is useful without uploading repository contents.
     status: untested
     checked: null

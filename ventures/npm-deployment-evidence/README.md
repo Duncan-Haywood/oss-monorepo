@@ -20,6 +20,10 @@ Build-only is a positive lockfile classification, not a security verdict. A pack
 
 **No warranty.** This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, financial, medical, or engineering advice, and it does not replace a qualified professional. **You are responsible for reviewing and verifying its output before relying on it**, and for meeting any obligation it helps prepare for. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.
 
+**Best-effort hosting, no SLA.** This CLI runs on your machine. Any hosted copy of these files is free, experimental, and may be moved or taken offline without notice. Do not use a hosted URL as a system of record. If a report needs to survive, keep the generated Markdown or JSON.
+
+The tool is free and full-featured. [GitHub Sponsors](https://github.com/sponsors/Duncan-Haywood) is optional and never changes what the tool does.
+
 ## Opportunity assessment
 
 The existing portfolio includes fee calculators, DNS evidence, and Shopify permission evidence, but no npm deployment-surface report. The portfolio probe measured 64.6% to 66.0% false positives in matched advisory findings across 3,573 components, with deployment mode as the discriminating signal. The EU Vulnerability Database integration proposed by the related CRA candidate is unreachable from this environment, so this launch deliberately uses local lockfile evidence and existing advisory workflows rather than claiming EUVD coverage.
