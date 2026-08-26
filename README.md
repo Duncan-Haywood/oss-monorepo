@@ -29,6 +29,10 @@ bootstrap/    one-time k3s + Argo CD (laptop SSH, not cloud-init)
 gitops/       App-of-Apps, AppProjects, prod/staging/agents
 ```
 
+Actions secrets for that stack (names only): `HETZNERSSHKEY`,
+`HETZNERREADAPIKEY`. `CLAUDETRIGGERAPIKEY` is the Claude routine
+trigger, not GitOps. Table: [`infra/OWNER_CHECKLIST.md`](infra/OWNER_CHECKLIST.md).
+
 ### ventures/
 
 Each venture is self-contained and carries a `VENTURE.yaml` at its root. That

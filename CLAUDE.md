@@ -45,34 +45,34 @@ Named tasks, venture work, red CI, and PRs you are driving skip the gate.
 
 ## Ship without review ceremony
 
-**Merge when CI is green.** No human code review. Fix forward.
+**Merge when CI is green.** No human code review. Fix forward. Rely on the
+owner as little as possible. Product PRs are the work — merge them.
 
 Before merge: run or read CI; scope stays in-bounds; new user-facing surfaces
 have disclaimers and usage tracking.
 
-**Agent-decidable — verify and merge yourself:**
+**Merge yourself after CI is green:**
 
-- `platform/`, `portfolio/`, docs, tests, CI — internal surfaces
-- Free full-feature products, usage instrumentation, sponsor links
-  (building privately; merging `ventures/*` is a separate gate)
+- `platform/`, `portfolio/`, docs, tests, CI
+- Usage tracking, disclaimers, free-tier features, GitHub Sponsors links
+- `ventures/*` product code (calculators, apps, CLIs). Do not wait. Do not
+  open a queue row asking whether a product PR may merge.
 
-`python3 platform/ci/publish_surface.py` currently shows nothing live on
-push to `main`. That does not make venture app code agent-decidable on
-its own — the owner-only list below still covers breaking changes to it,
-and Ask 9 (`venture-gate-premise`) is still open.
+Answered 2026-08-25: yes, agents merge product PRs. That question is closed.
+Do not re-ask it.
 
-**Owner-only — flag only when it blocks product work you cannot finish:**
+**Only flag the owner when you cannot finish without them:**
 
 - Taking or moving money (billing, payout rails, live Stripe)
 - Registering accounts needing card, government ID, domain, or bank
 - Publishing under the portfolio's public name (store listing, npm publish,
   production domain) — building the artifact privately is always allowed
 - Enabling unattended automation that spends paid API budget
-- Breaking changes to deployable `ventures/*` code
+- Pasting a secret they hold (Pages enable, deploy tokens, a GitHub PAT)
 
 `python3 portfolio/ledger/decision_queue.py` lists owner decisions already
 queued. Do not add duplicate asks. Do not expand the queue with items that
-do not block shipping.
+do not block shipping. Do not add "should we merge this product PR?"
 
 If a prior verification exists, run
 `python3 portfolio/ledger/verification_status.py` before re-running tests —

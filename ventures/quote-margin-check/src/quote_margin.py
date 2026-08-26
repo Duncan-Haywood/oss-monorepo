@@ -60,6 +60,39 @@ def calculate(quote: Quote) -> dict[str, float]:
     }
 
 
+def discount_ask_scenarios(
+    quote: Quote,
+    result: dict[str, float],
+    percentages: tuple[int, ...] = (5, 10, 15, 20),
+) -> list[dict[str, float | None]]:
+    """Same hours and direct costs, lower quoted price. Complements time-overrun tables."""
+    percents = (0, *(percent for percent in percentages if percent != 0))
+    rows: list[dict[str, float | None]] = []
+    for percent in percents:
+        discounted_price = quote.price * (1 - percent / 100)
+        cost_coverage = discounted_price - result["direct_costs"]
+        if cost_coverage > 0:
+            hours_at_target = cost_coverage / quote.target_hourly_rate
+            hours_to_cut = max(0.0, result["total_hours"] - hours_at_target)
+        else:
+            hours_at_target = None
+            hours_to_cut = None
+        gap = discounted_price - result["target_price"]
+        rows.append(
+            {
+                "percent": percent,
+                "discounted_price": discounted_price,
+                "cost_coverage": cost_coverage,
+                "effective_hourly_rate": cost_coverage / result["total_hours"],
+                "gap_to_target": gap,
+                "extra_gap": gap - result["gap_to_target"],
+                "hours_at_target": hours_at_target,
+                "hours_to_cut": hours_to_cut,
+            }
+        )
+    return rows
+
+
 def markdown(quote: Quote, result: dict[str, float]) -> str:
     status = "above target" if result["gap_to_target"] >= 0 else "below target"
     lines = [
