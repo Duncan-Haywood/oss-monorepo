@@ -68,11 +68,27 @@ test('scales batch economics while keeping price thresholds per unit', () => {
   const single = calculateOrder(input);
   const batch = calculateOrder({ ...input, quantity: 3 });
   near(batch.revenue, single.revenue * 3, 'batch revenue');
-  near(batch.feeTotal, single.feeTotal * 3, 'batch fees');
+  near(batch.feeTotal, (single.feeTotal - single.fees.fixed) * 3 + single.fees.fixed, 'batch fees charge the fixed fee once');
   near(batch.cashInvested, single.cashInvested * 3, 'batch investment');
-  near(batch.profit, single.profit * 3, 'batch profit');
-  near(batch.unitProfit, single.profit, 'unit profit');
-  near(batch.breakEvenPrice, single.breakEvenPrice, 'per-unit break-even');
+  near(batch.profit, batch.revenue - batch.feeTotal - batch.cashInvested, 'batch profit');
+  near(batch.unitProfit, batch.profit / 3, 'unit profit');
+  assert.ok(batch.breakEvenPrice < single.breakEvenPrice, 'larger batch lowers per-unit break-even');
+});
+
+test('spreads one per-order fixed fee across a batch threshold', () => {
+  const input = {
+    price: 40,
+    quantity: 3,
+    shippingCharged: 6,
+    finalValueRate: 13.25,
+    fixedFee: 0.3,
+    costOfGoods: 12,
+    shippingCost: 5,
+    packagingCost: 1,
+  };
+  const batch = calculateOrder(input);
+  near(batch.fees.fixed, 0.3, 'fixed fee charged once per order');
+  near(calculateOrder({ ...input, price: batch.breakEvenPrice }).profit, 0, 'batch break-even');
 });
 
 test('rejects fractional or zero batch quantities', () => {
