@@ -2111,3 +2111,16 @@ products:
           Repair-and-merge of unique #1441 subcontractor cash-flow
           planner onto current main. Public URL remains owner-gated;
           usage is opt-out and local-only. Baseline row.
+
+  - slug: medical-courier-route-margin
+    surface: static-page-in-repo
+    readings:
+      - as_of: 2026-08-26
+        signals:
+          live_url_visitors: null
+          route_calculated: 0
+          summary_copied: 0
+        note: >-
+          Repair-and-merge of unique #1392 medical courier route margin
+          calculator onto current main. Public URL remains owner-gated;
+          usage is local-only and honors DNT/GPC. Baseline row.
