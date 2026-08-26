@@ -1,0 +1,32 @@
+name: flooring-bid-calculator
+description: A private browser calculator for flooring installers that prices a residential install from waste-adjusted purchased material, per-room tear-out hours, and stair treads — then shows the price per installed square foot, the effective hourly rate, and the walk-away price below which the job loses money.
+stage: prototype
+owner: duncan
+hypotheses:
+  - claim: Independent flooring installers will use a waste-and-tear-out bid calculator because the generic dollar-per-square-foot rules they find online cannot see that tile demo in a kitchen and thirteen stair treads are a different job from laying plank in an empty living room, which is how a bid that looked profitable turns out not to be.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: The purchased-versus-installed square footage and the walk-away price are the two numbers an installer actually decides on when a homeowner asks them to match a cheaper quote, more than the job price itself.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: Waste on purchased material is the cost most often left out of a small shop's room-count quote, so making it a required, explained input changes the resulting bid materially.
+    status: untested
+    checked: null
+    evidence: customer-contact
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+budget:
+  monthly_cap: 1
+  protected: true
+kill_criteria:
+  - Fewer than three qualified flooring installers use the calculator twice within 90 days.
+  - Installers report that the waste-and-tear-out model is more work than their existing method without changing the price they would have bid.
+  - The starting waste and production figures prove so far from real crews' rates that the tool cannot be used without data we have no way to gather.
+links:
+  production: null
+  analytics: null
