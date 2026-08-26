@@ -60,6 +60,18 @@ export function parseInputs(raw) {
   };
 }
 
+export function decodeDraft(raw) {
+  if (typeof raw !== 'string' || raw.trim() === '') return null;
+  try {
+    const draft = JSON.parse(raw);
+    if (!draft || Array.isArray(draft) || typeof draft !== 'object') return null;
+    const values = Object.fromEntries(Object.entries(draft).filter(([, value]) => typeof value === 'string'));
+    return parseInputs(values).ok ? values : null;
+  } catch {
+    return null;
+  }
+}
+
 const round2 = value => Math.round((value + Number.EPSILON) * 100) / 100;
 
 export function computeAll(values) {

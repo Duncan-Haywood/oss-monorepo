@@ -23,7 +23,7 @@
     <section><h2>Use it safely</h2><p>Everything runs in your browser. Your project data is never uploaded. If you opt in, the worksheet is stored only in this browser so you can return to it. We count only anonymous feature events in local storage (calculations, rate compares, draft copies, downloads, prints, saved drafts, link copies, and partial-offer compares), never people, content, IPs, or cookies. Counting honors Do Not Track and Global Privacy Control. Turn it off with the checkbox below.</p><label><input id="usage" type="checkbox" checked> Count anonymous local usage events</label><p class="fine"><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, financial, or engineering advice, and it does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for meeting any obligation it helps you prepare for. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p><p class="fine"><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record. If a tool needs to survive, export your inputs and run it yourself.</p></section>
   </main>
   <script type="module">
-    import {parseInputs, computeAll, delayScenarios, followUpDraft, worksheetSummary, releaseSchedule, releaseNote, compareRetainageRates, rateComparisonNote, comparePartialReleaseOffer, partialReleaseNote} from './calc.mjs';
+    import {parseInputs, decodeDraft, computeAll, delayScenarios, followUpDraft, worksheetSummary, releaseSchedule, releaseNote, compareRetainageRates, rateComparisonNote, comparePartialReleaseOffer, partialReleaseNote} from './calc.mjs';
     import {encodeInputs, decodeInputs, NUMBER_FIELD_IDS, TEXT_FIELD_IDS} from './share.mjs';
     import {recordUsage, isUsageEnabled, setUsageEnabled} from './usage.mjs';
     const $=id=>document.getElementById(id);
@@ -118,8 +118,9 @@
     }
     function restoreDraft(){
       try{
-        const draft=JSON.parse(localStorage.getItem(draftKey)||'null');
-        if(!draft)return false;
+        const raw=localStorage.getItem(draftKey);
+        const draft=decodeDraft(raw);
+        if(!draft){if(raw)localStorage.removeItem(draftKey);return false;}
         applyInputs(draft);
         $('remember').checked=true;
         return true;

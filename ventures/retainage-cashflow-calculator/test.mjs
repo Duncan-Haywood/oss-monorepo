@@ -1,6 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { parseInputs, computeAll, delayScenarios, followUpDraft, releaseSchedule, releaseNote, comparePartialReleaseOffer, partialReleaseNote, worksheetSummary, compareRetainageRates, rateComparisonNote } from './calc.mjs';
+import { readFileSync } from 'node:fs';
+import { parseInputs, decodeDraft, computeAll, delayScenarios, followUpDraft, releaseSchedule, releaseNote, comparePartialReleaseOffer, partialReleaseNote, worksheetSummary, compareRetainageRates, rateComparisonNote } from './calc.mjs';
 
 test('calculates retainage and carrying cost without rounding drift', () => {
   const parsed = parseInputs({ contractValue: '100000', retainagePct: '10', paidToDate: '75000', daysOutstanding: '90', annualCarryingRatePct: '12' });
@@ -11,6 +12,15 @@ test('calculates retainage and carrying cost without rounding drift', () => {
 test('rejects missing and inconsistent inputs', () => {
   assert.equal(parseInputs({ contractValue: '', retainagePct: 10, paidToDate: 20, daysOutstanding: 1, annualCarryingRatePct: 1 }).ok, false);
   assert.match(parseInputs({ contractValue: 10, retainagePct: 10, paidToDate: 20, daysOutstanding: 1, annualCarryingRatePct: 1 }).errors.at(-1), /cannot exceed/);
+});
+
+test('only restores complete valid worksheet drafts', () => {
+  const valid = JSON.stringify({ contractValue: '100000', retainagePct: '10', paidToDate: '75000', daysOutstanding: '90', annualCarryingRatePct: '12', project: 'Main Street' });
+  assert.equal(decodeDraft(valid).project, 'Main Street');
+  assert.equal(decodeDraft('{broken json'), null);
+  assert.equal(decodeDraft(JSON.stringify({ contractValue: '-1', retainagePct: '10', paidToDate: '0', daysOutstanding: '0', annualCarryingRatePct: '12' })), null);
+  assert.equal(decodeDraft(JSON.stringify({ contractValue: '100000', retainagePct: '10' })), null);
+  assert.equal(decodeDraft(JSON.stringify(['100000', '10'])), null);
 });
 
 test('draft names the measured amount and keeps the decision with the user', () => {
@@ -280,4 +290,15 @@ test('worksheet summary includes the retainage-rate comparison', () => {
   });
   assert.match(summary, /Retainage rate comparison \(modeled on a 90-day hold\):/);
   assert.match(summary, /10\.0% \(this worksheet\): withheld \$10000\.00; progress cash \$90000\.00; bid to keep progress cash \$111111\.11 \(\$11111\.11 extra\)/);
+});
+
+test('the page restores drafts through decodeDraft, not a bare JSON.parse', () => {
+  // The bug this guards: restoreDraft used to apply whatever parsed out of
+  // local storage, so a stale or hand-edited draft was written over the working
+  // defaults and submitted as an error state. Checked structurally because the
+  // validation only helps if the page is the thing calling it.
+  const page = readFileSync(new URL('./index.html', import.meta.url), 'utf8');
+  const restore = page.slice(page.indexOf('function restoreDraft()'), page.indexOf('$(\'form\').addEventListener'));
+  assert.match(restore, /decodeDraft\(raw\)/);
+  assert.doesNotMatch(restore, /JSON\.parse/);
 });
