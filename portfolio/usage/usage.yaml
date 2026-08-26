@@ -3068,3 +3068,16 @@ products:
           prices the run, the trench, and the panel work a flat hang fee
           hides; public URL remains owner-gated and the browser counter is
           local and opt-out. Baseline row.
+
+  - slug: drywall-bid-calculator
+    surface: static-page-in-repo
+    readings:
+      - as_of: 2026-08-25
+        signals:
+          live_url_visitors: null
+          local_events_reported: 0
+        note: >-
+          Shipped a local drywall hang-and-finish bid calculator with finish
+          levels 0–5, copyable quote summary, and an allowlisted share link;
+          public URL remains owner-gated and the browser counter is local and
+          opt-out. Baseline row.
