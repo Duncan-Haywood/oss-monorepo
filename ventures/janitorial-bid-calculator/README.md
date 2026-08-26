@@ -57,6 +57,35 @@ it against the same cost base and says plainly whether it is under water. **Copy
 bid summary** turns the result into a plain-text draft with the price, annual
 value, service hours, and service areas ready to paste into a proposal.
 
+**If they cut the schedule** answers the renewal question contractors actually
+get: a prospect who wants 3×/week instead of 5× and offers 60% of today’s
+price. Labor hours scale with the visits; supplies, equipment, and travel in
+this model do not. The table shows the reduced-schedule price that still holds
+the target margin, the margin left if the linear number is accepted, and a
+pasteable reply. If the building-level current week disagrees with the
+area-row frequencies (the rows still say 3× while the comparison is 5→3),
+labor is rebased onto the building week so the table is not a mix of the
+two. A crawlable explainer lives at
+[`5x-vs-3x-cleaning-price.html`](5x-vs-3x-cleaning-price.html).
+
+**If they want to buy the paper** answers the other renewal ask: they will
+stock paper, soap, and liners if you drop the supplies line. Restroom stock
+is only a share of that line — chemicals, finish, and glass stay yours —
+and an emergency fill after they run out can price *above* you-supplying.
+The table shows you-supply, they-buy-restroom-stock, they-buy-everything,
+and they-buy-but-you-still-fill, plus a pasteable reply. A crawlable
+explainer lives at
+[`should-i-let-them-buy-the-paper.html`](should-i-let-them-buy-the-paper.html).
+
+**If they want the initial thrown in** answers the takeover ask: a neglected
+or vacant building wants a deep first visit included in today’s monthly.
+That first visit is several regular cleans of labor plus extra chemicals —
+a project on a periodic price. The table shows the one-time that still
+holds the target margin, the monthly if you bake it in over N months, the
+month-1 profit if you throw it in, and the cash if they cancel early. A
+crawlable explainer lives at
+[`should-i-throw-in-the-initial-clean.html`](should-i-throw-in-the-initial-clean.html).
+
 The arithmetic lives in [`calc.mjs`](calc.mjs) with no DOM or network
 dependency, so it is testable and auditable on its own. See
 [`calc.test.mjs`](calc.test.mjs).
@@ -80,13 +109,17 @@ automatically when the browser sends Do Not Track or Global Privacy Control.
 See [`usage.mjs`](usage.mjs) and [`portfolio/usage/`](../../portfolio/usage/README.md).
 
 Events counted: `bid_calculated`, `area_added`, `area_removed`,
-`proposed_price_compared`, `summary_copied`.
+`proposed_price_compared`, `summary_copied`, `frequency_reduction_compared`,
+`frequency_note_copied`, `supply_responsibility_compared`,
+`supply_note_copied`, `initial_clean_compared`,
+`initial_clean_offer_compared`, `initial_clean_note_copied`.
 
 ## Limitations
 
 - Single currency and no tax handling; the contractor enters their own numbers.
-- One periodic-service model. Project work (strip and wax, carpet extraction,
-  post-construction) is not priced separately yet.
+- Periodic service plus a one-time takeover / initial clean. Recurring
+  project work (strip and wax, carpet extraction, post-construction) is
+  still not priced as its own cycle.
 - "Other space" rows are labelled `Area N` rather than a custom name.
 - Day porter or fixed-headcount contracts are not modelled; this prices from
   production rates, not from a scheduled shift.
@@ -100,4 +133,36 @@ against a qualified professional before relying on it or submitting a bid. To
 the maximum extent permitted by law, the authors accept no liability for loss
 or damage arising from its use.
 
+**Best-effort hosting, no SLA.** These tools are free, experimental, and may
+be slow, broken, moved, or taken offline without notice. We do not promise
+uptime, backups of anything you type, or that a URL will keep working. Do not
+use this as a system of record. If a tool needs to survive, export your
+inputs and run it yourself.
+
 MIT licensed — see [`LICENSE`](LICENSE).
+
+## Saving and sharing a bid
+
+The whole form is kept in your own browser as you type, so the bid is still
+there on the next visit — the rates you tuned, not the ballpark ones this ships
+with. **Start a fresh bid** deletes it.
+
+**Copy bid link** puts the same bid in a URL. Opening it reproduces the bid
+exactly, in any browser, with nothing stored server-side — there is no server.
+A link beats a saved bid when both exist, because someone opening a link meant
+to see that bid; the page says which one is on screen.
+
+A bid link carries your own rates — wage, burden, overhead, and target margin.
+Send it to yourself or your crew. The customer should get the price, not the
+link.
+
+Nothing is uploaded either way. The rates ride in the link's `#` fragment,
+which browsers never send to a server or put in a `Referer` header, so opening
+or forwarding a bid link does not leak the numbers off the machines you send it
+to. The link is built in the browser and copied by you; the save is
+`localStorage` on your own device.
+
+`share.mjs` is the pure encode/decode/store module and is identical in every
+bid calculator here. Its field list is passed in from the page rather than kept
+in the module, so a field added to the form is saved and shareable without
+touching it; `page.test.mjs` fails if the two ever drift apart.
