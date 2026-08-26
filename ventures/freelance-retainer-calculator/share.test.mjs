@@ -9,7 +9,12 @@ const full = {
   utilization: 65,
   retainerHours: 20,
   buffer: 15,
+  otherRevenue: 3000,
+  otherHours: 40,
+  fillRate: 60,
+  offeredPrice: 1500,
   currency: 'EUR',
+  paymentTerms: 'arrears30',
 };
 
 test('round-trips a full set of inputs unchanged', () => {
@@ -62,5 +67,39 @@ test('builds a hash URL that decodeInputs can restore', () => {
 test('every encodable field is a real calculator field', () => {
   assert.equal(new Set(FIELD_IDS).size, FIELD_IDS.length);
   assert.ok(NUMBER_FIELD_IDS.includes('retainerHours'));
+  assert.ok(NUMBER_FIELD_IDS.includes('otherRevenue'));
+  assert.ok(NUMBER_FIELD_IDS.includes('otherHours'));
+  assert.ok(NUMBER_FIELD_IDS.includes('fillRate'));
+  assert.ok(NUMBER_FIELD_IDS.includes('offeredPrice'));
   assert.ok(FIELD_IDS.includes('currency'));
+  assert.ok(FIELD_IDS.includes('paymentTerms'));
+});
+
+test('later income-goal, offer, and payment-term fields survive a round trip', () => {
+  const encoded = encodeInputs({
+    otherRevenue: '3000',
+    otherHours: '40',
+    fillRate: '60',
+    offeredPrice: '1500',
+    paymentTerms: 'net15',
+    currency: 'usd',
+  });
+  assert.match(encoded, /otherRevenue=3000/);
+  assert.match(encoded, /otherHours=40/);
+  assert.match(encoded, /fillRate=60/);
+  assert.match(encoded, /offeredPrice=1500/);
+  assert.match(encoded, /paymentTerms=net15/);
+  assert.deepEqual(decodeInputs(encoded), {
+    otherRevenue: 3000,
+    otherHours: 40,
+    fillRate: 60,
+    offeredPrice: 1500,
+    currency: 'USD',
+    paymentTerms: 'net15',
+  });
+});
+
+test('drops unknown payment terms the way it drops unknown currencies', () => {
+  assert.equal(encodeInputs({ income: 6000, paymentTerms: 'whenever' }), 'income=6000');
+  assert.deepEqual(decodeInputs('income=6000&paymentTerms=whenever'), { income: 6000 });
 });

@@ -11,11 +11,17 @@ export const NUMBER_FIELD_IDS = [
   'utilization',
   'retainerHours',
   'buffer',
+  'otherRevenue',
+  'otherHours',
+  'fillRate',
+  'offeredPrice',
 ];
 
 export const CURRENCIES = ['USD', 'EUR', 'GBP', 'CAD', 'AUD'];
 
-export const FIELD_IDS = [...NUMBER_FIELD_IDS, 'currency'];
+export const PAYMENT_TERMS = ['prepaid', 'net15', 'net30', 'arrears15', 'arrears30'];
+
+export const FIELD_IDS = [...NUMBER_FIELD_IDS, 'currency', 'paymentTerms'];
 
 function usableNumber(value) {
   if (value === '' || value === null || value === undefined) return null;
@@ -30,6 +36,12 @@ function usableCurrency(value) {
   return CURRENCIES.includes(code) ? code : null;
 }
 
+function usablePaymentTerms(value) {
+  if (typeof value !== 'string') return null;
+  const key = value.trim();
+  return PAYMENT_TERMS.includes(key) ? key : null;
+}
+
 export function encodeInputs(inputs) {
   const params = new URLSearchParams();
   for (const id of NUMBER_FIELD_IDS) {
@@ -38,6 +50,8 @@ export function encodeInputs(inputs) {
   }
   const currency = usableCurrency(inputs?.currency);
   if (currency) params.set('currency', currency);
+  const paymentTerms = usablePaymentTerms(inputs?.paymentTerms);
+  if (paymentTerms) params.set('paymentTerms', paymentTerms);
   return params.toString();
 }
 
@@ -54,6 +68,10 @@ export function decodeInputs(source) {
   if (params.has('currency')) {
     const currency = usableCurrency(params.get('currency'));
     if (currency) inputs.currency = currency;
+  }
+  if (params.has('paymentTerms')) {
+    const paymentTerms = usablePaymentTerms(params.get('paymentTerms'));
+    if (paymentTerms) inputs.paymentTerms = paymentTerms;
   }
   return inputs;
 }
