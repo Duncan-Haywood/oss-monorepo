@@ -1,8 +1,8 @@
 name: hetzner-gitops CI
 
 # Validate the IaC + GitOps tree. Never tofu apply. Never start a Codex
-# Job. An optional HCLOUD_TOKEN is probed as Read-only (empty POST
-# /servers). SSH preflight is workflow_dispatch only.
+# Job. HETZNERREADAPIKEY (Read token) is probed via empty POST /servers.
+# SSH preflight is workflow_dispatch only and uses HETZNERSSHKEY.
 
 on:
   push:
@@ -23,7 +23,7 @@ on:
   workflow_dispatch:
     inputs:
       preflight:
-        description: SSH to the two hel1 boxes (read-only). Uses HETZNER_SSH_PRIVATE_KEY or SSH_PRIVATE_KEY.
+        description: SSH to the two hel1 boxes (read-only). Uses HETZNERSSHKEY.
         type: boolean
         default: false
 
@@ -95,12 +95,12 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Prove HCLOUD_TOKEN is Read-only when present
+      - name: Prove HETZNERREADAPIKEY is Read-only
         env:
-          HCLOUD_TOKEN: ${{ secrets.HCLOUD_TOKEN }}
+          HCLOUD_TOKEN: ${{ secrets.HETZNERREADAPIKEY }}
         run: |
           if [ -z "${HCLOUD_TOKEN}" ]; then
-            echo "HCLOUD_TOKEN secret unset — skip. A Read token is optional; a Write token is not allowed."
+            echo "HETZNERREADAPIKEY unset — skip. A Read token belongs here; a Write token does not."
             exit 0
           fi
           infra/scripts/assert_hcloud_read_only.sh
@@ -112,14 +112,12 @@ jobs:
       - uses: actions/checkout@v4
       - name: SSH preflight (read-only)
         env:
-          HETZNER_SSH_PRIVATE_KEY: ${{ secrets.HETZNER_SSH_PRIVATE_KEY }}
-          SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+          HETZNERSSHKEY: ${{ secrets.HETZNERSSHKEY }}
         run: |
           set -euo pipefail
-          KEY="${HETZNER_SSH_PRIVATE_KEY:-${SSH_PRIVATE_KEY:-}}"
+          KEY="${HETZNERSSHKEY:-}"
           if [ -z "${KEY}" ]; then
-            echo "No private key in HETZNER_SSH_PRIVATE_KEY or SSH_PRIVATE_KEY." >&2
-            echo "The key already in Actions secrets needs one of those names as an alias." >&2
+            echo "HETZNERSSHKEY is unset." >&2
             exit 1
           fi
           mkdir -p "${HOME}/.ssh"
