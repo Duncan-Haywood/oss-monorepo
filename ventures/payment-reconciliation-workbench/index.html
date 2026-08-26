@@ -1,0 +1,25 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Payment Reconciliation Workbench | Match Payouts to Bank Deposits</title>
+  <meta name="description" content="Free private CSV tool for small businesses to match Stripe, Square, or PayPal payouts to bank deposits and find reconciliation gaps without QuickBooks.">
+  <meta property="og:title" content="Payment Reconciliation Workbench"><meta property="og:description" content="Match processor payouts to bank deposits privately in your browser.">
+  <link rel="canonical" href="https://example.invalid/payment-reconciliation-workbench/">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Payment Reconciliation Workbench","applicationCategory":"BusinessApplication","operatingSystem":"Any","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"description":"Private browser CSV matcher for payment processor payouts and bank deposits."}</script>
+  <style>
+    :root{font-family:system-ui,sans-serif;color:#182230;background:#f4f1eb;line-height:1.45}body{max-width:980px;margin:auto;padding:2rem 1rem}header{border-bottom:3px solid #d97842;padding-bottom:1.5rem}h1{font-size:clamp(2rem,6vw,4rem);line-height:1;margin:.2rem 0;color:#17324d}h2{color:#17324d}main{display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-top:1rem}.card{background:#fff;border:1px solid #d8d2c8;border-radius:12px;padding:1.2rem;box-shadow:0 3px 12px #17324d12}.wide{grid-column:1/-1}label{display:block;font-weight:700;margin:.8rem 0 .3rem}input,select,button{font:inherit;padding:.65rem;border-radius:7px;border:1px solid #aaa}input,select{width:100%;box-sizing:border-box}button{background:#d97842;color:#fff;border:0;font-weight:700;cursor:pointer;margin-top:1rem}button.secondary{background:#17324d}small,.hint{color:#5d6973}.stats{display:flex;gap:1rem;flex-wrap:wrap}.stat{background:#eef3f4;padding:.8rem;border-radius:8px;min-width:130px}.stat strong{display:block;font-size:1.5rem;color:#17324d}.error{color:#a52d2d;font-weight:700}table{width:100%;border-collapse:collapse;margin-top:1rem}th,td{text-align:left;border-bottom:1px solid #ddd;padding:.55rem}footer{margin-top:2rem;font-size:.9rem;color:#4d5963}@media(max-width:700px){main{display:block}.card{margin-bottom:1rem}table{font-size:.85rem}}
+  </style>
+</head>
+<body>
+  <header><p>PRIVATE, LOCAL-FIRST WORKFLOW</p><h1>Reconcile processor payouts before they disappear into the bank feed.</h1><p>Upload two CSV exports, match deposits by amount and date, and leave with a short discrepancy list. Built for small businesses using Stripe, Square, PayPal, or a mix without a full accounting suite.</p></header>
+  <main>
+    <section class="card"><h2>1. Processor payouts</h2><p class="hint">CSV needs a date and amount column. Common names like <code>payout_date</code> and <code>net</code> work automatically.</p><input id="payouts" type="file" accept=".csv,text/csv"></section>
+    <section class="card"><h2>2. Bank deposits</h2><p class="hint">CSV needs a date and amount column. Credits should be positive amounts.</p><input id="deposits" type="file" accept=".csv,text/csv"></section>
+    <section class="card wide"><label for="tolerance">Date tolerance (days)</label><input id="tolerance" type="number" min="0" max="30" value="3"><p class="hint">Processor payouts can settle a few days after the customer payment. Amounts must match exactly to cents.</p><button id="run">Run reconciliation</button><p id="message" class="error" role="alert"></p></section>
+    <section id="results" class="card wide" hidden><h2>Review queue</h2><div class="stats"><div class="stat"><strong id="matched">0</strong>matched</div><div class="stat"><strong id="unmatchedPayouts">0</strong>payouts not found</div><div class="stat"><strong id="unmatchedDeposits">0</strong>deposits not explained</div></div><button id="download" class="secondary">Download review CSV</button><div id="table"></div></section>
+  </main>
+  <footer><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, financial, or accounting advice, and it does not replace a qualified professional. You are responsible for reviewing and verifying its output before relying on it. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.<br><br>Everything runs in your browser. Files are never uploaded. Anonymous feature counts are local-only, can be disabled below, and contain no financial data. <label><input id="usage" type="checkbox" checked> Count anonymous local usage</label></footer>
+  <script type="module" src="src/app.mjs"></script>
+</body>
+</html>
