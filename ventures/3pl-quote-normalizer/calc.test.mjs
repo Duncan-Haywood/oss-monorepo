@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { agedStorageFlip, agedStorageSummary, agedStorageSweep, calculate, compareAgedStorage, compareQuotes, comparisonSummary, inputWarnings, largestCostDriver, negotiationLines, returnsFlip, returnsMinimumMask, returnsSensitivity, returnsSensitivitySummary, summary, volumeSensitivity } from "./calc.mjs";
+import { agedStorageFlip, agedStorageSummary, agedStorageSweep, calculate, compareAgedStorage, compareQuotes, compareReturnDisposition, comparisonSummary, inputWarnings, largestCostDriver, negotiationLines, returnDispositionFlip, returnDispositionRestockableSweep, returnDispositionSummary, returnDispositionUnitCostSweep, returnsFlip, returnsMinimumMask, returnsSensitivity, returnsSensitivitySummary, summary, volumeSensitivity } from "./calc.mjs";
 
 test("custom return and restocking fees flow into the normalized quote", () => {
   const result = calculate({ orders: 100, unitsPerOrder: 1, returnsRate: 10, returnFee: 7, restockFee: 3 });
@@ -316,6 +316,100 @@ test("zero leftover matches the quote as written", () => {
   assert.equal(comparison.aged.result.quote.total, comparison.asWritten.result.quote.total);
   assert.equal(comparison.cheapestPath, "tie");
   assert.match(agedStorageSummary({ pallets: 4, leftoverPallets: 0 }), /No leftover pallets/);
+});
+
+const dispositionPage = {
+  orders: 100,
+  returnsRate: 12,
+  returnFee: 3.5,
+  restockFee: 4,
+  destroyFee: 1.5,
+  returnLabelCost: 8,
+  unitCost: 18,
+  restockableRate: 70,
+  storageUntilResale: 0.4,
+  keepOffer: 0,
+};
+
+test("return disposition prices restock, destroy, and customer-keeps", () => {
+  const comparison = compareReturnDisposition(dispositionPage);
+  assert.equal(comparison.returnedOrders, 12);
+  assert.equal(comparison.restockFees, 15.9);
+  assert.equal(comparison.destroyFees, 13);
+  assert.equal(comparison.restock.perReturn, 21.75);
+  assert.equal(comparison.destroy.perReturn, 31);
+  assert.equal(comparison.keep.perReturn, 18);
+  assert.equal(comparison.restock.monthly, 261);
+  assert.equal(comparison.keep.monthly, 216);
+  assert.equal(comparison.cheapestPath, "keep");
+  assert.equal(comparison.restock.inventoryLost, 5.4);
+  assert.equal(comparison.restock.destroyLeftover, 0.45);
+  assert.equal(comparison.restockBeatsKeepAt, 23.36);
+});
+
+test("return disposition restocks once unit cost clears the keep threshold", () => {
+  const comparison = compareReturnDisposition({ ...dispositionPage, unitCost: 45 });
+  assert.equal(comparison.restock.perReturn, 29.85);
+  assert.equal(comparison.keep.perReturn, 45);
+  assert.equal(comparison.cheapestPath, "restock");
+  assert.equal(comparison.vsKeep.restock, 15.15);
+  assert.match(returnDispositionSummary({ ...dispositionPage, unitCost: 45 }), /cheaper by \$15\.15 per return versus letting the customer keep/);
+});
+
+test("return disposition restockable sweep flips from keep to restock", () => {
+  const sweep = returnDispositionRestockableSweep(dispositionPage);
+  const flip = returnDispositionFlip(sweep, "restockableRate");
+  assert.deepEqual(sweep.map((row) => row.restockableRate), [40, 50, 60, 70, 80, 90, 100]);
+  assert.equal(sweep[0].cheapestPath, "keep");
+  assert.equal(sweep[3].cheapestPath, "keep");
+  assert.equal(sweep[4].cheapestPath, "keep");
+  assert.equal(sweep[5].cheapestPath, "restock");
+  assert.equal(flip.kind, "flips");
+  assert.equal(flip.from, "keep");
+  assert.equal(flip.to, "restock");
+  assert.equal(flip.at, 90);
+});
+
+test("return disposition unit-cost sweep flips from keep to restock at $24", () => {
+  const sweep = returnDispositionUnitCostSweep(dispositionPage);
+  const flip = returnDispositionFlip(sweep, "unitCost");
+  assert.equal(sweep.find((row) => row.unitCost === 18).cheapestPath, "keep");
+  assert.equal(sweep.find((row) => row.unitCost === 24).cheapestPath, "restock");
+  assert.equal(flip.kind, "flips");
+  assert.equal(flip.to, "restock");
+  assert.equal(flip.at, 24);
+  assert.match(returnDispositionSummary(dispositionPage), /cheaper by \$3\.75 per return versus restock/);
+  assert.match(returnDispositionSummary(dispositionPage), /once unit cost reaches \$23\.36/);
+});
+
+test("blank restockable rate defaults to 70 and cannot exceed 100", () => {
+  const blank = compareReturnDisposition({ ...dispositionPage, restockableRate: "" });
+  assert.equal(blank.restockableRate, 70);
+  const capped = compareReturnDisposition({ ...dispositionPage, restockableRate: 140 });
+  assert.equal(capped.restockableRate, 100);
+  assert.equal(capped.restock.inventoryLost, 0);
+  assert.equal(capped.cheapestPath, "restock");
+});
+
+test("zero restockable never recovers inventory so customer-keeps wins", () => {
+  const comparison = compareReturnDisposition({ ...dispositionPage, restockableRate: 0, unitCost: 45 });
+  assert.equal(comparison.restockBeatsKeepAt, null);
+  assert.equal(comparison.restock.perReturn, 62.4);
+  assert.equal(comparison.destroy.perReturn, 58);
+  assert.equal(comparison.keep.perReturn, 45);
+  assert.equal(comparison.cheapestPath, "keep");
+  assert.match(returnDispositionSummary({ ...dispositionPage, restockableRate: 0 }), /At 0% restockable/);
+});
+
+test("a keep-the-item thank-you still beats bringing a cheap SKU back", () => {
+  const cheapSku = compareReturnDisposition({ ...dispositionPage, unitCost: 12, keepOffer: 5 });
+  assert.equal(cheapSku.keep.perReturn, 17);
+  assert.equal(cheapSku.restock.perReturn, 19.95);
+  assert.equal(cheapSku.cheapestPath, "keep");
+  const expensive = compareReturnDisposition({ ...dispositionPage, unitCost: 45, keepOffer: 5 });
+  assert.equal(expensive.keep.perReturn, 50);
+  assert.equal(expensive.restock.perReturn, 29.85);
+  assert.equal(expensive.cheapestPath, "restock");
 });
 
 test("uses the first component when the quote is tied or empty", () => {
