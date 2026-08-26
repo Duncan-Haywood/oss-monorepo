@@ -17,11 +17,14 @@ import {
   discoverSurfaces,
   isPublishable,
   readMeta,
+  renderCrossLinks,
   renderHub,
   renderRobots,
   renderSitemapIndex,
+  siblingsFor,
   truncate,
   REPO_ROOT,
+  SIBLING_COUNT,
   SOURCE_URL_PREFIX,
 } from './build.mjs';
 
@@ -369,4 +372,125 @@ test('hub markup escapes venture copy', () => {
   );
   assert.ok(!hub.includes('<script>alert(1)</script>'));
   assert.ok(hub.includes('&lt;script&gt;'));
+});
+
+// ---------------------------------------------------------------------------
+// Cross-links
+//
+// Every venture was written as a standalone site, so nothing in one links to
+// anything outside itself. Under one origin that leaves the hub reachable only
+// from the front door, while search engines land people on the deep pages that
+// were written to rank — so the visitor finds one calculator and never learns
+// the other 35 exist. These tests are about that path staying open.
+// ---------------------------------------------------------------------------
+
+test('every published page links back to the hub', async () => {
+  const { outDir, surfaces } = await site();
+  for (const surface of surfaces) {
+    const page = await fs.readFile(path.join(outDir, surface.slug, 'index.html'), 'utf8');
+    assert.ok(
+      page.includes('See all free calculators'),
+      `${surface.slug} has no route back to the hub`,
+    );
+  }
+});
+
+test('a deep page links back to the hub too, not only the landing page', async () => {
+  // The pages written to rank are the deep ones ("should I offer free shipping
+  // on Etsy"), which is exactly where a visitor arrives from a search result.
+  const deep = await read('etsy-profit-calculator', 'should-i-offer-free-shipping-on-etsy.html');
+  assert.ok(deep.includes('portfolio-crosslinks'));
+  assert.ok(deep.includes('See all free calculators'));
+});
+
+test('cross-links resolve from whatever depth the page sits at', async () => {
+  const { outDir, surfaces } = await site();
+  const slugs = new Set(surfaces.map((s) => s.slug));
+
+  for (const surface of surfaces) {
+    const dir = path.join(outDir, surface.slug);
+    const pages = (await fs.readdir(dir, { recursive: true, withFileTypes: true }))
+      .filter((e) => e.isFile() && e.name.endsWith('.html'))
+      .map((e) => path.join(e.parentPath ?? e.path, e.name));
+
+    for (const file of pages) {
+      const html = await fs.readFile(file, 'utf8');
+      const nav = html.match(/<nav class="portfolio-crosslinks"[\s\S]*?<\/nav>/);
+      assert.ok(nav, `${path.relative(outDir, file)} carries no cross-link nav`);
+
+      for (const href of [...nav[0].matchAll(/href="([^"]+)"/g)].map((m) => m[1])) {
+        const resolved = path.resolve(path.dirname(file), href);
+        const target = href.endsWith('/') ? path.join(resolved, 'index.html') : resolved;
+        assert.ok(
+          await fs.stat(target).then(() => true, () => false),
+          `${path.relative(outDir, file)} -> ${href} does not exist`,
+        );
+        if (href !== '../'.repeat(path.relative(outDir, path.dirname(file)).split(path.sep).length)) {
+          const slug = path.basename(path.dirname(target));
+          assert.ok(slugs.has(slug) || slug === path.basename(outDir), `${href} is not a published tool`);
+        }
+      }
+    }
+  }
+});
+
+test('a tool is never offered as its own sibling', async () => {
+  const { surfaces } = await site();
+  for (const surface of surfaces) {
+    const siblings = siblingsFor(surface.slug, surfaces);
+    assert.ok(!siblings.some((s) => s.slug === surface.slug), `${surface.slug} links to itself`);
+    assert.equal(new Set(siblings.map((s) => s.slug)).size, siblings.length, 'duplicate siblings');
+  }
+});
+
+test('siblings prefer the same category, and top up when it is small', async () => {
+  const { surfaces } = await site();
+  const siblings = siblingsFor('etsy-profit-calculator', surfaces);
+  assert.equal(siblings.length, SIBLING_COUNT);
+  assert.ok(
+    siblings.every((s) => categoryFor(s.slug).id === 'marketplace'),
+    'a large category should fill entirely from itself',
+  );
+
+  // A category of one still gets a full set, from the rest of the site.
+  const lonely = [
+    { slug: 'only-bid-calculator', title: 'Only' },
+    { slug: 'amazon-fba-calculator', title: 'Amazon' },
+    { slug: 'ebay-fee-calculator', title: 'eBay' },
+  ];
+  assert.equal(siblingsFor('only-bid-calculator', lonely).length, 2);
+});
+
+test('siblings rotate, so links spread across the site instead of pooling', async () => {
+  // Always taking the first N would funnel every internal link on 36 tools
+  // into whichever four sort first, and offer a returning visitor the same
+  // four every time.
+  const { surfaces } = await site();
+  const first = siblingsFor(surfaces[0].slug, surfaces).map((s) => s.slug).join();
+  const later = siblingsFor(surfaces[surfaces.length - 1].slug, surfaces).map((s) => s.slug).join();
+  assert.notEqual(first, later);
+});
+
+test('a single tool gets no cross-link block rather than an empty one', () => {
+  assert.deepEqual(siblingsFor('only-one', [{ slug: 'only-one', title: 'Only' }]), []);
+});
+
+test('cross-link markup escapes venture copy', () => {
+  const block = renderCrossLinks({
+    siblings: [{ slug: 'x', title: '<script>alert(1)</script>' }],
+    depth: 1,
+  });
+  assert.ok(!block.includes('<script>alert(1)</script>'));
+  assert.ok(block.includes('&lt;script&gt;'));
+});
+
+test('the cross-link block makes no off-origin request', () => {
+  const block = renderCrossLinks({ siblings: [{ slug: 'x', title: 'X' }], depth: 1 });
+  assert.ok(!/https?:\/\//.test(block), 'links must stay relative so the site moves as one');
+});
+
+test('rebuilding over an existing tree does not stack two footers', async () => {
+  const { outDir } = await site();
+  const page = await fs.readFile(path.join(outDir, 'ebay-fee-calculator', 'index.html'), 'utf8');
+  assert.equal(page.split('class="portfolio-crosslinks"').length - 1, 1);
 });

@@ -658,6 +658,134 @@ export function renderNotFound(baseUrl) {
 }
 
 // ---------------------------------------------------------------------------
+// Cross-links
+// ---------------------------------------------------------------------------
+
+/** How many sibling tools each page offers before "see all". */
+export const SIBLING_COUNT = 4;
+
+/**
+ * The tools to offer alongside `slug`: same category first, in slug order
+ * after this one and wrapping, then topped up from the rest of the site the
+ * same way.
+ *
+ * Rotating rather than always taking the first N matters for two reasons. It
+ * spreads internal links across all 36 tools instead of funnelling every page
+ * into whichever four sort first, and it means a visitor who follows a link
+ * and comes back is offered something different rather than the same four.
+ */
+export function siblingsFor(slug, surfaces) {
+  const others = surfaces.filter((s) => s.slug !== slug);
+  if (others.length === 0) return [];
+
+  const rotate = (list) => {
+    const after = list.filter((s) => s.slug > slug);
+    const before = list.filter((s) => s.slug < slug);
+    return [...after, ...before];
+  };
+
+  const category = categoryFor(slug).id;
+  const sameCategory = rotate(others.filter((s) => categoryFor(s.slug).id === category));
+  const chosen = sameCategory.slice(0, SIBLING_COUNT);
+
+  if (chosen.length < SIBLING_COUNT) {
+    const taken = new Set(chosen.map((s) => s.slug));
+    for (const surface of rotate(others)) {
+      if (chosen.length >= SIBLING_COUNT) break;
+      if (!taken.has(surface.slug)) chosen.push(surface);
+    }
+  }
+
+  return chosen;
+}
+
+/**
+ * The footer appended to every published page.
+ *
+ * Every venture was written as a standalone site, so nothing in it links to
+ * anything outside itself. Assembled under one origin that leaves the hub —
+ * the only page listing all 36 tools — reachable from the front door alone,
+ * while search engines land people on the deep pages ("should I offer free
+ * shipping on Etsy") that were written to rank. Without this, a visitor who
+ * arrives that way finds one calculator and never learns the other 35 exist,
+ * and the hub collects no internal links from the pages that do get crawled.
+ *
+ * `depth` is how many directories down from the site root the page sits, so
+ * the links stay relative and keep working under a project path prefix, a
+ * custom domain, or a local `python3 -m http.server`.
+ */
+export function renderCrossLinks({ siblings, depth }) {
+  const up = '../'.repeat(depth);
+  const items = siblings
+    .map(
+      (s) =>
+        `<li><a href="${escapeHtml(`${up}${s.slug}/`)}">${escapeHtml(s.title)}</a></li>`,
+    )
+    .join('');
+
+  return `
+<nav class="portfolio-crosslinks" aria-label="More free calculators">
+  <h2>More free calculators</h2>
+  <ul>${items}</ul>
+  <p><a href="${escapeHtml(up || './')}">See all free calculators &rarr;</a></p>
+</nav>
+<style>
+.portfolio-crosslinks {
+  max-width: 62rem; margin: 3rem auto 2rem; padding: 1.25rem 1.25rem 1.5rem;
+  border-top: 1px solid rgba(127, 127, 127, .35);
+  font: 1rem/1.6 system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+}
+.portfolio-crosslinks h2 { font-size: 1rem; margin: 0 0 .6rem; font-weight: 650; }
+.portfolio-crosslinks ul {
+  list-style: none; margin: 0 0 .9rem; padding: 0;
+  display: flex; flex-wrap: wrap; gap: .5rem .9rem;
+}
+.portfolio-crosslinks li { margin: 0; }
+.portfolio-crosslinks p { margin: 0; }
+.portfolio-crosslinks a { color: inherit; }
+.portfolio-crosslinks :focus-visible { outline: 3px solid currentColor; outline-offset: 2px; }
+</style>
+`;
+}
+
+// A page already carrying this marker is left alone, so a rebuild over an
+// existing tree cannot stack two footers.
+const CROSSLINK_MARKER = 'class="portfolio-crosslinks"';
+
+/**
+ * Append the cross-link footer to every published page of every tool.
+ *
+ * Injected at build time rather than written into 36 ventures, so a venture's
+ * product code stays standalone, a new venture gets it on its first push, and
+ * the links cannot disagree with the hub — both come from the same discovery.
+ */
+export async function injectCrossLinks({ outDir, surfaces }) {
+  const injected = [];
+
+  for (const surface of surfaces) {
+    const siblings = siblingsFor(surface.slug, surfaces);
+    if (siblings.length === 0) continue;
+
+    const dir = path.join(outDir, surface.slug);
+    for (const file of (await listFiles(dir)).filter((f) => f.endsWith('.html'))) {
+      const html = await fs.readFile(file, 'utf8');
+      if (html.includes(CROSSLINK_MARKER)) continue;
+
+      const depth = path.relative(outDir, path.dirname(file)).split(path.sep).length;
+      const block = renderCrossLinks({ siblings, depth });
+      const next = html.includes('</body>')
+        ? html.replace(/<\/body>/i, `${block}</body>`)
+        : html + block;
+
+      await fs.writeFile(file, next);
+      injected.push(path.relative(outDir, file));
+    }
+  }
+
+  return injected;
+}
+
+// ---------------------------------------------------------------------------
 // Build
 // ---------------------------------------------------------------------------
 
@@ -701,6 +829,10 @@ export async function buildSite({
     log(`  ${surface.slug}`);
   }
 
+  // After every surface is copied, because a page can only offer siblings
+  // once the full list of what shipped is known.
+  const crossLinked = await injectCrossLinks({ outDir, surfaces });
+
   await fs.writeFile(path.join(outDir, 'index.html'), renderHub(surfaces, base));
   await fs.writeFile(path.join(outDir, 'robots.txt'), renderRobots(base));
   await fs.writeFile(path.join(outDir, '404.html'), renderNotFound(base));
@@ -712,7 +844,7 @@ export async function buildSite({
   // without this, any directory starting with `_` is silently dropped.
   await fs.writeFile(path.join(outDir, '.nojekyll'), '');
 
-  return { outDir, baseUrl: base, surfaces, repairs };
+  return { outDir, baseUrl: base, surfaces, repairs, crossLinked };
 }
 
 // ---------------------------------------------------------------------------
@@ -734,4 +866,5 @@ if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.me
   if (result.repairs.length > 0) {
     console.log(`Repointed ${result.repairs.length} off-site link(s) at the repository source.`);
   }
+  console.log(`Cross-linked ${result.crossLinked.length} page(s) back to the hub and siblings.`);
 }

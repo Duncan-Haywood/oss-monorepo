@@ -79,3 +79,40 @@ jobs:
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4
+
+      # A green `deploy-pages` means the artifact was accepted, not that anyone
+      # can open the site. Those differ: Pages can accept a deployment and
+      # still serve a 404 while the first publish propagates, and a wrong
+      # `base_url` produces a site that builds, deploys, and then serves
+      # sitemaps and canonical tags pointing somewhere nobody can reach.
+      #
+      # This portfolio's whole current priority is a URL a stranger can open,
+      # so the run should not go green on anything less than having opened it.
+      # `--retry-all-errors` covers first-publish propagation; a persistent
+      # failure here is a real one and should stay red.
+      - name: Verify the public URL actually serves the site
+        env:
+          PAGE_URL: ${{ steps.deployment.outputs.page_url }}
+        run: |
+          set -uo pipefail
+          base="${PAGE_URL%/}"
+          echo "Checking ${base}"
+          fail=0
+          for path in "/" "/ebay-fee-calculator/" "/sitemap.xml" "/robots.txt"; do
+            code=$(curl -sS -o /tmp/body -w '%{http_code}' \
+                     --retry 8 --retry-delay 15 --retry-all-errors \
+                     "${base}${path}" || echo 000)
+            echo "  ${code}  ${path}"
+            [ "${code}" = "200" ] || fail=1
+          done
+          # Not just a 200 — the 200 has to be this site. A leftover
+          # deployment from another workflow would answer just as happily.
+          if ! curl -sS "${base}/" | grep -q 'portfolio-hub-usage\|free calculator'; then
+            echo "  the hub responded, but not with the portfolio site"
+            fail=1
+          fi
+          if [ "${fail}" -ne 0 ]; then
+            echo "::error::Pages reported a successful deployment but the public URL does not serve the site."
+            exit 1
+          fi
+          echo "Live and serving: ${base}/"

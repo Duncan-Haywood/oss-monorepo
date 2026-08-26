@@ -67,6 +67,26 @@ origin root is read), and `node_modules`. `LICENSE` files are kept.
 - **Crawlability.** A root `robots.txt`, a `sitemap.xml` index covering the hub
   and every venture's own sitemap, a `404.html`, and `.nojekyll` (without which
   Pages silently drops any directory starting with `_`).
+- **The one-way street out of the hub.** Every venture was written as a
+  standalone site, so nothing in one links to anything outside itself. Assembled
+  under one origin, that left the hub — the only page listing all 36 tools —
+  reachable from the front door alone, while search engines land people on the
+  deep pages (`should-i-offer-free-shipping-on-etsy.html`) that were written to
+  rank. A visitor arriving that way found one calculator and never learned the
+  other 35 existed. The build appends a small footer to every published page:
+  four sibling tools plus a link to the hub.
+
+  Siblings come from the same category first and **rotate** by slug rather than
+  always taking the first four, so internal links spread across all 36 tools
+  instead of funnelling into whichever sort first, and a returning visitor is
+  offered something different. Links are relative, so they survive a path
+  prefix, a custom domain, or `python3 -m http.server`. The footer sets no
+  colours of its own — it inherits the host page, and so follows whatever theme
+  that tool already has.
+
+  Injected at build time rather than written into 36 ventures: product code
+  stays standalone, a new venture gets it on its first push, and the links
+  cannot disagree with the hub because both come from the same discovery pass.
 
 ## Deploying
 
@@ -92,6 +112,15 @@ is off, which is why the gate exists rather than letting every merge go red.
 Only one workflow may publish to Pages. `retail-pilot-intel-deploy-docs.yml`
 reads `RETAIL_PILOT_INTEL_PAGES` instead, so an owner who wants those docs on
 the origin makes that choice explicitly rather than having two deployments race.
+
+After deploying, the job **fetches the public URL** and fails if the hub, a
+product page, the sitemap, or `robots.txt` does not answer `200` with this
+site's content. A green `deploy-pages` only means the artifact was accepted:
+Pages can accept a deployment and still serve a 404 while the first publish
+propagates, and a wrong `PAGES_BASE_URL` produces a site that builds, deploys,
+and then serves canonical tags and sitemaps pointing somewhere nobody can
+reach. The current priority is a URL a stranger can open, so the run does not
+go green on anything less than having opened it.
 
 ## Rollback
 
