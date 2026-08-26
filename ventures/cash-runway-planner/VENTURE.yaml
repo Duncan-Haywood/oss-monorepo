@@ -1,0 +1,27 @@
+name: cash-runway-planner
+description: A private browser calculator that shows small businesses when cash may run short by combining starting cash, recurring costs, and invoice collection timing.
+stage: prototype
+owner: duncan
+hypotheses:
+  - claim: Independent service businesses will return to a simple cash runway forecast before accepting work or paying a large bill.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: A local-first weekly forecast is more actionable than a single monthly cash balance.
+    status: untested
+    checked: null
+    evidence: customer-contact
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+budget:
+  monthly_cap: 1
+  protected: true
+kill_criteria:
+  - Fewer than three qualified operators use the forecast twice within 90 days.
+  - Users do not identify at least one avoidable cash shortfall in the first 90 days.
+links:
+  production: null
+  analytics: null

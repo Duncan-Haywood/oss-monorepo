@@ -387,11 +387,16 @@ def expand_grace_prs(prs, lookup):
 
 
 def run(github, prs, protected, grace_hours, dry_run, out,
-        delete_delay=DELETE_DELAY_SECONDS, sleep=time.sleep):
-    """Apply `decide` to each PR, deleting what it approves. Returns the count."""
+        delete_delay=DELETE_DELAY_SECONDS, sleep=time.sleep, now=None):
+    """Apply `decide` to each PR, deleting what it approves. Returns the count.
+
+    `now` is the decision clock. Tests pin it; production leaves it unset so
+    each run uses the wall clock. The live tip/reserved recheck uses the same
+    instant — grace cannot expire mid-sweep just because deletions were paced.
+    """
     branch_shas = github.branch_shas()
     reserved = github.open_pr_refs(exclude={pr["number"] for pr in prs})
-    now = datetime.now(timezone.utc)
+    now = datetime.now(timezone.utc) if now is None else now
     # A single-PR run (the on-close `--pr` job) does not see other closed
     # rows, so a merged reuse of a branch still in another PR's grace would
     # delete immediately. Ask the API for that head's other closed PRs. A
@@ -422,7 +427,7 @@ def run(github, prs, protected, grace_hours, dry_run, out,
                 pr,
                 live_shas,
                 live_reserved,
-                datetime.now(timezone.utc),
+                now,
                 grace_hours,
                 protected,
                 grace_refs,

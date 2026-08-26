@@ -24,6 +24,7 @@ Deploy the private docs site to Vercel with a custom domain and **Deployment Pro
 3. Sign in as **Owner** — Business value is first in the nav; ROI banner on Overview
 4. Tour order for stakeholders: **Business value** → **Overview** → **Products** (SKU gap) → **Experiments** → **Trust** (privacy gate)
 5. Use the **Presenter guide** at the bottom of each page for talking points
+6. Optional live Overview KPIs: `pnpm bootstrap`, then `pnpm exec tsx packages/analytics/src/cli.ts serve-kpis`, then `VITE_PILOT_API_URL=http://127.0.0.1:8787 pnpm portal:dev`. Unset the env var to keep illustrative `demoStore` numbers.
 
 Built docs are verified in CI and uploaded as a GitHub Actions artifact. On push to `main`, they are also published to **private GitHub Pages** when enabled (see [Hosting docs](#hosting-docs-private)). Passcode gate + `noindex` by default.
 
@@ -74,7 +75,7 @@ pnpm run ci        # typecheck, lint, build, bootstrap smoke test
 
 ```
 apps/docs/              TSX documentation site (Vite/React)
-apps/portal/            Secure sales demo portal (illustrative data)
+apps/portal/            Sales demo portal (illustrative data, or live KPIs via VITE_PILOT_API_URL)
 packages/schemas/       Event types + JSON Schema
 packages/edge/          On-device vision (stub CLI)
 packages/pos/           POS connector (stub CLI)
