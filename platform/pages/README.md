@@ -306,7 +306,6 @@ anything, so a visitor arriving from search straight at a deep SEO page — the
 traffic those pages exist for — was invisible. Nothing is transmitted: there is
 no `fetch`, no beacon, and the counts never leave the device.
 
-<<<<<<< HEAD
 Those counts are also what the hub gives back. **Pick up where you left off** is
 a row above the catalogue listing the tools this browser has actually opened,
 most used first, read from the same `tool_viewed:<slug>` counts. Thirty-seven
@@ -328,11 +327,10 @@ It holds to the same rules as the counting it reads:
   A stored slug is used only if it matches `^[a-z0-9][a-z0-9-]*$` **and** the
   hub is currently showing that tool; the link is built from the validated slug,
   and titles are written with `textContent`, never as markup.
-=======
+
 The offline cache is the visitor's own browser storage: pages and scripts this
 site served them, held on their device, cleared by clearing site data. No
 personal data is stored, and nothing cached is ever sent anywhere.
->>>>>>> origin/main
 
 The hub carries the no-warranty and no-SLA copy from `PRODUCT_PLAYBOOK.md` §5b,
 required on every hosted surface, plus an optional GitHub Sponsors link that
