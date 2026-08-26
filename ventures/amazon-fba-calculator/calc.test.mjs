@@ -25,6 +25,11 @@ import {
   compareSizeTierPackaging,
   compareSfp,
   sfpNote,
+  compareLiquidation,
+  liquidationNote,
+  DEFAULT_LIQUIDATION_RECOVERY_PCT,
+  DEFAULT_LIQUIDATION_FEE,
+  DEFAULT_ELSEWHERE_NET,
   clampBoxToTier,
   nextCheaperWeightLb,
   nextLowerSizeTier,
@@ -1627,4 +1632,80 @@ test("compareSfp ignores a typed return mix and rejects impossible inputs", () =
   assert.throws(() => compareSfp({ ...SFP_BASE, sfpTakePct: 101 }), /at most 100/);
   assert.throws(() => compareSfp({ ...SFP_BASE, monthlyUnits: 0 }), /greater than zero/);
   assert.throws(() => sfpNote({}), /missing rows/);
+});
+
+test("defaults match the published liquidation pile", () => {
+  assert.equal(DEFAULT_LIQUIDATION_RECOVERY_PCT, 8);
+  assert.equal(DEFAULT_LIQUIDATION_FEE, 0.3);
+  assert.equal(DEFAULT_ELSEWHERE_NET, 4);
+});
+
+test("compareLiquidation: default pile prefers pulling and selling elsewhere", () => {
+  const comparison = compareLiquidation(base);
+  assert.equal(comparison.winner, "elsewhere");
+  near(comparison.keep.cash, -109.82315166666672, "keep matches aged page");
+  near(comparison.dispose.cash, -25.6, "dispose matches aged page");
+  near(comparison.liquidate.perUnit, 2.0992, "8% of $29.99 minus $0.30");
+  near(comparison.liquidate.cash, 167.936, "80 units liquidated");
+  near(comparison.elsewhere.perUnit, 2.96, "$4 leftover minus $1.04 removal");
+  near(comparison.elsewhere.cash, 236.8, "80 units sold elsewhere");
+  near(comparison.extraLiquidateVsDispose, 193.536, "liquidate vs dispose");
+  near(comparison.extraElsewhereVsLiquidate, 68.864, "elsewhere vs liquidate");
+  near(comparison.breakEvenRecoveryVsDispose, 0, "0% still beats dispose at $0.30 fee");
+  near(comparison.breakEvenElsewhereVsLiquidate, 3.1392, "elsewhere floor");
+  assert.ok(comparison.breakEvenSellThroughVsLiquidate > 100 - 1e-9
+    || comparison.breakEvenSellThroughVsLiquidate === Infinity
+    || comparison.keep.cash < comparison.liquidate.cash);
+  assert.match(comparison.summary, /\$68\.86 more/);
+  assert.match(comparison.summary, /\$236\.80/);
+  assert.match(comparison.summary, /\$167\.94/);
+  assert.match(comparison.summary, /\$3\.14/);
+  assert.equal(liquidationNote(comparison), comparison.summary);
+  assert.doesNotMatch(comparison.summary, /should liquidate|must remove|create a liquidation/i);
+});
+
+test("compareLiquidation: no elsewhere leftover flips FBA Liquidations ahead", () => {
+  const comparison = compareLiquidation({ ...base, elsewhereNet: 0 });
+  assert.equal(comparison.winner, "liquidate");
+  near(comparison.elsewhere.cash, -83.2, "removal fee only");
+  near(comparison.extraLiquidateVsDispose, 193.536, "same liquidate cash");
+  assert.match(comparison.summary, /\$193\.54 more/);
+  assert.match(comparison.summary, /\$167\.94 vs -\$25\.60/);
+});
+
+test("compareLiquidation: zero recovery and a $0.80 fee flips dispose ahead", () => {
+  const comparison = compareLiquidation({
+    ...base,
+    recoveryPct: 0,
+    liquidationFee: 0.8,
+    elsewhereNet: 0,
+  });
+  assert.equal(comparison.winner, "dispose");
+  near(comparison.liquidate.cash, -64, "80 × $0.80");
+  near(comparison.breakEvenRecoveryVsDispose, 1.6005335111703902, "recovery floor");
+  assert.match(comparison.summary, /\$38\.40 less/);
+  assert.match(comparison.summary, /1\.6%/);
+});
+
+test("compareLiquidation: 20% monthly sell-through flips keep ahead of every exit", () => {
+  const comparison = compareLiquidation({ ...base, monthlySellThroughPct: 20 });
+  assert.equal(comparison.winner, "keep");
+  assert.ok(comparison.keep.cash > comparison.elsewhere.cash, "keep beats a $4 elsewhere leftover");
+  assert.ok(comparison.keep.cash > comparison.liquidate.cash, "keep beats liquidations");
+  assert.match(comparison.summary, /still beats FBA Liquidations/);
+});
+
+test("compareLiquidation: empty recovery fields use the published defaults", () => {
+  const comparison = compareLiquidation(base);
+  near(comparison.recoveryPct, DEFAULT_LIQUIDATION_RECOVERY_PCT, "default recovery");
+  near(comparison.liquidationFee, DEFAULT_LIQUIDATION_FEE, "default fee");
+  near(comparison.elsewhereNet, DEFAULT_ELSEWHERE_NET, "default elsewhere");
+  near(comparison.agedUnits, DEFAULT_AGED_UNITS, "same pile");
+});
+
+test("compareLiquidation rejects impossible recovery or a zero pile", () => {
+  assert.throws(() => compareLiquidation({ ...base, recoveryPct: 101 }), /at most 100/);
+  assert.throws(() => compareLiquidation({ ...base, agedUnits: 0 }), /Aged units/);
+  assert.throws(() => compareLiquidation({ ...base, liquidationFee: -1 }), /Liquidation fee/);
+  assert.throws(() => liquidationNote({}), /missing rows/);
 });

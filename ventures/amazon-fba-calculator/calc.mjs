@@ -1731,6 +1731,14 @@ export const DEFAULT_AGED_HORIZON_MONTHS = 3;
 export const DEFAULT_AGED_AIS_PER_UNIT = 1.5;
 export const DEFAULT_AGED_REMOVAL_FEE = 1.04;
 export const DEFAULT_AGED_DISPOSAL_FEE = 0.32;
+// Illustrative FBA Liquidations defaults. Recovery is a percent of
+// list the seller pastes from Amazon's liquidation estimate — not a
+// published live recoverability table. $0.30 / unit is a processing
+// line some previews still show; $4 elsewhere leftover is a modest
+// eBay / own-site keep after fees and a Ground label, not a forecast.
+export const DEFAULT_LIQUIDATION_RECOVERY_PCT = 8;
+export const DEFAULT_LIQUIDATION_FEE = 0.3;
+export const DEFAULT_ELSEWHERE_NET = 4;
 
 function agedKeepPath({
   units,
@@ -2705,6 +2713,250 @@ export function compareSfp(input = {}) {
 export function sfpNote(comparison) {
   if (!comparison?.fba || !comparison?.sfp) {
     throw new Error("SFP comparison is missing rows");
+  }
+  return comparison.summary;
+}
+
+function liquidationSummary({
+  winner,
+  keepCash,
+  liquidateCash,
+  elsewhereCash,
+  disposeCash,
+  extraLiquidateVsDispose,
+  extraElsewhereVsLiquidate,
+  breakEvenRecoveryVsDispose,
+  breakEvenElsewhereVsLiquidate,
+  breakEvenSellThroughVsLiquidate,
+  agedUnits,
+  horizonMonths,
+}) {
+  const keep = moneyLabel(keepCash);
+  const liquidate = moneyLabel(liquidateCash);
+  const elsewhere = moneyLabel(elsewhereCash);
+  const dispose = moneyLabel(disposeCash);
+  const liqGap = moneyLabel(Math.abs(extraLiquidateVsDispose));
+  const elseGap = moneyLabel(Math.abs(extraElsewhereVsLiquidate));
+  const pile = `${agedUnits} unit${agedUnits === 1 ? "" : "s"}`;
+  const months = `${horizonMonths} month${horizonMonths === 1 ? "" : "s"}`;
+  const recoveryFloor = !Number.isFinite(breakEvenRecoveryVsDispose)
+    ? "an unreachable recovery"
+    : breakEvenRecoveryVsDispose <= 1e-9
+      ? "0%"
+      : `${breakEvenRecoveryVsDispose.toFixed(1)}%`;
+  const elsewhereFloor = Number.isFinite(breakEvenElsewhereVsLiquidate)
+    ? moneyLabel(breakEvenElsewhereVsLiquidate)
+    : "an unreachable leftover";
+  const sellThroughFloor = Number.isFinite(breakEvenSellThroughVsLiquidate)
+    ? `${breakEvenSellThroughVsLiquidate.toFixed(1)}%`
+    : "an unreachable sell-through";
+
+  if (winner === "liquidate") {
+    return (
+      `FBA Liquidations keeps ${liqGap} more than disposing the ${pile} ` +
+      `(${liquidate} vs ${dispose}). Selling the returned units elsewhere ` +
+      `is ${elsewhere}. Keeping over ${months} is ${keep}. ` +
+      `${breakEvenRecoveryVsDispose <= 1e-9
+        ? "Even 0% recovery still beats dispose on this processing fee."
+        : `Recovery can fall to about ${recoveryFloor} before dispose matches.`}`
+    );
+  }
+  if (winner === "elsewhere") {
+    return (
+      `Pulling the ${pile} and selling them elsewhere keeps ${elseGap} more ` +
+      `than FBA Liquidations (${elsewhere} vs ${liquidate}). Dispose is ` +
+      `${dispose}. Keeping over ${months} is ${keep}. ` +
+      `Elsewhere leftover can fall to about ${elsewhereFloor} before ` +
+      `liquidations match.`
+    );
+  }
+  if (winner === "dispose") {
+    return (
+      `Disposing the ${pile} loses ${liqGap} less than FBA Liquidations ` +
+      `(${dispose} vs ${liquidate}). Selling elsewhere is ${elsewhere}. ` +
+      `Keeping over ${months} is ${keep}. Recovery needs about ` +
+      `${recoveryFloor} to match dispose.`
+    );
+  }
+  if (winner === "keep") {
+    return (
+      `Keeping the ${pile} still beats FBA Liquidations by ${liqGap} over ` +
+      `${months} (${keep} vs ${liquidate}). Selling elsewhere is ${elsewhere}. ` +
+      `Keeping needs about ${sellThroughFloor} monthly sell-through to ` +
+      `match liquidations.`
+    );
+  }
+  return (
+    `Keeping, liquidating, selling elsewhere, and disposing leave the ` +
+    `same cash on these rates over ${months}.`
+  );
+}
+
+/**
+ * Same leftover FBA pile, four cash paths — complementary to
+ * compareAgedInventory, which treats a return as a fee with no resale
+ * and has no Amazon Liquidations recovery.
+ *
+ *   - Keep — expected sales at the typed monthly sell-through, minus
+ *     storage and aged-inventory surcharge (same path as the aged page).
+ *   - Liquidate — Amazon takes the units and pays recovery% of list
+ *     minus a per-unit processing fee. Units are gone.
+ *   - Elsewhere — pay the return-removal fee, then keep the typed
+ *     leftover from selling the units on eBay / your site / a jobber.
+ *   - Dispose — pay the cheaper disposal fee; the units are gone.
+ *
+ * COGS and inbound are sunk. Professional is paid anyway. Rates are
+ * inputs, not Amazon's live liquidation recoverability table.
+ */
+export function compareLiquidation(input = {}) {
+  const aged = compareAgedInventory(input);
+  const recoveryPct = emptyField(input.recoveryPct)
+    ? DEFAULT_LIQUIDATION_RECOVERY_PCT
+    : takePercent(input.recoveryPct, "Recovery percent");
+  const liquidationFee = emptyField(input.liquidationFee)
+    ? DEFAULT_LIQUIDATION_FEE
+    : number(input.liquidationFee, "Liquidation fee");
+  const elsewhereNet = emptyField(input.elsewhereNet)
+    ? DEFAULT_ELSEWHERE_NET
+    : number(input.elsewhereNet, "Elsewhere leftover");
+
+  const listing = calculateListing({
+    ...input,
+    fulfillmentMethod: "fba",
+    monthsInStorage: 1,
+  });
+  const salePrice = listing.salePrice;
+  const agedUnits = aged.agedUnits;
+  const liquidatePerUnit = salePrice * (recoveryPct / 100) - liquidationFee;
+  const elsewherePerUnit = elsewhereNet - aged.removalFee;
+  const liquidateCash = liquidatePerUnit * agedUnits;
+  const elsewhereCash = elsewherePerUnit * agedUnits;
+
+  const keep = {
+    id: "keep",
+    label: "Keep and sell through",
+    cash: aged.keep.cash,
+    leftoverUnits: aged.keep.leftoverUnits,
+    soldUnits: aged.keep.soldUnits,
+    carryingFees: aged.keep.carryingFees,
+    perUnit: aged.keep.cash / agedUnits,
+  };
+  const liquidate = {
+    id: "liquidate",
+    label: "FBA Liquidations",
+    cash: liquidateCash,
+    leftoverUnits: 0,
+    soldUnits: 0,
+    carryingFees: 0,
+    perUnit: liquidatePerUnit,
+  };
+  const elsewhere = {
+    id: "elsewhere",
+    label: "Remove and sell elsewhere",
+    cash: elsewhereCash,
+    leftoverUnits: 0,
+    soldUnits: agedUnits,
+    carryingFees: 0,
+    perUnit: elsewherePerUnit,
+  };
+  const dispose = {
+    id: "dispose",
+    label: "Dispose",
+    cash: aged.dispose.cash,
+    leftoverUnits: 0,
+    soldUnits: 0,
+    carryingFees: 0,
+    perUnit: aged.dispose.cash / agedUnits,
+  };
+
+  const rows = [keep, liquidate, elsewhere, dispose].map((row) => ({
+    ...row,
+    vsLiquidate: row.cash - liquidateCash,
+  }));
+  const maxCash = Math.max(...rows.map((row) => row.cash));
+  const leaders = rows.filter((row) => Math.abs(row.cash - maxCash) < 1e-9);
+  const winner = leaders.length === 1 ? leaders[0].id : "tie";
+
+  let breakEvenRecoveryVsDispose = Infinity;
+  if (salePrice > 1e-12) {
+    breakEvenRecoveryVsDispose = ((liquidationFee + aged.dispose.cash / agedUnits) / salePrice) * 100;
+    if (!Number.isFinite(breakEvenRecoveryVsDispose) || breakEvenRecoveryVsDispose < -1e-9) {
+      breakEvenRecoveryVsDispose = 0;
+    } else if (breakEvenRecoveryVsDispose > 100 + 1e-9) {
+      breakEvenRecoveryVsDispose = Infinity;
+    } else {
+      breakEvenRecoveryVsDispose = Math.max(0, Math.min(100, breakEvenRecoveryVsDispose));
+    }
+  }
+
+  let breakEvenRecoveryVsKeep = Infinity;
+  if (salePrice > 1e-12) {
+    breakEvenRecoveryVsKeep = ((keep.perUnit + liquidationFee) / salePrice) * 100;
+    if (!Number.isFinite(breakEvenRecoveryVsKeep) || breakEvenRecoveryVsKeep < -1e-9) {
+      breakEvenRecoveryVsKeep = 0;
+    } else if (breakEvenRecoveryVsKeep > 100 + 1e-9) {
+      breakEvenRecoveryVsKeep = Infinity;
+    } else {
+      breakEvenRecoveryVsKeep = Math.max(0, Math.min(100, breakEvenRecoveryVsKeep));
+    }
+  }
+
+  const breakEvenElsewhereVsLiquidate = liquidatePerUnit + aged.removalFee;
+  const keepArgs = {
+    units: agedUnits,
+    horizonMonths: aged.horizonMonths,
+    storagePerUnitMonth: aged.storagePerUnitMonth,
+    aisPerUnit: aged.aisPerUnit,
+    contribution: aged.contribution,
+  };
+  const breakEvenSellThroughVsLiquidate = agedBreakEvenSellThrough(liquidateCash, keepArgs);
+
+  return {
+    rows,
+    keep: rows[0],
+    liquidate: rows[1],
+    elsewhere: rows[2],
+    dispose: rows[3],
+    winner,
+    salePrice,
+    agedUnits,
+    monthlySellThroughPct: aged.monthlySellThroughPct,
+    horizonMonths: aged.horizonMonths,
+    aisPerUnit: aged.aisPerUnit,
+    removalFee: aged.removalFee,
+    disposalFee: aged.disposalFee,
+    recoveryPct,
+    liquidationFee,
+    elsewhereNet,
+    contribution: aged.contribution,
+    storagePerUnitMonth: aged.storagePerUnitMonth,
+    extraLiquidateVsDispose: liquidateCash - aged.dispose.cash,
+    extraElsewhereVsLiquidate: elsewhereCash - liquidateCash,
+    extraKeepVsLiquidate: aged.keep.cash - liquidateCash,
+    breakEvenRecoveryVsDispose,
+    breakEvenRecoveryVsKeep,
+    breakEvenElsewhereVsLiquidate,
+    breakEvenSellThroughVsLiquidate,
+    summary: liquidationSummary({
+      winner,
+      keepCash: aged.keep.cash,
+      liquidateCash,
+      elsewhereCash,
+      disposeCash: aged.dispose.cash,
+      extraLiquidateVsDispose: liquidateCash - aged.dispose.cash,
+      extraElsewhereVsLiquidate: elsewhereCash - liquidateCash,
+      breakEvenRecoveryVsDispose,
+      breakEvenElsewhereVsLiquidate,
+      breakEvenSellThroughVsLiquidate,
+      agedUnits,
+      horizonMonths: aged.horizonMonths,
+    }),
+  };
+}
+
+export function liquidationNote(comparison) {
+  if (!comparison?.liquidate || !comparison?.dispose) {
+    throw new Error("Liquidation comparison is missing rows");
   }
   return comparison.summary;
 }

@@ -28,7 +28,8 @@ rate still leaves expected profit after handling and unsellable units, and
 whether sending inventory before Q4 still beats waiting until January,
 and whether a smaller carton still drops a size-tier fee cliff, and
 whether Seller Fulfilled Prime still beats FBA after a 2-day label
-and pack time** —
+and pack time, and whether FBA Liquidations still beat dispose or
+pulling leftover units to sell elsewhere** —
 which used to mean a spreadsheet that forgot storage, inbound, or the
 0.75-inch small-standard gate.
 
@@ -109,6 +110,21 @@ shows leftover cash, leftover units, and the monthly sell-through
 that still ties dispose. Complementary to
 [peak vs off-peak Q4 storage](peak-vs-off-peak-storage.html) (a seasonal
 rate) and to 3PL long-term storage (a different warehouse).
+
+FBA Liquidations is the recovery on that same leftover pile: Amazon
+pays a percent of list, or you pay the return-removal fee and sell
+the units elsewhere. The keep/remove/dispose page treats a return as
+a fee with no resale.
+[Should I liquidate aged FBA inventory?](should-i-liquidate-aged-fba-inventory.html)
+shows pile cash, the elsewhere leftover that still matches
+liquidations, and the monthly sell-through that still ties.
+
+**After using the liquidation page, you can now see whether pulling
+80 leftover units and selling them elsewhere at $4 leftover still
+keeps $68.86 more than an 8% FBA Liquidations recovery ($236.80 vs
+$167.94), and that elsewhere leftover can fall to about $3.14
+before liquidations match** — which used to mean disposing the pile
+because the aged-inventory page only compared fees.
 
 Inbound placement is a create-shipment decision on the same SKU: pay
 Amazon to accept one warehouse, or pay extra freight to follow the
@@ -220,7 +236,7 @@ optional and never changes what the tool does.
 Pure ES modules, no build step, no dependencies.
 
 ```
-node --test        # runs calc.test.mjs, usage.test.mjs, page.test.mjs, vine-page.test.mjs, aged-inventory-page.test.mjs, inbound-page.test.mjs, returns-page.test.mjs, storage-page.test.mjs, packaging-page.test.mjs, and sfp-page.test.mjs
+node --test        # runs calc.test.mjs, usage.test.mjs, page.test.mjs, vine-page.test.mjs, aged-inventory-page.test.mjs, inbound-page.test.mjs, returns-page.test.mjs, storage-page.test.mjs, packaging-page.test.mjs, sfp-page.test.mjs, and liquidation-page.test.mjs
 ```
 
 `calc.mjs` holds the fee/profit/ROI arithmetic, size-tier classification,
@@ -233,7 +249,8 @@ aged-inventory keep vs return vs dispose comparison,
 inbound placement vs split-freight comparison,
 expected profit after returns,
 peak vs off-peak Q4 storage,
-and Seller Fulfilled Prime vs FBA vs FBM;
+Seller Fulfilled Prime vs FBA vs FBM,
+and FBA Liquidations vs dispose vs sell-elsewhere;
 `usage.mjs` holds the anonymous
 local counter; `index.html` is the calculator UI.
 
