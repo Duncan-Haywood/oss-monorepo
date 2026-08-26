@@ -3742,4 +3742,37 @@ ventures:
       recommended price, a wage determination, or a drainage opinion. The
       shipped hours are labelled ballpark starting points rather than a
       standard or benchmark, and nothing the user enters leaves the browser.
-
+  - slug: gutter-install-bid-calculator
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 7
+      gross_margin: 10
+      defensibility: 5
+      distribution: 7
+    composite: 6.667
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      There is no AI anywhere in the product. The value is a domain model —
+      miters, extra drops, stories, and fascia as their own hours — that is
+      arithmetic, and adding inference to it would only make the result less
+      checkable.
+    basis: >-
+      Graduated on 2026-08-25 as a browser-local gutter *install* bid
+      calculator. Distinct from gutter cleaning (a wash) and gutter guards
+      (mesh on an existing trough). Defensibility 5: the corners-and-drops
+      model encodes how the trade actually loses money on a published
+      $4.50-a-foot special, and the incumbents are paid estimating suites
+      rather than free ad-funded pages. Distribution 7: "how much to charge
+      to install gutters" is a searchable operator query with a real hang
+      on the line.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Pass: the output is arithmetic on the contractor's own inputs, never a
+      recommended price, a wage determination, or a water-management opinion.
+      The shipped hours are labelled ballpark starting points rather than a
+      standard or benchmark, and nothing the user enters leaves the browser.

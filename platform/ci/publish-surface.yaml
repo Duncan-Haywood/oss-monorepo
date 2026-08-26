@@ -199,6 +199,9 @@ workflows:
 - workflow: gravel-driveway-bid-calculator-ci.yml
   classification: none
   publishes: []
+- workflow: gutter-install-bid-calculator-ci.yml
+  classification: none
+  publishes: []
 - workflow: hetzner-gitops-ci.yml
   classification: none
   publishes: []
