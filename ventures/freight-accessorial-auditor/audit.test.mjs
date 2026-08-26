@@ -9,6 +9,8 @@ import {
   detentionNote,
   comparePassThrough,
   passThroughNote,
+  reviewFuelSurcharge,
+  fuelSurchargeNote,
 } from "./audit.mjs";
 
 const rows = [
@@ -255,6 +257,94 @@ test("pass-through rejects invalid inputs", () => {
   assert.throws(
     () => comparePassThrough({ billed: 10, expected: 10, collectedFreight: Number.NaN }),
     /Freight already collected/,
+  );
+});
+
+const FUEL_DEFAULT = {
+  linehaul: 1200,
+  contractPercent: 28,
+  billedAmount: 412,
+  indexPercent: 26,
+  indexAdder: 2,
+};
+
+test("default fuel-surcharge demo: $1,200 linehaul, 28% contract, $412 billed", () => {
+  const result = reviewFuelSurcharge(FUEL_DEFAULT);
+  assert.equal(result.expectedFromContract, 336);
+  assert.equal(result.billedPercent, 34.33);
+  assert.equal(result.varianceVsContract, 76);
+  assert.equal(result.recoverable, 76);
+  assert.equal(result.indexAppliedPercent, 28);
+  assert.equal(result.expectedFromIndex, 336);
+  assert.equal(result.varianceVsIndex, 76);
+  assert.ok(result.flags.includes("Over contract by $76.00"));
+  assert.ok(result.flags.includes("Over index by $76.00"));
+});
+
+test("fuel-surcharge note stays observational and matches the default numbers", () => {
+  const note = fuelSurchargeNote(reviewFuelSurcharge(FUEL_DEFAULT));
+  assert.match(note, /\$1200\.00/);
+  assert.match(note, /28\.00% contract rate/);
+  assert.match(note, /\$336\.00/);
+  assert.match(note, /\$412\.00/);
+  assert.match(note, /34\.33% of linehaul/);
+  assert.match(note, /\$76\.00 above the contract/);
+  assert.match(note, /26\.00% plus 2\.00 points/);
+  assert.match(note, /not a determination that the charge is wrong/);
+  assert.doesNotMatch(note, /must dispute|should refuse|you should dispute/i);
+});
+
+test("a billed line that matches the contract has no recoverable overage", () => {
+  const result = reviewFuelSurcharge({ ...FUEL_DEFAULT, billedAmount: 336 });
+  assert.equal(result.varianceVsContract, 0);
+  assert.equal(result.recoverable, 0);
+  assert.equal(result.billedPercent, 28);
+  assert.deepEqual(result.flags, []);
+});
+
+test("index-only path is omitted when no bulletin percent is typed", () => {
+  const result = reviewFuelSurcharge({
+    linehaul: 1200,
+    contractPercent: 28,
+    billedAmount: 412,
+  });
+  assert.equal(result.indexPercent, null);
+  assert.equal(result.expectedFromIndex, null);
+  assert.equal(result.varianceVsIndex, null);
+  assert.doesNotMatch(fuelSurchargeNote(result), /typed index/);
+  assert.match(fuelSurchargeNote(result), /No index percent was typed/);
+});
+
+test("a higher index expected amount shrinks the gap versus the bulletin", () => {
+  const result = reviewFuelSurcharge({
+    ...FUEL_DEFAULT,
+    indexPercent: 30,
+    indexAdder: 0,
+  });
+  assert.equal(result.expectedFromIndex, 360);
+  assert.equal(result.varianceVsIndex, 52);
+  assert.equal(result.varianceVsContract, 76);
+});
+
+test("fuel surcharge rejects invalid inputs", () => {
+  assert.throws(() => reviewFuelSurcharge({ linehaul: -1 }), /Linehaul/);
+  assert.throws(
+    () => reviewFuelSurcharge({ linehaul: 100, contractPercent: 101 }),
+    /Contract fuel percent must be at most 100/,
+  );
+  assert.throws(
+    () => reviewFuelSurcharge({ linehaul: 100, contractPercent: 28, billedAmount: "nope" }),
+    /Billed fuel surcharge/,
+  );
+  assert.throws(
+    () => reviewFuelSurcharge({
+      linehaul: 100,
+      contractPercent: 28,
+      billedAmount: 10,
+      indexPercent: "",
+      indexAdder: 2,
+    }),
+    /Index adder needs an index fuel percent/,
   );
 });
 
