@@ -2334,3 +2334,15 @@ products:
           Repair-and-merge of unique #1204 construction daily log evidence
           pack onto current main. Public URL remains owner-gated; local
           counting is opt-in and honors DNT/GPC.
+
+  - slug: saas-seat-true-up
+    surface: static-page-in-repo
+    readings:
+      - as_of: 2026-08-26
+        signals:
+          live_url_visitors: null
+          true_up_calculated: 0
+        note: >-
+          Repair-and-merge of unique #1353 SaaS seat true-up calculator onto
+          current main. Public URL remains owner-gated; local counting honors
+          DNT/GPC and a persistent opt-out.
