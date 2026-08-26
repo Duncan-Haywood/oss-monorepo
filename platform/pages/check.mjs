@@ -1,123 +1,122 @@
+#!/usr/bin/env node
 // Check a built Pages artifact before it is allowed to publish.
 //
 // `build.mjs` can succeed and still produce a site that is broken for a reader
-// or a crawler, because the defect is created by the *copy*, not by the sources
-// — so no unit test over `ventures/` can see it. That is not hypothetical.
-// Measured against the build as it stood before the sitemap fix in `build.mjs`,
-// of 184 sitemap entries:
+// or invisible to a crawler: a footer linking a file that did not ship, a
+// canonical tag still naming `example.invalid`, a sitemap advertising a path
+// this site does not serve. None of that shows up in a test over the sources,
+// because the defect is created by the copy, not by the input.
 //
-//   * 55 were not absolute URLs (bare `index.html`, `./`), which the sitemaps
-//     protocol does not allow and a crawler discards;
-//   * 11 advertised a URL that 404s, because `3pl-quote-normalizer` and
-//     `invoice-payment-terms-calculator` spell their committed paths with the
-//     repo's own `ventures/` segment and the origin rewrite preserved it;
-//   *  3 named a URL on another host.
+// So this runs over the real output directory. It is the guard that would have
+// caught the two sitemap defects fixed alongside it: 70 pages listed in no
+// sitemap, and 11 sitemap URLs pointing at `/ventures/<slug>/`, a path the
+// site does not serve.
 //
-// Separately, 72 of 187 served pages were in no sitemap at all. All of it is
-// fixed in `build.mjs` by generating sitemaps from the output; this is the
-// guard that stops the class of defect coming back.
+//   node platform/pages/check.mjs dist
 //
-// Fails on:
-//   * a missing top-level file (index, sitemap, robots, 404)
-//   * any `example.invalid` left in a served file
-//   * a relative href/src/import that resolves to nothing
-//   * a link that escapes the site root
-//   * a product directory with no landing page
-//   * a sitemap (or sitemap-index child) naming a URL that is not served
-//   * a served page in no sitemap
-//
-// Usage:  node platform/pages/check.mjs [dist]
+// Adapted from the `check_site.py` written for PR #1723, which proposed a
+// second, competing Pages builder. That builder is not needed — this repo
+// already has one on `main` — but its artifact check was the better idea and
+// `main` had no equivalent, so it is carried over here.
 
-import fs from 'node:fs/promises';
+import { promises as fs } from 'node:fs';
 import path from 'node:path';
-import process from 'node:process';
-import { fileURLToPath } from 'node:url';
-
-const HERE = path.dirname(fileURLToPath(import.meta.url));
 
 const PLACEHOLDER_ORIGIN = 'https://example.invalid';
-const REQUIRED_ROOT_FILES = ['index.html', 'sitemap.xml', 'robots.txt', '404.html'];
+
+const REQUIRED_ROOT_FILES = [
+  'index.html',
+  'sitemap.xml',
+  'sitemap-hub.xml',
+  'robots.txt',
+  '404.html',
+  '.nojekyll',
+  // Browsers request /favicon.ico on their own for every page, so if it is
+  // missing every page load logs a 404 and opens an anonymous blank tab.
+  'favicon.ico',
+];
+
+// Files whose contents are worth reading for links and stale origins.
 const TEXT_EXTENSIONS = new Set(['.html', '.xml', '.txt', '.mjs', '.js', '.css', '.json']);
-const LINKABLE_EXTENSIONS = new Set(['.html', '.mjs', '.js']);
-const EXTERNAL = /^(https?:|mailto:|tel:|data:|javascript:|\/\/|#)/i;
+// Files whose links are worth resolving. A `.css` url() is not checked.
+const LINKED_EXTENSIONS = new Set(['.html', '.mjs', '.js']);
 
-const REFERENCE = /(?:href|src)\s*=\s*"([^"]+)"/g;
-const IMPORT = /\bfrom\s+"(\.{1,2}\/[^"]+)"/g;
-const LOC = /<loc>([^<]+)<\/loc>/g;
+const REFERENCE_RE = /(?:href|src)\s*=\s*"([^"]+)"/g;
+const IMPORT_RE = /\bfrom\s+"(\.{1,2}\/[^"]+)"/g;
+const LOC_RE = /<loc>([^<]+)<\/loc>/g;
 
-const exists = async (p) => !!(await fs.stat(p).catch(() => null));
+const EXTERNAL_PREFIXES = ['http://', 'https://', 'mailto:', 'tel:', 'data:', 'javascript:', '//', '#'];
+const isExternal = (target) => EXTERNAL_PREFIXES.some((prefix) => target.startsWith(prefix));
 
-async function walk(dir, root = dir) {
-  const out = [];
-  for (const entry of await fs.readdir(dir, { withFileTypes: true })) {
-    const full = path.join(dir, entry.name);
-    if (entry.isDirectory()) out.push(...(await walk(full, root)));
-    else if (entry.isFile()) out.push(path.relative(root, full));
+const exists = (target) => fs.access(target).then(() => true, () => false);
+
+async function walk(dir, prefix = '') {
+  const entries = await fs.readdir(dir, { withFileTypes: true });
+  const files = [];
+  for (const entry of entries) {
+    const relative = prefix ? `${prefix}/${entry.name}` : entry.name;
+    if (entry.isDirectory()) files.push(...(await walk(path.join(dir, entry.name), relative)));
+    else if (entry.isFile()) files.push(relative);
   }
-  return out;
+  return files.sort();
 }
-
-const matches = (text, pattern) => [...text.matchAll(pattern)].map((m) => m[1]);
 
 /**
- * Classify one sitemap `<loc>`.
+ * Where this site is rooted, read from the artifact rather than assumed.
  *
- * Three distinct failures, kept distinct because the fix for each differs and a
- * diagnostic that blurs them sends the reader to the wrong place:
- *
- *   `malformed`  — not an absolute URL. Several committed venture sitemaps hold
- *                  bare `index.html` or `./`, which the sitemaps protocol does
- *                  not allow; a crawler discards the entry.
- *   `foreign`    — an absolute URL on some other host, which does not belong in
- *                  this origin's sitemap.
- *   `missing`    — same origin, but nothing is served there: an advertised 404.
+ * `robots.txt` names its sitemap by absolute URL, so that URL's directory is
+ * the origin path every other absolute URL in the artifact should share. A
+ * hard-coded guess here would pass on a site published at the wrong prefix.
  */
-function classifyLoc(loc, site, origin, baseUrlPath) {
-  let url;
+async function readBasePath(site) {
+  // A missing robots.txt is already reported as a missing root file; crashing
+  // here would hide every other problem behind a stack trace.
+  const robots = await fs.readFile(path.join(site, 'robots.txt'), 'utf8').catch(() => null);
+  const match = robots?.match(/^Sitemap:\s*(\S+)/m);
+  if (!match) return null;
   try {
-    url = new URL(loc);
+    return new URL(match[1]).pathname.replace(/sitemap\.xml$/, '');
   } catch {
-    return { kind: 'malformed' };
-  }
-  if (url.origin !== origin) return { kind: 'foreign' };
-  if (!url.pathname.startsWith(baseUrlPath)) return { kind: 'missing' };
-
-  const relative = url.pathname.slice(baseUrlPath.length);
-  const target = path.join(site, relative);
-  return {
-    kind: 'resolved',
-    page: relative,
-    file: relative === '' || relative.endsWith('/') ? path.join(target, 'index.html') : target,
-  };
-}
-
-/** The origin and path prefix this artifact will be served from, per its own robots.txt. */
-async function siteOrigin(site, fallback) {
-  const robots = await fs.readFile(path.join(site, 'robots.txt'), 'utf8').catch(() => '');
-  const declared = robots.match(/^Sitemap:\s*(\S+)/im)?.[1];
-  try {
-    const url = new URL(declared ?? fallback);
-    return { origin: url.origin, baseUrlPath: url.pathname.replace(/sitemap\.xml$/, '') };
-  } catch {
-    const url = new URL(fallback);
-    return { origin: url.origin, baseUrlPath: url.pathname };
+    return null;
   }
 }
 
-/** The canonical site-relative URL for a served page, matching what we publish. */
-function canonicalFor(relativePath) {
-  const posix = relativePath.split(path.sep).join('/');
-  if (posix === 'index.html') return '';
-  if (posix.endsWith('/index.html')) return posix.slice(0, -'index.html'.length);
-  return posix;
+/** Every `<loc>` in the sitemap tree, following the index into each sitemap. */
+async function collectSitemapUrls(site, basePath, relative, seen, out, problems) {
+  if (seen.has(relative)) return;
+  seen.add(relative);
+
+  const file = path.join(site, relative);
+  if (!(await exists(file))) {
+    problems.push(`sitemap.xml: names a sitemap that did not ship -> ${relative}`);
+    return;
+  }
+
+  for (const [, loc] of (await fs.readFile(file, 'utf8')).matchAll(LOC_RE)) {
+    let urlPath;
+    try {
+      urlPath = new URL(loc).pathname;
+    } catch {
+      problems.push(`${relative}: <loc> is not a URL -> ${loc}`);
+      continue;
+    }
+    if (!urlPath.startsWith(basePath)) {
+      problems.push(`${relative}: <loc> outside the site root -> ${loc}`);
+      continue;
+    }
+    const inSite = urlPath.slice(basePath.length);
+    if (inSite.endsWith('sitemap.xml') || inSite.endsWith('sitemap-hub.xml')) {
+      await collectSitemapUrls(site, basePath, inSite, seen, out, problems);
+    } else {
+      out.set(inSite, relative);
+    }
+  }
 }
 
-const FALLBACK_BASE = 'https://duncan-haywood.github.io/monorepo-projects/';
-
-export async function checkSite(site, { baseUrl = FALLBACK_BASE } = {}) {
+export async function checkSite(site) {
   const problems = [];
-  if (!(await exists(site))) return [`${site} does not exist — run build.mjs first`];
-  const { origin, baseUrlPath } = await siteOrigin(site, baseUrl);
+
+  if (!(await exists(site))) return [`${site} is not a directory`];
 
   for (const required of REQUIRED_ROOT_FILES) {
     if (!(await exists(path.join(site, required)))) problems.push(`missing required file: ${required}`);
@@ -126,97 +125,96 @@ export async function checkSite(site, { baseUrl = FALLBACK_BASE } = {}) {
   const entries = await fs.readdir(site, { withFileTypes: true });
   const productDirs = entries.filter((e) => e.isDirectory()).map((e) => e.name);
   if (productDirs.length === 0) problems.push('no product directories in the artifact');
-  for (const dir of productDirs) {
-    if (!(await exists(path.join(site, dir, 'index.html')))) problems.push(`${dir}/ has no index.html`);
+  for (const product of productDirs) {
+    if (!(await exists(path.join(site, product, 'index.html')))) {
+      problems.push(`${product}/ has no index.html`);
+    }
   }
 
   const files = await walk(site);
-  const servedPages = new Set();
+  const servedPages = files.filter((f) => f.endsWith('.html'));
 
   for (const relative of files) {
     const extension = path.extname(relative).toLowerCase();
     if (!TEXT_EXTENSIONS.has(extension)) continue;
 
-    const full = path.join(site, relative);
-    const text = await fs.readFile(full, 'utf8');
-    const posix = relative.split(path.sep).join('/');
+    const text = await fs.readFile(path.join(site, relative), 'utf8');
+    if (text.includes(PLACEHOLDER_ORIGIN)) {
+      problems.push(`${relative}: still contains ${PLACEHOLDER_ORIGIN}`);
+    }
+    if (!LINKED_EXTENSIONS.has(extension)) continue;
 
-    if (text.includes(PLACEHOLDER_ORIGIN)) problems.push(`${posix}: still contains ${PLACEHOLDER_ORIGIN}`);
-    if (extension === '.html' && posix !== '404.html') servedPages.add(canonicalFor(relative));
-    if (!LINKABLE_EXTENSIONS.has(extension)) continue;
-
-    for (const target of [...matches(text, REFERENCE), ...matches(text, IMPORT)]) {
-      if (EXTERNAL.test(target)) continue;
+    const targets = [
+      ...[...text.matchAll(REFERENCE_RE)].map((m) => m[1]),
+      ...[...text.matchAll(IMPORT_RE)].map((m) => m[1]),
+    ];
+    for (const target of targets) {
+      if (isExternal(target)) continue;
       const cleaned = decodeURIComponent(target.split('#')[0].split('?')[0]);
       if (!cleaned) continue;
 
-      const resolved = path.resolve(path.dirname(full), cleaned);
-      if (!resolved.startsWith(path.resolve(site))) {
-        problems.push(`${posix}: link escapes the site root -> ${target}`);
+      const from = path.resolve(site, path.dirname(relative));
+      let resolved = path.resolve(from, cleaned);
+      if (path.relative(path.resolve(site), resolved).startsWith('..')) {
+        problems.push(`${relative}: link escapes the site root -> ${target}`);
         continue;
       }
-      const stat = await fs.stat(resolved).catch(() => null);
-      const finalTarget = stat?.isDirectory() ? path.join(resolved, 'index.html') : resolved;
-      if (!(await exists(finalTarget))) problems.push(`${posix}: dead link -> ${target}`);
-    }
-  }
-
-  // Sitemaps: follow one level of <sitemapindex>, then verify every URL serves.
-  const indexText = await fs.readFile(path.join(site, 'sitemap.xml'), 'utf8').catch(() => '');
-  const isIndex = indexText.includes('<sitemapindex');
-  const sitemapFiles = ['sitemap.xml'];
-
-  if (isIndex) {
-    for (const child of matches(indexText, LOC)) {
-      const result = classifyLoc(child, site, origin, baseUrlPath);
-      if (result.kind !== 'resolved' || !(await exists(result.file))) {
-        problems.push(`sitemap.xml: names a child sitemap that is not served -> ${child}`);
-        continue;
+      if (cleaned.endsWith('/')) resolved = path.join(resolved, 'index.html');
+      else if (!path.extname(resolved)) {
+        // A extension-less link is served as a directory if one is there.
+        if (await exists(path.join(resolved, 'index.html'))) resolved = path.join(resolved, 'index.html');
       }
-      sitemapFiles.push(path.relative(site, result.file).split(path.sep).join('/'));
+      if (!(await exists(resolved))) problems.push(`${relative}: dead link -> ${target}`);
     }
   }
 
-  const advertised = new Set();
-  for (const sitemap of sitemapFiles) {
-    const text = await fs.readFile(path.join(site, sitemap), 'utf8').catch(() => '');
-    if (text.includes('<sitemapindex')) continue; // children already expanded
-    for (const loc of matches(text, LOC)) {
-      const result = classifyLoc(loc, site, origin, baseUrlPath);
-      if (result.kind === 'malformed') {
-        problems.push(`${sitemap}: <loc> is not an absolute URL, crawlers discard it -> ${loc}`);
-      } else if (result.kind === 'foreign') {
-        problems.push(`${sitemap}: names a URL on another host -> ${loc}`);
-      } else if (result.kind === 'missing' || !(await exists(result.file))) {
-        problems.push(`${sitemap}: advertises a URL that 404s -> ${loc}`);
-      } else {
-        advertised.add(result.page);
-      }
+  // ---- Sitemaps: the two ways organic discovery quietly fails --------------
+
+  const basePath = await readBasePath(site);
+  if (basePath === null) {
+    problems.push('robots.txt: no Sitemap line, so crawlers get no entry point');
+    return problems;
+  }
+
+  const listed = new Map();
+  await collectSitemapUrls(site, basePath, 'sitemap.xml', new Set(), listed, problems);
+
+  // A URL that 404s is worse than no sitemap at all: it teaches a crawler the
+  // site is broken.
+  for (const [urlPath, source] of listed) {
+    const target = urlPath === '' || urlPath.endsWith('/') ? `${urlPath}index.html` : urlPath;
+    if (!(await exists(path.join(site, target)))) {
+      problems.push(`${source}: lists a URL that did not ship -> /${urlPath}`);
     }
   }
 
-  for (const page of [...servedPages].sort()) {
-    if (!advertised.has(page)) problems.push(`${page || '/'}: served but in no sitemap`);
+  // A page in no sitemap is built, deployed, and never found.
+  for (const page of servedPages) {
+    if (page === '404.html') continue;
+    const candidates = [page];
+    if (page.endsWith('/index.html')) candidates.push(page.slice(0, -'index.html'.length));
+    if (page === 'index.html') candidates.push('');
+    if (!candidates.some((c) => listed.has(c))) {
+      problems.push(`${page}: served but absent from every sitemap`);
+    }
   }
 
   return problems;
 }
 
-async function main() {
-  const site = process.argv[2] ?? path.join(HERE, 'dist');
+const invokedDirectly = process.argv[1] && import.meta.url.endsWith(path.basename(process.argv[1]));
+if (invokedDirectly) {
+  const site = path.resolve(process.argv[2] ?? 'dist');
   const problems = await checkSite(site);
 
-  if (problems.length) {
+  if (problems.length > 0) {
     console.error(`${problems.length} problem(s) in ${site}:`);
     for (const problem of problems) console.error(`  ${problem}`);
-    process.exitCode = 1;
-    return;
+    process.exit(1);
   }
 
   const files = await walk(site);
   const pages = files.filter((f) => f.endsWith('.html')).length;
   const products = (await fs.readdir(site, { withFileTypes: true })).filter((e) => e.isDirectory()).length;
-  console.log(`${site} looks publishable: ${products} products, ${pages} pages, no dead links, sitemaps complete.`);
+  console.log(`${site} looks publishable: ${products} products, ${pages} pages, no dead links.`);
 }
-
-if (import.meta.url === `file://${process.argv[1]}`) await main();

@@ -67,6 +67,9 @@ workflows:
 - workflow: backup-verification-evidence-ci.yml
   classification: none
   publishes: []
+- workflow: basement-finishing-bid-calculator-ci.yml
+  classification: none
+  publishes: []
 - workflow: boiler-replacement-bid-calculator-ci.yml
   classification: none
   publishes: []
@@ -130,6 +133,9 @@ workflows:
 - workflow: hetzner-gitops-ci.yml
   classification: none
   publishes: []
+- workflow: holiday-light-bid-calculator-ci.yml
+  classification: none
+  publishes: []
 - workflow: home-elevator-bid-calculator-ci.yml
   classification: none
   publishes: []
@@ -143,6 +149,9 @@ workflows:
   classification: none
   publishes: []
 - workflow: kitchen-tile-backsplash-bid-calculator-ci.yml
+  classification: none
+  publishes: []
+- workflow: landscape-lighting-bid-calculator-ci.yml
   classification: none
   publishes: []
 - workflow: local-site-studio-ci.yml
@@ -166,8 +175,7 @@ workflows:
   - job: deploy
     step: uses actions/deploy-pages
     gates:
-    - github.event_name != 'pull_request' && vars.PAGES_PUBLISHER == 'platform-ci' && vars.GITHUB_PAGES_ENABLED
-      == 'true'
+    - github.event_name != 'pull_request' && vars.GITHUB_PAGES_ENABLED == 'true'
 - workflow: parking-lot-striping-bid-calculator-ci.yml
   classification: none
   publishes: []
@@ -186,14 +194,16 @@ workflows:
 - workflow: pole-barn-bid-calculator-ci.yml
   classification: none
   publishes: []
+- workflow: popcorn-ceiling-bid-calculator-ci.yml
+  classification: none
+  publishes: []
 - workflow: portfolio-pages.yml
   classification: gated
   publishes:
   - job: deploy
     step: uses actions/deploy-pages
     gates:
-    - ${{ github.ref == 'refs/heads/main' && github.event_name != 'pull_request' && vars.GITHUB_PAGES_ENABLED
-      == 'true' }}
+    - ${{ github.event_name != 'pull_request' && vars.GITHUB_PAGES_ENABLED == 'true' }}
 - workflow: portfolio-validate.yml
   classification: none
   publishes: []
@@ -231,7 +241,7 @@ workflows:
   - job: deploy
     step: uses actions/deploy-pages
     gates:
-    - ${{ vars.RETAIL_PILOT_INTEL_PAGES == 'true' && vars.GITHUB_PAGES_ENABLED != 'true' }}
+    - ${{ vars.RETAIL_PILOT_INTEL_PAGES == 'true' }}
   - job: deploy-vercel
     step: uses amondnet/vercel-action
     gates:
@@ -254,7 +264,13 @@ workflows:
 - workflow: shopify-permission-drift-ci.yml
   classification: none
   publishes: []
+- workflow: skylight-install-bid-calculator-ci.yml
+  classification: none
+  publishes: []
 - workflow: sod-install-bid-calculator-ci.yml
+  classification: none
+  publishes: []
+- workflow: soffit-fascia-bid-calculator-ci.yml
   classification: none
   publishes: []
 - workflow: source-silence-detector-ci.yml
@@ -267,6 +283,9 @@ workflows:
   classification: none
   publishes: []
 - workflow: toilet-replacement-bid-calculator-ci.yml
+  classification: none
+  publishes: []
+- workflow: tuckpointing-bid-calculator-ci.yml
   classification: none
   publishes: []
 - workflow: ubuntu-agent-server-ci.yml

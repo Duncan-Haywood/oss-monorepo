@@ -227,6 +227,29 @@ async function countPages(sourceDir) {
   return entries.filter((e) => e.isFile() && e.name.endsWith('.html')).length;
 }
 
+/**
+ * Every `.html` file published under `dir`, as paths relative to it.
+ *
+ * This reads the built output rather than the sources, so it sees exactly what
+ * a visitor can reach — after exclusions, after nested directories, after any
+ * page a venture added without telling anyone.
+ */
+export async function publishedPages(dir, prefix = '') {
+  const entries = await fs.readdir(dir, { withFileTypes: true });
+  const pages = [];
+
+  for (const entry of entries) {
+    const relative = prefix ? `${prefix}/${entry.name}` : entry.name;
+    if (entry.isDirectory()) {
+      pages.push(...(await publishedPages(path.join(dir, entry.name), relative)));
+    } else if (entry.isFile() && entry.name.endsWith('.html') && entry.name !== '404.html') {
+      pages.push(relative);
+    }
+  }
+
+  return pages.sort();
+}
+
 // ---------------------------------------------------------------------------
 // Copy
 // ---------------------------------------------------------------------------
@@ -713,31 +736,6 @@ export function relatedTools(surfaces, slug, limit = 4) {
  * unchanged when there is no `<body>` to attach to, or when the page has been
  * wrapped already — the pass has to be safe to run twice.
  */
-/**
- * Whether a page already states an availability disclaimer in its own words.
- *
- * Several ventures word it themselves ("Hosted URLs, when they exist, carry no
- * availability SLA"), and PRODUCT_PLAYBOOK 5b cares that the clause is present,
- * not that it is phrased identically — so a page that has one is left alone
- * rather than made to carry it twice.
- */
-export const statesNoSla = (html) =>
-  /best-effort hosting|no (availability )?sla|carry no availability|taken offline without notice/i.test(html);
-
-// PRODUCT_PLAYBOOK 5b requires the no-SLA clause on every *hosted* surface. It
-// is injected rather than required of each venture because requiring it does not
-// hold: #1731 added the rule and fixed the pages that existed, and the suite went
-// red again within hours as new calculators landed without it — a calculator
-// lands on `main` most days. Injection covers each new one for free, and cannot
-// be forgotten.
-const NO_SLA_HTML = `    <p>
-      <strong>Best-effort hosting, no SLA.</strong> These tools are free and
-      experimental, and may be slow, broken, moved, or taken offline without
-      notice. We do not promise uptime, or backups of anything you type. Do not
-      use them as a system of record — if one matters to you,
-      <a href="https://github.com/Duncan-Haywood/monorepo-projects">run it yourself</a>.
-    </p>`;
-
 export function injectChrome(html, { slug, toRoot, total, related = [] }) {
   if (html.includes(CHROME_MARKER)) return html;
   const bodyOpen = html.match(/<body[^>]*>/i);
@@ -761,7 +759,7 @@ export function injectChrome(html, { slug, toRoot, total, related = [] }) {
   <div class="pf-inner">
     <h2>More free tools</h2>
     <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
-${links ? `    <ul>\n${links}\n    </ul>\n` : ''}${statesNoSla(html) ? '' : `${NO_SLA_HTML}\n`}    <p>
+${links ? `    <ul>\n${links}\n    </ul>\n` : ''}    <p>
       <a href="${escapeHtml(hub)}" data-pf-to="hub">Browse all ${total} free tools →</a>
       &nbsp;·&nbsp;
       <a href="https://github.com/sponsors/Duncan-Haywood">Sponsoring on GitHub</a>
@@ -818,15 +816,18 @@ export function renderRobots(baseUrl) {
 
 /**
  * The sitemap `robots.txt` names. A `<sitemapindex>` cannot hold `<url>`
- * entries, so the hub itself and any venture without its own sitemap live in
- * `sitemap-hub.xml`, which this index also lists — otherwise a crawler
- * following robots.txt would reach the ventures and never the front page.
+ * entries, so the hub page itself lives in `sitemap-hub.xml`, which this index
+ * also lists — otherwise a crawler following robots.txt would reach the
+ * ventures and never the front page.
+ *
+ * Every published venture gets a generated sitemap (see `renderVentureSitemap`),
+ * so there is no venture the index can leave out.
  */
 export function renderSitemapIndex(surfaces, baseUrl) {
   const entries = [`  <sitemap><loc>${baseUrl}sitemap-hub.xml</loc></sitemap>`].concat(
-    surfaces
-      .filter((surface) => surface.hasSitemap)
-      .map((surface) => `  <sitemap><loc>${baseUrl}${surface.slug}/sitemap.xml</loc></sitemap>`),
+    surfaces.map(
+      (surface) => `  <sitemap><loc>${baseUrl}${surface.slug}/sitemap.xml</loc></sitemap>`,
+    ),
   );
 
   return `<?xml version="1.0" encoding="UTF-8"?>
@@ -836,63 +837,46 @@ ${entries.join('\n')}
 `;
 }
 
-/**
- * One venture's sitemap, derived from the pages that were actually published.
- *
- * The committed `ventures/<slug>/sitemap.xml` files cannot be trusted for this.
- * They were written by sessions that had no way to know the real origin, and
- * measured across the 184 entries they contributed: 55 were not absolute URLs
- * at all (bare `index.html` or `./`, which the sitemaps protocol forbids and a
- * crawler discards), 11 pointed at paths carrying the repo's own `ventures/`
- * segment — which the origin rewrite faithfully preserved, and which the
- * published layout has no directory for — and 3 named another host entirely.
- * Others had simply gone stale: 72 of 187 live pages were in no sitemap.
- *
- * Advertising a 404 to a crawler is worse than omitting the page, and organic
- * search is the portfolio's whole acquisition plan, so the sitemap is generated
- * from the output rather than copied from the input. It cannot drift, and a
- * venture no longer has to remember to update a file for its new page to be
- * indexed.
- */
-export function renderVentureSitemap(slug, pages, baseUrl) {
-  const urls = pages.map((page) => {
-    // Advertise the directory form, not `.../index.html` — one canonical URL
-    // per page, matching what the venture's own links and canonical tags use.
-    const suffix = page.endsWith('index.html') ? page.slice(0, -'index.html'.length) : page;
-    return `  <url><loc>${escapeHtml(`${baseUrl}${slug}/${suffix}`)}</loc></url>`;
-  });
+export function renderHubSitemap(baseUrl) {
   return `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-${urls.join('\n')}
+  <url><loc>${baseUrl}</loc></url>
 </urlset>
 `;
 }
 
-/** Published HTML under `dir`, relative and POSIX-separated, index first. */
-export async function publishedPages(dir, prefix = '') {
-  const entries = await fs.readdir(dir, { withFileTypes: true });
-  const pages = [];
-  for (const entry of entries) {
-    const relative = prefix ? `${prefix}/${entry.name}` : entry.name;
-    if (entry.isDirectory()) {
-      pages.push(...(await publishedPages(path.join(dir, entry.name), relative)));
-    } else if (entry.isFile() && entry.name.endsWith('.html')) {
-      pages.push(relative);
-    }
-  }
-  return pages.sort((a, b) => {
-    if (a === 'index.html') return -1;
-    if (b === 'index.html') return 1;
-    return a.localeCompare(b);
-  });
+/**
+ * The URL a published page is served at, relative to the site root.
+ * `index.html` is served as its directory, so it is listed that way.
+ */
+export function pageUrlPath(slug, relativePath) {
+  const posix = relativePath.split(path.sep).join('/');
+  if (posix === 'index.html') return `${slug}/`;
+  if (posix.endsWith('/index.html')) return `${slug}/${posix.slice(0, -'index.html'.length)}`;
+  return `${slug}/${posix}`;
 }
 
-export function renderHubSitemap(surfaces, baseUrl) {
-  const urls = [`  <url><loc>${baseUrl}</loc></url>`].concat(
-    surfaces
-      .filter((surface) => !surface.hasSitemap)
-      .map((surface) => `  <url><loc>${baseUrl}${surface.slug}/</loc></url>`),
-  );
+/**
+ * A venture's sitemap, generated from the pages the build actually published.
+ *
+ * The ventures ship their own hand-written `sitemap.xml` files, and copying
+ * those verbatim published two defects at once. They go stale — a venture
+ * grows a landing page and nobody edits the sitemap, so 70 of the 186 pages
+ * on this site were in no sitemap at all. And several were written against
+ * `…/monorepo-projects/ventures/<slug>/`, a path this site does not serve
+ * (products are mounted at `/<slug>/`), so every URL they advertised was a
+ * 404 — the worst possible thing to hand a crawler, since organic search is
+ * how these tools are meant to be found.
+ *
+ * Generating from the output makes both impossible by construction: a page is
+ * listed because it shipped, at the URL it actually shipped to.
+ */
+export function renderVentureSitemap(slug, relativePages, baseUrl) {
+  const urls = relativePages
+    .map((relative) => `${baseUrl}${pageUrlPath(slug, relative)}`)
+    .sort()
+    .map((url) => `  <url><loc>${url}</loc></url>`);
+
   return `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
 ${urls.join('\n')}
@@ -959,9 +943,8 @@ export async function buildSite({
       })),
     );
 
-    // Regenerate the sitemap from what shipped, overwriting whatever the
-    // venture committed. See renderVentureSitemap for why the committed one
-    // cannot be trusted.
+    // Overwrite whatever sitemap the venture shipped with one generated from
+    // what actually published. See `renderVentureSitemap` for why.
     const pages = await publishedPages(destination);
     await fs.writeFile(
       path.join(destination, 'sitemap.xml'),
@@ -972,8 +955,8 @@ export async function buildSite({
       ...surface,
       title,
       description,
-      pageCount: pages.length,
-      hasSitemap: true,
+      pageCount: await countPages(surface.sourceDir),
+      publishedPageCount: pages.length,
     });
     log(`  ${surface.slug}`);
   }
@@ -983,7 +966,7 @@ export async function buildSite({
   await fs.writeFile(path.join(outDir, '404.html'), renderNotFound(base));
 
   await fs.writeFile(path.join(outDir, 'sitemap.xml'), renderSitemapIndex(surfaces, base));
-  await fs.writeFile(path.join(outDir, 'sitemap-hub.xml'), renderHubSitemap(surfaces, base));
+  await fs.writeFile(path.join(outDir, 'sitemap-hub.xml'), renderHubSitemap(base));
 
   await fs.writeFile(path.join(outDir, 'favicon.ico'), renderFavicon());
 

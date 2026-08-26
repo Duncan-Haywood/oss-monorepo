@@ -6,7 +6,8 @@ that lists and searches them.
 
 ```
 node platform/pages/build.mjs --out=dist          # build
-node --test platform/pages/build.test.mjs         # test
+node platform/pages/check.mjs dist                # check the artifact
+node --test platform/pages/build.test.mjs platform/pages/check.test.mjs
 ```
 
 Then serve it and click around:
@@ -65,19 +66,18 @@ origin root is read), and `node_modules`. `LICENSE` files are kept.
   answer. Links that resolve inside the site are left untouched. The build
   prints how many it repointed.
 - **Crawlability.** A root `robots.txt`, a `sitemap.xml` index covering the hub
-  and every venture's own sitemap, a `404.html`, and `.nojekyll` (without which
-  Pages silently drops any directory starting with `_`).
-- **The sitemaps themselves.** Each venture's `sitemap.xml` is *generated from
-  the pages that were actually published*, replacing whatever the venture
-  committed. Copying them through does not work: measured across the 184 entries
-  the committed files contributed, 55 were not absolute URLs at all (a bare
-  `index.html` or `./`, which the sitemaps protocol forbids and a crawler
-  discards), 11 named paths carrying the repo's own `ventures/` segment — which
-  the origin rewrite faithfully preserved into a URL with no page behind it —
-  and 3 pointed at another host. Separately, 72 of 187 live pages appeared in no
-  sitemap. Generating them means the sitemap cannot drift, and a venture no
-  longer has to remember to edit a file for its new page to be indexed.
-
+  and every venture, a `404.html`, and `.nojekyll` (without which Pages silently
+  drops any directory starting with `_`).
+- **The sitemaps themselves.** Each venture's `sitemap.xml` is *regenerated*
+  from the pages that actually published, replacing the hand-written one. The
+  ventures' own were copied verbatim until 2026-08-26, and three things were
+  wrong with them at once: some listed relative `<loc>` values, which the
+  sitemaps protocol does not allow and crawlers reject; two were written
+  against `…/monorepo-projects/ventures/<slug>/`, a path this site does not
+  serve, so all 11 of their URLs were 404s; and most were simply stale, leaving
+  70 of 186 pages in no sitemap at all. Generating from the output makes all
+  three impossible: a page is listed because it shipped, at the URL it shipped
+  to. Nobody has to remember to update a sitemap again.
 - **Dead ends.** Every venture page was written as a standalone site, so none of
   them linked to any other. The hub linked down into 33 tools and nothing linked
   back or across: someone arriving from a search result at
@@ -95,31 +95,17 @@ origin root is read), and `node_modules`. `LICENSE` files are kept.
 
 ## Checking the artifact
 
-`check.mjs` runs over the built output, not the sources, because the failures
-that matter here are created by the copy and are invisible to any test over
-`ventures/`:
+`check.mjs` runs over the built directory, not the sources, because that is
+where these defects are created — by the copy, not by the input. It fails the
+build on a missing root file, a leftover `example.invalid`, a relative link
+that resolves to nothing, a link that climbs out of the site root, a product
+directory with no landing page, a page in no sitemap, and a sitemap URL that
+did not ship. It follows the sitemap index into each venture's sitemap; a check
+that read only the root would have passed while every defect above sat one
+level down.
 
-```bash
-node platform/pages/build.mjs --out=dist
-node platform/pages/check.mjs dist
-```
-
-It fails the build on a dead internal link, a link escaping the site root, a
-leftover `example.invalid`, a product directory with no landing page, a sitemap
-URL that 404s (or is relative, or is on another host), and any served page that
-no sitemap advertises. It runs in CI between the build and the artifact upload.
-
-`journey.mjs` drives the real customer journey through a browser — the hub,
-search, the opt-out, a click-through into a calculator, the cross-product
-sibling link, sitemap sampling, the 404, and a mobile viewport. It needs
-Playwright, so it is not in CI; run it before claiming the site works, and again
-against the live URL once publishing is on:
-
-```bash
-python3 -m http.server 8793 --directory dist &
-node platform/pages/journey.mjs
-BASE_URL=https://duncan-haywood.github.io/monorepo-projects node platform/pages/journey.mjs
-```
+The workflow runs it between building and uploading, so a broken artifact never
+reaches the live site.
 
 ## Deploying
 
@@ -142,41 +128,9 @@ Until it is set, the `deploy` job is skipped and the `build` job still runs, so
 the artifact is always proven buildable. `actions/deploy-pages` 404s while Pages
 is off, which is why the gate exists rather than letting every merge go red.
 
-### One Pages site, one publisher
-
-A repository serves exactly one Pages site, so exactly one workflow may deploy
-to it. On 2026-08-26 three sessions each added a `deploy-pages` workflow within
-hours, and two of them — this one and `pages.yml` (#1724) — ended up reading the
-**same** `GITHUB_PAGES_ENABLED` variable from **different** concurrency groups.
-The owner flip would have started both at once, racing for one site, with the
-public URL showing whichever finished last, re-rolled on every push to
-`ventures/**`. Each PR looked correct on its own; `publish_surface.py` listed
-both publishers, but listing is not objecting.
-
-So the invariant is now asserted, in `publishers.test.mjs`:
-
-- every workflow that can deploy Pages shares the `github-pages-site`
-  concurrency group, so a mis-set variable serialises instead of racing;
-- exactly one gate is reachable on `GITHUB_PAGES_ENABLED` alone;
-- that gate also requires `refs/heads/main`, so `workflow_dispatch` on a feature
-  branch cannot publish the live site.
-
-It runs in both `portfolio-pages.yml` and `pages.yml`, since either could break
-it. It catches the accident, not a determined mistake — a new gate still wants
-reading.
-
-Current state:
-
-| Workflow | Publishes when |
-|---|---|
-| `portfolio-pages.yml` | `GITHUB_PAGES_ENABLED=true` — **the owner flip** |
-| `pages.yml` | also needs `PAGES_PUBLISHER=platform-ci`; held off, build still runs |
-| `retail-pilot-intel-deploy-docs.yml` | `RETAIL_PILOT_INTEL_PAGES=true` **and** `GITHUB_PAGES_ENABLED` unset |
-
-`pages.yml` builds the same site from `platform/ci/build_pages_site.py`. Nothing
-there is deleted and its tests, build, and link check still run on every push;
-it is one variable from being the publisher again. If it should become one, hold
-off this workflow's deploy the same way — do not put two on one variable.
+Only one workflow may publish to Pages. `retail-pilot-intel-deploy-docs.yml`
+reads `RETAIL_PILOT_INTEL_PAGES` instead, so an owner who wants those docs on
+the origin makes that choice explicitly rather than having two deployments race.
 
 ## Rollback
 
