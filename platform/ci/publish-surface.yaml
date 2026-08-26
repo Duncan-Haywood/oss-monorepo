@@ -118,6 +118,9 @@ workflows:
 - workflow: interior-door-bid-calculator-ci.yml
   classification: none
   publishes: []
+- workflow: invoice-payment-terms-calculator-ci.yml
+  classification: none
+  publishes: []
 - workflow: janitorial-bid-calculator-ci.yml
   classification: none
   publishes: []
@@ -148,6 +151,13 @@ workflows:
 - workflow: photos-import-tools-ci.yml
   classification: none
   publishes: []
+- workflow: portfolio-pages.yml
+  classification: gated
+  publishes:
+  - job: deploy
+    step: uses actions/deploy-pages
+    gates:
+    - ${{ github.event_name != 'pull_request' && vars.GITHUB_PAGES_ENABLED == 'true' }}
 - workflow: portfolio-validate.yml
   classification: none
   publishes: []
@@ -185,7 +195,7 @@ workflows:
   - job: deploy
     step: uses actions/deploy-pages
     gates:
-    - ${{ vars.GITHUB_PAGES_ENABLED == 'true' }}
+    - ${{ vars.RETAIL_PILOT_INTEL_PAGES == 'true' }}
   - job: deploy-vercel
     step: uses amondnet/vercel-action
     gates:

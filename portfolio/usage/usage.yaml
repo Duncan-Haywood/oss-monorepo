@@ -22,6 +22,29 @@ products:
           current main, plus 2/10 Net 30 vs waiting after carrying cost.
           Public URL remains owner-gated; the local-first counter reports only
           to the user's own browser and is opt-out. Baseline row.
+  - slug: portfolio-pages
+    surface: github-pages-artifact
+    readings:
+      - as_of: 2026-08-26
+        signals:
+          live_url_visitors: null
+          hub_visited: 0
+          tool_opened: 0
+          tools_published: 33
+        note: >-
+          The portfolio's public site: one GitHub Pages artifact assembling
+          every static venture surface (33 tools) behind a searchable hub.
+          Before this, the only workflow that could claim the repository's one
+          Pages site published retail-pilot-intel's passcode-gated docs, so the
+          owner's `GITHUB_PAGES_ENABLED` flip would have left every calculator
+          without a public URL. That flip now publishes the products. The
+          reading that matters once it is live is not the visit count but the
+          ratio `tool_opened / hub_visited` — whether a hub converts a visitor
+          into someone who opens a tool, which is the entire premise of
+          building one rather than 33 unlinked pages. Counted locally in the
+          visitor's own browser, aggregate, opt-out, and not counted at all
+          under Do Not Track or Global Privacy Control. Baseline row: still
+          zero, because the owner flip has not happened.
   - slug: walmart-marketplace-calculator
     surface: static-page-in-repo
     readings:
