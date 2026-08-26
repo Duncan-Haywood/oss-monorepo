@@ -1,0 +1,32 @@
+name: hot-tub-bid-calculator
+description: A private browser calculator for pool and spa dealers that prices a hot-tub install from size, access path, circuit footage, pad, haul-away, and crane — and shows the hours the first backyard crane actually consumes and the walk-away price below which the job loses money.
+stage: prototype
+owner: duncan
+hypotheses:
+  - claim: Independent spa dealers will use an access-and-circuit bid calculator because the generic "$499 delivery and setup" special they are shopped on cannot see that a compact tub on an existing patio with a live 50-amp stub is a different job from a large swim spa that needs a crane, a new pad, and a 60-amp disconnect.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: The walk-away price and the hour split (not the published setup special) are the two figures a dealer actually decides on when a homeowner asks them to match a cheaper install quote.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: Treating crane, circuit footage, a new pad, haul-away, and a cover lift as their own hours, instead of a blended add-on to a $499 special, changes the bid enough that shops notice which part of a high number is the first backyard crane.
+    status: untested
+    checked: null
+    evidence: customer-contact
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+budget:
+  monthly_cap: 1
+  protected: true
+kill_criteria:
+  - Fewer than three qualified pool or spa dealers use the calculator twice within 90 days.
+  - Dealers report that splitting the crane and extras versus a driveway drop is more work than their existing per-tub method without changing the price they would have bid.
+  - The starting hours and material rates prove so far from real crews that the tool cannot be used without data we have no way to gather.
+links:
+  production: null
+  analytics: null
