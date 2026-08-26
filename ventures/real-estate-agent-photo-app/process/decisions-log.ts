@@ -8,6 +8,16 @@ import type { BusinessDecision } from "./types";
  */
 export const decisionsLog: BusinessDecision[] = [
   {
+    date: "2026-08-24",
+    title: "Keep preflight records local and downloadable",
+    decision:
+      "The MLS photo preflight browser tool exports a dated Markdown findings record locally; it does not upload photos, create accounts, or store customer media on portfolio infrastructure.",
+    rationale:
+      "Agents need an artifact to keep beside a delivery folder, but a hosted upload path would add privacy, retention, and operational liability before demand is proven. A browser-generated record delivers the value at zero variable cost while preserving the explicit boundary that file-header checks are not a board acceptance warranty.",
+    madeBy: "session/agent_0f91c692-9c76-4ae5-bc98-79b2014f706e",
+    relatedTaskIds: ["p2-photo-preflight-record"],
+  },
+  {
     date: "2026-06-13",
     title: "Lead with agents, not Airbnb/STR hosts",
     decision:
