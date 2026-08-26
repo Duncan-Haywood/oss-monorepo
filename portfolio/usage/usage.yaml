@@ -2186,3 +2186,16 @@ products:
           onto current main. Public URL remains owner-gated; usage is
           opt-out and honors DNT/GPC. Baseline row.
 
+  - slug: change-order-margin-calculator
+    surface: static-page-in-repo
+    readings:
+      - as_of: 2026-08-26
+        signals:
+          live_url_visitors: null
+          change_order_calculated: 0
+          summary_copied: 0
+        note: >-
+          Repair-and-merge of unique #1369 change-order margin calculator
+          onto current main. Public URL remains owner-gated; usage is
+          opt-out and honors DNT/GPC. Baseline row.
+

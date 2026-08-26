@@ -2923,4 +2923,33 @@ ventures:
       Pass: the report is a private working record, not a determination that
       a bid is complete, compliant, or likely to win. Bid details never leave
       the browser.
+  - slug: change-order-margin-calculator
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 7
+      gross_margin: 10
+      defensibility: 5
+      distribution: 7
+    composite: 6.667
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      The value is transparent cost and margin arithmetic; AI would not
+      improve the core decision and would make the floor less checkable.
+    basis: >-
+      Graduated on 2026-08-26 as a browser-local change-order pricing and
+      approval-summary tool (repair-and-merge of unique #1369). Distinct
+      from bid calculators because it prices incremental scope against an
+      existing job's cost floor, not a new contract. Distribution is
+      "change order calculator" and "how to price a construction change
+      order".
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Pass: output is an estimate from user-supplied figures, not a
+      contract, engineering determination, legal advice, or promise of
+      customer approval. Inputs never leave the browser.
 
