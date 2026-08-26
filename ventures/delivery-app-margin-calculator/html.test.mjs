@@ -20,6 +20,8 @@ test("landing page is a complete calculator, not a placeholder", () => {
   assert.match(page, /id="rows"/);
   assert.match(page, /from "\.\/calc\.mjs"/);
   assert.match(page, /Price to match dine-in/);
+  assert.match(page, /copySummary/);
+  assert.match(page, /summary_copied/);
 });
 
 test("disclaimer, privacy, opt-out, and optional sponsors are visible", () => {
