@@ -85,6 +85,9 @@ workflows:
 - workflow: branch-cleanup.yml
   classification: none
   publishes: []
+- workflow: cabinet-refinishing-bid-calculator-ci.yml
+  classification: none
+  publishes: []
 - workflow: cam-reconciliation-check-ci.yml
   classification: none
   publishes: []
@@ -235,6 +238,9 @@ workflows:
 - workflow: gutter-install-bid-calculator-ci.yml
   classification: none
   publishes: []
+- workflow: hardwood-refinishing-bid-calculator-ci.yml
+  classification: none
+  publishes: []
 - workflow: hetzner-gitops-ci.yml
   classification: none
   publishes: []
@@ -317,6 +323,9 @@ workflows:
   classification: none
   publishes: []
 - workflow: patio-door-bid-calculator-ci.yml
+  classification: none
+  publishes: []
+- workflow: paver-patio-bid-calculator-ci.yml
   classification: none
   publishes: []
 - workflow: payment-reconciliation-workbench-ci.yml

@@ -321,6 +321,14 @@ products:
           the on-screen overrun, cost-rise, discount, and kill-fee rows.
           Public URL remains owner-gated; the counter stores only aggregate
           local events.
+      - as_of: 2026-08-26
+        signals:
+          live_url_visitors: null
+          review_summary_copied: 0
+        note: >-
+          Added a copyable plain-text review summary for email or proposal
+          notes. Public URL remains owner-gated; the counter stores only
+          aggregate local events.
   - slug: mls-photo-spec-preflight
     surface: static-page-in-repo
     readings:
@@ -1953,6 +1961,14 @@ products:
           Added a spreadsheet-friendly, non-executable approval queue export to
           the read-only branch inventory CLI. Pilot demand and recurring use
           remain untested; no customer repository data is collected.
+      - as_of: 2026-08-26
+        signals:
+          live_url_visitors: null
+          landing_page_views: 0
+        note: >-
+          Added a static landing page so the CLI has a public entry once
+          Pages is enabled. Public URL remains owner-gated; no repository
+          data is collected.
 # Example of the shape, once a product has shipped:
 #
 # products:
@@ -2827,3 +2843,39 @@ products:
           to price quartz and granite jobs from slabs, cutouts, and
           waterfalls. Public URL remains owner-gated; counters are local,
           aggregate, and opt-out.
+  - slug: hardwood-refinishing-bid-calculator
+    surface: static-page-in-repo
+    readings:
+      - as_of: 2026-08-25
+        signals:
+          live_url_visitors: null
+          local_events_reported: 0
+        note: >-
+          Shipped a local hardwood floor refinishing bid calculator that
+          prices field square footage, stair treads, closets, stain, and
+          an extra coat; public URL remains owner-gated and the browser
+          counter is local and opt-out. Baseline row.
+  - slug: cabinet-refinishing-bid-calculator
+    surface: static-page-in-repo
+    readings:
+      - as_of: 2026-08-25
+        signals:
+          live_url_visitors: null
+          local_events_reported: 0
+        note: >-
+          Shipped a local kitchen cabinet refinishing bid calculator that
+          prices doors, drawer fronts, face frames, hardware, degrease,
+          and a dark-to-light extra coat; public URL remains owner-gated
+          and the browser counter is local and opt-out. Baseline row.
+  - slug: paver-patio-bid-calculator
+    surface: static-page-in-repo
+    readings:
+      - as_of: 2026-08-25
+        signals:
+          live_url_visitors: null
+          local_events_reported: 0
+        note: >-
+          Shipped a local interlocking-paver bid calculator that prices
+          pattern waste, compacted base, edge restraint, and haul-away;
+          public URL remains owner-gated and the browser counter is local
+          and opt-out. Baseline row.
