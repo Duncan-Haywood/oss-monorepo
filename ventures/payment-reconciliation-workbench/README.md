@@ -6,7 +6,7 @@ Payment processor reconciliation for small businesses should not require a $50/m
 
 ## Use it
 
-Open [`index.html`](index.html), choose the two CSV files, set a settlement-date tolerance, and select **Run reconciliation**. The tool recognizes common `date`, `payout_date`, `deposit_date`, `net`, and `amount` headers. Matching requires the same amount to the cent and a date within the selected tolerance. Download the review CSV when finished.
+Open [`index.html`](index.html), choose the two CSV files, set a settlement-date tolerance, and select **Run reconciliation**. The tool recognizes common `date`, `payout_date`, `deposit_date`, `net`, and `amount` headers. Matching requires the same amount to the cent and a date within the selected tolerance. It also identifies a payout split across up to eight nearby bank deposits, searching only the first 18 eligible deposits to keep browser work bounded. Download the review CSV when finished.
 
 No account, build step, API key, or paid service is needed. The product does not connect to payment providers and does not move money. It is deliberately a review aid rather than an accounting system.
 
