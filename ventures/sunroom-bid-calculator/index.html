@@ -1,0 +1,583 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Sunroom Bid Calculator | How Much to Charge to Build a Sunroom</title>
+  <meta name="description" content="Price a residential sunroom or three-season room from the glazed-wall square feet a floor-square-foot special cannot see, the thermal floor, the insulated roof, and HVAC — plus walk-away price and proposed-price margin check.">
+  <meta property="og:title" content="Sunroom Bid Calculator">
+  <meta property="og:description" content="Bid the glass, the floor, and the roof — not the floor-square-foot coupon. See the margin before you send the price.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Sunroom Bid Calculator", "applicationCategory": "BusinessApplication", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "featureList": "Glazed-wall geometry, three-season vinyl vs four-season insulated glass, existing-deck/slab/new-slab floor, existing or insulated roof, 8/10 ft walls, HVAC and electrical extras, walk-away price, proposed-price margin check, copyable customer-facing summary, saved bid that reopens on the next visit, shareable bid link"}</script>
+  <style>
+    :root { color-scheme: light; font-family: system-ui, sans-serif; color: #1d2530; background: #eef2f7; }
+    body { max-width: 1060px; margin: 0 auto; padding: 32px 18px; }
+    header { max-width: 720px; margin-bottom: 26px; }
+    h1 { font-size: clamp(2rem, 6vw, 3.6rem); line-height: .98; margin: 0 0 12px; letter-spacing: -.05em; }
+    p { line-height: 1.5; }
+    .eyebrow { font-size: .8rem; font-weight: 700; letter-spacing: .08em; color: #1c5a6a; margin: 0 0 6px; }
+    .layout { display: grid; grid-template-columns: minmax(0, 1fr) minmax(300px, .75fr); gap: 18px; align-items: start; }
+    section { background: #fff; border: 1px solid #d3dce6; border-radius: 14px; padding: 20px; box-shadow: 0 8px 24px #1a2a4a0d; margin-bottom: 18px; }
+    h2 { margin-top: 0; font-size: 1.15rem; }
+    .hint { font-size: .82rem; color: #4a5666; margin: -6px 0 14px; }
+    .fields { display: grid; grid-template-columns: repeat(2, 1fr); gap: 13px; }
+    label { display: grid; gap: 5px; font-size: .87rem; font-weight: 650; }
+    input, select { width: 100%; box-sizing: border-box; border: 1px solid #a9b6c6; border-radius: 7px; padding: 10px; font: inherit; background: #fff; }
+    .check { display: flex; align-items: center; gap: 8px; font-weight: 650; }
+    .check input { width: auto; }
+    button { font: inherit; border-radius: 7px; border: 1px solid #a9b6c6; background: #f3f6fa; padding: 10px 14px; cursor: pointer; font-weight: 650; }
+    button:hover { background: #e6ecf4; }
+    .result { position: sticky; top: 15px; background: #16343c; color: #eef6f4; border-color: #16343c; }
+    .hero-number { font-size: 2.9rem; font-weight: 750; letter-spacing: -.05em; margin: 8px 0; }
+    .negative { color: #ffb0a2; } .positive { color: #a9e6b0; }
+    dl { display: grid; grid-template-columns: 1fr auto; gap: 9px; margin: 20px 0; }
+    dt, dd { margin: 0; } dd { font-variant-numeric: tabular-nums; }
+    hr { border: 0; border-top: 1px solid #ffffff2b; }
+    .note { font-size: .82rem; opacity: .84; }
+    .split { margin: 14px 0 0; padding: 0; list-style: none; font-size: .84rem; }
+    .split li { display: grid; grid-template-columns: 1fr auto; gap: 8px; padding: 3px 0; }
+    .bar { grid-column: 1 / -1; height: 4px; border-radius: 2px; background: #ffffff2e; }
+    .bar > span { display: block; height: 100%; border-radius: 2px; background: #7ec8c0; }
+    .verdict { margin-top: 14px; padding: 12px; border-radius: 9px; font-size: .87rem; background: #ffffff1a; }
+    .verdict.bad { background: #7d2317; }
+    .empty { font-size: .87rem; opacity: .84; }
+    footer { margin-top: 25px; font-size: .82rem; color: #4a5666; }
+    footer a { color: #1c5a6a; }
+    .support { margin-top: 14px; }
+    .summary-actions { display: flex; gap: 8px; align-items: center; margin-top: 14px; }
+    .summary-status { font-size: .8rem; color: #c5e8e2; }
+    @media (max-width: 780px) {
+      .layout { grid-template-columns: 1fr; } .result { position: static; } .fields { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="eyebrow">FOR SUNROOM, THREE-SEASON, AND FOUR-SEASON CREWS</p>
+    <h1>Bid the glass, the floor, and the roof.</h1>
+    <p>Price a residential sunroom the way the trade actually loses money: glazed-wall square feet a floor-square-foot special cannot see, then the thermal floor, the insulated roof, HVAC, extras, permit, and the margin you intend to keep. You get the job price, what it works out to per floor square foot, and the number below which the job loses money.</p>
+    <p class="hint" style="margin:0">Looking up <a href="./how-much-to-charge-to-build-a-sunroom.html">how much to charge to build a sunroom</a>? Start here, then replace every starting figure with your own crew times.</p>
+  </header>
+
+  <main class="layout">
+    <div>
+      <section>
+        <h2>A starting job</h2>
+        <p class="hint">Pick a common call to fill the spans, enclosure, floor, and roof. Changing a kit never overwrites hours or material costs you have already typed.</p>
+        <label>Job preset
+          <select id="jobPresets">
+            <option value="">Choose a starting job…</option>
+          </select>
+        </label>
+      </section>
+
+      <section>
+        <h2>The room</h2>
+        <p class="hint">Width is along the house. Depth is the projection. An attached sunroom glazes three sides; a wrap glazes four. These are starting points, not a code opinion.</p>
+        <div class="fields">
+          <label>Attachment
+            <select id="attachment"></select>
+          </label>
+          <label>Enclosure
+            <select id="enclosure"></select>
+          </label>
+          <label>Foundation / floor
+            <select id="foundation"></select>
+          </label>
+          <label>Roof
+            <select id="roof"></select>
+          </label>
+          <label>Wall height
+            <select id="height"></select>
+          </label>
+          <label>Width along house (feet) <input id="widthFeet" type="number" min="4" step="0.5" value="12"></label>
+          <label>Depth / projection (feet) <input id="depthFeet" type="number" min="4" step="0.5" value="10"></label>
+          <label>Knee-wall height (inches) <input id="kneeWallInches" type="number" min="0" step="1" value="0"></label>
+          <label>Window width (inches) <input id="windowWidthInches" type="number" min="24" step="1" value="48"></label>
+          <label>Sliders / patio doors <input id="sliderCount" type="number" min="0" step="1" value="1"></label>
+        </div>
+        <div class="fields" style="margin-top:13px">
+          <label class="check"><input id="includeHvac" type="checkbox"> HVAC / mini-split</label>
+          <label class="check"><input id="includeElectrical" type="checkbox"> Electrical package</label>
+          <label class="check"><input id="includePermit" type="checkbox"> Include permit allowance</label>
+        </div>
+      </section>
+
+      <section>
+        <h2>Hours and counts</h2>
+        <p class="hint">Perimeter, glass, windows, knee wall, floor, and roof start from the geometry. Enclosure hours apply to the glazed wall. Change them when the site disagrees.</p>
+        <div class="fields">
+          <label>Trip / setup hours <input id="hoursTrip" type="number" min="0" step="0.1" value="3"></label>
+          <label>Hours per window <input id="hoursPerWindow" type="number" min="0" step="0.05" value="1.4"></label>
+          <label>Extra hours per window (height) <input id="extraHoursPerWindow" type="number" min="0" step="0.05" value="0"></label>
+          <label>Hours per 100 sf of glass <input id="hoursPer100SfGlass" type="number" min="0" step="0.1" value="1.8"></label>
+          <label>Hours per lf of knee wall <input id="hoursPerKneeLf" type="number" min="0" step="0.05" value="0.4"></label>
+          <label>Hours per 100 sf of floor <input id="hoursPer100SfFloor" type="number" min="0" step="0.1" value="1.4"></label>
+          <label>Hours per 100 sf of roof <input id="hoursPer100SfRoof" type="number" min="0" step="0.1" value="0"></label>
+          <label>Hours per slider <input id="hoursPerSlider" type="number" min="0" step="0.1" value="2.2"></label>
+          <label>HVAC hours <input id="hoursHvac" type="number" min="0" step="0.1" value="6"></label>
+          <label>Electrical hours <input id="hoursElectrical" type="number" min="0" step="0.1" value="4"></label>
+          <label>Site / grade hours <input id="hoursSite" type="number" min="0" step="0.1" value="0.5"></label>
+          <label>Travel hours <input id="siteHours" type="number" min="0" step="0.1" value="0.6"></label>
+          <label>Wall height (feet) <input id="wallHeightFeet" type="number" min="4" step="0.5" value="8"></label>
+          <label>Perimeter (feet) <input id="perimeterLf" type="number" min="0" step="0.5" value="32"></label>
+          <label>Glass square feet <input id="glassSf" type="number" min="0" step="1" value="256"></label>
+          <label>Floor square feet <input id="floorSf" type="number" min="0" step="1" value="120"></label>
+          <label>Roof square feet <input id="roofSf" type="number" min="0" step="1" value="0"></label>
+          <label>Knee-wall lineal feet <input id="kneeWallLf" type="number" min="0" step="0.5" value="0"></label>
+          <label>Window count <input id="windowCount" type="number" min="0" step="1" value="8"></label>
+        </div>
+      </section>
+
+      <section>
+        <h2>Materials and your costs</h2>
+        <div class="fields">
+          <label>Glass per sf <input id="glassPerSf" type="number" min="0" step="0.25" value="14"></label>
+          <label>Cost per window unit <input id="windowEach" type="number" min="0" step="5" value="280"></label>
+          <label>Knee wall per lf <input id="kneeWallPerLf" type="number" min="0" step="0.5" value="32"></label>
+          <label>Floor per sf <input id="floorPerSf" type="number" min="0" step="0.25" value="6"></label>
+          <label>Roof per sf <input id="roofPerSf" type="number" min="0" step="0.25" value="0"></label>
+          <label>Cost per slider <input id="sliderEach" type="number" min="0" step="25" value="1450"></label>
+          <label>Hardware / fasteners <input id="hardwareLump" type="number" min="0" step="5" value="275"></label>
+          <label>HVAC / mini-split fee <input id="hvacFee" type="number" min="0" step="25" value="3200"></label>
+          <label>Electrical package <input id="electricalFee" type="number" min="0" step="25" value="1400"></label>
+          <label>Mobilization <input id="mobilizationFee" type="number" min="0" step="5" value="325"></label>
+          <label>Permit fee <input id="permitFee" type="number" min="0" step="5" value="650"></label>
+          <label>Hourly wage <input id="hourlyWage" type="number" min="0" step="0.25" value="38"></label>
+          <label>Payroll burden (%) <input id="burdenRate" type="number" min="0" step="0.5" value="30"></label>
+          <label>Travel and equipment <input id="travelAndEquipment" type="number" min="0" step="1" value="140"></label>
+          <label>Overhead on direct cost (%) <input id="overheadRate" type="number" min="0" step="0.5" value="15"></label>
+          <label>Target net margin (%) <input id="targetMargin" type="number" min="0" max="99.9" step="0.5" value="25"></label>
+          <label>Price you&rsquo;re considering (optional) <input id="proposedPrice" type="number" min="0" step="25" placeholder="e.g. 21600"></label>
+        </div>
+        <p class="hint" style="margin-top:14px;margin-bottom:0">Payroll burden covers employer taxes, workers&rsquo; compensation, liability insurance, and paid time off. A square-foot special written on the floor never sees it — or the glass.</p>
+      </section>
+    </div>
+
+    <section class="result" aria-live="polite">
+      <h2>Your bid</h2>
+      <div id="price" class="hero-number">$&mdash;</div>
+      <div id="priceLabel">job price</div>
+      <dl>
+        <dt>Floor</dt><dd id="footprintSf"></dd>
+        <dt>Glass / windows</dt><dd id="glass"></dd>
+        <dt>Knee wall</dt><dd id="knee"></dd>
+        <dt>Floor / roof</dt><dd id="floorRoof"></dd>
+        <dt>Glass share of direct</dt><dd id="glassShare"></dd>
+        <dt>Crew hours</dt><dd id="totalHours"></dd>
+        <dt>Loaded labor</dt><dd id="labor"></dd>
+        <dt>Materials</dt><dd id="materials"></dd>
+        <dt>Travel, HVAC, extras</dt><dd id="soft"></dd>
+        <dt>Overhead</dt><dd id="overhead"></dd>
+        <dt>Total cost</dt><dd id="cost"></dd>
+        <dt>Profit</dt><dd id="profit"></dd>
+        <dt>Price per floor sf</dt><dd id="perSf"></dd>
+        <dt>Effective hourly rate</dt><dd id="hourlyRate"></dd>
+        <dt>Walk-away price</dt><dd id="breakEven"></dd>
+      </dl>
+      <div id="verdict" class="verdict" hidden></div>
+      <div class="summary-actions">
+        <button type="button" id="copyLink">Copy bid link</button>
+        <button type="button" id="clearSaved">Start a fresh bid</button>
+        <button type="button" id="copySummary">Copy bid summary</button>
+        <span id="summaryStatus" class="summary-status" role="status" aria-live="polite"></span>
+      </div>
+      <p id="restoreNote" class="note" role="status" aria-live="polite" hidden></p>
+      <p class="note" style="margin-top:8px">A bid link carries your own rates — wage, burden, overhead, and target margin — so the page reopens exactly as you left it. Send it to yourself or your crew. The customer should get the price, not the link.</p>
+      <hr>
+      <p class="note" style="margin-bottom:4px"><strong>Where the hours go</strong></p>
+      <ul class="split" id="split"></ul>
+      <hr>
+      <p class="note">Transparent arithmetic from your own inputs. The starting spans, window widths, hours, and material rates are common ballpark figures, not a building-code opinion, a permit, a warranty, or an engineering stamp. Time your own crews and replace them.</p>
+    </section>
+  </main>
+
+  <footer>
+    <label style="display:inline-flex;gap:6px;align-items:center;font-weight:400"><input id="usageOptOut" type="checkbox" style="width:auto"> Do not keep anonymous local usage counts</label>
+    <p><strong>No warranty.</strong> This free tool is not construction, legal, tax, financial, or engineering advice, and it does not tell you what to charge or whether a layout is compliant. Verify every figure against your own payroll, insurance, and material costs, and against a qualified professional and the authority having jurisdiction, before relying on it or submitting a bid. To the maximum extent permitted by law, the authors accept no liability for loss or damage from its use. Hosted URLs, when they exist, may be taken offline without notice; there is no availability SLA.</p>
+    <p><strong>Nothing leaves your browser.</strong> Every number stays on this device. Your bid is saved in this browser so it is still here next visit, and &ldquo;Start a fresh bid&rdquo; deletes it; a bid link you copy holds those same numbers in the address itself, so treat one like your rate sheet. Usage counts are anonymous tallies of which features were used, stored locally, and never include your spans, wages, costs, or prices.</p>
+    <p class="support">Free and open source. If it wins you a job, the <a href="https://github.com/Duncan-Haywood/monorepo-projects" rel="noopener">project is on GitHub</a> &mdash; support is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import {
+      calculateBid,
+      formatBidSummary,
+      JOB_PRESETS,
+      ATTACHMENT_PRESETS,
+      ENCLOSURE_PRESETS,
+      FOUNDATION_PRESETS,
+      ROOF_PRESETS,
+      HEIGHT_PRESETS,
+      suggestedPerimeter,
+      suggestedGlassSf,
+      suggestedKneeWallLf,
+      suggestedWindowCount,
+      suggestedFloorSf,
+      suggestedRoofSf,
+      suggestedEnclosureKit,
+      suggestedFoundationKit,
+      suggestedRoofKit,
+      suggestedHeightKit,
+    } from './calc.mjs';
+    import { recordUsage } from './usage.mjs';
+    import { encodeBid, saveBid, clearBid, restoreBid } from './share.mjs';
+
+    const FIELD_IDS = [
+      'attachment','enclosure','foundation','roof','height','widthFeet','depthFeet','kneeWallInches','windowWidthInches','sliderCount',
+      'hoursTrip','hoursPerWindow','extraHoursPerWindow','hoursPer100SfGlass','hoursPerKneeLf','hoursPer100SfFloor',
+      'hoursPer100SfRoof','hoursPerSlider','hoursHvac','hoursElectrical','hoursSite','siteHours',
+      'wallHeightFeet','perimeterLf','glassSf','floorSf','roofSf','kneeWallLf','windowCount',
+      'glassPerSf','windowEach','kneeWallPerLf','floorPerSf','roofPerSf','sliderEach','hardwareLump',
+      'hvacFee','electricalFee','mobilizationFee','permitFee',
+      'hourlyWage','burdenRate','travelAndEquipment','overheadRate','targetMargin','proposedPrice',
+    ];
+    const KIT_IDS = new Set([
+      'wallHeightFeet','perimeterLf','glassSf','floorSf','roofSf','kneeWallLf','windowCount',
+      'hoursPer100SfGlass','glassPerSf','hoursPer100SfFloor','floorPerSf','hoursPer100SfRoof','roofPerSf',
+      'extraHoursPerWindow',
+    ]);
+    const money = value => `$${value.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+    const el = id => document.getElementById(id);
+
+    function fillSelect(id, items) {
+      el(id).innerHTML = items.map(item => `<option value="${item.id}">${item.label}</option>`).join('');
+    }
+    fillSelect('attachment', ATTACHMENT_PRESETS);
+    fillSelect('enclosure', ENCLOSURE_PRESETS);
+    fillSelect('foundation', FOUNDATION_PRESETS);
+    fillSelect('roof', ROOF_PRESETS);
+    fillSelect('height', HEIGHT_PRESETS);
+    el('jobPresets').innerHTML = '<option value="">Choose a starting job…</option>'
+      + JOB_PRESETS.map((job, index) => `<option value="${index}">${job.label}</option>`).join('');
+
+    function count(event) {
+      recordUsage(localStorage, el('usageOptOut').checked, event);
+    }
+
+    function applyEnclosureKit() {
+      const kit = suggestedEnclosureKit(el('enclosure').value);
+      if (!el('hoursPer100SfGlass').dataset.edited) el('hoursPer100SfGlass').value = kit.hoursPer100Sf;
+      if (!el('glassPerSf').dataset.edited) el('glassPerSf').value = kit.glassPerSf;
+    }
+
+    function applyFoundationKit() {
+      const kit = suggestedFoundationKit(el('foundation').value);
+      if (!el('hoursPer100SfFloor').dataset.edited) el('hoursPer100SfFloor').value = kit.hoursPer100Sf;
+      if (!el('floorPerSf').dataset.edited) el('floorPerSf').value = kit.floorPerSf;
+    }
+
+    function applyRoofKit() {
+      const kit = suggestedRoofKit(el('roof').value);
+      if (!el('hoursPer100SfRoof').dataset.edited) el('hoursPer100SfRoof').value = kit.hoursPer100Sf;
+      if (!el('roofPerSf').dataset.edited) el('roofPerSf').value = kit.roofPerSf;
+    }
+
+    function applyHeightKit() {
+      const kit = suggestedHeightKit(el('height').value);
+      if (!el('wallHeightFeet').dataset.edited) el('wallHeightFeet').value = kit.wallHeightFeet;
+      if (!el('extraHoursPerWindow').dataset.edited) el('extraHoursPerWindow').value = kit.extraHoursPerWindow;
+    }
+
+    function applyGeometryKits() {
+      const width = Number(el('widthFeet').value);
+      const depth = Number(el('depthFeet').value);
+      const knee = Number(el('kneeWallInches').value);
+      const windowWidth = Number(el('windowWidthInches').value);
+      const wallHeight = Number(el('wallHeightFeet').value);
+      if (![width, depth, knee, windowWidth, wallHeight].every(Number.isFinite) || width <= 0 || depth <= 0 || windowWidth <= 0 || wallHeight <= 0) return;
+      const attachment = el('attachment').value;
+      const perimeter = suggestedPerimeter(width, depth, attachment);
+      if (!el('perimeterLf').dataset.edited) el('perimeterLf').value = perimeter;
+      if (!el('glassSf').dataset.edited) {
+        el('glassSf').value = suggestedGlassSf(width, depth, attachment, wallHeight, knee);
+      }
+      if (!el('kneeWallLf').dataset.edited) el('kneeWallLf').value = suggestedKneeWallLf(width, depth, attachment, knee);
+      if (!el('windowCount').dataset.edited) el('windowCount').value = suggestedWindowCount(perimeter, windowWidth);
+      if (!el('floorSf').dataset.edited) el('floorSf').value = suggestedFloorSf(width, depth, el('foundation').value);
+      if (!el('roofSf').dataset.edited) el('roofSf').value = suggestedRoofSf(width, depth, el('roof').value);
+    }
+
+    // The checkboxes as a list rather than hand-written reads, so the form
+    // has one place that says which flags exist and saving, sharing, and
+    // reading a bid cannot disagree about them.
+    const FLAG_IDS = ['includeHvac', 'includeElectrical', 'includePermit'];
+
+    function readInput() {
+      const values = Object.fromEntries(FIELD_IDS.map(id => [id, el(id).value]));
+      for (const id of FLAG_IDS) values[id] = el(id).checked;
+      return values;
+    }
+
+    function clearOutputs(message, isError) {
+      el('price').textContent = message;
+      el('price').className = `hero-number ${isError ? 'negative' : ''}`;
+      el('priceLabel').textContent = isError ? 'check the highlighted input' : 'job price';
+      ['footprintSf','glass','knee','floorRoof','glassShare','totalHours','labor','materials','soft','overhead','cost','profit','perSf','hourlyRate','breakEven']
+        .forEach(id => { el(id).textContent = ''; });
+      el('split').innerHTML = '';
+      el('verdict').hidden = true;
+    }
+
+    function update() {
+      let result;
+      try {
+        result = calculateBid(readInput());
+      } catch (error) {
+        clearOutputs(error.message, true);
+        return;
+      }
+
+      el('price').textContent = money(result.price);
+      el('price').className = 'hero-number';
+      el('priceLabel').textContent = 'job price';
+      el('footprintSf').textContent = `${result.footprintSf.toFixed(0)} sf`;
+      el('glass').textContent = `${result.glassSf.toFixed(0)} sf / ${result.windowCount} windows`;
+      el('knee').textContent = result.kneeWallLf ? `${result.kneeWallLf.toFixed(0)} lf` : 'none';
+      el('floorRoof').textContent = `${result.floorSf.toFixed(0)} sf floor / ${result.roofSf ? result.roofSf.toFixed(0) + ' sf roof' : 'existing roof'}`;
+      el('glassShare').textContent = `${result.glassShareOfDirect.toFixed(0)}%`;
+      el('totalHours').textContent = `${result.totalHours.toFixed(1)} h`;
+      el('labor').textContent = money(result.laborCost);
+      el('materials').textContent = money(result.materialCost);
+      el('soft').textContent = money(result.softCost);
+      el('overhead').textContent = money(result.overhead);
+      el('cost').textContent = money(result.totalCost);
+      el('profit').textContent = money(result.profit);
+      el('perSf').textContent = result.pricePerSf === null ? 'n/a' : money(result.pricePerSf);
+      el('hourlyRate').textContent = result.effectiveHourlyRate === null ? 'n/a' : `${money(result.effectiveHourlyRate)}/h`;
+      el('breakEven').textContent = money(result.breakEvenPrice);
+
+      const parts = [
+        ['Trip / setup', result.hourShares.trip],
+        ['Windows', result.hourShares.windows],
+        ['Glass', result.hourShares.glass],
+        ['Knee wall', result.hourShares.knee],
+        ['Floor', result.hourShares.floor],
+        ['Roof', result.hourShares.roof],
+        ['Sliders', result.hourShares.sliders],
+        ['HVAC', result.hourShares.hvac],
+        ['Electrical', result.hourShares.electrical],
+        ['Grade', result.hourShares.grade],
+        ['Travel', result.hourShares.site],
+      ].filter(part => part[1] > 0.5);
+      el('split').innerHTML = parts.length === 0
+        ? '<li class="empty">Enter a sunroom and the hour split appears here.</li>'
+        : parts
+          .sort((a, b) => b[1] - a[1])
+          .map(([name, share]) => `<li><span>${name}</span><span>${share.toFixed(0)}% of hours</span>
+            <span class="bar"><span style="width:${share.toFixed(1)}%"></span></span></li>`)
+          .join('');
+
+      const verdict = el('verdict');
+      if (result.proposed === null) {
+        verdict.hidden = true;
+      } else {
+        verdict.hidden = false;
+        verdict.className = `verdict${result.proposed.belowBreakEven ? ' bad' : ''}`;
+        const rate = result.proposed.hourlyRate === null ? 'n/a' : `${money(result.proposed.hourlyRate)}/h`;
+        verdict.innerHTML = result.proposed.belowBreakEven
+          ? `At ${money(result.proposed.price)} this job <strong>loses ${money(Math.abs(result.proposed.profit))}</strong> before you take anything out of it. Your walk-away price is ${money(result.breakEvenPrice)}.`
+          : `At ${money(result.proposed.price)} you keep <strong>${money(result.proposed.profit)}</strong> — a ${result.proposed.margin.toFixed(1)}% margin, billing ${rate} of labor.`;
+      }
+    }
+
+    async function copySummary() {
+      const result = calculateBid(readInput());
+      const preset = JOB_PRESETS[Number(el('jobPresets').value)];
+      const text = formatBidSummary(result, preset ? preset.label : 'Sunroom / three-season room');
+      try {
+        await navigator.clipboard.writeText(text);
+      } catch {
+        const fallback = document.createElement('textarea');
+        fallback.value = text;
+        fallback.setAttribute('readonly', '');
+        fallback.style.position = 'fixed';
+        fallback.style.opacity = '0';
+        document.body.append(fallback);
+        fallback.select();
+        document.execCommand('copy');
+        fallback.remove();
+      }
+      count('summary_copied');
+      el('summaryStatus').textContent = 'Copied to clipboard';
+      setTimeout(() => { el('summaryStatus').textContent = ''; }, 2500);
+    }
+
+    el('enclosure').addEventListener('change', () => {
+      applyEnclosureKit();
+      count('bid_calculated');
+      update();
+    });
+    el('foundation').addEventListener('change', () => {
+      applyFoundationKit();
+      applyGeometryKits();
+      count('bid_calculated');
+      update();
+    });
+    el('roof').addEventListener('change', () => {
+      applyRoofKit();
+      applyGeometryKits();
+      count('bid_calculated');
+      update();
+    });
+    el('height').addEventListener('change', () => {
+      applyHeightKit();
+      applyGeometryKits();
+      count('bid_calculated');
+      update();
+    });
+    el('attachment').addEventListener('change', () => {
+      applyGeometryKits();
+      count('bid_calculated');
+      update();
+    });
+    ['widthFeet','depthFeet','kneeWallInches','windowWidthInches','wallHeightFeet'].forEach(id => {
+      el(id).addEventListener('input', () => {
+        applyGeometryKits();
+        update();
+      });
+    });
+    FIELD_IDS.forEach(id => {
+      el(id).addEventListener('input', update);
+      el(id).addEventListener('change', () => count(id === 'proposedPrice' ? 'proposed_price_compared' : 'bid_calculated'));
+      if (KIT_IDS.has(id)) {
+        el(id).addEventListener('input', () => { el(id).dataset.edited = '1'; });
+      }
+    });
+    ['includeHvac','includeElectrical','includePermit'].forEach(id => {
+      el(id).addEventListener('change', () => {
+        count('bid_calculated');
+        update();
+      });
+    });
+    el('jobPresets').addEventListener('change', () => {
+      const preset = JOB_PRESETS[Number(el('jobPresets').value)];
+      if (!preset) return;
+      el('attachment').value = preset.attachment;
+      el('enclosure').value = preset.enclosure;
+      el('foundation').value = preset.foundation;
+      el('roof').value = preset.roof;
+      el('height').value = preset.height;
+      el('widthFeet').value = preset.widthFeet;
+      el('depthFeet').value = preset.depthFeet;
+      el('kneeWallInches').value = preset.kneeWallInches;
+      el('windowWidthInches').value = preset.windowWidthInches;
+      el('sliderCount').value = preset.sliderCount;
+      el('includeHvac').checked = preset.includeHvac;
+      el('includeElectrical').checked = preset.includeElectrical;
+      el('includePermit').checked = preset.includePermit;
+      KIT_IDS.forEach(id => { delete el(id).dataset.edited; });
+      applyEnclosureKit();
+      applyFoundationKit();
+      applyRoofKit();
+      applyHeightKit();
+      applyGeometryKits();
+      count('preset_applied');
+      update();
+    });
+    el('usageOptOut').addEventListener('change', update);
+    el('copySummary').addEventListener('click', () => {
+      try {
+        copySummary().catch(() => { el('summaryStatus').textContent = 'Copy failed; select and copy the figures above.'; });
+      } catch (error) {
+        el('summaryStatus').textContent = error.message;
+      }
+    });
+
+    applyEnclosureKit();
+    applyFoundationKit();
+    applyRoofKit();
+    applyHeightKit();
+    applyGeometryKits();
+    // Derived from the very id lists `readInput()` reads and the options the
+    // selects actually offer, so a field added to the form is saved and
+    // shareable without touching this. The alternative — a second field list
+    // kept by hand — is how a shared link ends up quietly dropping a field and
+    // pricing a different job for the recipient than the sender saw.
+    const CHOICE_IDS = ['attachment', 'enclosure', 'foundation', 'roof', 'height'];
+    const BID_SPEC = {
+      key: 'sunroom-bid',
+      numbers: FIELD_IDS.filter(id => !CHOICE_IDS.includes(id)),
+      flags: FLAG_IDS,
+      choices: Object.fromEntries(CHOICE_IDS.map(id => [id, [...el(id).options].map(option => option.value)])),
+    };
+
+    // A restored field counts as hand-entered. Without this the suggested-rate
+    // kits would overwrite it on the next apply, so a setter who tuned their
+    // own rate and copied the link would watch the recipient's page reset it
+    // to the ballpark figure.
+    function applyValues(values) {
+      for (const [id, value] of Object.entries(values)) {
+        const field = el(id);
+        if (!field) continue;
+        if (field.type === 'checkbox') field.checked = Boolean(value);
+        else field.value = value;
+        field.dataset.edited = '1';
+      }
+    }
+
+    function persist() {
+      try {
+        saveBid(localStorage, BID_SPEC, readInput());
+      } catch {
+        // A browser with site data blocked throws on access. Losing the save
+        // is survivable; losing the calculator mid-bid is not.
+      }
+    }
+
+    async function copyLink() {
+      const query = encodeBid(BID_SPEC, readInput());
+      const url = `${location.origin}${location.pathname}${query ? `?${query}` : ''}`;
+      try {
+        await navigator.clipboard.writeText(url);
+      } catch {
+        const fallback = document.createElement('textarea');
+        fallback.value = url;
+        fallback.setAttribute('readonly', '');
+        fallback.style.position = 'fixed';
+        fallback.style.opacity = '0';
+        document.body.append(fallback);
+        fallback.select();
+        document.execCommand('copy');
+        fallback.remove();
+      }
+      count('link_copied');
+      el('summaryStatus').textContent = 'Bid link copied — it reopens this bid';
+      setTimeout(() => { el('summaryStatus').textContent = ''; }, 2500);
+    }
+
+    const restored = restoreBid(BID_SPEC, {
+      search: location.search,
+      storage: (() => { try { return localStorage; } catch { return null; } })(),
+    });
+    applyValues(restored.values);
+
+    if (restored.source !== 'none') {
+      // Say which bid is on screen. Numbers that changed themselves between
+      // visits, with no explanation, are how a setter stops trusting the tool.
+      el('restoreNote').hidden = false;
+      el('restoreNote').textContent = restored.source === 'link'
+        ? 'Opened from a bid link — these are the sender’s numbers, not yours.'
+        : 'Picked up your last bid from this browser. “Start a fresh bid” clears it.';
+    }
+
+    el('copyLink').addEventListener('click', () => {
+      copyLink().catch(() => { el('summaryStatus').textContent = 'Copy failed; copy the address bar instead.'; });
+    });
+
+    el('clearSaved').addEventListener('click', () => {
+      try { clearBid(localStorage, BID_SPEC); } catch { /* storage blocked; the reload still clears the form */ }
+      location.href = location.pathname;
+    });
+
+    // Every input already calls `update()`; saving here means the bid is kept
+    // as it is typed rather than only when a button is pressed, which is the
+    // difference between surviving a closed tab and not.
+    document.addEventListener('input', persist);
+    document.addEventListener('change', persist);
+
+    update();
+    persist();
+  </script>
+</body>
+</html>
