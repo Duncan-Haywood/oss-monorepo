@@ -2583,4 +2583,38 @@ ventures:
       ballparks rather than a quote from Airbnb or Vrbo. The retired
       split-fee model cannot win the ranking. Nothing the user enters
       leaves the browser.
+  - slug: owner-operator-cpm-calculator
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 7
+      gross_margin: 10
+      defensibility: 5
+      distribution: 8
+    composite: 6.833
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      There is no AI anywhere in the product. The value is a unit conversion
+      — all-in cost on total miles, quoted as a loaded rate after deadhead
+      and factoring — and adding inference would only make the result less
+      checkable against a fuel receipt.
+    basis: >-
+      Graduated on 2026-08-24 as a browser-local owner-operator cost-per-mile
+      calculator. Distinct from the LTL freight-class estimator (shipper
+      NMFC classification): the buyer here owns the truck. Scored with
+      janitorial on defensibility (5) because the deadhead-adjusted loaded
+      rate is a domain model, not a restated fee schedule, and above it on
+      distribution (8): "owner operator cost per mile calculator" and
+      "truck profit per mile" are high-intent queries with a booking
+      decision attached.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Pass: the output is arithmetic on the operator's own inputs, never a
+      recommended rate, a lane price, or a dispatch instruction. Starting
+      figures are labelled a typical week rather than a benchmark, and
+      nothing the user enters leaves the browser.
 
