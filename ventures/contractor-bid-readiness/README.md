@@ -15,7 +15,8 @@ details in the browser.
 Everything runs in your browser. Your data is never uploaded, and there are no
 accounts, tracking cookies, or analytics vendors. If enabled, the app stores
 only anonymous feature counters in your browser: `readiness_checked` and
-`report_downloaded`. Uncheck the usage option to turn counting off.
+`report_downloaded`. Uncheck the usage option to turn counting off. Counting
+is also disabled when the browser sends Do Not Track or Global Privacy Control.
 
 ## Limits
 

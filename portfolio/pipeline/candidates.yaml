@@ -33,27 +33,27 @@ rescore_note: >-
   rescore-2026-08-20.md.
 
 candidates:
-  - slug: contractor-bid-readiness
-    name: Contractor bid readiness
-    doc: candidates/contractor-bid-readiness.md
+  - slug: invoice-payment-terms-calculator
+    name: Invoice payment terms calculator
+    doc: candidates/invoice-payment-terms-calculator.md
     verdict: graduated
     graduate_as: venture
     host_venture: null
-    initiated: 2026-08-25
-    initiated_path: ventures/contractor-bid-readiness
+    initiated: 2026-08-24
+    initiated_path: ventures/invoice-payment-terms-calculator
     scores:
-      ai_leverage: 2
+      ai_leverage: 1
       autonomous_ops: 10
-      time_to_revenue: 7
+      time_to_revenue: 8
       gross_margin: 10
       defensibility: 4
-      distribution: 6
+      distribution: 8
       liability_containment: 8
       ethical_robustness: 9
-    composite: 7.0
-    floor: 2
+    composite: 7.25
+    floor: 1
     floor_dimension: ai_leverage
-    mitigation: Keep the deterministic checklist as the complete free core; never claim bid compliance or interpret requirements for the user.
+    mitigation: Keep deterministic cash-flow arithmetic as the complete free core and label late-fee and early-pay results as scenarios, not legal conclusions.
     first_experiment_days: 14
     first_experiment_budget_usd: 0
   - slug: cut-list-optimizer
