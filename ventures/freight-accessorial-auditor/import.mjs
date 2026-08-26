@@ -26,6 +26,9 @@ export const IMPORT_FIELDS = [
   { key: "code", label: "Accessorial code", kind: "text" },
   { key: "billed", label: "Billed amount", kind: "money" },
   { key: "expected", label: "Expected amount", kind: "money" },
+  // Only needed by per-unit rate-card rules (detention hours, storage days,
+  // reweigh hundredweight). Left unmapped, flat rates still price normally.
+  { key: "units", label: "Quantity / hours (for per-unit rates)", kind: "number" },
 ];
 
 // Header names seen across LTL carrier and TMS exports, lowercased and
@@ -37,6 +40,9 @@ const HEADER_HINTS = {
   code: ["accessorial code", "charge code", "service code", "code", "accessorial", "charge type", "charge description", "description", "service"],
   billed: ["billed amount", "billed", "amount billed", "charge amount", "net amount", "total charge", "amount", "charge", "total"],
   expected: ["expected amount", "expected", "contract amount", "contracted amount", "quoted amount", "quoted", "rated amount", "agreed amount"],
+  // "hours" and "minutes" lead because detention is the accessorial a
+  // quantity column is most often present for, and the most often overbilled.
+  units: ["detention hours", "billable hours", "hours", "hrs", "minutes", "mins", "storage days", "days", "quantity", "qty", "units", "unit count", "pieces", "pallets", "weight", "billed weight", "hundredweight", "cwt", "count"],
 };
 
 function normalizeHeader(value) {
@@ -249,15 +255,189 @@ function normalizeCode(value) {
   return String(value ?? "").trim().toUpperCase();
 }
 
+// Units an accessorial can be rated in. Each entry lists the spellings that
+// appear on rate confirmations and in carrier exports; the key is what the
+// tool calls the unit back to the user.
+//
+// `minute` exists only so a quantity column reporting dock time in minutes can
+// be priced against a per-hour detention rate — the single conversion carriers
+// and TMS exports disagree about often enough to be worth handling. Every
+// other unit is compared by name and never converted, because guessing that
+// "3 pallets" satisfies a per-hundredweight rate would invent a number.
+const UNIT_SPELLINGS = {
+  hour: ["hour", "hours", "hr", "hrs", "h"],
+  minute: ["minute", "minutes", "min", "mins", "m"],
+  day: ["day", "days"],
+  cwt: ["cwt", "hundredweight"],
+  pallet: ["pallet", "pallets", "plt", "plts", "skid", "skids"],
+  piece: ["piece", "pieces", "pc", "pcs", "carton", "cartons", "case", "cases"],
+  mile: ["mile", "miles", "mi"],
+  stop: ["stop", "stops"],
+  unit: ["unit", "units", "each", "ea"],
+};
+
+const UNIT_BY_SPELLING = new Map(
+  Object.entries(UNIT_SPELLINGS).flatMap(([unit, spellings]) =>
+    spellings.map((spelling) => [spelling, unit]),
+  ),
+);
+
+/** Canonical unit name for a spelling as written, or null. */
+export function normalizeUnit(value) {
+  const word = String(value ?? "").trim().toLowerCase().replace(/[.]/g, "");
+  if (word === "") return null;
+  return UNIT_BY_SPELLING.get(word) ?? null;
+}
+
+function ratedMoney(value) {
+  const rounded = Math.round(value * 100) / 100;
+  return `$${rounded.toFixed(2)}`;
+}
+
+function roundCents(value) {
+  return Math.round(value * 100) / 100;
+}
+
+/** Trim a number the way a basis line should read: 2 not 2.00, 1.5 not 1.50. */
+function quantityText(value) {
+  return Number.isInteger(value) ? String(value) : String(roundCents(value));
+}
+
+// Trailing clauses, peeled off the end of a rate line before the code and rate
+// are read. Each is optional and they may appear in any order, because a rate
+// confirmation writes "max $325" and "not to exceed $325" with equal frequency
+// and a shipper pasting one should not have to reorder it.
+const CAP_CLAUSE = /[,;]?\s*\b(?:max|maximum|cap|capped\s+at|not\s+to\s+exceed|nte)\b\s*(?:of|at|:)?\s*(\$?\s*[\d.,]+)\s*$/i;
+const FLOOR_CLAUSE = /[,;]?\s*\b(?:min|minimum|at\s+least)\b\s*(?:of|at|:)?\s*(\$?\s*[\d.,]+)\s*$/i;
+const AFTER_CLAUSE = /[,;]?\s*\b(?:after|beyond|over|past)\b\s*([\d.,]+)\s*([a-z]+)?\s*(?:free)?\s*$/i;
+const FREE_CLAUSE = /[,;]?\s*\b([\d.,]+)\s*([a-z]+)?\s+free\b\s*$/i;
+const RATE_CLAUSE = /^(.*?)[\s,;:=]+(\$?\s*[\d.,]+)\s*(?:\/|\bper\b)\s*([a-z]+)\s*$/i;
+const FLAT_CLAUSE = /^(.*?)[\s,;:=]+([^\s,;:=]+)$/;
+
 /**
- * Parse the user's contract rates: one `CODE amount` pair per line.
+ * Parse one rate-card line into a rule, or explain why it could not be read.
  *
- * This is the half of the import a carrier file cannot supply. A shipper
- * types six accessorial rates once and every imported line gets an expected
+ * The grammar is `CODE rate[/unit] [after N unit] [min $M] [max $X]`, matching
+ * how accessorial tariffs are actually written:
+ *
+ *   LIFT, 75                          flat — the whole line is $75
+ *   DET 65/hr after 2 hours           $65 an hour past 2 free hours
+ *   STO $40 per day after 1, max 300  the same, floored by a cap
+ *   REWEIGH 4.50/cwt min 45           per hundredweight, never under $45
+ */
+function parseRateLine(trimmed) {
+  let rest = trimmed;
+  let max = null;
+  let min = null;
+  let free = 0;
+  let freeUnit = null;
+
+  // Peel trailing clauses until none is left. Each clause is anchored to the
+  // end of the line, so a single pass per keyword would only ever read the
+  // last one written — "max 325 min 65 after 2" would leave `max` and `min`
+  // stranded inside the code. Looping makes the three genuinely commutative,
+  // which matters because a rate confirmation writes them in any order.
+  for (let peeled = true; peeled; ) {
+    peeled = false;
+
+    if (max == null) {
+      const capMatch = rest.match(CAP_CLAUSE);
+      if (capMatch) {
+        const parsed = parseMoney(capMatch[1]);
+        if (!parsed.ok || parsed.value < 0) return { reason: "cap is not a non-negative amount" };
+        max = parsed.value;
+        rest = rest.slice(0, capMatch.index).trim();
+        peeled = true;
+        continue;
+      }
+    }
+
+    if (min == null) {
+      const floorMatch = rest.match(FLOOR_CLAUSE);
+      if (floorMatch) {
+        const parsed = parseMoney(floorMatch[1]);
+        if (!parsed.ok || parsed.value < 0) return { reason: "minimum is not a non-negative amount" };
+        min = parsed.value;
+        rest = rest.slice(0, floorMatch.index).trim();
+        peeled = true;
+        continue;
+      }
+    }
+
+    if (free === 0) {
+      const afterMatch = rest.match(AFTER_CLAUSE) ?? rest.match(FREE_CLAUSE);
+      if (afterMatch) {
+        const parsed = parseMoney(afterMatch[1]);
+        if (!parsed.ok || parsed.value < 0) return { reason: "free allowance is not a non-negative number" };
+        free = parsed.value;
+        freeUnit = normalizeUnit(afterMatch[2]);
+        if (afterMatch[2] && !freeUnit) return { reason: `free allowance names an unknown unit "${afterMatch[2]}"` };
+        rest = rest.slice(0, afterMatch.index).trim();
+        peeled = true;
+      }
+    }
+  }
+
+  if (min != null && max != null && min > max) {
+    return { reason: "minimum is above the cap" };
+  }
+
+  const rated = rest.match(RATE_CLAUSE);
+  if (rated) {
+    const code = normalizeCode(rated[1]);
+    const amount = parseMoney(rated[2]);
+    const per = normalizeUnit(rated[3]);
+    if (!code) return { reason: "no code found" };
+    if (!amount.ok || amount.value < 0) return { reason: "rate is not a non-negative amount" };
+    if (!per) return { reason: `unknown unit "${rated[3]}" — try hour, day, cwt, pallet, piece, mile, stop, or unit` };
+    if (freeUnit && freeUnit !== per && !(freeUnit === "minute" && per === "hour")) {
+      return { reason: `free allowance is in ${freeUnit}s but the rate is per ${per}` };
+    }
+    // "after 30 min" against a per-hour rate is the same conversion the
+    // quantity column gets, and for the same reason.
+    const freeInRateUnits = freeUnit === "minute" && per === "hour" ? free / 60 : free;
+    return { rule: { code, amount: amount.value, per, free: freeInRateUnits, min, max, source: trimmed } };
+  }
+
+  const flat = rest.match(FLAT_CLAUSE);
+  if (!flat) return { reason: "no code and amount found" };
+  const code = normalizeCode(flat[1]);
+  const amount = parseMoney(flat[2]);
+  if (!code) return { reason: "no code found" };
+  // A code may legitimately contain spaces — "INSIDE DELIVERY 95" is how most
+  // people write their first card, straight out of the description column. It
+  // may not contain a rate or a clause keyword: that means the line was meant
+  // to be per-unit and something in it did not parse, and accepting it here
+  // would bury a broken rule under a code nobody will ever match against.
+  if (/[/]|\b(?:per|max|maximum|cap|nte|min|minimum|after|beyond|free)\b/i.test(flat[1])) {
+    return { reason: "could not read this as CODE rate[/unit] [after N] [min $M] [max $X]" };
+  }
+  if (!amount.ok || amount.value < 0) return { reason: "amount is not a non-negative number" };
+  if (free > 0) {
+    // A free allowance only means something against a per-unit rate. Silently
+    // dropping it would price the line as flat while the shipper believes the
+    // allowance is being applied — the expensive kind of wrong.
+    return { reason: "a free allowance needs a per-unit rate (write 65/hr, not 65)" };
+  }
+  return { rule: { code, amount: amount.value, per: null, free: 0, min, max, source: trimmed } };
+}
+
+/**
+ * Parse the user's contract rates: one rule per line.
+ *
+ * This is the half of the import a carrier file cannot supply. A shipper types
+ * their accessorial rates once and every imported line gets an expected
  * amount, which is what turns a bulk import from a tidy list into an audit.
  *
  * Accepts `LIFT,75`, `LIFT 75`, `LIFT: $75.00`, and `LIFT = 75` because the
- * text is usually pasted out of a rate confirmation, not typed to a spec.
+ * text is usually pasted out of a rate confirmation, not typed to a spec — and
+ * `DET 65/hr after 2 hours, max $325` because the accessorials worth auditing
+ * are rated per unit with an allowance and a cap. A flat card cannot price
+ * detention, storage, or a reweigh at all, which left the highest-dollar,
+ * most-disputed lines on a bulk import with no expected amount.
+ *
+ * Values are rules, not numbers: `{ code, amount, per, free, min, max }`.
+ * A flat rate is the `per: null` case rather than a separate shape.
  */
 export function parseRateCard(text) {
   const rates = new Map();
@@ -266,24 +446,102 @@ export function parseRateCard(text) {
   lines.forEach((line, index) => {
     const trimmed = line.trim();
     if (trimmed === "" || trimmed.startsWith("#")) return;
-    const match = trimmed.match(/^(.*?)[\s,;:=]+([^\s,;:=]+)$/);
-    if (!match) {
-      issues.push({ line: index + 1, text: trimmed, reason: "no code and amount found" });
+    const parsed = parseRateLine(trimmed);
+    if (parsed.reason) {
+      issues.push({ line: index + 1, text: trimmed, reason: parsed.reason });
       return;
     }
-    const code = normalizeCode(match[1]);
-    const amount = parseMoney(match[2]);
-    if (!code) {
-      issues.push({ line: index + 1, text: trimmed, reason: "no code found" });
-      return;
-    }
-    if (!amount.ok || amount.value < 0) {
-      issues.push({ line: index + 1, text: trimmed, reason: "amount is not a non-negative number" });
-      return;
-    }
-    rates.set(code, amount.value);
+    rates.set(parsed.rule.code, parsed.rule);
   });
   return { rates, issues };
+}
+
+/**
+ * Read a quantity cell: `3`, `3.5`, `180 min`, `2 hours`, `1,250 cwt`.
+ *
+ * A bare number is taken to be in the rule's own unit. A cell that names a
+ * different unit is refused rather than converted, except minutes against a
+ * per-hour rate — see `UNIT_SPELLINGS`.
+ */
+export function parseQuantity(value, per) {
+  const raw = String(value ?? "").trim();
+  if (raw === "") return { ok: false, reason: "empty" };
+  const match = raw.match(/^([^a-z]*)\s*([a-z]+)?\.?$/i);
+  if (!match) return { ok: false, reason: "unreadable" };
+  const amount = parseMoney(match[1]);
+  if (!amount.ok || amount.value < 0) return { ok: false, reason: "unreadable" };
+  if (!match[2]) return { ok: true, value: amount.value, unit: per ?? null };
+  const unit = normalizeUnit(match[2]);
+  if (!unit) return { ok: false, reason: "unreadable" };
+  if (per && unit !== per) {
+    if (unit === "minute" && per === "hour") {
+      return { ok: true, value: amount.value / 60, unit: "hour", converted: "minutes" };
+    }
+    return { ok: false, reason: "wrong-unit", unit };
+  }
+  return { ok: true, value: amount.value, unit };
+}
+
+/**
+ * Price one line from a rate-card rule and the row's quantity.
+ *
+ * Returns the expected amount plus the plain-language `basis` behind it. The
+ * basis is the point: a shipper asking a carrier for a credit has to say what
+ * the contract says the line should have cost, and "$65.00/hour × 1 h past 2 h
+ * free" is an argument in a way that a bare "$65.00 expected" is not.
+ *
+ * A rule that needs a quantity and does not get one returns `ok: false`. The
+ * caller leaves the expected amount blank and surfaces the reason — never a
+ * zero, which would read as "the contract says this line is free".
+ */
+export function expectedFor(rule, units) {
+  if (!rule) return { ok: false, reason: "no rate-card entry for this code" };
+  if (!rule.per) {
+    let amount = rule.amount;
+    const clauses = [];
+    if (rule.min != null && amount < rule.min) {
+      amount = rule.min;
+      clauses.push(`raised to the ${ratedMoney(rule.min)} minimum`);
+    }
+    if (rule.max != null && amount > rule.max) {
+      amount = rule.max;
+      clauses.push(`capped at ${ratedMoney(rule.max)}`);
+    }
+    const basis = [`flat contract rate ${ratedMoney(rule.amount)}`, ...clauses].join(", ");
+    return { ok: true, amount: roundCents(amount), basis };
+  }
+
+  const quantity = parseQuantity(units, rule.per);
+  if (!quantity.ok) {
+    if (quantity.reason === "empty") {
+      return { ok: false, reason: `${rule.code} is rated per ${rule.per} — map a quantity column to price it` };
+    }
+    if (quantity.reason === "wrong-unit") {
+      return { ok: false, reason: `quantity is in ${quantity.unit}s but ${rule.code} is rated per ${rule.per}` };
+    }
+    return { ok: false, reason: `quantity could not be read` };
+  }
+
+  const billable = Math.max(0, quantity.value - rule.free);
+  let amount = billable * rule.amount;
+  const clauses = [
+    `${quantityText(billable)} ${rule.per}${billable === 1 ? "" : "s"}` +
+      (rule.free > 0 ? ` past ${quantityText(rule.free)} free` : "") +
+      ` × ${ratedMoney(rule.amount)}/${rule.per}`,
+  ];
+  if (quantity.converted) clauses.unshift(`${quantityText(quantity.value)} ${rule.per}s from ${quantity.converted}`);
+  // A contract minimum applies to a line that is billable at all. Applying it
+  // to zero billable units would invent a charge on a shipment that stayed
+  // inside its free time.
+  if (rule.min != null && billable > 0 && amount < rule.min) {
+    amount = rule.min;
+    clauses.push(`raised to the ${ratedMoney(rule.min)} minimum`);
+  }
+  if (rule.max != null && amount > rule.max) {
+    amount = rule.max;
+    clauses.push(`capped at ${ratedMoney(rule.max)}`);
+  }
+  return { ok: true, amount: roundCents(amount), basis: clauses.join(", "), billable };
 }
 
 /**
@@ -310,6 +568,8 @@ export function buildImportedRows(table, mapping, options = {}) {
   let unreadableBilled = 0;
   let unmatchedCodes = 0;
   let skipped = 0;
+  let needsUnits = 0;
+  let pricedPerUnit = 0;
 
   const cell = (row, field) => {
     const index = mapping?.[field];
@@ -322,6 +582,7 @@ export function buildImportedRows(table, mapping, options = {}) {
     const code = normalizeCode(cell(row, "code"));
     const billedCell = cell(row, "billed");
     const expectedCell = cell(row, "expected");
+    const unitsCell = cell(row, "units");
 
     if (onlyRatedCodes && !rates.has(code)) {
       skipped += 1;
@@ -342,10 +603,12 @@ export function buildImportedRows(table, mapping, options = {}) {
     }
 
     let expected = "";
+    let basis = "";
     if (expectedCell !== "") {
       const parsedExpected = parseMoney(expectedCell);
       if (parsedExpected.ok) {
         expected = parsedExpected.value.toFixed(2);
+        basis = "expected amount from the carrier's own export";
       } else {
         issues.push({
           line: lineNumber,
@@ -355,8 +618,24 @@ export function buildImportedRows(table, mapping, options = {}) {
         });
       }
     }
+    // The export's own expected column wins over the rate card: it is the
+    // figure the two parties already agreed on for this shipment, where the
+    // rate card is the general rule. The card fills the far more common gap.
     if (expected === "" && rates.has(code)) {
-      expected = rates.get(code).toFixed(2);
+      const priced = expectedFor(rates.get(code), unitsCell);
+      if (priced.ok) {
+        expected = priced.amount.toFixed(2);
+        basis = priced.basis;
+        if (rates.get(code).per) pricedPerUnit += 1;
+      } else {
+        needsUnits += 1;
+        issues.push({
+          line: lineNumber,
+          field: "units",
+          value: String(unitsCell),
+          reason: priced.reason,
+        });
+      }
     }
     if (expected === "") {
       unmatchedCodes += 1;
@@ -368,6 +647,8 @@ export function buildImportedRows(table, mapping, options = {}) {
       code,
       billed: billed.ok ? billed.value.toFixed(2) : String(billedCell),
       expected,
+      units: String(unitsCell),
+      basis,
       evidence: defaultEvidence,
     });
   });
@@ -383,7 +664,10 @@ export function buildImportedRows(table, mapping, options = {}) {
       skippedCodes: [...skippedCodes.entries()].map(([code, count]) => ({ code, count })),
       unreadableBilled,
       withoutExpected: unmatchedCodes,
+      needsUnits,
+      pricedPerUnit,
       ratedCodes: rates.size,
+      perUnitRules: [...rates.values()].filter((rule) => rule.per).length,
     },
   };
 }
@@ -412,6 +696,14 @@ export function importSummaryNote(summary) {
   }
   if (summary.unreadableBilled > 0) {
     parts.push(`${summary.unreadableBilled} billed amount${summary.unreadableBilled === 1 ? "" : "s"} could not be read and ${summary.unreadableBilled === 1 ? "is" : "are"} flagged in the queue rather than counted as zero.`);
+  }
+  if (summary.pricedPerUnit > 0) {
+    parts.push(`${summary.pricedPerUnit} line${summary.pricedPerUnit === 1 ? " was" : "s were"} priced from a per-unit rule against the quantity column, and each says which rule and quantity produced its figure.`);
+  }
+  if (summary.needsUnits > 0) {
+    // Separated from `withoutExpected` because the fix is different: this one
+    // is a column away, not a rate-card entry away.
+    parts.push(`${summary.needsUnits} line${summary.needsUnits === 1 ? " matched a per-unit rule but could not be priced" : "s matched a per-unit rule but could not be priced"} — map the column holding hours, days, or weight above, or type the figure in the row.`);
   }
   if (summary.withoutExpected > 0) {
     parts.push(`${summary.withoutExpected} line${summary.withoutExpected === 1 ? " has" : "s have"} no expected amount yet — add the code to your rate card or type the figure in the row. Duplicate and missing-code checks still run on them.`);
