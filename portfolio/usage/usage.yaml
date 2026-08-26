@@ -3356,3 +3356,17 @@ products:
           Shipped a local carpet cleaning bid calculator (rooms, stairs, pet
           extra passes, upholstery, drive time, walk-away vs a posted special)
           with a copyable quote summary; public URL remains owner-gated.
+
+  - slug: lawn-care-bid-calculator
+    surface: static-page-in-repo
+    readings:
+      - as_of: 2026-08-24
+        signals:
+          live_url_visitors: null
+          local_events_reported: 0
+        note: >-
+          Shipped browser-local lawn-care bid calculator (per-service
+          production rates, travel as loaded labor, honest annual at
+          growing-season weeks, walk-away price). Public URL remains
+          owner-gated; the local-first counter reports only to the user's
+          own browser and is opt-out. Baseline row.
