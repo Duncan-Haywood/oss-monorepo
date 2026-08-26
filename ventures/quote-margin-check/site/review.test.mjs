@@ -1,7 +1,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import { loadQuote, calculate } from "./calc.mjs";
-import { reviewQuote } from "./review.mjs";
+import { reviewQuote, reviewDecision } from "./review.mjs";
 
 function reportFor(data) { const quote = loadQuote(data); return [quote, calculate(quote)]; }
 
@@ -17,7 +17,38 @@ test("flags direct costs and missing revision time", () => {
   assert.deepEqual(reviewQuote(quote, report).map((check) => check.title), ["Direct costs exceed the quoted price", "The quote is below the supplied target", "No revision hours are included"]);
 });
 
+test("flags direct costs that leave no amount after costs", () => {
+  const [quote, report] = reportFor({ currency: "USD", price: 100, delivery_hours: 2, overhead: 60, subcontractor_cost: 40, target_hourly_rate: 20, revision_hours: 1 });
+  const checks = reviewQuote(quote, report);
+  assert.equal(checks[0].title, "Direct costs use the entire quoted price");
+  assert.match(checks[0].detail, /leaving nothing after direct costs/);
+  assert.ok(checks.some((check) => check.level === "attention"));
+});
+
 test("returns a clear check when there are no flags", () => {
   const [quote, report] = reportFor({ currency: "USD", price: 1000, delivery_hours: 5, revision_hours: 1, target_hourly_rate: 50 });
   assert.equal(reviewQuote(quote, report).at(-1).level, "clear");
+});
+
+test("turns attention flags into a user-controlled decision prompt", () => {
+  const [quote, report] = reportFor({ currency: "USD", price: 900, delivery_hours: 10, target_hourly_rate: 100 });
+  const decision = reviewDecision(report, quote);
+  assert.equal(decision.tone, "attention");
+  assert.match(decision.detail, /1 arithmetic flag/);
+});
+
+test("shows a clear decision prompt when arithmetic has no flags", () => {
+  const [quote, report] = reportFor({ currency: "USD", price: 1000, delivery_hours: 5, revision_hours: 1, target_hourly_rate: 50 });
+  assert.deepEqual(reviewDecision(report, quote), {
+    tone: "clear",
+    title: "No arithmetic flags found",
+    detail: "You can record your own next step after checking the scope and assumptions.",
+  });
+});
+
+test("counts a full-price cost flag as attention, not a send recommendation", () => {
+  const [quote, report] = reportFor({ currency: "USD", price: 100, delivery_hours: 2, overhead: 60, subcontractor_cost: 40, target_hourly_rate: 20, revision_hours: 1 });
+  const decision = reviewDecision(report, quote);
+  assert.equal(decision.tone, "attention");
+  assert.match(decision.detail, /2 arithmetic flags/);
 });
