@@ -6,6 +6,14 @@
 # retired honestly instead of quietly.
 period: 2026-08
 products:
+  - slug: commercial-photo-license-calculator
+    surface: static-page-in-repo
+    readings:
+      - as_of: 2026-08-25
+        signals:
+          live_url_visitors: null
+          local_events_reported: 0
+        note: Shipped browser-local commercial usage-rights quote worksheet; public distribution remains owner-gated.
   - slug: appliance-repair-quote-calculator
     surface: static-page-in-repo
     readings:
