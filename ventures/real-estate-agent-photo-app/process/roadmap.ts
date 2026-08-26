@@ -7,6 +7,9 @@ import type { RoadmapPhase, RoadmapTask } from "./types";
  * they're discovered. Do not delete history — if a task is abandoned, set
  * its status to "blocked" and explain why in `blockedReason` rather than
  * removing it, so future agents don't repeat the same dead end.
+ *
+ * Portfolio rule (2026-08-25): deploy what is already built before more
+ * process or GTM scaffolding. See portfolio/DIRECTION.md "Current priority".
  */
 export const roadmap: RoadmapPhase[] = [
   {
@@ -24,6 +27,16 @@ export const roadmap: RoadmapPhase[] = [
         owner: "agent",
         rationale: "Document feasibility, audience fit, competition, and pricing.",
         doneWhen: "research/ builds and exports statically.",
+      },
+      {
+        id: "p0-deploy-built-surfaces",
+        title: "Put already-built public surfaces on a live URL before more process work",
+        status: "not_started",
+        owner: "both",
+        rationale:
+          "The research site and /photo-check tool already exist. A static export nobody can open does not produce interviews, usage, or a first concierge lead. Portfolio-wide, undeployed products on main outrank new scaffolding — see portfolio/DIRECTION.md Current priority. The owner flip for Pages/Cloudflare is deploy-settings; do not open a second ask.",
+        doneWhen:
+          "A stranger can open the already-built research report and /photo-check without cloning this repo. Agent prepares the deploy artifact; owner flips the existing gated workflow. No new product is started in this venture until that URL exists.",
       },
       {
         id: "p0-docs-site",

@@ -1,0 +1,414 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Pool Plaster Bid Calculator | Price the Walls, the Chip-Off, and the Finish — Not Just Length × Width</title>
+  <meta name="description" content="Price a pool replaster from floor-plus-wall surface, finish (white plaster, quartz, pebble, glass), chip-out, spa, steps, waterline tile, and coping — not the homeowner's length × width. See the walk-away number before you match a cheaper water-surface quote.">
+  <meta property="og:title" content="Pool Plaster / Resurfacing Bid Calculator">
+  <meta property="og:description" content="A 16×32 rectangle is 512 square feet of water and about 1,064 square feet of plaster. Bid the walls, the finish, and the chip-out — not length × width.">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Pool Plaster Bid Calculator","applicationCategory":"BusinessApplication","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"featureList":"Floor-plus-wall plaster takeoff versus water surface, white plaster versus quartz versus pebble versus glass, full versus partial chip-out, spa and steps, waterline tile and coping, drain-and-refill, walk-away price, proposed-price margin check, copyable customer-facing bid summary"}</script>
+  <style>
+    :root { color-scheme: light; font-family: system-ui, sans-serif; color: #163044; background: #e8f1f6; }
+    body { max-width: 1060px; margin: 0 auto; padding: 32px 18px; }
+    header { max-width: 740px; margin-bottom: 26px; }
+    h1 { font-size: clamp(2rem, 6vw, 3.4rem); line-height: .98; margin: 0 0 12px; letter-spacing: -.05em; }
+    p { line-height: 1.5; }
+    .eyebrow { font-size: .8rem; font-weight: 700; letter-spacing: .08em; color: #0e7490; margin: 0 0 6px; }
+    .layout { display: grid; grid-template-columns: minmax(0, 1fr) minmax(300px, .75fr); gap: 18px; align-items: start; }
+    section { background: #fff; border: 1px solid #c5d5e0; border-radius: 14px; padding: 20px; box-shadow: 0 8px 24px #1630440d; margin-bottom: 18px; }
+    h2 { margin-top: 0; font-size: 1.15rem; }
+    .hint { font-size: .82rem; color: #4a6274; margin: -6px 0 14px; }
+    .fields { display: grid; grid-template-columns: repeat(2, 1fr); gap: 13px; }
+    label { display: grid; gap: 5px; font-size: .87rem; font-weight: 650; }
+    input, select { width: 100%; box-sizing: border-box; border: 1px solid #8aa4b6; border-radius: 7px; padding: 10px; font: inherit; background: #fff; }
+    label.check { display: flex; gap: 8px; align-items: center; font-weight: 650; }
+    label.check input { width: auto; }
+    button { font: inherit; border-radius: 7px; border: 1px solid #8aa4b6; background: #eef5f9; padding: 10px 14px; cursor: pointer; font-weight: 650; }
+    button:hover { background: #dceaf2; }
+    .result { position: sticky; top: 15px; background: #123047; color: #eef6fb; border-color: #123047; }
+    .hero-number { font-size: 2.7rem; font-weight: 750; letter-spacing: -.05em; margin: 8px 0; }
+    .negative { color: #ffb0a2; }
+    dl { display: grid; grid-template-columns: 1fr auto; gap: 9px; margin: 20px 0; }
+    dt, dd { margin: 0; } dd { font-variant-numeric: tabular-nums; }
+    hr { border: 0; border-top: 1px solid #ffffff2b; }
+    .note { font-size: .82rem; opacity: .84; }
+    .split { margin: 14px 0 0; padding: 0; list-style: none; font-size: .84rem; }
+    .split li { display: grid; grid-template-columns: 1fr auto; gap: 8px; padding: 3px 0; }
+    .bar { grid-column: 1 / -1; height: 4px; border-radius: 2px; background: #ffffff2e; }
+    .bar > span { display: block; height: 100%; border-radius: 2px; background: #38bdf8; }
+    .verdict { margin-top: 14px; padding: 12px; border-radius: 9px; font-size: .87rem; background: #ffffff1a; }
+    .verdict.bad { background: #7d2317; }
+    footer { margin-top: 25px; font-size: .82rem; color: #4a6274; }
+    footer a { color: #0e7490; }
+    .support { margin-top: 14px; }
+    .summary-actions { display: flex; gap: 8px; align-items: center; margin-top: 14px; }
+    .summary-status { font-size: .8rem; color: #7dd3fc; }
+    @media (max-width: 780px) {
+      .layout { grid-template-columns: 1fr; } .result { position: static; } .fields { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="eyebrow">FOR POOL PLASTER AND RESURFACING CONTRACTORS</p>
+    <h1>Bid the walls, the chip-out, and the finish.</h1>
+    <p>Price a drain-and-replaster the way the trade actually loses money: floor plus walls (not length × width), finish, chip-out, spa, steps, waterline tile, and coping. You get the bid, the price per square foot of plaster, the water-surface number the homeowner is shopping, and the walk-away number below which the job loses money.</p>
+  </header>
+
+  <main class="layout">
+    <div>
+      <section>
+        <h2>The pool</h2>
+        <p class="hint">Start from a common job, then replace every figure with your takeoff. Changing finish or chip-out never overwrites a rate you already typed.</p>
+        <div class="fields">
+          <label>Job preset
+            <select id="jobPresets">
+              <option value="">Choose a starting pool…</option>
+            </select>
+          </label>
+          <label>Shape
+            <select id="shape">
+              <option value="rectangle" selected>Rectangle</option>
+              <option value="freeform">Freeform / kidney</option>
+            </select>
+          </label>
+          <label>Finish
+            <select id="finish">
+              <option value="white-plaster" selected>White plaster / marcite</option>
+              <option value="quartz">Quartz</option>
+              <option value="pebble">Pebble / exposed aggregate</option>
+              <option value="glass">Glass bead</option>
+            </select>
+          </label>
+          <label>Chip-out
+            <select id="chipout">
+              <option value="none" selected>No chip-out (drain and plaster over, if bonded)</option>
+              <option value="partial">Partial chip-out (failed areas only)</option>
+              <option value="full">Full chip-out to gunite</option>
+            </select>
+          </label>
+          <label>Length (ft) <input id="lengthFt" type="number" min="0" step="0.5" value="32"></label>
+          <label>Width (ft) <input id="widthFt" type="number" min="0" step="0.5" value="16"></label>
+          <label>Shallow depth (ft) <input id="shallowFt" type="number" min="0" step="0.25" value="3.5"></label>
+          <label>Deep depth (ft) <input id="deepFt" type="number" min="0" step="0.25" value="8"></label>
+          <label>Water surface (sq ft) <input id="waterSurfaceSf" type="number" min="0" step="1" value="512"></label>
+          <label>Freeform wall multiplier <input id="freeformMultiplier" type="number" min="1" step="0.05" value="1.8"></label>
+          <label>Partial chip-out (sq ft) <input id="chipoutSf" type="number" min="0" step="1" value="0"></label>
+          <label>Spa (sq ft) <input id="spaSf" type="number" min="0" step="1" value="0"></label>
+          <label>Steps / benches <input id="stepBenches" type="number" min="0" step="1" value="0"></label>
+          <label>Waterline tile (lf) <input id="waterlineTileLf" type="number" min="0" step="1" value="0"></label>
+          <label>Coping (lf) <input id="copingLf" type="number" min="0" step="1" value="0"></label>
+          <label class="check"><input id="drainRefill" type="checkbox" checked> Drain and refill</label>
+          <label class="check"><input id="acidWash" type="checkbox"> Acid wash</label>
+        </div>
+      </section>
+
+      <section>
+        <h2>Your crew rates</h2>
+        <div class="fields">
+          <label>Hours / plaster sq ft <input id="hoursPerPlasterSf" type="number" min="0" step="0.005" value="0.045"></label>
+          <label>Hours / chip-out sq ft <input id="hoursPerChipoutSf" type="number" min="0" step="0.01" value="0"></label>
+          <label>Hours for a spa <input id="hoursPerSpa" type="number" min="0" step="0.25" value="6"></label>
+          <label>Hours / step or bench <input id="hoursPerStep" type="number" min="0" step="0.25" value="1.5"></label>
+          <label>Hours / tile foot <input id="hoursPerTileLf" type="number" min="0" step="0.01" value="0.18"></label>
+          <label>Hours / coping foot <input id="hoursPerCopingLf" type="number" min="0" step="0.01" value="0.22"></label>
+          <label>Hours to drain and refill <input id="hoursDrainRefill" type="number" min="0" step="0.25" value="3.5"></label>
+          <label>Hours for acid wash <input id="hoursAcidWash" type="number" min="0" step="0.25" value="2.5"></label>
+          <label>Site / travel hours <input id="siteHours" type="number" min="0" step="0.25" value="2"></label>
+          <label>Finish $ / plaster sq ft <input id="finishPerSf" type="number" min="0" step="0.05" value="1.85"></label>
+          <label>Tile $ / ft <input id="tilePerLf" type="number" min="0" step="0.5" value="18"></label>
+          <label>Coping $ / ft <input id="copingPerLf" type="number" min="0" step="0.5" value="22"></label>
+          <label>Dumpster / haul-off <input id="dumpsterCost" type="number" min="0" step="10" value="0"></label>
+          <label>Water $ / gallon <input id="waterPerGallon" type="number" min="0" step="0.001" value="0.012"></label>
+          <label>Acid-wash chemicals <input id="acidWashChem" type="number" min="0" step="5" value="85"></label>
+          <label>Permit fee <input id="permitFee" type="number" min="0" step="5" value="125"></label>
+          <label>Sq ft per step / bench <input id="stepSfEach" type="number" min="0" step="1" value="12"></label>
+          <label>Crew hourly wage <input id="hourlyWage" type="number" min="0" step="0.25" value="36"></label>
+          <label>Payroll burden (%) <input id="burdenRate" type="number" min="0" step="0.5" value="30"></label>
+          <label>Travel, mixer, pump fees <input id="travelAndEquipment" type="number" min="0" step="5" value="180"></label>
+          <label>Overhead on direct cost (%) <input id="overheadRate" type="number" min="0" step="0.5" value="15"></label>
+          <label>Target net margin (%) <input id="targetMargin" type="number" min="0" max="99.9" step="0.5" value="26"></label>
+          <label>Price you&rsquo;re considering (optional) <input id="proposedPrice" type="number" min="0" step="50" placeholder="e.g. 8500"></label>
+        </div>
+        <p class="hint" style="margin-top:14px;margin-bottom:0">A $36/h plasterer loaded at 30% is $46.80. Quoting the raw wage on a published per-square-foot special written for the water surface is how a pebble chip-out that looked fine turns into a two-day loss after the first drain day.</p>
+      </section>
+    </div>
+
+    <section class="result" aria-live="polite">
+      <h2>Your bid</h2>
+      <div id="price" class="hero-number">$&mdash;</div>
+      <div id="priceLabel">pool plaster / resurfacing price</div>
+      <dl>
+        <dt>Finish and chip-out</dt><dd id="scope"></dd>
+        <dt>Takeoff</dt><dd id="access"></dd>
+        <dt>Crew hours</dt><dd id="hours"></dd>
+        <dt>Loaded labor</dt><dd id="labor"></dd>
+        <dt>Materials + fees</dt><dd id="materials"></dd>
+        <dt>Travel + equipment</dt><dd id="soft"></dd>
+        <dt>Overhead</dt><dd id="overhead"></dd>
+        <dt>Total cost</dt><dd id="cost"></dd>
+        <dt>Profit at this price</dt><dd id="profit"></dd>
+        <dt>Price per sq ft of plaster</dt><dd id="perSf"></dd>
+        <dt>Price per sq ft of water surface</dt><dd id="perWater"></dd>
+        <dt>Effective hourly rate</dt><dd id="hourlyRate"></dd>
+        <dt>Walk-away price</dt><dd id="breakEven"></dd>
+      </dl>
+      <div id="verdict" class="verdict" hidden></div>
+      <div class="summary-actions">
+        <button type="button" id="copySummary">Copy bid summary</button>
+        <span id="summaryStatus" class="summary-status" role="status" aria-live="polite"></span>
+      </div>
+      <hr>
+      <p class="note" style="margin-bottom:4px"><strong>Where the hours go</strong></p>
+      <ul class="split" id="hourSplit"></ul>
+      <hr>
+      <p class="note" style="margin-bottom:4px"><strong>Where the cost goes</strong></p>
+      <ul class="split" id="split"></ul>
+      <hr>
+      <p class="note">Transparent arithmetic from your own inputs. Starting hours and material rates are common ballpark figures, not an industry standard, a pool specification, or a structural determination &mdash; replace them with your own takeoff.</p>
+    </section>
+  </main>
+
+  <footer>
+    <label class="check" style="font-weight:400"><input id="usageOptOut" type="checkbox"> Do not keep anonymous local usage counts</label>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not construction, engineering, pool, legal, tax, or financial advice, and it does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for meeting any obligation it helps you prepare for. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Nothing leaves your browser.</strong> Every number stays on this device. Usage counts are anonymous tallies of which features were used, stored locally, and never include your square footage, wages, costs, or prices.</p>
+    <p>Related: <a href="how-much-to-charge-to-replaster-a-pool.html">How much to charge to replaster a pool</a>.</p>
+    <p class="support">Free and open source. If it wins you a job, the <a href="https://github.com/Duncan-Haywood/monorepo-projects" rel="noopener">project is on GitHub</a> &mdash; support is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import {
+      calculateBid,
+      formatBidSummary,
+      JOB_PRESETS,
+      suggestedFinishKit,
+      suggestedChipoutKit,
+    } from './calc.mjs';
+    import { recordUsage } from './usage.mjs';
+
+    const FIELD_IDS = [
+      'lengthFt','widthFt','shallowFt','deepFt','waterSurfaceSf','freeformMultiplier',
+      'chipoutSf','spaSf','stepBenches','waterlineTileLf','copingLf','stepSfEach',
+      'hoursPerPlasterSf','hoursPerChipoutSf','hoursPerSpa','hoursPerStep',
+      'hoursPerTileLf','hoursPerCopingLf','hoursDrainRefill','hoursAcidWash','siteHours',
+      'finishPerSf','tilePerLf','copingPerLf','dumpsterCost','waterPerGallon',
+      'acidWashChem','permitFee',
+      'hourlyWage','burdenRate','travelAndEquipment','overheadRate','targetMargin',
+      'proposedPrice',
+    ];
+    const FLAG_IDS = ['drainRefill','acidWash'];
+    const SELECT_IDS = ['shape','finish','chipout'];
+    const SUGGESTED_FINISH_IDS = ['finishPerSf','hoursPerPlasterSf'];
+    const SUGGESTED_CHIPOUT_IDS = ['hoursPerChipoutSf','dumpsterCost'];
+    const money = value => `$${value.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+    const el = id => document.getElementById(id);
+
+    const presets = el('jobPresets');
+    JOB_PRESETS.forEach((job, index) => {
+      const option = document.createElement('option');
+      option.value = String(index);
+      option.textContent = job.label;
+      presets.append(option);
+    });
+
+    function count(event) {
+      recordUsage(localStorage, el('usageOptOut').checked, event);
+    }
+
+    function applyFinishKit(force) {
+      const rates = suggestedFinishKit(el('finish').value);
+      for (const [key, value] of Object.entries(rates)) {
+        if (force || !el(key).dataset.edited) el(key).value = value;
+      }
+    }
+
+    function applyChipoutKit(force) {
+      const rates = suggestedChipoutKit(el('chipout').value);
+      for (const [key, value] of Object.entries(rates)) {
+        if (force || !el(key).dataset.edited) el(key).value = value;
+      }
+    }
+
+    function applyJob(job) {
+      el('shape').value = job.shape;
+      el('finish').value = job.finish;
+      el('chipout').value = job.chipout;
+      applyFinishKit(true);
+      applyChipoutKit(true);
+      [...SUGGESTED_FINISH_IDS, ...SUGGESTED_CHIPOUT_IDS].forEach(id => { el(id).dataset.edited = ''; });
+      el('lengthFt').value = job.lengthFt;
+      el('widthFt').value = job.widthFt;
+      el('shallowFt').value = job.shallowFt;
+      el('deepFt').value = job.deepFt;
+      el('waterSurfaceSf').value = job.waterSurfaceSf;
+      el('freeformMultiplier').value = job.freeformMultiplier;
+      el('chipoutSf').value = job.chipoutSf;
+      el('spaSf').value = job.spaSf;
+      el('stepBenches').value = job.stepBenches;
+      el('waterlineTileLf').value = job.waterlineTileLf;
+      el('copingLf').value = job.copingLf;
+      el('drainRefill').checked = job.drainRefill;
+      el('acidWash').checked = job.acidWash;
+    }
+
+    function readInput() {
+      const values = Object.fromEntries(FIELD_IDS.map(id => [id, el(id).value]));
+      for (const id of FLAG_IDS) values[id] = el(id).checked;
+      for (const id of SELECT_IDS) values[id] = el(id).value;
+      return values;
+    }
+
+    function clearOutputs(message, isError) {
+      el('price').textContent = message;
+      el('price').className = `hero-number ${isError ? 'negative' : ''}`;
+      el('priceLabel').textContent = isError ? 'check the highlighted input' : 'pool plaster / resurfacing price';
+      ['scope','access','hours','labor','materials','soft','overhead','cost','profit','perSf','perWater','hourlyRate','breakEven']
+        .forEach(id => { el(id).textContent = ''; });
+      el('hourSplit').innerHTML = '';
+      el('split').innerHTML = '';
+      el('verdict').hidden = true;
+    }
+
+    function barList(entries) {
+      return entries
+        .filter(([, share]) => share > 0)
+        .sort((a, b) => b[1] - a[1])
+        .map(([label, share]) => `<li><span>${label}</span><span>${share.toFixed(0)}%</span>
+          <span class="bar"><span style="width:${share.toFixed(1)}%"></span></span></li>`)
+        .join('');
+    }
+
+    function update() {
+      let result;
+      try {
+        result = calculateBid(readInput());
+      } catch (error) {
+        clearOutputs(error.message, true);
+        return;
+      }
+
+      el('price').textContent = money(result.price);
+      el('price').className = 'hero-number';
+      el('priceLabel').textContent = 'pool plaster / resurfacing price';
+      const finishLabel = result.finish === 'white-plaster' ? 'white plaster' : result.finish;
+      const chipLabel = result.chipout === 'none' ? 'no chip-out' : result.chipout === 'full' ? 'full chip-out' : 'partial chip-out';
+      el('scope').textContent = `${finishLabel}, ${chipLabel}`;
+      const extraBits = [
+        `${result.floorSf.toFixed(0)} sf water / ${result.plasterSf.toFixed(0)} sf plaster`,
+        result.spaSf ? `${result.spaSf} sf spa` : null,
+        result.stepSf ? `${result.stepSf.toFixed(0)} sf steps` : null,
+        result.waterlineTileLf ? `${result.waterlineTileLf} lf tile` : null,
+        result.copingLf ? `${result.copingLf} lf coping` : null,
+        result.drainRefill ? 'drain + refill' : null,
+        result.acidWash ? 'acid wash' : null,
+      ].filter(Boolean);
+      el('access').textContent = extraBits.join(', ');
+      el('hours').textContent = `${result.totalHours.toFixed(1)} h`;
+      el('labor').textContent = money(result.laborCost);
+      el('materials').textContent = money(result.materialCost);
+      el('soft').textContent = money(result.softCost);
+      el('overhead').textContent = money(result.overhead);
+      el('cost').textContent = money(result.totalCost);
+      el('profit').textContent = money(result.profit);
+      el('perSf').textContent = result.pricePerPlasterSf === null ? 'n/a' : money(result.pricePerPlasterSf);
+      el('perWater').textContent = result.pricePerWaterSf === null ? 'n/a' : money(result.pricePerWaterSf);
+      el('hourlyRate').textContent = result.effectiveHourlyRate === null ? 'n/a' : `${money(result.effectiveHourlyRate)}/h`;
+      el('breakEven').textContent = money(result.breakEvenPrice);
+
+      el('hourSplit').innerHTML = barList([
+        ['Plaster + chip-out', result.hourShares.plaster],
+        ['Spa + steps + tile + coping + drain', result.hourShares.extras],
+        ['Site / travel', result.hourShares.site],
+      ]);
+      el('split').innerHTML = barList([
+        ['Labor', result.shares.labor],
+        ['Materials + fees', result.shares.material],
+        ['Travel', result.shares.soft],
+        ['Overhead', result.shares.overhead],
+      ]);
+
+      const verdict = el('verdict');
+      if (result.proposed === null) {
+        verdict.hidden = true;
+      } else {
+        verdict.hidden = false;
+        verdict.className = `verdict${result.proposed.belowBreakEven ? ' bad' : ''}`;
+        const rate = result.proposed.hourlyRate === null ? 'n/a' : `${money(result.proposed.hourlyRate)}/h`;
+        verdict.innerHTML = result.proposed.belowBreakEven
+          ? `At ${money(result.proposed.price)} this job <strong>loses ${money(Math.abs(result.proposed.profit))}</strong> before you take anything out of it. Your walk-away price is ${money(result.breakEvenPrice)}.`
+          : `At ${money(result.proposed.price)} you keep <strong>${money(result.proposed.profit)}</strong> — a ${result.proposed.margin.toFixed(1)}% margin, billing ${rate} of labor.`;
+      }
+    }
+
+    async function copySummary() {
+      const job = JOB_PRESETS[Number(presets.value)];
+      const text = formatBidSummary(calculateBid(readInput()), job?.label);
+      try {
+        await navigator.clipboard.writeText(text);
+      } catch {
+        const fallback = document.createElement('textarea');
+        fallback.value = text;
+        fallback.setAttribute('readonly', '');
+        fallback.style.position = 'fixed';
+        fallback.style.opacity = '0';
+        document.body.append(fallback);
+        fallback.select();
+        document.execCommand('copy');
+        fallback.remove();
+      }
+      count('summary_copied');
+      el('summaryStatus').textContent = 'Copied to clipboard';
+      setTimeout(() => { el('summaryStatus').textContent = ''; }, 2500);
+    }
+
+    presets.addEventListener('change', () => {
+      const job = JOB_PRESETS[Number(presets.value)];
+      if (!job) return;
+      applyJob(job);
+      count('preset_applied');
+      update();
+    });
+
+    el('finish').addEventListener('change', () => {
+      applyFinishKit(false);
+      count('bid_calculated');
+      update();
+    });
+    el('chipout').addEventListener('change', () => {
+      applyChipoutKit(false);
+      count('bid_calculated');
+      update();
+    });
+    el('shape').addEventListener('change', () => {
+      count('bid_calculated');
+      update();
+    });
+
+    [...SUGGESTED_FINISH_IDS, ...SUGGESTED_CHIPOUT_IDS]
+      .forEach(id => el(id).addEventListener('input', () => { el(id).dataset.edited = '1'; }));
+
+    FIELD_IDS.forEach(id => {
+      el(id).addEventListener('input', update);
+      el(id).addEventListener('change', () => count(id === 'proposedPrice' ? 'proposed_price_compared' : 'bid_calculated'));
+    });
+    FLAG_IDS.forEach(id => {
+      el(id).addEventListener('change', () => {
+        count('bid_calculated');
+        update();
+      });
+    });
+    el('usageOptOut').addEventListener('change', update);
+    el('copySummary').addEventListener('click', () => {
+      try {
+        copySummary().catch(() => { el('summaryStatus').textContent = 'Copy failed; select and copy the figures above.'; });
+      } catch (error) {
+        el('summaryStatus').textContent = error.message;
+      }
+    });
+
+    update();
+  </script>
+</body>
+</html>

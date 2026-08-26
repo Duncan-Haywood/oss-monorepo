@@ -25,7 +25,7 @@ platform design not yet started. `site/` is a static build (`npm run build`)
 that renders the constitution's markdown into a browsable HTML site
 (`docs/00-overview.md` and friends).
 
-Four learner-facing artifacts now exist, all free, zero-dependency,
+Six learner-facing artifacts now exist, all free, zero-dependency,
 client-side static pages (LICENSE, disclaimer, privacy line, local-first
 usage counting, unit tested), listed together on
 [`tools/index.html`](tools/index.html) — a hub page so someone who lands on
@@ -54,6 +54,10 @@ existing pages:
   (RC/RL × low/high-pass), with a design mode that solves for the missing
   component from a target cutoff and snaps it to a buyable standard value
   (24 passing unit tests).
+- [`tools/rc-time-calculator/`](tools/rc-time-calculator/) — capacitor charge
+  and discharge timing to a chosen voltage threshold, plus inverse delay design
+  that snaps the missing resistor or capacitor to a preferred value (6 passing
+  unit tests).
 
 All five are deliberately narrower than "the MVP": small, self-contained
 tools for the Circuits corner of the planned EE track, not a curriculum.
