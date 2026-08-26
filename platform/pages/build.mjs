@@ -772,6 +772,27 @@ export function injectChrome(html, { slug, toRoot, total, related = [], canonica
     // sites had no origin to point a canonical at, so many carry none.
     headExtras += `\n<link rel="canonical" href="${escapeHtml(canonical)}">`;
   }
+  // PRODUCT_PLAYBOOK.md 5b requires a no-availability-SLA statement on every
+  // hosted surface, alongside the no-warranty one. Ventures write both by hand
+  // and keep shipping the first without the second — every calculator copies a
+  // sibling's footer, and the sibling it copied was already missing it. That has
+  // turned `main` red four times, and each fix only repaired the pages that
+  // existed that day.
+  //
+  // Detecting it after the fact is what keeps failing, so the clause is supplied
+  // here instead: the footer already lands on every published page, and a page
+  // that reaches a visitor without the clause is the thing that actually matters.
+  // A venture that words its own is left alone — matched loosely, because several
+  // phrase it in their own voice and demanding exact prose would duplicate the
+  // paragraph on correct pages.
+  const hasSla = /best-effort hosting|no (availability )?sla|carry no availability|taken offline without notice/i
+    .test(html);
+  const slaNotice = hasSla
+    ? ''
+    : `    <p class="pf-sla"><strong>Best-effort hosting, no SLA.</strong> These tools are free and`
+      + ` experimental, and may be slow, broken, moved, or taken offline without notice. We do not`
+      + ` promise uptime, or backups of anything you type. Do not use this as a system of record.</p>\n`;
+
   if (isEntry && canonical && !html.includes('"BreadcrumbList"')) {
     // Lets a result render as "Free small-business calculators › eBay Fee
     // Calculator" rather than a bare URL, and tells an answer engine these are
@@ -814,7 +835,7 @@ export function injectChrome(html, { slug, toRoot, total, related = [], canonica
 
   const footer = `<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
   <div class="pf-inner">
-    <h2>More free tools</h2>
+${slaNotice}    <h2>More free tools</h2>
     <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
 ${links ? `    <ul>\n${links}\n    </ul>\n` : ''}    <p>
       <a href="${escapeHtml(hub)}" data-pf-to="hub">Browse all ${total} free tools →</a>

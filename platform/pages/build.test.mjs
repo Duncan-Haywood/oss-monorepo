@@ -854,3 +854,28 @@ test('injected head tags do not disturb the page they land in', async () => {
   assert.equal((html.match(/<body[^>]*>/gi) ?? []).length, 1);
   assert.ok(html.includes('calc.mjs'), 'the calculator still loads its own module');
 });
+
+test('the required no-SLA clause reaches a visitor even when the venture omits it', () => {
+  // PRODUCT_PLAYBOOK.md 5b requires it on every hosted surface. Ventures write
+  // it by hand and keep shipping the no-warranty paragraph without it, because
+  // each new calculator copies a sibling footer that was already missing it —
+  // which has turned `main` red four times. Detecting it after the merge is what
+  // kept failing, so the footer supplies it.
+  const bare = '<html><head></head><body><p>No warranty.</p></body></html>';
+  const wrapped = injectChrome(bare, {
+    slug: 'tool', toRoot: '../', total: 40, canonical: 'https://x.test/tool/',
+  });
+  assert.match(wrapped, /no SLA/i);
+  assert.match(wrapped, /taken offline without notice/i);
+});
+
+test('a venture that words its own availability clause is not given a second', () => {
+  // Several phrase it in their own voice; duplicating the paragraph on a correct
+  // page would be a regression, not a fix.
+  const own = '<html><head></head><body><p>Hosted URLs carry no availability SLA.</p></body></html>';
+  const wrapped = injectChrome(own, {
+    slug: 'tool', toRoot: '../', total: 40, canonical: 'https://x.test/tool/',
+  });
+  assert.ok(!/Best-effort hosting/i.test(wrapped), 'the venture already said it');
+  assert.equal((wrapped.match(/no availability SLA/gi) ?? []).length, 1);
+});
