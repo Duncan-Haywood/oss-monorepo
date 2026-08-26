@@ -2173,3 +2173,16 @@ products:
           onto current main. Local CLI only; --usage-file is opt-in and
           stores an aggregate count. Public URL remains owner-gated.
 
+  - slug: contractor-bid-readiness
+    surface: static-page-in-repo
+    readings:
+      - as_of: 2026-08-26
+        signals:
+          live_url_visitors: null
+          readiness_checked: 0
+          report_downloaded: 0
+        note: >-
+          Repair-and-merge of unique #1398 contractor bid readiness checklist
+          onto current main. Public URL remains owner-gated; usage is
+          opt-out and honors DNT/GPC. Baseline row.
+
