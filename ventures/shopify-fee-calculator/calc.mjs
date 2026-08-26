@@ -2409,3 +2409,271 @@ export function compareSubscriptions(input) {
     }),
   };
 }
+
+/**
+ * Illustrative Shopify pickup defaults. Minutes, wage, bag cost, pickup
+ * fee, and no-show rate are inputs — not Shopify Local Pickup policy
+ * or a published labor schedule. 8 minutes at $18 / $0.40 bag / $3
+ * paid pickup / 12% no-show is a retail-adjacent mix a merchant
+ * overwrites from their own hold and refund report.
+ */
+export const DEFAULT_PICKUP_FEE = 3;
+export const DEFAULT_PICKUP_MINUTES = 8;
+export const DEFAULT_PICKUP_HOURLY_RATE = 18;
+export const DEFAULT_PICKUP_PACKAGING = 0.4;
+export const DEFAULT_PICKUP_NO_SHOW_PCT = 12;
+export const DEFAULT_MONTHLY_PICKUP_ORDERS = 40;
+
+export function pickupStaffCost({ minutes, hourlyRate }) {
+  return (number(minutes, "Pickup minutes") / 60) * number(hourlyRate, "Pickup hourly rate");
+}
+
+function pickupPath({
+  id,
+  label,
+  charged,
+  fulfillmentCost,
+  fees,
+  completedProfit,
+  expectedProfit,
+}) {
+  return {
+    id,
+    label,
+    charged,
+    fulfillmentCost,
+    fees,
+    completedProfit,
+    expectedProfit,
+  };
+}
+
+function pickupExpected(completedProfit, noShowPct, noShowResult) {
+  const showFrac = 1 - noShowPct / 100;
+  return showFrac * completedProfit + (1 - showFrac) * noShowResult;
+}
+
+function pickupSummary({
+  winner,
+  ship,
+  free,
+  paid,
+  extraKeptOnFree,
+  extraKeptOnPaid,
+  timeCost,
+  pickupPack,
+  noShowPct,
+  breakEvenNoShowPct,
+  breakEvenMinutes,
+  breakEvenShippingCost,
+  monthlyExtraOnFree,
+}) {
+  const shipLine = `The carrier label keeps ${moneyLabel(ship.expectedProfit)}.`;
+  const freeGap = moneyLabel(Math.abs(extraKeptOnFree));
+  const freeAhead = extraKeptOnFree >= 0 ? "more" : "less";
+  const freeLine = ` Free pickup after a ${noShowPct}% no-show keeps ${moneyLabel(free.expectedProfit)} — ${freeGap} ${freeAhead} (${moneyLabel(free.completedProfit)} if they show).`;
+  const paidGap = moneyLabel(Math.abs(extraKeptOnPaid));
+  const paidAhead = extraKeptOnPaid >= 0 ? "more" : "less";
+  const paidLine = ` A paid pickup keeps ${moneyLabel(paid.expectedProfit)} — ${paidGap} ${paidAhead} than the label.`;
+  const labor = ` Staff time and the bag are ${moneyLabel(timeCost + pickupPack)}.`;
+  const noShowCeil = Number.isFinite(breakEvenNoShowPct)
+    ? ` No-show can rise to about ${breakEvenNoShowPct.toFixed(1)}% before free pickup matches the label.`
+    : " Even a 0% no-show on these rates cannot match the label.";
+  const minuteCeil = Number.isFinite(breakEvenMinutes)
+    ? ` Pickup can take about ${breakEvenMinutes.toFixed(1)} minutes before it matches the label.`
+    : "";
+  const labelFloor = Number.isFinite(breakEvenShippingCost)
+    ? ` The outbound label has to cost about ${moneyLabel(breakEvenShippingCost)} before shipping matches free pickup.`
+    : "";
+  const month = monthlyExtraOnFree === 0
+    ? ""
+    : extraKeptOnFree >= 0
+      ? ` Across the typed month that is ${moneyLabel(monthlyExtraOnFree)} more.`
+      : ` Across the typed month that gap is ${moneyLabel(Math.abs(monthlyExtraOnFree))}.`;
+  const winnerLine = winner === "tie"
+    ? " The label and pickup keep the same leftover on these rates."
+    : winner === "ship"
+      ? " The label keeps more on these rates."
+      : winner === "free"
+        ? " Free pickup keeps more on these rates."
+        : " Paid pickup keeps more on these rates.";
+  return `${shipLine}${freeLine}${paidLine}${labor}${winnerLine}${noShowCeil}${minuteCeil}${labelFloor}${month}`;
+}
+
+/**
+ * Same prepaid Shopify checkout, three ways it leaves the shop.
+ *
+ *   - Carrier / Shopify label — leftover of the typed shipped order.
+ *   - Free pickup — $0 postage charged, no label, staff pick / hand-off
+ *     time plus a lighter bag, then expected leftover after a typed
+ *     no-show refund (fees reversed, inventory restocked, labor and
+ *     bag stay spent).
+ *   - Paid pickup — typed pickup fee instead of postage, same staff
+ *     time and no-show mix.
+ *
+ * Complementary to local delivery (you drive) and to POS vs online
+ * (a counter tap, not an online BOPIS checkout). Minutes, wage, bag,
+ * fee, and no-show are inputs — not Shopify Local Pickup policy.
+ */
+export function comparePickup(input) {
+  const pickupFee = emptyField(input.pickupFee)
+    ? DEFAULT_PICKUP_FEE
+    : number(input.pickupFee, "Pickup fee");
+  const minutes = emptyField(input.pickupMinutes)
+    ? DEFAULT_PICKUP_MINUTES
+    : number(input.pickupMinutes, "Pickup minutes");
+  const hourlyRate = emptyField(input.pickupHourlyRate)
+    ? DEFAULT_PICKUP_HOURLY_RATE
+    : number(input.pickupHourlyRate, "Pickup hourly rate");
+  const pickupPack = emptyField(input.pickupPackagingCost)
+    ? DEFAULT_PICKUP_PACKAGING
+    : number(input.pickupPackagingCost, "Pickup packaging");
+  const noShowPct = emptyField(input.pickupNoShowPct)
+    ? DEFAULT_PICKUP_NO_SHOW_PCT
+    : ratePercent(input.pickupNoShowPct, "Pickup no-show percent");
+  const monthlyPickupOrders = emptyField(input.monthlyPickupOrders)
+    ? DEFAULT_MONTHLY_PICKUP_ORDERS
+    : number(input.monthlyPickupOrders, "Monthly pickup orders");
+  if (monthlyPickupOrders === 0) {
+    throw new Error("Monthly pickup orders must be greater than zero");
+  }
+
+  const timeCost = pickupStaffCost({ minutes, hourlyRate });
+  const pickupFulfillment = timeCost + pickupPack;
+  const noShowResult = -pickupFulfillment;
+
+  const shipOrder = calculateOrder(input);
+  const freeOrder = calculateOrder({
+    ...input,
+    shippingCharged: 0,
+    shippingCost: timeCost,
+    packagingCost: pickupPack,
+  });
+  const paidOrder = calculateOrder({
+    ...input,
+    shippingCharged: pickupFee,
+    shippingCost: timeCost,
+    packagingCost: pickupPack,
+  });
+
+  const shipCompleted = shipOrder.selected.profit;
+  const freeCompleted = freeOrder.selected.profit;
+  const paidCompleted = paidOrder.selected.profit;
+  const shipExpected = shipCompleted;
+  const freeExpected = pickupExpected(freeCompleted, noShowPct, noShowResult);
+  const paidExpected = pickupExpected(paidCompleted, noShowPct, noShowResult);
+
+  const ship = pickupPath({
+    id: "ship",
+    label: "Carrier / Shopify label",
+    charged: number(input.shippingCharged, "Shipping charged"),
+    fulfillmentCost: number(input.shippingCost, "Shipping cost")
+      + number(input.packagingCost, "Packaging cost"),
+    fees: shipOrder.selected.feeTotal,
+    completedProfit: shipCompleted,
+    expectedProfit: shipExpected,
+  });
+  const free = pickupPath({
+    id: "free",
+    label: "Free pickup",
+    charged: 0,
+    fulfillmentCost: pickupFulfillment,
+    fees: freeOrder.selected.feeTotal,
+    completedProfit: freeCompleted,
+    expectedProfit: freeExpected,
+  });
+  const paid = pickupPath({
+    id: "paid",
+    label: "Paid pickup",
+    charged: pickupFee,
+    fulfillmentCost: pickupFulfillment,
+    fees: paidOrder.selected.feeTotal,
+    completedProfit: paidCompleted,
+    expectedProfit: paidExpected,
+  });
+
+  const extraKeptOnFree = freeExpected - shipExpected;
+  const extraKeptOnPaid = paidExpected - shipExpected;
+  const extraKeptOnPaidVsFree = paidExpected - freeExpected;
+  const monthlyExtraOnFree = extraKeptOnFree * monthlyPickupOrders;
+  const monthlyExtraOnPaid = extraKeptOnPaid * monthlyPickupOrders;
+
+  const rows = [ship, free, paid].map((row) => ({
+    ...row,
+    vsShip: row.expectedProfit - shipExpected,
+  }));
+
+  const expectedValues = [shipExpected, freeExpected, paidExpected];
+  const bestExpected = Math.max(...expectedValues);
+  const winnerIds = [
+    { id: "ship", value: shipExpected },
+    { id: "free", value: freeExpected },
+    ...(pickupFee > 1e-12 || Math.abs(paidExpected - freeExpected) > 1e-9
+      ? [{ id: "paid", value: paidExpected }]
+      : []),
+  ].filter((row) => Math.abs(row.value - bestExpected) <= 1e-9);
+  const winner = winnerIds.length === 1 ? winnerIds[0].id : "tie";
+
+  let breakEvenNoShowPct = Infinity;
+  const freeDenom = freeCompleted - noShowResult;
+  if (freeDenom > 1e-12 && freeCompleted > shipExpected + 1e-12) {
+    const needed = (freeCompleted - shipExpected) / freeDenom * 100;
+    breakEvenNoShowPct = needed < -1e-9 || needed > 100 + 1e-9
+      ? Infinity
+      : Math.max(0, Math.min(100, needed));
+  }
+
+  const freeCashWithoutLabor = freeCompleted + timeCost;
+  const showFrac = 1 - noShowPct / 100;
+  const neededTime = showFrac * freeCashWithoutLabor - noShowPct / 100 * pickupPack - shipExpected;
+  let breakEvenMinutes = Infinity;
+  if (hourlyRate > 1e-12 && neededTime >= -1e-12) {
+    breakEvenMinutes = (neededTime / hourlyRate) * 60;
+  }
+
+  const shipAtZeroLabel = calculateOrder({ ...input, shippingCost: 0 }).selected.profit;
+  let breakEvenShippingCost = Infinity;
+  if (Number.isFinite(shipAtZeroLabel)) {
+    breakEvenShippingCost = shipAtZeroLabel - freeExpected;
+  }
+
+  return {
+    rows,
+    ship: rows[0],
+    free: rows[1],
+    paid: rows[2],
+    pickupFee,
+    minutes,
+    hourlyRate,
+    pickupPack,
+    timeCost,
+    pickupFulfillment,
+    noShowPct,
+    noShowResult,
+    monthlyPickupOrders,
+    extraKeptOnFree,
+    extraKeptOnPaid,
+    extraKeptOnPaidVsFree,
+    monthlyExtraOnFree,
+    monthlyExtraOnPaid,
+    breakEvenNoShowPct,
+    breakEvenMinutes,
+    breakEvenShippingCost,
+    winner,
+    summary: pickupSummary({
+      winner,
+      ship: rows[0],
+      free: rows[1],
+      paid: rows[2],
+      extraKeptOnFree,
+      extraKeptOnPaid,
+      timeCost,
+      pickupPack,
+      noShowPct,
+      breakEvenNoShowPct,
+      breakEvenMinutes,
+      breakEvenShippingCost,
+      monthlyExtraOnFree,
+    }),
+  };
+}

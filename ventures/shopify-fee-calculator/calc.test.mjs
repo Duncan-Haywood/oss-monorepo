@@ -15,7 +15,9 @@ import {
   compareMarketsDuties,
   compareAbandonedCheckout,
   compareSubscriptions,
+  comparePickup,
   localDeliveryCost,
+  pickupStaffCost,
   DEFAULT_BANK_APR_PCT,
   DEFAULT_CAPITAL_ADVANCE,
   DEFAULT_CAPITAL_HOLDBACK_PCT,
@@ -69,6 +71,12 @@ import {
   DEFAULT_SKIP_PCT,
   DEFAULT_SUBSCRIBE_ENROLL_PCT,
   DEFAULT_MONTHLY_SUB_BUYERS,
+  DEFAULT_PICKUP_FEE,
+  DEFAULT_PICKUP_MINUTES,
+  DEFAULT_PICKUP_HOURLY_RATE,
+  DEFAULT_PICKUP_PACKAGING,
+  DEFAULT_PICKUP_NO_SHOW_PCT,
+  DEFAULT_MONTHLY_PICKUP_ORDERS,
   PLAN_PRESETS,
 } from "./calc.mjs";
 
@@ -1392,4 +1400,101 @@ test("summary names the subscription leftover and does not tell you to turn subs
   assert.match(text, /38\.9%/);
   assert.match(text, /\$1492\.42/);
   assert.doesNotMatch(text, /should offer|must offer|turn on subscriptions|turn on selling plans/i);
+});
+
+const PICKUP_BASE = {
+  price: 48,
+  shippingCharged: 6,
+  paymentsRate: 2.9,
+  paymentsFixed: 0.3,
+  costOfGoods: 14,
+  shippingCost: 5,
+  packagingCost: 1,
+  monthlyPlan: 39,
+  monthlyOrders: 100,
+  paymentMethod: "shopify_payments",
+};
+
+test("defaults match the published pickup starting points", () => {
+  assert.equal(DEFAULT_PICKUP_FEE, 3);
+  assert.equal(DEFAULT_PICKUP_MINUTES, 8);
+  assert.equal(DEFAULT_PICKUP_HOURLY_RATE, 18);
+  assert.equal(DEFAULT_PICKUP_PACKAGING, 0.4);
+  assert.equal(DEFAULT_PICKUP_NO_SHOW_PCT, 12);
+  assert.equal(DEFAULT_MONTHLY_PICKUP_ORDERS, 40);
+});
+
+test("pickup staff cost is minutes at the typed wage", () => {
+  near(pickupStaffCost({ minutes: 8, hourlyRate: 18 }), 2.4, "default pick");
+  near(pickupStaffCost({ minutes: 5, hourlyRate: 18 }), 1.5, "short pick");
+});
+
+test("the label keeps more than free pickup after a 12% no-show", () => {
+  // Ship: $54 ticket, fees $1.866, cash $20.39, leftover $31.744.
+  // Free pickup: $48 ticket, fees $1.692, labor $2.40 + $0.40 bag + $14 + $0.39
+  // = $17.19 cash, leftover $29.118 if they show.
+  // No-show refund: −$2.80 (fees reversed, inventory back). 12% mix → $25.28784.
+  // Paid $3 pickup: $51 ticket, fees $1.779, leftover $32.031 show / $27.85128 mix.
+  const r = comparePickup(PICKUP_BASE);
+  near(r.timeCost, 2.4, "staff time");
+  near(r.pickupFulfillment, 2.8, "staff plus bag");
+  near(r.ship.completedProfit, 31.744, "label leftover");
+  near(r.free.completedProfit, 29.118, "free if they show");
+  near(r.paid.completedProfit, 32.031, "paid if they show");
+  near(r.free.expectedProfit, 25.28784, "free after no-show");
+  near(r.paid.expectedProfit, 27.85128, "paid after no-show");
+  near(r.extraKeptOnFree, -6.45616, "free minus label");
+  near(r.extraKeptOnPaid, -3.89272, "paid minus label");
+  near(r.monthlyExtraOnFree, -258.2464, "40 pickups");
+  near(r.noShowResult, -2.8, "refunded no-show");
+  near(r.breakEvenShippingCost, 11.45616, "label that ties free pickup");
+  assert.equal(r.breakEvenNoShowPct, Infinity);
+  assert.equal(r.breakEvenMinutes, Infinity);
+  assert.equal(r.winner, "ship");
+});
+
+test("already-free shipping with a short pick flips free pickup ahead", () => {
+  const r = comparePickup({
+    ...PICKUP_BASE,
+    shippingCharged: 0,
+    shippingCost: 8,
+    pickupFee: 0,
+    pickupMinutes: 5,
+    pickupNoShowPct: 5,
+  });
+  near(r.ship.expectedProfit, 22.918, "free-ship $8 label");
+  near(r.free.completedProfit, 30.018, "5-minute show");
+  near(r.free.expectedProfit, 28.4221, "5% no-show mix");
+  assert.ok(r.free.expectedProfit > r.ship.expectedProfit, "pickup beats the baked label");
+  assert.equal(r.winner, "free");
+});
+
+test("empty pickup fields use the published defaults", () => {
+  const r = comparePickup(PICKUP_BASE);
+  near(r.pickupFee, DEFAULT_PICKUP_FEE, "default fee");
+  near(r.minutes, DEFAULT_PICKUP_MINUTES, "default minutes");
+  near(r.hourlyRate, DEFAULT_PICKUP_HOURLY_RATE, "default wage");
+  near(r.pickupPack, DEFAULT_PICKUP_PACKAGING, "default bag");
+  near(r.noShowPct, DEFAULT_PICKUP_NO_SHOW_PCT, "default no-show");
+  near(r.monthlyPickupOrders, DEFAULT_MONTHLY_PICKUP_ORDERS, "default month");
+});
+
+test("comparePickup rejects a no-show over 100 and a zero month", () => {
+  assert.throws(() => comparePickup({ ...PICKUP_BASE, pickupNoShowPct: 101 }), /Pickup no-show percent/);
+  assert.throws(() => comparePickup({ ...PICKUP_BASE, pickupMinutes: -1 }), /Pickup minutes/);
+  assert.throws(() => comparePickup({ ...PICKUP_BASE, monthlyPickupOrders: 0 }), /greater than zero/);
+});
+
+test("summary names the pickup leftover and does not tell you to turn pickup on", () => {
+  const text = comparePickup(PICKUP_BASE).summary;
+  assert.match(text, /\$31\.74/);
+  assert.match(text, /\$25\.29/);
+  assert.match(text, /\$29\.12/);
+  assert.match(text, /\$27\.85/);
+  assert.match(text, /\$6\.46/);
+  assert.match(text, /\$2\.80/);
+  assert.match(text, /\$11\.46/);
+  assert.match(text, /\$258\.25/);
+  assert.match(text, /Even a 0% no-show/);
+  assert.doesNotMatch(text, /should offer|must offer|turn on pickup|turn on local pickup/i);
 });
