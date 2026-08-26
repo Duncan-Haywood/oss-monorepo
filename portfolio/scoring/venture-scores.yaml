@@ -880,6 +880,42 @@ ventures:
       than a standard or benchmark, and nothing the user enters leaves the
       browser.
 
+  - slug: landscape-lighting-bid-calculator
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 7
+      gross_margin: 10
+      defensibility: 5
+      distribution: 7
+    composite: 6.667
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      There is no AI anywhere in the product. The value is a domain model —
+      fixture mix, trench, and transformer scope — that is arithmetic, and
+      adding inference to it would only make the result less checkable.
+    basis: >-
+      Graduated on 2026-08-25 as a browser-local landscape lighting bid
+      calculator. Scored above the marketplace fee calculators on
+      defensibility (5): those restate a published fee schedule, whereas the
+      fixtures-versus-trench model encodes how the trade actually estimates
+      labor, and the incumbents here are paid bidding suites rather than free
+      ad-funded pages. Distribution 7: "how much to charge to install
+      landscape lighting" is lower-volume than marketplace-fee queries but
+      far less saturated and bought by an operator with a real job on the
+      line.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Pass: the output is arithmetic on the contractor's own inputs, never a
+      recommended price, a wage determination, or an electrical design. The
+      shipped hours and fixture rates are labelled ballpark starting points
+      rather than a standard or benchmark, and nothing the user enters
+      leaves the browser.
+
   - slug: freelance-retainer-calculator
     scores:
       ai_leverage: 1
@@ -910,6 +946,214 @@ ventures:
       financial advice or a guarantee of income, tax treatment, or contract
       enforceability; all data stays in the browser.
 
+  - slug: holiday-light-bid-calculator
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 7
+      gross_margin: 10
+      defensibility: 5
+      distribution: 7
+    composite: 6.667
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      There is no AI anywhere in the product. The value is a domain model —
+      hang-only versus hang-and-takedown versus full-service storage,
+      1-story versus 2-story versus 3-story access — that is arithmetic,
+      and adding inference to it would only make the result less checkable.
+    basis: >-
+      Graduated on 2026-08-25 as a browser-local holiday light bid
+      calculator. Distinct from soffit and fascia (wrap / replace the
+      eave board), gutter install (K-style trough), landscape lighting
+      (low-voltage path and uplights), electrical panel (service amps),
+      and exterior painting (a coat). Search intent is explicit in
+      queries such as how much to charge to hang Christmas lights and
+      holiday light installation cost calculator.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Pass: output is a draft bid from user-supplied rates, not an
+      electrical design, a load calculation, a permit determination, a
+      landscape-lighting design, or a standard or benchmark, and nothing
+      the user enters leaves the browser.
+  - slug: soffit-fascia-bid-calculator
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 7
+      gross_margin: 10
+      defensibility: 5
+      distribution: 7
+    composite: 6.667
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      There is no AI anywhere in the product. The value is a domain model —
+      wrap versus vinyl replace versus wood replace, 1-story versus 2-story
+      versus 3-story access — that is arithmetic, and adding inference to
+      it would only make the result less checkable.
+    basis: >-
+      Graduated on 2026-08-25 as a browser-local soffit and fascia bid
+      calculator. Distinct from gutter install (K-style trough, miters,
+      drops), gutter cleaning, gutter guards, siding (squares of wall),
+      and exterior painting (a coat on elevations). Search intent is
+      explicit in queries such as how much to charge for soffit and
+      fascia and soffit fascia wrap cost calculator.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Pass: output is a draft bid from user-supplied rates, not a
+      building-code determination, a ventilation design, a rot-repair
+      specification, or a standard or benchmark, and nothing the user
+      enters leaves the browser.
+  - slug: popcorn-ceiling-bid-calculator
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 7
+      gross_margin: 10
+      defensibility: 5
+      distribution: 7
+    composite: 6.667
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      There is no AI anywhere in the product. The value is a domain model —
+      scrape-and-prime versus Level 4 skim versus Level 5 plus paint, 8-foot
+      versus vaulted versus two-story access — that is arithmetic, and
+      adding inference to it would only make the result less checkable.
+    basis: >-
+      Graduated on 2026-08-25 as a browser-local popcorn ceiling removal
+      bid calculator. Distinct from interior painting (walls and a flat
+      ceiling as a coat), drywall hang-and-finish (new gypsum and a Level
+      5 on new board), exterior painting (house elevations), cabinet
+      refinishing, and hardwood refinishing. Search intent is explicit
+      in queries such as how much to charge to remove popcorn ceiling
+      and popcorn ceiling removal cost calculator.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Pass: output is a draft bid from user-supplied rates, not a
+      drywall specification, an asbestos clearance, a lead-paint
+      determination, or a standard or benchmark, and nothing the user
+      enters leaves the browser.
+  - slug: tuckpointing-bid-calculator
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 7
+      gross_margin: 10
+      defensibility: 5
+      distribution: 7
+    composite: 6.667
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      There is no AI anywhere in the product. The value is a domain model —
+      joint feet from a wall, grind versus smear, and scaffold versus
+      swing — that is arithmetic, and adding inference to it would
+      only make the result less checkable.
+    basis: >-
+      Graduated on 2026-08-25 as a browser-local tuckpointing / brick
+      pointing bid calculator. Distinct from stucco / EIFS (a
+      cementitious skin, not mortar joints), foundation repair (piers
+      and straps), chimney sweep (flue and creosote), fireplace insert
+      (a liner and a hearth), and exterior painting (a coat, not a
+      grind). Search intent is explicit in queries such as how much to
+      charge for tuckpointing and brick pointing cost calculator.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Pass: output is a draft bid from user-supplied rates, not a
+      structural specification, historic-preservation determination, or
+      a standard or benchmark, and nothing the user enters leaves the
+      browser.
+  - slug: shed-install-bid-calculator
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 7
+      gross_margin: 10
+      defensibility: 5
+      distribution: 7
+    composite: 6.667
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      There is no AI anywhere in the product. The value is a domain model —
+      pad yards from an overhang, delivery miles, and crane versus
+      forklift — that is arithmetic, and adding inference to it would
+      only make the result less checkable.
+    basis: >-
+      Graduated on 2026-08-25 as a browser-local backyard shed install
+      bid calculator. Distinct from pole barn (post-frame 30×40+ with
+      bays and eave), gravel driveway (a driveway, not a shed pad),
+      concrete pours (the slab only), pergola (open shade), garage-door
+      (the door), and hot-tub (crane and a pad for a spa). Defensibility
+      5: the pad-and-delivery model encodes how shed dealers actually
+      lose money on a published drop-and-set dump, and the incumbents
+      here are generic cost-per-shed pages rather than a free walk-away
+      tool. Distribution 7: "how much to charge to install a shed" and
+      "shed installation cost calculator" are lower-volume than
+      marketplace-fee queries but bought by an operator with a real
+      backyard job on the line.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Pass: the output is arithmetic on the dealer's own inputs, never a
+      recommended price, a structural determination, or a building-code
+      stamp. The shipped kit and pad rates are labelled ballpark starting
+      points rather than a standard or benchmark, and nothing the user
+      enters leaves the browser.
+  - slug: pole-barn-bid-calculator
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 7
+      gross_margin: 10
+      defensibility: 5
+      distribution: 7
+    composite: 6.667
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      There is no AI anywhere in the product. The value is a domain model —
+      bay count to leftover extra-eave hours, and floor hours from the slab —
+      that is arithmetic, and adding inference to it would only make the
+      result less checkable.
+    basis: >-
+      Graduated on 2026-08-25 as a browser-local pole barn / post-frame bid
+      calculator. Distinct from fence (posts as a barrier), deck build
+      (posts as a platform), pergola (open shade), garage-door (the door
+      only), metal roof (panels on an existing house), gravel driveway (a
+      pad), and concrete slab pours (the floor only). Defensibility 5: the
+      bay-and-eave model encodes how post-frame shops actually lose money
+      on a published per-foot dump, and the incumbents here are generic
+      cost-per-square-foot pages rather than a free walk-away tool.
+      Distribution 7: "how much to charge to build a pole barn" and
+      "pole barn cost calculator" are lower-volume than marketplace-fee
+      queries but bought by an operator with a real building on the line.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Pass: the output is arithmetic on the shop's own inputs, never a
+      recommended price, a structural determination, or a building-code
+      stamp. The shipped lumber rates are labelled ballpark starting
+      points rather than a standard or benchmark, and nothing the user
+      enters leaves the browser.
   - slug: gravel-driveway-bid-calculator
     scores:
       ai_leverage: 1

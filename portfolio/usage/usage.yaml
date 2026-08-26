@@ -902,6 +902,71 @@ products:
           assertions lived in `test_app.mjs`, which `node --test` does not
           match, so they had never run anywhere. Public URL remains
           owner-gated.
+  - slug: holiday-light-bid-calculator
+    surface: static-page-in-repo
+    readings:
+      - as_of: 2026-08-25
+        signals:
+          live_url_visitors: null
+          local_calculations: 0
+          local_summary_copies: 0
+        note: >-
+          Shipped a zero-dependency browser calculator for holiday lighting
+          contractors to price hang-only versus hang-and-takedown versus
+          full-service storage from eave lineal feet, stories, and extras.
+          Public URL remains owner-gated; counters are local, aggregate, and
+          opt-out.
+  - slug: soffit-fascia-bid-calculator
+    surface: static-page-in-repo
+    readings:
+      - as_of: 2026-08-25
+        signals:
+          live_url_visitors: null
+          local_calculation_events: 0
+          summary_copies: 0
+        note: Shipped browser-local soffit and fascia bid calculator; public URL remains owner-gated.
+  - slug: popcorn-ceiling-bid-calculator
+    surface: static-page-in-repo
+    readings:
+      - as_of: 2026-08-25
+        signals:
+          live_url_visitors: null
+          local_calculation_events: 0
+          summary_copies: 0
+        note: Shipped browser-local popcorn ceiling removal bid calculator; public URL remains owner-gated.
+  - slug: tuckpointing-bid-calculator
+    surface: static-page-in-repo
+    readings:
+      - as_of: 2026-08-25
+        signals:
+          live_url_visitors: null
+          local_events_reported: 0
+        note: >-
+          Shipped a local tuckpointing / brick pointing bid calculator with
+          joint-and-access math, three-method comparison, and a copyable
+          proposal summary; public URL remains owner-gated.
+  - slug: shed-install-bid-calculator
+    surface: static-page-in-repo
+    readings:
+      - as_of: 2026-08-25
+        signals:
+          live_url_visitors: null
+          local_events_reported: 0
+        note: >-
+          Shipped a local backyard shed install bid calculator with
+          pad-and-delivery math, three-pad comparison, and a copyable
+          proposal summary; public URL remains owner-gated.
+  - slug: pole-barn-bid-calculator
+    surface: static-page-in-repo
+    readings:
+      - as_of: 2026-08-25
+        signals:
+          live_url_visitors: null
+          local_events_reported: 0
+        note: >-
+          Shipped a local pole barn / post-frame bid calculator with
+          bay-and-eave math, three-floor comparison, and a copyable
+          proposal summary; public URL remains owner-gated.
   - slug: gravel-driveway-bid-calculator
     surface: static-page-in-repo
     readings:
@@ -1536,6 +1601,19 @@ products:
           local_calculation_events: 0
           summary_copies: 0
         note: Shipped browser-local parking-lot striping bid calculator; public URL remains owner-gated.
+
+  - slug: landscape-lighting-bid-calculator
+    surface: static-page-in-repo
+    readings:
+      - as_of: 2026-08-25
+        signals:
+          live_url_visitors: null
+          local_calculation_events: 0
+          summary_copies: 0
+        note: >-
+          Shipped browser-local landscape lighting bid calculator
+          (fixtures vs trench vs transformer). Public URL remains
+          owner-gated; counters are local, aggregate, and opt-out.
 
 # Example of the shape, once a product has shipped:
 #

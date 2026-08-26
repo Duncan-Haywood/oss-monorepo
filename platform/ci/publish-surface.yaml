@@ -136,6 +136,9 @@ workflows:
 - workflow: hetzner-gitops-ci.yml
   classification: none
   publishes: []
+- workflow: holiday-light-bid-calculator-ci.yml
+  classification: none
+  publishes: []
 - workflow: home-elevator-bid-calculator-ci.yml
   classification: none
   publishes: []
@@ -149,6 +152,9 @@ workflows:
   classification: none
   publishes: []
 - workflow: kitchen-tile-backsplash-bid-calculator-ci.yml
+  classification: none
+  publishes: []
+- workflow: landscape-lighting-bid-calculator-ci.yml
   classification: none
   publishes: []
 - workflow: local-site-studio-ci.yml
@@ -186,6 +192,12 @@ workflows:
   classification: none
   publishes: []
 - workflow: plantation-shutter-bid-calculator-ci.yml
+  classification: none
+  publishes: []
+- workflow: pole-barn-bid-calculator-ci.yml
+  classification: none
+  publishes: []
+- workflow: popcorn-ceiling-bid-calculator-ci.yml
   classification: none
   publishes: []
 - workflow: portfolio-pages.yml
@@ -243,6 +255,9 @@ workflows:
 - workflow: reverb-fee-calculator-ci.yml
   classification: none
   publishes: []
+- workflow: shed-install-bid-calculator-ci.yml
+  classification: none
+  publishes: []
 - workflow: shopify-a11y-evidence-ci.yml
   classification: none
   publishes: []
@@ -255,6 +270,9 @@ workflows:
 - workflow: sod-install-bid-calculator-ci.yml
   classification: none
   publishes: []
+- workflow: soffit-fascia-bid-calculator-ci.yml
+  classification: none
+  publishes: []
 - workflow: source-silence-detector-ci.yml
   classification: none
   publishes: []
@@ -265,6 +283,9 @@ workflows:
   classification: none
   publishes: []
 - workflow: toilet-replacement-bid-calculator-ci.yml
+  classification: none
+  publishes: []
+- workflow: tuckpointing-bid-calculator-ci.yml
   classification: none
   publishes: []
 - workflow: ubuntu-agent-server-ci.yml
