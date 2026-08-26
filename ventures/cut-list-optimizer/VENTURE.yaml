@@ -1,9 +1,5 @@
 name: cut-list-optimizer
-<<<<<<< HEAD
-description: A local browser tool for woodworking and sign shops that turns a parts list into a low-waste cutting plan — a sheet-goods layout diagram or a linear stock plan that uses the offcuts already on the rack before anything is bought.
-=======
-description: A local browser tool for woodworking and sign shops that turns a parts list into a low-waste cutting plan and ranks 4×8, 5×5, and half-sheets by material cost before a store run.
->>>>>>> origin/main
+description: A local browser tool for woodworking and sign shops that turns a parts list into a low-waste cutting plan — a sheet-goods layout diagram that ranks 4×8, 5×5, and half-sheets by material cost, or a linear stock plan that uses the offcuts already on the rack before anything is bought.
 stage: prototype
 owner: duncan
 hypotheses:
