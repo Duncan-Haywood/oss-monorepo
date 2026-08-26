@@ -23828,3 +23828,60 @@ entries:
         2-day take, returns, aged leftover, and Connect ads. No open Walmart
         feature PR at selection. Hosting still waits on deploy-settings.
     mrr_end: null
+  - venture: janitorial-bid-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Backfilled record: the venture shipped in #1034 on 2026-08-24 and no
+        ledger entry was ever written for it. The entry drafted alongside it
+        was dropped deliberately, not lost: a later session remeshed that
+        branch onto current main and said so in its review on #1045 ("drops
+        the ledger-only YAML from the original branch"), keeping the PR to the
+        test change. That is a defensible call for the PR and it left nobody
+        holding the record, so 405 entries later the file had zero mentions of
+        the venture — worth noting as a failure mode of remeshing a branch: the
+        parts that are not the headline change need a new home, not just
+        removal. A free browser-local bid calculator for
+        commercial cleaning contractors that prices a recurring janitorial
+        contract from per-space production rates (cleanable sq ft ÷ the rate a
+        crew actually hits) rather than the blended price-per-square-foot rule
+        the trade is taught. In the shipped default an 8,000 sq ft office has
+        restrooms at 7% of floor area and 21% of labor hours, which is the
+        whole argument for the model. Payroll burden is a required, explained
+        input for the same reason: $17/hr costs about $22 loaded. Reports
+        price per sq ft, effective hourly rate, the labor split, and the
+        walk-away price; a proposed price is scored against the same cost base
+        and flagged when under water. Free, no payment rails, disclaimers,
+        opt-out local usage counters. It has since gained day-porter shifts,
+        project work, periodic services, save-and-share, and three SEO landing
+        pages, reaching 147 tests.
+      - >-
+        Finding worth generalising, and the reason this backfill is worth
+        writing rather than skipping: **unit tests and a structural page test
+        both passed on a page that was unusable.** Driving the served page in
+        Chromium before #1034 opened caught two defects neither could see. The
+        area-row inputs inherited `font-size: 0` from their visually-hidden
+        labels, so everything a contractor typed was invisible — the value was
+        in the DOM, every id resolved, the arithmetic was right. And the
+        `<datalist>`-backed space-name field rejected keyboard input outright:
+        keydown fired on the correct element and the value never changed. Both
+        are silent; both survive every test that does not actually type into
+        the page. #1023 established that a static product can be dead while
+        its unit tests stay green. This narrows it: a page can parse, load,
+        and resolve every element lookup and still not be usable.
+      - >-
+        Second-order finding from #1045, two days later: **the guard against
+        silent failure failed silently itself.** `page.test.mjs` was added
+        with a parser that walks raw-text elements the way a browser does,
+        precisely so an unclosed `<textarea>`/`<script>`/`<style>` could not
+        hide the rest of the document from it. As the file grew to 234 lines
+        across many sessions, that parse was replaced with two plain regexes
+        over the raw source — which is the exact blind spot the suite existed
+        to close, since the swallowed tags still look present to a regex. No
+        test failed when that happened, because a weakened guard passes. It
+        was restored in #1045. The lesson for the other calculators now
+        copying this pattern: a structural check needs its own negative test
+        (assert it fails on deliberately broken input), or it will be
+        loosened by accident and nothing will say so.
+    mrr_end: null

@@ -125,7 +125,6 @@ products:
           qualified_pilots: 0
           github_annotation_comparisons: 0
         note: Shipped fixture-backed local comparison and CI warning output; customer demand remains untested.
-        note: Shipped fixture-backed local comparison; customer demand remains untested.
       - as_of: 2026-08-24
         signals:
           markdown_reports_rendered: 1
@@ -2086,6 +2085,8 @@ products:
           Added a static landing page so the CLI has a public entry once
           Pages is enabled. Public URL remains owner-gated; no repository
           data is collected.
+      - as_of: 2026-08-26
+        signals:
           local_observations_compared: 0
           local_inconclusive_observations: 0
           qualified_operators: 0
@@ -3473,3 +3474,16 @@ products:
           Repair-and-merge of unique #905 vendor page change monitor. In-memory
           snapshots only; usage events are event name + path + day, never the
           checked URL. Public URL remains owner-gated.
+      - as_of: 2026-08-26
+        signals:
+          live_url_visitors: null
+          check_started: 0
+          check_unchanged: 0
+          check_changed: 0
+        note: >-
+          Snapshots moved into the visitor's own browser, so a baseline now
+          survives a restart and is never answered from another visitor's
+          snapshot. check_changed and check_unchanged are the outcome signals
+          worth watching: before this, a returning visitor could only ever see
+          check_first_snapshot, so repeat value was unmeasurable rather than
+          merely unmeasured. Public URL remains owner-gated.

@@ -13,8 +13,9 @@ export default function HomePage() {
           For security, procurement, and privacy practitioners who need to know when a
           vendor&rsquo;s terms of service, privacy policy, or subprocessor list changes — and
           who don&rsquo;t have time to re-read every vendor&rsquo;s page on a schedule. Paste a
-          public URL below, check it now, and check it again later. Vendor Watch stores a
-          snapshot and shows you a timestamped, source-linked diff of exactly what moved.
+          public URL below, check it now, and check it again later. Vendor Watch keeps the
+          snapshot in your own browser and shows you a timestamped, source-linked diff of
+          exactly what moved.
         </p>
       </header>
 
@@ -32,12 +33,13 @@ export default function HomePage() {
         <ol className="list-decimal space-y-1 pl-5">
           <li>Paste the public URL of a vendor&rsquo;s terms, privacy, or subprocessor page.</li>
           <li>
-            The first check captures a snapshot: the page text, a fetch timestamp, and the HTTP
-            status.
+            The first check captures a snapshot — the page text, a fetch timestamp, and the HTTP
+            status — and saves it in this browser. The pages you are watching are listed under
+            the form so you do not have to remember the URLs.
           </li>
           <li>
             Check the same URL again later (a day, a week, whenever you want) and Vendor Watch
-            fetches it fresh, compares it against the stored snapshot, and shows a word-level
+            fetches it fresh, compares it against your stored snapshot, and shows a word-level
             diff — or tells you plainly that nothing changed, or that the fetch failed and the
             result is inconclusive.
           </li>
@@ -45,6 +47,11 @@ export default function HomePage() {
         <p>
           Vendor Watch does not run on a schedule — every check is triggered by a visitor. There
           is no email alert and no background monitoring in this version; see the README for why.
+        </p>
+        <p>
+          Snapshots never leave your browser, so a deploy cannot lose them and no other visitor
+          can see what you are watching. The flip side is that they are per-browser: clearing
+          site data, using a private window, or moving to another device starts the watch over.
         </p>
       </section>
 
