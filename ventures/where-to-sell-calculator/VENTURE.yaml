@@ -3,6 +3,10 @@ description: A private browser calculator that puts one item through every chann
 stage: prototype
 owner: duncan
 hypotheses:
+  - claim: A seller who has just seen a channel win will open that channel's own calculator if the item carries over, and will not if it means retyping the item — so the handoff, not the depth of the second tool, is what decides whether the portfolio's deeper scenarios ever get used.
+    status: untested
+    checked: null
+    evidence: customer-contact
   - claim: Sellers who can list the same item in more than one place will use a single cross-channel comparison in preference to opening three single-marketplace calculators and reconciling them by hand.
     status: untested
     checked: null
