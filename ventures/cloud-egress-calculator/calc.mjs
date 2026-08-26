@@ -295,3 +295,98 @@ export function replicaNote(result) {
 
   return `${monthlyBit}${seedBit}${horizonBit}${floorBit}`;
 }
+
+/**
+ * Keep a bucket on the standard (hot) class vs move the same bytes to an
+ * infrequent / archive class. Storage is cheaper on the cold path;
+ * every gigabyte you read back pays a retrieve fee the hot path often
+ * bills at $0. Provider A-vs-B and CDN-vs-origin are different pages.
+ *
+ * retrieveGbCeiling is the monthly restore volume where both classes
+ * bill the same. Above it, standard is cheaper on these rates.
+ */
+export function compareStorageClass(input = {}) {
+  const storageGb = nonNegative(input.storageGb ?? 0, "Stored data");
+  const retrieveGb = nonNegative(input.retrieveGb ?? 0, "Retrieved data");
+  const standardStorageRate = nonNegative(input.standardStorageRate ?? 0, "Standard storage rate");
+  const infrequentStorageRate = nonNegative(input.infrequentStorageRate ?? 0, "Infrequent storage rate");
+  const standardRetrieveRate = nonNegative(input.standardRetrieveRate ?? 0, "Standard retrieve rate");
+  const infrequentRetrieveRate = nonNegative(input.infrequentRetrieveRate ?? 0, "Infrequent retrieve rate");
+  const retrieveRequestsMillion = nonNegative(input.retrieveRequestsMillion ?? 0, "Retrieve requests");
+  const standardRetrieveRequestRate = nonNegative(
+    input.standardRetrieveRequestRate ?? 0,
+    "Standard retrieve request rate",
+  );
+  const infrequentRetrieveRequestRate = nonNegative(
+    input.infrequentRetrieveRequestRate ?? 0,
+    "Infrequent retrieve request rate",
+  );
+
+  const standard = {
+    id: "standard",
+    label: "Standard class",
+    storage: cents(storageGb * standardStorageRate),
+    retrieve: cents(retrieveGb * standardRetrieveRate),
+    requests: cents(retrieveRequestsMillion * standardRetrieveRequestRate),
+    total: 0,
+  };
+  standard.total = cents(standard.storage + standard.retrieve + standard.requests);
+
+  const infrequent = {
+    id: "infrequent",
+    label: "Infrequent / archive class",
+    storage: cents(storageGb * infrequentStorageRate),
+    retrieve: cents(retrieveGb * infrequentRetrieveRate),
+    requests: cents(retrieveRequestsMillion * infrequentRetrieveRequestRate),
+    total: 0,
+  };
+  infrequent.total = cents(infrequent.storage + infrequent.retrieve + infrequent.requests);
+
+  const signed = standard.total - infrequent.total;
+  const cheaper = signed > 0 ? "infrequent" : signed < 0 ? "standard" : "tie";
+
+  // S*stdStore + R*stdRet + reqStd = S*iaStore + R*iaRet + reqIa
+  // R = (S*(stdStore - iaStore) + (reqStd - reqIa)) / (iaRet - stdRet)
+  let retrieveGbCeiling = null;
+  const retrieveDelta = infrequentRetrieveRate - standardRetrieveRate;
+  if (retrieveDelta > 0) {
+    const storageSave = storageGb * (standardStorageRate - infrequentStorageRate);
+    const requestDelta = retrieveRequestsMillion * (
+      standardRetrieveRequestRate - infrequentRetrieveRequestRate
+    );
+    const volume = (storageSave + requestDelta) / retrieveDelta;
+    if (Number.isFinite(volume)) {
+      if (volume <= 0) retrieveGbCeiling = 0;
+      else retrieveGbCeiling = cents(volume);
+    }
+  }
+
+  return {
+    standard,
+    infrequent,
+    cheaper,
+    savings: cents(Math.abs(signed)),
+    infrequentSaves: cents(signed),
+    annualSavings: cents(Math.abs(signed) * 12),
+    retrieveGb,
+    retrieveGbCeiling,
+    retrieveSharePercent: storageGb === 0 ? 0 : (retrieveGb / storageGb) * 100,
+  };
+}
+
+export function storageClassNote(result) {
+  const retrieved = `${result.retrieveGb.toFixed(1)} GB`;
+  if (result.cheaper === "tie") {
+    return `At ${retrieved} retrieved both classes bill the same this month.`;
+  }
+  const winner = result.cheaper === "standard"
+    ? "standard class"
+    : "infrequent / archive class";
+  let ceilingBit = "With these rates infrequent / archive does not match standard at any retrieve volume.";
+  if (result.retrieveGbCeiling === 0) {
+    ceilingBit = "Infrequent / archive is already more expensive at 0 GB retrieved.";
+  } else if (result.retrieveGbCeiling != null) {
+    ceilingBit = `Infrequent / archive matches standard at ${result.retrieveGbCeiling.toFixed(1)} GB retrieved.`;
+  }
+  return `At ${retrieved} retrieved ${winner} is ${money(result.savings)} cheaper this month. ${ceilingBit}`;
+}
