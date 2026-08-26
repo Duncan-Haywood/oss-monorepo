@@ -14,7 +14,7 @@ for an e-invoice preflight check.
 ```sh
 cd ventures/einvoice-preflight
 # Browser: open index.html, or `python3 -m http.server 8765` and visit
-# http://127.0.0.1:8765/ — same rule IDs as the CLI, including VAT/IBAN/BIC.
+# http://127.0.0.1:8765/ — same rule IDs as the CLI, including VAT/IBAN/BIC/RF.
 PYTHONPATH=src python3 -m einvoice_preflight examples/valid-invoice.json
 PYTHONPATH=src python3 -m einvoice_preflight examples/valid-invoice.json --format json
 PYTHONPATH=src python3 -m einvoice_preflight examples/valid-invoice.json --format sarif > preflight.sarif
@@ -75,7 +75,7 @@ arithmetic check, not a tax-law determination:
   "currency": "EUR",
   "supplier": {"id": "DE123", "name": "Supplier GmbH", "vat_id": "DE136695976"},
   "customer": {"id": "DE456", "name": "Customer GmbH"},
-  "payment": {"iban": "DE89370400440532013000", "bic": "COBADEFFXXX"},
+  "payment": {"iban": "DE89370400440532013000", "bic": "COBADEFFXXX", "remittance": "RF18539007547034"},
   "lines": [{"description": "Consulting", "quantity": 2, "unit_price": 100, "tax_percent": 19, "net": 200}],
   "totals": {"net": 200, "tax": 38, "gross": 238, "prepaid": 38, "due": 200}
 }
@@ -109,6 +109,18 @@ or the account number. This is a typo catch, not a SWIFT directory lookup
 and not a determination that the institution will accept the payment. UBL
 `PayeeFinancialAccount/FinancialInstitutionBranch/ID` (or the nested
 `FinancialInstitution/ID`) maps into `payment.bic`.
+
+`payment.remittance` is the text the buyer should quote on the transfer.
+When a complete IBAN is present and remittance is missing, that is
+`INV-030` — an unmatched SEPA credit is how paid invoices sit in
+unallocated cash. When remittance is supplied, an ISO 11649 RF creditor
+reference that fails its MOD-97 check (or that is not RF-shaped after
+starting with `RF`) is `INV-031`. Unstructured notes are accepted up to
+140 characters. Messages never repeat the reference. This is a matching
+and typo catch, not a bank lookup and not a determination that a payment
+will be allocated. UBL `PaymentMeans/PaymentID` maps into
+`payment.remittance`; `InstructionNote` is used when `PaymentID` is
+absent.
 
 `due_date` is optional. When supplied, it must use `YYYY-MM-DD` and cannot be
 earlier than `issue_date`; this is a date-shape and document-consistency check,
@@ -274,6 +286,9 @@ a balance is legally due.
 No. Optional `payment.iban` values (and a UBL payee account ID) are checked
 with the published IBAN length and MOD-97 checksum only. Optional
 `payment.bic` values are checked for ISO 9362 shape and, when both are
-complete, for the same country as the IBAN. The tool never contacts a
-bank, never stores the account number or BIC, and never claims funds can
-be received there.
+complete, for the same country as the IBAN. Optional `payment.remittance`
+(and UBL `PaymentID` / `InstructionNote`) is required when a complete
+IBAN is present and, when it looks like an RF creditor reference, is
+checked with the published ISO 11649 checksum only. The tool never
+contacts a bank, never stores the account number, BIC, or remittance,
+and never claims funds can be received or allocated there.

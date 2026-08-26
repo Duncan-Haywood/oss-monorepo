@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>E-invoice Preflight | Check JSON or UBL before submission</title>
-  <meta name="description" content="Free local e-invoice preflight: drop a JSON or UBL XML invoice to catch missing fields, arithmetic mistakes, prepaid vs amount-due mismatches, VAT typos, and IBAN/BIC mismatches before submission. Nothing is uploaded.">
+  <meta name="description" content="Free local e-invoice preflight: drop a JSON or UBL XML invoice to catch missing fields, arithmetic mistakes, prepaid vs amount-due mismatches, VAT typos, IBAN/BIC mismatches, and a missing remittance reference before submission. Nothing is uploaded.">
   <meta name="robots" content="index, follow">
   <link rel="canonical" href=".">
   <link rel="sitemap" type="application/xml" href="sitemap.xml">
@@ -19,7 +19,7 @@
     "applicationCategory": "BusinessApplication",
     "operatingSystem": "Any (runs in a web browser)",
     "offers": { "@type": "Offer", "price": "0", "priceCurrency": "EUR" },
-    "featureList": "JSON and UBL invoice checks, arithmetic totals, prepaid versus amount due, VAT IBAN and BIC typo catches, copyable repair checklist, local-only processing"
+    "featureList": "JSON and UBL invoice checks, arithmetic totals, prepaid versus amount due, VAT IBAN BIC and remittance typo catches, copyable repair checklist, local-only processing"
   }
   </script>
   <script type="application/ld+json">
@@ -40,7 +40,7 @@
         "name": "How do I check an e-invoice before submission?",
         "acceptedAnswer": {
           "@type": "Answer",
-          "text": "Drop a JSON or UBL XML invoice, or paste the JSON shape. The checker reports missing fields, date-shape mistakes, totals that do not match the line items, prepaid versus amount-due mismatches, and optional VAT, IBAN, and BIC typo catches, with a rule ID and a suggested fix. It does not decide tax treatment or legal validity."
+          "text": "Drop a JSON or UBL XML invoice, or paste the JSON shape. The checker reports missing fields, date-shape mistakes, totals that do not match the line items, prepaid versus amount-due mismatches, a missing remittance on an IBAN invoice, and optional VAT, IBAN, BIC, and RF typo catches, with a rule ID and a suggested fix. It does not decide tax treatment or legal validity."
         }
       }
     ]
@@ -88,8 +88,9 @@
     <p>
       Drop a JSON or UBL XML invoice — or paste the JSON shape — and get rule IDs
       plus a suggested fix for missing fields, totals that do not add up, a
-      prepaid that does not leave the stated amount due, and transposed VAT,
-      IBAN, or BIC values. After using this, you can now review a
+      prepaid that does not leave the stated amount due, a missing remittance
+      on an IBAN transfer, and transposed VAT, IBAN, BIC, or RF values. After
+      using this, you can now review a
       structured invoice in the browser in seconds, which used to mean running a
       CLI or waiting for a network rejection. Everything stays on this page.
     </p>
@@ -129,9 +130,10 @@
     <p>
       The same local rules as the CLI: required fields, ISO dates, currency shape,
       party identifiers, line arithmetic, totals, optional prepaid versus amount
-      due (INV-028 and INV-029), and optional VAT, IBAN, and BIC typo catches
-      (INV-022 through INV-027). UBL XML is mapped into that shape,
-      including payee account and branch identifiers. It is <strong>not</strong>
+      due (INV-028 and INV-029), optional VAT, IBAN, and BIC typo catches
+      (INV-022 through INV-027), and remittance matching (INV-030 and INV-031).
+      UBL XML is mapped into that shape, including payee account, branch, and
+      PaymentID. It is <strong>not</strong>
       a Peppol, EN 16931, or tax-law validator and it does not submit anything.
     </p>
     <p class="muted">
@@ -157,7 +159,7 @@
       currency: "EUR",
       supplier: { id: "DE123", name: "Supplier GmbH", vat_id: "DE136695976" },
       customer: { id: "DE456", name: "Customer GmbH" },
-      payment: { iban: "DE89370400440532013000", bic: "COBADEFFXXX" },
+      payment: { iban: "DE89370400440532013000", bic: "COBADEFFXXX", remittance: "RF18539007547034" },
       lines: [{ description: "Consulting", quantity: 2, unit_price: 100, tax_percent: 19, net: 200 }],
       totals: { net: 200, tax: 38, gross: 238, prepaid: 38, due: 200 },
     };

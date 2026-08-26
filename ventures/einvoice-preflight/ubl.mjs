@@ -87,10 +87,24 @@ function optionalMonetaryTotals(total) {
   return extras;
 }
 
+function paymentReference(means) {
+  for (const name of ["PaymentID", "InstructionNote"]) {
+    for (const child of means.children) {
+      if (child.name === name) {
+        const value = child.text.trim();
+        if (value) return value;
+      }
+    }
+  }
+  return "";
+}
+
 function payeePayment(root) {
   for (const means of descendants(root, "PaymentMeans")) {
+    const payment = {};
+    const remittance = paymentReference(means);
+    if (remittance) payment.remittance = remittance;
     for (const account of descendants(means, "PayeeFinancialAccount")) {
-      const payment = {};
       for (const child of account.children) {
         if (child.name === "ID") {
           const value = child.text.trim();
@@ -100,8 +114,8 @@ function payeePayment(root) {
           if (bic) payment.bic = bic;
         }
       }
-      if (Object.keys(payment).length) return payment;
     }
+    if (Object.keys(payment).length) return payment;
   }
   return null;
 }

@@ -14,7 +14,10 @@ function invoice({ iban, bic } = {}) {
     totals: { net: 200, tax: 38, gross: 238 },
   };
   const payment = {};
-  if (iban !== undefined) payment.iban = iban;
+  if (iban !== undefined) {
+    payment.iban = iban;
+    payment.remittance = "INV-1";
+  }
   if (bic !== undefined) payment.bic = bic;
   if (Object.keys(payment).length) document.payment = payment;
   return document;

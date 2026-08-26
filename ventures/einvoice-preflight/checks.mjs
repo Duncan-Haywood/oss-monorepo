@@ -4,6 +4,7 @@
 
 import { inspectPaymentBic } from "./bic.mjs";
 import { inspectPaymentIban } from "./iban.mjs";
+import { inspectPaymentRemittance } from "./remittance.mjs";
 import { inspectPartyVat } from "./vat.mjs";
 
 function parseNumber(value) {
@@ -111,6 +112,9 @@ export function checkInvoice(invoice) {
     fail(finding.rule, finding.message, finding.fix, finding.path);
   }
   for (const finding of inspectPaymentBic(invoice)) {
+    fail(finding.rule, finding.message, finding.fix, finding.path);
+  }
+  for (const finding of inspectPaymentRemittance(invoice)) {
     fail(finding.rule, finding.message, finding.fix, finding.path);
   }
 

@@ -106,10 +106,13 @@ def _optional_monetary_totals(total: ElementTree.Element) -> dict[str, int | flo
 
 
 def _payee_payment(root: ElementTree.Element) -> dict[str, str]:
-    """Map PayeeFinancialAccount/ID and the nested branch BIC when present."""
+    """Map remittance, payee account, and nested branch BIC when present."""
     for means in _children(root, "PaymentMeans"):
+        payment: dict[str, str] = {}
+        remittance = _payment_reference(means)
+        if remittance:
+            payment["remittance"] = remittance
         for account in _children(means, "PayeeFinancialAccount"):
-            payment: dict[str, str] = {}
             for child in list(account):
                 tag = child.tag.rsplit("}", 1)[-1]
                 if tag == "ID":
@@ -120,9 +123,20 @@ def _payee_payment(root: ElementTree.Element) -> dict[str, str]:
                     bic = _branch_bic(child)
                     if bic:
                         payment["bic"] = bic
-            if payment:
-                return payment
+        if payment:
+            return payment
     return {}
+
+
+def _payment_reference(means: ElementTree.Element) -> str:
+    """Map PaymentID, then InstructionNote, as the remittance the buyer quotes."""
+    for name in ("PaymentID", "InstructionNote"):
+        for child in list(means):
+            if child.tag.rsplit("}", 1)[-1] == name:
+                value = (child.text or "").strip()
+                if value:
+                    return value
+    return ""
 
 
 def _branch_bic(branch: ElementTree.Element) -> str:
