@@ -8,6 +8,8 @@ import {
   compareReverbToEbay,
   offerThatMatchesEbayList,
   compareShippingPaths,
+  compareSafeShipping,
+  ILLUSTRATED_SAFE_SHIPPING_PREMIUM,
 } from './calc.mjs';
 
 test('Reverb at the default list price keeps the published worked example', () => {
@@ -117,4 +119,56 @@ test('buyer-pays and included match when shipping charged is already zero', () =
   assert.equal(comparison.buyerPays.profit, comparison.included.profit);
   assert.equal(comparison.extraMarketplaceOnIncluded, 0);
   assert.equal(comparison.winner, 'pickup');
+});
+
+test('Safe Shipping at the default $80 quote costs $15 more label than the $65 own label', () => {
+  const comparison = compareSafeShipping(REVERB_DEFAULTS);
+  assert.equal(comparison.own.profit, calculateReverbSale(REVERB_DEFAULTS, 800).profit);
+  assert.equal(comparison.ownLabel, 65);
+  assert.equal(comparison.safeLabel, 80);
+  assert.equal(comparison.extraLabelCost, 15);
+  assert.equal(comparison.usedIllustratedQuote, false);
+  assert.equal(Number(comparison.safe.profit.toFixed(3)), 269.325);
+  assert.equal(comparison.expectedClaim, 9);
+  assert.equal(Number(comparison.ownExpectedProfit.toFixed(3)), 275.325);
+  assert.equal(Number(comparison.breakEvenLossRatePct.toFixed(2)), 3.33);
+  assert.equal(comparison.winner, 'ownExpected');
+  assert.equal(comparison.safePays, false);
+});
+
+test('a $0 Safe Shipping quote is illustrated at own label plus the published premium', () => {
+  const comparison = compareSafeShipping({ ...REVERB_DEFAULTS, safeShippingCost: 0 });
+  assert.equal(comparison.usedIllustratedQuote, true);
+  assert.equal(comparison.safeLabel, REVERB_DEFAULTS.shippingCost + ILLUSTRATED_SAFE_SHIPPING_PREMIUM);
+  assert.equal(comparison.safeLabel, 80);
+});
+
+test('the extra label is worth it once the claim rate crosses the break-even', () => {
+  const atBreak = compareSafeShipping(REVERB_DEFAULTS);
+  const comparison = compareSafeShipping({
+    ...REVERB_DEFAULTS,
+    unprotectedLossRatePct: atBreak.breakEvenLossRatePct,
+  });
+  assert.ok(Math.abs(comparison.ownExpectedProfit - comparison.safe.profit) < 1e-9);
+  assert.equal(comparison.winner, 'tie');
+
+  const above = compareSafeShipping({ ...REVERB_DEFAULTS, unprotectedLossRatePct: 4 });
+  assert.equal(above.expectedClaim, 18);
+  assert.equal(Number(above.ownExpectedProfit.toFixed(3)), 266.325);
+  assert.equal(above.winner, 'safeShipping');
+  assert.equal(above.safePays, true);
+});
+
+test('claim cost defaults to item cost and a zero claim makes Safe Shipping a pure extra', () => {
+  const omitted = compareSafeShipping({ ...REVERB_DEFAULTS, claimCost: undefined });
+  assert.equal(omitted.claimCost, REVERB_DEFAULTS.itemCost);
+  const none = compareSafeShipping({ ...REVERB_DEFAULTS, claimCost: 0 });
+  assert.equal(none.expectedClaim, 0);
+  assert.equal(none.ownExpectedProfit, none.own.profit);
+  assert.equal(none.winner, 'ownExpected');
+  assert.equal(none.breakEvenLossRatePct, Infinity);
+});
+
+test('rejects an unprotected claim rate above 100%', () => {
+  assert.throws(() => compareSafeShipping({ ...REVERB_DEFAULTS, unprotectedLossRatePct: 101 }), /at most 100/);
 });

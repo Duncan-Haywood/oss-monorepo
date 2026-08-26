@@ -1,5 +1,5 @@
 name: reverb-fee-calculator
-description: A private browser calculator for Reverb sellers to see cash at list, cash on a buyer offer, and whether that offer still beats the same sale on eBay.
+description: A private browser calculator for Reverb sellers to see cash at list, cash on a buyer offer, whether that offer still beats the same sale on eBay, and whether Reverb Safe Shipping still beats an own label after expected claims.
 stage: prototype
 owner: duncan
 hypotheses:
@@ -12,6 +12,10 @@ hypotheses:
     checked: null
     evidence: customer-contact
   - claim: Sellers will return to see whether free shipping or local pickup still beats charging postage, because marketplace fee sits on the item and folding shipping into the list hides a cash leak.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: Sellers will return to see whether Reverb Safe Shipping still beats their own label, because the extra postage is a sure cost and the unprotected claim is a maybe.
     status: untested
     checked: null
     evidence: customer-contact

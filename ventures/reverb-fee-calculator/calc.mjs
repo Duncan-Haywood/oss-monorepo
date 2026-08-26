@@ -12,6 +12,9 @@ export const INPUT_FIELDS = [
   'offerPrice',
   'shippingCharged',
   'shippingCost',
+  'safeShippingCost',
+  'claimCost',
+  'unprotectedLossRatePct',
   'itemCost',
   'otherCost',
   'marketplaceRate',
@@ -23,11 +26,19 @@ export const INPUT_FIELDS = [
   'ebayFixedFee',
 ];
 
+// When the seller has not quoted a Safe Shipping label yet, show own-label
+// plus this premium so the table is never an empty "$0 vs $0" row. A typed
+// quote replaces it.
+export const ILLUSTRATED_SAFE_SHIPPING_PREMIUM = 15;
+
 export const REVERB_DEFAULTS = {
   price: 800,
   offerPrice: 720,
   shippingCharged: 75,
   shippingCost: 65,
+  safeShippingCost: 80,
+  claimCost: 450,
+  unprotectedLossRatePct: 2,
   itemCost: 450,
   otherCost: 10,
   marketplaceRate: 5,
@@ -229,4 +240,81 @@ function includedListThatMatchesBuyerPays(input, targetProfit) {
     throw new Error('No non-negative included list matches that buyer-pays cash');
   }
   return listPrice;
+}
+
+// Same buyer checkout, two labels. Reverb Safe Shipping is a more expensive
+// label that is supposed to cover a damaged or lost shipment. Your own label
+// is cheaper and you eat the claim. Expected keep = sale profit minus
+// (claim rate × cash you lose on an unprotected claim). The extra label is
+// worth it only when that expected claim is larger than the extra postage.
+// Distinct from who pays postage (buyer / included / pickup) and from
+// absorbing the label into the list.
+export function compareSafeShipping(input, salePrice = input?.price) {
+  const price = number(salePrice, 'Sale price');
+  const ownLabel = number(input.shippingCost, 'Shipping you pay', 0);
+  const typedSafe = number(input.safeShippingCost, 'Safe Shipping label', 0);
+  const itemCost = number(input.itemCost, 'What you paid for the item', 0);
+  const claimCost = number(input.claimCost, 'Unprotected claim cost', itemCost);
+  const lossRatePct = number(input.unprotectedLossRatePct, 'Unprotected claim rate', 2);
+  if (lossRatePct > 100) throw new Error('Unprotected claim rate must be at most 100%');
+
+  const usedIllustratedQuote = typedSafe === 0;
+  const safeLabel = usedIllustratedQuote ? ownLabel + ILLUSTRATED_SAFE_SHIPPING_PREMIUM : typedSafe;
+  const own = calculateReverbSale(input, price);
+  const safe = calculateReverbSale({ ...input, shippingCost: safeLabel }, price);
+  const extraLabelCost = safeLabel - ownLabel;
+  const expectedClaim = claimCost * lossRatePct / 100;
+  const ownExpectedProfit = own.profit - expectedClaim;
+  const breakEvenLossRatePct = claimCost > 0 ? extraLabelCost / claimCost * 100 : Infinity;
+
+  const rows = [
+    {
+      id: 'ownIfNothing',
+      label: 'Own label if nothing goes wrong',
+      sale: own,
+      labelCost: ownLabel,
+      expectedClaim: 0,
+      expectedProfit: own.profit,
+    },
+    {
+      id: 'ownExpected',
+      label: 'Own label after expected claims',
+      sale: own,
+      labelCost: ownLabel,
+      expectedClaim,
+      expectedProfit: ownExpectedProfit,
+    },
+    {
+      id: 'safeShipping',
+      label: usedIllustratedQuote ? 'Reverb Safe Shipping (illustrated quote)' : 'Reverb Safe Shipping',
+      sale: safe,
+      labelCost: safeLabel,
+      expectedClaim: 0,
+      expectedProfit: safe.profit,
+    },
+  ].map((row) => ({
+    ...row,
+    vsOwnExpected: row.expectedProfit - ownExpectedProfit,
+  }));
+
+  const decision = [rows[1], rows[2]];
+  const maxProfit = Math.max(...decision.map((row) => row.expectedProfit));
+  const leaders = decision.filter((row) => Math.abs(row.expectedProfit - maxProfit) < 1e-9);
+  return {
+    own,
+    safe,
+    rows,
+    ownLabel,
+    safeLabel,
+    extraLabelCost,
+    claimCost,
+    lossRatePct,
+    expectedClaim,
+    ownExpectedProfit,
+    safeExpectedProfit: safe.profit,
+    breakEvenLossRatePct,
+    usedIllustratedQuote,
+    safePays: safe.profit >= ownExpectedProfit,
+    winner: leaders.length === 1 ? leaders[0].id : 'tie',
+  };
 }
