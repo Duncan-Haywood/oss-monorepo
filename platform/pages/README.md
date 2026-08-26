@@ -5,8 +5,10 @@ surface in this repository into one GitHub Pages deployment, behind a hub page
 that lists and searches them.
 
 ```
-node platform/pages/build.mjs --out=dist          # build
-node --test platform/pages/build.test.mjs         # test
+node platform/pages/build.mjs --out=dist                        # build
+node platform/pages/check.mjs --dist=dist                       # verify the output
+node --test platform/pages/build.test.mjs platform/pages/check.test.mjs
+node platform/pages/journey.mjs --dist=dist                     # drive it in a browser
 ```
 
 Then serve it and click around:
@@ -68,11 +70,62 @@ origin root is read), and `node_modules`. `LICENSE` files are kept.
   and every venture's own sitemap, a `404.html`, and `.nojekyll` (without which
   Pages silently drops any directory starting with `_`).
 
+## What is checked before it can publish
+
+`build.test.mjs` tests the builder's functions. `check.mjs` tests the site the
+builder *emitted*, and the workflow will not upload an artifact that fails it.
+
+Those are different jobs, and the second one is the one that protects visitors.
+Discovery is automatic by design, so a venture reaches this artifact without
+anyone having looked at it — and the owner's `GITHUB_PAGES_ENABLED` flip
+publishes whatever the last build left behind. A defect that arrives from
+outside the builder therefore does not fail loudly at deploy time. It goes live.
+
+`check.mjs` reads the built tree (no network, no browser) and fails on:
+
+| Check | The failure it prevents |
+|---|---|
+| Root `index.html`, `404.html`, `robots.txt`, `sitemap.xml`, `sitemap-hub.xml` | A site with no front page or no crawlable entry |
+| Every tool directory has an `index.html` | A slug linked from the hub that 404s |
+| Hub links and published directories agree, both ways | A tool that built fine and is simply unreachable |
+| At least 20 tools published | A discovery collapse that emits a valid-looking hub with three tools and stays green |
+| Every local `src`/`href` and every ES-module specifier resolves | A calculator whose `calc.mjs` was filtered out: the form renders, then does nothing |
+| No reference escapes the site root | A link that only worked on the author's disk |
+| No `example.invalid` anywhere | Canonical tags and sitemaps pointing at a domain that does not resolve |
+| Every tool page and the hub carry the no-warranty disclaimer | Money figures shipped with no limitation of liability |
+| No `*.test.mjs`, `VENTURE.yaml`, `README.md`, `node_modules` | Test payload and bookkeeping served to visitors |
+| Every `sitemap.xml` entry has a page behind it | Crawlers led to 404s |
+
+`check.test.mjs` builds a deliberately broken site per check and asserts that
+check fires, plus one well-formed site that must stay clean — a verifier that
+only ever passes is worse than none, because it buys false confidence in the one
+artifact that reaches the public.
+
+### The browser half
+
+`check.mjs` can prove a page exists and its links resolve. It cannot prove the
+calculator *computes* — a tool whose module throws on load passes every static
+check and is still useless.
+
+`journey.mjs` is that pass: it serves the built site, then drives Chromium
+through the real journey (hub loads → search narrows → open a tool → change an
+input → the figures move), and fails if a driven calculator does not recompute
+or the browser raises anything. Because every tool here ships worked-example
+defaults, it asserts the output *changes*, not merely that a dollar sign is
+present.
+
+Playwright is not a dependency of this repo, so `journey.mjs` exits 0 with a
+`SKIP` line where no browser is available, and is not a CI gate. Run it before a
+publish. Last run: 34 tools on the hub, search narrowed 34→3, and
+`ebay-fee-calculator`, `invoice-payment-terms-calculator`,
+`amazon-fba-calculator` and `janitorial-bid-calculator` each recomputed with no
+console errors.
+
 ## Deploying
 
-`.github/workflows/portfolio-pages.yml` builds and tests on every push to `main`
-and every pull request that touches `ventures/` or this directory, so a broken
-site is caught at merge time whether or not publishing is on.
+`.github/workflows/portfolio-pages.yml` builds, tests, and checks on every push
+to `main` and every pull request that touches `ventures/` or this directory, so
+a broken site is caught at merge time whether or not publishing is on.
 
 Publishing is gated on an owner-set repository variable:
 
