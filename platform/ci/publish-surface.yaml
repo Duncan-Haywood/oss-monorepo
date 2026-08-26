@@ -85,6 +85,9 @@ workflows:
 - workflow: branch-cleanup.yml
   classification: none
   publishes: []
+- workflow: cabinet-refinishing-bid-calculator-ci.yml
+  classification: none
+  publishes: []
 - workflow: cam-reconciliation-check-ci.yml
   classification: none
   publishes: []
