@@ -22,6 +22,7 @@ test("exports stable spreadsheet rows and quotes currency labels safely", () => 
   assert.match(csv, /discount_room,0\.00,"USD, ""local"""/);
   assert.match(csv, /minimum_price_adjustment,0\.00,"USD, ""local"""/);
   assert.match(csv, /target_rate_hours_budget,10\.00,hours/);
+  assert.match(csv, /hours_cushion,0\.00,hours/);
   assert.match(csv, /hourly_bill_at_planned_hours,1000\.00,"USD, ""local"""/);
   assert.match(csv, /hourly_minus_fixed_at_planned_hours,0\.00,"USD, ""local"""/);
   assert.doesNotMatch(csv, /discount_\d/);
@@ -54,6 +55,7 @@ test("includes discount, cost-rise, overrun, and kill-fee rows when supplied", (
   });
   assert.match(csv, /discount_room,0\.00,USD/);
   assert.match(csv, /target_rate_hours_budget,25\.60,hours/);
+  assert.match(csv, /hours_cushion,-9\.40,hours/);
   assert.match(csv, /hourly_bill_at_planned_hours,3105\.00,USD/);
   assert.match(csv, /hourly_minus_fixed_at_planned_hours,705\.00,USD/);
   assert.match(csv, /hourly_50_bill,4417\.50,USD/);

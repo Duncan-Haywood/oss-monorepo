@@ -20,6 +20,14 @@ class QuoteMarginTests(unittest.TestCase):
         self.assertEqual(result["minimum_price_adjustment"], 705)
         self.assertEqual(result["hidden_hours"], 11)
         self.assertEqual(result["hidden_time_percent"], (11 / 35) * 100)
+        self.assertEqual(result["target_rate_hours"], 25.6)
+        self.assertAlmostEqual(result["hours_cushion"], -9.4)
+
+    def test_reports_negative_target_rate_hours_when_costs_exceed_price(self) -> None:
+        quote = load_quote({"price": 100, "delivery_hours": 1, "overhead": 150, "target_hourly_rate": 50})
+        result = calculate(quote)
+        self.assertEqual(result["target_rate_hours"], -1)
+        self.assertEqual(result["hours_cushion"], -2)
 
     def test_defaults_optional_costs_and_time(self) -> None:
         quote = load_quote({"price": 1000, "delivery_hours": 10, "target_hourly_rate": 100})
@@ -80,6 +88,8 @@ class QuoteMarginTests(unittest.TestCase):
                 "effective_hourly_rate,100.00,EUR/hour",
                 "target_price,1800.00,EUR",
                 "gap_to_target,600.00,EUR",
+                "target_rate_hours,32.00,hours",
+                "hours_cushion,8.00,hours",
                 "cost_coverage,2400.00,EUR",
                 "discount_room,600.00,EUR",
                 "minimum_price_adjustment,0.00,EUR",
