@@ -21,6 +21,78 @@ export const inputIds = ['income', 'costs', 'hours', 'utilization', 'retainerHou
 export { FIELD_IDS };
 export const DRAFT_KEY = 'frc-draft-v1';
 export const DISCLAIMER = 'Planning aid only. No warranty. Review and verify this output before relying on it; it is not financial advice.';
+export const DEFAULT_RETAINER_HOURS = [10, 15, 20, 25, 30];
+
+export function retainerHourOptions(currentHours, defaults = DEFAULT_RETAINER_HOURS) {
+  const hours = Number(currentHours);
+  const options = defaults.map(Number).filter((value) => Number.isFinite(value) && value > 0);
+  if (Number.isFinite(hours) && hours > 0) options.push(hours);
+  return [...new Set(options)].sort((left, right) => left - right);
+}
+
+export function compareRetainerScenarios(values, hourOptions) {
+  const selectedHours = Number(values.retainerHours);
+  return retainerHourOptions(values.retainerHours, hourOptions ?? DEFAULT_RETAINER_HOURS).map((retainerHours) => {
+    try {
+      const plan = calculatePlan({ ...values, retainerHours });
+      const shareOfCapacity = plan.capacity > 0 ? retainerHours / plan.capacity : 0;
+      return {
+        retainerHours,
+        ok: true,
+        selected: selectedHours === retainerHours,
+        capacity: plan.capacity,
+        remainingCapacity: plan.remainingCapacity,
+        target: plan.target,
+        rate: plan.rate,
+        retainer: plan.retainer,
+        shareOfCapacity,
+        annual: Math.round(plan.retainer * 12 * 100) / 100,
+        effectiveRate: plan.retainer / retainerHours,
+      };
+    } catch (error) {
+      return {
+        retainerHours,
+        ok: false,
+        selected: selectedHours === retainerHours,
+        error: error.message,
+      };
+    }
+  });
+}
+
+export function formatScenarioComparison(scenarios, currency = 'USD') {
+  const symbol = symbols[currency] || symbols.USD;
+  const money = (value) => `${symbol}${value.toLocaleString(undefined, { maximumFractionDigits: 0 })}`;
+  const lines = ['Package options from the same assumptions'];
+  for (const row of scenarios) {
+    if (!row.ok) {
+      lines.push(`${row.retainerHours} hours — exceeds billable capacity`);
+      continue;
+    }
+    const mark = row.selected ? '  ← this proposal' : '';
+    lines.push(`${row.retainerHours} hours — ${money(row.retainer)} / month — ${row.remainingCapacity.toFixed(1)} hours left${mark}`);
+  }
+  return lines.join('\n');
+}
+
+export function scenarioInsight(scenarios) {
+  const selected = scenarios.find((row) => row.selected && row.ok);
+  if (!selected) {
+    const largestFit = [...scenarios].reverse().find((row) => row.ok);
+    return largestFit
+      ? `That package does not fit this month. The largest size that does is ${largestFit.retainerHours} hours.`
+      : '';
+  }
+  const pct = Math.round(selected.shareOfCapacity * 100);
+  const half = scenarios.filter((row) => row.ok && row.shareOfCapacity <= 0.5).at(-1);
+  if (pct > 50) {
+    return `This ${selected.retainerHours}-hour package uses ${pct}% of your billable capacity. One client would take more than half your month; leave room for other work or raise the price to compensate for concentration risk.`;
+  }
+  if (half && half.retainerHours !== selected.retainerHours) {
+    return `This ${selected.retainerHours}-hour package uses ${pct}% of your billable capacity. You could include up to ${half.retainerHours} hours and still keep at least half your capacity for other clients.`;
+  }
+  return `This ${selected.retainerHours}-hour package uses ${pct}% of your billable capacity. That leaves room for other clients, admin, and recovery.`;
+}
 
 export function usableCurrency(value) {
   const key = String(value || '').trim().toUpperCase();
@@ -575,6 +647,51 @@ if (typeof document !== 'undefined') {
         : `${coverage.requiredFillRate}%${coverage.reachableWithinCapacity ? '' : ' — more than you have'}`;
       $('coverageVerdict').textContent = coverage.recommendation;
     };
+    const renderScenarios = (scenarios) => {
+      const box = $('scenarios');
+      const tbody = $('scenarioRows');
+      if (!box || !tbody) return;
+      tbody.replaceChildren();
+      for (const row of scenarios) {
+        const tr = document.createElement('tr');
+        if (row.selected) tr.classList.add('selected');
+        if (!row.ok) tr.classList.add('overflow');
+        const cells = row.ok
+          ? [
+              `${row.retainerHours} hrs`,
+              money(row.retainer),
+              money(row.effectiveRate),
+              `${row.remainingCapacity.toFixed(1)} hrs`,
+              `${Math.round(row.shareOfCapacity * 100)}%`,
+            ]
+          : [`${row.retainerHours} hrs`, '—', '—', 'Exceeds capacity', '—'];
+        for (const text of cells) {
+          const td = document.createElement('td');
+          td.textContent = text;
+          tr.appendChild(td);
+        }
+        const action = document.createElement('td');
+        if (row.ok && !row.selected) {
+          const button = document.createElement('button');
+          button.type = 'button';
+          button.className = 'secondary apply';
+          button.textContent = 'Use this package';
+          button.addEventListener('click', () => {
+            $('retainerHours').value = String(row.retainerHours);
+            save();
+            form.requestSubmit();
+            track('apply-scenario');
+          });
+          action.appendChild(button);
+        } else {
+          action.textContent = row.selected ? 'This proposal' : '';
+        }
+        tr.appendChild(action);
+        tbody.appendChild(tr);
+      }
+      $('scenarioInsight').textContent = scenarioInsight(scenarios);
+      box.hidden = false;
+    };
     const renderOffer = (offer, currency) => {
       const box = $('offerCompare');
       if (!box) return;
@@ -594,8 +711,10 @@ if (typeof document !== 'undefined') {
     };
     form.addEventListener('submit', (event) => {
       event.preventDefault();
+      const input = read();
+      const scenarios = compareRetainerScenarios(input);
+      const anyOk = scenarios.some((row) => row.ok);
       try {
-        const input = read();
         const plan = calculatePlan(input);
         const comparison = compareRetainerUsage(plan);
         const rollover = compareUnusedHourRollover(plan);
@@ -636,10 +755,22 @@ if (typeof document !== 'undefined') {
         }
         if (!float.prepaid) track('payment-terms-float');
         if (offer) track('client_offer_compared');
+        if (anyOk) {
+          renderScenarios(scenarios);
+          track('scenario_table_viewed');
+        } else if ($('scenarios')) {
+          $('scenarios').hidden = true;
+        }
       } catch (error) {
         $('errors').textContent = error.message;
         $('errors').hidden = false;
         $('results').hidden = true;
+        if (anyOk) {
+          renderScenarios(scenarios);
+          track('scenario_table_viewed');
+        } else if ($('scenarios')) {
+          $('scenarios').hidden = true;
+        }
       }
     });
     $('copy').addEventListener('click', async () => {
