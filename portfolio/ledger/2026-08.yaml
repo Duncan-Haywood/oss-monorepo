@@ -23440,50 +23440,103 @@ entries:
         reworded the same facts -- the flag is about wording, not capability,
         and each close says so rather than hiding it.
     mrr_end: null
+  - venture: portfolio-pages
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Shipped #1738: the Pages deploy job is now gated on
+        `github.ref == 'refs/heads/main'`, and the workflow fetches the real
+        public URL after deploying -- front page, both sitemaps, robots.txt,
+        one product -- failing on any non-200 or a sitemap.xml served without
+        an index. `workflow_dispatch` runs against any branch, so the old gate
+        would have published the live site from a feature branch. Also landed
+        `journey.mjs` (from #1723): a browser pass over the hub, search and
+        its empty state, the usage opt-out across a reload, a click into a
+        calculator, a cross-product link, sitemap sampling, the 404, and a
+        375px viewport. Ran it for real against the built artifact over HTTP
+        before merging -- 17/17, zero console errors.
+      - >-
+        The finding that started the session: the artifact one owner flip from
+        being public was handing crawlers sitemaps that mostly did not work.
+        53 of 216 `<loc>` values were bare relative paths, which sitemaps.org
+        forbids, so a crawler discards the entire file -- 15 of 35 ventures
+        silently unindexed. 14 more carried a `ventures/` segment the site
+        does not serve, so every URL 404d. 70 published pages were in no
+        sitemap at all. None of it turns anything red: the site builds, each
+        sitemap looks plausible by eye, and the pages just never get indexed.
+        Organic search is the portfolio's whole acquisition plan, so this was
+        worth more than another calculator.
+      - >-
+        The expensive lesson is duplication, not the defect. FOUR sessions
+        found and fixed the same sitemap and disclaimer gaps inside about
+        forty minutes -- #1723, #1736, this one, and a fourth that landed the
+        no-SLA injection while the PR for it was being written. Three of the
+        four fixes were wasted work. What made the difference was checking
+        `main` and the other branch *before* writing, not after: reading
+        #1723's diff showed its generate-from-output approach beat the
+        rewrite-in-place one already written here, so that implementation was
+        dropped rather than defended, and only the part nothing else covered
+        was shipped. Two PRs opened this session were closed as genuinely
+        superseded, each verified by reading the survivor rather than assuming.
+      - >-
+        Chasing per-page compliance loses to the merge rate. `main` went red
+        three times in half an hour on the PRODUCT_PLAYBOOK 5b no-SLA clause:
+        #1731 fixed 20 pages, #1763 fixed 8 more that landed after it, and 2
+        more were already uncovered by the time that merged. A calculator
+        lands here most days, so the sweep can never catch up and each sweep
+        conflicts with the open branches editing those same product files.
+        Injecting the clause at build time -- only where the page does not
+        already word it itself -- ends the recurrence, which is the same
+        reasoning the nav chrome already used and which a fourth session
+        reached independently.
+    mrr_end: null
   - venture: portfolio
     agent_spend_usd: null
     human_hours: 0
     outcomes:
       - >-
-        Strengthened the Pages artifact check and the browser journey by
-        merging two independently-written versions of each rather than letting
-        either overwrite the other. Three sessions built a checker from #1723's
-        `check_site.py` within about an hour, and two built a browser journey.
-        `check.mjs` kept main's sitemap-index traversal, artifact-derived base
-        path and reverse page-in-no-sitemap check, and gained four checks it
-        did not have: hub-to-artifact reachability in both directions, the
-        required no-warranty disclaimer on every product page and the hub,
-        leaked test payload and repo bookkeeping, and a product-count floor for
-        a discovery collapse. Also widened module-specifier matching to both
-        quote styles and dynamic `import()` -- the double-quote-only pattern
-        could not see `from './calc.mjs'`, so a calculator could lose its
-        module and still pass.
+        Strengthened the Pages artifact check and the browser journey by merging
+        independently-written versions rather than letting either overwrite the
+        other. `check.mjs` kept main's sitemap-index traversal,
+        artifact-derived base path, reverse page-in-no-sitemap check and
+        canonical-outside-the-site check, and gained four it did not have:
+        hub-to-artifact reachability in both directions, the required
+        no-warranty disclaimer on every product page and the hub, leaked test
+        payload and repo bookkeeping, and a product-count floor for a discovery
+        collapse. Widened module-specifier matching to both quote styles and
+        dynamic `import()` -- the double-quote-only pattern could not see
+        `from './calc.mjs'`, so a calculator could lose its module and still
+        pass.
       - >-
         The reachability check is the one worth naming: a product that ships,
-        resolves every link, and appears in a sitemap while carrying no hub
-        link is unreachable, and it is the only failure in this class that is
+        resolves every link, and appears in a sitemap while carrying no hub link
+        is unreachable, and it is the only failure in this class that is
         completely silent. Checking one direction only would have missed it.
       - >-
         `journey.mjs` kept main's version -- stronger, because it can run
         against the live origin after the flip -- and gained the assertion it
-        lacked: change an input and require the output to move. Every tool
-        ships worked-example defaults, so money is on the page from load and
-        main's `the tool computes a figure` check passed whether or not the
-        arithmetic ran. A tool whose calc.mjs throws renders its form, shows
-        its defaults, satisfies every static check, and is useless to a
-        visitor; only a changed input separates the two. Verified on 48
-        products / 217 pages, four calculators driven, no console errors.
+        lacked: change an input and require the output to move. Every tool ships
+        worked-example defaults, so money is on the page from load and main's
+        `the tool computes a figure` check passed whether or not the arithmetic
+        ran. A tool whose calc.mjs throws renders its form, shows its defaults,
+        satisfies every static check, and is useless to a visitor. Verified on
+        58 products / 240 pages: 20 of 20 journey checks, four calculators
+        driven, zero console errors, and both dispatched CI runs green on the
+        branch head.
       - >-
         Learned that the duplication rate on this surface is now the dominant
-        cost. In one session: two Pages builders on main, three artifact
-        checkers, two browser journeys, two collision guards -- and a fourth
-        builder discarded by an earlier session. Every one was competent work.
-        The pattern is that sessions pick the same highest-value gap because
-        DIRECTION.md correctly says deploy-first, then cannot see each other
-        until merge. Two of this session's own deliverables were superseded
-        mid-run and dropped rather than pushed: a separate-variable fix for the
-        deploy race (main removed the second deploy job outright, which is
-        better) and a `singleton_collisions()` guard (main's
-        `check_single_pages_deployer` is equivalent and its tests cover more).
-        Discarding both was cheaper than defending them.
+        cost, and it is a scheduling problem rather than a quality one. In one
+        session main accumulated two Pages builders, three artifact checkers and
+        two browser journeys, plus a fourth builder an earlier session had
+        already discarded. Every one was competent. Sessions correctly pick the
+        same highest-value gap because DIRECTION.md says deploy-first, then
+        cannot see each other until merge. Two of this session's own
+        deliverables were superseded mid-run and dropped rather than defended: a
+        separate-variable fix for the two-workflow deploy race (main removed the
+        second deploy job outright, which is better) and a collision guard
+        (main's `check_single_pages_deployer` is equivalent and its tests cover
+        more). Discarding both was cheaper than arguing for them, but the
+        cheapest fix is upstream -- fewer concurrent sessions aimed at one
+        surface, or a claim mechanism before work starts.
     mrr_end: null

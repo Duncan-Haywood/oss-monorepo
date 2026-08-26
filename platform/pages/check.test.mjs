@@ -212,3 +212,17 @@ test('a dynamic import specifier is resolved', async () => {
   });
   assert.equal(mentioning(problems, 'dead link -> ./share.mjs').length, 1);
 });
+
+test('a data-tool literal inside a script is not read as a hub link', async () => {
+  // Regression: the offline widget builds hub markup by concatenation, so the
+  // hub's own script contains `data-tool="' + slug + '"`. Scraped raw that
+  // reads as a link to a product named `' + slug + '`, and the reachability
+  // check failed on a perfectly healthy site.
+  const problems = await problemsFor({
+    'index.html':
+      '<a href="tool/" data-tool="tool">Tool</a>' +
+      '<script>const card = (slug) => `<a data-tool="` + slug + `">x</a>`;</script>' +
+      '<footer>No warranty.</footer>',
+  });
+  assert.deepEqual(problems, [], `unexpected: ${JSON.stringify(problems)}`);
+});
