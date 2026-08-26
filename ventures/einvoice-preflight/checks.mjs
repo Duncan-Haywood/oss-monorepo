@@ -7,6 +7,7 @@ import { inspectTaxBreakdown } from "./breakdown.mjs";
 import { inspectDocumentType } from "./document.mjs";
 import { inspectPartyEndpoint } from "./endpoint.mjs";
 import { inspectPaymentIban } from "./iban.mjs";
+import { inspectPaymentMeans } from "./means.mjs";
 import { inspectInvoicePeriod } from "./period.mjs";
 import { inspectPaymentRemittance } from "./remittance.mjs";
 import { inspectTaxExemption } from "./tax.mjs";
@@ -117,6 +118,9 @@ export function checkInvoice(invoice) {
     }
   }
   for (const finding of inspectPaymentIban(invoice)) {
+    fail(finding.rule, finding.message, finding.fix, finding.path);
+  }
+  for (const finding of inspectPaymentMeans(invoice)) {
     fail(finding.rule, finding.message, finding.fix, finding.path);
   }
   for (const finding of inspectPaymentBic(invoice)) {

@@ -121,6 +121,8 @@ function paymentReference(means) {
 function payeePayment(root) {
   for (const means of descendants(root, "PaymentMeans")) {
     const payment = {};
+    const code = textOf(means, "PaymentMeansCode", false);
+    if (code) payment.means = code;
     const remittance = paymentReference(means);
     if (remittance) payment.remittance = remittance;
     for (const account of descendants(means, "PayeeFinancialAccount")) {

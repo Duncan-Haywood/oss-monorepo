@@ -9,6 +9,7 @@ from .breakdown import inspect_tax_breakdown
 from .document import inspect_document_type
 from .endpoint import inspect_party_endpoint
 from .iban import inspect_payment_iban
+from .means import inspect_payment_means
 from .period import inspect_invoice_period
 from .remittance import inspect_payment_remittance
 from .tax import inspect_tax_exemption
@@ -75,6 +76,8 @@ def check_invoice(invoice: Any) -> list[dict[str, str]]:
             for finding in inspect_party_endpoint(party, party_name):
                 fail(finding["rule"], finding["message"], finding["fix"], finding["path"])
     for finding in inspect_payment_iban(invoice):
+        fail(finding["rule"], finding["message"], finding["fix"], finding["path"])
+    for finding in inspect_payment_means(invoice):
         fail(finding["rule"], finding["message"], finding["fix"], finding["path"])
     for finding in inspect_payment_bic(invoice):
         fail(finding["rule"], finding["message"], finding["fix"], finding["path"])

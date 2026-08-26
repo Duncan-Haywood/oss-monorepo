@@ -18,8 +18,9 @@ cd ventures/einvoice-preflight
 # credit-note document type (INV-032 through INV-034), 0% / exempt
 # tax reasons (INV-035 and INV-036), mixed-rate tax breakdown
 # (INV-037 and INV-038), buyer/seller electronic addresses
-# (INV-039 through INV-041), and invoice period start/end
-# (INV-042 and INV-043).
+# (INV-039 through INV-041), invoice period start/end
+# (INV-042 and INV-043), and payment means vs IBAN
+# (INV-044 through INV-046).
 PYTHONPATH=src python3 -m einvoice_preflight examples/valid-invoice.json
 PYTHONPATH=src python3 -m einvoice_preflight examples/valid-credit-note.json
 PYTHONPATH=src python3 -m einvoice_preflight examples/valid-mixed-rate.json
@@ -85,7 +86,7 @@ arithmetic check, not a tax-law determination:
   "currency": "EUR",
   "supplier": {"id": "DE123", "name": "Supplier GmbH", "vat_id": "DE136695976", "endpoint": {"scheme": "0088", "id": "1234567890128"}},
   "customer": {"id": "DE456", "name": "Customer GmbH", "endpoint": {"scheme": "EM", "id": "ap@customer.example"}},
-  "payment": {"iban": "DE89370400440532013000", "bic": "COBADEFFXXX", "remittance": "RF18539007547034"},
+  "payment": {"means": "30", "iban": "DE89370400440532013000", "bic": "COBADEFFXXX", "remittance": "RF18539007547034"},
   "lines": [{"description": "Consulting", "quantity": 2, "unit_price": 100, "tax_percent": 19, "net": 200}],
   "totals": {"net": 200, "tax": 38, "gross": 238, "prepaid": 38, "due": 200}
 }
@@ -111,6 +112,17 @@ identifier. Messages never repeat the address. This is a typo catch, not a
 Peppol SMP lookup and not a claim that the party can receive e-invoices.
 UBL `Party/EndpointID` maps into `endpoint.id` and `schemeID` maps into
 `endpoint.scheme`.
+
+`payment.means` is optional. When supplied it is a UNCL 4461 payment means
+code (BT-81) such as `30` (credit transfer), `58` (SEPA credit transfer),
+or `10` (cash). An empty or undocumented code is `INV-044`. A credit
+transfer, SEPA transfer, or direct debit without a complete IBAN is
+`INV-045`. Cash, cheque, or card together with a complete IBAN is
+`INV-046`. Omitted means stay clean even when an IBAN is present.
+Messages never repeat the typed code or the account. This is a code-list
+and consistency check, not a Peppol profile determination and not a claim
+that the buyer can pay that way. UBL `PaymentMeans/PaymentMeansCode` maps
+into `payment.means`.
 
 `payment.iban` is optional. When supplied, it is checked against published
 IBAN lengths and the ISO 13616 MOD-97 checksum. Failed checksums are
