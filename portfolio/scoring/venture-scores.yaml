@@ -5284,3 +5284,38 @@ ventures:
       Pass: results are modeled from user-supplied assumptions, not
       financial, tax, wage, or legal advice; assumptions remain visible and
       inputs stay in the browser.
+
+  - slug: moving-bid-calculator
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 7
+      gross_margin: 10
+      defensibility: 5
+      distribution: 8
+    composite: 6.833
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      There is no AI anywhere in the product. The value is a domain model —
+      inventory hours plus access hours that scale with cubic feet — that is
+      arithmetic, and adding inference to it would only make the result less
+      checkable.
+    basis: >-
+      Graduated on 2026-08-24 as a browser-local moving bid calculator. Scored
+      above the marketplace fee calculators on defensibility (5): those restate
+      a published fee schedule, whereas the access-hours model encodes how a
+      local mover actually loses a Saturday — stairs and a long carry that
+      bedroom-count quotes cannot see. Distribution 8: "how to price a moving
+      job" and "moving company bid calculator" are higher-volume than the
+      janitorial queries and still bought by an operator with a real job on
+      the line.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Pass: the output is arithmetic on the mover's own inputs, never a
+      recommended price, a tariff, or an employment-law opinion. The shipped
+      hours and access minutes are labelled ballpark starting points rather
+      than a standard, and nothing the user enters leaves the browser.
