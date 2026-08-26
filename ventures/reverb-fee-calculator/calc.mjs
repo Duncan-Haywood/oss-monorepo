@@ -1,0 +1,443 @@
+// Pure Reverb sale arithmetic. No network, no stored fee schedule: every
+// rate is an input so the result stays a checkable calculation against the
+// seller's own Reverb statement, not a claim about Reverb's current fees.
+//
+// Marketplace / Reverb Gives apply to the item price. Payment processing
+// applies to item + shipping charged, the usual card-network shape. A seller
+// whose statement folds shipping into the marketplace line can put that
+// extra into `otherCost` or raise the marketplace rate.
+
+export const INPUT_FIELDS = [
+  'price',
+  'offerPrice',
+  'shippingCharged',
+  'shippingCost',
+  'safeShippingCost',
+  'claimCost',
+  'unprotectedLossRatePct',
+  'itemCost',
+  'otherCost',
+  'marketplaceRate',
+  'paymentRate',
+  'paymentFixed',
+  'givesRate',
+  'bumpFee',
+  'meetupCost',
+  'ebayFinalValueRate',
+  'ebayFixedFee',
+  'shopSalePrice',
+  'consignmentRate',
+  'shopCashOffer',
+];
+
+// When the seller has not quoted a Safe Shipping label yet, show own-label
+// plus this premium so the table is never an empty "$0 vs $0" row. A typed
+// quote replaces it.
+export const ILLUSTRATED_SAFE_SHIPPING_PREMIUM = 15;
+
+export const REVERB_DEFAULTS = {
+  price: 800,
+  offerPrice: 720,
+  shippingCharged: 75,
+  shippingCost: 65,
+  safeShippingCost: 80,
+  claimCost: 450,
+  unprotectedLossRatePct: 2,
+  itemCost: 450,
+  otherCost: 10,
+  marketplaceRate: 5,
+  paymentRate: 2.9,
+  paymentFixed: 0.3,
+  givesRate: 0,
+  bumpFee: 0,
+  meetupCost: 0,
+  ebayFinalValueRate: 13.25,
+  ebayFixedFee: 0.3,
+  shopSalePrice: 800,
+  consignmentRate: 30,
+  shopCashOffer: 520,
+};
+
+function number(value, name, fallback) {
+  const raw = value === undefined || value === null || value === '' ? fallback : value;
+  const result = Number(raw);
+  if (!Number.isFinite(result) || result < 0) throw new Error(`${name} must be a non-negative number`);
+  return result;
+}
+
+function saleInputs(input, salePrice) {
+  const shippingCharged = number(input.shippingCharged, 'Shipping charged', 0);
+  const shippingCost = number(input.shippingCost, 'Shipping cost', 0);
+  const itemCost = number(input.itemCost, 'What you paid for the item', 0);
+  const otherCost = number(input.otherCost, 'Other per-sale cost', 0);
+  const marketplaceRate = number(input.marketplaceRate, 'Reverb marketplace rate', 5);
+  const paymentRate = number(input.paymentRate, 'Payment rate', 2.9);
+  const paymentFixed = number(input.paymentFixed, 'Payment fixed fee', 0.3);
+  const givesRate = number(input.givesRate, 'Reverb Gives rate', 0);
+  const bumpFee = number(input.bumpFee, 'Bump fee on this listing', 0);
+  if (marketplaceRate + paymentRate + givesRate >= 100) {
+    throw new Error('Combined percentage fees must stay below 100%');
+  }
+  return {
+    salePrice,
+    shippingCharged,
+    shippingCost,
+    itemCost,
+    otherCost,
+    marketplaceRate,
+    paymentRate,
+    paymentFixed,
+    givesRate,
+    bumpFee,
+  };
+}
+
+export function calculateReverbSale(input, salePrice = input?.price) {
+  const price = number(salePrice, 'Sale price');
+  const fields = saleInputs(input, price);
+  const revenue = fields.salePrice + fields.shippingCharged;
+  const marketplaceFee = fields.salePrice * fields.marketplaceRate / 100;
+  const givesFee = fields.salePrice * fields.givesRate / 100;
+  const paymentFee = revenue * fields.paymentRate / 100 + fields.paymentFixed;
+  const fees = marketplaceFee + givesFee + paymentFee + fields.bumpFee;
+  const variableCosts = fields.shippingCost + fields.itemCost + fields.otherCost;
+  const costs = fees + variableCosts;
+  const profit = revenue - costs;
+  return {
+    salePrice: fields.salePrice,
+    revenue,
+    fees: { marketplace: marketplaceFee, gives: givesFee, payment: paymentFee, bump: fields.bumpFee, total: fees },
+    variableCosts,
+    costs,
+    profit,
+    margin: revenue === 0 ? 0 : profit / revenue * 100,
+  };
+}
+
+export function calculateEbaySale(input, salePrice = input?.price) {
+  const price = number(salePrice, 'Sale price');
+  const shippingCharged = number(input.shippingCharged, 'Shipping charged', 0);
+  const shippingCost = number(input.shippingCost, 'Shipping cost', 0);
+  const itemCost = number(input.itemCost, 'What you paid for the item', 0);
+  const otherCost = number(input.otherCost, 'Other per-sale cost', 0);
+  const finalValueRate = number(input.ebayFinalValueRate, 'eBay final value rate', 13.25);
+  const fixedFee = number(input.ebayFixedFee, 'eBay fixed fee', 0.3);
+  if (finalValueRate >= 100) throw new Error('eBay final value rate must be below 100%');
+  const revenue = price + shippingCharged;
+  const finalValueFee = revenue * finalValueRate / 100;
+  const fees = finalValueFee + fixedFee;
+  const variableCosts = shippingCost + itemCost + otherCost;
+  const costs = fees + variableCosts;
+  const profit = revenue - costs;
+  return {
+    salePrice: price,
+    revenue,
+    fees: { finalValue: finalValueFee, fixed: fixedFee, total: fees },
+    variableCosts,
+    costs,
+    profit,
+    margin: revenue === 0 ? 0 : profit / revenue * 100,
+  };
+}
+
+export function compareOfferToList(input) {
+  const listPrice = number(input.price, 'List price');
+  const offerPrice = number(input.offerPrice, 'Offer price', listPrice);
+  const list = calculateReverbSale(input, listPrice);
+  const offer = calculateReverbSale(input, offerPrice);
+  return {
+    list,
+    offer,
+    leaveOnTable: list.profit - offer.profit,
+    offerStillPays: offer.profit >= 0,
+  };
+}
+
+export function compareReverbToEbay(input, salePrice = input?.price) {
+  const reverb = calculateReverbSale(input, salePrice);
+  const ebay = calculateEbaySale(input, salePrice);
+  return {
+    reverb,
+    ebay,
+    reverbExtra: reverb.profit - ebay.profit,
+  };
+}
+
+// Reverb offer that leaves the same cash as selling this item on eBay at the
+// list price. Solved from the same arithmetic as calculateReverbSale — not a
+// recommended walk-away, just the crossover the seller can check.
+export function offerThatMatchesEbayList(input) {
+  const ebay = calculateEbaySale(input, number(input.price, 'List price'));
+  const shippingCharged = number(input.shippingCharged, 'Shipping charged', 0);
+  const shippingCost = number(input.shippingCost, 'Shipping cost', 0);
+  const itemCost = number(input.itemCost, 'What you paid for the item', 0);
+  const otherCost = number(input.otherCost, 'Other per-sale cost', 0);
+  const marketplaceRate = number(input.marketplaceRate, 'Reverb marketplace rate', 5);
+  const paymentRate = number(input.paymentRate, 'Payment rate', 2.9);
+  const paymentFixed = number(input.paymentFixed, 'Payment fixed fee', 0.3);
+  const givesRate = number(input.givesRate, 'Reverb Gives rate', 0);
+  const bumpFee = number(input.bumpFee, 'Bump fee on this listing', 0);
+  const keepRate = 1 - marketplaceRate / 100 - paymentRate / 100 - givesRate / 100;
+  if (keepRate <= 0) throw new Error('Combined percentage fees must stay below 100%');
+  const needed = ebay.profit
+    - shippingCharged * (1 - paymentRate / 100)
+    + paymentFixed
+    + shippingCost
+    + itemCost
+    + otherCost
+    + bumpFee;
+  const offerPrice = needed / keepRate;
+  if (!Number.isFinite(offerPrice) || offerPrice < 0) {
+    throw new Error('No non-negative Reverb offer matches that eBay list cash');
+  }
+  const atOffer = calculateReverbSale(input, offerPrice);
+  return {
+    offerPrice,
+    reverbProfit: atOffer.profit,
+    ebayListProfit: ebay.profit,
+  };
+}
+
+// Same listing, four ways to handle shipping. Marketplace and Reverb
+// Gives sit on the item price, so folding postage into the list raises
+// those lines. Absorbing the label keeps the typed list and leaves the
+// postage on you. Local pickup drops shipping charged and, unless you
+// type a meetup cost, the postage you pay.
+export function compareShippingPaths(input, salePrice = input?.price) {
+  const price = number(salePrice, 'Sale price');
+  const shippingCharged = number(input.shippingCharged, 'Shipping charged', 0);
+  const meetupCost = number(input.meetupCost, 'Meetup / pickup cost', 0);
+  const buyerPays = calculateReverbSale(input, price);
+  const included = calculateReverbSale({ ...input, shippingCharged: 0 }, price + shippingCharged);
+  const pickup = calculateReverbSale({
+    ...input,
+    shippingCharged: 0,
+    shippingCost: meetupCost,
+  }, price);
+  const absorbed = calculateReverbSale({ ...input, shippingCharged: 0 }, price);
+  const rows = [
+    { id: 'buyerPays', label: 'Buyer pays shipping', sale: buyerPays },
+    { id: 'included', label: 'Shipping included in the price', sale: included },
+    { id: 'pickup', label: 'Local pickup', sale: pickup },
+    { id: 'absorbed', label: 'You absorb the label', sale: absorbed },
+  ].map((row) => ({
+    ...row,
+    checkout: row.sale.revenue,
+    vsBuyerPays: row.sale.profit - buyerPays.profit,
+  }));
+  const maxProfit = Math.max(...rows.map((row) => row.sale.profit));
+  const leaders = rows.filter((row) => Math.abs(row.sale.profit - maxProfit) < 1e-9);
+  return {
+    buyerPays,
+    included,
+    pickup,
+    absorbed,
+    meetupCost,
+    rows,
+    extraMarketplaceOnIncluded: included.fees.marketplace - buyerPays.fees.marketplace,
+    extraGivesOnIncluded: included.fees.gives - buyerPays.fees.gives,
+    absorbVsIncluded: absorbed.profit - included.profit,
+    includedListThatMatchesBuyerPays: includedListThatMatchesBuyerPays(input, buyerPays.profit),
+    winner: leaders.length === 1 ? leaders[0].id : 'tie',
+  };
+}
+
+function includedListThatMatchesBuyerPays(input, targetProfit) {
+  const shippingCost = number(input.shippingCost, 'Shipping cost', 0);
+  const itemCost = number(input.itemCost, 'What you paid for the item', 0);
+  const otherCost = number(input.otherCost, 'Other per-sale cost', 0);
+  const marketplaceRate = number(input.marketplaceRate, 'Reverb marketplace rate', 5);
+  const paymentRate = number(input.paymentRate, 'Payment rate', 2.9);
+  const paymentFixed = number(input.paymentFixed, 'Payment fixed fee', 0.3);
+  const givesRate = number(input.givesRate, 'Reverb Gives rate', 0);
+  const bumpFee = number(input.bumpFee, 'Bump fee on this listing', 0);
+  const keepRate = 1 - marketplaceRate / 100 - paymentRate / 100 - givesRate / 100;
+  if (keepRate <= 0) throw new Error('Combined percentage fees must stay below 100%');
+  const needed = targetProfit + paymentFixed + shippingCost + itemCost + otherCost + bumpFee;
+  const listPrice = needed / keepRate;
+  if (!Number.isFinite(listPrice) || listPrice < 0) {
+    throw new Error('No non-negative included list matches that buyer-pays cash');
+  }
+  return listPrice;
+}
+
+// Same buyer checkout, two labels. Reverb Safe Shipping is a more expensive
+// label that is supposed to cover a damaged or lost shipment. Your own label
+// is cheaper and you eat the claim. Expected keep = sale profit minus
+// (claim rate × cash you lose on an unprotected claim). The extra label is
+// worth it only when that expected claim is larger than the extra postage.
+// Distinct from who pays postage (buyer / included / pickup) and from
+// absorbing the label into the list.
+export function compareSafeShipping(input, salePrice = input?.price) {
+  const price = number(salePrice, 'Sale price');
+  const ownLabel = number(input.shippingCost, 'Shipping you pay', 0);
+  const typedSafe = number(input.safeShippingCost, 'Safe Shipping label', 0);
+  const itemCost = number(input.itemCost, 'What you paid for the item', 0);
+  const claimCost = number(input.claimCost, 'Unprotected claim cost', itemCost);
+  const lossRatePct = number(input.unprotectedLossRatePct, 'Unprotected claim rate', 2);
+  if (lossRatePct > 100) throw new Error('Unprotected claim rate must be at most 100%');
+
+  const usedIllustratedQuote = typedSafe === 0;
+  const safeLabel = usedIllustratedQuote ? ownLabel + ILLUSTRATED_SAFE_SHIPPING_PREMIUM : typedSafe;
+  const own = calculateReverbSale(input, price);
+  const safe = calculateReverbSale({ ...input, shippingCost: safeLabel }, price);
+  const extraLabelCost = safeLabel - ownLabel;
+  const expectedClaim = claimCost * lossRatePct / 100;
+  const ownExpectedProfit = own.profit - expectedClaim;
+  const breakEvenLossRatePct = claimCost > 0 ? extraLabelCost / claimCost * 100 : Infinity;
+
+  const rows = [
+    {
+      id: 'ownIfNothing',
+      label: 'Own label if nothing goes wrong',
+      sale: own,
+      labelCost: ownLabel,
+      expectedClaim: 0,
+      expectedProfit: own.profit,
+    },
+    {
+      id: 'ownExpected',
+      label: 'Own label after expected claims',
+      sale: own,
+      labelCost: ownLabel,
+      expectedClaim,
+      expectedProfit: ownExpectedProfit,
+    },
+    {
+      id: 'safeShipping',
+      label: usedIllustratedQuote ? 'Reverb Safe Shipping (illustrated quote)' : 'Reverb Safe Shipping',
+      sale: safe,
+      labelCost: safeLabel,
+      expectedClaim: 0,
+      expectedProfit: safe.profit,
+    },
+  ].map((row) => ({
+    ...row,
+    vsOwnExpected: row.expectedProfit - ownExpectedProfit,
+  }));
+
+  const decision = [rows[1], rows[2]];
+  const maxProfit = Math.max(...decision.map((row) => row.expectedProfit));
+  const leaders = decision.filter((row) => Math.abs(row.expectedProfit - maxProfit) < 1e-9);
+  return {
+    own,
+    safe,
+    rows,
+    ownLabel,
+    safeLabel,
+    extraLabelCost,
+    claimCost,
+    lossRatePct,
+    expectedClaim,
+    ownExpectedProfit,
+    safeExpectedProfit: safe.profit,
+    breakEvenLossRatePct,
+    usedIllustratedQuote,
+    safePays: safe.profit >= ownExpectedProfit,
+    winner: leaders.length === 1 ? leaders[0].id : 'tie',
+  };
+}
+
+// Same guitar, three ways to get paid. Listing it yourself keeps Reverb
+// fees, postage, and packing. A shop consignment cut is a percent of
+// *their* sale — they ship, they collect, you do not pay marketplace or
+// a label. Their cash offer is a buy today: no wait, no fees, no shipping.
+// Distinct from offer-versus-eBay, who pays postage, Safe Shipping, and
+// from open PRs that compare a bump or absorbing the label into the list.
+export function compareConsignment(input, salePrice = input?.price) {
+  const listPrice = number(salePrice, 'Sale price');
+  const offerPrice = number(input.offerPrice, 'Offer price', listPrice);
+  const shopSalePrice = number(input.shopSalePrice, 'Shop sale price', listPrice);
+  const consignmentRate = number(input.consignmentRate, 'Shop consignment cut', 30);
+  const shopCashOffer = number(input.shopCashOffer, 'Shop cash offer', 0);
+  const itemCost = number(input.itemCost, 'What you paid for the item', 0);
+  if (consignmentRate > 100) throw new Error('Shop consignment cut must be at most 100%');
+
+  const selfList = calculateReverbSale(input, listPrice);
+  const selfOffer = calculateReverbSale(input, offerPrice);
+  const shopPayout = shopSalePrice * (1 - consignmentRate / 100);
+  const consignProfit = shopPayout - itemCost;
+  const cashProfit = shopCashOffer - itemCost;
+  const neededToMatchList = selfList.profit + itemCost;
+  const keepRate = 1 - consignmentRate / 100;
+  const breakEvenConsignmentRatePct = shopSalePrice > 0
+    ? (1 - neededToMatchList / shopSalePrice) * 100
+    : -Infinity;
+  const breakEvenShopSalePrice = keepRate > 0 ? neededToMatchList / keepRate : Infinity;
+  const breakEvenShopCash = neededToMatchList;
+  const shopSaleCanMatch = shopSalePrice >= neededToMatchList;
+
+  const rows = [
+    {
+      id: 'selfList',
+      label: 'List it yourself on Reverb',
+      price: listPrice,
+      youReceive: selfList.profit + itemCost,
+      profit: selfList.profit,
+    },
+    {
+      id: 'consign',
+      label: 'Consign at the shop',
+      price: shopSalePrice,
+      youReceive: shopPayout,
+      profit: consignProfit,
+    },
+    {
+      id: 'cash',
+      label: 'Take their cash offer today',
+      price: shopCashOffer,
+      youReceive: shopCashOffer,
+      profit: cashProfit,
+    },
+  ].map((row) => ({
+    ...row,
+    vsSelfList: row.profit - selfList.profit,
+  }));
+
+  const maxProfit = Math.max(...rows.map((row) => row.profit));
+  const leaders = rows.filter((row) => Math.abs(row.profit - maxProfit) < 1e-9);
+  return {
+    selfList,
+    selfOffer,
+    shopSalePrice,
+    consignmentRate,
+    shopCashOffer,
+    shopPayout,
+    consignProfit,
+    cashProfit,
+    itemCost,
+    neededToMatchList,
+    breakEvenConsignmentRatePct,
+    breakEvenShopSalePrice,
+    breakEvenShopCash,
+    shopSaleCanMatch,
+    vsOffer: consignProfit - selfOffer.profit,
+    rows,
+    winner: leaders.length === 1 ? leaders[0].id : 'tie',
+  };
+}
+
+export function consignmentNote(comparison) {
+  const money = (value) => `$${Number(value).toFixed(2)}`;
+  const pct = (value) => `${Number(value).toFixed(2)}%`;
+  const rate = comparison.consignmentRate;
+  const shop = money(comparison.shopSalePrice);
+  const cash = money(comparison.shopCashOffer);
+  const listBeatConsign = comparison.selfList.profit - comparison.consignProfit;
+  const listBeatCash = comparison.selfList.profit - comparison.cashProfit;
+  const cutLine = comparison.shopSaleCanMatch && Number.isFinite(comparison.breakEvenConsignmentRatePct)
+    ? `The shop cut would have to drop to ${pct(comparison.breakEvenConsignmentRatePct)} — or they would have to sell it at ${money(comparison.breakEvenShopSalePrice)} — to match Reverb list cash.`
+    : `Even a 0% shop cut on a ${shop} sale cannot match Reverb list cash.`;
+  const cashLine = `Their cash offer would have to be ${money(comparison.breakEvenShopCash)}.`;
+
+  if (comparison.winner === 'selfList') {
+    return `Listing it yourself on Reverb still leaves ${money(listBeatConsign)} more than a ${rate}% shop cut on a ${shop} shop sale, and ${money(listBeatCash)} more than their ${cash} cash offer. ${cutLine} ${cashLine}`;
+  }
+  if (comparison.winner === 'consign') {
+    return `Consigning at ${rate}% on a ${shop} shop sale still leaves ${money(-listBeatConsign)} more than listing it yourself on Reverb. ${cutLine} ${cashLine}`;
+  }
+  if (comparison.winner === 'cash') {
+    return `Taking their ${cash} cash offer still leaves ${money(-listBeatCash)} more than listing it yourself on Reverb. ${cutLine} ${cashLine}`;
+  }
+  return `Two shop-or-list paths leave the same cash on these inputs. ${cutLine} ${cashLine}`;
+}
