@@ -1,7 +1,7 @@
 const KEY = 'saas-seat-true-up:usage';
 const OPT_OUT = 'saas-seat-true-up:opt-out';
 const SCENARIO_KEY = 'saas-seat-true-up:scenario';
-const SCENARIO_FIELDS = ['purchased', 'used', 'price', 'months'];
+const SCENARIO_FIELDS = ['purchased', 'used', 'price', 'months', 'overageRate'];
 
 function storage() {
   try {
@@ -63,7 +63,11 @@ export function loadScenario(store) {
   try {
     const value = JSON.parse(ls.getItem(SCENARIO_KEY) || 'null');
     if (!value || typeof value !== 'object' || Array.isArray(value)) return null;
-    if (SCENARIO_FIELDS.some((field) => typeof value[field] !== 'number' || !Number.isFinite(value[field]) || value[field] < 0)) {
+    if (['purchased', 'used', 'price', 'months'].some((field) => typeof value[field] !== 'number' || !Number.isFinite(value[field]) || value[field] < 0)) {
+      return null;
+    }
+    if (value.overageRate == null) value.overageRate = 0;
+    if (typeof value.overageRate !== 'number' || !Number.isFinite(value.overageRate) || value.overageRate < 0) {
       return null;
     }
     return value;
