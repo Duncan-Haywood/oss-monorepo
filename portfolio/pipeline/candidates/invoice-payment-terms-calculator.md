@@ -1,5 +1,9 @@
 # Invoice payment terms calculator
 
+Scored 2026-08-26. Composite 7.25 · floor 1 (ai_leverage). The floor is
+intentional: due-date, late-fee, and early-pay float arithmetic is deterministic
+and is the complete free core, so no model call is needed to finish the job.
+
 ## Customer and problem
 
 Freelancers, agencies, and small service firms often choose Net 30 or copy a payment clause without seeing how several delayed invoices consume operating cash. They need a quick answer before sending the invoice: when is it due, what is the exposure, and what does a late-rate assumption change?
