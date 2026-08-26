@@ -4,9 +4,10 @@ export function forecast({ cash, weeklyIncome, collectionWeeks, weeklyCosts, wee
   if (values.some((value) => !Number.isFinite(value) || value < 0) || delayWeeks > 52) {
     throw new Error('Enter non-negative numbers; collection delay must be 52 weeks or less.');
   }
+  let balance = startingCash;
   return Array.from({ length: weeks }, (_, index) => {
     const income = index >= delayWeeks ? incomePerWeek : 0;
-    const balance = startingCash + (income - costsPerWeek) * (index + 1);
+    balance += income - costsPerWeek;
     return { week: index + 1, income, costs: costsPerWeek, balance };
   });
 }
@@ -46,6 +47,9 @@ if (typeof document !== 'undefined') {
     link.download = 'cash-runway-forecast.csv';
     link.click();
     URL.revokeObjectURL(link.href);
+    if (usage.checked && !navigator.doNotTrack && !navigator.globalPrivacyControl) {
+      localStorage.setItem('cash-runway-csv-events', String(Number(localStorage.getItem('cash-runway-csv-events') || 0) + 1));
+    }
   });
   document.querySelector('#reset').addEventListener('click', () => { localStorage.removeItem('cash-runway-draft'); form.reset(); output.textContent = 'Enter your numbers to see the forecast.'; });
 }
