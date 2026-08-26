@@ -70,6 +70,9 @@ workflows:
 - workflow: backup-verification-evidence-ci.yml
   classification: none
   publishes: []
+- workflow: basement-finishing-bid-calculator-ci.yml
+  classification: none
+  publishes: []
 - workflow: boiler-replacement-bid-calculator-ci.yml
   classification: none
   publishes: []
@@ -265,6 +268,9 @@ workflows:
   classification: none
   publishes: []
 - workflow: shopify-permission-drift-ci.yml
+  classification: none
+  publishes: []
+- workflow: skylight-install-bid-calculator-ci.yml
   classification: none
   publishes: []
 - workflow: sod-install-bid-calculator-ci.yml
