@@ -1,0 +1,558 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Crawl Space Encapsulation Bid Calculator | How Much to Charge</title>
+  <meta name="description" content="Price crawl space encapsulation from floor area, liner-only versus sealed encapsulate, hatch versus belly-crawl versus wet access, and extras — plus the walk-away price a $4 / sq ft special cannot see.">
+  <meta property="og:title" content="Crawl Space Encapsulation Bid Calculator">
+  <meta property="og:description" content="Bid encapsulation the way the trade does — liner, access, and extras, not a published liner dump — and see the margin before you send the price.">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Crawl Space Encapsulation Bid Calculator", "applicationCategory": "BusinessApplication", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "featureList": "Floor and stem-wall area, liner-only vs sealed encapsulate vs encapsulate-plus-dehumidifier comparison, hatch vs belly-crawl vs wet access, belly batts vs rim foam, dehumidifier and circuit extras, walk-away price, proposed-price margin check, copyable bid summary, saved bid that reopens on the next visit, shareable bid link"}</script>
+  <style>
+    :root { color-scheme: light; font-family: system-ui, sans-serif; color: #1c2a22; background: #e6eee8; }
+    body { max-width: 1060px; margin: 0 auto; padding: 32px 18px; }
+    header { max-width: 720px; margin-bottom: 26px; }
+    h1 { font-size: clamp(2rem, 6vw, 3.6rem); line-height: .98; margin: 0 0 12px; letter-spacing: -.05em; }
+    p { line-height: 1.5; }
+    .eyebrow { font-size: .8rem; font-weight: 700; letter-spacing: .08em; color: #2d6a4f; margin: 0 0 6px; }
+    .layout { display: grid; grid-template-columns: minmax(0, 1fr) minmax(300px, .75fr); gap: 18px; align-items: start; }
+    section { background: #fff; border: 1px solid #c5d4c9; border-radius: 14px; padding: 20px; box-shadow: 0 8px 24px #1b3a2f0d; margin-bottom: 18px; }
+    h2 { margin-top: 0; font-size: 1.15rem; }
+    .hint { font-size: .82rem; color: #4a5c50; margin: -6px 0 14px; }
+    .fields { display: grid; grid-template-columns: repeat(2, 1fr); gap: 13px; }
+    label { display: grid; gap: 5px; font-size: .87rem; font-weight: 650; }
+    input, select { width: 100%; box-sizing: border-box; border: 1px solid #9bb3a4; border-radius: 7px; padding: 10px; font: inherit; background: #fff; }
+    .checks { display: grid; gap: 8px; margin-top: 12px; }
+    .checks label { display: flex; gap: 8px; align-items: center; font-weight: 550; }
+    .checks input { width: auto; }
+    button { font: inherit; border-radius: 7px; border: 1px solid #9bb3a4; background: #eef6f0; padding: 10px 14px; cursor: pointer; font-weight: 650; }
+    button:hover { background: #dce8e0; }
+    .result { position: sticky; top: 15px; background: #1b3a2f; color: #eef6f0; border-color: #1b3a2f; }
+    .hero-number { font-size: 2.9rem; font-weight: 750; letter-spacing: -.05em; margin: 8px 0; }
+    .negative { color: #ffb0a2; } .positive { color: #c6e6a9; }
+    dl { display: grid; grid-template-columns: 1fr auto; gap: 9px; margin: 20px 0; }
+    dt, dd { margin: 0; } dd { font-variant-numeric: tabular-nums; }
+    hr { border: 0; border-top: 1px solid #ffffff2b; }
+    .note { font-size: .82rem; opacity: .84; }
+    .split { margin: 14px 0 0; padding: 0; list-style: none; font-size: .84rem; }
+    .split li { display: grid; grid-template-columns: 1fr auto; gap: 8px; padding: 3px 0; }
+    .bar { grid-column: 1 / -1; height: 4px; border-radius: 2px; background: #ffffff2e; }
+    .bar > span { display: block; height: 100%; border-radius: 2px; background: #74c69d; }
+    .verdict { margin-top: 14px; padding: 12px; border-radius: 9px; font-size: .87rem; background: #ffffff1a; }
+    .verdict.bad { background: #7d2317; }
+    .empty { font-size: .87rem; opacity: .84; }
+    footer { margin-top: 25px; font-size: .82rem; color: #4a5c50; }
+    footer a { color: #2d6a4f; }
+    .support { margin-top: 14px; }
+    .summary-actions { display: flex; gap: 8px; align-items: center; margin-top: 14px; }
+    .summary-status { font-size: .8rem; color: #d8ecd8; }
+    table { width: 100%; border-collapse: collapse; font-size: .84rem; }
+    th, td { text-align: left; padding: 7px 4px; border-bottom: 1px solid #ffffff24; }
+    th { font-size: .74rem; letter-spacing: .04em; text-transform: uppercase; opacity: .75; }
+    td:last-child, th:last-child { text-align: right; }
+    .cheap { color: #c6e6a9; font-weight: 700; }
+    @media (max-width: 780px) {
+      .layout { grid-template-columns: 1fr; } .result { position: static; } .fields { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="eyebrow">FOR WATERPROOFING CONTRACTORS</p>
+    <h1>Bid the liner, the access, and the extras.</h1>
+    <p>Price crawl space encapsulation the way the trade actually loses money: a dry hatch with 6-mil liner-only versus a sealed encapsulate, belly-crawl versus standing water, then a dehumidifier, a dedicated circuit, and a clean-out — not the published $4 / sq ft special. You get the job price, what it works out to per square foot of dirt floor, and the number below which the crawl loses money.</p>
+  </header>
+
+  <main class="layout">
+    <div>
+      <section>
+        <h2>The crawl</h2>
+        <p class="hint">Pick a common job to start, then replace every rate with a liner ticket and a crew you have timed. Changing scope, access, or insulation fills starting hours and material only when you have not already edited that field.</p>
+        <div class="fields">
+          <label>Job preset
+            <select id="jobPresets">
+              <option value="">Choose a starting job…</option>
+            </select>
+          </label>
+          <label>Scope <select id="scope"></select></label>
+          <label>Access <select id="access"></select></label>
+          <label>Insulation <select id="insulation"></select></label>
+          <label>Length (ft) <input id="lengthFt" type="number" min="0" step="1" value="40"></label>
+          <label>Width (ft) <input id="widthFt" type="number" min="0" step="1" value="28"></label>
+          <label>Stem-wall height (in) <input id="wallHeightIn" type="number" min="0" step="1" value="24"></label>
+          <label>Travel miles <input id="travelMiles" type="number" min="0" step="1" value="10"></label>
+          <label>Clean-out (yd³) <input id="cleanoutYards" type="number" min="0" step="0.5" value="0"></label>
+          <label>Support piers <input id="supportPiers" type="number" min="0" step="1" value="0"></label>
+        </div>
+        <div class="checks">
+          <label><input id="dedicatedCircuit" type="checkbox"> Dedicated dehumidifier circuit</label>
+          <label><input id="exteriorGrade" type="checkbox"> Exterior grade / downspout work</label>
+        </div>
+      </section>
+
+      <section>
+        <h2>Hours and material rates</h2>
+        <p class="hint">These start from the scope, access, and insulation you picked. They are ballpark crew figures, not a liner catalog or a guarantee.</p>
+        <div class="fields">
+          <label>Trip hours <input id="hoursTrip" type="number" min="0" step="0.1"></label>
+          <label>Hours / mile <input id="hoursPerMile" type="number" min="0" step="0.01"></label>
+          <label>Floor hours / sq ft <input id="hoursPerSqFtFloor" type="number" min="0" step="0.001"></label>
+          <label>Wall hours / sq ft <input id="hoursPerSqFtWall" type="number" min="0" step="0.001"></label>
+          <label>Access hours <input id="hoursAccess" type="number" min="0" step="0.1"></label>
+          <label>Access premium hours / sq ft <input id="accessPremiumPerSqFt" type="number" min="0" step="0.001"></label>
+          <label>Seal hours <input id="hoursSeal" type="number" min="0" step="0.1"></label>
+          <label>Dehumidifier hours <input id="hoursDehu" type="number" min="0" step="0.1"></label>
+          <label>Pump hours <input id="hoursPump" type="number" min="0" step="0.1"></label>
+          <label>Insulation hours / sq ft <input id="hoursPerSqFtInsulation" type="number" min="0" step="0.001"></label>
+          <label>Rim-foam hours <input id="hoursRimFoam" type="number" min="0" step="0.1"></label>
+          <label>Hours / clean-out yd <input id="hoursPerYard" type="number" min="0" step="0.1"></label>
+          <label>Hours / pier <input id="hoursPerPier" type="number" min="0" step="0.05"></label>
+          <label>Circuit hours <input id="hoursCircuit" type="number" min="0" step="0.1"></label>
+          <label>Grade hours <input id="hoursGrade" type="number" min="0" step="0.1"></label>
+          <label>Site / punch-list hours <input id="siteHours" type="number" min="0" step="0.1"></label>
+          <label>Floor liner $ / sq ft <input id="linerPerSqFt" type="number" min="0" step="0.05"></label>
+          <label>Wall liner $ / sq ft <input id="wallLinerPerSqFt" type="number" min="0" step="0.05"></label>
+          <label>Tape / fastener $ / sq ft <input id="tapePerSqFt" type="number" min="0" step="0.01"></label>
+          <label>Insulation $ / sq ft <input id="insulationPerSqFt" type="number" min="0" step="0.05"></label>
+          <label>Dehumidifier $ <input id="dehuInvoice" type="number" min="0" step="10"></label>
+          <label>Pump-out $ <input id="pumpInvoice" type="number" min="0" step="5"></label>
+          <label>Rim-foam $ <input id="rimFoamInvoice" type="number" min="0" step="10"></label>
+          <label>Dump $ / yd <input id="dumpPerYard" type="number" min="0" step="1"></label>
+          <label>Pier $ each <input id="pierEach" type="number" min="0" step="5"></label>
+          <label>Circuit $ <input id="circuitInvoice" type="number" min="0" step="5"></label>
+          <label>Grade $ <input id="gradeInvoice" type="number" min="0" step="5"></label>
+          <label>Travel $ / mile <input id="travelPerMile" type="number" min="0" step="0.1"></label>
+        </div>
+      </section>
+
+      <section>
+        <h2>Your costs</h2>
+        <div class="fields">
+          <label>Crew hourly wage <input id="hourlyWage" type="number" min="0" step="0.25" value="32"></label>
+          <label>Payroll burden (%) <input id="burdenRate" type="number" min="0" step="0.5" value="30"></label>
+          <label>Travel &amp; equipment <input id="travelAndEquipment" type="number" min="0" step="1" value="95"></label>
+          <label>Other cost <input id="otherCost" type="number" min="0" step="1" value="0"></label>
+          <label>Overhead on direct cost (%) <input id="overheadRate" type="number" min="0" step="0.5" value="15"></label>
+          <label>Target net margin (%) <input id="targetMargin" type="number" min="0" max="99.9" step="0.5" value="20"></label>
+          <label>Price you&rsquo;re considering (optional) <input id="proposedPrice" type="number" min="0" step="50" placeholder="e.g. 4480"></label>
+        </div>
+        <p class="hint" style="margin-top:14px;margin-bottom:0">Payroll burden covers employer taxes, workers&rsquo; compensation, liability insurance, and paid time off. Underestimating it is how a $4 / sq ft liner that looked profitable was not.</p>
+      </section>
+    </div>
+
+    <section class="result" aria-live="polite">
+      <h2>Your bid</h2>
+      <div id="price" class="hero-number">$&mdash;</div>
+      <div id="priceLabel">encapsulation price</div>
+      <dl>
+        <dt>Dirt-floor area</dt><dd id="area"></dd>
+        <dt>Stem-wall area</dt><dd id="walls"></dd>
+        <dt>Liner coverage</dt><dd id="liner"></dd>
+        <dt>Travel</dt><dd id="travel"></dd>
+        <dt>Crew hours</dt><dd id="hours"></dd>
+        <dt>Loaded labor</dt><dd id="labor"></dd>
+        <dt>Liner &amp; tape</dt><dd id="linerCost"></dd>
+        <dt>Access, dehu, extras</dt><dd id="extra"></dd>
+        <dt>Travel &amp; other</dt><dd id="soft"></dd>
+        <dt>Overhead</dt><dd id="overhead"></dd>
+        <dt>Total cost</dt><dd id="cost"></dd>
+        <dt>Profit</dt><dd id="profit"></dd>
+        <dt>Price per sq ft</dt><dd id="perSqFt"></dd>
+        <dt>Effective hourly rate</dt><dd id="hourlyRate"></dd>
+        <dt>Walk-away price</dt><dd id="breakEven"></dd>
+      </dl>
+      <div id="verdict" class="verdict" hidden></div>
+      <div class="summary-actions">
+        <button type="button" id="copyLink">Copy bid link</button>
+        <button type="button" id="clearSaved">Start a fresh bid</button>
+        <button type="button" id="copySummary">Copy bid summary</button>
+        <span id="summaryStatus" class="summary-status" role="status" aria-live="polite"></span>
+      </div>
+      <p id="restoreNote" class="note" role="status" aria-live="polite" hidden></p>
+      <p class="note" style="margin-top:8px">A bid link carries your own rates — wage, burden, overhead, and target margin — so the page reopens exactly as you left it. Send it to yourself or your crew. The customer should get the price, not the link.</p>
+      <hr>
+      <p class="note" style="margin-bottom:4px"><strong>Same floor, three scopes</strong></p>
+      <table>
+        <thead><tr><th>Scope</th><th>Hours</th><th>Price</th></tr></thead>
+        <tbody id="compare"></tbody>
+      </table>
+      <hr>
+      <p class="note" style="margin-bottom:4px"><strong>Where the hours go</strong></p>
+      <ul class="split" id="split"></ul>
+      <hr>
+      <p class="note">Transparent arithmetic from your own inputs. The starting hours and material rates are common ballpark figures, not an industry standard, a benchmark, or a guarantee &mdash; time your own crews and replace them.</p>
+    </section>
+  </main>
+
+  <footer>
+    <label style="display:inline-flex;gap:6px;align-items:center;font-weight:400"><input id="usageOptOut" type="checkbox" style="width:auto"> Do not keep anonymous local usage counts</label>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not waterproofing, structural, construction, radon, mold, building-code, legal, tax, or financial advice, and it does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for meeting any obligation it helps you prepare for. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record. If a tool needs to survive, export your inputs and run it yourself.</p>
+    <p><strong>Nothing leaves your browser.</strong> Every number stays on this device. Your bid is saved in this browser so it is still here next visit, and &ldquo;Start a fresh bid&rdquo; deletes it; a bid link you copy holds those same numbers in the address itself, so treat one like your rate sheet. Usage counts are anonymous tallies of which features were used, stored locally, and never include your crawl, wages, costs, or prices.</p>
+    <p>Looking up <a href="how-much-to-charge-for-crawl-space-encapsulation.html">how much to charge for crawl space encapsulation</a>? The article walks the liner-and-access math this calculator uses.</p>
+    <p class="support">Free and open source. If it wins you a job, the <a href="https://github.com/Duncan-Haywood/monorepo-projects" rel="noopener">project is on GitHub</a> &mdash; support is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import {
+      calculateBid,
+      compareScope,
+      formatBidSummary,
+      suggestedScopeKit,
+      suggestedAccessKit,
+      suggestedInsulationKit,
+      suggestedExtraKit,
+      SCOPE_PRESETS,
+      ACCESS_PRESETS,
+      INSULATION_PRESETS,
+      JOB_PRESETS,
+    } from './calc.mjs';
+    import { recordUsage } from './usage.mjs';
+    import { encodeBid, saveBid, clearBid, restoreBid } from './share.mjs';
+
+    const JOB_IDS = [
+      'scope', 'access', 'insulation', 'lengthFt', 'widthFt', 'wallHeightIn',
+      'travelMiles', 'cleanoutYards', 'supportPiers',
+    ];
+    const FLAG_IDS = ['dedicatedCircuit', 'exteriorGrade'];
+    const RATE_IDS = [
+      'hoursTrip', 'hoursPerMile', 'hoursPerSqFtFloor', 'hoursPerSqFtWall',
+      'hoursAccess', 'accessPremiumPerSqFt', 'hoursSeal', 'hoursDehu', 'hoursPump',
+      'hoursPerSqFtInsulation', 'hoursRimFoam', 'hoursPerYard', 'hoursPerPier',
+      'hoursCircuit', 'hoursGrade', 'siteHours', 'linerPerSqFt', 'wallLinerPerSqFt',
+      'tapePerSqFt', 'insulationPerSqFt', 'dehuInvoice', 'pumpInvoice',
+      'rimFoamInvoice', 'dumpPerYard', 'pierEach', 'circuitInvoice', 'gradeInvoice',
+      'travelPerMile',
+    ];
+    const COST_IDS = [
+      'hourlyWage', 'burdenRate', 'travelAndEquipment', 'otherCost',
+      'overheadRate', 'targetMargin', 'proposedPrice',
+    ];
+    const SCOPE_RATE_IDS = [
+      'hoursPerSqFtFloor', 'hoursPerSqFtWall', 'linerPerSqFt', 'wallLinerPerSqFt',
+      'hoursSeal', 'dehuInvoice', 'hoursDehu', 'tapePerSqFt',
+    ];
+    const ACCESS_RATE_IDS = ['hoursAccess', 'accessPremiumPerSqFt', 'pumpInvoice', 'hoursPump'];
+    const INSULATION_RATE_IDS = [
+      'hoursPerSqFtInsulation', 'insulationPerSqFt', 'hoursRimFoam', 'rimFoamInvoice',
+    ];
+    const EXTRA_RATE_IDS = [
+      'hoursTrip', 'hoursPerMile', 'hoursPerYard', 'hoursPerPier', 'hoursCircuit',
+      'hoursGrade', 'siteHours', 'dumpPerYard', 'pierEach', 'circuitInvoice',
+      'gradeInvoice', 'travelPerMile',
+    ];
+    const money = value => `$${value.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+    const el = id => document.getElementById(id);
+
+    function fillSelect(id, presets) {
+      el(id).innerHTML = presets.map(item => `<option value="${item.id}">${item.label}</option>`).join('');
+    }
+
+    fillSelect('scope', SCOPE_PRESETS);
+    fillSelect('access', ACCESS_PRESETS);
+    fillSelect('insulation', INSULATION_PRESETS);
+    el('jobPresets').innerHTML = '<option value="">Choose a starting job…</option>'
+      + JOB_PRESETS.map((job, index) => `<option value="${index}">${job.label}</option>`).join('');
+
+    function applyKit(kit, ids) {
+      for (const id of ids) {
+        const field = el(id);
+        if (field.dataset.edited) continue;
+        if (kit[id] !== undefined) field.value = kit[id];
+      }
+    }
+
+    function applyScopeKit() {
+      applyKit(suggestedScopeKit(el('scope').value), SCOPE_RATE_IDS);
+    }
+
+    function applyAccessKit() {
+      applyKit(suggestedAccessKit(el('access').value), ACCESS_RATE_IDS);
+    }
+
+    function applyInsulationKit() {
+      applyKit(suggestedInsulationKit(el('insulation').value), INSULATION_RATE_IDS);
+    }
+
+    function applyExtraKit() {
+      applyKit(suggestedExtraKit(), EXTRA_RATE_IDS);
+    }
+
+    function readInput() {
+      const values = Object.fromEntries(
+        [...JOB_IDS, ...RATE_IDS, ...COST_IDS].map(id => [id, el(id).value]),
+      );
+      for (const id of FLAG_IDS) values[id] = el(id).checked;
+      return values;
+    }
+
+    function count(event) {
+      recordUsage(localStorage, el('usageOptOut').checked, event);
+    }
+
+    function clearOutputs(message, isError) {
+      el('price').textContent = message;
+      el('price').className = `hero-number ${isError ? 'negative' : ''}`;
+      el('priceLabel').textContent = isError ? 'check the highlighted input' : 'encapsulation price';
+      ['area','walls','liner','travel','hours','labor','linerCost','extra','soft','overhead','cost','profit','perSqFt','hourlyRate','breakEven']
+        .forEach(id => { el(id).textContent = ''; });
+      el('split').innerHTML = '';
+      el('compare').innerHTML = '';
+      el('verdict').hidden = true;
+    }
+
+    function update() {
+      let result;
+      try {
+        result = calculateBid(readInput());
+      } catch (error) {
+        clearOutputs(error.message, true);
+        return;
+      }
+
+      el('price').textContent = money(result.price);
+      el('price').className = 'hero-number';
+      el('priceLabel').textContent = 'encapsulation price';
+      el('area').textContent = `${result.floorSqFt.toLocaleString('en-US')} sq ft`;
+      el('walls').textContent = `${result.wallsSqFt.toFixed(0)} sq ft`;
+      el('liner').textContent = `${result.linerSqFt.toFixed(0)} sq ft`;
+      el('travel').textContent = `${result.travelMiles} mi · ${result.hoursTravel.toFixed(1)} h`;
+      el('hours').textContent = `${result.totalHours.toFixed(1)} h`;
+      el('labor').textContent = money(result.laborCost);
+      el('linerCost').textContent = money(result.floorLinerMaterial + result.wallLinerMaterial);
+      el('extra').textContent = money(result.extraCost);
+      el('soft').textContent = money(result.softCost);
+      el('overhead').textContent = money(result.overhead);
+      el('cost').textContent = money(result.totalCost);
+      el('profit').textContent = money(result.profit);
+      el('perSqFt').textContent = result.pricePerSqFt === null ? 'n/a' : `$${result.pricePerSqFt.toFixed(2)}`;
+      el('hourlyRate').textContent = result.effectiveHourlyRate === null ? 'n/a' : `${money(result.effectiveHourlyRate)}/h`;
+      el('breakEven').textContent = money(result.breakEvenPrice);
+
+      const hourRows = [
+        ['Travel', result.hourShares.travel],
+        ['Floor liner', result.hourShares.floor],
+        ['Wall liner', result.hourShares.wall],
+        ['Access', result.hourShares.access],
+        ['Seal', result.hourShares.seal],
+        ['Dehumidifier', result.hourShares.dehu],
+        ['Pump-out', result.hourShares.pump],
+        ['Insulation', result.hourShares.insulation],
+        ['Clean-out', result.hourShares.cleanout],
+        ['Piers', result.hourShares.piers],
+        ['Circuit', result.hourShares.circuit],
+        ['Grade', result.hourShares.grade],
+        ['Site', result.hourShares.site],
+      ].filter(row => row[1] > 0);
+      el('split').innerHTML = hourRows.length === 0
+        ? '<li class="empty">Hours appear here once the crawl has area.</li>'
+        : hourRows
+          .sort((a, b) => b[1] - a[1])
+          .map(([name, share]) => `<li><span>${name}</span><span>${share.toFixed(0)}% of hours</span>
+            <span class="bar"><span style="width:${share.toFixed(1)}%"></span></span></li>`)
+          .join('');
+
+      const compared = compareScope(readInput());
+      el('compare').innerHTML = compared.map(row => `<tr class="${row.cheapest ? 'cheap' : ''}">
+        <td>${row.label}${row.cheapest ? ' · lowest' : ''}</td>
+        <td>${row.totalHours.toFixed(1)} h</td>
+        <td>${money(row.price)}</td>
+      </tr>`).join('');
+
+      const verdict = el('verdict');
+      if (result.proposed === null) {
+        verdict.hidden = true;
+      } else {
+        verdict.hidden = false;
+        verdict.className = `verdict${result.proposed.belowBreakEven ? ' bad' : ''}`;
+        const rate = result.proposed.hourlyRate === null ? 'n/a' : `${money(result.proposed.hourlyRate)}/h`;
+        verdict.innerHTML = result.proposed.belowBreakEven
+          ? `At ${money(result.proposed.price)} this job <strong>loses ${money(Math.abs(result.proposed.profit))}</strong> before you take anything out of it. Your walk-away price is ${money(result.breakEvenPrice)}.`
+          : `At ${money(result.proposed.price)} you keep <strong>${money(result.proposed.profit)}</strong> — a ${result.proposed.margin.toFixed(1)}% margin, billing ${rate} of labor.`;
+      }
+    }
+
+    async function copySummary() {
+      const result = calculateBid(readInput());
+      const preset = JOB_PRESETS[Number(el('jobPresets').value)];
+      const text = formatBidSummary(result, preset ? preset.label : 'Crawl space encapsulation');
+      try {
+        await navigator.clipboard.writeText(text);
+      } catch {
+        const fallback = document.createElement('textarea');
+        fallback.value = text;
+        fallback.setAttribute('readonly', '');
+        fallback.style.position = 'fixed';
+        fallback.style.opacity = '0';
+        document.body.append(fallback);
+        fallback.select();
+        document.execCommand('copy');
+        fallback.remove();
+      }
+      count('summary_copied');
+      el('summaryStatus').textContent = 'Copied to clipboard';
+      setTimeout(() => { el('summaryStatus').textContent = ''; }, 2500);
+    }
+
+    function applyJob(index) {
+      const job = JOB_PRESETS[index];
+      if (!job) return;
+      for (const id of RATE_IDS) delete el(id).dataset.edited;
+      el('lengthFt').value = job.lengthFt;
+      el('widthFt').value = job.widthFt;
+      el('wallHeightIn').value = job.wallHeightIn;
+      el('scope').value = job.scope;
+      el('access').value = job.access;
+      el('insulation').value = job.insulation;
+      el('travelMiles').value = job.travelMiles;
+      el('cleanoutYards').value = job.cleanoutYards;
+      el('supportPiers').value = job.supportPiers;
+      el('dedicatedCircuit').checked = job.dedicatedCircuit;
+      el('exteriorGrade').checked = job.exteriorGrade;
+      applyScopeKit();
+      applyAccessKit();
+      applyInsulationKit();
+      applyExtraKit();
+    }
+
+    el('jobPresets').addEventListener('change', () => {
+      if (el('jobPresets').value === '') return;
+      applyJob(Number(el('jobPresets').value));
+      count('preset_applied');
+      update();
+    });
+    el('scope').addEventListener('change', () => {
+      applyScopeKit();
+      count('scope_changed');
+      update();
+    });
+    el('access').addEventListener('change', () => {
+      applyAccessKit();
+      count('access_changed');
+      update();
+    });
+    el('insulation').addEventListener('change', () => {
+      applyInsulationKit();
+      count('insulation_changed');
+      update();
+    });
+    RATE_IDS.forEach(id => {
+      el(id).addEventListener('input', () => { el(id).dataset.edited = '1'; update(); });
+      el(id).addEventListener('change', () => count('bid_calculated'));
+    });
+    [...JOB_IDS, ...COST_IDS].forEach(id => {
+      if (id === 'scope' || id === 'access' || id === 'insulation') return;
+      el(id).addEventListener('input', update);
+      el(id).addEventListener('change', () => count(id === 'proposedPrice' ? 'proposed_price_compared' : 'bid_calculated'));
+    });
+    FLAG_IDS.forEach(id => {
+      el(id).addEventListener('change', () => {
+        count('bid_calculated');
+        update();
+      });
+    });
+    el('usageOptOut').addEventListener('change', update);
+    el('copySummary').addEventListener('click', () => {
+      try {
+        copySummary().catch(() => { el('summaryStatus').textContent = 'Copy failed; select and copy the figures above.'; });
+      } catch (error) {
+        el('summaryStatus').textContent = error.message;
+      }
+    });
+
+    applyScopeKit();
+    applyAccessKit();
+    applyInsulationKit();
+    applyExtraKit();
+    // Derived from the very id lists `readInput()` reads and the options the
+    // selects actually offer, so a field added to the form is saved and
+    // shareable without touching this. The alternative — a second field list
+    // kept by hand — is how a shared link ends up quietly dropping a field and
+    // pricing a different job for the recipient than the sender saw.
+    const CHOICE_IDS = ['scope', 'access', 'insulation'];
+    const BID_SPEC = {
+      key: 'crawl-space-encapsulation-bid',
+      numbers: [...JOB_IDS, ...RATE_IDS, ...COST_IDS].filter(id => !CHOICE_IDS.includes(id)),
+      flags: FLAG_IDS,
+      choices: Object.fromEntries(CHOICE_IDS.map(id => [id, [...el(id).options].map(option => option.value)])),
+    };
+
+    // A restored field counts as hand-entered. Without this the suggested-rate
+    // kits would overwrite it on the next apply, so a setter who tuned their
+    // own rate and copied the link would watch the recipient's page reset it
+    // to the ballpark figure.
+    function applyValues(values) {
+      for (const [id, value] of Object.entries(values)) {
+        const field = el(id);
+        if (!field) continue;
+        if (field.type === 'checkbox') field.checked = Boolean(value);
+        else field.value = value;
+        field.dataset.edited = '1';
+      }
+    }
+
+    function persist() {
+      try {
+        saveBid(localStorage, BID_SPEC, readInput());
+      } catch {
+        // A browser with site data blocked throws on access. Losing the save
+        // is survivable; losing the calculator mid-bid is not.
+      }
+    }
+
+    async function copyLink() {
+      const query = encodeBid(BID_SPEC, readInput());
+      const url = `${location.origin}${location.pathname}${query ? `#${query}` : ''}`;
+      try {
+        await navigator.clipboard.writeText(url);
+      } catch {
+        const fallback = document.createElement('textarea');
+        fallback.value = url;
+        fallback.setAttribute('readonly', '');
+        fallback.style.position = 'fixed';
+        fallback.style.opacity = '0';
+        document.body.append(fallback);
+        fallback.select();
+        document.execCommand('copy');
+        fallback.remove();
+      }
+      count('link_copied');
+      el('summaryStatus').textContent = 'Bid link copied — it reopens this bid';
+      setTimeout(() => { el('summaryStatus').textContent = ''; }, 2500);
+    }
+
+    const restored = restoreBid(BID_SPEC, {
+      search: location.hash,
+      storage: (() => { try { return localStorage; } catch { return null; } })(),
+    });
+    applyValues(restored.values);
+
+    if (restored.source !== 'none') {
+      // Say which bid is on screen. Numbers that changed themselves between
+      // visits, with no explanation, are how a setter stops trusting the tool.
+      el('restoreNote').hidden = false;
+      el('restoreNote').textContent = restored.source === 'link'
+        ? 'Opened from a bid link — these are the sender’s numbers, not yours.'
+        : 'Picked up your last bid from this browser. “Start a fresh bid” clears it.';
+    }
+
+    el('copyLink').addEventListener('click', () => {
+      copyLink().catch(() => { el('summaryStatus').textContent = 'Copy failed; copy the address bar instead.'; });
+    });
+
+    el('clearSaved').addEventListener('click', () => {
+      try { clearBid(localStorage, BID_SPEC); } catch { /* storage blocked; the reload still clears the form */ }
+      location.href = location.pathname;
+    });
+
+    // Every input already calls `update()`; saving here means the bid is kept
+    // as it is typed rather than only when a button is pressed, which is the
+    // difference between surviving a closed tab and not.
+    document.addEventListener('input', persist);
+    document.addEventListener('change', persist);
+
+    update();
+    persist();
+  </script>
+</body>
+</html>
