@@ -1,0 +1,401 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Deck Staining Bid Calculator | Price the Rails, the Stairs, and the Coats — Not Just $2.50 / Sq Ft</title>
+  <meta name="description" content="Price a deck stain or seal from walking surface, picket-rail lineal feet, stairs, prep, coats, and access — not a published $2.50-per-square-foot special. See the walk-away number before you match a cheaper quote.">
+  <meta property="og:title" content="Deck Staining Bid Calculator">
+  <meta property="og:description" content="A 200-square-foot platform with no rail is not the same job as a 192-square-foot 12x16 with 40 lineal feet of picket rail and a stair. Bid the stainable surface, not the walking feet.">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Deck Staining Bid Calculator","applicationCategory":"BusinessApplication","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"featureList":"Walking surface versus stainable surface, picket-rail lineal feet, stairs, wash versus sand versus strip, water versus oil versus composite seal, second-story access, furniture move, walk-away price, proposed-price margin check, copyable customer-facing bid summary"}</script>
+  <style>
+    :root { color-scheme: light; font-family: system-ui, sans-serif; color: #2c2618; background: #ebe6dc; }
+    body { max-width: 1060px; margin: 0 auto; padding: 32px 18px; }
+    header { max-width: 740px; margin-bottom: 26px; }
+    h1 { font-size: clamp(2rem, 6vw, 3.4rem); line-height: .98; margin: 0 0 12px; letter-spacing: -.05em; }
+    p { line-height: 1.5; }
+    .eyebrow { font-size: .8rem; font-weight: 700; letter-spacing: .08em; color: #8a5a12; margin: 0 0 6px; }
+    .layout { display: grid; grid-template-columns: minmax(0, 1fr) minmax(300px, .75fr); gap: 18px; align-items: start; }
+    section { background: #fff; border: 1px solid #c4b89a; border-radius: 14px; padding: 20px; box-shadow: 0 8px 24px #2c26180d; margin-bottom: 18px; }
+    h2 { margin-top: 0; font-size: 1.15rem; }
+    .hint { font-size: .82rem; color: #5c5340; margin: -6px 0 14px; }
+    .fields { display: grid; grid-template-columns: repeat(2, 1fr); gap: 13px; }
+    label { display: grid; gap: 5px; font-size: .87rem; font-weight: 650; }
+    input, select { width: 100%; box-sizing: border-box; border: 1px solid #7a6a48; border-radius: 7px; padding: 10px; font: inherit; background: #fff; }
+    label.check { display: flex; gap: 8px; align-items: center; font-weight: 650; }
+    label.check input { width: auto; }
+    button { font: inherit; border-radius: 7px; border: 1px solid #7a6a48; background: #f0e4c4; padding: 10px 14px; cursor: pointer; font-weight: 650; }
+    button:hover { background: #e6d5a8; }
+    .result { position: sticky; top: 15px; background: #3a2c14; color: #f6eedc; border-color: #3a2c14; }
+    .hero-number { font-size: 2.7rem; font-weight: 750; letter-spacing: -.05em; margin: 8px 0; }
+    .negative { color: #ffb0a2; }
+    dl { display: grid; grid-template-columns: 1fr auto; gap: 9px; margin: 20px 0; }
+    dt, dd { margin: 0; } dd { font-variant-numeric: tabular-nums; }
+    hr { border: 0; border-top: 1px solid #ffffff2b; }
+    .note { font-size: .82rem; opacity: .84; }
+    .split { margin: 14px 0 0; padding: 0; list-style: none; font-size: .84rem; }
+    .split li { display: grid; grid-template-columns: 1fr auto; gap: 8px; padding: 3px 0; }
+    .bar { grid-column: 1 / -1; height: 4px; border-radius: 2px; background: #ffffff2e; }
+    .bar > span { display: block; height: 100%; border-radius: 2px; background: #d4a24a; }
+    .verdict { margin-top: 14px; padding: 12px; border-radius: 9px; font-size: .87rem; background: #ffffff1a; }
+    .verdict.bad { background: #7d2317; }
+    footer { margin-top: 25px; font-size: .82rem; color: #5c5340; }
+    footer a { color: #8a5a12; }
+    .support { margin-top: 14px; }
+    .summary-actions { display: flex; gap: 8px; align-items: center; margin-top: 14px; }
+    .summary-status { font-size: .8rem; color: #e8d6a8; }
+    @media (max-width: 780px) {
+      .layout { grid-template-columns: 1fr; } .result { position: static; } .fields { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="eyebrow">FOR DECK STAINING CREWS</p>
+    <h1>Bid the rails, the stairs, and the coats.</h1>
+    <p>Price a stain or seal the way the trade actually loses money: stainable surface from picket rails and stairs, strip versus wash, oil two-coat versus water, and second-story carry as their own hours. You get the bid, the hours the first picket rail actually consumes, and the walk-away number below which the job loses money.</p>
+  </header>
+
+  <main class="layout">
+    <div>
+      <section>
+        <h2>The deck</h2>
+        <p class="hint">Start from a common job, then replace every figure with your takeoff. Changing prep, finish, or access never overwrites a rate you already typed. This prices a stain — not a new deck build, and not a house paint job.</p>
+        <div class="fields">
+          <label>Job preset
+            <select id="jobPresets">
+              <option value="">Choose a starting job…</option>
+            </select>
+          </label>
+          <label>Prep
+            <select id="prep">
+              <option value="wash" selected>Wash / brighten only</option>
+              <option value="sand">Wash and light sand</option>
+              <option value="strip">Strip peeling stain, then wash and sand</option>
+            </select>
+          </label>
+          <label>Finish
+            <select id="finish">
+              <option value="water" selected>Water-based stain (typically 1 coat)</option>
+              <option value="oil">Oil-based stain (typically 2 coats)</option>
+              <option value="composite">Composite clean and seal (do not stain like wood)</option>
+            </select>
+          </label>
+          <label>Access
+            <select id="access">
+              <option value="ground" selected>Ground-level / easy carry</option>
+              <option value="second">Second-story / staging and carry</option>
+            </select>
+          </label>
+          <label>Walking surface (sq ft) <input id="deckSqFt" type="number" min="0" step="1" value="200"></label>
+          <label>Rail lineal feet <input id="railLinealFeet" type="number" min="0" step="1" value="0"></label>
+          <label>Stainable sf / rail lf <input id="railSfPerLf" type="number" min="0" step="0.5" value="9"></label>
+          <label>Stair runs <input id="stairRuns" type="number" min="0" step="1" value="0"></label>
+          <label>Sq ft / stair run <input id="stairSf" type="number" min="0" step="1" value="40"></label>
+          <label class="check"><input id="moveFurniture" type="checkbox"> Move furniture / planters</label>
+        </div>
+      </section>
+
+      <section>
+        <h2>Your crew rates</h2>
+        <div class="fields">
+          <label>Hours for the trip / setup <input id="hoursTrip" type="number" min="0" step="0.25" value="1.1"></label>
+          <label>Hours / 100 sf of prep <input id="hoursPer100SfPrep" type="number" min="0" step="0.05" value="0.55"></label>
+          <label>Hours / 100 sf / coat <input id="hoursPer100SfCoat" type="number" min="0" step="0.05" value="0.65"></label>
+          <label>Coats <input id="coats" type="number" min="0" step="1" value="1"></label>
+          <label>Second-story / staging hours <input id="hoursAccess" type="number" min="0" step="0.1" value="0"></label>
+          <label>Hours to move furniture <input id="hoursFurniture" type="number" min="0" step="0.1" value="1.4"></label>
+          <label>Site / travel hours <input id="siteHours" type="number" min="0" step="0.25" value="0.3"></label>
+          <label>Prep material / 100 sf <input id="prepMaterialPer100Sf" type="number" min="0" step="0.25" value="3.5"></label>
+          <label>Stain / sealer per gallon <input id="stainPerGallon" type="number" min="0" step="1" value="46"></label>
+          <label>Coverage sf / gallon <input id="coverageSfPerGallon" type="number" min="0" step="5" value="225"></label>
+          <label>Furniture-move fee <input id="furnitureFee" type="number" min="0" step="5" value="45"></label>
+          <label>Mobilization <input id="mobilizationFee" type="number" min="0" step="5" value="85"></label>
+          <label>Permit fee <input id="permitFee" type="number" min="0" step="5" value="0"></label>
+          <label>Crew hourly wage <input id="hourlyWage" type="number" min="0" step="0.25" value="38"></label>
+          <label>Payroll burden (%) <input id="burdenRate" type="number" min="0" step="0.5" value="30"></label>
+          <label>Travel, truck, recovery <input id="travelAndEquipment" type="number" min="0" step="5" value="75"></label>
+          <label>Overhead on direct cost (%) <input id="overheadRate" type="number" min="0" step="0.5" value="15"></label>
+          <label>Target net margin (%) <input id="targetMargin" type="number" min="0" max="99.9" step="0.5" value="28"></label>
+          <label>Price you&rsquo;re considering (optional) <input id="proposedPrice" type="number" min="0" step="25" placeholder="e.g. 500"></label>
+        </div>
+        <p class="hint" style="margin-top:14px;margin-bottom:0">A $38/h painter loaded at 30% is $49.40. Quoting the raw wage on a published $2.50/sf special is how a 12x16 with picket rails that looked fine turns into a two-day loss after the first stair. Zero walking feet still prices — stain hours are the surface, not an error. Picket rail defaults to 9 stainable sf per lineal foot (both sides of the pickets plus the rails).</p>
+      </section>
+    </div>
+
+    <section class="result" aria-live="polite">
+      <h2>Your bid</h2>
+      <div id="price" class="hero-number">$&mdash;</div>
+      <div id="priceLabel">stain price</div>
+      <dl>
+        <dt>Prep, finish, access</dt><dd id="scope"></dd>
+        <dt>Stainable surface</dt><dd id="accessBits"></dd>
+        <dt>Crew hours</dt><dd id="hours"></dd>
+        <dt>Loaded labor</dt><dd id="labor"></dd>
+        <dt>Stain + extras</dt><dd id="materials"></dd>
+        <dt>Travel + equipment</dt><dd id="soft"></dd>
+        <dt>Overhead</dt><dd id="overhead"></dd>
+        <dt>Total cost</dt><dd id="cost"></dd>
+        <dt>Profit at this price</dt><dd id="profit"></dd>
+        <dt>Effective hourly rate</dt><dd id="hourlyRate"></dd>
+        <dt>Price / walking sf</dt><dd id="perSqFt"></dd>
+        <dt>Walk-away price</dt><dd id="breakEven"></dd>
+      </dl>
+      <div id="verdict" class="verdict" hidden></div>
+      <div class="summary-actions">
+        <button type="button" id="copySummary">Copy bid summary</button>
+        <span id="summaryStatus" class="summary-status" role="status" aria-live="polite"></span>
+      </div>
+      <hr>
+      <p class="note" style="margin-bottom:4px"><strong>Where the hours go</strong></p>
+      <ul class="split" id="hourSplit"></ul>
+      <hr>
+      <p class="note" style="margin-bottom:4px"><strong>Where the cost goes</strong></p>
+      <ul class="split" id="split"></ul>
+      <hr>
+      <p class="note">Transparent arithmetic from your own inputs. Starting hours and material rates are common ballpark figures, not an industry standard or a coating warranty &mdash; replace them with your own takeoff.</p>
+    </section>
+  </main>
+
+  <footer>
+    <label class="check" style="font-weight:400"><input id="usageOptOut" type="checkbox"> Do not keep anonymous local usage counts</label>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not construction, legal, tax, financial, or engineering advice, and it does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for meeting any obligation it helps you prepare for. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Nothing leaves your browser.</strong> Every number stays on this device. Usage counts are anonymous tallies of which features were used, stored locally, and never include your address, wages, costs, or prices.</p>
+    <p>Related: <a href="how-much-to-charge-to-stain-a-deck.html">How much to charge to stain a deck</a>.</p>
+    <p class="support">Free and open source. If it wins you a job, the <a href="https://github.com/Duncan-Haywood/monorepo-projects" rel="noopener">project is on GitHub</a> &mdash; support is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import {
+      calculateBid,
+      formatBidSummary,
+      JOB_PRESETS,
+      suggestedPrepKit,
+      suggestedFinishKit,
+      suggestedAccessKit,
+    } from './calc.mjs';
+    import { recordUsage } from './usage.mjs';
+
+    const FIELD_IDS = [
+      'deckSqFt','railLinealFeet','railSfPerLf','stairRuns','stairSf',
+      'hoursTrip','hoursPer100SfPrep','hoursPer100SfCoat','coats',
+      'hoursAccess','hoursFurniture','siteHours',
+      'prepMaterialPer100Sf','stainPerGallon','coverageSfPerGallon',
+      'furnitureFee','mobilizationFee','permitFee',
+      'hourlyWage','burdenRate','travelAndEquipment','overheadRate','targetMargin',
+      'proposedPrice',
+    ];
+    const FLAG_IDS = ['moveFurniture'];
+    const SELECT_IDS = ['prep','finish','access'];
+    const SUGGESTED_PREP_IDS = ['hoursPer100SfPrep','prepMaterialPer100Sf'];
+    const SUGGESTED_FINISH_IDS = ['coats','hoursPer100SfCoat','stainPerGallon','coverageSfPerGallon'];
+    const SUGGESTED_ACCESS_IDS = ['hoursAccess'];
+    const money = value => `$${value.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+    const el = id => document.getElementById(id);
+
+    const presets = el('jobPresets');
+    JOB_PRESETS.forEach((job, index) => {
+      const option = document.createElement('option');
+      option.value = String(index);
+      option.textContent = job.label;
+      presets.append(option);
+    });
+
+    function count(event) {
+      recordUsage(localStorage, el('usageOptOut').checked, event);
+    }
+
+    function applyKit(force, rates, ids) {
+      for (const [key, value] of Object.entries(rates)) {
+        if (force || !el(key).dataset.edited) el(key).value = value;
+      }
+      if (ids) {
+        /* keep ids referenced so a future kit field is not silently dropped */
+      }
+    }
+
+    function applyPrepKit(force) {
+      applyKit(force, suggestedPrepKit(el('prep').value), SUGGESTED_PREP_IDS);
+    }
+    function applyFinishKit(force) {
+      applyKit(force, suggestedFinishKit(el('finish').value), SUGGESTED_FINISH_IDS);
+    }
+    function applyAccessKit(force) {
+      applyKit(force, suggestedAccessKit(el('access').value), SUGGESTED_ACCESS_IDS);
+    }
+
+    function applyJob(job) {
+      el('prep').value = job.prep;
+      el('finish').value = job.finish;
+      el('access').value = job.access;
+      applyPrepKit(true);
+      applyFinishKit(true);
+      applyAccessKit(true);
+      [...SUGGESTED_PREP_IDS, ...SUGGESTED_FINISH_IDS, ...SUGGESTED_ACCESS_IDS]
+        .forEach(id => { el(id).dataset.edited = ''; });
+      el('deckSqFt').value = job.deckSqFt;
+      el('railLinealFeet').value = job.railLinealFeet;
+      el('stairRuns').value = job.stairRuns;
+      el('moveFurniture').checked = job.moveFurniture;
+    }
+
+    function readInput() {
+      const values = Object.fromEntries(FIELD_IDS.map(id => [id, el(id).value]));
+      for (const id of FLAG_IDS) values[id] = el(id).checked;
+      for (const id of SELECT_IDS) values[id] = el(id).value;
+      return values;
+    }
+
+    function clearOutputs(message, isError) {
+      el('price').textContent = message;
+      el('price').className = `hero-number ${isError ? 'negative' : ''}`;
+      el('priceLabel').textContent = isError ? 'check the highlighted input' : 'stain price';
+      ['scope','accessBits','hours','labor','materials','soft','overhead','cost','profit','hourlyRate','perSqFt','breakEven']
+        .forEach(id => { el(id).textContent = ''; });
+      el('hourSplit').innerHTML = '';
+      el('split').innerHTML = '';
+      el('verdict').hidden = true;
+    }
+
+    function barList(entries) {
+      return entries
+        .filter(([, share]) => share > 0)
+        .sort((a, b) => b[1] - a[1])
+        .map(([label, share]) => `<li><span>${label}</span><span>${share.toFixed(0)}%</span>
+          <span class="bar"><span style="width:${share.toFixed(1)}%"></span></span></li>`)
+        .join('');
+    }
+
+    function update() {
+      let result;
+      try {
+        result = calculateBid(readInput());
+      } catch (error) {
+        clearOutputs(error.message, true);
+        return;
+      }
+
+      el('price').textContent = money(result.price);
+      el('price').className = 'hero-number';
+      el('priceLabel').textContent = 'stain price';
+      el('scope').textContent = `${result.prep} · ${result.finish} · ${result.access}`;
+      const extraBits = [
+        `${result.stainableSf.toFixed(0)} sf stainable / ${result.deckSqFt} walking`,
+        result.railLinealFeet ? `${result.railLinealFeet} lf rail` : null,
+        result.stairRuns ? `${result.stairRuns} stair${result.stairRuns === 1 ? '' : 's'}` : null,
+        `${result.coats} coat${result.coats === 1 ? '' : 's'}`,
+        result.access === 'second' ? 'second-story staging' : null,
+        result.moveFurniture ? 'furniture move' : null,
+      ].filter(Boolean);
+      el('accessBits').textContent = extraBits.join(', ') || 'standard platform special';
+      el('hours').textContent = `${result.totalHours.toFixed(1)} h`;
+      el('labor').textContent = money(result.laborCost);
+      el('materials').textContent = money(result.materialCost);
+      el('soft').textContent = money(result.softCost);
+      el('overhead').textContent = money(result.overhead);
+      el('cost').textContent = money(result.totalCost);
+      el('profit').textContent = money(result.profit);
+      el('hourlyRate').textContent = result.effectiveHourlyRate === null ? 'n/a' : `${money(result.effectiveHourlyRate)}/h`;
+      el('perSqFt').textContent = result.pricePerWalkingSf === null ? 'n/a' : `${money(result.pricePerWalkingSf)}/sf`;
+      el('breakEven').textContent = money(result.breakEvenPrice);
+
+      el('hourSplit').innerHTML = barList([
+        ['Trip / setup', result.hourShares.trip],
+        ['Walking surface', result.hourShares.deck],
+        ['Rails / pickets', result.hourShares.rails],
+        ['Stairs', result.hourShares.stairs],
+        ['Access / staging', result.hourShares.access],
+        ['Furniture', result.hourShares.furniture],
+        ['Site / travel', result.hourShares.site],
+      ]);
+      el('split').innerHTML = barList([
+        ['Labor', result.shares.labor],
+        ['Stain + extras', result.shares.material],
+        ['Travel', result.shares.soft],
+        ['Overhead', result.shares.overhead],
+      ]);
+
+      const verdict = el('verdict');
+      if (result.proposed === null) {
+        verdict.hidden = true;
+      } else {
+        verdict.hidden = false;
+        verdict.className = `verdict${result.proposed.belowBreakEven ? ' bad' : ''}`;
+        const rate = result.proposed.hourlyRate === null ? 'n/a' : `${money(result.proposed.hourlyRate)}/h`;
+        verdict.innerHTML = result.proposed.belowBreakEven
+          ? `At ${money(result.proposed.price)} this job <strong>loses ${money(Math.abs(result.proposed.profit))}</strong> before you take anything out of it. Your walk-away price is ${money(result.breakEvenPrice)}.`
+          : `At ${money(result.proposed.price)} you keep <strong>${money(result.proposed.profit)}</strong> — a ${result.proposed.margin.toFixed(1)}% margin, billing ${rate} of labor.`;
+      }
+    }
+
+    async function copySummary() {
+      const job = JOB_PRESETS[Number(presets.value)];
+      const text = formatBidSummary(calculateBid(readInput()), job?.label);
+      try {
+        await navigator.clipboard.writeText(text);
+      } catch {
+        const fallback = document.createElement('textarea');
+        fallback.value = text;
+        fallback.setAttribute('readonly', '');
+        fallback.style.position = 'fixed';
+        fallback.style.opacity = '0';
+        document.body.append(fallback);
+        fallback.select();
+        document.execCommand('copy');
+        fallback.remove();
+      }
+      count('summary_copied');
+      el('summaryStatus').textContent = 'Copied to clipboard';
+      setTimeout(() => { el('summaryStatus').textContent = ''; }, 2500);
+    }
+
+    presets.addEventListener('change', () => {
+      const job = JOB_PRESETS[Number(presets.value)];
+      if (!job) return;
+      applyJob(job);
+      count('preset_applied');
+      update();
+    });
+
+    el('prep').addEventListener('change', () => {
+      applyPrepKit(false);
+      count('bid_calculated');
+      update();
+    });
+    el('finish').addEventListener('change', () => {
+      applyFinishKit(false);
+      count('bid_calculated');
+      update();
+    });
+    el('access').addEventListener('change', () => {
+      applyAccessKit(false);
+      count('bid_calculated');
+      update();
+    });
+
+    [...SUGGESTED_PREP_IDS, ...SUGGESTED_FINISH_IDS, ...SUGGESTED_ACCESS_IDS]
+      .forEach(id => el(id).addEventListener('input', () => { el(id).dataset.edited = '1'; }));
+
+    FIELD_IDS.forEach(id => {
+      el(id).addEventListener('input', update);
+      el(id).addEventListener('change', () => count(id === 'proposedPrice' ? 'proposed_price_compared' : 'bid_calculated'));
+    });
+    FLAG_IDS.forEach(id => {
+      el(id).addEventListener('change', () => {
+        count('bid_calculated');
+        update();
+      });
+    });
+    el('usageOptOut').addEventListener('change', update);
+    el('copySummary').addEventListener('click', () => {
+      try {
+        copySummary().catch(() => { el('summaryStatus').textContent = 'Copy failed; select and copy the figures above.'; });
+      } catch (error) {
+        el('summaryStatus').textContent = error.message;
+      }
+    });
+
+    update();
+  </script>
+</body>
+</html>
