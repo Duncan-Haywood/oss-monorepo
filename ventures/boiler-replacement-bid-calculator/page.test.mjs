@@ -10,6 +10,9 @@ import { readFileSync } from 'node:fs';
 
 const html = readFileSync(new URL('./index.html', import.meta.url), 'utf8');
 const seo = readFileSync(new URL('./how-much-to-charge-to-replace-a-boiler.html', import.meta.url), 'utf8');
+const patch = readFileSync(new URL('./should-i-patch-this-boiler-for-one-more-winter.html', import.meta.url), 'utf8');
+const supplySeo = readFileSync(new URL('./should-i-install-a-customer-supplied-boiler.html', import.meta.url), 'utf8');
+const saturdaySeo = readFileSync(new URL('./should-i-take-a-saturday-boiler-call.html', import.meta.url), 'utf8');
 
 const RAW_TEXT_ELEMENTS = ['textarea', 'script', 'style'];
 
@@ -49,6 +52,12 @@ test('the module script survives parsing and would actually execute', () => {
   assert.match(markup, /<script type="module">/, 'the app script tag is missing or was swallowed by an earlier element');
   assert.match(scriptSource, /calculateBid/, 'the app script did not parse as a script element');
   assert.match(scriptSource, /compareScope/, 'scope comparison is missing from the executable script');
+  assert.match(scriptSource, /compareRepairVsReplace/, 'repair comparison is missing from the executable script');
+  assert.match(scriptSource, /repairVsReplaceNote/, 'repair verdict helper is missing from the executable script');
+  assert.match(scriptSource, /compareOwnerSupply/, 'owner-supply comparison is missing from the executable script');
+  assert.match(scriptSource, /ownerSupplyNote/, 'owner-supply verdict is missing from the executable script');
+  assert.match(scriptSource, /compareAccess/, 'access comparison is missing from the executable script');
+  assert.match(scriptSource, /accessNote/, 'access verdict is missing from the executable script');
   assert.match(scriptSource, /formatBidSummary/, 'copy-summary helper is missing from the executable script');
 });
 
@@ -66,7 +75,8 @@ test('inputs and result fields for the primary journey are present', () => {
   for (const id of [
     'scope', 'system', 'fuel', 'inputMbh', 'zones', 'travelMiles',
     'hourlyWage', 'targetMargin', 'proposedPrice',
-    'price', 'breakEven', 'compare', 'copySummary', 'usageOptOut', 'jobPresets',
+    'hoursRepair', 'repairParts', 'extraCallsThisWinter', 'remainingWinters', 'patchPrice',
+    'price', 'breakEven', 'compare', 'repair', 'repairNote', 'supply', 'supplyNote', 'access', 'accessNote', 'copySummary', 'usageOptOut', 'jobPresets',
   ]) {
     assert.ok(declaredIds.has(id), `missing #${id}`);
   }
@@ -92,5 +102,44 @@ test('the SEO article answers the search phrase and stays crawlable', () => {
   assert.match(seo, /HowTo/);
   assert.match(seo, /like-for-like/i);
   assert.match(seo, /index\.html/);
+  assert.match(seo, /should-i-patch-this-boiler-for-one-more-winter\.html/);
+  assert.match(seo, /should-i-install-a-customer-supplied-boiler\.html/);
+  assert.match(seo, /should-i-take-a-saturday-boiler-call\.html/);
   assert.doesNotMatch(seo, /<textarea/i);
+});
+
+test('the landing page links the customer-supplied and Saturday questions', () => {
+  assert.match(html, /should-i-install-a-customer-supplied-boiler\.html/);
+  assert.match(html, /should-i-take-a-saturday-boiler-call\.html/);
+});
+
+test('the patch article answers the no-heat question and stays crawlable', () => {
+  assert.match(patch, /Should I patch this boiler for one more winter/i);
+  assert.match(patch, /FAQPage/);
+  assert.match(patch, /\$280/);
+  assert.match(patch, /index\.html/);
+  assert.match(patch, /No warranty/);
+  assert.match(patch, /Best-effort hosting, no SLA/);
+  assert.doesNotMatch(patch, /<textarea/i);
+});
+
+test('the supply article answers the customer-supplied question and stays crawlable', () => {
+  assert.match(supplySeo, /Should I install a customer-supplied boiler/i);
+  assert.match(supplySeo, /FAQPage/);
+  assert.match(supplySeo, /\$4,500/);
+  assert.match(supplySeo, /index\.html/);
+  assert.match(supplySeo, /No warranty/);
+  assert.match(supplySeo, /Best-effort hosting, no SLA/);
+  assert.doesNotMatch(supplySeo, /<textarea/i);
+});
+
+test('the Saturday article answers the no-heat overtime question and stays crawlable', () => {
+  assert.match(saturdaySeo, /Should I take a Saturday boiler call/i);
+  assert.match(saturdaySeo, /FAQPage/);
+  assert.match(saturdaySeo, /\$5,800/);
+  assert.match(saturdaySeo, /\$4,500/);
+  assert.match(saturdaySeo, /index\.html/);
+  assert.match(saturdaySeo, /No warranty/);
+  assert.match(saturdaySeo, /Best-effort hosting, no SLA/);
+  assert.doesNotMatch(saturdaySeo, /<textarea/i);
 });

@@ -1,0 +1,39 @@
+name: walmart-marketplace-calculator
+description: A private browser calculator for Walmart Marketplace sellers to compare WFS vs seller-fulfilled profit on the same listing after referral (including the per-item floor), fulfillment, storage, inbound, a competitive match price, whether a 2-day label still beats WFS after take rate, whether WFS still beats seller fulfilled after returns, and whether leftover WFS units still beat a removal after aged storage — including the maximum inventory buy cost.
+stage: prototype
+owner: duncan
+hypotheses:
+  - claim: Walmart Marketplace sellers will return to a calculator that compares WFS against seller fulfilled on the same SKU, because generic Walmart fee pages hide inbound, storage, the referral floor, and the merchant-fulfilled alternative.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: Seeing whether a competitive match price still profits changes a sourcing or repricing decision before the seller buys inventory or drops the offer.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: Seeing whether a seller-fulfilled 2-day label still beats WFS after take rate changes a Buy Box decision that a completed-sale WFS vs seller table hides.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: Seeing whether WFS still beats seller fulfilled after a return mix changes a fulfillment decision that a completed-sale table hides.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: Seeing whether leftover WFS units still beat a removal after aged storage changes a hold-or-pull decision that a completed-sale table hides.
+    status: untested
+    checked: null
+    evidence: customer-contact
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+budget:
+  monthly_cap: 1
+  protected: true
+kill_criteria:
+  - Fewer than three qualified Walmart Marketplace sellers use the calculator twice within 90 days.
+  - Users do not find the WFS vs seller-fulfilled comparison or the match view materially different from a single-path referral-fee estimate.
+links:
+  production: null
+  analytics: null

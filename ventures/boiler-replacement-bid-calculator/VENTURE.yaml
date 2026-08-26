@@ -15,6 +15,14 @@ hypotheses:
     status: untested
     checked: null
     evidence: customer-contact
+  - claim: Techs will use a this-visit versus this-winter versus replace comparison on a no-heat call because the $280 circulator special they are shopped on cannot see the extra callbacks a leaking heat exchanger generates before spring.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: Techs will use a you-supply versus owner-supplied comparison because the $4,500 hang-only special they are shopped on cannot see that setting a matching crate still costs a trip, and a wrong-system unit is a second dispatch.
+    status: untested
+    checked: null
+    evidence: customer-contact
 economics:
   currency: USD
   mrr: null

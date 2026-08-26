@@ -1,0 +1,527 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Interior Door Bid Calculator | How Much to Charge to Replace Interior Doors</title>
+  <meta name="description" content="Price an interior door replacement from door count, hollow slab versus solid-core versus French-or-barn, hang-only versus pocket-conversion, owner-supplied versus carpenter-supplied, weekday versus Saturday overtime, and extras — plus the walk-away price a $150-a-door special cannot see.">
+  <meta property="og:title" content="Interior Door Bid Calculator">
+  <meta property="og:description" content="Bid an interior door the way the trade does — opening, leaf, and extras, not a published installed dump — and see the margin before you send the price.">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Interior Door Bid Calculator","applicationCategory":"BusinessApplication","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"featureList":"Door count, hollow slab vs hollow prehung vs solid-core vs French-or-barn comparison, hang-only vs prehung-swap vs new-opening vs pocket-conversion comparison, owner-supplied vs carpenter-supplied hang, weekday they-leave vs they-stay vs Saturday overtime, 80-inch vs 96-inch vs double, paint haul lockset extras, walk-away price, proposed-price margin check, copyable bid summary"}</script>
+  <style>
+    :root { color-scheme: light; font-family: system-ui, sans-serif; color: #1f2a32; background: #e8eef2; }
+    body { max-width: 1060px; margin: 0 auto; padding: 32px 18px; }
+    header { max-width: 720px; margin-bottom: 26px; }
+    h1 { font-size: clamp(2rem, 6vw, 3.6rem); line-height: .98; margin: 0 0 12px; letter-spacing: -.05em; }
+    p { line-height: 1.5; }
+    .eyebrow { font-size: .8rem; font-weight: 700; letter-spacing: .08em; color: #1d6b7a; margin: 0 0 6px; }
+    .layout { display: grid; grid-template-columns: minmax(0, 1fr) minmax(300px, .75fr); gap: 18px; align-items: start; }
+    section { background: #fff; border: 1px solid #c5d0d6; border-radius: 14px; padding: 20px; box-shadow: 0 8px 24px #1f2a320d; margin-bottom: 18px; }
+    h2 { margin-top: 0; font-size: 1.15rem; }
+    .hint { font-size: .82rem; color: #4e5d66; margin: -6px 0 14px; }
+    .fields { display: grid; grid-template-columns: repeat(2, 1fr); gap: 13px; }
+    label { display: grid; gap: 5px; font-size: .87rem; font-weight: 650; }
+    input, select { width: 100%; box-sizing: border-box; border: 1px solid #8aa0ab; border-radius: 7px; padding: 10px; font: inherit; background: #fff; }
+    .checks { display: grid; gap: 8px; margin-top: 12px; }
+    .checks label { display: flex; gap: 8px; align-items: center; font-weight: 550; }
+    .checks input { width: auto; }
+    button { font: inherit; border-radius: 7px; border: 1px solid #8aa0ab; background: #eef5f7; padding: 10px 14px; cursor: pointer; font-weight: 650; }
+    button:hover { background: #dce8ec; }
+    .result { position: sticky; top: 15px; background: #16323a; color: #eef5f7; border-color: #16323a; }
+    .hero-number { font-size: 2.9rem; font-weight: 750; letter-spacing: -.05em; margin: 8px 0; }
+    .negative { color: #ffb0a2; } .positive { color: #d8e6a9; }
+    dl { display: grid; grid-template-columns: 1fr auto; gap: 9px; margin: 20px 0; }
+    dt, dd { margin: 0; } dd { font-variant-numeric: tabular-nums; }
+    hr { border: 0; border-top: 1px solid #ffffff2b; }
+    .note { font-size: .82rem; opacity: .84; }
+    .split { margin: 14px 0 0; padding: 0; list-style: none; font-size: .84rem; }
+    .split li { display: grid; grid-template-columns: 1fr auto; gap: 8px; padding: 3px 0; }
+    .bar { grid-column: 1 / -1; height: 4px; border-radius: 2px; background: #ffffff2e; }
+    .bar > span { display: block; height: 100%; border-radius: 2px; background: #7ec8d4; }
+    .verdict { margin-top: 14px; padding: 12px; border-radius: 9px; font-size: .87rem; background: #ffffff1a; }
+    .verdict.bad { background: #7d2317; }
+    .empty { font-size: .87rem; opacity: .84; }
+    footer { margin-top: 25px; font-size: .82rem; color: #4e5d66; }
+    footer a { color: #1d6b7a; }
+    .support { margin-top: 14px; }
+    .summary-actions { display: flex; gap: 8px; align-items: center; margin-top: 14px; }
+    .summary-status { font-size: .8rem; color: #cde6ea; }
+    table { width: 100%; border-collapse: collapse; font-size: .84rem; }
+    th, td { text-align: left; padding: 7px 4px; border-bottom: 1px solid #ffffff24; }
+    th { font-size: .74rem; letter-spacing: .04em; text-transform: uppercase; opacity: .75; }
+    td:last-child, th:last-child { text-align: right; }
+    .cheap { color: #d8e6a9; font-weight: 700; }
+    @media (max-width: 780px) {
+      .layout { grid-template-columns: 1fr; } .result { position: static; } .fields { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="eyebrow">FOR CARPENTERS</p>
+    <h1>Bid the opening, the leaf, and the extras.</h1>
+    <p>Price an interior door replacement the way the trade actually loses money: a hollow-core slab hung on an existing jamb versus a solid-core prehung in a new opening with paint-grade casing, new privacy hardware, and a haul-away — not the published $150-a-door installed special. You get the job price, what it works out to per door, and the number below which the hang loses money.</p>
+  </header>
+
+  <main class="layout">
+    <div>
+      <section>
+        <h2>The opening</h2>
+        <p class="hint">Pick a common job to start, then replace every rate with a millwork invoice and a crew you have timed. Changing scope, leaf, or size fills starting hours and material only when you have not already edited that field.</p>
+        <div class="fields">
+          <label>Job preset
+            <select id="jobPresets">
+              <option value="">Choose a starting job…</option>
+            </select>
+          </label>
+          <label>Scope <select id="scope"></select></label>
+          <label>Leaf <select id="door"></select></label>
+          <label>Size <select id="size"></select></label>
+          <label>Doors <input id="doorCount" type="number" min="0" step="1" value="1"></label>
+          <label>Travel miles <input id="travelMiles" type="number" min="0" step="1" value="6"></label>
+        </div>
+        <div class="checks">
+          <label><input id="includePaint" type="checkbox"> Paint both sides and edges</label>
+          <label><input id="includeHaul" type="checkbox"> Haul-away / dump ticket</label>
+          <label><input id="includeHardware" type="checkbox"> New lockset (instead of reuse)</label>
+        </div>
+      </section>
+
+      <section>
+        <h2>Hours and material rates</h2>
+        <p class="hint">These start from the scope, leaf, and size you picked. They are ballpark crew figures, not a millwork catalog or a guarantee.</p>
+        <div class="fields">
+          <label>Trip hours <input id="hoursTrip" type="number" min="0" step="0.1"></label>
+          <label>Hours / mile <input id="hoursPerMile" type="number" min="0" step="0.01"></label>
+          <label>Hang hours / door <input id="hoursHangPerDoor" type="number" min="0" step="0.05"></label>
+          <label>Frame hours / door <input id="hoursFramePerDoor" type="number" min="0" step="0.05"></label>
+          <label>Casing hours / door <input id="hoursCasingPerDoor" type="number" min="0" step="0.05"></label>
+          <label>Type hours / door <input id="hoursTypePerDoor" type="number" min="0" step="0.05"></label>
+          <label>Size hours / door <input id="hoursSizePerDoor" type="number" min="0" step="0.05"></label>
+          <label>Paint hours / door <input id="hoursPaintPerDoor" type="number" min="0" step="0.05"></label>
+          <label>Haul hours / door <input id="hoursHaulPerDoor" type="number" min="0" step="0.05"></label>
+          <label>Hardware hours / door <input id="hoursHardwarePerDoor" type="number" min="0" step="0.05"></label>
+          <label>Site / punch-list hours <input id="siteHours" type="number" min="0" step="0.1"></label>
+          <label>Door invoice $ each <input id="doorInvoice" type="number" min="0" step="1"></label>
+          <label>Extra leaf / height $ each <input id="extraLeafEach" type="number" min="0" step="1"></label>
+          <label>Casing $ each <input id="casingEach" type="number" min="0" step="1"></label>
+          <label>Frame / pocket kit $ each <input id="frameKitEach" type="number" min="0" step="1"></label>
+          <label>Paint $ each <input id="paintEach" type="number" min="0" step="0.5"></label>
+          <label>Haul ticket $ each <input id="haulEach" type="number" min="0" step="1"></label>
+          <label>Lockset $ each <input id="hardwareEach" type="number" min="0" step="1"></label>
+          <label>Travel $ / mile <input id="travelPerMile" type="number" min="0" step="0.1"></label>
+        </div>
+      </section>
+
+      <section>
+        <h2>Your costs</h2>
+        <div class="fields">
+          <label>Crew hourly wage <input id="hourlyWage" type="number" min="0" step="0.25" value="42"></label>
+          <label>Payroll burden (%) <input id="burdenRate" type="number" min="0" step="0.5" value="30"></label>
+          <label>Travel &amp; equipment <input id="travelAndEquipment" type="number" min="0" step="1" value="45"></label>
+          <label>Other cost <input id="otherCost" type="number" min="0" step="1" value="0"></label>
+          <label>Overhead on direct cost (%) <input id="overheadRate" type="number" min="0" step="0.5" value="15"></label>
+          <label>Target net margin (%) <input id="targetMargin" type="number" min="0" max="99.9" step="0.5" value="20"></label>
+          <label>Price you&rsquo;re considering (optional) <input id="proposedPrice" type="number" min="0" step="25" placeholder="e.g. 150"></label>
+        </div>
+        <p class="hint" style="margin-top:14px;margin-bottom:0">Payroll burden covers employer taxes, workers&rsquo; compensation, liability insurance, and paid time off. Underestimating it is how a $150 hang that looked profitable was not.</p>
+      </section>
+    </div>
+
+    <section class="result" aria-live="polite">
+      <h2>Your bid</h2>
+      <div id="price" class="hero-number">$&mdash;</div>
+      <div id="priceLabel">interior-door price</div>
+      <dl>
+        <dt>Doors</dt><dd id="count"></dd>
+        <dt>Travel</dt><dd id="travel"></dd>
+        <dt>Crew hours</dt><dd id="hours"></dd>
+        <dt>Loaded labor</dt><dd id="labor"></dd>
+        <dt>Leaf and height</dt><dd id="finishCost"></dd>
+        <dt>Frame, casing, extras</dt><dd id="extra"></dd>
+        <dt>Travel &amp; other</dt><dd id="soft"></dd>
+        <dt>Overhead</dt><dd id="overhead"></dd>
+        <dt>Total cost</dt><dd id="cost"></dd>
+        <dt>Profit</dt><dd id="profit"></dd>
+        <dt>Price per door</dt><dd id="perDoor"></dd>
+        <dt>Effective hourly rate</dt><dd id="hourlyRate"></dd>
+        <dt>Walk-away price</dt><dd id="breakEven"></dd>
+      </dl>
+      <div id="verdict" class="verdict" hidden></div>
+      <div class="summary-actions">
+        <button type="button" id="copySummary">Copy bid summary</button>
+        <span id="summaryStatus" class="summary-status" role="status" aria-live="polite"></span>
+      </div>
+      <hr>
+      <p class="note" style="margin-bottom:4px"><strong>Same opening, four scopes</strong></p>
+      <table>
+        <thead><tr><th>Scope</th><th>Hours</th><th>Price</th></tr></thead>
+        <tbody id="compare"></tbody>
+      </table>
+      <hr>
+      <p class="note" style="margin-bottom:4px"><strong>Same opening, four leaves</strong></p>
+      <p class="note" style="margin-top:0">The upgrade a homeowner is asking for when they say “can we do solid-core instead?” — same opening, same scope, starting leaf kits. Matching the hollow-slab special on a French-pair job is the losing bid.</p>
+      <table>
+        <thead><tr><th>Leaf</th><th>Hours</th><th>Price</th><th>vs hollow slab</th></tr></thead>
+        <tbody id="doors"></tbody>
+      </table>
+      <hr>
+      <p class="note" style="margin-bottom:4px"><strong>Same opening, who bought the leaf</strong></p>
+      <p class="note" style="margin-top:0">The $150 “just hang what I bought at the store” special. Zeroing the millwork invoice is not the same as a free hang — the trip and the set still cost money, and a slab that binds is a second trip. <a href="should-i-hang-a-customer-supplied-door.html" style="color:#cde6ea">Should I hang a customer-supplied door?</a></p>
+      <table>
+        <thead><tr><th>Who supplies</th><th>Hours</th><th>Your bid</th><th>At their number</th></tr></thead>
+        <tbody id="supply"></tbody>
+      </table>
+      <p id="supplyNote" class="note"></p>
+      <hr>
+      <p class="note" style="margin-bottom:4px"><strong>Same opening, when you can work</strong></p>
+      <p class="note" style="margin-top:0">The “can you come Saturday? Same $150?” special. A weekday they-leave slot is the bid you already have. Weekday while they stay home is the same wage on a slower hang. After-hours is time-and-a-half plus a second dispatch because a Saturday hang is not a stop you combine with a weekday route. <a href="should-i-hang-doors-on-saturday.html" style="color:#cde6ea">Should I hang doors on Saturday?</a></p>
+      <table>
+        <thead><tr><th>When</th><th>Hours</th><th>Your bid</th><th>At their number</th></tr></thead>
+        <tbody id="access"></tbody>
+      </table>
+      <p id="accessNote" class="note"></p>
+      <hr>
+      <p class="note" style="margin-bottom:4px"><strong>Where the hours go</strong></p>
+      <ul class="split" id="split"></ul>
+      <hr>
+      <p class="note">Transparent arithmetic from your own inputs. The starting hours and material rates are common ballpark figures, not an industry standard, a benchmark, or a guarantee &mdash; time your own crews and replace them.</p>
+    </section>
+  </main>
+
+  <footer>
+    <label style="display:inline-flex;gap:6px;align-items:center;font-weight:400"><input id="usageOptOut" type="checkbox" style="width:auto"> Do not keep anonymous local usage counts</label>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not building-code, fire-rating, legal, tax, or financial advice, and it does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for meeting any obligation it helps you prepare for. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record. If a tool needs to survive, export your inputs and run it yourself.</p>
+    <p><strong>Nothing leaves your browser.</strong> Every number stays on this device. Usage counts are anonymous tallies of which features were used, stored locally, and never include your opening, wages, costs, or prices.</p>
+    <p>Looking up <a href="how-much-to-charge-to-replace-interior-doors.html">how much to charge to replace interior doors</a>? The article walks the opening-versus-scope math this calculator uses. Customer bought the slab? See <a href="should-i-hang-a-customer-supplied-door.html">should I hang a customer-supplied door</a>. Saturday hang? See <a href="should-i-hang-doors-on-saturday.html">should I hang doors on Saturday</a>.</p>
+    <p class="support">Free and open source. If it wins you a job, the <a href="https://github.com/Duncan-Haywood/monorepo-projects" rel="noopener">project is on GitHub</a> &mdash; support is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import {
+      calculateBid,
+      compareScope,
+      compareDoor,
+      compareOwnerSupply,
+      ownerSupplyNote,
+      compareAccess,
+      accessNote,
+      formatBidSummary,
+      suggestedScopeKit,
+      suggestedDoorKit,
+      suggestedSizeKit,
+      suggestedExtraKit,
+      SCOPE_PRESETS,
+      DOOR_PRESETS,
+      SIZE_PRESETS,
+      JOB_PRESETS,
+    } from './calc.mjs';
+    import { recordUsage } from './usage.mjs';
+
+    const JOB_IDS = [
+      'scope', 'door', 'size', 'doorCount', 'travelMiles',
+    ];
+    const FLAG_IDS = ['includePaint', 'includeHaul', 'includeHardware'];
+    const RATE_IDS = [
+      'hoursTrip', 'hoursPerMile', 'hoursHangPerDoor', 'hoursFramePerDoor',
+      'hoursCasingPerDoor', 'hoursTypePerDoor', 'hoursSizePerDoor',
+      'hoursPaintPerDoor', 'hoursHaulPerDoor', 'hoursHardwarePerDoor',
+      'siteHours', 'doorInvoice', 'extraLeafEach', 'casingEach',
+      'frameKitEach', 'paintEach', 'haulEach', 'hardwareEach',
+      'travelPerMile',
+    ];
+    const COST_IDS = [
+      'hourlyWage', 'burdenRate', 'travelAndEquipment', 'otherCost',
+      'overheadRate', 'targetMargin', 'proposedPrice',
+    ];
+    const SCOPE_RATE_IDS = [
+      'hoursHangPerDoor', 'hoursFramePerDoor', 'hoursCasingPerDoor',
+      'casingEach', 'frameKitEach',
+    ];
+    const DOOR_RATE_IDS = ['hoursTypePerDoor', 'doorInvoice'];
+    const SIZE_RATE_IDS = ['hoursSizePerDoor', 'extraLeafEach'];
+    const EXTRA_RATE_IDS = [
+      'hoursTrip', 'hoursPerMile', 'hoursPaintPerDoor', 'hoursHaulPerDoor',
+      'hoursHardwarePerDoor', 'siteHours', 'paintEach', 'haulEach',
+      'hardwareEach', 'travelPerMile',
+    ];
+    const money = value => `$${value.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+    const el = id => document.getElementById(id);
+    let supplyCounted = false;
+    let accessCounted = false;
+
+    function fillSelect(id, presets) {
+      el(id).innerHTML = presets.map(item => `<option value="${item.id}">${item.label}</option>`).join('');
+    }
+
+    fillSelect('scope', SCOPE_PRESETS);
+    fillSelect('door', DOOR_PRESETS);
+    fillSelect('size', SIZE_PRESETS);
+    el('jobPresets').innerHTML = '<option value="">Choose a starting job…</option>'
+      + JOB_PRESETS.map((job, index) => `<option value="${index}">${job.label}</option>`).join('');
+
+    function applyKit(kit, ids) {
+      for (const id of ids) {
+        const field = el(id);
+        if (field.dataset.edited) continue;
+        if (kit[id] !== undefined) field.value = kit[id];
+      }
+    }
+
+    function applyScopeKit() {
+      applyKit(suggestedScopeKit(el('scope').value), SCOPE_RATE_IDS);
+    }
+
+    function applyDoorKit() {
+      applyKit(suggestedDoorKit(el('door').value), DOOR_RATE_IDS);
+    }
+
+    function applySizeKit() {
+      applyKit(suggestedSizeKit(el('size').value), SIZE_RATE_IDS);
+    }
+
+    function applyExtraKit() {
+      applyKit(suggestedExtraKit(), EXTRA_RATE_IDS);
+    }
+
+    function readInput() {
+      const values = Object.fromEntries(
+        [...JOB_IDS, ...RATE_IDS, ...COST_IDS].map(id => [id, el(id).value]),
+      );
+      for (const id of FLAG_IDS) values[id] = el(id).checked;
+      return values;
+    }
+
+    function count(event) {
+      recordUsage(localStorage, el('usageOptOut').checked, event);
+    }
+
+    function clearOutputs(message, isError) {
+      el('price').textContent = message;
+      el('price').className = `hero-number ${isError ? 'negative' : ''}`;
+      el('priceLabel').textContent = isError ? 'check the highlighted input' : 'interior-door price';
+      ['count','travel','hours','labor','finishCost','extra','soft','overhead','cost','profit','perDoor','hourlyRate','breakEven']
+        .forEach(id => { el(id).textContent = ''; });
+      el('split').innerHTML = '';
+      el('compare').innerHTML = '';
+      el('doors').innerHTML = '';
+      el('supply').innerHTML = '';
+      el('supplyNote').textContent = '';
+      el('access').innerHTML = '';
+      el('accessNote').textContent = '';
+      el('verdict').hidden = true;
+    }
+
+    function update() {
+      let result;
+      try {
+        result = calculateBid(readInput());
+      } catch (error) {
+        clearOutputs(error.message, true);
+        return;
+      }
+
+      el('price').textContent = money(result.price);
+      el('price').className = 'hero-number';
+      el('priceLabel').textContent = 'interior-door price';
+      el('count').textContent = `${result.doorCount.toLocaleString('en-US')}`;
+      el('travel').textContent = `${result.travelMiles} mi · ${result.hoursTravel.toFixed(1)} h`;
+      el('hours').textContent = `${result.totalHours.toFixed(1)} h`;
+      el('labor').textContent = money(result.laborCost);
+      el('finishCost').textContent = money(result.finishMaterial);
+      el('extra').textContent = money(result.extraCost);
+      el('soft').textContent = money(result.softCost);
+      el('overhead').textContent = money(result.overhead);
+      el('cost').textContent = money(result.totalCost);
+      el('profit').textContent = money(result.profit);
+      el('perDoor').textContent = result.pricePerDoor === null ? 'n/a' : `$${result.pricePerDoor.toFixed(2)}`;
+      el('hourlyRate').textContent = result.effectiveHourlyRate === null ? 'n/a' : `${money(result.effectiveHourlyRate)}/h`;
+      el('breakEven').textContent = money(result.breakEvenPrice);
+
+      const hourRows = [
+        ['Travel', result.hourShares.travel],
+        ['Hang / set', result.hourShares.hang],
+        ['Frame', result.hourShares.frame],
+        ['Casing', result.hourShares.casing],
+        ['Leaf type', result.hourShares.type],
+        ['Size', result.hourShares.size],
+        ['Paint', result.hourShares.paint],
+        ['Haul', result.hourShares.haul],
+        ['Hardware', result.hourShares.hardware],
+        ['Site', result.hourShares.site],
+      ].filter(row => row[1] > 0);
+      el('split').innerHTML = hourRows.length === 0
+        ? '<li class="empty">Hours appear here once the opening has a door.</li>'
+        : hourRows
+          .sort((a, b) => b[1] - a[1])
+          .map(([name, share]) => `<li><span>${name}</span><span>${share.toFixed(0)}% of hours</span>
+            <span class="bar"><span style="width:${share.toFixed(1)}%"></span></span></li>`)
+          .join('');
+
+      const compared = compareScope(readInput());
+      el('compare').innerHTML = compared.map(row => `<tr class="${row.cheapest ? 'cheap' : ''}">
+        <td>${row.label}${row.cheapest ? ' · lowest' : ''}</td>
+        <td>${row.totalHours.toFixed(1)} h</td>
+        <td>${money(row.price)}</td>
+      </tr>`).join('');
+
+      const doors = compareDoor(readInput());
+      el('doors').innerHTML = doors.map(row => {
+        const upgrade = row.upgradeFromSlab === 0
+          ? 'hollow slab'
+          : `+${money(row.upgradeFromSlab)}`;
+        return `<tr class="${row.cheapest ? 'cheap' : ''}">
+        <td>${row.label}${row.cheapest ? ' · lowest' : ''}</td>
+        <td>${row.totalHours.toFixed(1)} h</td>
+        <td>${money(row.price)}</td>
+        <td>${upgrade}</td>
+      </tr>`;
+      }).join('');
+
+      const supply = compareOwnerSupply(readInput());
+      el('supply').innerHTML = supply.map(row => {
+        const atTheirs = row.hangOnly === null
+          ? 'enter their number'
+          : row.hangOnly.belowBreakEven
+            ? `loses ${money(Math.abs(row.hangOnly.profit))}`
+            : `keeps ${money(row.hangOnly.profit)}`;
+        return `<tr class="${row.cheapest ? 'cheap' : ''}">
+        <td>${row.label}${row.cheapest ? ' · lowest bid' : ''}</td>
+        <td>${row.totalHours.toFixed(1)} h</td>
+        <td>${money(row.price)}</td>
+        <td>${atTheirs}</td>
+      </tr>`;
+      }).join('');
+      el('supplyNote').textContent = ownerSupplyNote(supply);
+      if (!supplyCounted) {
+        count('owner_supply_compared');
+        supplyCounted = true;
+      }
+
+      const access = compareAccess(readInput());
+      el('access').innerHTML = access.map(row => {
+        const atTheirs = row.hangOnly === null
+          ? 'enter their number'
+          : row.hangOnly.belowBreakEven
+            ? `loses ${money(Math.abs(row.hangOnly.profit))}`
+            : `keeps ${money(row.hangOnly.profit)}`;
+        return `<tr class="${row.cheapest ? 'cheap' : ''}">
+        <td>${row.label}${row.cheapest ? ' · lowest bid' : ''}</td>
+        <td>${row.totalHours.toFixed(1)} h</td>
+        <td>${money(row.price)}</td>
+        <td>${atTheirs}</td>
+      </tr>`;
+      }).join('');
+      el('accessNote').textContent = accessNote(access);
+      if (!accessCounted) {
+        count('access_compared');
+        accessCounted = true;
+      }
+
+      const verdict = el('verdict');
+      if (result.proposed === null) {
+        verdict.hidden = true;
+      } else {
+        verdict.hidden = false;
+        verdict.className = `verdict${result.proposed.belowBreakEven ? ' bad' : ''}`;
+        const rate = result.proposed.hourlyRate === null ? 'n/a' : `${money(result.proposed.hourlyRate)}/h`;
+        verdict.innerHTML = result.proposed.belowBreakEven
+          ? `At ${money(result.proposed.price)} this job <strong>loses ${money(Math.abs(result.proposed.profit))}</strong> before you take anything out of it. Your walk-away price is ${money(result.breakEvenPrice)}.`
+          : `At ${money(result.proposed.price)} you keep <strong>${money(result.proposed.profit)}</strong> — a ${result.proposed.margin.toFixed(1)}% margin, billing ${rate} of labor.`;
+      }
+    }
+
+    async function copySummary() {
+      const result = calculateBid(readInput());
+      const preset = JOB_PRESETS[Number(el('jobPresets').value)];
+      const text = formatBidSummary(result, preset ? preset.label : 'Interior door replacement');
+      try {
+        await navigator.clipboard.writeText(text);
+      } catch {
+        const fallback = document.createElement('textarea');
+        fallback.value = text;
+        fallback.setAttribute('readonly', '');
+        fallback.style.position = 'fixed';
+        fallback.style.opacity = '0';
+        document.body.append(fallback);
+        fallback.select();
+        document.execCommand('copy');
+        fallback.remove();
+      }
+      count('summary_copied');
+      el('summaryStatus').textContent = 'Copied to clipboard';
+      setTimeout(() => { el('summaryStatus').textContent = ''; }, 2500);
+    }
+
+    function applyJob(index) {
+      const job = JOB_PRESETS[index];
+      if (!job) return;
+      for (const id of RATE_IDS) delete el(id).dataset.edited;
+      el('doorCount').value = job.doorCount;
+      el('scope').value = job.scope;
+      el('door').value = job.door;
+      el('size').value = job.size;
+      el('travelMiles').value = job.travelMiles;
+      el('includePaint').checked = job.includePaint;
+      el('includeHaul').checked = job.includeHaul;
+      el('includeHardware').checked = job.includeHardware;
+      applyScopeKit();
+      applyDoorKit();
+      applySizeKit();
+      applyExtraKit();
+    }
+
+    el('jobPresets').addEventListener('change', () => {
+      if (el('jobPresets').value === '') return;
+      applyJob(Number(el('jobPresets').value));
+      count('preset_applied');
+      update();
+    });
+    el('scope').addEventListener('change', () => {
+      applyScopeKit();
+      count('scope_changed');
+      update();
+    });
+    el('door').addEventListener('change', () => {
+      applyDoorKit();
+      count('door_changed');
+      update();
+    });
+    el('size').addEventListener('change', () => {
+      applySizeKit();
+      count('size_changed');
+      update();
+    });
+    RATE_IDS.forEach(id => {
+      el(id).addEventListener('input', () => { el(id).dataset.edited = '1'; update(); });
+      el(id).addEventListener('change', () => count('bid_calculated'));
+    });
+    [...JOB_IDS, ...COST_IDS].forEach(id => {
+      if (id === 'scope' || id === 'door' || id === 'size') return;
+      el(id).addEventListener('input', update);
+      el(id).addEventListener('change', () => count(id === 'proposedPrice' ? 'proposed_price_compared' : 'bid_calculated'));
+    });
+    FLAG_IDS.forEach(id => {
+      el(id).addEventListener('change', () => {
+        count('bid_calculated');
+        update();
+      });
+    });
+    el('usageOptOut').addEventListener('change', update);
+    el('copySummary').addEventListener('click', () => {
+      try {
+        copySummary().catch(() => { el('summaryStatus').textContent = 'Copy failed; select and copy the figures above.'; });
+      } catch (error) {
+        el('summaryStatus').textContent = error.message;
+      }
+    });
+
+    applyScopeKit();
+    applyDoorKit();
+    applySizeKit();
+    applyExtraKit();
+    update();
+  </script>
+</body>
+</html>

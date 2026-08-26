@@ -4,10 +4,10 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Boiler Replacement Bid Calculator | How Much to Charge to Replace a Boiler</title>
-  <meta name="description" content="Price a residential boiler replacement from input MBH, hot water versus steam, like-for-like versus condensing versus steam-to-hot-water, fuel, zones, and extras — plus the walk-away price a $4,500 special cannot see.">
+  <meta name="description" content="Price a residential boiler replacement from input MBH, hot water versus steam, like-for-like versus condensing versus steam-to-hot-water, extras, owner-supplied versus tech-supplied, weekday versus Saturday no-heat, and whether one more winter of patches still beats replacing — plus the walk-away price a $4,500 hang-only special cannot see.">
   <meta property="og:title" content="Boiler Replacement Bid Calculator">
-  <meta property="og:description" content="Bid a boiler changeout the way the trade does — plant, system, and extras, not a published special — and see the margin before you send the price.">
-  <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Boiler Replacement Bid Calculator","applicationCategory":"BusinessApplication","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"featureList":"Input MBH, hot water vs steam, like-for-like vs condensing vs steam-to-hot-water comparison, liner indirect oil-to-gas extras, walk-away price, proposed-price margin check, copyable bid summary"}</script>
+  <meta property="og:description" content="Bid a boiler changeout the way the trade does — plant, system, extras, and whether Saturday still pays — not a published special — and see the margin before you send the price.">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Boiler Replacement Bid Calculator","applicationCategory":"BusinessApplication","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"featureList":"Input MBH, hot water vs steam, like-for-like vs condensing vs steam-to-hot-water comparison, owner-supplied vs tech-supplied plant, weekday vs same-day no-heat vs after-hours Saturday comparison, one-more-winter repair vs replace, liner indirect oil-to-gas extras, walk-away price, proposed-price margin check, copyable bid summary"}</script>
   <style>
     :root { color-scheme: light; font-family: system-ui, sans-serif; color: #2a2f36; background: #e8edf2; }
     body { max-width: 1060px; margin: 0 auto; padding: 32px 18px; }
@@ -60,7 +60,7 @@
   <header>
     <p class="eyebrow">FOR HYDRONIC AND STEAM TECHS</p>
     <h1>Bid the plant, the system, and the extras.</h1>
-    <p>Price a boiler replacement the way the trade actually loses money: an 80 MBH gas hot-water like-for-like swap versus a steam-to-hot-water conversion with four zones, a liner, and an indirect — not the published $4,500 special. You get the job price, what it works out to per input MBH, and the number below which the changeout loses money.</p>
+    <p>Price a boiler replacement the way the trade actually loses money: an 80 MBH gas hot-water like-for-like swap versus a steam-to-hot-water conversion with four zones, a liner, and an indirect — not the published $4,500 special. You get the job price, what it works out to per input MBH, the number below which the changeout loses money, whether a $280 “just patch it” call still pays once this winter’s callbacks are on the ticket, whether hanging the boiler they bought at the supply house still covers the set, and whether the weekday number still pays after overtime on a Friday-night no-heat call.</p>
   </header>
 
   <main class="layout">
@@ -133,6 +133,21 @@
         </div>
         <p class="hint" style="margin-top:14px;margin-bottom:0">Payroll burden covers employer taxes, workers&rsquo; compensation, liability insurance, and paid time off. Underestimating it is how a $4,500 boiler that looked profitable was not.</p>
       </section>
+
+      <section>
+        <h2>One more winter of patches</h2>
+        <p class="hint">The 9 p.m. no-heat call is “just replace the circulator for $280.” That number is scored against this visit only. Extra calls and later winters stack the season the owner is actually buying, then set it next to the plant bid. Starting figures are a circulator swap plus the callbacks a leaking heat exchanger generates — replace them with the truck you are loading.</p>
+        <div class="fields">
+          <label>This-visit repair hours <input id="hoursRepair" type="number" min="0" step="0.1"></label>
+          <label>This-visit parts $ <input id="repairParts" type="number" min="0" step="1"></label>
+          <label>Extra calls this winter <input id="extraCallsThisWinter" type="number" min="0" step="1"></label>
+          <label>Hours / extra call <input id="hoursPerExtraCall" type="number" min="0" step="0.1"></label>
+          <label>Parts $ / extra call <input id="partsPerExtraCall" type="number" min="0" step="1"></label>
+          <label>Winters they want the old plant <input id="remainingWinters" type="number" min="1" step="1"></label>
+          <label>Calls / later winter <input id="callsPerLaterWinter" type="number" min="0" step="1"></label>
+          <label>Patch price they asked for <input id="patchPrice" type="number" min="0" step="10" placeholder="e.g. 280"></label>
+        </div>
+      </section>
     </div>
 
     <section class="result" aria-live="polite">
@@ -167,6 +182,29 @@
         <tbody id="compare"></tbody>
       </table>
       <hr>
+      <p class="note" style="margin-bottom:4px"><strong>Patch vs replace</strong></p>
+      <table>
+        <thead><tr><th>Path</th><th>Hours</th><th>Price</th></tr></thead>
+        <tbody id="repair"></tbody>
+      </table>
+      <p id="repairNote" class="note"></p>
+      <hr>
+      <p class="note" style="margin-bottom:4px"><strong>Same plant, who bought the boiler</strong></p>
+      <p class="note" style="margin-top:0">The $4,500 “just hang what I bought at the supply house” special. Zeroing the plant invoice is not a free changeout — the trip and the hang still cost money, and a wrong-size or wrong-system unit is a second trip. <a href="should-i-install-a-customer-supplied-boiler.html" style="color:#ecd8b8">Should I install a customer-supplied boiler?</a></p>
+      <table>
+        <thead><tr><th>Who supplies</th><th>Hours</th><th>Your bid</th><th>At their number</th></tr></thead>
+        <tbody id="supply"></tbody>
+      </table>
+      <p id="supplyNote" class="note"></p>
+      <hr>
+      <p class="note" style="margin-bottom:4px"><strong>Same plant, when you can stand in the basement</strong></p>
+      <p class="note" style="margin-top:0">The “can you come Saturday? House is cold. Same $4,500?” special. A weekday slot is the bid you already have. Same-day with no heat is the same wage on a slower hang. After-hours is time-and-a-half plus a second dispatch because a Friday-night no-heat call is not a stop you combine with a weekday route. <a href="should-i-take-a-saturday-boiler-call.html" style="color:#ecd8b8">Should I take a Saturday boiler call?</a></p>
+      <table>
+        <thead><tr><th>Access</th><th>Hours</th><th>Your bid</th><th>At their number</th></tr></thead>
+        <tbody id="access"></tbody>
+      </table>
+      <p id="accessNote" class="note"></p>
+      <hr>
       <p class="note" style="margin-bottom:4px"><strong>Where the hours go</strong></p>
       <ul class="split" id="split"></ul>
       <hr>
@@ -179,7 +217,7 @@
     <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not heat-loss, fuel-gas-code, chimney-design, legal, tax, or financial advice, and it does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for meeting any obligation it helps you prepare for. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
     <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record. If a tool needs to survive, export your inputs and run it yourself.</p>
     <p><strong>Nothing leaves your browser.</strong> Every number stays on this device. Usage counts are anonymous tallies of which features were used, stored locally, and never include your plant, wages, costs, or prices.</p>
-    <p>Looking up <a href="how-much-to-charge-to-replace-a-boiler.html">how much to charge to replace a boiler</a>? The article walks the plant-versus-scope math this calculator uses.</p>
+    <p>Looking up <a href="how-much-to-charge-to-replace-a-boiler.html">how much to charge to replace a boiler</a>? The article walks the plant-versus-scope math this calculator uses. Standing in a no-heat basement? <a href="should-i-patch-this-boiler-for-one-more-winter.html">Should I patch this boiler for one more winter?</a> They already bought the unit? <a href="should-i-install-a-customer-supplied-boiler.html">Should I install a customer-supplied boiler?</a> Saturday no-heat? <a href="should-i-take-a-saturday-boiler-call.html">Should I take a Saturday boiler call?</a></p>
     <p class="support">Free and open source. If it wins you a job, the <a href="https://github.com/Duncan-Haywood/monorepo-projects" rel="noopener">project is on GitHub</a> &mdash; support is entirely optional and never changes what the tool does.</p>
   </footer>
 
@@ -187,11 +225,18 @@
     import {
       calculateBid,
       compareScope,
+      compareRepairVsReplace,
+      repairVsReplaceNote,
+      compareOwnerSupply,
+      ownerSupplyNote,
+      compareAccess,
+      accessNote,
       formatBidSummary,
       suggestedScopeKit,
       suggestedSystemKit,
       suggestedFuelKit,
       suggestedExtraKit,
+      suggestedRepairKit,
       SCOPE_PRESETS,
       SYSTEM_PRESETS,
       FUEL_PRESETS,
@@ -215,6 +260,10 @@
       'hourlyWage', 'burdenRate', 'travelAndEquipment', 'otherCost',
       'overheadRate', 'targetMargin', 'proposedPrice',
     ];
+    const REPAIR_IDS = [
+      'hoursRepair', 'repairParts', 'extraCallsThisWinter', 'hoursPerExtraCall',
+      'partsPerExtraCall', 'remainingWinters', 'callsPerLaterWinter', 'patchPrice',
+    ];
     const SCOPE_RATE_IDS = ['hoursPlant', 'hoursVent', 'hoursCondensate', 'hoursConversion', 'plantInvoice'];
     const SYSTEM_RATE_IDS = ['hoursPerZone', 'hoursPerMbh', 'zoneEach', 'systemHardware'];
     const FUEL_RATE_IDS = ['fuelInvoicePerMbh', 'fuelHardware'];
@@ -225,6 +274,9 @@
     ];
     const money = value => `$${value.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
     const el = id => document.getElementById(id);
+    let repairCounted = false;
+    let supplyCounted = false;
+    let accessCounted = false;
 
     function fillSelect(id, presets) {
       el(id).innerHTML = presets.map(item => `<option value="${item.id}">${item.label}</option>`).join('');
@@ -260,9 +312,13 @@
       applyKit(suggestedExtraKit(), EXTRA_RATE_IDS);
     }
 
+    function applyRepairKit() {
+      applyKit(suggestedRepairKit(), REPAIR_IDS);
+    }
+
     function readInput() {
       const values = Object.fromEntries(
-        [...JOB_IDS, ...RATE_IDS, ...COST_IDS].map(id => [id, el(id).value]),
+        [...JOB_IDS, ...RATE_IDS, ...COST_IDS, ...REPAIR_IDS].map(id => [id, el(id).value]),
       );
       for (const id of FLAG_IDS) values[id] = el(id).checked;
       return values;
@@ -280,6 +336,12 @@
         .forEach(id => { el(id).textContent = ''; });
       el('split').innerHTML = '';
       el('compare').innerHTML = '';
+      el('repair').innerHTML = '';
+      el('repairNote').textContent = '';
+      el('supply').innerHTML = '';
+      el('supplyNote').textContent = '';
+      el('access').innerHTML = '';
+      el('accessNote').textContent = '';
       el('verdict').hidden = true;
     }
 
@@ -338,6 +400,73 @@
         <td>${row.totalHours.toFixed(1)} h</td>
         <td>${money(row.price)}</td>
       </tr>`).join('');
+
+      try {
+        const repaired = compareRepairVsReplace(readInput());
+        el('repair').innerHTML = repaired.rows.map(row => `<tr class="${row.cheapest ? 'cheap' : ''}">
+          <td>${row.label}${row.cheapest ? ' · lowest' : ''}</td>
+          <td>${row.totalHours.toFixed(1)} h</td>
+          <td>${money(row.price)}</td>
+        </tr>`).join('');
+        el('repairNote').textContent = repairVsReplaceNote(repaired);
+        if (!repairCounted) {
+          count('repair_compared');
+          repairCounted = true;
+        }
+      } catch (error) {
+        el('repair').innerHTML = '';
+        el('repairNote').textContent = error.message;
+      }
+
+      try {
+        const supplied = compareOwnerSupply(readInput());
+        el('supply').innerHTML = supplied.map(row => {
+          const asked = row.installOnly
+            ? (row.installOnly.belowBreakEven
+              ? `loses ${money(Math.abs(row.installOnly.profit))}`
+              : `keeps ${money(row.installOnly.profit)}`)
+            : '—';
+          return `<tr class="${row.cheapest ? 'cheap' : ''}">
+          <td>${row.label}${row.cheapest ? ' · lowest bid' : ''}</td>
+          <td>${row.totalHours.toFixed(1)} h</td>
+          <td>${money(row.price)}</td>
+          <td>${asked}</td>
+        </tr>`;
+        }).join('');
+        el('supplyNote').textContent = ownerSupplyNote(supplied);
+        if (!supplyCounted) {
+          count('supply_compared');
+          supplyCounted = true;
+        }
+      } catch (error) {
+        el('supply').innerHTML = '';
+        el('supplyNote').textContent = error.message;
+      }
+
+      try {
+        const access = compareAccess(readInput());
+        el('access').innerHTML = access.map(row => {
+          const asked = row.installOnly
+            ? (row.installOnly.belowBreakEven
+              ? `loses ${money(Math.abs(row.installOnly.profit))}`
+              : `keeps ${money(row.installOnly.profit)}`)
+            : '—';
+          return `<tr class="${row.cheapest ? 'cheap' : ''}">
+          <td>${row.label}${row.cheapest ? ' · lowest bid' : ''}</td>
+          <td>${row.totalHours.toFixed(1)} h</td>
+          <td>${money(row.price)}</td>
+          <td>${asked}</td>
+        </tr>`;
+        }).join('');
+        el('accessNote').textContent = accessNote(access);
+        if (!accessCounted) {
+          count('access_compared');
+          accessCounted = true;
+        }
+      } catch (error) {
+        el('access').innerHTML = '';
+        el('accessNote').textContent = error.message;
+      }
 
       const verdict = el('verdict');
       if (result.proposed === null) {
@@ -423,13 +552,24 @@
     [...JOB_IDS, ...COST_IDS].forEach(id => {
       if (id === 'scope' || id === 'system' || id === 'fuel') return;
       el(id).addEventListener('input', update);
-      el(id).addEventListener('change', () => count(id === 'proposedPrice' ? 'proposed_price_compared' : 'bid_calculated'));
+      el(id).addEventListener('change', () => {
+        if (id === 'proposedPrice') {
+          count('proposed_price_compared');
+          count('access_compared');
+        } else {
+          count('bid_calculated');
+        }
+      });
     });
     FLAG_IDS.forEach(id => {
       el(id).addEventListener('change', () => {
         count('bid_calculated');
         update();
       });
+    });
+    REPAIR_IDS.forEach(id => {
+      el(id).addEventListener('input', () => { el(id).dataset.edited = '1'; update(); });
+      el(id).addEventListener('change', () => count(id === 'patchPrice' ? 'repair_compared' : 'bid_calculated'));
     });
     el('usageOptOut').addEventListener('change', update);
     el('copySummary').addEventListener('click', () => {
@@ -444,6 +584,7 @@
     applySystemKit();
     applyFuelKit();
     applyExtraKit();
+    applyRepairKit();
     update();
   </script>
 </body>
