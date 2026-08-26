@@ -259,7 +259,7 @@ workflows:
   - job: deploy
     step: uses actions/deploy-pages
     gates:
-    - ${{ vars.RETAIL_PILOT_INTEL_PAGES == 'true' && vars.GITHUB_PAGES_ENABLED != 'true' }}
+    - ${{ vars.RETAIL_PILOT_INTEL_PAGES == 'true' }}
   - job: deploy-vercel
     step: uses amondnet/vercel-action
     gates:
