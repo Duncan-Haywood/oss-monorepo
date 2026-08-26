@@ -4,6 +4,10 @@ on:
     paths: ['ventures/notary-trip-quote/**']
   pull_request:
     paths: ['ventures/notary-trip-quote/**']
+
+permissions:
+  contents: read
+
 jobs:
   test:
     runs-on: ubuntu-latest

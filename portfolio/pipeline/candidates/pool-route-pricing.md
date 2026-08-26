@@ -1,5 +1,10 @@
 # Pool route pricing calculator
 
+Scored 2026-08-24. Composite 7.0 · floor 1 (ai_leverage). The floor is the
+point: the arithmetic is deterministic and there is no model in the loop, which
+is what keeps the per-user cost at zero and the output auditable by the operator
+who typed the inputs.
+
 Independent pool-service operators need a monthly account price that covers
 pool time, windshield time, chemicals, and recurring overhead. Generic hourly
 calculators and one-off trade bid tools do not model recurring route accounts.
