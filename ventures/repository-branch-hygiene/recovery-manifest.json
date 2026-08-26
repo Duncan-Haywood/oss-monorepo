@@ -1,0 +1,53 @@
+{
+  "format": 2,
+  "read_only": true,
+  "approval_required": true,
+  "findings": [
+    {
+      "branch": "main",
+      "tip": "m3",
+      "classification": "protected",
+      "reason": "branch is explicitly protected",
+      "commits": [
+        "m3",
+        "m2",
+        "m1"
+      ],
+      "review_action": "do-not-delete"
+    },
+    {
+      "branch": "feature/merged",
+      "tip": "m2",
+      "classification": "merged",
+      "reason": "closed pull request was merged and tip is in its base history",
+      "commits": [
+        "m2",
+        "m1"
+      ],
+      "review_action": "review-delete-candidate"
+    },
+    {
+      "branch": "feature/moved",
+      "tip": "x2",
+      "classification": "moved-tip",
+      "reason": "closed pull request is not merged; preserve until reviewed",
+      "commits": [
+        "x2",
+        "x1",
+        "m1"
+      ],
+      "review_action": "preserve-and-review"
+    },
+    {
+      "branch": "feature/unique",
+      "tip": "u1",
+      "classification": "active",
+      "reason": "pull request is still open",
+      "commits": [
+        "u1",
+        "m1"
+      ],
+      "review_action": "preserve-active-work"
+    }
+  ]
+}
