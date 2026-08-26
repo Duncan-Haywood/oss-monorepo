@@ -73,6 +73,9 @@ workflows:
 - workflow: cloud-egress-calculator-ci.yml
   classification: none
   publishes: []
+- workflow: crawl-space-encapsulation-bid-calculator-ci.yml
+  classification: none
+  publishes: []
 - workflow: crown-molding-bid-calculator-ci.yml
   classification: none
   publishes: []
@@ -155,6 +158,9 @@ workflows:
   classification: none
   publishes: []
 - workflow: photos-import-tools-ci.yml
+  classification: none
+  publishes: []
+- workflow: plantation-shutter-bid-calculator-ci.yml
   classification: none
   publishes: []
 - workflow: portfolio-pages.yml
