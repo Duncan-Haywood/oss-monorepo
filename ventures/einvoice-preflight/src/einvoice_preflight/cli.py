@@ -7,6 +7,7 @@ from html import escape as html_escape
 import io
 import json
 import os
+import re
 import sys
 import tempfile
 from pathlib import Path
@@ -21,7 +22,7 @@ from .ubl import parse_ubl_invoice
 VERSION = "0.1.0"
 
 
-def _record_usage(path: str) -> None:
+def _record_usage(path: str, event: str = "invoice_preflight_checked") -> None:
     """Record an aggregate event without affecting the validation result."""
     temporary_path: str | None = None
     try:
@@ -40,10 +41,10 @@ def _record_usage(path: str) -> None:
                     pass
             events = data.setdefault("events", {})
             try:
-                previous = int(events.get("invoice_preflight_checked", 0))
+                previous = int(events.get(event, 0))
             except (TypeError, ValueError):
                 previous = 0
-            events["invoice_preflight_checked"] = previous + 1
+            events[event] = previous + 1
             with tempfile.NamedTemporaryFile(
                 "w", encoding="utf-8", dir=target.parent, prefix=f".{target.name}.", delete=False
             ) as temporary:
@@ -245,7 +246,11 @@ def _json_report(
 ) -> dict[str, Any]:
     """Build one versioned adapter payload for every input mode."""
     rule_counts = Counter(error["rule"] for _, errors in reports for error in errors)
-    errors = [error for _, invoice_errors in reports for error in invoice_errors]
+    errors = [
+        {**error, "file": path.as_posix()}
+        for path, invoice_errors in reports
+        for error in invoice_errors
+    ]
     fix_details: dict[str, dict[str, str | int]] = {}
     for error in errors:
         detail = fix_details.setdefault(
@@ -379,6 +384,48 @@ def _remediation_report(
         "items": items,
         "read_errors": read_errors,
     }
+
+
+def _checklist_report(
+    reports: list[tuple[Path, list[dict[str, str]]]],
+    read_errors: list[dict[str, str]],
+) -> str:
+    """Build a copyable repair checklist without invoice values or contents."""
+    def redact_values(text: str) -> str:
+        # Validator fixes may include calculated amounts; keep the action but not the value.
+        return re.sub(r"\b\d+(?:\.\d+)?\b", "[value]", text)
+
+    observations = sum(len(errors) for _, errors in reports)
+    lines = [
+        "E-invoice preflight repair checklist",
+        "",
+        f"Status: {'FAIL' if observations or read_errors else 'PASS'}",
+        f"Checked: {len(reports)} invoice(s)",
+        f"Observations: {observations}",
+        f"Read errors: {len(read_errors)}",
+        "",
+    ]
+    for path, errors in reports:
+        lines.append(f"[ ] Review {path.as_posix()}")
+        if not errors:
+            lines.append("    No supported defects found.")
+            continue
+        grouped: dict[str, dict[str, Any]] = {}
+        for error in errors:
+            item = grouped.setdefault(error["rule"], {"count": 0, "paths": [], "message": error["message"], "fix": error["fix"]})
+            item["count"] += 1
+            if error["path"] not in item["paths"]:
+                item["paths"].append(error["path"])
+        for rule in sorted(grouped):
+            item = grouped[rule]
+            suffix = f" ({item['count']} occurrence(s))" if item["count"] != 1 else ""
+            lines.append(f"    - [ ] {rule}{suffix} at {', '.join(item['paths'])}: {redact_values(item['message'])}")
+            lines.append(f"      Fix: {redact_values(item['fix'])}")
+    if read_errors:
+        lines.extend(["", "Unreadable inputs:"])
+        lines.extend(f"- [ ] Review {error['file']}: {error['error']}" for error in read_errors)
+    lines.extend(["", "This is a local observation checklist, not a declaration of legal validity or compliance.", "Review and verify each change before submitting an invoice."])
+    return "\n".join(lines) + "\n"
 
 
 def _csv_report(
@@ -557,7 +604,7 @@ def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description="Check a local JSON or UBL XML e-invoice before submission. No tax advice or submission.")
     parser.add_argument("--version", action="version", version=f"einvoice-preflight {VERSION}")
     parser.add_argument("invoice", type=Path, help="JSON/XML file, directory of JSON/XML files, or '-' for stdin")
-    parser.add_argument("--format", choices=("text", "summary", "json", "jsonl", "remediation", "markdown", "html", "csv", "junit", "sarif", "github"), default="text")
+    parser.add_argument("--format", choices=("text", "summary", "json", "jsonl", "remediation", "checklist", "markdown", "html", "csv", "junit", "sarif", "github"), default="text")
     parser.add_argument("--usage-file", help="opt-in local aggregate event counter")
     parser.add_argument("--output", help="write the report to this local file atomically instead of stdout")
     parser.add_argument(
@@ -571,6 +618,9 @@ def main(argv: list[str] | None = None) -> int:
         help="refuse an input invoice larger than this many bytes",
     )
     args = parser.parse_args(argv)
+    if args.usage_file:
+        # Count attempted invocations separately from successfully parsed files.
+        _record_usage(args.usage_file, "invoice_preflight_attempted")
     reports: list[tuple[Path, list[dict[str, str]]]] = []
     invoices: list[tuple[Path, Any]] = []
     read_errors: list[dict[str, str]] = []
@@ -647,6 +697,8 @@ def main(argv: list[str] | None = None) -> int:
         report = _jsonl_report(reports, read_errors)
     elif args.format == "remediation":
         report = json.dumps(_remediation_report(reports, read_errors), indent=2) + "\n"
+    elif args.format == "checklist":
+        report = _checklist_report(reports, read_errors)
     elif args.format == "markdown":
         report = _markdown_report(reports, read_errors)
     elif args.format == "html":

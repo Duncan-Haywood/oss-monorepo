@@ -148,6 +148,26 @@ npm run microsite -- --dir ./delivery --listing "123 Main St" \
   --agent-brokerage "Acme Realty"
 ```
 
+The same folder can be checked against the MLS floor spec. Findings print
+first; a reshoot / desk-fix list follows so you know which rooms to recapture
+versus which files to rename, recrop, or pair with an original:
+
+```bash
+npm run preflight -- --dir ./delivery
+```
+
+The browser tool at `/photo-check` runs the same rules in-tab (no upload) and
+lets you copy the shot list. This is file-header and filename evidence, not a
+warranty that any MLS will accept the photos. Visual watermarks, burned-in
+contact info, and board-specific extras are disclosed as unimplemented.
+
+**No advice-of-record.** The check reports what was tested and when. It does
+not say a listing is compliant, MLS-ready, or that a portal will accept it.
+
+**Best-effort hosting, no SLA.** Hosted URLs are free, experimental, and may
+be slow, broken, moved, or taken offline without notice. Do not use this as a
+system of record. If you need the result later, copy the shot list.
+
 ## Research report commands
 
 ```bash
