@@ -34,6 +34,11 @@ products:
           local_quote_calculation_events: 0
           local_summary_copies: 0
         note: Shipped browser-local appliance repair quote calculator; public URL remains owner-gated.
+      - as_of: 2026-08-26
+        signals:
+          live_url_visitors: null
+          replace_compared: 0
+        note: Added service-call repair vs replace by remaining year, plus the diagnostic you keep if they decline. Public URL remains owner-gated.
   - slug: retainage-cashflow-calculator
     surface: static-page-in-repo
     readings:

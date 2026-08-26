@@ -19,6 +19,12 @@ test("disclaimers a user can actually read", () => {
   assert.match(html, /GitHub Sponsors/);
 });
 
+test("repair vs replace section is on the quote page", () => {
+  assert.match(html, /id="repair-vs-replace"/);
+  assert.match(html, /compareServiceCallVsReplace/);
+  assert.match(html, /should-i-repair-or-replace-this-appliance\.html/);
+});
+
 test("worked example on the page matches the locked comparison", () => {
   const result = calculateQuote({
     diagnosticHours: 0.5,
