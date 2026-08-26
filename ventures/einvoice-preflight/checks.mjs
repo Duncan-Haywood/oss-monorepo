@@ -2,6 +2,7 @@
 // the browser page and the CLI report the same rule IDs, messages, and
 // cent-rounded arithmetic. This is an observation, not a legal validity claim.
 
+import { headerAdjustmentNetDelta, inspectHeaderAdjustments } from "./adjustment.mjs";
 import { inspectPaymentBic } from "./bic.mjs";
 import { inspectTaxBreakdown } from "./breakdown.mjs";
 import { inspectDocumentType } from "./document.mjs";
@@ -145,6 +146,9 @@ export function checkInvoice(invoice) {
   for (const finding of inspectCommercialReferences(invoice)) {
     fail(finding.rule, finding.message, finding.fix, finding.path);
   }
+  for (const finding of inspectHeaderAdjustments(invoice)) {
+    fail(finding.rule, finding.message, finding.fix, finding.path);
+  }
 
   let lines = invoice.lines;
   if (!Array.isArray(lines) || lines.length === 0) {
@@ -197,6 +201,8 @@ export function checkInvoice(invoice) {
       }
     }
   });
+  expectedNet = roundHalfUpToCents(expectedNet + headerAdjustmentNetDelta(invoice));
+  if (expectedNet < 0) expectedNet = 0;
 
   const totals = invoice.totals && typeof invoice.totals === "object" && !Array.isArray(invoice.totals)
     ? invoice.totals
@@ -208,7 +214,11 @@ export function checkInvoice(invoice) {
   if (net === null || net < 0) {
     fail("INV-013", "Invoice net total is missing or invalid.", "Provide a non-negative numeric net total.", "/totals/net");
   } else if (net !== expectedNet) {
-    fail("INV-014", "Invoice net total does not match its line items.", `Set net total to ${formatMoney(expectedNet)} or correct the line items.`, "/totals/net");
+    if (invoice.adjustments) {
+      fail("INV-014", "Invoice net total does not match line items after header allowances and charges.", `Set net total to ${formatMoney(expectedNet)} or correct the line items and adjustments.`, "/totals/net");
+    } else {
+      fail("INV-014", "Invoice net total does not match its line items.", `Set net total to ${formatMoney(expectedNet)} or correct the line items.`, "/totals/net");
+    }
   }
   if (taxTotal === null || taxTotal < 0) {
     fail("INV-015", "Invoice tax total is missing or invalid.", "Provide a non-negative numeric tax total.", "/totals/tax");

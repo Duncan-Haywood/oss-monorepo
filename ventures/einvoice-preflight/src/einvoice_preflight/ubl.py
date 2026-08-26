@@ -138,6 +138,9 @@ def parse_ubl_invoice(source: bytes | str) -> dict[str, Any]:
     if period:
         invoice["period"] = period
     invoice.update(_commercial_references(root))
+    adjustments = _header_adjustments(root)
+    if adjustments:
+        invoice["adjustments"] = adjustments
     return invoice
 
 
@@ -201,6 +204,38 @@ def _document_exemption(root: ElementTree.Element) -> dict[str, str]:
             if reason_code and "tax_exemption_reason_code" not in extras:
                 extras["tax_exemption_reason_code"] = reason_code
     return extras
+
+
+def _header_adjustments(root: ElementTree.Element) -> list[dict[str, Any]]:
+    """Map invoice-level AllowanceCharge rows. Ignore line-level charges."""
+    rows: list[dict[str, Any]] = []
+    for child in list(root):
+        if child.tag.rsplit("}", 1)[-1] != "AllowanceCharge":
+            continue
+        indicator = _text(child, "ChargeIndicator", required=False)
+        amount = _text(child, "Amount", required=False)
+        base = _text(child, "BaseAmount", required=False)
+        percent = _text(child, "MultiplierFactorNumeric", required=False)
+        reason = _text(child, "AllowanceChargeReason", required=False)
+        reason_code = _text(child, "AllowanceChargeReasonCode", required=False)
+        if not any((indicator, amount, base, percent, reason, reason_code)):
+            continue
+        row: dict[str, Any] = {}
+        if indicator:
+            row["kind"] = "charge" if indicator.strip().casefold() in {"true", "1"} else "allowance"
+        if amount:
+            row["amount"] = _number(amount)
+        if base:
+            row["base"] = _number(base)
+        if percent:
+            row["percent"] = _number(percent)
+        if reason:
+            row["reason"] = reason
+        if reason_code:
+            row["reason_code"] = reason_code
+        if row:
+            rows.append(row)
+    return rows
 
 
 def _commercial_references(root: ElementTree.Element) -> dict[str, str]:

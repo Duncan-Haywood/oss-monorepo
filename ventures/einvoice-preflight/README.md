@@ -20,8 +20,9 @@ cd ventures/einvoice-preflight
 # (INV-037 and INV-038), buyer/seller electronic addresses
 # (INV-039 through INV-041), invoice period start/end
 # (INV-042 and INV-043), and payment means vs IBAN
-# (INV-044 through INV-046), and buyer / purchase-order
-# references (INV-047 through INV-049).
+# (INV-044 through INV-046), buyer / purchase-order
+# references (INV-047 through INV-049), and header
+# allowances or charges (INV-050 through INV-052).
 PYTHONPATH=src python3 -m einvoice_preflight examples/valid-invoice.json
 PYTHONPATH=src python3 -m einvoice_preflight examples/valid-credit-note.json
 PYTHONPATH=src python3 -m einvoice_preflight examples/valid-mixed-rate.json
@@ -90,8 +91,9 @@ arithmetic check, not a tax-law determination:
   "supplier": {"id": "DE123", "name": "Supplier GmbH", "vat_id": "DE136695976", "endpoint": {"scheme": "0088", "id": "1234567890128"}},
   "customer": {"id": "DE456", "name": "Customer GmbH", "endpoint": {"scheme": "EM", "id": "ap@customer.example"}},
   "payment": {"means": "30", "iban": "DE89370400440532013000", "bic": "COBADEFFXXX", "remittance": "RF18539007547034"},
+  "adjustments": [{"kind": "allowance", "amount": 20, "base": 200, "percent": 10, "reason": "Early payment discount"}],
   "lines": [{"description": "Consulting", "quantity": 2, "unit_price": 100, "tax_percent": 19, "net": 200}],
-  "totals": {"net": 200, "tax": 38, "gross": 238, "prepaid": 38, "due": 200}
+  "totals": {"net": 180, "tax": 38, "gross": 218, "prepaid": 38, "due": 180}
 }
 ```
 
@@ -211,6 +213,23 @@ never repeat the typed reference. This is a shape and consistency check,
 not a Peppol profile determination and not a claim that the buyer issued
 that order. UBL `BuyerReference` maps into `buyer_reference` and
 `OrderReference/ID` maps into `order_reference`.
+
+`adjustments` is optional (EN 16931 BT-92 / BT-99). When supplied it is a
+list of document-level allowances and charges: `{ "kind": "allowance" |
+"charge", "amount": <money>, "base": <money>, "percent": <0-100>,
+"reason": "<text>", "reason_code": "<code>" }`. An empty list, a
+non-list, a missing kind, or a missing or negative amount is `INV-050`.
+When both `percent` and `base` are present, an amount that does not
+equal the percentage of the base (rounded to cents) is `INV-051`. A
+missing, empty, or placeholder reason (and reason code) is `INV-052`.
+Omitted adjustments stay clean. Invoice net then equals line nets minus
+allowances plus charges (`INV-014`). Messages never repeat the amount,
+percent, or reason. This is arithmetic and shape, not a Peppol profile
+determination and not a claim that the discount is commercially
+correct. UBL invoice-level `AllowanceCharge` maps into `adjustments`
+(`ChargeIndicator`, `Amount`, `BaseAmount`, `MultiplierFactorNumeric`,
+`AllowanceChargeReason`, `AllowanceChargeReasonCode`). Line-level
+`AllowanceCharge` is ignored.
 
 `period` is optional. When supplied it is `{ "start": "YYYY-MM-DD", "end":
 "YYYY-MM-DD" }` — the EN 16931 invoice period (BT-73 / BT-74). A period that
