@@ -558,6 +558,271 @@ export function twoDayNote(comparison) {
   return comparison.summary;
 }
 
+function flag(value, name, fallback) {
+  if (value === undefined || value === null || value === "") return fallback;
+  if (typeof value === "boolean") return value;
+  const normalized = String(value).trim().toLowerCase();
+  if (["1", "true", "yes", "on"].includes(normalized)) return true;
+  if (["0", "false", "no", "off"].includes(normalized)) return false;
+  throw new Error(`${name} must be true or false`);
+}
+
+function returnsPath({
+  id,
+  label,
+  completedProfit,
+  returnLeftover,
+  expectedProfit,
+  monthlyProfit,
+}) {
+  return {
+    id,
+    label,
+    completedProfit,
+    returnLeftover,
+    expectedProfit,
+    monthlyProfit,
+  };
+}
+
+function returnsSummary({
+  winner,
+  wfs,
+  seller,
+  extraWfsVsSeller,
+  monthlyExtraOnWfs,
+  monthlyUnits,
+  returnRatePct,
+  breakEvenReturnPct,
+  completedWinner,
+}) {
+  const wfsKeep = moneyLabel(wfs.expectedProfit);
+  const sellerKeep = moneyLabel(seller.expectedProfit);
+  const gap = moneyLabel(Math.abs(extraWfsVsSeller));
+  const monthGap = moneyLabel(Math.abs(monthlyExtraOnWfs));
+  const volume = `${monthlyUnits} unit${monthlyUnits === 1 ? "" : "s"}`;
+  const rate = `${returnRatePct.toFixed(1)}%`;
+  const floor = Number.isFinite(breakEvenReturnPct)
+    ? `${breakEvenReturnPct.toFixed(1)}%`
+    : "an unreachable return rate";
+  const completedLine = completedWinner === winner
+    ? ""
+    : completedWinner === "wfs"
+      ? " Completed-sale leftover prefers WFS; returns flip the mix."
+      : completedWinner === "seller"
+        ? " Completed-sale leftover prefers seller fulfilled; returns flip the mix."
+        : "";
+
+  if (winner === "wfs") {
+    return (
+      `After a ${rate} return mix, WFS keeps ${gap} more per unit than seller fulfilled ` +
+      `(${wfsKeep} vs ${sellerKeep}), ${monthGap} on ${volume}. ` +
+      `Seller fulfilled matches if returns fall to about ${floor}.${completedLine}`
+    );
+  }
+  if (winner === "seller") {
+    return (
+      `After a ${rate} return mix, seller fulfilled keeps ${gap} more per unit than WFS ` +
+      `(${sellerKeep} vs ${wfsKeep}), ${monthGap} on ${volume}. ` +
+      `WFS matches if returns rise to about ${floor}.${completedLine}`
+    );
+  }
+  return `WFS and seller fulfilled leave the same expected leftover after a ${rate} return mix.`;
+}
+
+// Walmart's completed-sale WFS vs seller table assumes the order sticks.
+// Returns do not: WFS usually keeps the pick fee and adds a return-
+// processing charge; seller fulfilled already spent the outbound label
+// and buys a return label plus restock time. Unsellable returns also
+// leave cost of goods on the table. Complementary to the completed-sale
+// table and to 2-day take (Buy Box win vs miss, not a refund). Defaults
+// are illustrative — overwrite the rate, WFS return fee, and return
+// label from Seller Center.
+export const RETURNS_DEFAULTS = {
+  returnRatePct: 8,
+  wfsReturnFee: 2.5,
+  sellerReturnLabel: 5.5,
+  restockMinutes: 8,
+  restockHourlyWage: 18,
+  unsellableReturnPct: 25,
+  referralRefunded: true,
+  fulfillmentRefunded: false,
+};
+
+/**
+ * Same listing, two leftover mixes after returns: WFS (pick fee +
+ * return processing) vs seller fulfilled (outbound label + return
+ * label + restock time). Expected leftover is
+ * (1 − return%) × completed profit + return% × return leftover.
+ * Unsellable returns also keep cost of goods in the return leftover.
+ */
+export function compareReturns(input = {}) {
+  const returnRatePct = takePercent(
+    input.returnRatePct,
+    "Return rate",
+    RETURNS_DEFAULTS.returnRatePct,
+  );
+  const wfsReturnFee = number(
+    input.wfsReturnFee,
+    "WFS return fee",
+    RETURNS_DEFAULTS.wfsReturnFee,
+  );
+  const sellerReturnLabel = number(
+    input.sellerReturnLabel,
+    "Seller return label",
+    RETURNS_DEFAULTS.sellerReturnLabel,
+  );
+  const restockMinutes = number(
+    input.restockMinutes,
+    "Restock minutes",
+    RETURNS_DEFAULTS.restockMinutes,
+  );
+  const restockHourlyWage = number(
+    input.restockHourlyWage,
+    "Restock hourly wage",
+    RETURNS_DEFAULTS.restockHourlyWage,
+  );
+  const unsellableReturnPct = takePercent(
+    input.unsellableReturnPct,
+    "Unsellable return percent",
+    RETURNS_DEFAULTS.unsellableReturnPct,
+  );
+  const referralRefunded = flag(
+    input.referralRefunded,
+    "Referral refunded",
+    RETURNS_DEFAULTS.referralRefunded,
+  );
+  const fulfillmentRefunded = flag(
+    input.fulfillmentRefunded,
+    "Fulfillment refunded",
+    RETURNS_DEFAULTS.fulfillmentRefunded,
+  );
+  const monthlyUnits = number(input.monthlyUnits, "Monthly units", 60);
+  if (monthlyUnits === 0) throw new Error("Monthly units must be greater than zero");
+
+  const listing = calculateListing(input);
+  const costOfGoods = number(input.costOfGoods, "Cost of goods");
+  const restockLabor = (restockMinutes / 60) * restockHourlyWage;
+  const unsellableFrac = unsellableReturnPct / 100;
+  const returnFrac = returnRatePct / 100;
+  const keptFrac = 1 - returnFrac;
+
+  const wfsSunk = listing.wfs.cashInvested - costOfGoods
+    + (fulfillmentRefunded ? 0 : listing.fulfillmentFee)
+    + (referralRefunded ? 0 : listing.referral);
+  const sellerSunk = listing.seller.cashInvested - costOfGoods
+    + (referralRefunded ? 0 : listing.referral);
+  const wfsRestockable = -wfsSunk - wfsReturnFee;
+  const sellerRestockable = -sellerSunk - sellerReturnLabel - restockLabor;
+  const wfsReturnLeftover = wfsRestockable - unsellableFrac * costOfGoods;
+  const sellerReturnLeftover = sellerRestockable - unsellableFrac * costOfGoods;
+
+  const wfsCompleted = listing.wfs.profit;
+  const sellerCompleted = listing.seller.profit;
+  const wfsExpected = keptFrac * wfsCompleted + returnFrac * wfsReturnLeftover;
+  const sellerExpected = keptFrac * sellerCompleted + returnFrac * sellerReturnLeftover;
+  const wfsMonthly = wfsExpected * monthlyUnits;
+  const sellerMonthly = sellerExpected * monthlyUnits;
+  const extraWfsVsSeller = wfsExpected - sellerExpected;
+  const monthlyExtraOnWfs = extraWfsVsSeller * monthlyUnits;
+
+  const wfs = returnsPath({
+    id: "wfs",
+    label: "WFS after returns",
+    completedProfit: wfsCompleted,
+    returnLeftover: wfsReturnLeftover,
+    expectedProfit: wfsExpected,
+    monthlyProfit: wfsMonthly,
+  });
+  const seller = returnsPath({
+    id: "seller",
+    label: "Seller fulfilled after returns",
+    completedProfit: sellerCompleted,
+    returnLeftover: sellerReturnLeftover,
+    expectedProfit: sellerExpected,
+    monthlyProfit: sellerMonthly,
+  });
+
+  const rows = [wfs, seller].map((row) => ({
+    ...row,
+    vsSeller: row.expectedProfit - sellerExpected,
+  }));
+
+  const bestExpected = Math.max(wfsExpected, sellerExpected);
+  const leaders = [
+    { id: "wfs", value: wfsExpected },
+    { id: "seller", value: sellerExpected },
+  ].filter((row) => Math.abs(row.value - bestExpected) <= 1e-9);
+  const winner = leaders.length === 1 ? leaders[0].id : "tie";
+
+  const completedGap = wfsCompleted - sellerCompleted;
+  const completedWinner = completedGap > 1e-9
+    ? "wfs"
+    : completedGap < -1e-9
+      ? "seller"
+      : "tie";
+
+  // (1-r)Pw + r Rw = (1-r)Ps + r Rs  →  r = (Pw-Ps) / ((Pw-Rw)-(Ps-Rs))
+  const denom = (wfsCompleted - wfsReturnLeftover) - (sellerCompleted - sellerReturnLeftover);
+  let breakEvenReturnPct = Infinity;
+  if (Math.abs(denom) > 1e-12) {
+    const raw = ((wfsCompleted - sellerCompleted) / denom) * 100;
+    if (raw >= -1e-9 && raw <= 100 + 1e-9) {
+      breakEvenReturnPct = Math.max(0, Math.min(100, raw));
+    }
+  }
+
+  let breakEvenWfsReturnFee = Infinity;
+  if (returnFrac > 1e-12) {
+    const neededReturn = (sellerExpected - keptFrac * wfsCompleted) / returnFrac;
+    breakEvenWfsReturnFee = wfsRestockable - unsellableFrac * costOfGoods - neededReturn;
+    if (!Number.isFinite(breakEvenWfsReturnFee)) breakEvenWfsReturnFee = Infinity;
+  }
+
+  return {
+    rows,
+    wfs: rows[0],
+    seller: rows[1],
+    winner,
+    completedWinner,
+    monthlyUnits,
+    returnRatePct,
+    wfsReturnFee,
+    sellerReturnLabel,
+    restockMinutes,
+    restockHourlyWage,
+    restockLabor,
+    unsellableReturnPct,
+    referralRefunded,
+    fulfillmentRefunded,
+    extraWfsVsSeller,
+    monthlyExtraOnWfs,
+    breakEvenReturnPct,
+    breakEvenWfsReturnFee,
+    sizeTier: listing.sizeTier,
+    sizeTierLabel: listing.sizeTierLabel,
+    fulfillmentFee: listing.fulfillmentFee,
+    summary: returnsSummary({
+      winner,
+      wfs: rows[0],
+      seller: rows[1],
+      extraWfsVsSeller,
+      monthlyExtraOnWfs,
+      monthlyUnits,
+      returnRatePct,
+      breakEvenReturnPct,
+      completedWinner,
+    }),
+  };
+}
+
+export function returnsNote(comparison) {
+  if (!comparison?.wfs || !comparison?.seller) {
+    throw new Error("Returns comparison is missing rows");
+  }
+  return comparison.summary;
+}
+
 export function calculateListing(input) {
   const salePrice = number(input.salePrice, "Sale price");
   const listed = listingAtPrice(input, salePrice);
