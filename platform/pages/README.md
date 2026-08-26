@@ -82,6 +82,40 @@ origin root is read), and `node_modules`. `LICENSE` files are kept.
   open branch. Markup is scoped under `.pf-chrome` so it cannot restyle a
   venture's page, and the pass is idempotent.
 
+## Offline and installable
+
+The people these tools are for are often somewhere with no signal at the moment
+they need the number: a contractor measuring in a crawl space, a seller in a
+warehouse aisle, a driver at a dock. Every tool is already pure client-side
+arithmetic, so the only thing between that user and an answer is fetching the
+page — which is what `offline.mjs` removes.
+
+The build emits a service worker, a web app manifest, PNG icons, and an
+`offline.html` fallback, and wires every published page to them. Two behaviours:
+
+1. **Anything opened once opens again offline**, automatically, including its
+   modules — the worker caches each same-origin GET as it is served.
+2. **"Save all tools for offline"** on the hub fetches every tool's entry page
+   and modules up front (~3 MB), for someone who knows they are about to lose
+   signal. It is a button, never automatic: nobody's mobile data gets spent
+   without them asking.
+
+A page not saved and not previously opened falls back to `offline.html`, which
+says so plainly and links back to the hub.
+
+**Staleness is bounded by construction.** The cache name carries a SHA-256 of
+the built site, so a deploy lands in a *new* cache and `activate` deletes every
+older one. A visitor is at most one navigation behind and never mixes files from
+two builds. The worker itself is never served from cache, so the browser's
+update check always sees the real file.
+
+Registration is progressive enhancement: with no service worker support, or a
+rejected registration (private mode), every page behaves exactly as before, and
+the offline widget stays hidden rather than appearing and failing.
+
+Nothing about this sends anything anywhere. The worker only touches same-origin
+GETs; the hub's counting is still `localStorage`-only.
+
 ## Deploying
 
 `.github/workflows/portfolio-pages.yml` builds and tests on every push to `main`
@@ -115,6 +149,17 @@ let the workflow republish, or re-run an earlier successful run of
 `Portfolio Pages` from the Actions tab. To take the site down entirely, set
 `GITHUB_PAGES_ENABLED` to anything other than `true`.
 
+**Rolling back the service worker needs its own lever.** A worker lives on the
+visitor's device and keeps answering there, so reverting the commit does not
+take it back — and taking the site down leaves each visitor on their last cached
+copy. Build with `PAGES_DISABLE_SW=1` and deploy: the published `sw.js` is then
+one whose only job is to delete every cache, unregister itself, and reload the
+page. Each visitor is cleaned up on their next visit.
+
+```
+PAGES_DISABLE_SW=1 node platform/pages/build.mjs --out=dist
+```
+
 ## Privacy and terms
 
 Every published tool runs entirely in the visitor's browser; nothing they type
@@ -129,6 +174,10 @@ visitor follows the nav. Until then the hub was the only page that counted
 anything, so a visitor arriving from search straight at a deep SEO page — the
 traffic those pages exist for — was invisible. Nothing is transmitted: there is
 no `fetch`, no beacon, and the counts never leave the device.
+
+The offline cache is the visitor's own browser storage: pages and scripts this
+site served them, held on their device, cleared by clearing site data. No
+personal data is stored, and nothing cached is ever sent anywhere.
 
 The hub carries the no-warranty and no-SLA copy from `PRODUCT_PLAYBOOK.md` §5b,
 required on every hosted surface, plus an optional GitHub Sponsors link that

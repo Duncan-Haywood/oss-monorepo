@@ -47,6 +47,26 @@ products:
           visitor's own browser, aggregate, opt-out, and not counted at all
           under Do Not Track or Global Privacy Control. Baseline row: still
           zero, because the owner flip has not happened.
+      - as_of: 2026-08-26
+        signals:
+          live_url_visitors: null
+          hub_visited: 0
+          tool_opened: 0
+          offline_offer_shown: 0
+          offline_saved: 0
+          tools_published: 38
+        note: >-
+          Added an offline layer: a service worker, a web app manifest and
+          icons, an offline fallback, and a "Save all tools for offline"
+          button on the hub. Every tool is already pure client-side
+          arithmetic, so a contractor in a crawl space or a seller in a
+          warehouse aisle was blocked only on fetching the page. The signal to
+          read once live is `offline_saved / offline_offer_shown` — whether
+          this audience actually takes an explicit ~3 MB offer — alongside
+          repeat visits, which is where an installed tool should show up
+          first. Counted locally through the same opt-out, DNT/GPC-respecting
+          path as every other hub event; the cache is the visitor's own
+          browser storage and is never read back by anyone. Baseline row.
   - slug: walmart-marketplace-calculator
     surface: static-page-in-repo
     readings:
