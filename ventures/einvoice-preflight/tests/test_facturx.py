@@ -12,8 +12,11 @@ from einvoice_preflight.cli import main
 from einvoice_preflight.facturx import (
     EmbeddedInvoiceError,
     build_pdf_with_attachment,
+    envelope_note,
+    extract_embedded_invoice,
     extract_embedded_invoice_xml,
     looks_like_pdf,
+    safe_attachment_label,
 )
 from einvoice_preflight.formats import DocumentError, parse_bytes, parse_cii_invoice
 
@@ -90,3 +93,26 @@ class FacturxCliTest(unittest.TestCase):
     def test_shipped_example_is_clean(self) -> None:
         invoice = parse_cii_invoice(extract_embedded_invoice_xml(PDF.read_bytes()))
         self.assertEqual(check_invoice(invoice), [])
+
+    def test_safe_attachment_label_does_not_echo_custom_names(self) -> None:
+        self.assertEqual(safe_attachment_label("factur-x.xml"), "factur-x.xml")
+        self.assertEqual(safe_attachment_label("XRECHNUNG.XML"), "xrechnung.xml")
+        self.assertEqual(safe_attachment_label("notes.txt"), "embedded invoice XML")
+        self.assertEqual(safe_attachment_label("=cmd|calc"), "embedded invoice XML")
+
+    def test_extract_returns_the_standard_label(self) -> None:
+        payload, label = extract_embedded_invoice(PDF.read_bytes())
+        self.assertEqual(label, "factur-x.xml")
+        self.assertIn(b"CrossIndustryInvoice", payload)
+        self.assertEqual(envelope_note(label, "cii"), "Unwrapped factur-x.xml (CII) from the PDF.")
+
+    def test_cli_summary_names_the_unwrapped_attachment(self) -> None:
+        from io import StringIO
+        import contextlib
+
+        buffer = StringIO()
+        with contextlib.redirect_stdout(buffer):
+            code = main([str(PDF), "--format", "summary"])
+        self.assertEqual(code, 0)
+        self.assertIn("Unwrapped factur-x.xml (CII) from the PDF.", buffer.getvalue())
+        self.assertNotIn("notes.txt", buffer.getvalue())

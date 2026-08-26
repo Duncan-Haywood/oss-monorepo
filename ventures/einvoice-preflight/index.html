@@ -158,7 +158,9 @@
       (INV-044 through INV-046), optional buyer or purchase-order
       references (INV-047 through INV-049), and optional header
       allowances or charges (INV-050 through INV-052).
-      UBL XML, UN/CEFACT CII, and Factur-X / ZUGFeRD PDFs (the embedded XML) are mapped into that shape. UBL mapping includes CreditNote,
+      UBL XML, UN/CEFACT CII, and Factur-X / ZUGFeRD PDFs (the embedded XML) are mapped into that shape.
+      A PDF result says <code>Unwrapped factur-x.xml (CII) from the PDF</code>
+      when the standard attachment was opened; custom attachment names are not shown. UBL mapping includes CreditNote,
       BillingReference, payee account, branch,
       PaymentID, PaymentMeansCode, TaxExemptionReason, TaxSubtotal, EndpointID, InvoicePeriod, BuyerReference, OrderReference, and invoice-level AllowanceCharge. It is <strong>not</strong>
       a Peppol, EN 16931, or tax-law validator and it does not submit anything.
@@ -335,13 +337,16 @@
       ].map(([value, label]) => `<div class="metric"><strong>${value}</strong><span>${label}</span></div>`).join("");
 
       const articles = result.reports.map((report) => {
+        const envelope = report.envelope
+          ? `<p class="note">${escapeHtml(report.envelope)}</p>`
+          : "";
         if (!report.errors.length) {
-          return `<article><h3><code>${escapeHtml(report.file)}</code></h3><p class="pass">PASS — no supported defects found.</p></article>`;
+          return `<article><h3><code>${escapeHtml(report.file)}</code></h3>${envelope}<p class="pass">PASS — no supported defects found.</p></article>`;
         }
         const findings = report.errors.map((error) => (
           `<div class="finding"><strong>${escapeHtml(error.rule)}</strong> at <code>${escapeHtml(error.path || "/")}</code><br>${escapeHtml(error.message)}<br><span class="fix">Fix: ${escapeHtml(error.fix)}</span></div>`
         )).join("");
-        return `<article><h3><code>${escapeHtml(report.file)}</code></h3><p class="fail">FAIL</p>${findings}</article>`;
+        return `<article><h3><code>${escapeHtml(report.file)}</code></h3>${envelope}<p class="fail">FAIL</p>${findings}</article>`;
       });
       const read = result.readErrors.length
         ? `<article><h3>Read errors</h3>${result.readErrors.map((error) => `<p class="error"><code>${escapeHtml(error.file)}</code>: ${escapeHtml(error.error)}</p>`).join("")}</article>`

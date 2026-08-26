@@ -35,6 +35,8 @@ test("browser page is discoverable and names the user job", () => {
   assert.match(page, /Factur-X \/ ZUGFeRD \/ XRechnung PDF with an embedded invoice/);
   assert.match(page, /accept="[^"]*\.pdf/);
   assert.match(page, /arrayBuffer\(\)/);
+  assert.match(page, /report\.envelope/);
+  assert.match(page, /Unwrapped factur-x\.xml \(CII\) from the PDF/);
 });
 
 test("disclaimer and optional sponsors are visible", () => {

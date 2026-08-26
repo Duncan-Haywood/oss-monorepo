@@ -17,7 +17,12 @@ from xml.sax.saxutils import escape, quoteattr
 import fcntl
 
 from .checks import check_invoice
-from .facturx import EmbeddedInvoiceError, extract_embedded_invoice_xml, looks_like_pdf
+from .facturx import (
+    EmbeddedInvoiceError,
+    envelope_note,
+    extract_embedded_invoice,
+    looks_like_pdf,
+)
 from .formats import DocumentError, detect_syntax, parse_cii_invoice
 from .ubl import parse_ubl_invoice
 
@@ -339,6 +344,7 @@ def _jsonl_report(
 def _summary_report(
     reports: list[tuple[Path, list[dict[str, str]]]],
     read_errors: list[dict[str, str]],
+    envelopes: dict[str, str] | None = None,
 ) -> str:
     """Build a compact, privacy-safe batch summary for CI logs."""
     findings = [error for _, errors in reports for error in errors]
@@ -355,6 +361,8 @@ def _summary_report(
     ]
     if rule_counts:
         lines.append("Rules: " + ", ".join(f"{rule}={count}" for rule, count in sorted(rule_counts.items())))
+    for path, note in (envelopes or {}).items():
+        lines.append(f"{path}: {note}")
     return "\n".join(lines) + "\n"
 
 
@@ -632,6 +640,7 @@ def main(argv: list[str] | None = None) -> int:
     reports: list[tuple[Path, list[dict[str, str]]]] = []
     invoices: list[tuple[Path, Any]] = []
     read_errors: list[dict[str, str]] = []
+    envelopes: dict[str, str] = {}
     if str(args.invoice) == "-":
         stdin = getattr(sys.stdin, "buffer", sys.stdin)
         try:
@@ -682,7 +691,12 @@ def main(argv: list[str] | None = None) -> int:
         try:
             raw = source if source is not None else _read_file_limited(invoice_path, args.max_bytes)
             if looks_like_pdf(raw):
-                raw = extract_embedded_invoice_xml(raw)
+                raw, label = extract_embedded_invoice(raw)
+                try:
+                    syntax = detect_syntax(raw)
+                except DocumentError:
+                    syntax = "ubl"
+                envelopes[report_path.as_posix()] = envelope_note(label, syntax)
             is_xml = report_path.suffix.lower() in {".xml", ".pdf"} or raw.lstrip().startswith(b"<")
             if is_xml:
                 try:
@@ -709,7 +723,7 @@ def main(argv: list[str] | None = None) -> int:
     if args.format == "json":
         report = json.dumps(_json_report(reports, read_errors), indent=2) + "\n"
     elif args.format == "summary":
-        report = _summary_report(reports, read_errors)
+        report = _summary_report(reports, read_errors, envelopes)
     elif args.format == "jsonl":
         report = _jsonl_report(reports, read_errors)
     elif args.format == "remediation":

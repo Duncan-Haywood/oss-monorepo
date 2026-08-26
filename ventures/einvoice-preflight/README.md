@@ -12,6 +12,9 @@ for missing fields and arithmetic mistakes, then prints rule IDs and
 plain-language fixes. It is aimed at bookkeepers and ERP integrators
 searching for an e-invoice preflight check. CII is the XML an ERP actually
 emits when it is not UBL; a Factur-X PDF is only the envelope around that XML.
+When a PDF unwraps, the result names the standard attachment
+(`factur-x.xml`, `zugferd-invoice.xml`, or `xrechnung.xml`) and the syntax
+(CII or UBL). Custom attachment names are not echoed.
 
 ```sh
 cd ventures/einvoice-preflight
