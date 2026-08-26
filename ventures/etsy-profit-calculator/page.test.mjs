@@ -480,3 +480,9 @@ test('the Etsy-labels SEO page uses the same worked examples the calculator defa
   assert.ok(labelsSeo.includes(money(ads.etsy.expectedProfit)), `missing ads Etsy ${money(ads.etsy.expectedProfit)}`);
   assert.ok(labelsSeo.includes(money(ads.third.expectedProfit)), `missing ads third ${money(ads.third.expectedProfit)}`);
 });
+
+test('Copy order summary is wired to the calculated result', () => {
+  assert.match(html, /id="copySummary"/);
+  assert.match(scriptSource, /formatOrderSummary/);
+  assert.match(scriptSource, /summary_copied/);
+});

@@ -24,6 +24,10 @@ visit, so the calculator keeps them:
   filled in, or send it to a partner or bookkeeper — opening the link shows
   exactly the numbers you configured. A link's values always take precedence
   over whatever a browser had saved.
+- **Copyable order summary.** **Copy order summary** writes a plain-text
+  fee breakdown — revenue, each fee line, cash invested, leftover, margin,
+  return on cash, and the target-margin price — so you can paste it into a
+  note or a buyer conversation without screenshotting the page.
 
 The link and the saved copy contain only the numbers you typed into the fee and
 cost fields. They never include anything else, and nothing is uploaded.
