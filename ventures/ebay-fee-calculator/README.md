@@ -6,8 +6,9 @@ and international fees, shipping, packaging, and — the part generic fee
 calculators leave out — **what you paid to source the item**. From that it
 reports net profit, margin, return on your invested cash (ROI), and the lowest
 resale price that still breaks even. Set a target net margin to get the listing
-price required to reach it, which makes the calculator useful for repricing as
-well as sourcing.
+price required to reach it, and the maximum item cost that still preserves that
+margin at the current sale price. That pair is useful for both repricing and
+sourcing.
 Enter multiple units to see total batch economics and profit per unit without
 repeating the calculation. The fixed fee is charged once per order, while
 product and fulfilment costs scale per unit. Break-even and target-margin prices
@@ -402,6 +403,7 @@ browser; it never records the inputs. Turn it off with the checkbox in the
 footer, or your browser's Do Not Track / Global Privacy Control setting.
 
 The counted events are `order_profit_calculated`, `target_margin_calculated`,
+`max_acquisition_cost_calculated`,
 `sourcing_ceiling_calculated`, `batch_calculated`, `return_rate_viewed`, `listing_format_compared`,
 `partial_refund_compared`, `authenticity_compared`,
 `local_pickup_compared`, `lot_vs_singles_compared`,

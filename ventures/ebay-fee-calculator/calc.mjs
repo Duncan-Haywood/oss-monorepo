@@ -276,6 +276,19 @@ export function calculateOrder(input) {
     targetMarginPrice: targetRevenueDenominator <= 0
       ? Infinity
       : Math.max(0, fixedCash / targetRevenueDenominator - shippingCharged),
+    // Inverse of targetMarginPrice: highest item cost that still hits the
+    // requested net margin at the current sale price. Distinct from
+    // calculateSourcingCeiling, which solves for a target ROI.
+    maxCostOfGoods: targetRevenueDenominator <= 0
+      ? 0
+      : Math.max(
+        0,
+        (price + shippingCharged) * targetRevenueDenominator
+          - fixedFee / quantity
+          - shippingCost
+          - packagingCost
+          - otherCost,
+      ),
     returnRatePercent,
     returnShippingCost,
     feeRefundOnReturnPercent,

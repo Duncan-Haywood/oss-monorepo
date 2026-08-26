@@ -21,6 +21,12 @@ test('the result panel shows a sourcing ceiling for the typed target ROI', () =>
   assert.match(page, /sourcing_ceiling_calculated/);
 });
 
+test('the result panel shows the maximum item cost at the typed target margin', () => {
+  assert.match(page, /id="maxCostOfGoods"/);
+  assert.match(page, /maxCostOfGoods/);
+  assert.match(page, /max_acquisition_cost_calculated/);
+});
+
 test('the result panel shows expected profit after returns', () => {
   assert.match(page, /id="expectedProfit"/);
   assert.match(page, /id="cashEatenPerReturn"/);
