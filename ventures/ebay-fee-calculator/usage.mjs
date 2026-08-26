@@ -11,9 +11,21 @@ function honorsBrowserSignal() {
 
 export function recordUsage(storage = globalThis.localStorage, optedOut = false, event = 'order_profit_calculated') {
   if (optedOut || !storage || honorsBrowserSignal()) return;
-  const today = new Date().toISOString().slice(0, 10);
-  const current = JSON.parse(storage.getItem('ebay-fee-usage') || '{}');
-  current[event] = (current[event] || 0) + 1;
-  current.last_day = today;
-  storage.setItem('ebay-fee-usage', JSON.stringify(current));
+  // Usage is optional telemetry. A blocked, full, or stale storage value must
+  // never make the calculator's input handlers fail.
+  try {
+    const today = new Date().toISOString().slice(0, 10);
+    let current = {};
+    try {
+      current = JSON.parse(storage.getItem('ebay-fee-usage') || '{}');
+      if (!current || typeof current !== 'object' || Array.isArray(current)) current = {};
+    } catch {
+      current = {};
+    }
+    current[event] = (Number.isFinite(current[event]) ? current[event] : 0) + 1;
+    current.last_day = today;
+    storage.setItem('ebay-fee-usage', JSON.stringify(current));
+  } catch {
+    // Private browsing and storage quotas are normal browser conditions.
+  }
 }

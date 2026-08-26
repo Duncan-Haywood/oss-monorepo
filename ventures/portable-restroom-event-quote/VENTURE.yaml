@@ -1,0 +1,32 @@
+name: portable-restroom-event-quote
+description: A private browser calculator for portable sanitation yards that prices a porta potty / portable restroom event rental from days on site, pump-out visits, and two truck round trips — not a Saturday headcount special — and shows the walk-away price, the price per unit-day, and an optional starting fleet estimate from attendance.
+stage: prototype
+owner: duncan
+hypotheses:
+  - claim: Portable sanitation yards will use a days-on-site plus two-round-trip quote calculator because the Saturday-special unit price their customers ask for cannot see Friday drop, Sunday pickup, extra pump-outs, or four-times-one-way mileage, which is how a job that looked profitable turns out not to be.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: The walk-away price and the price per unit-day are the two numbers a yard actually decides on when a promoter asks them to match a Saturday special, more than the unit count itself.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: An optional attendance-based fleet estimate is useful as a starting point and a light-fleet flag, and will not be mistaken for a health-code determination if it is labelled as planning arithmetic.
+    status: untested
+    checked: null
+    evidence: customer-contact
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+budget:
+  monthly_cap: 1
+  protected: true
+kill_criteria:
+  - Fewer than three qualified portable sanitation operators use the calculator twice within 90 days.
+  - Operators report that pricing days, pump-outs, and miles separately is more work than their existing Saturday-special without changing the price they would have quoted.
+  - The starting fleet estimate is treated as a code table often enough that the disclaimer does not contain the liability.
+links:
+  production: null
+  analytics: null
