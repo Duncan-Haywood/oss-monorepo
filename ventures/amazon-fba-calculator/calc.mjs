@@ -433,8 +433,34 @@ export function calculateListing(input) {
     costOfGoods,
   );
 
-  const selected = fulfillmentMethod === "fba" ? fba : fbm;
-  const fbaAdvantage = fba.profit - fbm.profit;
+  const returnRatePct = number(input.returnRate, "Return rate");
+  const unsellableReturnPct = number(input.unsellableReturnRate, "Unsellable return rate");
+  const returnHandlingFee = number(input.returnHandlingFee, "Return handling fee");
+  if (returnRatePct > 100) throw new Error("Return rate cannot exceed 100%");
+  if (unsellableReturnPct > 100) throw new Error("Unsellable return rate cannot exceed 100%");
+
+  const returnRate = returnRatePct / 100;
+  const unsellableRate = unsellableReturnPct / 100;
+  const returnAssumptions = {
+    salePrice,
+    percentRate,
+    targetMarginRate,
+    costOfGoods,
+    returnRate,
+    returnHandlingFee,
+    unsellableRate,
+  };
+  const fbaAfterReturns = withExpectedReturns(fba, {
+    ...returnAssumptions,
+    fulfillmentFee,
+  });
+  const fbmAfterReturns = withExpectedReturns(fbm, {
+    ...returnAssumptions,
+    fulfillmentFee: 0,
+  });
+
+  const selected = fulfillmentMethod === "fba" ? fbaAfterReturns : fbmAfterReturns;
+  const fbaAdvantage = fbaAfterReturns.profit - fbmAfterReturns.profit;
   return {
     salePrice,
     sizeTier,
@@ -445,12 +471,159 @@ export function calculateListing(input) {
     suggestedFulfillment,
     fulfillmentFee,
     fulfillmentMethod,
+    returnRate: returnRatePct,
+    unsellableReturnRate: unsellableReturnPct,
+    returnHandlingFee,
     selected,
-    fba,
-    fbm,
+    fba: fbaAfterReturns,
+    fbm: fbmAfterReturns,
     fbaAdvantage,
     cheaperPath: fbaAdvantage > 0 ? "fba" : fbaAdvantage < 0 ? "fbm" : "tie",
   };
+}
+
+// Expected unit economics after a share of orders come back. A successful
+// sale keeps the current path result. A return refunds the sale and the
+// referral (Amazon typically does), keeps the outbound fulfillment or FBM
+// label, adds return handling, and recovers cost of goods only when the
+// unit can be sold again. Storage, inbound, prep, ads, and the allocated
+// plan fee stay spent either way. Ported from #1492 onto current main so
+// the unique return mix is not lost behind a conflicted rebase.
+function withExpectedReturns(path, {
+  salePrice,
+  percentRate,
+  targetMarginRate,
+  costOfGoods,
+  fulfillmentFee,
+  returnRate,
+  returnHandlingFee,
+  unsellableRate,
+}) {
+  const cashExcludingCogs = path.cashInvested - costOfGoods;
+  const keepShare = 1 - returnRate;
+  const cogsFactor = 1 - returnRate * (1 - unsellableRate);
+  const profitBeforeReturns = path.profit;
+  const expectedProfit =
+    keepShare * salePrice * (1 - percentRate)
+    - fulfillmentFee
+    - cashExcludingCogs
+    - returnRate * returnHandlingFee
+    - costOfGoods * cogsFactor;
+  const expectedRevenue = keepShare * salePrice;
+  const expectedFeeTotal =
+    keepShare * path.fees.referral + fulfillmentFee + returnRate * returnHandlingFee;
+  const recoveredFixed =
+    fulfillmentFee + cashExcludingCogs + returnRate * returnHandlingFee + costOfGoods * cogsFactor;
+  const breakEvenDenom = keepShare * (1 - percentRate);
+  const targetDenom = keepShare * (1 - percentRate - targetMarginRate);
+  const maxBuyNumerator =
+    keepShare * salePrice * (1 - percentRate)
+    - fulfillmentFee
+    - cashExcludingCogs
+    - returnRate * returnHandlingFee;
+  const stayValue =
+    salePrice * (1 - percentRate) + returnHandlingFee - costOfGoods * (1 - unsellableRate);
+  let breakEvenReturnRate = null;
+  if (profitBeforeReturns <= 0) {
+    breakEvenReturnRate = 0;
+  } else if (stayValue > 0) {
+    breakEvenReturnRate = Math.min(1, profitBeforeReturns / stayValue);
+  }
+
+  return {
+    ...path,
+    fees: { ...path.fees, returnHandling: returnRate * returnHandlingFee },
+    feeTotal: expectedFeeTotal,
+    profitBeforeReturns,
+    profit: expectedProfit,
+    costs: expectedFeeTotal + cashExcludingCogs + costOfGoods * cogsFactor,
+    margin: expectedRevenue === 0 ? 0 : (expectedProfit / expectedRevenue) * 100,
+    roi: path.cashInvested === 0 ? null : (expectedProfit / path.cashInvested) * 100,
+    breakEvenPrice: breakEvenDenom <= 0 ? Infinity : Math.max(0, recoveredFixed / breakEvenDenom),
+    targetMarginPrice: targetDenom <= 0 ? Infinity : Math.max(0, recoveredFixed / targetDenom),
+    breakEvenBuyCost: cogsFactor <= 0
+      ? (maxBuyNumerator >= 0 ? Infinity : 0)
+      : Math.max(0, maxBuyNumerator / cogsFactor),
+    expectedRevenue,
+    returnDrag: profitBeforeReturns - expectedProfit,
+    breakEvenReturnRate,
+  };
+}
+
+export const RETURN_RATE_PRESETS = [0, 8, 15, 22];
+
+/**
+ * Sweep the same listing across typical return rates plus the typed rate.
+ * Zero returns is always on the table so the seller can see the drag, not
+ * only the mixed number. Complementary to #1492's mix — this table is the
+ * "what rate still leaves a profit" view.
+ */
+export function compareReturns(input) {
+  const typedRate = number(input.returnRate, "Return rate");
+  const handling = number(input.returnHandlingFee, "Return handling fee");
+  const unsellable = number(input.unsellableReturnRate, "Unsellable return rate");
+  if (typedRate > 100) throw new Error("Return rate cannot exceed 100%");
+  if (unsellable > 100) throw new Error("Unsellable return rate cannot exceed 100%");
+
+  const rates = [...new Set([...RETURN_RATE_PRESETS, typedRate])].sort((a, b) => a - b);
+  const rows = rates.map((rate) => {
+    const listing = calculateListing({
+      ...input,
+      returnRate: rate,
+      returnHandlingFee: handling,
+      unsellableReturnRate: unsellable,
+    });
+    return {
+      returnRate: rate,
+      isCurrent: Math.abs(rate - typedRate) < 1e-9,
+      profit: listing.selected.profit,
+      profitBeforeReturns: listing.selected.profitBeforeReturns,
+      returnDrag: listing.selected.returnDrag,
+      margin: listing.selected.margin,
+      breakEvenBuyCost: listing.selected.breakEvenBuyCost,
+      fbaProfit: listing.fba.profit,
+      fbmProfit: listing.fbm.profit,
+      cheaperPath: listing.cheaperPath,
+    };
+  });
+  const typed = calculateListing({
+    ...input,
+    returnRate: typedRate,
+    returnHandlingFee: handling,
+    unsellableReturnRate: unsellable,
+  });
+  return {
+    returnRate: typedRate,
+    returnHandlingFee: handling,
+    unsellableReturnRate: unsellable,
+    rows,
+    typed,
+    breakEvenReturnRate: typed.selected.breakEvenReturnRate,
+    summary: returnsSummary({
+      typedRate,
+      handling,
+      unsellable,
+      typed,
+    }),
+  };
+}
+
+export function returnsSummary({ typedRate, handling, unsellable, typed }) {
+  const kept = typed.selected.profitBeforeReturns;
+  const expected = typed.selected.profit;
+  const drag = typed.selected.returnDrag;
+  const wipe = typed.selected.breakEvenReturnRate;
+  const wipePct = wipe === null ? null : wipe * 100;
+  const path = typed.fulfillmentMethod === "fba" ? "FBA" : "FBM";
+  if (typedRate === 0) {
+    return `${path} keeps ${moneyLabel(kept)} on a completed sale. Type a return rate to mix that with the refunded-order leftover.`;
+  }
+  const wipeLine = wipePct === null
+    ? "No finite return rate drives expected profit to zero on these costs."
+    : wipePct === 0
+      ? "The completed sale already loses money, so any return rate still loses."
+      : `The return rate that wipes expected profit is about ${wipePct.toFixed(1)}%.`;
+  return `At a ${typedRate}% return rate, $${handling.toFixed(2)} handling, and ${unsellable}% unsellable, ${path} expects ${moneyLabel(expected)} versus ${moneyLabel(kept)} on a completed sale — ${moneyLabel(drag)} of drag. ${wipeLine}`;
 }
 
 export const SELLER_PLAN_DEFAULTS = {
