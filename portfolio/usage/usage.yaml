@@ -489,11 +489,12 @@ products:
         signals:
           live_url_visitors: null
           store_compared: 0
+          store_comparison_viewed: 0
         note: >-
           Added store subscription vs no-store rate after monthly
           volume (example Starter/Basic/Premium, break-even order
-          count). Still no public URL; local event store_compared is
-          opt-out and stores no inputs.
+          count). Still no public URL; local events store_compared
+          and store_comparison_viewed are opt-out and store no inputs.
       - as_of: 2026-08-26
         signals:
           live_url_visitors: null
