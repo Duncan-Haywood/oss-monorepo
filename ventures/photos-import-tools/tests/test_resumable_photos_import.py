@@ -2,6 +2,8 @@ import sqlite3
 import tempfile
 import threading
 import unittest
+from contextlib import redirect_stdout
+from io import StringIO
 from pathlib import Path
 from unittest import mock
 
@@ -13,6 +15,7 @@ from resumable_photos_import import (
     bulk_preflight_pending,
     discover_importable_photos,
     file_is_ready,
+    main,
     recover_interrupted,
     summarize_recent_errors,
     verify_manifest,
@@ -369,6 +372,24 @@ class ResumablePhotosImportTests(unittest.TestCase):
             rows = summarize_recent_errors(error_log)
             self.assertEqual(len(rows), 1)
             self.assertEqual(rows[0]["code"], "photos_timeout")
+
+    def test_status_keeps_manifest_summary_when_progress_snapshot_is_torn(self):
+        with tempfile.TemporaryDirectory() as temp_dir:
+            root = Path(temp_dir)
+            photo = root / "photo.JPG"
+            photo.write_bytes(b"jpeg")
+            state = ImportState(root / "photos_import.sqlite3")
+            state.upsert(photo, "pending")
+            state.close()
+            (root / "status.json").write_text('{"progress":', encoding="utf-8")
+
+            output = StringIO()
+            with redirect_stdout(output):
+                result = main(["status", "--state-dir", str(root)])
+
+            self.assertEqual(result, 0)
+            self.assertIn("Status: total=1", output.getvalue())
+            self.assertIn("Progress snapshot unavailable", output.getvalue())
 
     def test_scratch_copy_failure_is_retried_not_fatal_to_the_run(self):
         with tempfile.TemporaryDirectory() as temp_dir:

@@ -1,0 +1,462 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Chimney Sweep Bid Calculator | Price the Flue and the Height</title>
+  <meta name="description" content="Price a chimney sweep from flue type, stories, roof access, and creosote — not a flat house rate. See labor hours, walk-away price, and the margin a neighborhood special actually leaves.">
+  <meta property="og:title" content="Chimney Sweep Bid Calculator">
+  <meta property="og:description" content="Bid a chimney the way the trade does — flue hours times height, then creosote, inspection, travel, and margin — and see the walk-away number before you send the quote.">
+  <link rel="canonical" href="./">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Chimney Sweep Bid Calculator","applicationCategory":"BusinessApplication","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"featureList":"Per-flue labor hours, story and roof-access multipliers, creosote and Level 2 / camera time, animal and cap add-ons, travel round-trip, payroll burden, walk-away price, proposed-price margin check, private share link"}</script>
+  <style>
+    :root { color-scheme: light; font-family: system-ui, sans-serif; color: #241812; background: #f4eee6; }
+    body { max-width: 1080px; margin: 0 auto; padding: 32px 18px; }
+    header { max-width: 740px; margin-bottom: 26px; }
+    h1 { font-size: clamp(2rem, 6vw, 3.5rem); line-height: .98; margin: 0 0 12px; letter-spacing: -.05em; }
+    p { line-height: 1.5; }
+    .eyebrow { font-size: .8rem; font-weight: 700; letter-spacing: .08em; color: #a33b12; margin: 0 0 6px; }
+    .layout { display: grid; grid-template-columns: minmax(0, 1fr) minmax(300px, .72fr); gap: 18px; align-items: start; }
+    section { background: #fffaf4; border: 1px solid #e0d2c2; border-radius: 14px; padding: 20px; box-shadow: 0 8px 24px #3a24120d; margin-bottom: 18px; }
+    h2 { margin-top: 0; font-size: 1.15rem; }
+    .hint { font-size: .82rem; color: #5c4c3e; margin: -6px 0 14px; }
+    .fields { display: grid; grid-template-columns: repeat(2, 1fr); gap: 13px; }
+    label { display: grid; gap: 5px; font-size: .87rem; font-weight: 650; }
+    input, select { width: 100%; box-sizing: border-box; border: 1px solid #c4b09a; border-radius: 7px; padding: 10px; font: inherit; background: #fff; }
+    .flue-row { display: grid; grid-template-columns: minmax(0, 2.6fr) repeat(2, minmax(0, 1fr)) auto; gap: 8px; align-items: end; margin-bottom: 10px; }
+    .flue-head { font-size: .74rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; color: #7a6553; }
+    .flue-row .lbl { position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0; overflow: hidden; clip-path: inset(50%); white-space: nowrap; border: 0; }
+    button { font: inherit; border-radius: 7px; border: 1px solid #c4b09a; background: #f6efe6; padding: 10px 14px; cursor: pointer; font-weight: 650; }
+    button:hover { background: #efe4d6; }
+    .remove { padding: 10px; color: #9b2c1f; border-color: #d8b6b0; background: #fdf3f1; }
+    .remove[disabled] { opacity: .4; cursor: not-allowed; }
+    .checks { display: grid; gap: 8px; margin: 4px 0 0; }
+    .checks label { display: flex; gap: 8px; align-items: center; font-weight: 550; }
+    .checks input { width: auto; }
+    .result { position: sticky; top: 15px; background: #3a1f14; color: #f8efe6; border-color: #3a1f14; }
+    .hero-number { font-size: 2.9rem; font-weight: 750; letter-spacing: -.05em; margin: 8px 0; }
+    .negative { color: #ffb0a2; }
+    dl { display: grid; grid-template-columns: 1fr auto; gap: 9px; margin: 20px 0; }
+    dt, dd { margin: 0; } dd { font-variant-numeric: tabular-nums; }
+    hr { border: 0; border-top: 1px solid #ffffff2b; }
+    .note { font-size: .82rem; opacity: .84; }
+    .split { margin: 14px 0 0; padding: 0; list-style: none; font-size: .84rem; }
+    .split li { display: grid; grid-template-columns: 1fr auto; gap: 8px; padding: 3px 0; }
+    .bar { grid-column: 1 / -1; height: 4px; border-radius: 2px; background: #ffffff2e; }
+    .bar > span { display: block; height: 100%; border-radius: 2px; background: #e8a06a; }
+    .verdict { margin-top: 14px; padding: 12px; border-radius: 9px; font-size: .87rem; background: #ffffff1a; }
+    .verdict.bad { background: #7d2317; }
+    .empty { font-size: .87rem; opacity: .84; }
+    footer { margin-top: 25px; font-size: .82rem; color: #5c4c3e; }
+    footer a { color: #a33b12; }
+    .support { margin-top: 14px; }
+    .summary-actions { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin-top: 14px; }
+    .summary-status { font-size: .8rem; color: #f0d2b0; }
+    .seo-link { margin: 10px 0 0; font-size: .9rem; }
+    @media (max-width: 780px) {
+      .layout { grid-template-columns: 1fr; } .result { position: static; } .fields { grid-template-columns: 1fr; }
+      .flue-head { display: none; }
+      .flue-row { grid-template-columns: 1fr 1fr; border: 1px solid #eadccb; border-radius: 9px; padding: 11px; }
+      .flue-row label { font-size: .78rem; gap: 5px; }
+      .flue-row .lbl { position: static; width: auto; height: auto; margin: 0; overflow: visible; clip-path: none; white-space: normal; }
+      .flue-row label:first-child { grid-column: 1 / -1; }
+      .remove { grid-column: 1 / -1; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="eyebrow">FOR CHIMNEY SWEEPS AND FIREPLACE SHOPS</p>
+    <h1>Bid the flue and the height, not the house.</h1>
+    <p>A one-story gas fireplace is not the same stop as a three-story wood stove with glazed creosote. Price the hours your crew will actually spend — flue type, stories, roof access, inspection, travel — then see the walk-away number before a neighborhood special eats the day.</p>
+    <p class="seo-link"><a href="./how-much-to-charge.html">How much should I charge for a chimney sweep?</a></p>
+  </header>
+
+  <main class="layout">
+    <div>
+      <section>
+        <h2>The chimneys</h2>
+        <p class="hint">One row per flue type. Hours each is the on-roof time for a Level 1 sweep of that appliance on a single-story, easy roof — pick a type to start from a common figure, then replace it with a time from your own stops.</p>
+        <div class="flue-row flue-head" aria-hidden="true">
+          <span>Flue / appliance</span><span>Quantity</span><span>Hours each</span><span></span>
+        </div>
+        <div id="flues"></div>
+        <button type="button" id="addFlue">+ Add a flue</button>
+      </section>
+
+      <section>
+        <h2>The stop</h2>
+        <div class="fields">
+          <label>Stories <input id="stories" type="number" min="1" step="1" value="2"></label>
+          <label>Roof access
+            <select id="roofAccess">
+              <option value="easy">Easy / walkable</option>
+              <option value="steep" selected>Steep pitch</option>
+              <option value="snow">Snow / ice</option>
+            </select>
+          </label>
+          <label>Creosote
+            <select id="creosote">
+              <option value="light">Light (Level 1 sweep)</option>
+              <option value="moderate" selected>Moderate</option>
+              <option value="glazed">Glazed / stage 3</option>
+            </select>
+          </label>
+          <label>Work on this visit
+            <select id="workType">
+              <option value="sweep" selected>Sweep only</option>
+              <option value="level2">Sweep + Level 2 inspection</option>
+              <option value="camera">Sweep + camera inspection</option>
+            </select>
+          </label>
+          <label>Miles one way <input id="milesOneWay" type="number" min="0" step="0.5" value="12"></label>
+          <label>Travel speed (mph) <input id="speedMph" type="number" min="1" step="1" value="35"></label>
+        </div>
+        <div class="checks">
+          <label><input id="animalRemoval" type="checkbox"> Animal / nest removal</label>
+          <label><input id="addOn-rainCap" type="checkbox"> Rain cap / spark arrestor</label>
+          <label><input id="addOn-damper" type="checkbox"> Damper repair / replacement</label>
+          <label><input id="addOn-smokeTest" type="checkbox"> Smoke / draft test</label>
+        </div>
+        <p class="hint" style="margin-top:14px;margin-bottom:0">Stories and roof access multiply the sweep hours. Creosote, inspection, and animal work add time per flue. None of this is a CSIA, NFPA 211, or fire-safety determination — it is a time budget you can edit.</p>
+      </section>
+
+      <section>
+        <h2>Your costs</h2>
+        <div class="fields">
+          <label>Sweep hourly wage <input id="hourlyWage" type="number" min="0" step="0.25" value="28"></label>
+          <label>Payroll burden (%) <input id="burdenRate" type="number" min="0" step="0.5" value="32"></label>
+          <label>Setup / breakdown (hours) <input id="setupHours" type="number" min="0" step="0.05" value="0.25"></label>
+          <label>Minimum on-site hours <input id="minOnSiteHours" type="number" min="0" step="0.25" value="1"></label>
+          <label>Trip / truck fee <input id="tripFee" type="number" min="0" step="1" value="45"></label>
+          <label>Consumables per flue <input id="consumablesPerFlue" type="number" min="0" step="0.5" value="8"></label>
+          <label>Glazed-creosote chemical / flue <input id="chemicalPerGlazedFlue" type="number" min="0" step="1" value="18"></label>
+          <label>Other cost <input id="otherCost" type="number" min="0" step="1" value="0"></label>
+          <label>Overhead on direct cost (%) <input id="overheadRate" type="number" min="0" step="0.5" value="18"></label>
+          <label>Target net margin (%) <input id="targetMargin" type="number" min="0" max="99.9" step="0.5" value="30"></label>
+          <label>Price you&rsquo;re considering (optional) <input id="proposedPrice" type="number" min="0" step="5" placeholder="e.g. 249"></label>
+        </div>
+        <p class="hint" style="margin-top:14px;margin-bottom:0">Payroll burden covers employer taxes, workers&rsquo; compensation (roof work is not cheap), liability insurance, and paid time off. A sweep paid $28 often costs more than $36 on the truck. Underestimating that is how a $199 special loses money.</p>
+      </section>
+    </div>
+
+    <section class="result" aria-live="polite">
+      <h2>Your quote</h2>
+      <div id="price" class="hero-number">$&mdash;</div>
+      <div id="priceLabel">job price</div>
+      <dl>
+        <dt>On-site hours</dt><dd id="onSiteHours"></dd>
+        <dt>Travel hours (round trip)</dt><dd id="travelHours"></dd>
+        <dt>Total labor hours</dt><dd id="totalHours"></dd>
+        <dt>Loaded labor cost</dt><dd id="labor"></dd>
+        <dt>Consumables &amp; chemical</dt><dd id="supplies"></dd>
+        <dt>Add-on parts</dt><dd id="parts"></dd>
+        <dt>Trip / truck</dt><dd id="trip"></dd>
+        <dt>Overhead</dt><dd id="overhead"></dd>
+        <dt>Total cost</dt><dd id="cost"></dd>
+        <dt>Profit</dt><dd id="profit"></dd>
+        <dt>Price per flue</dt><dd id="perFlue"></dd>
+        <dt>Effective hourly rate</dt><dd id="hourlyRate"></dd>
+        <dt>Walk-away price</dt><dd id="breakEven"></dd>
+      </dl>
+      <div id="verdict" class="verdict" hidden></div>
+      <div class="summary-actions">
+        <button type="button" id="copySummary">Copy quote summary</button>
+        <button type="button" id="copyShare">Copy share link</button>
+        <span id="summaryStatus" class="summary-status" role="status" aria-live="polite"></span>
+      </div>
+      <hr>
+      <p class="note" style="margin-bottom:4px"><strong>Where the sweep hours go</strong></p>
+      <ul class="split" id="split"></ul>
+      <hr>
+      <p class="note">Transparent arithmetic from your own inputs. The starting hours are common ballpark figures, not a CSIA standard, an NFPA 211 table, or a guarantee &mdash; time your own stops and replace them. This is not a finding that any chimney is safe, clean, or due for repair.</p>
+    </section>
+  </main>
+
+  <footer>
+    <label style="display:inline-flex;gap:6px;align-items:center;font-weight:400"><input id="usageOptOut" type="checkbox" style="width:auto"> Do not keep anonymous local usage counts</label>
+    <p><strong>No warranty.</strong> This free tool is not legal, tax, financial, engineering, or fire-safety advice, and it does not tell you what to charge or whether a flue may be used. It is not a CSIA, NFPA 211, or insurance inspection. Verify every figure against your own payroll, insurance, and supply costs, and against a qualified professional, before relying on it or submitting a bid. To the maximum extent permitted by law, the authors accept no liability for loss or damage from its use.</p>
+    <p><strong>Nothing leaves your browser.</strong> Every number stays on this device. Usage counts are anonymous tallies of which features were used, stored locally, and never include the address, flue count, wages, or prices. A share link encodes only the quote fields in the page hash; it is not sent to us.</p>
+    <p class="support">Free and open source. If it wins you a job, the <a href="https://github.com/Duncan-Haywood/monorepo-projects" rel="noopener">project is on GitHub</a> &mdash; support is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { calculateBid, FLUE_PRESETS, ADD_ON_PRESETS } from './calc.mjs';
+    import { recordUsage } from './usage.mjs';
+    import { encodeShare, decodeShare } from './share.mjs';
+
+    const COST_IDS = [
+      'stories','roofAccess','creosote','workType','milesOneWay','speedMph',
+      'hourlyWage','burdenRate','setupHours','minOnSiteHours','tripFee',
+      'consumablesPerFlue','chemicalPerGlazedFlue','otherCost','overheadRate',
+      'targetMargin','proposedPrice',
+    ];
+    const CHECK_IDS = ['animalRemoval'];
+    const money = value => `$${value.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+    const el = id => document.getElementById(id);
+
+    const STARTING_FLUES = [
+      { name: 'Wood-burning fireplace', quantity: 1, hoursEach: 1.0 },
+      { name: 'Wood stove / insert', quantity: 1, hoursEach: 1.25 },
+    ];
+
+    const TYPE_OPTIONS = FLUE_PRESETS
+      .map((preset, index) => `<option value="${index}">${preset.label}</option>`)
+      .join('') + '<option value="other">Other flue</option>';
+
+    const fluesHost = el('flues');
+    let rowSeq = 0;
+
+    function addFlueRow(flue) {
+      const id = `f${++rowSeq}`;
+      const row = document.createElement('div');
+      row.className = 'flue-row';
+      row.innerHTML = `
+        <label for="${id}-type"><span class="lbl">Flue / appliance</span><select class="f-type" id="${id}-type">${TYPE_OPTIONS}</select></label>
+        <label for="${id}-qty"><span class="lbl">Quantity</span><input class="f-qty" id="${id}-qty" type="number" min="0" step="1"></label>
+        <label for="${id}-hours"><span class="lbl">Hours each</span><input class="f-hours" id="${id}-hours" type="number" min="0" step="0.05"></label>
+        <button type="button" class="remove">Remove<span class="lbl"> this flue</span></button>`;
+
+      const typeField = row.querySelector('.f-type');
+      const hoursField = row.querySelector('.f-hours');
+      const presetIndex = FLUE_PRESETS.findIndex(p => p.label === flue.name);
+      typeField.value = presetIndex === -1 ? 'other' : String(presetIndex);
+      row.querySelector('.f-qty').value = flue.quantity;
+      hoursField.value = flue.hoursEach;
+
+      typeField.addEventListener('change', () => {
+        const preset = FLUE_PRESETS[Number(typeField.value)];
+        if (preset && !hoursField.dataset.edited) hoursField.value = preset.hoursEach;
+        count('bid_calculated');
+        update();
+      });
+      hoursField.addEventListener('input', () => { hoursField.dataset.edited = '1'; });
+      row.querySelectorAll('input').forEach(input => {
+        input.addEventListener('input', update);
+        input.addEventListener('change', () => count('bid_calculated'));
+      });
+      row.querySelector('.remove').addEventListener('click', () => {
+        row.remove();
+        count('flue_removed');
+        update();
+      });
+      fluesHost.append(row);
+    }
+
+    function readFlues() {
+      return [...fluesHost.querySelectorAll('.flue-row')].map(row => {
+        const preset = FLUE_PRESETS[Number(row.querySelector('.f-type').value)];
+        return {
+          name: preset ? preset.label : '',
+          quantity: row.querySelector('.f-qty').value,
+          hoursEach: row.querySelector('.f-hours').value,
+        };
+      });
+    }
+
+    function readAddOns() {
+      return ADD_ON_PRESETS.map(preset => ({
+        ...preset,
+        enabled: el(`addOn-${preset.id}`).checked,
+      }));
+    }
+
+    function readInput() {
+      return {
+        flues: readFlues(),
+        ...Object.fromEntries(COST_IDS.map(id => [id, el(id).value])),
+        animalRemoval: el('animalRemoval').checked,
+        addOns: readAddOns(),
+        proposedPrice: el('proposedPrice').value,
+      };
+    }
+
+    function count(event) {
+      recordUsage(localStorage, el('usageOptOut').checked, event);
+    }
+
+    function clearOutputs(message, isError) {
+      el('price').textContent = message;
+      el('price').className = `hero-number ${isError ? 'negative' : ''}`;
+      el('priceLabel').textContent = isError ? 'check the highlighted input' : 'job price';
+      ['onSiteHours','travelHours','totalHours','labor','supplies','parts','trip','overhead','cost','profit','perFlue','hourlyRate','breakEven']
+        .forEach(id => { el(id).textContent = ''; });
+      el('split').innerHTML = '';
+      el('verdict').hidden = true;
+    }
+
+    function applyShare(payload) {
+      if (!payload) return;
+      COST_IDS.forEach(id => {
+        if (payload[id] !== undefined && el(id)) el(id).value = payload[id];
+      });
+      CHECK_IDS.forEach(id => {
+        if (payload[id] !== undefined) el(id).checked = Boolean(payload[id]);
+      });
+      if (Array.isArray(payload.addOns)) {
+        ADD_ON_PRESETS.forEach(preset => {
+          const match = payload.addOns.find(item => item.id === preset.id);
+          if (match) el(`addOn-${preset.id}`).checked = match.enabled !== false;
+        });
+      }
+      if (Array.isArray(payload.flues) && payload.flues.length) {
+        fluesHost.innerHTML = '';
+        payload.flues.forEach(addFlueRow);
+      }
+    }
+
+    function update() {
+      const input = readInput();
+      if (input.flues.length === 0) {
+        clearOutputs('Add a flue to price', false);
+        el('split').innerHTML = '<li class="empty">Add at least one flue above and the hour split appears here.</li>';
+        return;
+      }
+      let result;
+      try {
+        result = calculateBid(input);
+      } catch (error) {
+        clearOutputs(error.message, true);
+        return;
+      }
+
+      el('price').textContent = money(result.price);
+      el('price').className = 'hero-number';
+      el('priceLabel').textContent = 'job price';
+      el('onSiteHours').textContent = `${result.onSiteHours.toFixed(2)} h${result.minimumApplied ? ' (minimum)' : ''}`;
+      el('travelHours').textContent = `${result.travelHours.toFixed(2)} h`;
+      el('totalHours').textContent = `${result.totalHours.toFixed(2)} h`;
+      el('labor').textContent = money(result.laborCost);
+      el('supplies').textContent = money(result.consumables + result.chemical);
+      el('parts').textContent = money(result.addOnParts);
+      el('trip').textContent = money(result.tripFee);
+      el('overhead').textContent = money(result.overhead);
+      el('cost').textContent = money(result.totalCost);
+      el('profit').textContent = money(result.profit);
+      el('perFlue').textContent = result.pricePerFlue === null ? 'n/a' : money(result.pricePerFlue);
+      el('hourlyRate').textContent = result.effectiveHourlyRate === null ? 'n/a' : `${money(result.effectiveHourlyRate)}/h`;
+      el('breakEven').textContent = money(result.breakEvenPrice);
+
+      const worked = result.flues.filter(flue => flue.heightHours > 0);
+      el('split').innerHTML = worked.length === 0
+        ? '<li class="empty">No flue has a quantity yet — set quantity above.</li>'
+        : worked
+          .slice()
+          .sort((a, b) => b.heightHours - a.heightHours)
+          .map(flue => `<li><span>${flue.name} × ${flue.quantity}</span><span>${flue.hoursShare.toFixed(0)}% of sweep hours</span>
+            <span class="bar"><span style="width:${flue.hoursShare.toFixed(1)}%"></span></span></li>`)
+          .join('');
+
+      const verdict = el('verdict');
+      if (result.proposed === null) {
+        verdict.hidden = true;
+      } else {
+        verdict.hidden = false;
+        verdict.className = `verdict${result.proposed.belowBreakEven ? ' bad' : ''}`;
+        const rate = result.proposed.hourlyRate === null ? 'n/a' : `${money(result.proposed.hourlyRate)}/h`;
+        verdict.innerHTML = result.proposed.belowBreakEven
+          ? `At ${money(result.proposed.price)} this stop <strong>loses ${money(Math.abs(result.proposed.profit))}</strong> before you take anything out of it. Your walk-away price is ${money(result.breakEvenPrice)}.`
+          : `At ${money(result.proposed.price)} you keep <strong>${money(result.proposed.profit)}</strong> — a ${result.proposed.margin.toFixed(1)}% margin, billing ${rate} of labor.`;
+      }
+    }
+
+    function summaryText(result) {
+      const flues = result.flues
+        .filter(flue => flue.quantity > 0)
+        .map(flue => `- ${flue.name}: ${flue.quantity} × ${flue.hoursEach} h`)
+        .join('\n');
+      const extras = [
+        result.creosote !== 'light' ? `creosote: ${result.creosote}` : null,
+        result.workType !== 'sweep' ? `work: ${result.workType}` : null,
+        result.animalRemoval ? 'animal / nest removal' : null,
+        ...result.addOns.map(item => item.label),
+      ].filter(Boolean).join('; ');
+      return [
+        'CHIMNEY SWEEP QUOTE',
+        '',
+        `Proposed price: ${money(result.price)}`,
+        `Walk-away (cost): ${money(result.breakEvenPrice)}`,
+        `Labor: ${result.totalHours.toFixed(2)} hours (${result.onSiteHours.toFixed(2)} on site + ${result.travelHours.toFixed(2)} travel)`,
+        `Stories / roof: ${result.stories} / ${result.roofAccess}`,
+        extras ? `Scope extras: ${extras}` : 'Scope extras: none',
+        '',
+        'FLUES',
+        flues || '- No flues entered',
+        '',
+        'This is a draft for review. Confirm access, creosote condition, insurance, taxes, and all pricing before sending. It is not a CSIA or NFPA inspection and not a finding that the flue is safe to use.',
+      ].join('\n');
+    }
+
+    async function writeClipboard(text) {
+      try {
+        await navigator.clipboard.writeText(text);
+      } catch {
+        const fallback = document.createElement('textarea');
+        fallback.value = text;
+        fallback.setAttribute('readonly', '');
+        fallback.style.position = 'fixed';
+        fallback.style.opacity = '0';
+        document.body.append(fallback);
+        fallback.select();
+        document.execCommand('copy');
+        fallback.remove();
+      }
+    }
+
+    async function copySummary() {
+      const result = calculateBid(readInput());
+      await writeClipboard(summaryText(result));
+      count('summary_copied');
+      el('summaryStatus').textContent = 'Copied to clipboard';
+      setTimeout(() => { el('summaryStatus').textContent = ''; }, 2500);
+    }
+
+    async function copyShare() {
+      const hash = encodeShare(readInput());
+      const url = `${location.origin}${location.pathname}#${hash}`;
+      await writeClipboard(url);
+      history.replaceState(null, '', `#${hash}`);
+      count('share_copied');
+      el('summaryStatus').textContent = 'Share link copied';
+      setTimeout(() => { el('summaryStatus').textContent = ''; }, 2500);
+    }
+
+    el('addFlue').addEventListener('click', () => {
+      addFlueRow({ name: '', quantity: 1, hoursEach: 1 });
+      count('flue_added');
+      update();
+    });
+
+    COST_IDS.forEach(id => {
+      el(id).addEventListener('input', update);
+      el(id).addEventListener('change', () => count(id === 'proposedPrice' ? 'proposed_price_compared' : 'bid_calculated'));
+    });
+    ['animalRemoval', ...ADD_ON_PRESETS.map(preset => `addOn-${preset.id}`)].forEach(id => {
+      el(id).addEventListener('change', () => {
+        count('bid_calculated');
+        update();
+      });
+    });
+    el('usageOptOut').addEventListener('change', update);
+    el('copySummary').addEventListener('click', () => {
+      try {
+        copySummary().catch(() => { el('summaryStatus').textContent = 'Copy failed; select and copy the figures above.'; });
+      } catch (error) {
+        el('summaryStatus').textContent = error.message;
+      }
+    });
+    el('copyShare').addEventListener('click', () => {
+      try {
+        copyShare().catch(() => { el('summaryStatus').textContent = 'Copy failed.'; });
+      } catch (error) {
+        el('summaryStatus').textContent = error.message;
+      }
+    });
+
+    const shared = decodeShare(location.hash);
+    if (shared) applyShare(shared);
+    if (!fluesHost.querySelector('.flue-row')) STARTING_FLUES.forEach(addFlueRow);
+    update();
+  </script>
+</body>
+</html>
