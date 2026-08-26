@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import os
 import sys
 from pathlib import Path
 
@@ -11,12 +12,25 @@ from .capture import CaptureError, capture_snapshot, plan_from_cli, write_snapsh
 from .report import build_report, load_snapshot, markdown_report
 
 
-def _bump_usage(path: Path | None, event: str) -> None:
-    if path is None:
+def _write_atomically(path: Path, content: str) -> None:
+    """Replace the target so a CI consumer never sees a half-written artifact."""
+    path.parent.mkdir(parents=True, exist_ok=True)
+    temporary = path.with_name(f".{path.name}.tmp-{os.getpid()}")
+    try:
+        temporary.write_text(content, encoding="utf-8")
+        os.replace(temporary, path)
+    except Exception:
+        if temporary.exists():
+            temporary.unlink()
+        raise
+
+
+def _bump_usage(path: Path | None, event: str, *, enabled: bool = True) -> None:
+    if path is None or not enabled:
         return
     usage = json.loads(path.read_text(encoding="utf-8")) if path.exists() else {}
     usage[event] = int(usage.get(event, 0)) + 1
-    path.write_text(json.dumps(usage, indent=2) + "\n", encoding="utf-8")
+    _write_atomically(path, json.dumps(usage, indent=2) + "\n")
 
 
 def _add_compare_args(parser: argparse.ArgumentParser) -> None:
@@ -25,6 +39,7 @@ def _add_compare_args(parser: argparse.ArgumentParser) -> None:
     parser.add_argument("--format", choices=("json", "markdown"), default="json")
     parser.add_argument("--output", type=Path)
     parser.add_argument("--usage-file", type=Path, help="optional local event-count file")
+    parser.add_argument("--no-usage", action="store_true", help="do not update the local usage counter")
     parser.add_argument(
         "--fail-on",
         choices=("never", "changed", "inconclusive"),
@@ -60,6 +75,7 @@ def _add_capture_args(parser: argparse.ArgumentParser) -> None:
     parser.add_argument("--timeout", type=float, default=3.0, help="per-query timeout in seconds (default 3)")
     parser.add_argument("--output", type=Path, help="write the snapshot JSON here instead of stdout")
     parser.add_argument("--usage-file", type=Path, help="optional local event-count file")
+    parser.add_argument("--no-usage", action="store_true", help="do not update the local usage counter")
     parser.add_argument(
         "--fail-on",
         choices=("never", "timeout", "refused", "error"),
@@ -87,10 +103,10 @@ def run_compare(args: argparse.Namespace) -> int:
     report = build_report(load_snapshot(args.before), load_snapshot(args.after))
     output = markdown_report(report) if args.format == "markdown" else json.dumps(report, indent=2) + "\n"
     if args.output:
-        args.output.write_text(output, encoding="utf-8")
+        _write_atomically(args.output, output)
     else:
         print(output, end="")
-    _bump_usage(args.usage_file, "report_generated")
+    _bump_usage(args.usage_file, "report_generated", enabled=not args.no_usage)
     if args.fail_on in report["finding_counts"]:
         return 2
     return 0
@@ -115,7 +131,7 @@ def run_capture(args: argparse.Namespace) -> int:
         write_snapshot(snapshot, args.output)
     else:
         print(output, end="")
-    _bump_usage(args.usage_file, "snapshot_captured")
+    _bump_usage(args.usage_file, "snapshot_captured", enabled=not args.no_usage)
     if args.fail_on != "never" and any(item.get("status") == args.fail_on for item in snapshot["observations"]):
         return 2
     return 0
