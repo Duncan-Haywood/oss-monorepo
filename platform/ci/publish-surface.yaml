@@ -182,6 +182,9 @@ workflows:
 - workflow: plantation-shutter-bid-calculator-ci.yml
   classification: none
   publishes: []
+- workflow: pole-barn-bid-calculator-ci.yml
+  classification: none
+  publishes: []
 - workflow: portfolio-pages.yml
   classification: gated
   publishes:
