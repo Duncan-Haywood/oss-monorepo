@@ -5178,3 +5178,40 @@ ventures:
       procedure. Starting minutes-per-zone are labelled ballpark starting
       points rather than a manufacturer procedure, and nothing the user
       enters leaves the browser.
+
+  - slug: hood-cleaning-bid-calculator
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 7
+      gross_margin: 10
+      defensibility: 5
+      distribution: 7
+    composite: 6.667
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      There is no AI anywhere in the product. The value is a domain model —
+      hood versus duct versus fan hours, grease load, and rooftop access —
+      that is arithmetic, and adding inference to it would only make the
+      result less checkable.
+    basis: >-
+      Graduated on 2026-08-24 as a browser-local commercial kitchen exhaust
+      cleaning bid calculator. Scored with the other trade bid calculators
+      on defensibility (5): those restate a published fee schedule, whereas
+      the system-component model encodes how the trade actually estimates
+      labor, and the incumbents here are paid bidding suites or "get a
+      quote" forms rather than a free checkable page. Distribution 7:
+      "kitchen hood cleaning cost" and "restaurant exhaust cleaning quote"
+      are lower-volume than marketplace-fee queries but far less saturated
+      and bought by an operator with a real stop on the line.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Pass: the output is arithmetic on the contractor's own inputs, never a
+      recommended price, a wage determination, or a fire-code opinion. The
+      shipped minutes and grease-load cadences are labelled ballpark
+      starting points rather than a standard or NFPA interval, and nothing
+      the user enters leaves the browser.
