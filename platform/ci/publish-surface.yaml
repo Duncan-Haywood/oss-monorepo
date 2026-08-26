@@ -178,6 +178,9 @@ workflows:
     step: uses amondnet/vercel-action
     gates:
     - ${{ vars.VERCEL_DEPLOY == 'true' }}
+- workflow: retainage-cashflow-calculator-ci.yml
+  classification: none
+  publishes: []
 - workflow: reverb-fee-calculator-ci.yml
   classification: none
   publishes: []
