@@ -14,6 +14,9 @@ import {
   compareNoticeWindows,
   nearestNoticeHours,
   noticeWindowSummary,
+  weeklyBook,
+  annualOverbookOutcome,
+  compareOverbooking,
   generatePolicyText,
   buildShareUrl,
   readShareValues,
@@ -36,6 +39,7 @@ test("parseInputs accepts valid numeric input", () => {
     noticeHours: 24,
     feePercent: 100,
     enforcementRatePct: 70,
+    overflowCost: 75,
     fillSameDayPct: 10,
     fillDayAheadPct: 40,
     fillTwoDayPct: 65,
@@ -157,51 +161,9 @@ test("compareFeeScenarios shows standard levels and preserves a custom selection
   assert.deepEqual(scenarios.map(({ annualFeeRevenue }) => annualFeeRevenue), [1040, 1248, 1560, 2080]);
 });
 
-test("parseInputs applies waitlist fill defaults when the fields are omitted", () => {
-  const result = parseInputs({
-    price: "75",
-    bookingsPerWeek: "20",
-    noShowRatePct: "8",
-    noticeHours: "24",
-    feePercent: "100",
-    enforcementRatePct: "70",
-  });
-  assert.equal(result.ok, true);
-  assert.equal(result.values.fillSameDayPct, 10);
-  assert.equal(result.values.fillDayAheadPct, 40);
-  assert.equal(result.values.fillTwoDayPct, 65);
-});
-
-test("parseInputs accepts explicit waitlist fill rates", () => {
-  const result = parseInputs({
-    price: "75",
-    bookingsPerWeek: "20",
-    noShowRatePct: "8",
-    noticeHours: "24",
-    feePercent: "100",
-    enforcementRatePct: "70",
-    fillSameDayPct: "5",
-    fillDayAheadPct: "30",
-    fillTwoDayPct: "80",
-  });
-  assert.equal(result.ok, true);
-  assert.equal(result.values.fillSameDayPct, 5);
-  assert.equal(result.values.fillDayAheadPct, 30);
-  assert.equal(result.values.fillTwoDayPct, 80);
-});
-
-test("parseInputs rejects an out-of-range waitlist fill rate", () => {
-  const result = parseInputs({
-    price: "75",
-    bookingsPerWeek: "20",
-    noShowRatePct: "8",
-    noticeHours: "24",
-    feePercent: "100",
-    enforcementRatePct: "70",
-    fillTwoDayPct: "150",
-  });
-  assert.equal(result.ok, false);
-  assert.ok(result.errors.some((e) => e.includes("48-hour waitlist fill rate")));
+test("compareFeeScenarios does not duplicate a standard selected level", () => {
+  const scenarios = compareFeeScenarios({ price: 100, bookingsPerWeek: 1, noShowRatePct: 10, feePercent: 75, enforcementRatePct: 100 });
+  assert.deepEqual(scenarios.map(({ feePercent }) => feePercent), [50, 75, 100]);
 });
 
 test("compareNoticeWindows recovers more empty-slot cash at a higher fill rate", () => {
@@ -283,9 +245,133 @@ test("noticeWindowSummary stays honest when a longer window does not refill more
   assert.match(noticeWindowSummary(rows), /does not recover more/);
 });
 
-test("compareFeeScenarios does not duplicate a standard selected level", () => {
-  const scenarios = compareFeeScenarios({ price: 100, bookingsPerWeek: 1, noShowRatePct: 10, feePercent: 75, enforcementRatePct: 100 });
-  assert.deepEqual(scenarios.map(({ feePercent }) => feePercent), [50, 75, 100]);
+test("parseInputs rejects an out-of-range waitlist fill rate", () => {
+  const result = parseInputs({
+    price: "75",
+    bookingsPerWeek: "20",
+    noShowRatePct: "8",
+    noticeHours: "24",
+    feePercent: "100",
+    enforcementRatePct: "70",
+    fillTwoDayPct: "150",
+  });
+  assert.equal(result.ok, false);
+  assert.ok(result.errors.some((e) => e.includes("48-hour waitlist fill rate")));
+});
+
+const DEFAULT_OVERBOOK = {
+  price: 75,
+  bookingsPerWeek: 20,
+  noShowRatePct: 8,
+  feePercent: 100,
+  enforcementRatePct: 70,
+  overflowCost: 75,
+};
+
+function assertClose(actual, expected) {
+  assert.ok(
+    Math.abs(actual - expected) < 1e-9,
+    `expected ${expected}, got ${actual}`,
+  );
+}
+
+test("weeklyBook matches capacity when nobody extra is booked", () => {
+  const week = weeklyBook(DEFAULT_OVERBOOK, 0);
+  assert.equal(week.booked, 20);
+  assertClose(week.expectedArrivals, 18.4);
+  assertClose(week.served, 18.4);
+  assert.equal(week.overflow, 0);
+  assertClose(week.empty, 1.6);
+  assertClose(week.noShows, 1.6);
+});
+
+test("weeklyBook matching expected no-shows almost fills the mean week", () => {
+  const week = weeklyBook(DEFAULT_OVERBOOK, 1.6);
+  assertClose(week.booked, 21.6);
+  assertClose(week.expectedArrivals, 19.872);
+  assertClose(week.served, 19.872);
+  assert.equal(week.overflow, 0);
+  assert.ok(week.empty < 0.2);
+});
+
+test("weeklyBook at 150% of expected no-shows overflows the mean", () => {
+  const week = weeklyBook(DEFAULT_OVERBOOK, 2.4);
+  assert.equal(week.served, 20);
+  assertClose(week.overflow, 0.608);
+  assert.equal(week.empty, 0);
+});
+
+test("weeklyBook rejects a negative extra book", () => {
+  assert.throws(() => weeklyBook(DEFAULT_OVERBOOK, -1), /cannot be negative/);
+});
+
+test("annualOverbookOutcome composes service, fee, and overflow cost", () => {
+  const feeOnly = annualOverbookOutcome(DEFAULT_OVERBOOK, { extraBookingsPerWeek: 0, collectFee: true });
+  assert.equal(feeOnly.serviceRevenue, 71760);
+  assert.equal(feeOnly.feeRevenue, 4368);
+  assert.equal(feeOnly.overflowCostAnnual, 0);
+  assert.equal(feeOnly.netKept, 76128);
+
+  const match = annualOverbookOutcome(DEFAULT_OVERBOOK, { extraBookingsPerWeek: 1.6, collectFee: true });
+  assert.equal(match.serviceRevenue, 77500.8);
+  assert.equal(match.feeRevenue, 4717.44);
+  assert.equal(match.netKept, 82218.24);
+
+  const aggressive = annualOverbookOutcome(DEFAULT_OVERBOOK, { extraBookingsPerWeek: 2.4, collectFee: true });
+  assert.equal(aggressive.serviceRevenue, 78000);
+  assert.equal(aggressive.overflowCostAnnual, 2371.2);
+  assert.equal(aggressive.netKept, 80520.96);
+});
+
+test("compareOverbooking prefers matching the no-show rate plus the fee on the defaults", () => {
+  const comparison = compareOverbooking(DEFAULT_OVERBOOK);
+  assert.equal(comparison.expectedNoShowsPerWeek, 1.6);
+  assert.equal(comparison.winner, "overbook_1");
+  assert.equal(comparison.extraVsFeeOnly, 6090.24);
+  assert.equal(comparison.rows[2].withFee.netKept, 82218.24);
+  assert.equal(comparison.matchNoFee.netKept, 77500.8);
+  assert.ok(comparison.matchNoFee.netKept > comparison.feeOnly.netKept);
+  assert.match(comparison.summary, /\$6090\.24 more/);
+});
+
+test("compareOverbooking picks the aggressive book when overflow is priced at zero", () => {
+  const comparison = compareOverbooking({ ...DEFAULT_OVERBOOK, overflowCost: 0 });
+  assert.equal(comparison.winner, "overbook_1_5");
+  assert.ok(comparison.rows[3].withFee.netKept > comparison.rows[2].withFee.netKept);
+});
+
+test("compareOverbooking stays on the fee-only book when nobody no-shows", () => {
+  const comparison = compareOverbooking({ ...DEFAULT_OVERBOOK, noShowRatePct: 0 });
+  assert.equal(comparison.expectedNoShowsPerWeek, 0);
+  assert.equal(comparison.winner, "fee_only");
+  assert.equal(comparison.extraVsFeeOnly, 0);
+  assert.equal(comparison.rows[3].extraBookingsPerWeek, 0);
+  assert.match(comparison.summary, /No-show rate is 0%/);
+});
+
+test("parseInputs defaults overflow cost to the session price", () => {
+  const result = parseInputs({
+    price: "80",
+    bookingsPerWeek: "10",
+    noShowRatePct: "10",
+    noticeHours: "24",
+    feePercent: "50",
+    enforcementRatePct: "50",
+  });
+  assert.equal(result.ok, true);
+  assert.equal(result.values.overflowCost, 80);
+});
+
+test("parseInputs accepts an explicit zero overflow cost", () => {
+  const result = parseInputs({ ...VALID_RAW, overflowCost: "0" });
+  assert.equal(result.ok, true);
+  assert.equal(result.values.overflowCost, 0);
+});
+
+test("parseInputs rejects a negative overflow cost", () => {
+  const result = parseInputs({ ...VALID_RAW, overflowCost: "-5" });
+  assert.equal(result.ok, false);
+  assert.ok(result.errors.some((e) => e.includes("overflow")));
 });
 
 test("generatePolicyText includes the fee, notice window, and non-warranty note", () => {
@@ -359,20 +445,6 @@ test("index.html contains the required disclaimer wording", () => {
   assert.match(html, /No warranty\./);
   assert.match(html, /not legal, tax, or financial\s*\n?\s*advice/);
   assert.match(html, /Best-effort hosting, no SLA/);
-});
-
-test("index.html wires the notice-window comparison the script paints", () => {
-  const html = readHtml();
-  assert.match(html, /id="notice-section"/);
-  assert.match(html, /id="notice-body"/);
-  assert.match(html, /id="notice-summary"/);
-  assert.match(html, /id="fillSameDayPct"/);
-  assert.match(html, /id="fillDayAheadPct"/);
-  assert.match(html, /id="fillTwoDayPct"/);
-  assert.match(html, /24h-vs-48h-cancellation-notice\.html/);
-  const app = readApp();
-  assert.match(app, /compareNoticeWindows/);
-  assert.match(app, /notice_windows_compared/);
 });
 // --------------------------------------------------------------------------
 // Missing input is not the number zero.
@@ -491,6 +563,48 @@ test("app.mjs computes on load instead of waiting for a submit", () => {
     /\brender\(\);/.test(epilogue) || /\bcountCalculation\(\);/.test(epilogue),
     "nothing renders at import time, so the page would open with no result",
   );
+});
+
+test("the overbooking landing page quotes the same default arithmetic", () => {
+  const here = path.dirname(fileURLToPath(import.meta.url));
+  const html = readFileSync(path.join(here, "..", "should-i-overbook-or-charge-a-no-show-fee.html"), "utf8");
+  const comparison = compareOverbooking(DEFAULT_OVERBOOK);
+  assert.match(html, /\$76,128/);
+  assert.match(html, /\$82,218\.24/);
+  assert.match(html, /\$6,090\.24/);
+  assert.equal(comparison.feeOnly.netKept, 76128);
+  assert.equal(comparison.rows[2].withFee.netKept, 82218.24);
+  assert.equal(comparison.extraVsFeeOnly, 6090.24);
+  const blocks = [...html.matchAll(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/g)];
+  assert.ok(blocks.length >= 1);
+  for (const [, json] of blocks) {
+    assert.equal(JSON.parse(json)["@context"], "https://schema.org");
+  }
+});
+
+test("index.html and app.mjs wire the notice-window comparison", () => {
+  const html = readHtml();
+  const app = readApp();
+  assert.match(html, /id="notice-section"/);
+  assert.match(html, /id="notice-body"/);
+  assert.match(html, /id="notice-summary"/);
+  assert.match(html, /id="fillSameDayPct"/);
+  assert.match(html, /id="fillDayAheadPct"/);
+  assert.match(html, /id="fillTwoDayPct"/);
+  assert.match(html, /24h-vs-48h-cancellation-notice\.html/);
+  assert.match(app, /compareNoticeWindows/);
+  assert.match(app, /notice_windows_compared/);
+});
+
+test("index.html and app.mjs wire the overbooking table", () => {
+  const html = readHtml();
+  const app = readApp();
+  assert.match(html, /id="overbook-section"/);
+  assert.match(html, /id="overbook-body"/);
+  assert.match(html, /id="overflowCost"/);
+  assert.match(html, /should-i-overbook-or-charge-a-no-show-fee\.html/);
+  assert.match(app, /compareOverbooking/);
+  assert.match(app, /overbooking_compared/);
 });
 
 test("app.mjs does not count usage on every keystroke", () => {

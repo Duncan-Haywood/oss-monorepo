@@ -43,15 +43,14 @@ change.
 Venture directories are kept cleanly bounded so a venture can be extracted
 with `git filter-repo` if it is ever sold or spun off.
 
-`mat-470-real-analysis` (private personal coursework) and
 `ubuntu-agent-server` (shared agent-hosting infra, not itself
-revenue-seeking) intentionally have no `VENTURE.yaml` — neither is a
-business the router should allocate profit-seeking effort to. Each carries a
+revenue-seeking) intentionally has no `VENTURE.yaml` — it is not a
+business the router should allocate profit-seeking effort to. It carries a
 `NOT-A-VENTURE` file recording why. `ai-first-markets` carries one too, for
 the same reason and by the same rule, but keeps its `VENTURE.yaml`: it is the
 portfolio's own scoring engine rather than a business, and its retained
-hypothesis record is the evidence that reclassification rests on. Whether any
-of the three belong under `ventures/` at all, or should move to
+hypothesis record is the evidence that reclassification rests on. Whether either
+belongs under `ventures/` at all, or should move to
 `platform/`/elsewhere, is still an open structural decision; the marker does
 not settle it.
 

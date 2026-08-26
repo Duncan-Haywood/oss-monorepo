@@ -29,7 +29,7 @@
 
 body {
   font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
-  max-width: 42rem;
+  max-width: 52rem;
   margin: 0 auto;
   padding: 1.5rem;
   color: var(--fg);
