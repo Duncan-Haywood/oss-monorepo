@@ -33,3 +33,17 @@ paid APIs, or analytics vendors.
 The optional Markdown format is suitable for a ticket or review note. It lists
 tool names and observed change categories, but intentionally does not reproduce
 manifest descriptions or input schemas.
+
+**Best-effort hosting, no SLA.** These tools are free, experimental, and may
+be slow, broken, moved, or taken offline without notice. We do not promise
+uptime, backups of anything you type, or that a URL will keep working. Do not
+use this as a system of record. If a tool needs to survive, export your
+inputs and run it yourself.
+
+[GitHub Sponsors](https://github.com/sponsors/Duncan-Haywood) is optional and
+does not change what the tool does.
+
+```bash
+cd ventures/mcp-supply-chain-watch
+python3 -m unittest discover -s tests -v
+```
