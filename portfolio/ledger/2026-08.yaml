@@ -23559,3 +23559,56 @@ entries:
         every test passed, because each function was tested against itself. The
         tell was reading the merged file rather than trusting the green run.
     mrr_end: null
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Added four checks to the Pages artifact check that the version on main
+        did not have, and one assertion to the browser journey. Reachability
+        both ways (a product that ships, resolves every link and appears in a
+        sitemap while carrying no hub link is unreachable, and it is the only
+        failure in this class that is completely silent), the required
+        no-warranty disclaimer on every product page and the hub, leaked test
+        payload and repo bookkeeping, and a product-count floor for a discovery
+        collapse. Also widened module-specifier matching to both quote styles
+        and dynamic `import()`: the double-quote-only pattern could not see
+        `from './calc.mjs'`, so a calculator could lose its module and still
+        pass every check.
+      - >-
+        The journey gained the assertion it lacked: change an input and require
+        the output to move. `the tool computes a figure` passed whether or not
+        the arithmetic ran, because every tool ships worked-example defaults and
+        shows money from load. A tool whose calc.mjs throws renders its form,
+        shows its defaults, satisfies every static check, and is useless to a
+        visitor. Verified on 58 products / 244 pages: 128 unit tests, 21 of 21
+        journey checks, four calculators driven, zero console errors, and four
+        regressions injected into a real build each caught.
+      - >-
+        A false positive worth recording, because of how it was found. The
+        reachability check scraped `data-tool` from the whole hub document, and
+        a concurrent session added an offline widget that builds hub cards by
+        string concatenation -- so the hub's own inline script contains the
+        literal `data-tool="' + slug + '"`. The check read that as a link to a
+        product of that name and failed the build on a healthy site. A hub link
+        is markup and script is not, so the scrape now strips script blocks
+        first. None of the synthetic fixtures had a script in the hub; only
+        building the real site caught it, which is the argument for checking the
+        artifact rather than the sources restated against my own check.
+      - >-
+        Learned that the duplication rate on this surface is now the dominant
+        cost, and that it is a scheduling problem rather than a quality one. In
+        about an hour main accumulated two Pages builders, three artifact
+        checkers and two browser journeys, plus a fourth builder an earlier
+        session had already discarded. Every one was competent. Sessions
+        correctly pick the same highest-value gap because DIRECTION.md says
+        deploy-first, then cannot see each other until merge. Two of this
+        session's own deliverables were superseded mid-run and dropped rather
+        than defended -- a separate-variable fix for the two-workflow Pages
+        deploy race (main removed the second deploy job outright, which is
+        better) and a collision guard (main's `check_single_pages_deployer` is
+        equivalent with wider tests). Dropping both was cheaper than arguing for
+        them, but the cheapest fix is upstream: fewer concurrent sessions aimed
+        at one surface, or a claim mechanism before work starts. Five merges of
+        main were needed to land a four-file change.
+    mrr_end: null

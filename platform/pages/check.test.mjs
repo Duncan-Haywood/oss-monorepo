@@ -33,15 +33,17 @@ const sitemapIndex = (...relatives) =>
 async function siteWith(files = {}) {
   const dir = await fs.mkdtemp(path.join(os.tmpdir(), 'pages-check-'));
 
+  // The hub and every product page carry the disclaimer marker, because a
+  // real artifact does: the check treats a page without one as unpublishable.
   const defaults = {
-    'index.html': '<a href="tool/">Tool</a>',
+    'index.html': '<a href="tool/" data-tool="tool">Tool</a><footer>No warranty.</footer>',
     'robots.txt': `User-agent: *\nAllow: /\n\nSitemap: ${url('sitemap.xml')}\n`,
     '404.html': '<p>gone</p>',
     '.nojekyll': '',
     'favicon.ico': '',
     'sitemap.xml': sitemapIndex('sitemap-hub.xml', 'tool/sitemap.xml'),
     'sitemap-hub.xml': urlset(''),
-    'tool/index.html': '<p>Tool</p>',
+    'tool/index.html': '<p>Tool</p><footer>No warranty.</footer>',
     'tool/sitemap.xml': urlset('tool/'),
   };
 
@@ -108,7 +110,8 @@ test('a link that climbs out of the site root is caught', async () => {
 
 test('an external link is not resolved on disk', async () => {
   const problems = await problemsFor({
-    'tool/index.html': '<a href="https://github.com/sponsors/Duncan-Haywood">Sponsor</a>',
+    'tool/index.html':
+      '<a href="https://github.com/sponsors/Duncan-Haywood">Sponsor</a><footer>No warranty.</footer>',
   });
   assert.deepEqual(problems, []);
 });
@@ -128,4 +131,98 @@ test('the index is followed into every sitemap it names', async () => {
   // level down, which is exactly where the real ones were.
   const problems = await problemsFor({ 'tool/sitemap.xml': urlset('tool/', 'tool/ghost.html') });
   assert.equal(mentioning(problems, 'did not ship -> /tool/ghost.html').length, 1);
+});
+
+// ---------------------------------------------------------------------------
+// Reachability, disclaimers, leaked payload, discovery floor
+//
+// Added when two concurrent checkers were merged (#1744). These are the defects
+// the sitemap-and-links half above cannot see: a page can ship, resolve every
+// link, and appear in a sitemap while still being unreachable, undisclaimed, or
+// accompanied by files no visitor should get.
+// ---------------------------------------------------------------------------
+
+test('a product the hub does not link is caught', async () => {
+  // The quiet one. It built, it deployed, every other check passes, and no
+  // visitor can reach it.
+  const problems = await problemsFor({
+    'ghost/index.html': '<p>Ghost</p><footer>No warranty.</footer>',
+    'ghost/sitemap.xml': urlset('ghost/'),
+    'sitemap.xml': sitemapIndex('sitemap-hub.xml', 'tool/sitemap.xml', 'ghost/sitemap.xml'),
+  });
+  assert.equal(mentioning(problems, 'ghost/: shipped but the hub does not link it').length, 1);
+});
+
+test('a hub link with no product behind it is caught', async () => {
+  const problems = await problemsFor({
+    'index.html': '<a href="tool/" data-tool="tool">Tool</a><a data-tool="vanished">V</a><footer>No warranty.</footer>',
+  });
+  assert.equal(mentioning(problems, 'hub links "vanished"').length, 1);
+});
+
+test('a product page shipping without a disclaimer is caught', async () => {
+  const problems = await problemsFor({ 'tool/index.html': '<p>Your profit: $420.00</p>' });
+  assert.equal(mentioning(problems, 'tool/index.html: carries no disclaimer').length, 1);
+});
+
+test('a hub shipping without a disclaimer is caught', async () => {
+  const problems = await problemsFor({ 'index.html': '<a href="tool/" data-tool="tool">Tool</a>' });
+  assert.equal(mentioning(problems, 'index.html: carries no disclaimer').length, 1);
+});
+
+test('leaked test payload and repo bookkeeping are caught', async () => {
+  const problems = await problemsFor({
+    'tool/calc.test.mjs': 'assert(true)',
+    'tool/VENTURE.yaml': 'slug: tool',
+    'tool/README.md': '# notes',
+  });
+  assert.equal(mentioning(problems, 'tool/calc.test.mjs').length, 1);
+  assert.equal(mentioning(problems, 'tool/VENTURE.yaml').length, 1);
+  assert.equal(mentioning(problems, 'tool/README.md').length, 1);
+});
+
+test('a published node_modules is caught', async () => {
+  const problems = await problemsFor({ 'tool/node_modules/left-pad/index.js': 'x' });
+  assert.ok(mentioning(problems, 'node_modules').length >= 1);
+});
+
+test('a discovery collapse is caught by the product floor', async () => {
+  // The fixture has one product, which is fine by default; the CLI passes the
+  // real floor, so this asserts the floor itself rather than the default.
+  const problems = await checkSite(await siteWith(), { minProducts: 20 });
+  assert.equal(mentioning(problems, 'only 1 product(s) published').length, 1);
+});
+
+test('the default floor does not reject a small artifact', async () => {
+  assert.deepEqual(await problemsFor(), []);
+});
+
+test('a single-quoted module specifier is resolved', async () => {
+  // `from './calc.mjs'` was invisible to the double-quote-only pattern, so a
+  // calculator could lose its module and still pass.
+  const problems = await problemsFor({
+    'tool/index.html': "<script type=\"module\">import { calc } from './calc.mjs';</script><footer>No warranty.</footer>",
+  });
+  assert.equal(mentioning(problems, "dead link -> ./calc.mjs").length, 1);
+});
+
+test('a dynamic import specifier is resolved', async () => {
+  const problems = await problemsFor({
+    'tool/index.html': '<script type="module">const m = await import("./share.mjs");</script><footer>No warranty.</footer>',
+  });
+  assert.equal(mentioning(problems, 'dead link -> ./share.mjs').length, 1);
+});
+
+test('a data-tool literal inside a script is not read as a hub link', async () => {
+  // Regression: the offline widget builds hub markup by concatenation, so the
+  // hub's own script contains `data-tool="' + slug + '"`. Scraped raw that
+  // reads as a link to a product named `' + slug + '`, and the reachability
+  // check failed on a perfectly healthy site.
+  const problems = await problemsFor({
+    'index.html':
+      '<a href="tool/" data-tool="tool">Tool</a>' +
+      '<script>const card = (slug) => `<a data-tool="` + slug + `">x</a>`;</script>' +
+      '<footer>No warranty.</footer>',
+  });
+  assert.deepEqual(problems, [], `unexpected: ${JSON.stringify(problems)}`);
 });
