@@ -115,6 +115,11 @@ same SKU four ways: stay at the final-value rate you type, or
 take example Starter, Basic, and Premium mixes after the monthly
 subscription. Forty $40 sales leave a $7.95 Starter $2.43 behind.
 [Is an eBay store worth it?](is-an-ebay-store-worth-it.html).
+An **incoming Best Offer vs waiting** table then prices the same
+listing two ways: take the buyer’s number now, or wait for list
+profit times your guessed chance it still sells. A $34 offer on
+a $40 listing keeps $5.60 more than waiting at 50%.
+[Should I accept this eBay offer?](should-i-accept-this-ebay-offer.html).
 A **Free shipping vs buyer-pays** table then prices the same SKU
 two ways: charge the typed postage, or offer free shipping at a
 typed list and still buy the label. On eBay, folding the exact
@@ -196,6 +201,11 @@ arrive.
 Starter still beats a 13.25% no-store rate after 40 sales** —
 which used to mean subscribing because “the rate is lower” and
 never pricing the month.
+
+**After using the Best Offer page, you can now see whether a $34
+offer still beats waiting for a $40 list after a 50% chance it
+still sells** — which used to mean declining because “it’s under
+list” and never pricing the wait.
 
 **After using the free-shipping page, you can now see whether
 baking $6 into a $46 list still beats charging shipping after a
@@ -307,6 +317,10 @@ drive that decision:
   the final-value rate you type versus example Starter, Basic,
   and Premium mixes after the subscription. The table also names
   the order count that still ties staying off a store.
+- **Incoming Best Offer vs waiting** — leftover if you take the
+  buyer’s number now versus list leftover times a typed chance
+  the listing still sells. The table also names the wait chance
+  that still ties the offer.
 - **Free shipping vs buyer-pays** — expected listing profit after
   sell-through with charged postage versus a typed free-ship list
   that still buys the label. On eBay, baking the exact shipping
@@ -350,6 +364,7 @@ The counted events are `order_profit_calculated`, `target_margin_calculated`,
 `managed_returns_compared`,
 `global_shipping_compared`,
 `store_compared`,
+`best_offer_compared`,
 `free_shipping_compared`, and
 `price_sensitivity_viewed`.
 `listing_format_compared`,
@@ -365,7 +380,8 @@ The counted events are `order_profit_calculated`, `target_margin_calculated`,
 `top_rated_plus_compared`,
 `managed_returns_compared`,
 `global_shipping_compared`,
-`store_compared`, and
+`store_compared`,
+`best_offer_compared`, and
 `free_shipping_compared` are counted at most
 once per visit and only after an input is edited — counting the table's
 first paint would just re-count page loads and say nothing about whether

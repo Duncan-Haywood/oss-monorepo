@@ -140,6 +140,10 @@ export const INPUT_FIELDS = [
   'monthlyGspListings',
   'monthlyStoreOrders',
   'monthlyStoreFee',
+  // Comparison-only: ignored by calculateOrder, carried by save/share
+  // so a "should I take this offer?" link opens with the same offer.
+  'incomingBestOffer',
+  'incomingWaitChancePct',
   'freeShipPrice',
   'buyerPaysSellThroughPct',
   'freeShipSellThroughPct',
@@ -1745,15 +1749,16 @@ function sioRow({ id, label, price, sellThroughPct, input }) {
  * Same listed SKU, two ways to close the watchers you already have:
  * wait for Buy It Now, or send a seller-initiated offer.
  *
- * This is not incoming Best Offer (open #1538): the buyer is not
- * naming a price. You are. It is also not auction vs BIN (listing
- * format before anyone watches) and not the repricing table (a
- * price move without a typed conversion lift). Insertion is
- * already sunk — the listing exists. Accept rate and wait
- * sell-through are inputs, not eBay watcher-conversion policy.
+ * This is not incoming Best Offer: the buyer is not naming a
+ * price. You are. Incoming Best Offer is compareBestOffer. It
+ * is also not auction vs BIN (listing format before anyone
+ * watches) and not the repricing table (a price move without a
+ * typed conversion lift). Insertion is already sunk — the
+ * listing exists. Accept rate and wait sell-through are inputs,
+ * not eBay watcher-conversion policy.
  *
- * Open eBay PRs still own promoted, store, Best Offer,
- * international, Managed Returns, and Top Rated Plus.
+ * Complementary to incoming Best Offer. Open eBay PRs still
+ * own international-vs-domestic (#1564).
  */
 export function compareSellerInitiatedOffer(input) {
   const listedPrice = optionalNumber(input.price, 'Item price');
@@ -3752,8 +3757,8 @@ export function storeBreakEvenOrders({
  * Complementary to Promoted Listings (a percent of a completed
  * sale) and Top Rated Plus (a fee discount for free returns).
  * Fees and rates are inputs, not eBay store policy. Complementary
- * to Global Shipping (#1671). Open eBay PRs still own incoming
- * Best Offer and international-vs-domestic (#1564).
+ * to Global Shipping (#1671) and incoming Best Offer. Open eBay
+ * PRs still own international-vs-domestic (#1564).
  */
 export function compareStoreTiers(input, tiers = STORE_TIER_PRESETS) {
   if (!Array.isArray(tiers) || tiers.length === 0) {
@@ -3887,6 +3892,181 @@ export function storeTiersNote(comparison) {
   return `${feeLine}${floor}`;
 }
 
+export const DEFAULT_INCOMING_BEST_OFFER = 34;
+export const DEFAULT_INCOMING_WAIT_CHANCE = 50;
+
+function pricedOrder(input, price) {
+  const rounded = Math.round(Number(price) * 100) / 100;
+  return { price: rounded, ...calculateOrder({ ...input, price: rounded }) };
+}
+
+/**
+ * A buyer sent a Best Offer. Compare taking it now against
+ * waiting for list (list profit × the typed chance the item
+ * still sells at list), a midpoint counter, and the
+ * target-margin price.
+ *
+ * Waiting treats a miss as $0 this cycle — the item is still
+ * sitting, cash still tied up — rather than assuming a later
+ * offer. The offer is in hand: accept keeps that profit. This
+ * is not a seller-initiated offer (you naming a discount to
+ * watchers) and not the repricing table (a list move without
+ * a typed wait chance). Dedicated incomingBestOffer /
+ * incomingWaitChancePct keep the headline sale at list.
+ *
+ * Complementary to compareSellerInitiatedOffer. Open eBay PRs
+ * still own international-vs-domestic (#1564).
+ */
+export function compareBestOffer(input, offerAmount, listChance) {
+  const listedPrice = optionalNumber(input.price, 'Item price');
+  if (listedPrice === undefined) {
+    throw new Error('Item price must be a non-negative number');
+  }
+
+  const offerPrice = optionalNumber(
+    firstPresent(offerAmount, input.incomingBestOffer, input.bestOffer),
+    'Best offer',
+    DEFAULT_INCOMING_BEST_OFFER,
+  );
+  const chancePct = requiredPercent(
+    firstPresent(listChance, input.incomingWaitChancePct, input.listChance),
+    'Chance of selling at list',
+    DEFAULT_INCOMING_WAIT_CHANCE,
+  );
+
+  const listing = pricedOrder(input, listedPrice);
+  const offer = pricedOrder(input, offerPrice);
+  const midpoint = pricedOrder(input, (listing.price + offerPrice) / 2);
+  const target = Number.isFinite(listing.targetMarginPrice)
+    ? pricedOrder(input, listing.targetMarginPrice)
+    : null;
+  const expectedWaitProfit = listing.profit * (chancePct / 100);
+  const extraKeptOnAccept = offer.profit - expectedWaitProfit;
+  const winner = extraKeptOnAccept > 1e-9
+    ? 'offer'
+    : extraKeptOnAccept < -1e-9
+      ? 'wait'
+      : 'tie';
+  const waitChanceCeiling = listing.profit <= 1e-12
+    ? (offer.profit <= 1e-12 ? 0 : Infinity)
+    : (offer.profit / listing.profit) * 100;
+
+  const wait = {
+    id: 'wait',
+    label: 'Wait for list',
+    kind: 'wait',
+    price: listing.price,
+    profit: listing.profit,
+    margin: listing.margin,
+    soldProfit: listing.profit,
+    expectedProfit: expectedWaitProfit,
+    sellThroughPct: chancePct,
+    expectedProfitDelta: 0,
+  };
+
+  const comparison = {
+    listing,
+    offer,
+    midpoint,
+    target,
+    wait,
+    cashLeftOnTable: listing.profit - offer.profit,
+    aboveBreakEven: offer.profit >= -1e-9,
+    meetsTargetMargin: offer.margin + 1e-9 >= Number(input.targetMargin ?? 0),
+    chanceOfFullPricePct: chancePct,
+    expectedWaitProfit,
+    acceptBeatsWait: extraKeptOnAccept > 1e-9,
+    waitGap: extraKeptOnAccept,
+    extraKeptOnAccept,
+    waitChanceCeiling,
+    winner,
+  };
+  comparison.rows = bestOfferRows(comparison);
+  comparison.summary = bestOfferNote(comparison);
+  return comparison;
+}
+
+export function bestOfferRows(comparison) {
+  if (!comparison?.listing || !comparison?.offer || !comparison?.wait) {
+    throw new Error('Best Offer comparison is missing rows');
+  }
+  const rows = [comparison.wait, {
+    ...comparison.offer,
+    id: 'offer',
+    label: 'This offer',
+    kind: 'offer',
+    soldProfit: comparison.offer.profit,
+    expectedProfit: comparison.offer.profit,
+    sellThroughPct: 100,
+    expectedProfitDelta: comparison.extraKeptOnAccept,
+  }];
+  if (
+    comparison.midpoint
+    && comparison.midpoint.price !== comparison.offer.price
+    && comparison.midpoint.price !== comparison.listing.price
+  ) {
+    rows.push({
+      ...comparison.midpoint,
+      id: 'midpoint',
+      label: 'Midpoint counter',
+      kind: 'midpoint',
+      soldProfit: comparison.midpoint.profit,
+      expectedProfit: comparison.midpoint.profit,
+      sellThroughPct: 100,
+      expectedProfitDelta: comparison.midpoint.profit - comparison.expectedWaitProfit,
+    });
+  }
+  if (
+    comparison.target
+    && comparison.target.price !== comparison.offer.price
+    && comparison.target.price !== comparison.listing.price
+  ) {
+    rows.push({
+      ...comparison.target,
+      id: 'target',
+      label: 'Holds your target margin',
+      kind: 'target',
+      soldProfit: comparison.target.profit,
+      expectedProfit: comparison.target.profit,
+      sellThroughPct: 100,
+      expectedProfitDelta: comparison.target.profit - comparison.expectedWaitProfit,
+    });
+  }
+  return rows;
+}
+
+export function bestOfferNote(comparison) {
+  if (!comparison?.listing || !comparison?.offer || comparison.extraKeptOnAccept === undefined) {
+    throw new Error('Best Offer comparison is missing rows');
+  }
+  const money = (value) => {
+    const sign = value < 0 ? '-' : '';
+    return `${sign}$${Math.abs(value).toFixed(2)}`;
+  };
+  const wait = comparison.acceptBeatsWait
+    ? ` Accepting keeps ${money(Math.abs(comparison.extraKeptOnAccept))} more than waiting if you only have a ${comparison.chanceOfFullPricePct}% chance of the list price.`
+    : ` Waiting still has the higher expected leftover if you really have a ${comparison.chanceOfFullPricePct}% chance of selling at list.`;
+  const ceiling = Number.isFinite(comparison.waitChanceCeiling) && comparison.waitChanceCeiling >= 0
+    ? ` Waiting still ties at about a ${comparison.waitChanceCeiling.toFixed(1)}% chance of selling at list.`
+    : comparison.offer.profit < 0
+      ? ' No chance of list makes this losing offer match waiting.'
+      : '';
+  if (!comparison.aboveBreakEven) {
+    const floor = Number.isFinite(comparison.listing.breakEvenPrice)
+      ? money(comparison.listing.breakEvenPrice)
+      : 'a price that covers your fees';
+    return `This ${money(comparison.offer.price)} offer loses ${money(-comparison.offer.profit)}. Counter at least ${floor} to stop losing money.${wait}${ceiling}`;
+  }
+  if (!comparison.meetsTargetMargin && comparison.target) {
+    return `This ${money(comparison.offer.price)} offer still pays ${money(comparison.offer.profit)} but misses your target margin. Counter ${money(comparison.target.price)} to hold it.${wait}${ceiling}`;
+  }
+  return `This ${money(comparison.offer.price)} offer still leaves ${money(comparison.offer.profit)} (${comparison.offer.margin.toFixed(1)}% margin), ${money(comparison.cashLeftOnTable)} less than list.${wait}${ceiling}`;
+}
+
+export function bestOfferSummary(comparison) {
+  return bestOfferNote(comparison);
+}
+
 /**
  * Illustrative free-shipping extras. 55% vs 70% is a 15-point
  * search-rank lift — both typed, not scraped from Seller Hub.
@@ -3937,8 +4117,8 @@ function freeShipRow({
  * (tracked vs ESE), quantity discount (N units, one box), and
  * seller coupon (public code, not postage). Global Shipping (#1671) is a hub label versus you-ship
  * international postage. Store subscription (#1672) is a monthly fee
- * versus the no-store rate. Open eBay PRs still own incoming Best
- * Offer and international. Rates are inputs, not eBay search
+ * versus the no-store rate. Incoming Best Offer (#1673) is take-the-offer
+ * versus waiting. Open eBay PRs still own international. Rates are inputs, not eBay search
  * ranking.
  */
 export function compareFreeShipping(input) {

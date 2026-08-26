@@ -436,6 +436,15 @@ products:
       - as_of: 2026-08-26
         signals:
           live_url_visitors: null
+          best_offer_compared: 0
+        note: >-
+          Added incoming Best Offer vs waiting (offer in hand versus
+          list profit times a typed chance of list, midpoint counter,
+          target-margin price). Still no public URL; local event
+          best_offer_compared is opt-out and stores no inputs.
+      - as_of: 2026-08-26
+        signals:
+          live_url_visitors: null
           free_shipping_compared: 0
         note: >-
           Added free shipping vs buyer-pays after sell-through (bake-in
