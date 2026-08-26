@@ -50,6 +50,14 @@ test('carries auction vs Buy It Now fields so a shared link does not drop them',
   assert.equal(restored.auctionPromotedRate, 2);
 });
 
+test('carries partial-refund fields so a shared link does not drop them', () => {
+  const restored = decodeInputs(encodeInputs({
+    price: 40, partialRefundAmount: 15, monthlyCases: 4,
+  }));
+  assert.equal(restored.partialRefundAmount, 15);
+  assert.equal(restored.monthlyCases, 4);
+});
+
 test('round-trips known numeric inputs in stable order', () => {
   const encoded = encodeInputs({ price: 40, shippingCharged: 6, finalValueRate: 13.25 });
   assert.equal(encoded, 'price=40&shippingCharged=6&finalValueRate=13.25');

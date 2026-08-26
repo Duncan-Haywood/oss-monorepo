@@ -26,6 +26,14 @@ sell-through, subtracts insertion fees, and shows the hammer that matches
 Buy It Now expected profit. A completed auction sale is often cheaper;
 auctions still win when they actually sell.
 [Should I list this as an auction or Buy It Now?](should-i-list-ebay-auction-or-buy-it-now.html).
+A **Partial refund vs taking the return** table then closes one buyer
+case three ways: send a concession and let them keep it, take the return,
+or refund the whole order without getting the item back.
+[Should I offer a partial refund on eBay?](should-i-offer-a-partial-refund-on-ebay.html).
+
+**After using the case page, you can now see whether a $15 concession
+still beats taking the return on that order** — which used to mean
+hitting Return and forgetting the outbound label you already paid.
 
 Open `index.html` in a browser. The calculation is local and works without an
 account, network request, or API key. It is arithmetic, not an estimate of the
@@ -59,6 +67,11 @@ drive that decision:
   insertion, plus the auction close that matches Buy It Now. Promoted
   Listings Standard stays on the fixed-price row unless you type an
   auction promoted rate.
+- **Partial refund vs taking the return** — cash kept after a $15 (or
+  typed) concession versus a real return versus a full refund they keep.
+  Percentage fees usually come back on the refunded amount; the outbound
+  label does not. The table also names the concession that still ties a
+  return.
 
 **No warranty.** This tool is provided free and as-is, without warranty of any
 kind, express or implied. It is not tax, financial, or business advice, and it
@@ -82,9 +95,10 @@ browser; it never records the inputs. Turn it off with the checkbox in the
 footer, or your browser's Do Not Track / Global Privacy Control setting.
 
 The counted events are `order_profit_calculated`, `target_margin_calculated`,
-`batch_calculated`, `return_rate_viewed`, `listing_format_compared`, and
-`price_sensitivity_viewed`. `price_sensitivity_viewed` and
-`listing_format_compared` are counted at most once per visit and only after
+`batch_calculated`, `return_rate_viewed`, `listing_format_compared`,
+`partial_refund_compared`, and `price_sensitivity_viewed`.
+`price_sensitivity_viewed`, `listing_format_compared`, and
+`partial_refund_compared` are counted at most once per visit and only after
 an input is edited — counting the table's first paint would just re-count
 page loads and say nothing about whether the view is used.
 
