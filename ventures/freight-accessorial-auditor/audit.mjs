@@ -44,7 +44,8 @@ function nonNegative(value, name) {
 }
 
 function money(value) {
-  return `$${cents(value).toFixed(2)}`;
+  const rounded = cents(value);
+  return rounded < 0 ? `-$${(-rounded).toFixed(2)}` : `$${rounded.toFixed(2)}`;
 }
 
 function normalizeEvidence(value) {
@@ -233,4 +234,90 @@ export function detentionNote(result) {
     return `The clock shows ${clock} after ${free}, so ${billable} is billable — ${money(result.expected)} expected. The invoice bills ${money(result.billedAmount)} (${money(-result.variance)} under that). This is a review of the line, not a determination that the invoice is short.`;
   }
   return `The clock shows ${clock} after ${free}, so ${billable} is billable — ${money(result.expected)} expected. ${implied} That is ${money(result.variance)} above the clock. This is a review of the line, not a determination that the charge is wrong.`;
+}
+
+/**
+ * Who keeps cash after a billed accessorial: eat it, invoice the
+ * customer, or pay first and file a review. Pay-the-carrier-first is
+ * the usual AP path. Recovery is the typed expected amount versus the
+ * billed line — not a carrier decision.
+ */
+export function comparePassThrough(input = {}) {
+  const billed = nonNegative(input.billed, "Billed accessorial");
+  const expected = nonNegative(input.expected, "Expected / supported amount");
+  const collectedFreight = nonNegative(input.collectedFreight, "Freight already collected");
+  const backCharge = nonNegative(input.backCharge, "Amount you would bill the customer");
+  const reviewHours = nonNegative(input.reviewHours, "Review hours");
+  const reviewRate = nonNegative(input.reviewRate, "Review hourly cost");
+
+  const recoverable = cents(Math.max(0, billed - expected));
+  const labor = cents(reviewHours * reviewRate);
+  const eat = cents(collectedFreight - billed);
+  const billCustomer = cents(collectedFreight + backCharge - billed);
+  const reviewCredit = cents(collectedFreight - billed + recoverable - labor);
+  const reviewNoCredit = cents(collectedFreight - billed - labor);
+  const reviewHoursCreditBuys = reviewRate > 0 ? cents(recoverable / reviewRate) : null;
+
+  const paths = [
+    { id: "eat", label: "Eat the charge", kept: eat, customerPays: 0, labor: 0 },
+    { id: "bill", label: "Bill the customer", kept: billCustomer, customerPays: backCharge, labor: 0 },
+    {
+      id: "reviewCredit",
+      label: "Review, credit arrives",
+      kept: reviewCredit,
+      customerPays: 0,
+      labor,
+    },
+    {
+      id: "reviewNoCredit",
+      label: "Review, no credit",
+      kept: reviewNoCredit,
+      customerPays: 0,
+      labor,
+    },
+  ];
+  const winner = paths.reduce((best, row) => (row.kept > best.kept ? row : best), paths[0]);
+
+  return {
+    billed,
+    expected,
+    collectedFreight,
+    backCharge,
+    recoverable,
+    labor,
+    eat,
+    billCustomer,
+    reviewCredit,
+    reviewNoCredit,
+    reviewHoursCreditBuys,
+    vsEatBill: cents(billCustomer - eat),
+    vsEatReviewCredit: cents(reviewCredit - eat),
+    vsBillReviewCredit: cents(reviewCredit - billCustomer),
+    paths,
+    winnerId: winner.id,
+    winnerKept: winner.kept,
+  };
+}
+
+export function passThroughNote(result) {
+  const collected = money(result.collectedFreight);
+  const billed = money(result.billed);
+  const expected = money(result.expected);
+  const gap = money(result.recoverable);
+  const labor = money(result.labor);
+  const eat = money(result.eat);
+  const bill = money(result.billCustomer);
+  const credit = money(result.reviewCredit);
+  const noCredit = money(result.reviewNoCredit);
+  const hours =
+    result.reviewHoursCreditBuys == null
+      ? "The credit cannot be turned into review hours without an hourly cost."
+      : `The ${gap} gap buys ${result.reviewHoursCreditBuys.toFixed(2)} hours of review at the typed rate.`;
+  return (
+    `Freight already collected is ${collected}. The carrier billed ${billed} against ${expected} supported (${gap} gap). ` +
+    `Eating the line keeps ${eat}. Billing the customer ${money(result.backCharge)} keeps ${bill}. ` +
+    `Paying first and getting a ${gap} credit after ${labor} of review keeps ${credit}. ` +
+    `The same review with no credit keeps ${noCredit}. ${hours} ` +
+    `This is cash on these inputs, not a reason to invoice a customer or to file a claim.`
+  );
 }

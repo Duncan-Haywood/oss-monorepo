@@ -7,6 +7,8 @@ import {
   disputeDraft,
   reviewDetention,
   detentionNote,
+  comparePassThrough,
+  passThroughNote,
 } from "./audit.mjs";
 
 const rows = [
@@ -144,4 +146,96 @@ test("detention matching the clock has no recoverable overage", () => {
   assert.equal(result.variance, 0);
   assert.equal(result.recoverable, 0);
   assert.deepEqual(result.flags, []);
+});
+
+const PASS_THROUGH_DEFAULT = {
+  billed: 300,
+  expected: 75,
+  collectedFreight: 180,
+  backCharge: 300,
+  reviewHours: 1.5,
+  reviewRate: 42,
+};
+
+test("default pass-through demo: prepaid $180, $300 billed, $75 supported", () => {
+  const result = comparePassThrough(PASS_THROUGH_DEFAULT);
+  assert.equal(result.recoverable, 225);
+  assert.equal(result.labor, 63);
+  assert.equal(result.eat, -120);
+  assert.equal(result.billCustomer, 180);
+  assert.equal(result.reviewCredit, 42);
+  assert.equal(result.reviewNoCredit, -183);
+  assert.equal(result.vsEatBill, 300);
+  assert.equal(result.vsEatReviewCredit, 162);
+  assert.equal(result.vsBillReviewCredit, -138);
+  assert.equal(result.reviewHoursCreditBuys, 5.36);
+  assert.equal(result.winnerId, "bill");
+  assert.equal(result.winnerKept, 180);
+});
+
+test("pass-through note stays observational and matches the default numbers", () => {
+  const note = passThroughNote(comparePassThrough(PASS_THROUGH_DEFAULT));
+  assert.match(note, /\$180\.00/);
+  assert.match(note, /\$300\.00/);
+  assert.match(note, /\$75\.00/);
+  assert.match(note, /\$225\.00 gap/);
+  assert.match(note, /Eating the line keeps -\$120\.00/);
+  assert.match(note, /keeps \$180\.00/);
+  assert.match(note, /keeps \$42\.00/);
+  assert.match(note, /no credit keeps -\$183\.00/);
+  assert.match(note, /5\.36 hours of review/);
+  assert.match(note, /not a reason to invoice a customer or to file a claim/);
+  assert.doesNotMatch(note, /must bill|should dispute|you should invoice/i);
+});
+
+test("clock-only back-charge still beats eating a $300 line", () => {
+  const result = comparePassThrough({ ...PASS_THROUGH_DEFAULT, backCharge: 75 });
+  assert.equal(result.billCustomer, -45);
+  assert.equal(result.vsEatBill, 75);
+  assert.equal(result.winnerId, "reviewCredit");
+  assert.equal(result.winnerKept, 42);
+});
+
+test("already-quoted all-in freight: review-with-credit keeps more than eating", () => {
+  const result = comparePassThrough({
+    billed: 300,
+    expected: 75,
+    collectedFreight: 400,
+    backCharge: 0,
+    reviewHours: 1.5,
+    reviewRate: 42,
+  });
+  assert.equal(result.eat, 100);
+  assert.equal(result.billCustomer, 100);
+  assert.equal(result.reviewCredit, 262);
+  assert.equal(result.reviewNoCredit, 37);
+  assert.equal(result.winnerId, "reviewCredit");
+});
+
+test("crumbs leftover: a $1,250 review on a $50 gap finishes behind eating", () => {
+  const result = comparePassThrough({
+    billed: 80,
+    expected: 30,
+    collectedFreight: 80,
+    backCharge: 0,
+    reviewHours: 10,
+    reviewRate: 125,
+  });
+  assert.equal(result.recoverable, 50);
+  assert.equal(result.labor, 1250);
+  assert.equal(result.eat, 0);
+  assert.equal(result.reviewCredit, -1200);
+  assert.equal(result.winnerId, "eat");
+});
+
+test("pass-through rejects invalid inputs", () => {
+  assert.throws(() => comparePassThrough({ billed: -1 }), /Billed accessorial/);
+  assert.throws(
+    () => comparePassThrough({ billed: 10, expected: "nope" }),
+    /Expected \/ supported amount/,
+  );
+  assert.throws(
+    () => comparePassThrough({ billed: 10, expected: 10, collectedFreight: Number.NaN }),
+    /Freight already collected/,
+  );
 });

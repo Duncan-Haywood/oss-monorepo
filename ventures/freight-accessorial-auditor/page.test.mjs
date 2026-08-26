@@ -59,7 +59,9 @@ test("figures named in schema.org featureList are actually rendered", () => {
 
 test("index links the detention extra and the sitemap lists both pages", () => {
   assert.match(html, /should-i-dispute-this-detention-charge\.html/);
+  assert.match(html, /should-i-bill-this-accessorial-to-the-customer\.html/);
   assert.match(sitemap, /should-i-dispute-this-detention-charge\.html/);
+  assert.match(sitemap, /should-i-bill-this-accessorial-to-the-customer\.html/);
   assert.match(sitemap, /\.\//);
 });
 
