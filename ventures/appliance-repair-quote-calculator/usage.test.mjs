@@ -25,6 +25,14 @@ test("honors opt out", () => {
   assert.equal(storage.getItem("appliance-repair-usage"), null);
 });
 
+test("records a replace comparison without storing years or prices", () => {
+  const storage = memoryStorage();
+  recordUsage(storage, false, "replace_compared", {});
+  const stored = JSON.parse(storage.getItem("appliance-repair-usage"));
+  assert.equal(stored.replace_compared, 1);
+  assert.equal(Object.keys(stored).includes("remainingRepairYears"), false);
+});
+
 test("honors Do Not Track and Global Privacy Control", () => {
   const storage = memoryStorage();
   recordUsage(storage, false, "quote_calculated", { doNotTrack: "1" });
