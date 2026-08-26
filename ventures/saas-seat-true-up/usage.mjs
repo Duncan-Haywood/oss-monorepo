@@ -1,36 +1,81 @@
-const KEY = 'saas-seat-true-up-usage';
-const SCENARIO_KEY = 'saas-seat-true-up-scenario';
-const SCENARIO_FIELDS = ['seats', 'activeUsers', 'price', 'months', 'overageRate'];
+const KEY = 'saas-seat-true-up:usage';
+const OPT_OUT = 'saas-seat-true-up:opt-out';
+const SCENARIO_KEY = 'saas-seat-true-up:scenario';
+const SCENARIO_FIELDS = ['purchased', 'used', 'price', 'months'];
 
-export function recordUsage(storage, event, optedOut = false) {
-  if (optedOut || !storage) return;
+function storage() {
   try {
-    const current = JSON.parse(storage.getItem(KEY) || '{}');
-    current[event] = Math.min(10000, Number(current[event] || 0) + 1);
-    storage.setItem(KEY, JSON.stringify(current));
-  } catch { /* local storage is optional */ }
+    return typeof localStorage !== 'undefined' ? localStorage : null;
+  } catch {
+    return null;
+  }
 }
 
-export function saveScenario(storage, scenario) {
-  if (!storage) return false;
+export function usageAllowed() {
+  if (typeof navigator !== 'undefined' && (navigator.doNotTrack === '1' || navigator.globalPrivacyControl)) {
+    return false;
+  }
+  const ls = storage();
+  if (!ls) return false;
+  return ls.getItem(OPT_OUT) !== 'true';
+}
+
+export function recordEvent(eventName) {
+  if (!usageAllowed()) return;
   try {
-    storage.setItem(SCENARIO_KEY, JSON.stringify({
-      seats: Number(scenario.seats),
-      activeUsers: Number(scenario.activeUsers),
-      price: Number(scenario.price),
-      months: Number(scenario.months),
-      overageRate: Number(scenario.overageRate),
-    }));
+    const ls = storage();
+    if (!ls) return;
+    const current = JSON.parse(ls.getItem(KEY) || '{}');
+    current[eventName] = (current[eventName] || 0) + 1;
+    ls.setItem(KEY, JSON.stringify(current));
+  } catch { /* Private browsing must not break the calculator. */ }
+}
+
+export function disableUsage() {
+  try {
+    const ls = storage();
+    if (!ls) return;
+    ls.setItem(OPT_OUT, 'true');
+    ls.removeItem(KEY);
+  } catch { /* optional measurement */ }
+}
+
+export function saveScenario(store, scenario) {
+  const ls = store || storage();
+  if (!ls) return false;
+  try {
+    const value = {};
+    for (const field of SCENARIO_FIELDS) {
+      const number = Number(scenario?.[field]);
+      if (!Number.isFinite(number) || number < 0) return false;
+      value[field] = number;
+    }
+    ls.setItem(SCENARIO_KEY, JSON.stringify(value));
     return true;
-  } catch { return false; }
+  } catch {
+    return false;
+  }
 }
 
-export function loadScenario(storage) {
-  if (!storage) return null;
+export function loadScenario(store) {
+  const ls = store || storage();
+  if (!ls) return null;
   try {
-    const value = JSON.parse(storage.getItem(SCENARIO_KEY) || 'null');
+    const value = JSON.parse(ls.getItem(SCENARIO_KEY) || 'null');
     if (!value || typeof value !== 'object' || Array.isArray(value)) return null;
-    if (SCENARIO_FIELDS.some(field => typeof value[field] !== 'number' || !Number.isFinite(value[field]))) return null;
+    if (SCENARIO_FIELDS.some((field) => typeof value[field] !== 'number' || !Number.isFinite(value[field]) || value[field] < 0)) {
+      return null;
+    }
     return value;
-  } catch { return null; }
+  } catch {
+    return null;
+  }
+}
+
+export function clearScenario(store) {
+  const ls = store || storage();
+  if (!ls) return;
+  try {
+    ls.removeItem(SCENARIO_KEY);
+  } catch { /* optional persistence */ }
 }
