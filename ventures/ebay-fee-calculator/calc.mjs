@@ -128,6 +128,10 @@ export const INPUT_FIELDS = [
   'managedReturnRatePercent',
   'buyerPaysReturnRatePercent',
   'monthlyManagedListings',
+  'freeShipPrice',
+  'buyerPaysSellThroughPct',
+  'freeShipSellThroughPct',
+  'monthlyFreeShipListings',
 ];
 
 export function calculateOrder(input) {
@@ -3393,4 +3397,186 @@ export function managedReturnsNote(comparison) {
     return `Managed Returns and your own label leave the same expected profit on these rates.${buyer}`;
   }
   return `${feeLine}${floor}${buyer}`;
+}
+
+/**
+ * Illustrative free-shipping extras. 55% vs 70% is a 15-point
+ * search-rank lift — both typed, not scraped from Seller Hub.
+ * Leaving freeShipPrice empty bakes the typed shipping charged
+ * into the item, which on eBay is cash-identical per completed
+ * sale. Forty listings is a placeholder volume, not a forecast.
+ */
+export const DEFAULT_BUYER_PAYS_SHIP_SELL_THROUGH = 55;
+export const DEFAULT_FREE_SHIP_SELL_THROUGH = 70;
+export const DEFAULT_MONTHLY_FREE_SHIP_LISTINGS = 40;
+
+function freeShipRow({
+  id,
+  label,
+  price,
+  shippingCharged,
+  sellThroughPct,
+  sold,
+}) {
+  return {
+    id,
+    label,
+    price,
+    shippingCharged,
+    buyerPays: price + shippingCharged,
+    sellThroughPct,
+    completedProfit: sold.profit,
+    soldExpectedProfit: sold.expectedProfit,
+    soldFees: sold.feeTotal,
+    expectedProfit: sold.expectedProfit * (sellThroughPct / 100),
+    expectedProfitDelta: 0,
+  };
+}
+
+/**
+ * Same SKU, two ways to handle outbound postage: charge the
+ * buyer the typed shipping, or offer free shipping at a typed
+ * free-ship list and still buy the label.
+ *
+ * eBay final-value fee sits on item plus shipping. Folding the
+ * exact shipping charged into the item therefore leaves the
+ * same completed-sale leftover — unlike Reverb, where marketplace
+ * fee sits on the item only. The decision is sell-through versus
+ * under-baking the list.
+ *
+ * Complementary to local pickup (meetup vs the label, no-show),
+ * combined shipping (two already-sold items), Standard Envelope
+ * (tracked vs ESE), quantity discount (N units, one box), and
+ * seller coupon (public code, not postage). #1671 still owns
+ * Global Shipping. Open eBay PRs still own store, incoming Best
+ * Offer, and international. Rates are inputs, not eBay search
+ * ranking.
+ */
+export function compareFreeShipping(input) {
+  const listedPrice = optionalNumber(input.price, 'Item price');
+  if (listedPrice === undefined) {
+    throw new Error('Item price must be a non-negative number');
+  }
+
+  const shippingCharged = optionalNumber(input.shippingCharged, 'Shipping charged', 0);
+  const bakeInPrice = Math.round((listedPrice + shippingCharged) * 100) / 100;
+  const freeShipPrice = optionalNumber(
+    input.freeShipPrice,
+    'Free-shipping list price',
+    bakeInPrice,
+  );
+  const buyerPaysSellThroughPct = requiredPercent(
+    input.buyerPaysSellThroughPct,
+    'Buyer-pays sell-through',
+    DEFAULT_BUYER_PAYS_SHIP_SELL_THROUGH,
+  );
+  const freeShipSellThroughPct = requiredPercent(
+    input.freeShipSellThroughPct,
+    'Free-shipping sell-through',
+    DEFAULT_FREE_SHIP_SELL_THROUGH,
+  );
+  const monthlyFreeShipListings = optionalNumber(
+    input.monthlyFreeShipListings,
+    'Monthly free-shipping listings',
+    DEFAULT_MONTHLY_FREE_SHIP_LISTINGS,
+  );
+
+  const buyerSold = calculateOrder({ ...input, quantity: 1 });
+  const freeSold = calculateOrder({
+    ...input,
+    quantity: 1,
+    price: freeShipPrice,
+    shippingCharged: 0,
+  });
+
+  const buyerPays = freeShipRow({
+    id: 'buyer_pays',
+    label: 'Buyer pays shipping',
+    price: listedPrice,
+    shippingCharged,
+    sellThroughPct: buyerPaysSellThroughPct,
+    sold: buyerSold,
+  });
+  const freeShip = freeShipRow({
+    id: 'free_ship',
+    label: 'Offer free shipping',
+    price: freeShipPrice,
+    shippingCharged: 0,
+    sellThroughPct: freeShipSellThroughPct,
+    sold: freeSold,
+  });
+  buyerPays.expectedProfitDelta = buyerPays.expectedProfit - freeShip.expectedProfit;
+  freeShip.expectedProfitDelta = freeShip.expectedProfit - buyerPays.expectedProfit;
+
+  const extraKeptOnFreeShip = freeShip.expectedProfit - buyerPays.expectedProfit;
+  const winner = extraKeptOnFreeShip > 1e-9
+    ? 'free_ship'
+    : extraKeptOnFreeShip < -1e-9
+      ? 'buyer_pays'
+      : 'tie';
+
+  const breakEvenFreeShipSellThroughPct = freeSold.expectedProfit <= 1e-12
+    ? (buyerPays.expectedProfit <= 1e-12 ? 0 : Infinity)
+    : (buyerPays.expectedProfit / freeSold.expectedProfit) * 100;
+
+  const targetSoldExpected = freeShipSellThroughPct <= 1e-12
+    ? Infinity
+    : buyerPays.expectedProfit / (freeShipSellThroughPct / 100);
+  const promotedRate = optionalNumber(input.promotedRate, 'Promoted listings rate', 0);
+  const breakEvenFreeShipPrice = !Number.isFinite(targetSoldExpected)
+    ? Infinity
+    : priceForExpectedProfit(
+      { ...input, shippingCharged: 0 },
+      promotedRate,
+      targetSoldExpected,
+    );
+
+  const comparison = {
+    rows: [buyerPays, freeShip],
+    buyerPays,
+    freeShip,
+    winner,
+    bakeInPrice,
+    freeShipPrice,
+    underBake: bakeInPrice - freeShipPrice,
+    buyerPaysSellThroughPct,
+    freeShipSellThroughPct,
+    monthlyFreeShipListings,
+    extraKeptOnFreeShip,
+    extraPackedOnFreeShip: freeShip.soldExpectedProfit - buyerPays.soldExpectedProfit,
+    monthlyExtraOnFreeShip: extraKeptOnFreeShip * monthlyFreeShipListings,
+    breakEvenFreeShipSellThroughPct,
+    breakEvenFreeShipPrice,
+    freeShipPays: extraKeptOnFreeShip > 1e-9,
+  };
+  comparison.summary = freeShippingNote(comparison);
+  return comparison;
+}
+
+export function freeShippingNote(comparison) {
+  if (!comparison?.buyerPays || !comparison?.freeShip) {
+    throw new Error('Free-shipping comparison is missing rows');
+  }
+  const money = (value) => {
+    const sign = value < 0 ? '-' : '';
+    return `${sign}$${Math.abs(value).toFixed(2)}`;
+  };
+  const { buyerPays, freeShip } = comparison;
+  const stGap = money(Math.abs(freeShip.expectedProfit - buyerPays.expectedProfit));
+  const stAhead = freeShip.expectedProfit >= buyerPays.expectedProfit ? 'more' : 'less';
+  const packedGap = money(Math.abs(freeShip.soldExpectedProfit - buyerPays.soldExpectedProfit));
+  const packedAhead = freeShip.soldExpectedProfit >= buyerPays.soldExpectedProfit ? 'more' : 'less';
+  const baked = Math.abs(comparison.underBake) <= 1e-9;
+  const bakeLine = baked
+    ? ` Free shipping at ${money(freeShip.price)} bakes in the ${money(comparison.bakeInPrice - buyerPays.price)} charged, so a completed sale still expects ${money(freeShip.soldExpectedProfit)} — the same leftover, because eBay final-value fee sits on item plus shipping.`
+    : ` Free shipping at ${money(freeShip.price)} is ${money(Math.abs(comparison.underBake))} ${comparison.underBake > 0 ? 'under' : 'over'} the ${money(comparison.bakeInPrice)} bake-in, so a completed sale expects ${money(freeShip.soldExpectedProfit)} — ${packedGap} ${packedAhead}.`;
+  const buyerLine = `Buyer-pays shipping at ${money(buyerPays.price)} plus ${money(buyerPays.shippingCharged)}, with ${buyerPays.sellThroughPct}% sell-through, expects ${money(buyerPays.expectedProfit)} leftover after the typed return rate.`;
+  const freeLine = ` At ${freeShip.sellThroughPct}% free-shipping sell-through, free shipping expects ${money(freeShip.expectedProfit)} — ${stGap} ${stAhead}.`;
+  const stFloor = Number.isFinite(comparison.breakEvenFreeShipSellThroughPct)
+    ? ` Free shipping has to convert about ${comparison.breakEvenFreeShipSellThroughPct.toFixed(1)}% of the time before it matches buyer-pays after sell-through.`
+    : ' No free-shipping sell-through on these rates can match buyer-pays.';
+  const priceFloor = Number.isFinite(comparison.breakEvenFreeShipPrice)
+    ? ` The free-ship list that matches buyer-pays leftover at ${comparison.freeShipSellThroughPct}% sell-through is ${money(comparison.breakEvenFreeShipPrice)}.`
+    : '';
+  return `${buyerLine}${bakeLine}${freeLine}${stFloor}${priceFloor}`;
 }

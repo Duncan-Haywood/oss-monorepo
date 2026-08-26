@@ -347,7 +347,9 @@ test('the Managed Returns table has one cell per column and a counted event', ()
   assert.match(page, /managed_returns_compared/);
   assert.match(page, /is-ebay-managed-returns-worth-it\.html/);
   assert.match(page, /"featureList":\s*"[^"]*Managed Returns vs your own label/);
-  const headerBlock = page.slice(page.indexOf('id="managedReturnsTable"'));
+  const managedStart = page.indexOf('id="managedReturnsTable"');
+  const managedEnd = page.indexOf('id="freeShipping"', managedStart);
+  const headerBlock = page.slice(managedStart, managedEnd === -1 ? undefined : managedEnd);
   const headers = [...headerBlock.matchAll(/<th scope="col">([^<]+)<\/th>/g)].map((m) => m[1]);
   assert.deepEqual(headers, [
     'Path',
@@ -355,5 +357,24 @@ test('the Managed Returns table has one cell per column and a counted event', ()
     'Return rate',
     'Expected leftover',
     'vs self-label',
+  ]);
+});
+
+test('the free-shipping table has one cell per column and a counted event', () => {
+  assert.match(page, /compareFreeShipping/);
+  assert.match(page, /id="freeShipping"/);
+  assert.match(page, /id="freeShippingVerdict"/);
+  assert.match(page, /free_shipping_compared/);
+  assert.match(page, /should-i-offer-free-shipping-on-ebay\.html/);
+  assert.match(page, /"featureList":\s*"[^"]*free shipping vs buyer-pays/);
+  const headerBlock = page.slice(page.indexOf('id="freeShippingTable"'));
+  const headers = [...headerBlock.matchAll(/<th scope="col">([^<]+)<\/th>/g)].map((m) => m[1]);
+  assert.deepEqual(headers, [
+    'Path',
+    'Buyer pays',
+    'Close rate',
+    'If they keep it',
+    'Expected after sell-through',
+    'vs buyer-pays',
   ]);
 });

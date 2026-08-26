@@ -104,6 +104,12 @@ program fee (usually at a higher return rate), or make the buyer
 pay return shipping. A $5.50 fee still loses after four extra
 return points on a $40 listing.
 [Is eBay Managed Returns worth it?](is-ebay-managed-returns-worth-it.html).
+A **Free shipping vs buyer-pays** table then prices the same SKU
+two ways: charge the typed postage, or offer free shipping at a
+typed list and still buy the label. On eBay, folding the exact
+shipping charged into the item leaves the same leftover per
+completed sale. Leaving the list at $40 loses after a $5 label.
+[Should I offer free shipping on eBay?](should-i-offer-free-shipping-on-ebay.html).
 
 **After using the authenticity page, you can now see whether a 3% fee
 and an $8 hub label still beat skip-AG on that SKU** — which used to
@@ -168,6 +174,12 @@ looks free” and never pricing the labels you now buy.
 $5.50 program fee still beats an $8 label after extra returns** —
 which used to mean enrolling because “postage is cheaper” and
 never pricing the easier return path.
+
+**After using the free-shipping page, you can now see whether
+baking $6 into a $46 list still beats charging shipping after a
+typed sell-through lift** — which used to mean offering free
+shipping because “eBay ranks it higher” and never pricing an
+under-baked $40 list that still bought the label.
 
 Open `index.html` in a browser. The calculation is local and works without an
 account, network request, or API key. It is arithmetic, not an estimate of the
@@ -264,6 +276,12 @@ drive that decision:
   returns with the label you buy versus a typed program fee
   versus buyer-paid return shipping. The table also names the
   Managed Returns rate that still ties buying the label yourself.
+- **Free shipping vs buyer-pays** — expected listing profit after
+  sell-through with charged postage versus a typed free-ship list
+  that still buys the label. On eBay, baking the exact shipping
+  charged into the item is leftover-identical per completed sale.
+  The table also names the sell-through and free-ship list that
+  still tie buyer-pays.
 
 **No warranty.** This tool is provided free and as-is, without warranty of any
 kind, express or implied. It is not tax, financial, or business advice, and it
@@ -298,7 +316,8 @@ The counted events are `order_profit_calculated`, `target_margin_calculated`,
 `seller_coupon_compared`,
 `immediate_payment_compared`,
 `top_rated_plus_compared`,
-`managed_returns_compared`, and
+`managed_returns_compared`,
+`free_shipping_compared`, and
 `price_sensitivity_viewed`.
 `price_sensitivity_viewed`, `listing_format_compared`,
 `partial_refund_compared`, `authenticity_compared`,
@@ -310,8 +329,9 @@ The counted events are `order_profit_calculated`, `target_margin_calculated`,
 `quantity_discount_compared`,
 `seller_coupon_compared`,
 `immediate_payment_compared`,
-`top_rated_plus_compared`, and
-`managed_returns_compared` are counted at most
+`top_rated_plus_compared`,
+`managed_returns_compared`, and
+`free_shipping_compared` are counted at most
 once per visit and only after an input is edited — counting the table's
 first paint would just re-count page loads and say nothing about whether
 the view is used.

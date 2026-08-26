@@ -415,6 +415,15 @@ products:
           (ad drag on the sale you already had, extra-sale floor, rate
           ceiling). Still no public URL; local event
           promoted_standard_compared is opt-out and stores no inputs.
+      - as_of: 2026-08-26
+        signals:
+          live_url_visitors: null
+          free_shipping_compared: 0
+        note: >-
+          Added free shipping vs buyer-pays after sell-through (bake-in
+          leftover, under-baked $40 list, sell-through floor). Still no
+          public URL; local event free_shipping_compared is opt-out and
+          stores no inputs.
   - slug: cut-list-optimizer
     surface: static-page-in-repo
     readings:
