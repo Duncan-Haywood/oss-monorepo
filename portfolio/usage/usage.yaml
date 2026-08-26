@@ -1916,3 +1916,12 @@ products:
 #           repo_views_14d: 0
 #           release_downloads_total: 0
 #         note: Shipped today; baseline reading.
+
+  - slug: vendor-rate-break-even
+    surface: static-page-in-repo
+    readings:
+      - as_of: 2026-08-25
+        signals:
+          live_url_visitors: null
+          local_events_reported: 0
+        note: Shipped browser-local vendor scenario comparison baseline; public URL remains owner-gated.
