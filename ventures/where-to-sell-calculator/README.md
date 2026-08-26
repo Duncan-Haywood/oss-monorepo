@@ -117,6 +117,12 @@ per day answers "do I wait on the cheaper channel or list where it moves",
 and after returns answers "does the completed-sale winner still win in the
 mix I actually ship".
 
+On a narrow screen the comparison becomes one card per channel instead of a
+wide table, with the channel as the card's heading and every figure on its
+own labelled line. "Where should I sell this?" is often asked while standing
+over the item — at a thrift store, a garage sale, a storage unit — so the
+phone layout shows the same numbers rather than a table dragged sideways.
+
 ### The second table: what a listing is worth, not what a sale is worth
 
 Everything above ranks a *sale*. A seller with stock is ranking a *listing*,
