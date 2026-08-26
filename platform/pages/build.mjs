@@ -755,6 +755,28 @@ export function relatedTools(surfaces, slug, limit = 4) {
  * unchanged when there is no `<body>` to attach to, or when the page has been
  * wrapped already — the pass has to be safe to run twice.
  */
+/**
+ * Whether a page already states an availability disclaimer in its own words.
+ *
+ * Matched loosely on purpose, and deliberately the same shape the test uses:
+ * several ventures word it themselves ("Hosted URLs, when they exist, carry no
+ * availability SLA"), and demanding one exact sentence would mean rewriting
+ * correct pages instead of covering missing ones.
+ */
+export const STATES_NO_SLA =
+  /best-effort hosting|no (availability )?sla|carry no availability|taken offline without notice/i;
+
+// PRODUCT_PLAYBOOK.md 5b requires this on every hosted surface. Injected rather
+// than committed into each venture, for the reason the nav below is: a
+// calculator lands on `main` most days — three landed while this was being
+// written, each without the clause — and a page-by-page sweep loses that race
+// while conflicting with most open branches.
+export const NO_SLA_CLAUSE =
+  '<p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be ' +
+  'slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of ' +
+  'anything you type, or that a URL will keep working. Do not use this as a system of record. If a ' +
+  'tool needs to survive, export your inputs and run it yourself.</p>';
+
 export function injectChrome(html, { slug, toRoot, total, related = [], canonical, isEntry, title }) {
   if (html.includes(CHROME_MARKER)) return html;
   const bodyOpen = html.match(/<body[^>]*>/i);
@@ -812,9 +834,14 @@ export function injectChrome(html, { slug, toRoot, total, related = [], canonica
     )
     .join('\n');
 
+  // Only where the venture does not already say it, the same rule the canonical
+  // tag above follows — a page that words the clause itself keeps its own voice
+  // rather than carrying two.
+  const sla = STATES_NO_SLA.test(html) ? '' : `    ${NO_SLA_CLAUSE}\n`;
+
   const footer = `<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
   <div class="pf-inner">
-    <h2>More free tools</h2>
+${sla}    <h2>More free tools</h2>
     <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
 ${links ? `    <ul>\n${links}\n    </ul>\n` : ''}    <p>
       <a href="${escapeHtml(hub)}" data-pf-to="hub">Browse all ${total} free tools →</a>

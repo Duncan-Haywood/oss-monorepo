@@ -16,6 +16,7 @@ import {
   categoryFor,
   discoverSurfaces,
   injectChrome,
+  STATES_NO_SLA,
   listFiles,
   relatedTools,
   upToRoot,
@@ -678,6 +679,34 @@ test('wrapping a page twice does not stack two navigation bars', () => {
   assert.equal(twice, once);
   assert.equal(once.match(/<nav class="pf-chrome pf-chrome-top"/g).length, 1);
   assert.equal(once.match(/<aside class="pf-chrome pf-chrome-foot"/g).length, 1);
+});
+
+test('a page with no availability clause is given one', () => {
+  const page = '<html><head></head><body><p><strong>No warranty.</strong> As-is.</p></body></html>';
+  const wrapped = injectChrome(page, { slug: 'x', toRoot: '../', total: 2, related: [] });
+
+  assert.match(wrapped, /Best-effort hosting, no SLA/);
+  assert.match(wrapped, STATES_NO_SLA);
+});
+
+test('a page that words the clause itself keeps its own voice and is not given a second', () => {
+  // The reason the check is a loose pattern rather than one exact sentence:
+  // several ventures say this in their own words, and two clauses on one page
+  // reads worse than the one that was already correct.
+  const own =
+    '<html><head></head><body><p>Hosted URLs, when they exist, carry no availability SLA.</p></body></html>';
+  const wrapped = injectChrome(own, { slug: 'x', toRoot: '../', total: 2, related: [] });
+
+  assert.ok(!wrapped.includes('Best-effort hosting, no SLA'), 'must not add a second clause');
+  assert.match(wrapped, /carry no availability SLA/);
+});
+
+test('injecting twice does not stack two availability clauses', () => {
+  const page = '<html><head></head><body><h1>Tool</h1></body></html>';
+  const once = injectChrome(page, { slug: 'x', toRoot: '../', total: 2, related: [] });
+  const twice = injectChrome(once, { slug: 'x', toRoot: '../', total: 2, related: [] });
+
+  assert.equal(twice.match(/Best-effort hosting, no SLA/g).length, 1);
 });
 
 test('a fragment with no body is left alone rather than corrupted', () => {
