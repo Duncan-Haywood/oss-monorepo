@@ -60,6 +60,12 @@ already-listed SKU two ways: wait for Buy It Now, or send a percent
 offer to watchers. A 20% “make them take it” coupon can leave less
 than sitting at the listed price.
 [Should I send an offer to eBay watchers?](should-i-send-an-ebay-offer-to-watchers.html).
+A **Quantity discount vs selling separately** table then prices the
+same multi-quantity SKU two ways: sell N as singles at list, or
+cut the item price so one buyer takes all N in one box. A 10%
+off-two coupon can leave less leftover if they would have bought
+two anyway.
+[Should I offer an eBay quantity discount?](should-i-offer-an-ebay-quantity-discount.html).
 
 **After using the authenticity page, you can now see whether a 3% fee
 and an $8 hub label still beat skip-AG on that SKU** — which used to
@@ -90,6 +96,11 @@ shipping you gave away.
 a 10% seller-initiated offer still beats waiting at 40%
 sell-through** — which used to mean hitting Send offer because
 eBay showed a watcher count and never pricing the discount.
+
+**After using the quantity-discount page, you can now see whether
+10% off two still beats two singles after a typed take rate** —
+which used to mean turning on Buy 2, get 10% off because the
+listing form offered it and never pricing the leftover.
 
 Open `index.html` in a browser. The calculation is local and works without an
 account, network request, or API key. It is arithmetic, not an estimate of the
@@ -154,6 +165,11 @@ drive that decision:
   after sell-through with Buy It Now versus a percent offer to
   watchers. Insertion is already sunk. The table also names the
   accept rate and offer-percent ceiling that still tie waiting.
+- **Quantity discount vs selling separately** — expected leftover
+  for N singles at list versus one multi-buy at a percent off,
+  then the same leftover after a typed singles sell-through
+  versus take rate. The table also names the take-rate floor and
+  the leftover discount-percent ceiling.
 
 **No warranty.** This tool is provided free and as-is, without warranty of any
 kind, express or implied. It is not tax, financial, or business advice, and it
@@ -181,13 +197,14 @@ The counted events are `order_profit_calculated`, `target_margin_calculated`,
 `partial_refund_compared`, `authenticity_compared`,
 `local_pickup_compared`, `lot_vs_singles_compared`,
 `standard_envelope_compared`, `combined_shipping_compared`,
-`seller_initiated_offer_compared`, and
+`seller_initiated_offer_compared`, `quantity_discount_compared`, and
 `price_sensitivity_viewed`.
 `price_sensitivity_viewed`, `listing_format_compared`,
 `partial_refund_compared`, `authenticity_compared`,
 `local_pickup_compared`, `lot_vs_singles_compared`,
-`standard_envelope_compared`, `combined_shipping_compared`, and
-`seller_initiated_offer_compared` are counted at most
+`standard_envelope_compared`, `combined_shipping_compared`,
+`seller_initiated_offer_compared`, and
+`quantity_discount_compared` are counted at most
 once per visit and only after an input is edited — counting the table's
 first paint would just re-count page loads and say nothing about whether
 the view is used.

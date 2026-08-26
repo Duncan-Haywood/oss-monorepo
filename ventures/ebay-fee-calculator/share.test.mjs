@@ -183,6 +183,34 @@ test('carries seller-initiated-offer fields so a shared link does not drop them'
   assert.equal(restored.monthlyOffers, 40);
 });
 
+test('carries quantity-discount fields so a shared link does not drop them', () => {
+  const restored = decodeInputs(encodeInputs({
+    price: 40,
+    qtyDiscountUnits: 2,
+    qtyDiscountPercent: 10,
+    qtyShippingCharged: 6,
+    qtyShippingCost: 5.5,
+    qtyPackagingCost: 1.25,
+    qtyReturnShippingCost: 5.5,
+    qtyFixedFee: 0.3,
+    qtyReturnRatePercent: 10,
+    singlesSellThroughPct: 55,
+    qtyTakePct: 70,
+    monthlyQtyOrders: 20,
+  }));
+  assert.equal(restored.qtyDiscountUnits, 2);
+  assert.equal(restored.qtyDiscountPercent, 10);
+  assert.equal(restored.qtyShippingCharged, 6);
+  assert.equal(restored.qtyShippingCost, 5.5);
+  assert.equal(restored.qtyPackagingCost, 1.25);
+  assert.equal(restored.qtyReturnShippingCost, 5.5);
+  assert.equal(restored.qtyFixedFee, 0.3);
+  assert.equal(restored.qtyReturnRatePercent, 10);
+  assert.equal(restored.singlesSellThroughPct, 55);
+  assert.equal(restored.qtyTakePct, 70);
+  assert.equal(restored.monthlyQtyOrders, 20);
+});
+
 test('round-trips known numeric inputs in stable order', () => {
   const encoded = encodeInputs({ price: 40, shippingCharged: 6, finalValueRate: 13.25 });
   assert.equal(encoded, 'price=40&shippingCharged=6&finalValueRate=13.25');
