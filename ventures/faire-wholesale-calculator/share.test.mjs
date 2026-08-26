@@ -27,6 +27,11 @@ test("round-trips a full brand set including region and payout", () => {
     extraPromotedOrders: 1,
     campaignPromotedRate: 15,
     attributedOrganicPct: 40,
+    returnUnits: 10,
+    returnLabel: 18,
+    restockablePct: 80,
+    keepDiscountPct: 20,
+    denyKeepPct: 50,
     region: "outside_na",
     payout: "next_day",
   };
@@ -82,6 +87,8 @@ test("every brand and retailer field id is unique", () => {
   assert.ok(FIELD_IDS.includes("campaignPromotedRate"));
   assert.ok(FIELD_IDS.includes("extraPromotedOrders"));
   assert.ok(FIELD_IDS.includes("attributedOrganicPct"));
+  assert.ok(FIELD_IDS.includes("returnUnits"));
+  assert.ok(FIELD_IDS.includes("keepDiscountPct"));
   assert.ok(RETAILER_FIELD_IDS.includes("unitRetail"));
   assert.deepEqual(Object.keys(ENUM_FIELDS), ["region", "payout"]);
 });

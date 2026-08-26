@@ -27,6 +27,11 @@ export const FIELD_IDS = [
   "extraPromotedOrders",
   "campaignPromotedRate",
   "attributedOrganicPct",
+  "returnUnits",
+  "returnLabel",
+  "restockablePct",
+  "keepDiscountPct",
+  "denyKeepPct",
 ];
 
 export const RETAILER_FIELD_IDS = [

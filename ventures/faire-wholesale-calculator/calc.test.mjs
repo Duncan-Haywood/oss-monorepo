@@ -5,10 +5,13 @@ import {
   calculateRetailerOrder,
   compareBrandScenarios,
   compareFairePromoted,
+  compareFaireReturn,
   compareOpenHouse,
   comparePayoutSpeeds,
   comparePayoutSpeedsAfterFloat,
   compareRetailerLifetime,
+  faireReturnNote,
+  FAIRE_RETURN_DEFAULTS,
   openHouseNote,
   openHouseSummary,
   OPEN_HOUSE_DEFAULTS,
@@ -361,6 +364,64 @@ test("PROMOTED_DEFAULTS match the page starting point", () => {
   assert.equal(PROMOTED_DEFAULTS.highPromotedRate, 22);
   assert.equal(PROMOTED_DEFAULTS.highExtraPromotedOrders, 2);
   assert.equal(PROMOTED_DEFAULTS.highAttributedOrganicPct, 55);
+});
+
+test("a 20% keep-it credit still beats denying at 50% and taking the full return", () => {
+  const comparison = compareFaireReturn(naReorder);
+  assert.equal(comparison.completed.profit, 75.9);
+  assert.equal(comparison.clawback, 170.9);
+  assert.equal(comparison.restockValue, 64);
+  assert.equal(comparison.credit, 40);
+  assert.equal(comparison.commissionGiveback, 6);
+  assert.equal(comparison.takeAfter, -49);
+  assert.ok(Math.abs(comparison.keepAfter - 41.9) < 1e-12);
+  assert.equal(comparison.denyAfter, 37.95);
+  assert.equal(comparison.winner, "keep");
+  assert.ok(comparison.denyFloorVsKeep > 55.2);
+  assert.ok(comparison.denyFloorVsKeep < 55.3);
+  assert.ok(comparison.keepCeilingVsDeny > 22.3);
+  assert.ok(comparison.keepCeilingVsDeny < 22.4);
+});
+
+test("returning two units with an $8 label flips taking the return ahead", () => {
+  const comparison = compareFaireReturn({ ...naReorder, returnUnits: 2, returnLabel: 8 });
+  assert.equal(comparison.winner, "take");
+  assert.ok(comparison.takeAfter > 46.5);
+  assert.ok(comparison.takeAfter < 46.6);
+  assert.ok(comparison.takeAfter > comparison.keepAfter);
+});
+
+test("70% they'll-drop-it flips denying ahead of the 20% keep-it credit", () => {
+  const comparison = compareFaireReturn({ ...naReorder, denyKeepPct: 70 });
+  assert.equal(comparison.winner, "deny");
+  assert.ok(comparison.denyAfter > 53.1);
+  assert.ok(comparison.denyAfter < 53.2);
+});
+
+test("faireReturnNote does not tell them to take, credit, or fight the return", () => {
+  const note = faireReturnNote(compareFaireReturn(naReorder));
+  assert.match(note, /\$41\.90/);
+  assert.match(note, /\$37\.95/);
+  assert.match(note, /−\$49\.00/);
+  assert.match(note, /55\.2%/);
+  assert.doesNotMatch(note, /should take|must take|should deny|must offer/i);
+});
+
+test("compareFaireReturn rejects impossible units, credits, and rates", () => {
+  assert.throws(() => compareFaireReturn({ ...naReorder, returnUnits: 11 }), /cannot exceed/);
+  assert.throws(() => compareFaireReturn({ ...naReorder, returnUnits: 0 }), /at least 1/);
+  assert.throws(() => compareFaireReturn({ ...naReorder, keepDiscountPct: 100 }), /below 100/);
+  assert.throws(() => compareFaireReturn({ ...naReorder, restockablePct: 101 }), /between 0 and 100/);
+  assert.throws(() => compareFaireReturn({ ...naReorder, denyKeepPct: 101 }), /between 0 and 100/);
+  assert.throws(() => faireReturnNote({}), /missing rows/);
+});
+
+test("FAIRE_RETURN_DEFAULTS match the page starting point", () => {
+  assert.equal(FAIRE_RETURN_DEFAULTS.returnUnits, 10);
+  assert.equal(FAIRE_RETURN_DEFAULTS.returnLabel, 18);
+  assert.equal(FAIRE_RETURN_DEFAULTS.restockablePct, 80);
+  assert.equal(FAIRE_RETURN_DEFAULTS.keepDiscountPct, 20);
+  assert.equal(FAIRE_RETURN_DEFAULTS.denyKeepPct, 50);
 });
 
 test("rejects selling more units than the retailer bought", () => {

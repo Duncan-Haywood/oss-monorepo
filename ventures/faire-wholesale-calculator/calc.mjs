@@ -798,6 +798,148 @@ export function promotedNote(comparison) {
   return comparison.summary ?? promotedSummaryText(comparison);
 }
 
+export const FAIRE_RETURN_DEFAULTS = {
+  returnUnits: 10,
+  returnLabel: 18,
+  restockablePct: 80,
+  keepDiscountPct: 20,
+  denyKeepPct: 50,
+};
+
+/**
+ * A completed Faire first order, then a return request. Distinct from
+ * Open House (listing during the window) and from first-vs-Direct
+ * (channel). Taking the return claws back that slice of payout, you
+ * pay the return label, and you recover restockable COGS. A keep-it
+ * credit leaves the goods with the retailer and reverses commission
+ * on the credited merchandise only. Denying keeps the booked leftover
+ * at the odds you type. Arithmetic only — it does not say to take
+ * the return, offer a credit, or fight it, and it does not publish
+ * Faire's live return policy.
+ */
+export function compareFaireReturn(input = {}) {
+  const completed = calculateBrandOrder(input, "marketplace_first");
+  const quantity = completed.quantity;
+  const returnUnitsRaw = number(
+    input.returnUnits,
+    "Return units",
+    Math.min(FAIRE_RETURN_DEFAULTS.returnUnits, quantity),
+  );
+  if (!Number.isInteger(returnUnitsRaw) || returnUnitsRaw < 1) {
+    throw new Error("Return units must be a whole number of at least 1");
+  }
+  if (returnUnitsRaw > quantity) throw new Error("Return units cannot exceed the order");
+  const returnUnits = returnUnitsRaw;
+  const returnLabel = number(input.returnLabel, "Return label", FAIRE_RETURN_DEFAULTS.returnLabel);
+  const restockablePct = number(input.restockablePct, "Restockable %", FAIRE_RETURN_DEFAULTS.restockablePct);
+  if (restockablePct > 100) throw new Error("Restockable percent must be between 0 and 100");
+  const keepDiscountPct = number(
+    input.keepDiscountPct,
+    "Keep-it credit",
+    FAIRE_RETURN_DEFAULTS.keepDiscountPct,
+  );
+  if (keepDiscountPct >= 100) throw new Error("Keep-it credit must be below 100%");
+  const denyKeepPct = number(input.denyKeepPct, "Deny keep rate", FAIRE_RETURN_DEFAULTS.denyKeepPct);
+  if (denyKeepPct > 100) throw new Error("Deny keep rate must be between 0 and 100");
+
+  const returnShare = returnUnits / quantity;
+  const clawback = completed.payoutAmount * returnShare;
+  const unitCogs = number(input.unitCogs, "Unit cost of goods", 0);
+  const restockValue = (restockablePct / 100) * returnUnits * unitCogs;
+  const takeAfter = completed.profit - clawback - returnLabel + restockValue;
+
+  const credit = completed.orderSubtotal * (keepDiscountPct / 100);
+  const commissionGiveback = credit * (completed.commissionRate / 100);
+  const keepAfter = completed.profit - credit + commissionGiveback;
+
+  const denyAfter = completed.profit * (denyKeepPct / 100);
+
+  const rows = [
+    { id: "keep", label: "Keep-it credit", leftover: keepAfter },
+    { id: "deny", label: "Deny the return", leftover: denyAfter },
+    { id: "take", label: "Take the return", leftover: takeAfter },
+  ];
+  const winner = rows.reduce((best, row) => (row.leftover > best.leftover ? row : best));
+
+  let denyFloorVsKeep = null;
+  if (completed.profit > 0) {
+    denyFloorVsKeep = (keepAfter / completed.profit) * 100;
+    if (denyFloorVsKeep < 0) denyFloorVsKeep = null;
+  }
+
+  let keepCeilingVsDeny = null;
+  const keepNetFrac = 1 - completed.commissionRate / 100;
+  if (completed.orderSubtotal > 0 && keepNetFrac > 0) {
+    keepCeilingVsDeny = (completed.profit - denyAfter) / (completed.orderSubtotal * keepNetFrac) * 100;
+    if (keepCeilingVsDeny < 0) keepCeilingVsDeny = null;
+  }
+
+  return {
+    completed,
+    returnUnits,
+    returnShare,
+    returnLabel,
+    restockablePct,
+    keepDiscountPct,
+    denyKeepPct,
+    clawback,
+    restockValue,
+    credit,
+    commissionGiveback,
+    takeAfter,
+    keepAfter,
+    denyAfter,
+    keepVsDeny: keepAfter - denyAfter,
+    takeVsKeep: takeAfter - keepAfter,
+    winner: winner.id,
+    denyFloorVsKeep,
+    keepCeilingVsDeny,
+    rows: rows.map((row) => ({
+      ...row,
+      isBest: row.id === winner.id,
+      gapVsBest: winner.leftover - row.leftover,
+    })),
+  };
+}
+
+export function faireReturnNote(comparison) {
+  if (!comparison?.completed) throw new Error("faireReturnNote missing rows");
+  const booked = moneyLabel(comparison.completed.profit);
+  const floor = comparison.denyFloorVsKeep == null
+    ? ""
+    : ` Denying matches a taken keep-it credit at about ${comparison.denyFloorVsKeep.toFixed(1)}% they'll-drop-it.`;
+  if (comparison.winner === "keep") {
+    return (
+      `On this completed first order (${booked} booked), a ${comparison.keepDiscountPct}% ` +
+      `keep-it credit leaves ${moneyLabel(comparison.keepAfter)} after reversing ` +
+      `${moneyLabel(comparison.commissionGiveback)} of commission on the credit. ` +
+      `Denying at ${comparison.denyKeepPct}% they'll-drop-it leaves ` +
+      `${moneyLabel(comparison.denyAfter)} — ${moneyLabel(comparison.keepVsDeny)} behind. ` +
+      `Taking the return of ${comparison.returnUnits} unit${comparison.returnUnits === 1 ? "" : "s"} ` +
+      `leaves ${moneyLabel(comparison.takeAfter)} after a ${moneyLabel(comparison.returnLabel)} ` +
+      `label and ${comparison.restockablePct.toFixed(0)}% restockable COGS.${floor}`
+    );
+  }
+  if (comparison.winner === "take") {
+    return (
+      `On this completed first order (${booked} booked), taking the return of ` +
+      `${comparison.returnUnits} unit${comparison.returnUnits === 1 ? "" : "s"} leaves ` +
+      `${moneyLabel(comparison.takeAfter)} after a ${moneyLabel(comparison.returnLabel)} label. ` +
+      `A ${comparison.keepDiscountPct}% keep-it credit leaves ${moneyLabel(comparison.keepAfter)} ` +
+      `— ${moneyLabel(-comparison.takeVsKeep)} behind. Denying at ` +
+      `${comparison.denyKeepPct}% they'll-drop-it leaves ${moneyLabel(comparison.denyAfter)}.${floor}`
+    );
+  }
+  return (
+    `On this completed first order (${booked} booked), denying at ` +
+    `${comparison.denyKeepPct}% they'll-drop-it leaves ${moneyLabel(comparison.denyAfter)} — ` +
+    `${moneyLabel(-comparison.keepVsDeny)} ahead of a ${comparison.keepDiscountPct}% keep-it ` +
+    `credit (${moneyLabel(comparison.keepAfter)}) and ` +
+    `${moneyLabel(comparison.denyAfter - comparison.takeAfter)} ahead of taking the return ` +
+    `(${moneyLabel(comparison.takeAfter)}).${floor}`
+  );
+}
+
 export function comparePayoutSpeeds(input, scenarioId = "marketplace_reorder") {
   return Object.entries(PAYOUT_PRESETS).map(([id, preset]) => {
     const result = calculateBrandOrder({

@@ -31,12 +31,14 @@ test("supports a named aggregate event without recording inputs", () => {
   recordUsage(storage, false, "payout_float_compared");
   recordUsage(storage, false, "open_house_compared");
   recordUsage(storage, false, "promoted_compared");
+  recordUsage(storage, false, "faire_return_compared");
   const stored = JSON.parse(values.get("faire-wholesale-usage"));
   assert.equal(stored.scenario_compared, 1);
   assert.equal(stored.link_copied, 1);
   assert.equal(stored.payout_float_compared, 1);
   assert.equal(stored.open_house_compared, 1);
   assert.equal(stored.promoted_compared, 1);
+  assert.equal(stored.faire_return_compared, 1);
 });
 
 test("honors Do Not Track and Global Privacy Control", () => {

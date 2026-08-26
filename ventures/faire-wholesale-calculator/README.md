@@ -16,6 +16,8 @@ the extra next-day processing still beats waiting after your carrying cost.
 to Open House at 0% commission after the deeper discount retailers expect.
 `should-i-run-faire-promoted-listings.html` compares skipping Promoted
 Listings to a campaign after last-click organic first orders.
+`should-i-take-this-faire-return.html` compares a keep-it credit, denying
+the request, and taking the return after a completed first order.
 
 The calculation is local and works without an account, network request, or API
 key. It is arithmetic, not an estimate of the fees Faire will charge: enter the
@@ -27,7 +29,8 @@ opening-order fee, see whether next-day payout still beats waiting
 once your own carrying cost is on the invoice, and see whether a Faire
 Open House discount still leaves more than listing everyday, and see
 whether Promoted Listings still cover last-click organic first
-orders**, which used to take reconciling Faire’s help articles against a spreadsheet.
+orders, and see whether a keep-it credit still beats taking a Faire
+return**, which used to take reconciling Faire’s help articles against a spreadsheet.
 
 ## What it checks that a flat 15% page does not
 
