@@ -2677,3 +2677,290 @@ export function comparePickup(input) {
     }),
   };
 }
+
+/**
+ * Illustrative Shopify upsell defaults. Add-on price, cost, offer
+ * percent, take rates, and checkout-drop are inputs — not Shopify
+ * checkout-extensibility or Rebuy / Zipify / AfterSell policy. $18
+ * add-on / 10% off / 18% checkout take / 12% one-click take / 2%
+ * extra abandon is a consumable-adjacent mix a merchant overwrites
+ * from their own offer report.
+ */
+export const DEFAULT_ADDON_PRICE = 18;
+export const DEFAULT_ADDON_COST = 6;
+export const DEFAULT_ADDON_DISCOUNT_PCT = 10;
+export const DEFAULT_CHECKOUT_TAKE_PCT = 18;
+export const DEFAULT_POST_PURCHASE_TAKE_PCT = 12;
+export const DEFAULT_CHECKOUT_DROP_PCT = 2;
+export const DEFAULT_ADDON_PACKAGING = 0.5;
+export const DEFAULT_ADDON_LABEL = 0;
+export const DEFAULT_MONTHLY_UPSELL_CHECKOUTS = 80;
+
+function upsellPath({ id, label, takePct, completedProfit, expectedProfit, extraSwipe }) {
+  return {
+    id,
+    label,
+    takePct,
+    completedProfit,
+    expectedProfit,
+    extraSwipe,
+  };
+}
+
+function upsellSummary({
+  skip,
+  checkout,
+  post,
+  extraOnCheckout,
+  extraOnPost,
+  extraOnPostVsCheckout,
+  monthlyExtraOnPost,
+  breakEvenCheckoutTakePct,
+  breakEvenPostTakeVsCheckout,
+  breakEvenCheckoutDropPct,
+  addOnDiscountPct,
+  checkoutDropPct,
+  discountedAddOn,
+}) {
+  const skipLine = `Skipping the offer keeps ${moneyLabel(skip.expectedProfit)}.`;
+  const checkoutGap = moneyLabel(Math.abs(extraOnCheckout));
+  const checkoutAhead = extraOnCheckout >= 0 ? "more" : "less";
+  const checkoutLine = ` A checkout add-on at ${checkout.takePct}% take after a ${checkoutDropPct}% extra abandon keeps ${moneyLabel(checkout.expectedProfit)} — ${checkoutGap} ${checkoutAhead} (${moneyLabel(checkout.completedProfit)} if they add on the first swipe).`;
+  const postGap = moneyLabel(Math.abs(extraOnPost));
+  const postAhead = extraOnPost >= 0 ? "more" : "less";
+  const postLine = ` A post-purchase one-click at ${post.takePct}% take keeps ${moneyLabel(post.expectedProfit)} — ${postGap} ${postAhead} (${moneyLabel(post.completedProfit)} on the second swipe for a ${addOnDiscountPct}% off ${moneyLabel(discountedAddOn)} add-on).`;
+  const vsCheckout = extraOnPostVsCheckout === 0
+    ? ""
+    : extraOnPostVsCheckout > 0
+      ? ` One-click keeps ${moneyLabel(extraOnPostVsCheckout)} more than the checkout offer.`
+      : ` The checkout offer keeps ${moneyLabel(-extraOnPostVsCheckout)} more than one-click.`;
+  const takeFloor = Number.isFinite(breakEvenCheckoutTakePct)
+    ? ` Checkout take has to land about ${breakEvenCheckoutTakePct.toFixed(1)}% before it matches skipping.`
+    : " No checkout take on this leftover can match skipping.";
+  const postFloor = Number.isFinite(breakEvenPostTakeVsCheckout)
+    ? ` One-click take has to land about ${breakEvenPostTakeVsCheckout.toFixed(1)}% before it matches the checkout offer.`
+    : "";
+  const dropCeil = Number.isFinite(breakEvenCheckoutDropPct)
+    ? ` Extra checkout abandon can rise to about ${breakEvenCheckoutDropPct.toFixed(1)}% before the checkout offer matches one-click.`
+    : "";
+  const month = monthlyExtraOnPost === 0
+    ? ""
+    : extraOnPost >= 0
+      ? ` Across the typed month one-click keeps ${moneyLabel(monthlyExtraOnPost)} more than skipping.`
+      : ` Across the typed month one-click keeps ${moneyLabel(-monthlyExtraOnPost)} less than skipping.`;
+  return `${skipLine}${checkoutLine}${postLine}${vsCheckout}${takeFloor}${postFloor}${dropCeil}${month}`;
+}
+
+/**
+ * Same prepaid Shopify checkout, three ways leftover can land when
+ * a merchant offers an add-on.
+ *
+ *   - Skip — leftover of the typed completed hero order.
+ *   - Checkout add-on — they add before they pay: one swipe, one
+ *     $0.30, one plan allocation, same box unless a second label is
+ *     typed. A typed extra-abandon rate zeros the whole ticket for
+ *     that share (the usual checkout-upsell risk).
+ *   - Post-purchase one-click — second swipe after they already paid.
+ *     The hero leftover stays; take rate applies only to the add-on
+ *     (another $0.30, extra pack, optional extra label, no second
+ *     plan share).
+ *
+ * Complementary to abandoned-checkout recovery (they already left),
+ * subscriptions (the same SKU again), and checkout promos (a discount
+ * on the item they already wanted). Rates and the drop are inputs,
+ * not Shopify checkout-extensibility or an upsell-app schedule.
+ */
+export function compareUpsell(input) {
+  const addOnPrice = emptyField(input.addOnPrice)
+    ? DEFAULT_ADDON_PRICE
+    : number(input.addOnPrice, "Add-on price");
+  const addOnCost = emptyField(input.addOnCost)
+    ? DEFAULT_ADDON_COST
+    : number(input.addOnCost, "Add-on cost");
+  const addOnDiscountPct = emptyField(input.addOnDiscountPct)
+    ? DEFAULT_ADDON_DISCOUNT_PCT
+    : ratePercent(input.addOnDiscountPct, "Add-on discount percent");
+  const checkoutTakePct = emptyField(input.checkoutTakePct)
+    ? DEFAULT_CHECKOUT_TAKE_PCT
+    : ratePercent(input.checkoutTakePct, "Checkout take percent");
+  const postPurchaseTakePct = emptyField(input.postPurchaseTakePct)
+    ? DEFAULT_POST_PURCHASE_TAKE_PCT
+    : ratePercent(input.postPurchaseTakePct, "Post-purchase take percent");
+  const checkoutDropPct = emptyField(input.checkoutDropPct)
+    ? DEFAULT_CHECKOUT_DROP_PCT
+    : ratePercent(input.checkoutDropPct, "Checkout drop percent");
+  const extraPack = emptyField(input.addOnPackagingCost)
+    ? DEFAULT_ADDON_PACKAGING
+    : number(input.addOnPackagingCost, "Add-on packaging");
+  const extraLabel = emptyField(input.addOnShippingCost)
+    ? DEFAULT_ADDON_LABEL
+    : number(input.addOnShippingCost, "Add-on shipping");
+  const monthlyCheckouts = emptyField(input.monthlyUpsellCheckouts)
+    ? DEFAULT_MONTHLY_UPSELL_CHECKOUTS
+    : number(input.monthlyUpsellCheckouts, "Monthly checkouts");
+  if (monthlyCheckouts === 0) {
+    throw new Error("Monthly checkouts must be greater than zero");
+  }
+
+  const heroPrice = number(input.price, "Item price");
+  const heroCost = number(input.costOfGoods, "Cost of goods");
+  const heroPack = number(input.packagingCost, "Packaging cost");
+  const heroLabel = number(input.shippingCost, "Shipping cost");
+  const discountedAddOn = addOnPrice * (1 - addOnDiscountPct / 100);
+
+  const heroOrder = calculateOrder(input);
+  const heroProfit = heroOrder.selected.profit;
+
+  const combinedOrder = calculateOrder({
+    ...input,
+    price: heroPrice + discountedAddOn,
+    costOfGoods: heroCost + addOnCost,
+    packagingCost: heroPack + extraPack,
+    shippingCost: heroLabel + extraLabel,
+  });
+  const combinedProfit = combinedOrder.selected.profit;
+
+  const addOnOrder = calculateOrder({
+    ...input,
+    price: discountedAddOn,
+    shippingCharged: 0,
+    costOfGoods: addOnCost,
+    packagingCost: extraPack,
+    shippingCost: extraLabel,
+    otherCost: 0,
+    monthlyPlan: 0,
+  });
+  const addOnProfit = addOnOrder.selected.profit;
+
+  const completeFrac = 1 - checkoutDropPct / 100;
+  const checkoutIfComplete = (checkoutTakePct / 100) * combinedProfit
+    + (1 - checkoutTakePct / 100) * heroProfit;
+  const checkoutExpected = completeFrac * checkoutIfComplete;
+  const postExpected = heroProfit + (postPurchaseTakePct / 100) * addOnProfit;
+
+  const skip = upsellPath({
+    id: "skip",
+    label: "Skip the offer",
+    takePct: 0,
+    completedProfit: heroProfit,
+    expectedProfit: heroProfit,
+    extraSwipe: 0,
+  });
+  const checkout = upsellPath({
+    id: "checkout",
+    label: "Checkout add-on",
+    takePct: checkoutTakePct,
+    completedProfit: combinedProfit,
+    expectedProfit: checkoutExpected,
+    extraSwipe: 0,
+  });
+  const post = upsellPath({
+    id: "post",
+    label: "Post-purchase one-click",
+    takePct: postPurchaseTakePct,
+    completedProfit: addOnProfit,
+    expectedProfit: postExpected,
+    extraSwipe: 1,
+  });
+
+  const extraOnCheckout = checkoutExpected - heroProfit;
+  const extraOnPost = postExpected - heroProfit;
+  const extraOnPostVsCheckout = postExpected - checkoutExpected;
+  const monthlyExtraOnCheckout = extraOnCheckout * monthlyCheckouts;
+  const monthlyExtraOnPost = extraOnPost * monthlyCheckouts;
+  const monthlyExtraOnPostVsCheckout = extraOnPostVsCheckout * monthlyCheckouts;
+
+  const rows = [skip, checkout, post].map((row) => ({
+    ...row,
+    vsSkip: row.expectedProfit - heroProfit,
+  }));
+
+  const expectedValues = [heroProfit, checkoutExpected, postExpected];
+  const bestExpected = Math.max(...expectedValues);
+  const winnerIds = [
+    { id: "skip", value: heroProfit },
+    { id: "checkout", value: checkoutExpected },
+    { id: "post", value: postExpected },
+  ].filter((row) => Math.abs(row.value - bestExpected) <= 1e-9);
+  const winner = winnerIds.length === 1 ? winnerIds[0].id : "tie";
+
+  const combinedExtra = combinedProfit - heroProfit;
+  let breakEvenCheckoutTakePct = Infinity;
+  if (completeFrac > 1e-12 && combinedExtra > 1e-12) {
+    const needed = (heroProfit * (checkoutDropPct / 100)) / (completeFrac * combinedExtra) * 100;
+    breakEvenCheckoutTakePct = needed < -1e-9 || needed > 100 + 1e-9
+      ? Infinity
+      : Math.max(0, Math.min(100, needed));
+  } else if (checkoutDropPct <= 1e-12 && combinedExtra > 1e-12) {
+    breakEvenCheckoutTakePct = 0;
+  }
+
+  let breakEvenPostTakeVsCheckout = Infinity;
+  if (addOnProfit > 1e-12) {
+    const needed = (checkoutExpected - heroProfit) / addOnProfit * 100;
+    breakEvenPostTakeVsCheckout = needed < -1e-9 || needed > 100 + 1e-9
+      ? Infinity
+      : Math.max(0, Math.min(100, needed));
+  }
+
+  let breakEvenCheckoutDropPct = Infinity;
+  if (checkoutIfComplete > 1e-12) {
+    const completeNeeded = postExpected / checkoutIfComplete;
+    const rate = (1 - completeNeeded) * 100;
+    breakEvenCheckoutDropPct = rate < -1e-9 || rate > 100 + 1e-9
+      ? Infinity
+      : Math.max(0, Math.min(100, rate));
+  }
+
+  return {
+    rows,
+    skip: rows[0],
+    checkout: rows[1],
+    post: rows[2],
+    ticket: heroOrder.revenue,
+    combinedTicket: combinedOrder.revenue,
+    addOnTicket: addOnOrder.revenue,
+    addOnPrice,
+    addOnCost,
+    addOnDiscountPct,
+    discountedAddOn,
+    checkoutTakePct,
+    postPurchaseTakePct,
+    checkoutDropPct,
+    extraPack,
+    extraLabel,
+    monthlyCheckouts,
+    combinedProfit,
+    addOnProfit,
+    checkoutIfComplete,
+    extraOnCheckout,
+    extraOnPost,
+    extraOnPostVsCheckout,
+    monthlyExtraOnCheckout,
+    monthlyExtraOnPost,
+    monthlyExtraOnPostVsCheckout,
+    breakEvenCheckoutTakePct,
+    breakEvenPostTakeVsCheckout,
+    breakEvenCheckoutDropPct,
+    winner,
+    summary: upsellSummary({
+      skip: rows[0],
+      checkout: rows[1],
+      post: rows[2],
+      extraOnCheckout,
+      extraOnPost,
+      extraOnPostVsCheckout,
+      monthlyExtraOnPost,
+      breakEvenCheckoutTakePct,
+      breakEvenPostTakeVsCheckout,
+      breakEvenCheckoutDropPct,
+      addOnDiscountPct,
+      checkoutDropPct,
+      discountedAddOn,
+    }),
+  };
+}
+
+export function upsellNote(comparison) {
+  return comparison.summary;
+}

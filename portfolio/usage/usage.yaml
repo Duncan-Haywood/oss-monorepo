@@ -620,6 +620,15 @@ products:
           Added one-time vs monthly subscribe vs prepaid pack (billing
           fee, skip-adjusted stay, enroll mix). Public URL remains
           owner-gated; local events are opt-out and store no inputs.
+      - as_of: 2026-08-26
+        signals:
+          live_url_visitors: null
+          upsell_compared: 0
+        note: >-
+          Added skip vs checkout add-on vs post-purchase one-click
+          (second swipe, extra abandon, drop that ties one-click).
+          Public URL remains owner-gated; local events are opt-out
+          and store no inputs.
   - slug: where-to-sell-calculator
     surface: static-page-in-repo
     readings:

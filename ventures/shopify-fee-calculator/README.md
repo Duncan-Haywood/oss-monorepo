@@ -81,6 +81,10 @@ checkout, and when a prepaid pack keeps more.
 answers the hold question: whether free or paid in-store pickup still
 beats a carrier label after staff time, a lighter bag, and a no-show
 refund mix.
+[Should I add a Shopify upsell?](should-i-add-a-shopify-upsell.html)
+answers the add-on question: whether a checkout offer still beats a
+post-purchase one-click after the second swipe and the carts that
+bounce because you asked before they paid.
 
 **After using the POS page, you can now see whether a market table or
 retail tap keeps more than checkout on that SKU** — which used to mean
@@ -147,6 +151,11 @@ in-store hold still beats a $5 label after staff time and a 12%
 no-show refund** — which used to mean turning on Local Pickup because
 the postage looked like the only cost.
 
+**After using the upsell page, you can now see whether an 18%
+checkout add-on still beats a 12% one-click after a 2% extra
+abandon** — which used to mean installing Rebuy because a $18
+add-on looked like free leftover.
+
 **No warranty.** This tool is provided free and as-is, without warranty of any
 kind, express or implied. It is not tax, financial, or business advice, and it
 does not replace a qualified professional. **You are responsible for reviewing
@@ -180,7 +189,7 @@ optional and never changes what the tool does.
 Pure ES modules, no build step, no dependencies.
 
 ```
-node --test        # calc, usage, POS / label / installment / return / Capital / bank-transfer / chargeback / local-delivery / gift-card / Markets-duties / abandoned-checkout / subscription / pickup page tests
+node --test        # calc, usage, POS / label / installment / return / Capital / bank-transfer / chargeback / local-delivery / gift-card / Markets-duties / abandoned-checkout / subscription / pickup / upsell page tests
 ```
 
 `calc.mjs` holds the fee/profit/ROI arithmetic and plan presets; `usage.mjs`
