@@ -3295,3 +3295,16 @@ products:
           minimum, walk-away and per-inch sanity check). Public URL remains
           owner-gated; the local-first counter reports only to the user's own
           browser and is opt-out. Baseline row.
+
+  - slug: tender-bid-readiness
+    surface: static-page-in-repo
+    readings:
+      - as_of: 2026-08-26
+        signals:
+          live_url_visitors: null
+          readiness_checked: 0
+        note: >-
+          Repair-and-merge of unique #1086 tender bid readiness checker onto
+          current main. Paste a solicitation; heuristic signals stay in the
+          browser. Public URL remains owner-gated; usage is opt-out and
+          honors DNT/GPC. Baseline row.
