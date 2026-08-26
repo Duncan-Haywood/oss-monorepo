@@ -1,6 +1,14 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { parsePanels, optimizeSheets, formatSheetPlan, compareSheetSizes, formatSheetComparison, sameSheetSize, MAX_PANELS } from './sheet.mjs';
+import {
+  parsePanels,
+  optimizeSheets,
+  formatSheetPlan,
+  compareSheetSizes,
+  formatSheetComparison,
+  sheetSizeLabel,
+  MAX_PANELS,
+} from './sheet.mjs';
 
 const EPS = 1e-6;
 
@@ -264,96 +272,125 @@ test('the plan names the pieces that did not fit', () => {
   assert.match(formatSheetPlan(result, { unit: 'in' }), /Does not fit on a sheet[\s\S]*Countertop: 120\.00 × 60\.00 in/);
 });
 
-test('treats 4×8 and 8×4 as the same sheet', () => {
-  assert.equal(sameSheetSize({ width: 96, height: 48 }, { width: 48, height: 96 }), true);
-  assert.equal(sameSheetSize({ width: 96, height: 48 }, { width: 60, height: 60 }), false);
+// --- Sheet size comparison ---
+//
+// The question a shop asks at the lumber yard is not "how do I nest these,"
+// it is "do I buy 4×8, 5×5 Baltic, or a stack of half-sheets?" The comparison
+// has to pick the size that costs less cash when prices are known, and the
+// size that buys fewer sheets when they are not.
+
+const CABINET_DOORS = 'Door: 28 x 28 x 4';
+const BOOKCASE = 'Side: 72 x 11.25 x 2\nShelf: 30 x 11.25 x 4\nTop: 31.5 x 11.25 x 2';
+
+test('names common inch sheets the way a shop orders them', () => {
+  assert.equal(sheetSizeLabel(96, 48), '4×8');
+  assert.equal(sheetSizeLabel(48, 96), '4×8');
+  assert.equal(sheetSizeLabel(60, 60), '5×5');
+  assert.equal(sheetSizeLabel(48, 48), '4×4');
+  assert.equal(sheetSizeLabel(120, 60), '5×10');
+  assert.equal(sheetSizeLabel(50, 30, 'cm'), '50.00 × 30.00');
 });
 
-test('compares common sheet sizes and ranks by purchased area among sizes that fit', () => {
-  // One 24×24 tile fits a 4×4 and a 4×8. Buying the 4×8 wastes a half-sheet
-  // the shop did not need — that is the decision this comparison exists for.
+test('priced 28-inch doors: two cheap 4×8 sheets beat one $90 Baltic 5×5', () => {
+  // Four 28×28 doors: 5×5 takes one sheet, 4×8 takes two, 4×4 takes four.
+  // At $42 / $90 / $22 the cash ranking is 4×8 ($84), 4×4 ($88), 5×5 ($90).
   const comparison = compareSheetSizes({
-    panels: parsePanels('Tile: 24 x 24'),
-    kerf: 0,
-    unit: 'in',
-    current: { width: 96, height: 48 },
-  });
-  const fourByEight = comparison.rows.find((row) => row.id === '4x8');
-  const fourByFour = comparison.rows.find((row) => row.id === '4x4');
-  assert.ok(fourByEight.fits && fourByFour.fits);
-  assert.equal(fourByEight.sheets, 1);
-  assert.equal(fourByFour.sheets, 1);
-  assert.ok(fourByFour.buyArea < fourByEight.buyArea);
-  assert.equal(fourByEight.current, true);
-  assert.equal(comparison.winner.id, '4x4');
-  for (const row of comparison.rows) {
-    if (!row.fits) assert.ok(comparison.rows.indexOf(row) > comparison.rows.indexOf(comparison.winner));
-  }
-});
-
-test('a size that cannot take every piece loses to one that can, even with less area', () => {
-  const comparison = compareSheetSizes({
-    panels: parsePanels('Door: 72 x 24 x 2'),
-    kerf: 0,
-    unit: 'in',
-    current: { width: 96, height: 48 },
-  });
-  const fourByFour = comparison.rows.find((row) => row.id === '4x4');
-  const fourByEight = comparison.rows.find((row) => row.id === '4x8');
-  assert.equal(fourByFour.fits, false);
-  assert.equal(fourByEight.fits, true);
-  assert.equal(comparison.winner.id, fourByEight.id);
-  assert.ok(comparison.rows.indexOf(fourByEight) < comparison.rows.indexOf(fourByFour));
-});
-
-test('includes a custom current size that is not in the catalog', () => {
-  const comparison = compareSheetSizes({
-    panels: parsePanels('10 x 10'),
-    unit: 'in',
-    current: { width: 36, height: 36 },
-  });
-  const custom = comparison.rows.find((row) => row.id === 'current');
-  assert.ok(custom);
-  assert.equal(custom.width, 36);
-  assert.equal(custom.height, 36);
-  assert.equal(custom.current, true);
-  assert.equal(custom.fits, true);
-});
-
-test('estimates cost from price per square unit, not per sheet', () => {
-  const comparison = compareSheetSizes({
-    panels: parsePanels('24 x 24 x 4'),
-    kerf: 0,
-    unit: 'in',
-    current: { width: 96, height: 48 },
-    pricePerArea: 62 / (96 * 48),
-  });
-  const fourByEight = comparison.rows.find((row) => row.id === '4x8');
-  assert.ok(Math.abs(fourByEight.cost - 62) < 1e-6);
-});
-
-test('formats a comparison a shop can read to the yard', () => {
-  const comparison = compareSheetSizes({
-    panels: parsePanels('Shelf: 30 x 12 x 2'),
+    panels: parsePanels(CABINET_DOORS),
     kerf: 0.125,
-    unit: 'in',
-    current: { width: 96, height: 48 },
-    pricePerArea: 62 / (96 * 48),
+    candidates: [
+      { width: 96, height: 48, costPerSheet: 42 },
+      { width: 60, height: 60, costPerSheet: 90 },
+      { width: 48, height: 48, costPerSheet: 22 },
+    ],
+  });
+  assert.deepEqual(comparison.rows.map((row) => [row.label, row.sheetCount, row.totalCost]), [
+    ['4×8', 2, 84],
+    ['4×4', 4, 88],
+    ['5×5', 1, 90],
+  ]);
+  assert.equal(comparison.winner.label, '4×8');
+  assert.equal(comparison.priced, true);
+  assert.deepEqual(comparison.savings, { kind: 'cost', amount: 4 });
+  assert.ok(comparison.rows.every((row) => row.fitsAll));
+});
+
+test('without prices the same doors pick 5×5 because it is one sheet, not two', () => {
+  const comparison = compareSheetSizes({
+    panels: parsePanels(CABINET_DOORS),
+    kerf: 0.125,
+    candidates: [
+      { width: 96, height: 48 },
+      { width: 60, height: 60 },
+    ],
+  });
+  assert.equal(comparison.winner.label, '5×5');
+  assert.equal(comparison.winner.sheetCount, 1);
+  assert.equal(comparison.runnerUp.sheetCount, 2);
+  assert.equal(comparison.priced, false);
+  assert.deepEqual(comparison.savings, { kind: 'sheets', amount: 1 });
+});
+
+test('a cheaper 5×5 still loses when the 72-inch sides will not fit it', () => {
+  const comparison = compareSheetSizes({
+    panels: parsePanels(BOOKCASE),
+    kerf: 0.125,
+    candidates: [
+      { width: 96, height: 48, costPerSheet: 62 },
+      { width: 60, height: 60, costPerSheet: 55 },
+    ],
+  });
+  assert.equal(comparison.winner.label, '4×8');
+  assert.equal(comparison.winner.fitsAll, true);
+  assert.equal(comparison.winner.totalCost, 62);
+  assert.equal(comparison.runnerUp.label, '5×5');
+  assert.equal(comparison.runnerUp.fitsAll, false);
+  assert.equal(comparison.runnerUp.oversizeCount, 2);
+});
+
+test('when 5×5 is the cheaper complete buy, it wins', () => {
+  const comparison = compareSheetSizes({
+    panels: parsePanels(CABINET_DOORS),
+    kerf: 0.125,
+    candidates: [
+      { width: 96, height: 48, costPerSheet: 62 },
+      { width: 60, height: 60, costPerSheet: 55 },
+    ],
+  });
+  assert.equal(comparison.winner.label, '5×5');
+  assert.equal(comparison.winner.totalCost, 55);
+  assert.equal(comparison.runnerUp.totalCost, 124);
+  assert.deepEqual(comparison.savings, { kind: 'cost', amount: 69 });
+});
+
+test('the comparison text names the buy and the cash difference', () => {
+  const comparison = compareSheetSizes({
+    panels: parsePanels(CABINET_DOORS),
+    kerf: 0.125,
+    candidates: [
+      { width: 96, height: 48, costPerSheet: 42 },
+      { width: 60, height: 60, costPerSheet: 90 },
+    ],
   });
   const text = formatSheetComparison(comparison, { unit: 'in' });
-  assert.match(text, /Sheet size comparison \(in\)/);
-  assert.match(text, /4×8 \(the size on the form\)/);
-  assert.match(text, /← buy this/);
-  assert.match(text, /estimated material/);
-  assert.match(text, /Confirm the yard/);
+  assert.match(text, /4×8 \(96\.00 × 48\.00 in\): 2 sheets, \$84\.00/);
+  assert.match(text, /← buy this size/);
+  assert.match(text, /Buying 4×8 costs \$6\.00 less than 5×5/);
+  assert.match(text, /Verify prices and dimensions/);
 });
 
-test('the same parts list always ranks sizes the same way', () => {
-  const run = () => compareSheetSizes({
-    panels: parsePanels('A: 30 x 20 x 3\nB: 12 x 8 x 5'),
-    kerf: 0.125,
-    unit: 'in',
-    current: { width: 96, height: 48 },
-  });
-  assert.deepEqual(run(), run());
+test('refuses a one-size comparison rather than ranking a single row against itself', () => {
+  assert.throws(
+    () => compareSheetSizes({ panels: parsePanels('10 x 10'), candidates: [{ width: 96, height: 48 }] }),
+    /at least two sheet sizes/,
+  );
+});
+
+test('rejects a candidate that is not a real sheet', () => {
+  assert.throws(
+    () => compareSheetSizes({
+      panels: parsePanels('10 x 10'),
+      candidates: [{ width: 96, height: 48 }, { width: 0, height: 48 }],
+    }),
+    /Size 2/,
+  );
 });

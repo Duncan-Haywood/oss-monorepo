@@ -54,3 +54,16 @@ test("never records more than the tour's known sections as visited, even for unk
 
   assert.equal(getEngagementSummary().sectionsVisited, 0);
 });
+
+test("live KPI views do not inflate presenter CTA counts", () => {
+  clearEngagementLogForTests();
+  recordEngagementEvent({ name: "kpis_live_viewed", path: "/", createdAt: "t1" });
+  recordEngagementEvent({ name: "kpis_api_unreachable", path: "/", createdAt: "t2" });
+  recordEngagementEvent({
+    name: "owner_value_cta_click",
+    path: "/",
+    createdAt: "t3",
+  });
+
+  assert.equal(getEngagementSummary().ctaClicks, 1);
+});

@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>No-Show &amp; Cancellation Fee Calculator for Service Businesses</title>
-  <meta name="description" content="Free calculator for personal trainers, salons, tutors, and therapists: work out a defensible no-show / late-cancellation fee from your own prices, see what no-shows are costing you a year, and get a ready-to-copy cancellation policy." />
+  <meta name="description" content="Free calculator for personal trainers, salons, tutors, and therapists: work out a defensible no-show fee, see whether overbooking the empty chairs still beats collecting it, and copy a cancellation policy." />
   <link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/no-show-fee-calculator/" />
 
   <meta property="og:type" content="website" />
@@ -30,7 +30,8 @@
       "price": "0",
       "priceCurrency": "USD"
     },
-    "description": "Free calculator that turns a service business's own appointment price, booking volume, and no-show rate into a defensible cancellation fee, an estimate of annual revenue at risk, and a ready-to-copy cancellation policy.",
+    "description": "Free calculator that turns a service business's own appointment price, booking volume, and no-show rate into a defensible cancellation fee, an overbooking comparison, an estimate of annual revenue at risk, and a ready-to-copy cancellation policy.",
+    "featureList": "No-show fee from your own price, annual exposure, fee-level comparison, 24-hour vs 48-hour waitlist refill, overbooking vs collecting the fee, overflow cost, ready-to-copy cancellation policy",
     "url": "https://duncan-haywood.github.io/monorepo-projects/no-show-fee-calculator/"
   }
   </script>
@@ -60,7 +61,15 @@
         "name": "How much notice should I require before a cancellation is free?",
         "acceptedAnswer": {
           "@type": "Answer",
-          "text": "24 hours is the most common default because it usually gives enough time to fill the slot from a waitlist. Businesses with longer sessions or harder-to-fill slots (e.g. multi-hour bookings) often require 48 hours instead. The calculator defaults to 24 hours and you can change it."
+          "text": "24 hours is the most common default because it usually gives enough time to fill the slot from a waitlist. Businesses with longer sessions or harder-to-fill slots (e.g. multi-hour bookings) often require 48 hours instead. The calculator compares 4-hour, 24-hour, and 48-hour windows using your own waitlist fill-rate assumption so you can see how much empty-slot cash a longer window actually recovers."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Should I overbook or charge a no-show fee?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "They recover different money. A fee compensates you when the chair stays empty and you actually collect. Overbooking tries to fill that chair in advance and risks a double-booked hour when everyone shows. The calculator compares a fee-only book to overbooking 50%, 100%, and 150% of your expected no-shows, plus matching the rate and dropping the fee. It is arithmetic from your numbers, not advice to overbook."
         }
       }
     ]
@@ -124,6 +133,33 @@
           <input type="number" id="enforcementRatePct" name="enforcementRatePct" min="0" max="100" step="1" value="70" required />
           <p class="hint">How often you expect to actually collect the fee once the policy is in place. This is your assumption, not a measured number — the tool shows it back to you rather than hiding it.</p>
         </div>
+        <div class="field">
+          <label for="overflowCost">Cost of a double-booked chair (optional)</label>
+          <input type="number" id="overflowCost" name="overflowCost" min="0" step="0.01" placeholder="Defaults to the session price" />
+          <p class="hint">What one overflow hour costs you: overtime, a voucher, a refund, or lost goodwill. Leave blank to price it as one full session. Used only in the overbooking table.</p>
+        </div>
+
+        <fieldset>
+          <legend>Waitlist fill if you get that notice (your assumption)</legend>
+          <p class="hint">
+            How often you actually refill a cancelled slot when the client gives you that much warning.
+            Same-day is usually near zero; 48 hours is why people ask for it.
+            Count last month's late cancels that you filled, or leave the defaults.
+            <a href="24h-vs-48h-cancellation-notice.html">Why 24 hours vs 48 hours is a cash question</a>.
+          </p>
+          <div class="field">
+            <label for="fillSameDayPct">Same-day (4 hour) fill rate (%)</label>
+            <input type="number" id="fillSameDayPct" name="fillSameDayPct" min="0" max="100" step="1" value="10" />
+          </div>
+          <div class="field">
+            <label for="fillDayAheadPct">24-hour fill rate (%)</label>
+            <input type="number" id="fillDayAheadPct" name="fillDayAheadPct" min="0" max="100" step="1" value="40" />
+          </div>
+          <div class="field">
+            <label for="fillTwoDayPct">48-hour fill rate (%)</label>
+            <input type="number" id="fillTwoDayPct" name="fillTwoDayPct" min="0" max="100" step="1" value="65" />
+          </div>
+        </fieldset>
 
         <fieldset>
           <legend>For the generated policy text (optional)</legend>
@@ -186,6 +222,64 @@
         </div>
       </div>
 
+      <div id="notice-section" hidden>
+        <h2>Compare notice windows</h2>
+        <p class="note">
+          Same bookings and no-show rate as above. A longer window only helps if you
+          actually refill more of those openings. The fee table above is separate —
+          collecting a fee does not put another client in the chair.
+          <a href="24h-vs-48h-cancellation-notice.html">Worked example</a>.
+        </p>
+        <div class="table-wrap">
+          <table>
+            <caption class="sr-only">Annual empty-slot cash recovered by notice window and waitlist fill</caption>
+            <thead>
+              <tr>
+                <th scope="col">Notice</th>
+                <th scope="col">Assumed fill</th>
+                <th scope="col">Slots refilled / year</th>
+                <th scope="col">Cash recovered by refill</th>
+                <th scope="col">Still empty</th>
+                <th scope="col">Extra vs same-day</th>
+              </tr>
+            </thead>
+            <tbody id="notice-body"></tbody>
+          </table>
+        </div>
+        <p id="notice-summary" class="note"></p>
+      </div>
+
+      <div id="overbook-section" hidden>
+        <h2 id="overbook-heading">Overbook the empty chairs, or just charge the fee?</h2>
+        <p class="note">
+          Same price, volume, no-show rate, fee, and enforcement as above.
+          Extra names are a fraction of the no-shows you already expect.
+          Served chairs cannot exceed your weekly book. Overflow is the
+          mean leftover when more people show than you have chairs — a
+          busy day can still collide even when the average fits.
+          <a href="should-i-overbook-or-charge-a-no-show-fee.html">Worked example</a>.
+        </p>
+        <p id="overbook-summary" class="note"></p>
+        <div class="table-wrap">
+          <table>
+            <caption class="sr-only">Annual cash kept by overbooking policy</caption>
+            <thead>
+              <tr>
+                <th scope="col">Policy</th>
+                <th scope="col">Extra names / week</th>
+                <th scope="col">Served / week</th>
+                <th scope="col">Overflow / week</th>
+                <th scope="col">Service / year</th>
+                <th scope="col">Fee / year</th>
+                <th scope="col">Overflow cost / year</th>
+                <th scope="col">Net kept / year</th>
+              </tr>
+            </thead>
+            <tbody id="overbook-body"></tbody>
+          </table>
+        </div>
+      </div>
+
       <div id="policy-section" hidden>
         <h2>Your draft policy</h2>
         <textarea id="policy-text" rows="10" readonly></textarea>
@@ -217,7 +311,17 @@
       <p>
         24 hours is the most common default — usually enough time to fill the slot from a
         waitlist. Businesses with longer or harder-to-fill sessions often use 48 hours
-        instead.
+        instead. The table above compares same-day, 24-hour, and 48-hour windows using
+        your own fill-rate assumption so you can see how much empty-slot cash a longer
+        window actually recovers.
+      </p>
+      <h3>Should I overbook or charge a no-show fee?</h3>
+      <p>
+        They recover different money. A fee pays you when the chair stays empty and you
+        collect. Overbooking tries to fill that chair in advance and risks a double-booked
+        hour when everyone shows. The table above compares a fee-only book to overbooking
+        50%, 100%, and 150% of your expected no-shows, plus matching the rate and dropping
+        the fee. It does not tell you which policy to publish.
       </p>
     </section>
 
@@ -248,6 +352,13 @@
         obligation it helps you prepare for. To the maximum extent permitted by law, the
         authors accept no liability for any loss or damage arising from its use.
       </p>
+      <p>
+        <strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and
+        may be slow, broken, moved, or taken offline without notice. We do not
+        promise uptime, backups of anything you type, or that a URL will keep
+        working. Do not use this as a system of record. If a tool needs to
+        survive, export your inputs and run it yourself.
+      </p>
     </section>
   </main>
 
@@ -255,6 +366,7 @@
     <p>
       Free, open source (MIT licensed), no account required.
       <a href="https://github.com/Duncan-Haywood/monorepo-projects/tree/main/ventures/no-show-fee-calculator">Source on GitHub</a>.
+      <a href="https://github.com/sponsors/Duncan-Haywood">GitHub Sponsors</a> is optional and never changes what the tool does.
     </p>
   </footer>
 

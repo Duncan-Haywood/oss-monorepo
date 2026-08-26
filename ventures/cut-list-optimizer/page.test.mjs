@@ -77,7 +77,7 @@ test('every element the script reaches for exists in the markup', () => {
 });
 
 test('inputs and result fields for the primary journey are present', () => {
-  for (const id of ['stock', 'kerf', 'unit', 'cuts', 'headline', 'message', 'bars', 'used', 'waste', 'utilization', 'plan', 'copy-plan', 'copy-status', 'optout', 'linear-compare-block', 'linear-compare', 'linear-compare-copy', 'linear-compare-status']) {
+  for (const id of ['stock', 'kerf', 'unit', 'cuts', 'onhand', 'stock-cost', 'currency', 'headline', 'message', 'saved', 'bars', 'purchased', 'linear-total-cost', 'used', 'waste', 'utilization', 'plan', 'copy-plan', 'copy-status', 'optout', 'linear-compare-block', 'linear-compare', 'linear-compare-copy', 'linear-compare-status']) {
     assert.ok(declaredIds.has(id), `#${id} is missing from index.html`);
   }
 });
@@ -98,8 +98,10 @@ test('the sheet-goods inputs and result fields are present', () => {
     'sheet-width', 'sheet-height', 'sheet-kerf', 'sheet-trim', 'sheet-unit', 'sheet-cost',
     'sheet-rotate', 'sheet-parts', 'sheet-headline', 'sheet-message', 'sheet-count',
     'sheet-utilization', 'sheet-used', 'sheet-waste', 'sheet-total-cost', 'sheet-oversize',
+    'sheet-compare', 'sheet-alt1-width', 'sheet-alt1-height', 'sheet-alt1-cost',
+    'sheet-alt2-width', 'sheet-alt2-height', 'sheet-alt2-cost',
+    'preset-5x5', 'preset-4x4', 'preset-5x10',
     'sheet-copy', 'sheet-print', 'sheet-copy-status', 'sheet-diagrams',
-    'sheet-compare-block', 'sheet-compare', 'sheet-compare-copy', 'sheet-compare-status',
   ]) {
     assert.ok(declaredIds.has(id), `#${id} is missing from index.html`);
   }
@@ -135,11 +137,14 @@ test('every module the page imports exists and exports what it names', async () 
   }
 });
 
-test('the size-comparison tables are present and their apply buttons escape labels', () => {
-  assert.match(markup, /Which sheet size should you buy\?/, 'sheet size comparison heading is missing');
+test('the landing page points at the 4×8 vs 5×5 comparison', () => {
+  assert.match(markup, /href="compare-4x8-vs-5x5.html"/);
+  assert.match(markup, /compare other sheet sizes/i);
+});
+
+test('the linear stock-length comparison is present and apply actions escape labels', () => {
   assert.match(markup, /Which board length should you buy\?/, 'stock length comparison heading is missing');
   assert.match(scriptSource, /escapeHtml\(row\.label\)/, 'comparison row labels must be escaped');
-  assert.match(scriptSource, /data-apply-sheet/, 'sheet comparison has no apply action');
   assert.match(scriptSource, /data-apply-stock/, 'linear comparison has no apply action');
   assert.match(scriptSource, /closestFromEvent/, 'comparison apply does not handle clicks on row text');
 });

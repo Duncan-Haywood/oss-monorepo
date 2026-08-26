@@ -55,10 +55,12 @@ test('sheet and linear plans are counted apart from each other', () => {
   recordUsage(storage, false, 'sheet-runs');
   recordUsage(storage, false, 'runs');
   recordUsage(storage, false, 'sheet-copies');
+  recordUsage(storage, false, 'sheet-compares');
   assert.equal(readUsage(storage, 'sheet-runs'), 2);
   assert.equal(readUsage(storage, 'runs'), 1);
   assert.equal(readUsage(storage, 'sheet-copies'), 1);
   assert.equal(readUsage(storage, 'copies'), 0);
+  assert.equal(readUsage(storage, 'sheet-compares'), 1);
 });
 
 test('size-comparison actions are counted apart from plans and copies', () => {

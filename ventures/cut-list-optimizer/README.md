@@ -24,9 +24,15 @@ Enter the sheet size, your saw kerf, and one part per line:
 
 **Edge trim** is stock taken off all four sides before anything is laid out — useful when the factory edge of a sheet is not square enough to reference off. **Pieces may be rotated 90°** is on by default; turn it off for a veneer or a printed face where direction has to run one way, or add `grain` to a single line to pin just that piece. **Cost per sheet** is optional: fill it in and the plan reports what the job costs in material and what the offcut is costing you.
 
+**Compare other sheet sizes** ranks the same parts list against a 5×5 Baltic birch, a 4×4 half-sheet, or a 5×10 — or any two sizes you type. When every size has a price, the ranking is cash; when prices are missing, it is sheets to buy. A size that cannot take every piece never wins, even if it is cheaper per sheet. The dedicated page [4×8 vs 5×5](compare-4x8-vs-5x5.html) walks the cabinet-door example.
+
 **Copy cut plan** puts a plain-text version on the clipboard for a job ticket or shop note. **Print** produces a paper copy of the diagrams with the controls hidden.
 
-**Which sheet size should you buy?** packs the same parts onto 4×8, 5×8, 4×10, 5×5, and 4×4 (or the metric equivalents) and ranks them by purchased area. A size that cannot take every piece loses, even if the leftover bits make its footage look small. **Use this size** writes the winner onto the form so the diagrams match the buying decision. If you entered a sheet price, the comparison estimates cost at the same price per square unit — not the same price per sheet — and says so. **Copy size comparison** is the version you read to the yard.
+The current form is saved as an optional local draft when a field is changed, so a
+shop can return to an unfinished list after closing the tab. **Clear saved draft**
+removes it immediately. Drafts contain only the form values and never leave the
+browser; enabling the footer opt-out clears both the draft and anonymous usage
+counts.
 
 ### How the layouts are produced, and what that means for you
 
@@ -38,11 +44,18 @@ The plan is a **heuristic**, not a proof. It is not guaranteed to be the best po
 
 Kerf and edge trim are counted as **waste**, not as usable material, so the utilization figure is the honest one. Pieces that cannot fit a sheet in any allowed orientation are reported separately rather than dropped, so one mistyped line never hides a usable plan for the rest of the list.
 
-**Known limitations:** guillotine layouts only, so a shop with a CNC router could nest more tightly; one sheet size per *layout*, so a job that mixes 4×8 and 5×5 still needs two runs (the comparison only tells you which single size to buy); no thickness or material tracking, so a plan is per material, per thickness. Complementary work already in flight: draft recovery (#1399) and rejecting non-finite measurements (#1401). This comparison does not persist a draft and does not change packing validation.
+**Known limitations:** guillotine layouts only, so a shop with a CNC router could nest more tightly; the comparison ranks whole-job sizes, not a mixed stack of 4×8 and 5×5 on the same ticket; no thickness or material tracking, so a plan is per material, per thickness.
 
 ## Linear stock
 
-Enter one required length per line. Add `x quantity` when several identical pieces are needed, such as `24 x 3`. The deterministic first-fit decreasing plan is a planning aid, not a guarantee of the optimal arrangement. Use **Copy cut plan** to put a plain-text version into a job ticket or shop note; it stays in your browser and is not uploaded.
+Enter one required length per line. Add `x quantity` when several identical pieces are needed, such as `24 x 3`. Add an optional cost per stock piece to see the material spend for the plan before buying. The deterministic first-fit decreasing plan is a planning aid, not a guarantee of the optimal arrangement. Use **Copy cut plan** to put a plain-text version into a job ticket or shop note; it stays in your browser and is not uploaded.
+
+Two optional inputs turn the plan from a waste estimate into a purchasing decision:
+
+- **Offcuts you already have** — same `36 x 2` format as the cut list. These are consumed before any new stock is opened, shortest usable piece first, so the long stock on your rack stays whole for the next job. An offcut nothing gets cut from is left alone: it counts as neither consumed stock nor waste.
+- **Cost per stock piece** and **currency** — prices the plan, and reports how many purchases planning against your own rack avoided, and what that saved against buying everything new. Only pieces you actually buy are priced; an offcut off your own rack is already paid for and is not charged again.
+
+Both are carried into the copied job ticket alongside the stock length and kerf the plan assumed.
 
 **Which board length should you buy?** packs the same cuts onto 8 ft, 10 ft, 12 ft, and 16 ft stock (or the metric / feet equivalents) and ranks them by purchased length. An 8 ft stick wins over a 12 ft stick when both cover the list with one bar. **Use this length** writes that size onto the form.
 
@@ -57,7 +70,9 @@ Everything runs in the browser. The cut list never leaves your device, there are
 | `cut-list-optimizer-compares` | A stock-length comparison was copied or applied to the form |
 | `cut-list-optimizer-sheet-runs` | A sheet layout was calculated from a settled edit |
 | `cut-list-optimizer-sheet-copies` | A sheet plan was copied out for a job ticket |
-| `cut-list-optimizer-sheet-compares` | A sheet-size comparison was copied or applied to the form |
+| `cut-list-optimizer-sheet-compares` | Two or more sheet sizes were ranked on the same list |
+
+The saved draft uses a separate local-storage key and is not an analytics event.
 
 Keeping them apart is what makes the numbers readable: `runs` shows the tool was used, `copies` shows a plan was good enough to carry into the shop, the `sheet-` pair shows which half of the product people come back for, and the `compares` pair shows the buying-decision step was used. None of the counters records the cut list itself — no dimension, label, quantity, or price — and nothing is transmitted.
 
@@ -66,7 +81,7 @@ Counting is skipped entirely when the browser sends Do Not Track or Global Priva
 ## Development
 
 ```sh
-node --test             # sheet, calc, usage, and page structure
+node --test             # sheet, calc, usage, page structure, and 4×8 vs 5×5 page
 python3 -m http.server  # then verify the page at http://localhost:8000/
 ```
 
@@ -85,4 +100,8 @@ It also checks that every import resolves to a real export, that both tab panels
 stay wired to their tabs, and that user-supplied part labels are escaped before
 they reach the DOM.
 
-**No warranty.** This tool is provided free and as-is, without warranty of any kind, express or implied. It is not engineering, financial, or business advice, and it does not replace a qualified professional. **You are responsible for reviewing and verifying its output before relying on it**, and for meeting any obligation it helps you prepare for. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.
+## Support
+
+Free and open source, with no gated features. If it saved you a trip to the lumber yard, [sponsoring its upkeep](https://github.com/sponsors/Duncan-Haywood) is welcome and entirely optional — declining changes nothing about what the tool does.
+
+**No warranty.** This tool is provided free and as-is, without warranty of any kind, express or implied. It is not engineering, financial, or business advice, and it does not replace a qualified professional. **You are responsible for reviewing and verifying its output before relying on it**, including dimensions, tool setup, material, and prices, and for meeting any obligation it helps you prepare for. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.
