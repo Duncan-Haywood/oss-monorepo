@@ -26,7 +26,7 @@ test('flags a proposed monthly price below the floor', () => {
 
 test('renders a copyable summary', () => {
   const summary = formatPlanSummary(calculatePlan({ ...base, proposedMonthlyPrice: '90' }));
-  assert.match(summary, /Recommended price: \$80\.21\/month/);
+  assert.match(summary, /Price at target margin: \$80\.21\/month/);
   assert.match(summary, /Price considered: \$90\.00\/month/);
 });
 
