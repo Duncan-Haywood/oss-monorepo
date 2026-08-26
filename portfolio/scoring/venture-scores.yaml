@@ -4500,3 +4500,36 @@ ventures:
       Pass: the output is arithmetic on the fabricator's own inputs, never
       a recommended market price, color match, seam warranty, or stone
       specification, and nothing the user enters leaves the browser.
+  - slug: hardwood-refinishing-bid-calculator
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 7
+      gross_margin: 10
+      defensibility: 5
+      distribution: 7
+    composite: 6.667
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      There is no AI anywhere in the product. The value is a domain model —
+      field versus stair treads, screen-and-recoat versus full sand, and a
+      stain extra coat — that is arithmetic, and adding inference to it
+      would only make the result less checkable.
+    basis: >-
+      Graduated on 2026-08-25 as a browser-local hardwood floor refinishing
+      bid calculator. Distinct from flooring install (LVP / hardwood / tile
+      waste and tear-out): this prices refinishing existing hardwood —
+      field, treads, closets, and coats. Defensibility 5 because the
+      field/stairs/stain split encodes how the trade actually loses money,
+      not a published fee schedule. Distribution 7: "how much to charge to
+      refinish hardwood floors" and "hardwood refinishing cost per square
+      foot" are operator queries with a real job on the line.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Pass: the output is arithmetic on the contractor's own inputs, never
+      a recommended market price, adhesion warranty, or specification, and
+      nothing the user enters leaves the browser.
