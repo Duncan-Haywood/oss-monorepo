@@ -94,6 +94,9 @@ workflows:
 - workflow: etsy-profit-calculator-ci.yml
   classification: none
   publishes: []
+- workflow: faire-wholesale-calculator-ci.yml
+  classification: none
+  publishes: []
 - workflow: forge-surface-reachability-ci.yml
   classification: none
   publishes: []
