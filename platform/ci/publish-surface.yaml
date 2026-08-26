@@ -85,6 +85,9 @@ workflows:
 - workflow: carpet-install-bid-calculator-ci.yml
   classification: none
   publishes: []
+- workflow: cash-runway-planner-ci.yml
+  classification: none
+  publishes: []
 - workflow: chargeback-evidence-packet-ci.yml
   classification: none
   publishes: []
@@ -125,6 +128,9 @@ workflows:
   classification: none
   publishes: []
 - workflow: einvoice-preflight-ci.yml
+  classification: none
+  publishes: []
+- workflow: equipment-rental-break-even-ci.yml
   classification: none
   publishes: []
 - workflow: error-rate-disclosure-ci.yml
@@ -169,6 +175,9 @@ workflows:
 - workflow: home-elevator-bid-calculator-ci.yml
   classification: none
   publishes: []
+- workflow: hvac-maintenance-contract-calculator-ci.yml
+  classification: none
+  publishes: []
 - workflow: interior-door-bid-calculator-ci.yml
   classification: none
   publishes: []
@@ -190,6 +199,9 @@ workflows:
 - workflow: local-site-studio-ci.yml
   classification: none
   publishes: []
+- workflow: ltl-freight-class-estimator-ci.yml
+  classification: none
+  publishes: []
 - workflow: mcp-drift-watch-ci.yml
   classification: none
   publishes: []
@@ -203,6 +215,9 @@ workflows:
   classification: none
   publishes: []
 - workflow: opencode-high-throughput.yml
+  classification: none
+  publishes: []
+- workflow: owner-operator-cpm-calculator-ci.yml
   classification: none
   publishes: []
 - workflow: pages.yml
@@ -324,10 +339,16 @@ workflows:
 - workflow: stair-lift-bid-calculator-ci.yml
   classification: none
   publishes: []
+- workflow: str-host-payout-calculator-ci.yml
+  classification: none
+  publishes: []
 - workflow: substitute-supply-ci.yml
   classification: none
   publishes: []
 - workflow: sunroom-bid-calculator-ci.yml
+  classification: none
+  publishes: []
+- workflow: tiktok-shop-fee-calculator-ci.yml
   classification: none
   publishes: []
 - workflow: toilet-replacement-bid-calculator-ci.yml
