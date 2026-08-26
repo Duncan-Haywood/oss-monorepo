@@ -1,5 +1,5 @@
 name: invoice-payment-terms-calculator
-description: Free browser calculator that turns an invoice amount, payment terms, and late-fee policy into a due date, cash-flow exposure, copyable payment-terms wording, whether a 2/10 Net 30 discount still beats waiting, whether factoring still beats waiting after carrying cost, and how much finished work a deposit or milestone billing schedule leaves unpaid on handover day.
+description: Free browser calculator that turns an invoice amount, payment terms, and late-fee policy into a due date, the date cash actually lands on the client's accounts-payable run, cash-flow exposure, copyable payment-terms wording, whether a 2/10 Net 30 discount still beats waiting, whether factoring still beats waiting after carrying cost, and how much finished work a deposit or milestone billing schedule leaves unpaid on handover day.
 
 stage: prototype
 owner: duncan
@@ -12,6 +12,10 @@ hypotheses:
     status: untested
     checked: null
     evidence: customer-contact
+  - claim: Modelling the client's accounts-payable run — not just the contractual due date — is the differentiator users return for, because it is the only place that shows drift between "due" and "paid" and where a longer payment term costs nothing. Measured by the settlement_projected counter against calculation.
+    status: untested
+    checked: null
+    evidence: in-repo
   - claim: Seeing whether a 3% factor fee still beats waiting after carrying cost changes a cash decision that a 2/10 discount table hides, because the fee is paid to a third party while the client still has Net 30.
     status: untested
     checked: null

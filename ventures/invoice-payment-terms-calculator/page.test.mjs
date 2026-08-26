@@ -90,6 +90,22 @@ test("the calculator page wires the billing-schedule comparison", () => {
   assert.match(sitemap, /should-i-ask-for-a-deposit\.html/);
 });
 
+test("the schedule table scrolls inside its own box, not the page", () => {
+  // This venture is edited by several sessions at once and these three rules
+  // live in one dense <style> line, which is exactly the shape a merge drops
+  // silently: nothing throws, no test fails, and the page just scrolls
+  // sideways on a phone. A resolution that loses them fails here instead.
+  assert.match(html, /class="scroller"/);
+  assert.match(html, /\.scroller\s*\{[^}]*overflow-x:\s*auto/);
+  assert.match(html, /\.wide table\s*\{[^}]*min-width:/);
+  // The mobile breakpoint has to collapse the schedule's own field grid too.
+  // Matched on the breakpoint's own line: the rule body contains braces, so a
+  // negated-brace scan would stop at the first nested rule and never reach it.
+  const breakpoint = html.split("\n").find((line) => line.includes("@media (max-width: 700px)"));
+  assert.ok(breakpoint, "the 700px breakpoint is missing");
+  assert.match(breakpoint, /\.fields\.four/);
+});
+
 test("every schedule input the page collects is one the module reads", () => {
   // Derived from schedule.mjs rather than hand-listed, so a field added to the
   // model without a matching input fails here instead of silently defaulting.

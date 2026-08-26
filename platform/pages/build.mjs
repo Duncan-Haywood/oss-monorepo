@@ -227,6 +227,29 @@ async function countPages(sourceDir) {
   return entries.filter((e) => e.isFile() && e.name.endsWith('.html')).length;
 }
 
+/**
+ * Every `.html` file published under `dir`, as paths relative to it.
+ *
+ * This reads the built output rather than the sources, so it sees exactly what
+ * a visitor can reach — after exclusions, after nested directories, after any
+ * page a venture added without telling anyone.
+ */
+export async function publishedPages(dir, prefix = '') {
+  const entries = await fs.readdir(dir, { withFileTypes: true });
+  const pages = [];
+
+  for (const entry of entries) {
+    const relative = prefix ? `${prefix}/${entry.name}` : entry.name;
+    if (entry.isDirectory()) {
+      pages.push(...(await publishedPages(path.join(dir, entry.name), relative)));
+    } else if (entry.isFile() && entry.name.endsWith('.html') && entry.name !== '404.html') {
+      pages.push(relative);
+    }
+  }
+
+  return pages.sort();
+}
+
 // ---------------------------------------------------------------------------
 // Copy
 // ---------------------------------------------------------------------------
@@ -629,26 +652,45 @@ const CHROME_MARKER = 'pf-chrome';
 // Scoped under `.pf-chrome` so it cannot restyle a venture's own page, and
 // declared with fallbacks rather than inherited variables because each venture
 // names its theme variables differently.
+// The chrome takes its colours from the host page, not from the operating
+// system, and that is the one non-obvious thing about this block.
+//
+// It used to paint an opaque band from its own palette behind
+// `prefers-color-scheme`. Internally that is perfectly legible — the band sets
+// both its background and its text, so the contrast within it is fine. The
+// problem is what it sits on. Most ventures in this portfolio are deliberately
+// light-only: they carry no `prefers-color-scheme` rule at all, so their page
+// stays cream whatever the OS says. A visitor with a dark OS therefore got a
+// near-black slab bolted to the bottom of a light page — readable, and
+// unmistakably broken-looking. On a phone at night, which is a lot of this
+// audience, that slab was the last thing they saw before deciding whether the
+// site was worth trusting with a bid.
+//
+// So: `color:inherit` for text, and a neutral mid-grey at low alpha for lines
+// and fills, which reads as a subtle tint over a light or a dark background
+// without the chrome needing to know which one it is. Links are underlined
+// rather than tinted, because no single accent is legible on all 42 pages.
+// A venture with its own dark mode still gets dark chrome — it inherits it,
+// which is the point.
+//
+// (`favicon.ico` is the deliberate exception elsewhere in this file: the
+// browser draws it onto its own furniture, so there is no host page for it to
+// inherit from.)
 const CHROME_STYLE = `<style id="pf-chrome-style">
-.pf-chrome{font-family:system-ui,-apple-system,"Segoe UI",sans-serif;font-size:.9rem;line-height:1.5}
-.pf-chrome a{color:#0f5648;text-decoration:underline}
-.pf-chrome-top{border-bottom:1px solid #d3dce6;background:#eef2f7;color:#1d2530;padding:9px 16px}
+.pf-chrome{font-family:system-ui,-apple-system,"Segoe UI",sans-serif;font-size:.9rem;line-height:1.5;
+  color:inherit;--pf-line:rgba(128,128,128,.34);--pf-fill:rgba(128,128,128,.07)}
+.pf-chrome a{color:inherit;text-decoration:underline;text-underline-offset:2px}
+.pf-chrome-top{border-bottom:1px solid var(--pf-line);background:var(--pf-fill);padding:9px 16px}
 .pf-chrome-top a{font-weight:650;text-decoration:none}
 .pf-chrome-top a:hover,.pf-chrome-top a:focus-visible{text-decoration:underline}
-.pf-chrome-foot{border-top:1px solid #d3dce6;background:#eef2f7;color:#1d2530;margin-top:40px;padding:22px 16px 26px}
+.pf-chrome-foot{border-top:1px solid var(--pf-line);background:var(--pf-fill);margin-top:40px;padding:22px 16px 26px}
 .pf-chrome-foot .pf-inner{max-width:1080px;margin:0 auto}
-.pf-chrome-foot h2{font-size:1rem;margin:0 0 4px}
-.pf-chrome-foot p{margin:0 0 12px;color:#4a5666}
+.pf-chrome-foot h2{font-size:1rem;margin:0 0 4px;color:inherit}
+.pf-chrome-foot p{margin:0 0 12px;opacity:.78}
 .pf-chrome-foot ul{list-style:none;margin:0 0 14px;padding:0;display:grid;gap:8px 18px;
   grid-template-columns:repeat(auto-fill,minmax(240px,1fr))}
 .pf-chrome-foot li{margin:0}
-.pf-chrome :focus-visible{outline:2px solid #0f5648;outline-offset:2px}
-@media (prefers-color-scheme:dark){
-.pf-chrome a{color:#7fd8c0}
-.pf-chrome-top,.pf-chrome-foot{background:#10151c;color:#e8eef5;border-color:#2a343f}
-.pf-chrome-foot p{color:#a2b0c0}
-.pf-chrome :focus-visible{outline-color:#7fd8c0}
-}
+.pf-chrome :focus-visible{outline:2px solid currentColor;outline-offset:2px}
 </style>`;
 
 // The same anonymous, local-only convention the hub uses: which tool slugs were
@@ -713,10 +755,48 @@ export function relatedTools(surfaces, slug, limit = 4) {
  * unchanged when there is no `<body>` to attach to, or when the page has been
  * wrapped already — the pass has to be safe to run twice.
  */
-export function injectChrome(html, { slug, toRoot, total, related = [] }) {
+export function injectChrome(html, { slug, toRoot, total, related = [], canonical, isEntry, title }) {
   if (html.includes(CHROME_MARKER)) return html;
   const bodyOpen = html.match(/<body[^>]*>/i);
   if (!bodyOpen || !/<\/body>/i.test(html)) return html;
+
+  // Two head tags that only became possible once these pages shared an origin.
+  // Both are added only where the venture does not already provide its own — a
+  // second canonical is worse than none, because the crawler then picks one
+  // arbitrarily.
+  let headExtras = '';
+  if (canonical && !/<link[^>]+rel=["']canonical["']/i.test(html)) {
+    // Under one origin every page is reachable at both `/tool/page.html` and,
+    // for an index, `/tool/` — which splits the ranking of a page already
+    // competing for one narrow search term. Ventures written as standalone
+    // sites had no origin to point a canonical at, so many carry none.
+    headExtras += `\n<link rel="canonical" href="${escapeHtml(canonical)}">`;
+  }
+  if (isEntry && canonical && !html.includes('"BreadcrumbList"')) {
+    // Lets a result render as "Free small-business calculators › eBay Fee
+    // Calculator" rather than a bare URL, and tells an answer engine these are
+    // one collection rather than 42 unrelated pages. Entry pages only: a deep
+    // SEO page inside a tool is not a third level of the site, and saying it is
+    // would describe a hierarchy that does not exist.
+    headExtras += `\n<script type="application/ld+json">${jsonLd({
+      '@context': 'https://schema.org',
+      '@type': 'BreadcrumbList',
+      itemListElement: [
+        {
+          '@type': 'ListItem',
+          position: 1,
+          name: 'Free small-business calculators',
+          item: canonical.slice(0, canonical.length - `${slug}/`.length),
+        },
+        { '@type': 'ListItem', position: 2, name: title || slug, item: canonical },
+      ],
+    })}</script>`;
+  }
+  if (headExtras) {
+    html = /<\/head>/i.test(html)
+      ? html.replace(/<\/head>/i, `${headExtras}\n</head>`)
+      : html.replace(bodyOpen[0], `${headExtras}\n${bodyOpen[0]}`);
+  }
 
   const hub = `${toRoot}`;
   const topBar = `<nav class="pf-chrome pf-chrome-top" aria-label="Site">
@@ -761,7 +841,7 @@ ${CHROME_SCRIPT(slug)}`;
  * as one that escapes the site and repoints it at GitHub — which is exactly what
  * would happen to a `../` hub link injected any earlier.
  */
-export async function addSiteChrome({ outDir, surfaces }) {
+export async function addSiteChrome({ outDir, surfaces, baseUrl = DEFAULT_BASE_URL }) {
   const wrapped = [];
 
   for (const surface of surfaces) {
@@ -771,12 +851,18 @@ export async function addSiteChrome({ outDir, surfaces }) {
 
     for (const file of (await listFiles(dir)).filter((f) => f.endsWith('.html'))) {
       const relative = path.relative(outDir, file);
+      const url = relative.split(path.sep).join('/');
       const html = await fs.readFile(file, 'utf8');
       const next = injectChrome(html, {
         slug: surface.slug,
         toRoot: upToRoot(relative),
         total: surfaces.length,
         related,
+        title: surface.title,
+        // `/tool/index.html` and `/tool/` are the same page; the directory form
+        // is the one to declare.
+        canonical: `${baseUrl}${url.replace(/(^|\/)index\.html$/, '$1')}`,
+        isEntry: url === `${surface.slug}/index.html`,
       });
       if (next === html) continue;
       await fs.writeFile(file, next);
@@ -793,15 +879,18 @@ export function renderRobots(baseUrl) {
 
 /**
  * The sitemap `robots.txt` names. A `<sitemapindex>` cannot hold `<url>`
- * entries, so the hub itself and any venture without its own sitemap live in
- * `sitemap-hub.xml`, which this index also lists — otherwise a crawler
- * following robots.txt would reach the ventures and never the front page.
+ * entries, so the hub page itself lives in `sitemap-hub.xml`, which this index
+ * also lists — otherwise a crawler following robots.txt would reach the
+ * ventures and never the front page.
+ *
+ * Every published venture gets a generated sitemap (see `renderVentureSitemap`),
+ * so there is no venture the index can leave out.
  */
 export function renderSitemapIndex(surfaces, baseUrl) {
   const entries = [`  <sitemap><loc>${baseUrl}sitemap-hub.xml</loc></sitemap>`].concat(
-    surfaces
-      .filter((surface) => surface.hasSitemap)
-      .map((surface) => `  <sitemap><loc>${baseUrl}${surface.slug}/sitemap.xml</loc></sitemap>`),
+    surfaces.map(
+      (surface) => `  <sitemap><loc>${baseUrl}${surface.slug}/sitemap.xml</loc></sitemap>`,
+    ),
   );
 
   return `<?xml version="1.0" encoding="UTF-8"?>
@@ -811,12 +900,46 @@ ${entries.join('\n')}
 `;
 }
 
-export function renderHubSitemap(surfaces, baseUrl) {
-  const urls = [`  <url><loc>${baseUrl}</loc></url>`].concat(
-    surfaces
-      .filter((surface) => !surface.hasSitemap)
-      .map((surface) => `  <url><loc>${baseUrl}${surface.slug}/</loc></url>`),
-  );
+export function renderHubSitemap(baseUrl) {
+  return `<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <url><loc>${baseUrl}</loc></url>
+</urlset>
+`;
+}
+
+/**
+ * The URL a published page is served at, relative to the site root.
+ * `index.html` is served as its directory, so it is listed that way.
+ */
+export function pageUrlPath(slug, relativePath) {
+  const posix = relativePath.split(path.sep).join('/');
+  if (posix === 'index.html') return `${slug}/`;
+  if (posix.endsWith('/index.html')) return `${slug}/${posix.slice(0, -'index.html'.length)}`;
+  return `${slug}/${posix}`;
+}
+
+/**
+ * A venture's sitemap, generated from the pages the build actually published.
+ *
+ * The ventures ship their own hand-written `sitemap.xml` files, and copying
+ * those verbatim published two defects at once. They go stale — a venture
+ * grows a landing page and nobody edits the sitemap, so 70 of the 186 pages
+ * on this site were in no sitemap at all. And several were written against
+ * `…/monorepo-projects/ventures/<slug>/`, a path this site does not serve
+ * (products are mounted at `/<slug>/`), so every URL they advertised was a
+ * 404 — the worst possible thing to hand a crawler, since organic search is
+ * how these tools are meant to be found.
+ *
+ * Generating from the output makes both impossible by construction: a page is
+ * listed because it shipped, at the URL it actually shipped to.
+ */
+export function renderVentureSitemap(slug, relativePages, baseUrl) {
+  const urls = relativePages
+    .map((relative) => `${baseUrl}${pageUrlPath(slug, relative)}`)
+    .sort()
+    .map((url) => `  <url><loc>${url}</loc></url>`);
+
   return `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
 ${urls.join('\n')}
@@ -883,12 +1006,20 @@ export async function buildSite({
       })),
     );
 
+    // Overwrite whatever sitemap the venture shipped with one generated from
+    // what actually published. See `renderVentureSitemap` for why.
+    const pages = await publishedPages(destination);
+    await fs.writeFile(
+      path.join(destination, 'sitemap.xml'),
+      renderVentureSitemap(surface.slug, pages, base),
+    );
+
     surfaces.push({
       ...surface,
       title,
       description,
       pageCount: await countPages(surface.sourceDir),
-      hasSitemap: await exists(path.join(destination, 'sitemap.xml')),
+      publishedPageCount: pages.length,
     });
     log(`  ${surface.slug}`);
   }
@@ -898,7 +1029,7 @@ export async function buildSite({
   await fs.writeFile(path.join(outDir, '404.html'), renderNotFound(base));
 
   await fs.writeFile(path.join(outDir, 'sitemap.xml'), renderSitemapIndex(surfaces, base));
-  await fs.writeFile(path.join(outDir, 'sitemap-hub.xml'), renderHubSitemap(surfaces, base));
+  await fs.writeFile(path.join(outDir, 'sitemap-hub.xml'), renderHubSitemap(base));
 
   await fs.writeFile(path.join(outDir, 'favicon.ico'), renderFavicon());
 
@@ -906,7 +1037,7 @@ export async function buildSite({
   // without this, any directory starting with `_` is silently dropped.
   await fs.writeFile(path.join(outDir, '.nojekyll'), '');
 
-  const wrapped = await addSiteChrome({ outDir, surfaces });
+  const wrapped = await addSiteChrome({ outDir, surfaces, baseUrl: base });
 
   return { outDir, baseUrl: base, surfaces, repairs, wrapped };
 }
