@@ -21,14 +21,97 @@ export function calculateOrder(input) {
     payment: revenue * paymentRate / 100 + paymentFixed,
     offsiteAd: revenue * offsiteAdRate / 100,
   };
+  // Cash the seller lays out to make and ship the order. Marketplace
+  // fees are deducted from proceeds, not paid up front, so they stay
+  // out of invested cash — that keeps ROI honest (same split as the
+  // eBay calculator).
+  const cashInvested = shippingCost + materialCost + otherCost;
   const costs = fees.listing + fees.transaction + fees.payment + fees.offsiteAd + shippingCost + materialCost + otherCost;
   const profit = revenue - costs;
   return {
-    revenue, fees, costs, profit,
+    revenue, fees, costs, profit, cashInvested,
     margin: revenue === 0 ? 0 : profit / revenue * 100,
+    roi: cashInvested === 0 ? null : profit / cashInvested * 100,
     breakEvenPrice: Math.max(0, (listingFee + paymentFixed + shippingCost + materialCost + otherCost) /
       (1 - (transactionRate + paymentRate + offsiteAdRate) / 100)),
   };
+}
+
+// Illustrative Offsite Ads rates from Etsy's published shop-size split
+// (2026): 15% under $10k trailing-12-month sales, 12% over that
+// threshold. These are inputs, not a live schedule — the seller
+// overwrites them from their own statement.
+export const OFFSITE_AD_RATE_PRESETS = [0, 12, 15];
+
+function offsiteRateLabel(rate) {
+  if (rate === 0) return 'Organic (no offsite ads)';
+  if (rate === 12) return '12% offsite ads (over $10k shop)';
+  if (rate === 15) return '15% offsite ads (under $10k shop)';
+  return `${rate}% offsite ads`;
+}
+
+// Side-by-side leftover at Etsy's two published Offsite Ads rates plus
+// organic. The seller's current offsiteAdRate is included when it is
+// not already a preset, so a custom 8% or 13% still appears as "your
+// input". Complementary to on-site Etsy Ads (a click you buy). This
+// does not opt a shop in or out.
+export function compareOffsiteAdRates(input, rates = OFFSITE_AD_RATE_PRESETS) {
+  const current = nonNegativeNumber(input.offsiteAdRate, 'Offsite ad rate', 0);
+  const unique = [...new Set([...rates, current])]
+    .filter((rate) => Number.isFinite(rate) && rate >= 0)
+    .sort((a, b) => a - b);
+  const organic = calculateOrder({ ...input, offsiteAdRate: 0 });
+  return unique.map((rate) => {
+    const result = calculateOrder({ ...input, offsiteAdRate: rate });
+    return {
+      offsiteAdRate: rate,
+      label: offsiteRateLabel(rate),
+      isCurrent: rate === current,
+      profit: result.profit,
+      margin: result.margin,
+      roi: result.roi,
+      cashInvested: result.cashInvested,
+      offsiteAdFee: result.fees.offsiteAd,
+      profitVsOrganic: result.profit - organic.profit,
+      stillProfitable: result.profit > 0,
+    };
+  });
+}
+
+// Highest Offsite Ads rate at which this order still clears minProfit
+// (default: break-even). Algebra: profit = organicProfit - revenue * rate/100.
+// Returns 0 when the order is already at or below the floor without ads.
+export function maxAffordableOffsiteRate(input, minProfit = 0) {
+  const floor = Number(minProfit);
+  if (!Number.isFinite(floor)) throw new Error('Minimum profit must be a number');
+  const organic = calculateOrder({ ...input, offsiteAdRate: 0 });
+  if (organic.revenue <= 0) return 0;
+  const rate = (organic.profit - floor) / organic.revenue * 100;
+  if (!Number.isFinite(rate)) return 0;
+  return Math.max(0, rate);
+}
+
+export function offsiteAdsNote(rows, maxRate) {
+  if (!Array.isArray(rows) || rows.length < 2) {
+    throw new Error('Offsite Ads comparison is missing rows');
+  }
+  const money = (value) => {
+    const sign = value < 0 ? '−' : '';
+    return `${sign}$${Math.abs(value).toFixed(2)}`;
+  };
+  const organic = rows.find((row) => row.offsiteAdRate === 0);
+  if (!organic) throw new Error('Offsite Ads comparison is missing the organic row');
+  const roi = organic.roi == null ? '' : ` (${organic.roi.toFixed(1)}% ROI on ${money(organic.cashInvested)} cash)`;
+  const organicLine = `${organic.label} keeps ${money(organic.profit)}${roi}.`;
+  const others = rows.filter((row) => row.offsiteAdRate !== 0).map((row) => {
+    const gap = money(Math.abs(row.profitVsOrganic));
+    const ahead = row.profitVsOrganic >= 0 ? 'more' : 'less';
+    return ` ${row.label} take ${money(row.offsiteAdFee)} and leave ${money(row.profit)} — ${gap} ${ahead}.`;
+  }).join('');
+  const cap = Number.isFinite(maxRate)
+    ? ` The order stays at or above $0.00 leftover until Offsite Ads reach about ${maxRate.toFixed(1)}%.`
+    : '';
+  return `${organicLine}${others}${cap}`;
 }
 
 export function priceForMargin(input, targetMargin) {
