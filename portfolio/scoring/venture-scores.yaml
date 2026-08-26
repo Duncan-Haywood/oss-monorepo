@@ -48,6 +48,35 @@ scoring_rule: >-
   near-zero-price norm is a real property of the business on any host.
 
 ventures:
+  - slug: grant-deadline-tracker
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 7
+      gross_margin: 10
+      defensibility: 4
+      distribution: 7
+    composite: 6.5
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      The first release is deterministic deadline and balance arithmetic; AI is
+      not needed to complete the workflow.
+    basis: >-
+      Graduated on 2026-08-26 as a browser-local grant deadline and reporting
+      tracker for small nonprofits. Distinct from contractor cash-flow, quote,
+      and evidence products: the recurring job is managing funder obligations
+      and restricted award balances. Search intent includes grant deadline
+      tracker and nonprofit grant reporting calendar. Interval math from open
+      #1188 is included so an award date plus months fills the current period.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Pass, conditionally: dates and balances are calculated from user inputs,
+      not funder records; the output is a planning aid, not a filing or
+      compliance determination, and users must verify award documents.
   - slug: retainage-cashflow-calculator
     scores:
       ai_leverage: 1
