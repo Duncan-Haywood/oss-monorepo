@@ -3,7 +3,7 @@ import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 
 import { auditCharges, auditTotals } from "./audit.mjs";
-import { buildImportedRows, parseRateCard, readTable, suggestMapping } from "./import.mjs";
+import { buildImportedRows, parseRateCard, priceEnteredRows, readTable, suggestMapping } from "./import.mjs";
 
 const index = readFileSync(new URL("./index.html", import.meta.url), "utf8");
 const page = readFileSync(new URL("./how-to-audit-a-whole-freight-invoice.html", import.meta.url), "utf8");
@@ -121,6 +121,49 @@ test("the headline recoverable figure says which lines it excludes", () => {
   assert.match(source, /no expected amount and/);
 });
 
+test("the demo the page ships and the figures it quotes for it agree", () => {
+  // The demo table is the first thing a visitor audits, so the FAQ's numbers
+  // for it are a claim about the tool's output like any other worked example.
+  // Both are recomputed here from the rate card and rows the page actually
+  // ships, so neither can drift away from the code or from each other.
+  const shipped = index.match(/<textarea id="rateCard"[^>]*>([\s\S]*?)<\/textarea>/);
+  const { rates } = parseRateCard(shipped[1]);
+
+  const seeded = [...source.matchAll(/^\s*add\(\{([^}]*)\}\);/gm)].map((match) =>
+    Object.fromEntries(
+      [...match[1].matchAll(/(\w+):\s*"([^"]*)"/g)].map(([, key, value]) => [key, value]),
+    ),
+  );
+  assert.equal(seeded.length, 4, "the demo rows could not be read out of the page");
+
+  const priced = priceEnteredRows(seeded, rates);
+  const detention = priced.find((row) => row.code === "DET");
+  assert.ok(detention, "the demo no longer shows a per-unit line");
+  // Typed by nobody: the card priced it from the quantity alone.
+  assert.equal(detention.expected, "195.00");
+  assert.equal(detention.basis, "3 hours past 2 free × $65.00/hour");
+
+  const totals = auditTotals(auditCharges(priced));
+  assert.equal(totals.recoverable, 205);
+  assert.equal(totals.flagged, 4);
+  assert.equal(totals.actionable, 3);
+  assert.equal(totals.unpriced, 0);
+
+  const faq = index.match(/How do I audit freight accessorial charges\?[\s\S]{0,900}/);
+  assert.ok(faq, "the demo FAQ entry is missing");
+  assert.match(faq[0], /\$205\.00 above expected across 4 flagged of 4 lines, 3 actionable/);
+  assert.match(faq[0], /rates it at \$195\.00/);
+});
+
+test("the entered table is priced by the rate card, not only the import", () => {
+  assert.match(source, /priceEnteredRows/, "render must apply the card to typed rows");
+  // The card is now an input to the entered table too, so editing it has to
+  // re-render that table and not just the import preview.
+  const listener = source.match(/getElementById\("rateCard"\)\.addEventListener\([\s\S]{0,220}/);
+  assert.ok(listener, "the rate card has no input listener");
+  assert.match(listener[0], /render\(/);
+});
+
 test("the index FAQ quotes the same worked-example figures", () => {
   const faq = index.match(/Can I check a whole carrier invoice at once\?[\s\S]{0,900}/);
   assert.ok(faq, "the import FAQ entry is missing");
@@ -177,8 +220,12 @@ test("the shipped placeholder in the paste box is a row the parser understands",
 test("the page carries the quantity and basis through the queue without a build step", () => {
   // The queue is rebuilt from the DOM on every keystroke, so anything the
   // importer computed has to live in the row or it is lost the moment the
-  // user edits a cell.
-  assert.match(source, /for \(const key of \["units", "basis"\]\)/);
+  // user edits a cell. The quantity is an editable column now that the card
+  // prices typed rows too — a shipper has to be able to correct it — while
+  // the basis stays carried rather than edited.
+  assert.match(index, /<th>Qty \/ hrs<\/th>/);
+  assert.match(source, /for \(const key of \["invoice", "reference", "code", "billed", "units", "expected"\]\)/);
+  assert.match(source, /carried\.dataset\.key = "basis"/);
   assert.match(source, /carried\.type = "hidden"/);
   assert.match(source, /tr\.cells\[0\]\.append\(carried\)/);
   // Cleared when the expected amount is typed over: a cited contract term
@@ -195,7 +242,9 @@ test("the page explains the per-unit grammar it now accepts", () => {
   // The rate-card status reads per-unit rules back so a shipper can see the
   // allowance was understood as an allowance.
   assert.match(source, /per-unit rule/);
-  assert.match(source, /These need a quantity column/);
+  // The status names both places a quantity can come from, now that the card
+  // prices typed lines as well as imported ones.
+  assert.match(source, /These need a quantity — map the column on an import, or fill the Qty \/ hrs cell/);
 });
 
 test("the explainer's per-unit worked example is recomputed, not asserted", () => {

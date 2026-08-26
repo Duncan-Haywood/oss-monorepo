@@ -309,7 +309,11 @@ function quantityText(value) {
 // and a shipper pasting one should not have to reorder it.
 const CAP_CLAUSE = /[,;]?\s*\b(?:max|maximum|cap|capped\s+at|not\s+to\s+exceed|nte)\b\s*(?:of|at|:)?\s*(\$?\s*[\d.,]+)\s*$/i;
 const FLOOR_CLAUSE = /[,;]?\s*\b(?:min|minimum|at\s+least)\b\s*(?:of|at|:)?\s*(\$?\s*[\d.,]+)\s*$/i;
-const AFTER_CLAUSE = /[,;]?\s*\b(?:after|beyond|over|past)\b\s*([\d.,]+)\s*([a-z]+)?\s*(?:free)?\s*$/i;
+// The unit group must not swallow a trailing "free": in "after 2 free" it is
+// greedy enough to read the word as the unit name and reject the whole line as
+// naming an unknown unit. "after 2 free" and "after 2 hours free" are both how
+// a confirmation states an allowance, so both have to land on the same rule.
+const AFTER_CLAUSE = /[,;]?\s*\b(?:after|beyond|over|past)\b\s*([\d.,]+)\s*(?!free\b)([a-z]+)?\s*(?:free)?\s*$/i;
 const FREE_CLAUSE = /[,;]?\s*\b([\d.,]+)\s*([a-z]+)?\s+free\b\s*$/i;
 const RATE_CLAUSE = /^(.*?)[\s,;:=]+(\$?\s*[\d.,]+)\s*(?:\/|\bper\b)\s*([a-z]+)\s*$/i;
 const FLAT_CLAUSE = /^(.*?)[\s,;:=]+([^\s,;:=]+)$/;
@@ -545,6 +549,44 @@ export function expectedFor(rule, units) {
 }
 
 /**
+ * Price hand-entered rows from the rate card, the way imported ones are.
+ *
+ * The card used to run at import only, so a shipper who typed six lines out of
+ * a paper invoice — the way anyone tries the tool for the first time — got no
+ * expected amount from rates they had already typed, and the detention line
+ * they came to check stayed unpriced. The rules are the same rules; only the
+ * source of the rows differed.
+ *
+ * A typed expected amount is never overwritten: the shipper's own figure for
+ * this shipment beats the card's general rule, exactly as a carrier export's
+ * expected column does. Rows are returned as copies, so the card can be edited
+ * and re-applied without the previous pass having baked itself into the table.
+ *
+ * `priceHint` carries the reason a matching rule could not price a row (almost
+ * always a missing quantity) so the page can say so on the row itself rather
+ * than leaving a blank the user has to account for.
+ */
+export function priceEnteredRows(rows, rates) {
+  if (!rates || rates.size === 0) return rows.map((row) => ({ ...row }));
+  return rows.map((row) => {
+    if (String(row.expected ?? "").trim() !== "") return { ...row };
+    const rule = rates.get(normalizeCode(row.code));
+    if (!rule) return { ...row };
+    const priced = expectedFor(rule, row.units);
+    if (!priced.ok) return { ...row, priceHint: priced.reason };
+    return {
+      ...row,
+      expected: priced.amount.toFixed(2),
+      basis: priced.basis,
+      pricedFromCard: true,
+      // Which kind of rule priced it, so the page can count per-unit use
+      // without having to read it back out of the basis sentence.
+      pricedPerUnit: Boolean(rule.per),
+    };
+  });
+}
+
+/**
  * Build audit rows from a parsed table and a column mapping.
  *
  * Returns rows shaped for `auditCharges`, plus a summary and a list of
@@ -621,6 +663,7 @@ export function buildImportedRows(table, mapping, options = {}) {
     // The export's own expected column wins over the rate card: it is the
     // figure the two parties already agreed on for this shipment, where the
     // rate card is the general rule. The card fills the far more common gap.
+    let awaitingUnits = false;
     if (expected === "" && rates.has(code)) {
       const priced = expectedFor(rates.get(code), unitsCell);
       if (priced.ok) {
@@ -629,6 +672,7 @@ export function buildImportedRows(table, mapping, options = {}) {
         if (rates.get(code).per) pricedPerUnit += 1;
       } else {
         needsUnits += 1;
+        awaitingUnits = true;
         issues.push({
           line: lineNumber,
           field: "units",
@@ -637,7 +681,11 @@ export function buildImportedRows(table, mapping, options = {}) {
         });
       }
     }
-    if (expected === "") {
+    // Counted only when the code is genuinely absent from the card. A line
+    // that matched a per-unit rule and is only missing its quantity belongs to
+    // `needsUnits` alone — counting it here too would report one line twice
+    // and tell the shipper to add a code that is already on their rate card.
+    if (expected === "" && !awaitingUnits) {
       unmatchedCodes += 1;
     }
 
