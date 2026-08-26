@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { calculateBid, compareFrequencyReduction, frequencyReductionNote, compareSupplyResponsibility, supplyResponsibilityNote, WEEKS_PER_MONTH, PRODUCTION_RATE_PRESETS } from './calc.mjs';
+import { calculateBid, compareFrequencyReduction, frequencyReductionNote, compareSupplyResponsibility, supplyResponsibilityNote, compareInitialClean, initialCleanNote, WEEKS_PER_MONTH, PRODUCTION_RATE_PRESETS } from './calc.mjs';
 
 const office = () => ({
   areas: [
@@ -403,4 +403,149 @@ test('the pasteable supplies note names the restroom-only price and the emergenc
   });
   const warning = supplyResponsibilityNote(losing, { targetMargin: 20 });
   assert.match(warning, /would lose/);
+});
+
+test('a 5× takeover initial is extra labor and supplies, not another month of the contract', () => {
+  const monthly = calculateBid(office());
+  const comparison = compareInitialClean(office(), {
+    visitMultiplier: 5,
+    extraSupplies: 80,
+    amortizeMonths: 12,
+    cancelAfterMonths: 1,
+  });
+  assert.ok(Math.abs(comparison.hoursPerVisit - 2.4) < 1e-9);
+  assert.ok(Math.abs(comparison.initialHours - 12) < 1e-9);
+  assert.ok(Math.abs(comparison.initialLabor - 12 * monthly.loadedWage) < 1e-9);
+  assert.ok(Math.abs(comparison.initialDirect - (comparison.initialLabor + 80)) < 1e-9);
+  assert.ok(Math.abs(comparison.initialOverhead - comparison.initialDirect * 0.15) < 1e-9);
+  assert.ok(Math.abs(comparison.initialCost - comparison.initialDirect * 1.15) < 1e-9);
+  assert.ok(Math.abs(comparison.initialPrice - comparison.initialCost / 0.8) < 1e-9);
+  assert.equal(comparison.monthly.monthlyHours, monthly.monthlyHours);
+  assert.ok(Math.abs(comparison.monthly.monthlyPrice - monthly.monthlyPrice) < 1e-9);
+});
+
+test('throwing a 5× initial into today\'s monthly loses money in month 1', () => {
+  const comparison = compareInitialClean(office(), {
+    visitMultiplier: 5,
+    extraSupplies: 80,
+    amortizeMonths: 12,
+    cancelAfterMonths: 1,
+  });
+  assert.equal(comparison.thrownInBelowBreakEven, true);
+  assert.ok(comparison.thrownInMonth1Profit < 0);
+  assert.ok(comparison.walkAwayMonth1 > comparison.monthly.monthlyPrice);
+  assert.ok(Math.abs(comparison.thrownInMonth1Cost - (comparison.monthly.monthlyCost + comparison.initialCost)) < 1e-9);
+  // Locked worked example used by the SEO page.
+  assert.ok(Math.abs(comparison.monthly.monthlyPrice - 1719.9975) < 1e-9);
+  assert.ok(Math.abs(comparison.initialPrice - 490.36) < 0.005);
+  assert.ok(Math.abs(comparison.thrownInMonth1Profit + 48.288) < 0.01);
+  assert.ok(Math.abs(comparison.amortizedMonthlyPrice - 1760.860833333) < 0.01);
+  assert.ok(Math.abs(comparison.amortizedAddOn - 40.863333) < 0.01);
+});
+
+test('amortizing the initial over 12 months is a small add-on, not a doubled month', () => {
+  const comparison = compareInitialClean(office(), {
+    visitMultiplier: 5,
+    extraSupplies: 80,
+    amortizeMonths: 12,
+  });
+  assert.ok(comparison.amortizedAddOn > 0);
+  assert.ok(comparison.amortizedAddOn < comparison.initialPrice);
+  assert.ok(comparison.amortizedMonthlyPrice < comparison.monthly.monthlyPrice + comparison.initialPrice);
+  assert.ok(Math.abs(comparison.amortizedMonthlyCost - (comparison.monthly.monthlyCost + comparison.initialCost / 12)) < 1e-9);
+  // Same target margin on the combined cost.
+  assert.ok(Math.abs((comparison.amortizedMonthlyPrice - comparison.amortizedMonthlyCost) / comparison.amortizedMonthlyPrice * 100 - 20) < 1e-9);
+});
+
+test('a 30-day cancel after a free initial finishes under water', () => {
+  const comparison = compareInitialClean(office(), {
+    visitMultiplier: 5,
+    extraSupplies: 80,
+    cancelAfterMonths: 1,
+  });
+  assert.ok(comparison.thrownInCashIfCancel < 0);
+  assert.ok(comparison.quotedSeparatelyCashIfCancel > 0);
+  // Throwing it in vs invoicing it costs the one-time price, regardless of tenure.
+  assert.ok(Math.abs(comparison.giveawayVsQuotedIfCancel + comparison.initialPrice) < 1e-9);
+  assert.ok(Math.abs(comparison.thrownInCashIfCancel - (comparison.monthly.monthlyProfit - comparison.initialCost)) < 1e-9);
+});
+
+test('a 12-month stay still leaves the giveaway equal to the unpaid one-time', () => {
+  const comparison = compareInitialClean(office(), {
+    visitMultiplier: 5,
+    extraSupplies: 80,
+    cancelAfterMonths: 12,
+  });
+  assert.ok(comparison.thrownInCashIfCancel > 0);
+  assert.ok(Math.abs(comparison.giveawayVsQuotedIfCancel + comparison.initialPrice) < 1e-9);
+  assert.ok(comparison.monthsOfProfitToCoverGiveaway > 1);
+  assert.ok(comparison.monthsOfProfitToCoverGiveaway < 2);
+});
+
+test('a 2× maintained-building initial still prices as a project, not as free', () => {
+  const comparison = compareInitialClean(office(), {
+    visitMultiplier: 2,
+    extraSupplies: 20,
+  });
+  assert.ok(Math.abs(comparison.initialHours - 4.8) < 1e-9);
+  assert.equal(comparison.thrownInBelowBreakEven, false);
+  assert.ok(comparison.thrownInMonth1Profit > 0);
+  assert.ok(comparison.thrownInMonth1Margin < 20);
+  assert.ok(comparison.initialPrice > 0);
+});
+
+test('their include-the-initial monthly is scored against month-1 cost, not the periodic cost', () => {
+  const monthly = calculateBid(office());
+  const comparison = compareInitialClean(office(), {
+    visitMultiplier: 5,
+    extraSupplies: 80,
+    clientOfferMonthly: monthly.monthlyPrice,
+  });
+  assert.ok(comparison.clientOffer);
+  assert.equal(comparison.clientOffer.belowBreakEvenMonth1, true);
+  assert.ok(Math.abs(comparison.clientOffer.month1Profit - comparison.thrownInMonth1Profit) < 1e-9);
+  assert.equal(comparison.clientOffer.laterBelowBreakEven, false);
+  assert.ok(Math.abs(comparison.clientOffer.laterProfit - monthly.monthlyProfit) < 1e-9);
+});
+
+test('initial-clean comparison rejects a zero multiplier rather than a free project', () => {
+  assert.throws(
+    () => compareInitialClean(office(), { visitMultiplier: 0 }),
+    /Initial-clean visit multiplier must be greater than zero/,
+  );
+  assert.throws(
+    () => compareInitialClean(office(), { amortizeMonths: 0 }),
+    /Months to recover the initial must be greater than zero/,
+  );
+  assert.throws(
+    () => compareInitialClean(office(), { cancelAfterMonths: 0 }),
+    /If they cancel after this many months must be greater than zero/,
+  );
+  assert.throws(
+    () => compareInitialClean(office(), { extraSupplies: -1 }),
+    /Extra initial-clean supplies must be at least 0/,
+  );
+  assert.throws(
+    () => compareInitialClean(office(), { visitMultiplier: 'deep' }),
+    /Initial-clean visit multiplier must be a number/,
+  );
+});
+
+test('the pasteable initial-clean note names the one-time and the month-1 loss', () => {
+  const comparison = compareInitialClean(office(), {
+    visitMultiplier: 5,
+    extraSupplies: 80,
+    amortizeMonths: 12,
+    cancelAfterMonths: 1,
+  });
+  const note = initialCleanNote(comparison, { targetMargin: 20 });
+  assert.match(note, /\$490\.36/);
+  assert.match(note, /\$1,720\.00/);
+  assert.match(note, /loses \$48\.29/);
+  assert.match(note, /\$1,760\.86/);
+  assert.match(note, /under water/);
+  const easy = compareInitialClean(office(), { visitMultiplier: 2, extraSupplies: 20 });
+  const easyNote = initialCleanNote(easy, { targetMargin: 20 });
+  assert.match(easyNote, /leaves \$/);
+  assert.doesNotMatch(easyNote, /loses \$/);
 });

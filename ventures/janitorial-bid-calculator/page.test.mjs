@@ -1,11 +1,12 @@
 import { readFileSync } from 'node:fs';
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { compareSupplyResponsibility } from './calc.mjs';
+import { compareSupplyResponsibility, compareInitialClean } from './calc.mjs';
 
 const html = readFileSync(new URL('./index.html', import.meta.url), 'utf8');
 const seo = readFileSync(new URL('./5x-vs-3x-cleaning-price.html', import.meta.url), 'utf8');
 const supplySeo = readFileSync(new URL('./should-i-let-them-buy-the-paper.html', import.meta.url), 'utf8');
+const initialSeo = readFileSync(new URL('./should-i-throw-in-the-initial-clean.html', import.meta.url), 'utf8');
 const sitemap = readFileSync(new URL('./sitemap.xml', import.meta.url), 'utf8');
 
 test('the bid page wires the frequency-cut comparison without a build step', () => {
@@ -74,4 +75,54 @@ test('the paper-handoff landing page uses the same worked example the tests lock
   assert.ok(Math.abs(comparison.theyBuyRestroom.monthlyPrice - 1682.6225) < 1e-9);
   assert.ok(Math.abs(comparison.theyBuyButYouFill.monthlyPrice - 1732.935) < 1e-9);
   assert.match(sitemap, /should-i-let-them-buy-the-paper\.html/);
+});
+
+test('the bid page wires the initial-clean comparison without a build step', () => {
+  assert.match(html, /compareInitialClean/);
+  assert.match(html, /initialCleanNote/);
+  assert.match(html, /id="initialVisitMultiplier"/);
+  assert.match(html, /id="initialExtraSupplies"/);
+  assert.match(html, /id="initialAmortizeMonths"/);
+  assert.match(html, /id="initialCancelAfterMonths"/);
+  assert.match(html, /id="initialOfferMonthly"/);
+  assert.match(html, /id="initialCompare"/);
+  assert.match(html, /id="copyInitialNote"/);
+  assert.match(html, /el\('initThrownMonth1'\)\.textContent = signedMoney/);
+  assert.match(html, /initial_clean_compared/);
+  assert.match(html, /initial_clean_note_copied/);
+  assert.match(html, /should-i-throw-in-the-initial-clean\.html/);
+  assert.match(html, /Best-effort hosting, no SLA/);
+});
+
+test('the initial-clean landing page uses the same worked example the tests lock', () => {
+  const comparison = compareInitialClean({
+    areas: [
+      { name: 'Open office', squareFeet: 6000, productionRate: 4000, cleaningsPerWeek: 5 },
+      { name: 'Restrooms', squareFeet: 600, productionRate: 1200, cleaningsPerWeek: 5 },
+      { name: 'Break room', squareFeet: 400, productionRate: 2000, cleaningsPerWeek: 5 },
+      { name: 'Lobby & corridors', squareFeet: 1000, productionRate: 5000, cleaningsPerWeek: 5 },
+    ],
+    hourlyWage: 17,
+    burdenRate: 28,
+    suppliesPerSqFtMonth: 0.005,
+    equipmentMonthly: 25,
+    otherMonthly: 0,
+    overheadRate: 15,
+    targetMargin: 20,
+  }, { visitMultiplier: 5, extraSupplies: 80, amortizeMonths: 12, cancelAfterMonths: 1 });
+  assert.match(initialSeo, /<title>Should I throw in the initial clean/);
+  assert.match(initialSeo, /name="description"/);
+  assert.match(initialSeo, /FAQPage/);
+  assert.match(initialSeo, /href="\.\/"/);
+  assert.match(initialSeo, /Best-effort hosting, no SLA/);
+  assert.match(initialSeo, /\$490\.36/);
+  assert.match(initialSeo, /\$1,720\.00/);
+  assert.match(initialSeo, /\$48\.29/);
+  assert.match(initialSeo, /\$1,768\.29/);
+  assert.match(initialSeo, /\$1,760\.86/);
+  assert.match(initialSeo, /\$442\.07/);
+  assert.match(initialSeo, /GitHub Sponsors/);
+  assert.ok(Math.abs(comparison.initialPrice - 490.36) < 0.005);
+  assert.ok(Math.abs(comparison.thrownInMonth1Profit + 48.29) < 0.01);
+  assert.match(sitemap, /should-i-throw-in-the-initial-clean\.html/);
 });
