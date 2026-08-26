@@ -218,6 +218,14 @@ products:
           unit tests). Public URL remains owner-gated, so there is no traffic
           signal to read; the local-first counter reports only to the user's
           own browser and is opt-out. Baseline row.
+      - as_of: 2026-08-25
+        signals:
+          live_url_visitors: null
+          local_events_reported: 0
+        note: >-
+          Added auction vs Buy It Now after sell-through (break-even hammer,
+          insertion, Promoted Listings on BIN only). Still no public URL;
+          local event listing_format_compared is opt-out and stores no inputs.
   - slug: cut-list-optimizer
     surface: static-page-in-repo
     readings:

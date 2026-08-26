@@ -21,6 +21,11 @@ expected profit to zero. The completed-sale profit stays visible; the return
 view mixes that profit with the return loss at the rate you typed. It assumes
 the item comes back into inventory. [Why a 10% return rate can erase a thin
 listing](do-ebay-returns-wipe-the-profit.html).
+An **Auction vs Buy It Now** table then multiplies that expected sale by
+sell-through, subtracts insertion fees, and shows the hammer that matches
+Buy It Now expected profit. A completed auction sale is often cheaper;
+auctions still win when they actually sell.
+[Should I list this as an auction or Buy It Now?](should-i-list-ebay-auction-or-buy-it-now.html).
 
 Open `index.html` in a browser. The calculation is local and works without an
 account, network request, or API key. It is arithmetic, not an estimate of the
@@ -50,6 +55,10 @@ drive that decision:
 - **Expected profit after returns** — the completed-sale profit mixed with
   the cash a return still eats, at the return rate you enter. A thin listing
   can look fine on one sale and lose money once 8–12% of orders come back.
+- **Auction vs Buy It Now** — expected listing profit after sell-through and
+  insertion, plus the auction close that matches Buy It Now. Promoted
+  Listings Standard stays on the fixed-price row unless you type an
+  auction promoted rate.
 
 **No warranty.** This tool is provided free and as-is, without warranty of any
 kind, express or implied. It is not tax, financial, or business advice, and it
@@ -57,6 +66,12 @@ does not replace a qualified professional. **You are responsible for reviewing
 and verifying its output before relying on it.** To the maximum extent
 permitted by law, the authors accept no liability for any loss or damage
 arising from its use.
+
+**Best-effort hosting, no SLA.** These tools are free, experimental, and
+may be slow, broken, moved, or taken offline without notice. We do not
+promise uptime, backups of anything you type, or that a URL will keep
+working. Do not use this as a system of record. If a tool needs to
+survive, export your inputs and run it yourself.
 
 ## Privacy and usage
 
@@ -67,10 +82,11 @@ browser; it never records the inputs. Turn it off with the checkbox in the
 footer, or your browser's Do Not Track / Global Privacy Control setting.
 
 The counted events are `order_profit_calculated`, `target_margin_calculated`,
-`batch_calculated`, `return_rate_viewed`, and `price_sensitivity_viewed`.
-`price_sensitivity_viewed` is counted at most once per visit and only after
+`batch_calculated`, `return_rate_viewed`, `listing_format_compared`, and
+`price_sensitivity_viewed`. `price_sensitivity_viewed` and
+`listing_format_compared` are counted at most once per visit and only after
 an input is edited — counting the table's first paint would just re-count
-page loads and say nothing about whether the repricing view is used.
+page loads and say nothing about whether the view is used.
 
 ## Support
 
@@ -92,7 +108,7 @@ to remove the local setup.
 Pure ES modules, no build step, no dependencies.
 
 ```
-node --test        # runs calc.test.mjs and usage.test.mjs
+node --test        # calc, share, usage, and page tests
 ```
 
 `calc.mjs` holds the fee/profit/ROI arithmetic; `usage.mjs` holds the

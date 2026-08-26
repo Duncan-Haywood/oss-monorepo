@@ -24,6 +24,14 @@ export const INPUT_FIELDS = [
   'returnRatePercent',
   'returnShippingCost',
   'feeRefundOnReturnPercent',
+  'auctionExpectedClose',
+  'binSellThroughPct',
+  'auctionSellThroughPct',
+  'binDaysToSell',
+  'auctionDays',
+  'binInsertionFee',
+  'auctionInsertionFee',
+  'auctionPromotedRate',
 ];
 
 export function calculateOrder(input) {
@@ -170,4 +178,152 @@ export function calculateRepricingTable(input, offsets = [-20, -10, 0, 10, 20]) 
     // "what does moving the price actually buy me" without mental arithmetic.
     profitDelta: scenario.profit - current.profit,
   }));
+}
+
+function optionalNumber(value, name, fallback) {
+  if (value === undefined || value === null || value === '') return fallback;
+  const result = Number(value);
+  if (!Number.isFinite(result) || result < 0) throw new Error(`${name} must be a non-negative number`);
+  return result;
+}
+
+function requiredPositive(value, name, fallback) {
+  const result = optionalNumber(value, name, fallback);
+  if (result <= 0) throw new Error(`${name} must be greater than zero`);
+  return result;
+}
+
+function requiredPercent(value, name, fallback) {
+  const result = optionalNumber(value, name, fallback);
+  if (result > 100) throw new Error(`${name} must be at most 100%`);
+  return result;
+}
+
+// expectedProfit is linear in item price (fees and the return blend both
+// scale with revenue). Two evaluations recover the slope so the break-even
+// hammer uses the same function the table already shows.
+function priceForExpectedProfit(input, promotedRate, targetExpectedProfit) {
+  const atZero = calculateOrder({ ...input, price: 0, promotedRate });
+  const atHundred = calculateOrder({ ...input, price: 100, promotedRate });
+  const slope = (atHundred.expectedProfit - atZero.expectedProfit) / 100;
+  if (slope <= 1e-12) return Infinity;
+  return Math.max(0, (targetExpectedProfit - atZero.expectedProfit) / slope);
+}
+
+function listingFormatRow({
+  format,
+  label,
+  price,
+  sellThroughPct,
+  days,
+  insertionFee,
+  promotedRate,
+  input,
+}) {
+  const sold = calculateOrder({ ...input, price, promotedRate });
+  const expectedProfit = sold.expectedProfit * (sellThroughPct / 100) - insertionFee;
+  return {
+    format,
+    label,
+    price,
+    sellThroughPct,
+    days,
+    insertionFee,
+    promotedRate,
+    soldProfit: sold.profit,
+    soldExpectedProfit: sold.expectedProfit,
+    soldFees: sold.feeTotal,
+    expectedProfit,
+    expectedProfitPerDay: expectedProfit / days,
+    expectedProfitDelta: 0,
+    cashInvested: sold.cashInvested,
+  };
+}
+
+/**
+ * Auction vs Buy It Now on the same SKU. A completed auction sale is often
+ * cheaper than BIN; auctions still win when they actually sell. Expected
+ * listing profit is completed-sale expected profit (after the typed return
+ * rate) times sell-through, minus the insertion fee that is sunk either way.
+ * Promoted Listings Standard sits on the BIN row; the auction row uses its
+ * own promoted rate (default 0).
+ */
+export function compareListingFormat(input) {
+  const listedPrice = optionalNumber(input.price, 'Item price');
+  if (listedPrice === undefined) {
+    throw new Error('Item price must be a non-negative number');
+  }
+
+  const auctionClose = optionalNumber(
+    input.auctionExpectedClose,
+    'Auction expected close',
+    Math.round(listedPrice * 0.9 * 100) / 100,
+  );
+  const binSellThroughPct = requiredPercent(input.binSellThroughPct, 'Buy It Now sell-through', 50);
+  const auctionSellThroughPct = requiredPercent(input.auctionSellThroughPct, 'Auction sell-through', 90);
+  const binDays = requiredPositive(input.binDaysToSell, 'Buy It Now days to sell', 21);
+  const auctionDays = requiredPositive(input.auctionDays, 'Auction duration days', 7);
+  const binInsertionFee = optionalNumber(input.binInsertionFee, 'Buy It Now insertion fee', 0);
+  const auctionInsertionFee = optionalNumber(input.auctionInsertionFee, 'Auction insertion fee', 0);
+  const auctionPromotedRate = optionalNumber(input.auctionPromotedRate, 'Auction promoted rate', 0);
+  const binPromotedRate = optionalNumber(input.promotedRate, 'Promoted listings rate', 0);
+
+  const bin = listingFormatRow({
+    format: 'bin',
+    label: 'Buy It Now',
+    price: listedPrice,
+    sellThroughPct: binSellThroughPct,
+    days: binDays,
+    insertionFee: binInsertionFee,
+    promotedRate: binPromotedRate,
+    input,
+  });
+  const auction = listingFormatRow({
+    format: 'auction',
+    label: 'Auction',
+    price: auctionClose,
+    sellThroughPct: auctionSellThroughPct,
+    days: auctionDays,
+    insertionFee: auctionInsertionFee,
+    promotedRate: auctionPromotedRate,
+    input,
+  });
+  bin.expectedProfitDelta = bin.expectedProfit - auction.expectedProfit;
+  auction.expectedProfitDelta = auction.expectedProfit - bin.expectedProfit;
+
+  let breakEvenAuctionClose = Infinity;
+  if (auctionSellThroughPct > 0) {
+    const neededSoldExpected = (bin.expectedProfit + auctionInsertionFee) / (auctionSellThroughPct / 100);
+    breakEvenAuctionClose = priceForExpectedProfit(input, auctionPromotedRate, neededSoldExpected);
+  }
+
+  const winner = auction.expectedProfit > bin.expectedProfit + 1e-9
+    ? 'auction'
+    : auction.expectedProfit < bin.expectedProfit - 1e-9
+      ? 'bin'
+      : 'tie';
+
+  return {
+    bin,
+    auction,
+    rows: [bin, auction],
+    winner,
+    breakEvenAuctionClose,
+  };
+}
+
+export function listingFormatNote(comparison) {
+  if (!comparison?.bin || !comparison?.auction) {
+    throw new Error('Listing-format comparison is missing rows');
+  }
+  const money = (value) => `$${value.toFixed(2)}`;
+  const { bin, auction } = comparison;
+  const gap = Math.abs(auction.expectedProfit - bin.expectedProfit);
+  const ahead = auction.expectedProfit >= bin.expectedProfit ? 'more' : 'less';
+  const close = `Auction at ${money(auction.price)} with ${auction.sellThroughPct}% sell-through over ${auction.days} days expects ${money(auction.expectedProfit)} after insertion — ${money(gap)} ${ahead} than Buy It Now at ${money(bin.price)} with ${bin.sellThroughPct}% sell-through over ${bin.days} days (${money(bin.expectedProfit)}).`;
+  const sold = `A completed auction sale leaves ${money(auction.soldExpectedProfit)} after the typed return rate; a completed Buy It Now sale leaves ${money(bin.soldExpectedProfit)}.`;
+  const hammer = Number.isFinite(comparison.breakEvenAuctionClose)
+    ? ` Auction expected profit matches Buy It Now if the hammer is about ${money(comparison.breakEvenAuctionClose)}.`
+    : ' No auction hammer on these rates can match Buy It Now expected profit.';
+  return `${close} ${sold}${hammer}`;
 }
