@@ -117,12 +117,23 @@ export function auditTotals(results) {
       billed: cents(totals.billed + row.billed),
       expected: cents(totals.expected + row.expected),
       flagged: totals.flagged + (row.flags.length ? 1 : 0),
-      recoverable: cents(totals.recoverable + Math.max(0, row.variance)),
+      // A row whose amounts could not be read is not an overage of its whole
+      // billed value. Treating a blank expected as $0.00 would headline the
+      // full billed amount as "above expected" — the difference between "this
+      // line looks overbilled" and "we do not know what this line should
+      // cost". Such rows are already excluded from `actionable`; this keeps
+      // the dollar figure consistent with that. `unpriced` reports how many
+      // were held back so the omission is visible rather than silent.
+      recoverable:
+        row.priority === "fix-inputs"
+          ? totals.recoverable
+          : cents(totals.recoverable + Math.max(0, row.variance)),
+      unpriced: totals.unpriced + (row.priority === "fix-inputs" ? 1 : 0),
       actionable:
         totals.actionable +
         (row.priority === "high" || row.priority === "review" ? 1 : 0),
     }),
-    { billed: 0, expected: 0, flagged: 0, recoverable: 0, actionable: 0 },
+    { billed: 0, expected: 0, flagged: 0, recoverable: 0, unpriced: 0, actionable: 0 },
   );
 }
 
