@@ -101,6 +101,34 @@ ventures:
     gate_note: >-
       Outputs are estimates from user-supplied rates, never provider quotes or
       financial/technical advice.
+  - slug: invoice-payment-terms-calculator
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 8
+      gross_margin: 10
+      defensibility: 4
+      distribution: 8
+    composite: 6.833
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      The first release is deterministic due-date, late-fee, and early-pay
+      float arithmetic; AI is not needed to complete the workflow.
+    basis: >-
+      Graduated on 2026-08-26 as a browser-local invoice due-date, late-fee
+      scenario, and 2/10 Net 30 vs waiting calculator (salvage of #1405/#1400
+      plus the early-pay extra). Distinct from quote-margin-check (job
+      profitability), retainage (construction withhold), and Faire payout
+      speed (marketplace processing). Search intent includes invoice payment
+      terms calculator, net 30 due date, and 2/10 Net 30.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Late-fee and early-pay rows are arithmetic scenarios from user-supplied
+      rates, not legal conclusions or a recommendation to offer a discount.
   - slug: grant-deadline-tracker
     scores:
       ai_leverage: 1

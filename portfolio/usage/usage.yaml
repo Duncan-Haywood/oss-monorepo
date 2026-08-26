@@ -6,6 +6,22 @@
 # retired honestly instead of quietly.
 period: 2026-08
 products:
+  - slug: invoice-payment-terms-calculator
+    surface: static-page-in-repo
+    readings:
+      - as_of: 2026-08-26
+        signals:
+          live_url_visitors: null
+          calculation: 0
+          terms_copied: 0
+          draft_saved: 0
+          draft_loaded: 0
+          early_pay_compared: 0
+        note: >-
+          Salvage of unique #1405/#1400 invoice payment terms calculator onto
+          current main, plus 2/10 Net 30 vs waiting after carrying cost.
+          Public URL remains owner-gated; the local-first counter reports only
+          to the user's own browser and is opt-out. Baseline row.
   - slug: walmart-marketplace-calculator
     surface: static-page-in-repo
     readings:
