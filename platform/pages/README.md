@@ -260,6 +260,31 @@ it before claiming the site works, and again against production after the owner
 flip. If Playwright is installed globally rather than beside the repo, point
 `PLAYWRIGHT` at its module path.
 
+### Sweeping every tool
+
+`journey.mjs` is deep and narrow — the hub, and a few tools in detail.
+`sweep.mjs` is the other axis: shallow and total, over **every** published tool.
+
+```bash
+node platform/pages/sweep.mjs        # same BASE_URL / PLAYWRIGHT env vars
+```
+
+It answers the one question a site assembled from ~60 independently-written
+ventures raises: does each one still compute? For every tool it loads the page
+at a 390px viewport, watches for page and console errors, changes the inputs,
+and requires a response. A tool that only recalculates on a button press gets
+its button pressed; a tool whose inputs are pasted text gets its own "load an
+example" button pressed first, which is also the shortest path that product has
+to first value. A page that arrives with its answer already computed is asked
+whether it is showing a result rather than being failed for not changing, and a
+page that is only links is reported as such rather than called broken.
+
+That failure mode is silent and this repo has shipped it before: a page whose
+markup swallowed its own app script rendered perfectly and did nothing. Under
+one origin it matters more, because a visitor arriving from a search result
+meets one tool — and if that tool is dead, they have met the whole portfolio.
+Exit status is non-zero if any tool fails, so it can gate a release.
+
 ## Deploying
 
 `.github/workflows/portfolio-pages.yml` builds and tests on every push to `main`
