@@ -6,7 +6,8 @@ that lists and searches them.
 
 ```
 node platform/pages/build.mjs --out=dist          # build
-node --test platform/pages/build.test.mjs         # test
+node platform/pages/check.mjs dist                # check the artifact
+node --test platform/pages/build.test.mjs platform/pages/check.test.mjs
 ```
 
 Then serve it and click around:
@@ -65,8 +66,18 @@ origin root is read), and `node_modules`. `LICENSE` files are kept.
   answer. Links that resolve inside the site are left untouched. The build
   prints how many it repointed.
 - **Crawlability.** A root `robots.txt`, a `sitemap.xml` index covering the hub
-  and every venture's own sitemap, a `404.html`, and `.nojekyll` (without which
-  Pages silently drops any directory starting with `_`).
+  and every venture, a `404.html`, and `.nojekyll` (without which Pages silently
+  drops any directory starting with `_`).
+- **The sitemaps themselves.** Each venture's `sitemap.xml` is *regenerated*
+  from the pages that actually published, replacing the hand-written one. The
+  ventures' own were copied verbatim until 2026-08-26, and three things were
+  wrong with them at once: some listed relative `<loc>` values, which the
+  sitemaps protocol does not allow and crawlers reject; two were written
+  against `…/monorepo-projects/ventures/<slug>/`, a path this site does not
+  serve, so all 11 of their URLs were 404s; and most were simply stale, leaving
+  70 of 186 pages in no sitemap at all. Generating from the output makes all
+  three impossible: a page is listed because it shipped, at the URL it shipped
+  to. Nobody has to remember to update a sitemap again.
 - **Dead ends.** Every venture page was written as a standalone site, so none of
   them linked to any other. The hub linked down into 33 tools and nothing linked
   back or across: someone arriving from a search result at
@@ -81,6 +92,51 @@ origin root is read), and `node_modules`. `LICENSE` files are kept.
   a nav bar written into ~180 product files would conflict with nearly every
   open branch. Markup is scoped under `.pf-chrome` so it cannot restyle a
   venture's page, and the pass is idempotent.
+
+## Checking the artifact
+
+`check.mjs` runs over the built directory, not the sources, because that is
+where these defects are created — by the copy, not by the input. It fails the
+build on a missing root file, a leftover `example.invalid`, a relative link
+that resolves to nothing, a link that climbs out of the site root, a product
+directory with no landing page, a page in no sitemap, and a sitemap URL that
+did not ship. It follows the sitemap index into each venture's sitemap; a check
+that read only the root would have passed while every defect above sat one
+level down.
+
+The workflow runs it between building and uploading, so a broken artifact never
+reaches the live site.
+
+## Driving the customer journey
+
+`check.mjs` proves the files are right. It cannot prove the site *works* — that
+search filters, that the opt-out actually stops counting, that a calculator
+computes rather than just paints, that nothing throws in the console.
+`journey.mjs` drives that in a real browser:
+
+```bash
+node platform/pages/build.mjs --out=dist
+python3 -m http.server 8793 --directory dist &
+node platform/pages/journey.mjs
+
+# or against the live site, once publishing is on:
+BASE_URL=https://duncan-haywood.github.io/monorepo-projects node platform/pages/journey.mjs
+```
+
+It covers the hub and its grouping, search (narrowing, the empty state, and
+clearing), the usage opt-out across a reload, a click through into a calculator
+and a computed figure, a cross-product sibling link, a nested product hub,
+sitemap sampling, the 404, and a 375px viewport for horizontal overflow.
+
+Counts are derived from the page, never hardcoded — a venture lands most days,
+and a literal would fail on a healthy site the moment someone ships a
+calculator.
+
+It is deliberately **not** in CI: it needs Playwright, which is not a dependency
+of this repo, and `build.test.mjs` plus `check.mjs` already gate the build. Run
+it before claiming the site works, and again against production after the owner
+flip. If Playwright is installed globally rather than beside the repo, point
+`PLAYWRIGHT` at its module path.
 
 ## Deploying
 
@@ -102,6 +158,16 @@ not a second ask — this workflow is what it now publishes.
 Until it is set, the `deploy` job is skipped and the `build` job still runs, so
 the artifact is always proven buildable. `actions/deploy-pages` 404s while Pages
 is off, which is why the gate exists rather than letting every merge go red.
+
+The gate also requires `github.ref == 'refs/heads/main'`. `workflow_dispatch`
+can be run against any branch, and publishing the live site from a feature
+branch is not a mistake anyone would notice quickly.
+
+After deploying, the workflow fetches the real public URL — the front page,
+both sitemaps, `robots.txt`, and one product — and fails if any of them does not
+return 200, or if `sitemap.xml` comes back without a sitemap index. A completed
+deploy step is not evidence that anything serves; this makes "deployed" a fact
+rather than an inference.
 
 Only one workflow may publish to Pages. `retail-pilot-intel-deploy-docs.yml`
 reads `RETAIL_PILOT_INTEL_PAGES` instead, so an owner who wants those docs on

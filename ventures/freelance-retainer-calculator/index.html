@@ -32,6 +32,15 @@
           <label>Retainer hours included <span>hours</span><input id="retainerHours" type="number" min="1" step="1" value="20" required></label>
           <label>Scope / revision buffer <span>%</span><input id="buffer" type="number" min="0" max="100" step="1" value="15" required></label>
         </div>
+        <fieldset class="subgrid">
+          <legend>The rest of your month <span class="optional">(optional — leave at the defaults to price this client alone)</span></legend>
+          <p class="note">Your hourly floor assumes every billable hour gets sold. These three inputs say what you actually expect to sell, so the goal check below is honest about it.</p>
+          <div class="grid">
+            <label>Other committed revenue / month <span data-currency-symbol>$</span><input id="otherRevenue" type="number" min="0" step="100" value="0"></label>
+            <label>Hours those commitments take <span>hours</span><input id="otherHours" type="number" min="0" step="1" value="0"></label>
+            <label>Of the hours still unsold, you expect to bill <span>%</span><input id="fillRate" type="number" min="0" max="100" step="5" value="100"></label>
+          </div>
+        </fieldset>
         <label>Currency <select id="currency"><option value="USD">USD ($)</option><option value="EUR">EUR (€)</option><option value="GBP">GBP (£)</option><option value="CAD">CAD ($)</option><option value="AUD">AUD ($)</option></select></label>
         <label>When this client pays <select id="paymentTerms"><option value="prepaid">Prepaid on kickoff</option><option value="net15">Invoice on kickoff, Net 15</option><option value="net30">Invoice on kickoff, Net 30</option><option value="arrears15">Invoice at month-end, Net 15</option><option value="arrears30">Invoice at month-end, Net 30</option></select></label>
         <p id="draftStatus" class="draft-status" role="status">Your inputs stay in this browser as a private local draft, including currency and payment terms.</p>
@@ -48,6 +57,16 @@
         <div class="answer"><span>Payment terms</span><strong id="termsLabel">Prepaid on kickoff</strong></div>
         <div class="answer"><span>Cash to float until first payment</span><strong id="cashFloat">$0</strong></div>
         <p id="explanation" class="note"></p>
+        <div id="coverageCompare" class="usage-compare">
+          <h3>Does this retainer actually reach your income goal?</h3>
+          <p class="note">Clearing the hourly floor and reaching the goal are different questions. The floor is the rate that works <em>if the whole month sells</em>. This block prices the part nobody quotes: the hours still unsold.</p>
+          <div class="answer"><span>Sold so far this month</span><strong id="coverageCommitted">$0</strong></div>
+          <div class="answer"><span>Hours still unsold</span><strong id="coverageUnsold">0 hours</strong></div>
+          <div class="answer"><span>Month reaches</span><strong id="coverageExpected">$0</strong></div>
+          <div class="answer"><span>Short of the goal by</span><strong id="coverageShortfall">$0</strong></div>
+          <div class="answer"><span>Fill rate the goal needs</span><strong id="coverageRequiredFill">—</strong></div>
+          <p id="coverageVerdict" class="verdict"></p>
+        </div>
         <div id="usageCompare" class="usage-compare">
           <h3>If they use less — or more — than the block</h3>
           <p class="note">The retainer is a fixed monthly price. Hourly is the same hours at your floor rate. Modeled usage, not a contract interpretation.</p>
@@ -103,6 +122,8 @@
     <section class="copy card">
       <h2>Why this is different from a basic hourly-rate calculator</h2>
       <p>A $75 rate means little if only 65% of your month is billable, your tools and taxes cost $1,800, and a vague retainer absorbs unplanned revisions. This calculator makes each assumption visible so you can change it before making a promise.</p>
+      <h2>Common question: this clears my floor — so why am I still short?</h2>
+      <p>Because the floor rate is your revenue target divided by your <em>whole</em> billable capacity: it is the rate that works if every one of those hours sells. On the default plan the $1,725 retainer clears a $75/hr floor and is still only 22% of a $7,800 target — the rest rides on 84 hours nobody has bought yet, at a fill rate of 96.4%. Enter what you already have committed and the share of the rest you honestly expect to bill, and the goal check above prices that assumption instead of hiding it. <a href="will-this-retainer-hit-my-income-goal.html">Why clearing your floor is not reaching your goal</a> works through the numbers.</p>
       <h2>Common question: how many hours should a retainer include?</h2>
       <p>Start with a scope you can deliver inside your billable capacity, then leave the buffer intact. A retainer is a commitment of access and work, not permission for unlimited requests. Put included hours, response time, and out-of-scope pricing in your agreement.</p>
       <h2>Common question: should I sell a retainer or stay hourly?</h2>
