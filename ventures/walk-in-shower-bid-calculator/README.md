@@ -52,15 +52,21 @@ It then reports the numbers a contractor sanity-checks a bid against: price
 per square foot of tile, effective hourly billing rate, the hour split, and
 the **walk-away price** — total cost, below which the job makes nothing.
 Entering a price already on the table scores it against the same cost base.
-The **who-supplies table** prices the same shower three ways — you supply
-the tile, they bought boxes that cover the takeoff, or they bought too
-little / the wrong dye lot — against the $45 / SF labor-only special.
-**Copy bid summary** turns the result into a plain-text draft with wages
-omitted, ready to paste into a proposal.
+The **four-bathroom table** prices the brochure alcove, the curbless
+walk-in, the steam shower, and the tile-only alcove from the same crew
+rates, then scores matching the alcove’s price per tile square foot
+against each cost base. The **who-supplies table** prices the same
+shower three ways — you supply the tile, they bought boxes that cover
+the takeoff, or they bought too little / the wrong dye lot — against
+the $45 / SF labor-only special. **Copy bid summary** turns the result
+into a plain-text draft with wages omitted, ready to paste into a
+proposal.
 
 The arithmetic lives in [`calc.mjs`](calc.mjs) with no DOM or network
-dependency. See [`calc.test.mjs`](calc.test.mjs). Customer bought the
-tile? See
+dependency. See [`calc.test.mjs`](calc.test.mjs). Matching a brochure
+alcove number? See
+[`should-i-match-an-alcove-price-on-a-curbless-walk-in.html`](should-i-match-an-alcove-price-on-a-curbless-walk-in.html).
+Customer bought the tile? See
 [`should-i-install-customer-supplied-tile.html`](should-i-install-customer-supplied-tile.html).
 
 ## Starting rates
@@ -80,7 +86,7 @@ automatically when the browser sends Do Not Track or Global Privacy Control.
 See [`usage.mjs`](usage.mjs) and [`portfolio/usage/`](../../portfolio/usage/README.md).
 
 Events counted: `bid_calculated`, `preset_applied`,
-`proposed_price_compared`, `summary_copied`.
+`proposed_price_compared`, `scope_compared`, `summary_copied`.
 
 ## Limitations
 

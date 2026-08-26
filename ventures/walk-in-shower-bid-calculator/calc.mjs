@@ -31,7 +31,9 @@
 
 export const JOB_PRESETS = Object.freeze([
   {
+    id: 'alcove',
     label: '5x3 alcove tub-to-shower, keep valve, framed door (the brochure job)',
+    shortLabel: '5x3 alcove (brochure)',
     wallTileSf: 80,
     floorTileSf: 15,
     niches: 1,
@@ -44,7 +46,9 @@ export const JOB_PRESETS = Object.freeze([
     glass: 'framed',
   },
   {
+    id: 'curbless',
     label: '5x5 curbless walk-in, linear drain, valve relocate, frameless glass, masonry bench',
+    shortLabel: '5x5 curbless walk-in',
     wallTileSf: 90,
     floorTileSf: 25,
     niches: 2,
@@ -57,7 +61,9 @@ export const JOB_PRESETS = Object.freeze([
     glass: 'frameless',
   },
   {
+    id: 'steam',
     label: '4x6 steam shower, masonry bench, two niches, steam glass',
+    shortLabel: '4x6 steam shower',
     wallTileSf: 110,
     floorTileSf: 24,
     niches: 2,
@@ -70,7 +76,9 @@ export const JOB_PRESETS = Object.freeze([
     glass: 'steam',
   },
   {
+    id: 'tile-only',
     label: 'Tile-only alcove (demo already done), one niche, no glass',
+    shortLabel: 'Tile-only alcove',
     wallTileSf: 80,
     floorTileSf: 15,
     niches: 1,
@@ -489,6 +497,105 @@ export function tileSupplyNote(rows) {
 
 function money(value) {
   return `$${value.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+}
+
+/**
+ * Price the four starting bathrooms from the same crew rates so
+ * the contractor can see why matching the brochure alcove's
+ * price-per-tile-SF on a curbless walk-in loses money.
+ *
+ * User-typed bench and glass invoices are not reused here: each
+ * row takes the starting bench / glass kit for that bathroom so
+ * the comparison stays apples-to-apples. Wage, burden, overhead,
+ * margin, travel, tile $/SF, and hour rates stay with the current
+ * job — those are the contractor's shop, not the bathroom shape.
+ *
+ * Each row also scores matching the alcove's $/SF of tile against
+ * that bathroom's cost base. That is the "just match the brochure
+ * number" special shops actually get shopped on.
+ */
+export function compareScope(input) {
+  const rows = JOB_PRESETS.map((preset) => {
+    const benchKit = suggestedBench(preset.bench);
+    const glassKit = suggestedGlass(preset.glass);
+    const bid = calculateBid({
+      ...input,
+      wallTileSf: preset.wallTileSf,
+      floorTileSf: preset.floorTileSf,
+      niches: preset.niches,
+      tearOutTub: preset.tearOutTub,
+      relocateValve: preset.relocateValve,
+      linearDrain: preset.linearDrain,
+      curbless: preset.curbless,
+      steamUnit: preset.steamUnit,
+      bench: preset.bench,
+      glass: preset.glass,
+      ...benchKit,
+      ...glassKit,
+    });
+    return {
+      scope: preset.id,
+      label: preset.shortLabel,
+      detail: preset.label,
+      tileSf: bid.tileSf,
+      price: bid.price,
+      totalCost: bid.totalCost,
+      totalHours: bid.totalHours,
+      pricePerTileSf: bid.pricePerTileSf,
+      wetHours: bid.wetHours,
+      finishHours: bid.finishHours,
+      drainHours: bid.drainHours,
+      curblessHours: bid.curblessHours,
+      glassMaterial: bid.glassMaterial,
+      breakEvenPrice: bid.breakEvenPrice,
+    };
+  });
+
+  const alcove = rows.find((row) => row.scope === 'alcove');
+  const matchPerSf = alcove?.pricePerTileSf ?? null;
+  const cheapest = Math.min(...rows.map((row) => row.price));
+
+  return rows.map((row) => {
+    const matchPrice = matchPerSf === null ? null : matchPerSf * row.tileSf;
+    const matchAlcove = matchPrice === null ? null : {
+      price: matchPrice,
+      profit: matchPrice - row.totalCost,
+      perTileSf: matchPerSf,
+      belowBreakEven: matchPrice < row.totalCost,
+    };
+    return {
+      ...row,
+      cheapest: row.price === cheapest,
+      delta: row.price - cheapest,
+      matchAlcove,
+    };
+  });
+}
+
+/**
+ * One-line verdict for the bathroom-shape table. Names the loss
+ * from matching the brochure alcove's $/SF on the curbless walk-in.
+ */
+export function scopeNote(rows) {
+  if (!Array.isArray(rows) || rows.length < 4) {
+    throw new Error('Scope comparison is missing rows');
+  }
+  const alcove = rows.find((row) => row.scope === 'alcove');
+  const walkIn = rows.find((row) => row.scope === 'curbless');
+  const steam = rows.find((row) => row.scope === 'steam');
+  if (!alcove || !walkIn || !steam) {
+    throw new Error('Scope comparison is missing a bathroom row');
+  }
+
+  const lift = walkIn.price - alcove.price;
+  const match = walkIn.matchAlcove;
+  if (match && match.belowBreakEven) {
+    return `Matching the brochure alcove's ${money(alcove.pricePerTileSf)} / SF on the curbless walk-in is ${money(match.price)} — you lose ${money(Math.abs(match.profit))}. Walk-away on that walk-in is ${money(walkIn.breakEvenPrice)}.`;
+  }
+  if (match && !match.belowBreakEven) {
+    return `Matching the brochure alcove's ${money(alcove.pricePerTileSf)} / SF still covers the curbless walk-in. The walk-in bid is still ${money(lift)} above the alcove because the drain and the glass do not live in that per-SF number.`;
+  }
+  return `The curbless walk-in bids ${money(lift)} above the brochure alcove. Steam adds another ${money(steam.price - walkIn.price)} on the generator and the sealed glass.`;
 }
 
 /**

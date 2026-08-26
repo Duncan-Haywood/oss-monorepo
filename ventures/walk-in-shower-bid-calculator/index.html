@@ -7,7 +7,7 @@
   <meta name="description" content="Price a tiled walk-in shower or tub-to-shower conversion from wall and floor tile, waterproofing, linear drain, curbless slope, valve relocate, niches, bench, and glass — not a published price per square foot. See the walk-away number before you match a cheaper tile quote.">
   <meta property="og:title" content="Walk-In Shower Bid Calculator">
   <meta property="og:description" content="A 5x3 alcove tub-to-shower with the existing valve is not the same job as a 5x5 curbless walk-in with a linear drain and frameless glass. Bid the drain and the glass.">
-  <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Walk-In Shower Bid Calculator","applicationCategory":"BusinessApplication","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"featureList":"Wall and floor tile hours, tile waste, waterproofing, tub tear-out, valve relocate, linear drain, curbless slope, niches, masonry or floating bench, framed or frameless glass, steam unit, contractor-supplied vs customer-supplied tile comparison, $45/SF labor-only walk-away, proposed-price margin check, copyable customer-facing bid summary"}</script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Walk-In Shower Bid Calculator","applicationCategory":"BusinessApplication","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"featureList":"Wall and floor tile hours, tile waste, waterproofing, tub tear-out, valve relocate, linear drain, curbless slope, niches, masonry or floating bench, framed or frameless glass, steam unit, alcove vs curbless vs steam scope comparison, match-the-brochure per-SF walk-away, contractor-supplied vs customer-supplied tile comparison, $45/SF labor-only walk-away, proposed-price margin check, copyable customer-facing bid summary"}</script>
   <style>
     :root { color-scheme: light; font-family: system-ui, sans-serif; color: #1d2a33; background: #e4eef2; }
     body { max-width: 1060px; margin: 0 auto; padding: 32px 18px; }
@@ -57,7 +57,7 @@
   <header>
     <p class="eyebrow">FOR TILE AND BATHROOM CONTRACTORS</p>
     <h1>Bid the drain, the slope, and the glass.</h1>
-    <p>Price a tiled walk-in shower the way the trade actually loses money: wall and floor tile, waterproofing, a linear drain, curbless slope, a valve relocate, niches, a masonry bench, and frameless glass. You get the bid, the price per square foot of tile, the walk-away number below which the job loses money, and whether the $45 / SF “you supply the tile” special still pays.</p>
+    <p>Price a tiled walk-in shower the way the trade actually loses money: wall and floor tile, waterproofing, a linear drain, curbless slope, a valve relocate, niches, a masonry bench, and frameless glass. You get the bid, the price per square foot of tile, whether matching the brochure alcove’s per-SF number still pays on a curbless walk-in, the walk-away number below which the job loses money, and whether the $45 / SF “you supply the tile” special still pays.</p>
   </header>
 
   <main class="layout">
@@ -165,6 +165,14 @@
       </table>
       <p id="supplyNote" class="note"></p>
       <hr>
+      <p class="note" style="margin-bottom:4px"><strong>Same shop, four bathrooms</strong></p>
+      <p class="note" style="margin-top:0">Matching the brochure alcove’s price per square foot of tile on a 5x5 curbless walk-in is how the first linear drain eats the field margin. <a href="should-i-match-an-alcove-price-on-a-curbless-walk-in.html" style="color:#cde6ea">Should I match an alcove price on a curbless walk-in?</a></p>
+      <table>
+        <thead><tr><th>Bathroom</th><th>Hours</th><th>Your bid</th><th>$ / tile SF</th><th>Match alcove $ / SF</th></tr></thead>
+        <tbody id="scopes"></tbody>
+      </table>
+      <p id="scopeNote" class="note"></p>
+      <hr>
       <p class="note" style="margin-bottom:4px"><strong>Where the hours go</strong></p>
       <ul class="split" id="hourSplit"></ul>
       <hr>
@@ -180,7 +188,7 @@
     <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not plumbing, waterproofing, construction, legal, tax, or financial advice, and it does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for meeting any obligation it helps you prepare for. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
     <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record. If a tool needs to survive, export your inputs and run it yourself.</p>
     <p><strong>Nothing leaves your browser.</strong> Every number stays on this device. Usage counts are anonymous tallies of which features were used, stored locally, and never include your tile, wages, costs, or prices.</p>
-    <p>Related: <a href="how-much-to-charge-to-install-a-walk-in-shower.html">How much to charge to install a walk-in shower</a>. Customer bought the tile? See <a href="should-i-install-customer-supplied-tile.html">should I install customer-supplied tile</a>.</p>
+    <p>Related: <a href="how-much-to-charge-to-install-a-walk-in-shower.html">How much to charge to install a walk-in shower</a>. Matching a brochure number? See <a href="should-i-match-an-alcove-price-on-a-curbless-walk-in.html">should I match an alcove price on a curbless walk-in</a>. Customer bought the tile? See <a href="should-i-install-customer-supplied-tile.html">should I install customer-supplied tile</a>.</p>
     <p class="support">Free and open source. If it wins you a job, the <a href="https://github.com/Duncan-Haywood/monorepo-projects" rel="noopener">project is on GitHub</a> &mdash; support is entirely optional and never changes what the tool does.</p>
   </footer>
 
@@ -188,7 +196,9 @@
     import {
       calculateBid,
       compareTileSupply,
+      compareScope,
       tileSupplyNote,
+      scopeNote,
       formatBidSummary,
       JOB_PRESETS,
       suggestedBench,
@@ -216,6 +226,7 @@
       presets.append(option);
     });
 
+    let countedScope = false;
     function count(event) {
       recordUsage(localStorage, el('usageOptOut').checked, event);
     }
@@ -262,11 +273,12 @@
       el('price').textContent = message;
       el('price').className = `hero-number ${isError ? 'negative' : ''}`;
       el('priceLabel').textContent = isError ? 'check the highlighted input' : 'walk-in shower price';
-      ['scope','access','hours','labor','materials','soft','overhead','cost','profit','perSf','hourlyRate','breakEven','supplyNote']
+      ['scope','access','hours','labor','materials','soft','overhead','cost','profit','perSf','hourlyRate','breakEven','supplyNote','scopeNote']
         .forEach(id => { el(id).textContent = ''; });
       el('hourSplit').innerHTML = '';
       el('split').innerHTML = '';
       el('supply').innerHTML = '';
+      el('scopes').innerHTML = '';
       el('verdict').hidden = true;
     }
 
@@ -282,10 +294,12 @@
     function update() {
       let result;
       let supply;
+      let scopes;
       try {
         const input = readInput();
         result = calculateBid(input);
         supply = compareTileSupply(input);
+        scopes = compareScope(input);
       } catch (error) {
         clearOutputs(error.message, true);
         return;
@@ -337,6 +351,21 @@
         return `<tr><td>${row.label}</td><td>${row.totalHours.toFixed(1)} h</td><td>${money(row.price)}</td><td>${asked}</td></tr>`;
       }).join('');
       el('supplyNote').textContent = tileSupplyNote(supply);
+
+      el('scopes').innerHTML = scopes.map((row) => {
+        const asked = row.matchAlcove
+          ? (row.matchAlcove.belowBreakEven
+            ? `loses ${money(Math.abs(row.matchAlcove.profit))}`
+            : `keeps ${money(row.matchAlcove.profit)}`)
+          : '—';
+        const perSf = row.pricePerTileSf === null ? 'n/a' : money(row.pricePerTileSf);
+        return `<tr><td>${row.label}</td><td>${row.totalHours.toFixed(1)} h</td><td>${money(row.price)}</td><td>${perSf}</td><td>${asked}</td></tr>`;
+      }).join('');
+      el('scopeNote').textContent = scopeNote(scopes);
+      if (!countedScope) {
+        count('scope_compared');
+        countedScope = true;
+      }
 
       const verdict = el('verdict');
       if (result.proposed === null) {

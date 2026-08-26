@@ -3,7 +3,9 @@ import assert from 'node:assert/strict';
 import {
   calculateBid,
   compareTileSupply,
+  compareScope,
   tileSupplyNote,
+  scopeNote,
   formatBidSummary,
   billedTileSf,
   suggestedBench,
@@ -301,4 +303,77 @@ test('supply presets name the three paths shops actually get shopped on', () => 
   assert.equal(SUPPLY_PRESETS[0].id, 'contractor-supplied');
   assert.equal(SUPPLY_PRESETS[1].id, 'owner-fits');
   assert.equal(SUPPLY_PRESETS[2].id, 'owner-short');
+});
+
+test('compareScope prices four bathrooms from the same crew rates', () => {
+  const rows = compareScope(alcove());
+  assert.equal(rows.length, 4);
+  const alcoveRow = rows.find((row) => row.scope === 'alcove');
+  const walkInRow = rows.find((row) => row.scope === 'curbless');
+  const steamRow = rows.find((row) => row.scope === 'steam');
+  const tileOnly = rows.find((row) => row.scope === 'tile-only');
+  assert.ok(alcoveRow && walkInRow && steamRow && tileOnly);
+  assert.equal(alcoveRow.tileSf, 95);
+  assert.equal(walkInRow.tileSf, 115);
+  assert.equal(walkInRow.drainHours, 5);
+  assert.equal(walkInRow.curblessHours, 7);
+  assert.equal(alcoveRow.drainHours, 0);
+  assert.equal(alcoveRow.curblessHours, 0);
+  assert.equal(alcoveRow.glassMaterial, 480);
+  assert.equal(walkInRow.glassMaterial, 1650);
+  assert.equal(steamRow.glassMaterial, 2200);
+  assert.equal(tileOnly.glassMaterial, 0);
+  assert.ok(walkInRow.price > alcoveRow.price * 1.5);
+  assert.ok(walkInRow.pricePerTileSf > alcoveRow.pricePerTileSf);
+  assert.ok(steamRow.price > walkInRow.price);
+  assert.ok(tileOnly.price < alcoveRow.price);
+  assert.equal(alcoveRow.cheapest, false);
+  assert.equal(tileOnly.cheapest, true);
+});
+
+test('compareScope does not reuse a typed glass invoice', () => {
+  const cheapGlass = compareScope({ ...alcove(), glassCost: 1, hoursPerBench: 99, benchMaterial: 1 });
+  const baseline = compareScope(alcove());
+  const walkInCheap = cheapGlass.find((row) => row.scope === 'curbless');
+  const walkInBase = baseline.find((row) => row.scope === 'curbless');
+  assert.ok(Math.abs(walkInCheap.price - walkInBase.price) < 1e-9);
+  assert.equal(walkInCheap.glassMaterial, 1650);
+});
+
+test('matching the alcove per-SF on the curbless walk-in loses money', () => {
+  const rows = compareScope(alcove());
+  const alcoveRow = rows.find((row) => row.scope === 'alcove');
+  const walkInRow = rows.find((row) => row.scope === 'curbless');
+  assert.ok(alcoveRow.matchAlcove);
+  assert.equal(alcoveRow.matchAlcove.belowBreakEven, false);
+  assert.ok(Math.abs(alcoveRow.matchAlcove.price - alcoveRow.price) < 1e-6);
+  assert.equal(walkInRow.matchAlcove.belowBreakEven, true);
+  assert.ok(Math.abs(walkInRow.matchAlcove.perTileSf - alcoveRow.pricePerTileSf) < 1e-9);
+  assert.ok(Math.abs(walkInRow.matchAlcove.price - alcoveRow.pricePerTileSf * 115) < 1e-6);
+  assert.match(scopeNote(rows), /lose/i);
+  assert.match(scopeNote(rows), /Walk-away on that walk-in/i);
+});
+
+test('scopeNote names the lift when matching the alcove still covers', () => {
+  const rows = compareScope({ ...alcove(), targetMargin: 80 });
+  const walkIn = rows.find((row) => row.scope === 'curbless');
+  assert.equal(walkIn.matchAlcove.belowBreakEven, false);
+  assert.match(scopeNote(rows), /still covers the curbless walk-in/i);
+});
+
+test('scopeNote rejects a short or incomplete table', () => {
+  assert.throws(() => scopeNote([{ scope: 'alcove' }]), /missing rows/);
+  assert.throws(() => scopeNote([
+    { scope: 'alcove' },
+    { scope: 'curbless' },
+    { scope: 'tile-only' },
+    { scope: 'someone-else' },
+  ]), /missing a bathroom row/);
+});
+
+test('job presets carry stable ids for the scope table', () => {
+  assert.deepEqual(JOB_PRESETS.map((job) => job.id), ['alcove', 'curbless', 'steam', 'tile-only']);
+  for (const job of JOB_PRESETS) {
+    assert.ok(job.shortLabel.length > 0);
+  }
 });
