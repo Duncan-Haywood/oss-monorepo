@@ -16,8 +16,10 @@
     body { max-width: 720px; margin: 0 auto; padding: 32px 18px 64px; line-height: 1.55; }
     a { color: #176b53; }
     h1 { font-size: clamp(1.8rem, 5vw, 2.6rem); letter-spacing: -.04em; line-height: 1.1; }
-    table { width: 100%; border-collapse: collapse; margin: 1rem 0; background: #fff; }
-    th, td { padding: 8px 6px; text-align: right; border-bottom: 1px solid #cbd8d3; font-variant-numeric: tabular-nums; }
+    /* Five money columns do not fit a 390px phone; scroll the table, not the page. */
+    .scroller { overflow-x: auto; margin: 1rem 0; }
+    table { width: 100%; min-width: 100%; border-collapse: collapse; background: #fff; }
+    th, td { padding: 8px 6px; text-align: right; border-bottom: 1px solid #cbd8d3; font-variant-numeric: tabular-nums; white-space: nowrap; }
     th:first-child, td:first-child { text-align: left; }
     footer { margin-top: 2rem; font-size: .85rem; color: #344640; }
   </style>
@@ -51,6 +53,7 @@
     waiting leaves <strong>$1,150.68</strong>. Cheap 6% money still
     covers the wait by about $20.
   </p>
+  <div class="scroller">
   <table>
     <thead>
       <tr>
@@ -66,6 +69,7 @@
       <tr><td>Wait Net 30</td><td>30 days</td><td>$1,200.00</td><td>$23.67</td><td>$1,176.33</td></tr>
     </tbody>
   </table>
+  </div>
   <h2>What this number is not</h2>
   <p>
     Carrying cost is your assumption, not a late fee and not interest you

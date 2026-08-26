@@ -11,6 +11,14 @@ answers the early-pay question on the same $1,200 default. On 24% money,
 waiting still leaves $1,176.33 against $1,168.27 after the discount.
 They match at about 36.1%. At 50%, the discount flips ahead.
 
+[Already overdue? Wait, chase, settle, or collections](chasing-a-late-invoice.html)
+picks up where the due date runs out. The same invoice, 15 days late, scored
+four ways on expected cash after float and the hours a chase costs: a 10%
+settlement is worth $861.16, waiting $823.43, chasing it yourself $755.61
+(three hours at $85 is $255 spent whether or not they pay), and collections
+$355.63. The most useful number is the chase-hours break-even — about **1.8
+hours** on these defaults. Odds are the operator's estimate, not a prediction.
+
 It is not a quote-margin tool (that prices the job), not a retainage
 schedule (that is construction withhold), and not a Faire payout-speed
 page (that is marketplace processing). This page is invoice terms for
@@ -26,7 +34,7 @@ Then open `http://localhost:8877`. There is no build step.
 
 ## Privacy and usage
 
-Everything runs in your browser. Your amounts, dates, and drafts are never uploaded. There are no accounts, cookies, tracking pixels, or analytics vendors. The optional anonymous local counter records only feature names (`calculation`, `terms_copied`, `draft_saved`, `draft_loaded`, `early_pay_compared`) and can be disabled in the footer. Saved drafts stay on this device.
+Everything runs in your browser. Your amounts, dates, and drafts are never uploaded. There are no accounts, cookies, tracking pixels, or analytics vendors. The optional anonymous local counter records only feature names (`calculation`, `terms_copied`, `draft_saved`, `draft_loaded`, `early_pay_compared`, `late_invoice_compared`, `late_invoice_draft_saved`, `late_invoice_draft_loaded`) and can be disabled in the footer. Saved drafts stay on this device.
 
 ## Safety
 
@@ -35,6 +43,8 @@ Everything runs in your browser. Your amounts, dates, and drafts are never uploa
 **Best-effort hosting, no SLA.** These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record. If a tool needs to survive, export your inputs and run it yourself.
 
 Late-fee results are arithmetic scenarios, not a recommendation or a determination that a fee can be charged.
+
+The overdue comparison is arithmetic on recovery odds you type. It does not tell you to settle, escalate, or walk away, and it does not say what a late fee, a settlement, or a collection agency is permitted to do — those vary by jurisdiction and by the contract you signed.
 
 [GitHub Sponsors](https://github.com/sponsors/Duncan-Haywood) is optional and never changes what the tool does.
 

@@ -22,6 +22,28 @@ products:
           current main, plus 2/10 Net 30 vs waiting after carrying cost.
           Public URL remains owner-gated; the local-first counter reports only
           to the user's own browser and is opt-out. Baseline row.
+      - as_of: 2026-08-26
+        signals:
+          live_url_visitors: null
+          calculation: 0
+          terms_copied: 0
+          draft_saved: 0
+          draft_loaded: 0
+          early_pay_compared: 0
+          late_invoice_compared: 0
+          late_invoice_draft_saved: 0
+          late_invoice_draft_loaded: 0
+        note: >-
+          Adds the already-overdue comparison (wait / chase / settle /
+          collections) as a second interactive page, so the three new event
+          names get a zero baseline on the same day the surface ships. Still no
+          public URL — every reading here is local-browser-only and opt-out
+          until the owner's deploy-settings flip lands. The reading worth
+          watching once it does is whether late_invoice_compared moves at all
+          against early_pay_compared: it is the first page in this venture
+          aimed at a problem the user already has rather than one they are
+          deciding about, and if the overdue page is what draws search traffic
+          that is an argument for depth there over another pre-send table.
   - slug: portfolio-pages
     surface: github-pages-artifact
     readings:

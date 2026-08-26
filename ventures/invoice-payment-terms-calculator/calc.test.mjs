@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { calculateTerms, compareEarlyPay, earlyPayNote, termsCopy } from './calc.mjs';
+import { calculateTerms, compareEarlyPay, compareLateInvoice, earlyPayNote, lateInvoiceNote, termsCopy } from './calc.mjs';
 import fs from 'node:fs';
 
 const input = { amount: 1200, invoiceDate: '2026-08-24', termsDays: 30, annualLateRate: 18, graceDays: 10, monthlyBurn: 3000, outstanding: 3 };
@@ -108,4 +108,136 @@ test('compareEarlyPay rejects impossible discounts and inverted windows', () => 
   assert.throws(() => compareEarlyPay({ ...earlyPay, earlyPayDays: 45 }), /cannot be later/);
   assert.throws(() => compareEarlyPay({ ...earlyPay, takeRatePct: 101 }), /between 0 and 100/);
   assert.throws(() => compareEarlyPay({ ...earlyPay, annualCarryRate: -1 }), /non-negative/);
+});
+
+const overdue = {
+  amount: 1200,
+  daysOverdue: 15,
+  annualCarryRate: 24,
+  waitDays: 30,
+  waitRecoveryPct: 70,
+  chaseHours: 3,
+  hourlyRate: 85,
+  chaseDays: 14,
+  chaseRecoveryPct: 85,
+  settlementDiscountPct: 10,
+  settlementDays: 5,
+  settlementRecoveryPct: 80,
+  collectionCommissionPct: 30,
+  collectionDays: 90,
+  collectionRecoveryPct: 45,
+};
+
+const path = (comparison, key) => comparison.paths.find(row => row.key === key);
+
+test('ranks the four overdue paths on expected cash after float and chase time', () => {
+  const comparison = compareLateInvoice(overdue);
+  assert.deepEqual(comparison.ranked.map(row => row.key), ['settle', 'wait', 'chase', 'collections']);
+  // 80% x ($1,080 less 5 days of 24% float) = $861.16.
+  assert.equal(path(comparison, 'settle').expected.toFixed(2), '861.16');
+  assert.equal(path(comparison, 'wait').expected.toFixed(2), '823.43');
+  assert.equal(path(comparison, 'chase').expected.toFixed(2), '755.61');
+  assert.equal(path(comparison, 'collections').expected.toFixed(2), '355.63');
+  assert.equal(comparison.gapToRunnerUp.toFixed(2), '37.73');
+});
+
+test('the certain cost of chasing is charged whether or not the invoice is paid', () => {
+  const comparison = compareLateInvoice(overdue);
+  const chase = path(comparison, 'chase');
+  assert.equal(chase.labourCost, 255);
+  // Chasing recovers the most cash of any path if it works; three hours of
+  // the operator's own time is what drops it below a discount.
+  assert.ok(chase.netIfPaid > path(comparison, 'settle').netIfPaid);
+  assert.equal(chase.expected, 0.85 * chase.netIfPaid - 255);
+  assert.equal(compareLateInvoice({ ...overdue, chaseHours: 0 }).best.key, 'chase');
+});
+
+test('the chase-hours break-even is the point where chasing ties the best alternative', () => {
+  const comparison = compareLateInvoice(overdue);
+  const hours = comparison.breakEven.chaseHours;
+  assert.equal(hours.toFixed(2), '1.76');
+  const atBreakEven = compareLateInvoice({ ...overdue, chaseHours: hours });
+  assert.ok(Math.abs(path(atBreakEven, 'chase').expected - path(atBreakEven, 'settle').expected) < 1e-9);
+  assert.equal(compareLateInvoice({ ...overdue, chaseHours: hours - 0.1 }).best.key, 'chase');
+  assert.equal(compareLateInvoice({ ...overdue, chaseHours: hours + 0.1 }).best.key, 'settle');
+});
+
+test('the settlement break-even is the deepest discount that still beats the alternatives', () => {
+  const comparison = compareLateInvoice(overdue);
+  const discount = comparison.breakEven.settlementDiscountPct;
+  assert.equal(discount.toFixed(2), '13.94');
+  assert.equal(compareLateInvoice({ ...overdue, settlementDiscountPct: discount - 0.5 }).best.key, 'settle');
+  assert.equal(compareLateInvoice({ ...overdue, settlementDiscountPct: discount + 0.5 }).best.key, 'wait');
+});
+
+test('a break-even outside its own legal range is reported as no answer, not a bad one', () => {
+  const comparison = compareLateInvoice(overdue);
+  // On these odds no commission and no recovery rate makes collections win,
+  // so there is no number to show rather than a negative or above-100 one.
+  assert.equal(comparison.breakEven.collectionCommissionPct, null);
+  assert.equal(comparison.breakEven.collectionRecoveryPct, null);
+  assert.equal(compareLateInvoice({ ...overdue, hourlyRate: 0 }).breakEven.chaseHours, null);
+});
+
+test('collections can win on a large invoice a weak payer is unlikely to settle', () => {
+  const weak = {
+    ...overdue,
+    amount: 20000,
+    waitRecoveryPct: 10,
+    chaseRecoveryPct: 15,
+    settlementRecoveryPct: 20,
+    collectionRecoveryPct: 55,
+  };
+  const comparison = compareLateInvoice(weak);
+  assert.equal(comparison.best.key, 'collections');
+  const commission = comparison.breakEven.collectionCommissionPct;
+  assert.equal(commission.toFixed(2), '65.33');
+  assert.equal(compareLateInvoice({ ...weak, collectionCommissionPct: commission + 1 }).best.key, 'settle');
+  // No number of hours makes chasing a payer this weak the best path.
+  assert.equal(comparison.breakEven.chaseHours, null);
+});
+
+test('float already burned is reported but never changes the ranking', () => {
+  const comparison = compareLateInvoice(overdue);
+  assert.equal(comparison.sunkCarry.toFixed(2), '11.84');
+  const later = compareLateInvoice({ ...overdue, daysOverdue: 90 });
+  assert.ok(later.sunkCarry > comparison.sunkCarry);
+  assert.deepEqual(later.ranked.map(row => row.key), comparison.ranked.map(row => row.key));
+});
+
+test('lateInvoiceNote reports the arithmetic without telling anyone what to do', () => {
+  const note = lateInvoiceNote(compareLateInvoice(overdue));
+  assert.match(note, /\$861\.16/);
+  assert.match(note, /\$37\.73/);
+  assert.match(note, /1\.8 hours/);
+  assert.doesNotMatch(note, /you should|must settle|must send|write it off|give up/i);
+});
+
+test('lateInvoiceNote reads correctly when chasing is itself the best path', () => {
+  const note = lateInvoiceNote(compareLateInvoice({ ...overdue, chaseHours: 0.5 }));
+  assert.match(note, /chasing it yourself is worth/);
+  assert.match(note, /stops being the best path once chasing takes more than 1\.8 hours/);
+});
+
+test('compareLateInvoice rejects impossible odds, negative time, and absurd horizons', () => {
+  assert.throws(() => compareLateInvoice({ ...overdue, amount: 0 }), /greater than zero/);
+  assert.throws(() => compareLateInvoice({ ...overdue, waitRecoveryPct: 101 }), /between 0 and 100/);
+  assert.throws(() => compareLateInvoice({ ...overdue, collectionRecoveryPct: -1 }), /between 0 and 100/);
+  assert.throws(() => compareLateInvoice({ ...overdue, chaseHours: -1 }), /non-negative/);
+  assert.throws(() => compareLateInvoice({ ...overdue, hourlyRate: -5 }), /non-negative/);
+  assert.throws(() => compareLateInvoice({ ...overdue, collectionDays: 4000 }), /1095 days or fewer/);
+  assert.throws(() => compareLateInvoice({ ...overdue, daysOverdue: -1 }), /zero or more days/);
+  assert.throws(() => compareLateInvoice({ ...overdue, settlementDiscountPct: 100 }), /below 100/);
+  assert.throws(() => compareLateInvoice({ ...overdue, collectionCommissionPct: 100 }), /below 100/);
+  assert.throws(() => compareLateInvoice({ ...overdue, annualCarryRate: 1000 }), /below 1000/);
+  assert.throws(() => compareLateInvoice(null), /invoice details/);
+});
+
+test('every overdue field falls back to a documented default instead of NaN', () => {
+  const comparison = compareLateInvoice({});
+  assert.equal(comparison.amount, 1200);
+  assert.equal(comparison.best.key, 'settle');
+  comparison.paths.forEach(row => {
+    assert.ok(Number.isFinite(row.expected), `${row.key} expected value must be finite`);
+  });
 });
