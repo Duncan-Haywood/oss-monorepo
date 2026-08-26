@@ -2483,3 +2483,14 @@ products:
           rather than a published $1,200-installed special. Public URL remains
           owner-gated; counters are local, aggregate, and opt-out.
 
+  - slug: booth-rent-vs-commission
+    surface: static-page-in-repo
+    readings:
+      - as_of: 2026-08-26
+        signals:
+          live_url_visitors: null
+          local_events_reported: 0
+        note: >-
+          Shipped a local booth-rent vs commission take-home calculator for
+          stylists; public URL remains owner-gated and the browser counter is
+          local and opt-out.
