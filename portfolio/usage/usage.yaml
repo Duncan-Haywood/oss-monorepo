@@ -902,6 +902,28 @@ products:
           assertions lived in `test_app.mjs`, which `node --test` does not
           match, so they had never run anywhere. Public URL remains
           owner-gated.
+  - slug: patio-door-bid-calculator
+    surface: static-page-in-repo
+    readings:
+      - as_of: 2026-08-25
+        signals:
+          live_url_visitors: null
+          local_events_reported: 0
+        note: >-
+          Shipped a local sliding-glass / patio-door replacement bid
+          calculator with a copyable proposal summary; public URL remains
+          owner-gated and the browser counter is local and opt-out.
+  - slug: french-drain-bid-calculator
+    surface: static-page-in-repo
+    readings:
+      - as_of: 2026-08-25
+        signals:
+          live_url_visitors: null
+          local_events_reported: 0
+        note: >-
+          Shipped a local exterior French-drain / yard-drainage install bid
+          calculator with a copyable proposal summary; public URL remains
+          owner-gated and the browser counter is local and opt-out.
   - slug: sewer-line-replace-bid-calculator
     surface: static-page-in-repo
     readings:
