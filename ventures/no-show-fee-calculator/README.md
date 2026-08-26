@@ -7,9 +7,10 @@ cancellation fee, an estimate of what no-shows cost you a year, and a
 ready-to-copy cancellation policy.
 
 **After using this, you can now** state and defend a specific
-no-show/late-cancellation fee — and hand clients a ready-to-use policy —
-**which used to take** guessing a number or copying a boilerplate template
-that doesn't match your prices.
+no-show/late-cancellation fee, see whether a 24-hour or 48-hour notice
+window actually recovers more empty-slot cash on your waitlist, and hand
+clients a ready-to-use policy — **which used to take** guessing a number
+or copying a boilerplate template that doesn't match your prices.
 
 ## Who this is for
 
@@ -46,9 +47,13 @@ No build step, no install, no dependencies. It's plain HTML/CSS/JS.
 5. Get: the fee amount, how many no-shows/late-cancels you can expect in a
    year at your rate, what that time is worth, and an estimate of fee
    revenue you could collect if you enforce the policy — plus a comparison of
-   that after-the-fact fee against keeping a deposit, and a plain-text
-   cancellation policy you can copy straight into your booking system,
-   client agreement, or website.
+   that after-the-fact fee against keeping a deposit, a table that compares
+   collecting the fee on a full book against overbooking 50%, 100%, and 150%
+   of the empty chairs (and against dropping the fee and only overbooking),
+   and a plain-text cancellation policy you can copy straight into your
+   booking system, client agreement, or website. Optionally type what a
+   double-booked chair costs you; leave it blank to price overflow as one
+   session.
 
 All the arithmetic is in [`src/calc.mjs`](src/calc.mjs), covered by
 [`test/calc.test.mjs`](test/calc.test.mjs). Nothing here is AI-generated
@@ -65,6 +70,17 @@ calculator if one is opened later. This page does not replace that tool; it
 answers a different question on numbers the user already entered here: for the
 same missed slots, does keeping a deposit recover more cash than chasing a
 no-show fee after the fact.
+
+**Compare notice windows** answers the 24-hour vs 48-hour question with
+your own waitlist fill-rate assumption. Same-day, 24-hour, and 48-hour
+rows show how many late cancels you refill, how much empty-slot cash that
+recovers, and the extra versus a same-day rule. The fee table stays
+separate: collecting a fee does not put another client in the chair. A
+crawlable explainer lives at
+[`24h-vs-48h-cancellation-notice.html`](24h-vs-48h-cancellation-notice.html).
+
+A worked example of the overbooking table lives on
+[`should-i-overbook-or-charge-a-no-show-fee.html`](should-i-overbook-or-charge-a-no-show-fee.html).
 
 ## Disclaimer
 
