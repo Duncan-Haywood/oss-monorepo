@@ -680,6 +680,11 @@ reading class strings. All of them are listed, unclaimed, in
 
 ## Auth roadmap
 
+**Current priority:** the survey app that already exists should be on a
+public URL before more auth providers. Google / magic-link / Apple each
+need a deployed domain anyway. Portfolio rule:
+[`portfolio/DIRECTION.md`](../../portfolio/DIRECTION.md) "Current priority".
+
 Email + password is built: bcrypt, hashed session tokens in HTTP-only cookies,
 per-email and per-IP rate limiting. The rest each need setup only the account
 owner can do, in the order worth adding them:
