@@ -20,7 +20,7 @@ No account, build step, API key, or paid service is needed. The product does not
 - **Future business model:** free local core first; later, an optional hosted tier or bring-your-own API key could add saved rules, processor adapters, and AI explanations without making paid inference a launch dependency.
 - **Development and cost:** a static page can ship in a day and costs $0 per user on GitHub Pages. No financial data reaches our server.
 - **Automation:** deterministic parsing, matching, export, tests, and static hosting are agent-operable. Provider-specific format fixtures can be added as demand appears.
-- **Risks:** CSV formats vary, refunds/chargebacks and fees can make amounts legitimately differ, and dates may be ambiguous. Grouped matching is limited to positive exact-total deposits and is intentionally bounded; the tool labels only exact rule-based observations and tells the user to verify against source statements.
+- **Risks:** CSV formats vary, refunds/chargebacks and fees can make amounts legitimately differ, and dates may be ambiguous. The tool labels only exact rule-based observations and tells the user to verify against source statements.
 - **Portfolio fit:** new workflow, not a quote calculator, ecommerce profit calculator, or compliance evidence product. It shares the portfolio's local-first and privacy-safe product shape.
 
 ## Privacy and usage
@@ -30,6 +30,10 @@ Everything runs in your browser. Your CSV files and financial data are never upl
 ## Disclaimer
 
 **No warranty.** This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, financial, or accounting advice, and it does not replace a qualified professional. **You are responsible for reviewing and verifying its output before relying on it**, and for meeting any obligation it helps you prepare for. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.
+
+**Best-effort hosting, no SLA.** These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record.
+
+Optional support: [GitHub Sponsors](https://github.com/sponsors/Duncan-Haywood). Refusing to sponsor does not change the workbench.
 
 ## License
 

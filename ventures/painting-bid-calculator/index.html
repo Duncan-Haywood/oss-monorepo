@@ -1,0 +1,395 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Painting Bid Calculator | Interior Painting Price Per Square Foot</title>
+  <meta name="description" content="Price an interior painting job from production rates: walls, ceilings, trim, and doors — plus paint, payroll burden, overhead, and the walk-away number. See why a $2 per square foot floor bid loses money.">
+  <meta property="og:title" content="Painting Bid Calculator">
+  <meta property="og:description" content="Bid interior painting the way the trade does — each surface divided by a production rate — and see the margin before you send the price.">
+  <link rel="canonical" href="https://example.invalid/painting-bid-calculator/">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Painting Bid Calculator","applicationCategory":"BusinessApplication","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"featureList":"Production-rate labor hours by surface, extra-coat factor, paint gallons from coverage, payroll burden, overhead and margin, price per floor square foot, effective hourly rate, labor split, walk-away price, proposed-price margin check, common floor-square-foot bid comparison"}</script>
+  <style>
+    :root { color-scheme: light; font-family: system-ui, sans-serif; color: #241c14; background: #f4efe6; }
+    body { max-width: 1080px; margin: 0 auto; padding: 32px 18px; }
+    header { max-width: 740px; margin-bottom: 26px; }
+    h1 { font-size: clamp(2rem, 6vw, 3.5rem); line-height: .98; margin: 0 0 12px; letter-spacing: -.05em; }
+    p { line-height: 1.5; }
+    .eyebrow { font-size: .8rem; font-weight: 700; letter-spacing: .08em; color: #8a4b12; margin: 0 0 6px; }
+    .layout { display: grid; grid-template-columns: minmax(0, 1fr) minmax(300px, .75fr); gap: 18px; align-items: start; }
+    section { background: #fffdf8; border: 1px solid #d8cbb6; border-radius: 14px; padding: 20px; box-shadow: 0 8px 24px #3a24100d; margin-bottom: 18px; }
+    h2 { margin-top: 0; font-size: 1.15rem; }
+    .hint { font-size: .82rem; color: #5c5348; margin: -6px 0 14px; }
+    .fields { display: grid; grid-template-columns: repeat(2, 1fr); gap: 13px; }
+    label { display: grid; gap: 5px; font-size: .87rem; font-weight: 650; }
+    input, select { width: 100%; box-sizing: border-box; border: 1px solid #b7a78e; border-radius: 7px; padding: 10px; font: inherit; background: #fff; }
+    .surface-row { display: grid; grid-template-columns: minmax(0, 2.6fr) repeat(3, minmax(0, 1fr)) auto; gap: 8px; align-items: end; margin-bottom: 10px; }
+    .surface-head { font-size: .74rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; color: #6b5e4c; }
+    .surface-row .lbl { position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0; overflow: hidden; clip-path: inset(50%); white-space: nowrap; border: 0; }
+    button { font: inherit; border-radius: 7px; border: 1px solid #b7a78e; background: #f6efe3; padding: 10px 14px; cursor: pointer; font-weight: 650; }
+    button:hover { background: #efe4d2; }
+    .remove { padding: 10px; color: #9b2c1f; border-color: #d8b6b0; background: #fdf3f1; }
+    .remove[disabled] { opacity: .4; cursor: not-allowed; }
+    .actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
+    .result { position: sticky; top: 15px; background: #2a2118; color: #f7f1e6; border-color: #2a2118; }
+    .hero-number { font-size: 2.9rem; font-weight: 750; letter-spacing: -.05em; margin: 8px 0; }
+    .negative { color: #ffb0a2; } .positive { color: #c8e6a0; }
+    dl { display: grid; grid-template-columns: 1fr auto; gap: 9px; margin: 20px 0; }
+    dt, dd { margin: 0; } dd { font-variant-numeric: tabular-nums; }
+    hr { border: 0; border-top: 1px solid #ffffff2b; }
+    .note { font-size: .82rem; opacity: .84; }
+    .split { margin: 14px 0 0; padding: 0; list-style: none; font-size: .84rem; }
+    .split li { display: grid; grid-template-columns: 1fr auto; gap: 8px; padding: 3px 0; }
+    .bar { grid-column: 1 / -1; height: 4px; border-radius: 2px; background: #ffffff2e; }
+    .bar > span { display: block; height: 100%; border-radius: 2px; background: #e0b15a; }
+    .verdict { margin-top: 14px; padding: 12px; border-radius: 9px; font-size: .87rem; background: #ffffff1a; }
+    .verdict.bad { background: #7d2317; }
+    .empty { font-size: .87rem; opacity: .84; }
+    footer { margin-top: 25px; font-size: .82rem; color: #5c5348; }
+    footer a { color: #8a4b12; }
+    .support { margin-top: 14px; }
+    #shareStatus { font-size: .82rem; margin: 8px 0 0; }
+    @media (max-width: 780px) {
+      .layout { grid-template-columns: 1fr; } .result { position: static; } .fields { grid-template-columns: 1fr; }
+      .surface-head { display: none; }
+      .surface-row { grid-template-columns: 1fr 1fr; border: 1px solid #e6dccb; border-radius: 9px; padding: 11px; }
+      .surface-row label { font-size: .78rem; gap: 5px; }
+      .surface-row .lbl { position: static; width: auto; height: auto; margin: 0; overflow: visible; clip-path: none; white-space: normal; }
+      .surface-row label:first-child { grid-column: 1 / -1; }
+      .remove { grid-column: 1 / -1; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="eyebrow">FOR INDEPENDENT INTERIOR PAINTERS</p>
+    <h1>Bid the surfaces, not the floor plan.</h1>
+    <p>Price an interior painting job the way the trade actually estimates one: each surface divided by the production rate you really hit, extra coats at a fraction of first-coat time, then paint, payroll burden, overhead, and the margin you intend to keep. You get the job price, what it works out to per floor square foot, and the number below which the job loses money.</p>
+  </header>
+
+  <main class="layout">
+    <div>
+      <section>
+        <h2>The house</h2>
+        <p class="hint">One row per surface. Production rate is how much of that surface one painter covers per hour on the first coat — pick a type to start from a common figure, then replace it with a rate timed from your own jobs.</p>
+        <div class="surface-row surface-head" aria-hidden="true">
+          <span>Surface</span><span>Quantity</span><span>Rate</span><span>Coats</span><span></span>
+        </div>
+        <div id="surfaces"></div>
+        <div class="actions">
+          <button type="button" id="addSurface">+ Add a surface</button>
+        </div>
+      </section>
+
+      <section>
+        <h2>Your costs</h2>
+        <div class="fields">
+          <label>Painter hourly wage <input id="hourlyWage" type="number" min="0" step="0.25" value="25"></label>
+          <label>Payroll burden (%) <input id="burdenRate" type="number" min="0" step="0.5" value="25"></label>
+          <label>Prep hours <input id="prepHours" type="number" min="0" step="0.5" value="6"></label>
+          <label>Setup &amp; cleanup hours <input id="setupHours" type="number" min="0" step="0.5" value="2"></label>
+          <label>Paint price / gallon <input id="paintPrice" type="number" min="0" step="1" value="45"></label>
+          <label>Coverage (sq ft / gallon / coat) <input id="paintCoverage" type="number" min="1" step="10" value="350"></label>
+          <label>Paint waste (%) <input id="wastePercent" type="number" min="0" step="1" value="10"></label>
+          <label>Travel &amp; mileage <input id="travelCost" type="number" min="0" step="1" value="40"></label>
+          <label>Tape, plastic, other <input id="otherCost" type="number" min="0" step="1" value="35"></label>
+          <label>Overhead on direct cost (%) <input id="overheadRate" type="number" min="0" step="0.5" value="15"></label>
+          <label>Target net margin (%) <input id="targetMargin" type="number" min="0" max="99.9" step="0.5" value="25"></label>
+          <label>Extra-coat factor <input id="extraCoatFactor" type="number" min="0.05" max="2" step="0.05" value="0.65"></label>
+          <label>Typical ceiling height (ft) <input id="ceilingHeightFeet" type="number" min="7" step="0.5" value="8"></label>
+          <label>Floor square feet <input id="floorSquareFeet" type="number" min="0" step="10" value="1200"></label>
+          <label>Common $/floor sq ft bid <input id="commonFloorBid" type="number" min="0" step="0.1" value="2"></label>
+          <label>Price you&rsquo;re considering (optional) <input id="proposedPrice" type="number" min="0" step="25" placeholder="e.g. 2800"></label>
+        </div>
+        <p class="hint" style="margin-top:14px;margin-bottom:0">Extra-coat factor is second-coat time as a fraction of first-coat hours — not a second full first coat. Ceiling height only slows wall rows; trim and doors stay on their own rates. The common $/sq ft field is the rule of thumb homeowners quote; it is scored against your cost, not recommended as a price.</p>
+        <div class="actions">
+          <button type="button" id="shareLink">Copy shareable link</button>
+          <button type="button" id="resetDefaults">Reset to defaults</button>
+        </div>
+        <p id="shareStatus" class="note" role="status"></p>
+      </section>
+    </div>
+
+    <section class="result" aria-live="polite">
+      <h2>Your bid</h2>
+      <div id="price" class="hero-number">$&mdash;</div>
+      <div id="priceLabel">job price</div>
+      <dl>
+        <dt>Labor hours</dt><dd id="laborHours"></dd>
+        <dt>Loaded labor cost</dt><dd id="labor"></dd>
+        <dt>Paint (gallons)</dt><dd id="gallons"></dd>
+        <dt>Paint cost</dt><dd id="paint"></dd>
+        <dt>Travel &amp; other</dt><dd id="travel"></dd>
+        <dt>Overhead</dt><dd id="overhead"></dd>
+        <dt>Total job cost</dt><dd id="cost"></dd>
+        <dt>Job profit</dt><dd id="profit"></dd>
+        <dt>Price per floor sq ft</dt><dd id="perFloor"></dd>
+        <dt>Price per paintable sq ft</dt><dd id="perPaintable"></dd>
+        <dt>Effective hourly rate</dt><dd id="hourlyRate"></dd>
+        <dt>Walk-away price</dt><dd id="breakEven"></dd>
+      </dl>
+      <div id="commonBid" class="verdict" hidden></div>
+      <div id="verdict" class="verdict" hidden></div>
+      <hr>
+      <p class="note" style="margin-bottom:4px"><strong>Where the labor goes</strong></p>
+      <ul class="split" id="split"></ul>
+      <hr>
+      <p class="note">Transparent arithmetic from your own inputs. The starting production rates are common ballpark figures, not an industry standard, a benchmark, or a guarantee &mdash; time your own jobs and replace them.</p>
+    </section>
+  </main>
+
+  <footer>
+    <label style="display:inline-flex;gap:6px;align-items:center;font-weight:400"><input id="usageOptOut" type="checkbox" style="width:auto"> Do not keep anonymous local usage counts</label>
+    <p><strong>No warranty.</strong> This free tool is not legal, tax, financial, or business advice, and it does not tell you what to charge. Verify every figure against your own payroll, insurance, and material costs, and against a qualified professional, before relying on it or submitting a bid. To the maximum extent permitted by law, the authors accept no liability for loss or damage from its use.</p>
+    <p><strong>Nothing leaves your browser.</strong> Every number stays on this device. A shareable link carries only the numbers you typed, inside the URL you copy. Usage counts are anonymous tallies of which features were used, stored locally, and never include your house, wages, costs, or prices.</p>
+    <p>Related: <a href="./interior-painting-price-per-square-foot.html">why price-per-floor-square-foot bids lose money</a>.</p>
+    <p class="support">Free and open source. If it wins you a job, the <a href="https://github.com/Duncan-Haywood/monorepo-projects" rel="noopener">project is on GitHub</a> &mdash; support is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { calculateBid, SURFACE_PRESETS } from './calc.mjs';
+    import { recordUsage } from './usage.mjs';
+    import { COST_IDS, encodeState, decodeState } from './share.mjs';
+
+    const money = value => `$${value.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+    const el = id => document.getElementById(id);
+    const STORAGE_KEY = 'painting-bid-inputs';
+
+    const STARTING_SURFACES = [
+      { type: 'walls', quantity: 2400, productionRate: 200, coats: 2 },
+      { type: 'ceilings', quantity: 1200, productionRate: 175, coats: 2 },
+      { type: 'trim', quantity: 320, productionRate: 50, coats: 2 },
+      { type: 'doors', quantity: 8, productionRate: 1.25, coats: 2 },
+      { type: 'windows', quantity: 10, productionRate: 2.5, coats: 1 },
+    ];
+
+    const DEFAULT_COSTS = {
+      hourlyWage: 25,
+      burdenRate: 25,
+      prepHours: 6,
+      setupHours: 2,
+      paintPrice: 45,
+      paintCoverage: 350,
+      wastePercent: 10,
+      travelCost: 40,
+      otherCost: 35,
+      overheadRate: 15,
+      targetMargin: 25,
+      extraCoatFactor: 0.65,
+      ceilingHeightFeet: 8,
+      floorSquareFeet: 1200,
+      commonFloorBid: 2,
+      proposedPrice: '',
+    };
+
+    const TYPE_OPTIONS = SURFACE_PRESETS
+      .map(preset => `<option value="${preset.id}">${preset.label}</option>`)
+      .join('') + '<option value="other">Other surface</option>';
+
+    const surfacesHost = el('surfaces');
+    let rowSeq = 0;
+
+    function addSurfaceRow(surface) {
+      const id = `s${++rowSeq}`;
+      const row = document.createElement('div');
+      row.className = 'surface-row';
+      row.innerHTML = `
+        <label for="${id}-type"><span class="lbl">Surface</span><select class="s-type" id="${id}-type">${TYPE_OPTIONS}</select></label>
+        <label for="${id}-qty"><span class="lbl">Quantity</span><input class="s-qty" id="${id}-qty" type="number" min="0" step="1"></label>
+        <label for="${id}-rate"><span class="lbl">Production rate</span><input class="s-rate" id="${id}-rate" type="number" min="0.05" step="0.25"></label>
+        <label for="${id}-coats"><span class="lbl">Coats</span><input class="s-coats" id="${id}-coats" type="number" min="1" step="1"></label>
+        <button type="button" class="remove">Remove<span class="lbl"> this surface</span></button>`;
+
+      const typeField = row.querySelector('.s-type');
+      const rateField = row.querySelector('.s-rate');
+      const preset = SURFACE_PRESETS.find(p => p.id === surface.type);
+      typeField.value = preset ? preset.id : 'other';
+      row.querySelector('.s-qty').value = surface.quantity;
+      rateField.value = surface.productionRate;
+      row.querySelector('.s-coats').value = surface.coats;
+
+      typeField.addEventListener('change', () => {
+        const next = SURFACE_PRESETS.find(p => p.id === typeField.value);
+        if (next && !rateField.dataset.edited) rateField.value = next.defaultRate;
+        count('bid_calculated');
+        persistAndUpdate();
+      });
+      rateField.addEventListener('input', () => { rateField.dataset.edited = '1'; });
+      row.querySelectorAll('input').forEach(input => {
+        input.addEventListener('input', persistAndUpdate);
+        input.addEventListener('change', () => count('bid_calculated'));
+      });
+      row.querySelector('.remove').addEventListener('click', () => {
+        row.remove();
+        count('surface_removed');
+        persistAndUpdate();
+      });
+      surfacesHost.append(row);
+    }
+
+    function readSurfaces() {
+      return [...surfacesHost.querySelectorAll('.surface-row')].map(row => ({
+        type: row.querySelector('.s-type').value,
+        quantity: row.querySelector('.s-qty').value,
+        productionRate: row.querySelector('.s-rate').value,
+        coats: row.querySelector('.s-coats').value,
+      }));
+    }
+
+    function readCosts() {
+      return Object.fromEntries(COST_IDS.map(id => [id, el(id).value]));
+    }
+
+    function applyCosts(costs) {
+      for (const id of COST_IDS) {
+        if (costs[id] !== undefined && el(id)) el(id).value = costs[id];
+      }
+    }
+
+    function count(event) {
+      recordUsage(localStorage, el('usageOptOut').checked, event);
+    }
+
+    function clearOutputs(message, isError) {
+      el('price').textContent = message;
+      el('price').className = `hero-number ${isError ? 'negative' : ''}`;
+      el('priceLabel').textContent = isError ? 'check the highlighted input' : 'job price';
+      ['laborHours','labor','gallons','paint','travel','overhead','cost','profit','perFloor','perPaintable','hourlyRate','breakEven']
+        .forEach(id => { el(id).textContent = ''; });
+      el('split').innerHTML = '';
+      el('verdict').hidden = true;
+      el('commonBid').hidden = true;
+    }
+
+    function persistAndUpdate() {
+      try {
+        localStorage.setItem(STORAGE_KEY, encodeState({ surfaces: readSurfaces(), costs: readCosts() }));
+      } catch {
+        // Private mode or a full store should not break the calculator.
+      }
+      update();
+    }
+
+    function update() {
+      const surfaces = readSurfaces();
+      if (surfaces.length === 0) {
+        clearOutputs('Add a surface to price', false);
+        el('split').innerHTML = '<li class="empty">Add at least one surface above and the labor split appears here.</li>';
+        return;
+      }
+      let result;
+      try {
+        result = calculateBid({
+          surfaces,
+          ...readCosts(),
+        });
+      } catch (error) {
+        clearOutputs(error.message, true);
+        return;
+      }
+
+      el('price').textContent = money(result.price);
+      el('price').className = 'hero-number';
+      el('priceLabel').textContent = 'job price';
+      el('laborHours').textContent = `${result.laborHours.toFixed(1)} h`;
+      el('labor').textContent = money(result.laborCost);
+      el('gallons').textContent = `${result.paintGallons.toFixed(1)} gal`;
+      el('paint').textContent = money(result.paintCost);
+      el('travel').textContent = money(result.travelCost + result.otherCost);
+      el('overhead').textContent = money(result.overhead);
+      el('cost').textContent = money(result.jobCost);
+      el('profit').textContent = money(result.profit);
+      el('perFloor').textContent = result.pricePerFloorSqFt === null ? 'n/a' : `$${result.pricePerFloorSqFt.toFixed(2)}`;
+      el('perPaintable').textContent = result.pricePerPaintableSqFt === null ? 'n/a' : `$${result.pricePerPaintableSqFt.toFixed(2)}`;
+      el('hourlyRate').textContent = result.effectiveHourlyRate === null ? 'n/a' : `${money(result.effectiveHourlyRate)}/h`;
+      el('breakEven').textContent = money(result.breakEvenPrice);
+
+      const worked = result.surfaces.filter(row => row.laborHours > 0);
+      el('split').innerHTML = worked.length === 0
+        ? '<li class="empty">No surface has quantity yet — set quantities above.</li>'
+        : worked
+          .slice()
+          .sort((a, b) => b.laborHours - a.laborHours)
+          .map(row => `<li><span>${row.name}</span><span>${row.hoursShare.toFixed(0)}% of hours</span>
+            <span class="bar"><span style="width:${row.hoursShare.toFixed(1)}%"></span></span></li>`)
+          .join('');
+
+      const common = el('commonBid');
+      if (result.commonBid === null) {
+        common.hidden = true;
+      } else {
+        common.hidden = false;
+        common.className = `verdict${result.commonBid.belowBreakEven ? ' bad' : ''}`;
+        common.innerHTML = result.commonBid.belowBreakEven
+          ? `A ${money(result.commonBid.perSqFt)} per floor sq ft bid is <strong>${money(result.commonBid.price)}</strong> — <strong>${money(Math.abs(result.commonBid.profit))} under</strong> your walk-away of ${money(result.breakEvenPrice)}.`
+          : `A ${money(result.commonBid.perSqFt)} per floor sq ft bid is ${money(result.commonBid.price)} and still covers cost.`;
+      }
+
+      const verdict = el('verdict');
+      if (result.proposed === null) {
+        verdict.hidden = true;
+      } else {
+        verdict.hidden = false;
+        verdict.className = `verdict${result.proposed.belowBreakEven ? ' bad' : ''}`;
+        const rate = result.proposed.hourlyRate === null ? 'n/a' : `${money(result.proposed.hourlyRate)}/h`;
+        verdict.innerHTML = result.proposed.belowBreakEven
+          ? `At ${money(result.proposed.price)} this job <strong>loses ${money(Math.abs(result.proposed.profit))}</strong> before you take anything out of it. Your walk-away price is ${money(result.breakEvenPrice)}.`
+          : `At ${money(result.proposed.price)} you keep <strong>${money(result.proposed.profit)}</strong> — a ${result.proposed.margin.toFixed(1)}% margin, billing ${rate} of labor.`;
+      }
+    }
+
+    function restore() {
+      let saved = { costs: {}, surfaces: [] };
+      try {
+        saved = decodeState(localStorage.getItem(STORAGE_KEY) || '');
+      } catch {
+        saved = { costs: {}, surfaces: [] };
+      }
+      const fromLink = decodeState(location.search || location.hash || '');
+      const costs = { ...DEFAULT_COSTS, ...saved.costs, ...fromLink.costs };
+      const surfaces = fromLink.surfaces.length ? fromLink.surfaces
+        : saved.surfaces.length ? saved.surfaces
+        : STARTING_SURFACES;
+      applyCosts(costs);
+      surfaces.forEach(addSurfaceRow);
+    }
+
+    el('addSurface').addEventListener('click', () => {
+      addSurfaceRow({ type: 'other', quantity: 0, productionRate: 50, coats: 1 });
+      count('surface_added');
+      persistAndUpdate();
+    });
+
+    COST_IDS.forEach(id => {
+      el(id).addEventListener('input', persistAndUpdate);
+      el(id).addEventListener('change', () => count(id === 'proposedPrice' ? 'proposed_price_compared' : 'bid_calculated'));
+    });
+    el('usageOptOut').addEventListener('change', update);
+
+    el('shareLink').addEventListener('click', async () => {
+      const query = encodeState({ surfaces: readSurfaces(), costs: readCosts() });
+      const url = `${location.origin}${location.pathname}?${query}`;
+      try {
+        await navigator.clipboard.writeText(url);
+        el('shareStatus').textContent = 'Link copied. It contains only the numbers in this form.';
+        count('share_copied');
+      } catch {
+        history.replaceState(null, '', `?${query}`);
+        el('shareStatus').textContent = 'Could not copy automatically — the address bar now holds the shareable link.';
+      }
+    });
+
+    el('resetDefaults').addEventListener('click', () => {
+      try { localStorage.removeItem(STORAGE_KEY); } catch { /* ignore */ }
+      surfacesHost.innerHTML = '';
+      applyCosts(DEFAULT_COSTS);
+      STARTING_SURFACES.forEach(addSurfaceRow);
+      count('reset_defaults');
+      persistAndUpdate();
+    });
+
+    restore();
+    update();
+  </script>
+</body>
+</html>

@@ -38,10 +38,12 @@ export function reconcile(payouts, deposits, toleranceDays = 3) {
   for (const payout of payouts) {
     const candidate = available.filter(deposit => !deposit.used && deposit.cents === payout.cents && Math.abs(deposit.time - payout.time) <= toleranceDays * day).sort((a, b) => Math.abs(a.time - payout.time) - Math.abs(b.time - payout.time))[0];
     if (candidate) { candidate.used = true; matches.push({ status: 'matched', payout, deposit: candidate, deposits: [candidate] }); continue; }
-    const candidates = available.filter(deposit => !deposit.used && Math.abs(deposit.time - payout.time) <= toleranceDays * day);
-    const grouped = findDepositGroup(candidates, payout.cents);
-    if (grouped) { grouped.forEach(deposit => { deposit.used = true; }); matches.push({ status: 'matched', payout, deposit: grouped[0], deposits: grouped }); }
-    else matches.push({ status: 'unmatched payout', payout });
+    const nearby = available.filter(deposit => !deposit.used && Math.abs(deposit.time - payout.time) <= toleranceDays * day);
+    const grouped = findDepositGroup(nearby, payout.cents);
+    if (grouped) {
+      grouped.forEach(deposit => { deposit.used = true; });
+      matches.push({ status: 'matched', payout, deposit: grouped[0], deposits: grouped });
+    } else matches.push({ status: 'unmatched payout', payout });
   }
   available.filter(deposit => !deposit.used).forEach(deposit => matches.push({ status: 'unmatched deposit', deposit, deposits: [deposit] }));
   return matches;
@@ -55,7 +57,9 @@ function findDepositGroup(candidates, target) {
     if (result) return;
     if (group.length > 1 && total === target) { result = group; return; }
     if (total >= target || group.length === 8) return;
-    for (let index = start; index < limited.length; index += 1) search(index + 1, total + limited[index].cents, [...group, limited[index]]);
+    for (let index = start; index < limited.length; index += 1) {
+      search(index + 1, total + limited[index].cents, [...group, limited[index]]);
+    }
   }
   search(0, 0, []);
   return result;
