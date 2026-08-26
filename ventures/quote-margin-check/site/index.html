@@ -229,6 +229,10 @@
     <input type="number" id="target_hourly_rate" inputmode="decimal" value="75" min="0" step="any" />
     <p class="hint">What you'd want to be paid per hour if you were billing hourly instead.</p>
 
+    <label for="time_buffer_percent">Time buffer for your target-price check (%)</label>
+    <input type="number" id="time_buffer_percent" inputmode="decimal" value="20" min="0" step="any" />
+    <p class="hint">A what-if reserve for scope creep or slower delivery. It is not a forecast.</p>
+
     <div class="result change-order" id="change-order" aria-live="polite">
       <strong>When the scope grows</strong>
       <p class="hint">Price extra work before agreeing to it. This uses your target rate and any new direct cost. It is an arithmetic floor, not a recommendation.</p>
@@ -505,6 +509,7 @@
   // so the two could never be compared and neither matched the CLI's count.
   // Paired to the debounced counter, one settled quote logs one of each.
   let killFeeSettled = false;
+  let bufferSettled = false;
   const reportCounter = createReportCounter({
     record: (event) => {
       recordEvent(event);
@@ -519,10 +524,11 @@
       recordEvent("change_order_checked");
       recordEvent("rate_ladder_compared");
       recordEvent("hours_budget_shown");
+      if (bufferSettled) recordEvent("time_buffer_compared");
     },
   });
 
-  const ids = ["currency", "price", "delivery_hours", "admin_hours", "revision_hours", "overhead", "subcontractor_cost", "target_hourly_rate"];
+  const ids = ["currency", "price", "delivery_hours", "admin_hours", "revision_hours", "overhead", "subcontractor_cost", "target_hourly_rate", "time_buffer_percent"];
   const killIds = ["hours_done", "already_paid", "kill_fee", "sunk_costs"];
   const el = Object.fromEntries([...ids, ...killIds].map((id) => [id, document.getElementById(id)]));
   const preset = document.getElementById("preset");
@@ -558,6 +564,7 @@
       overhead: Number(el.overhead.value),
       subcontractor_cost: Number(el.subcontractor_cost.value),
       target_hourly_rate: Number(el.target_hourly_rate.value),
+      time_buffer_percent: Number(el.time_buffer_percent.value),
     };
   }
 
@@ -580,6 +587,7 @@
     try {
       const quote = loadQuote(readInputs());
       const r = calculate(quote);
+      bufferSettled = quote.time_buffer_percent > 0;
        const above = r.gap_to_target >= 0;
        lastReport = { quote, r };
        const safeCurrency = escapeHtml(quote.currency);
@@ -590,6 +598,7 @@
            <dt>Direct costs</dt><dd>${safeCurrency} ${fmt(r.direct_costs)}</dd>
            <dt>Effective hourly rate</dt><dd><strong>${safeCurrency} ${fmt(r.effective_hourly_rate)}/hour</strong></dd>
            <dt>Price at your target rate</dt><dd>${safeCurrency} ${fmt(r.target_price)}</dd>
+           <dt>Price at target rate with ${fmt(quote.time_buffer_percent)}% time buffer</dt><dd>${safeCurrency} ${fmt(r.buffered_target_price)}</dd>
            <dt>Gap to target price</dt><dd>${safeCurrency} ${fmt(r.gap_to_target)}</dd>
            <dt>Left after direct costs</dt><dd>${safeCurrency} ${fmt(r.cost_coverage)}</dd>
            <dt>Target-rate hours budget</dt><dd>${fmt(targetHoursBudget(quote, r))} total hours</dd>
@@ -764,6 +773,7 @@
       overhead: "180",
       subcontractor_cost: "300",
       target_hourly_rate: "75",
+      time_buffer_percent: "20",
       hours_done: "14",
       already_paid: "1200",
       kill_fee: "360",

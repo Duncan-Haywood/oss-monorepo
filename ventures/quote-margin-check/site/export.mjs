@@ -40,6 +40,7 @@ export function quoteCsv(quote, report, extras = {}) {
     ["direct_costs", money(report.direct_costs), currency],
     ["effective_hourly_rate", money(report.effective_hourly_rate), perHour],
     ["target_price", money(report.target_price), currency],
+    ["buffered_target_price", money(report.buffered_target_price), currency],
     ["gap_to_target", money(report.gap_to_target), currency],
     ["cost_coverage", money(report.cost_coverage), currency],
     ["target_rate_hours_budget", hours(targetHoursBudget(quote, report)), "hours"],

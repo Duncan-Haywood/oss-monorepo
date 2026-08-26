@@ -12,12 +12,22 @@ test("calculates hidden time and target price", () => {
     overhead: 180,
     subcontractor_cost: 300,
     target_hourly_rate: 75,
+    time_buffer_percent: 20,
   });
   const result = calculate(quote);
   assert.equal(result.total_hours, 35);
   assert.ok(Math.abs(result.effective_hourly_rate - 54.8571428) < 1e-6);
   assert.equal(result.target_price, 3105);
   assert.equal(result.gap_to_target, -705);
+  assert.equal(result.buffered_hours, 42);
+  assert.equal(result.buffered_target_price, 3630);
+});
+
+test("defaults the time buffer to zero", () => {
+  const quote = loadQuote({ price: 1000, delivery_hours: 10, target_hourly_rate: 100 });
+  const result = calculate(quote);
+  assert.equal(result.buffered_hours, 10);
+  assert.equal(result.buffered_target_price, 1000);
 });
 
 test("defaults optional costs and time to zero", () => {
