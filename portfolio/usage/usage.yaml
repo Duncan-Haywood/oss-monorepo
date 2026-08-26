@@ -3281,3 +3281,17 @@ products:
           ice events, break-even storm count, copyable proposal summary).
           Public URL remains owner-gated; the browser counter is local and
           opt-out. Baseline row.
+
+  - slug: tree-service-bid-calculator
+    surface: static-page-in-repo
+    readings:
+      - as_of: 2026-08-24
+        signals:
+          live_url_visitors: null
+          local_events_reported: 0
+        note: >-
+          Shipped browser-local tree-service bid calculator (DBH-squared
+          hours, access, stump, haul, travel once per stop, mobilization
+          minimum, walk-away and per-inch sanity check). Public URL remains
+          owner-gated; the local-first counter reports only to the user's own
+          browser and is opt-out. Baseline row.

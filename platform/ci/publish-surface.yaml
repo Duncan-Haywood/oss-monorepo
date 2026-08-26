@@ -579,6 +579,9 @@ workflows:
 - workflow: translator-project-quote-ci.yml
   classification: none
   publishes: []
+- workflow: tree-service-bid-calculator-ci.yml
+  classification: none
+  publishes: []
 - workflow: tuckpointing-bid-calculator-ci.yml
   classification: none
   publishes: []
