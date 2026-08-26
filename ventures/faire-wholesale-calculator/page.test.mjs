@@ -29,6 +29,7 @@ const explainer = readFileSync(new URL("./faire-direct-vs-marketplace.html", imp
 const floatSeo = readFileSync(new URL("./should-i-pay-for-faire-next-day-payout.html", import.meta.url), "utf8");
 const sitemap = readFileSync(new URL("./sitemap.xml", import.meta.url), "utf8");
 const openHousePage = readFileSync(new URL("./should-i-list-during-faire-open-house.html", import.meta.url), "utf8");
+const promotedPage = readFileSync(new URL("./should-i-run-faire-promoted-listings.html", import.meta.url), "utf8");
 const brandParsed = parse(brand);
 const retailerParsed = parse(retailer);
 const rowTemplate = brandParsed.scripts.join("\n").match(/row\.innerHTML = `<td>\$\{result\.label\}[\s\S]*?`;/);
@@ -70,6 +71,7 @@ test("figures named in schema.org featureList are actually rendered", () => {
     ["retailer lifetime", /compareRetailerLifetime/],
     ["payout-speed after carrying cost", /comparePayoutSpeedsAfterFloat/],
     ["Open House", /compareOpenHouse|openHouseNote/],
+    ["Promoted Listings leftover after last-click organic", /compareFairePromoted|promotedNote/],
   ];
   for (const [claim, rendered] of claims) {
     assert.ok(
@@ -81,7 +83,7 @@ test("figures named in schema.org featureList are actually rendered", () => {
 });
 
 test("brand and retailer pages show the disclaimer a user can actually read", () => {
-  for (const html of [brand, retailer, explainer, floatSeo, openHousePage]) {
+  for (const html of [brand, retailer, explainer, floatSeo, openHousePage, promotedPage]) {
     assert.match(html, /No warranty/);
     assert.match(html, /not tax, financial, or business advice/i);
     assert.match(html, /Not affiliated with Faire|Not affiliated with Faire Wholesale/i);
@@ -146,6 +148,16 @@ test("lifetime table columns match the relationship-row template", () => {
     .filter((text) => ["Relationship", "Orders", "Lifetime fees", "Lifetime profit", "vs best path"].includes(text));
   const cells = (lifetimeTemplate[0].match(/<td[\s>]/g) || []).length;
   assert.equal(cells, headers.length, `lifetime table declares ${headers.length} columns but the row emits ${cells} cells`);
+});
+
+test("Promoted listings table columns match the campaign-row template", () => {
+  const promotedTemplate = brandParsed.scripts.join("\n").match(/row\.innerHTML = `<td>\$\{result\.label\}<\/td><td>\$\{result\.campaignRate[\s\S]*?`;/);
+  assert.ok(promotedTemplate, "could not find the Promoted listings <tr> innerHTML template");
+  const headers = [...brandParsed.markup.matchAll(/<th scope="col"[^>]*>([\s\S]*?)<\/th>/g)]
+    .map((m) => m[1].replace(/\s+/g, " ").trim())
+    .filter((text) => ["Campaign", "Rate", "Extra orders", "Campaign leftover", "vs skip"].includes(text));
+  const cells = (promotedTemplate[0].match(/<td[\s>]/g) || []).length;
+  assert.equal(cells, headers.length, `promoted table declares ${headers.length} columns but the row emits ${cells} cells`);
 });
 
 test("Open House table columns match the window-row template", () => {

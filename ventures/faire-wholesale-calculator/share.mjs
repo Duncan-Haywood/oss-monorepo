@@ -23,6 +23,10 @@ export const FIELD_IDS = [
   "openHouseDiscountRate",
   "openHouseCommissionRate",
   "openHouseExtraRetailers",
+  "organicFirstOrders",
+  "extraPromotedOrders",
+  "campaignPromotedRate",
+  "attributedOrganicPct",
 ];
 
 export const RETAILER_FIELD_IDS = [

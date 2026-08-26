@@ -4,6 +4,7 @@ import {
   calculateBrandOrder,
   calculateRetailerOrder,
   compareBrandScenarios,
+  compareFairePromoted,
   compareOpenHouse,
   comparePayoutSpeeds,
   comparePayoutSpeedsAfterFloat,
@@ -11,6 +12,8 @@ import {
   openHouseNote,
   openHouseSummary,
   OPEN_HOUSE_DEFAULTS,
+  PROMOTED_DEFAULTS,
+  promotedNote,
   retailPriceForMargin,
   summarizePayoutFloat,
   wholesaleForMargin,
@@ -288,6 +291,76 @@ test("OPEN_HOUSE_DEFAULTS match the page starting point", () => {
   assert.equal(OPEN_HOUSE_DEFAULTS.openHouseDiscountRate, 20);
   assert.equal(OPEN_HOUSE_DEFAULTS.openHouseCommissionRate, 0);
   assert.equal(OPEN_HOUSE_DEFAULTS.openHouseExtraRetailers, 2);
+});
+
+test("compareFairePromoted skip beats a 15% campaign that last-clicks 40% of organic", () => {
+  const comparison = compareFairePromoted(naReorder);
+  assert.equal(comparison.organicProfit, 75.9);
+  assert.equal(comparison.merchandise, 200);
+  assert.equal(comparison.organicOrders, 4);
+  assert.equal(comparison.campaignRate, 15);
+  assert.equal(comparison.extraOrders, 1);
+  assert.equal(comparison.attributedOrganicPct, 40);
+  assert.equal(comparison.skip.cash, 303.6);
+  assert.ok(Math.abs(comparison.campaign.cash - 301.5) < 1e-9);
+  assert.ok(Math.abs(comparison.extraCampaignVsSkip - (-2.1)) < 1e-9);
+  assert.ok(Math.abs(comparison.higher.cash - 270.6) < 1e-9);
+  assert.equal(comparison.winner, "skip");
+  assert.ok(comparison.breakEvenCampaignRate > 14.5 && comparison.breakEvenCampaignRate < 14.7);
+  assert.ok(comparison.breakEvenExtraOrders > 1.04 && comparison.breakEvenExtraOrders < 1.05);
+  assert.ok(comparison.breakEvenAttributedOrganicPct > 38 && comparison.breakEvenAttributedOrganicPct < 38.5);
+  assert.equal(comparison.rows[0].id, "skip");
+  assert.equal(comparison.rows[1].id, "campaign");
+  assert.equal(comparison.rows[2].id, "higher");
+});
+
+test("two extra first orders flip the default 15% campaign ahead of skip", () => {
+  const comparison = compareFairePromoted({ ...naReorder, extraPromotedOrders: 2 });
+  assert.equal(comparison.winner, "campaign");
+  assert.ok(Math.abs(comparison.campaign.cash - 347.4) < 1e-9);
+  assert.ok(comparison.extraCampaignVsSkip > 40);
+});
+
+test("a 10% campaign on the default extra order beats skip", () => {
+  const comparison = compareFairePromoted({ ...naReorder, campaignPromotedRate: 10 });
+  assert.equal(comparison.winner, "campaign");
+  assert.ok(Math.abs(comparison.campaign.cash - 327.5) < 1e-9);
+});
+
+test("promotedNote names the default leak, rate ceiling, and extra-order floor", () => {
+  const comparison = compareFairePromoted(naReorder);
+  const text = promotedNote(comparison);
+  assert.equal(text, comparison.summary);
+  assert.match(text, /\$303\.60/);
+  assert.match(text, /\$301\.50/);
+  assert.match(text, /14\.6%/);
+  assert.match(text, /about 1\.0/);
+  assert.match(text, /38\.3%/);
+});
+
+test("compareFairePromoted ignores the listing promotedRate so the campaign table cannot double-count", () => {
+  const billed = compareFairePromoted({ ...naReorder, promotedRate: 15 });
+  const clean = compareFairePromoted(naReorder);
+  assert.equal(billed.skip.cash, clean.skip.cash);
+  assert.equal(billed.campaign.cash, clean.campaign.cash);
+});
+
+test("compareFairePromoted rejects impossible rates and fractional extra orders", () => {
+  assert.throws(() => compareFairePromoted({ ...naReorder, campaignPromotedRate: 100 }), /below 100/);
+  assert.throws(() => compareFairePromoted({ ...naReorder, attributedOrganicPct: 140 }), /at most 100/);
+  assert.throws(() => compareFairePromoted({ ...naReorder, extraPromotedOrders: 1.5 }), /whole number/);
+  assert.throws(() => compareFairePromoted({ ...naReorder, organicFirstOrders: 0 }), /at least 1/);
+  assert.throws(() => promotedNote({}), /missing rows/);
+});
+
+test("PROMOTED_DEFAULTS match the page starting point", () => {
+  assert.equal(PROMOTED_DEFAULTS.organicFirstOrders, 4);
+  assert.equal(PROMOTED_DEFAULTS.extraPromotedOrders, 1);
+  assert.equal(PROMOTED_DEFAULTS.campaignPromotedRate, 15);
+  assert.equal(PROMOTED_DEFAULTS.attributedOrganicPct, 40);
+  assert.equal(PROMOTED_DEFAULTS.highPromotedRate, 22);
+  assert.equal(PROMOTED_DEFAULTS.highExtraPromotedOrders, 2);
+  assert.equal(PROMOTED_DEFAULTS.highAttributedOrganicPct, 55);
 });
 
 test("rejects selling more units than the retailer bought", () => {
