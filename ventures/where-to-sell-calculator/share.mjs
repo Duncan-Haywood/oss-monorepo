@@ -18,6 +18,13 @@ const CHANNEL_FIELDS = [
   "sellThroughPct", "daysToSell", "listingRenewalDays",
 ];
 
+function sharedNumber(value) {
+  if (typeof value !== "number" && typeof value !== "string") return null;
+  if (value === "") return null;
+  const number = Number(value);
+  return Number.isFinite(number) && number >= 0 ? number : null;
+}
+
 export function encodeComparison(shared = {}, channels = []) {
   const payload = {
     shared: Object.fromEntries(SHARED_FIELDS
@@ -42,8 +49,8 @@ export function decodeComparison(value) {
     if (!parsed || typeof parsed !== "object") return null;
     const shared = {};
     for (const key of SHARED_FIELDS) {
-      const number = Number(parsed.shared?.[key]);
-      if (Number.isFinite(number) && number >= 0) shared[key] = number;
+      const number = sharedNumber(parsed.shared?.[key]);
+      if (number !== null) shared[key] = number;
     }
     const channels = Array.isArray(parsed.channels) ? parsed.channels
       .filter((channel) => channel && typeof channel.id === "string")
@@ -55,9 +62,8 @@ export function decodeComparison(value) {
         // calculator, where it surfaced as a validation error on a field the
         // recipient never typed. Dropping it falls back to the preset instead.
         ...Object.fromEntries(CHANNEL_FIELDS.map((key) => {
-          const raw = channel.values?.[key];
-          const parsed = raw === undefined || raw === "" ? null : Number(raw);
-          return [key, Number.isFinite(parsed) && parsed >= 0 ? parsed : null];
+          const number = sharedNumber(channel.values?.[key]);
+          return [key, number];
         }).filter(([, value]) => value !== null)),
       })) : [];
     return {

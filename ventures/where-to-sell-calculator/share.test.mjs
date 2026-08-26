@@ -116,3 +116,33 @@ test("a link cannot smuggle a channel field the calculator never asked for", () 
   })));
   assert.deepEqual(restored.channels, [{ id: "etsy", enabled: true, price: 62 }]);
 });
+
+test("drops hostile and invalid channel values before they reach the page", () => {
+  const restored = decodeComparison(encodeURIComponent(JSON.stringify({
+    channels: [{
+      id: "etsy",
+      values: {
+        price: '"><img src=x onerror=alert(1)>',
+        commissionRate: "6.5",
+        paymentRate: -1,
+        paymentFixed: "not-a-number",
+      },
+    }],
+  })));
+
+  assert.deepEqual(restored.channels[0], {
+    id: "etsy",
+    enabled: true,
+    commissionRate: 6.5,
+  });
+});
+
+test("does not turn null, empty, or boolean values into zero", () => {
+  const restored = decodeComparison(encodeURIComponent(JSON.stringify({
+    shared: { price: null, itemCost: "", monthlyOrders: false },
+    channels: [{ id: "other", values: { price: null, commissionRate: true } }],
+  })));
+
+  assert.deepEqual(restored.shared, {});
+  assert.deepEqual(restored.channels[0], { id: "other", enabled: true });
+});
