@@ -23,6 +23,10 @@ hypotheses:
     status: untested
     checked: null
     evidence: customer-contact
+  - claim: Showing pallet, carton, and loose inbound on the same quote changes a rate card that looked interchangeable on three receiving lines.
+    status: untested
+    checked: null
+    evidence: customer-contact
 economics:
   currency: USD
   mrr: null

@@ -70,6 +70,121 @@ export function money(value) {
   return new Intl.NumberFormat("en-US", { style: "currency", currency: "USD" }).format(value);
 }
 
+export const INBOUND_METHODS = [
+  { id: "pallet", label: "Pallet inbound", countLabel: "Pallets received" },
+  { id: "carton", label: "Carton inbound", countLabel: "Cartons received" },
+  { id: "unit", label: "Loose / per-unit inbound", countLabel: "Units received" },
+];
+
+/**
+ * Converts a rate-card inbound method into the per-unit receiving rate the
+ * rest of the quote already uses. Pallet and carton lines are fee ÷ units
+ * in the container; loose inbound is already a per-unit rate.
+ * Distinct from leftover aged storage, return disposition, and kitting —
+ * this is how the inbound shipment is received, not what happens later.
+ */
+export function inboundReceivingPerUnit(method, input = {}) {
+  const inboundUnits = fieldNumber(input.inboundUnits, fieldNumber(input.orders, 100) * fieldNumber(input.unitsPerOrder, 1.5));
+  if (method === "pallet") {
+    const unitsPerPallet = fieldNumber(input.unitsPerPallet, 48);
+    const fee = fieldNumber(input.palletInboundFee, 12);
+    if (unitsPerPallet === 0) {
+      return { receivingPerUnit: Infinity, inboundCount: Infinity, fee, unitsPerContainer: 0, inboundUnits };
+    }
+    return {
+      receivingPerUnit: fee / unitsPerPallet,
+      inboundCount: inboundUnits / unitsPerPallet,
+      fee,
+      unitsPerContainer: unitsPerPallet,
+      inboundUnits,
+    };
+  }
+  if (method === "carton") {
+    const unitsPerCarton = fieldNumber(input.unitsPerCarton, 12);
+    const fee = fieldNumber(input.cartonInboundFee, 1.75);
+    if (unitsPerCarton === 0) {
+      return { receivingPerUnit: Infinity, inboundCount: Infinity, fee, unitsPerContainer: 0, inboundUnits };
+    }
+    return {
+      receivingPerUnit: fee / unitsPerCarton,
+      inboundCount: inboundUnits / unitsPerCarton,
+      fee,
+      unitsPerContainer: unitsPerCarton,
+      inboundUnits,
+    };
+  }
+  if (method === "unit") {
+    const fee = fieldNumber(input.receivingPerUnit, 0.45);
+    return {
+      receivingPerUnit: fee,
+      inboundCount: inboundUnits,
+      fee,
+      unitsPerContainer: 1,
+      inboundUnits,
+    };
+  }
+  throw new Error(`Unknown inbound method: ${method}`);
+}
+
+/**
+ * Reprices the same quote under pallet, carton, and loose inbound so a seller
+ * can see which rate-card line they should actually ship against.
+ */
+export function compareInboundMethods(input = {}) {
+  const rows = INBOUND_METHODS.map((method) => {
+    const inbound = inboundReceivingPerUnit(method.id, input);
+    const finite = Number.isFinite(inbound.receivingPerUnit);
+    const result = finite ? calculate({ ...input, receivingPerUnit: inbound.receivingPerUnit }, false) : null;
+    return {
+      id: method.id,
+      label: method.label,
+      countLabel: method.countLabel,
+      inboundCount: inbound.inboundCount,
+      receivingPerUnit: inbound.receivingPerUnit,
+      receiving: result ? result.quote.receiving : Infinity,
+      total: result ? result.quote.total : Infinity,
+      perOrder: result ? result.perOrder : Infinity,
+      vsInHouse: result ? result.winner : "in-house",
+      delta: result ? result.delta : Number.NEGATIVE_INFINITY,
+    };
+  });
+  const finite = rows.filter((row) => Number.isFinite(row.total));
+  const cheapestTotal = finite.length ? Math.min(...finite.map((row) => row.total)) : Infinity;
+  const dearestTotal = finite.length ? Math.max(...finite.map((row) => row.total)) : 0;
+  const receivingValues = finite.map((row) => row.receiving);
+  const cheapestIds = finite.filter((row) => row.total === cheapestTotal).map((row) => row.id);
+  return {
+    rows,
+    cheapestId: cheapestIds.length === 1 ? cheapestIds[0] : null,
+    cheapestIds,
+    monthlySpread: Number.isFinite(cheapestTotal) ? dearestTotal - cheapestTotal : 0,
+    receivingSpread: receivingValues.length ? Math.max(...receivingValues) - Math.min(...receivingValues) : 0,
+  };
+}
+
+export function inboundComparisonSummary(comparison) {
+  if (comparison.cheapestIds.length === 0) {
+    return "Enter inbound rates to compare receiving methods.";
+  }
+  if (comparison.cheapestIds.length > 1) {
+    const labels = comparison.rows
+      .filter((row) => comparison.cheapestIds.includes(row.id))
+      .map((row) => row.label);
+    if (comparison.monthlySpread === 0 && comparison.receivingSpread > 0) {
+      return `Receiving differs by ${money(comparison.receivingSpread)} per month, but the monthly minimum keeps the normalized totals the same.`;
+    }
+    if (comparison.monthlySpread === 0 && comparison.cheapestIds.length === comparison.rows.length) {
+      return "Pallet, carton, and loose inbound have the same normalized monthly total at this volume.";
+    }
+    return `${labels.join(" and ")} tie as the lower inbound method at this volume.`;
+  }
+  const winner = comparison.rows.find((row) => row.id === comparison.cheapestId);
+  if (comparison.monthlySpread === 0) {
+    return `${winner.label} matches the other inbound methods at this volume.`;
+  }
+  return `${winner.label} is lower by ${money(comparison.monthlySpread)} per month than the most expensive inbound method at this volume.`;
+}
+
 export function compareQuotes(first, second) {
   const totalDelta = second.quote.total - first.quote.total;
   return {
