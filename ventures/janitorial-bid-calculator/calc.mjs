@@ -81,6 +81,9 @@ function number(value, name, { min = 0, allowZero = true } = {}) {
  *   Optional day-porter / attendant rows. Priced as scheduled headcount, not
  *   square feet: people × hours × shifts/week × 52/12. An omitted hourly
  *   wage uses the contract cleaner wage.
+ * @param {number} [input.crewSize]         Cleaners available on each night-clean visit.
+ * @param {number} [input.shiftHours]       Hours available per cleaner on that visit.
+ * @param {number} [input.availableHoursPerCleaner] Alias for shiftHours used by the form.
  * @param {number} input.hourlyWage         What the cleaner is paid per hour.
  * @param {number} input.burdenRate         Payroll burden as a % on top of wage
  *   (employer taxes, workers' compensation, insurance, paid time off).
@@ -111,6 +114,13 @@ export function calculateBid(input) {
   const otherMonthly = number(input.otherMonthly ?? 0, 'Other monthly cost');
   const overheadRate = number(input.overheadRate ?? 0, 'Overhead');
   const targetMargin = number(input.targetMargin ?? 0, 'Target margin');
+  const crewSize = number(input.crewSize ?? 1, 'Crew size', { allowZero: false });
+  const shiftHours = number(
+    input.availableHoursPerCleaner ?? input.shiftHours ?? 4,
+    'Available hours per cleaner',
+    { allowZero: false },
+  );
+  if (!Number.isInteger(crewSize)) throw new Error('Crew size must be a whole number');
   if (targetMargin >= 100) throw new Error('Target margin must be less than 100%');
 
   const loadedWage = hourlyWage * (1 + burdenRate / 100);
@@ -220,6 +230,11 @@ export function calculateBid(input) {
   const projectPrice = projects.reduce((sum, project) => sum + project.price, 0);
   const projectProfit = projectPrice - projectCost;
   const share = hours => (monthlyHours === 0 ? 0 : hours / monthlyHours * 100);
+  const hoursPerVisitTotal = areas.reduce((sum, a) => sum + (a.cleaningsPerWeek > 0 ? a.hoursPerCleaning : 0), 0);
+  const visitCapacityHours = crewSize * shiftHours;
+  const visitUtilization = hoursPerVisitTotal === 0 || visitCapacityHours === 0
+    ? 0
+    : hoursPerVisitTotal / visitCapacityHours * 100;
 
   return {
     areas: areas.map(area => ({
@@ -235,7 +250,12 @@ export function calculateBid(input) {
     })),
     totalSquareFeet,
     loadedWage,
-    hoursPerVisitTotal: areas.reduce((sum, a) => sum + (a.cleaningsPerWeek > 0 ? a.hoursPerCleaning : 0), 0),
+    hoursPerVisitTotal,
+    crewSize,
+    shiftHours,
+    visitCapacityHours,
+    visitUtilization,
+    visitOverCapacity: hoursPerVisitTotal > visitCapacityHours,
     areaMonthlyHours,
     shiftMonthlyHours,
     monthlyHours,
@@ -336,6 +356,7 @@ export function formatBidSummary(result) {
     spaces || '- No service areas entered',
     '',
     `Scope basis: ${result.hoursPerVisitTotal.toFixed(2)} labor hours per visit at the entered frequencies.`,
+    `Crew capacity: ${result.crewSize} cleaner(s) × ${result.shiftHours.toFixed(2)} hours = ${result.visitCapacityHours.toFixed(2)} hours per visit (${result.visitUtilization.toFixed(0)}% used).`,
     'This is a draft for review. Confirm scope, schedule, insurance, taxes, and all pricing before sending.',
   ].join('\n');
 }

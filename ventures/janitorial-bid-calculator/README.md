@@ -53,6 +53,9 @@ who price off the raw wage are short before they start.
    sales recovery. It is not applied to itself or to profit.
 5. **Price.** Cost ÷ (1 − target margin %), because margin is quoted as a share
    of price, not a markup on cost.
+6. **Capacity.** Crew size × available hours per cleaner gives visit capacity;
+   utilization and an over-capacity warning make the schedule explicit. This
+   checks the night-clean production visit, not day-porter coverage hours.
 
 It then reports the numbers a contractor sanity-checks a bid against: price per
 square foot per month, effective hourly billing rate, annual contract value,
@@ -144,8 +147,8 @@ Events counted: `bid_calculated`, `area_added`, `area_removed`,
   extraction, initial/post-construction) invoiced separately from the month.
 - "Other space" rows can be named; an empty name still falls back to `Area N`.
 - Day-porter / attendant shifts are modelled as scheduled coverage on the
-  monthly contract. Crew-capacity checks (can they finish the visit in the
-  window) are still out of scope.
+  monthly contract. Crew-capacity checks the night-clean production visit
+  against cleaners × available hours, not porter coverage.
 - Project-work rates and coat counts are starter figures. Real strip, extract,
   and initial-clean times depend on soil, finish buildup, furniture, and access.
 

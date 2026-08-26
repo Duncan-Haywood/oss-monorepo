@@ -64,6 +64,7 @@
     .bar > span { display: block; height: 100%; border-radius: 2px; background: #6fd6a8; }
     .verdict { margin-top: 14px; padding: 12px; border-radius: 9px; font-size: .87rem; background: #ffffff1a; }
     .verdict.bad { background: #7d2317; }
+    .verdict.warn { background: #765117; }
     .empty { font-size: .87rem; opacity: .84; }
     footer { margin-top: 25px; font-size: .82rem; color: #4a5666; }
     footer a { color: #1c7a5e; }
@@ -141,6 +142,8 @@
           <label>Other cost / month <input id="otherMonthly" type="number" min="0" step="1" value="0"></label>
           <label>Overhead on direct cost (%) <input id="overheadRate" type="number" min="0" step="0.5" value="15"></label>
           <label>Target net margin (%) <input id="targetMargin" type="number" min="0" max="99.9" step="0.5" value="20"></label>
+          <label>Cleaners on each visit <input id="crewSize" type="number" min="1" step="1" value="1"></label>
+          <label>Available hours per cleaner / visit <input id="availableHoursPerCleaner" type="number" min="0.25" step="0.25" value="4"></label>
           <label>Price you&rsquo;re considering (optional) <input id="proposedPrice" type="number" min="0" step="10" placeholder="e.g. 1650"></label>
         </div>
         <p class="hint" style="margin-top:14px;margin-bottom:0">Payroll burden covers employer taxes, workers&rsquo; compensation, liability insurance, and paid time off &mdash; the part of a cleaner&rsquo;s cost that never shows up on their pay rate. Underestimating it is the most common reason a janitorial bid that looked profitable was not.</p>
@@ -185,6 +188,8 @@
       <div id="priceLabel">monthly contract price</div>
       <dl>
         <dt>Labor hours per visit</dt><dd id="hoursPerVisit"></dd>
+        <dt>Visit capacity</dt><dd id="visitCapacity"></dd>
+        <dt>Visit utilization</dt><dd id="visitUtilization"></dd>
         <dt>Day-porter hours per month</dt><dd id="shiftHours"></dd>
         <dt>Labor hours per month</dt><dd id="monthlyHours"></dd>
         <dt>Loaded labor cost</dt><dd id="labor"></dd>
@@ -399,7 +404,7 @@
     import { recordUsage } from './usage.mjs';
     import { encodeBid, saveBid, clearBid, restoreBid } from './share.mjs';
 
-    const COST_IDS = ['hourlyWage','burdenRate','suppliesPerSqFtMonth','equipmentMonthly','otherMonthly','overheadRate','targetMargin','proposedPrice'];
+    const COST_IDS = ['hourlyWage','burdenRate','suppliesPerSqFtMonth','equipmentMonthly','otherMonthly','overheadRate','targetMargin','proposedPrice','crewSize','availableHoursPerCleaner'];
     const FREQ_IDS = ['currentWeekly','proposedWeekly','clientOfferMonthly'];
     const SUPPLY_IDS = ['restroomSharePercent','emergencyFillMonthly','supplyOfferMonthly'];
     const INITIAL_IDS = ['initialVisitMultiplier','initialExtraSupplies','initialAmortizeMonths','initialCancelAfterMonths','initialOfferMonthly'];
@@ -634,7 +639,7 @@
       el('price').textContent = message;
       el('price').className = `hero-number ${isError ? 'negative' : ''}`;
       el('priceLabel').textContent = isError ? 'check the highlighted input' : 'monthly contract price';
-      ['hoursPerVisit','shiftHours','monthlyHours','labor','supplies','equipment','overhead','cost','profit','perSqFt','hourlyRate','breakEven','annual','projectHours','projectDirect','projectPrice','firstMonth','firstMonthFloor']
+      ['hoursPerVisit','visitCapacity','visitUtilization','shiftHours','monthlyHours','labor','supplies','equipment','overhead','cost','profit','perSqFt','hourlyRate','breakEven','annual','projectHours','projectDirect','projectPrice','firstMonth','firstMonthFloor']
         .forEach(id => { el(id).textContent = ''; });
       el('split').innerHTML = '';
       el('projectSplit').innerHTML = '';
@@ -671,6 +676,8 @@
       el('price').className = 'hero-number';
       el('priceLabel').textContent = 'monthly contract price';
       el('hoursPerVisit').textContent = `${result.hoursPerVisitTotal.toFixed(2)} h`;
+      el('visitCapacity').textContent = `${result.visitCapacityHours.toFixed(2)} h`;
+      el('visitUtilization').textContent = `${result.visitUtilization.toFixed(0)}%`;
       el('shiftHours').textContent = result.shiftMonthlyHours === 0 ? 'none' : `${result.shiftMonthlyHours.toFixed(1)} h`;
       el('monthlyHours').textContent = `${result.monthlyHours.toFixed(1)} h`;
       el('labor').textContent = money(result.monthlyLaborCost);
@@ -711,15 +718,21 @@
           .join('');
 
       const verdict = el('verdict');
-      if (result.proposed === null) {
+      if (result.proposed === null && !result.visitOverCapacity) {
         verdict.hidden = true;
+      } else if (result.proposed === null && result.visitOverCapacity) {
+        verdict.hidden = false;
+        verdict.className = 'verdict warn';
+        verdict.textContent = `Scheduling check: this scope needs ${result.hoursPerVisitTotal.toFixed(2)} labor hours per visit, above the crew's ${result.visitCapacityHours.toFixed(2)}-hour capacity.`;
       } else {
         verdict.hidden = false;
-        verdict.className = `verdict${result.proposed.belowBreakEven ? ' bad' : ''}`;
+        verdict.className = `verdict${result.proposed.belowBreakEven ? ' bad' : result.visitOverCapacity ? ' warn' : ''}`;
         const rate = result.proposed.hourlyRate === null ? 'n/a' : `${money(result.proposed.hourlyRate)}/h`;
         verdict.innerHTML = result.proposed.belowBreakEven
           ? `At ${money(result.proposed.price)} a month this job <strong>loses ${money(Math.abs(result.proposed.profit))} a month</strong> before you take anything out of it. Your walk-away price is ${money(result.breakEvenMonthlyPrice)}.`
-          : `At ${money(result.proposed.price)} a month you keep <strong>${money(result.proposed.profit)}</strong> — a ${result.proposed.margin.toFixed(1)}% margin, billing ${rate} of labor.`;
+          : result.visitOverCapacity
+            ? `The scope needs <strong>${result.hoursPerVisitTotal.toFixed(2)} labor hours per visit</strong>, but this crew has ${result.visitCapacityHours.toFixed(2)} hours available. Add cleaners, allow a longer shift, or revisit the scope before sending this bid.`
+            : `At ${money(result.proposed.price)} a month you keep <strong>${money(result.proposed.profit)}</strong> — a ${result.proposed.margin.toFixed(1)}% margin, billing ${rate} of labor.`;
       }
 
       renderFrequencyCompare({ areas, result });

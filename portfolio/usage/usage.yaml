@@ -645,6 +645,15 @@ products:
           Added day-porter / scheduled-shift pricing as coverage hours
           kept separate from the night-clean production rate. Public
           URL remains owner-gated.
+      - as_of: 2026-08-26
+        signals:
+          live_url_visitors: null
+          local_events_reported: 0
+        note: >-
+          Added a night-clean crew-capacity check (cleaners × available
+          hours vs labor hours per visit) so a profitable bid that cannot
+          finish the shift is visible before it is sent. Public URL
+          remains owner-gated.
   - slug: shopify-fee-calculator
     surface: static-page-in-repo
     readings:
