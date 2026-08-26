@@ -2199,3 +2199,16 @@ products:
           onto current main. Public URL remains owner-gated; usage is
           opt-out and honors DNT/GPC. Baseline row.
 
+  - slug: notary-trip-quote
+    surface: static-page-in-repo
+    readings:
+      - as_of: 2026-08-26
+        signals:
+          live_url_visitors: null
+          quote_calculated: 0
+          summary_copied: 0
+        note: >-
+          Repair-and-merge of unique #1256 mobile notary trip quote
+          calculator onto current main. Public URL remains owner-gated;
+          usage is opt-out and honors DNT/GPC. Baseline row.
+

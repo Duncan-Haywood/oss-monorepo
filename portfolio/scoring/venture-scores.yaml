@@ -2952,4 +2952,34 @@ ventures:
       Pass: output is an estimate from user-supplied figures, not a
       contract, engineering determination, legal advice, or promise of
       customer approval. Inputs never leave the browser.
+  - slug: notary-trip-quote
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 7
+      gross_margin: 10
+      defensibility: 4
+      distribution: 7
+    composite: 6.5
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      The quote is deterministic travel and time arithmetic. Adding
+      inference would make a booking number less checkable against the
+      notary's own rates.
+    basis: >-
+      Graduated on 2026-08-26 as a browser-local mobile notary trip
+      quote (repair-and-merge of unique #1256). Distinct from contractor
+      bid calculators and medical courier: the buyer is an independent
+      notary pricing one appointment's mileage, wait, witnesses, and
+      statutory fees. Distribution is "mobile notary fee calculator"
+      and "notary mileage fee".
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Pass: output is a quote from user-supplied rates, not a statutory
+      fee schedule, legal opinion, or promise that a jurisdiction
+      permits the charge. Inputs never leave the browser.
 
