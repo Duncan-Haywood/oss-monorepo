@@ -28,6 +28,7 @@ import {
   renderHub,
   pageUrlPath,
   renderFavicon,
+  renderFaviconSvg,
   renderRobots,
   renderSitemapIndex,
   renderVentureSitemap,
@@ -511,6 +512,31 @@ test('a favicon is emitted, because every page requests one whether or not it li
 
 test('the favicon is byte-identical on every build', () => {
   assert.deepEqual(renderFavicon(), renderFavicon());
+});
+
+// The .ico covers the request browsers make on their own, but it is a fixed
+// 16x16 raster and goes soft anywhere it is shown larger — a pinned tab, the
+// bookmark bar, a phone home screen.
+test('an SVG favicon ships alongside the .ico', async () => {
+  const svg = await read('favicon.svg');
+  assert.match(svg, /^<svg /, 'a real SVG document');
+  assert.match(svg, /viewBox="0 0 16 16"/, 'scalable rather than fixed to one size');
+});
+
+test('both favicons draw the same mark', () => {
+  // A drift here means the tab icon and the pinned icon are two different
+  // logos, which is why the geometry lives in constants both renderers read.
+  const svg = renderFaviconSvg();
+  assert.match(svg, /#243d35/, "the hub's ink");
+  assert.equal((svg.match(/#c5edb5/g) ?? []).length, 3, 'three bars in the mark colour');
+  assert.match(svg, /x="3" y="9" width="2" height="4"/, 'the short bar');
+  assert.match(svg, /x="11" y="3" width="2" height="10"/, 'the tall bar');
+});
+
+test('the hub links both favicons', async () => {
+  const hub = await read('index.html');
+  assert.match(hub, /rel="icon" href="favicon\.svg" type="image\/svg\+xml"/);
+  assert.match(hub, /rel="alternate icon" href="favicon\.ico"/);
 });
 
 test('.nojekyll is emitted so Pages serves the tree verbatim', async () => {

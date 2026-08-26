@@ -6,6 +6,8 @@ import {
   reviewRecord,
   compareCdn,
   cdnNote,
+  compareReplica,
+  replicaNote,
 } from "./calc.mjs";
 
 test("calculates storage, request, and egress charges", () => {
@@ -154,4 +156,89 @@ test("cdnNote names the cheaper path and the hit-rate floor without advising", (
   assert.match(note, /origin-only is \$1\.30 cheaper/);
   assert.match(note, /94\.4% hits/);
   assert.doesNotMatch(note, /should|must|enable|turn on|add a CDN|CloudFront/i);
+});
+
+const DEFAULT_REPLICA = {
+  replicaGb: 500,
+  pullGbPerMonth: 800,
+  crossRegionRate: 0.02,
+  storageRate: 0.023,
+  seedGb: 500,
+  seedRate: 0.02,
+  changeGbPerMonth: 20,
+  changeRate: 0.02,
+  horizonMonths: 12,
+};
+
+test("default replica demo: 800 GB pull beats keep-pulling after the seed", () => {
+  const result = compareReplica(DEFAULT_REPLICA);
+  assert.equal(result.pull.monthly, 16);
+  assert.equal(result.pull.horizon, 192);
+  assert.equal(result.replica.storage, 11.5);
+  assert.equal(result.replica.change, 0.4);
+  assert.equal(result.replica.monthly, 11.9);
+  assert.equal(result.replica.seed, 10);
+  assert.equal(result.replica.horizon, 152.8);
+  assert.equal(result.cheaperMonthly, "replica");
+  assert.equal(result.cheaperHorizon, "replica");
+  assert.equal(result.monthlySavings, 4.1);
+  assert.equal(result.horizonSavings, 39.2);
+  assert.equal(result.breakEvenPullGb, 595);
+  assert.ok(Math.abs(result.monthsToRecoverSeed - 10 / 4.1) < 1e-10);
+});
+
+test("400 GB of monthly pull leaves keep-pulling cheaper", () => {
+  const result = compareReplica({ ...DEFAULT_REPLICA, pullGbPerMonth: 400 });
+  assert.equal(result.pull.monthly, 8);
+  assert.equal(result.replica.monthly, 11.9);
+  assert.equal(result.cheaperMonthly, "pull");
+  assert.equal(result.monthlySavings, 3.9);
+  assert.equal(result.cheaperHorizon, "pull");
+  assert.equal(result.monthsToRecoverSeed, null);
+});
+
+test("a large seed can flip the horizon even when the replica is cheaper this month", () => {
+  const result = compareReplica({ ...DEFAULT_REPLICA, seedGb: 5000 });
+  assert.equal(result.replica.seed, 100);
+  assert.equal(result.cheaperMonthly, "replica");
+  assert.equal(result.monthlySavings, 4.1);
+  assert.equal(result.replica.horizon, 242.8);
+  assert.equal(result.cheaperHorizon, "pull");
+  assert.equal(result.horizonSavings, 50.8);
+  assert.ok(Math.abs(result.monthsToRecoverSeed - 100 / 4.1) < 1e-10);
+});
+
+test("replicaNote names the cheaper path and the pull floor without advising", () => {
+  const note = replicaNote(compareReplica(DEFAULT_REPLICA));
+  assert.match(note, /the replica path is \$4\.10 cheaper this month/);
+  assert.match(note, /\$10\.00 seed pays back in about 2\.4 months/);
+  assert.match(note, /\$39\.20 cheaper/);
+  assert.match(note, /595 GB of monthly pull/);
+  assert.doesNotMatch(note, /should|must|enable|turn on|add a replica|replicate/i);
+});
+
+test("rejects a horizon outside 1–120", () => {
+  assert.throws(() => compareReplica({ ...DEFAULT_REPLICA, horizonMonths: 0 }), /Horizon/);
+  assert.throws(() => compareReplica({ ...DEFAULT_REPLICA, horizonMonths: 121 }), /Horizon/);
+  assert.throws(() => compareReplica({ ...DEFAULT_REPLICA, horizonMonths: 12.5 }), /Horizon/);
+});
+
+test("rejects a negative replica size", () => {
+  assert.throws(() => compareReplica({ ...DEFAULT_REPLICA, replicaGb: -1 }), /Replica size/);
+});
+
+test("accepts the numeric strings a form posts", () => {
+  const result = compareReplica({
+    replicaGb: "500",
+    pullGbPerMonth: "800",
+    crossRegionRate: "0.02",
+    storageRate: "0.023",
+    seedGb: "500",
+    seedRate: "0.02",
+    changeGbPerMonth: "20",
+    changeRate: "0.02",
+    horizonMonths: "12",
+  });
+  assert.equal(result.replica.horizon, 152.8);
+  assert.equal(result.cheaperHorizon, "replica");
 });
