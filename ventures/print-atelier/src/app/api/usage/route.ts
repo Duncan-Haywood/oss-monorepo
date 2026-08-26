@@ -11,6 +11,7 @@ const eventNames: UsageEventName[] = [
   "checkout_quantity_change",
   "preflight_completed",
   "preflight_exported",
+  "preflight_compared",
 ];
 
 export async function POST(request: Request) {
