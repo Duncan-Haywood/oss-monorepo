@@ -20,6 +20,7 @@ import {
   compareVine,
   compareAgedInventory,
   compareInboundPlacement,
+  compareReturns,
   placementSummary,
   vineUnitCost,
   DEFAULT_VINE_UNITS,
@@ -49,6 +50,8 @@ import {
   defaultLowPriceFulfillmentFee,
   defaultMcfFee,
   lowPriceBreakEvenRaise,
+  RETURN_RATE_PRESETS,
+  returnsSummary,
   STORAGE_PRESETS,
 } from "./calc.mjs";
 
@@ -204,6 +207,130 @@ test("honors an explicit fulfillment-fee override", () => {
   near(r.fulfillmentFee, 4.25, "override");
   near(r.fba.fees.fulfillment, 4.25, "used in FBA");
   assert.ok(r.suggestedFulfillment !== 4.25);
+});
+
+test("zero returns leave the successful-sale numbers unchanged", () => {
+  const r = calculateListing({ ...base, returnRate: 0, returnHandlingFee: 3, unsellableReturnRate: 25 });
+  near(r.selected.profit, r.selected.profitBeforeReturns, "expected equals kept");
+  near(r.selected.returnDrag, 0, "no drag");
+  near(r.fba.fees.returnHandling, 0, "no allocated handling");
+});
+
+test("expected returns reduce profit by the mix of lost sales and leftover costs", () => {
+  const clean = calculateListing({ ...base, monthlySellerFee: 0, returnRate: 0 });
+  const withReturns = calculateListing({
+    ...base,
+    monthlySellerFee: 0,
+    returnRate: 10,
+    returnHandlingFee: 4,
+    unsellableReturnRate: 20,
+  });
+  const keep = clean.fba.profit;
+  const cashExCogs = clean.fba.cashInvested - 8;
+  const fulfillment = clean.fulfillmentFee;
+  const returnProfit = 0 - fulfillment - 4 - cashExCogs - 0.2 * 8;
+  const expected = 0.9 * keep + 0.1 * returnProfit;
+  near(withReturns.fba.profitBeforeReturns, keep, "kept sale");
+  near(withReturns.fba.profit, expected, "expected after returns");
+  assert.ok(withReturns.fba.profit < keep);
+  near(withReturns.fba.returnDrag, keep - expected, "drag");
+  near(withReturns.fba.fees.returnHandling, 0.4, "allocated handling");
+});
+
+test("break-even return rate drives expected profit to zero", () => {
+  const r = calculateListing({ ...base, monthlySellerFee: 0, returnHandlingFee: 3, unsellableReturnRate: 25 });
+  assert.ok(r.selected.breakEvenReturnRate > 0);
+  assert.ok(r.selected.breakEvenReturnRate < 1);
+  const atEdge = calculateListing({
+    ...base,
+    monthlySellerFee: 0,
+    returnHandlingFee: 3,
+    unsellableReturnRate: 25,
+    returnRate: r.selected.breakEvenReturnRate * 100,
+  });
+  near(atEdge.selected.profit, 0, "profit at break-even return rate");
+});
+
+test("after-returns break-even sale price and max buy still zero expected profit", () => {
+  const assumptions = {
+    ...base,
+    monthlySellerFee: 0,
+    returnRate: 12,
+    returnHandlingFee: 3.5,
+    unsellableReturnRate: 30,
+  };
+  const r = calculateListing(assumptions);
+  const atPrice = calculateListing({ ...assumptions, salePrice: r.selected.breakEvenPrice });
+  near(atPrice.selected.profit, 0, "profit at after-returns break-even price");
+  const atBuy = calculateListing({ ...assumptions, costOfGoods: r.selected.breakEvenBuyCost });
+  near(atBuy.selected.profit, 0, "profit at after-returns max buy");
+});
+
+test("after-returns target price still hits the requested margin on kept revenue", () => {
+  const assumptions = {
+    ...base,
+    monthlySellerFee: 0,
+    returnRate: 8,
+    returnHandlingFee: 2,
+    unsellableReturnRate: 0,
+    targetMargin: 30,
+  };
+  const r = calculateListing(assumptions);
+  const atTarget = calculateListing({ ...assumptions, salePrice: r.selected.targetMarginPrice });
+  near(atTarget.selected.margin, 30, "expected margin at target price");
+});
+
+test("a fully returned resellable unit recovers cost of goods and still loses fulfillment", () => {
+  const r = calculateListing({
+    ...base,
+    monthlySellerFee: 0,
+    returnRate: 100,
+    returnHandlingFee: 5,
+    unsellableReturnRate: 0,
+  });
+  const cashExCogs = r.fba.cashInvested - 8;
+  near(r.fba.profit, -r.fulfillmentFee - 5 - cashExCogs, "all returns, goods recovered");
+  assert.equal(r.selected.breakEvenPrice, Infinity);
+});
+
+test("already-unprofitable listings have a zero break-even return rate", () => {
+  const r = calculateListing({
+    ...base,
+    salePrice: 1,
+    costOfGoods: 20,
+    monthlySellerFee: 0,
+  });
+  assert.ok(r.selected.profitBeforeReturns < 0);
+  assert.equal(r.selected.breakEvenReturnRate, 0);
+});
+
+test("rejects return rates above 100%", () => {
+  assert.throws(() => calculateListing({ salePrice: 10, returnRate: 101 }), /cannot exceed 100/);
+  assert.throws(() => calculateListing({ salePrice: 10, unsellableReturnRate: 150 }), /cannot exceed 100/);
+  assert.throws(() => compareReturns({ ...base, returnRate: 101 }), /cannot exceed 100/);
+});
+
+test("return-rate sweep includes zero and the typed rate", () => {
+  assert.deepEqual(RETURN_RATE_PRESETS, [0, 8, 15, 22]);
+  const comparison = compareReturns({
+    ...base,
+    monthlySellerFee: 0,
+    returnRate: 10,
+    returnHandlingFee: 2.5,
+    unsellableReturnRate: 20,
+  });
+  assert.deepEqual(comparison.rows.map((row) => row.returnRate), [0, 8, 10, 15, 22]);
+  const typed = comparison.rows.find((row) => row.isCurrent);
+  assert.equal(typed.returnRate, 10);
+  near(typed.profit, comparison.typed.selected.profit, "typed row matches listing");
+  assert.ok(comparison.rows[0].profit > typed.profit);
+  assert.match(comparison.summary, /10%/);
+  assert.match(returnsSummary({
+    typedRate: 0,
+    handling: 2.5,
+    unsellable: 20,
+    typed: calculateListing({ ...base, returnRate: 0 }),
+  }), /completed sale/);
 });
 
 test("applyCategoryPreset and applyStoragePreset fill illustrative rates", () => {
