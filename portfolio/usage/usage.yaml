@@ -776,6 +776,15 @@ products:
   - slug: no-show-fee-calculator
     surface: static-page-in-repo
     readings:
+      - as_of: 2026-08-25
+        signals:
+          live_url_visitors: null
+          local_events_reported: 0
+        note: >-
+          Added deposit-versus-after-the-fact-fee comparison and a copyable
+          deposit policy on the existing calculator. Counts
+          collection_policies_viewed and deposit_policy_copied locally.
+          Public URL remains owner-gated.
       - as_of: 2026-08-24
         signals:
           live_url_visitors: null
@@ -2151,6 +2160,18 @@ products:
           workbench onto current main. Also removes conflict markers
           that landed in usage.yaml with #1430. Public URL remains
           owner-gated; usage is opt-out and honors DNT/GPC. Baseline row.
+
+  - slug: public-record-watch
+    surface: repository-cli
+    readings:
+      - as_of: 2026-08-26
+        signals:
+          live_url_visitors: null
+          snapshot_compared: 0
+        note: >-
+          Repair-and-merge of unique #1411 public-record snapshot comparer
+          onto current main. Local CLI only; --usage-file is opt-in and
+          stores an aggregate count. Public URL remains owner-gated.
 
   - slug: contractor-bid-readiness
     surface: static-page-in-repo

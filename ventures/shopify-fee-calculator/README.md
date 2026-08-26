@@ -5,7 +5,8 @@ after **Shopify Payments** or a **third-party processor** (PayPal, Stripe, and
 the rest), including the extra Shopify third-party transaction fee that generic
 fee pages skip. From the same inputs it reports net profit, margin, return on
 the cash you put into the order (plus a share of the monthly plan), the
-break-even listing price, and the price that hits a target margin.
+break-even listing price, the price that hits a target margin, and whether
+Basic, Grow, Advanced, or Plus leaves more at your monthly volume.
 
 Open [`index.html`](index.html) in a browser. The calculation is local and
 works without an account, network request, or API key. It is arithmetic, not
@@ -13,8 +14,10 @@ an estimate of the fees Shopify will charge: enter the rates from your current
 statements, and verify them there.
 
 **After using this, you can now see whether PayPal or Stripe costs more than
-Shopify Payments on a real order, and what to charge to keep a target
-margin** — which used to mean a spreadsheet that forgot the extra Shopify fee.
+Shopify Payments on a real order, what to charge to keep a target margin, and
+how many orders it takes for Grow or Advanced to cover its extra monthly
+fee** — which used to mean a spreadsheet that forgot the extra Shopify fee
+and treated the plan upgrade as a guess.
 
 ## Why it's different
 
@@ -28,10 +31,15 @@ merchants actually make is the payment path:
 
 This tool keeps every assumption editable, fills illustrative US online
 defaults from a plan picker, allocates the monthly Shopify plan across
-expected monthly orders, and shows **both paths on the same order**.
+expected monthly orders, shows **both paths on the same order**, and ranks
+**every plan at that volume** so the upgrade question is extra monthly cost
+divided by per-order fee savings.
 
 [Why PayPal can cost more on Shopify](why-paypal-costs-more.html) answers that
 search question directly.
+[When does Shopify Grow beat Basic?](basic-vs-grow.html) answers the
+plan-upgrade question: extra monthly plan cost divided by per-order fee
+savings, and how many orders cover Grow or Advanced.
 [Shopify POS vs online fees](shopify-pos-vs-online-fees.html) answers the
 counter-vs-checkout question: whether a cheaper in-person tap still beats
 the same SKU sold online after postage markup, and how many taps recover a
@@ -92,6 +100,10 @@ refund mix.
 answers the add-on question: whether a checkout offer still beats a
 post-purchase one-click after the second swipe and the carts that
 bounce because you asked before they paid.
+
+**After using the plan-upgrade page, you can now see how many orders it
+takes for Grow or Advanced to cover its extra monthly fee** — which used
+to mean guessing from the plan picker rates.
 
 **After using the POS page, you can now see whether a market table or
 retail tap keeps more than checkout on that SKU** — which used to mean
@@ -196,12 +208,13 @@ optional and never changes what the tool does.
 Pure ES modules, no build step, no dependencies.
 
 ```
-node --test        # calc, usage, POS / label / installment / return / refund-rate / Capital / bank-transfer / chargeback / local-delivery / gift-card / Markets-duties / abandoned-checkout / subscription / pickup / upsell page tests
+node --test        # calc, usage, plan-upgrade, POS / label / installment / return / refund-rate / Capital / bank-transfer / chargeback / local-delivery / gift-card / Markets-duties / abandoned-checkout / subscription / pickup / upsell page tests
 ```
 
-`calc.mjs` holds the fee/profit/ROI arithmetic, plan presets, and the refund
-mix; `usage.mjs` holds the anonymous local counter; `index.html` is the
-completed-order calculator; `refunds.html` is the refund-rate mix.
+`calc.mjs` holds the fee/profit/ROI arithmetic, plan presets, `comparePlans`,
+and the refund mix; `usage.mjs` holds the anonymous local counter;
+`index.html` is the completed-order calculator; `basic-vs-grow.html` is the
+plan-upgrade break-even; `refunds.html` is the refund-rate mix.
 
 Not yet deployed to a public URL — publishing under the portfolio's name is
 owner-gated per `portfolio/DIRECTION.md` — but the page is ready to host as
