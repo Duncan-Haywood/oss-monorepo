@@ -214,6 +214,9 @@ workflows:
 - workflow: patio-door-bid-calculator-ci.yml
   classification: none
   publishes: []
+- workflow: pest-control-bid-calculator-ci.yml
+  classification: none
+  publishes: []
 - workflow: photo-editing-ci.yml
   classification: none
   publishes: []
