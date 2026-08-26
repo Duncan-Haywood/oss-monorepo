@@ -7,8 +7,9 @@ steam-to-hot-water conversion, hot water versus steam, gas versus oil
 versus propane, then zones, a chimney liner, an indirect tank, and
 oil-to-gas — and shows the margin before the price goes out. It also prices the
 9 p.m. “just patch it for $280” call against this winter’s callbacks
-and the plant bid, and whether hanging the boiler they bought at the
-supply house still covers the set.
+and the plant bid, whether hanging the boiler they bought at the
+supply house still covers the set, and whether a Saturday / after-hours
+no-heat call still pays after overtime.
 
 **After using this, you can now** send a walk-away boiler-replacement
 price that sees the plant and the extras, **which used to take**
@@ -74,16 +75,19 @@ same cost base. **One more winter of patches** scores a $280 circulator
 special against this visit, stacks extra no-heat calls and later
 seasons, and sets that horizon next to the plant bid. **Who bought the
 boiler** scores a $4,500 hang-only special against you-supply,
-owner-supplies-it-matches, and owner-supplies-wrong-unit. **Copy bid
-summary** turns the replacement result into a plain-text draft ready
-to paste into a proposal.
+owner-supplies-it-matches, and owner-supplies-wrong-unit. **When you
+can stand in the basement** scores a Saturday / after-hours no-heat
+number against a weekday slot, same-day with no heat, and overtime
+plus a second dispatch. **Copy bid summary** turns the replacement
+result into a plain-text draft ready to paste into a proposal.
 
 The arithmetic lives in [`calc.mjs`](calc.mjs). See
 [`calc.test.mjs`](calc.test.mjs).
 
 Search phrases: [`how-much-to-charge-to-replace-a-boiler.html`](how-much-to-charge-to-replace-a-boiler.html),
 [`should-i-patch-this-boiler-for-one-more-winter.html`](should-i-patch-this-boiler-for-one-more-winter.html),
-[`should-i-install-a-customer-supplied-boiler.html`](should-i-install-a-customer-supplied-boiler.html).
+[`should-i-install-a-customer-supplied-boiler.html`](should-i-install-a-customer-supplied-boiler.html),
+[`should-i-take-a-saturday-boiler-call.html`](should-i-take-a-saturday-boiler-call.html).
 
 ## Privacy
 
@@ -104,7 +108,7 @@ when the browser sends Do Not Track or Global Privacy Control. See
 
 Events counted: `bid_calculated`, `preset_applied`, `scope_changed`,
 `system_changed`, `fuel_changed`, `proposed_price_compared`,
-`repair_compared`, `supply_compared`, `summary_copied`.
+`repair_compared`, `supply_compared`, `access_compared`, `summary_copied`.
 
 ## Limitations
 
