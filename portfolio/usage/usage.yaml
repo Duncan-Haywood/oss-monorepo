@@ -2046,3 +2046,17 @@ products:
           onto current main. Public URL remains owner-gated; the
           local-first counter reports only to the user's own browser
           and is opt-out. Baseline row.
+
+  - slug: hvac-maintenance-contract-calculator
+    surface: static-page-in-repo
+    readings:
+      - as_of: 2026-08-26
+        signals:
+          live_url_visitors: null
+          plan_calculated: 0
+          summary_copied: 0
+        note: >-
+          Repair-and-merge of unique #1350 HVAC maintenance contract
+          calculator onto current main. Public URL remains owner-gated;
+          the local-first counter reports only to the user's own browser
+          and is opt-out. Baseline row.
