@@ -1385,3 +1385,319 @@ export function listingRenewalNote(result) {
     : '';
   return `${leftover}${allocated}${recover}${overstated}`;
 }
+
+/**
+ * Illustrative third-party / carrier-account label when the
+ * seller has not typed one. Edit it from a Pirate Ship, Shippo,
+ * or USPS Click-N-Ship quote — not a published Etsy Shipping rate.
+ *
+ * Complementary to free shipping (what you charge the buyer) and
+ * Star Seller (a faster label to stay on-time). This is where you
+ * buy the already-sold tracked label.
+ */
+export const ETSY_LABELS_DEFAULTS = {
+  etsyLabelCost: 6,
+  thirdPartyLabelCost: 5.1,
+  etsyLabelClaimRatePercent: 0.8,
+  thirdPartyClaimRatePercent: 2.5,
+  labelUploadMinutes: 4,
+  labelUploadWage: 18,
+  labelFeeRefundOnClaimPercent: 100,
+  monthlyLabelShipments: 40,
+};
+
+function labelUploadTimeCost(minutes, hourlyWage) {
+  return minutes * (hourlyWage / 60);
+}
+
+function etsyFeeTotal(sold) {
+  return sold.fees.listing + sold.fees.transaction + sold.fees.payment + sold.fees.offsiteAd;
+}
+
+function etsyLabelPath({
+  input,
+  shippingCost,
+  extraCost,
+  claimRatePercent,
+  feeRefundOnClaim,
+}) {
+  const materialCost = nonNegativeNumber(input.materialCost, 'Material cost', 0);
+  const otherCost = nonNegativeNumber(input.otherCost, 'Other cost', 0);
+  const sold = calculateOrder({
+    ...input,
+    shippingCost,
+    otherCost: otherCost + extraCost,
+  });
+  const sunk = shippingCost + materialCost + otherCost + extraCost;
+  const unrefundedFees = etsyFeeTotal(sold) * (1 - feeRefundOnClaim / 100);
+  const claimProfit = -sunk - unrefundedFees;
+  const claimFrac = claimRatePercent / 100;
+  const expectedProfit = (1 - claimFrac) * sold.profit + claimFrac * claimProfit;
+  return {
+    sold,
+    claimProfit,
+    expectedProfit,
+  };
+}
+
+function etsyLabelRow({
+  id,
+  label,
+  labelCost,
+  extraCost,
+  claimRatePercent,
+  path,
+}) {
+  return {
+    id,
+    label,
+    labelCost: roundMoney(labelCost),
+    extraCost: roundMoney(extraCost),
+    claimRatePercent,
+    completedProfit: roundMoney(path.sold.profit),
+    soldExpectedProfit: path.sold.profit,
+    claimProfit: roundMoney(path.claimProfit),
+    expectedProfit: roundMoney(path.expectedProfit),
+    rawExpectedProfit: path.expectedProfit,
+    expectedProfitDelta: 0,
+  };
+}
+
+/**
+ * Same already-sold tracked shipment, three ways to buy the label.
+ *
+ *   - Etsy label — pay the Etsy Shipping quote. Tracking
+ *     auto-uploads. Purchase Protection usually rides with an
+ *     Etsy-purchased label, so the typed Etsy claim rate is the
+ *     leftover item-not-received share after that coverage.
+ *   - Third-party label — Pirate Ship, Shippo, or a carrier
+ *     account. Postage is often cheaper. Tracking is uploaded
+ *     by hand, so a typed upload-time cost sits on every box.
+ *     The typed third-party claim rate is usually higher
+ *     because Etsy Purchase Protection is thinner when the
+ *     label was bought elsewhere.
+ *   - Third-party, no extra time — same postage and claim rate
+ *     with the upload minutes zeroed. Isolates whether the
+ *     claim-rate gap, not the four minutes, is the leak.
+ *
+ * Complementary to free shipping (what you charge vs baking
+ * postage into the list) and Star Seller (a faster label to
+ * stay on-time). Label quotes, claim rates, and upload time
+ * are inputs, not a carrier table or Etsy Purchase Protection
+ * policy.
+ */
+export function compareEtsyLabels(input = {}) {
+  nonNegativeNumber(input.price, 'Price');
+
+  const typedShippingCost = nonNegativeNumber(input.shippingCost, 'Shipping cost', 0);
+  const etsyLabelFallback = input.shippingCost === undefined
+    || input.shippingCost === null
+    || input.shippingCost === ''
+    ? ETSY_LABELS_DEFAULTS.etsyLabelCost
+    : typedShippingCost;
+  const etsyLabelCost = nonNegativeNumber(
+    input.etsyLabelCost,
+    'Etsy label',
+    etsyLabelFallback,
+  );
+  const thirdPartyLabelCost = nonNegativeNumber(
+    input.thirdPartyLabelCost,
+    'Third-party label',
+    ETSY_LABELS_DEFAULTS.thirdPartyLabelCost,
+  );
+  const etsyClaimRate = rateAtMost100(
+    input.etsyLabelClaimRatePercent,
+    'Etsy label claim rate',
+    ETSY_LABELS_DEFAULTS.etsyLabelClaimRatePercent,
+  );
+  const thirdPartyClaimRate = rateAtMost100(
+    input.thirdPartyClaimRatePercent,
+    'Third-party claim rate',
+    ETSY_LABELS_DEFAULTS.thirdPartyClaimRatePercent,
+  );
+  const uploadMinutes = nonNegativeNumber(
+    input.labelUploadMinutes,
+    'Label upload minutes',
+    ETSY_LABELS_DEFAULTS.labelUploadMinutes,
+  );
+  const uploadWage = nonNegativeNumber(
+    input.labelUploadWage,
+    'Label upload hourly wage',
+    ETSY_LABELS_DEFAULTS.labelUploadWage,
+  );
+  const feeRefundOnClaim = rateAtMost100(
+    input.labelFeeRefundOnClaimPercent,
+    'Fee refund on label claim',
+    ETSY_LABELS_DEFAULTS.labelFeeRefundOnClaimPercent,
+  );
+  const monthlyShipments = nonNegativeNumber(
+    input.monthlyLabelShipments,
+    'Monthly label shipments',
+    ETSY_LABELS_DEFAULTS.monthlyLabelShipments,
+  );
+  if (monthlyShipments === 0) throw new Error('Monthly label shipments must be greater than zero');
+
+  const uploadTimeCost = labelUploadTimeCost(uploadMinutes, uploadWage);
+  const pathArgs = { input, feeRefundOnClaim };
+
+  const etsyPath = etsyLabelPath({
+    ...pathArgs,
+    shippingCost: etsyLabelCost,
+    extraCost: 0,
+    claimRatePercent: etsyClaimRate,
+  });
+  const thirdPath = etsyLabelPath({
+    ...pathArgs,
+    shippingCost: thirdPartyLabelCost,
+    extraCost: uploadTimeCost,
+    claimRatePercent: thirdPartyClaimRate,
+  });
+  const postagePath = etsyLabelPath({
+    ...pathArgs,
+    shippingCost: thirdPartyLabelCost,
+    extraCost: 0,
+    claimRatePercent: thirdPartyClaimRate,
+  });
+
+  const etsy = etsyLabelRow({
+    id: 'etsy',
+    label: 'Etsy label',
+    labelCost: etsyLabelCost,
+    extraCost: 0,
+    claimRatePercent: etsyClaimRate,
+    path: etsyPath,
+  });
+  const third = etsyLabelRow({
+    id: 'third_party',
+    label: 'Third-party label',
+    labelCost: thirdPartyLabelCost,
+    extraCost: uploadTimeCost,
+    claimRatePercent: thirdPartyClaimRate,
+    path: thirdPath,
+  });
+  const postageOnly = etsyLabelRow({
+    id: 'third_party_no_time',
+    label: 'Third-party, no extra time',
+    labelCost: thirdPartyLabelCost,
+    extraCost: 0,
+    claimRatePercent: thirdPartyClaimRate,
+    path: postagePath,
+  });
+  etsy.expectedProfitDelta = 0;
+  third.expectedProfitDelta = roundMoney(third.expectedProfit - etsy.expectedProfit);
+  postageOnly.expectedProfitDelta = roundMoney(postageOnly.expectedProfit - etsy.expectedProfit);
+
+  const rows = [etsy, third, postageOnly];
+  // postageOnly is a diagnostic (time already sunk). The decision is
+  // Etsy vs the timed third-party quote you would actually buy.
+  const decisionGap = third.expectedProfit - etsy.expectedProfit;
+  const winner = Math.abs(decisionGap) <= 1e-9
+    ? 'tie'
+    : decisionGap > 0 ? 'third_party' : 'etsy';
+
+  const thirdGap = third.soldExpectedProfit - thirdPath.claimProfit;
+  let breakEvenThirdPartyClaimRate = Infinity;
+  if (thirdGap > 1e-12) {
+    const rate = (third.soldExpectedProfit - etsy.rawExpectedProfit) / thirdGap * 100;
+    breakEvenThirdPartyClaimRate = rate < -1e-9 || rate > 100 + 1e-9
+      ? Infinity
+      : Math.max(0, Math.min(100, rate));
+  }
+
+  const thirdAtLabel = (labelCost) => etsyLabelPath({
+    ...pathArgs,
+    shippingCost: labelCost,
+    extraCost: uploadTimeCost,
+    claimRatePercent: thirdPartyClaimRate,
+  }).expectedProfit;
+  const atZeroLabel = thirdAtLabel(0);
+  const atTenLabel = thirdAtLabel(10);
+  const labelSlope = (atTenLabel - atZeroLabel) / 10;
+  let breakEvenThirdPartyLabelCost = Infinity;
+  if (Math.abs(labelSlope) > 1e-12) {
+    const needed = (etsy.rawExpectedProfit - atZeroLabel) / labelSlope;
+    breakEvenThirdPartyLabelCost = needed < -1e-9 ? Infinity : needed;
+  }
+
+  const thirdAtMinutes = (minutes) => etsyLabelPath({
+    ...pathArgs,
+    shippingCost: thirdPartyLabelCost,
+    extraCost: labelUploadTimeCost(minutes, uploadWage),
+    claimRatePercent: thirdPartyClaimRate,
+  }).expectedProfit;
+  const atZeroMinutes = thirdAtMinutes(0);
+  const atTenMinutes = thirdAtMinutes(10);
+  const minuteSlope = (atTenMinutes - atZeroMinutes) / 10;
+  let breakEvenUploadMinutes = Infinity;
+  if (Math.abs(minuteSlope) > 1e-12) {
+    const needed = (etsy.rawExpectedProfit - atZeroMinutes) / minuteSlope;
+    breakEvenUploadMinutes = needed < -1e-9 ? Infinity : needed;
+  }
+
+  const extraKeptOnThird = third.expectedProfitDelta;
+  const extraKeptOnPostageOnly = postageOnly.expectedProfitDelta;
+
+  const result = {
+    rows,
+    etsy,
+    third,
+    postageOnly,
+    winner,
+    etsyLabelCost: roundMoney(etsyLabelCost),
+    thirdPartyLabelCost: roundMoney(thirdPartyLabelCost),
+    etsyClaimRate,
+    thirdPartyClaimRate,
+    uploadMinutes,
+    uploadWage,
+    uploadTimeCost: roundMoney(uploadTimeCost),
+    feeRefundOnClaim,
+    monthlyShipments,
+    extraKeptOnThird: roundMoney(extraKeptOnThird),
+    extraKeptOnPostageOnly: roundMoney(extraKeptOnPostageOnly),
+    monthlyExtraOnThird: roundMoney(extraKeptOnThird * monthlyShipments),
+    monthlyExtraOnPostageOnly: roundMoney(extraKeptOnPostageOnly * monthlyShipments),
+    breakEvenThirdPartyClaimRate,
+    breakEvenThirdPartyLabelCost,
+    breakEvenUploadMinutes,
+    usedDefaultEtsyLabel: input.etsyLabelCost === undefined
+      || input.etsyLabelCost === null
+      || input.etsyLabelCost === '',
+    usedDefaultThirdPartyLabel: input.thirdPartyLabelCost === undefined
+      || input.thirdPartyLabelCost === null
+      || input.thirdPartyLabelCost === '',
+  };
+  result.summary = etsyLabelsNote(result);
+  return result;
+}
+
+export function etsyLabelsNote(comparison) {
+  if (!comparison?.etsy || !comparison?.third || !comparison?.postageOnly) {
+    throw new Error('Label comparison is missing rows');
+  }
+  const money = (value) => {
+    const sign = value < 0 ? '−' : '';
+    return `${sign}$${Math.abs(value).toFixed(2)}`;
+  };
+  const { etsy, third, postageOnly } = comparison;
+  const etsyLine = `The ${money(etsy.labelCost)} Etsy label at a ${etsy.claimRatePercent}% item-not-received claim rate expects ${money(etsy.expectedProfit)} after the typed claim mix — a claim on that path leaves ${money(etsy.claimProfit)}.`;
+  const thirdGap = money(Math.abs(third.expectedProfit - etsy.expectedProfit));
+  const thirdAhead = third.expectedProfit >= etsy.expectedProfit ? 'more' : 'less';
+  const timeBit = third.extraCost > 1e-9
+    ? ` after ${money(third.extraCost)} of upload time`
+    : '';
+  const thirdLine = ` A ${money(third.labelCost)} third-party label at a ${third.claimRatePercent}% claim rate${timeBit} expects ${money(third.expectedProfit)} — ${thirdGap} ${thirdAhead}.`;
+  const postageGap = money(Math.abs(postageOnly.expectedProfit - etsy.expectedProfit));
+  const postageAhead = postageOnly.expectedProfit >= etsy.expectedProfit ? 'more' : 'less';
+  const postageLine = ` The same third-party postage with no extra time expects ${money(postageOnly.expectedProfit)} — ${postageGap} ${postageAhead}.`;
+  const claimCeil = Number.isFinite(comparison.breakEvenThirdPartyClaimRate)
+    ? ` Third-party claims have to stay at about ${comparison.breakEvenThirdPartyClaimRate.toFixed(1)}% before that path matches the Etsy label.`
+    : ' No third-party claim rate on these labels can match the Etsy label.';
+  const labelCeil = Number.isFinite(comparison.breakEvenThirdPartyLabelCost)
+    ? ` The third-party quote has to stay at about ${money(comparison.breakEvenThirdPartyLabelCost)} before it matches the Etsy label.`
+    : '';
+  return `${etsyLine}${thirdLine}${postageLine}${claimCeil}${labelCeil}`;
+}
+
+export function etsyLabelsSummary(comparison) {
+  return etsyLabelsNote(comparison);
+}

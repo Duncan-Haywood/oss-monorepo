@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { calculateOrder, priceForMargin, compareOffsiteAdRates, maxAffordableOffsiteRate, offsiteAdsNote, compareEtsyPlus, plusBreakEvenListings, plusCreditValueUsed, ETSY_PLUS_DEFAULTS, comparePersonalization, personalizationNote, PERSONALIZATION_DEFAULTS, compareEtsyAds, etsyAdsNote, ETSY_ADS_DEFAULTS, compareProductionPartner, productionPartnerNote, PRODUCTION_PARTNER_DEFAULTS, compareStarSeller, starSellerNote, STAR_SELLER_DEFAULTS, compareShopSale, shopSaleNote, SHOP_SALE_DEFAULTS, compareFreeShipping, freeShippingNote, FREE_SHIPPING_DEFAULTS, calculateListingRenewal, listingRenewalNote } from './calc.mjs';
+import { calculateOrder, priceForMargin, compareOffsiteAdRates, maxAffordableOffsiteRate, offsiteAdsNote, compareEtsyPlus, plusBreakEvenListings, plusCreditValueUsed, ETSY_PLUS_DEFAULTS, comparePersonalization, personalizationNote, PERSONALIZATION_DEFAULTS, compareEtsyAds, etsyAdsNote, ETSY_ADS_DEFAULTS, compareProductionPartner, productionPartnerNote, PRODUCTION_PARTNER_DEFAULTS, compareStarSeller, starSellerNote, STAR_SELLER_DEFAULTS, compareShopSale, shopSaleNote, SHOP_SALE_DEFAULTS, compareFreeShipping, freeShippingNote, FREE_SHIPPING_DEFAULTS, calculateListingRenewal, listingRenewalNote, compareEtsyLabels, etsyLabelsNote, etsyLabelsSummary, ETSY_LABELS_DEFAULTS } from './calc.mjs';
 
 const near = (actual, expected, msg) => assert.ok(Math.abs(actual - expected) < 1e-6, `${msg}: ${actual} vs ${expected}`);
 
@@ -857,4 +857,99 @@ test('listingRenewalNote names unpaid renewals and overstated per-order fees', (
   assert.match(two, /\$0\.10/);
   assert.match(two, /1 sale recovers/);
   assert.match(two, /\$0\.20/);
+});
+
+test('Etsy label defaults match the $6 / $5.10 / 4 min example', () => {
+  assert.deepEqual(ETSY_LABELS_DEFAULTS, {
+    etsyLabelCost: 6,
+    thirdPartyLabelCost: 5.1,
+    etsyLabelClaimRatePercent: 0.8,
+    thirdPartyClaimRatePercent: 2.5,
+    labelUploadMinutes: 4,
+    labelUploadWage: 18,
+    labelFeeRefundOnClaimPercent: 100,
+    monthlyLabelShipments: 40,
+  });
+});
+
+test('four minutes wipe a $0.90 Etsy postage save', () => {
+  const result = compareEtsyLabels(PAGE_ORDER);
+  assert.equal(result.etsy.completedProfit, 21.23);
+  assert.equal(result.etsy.expectedProfit, 20.98);
+  assert.equal(result.etsy.claimProfit, -10);
+  assert.equal(result.third.completedProfit, 20.93);
+  assert.equal(result.third.expectedProfit, 20.14);
+  assert.equal(result.third.claimProfit, -10.3);
+  assert.equal(result.third.extraCost, 1.2);
+  assert.equal(result.postageOnly.completedProfit, 22.13);
+  assert.equal(result.postageOnly.expectedProfit, 21.34);
+  assert.equal(result.postageOnly.claimProfit, -9.1);
+  assert.equal(result.winner, 'etsy');
+  assert.equal(result.extraKeptOnThird, -0.84);
+  assert.equal(result.extraKeptOnPostageOnly, 0.36);
+  assert.equal(result.monthlyExtraOnThird, -33.6);
+  assert.equal(result.monthlyExtraOnPostageOnly, 14.4);
+  assert.equal(result.uploadTimeCost, 1.2);
+  assert.equal(result.breakEvenThirdPartyClaimRate, Infinity);
+  assert.ok(Math.abs(result.breakEvenThirdPartyLabelCost - 4.27) < 0.01);
+  assert.ok(Math.abs(result.breakEvenUploadMinutes - 1.23) < 0.02);
+});
+
+test('dropping upload time flips the cheaper quote ahead', () => {
+  const result = compareEtsyLabels({ ...PAGE_ORDER, labelUploadMinutes: 0 });
+  assert.equal(result.third.expectedProfit, 21.34);
+  assert.equal(result.postageOnly.expectedProfit, 21.34);
+  assert.equal(result.extraKeptOnThird, 0.36);
+  assert.equal(result.winner, 'third_party');
+  assert.ok(Math.abs(result.breakEvenThirdPartyClaimRate - 3.7) < 0.05);
+});
+
+test('matching the 0.8% claim rate still loses after four minutes', () => {
+  const result = compareEtsyLabels({ ...PAGE_ORDER, thirdPartyClaimRatePercent: 0.8 });
+  assert.equal(result.third.expectedProfit, 20.68);
+  assert.equal(result.extraKeptOnThird, -0.3);
+  assert.equal(result.winner, 'etsy');
+});
+
+test('15% Offsite Ads still leave the Etsy label ahead after upload time', () => {
+  const result = compareEtsyLabels({ ...PAGE_ORDER, offsiteAdRate: 15 });
+  assert.equal(result.etsy.expectedProfit, 15.77);
+  assert.equal(result.third.expectedProfit, 15.03);
+  assert.equal(result.postageOnly.expectedProfit, 16.23);
+  assert.equal(result.extraKeptOnThird, -0.74);
+  assert.equal(result.winner, 'etsy');
+});
+
+test('a $4 quote and one upload minute flip third-party ahead', () => {
+  const result = compareEtsyLabels({ ...PAGE_ORDER, thirdPartyLabelCost: 4, labelUploadMinutes: 1 });
+  assert.equal(result.etsy.expectedProfit, 20.98);
+  assert.equal(result.third.expectedProfit, 22.14);
+  assert.equal(result.extraKeptOnThird, 1.16);
+  assert.equal(result.winner, 'third_party');
+});
+
+test('etsyLabelsNote names the default $0.84 leak and $4.27 quote ceiling', () => {
+  const text = etsyLabelsNote(compareEtsyLabels(PAGE_ORDER));
+  assert.equal(text, compareEtsyLabels(PAGE_ORDER).summary);
+  assert.equal(text, etsyLabelsSummary(compareEtsyLabels(PAGE_ORDER)));
+  assert.match(text, /\$6\.00/);
+  assert.match(text, /\$20\.98/);
+  assert.match(text, /−\$10\.00/);
+  assert.match(text, /\$5\.10/);
+  assert.match(text, /\$1\.20/);
+  assert.match(text, /\$20\.14/);
+  assert.match(text, /\$0\.84 less/);
+  assert.match(text, /\$21\.34/);
+  assert.match(text, /\$0\.36 more/);
+  assert.match(text, /No third-party claim rate/);
+  assert.match(text, /\$4\.27/);
+  assert.throws(() => etsyLabelsNote({}), /missing rows/);
+});
+
+test('compareEtsyLabels rejects impossible inputs', () => {
+  assert.throws(() => compareEtsyLabels({}), /Price/);
+  assert.throws(() => compareEtsyLabels({ price: -1 }), /Price/);
+  assert.throws(() => compareEtsyLabels({ ...PAGE_ORDER, thirdPartyClaimRatePercent: 101 }), /at most 100/);
+  assert.throws(() => compareEtsyLabels({ ...PAGE_ORDER, monthlyLabelShipments: 0 }), /greater than zero/);
+  assert.throws(() => compareEtsyLabels({ ...PAGE_ORDER, labelUploadMinutes: -1 }), /Label upload minutes/);
 });

@@ -50,6 +50,13 @@ export const FIELD_IDS = [
   'saleListings',
   'freeShipPrice',
   'monthlyOrders',
+  'etsyLabelCost',
+  'thirdPartyLabelCost',
+  'etsyLabelClaimRatePercent',
+  'thirdPartyClaimRatePercent',
+  'labelUploadMinutes',
+  'labelUploadWage',
+  'monthlyLabelShipments',
 ];
 
 // A field value is only carried if it is a finite, non-negative number — the
