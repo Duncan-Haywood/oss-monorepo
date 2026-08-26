@@ -4,19 +4,24 @@ import { CHANNEL_PRESETS, compareChannels } from "./calc.mjs";
 import { decodeComparison, encodeComparison } from "./share.mjs";
 
 test("round-trips shared inputs and channel overrides", () => {
-  const shared = { price: "48", itemCost: "14", monthlyOrders: "100", includeSubscription: false, includeReturns: false };
+  const shared = {
+    price: "48", itemCost: "14", monthlyOrders: "100", daysToSell: "12",
+    includeSubscription: false, includeReturns: false,
+  };
   const channels = CHANNEL_PRESETS.map((channel) => ({
     ...channel,
     price: channel.id === "etsy" ? "62" : undefined,
+    daysToSell: channel.id === "ebay" ? "9" : channel.daysToSell,
     returnRate: channel.id === "amazon" ? "22" : undefined,
   }));
   const restored = decodeComparison(encodeComparison(shared, channels));
-  assert.deepEqual(restored.shared, { price: 48, itemCost: 14, monthlyOrders: 100 });
+  assert.deepEqual(restored.shared, { price: 48, itemCost: 14, monthlyOrders: 100, daysToSell: 12 });
   assert.equal(restored.includeSubscription, false);
   assert.equal(restored.includeReturns, false);
   // Values arrive coerced to numbers: the form hands over strings, the link
   // carries them, and the recipient gets something the calculator can use.
   assert.equal(restored.channels.find((channel) => channel.id === "etsy").price, 62);
+  assert.equal(restored.channels.find((channel) => channel.id === "ebay").daysToSell, 9);
   assert.equal(restored.channels.find((channel) => channel.id === "amazon").returnRate, 22);
   assert.equal(restored.channels.find((channel) => channel.id === "other").enabled, false);
 });

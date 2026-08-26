@@ -77,6 +77,12 @@ questions the ranking alone does not:
   not counted as invested; that keeps the figure comparable across channels
   whose fee structures differ. It reads "—" when nothing was invested (a
   giveaway, or an item with no per-unit cost), rather than an infinite return.
+- **You keep / day** — profit divided by the days you expect that channel to
+  take to sell. A no-fee local sale can still lose this comparison if the item
+  sits for a month while a marketplace sells next week. Each channel ships with
+  an illustrative pace you are expected to replace with how long your last
+  similar listings actually took. The column reads "—" when no pace is set,
+  rather than inventing one.
 
 - **After returns** — expected keep once some share of orders come back.
   Return postage, unsellable units, and fees the channel does not refund are
@@ -85,9 +91,10 @@ questions the ranking alone does not:
   It is the number that explains a ranking flip.
 
 Margin answers "how good is this sale", return on cash answers "how hard is my
-money working", break-even answers "how far can I move the price", and after
-returns answers "does the completed-sale winner still win in the mix I
-actually ship".
+money working", break-even answers "how far can I move the price", cash
+per day answers "do I wait on the cheaper channel or list where it moves",
+and after returns answers "does the completed-sale winner still win in the
+mix I actually ship".
 
 ### The second table: what a listing is worth, not what a sale is worth
 
@@ -165,13 +172,15 @@ makes the comparison yours rather than a generic estimate.
 
 ## What it deliberately does not model
 
-Fees are the part that is easy to calculate, not the whole decision. Returns
-and sell-through are inputs, not measurements: this has no way to know how many
-buyers a channel puts in front of *you*, or how fast your items actually move
-there. Every such rate is a starting point you replace with your own return
-report and sold-listing history. A marketplace fee is also partly a payment for
-demand you would otherwise have to create. Read the fee, return and shelf-time
-gaps as inputs to the decision, not the decision.
+Fees are the part that is easy to calculate, not the whole decision. Days to
+sell is your estimate of demand, not a measured marketplace statistic.
+Returns and sell-through are inputs, not measurements: this has no way to know
+how many buyers a channel puts in front of *you*, or how fast your items
+actually move there. Every such rate is a starting point you replace with your
+own return report and sold-listing history. A marketplace fee is also partly a
+payment for demand you would otherwise have to create. Read the fee,
+cash-per-day, return and shelf-time gaps as inputs to the decision, not the
+decision.
 
 Also absent: warehouse or storage rent per unit (the FBA-style cost), price
 decay on aging stock beyond the single "value you still have if it does not
@@ -191,8 +200,10 @@ Covers each channel's fee shape, monthly-plan amortisation (including the
 refusal to divide a plan by zero orders), per-channel overrides, break-even and
 target-profit solving round-tripping through the calculator, ranking and the
 gap against the best channel, the switched-off-channel rule, input validation,
-and the usage counter's opt-out, Do Not Track / Global Privacy Control, and
-hostile-storage behaviour.
+profit-per-day from expected days to sell (including the refusal to invent a
+pace when days are missing), the case where the fastest channel is not the
+highest-fee-profit channel, and the usage counter's opt-out, Do Not Track /
+Global Privacy Control, and hostile-storage behaviour.
 
 `handoff.test.mjs` checks the links into the channel calculators, against
 each target's *own* field list imported from that venture — so a rename
@@ -215,7 +226,7 @@ device.
 
 The optional usage counter records only an event name (`comparison_calculated`,
 `channel_rates_edited`, `channel_toggled`, `subscription_toggled`,
-`returns_compared`,
+`returns_compared`, `shelf_time_compared`,
 `share_link_copied`, `handoff_ebay`, `handoff_etsy`) and the
 current day, in the visitor's own `localStorage`. It never records inputs, it
 never leaves the device, it is off for anyone sending Do Not Track or Global

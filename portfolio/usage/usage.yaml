@@ -662,6 +662,15 @@ products:
           subscription amortisation and the price each channel needs to match
           the best. Public URL remains owner-gated; the local-first counter
           reports only to the user's own browser and is opt-out. Baseline row.
+      - as_of: 2026-08-25
+        signals:
+          live_url_visitors: null
+          local_events_reported: 0
+        note: >-
+          Added expected days-to-sell and profit-per-day so a slower no-fee
+          channel can lose to a faster marketplace on cash velocity. Public
+          URL remains owner-gated; the local-first counter is unchanged
+          (comparison_calculated / channel_rates_edited).
       - as_of: 2026-08-26
         signals:
           live_url_visitors: null
