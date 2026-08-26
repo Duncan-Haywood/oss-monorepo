@@ -52,9 +52,18 @@ const TEXT_EXTENSIONS = new Set(['.html', '.xml', '.txt', '.mjs', '.js', '.css',
 const LINKED_EXTENSIONS = new Set(['.html', '.mjs', '.js']);
 
 const REFERENCE_RE = /(?:href|src)\s*=\s*"([^"]+)"/g;
+// `href`/`src` are markup, so REFERENCE_RE must not see script or style bodies.
+// `tender-radar` builds its result rows at runtime with
+// `` `<a href="${escapeHtml(href)}">` ``; scanning the whole file read that
+// template placeholder as a dead link and failed the Pages build over a page
+// that is correct. The hub check below already strips scripts for this reason;
+// this applies the same rule to the per-page scan.
+const SCRIPT_OR_STYLE_RE = /<(script|style)\b[^>]*>[\s\S]*?<\/\1\s*>/gi;
 // Both quote styles, and `import(...)` as well as `from ...`. Every calculator
 // here loads its `calc.mjs` from an inline module script, and a specifier this
-// pattern misses is a tool that renders its form and then does nothing.
+// pattern misses is a tool that renders its form and then does nothing. These
+// two deliberately scan the *unstripped* text: an import specifier only ever
+// appears inside a script, which is exactly what REFERENCE_RE must skip.
 const IMPORT_RE = /\bfrom\s+['"](\.{1,2}\/[^'"]+)['"]/g;
 const DYNAMIC_IMPORT_RE = /\bimport\(\s*['"](\.{1,2}\/[^'"]+)['"]\s*\)/g;
 const LOC_RE = /<loc>([^<]+)<\/loc>/g;
@@ -257,8 +266,9 @@ export async function checkSite(site, { minProducts = 1 } = {}) {
     }
     if (!LINKED_EXTENSIONS.has(extension)) continue;
 
+    const markupOnly = text.replace(SCRIPT_OR_STYLE_RE, '');
     const targets = [
-      ...[...text.matchAll(REFERENCE_RE)].map((m) => m[1]),
+      ...[...markupOnly.matchAll(REFERENCE_RE)].map((m) => m[1]),
       ...[...text.matchAll(IMPORT_RE)].map((m) => m[1]),
       ...[...text.matchAll(DYNAMIC_IMPORT_RE)].map((m) => m[1]),
     ];
