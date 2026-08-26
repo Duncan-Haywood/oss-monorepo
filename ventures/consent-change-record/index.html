@@ -4,8 +4,9 @@
   <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Consent Change Record | Compare Browser Traces</title>
   <meta name="description" content="Compare before-and-after consent browser traces and create a local request and storage change record.">
+  <meta name="robots" content="index,follow">
   <meta property="og:title" content="Consent Change Record"><meta property="og:description" content="Create reviewable consent evidence from browser trace metadata without uploading site data.">
-  <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Consent Change Record","applicationCategory":"BusinessApplication","offers":{"@type":"Offer","price":"0","priceCurrency":"EUR"}}</script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Consent Change Record","applicationCategory":"BusinessApplication","operatingSystem":"Any web browser","isAccessibleForFree":true,"offers":{"@type":"Offer","price":"0","priceCurrency":"EUR"}}</script>
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -17,7 +18,7 @@
   </main>
   <p><button id="compare">Compare traces</button> <button id="download" type="button">Download report</button></p><label class="muted"><input id="optout" type="checkbox"> Do not keep an anonymous local comparison count</label><p id="error" class="error" role="alert"></p>
   <section><h2>Review record</h2><pre id="report">Your report will appear here.</pre></section>
-  <footer><p class="muted"><strong>No warranty.</strong> This is an observation record, not legal, tax, financial, medical, or compliance advice. Review and verify it before relying on it; it does not determine whether a site is compliant.</p><p class="muted">Local-only privacy: traces never leave this browser. <a href="README.md">Documentation</a> | <a href="LICENSE">License</a></p></footer>
+  <footer><p class="muted"><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, financial, medical, or compliance advice, and it does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for meeting any obligation it helps you prepare for. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use. It does not determine whether a site is compliant.</p><p class="muted">Local-only privacy: traces never leave this browser. Counting honors Do Not Track and Global Privacy Control. <a href="README.md">Documentation</a> | <a href="LICENSE">License</a></p></footer>
   <script type="module">
     import { compareTraces, reportAsText } from './calc.mjs'; import { recordUsage } from './usage.mjs';
     let latest = null; const report = document.querySelector('#report');

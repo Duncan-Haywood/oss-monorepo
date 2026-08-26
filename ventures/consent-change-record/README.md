@@ -21,7 +21,7 @@ The comparator keeps raw URLs out of analytics and never uploads the traces. Use
 
 ## Privacy and usage
 
-Everything runs in your browser. Your trace data is never uploaded and there are no accounts, tracking cookies, or analytics vendors. We count only anonymous local feature events, with a visible opt-out. The count never includes a site, URL, IP address, or trace content.
+Everything runs in your browser. Your trace data is never uploaded and there are no accounts, tracking cookies, or analytics vendors. We count only anonymous local feature events, with a visible opt-out. Do Not Track and Global Privacy Control disable counting automatically. The count never includes a site, URL, IP address, or trace content.
 
 **No warranty.** This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, financial, medical, or compliance advice, and it does not replace a qualified professional. **You are responsible for reviewing and verifying its output before relying on it**, and for meeting any obligation it helps you prepare for. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.
 
