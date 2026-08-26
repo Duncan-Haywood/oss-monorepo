@@ -13,6 +13,7 @@ import {
   compareLocalDelivery,
   compareGiftCard,
   compareMarketsDuties,
+  compareAbandonedCheckout,
   localDeliveryCost,
   DEFAULT_BANK_APR_PCT,
   DEFAULT_CAPITAL_ADVANCE,
@@ -53,6 +54,12 @@ import {
   DEFAULT_DUTY_RESTOCKABLE_PCT,
   DEFAULT_DUTY_REFUND_FEE_LEFTOVER,
   DEFAULT_MONTHLY_INTL_VISITORS,
+  DEFAULT_ORGANIC_RECOVER_PCT,
+  DEFAULT_EMAIL_RECOVER_PCT,
+  DEFAULT_DISCOUNT_RECOVER_PCT,
+  DEFAULT_RECOVERY_DISCOUNT_PCT,
+  DEFAULT_EMAIL_COST_PER_ABANDONED,
+  DEFAULT_MONTHLY_ABANDONED,
   PLAN_PRESETS,
 } from "./calc.mjs";
 
@@ -1166,4 +1173,97 @@ test("summary names the DAP leftover and does not tell you to turn Markets on", 
   assert.match(text, /44\.1%/);
   assert.match(text, /\$11\.72/);
   assert.doesNotMatch(text, /should collect|must offer|turn on markets|turn on duties/i);
+});
+
+const ABANDONED_BASE = {
+  price: 48,
+  shippingCharged: 6,
+  paymentsRate: 2.9,
+  paymentsFixed: 0.3,
+  costOfGoods: 14,
+  shippingCost: 5,
+  packagingCost: 1,
+  monthlyPlan: 39,
+  monthlyOrders: 100,
+  paymentMethod: "shopify_payments",
+};
+
+test("defaults match the published abandoned-checkout starting points", () => {
+  assert.equal(DEFAULT_ORGANIC_RECOVER_PCT, 6);
+  assert.equal(DEFAULT_EMAIL_RECOVER_PCT, 12);
+  assert.equal(DEFAULT_DISCOUNT_RECOVER_PCT, 18);
+  assert.equal(DEFAULT_RECOVERY_DISCOUNT_PCT, 10);
+  assert.equal(DEFAULT_EMAIL_COST_PER_ABANDONED, 0.08);
+  assert.equal(DEFAULT_MONTHLY_ABANDONED, 80);
+});
+
+test("emails plus a 10% coupon keep more than leaving an abandoned checkout", () => {
+  // Full ticket $54. Fees $1.866. Cash $20.39. Completed leftover $31.744.
+  // Leave 6% → $1.90464. Emails 12% × $31.744 − $0.08 → $3.72928.
+  // Coupon ticket $49.20. Fees $1.7268. Leftover $27.0832.
+  // Discount 18% × $27.0832 − $0.08 → $4.794976.
+  const r = compareAbandonedCheckout(ABANDONED_BASE);
+  near(r.ticket, 54, "ticket");
+  near(r.discountedTicket, 49.2, "discounted ticket");
+  near(r.discountedPrice, 43.2, "discounted item");
+  near(r.leave.completedProfit, 31.744, "list leftover");
+  near(r.discount.completedProfit, 27.0832, "coupon leftover");
+  near(r.leave.expected, 1.90464, "leave expected");
+  near(r.email.expected, 3.72928, "email expected");
+  near(r.discount.expected, 4.794976, "discount expected");
+  near(r.extraOnEmailVsLeave, 1.82464, "email minus leave");
+  near(r.extraOnDiscountVsEmail, 1.065696, "discount minus email");
+  near(r.extraOnDiscountVsLeave, 2.890336, "discount minus leave");
+  near(r.monthlyExtraOnDiscountVsLeave, 231.22688, "80 abandoned");
+  near(r.breakEvenEmailRecoverPct, 6.25201613, "email recover floor");
+  near(r.breakEvenDiscountRecoverPct, 14.06510309, "coupon recover floor");
+  near(r.breakEvenEmailCostVsLeave, 1.90464, "email cost ceiling");
+  assert.equal(r.winner, "discount");
+  assert.ok(r.discount.expected > r.email.expected, "coupon wins the default mix");
+  assert.ok(r.email.expected > r.leave.expected, "emails still beat leaving it");
+});
+
+test("a matched 12% recover rate on the coupon flips the table to emails", () => {
+  const r = compareAbandonedCheckout({ ...ABANDONED_BASE, discountRecoverPct: 12 });
+  near(r.discount.expected, 3.169984, "matched-rate coupon");
+  assert.ok(r.email.expected > r.discount.expected, "emails keep more without a lift");
+  assert.equal(r.winner, "email");
+});
+
+test("a $3 allocated send cost flips the table back to leaving it", () => {
+  const r = compareAbandonedCheckout({ ...ABANDONED_BASE, emailCostPerAbandoned: 3 });
+  near(r.email.expected, 0.80928, "emails at $3");
+  near(r.discount.expected, 1.874976, "coupon at $3");
+  assert.ok(r.leave.expected > r.discount.expected, "leave keeps more when send cost is high");
+  assert.equal(r.winner, "leave");
+});
+
+test("empty abandoned-checkout fields use the published defaults", () => {
+  const r = compareAbandonedCheckout(ABANDONED_BASE);
+  near(r.organicRecoverPct, DEFAULT_ORGANIC_RECOVER_PCT, "default organic");
+  near(r.emailRecoverPct, DEFAULT_EMAIL_RECOVER_PCT, "default email recover");
+  near(r.discountRecoverPct, DEFAULT_DISCOUNT_RECOVER_PCT, "default coupon recover");
+  near(r.discountPct, DEFAULT_RECOVERY_DISCOUNT_PCT, "default coupon");
+  near(r.emailCost, DEFAULT_EMAIL_COST_PER_ABANDONED, "default email cost");
+  near(r.monthlyAbandoned, DEFAULT_MONTHLY_ABANDONED, "default month");
+});
+
+test("compareAbandonedCheckout rejects a recover rate over 100 and a zero month", () => {
+  assert.throws(() => compareAbandonedCheckout({ ...ABANDONED_BASE, emailRecoverPct: 101 }), /Email recover percent/);
+  assert.throws(() => compareAbandonedCheckout({ ...ABANDONED_BASE, recoveryDiscountPct: 120 }), /Recovery discount percent/);
+  assert.throws(() => compareAbandonedCheckout({ ...ABANDONED_BASE, emailCostPerAbandoned: -1 }), /Email cost/);
+  assert.throws(() => compareAbandonedCheckout({ ...ABANDONED_BASE, monthlyAbandonedCheckouts: 0 }), /greater than zero/);
+});
+
+test("summary names the abandoned leftover and does not tell you to send emails", () => {
+  const text = compareAbandonedCheckout(ABANDONED_BASE).summary;
+  assert.match(text, /\$1\.90/);
+  assert.match(text, /\$3\.73/);
+  assert.match(text, /\$4\.79/);
+  assert.match(text, /\$31\.74/);
+  assert.match(text, /\$27\.08/);
+  assert.match(text, /6\.3%/);
+  assert.match(text, /14\.1%/);
+  assert.match(text, /\$231\.23/);
+  assert.doesNotMatch(text, /should send|must offer|turn on emails|turn on recovery/i);
 });
