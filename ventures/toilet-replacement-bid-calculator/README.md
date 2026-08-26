@@ -4,9 +4,10 @@ A free browser calculator for plumbers. It prices a toilet replacement
 the way the trade actually loses money — swap-only on a good 12-inch
 flange versus a new shutoff versus flange-repair versus a full reset,
 two-piece versus comfort-height versus one-piece versus bidet-combo,
-then haul-away, a wax-free seal, a bidet seat, and whether an
-owner-supplied bowl still leaves a margin on a $249 set — and shows the
-margin before the price goes out.
+then haul-away, a wax-free seal, a bidet seat, whether an
+owner-supplied bowl still leaves a margin on a $249 set, and whether
+Saturday / after-hours still covers — and shows the margin before the
+price goes out.
 
 **After using this, you can now** send a walk-away toilet-replacement
 price that sees the closet and the bowl, **which used to take**
@@ -70,17 +71,20 @@ split, a four-scope comparison on the same closet, a four-bowl
 comparison on the same closet (the one-piece upgrade versus the
 two-piece special), a three-way **who bought the bowl** comparison
 (you supply, they supply and it fits, they supply and it is the
-wrong rough-in), and the **walk-away price**. Entering a price
+wrong rough-in), a three-way **when you can work** comparison
+(weekday scheduled, same-day while they stay home, after-hours /
+Saturday), and the **walk-away price**. Entering a price
 already on the table scores it against the same cost base, including
-the install-only number on each supply path. **Copy bid summary**
-turns the result into a plain-text draft ready to paste into a
-proposal.
+the install-only number on each supply path and each access window.
+**Copy bid summary** turns the result into a plain-text draft ready
+to paste into a proposal.
 
 The arithmetic lives in [`calc.mjs`](calc.mjs). See
 [`calc.test.mjs`](calc.test.mjs).
 
 Search phrases: [`how-much-to-charge-to-replace-a-toilet.html`](how-much-to-charge-to-replace-a-toilet.html),
-[`should-i-install-a-customer-supplied-toilet.html`](should-i-install-a-customer-supplied-toilet.html).
+[`should-i-install-a-customer-supplied-toilet.html`](should-i-install-a-customer-supplied-toilet.html),
+[`should-i-take-a-saturday-toilet-call.html`](should-i-take-a-saturday-toilet-call.html).
 
 ## Privacy
 
@@ -101,7 +105,7 @@ when the browser sends Do Not Track or Global Privacy Control. See
 
 Events counted: `bid_calculated`, `preset_applied`, `scope_changed`,
 `toilet_changed`, `rough_in_changed`, `proposed_price_compared`,
-`owner_supply_compared`, `summary_copied`.
+`owner_supply_compared`, `access_compared`, `summary_copied`.
 
 ## Limitations
 
