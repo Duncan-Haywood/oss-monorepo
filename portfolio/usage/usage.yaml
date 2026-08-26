@@ -2520,6 +2520,18 @@ products:
           Shipped browser-local gutter *install* bid calculator (corners,
           extra drops, stories, fascia, tear-off). Public URL remains
           owner-gated; counters are local, aggregate, and opt-out.
+  - slug: furnace-bid-calculator
+    surface: static-page-in-repo
+    readings:
+      - as_of: 2026-08-25
+        signals:
+          live_url_visitors: null
+          local_events_reported: 0
+        note: >-
+          Shipped a local furnace / heat-pump bid calculator with extra duct,
+          attic versus basement, matching coil, gas upsize, and haul-away as
+          their own hours. Public URL remains owner-gated; counters are
+          local, aggregate, and opt-out.
 
   - slug: seller-net-sheet
     surface: static-page-in-repo
