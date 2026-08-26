@@ -1,0 +1,27 @@
+name: contractor-bid-readiness
+description: A private bid-readiness matrix that helps small contractors find missing RFP submission artifacts before a deadline.
+stage: prototype
+owner: duncan
+hypotheses:
+  - claim: Small contractors lose bid time to scattered requirements and need a fast pre-submission check.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: A local evidence matrix is useful enough to revisit for every bid.
+    status: untested
+    checked: null
+    evidence: customer-contact
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+budget:
+  monthly_cap: 1
+  protected: true
+kill_criteria:
+  - Fewer than three contractors complete two bid checks within 90 days.
+  - Users do not find at least one missing artifact before submission in the first 90 days.
+links:
+  production: null
+  analytics: null
