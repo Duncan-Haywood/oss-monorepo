@@ -6,6 +6,23 @@
 # retired honestly instead of quietly.
 period: 2026-08
 products:
+  - slug: faire-wholesale-calculator
+    surface: static-page-in-repo
+    readings:
+      - as_of: 2026-08-26
+        signals:
+          live_url_visitors: null
+          brand_order_calculated: 0
+          retailer_order_calculated: 0
+          scenario_compared: 0
+          link_copied: 0
+        note: >-
+          Salvage of unique #1489 Faire wholesale fee calculator onto current
+          main: first marketplace order vs reorder vs Faire Direct vs own
+          invoice, retailer lifetime after expected reorders, and a landed-cost
+          retailer page that keeps unsold opening-order units in the cost.
+          Public URL remains owner-gated; the local-first counter reports only
+          to the user's own browser and is opt-out. Baseline row.
   - slug: freight-accessorial-auditor
     surface: static-page-in-repo
     readings:
