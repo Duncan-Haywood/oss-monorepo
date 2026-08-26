@@ -223,6 +223,22 @@ test('venture sitemaps are rewritten to the real origin', async () => {
 // Reachability — the whole point of the site
 // ---------------------------------------------------------------------------
 
+/**
+ * Drop `<script>` and `<style>` bodies before looking for links.
+ *
+ * A browser does not parse either as markup, so an `href="..."` inside one is
+ * not a link. `tender-radar/site/index.html` builds its result rows at runtime
+ * with `` `<a href="${escapeHtml(href)}">` ``; scanning the raw file saw that
+ * template placeholder as a relative link named `${escapeHtml(href)}`, found no
+ * such file, and failed the whole Pages build over a page that is correct.
+ *
+ * Every tool here ships as static HTML plus an inline module, so any tool that
+ * builds markup in script is one edit away from the same false positive.
+ */
+function stripRawText(html) {
+  return html.replace(/<(script|style)\b[^>]*>[\s\S]*?<\/\1\s*>/gi, '');
+}
+
 test('every discovered tool has a landing page in the output', async () => {
   const { outDir, surfaces } = await site();
   for (const surface of surfaces) {
@@ -233,7 +249,7 @@ test('every discovered tool has a landing page in the output', async () => {
 
 test('every hub link resolves to a file that exists', async () => {
   const { outDir } = await site();
-  const hub = await read('index.html');
+  const hub = stripRawText(await read('index.html'));
 
   const hrefs = [...hub.matchAll(/href="([^"]+)"/g)].map((m) => m[1]).filter((h) => !h.startsWith('http'));
   assert.ok(hrefs.length > 20, 'the hub should link to every tool');
@@ -251,7 +267,7 @@ test('relative links inside each tool resolve', async () => {
   for (const surface of surfaces) {
     const dir = path.join(outDir, surface.slug);
     for (const file of (await walk(dir)).filter((f) => f.endsWith('.html'))) {
-      const html = await fs.readFile(file, 'utf8');
+      const html = stripRawText(await fs.readFile(file, 'utf8'));
       const refs = [...html.matchAll(/(?:href|src)="([^"#?]+)"/g)]
         .map((m) => m[1])
         .filter((r) => !/^(https?:|mailto:|data:|\/\/|#)/.test(r) && r !== '');

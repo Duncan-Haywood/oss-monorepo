@@ -295,6 +295,9 @@ workflows:
 - workflow: metal-roof-bid-calculator-ci.yml
   classification: none
   publishes: []
+- workflow: mini-split-bid-calculator-ci.yml
+  classification: none
+  publishes: []
 - workflow: mold-remediation-bid-calculator-ci.yml
   classification: none
   publishes: []
@@ -469,6 +472,9 @@ workflows:
   classification: none
   publishes: []
 - workflow: soffit-fascia-bid-calculator-ci.yml
+  classification: none
+  publishes: []
+- workflow: solar-pv-bid-calculator-ci.yml
   classification: none
   publishes: []
 - workflow: source-silence-detector-ci.yml

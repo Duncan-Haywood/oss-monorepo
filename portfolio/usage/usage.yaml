@@ -2904,3 +2904,27 @@ products:
           drain stone, geogrid, corners, and the engineer/permit step a
           per-linear-foot quote hides; public URL remains owner-gated and
           the browser counter is local and opt-out. Baseline row.
+  - slug: mini-split-bid-calculator
+    surface: static-page-in-repo
+    readings:
+      - as_of: 2026-08-26
+        signals:
+          live_url_visitors: null
+          local_events_reported: 0
+        note: >-
+          Shipped a local mini-split / ductless install bid calculator that
+          prices heads, line-set extras, story height, and the electrical
+          extras a per-head quote hides; public URL remains owner-gated and
+          the browser counter is local and opt-out. Baseline row.
+  - slug: solar-pv-bid-calculator
+    surface: static-page-in-repo
+    readings:
+      - as_of: 2026-08-26
+        signals:
+          live_url_visitors: null
+          local_events_reported: 0
+        note: >-
+          Shipped a local solar PV install bid calculator that prices roof
+          difficulty and electrical extras a dollars-per-watt quote hides;
+          public URL remains owner-gated and the browser counter is local
+          and opt-out. Baseline row.
