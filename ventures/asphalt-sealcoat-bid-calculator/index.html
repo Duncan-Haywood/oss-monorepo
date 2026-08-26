@@ -1,0 +1,463 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Asphalt Sealcoating Bid Calculator | Driveway &amp; Parking Lot Price</title>
+  <meta name="description" content="Price a sealcoating job from square feet, coats, oil spots, crack fill, and the drive — not a cents-per-foot special. See gallons, walk-away price, and margin before you quote.">
+  <meta property="og:title" content="Asphalt Sealcoating Bid Calculator">
+  <meta property="og:description" content="Bid the coats, the cracks, and the miles — not the driveway special. Free, private, runs in your browser.">
+  <link rel="canonical" href="./">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Asphalt Sealcoating Bid Calculator","applicationCategory":"BusinessApplication","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"featureList":"Per-surface gallons by coat and pavement condition, oil-spot primer, crack fill, striping, travel and minimum hours, loaded wage, overhead and margin, price per square foot, walk-away price, proposed-price check, shareable quote link"}</script>
+  <style>
+    :root { color-scheme: light; font-family: system-ui, sans-serif; color: #1c2430; background: #ece7df; }
+    body { max-width: 1080px; margin: 0 auto; padding: 32px 18px; }
+    header { max-width: 740px; margin-bottom: 26px; }
+    h1 { font-size: clamp(2rem, 6vw, 3.4rem); line-height: .98; margin: 0 0 12px; letter-spacing: -.05em; }
+    p { line-height: 1.5; }
+    .eyebrow { font-size: .8rem; font-weight: 700; letter-spacing: .08em; color: #9a4d12; margin: 0 0 6px; }
+    .layout { display: grid; grid-template-columns: minmax(0, 1fr) minmax(300px, .75fr); gap: 18px; align-items: start; }
+    section { background: #fff; border: 1px solid #d5cbb8; border-radius: 14px; padding: 20px; box-shadow: 0 8px 24px #2a20100d; margin-bottom: 18px; }
+    h2 { margin-top: 0; font-size: 1.15rem; }
+    .hint { font-size: .82rem; color: #5a5348; margin: -6px 0 14px; }
+    .fields { display: grid; grid-template-columns: repeat(2, 1fr); gap: 13px; }
+    label { display: grid; gap: 5px; font-size: .87rem; font-weight: 650; }
+    input, select { width: 100%; box-sizing: border-box; border: 1px solid #b5aa96; border-radius: 7px; padding: 10px; font: inherit; background: #fff; }
+    .surface-row { display: grid; grid-template-columns: minmax(0, 2.4fr) repeat(3, minmax(0, 1fr)) auto; gap: 8px; align-items: end; margin-bottom: 10px; }
+    .surface-row select, .surface-row input { padding: 10px 7px; }
+    .surface-head { font-size: .74rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; color: #6b6254; }
+    .surface-row .lbl { position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0; overflow: hidden; clip-path: inset(50%); white-space: nowrap; border: 0; }
+    button { font: inherit; border-radius: 7px; border: 1px solid #b5aa96; background: #f4efe6; padding: 10px 14px; cursor: pointer; font-weight: 650; }
+    button:hover { background: #ebe3d4; }
+    .remove { padding: 10px; color: #9b2c1f; border-color: #d8b6b0; background: #fdf3f1; }
+    .result { position: sticky; top: 15px; background: #1c2430; color: #f4efe6; border-color: #1c2430; }
+    .hero-number { font-size: 2.9rem; font-weight: 750; letter-spacing: -.05em; margin: 8px 0; }
+    .negative { color: #ffb0a2; } .positive { color: #a9e6b0; }
+    dl { display: grid; grid-template-columns: 1fr auto; gap: 9px; margin: 20px 0; }
+    dt, dd { margin: 0; } dd { font-variant-numeric: tabular-nums; }
+    hr { border: 0; border-top: 1px solid #ffffff2b; }
+    .note { font-size: .82rem; opacity: .84; }
+    .split { margin: 14px 0 0; padding: 0; list-style: none; font-size: .84rem; }
+    .split li { display: grid; grid-template-columns: 1fr auto; gap: 8px; padding: 3px 0; }
+    .bar { grid-column: 1 / -1; height: 4px; border-radius: 2px; background: #ffffff2e; }
+    .bar > span { display: block; height: 100%; border-radius: 2px; background: #e0a04a; }
+    .verdict { margin-top: 14px; padding: 12px; border-radius: 9px; font-size: .87rem; background: #ffffff1a; }
+    .verdict.bad { background: #7d2317; }
+    .empty { font-size: .87rem; opacity: .84; }
+    footer { margin-top: 25px; font-size: .82rem; color: #5a5348; }
+    footer a { color: #9a4d12; }
+    .support { margin-top: 14px; }
+    .summary-actions { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin-top: 14px; }
+    .summary-status { font-size: .8rem; color: #e6d3a8; }
+    .seo { margin-top: 8px; }
+    @media (max-width: 780px) {
+      .layout { grid-template-columns: 1fr; } .result { position: static; } .fields { grid-template-columns: 1fr; }
+      .surface-head { display: none; }
+      .surface-row { grid-template-columns: 1fr 1fr; border: 1px solid #e4ddd0; border-radius: 9px; padding: 11px; }
+      .surface-row label { font-size: .78rem; gap: 5px; }
+      .surface-row .lbl { position: static; width: auto; height: auto; margin: 0; overflow: visible; clip-path: none; white-space: normal; }
+      .surface-row label:first-child { grid-column: 1 / -1; }
+      .remove { grid-column: 1 / -1; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="eyebrow">FOR SEALCOATING CONTRACTORS</p>
+    <h1>Bid the coats and the cracks, not the driveway special.</h1>
+    <p>Price a sealcoating job the way the lot actually costs: each surface times coats and coverage, then oil-spot primer, crack fill, striping, the round trip, and the margin you intend to keep. You get the job price, what it works out to per square foot and per gallon, and the number below which the job loses money.</p>
+    <p class="seo"><a href="./how-much-to-charge.html">How much should I charge for sealcoating?</a></p>
+  </header>
+
+  <main class="layout">
+    <div>
+      <section>
+        <h2>The pavement</h2>
+        <p class="hint">One row per surface. Coverage is square feet one gallon of sealer covers on that coat — pick a surface type to start from a common figure, then replace it with what your sealer actually yields.</p>
+        <div class="surface-row surface-head" aria-hidden="true">
+          <span>Surface</span><span>Square feet</span><span>Coats</span><span>1st coat sq ft/gal</span><span></span>
+        </div>
+        <div id="surfaces"></div>
+        <button type="button" id="addSurface">+ Add a surface</button>
+      </section>
+
+      <section>
+        <h2>Condition and prep</h2>
+        <div class="fields">
+          <label>Pavement condition
+            <select id="condition">
+              <option value="good">Good / recently sealed</option>
+              <option value="oxidized" selected>Oxidized (typical)</option>
+              <option value="failing">Badly oxidized / failing</option>
+            </select>
+          </label>
+          <label>Application method
+            <select id="method">
+              <option value="squeegee" selected>Squeegee / brush</option>
+              <option value="spray">Spray rig</option>
+            </select>
+          </label>
+          <label>Oil spots to prime <input id="oilSpots" type="number" min="0" step="1" value="4"></label>
+          <label>Crack fill (linear feet) <input id="crackFeet" type="number" min="0" step="1" value="40"></label>
+          <label>Stalls to stripe <input id="stalls" type="number" min="0" step="1" value="0"></label>
+          <label>Sand / aggregate in sealer
+            <select id="sand">
+              <option value="no" selected>No</option>
+              <option value="yes">Yes</option>
+            </select>
+          </label>
+        </div>
+        <p class="hint" style="margin-top:14px;margin-bottom:0">Oxidized asphalt drinks the first coat. Oil spots need primer, not more sealer. Cracks are linear feet. A cents-per-foot special that “includes” those lines is unpaid work.</p>
+      </section>
+
+      <section>
+        <h2>Your costs</h2>
+        <div class="fields">
+          <label>Crew hourly wage <input id="hourlyWage" type="number" min="0" step="0.25" value="24"></label>
+          <label>Payroll burden (%) <input id="burdenRate" type="number" min="0" step="0.5" value="32"></label>
+          <label>Miles one way <input id="milesOneWay" type="number" min="0" step="0.5" value="8"></label>
+          <label>Travel speed (mph) <input id="speedMph" type="number" min="1" step="1" value="35"></label>
+          <label>Setup / blow-off hours <input id="setupHours" type="number" min="0" step="0.25" value="0.5"></label>
+          <label>Minimum on-site hours <input id="minOnSiteHours" type="number" min="0" step="0.25" value="1.5"></label>
+          <label>Trip / truck fee <input id="tripFee" type="number" min="0" step="1" value="35"></label>
+          <label>Sealer $/gallon <input id="sealerPerGallon" type="number" min="0" step="0.05" value="4.25"></label>
+          <label>Oil primer $/gallon <input id="primerPerGallon" type="number" min="0" step="0.25" value="18"></label>
+          <label>Crack filler $/foot <input id="crackFillerPerFoot" type="number" min="0" step="0.05" value="0.45"></label>
+          <label>Sand $/50 lb bag <input id="sandPerBag" type="number" min="0" step="0.25" value="8"></label>
+          <label>Striping paint $/stall <input id="paintPerStall" type="number" min="0" step="0.25" value="3.50"></label>
+          <label>Other cost <input id="otherCost" type="number" min="0" step="1" value="0"></label>
+          <label>Overhead on direct cost (%) <input id="overheadRate" type="number" min="0" step="0.5" value="15"></label>
+          <label>Target net margin (%) <input id="targetMargin" type="number" min="0" max="99.9" step="0.5" value="25"></label>
+          <label>Price you&rsquo;re considering (optional) <input id="proposedPrice" type="number" min="0" step="5" placeholder="e.g. 144"></label>
+        </div>
+      </section>
+    </div>
+
+    <section class="result" aria-live="polite">
+      <h2>Your bid</h2>
+      <div id="price" class="hero-number">$&mdash;</div>
+      <div id="priceLabel">job price</div>
+      <dl>
+        <dt>Sealer gallons</dt><dd id="gallons"></dd>
+        <dt>On-site hours</dt><dd id="onSite"></dd>
+        <dt>Travel hours</dt><dd id="travel"></dd>
+        <dt>Total hours</dt><dd id="hours"></dd>
+        <dt>Loaded labor</dt><dd id="labor"></dd>
+        <dt>Materials</dt><dd id="materials"></dd>
+        <dt>Overhead</dt><dd id="overhead"></dd>
+        <dt>Total cost</dt><dd id="cost"></dd>
+        <dt>Profit</dt><dd id="profit"></dd>
+        <dt>Price per sq ft</dt><dd id="perSqFt"></dd>
+        <dt>Price per gallon</dt><dd id="perGallon"></dd>
+        <dt>Effective hourly rate</dt><dd id="hourlyRate"></dd>
+        <dt>Walk-away price</dt><dd id="breakEven"></dd>
+      </dl>
+      <div id="verdict" class="verdict" hidden></div>
+      <div class="summary-actions">
+        <button type="button" id="copySummary">Copy quote summary</button>
+        <button type="button" id="copyShare">Copy share link</button>
+        <span id="summaryStatus" class="summary-status" role="status" aria-live="polite"></span>
+      </div>
+      <hr>
+      <p class="note" style="margin-bottom:4px"><strong>Where the coat hours go</strong></p>
+      <ul class="split" id="split"></ul>
+      <hr>
+      <p class="note">Transparent arithmetic from your own inputs. Starting coverage figures are common ballpark numbers, not a manufacturer yield, a pavement-condition rating, or a guarantee. Time your own crew and replace them. Confirm sealer type and local VOC rules yourself — this is not a product recommendation.</p>
+    </section>
+  </main>
+
+  <footer>
+    <label style="display:inline-flex;gap:6px;align-items:center;font-weight:400"><input id="usageOptOut" type="checkbox" style="width:auto"> Do not keep anonymous local usage counts</label>
+    <p><strong>No warranty.</strong> This free tool is not legal, tax, financial, or engineering advice, and it does not tell you what to charge. It is not a pavement-condition assessment, a specification, or a finding that any lot is ready to coat. Verify every figure against your own payroll, insurance, sealer yield, and a qualified professional before relying on it or submitting a bid. To the maximum extent permitted by law, the authors accept no liability for loss or damage from its use.</p>
+    <p><strong>Nothing leaves your browser.</strong> Every number stays on this device. Usage counts are anonymous tallies of which features were used, stored locally, and never include your address, wages, costs, or prices.</p>
+    <p class="support">Free and open source. If it wins you a job, the <a href="https://github.com/Duncan-Haywood/monorepo-projects" rel="noopener">project is on GitHub</a> &mdash; support is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { calculateBid, SURFACE_PRESETS, ADD_ON_PRESETS } from './calc.mjs';
+    import { recordUsage } from './usage.mjs';
+    import { encodeShare, decodeShare } from './share.mjs';
+
+    const COST_IDS = [
+      'condition','method','oilSpots','crackFeet','stalls','sand',
+      'hourlyWage','burdenRate','milesOneWay','speedMph','setupHours','minOnSiteHours',
+      'tripFee','sealerPerGallon','primerPerGallon','crackFillerPerFoot','sandPerBag',
+      'paintPerStall','otherCost','overheadRate','targetMargin','proposedPrice',
+    ];
+    const money = value => `$${value.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+    const el = id => document.getElementById(id);
+
+    const STARTING_SURFACES = [
+      { name: 'Residential driveway', squareFeet: 800, coats: 2, firstCoatSqFtPerGal: 90, secondCoatSqFtPerGal: 120 },
+    ];
+
+    const TYPE_OPTIONS = SURFACE_PRESETS
+      .map((preset, index) => `<option value="${index}">${preset.label}</option>`)
+      .join('') + '<option value="other">Other surface</option>';
+
+    const surfacesHost = el('surfaces');
+    let rowSeq = 0;
+
+    function addSurfaceRow(surface) {
+      const id = `s${++rowSeq}`;
+      const row = document.createElement('div');
+      row.className = 'surface-row';
+      row.innerHTML = `
+        <label for="${id}-type"><span class="lbl">Surface</span><select class="s-type" id="${id}-type">${TYPE_OPTIONS}</select></label>
+        <label for="${id}-sqft"><span class="lbl">Square feet</span><input class="s-sqft" id="${id}-sqft" type="number" min="0" step="10"></label>
+        <label for="${id}-coats"><span class="lbl">Coats</span><input class="s-coats" id="${id}-coats" type="number" min="0" max="4" step="1"></label>
+        <label for="${id}-cover"><span class="lbl">1st coat sq ft/gal</span><input class="s-cover" id="${id}-cover" type="number" min="1" step="1"></label>
+        <button type="button" class="remove">Remove<span class="lbl"> this surface</span></button>`;
+
+      const typeField = row.querySelector('.s-type');
+      const coverField = row.querySelector('.s-cover');
+      const presetIndex = SURFACE_PRESETS.findIndex(p => p.label === surface.name);
+      typeField.value = presetIndex === -1 ? 'other' : String(presetIndex);
+      row.querySelector('.s-sqft').value = surface.squareFeet;
+      row.querySelector('.s-coats').value = surface.coats;
+      coverField.value = surface.firstCoatSqFtPerGal;
+      row.dataset.secondCover = String(surface.secondCoatSqFtPerGal);
+
+      typeField.addEventListener('change', () => {
+        const preset = SURFACE_PRESETS[Number(typeField.value)];
+        if (preset && !coverField.dataset.edited) {
+          coverField.value = preset.firstCoatSqFtPerGal;
+          row.dataset.secondCover = String(preset.secondCoatSqFtPerGal);
+        }
+        count('bid_calculated');
+        update();
+      });
+      coverField.addEventListener('input', () => { coverField.dataset.edited = '1'; });
+      row.querySelectorAll('input').forEach(input => {
+        input.addEventListener('input', update);
+        input.addEventListener('change', () => count('bid_calculated'));
+      });
+      row.querySelector('.remove').addEventListener('click', () => {
+        row.remove();
+        count('surface_removed');
+        update();
+      });
+      surfacesHost.append(row);
+    }
+
+    function readSurfaces() {
+      return [...surfacesHost.querySelectorAll('.surface-row')].map(row => {
+        const preset = SURFACE_PRESETS[Number(row.querySelector('.s-type').value)];
+        return {
+          name: preset ? preset.label : '',
+          squareFeet: row.querySelector('.s-sqft').value,
+          coats: row.querySelector('.s-coats').value,
+          firstCoatSqFtPerGal: row.querySelector('.s-cover').value,
+          secondCoatSqFtPerGal: row.dataset.secondCover || (preset ? preset.secondCoatSqFtPerGal : 120),
+        };
+      });
+    }
+
+    function readInput() {
+      return {
+        surfaces: readSurfaces(),
+        condition: el('condition').value,
+        method: el('method').value,
+        oilSpots: el('oilSpots').value,
+        crackFeet: el('crackFeet').value,
+        stalls: el('stalls').value,
+        sand: el('sand').value === 'yes',
+        addOns: ADD_ON_PRESETS.filter(item => item.id === 'handicap' && Number(el('stalls').value) > 0)
+          .map(item => ({ ...item, enabled: true })),
+        hourlyWage: el('hourlyWage').value,
+        burdenRate: el('burdenRate').value,
+        milesOneWay: el('milesOneWay').value,
+        speedMph: el('speedMph').value,
+        setupHours: el('setupHours').value,
+        minOnSiteHours: el('minOnSiteHours').value,
+        tripFee: el('tripFee').value,
+        sealerPerGallon: el('sealerPerGallon').value,
+        primerPerGallon: el('primerPerGallon').value,
+        crackFillerPerFoot: el('crackFillerPerFoot').value,
+        sandPerBag: el('sandPerBag').value,
+        paintPerStall: el('paintPerStall').value,
+        otherCost: el('otherCost').value,
+        overheadRate: el('overheadRate').value,
+        targetMargin: el('targetMargin').value,
+        proposedPrice: el('proposedPrice').value,
+      };
+    }
+
+    function applyShare(payload) {
+      if (!payload) return;
+      if (Array.isArray(payload.surfaces) && payload.surfaces.length) {
+        surfacesHost.innerHTML = '';
+        payload.surfaces.forEach(addSurfaceRow);
+      }
+      const assign = (id, value) => {
+        if (value !== undefined && el(id)) el(id).value = value;
+      };
+      assign('condition', payload.condition);
+      assign('method', payload.method);
+      assign('oilSpots', payload.oilSpots);
+      assign('crackFeet', payload.crackFeet);
+      assign('stalls', payload.stalls);
+      if (payload.sand !== undefined) el('sand').value = payload.sand ? 'yes' : 'no';
+      [
+        'hourlyWage','burdenRate','milesOneWay','speedMph','setupHours','minOnSiteHours',
+        'tripFee','sealerPerGallon','primerPerGallon','crackFillerPerFoot','sandPerBag',
+        'paintPerStall','otherCost','overheadRate','targetMargin','proposedPrice',
+      ].forEach(id => assign(id, payload[id]));
+    }
+
+    function count(event) {
+      recordUsage(localStorage, el('usageOptOut').checked, event);
+    }
+
+    function clearOutputs(message, isError) {
+      el('price').textContent = message;
+      el('price').className = `hero-number ${isError ? 'negative' : ''}`;
+      el('priceLabel').textContent = isError ? 'check the highlighted input' : 'job price';
+      ['gallons','onSite','travel','hours','labor','materials','overhead','cost','profit','perSqFt','perGallon','hourlyRate','breakEven']
+        .forEach(id => { el(id).textContent = ''; });
+      el('split').innerHTML = '';
+      el('verdict').hidden = true;
+    }
+
+    function update() {
+      const input = readInput();
+      if (input.surfaces.length === 0) {
+        clearOutputs('Add a surface to price', false);
+        el('split').innerHTML = '<li class="empty">Add at least one surface above and the coat-hour split appears here.</li>';
+        return;
+      }
+      let result;
+      try {
+        result = calculateBid(input);
+      } catch (error) {
+        clearOutputs(error.message, true);
+        return;
+      }
+
+      el('price').textContent = money(result.price);
+      el('price').className = 'hero-number';
+      el('priceLabel').textContent = result.minimumApplied ? 'job price (minimum applied)' : 'job price';
+      el('gallons').textContent = `${result.totalGallons.toFixed(1)} gal`;
+      el('onSite').textContent = `${result.onSiteHours.toFixed(2)} h`;
+      el('travel').textContent = `${result.travelHours.toFixed(2)} h`;
+      el('hours').textContent = `${result.totalHours.toFixed(2)} h`;
+      el('labor').textContent = money(result.laborCost);
+      el('materials').textContent = money(result.materials);
+      el('overhead').textContent = money(result.overhead);
+      el('cost').textContent = money(result.totalCost);
+      el('profit').textContent = money(result.profit);
+      el('perSqFt').textContent = result.pricePerSqFt === null ? 'n/a' : `$${result.pricePerSqFt.toFixed(2)}`;
+      el('perGallon').textContent = result.pricePerGallon === null ? 'n/a' : money(result.pricePerGallon);
+      el('hourlyRate').textContent = result.effectiveHourlyRate === null ? 'n/a' : `${money(result.effectiveHourlyRate)}/h`;
+      el('breakEven').textContent = money(result.breakEvenPrice);
+
+      const worked = result.surfaces.filter(surface => surface.applyHours > 0);
+      el('split').innerHTML = worked.length === 0
+        ? '<li class="empty">No surface has coats yet — set coats above.</li>'
+        : worked
+          .slice()
+          .sort((a, b) => b.applyHours - a.applyHours)
+          .map(surface => `<li><span>${surface.name} (${surface.coats} coat${surface.coats === 1 ? '' : 's'})</span><span>${surface.hoursShare.toFixed(0)}% of coat hours</span>
+            <span class="bar"><span style="width:${surface.hoursShare.toFixed(1)}%"></span></span></li>`)
+          .join('');
+
+      const verdict = el('verdict');
+      if (result.proposed === null) {
+        verdict.hidden = true;
+      } else {
+        verdict.hidden = false;
+        verdict.className = `verdict${result.proposed.belowBreakEven ? ' bad' : ''}`;
+        const rate = result.proposed.hourlyRate === null ? 'n/a' : `${money(result.proposed.hourlyRate)}/h`;
+        const perFoot = result.proposed.perSqFt === null ? 'n/a' : `$${result.proposed.perSqFt.toFixed(2)}/sq ft`;
+        verdict.innerHTML = result.proposed.belowBreakEven
+          ? `At ${money(result.proposed.price)} (${perFoot}) this job <strong>loses ${money(Math.abs(result.proposed.profit))}</strong> before you take anything out of it. Your walk-away price is ${money(result.breakEvenPrice)}.`
+          : `At ${money(result.proposed.price)} (${perFoot}) you keep <strong>${money(result.proposed.profit)}</strong> — a ${result.proposed.margin.toFixed(1)}% margin, billing ${rate} of labor.`;
+      }
+    }
+
+    function summaryText(result) {
+      const lines = result.surfaces
+        .filter(surface => surface.squareFeet > 0 && surface.coats > 0)
+        .map(surface => `- ${surface.name}: ${surface.squareFeet.toLocaleString('en-US')} sq ft, ${surface.coats} coat${surface.coats === 1 ? '' : 's'}, ${surface.gallons.toFixed(1)} gal`)
+        .join('\n');
+      return [
+        'ASPHALT SEALCOATING QUOTE (DRAFT)',
+        '',
+        `Proposed price: ${money(result.price)}`,
+        `Price per square foot: ${result.pricePerSqFt === null ? 'n/a' : '$' + result.pricePerSqFt.toFixed(2)}`,
+        `Sealer: ${result.totalGallons.toFixed(1)} gallons`,
+        `Labor: ${result.totalHours.toFixed(2)} hours including travel`,
+        '',
+        'SURFACES',
+        lines || '- No surfaces entered',
+        '',
+        'This is a draft for review. Confirm measurements, sealer type, VOC rules, weather window, insurance, taxes, and all pricing before sending.',
+      ].join('\n');
+    }
+
+    async function writeClipboard(text) {
+      try {
+        await navigator.clipboard.writeText(text);
+      } catch {
+        const fallback = document.createElement('textarea');
+        fallback.value = text;
+        fallback.setAttribute('readonly', '');
+        fallback.style.position = 'fixed';
+        fallback.style.opacity = '0';
+        document.body.append(fallback);
+        fallback.select();
+        document.execCommand('copy');
+        fallback.remove();
+      }
+    }
+
+    async function copySummary() {
+      const result = calculateBid(readInput());
+      await writeClipboard(summaryText(result));
+      count('summary_copied');
+      el('summaryStatus').textContent = 'Copied to clipboard';
+      setTimeout(() => { el('summaryStatus').textContent = ''; }, 2500);
+    }
+
+    async function copyShare() {
+      const hash = encodeShare(readInput());
+      const url = `${location.href.split('#')[0]}#${hash}`;
+      await writeClipboard(url);
+      count('share_copied');
+      el('summaryStatus').textContent = 'Share link copied';
+      setTimeout(() => { el('summaryStatus').textContent = ''; }, 2500);
+    }
+
+    el('addSurface').addEventListener('click', () => {
+      addSurfaceRow({ name: '', squareFeet: 0, coats: 2, firstCoatSqFtPerGal: 90, secondCoatSqFtPerGal: 120 });
+      count('surface_added');
+      update();
+    });
+
+    COST_IDS.forEach(id => {
+      el(id).addEventListener('input', update);
+      el(id).addEventListener('change', () => count(id === 'proposedPrice' ? 'proposed_price_compared' : 'bid_calculated'));
+    });
+    el('usageOptOut').addEventListener('change', update);
+    el('copySummary').addEventListener('click', () => {
+      try {
+        copySummary().catch(() => { el('summaryStatus').textContent = 'Copy failed; select and copy the figures above.'; });
+      } catch (error) {
+        el('summaryStatus').textContent = error.message;
+      }
+    });
+    el('copyShare').addEventListener('click', () => {
+      try {
+        copyShare().catch(() => { el('summaryStatus').textContent = 'Copy failed.'; });
+      } catch (error) {
+        el('summaryStatus').textContent = error.message;
+      }
+    });
+
+    const shared = decodeShare(location.hash);
+    if (shared) applyShare(shared);
+    else STARTING_SURFACES.forEach(addSurfaceRow);
+    update();
+  </script>
+</body>
+</html>

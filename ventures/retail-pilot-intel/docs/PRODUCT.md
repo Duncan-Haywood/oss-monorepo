@@ -1,6 +1,6 @@
 # Product maturity — Retail Pilot Intel
 
-**Last updated:** 2026-06-12 (orchestrator bootstrap)
+**Last updated:** 2026-08-25 (live Overview KPIs)
 
 Score each subsystem **0–5**. Do not inflate. Marketing may demo **working software only**; illustrative portal data is Phase 1 until wired to SQLite.
 
@@ -35,7 +35,7 @@ Score each subsystem **0–5**. Do not inflate. Marketing may demo **working sof
 | POS connector | 1 | `packages/pos` | No vendor adapter (Tilby/Lightspeed-class) |
 | Analytics / SQLite | 2 | `packages/analytics`, `data/pilot.db` | No hourly rollups; no revenue/entrant join in API |
 | Funnel join & KPIs | 1 | `report.ts` daily summary only | No revenue-per-entrant; no SKU join |
-| Store operator portal | 1 | `apps/portal`, `demoStore.ts` | Not wired to SQLite |
+| Store operator portal | 2 | `apps/portal`, `demoStore.ts`, `VITE_PILOT_API_URL` | Hourly/SKU series still illustrative; live path is daily joined KPIs |
 | Docs site | 2 | `apps/docs` | Canonical TSX; CI + deploy workflows |
 | Sales / GTM narrative | 2 | `/gtm`, `/demo`, `/business-plan` | Needs live pilot case study |
 | Experiments registry | 0 | Roadmap only | No code |
@@ -53,8 +53,8 @@ Answer each **yes/no** at the start of every orchestrator run:
 |------|----------|---------|
 | **G1 — Revenue side** | Can we ingest real POS sales into SQLite within 60 s? | No (stub) |
 | **G2 — Traffic side** | Can we count door entries from edge without cloud video? | No (stub) |
-| **G3 — Joined KPIs** | Do conversion % and revenue/entrant come from the same DB? | Partial (CLI daily only) |
-| **G4 — Owner UI** | Does the operator portal show live KPIs, not hardcoded arrays? | No |
+| **G3 — Joined KPIs** | Do conversion % and revenue/entrant come from the same DB? | Yes (daily CLI + `serve-kpis`; hourly still missing) |
+| **G4 — Owner UI** | Does the operator portal show live KPIs, not hardcoded arrays? | Partial (`VITE_PILOT_API_URL` + `serve-kpis`; unset keeps illustrative) |
 | **G5 — Weekly € action** | Can the system surface one ranked owner action per week? | No |
 | **G6 — Trust** | DPIA template + retention defaults documented and deployable? | Partial (docs only) |
 | **G7 — GTM proof** | Can sales demo a path from portal → install kit → first KPI? | Partial (mock portal) |
