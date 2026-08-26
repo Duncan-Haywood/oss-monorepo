@@ -24,7 +24,8 @@ whether Individual or Professional still pays at your monthly volume, and
 whether an Amazon Vine enrollment still pays after gifted leftover units
 versus units that would have sold, whether Amazon inbound placement
 still beats extra freight on a split shipment, and whether a return
-rate still leaves expected profit after handling and unsellable units** —
+rate still leaves expected profit after handling and unsellable units, and
+whether sending inventory before Q4 still beats waiting until January** —
 which used to mean a spreadsheet that forgot storage, inbound, or the
 pick-fee jump at $10.
 
@@ -102,7 +103,8 @@ keep paying storage and the aged-inventory surcharge, pay to send
 them back, or pay to dispose.
 [Should I remove aged Amazon inventory?](should-i-remove-aged-amazon-inventory.html)
 shows leftover cash, leftover units, and the monthly sell-through
-that still ties dispose. Complementary to Q4 storage (a seasonal
+that still ties dispose. Complementary to
+[peak vs off-peak Q4 storage](peak-vs-off-peak-storage.html) (a seasonal
 rate) and to 3PL long-term storage (a different warehouse).
 
 Inbound placement is a create-shipment decision on the same SKU: pay
@@ -144,6 +146,12 @@ rate with $2.50 handling still leaves $7.75 on a $29.99 listing that
 looked like $10.99** — which used to mean buying the SKU because the
 completed-sale leftover looked fat.
 
+**After using the peak-storage page, you can now see whether sending
+200 one-cubic-foot units for a three-month stay with two peak months
+still costs $612 more than waiting until January** — which used to
+mean inbound in August because stock-out looked more expensive than
+storage.
+
 **No warranty.** This tool is provided free and as-is, without warranty of any
 kind, express or implied. It is not tax, financial, or business advice, and it
 does not replace a qualified professional. **You are responsible for reviewing
@@ -177,7 +185,7 @@ optional and never changes what the tool does.
 Pure ES modules, no build step, no dependencies.
 
 ```
-node --test        # runs calc.test.mjs, usage.test.mjs, page.test.mjs, vine-page.test.mjs, aged-inventory-page.test.mjs, inbound-page.test.mjs, and returns-page.test.mjs
+node --test        # runs calc.test.mjs, usage.test.mjs, page.test.mjs, vine-page.test.mjs, aged-inventory-page.test.mjs, inbound-page.test.mjs, returns-page.test.mjs, and storage-page.test.mjs
 ```
 
 `calc.mjs` holds the fee/profit/ROI arithmetic, size-tier classification,
@@ -187,8 +195,9 @@ comparison, you-prep vs Amazon inbound prep comparison,
 Individual vs Professional seller-plan comparison,
 Vine leftover vs sellable enrollment comparison,
 aged-inventory keep vs return vs dispose comparison,
-inbound placement vs split-freight comparison, and
-expected profit after returns;
+inbound placement vs split-freight comparison,
+expected profit after returns, and
+peak vs off-peak Q4 storage;
 `usage.mjs` holds the anonymous
 local counter; `index.html` is the calculator UI.
 
