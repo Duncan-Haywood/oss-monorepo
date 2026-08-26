@@ -910,6 +910,496 @@ ventures:
       financial advice or a guarantee of income, tax treatment, or contract
       enforceability; all data stays in the browser.
 
+  - slug: kitchen-tile-backsplash-bid-calculator
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 7
+      gross_margin: 10
+      defensibility: 5
+      distribution: 8
+    composite: 6.833
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      There is no AI anywhere in the product. The value is a domain model —
+      wall SF, pattern waste, and payroll burden — that is arithmetic, and
+      adding inference to it would only make the result less checkable.
+    basis: >-
+      Graduated on 2026-08-25 as a browser-local kitchen tile backsplash bid
+      calculator. Distinct from walk-in shower (wet area, slope, glass),
+      flooring (floor waste), and countertop (slabs). Distribution 8:
+      "how much to charge for a backsplash" and "kitchen backsplash cost
+      calculator" are high-intent operator queries; defensibility 5 because
+      the pattern-versus-scope model encodes how the trade estimates labor
+      rather than restating a published per-SF special.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Pass: the output is arithmetic on the setter's own inputs, never a
+      recommended price, a wage determination, or a building-code opinion.
+      The shipped hours and tile rates are labelled ballpark starting points
+      rather than a standard or benchmark, and nothing the user enters
+      leaves the browser.
+
+  - slug: boiler-replacement-bid-calculator
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 7
+      gross_margin: 10
+      defensibility: 5
+      distribution: 8
+    composite: 6.833
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      There is no AI anywhere in the product. The value is a domain model —
+      input MBH, system, scope, and payroll burden — that is arithmetic, and
+      adding inference to it would only make the result less checkable.
+    basis: >-
+      Graduated on 2026-08-25 as a browser-local boiler replacement bid
+      calculator. Distinct from furnace (forced air, AFUE, matching coil),
+      water-heater (a tank, not a hydronic plant), and mini-split (line-set).
+      Distribution 8: "how much to charge to replace a boiler" and "boiler
+      replacement cost calculator" are high-intent operator queries;
+      defensibility 5 because the plant-versus-scope model encodes how the
+      trade estimates labor rather than restating a published special.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Pass: the output is arithmetic on the tech's own inputs, never a
+      recommended price, a heat-loss determination, or a fuel-gas-code
+      opinion.       The shipped hours and boiler invoices are labelled ballpark
+      starting points rather than a standard or benchmark, and nothing the
+      user enters leaves the browser.
+
+  - slug: toilet-replacement-bid-calculator
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 7
+      gross_margin: 10
+      defensibility: 5
+      distribution: 8
+    composite: 6.833
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      There is no AI anywhere in the product. The value is a domain model —
+      toilet count, bowl, flange, and payroll burden — that is arithmetic, and
+      adding inference to it would only make the result less checkable.
+    basis: >-
+      Graduated on 2026-08-25 as a browser-local toilet replacement bid
+      calculator. Distinct from walk-in shower (tile, slope, glass),
+      water-heater (a tank), hydro-jet (cleaning a line), and sewer-line
+      replace (the lateral). Distribution 8: "how much to charge to replace
+      a toilet" and "toilet replacement cost calculator" are high-intent
+      operator queries; defensibility 5 because the closet-versus-scope
+      model encodes how the trade estimates labor rather than restating a
+      published installed special.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Pass: the output is arithmetic on the plumber's own inputs, never a
+      recommended price, a wage determination, or a plumbing-code opinion.
+      The shipped hours and fixture invoices are labelled ballpark starting
+      points rather than a standard or benchmark, and nothing the user
+      enters leaves the browser.
+
+  - slug: carpet-install-bid-calculator
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 7
+      gross_margin: 10
+      defensibility: 5
+      distribution: 8
+    composite: 6.833
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      There is no AI anywhere in the product. The value is a domain model —
+      floor yards, stairs priced per step, stretch-versus-glue, and payroll
+      burden — that is arithmetic, and adding inference to it would only
+      make the result less checkable.
+    basis: >-
+      Graduated on 2026-08-25 as a browser-local carpet installation bid
+      calculator. Distinct from carpet cleaning (steam, rooms, pet urine),
+      flooring install (LVP, hardwood, and tile as hard-surface waste),
+      epoxy garage floor (grind and flake), and hardwood refinishing
+      (sand and finish). Distribution 8: "how much to charge to install
+      carpet" and "carpet installation cost calculator" are high-intent
+      operator queries; defensibility 5 because the floor-versus-stair
+      model encodes how the trade estimates labor rather than restating a
+      published per-yard special.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Pass: the output is arithmetic on the installer's own inputs, never a
+      recommended price, a moisture-test determination, or a flooring-spec
+      opinion. The shipped hours and mill invoices are labelled ballpark
+      starting points rather than a standard or benchmark, and nothing the
+      user enters leaves the browser.
+  - slug: basement-finishing-bid-calculator
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 7
+      gross_margin: 10
+      defensibility: 5
+      distribution: 8
+    composite: 6.833
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      There is no AI anywhere in the product. The value is a domain model —
+      finished SF, rec-room versus legal-living, and payroll burden — that
+      is arithmetic, and adding inference to it would only make the result
+      less checkable.
+    basis: >-
+      Graduated on 2026-08-25 as a browser-local basement finishing bid
+      calculator. Distinct from basement waterproofing (drain, wells, pit),
+      crawl-space encapsulation (liner), drywall (gypsum as the job), and
+      walk-in shower (wet area, slope, glass). Distribution 8: "how much
+      to charge to finish a basement" and "basement finishing cost
+      calculator" are high-intent operator queries; defensibility 5 because
+      the rec-room-versus-legal-living model encodes how the trade
+      estimates labor rather than restating a published per-SF special.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Pass: the output is arithmetic on the remodeler's own inputs, never a
+      recommended price, a wage determination, or a building-code opinion.
+      The shipped hours and material rates are labelled ballpark starting
+      points rather than a standard or benchmark, and nothing the user
+      enters leaves the browser.
+  - slug: skylight-install-bid-calculator
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 7
+      gross_margin: 10
+      defensibility: 5
+      distribution: 8
+    composite: 6.833
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      There is no AI anywhere in the product. The value is a domain model —
+      unit count, type hours, and payroll burden — that is arithmetic, and
+      adding inference to it would only make the result less checkable.
+    basis: >-
+      Graduated on 2026-08-25 as a browser-local skylight install bid
+      calculator. Distinct from window replacement (wall openings, united
+      inches), asphalt shingle reroof (squares), metal roof (panels), and
+      solar PV (dollars per watt). Distribution 8: "how much to charge to
+      install a skylight" and "skylight cost calculator" are high-intent
+      operator queries; defensibility 5 because the type-versus-opening
+      model encodes how the trade estimates labor rather than restating a
+      published per-unit special.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Pass: the output is arithmetic on the crew's own inputs, never a
+      recommended price, a wage determination, or a building-code opinion.
+      The shipped hours and unit invoices are labelled ballpark starting
+      points rather than a standard or benchmark, and nothing the user
+      enters leaves the browser.
+  - slug: landscape-lighting-bid-calculator
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 7
+      gross_margin: 10
+      defensibility: 5
+      distribution: 7
+    composite: 6.667
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      There is no AI anywhere in the product. The value is a domain model —
+      fixture mix, trench, and transformer scope — that is arithmetic, and
+      adding inference to it would only make the result less checkable.
+    basis: >-
+      Graduated on 2026-08-25 as a browser-local landscape lighting bid
+      calculator. Scored above the marketplace fee calculators on
+      defensibility (5): those restate a published fee schedule, whereas the
+      fixtures-versus-trench model encodes how the trade actually estimates
+      labor, and the incumbents here are paid bidding suites rather than free
+      ad-funded pages. Distribution 7: "how much to charge to install
+      landscape lighting" is lower-volume than marketplace-fee queries but
+      far less saturated and bought by an operator with a real job on the
+      line.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Pass: the output is arithmetic on the contractor's own inputs, never a
+      recommended price, a wage determination, or an electrical design. The
+      shipped hours and fixture rates are labelled ballpark starting points
+      rather than a standard or benchmark, and nothing the user enters
+      leaves the browser.
+
+  - slug: holiday-light-bid-calculator
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 7
+      gross_margin: 10
+      defensibility: 5
+      distribution: 7
+    composite: 6.667
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      There is no AI anywhere in the product. The value is a domain model —
+      hang-only versus hang-and-takedown versus full-service storage,
+      1-story versus 2-story versus 3-story access — that is arithmetic,
+      and adding inference to it would only make the result less checkable.
+    basis: >-
+      Graduated on 2026-08-25 as a browser-local holiday light bid
+      calculator. Distinct from soffit and fascia (wrap / replace the
+      eave board), gutter install (K-style trough), landscape lighting
+      (low-voltage path and uplights), electrical panel (service amps),
+      and exterior painting (a coat). Search intent is explicit in
+      queries such as how much to charge to hang Christmas lights and
+      holiday light installation cost calculator.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Pass: output is a draft bid from user-supplied rates, not an
+      electrical design, a load calculation, a permit determination, a
+      landscape-lighting design, or a standard or benchmark, and nothing
+      the user enters leaves the browser.
+  - slug: soffit-fascia-bid-calculator
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 7
+      gross_margin: 10
+      defensibility: 5
+      distribution: 7
+    composite: 6.667
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      There is no AI anywhere in the product. The value is a domain model —
+      wrap versus vinyl replace versus wood replace, 1-story versus 2-story
+      versus 3-story access — that is arithmetic, and adding inference to
+      it would only make the result less checkable.
+    basis: >-
+      Graduated on 2026-08-25 as a browser-local soffit and fascia bid
+      calculator. Distinct from gutter install (K-style trough, miters,
+      drops), gutter cleaning, gutter guards, siding (squares of wall),
+      and exterior painting (a coat on elevations). Search intent is
+      explicit in queries such as how much to charge for soffit and
+      fascia and soffit fascia wrap cost calculator.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Pass: output is a draft bid from user-supplied rates, not a
+      building-code determination, a ventilation design, a rot-repair
+      specification, or a standard or benchmark, and nothing the user
+      enters leaves the browser.
+  - slug: popcorn-ceiling-bid-calculator
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 7
+      gross_margin: 10
+      defensibility: 5
+      distribution: 7
+    composite: 6.667
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      There is no AI anywhere in the product. The value is a domain model —
+      scrape-and-prime versus Level 4 skim versus Level 5 plus paint, 8-foot
+      versus vaulted versus two-story access — that is arithmetic, and
+      adding inference to it would only make the result less checkable.
+    basis: >-
+      Graduated on 2026-08-25 as a browser-local popcorn ceiling removal
+      bid calculator. Distinct from interior painting (walls and a flat
+      ceiling as a coat), drywall hang-and-finish (new gypsum and a Level
+      5 on new board), exterior painting (house elevations), cabinet
+      refinishing, and hardwood refinishing. Search intent is explicit
+      in queries such as how much to charge to remove popcorn ceiling
+      and popcorn ceiling removal cost calculator.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Pass: output is a draft bid from user-supplied rates, not a
+      drywall specification, an asbestos clearance, a lead-paint
+      determination, or a standard or benchmark, and nothing the user
+      enters leaves the browser.
+  - slug: tuckpointing-bid-calculator
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 7
+      gross_margin: 10
+      defensibility: 5
+      distribution: 7
+    composite: 6.667
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      There is no AI anywhere in the product. The value is a domain model —
+      joint feet from a wall, grind versus smear, and scaffold versus
+      swing — that is arithmetic, and adding inference to it would
+      only make the result less checkable.
+    basis: >-
+      Graduated on 2026-08-25 as a browser-local tuckpointing / brick
+      pointing bid calculator. Distinct from stucco / EIFS (a
+      cementitious skin, not mortar joints), foundation repair (piers
+      and straps), chimney sweep (flue and creosote), fireplace insert
+      (a liner and a hearth), and exterior painting (a coat, not a
+      grind). Search intent is explicit in queries such as how much to
+      charge for tuckpointing and brick pointing cost calculator.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Pass: output is a draft bid from user-supplied rates, not a
+      structural specification, historic-preservation determination, or
+      a standard or benchmark, and nothing the user enters leaves the
+      browser.
+  - slug: shed-install-bid-calculator
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 7
+      gross_margin: 10
+      defensibility: 5
+      distribution: 7
+    composite: 6.667
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      There is no AI anywhere in the product. The value is a domain model —
+      pad yards from an overhang, delivery miles, and crane versus
+      forklift — that is arithmetic, and adding inference to it would
+      only make the result less checkable.
+    basis: >-
+      Graduated on 2026-08-25 as a browser-local backyard shed install
+      bid calculator. Distinct from pole barn (post-frame 30×40+ with
+      bays and eave), gravel driveway (a driveway, not a shed pad),
+      concrete pours (the slab only), pergola (open shade), garage-door
+      (the door), and hot-tub (crane and a pad for a spa). Defensibility
+      5: the pad-and-delivery model encodes how shed dealers actually
+      lose money on a published drop-and-set dump, and the incumbents
+      here are generic cost-per-shed pages rather than a free walk-away
+      tool. Distribution 7: "how much to charge to install a shed" and
+      "shed installation cost calculator" are lower-volume than
+      marketplace-fee queries but bought by an operator with a real
+      backyard job on the line.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Pass: the output is arithmetic on the dealer's own inputs, never a
+      recommended price, a structural determination, or a building-code
+      stamp. The shipped kit and pad rates are labelled ballpark starting
+      points rather than a standard or benchmark, and nothing the user
+      enters leaves the browser.
+  - slug: pole-barn-bid-calculator
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 7
+      gross_margin: 10
+      defensibility: 5
+      distribution: 7
+    composite: 6.667
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      There is no AI anywhere in the product. The value is a domain model —
+      bay count to leftover extra-eave hours, and floor hours from the slab —
+      that is arithmetic, and adding inference to it would only make the
+      result less checkable.
+    basis: >-
+      Graduated on 2026-08-25 as a browser-local pole barn / post-frame bid
+      calculator. Distinct from fence (posts as a barrier), deck build
+      (posts as a platform), pergola (open shade), garage-door (the door
+      only), metal roof (panels on an existing house), gravel driveway (a
+      pad), and concrete slab pours (the floor only). Defensibility 5: the
+      bay-and-eave model encodes how post-frame shops actually lose money
+      on a published per-foot dump, and the incumbents here are generic
+      cost-per-square-foot pages rather than a free walk-away tool.
+      Distribution 7: "how much to charge to build a pole barn" and
+      "pole barn cost calculator" are lower-volume than marketplace-fee
+      queries but bought by an operator with a real building on the line.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Pass: the output is arithmetic on the shop's own inputs, never a
+      recommended price, a structural determination, or a building-code
+      stamp. The shipped lumber rates are labelled ballpark starting
+      points rather than a standard or benchmark, and nothing the user
+      enters leaves the browser.
+  - slug: gravel-driveway-bid-calculator
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 7
+      gross_margin: 10
+      defensibility: 5
+      distribution: 7
+    composite: 6.667
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      There is no AI anywhere in the product. The value is a domain model —
+      compacted depth to leftover truck tons, and prep hours from the dirt —
+      that is arithmetic, and adding inference to it would only make the
+      result less checkable.
+    basis: >-
+      Graduated on 2026-08-25 as a browser-local gravel driveway bid
+      calculator. Distinct from asphalt paving (hot-mix tons, mill,
+      overlay), concrete driveway pours (cubic yards of slab), sealcoat
+      (coats and cracks), and paver patio (interlocking units).
+      Defensibility 5: the truck-and-depth model encodes how excavation
+      shops actually lose money on a published per-foot dump, and the
+      incumbents here are generic cost-per-square-foot pages rather than a
+      free walk-away tool. Distribution 7: "how much to charge for a gravel
+      driveway" and "gravel driveway cost calculator" are lower-volume than
+      marketplace-fee queries but bought by an operator with a real pad on
+      the line.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Pass: the output is arithmetic on the shop's own inputs, never a
+      recommended price, a civil determination, or a drainage design. The
+      shipped quarry rates are labelled ballpark starting points rather
+      than a standard or benchmark, and nothing the user enters leaves the
+      browser.
   - slug: sod-install-bid-calculator
     scores:
       ai_leverage: 1
@@ -1269,109 +1759,6 @@ ventures:
       The shipped hours and kit rates are labelled ballpark starting points
       rather than a standard or benchmark, and nothing the user enters
       leaves the browser.
-
-  - slug: kitchen-tile-backsplash-bid-calculator
-    scores:
-      ai_leverage: 1
-      autonomous_ops: 10
-      time_to_revenue: 7
-      gross_margin: 10
-      defensibility: 5
-      distribution: 8
-    composite: 6.833
-    rater_b: null
-    floor: 1
-    floor_dimension: ai_leverage
-    floor_note: >-
-      There is no AI anywhere in the product. The value is a domain model —
-      wall SF, pattern waste, and payroll burden — that is arithmetic, and
-      adding inference to it would only make the result less checkable.
-    basis: >-
-      Graduated on 2026-08-25 as a browser-local kitchen tile backsplash bid
-      calculator. Distinct from walk-in shower (wet area, slope, glass),
-      flooring (floor waste), and countertop (slabs). Distribution 8:
-      "how much to charge for a backsplash" and "kitchen backsplash cost
-      calculator" are high-intent operator queries; defensibility 5 because
-      the pattern-versus-scope model encodes how the trade estimates labor
-      rather than restating a published per-SF special.
-    gates:
-      liability_containment: pass
-      ethical_robustness: pass
-    gate_note: >-
-      Pass: the output is arithmetic on the setter's own inputs, never a
-      recommended price, a wage determination, or a building-code opinion.
-      The shipped hours and tile rates are labelled ballpark starting points
-      rather than a standard or benchmark, and nothing the user enters
-      leaves the browser.
-
-  - slug: boiler-replacement-bid-calculator
-    scores:
-      ai_leverage: 1
-      autonomous_ops: 10
-      time_to_revenue: 7
-      gross_margin: 10
-      defensibility: 5
-      distribution: 8
-    composite: 6.833
-    rater_b: null
-    floor: 1
-    floor_dimension: ai_leverage
-    floor_note: >-
-      There is no AI anywhere in the product. The value is a domain model —
-      input MBH, system, scope, and payroll burden — that is arithmetic, and
-      adding inference to it would only make the result less checkable.
-    basis: >-
-      Graduated on 2026-08-25 as a browser-local boiler replacement bid
-      calculator. Distinct from furnace (forced air, AFUE, matching coil),
-      water-heater (a tank, not a hydronic plant), and mini-split (line-set).
-      Distribution 8: "how much to charge to replace a boiler" and "boiler
-      replacement cost calculator" are high-intent operator queries;
-      defensibility 5 because the plant-versus-scope model encodes how the
-      trade estimates labor rather than restating a published special.
-    gates:
-      liability_containment: pass
-      ethical_robustness: pass
-    gate_note: >-
-      Pass: the output is arithmetic on the tech's own inputs, never a
-      recommended price, a heat-loss determination, or a fuel-gas-code
-      opinion.       The shipped hours and boiler invoices are labelled ballpark
-      starting points rather than a standard or benchmark, and nothing the
-      user enters leaves the browser.
-
-  - slug: toilet-replacement-bid-calculator
-    scores:
-      ai_leverage: 1
-      autonomous_ops: 10
-      time_to_revenue: 7
-      gross_margin: 10
-      defensibility: 5
-      distribution: 8
-    composite: 6.833
-    rater_b: null
-    floor: 1
-    floor_dimension: ai_leverage
-    floor_note: >-
-      There is no AI anywhere in the product. The value is a domain model —
-      toilet count, bowl, flange, and payroll burden — that is arithmetic, and
-      adding inference to it would only make the result less checkable.
-    basis: >-
-      Graduated on 2026-08-25 as a browser-local toilet replacement bid
-      calculator. Distinct from walk-in shower (tile, slope, glass),
-      water-heater (a tank), hydro-jet (cleaning a line), and sewer-line
-      replace (the lateral). Distribution 8: "how much to charge to replace
-      a toilet" and "toilet replacement cost calculator" are high-intent
-      operator queries; defensibility 5 because the closet-versus-scope
-      model encodes how the trade estimates labor rather than restating a
-      published installed special.
-    gates:
-      liability_containment: pass
-      ethical_robustness: pass
-    gate_note: >-
-      Pass: the output is arithmetic on the plumber's own inputs, never a
-      recommended price, a wage determination, or a plumbing-code opinion.
-      The shipped hours and fixture invoices are labelled ballpark starting
-      points rather than a standard or benchmark, and nothing the user
-      enters leaves the browser.
 
   - slug: egress-window-bid-calculator
     scores:

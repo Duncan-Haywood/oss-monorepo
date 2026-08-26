@@ -7,6 +7,9 @@
 #
 # classification: live | gated | dispatch | none  (see the module docstring)
 workflows:
+- workflow: 3pl-quote-normalizer-ci.yml
+  classification: none
+  publishes: []
 - workflow: a11y-axe-recall-ci.yml
   classification: none
   publishes: []
@@ -67,6 +70,9 @@ workflows:
 - workflow: backup-verification-evidence-ci.yml
   classification: none
   publishes: []
+- workflow: basement-finishing-bid-calculator-ci.yml
+  classification: none
+  publishes: []
 - workflow: boiler-replacement-bid-calculator-ci.yml
   classification: none
   publishes: []
@@ -115,6 +121,9 @@ workflows:
 - workflow: forge-surface-reachability-ci.yml
   classification: none
   publishes: []
+- workflow: freelance-retainer-calculator-ci.yml
+  classification: none
+  publishes: []
 - workflow: freight-accessorial-auditor-ci.yml
   classification: none
   publishes: []
@@ -124,7 +133,13 @@ workflows:
 - workflow: grant-deadline-tracker-ci.yml
   classification: none
   publishes: []
+- workflow: gravel-driveway-bid-calculator-ci.yml
+  classification: none
+  publishes: []
 - workflow: hetzner-gitops-ci.yml
+  classification: none
+  publishes: []
+- workflow: holiday-light-bid-calculator-ci.yml
   classification: none
   publishes: []
 - workflow: home-elevator-bid-calculator-ci.yml
@@ -140,6 +155,9 @@ workflows:
   classification: none
   publishes: []
 - workflow: kitchen-tile-backsplash-bid-calculator-ci.yml
+  classification: none
+  publishes: []
+- workflow: landscape-lighting-bid-calculator-ci.yml
   classification: none
   publishes: []
 - workflow: local-site-studio-ci.yml
@@ -177,6 +195,12 @@ workflows:
   classification: none
   publishes: []
 - workflow: plantation-shutter-bid-calculator-ci.yml
+  classification: none
+  publishes: []
+- workflow: pole-barn-bid-calculator-ci.yml
+  classification: none
+  publishes: []
+- workflow: popcorn-ceiling-bid-calculator-ci.yml
   classification: none
   publishes: []
 - workflow: portfolio-pages.yml
@@ -234,6 +258,9 @@ workflows:
 - workflow: reverb-fee-calculator-ci.yml
   classification: none
   publishes: []
+- workflow: shed-install-bid-calculator-ci.yml
+  classification: none
+  publishes: []
 - workflow: shopify-a11y-evidence-ci.yml
   classification: none
   publishes: []
@@ -243,7 +270,13 @@ workflows:
 - workflow: shopify-permission-drift-ci.yml
   classification: none
   publishes: []
+- workflow: skylight-install-bid-calculator-ci.yml
+  classification: none
+  publishes: []
 - workflow: sod-install-bid-calculator-ci.yml
+  classification: none
+  publishes: []
+- workflow: soffit-fascia-bid-calculator-ci.yml
   classification: none
   publishes: []
 - workflow: source-silence-detector-ci.yml
@@ -256,6 +289,9 @@ workflows:
   classification: none
   publishes: []
 - workflow: toilet-replacement-bid-calculator-ci.yml
+  classification: none
+  publishes: []
+- workflow: tuckpointing-bid-calculator-ci.yml
   classification: none
   publishes: []
 - workflow: ubuntu-agent-server-ci.yml
