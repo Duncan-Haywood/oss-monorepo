@@ -1,5 +1,9 @@
 # Invoice payment terms calculator
 
+Scored 2026-08-24. Composite 7.25 · floor 1 (ai_leverage). The low AI-leverage
+score is intentional: deterministic due-date and carrying-cost arithmetic is the
+complete free core, and any later AI assistance stays optional.
+
 ## Customer and problem
 
 Freelancers, agencies, and small service firms often choose Net 30 or copy a payment clause without seeing how several delayed invoices consume operating cash. They need a quick answer before sending the invoice: when is it due, what is the exposure, and what does a late-rate assumption change?
