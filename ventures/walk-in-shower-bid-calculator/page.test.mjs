@@ -11,6 +11,7 @@ import { readFileSync } from 'node:fs';
 const html = readFileSync(new URL('./index.html', import.meta.url), 'utf8');
 const seo = readFileSync(new URL('./how-much-to-charge-to-install-a-walk-in-shower.html', import.meta.url), 'utf8');
 const supplySeo = readFileSync(new URL('./should-i-install-customer-supplied-tile.html', import.meta.url), 'utf8');
+const scopeSeo = readFileSync(new URL('./should-i-match-an-alcove-price-on-a-curbless-walk-in.html', import.meta.url), 'utf8');
 
 const RAW_TEXT_ELEMENTS = ['textarea', 'script', 'style'];
 
@@ -50,6 +51,7 @@ test('the module script survives parsing and would actually execute', () => {
   assert.match(markup, /<script type="module">/, 'the app script tag is missing or was swallowed by an earlier element');
   assert.match(scriptSource, /calculateBid/, 'the app script did not parse as a script element');
   assert.match(scriptSource, /compareTileSupply/, 'tile-supply comparison is missing from the executable script');
+  assert.match(scriptSource, /compareScope/, 'scope comparison is missing from the executable script');
   assert.match(scriptSource, /formatBidSummary/, 'copy-summary helper is missing from the executable script');
 });
 
@@ -68,7 +70,7 @@ test('inputs and result fields for the primary journey are present', () => {
     'wallTileSf', 'floorTileSf', 'bench', 'glass', 'linearDrain', 'curbless',
     'hourlyWage', 'targetMargin', 'proposedPrice',
     'price', 'breakEven', 'copySummary', 'usageOptOut', 'jobPresets',
-    'supply', 'supplyNote',
+    'supply', 'supplyNote', 'scopes', 'scopeNote',
   ]) {
     assert.ok(declaredIds.has(id), `missing #${id}`);
   }
@@ -94,6 +96,11 @@ test('the landing page links the customer-supplied tile question', () => {
   assert.match(html, /who bought the tile/i);
 });
 
+test('the landing page links the alcove-vs-walk-in question', () => {
+  assert.match(html, /should-i-match-an-alcove-price-on-a-curbless-walk-in\.html/);
+  assert.match(html, /Same shop, four bathrooms/i);
+});
+
 test('the SEO article answers the search phrase and stays crawlable', () => {
   assert.match(seo, /How much to charge to install a walk-in shower/i);
   assert.match(seo, /FAQPage/);
@@ -101,6 +108,7 @@ test('the SEO article answers the search phrase and stays crawlable', () => {
   assert.match(seo, /linear drain/i);
   assert.match(seo, /index\.html/);
   assert.match(seo, /should-i-install-customer-supplied-tile\.html/);
+  assert.match(seo, /should-i-match-an-alcove-price-on-a-curbless-walk-in\.html/);
   assert.doesNotMatch(seo, /<textarea/i);
 });
 
@@ -111,4 +119,13 @@ test('the tile-supply SEO article answers the customer-supplied question', () =>
   assert.match(supplySeo, /index\.html/);
   assert.match(supplySeo, /Best-effort hosting, no SLA/);
   assert.doesNotMatch(supplySeo, /<textarea/i);
+});
+
+test('the scope SEO article answers the match-the-alcove question', () => {
+  assert.match(scopeSeo, /Should I match an alcove price on a curbless walk-in/i);
+  assert.match(scopeSeo, /FAQPage/);
+  assert.match(scopeSeo, /linear drain/i);
+  assert.match(scopeSeo, /index\.html/);
+  assert.match(scopeSeo, /Best-effort hosting, no SLA/);
+  assert.doesNotMatch(scopeSeo, /<textarea/i);
 });
