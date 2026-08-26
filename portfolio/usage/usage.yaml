@@ -3177,3 +3177,16 @@ products:
           purchased material, per-room tear-out, stair treads, walk-away
           price). Public URL remains owner-gated; the local-first counter
           reports only to the user's own browser. Baseline row.
+
+  - slug: mobile-detailing-bid-calculator
+    surface: static-page-in-repo
+    readings:
+      - as_of: 2026-08-25
+        signals:
+          live_url_visitors: null
+          local_events_reported: 0
+        note: >-
+          Shipped a browser-local minimum-quote calculator for mobile
+          detailers (labor, round-trip travel, supplies, overhead, payment
+          fees). Public URL remains owner-gated; counters are anonymous,
+          local, and opt-out. Baseline row.
