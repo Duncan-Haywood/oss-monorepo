@@ -18,6 +18,8 @@ class QuoteMarginTests(unittest.TestCase):
         self.assertEqual(result["break_even_price"], 480)
         self.assertEqual(result["gap_to_target"], -705)
         self.assertEqual(result["minimum_price_adjustment"], 705)
+        self.assertEqual(result["hidden_hours"], 11)
+        self.assertEqual(result["hidden_time_percent"], (11 / 35) * 100)
 
     def test_defaults_optional_costs_and_time(self) -> None:
         quote = load_quote({"price": 1000, "delivery_hours": 10, "target_hourly_rate": 100})

@@ -63,6 +63,11 @@ not a profitability verdict or pricing advice. After that review, three
 buttons let you record send, revise, or hold locally — a workflow note, not a
 recommendation.
 
+When hidden time reaches at least 25% of the supplied total, the pre-send review
+asks you to confirm the scope and revision limit. This is a prompt about your
+inputs, not a recommendation or a profitability determination. The result also
+shows the time mix: delivery hours versus admin and revision hours.
+
 You can also supply a time-buffer percentage. The browser shows the price that
 would correspond to your target hourly rate if planned hours grew by that
 percentage. This is a reserve calculation, not a recommendation or forecast.

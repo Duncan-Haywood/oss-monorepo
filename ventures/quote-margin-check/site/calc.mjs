@@ -54,6 +54,7 @@ export function calculate(quote) {
   const targetPrice = totalHours * quote.target_hourly_rate + directCosts;
   const bufferedHours = totalHours * (1 + quote.time_buffer_percent / 100);
   const bufferedTargetPrice = bufferedHours * quote.target_hourly_rate + directCosts;
+  const hiddenHours = quote.admin_hours + quote.revision_hours;
   return {
     total_hours: totalHours,
     direct_costs: directCosts,
@@ -66,6 +67,9 @@ export function calculate(quote) {
     cost_coverage: quote.price - directCosts,
     discount_room: Math.max(0, quote.price - targetPrice),
     minimum_price_adjustment: Math.max(0, targetPrice - quote.price),
+    delivery_hours: quote.delivery_hours,
+    hidden_hours: hiddenHours,
+    hidden_time_percent: (hiddenHours / totalHours) * 100,
   };
 }
 
