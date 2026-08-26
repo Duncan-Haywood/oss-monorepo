@@ -161,8 +161,8 @@ class SinglePagesDeployer(unittest.TestCase):
     """
 
     @staticmethod
-    def row(name, gate):
-        step = {"job": "deploy", "step": "uses actions/deploy-pages"}
+    def row(name, gate, action="actions/deploy-pages"):
+        step = {"job": "deploy", "step": f"uses {action}"}
         if gate is not None:
             step["gates"] = [gate]
         return {"workflow": name, "classification": "gated", "publishes": [step]}
@@ -208,6 +208,52 @@ class SinglePagesDeployer(unittest.TestCase):
             {"workflow": "npm.yml", "classification": "gated",
              "publishes": [{"job": "p", "step": "runs 'npm publish'", "gates": ["${{ vars.G == 'true' }}"]}]},
             {"workflow": "quiet.yml", "classification": "none", "publishes": []},
+        ]
+        self.assertEqual(ps.check_single_pages_deployer(rows), [])
+
+    def test_a_pages_deploy_by_another_action_is_still_a_pages_deploy(self):
+        # The hole this closes: the invariant matched only
+        # `actions/deploy-pages`, so switching one of two racing workflows to
+        # `peaceiris/actions-gh-pages` -- the same one Pages site, reached by a
+        # different name, and already listed in PUBLISH_ACTIONS -- silently
+        # brought the race back with nothing turning red.
+        for action in ("peaceiris/actions-gh-pages", "JamesIves/github-pages-deploy-action"):
+            with self.subTest(action=action):
+                rows = [
+                    self.row("a.yml", "${{ vars.GITHUB_PAGES_ENABLED == 'true' }}"),
+                    self.row("b.yml", "${{ vars.GITHUB_PAGES_ENABLED == 'true' }}", action=action),
+                ]
+                problems = ps.check_single_pages_deployer(rows)
+                self.assertEqual(len(problems), 1)
+                self.assertIn("GITHUB_PAGES_ENABLED", problems[0])
+
+    def test_every_pages_action_the_surface_recognises_is_covered(self):
+        # PAGES_DEPLOY_ACTIONS is a subset of PUBLISH_ACTIONS and has to stay
+        # one: an action this tool already knows publishes to Pages, but the
+        # invariant does not check, is exactly the blind spot above.
+        for action in ps.PAGES_DEPLOY_ACTIONS:
+            self.assertIn(action, ps.PUBLISH_ACTIONS, action)
+        for action in ps.PUBLISH_ACTIONS:
+            if "pages" in action.lower() or "gh-pages" in action.lower():
+                self.assertIn(action, ps.PAGES_DEPLOY_ACTIONS, action)
+
+    def test_a_shared_secret_arms_two_deployments_just_as_a_variable_does(self):
+        # Reading only `vars.` called these ungated, which is the right verdict
+        # for the wrong reason: the message then told the reader to add a gate
+        # both workflows already had.
+        rows = [
+            self.row("a.yml", "${{ secrets.PAGES_TOKEN != '' }}"),
+            self.row("b.yml", "${{ secrets.PAGES_TOKEN != '' }}"),
+        ]
+        problems = ps.check_single_pages_deployer(rows)
+        self.assertEqual(len(problems), 1)
+        self.assertIn("PAGES_TOKEN", problems[0])
+        self.assertNotIn("no owner-set variable", problems[0])
+
+    def test_a_secret_and_a_variable_are_still_distinct_switches(self):
+        rows = [
+            self.row("a.yml", "${{ vars.GITHUB_PAGES_ENABLED == 'true' }}"),
+            self.row("b.yml", "${{ secrets.DOCS_PAGES_TOKEN != '' }}"),
         ]
         self.assertEqual(ps.check_single_pages_deployer(rows), [])
 

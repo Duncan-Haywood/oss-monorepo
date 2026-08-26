@@ -215,8 +215,25 @@ BASE_URL=https://duncan-haywood.github.io/monorepo-projects node platform/pages/
 
 It covers the hub and its grouping, search (narrowing, the empty state, and
 clearing), the usage opt-out across a reload, a click through into a calculator
-and a computed figure, a cross-product sibling link, a nested product hub,
-sitemap sampling, the 404, and a 375px viewport for horizontal overflow.
+and a computed figure, a cross-product sibling link, a nested product hub, every
+URL in every sitemap, the 404, a 375px viewport for horizontal overflow, and two
+whole-run assertions: that nothing was fetched off-origin, and that no page,
+console, or resource error was raised anywhere except the deliberate 404 step.
+
+**Serve it under a `/monorepo-projects/` prefix too.** Some defects exist only at
+a path, and served from `/` they are invisible:
+
+```bash
+mkdir -p sp && cp -r dist sp/monorepo-projects
+python3 -m http.server 8793 --directory sp &
+BASE_URL=http://localhost:8793/monorepo-projects node platform/pages/journey.mjs
+```
+
+A browser with no declared icon asks the **origin** root for `/favicon.ico`.
+Served from `/`, the `favicon.ico` this build writes answers that request and
+masks a missing `<link rel="icon">`; served from `/monorepo-projects/`, which is
+the shape GitHub Pages actually serves, it does not and the page 404s. That gap
+is how every page shipped with a failing favicon request until #1746. Run both.
 
 Counts are derived from the page, never hardcoded — a venture lands most days,
 and a literal would fail on a healthy site the moment someone ships a
