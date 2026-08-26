@@ -14,7 +14,7 @@ This is distinct from the portfolio's contractor bid calculators: the buyer is a
 
 ## Privacy and disclaimer
 
-Everything runs locally in the browser. No appointment details, locations, names, or prices leave the device. Anonymous feature counts are stored locally, can be disabled, and never include personal data.
+Everything runs locally in the browser. No appointment details, locations, names, or prices leave the device. Anonymous feature counts are stored locally, can be disabled, honor Do Not Track and Global Privacy Control, and never include personal data.
 
 **No warranty.** This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, financial, or business advice, and it does not replace a qualified professional. **You are responsible for reviewing and verifying its output before relying on it**, and for meeting any obligation it helps you prepare for. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.
 
