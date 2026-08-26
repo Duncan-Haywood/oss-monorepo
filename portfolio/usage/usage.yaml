@@ -2453,6 +2453,16 @@ products:
           Repair-and-merge of unique #1353 SaaS seat true-up calculator onto
           current main. Public URL remains owner-gated; local counting honors
           DNT/GPC and a persistent opt-out.
+      - as_of: 2026-08-26
+        signals:
+          live_url_visitors: null
+          true_up_calculated: 0
+          scenario_saved: 0
+          scenario_restored: 0
+        note: >-
+          Browser-local save/restore of the four renewal totals so a
+          returning operator can reopen last review's numbers. Public URL
+          remains owner-gated.
 
   - slug: consent-change-record
     surface: static-page-in-repo

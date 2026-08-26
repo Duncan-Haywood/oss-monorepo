@@ -1,6 +1,8 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { calculateTrueUp, reviewMessage } from './calc.mjs';
+import { loadScenario, saveScenario, clearScenario } from './usage.mjs';
+import { readFileSync } from 'node:fs';
 
 test('quantifies unused seats and renewal exposure', () => {
   assert.deepEqual(calculateTrueUp({ seatsPurchased: 20, seatsUsed: 14, monthlyPrice: 18, monthsRemaining: 4 }), {
@@ -26,4 +28,30 @@ test('used above purchased is overage, not an error', () => {
   assert.equal(result.remainingOverage, 216);
   assert.equal(result.annualOverage, 648);
   assert.match(reviewMessage(result), /over the purchased count by 3 seats/);
+});
+
+test('saves and restores only the four totals', () => {
+  const data = new Map();
+  const storage = { getItem: key => data.get(key) || null, setItem: (key, value) => data.set(key, value), removeItem: key => data.delete(key) };
+  const scenario = { purchased: '20', used: '14', price: '18', months: '4' };
+  assert.equal(saveScenario(storage, scenario), true);
+  assert.deepEqual(loadScenario(storage), { purchased: 20, used: 14, price: 18, months: 4 });
+  clearScenario(storage);
+  assert.equal(loadScenario(storage), null);
+});
+
+test('ignores malformed or incomplete saved scenarios', () => {
+  assert.equal(loadScenario({ getItem: () => '{"purchased":null}' }), null);
+  assert.equal(loadScenario({ getItem: () => '{"purchased":20,"used":14}' }), null);
+  assert.equal(loadScenario({ getItem: () => '[20,14,18,4]' }), null);
+  assert.equal(saveScenario({ setItem() { throw new Error('quota'); } }, { purchased: 20, used: 14, price: 18, months: 4 }), false);
+});
+
+test('the page wires save and reset without uploading totals', () => {
+  const html = readFileSync(new URL('./index.html', import.meta.url), 'utf8');
+  assert.match(html, /Save scenario/);
+  assert.match(html, /saveScenario/);
+  assert.match(html, /loadScenario/);
+  assert.match(html, /clearScenario/);
+  assert.match(html, /Saved scenarios store only the four totals/);
 });

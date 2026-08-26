@@ -1,5 +1,7 @@
 const KEY = 'saas-seat-true-up:usage';
 const OPT_OUT = 'saas-seat-true-up:opt-out';
+const SCENARIO_KEY = 'saas-seat-true-up:scenario';
+const SCENARIO_FIELDS = ['purchased', 'used', 'price', 'months'];
 
 function storage() {
   try {
@@ -36,4 +38,44 @@ export function disableUsage() {
     ls.setItem(OPT_OUT, 'true');
     ls.removeItem(KEY);
   } catch { /* optional measurement */ }
+}
+
+export function saveScenario(store, scenario) {
+  const ls = store || storage();
+  if (!ls) return false;
+  try {
+    const value = {};
+    for (const field of SCENARIO_FIELDS) {
+      const number = Number(scenario?.[field]);
+      if (!Number.isFinite(number) || number < 0) return false;
+      value[field] = number;
+    }
+    ls.setItem(SCENARIO_KEY, JSON.stringify(value));
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+export function loadScenario(store) {
+  const ls = store || storage();
+  if (!ls) return null;
+  try {
+    const value = JSON.parse(ls.getItem(SCENARIO_KEY) || 'null');
+    if (!value || typeof value !== 'object' || Array.isArray(value)) return null;
+    if (SCENARIO_FIELDS.some((field) => typeof value[field] !== 'number' || !Number.isFinite(value[field]) || value[field] < 0)) {
+      return null;
+    }
+    return value;
+  } catch {
+    return null;
+  }
+}
+
+export function clearScenario(store) {
+  const ls = store || storage();
+  if (!ls) return;
+  try {
+    ls.removeItem(SCENARIO_KEY);
+  } catch { /* optional persistence */ }
 }
