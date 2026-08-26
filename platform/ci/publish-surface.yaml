@@ -483,6 +483,9 @@ workflows:
 - workflow: reverb-fee-calculator-ci.yml
   classification: none
   publishes: []
+- workflow: roofing-bid-calculator-ci.yml
+  classification: none
+  publishes: []
 - workflow: saas-seat-true-up-ci.yml
   classification: none
   publishes: []
