@@ -1,0 +1,32 @@
+name: parking-lot-striping-bid-calculator
+description: A private browser calculator for parking-lot striping and pavement-marking contractors that prices a lot from stall lines, ADA hash aisles, arrows, coats, and new-layout hours — and shows the price per stall, the extra a per-stall special hides, and the walk-away price below which the job loses money.
+stage: prototype
+owner: duncan
+hypotheses:
+  - claim: Small striping contractors will use a stall-line and ADA-hash bid calculator because the generic price-per-stall rules of thumb they find online cannot see that hashed access aisles, arrows, and a new string-line layout do not scale with stall count, which is how a bid that looked profitable turns out not to be.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: The walk-away price and the extra versus treating ADA stalls as regular stalls are the two numbers a contractor actually decides on when a property manager asks them to match an $8-a-stall special, more than the lot price itself.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: A second coat is the cost most often treated as "another full job" or ignored entirely, so showing it as almost another paint ticket — not another setup day — changes the resulting bid materially.
+    status: untested
+    checked: null
+    evidence: customer-contact
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+budget:
+  monthly_cap: 1
+  protected: true
+kill_criteria:
+  - Fewer than three qualified striping contractors use the calculator twice within 90 days.
+  - Contractors report that the stall-line / ADA-hash model is more work than their existing per-stall method without changing the price they would have bid.
+  - The starting coverage and hour rates prove so far from real crews' rates that the tool cannot be used without data we have no way to gather.
+links:
+  production: null
+  analytics: null
