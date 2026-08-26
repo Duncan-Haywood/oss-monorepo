@@ -92,6 +92,10 @@ so a return visit starts with your own prices and policy assumptions. Use
 Shared-link values take precedence over the saved draft. The draft never leaves
 your browser and is separate from the anonymous usage event log.
 
+Use **Download .txt** to save the generated policy as a plain-text file for your
+booking system, client agreement, or records. The download is created locally
+in your browser; no policy text is uploaded.
+
 ## Disclaimer
 
 **No warranty.** This tool is provided free and as-is, without warranty of

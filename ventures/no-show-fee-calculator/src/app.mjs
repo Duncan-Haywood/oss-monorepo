@@ -13,6 +13,7 @@ import {
   saveDraft,
   readDraft,
   clearDraft,
+  policyDownloadFilename,
 } from "./calc.mjs";
 import { recordEvent, isOptedOut, setOptedOut, getUsageSummary, clearUsageLog } from "./usage.mjs";
 
@@ -379,16 +380,11 @@ copyBtn.addEventListener("click", async () => {
 
 downloadBtn.addEventListener("click", () => {
   const businessName = String(new FormData(form).get("businessName") ?? "").trim();
-  const safeName = (businessName || "cancellation-policy")
-    .toLowerCase()
-    .replace(/[^a-z0-9]+/g, "-")
-    .replace(/^-+|-+$/g, "")
-    .slice(0, 50) || "cancellation-policy";
   const blob = new Blob([policyEl.value], { type: "text/plain;charset=utf-8" });
   const url = URL.createObjectURL(blob);
   const link = document.createElement("a");
   link.href = url;
-  link.download = `${safeName}-policy.txt`;
+  link.download = policyDownloadFilename(businessName);
   link.click();
   setTimeout(() => URL.revokeObjectURL(url), 0);
   copyStatus.textContent = "Policy downloaded.";
