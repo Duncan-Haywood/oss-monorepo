@@ -61,6 +61,15 @@ leave to still hit the supplied target rate. See
 The table is arithmetic on the figures you typed, not a negotiation
 script or a pricing recommendation.
 
+A fourth table is the mid-project cancel. Hours already spent, cash
+already collected, a kill fee on top of that, and costs already sunk
+stay as you typed them. It shows cash kept if you finish, take the
+fee, or walk with only the deposit — then the same three paths if
+freed hours could be rebooked at the supplied target rate. See
+[`site/should-i-take-this-kill-fee-or-finish.html`](site/should-i-take-this-kill-fee-or-finish.html).
+The table is arithmetic on the figures you typed, not advice to
+cancel or finish, and not a forecast of other work.
+
 **No warranty.** This tool is provided free and as-is, without warranty of any
 kind, express or implied. It is not tax, financial, or business advice, and it
 does not replace a qualified professional. **You are responsible for reviewing
@@ -84,7 +93,8 @@ of a quote it already counted. Reading it as "reports", not "keystrokes", is
 what makes it comparable to the CLI's own count. The browser also counts
 `quote_review_checked` locally when a valid quote is reviewed, and
 `cost_spike_compared` when the cost-rise table is computed, and
-`discount_ask_compared` when the discount-ask table is computed; it stores no quote
+`discount_ask_compared` when the discount-ask table is computed, and
+`kill_fee_compared` when the mid-project cancel table is computed; it stores no quote
 values and sends nothing anywhere.
 
 ## Input
