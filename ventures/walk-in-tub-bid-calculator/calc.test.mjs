@@ -317,6 +317,20 @@ test('ownerSupplyNote rejects a short row list', () => {
   assert.throws(() => ownerSupplyNote([{ supply: 'contractor-supplied' }]), /missing rows/);
 });
 
+test('on a typical whirlpool alcove the $1,499 showroom special loses even when they bought the tub', () => {
+  const rows = compareOwnerSupply({ ...typicalAging(), proposedPrice: 1499 });
+  const contractor = rows.find((row) => row.supply === 'contractor-supplied');
+  const fits = rows.find((row) => row.supply === 'owner-fits');
+  const wrong = rows.find((row) => row.supply === 'owner-wrong');
+  assert.equal(contractor.installOnly.belowBreakEven, true);
+  assert.equal(fits.installOnly.belowBreakEven, true);
+  assert.equal(wrong.installOnly.belowBreakEven, true);
+  assert.ok(Math.abs(fits.breakEvenPrice - 2082.34) < 0.02);
+  assert.ok(Math.abs(contractor.price - 8640.43) < 0.02);
+  assert.match(ownerSupplyNote(rows), /lose money even when they bought the tub/);
+  assert.match(ownerSupplyNote(rows), /\$2,082\.34/);
+});
+
 test('suggestedOwnerCallbackKit is a second trip plus missing hardware', () => {
   const kit = suggestedOwnerCallbackKit();
   assert.equal(kit.hoursCallbackTrip, suggestedExtraKit().hoursTrip);
