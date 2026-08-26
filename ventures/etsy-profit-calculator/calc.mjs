@@ -830,6 +830,227 @@ export function starSellerNote(comparison) {
   return `${packed}${expected}${ceiling}${postage}`;
 }
 
+// Illustrative shop-sale extras. 20% off is the coupon Etsy sellers
+// reach for first. $5.00 off is the “looks smaller than 20%” dollar
+// coupon on a $30 listing. 40% vs 55% is a 15-point conversion lift
+// sellers often assign a sale. These are inputs, not Etsy's live
+// coupon schedule — the seller overwrites them from the sale they
+// actually run and the views they actually convert.
+export const SHOP_SALE_DEFAULTS = {
+  salePercent: 20,
+  saleDollar: 5,
+  listedSellThroughPct: 40,
+  saleSellThroughPct: 55,
+  saleListings: 40,
+};
+
+function salePriceFromPercent(listPrice, salePercent) {
+  return Math.max(0, listPrice * (1 - salePercent / 100));
+}
+
+function salePriceFromDollar(listPrice, saleDollar) {
+  return Math.max(0, listPrice - saleDollar);
+}
+
+function saleWinner(listedExpected, percentExpected, dollarExpected) {
+  const best = Math.max(listedExpected, percentExpected, dollarExpected);
+  const hits = [];
+  if (Math.abs(listedExpected - best) <= 1e-9) hits.push('as_listed');
+  if (Math.abs(percentExpected - best) <= 1e-9) hits.push('percent');
+  if (Math.abs(dollarExpected - best) <= 1e-9) hits.push('dollar');
+  if (hits.length !== 1) return 'tie';
+  return hits[0];
+}
+
+function neededSalePriceForProfit(input, neededProfit) {
+  const transactionRate = nonNegativeNumber(input.transactionRate, 'Transaction rate', 6.5);
+  const paymentRate = nonNegativeNumber(input.paymentRate, 'Payment rate', 3);
+  const offsiteAdRate = nonNegativeNumber(input.offsiteAdRate, 'Offsite ad rate', 0);
+  const listingFee = nonNegativeNumber(input.listingFee, 'Listing fee', 0.2);
+  const paymentFixed = nonNegativeNumber(input.paymentFixed, 'Payment fixed fee', 0.25);
+  const shippingCharged = nonNegativeNumber(input.shippingCharged, 'Shipping charged', 0);
+  const shippingCost = nonNegativeNumber(input.shippingCost, 'Shipping cost', 0);
+  const materialCost = nonNegativeNumber(input.materialCost, 'Material cost', 0);
+  const otherCost = nonNegativeNumber(input.otherCost, 'Other cost', 0);
+  const keepRate = 1 - (transactionRate + paymentRate + offsiteAdRate) / 100;
+  if (keepRate <= 1e-12) return Infinity;
+  const neededRevenue = neededProfit + listingFee + paymentFixed + shippingCost + materialCost + otherCost;
+  return roundMoney(neededRevenue / keepRate - shippingCharged);
+}
+
+// Same listing, three ways to close the views you already have: stay
+// full price, run a percent-off shop sale, or run a dollar-off coupon.
+// Percentage fees sit on the lower ticket; listing fee, payment fixed
+// fee, postage, and materials do not change. The cash a sale returns
+// is a higher sell-through on the same listings. Sell-through is
+// typed, not scraped from Shop Stats.
+//
+// Two frames, because sellers mix them up:
+//   - cannibalized: this buyer would have paid full price, so the
+//     sale only costs you the discount;
+//   - expected: packed leftover × typed sell-through, the same
+//     pattern as Star Seller.
+export function compareShopSale(input = {}) {
+  const listPrice = nonNegativeNumber(input.price, 'Price');
+  const salePercent = rateAtMost100(
+    input.salePercent,
+    'Sale percent',
+    SHOP_SALE_DEFAULTS.salePercent,
+  );
+  const saleDollar = nonNegativeNumber(
+    input.saleDollar,
+    'Sale dollar off',
+    SHOP_SALE_DEFAULTS.saleDollar,
+  );
+  const listedSellThroughPct = rateAtMost100(
+    input.listedSellThroughPct,
+    'Full-price sell-through',
+    SHOP_SALE_DEFAULTS.listedSellThroughPct,
+  );
+  const saleSellThroughPct = rateAtMost100(
+    input.saleSellThroughPct,
+    'Sale sell-through',
+    SHOP_SALE_DEFAULTS.saleSellThroughPct,
+  );
+  const saleListings = nonNegativeNumber(
+    input.saleListings,
+    'Sale listings',
+    SHOP_SALE_DEFAULTS.saleListings,
+  );
+
+  const percentPrice = salePriceFromPercent(listPrice, salePercent);
+  const dollarPrice = salePriceFromDollar(listPrice, saleDollar);
+
+  const listedOrder = calculateOrder(input);
+  const percentOrder = calculateOrder({ ...input, price: percentPrice });
+  const dollarOrder = calculateOrder({ ...input, price: dollarPrice });
+
+  const listedProfitRaw = listedOrder.profit;
+  const percentProfitRaw = percentOrder.profit;
+  const dollarProfitRaw = dollarOrder.profit;
+  const listedProfit = roundMoney(listedProfitRaw);
+  const percentProfit = roundMoney(percentProfitRaw);
+  const dollarProfit = roundMoney(dollarProfitRaw);
+  const listedFees = roundMoney(orderFeeTotal(listedOrder));
+  const percentFees = roundMoney(orderFeeTotal(percentOrder));
+  const dollarFees = roundMoney(orderFeeTotal(dollarOrder));
+
+  const listedRate = listedSellThroughPct / 100;
+  const saleRate = saleSellThroughPct / 100;
+  const listedExpected = roundMoney(listedRate * listedProfitRaw);
+  const percentExpected = roundMoney(saleRate * percentProfitRaw);
+  const dollarExpected = roundMoney(saleRate * dollarProfitRaw);
+  const percentExtraExpected = roundMoney(percentExpected - listedExpected);
+  const dollarExtraExpected = roundMoney(dollarExpected - listedExpected);
+
+  const breakEvenPercentSellThroughPct = percentProfitRaw <= 1e-12
+    ? (listedExpected <= 1e-12 ? 0 : Infinity)
+    : roundMoney((listedExpected / percentProfitRaw) * 100);
+  const breakEvenDollarSellThroughPct = dollarProfitRaw <= 1e-12
+    ? (listedExpected <= 1e-12 ? 0 : Infinity)
+    : roundMoney((listedExpected / dollarProfitRaw) * 100);
+
+  const neededProfitAtSaleRate = saleRate <= 1e-12
+    ? (listedExpected <= 1e-12 ? listedProfitRaw : Infinity)
+    : listedExpected / saleRate;
+  const salePriceCeiling = !Number.isFinite(neededProfitAtSaleRate)
+    ? Infinity
+    : neededSalePriceForProfit(input, neededProfitAtSaleRate);
+  const percentCeiling = !Number.isFinite(salePriceCeiling) || listPrice <= 1e-12
+    ? (listPrice <= 1e-12 ? 0 : Infinity)
+    : roundMoney(((listPrice - salePriceCeiling) / listPrice) * 100);
+  const dollarCeiling = !Number.isFinite(salePriceCeiling)
+    ? Infinity
+    : roundMoney(listPrice - salePriceCeiling);
+
+  const asListed = {
+    id: 'as_listed',
+    label: 'Stay full price',
+    price: roundMoney(listPrice),
+    discount: 0,
+    fees: listedFees,
+    profit: listedProfit,
+    sellThroughPct: listedSellThroughPct,
+    expected: listedExpected,
+    acrossListings: roundMoney(listedExpected * saleListings),
+    cannibalized: 0,
+  };
+  const percent = {
+    id: 'percent',
+    label: `${roundMoney(salePercent)}% off`,
+    price: roundMoney(percentPrice),
+    discount: roundMoney(listPrice - percentPrice),
+    fees: percentFees,
+    profit: percentProfit,
+    sellThroughPct: saleSellThroughPct,
+    expected: percentExpected,
+    acrossListings: roundMoney(percentExpected * saleListings),
+    cannibalized: roundMoney(percentProfitRaw - listedProfitRaw),
+  };
+  const dollar = {
+    id: 'dollar',
+    label: `$${roundMoney(saleDollar).toFixed(2)} off`,
+    price: roundMoney(dollarPrice),
+    discount: roundMoney(listPrice - dollarPrice),
+    fees: dollarFees,
+    profit: dollarProfit,
+    sellThroughPct: saleSellThroughPct,
+    expected: dollarExpected,
+    acrossListings: roundMoney(dollarExpected * saleListings),
+    cannibalized: roundMoney(dollarProfitRaw - listedProfitRaw),
+  };
+
+  return {
+    salePercent: roundMoney(salePercent),
+    saleDollar: roundMoney(saleDollar),
+    listedSellThroughPct,
+    saleSellThroughPct,
+    saleListings,
+    asListed,
+    percent,
+    dollar,
+    percentExtraExpected,
+    dollarExtraExpected,
+    percentExtraAcrossListings: roundMoney(percentExtraExpected * saleListings),
+    dollarExtraAcrossListings: roundMoney(dollarExtraExpected * saleListings),
+    breakEvenPercentSellThroughPct,
+    breakEvenDollarSellThroughPct,
+    salePriceCeiling,
+    percentCeiling,
+    dollarCeiling,
+    percentPays: percentExtraExpected > 1e-9,
+    dollarPays: dollarExtraExpected > 1e-9,
+    percentBreaksEven: Math.abs(percentExtraExpected) <= 1e-9,
+    dollarBreaksEven: Math.abs(dollarExtraExpected) <= 1e-9,
+    winner: saleWinner(listedExpected, percentExpected, dollarExpected),
+  };
+}
+
+export function shopSaleNote(comparison) {
+  if (!comparison?.asListed || !comparison?.percent || !comparison?.dollar) {
+    throw new Error('Shop-sale comparison is missing rows');
+  }
+  const money = (value) => {
+    const sign = value < 0 ? '−' : '';
+    return `${sign}$${Math.abs(value).toFixed(2)}`;
+  };
+  const pct = (value) => `${Number(value).toFixed(1)}%`;
+  const listed = `A packed full-price sale leaves ${money(comparison.asListed.profit)}.`;
+  const percentPacked = ` ${pct(comparison.salePercent)} off drops the ticket to ${money(comparison.percent.price)} and leaves ${money(comparison.percent.profit)} if this buyer would have paid full price (${money(comparison.percent.cannibalized)}).`;
+  const dollarPacked = ` A ${money(comparison.saleDollar)} coupon leaves ${money(comparison.dollar.profit)} (${money(comparison.dollar.cannibalized)} vs full price).`;
+  const expected = ` At ${pct(comparison.listedSellThroughPct)} vs ${pct(comparison.saleSellThroughPct)} sell-through the full-price path expects ${money(comparison.asListed.expected)} per listing, ${pct(comparison.salePercent)} off expects ${money(comparison.percent.expected)} (${money(comparison.percentExtraExpected)}), and ${money(comparison.saleDollar)} off expects ${money(comparison.dollar.expected)} (${money(comparison.dollarExtraExpected)}; ${money(comparison.dollarExtraAcrossListings)} across ${comparison.saleListings} listings).`;
+  const percentCeiling = Number.isFinite(comparison.breakEvenPercentSellThroughPct)
+    ? ` The percent sale has to convert about ${pct(comparison.breakEvenPercentSellThroughPct)} of listings before it matches staying full price.`
+    : ' No finite sell-through can match staying full price when a packed percent-off sale leaves $0.00 or less.';
+  const dollarCeiling = Number.isFinite(comparison.breakEvenDollarSellThroughPct)
+    ? ` The dollar coupon has to convert about ${pct(comparison.breakEvenDollarSellThroughPct)}.`
+    : ' No finite sell-through can match staying full price when a packed dollar-off sale leaves $0.00 or less.';
+  const discountCeiling = Number.isFinite(comparison.percentCeiling) && Number.isFinite(comparison.dollarCeiling)
+    ? ` At this conversion lift the sale has to stay at or below about ${pct(comparison.percentCeiling)} or ${money(comparison.dollarCeiling)} off.`
+    : '';
+  return `${listed}${percentPacked}${dollarPacked}${expected}${percentCeiling}${dollarCeiling}${discountCeiling}`;
+}
+
 export function productionPartnerNote(comparison) {
   if (!comparison?.youMake || !comparison?.partner || !comparison?.hybrid) {
     throw new Error('Production-partner comparison is missing rows');
