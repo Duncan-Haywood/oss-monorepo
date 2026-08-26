@@ -4,4 +4,8 @@
     <loc>./</loc>
     <changefreq>weekly</changefreq>
   </url>
+  <url>
+    <loc>./capture.html</loc>
+    <changefreq>weekly</changefreq>
+  </url>
 </urlset>

@@ -29,4 +29,5 @@ test("primary actions exist for compare, example, export, and ticket copy", () =
   assert.match(html, /id="copyBtn"/);
   assert.match(html, /id="before"/);
   assert.match(html, /id="after"/);
+  assert.match(html, /href="\.\/capture.html"/);
 });
