@@ -1,0 +1,372 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Duct Cleaning Bid Calculator | Price the Systems, the Vents, and the Coil — Not Just a $99 Whole-House Special</title>
+  <meta name="description" content="Price an air-duct cleaning job from extra systems, extra vents, extra stories, crawl access, and a coil clean — not a published $99 whole-house special. See the walk-away number before you match a cheaper ranch quote.">
+  <meta property="og:title" content="Duct Cleaning Bid Calculator">
+  <meta property="og:description" content="One furnace and ten vents on a ranch is not the same job as a two-system colonial with extra returns, a crawl, and a coil clean. Bid the systems and the vents.">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Duct Cleaning Bid Calculator","applicationCategory":"BusinessApplication","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"featureList":"Residential versus two-system versus heavy-debris versus light-commercial, extra systems over the included first air handler, extra supply vents over the included ten, extra returns, extra stories, crawl access, occupied-home protection, evaporator coil clean, sanitizer fog, heavy debris, walk-away price, proposed-price margin check, copyable customer-facing bid summary"}</script>
+  <style>
+    :root { color-scheme: light; font-family: system-ui, sans-serif; color: #1d2530; background: #e6eef4; }
+    body { max-width: 1060px; margin: 0 auto; padding: 32px 18px; }
+    header { max-width: 740px; margin-bottom: 26px; }
+    h1 { font-size: clamp(2rem, 6vw, 3.4rem); line-height: .98; margin: 0 0 12px; letter-spacing: -.05em; }
+    p { line-height: 1.5; }
+    .eyebrow { font-size: .8rem; font-weight: 700; letter-spacing: .08em; color: #1d5f78; margin: 0 0 6px; }
+    .layout { display: grid; grid-template-columns: minmax(0, 1fr) minmax(300px, .75fr); gap: 18px; align-items: start; }
+    section { background: #f7fbfd; border: 1px solid #c3d3de; border-radius: 14px; padding: 20px; box-shadow: 0 8px 24px #1224330d; margin-bottom: 18px; }
+    h2 { margin-top: 0; font-size: 1.15rem; }
+    .hint { font-size: .82rem; color: #4a5666; margin: -6px 0 14px; }
+    .fields { display: grid; grid-template-columns: repeat(2, 1fr); gap: 13px; }
+    label { display: grid; gap: 5px; font-size: .87rem; font-weight: 650; }
+    input, select { width: 100%; box-sizing: border-box; border: 1px solid #8aa0b0; border-radius: 7px; padding: 10px; font: inherit; background: #fff; }
+    label.check { display: flex; gap: 8px; align-items: center; font-weight: 650; }
+    label.check input { width: auto; }
+    button { font: inherit; border-radius: 7px; border: 1px solid #8aa0b0; background: #e4eef4; padding: 10px 14px; cursor: pointer; font-weight: 650; }
+    button:hover { background: #d2e2ec; }
+    .result { position: sticky; top: 15px; background: #16303c; color: #eef6f8; border-color: #16303c; }
+    .hero-number { font-size: 2.7rem; font-weight: 750; letter-spacing: -.05em; margin: 8px 0; }
+    .negative { color: #ffb0a2; }
+    dl { display: grid; grid-template-columns: 1fr auto; gap: 9px; margin: 20px 0; }
+    dt, dd { margin: 0; } dd { font-variant-numeric: tabular-nums; }
+    hr { border: 0; border-top: 1px solid #ffffff2b; }
+    .note { font-size: .82rem; opacity: .84; }
+    .split { margin: 14px 0 0; padding: 0; list-style: none; font-size: .84rem; }
+    .split li { display: grid; grid-template-columns: 1fr auto; gap: 8px; padding: 3px 0; }
+    .bar { grid-column: 1 / -1; height: 4px; border-radius: 2px; background: #ffffff2e; }
+    .bar > span { display: block; height: 100%; border-radius: 2px; background: #6ec6d8; }
+    .verdict { margin-top: 14px; padding: 12px; border-radius: 9px; font-size: .87rem; background: #ffffff1a; }
+    .verdict.bad { background: #7d2317; }
+    footer { margin-top: 25px; font-size: .82rem; color: #4a5666; }
+    footer a { color: #1d5f78; }
+    .support { margin-top: 14px; }
+    .summary-actions { display: flex; gap: 8px; align-items: center; margin-top: 14px; }
+    .summary-status { font-size: .8rem; color: #bce8cf; }
+    @media (max-width: 780px) {
+      .layout { grid-template-columns: 1fr; } .result { position: static; } .fields { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="eyebrow">FOR HVAC AND DUCT-CLEANING CONTRACTORS</p>
+    <h1>Bid the systems, the vents, and the coil.</h1>
+    <p>Price an air-duct cleaning job the way the trade actually loses money: the included one-system ranch, then the extra air handler, the extra supply vents, extra returns, extra stories, crawl access, an occupied home, a coil clean, sanitizer, and heavy debris. You get the bid, the price per vent, and the walk-away number below which the job loses money.</p>
+  </header>
+
+  <main class="layout">
+    <div>
+      <section>
+        <h2>The house</h2>
+        <p class="hint">Start from a common job, then replace every figure with your takeoff. Changing job type never overwrites a rate you already typed.</p>
+        <div class="fields">
+          <label>Job preset
+            <select id="jobPresets">
+              <option value="">Choose a starting house…</option>
+            </select>
+          </label>
+          <label>System
+            <select id="jobType">
+              <option value="residential" selected>Residential whole-house / $99 special</option>
+              <option value="two_system">Two-system / split-level house</option>
+              <option value="heavy">Heavy debris / pet hair</option>
+              <option value="commercial">Light commercial / multi-zone</option>
+            </select>
+          </label>
+          <label>Air handlers / systems <input id="systems" type="number" min="1" step="1" value="1"></label>
+          <label>Supply vents <input id="vents" type="number" min="1" step="1" value="10"></label>
+          <label>Returns <input id="returns" type="number" min="0" step="1" value="1"></label>
+          <label>Stories <input id="stories" type="number" min="1" step="1" value="1"></label>
+          <label class="check"><input id="crawl" type="checkbox"> Crawl / tight-attic access</label>
+          <label class="check"><input id="occupied" type="checkbox"> Occupied home</label>
+          <label class="check"><input id="coil" type="checkbox"> Evaporator coil / blower clean</label>
+          <label class="check"><input id="sanitizer" type="checkbox"> Sanitizer / antimicrobial fog</label>
+          <label class="check"><input id="heavyDebris" type="checkbox"> Heavy debris / pet hair</label>
+        </div>
+      </section>
+
+      <section>
+        <h2>Your crew rates</h2>
+        <div class="fields">
+          <label>Systems included in the base setup <input id="includedSystems" type="number" min="1" step="1" value="1"></label>
+          <label>Vents included <input id="includedVents" type="number" min="1" step="1" value="10"></label>
+          <label>Returns included <input id="includedReturns" type="number" min="0" step="1" value="1"></label>
+          <label>Stories included <input id="includedStories" type="number" min="1" step="1" value="1"></label>
+          <label>Hours for a base setup <input id="hoursBaseSetup" type="number" min="0" step="0.05" value="2.5"></label>
+          <label>Hours / extra system <input id="hoursPerExtraSystem" type="number" min="0" step="0.05" value="1.6"></label>
+          <label>Hours / extra vent <input id="hoursPerExtraVent" type="number" min="0" step="0.05" value="0.12"></label>
+          <label>Hours / extra return <input id="hoursPerExtraReturn" type="number" min="0" step="0.05" value="0.3"></label>
+          <label>Hours / extra story <input id="hoursPerExtraStory" type="number" min="0" step="0.05" value="0.8"></label>
+          <label>Hours for crawl access <input id="hoursCrawl" type="number" min="0" step="0.05" value="0.8"></label>
+          <label>Hours for an occupied home <input id="hoursOccupied" type="number" min="0" step="0.05" value="0.35"></label>
+          <label>Hours for a coil clean <input id="hoursCoil" type="number" min="0" step="0.05" value="0.85"></label>
+          <label>Hours for sanitizer <input id="hoursSanitizer" type="number" min="0" step="0.05" value="0.3"></label>
+          <label>Hours for heavy debris <input id="hoursHeavyDebris" type="number" min="0" step="0.05" value="0.7"></label>
+          <label>Site / travel hours <input id="siteHours" type="number" min="0" step="0.05" value="0.4"></label>
+          <label>Filter $ / system <input id="filterCost" type="number" min="0" step="1" value="22"></label>
+          <label>Bags, tape, consumables <input id="consumables" type="number" min="0" step="1" value="12"></label>
+          <label>Sanitizer cost <input id="sanitizerCost" type="number" min="0" step="1" value="18"></label>
+          <label>Tech hourly wage <input id="hourlyWage" type="number" min="0" step="0.25" value="32"></label>
+          <label>Payroll burden (%) <input id="burdenRate" type="number" min="0" step="0.5" value="28"></label>
+          <label>Travel, truck, vacuum <input id="travelAndEquipment" type="number" min="0" step="5" value="48"></label>
+          <label>Overhead on direct cost (%) <input id="overheadRate" type="number" min="0" step="0.5" value="16"></label>
+          <label>Target net margin (%) <input id="targetMargin" type="number" min="0" max="99.9" step="0.5" value="28"></label>
+          <label>Price you&rsquo;re considering (optional) <input id="proposedPrice" type="number" min="0" step="10" placeholder="e.g. 99 or 299 for the special"></label>
+        </div>
+        <p class="hint" style="margin-top:14px;margin-bottom:0">A $32/h tech loaded at 28% is $40.96. Quoting the raw wage on a published $99 whole-house special is how a two-system colonial that looked fine turns into a loss after the first extra air handler.</p>
+      </section>
+    </div>
+
+    <section class="result" aria-live="polite">
+      <h2>Your bid</h2>
+      <div id="price" class="hero-number">$&mdash;</div>
+      <div id="priceLabel">cleaning price</div>
+      <dl>
+        <dt>Systems, vents, and stories</dt><dd id="scope"></dd>
+        <dt>Access and extras</dt><dd id="accessBits"></dd>
+        <dt>Crew hours</dt><dd id="hours"></dd>
+        <dt>Loaded labor</dt><dd id="labor"></dd>
+        <dt>Filters + consumables</dt><dd id="materials"></dd>
+        <dt>Travel + equipment</dt><dd id="soft"></dd>
+        <dt>Overhead</dt><dd id="overhead"></dd>
+        <dt>Total cost</dt><dd id="cost"></dd>
+        <dt>Profit at this price</dt><dd id="profit"></dd>
+        <dt>Price per supply vent</dt><dd id="perVent"></dd>
+        <dt>Effective hourly rate</dt><dd id="hourlyRate"></dd>
+        <dt>Walk-away price</dt><dd id="breakEven"></dd>
+      </dl>
+      <div id="verdict" class="verdict" hidden></div>
+      <div class="summary-actions">
+        <button type="button" id="copySummary">Copy bid summary</button>
+        <span id="summaryStatus" class="summary-status" role="status" aria-live="polite"></span>
+      </div>
+      <hr>
+      <p class="note" style="margin-bottom:4px"><strong>Where the hours go</strong></p>
+      <ul class="split" id="hourSplit"></ul>
+      <hr>
+      <p class="note" style="margin-bottom:4px"><strong>Where the cost goes</strong></p>
+      <ul class="split" id="split"></ul>
+      <hr>
+      <p class="note">Transparent arithmetic from your own inputs. Starting hours and filter rates are common ballpark figures, not an industry standard, a NADCA certification, or an indoor-air-quality test &mdash; replace them with your own takeoff.</p>
+    </section>
+  </main>
+
+  <footer>
+    <label class="check" style="font-weight:400"><input id="usageOptOut" type="checkbox"> Do not keep anonymous local usage counts</label>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not HVAC, indoor-air-quality, mold, construction, legal, tax, or financial advice, and it does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for meeting any obligation it helps you prepare for. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Nothing leaves your browser.</strong> Every number stays on this device. Usage counts are anonymous tallies of which features were used, stored locally, and never include your vent count, wages, costs, or prices.</p>
+    <p>Related: <a href="how-much-to-charge-for-duct-cleaning.html">How much to charge for duct cleaning</a>.</p>
+    <p class="support">Free and open source. If it wins you a job, the <a href="https://github.com/Duncan-Haywood/monorepo-projects" rel="noopener">project is on GitHub</a> &mdash; support is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import {
+      calculateBid,
+      formatBidSummary,
+      JOB_PRESETS,
+      suggestedJobHours,
+    } from './calc.mjs';
+    import { recordUsage } from './usage.mjs';
+
+    const FIELD_IDS = [
+      'systems','vents','returns','stories',
+      'includedSystems','includedVents','includedReturns','includedStories',
+      'hoursBaseSetup','hoursPerExtraSystem','hoursPerExtraVent','hoursPerExtraReturn',
+      'hoursPerExtraStory','hoursCrawl','hoursOccupied','hoursCoil','hoursSanitizer',
+      'hoursHeavyDebris','siteHours','filterCost','consumables','sanitizerCost',
+      'hourlyWage','burdenRate','travelAndEquipment','overheadRate','targetMargin',
+      'proposedPrice',
+    ];
+    const FLAG_IDS = ['crawl','occupied','coil','sanitizer','heavyDebris'];
+    const SELECT_IDS = ['jobType'];
+    const SUGGESTED_JOB_IDS = ['hoursBaseSetup','filterCost'];
+    const money = value => `$${value.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+    const el = id => document.getElementById(id);
+
+    const presets = el('jobPresets');
+    JOB_PRESETS.forEach((job, index) => {
+      const option = document.createElement('option');
+      option.value = String(index);
+      option.textContent = job.label;
+      presets.append(option);
+    });
+
+    function count(event) {
+      recordUsage(localStorage, el('usageOptOut').checked, event);
+    }
+
+    function applyJobHours(force) {
+      const rates = suggestedJobHours(el('jobType').value);
+      for (const [key, value] of Object.entries(rates)) {
+        if (force || !el(key).dataset.edited) el(key).value = value;
+      }
+    }
+
+    function applyJob(job) {
+      el('jobType').value = job.jobType;
+      applyJobHours(true);
+      SUGGESTED_JOB_IDS.forEach(id => { el(id).dataset.edited = ''; });
+      el('systems').value = job.systems;
+      el('vents').value = job.vents;
+      el('returns').value = job.returns;
+      el('stories').value = job.stories;
+      el('crawl').checked = job.crawl;
+      el('occupied').checked = job.occupied;
+      el('coil').checked = job.coil;
+      el('sanitizer').checked = job.sanitizer;
+      el('heavyDebris').checked = job.heavyDebris;
+    }
+
+    function readInput() {
+      const values = Object.fromEntries(FIELD_IDS.map(id => [id, el(id).value]));
+      for (const id of FLAG_IDS) values[id] = el(id).checked;
+      for (const id of SELECT_IDS) values[id] = el(id).value;
+      return values;
+    }
+
+    function clearOutputs(message, isError) {
+      el('price').textContent = message;
+      el('price').className = `hero-number ${isError ? 'negative' : ''}`;
+      el('priceLabel').textContent = isError ? 'check the highlighted input' : 'cleaning price';
+      ['scope','accessBits','hours','labor','materials','soft','overhead','cost','profit','perVent','hourlyRate','breakEven']
+        .forEach(id => { el(id).textContent = ''; });
+      el('hourSplit').innerHTML = '';
+      el('split').innerHTML = '';
+      el('verdict').hidden = true;
+    }
+
+    function barList(entries) {
+      return entries
+        .filter(([, share]) => share > 0)
+        .sort((a, b) => b[1] - a[1])
+        .map(([label, share]) => `<li><span>${label}</span><span>${share.toFixed(0)}%</span>
+          <span class="bar"><span style="width:${share.toFixed(1)}%"></span></span></li>`)
+        .join('');
+    }
+
+    function update() {
+      let result;
+      try {
+        result = calculateBid(readInput());
+      } catch (error) {
+        clearOutputs(error.message, true);
+        return;
+      }
+
+      el('price').textContent = money(result.price);
+      el('price').className = 'hero-number';
+      el('priceLabel').textContent = 'cleaning price';
+      el('scope').textContent = `${result.systems} system${result.systems === 1 ? '' : 's'} · ${result.vents} vents · ${result.stories} stor${result.stories === 1 ? 'y' : 'ies'}`;
+      const extraBits = [
+        result.jobType,
+        result.extraSystems ? `${result.extraSystems} extra system${result.extraSystems === 1 ? '' : 's'}` : null,
+        result.extraVents ? `${result.extraVents} extra vents` : null,
+        result.extraReturns ? `${result.extraReturns} extra returns` : null,
+        result.extraStories ? `${result.extraStories} extra stor${result.extraStories === 1 ? 'y' : 'ies'}` : null,
+        result.crawl ? 'crawl' : null,
+        result.occupied ? 'occupied' : null,
+        result.coil ? 'coil' : null,
+        result.sanitizer ? 'sanitizer' : null,
+        result.heavyDebris ? 'heavy debris' : null,
+      ].filter(Boolean);
+      el('accessBits').textContent = extraBits.join(', ') || 'standard ranch house special';
+      el('hours').textContent = `${result.totalHours.toFixed(1)} h`;
+      el('labor').textContent = money(result.laborCost);
+      el('materials').textContent = money(result.materialCost);
+      el('soft').textContent = money(result.softCost);
+      el('overhead').textContent = money(result.overhead);
+      el('cost').textContent = money(result.totalCost);
+      el('profit').textContent = money(result.profit);
+      el('perVent').textContent = result.pricePerVent === null ? 'n/a' : money(result.pricePerVent);
+      el('hourlyRate').textContent = result.effectiveHourlyRate === null ? 'n/a' : `${money(result.effectiveHourlyRate)}/h`;
+      el('breakEven').textContent = money(result.breakEvenPrice);
+
+      el('hourSplit').innerHTML = barList([
+        ['Base setup', result.hourShares.setup],
+        ['Extra systems + stories + crawl', result.hourShares.access],
+        ['Vents + returns + coil + extras', result.hourShares.extras],
+        ['Site / travel', result.hourShares.site],
+      ]);
+      el('split').innerHTML = barList([
+        ['Labor', result.shares.labor],
+        ['Filters + consumables', result.shares.material],
+        ['Travel', result.shares.soft],
+        ['Overhead', result.shares.overhead],
+      ]);
+
+      const verdict = el('verdict');
+      if (result.proposed === null) {
+        verdict.hidden = true;
+      } else {
+        verdict.hidden = false;
+        verdict.className = `verdict${result.proposed.belowBreakEven ? ' bad' : ''}`;
+        const rate = result.proposed.hourlyRate === null ? 'n/a' : `${money(result.proposed.hourlyRate)}/h`;
+        verdict.innerHTML = result.proposed.belowBreakEven
+          ? `At ${money(result.proposed.price)} this job <strong>loses ${money(Math.abs(result.proposed.profit))}</strong> before you take anything out of it. Your walk-away price is ${money(result.breakEvenPrice)}.`
+          : `At ${money(result.proposed.price)} you keep <strong>${money(result.proposed.profit)}</strong> — a ${result.proposed.margin.toFixed(1)}% margin, billing ${rate} of labor.`;
+      }
+    }
+
+    async function copySummary() {
+      const job = JOB_PRESETS[Number(presets.value)];
+      const text = formatBidSummary(calculateBid(readInput()), job?.label);
+      try {
+        await navigator.clipboard.writeText(text);
+      } catch {
+        const fallback = document.createElement('textarea');
+        fallback.value = text;
+        fallback.setAttribute('readonly', '');
+        fallback.style.position = 'fixed';
+        fallback.style.opacity = '0';
+        document.body.append(fallback);
+        fallback.select();
+        document.execCommand('copy');
+        fallback.remove();
+      }
+      count('summary_copied');
+      el('summaryStatus').textContent = 'Copied to clipboard';
+      setTimeout(() => { el('summaryStatus').textContent = ''; }, 2500);
+    }
+
+    presets.addEventListener('change', () => {
+      const job = JOB_PRESETS[Number(presets.value)];
+      if (!job) return;
+      applyJob(job);
+      count('preset_applied');
+      update();
+    });
+
+    el('jobType').addEventListener('change', () => {
+      applyJobHours(false);
+      count('bid_calculated');
+      update();
+    });
+
+    SUGGESTED_JOB_IDS
+      .forEach(id => el(id).addEventListener('input', () => { el(id).dataset.edited = '1'; }));
+
+    FIELD_IDS.forEach(id => {
+      el(id).addEventListener('input', update);
+      el(id).addEventListener('change', () => count(id === 'proposedPrice' ? 'proposed_price_compared' : 'bid_calculated'));
+    });
+    FLAG_IDS.forEach(id => {
+      el(id).addEventListener('change', () => {
+        count('bid_calculated');
+        update();
+      });
+    });
+    el('usageOptOut').addEventListener('change', update);
+    el('copySummary').addEventListener('click', () => {
+      try {
+        copySummary().catch(() => { el('summaryStatus').textContent = 'Copy failed; select and copy the figures above.'; });
+      } catch (error) {
+        el('summaryStatus').textContent = error.message;
+      }
+    });
+
+    update();
+  </script>
+</body>
+</html>

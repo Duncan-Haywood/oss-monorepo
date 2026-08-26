@@ -1,0 +1,27 @@
+name: mcp-supply-chain-watch
+description: A local MCP manifest drift checker that creates reviewable evidence when connected server tools change.
+stage: prototype
+owner: duncan
+hypotheses:
+  - claim: Agent teams need a durable record of what an MCP server declared when it was approved.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: A local JSON diff is useful enough to run in CI before an agent integration is trusted again.
+    status: untested
+    checked: null
+    evidence: customer-contact
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+budget:
+  monthly_cap: 1
+  protected: true
+kill_criteria:
+  - Fewer than three qualified agent teams run the checker twice within 90 days.
+  - Users cannot identify a changed or removed tool from the generated report.
+links:
+  production: null
+  analytics: null
