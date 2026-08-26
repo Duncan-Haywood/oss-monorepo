@@ -1367,3 +1367,28 @@ products:
 #           repo_views_14d: 0
 #           release_downloads_total: 0
 #         note: Shipped today; baseline reading.
+  - slug: automatic-driveway-gate-bid-calculator
+    surface: static-page-in-repo
+    readings:
+      - as_of: 2026-08-25
+        signals:
+          live_url_visitors: null
+          local_calculation_events: 0
+          summary_copies: 0
+        note: >-
+          Shipped a browser-local automatic driveway gate bid calculator
+          (single vs dual swing vs slide, columns, loops, solar vs AC).
+          Public URL remains owner-gated; counters are local, aggregate,
+          and opt-out.
+
+# Example of the shape, once a product has shipped:
+#
+# products:
+#   - slug: example-product
+#     surface: github-pages
+#     readings:
+#       - as_of: 2026-08-24
+#         signals:
+#           repo_views_14d: 0
+#           release_downloads_total: 0
+#         note: Shipped today; baseline reading.
