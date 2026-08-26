@@ -1,0 +1,413 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Hot Tub Bid Calculator | Price the Crane, the Pad, and the Circuit — Not Just $499 Setup</title>
+  <meta name="description" content="Price a hot-tub install from size, access path, circuit footage, pad, haul-away, and crane — not a published $499-delivery-and-setup special. See the walk-away number before you match a cheaper quote.">
+  <meta property="og:title" content="Hot Tub Bid Calculator">
+  <meta property="og:description" content="A compact tub dropped on an existing patio with a live 50-amp stub is not the same job as a large swim spa that needs a crane over the fence, a new pad, and a 60-amp disconnect. Bid the crane and the extras.">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Hot Tub Bid Calculator","applicationCategory":"BusinessApplication","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"featureList":"Compact versus mid versus swim spa, driveway versus crane access, existing 50A versus new 60A disconnect, circuit footage, new pad, haul-away, cover lift, steps, gas run, walk-away price, proposed-price margin check, copyable customer-facing bid summary"}</script>
+  <style>
+    :root { color-scheme: light; font-family: system-ui, sans-serif; color: #123038; background: #dceef2; }
+    body { max-width: 1060px; margin: 0 auto; padding: 32px 18px; }
+    header { max-width: 740px; margin-bottom: 26px; }
+    h1 { font-size: clamp(2rem, 6vw, 3.4rem); line-height: .98; margin: 0 0 12px; letter-spacing: -.05em; }
+    p { line-height: 1.5; }
+    .eyebrow { font-size: .8rem; font-weight: 700; letter-spacing: .08em; color: #0d6e7a; margin: 0 0 6px; }
+    .layout { display: grid; grid-template-columns: minmax(0, 1fr) minmax(300px, .75fr); gap: 18px; align-items: start; }
+    section { background: #fff; border: 1px solid #9cc4cc; border-radius: 14px; padding: 20px; box-shadow: 0 8px 24px #1230380d; margin-bottom: 18px; }
+    h2 { margin-top: 0; font-size: 1.15rem; }
+    .hint { font-size: .82rem; color: #3a5c64; margin: -6px 0 14px; }
+    .fields { display: grid; grid-template-columns: repeat(2, 1fr); gap: 13px; }
+    label { display: grid; gap: 5px; font-size: .87rem; font-weight: 650; }
+    input, select { width: 100%; box-sizing: border-box; border: 1px solid #4a7f88; border-radius: 7px; padding: 10px; font: inherit; background: #fff; }
+    label.check { display: flex; gap: 8px; align-items: center; font-weight: 650; }
+    label.check input { width: auto; }
+    button { font: inherit; border-radius: 7px; border: 1px solid #4a7f88; background: #d4eef2; padding: 10px 14px; cursor: pointer; font-weight: 650; }
+    button:hover { background: #bfe3e8; }
+    .result { position: sticky; top: 15px; background: #0b3a42; color: #e8f6f8; border-color: #0b3a42; }
+    .hero-number { font-size: 2.7rem; font-weight: 750; letter-spacing: -.05em; margin: 8px 0; }
+    .negative { color: #ffb0a2; }
+    dl { display: grid; grid-template-columns: 1fr auto; gap: 9px; margin: 20px 0; }
+    dt, dd { margin: 0; } dd { font-variant-numeric: tabular-nums; }
+    hr { border: 0; border-top: 1px solid #ffffff2b; }
+    .note { font-size: .82rem; opacity: .84; }
+    .split { margin: 14px 0 0; padding: 0; list-style: none; font-size: .84rem; }
+    .split li { display: grid; grid-template-columns: 1fr auto; gap: 8px; padding: 3px 0; }
+    .bar { grid-column: 1 / -1; height: 4px; border-radius: 2px; background: #ffffff2e; }
+    .bar > span { display: block; height: 100%; border-radius: 2px; background: #3db8c4; }
+    .verdict { margin-top: 14px; padding: 12px; border-radius: 9px; font-size: .87rem; background: #ffffff1a; }
+    .verdict.bad { background: #7d2317; }
+    footer { margin-top: 25px; font-size: .82rem; color: #3a5c64; }
+    footer a { color: #0d6e7a; }
+    .support { margin-top: 14px; }
+    .summary-actions { display: flex; gap: 8px; align-items: center; margin-top: 14px; }
+    .summary-status { font-size: .8rem; color: #b8e4ea; }
+    @media (max-width: 780px) {
+      .layout { grid-template-columns: 1fr; } .result { position: static; } .fields { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="eyebrow">FOR POOL AND SPA DEALERS</p>
+    <h1>Bid the crane, the pad, and the circuit.</h1>
+    <p>Price a hot-tub install the way the trade actually loses money: crane access, a new pad, circuit footage, a 60-amp disconnect, and haul-away as their own hours. You get the bid, the hours the first backyard crane actually consumes, and the walk-away number below which the job loses money.</p>
+  </header>
+
+  <main class="layout">
+    <div>
+      <section>
+        <h2>The spa</h2>
+        <p class="hint">Start from a common job, then replace every figure with your takeoff. Changing size, access, or power never overwrites a rate you already typed. This prices a portable spa hang — not a pool plaster, and not a water-heater swap.</p>
+        <div class="fields">
+          <label>Job preset
+            <select id="jobPresets">
+              <option value="">Choose a starting job…</option>
+            </select>
+          </label>
+          <label>Size
+            <select id="size">
+              <option value="compact" selected>Compact (4-person / ~5.5 ft)</option>
+              <option value="mid">Mid (6-person / typical dealer tub)</option>
+              <option value="large">Large / swim spa (7–8 person)</option>
+            </select>
+          </label>
+          <label>Access
+            <select id="access">
+              <option value="drive" selected>Driveway / patio drop, crane-free</option>
+              <option value="gate">Backyard through-gate / tight path</option>
+              <option value="crane">Crane / boom over fence or house</option>
+            </select>
+          </label>
+          <label>Power
+            <select id="power">
+              <option value="existing" selected>Existing 50A GFCI within 10 ft</option>
+              <option value="run50">New 50A GFCI run</option>
+              <option value="run60">New 60A + disconnect</option>
+            </select>
+          </label>
+          <label>Circuit footage (ft) <input id="circuitFeet" type="number" min="0" step="0.5" value="0"></label>
+          <label class="check"><input id="addPad" type="checkbox"> New concrete pad</label>
+          <label class="check"><input id="addHaul" type="checkbox"> Haul-away the old tub</label>
+          <label class="check"><input id="addCoverLift" type="checkbox"> Cover lift</label>
+          <label class="check"><input id="addSteps" type="checkbox"> Steps</label>
+          <label class="check"><input id="addGas" type="checkbox"> Gas run / conversion</label>
+        </div>
+      </section>
+
+      <section>
+        <h2>Your crew rates</h2>
+        <div class="fields">
+          <label>Hours for the trip / setup <input id="hoursTrip" type="number" min="0" step="0.25" value="1.5"></label>
+          <label>Hours to set the spa <input id="hoursSet" type="number" min="0" step="0.1" value="2.5"></label>
+          <label>Through-gate / crane hours <input id="hoursAccess" type="number" min="0" step="0.1" value="0"></label>
+          <label>60A / disconnect hours <input id="hoursPower" type="number" min="0" step="0.1" value="1.2"></label>
+          <label>Hours / circuit foot <input id="hoursPerCircuitFoot" type="number" min="0" step="0.01" value="0.06"></label>
+          <label>Hours for a new pad <input id="hoursPad" type="number" min="0" step="0.1" value="3.5"></label>
+          <label>Hours to haul the old tub <input id="hoursHaul" type="number" min="0" step="0.1" value="1.8"></label>
+          <label>Hours for a cover lift <input id="hoursCoverLift" type="number" min="0" step="0.1" value="0.8"></label>
+          <label>Hours for steps <input id="hoursSteps" type="number" min="0" step="0.1" value="0.6"></label>
+          <label>Hours for a gas run <input id="hoursGas" type="number" min="0" step="0.1" value="2.4"></label>
+          <label>Site / travel hours <input id="siteHours" type="number" min="0" step="0.25" value="0.5"></label>
+          <label>Spa unit cost <input id="unitCost" type="number" min="0" step="25" value="4800"></label>
+          <label>Size unit-cost multiplier <input id="unitCostMultiplier" type="number" min="0" step="0.02" value="1"></label>
+          <label>Crane / boom fee <input id="craneFee" type="number" min="0" step="10" value="850"></label>
+          <label>GFCI / disconnect / whip <input id="circuitKit" type="number" min="0" step="5" value="220"></label>
+          <label>Circuit / ft <input id="circuitPerFoot" type="number" min="0" step="0.25" value="9.5"></label>
+          <label>New pad <input id="padCost" type="number" min="0" step="10" value="980"></label>
+          <label>Haul-away / dump <input id="haulFee" type="number" min="0" step="5" value="185"></label>
+          <label>Cover lift <input id="coverLiftCost" type="number" min="0" step="5" value="420"></label>
+          <label>Steps <input id="stepsCost" type="number" min="0" step="5" value="160"></label>
+          <label>Gas line / conversion <input id="gasCost" type="number" min="0" step="5" value="380"></label>
+          <label>Permit fee <input id="permitFee" type="number" min="0" step="5" value="165"></label>
+          <label>Crew hourly wage <input id="hourlyWage" type="number" min="0" step="0.25" value="48"></label>
+          <label>Payroll burden (%) <input id="burdenRate" type="number" min="0" step="0.5" value="34"></label>
+          <label>Travel, truck, recovery <input id="travelAndEquipment" type="number" min="0" step="5" value="145"></label>
+          <label>Overhead on direct cost (%) <input id="overheadRate" type="number" min="0" step="0.5" value="18"></label>
+          <label>Target net margin (%) <input id="targetMargin" type="number" min="0" max="99.9" step="0.5" value="32"></label>
+          <label>Price you&rsquo;re considering (optional) <input id="proposedPrice" type="number" min="0" step="25" placeholder="e.g. 499"></label>
+        </div>
+        <p class="hint" style="margin-top:14px;margin-bottom:0">A $48/h installer loaded at 34% is $64.32. Quoting the raw wage on a published $499-setup special is how a swim spa that needs a crane and sixty feet of trench that looked fine turns into a two-day loss after the first stuck disconnect. Set spa unit cost to 0 if you are pricing delivery and setup only.</p>
+      </section>
+    </div>
+
+    <section class="result" aria-live="polite">
+      <h2>Your bid</h2>
+      <div id="price" class="hero-number">$&mdash;</div>
+      <div id="priceLabel">hot-tub price</div>
+      <dl>
+        <dt>Size and access</dt><dd id="scope"></dd>
+        <dt>Power and extras</dt><dd id="accessBits"></dd>
+        <dt>Crew hours</dt><dd id="hours"></dd>
+        <dt>Loaded labor</dt><dd id="labor"></dd>
+        <dt>Spa + extras</dt><dd id="materials"></dd>
+        <dt>Travel + equipment</dt><dd id="soft"></dd>
+        <dt>Overhead</dt><dd id="overhead"></dd>
+        <dt>Total cost</dt><dd id="cost"></dd>
+        <dt>Profit at this price</dt><dd id="profit"></dd>
+        <dt>Effective hourly rate</dt><dd id="hourlyRate"></dd>
+        <dt>Walk-away price</dt><dd id="breakEven"></dd>
+      </dl>
+      <div id="verdict" class="verdict" hidden></div>
+      <div class="summary-actions">
+        <button type="button" id="copySummary">Copy bid summary</button>
+        <span id="summaryStatus" class="summary-status" role="status" aria-live="polite"></span>
+      </div>
+      <hr>
+      <p class="note" style="margin-bottom:4px"><strong>Where the hours go</strong></p>
+      <ul class="split" id="hourSplit"></ul>
+      <hr>
+      <p class="note" style="margin-bottom:4px"><strong>Where the cost goes</strong></p>
+      <ul class="split" id="split"></ul>
+      <hr>
+      <p class="note">Transparent arithmetic from your own inputs. Starting hours and material rates are common ballpark figures, not an industry standard or an electrical design &mdash; replace them with your own takeoff.</p>
+    </section>
+  </main>
+
+  <footer>
+    <label class="check" style="font-weight:400"><input id="usageOptOut" type="checkbox"> Do not keep anonymous local usage counts</label>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not construction, legal, tax, financial, or engineering advice, and it does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for meeting any obligation it helps you prepare for. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Nothing leaves your browser.</strong> Every number stays on this device. Usage counts are anonymous tallies of which features were used, stored locally, and never include your spa, wages, costs, or prices.</p>
+    <p>Related: <a href="how-much-to-charge-to-install-a-hot-tub.html">How much to charge to install a hot tub</a>.</p>
+    <p class="support">Free and open source. If it wins you a job, the <a href="https://github.com/Duncan-Haywood/monorepo-projects" rel="noopener">project is on GitHub</a> &mdash; support is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import {
+      calculateBid,
+      formatBidSummary,
+      JOB_PRESETS,
+      suggestedSizeKit,
+      suggestedAccessKit,
+      suggestedPowerKit,
+    } from './calc.mjs';
+    import { recordUsage } from './usage.mjs';
+
+    const FIELD_IDS = [
+      'circuitFeet',
+      'hoursTrip','hoursSet','hoursAccess','hoursPower',
+      'hoursPerCircuitFoot','hoursPad','hoursHaul','hoursCoverLift',
+      'hoursSteps','hoursGas','siteHours',
+      'unitCost','unitCostMultiplier','craneFee','circuitKit','circuitPerFoot',
+      'padCost','haulFee','coverLiftCost','stepsCost','gasCost','permitFee',
+      'hourlyWage','burdenRate','travelAndEquipment','overheadRate','targetMargin',
+      'proposedPrice',
+    ];
+    const FLAG_IDS = ['addPad','addHaul','addCoverLift','addSteps','addGas'];
+    const SELECT_IDS = ['size','access','power'];
+    const SUGGESTED_SIZE_IDS = ['hoursSet','unitCostMultiplier'];
+    const SUGGESTED_ACCESS_IDS = ['hoursAccess'];
+    const SUGGESTED_POWER_IDS = ['hoursPower'];
+    const money = value => `$${value.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+    const el = id => document.getElementById(id);
+
+    const presets = el('jobPresets');
+    JOB_PRESETS.forEach((job, index) => {
+      const option = document.createElement('option');
+      option.value = String(index);
+      option.textContent = job.label;
+      presets.append(option);
+    });
+
+    function count(event) {
+      recordUsage(localStorage, el('usageOptOut').checked, event);
+    }
+
+    function applyKit(force, rates, ids) {
+      for (const [key, value] of Object.entries(rates)) {
+        if (force || !el(key).dataset.edited) el(key).value = value;
+      }
+      if (ids) {
+        /* keep ids referenced so a future kit field is not silently dropped */
+      }
+    }
+
+    function applySizeKit(force) {
+      applyKit(force, suggestedSizeKit(el('size').value), SUGGESTED_SIZE_IDS);
+    }
+    function applyAccessKit(force) {
+      applyKit(force, suggestedAccessKit(el('access').value), SUGGESTED_ACCESS_IDS);
+    }
+    function applyPowerKit(force) {
+      applyKit(force, suggestedPowerKit(el('power').value), SUGGESTED_POWER_IDS);
+    }
+
+    function applyJob(job) {
+      el('size').value = job.size;
+      el('access').value = job.access;
+      el('power').value = job.power;
+      applySizeKit(true);
+      applyAccessKit(true);
+      applyPowerKit(true);
+      [...SUGGESTED_SIZE_IDS, ...SUGGESTED_ACCESS_IDS, ...SUGGESTED_POWER_IDS]
+        .forEach(id => { el(id).dataset.edited = ''; });
+      el('circuitFeet').value = job.circuitFeet;
+      el('addPad').checked = job.addPad;
+      el('addHaul').checked = job.addHaul;
+      el('addCoverLift').checked = job.addCoverLift;
+      el('addSteps').checked = job.addSteps;
+      el('addGas').checked = job.addGas;
+    }
+
+    function readInput() {
+      const values = Object.fromEntries(FIELD_IDS.map(id => [id, el(id).value]));
+      for (const id of FLAG_IDS) values[id] = el(id).checked;
+      for (const id of SELECT_IDS) values[id] = el(id).value;
+      return values;
+    }
+
+    function clearOutputs(message, isError) {
+      el('price').textContent = message;
+      el('price').className = `hero-number ${isError ? 'negative' : ''}`;
+      el('priceLabel').textContent = isError ? 'check the highlighted input' : 'hot-tub price';
+      ['scope','accessBits','hours','labor','materials','soft','overhead','cost','profit','hourlyRate','breakEven']
+        .forEach(id => { el(id).textContent = ''; });
+      el('hourSplit').innerHTML = '';
+      el('split').innerHTML = '';
+      el('verdict').hidden = true;
+    }
+
+    function barList(entries) {
+      return entries
+        .filter(([, share]) => share > 0)
+        .sort((a, b) => b[1] - a[1])
+        .map(([label, share]) => `<li><span>${label}</span><span>${share.toFixed(0)}%</span>
+          <span class="bar"><span style="width:${share.toFixed(1)}%"></span></span></li>`)
+        .join('');
+    }
+
+    function update() {
+      let result;
+      try {
+        result = calculateBid(readInput());
+      } catch (error) {
+        clearOutputs(error.message, true);
+        return;
+      }
+
+      el('price').textContent = money(result.price);
+      el('price').className = 'hero-number';
+      el('priceLabel').textContent = 'hot-tub price';
+      el('scope').textContent = `${result.size} · ${result.access}`;
+      const extraBits = [
+        result.access === 'crane' ? 'crane' : null,
+        result.power === 'run60' ? '60A disconnect' : null,
+        result.power !== 'existing' && result.circuitFeet ? `${result.circuitFeet} ft circuit` : null,
+        result.addPad ? 'new pad' : null,
+        result.addHaul ? 'haul-away' : null,
+        result.addCoverLift ? 'cover lift' : null,
+        result.addSteps ? 'steps' : null,
+        result.addGas ? 'gas run' : null,
+      ].filter(Boolean);
+      el('accessBits').textContent = extraBits.join(', ') || 'standard brochure driveway drop';
+      el('hours').textContent = `${result.totalHours.toFixed(1)} h`;
+      el('labor').textContent = money(result.laborCost);
+      el('materials').textContent = money(result.materialCost);
+      el('soft').textContent = money(result.softCost);
+      el('overhead').textContent = money(result.overhead);
+      el('cost').textContent = money(result.totalCost);
+      el('profit').textContent = money(result.profit);
+      el('hourlyRate').textContent = result.effectiveHourlyRate === null ? 'n/a' : `${money(result.effectiveHourlyRate)}/h`;
+      el('breakEven').textContent = money(result.breakEvenPrice);
+
+      el('hourSplit').innerHTML = barList([
+        ['Trip / setup', result.hourShares.trip],
+        ['Set the spa', result.hourShares.set],
+        ['Access / crane', result.hourShares.access],
+        ['Circuit / disconnect', result.hourShares.power],
+        ['Pad / haul / cover / steps / gas', result.hourShares.extras],
+        ['Site / travel', result.hourShares.site],
+      ]);
+      el('split').innerHTML = barList([
+        ['Labor', result.shares.labor],
+        ['Spa + extras', result.shares.material],
+        ['Travel', result.shares.soft],
+        ['Overhead', result.shares.overhead],
+      ]);
+
+      const verdict = el('verdict');
+      if (result.proposed === null) {
+        verdict.hidden = true;
+      } else {
+        verdict.hidden = false;
+        verdict.className = `verdict${result.proposed.belowBreakEven ? ' bad' : ''}`;
+        const rate = result.proposed.hourlyRate === null ? 'n/a' : `${money(result.proposed.hourlyRate)}/h`;
+        verdict.innerHTML = result.proposed.belowBreakEven
+          ? `At ${money(result.proposed.price)} this job <strong>loses ${money(Math.abs(result.proposed.profit))}</strong> before you take anything out of it. Your walk-away price is ${money(result.breakEvenPrice)}.`
+          : `At ${money(result.proposed.price)} you keep <strong>${money(result.proposed.profit)}</strong> — a ${result.proposed.margin.toFixed(1)}% margin, billing ${rate} of labor.`;
+      }
+    }
+
+    async function copySummary() {
+      const job = JOB_PRESETS[Number(presets.value)];
+      const text = formatBidSummary(calculateBid(readInput()), job?.label);
+      try {
+        await navigator.clipboard.writeText(text);
+      } catch {
+        const fallback = document.createElement('textarea');
+        fallback.value = text;
+        fallback.setAttribute('readonly', '');
+        fallback.style.position = 'fixed';
+        fallback.style.opacity = '0';
+        document.body.append(fallback);
+        fallback.select();
+        document.execCommand('copy');
+        fallback.remove();
+      }
+      count('summary_copied');
+      el('summaryStatus').textContent = 'Copied to clipboard';
+      setTimeout(() => { el('summaryStatus').textContent = ''; }, 2500);
+    }
+
+    presets.addEventListener('change', () => {
+      const job = JOB_PRESETS[Number(presets.value)];
+      if (!job) return;
+      applyJob(job);
+      count('preset_applied');
+      update();
+    });
+
+    el('size').addEventListener('change', () => {
+      applySizeKit(false);
+      count('bid_calculated');
+      update();
+    });
+    el('access').addEventListener('change', () => {
+      applyAccessKit(false);
+      count('bid_calculated');
+      update();
+    });
+    el('power').addEventListener('change', () => {
+      applyPowerKit(false);
+      count('bid_calculated');
+      update();
+    });
+
+    [...SUGGESTED_SIZE_IDS, ...SUGGESTED_ACCESS_IDS, ...SUGGESTED_POWER_IDS]
+      .forEach(id => el(id).addEventListener('input', () => { el(id).dataset.edited = '1'; }));
+
+    FIELD_IDS.forEach(id => {
+      el(id).addEventListener('input', update);
+      el(id).addEventListener('change', () => count(id === 'proposedPrice' ? 'proposed_price_compared' : 'bid_calculated'));
+    });
+    FLAG_IDS.forEach(id => {
+      el(id).addEventListener('change', () => {
+        count('bid_calculated');
+        update();
+      });
+    });
+    el('usageOptOut').addEventListener('change', update);
+    el('copySummary').addEventListener('click', () => {
+      try {
+        copySummary().catch(() => { el('summaryStatus').textContent = 'Copy failed; select and copy the figures above.'; });
+      } catch (error) {
+        el('summaryStatus').textContent = error.message;
+      }
+    });
+
+    update();
+  </script>
+</body>
+</html>
