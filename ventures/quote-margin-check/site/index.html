@@ -330,6 +330,9 @@
       <button type="button" id="copy-csv">Copy as CSV</button>
       <button type="button" id="download-csv">Download CSV</button>
       <button type="button" id="download-report">Download JSON report</button>
+      <button type="button" id="download-draft">Download draft</button>
+      <label for="import-draft" class="hint">Open draft JSON</label>
+      <input type="file" id="import-draft" accept="application/json,.json" />
       <button type="button" id="save-history">Save this review locally</button>
       <span id="copy-status" class="hint" role="status" aria-live="polite"></span>
     </div>
@@ -458,6 +461,7 @@
   import { reportDocument } from "./report.mjs";
   import { recordEvent, createReportCounter, isUsageCountingEnabled, setUsageCountingEnabled } from "./usage.mjs";
   import { loadDraft, saveDraft, clearDraft } from "./draft.mjs";
+  import { serializeDraft, parseDraft, draftFileName } from "./drafts.mjs";
   import { listHistory, saveHistory, deleteHistory, clearHistory } from "./history.mjs";
 
   // Counts settled quotes rather than keystrokes — see usage.mjs.
@@ -659,6 +663,50 @@
     clearDraft();
     update();
     recordEvent("draft_reset");
+  });
+  document.getElementById("download-draft").addEventListener("click", () => {
+    if (!lastReport?.quote) {
+      document.getElementById("copy-status").textContent = "Fix the inputs above first.";
+      return;
+    }
+    const blob = new Blob([serializeDraft(lastReport.quote)], { type: "application/json" });
+    const link = document.createElement("a");
+    link.href = URL.createObjectURL(blob);
+    link.download = draftFileName;
+    link.click();
+    URL.revokeObjectURL(link.href);
+    document.getElementById("copy-status").textContent = "Draft downloaded locally.";
+    recordEvent("draft_exported");
+  });
+  document.getElementById("import-draft").addEventListener("change", () => {
+    const file = document.getElementById("import-draft").files?.[0];
+    const status = document.getElementById("copy-status");
+    const input = document.getElementById("import-draft");
+    if (!file) return;
+    if (file.size > 32 * 1024) {
+      status.textContent = "Draft file is too large.";
+      input.value = "";
+      return;
+    }
+    file.text().then((text) => {
+      try {
+        const quote = parseDraft(text, loadQuote);
+        for (const id of ids) {
+          if (quote[id] !== undefined) el[id].value = String(quote[id]);
+        }
+        dismissExampleNote();
+        update();
+        status.textContent = "Draft opened locally.";
+        recordEvent("draft_imported");
+      } catch (err) {
+        status.textContent = err instanceof Error ? err.message : "Couldn't read that draft file.";
+      } finally {
+        input.value = "";
+      }
+    }).catch(() => {
+      status.textContent = "Couldn't read that draft file.";
+      input.value = "";
+    });
   });
   update();
   // The first render is the pre-filled example, not a quote the visitor asked

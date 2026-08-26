@@ -168,6 +168,17 @@ test("calculator page persists a local draft and can reset it", async () => {
   assert.match(page, /Reset to example/);
 });
 
+test("calculator page can export and import a portable draft file", async () => {
+  const page = await readFile(new URL("./index.html", import.meta.url), "utf8");
+  assert.match(page, /id="download-draft"/);
+  assert.match(page, /id="import-draft"/);
+  assert.match(page, /from "\.\/drafts\.mjs"/);
+  assert.match(page, /draft_exported/);
+  assert.match(page, /draft_imported/);
+  assert.match(page, /draftFileName/);
+  assert.match(page, /Download draft/);
+});
+
 test("calculator page can download a local JSON report", async () => {
   const page = await readFile(new URL("./index.html", import.meta.url), "utf8");
   assert.match(page, /id="download-report"/);

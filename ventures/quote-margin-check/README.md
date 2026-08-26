@@ -41,7 +41,11 @@ records an anonymous `review_summary_copied` event locally; quote values are
 never stored in that event or sent anywhere. The browser can also remember
 the current worksheet in local storage on this device. Restoring or resetting
 that draft records anonymous `draft_restored` / `draft_reset` events; quote
-values stay in the browser.
+values stay in the browser. The browser can also download those same quote
+inputs as a small JSON draft and open that file later or on another device.
+Draft files contain only the entered quote fields, are validated before use,
+and are never uploaded. Downloading or opening a file records anonymous
+`draft_exported` / `draft_imported` events locally.
 Batch CSV emits one comparison row per filename, making a folder of recurring
 proposal reviews easy to sort and filter without exposing the proposal data.
 When a quote clears the supplied target, `discount_room` shows the arithmetic
