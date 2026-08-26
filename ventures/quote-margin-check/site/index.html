@@ -42,6 +42,30 @@
         "@type": "Answer",
         "text": "Fixed-price quotes usually price only the visible delivery work. Admin time (calls, invoicing, project management), revision rounds, and subcontractor or tool costs quietly eat into the same fixed price, so the effective hourly rate ends up well below the rate you meant to charge."
       }
+    },
+    {
+      "@type": "Question",
+      "name": "What if materials or a subcontractor quote go up after I send a fixed price?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Keep the quoted price and hours fixed and raise only overhead plus subcontractor cost. The calculator shows the new effective hourly rate and the price that would still hit your target rate at +10%, +25%, and +50%. That is arithmetic on your inputs, not a forecast of supplier prices."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "What if the client asks for 10% off a fixed-price quote?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Keep hours and direct costs fixed and lower only the quoted price. On the calculator example ($2,400, 35 hours, $480 of direct costs, $75 target), 10% off is $2,160 and $48.00/hour. Holding $75/hour would take cutting 12.60 hours of scope. That is arithmetic on your inputs, not a negotiation script."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Should I take a kill fee or finish the remaining hours?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Compare cash kept if you finish, cash kept if you take the kill fee, and cash kept if you walk with only what is already paid. On the calculator example ($2,400, 35 hours, $480 of costs, 14 hours already spent, $1,200 already paid, $360 kill fee, $180 sunk), finishing keeps $1,920.00 — $540.00 more cash than the kill fee. Booking the 21 freed hours at $75/hour would make the kill fee $1,035.00 ahead. That is arithmetic on your inputs, not advice to cancel or finish."
+      }
     }
   ]
 }
@@ -180,6 +204,85 @@
 
     <div class="result" id="result" role="status" aria-live="polite"></div>
     <div class="result" id="sensitivity" aria-live="polite"><strong>If the work takes longer</strong><p class="hint">A scenario view, not a prediction. Direct costs stay unchanged.</p><div class="table-scroll"><table class="sensitivity"><thead><tr><th>Extra time</th><th>Total hours</th><th>Effective rate</th><th>Gap to target</th></tr></thead><tbody></tbody></table></div></div>
+    <div class="result" id="cost-spike" aria-live="polite">
+      <strong>If costs rise before you start</strong>
+      <p class="hint">Hours and the quoted price stay unchanged. Only overhead and subcontractor cost move. <a href="if-costs-go-up-is-this-quote-still-alive.html">Worked example</a>.</p>
+      <p class="hint" id="cost-spike-summary"></p>
+      <div class="table-scroll">
+        <table class="sensitivity">
+          <thead>
+            <tr>
+              <th>Cost rise</th>
+              <th>Direct costs</th>
+              <th>Effective rate</th>
+              <th>Price to hold target</th>
+              <th>Gap to target</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </div>
+    <div class="result" id="discount-ask" aria-live="polite">
+      <strong>If they ask for a percent off</strong>
+      <p class="hint">Hours and direct costs stay unchanged. Only the quoted price moves. <a href="if-they-ask-for-10-percent-off.html">Worked example</a>.</p>
+      <p class="hint" id="discount-ask-summary"></p>
+      <div class="table-scroll">
+        <table class="sensitivity">
+          <thead>
+            <tr>
+              <th>Discount</th>
+              <th>Price</th>
+              <th>Effective rate</th>
+              <th>Hours to cut to hold target</th>
+              <th>Gap to target</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </div>
+    <div class="result" id="kill-fee" aria-live="polite">
+      <strong>If they cancel mid-project</strong>
+      <p class="hint">Compare finishing the remaining hours with taking a kill fee or walking with only what is already paid. Uncommitted remaining costs are avoided if you stop. Freed hours valued at your target rate are a what-if, not a booked job. <a href="should-i-take-this-kill-fee-or-finish.html">Worked example</a>.</p>
+      <div class="row">
+        <div>
+          <label for="hours_done">Hours already spent</label>
+          <input type="number" id="hours_done" inputmode="decimal" value="14" min="0" step="any" />
+        </div>
+        <div>
+          <label for="already_paid">Already paid to you</label>
+          <input type="number" id="already_paid" inputmode="decimal" value="1200" min="0" step="any" />
+        </div>
+      </div>
+      <div class="row">
+        <div>
+          <label for="kill_fee">Kill fee offered (extra)</label>
+          <input type="number" id="kill_fee" inputmode="decimal" value="360" min="0" step="any" />
+          <p class="hint">On top of what they already paid. Walk with only the deposit by setting this to 0.</p>
+        </div>
+        <div>
+          <label for="sunk_costs">Costs already spent</label>
+          <input type="number" id="sunk_costs" inputmode="decimal" value="180" min="0" step="any" />
+          <p class="hint">The rest of overhead and subcontractors is treated as cancellable if you stop.</p>
+        </div>
+      </div>
+      <p class="hint" id="kill-fee-summary"></p>
+      <div class="table-scroll">
+        <table class="sensitivity">
+          <thead>
+            <tr>
+              <th>Path</th>
+              <th>Cash kept</th>
+              <th>Vs finishing</th>
+              <th>Hours freed</th>
+              <th>If you refill at target</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </div>
       <div class="result" id="review" aria-live="polite"><strong>Before you send it</strong><ul class="checks"></ul></div>
 
     <div class="actions">
@@ -205,6 +308,29 @@
       what costs and target rate are appropriate for the job.
     </p>
     <p>
+      It also shows what happens if overhead and subcontractor costs rise
+      +10%, +25%, or +50% before you start. Hours and the quoted price stay
+      fixed — the table is the cash you lose, or the new price that would
+      still hit your target rate. That is not a forecast of supplier prices.
+      See <a href="if-costs-go-up-is-this-quote-still-alive.html">if costs go up, is this quote still alive</a>.
+    </p>
+    <p>
+      A third table keeps hours and costs fixed and knocks 5–20% off the
+      quoted price. That is the “can you do 10%?” email. It shows the new
+      effective rate and how many hours of scope would have to leave to
+      still hit your target rate. It is not a negotiation script. See
+      <a href="if-they-ask-for-10-percent-off.html">if they ask for 10% off</a>.
+    </p>
+    <p>
+      A fourth table is the mid-project cancel. Type hours already spent,
+      cash already collected, a kill fee on top of that, and costs that
+      are already sunk. It shows cash kept if you finish, cash kept if
+      you take the fee, and cash kept if you walk with only the deposit
+      — then the same three paths if the freed hours could be rebooked
+      at your target rate. It does not tell you to cancel or finish.
+      See <a href="should-i-take-this-kill-fee-or-finish.html">should I take this kill fee or finish</a>.
+    </p>
+    <p>
       Prefer the command line, or need to batch several quotes into a
       spreadsheet? The same logic ships as a
       <a href="https://github.com/Duncan-Haywood/monorepo-projects/tree/main/ventures/quote-margin-check">Python CLI</a>
@@ -223,6 +349,11 @@
       obligation it helps you prepare for. To the maximum extent permitted by
       law, the authors accept no liability for any loss or damage arising
       from its use.
+    </p>
+    <p>
+      <strong>Best-effort hosting, no SLA.</strong> These tools are free,
+      experimental, and may be slow, broken, moved, or taken offline without
+      notice.
     </p>
 
     <h2 id="privacy-heading">Privacy</h2>
@@ -250,7 +381,7 @@
 </main>
 
 <script type="module">
-  import { loadQuote, calculate, overrunScenarios } from "./calc.mjs";
+  import { loadQuote, calculate, overrunScenarios, directCostSpikeScenarios, directCostSpikeSummary, discountAskScenarios, discountAskSummary, loadKillFeeProgress, compareKillFee, killFeeSummary } from "./calc.mjs";
   import { reviewQuote } from "./review.mjs";
   import { recordEvent, createReportCounter, isUsageCountingEnabled, setUsageCountingEnabled } from "./usage.mjs";
 
@@ -258,10 +389,14 @@
   const reportCounter = createReportCounter();
 
   const ids = ["currency", "price", "delivery_hours", "admin_hours", "revision_hours", "overhead", "subcontractor_cost", "target_hourly_rate"];
-  const el = Object.fromEntries(ids.map((id) => [id, document.getElementById(id)]));
+  const killIds = ["hours_done", "already_paid", "kill_fee", "sunk_costs"];
+  const el = Object.fromEntries([...ids, ...killIds].map((id) => [id, document.getElementById(id)]));
   const result = document.getElementById("result");
   const review = document.getElementById("review");
   const sensitivity = document.getElementById("sensitivity");
+  const costSpike = document.getElementById("cost-spike");
+  const discountAsk = document.getElementById("discount-ask");
+  const killFee = document.getElementById("kill-fee");
 
   let lastReport = null;
 
@@ -305,7 +440,46 @@
        `;
        review.querySelector(".checks").innerHTML = reviewQuote(quote, r).map((check) => `<li class="${check.level}"><strong>${escapeHtml(check.title)}</strong>${escapeHtml(check.detail)}</li>`).join("");
        sensitivity.querySelector("tbody").innerHTML = overrunScenarios(quote, r).map((scenario) => `<tr><th scope="row">+${scenario.percent}%</th><td>${fmt(scenario.total_hours)}</td><td>${safeCurrency} ${fmt(scenario.effective_hourly_rate)}/hour</td><td>${safeCurrency} ${fmt(scenario.gap_to_target)}</td></tr>`).join("");
+       const spikeRows = directCostSpikeScenarios(quote, r);
+       costSpike.querySelector("#cost-spike-summary").textContent = directCostSpikeSummary(quote, r, spikeRows);
+       costSpike.querySelector("tbody").innerHTML = spikeRows.map((scenario) => {
+         const label = scenario.percent === 0 ? "As quoted" : `+${scenario.percent}%`;
+         return `<tr><th scope="row">${label}</th><td>${safeCurrency} ${fmt(scenario.direct_costs)}</td><td>${safeCurrency} ${fmt(scenario.effective_hourly_rate)}/hour</td><td>${safeCurrency} ${fmt(scenario.target_price)}</td><td>${safeCurrency} ${fmt(scenario.gap_to_target)}</td></tr>`;
+       }).join("");
+       const discountRows = discountAskScenarios(quote, r);
+       discountAsk.querySelector("#discount-ask-summary").textContent = discountAskSummary(quote, r, discountRows);
+       discountAsk.querySelector("tbody").innerHTML = discountRows.map((scenario) => {
+         const label = scenario.percent === 0 ? "As quoted" : `${scenario.percent}% off`;
+         const cut = scenario.hours_to_cut === null ? "Cannot cover costs" : `${fmt(scenario.hours_to_cut)} hours`;
+         return `<tr><th scope="row">${label}</th><td>${safeCurrency} ${fmt(scenario.discounted_price)}</td><td>${safeCurrency} ${fmt(scenario.effective_hourly_rate)}/hour</td><td>${cut}</td><td>${safeCurrency} ${fmt(scenario.gap_to_target)}</td></tr>`;
+       }).join("");
+       try {
+         const progress = loadKillFeeProgress({
+           hours_done: Number(el.hours_done.value),
+           already_paid: Number(el.already_paid.value),
+           kill_fee: Number(el.kill_fee.value),
+           sunk_costs: Number(el.sunk_costs.value),
+         }, quote, r);
+         const compared = compareKillFee(quote, r, progress);
+         lastReport = { quote, r, progress, compared };
+         killFee.querySelector("#kill-fee-summary").textContent = killFeeSummary(quote, r, progress, compared);
+         const paths = [
+           ["Finish remaining work", compared.finish],
+           ["Take the kill fee", compared.kill],
+           ["Walk with only what's paid", compared.walk],
+         ];
+         killFee.querySelector("tbody").innerHTML = paths.map(([label, row]) => {
+           const vs = row.vs_finish === 0 ? "—" : `${row.vs_finish > 0 ? "+" : ""}${safeCurrency} ${fmt(row.vs_finish)}`;
+           return `<tr><th scope="row">${label}</th><td>${safeCurrency} ${fmt(row.cash_kept)}</td><td>${vs}</td><td>${fmt(row.hours_freed)}</td><td>${safeCurrency} ${fmt(row.refill_adjusted)}</td></tr>`;
+         }).join("");
+         recordEvent("kill_fee_compared");
+       } catch (killErr) {
+         killFee.querySelector("#kill-fee-summary").textContent = killErr.message;
+         killFee.querySelector("tbody").innerHTML = "";
+       }
        recordEvent("quote_review_checked");
+       recordEvent("cost_spike_compared");
+       recordEvent("discount_ask_compared");
       result.classList.remove("error");
       reportCounter.count(JSON.stringify(quote));
     } catch (err) {
@@ -314,6 +488,12 @@
        result.textContent = err.message;
        result.classList.add("error");
        review.querySelector(".checks").textContent = "Fix the inputs above to review this quote.";
+       costSpike.querySelector("#cost-spike-summary").textContent = "Fix the inputs above to compare a cost rise.";
+       costSpike.querySelector("tbody").innerHTML = "";
+       discountAsk.querySelector("#discount-ask-summary").textContent = "Fix the inputs above to compare a discount ask.";
+       discountAsk.querySelector("tbody").innerHTML = "";
+       killFee.querySelector("#kill-fee-summary").textContent = "Fix the inputs above to compare a kill fee.";
+       killFee.querySelector("tbody").innerHTML = "";
     }
   }
 
@@ -324,7 +504,7 @@
     if (exampleNote) exampleNote.hidden = true;
   }
 
-  for (const id of ids) {
+  for (const id of [...ids, ...killIds]) {
     el[id].addEventListener("input", update);
     el[id].addEventListener("input", dismissExampleNote, { once: true });
   }
@@ -344,7 +524,17 @@
       copyStatus.textContent = "Fix the inputs above first.";
       return;
     }
-    const { quote, r } = lastReport;
+    const { quote, r, compared } = lastReport;
+    const discountRows = discountAskScenarios(quote, r);
+    const killRows = compared
+      ? [
+          `kill_finish_cash,${compared.finish.cash_kept.toFixed(2)},${quote.currency}`,
+          `kill_fee_cash,${compared.kill.cash_kept.toFixed(2)},${quote.currency}`,
+          `kill_walk_cash,${compared.walk.cash_kept.toFixed(2)},${quote.currency}`,
+          `kill_finish_rate_from_here,${compared.finish.rate_from_here === null ? "" : compared.finish.rate_from_here.toFixed(2)},${quote.currency}/hour`,
+          `kill_refill_adjusted,${compared.kill.refill_adjusted.toFixed(2)},${quote.currency}`,
+        ]
+      : [];
     const rows = [
       "measure,value,unit",
       `quoted_price,${quote.price.toFixed(2)},${quote.currency}`,
@@ -354,6 +544,9 @@
       `target_price,${r.target_price.toFixed(2)},${quote.currency}`,
       `gap_to_target,${r.gap_to_target.toFixed(2)},${quote.currency}`,
       `cost_coverage,${r.cost_coverage.toFixed(2)},${quote.currency}`,
+      ...discountRows.map((row) => `discount_${row.percent}_price,${row.discounted_price.toFixed(2)},${quote.currency}`),
+      ...discountRows.map((row) => `discount_${row.percent}_hours_to_cut,${row.hours_to_cut === null ? "" : row.hours_to_cut.toFixed(2)},hours`),
+      ...killRows,
     ].join("\n");
     try {
       await navigator.clipboard.writeText(rows);
