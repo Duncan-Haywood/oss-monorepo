@@ -6,7 +6,8 @@ that lists and searches them.
 
 ```
 node platform/pages/build.mjs --out=dist          # build
-node --test platform/pages/build.test.mjs         # test
+node platform/pages/check.mjs dist                # check the artifact
+node --test platform/pages/build.test.mjs platform/pages/check.test.mjs
 ```
 
 Then serve it and click around:
@@ -65,8 +66,32 @@ origin root is read), and `node_modules`. `LICENSE` files are kept.
   answer. Links that resolve inside the site are left untouched. The build
   prints how many it repointed.
 - **Crawlability.** A root `robots.txt`, a `sitemap.xml` index covering the hub
-  and every venture's own sitemap, a `404.html`, and `.nojekyll` (without which
-  Pages silently drops any directory starting with `_`).
+  and every venture, a `404.html`, and `.nojekyll` (without which Pages silently
+  drops any directory starting with `_`).
+- **The sitemaps themselves.** Each venture's `sitemap.xml` is *regenerated*
+  from the pages that actually published, replacing the hand-written one. The
+  ventures' own were copied verbatim until 2026-08-26, and three things were
+  wrong with them at once: some listed relative `<loc>` values, which the
+  sitemaps protocol does not allow and crawlers reject; two were written
+  against `…/monorepo-projects/ventures/<slug>/`, a path this site does not
+  serve, so all 11 of their URLs were 404s; and most were simply stale, leaving
+  70 of 186 pages in no sitemap at all. Generating from the output makes all
+  three impossible: a page is listed because it shipped, at the URL it shipped
+  to. Nobody has to remember to update a sitemap again.
+
+## Checking the artifact
+
+`check.mjs` runs over the built directory, not the sources, because that is
+where these defects are created — by the copy, not by the input. It fails the
+build on a missing root file, a leftover `example.invalid`, a relative link
+that resolves to nothing, a link that climbs out of the site root, a product
+directory with no landing page, a page in no sitemap, and a sitemap URL that
+did not ship. It follows the sitemap index into each venture's sitemap; a check
+that read only the root would have passed while every defect above sat one
+level down.
+
+The workflow runs it between building and uploading, so a broken artifact never
+reaches the live site.
 
 ## Deploying
 

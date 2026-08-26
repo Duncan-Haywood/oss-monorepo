@@ -214,6 +214,29 @@ async function countPages(sourceDir) {
   return entries.filter((e) => e.isFile() && e.name.endsWith('.html')).length;
 }
 
+/**
+ * Every `.html` file published under `dir`, as paths relative to it.
+ *
+ * This reads the built output rather than the sources, so it sees exactly what
+ * a visitor can reach — after exclusions, after nested directories, after any
+ * page a venture added without telling anyone.
+ */
+export async function publishedPages(dir, prefix = '') {
+  const entries = await fs.readdir(dir, { withFileTypes: true });
+  const pages = [];
+
+  for (const entry of entries) {
+    const relative = prefix ? `${prefix}/${entry.name}` : entry.name;
+    if (entry.isDirectory()) {
+      pages.push(...(await publishedPages(path.join(dir, entry.name), relative)));
+    } else if (entry.isFile() && entry.name.endsWith('.html') && entry.name !== '404.html') {
+      pages.push(relative);
+    }
+  }
+
+  return pages.sort();
+}
+
 // ---------------------------------------------------------------------------
 // Copy
 // ---------------------------------------------------------------------------
@@ -601,15 +624,18 @@ export function renderRobots(baseUrl) {
 
 /**
  * The sitemap `robots.txt` names. A `<sitemapindex>` cannot hold `<url>`
- * entries, so the hub itself and any venture without its own sitemap live in
- * `sitemap-hub.xml`, which this index also lists — otherwise a crawler
- * following robots.txt would reach the ventures and never the front page.
+ * entries, so the hub page itself lives in `sitemap-hub.xml`, which this index
+ * also lists — otherwise a crawler following robots.txt would reach the
+ * ventures and never the front page.
+ *
+ * Every published venture gets a generated sitemap (see `renderVentureSitemap`),
+ * so there is no venture the index can leave out.
  */
 export function renderSitemapIndex(surfaces, baseUrl) {
   const entries = [`  <sitemap><loc>${baseUrl}sitemap-hub.xml</loc></sitemap>`].concat(
-    surfaces
-      .filter((surface) => surface.hasSitemap)
-      .map((surface) => `  <sitemap><loc>${baseUrl}${surface.slug}/sitemap.xml</loc></sitemap>`),
+    surfaces.map(
+      (surface) => `  <sitemap><loc>${baseUrl}${surface.slug}/sitemap.xml</loc></sitemap>`,
+    ),
   );
 
   return `<?xml version="1.0" encoding="UTF-8"?>
@@ -619,12 +645,46 @@ ${entries.join('\n')}
 `;
 }
 
-export function renderHubSitemap(surfaces, baseUrl) {
-  const urls = [`  <url><loc>${baseUrl}</loc></url>`].concat(
-    surfaces
-      .filter((surface) => !surface.hasSitemap)
-      .map((surface) => `  <url><loc>${baseUrl}${surface.slug}/</loc></url>`),
-  );
+export function renderHubSitemap(baseUrl) {
+  return `<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <url><loc>${baseUrl}</loc></url>
+</urlset>
+`;
+}
+
+/**
+ * The URL a published page is served at, relative to the site root.
+ * `index.html` is served as its directory, so it is listed that way.
+ */
+export function pageUrlPath(slug, relativePath) {
+  const posix = relativePath.split(path.sep).join('/');
+  if (posix === 'index.html') return `${slug}/`;
+  if (posix.endsWith('/index.html')) return `${slug}/${posix.slice(0, -'index.html'.length)}`;
+  return `${slug}/${posix}`;
+}
+
+/**
+ * A venture's sitemap, generated from the pages the build actually published.
+ *
+ * The ventures ship their own hand-written `sitemap.xml` files, and copying
+ * those verbatim published two defects at once. They go stale — a venture
+ * grows a landing page and nobody edits the sitemap, so 70 of the 186 pages
+ * on this site were in no sitemap at all. And several were written against
+ * `…/monorepo-projects/ventures/<slug>/`, a path this site does not serve
+ * (products are mounted at `/<slug>/`), so every URL they advertised was a
+ * 404 — the worst possible thing to hand a crawler, since organic search is
+ * how these tools are meant to be found.
+ *
+ * Generating from the output makes both impossible by construction: a page is
+ * listed because it shipped, at the URL it actually shipped to.
+ */
+export function renderVentureSitemap(slug, relativePages, baseUrl) {
+  const urls = relativePages
+    .map((relative) => `${baseUrl}${pageUrlPath(slug, relative)}`)
+    .sort()
+    .map((url) => `  <url><loc>${url}</loc></url>`);
+
   return `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
 ${urls.join('\n')}
@@ -691,12 +751,20 @@ export async function buildSite({
       })),
     );
 
+    // Overwrite whatever sitemap the venture shipped with one generated from
+    // what actually published. See `renderVentureSitemap` for why.
+    const pages = await publishedPages(destination);
+    await fs.writeFile(
+      path.join(destination, 'sitemap.xml'),
+      renderVentureSitemap(surface.slug, pages, base),
+    );
+
     surfaces.push({
       ...surface,
       title,
       description,
       pageCount: await countPages(surface.sourceDir),
-      hasSitemap: await exists(path.join(destination, 'sitemap.xml')),
+      publishedPageCount: pages.length,
     });
     log(`  ${surface.slug}`);
   }
@@ -706,7 +774,7 @@ export async function buildSite({
   await fs.writeFile(path.join(outDir, '404.html'), renderNotFound(base));
 
   await fs.writeFile(path.join(outDir, 'sitemap.xml'), renderSitemapIndex(surfaces, base));
-  await fs.writeFile(path.join(outDir, 'sitemap-hub.xml'), renderHubSitemap(surfaces, base));
+  await fs.writeFile(path.join(outDir, 'sitemap-hub.xml'), renderHubSitemap(base));
 
   // Tell Jekyll (which GitHub Pages runs by default) to leave the tree alone;
   // without this, any directory starting with `_` is silently dropped.
