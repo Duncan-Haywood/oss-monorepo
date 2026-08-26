@@ -2892,3 +2892,15 @@ products:
           pattern waste, compacted base, edge restraint, and haul-away;
           public URL remains owner-gated and the browser counter is local
           and opt-out. Baseline row.
+  - slug: retaining-wall-bid-calculator
+    surface: static-page-in-repo
+    readings:
+      - as_of: 2026-08-25
+        signals:
+          live_url_visitors: null
+          local_events_reported: 0
+        note: >-
+          Shipped a local retaining-wall bid calculator that prices height,
+          drain stone, geogrid, corners, and the engineer/permit step a
+          per-linear-foot quote hides; public URL remains owner-gated and
+          the browser counter is local and opt-out. Baseline row.

@@ -4601,3 +4601,39 @@ ventures:
       a recommended market price, an engineered pavement design, or a soils
       opinion. Starting waste and base depths are labelled ballpark figures,
       and nothing the user enters leaves the browser.
+  - slug: retaining-wall-bid-calculator
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 7
+      gross_margin: 10
+      defensibility: 5
+      distribution: 7
+    composite: 6.667
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      There is no AI anywhere in the product. The value is a domain model —
+      face area, drain-stone volume, geogrid layers, and the engineer/permit
+      step a per-linear-foot quote hides — that is arithmetic, and adding
+      inference to it would only make the result less checkable.
+    basis: >-
+      Graduated on 2026-08-25 as a browser-local retaining-wall / hardscape
+      bid calculator. Distinct from fence (posts and gates), concrete slab
+      / driveway pours, deck (height, rail, and stairs), and irrigation
+      (zones and backflow). Defensibility 5: incumbents are paid proposal
+      suites or ad-funded per-foot pages, not a free cost stack that keeps
+      height, drainage, and geogrid off the linear foot. Distribution 7:
+      "how much to charge for a retaining wall" and "retaining wall bid
+      calculator" are lower-volume than marketplace-fee queries but bought
+      by an operator with a real job on the line.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Pass: the output is arithmetic on the contractor's own inputs, never a
+      recommended price, an engineered design, a soils report, or a permit
+      approval. Starting wall-type and height factors are labelled ballpark
+      starting points rather than a standard, and nothing the user enters
+      leaves the browser.

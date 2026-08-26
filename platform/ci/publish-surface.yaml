@@ -423,6 +423,9 @@ workflows:
 - workflow: retainage-cashflow-calculator-ci.yml
   classification: none
   publishes: []
+- workflow: retaining-wall-bid-calculator-ci.yml
+  classification: none
+  publishes: []
 - workflow: reverb-fee-calculator-ci.yml
   classification: none
   publishes: []
