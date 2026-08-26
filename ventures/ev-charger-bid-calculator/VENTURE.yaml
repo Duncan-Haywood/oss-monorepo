@@ -1,0 +1,32 @@
+name: ev-charger-bid-calculator
+description: A private browser calculator for electrical contractors that prices a residential Level 2 EV charger install from the 125% continuous-load circuit, the copper run and voltage drop, the trench, and the panel work — and shows the walk-away price plus how many times a typical indoor hang this house really is.
+stage: prototype
+owner: duncan
+hypotheses:
+  - claim: Electrical contractors will use a charger-install bid calculator because the flat hang fee homeowners bring from a search result cannot see that a detached-garage trench plus a service upgrade is several times a 25-foot indoor spare-slot job, which is how a bid that looked like the last house turns out not to be.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: The walk-away price and the “times a typical indoor hang” comparison are the two numbers an electrician actually decides on when a homeowner asks them to match the Facebook-ad price, more than the installed total itself.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: Sizing the breaker at 125% and flagging a 3% voltage-drop upsize changes the bid materially on long runs, so making both required, explained outputs is what separates this from a generic job-costing spreadsheet.
+    status: untested
+    checked: null
+    evidence: customer-contact
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+budget:
+  monthly_cap: 1
+  protected: true
+kill_criteria:
+  - Fewer than three qualified electrical contractors use the calculator twice within 90 days.
+  - Contractors report that entering run, trench, and panel work is more work than their existing method without changing the price they would have bid.
+  - The starting hours or copper dollars prove so far from real trucks that the tool cannot be used without data we have no way to gather.
+links:
+  production: null
+  analytics: null

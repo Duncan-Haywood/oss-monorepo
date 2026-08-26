@@ -1,0 +1,460 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Parking Lot Striping Bid Calculator | How Much to Charge to Stripe a Parking Lot</title>
+  <meta name="description" content="Price a parking lot striping job from stall lines, ADA hash aisles, arrows, coats, and new-layout hours — plus price per stall, the extra a per-stall special hides, and the walk-away number.">
+  <meta property="og:title" content="Parking Lot Striping Bid Calculator">
+  <meta property="og:description" content="Bid pavement marking the way the trade does — stall lines, ADA hash, and coats — and see the margin before you send the price.">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Parking Lot Striping Bid Calculator", "applicationCategory": "BusinessApplication", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "featureList": "Stall-line and ADA-hash labor, restripe vs new layout, one coat vs two, arrows and fire lanes, price per stall, break-even walk-away price, proposed-price margin check, saved bid that reopens on the next visit, shareable bid link"}</script>
+  <style>
+    :root { color-scheme: light; font-family: system-ui, sans-serif; color: #1c1f24; background: #ece8dc; }
+    body { max-width: 1100px; margin: 0 auto; padding: 32px 18px; }
+    header { max-width: 760px; margin-bottom: 26px; }
+    h1 { font-size: clamp(2rem, 6vw, 3.4rem); line-height: .98; margin: 0 0 12px; letter-spacing: -.05em; }
+    p { line-height: 1.5; }
+    .eyebrow { font-size: .8rem; font-weight: 700; letter-spacing: .08em; color: #8a6d12; margin: 0 0 6px; }
+    .layout { display: grid; grid-template-columns: minmax(0, 1fr) minmax(300px, .78fr); gap: 18px; align-items: start; }
+    section { background: #fff; border: 1px solid #d4cbb3; border-radius: 14px; padding: 20px; box-shadow: 0 8px 24px #2a24140d; margin-bottom: 18px; }
+    h2 { margin-top: 0; font-size: 1.15rem; }
+    .hint { font-size: .82rem; color: #4e5560; margin: -6px 0 14px; }
+    .fields { display: grid; grid-template-columns: repeat(2, 1fr); gap: 13px; }
+    label { display: grid; gap: 5px; font-size: .87rem; font-weight: 650; }
+    input, select { width: 100%; box-sizing: border-box; border: 1px solid #b3aa90; border-radius: 7px; padding: 10px; font: inherit; background: #fff; }
+    .check { display: flex; gap: 8px; align-items: center; font-weight: 650; }
+    .check input { width: auto; }
+    button { font: inherit; border-radius: 7px; border: 1px solid #b3aa90; background: #f6f1e4; padding: 10px 14px; cursor: pointer; font-weight: 650; }
+    button:hover { background: #ece4d0; }
+    .result { position: sticky; top: 15px; background: #1c1f24; color: #f6f1e4; border-color: #1c1f24; }
+    .hero-number { font-size: 2.7rem; font-weight: 750; letter-spacing: -.05em; margin: 8px 0; }
+    .negative { color: #ffb0a2; } .positive { color: #d6c05a; }
+    dl { display: grid; grid-template-columns: 1fr auto; gap: 9px; margin: 20px 0; }
+    dt, dd { margin: 0; } dd { font-variant-numeric: tabular-nums; }
+    hr { border: 0; border-top: 1px solid #ffffff2b; }
+    .note { font-size: .82rem; opacity: .84; }
+    .split { margin: 14px 0 0; padding: 0; list-style: none; font-size: .84rem; }
+    .split li { display: grid; grid-template-columns: 1fr auto; gap: 8px; padding: 3px 0; }
+    .bar { grid-column: 1 / -1; height: 4px; border-radius: 2px; background: #ffffff2e; }
+    .bar > span { display: block; height: 100%; border-radius: 2px; background: #e8c547; }
+    .verdict { margin-top: 14px; padding: 12px; border-radius: 9px; font-size: .87rem; background: #ffffff1a; }
+    .verdict.bad { background: #7d2317; }
+    .empty { font-size: .87rem; opacity: .84; }
+    table { width: 100%; border-collapse: collapse; font-size: .84rem; }
+    th, td { text-align: left; padding: 6px 4px; border-bottom: 1px solid #ffffff22; }
+    th { font-size: .74rem; letter-spacing: .04em; text-transform: uppercase; color: #d6c05a; }
+    .compare-actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
+    footer { margin-top: 25px; font-size: .82rem; color: #4e5560; }
+    footer a { color: #8a6d12; }
+    .support { margin-top: 14px; }
+    .summary-actions { display: flex; gap: 8px; align-items: center; margin-top: 14px; }
+    .summary-status { font-size: .8rem; color: #e8c547; }
+    @media (max-width: 780px) {
+      .layout { grid-template-columns: 1fr; } .result { position: static; } .fields { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="eyebrow">FOR PARKING LOT STRIPING CONTRACTORS</p>
+    <h1>Bid the lines, the ADA hash, and the coats.</h1>
+    <p>Price a pavement-marking job the way the trade actually loses money: stall lines, hashed ADA aisles, arrows, fire lanes, and whether this is a restripe or a new layout. You get the lot price, what it works out to per stall, the extra an $8-a-stall special hides, and the number below which the job loses money.</p>
+    <p class="hint" style="margin:0">Also read <a href="how-much-to-charge-to-stripe-a-parking-lot.html">how much to charge to stripe a parking lot</a>.</p>
+  </header>
+
+  <main class="layout">
+    <div>
+      <section>
+        <h2>The lot</h2>
+        <p class="hint">Pick a starting job, then change the stalls. A 50-stall restripe and a 50-stall new layout with ADA hash are not the same number.</p>
+        <div class="fields">
+          <label style="grid-column:1/-1">Starting job
+            <select id="jobPresets"></select>
+          </label>
+          <label>Layout
+            <select id="layout">
+              <option value="restripe">Restripe existing lines</option>
+              <option value="new">New layout (measure and string)</option>
+            </select>
+          </label>
+          <label>Coats
+            <select id="coats">
+              <option value="1">One coat</option>
+              <option value="2">Two coats</option>
+            </select>
+          </label>
+          <label>Standard stalls <input id="standardStalls" type="number" min="0" step="1" value="48"></label>
+          <label>ADA stalls <input id="adaStalls" type="number" min="0" step="1" value="2"></label>
+          <label>Arrows <input id="arrows" type="number" min="0" step="1" value="8"></label>
+          <label>Stop bars <input id="stopBars" type="number" min="0" step="1" value="2"></label>
+          <label>Crosswalks <input id="crosswalks" type="number" min="0" step="1" value="0"></label>
+          <label>Handicap symbols <input id="handicapSymbols" type="number" min="0" step="1" value="2"></label>
+          <label>Fire-lane feet <input id="fireLaneFeet" type="number" min="0" step="5" value="0"></label>
+          <label>Curb-paint feet <input id="curbPaintFeet" type="number" min="0" step="5" value="0"></label>
+          <label class="check"><input id="nightWork" type="checkbox"> Night work (labor premium)</label>
+        </div>
+      </section>
+
+      <section>
+        <h2>Your costs</h2>
+        <div class="fields">
+          <label>Painter hourly wage <input id="hourlyWage" type="number" min="0" step="0.25" value="28"></label>
+          <label>Payroll burden (%) <input id="burdenRate" type="number" min="0" step="0.5" value="28"></label>
+          <label>Paint $ / gallon <input id="paintPerGallon" type="number" min="0" step="1" value="42"></label>
+          <label>ADA sign $ each <input id="signEach" type="number" min="0" step="1" value="85"></label>
+          <label>Mobilization <input id="mobilization" type="number" min="0" step="5" value="175"></label>
+          <label>Other cost <input id="otherCost" type="number" min="0" step="1" value="0"></label>
+          <label>Overhead on direct cost (%) <input id="overheadRate" type="number" min="0" step="0.5" value="15"></label>
+          <label>Target net margin (%) <input id="targetMargin" type="number" min="0" max="99.9" step="0.5" value="25"></label>
+          <label>Price you&rsquo;re considering (optional) <input id="proposedPrice" type="number" min="0" step="10" placeholder="e.g. 850"></label>
+        </div>
+        <p class="hint" style="margin-top:14px;margin-bottom:0">Starting coverage and hours sit in the comparison kits (360 lf/gal of 4-inch line, 18 lf per stall, 70 lf of ADA hash). They are ballpark crew figures, not a paint catalog — replace them in <code>calc.mjs</code> or type a proposed price to see whether the special still pays.</p>
+      </section>
+    </div>
+
+    <section class="result" aria-live="polite">
+      <h2>Your bid</h2>
+      <div id="price" class="hero-number">$&mdash;</div>
+      <div id="priceLabel">lot striping price</div>
+      <dl>
+        <dt>Crew hours</dt><dd id="totalHours"></dd>
+        <dt>Paint gallons</dt><dd id="totalGallons"></dd>
+        <dt>Loaded labor</dt><dd id="labor"></dd>
+        <dt>Paint</dt><dd id="paint"></dd>
+        <dt>ADA signs</dt><dd id="signs"></dd>
+        <dt>Mobilization &amp; other</dt><dd id="soft"></dd>
+        <dt>Overhead</dt><dd id="overhead"></dd>
+        <dt>Total cost</dt><dd id="cost"></dd>
+        <dt>Profit</dt><dd id="profit"></dd>
+        <dt>Price per stall</dt><dd id="perStall"></dd>
+        <dt>Effective hourly rate</dt><dd id="hourlyRate"></dd>
+        <dt>Walk-away price</dt><dd id="breakEven"></dd>
+      </dl>
+      <div id="verdict" class="verdict" hidden></div>
+      <div class="summary-actions">
+        <button type="button" id="copyLink">Copy bid link</button>
+        <button type="button" id="clearSaved">Start a fresh bid</button>
+        <button type="button" id="copySummary">Copy bid summary</button>
+        <span id="summaryStatus" class="summary-status" role="status" aria-live="polite"></span>
+      </div>
+      <p id="restoreNote" class="note" role="status" aria-live="polite" hidden></p>
+      <p class="note" style="margin-top:8px">A bid link carries your own rates — wage, burden, overhead, and target margin — so the page reopens exactly as you left it. Send it to yourself or your crew. The customer should get the price, not the link.</p>
+      <hr>
+      <p class="note" style="margin-bottom:4px"><strong>Where the hours go</strong></p>
+      <ul class="split" id="split"></ul>
+      <hr>
+      <p class="note" style="margin-bottom:8px"><strong>Where the cheap special loses</strong></p>
+      <div class="compare-actions">
+        <button type="button" id="compareLayout">Compare restripe vs new layout</button>
+        <button type="button" id="compareAda">Compare ADA as regular stalls</button>
+        <button type="button" id="compareCoats">Compare one coat vs two</button>
+      </div>
+      <div id="compare" class="note" style="margin-top:12px"></div>
+      <hr>
+      <p class="note">Transparent arithmetic from your own inputs. Starting coverage and hours are common ballpark figures, not an industry standard, a MUTCD requirement, or a guarantee.</p>
+    </section>
+  </main>
+
+  <footer>
+    <label style="display:inline-flex;gap:6px;align-items:center;font-weight:400"><input id="usageOptOut" type="checkbox" style="width:auto"> Do not keep anonymous local usage counts</label>
+    <p><strong>No warranty.</strong> This free tool is not structural, construction, building-code, legal, tax, financial, traffic-engineering, or ADA advice, and it does not tell you what to charge. Verify every figure against your own payroll, paint tickets, and a qualified professional before relying on it or submitting a bid. To the maximum extent permitted by law, the authors accept no liability for loss or damage from its use.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record.</p>
+    <p><strong>Nothing leaves your browser.</strong> Every number stays on this device. Your bid is saved in this browser so it is still here next visit, and &ldquo;Start a fresh bid&rdquo; deletes it; a bid link you copy holds those same numbers in the address itself, so treat one like your rate sheet. Usage counts are anonymous tallies of which features were used, stored locally, and never include your lot, wages, costs, or prices.</p>
+    <p class="support">Free and open source. If it wins you a job, the <a href="https://github.com/Duncan-Haywood/monorepo-projects" rel="noopener">project is on GitHub</a> &mdash; support is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import {
+      calculateBid, compareLayout, compareAda, compareCoats,
+      formatBidSummary, suggestedKit, JOB_PRESETS,
+    } from './calc.mjs';
+    import { recordUsage } from './usage.mjs';
+    import { encodeBid, saveBid, clearBid, restoreBid } from './share.mjs';
+
+    const FIELD_IDS = [
+      'layout','coats','standardStalls','adaStalls','arrows','stopBars','crosswalks',
+      'handicapSymbols','fireLaneFeet','curbPaintFeet','hourlyWage','burdenRate',
+      'paintPerGallon','signEach','mobilization','otherCost','overheadRate',
+      'targetMargin','proposedPrice',
+    ];
+    const money = value => `$${value.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+    const el = id => document.getElementById(id);
+
+    const presetSelect = el('jobPresets');
+    JOB_PRESETS.forEach((job, index) => {
+      const option = document.createElement('option');
+      option.value = String(index);
+      option.textContent = job.label;
+      presetSelect.append(option);
+    });
+
+    function readInput() {
+      const layout = el('layout').value;
+      return {
+        ...suggestedKit(layout),
+        layout,
+        coats: el('coats').value,
+        standardStalls: el('standardStalls').value,
+        adaStalls: el('adaStalls').value,
+        arrows: el('arrows').value,
+        stopBars: el('stopBars').value,
+        crosswalks: el('crosswalks').value,
+        handicapSymbols: el('handicapSymbols').value,
+        fireLaneFeet: el('fireLaneFeet').value,
+        curbPaintFeet: el('curbPaintFeet').value,
+        nightWork: el('nightWork').checked,
+        hourlyWage: el('hourlyWage').value,
+        burdenRate: el('burdenRate').value,
+        paintPerGallon: el('paintPerGallon').value,
+        signEach: el('signEach').value,
+        mobilization: el('mobilization').value,
+        otherCost: el('otherCost').value,
+        overheadRate: el('overheadRate').value,
+        targetMargin: el('targetMargin').value,
+        proposedPrice: el('proposedPrice').value,
+      };
+    }
+
+    function applyJob(job) {
+      el('layout').value = job.layout;
+      el('coats').value = String(job.coats);
+      el('standardStalls').value = job.standardStalls;
+      el('adaStalls').value = job.adaStalls;
+      el('arrows').value = job.arrows;
+      el('stopBars').value = job.stopBars;
+      el('crosswalks').value = job.crosswalks;
+      el('handicapSymbols').value = job.handicapSymbols;
+      el('fireLaneFeet').value = job.fireLaneFeet;
+      el('curbPaintFeet').value = job.curbPaintFeet;
+      el('nightWork').checked = job.nightWork;
+    }
+
+    function count(event) {
+      recordUsage(localStorage, el('usageOptOut').checked, event);
+    }
+
+    function clearOutputs(message, isError) {
+      el('price').textContent = message;
+      el('price').className = `hero-number ${isError ? 'negative' : ''}`;
+      el('priceLabel').textContent = isError ? 'check the highlighted input' : 'lot striping price';
+      ['totalHours','totalGallons','labor','paint','signs','soft','overhead','cost','profit','perStall','hourlyRate','breakEven']
+        .forEach(id => { el(id).textContent = ''; });
+      el('split').innerHTML = '';
+      el('verdict').hidden = true;
+    }
+
+    function update() {
+      let result;
+      try {
+        result = calculateBid(readInput());
+      } catch (error) {
+        clearOutputs(error.message, true);
+        return;
+      }
+
+      el('price').textContent = money(result.price);
+      el('price').className = 'hero-number';
+      el('priceLabel').textContent = 'lot striping price';
+      el('totalHours').textContent = `${result.totalHours.toFixed(1)} h`;
+      el('totalGallons').textContent = `${result.totalGallons.toFixed(1)} gal`;
+      el('labor').textContent = money(result.laborCost);
+      el('paint').textContent = money(result.paintCost);
+      el('signs').textContent = money(result.signCost);
+      el('soft').textContent = money(result.softCost);
+      el('overhead').textContent = money(result.overhead);
+      el('cost').textContent = money(result.totalCost);
+      el('profit').textContent = money(result.profit);
+      el('perStall').textContent = result.pricePerStall === null ? 'n/a' : money(result.pricePerStall);
+      el('hourlyRate').textContent = result.effectiveHourlyRate === null ? 'n/a' : `${money(result.effectiveHourlyRate)}/h`;
+      el('breakEven').textContent = money(result.breakEvenPrice);
+
+      const hours = [
+        ['Trip / setup', result.hourShares.trip],
+        ['Layout / string', result.hourShares.layout],
+        ['Stall lines', result.hourShares.lines],
+        ['ADA extra', result.hourShares.ada],
+        ['Stencils & bars', result.hourShares.stencils],
+        ['Fire lane', result.hourShares.fire],
+        ['Curb', result.hourShares.curb],
+        ['Second coat', result.hourShares.secondCoat],
+        ['Night premium', result.hourShares.night],
+      ].filter(row => row[1] > 0.05);
+      el('split').innerHTML = hours.length === 0
+        ? '<li class="empty">Add stalls or extras above and the hour split appears here.</li>'
+        : hours
+          .sort((a, b) => b[1] - a[1])
+          .map(([name, share]) => `<li><span>${name}</span><span>${share.toFixed(0)}% of hours</span>
+            <span class="bar"><span style="width:${share.toFixed(1)}%"></span></span></li>`)
+          .join('');
+
+      const verdict = el('verdict');
+      if (result.proposed === null) {
+        verdict.hidden = true;
+      } else {
+        verdict.hidden = false;
+        verdict.className = `verdict${result.proposed.belowBreakEven ? ' bad' : ''}`;
+        const rate = result.proposed.hourlyRate === null ? 'n/a' : `${money(result.proposed.hourlyRate)}/h`;
+        verdict.innerHTML = result.proposed.belowBreakEven
+          ? `At ${money(result.proposed.price)} this job <strong>loses ${money(Math.abs(result.proposed.profit))}</strong> before you take anything out of it. Your walk-away price is ${money(result.breakEvenPrice)}.`
+          : `At ${money(result.proposed.price)} you keep <strong>${money(result.proposed.profit)}</strong> — a ${result.proposed.margin.toFixed(1)}% margin, billing ${rate} of labor.`;
+      }
+    }
+
+    async function copySummary() {
+      const result = calculateBid(readInput());
+      const job = JOB_PRESETS[Number(presetSelect.value)]?.label || 'Parking lot striping';
+      const text = formatBidSummary(result, job);
+      try {
+        await navigator.clipboard.writeText(text);
+      } catch {
+        const fallback = document.createElement('textarea');
+        fallback.value = text;
+        fallback.setAttribute('readonly', '');
+        fallback.style.position = 'fixed';
+        fallback.style.opacity = '0';
+        document.body.append(fallback);
+        fallback.select();
+        document.execCommand('copy');
+        fallback.remove();
+      }
+      count('summary_copied');
+      el('summaryStatus').textContent = 'Copied to clipboard';
+      setTimeout(() => { el('summaryStatus').textContent = ''; }, 2500);
+    }
+
+    function showLayoutCompare() {
+      const rows = compareLayout(readInput());
+      el('compare').innerHTML = `<table><thead><tr><th>Layout</th><th>Price</th><th>Hours</th><th>vs cheapest</th></tr></thead><tbody>${
+        rows.map(row => `<tr><td>${row.label}</td><td>${money(row.price)}</td><td>${row.totalHours.toFixed(1)} h</td><td>${row.cheapest ? 'cheapest' : '+' + money(row.delta)}</td></tr>`).join('')
+      }</tbody></table>`;
+      count('layout_compared');
+    }
+
+    function showAdaCompare() {
+      const compared = compareAda(readInput());
+      el('compare').innerHTML = `Treating ADA stalls as regular stalls (no hash, symbols, or signs) prices the lot at <strong>${money(compared.asRegular.price)}</strong>. Pricing the aisle and stencil work is <strong>${money(compared.full.price)}</strong> — <strong>${money(compared.extraPrice)}</strong> extra, ${compared.extraHours.toFixed(1)} hours, ${compared.extraGallons.toFixed(1)} gal. That gap is what an $8-a-stall special hides.`;
+      count('ada_compared');
+    }
+
+    function showCoatCompare() {
+      const rows = compareCoats(readInput());
+      el('compare').innerHTML = `<table><thead><tr><th>Coats</th><th>Price</th><th>Gallons</th><th>vs one coat</th></tr></thead><tbody>${
+        rows.map(row => `<tr><td>${row.label}</td><td>${money(row.price)}</td><td>${row.totalGallons.toFixed(1)}</td><td>${row.cheapest ? 'base' : '+' + money(row.delta)}</td></tr>`).join('')
+      }</tbody></table>`;
+      count('coats_compared');
+    }
+
+    presetSelect.addEventListener('change', () => {
+      applyJob(JOB_PRESETS[Number(presetSelect.value)]);
+      count('bid_calculated');
+      update();
+    });
+    FIELD_IDS.forEach(id => {
+      el(id).addEventListener('input', update);
+      el(id).addEventListener('change', () => count(id === 'proposedPrice' ? 'proposed_price_compared' : 'bid_calculated'));
+    });
+    el('nightWork').addEventListener('change', () => { count('bid_calculated'); update(); });
+    el('usageOptOut').addEventListener('change', update);
+    el('copySummary').addEventListener('click', () => {
+      try {
+        copySummary().catch(() => { el('summaryStatus').textContent = 'Copy failed; select and copy the figures above.'; });
+      } catch (error) {
+        el('summaryStatus').textContent = error.message;
+      }
+    });
+    el('compareLayout').addEventListener('click', showLayoutCompare);
+    el('compareAda').addEventListener('click', showAdaCompare);
+    el('compareCoats').addEventListener('click', showCoatCompare);
+
+    applyJob(JOB_PRESETS[0]);
+
+    // FIELD_IDS is every input the form owns; the two selects among them travel
+    // validated against their own options, and the one checkbox as a flag. The
+    // suggestedKit() rates readInput() spreads are derived from the layout
+    // rather than entered, so they are recomputed on the other end instead of
+    // being carried — a link that pinned them would freeze a rate the page
+    // means to keep deriving.
+    const CHOICE_IDS = ['layout', 'coats'];
+    const FLAG_IDS = ['nightWork'];
+    const BID_SPEC = {
+      key: 'parking-lot-striping-bid',
+      numbers: FIELD_IDS.filter(id => !CHOICE_IDS.includes(id)),
+      flags: FLAG_IDS,
+      choices: Object.fromEntries(CHOICE_IDS.map(id => [id, [...el(id).options].map(option => option.value)])),
+    };
+
+    function applyValues(values) {
+      for (const [id, value] of Object.entries(values)) {
+        const field = el(id);
+        if (!field) continue;
+        if (field.type === 'checkbox') field.checked = Boolean(value);
+        else field.value = value;
+        field.dataset.edited = '1';
+      }
+    }
+
+    function persist() {
+      try {
+        saveBid(localStorage, BID_SPEC, readInput());
+      } catch {
+        // A browser with site data blocked throws on access. Losing the save
+        // is survivable; losing the calculator mid-bid is not.
+      }
+    }
+
+    async function copyLink() {
+      const query = encodeBid(BID_SPEC, readInput());
+      const url = `${location.origin}${location.pathname}${query ? `#${query}` : ''}`;
+      try {
+        await navigator.clipboard.writeText(url);
+      } catch {
+        const fallback = document.createElement('textarea');
+        fallback.value = url;
+        fallback.setAttribute('readonly', '');
+        fallback.style.position = 'fixed';
+        fallback.style.opacity = '0';
+        document.body.append(fallback);
+        fallback.select();
+        document.execCommand('copy');
+        fallback.remove();
+      }
+      count('link_copied');
+      el('summaryStatus').textContent = 'Bid link copied \u2014 it reopens this bid';
+      setTimeout(() => { el('summaryStatus').textContent = ''; }, 2500);
+    }
+
+    const restored = restoreBid(BID_SPEC, {
+      search: location.hash,
+      storage: (() => { try { return localStorage; } catch { return null; } })(),
+    });
+    applyValues(restored.values);
+
+    if (restored.source !== 'none') {
+      // Say which bid is on screen. Numbers that changed themselves between
+      // visits, with no explanation, are how a striper stops trusting the tool.
+      el('restoreNote').hidden = false;
+      el('restoreNote').textContent = restored.source === 'link'
+        ? 'Opened from a bid link \u2014 these are the sender\u2019s numbers, not yours.'
+        : 'Picked up your last bid from this browser. \u201CStart a fresh bid\u201D clears it.';
+    }
+
+    el('copyLink').addEventListener('click', () => {
+      copyLink().catch(() => { el('summaryStatus').textContent = 'Copy failed; copy the address bar instead.'; });
+    });
+
+    el('clearSaved').addEventListener('click', () => {
+      try { clearBid(localStorage, BID_SPEC); } catch { /* storage blocked; the reload still clears the form */ }
+      location.href = location.pathname;
+    });
+
+    // Every input already calls `update()`; saving here means the bid is kept
+    // as it is typed rather than only when a button is pressed, which is the
+    // difference between surviving a closed tab and not.
+    document.addEventListener('input', persist);
+    document.addEventListener('change', persist);
+
+    update();
+    persist();
+  </script>
+</body>
+</html>
