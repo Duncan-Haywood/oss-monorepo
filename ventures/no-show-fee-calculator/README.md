@@ -50,8 +50,9 @@ No build step, no install, no dependencies. It's plain HTML/CSS/JS.
    that after-the-fact fee against keeping a deposit, a table that compares
    collecting the fee on a full book against overbooking 50%, 100%, and 150%
    of the empty chairs (and against dropping the fee and only overbooking),
-   and a plain-text cancellation policy you can copy straight into your
-   booking system, client agreement, or website. Optionally type what a
+   and a plain-text cancellation policy (including how you plan to collect
+   the fee) you can copy straight into your booking system, client
+   agreement, or website. Optionally type what a
    double-booked chair costs you; leave it blank to price overflow as one
    session.
 
