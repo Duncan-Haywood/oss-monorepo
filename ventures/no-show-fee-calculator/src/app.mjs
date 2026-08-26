@@ -10,6 +10,9 @@ import {
   generateDepositPolicyText,
   buildShareUrl,
   readShareValues,
+  saveDraft,
+  readDraft,
+  clearDraft,
 } from "./calc.mjs";
 import { recordEvent, isOptedOut, setOptedOut, getUsageSummary, clearUsageLog } from "./usage.mjs";
 
@@ -40,14 +43,6 @@ const overbookBody = document.getElementById("overbook-body");
 const overbookSummary = document.getElementById("overbook-summary");
 const currencySelect = document.getElementById("currency");
 const resetDraftBtn = document.getElementById("reset-draft");
-
-const DRAFT_STORAGE_KEY = "no-show-fee-calculator:draft:v1";
-const DRAFT_FIELDS = [
-  "currency", "price", "bookingsPerWeek", "noShowRatePct", "noticeHours",
-  "feePercent", "enforcementRatePct", "depositPercent", "overflowCost",
-  "fillSameDayPct", "fillDayAheadPct", "fillTwoDayPct",
-  "businessName", "serviceName",
-];
 
 const currencyOptions = {
   USD: { currency: "USD", symbol: "$" },
@@ -216,38 +211,20 @@ function syncOptOutUI() {
   optOutCheckbox.checked = isOptedOut();
 }
 
-function readDraft() {
+// The draft mechanics live in calc.mjs so they can be unit-tested against an
+// injected storage double; these wrappers only bind them to this page's real
+// localStorage and form.
+const draftStorage = (() => {
   try {
-    const parsed = JSON.parse(localStorage.getItem(DRAFT_STORAGE_KEY) ?? "null");
-    if (!parsed || typeof parsed !== "object") return {};
-    return Object.fromEntries(
-      DRAFT_FIELDS
-        .filter((field) => typeof parsed[field] === "string")
-        .map((field) => [field, parsed[field]]),
-    );
+    return window.localStorage;
   } catch {
-    return {};
+    // Some browsers throw on property access alone when site data is blocked.
+    return null;
   }
-}
+})();
 
-function saveDraft() {
-  try {
-    const raw = Object.fromEntries(new FormData(form).entries());
-    localStorage.setItem(
-      DRAFT_STORAGE_KEY,
-      JSON.stringify(Object.fromEntries(DRAFT_FIELDS.map((field) => [field, String(raw[field] ?? "")]))),
-    );
-  } catch {
-    // Draft restoration is best-effort and must never block calculations.
-  }
-}
-
-function clearDraft() {
-  try {
-    localStorage.removeItem(DRAFT_STORAGE_KEY);
-  } catch {
-    // Storage may be disabled; the visible form still resets below.
-  }
+function persistDraft() {
+  saveDraft(Object.fromEntries(new FormData(form).entries()), draftStorage);
 }
 
 function applyValues(values) {
@@ -327,7 +304,7 @@ form.addEventListener("submit", (event) => {
 // Repaint as the visitor types. `input` fires per keystroke, which is right for
 // rendering and wrong for counting -- hence the split above.
 form.addEventListener("input", () => {
-  saveDraft();
+  persistDraft();
   render();
 });
 
@@ -420,7 +397,7 @@ optOutCheckbox.addEventListener("change", () => {
 });
 
 resetDraftBtn.addEventListener("click", () => {
-  clearDraft();
+  clearDraft(draftStorage);
   form.reset();
   render();
   recordEvent("draft_reset");
@@ -437,7 +414,7 @@ renderUsageSummary();
 
 const sharedValues = readShareValues(window.location.href);
 const openedFromShareLink = Object.keys(sharedValues).length > 0;
-const savedDraft = openedFromShareLink ? {} : readDraft();
+const savedDraft = openedFromShareLink ? {} : readDraft(draftStorage);
 applyValues(openedFromShareLink ? sharedValues : savedDraft);
 if (Object.keys(savedDraft).length > 0) {
   recordEvent("draft_restored");

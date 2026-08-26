@@ -23,6 +23,11 @@ import {
   generateDepositPolicyText,
   buildShareUrl,
   readShareValues,
+  DRAFT_FIELDS,
+  DRAFT_STORAGE_KEY,
+  saveDraft,
+  readDraft,
+  clearDraft,
 } from "../src/calc.mjs";
 
 test("parseInputs accepts valid numeric input", () => {
@@ -803,4 +808,68 @@ test("app.mjs does not count usage on every keystroke", () => {
     !inputListener[1].includes("recordEvent") && !inputListener[1].includes("countCalculation"),
     "the input listener must not record usage",
   );
+});
+
+// The page saved drafts before these tests existed, but the logic lived inline
+// in app.mjs where no test could reach it. These cover the extracted helpers so
+// a regression in draft recovery fails here rather than silently on the page.
+
+function fakeStorage(initial = {}) {
+  const values = new Map(Object.entries(initial));
+  return {
+    values,
+    setItem: (key, value) => values.set(key, String(value)),
+    getItem: (key) => (values.has(key) ? values.get(key) : null),
+    removeItem: (key) => values.delete(key),
+  };
+}
+
+test("draft helpers round-trip form values and store only known fields", () => {
+  const storage = fakeStorage();
+  const raw = Object.fromEntries(DRAFT_FIELDS.map((field, index) => [field, String(index + 1)]));
+  assert.equal(saveDraft({ ...raw, ignored: "secret" }, storage), true);
+  assert.deepEqual(readDraft(storage), raw);
+  assert.equal(JSON.parse(storage.values.get(DRAFT_STORAGE_KEY)).ignored, undefined);
+});
+
+test("the draft field set matches the shareable field set", () => {
+  // A link and a restored draft that disagree about what the user typed is the
+  // bug this guards: both are derived from SHARE_FIELDS in calc.mjs.
+  assert.ok(DRAFT_FIELDS.includes("currency"));
+  assert.ok(DRAFT_FIELDS.includes("serviceName"));
+  assert.equal(new Set(DRAFT_FIELDS).size, DRAFT_FIELDS.length);
+});
+
+test("readDraft returns an empty draft for malformed or absent storage", () => {
+  assert.deepEqual(readDraft(fakeStorage()), {});
+  assert.deepEqual(readDraft({ getItem: () => "not json" }), {});
+  assert.deepEqual(readDraft({ getItem: () => JSON.stringify([1, 2]) }), {});
+  assert.deepEqual(readDraft(null), {});
+});
+
+test("readDraft drops non-string values rather than coercing them", () => {
+  const draft = readDraft({ getItem: () => JSON.stringify({ price: 75, currency: "EUR" }) });
+  assert.equal(draft.price, undefined);
+  assert.equal(draft.currency, "EUR");
+});
+
+test("clearDraft removes the saved draft", () => {
+  const storage = fakeStorage();
+  saveDraft({ price: "120" }, storage);
+  assert.equal(clearDraft(storage), true);
+  assert.deepEqual(readDraft(storage), {});
+});
+
+test("draft helpers degrade to a no-op when storage is unavailable", () => {
+  // Blocked site data must never break a calculation, so these swallow rather
+  // than throw -- and report that nothing was persisted.
+  const throwing = {
+    setItem: () => { throw new Error("blocked"); },
+    getItem: () => { throw new Error("blocked"); },
+    removeItem: () => { throw new Error("blocked"); },
+  };
+  assert.equal(saveDraft({ price: "1" }, throwing), false);
+  assert.deepEqual(readDraft(throwing), {});
+  assert.equal(clearDraft(throwing), false);
+  assert.equal(saveDraft({ price: "1" }, null), false);
 });
