@@ -29,8 +29,10 @@ test("honors opt out", () => {
 test("records named feature events without storing inputs", () => {
   const storage = fakeStorage();
   recordUsage(storage, false, "price_match_checked");
+  recordUsage(storage, false, "returns_compared");
   const stored = JSON.parse(storage.getItem("walmart-marketplace-usage"));
   assert.equal(stored.price_match_checked, 1);
+  assert.equal(stored.returns_compared, 1);
   assert.ok(stored.last_day);
 });
 

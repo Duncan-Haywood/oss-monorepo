@@ -8,13 +8,16 @@ import {
   CATEGORY_PRESETS,
   classifySizeTier,
   compareTwoDay,
+  compareReturns,
   cubicFeet,
   DEFAULT_REFERRAL_MINIMUM,
   defaultFulfillmentFee,
   referralFee,
+  RETURNS_DEFAULTS,
   STORAGE_PRESETS,
   TWO_DAY_DEFAULTS,
   twoDayNote,
+  returnsNote,
 } from "./calc.mjs";
 
 const near = (actual, expected, msg) =>
@@ -232,4 +235,66 @@ test("exports the two-day defaults the page starts from", () => {
   assert.equal(TWO_DAY_DEFAULTS.wfsTakePct, 80);
   assert.equal(TWO_DAY_DEFAULTS.twoDayTakePct, 70);
   assert.equal(TWO_DAY_DEFAULTS.standardTakePct, 35);
+});
+
+test("seller fulfilled still keeps more after an 8% Walmart return mix", () => {
+  const r = compareReturns(base);
+  const listing = calculateListing(base);
+  const labor = (8 / 60) * 18;
+  const wfsSunk = listing.wfs.cashInvested - 7 + listing.fulfillmentFee;
+  const sellerSunk = listing.seller.cashInvested - 7;
+  const wfsReturn = -wfsSunk - 2.5 - 0.25 * 7;
+  const sellerReturn = -sellerSunk - 5.5 - labor - 0.25 * 7;
+
+  near(r.restockLabor, 2.4, "8 min at $18");
+  near(r.wfs.completedProfit, listing.wfs.profit, "WFS completed");
+  near(r.seller.completedProfit, listing.seller.profit, "seller completed");
+  near(r.wfs.returnLeftover, wfsReturn, "WFS return leftover");
+  near(r.seller.returnLeftover, sellerReturn, "seller return leftover");
+  near(r.wfs.expectedProfit, 0.92 * listing.wfs.profit + 0.08 * wfsReturn, "WFS expected");
+  near(r.seller.expectedProfit, 0.92 * listing.seller.profit + 0.08 * sellerReturn, "seller expected");
+  near(r.extraWfsVsSeller, r.wfs.expectedProfit - r.seller.expectedProfit, "gap");
+  near(r.monthlyExtraOnWfs, r.extraWfsVsSeller * 60, "monthly gap");
+  assert.equal(r.winner, "seller");
+  assert.equal(r.completedWinner, "seller");
+  near(r.wfs.expectedProfit, 7.170513333333334, "locked WFS expected");
+  near(r.seller.expectedProfit, 7.330179999999999, "locked seller expected");
+  near(r.wfs.returnLeftover, -9.841666666666665, "locked WFS return");
+  near(r.seller.returnLeftover, -14.65, "locked seller return");
+  near(r.breakEvenReturnPct, 10.956790123456756, "locked return-rate floor");
+  assert.match(returnsNote(r), /seller fulfilled keeps \$0\.16 more per unit/);
+  assert.match(returnsNote(r), /\$7\.33 vs \$7\.17/);
+  assert.match(returnsNote(r), /11\.0%/);
+});
+
+test("a 20% return mix flips WFS ahead of seller fulfilled", () => {
+  const r = compareReturns({ ...base, returnRatePct: 20 });
+  assert.equal(r.winner, "wfs");
+  assert.equal(r.completedWinner, "seller");
+  near(r.extraWfsVsSeller, 0.48833333333333595, "locked 20% flip");
+  assert.match(returnsNote(r), /WFS keeps \$0\.49 more per unit/);
+  assert.match(returnsNote(r), /returns flip the mix/);
+});
+
+test("a waived WFS return fee flips the 8% mix", () => {
+  const r = compareReturns({ ...base, wfsReturnFee: 0 });
+  assert.equal(r.winner, "wfs");
+  near(r.extraWfsVsSeller, 0.040333333333334664, "locked waived-fee flip");
+  assert.match(returnsNote(r), /WFS keeps \$0\.04 more per unit/);
+});
+
+test("rejects invalid return rates and zero volume", () => {
+  assert.throws(() => compareReturns({ ...base, returnRatePct: 101 }), /at most 100/);
+  assert.throws(() => compareReturns({ ...base, unsellableReturnPct: 101 }), /at most 100/);
+  assert.throws(() => compareReturns({ ...base, monthlyUnits: 0 }), /greater than zero/);
+  assert.throws(() => compareReturns({ ...base, referralRefunded: "maybe" }), /true or false/);
+  assert.throws(() => returnsNote({}), /missing rows/);
+});
+
+test("exports the returns defaults the page starts from", () => {
+  assert.equal(RETURNS_DEFAULTS.returnRatePct, 8);
+  assert.equal(RETURNS_DEFAULTS.wfsReturnFee, 2.5);
+  assert.equal(RETURNS_DEFAULTS.sellerReturnLabel, 5.5);
+  assert.equal(RETURNS_DEFAULTS.restockMinutes, 8);
+  assert.equal(RETURNS_DEFAULTS.unsellableReturnPct, 25);
 });

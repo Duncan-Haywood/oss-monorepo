@@ -7,8 +7,9 @@ SKUs), size-tier WFS fulfillment, monthly storage, inbound, and the
 shipping label you buy yourself — then reports net profit, margin, return
 on the cash in the unit, the break-even sale price, the price that hits a
 target margin, the **maximum you can pay for inventory**, whether
-**matching a lower offer still leaves a profit**, and whether a
-**seller-fulfilled 2-day label still beats WFS after take rate**.
+**matching a lower offer still leaves a profit**, whether a
+**seller-fulfilled 2-day label still beats WFS after take rate**, and
+whether **WFS still beats seller fulfilled after Walmart returns**.
 
 Open [`index.html`](index.html) in a browser. The calculation is local and
 works without an account, network request, or API key. It is arithmetic, not
@@ -17,9 +18,11 @@ current Seller Center fee preview, and verify them there.
 
 **After using this, you can now see whether WFS or shipping it yourself
 leaves more on a real SKU, the most you can pay a supplier, whether a
-price-match still works, and whether buying a 2-day label yourself still
-beats WFS once take rate is in the mix** — which used to mean a spreadsheet
-that forgot the referral floor, WFS storage, the match, or the Buy Box.
+price-match still works, whether buying a 2-day label yourself still
+beats WFS once take rate is in the mix, and whether returns flip WFS
+versus the label you already bought** — which used to mean a spreadsheet
+that forgot the referral floor, WFS storage, the match, the Buy Box, or
+return processing.
 
 ## Why it's different
 
@@ -37,6 +40,10 @@ the match:
   2-day label plus pack time usually converts more than standard shipping
   and still often loses to WFS after inbound. The completed-sale table
   cannot show that gap.
+- **Returns vs WFS** — a refunded order usually keeps the WFS pick fee
+  and adds return processing, while seller fulfilled already spent the
+  outbound label and then buys a return label. The completed-sale table
+  cannot show that mix.
 
 This tool keeps every assumption editable, fills illustrative US defaults
 from a category and storage picker, classifies a WFS size tier from
@@ -46,6 +53,8 @@ dimensions and weight, and shows **both paths on the same listing**.
 answers the completed-sale question.
 [Should I offer 2-day shipping on Walmart?](should-i-offer-two-day-shipping-on-walmart.html)
 mixes take rate with the faster label.
+[Should I stay on WFS after Walmart returns?](should-i-use-wfs-with-walmart-returns.html)
+mixes a refunded-order leftover with the completed sale.
 
 It is not an Amazon FBA calculator, not a Faire wholesale fee tool, and
 not a cross-channel “where to sell” ranker. Those already exist in this
@@ -86,7 +95,7 @@ optional and never changes what the tool does.
 Pure ES modules, no build step, no dependencies.
 
 ```
-node --test        # runs calc.test.mjs, usage.test.mjs, and page.test.mjs
+node --test        # runs calc.test.mjs, usage.test.mjs, page.test.mjs, two-day-page.test.mjs, and returns-page.test.mjs
 ```
 
 `calc.mjs` holds the fee/profit/ROI arithmetic, size-tier classification,
