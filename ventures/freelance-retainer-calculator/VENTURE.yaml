@@ -1,0 +1,37 @@
+name: freelance-retainer-calculator
+description: Free browser calculator for independent consultants and freelancers to price a sustainable monthly retainer from income goals, capacity, overhead, utilization, and scope risk.
+
+stage: prototype
+owner: duncan
+
+hypotheses:
+  - claim: Independent freelancers will return to a private calculator that turns a monthly income goal into a defensible retainer price before sending proposals.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: Searchers looking for freelance retainer pricing and hourly rate calculators are underserved by generic rate calculators that ignore non-billable time and scope risk.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: Freelancers act on the gap between clearing an hourly floor and reaching a monthly income goal — the floor rate assumes every billable hour sells, and a single retainer rarely is more than a quarter of the month.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 10
+  protected: true
+
+kill_criteria:
+  - No return usage or organic referral signal within 60 days of publishing.
+  - No unsolicited feedback, star, fork, or referral within 90 days of publishing.
+
+links:
+  production: null
+  analytics: null

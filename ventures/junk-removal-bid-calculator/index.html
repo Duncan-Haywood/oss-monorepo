@@ -1,0 +1,358 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Junk Removal Bid Calculator | Price the Dump Ticket, Not the Truck</title>
+  <meta name="description" content="Price a junk removal job from material weight and the landfill ticket: cubic yards, pounds per yard, dump fee per ton, special item fees, labor, travel, and the walk-away number.">
+  <meta property="og:title" content="Junk Removal Bid Calculator">
+  <meta property="og:description" content="Bid junk removal the way the landfill bills it — by weight — and see whether that half-truck special still covers the dump ticket.">
+  <link rel="canonical" href="https://example.invalid/junk-removal-bid-calculator/">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Junk Removal Bid Calculator","applicationCategory":"BusinessApplication","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"featureList":"Material-weight dump ticket, landfill minimum and surcharge, appliance and mattress special fees, labor with stairs and travel, second dump-run when the truck is full, walk-away price, proposed-price margin check, copyable bid draft"}</script>
+  <style>
+    :root { color-scheme: light; font-family: system-ui, sans-serif; color: #2a221c; background: #f3eee6; }
+    body { max-width: 1060px; margin: 0 auto; padding: 32px 18px; }
+    header { max-width: 740px; margin-bottom: 26px; }
+    h1 { font-size: clamp(2rem, 6vw, 3.5rem); line-height: .98; margin: 0 0 12px; letter-spacing: -.05em; }
+    p { line-height: 1.5; }
+    .eyebrow { font-size: .8rem; font-weight: 700; letter-spacing: .08em; color: #9a4a16; margin: 0 0 6px; }
+    .layout { display: grid; grid-template-columns: minmax(0, 1fr) minmax(300px, .75fr); gap: 18px; align-items: start; }
+    section { background: #fff; border: 1px solid #d9cfc2; border-radius: 14px; padding: 20px; box-shadow: 0 8px 24px #3a24100d; margin-bottom: 18px; }
+    h2 { margin-top: 0; font-size: 1.15rem; }
+    .hint { font-size: .82rem; color: #5c5147; margin: -6px 0 14px; }
+    .fields { display: grid; grid-template-columns: repeat(2, 1fr); gap: 13px; }
+    label { display: grid; gap: 5px; font-size: .87rem; font-weight: 650; }
+    input, select { width: 100%; box-sizing: border-box; border: 1px solid #b7a898; border-radius: 7px; padding: 10px; font: inherit; background: #fff; }
+    .pile-row { display: grid; grid-template-columns: minmax(0, 2.6fr) minmax(0, 1fr) minmax(0, 1.1fr) minmax(0, 1fr) auto; gap: 8px; align-items: end; margin-bottom: 10px; }
+    .pile-row select, .pile-row input { padding: 10px 7px; }
+    .pile-head { font-size: .74rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; color: #6b5d50; }
+    .pile-row .lbl { position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0; overflow: hidden; clip-path: inset(50%); white-space: nowrap; border: 0; }
+    button { font: inherit; border-radius: 7px; border: 1px solid #b7a898; background: #f6f0e8; padding: 10px 14px; cursor: pointer; font-weight: 650; }
+    button:hover { background: #ebe2d6; }
+    .remove { padding: 10px; color: #9b2c1f; border-color: #d8b6b0; background: #fdf3f1; }
+    .result { position: sticky; top: 15px; background: #3b2416; color: #f7f0e8; border-color: #3b2416; }
+    .hero-number { font-size: 2.9rem; font-weight: 750; letter-spacing: -.05em; margin: 8px 0; }
+    .negative { color: #ffb0a2; } .positive { color: #c8e6a4; }
+    dl { display: grid; grid-template-columns: 1fr auto; gap: 9px; margin: 20px 0; }
+    dt, dd { margin: 0; } dd { font-variant-numeric: tabular-nums; }
+    hr { border: 0; border-top: 1px solid #ffffff2b; }
+    .note { font-size: .82rem; opacity: .84; }
+    .split { margin: 14px 0 0; padding: 0; list-style: none; font-size: .84rem; }
+    .split li { display: grid; grid-template-columns: 1fr auto; gap: 8px; padding: 3px 0; }
+    .bar { grid-column: 1 / -1; height: 4px; border-radius: 2px; background: #ffffff2e; }
+    .bar > span { display: block; height: 100%; border-radius: 2px; background: #e0a15a; }
+    .verdict { margin-top: 14px; padding: 12px; border-radius: 9px; font-size: .87rem; background: #ffffff1a; }
+    .verdict.bad { background: #7d2317; }
+    .empty { font-size: .87rem; opacity: .84; }
+    footer { margin-top: 25px; font-size: .82rem; color: #5c5147; }
+    footer a { color: #9a4a16; }
+    .support { margin-top: 14px; }
+    .summary-actions { display: flex; gap: 8px; align-items: center; margin-top: 14px; }
+    .summary-status { font-size: .8rem; color: #f0d2a8; }
+    @media (max-width: 780px) {
+      .layout { grid-template-columns: 1fr; } .result { position: static; } .fields { grid-template-columns: 1fr; }
+      .pile-head { display: none; }
+      .pile-row { grid-template-columns: 1fr 1fr; border: 1px solid #e6ddd2; border-radius: 9px; padding: 11px; }
+      .pile-row label { font-size: .78rem; gap: 5px; }
+      .pile-row .lbl { position: static; width: auto; height: auto; margin: 0; overflow: visible; clip-path: none; white-space: normal; }
+      .pile-row label:first-child { grid-column: 1 / -1; }
+      .remove { grid-column: 1 / -1; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="eyebrow">FOR INDEPENDENT JUNK HAULERS</p>
+    <h1>Price the dump ticket, not the truck.</h1>
+    <p>A half-truck of couches and a half-truck of concrete look the same in the driveway. The landfill bills the weight. This calculator turns each pile into estimated tons, prices the ticket (minimum, per-ton, surcharge, appliance fees), then adds crew time, stairs, travel, and the dump run so you see the walk-away number before you quote the job.</p>
+  </header>
+
+  <main class="layout">
+    <div>
+      <section>
+        <h2>The load</h2>
+        <p class="hint">One row per material. Pounds per unit is a starting density &mdash; replace it with a figure from your own scale tickets. Quantity is cubic yards for bulk, or a count for appliances, mattresses, and tires.</p>
+        <div class="pile-row pile-head" aria-hidden="true">
+          <span>Material</span><span>Quantity</span><span>Lb / unit</span><span>Special fee</span><span></span>
+        </div>
+        <div id="piles"></div>
+        <button type="button" id="addPile">+ Add a pile</button>
+      </section>
+
+      <section>
+        <h2>Dump and truck</h2>
+        <div class="fields">
+          <label>Truck capacity (cu yd) <input id="truckCapacityCubicYards" type="number" min="1" step="1" value="12"></label>
+          <label>Dump fee per ton <input id="dumpFeePerTon" type="number" min="0" step="1" value="65"></label>
+          <label>Dump minimum ticket <input id="dumpMinimum" type="number" min="0" step="1" value="45"></label>
+          <label>Dump surcharge (%) <input id="surchargeRate" type="number" min="0" step="0.5" value="10"></label>
+        </div>
+        <p class="hint" style="margin-top:14px;margin-bottom:0">Transfer stations bill the greater of the per-ton rate and a minimum ticket, then often add an environmental or host-community surcharge. Appliance, mattress, and tire fees are on each row because many landfills will not take those on the regular ticket.</p>
+      </section>
+
+      <section>
+        <h2>Labor and costs</h2>
+        <div class="fields">
+          <label>On-site hours (clock) <input id="onSiteHours" type="number" min="0" step="0.25" value="2"></label>
+          <label>Stair flights <input id="stairsFlights" type="number" min="0" step="1" value="0"></label>
+          <label>Minutes per flight <input id="minutesPerFlight" type="number" min="0" step="1" value="15"></label>
+          <label>Long-carry minutes <input id="longCarryMinutes" type="number" min="0" step="1" value="0"></label>
+          <label>One-way travel (min) <input id="oneWayMinutes" type="number" min="0" step="1" value="18"></label>
+          <label>One dump-run (min) <input id="dumpMinutes" type="number" min="0" step="1" value="30"></label>
+          <label>Crew size <input id="crewSize" type="number" min="1" step="1" value="2"></label>
+          <label>Hourly wage <input id="hourlyWage" type="number" min="0" step="0.25" value="18"></label>
+          <label>Payroll burden (%) <input id="burdenRate" type="number" min="0" step="0.5" value="28"></label>
+          <label>Fuel for this job <input id="fuelPerJob" type="number" min="0" step="1" value="18"></label>
+          <label>Other job cost <input id="otherJobCost" type="number" min="0" step="1" value="0"></label>
+          <label>Overhead on direct cost (%) <input id="overheadRate" type="number" min="0" step="0.5" value="15"></label>
+          <label>Target net margin (%) <input id="targetMargin" type="number" min="0" max="99.9" step="0.5" value="25"></label>
+          <label>Minimum charge <input id="minimumCharge" type="number" min="0" step="1" value="149"></label>
+          <label>Price you&rsquo;re considering (optional) <input id="proposedPrice" type="number" min="0" step="5" placeholder="e.g. 199 half-truck special"></label>
+        </div>
+        <p class="hint" style="margin-top:14px;margin-bottom:0">On-site hours are clock time. Stairs, a long carry, round-trip drive, and each dump run are added, then multiplied by crew size so windshield time is loaded labor. A posted minimum lifts the customer&rsquo;s number; it does not change the walk-away cost.</p>
+      </section>
+    </div>
+
+    <section class="result" aria-live="polite">
+      <h2>Your bid</h2>
+      <div id="price" class="hero-number">$&mdash;</div>
+      <div id="priceLabel">job price</div>
+      <dl>
+        <dt>Estimated volume</dt><dd id="volume"></dd>
+        <dt>Estimated weight</dt><dd id="tons"></dd>
+        <dt>Truck loads / dump runs</dt><dd id="loads"></dd>
+        <dt>Dump ticket</dt><dd id="dump"></dd>
+        <dt>Crew clock / person-hours</dt><dd id="hours"></dd>
+        <dt>Loaded labor</dt><dd id="labor"></dd>
+        <dt>Overhead</dt><dd id="overhead"></dd>
+        <dt>Total job cost</dt><dd id="cost"></dd>
+        <dt>Job profit</dt><dd id="profit"></dd>
+        <dt>Price per cubic yard</dt><dd id="perYard"></dd>
+        <dt>Effective hourly rate</dt><dd id="hourlyRate"></dd>
+        <dt>Walk-away price</dt><dd id="breakEven"></dd>
+      </dl>
+      <div id="verdict" class="verdict" hidden></div>
+      <div class="summary-actions">
+        <button type="button" id="copySummary">Copy bid summary</button>
+        <span id="summaryStatus" class="summary-status" role="status" aria-live="polite"></span>
+      </div>
+      <hr>
+      <p class="note" style="margin-bottom:4px"><strong>Where the dump ticket goes</strong></p>
+      <ul class="split" id="split"></ul>
+      <hr>
+      <p class="note">Transparent arithmetic from your own inputs. Starting densities and special fees are common ballpark figures, not a landfill tariff or a guarantee &mdash; weigh a few of your own loads and replace them. Read <a href="./how-to-price-junk-removal.html" style="color:#f0d2a8">how to price a junk removal job</a>.</p>
+    </section>
+  </main>
+
+  <footer>
+    <label style="display:inline-flex;gap:6px;align-items:center;font-weight:400"><input id="usageOptOut" type="checkbox" style="width:auto"> Do not keep anonymous local usage counts</label>
+    <p><strong>No warranty.</strong> This free tool is not legal, tax, financial, or business advice, and it does not tell you what to charge. Weight is an estimate until a scale ticket prints. Verify every figure against your own dump tickets, payroll, insurance, and fuel costs, and against a qualified professional, before relying on it or submitting a bid. To the maximum extent permitted by law, the authors accept no liability for loss or damage from its use.</p>
+    <p><strong>Nothing leaves your browser.</strong> Every number stays on this device. Usage counts are anonymous tallies of which features were used, stored locally, and never include your address, load, dump rates, wages, or prices.</p>
+    <p class="support">Free and open source. If it keeps you off a losing half-truck special, the <a href="https://github.com/Duncan-Haywood/monorepo-projects" rel="noopener">project is on GitHub</a> &mdash; support is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { calculateBid, formatBidSummary, MATERIAL_PRESETS } from './calc.mjs';
+    import { recordUsage } from './usage.mjs';
+
+    const COST_IDS = [
+      'truckCapacityCubicYards','dumpFeePerTon','dumpMinimum','surchargeRate',
+      'onSiteHours','stairsFlights','minutesPerFlight','longCarryMinutes',
+      'oneWayMinutes','dumpMinutes','crewSize','hourlyWage','burdenRate',
+      'fuelPerJob','otherJobCost','overheadRate','targetMargin','minimumCharge',
+      'proposedPrice',
+    ];
+    const money = value => `$${value.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+    const el = id => document.getElementById(id);
+
+    const STARTING_PILES = [
+      { name: 'Mixed household junk', quantity: 6, lbsPerUnit: 200, specialFeeEach: 0 },
+      { name: 'Furniture / bulky items', quantity: 2, lbsPerUnit: 125, specialFeeEach: 0 },
+      { name: 'Appliance (each)', quantity: 2, lbsPerUnit: 200, specialFeeEach: 25 },
+    ];
+
+    const TYPE_OPTIONS = MATERIAL_PRESETS
+      .map((preset, index) => `<option value="${index}">${preset.label}</option>`)
+      .join('') + '<option value="other">Other material</option>';
+
+    const pilesHost = el('piles');
+    let rowSeq = 0;
+
+    function addPileRow(pile) {
+      const id = `p${++rowSeq}`;
+      const row = document.createElement('div');
+      row.className = 'pile-row';
+      row.innerHTML = `
+        <label for="${id}-type"><span class="lbl">Material</span><select class="p-type" id="${id}-type">${TYPE_OPTIONS}</select></label>
+        <label for="${id}-qty"><span class="lbl">Quantity</span><input class="p-qty" id="${id}-qty" type="number" min="0" step="0.25"></label>
+        <label for="${id}-lbs"><span class="lbl">Pounds per unit</span><input class="p-lbs" id="${id}-lbs" type="number" min="0" step="5"></label>
+        <label for="${id}-fee"><span class="lbl">Special fee each</span><input class="p-fee" id="${id}-fee" type="number" min="0" step="1"></label>
+        <button type="button" class="remove">Remove<span class="lbl"> this pile</span></button>`;
+
+      const typeField = row.querySelector('.p-type');
+      const lbsField = row.querySelector('.p-lbs');
+      const feeField = row.querySelector('.p-fee');
+      const presetIndex = MATERIAL_PRESETS.findIndex(preset => preset.label === pile.name);
+      typeField.value = presetIndex === -1 ? 'other' : String(presetIndex);
+      row.querySelector('.p-qty').value = pile.quantity;
+      lbsField.value = pile.lbsPerUnit;
+      feeField.value = pile.specialFeeEach;
+
+      typeField.addEventListener('change', () => {
+        const preset = MATERIAL_PRESETS[Number(typeField.value)];
+        if (preset && !lbsField.dataset.edited) lbsField.value = preset.lbsPerUnit;
+        if (preset && !feeField.dataset.edited) feeField.value = preset.specialFeeEach;
+        count('bid_calculated');
+        update();
+      });
+      lbsField.addEventListener('input', () => { lbsField.dataset.edited = '1'; });
+      feeField.addEventListener('input', () => { feeField.dataset.edited = '1'; });
+      row.querySelectorAll('input').forEach(input => {
+        input.addEventListener('input', update);
+        input.addEventListener('change', () => count('bid_calculated'));
+      });
+      row.querySelector('.remove').addEventListener('click', () => {
+        row.remove();
+        count('pile_removed');
+        update();
+      });
+      pilesHost.append(row);
+    }
+
+    function readPiles() {
+      return [...pilesHost.querySelectorAll('.pile-row')].map(row => {
+        const preset = MATERIAL_PRESETS[Number(row.querySelector('.p-type').value)];
+        return {
+          name: preset ? preset.label : '',
+          unit: preset ? preset.unit : 'cubic_yards',
+          cubicYardsEach: preset ? preset.cubicYardsEach : 0,
+          quantity: row.querySelector('.p-qty').value,
+          lbsPerUnit: row.querySelector('.p-lbs').value,
+          specialFeeEach: row.querySelector('.p-fee').value,
+        };
+      });
+    }
+
+    function count(event) {
+      recordUsage(localStorage, el('usageOptOut').checked, event);
+    }
+
+    function clearOutputs(message, isError) {
+      el('price').textContent = message;
+      el('price').className = `hero-number ${isError ? 'negative' : ''}`;
+      el('priceLabel').textContent = isError ? 'check the highlighted input' : 'job price';
+      ['volume','tons','loads','dump','hours','labor','overhead','cost','profit','perYard','hourlyRate','breakEven']
+        .forEach(id => { el(id).textContent = ''; });
+      el('split').innerHTML = '';
+      el('verdict').hidden = true;
+    }
+
+    function update() {
+      const piles = readPiles();
+      if (piles.length === 0) {
+        clearOutputs('Add a pile to price', false);
+        el('split').innerHTML = '<li class="empty">Add at least one pile above and the dump-ticket split appears here.</li>';
+        return;
+      }
+      let result;
+      try {
+        result = calculateBid({
+          piles,
+          ...Object.fromEntries(COST_IDS.map(id => [id, el(id).value])),
+          proposedPrice: el('proposedPrice').value,
+        });
+      } catch (error) {
+        clearOutputs(error.message, true);
+        return;
+      }
+
+      el('price').textContent = money(result.bidPrice);
+      el('price').className = 'hero-number';
+      el('priceLabel').textContent = result.minimumApplied
+        ? 'job price (minimum charge applied)'
+        : 'job price';
+      el('volume').textContent = `${result.totalCubicYards.toFixed(1)} cu yd`;
+      el('tons').textContent = `${result.estimatedTons.toFixed(2)} tons (${Math.round(result.totalPounds)} lb)`;
+      el('loads').textContent = `${result.truckLoads.toFixed(2)} / ${result.dumpRuns} run${result.dumpRuns === 1 ? '' : 's'}`;
+      el('dump').textContent = money(result.dumpCost);
+      el('hours').textContent = `${result.clockHours.toFixed(2)} h / ${result.personHours.toFixed(2)} h`;
+      el('labor').textContent = money(result.laborCost);
+      el('overhead').textContent = money(result.overhead);
+      el('cost').textContent = money(result.jobCost);
+      el('profit').textContent = money(result.profit);
+      el('perYard').textContent = result.pricePerCubicYard === null ? 'n/a' : money(result.pricePerCubicYard);
+      el('hourlyRate').textContent = result.effectiveHourlyRate === null ? 'n/a' : `${money(result.effectiveHourlyRate)}/h`;
+      el('breakEven').textContent = money(result.breakEvenPrice);
+
+      const weighted = result.piles.filter(pile => pile.pounds > 0);
+      el('split').innerHTML = weighted.length === 0
+        ? '<li class="empty">No pile has weight yet — add quantity above.</li>'
+        : weighted
+          .slice()
+          .sort((a, b) => b.pounds - a.pounds)
+          .map(pile => `<li><span>${pile.name}</span><span>${pile.weightShare.toFixed(0)}% of weight</span>
+            <span class="bar"><span style="width:${pile.weightShare.toFixed(1)}%"></span></span></li>`)
+          .join('');
+
+      const verdict = el('verdict');
+      if (result.proposed === null) {
+        verdict.hidden = true;
+      } else {
+        verdict.hidden = false;
+        verdict.className = `verdict${result.proposed.belowBreakEven ? ' bad' : ''}`;
+        const rate = result.proposed.hourlyRate === null ? 'n/a' : `${money(result.proposed.hourlyRate)}/h`;
+        verdict.innerHTML = result.proposed.belowBreakEven
+          ? `At ${money(result.proposed.price)} this job <strong>loses ${money(Math.abs(result.proposed.profit))}</strong> before you take anything out of it. Your walk-away price is ${money(result.breakEvenPrice)}.`
+          : `At ${money(result.proposed.price)} you keep <strong>${money(result.proposed.profit)}</strong> — a ${result.proposed.margin.toFixed(1)}% margin, billing ${rate} of labor.`;
+      }
+    }
+
+    async function copySummary() {
+      const result = calculateBid({
+        piles: readPiles(),
+        ...Object.fromEntries(COST_IDS.map(id => [id, el(id).value])),
+        proposedPrice: el('proposedPrice').value,
+      });
+      const text = formatBidSummary(result);
+      try {
+        await navigator.clipboard.writeText(text);
+      } catch {
+        const fallback = document.createElement('textarea');
+        fallback.value = text;
+        fallback.setAttribute('readonly', '');
+        fallback.style.position = 'fixed';
+        fallback.style.opacity = '0';
+        document.body.append(fallback);
+        fallback.select();
+        document.execCommand('copy');
+        fallback.remove();
+      }
+      count('summary_copied');
+      el('summaryStatus').textContent = 'Copied to clipboard';
+      setTimeout(() => { el('summaryStatus').textContent = ''; }, 2500);
+    }
+
+    el('addPile').addEventListener('click', () => {
+      addPileRow({ name: 'Mixed household junk', quantity: 0, lbsPerUnit: 200, specialFeeEach: 0 });
+      count('pile_added');
+      update();
+    });
+
+    COST_IDS.forEach(id => {
+      el(id).addEventListener('input', update);
+      el(id).addEventListener('change', () => count(id === 'proposedPrice' ? 'proposed_price_compared' : 'bid_calculated'));
+    });
+    el('usageOptOut').addEventListener('change', update);
+    el('copySummary').addEventListener('click', () => {
+      try {
+        copySummary().catch(() => { el('summaryStatus').textContent = 'Copy failed; select and copy the figures above.'; });
+      } catch (error) {
+        el('summaryStatus').textContent = error.message;
+      }
+    });
+
+    STARTING_PILES.forEach(addPileRow);
+    update();
+  </script>
+</body>
+</html>

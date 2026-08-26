@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://example.invalid/cabinet-refinishing-bid-calculator/sitemap.xml

@@ -1,0 +1,456 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>EV Charger Installation Bid Calculator | How Much to Charge to Install a Level 2 EVSE</title>
+  <meta name="description" content="Price a residential Level 2 EV charger install from the circuit, the run, the trench, and the panel work — not a flat hang fee. See labor hours, voltage drop, the walk-away price, and why a detached garage is a different job.">
+  <meta property="og:title" content="EV Charger Installation Bid Calculator">
+  <meta property="og:description" content="Bid the run and the panel, not the charger. Size the circuit at 125%, hold a 3% voltage drop, and see the walk-away number before you send the price.">
+  <meta property="og:type" content="website">
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "SoftwareApplication",
+        "name": "EV Charger Installation Bid Calculator",
+        "applicationCategory": "BusinessApplication",
+        "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
+        "featureList": "125% continuous-load breaker sizing, copper voltage-drop check, trench and panel-work labor, walk-away price, proposed-price margin check, shareable private quote link"
+      },
+      {
+        "@type": "FAQPage",
+        "mainEntity": [
+          {
+            "@type": "Question",
+            "name": "How much should I charge to install an EV charger?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "There is no flat hang fee. A 20–25 foot indoor Level 2 install on a panel with a spare slot often lands near a thousand dollars of contractor price once wage burden, permit, and margin are in. The same 48 A charger on a 70-foot trench to a detached garage that also needs a service upgrade is several times that. Price the circuit, the run, the trench, and the panel work."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "What size breaker does a Level 2 EV charger need?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "EVSE is a continuous load. Size the overcurrent device at 125% of the charger’s continuous current and round up to a standard breaker: 32 A → 40 A, 40 A → 50 A, 48 A → 60 A, 80 A → 100 A. Confirm against the charger nameplate and the adopted code in the jurisdiction."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "When does an EV charger install need a service upgrade?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "When the existing service does not have enough unused capacity for the new breaker. Subtract a realistic existing load from the service rating. If the remainder is smaller than the EVSE breaker, the bid should include a service upgrade or a load-management device — not a hope that the panel will be fine."
+            }
+          }
+        ]
+      }
+    ]
+  }
+  </script>
+  <style>
+    :root { color-scheme: light; font-family: system-ui, sans-serif; color: #1b2430; background: #eef3f8; }
+    body { max-width: 1080px; margin: 0 auto; padding: 32px 18px; }
+    header { max-width: 740px; margin-bottom: 26px; }
+    h1 { font-size: clamp(2rem, 6vw, 3.4rem); line-height: .98; margin: 0 0 12px; letter-spacing: -.05em; }
+    p { line-height: 1.5; }
+    .eyebrow { font-size: .8rem; font-weight: 700; letter-spacing: .08em; color: #0b6e8a; margin: 0 0 6px; }
+    .layout { display: grid; grid-template-columns: minmax(0, 1fr) minmax(300px, .78fr); gap: 18px; align-items: start; }
+    section { background: #fff; border: 1px solid #d3dce6; border-radius: 14px; padding: 20px; box-shadow: 0 8px 24px #1a2a4a0d; margin-bottom: 18px; }
+    h2 { margin-top: 0; font-size: 1.15rem; }
+    .hint { font-size: .82rem; color: #4a5666; margin: -6px 0 14px; }
+    .fields { display: grid; grid-template-columns: repeat(2, 1fr); gap: 13px; }
+    label { display: grid; gap: 5px; font-size: .87rem; font-weight: 650; }
+    input, select { width: 100%; box-sizing: border-box; border: 1px solid #a9b6c6; border-radius: 7px; padding: 10px; font: inherit; background: #fff; }
+    button { font: inherit; border-radius: 7px; border: 1px solid #a9b6c6; background: #f3f6fa; padding: 10px 14px; cursor: pointer; font-weight: 650; }
+    button:hover { background: #e6ecf4; }
+    .result { position: sticky; top: 15px; background: #10263a; color: #f3f7fb; border-color: #10263a; }
+    .hero-number { font-size: 2.9rem; font-weight: 750; letter-spacing: -.05em; margin: 8px 0; }
+    .negative { color: #ffb0a2; } .positive { color: #9ee0b4; }
+    dl { display: grid; grid-template-columns: 1fr auto; gap: 9px; margin: 20px 0; }
+    dt, dd { margin: 0; } dd { font-variant-numeric: tabular-nums; }
+    hr { border: 0; border-top: 1px solid #ffffff2b; }
+    .note { font-size: .82rem; opacity: .84; }
+    .split { margin: 14px 0 0; padding: 0; list-style: none; font-size: .84rem; }
+    .split li { display: grid; grid-template-columns: 1fr auto; gap: 8px; padding: 3px 0; }
+    .bar { grid-column: 1 / -1; height: 4px; border-radius: 2px; background: #ffffff2e; }
+    .bar > span { display: block; height: 100%; border-radius: 2px; background: #6ec8e6; }
+    .verdict { margin-top: 14px; padding: 12px; border-radius: 9px; font-size: .87rem; background: #ffffff1a; }
+    .verdict.bad { background: #7d2317; }
+    .verdict.warn { background: #7a4a12; }
+    footer { margin-top: 25px; font-size: .82rem; color: #4a5666; }
+    footer a { color: #0b6e8a; }
+    .support { margin-top: 14px; }
+    .summary-actions { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin-top: 14px; }
+    .summary-status { font-size: .8rem; color: #b7e4f3; }
+    .faq details { margin: 10px 0; }
+    .faq summary { cursor: pointer; font-weight: 650; }
+    @media (max-width: 780px) {
+      .layout { grid-template-columns: 1fr; } .result { position: static; } .fields { grid-template-columns: 1fr; }
+    }
+    @media print {
+      body { background: #fff; padding: 0; }
+      .layout { grid-template-columns: 1fr; }
+      .result { position: static; color: #10263a; background: #fff; border: 1px solid #10263a; }
+      .summary-actions, footer label, #addNothing { display: none; }
+      .negative { color: #9b2c1f; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="eyebrow">FOR ELECTRICAL CONTRACTORS</p>
+    <h1>Bid the run and the panel, not the charger.</h1>
+    <p>A Level 2 EVSE is a continuous load. Size the breaker at 125%, pick copper that holds a 3% voltage drop for the actual run, then add trench hours and panel work. A 25-foot indoor hang on a spare slot is one job. The same 48&nbsp;A charger on a 70-foot trench to a detached garage that also needs a service upgrade is several times that price — and a flat “EV charger install” quote cannot see the difference.</p>
+  </header>
+
+  <main class="layout">
+    <div>
+      <section>
+        <h2>The job</h2>
+        <p class="hint">Starting figures are common takeoff points, not a code opinion. Replace every length and hour with what you measured on this house.</p>
+        <div class="fields">
+          <label>Charger continuous amps
+            <select id="chargerAmps">
+              <option value="32">32 A Level 2 (40 A circuit)</option>
+              <option value="40">40 A Level 2 (50 A circuit)</option>
+              <option value="48" selected>48 A Level 2 (60 A circuit)</option>
+              <option value="80">80 A Level 2 (100 A circuit)</option>
+            </select>
+          </label>
+          <label>Install type
+            <select id="installType">
+              <option value="hardwired" selected>Hardwired EVSE</option>
+              <option value="nema_14_50">NEMA 14-50 receptacle</option>
+            </select>
+          </label>
+          <label>Location
+            <select id="location">
+              <option value="indoor_garage" selected>Indoor garage wall</option>
+              <option value="outdoor_wall">Outdoor house wall</option>
+              <option value="detached_garage">Detached garage (trench)</option>
+              <option value="pedestal">Driveway pedestal</option>
+            </select>
+          </label>
+          <label>Panel work
+            <select id="panelWork">
+              <option value="spare_slot" selected>Spare breaker slot</option>
+              <option value="relocate">Relocate / make space</option>
+              <option value="subpanel">New subpanel</option>
+              <option value="service_upgrade">Service upgrade (200 A)</option>
+            </select>
+          </label>
+          <label>One-way run (feet) <input id="runFeet" type="number" min="0" step="1" value="25"></label>
+          <label>Trench (feet) <input id="trenchFeet" type="number" min="0" step="1" value="0"></label>
+          <label>Existing service (amps) <input id="existingServiceAmps" type="number" min="0" step="5" value="200"></label>
+          <label>Estimated existing load (amps) <input id="estimatedExistingLoad" type="number" min="0" step="5" value="140"></label>
+        </div>
+      </section>
+
+      <section>
+        <h2>Your costs</h2>
+        <div class="fields">
+          <label>Journeyman hourly wage <input id="hourlyWage" type="number" min="0" step="0.25" value="48"></label>
+          <label>Payroll burden (%) <input id="burdenRate" type="number" min="0" step="0.5" value="32"></label>
+          <label>Overhead on direct cost (%) <input id="overheadRate" type="number" min="0" step="0.5" value="18"></label>
+          <label>Target net margin (%) <input id="targetMargin" type="number" min="0" max="99.9" step="0.5" value="25"></label>
+          <label>Permit &amp; inspection fee <input id="permitFee" type="number" min="0" step="5" value="150"></label>
+          <label>Charger hardware (0 if owner-supplied) <input id="chargerHardware" type="number" min="0" step="10" value="0"></label>
+          <label>Other materials <input id="otherMaterials" type="number" min="0" step="5" value="0"></label>
+          <label>Other hours <input id="otherHours" type="number" min="0" step="0.25" value="0"></label>
+          <label>Price you&rsquo;re considering (optional) <input id="proposedPrice" type="number" min="0" step="25" placeholder="e.g. 1100"></label>
+        </div>
+        <p class="hint" style="margin-top:14px;margin-bottom:0">Payroll burden covers employer taxes, workers&rsquo; compensation (high in electrical), liability, and paid time off. Pricing off the raw journeyman rate is the most common reason a charger hang that looked profitable was not.</p>
+      </section>
+
+      <section class="faq">
+        <h2>Questions electricians actually type</h2>
+        <details>
+          <summary>How much should I charge to install an EV charger?</summary>
+          <p>There is no flat hang fee. Use this page: a short indoor 48&nbsp;A job on a spare slot often lands near $1,200–$1,400 at the default rates. Switch the location to a detached garage, add a 60-foot trench, and pick a service upgrade — the same charger becomes a several-thousand-dollar job. That gap is the whole product.</p>
+        </details>
+        <details>
+          <summary>What size breaker and wire does a 48 A charger need?</summary>
+          <p>48&nbsp;A continuous × 1.25 = 60&nbsp;A breaker. Copper #6 usually carries that ampacity; a long run may upsize to hold 3% voltage drop at 240&nbsp;V. The result panel shows the gauge and the calculated drop for the feet you entered.</p>
+        </details>
+        <details>
+          <summary>Do I have to include a service upgrade?</summary>
+          <p>Only if the existing service does not have the headroom. Enter the service rating and a honest existing-load estimate. If the new breaker is larger than the unused capacity, the tool flags it — it does not decide the upgrade for you, and it is not a permit load calculation.</p>
+        </details>
+      </section>
+    </div>
+
+    <section class="result" aria-live="polite">
+      <h2>Your bid</h2>
+      <div id="price" class="hero-number">$&mdash;</div>
+      <div id="priceLabel">installed price to the customer</div>
+      <dl>
+        <dt>Circuit</dt><dd id="circuit"></dd>
+        <dt>Recommended copper</dt><dd id="wire"></dd>
+        <dt>Voltage drop</dt><dd id="drop"></dd>
+        <dt>Labor hours</dt><dd id="hours"></dd>
+        <dt>Loaded labor</dt><dd id="labor"></dd>
+        <dt>Materials &amp; permit</dt><dd id="materials"></dd>
+        <dt>Overhead</dt><dd id="overhead"></dd>
+        <dt>Total cost</dt><dd id="cost"></dd>
+        <dt>Profit at target margin</dt><dd id="profit"></dd>
+        <dt>Effective hourly</dt><dd id="hourlyRate"></dd>
+        <dt>Price per circuit amp</dt><dd id="perAmp"></dd>
+        <dt>Walk-away price</dt><dd id="breakEven"></dd>
+      </dl>
+      <div id="compare" class="verdict" hidden></div>
+      <div id="serviceWarn" class="verdict warn" hidden></div>
+      <div id="verdict" class="verdict" hidden></div>
+      <div class="summary-actions">
+        <button type="button" id="copySummary">Copy bid summary</button>
+        <button type="button" id="copyLink">Copy share link</button>
+        <button type="button" id="printQuote">Print</button>
+        <span id="summaryStatus" class="summary-status" role="status" aria-live="polite"></span>
+      </div>
+      <hr>
+      <p class="note" style="margin-bottom:4px"><strong>Where the hours go</strong></p>
+      <ul class="split" id="split"></ul>
+      <hr>
+      <p class="note">Transparent arithmetic from your own inputs. Breaker sizes, copper gauges, and hours are starting takeoff points — not a code ruling, a load calculation you can stamp, or a guarantee. Confirm against the charger nameplate, the adopted electrical code, and a qualified electrician.</p>
+    </section>
+  </main>
+
+  <footer>
+    <label style="display:inline-flex;gap:6px;align-items:center;font-weight:400"><input id="usageOptOut" type="checkbox" style="width:auto"> Do not keep anonymous local usage counts</label>
+    <p><strong>No warranty.</strong> This free tool is not electrical, engineering, code, legal, tax, or financial advice, and it does not tell you what to charge or whether a panel is safe. It is not a permit load calculation and it does not determine NEC or local-code compliance. Verify every figure against your own takeoff, the nameplate, the adopted code, and a licensed electrician before relying on it or submitting a bid. To the maximum extent permitted by law, the authors accept no liability for loss or damage from its use.</p>
+    <p><strong>Nothing leaves your browser.</strong> Every number stays on this device. A share link encodes only the inputs you choose to put in the address bar, and it is never sent to us. Usage counts are anonymous tallies of which features were used, stored locally, and never include the house, wages, costs, or prices.</p>
+    <p class="support">Free and open source. If it wins you a job, the <a href="https://github.com/Duncan-Haywood/monorepo-projects" rel="noopener">project is on GitHub</a> &mdash; support is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { calculateBid, defaultInputs, PANEL_WORK, LOCATION_PRESETS } from './calc.mjs';
+    import { recordUsage } from './usage.mjs';
+    import { encodeInputs, decodeInputs } from './share.mjs';
+
+    const FIELD_IDS = [
+      'chargerAmps','runFeet','trenchFeet','location','installType','panelWork',
+      'existingServiceAmps','estimatedExistingLoad','hourlyWage','burdenRate',
+      'overheadRate','targetMargin','permitFee','chargerHardware','otherMaterials',
+      'otherHours','proposedPrice',
+    ];
+    const money = value => `$${value.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+    const el = id => document.getElementById(id);
+    const DRAFT_KEY = 'ev-charger-bid-draft';
+
+    function readInputs() {
+      return Object.fromEntries(FIELD_IDS.map(id => [id, el(id).value]));
+    }
+
+    function writeInputs(input) {
+      for (const id of FIELD_IDS) {
+        if (input[id] === undefined || input[id] === null) continue;
+        el(id).value = input[id];
+      }
+    }
+
+    function count(event) {
+      recordUsage(localStorage, el('usageOptOut').checked, event);
+    }
+
+    function persistDraft() {
+      try { localStorage.setItem(DRAFT_KEY, JSON.stringify(readInputs())); } catch { /* private mode */ }
+    }
+
+    function restoreDraft() {
+      const fromUrl = decodeInputs(window.location.hash || window.location.search);
+      if (Object.keys(fromUrl).length > 0) {
+        writeInputs({ ...defaultInputs(), ...fromUrl });
+        return;
+      }
+      try {
+        const saved = JSON.parse(localStorage.getItem(DRAFT_KEY) || 'null');
+        if (saved && typeof saved === 'object') writeInputs({ ...defaultInputs(), ...saved });
+      } catch { /* ignore a corrupt draft */ }
+    }
+
+    function clearOutputs(message, isError) {
+      el('price').textContent = message;
+      el('price').className = `hero-number ${isError ? 'negative' : ''}`;
+      el('priceLabel').textContent = isError ? 'check the highlighted input' : 'installed price to the customer';
+      ['circuit','wire','drop','hours','labor','materials','overhead','cost','profit','hourlyRate','perAmp','breakEven']
+        .forEach(id => { el(id).textContent = ''; });
+      el('split').innerHTML = '';
+      el('verdict').hidden = true;
+      el('compare').hidden = true;
+      el('serviceWarn').hidden = true;
+    }
+
+    function hourRows(result) {
+      const labels = {
+        base: 'Mount, terminate, test',
+        run: 'Circuit run',
+        trench: 'Trench',
+        panel: 'Panel work',
+        loadCalc: 'Load calc / paperwork',
+        inspection: 'Permit / inspection',
+        disconnect: 'Outdoor disconnect',
+        pedestal: 'Pedestal',
+        receptacle: '14-50 device',
+        other: 'Other hours',
+      };
+      return Object.entries(result.hours)
+        .filter(([, hours]) => hours > 0)
+        .sort((a, b) => b[1] - a[1])
+        .map(([key, hours]) => {
+          const share = result.laborHours === 0 ? 0 : hours / result.laborHours * 100;
+          return `<li><span>${labels[key]}</span><span>${hours.toFixed(2)} h</span>
+            <span class="bar"><span style="width:${share.toFixed(1)}%"></span></span></li>`;
+        })
+        .join('');
+    }
+
+    function update() {
+      persistDraft();
+      let result;
+      try {
+        result = calculateBid(readInputs());
+      } catch (error) {
+        clearOutputs(error.message, true);
+        return;
+      }
+
+      el('price').textContent = money(result.price);
+      el('price').className = 'hero-number';
+      el('priceLabel').textContent = 'installed price to the customer';
+      el('circuit').textContent = `${result.chargerAmps} A continuous → ${result.breakerAmps} A breaker`;
+      el('wire').textContent = result.wire.upsizedFromAmpacity
+        ? `#${result.wire.awg} Cu (upsized from #${result.wire.ampacityAwg} for voltage drop)`
+        : `#${result.wire.awg} Cu`;
+      el('drop').textContent = `${result.wire.voltageDropPercent.toFixed(2)}% at ${result.chargerAmps} A`;
+      el('drop').className = result.wire.voltageDropOk ? '' : 'negative';
+      el('hours').textContent = `${result.laborHours.toFixed(2)} h`;
+      el('labor').textContent = money(result.laborCost);
+      el('materials').textContent = money(result.materialsCost);
+      el('overhead').textContent = money(result.overhead);
+      el('cost').textContent = money(result.totalCost);
+      el('profit').textContent = money(result.profit);
+      el('hourlyRate').textContent = result.effectiveHourlyRate === null ? 'n/a' : `${money(result.effectiveHourlyRate)}/h`;
+      el('perAmp').textContent = `${money(result.pricePerCircuitAmp)}/A`;
+      el('breakEven').textContent = money(result.breakEvenPrice);
+      el('split').innerHTML = hourRows(result);
+
+      const compare = el('compare');
+      if (result.vsBaseline && Math.abs(result.vsBaseline - 1) > 0.08) {
+        compare.hidden = false;
+        compare.className = 'verdict';
+        const times = result.vsBaseline.toFixed(1);
+        compare.innerHTML = result.vsBaseline > 1
+          ? `This house is <strong>${times}×</strong> a typical 20-foot indoor 48&nbsp;A hang on a spare slot (${money(result.baselinePrice)} at your rates). That is why a flat charger-install price loses money here.`
+          : `This house is cheaper than the typical indoor hang (${money(result.baselinePrice)}) — ${times}× that job.`;
+      } else {
+        compare.hidden = true;
+      }
+
+      const warn = el('serviceWarn');
+      if (result.serviceUpgradeSuggested) {
+        warn.hidden = false;
+        warn.textContent = `Panel headroom looks short. ${result.serviceUpgradeReason} Confirm with a real load calculation before you bid a spare-slot hang.`;
+      } else {
+        warn.hidden = true;
+      }
+
+      const verdict = el('verdict');
+      if (result.proposed === null) {
+        verdict.hidden = true;
+      } else {
+        verdict.hidden = false;
+        verdict.className = `verdict${result.proposed.belowBreakEven ? ' bad' : ''}`;
+        const rate = result.proposed.hourlyRate === null ? 'n/a' : `${money(result.proposed.hourlyRate)}/h`;
+        verdict.innerHTML = result.proposed.belowBreakEven
+          ? `At ${money(result.proposed.price)} this job <strong>loses ${money(Math.abs(result.proposed.profit))}</strong> before you take anything out of it. Your walk-away price is ${money(result.breakEvenPrice)}.`
+          : `At ${money(result.proposed.price)} you keep <strong>${money(result.proposed.profit)}</strong> — a ${result.proposed.margin.toFixed(1)}% margin, billing ${rate} of labor.`;
+      }
+    }
+
+    function locationLabel(id) {
+      return LOCATION_PRESETS.find(item => item.id === id)?.label || id;
+    }
+    function panelLabel(id) {
+      return PANEL_WORK.find(item => item.id === id)?.label || id;
+    }
+
+    function summaryText(result, input) {
+      return [
+        'LEVEL 2 EV CHARGER INSTALL BID',
+        '',
+        `Proposed installed price: ${money(result.price)}`,
+        `Walk-away (cost) price: ${money(result.breakEvenPrice)}`,
+        `Circuit: ${result.chargerAmps} A continuous, ${result.breakerAmps} A breaker, #${result.wire.awg} Cu`,
+        `Voltage drop: ${result.wire.voltageDropPercent.toFixed(2)}% over ${result.runFeet} ft`,
+        `Location: ${locationLabel(input.location)}`,
+        `Panel work: ${panelLabel(input.panelWork)}`,
+        result.trenchFeet > 0 ? `Trench: ${result.trenchFeet} ft` : null,
+        `Labor: ${result.laborHours.toFixed(2)} hours`,
+        `Materials & permit: ${money(result.materialsCost)}`,
+        result.vsBaseline && result.vsBaseline > 1.1
+          ? `Job shape: ${result.vsBaseline.toFixed(1)}× a typical indoor 48 A spare-slot hang.`
+          : null,
+        '',
+        'This is a draft for review. Confirm scope, wire, load calculation, permit, insurance, and all pricing before sending. Not a code determination.',
+      ].filter(Boolean).join('\n');
+    }
+
+    async function writeClipboard(text) {
+      try {
+        await navigator.clipboard.writeText(text);
+      } catch {
+        const fallback = document.createElement('textarea');
+        fallback.value = text;
+        fallback.setAttribute('readonly', '');
+        fallback.style.position = 'fixed';
+        fallback.style.opacity = '0';
+        document.body.append(fallback);
+        fallback.select();
+        document.execCommand('copy');
+        fallback.remove();
+      }
+    }
+
+    async function copySummary() {
+      const input = readInputs();
+      const result = calculateBid(input);
+      await writeClipboard(summaryText(result, input));
+      count('summary_copied');
+      el('summaryStatus').textContent = 'Copied to clipboard';
+      setTimeout(() => { el('summaryStatus').textContent = ''; }, 2500);
+    }
+
+    async function copyLink() {
+      const encoded = encodeInputs(readInputs());
+      const url = `${location.origin}${location.pathname}#${encoded}`;
+      history.replaceState(null, '', `#${encoded}`);
+      await writeClipboard(url);
+      count('share_link_copied');
+      el('summaryStatus').textContent = 'Share link copied';
+      setTimeout(() => { el('summaryStatus').textContent = ''; }, 2500);
+    }
+
+    FIELD_IDS.forEach(id => {
+      el(id).addEventListener('input', update);
+      el(id).addEventListener('change', () => count(id === 'proposedPrice' ? 'proposed_price_compared' : 'bid_calculated'));
+    });
+    el('usageOptOut').addEventListener('change', update);
+    el('copySummary').addEventListener('click', () => {
+      copySummary().catch(() => { el('summaryStatus').textContent = 'Copy failed; select and copy the figures above.'; });
+    });
+    el('copyLink').addEventListener('click', () => {
+      copyLink().catch(() => { el('summaryStatus').textContent = 'Could not copy the link; copy the address bar.'; });
+    });
+    el('printQuote').addEventListener('click', () => {
+      count('quote_printed');
+      window.print();
+    });
+
+    restoreDraft();
+    update();
+  </script>
+</body>
+</html>

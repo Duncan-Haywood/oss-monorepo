@@ -1,0 +1,17 @@
+name: tender-bid-readiness CI
+on:
+  push:
+    paths: ["ventures/tender-bid-readiness/**", ".github/workflows/tender-bid-readiness-ci.yml"]
+  pull_request:
+    paths: ["ventures/tender-bid-readiness/**", ".github/workflows/tender-bid-readiness-ci.yml"]
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ventures/tender-bid-readiness
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 20 }
+      - run: node --test
