@@ -84,12 +84,25 @@ def parse_ubl_invoice(source: bytes | str) -> dict[str, Any]:
             # UBL permits a TaxTotal per tax scheme; the invoice tax is their sum.
             "tax": _number(str(tax_total)),
             "gross": _number(_text(total, "TaxInclusiveAmount")),
+            **_optional_monetary_totals(total),
         },
     }
     payment = _payee_payment(root)
     if payment:
         invoice["payment"] = payment
     return invoice
+
+
+def _optional_monetary_totals(total: ElementTree.Element) -> dict[str, int | float]:
+    """Map PrepaidAmount and PayableAmount when the UBL invoice includes them."""
+    extras: dict[str, int | float] = {}
+    prepaid = _text(total, "PrepaidAmount", required=False)
+    if prepaid:
+        extras["prepaid"] = _number(prepaid)
+    payable = _text(total, "PayableAmount", required=False)
+    if payable:
+        extras["due"] = _number(payable)
+    return extras
 
 
 def _payee_payment(root: ElementTree.Element) -> dict[str, str]:

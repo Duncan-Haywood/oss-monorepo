@@ -37,6 +37,32 @@ test("tax total must match line tax percentages", () => {
   assert.ok(rules.has("INV-018"));
 });
 
+test("prepaid and due are optional and must balance", () => {
+  const balanced = clone(VALID);
+  balanced.totals.prepaid = 38;
+  balanced.totals.due = 200;
+  assert.deepEqual(checkInvoice(balanced), []);
+
+  const wrongDue = clone(VALID);
+  wrongDue.totals.prepaid = 38;
+  wrongDue.totals.due = 238;
+  const dueErrors = checkInvoice(wrongDue);
+  assert.ok(dueErrors.some((error) => error.rule === "INV-029"));
+  assert.equal(dueErrors.find((error) => error.rule === "INV-029").path, "/totals/due");
+
+  const overpaid = clone(VALID);
+  overpaid.totals.prepaid = 300;
+  const prepaidErrors = checkInvoice(overpaid);
+  assert.ok(prepaidErrors.some((error) => error.rule === "INV-028"));
+  assert.equal(prepaidErrors.find((error) => error.rule === "INV-028").path, "/totals/prepaid");
+
+  const unpaidMarkedPaid = clone(VALID);
+  unpaidMarkedPaid.totals.due = 0;
+  const remainingErrors = checkInvoice(unpaidMarkedPaid);
+  assert.ok(remainingErrors.some((error) => error.rule === "INV-029"));
+  assert.ok(remainingErrors.some((error) => error.message.includes("gross minus prepaid")));
+});
+
 test("tax total rounds each line to cents", () => {
   const invoice = clone(VALID);
   invoice.lines = [

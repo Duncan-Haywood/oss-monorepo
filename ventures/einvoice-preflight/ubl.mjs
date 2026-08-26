@@ -78,6 +78,15 @@ function branchBic(branch) {
   return "";
 }
 
+function optionalMonetaryTotals(total) {
+  const extras = {};
+  const prepaid = textOf(total, "PrepaidAmount", false);
+  if (prepaid) extras.prepaid = asNumber(prepaid);
+  const payable = textOf(total, "PayableAmount", false);
+  if (payable) extras.due = asNumber(payable);
+  return extras;
+}
+
 function payeePayment(root) {
   for (const means of descendants(root, "PaymentMeans")) {
     for (const account of descendants(means, "PayeeFinancialAccount")) {
@@ -132,6 +141,7 @@ export function parseUblInvoice(source) {
       net: asNumber(textOf(total, "TaxExclusiveAmount")),
       tax: asNumber(String(taxTotal)),
       gross: asNumber(textOf(total, "TaxInclusiveAmount")),
+      ...optionalMonetaryTotals(total),
     },
   };
   const payment = payeePayment(root);

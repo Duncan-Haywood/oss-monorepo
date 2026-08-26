@@ -69,6 +69,12 @@ products:
           repo_views_14d: 0
           release_downloads_total: 0
         note: Salvaged the closed browser drop/paste checker (#1478) and ported VAT/IBAN/BIC (INV-022–INV-027) into the same page; public URL remains unmeasured.
+      - as_of: 2026-08-26
+        signals:
+          local_prepaid_due_checks: 0
+          repo_views_14d: 0
+          release_downloads_total: 0
+        note: Added optional prepaid vs amount-due arithmetic (INV-028/INV-029) on CLI and browser, including UBL PrepaidAmount/PayableAmount; public URL remains unmeasured.
   - slug: ai-engineering-academy
     surface: static-page-in-repo
     readings:
