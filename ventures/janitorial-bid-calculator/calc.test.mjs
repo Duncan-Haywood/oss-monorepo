@@ -98,6 +98,23 @@ test('no proposed price means no comparison, and empty string counts as none', (
   assert.equal(calculateBid({ ...office(), proposedPrice: 0 }).proposed.price, 0);
 });
 
+test('turns labor hours into a per-visit crew capacity check', () => {
+  const result = calculateBid({ ...office(), crewSize: 2, shiftHours: 1.5 });
+  assert.equal(result.visitCapacityHours, 3);
+  assert.ok(Math.abs(result.visitUtilization - 80) < 1e-9);
+  assert.equal(result.visitOverCapacity, false);
+
+  const overloaded = calculateBid({ ...office(), crewSize: 1, shiftHours: 2 });
+  assert.ok(overloaded.visitUtilization > 100);
+  assert.equal(overloaded.visitOverCapacity, true);
+});
+
+test('rejects invalid crew capacity inputs', () => {
+  assert.throws(() => calculateBid({ ...office(), crewSize: 0 }), /Crew size must be greater than zero/);
+  assert.throws(() => calculateBid({ ...office(), crewSize: 1.5 }), /Crew size must be a whole number/);
+  assert.throws(() => calculateBid({ ...office(), shiftHours: 0 }), /Available hours per cleaner must be greater than zero/);
+});
+
 test('frequency scales monthly hours but never the one-visit figure', () => {
   const daily = calculateBid(office());
   const weekly = calculateBid({
