@@ -1,0 +1,403 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Quartz &amp; Granite Countertop Bid Calculator | Price Slabs, Cutouts, and Waterfalls</title>
+  <meta name="description" content="Price a quartz or granite countertop job from slabs, sink and cooktop cutouts, edge profile, backsplash, and waterfalls — not a published price per finished square foot. See the walk-away number before you match a cheaper kitchen quote.">
+  <meta property="og:title" content="Quartz & Granite Countertop Bid Calculator">
+  <meta property="og:description" content="A 40 sq ft galley with a drop-in sink is not the same job as a 28 sq ft island with two waterfall ends. Bid the slabs and the polished holes.">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Quartz and Granite Countertop Bid Calculator","applicationCategory":"BusinessApplication","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"featureList":"Slab count from layout waste, sink and cooktop cutout hours, waterfall extra stone, edge-profile labor, backsplash takeoff, walk-away price, proposed-price margin check, copyable customer-facing bid summary"}</script>
+  <style>
+    :root { color-scheme: light; font-family: system-ui, sans-serif; color: #1c2430; background: #eef1f5; }
+    body { max-width: 1060px; margin: 0 auto; padding: 32px 18px; }
+    header { max-width: 740px; margin-bottom: 26px; }
+    h1 { font-size: clamp(2rem, 6vw, 3.4rem); line-height: .98; margin: 0 0 12px; letter-spacing: -.05em; }
+    p { line-height: 1.5; }
+    .eyebrow { font-size: .8rem; font-weight: 700; letter-spacing: .08em; color: #3d6a8a; margin: 0 0 6px; }
+    .layout { display: grid; grid-template-columns: minmax(0, 1fr) minmax(300px, .75fr); gap: 18px; align-items: start; }
+    section { background: #fff; border: 1px solid #d3dce6; border-radius: 14px; padding: 20px; box-shadow: 0 8px 24px #1a2a4a0d; margin-bottom: 18px; }
+    h2 { margin-top: 0; font-size: 1.15rem; }
+    .hint { font-size: .82rem; color: #4a5666; margin: -6px 0 14px; }
+    .fields { display: grid; grid-template-columns: repeat(2, 1fr); gap: 13px; }
+    label { display: grid; gap: 5px; font-size: .87rem; font-weight: 650; }
+    input, select { width: 100%; box-sizing: border-box; border: 1px solid #a9b6c6; border-radius: 7px; padding: 10px; font: inherit; background: #fff; }
+    label.check { display: flex; gap: 8px; align-items: center; font-weight: 650; }
+    label.check input { width: auto; }
+    button { font: inherit; border-radius: 7px; border: 1px solid #a9b6c6; background: #f3f6fa; padding: 10px 14px; cursor: pointer; font-weight: 650; }
+    button:hover { background: #e6ecf4; }
+    .result { position: sticky; top: 15px; background: #1f2a36; color: #f2f6f8; border-color: #1f2a36; }
+    .hero-number { font-size: 2.7rem; font-weight: 750; letter-spacing: -.05em; margin: 8px 0; }
+    .negative { color: #ffb0a2; }
+    dl { display: grid; grid-template-columns: 1fr auto; gap: 9px; margin: 20px 0; }
+    dt, dd { margin: 0; } dd { font-variant-numeric: tabular-nums; }
+    hr { border: 0; border-top: 1px solid #ffffff2b; }
+    .note { font-size: .82rem; opacity: .84; }
+    .split { margin: 14px 0 0; padding: 0; list-style: none; font-size: .84rem; }
+    .split li { display: grid; grid-template-columns: 1fr auto; gap: 8px; padding: 3px 0; }
+    .bar { grid-column: 1 / -1; height: 4px; border-radius: 2px; background: #ffffff2e; }
+    .bar > span { display: block; height: 100%; border-radius: 2px; background: #7eb6d6; }
+    .verdict { margin-top: 14px; padding: 12px; border-radius: 9px; font-size: .87rem; background: #ffffff1a; }
+    .verdict.bad { background: #7d2317; }
+    footer { margin-top: 25px; font-size: .82rem; color: #4a5666; }
+    footer a { color: #3d6a8a; }
+    .support { margin-top: 14px; }
+    .summary-actions { display: flex; gap: 8px; align-items: center; margin-top: 14px; }
+    .summary-status { font-size: .8rem; color: #b7d7ea; }
+    @media (max-width: 780px) {
+      .layout { grid-template-columns: 1fr; } .result { position: static; } .fields { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="eyebrow">FOR STONE FABRICATORS</p>
+    <h1>Bid the slabs, the cutouts, and the waterfalls.</h1>
+    <p>Price a quartz or granite kitchen the way the shop actually loses money: layout waste into whole slabs, polished sink and cooktop holes, edge profile, backsplash, and waterfall ends that do not live in the finished-square-foot number the homeowner measured. You get the bid, the price per finished foot, and the walk-away number below which the job loses money.</p>
+  </header>
+
+  <main class="layout">
+    <div>
+      <section>
+        <h2>The kitchen</h2>
+        <p class="hint">Start from a common job, then replace every figure with your template. Layout waste fills the slab count; picking a layout never overwrites a waste percent you already typed.</p>
+        <div class="fields">
+          <label>Job preset
+            <select id="jobPresets">
+              <option value="">Choose a starting kitchen…</option>
+            </select>
+          </label>
+          <label>Finished top sq ft <input id="finishedSqFt" type="number" min="0" step="1" value="55"></label>
+          <label>Finished perimeter (lf) <input id="perimeterLf" type="number" min="0" step="0.5" value="32"></label>
+          <label>Layout
+            <select id="layoutId">
+              <option value="galley">Straight / galley</option>
+              <option value="l_shape" selected>L-shape</option>
+              <option value="u_shape">U-shape</option>
+              <option value="with_island">Run + island</option>
+            </select>
+          </label>
+          <label>Layout waste (%) <input id="wastePct" type="number" min="0" step="1" value="20"></label>
+          <label>Material
+            <select id="materialId">
+              <option value="quartz" selected>Quartz (engineered)</option>
+              <option value="granite">Granite</option>
+              <option value="marble">Marble</option>
+            </select>
+          </label>
+          <label>Usable sq ft / slab <input id="slabSqFt" type="number" min="1" step="1" value="46"></label>
+          <label>Slab cost <input id="slabCost" type="number" min="0" step="25" value="850"></label>
+          <label>Sink cutout
+            <select id="sinkId">
+              <option value="none">No sink cutout</option>
+              <option value="drop_in">Drop-in / top-mount</option>
+              <option value="undermount" selected>Undermount (polish the hole)</option>
+              <option value="farmhouse">Farmhouse / apron-front</option>
+            </select>
+          </label>
+          <label>Sink count <input id="sinkCount" type="number" min="0" step="1" value="1"></label>
+          <label>Cooktop cutouts <input id="cooktopCount" type="number" min="0" step="1" value="1"></label>
+          <label>Faucet holes <input id="faucetHoles" type="number" min="0" step="1" value="3"></label>
+          <label>Waterfall ends <input id="waterfallEnds" type="number" min="0" step="1" value="0"></label>
+          <label>Edge profile
+            <select id="edgeId">
+              <option value="eased">Eased / pencil</option>
+              <option value="bevel">Bevel</option>
+              <option value="ogee" selected>Ogee / bullnose</option>
+              <option value="mitered">Mitered laminated</option>
+            </select>
+          </label>
+          <label>Backsplash lineal feet <input id="backsplashLf" type="number" min="0" step="0.5" value="18"></label>
+          <label>Backsplash height (in) <input id="backsplashHeightIn" type="number" min="0" step="0.5" value="4"></label>
+          <label>Seams <input id="seams" type="number" min="0" step="1" value="2"></label>
+          <label>Template hours <input id="templateHours" type="number" min="0" step="0.5" value="2"></label>
+          <label>Tear-out hours <input id="tearoutHours" type="number" min="0" step="0.5" value="2.5"></label>
+        </div>
+      </section>
+
+      <section>
+        <h2>Your shop rates</h2>
+        <div class="fields">
+          <label>Field hours / 100 sq ft <input id="fieldHoursPer100" type="number" min="0" step="0.1" value="2.5"></label>
+          <label>Install hours / 100 sq ft <input id="installHoursPer100" type="number" min="0" step="0.1" value="3"></label>
+          <label>Hours / sink cutout <input id="hoursPerSink" type="number" min="0" step="0.1" value="2"></label>
+          <label>Hours / cooktop cutout <input id="hoursPerCooktop" type="number" min="0" step="0.1" value="1.5"></label>
+          <label>Hours / faucet hole <input id="hoursPerFaucet" type="number" min="0" step="0.05" value="0.12"></label>
+          <label>Hours / waterfall end <input id="hoursPerWaterfall" type="number" min="0" step="0.25" value="3"></label>
+          <label>Edge hours / lf <input id="edgeHoursPerLf" type="number" min="0" step="0.01" value="0.22"></label>
+          <label>Backsplash hours / lf <input id="hoursPerBacksplashLf" type="number" min="0" step="0.05" value="0.22"></label>
+          <label>Hours / seam <input id="hoursPerSeam" type="number" min="0" step="0.05" value="1.25"></label>
+          <label>Shop supplies / sq ft <input id="suppliesPerSqFt" type="number" min="0" step="0.5" value="4"></label>
+          <label>Crew hourly wage <input id="hourlyWage" type="number" min="0" step="0.25" value="38"></label>
+          <label>Payroll burden (%) <input id="burdenRate" type="number" min="0" step="0.5" value="30"></label>
+          <label>Travel, template trip, truck <input id="travelAndEquipment" type="number" min="0" step="25" value="165"></label>
+          <label>Overhead on direct cost (%) <input id="overheadRate" type="number" min="0" step="0.5" value="15"></label>
+          <label>Target net margin (%) <input id="targetMargin" type="number" min="0" max="99.9" step="0.5" value="25"></label>
+          <label>Price you&rsquo;re considering (optional) <input id="proposedPrice" type="number" min="0" step="50" placeholder="e.g. 4800"></label>
+        </div>
+        <p class="hint" style="margin-top:14px;margin-bottom:0">A $38/h fabricator loaded at 30% is $49.40. Quoting the raw wage on a published per-square-foot special is how a waterfall island that looked fine turns into a two-slab loss after the first polished hole.</p>
+      </section>
+    </div>
+
+    <section class="result" aria-live="polite">
+      <h2>Your bid</h2>
+      <div id="price" class="hero-number">$&mdash;</div>
+      <div id="priceLabel">fabrication and install price</div>
+      <dl>
+        <dt>Finished / required stone</dt><dd id="scope"></dd>
+        <dt>Slabs in the takeoff</dt><dd id="slabs"></dd>
+        <dt>Waterfall extra stone</dt><dd id="waterfall"></dd>
+        <dt>Crew hours</dt><dd id="hours"></dd>
+        <dt>Loaded labor</dt><dd id="labor"></dd>
+        <dt>Slabs + supplies</dt><dd id="materials"></dd>
+        <dt>Travel + template trip</dt><dd id="soft"></dd>
+        <dt>Overhead</dt><dd id="overhead"></dd>
+        <dt>Total cost</dt><dd id="cost"></dd>
+        <dt>Profit at this price</dt><dd id="profit"></dd>
+        <dt>Price per finished sq ft</dt><dd id="perSqFt"></dd>
+        <dt>Effective hourly rate</dt><dd id="hourlyRate"></dd>
+        <dt>Walk-away price</dt><dd id="breakEven"></dd>
+      </dl>
+      <div id="verdict" class="verdict" hidden></div>
+      <div class="summary-actions">
+        <button type="button" id="copySummary">Copy bid summary</button>
+        <span id="summaryStatus" class="summary-status" role="status" aria-live="polite"></span>
+      </div>
+      <hr>
+      <p class="note" style="margin-bottom:4px"><strong>Where the hours go</strong></p>
+      <ul class="split" id="hourSplit"></ul>
+      <hr>
+      <p class="note" style="margin-bottom:4px"><strong>Where the cost goes</strong></p>
+      <ul class="split" id="split"></ul>
+      <hr>
+      <p class="note">Transparent arithmetic from your own inputs. Starting hours, waste, and slab sizes are common ballpark figures, not an industry standard, a color match, or a stone specification &mdash; replace them with your own template.</p>
+    </section>
+  </main>
+
+  <footer>
+    <label class="check" style="font-weight:400"><input id="usageOptOut" type="checkbox"> Do not keep anonymous local usage counts</label>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not stone, construction, legal, tax, or financial advice, and it does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for meeting any obligation it helps you prepare for. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Nothing leaves your browser.</strong> Every number stays on this device. Usage counts are anonymous tallies of which features were used, stored locally, and never include your square footage, wages, costs, or prices.</p>
+    <p>Related: <a href="how-much-to-charge-to-install-quartz-countertops.html">How much to charge to install quartz countertops</a>.</p>
+    <p class="support">Free and open source. If it wins you a job, the <a href="https://github.com/Duncan-Haywood/monorepo-projects" rel="noopener">project is on GitHub</a> &mdash; support is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import {
+      calculateBid,
+      formatBidSummary,
+      JOB_PRESETS,
+      suggestedWastePct,
+      suggestedEdgeHours,
+      suggestedSinkHours,
+      suggestedSlab,
+    } from './calc.mjs';
+    import { recordUsage } from './usage.mjs';
+
+    const FIELD_IDS = [
+      'finishedSqFt','perimeterLf','wastePct','slabSqFt','slabCost',
+      'sinkCount','hoursPerSink','cooktopCount','hoursPerCooktop',
+      'faucetHoles','hoursPerFaucet','waterfallEnds','hoursPerWaterfall',
+      'edgeHoursPerLf','backsplashLf','backsplashHeightIn','hoursPerBacksplashLf',
+      'seams','hoursPerSeam','fieldHoursPer100','installHoursPer100',
+      'templateHours','tearoutHours','suppliesPerSqFt','hourlyWage','burdenRate',
+      'travelAndEquipment','overheadRate','targetMargin','proposedPrice',
+    ];
+    const money = value => `$${value.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+    const el = id => document.getElementById(id);
+
+    const presets = el('jobPresets');
+    JOB_PRESETS.forEach((job, index) => {
+      const option = document.createElement('option');
+      option.value = String(index);
+      option.textContent = job.label;
+      presets.append(option);
+    });
+
+    function count(event) {
+      recordUsage(localStorage, el('usageOptOut').checked, event);
+    }
+
+    function applyJob(job) {
+      el('finishedSqFt').value = job.finishedSqFt;
+      el('perimeterLf').value = job.perimeterLf;
+      el('layoutId').value = job.layoutId;
+      el('wastePct').value = suggestedWastePct(job.layoutId);
+      el('wastePct').dataset.edited = '';
+      el('materialId').value = job.materialId;
+      const slab = suggestedSlab(job.materialId);
+      el('slabSqFt').value = slab.slabSqFt;
+      el('slabCost').value = slab.slabCost;
+      el('slabSqFt').dataset.edited = '';
+      el('slabCost').dataset.edited = '';
+      el('sinkId').value = job.sinkId;
+      el('sinkCount').value = job.sinkCount;
+      el('hoursPerSink').value = suggestedSinkHours(job.sinkId);
+      el('hoursPerSink').dataset.edited = '';
+      el('cooktopCount').value = job.cooktopCount;
+      el('faucetHoles').value = job.faucetHoles;
+      el('waterfallEnds').value = job.waterfallEnds;
+      el('edgeId').value = job.edgeId;
+      el('edgeHoursPerLf').value = suggestedEdgeHours(job.edgeId);
+      el('edgeHoursPerLf').dataset.edited = '';
+      el('backsplashLf').value = job.backsplashLf;
+      el('backsplashHeightIn').value = job.backsplashHeightIn;
+      el('seams').value = job.seams;
+      el('templateHours').value = job.templateHours;
+      el('tearoutHours').value = job.tearoutHours;
+    }
+
+    function readInput() {
+      return Object.fromEntries(FIELD_IDS.map(id => [id, el(id).value]));
+    }
+
+    function clearOutputs(message, isError) {
+      el('price').textContent = message;
+      el('price').className = `hero-number ${isError ? 'negative' : ''}`;
+      el('priceLabel').textContent = isError ? 'check the highlighted input' : 'fabrication and install price';
+      ['scope','slabs','waterfall','hours','labor','materials','soft','overhead','cost','profit','perSqFt','hourlyRate','breakEven']
+        .forEach(id => { el(id).textContent = ''; });
+      el('hourSplit').innerHTML = '';
+      el('split').innerHTML = '';
+      el('verdict').hidden = true;
+    }
+
+    function barList(entries) {
+      return entries
+        .filter(([, share]) => share > 0)
+        .sort((a, b) => b[1] - a[1])
+        .map(([label, share]) => `<li><span>${label}</span><span>${share.toFixed(0)}%</span>
+          <span class="bar"><span style="width:${share.toFixed(1)}%"></span></span></li>`)
+        .join('');
+    }
+
+    function update() {
+      let result;
+      try {
+        result = calculateBid(readInput());
+      } catch (error) {
+        clearOutputs(error.message, true);
+        return;
+      }
+
+      el('price').textContent = money(result.price);
+      el('price').className = 'hero-number';
+      el('priceLabel').textContent = 'fabrication and install price';
+      el('scope').textContent = `${result.finishedSqFt.toLocaleString('en-US')} / ${result.requiredSqFt.toFixed(0)} sq ft`;
+      el('slabs').textContent = `${result.slabs} slab${result.slabs === 1 ? '' : 's'}`;
+      el('waterfall').textContent = `${result.waterfallArea.toFixed(1)} sq ft`;
+      el('hours').textContent = `${result.totalHours.toFixed(1)} h`;
+      el('labor').textContent = money(result.laborCost);
+      el('materials').textContent = money(result.materialCost);
+      el('soft').textContent = money(result.softCost);
+      el('overhead').textContent = money(result.overhead);
+      el('cost').textContent = money(result.totalCost);
+      el('profit').textContent = money(result.profit);
+      el('perSqFt').textContent = result.pricePerSqFt === null ? 'n/a' : money(result.pricePerSqFt);
+      el('hourlyRate').textContent = result.effectiveHourlyRate === null ? 'n/a' : `${money(result.effectiveHourlyRate)}/h`;
+      el('breakEven').textContent = money(result.breakEvenPrice);
+
+      el('hourSplit').innerHTML = barList([
+        ['Field cut and polish', result.hourShares.field],
+        ['Sink / cooktop / faucet', result.hourShares.cutouts],
+        ['Edges + backsplash', result.hourShares.edges],
+        ['Waterfalls', result.hourShares.waterfalls],
+        ['Seams', result.hourShares.seams],
+        ['Template, tear-out, install', result.hourShares.site],
+      ]);
+      el('split').innerHTML = barList([
+        ['Labor', result.shares.labor],
+        ['Slabs + supplies', result.shares.material],
+        ['Travel', result.shares.soft],
+        ['Overhead', result.shares.overhead],
+      ]);
+
+      const verdict = el('verdict');
+      if (result.proposed === null) {
+        verdict.hidden = true;
+      } else {
+        verdict.hidden = false;
+        verdict.className = `verdict${result.proposed.belowBreakEven ? ' bad' : ''}`;
+        const rate = result.proposed.hourlyRate === null ? 'n/a' : `${money(result.proposed.hourlyRate)}/h`;
+        verdict.innerHTML = result.proposed.belowBreakEven
+          ? `At ${money(result.proposed.price)} this job <strong>loses ${money(Math.abs(result.proposed.profit))}</strong> before you take anything out of it. Your walk-away price is ${money(result.breakEvenPrice)}.`
+          : `At ${money(result.proposed.price)} you keep <strong>${money(result.proposed.profit)}</strong> — a ${result.proposed.margin.toFixed(1)}% margin, billing ${rate} of labor.`;
+      }
+    }
+
+    async function copySummary() {
+      const text = formatBidSummary(calculateBid(readInput()));
+      try {
+        await navigator.clipboard.writeText(text);
+      } catch {
+        const fallback = document.createElement('textarea');
+        fallback.value = text;
+        fallback.setAttribute('readonly', '');
+        fallback.style.position = 'fixed';
+        fallback.style.opacity = '0';
+        document.body.append(fallback);
+        fallback.select();
+        document.execCommand('copy');
+        fallback.remove();
+      }
+      count('summary_copied');
+      el('summaryStatus').textContent = 'Copied to clipboard';
+      setTimeout(() => { el('summaryStatus').textContent = ''; }, 2500);
+    }
+
+    presets.addEventListener('change', () => {
+      const job = JOB_PRESETS[Number(presets.value)];
+      if (!job) return;
+      applyJob(job);
+      count('preset_applied');
+      update();
+    });
+
+    el('layoutId').addEventListener('change', () => {
+      if (!el('wastePct').dataset.edited) el('wastePct').value = suggestedWastePct(el('layoutId').value);
+      count('bid_calculated');
+      update();
+    });
+    el('wastePct').addEventListener('input', () => { el('wastePct').dataset.edited = '1'; });
+
+    el('materialId').addEventListener('change', () => {
+      const slab = suggestedSlab(el('materialId').value);
+      if (!el('slabSqFt').dataset.edited) el('slabSqFt').value = slab.slabSqFt;
+      if (!el('slabCost').dataset.edited) el('slabCost').value = slab.slabCost;
+      count('bid_calculated');
+      update();
+    });
+    el('slabSqFt').addEventListener('input', () => { el('slabSqFt').dataset.edited = '1'; });
+    el('slabCost').addEventListener('input', () => { el('slabCost').dataset.edited = '1'; });
+
+    el('sinkId').addEventListener('change', () => {
+      if (!el('hoursPerSink').dataset.edited) el('hoursPerSink').value = suggestedSinkHours(el('sinkId').value);
+      count('bid_calculated');
+      update();
+    });
+    el('hoursPerSink').addEventListener('input', () => { el('hoursPerSink').dataset.edited = '1'; });
+
+    el('edgeId').addEventListener('change', () => {
+      if (!el('edgeHoursPerLf').dataset.edited) el('edgeHoursPerLf').value = suggestedEdgeHours(el('edgeId').value);
+      count('bid_calculated');
+      update();
+    });
+    el('edgeHoursPerLf').addEventListener('input', () => { el('edgeHoursPerLf').dataset.edited = '1'; });
+
+    FIELD_IDS.forEach(id => {
+      el(id).addEventListener('input', update);
+      el(id).addEventListener('change', () => count(id === 'proposedPrice' ? 'proposed_price_compared' : 'bid_calculated'));
+    });
+    el('usageOptOut').addEventListener('change', update);
+    el('copySummary').addEventListener('click', () => {
+      try {
+        copySummary().catch(() => { el('summaryStatus').textContent = 'Copy failed; select and copy the figures above.'; });
+      } catch (error) {
+        el('summaryStatus').textContent = error.message;
+      }
+    });
+
+    update();
+  </script>
+</body>
+</html>

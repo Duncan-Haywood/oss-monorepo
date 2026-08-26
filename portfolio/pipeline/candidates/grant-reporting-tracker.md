@@ -3,6 +3,8 @@
 **One line.** A local-first deadline and restricted-balance review queue for
 small nonprofits managing several awards without a grant-management subscription.
 
+Scored 2026-08-24. Composite 6.625 · floor 1 (ai_leverage).
+
 **Verdict: graduated 2026-08-24 as a venture.** The first experiment is a
 browser-local workflow: enter an award date, reporting interval, award amount,
 and spend; sort the next reporting date; and export a reviewable CSV.
