@@ -119,6 +119,12 @@ export const INPUT_FIELDS = [
   'trsHandlingMinutes',
   'trsHandlingWage',
   'monthlyTrsListings',
+  'selfReturnShippingCost',
+  'selfReturnRatePercent',
+  'managedReturnFee',
+  'managedReturnRatePercent',
+  'buyerPaysReturnRatePercent',
+  'monthlyManagedListings',
 ];
 
 export function calculateOrder(input) {
@@ -2817,9 +2823,10 @@ function topRatedRow({
  * Complementary to the return-*rate* mix (one postage), partial vs
  * take-the-return (one case), Standard Envelope (claim vs return),
  * local pickup (no shipping), and seller coupon (public code).
- * Open eBay PRs still own Promoted Listings Standard rate, store,
- * Best Offer, international, and Managed Returns. Discount and
- * rates are inputs, not eBay Top Rated policy.
+ * Complementary to Managed Returns (who buys the label). Open
+ * eBay PRs still own Promoted Listings Standard rate, store,
+ * Best Offer, and international. Discount and rates are inputs,
+ * not eBay Top Rated policy.
  */
 export function compareTopRatedPlus(input) {
   const listedPrice = optionalNumber(input.price, 'Item price');
@@ -2988,4 +2995,201 @@ export function topRatedPlusNote(comparison) {
     ? ` Free returns can rise to about ${comparison.breakEvenTrsReturnRate.toFixed(1)}% before Top Rated Plus matches staying standard.`
     : ' No free-return rate on these sell-throughs can match staying standard.';
   return `${standardLine} ${trsLine}${ceiling}`;
+}
+
+/**
+ * Illustrative Managed Returns defaults. Per-return program fee and the
+ * two return rates are inputs — not eBay's current Managed Returns
+ * schedule. $8 self-label / $5.50 program fee / 10% vs 14% vs 6% is a
+ * clothing-adjacent mix a seller overwrites from their last month.
+ */
+export const DEFAULT_SELF_RETURN_LABEL = 8;
+export const DEFAULT_SELF_RETURN_RATE = 10;
+export const DEFAULT_MANAGED_RETURN_FEE = 5.5;
+export const DEFAULT_MANAGED_RETURN_RATE = 14;
+export const DEFAULT_BUYER_PAYS_RETURN_RATE = 6;
+export const DEFAULT_MONTHLY_MANAGED_LISTINGS = 40;
+
+function firstPresent(...values) {
+  for (const value of values) {
+    if (value !== undefined && value !== null && value !== '') return value;
+  }
+  return undefined;
+}
+
+/**
+ * Same SKU, three ways to handle the return label.
+ *
+ *   - Self-label — you buy the typed return postage at the typed
+ *     self-return rate. Dedicated fields keep the headline
+ *     return-rate mix untouched; the sibling page can still pass
+ *     returnShippingCost / returnRatePercent.
+ *   - Managed Returns — eBay's per-return program fee replaces your
+ *     label. The return rate is often higher because the buyer path
+ *     is easier.
+ *   - Buyer pays return shipping — no label cost, lower return rate
+ *     from the extra friction.
+ *
+ * Complementary to the return-*rate* mix (one postage, one rate),
+ * partial vs take-the-return (one case), and Top Rated Plus (fee
+ * discount vs free returns). Rates and the program fee are inputs,
+ * not eBay Managed Returns policy.
+ */
+export function compareManagedReturns(input) {
+  const listedPrice = optionalNumber(input.price, 'Item price');
+  if (listedPrice === undefined) {
+    throw new Error('Item price must be a non-negative number');
+  }
+
+  const selfLabel = optionalNumber(
+    firstPresent(input.selfReturnShippingCost, input.returnShippingCost),
+    'Self-return shipping',
+    DEFAULT_SELF_RETURN_LABEL,
+  );
+  const selfRate = requiredPercent(
+    firstPresent(input.selfReturnRatePercent, input.returnRatePercent),
+    'Self-return rate',
+    DEFAULT_SELF_RETURN_RATE,
+  );
+  const managedFee = optionalNumber(input.managedReturnFee, 'Managed Returns fee', DEFAULT_MANAGED_RETURN_FEE);
+  const managedRate = requiredPercent(
+    input.managedReturnRatePercent,
+    'Managed Returns rate',
+    DEFAULT_MANAGED_RETURN_RATE,
+  );
+  const buyerRate = requiredPercent(
+    input.buyerPaysReturnRatePercent,
+    'Buyer-pays return rate',
+    DEFAULT_BUYER_PAYS_RETURN_RATE,
+  );
+  const monthlyListings = optionalNumber(
+    input.monthlyManagedListings,
+    'Monthly listings',
+    DEFAULT_MONTHLY_MANAGED_LISTINGS,
+  );
+  if (monthlyListings === 0) throw new Error('Monthly listings must be greater than zero');
+
+  const selfOrder = calculateOrder({
+    ...input,
+    returnShippingCost: selfLabel,
+    returnRatePercent: selfRate,
+  });
+  const managedOrder = calculateOrder({
+    ...input,
+    returnShippingCost: managedFee,
+    returnRatePercent: managedRate,
+  });
+  const buyerOrder = calculateOrder({
+    ...input,
+    returnShippingCost: 0,
+    returnRatePercent: buyerRate,
+  });
+
+  const self = {
+    id: 'self',
+    label: 'Buy the return label yourself',
+    returnCost: selfLabel,
+    returnRatePercent: selfRate,
+    returnProfit: selfOrder.returnProfit,
+    expectedProfit: selfOrder.expectedProfit,
+  };
+  const managed = {
+    id: 'managed',
+    label: 'eBay Managed Returns',
+    returnCost: managedFee,
+    returnRatePercent: managedRate,
+    returnProfit: managedOrder.returnProfit,
+    expectedProfit: managedOrder.expectedProfit,
+  };
+  const buyerPays = {
+    id: 'buyer_pays',
+    label: 'Buyer pays return shipping',
+    returnCost: 0,
+    returnRatePercent: buyerRate,
+    returnProfit: buyerOrder.returnProfit,
+    expectedProfit: buyerOrder.expectedProfit,
+  };
+
+  const extraKeptOnManaged = managed.expectedProfit - self.expectedProfit;
+  const extraKeptOnBuyerPays = buyerPays.expectedProfit - self.expectedProfit;
+  const rows = [self, managed, buyerPays].map((row) => ({
+    ...row,
+    vsSelf: row.expectedProfit - self.expectedProfit,
+  }));
+  const maxProfit = Math.max(...rows.map((row) => row.expectedProfit));
+  const leaders = rows.filter((row) => Math.abs(row.expectedProfit - maxProfit) < 1e-9);
+  const winner = leaders.length === 1 ? leaders[0].id : 'tie';
+
+  const completedProfit = selfOrder.profit;
+  const selfGap = completedProfit - self.returnProfit;
+  const managedGap = completedProfit - managed.returnProfit;
+  let breakEvenManagedRate = Infinity;
+  if (managedGap > 1e-12) {
+    breakEvenManagedRate = Math.min(100, (selfRate / 100) * selfGap / managedGap * 100);
+  }
+  let breakEvenManagedFee = Infinity;
+  const outboundSunk = (Number(input.shippingCost ?? 0) + Number(input.packagingCost ?? 0) + Number(input.otherCost ?? 0))
+    * (Number(input.quantity ?? 1));
+  const unrefundedFees = selfOrder.feeTotal * (1 - selfOrder.feeRefundOnReturnPercent / 100);
+  const managedBlend = managedRate / 100;
+  if (managedBlend > 1e-12) {
+    const targetReturnProfit = (self.expectedProfit - (1 - managedBlend) * completedProfit) / managedBlend;
+    breakEvenManagedFee = -targetReturnProfit - outboundSunk - unrefundedFees;
+    if (breakEvenManagedFee < 0) breakEvenManagedFee = -Infinity;
+  }
+
+  return {
+    rows,
+    self: rows[0],
+    managed: rows[1],
+    buyerPays: rows[2],
+    completedProfit,
+    selfLabel,
+    managedFee,
+    extraKeptOnManaged,
+    extraKeptOnBuyerPays,
+    monthlyExtraOnManaged: extraKeptOnManaged * monthlyListings,
+    monthlyExtraOnBuyerPays: extraKeptOnBuyerPays * monthlyListings,
+    monthlyListings,
+    breakEvenManagedRate,
+    breakEvenManagedFee,
+    winner,
+    summary: managedReturnsNote({
+      winner,
+      extraKeptOnManaged,
+      extraKeptOnBuyerPays,
+      breakEvenManagedRate,
+      managedFee,
+      selfLabel,
+    }),
+  };
+}
+
+export function managedReturnsNote(comparison) {
+  if (!comparison || comparison.extraKeptOnManaged === undefined) {
+    throw new Error('Managed Returns comparison is missing rows');
+  }
+  const money = (value) => {
+    const sign = value < 0 ? '-' : '';
+    return `${sign}$${Math.abs(value).toFixed(2)}`;
+  };
+  const {
+    winner,
+    extraKeptOnManaged,
+    extraKeptOnBuyerPays,
+    breakEvenManagedRate,
+    managedFee,
+    selfLabel,
+  } = comparison;
+  const managedGap = money(Math.abs(extraKeptOnManaged));
+  const managedAhead = extraKeptOnManaged >= 0 ? 'more' : 'less';
+  const feeLine = `Managed Returns at ${money(managedFee)} keeps ${managedGap} ${managedAhead} than buying the ${money(selfLabel)} label yourself.`;
+  const floor = Number.isFinite(breakEvenManagedRate)
+    ? ` The program still ties your own label as long as the Managed Returns rate stays near ${breakEvenManagedRate.toFixed(1)}%.`
+    : ' No Managed Returns rate on these fees can match buying the label yourself.';
+  const buyer = ` Buyer-paid return shipping keeps ${money(Math.abs(extraKeptOnBuyerPays))} ${extraKeptOnBuyerPays >= 0 ? 'more' : 'less'}.`;
+  if (winner === 'tie') {
+    return `Managed Returns and your own label leave the same expected profit on these rates.${buyer}`;
+  }
+  return `${feeLine}${floor}${buyer}`;
 }

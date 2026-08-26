@@ -289,6 +289,24 @@ test('carries Top Rated Plus fields so a shared link does not drop them', () => 
   assert.equal(restored.monthlyTrsListings, 40);
 });
 
+test('carries Managed Returns fields so a shared link does not drop them', () => {
+  const restored = decodeInputs(encodeInputs({
+    price: 40,
+    selfReturnShippingCost: 8,
+    selfReturnRatePercent: 10,
+    managedReturnFee: 5.5,
+    managedReturnRatePercent: 14,
+    buyerPaysReturnRatePercent: 6,
+    monthlyManagedListings: 40,
+  }));
+  assert.equal(restored.selfReturnShippingCost, 8);
+  assert.equal(restored.selfReturnRatePercent, 10);
+  assert.equal(restored.managedReturnFee, 5.5);
+  assert.equal(restored.managedReturnRatePercent, 14);
+  assert.equal(restored.buyerPaysReturnRatePercent, 6);
+  assert.equal(restored.monthlyManagedListings, 40);
+});
+
 test('round-trips known numeric inputs in stable order', () => {
   const encoded = encodeInputs({ price: 40, shippingCharged: 6, finalValueRate: 13.25 });
   assert.equal(encoded, 'price=40&shippingCharged=6&finalValueRate=13.25');
