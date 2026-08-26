@@ -18,7 +18,7 @@
     "applicationCategory": "BusinessApplication",
     "operatingSystem": "Any (runs in a web browser)",
     "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
-    "featureList": "FBA vs FBM comparison, Individual vs Professional seller plan, seller-plan volume ladder, size-tier fulfillment, size-tier packaging cliff, storage, inbound, inbound placement vs split freight, expected returns, return-rate sweep, peak vs off-peak Q4 storage, restock vs low-inventory-level fee, net profit, margin, ROI, break-even price, max buy cost, target-margin price, Low-Price FBA vs raising the list price, coupon vs list profit, coupon break-even volume, Subscribe & Save vs list profit, S&S enroll-share mixed month, Multi-Channel Fulfillment vs Amazon vs you-ship, Seller Fulfilled Prime vs FBA vs FBM, Amazon AWD vs send-all-to-FBA vs you-hold, Remote Fulfillment vs skip Canada vs a Canada FBA pile, usual PO vs supplier MOQ, you-prep vs Amazon inbound prep, aged inventory vs remove vs dispose, FBA Liquidations vs dispose vs sell-elsewhere"
+    "featureList": "FBA vs FBM comparison, Individual vs Professional seller plan, seller-plan volume ladder, size-tier fulfillment, size-tier packaging cliff, storage, inbound, inbound placement vs split freight, expected returns, return-rate sweep, peak vs off-peak Q4 storage, restock vs low-inventory-level fee, net profit, margin, ROI, break-even price, max buy cost, target-margin price, break-even ACOS, target-margin ACOS, Low-Price FBA vs raising the list price, coupon vs list profit, coupon break-even volume, Subscribe & Save vs list profit, S&S enroll-share mixed month, Multi-Channel Fulfillment vs Amazon vs you-ship, Seller Fulfilled Prime vs FBA vs FBM, Amazon AWD vs send-all-to-FBA vs you-hold, Remote Fulfillment vs skip Canada vs a Canada FBA pile, usual PO vs supplier MOQ, you-prep vs Amazon inbound prep, aged inventory vs remove vs dispose, FBA Liquidations vs dispose vs sell-elsewhere"
   }
   </script>
   <script type="application/ld+json">
@@ -354,11 +354,14 @@
         <dt>Profit before returns</dt><dd id="profitBeforeReturns"></dd>
         <dt>Return drag</dt><dd id="returnDrag"></dd>
         <dt>Return rate that wipes profit</dt><dd id="breakEvenReturnRate"></dd>
+        <dt>Current ACOS</dt><dd id="currentAcos"></dd>
+        <dt>Break-even ACOS</dt><dd id="breakEvenAcos"></dd>
+        <dt>ACOS for target margin</dt><dd id="targetMarginAcos"></dd>
       </dl>
       <hr>
       <h2>Same listing, both paths</h2>
       <table>
-        <thead><tr><th>Path</th><th>Fees</th><th>Profit</th><th>Max buy</th></tr></thead>
+        <thead><tr><th>Path</th><th>Fees</th><th>Profit</th><th>Max buy</th><th>Break-even ACOS</th></tr></thead>
         <tbody id="compare"></tbody>
       </table>
       <hr>
@@ -568,6 +571,9 @@
       still works.
       <a href="fba-vs-fbm.html">FBA vs FBM: which path leaves more?</a>
       walks through that in search-query words.
+      The same leftover dollars set
+      <a href="break-even-acos.html">what break-even ACOS this listing can still carry</a>
+      — a 30% campaign target is meaningless if the path has already consumed the unit.
       On a cheap SKU the next decision is
       <a href="should-i-price-over-amazons-low-price-fba.html">whether staying under Low-Price FBA still beats a real raise</a>
       — a one-cent move over $10 usually does not.
@@ -756,6 +762,7 @@
       "placementMinimalPerUnit", "placementPartialPerUnit", "placementOptimizedPerUnit",
     ];
     const money = (value) => `$${value.toFixed(2)}`;
+    const formatAcos = (value) => (value === null || value === undefined ? "n/a" : `${value.toFixed(1)}%`);
     let syncingFee = false;
     let syncingPlacement = false;
 
@@ -936,6 +943,10 @@
           result.selected.breakEvenReturnRate === null
             ? "never"
             : `${(result.selected.breakEvenReturnRate * 100).toFixed(1)}%`;
+        document.getElementById("currentAcos").textContent = formatAcos(result.selected.currentAcos);
+        document.getElementById("breakEvenAcos").textContent = formatAcos(result.selected.breakEvenAcos);
+        document.getElementById("targetMarginAcos").textContent = result.selected.targetMarginReachableWithAds
+          ? formatAcos(result.selected.targetMarginAcos) : "unreachable at $0 ads";
         const returns = compareReturns(readInput());
         document.getElementById("returnsSummary").textContent = returnsSummary({
           typedRate: returns.returnRate,
@@ -950,7 +961,7 @@
           ["FBA", result.fba],
           ["FBM (you ship)", result.fbm],
         ].map(([name, path]) =>
-          `<tr><td>${name}</td><td>${money(path.feeTotal)}</td><td>${money(path.profit)}</td><td>${money(path.breakEvenBuyCost)}</td></tr>`
+          `<tr><td>${name}</td><td>${money(path.feeTotal)}</td><td>${money(path.profit)}</td><td>${money(path.breakEvenBuyCost)}</td><td>${formatAcos(path.breakEvenAcos)}</td></tr>`
         ).join("");
         try {
           const plans = compareSellerPlans(readInput(), {
@@ -1098,7 +1109,7 @@
         document.getElementById("profit").textContent = error.message;
         document.getElementById("profit").className = "hero-number error";
         document.getElementById("label").textContent = "fix the inputs to see a result";
-        ["revenue", "fees", "invested", "margin", "roi", "breakEven", "maxBuy", "targetMarginBuy", "targetMarginPrice", "buyCheck", "advantage", "profitBeforeReturns", "returnDrag", "breakEvenReturnRate", "returnsSummary", "planVerdict", "lowPriceSummary", "lowPriceBreakEven", "lowPriceWinner", "mcfSummary", "mcfBreakEven", "mcfWinner", "bulkSummary", "bulkBreakEven", "bulkExtraCash", "bulkWinner", "prepSummary", "prepBreakEven", "prepWinner", "placementSummary", "placementVerdict", "placementWinner", "placementCarry"].forEach((id) => {
+        ["revenue", "fees", "invested", "margin", "roi", "breakEven", "maxBuy", "targetMarginBuy", "targetMarginPrice", "buyCheck", "advantage", "profitBeforeReturns", "returnDrag", "breakEvenReturnRate", "currentAcos", "breakEvenAcos", "targetMarginAcos", "returnsSummary", "planVerdict", "lowPriceSummary", "lowPriceBreakEven", "lowPriceWinner", "mcfSummary", "mcfBreakEven", "mcfWinner", "bulkSummary", "bulkBreakEven", "bulkExtraCash", "bulkWinner", "prepSummary", "prepBreakEven", "prepWinner", "placementSummary", "placementVerdict", "placementWinner", "placementCarry"].forEach((id) => {
           document.getElementById(id).textContent = "";
         });
         document.getElementById("compare").innerHTML = "";
@@ -1185,6 +1196,7 @@
         localStorage,
         document.getElementById("usageOptOut").checked,
         id === "targetMargin" ? "target_margin_calculated"
+          : id === "adsPerUnit" ? "break_even_acos_calculated"
           : id === "costOfGoods" ? "sourcing_check_used"
           : id === "fbmHandlingCost" ? "fbm_labor_calculated"
           : id === "monthlySellerFee" || id === "individualPerUnit" || id === "monthlyUnits"

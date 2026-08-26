@@ -223,6 +223,49 @@ test("break-even buy cost makes profit exactly zero when used as cost of goods",
   near(atBuy.selected.profit, 0, "profit at max buy cost");
 });
 
+test("break-even ACOS is the ad spend that drives profit to zero", () => {
+  const r = calculateListing({ ...base, adsPerUnit: 0 });
+  near(r.fba.breakEvenAds, r.fba.profit, "FBA ads headroom equals profit before ads");
+  near(r.fba.breakEvenAcos, (r.fba.profit / 29.99) * 100, "FBA break-even ACOS");
+  near(r.fbm.breakEvenAds, r.fbm.profit, "FBM ads headroom equals profit before ads");
+  const atCap = calculateListing({ ...base, adsPerUnit: r.fba.breakEvenAds });
+  near(atCap.fba.profit, 0, "FBA profit at break-even ACOS spend");
+  assert.equal(atCap.fba.adsStillPay, true);
+});
+
+test("current ACOS and whether the spend still pays sit next to the cap", () => {
+  const r = calculateListing({ ...base, adsPerUnit: 1.5 });
+  near(r.fba.currentAcos, (1.5 / 29.99) * 100, "current ACOS");
+  near(r.fba.profitBeforeAds, r.fba.profit + 1.5, "profit before ads");
+  assert.equal(r.fba.adsStillPay, r.fba.profit >= 0);
+  const overspend = calculateListing({ ...base, adsPerUnit: r.fba.breakEvenAds + 2 });
+  assert.equal(overspend.fba.adsStillPay, false);
+  assert.ok(overspend.fba.profit < 0);
+});
+
+test("target-margin ACOS leaves the requested net margin after ads", () => {
+  const r = calculateListing({ ...base, adsPerUnit: 0, targetMargin: 20 });
+  assert.equal(r.fba.targetMarginReachableWithAds, true);
+  const atTarget = calculateListing({
+    ...base,
+    adsPerUnit: r.fba.targetMarginAds,
+    targetMargin: 20,
+  });
+  near(atTarget.fba.margin, 20, "margin at target-margin ACOS");
+});
+
+test("target-margin ACOS is zero when the unit cannot hit the margin even with no ads", () => {
+  const r = calculateListing({ ...base, costOfGoods: 28, adsPerUnit: 0, targetMargin: 40 });
+  assert.equal(r.fba.targetMarginReachableWithAds, false);
+  near(r.fba.targetMarginAcos, 0, "zero ACOS when unreachable");
+});
+
+test("ACOS is null when the sale price is zero", () => {
+  const r = calculateListing({ ...base, salePrice: 0, adsPerUnit: 0 });
+  assert.equal(r.fba.breakEvenAcos, null);
+  assert.equal(r.fba.currentAcos, null);
+});
+
 test("target-margin buy cost preserves the selected margin", () => {
   const r = calculateListing(base);
   const atTargetBuy = calculateListing({ ...base, costOfGoods: r.selected.targetMarginBuyCost });
