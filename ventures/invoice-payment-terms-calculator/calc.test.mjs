@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { calculateTerms, compareEarlyPay, earlyPayNote, termsCopy } from './calc.mjs';
+import { calculateTerms, compareEarlyPay, compareFactor, earlyPayNote, factorNote, FACTOR_DEFAULTS, termsCopy } from './calc.mjs';
 import fs from 'node:fs';
 
 const input = { amount: 1200, invoiceDate: '2026-08-24', termsDays: 30, annualLateRate: 18, graceDays: 10, monthlyBurn: 3000, outstanding: 3 };
@@ -108,4 +108,67 @@ test('compareEarlyPay rejects impossible discounts and inverted windows', () => 
   assert.throws(() => compareEarlyPay({ ...earlyPay, earlyPayDays: 45 }), /cannot be later/);
   assert.throws(() => compareEarlyPay({ ...earlyPay, takeRatePct: 101 }), /between 0 and 100/);
   assert.throws(() => compareEarlyPay({ ...earlyPay, annualCarryRate: -1 }), /non-negative/);
+});
+
+const factor = {
+  amount: 1200,
+  termsDays: 30,
+  factorFeePct: 3,
+  advancePct: 90,
+  reserveDays: 35,
+  annualCarryRate: 24,
+};
+
+test('3% factoring at 24% still leaves waiting ahead of the fee', () => {
+  const comparison = compareFactor(factor);
+  assert.equal(comparison.fee, 36);
+  assert.equal(comparison.advanceFace, 1080);
+  assert.equal(comparison.advanceNow, 1044);
+  assert.equal(comparison.reserve, 120);
+  assert.equal(comparison.waitCash, 1200);
+  assert.ok(Math.abs(comparison.waitCarry - (1200 * 0.24 * 30 / 365)) < 1e-9);
+  assert.ok(Math.abs(comparison.reserveCarry - (120 * 0.24 * 35 / 365)) < 1e-9);
+  assert.ok(Math.abs(comparison.factorAfterFloat - (1044 + 120 - comparison.reserveCarry)) < 1e-12);
+  assert.ok(Math.abs(comparison.waitAfterFloat - (1200 - comparison.waitCarry)) < 1e-12);
+  assert.equal(comparison.factorBeatsWait, false);
+  assert.ok(-comparison.factorPremium > 14);
+  assert.ok(-comparison.factorPremium < 16);
+  assert.ok(comparison.breakEvenFeePct > 1.7);
+  assert.ok(comparison.breakEvenFeePct < 1.8);
+});
+
+test('50% money flips 3% factoring ahead of waiting', () => {
+  const comparison = compareFactor({ ...factor, annualCarryRate: 50 });
+  assert.equal(comparison.factorBeatsWait, true);
+  assert.ok(comparison.factorPremium > 7.5);
+  assert.ok(comparison.factorPremium < 7.6);
+});
+
+test('a 1.5% factor fee at 24% flips ahead of waiting', () => {
+  const comparison = compareFactor({ ...factor, factorFeePct: 1.5 });
+  assert.equal(comparison.factorBeatsWait, true);
+  assert.ok(comparison.factorPremium > 2);
+  assert.ok(comparison.factorPremium < 4);
+});
+
+test('factorNote does not tell them to factor or wait', () => {
+  const note = factorNote(compareFactor(factor));
+  assert.match(note, /\$1,176\.33/);
+  assert.match(note, /\$36\.00/);
+  assert.doesNotMatch(note, /should factor|must factor|should wait|must wait/i);
+});
+
+test('compareFactor rejects impossible fees and advances', () => {
+  assert.throws(() => compareFactor({ ...factor, amount: 0 }), /greater than zero/);
+  assert.throws(() => compareFactor({ ...factor, factorFeePct: 100 }), /below 100/);
+  assert.throws(() => compareFactor({ ...factor, advancePct: 0 }), /above 0/);
+  assert.throws(() => compareFactor({ ...factor, advancePct: 101 }), /at most 100/);
+  assert.throws(() => compareFactor({ ...factor, reserveDays: -1 }), /zero or more/);
+  assert.throws(() => compareFactor({ ...factor, annualCarryRate: -1 }), /non-negative/);
+});
+
+test('exports the factor defaults the page starts from', () => {
+  assert.equal(FACTOR_DEFAULTS.factorFeePct, 3);
+  assert.equal(FACTOR_DEFAULTS.advancePct, 90);
+  assert.equal(FACTOR_DEFAULTS.reserveDays, 35);
 });

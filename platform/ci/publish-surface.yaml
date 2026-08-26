@@ -55,6 +55,12 @@ workflows:
 - workflow: amazon-fba-calculator-ci.yml
   classification: none
   publishes: []
+- workflow: artificial-turf-bid-calculator-ci.yml
+  classification: none
+  publishes: []
+- workflow: asphalt-driveway-pave-bid-calculator-ci.yml
+  classification: none
+  publishes: []
 - workflow: automatic-driveway-gate-bid-calculator-ci.yml
   classification: none
   publishes: []
@@ -71,6 +77,9 @@ workflows:
   classification: none
   publishes: []
 - workflow: cloud-egress-calculator-ci.yml
+  classification: none
+  publishes: []
+- workflow: crawl-space-encapsulation-bid-calculator-ci.yml
   classification: none
   publishes: []
 - workflow: crown-molding-bid-calculator-ci.yml
@@ -115,6 +124,9 @@ workflows:
 - workflow: grant-deadline-tracker-ci.yml
   classification: none
   publishes: []
+- workflow: gravel-driveway-bid-calculator-ci.yml
+  classification: none
+  publishes: []
 - workflow: hetzner-gitops-ci.yml
   classification: none
   publishes: []
@@ -148,6 +160,16 @@ workflows:
 - workflow: opencode-high-throughput.yml
   classification: none
   publishes: []
+- workflow: pages.yml
+  classification: gated
+  publishes:
+  - job: deploy
+    step: uses actions/deploy-pages
+    gates:
+    - github.event_name != 'pull_request' && vars.GITHUB_PAGES_ENABLED == 'true'
+- workflow: parking-lot-striping-bid-calculator-ci.yml
+  classification: none
+  publishes: []
 - workflow: photo-editing-ci.yml
   classification: none
   publishes: []
@@ -158,6 +180,9 @@ workflows:
   classification: none
   publishes: []
 - workflow: plantation-shutter-bid-calculator-ci.yml
+  classification: none
+  publishes: []
+- workflow: pole-barn-bid-calculator-ci.yml
   classification: none
   publishes: []
 - workflow: portfolio-pages.yml
@@ -222,6 +247,9 @@ workflows:
   classification: none
   publishes: []
 - workflow: shopify-permission-drift-ci.yml
+  classification: none
+  publishes: []
+- workflow: sod-install-bid-calculator-ci.yml
   classification: none
   publishes: []
 - workflow: source-silence-detector-ci.yml
