@@ -5,10 +5,15 @@ import {
   calculateOrder,
   compareOnlineVsPos,
   compareShippingLabels,
+  compareReturnResolution,
   compareShopPayInstallments,
+  DEFAULT_CREDIT_REDEMPTION_PCT,
   DEFAULT_OWN_LABEL_COST,
   DEFAULT_INSTALLMENT_RATE,
   DEFAULT_INSTALLMENT_FIXED,
+  DEFAULT_PROCESSOR_FEE_KEPT_PCT,
+  DEFAULT_RESTOCKABLE_PCT,
+  DEFAULT_RETURN_LABEL_COST,
   PLAN_PRESETS,
 } from "./calc.mjs";
 
@@ -495,4 +500,107 @@ test("summary names the extra fee and the monthly gap", () => {
   assert.match(text, /\$2\.90/);
   assert.match(text, /15%/);
   assert.match(text, /\$43\.57 \/ month/);
+});
+
+const RETURN_BASE = {
+  price: 48,
+  shippingCharged: 6,
+  paymentsRate: 2.9,
+  paymentsFixed: 0.3,
+  costOfGoods: 14,
+  shippingCost: 5,
+  packagingCost: 1,
+  monthlyPlan: 39,
+  monthlyOrders: 100,
+  monthlyReturns: 12,
+  paymentMethod: "shopify_payments",
+};
+
+test("defaults match the published return-label / restock / redemption example", () => {
+  assert.equal(DEFAULT_RETURN_LABEL_COST, 7);
+  assert.equal(DEFAULT_RESTOCKABLE_PCT, 85);
+  assert.equal(DEFAULT_CREDIT_REDEMPTION_PCT, 70);
+  assert.equal(DEFAULT_PROCESSOR_FEE_KEPT_PCT, 100);
+});
+
+test("store credit keeps more than a cash refund on the default return", () => {
+  // Completed sale: $54 − $1.866 fees − $20.39 cash = $31.744.
+  // Refund $48, recover 85% of $14 COGS, pay a $7 label, processor keeps the fee.
+  const r = compareReturnResolution(RETURN_BASE);
+  near(r.completedProfit, 54 - 1.866 - 20.39, "completed sale");
+  near(r.refundPaid, 48, "item-only refund");
+  near(r.feeReturned, 0, "processor keeps the original fee");
+  near(r.recoveredCogs, 14 * 0.85, "restockable inventory");
+  near(r.refund.kept, 31.744 - 48 + 11.9 - 7, "refund keep");
+  near(r.credit.kept, 31.744 + 11.9 - 7 - 0.7 * 20, "credit keep");
+  near(r.exchange.kept, 31.744 - 7 - 5 - 1 - 14 * 0.15, "exchange keep");
+  near(r.extraKeptOnCredit, 34, "credit vs refund");
+  near(r.extraKeptOnExchange, 28, "exchange vs refund");
+  near(r.monthlyExtraOnCredit, 34 * 12, "twelve returns");
+  assert.equal(r.winner, "credit");
+  assert.equal(r.refundShippingCharged, false);
+});
+
+test("refunding shipping charged too makes the cash path worse", () => {
+  const r = compareReturnResolution({ ...RETURN_BASE, refundShippingCharged: true });
+  near(r.refundPaid, 54, "item plus postage");
+  near(r.refund.kept, 31.744 - 54 + 11.9 - 7, "full refund");
+  assert.ok(r.extraKeptOnCredit > 34, "keeping the $6 postage widens the credit gap");
+});
+
+test("returning the processor fee shrinks the refund loss", () => {
+  const r = compareReturnResolution({ ...RETURN_BASE, processorFeeKeptPct: 0 });
+  near(r.feeReturned, 1.866, "Shopify Payments often returns the fee");
+  near(r.refund.kept, 31.744 - 48 + 1.866 + 11.9 - 7, "refund with fee back");
+  assert.equal(r.winner, "credit");
+});
+
+test("full redemption and a restockable unit make credit match exchange costs", () => {
+  const r = compareReturnResolution({
+    ...RETURN_BASE,
+    restockablePct: 100,
+    creditRedemptionPct: 100,
+  });
+  near(r.credit.kept, r.exchange.kept, "always-redeem + full restock");
+  assert.equal(r.winner, "tie");
+});
+
+test("a restocking fee reduces the cash refund, not the credit liability", () => {
+  const r = compareReturnResolution({ ...RETURN_BASE, restockingFee: 8 });
+  near(r.refundPaid, 40, "refund net of restocking fee");
+  near(r.refund.kept, 31.744 - 40 + 11.9 - 7, "smaller cash-out");
+  near(r.credit.kept, 31.744 + 11.9 - 7 - 14, "credit still expects the next item");
+});
+
+test("empty return fields use the published defaults", () => {
+  const r = compareReturnResolution({
+    price: 48,
+    shippingCharged: 6,
+    paymentsRate: 2.9,
+    paymentsFixed: 0.3,
+    costOfGoods: 14,
+    shippingCost: 5,
+    packagingCost: 1,
+    monthlyPlan: 0,
+    monthlyOrders: 1,
+  });
+  near(r.returnLabelCost, DEFAULT_RETURN_LABEL_COST, "default label");
+  near(r.restockablePct, DEFAULT_RESTOCKABLE_PCT, "default restock");
+  near(r.creditRedemptionPct, DEFAULT_CREDIT_REDEMPTION_PCT, "default redemption");
+  near(r.processorFeeKeptPct, DEFAULT_PROCESSOR_FEE_KEPT_PCT, "default fee keep");
+});
+
+test("compareReturnResolution rejects impossible rates and fees", () => {
+  assert.throws(() => compareReturnResolution({ ...RETURN_BASE, restockablePct: 101 }), /Restockable percent/);
+  assert.throws(() => compareReturnResolution({ ...RETURN_BASE, creditRedemptionPct: -1 }), /Credit redemption percent/);
+  assert.throws(() => compareReturnResolution({ ...RETURN_BASE, restockingFee: 49 }), /Restocking fee cannot exceed/);
+  assert.throws(() => compareReturnResolution({ ...RETURN_BASE, returnLabelCost: -1 }), /Return label/);
+});
+
+test("summary names store credit and the gap versus a cash refund", () => {
+  const text = compareReturnResolution(RETURN_BASE).summary;
+  assert.match(text, /Store credit keeps/);
+  assert.match(text, /\$22\.64/);
+  assert.match(text, /\$34\.00 more/);
+  assert.match(text, /-\$11\.36/);
 });
