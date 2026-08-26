@@ -1,5 +1,5 @@
 name: amazon-fba-calculator
-description: A private browser calculator for Amazon sellers to compare FBA vs FBM profit on the same listing after referral, fulfillment, storage, inbound, and cost of goods — including the maximum inventory buy cost, whether Low-Price FBA still beats raising the list price, whether a coupon still hits the target after the redemption fee, whether Subscribe & Save still pays after only some units enroll, whether a website order shipped MCF still beats selling the unit on Amazon, whether a supplier MOQ still pays after extra FBA storage, whether paying Amazon to prep inbound still beats you-prep, whether Individual or Professional still pays at the seller's monthly volume — including a 10/20/40/80/200 volume ladder — whether an Amazon Vine enrollment still pays after gifted leftover units versus units that would have sold, and whether keeping aged FBA inventory still beats a return removal or dispose after storage and the aged-inventory surcharge.
+description: A private browser calculator for Amazon sellers to compare FBA vs FBM profit on the same listing after referral, fulfillment, storage, inbound, and cost of goods — including the maximum inventory buy cost, whether Low-Price FBA still beats raising the list price, whether a coupon still hits the target after the redemption fee, whether Subscribe & Save still pays after only some units enroll, whether a website order shipped MCF still beats selling the unit on Amazon, whether a supplier MOQ still pays after extra FBA storage, whether paying Amazon to prep inbound still beats you-prep, whether Individual or Professional still pays at the seller's monthly volume — including a 10/20/40/80/200 volume ladder — whether an Amazon Vine enrollment still pays after gifted leftover units versus units that would have sold, whether keeping aged FBA inventory still beats a return removal or dispose after storage and the aged-inventory surcharge, and whether Amazon inbound placement still beats extra freight on a split shipment.
 stage: prototype
 owner: duncan
 hypotheses:
@@ -8,6 +8,10 @@ hypotheses:
     checked: null
     evidence: customer-contact
   - claim: Seeing the maximum buy cost next to both fulfillment paths changes a sourcing decision before the seller pays for inventory.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: Sellers will skip or keep Amazon inbound placement when they can see one-warehouse freight plus the placement fee against extra freight on the optimized split.
     status: untested
     checked: null
     evidence: customer-contact

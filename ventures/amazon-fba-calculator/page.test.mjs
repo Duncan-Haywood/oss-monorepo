@@ -3,7 +3,7 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
-import { compareBulkBuy, compareCoupons, compareMcf, comparePrep, compareSellerPlans, compareSubscribeSave } from "./calc.mjs";
+import { compareBulkBuy, compareCoupons, compareInboundPlacement, compareMcf, comparePrep, compareSellerPlans, compareSubscribeSave } from "./calc.mjs";
 
 const html = readFileSync(new URL("./index.html", import.meta.url), "utf8");
 const couponSeo = readFileSync(new URL("./does-this-amazon-coupon-still-pay.html", import.meta.url), "utf8");
@@ -25,6 +25,10 @@ const bulkSeo = readFileSync(
 );
 const prepSeo = readFileSync(
   new URL("./should-i-pay-amazon-to-prep-inbound.html", import.meta.url),
+  "utf8",
+);
+const placementSeo = readFileSync(
+  new URL("./inbound-placement-fee.html", import.meta.url),
   "utf8",
 );
 const planSeo = readFileSync(
@@ -80,12 +84,15 @@ test("schema.org featureList names the comparisons the page actually renders", (
   assert.match(featureList[1], /Multi-Channel Fulfillment/i);
   assert.match(featureList[1], /supplier MOQ/i);
   assert.match(featureList[1], /you-prep vs Amazon inbound prep/i);
+  assert.match(featureList[1], /inbound placement vs split freight/i);
   assert.match(featureList[1], /Individual vs Professional seller plan/i);
   assert.match(featureList[1], /seller-plan volume ladder/i);
   assert.match(featureList[1], /aged inventory vs remove vs dispose/i);
   assert.match(markup, /id="bulkCompare"/);
   assert.match(markup, /id="prepCompare"/);
+  assert.match(markup, /id="placementCompare"/);
   assert.match(markup, /should-i-pay-amazon-to-prep-inbound\.html/);
+  assert.match(markup, /inbound-placement-fee\.html/);
   assert.match(markup, /does-this-amazon-moq-still-pay\.html/);
   assert.match(markup, /id="couponCompare"/);
   assert.match(markup, /id="couponPercent"/);
@@ -364,6 +371,40 @@ test("SEO page uses the same prep worked example the tests lock", () => {
   nearEnough(comparison.label.monthlyDelta, 24);
 });
 
+test("calculator page wires inbound-placement columns that match the row template", () => {
+  const placementMarkup = markup.split('id="placementCompare"')[0];
+  const headerBlock = placementMarkup.slice(placementMarkup.lastIndexOf("<thead>"));
+  const headers = [...headerBlock.matchAll(/<th scope="col"[^>]*>([\s\S]*?)<\/th>/g)].map((m) =>
+    m[1].replace(/\s+/g, " ").trim(),
+  );
+  assert.deepEqual(headers, ["Split", "Freight", "Placement", "Total inbound", "Per unit", "vs cheapest"]);
+  assert.match(scriptSource, /compareInboundPlacement/);
+  assert.match(scriptSource, /placementSummary/);
+  assert.match(scriptSource, /inbound_placement_compared/);
+  assert.match(html, /inbound-placement-fee\.html/);
+});
+
+test("SEO page uses the same inbound-placement worked example the tests lock", () => {
+  const comparison = compareInboundPlacement({
+    units: 200,
+    freightMinimal: 85,
+    freightPartial: 140,
+    freightOptimized: 210,
+    placementMinimalPerUnit: 0.43,
+    placementPartialPerUnit: 0.27,
+    placementOptimizedPerUnit: 0,
+  });
+  assert.match(placementSeo, /\$171\.00/);
+  assert.match(placementSeo, /\$194\.00/);
+  assert.match(placementSeo, /\$210\.00/);
+  assert.match(placementSeo, /\$23\.00/);
+  assert.match(placementSeo, /\$86\.00/);
+  assert.match(placementSeo, /No warranty/);
+  assert.match(placementSeo, /Best-effort hosting, no SLA/);
+  assert.match(placementSeo, /github\.com\/sponsors\/Duncan-Haywood/);
+  assert.equal(comparison.winner, "minimal");
+});
+
 test("calculator page wires Individual vs Professional columns that match the row template", () => {
   assert.match(markup, /id="planCompare"/);
   assert.match(markup, /id="planVerdict"/);
@@ -436,6 +477,8 @@ test("pages keep the disclaimer and optional sponsor link", () => {
   assert.match(bulkSeo, /github\.com\/sponsors\/Duncan-Haywood/);
   assert.match(prepSeo, /No warranty/);
   assert.match(prepSeo, /github\.com\/sponsors\/Duncan-Haywood/);
+  assert.match(placementSeo, /No warranty/);
+  assert.match(placementSeo, /github\.com\/sponsors\/Duncan-Haywood/);
   assert.match(planSeo, /No warranty/);
   assert.match(planSeo, /github\.com\/sponsors\/Duncan-Haywood/);
 });
