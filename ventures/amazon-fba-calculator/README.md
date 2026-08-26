@@ -20,7 +20,9 @@ Subscribe & Save still pays when only some units enroll, whether a
 website order shipped MCF still beats selling the unit on Amazon,
 whether a supplier MOQ still pays after the extra warehouse stay, and
 whether paying Amazon to prep inbound still beats you-prep, and
-whether Individual or Professional still pays at your monthly volume** —
+whether Individual or Professional still pays at your monthly volume, and
+whether an Amazon Vine enrollment still pays after gifted leftover units
+versus units that would have sold** —
 which used to mean a spreadsheet that forgot storage, inbound, or the
 pick-fee jump at $10.
 
@@ -87,6 +89,17 @@ US defaults the subscription matches the per-item fee at about
 40.4 units a month. A volume ladder at 10, 20, 40, 80, and 200
 units shows when the $0.99/item fee flips as sales grow.
 
+A Vine invite is a launch decision on the same SKU: gift leftover
+units, gift units that would have sold, or skip.
+[Is Amazon Vine worth it?](is-amazon-vine-worth-it.html)
+shows enrollment cost after the pick fee, leftover over the typed
+months, and the conversion lift that still ties.
+
+**After using the Vine page, you can now see whether leftover units
+still beat skipping after a $419.95 gift, and why a hero SKU that
+would have sold usually does not** — which used to mean accepting
+the Vine invite because 30 reviews looked free.
+
 **No warranty.** This tool is provided free and as-is, without warranty of any
 kind, express or implied. It is not tax, financial, or business advice, and it
 does not replace a qualified professional. **You are responsible for reviewing
@@ -120,14 +133,15 @@ optional and never changes what the tool does.
 Pure ES modules, no build step, no dependencies.
 
 ```
-node --test        # runs calc.test.mjs, usage.test.mjs, and page.test.mjs
+node --test        # runs calc.test.mjs, usage.test.mjs, page.test.mjs, and vine-page.test.mjs
 ```
 
 `calc.mjs` holds the fee/profit/ROI arithmetic, size-tier classification,
 category presets, coupon comparison, Subscribe & Save comparison,
 Multi-Channel Fulfillment comparison, usual-PO vs supplier-MOQ
-comparison, you-prep vs Amazon inbound prep comparison, and
-Individual vs Professional seller-plan comparison;
+comparison, you-prep vs Amazon inbound prep comparison,
+Individual vs Professional seller-plan comparison, and
+Vine leftover vs sellable enrollment comparison;
 `usage.mjs` holds the anonymous
 local counter; `index.html` is the calculator UI.
 

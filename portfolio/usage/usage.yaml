@@ -417,6 +417,15 @@ products:
           units on the same listing so sellers see when the $0.99/item
           fee flips). Still no public URL; seller_plan_compared remains
           opt-out and stores no inputs.
+      - as_of: 2026-08-26
+        signals:
+          live_url_visitors: null
+          local_events_reported: 0
+        note: >-
+          Added Amazon Vine leftover vs sellable enrollment (gift cost
+          after FBA fees, horizon leftover, conversion-lift floor).
+          Still no public URL; local event vine_compared is opt-out and
+          stores no inputs.
   - slug: einvoice-preflight
     surface: local-cli
     readings:

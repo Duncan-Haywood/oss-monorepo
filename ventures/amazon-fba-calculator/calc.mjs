@@ -1342,3 +1342,176 @@ export function prepSummary(comparison) {
     `Amazon prep can rise to ${cap} before you-prep wins.`
   );
 }
+
+/**
+ * Illustrative Vine enrollment. Unit count, referral on the gift, and
+ * conversion lift are inputs — not Amazon Vine's current invite size
+ * or a claimed review-to-sale rate. 30 leftover units / 0% referral /
+ * 12% lift / 6 months is a launch a seller overwrites from their last
+ * enrollment.
+ */
+export const DEFAULT_VINE_UNITS = 30;
+export const DEFAULT_VINE_REFERRAL_RATE = 0;
+export const DEFAULT_CONVERSION_LIFT_PCT = 12;
+export const DEFAULT_VINE_MONTHS = 6;
+
+export function vineUnitCost(input) {
+  const vineReferralRate = emptyField(input.vineReferralRate)
+    ? DEFAULT_VINE_REFERRAL_RATE
+    : number(input.vineReferralRate, "Vine referral rate");
+  const vineSalePrice = emptyField(input.vineSalePrice)
+    ? 0
+    : number(input.vineSalePrice, "Vine sale price");
+  const gifted = calculateListing({
+    ...input,
+    salePrice: vineSalePrice,
+    referralRate: vineReferralRate,
+    monthlySellerFee: 0,
+  });
+  return gifted.selected.cashInvested + gifted.selected.feeTotal;
+}
+
+function vineSummary({
+  winner,
+  extraKeptOnLeftover,
+  extraKeptOnSellable,
+  vineUpfront,
+  breakEvenLiftPct,
+  vineMonths,
+}) {
+  const upfront = moneyLabel(vineUpfront);
+  const leftoverGap = moneyLabel(Math.abs(extraKeptOnLeftover));
+  const leftoverAhead = extraKeptOnLeftover >= 0 ? "more" : "less";
+  const liftFloor = Number.isFinite(breakEvenLiftPct)
+    ? ` Leftover Vine needs about ${breakEvenLiftPct.toFixed(1)}% lift over ${vineMonths} month${vineMonths === 1 ? "" : "s"} to match skipping.`
+    : " No conversion lift on these rates can recover leftover Vine.";
+  if (winner === "tie") {
+    return `Vine and skipping leave the same leftover over this horizon.`;
+  }
+  if (winner === "leftover") {
+    return (
+      `Vine on leftover units keeps ${leftoverGap} more than skipping after a ${upfront} enrollment.` +
+      liftFloor +
+      ` Vine on units that would have sold keeps ${moneyLabel(Math.abs(extraKeptOnSellable))} ${extraKeptOnSellable >= 0 ? "more" : "less"}.`
+    );
+  }
+  if (winner === "sellable") {
+    return (
+      `Vine on units that would have sold keeps ${moneyLabel(Math.abs(extraKeptOnSellable))} more than skipping after a ${upfront} enrollment.` +
+      liftFloor
+    );
+  }
+  return (
+    `Skipping Vine keeps ${leftoverGap} more than leftover enrollment after a ${upfront} gift.` +
+    liftFloor
+  );
+}
+
+/**
+ * Same SKU, three ways to treat a Vine invite.
+ *
+ *   - Skip Vine — keep the typed monthly profit for the typed months.
+ *   - Vine leftover units — gift units that would not have sold, pay
+ *     COGS + inbound + prep + fulfillment, then apply the conversion
+ *     lift to the selling month.
+ *   - Vine units that would have sold — same gift cost plus the
+ *     profit those units would have left at list.
+ *
+ * Complementary to landed coupons (a discount on paid sales) and to
+ * open return-rate work. Rates and the lift are inputs, not Vine policy.
+ */
+export function compareVine(input) {
+  const vineUnits = emptyField(input.vineUnits)
+    ? DEFAULT_VINE_UNITS
+    : number(input.vineUnits, "Vine units");
+  if (vineUnits === 0) throw new Error("Vine units must be greater than zero");
+  const conversionLiftPct = emptyField(input.conversionLiftPct)
+    ? DEFAULT_CONVERSION_LIFT_PCT
+    : number(input.conversionLiftPct, "Conversion lift percent");
+  const vineMonths = emptyField(input.vineMonths)
+    ? DEFAULT_VINE_MONTHS
+    : number(input.vineMonths, "Vine months");
+  if (vineMonths === 0) throw new Error("Vine months must be greater than zero");
+  const vineReferralRate = emptyField(input.vineReferralRate)
+    ? DEFAULT_VINE_REFERRAL_RATE
+    : number(input.vineReferralRate, "Vine referral rate");
+
+  const listing = calculateListing(input);
+  const profitPerUnit = listing.selected.profit;
+  const monthlyUnits = number(input.monthlyUnits, "Monthly units", 1);
+  const monthlyProfit = profitPerUnit * monthlyUnits;
+  const unitCost = vineUnitCost(input);
+  const vineUpfront = vineUnits * unitCost;
+  const extraMonthly = monthlyProfit * (conversionLiftPct / 100);
+  const liftOverHorizon = extraMonthly * vineMonths;
+  const skipHorizon = monthlyProfit * vineMonths;
+  const leftoverHorizon = skipHorizon + liftOverHorizon - vineUpfront;
+  const sellableHorizon = leftoverHorizon - vineUnits * profitPerUnit;
+
+  const skip = {
+    id: "skip",
+    label: "Skip Vine",
+    horizonProfit: skipHorizon,
+    upfront: 0,
+  };
+  const leftover = {
+    id: "leftover",
+    label: "Vine leftover units",
+    horizonProfit: leftoverHorizon,
+    upfront: vineUpfront,
+  };
+  const sellable = {
+    id: "sellable",
+    label: "Vine units that would have sold",
+    horizonProfit: sellableHorizon,
+    upfront: vineUpfront + vineUnits * Math.max(0, profitPerUnit),
+  };
+
+  const extraKeptOnLeftover = leftoverHorizon - skipHorizon;
+  const extraKeptOnSellable = sellableHorizon - skipHorizon;
+  const rows = [skip, leftover, sellable].map((row) => ({
+    ...row,
+    vsSkip: row.horizonProfit - skipHorizon,
+  }));
+  const maxProfit = Math.max(...rows.map((row) => row.horizonProfit));
+  const leaders = rows.filter((row) => Math.abs(row.horizonProfit - maxProfit) < 1e-9);
+  const winner = leaders.length === 1 ? leaders[0].id : "tie";
+
+  let breakEvenLiftPct = Infinity;
+  if (monthlyProfit > 1e-12) {
+    breakEvenLiftPct = (vineUpfront / (monthlyProfit * vineMonths)) * 100;
+  }
+  let breakEvenMonths = Infinity;
+  if (extraMonthly > 1e-12) {
+    breakEvenMonths = vineUpfront / extraMonthly;
+  }
+
+  return {
+    rows,
+    skip: rows[0],
+    leftover: rows[1],
+    sellable: rows[2],
+    vineUnits,
+    vineReferralRate,
+    conversionLiftPct,
+    vineMonths,
+    profitPerUnit,
+    monthlyProfit,
+    vineUnitCost: unitCost,
+    vineUpfront,
+    extraMonthly,
+    extraKeptOnLeftover,
+    extraKeptOnSellable,
+    breakEvenLiftPct,
+    breakEvenMonths,
+    winner,
+    summary: vineSummary({
+      winner,
+      extraKeptOnLeftover,
+      extraKeptOnSellable,
+      vineUpfront,
+      breakEvenLiftPct,
+      vineMonths,
+    }),
+  };
+}
