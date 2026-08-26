@@ -497,6 +497,307 @@ export function openHouseSummary(comparison) {
   return openHouseNote(comparison);
 }
 
+// The listing `promotedRate` line taxes one already-won invoice.
+// A campaign also bills last-click organic first orders and only
+// pays if extra first orders cover that tax. Defaults are
+// illustrative — overwrite the rate, extra orders, and attribution
+// from the campaign preview on the brand account.
+export const PROMOTED_DEFAULTS = {
+  organicFirstOrders: 4,
+  extraPromotedOrders: 1,
+  campaignPromotedRate: 15,
+  attributedOrganicPct: 40,
+  highPromotedRate: 22,
+  highExtraPromotedOrders: 2,
+  highAttributedOrganicPct: 55,
+};
+
+function percentAtMost(value, name, fallback = 0) {
+  const result = number(value, name, fallback);
+  if (result > 100) throw new Error(`${name} must be at most 100`);
+  return result;
+}
+
+function promotedPath({
+  id,
+  label,
+  campaignRate,
+  extraOrders,
+  billedOrganicOrders,
+  billedOrders,
+  promotedFee,
+  cash,
+}) {
+  return {
+    id,
+    label,
+    campaignRate,
+    extraOrders,
+    billedOrganicOrders,
+    billedOrders,
+    promotedFee,
+    cash,
+  };
+}
+
+function promotedCampaignCash({
+  organicOrders,
+  organicProfit,
+  billedOrganicOrders,
+  extraOrders,
+  promotedProfit,
+}) {
+  return (
+    (organicOrders - billedOrganicOrders) * organicProfit
+    + (billedOrganicOrders + extraOrders) * promotedProfit
+  );
+}
+
+function promotedSummaryText({
+  winner,
+  skip,
+  campaign,
+  higher,
+  extraCampaignVsSkip,
+  extraHigherVsSkip,
+  organicOrders,
+  breakEvenCampaignRate,
+  breakEvenExtraOrders,
+  breakEvenAttributedOrganicPct,
+}) {
+  const skipKeep = moneyLabel(skip.cash);
+  const adsKeep = moneyLabel(campaign.cash);
+  const highKeep = moneyLabel(higher.cash);
+  const adsGap = moneyLabel(Math.abs(extraCampaignVsSkip));
+  const highGap = moneyLabel(Math.abs(extraHigherVsSkip));
+  const rateCeil = Number.isFinite(breakEvenCampaignRate)
+    ? `${breakEvenCampaignRate.toFixed(1)}%`
+    : "an unreachable promoted rate";
+  const extraFloor = Number.isFinite(breakEvenExtraOrders)
+    ? breakEvenExtraOrders.toFixed(1)
+    : "an unreachable extra-order count";
+  const attrCeil = Number.isFinite(breakEvenAttributedOrganicPct)
+    ? `${breakEvenAttributedOrganicPct.toFixed(1)}%`
+    : "an unreachable attribution rate";
+  const volume = `${organicOrders} organic first order${organicOrders === 1 ? "" : "s"}`;
+
+  if (winner === "campaign") {
+    return (
+      `Promoted listings keep ${adsGap} more than skipping the campaign `
+      + `(${adsKeep} vs ${skipKeep}) on ${volume}. `
+      + `The rate can rise to about ${rateCeil} before skip matches. `
+      + `The higher-rate campaign is ${highKeep}.`
+    );
+  }
+  if (winner === "higher") {
+    return (
+      `The higher-rate campaign keeps ${highGap} more than skipping promoted listings `
+      + `(${highKeep} vs ${skipKeep}) on ${volume}. `
+      + `The standard campaign is ${adsKeep}.`
+    );
+  }
+  if (winner === "skip") {
+    return (
+      `Skipping promoted listings keeps ${adsGap} more than the campaign `
+      + `(${skipKeep} vs ${adsKeep}) on ${volume}. `
+      + `Ads match if the rate falls to about ${rateCeil}, extra first orders rise to `
+      + `about ${extraFloor}, or last-click attribution on organic falls to `
+      + `about ${attrCeil}. The higher-rate campaign is ${highKeep}.`
+    );
+  }
+  return "Skipping promoted listings and running the campaign leave the same leftover on these rates.";
+}
+
+/**
+ * Same first-marketplace-order invoice, three ways to buy Faire
+ * traffic: skip promoted listings, run a campaign at a typed extra
+ * percent, or spend harder at a higher percent. Organic leftover
+ * forces `promotedRate` to zero so the listing line does not
+ * double-count. Campaign spend is the extra percent on last-click
+ * billed first orders (a share of organic plus extra first orders
+ * you attribute to the campaign). Extra orders are a count you
+ * type, not a forecast that the campaign will produce them.
+ *
+ * Complementary to Open House (a seasonal 0% window), Faire Direct
+ * (you brought the retailer), and payout speed (cash timing after
+ * Faire already has the order).
+ */
+export function compareFairePromoted(input = {}) {
+  const organicOrders = wholeNumber(
+    input.organicFirstOrders,
+    "Organic first orders",
+    PROMOTED_DEFAULTS.organicFirstOrders,
+  );
+  const extraOrders = wholeNumberOrZero(
+    input.extraPromotedOrders,
+    "Extra promoted first orders",
+    PROMOTED_DEFAULTS.extraPromotedOrders,
+  );
+  const campaignRate = percentAtMost(
+    input.campaignPromotedRate,
+    "Promoted listings rate",
+    PROMOTED_DEFAULTS.campaignPromotedRate,
+  );
+  if (campaignRate >= 100) throw new Error("Promoted listings rate must be below 100%");
+  const attributedOrganicPct = percentAtMost(
+    input.attributedOrganicPct,
+    "Attributed organic percent",
+    PROMOTED_DEFAULTS.attributedOrganicPct,
+  );
+  const highRate = percentAtMost(
+    input.highPromotedRate,
+    "Higher promoted rate",
+    PROMOTED_DEFAULTS.highPromotedRate,
+  );
+  if (highRate >= 100) throw new Error("Higher promoted rate must be below 100%");
+  const highExtraOrders = wholeNumberOrZero(
+    input.highExtraPromotedOrders,
+    "Higher-rate extra first orders",
+    PROMOTED_DEFAULTS.highExtraPromotedOrders,
+  );
+  const highAttributedOrganicPct = percentAtMost(
+    input.highAttributedOrganicPct,
+    "Higher-rate attributed organic percent",
+    PROMOTED_DEFAULTS.highAttributedOrganicPct,
+  );
+
+  const organic = calculateBrandOrder({ ...input, promotedRate: 0 }, "marketplace_first");
+  const campaignOrder = calculateBrandOrder({ ...input, promotedRate: campaignRate }, "marketplace_first");
+  const higherOrder = calculateBrandOrder({ ...input, promotedRate: highRate }, "marketplace_first");
+  const organicProfit = organic.profit;
+  const merchandise = organic.merchandise;
+  const billedOrganicOrders = organicOrders * (attributedOrganicPct / 100);
+  const highBilledOrganicOrders = organicOrders * (highAttributedOrganicPct / 100);
+
+  const skipCash = organicOrders * organicProfit;
+  const campaignCash = promotedCampaignCash({
+    organicOrders,
+    organicProfit,
+    billedOrganicOrders,
+    extraOrders,
+    promotedProfit: campaignOrder.profit,
+  });
+  const higherCash = promotedCampaignCash({
+    organicOrders,
+    organicProfit,
+    billedOrganicOrders: highBilledOrganicOrders,
+    extraOrders: highExtraOrders,
+    promotedProfit: higherOrder.profit,
+  });
+
+  const campaignFeePerOrder = campaignOrder.fees.promoted;
+  const higherFeePerOrder = higherOrder.fees.promoted;
+  const campaignBilled = billedOrganicOrders + extraOrders;
+  const higherBilled = highBilledOrganicOrders + highExtraOrders;
+
+  const skip = promotedPath({
+    id: "skip",
+    label: "Skip promoted listings",
+    campaignRate: 0,
+    extraOrders: 0,
+    billedOrganicOrders: 0,
+    billedOrders: 0,
+    promotedFee: 0,
+    cash: skipCash,
+  });
+  const campaign = promotedPath({
+    id: "campaign",
+    label: "Promoted listings",
+    campaignRate,
+    extraOrders,
+    billedOrganicOrders,
+    billedOrders: campaignBilled,
+    promotedFee: campaignBilled * campaignFeePerOrder,
+    cash: campaignCash,
+  });
+  const higher = promotedPath({
+    id: "higher",
+    label: "Higher-rate campaign",
+    campaignRate: highRate,
+    extraOrders: highExtraOrders,
+    billedOrganicOrders: highBilledOrganicOrders,
+    billedOrders: higherBilled,
+    promotedFee: higherBilled * higherFeePerOrder,
+    cash: higherCash,
+  });
+
+  const extraCampaignVsSkip = campaignCash - skipCash;
+  const extraHigherVsSkip = higherCash - skipCash;
+  const rows = [skip, campaign, higher].map((row) => ({
+    ...row,
+    vsSkip: row.cash - skipCash,
+  }));
+
+  const bestCash = Math.max(skipCash, campaignCash, higherCash);
+  const leaders = [
+    { id: "skip", value: skipCash },
+    { id: "campaign", value: campaignCash },
+    { id: "higher", value: higherCash },
+  ].filter((row) => Math.abs(row.value - bestCash) <= 1e-9);
+  const winner = leaders.length === 1 ? leaders[0].id : "tie";
+
+  let breakEvenCampaignRate = Infinity;
+  if (campaignBilled > 1e-12 && merchandise > 1e-12) {
+    breakEvenCampaignRate = (extraOrders * organicProfit * 100) / (campaignBilled * merchandise);
+    if (breakEvenCampaignRate < -1e-9) breakEvenCampaignRate = Infinity;
+  } else if (extraOrders === 0 && billedOrganicOrders === 0) {
+    breakEvenCampaignRate = Infinity;
+  }
+
+  let breakEvenExtraOrders = Infinity;
+  const extraMargin = organicProfit - campaignFeePerOrder;
+  if (extraMargin > 1e-12) {
+    breakEvenExtraOrders = (billedOrganicOrders * campaignFeePerOrder) / extraMargin;
+    if (breakEvenExtraOrders < 0) breakEvenExtraOrders = 0;
+  } else if (billedOrganicOrders * campaignFeePerOrder <= 1e-12) {
+    breakEvenExtraOrders = 0;
+  }
+
+  let breakEvenAttributedOrganicPct = Infinity;
+  if (organicOrders > 1e-12 && campaignFeePerOrder > 1e-12) {
+    breakEvenAttributedOrganicPct =
+      (extraOrders * extraMargin * 100) / (organicOrders * campaignFeePerOrder);
+    if (breakEvenAttributedOrganicPct < -1e-9) {
+      breakEvenAttributedOrganicPct = Infinity;
+    } else {
+      breakEvenAttributedOrganicPct = Math.max(0, Math.min(100, breakEvenAttributedOrganicPct));
+    }
+  } else if (campaignFeePerOrder <= 1e-12) {
+    breakEvenAttributedOrganicPct = 100;
+  }
+
+  const result = {
+    rows,
+    skip: rows[0],
+    campaign: rows[1],
+    higher: rows[2],
+    winner,
+    organicOrders,
+    organicProfit,
+    merchandise,
+    campaignRate,
+    extraOrders,
+    attributedOrganicPct,
+    highRate,
+    highExtraOrders,
+    highAttributedOrganicPct,
+    extraCampaignVsSkip,
+    extraHigherVsSkip,
+    breakEvenCampaignRate,
+    breakEvenExtraOrders,
+    breakEvenAttributedOrganicPct,
+  };
+  result.summary = promotedSummaryText(result);
+  return result;
+}
+
+export function promotedNote(comparison) {
+  if (!comparison?.skip || !comparison?.campaign || !comparison?.higher) {
+    throw new Error("promotedNote missing rows");
+  }
+  return comparison.summary ?? promotedSummaryText(comparison);
+}
+
 export const FAIRE_RETURN_DEFAULTS = {
   returnUnits: 10,
   returnLabel: 18,

@@ -14,6 +14,8 @@ search question. `should-i-pay-for-faire-next-day-payout.html` answers whether
 the extra next-day processing still beats waiting after your carrying cost.
 `should-i-list-during-faire-open-house.html` compares an everyday first order
 to Open House at 0% commission after the deeper discount retailers expect.
+`should-i-run-faire-promoted-listings.html` compares skipping Promoted
+Listings to a campaign after last-click organic first orders.
 `should-i-take-this-faire-return.html` compares a keep-it credit, denying
 the request, and taking the return after a completed first order.
 
@@ -26,8 +28,9 @@ first marketplace order, see whether expected reorders recover that
 opening-order fee, see whether next-day payout still beats waiting
 once your own carrying cost is on the invoice, and see whether a Faire
 Open House discount still leaves more than listing everyday, and see
-whether a keep-it credit still beats taking a Faire return**, which used
-to take reconciling Faire’s help articles against a spreadsheet.
+whether Promoted Listings still cover last-click organic first
+orders, and see whether a keep-it credit still beats taking a Faire
+return**, which used to take reconciling Faire’s help articles against a spreadsheet.
 
 ## What it checks that a flat 15% page does not
 
@@ -83,8 +86,9 @@ the counter in the same way as the checkbox.
 ## Opportunity
 
 Faire brands search for “Faire seller fees”, “Faire commission calculator”,
-“Faire Direct vs marketplace”, and “Faire Open House worth it” because the
-first-order fee, a seasonal 0% window, and payout-speed processing make a 15%
+“Faire Direct vs marketplace”, “Faire Open House worth it”, and “Faire
+Promoted Listings worth it” because the first-order fee, a seasonal 0%
+window, payout-speed processing, and last-click promoted billing make a 15%
 headline incomplete. Independent retailers search for opening-order margin
 after shipping. Those jobs are deterministic arithmetic with no paid API.
 [GitHub Sponsors](https://github.com/sponsors/Duncan-Haywood) is optional and
