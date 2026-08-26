@@ -1338,6 +1338,7 @@ products:
           scenario_compared: 0
           payout_float_compared: 0
           open_house_compared: 0
+          faire_return_compared: 0
           link_copied: 0
         note: >-
           Salvage of unique #1489 Faire wholesale fee calculator onto current
@@ -1346,6 +1347,8 @@ products:
           retailer page that keeps unsold opening-order units in the cost.
           Open House vs everyday first order added 2026-08-26 (event discount
           can eat the waived commission; extra new retailers flip the pile).
+          Keep-it credit vs deny vs taking a Faire return added 2026-08-26
+          (outbound shipping and the first-order fee are already sunk).
           Public URL remains owner-gated; the local-first counter reports only
           to the user's own browser and is opt-out. Baseline row.
   - slug: freight-accessorial-auditor

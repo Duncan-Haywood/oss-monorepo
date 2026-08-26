@@ -23,6 +23,11 @@ export const FIELD_IDS = [
   "openHouseDiscountRate",
   "openHouseCommissionRate",
   "openHouseExtraRetailers",
+  "returnUnits",
+  "returnLabel",
+  "restockablePct",
+  "keepDiscountPct",
+  "denyKeepPct",
 ];
 
 export const RETAILER_FIELD_IDS = [
