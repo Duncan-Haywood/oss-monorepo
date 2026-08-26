@@ -6,6 +6,20 @@
 # retired honestly instead of quietly.
 period: 2026-08
 products:
+  - slug: cloud-egress-calculator
+    surface: static-page-in-repo
+    readings:
+      - as_of: 2026-08-26
+        signals:
+          live_url_visitors: null
+          local_calculations_reported: 0
+          review_exports: 0
+          cdn_compares: 0
+        note: >-
+          Salvage of #1409 two-provider S3 storage/request/egress compare onto
+          current main, plus a CDN vs origin-only extra. Public URL remains
+          owner-gated; the local-first counter reports only to the user's own
+          browser and is opt-out. Baseline row.
   - slug: grant-deadline-tracker
     surface: static-page-in-repo
     readings:
