@@ -645,6 +645,17 @@ products:
           Added day-porter / scheduled-shift pricing as coverage hours
           kept separate from the night-clean production rate. Public
           URL remains owner-gated.
+  - slug: pest-control-bid-calculator
+    surface: static-page-in-repo
+    readings:
+      - as_of: 2026-08-26
+        signals:
+          live_url_visitors: null
+          local_events_reported: 0
+        note: >-
+          Shipped a local pest-control bid calculator that prices drive time
+          and bait stations rather than house size, with a copyable proposal
+          summary; public URL remains owner-gated. Baseline row.
   - slug: shopify-fee-calculator
     surface: static-page-in-repo
     readings:
