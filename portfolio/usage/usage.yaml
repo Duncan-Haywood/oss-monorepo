@@ -549,6 +549,21 @@ products:
         note: >-
           Shipped a local stock-cut planning baseline for makers; public URL
           remains owner-gated and the browser counter is local and opt-out.
+      - as_of: 2026-08-24
+        signals:
+          live_url_visitors: null
+          local_events_reported: 0
+        note: >-
+          Correction, not a new reading: the page had been broken since its
+          first commit (index.html truncated mid-markup, so the results panel
+          the script drives did not exist and update() threw at load). Every
+          prior local_events_reported figure for this product was counting a
+          page no visitor could have used. Two sessions found this
+          independently; #1023 landed the repair, the venture's first CI
+          workflow, and the split runs/copies counters first, and this change
+          builds the on-hand offcut planning, material cost, and
+          avoided-purchase figures on top of it. Public URL remains
+          owner-gated, so the counters still have no external reporting path.
   - slug: janitorial-bid-calculator
     surface: static-page-in-repo
     readings:
@@ -902,6 +917,53 @@ products:
           assertions lived in `test_app.mjs`, which `node --test` does not
           match, so they had never run anywhere. Public URL remains
           owner-gated.
+  - slug: sunroom-bid-calculator
+    surface: static-page-in-repo
+    readings:
+      - as_of: 2026-08-25
+        signals:
+          live_url_visitors: null
+          local_events_reported: 0
+        note: >-
+          Shipped a local sunroom / three-season / four-season bid calculator
+          that prices glass, thermal floor, and insulated roof instead of a
+          floor-square-foot coupon. Public URL remains owner-gated; counters
+          are local, aggregate, and opt-out.
+  - slug: metal-roof-bid-calculator
+    surface: static-page-in-repo
+    readings:
+      - as_of: 2026-08-25
+        signals:
+          live_url_visitors: null
+          local_calculation_events: 0
+          summary_copies: 0
+        note: >-
+          Shipped a zero-dependency browser calculator for metal-roofing
+          crews to price standing-seam and exposed-fastener jobs from panel
+          squares, tear-off, stories, and trim. Public URL remains
+          owner-gated; counters are local, aggregate, and opt-out.
+  - slug: flat-roof-bid-calculator
+    surface: static-page-in-repo
+    readings:
+      - as_of: 2026-08-25
+        signals:
+          live_url_visitors: null
+          local_events_reported: 0
+        note: >-
+          Shipped a local TPO / EPDM / PVC / modified-bitumen bid calculator
+          with a copyable proposal summary; public URL remains owner-gated.
+          Counters are local, aggregate, and opt-out.
+  - slug: patio-door-bid-calculator
+    surface: static-page-in-repo
+    readings:
+      - as_of: 2026-08-25
+        signals:
+          live_url_visitors: null
+          local_events_reported: 0
+        note: >-
+          Shipped a local sliding-glass / patio-door replacement bid
+          calculator with a copyable proposal summary; public URL remains
+          owner-gated and the browser counter is local and opt-out.
   - slug: french-drain-bid-calculator
     surface: static-page-in-repo
     readings:
@@ -1208,19 +1270,47 @@ products:
           draft_loaded: 0
           early_pay_compared: 0
           factor_compared: 0
+          late_invoice_compared: 0
+          late_invoice_draft_saved: 0
+          late_invoice_draft_loaded: 0
+        note: >-
+          Adds the already-overdue comparison (wait / chase / settle /
+          collections) as a second interactive page, so its three new event
+          names get a zero baseline on the same day the surface ships. Carries
+          factor_compared forward from the concurrent factoring page rather
+          than dropping it. Still no public URL — every reading here is
+          local-browser-only and opt-out until the owner's deploy-settings flip
+          lands. The reading worth watching once it does is whether
+          late_invoice_compared moves at all against early_pay_compared and
+          factor_compared: it is the first page in this venture aimed at a
+          problem the user already has rather than one they are deciding about,
+          and if the overdue page is what draws search traffic that is an
+          argument for depth there over another pre-send table.
+      - as_of: 2026-08-26
+        signals:
+          live_url_visitors: null
+          calculation: 0
+          terms_copied: 0
+          draft_saved: 0
+          draft_loaded: 0
+          early_pay_compared: 0
+          factor_compared: 0
+          settlement_projected: 0
+          late_invoice_compared: 0
           schedule_compared: 0
           schedule_copied: 0
         note: >-
-          Added the billing-schedule comparison: how much finished work a
+          Adds the billing-schedule comparison: how much finished work a
           deposit or milestone split leaves unpaid on handover day, and what
-          financing the rest costs. `schedule_compared` is counted separately
-          from `calculation`, `early_pay_compared` and `factor_compared` on
-          purpose — those three all price an invoice that already exists, and
-          the question this one exists to answer is whether freelancers engage
-          with the schedule decision at all, or only ever price the invoice
-          they have already decided to send. Still zero on every row: the
-          public URL remains owner-gated on `deploy-settings`, so no reading
-          here can be anything but a baseline.
+          financing the rest costs. Carries the concurrent factoring,
+          settlement and overdue events forward rather than dropping them.
+          `schedule_compared` is counted separately on purpose — every other
+          event on this row prices an invoice that already exists, and this is
+          the only one fired before any invoice does. If it never moves while
+          the others do, the venture's users are pricing invoices they have
+          already decided to send and the schedule work should not be
+          deepened. Still zero: the public URL remains owner-gated on
+          `deploy-settings`.
   - slug: portfolio-pages
     surface: github-pages-artifact
     readings:
@@ -1308,6 +1398,20 @@ products:
           and dispute draft onto current main, with a detention clock extra.
           Public URL remains owner-gated; the local-first counter reports
           only to the user's own browser and is opt-out. Baseline row.
+      - as_of: 2026-08-26
+        signals:
+          live_url_visitors: null
+          local_audit_events: 0
+          review_exports: 0
+          draft_copies: 0
+          detention_compares: 0
+          invoice_imports: 0
+        note: >-
+          CSV invoice import with column mapping and a contract rate card
+          shipped. New `invoice_imported` event; still a zero baseline because
+          the public URL remains owner-gated on deploy-settings. Once live the
+          reading that matters is imports versus hand-entered audits — if
+          nobody imports, the mapping step is the friction, not the idea.
   - slug: cloud-egress-calculator
     surface: static-page-in-repo
     readings:

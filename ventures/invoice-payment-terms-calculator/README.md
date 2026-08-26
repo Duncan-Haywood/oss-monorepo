@@ -44,6 +44,14 @@ answers the third-party fee question. On 24% money, waiting still leaves
 $1,176.33 against $1,161.24 after a 3% fee and 90% advance. They match
 at a 1.74% fee. At 50%, factoring flips ahead.
 
+[Already overdue? Wait, chase, settle, or collections](chasing-a-late-invoice.html)
+picks up where the due date runs out. The same invoice, 15 days late, scored
+four ways on expected cash after float and the hours a chase costs: a 10%
+settlement is worth $861.16, waiting $823.43, chasing it yourself $755.61
+(three hours at $85 is $255 spent whether or not they pay), and collections
+$355.63. The most useful number is the chase-hours break-even — about **1.8
+hours** on these defaults. Odds are the operator's estimate, not a prediction.
+
 [Should I ask for a deposit?](should-i-ask-for-a-deposit.html) answers the
 other end of the job — the schedule, before the first invoice exists. On a
 $6,000 project delivered over 30 days at Net 30 paid 12 days late, billing
@@ -63,7 +71,6 @@ spread evenly across the project's days, so front-loaded work is more
 exposed than shown; a client who has prepaid is never credited back as if
 they were lending to you; and none of it predicts whether a given client
 pays.
-
 It is not a quote-margin tool (that prices the job), not a retainage
 schedule (that is construction withhold), and not a Faire payout-speed
 page (that is marketplace processing). This page is invoice terms for
@@ -79,8 +86,7 @@ Then open `http://localhost:8877`. There is no build step.
 
 ## Privacy and usage
 
-Everything runs in your browser. Your amounts, dates, and drafts are never uploaded. There are no accounts, cookies, tracking pixels, or analytics vendors. The optional anonymous local counter records only feature names (`calculation`, `terms_copied`, `draft_saved`, `draft_loaded`, `early_pay_compared`, `factor_compared`, `settlement_projected`, `schedule_compared`, `schedule_copied`) and can be disabled in the footer. Saved drafts stay on this device.
-
+Everything runs in your browser. Your amounts, dates, and drafts are never uploaded. There are no accounts, cookies, tracking pixels, or analytics vendors. The optional anonymous local counter records only feature names (`calculation`, `terms_copied`, `draft_saved`, `draft_loaded`, `early_pay_compared`, `factor_compared`, `settlement_projected`, `late_invoice_compared`, `late_invoice_draft_saved`, `late_invoice_draft_loaded`, `schedule_compared`, `schedule_copied`) and can be disabled in the footer. Saved drafts stay on this device.
 ## Safety
 
 **No warranty.** This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, financial, or business advice, and it does not replace a qualified professional. It does not determine whether a late-fee term is permitted or enforceable, and it does not tell you to offer or withhold an early-pay discount or to factor an invoice. **You are responsible for reviewing and verifying its output before relying on it.** To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.
@@ -88,6 +94,8 @@ Everything runs in your browser. Your amounts, dates, and drafts are never uploa
 **Best-effort hosting, no SLA.** These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record. If a tool needs to survive, export your inputs and run it yourself.
 
 Late-fee results are arithmetic scenarios, not a recommendation or a determination that a fee can be charged. Billing-schedule results are arithmetic scenarios from the numbers you enter; they are not a recommendation to ask for or waive a deposit, and not a prediction about any client.
+
+The overdue comparison is arithmetic on recovery odds you type. It does not tell you to settle, escalate, or walk away, and it does not say what a late fee, a settlement, or a collection agency is permitted to do — those vary by jurisdiction and by the contract you signed.
 
 [GitHub Sponsors](https://github.com/sponsors/Duncan-Haywood) is optional and never changes what the tool does.
 
