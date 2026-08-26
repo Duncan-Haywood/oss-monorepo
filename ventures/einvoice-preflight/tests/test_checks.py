@@ -111,6 +111,49 @@ class ChecksTest(unittest.TestCase):
         self.assertIn("INV-018", rules)
         self.assertTrue(any("line tax percentages" in error["message"] for error in errors))
 
+    def test_prepaid_and_due_are_optional_and_must_balance(self):
+        invoice = json.loads(json.dumps(VALID))
+        invoice["totals"]["prepaid"] = 38
+        invoice["totals"]["due"] = 200
+        self.assertEqual(check_invoice(invoice), [])
+
+        invoice["totals"]["due"] = 238
+        errors = check_invoice(invoice)
+        self.assertIn("INV-029", {error["rule"] for error in errors})
+        self.assertEqual(next(error for error in errors if error["rule"] == "INV-029")["path"], "/totals/due")
+
+        invoice = json.loads(json.dumps(VALID))
+        invoice["totals"]["prepaid"] = 300
+        errors = check_invoice(invoice)
+        self.assertIn("INV-028", {error["rule"] for error in errors})
+        self.assertEqual(next(error for error in errors if error["rule"] == "INV-028")["path"], "/totals/prepaid")
+
+        invoice = json.loads(json.dumps(VALID))
+        invoice["totals"]["due"] = 0
+        errors = check_invoice(invoice)
+        self.assertIn("INV-029", {error["rule"] for error in errors})
+        self.assertTrue(any("gross minus prepaid" in error["message"] for error in errors))
+
+    def test_ubl_prepaid_and_payable_map_into_remaining_balance(self):
+        matching = UBL_VALID.replace(
+            b"<cbc:TaxInclusiveAmount>238</cbc:TaxInclusiveAmount>",
+            b"<cbc:TaxInclusiveAmount>238</cbc:TaxInclusiveAmount>"
+            b"<cbc:PrepaidAmount>38</cbc:PrepaidAmount>"
+            b"<cbc:PayableAmount>200</cbc:PayableAmount>",
+        )
+        invoice = parse_ubl_invoice(matching)
+        self.assertEqual(invoice["totals"]["prepaid"], 38)
+        self.assertEqual(invoice["totals"]["due"], 200)
+        self.assertEqual(check_invoice(invoice), [])
+
+        mismatched = UBL_VALID.replace(
+            b"<cbc:TaxInclusiveAmount>238</cbc:TaxInclusiveAmount>",
+            b"<cbc:TaxInclusiveAmount>238</cbc:TaxInclusiveAmount>"
+            b"<cbc:PayableAmount>200</cbc:PayableAmount>",
+        )
+        errors = check_invoice(parse_ubl_invoice(mismatched))
+        self.assertIn("INV-029", {error["rule"] for error in errors})
+
     def test_tax_total_rounds_each_line_to_cents(self):
         invoice = json.loads(json.dumps(VALID))
         invoice["lines"] = [
@@ -118,6 +161,24 @@ class ChecksTest(unittest.TestCase):
             {"description": "B", "quantity": 1, "unit_price": 0.03, "tax_percent": 19, "net": 0.03},
         ]
         invoice["totals"] = {"net": 0.06, "tax": 0.02, "gross": 0.08}
+        self.assertEqual(check_invoice(invoice), [])
+
+    def test_fractional_quantity_is_not_rounded_before_line_calculation(self):
+        invoice = json.loads(json.dumps(VALID))
+        invoice["lines"] = [{
+            "description": "Fabric",
+            "quantity": 1.25,
+            "unit_price": 10,
+            "tax_percent": 19,
+            "net": 12.50,
+        }]
+        invoice["totals"] = {"net": 12.50, "tax": 2.38, "gross": 14.88}
+        self.assertEqual(check_invoice(invoice), [])
+
+    def test_fractional_tax_percentage_is_not_rounded_before_tax_calculation(self):
+        invoice = json.loads(json.dumps(VALID))
+        invoice["lines"][0]["tax_percent"] = 19.5
+        invoice["totals"] = {"net": 200, "tax": 39, "gross": 239}
         self.assertEqual(check_invoice(invoice), [])
 
     def test_line_net_is_required(self):

@@ -9,11 +9,82 @@
 </style></head><body><header><div class="kicker">Decision tool for service operators</div><h1>Does the vendor rate actually save you money?</h1><p>Compare your current cost with supplier discounts, subcontractor rates, or equipment leases at the job volume you really expect.</p></header>
 <main class="grid"><section class="card"><h2>Your current operation</h2><label>Jobs per month<input id="jobs" type="number" min="1" step="1" value="20"></label><label>Revenue per job<input id="revenue" type="number" min="0" step="1" value="500"></label><label>Current fixed cost / month<input id="baseFixed" type="number" min="0" step="1" value="0"></label><label>Current variable cost / job<input id="baseVariable" type="number" min="0" step="1" value="120"></label><div id="scenarioInputs"></div><div class="controls"><button id="add" type="button">Add scenario</button><button id="save" type="button">Save draft</button></div><label class="note"><input id="optout" type="checkbox"> Do not count anonymous local usage events</label></section>
 <section class="card"><div class="hero"><span>Best at this volume</span><strong id="best">Enter costs below</strong><span id="bestNote" class="note"></span></div><div class="results"><table><thead><tr><th>Option</th><th>Monthly cost</th><th>Cost / job</th><th>Savings / job</th><th>Break-even</th></tr></thead><tbody id="results"></tbody></table></div><p class="note">Break-even is an estimate based only on the fixed and per-job costs you enter. Review contracts, taxes, fuel, minimums, and service quality separately.</p></section></main>
-<footer class="note"><p><strong>No warranty.</strong> This tool is free and as-is. It is not financial or business advice and does not replace a qualified professional. Review and verify every output before relying on it. Your data stays in this browser; no inputs are uploaded.</p></footer>
+<footer class="note">
+  <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not financial or business advice, and it does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for meeting any obligation it helps you prepare for. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+  <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record. If a tool needs to survive, export your inputs and run it yourself.</p>
+  <p>Your data stays in this browser; no inputs are uploaded. Free and open source. <a href="https://github.com/sponsors/Duncan-Haywood">GitHub Sponsors</a> is optional and never changes what the tool does.</p>
+</footer>
 <script type="module">
-import { compare } from './calc.mjs'; import { recordUsage, setUsageOptOut } from './usage.mjs';
-const $=id=>document.getElementById(id), money=n=>new Intl.NumberFormat('en-US',{style:'currency',currency:'USD',maximumFractionDigits:0}).format(n); let scenarios=[['Bulk supplier',100,90],['Subcontractor',0,115]];
-function renderInputs(){ $('scenarioInputs').innerHTML=scenarios.map((s,i)=>`<div class="scenario"><label>Scenario ${i+1} name<input data-i="${i}" data-k="name" value="${s[0]}"></label><label>Fixed cost / month<input data-i="${i}" data-k="fixed" type="number" min="0" value="${s[1]}"></label><label>Variable cost / job<input data-i="${i}" data-k="variable" type="number" min="0" value="${s[2]}"></label></div>`).join(''); document.querySelectorAll('#scenarioInputs input').forEach(e=>e.addEventListener('input',()=>{const i=+e.dataset.i,k=e.dataset.k;s[i][k==='name'?0:k==='fixed'?1:2]=k==='name'?e.value:Number(e.value); update()}));}
-function update(){try{const r=compare({jobsPerMonth:+$('jobs').value,revenuePerJob:+$('revenue').value,baseFixedMonthly:+$('baseFixed').value,baseVariablePerJob:+$('baseVariable').value,scenarios:scenarios.map(s=>({name:s[0],fixedMonthly:s[1],variablePerJob:s[2]}))});const rows=[{name:'Current operation',...r.baseline,savingsPerJob:0,breakEvenJobs:null},...r.scenarios];const best=rows.reduce((a,b)=>b.costPerJob<a.costPerJob?b:a);$('best').textContent=best.name;$('bestNote').textContent=`${money(best.costPerJob)} per job at ${r.jobs} jobs/month`;$('results').innerHTML=rows.map(x=>`<tr class="${x===best?'best':''}"><th>${x.name}</th><td>${money(x.monthlyCost)}</td><td>${money(x.costPerJob)}</td><td class="${x.savingsPerJob<0?'danger':''}">${money(x.savingsPerJob)}</td><td>${x.breakEvenJobs === null ? 'Not cheaper' : x.breakEvenJobs === 0 ? 'Already cheaper' : `${x.breakEvenJobs} jobs/mo`}</td></tr>`).join('');}catch(e){$('best').textContent=e.message;$('bestNote').textContent='';$('results').innerHTML='';}}
-['jobs','revenue','baseFixed','baseVariable'].forEach(id=>$(id).addEventListener('input',update));$('add').onclick=()=>{if(scenarios.length<3){scenarios.push(['New scenario',0,0]);renderInputs();update();recordUsage('scenario_added')}};$('save').onclick=()=>{localStorage.setItem('vendor-rate-break-even-draft',JSON.stringify({scenarios, jobs:$('jobs').value,revenue:$('revenue').value,baseFixed:$('baseFixed').value,baseVariable:$('baseVariable').value}));recordUsage('draft_saved');$('save').textContent='Saved';setTimeout(()=>$('save').textContent='Save draft',1000)};$('optout').onchange=()=>setUsageOptOut($('optout').checked);renderInputs();update();recordUsage('comparison_completed');
+import { compare } from './calc.mjs';
+import { recordUsage, setUsageOptOut } from './usage.mjs';
+
+const $ = (id) => document.getElementById(id);
+const money = (n) => new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 }).format(n);
+const escapeHtml = (value) => String(value)
+  .replace(/&/g, '&amp;')
+  .replace(/</g, '&lt;')
+  .replace(/>/g, '&gt;')
+  .replace(/"/g, '&quot;')
+  .replace(/'/g, '&#39;');
+
+let scenarios = [['Bulk supplier', 100, 90], ['Subcontractor', 0, 115]];
+
+function renderInputs() {
+  $('scenarioInputs').innerHTML = scenarios.map((row, i) => `<div class="scenario"><label>Scenario ${i + 1} name<input data-i="${i}" data-k="name" value="${escapeHtml(row[0])}"></label><label>Fixed cost / month<input data-i="${i}" data-k="fixed" type="number" min="0" value="${row[1]}"></label><label>Variable cost / job<input data-i="${i}" data-k="variable" type="number" min="0" value="${row[2]}"></label></div>`).join('');
+  document.querySelectorAll('#scenarioInputs input').forEach((field) => {
+    field.addEventListener('input', () => {
+      const i = Number(field.dataset.i);
+      const key = field.dataset.k;
+      scenarios[i][key === 'name' ? 0 : key === 'fixed' ? 1 : 2] = key === 'name' ? field.value : Number(field.value);
+      update();
+    });
+  });
+}
+
+function update() {
+  try {
+    const result = compare({
+      jobsPerMonth: +$('jobs').value,
+      revenuePerJob: +$('revenue').value,
+      baseFixedMonthly: +$('baseFixed').value,
+      baseVariablePerJob: +$('baseVariable').value,
+      scenarios: scenarios.map((row) => ({ name: row[0], fixedMonthly: row[1], variablePerJob: row[2] })),
+    });
+    const rows = [{ name: 'Current operation', ...result.baseline, savingsPerJob: 0, breakEvenJobs: null }, ...result.scenarios];
+    const best = rows.reduce((a, b) => (b.costPerJob < a.costPerJob ? b : a));
+    $('best').textContent = best.name;
+    $('bestNote').textContent = `${money(best.costPerJob)} per job at ${result.jobs} jobs/month`;
+    $('results').innerHTML = rows.map((row) => `<tr class="${row === best ? 'best' : ''}"><th>${escapeHtml(row.name)}</th><td>${money(row.monthlyCost)}</td><td>${money(row.costPerJob)}</td><td class="${row.savingsPerJob < 0 ? 'danger' : ''}">${money(row.savingsPerJob)}</td><td>${row.breakEvenJobs === null ? 'Not cheaper' : row.breakEvenJobs === 0 ? 'Already cheaper' : `${row.breakEvenJobs} jobs/mo`}</td></tr>`).join('');
+  } catch (error) {
+    $('best').textContent = error.message;
+    $('bestNote').textContent = '';
+    $('results').innerHTML = '';
+  }
+}
+
+['jobs', 'revenue', 'baseFixed', 'baseVariable'].forEach((id) => $(id).addEventListener('input', update));
+$('add').onclick = () => {
+  if (scenarios.length < 3) {
+    scenarios.push(['New scenario', 0, 0]);
+    renderInputs();
+    update();
+    recordUsage('scenario_added');
+  }
+};
+$('save').onclick = () => {
+  localStorage.setItem('vendor-rate-break-even-draft', JSON.stringify({
+    scenarios,
+    jobs: $('jobs').value,
+    revenue: $('revenue').value,
+    baseFixed: $('baseFixed').value,
+    baseVariable: $('baseVariable').value,
+  }));
+  recordUsage('draft_saved');
+  $('save').textContent = 'Saved';
+  setTimeout(() => { $('save').textContent = 'Save draft'; }, 1000);
+};
+$('optout').onchange = () => setUsageOptOut($('optout').checked);
+renderInputs();
+update();
+recordUsage('comparison_completed');
 </script></body></html>
