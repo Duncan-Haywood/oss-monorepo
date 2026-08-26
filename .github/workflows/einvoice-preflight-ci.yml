@@ -35,6 +35,26 @@ jobs:
         with:
           python-version: "3.12"
       - run: PYTHONPATH=src python3 -m unittest discover -s tests
+      # The tests above run from `src` on PYTHONPATH, so they pass even when
+      # packaging is broken. Installing and invoking the console script is what
+      # actually covers the way a user gets the tool.
+      - name: Install package
+        run: python3 -m pip install .
+      - name: Smoke test installed command
+        run: einvoice-preflight examples/valid-invoice.json --format summary
+
+  lint:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ventures/einvoice-preflight
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: python3 -m pip install ruff==0.15.8
+      - run: ruff check src tests
 
   site-test:
     runs-on: ubuntu-latest
@@ -57,4 +77,3 @@ jobs:
       - name: Published pages carry the no-warranty clause
         working-directory: .
         run: node platform/pages/clauses.mjs einvoice-preflight
-
