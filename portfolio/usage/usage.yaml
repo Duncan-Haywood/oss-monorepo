@@ -2709,3 +2709,13 @@ products:
           to price containment, demolition, dry-out, and clearance instead of
           a published mold special. Public URL remains owner-gated; counters
           are local, aggregate, and opt-out.
+  - slug: radon-mitigation-bid-calculator
+    surface: static-page-in-repo
+    readings:
+      - as_of: 2026-08-25
+        signals:
+          live_url_visitors: null
+          local_events_reported: 0
+        note: >-
+          Shipped a local radon mitigation bid calculator with a copyable
+          proposal summary; public URL remains owner-gated.
