@@ -53,7 +53,7 @@ test('finds the item price for a target dollar profit', () => {
 });
 
 test('rejects impossible target profits', () => {
-  assert.throws(() => priceForProfit({ transactionRate: 100 }, 1), /not possible/);
+  assert.throws(() => priceForProfit({ transactionRate: 97 }, 1), /not possible/);
   assert.throws(() => priceForProfit({}, -1), /non-negative/);
 });
 
