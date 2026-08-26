@@ -35,6 +35,14 @@ test('supports a named aggregate event without recording inputs', () => {
   assert.equal(event.proposed_price_compared, 1);
 });
 
+test('records print as an aggregate event', () => {
+  const storage = fakeStorage();
+  recordUsage(storage, false, 'quote_printed');
+  const event = JSON.parse(storage.values.get('window-replacement-bid-usage'));
+  assert.equal(event.quote_printed, 1);
+  assert.equal(Object.hasOwn(event, 'price'), false);
+});
+
 test('stores nothing beyond event counters and the day', () => {
   const storage = fakeStorage();
   recordUsage(storage, false, 'bid_calculated');

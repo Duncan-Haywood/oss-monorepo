@@ -11,6 +11,8 @@ test('calculator page is findable and usable without a build step', () => {
   assert.match(html, /calculateBid/);
   assert.match(html, /Copy quote summary/);
   assert.match(html, /Copy share link/);
+  assert.match(html, /Print quote/);
+  assert.match(html, /@media print/);
   assert.match(html, /<script type="application\/ld\+json">/);
   assert.match(html, /No warranty/);
   assert.match(html, /Nothing leaves your browser/);
