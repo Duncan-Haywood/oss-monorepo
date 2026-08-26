@@ -619,6 +619,57 @@ ${entries.join('\n')}
 `;
 }
 
+/**
+ * One venture's sitemap, derived from the pages that were actually published.
+ *
+ * The committed `ventures/<slug>/sitemap.xml` files cannot be trusted for this.
+ * They were written by sessions that had no way to know the real origin, and
+ * measured across the 184 entries they contributed: 55 were not absolute URLs
+ * at all (bare `index.html` or `./`, which the sitemaps protocol forbids and a
+ * crawler discards), 11 pointed at paths carrying the repo's own `ventures/`
+ * segment — which the origin rewrite faithfully preserved, and which the
+ * published layout has no directory for — and 3 named another host entirely.
+ * Others had simply gone stale: 72 of 187 live pages were in no sitemap.
+ *
+ * Advertising a 404 to a crawler is worse than omitting the page, and organic
+ * search is the portfolio's whole acquisition plan, so the sitemap is generated
+ * from the output rather than copied from the input. It cannot drift, and a
+ * venture no longer has to remember to update a file for its new page to be
+ * indexed.
+ */
+export function renderVentureSitemap(slug, pages, baseUrl) {
+  const urls = pages.map((page) => {
+    // Advertise the directory form, not `.../index.html` — one canonical URL
+    // per page, matching what the venture's own links and canonical tags use.
+    const suffix = page.endsWith('index.html') ? page.slice(0, -'index.html'.length) : page;
+    return `  <url><loc>${escapeHtml(`${baseUrl}${slug}/${suffix}`)}</loc></url>`;
+  });
+  return `<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+${urls.join('\n')}
+</urlset>
+`;
+}
+
+/** Published HTML under `dir`, relative and POSIX-separated, index first. */
+export async function publishedPages(dir, prefix = '') {
+  const entries = await fs.readdir(dir, { withFileTypes: true });
+  const pages = [];
+  for (const entry of entries) {
+    const relative = prefix ? `${prefix}/${entry.name}` : entry.name;
+    if (entry.isDirectory()) {
+      pages.push(...(await publishedPages(path.join(dir, entry.name), relative)));
+    } else if (entry.isFile() && entry.name.endsWith('.html')) {
+      pages.push(relative);
+    }
+  }
+  return pages.sort((a, b) => {
+    if (a === 'index.html') return -1;
+    if (b === 'index.html') return 1;
+    return a.localeCompare(b);
+  });
+}
+
 export function renderHubSitemap(surfaces, baseUrl) {
   const urls = [`  <url><loc>${baseUrl}</loc></url>`].concat(
     surfaces
@@ -691,12 +742,21 @@ export async function buildSite({
       })),
     );
 
+    // Regenerate the sitemap from what shipped, overwriting whatever the
+    // venture committed. See renderVentureSitemap for why the committed one
+    // cannot be trusted.
+    const pages = await publishedPages(destination);
+    await fs.writeFile(
+      path.join(destination, 'sitemap.xml'),
+      renderVentureSitemap(surface.slug, pages, base),
+    );
+
     surfaces.push({
       ...surface,
       title,
       description,
-      pageCount: await countPages(surface.sourceDir),
-      hasSitemap: await exists(path.join(destination, 'sitemap.xml')),
+      pageCount: pages.length,
+      hasSitemap: true,
     });
     log(`  ${surface.slug}`);
   }

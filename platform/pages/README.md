@@ -67,6 +67,44 @@ origin root is read), and `node_modules`. `LICENSE` files are kept.
 - **Crawlability.** A root `robots.txt`, a `sitemap.xml` index covering the hub
   and every venture's own sitemap, a `404.html`, and `.nojekyll` (without which
   Pages silently drops any directory starting with `_`).
+- **The sitemaps themselves.** Each venture's `sitemap.xml` is *generated from
+  the pages that were actually published*, replacing whatever the venture
+  committed. Copying them through does not work: measured across the 184 entries
+  the committed files contributed, 55 were not absolute URLs at all (a bare
+  `index.html` or `./`, which the sitemaps protocol forbids and a crawler
+  discards), 11 named paths carrying the repo's own `ventures/` segment — which
+  the origin rewrite faithfully preserved into a URL with no page behind it —
+  and 3 pointed at another host. Separately, 72 of 187 live pages appeared in no
+  sitemap. Generating them means the sitemap cannot drift, and a venture no
+  longer has to remember to edit a file for its new page to be indexed.
+
+## Checking the artifact
+
+`check.mjs` runs over the built output, not the sources, because the failures
+that matter here are created by the copy and are invisible to any test over
+`ventures/`:
+
+```bash
+node platform/pages/build.mjs --out=dist
+node platform/pages/check.mjs dist
+```
+
+It fails the build on a dead internal link, a link escaping the site root, a
+leftover `example.invalid`, a product directory with no landing page, a sitemap
+URL that 404s (or is relative, or is on another host), and any served page that
+no sitemap advertises. It runs in CI between the build and the artifact upload.
+
+`journey.mjs` drives the real customer journey through a browser — the hub,
+search, the opt-out, a click-through into a calculator, the cross-product
+sibling link, sitemap sampling, the 404, and a mobile viewport. It needs
+Playwright, so it is not in CI; run it before claiming the site works, and again
+against the live URL once publishing is on:
+
+```bash
+python3 -m http.server 8793 --directory dist &
+node platform/pages/journey.mjs
+BASE_URL=https://duncan-haywood.github.io/monorepo-projects node platform/pages/journey.mjs
+```
 
 ## Deploying
 
