@@ -4,10 +4,10 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>eBay Fee &amp; Profit Calculator | Reseller Margin and ROI</title>
-  <meta name="description" content="Calculate eBay order profit, margin, ROI, and break-even resale price after fees, shipping, and cost of goods — then see what a return rate still leaves, whether auction beats Buy It Now after sell-through, and compare nearby listing prices before you reprice.">
+  <meta name="description" content="Calculate eBay order profit, margin, ROI, and break-even resale price after fees, shipping, and cost of goods — then see what a return rate still leaves, whether a partial refund beats taking the return, whether auction beats Buy It Now after sell-through, and compare nearby listing prices before you reprice.">
   <meta property="og:title" content="eBay Fee &amp; Profit Calculator">
-  <meta property="og:description" content="See what an eBay sale really leaves after fees, cost of goods, returns, and auction versus Buy It Now sell-through.">
-  <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"eBay Fee & Profit Calculator","applicationCategory":"BusinessApplication","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"featureList":"eBay fee breakdown, net profit, margin, return on investment, break-even resale price, target-margin price, batch profit, expected profit after returns, auction vs Buy It Now after sell-through, repricing sensitivity table"}</script>
+  <meta property="og:description" content="See what an eBay sale really leaves after fees, cost of goods, returns, a partial refund versus taking the return, and auction versus Buy It Now sell-through.">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"eBay Fee & Profit Calculator","applicationCategory":"BusinessApplication","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"featureList":"eBay fee breakdown, net profit, margin, return on investment, break-even resale price, target-margin price, batch profit, expected profit after returns, partial refund vs take the return, auction vs Buy It Now after sell-through, repricing sensitivity table"}</script>
   <style>
     :root { color-scheme: light; font-family: system-ui, sans-serif; color: #1d2530; background: #eef2f7; }
     body { max-width: 980px; margin: 0 auto; padding: 32px 18px; }
@@ -40,7 +40,7 @@
   <header>
     <p class="eyebrow">FOR EBAY RESELLERS</p>
     <h1>Know what each sale really leaves.</h1>
-    <p>Enter your eBay fees, shipping, and what you paid for the item to see net profit, margin, return on your invested cash, and the lowest resale price that still breaks even. Then see what a realistic return rate still leaves — the outbound label and return postage usually stay with you — whether an auction still beats Buy It Now after sell-through, and nearby listing prices before you reprice.</p>
+    <p>Enter your eBay fees, shipping, and what you paid for the item to see net profit, margin, return on your invested cash, and the lowest resale price that still breaks even. Then see what a realistic return rate still leaves — the outbound label and return postage usually stay with you — whether a partial refund still beats taking that return, whether an auction still beats Buy It Now after sell-through, and nearby listing prices before you reprice.</p>
   </header>
   <main>
     <div class="layout">
@@ -70,6 +70,8 @@
           <label>Buy It Now insertion fee <input id="binInsertionFee" type="number" min="0" step="0.01" value="0"></label>
           <label>Auction insertion fee <input id="auctionInsertionFee" type="number" min="0" step="0.01" value="0"></label>
           <label>Auction promoted listings (%) <input id="auctionPromotedRate" type="number" min="0" step="0.1" value="0"></label>
+          <label>Partial refund you would offer <input id="partialRefundAmount" type="number" min="0" step="0.01" value="15"></label>
+          <label>Buyer cases per month <input id="monthlyCases" type="number" min="0" step="1" value="4"></label>
         </div>
       </section>
       <section class="result">
@@ -132,6 +134,27 @@
       </div>
       <p id="listingFormatEmpty" class="note" hidden>Enter a valid item price to compare auction and Buy It Now.</p>
     </section>
+    <section class="sensitivity" id="partialRefund">
+      <h2>Partial refund vs taking the return</h2>
+      <p id="partialRefundNote" class="note">A buyer case is not the same decision as a return rate. Once they open it you can send a concession and let them keep the item, take the return, or refund the whole order without getting the item back. Percentage fees usually come back on the refunded amount; the outbound label does not. <a href="should-i-offer-a-partial-refund-on-ebay.html">Should I offer a partial refund instead of taking the return?</a></p>
+      <p id="partialRefundVerdict" class="note"></p>
+      <div class="table-scroll">
+        <table id="partialRefundTable" aria-describedby="partialRefundNote">
+          <thead>
+            <tr>
+              <th scope="col">Path</th>
+              <th scope="col">Cash back</th>
+              <th scope="col">Item back?</th>
+              <th scope="col">Fees returned</th>
+              <th scope="col">Keep after this case</th>
+              <th scope="col">vs taking the return</th>
+            </tr>
+          </thead>
+          <tbody id="partialRefundRows"></tbody>
+        </table>
+      </div>
+      <p id="partialRefundEmpty" class="note" hidden>Enter a valid item price to compare a partial refund with taking the return.</p>
+    </section>
   </main>
   <footer>
     <label><input id="usageOptOut" type="checkbox" style="width:auto"> Do not keep anonymous local usage counts</label>
@@ -140,7 +163,7 @@
     <p class="support">Free and open source. If it saves you time, the <a href="https://github.com/Duncan-Haywood/monorepo-projects" rel="noopener">project is on GitHub</a> — support is entirely optional and never changes what the tool does.</p>
   </footer>
   <script type="module">
-    import { calculateOrder, calculateRepricingTable, compareListingFormat, listingFormatNote, INPUT_FIELDS as ids } from './calc.mjs';
+    import { calculateOrder, calculateRepricingTable, compareListingFormat, listingFormatNote, comparePartialRefund, partialRefundNote, INPUT_FIELDS as ids } from './calc.mjs';
     import { recordUsage } from './usage.mjs';
     import { decodeInputs, encodeInputs } from './share.mjs';
     const money = value => `$${value.toFixed(2)}`;
@@ -150,6 +173,7 @@
     // re-count page views, which says nothing about whether anyone used it.
     let sensitivityCounted = false;
     let listingFormatCounted = false;
+    let partialRefundCounted = false;
     let sellerEditedInputs = false;
     function renderScenarios(input) {
       const rows = calculateRepricingTable(input);
@@ -190,6 +214,25 @@
         recordUsage(localStorage, document.getElementById('usageOptOut').checked, 'listing_format_compared');
       }
     }
+    function renderPartialRefund(input) {
+      const comparison = comparePartialRefund(input);
+      document.getElementById('partialRefundRows').innerHTML = comparison.rows.map(row => `
+        <tr class="${comparison.winner === row.id ? 'winner' : ''}">
+          <td>${row.label}${comparison.winner === row.id ? ' (ahead)' : ''}</td>
+          <td>${money(row.cashBack)}</td>
+          <td>${row.itemRecovered ? 'Yes' : 'No'}</td>
+          <td>${money(row.feeReturned)}</td>
+          <td class="${row.kept < 0 ? 'down' : ''}">${money(row.kept)}</td>
+          <td class="${row.vsReturn > 0 ? 'up' : row.vsReturn < 0 ? 'down' : ''}">${row.id === 'return' ? '—' : signedMoney(row.vsReturn)}</td>
+        </tr>`).join('');
+      document.getElementById('partialRefundVerdict').textContent = partialRefundNote(comparison);
+      document.getElementById('partialRefundEmpty').hidden = true;
+      document.getElementById('partialRefundTable').hidden = false;
+      if (sellerEditedInputs && !partialRefundCounted) {
+        partialRefundCounted = true;
+        recordUsage(localStorage, document.getElementById('usageOptOut').checked, 'partial_refund_compared');
+      }
+    }
     function readInputs() { return Object.fromEntries(ids.map(id => [id, document.getElementById(id).value])); }
     function update() {
       try {
@@ -197,6 +240,7 @@
         const result = calculateOrder(input);
         renderScenarios(input);
         renderListingFormat(input);
+        renderPartialRefund(input);
         const profitEl = document.getElementById('profit');
         profitEl.textContent = money(result.profit);
         profitEl.className = `hero-number ${result.profit < 0 ? 'negative' : 'positive'}`;
@@ -235,6 +279,10 @@
         document.getElementById('listingFormatTable').hidden = true;
         document.getElementById('listingFormatEmpty').hidden = false;
         document.getElementById('listingFormatVerdict').textContent = '';
+        document.getElementById('partialRefundRows').innerHTML = '';
+        document.getElementById('partialRefundTable').hidden = true;
+        document.getElementById('partialRefundEmpty').hidden = false;
+        document.getElementById('partialRefundVerdict').textContent = '';
       }
     }
     ids.forEach(id => document.getElementById(id).addEventListener('input', () => { sellerEditedInputs = true; update(); }));
@@ -262,7 +310,7 @@
     }
     ids.forEach(id => document.getElementById(id).addEventListener('change', () => {
       saveInputs();
-      recordUsage(localStorage, document.getElementById('usageOptOut').checked, id === 'targetMargin' ? 'target_margin_calculated' : id === 'quantity' ? 'batch_calculated' : (id === 'returnRatePercent' || id === 'returnShippingCost' || id === 'feeRefundOnReturnPercent') ? 'return_rate_viewed' : 'order_profit_calculated');
+      recordUsage(localStorage, document.getElementById('usageOptOut').checked, id === 'targetMargin' ? 'target_margin_calculated' : id === 'quantity' ? 'batch_calculated' : (id === 'returnRatePercent' || id === 'returnShippingCost' || id === 'feeRefundOnReturnPercent') ? 'return_rate_viewed' : (id === 'partialRefundAmount' || id === 'monthlyCases') ? 'partial_refund_compared' : 'order_profit_calculated');
     }));
     document.getElementById('usageOptOut').addEventListener('change', update);
     const actions = document.createElement('p');

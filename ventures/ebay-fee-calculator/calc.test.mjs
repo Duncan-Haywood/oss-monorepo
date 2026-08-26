@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { calculateOrder, calculatePriceScenarios, calculateRepricingTable, compareListingFormat, listingFormatNote } from './calc.mjs';
+import { calculateOrder, calculatePriceScenarios, calculateRepricingTable, compareListingFormat, listingFormatNote, comparePartialRefund, partialRefundNote, DEFAULT_PARTIAL_REFUND, DEFAULT_MONTHLY_CASES } from './calc.mjs';
 
 const near = (actual, expected, msg) => assert.ok(Math.abs(actual - expected) < 1e-6, `${msg}: ${actual} vs ${expected}`);
 
@@ -301,4 +301,85 @@ test('rejects sell-through above 100% and non-positive listing days', () => {
   assert.throws(() => compareListingFormat({ ...formatBase, binSellThroughPct: 101 }), /at most 100/);
   assert.throws(() => compareListingFormat({ ...formatBase, auctionDays: 0 }), /greater than zero/);
   assert.throws(() => compareListingFormat({ price: -1 }), /Item price/);
+});
+
+const caseBase = {
+  price: 40, shippingCharged: 6, finalValueRate: 13.25, fixedFee: 0.3,
+  costOfGoods: 12, shippingCost: 5, packagingCost: 1, returnShippingCost: 5,
+  feeRefundOnReturnPercent: 100,
+};
+
+test('compares a partial refund against taking the return on the default case', () => {
+  // Completed sale: $46 revenue, $6.395 fees, $18 invested → $21.605 profit.
+  // Return: fees come back, item comes back, $5+$1+$5 postage stays → −$11.
+  // $15 partial: $15 out, $1.9875 FVF back → $21.605 − $15 + $1.9875 = $8.5925.
+  const sold = calculateOrder(caseBase);
+  const comparison = comparePartialRefund(caseBase);
+  near(sold.profit, 21.605, 'completed profit');
+  near(sold.returnProfit, -11, 'return profit');
+  assert.equal(comparison.partialRefund, DEFAULT_PARTIAL_REFUND);
+  assert.equal(comparison.monthlyCases, DEFAULT_MONTHLY_CASES);
+  near(comparison.partial.feeReturned, 15 * 0.1325, 'FVF returned on the concession');
+  near(comparison.partial.kept, 21.605 - 15 + 15 * 0.1325, 'partial keep');
+  near(comparison.takeReturn.kept, -11, 'take-the-return keep');
+  near(comparison.keepItemFull.kept, 21.605 - 46 + 46 * 0.1325, 'full refund they keep');
+  near(comparison.extraKeptOnPartial, comparison.partial.kept - comparison.takeReturn.kept, 'gap vs return');
+  near(comparison.monthlyExtraOnPartial, comparison.extraKeptOnPartial * 4, 'four cases');
+  assert.equal(comparison.winner, 'partial');
+  assert.ok(comparison.partial.kept > comparison.takeReturn.kept, 'partial beats a real return');
+  assert.ok(comparison.takeReturn.kept > comparison.keepItemFull.kept, 'getting the item back beats a full no-return refund');
+});
+
+test('break-even partial matches taking the return', () => {
+  const comparison = comparePartialRefund(caseBase);
+  const atCeiling = comparePartialRefund({ ...caseBase, partialRefundAmount: comparison.breakEvenPartial });
+  near(atCeiling.partial.kept, atCeiling.takeReturn.kept, 'ceiling partial ties the return');
+  assert.ok(comparison.breakEvenPartial > 15, 'default $15 is under the ceiling');
+  near(comparison.breakEvenPartial, (21.605 - (-11)) / (1 - 0.1325), 'closed-form ceiling');
+});
+
+test('a partial above the ceiling makes taking the return win', () => {
+  const comparison = comparePartialRefund({ ...caseBase, partialRefundAmount: 45 });
+  assert.equal(comparison.winner, 'return');
+  assert.ok(comparison.takeReturn.kept > comparison.partial.kept, 'return beats a $45 concession');
+});
+
+test('full refund they keep loses the sourcing cost that a return recovers', () => {
+  const comparison = comparePartialRefund({ ...caseBase, partialRefundAmount: 15 });
+  // Fixed fee stays on a completed-order refund; percentage fees come back.
+  near(comparison.keepItemFull.kept, -0.3 - 18, 'fixed fee plus sunk COGS/postage');
+  assert.equal(comparison.keepItemFull.itemRecovered, false);
+  assert.equal(comparison.takeReturn.itemRecovered, true);
+});
+
+test('promoted-listings fee comes back only on the refunded amount', () => {
+  const comparison = comparePartialRefund({ ...caseBase, promotedRate: 5, partialRefundAmount: 10 });
+  const sold = calculateOrder({ ...caseBase, promotedRate: 5 });
+  near(comparison.partial.feeReturned, 10 * (0.1325 + 0.05), 'FVF + promoted on $10');
+  near(comparison.partial.kept, sold.profit - 10 + 10 * 0.1825, 'keep after promoted-aware concession');
+});
+
+test('unrefunded fees stay on a partial the same way they stay on a return', () => {
+  const comparison = comparePartialRefund({
+    ...caseBase,
+    feeRefundOnReturnPercent: 0,
+    partialRefundAmount: 15,
+  });
+  near(comparison.partial.feeReturned, 0, 'no fee comes back');
+  near(comparison.partial.kept, 21.605 - 15, 'concession with fees kept');
+});
+
+test('partial-refund note names the figures without telling the seller what to do', () => {
+  const comparison = comparePartialRefund(caseBase);
+  const note = partialRefundNote(comparison);
+  assert.match(note, /\$15\.00 partial refund/);
+  assert.match(note, /taking the return at -\$11\.00/);
+  assert.match(note, /partial exceeds about/);
+  assert.doesNotMatch(note, /should offer|must refund|refuse the case/i);
+});
+
+test('rejects a partial larger than the order and a missing comparison', () => {
+  assert.throws(() => comparePartialRefund({ ...caseBase, partialRefundAmount: 46.01 }), /cannot exceed the order total/);
+  assert.throws(() => comparePartialRefund({ ...caseBase, partialRefundAmount: -1 }), /Partial refund/);
+  assert.throws(() => partialRefundNote({}), /missing rows/);
 });

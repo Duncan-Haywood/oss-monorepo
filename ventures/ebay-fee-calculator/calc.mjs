@@ -32,6 +32,8 @@ export const INPUT_FIELDS = [
   'binInsertionFee',
   'auctionInsertionFee',
   'auctionPromotedRate',
+  'partialRefundAmount',
+  'monthlyCases',
 ];
 
 export function calculateOrder(input) {
@@ -326,4 +328,134 @@ export function listingFormatNote(comparison) {
     ? ` Auction expected profit matches Buy It Now if the hammer is about ${money(comparison.breakEvenAuctionClose)}.`
     : ' No auction hammer on these rates can match Buy It Now expected profit.';
   return `${close} ${sold}${hammer}`;
+}
+
+/**
+ * Illustrative “make it right” concession when the seller has not typed
+ * one. Edit it from the amount you would actually offer — not a published
+ * eBay policy. Four cases/month is a placeholder volume, not a forecast.
+ */
+export const DEFAULT_PARTIAL_REFUND = 15;
+export const DEFAULT_MONTHLY_CASES = 4;
+
+function percentFeeTotal(sold) {
+  return sold.fees.finalValue + sold.fees.promoted + sold.fees.international;
+}
+
+function feeReturnedOnAmount(sold, amount) {
+  if (sold.revenue <= 1e-12) return 0;
+  const feeRefundRate = sold.feeRefundOnReturnPercent / 100;
+  return amount * (percentFeeTotal(sold) / sold.revenue) * feeRefundRate;
+}
+
+function keepAfterConcession(sold, amount) {
+  return sold.profit - amount + feeReturnedOnAmount(sold, amount);
+}
+
+/**
+ * Same completed sale, three ways to close a buyer case.
+ *
+ *   - Partial refund, they keep it — send cash, keep the item out.
+ *     Percentage fees usually come back on the refunded amount; the
+ *     per-order fixed fee stays because the order still completed.
+ *   - Take the return — existing returnProfit: item comes back, outbound
+ *     label / pack / return postage stay with you.
+ *   - Full refund, they keep it — eBay sometimes requires this on cheap
+ *     items. You lose the item and the cash. Worse than a real return
+ *     whenever the sourcing cost is still worth recovering.
+ *
+ * Complementary to the return-*rate* mix (expected profit after returns)
+ * and to open eBay work on promoted, store, Best Offer, and international.
+ * Rates are inputs, not eBay case policy.
+ */
+export function comparePartialRefund(input) {
+  const sold = calculateOrder(input);
+  const partialRefund = optionalNumber(input.partialRefundAmount, 'Partial refund', DEFAULT_PARTIAL_REFUND);
+  const monthlyCases = optionalNumber(input.monthlyCases, 'Monthly cases', DEFAULT_MONTHLY_CASES);
+
+  if (partialRefund > sold.revenue + 1e-9) {
+    throw new Error('Partial refund cannot exceed the order total');
+  }
+
+  const partialKept = keepAfterConcession(sold, partialRefund);
+  const returnKept = sold.returnProfit;
+  const keepItemFullKept = keepAfterConcession(sold, sold.revenue);
+
+  const partial = {
+    id: 'partial',
+    label: 'Partial refund, they keep it',
+    cashBack: partialRefund,
+    itemRecovered: false,
+    feeReturned: feeReturnedOnAmount(sold, partialRefund),
+    kept: partialKept,
+  };
+  const takeReturn = {
+    id: 'return',
+    label: 'Take the return',
+    cashBack: sold.revenue,
+    itemRecovered: true,
+    feeReturned: sold.feeTotal * (sold.feeRefundOnReturnPercent / 100),
+    kept: returnKept,
+  };
+  const keepItemFull = {
+    id: 'keep_item_full',
+    label: 'Full refund, they keep it',
+    cashBack: sold.revenue,
+    itemRecovered: false,
+    feeReturned: feeReturnedOnAmount(sold, sold.revenue),
+    kept: keepItemFullKept,
+  };
+
+  const rows = [partial, takeReturn, keepItemFull].map((row) => ({
+    ...row,
+    vsReturn: row.kept - returnKept,
+    vsPartial: row.kept - partialKept,
+  }));
+
+  const maxKept = Math.max(...rows.map((row) => row.kept));
+  const leaders = rows.filter((row) => Math.abs(row.kept - maxKept) < 1e-9);
+  const winner = leaders.length === 1 ? leaders[0].id : 'tie';
+
+  const percentRate = sold.revenue <= 1e-12 ? 0 : percentFeeTotal(sold) / sold.revenue;
+  const feeRefundRate = sold.feeRefundOnReturnPercent / 100;
+  const denom = 1 - percentRate * feeRefundRate;
+  let breakEvenPartial = Infinity;
+  if (denom > 1e-12) {
+    breakEvenPartial = Math.max(0, (sold.profit - returnKept) / denom);
+  }
+
+  return {
+    rows,
+    partial: rows[0],
+    takeReturn: rows[1],
+    keepItemFull: rows[2],
+    completedProfit: sold.profit,
+    returnProfit: returnKept,
+    partialRefund,
+    monthlyCases,
+    extraKeptOnPartial: partialKept - returnKept,
+    extraKeptOnKeepItemFull: keepItemFullKept - returnKept,
+    monthlyExtraOnPartial: (partialKept - returnKept) * monthlyCases,
+    breakEvenPartial,
+    winner,
+  };
+}
+
+export function partialRefundNote(comparison) {
+  if (!comparison?.partial || !comparison?.takeReturn || !comparison?.keepItemFull) {
+    throw new Error('Partial-refund comparison is missing rows');
+  }
+  const money = (value) => {
+    const sign = value < 0 ? '-' : '';
+    return `${sign}$${Math.abs(value).toFixed(2)}`;
+  };
+  const { partial, takeReturn, keepItemFull } = comparison;
+  const gap = money(Math.abs(partial.kept - takeReturn.kept));
+  const ahead = partial.kept >= takeReturn.kept ? 'more' : 'less';
+  const caseLine = `A ${money(partial.cashBack)} partial refund, with the buyer keeping the item, leaves ${money(partial.kept)} — ${gap} ${ahead} than taking the return at ${money(takeReturn.kept)}.`;
+  const fullLine = `Refunding the whole order and letting them keep it leaves ${money(keepItemFull.kept)}.`;
+  const ceiling = Number.isFinite(comparison.breakEvenPartial)
+    ? ` Taking the return starts to win once the partial exceeds about ${money(comparison.breakEvenPartial)}.`
+    : ' No partial on these rates can match taking the return.';
+  return `${caseLine} ${fullLine}${ceiling}`;
 }

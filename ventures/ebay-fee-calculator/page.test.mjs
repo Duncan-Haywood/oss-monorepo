@@ -34,7 +34,9 @@ test('the listing-format table has one cell per column and a counted event', () 
   assert.match(page, /listing_format_compared/);
   assert.match(page, /should-i-list-ebay-auction-or-buy-it-now\.html/);
   assert.match(page, /"featureList":\s*"[^"]*auction vs Buy It Now/);
-  const headerBlock = page.slice(page.indexOf('id="listingFormatTable"'));
+  const listingStart = page.indexOf('id="listingFormatTable"');
+  const listingEnd = page.indexOf('id="partialRefund"', listingStart);
+  const headerBlock = page.slice(listingStart, listingEnd === -1 ? undefined : listingEnd);
   const headers = [...headerBlock.matchAll(/<th scope="col">([^<]+)<\/th>/g)].map((m) => m[1]);
   assert.deepEqual(headers, [
     'Format',
@@ -52,4 +54,23 @@ test('the auction article answers the search question and points back at the cal
   assert.match(formatArticle, /href="\.\/#listingFormat"/);
   assert.match(formatArticle, /No warranty/);
   assert.match(formatArticle, /Best-effort hosting, no SLA/);
+});
+
+test('the partial-refund table has one cell per column and a counted event', () => {
+  assert.match(page, /comparePartialRefund/);
+  assert.match(page, /id="partialRefund"/);
+  assert.match(page, /id="partialRefundVerdict"/);
+  assert.match(page, /partial_refund_compared/);
+  assert.match(page, /should-i-offer-a-partial-refund-on-ebay\.html/);
+  assert.match(page, /"featureList":\s*"[^"]*partial refund vs take the return/);
+  const headerBlock = page.slice(page.indexOf('id="partialRefundTable"'));
+  const headers = [...headerBlock.matchAll(/<th scope="col">([^<]+)<\/th>/g)].map((m) => m[1]);
+  assert.deepEqual(headers, [
+    'Path',
+    'Cash back',
+    'Item back?',
+    'Fees returned',
+    'Keep after this case',
+    'vs taking the return',
+  ]);
 });
