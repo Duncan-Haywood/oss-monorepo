@@ -4,6 +4,7 @@ const NUMERIC_FIELDS = [
   "price", "shippingCharged", "paymentsRate", "paymentsFixed", "shopifyTxnRate",
   "processorRate", "processorFixed", "costOfGoods", "shippingCost", "packagingCost",
   "otherCost", "monthlyPlan", "monthlyOrders", "targetMargin",
+  "percentOff", "amountOff",
 ];
 
 function toBase64Url(value) {

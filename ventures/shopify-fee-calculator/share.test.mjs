@@ -1,11 +1,13 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
+import { readFileSync } from "node:fs";
 import { decodeShareState, encodeShareState } from "./share.mjs";
 
 const input = {
   price: "48", shippingCharged: "6", paymentsRate: "2.9", paymentsFixed: "0.3", shopifyTxnRate: "2",
   processorRate: "3.49", processorFixed: "0.49", costOfGoods: "14", shippingCost: "5", packagingCost: "1",
-  otherCost: "0", monthlyPlan: "39", monthlyOrders: "100", targetMargin: "40", paymentMethod: "third_party",
+  otherCost: "0", monthlyPlan: "39", monthlyOrders: "100", targetMargin: "40",
+  percentOff: "10", amountOff: "10", paymentMethod: "third_party",
 };
 
 test("share state round-trips as validated numeric inputs", () => {
@@ -13,6 +15,8 @@ test("share state round-trips as validated numeric inputs", () => {
   assert.equal(restored.price, 48);
   assert.equal(restored.paymentMethod, "third_party");
   assert.equal(restored.targetMargin, 40);
+  assert.equal(restored.percentOff, 10);
+  assert.equal(restored.amountOff, 10);
 });
 
 test("rejects malformed, extra-field, and invalid share states", () => {
@@ -24,4 +28,12 @@ test("rejects malformed, extra-field, and invalid share states", () => {
   const tampered = btoa(JSON.stringify(decoded)).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
   assert.throws(() => decodeShareState(tampered), /Invalid shared/);
   assert.throws(() => encodeShareState({ ...input, targetMargin: 100 }), /invalid calculator inputs/);
+});
+
+test("the order page wires share and summary copy", () => {
+  const html = readFileSync(new URL("./index.html", import.meta.url), "utf8");
+  assert.match(html, /Copy share link/);
+  assert.match(html, /Copy order summary/);
+  assert.match(html, /encodeShareState/);
+  assert.match(html, /decodeShareState/);
 });
