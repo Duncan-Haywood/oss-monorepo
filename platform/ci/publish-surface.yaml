@@ -124,6 +124,9 @@ workflows:
 - workflow: contractor-bid-readiness-ci.yml
   classification: none
   publishes: []
+- workflow: cra-evidence-desk-ci.yml
+  classification: none
+  publishes: []
 - workflow: crawl-space-encapsulation-bid-calculator-ci.yml
   classification: none
   publishes: []
@@ -140,6 +143,9 @@ workflows:
   classification: none
   publishes: []
 - workflow: demand-signal-reachability-ci.yml
+  classification: none
+  publishes: []
+- workflow: dryer-vent-bid-calculator-ci.yml
   classification: none
   publishes: []
 - workflow: duct-cleaning-bid-calculator-ci.yml
