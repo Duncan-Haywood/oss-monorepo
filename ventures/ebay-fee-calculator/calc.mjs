@@ -69,6 +69,16 @@ export const INPUT_FIELDS = [
   'trackedSellThroughPct',
   'envelopeSellThroughPct',
   'monthlyEnvelopeListings',
+  'trsDiscountPct',
+  'standardSellThroughPct',
+  'trsSellThroughPct',
+  'standardReturnRatePercent',
+  'trsReturnRatePercent',
+  'standardReturnShippingCost',
+  'trsReturnShippingCost',
+  'trsHandlingMinutes',
+  'trsHandlingWage',
+  'monthlyTrsListings',
 ];
 
 export function calculateOrder(input) {
@@ -1384,4 +1394,241 @@ export function standardEnvelopeNote(comparison) {
     ? ` Claims have to stay at about ${comparison.breakEvenClaimRate.toFixed(1)}% before the envelope matches the tracked label.`
     : ' No claim rate on these postage figures can match the tracked label.';
   return `${trackedLine} ${envelopeLine}${claim}`;
+}
+
+/**
+ * Illustrative Top Rated Plus defaults. A $40 shipped sale still
+ * usually keeps more under buyer-paid returns than under free
+ * returns plus a 10% final-value discount: the extra return labels
+ * and 1-day handling eat the fee save. The high-ticket case is the
+ * one that flips. Discount, rates, and the wage are inputs, not a
+ * published eBay Top Rated schedule.
+ */
+export const DEFAULT_TRS_DISCOUNT_PCT = 10;
+export const DEFAULT_STANDARD_SELL_THROUGH = 60;
+export const DEFAULT_TRS_SELL_THROUGH = 75;
+export const DEFAULT_STANDARD_RETURN_RATE = 8;
+export const DEFAULT_TRS_RETURN_RATE = 16;
+export const DEFAULT_STANDARD_RETURN_SHIPPING = 0;
+export const DEFAULT_TRS_RETURN_SHIPPING = 5;
+export const DEFAULT_TRS_HANDLING_MINUTES = 8;
+export const DEFAULT_TRS_HANDLING_WAGE = 18;
+export const DEFAULT_MONTHLY_TRS_LISTINGS = 40;
+
+function topRatedRow({
+  id,
+  label,
+  sellThroughPct,
+  returnRatePercent,
+  returnShippingCost,
+  finalValueRate,
+  handlingCost,
+  soldExpectedProfit,
+  completedProfit,
+  expectedProfit,
+}) {
+  return {
+    id,
+    label,
+    sellThroughPct,
+    returnRatePercent,
+    returnShippingCost,
+    finalValueRate,
+    handlingCost,
+    soldExpectedProfit,
+    completedProfit,
+    expectedProfit,
+    expectedProfitDelta: 0,
+  };
+}
+
+/**
+ * Same SKU, listed under a standard return policy or as Top Rated
+ * Plus style: seller-paid returns, faster handling, a typed
+ * final-value discount, and a badge sell-through lift.
+ *
+ *   - Stay standard — typed standard return rate and return postage
+ *     (defaults: buyer pays the label). Full final-value rate. No
+ *     extra 1-day handling time.
+ *   - Top Rated Plus — final-value rate reduced by the typed
+ *     discount, seller-paid return labels, a higher return rate,
+ *     extra handling minutes on every sale, and a higher
+ *     sell-through from the badge.
+ *
+ * Expected listing profit is completed-sale expected profit times
+ * sell-through, minus handling paid on the sales you actually pack.
+ * Complementary to the return-*rate* mix (one postage), partial vs
+ * take-the-return (one case), Managed Returns (who buys the label),
+ * Standard Envelope (claim vs return), and local pickup (no
+ * shipping). Open eBay PRs still own promoted, store, Best Offer,
+ * international, and Managed Returns. Discount and rates are
+ * inputs, not eBay Top Rated policy.
+ */
+export function compareTopRatedPlus(input) {
+  const listedPrice = optionalNumber(input.price, 'Item price');
+  if (listedPrice === undefined) {
+    throw new Error('Item price must be a non-negative number');
+  }
+
+  const discountPct = requiredPercent(
+    input.trsDiscountPct,
+    'Top Rated final-value discount',
+    DEFAULT_TRS_DISCOUNT_PCT,
+  );
+  const standardSellThrough = requiredPercent(
+    input.standardSellThroughPct,
+    'Standard sell-through',
+    DEFAULT_STANDARD_SELL_THROUGH,
+  );
+  const trsSellThrough = requiredPercent(
+    input.trsSellThroughPct,
+    'Top Rated sell-through',
+    DEFAULT_TRS_SELL_THROUGH,
+  );
+  const standardReturnRate = requiredPercent(
+    input.standardReturnRatePercent,
+    'Standard return rate',
+    DEFAULT_STANDARD_RETURN_RATE,
+  );
+  const trsReturnRate = requiredPercent(
+    input.trsReturnRatePercent,
+    'Top Rated return rate',
+    DEFAULT_TRS_RETURN_RATE,
+  );
+  const standardReturnShip = optionalNumber(
+    input.standardReturnShippingCost,
+    'Standard return shipping',
+    DEFAULT_STANDARD_RETURN_SHIPPING,
+  );
+  const trsReturnShip = optionalNumber(
+    input.trsReturnShippingCost,
+    'Top Rated return shipping',
+    DEFAULT_TRS_RETURN_SHIPPING,
+  );
+  const minutes = optionalNumber(
+    input.trsHandlingMinutes,
+    'Top Rated handling minutes',
+    DEFAULT_TRS_HANDLING_MINUTES,
+  );
+  const wage = optionalNumber(
+    input.trsHandlingWage,
+    'Top Rated handling wage',
+    DEFAULT_TRS_HANDLING_WAGE,
+  );
+  const monthlyListings = optionalNumber(
+    input.monthlyTrsListings,
+    'Monthly Top Rated listings',
+    DEFAULT_MONTHLY_TRS_LISTINGS,
+  );
+
+  const listedFvf = optionalNumber(input.finalValueRate, 'Final value fee rate', 13.25);
+  const discountedFvf = listedFvf * (1 - discountPct / 100);
+  const handlingCost = (minutes / 60) * wage;
+
+  const standardSold = calculateOrder({
+    ...input,
+    returnRatePercent: standardReturnRate,
+    returnShippingCost: standardReturnShip,
+  });
+  const trsSold = calculateOrder({
+    ...input,
+    finalValueRate: discountedFvf,
+    returnRatePercent: trsReturnRate,
+    returnShippingCost: trsReturnShip,
+  });
+
+  const standardExpected = standardSold.expectedProfit * (standardSellThrough / 100);
+  const trsExpected = (trsSold.expectedProfit - handlingCost) * (trsSellThrough / 100);
+
+  const standard = topRatedRow({
+    id: 'standard',
+    label: 'Stay standard',
+    sellThroughPct: standardSellThrough,
+    returnRatePercent: standardReturnRate,
+    returnShippingCost: standardReturnShip,
+    finalValueRate: listedFvf,
+    handlingCost: 0,
+    soldExpectedProfit: standardSold.expectedProfit,
+    completedProfit: standardSold.profit,
+    expectedProfit: standardExpected,
+  });
+  const topRated = topRatedRow({
+    id: 'topRated',
+    label: 'Top Rated Plus',
+    sellThroughPct: trsSellThrough,
+    returnRatePercent: trsReturnRate,
+    returnShippingCost: trsReturnShip,
+    finalValueRate: discountedFvf,
+    handlingCost,
+    soldExpectedProfit: trsSold.expectedProfit,
+    completedProfit: trsSold.profit,
+    expectedProfit: trsExpected,
+  });
+  standard.expectedProfitDelta = standard.expectedProfit - topRated.expectedProfit;
+  topRated.expectedProfitDelta = topRated.expectedProfit - standard.expectedProfit;
+
+  const winner = topRated.expectedProfit > standard.expectedProfit + 1e-9
+    ? 'topRated'
+    : topRated.expectedProfit < standard.expectedProfit - 1e-9
+      ? 'standard'
+      : 'tie';
+
+  let breakEvenTrsSellThrough = Infinity;
+  const trsPerSale = trsSold.expectedProfit - handlingCost;
+  if (trsPerSale > 1e-12) {
+    const needed = standard.expectedProfit / trsPerSale * 100;
+    breakEvenTrsSellThrough = needed > 100 + 1e-9 ? Infinity : Math.max(0, needed);
+  }
+
+  let breakEvenTrsReturnRate = Infinity;
+  const trsStFrac = trsSellThrough / 100;
+  if (trsStFrac > 1e-12) {
+    const targetSold = standard.expectedProfit / trsStFrac + handlingCost;
+    const gap = trsSold.profit - trsSold.returnProfit;
+    if (Math.abs(gap) > 1e-12) {
+      const needed = (trsSold.profit - targetSold) / gap * 100;
+      breakEvenTrsReturnRate = needed < -1e-9 || needed > 100 + 1e-9
+        ? Infinity
+        : Math.max(0, Math.min(100, needed));
+    }
+  }
+
+  const fvfSave = standardSold.fees.finalValue - trsSold.fees.finalValue;
+
+  return {
+    rows: [standard, topRated],
+    standard,
+    topRated,
+    winner,
+    discountPct,
+    discountedFvf,
+    handlingCost,
+    fvfSave,
+    monthlyListings,
+    extraKeptOnTopRated: topRated.expectedProfit - standard.expectedProfit,
+    monthlyExtraOnTopRated: (topRated.expectedProfit - standard.expectedProfit) * monthlyListings,
+    breakEvenTrsSellThrough,
+    breakEvenTrsReturnRate,
+    standardCompletedProfit: standardSold.profit,
+    topRatedCompletedProfit: trsSold.profit,
+  };
+}
+
+export function topRatedPlusNote(comparison) {
+  if (!comparison?.standard || !comparison?.topRated) {
+    throw new Error('Top Rated Plus comparison is missing rows');
+  }
+  const money = (value) => {
+    const sign = value < 0 ? '-' : '';
+    return `${sign}$${Math.abs(value).toFixed(2)}`;
+  };
+  const { standard, topRated } = comparison;
+  const gap = money(Math.abs(topRated.expectedProfit - standard.expectedProfit));
+  const ahead = topRated.expectedProfit >= standard.expectedProfit ? 'more' : 'less';
+  const standardLine = `Staying standard at ${standard.sellThroughPct}% sell-through and a ${standard.returnRatePercent}% return rate, with ${money(standard.returnShippingCost)} return postage, expects ${money(standard.expectedProfit)}.`;
+  const trsLine = `Top Rated Plus at a ${comparison.discountPct}% final-value discount, ${topRated.sellThroughPct}% sell-through, a ${topRated.returnRatePercent}% return rate, ${money(topRated.returnShippingCost)} seller-paid return postage, and ${money(comparison.handlingCost)} of 1-day handling expects ${money(topRated.expectedProfit)} — ${gap} ${ahead}.`;
+  const ceiling = Number.isFinite(comparison.breakEvenTrsReturnRate)
+    ? ` Free returns can rise to about ${comparison.breakEvenTrsReturnRate.toFixed(1)}% before Top Rated Plus matches staying standard.`
+    : ' No free-return rate on these sell-throughs can match staying standard.';
+  return `${standardLine} ${trsLine}${ceiling}`;
 }

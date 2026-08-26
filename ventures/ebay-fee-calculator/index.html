@@ -4,10 +4,10 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>eBay Fee &amp; Profit Calculator | Reseller Margin and ROI</title>
-  <meta name="description" content="Calculate eBay order profit, margin, ROI, and break-even resale price after fees, shipping, and cost of goods — then see what a return rate still leaves, whether a partial refund beats taking the return, whether Authenticity Guarantee still pays after the hub label, whether local pickup still beats the label after no-shows, whether keeping a lot still beats splitting it into singles, whether a Standard Envelope still beats a tracked label after item-not-received claims, whether auction beats Buy It Now after sell-through, and compare nearby listing prices before you reprice.">
+  <meta name="description" content="Calculate eBay order profit, margin, ROI, and break-even resale price after fees, shipping, and cost of goods — then see what a return rate still leaves, whether a partial refund beats taking the return, whether Authenticity Guarantee still pays after the hub label, whether local pickup still beats the label after no-shows, whether keeping a lot still beats splitting it into singles, whether a Standard Envelope still beats a tracked label after item-not-received claims, whether Top Rated Plus still pays after free returns, whether auction beats Buy It Now after sell-through, and compare nearby listing prices before you reprice.">
   <meta property="og:title" content="eBay Fee &amp; Profit Calculator">
-  <meta property="og:description" content="See what an eBay sale really leaves after fees, cost of goods, returns, a partial refund versus taking the return, Authenticity Guarantee versus skip-AG, local pickup versus the label, a lot versus individual listings, Standard Envelope versus a tracked label, and auction versus Buy It Now sell-through.">
-  <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"eBay Fee & Profit Calculator","applicationCategory":"BusinessApplication","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"featureList":"eBay fee breakdown, net profit, margin, return on investment, break-even resale price, target-margin price, batch profit, expected profit after returns, partial refund vs take the return, Authenticity Guarantee vs skip-AG after sell-through, local pickup vs ship after no-shows, lot vs individual listings after sell-through, Standard Envelope vs tracked label after item-not-received claims, auction vs Buy It Now after sell-through, repricing sensitivity table"}</script>
+  <meta property="og:description" content="See what an eBay sale really leaves after fees, cost of goods, returns, a partial refund versus taking the return, Authenticity Guarantee versus skip-AG, local pickup versus the label, a lot versus individual listings, Standard Envelope versus a tracked label, Top Rated Plus versus staying standard, and auction versus Buy It Now sell-through.">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"eBay Fee & Profit Calculator","applicationCategory":"BusinessApplication","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"featureList":"eBay fee breakdown, net profit, margin, return on investment, break-even resale price, target-margin price, batch profit, expected profit after returns, partial refund vs take the return, Authenticity Guarantee vs skip-AG after sell-through, local pickup vs ship after no-shows, lot vs individual listings after sell-through, Standard Envelope vs tracked label after item-not-received claims, Top Rated Plus vs stay standard after free returns, auction vs Buy It Now after sell-through, repricing sensitivity table"}</script>
   <style>
     :root { color-scheme: light; font-family: system-ui, sans-serif; color: #1d2530; background: #eef2f7; }
     body { max-width: 980px; margin: 0 auto; padding: 32px 18px; }
@@ -40,7 +40,7 @@
   <header>
     <p class="eyebrow">FOR EBAY RESELLERS</p>
     <h1>Know what each sale really leaves.</h1>
-    <p>Enter your eBay fees, shipping, and what you paid for the item to see net profit, margin, return on your invested cash, and the lowest resale price that still breaks even. Then see what a realistic return rate still leaves — the outbound label and return postage usually stay with you — whether a partial refund still beats taking that return, whether Authenticity Guarantee still pays after the hub label, whether local pickup still beats the label after no-shows and meetup time, whether keeping a lot still beats splitting it into singles after five labels and listing time, whether a Standard Envelope still beats a tracked label after item-not-received claims, whether an auction still beats Buy It Now after sell-through, and nearby listing prices before you reprice.</p>
+    <p>Enter your eBay fees, shipping, and what you paid for the item to see net profit, margin, return on your invested cash, and the lowest resale price that still breaks even. Then see what a realistic return rate still leaves — the outbound label and return postage usually stay with you — whether a partial refund still beats taking that return, whether Authenticity Guarantee still pays after the hub label, whether local pickup still beats the label after no-shows and meetup time, whether keeping a lot still beats splitting it into singles after five labels and listing time, whether a Standard Envelope still beats a tracked label after item-not-received claims, whether Top Rated Plus still pays after free returns and 1-day handling, whether an auction still beats Buy It Now after sell-through, and nearby listing prices before you reprice.</p>
   </header>
   <main>
     <div class="layout">
@@ -107,6 +107,16 @@
           <label>Tracked sell-through (%) <input id="trackedSellThroughPct" type="number" min="0" max="100" step="1" value="90"></label>
           <label>Envelope sell-through (%) <input id="envelopeSellThroughPct" type="number" min="0" max="100" step="1" value="85"></label>
           <label>Envelope listings per month <input id="monthlyEnvelopeListings" type="number" min="0" step="1" value="40"></label>
+          <label>Top Rated FVF discount (%) <input id="trsDiscountPct" type="number" min="0" max="100" step="0.1" value="10"></label>
+          <label>Standard sell-through (%) <input id="standardSellThroughPct" type="number" min="0" max="100" step="1" value="60"></label>
+          <label>Top Rated sell-through (%) <input id="trsSellThroughPct" type="number" min="0" max="100" step="1" value="75"></label>
+          <label>Standard return rate (%) <input id="standardReturnRatePercent" type="number" min="0" max="100" step="0.1" value="8"></label>
+          <label>Top Rated return rate (%) <input id="trsReturnRatePercent" type="number" min="0" max="100" step="0.1" value="16"></label>
+          <label>Standard return shipping <input id="standardReturnShippingCost" type="number" min="0" step="0.01" value="0"></label>
+          <label>Top Rated return shipping <input id="trsReturnShippingCost" type="number" min="0" step="0.01" value="5"></label>
+          <label>1-day handling minutes <input id="trsHandlingMinutes" type="number" min="0" step="1" value="8"></label>
+          <label>Handling hourly wage <input id="trsHandlingWage" type="number" min="0" step="0.01" value="18"></label>
+          <label>Top Rated listings per month <input id="monthlyTrsListings" type="number" min="0" step="1" value="40"></label>
         </div>
       </section>
       <section class="result">
@@ -278,6 +288,28 @@
       </div>
       <p id="standardEnvelopeEmpty" class="note" hidden>Enter a valid item price to compare Standard Envelope with a tracked label.</p>
     </section>
+    <section class="sensitivity" id="topRatedPlus">
+      <h2>Top Rated Plus vs staying standard</h2>
+      <p id="topRatedPlusNote" class="note">Top Rated Plus is not the same decision as a return rate or a one-case concession. You take a typed final-value discount and a badge sell-through lift, then pay seller-paid return labels, a higher return rate, and 1-day handling time on every sale. The table keeps the original sale, then drops the final-value rate and multiplies by sell-through. Discount and rates are inputs, not eBay’s Top Rated schedule. <a href="is-ebay-top-rated-plus-worth-it.html">Is eBay Top Rated Plus worth it?</a></p>
+      <p id="topRatedPlusVerdict" class="note"></p>
+      <div class="table-scroll">
+        <table id="topRatedPlusTable" aria-describedby="topRatedPlusNote">
+          <thead>
+            <tr>
+              <th scope="col">Path</th>
+              <th scope="col">Sell-through</th>
+              <th scope="col">Return rate</th>
+              <th scope="col">Handling</th>
+              <th scope="col">If it sells</th>
+              <th scope="col">Expected after sell-through</th>
+              <th scope="col">vs standard</th>
+            </tr>
+          </thead>
+          <tbody id="topRatedPlusRows"></tbody>
+        </table>
+      </div>
+      <p id="topRatedPlusEmpty" class="note" hidden>Enter a valid item price to compare Top Rated Plus with staying standard.</p>
+    </section>
   </main>
   <footer>
     <label><input id="usageOptOut" type="checkbox" style="width:auto"> Do not keep anonymous local usage counts</label>
@@ -286,7 +318,7 @@
     <p class="support">Free and open source. If it saves you time, the <a href="https://github.com/Duncan-Haywood/monorepo-projects" rel="noopener">project is on GitHub</a> — support is entirely optional and never changes what the tool does.</p>
   </footer>
   <script type="module">
-    import { calculateOrder, calculateRepricingTable, compareListingFormat, listingFormatNote, comparePartialRefund, partialRefundNote, compareAuthenticity, authenticityNote, compareLocalPickup, localPickupNote, compareLotVsSingles, lotVsSinglesNote, compareStandardEnvelope, standardEnvelopeNote, INPUT_FIELDS as ids } from './calc.mjs';
+    import { calculateOrder, calculateRepricingTable, compareListingFormat, listingFormatNote, comparePartialRefund, partialRefundNote, compareAuthenticity, authenticityNote, compareLocalPickup, localPickupNote, compareLotVsSingles, lotVsSinglesNote, compareStandardEnvelope, standardEnvelopeNote, compareTopRatedPlus, topRatedPlusNote, INPUT_FIELDS as ids } from './calc.mjs';
     import { recordUsage } from './usage.mjs';
     import { decodeInputs, encodeInputs } from './share.mjs';
     const money = value => `$${value.toFixed(2)}`;
@@ -301,6 +333,7 @@
     let localPickupCounted = false;
     let lotVsSinglesCounted = false;
     let standardEnvelopeCounted = false;
+    let topRatedPlusCounted = false;
     let sellerEditedInputs = false;
     function renderScenarios(input) {
       const rows = calculateRepricingTable(input);
@@ -420,6 +453,26 @@
         recordUsage(localStorage, document.getElementById('usageOptOut').checked, 'standard_envelope_compared');
       }
     }
+    function renderTopRatedPlus(input) {
+      const comparison = compareTopRatedPlus(input);
+      document.getElementById('topRatedPlusRows').innerHTML = comparison.rows.map(row => `
+        <tr class="${comparison.winner === row.id ? 'winner' : ''}">
+          <td>${row.label}${comparison.winner === row.id ? ' (ahead)' : ''}</td>
+          <td>${row.sellThroughPct}%</td>
+          <td>${row.returnRatePercent}%</td>
+          <td>${money(row.handlingCost)}</td>
+          <td class="${row.soldExpectedProfit < 0 ? 'down' : ''}">${money(row.soldExpectedProfit)}</td>
+          <td class="${row.expectedProfit < 0 ? 'down' : ''}">${money(row.expectedProfit)}</td>
+          <td class="${row.expectedProfitDelta > 0 ? 'up' : row.expectedProfitDelta < 0 ? 'down' : ''}">${row.id === 'standard' ? '—' : signedMoney(row.expectedProfitDelta)}</td>
+        </tr>`).join('');
+      document.getElementById('topRatedPlusVerdict').textContent = topRatedPlusNote(comparison);
+      document.getElementById('topRatedPlusEmpty').hidden = true;
+      document.getElementById('topRatedPlusTable').hidden = false;
+      if (sellerEditedInputs && !topRatedPlusCounted) {
+        topRatedPlusCounted = true;
+        recordUsage(localStorage, document.getElementById('usageOptOut').checked, 'top_rated_plus_compared');
+      }
+    }
     function renderAuthenticity(input) {
       const comparison = compareAuthenticity(input);
       document.getElementById('authenticityRows').innerHTML = comparison.rows.map(row => `
@@ -452,6 +505,7 @@
         renderLocalPickup(input);
         renderLotVsSingles(input);
         renderStandardEnvelope(input);
+        renderTopRatedPlus(input);
         const profitEl = document.getElementById('profit');
         profitEl.textContent = money(result.profit);
         profitEl.className = `hero-number ${result.profit < 0 ? 'negative' : 'positive'}`;
@@ -510,6 +564,10 @@
         document.getElementById('standardEnvelopeTable').hidden = true;
         document.getElementById('standardEnvelopeEmpty').hidden = false;
         document.getElementById('standardEnvelopeVerdict').textContent = '';
+        document.getElementById('topRatedPlusRows').innerHTML = '';
+        document.getElementById('topRatedPlusTable').hidden = true;
+        document.getElementById('topRatedPlusEmpty').hidden = false;
+        document.getElementById('topRatedPlusVerdict').textContent = '';
       }
     }
     ids.forEach(id => document.getElementById(id).addEventListener('input', () => { sellerEditedInputs = true; update(); }));
@@ -537,7 +595,7 @@
     }
     ids.forEach(id => document.getElementById(id).addEventListener('change', () => {
       saveInputs();
-      recordUsage(localStorage, document.getElementById('usageOptOut').checked, id === 'targetMargin' ? 'target_margin_calculated' : id === 'quantity' ? 'batch_calculated' : (id === 'returnRatePercent' || id === 'returnShippingCost' || id === 'feeRefundOnReturnPercent') ? 'return_rate_viewed' : (id === 'partialRefundAmount' || id === 'monthlyCases') ? 'partial_refund_compared' : (id === 'authenticityFeeRate' || id === 'authenticityExtraShip' || id === 'withoutAgSellThroughPct' || id === 'authenticitySellThroughPct' || id === 'authenticityReturnRatePercent' || id === 'monthlyAgListings') ? 'authenticity_compared' : (id === 'shipSellThroughPct' || id === 'pickupSellThroughPct' || id === 'pickupNoShowPct' || id === 'pickupMinutes' || id === 'pickupHourlyWage' || id === 'pickupFeeCharged' || id === 'pickupPackagingCost' || id === 'pickupReturnRatePercent' || id === 'monthlyPickupListings') ? 'local_pickup_compared' : (id === 'lotPieceCount' || id === 'singleExpectedPrice' || id === 'lotSellThroughPct' || id === 'singleSellThroughPct' || id === 'lotInsertionFee' || id === 'singleInsertionFee' || id === 'singleShippingCharged' || id === 'singleShippingCost' || id === 'singlePackagingCost' || id === 'lotListingMinutes' || id === 'singleListingMinutes' || id === 'lotListingWage' || id === 'monthlyLotDecisions') ? 'lot_vs_singles_compared' : (id === 'envelopeShippingCost' || id === 'envelopePackagingCost' || id === 'envelopeClaimRatePercent' || id === 'envelopeFeeRefundOnClaimPercent' || id === 'trackedSellThroughPct' || id === 'envelopeSellThroughPct' || id === 'monthlyEnvelopeListings') ? 'standard_envelope_compared' : 'order_profit_calculated');
+      recordUsage(localStorage, document.getElementById('usageOptOut').checked, id === 'targetMargin' ? 'target_margin_calculated' : id === 'quantity' ? 'batch_calculated' : (id === 'returnRatePercent' || id === 'returnShippingCost' || id === 'feeRefundOnReturnPercent') ? 'return_rate_viewed' : (id === 'partialRefundAmount' || id === 'monthlyCases') ? 'partial_refund_compared' : (id === 'authenticityFeeRate' || id === 'authenticityExtraShip' || id === 'withoutAgSellThroughPct' || id === 'authenticitySellThroughPct' || id === 'authenticityReturnRatePercent' || id === 'monthlyAgListings') ? 'authenticity_compared' : (id === 'shipSellThroughPct' || id === 'pickupSellThroughPct' || id === 'pickupNoShowPct' || id === 'pickupMinutes' || id === 'pickupHourlyWage' || id === 'pickupFeeCharged' || id === 'pickupPackagingCost' || id === 'pickupReturnRatePercent' || id === 'monthlyPickupListings') ? 'local_pickup_compared' : (id === 'lotPieceCount' || id === 'singleExpectedPrice' || id === 'lotSellThroughPct' || id === 'singleSellThroughPct' || id === 'lotInsertionFee' || id === 'singleInsertionFee' || id === 'singleShippingCharged' || id === 'singleShippingCost' || id === 'singlePackagingCost' || id === 'lotListingMinutes' || id === 'singleListingMinutes' || id === 'lotListingWage' || id === 'monthlyLotDecisions') ? 'lot_vs_singles_compared' : (id === 'envelopeShippingCost' || id === 'envelopePackagingCost' || id === 'envelopeClaimRatePercent' || id === 'envelopeFeeRefundOnClaimPercent' || id === 'trackedSellThroughPct' || id === 'envelopeSellThroughPct' || id === 'monthlyEnvelopeListings') ? 'standard_envelope_compared' : (id === 'trsDiscountPct' || id === 'standardSellThroughPct' || id === 'trsSellThroughPct' || id === 'standardReturnRatePercent' || id === 'trsReturnRatePercent' || id === 'standardReturnShippingCost' || id === 'trsReturnShippingCost' || id === 'trsHandlingMinutes' || id === 'trsHandlingWage' || id === 'monthlyTrsListings') ? 'top_rated_plus_compared' : 'order_profit_calculated');
     }));
     document.getElementById('usageOptOut').addEventListener('change', update);
     const actions = document.createElement('p');

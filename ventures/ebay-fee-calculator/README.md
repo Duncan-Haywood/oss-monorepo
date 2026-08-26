@@ -50,6 +50,12 @@ typed return rate, or use Standard Envelope postage and take an
 item-not-received claim rate. A claim is not a return — the item is
 gone, so cost of goods is lost.
 [Is eBay Standard Envelope worth it?](is-ebay-standard-envelope-worth-it.html).
+A **Top Rated Plus vs staying standard** table then prices the same
+listing two ways: keep buyer-paid returns at the full final-value
+rate, or take a typed fee discount and a badge sell-through lift in
+exchange for seller-paid return labels, a higher return rate, and
+1-day handling time.
+[Is eBay Top Rated Plus worth it?](is-ebay-top-rated-plus-worth-it.html).
 
 **After using the authenticity page, you can now see whether a 3% fee
 and an $8 hub label still beat skip-AG on that SKU** — which used to
@@ -70,6 +76,11 @@ never pricing the extra postage.
 envelope still beats a $5 label after item-not-received claims** —
 which used to mean stuffing every card into an envelope because
 “postage is cheaper” and never pricing the claim.
+
+**After using the Top Rated Plus page, you can now see whether a 10%
+final-value discount still covers free returns and 1-day handling** —
+which used to mean enrolling because “the badge always pays” and never
+pricing the extra labels.
 
 Open `index.html` in a browser. The calculation is local and works without an
 account, network request, or API key. It is arithmetic, not an estimate of the
@@ -152,12 +163,12 @@ The counted events are `order_profit_calculated`, `target_margin_calculated`,
 `batch_calculated`, `return_rate_viewed`, `listing_format_compared`,
 `partial_refund_compared`, `authenticity_compared`,
 `local_pickup_compared`, `lot_vs_singles_compared`,
-`standard_envelope_compared`, and
+`standard_envelope_compared`, `top_rated_plus_compared`, and
 `price_sensitivity_viewed`.
 `price_sensitivity_viewed`, `listing_format_compared`,
 `partial_refund_compared`, `authenticity_compared`,
-`local_pickup_compared`, `lot_vs_singles_compared`, and
-`standard_envelope_compared` are counted at most
+`local_pickup_compared`, `lot_vs_singles_compared`,
+`standard_envelope_compared`, and `top_rated_plus_compared` are counted at most
 once per visit and only after an input is edited — counting the table's
 first paint would just re-count page loads and say nothing about whether
 the view is used.

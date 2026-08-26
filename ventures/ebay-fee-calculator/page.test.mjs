@@ -150,7 +150,9 @@ test('the Standard Envelope table has one cell per column and a counted event', 
   assert.match(page, /standard_envelope_compared/);
   assert.match(page, /is-ebay-standard-envelope-worth-it\.html/);
   assert.match(page, /"featureList":\s*"[^"]*Standard Envelope vs tracked label/);
-  const headerBlock = page.slice(page.indexOf('id="standardEnvelopeTable"'));
+  const envelopeStart = page.indexOf('id="standardEnvelopeTable"');
+  const envelopeEnd = page.indexOf('id="topRatedPlus"', envelopeStart);
+  const headerBlock = page.slice(envelopeStart, envelopeEnd === -1 ? undefined : envelopeEnd);
   const headers = [...headerBlock.matchAll(/<th scope="col">([^<]+)<\/th>/g)].map((m) => m[1]);
   assert.deepEqual(headers, [
     'Path',
@@ -160,5 +162,25 @@ test('the Standard Envelope table has one cell per column and a counted event', 
     'If it sells',
     'Expected after sell-through',
     'vs tracked',
+  ]);
+});
+
+test('the Top Rated Plus table has one cell per column and a counted event', () => {
+  assert.match(page, /compareTopRatedPlus/);
+  assert.match(page, /id="topRatedPlus"/);
+  assert.match(page, /id="topRatedPlusVerdict"/);
+  assert.match(page, /top_rated_plus_compared/);
+  assert.match(page, /is-ebay-top-rated-plus-worth-it\.html/);
+  assert.match(page, /"featureList":\s*"[^"]*Top Rated Plus vs stay standard/);
+  const headerBlock = page.slice(page.indexOf('id="topRatedPlusTable"'));
+  const headers = [...headerBlock.matchAll(/<th scope="col">([^<]+)<\/th>/g)].map((m) => m[1]);
+  assert.deepEqual(headers, [
+    'Path',
+    'Sell-through',
+    'Return rate',
+    'Handling',
+    'If it sells',
+    'Expected after sell-through',
+    'vs standard',
   ]);
 });
