@@ -10,6 +10,7 @@ import { readFileSync } from 'node:fs';
 
 const html = readFileSync(new URL('./index.html', import.meta.url), 'utf8');
 const seo = readFileSync(new URL('./how-much-to-charge-to-install-a-walk-in-tub.html', import.meta.url), 'utf8');
+const supplySeo = readFileSync(new URL('./should-i-install-a-customer-supplied-walk-in-tub.html', import.meta.url), 'utf8');
 
 const RAW_TEXT_ELEMENTS = ['textarea', 'script', 'style'];
 
@@ -50,6 +51,8 @@ test('the module script survives parsing and would actually execute', () => {
   assert.match(scriptSource, /calculateBid/, 'the app script did not parse as a script element');
   assert.match(scriptSource, /compareScope/, 'scope comparison is missing from the executable script');
   assert.match(scriptSource, /compareTub/, 'tub comparison is missing from the executable script');
+  assert.match(scriptSource, /compareOwnerSupply/, 'owner-supply comparison is missing from the executable script');
+  assert.match(scriptSource, /ownerSupplyNote/, 'owner-supply note is missing from the executable script');
   assert.match(scriptSource, /formatBidSummary/, 'copy-summary helper is missing from the executable script');
 });
 
@@ -67,7 +70,7 @@ test('inputs and result fields for the primary journey are present', () => {
   for (const id of [
     'scope', 'tub', 'door', 'tubCount', 'travelMiles',
     'hourlyWage', 'targetMargin', 'proposedPrice',
-    'price', 'breakEven', 'compare', 'tubs', 'copySummary', 'usageOptOut', 'jobPresets',
+    'price', 'breakEven', 'compare', 'tubs', 'supply', 'supplyNote', 'copySummary', 'usageOptOut', 'jobPresets',
   ]) {
     assert.ok(declaredIds.has(id), `missing #${id}`);
   }
@@ -80,6 +83,8 @@ test('the landing page names the problem in the contractor\'s words', () => {
   assert.match(html, /SoftwareApplication/);
   assert.match(html, /Same bath, five units/);
   assert.match(html, /vs soaker/);
+  assert.match(html, /Same bath, who bought the tub/);
+  assert.match(html, /should-i-install-a-customer-supplied-walk-in-tub\.html/);
 });
 
 test('disclaimer and privacy line are visible, not only in the README', () => {
@@ -97,4 +102,17 @@ test('the SEO article answers the search phrase and points back to the calculato
   assert.match(seo, /\$3,499/);
   assert.match(seo, /No warranty/);
   assert.match(seo, /walk-in shower/i);
+  assert.match(seo, /should-i-install-a-customer-supplied-walk-in-tub\.html/);
+});
+
+test('the customer-supplied SEO page walks the $1,499 special and points back', () => {
+  assert.match(supplySeo, /Should I install a customer-supplied walk-in tub/i);
+  assert.match(supplySeo, /FAQPage/);
+  assert.match(supplySeo, /\$1,499/);
+  assert.match(supplySeo, /\$2,082\.34/);
+  assert.match(supplySeo, /\$8,640\.43/);
+  assert.match(supplySeo, /index.html/);
+  assert.match(supplySeo, /No warranty/);
+  assert.match(supplySeo, /walk-in shower/i);
+  assert.match(supplySeo, /stair lift/i);
 });

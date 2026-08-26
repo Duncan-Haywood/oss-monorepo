@@ -9,10 +9,11 @@ door, tile, grab bars, and floor work — and shows the margin
 before the price goes out.
 
 **After using this, you can now** send a walk-away walk-in-tub
-price that sees the alcove and the unit, **which used to take**
-matching a published $3,499 installed special that treats a
-soaker alcove swap as the same job as a relocate extra-wide
-tile install.
+price that sees the alcove, the unit, and whether they already
+bought the tub, **which used to take** matching a published
+$3,499 installed special — or a $1,499 “just set what I bought”
+special — that treats a soaker alcove swap as the same job as a
+relocate extra-wide tile install.
 
 **Open [`index.html`](index.html) directly in a browser**, or serve this
 directory statically. It is a self-contained, zero-dependency page: no build
@@ -72,15 +73,25 @@ walk-in tub.
 It then reports price per tub, effective hourly rate, the hour
 split, a four-scope comparison on the same bath, a five-unit
 comparison on the same bath (the whirlpool upgrade versus the
-soaker special), and the **walk-away price**. Entering a price
-already on the table scores it against the same cost base. **Copy
-bid summary** turns the result into a plain-text draft ready to
+soaker special), a three-way **you-supply versus owner-supplied
+versus wrong-unit** comparison, and the **walk-away price**.
+Entering a price already on the table scores it against the same
+cost base — including the $1,499 just-set special. **Copy bid
+summary** turns the result into a plain-text draft ready to
 paste into a proposal.
 
 The arithmetic lives in [`calc.mjs`](calc.mjs). See
 [`calc.test.mjs`](calc.test.mjs).
 
-Search phrase: [`how-much-to-charge-to-install-a-walk-in-tub.html`](how-much-to-charge-to-install-a-walk-in-tub.html).
+Search phrases:
+[`how-much-to-charge-to-install-a-walk-in-tub.html`](how-much-to-charge-to-install-a-walk-in-tub.html),
+[`should-i-install-a-customer-supplied-walk-in-tub.html`](should-i-install-a-customer-supplied-walk-in-tub.html).
+
+This is distinct from the walk-in shower calculator (tile, slope,
+glass), the toilet calculator (a commode), the stair-lift
+calculator (a chair on a rail), and a hot-tub bid (outdoor crane
+and a pad). Do not open a second walk-in-tub / customer-supplied
+tub calculator.
 
 ## Privacy
 
@@ -101,7 +112,7 @@ when the browser sends Do Not Track or Global Privacy Control. See
 
 Events counted: `bid_calculated`, `preset_applied`, `scope_changed`,
 `tub_changed`, `door_changed`, `proposed_price_compared`,
-`summary_copied`.
+`owner_supply_compared`, `summary_copied`.
 
 ## Limitations
 

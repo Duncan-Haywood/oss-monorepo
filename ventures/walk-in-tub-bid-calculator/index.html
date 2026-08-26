@@ -3,11 +3,11 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Walk-In Tub Bid Calculator | How Much to Charge to Install a Walk-In Tub</title>
-  <meta name="description" content="Price a walk-in tub from tub count, acrylic soaker versus cast versus whirlpool versus air-jet versus extra-wide, alcove swap versus relocate versus new-construction versus custom opening, inward versus outward versus walk-through door, and extras — plus the walk-away price a $3,499 installed special cannot see.">
+  <title>Walk-In Tub Bid Calculator | Customer-Supplied vs You-Supply vs $1,499 Set</title>
+  <meta name="description" content="Price a walk-in tub from alcove, unit, and extras — and see whether a customer-supplied tub still pays at the $1,499 just-set special, including a wrong-unit callback.">
   <meta property="og:title" content="Walk-In Tub Bid Calculator">
-  <meta property="og:description" content="Bid a walk-in tub the way the trade does — alcove, unit, and extras, not a published installed dump — and see the margin before you send the price.">
-  <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Walk-In Tub Bid Calculator","applicationCategory":"BusinessApplication","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"featureList":"Tub count, acrylic soaker vs cast vs whirlpool vs air-jet vs extra-wide comparison, alcove swap vs relocate vs new-construction vs custom-opening comparison, inward vs outward vs walk-through door, cast-iron demo tile grab-bar handheld floor-sister permit extras, walk-away price, proposed-price margin check, copyable bid summary"}</script>
+  <meta property="og:description" content="Bid a walk-in tub the way the trade does — alcove, unit, extras, and who bought the tub — not a published installed dump.">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Walk-In Tub Bid Calculator","applicationCategory":"BusinessApplication","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"featureList":"Tub count, acrylic soaker vs cast vs whirlpool vs air-jet vs extra-wide comparison, alcove swap vs relocate vs new-construction vs custom-opening comparison, inward vs outward vs walk-through door, you-supply vs owner-supplied vs wrong-unit callback, cast-iron demo tile grab-bar handheld floor-sister permit extras, walk-away price, proposed-price margin check, copyable bid summary"}</script>
   <style>
     :root { color-scheme: light; font-family: system-ui, sans-serif; color: #1f2a32; background: #e8eef2; }
     body { max-width: 1060px; margin: 0 auto; padding: 32px 18px; }
@@ -128,7 +128,7 @@
           <label>Other cost <input id="otherCost" type="number" min="0" step="1" value="0"></label>
           <label>Overhead on direct cost (%) <input id="overheadRate" type="number" min="0" step="0.5" value="15"></label>
           <label>Target net margin (%) <input id="targetMargin" type="number" min="0" max="99.9" step="0.5" value="20"></label>
-          <label>Price you&rsquo;re considering (optional) <input id="proposedPrice" type="number" min="0" step="50" placeholder="e.g. 3499"></label>
+          <label>Price you&rsquo;re considering (optional) <input id="proposedPrice" type="number" min="0" step="50" placeholder="e.g. 1499 just-set or 3499 installed"></label>
         </div>
         <p class="hint" style="margin-top:14px;margin-bottom:0">Payroll burden covers employer taxes, workers&rsquo; compensation, liability insurance, and paid time off. Underestimating it is how a $3,499 alcove swap that looked profitable was not.</p>
       </section>
@@ -172,6 +172,14 @@
         <tbody id="tubs"></tbody>
       </table>
       <hr>
+      <p class="note" style="margin-bottom:4px"><strong>Same bath, who bought the tub</strong></p>
+      <p class="note" style="margin-top:0">The $1,499 “just set what I bought at the showroom” special. Zeroing the tub invoice is not the same as a free install — the trip and the set still cost money, and a unit that will not fit the alcove is a second trip. <a href="should-i-install-a-customer-supplied-walk-in-tub.html" style="color:#cde6ea">Should I install a customer-supplied walk-in tub?</a></p>
+      <table>
+        <thead><tr><th>Who supplies</th><th>Hours</th><th>Your bid</th><th>At their number</th></tr></thead>
+        <tbody id="supply"></tbody>
+      </table>
+      <p id="supplyNote" class="note"></p>
+      <hr>
       <p class="note" style="margin-bottom:4px"><strong>Where the hours go</strong></p>
       <ul class="split" id="split"></ul>
       <hr>
@@ -184,7 +192,7 @@
     <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not building-code, accessibility, plumbing-design, medical, legal, tax, or financial advice, and it does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for meeting any obligation it helps you prepare for. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
     <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record. If a tool needs to survive, export your inputs and run it yourself.</p>
     <p><strong>Nothing leaves your browser.</strong> Every number stays on this device. Usage counts are anonymous tallies of which features were used, stored locally, and never include your alcove, wages, costs, or prices.</p>
-    <p>Looking up <a href="how-much-to-charge-to-install-a-walk-in-tub.html">how much to charge to install a walk-in tub</a>? The article walks the alcove-versus-unit math this calculator uses.</p>
+    <p>Looking up <a href="how-much-to-charge-to-install-a-walk-in-tub.html">how much to charge to install a walk-in tub</a>? The article walks the alcove-versus-unit math this calculator uses. Customer bought the tub? See <a href="should-i-install-a-customer-supplied-walk-in-tub.html">should I install a customer-supplied walk-in tub</a>.</p>
     <p class="support">Free and open source. If it wins you a job, the <a href="https://github.com/Duncan-Haywood/monorepo-projects" rel="noopener">project is on GitHub</a> &mdash; support is entirely optional and never changes what the tool does.</p>
   </footer>
 
@@ -193,6 +201,8 @@
       calculateBid,
       compareScope,
       compareTub,
+      compareOwnerSupply,
+      ownerSupplyNote,
       formatBidSummary,
       suggestedScopeKit,
       suggestedTubKit,
@@ -235,6 +245,7 @@
     ];
     const money = value => `$${value.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
     const el = id => document.getElementById(id);
+    let supplyCounted = false;
 
     function fillSelect(id, presets) {
       el(id).innerHTML = presets.map(item => `<option value="${item.id}">${item.label}</option>`).join('');
@@ -291,6 +302,8 @@
       el('split').innerHTML = '';
       el('compare').innerHTML = '';
       el('tubs').innerHTML = '';
+      el('supply').innerHTML = '';
+      el('supplyNote').textContent = '';
       el('verdict').hidden = true;
     }
 
@@ -361,6 +374,26 @@
         <td>${upgrade}</td>
       </tr>`;
       }).join('');
+
+      const supply = compareOwnerSupply(readInput());
+      el('supply').innerHTML = supply.map(row => {
+        const atTheirs = row.installOnly === null
+          ? 'enter their number'
+          : row.installOnly.belowBreakEven
+            ? `loses ${money(Math.abs(row.installOnly.profit))}`
+            : `keeps ${money(row.installOnly.profit)}`;
+        return `<tr class="${row.cheapest ? 'cheap' : ''}">
+        <td>${row.label}${row.cheapest ? ' · lowest bid' : ''}</td>
+        <td>${row.totalHours.toFixed(1)} h</td>
+        <td>${money(row.price)}</td>
+        <td>${atTheirs}</td>
+      </tr>`;
+      }).join('');
+      el('supplyNote').textContent = ownerSupplyNote(supply);
+      if (!supplyCounted) {
+        count('owner_supply_compared');
+        supplyCounted = true;
+      }
 
       const verdict = el('verdict');
       if (result.proposed === null) {
