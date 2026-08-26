@@ -51,6 +51,7 @@ def calculate(quote: Quote) -> dict[str, float]:
     effective_rate = (quote.price - direct_costs) / total_hours
     target_price = total_hours * quote.target_hourly_rate + direct_costs
     hidden_hours = quote.admin_hours + quote.revision_hours
+    target_rate_hours = (quote.price - direct_costs) / quote.target_hourly_rate
     return {
         "total_hours": total_hours,
         "direct_costs": direct_costs,
@@ -64,6 +65,8 @@ def calculate(quote: Quote) -> dict[str, float]:
         "delivery_hours": quote.delivery_hours,
         "hidden_hours": hidden_hours,
         "hidden_time_percent": (hidden_hours / total_hours) * 100,
+        "target_rate_hours": target_rate_hours,
+        "hours_cushion": target_rate_hours - total_hours,
     }
 
 
@@ -177,6 +180,7 @@ def markdown(quote: Quote, result: dict[str, float]) -> str:
         f"| Effective hourly rate | {quote.currency} {result['effective_hourly_rate']:.2f}/hour |",
         f"| Price at supplied target rate | {quote.currency} {result['target_price']:.2f} |",
         f"| Gap to target price | {quote.currency} {result['gap_to_target']:.2f} |",
+        f"| Hours supported at target rate | {result['target_rate_hours']:.2f} ({result['hours_cushion']:.2f} {'remaining' if result['hours_cushion'] >= 0 else 'over'}) |",
         f"| After direct costs | {quote.currency} {result['cost_coverage']:.2f} |",
         f"| Maximum discount before target | {quote.currency} {result['discount_room']:.2f} |",
         f"| Minimum increase to reach target | {quote.currency} {result['minimum_price_adjustment']:.2f} |",
@@ -215,6 +219,8 @@ def csv_report(quote: Quote, result: dict[str, float]) -> None:
             ("effective_hourly_rate", f"{result['effective_hourly_rate']:.2f}", f"{quote.currency}/hour"),
             ("target_price", f"{result['target_price']:.2f}", quote.currency),
             ("gap_to_target", f"{result['gap_to_target']:.2f}", quote.currency),
+            ("target_rate_hours", f"{result['target_rate_hours']:.2f}", "hours"),
+            ("hours_cushion", f"{result['hours_cushion']:.2f}", "hours"),
             ("cost_coverage", f"{result['cost_coverage']:.2f}", quote.currency),
             ("discount_room", f"{result['discount_room']:.2f}", quote.currency),
             ("minimum_price_adjustment", f"{result['minimum_price_adjustment']:.2f}", quote.currency),
