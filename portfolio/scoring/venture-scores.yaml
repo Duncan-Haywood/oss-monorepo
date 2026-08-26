@@ -4251,3 +4251,38 @@ ventures:
       a building-code determination. The shipped hours are labelled
       ballpark starting points rather than a standard or protocol, and
       nothing the user enters leaves the browser.
+  - slug: mold-remediation-bid-calculator
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 7
+      gross_margin: 10
+      defensibility: 5
+      distribution: 7
+    composite: 6.667
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      There is no AI anywhere in the product. The value is a domain model —
+      extra containment, demolition, equipment days, and clearance as their
+      own hours — that is arithmetic, and adding inference to it would only
+      make the result less checkable.
+    basis: >-
+      Graduated on 2026-08-25 as a browser-local mold remediation bid
+      calculator. Distinct from basement waterproofing (wells / pit /
+      discharge), radon mitigation (suction / membrane / circuit), pest
+      control (bait stations), drywall (hang-and-finish), and HVAC
+      maintenance contracts. Distribution 7: "how much to charge for mold
+      remediation" and "mold remediation bid calculator" are lower-volume
+      than marketplace-fee queries but bought by an operator with a real
+      job on the line.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Pass: the output is arithmetic on the contractor's own inputs, never a
+      recommended price, a mold inspection, a clearance certificate, or a
+      health determination. The shipped hours are labelled ballpark starting
+      points rather than a standard or protocol, and nothing the user enters
+      leaves the browser.

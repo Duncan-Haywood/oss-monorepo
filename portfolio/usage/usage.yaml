@@ -2696,3 +2696,16 @@ products:
           to price extra stories, extra feet of duct, extra dryers, and a
           roof cap instead of a published $99 special. Public URL remains
           owner-gated; counters are local, aggregate, and opt-out.
+  - slug: mold-remediation-bid-calculator
+    surface: static-page-in-repo
+    readings:
+      - as_of: 2026-08-25
+        signals:
+          live_url_visitors: null
+          local_calculations: 0
+          local_summary_copies: 0
+        note: >-
+          Shipped a zero-dependency browser calculator for mold remediators
+          to price containment, demolition, dry-out, and clearance instead of
+          a published mold special. Public URL remains owner-gated; counters
+          are local, aggregate, and opt-out.

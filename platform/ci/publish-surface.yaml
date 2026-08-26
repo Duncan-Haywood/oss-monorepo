@@ -277,6 +277,9 @@ workflows:
 - workflow: metal-roof-bid-calculator-ci.yml
   classification: none
   publishes: []
+- workflow: mold-remediation-bid-calculator-ci.yml
+  classification: none
+  publishes: []
 - workflow: music-lesson-break-even-ci.yml
   classification: none
   publishes: []
