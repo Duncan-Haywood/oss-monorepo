@@ -1,0 +1,396 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Asphalt Driveway Paving Bid Calculator | Overlay vs Mill-and-Overlay vs Full-Depth — Price the Tons, Not Just the Square Foot</title>
+  <meta name="description" content="Price an asphalt driveway from overlay, mill-and-overlay, or full-depth: square footage, thickness, street apron, failed base, and sawcut — not a published $3.50-a-square-foot special. See the mix tons and the walk-away number.">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href=".">
+  <meta property="og:title" content="Asphalt Driveway Paving Bid Calculator">
+  <meta property="og:description" content="800 square feet of sound asphalt is not the same job as 1,000 square feet with a failed base. Bid the method, the thickness, and the extra work.">
+  <meta property="og:type" content="website">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Asphalt Driveway Paving Bid Calculator","applicationCategory":"BusinessApplication","operatingSystem":"Any (runs in a web browser)","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"featureList":"Overlay versus mill-and-overlay versus full-depth, mix tons from thickness, street apron, failed-base gravel, sawcut, walk-away price, method comparison, proposed-price margin check, copyable customer-facing bid summary"}</script>
+  <style>
+    :root { color-scheme: light; font-family: system-ui, sans-serif; color: #1f2420; background: #eceae4; }
+    body { max-width: 1060px; margin: 0 auto; padding: 32px 18px; }
+    header { max-width: 740px; margin-bottom: 26px; }
+    h1 { font-size: clamp(2rem, 6vw, 3.4rem); line-height: .98; margin: 0 0 12px; letter-spacing: -.05em; }
+    p { line-height: 1.5; }
+    .eyebrow { font-size: .8rem; font-weight: 700; letter-spacing: .08em; color: #6b4f1d; margin: 0 0 6px; }
+    .layout { display: grid; grid-template-columns: minmax(0, 1fr) minmax(300px, .75fr); gap: 18px; align-items: start; }
+    section { background: #fff; border: 1px solid #d4cfc3; border-radius: 14px; padding: 20px; box-shadow: 0 8px 24px #2a24180d; margin-bottom: 18px; }
+    h2 { margin-top: 0; font-size: 1.15rem; }
+    .hint { font-size: .82rem; color: #5a564c; margin: -6px 0 14px; }
+    .fields { display: grid; grid-template-columns: repeat(2, 1fr); gap: 13px; }
+    label { display: grid; gap: 5px; font-size: .87rem; font-weight: 650; }
+    input, select { width: 100%; box-sizing: border-box; border: 1px solid #9a927f; border-radius: 7px; padding: 10px; font: inherit; background: #fff; }
+    label.check { display: flex; gap: 8px; align-items: center; font-weight: 650; }
+    label.check input { width: auto; }
+    button { font: inherit; border-radius: 7px; border: 1px solid #9a927f; background: #f4f1e8; padding: 10px 14px; cursor: pointer; font-weight: 650; }
+    button:hover { background: #e8e2d2; }
+    .result { position: sticky; top: 15px; background: #2c2618; color: #f4f0e6; border-color: #2c2618; }
+    .hero-number { font-size: 2.7rem; font-weight: 750; letter-spacing: -.05em; margin: 8px 0; }
+    .negative { color: #ffb0a2; }
+    dl { display: grid; grid-template-columns: 1fr auto; gap: 9px; margin: 20px 0; }
+    dt, dd { margin: 0; } dd { font-variant-numeric: tabular-nums; }
+    hr { border: 0; border-top: 1px solid #ffffff2b; }
+    .note { font-size: .82rem; opacity: .84; }
+    .split { margin: 14px 0 0; padding: 0; list-style: none; font-size: .84rem; }
+    .split li { display: grid; grid-template-columns: 1fr auto; gap: 8px; padding: 3px 0; }
+    .bar { grid-column: 1 / -1; height: 4px; border-radius: 2px; background: #ffffff2e; }
+    .bar > span { display: block; height: 100%; border-radius: 2px; background: #d4b46a; }
+    .verdict { margin-top: 14px; padding: 12px; border-radius: 9px; font-size: .87rem; background: #ffffff1a; }
+    .verdict.bad { background: #7d2317; }
+    .compare { margin: 0; padding: 0; list-style: none; font-size: .84rem; }
+    .compare li { display: grid; grid-template-columns: 1fr auto; gap: 8px; padding: 6px 0; border-bottom: 1px solid #ffffff1f; }
+    .compare li.win { color: #e8d39a; }
+    footer { margin-top: 25px; font-size: .82rem; color: #5a564c; }
+    footer a { color: #6b4f1d; }
+    .support { margin-top: 14px; }
+    .summary-actions { display: flex; gap: 8px; align-items: center; margin-top: 14px; }
+    .summary-status { font-size: .8rem; color: #e8d39a; }
+    @media (max-width: 780px) {
+      .layout { grid-template-columns: 1fr; } .result { position: static; } .fields { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="eyebrow">FOR PAVING CONTRACTORS</p>
+    <h1>Bid the method, the thickness, and the extra work.</h1>
+    <p>Price an asphalt driveway the way the trade actually loses money: overlay versus mill-and-overlay versus full-depth, mix tons from thickness, the street apron, failed base, and the sawcut at the garage. 800 square feet of sound asphalt is not the same bid as 1,000 square feet that has to come out. You get the price, the tons, the extra-work share, and the walk-away number below which the job loses money.</p>
+  </header>
+
+  <main class="layout">
+    <div>
+      <section>
+        <h2>The driveway</h2>
+        <p class="hint">Start from a common job, then replace every figure with your takeoff. Changing method never overwrites a rate you already typed. This is not a sealcoat calculator (coats and crack fill) and not a concrete-pour calculator (cubic yards of slab).</p>
+        <div class="fields">
+          <label>Job preset
+            <select id="jobPresets">
+              <option value="">Choose a starting job…</option>
+            </select>
+          </label>
+          <label>Paving method
+            <select id="method">
+              <option value="overlay" selected>Overlay on existing asphalt</option>
+              <option value="mill-overlay">Mill-and-overlay</option>
+              <option value="full-depth">Full-depth replacement</option>
+            </select>
+          </label>
+          <label>Driveway square feet <input id="drivewaySqFt" type="number" min="1" step="1" value="800"></label>
+          <label>New asphalt thickness (in) <input id="thicknessIn" type="number" min="1" step="0.25" value="2"></label>
+          <label>Street apron (sq ft) <input id="apronSqFt" type="number" min="0" step="1" value="0"></label>
+          <label>Apron thickness (in) <input id="apronThicknessIn" type="number" min="1" step="0.25" value="4"></label>
+          <label>Failed-base patch (sq ft) <input id="failedBaseSqFt" type="number" min="0" step="1" value="0"></label>
+          <label>Sawcut (lineal ft) <input id="sawcutLf" type="number" min="0" step="1" value="20"></label>
+          <label>Mill depth (in, mill-and-overlay) <input id="millDepthIn" type="number" min="0" step="0.25" value="1.5"></label>
+          <label>Existing asphalt depth (in, full-depth) <input id="existingDepthIn" type="number" min="0.5" step="0.25" value="2"></label>
+          <label class="check"><input id="fabric" type="checkbox"> Paving fabric over cracks</label>
+        </div>
+      </section>
+
+      <section>
+        <h2>Your crew rates</h2>
+        <div class="fields">
+          <label>Hours for the trip / move-in <input id="hoursTrip" type="number" min="0" step="0.25" value="1.5"></label>
+          <label>Hours / sq ft to pave and roll <input id="hoursPerSqFtPave" type="number" min="0" step="0.0001" value="0.0028"></label>
+          <label>Hours / sq ft to mill <input id="hoursPerSqFtMill" type="number" min="0" step="0.0001" value="0"></label>
+          <label>Hours / sq ft to demo <input id="hoursPerSqFtDemo" type="number" min="0" step="0.0001" value="0"></label>
+          <label>Hours / sq ft of failed base <input id="hoursPerSqFtBase" type="number" min="0" step="0.0001" value="0"></label>
+          <label>Hours / sq ft to tack <input id="hoursPerSqFtTack" type="number" min="0" step="0.0001" value="0.0005"></label>
+          <label>Hours / lf of sawcut <input id="hoursPerLfSawcut" type="number" min="0" step="0.005" value="0.035"></label>
+          <label>Extra hours / sq ft of apron <input id="hoursPerSqFtApronExtra" type="number" min="0" step="0.001" value="0.004"></label>
+          <label>Site / travel hours <input id="siteHours" type="number" min="0" step="0.25" value="0.75"></label>
+          <label>Mix cost / ton <input id="mixPerTon" type="number" min="0" step="1" value="105"></label>
+          <label>Millings dump / ton <input id="millDumpPerTon" type="number" min="0" step="1" value="0"></label>
+          <label>Demo dump / ton <input id="demoDumpPerTon" type="number" min="0" step="1" value="0"></label>
+          <label>Gravel / ton <input id="gravelPerTon" type="number" min="0" step="1" value="28"></label>
+          <label>Tack / sq ft <input id="tackPerSqFt" type="number" min="0" step="0.01" value="0.08"></label>
+          <label>Fabric / sq ft <input id="fabricPerSqFt" type="number" min="0" step="0.05" value="0.55"></label>
+          <label>Permit fee <input id="permitFee" type="number" min="0" step="5" value="125"></label>
+          <label>Crew hourly wage <input id="hourlyWage" type="number" min="0" step="0.25" value="38"></label>
+          <label>Payroll burden (%) <input id="burdenRate" type="number" min="0" step="0.5" value="32"></label>
+          <label>Travel, paver, roller move-in <input id="travelAndEquipment" type="number" min="0" step="5" value="425"></label>
+          <label>Overhead on direct cost (%) <input id="overheadRate" type="number" min="0" step="0.5" value="16"></label>
+          <label>Target net margin (%) <input id="targetMargin" type="number" min="0" max="99.9" step="0.5" value="28"></label>
+          <label>Price you&rsquo;re considering (optional) <input id="proposedPrice" type="number" min="0" step="10" placeholder="e.g. 4500"></label>
+        </div>
+        <p class="hint" style="margin-top:14px;margin-bottom:0">A $38/h hand loaded at 32% is $50.16. Quoting the raw wage on a published $3.50-a-square-foot special is how a 1,000-square-foot full-depth that looked fine turns into a two-day loss after the first sawcut.</p>
+      </section>
+    </div>
+
+    <section class="result" aria-live="polite">
+      <h2>Your bid</h2>
+      <div id="price" class="hero-number">$&mdash;</div>
+      <div id="priceLabel">asphalt driveway paving price</div>
+      <dl>
+        <dt>Method and area</dt><dd id="scope"></dd>
+        <dt>Thickness and extras</dt><dd id="surfaceBits"></dd>
+        <dt>Hot-mix tons</dt><dd id="tons"></dd>
+        <dt>Crew hours</dt><dd id="hours"></dd>
+        <dt>Loaded labor</dt><dd id="labor"></dd>
+        <dt>Mix, dump, gravel, tack, fees</dt><dd id="materials"></dd>
+        <dt>Travel + equipment</dt><dd id="soft"></dd>
+        <dt>Overhead</dt><dd id="overhead"></dd>
+        <dt>Total cost</dt><dd id="cost"></dd>
+        <dt>Profit at this price</dt><dd id="profit"></dd>
+        <dt>Price per square foot</dt><dd id="perSqFt"></dd>
+        <dt>Effective hourly rate</dt><dd id="hourlyRate"></dd>
+        <dt>Walk-away price</dt><dd id="breakEven"></dd>
+      </dl>
+      <div id="verdict" class="verdict" hidden></div>
+      <div class="summary-actions">
+        <button type="button" id="copySummary">Copy bid summary</button>
+        <span id="summaryStatus" class="summary-status" role="status" aria-live="polite"></span>
+      </div>
+      <hr>
+      <p class="note" style="margin-bottom:4px"><strong>Same driveway, three methods</strong></p>
+      <ul class="compare" id="compare"></ul>
+      <hr>
+      <p class="note" style="margin-bottom:4px"><strong>Where the hours go</strong></p>
+      <ul class="split" id="hourSplit"></ul>
+      <hr>
+      <p class="note" style="margin-bottom:4px"><strong>Where the cost goes</strong></p>
+      <ul class="split" id="split"></ul>
+      <hr>
+      <p class="note">Transparent arithmetic from your own inputs. Starting hours and mix rates are common ballpark figures, not an industry standard, a paving specification, or a code determination &mdash; replace them with your own takeoff.</p>
+    </section>
+  </main>
+
+  <footer>
+    <label class="check" style="font-weight:400"><input id="usageOptOut" type="checkbox"> Do not keep anonymous local usage counts</label>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not paving, construction, legal, tax, or financial advice, and it does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for meeting any obligation it helps you prepare for. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use. Hosted URLs, when they exist, carry no availability SLA.</p>
+    <p><strong>Nothing leaves your browser.</strong> Every number stays on this device. Usage counts are anonymous tallies of which features were used, stored locally, and never include your square footage, wages, costs, or prices.</p>
+    <p>Related: <a href="how-much-to-charge-to-pave-a-driveway.html">How much to charge to pave a driveway</a>.</p>
+    <p class="support">Free and open source. If it wins you a job, the <a href="https://github.com/Duncan-Haywood/monorepo-projects" rel="noopener">project is on GitHub</a> &mdash; support is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import {
+      calculateBid,
+      compareMethods,
+      formatBidSummary,
+      JOB_PRESETS,
+      suggestedMethodKit,
+    } from './calc.mjs';
+    import { recordUsage } from './usage.mjs';
+
+    const FIELD_IDS = [
+      'drivewaySqFt','thicknessIn','apronSqFt','apronThicknessIn','failedBaseSqFt','sawcutLf',
+      'millDepthIn','existingDepthIn',
+      'hoursTrip','hoursPerSqFtPave','hoursPerSqFtMill','hoursPerSqFtDemo','hoursPerSqFtBase',
+      'hoursPerSqFtTack','hoursPerLfSawcut','hoursPerSqFtApronExtra','siteHours',
+      'mixPerTon','millDumpPerTon','demoDumpPerTon','gravelPerTon','tackPerSqFt','fabricPerSqFt','permitFee',
+      'hourlyWage','burdenRate','travelAndEquipment','overheadRate','targetMargin',
+      'proposedPrice',
+    ];
+    const FLAG_IDS = ['fabric'];
+    const SELECT_IDS = ['method'];
+    const SUGGESTED_METHOD_IDS = [
+      'hoursPerSqFtPave','hoursPerSqFtMill','hoursPerSqFtDemo','hoursPerSqFtBase',
+      'hoursPerSqFtTack','hoursPerLfSawcut','hoursPerSqFtApronExtra',
+      'mixPerTon','millDumpPerTon','demoDumpPerTon','gravelPerTon','tackPerSqFt','fabricPerSqFt',
+    ];
+    const money = value => `$${value.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+    const el = id => document.getElementById(id);
+
+    const presets = el('jobPresets');
+    JOB_PRESETS.forEach((job, index) => {
+      const option = document.createElement('option');
+      option.value = String(index);
+      option.textContent = job.label;
+      presets.append(option);
+    });
+
+    function count(event) {
+      recordUsage(localStorage, el('usageOptOut').checked, event);
+    }
+
+    function applyMethodKit(force) {
+      const rates = suggestedMethodKit(el('method').value);
+      for (const [key, value] of Object.entries(rates)) {
+        if (force || !el(key).dataset.edited) el(key).value = value;
+      }
+    }
+
+    function applyJob(job) {
+      el('method').value = job.method;
+      applyMethodKit(true);
+      SUGGESTED_METHOD_IDS.forEach(id => { el(id).dataset.edited = ''; });
+      el('drivewaySqFt').value = job.drivewaySqFt;
+      el('thicknessIn').value = job.thicknessIn;
+      el('apronSqFt').value = job.apronSqFt;
+      el('apronThicknessIn').value = job.apronThicknessIn;
+      el('failedBaseSqFt').value = job.failedBaseSqFt;
+      el('sawcutLf').value = job.sawcutLf;
+      el('millDepthIn').value = job.millDepthIn;
+      el('existingDepthIn').value = job.existingDepthIn;
+      el('fabric').checked = job.fabric;
+    }
+
+    function readInput() {
+      const values = Object.fromEntries(FIELD_IDS.map(id => [id, el(id).value]));
+      for (const id of FLAG_IDS) values[id] = el(id).checked;
+      for (const id of SELECT_IDS) values[id] = el(id).value;
+      return values;
+    }
+
+    function clearOutputs(message, isError) {
+      el('price').textContent = message;
+      el('price').className = `hero-number ${isError ? 'negative' : ''}`;
+      el('priceLabel').textContent = isError ? 'check the highlighted input' : 'asphalt driveway paving price';
+      ['scope','surfaceBits','tons','hours','labor','materials','soft','overhead','cost','profit','perSqFt','hourlyRate','breakEven']
+        .forEach(id => { el(id).textContent = ''; });
+      el('hourSplit').innerHTML = '';
+      el('split').innerHTML = '';
+      el('compare').innerHTML = '';
+      el('verdict').hidden = true;
+    }
+
+    function barList(entries) {
+      return entries
+        .filter(([, share]) => share > 0)
+        .sort((a, b) => b[1] - a[1])
+        .map(([label, share]) => `<li><span>${label}</span><span>${share.toFixed(0)}%</span>
+          <span class="bar"><span style="width:${share.toFixed(1)}%"></span></span></li>`)
+        .join('');
+    }
+
+    function update() {
+      let result;
+      let compared;
+      try {
+        const input = readInput();
+        result = calculateBid(input);
+        compared = compareMethods(input);
+      } catch (error) {
+        clearOutputs(error.message, true);
+        return;
+      }
+
+      el('price').textContent = money(result.price);
+      el('price').className = 'hero-number';
+      el('priceLabel').textContent = 'asphalt driveway paving price';
+      el('scope').textContent = `${result.method} · ${result.pavedSqFt} sq ft`;
+      const extraBits = [
+        `${result.thicknessIn} in driveway`,
+        result.apronSqFt ? `${result.apronSqFt} sq ft apron at ${result.apronThicknessIn} in` : 'no apron',
+        result.failedBaseSqFt ? `${result.failedBaseSqFt} sq ft failed base` : null,
+        result.sawcutLf ? `${result.sawcutLf} lf sawcut` : null,
+        result.fabric ? 'fabric' : null,
+      ].filter(Boolean);
+      el('surfaceBits').textContent = extraBits.join(', ');
+      el('tons').textContent = `${result.newMixTons.toFixed(1)} t`;
+      el('hours').textContent = `${result.totalHours.toFixed(1)} h`;
+      el('labor').textContent = money(result.laborCost);
+      el('materials').textContent = money(result.materialCost);
+      el('soft').textContent = money(result.softCost);
+      el('overhead').textContent = money(result.overhead);
+      el('cost').textContent = money(result.totalCost);
+      el('profit').textContent = money(result.profit);
+      el('perSqFt').textContent = result.pricePerSqFt === null ? 'n/a' : money(result.pricePerSqFt);
+      el('hourlyRate').textContent = result.effectiveHourlyRate === null ? 'n/a' : `${money(result.effectiveHourlyRate)}/h`;
+      el('breakEven').textContent = money(result.breakEvenPrice);
+
+      el('compare').innerHTML = compared.map((row) => {
+        const delta = row.cheapest ? 'lowest on these rates' : `+${money(row.delta)}`;
+        return `<li class="${row.cheapest ? 'win' : ''}"><span>${row.label}</span><span>${money(row.price)} · ${delta}</span></li>`;
+      }).join('');
+
+      el('hourSplit').innerHTML = barList([
+        ['Trip / move-in', result.hourShares.trip],
+        ['Pave + tack', result.hourShares.pave],
+        ['Mill', result.hourShares.mill],
+        ['Demo existing mat', result.hourShares.demo],
+        ['Failed-base gravel', result.hourShares.base],
+        ['Sawcut + apron', result.hourShares.sawcut],
+        ['Site / travel', result.hourShares.site],
+      ]);
+      el('split').innerHTML = barList([
+        ['Labor', result.shares.labor],
+        ['Hot-mix tons', result.shares.mix],
+        ['Mill / demo / gravel / tack / fees', result.shares.extra],
+        ['Travel', result.shares.soft],
+        ['Overhead', result.shares.overhead],
+      ]);
+
+      const verdict = el('verdict');
+      if (result.proposed === null) {
+        verdict.hidden = true;
+      } else {
+        verdict.hidden = false;
+        verdict.className = `verdict${result.proposed.belowBreakEven ? ' bad' : ''}`;
+        const rate = result.proposed.hourlyRate === null ? 'n/a' : `${money(result.proposed.hourlyRate)}/h`;
+        verdict.innerHTML = result.proposed.belowBreakEven
+          ? `At ${money(result.proposed.price)} this job <strong>loses ${money(Math.abs(result.proposed.profit))}</strong> before you take anything out of it. Your walk-away price is ${money(result.breakEvenPrice)}.`
+          : `At ${money(result.proposed.price)} you keep <strong>${money(result.proposed.profit)}</strong> — a ${result.proposed.margin.toFixed(1)}% margin, billing ${rate} of labor.`;
+      }
+    }
+
+    async function copySummary() {
+      const job = JOB_PRESETS[Number(presets.value)];
+      const text = formatBidSummary(calculateBid(readInput()), job?.label);
+      try {
+        await navigator.clipboard.writeText(text);
+      } catch {
+        const fallback = document.createElement('textarea');
+        fallback.value = text;
+        fallback.setAttribute('readonly', '');
+        fallback.style.position = 'fixed';
+        fallback.style.opacity = '0';
+        document.body.append(fallback);
+        fallback.select();
+        document.execCommand('copy');
+        fallback.remove();
+      }
+      count('summary_copied');
+      el('summaryStatus').textContent = 'Copied to clipboard';
+      setTimeout(() => { el('summaryStatus').textContent = ''; }, 2500);
+    }
+
+    presets.addEventListener('change', () => {
+      const job = JOB_PRESETS[Number(presets.value)];
+      if (!job) return;
+      applyJob(job);
+      count('preset_applied');
+      update();
+    });
+
+    el('method').addEventListener('change', () => {
+      applyMethodKit(false);
+      if (el('method').value === 'mill-overlay' && !el('millDepthIn').dataset.edited) {
+        el('millDepthIn').value = '1.5';
+      }
+      count('method_changed');
+      update();
+    });
+
+    SUGGESTED_METHOD_IDS
+      .forEach(id => el(id).addEventListener('input', () => { el(id).dataset.edited = '1'; }));
+
+    FIELD_IDS.forEach(id => {
+      el(id).addEventListener('input', update);
+      el(id).addEventListener('change', () => count(id === 'proposedPrice' ? 'proposed_price_compared' : 'bid_calculated'));
+    });
+    FLAG_IDS.forEach(id => {
+      el(id).addEventListener('change', () => {
+        count('bid_calculated');
+        update();
+      });
+    });
+    el('usageOptOut').addEventListener('change', update);
+    el('copySummary').addEventListener('click', () => {
+      try {
+        copySummary().catch(() => { el('summaryStatus').textContent = 'Copy failed; select and copy the figures above.'; });
+      } catch (error) {
+        el('summaryStatus').textContent = error.message;
+      }
+    });
+
+    update();
+  </script>
+</body>
+</html>

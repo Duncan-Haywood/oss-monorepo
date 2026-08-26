@@ -58,6 +58,12 @@ workflows:
 - workflow: amazon-fba-calculator-ci.yml
   classification: none
   publishes: []
+- workflow: artificial-turf-bid-calculator-ci.yml
+  classification: none
+  publishes: []
+- workflow: asphalt-driveway-pave-bid-calculator-ci.yml
+  classification: none
+  publishes: []
 - workflow: automatic-driveway-gate-bid-calculator-ci.yml
   classification: none
   publishes: []
@@ -122,6 +128,9 @@ workflows:
   classification: none
   publishes: []
 - workflow: grant-deadline-tracker-ci.yml
+  classification: none
+  publishes: []
+- workflow: gravel-driveway-bid-calculator-ci.yml
   classification: none
   publishes: []
 - workflow: hetzner-gitops-ci.yml
@@ -241,6 +250,9 @@ workflows:
   classification: none
   publishes: []
 - workflow: shopify-permission-drift-ci.yml
+  classification: none
+  publishes: []
+- workflow: sod-install-bid-calculator-ci.yml
   classification: none
   publishes: []
 - workflow: source-silence-detector-ci.yml
