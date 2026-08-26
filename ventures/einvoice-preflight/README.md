@@ -6,10 +6,11 @@ local preflight — in the browser or in CI — which used to mean waiting for a
 network rejection. Open `index.html` and drop a JSON or UBL XML file, or run
 the CLI below. The page never uploads the invoice.
 
-This free local CLI also checks a small, transparent JSON or UBL XML invoice
-shape for missing fields and arithmetic mistakes, then prints rule IDs and
-plain-language fixes. It is aimed at bookkeepers and ERP integrators searching
-for an e-invoice preflight check.
+This free local CLI also checks a small, transparent JSON, UBL XML, or
+UN/CEFACT CII (XRechnung CII / Factur-X) invoice for missing fields and
+arithmetic mistakes, then prints rule IDs and plain-language fixes. It is
+aimed at bookkeepers and ERP integrators searching for an e-invoice
+preflight check. CII is the XML an ERP actually emits when it is not UBL.
 
 ```sh
 cd ventures/einvoice-preflight
@@ -26,6 +27,7 @@ cd ventures/einvoice-preflight
 PYTHONPATH=src python3 -m einvoice_preflight examples/valid-invoice.json
 PYTHONPATH=src python3 -m einvoice_preflight examples/valid-credit-note.json
 PYTHONPATH=src python3 -m einvoice_preflight examples/valid-mixed-rate.json
+PYTHONPATH=src python3 -m einvoice_preflight examples/cii-invoice.xml
 PYTHONPATH=src python3 -m einvoice_preflight examples/valid-invoice.json --format json
 PYTHONPATH=src python3 -m einvoice_preflight examples/valid-invoice.json --format sarif > preflight.sarif
 PYTHONPATH=src python3 -m einvoice_preflight ./invoices/ --format github
