@@ -414,6 +414,9 @@ workflows:
 - workflow: seller-net-sheet-ci.yml
   classification: none
   publishes: []
+- workflow: septic-pumping-bid-calculator-ci.yml
+  classification: none
+  publishes: []
 - workflow: sewer-hydrojet-bid-calculator-ci.yml
   classification: none
   publishes: []
