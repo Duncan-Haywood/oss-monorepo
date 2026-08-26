@@ -250,3 +250,30 @@ test('the handoff styles live inside the verdict panel', () => {
   assert.match(html, /\.continue \{/);
   assert.match(html, /\.continue a \{/);
 });
+
+test('mergeChannelValues is defined exactly once', () => {
+  // Function declarations hoist and the last one wins, so a second copy is not
+  // dead code — it silently replaces the first. Two sessions independently
+  // wrote this helper (`main`, and cursor/where-to-sell-share-hardening-
+  // 20260825), and the merge appended rather than conflicting: the weaker copy
+  // landed last and would have shadowed the stronger one with no error and no
+  // failing test. Counting the declarations is what notices.
+  const declarations = html.match(/function mergeChannelValues\b/g) ?? [];
+  assert.equal(declarations.length, 1,
+    `expected one mergeChannelValues, found ${declarations.length}`);
+});
+
+test('a saved channel that says nothing about `enabled` is not switched on', () => {
+  // This is the behaviour the duplicate above would have reverted. "Other
+  // channel" ships off; a stored record that predates the `enabled` flag omits
+  // it entirely, and `incoming.enabled !== false` reads that silence as true —
+  // quietly adding a channel the seller never asked to compare, which changes
+  // the ranking they are shown. Silence must fall back to the preset.
+  const merge = html.slice(html.indexOf('function mergeChannelValues'),
+    html.indexOf('function restoreSharedLink'));
+  assert.ok(merge.length > 0, 'mergeChannelValues not found');
+  assert.match(merge, /incoming\.enabled === undefined/,
+    'an absent `enabled` must be distinguished from an explicit one');
+  assert.match(merge, /channel\.enabled !== false/,
+    'and must fall back to the preset default');
+});
