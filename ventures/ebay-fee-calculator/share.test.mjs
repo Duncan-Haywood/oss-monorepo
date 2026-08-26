@@ -76,6 +76,29 @@ test('carries Authenticity Guarantee fields so a shared link does not drop them'
   assert.equal(restored.monthlyAgListings, 8);
 });
 
+test('carries local-pickup fields so a shared link does not drop them', () => {
+  const restored = decodeInputs(encodeInputs({
+    price: 40,
+    shipSellThroughPct: 70,
+    pickupSellThroughPct: 35,
+    pickupNoShowPct: 20,
+    pickupMinutes: 25,
+    pickupHourlyWage: 18,
+    pickupFeeCharged: 0,
+    pickupPackagingCost: 1,
+    pickupReturnRatePercent: 2,
+    monthlyPickupListings: 8,
+  }));
+  assert.equal(restored.shipSellThroughPct, 70);
+  assert.equal(restored.pickupSellThroughPct, 35);
+  assert.equal(restored.pickupNoShowPct, 20);
+  assert.equal(restored.pickupMinutes, 25);
+  assert.equal(restored.pickupHourlyWage, 18);
+  assert.equal(restored.pickupPackagingCost, 1);
+  assert.equal(restored.pickupReturnRatePercent, 2);
+  assert.equal(restored.monthlyPickupListings, 8);
+});
+
 test('round-trips known numeric inputs in stable order', () => {
   const encoded = encodeInputs({ price: 40, shippingCharged: 6, finalValueRate: 13.25 });
   assert.equal(encoded, 'price=40&shippingCharged=6&finalValueRate=13.25');

@@ -298,6 +298,14 @@ products:
           Added Authenticity Guarantee vs skip-AG after sell-through (hub
           label ceiling, fee refunded on return). Still no public URL;
           local event authenticity_compared is opt-out and stores no inputs.
+      - as_of: 2026-08-26
+        signals:
+          live_url_visitors: null
+          local_pickup_compared: 0
+        note: >-
+          Added local pickup vs the label after no-shows and meetup time
+          (outbound-label ceiling). Still no public URL; local event
+          local_pickup_compared is opt-out and stores no inputs.
   - slug: cut-list-optimizer
     surface: static-page-in-repo
     readings:

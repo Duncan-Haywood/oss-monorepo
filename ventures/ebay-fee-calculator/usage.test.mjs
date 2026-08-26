@@ -98,6 +98,14 @@ test('counts an Authenticity Guarantee comparison without storing a fee or label
   assert.deepEqual(Object.keys(stored).sort(), ['authenticity_compared', 'last_day']);
 });
 
+test('counts a local-pickup comparison without storing a wage or no-show rate', () => {
+  const storage = fakeStorage();
+  recordUsage(storage, false, 'local_pickup_compared');
+  const stored = JSON.parse(storage.getItem('ebay-fee-usage'));
+  assert.equal(stored.local_pickup_compared, 1);
+  assert.deepEqual(Object.keys(stored).sort(), ['last_day', 'local_pickup_compared']);
+});
+
 test('counts the return-rate view without storing a rate or cost', () => {
   const storage = fakeStorage();
   recordUsage(storage, false, 'return_rate_viewed');

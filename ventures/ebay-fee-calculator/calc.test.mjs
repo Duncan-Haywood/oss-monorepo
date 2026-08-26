@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { calculateOrder, calculatePriceScenarios, calculateRepricingTable, compareListingFormat, listingFormatNote, comparePartialRefund, partialRefundNote, DEFAULT_PARTIAL_REFUND, DEFAULT_MONTHLY_CASES, compareAuthenticity, authenticityNote, DEFAULT_AUTHENTICITY_FEE_RATE, DEFAULT_AUTHENTICITY_EXTRA_SHIP, DEFAULT_WITHOUT_AG_SELL_THROUGH, DEFAULT_AUTHENTICITY_SELL_THROUGH, DEFAULT_AUTHENTICITY_RETURN_RATE, DEFAULT_MONTHLY_AG_LISTINGS } from './calc.mjs';
+import { calculateOrder, calculatePriceScenarios, calculateRepricingTable, compareListingFormat, listingFormatNote, comparePartialRefund, partialRefundNote, DEFAULT_PARTIAL_REFUND, DEFAULT_MONTHLY_CASES, compareAuthenticity, authenticityNote, DEFAULT_AUTHENTICITY_FEE_RATE, DEFAULT_AUTHENTICITY_EXTRA_SHIP, DEFAULT_WITHOUT_AG_SELL_THROUGH, DEFAULT_AUTHENTICITY_SELL_THROUGH, DEFAULT_AUTHENTICITY_RETURN_RATE, DEFAULT_MONTHLY_AG_LISTINGS, compareLocalPickup, localPickupNote, DEFAULT_SHIP_SELL_THROUGH, DEFAULT_PICKUP_SELL_THROUGH, DEFAULT_PICKUP_NO_SHOW, DEFAULT_PICKUP_MINUTES, DEFAULT_PICKUP_HOURLY_WAGE, DEFAULT_MONTHLY_PICKUP_LISTINGS } from './calc.mjs';
 
 const near = (actual, expected, msg) => assert.ok(Math.abs(actual - expected) < 1e-6, `${msg}: ${actual} vs ${expected}`);
 
@@ -452,4 +452,95 @@ test('rejects a missing price, a return rate above 100%, and a missing compariso
   assert.throws(() => compareAuthenticity({ ...agBase, authenticityReturnRatePercent: 101 }), /at most 100/);
   assert.throws(() => compareAuthenticity({ price: -1 }), /Item price/);
   assert.throws(() => authenticityNote({}), /missing rows/);
+});
+
+test('compares local pickup against shipping on the default listing', () => {
+  // Completed sale $21.605; return −$11; 10% mix → $18.3445 expected.
+  // Ship at 70% sell-through → $12.84115.
+  // Pickup: $0 label, $0 pack, 2% returns → completed $22.40, expected $21.952.
+  // 20% no-show and $7.50 meetup: per-commit $10.0616; 35% sell-through → $3.52156.
+  const comparison = compareLocalPickup(agBase);
+  assert.equal(comparison.ship.sellThroughPct, DEFAULT_SHIP_SELL_THROUGH);
+  assert.equal(comparison.pickup.sellThroughPct, DEFAULT_PICKUP_SELL_THROUGH);
+  assert.equal(comparison.pickup.noShowPct, DEFAULT_PICKUP_NO_SHOW);
+  assert.equal(comparison.timeCost, DEFAULT_PICKUP_MINUTES / 60 * DEFAULT_PICKUP_HOURLY_WAGE);
+  assert.equal(comparison.monthlyListings, DEFAULT_MONTHLY_PICKUP_LISTINGS);
+  near(comparison.ship.soldExpectedProfit, 18.3445, 'ship completed expected');
+  near(comparison.ship.expectedProfit, 18.3445 * 0.70, 'ship listing expected');
+  near(comparison.pickup.completedProfit, 22.4, 'pickup completed');
+  near(comparison.pickup.soldExpectedProfit, 0.98 * 22.4, 'pickup completed expected');
+  near(comparison.pickup.expectedProfit, (0.80 * 21.952 - 7.5) * 0.35, 'pickup listing expected');
+  assert.equal(comparison.winner, 'ship');
+  near(comparison.extraKeptOnPickup, 3.52156 - 12.84115, 'pickup vs ship');
+  near(comparison.monthlyExtraOnPickup, (3.52156 - 12.84115) * 8, 'eight listings');
+  near(comparison.breakEvenShippingCost, 18.3137, 'label that ties pickup');
+  assert.equal(comparison.breakEvenPickupSellThrough, Infinity);
+  assert.equal(comparison.breakEvenNoShow, Infinity);
+});
+
+test('break-even outbound label matches pickup expected profit', () => {
+  const comparison = compareLocalPickup(agBase);
+  const atCeiling = compareLocalPickup({ ...agBase, shippingCost: comparison.breakEvenShippingCost });
+  near(atCeiling.ship.expectedProfit, atCeiling.pickup.expectedProfit, 'ceiling label ties pickup');
+  assert.ok(comparison.breakEvenShippingCost > 5, 'default $5 label is below the ceiling');
+});
+
+test('a freight label flips local pickup ahead on the same $40 SKU', () => {
+  const comparison = compareLocalPickup({ ...agBase, shippingCost: 40 });
+  assert.equal(comparison.winner, 'pickup');
+  near(comparison.ship.expectedProfit, -11.65885, '$40 label listing expected');
+  near(comparison.pickup.expectedProfit, 3.52156, 'pickup unchanged');
+  near(comparison.extraKeptOnPickup, 3.52156 - -11.65885, 'freight gap');
+});
+
+test('a 90% local sell-through with no no-shows and no meetup time flips pickup', () => {
+  const comparison = compareLocalPickup({
+    ...agBase,
+    pickupSellThroughPct: 90,
+    pickupNoShowPct: 0,
+    pickupMinutes: 0,
+  });
+  assert.equal(comparison.winner, 'pickup');
+  near(comparison.pickup.expectedProfit, 21.952 * 0.90, 'pickup listing with no friction');
+  near(comparison.breakEvenPickupSellThrough, 12.84115 / 21.952 * 100, 'sell-through that ties ship');
+});
+
+test('a bulky freight listing keeps more as local pickup', () => {
+  const comparison = compareLocalPickup({
+    price: 180,
+    shippingCharged: 0,
+    finalValueRate: 13.25,
+    fixedFee: 0.3,
+    costOfGoods: 60,
+    shippingCost: 85,
+    packagingCost: 8,
+    returnShippingCost: 45,
+    feeRefundOnReturnPercent: 100,
+    returnRatePercent: 8,
+    pickupSellThroughPct: 50,
+  });
+  assert.equal(comparison.winner, 'pickup');
+  near(comparison.ship.soldExpectedProfit, -8.418, 'freight completed expected');
+  near(comparison.ship.expectedProfit, -8.418 * 0.70, 'freight listing expected');
+  near(comparison.pickup.soldExpectedProfit, 93.933, 'pickup completed expected');
+  near(comparison.pickup.expectedProfit, (0.80 * 93.933 - 7.5) * 0.50, 'pickup listing expected');
+  near(comparison.extraKeptOnPickup, 33.8232 - -5.8926, 'bulky gap');
+});
+
+test('local-pickup note names the figures without telling the seller what to do', () => {
+  const comparison = compareLocalPickup(agBase);
+  const note = localPickupNote(comparison);
+  assert.match(note, /Shipping at 70%/);
+  assert.match(note, /\$6\.00 postage and pack/);
+  assert.match(note, /Local pickup at 35%/);
+  assert.match(note, /20% no-show/);
+  assert.match(note, /\$7\.50 of meetup time/);
+  assert.match(note, /outbound label has to be about/);
+  assert.doesNotMatch(note, /should offer pickup|must ship|list as local pickup/i);
+});
+
+test('rejects a pickup no-show above 100% and a missing comparison', () => {
+  assert.throws(() => compareLocalPickup({ ...agBase, pickupNoShowPct: 101 }), /at most 100/);
+  assert.throws(() => compareLocalPickup({ price: -1 }), /Item price/);
+  assert.throws(() => localPickupNote({}), /missing rows/);
 });
