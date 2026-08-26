@@ -460,6 +460,9 @@ once per visit and only after an input is edited — counting the table's
 first paint would just re-count page loads and say nothing about whether
 the view is used.
 
+Usage recording is best-effort. If local storage is blocked, full, or contains
+invalid old data, the calculator continues to work and simply skips that count.
+
 ## Support
 
 The tool is free and full-featured. The
