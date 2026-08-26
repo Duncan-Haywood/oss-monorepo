@@ -303,7 +303,9 @@ test('the Top Rated Plus table has one cell per column and a counted event', () 
   assert.match(page, /top_rated_plus_compared/);
   assert.match(page, /is-ebay-top-rated-plus-worth-it\.html/);
   assert.match(page, /"featureList":\s*"[^"]*Top Rated Plus vs stay standard/);
-  const headerBlock = page.slice(page.indexOf('id="topRatedPlusTable"'));
+  const trsStart = page.indexOf('id="topRatedPlusTable"');
+  const trsEnd = page.indexOf('id="managedReturns"', trsStart);
+  const headerBlock = page.slice(trsStart, trsEnd === -1 ? undefined : trsEnd);
   const headers = [...headerBlock.matchAll(/<th scope="col">([^<]+)<\/th>/g)].map((m) => m[1]);
   assert.deepEqual(headers, [
     'Path',
@@ -313,5 +315,23 @@ test('the Top Rated Plus table has one cell per column and a counted event', () 
     'If it sells',
     'Expected after sell-through',
     'vs standard',
+  ]);
+});
+
+test('the Managed Returns table has one cell per column and a counted event', () => {
+  assert.match(page, /compareManagedReturns/);
+  assert.match(page, /id="managedReturns"/);
+  assert.match(page, /id="managedReturnsVerdict"/);
+  assert.match(page, /managed_returns_compared/);
+  assert.match(page, /is-ebay-managed-returns-worth-it\.html/);
+  assert.match(page, /"featureList":\s*"[^"]*Managed Returns vs your own label/);
+  const headerBlock = page.slice(page.indexOf('id="managedReturnsTable"'));
+  const headers = [...headerBlock.matchAll(/<th scope="col">([^<]+)<\/th>/g)].map((m) => m[1]);
+  assert.deepEqual(headers, [
+    'Path',
+    'Label / fee',
+    'Return rate',
+    'Expected leftover',
+    'vs self-label',
   ]);
 });
