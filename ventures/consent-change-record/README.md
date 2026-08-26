@@ -19,6 +19,8 @@ Open `index.html`, paste a **before** and **after** JSON trace, then choose **Co
 
 The comparator keeps raw URLs out of analytics and never uploads the traces. Use **Download report** to save the local review artifact. Only test sites you own or are authorized to test.
 
+If you already have DevTools HAR captures instead of JSON traces, open [`tool/index.html`](tool/index.html). That sibling diffs two HAR files and groups known tracker domains; it still does not claim a site is compliant.
+
 ## Privacy and usage
 
 Everything runs in your browser. Your trace data is never uploaded and there are no accounts, tracking cookies, or analytics vendors. We count only anonymous local feature events, with a visible opt-out. Do Not Track and Global Privacy Control disable counting automatically. The count never includes a site, URL, IP address, or trace content.

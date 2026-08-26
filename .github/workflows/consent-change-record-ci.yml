@@ -35,6 +35,9 @@ jobs:
           node-version: 22
       - name: Run comparator tests
         run: node --test
+      - name: Run HAR-diff tool tests
+        working-directory: ventures/consent-change-record/tool
+        run: node --test
       - name: Published pages carry the no-warranty clause
         working-directory: .
         run: node platform/pages/clauses.mjs consent-change-record

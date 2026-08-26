@@ -11,7 +11,7 @@
 </head>
 <body>
   <p class="eyebrow">CONSENT CHANGE RECORD</p><h1>See what changed after a consent choice.</h1>
-  <p class="intro">Compare two customer-owned browser trace exports and preserve observable request and storage-key changes. No compliance badge. No upload.</p>
+  <p class="intro">Compare two customer-owned browser trace exports and preserve observable request and storage-key changes. No compliance badge. No upload. Prefer raw HAR files from DevTools? Use the <a href="tool/index.html">HAR before/after diff</a>.</p>
   <main class="grid">
     <section><h2>Before consent</h2><textarea id="before" aria-label="Before consent trace">{"site":"https://example.test","capturedAt":"2026-08-24T12:00:00Z","browser":"Chromium / en-US","sequence":"before-consent","requests":[{"url":"https://cdn.example.test/script.js","method":"GET"}],"storage":[{"key":"consent_state"}]}</textarea></section>
     <section><h2>After consent</h2><textarea id="after" aria-label="After consent trace">{"site":"https://example.test","capturedAt":"2026-08-24T12:01:00Z","browser":"Chromium / en-US","sequence":"after-analytics-consent","requests":[{"url":"https://cdn.example.test/script.js","method":"GET"},{"url":"https://analytics.example.test/collect","method":"POST"}],"storage":[{"key":"consent_state"},{"key":"analytics_id"}]}</textarea></section>

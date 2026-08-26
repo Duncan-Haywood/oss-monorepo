@@ -693,7 +693,7 @@ candidates:
   - slug: consent-change-record
     name: Consent change record
     doc: candidates/consent-change-record.md
-    verdict: probe
+    verdict: build-now
     graduate_as: venture
     host_venture: null
     scores:
@@ -709,9 +709,10 @@ candidates:
     floor: 4
     floor_dimension: distribution
     mitigation: >-
-      Distribution requires a named web-agency or privacy-implementation
-      partner before graduation; until then this remains a local probe rather
-      than a standalone venture.
+      Distribution remains unmeasured: the first release is a local, zero-cost
+      HAR diff that can be shown to web agencies and privacy implementers
+      without collecting customer data. Measure repeat use and partner demand
+      before adding hosted automation.
     first_experiment_days: 14
     first_experiment_budget_usd: 25
 

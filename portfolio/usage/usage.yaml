@@ -2357,7 +2357,15 @@ products:
         note: >-
           Repair-and-merge of unique #1223 consent change record onto current
           main. Public URL remains owner-gated; local counting honors DNT/GPC
-          and a visible opt-out. Keep #1258 open for the HAR-diff extra.
+          and a visible opt-out.
+      - as_of: 2026-08-26
+        signals:
+          live_url_visitors: null
+          har_diffs: 0
+        note: >-
+          Added the sibling HAR before/after diff (tool/) from unique #1258.
+          JSON traces stay on index.html; HAR files stay local. Public URL
+          remains owner-gated.
 
   - slug: translator-project-quote
     surface: static-page-in-repo
