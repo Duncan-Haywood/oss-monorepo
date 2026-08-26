@@ -904,6 +904,44 @@ products:
           wage plus a second evening trip, Saturday-number scoring).
           Still no public URL; local event access_compared is opt-out
           and stores no inputs.
+  - slug: boiler-replacement-bid-calculator
+    surface: static-page-in-repo
+    readings:
+      - as_of: 2026-08-25
+        signals:
+          live_url_visitors: null
+          local_events_reported: 0
+        note: >-
+          Shipped a local boiler replacement bid calculator (input MBH,
+          hot-water vs steam, like-for-like vs condensing vs steam-to-hot-water,
+          liner/indirect/oil-to-gas extras, copyable proposal summary).
+          Public URL remains owner-gated; the local-first counter reports
+          only to the user's own browser and is opt-out. Baseline row.
+  - slug: toilet-replacement-bid-calculator
+    surface: static-page-in-repo
+    readings:
+      - as_of: 2026-08-25
+        signals:
+          live_url_visitors: null
+          local_events_reported: 0
+        note: >-
+          Shipped a local toilet replacement bid calculator (toilet count,
+          two-piece vs comfort-height vs one-piece vs bidet-combo, swap-only
+          vs new-supply vs flange-repair vs full-reset, 10/12/14-inch
+          rough-in, haul/wax-free/bidet extras, copyable proposal summary).
+          Public URL remains owner-gated; the local-first counter reports
+          only to the user's own browser and is opt-out. Baseline row.
+      - as_of: 2026-08-26
+        signals:
+          live_url_visitors: null
+          local_events_reported: 0
+        note: >-
+          Added weekday-scheduled vs same-day-occupied vs after-hours
+          Saturday comparison (occupied pace on swap and punch-list,
+          overtime wage plus a second emergency dispatch). $499 covers
+          a two-piece weekday swap and loses $124.94 after hours.
+          Public URL remains owner-gated; local event access_compared
+          is opt-out and stores no inputs.
   - slug: freelance-retainer-calculator
     surface: static-page-in-repo
     readings:
@@ -945,6 +983,20 @@ products:
           PRs #1333, #1358, and #1385 — those export the evidence record;
           this tells the photographer which rooms to recapture. Public URL
           remains owner-gated (`deploy-settings`).
+  - slug: carpet-install-bid-calculator
+    surface: static-page-in-repo
+    readings:
+      - as_of: 2026-08-25
+        signals:
+          live_url_visitors: null
+          local_events_reported: 0
+        note: >-
+          Shipped a local carpet installation bid calculator (floor yards,
+          stairs priced per step, stretch-in vs glue-down vs double-stick
+          vs carpet-tile, solid vs patterned waste, tear-out/furniture/haul
+          extras, copyable proposal summary). Public URL remains
+          owner-gated; the local-first counter reports only to the user's
+          own browser and is opt-out. Baseline row.
   - slug: basement-finishing-bid-calculator
     surface: static-page-in-repo
     readings:
@@ -1218,19 +1270,6 @@ products:
           cash-at-risk comparison (hire a writer vs file vs miss). Public URL
           remains owner-gated; the local-first counter reports only to the
           user's own browser and is opt-out. Baseline row.
-  - slug: boiler-replacement-bid-calculator
-    surface: static-page-in-repo
-    readings:
-      - as_of: 2026-08-25
-        signals:
-          live_url_visitors: null
-          local_events_reported: 0
-        note: >-
-          Shipped a local boiler replacement bid calculator (input MBH,
-          hot-water vs steam, like-for-like vs condensing vs steam-to-hot-water,
-          liner/indirect/oil-to-gas extras, copyable proposal summary).
-          Public URL remains owner-gated; the local-first counter reports
-          only to the user's own browser and is opt-out. Baseline row.
   - slug: crown-molding-bid-calculator
     surface: static-page-in-repo
     readings:
@@ -1253,31 +1292,6 @@ products:
           winter, remaining winters vs the plant bid, plus a $280
           circulator special scored on the visit). Public URL remains
           owner-gated.
-  - slug: toilet-replacement-bid-calculator
-    surface: static-page-in-repo
-    readings:
-      - as_of: 2026-08-25
-        signals:
-          live_url_visitors: null
-          local_events_reported: 0
-        note: >-
-          Shipped a local toilet replacement bid calculator (toilet count,
-          two-piece vs comfort-height vs one-piece vs bidet-combo, swap-only
-          vs new-supply vs flange-repair vs full-reset, 10/12/14-inch
-          rough-in, haul/wax-free/bidet extras, copyable proposal summary).
-          Public URL remains owner-gated; the local-first counter reports
-          only to the user's own browser and is opt-out. Baseline row.
-      - as_of: 2026-08-26
-        signals:
-          live_url_visitors: null
-          local_events_reported: 0
-        note: >-
-          Added weekday-scheduled vs same-day-occupied vs after-hours
-          Saturday comparison (occupied pace on swap and punch-list,
-          overtime wage plus a second emergency dispatch). $499 covers
-          a two-piece weekday swap and loses $124.94 after hours.
-          Public URL remains owner-gated; local event access_compared
-          is opt-out and stores no inputs.
   - slug: egress-window-bid-calculator
     surface: static-page-in-repo
     readings:
