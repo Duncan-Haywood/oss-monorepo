@@ -2928,3 +2928,15 @@ products:
           difficulty and electrical extras a dollars-per-watt quote hides;
           public URL remains owner-gated and the browser counter is local
           and opt-out. Baseline row.
+  - slug: water-heater-bid-calculator
+    surface: static-page-in-repo
+    readings:
+      - as_of: 2026-08-26
+        signals:
+          live_url_visitors: null
+          local_events_reported: 0
+        note: >-
+          Shipped a local water-heater replacement bid calculator that prices
+          the vent, the gas upsize, and the attic carry a flat installed
+          quote hides; public URL remains owner-gated and the browser
+          counter is local and opt-out. Baseline row.
