@@ -1,7 +1,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
-import { loadQuote, calculate, directCostSpikeScenarios, discountAskScenarios, loadKillFeeProgress, compareKillFee } from "./calc.mjs";
+import { loadQuote, calculate, directCostSpikeScenarios, discountAskScenarios, compareBillingModels, loadKillFeeProgress, compareKillFee } from "./calc.mjs";
 
 test("calculator page renders the cost-rise table and records the event", async () => {
   const page = await readFile(new URL("./index.html", import.meta.url), "utf8");
@@ -127,6 +127,47 @@ test("sitemap and robots advertise the cost-rise page", async () => {
   const robots = await readFile(new URL("./robots.txt", import.meta.url), "utf8");
   assert.match(sitemap, /if-costs-go-up-is-this-quote-still-alive\.html/);
   assert.match(sitemap, /if-they-ask-for-10-percent-off\.html/);
+  assert.match(sitemap, /should-i-send-a-fixed-quote-or-bill-hourly\.html/);
   assert.match(sitemap, /should-i-take-this-kill-fee-or-finish\.html/);
   assert.match(robots, /Sitemap: sitemap\.xml/);
+});
+
+test("calculator page renders the fixed-vs-hourly comparison and records the event", async () => {
+  const page = await readFile(new URL("./index.html", import.meta.url), "utf8");
+  assert.match(page, /id="billing"/);
+  assert.match(page, /compareBillingModels/);
+  assert.match(page, /billingModelNote/);
+  assert.match(page, /billing_model_compared/);
+  assert.match(page, /should-i-send-a-fixed-quote-or-bill-hourly\.html/);
+  assert.match(page, /Hourly minus fixed/);
+  assert.match(page, /No warranty/);
+});
+
+test("fixed-vs-hourly SEO page numbers match the calculator defaults", async () => {
+  const page = await readFile(new URL("./should-i-send-a-fixed-quote-or-bill-hourly.html", import.meta.url), "utf8");
+  const quote = loadQuote({
+    price: 2400,
+    delivery_hours: 24,
+    admin_hours: 5,
+    revision_hours: 6,
+    overhead: 180,
+    subcontractor_cost: 300,
+    target_hourly_rate: 75,
+  });
+  const rows = compareBillingModels(quote, calculate(quote));
+  const planned = rows.find((row) => row.percent === 0);
+  const plus50 = rows.find((row) => row.percent === 50);
+  assert.equal(planned.hourly_total, 3105);
+  assert.equal(planned.hourly_minus_fixed, 705);
+  assert.equal(plus50.hourly_total, 4417.5);
+  assert.match(page, /\$3,105\.00/);
+  assert.match(page, /\$705\.00/);
+  assert.match(page, /\$4,417\.50/);
+  assert.match(page, /\$2,017\.50/);
+  assert.match(page, /\$36\.57/);
+  assert.match(page, /not a recommendation/);
+  assert.doesNotMatch(page, /should send hourly|must bill hourly|switch to hourly/i);
+  assert.match(page, /No warranty/);
+  assert.match(page, /no SLA/);
+  assert.match(page, /GitHub Sponsors/);
 });
