@@ -720,14 +720,33 @@ class ChecksTest(unittest.TestCase):
                 self.assertEqual(main([str(invoice_path), "--format", "github"]), 2)
             self.assertIn("::error file=broken.json,line=1,title=Unreadable invoice::", output.getvalue())
 
-    def test_cli_emits_no_github_annotations_for_valid_invoice(self):
+    def test_cli_emits_github_notice_for_valid_invoice(self):
         with tempfile.TemporaryDirectory() as directory:
             invoice_path = Path(directory) / "invoice.json"
             invoice_path.write_text(json.dumps(VALID))
             output = io.StringIO()
             with contextlib.redirect_stdout(output):
                 self.assertEqual(main([str(invoice_path), "--format", "github"]), 0)
-            self.assertEqual(output.getvalue(), "")
+            report = output.getvalue()
+            self.assertIn("::notice title=E-invoice preflight::Passed: 1 invoice(s)", report)
+            self.assertNotIn("INV-1", report)
+            self.assertNotIn("::error", report)
+
+    def test_cli_records_github_report_usage_separately(self):
+        with tempfile.TemporaryDirectory() as directory:
+            invoice_path = Path(directory) / "invoice.json"
+            usage_path = Path(directory) / "usage.json"
+            invoice_path.write_text(json.dumps(VALID))
+            output = io.StringIO()
+            with contextlib.redirect_stdout(output):
+                self.assertEqual(main([
+                    str(invoice_path), "--format", "github", "--usage-file", str(usage_path)
+                ]), 0)
+            self.assertEqual(json.loads(usage_path.read_text()), {"events": {
+                "invoice_preflight_attempted": 1,
+                "invoice_preflight_checked": 1,
+                "invoice_preflight_github_report": 1,
+            }})
 
     def test_cli_reads_valid_invoice_from_stdin(self):
         output = io.StringIO()
