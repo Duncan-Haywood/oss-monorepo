@@ -5,6 +5,7 @@ import { EAA_PREAUDIT_CHECKS, checklistExport, checklistPercent } from "@/lib/pr
 
 const USAGE_KEY = "local-site-studio:eaa-preaudit-events";
 const OPT_OUT_KEY = "local-site-studio:eaa-preaudit-usage-opt-out";
+const DRAFT_KEY = "local-site-studio:eaa-preaudit-draft";
 
 function recordUsage(event: string) {
   try {
@@ -19,22 +20,42 @@ function recordUsage(event: string) {
 
 export function EaaPreauditChecklist() {
   const [checked, setChecked] = useState<string[]>([]);
-  const [optedOut, setOptedOut] = useState(() => {
-    try {
-      return localStorage.getItem(OPT_OUT_KEY) === "true";
-    } catch {
-      return false;
-    }
-  });
+  const [optedOut, setOptedOut] = useState(false);
+  const [hydrated, setHydrated] = useState(false);
   const percent = checklistPercent(checked);
 
   useEffect(() => {
+    let active = true;
     try {
-      recordUsage("preaudit_opened");
+      const saved = JSON.parse(localStorage.getItem(DRAFT_KEY) || "[]");
+      const savedChecked = Array.isArray(saved) && saved.every((item) => typeof item === "string") ? saved : [];
+      const savedOptedOut = localStorage.getItem(OPT_OUT_KEY) === "true";
+      queueMicrotask(() => {
+        if (!active) return;
+        setChecked(savedChecked);
+        setOptedOut(savedOptedOut);
+        recordUsage("preaudit_opened");
+        setHydrated(true);
+      });
     } catch {
       // The control remains useful without browser storage.
+      queueMicrotask(() => {
+        if (active) setHydrated(true);
+      });
     }
+    return () => {
+      active = false;
+    };
   }, []);
+
+  useEffect(() => {
+    if (!hydrated) return;
+    try {
+      localStorage.setItem(DRAFT_KEY, JSON.stringify(checked));
+    } catch {
+      // Draft recovery is best effort; the checklist remains usable without storage.
+    }
+  }, [checked, hydrated]);
 
   function toggle(id: string) {
     setChecked((current) => {
@@ -74,7 +95,8 @@ export function EaaPreauditChecklist() {
       </div>
       <p className="mt-3 max-w-2xl text-sm leading-6 text-zinc-600">
         Mark what you have checked, then download a plain-text handoff for your team or auditor.
-        This does not test your shop and an unchecked item is not proof of a failure.
+        Your checklist stays in this browser so you can return to it. This does not test your shop
+        and an unchecked item is not proof of a failure.
       </p>
       <div className="mt-6 space-y-3">
         {EAA_PREAUDIT_CHECKS.map((item) => (
