@@ -682,6 +682,15 @@ products:
           claims and upload time (claim-rate floor, quote ceiling,
           time ceiling). Still no public URL; local event
           ebay_labels_compared is opt-out and stores no inputs.
+      - as_of: 2026-08-26
+        signals:
+          live_url_visitors: null
+          max_acquisition_cost_calculated: 0
+        note: >-
+          Added the maximum item cost that still hits the typed target
+          margin at the current sale price, beside the ROI sourcing
+          ceiling. Still no public URL; local event
+          max_acquisition_cost_calculated is opt-out and stores no inputs.
   - slug: cut-list-optimizer
     surface: static-page-in-repo
     readings:
