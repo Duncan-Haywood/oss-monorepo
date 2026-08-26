@@ -402,7 +402,7 @@ browser; it never records the inputs. Turn it off with the checkbox in the
 footer, or your browser's Do Not Track / Global Privacy Control setting.
 
 The counted events are `order_profit_calculated`, `target_margin_calculated`,
-`batch_calculated`, `return_rate_viewed`, `listing_format_compared`,
+`sourcing_ceiling_calculated`, `batch_calculated`, `return_rate_viewed`, `listing_format_compared`,
 `partial_refund_compared`, `authenticity_compared`,
 `local_pickup_compared`, `lot_vs_singles_compared`,
 `standard_envelope_compared`, `combined_shipping_compared`,
