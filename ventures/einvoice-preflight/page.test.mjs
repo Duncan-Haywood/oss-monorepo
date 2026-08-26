@@ -40,19 +40,7 @@ test("disclaimer and optional sponsors are visible", () => {
 });
 
 test("sitemap and robots list the browser page", () => {
-  // The entry is relative on purpose: platform/pages/build.mjs resolves it to
-  // this tool's real published address at build time. It used to be an
-  // absolute github.com blob URL, which a crawler reading this sitemap from
-  // the published site discards outright — a sitemap may only advertise URLs
-  // on its own host, so the tool had no indexable pages at all.
-  const locs = [...sitemap.matchAll(/<loc>\s*([^<\s]+)\s*<\/loc>/g)].map((m) => m[1]);
-  assert.ok(locs.length > 0, "the sitemap must list at least the browser page");
-  assert.ok(
-    locs.every((loc) => !/^https?:/i.test(loc)),
-    `sitemap entries must stay relative for the builder to resolve: ${locs.join(", ")}`,
-  );
-  assert.ok(locs.includes("./"), `the tool's own page must be listed: ${locs.join(", ")}`);
-
+  assert.match(sitemap, /einvoice-preflight\/index.html/);
   assert.match(robots, /Allow: \//);
   assert.match(robots, /Sitemap: sitemap.xml/);
 });

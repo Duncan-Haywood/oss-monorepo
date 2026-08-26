@@ -21,6 +21,7 @@
 import { promises as fs, existsSync } from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import zlib from 'node:zlib';
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 export const REPO_ROOT = path.resolve(HERE, '..', '..');
@@ -56,7 +57,14 @@ const EXCLUDED_SLUGS = new Set([
 // Never shipped to a visitor: test payload they would download for no benefit,
 // repo bookkeeping, or a per-venture robots.txt that crawlers never read
 // (only the one at the origin root counts).
-const EXCLUDED_FILES = new Set(['VENTURE.yaml', 'robots.txt', 'README.md', 'package-lock.json']);
+// `package.json` is on the list for the same reason its lockfile already was:
+// two ventures ship one, a visitor downloads none of it, and publishing it puts
+// internal script names and dependency versions on a public URL for no benefit.
+// The rule below this one is by extension, so `.json` alone does not catch it —
+// and `.json` has to stay publishable for JSON-LD payloads and web manifests.
+const EXCLUDED_FILES = new Set([
+  'VENTURE.yaml', 'robots.txt', 'README.md', 'package.json', 'package-lock.json',
+]);
 const EXCLUDED_DIRS = new Set(['node_modules', '.git', 'dist', 'coverage', '.cache', 'tests', '__pycache__']);
 const isTestFile = (name) => /\.test\.(mjs|js|cjs|py)$/.test(name);
 
@@ -175,11 +183,16 @@ const decodeEntities = (value) =>
     .replace(/&quot;/g, '"')
     .replace(/&#0?39;/g, "'");
 
+// The content value is read up to the *same* quote that opened it, via a
+// backreference. Accepting any quote instead (`[^"']*`) silently stops at the
+// first apostrophe inside a double-quoted attribute, so "last night's archive
+// shrank" reached the hub and its JSON-LD as "last night" — a card and a
+// crawler description cut mid-sentence.
 const metaContent = (html, attr, value) => {
-  const pattern = new RegExp(`<meta[^>]*${attr}=["']${value}["'][^>]*content=["']([^"']*)["']`, 'i');
-  const reversed = new RegExp(`<meta[^>]*content=["']([^"']*)["'][^>]*${attr}=["']${value}["']`, 'i');
+  const pattern = new RegExp(`<meta[^>]*${attr}=["']${value}["'][^>]*content=(["'])(.*?)\\1`, 'i');
+  const reversed = new RegExp(`<meta[^>]*content=(["'])(.*?)\\1[^>]*${attr}=["']${value}["']`, 'i');
   const match = html.match(pattern) ?? html.match(reversed);
-  return match ? decodeEntities(match[1]).trim() : '';
+  return match ? decodeEntities(match[2]).trim() : '';
 };
 
 const titleize = (slug) => slug.split('-').map((word) => word.charAt(0).toUpperCase() + word.slice(1)).join(' ');
@@ -214,6 +227,29 @@ async function countPages(sourceDir) {
   return entries.filter((e) => e.isFile() && e.name.endsWith('.html')).length;
 }
 
+/**
+ * Every `.html` file published under `dir`, as paths relative to it.
+ *
+ * This reads the built output rather than the sources, so it sees exactly what
+ * a visitor can reach — after exclusions, after nested directories, after any
+ * page a venture added without telling anyone.
+ */
+export async function publishedPages(dir, prefix = '') {
+  const entries = await fs.readdir(dir, { withFileTypes: true });
+  const pages = [];
+
+  for (const entry of entries) {
+    const relative = prefix ? `${prefix}/${entry.name}` : entry.name;
+    if (entry.isDirectory()) {
+      pages.push(...(await publishedPages(path.join(dir, entry.name), relative)));
+    } else if (entry.isFile() && entry.name.endsWith('.html') && entry.name !== '404.html') {
+      pages.push(relative);
+    }
+  }
+
+  return pages.sort();
+}
+
 // ---------------------------------------------------------------------------
 // Copy
 // ---------------------------------------------------------------------------
@@ -221,55 +257,20 @@ async function countPages(sourceDir) {
 function rewriteOrigin(contents, baseUrl) {
   const rewritten = contents.split(PLACEHOLDER_ORIGIN).join(baseUrl);
 
-  // A handful of ventures wrote today's Pages address into their canonical
-  // tags and sitemaps directly, rather than the placeholder. That is correct
-  // by accident: it only holds while the site is served from exactly that
-  // URL. `PAGES_BASE_URL` exists so a custom domain can be attached, and on
-  // that day those pages would go on advertising the github.io origin — a
-  // cross-origin sitemap entry is invalid and a stale canonical points every
-  // crawler at the old address. Treating the default as a second placeholder
-  // makes the whole portfolio follow the base URL it is actually built with.
+  // Three ventures (freelance-retainer, no-show-fee, retainage-cashflow) wrote
+  // today's Pages address into their canonical tags directly, rather than the
+  // placeholder. That is correct by accident: it holds only while the site is
+  // served from exactly that URL, and `PAGES_BASE_URL` exists so a custom
+  // domain can be attached. On that day those pages would keep naming the
+  // github.io origin as canonical, which tells every crawler the real page is
+  // at the old address and hands the new domain a duplicate.
+  //
+  // Sitemaps are safe without this — they are regenerated from what actually
+  // published — but canonical tags are copied through, so they are not.
+  // Treating the default as a second placeholder makes the whole portfolio
+  // follow the base URL it is actually built with.
   if (baseUrl === DEFAULT_BASE_URL) return rewritten;
   return rewritten.split(DEFAULT_BASE_URL).join(baseUrl);
-}
-
-/**
- * Rewrite relative `<loc>` values in a sitemap to absolute URLs under
- * `dirUrl`, the published address of the directory the sitemap sits in.
- *
- * The sitemaps protocol requires every `<loc>` to be a fully-qualified URL;
- * a relative one is not "resolved relative to the sitemap" but rejected. Half
- * the ventures here were authored with relative entries (`index.html`, `./`,
- * `some-page.html`), because each was written as if its own folder were the
- * site root and there was no real origin to write down. Left alone, every one
- * of those pages ships to Google as an invalid entry and is not indexed —
- * which would quietly cost the portfolio most of its organic discovery on the
- * day the site first goes public.
- *
- * Absolute entries are left exactly as they are, so a venture that already
- * did this correctly is untouched.
- */
-export function absolutizeSitemapLocs(contents, dirUrl) {
-  const base = dirUrl.endsWith('/') ? dirUrl : `${dirUrl}/`;
-
-  return contents.replace(/(<loc>)\s*([^<]+?)\s*(<\/loc>)/gi, (match, open, loc, close) => {
-    // Already absolute, or a protocol-relative URL that a crawler can resolve.
-    if (/^(?:[a-z][a-z0-9+.-]*:|\/\/)/i.test(loc)) return match;
-
-    // `./` and `index.html` both mean "this directory" — emit the directory
-    // itself rather than a URL ending in `index.html`, which would compete
-    // with the canonical tag on the same page for the same content.
-    const cleaned = loc.replace(/^\.\//, '');
-    if (cleaned === '' || cleaned === 'index.html') return `${open}${base}${close}`;
-
-    try {
-      return `${open}${new URL(cleaned, base).href}${close}`;
-    } catch {
-      // An entry we cannot parse is left untouched rather than mangled; the
-      // artifact checker reports it instead of the builder guessing.
-      return match;
-    }
-  });
 }
 
 export function isPublishable(name) {
@@ -277,20 +278,11 @@ export function isPublishable(name) {
   return !NON_WEB_EXTENSIONS.has(path.extname(name).toLowerCase());
 }
 
-/**
- * Recursively copy `from` into `to`, dropping test payload and repo
- * bookkeeping.
- *
- * `dirUrl` is the published address of `to`. It is threaded through the
- * recursion so a sitemap found at any depth can have its relative entries
- * resolved against the directory it actually ships in. Defaults to `baseUrl`
- * so existing callers keep working.
- */
-export async function copyTree(from, to, baseUrl, dirUrl = baseUrl) {
+/** Recursively copy `from` into `to`, dropping test payload and repo bookkeeping. */
+export async function copyTree(from, to, baseUrl) {
   await fs.mkdir(to, { recursive: true });
   const entries = await fs.readdir(from, { withFileTypes: true });
   const copied = [];
-  const parentUrl = dirUrl.endsWith('/') ? dirUrl : `${dirUrl}/`;
 
   for (const entry of entries) {
     const src = path.join(from, entry.name);
@@ -298,7 +290,7 @@ export async function copyTree(from, to, baseUrl, dirUrl = baseUrl) {
 
     if (entry.isDirectory()) {
       if (EXCLUDED_DIRS.has(entry.name)) continue;
-      const nested = await copyTree(src, dest, baseUrl, `${parentUrl}${entry.name}/`);
+      const nested = await copyTree(src, dest, baseUrl);
       // A directory that held only CLI source leaves an empty shell behind.
       if (nested.length === 0) await fs.rm(dest, { recursive: true, force: true });
       copied.push(...nested);
@@ -308,12 +300,7 @@ export async function copyTree(from, to, baseUrl, dirUrl = baseUrl) {
 
     if (REWRITABLE.has(path.extname(entry.name))) {
       const contents = await fs.readFile(src, 'utf8');
-      let rewritten = rewriteOrigin(contents, baseUrl);
-      // Origin rewriting runs first: a venture that wrote absolute URLs
-      // against the placeholder is already correct by this point, and only
-      // genuinely relative entries are left for absolutizing.
-      if (entry.name === 'sitemap.xml') rewritten = absolutizeSitemapLocs(rewritten, parentUrl);
-      await fs.writeFile(dest, rewritten);
+      await fs.writeFile(dest, rewriteOrigin(contents, baseUrl));
     } else {
       await fs.copyFile(src, dest);
     }
@@ -659,21 +646,203 @@ ${DISCLAIMER_HTML}
 `;
 }
 
+// ---------------------------------------------------------------------------
+// Site chrome
+// ---------------------------------------------------------------------------
+
+// Every venture page was written as a standalone site, so none of them links to
+// any other. Under one origin that makes 33 tools into 33 dead ends: a visitor
+// who arrives from a search result at `does-subscribe-and-save-still-pay.html`
+// can see one calculator and has no route to the other 32 — not to the hub, not
+// to the sibling tool that answers their next question. The hub links down; up
+// to now nothing linked back or across.
+//
+// The chrome is injected at build time rather than written into each venture,
+// for two reasons. A calculator lands on `main` most days and the injection
+// covers each new one for free. And venture pages are edited concurrently by
+// other sessions, so a nav bar committed into 150 product files would conflict
+// with nearly every open branch.
+const CHROME_MARKER = 'pf-chrome';
+
+// Scoped under `.pf-chrome` so it cannot restyle a venture's own page, and
+// declared with fallbacks rather than inherited variables because each venture
+// names its theme variables differently.
+const CHROME_STYLE = `<style id="pf-chrome-style">
+.pf-chrome{font-family:system-ui,-apple-system,"Segoe UI",sans-serif;font-size:.9rem;line-height:1.5}
+.pf-chrome a{color:#0f5648;text-decoration:underline}
+.pf-chrome-top{border-bottom:1px solid #d3dce6;background:#eef2f7;color:#1d2530;padding:9px 16px}
+.pf-chrome-top a{font-weight:650;text-decoration:none}
+.pf-chrome-top a:hover,.pf-chrome-top a:focus-visible{text-decoration:underline}
+.pf-chrome-foot{border-top:1px solid #d3dce6;background:#eef2f7;color:#1d2530;margin-top:40px;padding:22px 16px 26px}
+.pf-chrome-foot .pf-inner{max-width:1080px;margin:0 auto}
+.pf-chrome-foot h2{font-size:1rem;margin:0 0 4px}
+.pf-chrome-foot p{margin:0 0 12px;color:#4a5666}
+.pf-chrome-foot ul{list-style:none;margin:0 0 14px;padding:0;display:grid;gap:8px 18px;
+  grid-template-columns:repeat(auto-fill,minmax(240px,1fr))}
+.pf-chrome-foot li{margin:0}
+.pf-chrome :focus-visible{outline:2px solid #0f5648;outline-offset:2px}
+@media (prefers-color-scheme:dark){
+.pf-chrome a{color:#7fd8c0}
+.pf-chrome-top,.pf-chrome-foot{background:#10151c;color:#e8eef5;border-color:#2a343f}
+.pf-chrome-foot p{color:#a2b0c0}
+.pf-chrome :focus-visible{outline-color:#7fd8c0}
+}
+</style>`;
+
+// The same anonymous, local-only convention the hub uses: which tool slugs were
+// opened, never who opened them, never leaving the device, and silent for a
+// browser asking not to be counted. Until this shipped the only page that
+// counted anything was the hub, so a visitor arriving from search at a deep SEO
+// page was invisible — which is most of the traffic these pages are written for.
+const CHROME_SCRIPT = (slug) => `<script>
+(function(){
+  try{
+    if(navigator.doNotTrack==='1'||navigator.globalPrivacyControl===true)return;
+    if(localStorage.getItem('portfolio-hub-optout')==='1')return;
+    var k='portfolio-hub-usage';
+    var bump=function(event){
+      try{
+        var c=JSON.parse(localStorage.getItem(k)||'{}');
+        c[event]=(c[event]||0)+1;
+        c.last_day=new Date().toISOString().slice(0,10);
+        localStorage.setItem(k,JSON.stringify(c));
+      }catch(e){}
+    };
+    bump('tool_viewed:${slug}');
+    document.addEventListener('click',function(e){
+      var a=e.target&&e.target.closest&&e.target.closest('[data-pf-to]');
+      if(a)bump('cross_tool_click:'+a.getAttribute('data-pf-to'));
+    });
+  }catch(e){}
+})();
+</script>`;
+
+/** How many `../` segments reach the site root from a published file. */
+export function upToRoot(relativePath) {
+  const depth = relativePath.split(/[\\/]/).length - 1;
+  return depth === 0 ? './' : '../'.repeat(depth);
+}
+
+/**
+ * Up to `limit` other tools to offer at the foot of `slug`'s pages: same
+ * category first, then the rest of the site. Rotating the list by the tool's
+ * own position means neighbouring tools do not all advertise the same four,
+ * while keeping the choice deterministic — the build has to be reproducible.
+ */
+export function relatedTools(surfaces, slug, limit = 4) {
+  const others = surfaces.filter((surface) => surface.slug !== slug);
+  if (others.length === 0) return [];
+
+  const category = categoryFor(slug).id;
+  const sameCategory = others.filter((surface) => categoryFor(surface.slug).id === category);
+  const rest = others.filter((surface) => categoryFor(surface.slug).id !== category);
+
+  const rotate = (list) => {
+    if (list.length === 0) return list;
+    const offset = surfaces.findIndex((surface) => surface.slug === slug) % list.length;
+    return [...list.slice(offset), ...list.slice(0, offset)];
+  };
+
+  return [...rotate(sameCategory), ...rotate(rest)].slice(0, limit);
+}
+
+/**
+ * Wrap one already-published page in the site's navigation. Returns the html
+ * unchanged when there is no `<body>` to attach to, or when the page has been
+ * wrapped already — the pass has to be safe to run twice.
+ */
+export function injectChrome(html, { slug, toRoot, total, related = [] }) {
+  if (html.includes(CHROME_MARKER)) return html;
+  const bodyOpen = html.match(/<body[^>]*>/i);
+  if (!bodyOpen || !/<\/body>/i.test(html)) return html;
+
+  const hub = `${toRoot}`;
+  const topBar = `<nav class="pf-chrome pf-chrome-top" aria-label="Site">
+  <a href="${escapeHtml(hub)}" data-pf-to="hub">← All ${total} free tools</a>
+</nav>`;
+
+  const links = related
+    .map(
+      (surface) =>
+        `      <li><a href="${escapeHtml(`${toRoot}${surface.slug}/`)}" data-pf-to="${escapeHtml(
+          surface.slug,
+        )}">${escapeHtml(surface.title)}</a></li>`,
+    )
+    .join('\n');
+
+  const footer = `<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+${links ? `    <ul>\n${links}\n    </ul>\n` : ''}    <p>
+      <a href="${escapeHtml(hub)}" data-pf-to="hub">Browse all ${total} free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood">Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+</aside>
+${CHROME_SCRIPT(slug)}`;
+
+  const withStyle = html.replace(/<\/head>/i, `${CHROME_STYLE}\n</head>`);
+  // A page with no <head> still gets the stylesheet, ahead of the bar it styles.
+  const stylePrefix = withStyle === html ? `${CHROME_STYLE}\n` : '';
+
+  return withStyle
+    .replace(bodyOpen[0], `${bodyOpen[0]}\n${stylePrefix}${topBar}`)
+    .replace(/<\/body>/i, `${footer}\n</body>`);
+}
+
+/**
+ * Adds the navigation to every published venture page. Runs after the hub is
+ * written, because `repairLinks` treats a link to a file that does not exist yet
+ * as one that escapes the site and repoints it at GitHub — which is exactly what
+ * would happen to a `../` hub link injected any earlier.
+ */
+export async function addSiteChrome({ outDir, surfaces }) {
+  const wrapped = [];
+
+  for (const surface of surfaces) {
+    const dir = path.join(outDir, surface.slug);
+    if (!(await exists(dir))) continue;
+    const related = relatedTools(surfaces, surface.slug);
+
+    for (const file of (await listFiles(dir)).filter((f) => f.endsWith('.html'))) {
+      const relative = path.relative(outDir, file);
+      const html = await fs.readFile(file, 'utf8');
+      const next = injectChrome(html, {
+        slug: surface.slug,
+        toRoot: upToRoot(relative),
+        total: surfaces.length,
+        related,
+      });
+      if (next === html) continue;
+      await fs.writeFile(file, next);
+      wrapped.push(relative);
+    }
+  }
+
+  return wrapped;
+}
+
 export function renderRobots(baseUrl) {
   return `User-agent: *\nAllow: /\n\nSitemap: ${baseUrl}sitemap.xml\n`;
 }
 
 /**
  * The sitemap `robots.txt` names. A `<sitemapindex>` cannot hold `<url>`
- * entries, so the hub itself and any venture without its own sitemap live in
- * `sitemap-hub.xml`, which this index also lists — otherwise a crawler
- * following robots.txt would reach the ventures and never the front page.
+ * entries, so the hub page itself lives in `sitemap-hub.xml`, which this index
+ * also lists — otherwise a crawler following robots.txt would reach the
+ * ventures and never the front page.
+ *
+ * Every published venture gets a generated sitemap (see `renderVentureSitemap`),
+ * so there is no venture the index can leave out.
  */
 export function renderSitemapIndex(surfaces, baseUrl) {
   const entries = [`  <sitemap><loc>${baseUrl}sitemap-hub.xml</loc></sitemap>`].concat(
-    surfaces
-      .filter((surface) => surface.hasSitemap)
-      .map((surface) => `  <sitemap><loc>${baseUrl}${surface.slug}/sitemap.xml</loc></sitemap>`),
+    surfaces.map(
+      (surface) => `  <sitemap><loc>${baseUrl}${surface.slug}/sitemap.xml</loc></sitemap>`,
+    ),
   );
 
   return `<?xml version="1.0" encoding="UTF-8"?>
@@ -683,12 +852,46 @@ ${entries.join('\n')}
 `;
 }
 
-export function renderHubSitemap(surfaces, baseUrl) {
-  const urls = [`  <url><loc>${baseUrl}</loc></url>`].concat(
-    surfaces
-      .filter((surface) => !surface.hasSitemap)
-      .map((surface) => `  <url><loc>${baseUrl}${surface.slug}/</loc></url>`),
-  );
+export function renderHubSitemap(baseUrl) {
+  return `<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <url><loc>${baseUrl}</loc></url>
+</urlset>
+`;
+}
+
+/**
+ * The URL a published page is served at, relative to the site root.
+ * `index.html` is served as its directory, so it is listed that way.
+ */
+export function pageUrlPath(slug, relativePath) {
+  const posix = relativePath.split(path.sep).join('/');
+  if (posix === 'index.html') return `${slug}/`;
+  if (posix.endsWith('/index.html')) return `${slug}/${posix.slice(0, -'index.html'.length)}`;
+  return `${slug}/${posix}`;
+}
+
+/**
+ * A venture's sitemap, generated from the pages the build actually published.
+ *
+ * The ventures ship their own hand-written `sitemap.xml` files, and copying
+ * those verbatim published two defects at once. They go stale — a venture
+ * grows a landing page and nobody edits the sitemap, so 70 of the 186 pages
+ * on this site were in no sitemap at all. And several were written against
+ * `…/monorepo-projects/ventures/<slug>/`, a path this site does not serve
+ * (products are mounted at `/<slug>/`), so every URL they advertised was a
+ * 404 — the worst possible thing to hand a crawler, since organic search is
+ * how these tools are meant to be found.
+ *
+ * Generating from the output makes both impossible by construction: a page is
+ * listed because it shipped, at the URL it actually shipped to.
+ */
+export function renderVentureSitemap(slug, relativePages, baseUrl) {
+  const urls = relativePages
+    .map((relative) => `${baseUrl}${pageUrlPath(slug, relative)}`)
+    .sort()
+    .map((url) => `  <url><loc>${url}</loc></url>`);
+
   return `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
 ${urls.join('\n')}
@@ -745,7 +948,7 @@ export async function buildSite({
     const { title, description } = readMeta(html, surface.slug);
     const destination = path.join(outDir, surface.slug);
 
-    await copyTree(surface.sourceDir, destination, base, `${base}${surface.slug}/`);
+    await copyTree(surface.sourceDir, destination, base);
     repairs.push(
       ...(await repairLinks({
         publishedDir: destination,
@@ -755,12 +958,20 @@ export async function buildSite({
       })),
     );
 
+    // Overwrite whatever sitemap the venture shipped with one generated from
+    // what actually published. See `renderVentureSitemap` for why.
+    const pages = await publishedPages(destination);
+    await fs.writeFile(
+      path.join(destination, 'sitemap.xml'),
+      renderVentureSitemap(surface.slug, pages, base),
+    );
+
     surfaces.push({
       ...surface,
       title,
       description,
       pageCount: await countPages(surface.sourceDir),
-      hasSitemap: await exists(path.join(destination, 'sitemap.xml')),
+      publishedPageCount: pages.length,
     });
     log(`  ${surface.slug}`);
   }
@@ -770,13 +981,109 @@ export async function buildSite({
   await fs.writeFile(path.join(outDir, '404.html'), renderNotFound(base));
 
   await fs.writeFile(path.join(outDir, 'sitemap.xml'), renderSitemapIndex(surfaces, base));
-  await fs.writeFile(path.join(outDir, 'sitemap-hub.xml'), renderHubSitemap(surfaces, base));
+  await fs.writeFile(path.join(outDir, 'sitemap-hub.xml'), renderHubSitemap(base));
+
+  await fs.writeFile(path.join(outDir, 'favicon.ico'), renderFavicon());
 
   // Tell Jekyll (which GitHub Pages runs by default) to leave the tree alone;
   // without this, any directory starting with `_` is silently dropped.
   await fs.writeFile(path.join(outDir, '.nojekyll'), '');
 
-  return { outDir, baseUrl: base, surfaces, repairs };
+  const wrapped = await addSiteChrome({ outDir, surfaces });
+
+  return { outDir, baseUrl: base, surfaces, repairs, wrapped };
+}
+
+// ---------------------------------------------------------------------------
+// Favicon
+// ---------------------------------------------------------------------------
+
+/**
+ * Every browser requests `/favicon.ico` on its own, for every page, whether or
+ * not the markup asks for one -- so without this file all 183 published pages
+ * log a 404 on load and open as an anonymous blank tab. The ventures' own
+ * pages cannot be asked to link an icon (there are 183 of them and they are
+ * the ventures' files, not this build's), and only `.ico` at the origin root
+ * is fetched automatically, so the icon has to be generated here.
+ *
+ * Built rather than committed so the tree stays reviewable text: a 16x16 PNG
+ * assembled by hand and wrapped in a single-image ICO container. Deterministic
+ * -- same bytes on every run.
+ */
+function pngChunk(type, data) {
+  const length = Buffer.alloc(4);
+  length.writeUInt32BE(data.length);
+  const body = Buffer.concat([Buffer.from(type, 'ascii'), data]);
+  const crc = Buffer.alloc(4);
+  crc.writeUInt32BE(crc32(body) >>> 0);
+  return Buffer.concat([length, body, crc]);
+}
+
+let CRC_TABLE = null;
+function crc32(buffer) {
+  if (!CRC_TABLE) {
+    CRC_TABLE = new Int32Array(256);
+    for (let n = 0; n < 256; n += 1) {
+      let c = n;
+      for (let k = 0; k < 8; k += 1) c = c & 1 ? 0xedb88320 ^ (c >>> 1) : c >>> 1;
+      CRC_TABLE[n] = c;
+    }
+  }
+  let crc = -1;
+  for (const byte of buffer) crc = CRC_TABLE[(crc ^ byte) & 0xff] ^ (crc >>> 8);
+  return crc ^ -1;
+}
+
+export function renderFavicon() {
+  const size = 16;
+  const ink = [36, 61, 53]; // the hub's accent green, so the tab matches the site
+  const mark = [197, 237, 181];
+
+  // Three rising bars on a rounded square. Chosen after looking at it at
+  // actual size: anything with a diagonal turns to mush at 16px, while flat
+  // bars stay crisp and read as "numbers" rather than as a generic glyph.
+  const BARS = [
+    { x0: 3, x1: 4, top: 9 },
+    { x0: 7, x1: 8, top: 6 },
+    { x0: 11, x1: 12, top: 3 },
+  ];
+  const raw = [];
+  for (let y = 0; y < size; y += 1) {
+    raw.push(0); // PNG filter byte: none
+    for (let x = 0; x < size; x += 1) {
+      const corner = (x < 2 || x > 13) && (y < 2 || y > 13);
+      const inBar = BARS.some((b) => x >= b.x0 && x <= b.x1 && y >= b.top && y <= 12);
+      if (corner) raw.push(0, 0, 0, 0);
+      else if (inBar) raw.push(...mark, 255);
+      else raw.push(...ink, 255);
+    }
+  }
+
+  const ihdr = Buffer.alloc(13);
+  ihdr.writeUInt32BE(size, 0);
+  ihdr.writeUInt32BE(size, 4);
+  ihdr[8] = 8; // bit depth
+  ihdr[9] = 6; // colour type: RGBA
+  const png = Buffer.concat([
+    Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]),
+    pngChunk('IHDR', ihdr),
+    pngChunk('IDAT', zlib.deflateSync(Buffer.from(raw), { level: 9 })),
+    pngChunk('IEND', Buffer.alloc(0)),
+  ]);
+
+  // ICO container: 6-byte header, one 16-byte directory entry, then the PNG.
+  const header = Buffer.alloc(6);
+  header.writeUInt16LE(0, 0);
+  header.writeUInt16LE(1, 2); // type: icon
+  header.writeUInt16LE(1, 4); // one image
+  const entry = Buffer.alloc(16);
+  entry[0] = size;
+  entry[1] = size;
+  entry.writeUInt16LE(1, 4); // colour planes
+  entry.writeUInt16LE(32, 6); // bits per pixel
+  entry.writeUInt32LE(png.length, 8);
+  entry.writeUInt32LE(header.length + entry.length, 12);
+  return Buffer.concat([header, entry, png]);
 }
 
 // ---------------------------------------------------------------------------
@@ -798,4 +1105,5 @@ if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.me
   if (result.repairs.length > 0) {
     console.log(`Repointed ${result.repairs.length} off-site link(s) at the repository source.`);
   }
+  console.log(`Added site navigation to ${result.wrapped.length} page(s).`);
 }

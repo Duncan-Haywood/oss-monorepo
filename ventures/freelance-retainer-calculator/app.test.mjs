@@ -1,7 +1,10 @@
 import assert from 'node:assert/strict';
 import {
   calculateCashFloat,
+  calculateIncomeCoverage,
   calculatePlan,
+  formatIncomeCoverageAdvice,
+  DEFAULT_FILL_RATE,
   comparePaymentTerms,
   compareRetainerUsage,
   compareUnusedHourRollover,
@@ -175,6 +178,9 @@ const draft = {
   utilization: '70',
   retainerHours: '16',
   buffer: '10',
+  otherRevenue: '3000',
+  otherHours: '40',
+  fillRate: '60',
   currency: 'EUR',
   paymentTerms: 'net30',
 };
@@ -191,6 +197,8 @@ const legacy = new Map([[DRAFT_KEY, JSON.stringify({
   retainerHours: '16',
   buffer: '10',
 })]]);
+// A draft saved before the month-level inputs existed must still restore. The
+// missing keys come back as '', which the form leaves at its own defaults.
 assert.deepEqual(loadDraft({ getItem: (key) => legacy.get(key) || null }), {
   income: '5000',
   costs: '900',
@@ -198,6 +206,9 @@ assert.deepEqual(loadDraft({ getItem: (key) => legacy.get(key) || null }), {
   utilization: '70',
   retainerHours: '16',
   buffer: '10',
+  otherRevenue: '',
+  otherHours: '',
+  fillRate: '',
   currency: '',
   paymentTerms: '',
 });
@@ -205,5 +216,95 @@ assert.deepEqual(loadDraft({ getItem: (key) => legacy.get(key) || null }), {
 assert.equal(saveDraft({ ...draft, currency: 'XXX', paymentTerms: 'wire' }, storage), true);
 assert.equal(loadDraft(storage).currency, '');
 assert.equal(loadDraft(storage).paymentTerms, '');
+
+// --- Income goal coverage -------------------------------------------------
+// The floor is `target / capacity`, which only reaches the goal if the whole
+// month sells. These check that the tool now says so.
+
+// Defaults reproduce the tool's previous implicit assumption exactly: no other
+// commitments, 100% fill. If this ever stops holding, the new block has
+// silently changed the advice the old page gave.
+const fullFill = calculateIncomeCoverage(plan);
+assert.equal(fullFill.fillRatePercent, DEFAULT_FILL_RATE);
+assert.equal(fullFill.committedRevenue, 1725);
+assert.equal(fullFill.unsoldHours, 84);
+assert.equal(fullFill.expectedOtherRevenue, 6300); // 84 h x $75
+assert.equal(fullFill.expectedRevenue, 8025);      // retainer carries its buffer
+assert.equal(fullFill.coversTarget, true);
+assert.equal(fullFill.surplus, 225);               // the 15% scope buffer, banked
+assert.equal(fullFill.shortfall, 0);
+
+// The finding: clearing the floor is not reaching the goal. At a 60% fill the
+// same retainer, unchanged and still above the floor, misses by thousands.
+const realistic = calculateIncomeCoverage(plan, { fillRatePercent: 60 });
+assert.equal(realistic.expectedFillHours, 50.4);
+assert.equal(realistic.expectedRevenue, 5505);
+assert.equal(realistic.shortfall, 2295);
+assert.equal(realistic.coversTarget, false);
+// Cross-check the break-even against the forward calculation rather than
+// restating the formula: filling exactly `requiredFillRate` must land on the
+// target, and it must be reachable inside the capacity that exists.
+assert.equal(realistic.reachableWithinCapacity, true);
+const atRequired = calculateIncomeCoverage(plan, { fillRatePercent: realistic.requiredFillRate });
+assert.ok(Math.abs(atRequired.expectedRevenue - plan.target) < 1, `expected ${plan.target}, got ${atRequired.expectedRequired ?? atRequired.expectedRevenue}`);
+// And the other branch of the same decision: pricing the retainer at
+// `retainerPriceToCloseGap` closes the gap without selling one more hour.
+assert.equal(realistic.retainerPriceToCloseGap, round2ForTest(plan.retainer + 2295));
+
+// Other committed work counts toward the goal and consumes capacity.
+const withOther = calculateIncomeCoverage(plan, { otherRevenue: 3000, otherHours: 40, fillRatePercent: 60 });
+assert.equal(withOther.committedRevenue, 4725);
+assert.equal(withOther.committedHours, 60);
+assert.equal(withOther.unsoldHours, 44);
+assert.equal(withOther.expectedRevenue, 6705); // 4725 + 26.4 h x 75
+assert.equal(withOther.shortfall, 1095);
+assert.match(withOther.recommendation, /does not reach the goal/);
+
+// The verdict is prose a human reads, so its money must carry the chosen
+// symbol rather than a bare number. Currency is display-only: the numeric
+// fields must be identical either way.
+const inEuros = calculateIncomeCoverage(plan, { fillRatePercent: 60, currency: 'EUR' });
+assert.match(inEuros.recommendation, /€5,505 of €7,800, €2,295 short/);
+assert.match(realistic.recommendation, /\$5,505 of \$7,800, \$2,295 short/);
+assert.equal(inEuros.shortfall, realistic.shortfall);
+assert.equal(inEuros.requiredFillRate, realistic.requiredFillRate);
+
+// A goal no amount of selling can reach must say so instead of printing a
+// fill rate above 100 as if it were a plan.
+const impossible = calculateIncomeCoverage(
+  { ...plan, target: 40000, rate: plan.rate, capacity: plan.capacity, retainer: plan.retainer, retainerHours: plan.retainerHours },
+);
+assert.equal(impossible.reachableWithinCapacity, false);
+assert.ok(impossible.requiredFillRate > 100);
+assert.match(impossible.recommendation, /No fill rate closes it/);
+assert.match(formatIncomeCoverageAdvice(impossible), /Unreachable by selling/);
+
+// No unsold hours left: the gap can only move on price or capacity, and the
+// division that would produce the fill rate must not run.
+const soldOut = calculateIncomeCoverage(plan, { otherHours: 84, otherRevenue: 100 });
+assert.equal(soldOut.unsoldHours, 0);
+assert.equal(soldOut.requiredFillRate, null);
+assert.equal(soldOut.coversTarget, false);
+assert.match(soldOut.recommendation, /no unsold hours left/i);
+
+// Committing more hours than the plan has is an error, not a negative number.
+assert.throws(() => calculateIncomeCoverage(plan, { otherHours: 90 }), /only 104.0 billable hours/);
+assert.throws(() => calculateIncomeCoverage(plan, { fillRatePercent: 140 }), /percentage from 0 to 100/);
+assert.throws(() => calculateIncomeCoverage(plan, { otherRevenue: -5 }), /zero or more/);
+
+// The proposal summary is copied into a client-facing document. What other
+// clients pay this freelancer must never appear in it.
+const summaryWithOtherClients = formatProposalSummary(
+  { income: '6000', costs: '1800', hours: '160', utilization: '65', retainerHours: '20', buffer: '15', otherRevenue: '3000', otherHours: '40', fillRate: '60' },
+  plan,
+  'USD',
+);
+assert.ok(!summaryWithOtherClients.includes('3,000'), 'proposal summary leaked other-client revenue');
+assert.ok(!summaryWithOtherClients.includes('Other committed'), 'proposal summary leaked other-client wording');
+assert.ok(!/fill rate/i.test(summaryWithOtherClients), 'proposal summary leaked the fill-rate assumption');
+
+function round2ForTest(value) {
+  return Math.round(value * 100) / 100;
+}
 
 console.log('freelance retainer calculator tests passed');
