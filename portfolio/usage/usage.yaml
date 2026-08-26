@@ -17,9 +17,11 @@ products:
           draft_saved: 0
           draft_loaded: 0
           early_pay_compared: 0
+          factor_compared: 0
         note: >-
           Salvage of unique #1405/#1400 invoice payment terms calculator onto
-          current main, plus 2/10 Net 30 vs waiting after carrying cost.
+          current main, plus 2/10 Net 30 vs waiting after carrying cost, plus
+          factor vs waiting after the third-party fee, advance, and reserve.
           Public URL remains owner-gated; the local-first counter reports only
           to the user's own browser and is opt-out. Baseline row.
   - slug: portfolio-pages
