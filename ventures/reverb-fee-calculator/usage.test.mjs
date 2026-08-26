@@ -26,6 +26,8 @@ test('supports a named aggregate event without recording inputs', () => {
   assert.equal(JSON.parse(values.get('reverb-fee-usage')).reverb_shipping_compared, 1);
   recordUsage(storage, false, 'reverb_safe_shipping_compared');
   assert.equal(JSON.parse(values.get('reverb-fee-usage')).reverb_safe_shipping_compared, 1);
+  recordUsage(storage, false, 'reverb_consignment_compared');
+  assert.equal(JSON.parse(values.get('reverb-fee-usage')).reverb_consignment_compared, 1);
 });
 
 test('honors Do Not Track without recording', () => {

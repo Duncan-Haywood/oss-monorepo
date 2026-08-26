@@ -9,12 +9,14 @@ import {
   offerThatMatchesEbayList,
   compareShippingPaths,
   compareSafeShipping,
+  compareConsignment,
 } from './calc.mjs';
 
 const html = readFileSync(new URL('./index.html', import.meta.url), 'utf8');
 const seo = readFileSync(new URL('./should-i-take-this-reverb-offer.html', import.meta.url), 'utf8');
 const shippingSeo = readFileSync(new URL('./should-i-include-shipping-on-reverb.html', import.meta.url), 'utf8');
 const safeShippingSeo = readFileSync(new URL('./should-i-buy-reverb-safe-shipping.html', import.meta.url), 'utf8');
+const consignmentSeo = readFileSync(new URL('./should-i-consign-this-reverb-listing.html', import.meta.url), 'utf8');
 
 function money(value) {
   return `$${(Math.round((Number(value) + Number.EPSILON) * 100) / 100).toFixed(2)}`;
@@ -46,6 +48,13 @@ test('the calculator page wires the compare the schema.org featureList names', (
   assert.match(html, /should-i-take-this-reverb-offer.html/);
   assert.match(html, /should-i-include-shipping-on-reverb.html/);
   assert.match(html, /should-i-buy-reverb-safe-shipping.html/);
+  assert.match(featureList[1], /shop consignment versus self-list/i);
+  assert.match(html, /id="shopSalePrice"/);
+  assert.match(html, /id="consignmentRate"/);
+  assert.match(html, /id="shopCashOffer"/);
+  assert.match(html, /id="consignmentRows"/);
+  assert.match(html, /compareConsignment/);
+  assert.match(html, /should-i-consign-this-reverb-listing.html/);
 });
 
 test('the SEO page uses the same worked example the calculator defaults produce', () => {
@@ -93,4 +102,23 @@ test('the Safe Shipping SEO page uses the same worked example the calculator def
   assert.ok(safeShippingSeo.includes(money(comparison.expectedClaim)), `missing expected claim ${money(comparison.expectedClaim)}`);
   assert.ok(safeShippingSeo.includes(comparison.breakEvenLossRatePct.toFixed(2)), `missing break-even ${comparison.breakEvenLossRatePct.toFixed(2)}`);
   assert.ok(safeShippingSeo.includes(signed(comparison.rows[2].vsOwnExpected)), `missing Safe delta ${signed(comparison.rows[2].vsOwnExpected)}`);
+});
+
+test('the consignment SEO page uses the same worked example the calculator defaults produce', () => {
+  const comparison = compareConsignment(REVERB_DEFAULTS);
+  assert.match(consignmentSeo, /Should I consign this Reverb listing/i);
+  assert.match(consignmentSeo, /href="\.\/#consignment-compare"/);
+  assert.match(consignmentSeo, /No warranty/);
+  assert.match(consignmentSeo, /no SLA/i);
+  assert.ok(consignmentSeo.includes(money(comparison.selfList.profit)), `missing list profit ${money(comparison.selfList.profit)}`);
+  assert.ok(consignmentSeo.includes(money(comparison.consignProfit)), `missing consign profit ${money(comparison.consignProfit)}`);
+  assert.ok(consignmentSeo.includes(money(comparison.cashProfit)), `missing cash profit ${money(comparison.cashProfit)}`);
+  assert.ok(consignmentSeo.includes(money(comparison.shopPayout)), `missing shop payout ${money(comparison.shopPayout)}`);
+  assert.ok(consignmentSeo.includes(signed(comparison.rows[1].vsSelfList)), `missing consign delta ${signed(comparison.rows[1].vsSelfList)}`);
+  assert.ok(consignmentSeo.includes(signed(comparison.rows[2].vsSelfList)), `missing cash delta ${signed(comparison.rows[2].vsSelfList)}`);
+  assert.ok(consignmentSeo.includes(comparison.breakEvenConsignmentRatePct.toFixed(2)), `missing break-even cut ${comparison.breakEvenConsignmentRatePct.toFixed(2)}`);
+  assert.ok(consignmentSeo.includes(money(comparison.breakEvenShopSalePrice)), `missing break-even shop price ${money(comparison.breakEvenShopSalePrice)}`);
+  assert.ok(consignmentSeo.includes(money(comparison.breakEvenShopCash)), `missing break-even cash ${money(comparison.breakEvenShopCash)}`);
+  assert.match(consignmentSeo, /listing it yourself still leaves/i);
+  assert.doesNotMatch(consignmentSeo, /you should consign/i);
 });
