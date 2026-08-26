@@ -9,6 +9,7 @@ import {
   UNIMPLEMENTED_RULES,
   buildReshootPlan,
   checkBatch,
+  createEvidenceReport,
   formatReshootPlan,
   isListingPhoto,
   type PhotoReport,
@@ -164,13 +165,17 @@ function ReshootList({ reports }: { reports: PhotoReport[] }) {
 // The JSON sibling of the Markdown record below: same run, machine-readable,
 // for agents who file preflight evidence rather than read it.
 function downloadJsonReport(run: RunSummary): void {
+  const evidence = createEvidenceReport(run.reports, run.skipped, run.checkedAt);
   const payload = {
     product: "Listing Lens MLS Photo Preflight",
-    spec_id: SPEC_ID,
-    spec_date: SPEC_DATE,
-    checked_at: run.checkedAt,
+    report_type: evidence.reportType,
+    spec_id: evidence.specId,
+    spec_date: evidence.specDate,
+    checked_at: evidence.checkedAt,
+    checked_photos: evidence.checkedPhotos,
     scope: "File headers and filenames only; not an MLS acceptance determination.",
-    photos: run.reports.map((report) => ({
+    unimplemented_rules: evidence.unimplementedRules,
+    photos: evidence.photos.map((report) => ({
       name: report.info.name,
       format: report.info.format,
       width: report.info.width,
@@ -178,7 +183,7 @@ function downloadJsonReport(run: RunSummary): void {
       bytes: report.info.nbytes,
       findings: report.findings,
     })),
-    skipped_non_photo_files: run.skipped,
+    skipped_non_photo_files: evidence.skippedFiles,
   };
   const blob = new Blob([JSON.stringify(payload, null, 2)], { type: "application/json" });
   const url = URL.createObjectURL(blob);
