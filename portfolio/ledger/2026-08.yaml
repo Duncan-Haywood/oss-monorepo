@@ -1,5 +1,59 @@
 period: 2026-08
 entries:
+  - venture: portfolio-pages
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Built and merged the portfolio's public site (#1718, extended by #1724):
+        `platform/pages/build.mjs` assembles every static venture surface into
+        the one GitHub Pages site a repository gets, behind a searchable hub
+        with the §5b no-warranty and no-SLA copy, a privacy line, and an
+        optional Sponsors link. 33 tools at merge; 37 by the end of the same
+        session, with no manual step — discovery is automatic, so a calculator
+        that lands on `main` is on the site on the next push.
+      - >-
+        The thing worth knowing: the owner flip everyone was waiting on was
+        worth far less than the queue said. GitHub serves one Pages site per
+        repository, and the only workflow that could claim it built
+        `retail-pilot-intel`'s passcode-gated internal docs. Setting
+        `GITHUB_PAGES_ENABLED` would have published a docs app and left every
+        calculator dark. `publish_surface.py` reported the gate honestly — it
+        reports what publishes, not whether what publishes is worth anything,
+        and nobody had checked the second question in seven days. The
+        `deploy-settings` ask was updated in place rather than duplicated, and
+        `retail-pilot-intel` moved to its own variable so one flip cannot make
+        two deployments race for the origin.
+      - >-
+        A cheaper lesson, twice over: the tests that assert the *built site*
+        rather than the build functions caught both real defects — nine links
+        that would have 404'd for visitors, and a JSON-LD block a venture title
+        containing a closing script tag could have broken out of. Neither turns
+        anything red on its own; the site builds fine and the visitor simply
+        cannot get there. Verified end to end in headless Chromium at a 390px
+        viewport: hub, search, click-through, a calculation that recomputes,
+        local usage counting, zero console errors, zero off-origin requests.
+      - >-
+        Deploy-first's build half is now done for every static product, and no
+        future calculator needs deploy work at all. What remains is the owner
+        flip, which no agent can do. `portfolio/DIRECTION.md` was updated to say
+        so, so the next session spends its time on depth in the tools that will
+        go live rather than on a thirty-eighth front page.
+    mrr_end: null
+  - venture: retainage-cashflow-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Graduated and implemented a browser-local construction retainage and
+        payment-delay worksheet. It models retainage withheld, earned-but-unpaid
+        cash, user-supplied carrying-cost scenarios, and a factual payment
+        follow-up draft without accounts, uploads, integrations, or payments.
+        The product includes a visible no-warranty disclaimer, privacy boundary,
+        opt-out local usage counter, MIT license, SEO metadata, sitemap, and
+        robots.txt. Public publishing remains owner-gated; first usage reading
+        is recorded as zero.
+    mrr_end: null
   - venture: shopify-a11y-evidence
     agent_spend_usd: null
     human_hours: 0
@@ -23036,6 +23090,84 @@ entries:
         #949 had already removed the duplicate `shopify-permission-drift`
         score, so #951's patch would have deleted the only remaining entry.
     mrr_end: null
+  - venture: ai-engineering-academy
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Triage first (scheduled brief, webhook-triggered on PR #955):
+        #955 turned out to be a byte-identical duplicate of #954, which a
+        concurrent session had already merged to main, so closed #955
+        rather than re-landing the same snapshot regeneration twice. The
+        other quote-margin-check duplicate pair (#948 vs #953, the same
+        browser-calculator idea under `site/` and `web/`) resolved itself
+        mid-session -- #948 was closed by another session while I was
+        reading it -- so I left #953 as the survivor and did not pile on.
+        With 7 concurrent sessions committing in a 15-minute window,
+        picking a lane nobody else was in mattered more than reviewing
+        work that was already moving.
+      - >-
+        Product pick: `ai-engineering-academy` had zero open PRs against
+        it and a concrete, user-visible defect. Its three tool pages
+        cross-linked only the tools that existed when each was written --
+        `resistor-calculator` linked to nothing, `led-resistor-calculator`
+        to one sibling -- so a visitor who found one tool could not
+        discover the others, and every new tool meant editing every
+        existing page. That is an O(n^2) convention that was already
+        failing at n=3.
+      - >-
+        Shipped `tools/index.html`, a hub page listing all four tools with
+        ItemList/CollectionPage JSON-LD, plus a one-line back-link
+        (`../`) added to each tool page -- cross-links are now O(n) and a
+        fifth tool costs one hub entry and one CI matrix line, both
+        documented in the venture README's next-steps.
+      - >-
+        Shipped `tools/555-timer-calculator/`: astable and monostable in
+        both directions (analyse given parts, or solve backwards from a
+        target frequency, duty cycle, or pulse width to nearest-E24
+        resistors). The differentiator over the many existing 555
+        calculators is that it reports what the timing equations don't:
+        a standard two-resistor astable cannot reach 50% duty or below
+        (the tool refuses the request and explains the diode-across-R2
+        workaround instead of returning a negative resistor), R1 alone
+        limits current into the ~200mA discharge pin, bipolar NE555
+        timing drifts past ~1M-ohm of timing resistance, and a
+        microfarad-scale timing cap is an electrolytic whose -20%/+80%
+        tolerance makes the computed frequency a target rather than a
+        spec. Added it to the CI matrix in
+        `.github/workflows/ai-engineering-academy-ci.yml`.
+      - >-
+        Verified rather than assumed. 29 unit tests pass (`node --test`).
+        Drove all four pages end-to-end in headless Chromium via
+        Playwright: every hub link resolves (HTTP 200), every tool
+        back-links to the hub, the astable/design/monostable panels render
+        the hand-checked values (1.023 kHz at 66.67% duty for
+        4k7/4k7/100nF; 3k + 5.6k as the E24 pair for a 1 kHz 60% target),
+        the duty<=50 refusal renders as an error with the diode
+        explanation, a 100-ohm R1 raises the discharge-pin warning, usage
+        events land in localStorage, the opt-out toggle persists, and the
+        page makes zero off-origin requests with zero console errors.
+        Also checked my own copy against the code rather than the READMEs:
+        the hub's first draft credited `resistor-calculator` with 6-band
+        and reverse-lookup support it does not have, and a README example
+        said ~1.07 kHz where the real figure is 1023 Hz. Both corrected
+        before commit.
+      - >-
+        The browser run caught a real defect the unit tests had not: the
+        page rendered "1.02318797 kHz", nine significant figures, claiming
+        a precision that +/-5% resistors and +/-20% capacitors cannot
+        deliver. Split display precision (4 s.f.) from computational
+        precision in the formatters and added a test pinning it.
+      - >-
+        Not deployed to a public URL -- publishing under the portfolio's
+        name stays owner-gated per `portfolio/DIRECTION.md`, and
+        `publish_surface.py` confirms nothing publishes on a push to main.
+        Ready to deploy as a static directory the moment that opens.
+        Added a usage.yaml baseline row naming the reading to watch once
+        it does: hub entries versus direct entries to a single tool. All
+        five portfolio validators re-run clean (16 VENTURE.yaml, 18
+        candidates x2, 17 venture scores, 42 workflows).
+    mrr_end: null
 
   - venture: portfolio
     agent_spend_usd: null
@@ -23157,12 +23289,17 @@ entries:
           users to open `index.html` from disk, which cannot work, since
           browsers refuse ES module imports over `file://`.
     mrr_end: null
+<<<<<<< HEAD
 
   - venture: cut-list-optimizer
+=======
+  - venture: portfolio
+>>>>>>> origin/main
     agent_spend_usd: null
     human_hours: 0
     outcomes:
       - >-
+<<<<<<< HEAD
           Webhook session (pull_request.edited on #1020). Merged #1020
           (unit-aware ticket exports, 6/6 tests verified locally) and #1019
           (local e-invoice preflight CLI, 5/5 verified), resolving #1019's
@@ -23212,4 +23349,62 @@ entries:
           `shopify-a11y-evidence` still have no CI workflow, so their
           committed tests never run; left as a scoped follow-up rather than
           widening this PR into other ventures.
+=======
+        Owner decided the host: GitHub Pages for static products, the
+        existing Hetzner boxes for processes, no Cloudflare, no Vercel as
+        a portfolio default. Documented in `portfolio/hosting/README.md`,
+        the no-SLA clause in `PRODUCT_PLAYBOOK.md` §5b, and the operating
+        docs that pointed at an open platform menu. Removed the stale
+        `deployment-platform` queue row (#720 already closed unmerged).
+        Remaining owner flip for static URLs is still `deploy-settings`
+        (enable GitHub Pages).
+    mrr_end: null
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Owner answered 2026-08-25: agents merge product PRs. Rely on the
+        owner as little as possible. Removed the "may we merge venture
+        code?" queue row. Remaining owner flags are money, legal-person
+        accounts, public publishing, unattended paid spend, and secrets
+        only they can paste.
+    mrr_end: null
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Made every page on the new Pages site carry the liability clauses
+        before it gets a URL. `PRODUCT_PLAYBOOK.md` §5b requires the
+        no-warranty *and* the no-SLA clause on every hosted surface; the
+        second was checked only on the hub. Audited all 192 published pages
+        against the built tree: 20 pages across 10 ventures (`3pl-quote-
+        normalizer`, `ai-engineering-academy`, `amazon-fba-calculator`,
+        `cut-list-optimizer`, `ebay-fee-calculator`, `einvoice-preflight`,
+        `shopify-a11y-evidence`, `shopify-fee-calculator`,
+        `shopify-permission-drift`, `where-to-sell-calculator`,
+        `automatic-driveway-gate-bid-calculator`) carried no
+        availability statement at all. Added it to each, and added a test
+        over the built tree so the 184th page cannot ship without one --
+        verified the test goes red when a clause is removed (it caught
+        `automatic-driveway-gate-bid-calculator` the moment that venture merged
+        mid-session). Also emitted a
+        generated `favicon.ico`: browsers request it per page regardless of
+        markup, so all 192 pages were logging a 404 and opening as blank
+        tabs. Learned that the disclaimer gap was invisible to per-venture
+        CI because it is only a gap once the pages are hosted -- which they
+        were not until #1718 landed the site.
+      - >-
+        Duplicate avoided rather than merged: this session had a complete
+        second Pages builder (`platform/site/`, Python, 40 tests) when
+        #1718 merged an equivalent one 20 minutes earlier. Compared both --
+        #1718's published a strict superset (33 surfaces to 32, plus
+        `EXCLUDED_SLUGS` and a separate `RETAIL_PILOT_INTEL_PAGES` gate so
+        one owner flip cannot make two deployments race) -- and discarded
+        this session's rather than opening a competing PR. Verified the
+        merged one in a real browser instead: 33 tools listed, search,
+        primary journey, crawlability, and 288 files with zero dangling
+        internal references.
+>>>>>>> origin/main
     mrr_end: null

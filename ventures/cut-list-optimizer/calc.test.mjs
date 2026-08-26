@@ -12,6 +12,16 @@ test('packs cuts with kerf and reports waste', () => {
 });
 test('rejects a cut longer than stock', () => assert.throws(() => optimizeCutList({ stockLength: 10, kerf: 0, cuts: [12] }), /fit inside one stock length/));
 test('rejects an empty cut list', () => assert.throws(() => optimizeCutList({ stockLength: 10, kerf: 0, cuts: [] }), /at least one/));
+test('rejects non-finite stock and kerf values', () => {
+  assert.throws(() => optimizeCutList({ stockLength: NaN, kerf: 0, cuts: [24] }), /Stock length.*positive/);
+  assert.throws(() => optimizeCutList({ stockLength: Infinity, kerf: 0, cuts: [24] }), /Stock length.*positive/);
+  assert.throws(() => optimizeCutList({ stockLength: 60, kerf: NaN, cuts: [24] }), /kerf.*finite/);
+  assert.throws(() => optimizeCutList({ stockLength: 60, kerf: Infinity, cuts: [24] }), /kerf.*finite/);
+});
+test('rejects non-finite required cuts', () => {
+  assert.throws(() => optimizeCutList({ stockLength: 60, kerf: 0, cuts: [NaN] }), /fit/);
+  assert.throws(() => optimizeCutList({ stockLength: 60, kerf: 0, cuts: [Infinity] }), /fit/);
+});
 test('formats a plan for copying into a job ticket', () => {
   const result = optimizeCutList({ stockLength: 60, kerf: 1, cuts: [36, 20, 10] });
   assert.equal(formatCutPlan(result, { stockUnit: 'in', stockLength: 60, kerf: 1 }), 'Cut plan: 2 stock pieces\nStock length: 60.00 in\nKerf per cut: 1.00 in\nRequired material: 66.00 in\nOffcut after kerf allowance: 53.00 in\n\nStock 1: 36.00 + 20.00 in\n  3.00 in remaining after kerf allowance\nStock 2: 10.00 in\n  50.00 in remaining after kerf allowance');
@@ -53,13 +63,13 @@ test('with no on-hand stock the packing is unchanged and nothing is claimed as a
   assert.equal(result.onHandUsed, 0);
   assert.equal(result.purchasesAvoided, 0);
   assert.equal(result.savings, null);
-  assert.equal(result.cost, null);
+  assert.equal(result.totalCost, null);
 });
 
 test('cost and savings price the plan when a stock price is given', () => {
-  const result = optimizeCutList({ stockLength: 96, kerf: 0, cuts: [90, 90, 90], onHand: [92, 92], stockPrice: 18 });
+  const result = optimizeCutList({ stockLength: 96, kerf: 0, cuts: [90, 90, 90], onHand: [92, 92], stockCost: 18 });
   assert.equal(result.purchased, 1);
-  assert.equal(result.cost, 18);
+  assert.equal(result.totalCost, 18);
   assert.equal(result.purchasesAvoided, 2);
   assert.equal(result.savings, 36);
 });
@@ -72,7 +82,7 @@ test('a cut only an offcut can hold is placed there, and is refused once they ar
 });
 
 test('the ticket export names the on-hand pieces, the buy count, and the money', () => {
-  const result = optimizeCutList({ stockLength: 96, kerf: 0, cuts: [90, 90], onHand: [92], stockPrice: 18 });
+  const result = optimizeCutList({ stockLength: 96, kerf: 0, cuts: [90, 90], onHand: [92], stockCost: 18 });
   const plan = formatCutPlan(result, { stockUnit: 'in', stockLength: 96, kerf: 0, currency: '$' });
   assert.match(plan, /From your on-hand stock: 1/);
   assert.match(plan, /To buy: 1/);
@@ -87,4 +97,16 @@ test('a 1/8 inch kerf is not rounded to 0.13 on the ticket', () => {
   assert.match(formatCutPlan(result, { stockUnit: 'in', kerf: 0.125 }), /Kerf per cut: 0\.125 in/);
   assert.match(formatCutPlan(result, { stockUnit: 'in', kerf: 0.25 }), /Kerf per cut: 0\.25 in/);
   assert.match(formatCutPlan(result, { stockUnit: 'in', kerf: 0 }), /Kerf per cut: 0\.00 in/);
+});
+
+test('calculates linear-stock material cost from the pieces bought', () => {
+  const result = optimizeCutList({ stockLength: 60, kerf: 1, cuts: [36, 20, 10], stockCost: 12.5 });
+  assert.equal(result.totalCost, 25);
+  assert.match(formatCutPlan(result, { stockUnit: 'in', stockLength: 60, kerf: 1 }), /Material cost: \$25\.00 \(2 × \$12\.50\)/);
+});
+
+test('does not report a cost when no stock price is supplied', () => {
+  const result = optimizeCutList({ stockLength: 60, kerf: 1, cuts: [36] });
+  assert.equal(result.totalCost, null);
+  assert.throws(() => optimizeCutList({ stockLength: 60, kerf: 1, cuts: [36], stockCost: -1 }), /non-negative/);
 });

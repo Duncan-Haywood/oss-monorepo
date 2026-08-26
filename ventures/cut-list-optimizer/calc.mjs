@@ -38,13 +38,16 @@ export function parseStock(text) {
  * bin list is empty at the start and this reduces exactly to the original
  * plain first-fit-decreasing packing.
  */
-export function optimizeCutList({ stockLength, kerf, cuts, onHand = [], stockPrice = null }) {
-  if (!(stockLength > 0) || kerf < 0) throw new Error('Stock length must be positive and kerf cannot be negative');
+export function optimizeCutList({ stockLength, kerf, cuts, onHand = [], stockCost = null }) {
+  if (!Number.isFinite(stockLength) || stockLength <= 0 || !Number.isFinite(kerf) || kerf < 0) {
+    throw new Error('Stock length must be positive and kerf must be a finite, non-negative number');
+  }
   if (!Array.isArray(cuts) || cuts.length === 0) throw new Error('Add at least one required cut');
+  if (stockCost !== null && (!Number.isFinite(Number(stockCost)) || Number(stockCost) < 0)) throw new Error('Stock cost must be a non-negative number');
   const sorted = [...cuts].sort((a, b) => b - a);
   const onHandSorted = [...onHand].sort((a, b) => a - b);
   const longestBin = Math.max(stockLength, ...onHandSorted);
-  if (sorted.some(cut => cut <= 0 || cut > longestBin)) throw new Error('Every required cut must fit inside one stock length');
+  if (sorted.some(cut => !Number.isFinite(cut) || cut <= 0 || cut > longestBin)) throw new Error('Every required cut must fit inside one stock length');
 
   const bins = onHandSorted.map(length => ({ cuts: [], remaining: length, used: 0, length, source: 'on-hand' }));
   for (const cut of sorted) {
@@ -85,7 +88,11 @@ export function optimizeCutList({ stockLength, kerf, cuts, onHand = [], stockPri
     totalCuts,
     waste: totalStock - totalCuts - kerfAllowance,
     utilization: totalCuts / totalStock,
-    cost: stockPrice > 0 ? purchased * stockPrice : null,
+    stockCost: stockCost === null ? null : Number(stockCost),
+    // Only pieces actually bought cost money. An offcut off the rack is already
+    // paid for, so it must not be multiplied into the total — that difference
+    // is the whole reason to plan against the rack in the first place.
+    totalCost: stockCost === null ? null : purchased * Number(stockCost),
     purchasesAvoided: 0,
     savings: null,
   };
@@ -94,14 +101,14 @@ export function optimizeCutList({ stockLength, kerf, cuts, onHand = [], stockPri
   // that answers "was it worth digging through the rack?". Skipped when a cut
   // only fits an offcut, because then the all-new plan does not exist.
   if (onHandSorted.length && sorted[0] <= stockLength) {
-    const baseline = optimizeCutList({ stockLength, kerf, cuts, stockPrice });
+    const baseline = optimizeCutList({ stockLength, kerf, cuts, stockCost });
     result.purchasesAvoided = Math.max(0, baseline.purchased - purchased);
-    result.savings = stockPrice > 0 ? result.purchasesAvoided * stockPrice : null;
+    result.savings = stockCost === null ? null : result.purchasesAvoided * Number(stockCost);
   }
   return result;
 }
 
-export function formatCutPlan(result, { stockUnit = 'units', stockLength, kerf, currency = '' } = {}) {
+export function formatCutPlan(result, { stockUnit = 'units', stockLength, kerf, currency = '$' } = {}) {
   const money = value => `${currency}${value.toFixed(2)}`;
   // Two decimals is right for lengths but wrong for kerf: the common 1/8"
   // blade is 0.125, and rounding it to 0.13 on a job ticket misstates the
@@ -115,7 +122,7 @@ export function formatCutPlan(result, { stockUnit = 'units', stockLength, kerf, 
     ...(result.onHandUsed ? [`From your on-hand stock: ${result.onHandUsed}`, `To buy: ${result.purchased}`] : []),
     `Required material: ${result.totalCuts.toFixed(2)} ${stockUnit}`,
     `Offcut after kerf allowance: ${result.waste.toFixed(2)} ${stockUnit}`,
-    ...(result.cost !== null ? [`Material cost: ${money(result.cost)}`] : []),
+    ...(result.totalCost !== null ? [`Material cost: ${money(result.totalCost)} (${result.purchased} × ${money(result.stockCost)})`] : []),
     ...(result.purchasesAvoided ? [`On-hand stock avoided buying ${result.purchasesAvoided} piece${result.purchasesAvoided === 1 ? '' : 's'}${result.savings !== null ? ` (${money(result.savings)})` : ''}`] : []),
     '',
   ];
