@@ -918,3 +918,170 @@ export function compareShopifyCapital(input) {
     }),
   };
 }
+
+/**
+ * Illustrative unpaid-invoice rate so the table is immediately useful.
+ * Replace it from your own aged-receivables report — not a Shopify
+ * published collection figure.
+ */
+export const DEFAULT_COLLECTION_PCT = 95;
+export const DEFAULT_MANUAL_DISCOUNT_PCT = 0;
+export const DEFAULT_CHASE_COST = 0;
+
+function manualPaymentSummary({
+  winner,
+  extraIfPaid,
+  breakEvenHoldPct,
+  breakEvenShippedPct,
+  collectionPct,
+  monthlyExtraIfPaid,
+}) {
+  const save = moneyLabel(extraIfPaid);
+  const month = moneyLabel(monthlyExtraIfPaid);
+  const holdFloor = breakEvenHoldPct == null ? null : breakEvenHoldPct.toFixed(1);
+  const shipFloor = breakEvenShippedPct == null ? null : breakEvenShippedPct.toFixed(1);
+  if (winner === "card") {
+    const floor = holdFloor == null ? "a higher collection rate" : `at least ${holdFloor}% collected`;
+    return `Taking the card still keeps more than bank transfer at a ${collectionPct}% collection rate. The ${save} fee save only survives if ${floor} before you ship.`;
+  }
+  if (winner === "hold") {
+    return `Holding the order until the bank transfer clears keeps more than the card at a ${collectionPct}% collection rate. The ${save} fee save (${month} / month if they all pay) survives down to about ${holdFloor}% collected. Shipping first needs about ${shipFloor}% collected.`;
+  }
+  if (winner === "shipped") {
+    return `Bank transfer still keeps more than the card even if you ship first, at a ${collectionPct}% collection rate. The ${save} fee save survives down to about ${shipFloor}% collected after you have already spent cash.`;
+  }
+  return `The card and bank transfer leave the same leftover on these rates.`;
+}
+
+/**
+ * Same SKU, three ways the cash actually arrives.
+ *
+ *   - Card — Shopify Payments or the typed third-party path. The
+ *     processor collects; you keep profit after fees.
+ *   - Hold until paid — Shopify manual payment / bank deposit / Mark
+ *     as paid. No processor fee and no Shopify third-party transaction
+ *     fee. You only spend COGS and postage on the invoices that clear.
+ *   - Ship first — same zero-fee path, but the unpaid slice still
+ *     consumed cash (goods + label + packaging + allocated plan).
+ *
+ * The usual pitch is “save 2.9%.” The missing piece is collection.
+ * A 5% unpaid rate can wipe a 2.9% + $0.30 save on a $54 ticket.
+ * Rates, the invoice discount, chase cost, and collection percent are
+ * inputs — not Shopify policy. Complementary to landed Payments vs
+ * PayPal, POS, and Shop Pay Installments (those are still card rails).
+ */
+export function compareManualPayment(input) {
+  const price = number(input.price, "Item price");
+  const shippingCharged = number(input.shippingCharged, "Shipping charged");
+  const collectionPct = emptyField(input.collectionPct)
+    ? DEFAULT_COLLECTION_PCT
+    : ratePercent(input.collectionPct, "Collection percent");
+  const manualDiscountPct = emptyField(input.manualDiscountPct)
+    ? DEFAULT_MANUAL_DISCOUNT_PCT
+    : ratePercent(input.manualDiscountPct, "Manual payment discount");
+  const chaseCost = emptyField(input.chaseCost)
+    ? DEFAULT_CHASE_COST
+    : number(input.chaseCost, "Chase / matching cost");
+  const monthlyOrders = number(input.monthlyOrders, "Monthly orders", 1);
+
+  const cardOrder = calculateOrder(input);
+  const cardFees = cardOrder.selected.feeTotal;
+  const cashInvested = cardOrder.selected.cashInvested;
+  const cardProfit = cardOrder.selected.profit;
+
+  const manualPrice = price * (1 - manualDiscountPct / 100);
+  const manualRevenue = manualPrice + shippingCharged;
+  const paidProfit = manualRevenue - cashInvested - chaseCost;
+  const extraIfPaid = paidProfit - cardProfit;
+  const collectionRate = collectionPct / 100;
+  const unpaidRate = 1 - collectionRate;
+
+  const holdKept = collectionRate * paidProfit;
+  const shippedKept = collectionRate * paidProfit + unpaidRate * (-cashInvested - chaseCost);
+  const monthlyExtraIfPaid = extraIfPaid * monthlyOrders;
+  const monthlyHoldExtra = (holdKept - cardProfit) * monthlyOrders;
+  const monthlyShippedExtra = (shippedKept - cardProfit) * monthlyOrders;
+
+  const breakEvenHoldPct = paidProfit > 1e-12 ? (cardProfit / paidProfit) * 100 : null;
+  const shippedDenominator = manualRevenue;
+  const breakEvenShippedPct =
+    shippedDenominator > 1e-12
+      ? ((cardProfit + cashInvested + chaseCost) / shippedDenominator) * 100
+      : null;
+
+  const card = {
+    id: "card",
+    label: "Card / Shopify Payments",
+    revenue: cardOrder.revenue,
+    fees: cardFees,
+    cashAtRisk: cashInvested,
+    kept: cardProfit,
+  };
+  const hold = {
+    id: "hold",
+    label: "Bank transfer, hold until paid",
+    revenue: manualRevenue,
+    fees: 0,
+    cashAtRisk: 0,
+    kept: holdKept,
+  };
+  const shipped = {
+    id: "shipped",
+    label: "Bank transfer, ship first",
+    revenue: manualRevenue,
+    fees: 0,
+    cashAtRisk: cashInvested + chaseCost,
+    kept: shippedKept,
+  };
+
+  const rows = [card, hold, shipped].map((row) => ({
+    ...row,
+    vsCard: row.kept - cardProfit,
+  }));
+  const maxKept = Math.max(...rows.map((row) => row.kept));
+  const leaders = rows.filter((row) => Math.abs(row.kept - maxKept) < 1e-9);
+  // 100% collection makes hold and ship-first the same leftover. Prefer
+  // hold — you do not need to spend cash to earn that save.
+  let winner;
+  if (leaders.length === 1) {
+    winner = leaders[0].id;
+  } else if (leaders.every((row) => row.id !== "card")) {
+    winner = "hold";
+  } else {
+    winner = "tie";
+  }
+
+  return {
+    rows,
+    card: rows[0],
+    hold: rows[1],
+    shipped: rows[2],
+    collectionPct,
+    manualDiscountPct,
+    chaseCost,
+    manualPrice,
+    manualRevenue,
+    paidProfit,
+    extraIfPaid,
+    cardFees,
+    cashInvested,
+    holdKept,
+    shippedKept,
+    breakEvenHoldPct,
+    breakEvenShippedPct,
+    monthlyExtraIfPaid,
+    monthlyHoldExtra,
+    monthlyShippedExtra,
+    extraKeptOnHold: holdKept - cardProfit,
+    extraKeptOnShipped: shippedKept - cardProfit,
+    winner,
+    summary: manualPaymentSummary({
+      winner,
+      extraIfPaid,
+      breakEvenHoldPct,
+      breakEvenShippedPct,
+      collectionPct,
+      monthlyExtraIfPaid,
+    }),
+  };
+}
