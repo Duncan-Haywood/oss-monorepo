@@ -7,13 +7,15 @@ minimum value, and download a shortlist ordered by deadline.
 
 The v0 does not fetch portals, submit bids, or generate eligibility advice. The
 contractor verifies every source listing, requirement, deadline, and declaration
-before acting. A future optional AI draft feature would use the user's own key;
-the deterministic shortlist remains complete without one.
+before acting.
 
 Open [`site/index.html`](site/index.html) directly or serve `site/` as a static
 site. The expected CSV columns are `title, buyer, deadline, category, value,
 url`. Dates use `YYYY-MM-DD`; value is a plain number in the currency shown by
 the source portal.
+
+The worked example (roofing, minimum 20,000) keeps the school roof and the
+clinic reroof and drops the $12,000 painting hall.
 
 **No warranty.** This tool is provided free and as-is, without warranty of any
 kind, express or implied. It is not legal, tax, financial, or procurement
@@ -22,9 +24,24 @@ for reviewing and verifying its output before relying on it**, and for meeting
 any obligation it helps you prepare for. To the maximum extent permitted by law,
 the authors accept no liability for any loss or damage arising from its use.
 
+**Best-effort hosting, no SLA.** These tools are free, experimental, and may
+be slow, broken, moved, or taken offline without notice. We do not promise
+uptime, backups of anything you type, or that a URL will keep working. Do not
+use this as a system of record. If a tool needs to survive, export your
+inputs and run it yourself.
+
 Everything runs in your browser. Your listings are never uploaded, and there
-are no accounts, cookies, or analytics vendor. Optional anonymous feature-use
-events are counted only in localStorage, contain no listing content, and can be
-turned off in the footer.
+are no accounts, cookies, or analytics vendors. Optional anonymous feature-use
+events are counted only in localStorage, contain no listing content, honor Do
+Not Track and Global Privacy Control, and can be turned off in the footer.
+
+[GitHub Sponsors](https://github.com/sponsors/Duncan-Haywood) is optional and
+does not change what the tool does.
+
+```bash
+cd ventures/tender-radar/site
+node --test calc.test.mjs
+node ../../../platform/pages/clauses.mjs tender-radar
+```
 
 MIT licensed; see [`LICENSE`](LICENSE).

@@ -4,9 +4,9 @@
 specialist firms who are eligible for public contracts and never bid because the
 paperwork costs more than the odds justify.
 
-**Verdict: graduated 2026-08-24 as `ventures/tender-radar`.** The first release
-is an import-first local shortlist tool. The economics work and the ethics are
-clean; contractor repeat use and a distribution partner remain untested.
+**Verdict: park; needs a channel partner.** The economics work and the ethics
+are clean. The problem is that the buyer is diffuse and the incumbents own the
+one channel that reaches them.
 
 Scored 2026-08-18. Composite 6.625 · floor 4 (defensibility).
 

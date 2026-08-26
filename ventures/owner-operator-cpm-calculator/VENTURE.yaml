@@ -1,0 +1,32 @@
+name: owner-operator-cpm-calculator
+description: A private browser calculator for independent owner-operators that costs a week of running — loaded miles, deadhead, fuel, the truck note, insurance, and per-mile reserves — and shows all-in cost per mile plus the loaded rate that covers the empty miles after factoring.
+stage: prototype
+owner: duncan
+hypotheses:
+  - claim: Owner-operators will use a deadhead-adjusted loaded-rate calculator because generic cost-per-mile pages divide monthly bills by loaded miles and hide that a $2.00 offer on a 20% empty week is $1.60 of revenue per total mile before factoring.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: Seeing the offered rate after factoring next to the break-even loaded rate changes a booking decision on the same day, more than seeing all-in CPM alone.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: Starting the page on a week where a common $2.00 offer is underwater after 3% factoring teaches the conversion faster than an empty form.
+    status: untested
+    checked: null
+    evidence: customer-contact
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+budget:
+  monthly_cap: 1
+  protected: true
+kill_criteria:
+  - Fewer than three qualified owner-operators use the calculator twice within 90 days.
+  - Operators report that converting to a loaded rate is more work than the load-board number they already use, without changing which loads they take.
+  - The starting week is so far from real running that operators cannot use the tool without data we have no way to gather.
+links:
+  production: null
+  analytics: null

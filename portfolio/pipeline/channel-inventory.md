@@ -126,7 +126,7 @@ same style as the amendment table in
 | [mcp-supply-chain-watch](candidates/mcp-supply-chain-watch.md) | probe | Yes (npm/PyPI/GitHub) — but this is the candidate `distribution-first.md` already flagged against the "<5% of MCP servers monetise" figure. A free listing measures interest without contradicting that caution |
 | [public-record-watch](candidates/public-record-watch.md) | probe | No obvious one. Its verticals' channels are practice-management app stores, all gated |
 | [agent-permission-harness](candidates/agent-permission-harness.md) | park | Not relevant while parked |
-| [tender-radar](candidates/tender-radar.md) | graduated | No measured channel yet; a trade-association or vertical-community introduction remains the distribution hypothesis |
+| [tender-radar](candidates/tender-radar.md) | park | No — correctly parked pending a channel partner |
 | [einvoice-preflight](candidates/einvoice-preflight.md) | reject-broad | Not relevant |
 
 Three of the eight have a channel an agent can publish into this week for $0.

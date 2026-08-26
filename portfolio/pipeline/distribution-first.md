@@ -22,6 +22,14 @@ Added 2026-08-19, one pass after the consolidation in
 > as a 4 because "there is no marketplace" is no longer the right reading — the
 > question is whether a person with this problem can find the product by
 > searching for it.
+>
+> **2026-08-25 addendum:** building the landing page is not the same as
+> deploying it. Search cannot find a file that only exists in this repo.
+> While `publish_surface.py` reports nothing live, the next distribution
+> task is a public URL for an already-built product, not another candidate
+> write-up. Host is GitHub Pages or the Hetzner product box
+> ([`../hosting/README.md`](../hosting/README.md)). See
+> [`../DIRECTION.md`](../DIRECTION.md) "Current priority".
 
 ## The finding this directory already contains
 
@@ -117,7 +125,7 @@ evidence is not lost.
 | [mcp-supply-chain-watch](candidates/mcp-supply-chain-watch.md) | Distribution 6 should be re-examined against the <5%-of-MCP-servers-monetise figure. The probe should test whether anyone pays before the diffing is built |
 | [agent-permission-harness](candidates/agent-permission-harness.md) | Already parked on time-to-revenue. The MCP monetisation data supports the park and suggests the unpark condition should be a *paying* agent-tooling market, not merely a larger one |
 | [public-record-watch](candidates/public-record-watch.md) | Its probe already tests distribution before product, which is the right shape. Worth asking whether any of its verticals have a marketplace (practice-management, CRM, or accounting app stores) rather than a mailing list |
-| [tender-radar](candidates/tender-radar.md) | Graduated 2026-08-24 as an import-first local prototype. A trade-association channel remains the distribution hypothesis to test; graduation does not imply that channel exists |
+| [tender-radar](candidates/tender-radar.md) | Parked pending a channel partner. Under the rule above that is the correct verdict and should not be revisited until a partner exists — not merely until the product looks better |
 
 ## What the next screening pass should do differently
 
