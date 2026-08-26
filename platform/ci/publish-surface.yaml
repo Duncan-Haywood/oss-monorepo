@@ -88,6 +88,9 @@ workflows:
 - workflow: cloud-egress-calculator-ci.yml
   classification: none
   publishes: []
+- workflow: conflict-markers-ci.yml
+  classification: none
+  publishes: []
 - workflow: crawl-space-encapsulation-bid-calculator-ci.yml
   classification: none
   publishes: []
@@ -158,6 +161,9 @@ workflows:
   classification: none
   publishes: []
 - workflow: invoice-payment-terms-calculator-ci.yml
+  classification: none
+  publishes: []
+- workflow: irrigation-install-bid-calculator-ci.yml
   classification: none
   publishes: []
 - workflow: janitorial-bid-calculator-ci.yml
