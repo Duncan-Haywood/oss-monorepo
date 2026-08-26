@@ -3811,6 +3811,152 @@ ventures:
       recommended price, a Manual J, a permit, or an engineering stamp.
       Starting hours are labelled ballpark figures rather than a
       standard, and nothing the user enters leaves the browser.
+  - slug: water-softener-bid-calculator
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 7
+      gross_margin: 10
+      defensibility: 5
+      distribution: 7
+    composite: 6.667
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      There is no AI anywhere in the product. The value is a domain model —
+      extra pipe past the included run, copper versus PEX, an iron filter
+      or under-sink RO, the brine drain, haul-away, and a brine receptacle
+      as their own hours — that is arithmetic, and adding inference to it
+      would only make the result less checkable.
+    basis: >-
+      Graduated on 2026-08-25 as a browser-local water-softener and iron-
+      filter bid calculator. Distinct from well-pump replacement (drop-
+      pipe footage and pitless), water-heater replacement (vent and gas),
+      and septic pumping (tank lid and extra gallons): this prices a
+      water-treatment install. Defensibility 5: incumbents are paid
+      estimating suites, not free ad-funded pages. Distribution 7: "how
+      much to charge to install a water softener" is a contractor query
+      with a real install on the line.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Pass: the output is arithmetic on the shop's own inputs, never a
+      recommended price, a water-quality report, a treatment
+      specification, a permit, or an engineering stamp. Starting hours
+      are labelled ballpark figures rather than a standard, and nothing
+      the user enters leaves the browser.
+  - slug: well-pump-bid-calculator
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 7
+      gross_margin: 10
+      defensibility: 5
+      distribution: 7
+    composite: 6.667
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      There is no AI anywhere in the product. The value is a domain model —
+      extra drop-pipe footage past the included run, seized versus free
+      pitless, stuck-pump pull, extra well cable, a new tank, and a
+      constant-pressure drive as their own hours — that is arithmetic, and
+      adding inference to it would only make the result less checkable.
+    basis: >-
+      Graduated on 2026-08-25 as a browser-local well-pump and pressure-
+      tank bid calculator. Distinct from water-heater replacement (vent
+      and gas), septic pumping (tank lid and extra gallons), hydro-jet /
+      sewer-camera work (a drain line and a toilet pull), and electrical-
+      panel upgrades (a feeder and a utility): this prices a well.
+      Defensibility 5: incumbents are paid estimating suites, not free
+      ad-funded pages. Distribution 7: "how much to charge to replace a
+      well pump" is a contractor query with a real emergency job on the
+      line.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Pass: the output is arithmetic on the shop's own inputs, never a
+      recommended price, a well-drilling specification, a water-quality
+      report, a permit, or an engineering stamp. Starting hours are
+      labelled ballpark figures rather than a standard, and nothing the
+      user enters leaves the browser.
+  - slug: sewer-hydrojet-bid-calculator
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 7
+      gross_margin: 10
+      defensibility: 5
+      distribution: 7
+    composite: 6.667
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      There is no AI anywhere in the product. The value is a domain model —
+      extra footage past the included run, toilet pull versus cleanout,
+      roots, grease, hose distance, and a camera warranty pass as their
+      own hours — that is arithmetic, and adding inference to it would
+      only make the result less checkable.
+    basis: >-
+      Graduated on 2026-08-25 as a browser-local sewer camera and
+      hydro-jet bid calculator. Distinct from septic pumping (tank lid
+      and extra gallons), water-heater replacement (vent and gas),
+      kitchen-hood cleaning (canopy and rooftop fan), and dryer-vent
+      cleaning (lint run and a roof cap): this prices a sewer or drain
+      line. Defensibility 5: incumbents are paid estimating suites, not
+      free ad-funded pages. Distribution 7: "how much to charge for
+      hydro-jetting" is a contractor query with a real job on the line.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Pass: the output is arithmetic on the shop's own inputs, never a
+      recommended price, a plumbing specification, a code determination,
+      a permit, or an engineering stamp. Starting hours are labelled
+      ballpark figures rather than a standard, and nothing the user
+      enters leaves the browser.
+  - slug: pool-plaster-bid-calculator
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 7
+      gross_margin: 10
+      defensibility: 5
+      distribution: 7
+    composite: 6.667
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      There is no AI anywhere in the product. The value is a domain model —
+      floor-plus-wall plaster versus water surface, finish, and chip-out —
+      that is arithmetic, and adding inference to it would only make the
+      result less checkable.
+    basis: >-
+      Graduated on 2026-08-25 as a browser-local pool plaster / resurfacing
+      bid calculator. Distinct from pool-route weekly chemical service,
+      concrete slab pours, epoxy garage floors, and walk-in shower tile.
+      Defensibility 5: the floor-plus-wall takeoff and the chip-out /
+      finish / spa / tile split encodes how the trade actually estimates
+      labor, and the incumbents are paid bidding suites rather than free
+      ad-funded pages. Distribution 7: "how much to charge to replaster a
+      pool" and "pool resurfacing cost calculator" are lower-volume than
+      marketplace-fee queries but far less saturated and bought by an
+      operator with a real shell on the line.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Pass: the output is arithmetic on the contractor's own inputs, never
+      a recommended price, a structural determination, or a pool
+      specification. The shipped hours and material rates are labelled
+      ballpark starting points rather than a standard or benchmark, and
+      nothing the user enters leaves the browser.
 
   - slug: delivery-app-margin-calculator
     scores:
@@ -3824,22 +3970,25 @@ ventures:
     rater_b: null
     floor: 1
     floor_dimension: ai_leverage
-    floor_note: AI is intentionally absent from the arithmetic core.
+    floor_note: >-
+      There is no AI anywhere in the product. The value is a same-ticket
+      commission, packaging, and extra-labor comparison — that is
+      arithmetic, and adding inference to it would only make the result
+      less checkable.
     basis: >-
-      Graduated on 2026-08-24 as a browser-local restaurant delivery-margin
-      calculator. The wedge is a same-ticket comparison of dine-in, pickup,
-      DoorDash, Uber Eats, Grubhub, and first-party delivery that includes
-      packaging, extra bagging labor, and the delivery-menu price needed to
-      match dine-in — the piece "DoorDash takes 30%" pages omit. Distribution
-      is supported by high-intent queries ("doordash fee calculator
-      restaurant", "how much does DoorDash take from restaurants").
-      Defensibility stays modest until repeat usage or saved rate templates
-      create a reason to return.
+      Graduated on 2026-08-24 as a browser-local restaurant delivery-
+      margin calculator. Distinct from marketplace-seller fee tools
+      (eBay, Etsy, Shopify, Amazon FBA): this is the restaurant side of
+      DoorDash / Uber Eats / Grubhub. Distribution 8: "doordash fee
+      calculator restaurant" and "how much does DoorDash take from
+      restaurants" are high-intent operator queries. Defensibility 4
+      until repeat usage or saved rate templates create a reason to
+      return.
     gates:
       liability_containment: pass
       ethical_robustness: pass
     gate_note: >-
-      Pass, conditionally: results are estimates from operator-supplied
-      rates, not a fee schedule or advice to keep or drop a marketplace. The
-      interface tells operators to verify figures against their own payout
-      statements.
+      Pass: results are estimates from operator-supplied rates, not a
+      fee schedule or advice to keep or drop a marketplace. The
+      interface tells operators to verify figures against their own
+      payout statements, and nothing the user enters leaves the browser.

@@ -310,6 +310,9 @@ workflows:
 - workflow: pole-barn-bid-calculator-ci.yml
   classification: none
   publishes: []
+- workflow: pool-plaster-bid-calculator-ci.yml
+  classification: none
+  publishes: []
 - workflow: pool-route-pricing-ci.yml
   classification: none
   publishes: []
@@ -382,6 +385,9 @@ workflows:
   classification: none
   publishes: []
 - workflow: screened-porch-bid-calculator-ci.yml
+  classification: none
+  publishes: []
+- workflow: sewer-hydrojet-bid-calculator-ci.yml
   classification: none
   publishes: []
 - workflow: sewer-line-replace-bid-calculator-ci.yml
@@ -463,6 +469,12 @@ workflows:
   classification: none
   publishes: []
 - workflow: walmart-marketplace-calculator-ci.yml
+  classification: none
+  publishes: []
+- workflow: water-softener-bid-calculator-ci.yml
+  classification: none
+  publishes: []
+- workflow: well-pump-bid-calculator-ci.yml
   classification: none
   publishes: []
 - workflow: wheelchair-ramp-bid-calculator-ci.yml

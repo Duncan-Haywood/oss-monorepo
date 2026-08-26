@@ -2532,28 +2532,61 @@ products:
           attic versus basement, matching coil, gas upsize, and haul-away as
           their own hours. Public URL remains owner-gated; counters are
           local, aggregate, and opt-out.
-
-  - slug: delivery-app-margin-calculator
+  - slug: water-softener-bid-calculator
     surface: static-page-in-repo
     readings:
-      - as_of: 2026-08-24
+      - as_of: 2026-08-25
         signals:
           live_url_visitors: null
           local_events_reported: 0
         note: >-
-          Shipped browser-local restaurant delivery-margin comparison:
-          dine-in vs pickup vs DoorDash / Uber Eats / Grubhub / own driver,
-          with packaging, extra labor, dine-in-matching price, and monthly
-          gap. Public URL remains owner-gated; the local-first counter
-          reports only to the user's own browser and is opt-out. Baseline row.
-# Example of the shape, once a product has shipped:
-#
-# products:
-#   - slug: example-product
-#     surface: github-pages
-#     readings:
-#       - as_of: 2026-08-24
-#         signals:
-#           repo_views_14d: 0
-#           release_downloads_total: 0
-#         note: Shipped today; baseline reading.
+          Shipped a local water-softener / iron-filter bid calculator with a
+          copyable proposal summary; public URL remains owner-gated.
+          Counters are local, aggregate, and opt-out.
+  - slug: well-pump-bid-calculator
+    surface: static-page-in-repo
+    readings:
+      - as_of: 2026-08-25
+        signals:
+          live_url_visitors: null
+          local_events_reported: 0
+        note: >-
+          Shipped a local well-pump / pressure-tank bid calculator with a
+          copyable proposal summary; public URL remains owner-gated.
+          Counters are local, aggregate, and opt-out.
+  - slug: sewer-hydrojet-bid-calculator
+    surface: static-page-in-repo
+    readings:
+      - as_of: 2026-08-25
+        signals:
+          live_url_visitors: null
+          local_events_reported: 0
+        note: >-
+          Shipped a local sewer camera / hydro-jet bid calculator with a
+          copyable proposal summary; public URL remains owner-gated.
+          Counters are local, aggregate, and opt-out.
+  - slug: pool-plaster-bid-calculator
+    surface: static-page-in-repo
+    readings:
+      - as_of: 2026-08-25
+        signals:
+          live_url_visitors: null
+          local_events_reported: 0
+        note: >-
+          Shipped a local pool plaster / resurfacing bid calculator with
+          floor-plus-wall takeoff, finish, chip-out, spa, tile, and a
+          copyable proposal summary; public URL remains owner-gated.
+
+  - slug: delivery-app-margin-calculator
+    surface: static-page-in-repo
+    readings:
+      - as_of: 2026-08-26
+        signals:
+          live_url_visitors: null
+          local_events_reported: 0
+        note: >-
+          Shipped browser-local restaurant delivery-margin comparison
+          (dine-in vs pickup vs DoorDash / Uber Eats / Grubhub / own
+          driver, packaging, extra labor, dine-in-matching price).
+          Public URL remains owner-gated; the local-first counter
+          reports only to the user's own browser and is opt-out.
