@@ -614,6 +614,22 @@ products:
           Public URL remains owner-gated; the local-first counter
           reports only to the user's own browser and is opt-out.
           Baseline row.
+  - slug: walk-in-shower-bid-calculator
+    surface: static-page-in-repo
+    readings:
+      - as_of: 2026-08-26
+        signals:
+          live_url_visitors: null
+          local_events_reported: 0
+        note: >-
+          Recovered the tiled walk-in shower bid calculator from open
+          draft #1451 and added a who-bought-the-tile comparison (you
+          supply vs they bought boxes that cover the takeoff vs they
+          bought too little / the wrong dye lot) against the $45 / SF
+          labor-only special. Distinct from walk-in tub (a tub with a
+          door) and kitchen tile backsplash (a dry wall). Public URL
+          remains owner-gated; the local-first counter reports only to
+          the user's own browser and is opt-out. Baseline row.
 
 # Example of the shape, once a product has shipped:
 #
