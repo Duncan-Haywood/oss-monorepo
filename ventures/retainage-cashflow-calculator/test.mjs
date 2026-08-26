@@ -6,7 +6,14 @@ import { parseInputs, decodeDraft, computeAll, delayScenarios, followUpDraft, re
 test('calculates retainage and carrying cost without rounding drift', () => {
   const parsed = parseInputs({ contractValue: '100000', retainagePct: '10', paidToDate: '75000', daysOutstanding: '90', annualCarryingRatePct: '12' });
   assert.equal(parsed.ok, true);
-  assert.deepEqual(computeAll(parsed.values), { retainageWithheld: 10000, retainageStillUnpaid: 10000, earnedUnpaid: 25000, carryingCost: 739.73, totalCashOutstanding: 25739.73 });
+  assert.deepEqual(computeAll(parsed.values), { retainageWithheld: 10000, retainageStillUnpaid: 10000, earnedUnpaid: 25000, dailyCarryingCost: 8.22, thirtyDayDelayCost: 246.58, carryingCost: 739.73, totalCashOutstanding: 25739.73 });
+});
+
+test('draft names the modeled cost of another day and 30 days', () => {
+  const parsed = parseInputs({ contractValue: '100000', retainagePct: '10', paidToDate: '75000', daysOutstanding: '90', annualCarryingRatePct: '12' });
+  const draft = followUpDraft({ result: computeAll(parsed.values), currency: '$' });
+  assert.match(draft, /each additional day represents approximately \$8\.22/);
+  assert.match(draft, /a 30-day delay would model approximately \$246\.58/);
 });
 
 test('rejects missing and inconsistent inputs', () => {

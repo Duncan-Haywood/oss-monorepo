@@ -78,8 +78,19 @@ export function computeAll(values) {
   const retainageWithheld = round2(values.contractValue * values.retainagePct / 100);
   const earnedUnpaid = round2(Math.max(0, values.contractValue - values.paidToDate));
   const retainageStillUnpaid = round2(Math.min(retainageWithheld, earnedUnpaid));
-  const carryingCost = round2(earnedUnpaid * values.annualCarryingRatePct / 100 * values.daysOutstanding / 365);
-  return { retainageWithheld, retainageStillUnpaid, earnedUnpaid, carryingCost, totalCashOutstanding: round2(earnedUnpaid + carryingCost) };
+  const unroundedDailyCarryingCost = earnedUnpaid * values.annualCarryingRatePct / 100 / 365;
+  const dailyCarryingCost = round2(unroundedDailyCarryingCost);
+  const thirtyDayDelayCost = round2(unroundedDailyCarryingCost * 30);
+  const carryingCost = round2(unroundedDailyCarryingCost * values.daysOutstanding);
+  return {
+    retainageWithheld,
+    retainageStillUnpaid,
+    earnedUnpaid,
+    dailyCarryingCost,
+    thirtyDayDelayCost,
+    carryingCost,
+    totalCashOutstanding: round2(earnedUnpaid + carryingCost),
+  };
 }
 
 // Common AIA-style reduction: withhold the full retainage rate on completed
@@ -304,7 +315,24 @@ export function followUpDraft({ projectName, payerName, invoiceReference, dueDat
   const invoice = invoiceReference?.trim() || '[invoice or pay application reference]';
   const due = dueDate?.trim() || '[due date]';
   const retainage = result.retainageStillUnpaid ?? result.retainageWithheld;
-  return [`Subject: Payment status request — ${project}`, '', `Hello ${payer},`, '', `I am checking the payment status for ${invoice}, due ${due}. My records show ${currency}${result.earnedUnpaid.toFixed(2)} remains unpaid, including approximately ${currency}${retainage.toFixed(2)} in retainage based on the figures in my worksheet.`, '', 'Please confirm the expected payment date and let me know if any documentation is still needed from me. This is a factual account-record request, not a waiver of any rights or a demand for a particular legal remedy.', '', 'Thank you,', '[your name]', '', 'Review the figures, contract, payment terms, and local requirements before sending. This draft is not legal advice.'].join('\n');
+  const delayLine = Number.isFinite(result.dailyCarryingCost) && Number.isFinite(result.thirtyDayDelayCost)
+    ? `Using my carrying-cost assumption, each additional day represents approximately ${currency}${result.dailyCarryingCost.toFixed(2)} in modeled carrying cost; a 30-day delay would model approximately ${currency}${result.thirtyDayDelayCost.toFixed(2)}.`
+    : null;
+  return [
+    `Subject: Payment status request — ${project}`,
+    '',
+    `Hello ${payer},`,
+    '',
+    `I am checking the payment status for ${invoice}, due ${due}. My records show ${currency}${result.earnedUnpaid.toFixed(2)} remains unpaid, including approximately ${currency}${retainage.toFixed(2)} in retainage based on the figures in my worksheet.`,
+    ...(delayLine ? [delayLine] : []),
+    '',
+    'Please confirm the expected payment date and let me know if any documentation is still needed from me. This is a factual account-record request, not a waiver of any rights or a demand for a particular legal remedy.',
+    '',
+    'Thank you,',
+    '[your name]',
+    '',
+    'Review the figures, contract, payment terms, and local requirements before sending. This draft is not legal advice.',
+  ].join('\n');
 }
 
 export function worksheetSummary({ projectName, payerName, invoiceReference, dueDate, values, result, scenarios = [], release = null, partialRelease = null, rateRows = [] }) {
@@ -324,6 +352,8 @@ export function worksheetSummary({ projectName, payerName, invoiceReference, due
     `Earned but unpaid: $${result.earnedUnpaid.toFixed(2)}`,
     `Days since payment was due: ${values.daysOutstanding}`,
     `Annual carrying-cost assumption: ${values.annualCarryingRatePct.toFixed(1)}%`,
+    ...(Number.isFinite(result.dailyCarryingCost) ? [`Modeled cost per additional day: $${result.dailyCarryingCost.toFixed(2)}`] : []),
+    ...(Number.isFinite(result.thirtyDayDelayCost) ? [`Modeled cost of another 30 days: $${result.thirtyDayDelayCost.toFixed(2)}`] : []),
     `Modeled carrying cost: $${result.carryingCost.toFixed(2)}`,
     `Total modeled cash outstanding: $${result.totalCashOutstanding.toFixed(2)}`,
     ...(scenarios.length ? ['', 'Further-delay scenarios (modeled):', ...scenarios.map(s => `+${s.days} days: $${s.totalCashOutstanding.toFixed(2)} outstanding; $${s.additionalCarryingCost.toFixed(2)} added carrying cost`)] : []),
