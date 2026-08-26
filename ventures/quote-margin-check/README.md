@@ -57,7 +57,9 @@ a recommendation to discount.
 The browser also shows a small pre-send review: arithmetic observations for
 direct costs above the price, a gap below the supplied target, hidden time, and
 quotes with no revision hours. These are prompts to review your own assumptions,
-not a profitability verdict or pricing advice.
+not a profitability verdict or pricing advice. After that review, three
+buttons let you record send, revise, or hold locally — a workflow note, not a
+recommendation.
 
 It also shows +10%, +25%, and +50% time-overrun scenarios. These keep the
 quoted price and direct costs fixed while showing how the effective hourly rate
@@ -151,7 +153,9 @@ so one settled quote logs one `quote_review_checked`, one
 `billing_model_compared` — plus one `kill_fee_compared` when the mid-project
 cancel inputs also parsed. Recorded per render they would have counted
 keystrokes, leaving them incomparable both to `report_generated` and to the
-CLI. The
+CLI. After the review, the page offers three user-controlled workflow
+choices (send, revise, or hold) and counts the selected `quote_decision_*`
+event locally when the visitor clicks one. The
 browser also counts `history_saved`, `history_deleted`, and `history_cleared`
 when local review snapshots are stored or removed. A `report_downloaded`
 event is counted when the JSON report is saved locally. CSV copy
@@ -159,8 +163,8 @@ and download events happen only when the user invokes those actions. Copying
 the review summary records `review_summary_copied` the same way. Restoring
 or resetting a local draft records `draft_restored` or `draft_reset`. The
 export contains the same arithmetic report as the page and quotes currency
-labels safely for spreadsheet import. It stores no quote values and sends
-nothing anywhere.
+labels safely for spreadsheet import. These events contain no quote values
+and are never uploaded.
 
 ## Input
 

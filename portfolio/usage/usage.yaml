@@ -355,6 +355,16 @@ products:
           Added a crawlable effective-hourly-rate guide next to the
           calculator. Public URL remains owner-gated; the page is
           documentation of the same arithmetic, not a second calculator.
+      - as_of: 2026-08-26
+        signals:
+          live_url_visitors: null
+          quote_decision_send: 0
+          quote_decision_revise: 0
+          quote_decision_hold: 0
+        note: >-
+          Added local send / revise / hold workflow choices after the
+          pre-send review. The buttons record only the chosen next step;
+          they are not a recommendation. Public URL remains owner-gated.
   - slug: mls-photo-spec-preflight
     surface: static-page-in-repo
     readings:

@@ -24,3 +24,22 @@ export function reviewQuote(quote, report) {
   }
   return checks;
 }
+
+// A workflow prompt, not a recommendation: the quote owner chooses what to do
+// after seeing the arithmetic observations above.
+export function reviewDecision(report, quote) {
+  const checks = reviewQuote(quote, report);
+  const attentionCount = checks.filter((check) => check.level === "attention").length;
+  if (attentionCount > 0) {
+    return {
+      tone: "attention",
+      title: "Review the flags before deciding",
+      detail: `${attentionCount} arithmetic ${attentionCount === 1 ? "flag needs" : "flags need"} your attention. The choice remains yours.`,
+    };
+  }
+  return {
+    tone: "clear",
+    title: "No arithmetic flags found",
+    detail: "You can record your own next step after checking the scope and assumptions.",
+  };
+}
