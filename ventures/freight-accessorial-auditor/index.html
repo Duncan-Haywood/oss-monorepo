@@ -10,8 +10,8 @@
   <meta property="og:title" content="Freight Accessorial Invoice Auditor">
   <meta property="og:description" content="Find freight invoice overcharges privately in your browser and copy a factual review draft.">
   <meta property="og:type" content="website">
-  <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Freight Accessorial Invoice Auditor","applicationCategory":"BusinessApplication","operatingSystem":"Any","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"description":"A private browser tool that finds duplicate and over-billed freight accessorial charges.","featureList":"Duplicate and over-expected flags, evidence-aware priority, private CSV review export, factual dispute draft, eat vs bill-the-customer vs review-for-credit"}</script>
-  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"How do I audit freight accessorial charges?","acceptedAnswer":{"@type":"Answer","text":"Paste each billed line with the amount you expected from the rate confirmation. The default demo is two $125 liftgate lines on INV-1 (expected $75, evidence missing) and a $20 uncoded line that matches. That is $100.00 above expected across 3 flagged of 3 lines, 2 actionable. The page flags duplicates, overages, missing codes, and invalid amounts. It does not decide whether to pay or dispute."}},{"@type":"Question","name":"Should I dispute this detention charge?","acceptedAnswer":{"@type":"Answer","text":"Compare the billed detention line to the dock clock after free time. On 180 minutes on dock, 120 free, and $75/hour, 1.00 hour is billable — $75.00 expected. A $300.00 billed line is $225.00 above the clock, as if 4.00 hours. That is a review of the line, not a determination that the charge is wrong."}},{"@type":"Question","name":"Should I bill this accessorial to the customer?","acceptedAnswer":{"@type":"Answer","text":"On a prepaid collect shipment that already paid $180, a $300 detention against $75 supported leaves a $225.00 gap. Eating the line keeps −$120.00. Billing the customer $300.00 keeps $180.00. Paying first and getting that $225.00 credit after 1.5 hours at $42/hr ($63.00 labor) keeps $42.00. The same review with no credit keeps −$183.00. That is cash on these inputs, not a reason to invoice a customer or to file a claim."}}]}</script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Freight Accessorial Invoice Auditor","applicationCategory":"BusinessApplication","operatingSystem":"Any","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"description":"A private browser tool that finds duplicate and over-billed freight accessorial charges.","featureList":"Duplicate and over-expected flags, evidence-aware priority, private CSV review export, factual dispute draft, eat vs bill-the-customer vs review-for-credit, CSV invoice import with column mapping and a contract rate card"}</script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Can I check a whole carrier invoice at once?","acceptedAnswer":{"@type":"Answer","text":"Yes. Load the CSV your carrier portal or TMS exports, or paste the rows out of a spreadsheet. The columns are guessed from their headings and shown for you to correct. Type your accessorial contract rates once — one CODE, amount per line — and every imported line gets an expected amount to be checked against. On a six-line example invoice with line haul and fuel skipped, four accessorial lines totalling $595.00 import and $325.00 is above the rate card, including a liftgate billed twice. The file is read in your browser and never uploaded."}},{"@type":"Question","name":"How do I audit freight accessorial charges?","acceptedAnswer":{"@type":"Answer","text":"Paste each billed line with the amount you expected from the rate confirmation. The default demo is two $125 liftgate lines on INV-1 (expected $75, evidence missing) and a $20 uncoded line that matches. That is $100.00 above expected across 3 flagged of 3 lines, 2 actionable. The page flags duplicates, overages, missing codes, and invalid amounts. It does not decide whether to pay or dispute."}},{"@type":"Question","name":"Should I dispute this detention charge?","acceptedAnswer":{"@type":"Answer","text":"Compare the billed detention line to the dock clock after free time. On 180 minutes on dock, 120 free, and $75/hour, 1.00 hour is billable — $75.00 expected. A $300.00 billed line is $225.00 above the clock, as if 4.00 hours. That is a review of the line, not a determination that the charge is wrong."}},{"@type":"Question","name":"Should I bill this accessorial to the customer?","acceptedAnswer":{"@type":"Answer","text":"On a prepaid collect shipment that already paid $180, a $300 detention against $75 supported leaves a $225.00 gap. Eating the line keeps −$120.00. Billing the customer $300.00 keeps $180.00. Paying first and getting that $225.00 credit after 1.5 hours at $42/hr ($63.00 labor) keeps $42.00. The same review with no credit keeps −$183.00. That is cash on these inputs, not a reason to invoice a customer or to file a claim."}}]}</script>
   <style>
     :root{font:16px/1.5 system-ui,sans-serif;color:#172033;background:#f5f1e8;--ink:#172033;--muted:#5b665e;--line:#d8d0c2;--panel:#fffdf8;--accent:#d36b35}
     *{box-sizing:border-box}body{margin:0}main{max-width:980px;margin:auto;padding:32px 18px 56px}
@@ -31,19 +31,70 @@
     textarea{width:100%;min-height:160px;margin-top:10px;padding:10px;border:1px solid #a9a092;border-radius:6px}
     footer{border-top:1px solid var(--line);padding-top:16px;color:var(--muted)}
     a{color:#1f4f8a}
+    h3{font-size:.95rem;margin:0 0 6px}
+    .field{margin:14px 0}
+    .mapgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:10px}
+    .mapgrid label{display:block;font-size:.85rem;color:var(--muted)}
+    .muted{color:var(--muted);font-weight:400}
+    #paste,#rateCard{min-height:96px;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:.9rem}
+    #importIssues{margin:8px 0 0;padding-left:18px;color:#9a3412}
+    .tablewrap{overflow-x:auto}
     @media(max-width:720px){.results{grid-template-columns:1fr}th:nth-child(2),td:nth-child(2){display:none}}
+      /* A grid item defaults to min-width:auto and grows to its widest child, so a
+       wide results table pushed the whole page sideways on a phone instead of
+       scrolling inside its own box, dragging the inputs off-screen with it. */
+    .results > *, .panel { min-width: 0; }
+    @media (max-width: 720px) { .panel { overflow-x: auto; } table { max-width: 100%; } }
   </style>
 </head>
 <body>
 <main>
   <p class="small">PRIVATE, LOCAL-FIRST AUDIT</p>
   <h1>Find freight accessorial overcharges before you pay.</h1>
-  <p class="lede">Paste billed accessorial lines and the amounts you expected from the rate confirmation. Get a review queue for duplicates, overages, missing codes, and missing evidence — then copy a factual draft.</p>
-  <p class="small"><a href="should-i-dispute-this-detention-charge.html">Should I dispute this detention charge?</a> — clock time after free time versus the billed detention line. <a href="should-i-bill-this-accessorial-to-the-customer.html">Should I bill this accessorial to the customer?</a> — eat it, invoice the customer, or pay first and file a review.</p>
+  <p class="lede">Import the carrier's own invoice export, type your contract rates once, and get a review queue for duplicates, overages, missing codes, and missing evidence — then copy a factual draft. Or enter lines by hand.</p>
+  <p class="small"><a href="how-to-audit-a-whole-freight-invoice.html">How do I check a whole carrier invoice at once?</a> — import the export, apply your rate card, review what is flagged. <a href="should-i-dispute-this-detention-charge.html">Should I dispute this detention charge?</a> — clock time after free time versus the billed detention line. <a href="should-i-bill-this-accessorial-to-the-customer.html">Should I bill this accessorial to the customer?</a> — eat it, invoice the customer, or pay first and file a review.</p>
+
+  <section class="panel" aria-labelledby="import-heading">
+    <h2 id="import-heading">Import the carrier's invoice</h2>
+    <p class="small">Nobody retypes a 200-line LTL invoice, and the duplicate you have not spotted is the one worth finding. Load the CSV your carrier portal or TMS exports — or paste the rows straight out of a spreadsheet. <strong>The file is read in this browser and never uploaded.</strong></p>
+
+    <div class="field">
+      <label class="small" for="file">CSV or tab-separated file</label>
+      <input id="file" type="file" accept=".csv,.tsv,.txt,text/csv,text/tab-separated-values,text/plain">
+    </div>
+    <div class="field">
+      <label class="small" for="paste">…or paste rows here</label>
+      <textarea id="paste" placeholder="Invoice Number,PRO Number,Charge Code,Charge Amount&#10;INV-4471,PRO-77120,LIFT,125.00"></textarea>
+    </div>
+    <label class="toggle small"><input id="hasHeader" type="checkbox" checked> The first row is a header</label>
+
+    <div class="field">
+      <h3 class="small">Which column is which?</h3>
+      <p class="small" id="mapNote">Choose a file or paste rows and the columns are guessed from their headings. <strong>Check the guesses</strong> — an export that names its money column "Amount" cannot say what you expected, only what you were billed.</p>
+      <div id="mapping" class="mapgrid"></div>
+    </div>
+
+    <div class="field">
+      <label class="small" for="rateCard">Your contract rates — one <code>CODE, amount</code> per line</label>
+      <p class="small">A carrier invoice states what it billed. It never states what you expected. Type the accessorial rates from your rate confirmation once and every imported line gets an expected amount to be checked against.</p>
+      <textarea id="rateCard" spellcheck="false">LIFT, 75
+DET, 75
+RESI, 45</textarea>
+      <p class="small" id="rateCardStatus" role="status" aria-live="polite"></p>
+    </div>
+
+    <label class="toggle small"><input id="onlyRated" type="checkbox"> Only import lines whose code is in my rate card <span class="muted">(skips line haul, fuel, and anything else you have not rated)</span></label>
+
+    <p><button id="importAdd" type="button">Add to the review queue</button>
+    <button id="importReplace" type="button" class="secondary">Replace the queue</button></p>
+    <p class="small" id="importStatus" role="status" aria-live="polite">No file loaded yet.</p>
+    <ul class="small" id="importIssues"></ul>
+  </section>
 
   <section class="panel">
     <h2>Invoice lines</h2>
     <p class="small">One row per charge. Invoice and reference are optional labels. Billed and expected are dollars.</p>
+    <div class="tablewrap">
     <table>
       <thead>
         <tr>
@@ -58,6 +109,7 @@
       </thead>
       <tbody id="rows"></tbody>
     </table>
+    </div>
     <button id="add" type="button" class="secondary">Add charge</button>
     <button id="download" type="button">Download review CSV</button>
     <button id="copy" type="button" class="secondary">Copy dispute draft</button>
@@ -67,7 +119,7 @@
   <section class="panel" aria-labelledby="results-heading">
     <h2 id="results-heading">Review queue</h2>
     <div class="results">
-      <div class="metric"><span>Above expected</span><strong id="recoverable">$0.00</strong><span class="small">across entered lines</span></div>
+      <div class="metric"><span>Above expected</span><strong id="recoverable">$0.00</strong><span class="small" id="recoverableNote">across entered lines</span></div>
       <div class="metric"><span>Flagged</span><strong id="flagged">0</strong><span class="small" id="flaggedOf">of 0 lines</span></div>
       <div class="metric"><span>Actionable</span><strong id="actionable">0</strong><span class="small">overage plus missing or contradictory evidence</span></div>
     </div>
@@ -81,7 +133,7 @@
 
   <section class="panel small">
     <label class="toggle"><input id="usage" type="checkbox" checked> Count anonymous audit events on this device</label>
-    <p>Usage is optional, stays in this browser, and counts only audits, CSV downloads, and draft copies. No invoice content, identifiers, cookies, or analytics service are used. Uncheck to turn it off. Do Not Track and Global Privacy Control disable counting automatically.</p>
+    <p>Usage is optional, stays in this browser, and counts only audits, invoice imports, CSV downloads, and draft copies. Imported files are read locally and never uploaded — no invoice content, identifiers, cookies, or analytics service are used. Uncheck to turn it off. Do Not Track and Global Privacy Control disable counting automatically.</p>
   </section>
 
   <footer class="small">
@@ -92,6 +144,14 @@
 </main>
 <script type="module">
   import { auditCharges, auditTotals, csvForReview, disputeDraft } from "./audit.mjs";
+  import {
+    IMPORT_FIELDS,
+    buildImportedRows,
+    importSummaryNote,
+    parseRateCard,
+    readTable,
+    suggestMapping,
+  } from "./import.mjs";
   import { countUsage, setUsageEnabled, usageAllowed } from "./usage.mjs";
 
   const tbody = document.getElementById("rows");
@@ -153,6 +213,12 @@
     results = auditCharges(rowsFromTable());
     const totals = auditTotals(results);
     document.getElementById("recoverable").textContent = money(totals.recoverable);
+    // Say which lines the figure leaves out. A line with no expected amount is
+    // not a $0.00 expectation, and quietly folding its whole billed value into
+    // "above expected" would overstate what there is to ask about.
+    document.getElementById("recoverableNote").textContent = totals.unpriced
+      ? `across priced lines — ${totals.unpriced} line${totals.unpriced === 1 ? " has" : "s have"} no expected amount and ${totals.unpriced === 1 ? "is" : "are"} excluded`
+      : "across entered lines";
     document.getElementById("flagged").textContent = String(totals.flagged);
     document.getElementById("flaggedOf").textContent = `of ${results.length} lines`;
     document.getElementById("actionable").textContent = String(totals.actionable);
@@ -179,6 +245,130 @@
     clearTimeout(usageTimer);
     if (track) usageTimer = setTimeout(() => countUsage("audit_completed"), 800);
   }
+
+  // ---- CSV import -------------------------------------------------------
+  //
+  // Everything below stays in the page: the file is read with FileReader and
+  // never posted anywhere. Imported cell values are user-controlled text from
+  // a third party's export, so they only ever reach the DOM through
+  // `textContent` or `new Option(...)` — never `innerHTML`.
+
+  const importStatus = document.getElementById("importStatus");
+  const importIssues = document.getElementById("importIssues");
+  const mappingBox = document.getElementById("mapping");
+  const rateCardStatus = document.getElementById("rateCardStatus");
+  let table = { header: [], rows: [] };
+  let mapping = {};
+
+  function rateCard() {
+    return parseRateCard(document.getElementById("rateCard").value);
+  }
+
+  function showRateCardStatus() {
+    const { rates, issues } = rateCard();
+    const rated = rates.size === 1 ? "1 code rated" : `${rates.size} codes rated`;
+    rateCardStatus.textContent = issues.length
+      ? `${rated}. ${issues.length} line${issues.length === 1 ? "" : "s"} not understood: ${issues.map((issue) => `line ${issue.line} (${issue.reason})`).join(", ")}.`
+      : `${rated}.`;
+  }
+
+  function drawMapping() {
+    mappingBox.replaceChildren();
+    if (!table.header.length) return;
+    for (const field of IMPORT_FIELDS) {
+      const label = document.createElement("label");
+      label.textContent = field.label;
+      const select = document.createElement("select");
+      select.dataset.field = field.key;
+      select.setAttribute("aria-label", `Column for ${field.label}`);
+      select.append(new Option("— not in this file —", ""));
+      table.header.forEach((name, index) => {
+        const option = new Option(name || `Column ${index + 1}`, String(index));
+        select.append(option);
+      });
+      select.value = mapping[field.key] == null ? "" : String(mapping[field.key]);
+      select.addEventListener("change", () => {
+        mapping[field.key] = select.value === "" ? null : Number(select.value);
+        preview();
+      });
+      label.append(select);
+      mappingBox.append(label);
+    }
+  }
+
+  function buildFromInputs() {
+    const { rates } = rateCard();
+    return buildImportedRows(table, mapping, {
+      rates,
+      onlyRatedCodes: document.getElementById("onlyRated").checked,
+    });
+  }
+
+  function preview() {
+    showRateCardStatus();
+    importIssues.replaceChildren();
+    if (!table.header.length && !table.rows.length) {
+      importStatus.textContent = "No file loaded yet.";
+      return null;
+    }
+    const built = buildFromInputs();
+    importStatus.textContent = importSummaryNote(built.summary);
+    // Cap the visible list: a 400-line export with a systematic problem would
+    // otherwise bury the page in identical bullets.
+    for (const issue of built.issues.slice(0, 12)) {
+      const item = document.createElement("li");
+      item.textContent = `Row ${issue.line}: ${issue.reason} ("${issue.value}")`;
+      importIssues.append(item);
+    }
+    if (built.issues.length > 12) {
+      const item = document.createElement("li");
+      item.textContent = `…and ${built.issues.length - 12} more rows with the same kinds of problem.`;
+      importIssues.append(item);
+    }
+    return built;
+  }
+
+  function loadText(text) {
+    table = readTable(text, { hasHeader: document.getElementById("hasHeader").checked });
+    mapping = suggestMapping(table.header);
+    drawMapping();
+    preview();
+  }
+
+  function applyImport(replace) {
+    const built = preview();
+    if (!built || !built.rows.length) {
+      importStatus.textContent = `${built ? importSummaryNote(built.summary) + " " : ""}Nothing was added to the queue.`;
+      return;
+    }
+    if (replace) tbody.replaceChildren();
+    for (const row of built.rows) add(row);
+    render();
+    countUsage("invoice_imported");
+    importStatus.textContent = `${importSummaryNote(built.summary)} ${built.rows.length} line${built.rows.length === 1 ? "" : "s"} ${replace ? "now in" : "added to"} the review queue below.`;
+    document.getElementById("results-heading").scrollIntoView({ block: "start" });
+  }
+
+  document.getElementById("file").addEventListener("change", (event) => {
+    const file = event.target.files && event.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.addEventListener("load", () => loadText(String(reader.result || "")));
+    reader.addEventListener("error", () => {
+      importStatus.textContent = "That file could not be read in this browser. Try pasting the rows instead.";
+    });
+    reader.readAsText(file);
+  });
+  document.getElementById("paste").addEventListener("input", (event) => loadText(event.target.value));
+  document.getElementById("hasHeader").addEventListener("change", () => {
+    const pasted = document.getElementById("paste").value;
+    if (pasted.trim()) loadText(pasted);
+  });
+  document.getElementById("rateCard").addEventListener("input", () => preview());
+  document.getElementById("onlyRated").addEventListener("change", () => preview());
+  document.getElementById("importAdd").addEventListener("click", () => applyImport(false));
+  document.getElementById("importReplace").addEventListener("click", () => applyImport(true));
+  showRateCardStatus();
 
   document.getElementById("add").addEventListener("click", () => {
     add();

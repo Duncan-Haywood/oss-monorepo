@@ -61,6 +61,14 @@
     },
     {
       "@type": "Question",
+      "name": "Should I send a fixed-price quote or bill hourly?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Compare the same hours and direct costs both ways. A fixed quote stays the same if the work runs long; hourly bills those hours at your target rate plus the same costs. On the calculator example ($2,400, 35 hours, $480 of direct costs, $75 target), hourly at planned hours would bill $3,105 — $705 more than the fixed quote. That is arithmetic on your inputs, not a recommendation of which to send."
+      }
+    },
+    {
+      "@type": "Question",
       "name": "Should I take a kill fee or finish the remaining hours?",
       "acceptedAnswer": {
         "@type": "Answer",
@@ -242,6 +250,25 @@
         </table>
       </div>
     </div>
+    <div class="result" id="billing" aria-live="polite">
+      <strong>Fixed quote vs hourly at your target</strong>
+      <p class="hint">Same hours and direct costs both ways. Fixed keeps the quoted price if the work runs long. Hourly bills those hours at your target rate plus the same costs. <a href="should-i-send-a-fixed-quote-or-bill-hourly.html">Worked example</a>.</p>
+      <p class="hint" id="billing-summary"></p>
+      <div class="table-scroll">
+        <table class="sensitivity">
+          <thead>
+            <tr>
+              <th>Extra time</th>
+              <th>Hours</th>
+              <th>Fixed effective rate</th>
+              <th>Hourly bill</th>
+              <th>Hourly minus fixed</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </div>
     <div class="result" id="kill-fee" aria-live="polite">
       <strong>If they cancel mid-project</strong>
       <p class="hint">Compare finishing the remaining hours with taking a kill fee or walking with only what is already paid. Uncommitted remaining costs are avoided if you stop. Freed hours valued at your target rate are a what-if, not a booked job. <a href="should-i-take-this-kill-fee-or-finish.html">Worked example</a>.</p>
@@ -286,7 +313,8 @@
       <div class="result" id="review" aria-live="polite"><strong>Before you send it</strong><ul class="checks"></ul></div>
 
     <div class="actions">
-      <button type="button" id="copy-csv">Copy as CSV row</button>
+      <button type="button" id="copy-csv">Copy as CSV</button>
+      <button type="button" id="download-csv">Download CSV</button>
       <span id="copy-status" class="hint" role="status" aria-live="polite"></span>
     </div>
   </section>
@@ -322,7 +350,15 @@
       <a href="if-they-ask-for-10-percent-off.html">if they ask for 10% off</a>.
     </p>
     <p>
-      A fourth table is the mid-project cancel. Type hours already spent,
+      A fourth table puts the same hours and direct costs next to hourly
+      at your target rate. Planned hours answers whether the fixed quote
+      is already a discount versus hourly; extra-time rows show how the
+      two bills diverge when the work runs long. It is not a
+      recommendation of which to send. See
+      <a href="should-i-send-a-fixed-quote-or-bill-hourly.html">should I send a fixed quote or bill hourly</a>.
+    </p>
+    <p>
+      A fifth table is the mid-project cancel. Type hours already spent,
       cash already collected, a kill fee on top of that, and costs that
       are already sunk. It shows cash kept if you finish, cash kept if
       you take the fee, and cash kept if you walk with only the deposit
@@ -331,8 +367,11 @@
       See <a href="should-i-take-this-kill-fee-or-finish.html">should I take this kill fee or finish</a>.
     </p>
     <p>
-      Prefer the command line, or need to batch several quotes into a
-      spreadsheet? The same logic ships as a
+      Copy or download the current review as a spreadsheet-safe CSV. Currency
+      labels with commas or quotes stay in one cell, and the file includes
+      the time-overrun, cost-rise, discount-ask, fixed-vs-hourly, and kill-fee rows shown
+      above. Prefer the command line, or need to batch several quotes?
+      The same logic ships as a
       <a href="https://github.com/Duncan-Haywood/monorepo-projects/tree/main/ventures/quote-margin-check">Python CLI</a>
       that reads/writes JSON, Markdown, and CSV.
     </p>
@@ -381,7 +420,8 @@
 </main>
 
 <script type="module">
-  import { loadQuote, calculate, overrunScenarios, directCostSpikeScenarios, directCostSpikeSummary, discountAskScenarios, discountAskSummary, loadKillFeeProgress, compareKillFee, killFeeSummary } from "./calc.mjs";
+  import { loadQuote, calculate, overrunScenarios, directCostSpikeScenarios, directCostSpikeSummary, discountAskScenarios, discountAskSummary, compareBillingModels, billingModelNote, loadKillFeeProgress, compareKillFee, killFeeSummary } from "./calc.mjs";
+  import { quoteCsv } from "./export.mjs";
   import { reviewQuote } from "./review.mjs";
   import { recordEvent, createReportCounter, isUsageCountingEnabled, setUsageCountingEnabled } from "./usage.mjs";
 
@@ -396,6 +436,7 @@
   const sensitivity = document.getElementById("sensitivity");
   const costSpike = document.getElementById("cost-spike");
   const discountAsk = document.getElementById("discount-ask");
+  const billing = document.getElementById("billing");
   const killFee = document.getElementById("kill-fee");
 
   let lastReport = null;
@@ -453,6 +494,12 @@
          const cut = scenario.hours_to_cut === null ? "Cannot cover costs" : `${fmt(scenario.hours_to_cut)} hours`;
          return `<tr><th scope="row">${label}</th><td>${safeCurrency} ${fmt(scenario.discounted_price)}</td><td>${safeCurrency} ${fmt(scenario.effective_hourly_rate)}/hour</td><td>${cut}</td><td>${safeCurrency} ${fmt(scenario.gap_to_target)}</td></tr>`;
        }).join("");
+       const billingRows = compareBillingModels(quote, r);
+       billing.querySelector("#billing-summary").textContent = billingModelNote(quote, r);
+       billing.querySelector("tbody").innerHTML = billingRows.map((row) => {
+         const label = row.percent === 0 ? "planned" : `+${row.percent}%`;
+         return `<tr><th scope="row">${label}</th><td>${fmt(row.total_hours)}</td><td>${safeCurrency} ${fmt(row.fixed_effective_rate)}/hour</td><td>${safeCurrency} ${fmt(row.hourly_total)}</td><td>${safeCurrency} ${fmt(row.hourly_minus_fixed)}</td></tr>`;
+       }).join("");
        try {
          const progress = loadKillFeeProgress({
            hours_done: Number(el.hours_done.value),
@@ -480,6 +527,7 @@
        recordEvent("quote_review_checked");
        recordEvent("cost_spike_compared");
        recordEvent("discount_ask_compared");
+       recordEvent("billing_model_compared");
       result.classList.remove("error");
       reportCounter.count(JSON.stringify(quote));
     } catch (err) {
@@ -492,6 +540,8 @@
        costSpike.querySelector("tbody").innerHTML = "";
        discountAsk.querySelector("#discount-ask-summary").textContent = "Fix the inputs above to compare a discount ask.";
        discountAsk.querySelector("tbody").innerHTML = "";
+       billing.querySelector("#billing-summary").textContent = "Fix the inputs above to compare fixed vs hourly.";
+       billing.querySelector("tbody").innerHTML = "";
        killFee.querySelector("#kill-fee-summary").textContent = "Fix the inputs above to compare a kill fee.";
        killFee.querySelector("tbody").innerHTML = "";
     }
@@ -517,44 +567,47 @@
     // defaults don't validate — nothing to seed, the first valid quote counts
   }
 
+  function currentCsv() {
+    const { quote, r, compared } = lastReport;
+    return quoteCsv(quote, r, {
+      overrunRows: overrunScenarios(quote, r),
+      spikeRows: directCostSpikeScenarios(quote, r),
+      billingRows: compareBillingModels(quote, r),
+      discountRows: discountAskScenarios(quote, r),
+      compared,
+    });
+  }
+
   const copyBtn = document.getElementById("copy-csv");
+  const downloadBtn = document.getElementById("download-csv");
   const copyStatus = document.getElementById("copy-status");
   copyBtn.addEventListener("click", async () => {
     if (!lastReport) {
       copyStatus.textContent = "Fix the inputs above first.";
       return;
     }
-    const { quote, r, compared } = lastReport;
-    const discountRows = discountAskScenarios(quote, r);
-    const killRows = compared
-      ? [
-          `kill_finish_cash,${compared.finish.cash_kept.toFixed(2)},${quote.currency}`,
-          `kill_fee_cash,${compared.kill.cash_kept.toFixed(2)},${quote.currency}`,
-          `kill_walk_cash,${compared.walk.cash_kept.toFixed(2)},${quote.currency}`,
-          `kill_finish_rate_from_here,${compared.finish.rate_from_here === null ? "" : compared.finish.rate_from_here.toFixed(2)},${quote.currency}/hour`,
-          `kill_refill_adjusted,${compared.kill.refill_adjusted.toFixed(2)},${quote.currency}`,
-        ]
-      : [];
-    const rows = [
-      "measure,value,unit",
-      `quoted_price,${quote.price.toFixed(2)},${quote.currency}`,
-      `total_working_hours,${r.total_hours.toFixed(2)},hours`,
-      `direct_costs,${r.direct_costs.toFixed(2)},${quote.currency}`,
-      `effective_hourly_rate,${r.effective_hourly_rate.toFixed(2)},${quote.currency}/hour`,
-      `target_price,${r.target_price.toFixed(2)},${quote.currency}`,
-      `gap_to_target,${r.gap_to_target.toFixed(2)},${quote.currency}`,
-      `cost_coverage,${r.cost_coverage.toFixed(2)},${quote.currency}`,
-      ...discountRows.map((row) => `discount_${row.percent}_price,${row.discounted_price.toFixed(2)},${quote.currency}`),
-      ...discountRows.map((row) => `discount_${row.percent}_hours_to_cut,${row.hours_to_cut === null ? "" : row.hours_to_cut.toFixed(2)},hours`),
-      ...killRows,
-    ].join("\n");
     try {
-      await navigator.clipboard.writeText(rows);
+      await navigator.clipboard.writeText(currentCsv());
       copyStatus.textContent = "Copied — paste into a spreadsheet.";
       recordEvent("csv_copied");
     } catch {
       copyStatus.textContent = "Couldn't access the clipboard in this browser.";
     }
+  });
+
+  downloadBtn.addEventListener("click", () => {
+    if (!lastReport) {
+      copyStatus.textContent = "Fix the inputs above first.";
+      return;
+    }
+    const blob = new Blob([currentCsv()], { type: "text/csv;charset=utf-8" });
+    const link = document.createElement("a");
+    link.href = URL.createObjectURL(blob);
+    link.download = "quote-margin-review.csv";
+    link.click();
+    setTimeout(() => URL.revokeObjectURL(link.href), 0);
+    copyStatus.textContent = "Downloaded quote-margin-review.csv.";
+    recordEvent("csv_downloaded");
   });
 
   const usageToggle = document.getElementById("usage-toggle");
