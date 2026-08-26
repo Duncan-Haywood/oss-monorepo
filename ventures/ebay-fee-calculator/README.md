@@ -279,6 +279,8 @@ drive that decision:
   money, holding shipping charged constant.
 - **Target-margin item price** — the price needed to reach a chosen net margin
   after the same fees and cash costs.
+- **Sourcing ceiling** — the highest acquisition cost per item, plus the batch
+  budget, that still reaches the target ROI after all other cash costs.
 - **Repricing sensitivity** — profit, margin, and the signed change against
   your current price at listing prices 10% and 20% either side of it.
   Percentage fees scale with the price, so a $1 increase never leaves $1 more
