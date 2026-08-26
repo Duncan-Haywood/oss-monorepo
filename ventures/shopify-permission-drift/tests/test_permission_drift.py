@@ -1,4 +1,5 @@
 import json
+import subprocess
 import tempfile
 import unittest
 from pathlib import Path
@@ -43,6 +44,17 @@ class PermissionDriftTests(unittest.TestCase):
             self.assertEqual(saved, report)
             self.assertNotIn("scopes", saved["metadata"])
 
+    def test_github_format_emits_one_warning_per_change(self):
+        root = Path(__file__).parents[1]
+        result = subprocess.run(
+            [sys.executable, str(root / "src/permission_drift.py"), str(root / "examples/before.json"), str(root / "examples/after.json"), "--format", "github"],
+            check=True,
+            capture_output=True,
+            text=True,
+        )
+        warnings = [line for line in result.stdout.splitlines() if line.startswith("::warning")]
+        self.assertEqual(len(warnings), 2)
+        self.assertTrue(all('title=Shopify permission drift::' in line for line in warnings))
     def test_markdown_report_is_approval_ready_and_discloses_limits(self):
         report = compare(self.before, self.after)
         rendered = render_markdown(report)

@@ -139,7 +139,7 @@ def main() -> int:
     )
     parser.add_argument("before", type=Path)
     parser.add_argument("after", type=Path)
-    parser.add_argument("--format", choices=("text", "markdown", "json"), default="text")
+    parser.add_argument("--format", choices=("text", "markdown", "json", "github"), default="text")
     parser.add_argument("--output", type=Path, help="write the report as a portable JSON artifact")
     parser.add_argument("--usage-log", type=Path, help="opt-in aggregate event log")
     args = parser.parse_args()
@@ -158,6 +158,13 @@ def main() -> int:
         print(json.dumps(report, indent=2, sort_keys=True))
     elif args.format == "markdown":
         print(render_markdown(report), end="")
+    elif args.format == "github":
+        # json.dumps escapes newlines, so a change carrying one cannot end the
+        # workflow command early and inject a second one.
+        for change in report["changes"]:
+            print(f"::warning title=Shopify permission drift::{json.dumps(change, sort_keys=True)}")
+        if not report["changes"]:
+            print("No Shopify permission drift detected.")
     else:
         print(f"Status: {report['status']}")
         print("Review required: yes" if report["review_required"] else "Review required: no")
