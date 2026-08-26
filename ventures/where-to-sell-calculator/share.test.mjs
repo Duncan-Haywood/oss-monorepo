@@ -87,3 +87,21 @@ test("a channel value that is not a usable number is dropped, not passed on", ()
     listingRenewalDays: 0,
   });
 });
+
+test("a link cannot smuggle a channel field the calculator never asked for", () => {
+  // The other half of cursor/where-to-sell-share-hardening-20260825, and the
+  // half `main` did not carry: the decoder rebuilds each channel from `id`,
+  // `enabled` and the CHANNEL_FIELDS allowlist rather than spreading whatever
+  // the link contained. `label` is the field that matters — the page renders it
+  // as the channel's name, so a link that could set it would be markup
+  // injection through a URL a seller was told was safe to share.
+  const restored = decodeComparison(encodeURIComponent(JSON.stringify({
+    channels: [{
+      id: "etsy",
+      enabled: true,
+      label: "<img src=x onerror=alert(1)>",
+      values: { price: "62", commissionRate: "not a number", paymentRate: "<input>", monthlyFee: -1 },
+    }],
+  })));
+  assert.deepEqual(restored.channels, [{ id: "etsy", enabled: true, price: 62 }]);
+});

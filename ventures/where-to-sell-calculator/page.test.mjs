@@ -206,3 +206,74 @@ test('figures that can be absent are rendered defensively', () => {
     'sellThroughToMatchBest is null when no sell-through catches the leader; render a placeholder instead of formatting null',
   );
 });
+
+// ---------------------------------------------------------------------------
+// The handoff into each channel's own calculator
+//
+// handoff.test.mjs proves the mapping and the URLs. These check the page is
+// actually wired to them: a module that is imported but never rendered, or a
+// container that is rendered but never filled, leaves the feature silently
+// absent while both unit suites stay green.
+// ---------------------------------------------------------------------------
+
+test('the page imports and calls the handoff builder', () => {
+  assert.match(html, /import \{ handoffsForResults \} from "\.\/handoff\.mjs"/);
+  assert.match(html, /renderContinue\(comparison\.results, readShared\(\)\)/,
+    'the links must be rebuilt from the current inputs on every recalculation');
+});
+
+test('the container exists, is a landmark, and starts hidden', () => {
+  // Hidden until there is something in it — an empty labelled nav is a dead
+  // stop for anyone tabbing or using a screen reader's landmark list.
+  assert.match(html, /<nav id="continue"[^>]*aria-label="Continue with this item"[^>]*hidden>/);
+});
+
+test('the handoff links are built as nodes, never as markup', () => {
+  // A channel label is free text the reader can edit, and this is the one
+  // place it would be re-parsed. Keep it out of innerHTML.
+  const render = html.slice(html.indexOf('function renderContinue'), html.indexOf('function update()'));
+  assert.ok(render.length > 0, 'renderContinue not found');
+  assert.ok(!render.includes('innerHTML'), 'renderContinue must not use innerHTML');
+  assert.match(render, /createElement\("a"\)/);
+  assert.match(render, /textContent/);
+});
+
+test('following a handoff is counted, and honours the opt-out', () => {
+  const render = html.slice(html.indexOf('function renderContinue'), html.indexOf('function update()'));
+  assert.match(render, /recordUsage\(localStorage, optedOut\(\), `handoff_\$\{offer\.channel\}`\)/,
+    'the counter takes the opt-out the same way every other event on this page does');
+  // The event name carries the destination and nothing about the item.
+  assert.ok(!/recordUsage\([^)]*price|recordUsage\([^)]*itemCost/.test(render));
+});
+
+test('the handoff styles live inside the verdict panel', () => {
+  assert.match(html, /\.continue \{/);
+  assert.match(html, /\.continue a \{/);
+});
+
+test('mergeChannelValues is defined exactly once', () => {
+  // Function declarations hoist and the last one wins, so a second copy is not
+  // dead code — it silently replaces the first. Two sessions independently
+  // wrote this helper (`main`, and cursor/where-to-sell-share-hardening-
+  // 20260825), and the merge appended rather than conflicting: the weaker copy
+  // landed last and would have shadowed the stronger one with no error and no
+  // failing test. Counting the declarations is what notices.
+  const declarations = html.match(/function mergeChannelValues\b/g) ?? [];
+  assert.equal(declarations.length, 1,
+    `expected one mergeChannelValues, found ${declarations.length}`);
+});
+
+test('a saved channel that says nothing about `enabled` is not switched on', () => {
+  // This is the behaviour the duplicate above would have reverted. "Other
+  // channel" ships off; a stored record that predates the `enabled` flag omits
+  // it entirely, and `incoming.enabled !== false` reads that silence as true —
+  // quietly adding a channel the seller never asked to compare, which changes
+  // the ranking they are shown. Silence must fall back to the preset.
+  const merge = html.slice(html.indexOf('function mergeChannelValues'),
+    html.indexOf('function restoreSharedLink'));
+  assert.ok(merge.length > 0, 'mergeChannelValues not found');
+  assert.match(merge, /incoming\.enabled === undefined/,
+    'an absent `enabled` must be distinguished from an explicit one');
+  assert.match(merge, /channel\.enabled !== false/,
+    'and must fall back to the preset default');
+});

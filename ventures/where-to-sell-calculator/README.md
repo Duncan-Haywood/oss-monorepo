@@ -120,6 +120,41 @@ the higher rate per 30 days when cash or shelf is your constraint; take the
 higher keep when you have one item and nothing else the money would be doing.
 `does-it-actually-sell-there.html` works one flip through in full.
 
+## Carrying the item into a channel's own calculator
+
+This page answers *which* channel. It does not answer what a promoted listing,
+a return, or free shipping then does to that number — the channel's own
+calculator in this portfolio does, with twenty-odd scenarios in it.
+
+The gap between those two was retyping. Price, postage, what you paid,
+packaging: enter it again or do not go. Most people do not go, so the deeper
+tool sits unused and the comparison ends at a ranking nobody acts on.
+
+So under the verdict, every channel that has a dedicated calculator **and** can
+accept inputs from a link gets a "keep going with this item" link, built from
+what is on screen. Today that is eBay and Etsy; a channel gains one the day its
+calculator learns to read a link.
+
+Two details that are not obvious:
+
+- **A channel without a prefillable calculator gets no link at all**, rather
+  than a link to a page that would quietly show its own defaults. A wrong
+  number that looks like your number is worse than an extra click.
+- **A cost the target has no field for is folded in, not dropped.** Etsy has no
+  separate packaging input because packaging is part of what it calls
+  materials, so packaging is added to `materialCost` on the way over. Dropping
+  it would understate cost and overstate profit on arrival.
+
+Nothing is uploaded. The values ride in the URL fragment — the same mechanism
+the "Copy share link" button already uses — which browsers never send to a
+server, and they only travel inside your own browser as you follow the link.
+
+Field names differ between calculators (`itemCost` here is `costOfGoods` on
+eBay and `materialCost` on Etsy), and a name the receiver does not recognise is
+*silently dropped* rather than raising an error. `handoff.test.mjs` therefore
+imports each target's own field list and fails if a name stops matching, so
+that drift breaks a test here instead of a number there.
+
 ## Rates are inputs, not a published schedule
 
 Every rate ships with an **illustrative** US default and is editable. This
@@ -159,6 +194,10 @@ gap against the best channel, the switched-off-channel rule, input validation,
 and the usage counter's opt-out, Do Not Track / Global Privacy Control, and
 hostile-storage behaviour.
 
+`handoff.test.mjs` checks the links into the channel calculators, against
+each target's *own* field list imported from that venture — so a rename
+there fails a test here rather than silently dropping a number there.
+
 `page.test.mjs` adds structural checks on `index.html` itself, because
 `calc.test.mjs` imports `calc.mjs` directly and never looks at the page. It
 asserts that the results table declares exactly as many columns as the row
@@ -177,7 +216,7 @@ device.
 The optional usage counter records only an event name (`comparison_calculated`,
 `channel_rates_edited`, `channel_toggled`, `subscription_toggled`,
 `returns_compared`,
-`share_link_copied`) and the
+`share_link_copied`, `handoff_ebay`, `handoff_etsy`) and the
 current day, in the visitor's own `localStorage`. It never records inputs, it
 never leaves the device, it is off for anyone sending Do Not Track or Global
 Privacy Control, and the footer checkbox turns it off and discards what was
