@@ -4,10 +4,10 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Interior Door Bid Calculator | How Much to Charge to Replace Interior Doors</title>
-  <meta name="description" content="Price an interior door replacement from door count, hollow slab versus solid-core versus French-or-barn, hang-only versus pocket-conversion, owner-supplied versus carpenter-supplied, and extras — plus the walk-away price a $150-a-door special cannot see.">
+  <meta name="description" content="Price an interior door replacement from door count, hollow slab versus solid-core versus French-or-barn, hang-only versus pocket-conversion, owner-supplied versus carpenter-supplied, weekday versus Saturday overtime, and extras — plus the walk-away price a $150-a-door special cannot see.">
   <meta property="og:title" content="Interior Door Bid Calculator">
   <meta property="og:description" content="Bid an interior door the way the trade does — opening, leaf, and extras, not a published installed dump — and see the margin before you send the price.">
-  <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Interior Door Bid Calculator","applicationCategory":"BusinessApplication","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"featureList":"Door count, hollow slab vs hollow prehung vs solid-core vs French-or-barn comparison, hang-only vs prehung-swap vs new-opening vs pocket-conversion comparison, owner-supplied vs carpenter-supplied hang, 80-inch vs 96-inch vs double, paint haul lockset extras, walk-away price, proposed-price margin check, copyable bid summary"}</script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Interior Door Bid Calculator","applicationCategory":"BusinessApplication","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"featureList":"Door count, hollow slab vs hollow prehung vs solid-core vs French-or-barn comparison, hang-only vs prehung-swap vs new-opening vs pocket-conversion comparison, owner-supplied vs carpenter-supplied hang, weekday they-leave vs they-stay vs Saturday overtime, 80-inch vs 96-inch vs double, paint haul lockset extras, walk-away price, proposed-price margin check, copyable bid summary"}</script>
   <style>
     :root { color-scheme: light; font-family: system-ui, sans-serif; color: #1f2a32; background: #e8eef2; }
     body { max-width: 1060px; margin: 0 auto; padding: 32px 18px; }
@@ -174,6 +174,14 @@
       </table>
       <p id="supplyNote" class="note"></p>
       <hr>
+      <p class="note" style="margin-bottom:4px"><strong>Same opening, when you can work</strong></p>
+      <p class="note" style="margin-top:0">The “can you come Saturday? Same $150?” special. A weekday they-leave slot is the bid you already have. Weekday while they stay home is the same wage on a slower hang. After-hours is time-and-a-half plus a second dispatch because a Saturday hang is not a stop you combine with a weekday route. <a href="should-i-hang-doors-on-saturday.html" style="color:#cde6ea">Should I hang doors on Saturday?</a></p>
+      <table>
+        <thead><tr><th>When</th><th>Hours</th><th>Your bid</th><th>At their number</th></tr></thead>
+        <tbody id="access"></tbody>
+      </table>
+      <p id="accessNote" class="note"></p>
+      <hr>
       <p class="note" style="margin-bottom:4px"><strong>Where the hours go</strong></p>
       <ul class="split" id="split"></ul>
       <hr>
@@ -186,7 +194,7 @@
     <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not building-code, fire-rating, legal, tax, or financial advice, and it does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for meeting any obligation it helps you prepare for. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
     <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record. If a tool needs to survive, export your inputs and run it yourself.</p>
     <p><strong>Nothing leaves your browser.</strong> Every number stays on this device. Usage counts are anonymous tallies of which features were used, stored locally, and never include your opening, wages, costs, or prices.</p>
-    <p>Looking up <a href="how-much-to-charge-to-replace-interior-doors.html">how much to charge to replace interior doors</a>? The article walks the opening-versus-scope math this calculator uses. Customer bought the slab? See <a href="should-i-hang-a-customer-supplied-door.html">should I hang a customer-supplied door</a>.</p>
+    <p>Looking up <a href="how-much-to-charge-to-replace-interior-doors.html">how much to charge to replace interior doors</a>? The article walks the opening-versus-scope math this calculator uses. Customer bought the slab? See <a href="should-i-hang-a-customer-supplied-door.html">should I hang a customer-supplied door</a>. Saturday hang? See <a href="should-i-hang-doors-on-saturday.html">should I hang doors on Saturday</a>.</p>
     <p class="support">Free and open source. If it wins you a job, the <a href="https://github.com/Duncan-Haywood/monorepo-projects" rel="noopener">project is on GitHub</a> &mdash; support is entirely optional and never changes what the tool does.</p>
   </footer>
 
@@ -197,6 +205,8 @@
       compareDoor,
       compareOwnerSupply,
       ownerSupplyNote,
+      compareAccess,
+      accessNote,
       formatBidSummary,
       suggestedScopeKit,
       suggestedDoorKit,
@@ -239,6 +249,7 @@
     const money = value => `$${value.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
     const el = id => document.getElementById(id);
     let supplyCounted = false;
+    let accessCounted = false;
 
     function fillSelect(id, presets) {
       el(id).innerHTML = presets.map(item => `<option value="${item.id}">${item.label}</option>`).join('');
@@ -297,6 +308,8 @@
       el('doors').innerHTML = '';
       el('supply').innerHTML = '';
       el('supplyNote').textContent = '';
+      el('access').innerHTML = '';
+      el('accessNote').textContent = '';
       el('verdict').hidden = true;
     }
 
@@ -384,6 +397,26 @@
       if (!supplyCounted) {
         count('owner_supply_compared');
         supplyCounted = true;
+      }
+
+      const access = compareAccess(readInput());
+      el('access').innerHTML = access.map(row => {
+        const atTheirs = row.hangOnly === null
+          ? 'enter their number'
+          : row.hangOnly.belowBreakEven
+            ? `loses ${money(Math.abs(row.hangOnly.profit))}`
+            : `keeps ${money(row.hangOnly.profit)}`;
+        return `<tr class="${row.cheapest ? 'cheap' : ''}">
+        <td>${row.label}${row.cheapest ? ' · lowest bid' : ''}</td>
+        <td>${row.totalHours.toFixed(1)} h</td>
+        <td>${money(row.price)}</td>
+        <td>${atTheirs}</td>
+      </tr>`;
+      }).join('');
+      el('accessNote').textContent = accessNote(access);
+      if (!accessCounted) {
+        count('access_compared');
+        accessCounted = true;
       }
 
       const verdict = el('verdict');

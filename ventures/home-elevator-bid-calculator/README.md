@@ -8,8 +8,9 @@ masonry shaft versus glass, then a pit, a 240 V feeder, and a permit —
 and shows the margin before the price goes out.
 
 **After using this, you can now** send a walk-away home-elevator
-price that sees the stops, the shaft, and whether they already
-bought the unit, **which used to take** matching a published
+price that sees the stops, the shaft, whether they already
+bought the unit, and whether they need it this Saturday after a
+hospital discharge, **which used to take** matching a published
 $18,995 pneumatic special — or a $4,995 “just set what I bought”
 install-only number — that treats a through-floor tube as the same
 job as a three-stop hydraulic in a new wood hoistway.
@@ -78,7 +79,10 @@ through-floor special), a four-cab comparison (acrylic tube versus
 standard versus wood-panel versus glass — the upgrade after they
 shopped the tube), a who-supplies comparison (you supply the
 unit versus they already bought one that fits versus a wrong
-opening), and the **walk-away price**. Entering a price already on
+opening), a three-way **when-they-need-it** comparison
+(weekday they leave, discharge week with next-day unit air
+freight, Saturday overtime plus a weekend inspector), and the
+**walk-away price**. Entering a price already on
 the table scores it against the same cost base, including the
 install-only number they quoted you. **Copy bid summary** turns
 the result into a plain-text draft ready to paste into a proposal.
@@ -88,7 +92,8 @@ The arithmetic lives in [`calc.mjs`](calc.mjs). See
 
 Search phrases: [`how-much-to-charge-to-install-a-home-elevator.html`](how-much-to-charge-to-install-a-home-elevator.html),
 [`acrylic-vs-glass-home-elevator-cab.html`](acrylic-vs-glass-home-elevator-cab.html),
-and [`should-i-install-a-customer-supplied-home-elevator.html`](should-i-install-a-customer-supplied-home-elevator.html).
+[`should-i-install-a-customer-supplied-home-elevator.html`](should-i-install-a-customer-supplied-home-elevator.html),
+and [`should-i-expedite-a-home-elevator-for-hospital-discharge.html`](should-i-expedite-a-home-elevator-for-hospital-discharge.html).
 
 ## Privacy
 
@@ -109,7 +114,7 @@ when the browser sends Do Not Track or Global Privacy Control. See
 
 Events counted: `bid_calculated`, `preset_applied`, `drive_changed`,
 `hoistway_changed`, `cab_changed`, `cab_compared`, `proposed_price_compared`,
-`summary_copied`, `owner_supply_compared`.
+`summary_copied`, `owner_supply_compared`, `access_compared`.
 
 ## Limitations
 

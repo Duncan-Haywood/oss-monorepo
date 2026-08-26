@@ -8,6 +8,8 @@ import {
   cabNote,
   compareOwnerSupply,
   ownerSupplyNote,
+  compareAccess,
+  accessNote,
   formatBidSummary,
   travelHours,
   suggestedDriveKit,
@@ -15,6 +17,7 @@ import {
   suggestedCabKit,
   suggestedExtraKit,
   suggestedOwnerCallbackKit,
+  suggestedAccessKit,
   JOB_PRESETS,
 } from './calc.mjs';
 
@@ -359,6 +362,129 @@ test('suggestedOwnerCallbackKit is a second trip plus opening hardware', () => {
   assert.equal(kit.hoursCallbackTrip, suggestedExtraKit().hoursTrip);
   assert.ok(kit.hoursWrongOpening > 0);
   assert.ok(kit.wrongOpeningInvoice > 0);
+});
+
+test('compareAccess adds expedite freight on discharge week and overtime plus a weekend inspector after hours', () => {
+  const kit = suggestedAccessKit();
+  assert.equal(kit.expediteFreight, 2450);
+  assert.equal(kit.rushInspectionInvoice, 925);
+  assert.equal(kit.afterHoursWageMultiplier, 1.5);
+  assert.equal(kit.afterHoursExtraTripHours, suggestedExtraKit().hoursTrip);
+  assert.ok(kit.occupiedPaceMultiplier > 1);
+
+  const rows = compareAccess(special());
+  assert.equal(rows.length, 3);
+  const weekday = rows.find((row) => row.access === 'weekday-scheduled');
+  const discharge = rows.find((row) => row.access === 'discharge-week');
+  const afterHours = rows.find((row) => row.access === 'after-hours');
+  assert.ok(weekday);
+  assert.ok(discharge);
+  assert.ok(afterHours);
+  assert.equal(weekday.cheapest, true);
+  assert.equal(weekday.expediteFreight, 0);
+  assert.equal(weekday.rushInspection, 0);
+  assert.equal(discharge.expediteFreight, 2450);
+  assert.equal(discharge.rushInspection, 0);
+  assert.equal(afterHours.expediteFreight, 2450);
+  assert.equal(afterHours.rushInspection, 925);
+  assert.ok(discharge.totalHours > weekday.totalHours);
+  assert.ok(discharge.hoursUnit > weekday.hoursUnit);
+  assert.ok(discharge.hoursHoistway > weekday.hoursHoistway);
+  assert.ok(discharge.price > weekday.price);
+  assert.ok(afterHours.loadedWage > weekday.loadedWage);
+  assert.ok(afterHours.hoursTravel > weekday.hoursTravel);
+  assert.ok(afterHours.price > discharge.price);
+  assert.ok(afterHours.softCost > discharge.softCost);
+});
+
+test('compareAccess does not leak a typed other-cost into the weekday expedite line', () => {
+  const baseline = compareAccess(special());
+  const overridden = compareAccess({ ...special(), otherCost: 999 });
+  const weekday = overridden.find((row) => row.access === 'weekday-scheduled');
+  const discharge = overridden.find((row) => row.access === 'discharge-week');
+  assert.equal(weekday.expediteFreight, 0);
+  assert.equal(discharge.expediteFreight, 2450);
+  assert.ok(discharge.softCost - weekday.softCost > 2400);
+  assert.ok(overridden.find((row) => row.access === 'weekday-scheduled').price > baseline[0].price);
+});
+
+test('compareAccess scores an $18,995 Saturday special against each cost base', () => {
+  const rows = compareAccess(special(), { installOnlyPrice: 18995 });
+  const weekday = rows.find((row) => row.access === 'weekday-scheduled');
+  const discharge = rows.find((row) => row.access === 'discharge-week');
+  const afterHours = rows.find((row) => row.access === 'after-hours');
+  assert.equal(weekday.installOnly.belowBreakEven, true);
+  assert.equal(discharge.installOnly.belowBreakEven, true);
+  assert.equal(afterHours.installOnly.belowBreakEven, true);
+  assert.ok(weekday.breakEvenPrice > 18995);
+  const note = accessNote(rows);
+  assert.match(note, /\$18,995\.00/);
+  assert.match(note, /lose money even on a weekday slot/i);
+  assert.match(note, /walk-away after-hours/i);
+});
+
+test('compareAccess scores a $28,108 weekday bid that still loses after hours', () => {
+  const weekdayBid = compareAccess(special()).find((row) => row.access === 'weekday-scheduled');
+  const asked = Math.round(weekdayBid.price);
+  const rows = compareAccess(special(), { installOnlyPrice: asked });
+  const weekday = rows.find((row) => row.access === 'weekday-scheduled');
+  const afterHours = rows.find((row) => row.access === 'after-hours');
+  assert.equal(weekday.installOnly.belowBreakEven, false);
+  assert.equal(afterHours.installOnly.belowBreakEven, true);
+  const note = accessNote(rows);
+  assert.match(note, /weekday set covers/i);
+  assert.match(note, /Saturday \/ discharge number loses/i);
+});
+
+test('accessNote names the bid lift when no proposed price is set', () => {
+  const note = accessNote(compareAccess(special()));
+  assert.match(note, /Discharge week while they stay home adds/i);
+  assert.match(note, /After-hours \/ Saturday adds/i);
+});
+
+test('accessNote names discharge-week loss when Saturday still covers', () => {
+  const rows = [
+    {
+      access: 'weekday-scheduled',
+      price: 28000,
+      breakEvenPrice: 22000,
+      installOnly: { price: 26000, profit: 4000, belowBreakEven: false },
+    },
+    {
+      access: 'discharge-week',
+      price: 32000,
+      breakEvenPrice: 27000,
+      installOnly: { price: 26000, profit: -1000, belowBreakEven: true },
+    },
+    {
+      access: 'after-hours',
+      price: 25000,
+      breakEvenPrice: 24000,
+      installOnly: { price: 26000, profit: 2000, belowBreakEven: false },
+    },
+  ];
+  assert.match(accessNote(rows), /Discharge week while they stay home still loses/i);
+  assert.match(accessNote(rows), /\$1,000\.00/);
+});
+
+test('accessNote uses proposedPrice when installOnlyPrice is omitted', () => {
+  const rows = compareAccess({ ...special(), proposedPrice: 18995 });
+  assert.equal(rows[0].installOnlyPrice, 18995);
+  assert.match(accessNote(rows), /\$18,995\.00/);
+});
+
+test('accessNote rejects a short row list', () => {
+  assert.throws(() => accessNote([]), /missing rows/);
+  assert.throws(() => accessNote([{ access: 'weekday-scheduled' }]), /missing rows/);
+});
+
+test('compareAccess keeps drive and hoistway with the current job', () => {
+  const cheap = compareAccess(special()).find((row) => row.access === 'after-hours');
+  const hydraulic = compareAccess(losingJob()).find((row) => row.access === 'after-hours');
+  assert.ok(cheap);
+  assert.ok(hydraulic);
+  assert.ok(hydraulic.price > cheap.price);
+  assert.ok(hydraulic.totalHours > cheap.totalHours);
 });
 
 test('kits reject unknown ids', () => {

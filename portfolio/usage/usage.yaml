@@ -283,6 +283,21 @@ products:
           live_url_visitors: null
           shop_sale_compared: 0
         note: Added full-price vs 20% vs dollar-off shop-sale comparison; public URL remains owner-gated.
+      - as_of: 2026-08-26
+        signals:
+          live_url_visitors: null
+          free_shipping_compared: 0
+        note: Added charge-shipping vs free-shipping item-price comparison; public URL remains owner-gated.
+      - as_of: 2026-08-26
+        signals:
+          live_url_visitors: null
+          listing_renewal_compared: 0
+        note: Added listing-fee allocation across one auto-renew window; public URL remains owner-gated.
+      - as_of: 2026-08-26
+        signals:
+          live_url_visitors: null
+          offsite_ads_compared: 0
+        note: Added Offsite Ads 12%/15% comparison, ROI on cash invested, and a local offsite_ads_compared event. Public URL remains owner-gated.
   - slug: shopify-a11y-evidence
     surface: static-page-in-repo
     readings:
@@ -406,6 +421,87 @@ products:
           shipping (program fee, extra return rate, rate ceiling).
           Still no public URL; local event managed_returns_compared is
           opt-out and stores no inputs.
+      - as_of: 2026-08-26
+        signals:
+          live_url_visitors: null
+          promoted_standard_compared: 0
+        note: >-
+          Added Promoted Listings Standard vs skip after extra sales
+          (ad drag on the sale you already had, extra-sale floor, rate
+          ceiling). Still no public URL; local event
+          promoted_standard_compared is opt-out and stores no inputs.
+      - as_of: 2026-08-26
+        signals:
+          live_url_visitors: null
+          global_shipping_compared: 0
+        note: >-
+          Added Global Shipping Program vs you-ship after sell-through
+          (claim-rate floor, you-ship ST floor, hub label vs intl postage).
+          Still no public URL; local event global_shipping_compared is
+          opt-out and stores no inputs.
+      - as_of: 2026-08-26
+        signals:
+          live_url_visitors: null
+          store_compared: 0
+        note: >-
+          Added store subscription vs no-store rate after monthly
+          volume (example Starter/Basic/Premium, break-even order
+          count). Still no public URL; local event store_compared is
+          opt-out and stores no inputs.
+      - as_of: 2026-08-26
+        signals:
+          live_url_visitors: null
+          best_offer_compared: 0
+        note: >-
+          Added incoming Best Offer vs waiting (offer in hand versus
+          list profit times a typed chance of list, midpoint counter,
+          target-margin price). Still no public URL; local event
+          best_offer_compared is opt-out and stores no inputs.
+      - as_of: 2026-08-26
+        signals:
+          live_url_visitors: null
+          international_compared: 0
+        note: >-
+          Added domestic vs worldwide at this list (illustrative
+          international fee, extra postage you absorb, hold prices).
+          Still no public URL; local event international_compared is
+          opt-out and stores no inputs.
+      - as_of: 2026-08-26
+        signals:
+          live_url_visitors: null
+          free_shipping_compared: 0
+        note: >-
+          Added free shipping vs buyer-pays after sell-through (bake-in
+          leftover, under-baked $40 list, sell-through floor). Still no
+          public URL; local event free_shipping_compared is opt-out and
+          stores no inputs.
+      - as_of: 2026-08-26
+        signals:
+          live_url_visitors: null
+          promoted_advanced_compared: 0
+        note: >-
+          Added Promoted Listings Advanced vs skip after a click bill
+          charged either way (extra-sale floor, CPC ceiling, click
+          ceiling). Still no public URL; local event
+          promoted_advanced_compared is opt-out and stores no inputs.
+      - as_of: 2026-08-26
+        signals:
+          live_url_visitors: null
+          package_protection_compared: 0
+        note: >-
+          Added skip vs insurance vs signature after item-not-received
+          claims (replacement-value payout, skip-claim floor, premium
+          ceiling). Still no public URL; local event
+          package_protection_compared is opt-out and stores no inputs.
+      - as_of: 2026-08-26
+        signals:
+          live_url_visitors: null
+          ebay_labels_compared: 0
+        note: >-
+          Added eBay label vs Pirate Ship after item-not-received
+          claims and upload time (claim-rate floor, quote ceiling,
+          time ceiling). Still no public URL; local event
+          ebay_labels_compared is opt-out and stores no inputs.
   - slug: cut-list-optimizer
     surface: static-page-in-repo
     readings:
@@ -467,6 +563,14 @@ products:
           Added gift card vs selling the SKU now (sale-day fees, leftover
           swipe, promo off face, breakage mix). Public URL remains
           owner-gated; local events are opt-out and store no inputs.
+      - as_of: 2026-08-26
+        signals:
+          live_url_visitors: null
+          markets_duties_compared: 0
+        note: >-
+          Added Shopify Markets DDP vs DAP vs skip (card fee on collected
+          duty, door-refuse leftover, take/refuse floors). Public URL
+          remains owner-gated; local events are opt-out and store no inputs.
   - slug: where-to-sell-calculator
     surface: static-page-in-repo
     readings:
@@ -590,6 +694,15 @@ products:
           share, 0/8/15/22% sweep, wipe rate). Still no public URL;
           local event return_rate_calculated is opt-out and stores no
           inputs.
+      - as_of: 2026-08-26
+        signals:
+          live_url_visitors: null
+          storage_season_compared: 0
+        note: >-
+          Added peak vs off-peak inbound-timing comparison (January vs a
+          stay that includes Oct–Dec months, plus months of peak storage
+          that wipe leftover). Public URL remains owner-gated; local
+          event storage_season_compared is opt-out and stores no inputs.
   - slug: einvoice-preflight
     surface: local-cli
     readings:
@@ -814,6 +927,22 @@ products:
           $1,499 loses $583.34 even when they bought the tub.
           Complementary, not a second calculator. Public URL
           remains owner-gated (`deploy-settings`).
+      - as_of: 2026-08-26
+        signals:
+          live_url_visitors: null
+          local_events_reported: 0
+        note: >-
+          Added weekday-they-leave vs only-bath-still-in-use vs
+          after-hours Saturday comparison (occupied pace on unit,
+          demo, set, and punch-list; overtime wage plus a second
+          evening dispatch). Default acrylic soaker: weekday
+          $3,757.32, occupied $3,928.03 (+$170.71), after-hours
+          $4,407.98 (+$650.66). $3,499 Saturday covers weekday and
+          loses $27.39 after hours (walk-away $3,526.39). Typical
+          whirlpool: weekday $8,640.43 / after-hours $9,566.19;
+          $5,800 loses even on weekday (after-hours walk-away
+          $7,652.95). Public URL remains owner-gated; local event
+          access_compared is opt-out and stores no inputs.
   - slug: stair-lift-bid-calculator
     surface: static-page-in-repo
     readings:
@@ -843,6 +972,23 @@ products:
           they bought a unit that fits (walk-away about $989); a wrong
           rail or missing brackets walks away about $1,422. Public URL
           remains owner-gated.
+      - as_of: 2026-08-26
+        signals:
+          live_url_visitors: null
+          access_compared: 0
+        note: >-
+          Added weekday they-leave vs discharge-week expedite freight
+          vs Saturday overtime on the same stair, plus a
+          should-i-expedite-a-stair-lift-for-hospital-discharge page.
+          Default cheap special: weekday $5,333.37, discharge week
+          $6,190.67 (+$857.30), after-hours $6,692.99 (+$1,359.62).
+          $4,500 Saturday covers weekday and loses $854.39 after hours
+          (walk-away $5,354.39). $3,995 Facebook special loses even on
+          weekday. Curved heavy-duty: weekday $20,983.85 / after-hours
+          $23,222.14; $2,495 loses even on weekday (after-hours
+          walk-away $18,577.71). Distinct from owner-supply, walk-in-tub
+          Saturday, toilet Saturday, kitchen-tile Saturday, and boiler
+          Saturday. Public URL remains owner-gated.
   - slug: home-elevator-bid-calculator
     surface: static-page-in-repo
     readings:
@@ -883,6 +1029,25 @@ products:
           ($28,108.09 → $36,462.61); matching the acrylic bid on a
           glass-cab ask sits $1,062.00 under the glass walk-away of
           $29,170.09. Public URL remains owner-gated.
+      - as_of: 2026-08-26
+        signals:
+          live_url_visitors: null
+          local_events_reported: 0
+        note: >-
+          Added weekday they-leave vs discharge-week expedite freight
+          vs Saturday overtime on the same house, plus a
+          should-i-expedite-a-home-elevator-for-hospital-discharge
+          page. Next-day air on the unit ($2,450) and a weekend
+          inspector ($925) — not a stair-lift rail ticket.
+          Default cheap special: weekday $28,108.09, discharge
+          $32,645.87 (+$4,537.78), after-hours $35,919.76
+          (+$7,811.66). $18,995 loses even on weekday (after-hours
+          walk-away $28,735.80). $28,108 weekday covers and loses
+          $627.80 after hours. Three-stop hydraulic: weekday
+          $87,736.52 / after-hours $103,411.19; $18,995 loses even
+          on weekday (after-hours walk-away $82,728.95). Public URL
+          remains owner-gated; local event access_compared is
+          opt-out and stores no inputs.
   - slug: freelance-retainer-calculator
     surface: static-page-in-repo
     readings:

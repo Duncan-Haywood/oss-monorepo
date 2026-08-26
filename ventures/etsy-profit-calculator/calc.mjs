@@ -21,14 +21,97 @@ export function calculateOrder(input) {
     payment: revenue * paymentRate / 100 + paymentFixed,
     offsiteAd: revenue * offsiteAdRate / 100,
   };
+  // Cash the seller lays out to make and ship the order. Marketplace
+  // fees are deducted from proceeds, not paid up front, so they stay
+  // out of invested cash — that keeps ROI honest (same split as the
+  // eBay calculator).
+  const cashInvested = shippingCost + materialCost + otherCost;
   const costs = fees.listing + fees.transaction + fees.payment + fees.offsiteAd + shippingCost + materialCost + otherCost;
   const profit = revenue - costs;
   return {
-    revenue, fees, costs, profit,
+    revenue, fees, costs, profit, cashInvested,
     margin: revenue === 0 ? 0 : profit / revenue * 100,
+    roi: cashInvested === 0 ? null : profit / cashInvested * 100,
     breakEvenPrice: Math.max(0, (listingFee + paymentFixed + shippingCost + materialCost + otherCost) /
       (1 - (transactionRate + paymentRate + offsiteAdRate) / 100)),
   };
+}
+
+// Illustrative Offsite Ads rates from Etsy's published shop-size split
+// (2026): 15% under $10k trailing-12-month sales, 12% over that
+// threshold. These are inputs, not a live schedule — the seller
+// overwrites them from their own statement.
+export const OFFSITE_AD_RATE_PRESETS = [0, 12, 15];
+
+function offsiteRateLabel(rate) {
+  if (rate === 0) return 'Organic (no offsite ads)';
+  if (rate === 12) return '12% offsite ads (over $10k shop)';
+  if (rate === 15) return '15% offsite ads (under $10k shop)';
+  return `${rate}% offsite ads`;
+}
+
+// Side-by-side leftover at Etsy's two published Offsite Ads rates plus
+// organic. The seller's current offsiteAdRate is included when it is
+// not already a preset, so a custom 8% or 13% still appears as "your
+// input". Complementary to on-site Etsy Ads (a click you buy). This
+// does not opt a shop in or out.
+export function compareOffsiteAdRates(input, rates = OFFSITE_AD_RATE_PRESETS) {
+  const current = nonNegativeNumber(input.offsiteAdRate, 'Offsite ad rate', 0);
+  const unique = [...new Set([...rates, current])]
+    .filter((rate) => Number.isFinite(rate) && rate >= 0)
+    .sort((a, b) => a - b);
+  const organic = calculateOrder({ ...input, offsiteAdRate: 0 });
+  return unique.map((rate) => {
+    const result = calculateOrder({ ...input, offsiteAdRate: rate });
+    return {
+      offsiteAdRate: rate,
+      label: offsiteRateLabel(rate),
+      isCurrent: rate === current,
+      profit: result.profit,
+      margin: result.margin,
+      roi: result.roi,
+      cashInvested: result.cashInvested,
+      offsiteAdFee: result.fees.offsiteAd,
+      profitVsOrganic: result.profit - organic.profit,
+      stillProfitable: result.profit > 0,
+    };
+  });
+}
+
+// Highest Offsite Ads rate at which this order still clears minProfit
+// (default: break-even). Algebra: profit = organicProfit - revenue * rate/100.
+// Returns 0 when the order is already at or below the floor without ads.
+export function maxAffordableOffsiteRate(input, minProfit = 0) {
+  const floor = Number(minProfit);
+  if (!Number.isFinite(floor)) throw new Error('Minimum profit must be a number');
+  const organic = calculateOrder({ ...input, offsiteAdRate: 0 });
+  if (organic.revenue <= 0) return 0;
+  const rate = (organic.profit - floor) / organic.revenue * 100;
+  if (!Number.isFinite(rate)) return 0;
+  return Math.max(0, rate);
+}
+
+export function offsiteAdsNote(rows, maxRate) {
+  if (!Array.isArray(rows) || rows.length < 2) {
+    throw new Error('Offsite Ads comparison is missing rows');
+  }
+  const money = (value) => {
+    const sign = value < 0 ? '−' : '';
+    return `${sign}$${Math.abs(value).toFixed(2)}`;
+  };
+  const organic = rows.find((row) => row.offsiteAdRate === 0);
+  if (!organic) throw new Error('Offsite Ads comparison is missing the organic row');
+  const roi = organic.roi == null ? '' : ` (${organic.roi.toFixed(1)}% ROI on ${money(organic.cashInvested)} cash)`;
+  const organicLine = `${organic.label} keeps ${money(organic.profit)}${roi}.`;
+  const others = rows.filter((row) => row.offsiteAdRate !== 0).map((row) => {
+    const gap = money(Math.abs(row.profitVsOrganic));
+    const ahead = row.profitVsOrganic >= 0 ? 'more' : 'less';
+    return ` ${row.label} take ${money(row.offsiteAdFee)} and leave ${money(row.profit)} — ${gap} ${ahead}.`;
+  }).join('');
+  const cap = Number.isFinite(maxRate)
+    ? ` The order stays at or above $0.00 leftover until Offsite Ads reach about ${maxRate.toFixed(1)}%.`
+    : '';
+  return `${organicLine}${others}${cap}`;
 }
 
 export function priceForMargin(input, targetMargin) {
@@ -1051,6 +1134,155 @@ export function shopSaleNote(comparison) {
   return `${listed}${percentPacked}${dollarPacked}${expected}${percentCeiling}${dollarCeiling}${discountCeiling}`;
 }
 
+// Illustrative free-shipping defaults: raise the $30 item to $32 and drop
+// the $5 label. Absorbing the whole label ($35 item, $0 charged) is a tie
+// on the same customer total — percentage fees sit on item + shipping.
+export const FREE_SHIPPING_DEFAULTS = {
+  freeShipPrice: 32,
+  monthlyOrders: 40,
+};
+
+function liftToMatch(baseProfit, altProfit) {
+  if (altProfit > baseProfit + 1e-9) {
+    return { liftPercent: 0, extraPerOrder: 0, canWinWithVolume: true, alreadyAhead: true };
+  }
+  if (Math.abs(altProfit - baseProfit) <= 1e-9) {
+    return { liftPercent: 0, extraPerOrder: 0, canWinWithVolume: true, alreadyAhead: false };
+  }
+  if (altProfit <= 1e-12) {
+    return { liftPercent: null, extraPerOrder: null, canWinWithVolume: false, alreadyAhead: false };
+  }
+  const extraPerOrder = (baseProfit - altProfit) / altProfit;
+  return {
+    liftPercent: extraPerOrder * 100,
+    extraPerOrder,
+    canWinWithVolume: true,
+    alreadyAhead: false,
+  };
+}
+
+function freeShippingWinner(raisedProfit, chargedProfit) {
+  if (raisedProfit > chargedProfit + 1e-9) return 'raised';
+  if (chargedProfit > raisedProfit + 1e-9) return 'charged';
+  return 'tie';
+}
+
+// Charge shipping vs free shipping at a typed item price. Eating the label
+// (same item price, $0 charged) and absorbing it (item = old buyer total)
+// are teaching rows: same customer total is a fee-stack tie.
+export function compareFreeShipping(input = {}) {
+  const chargedRaw = calculateOrder(input);
+  const price = nonNegativeNumber(input.price, 'Price');
+  const shippingCharged = nonNegativeNumber(input.shippingCharged, 'Shipping charged', 0);
+  const freeShipPrice = nonNegativeNumber(
+    input.freeShipPrice,
+    'Free-shipping item price',
+    FREE_SHIPPING_DEFAULTS.freeShipPrice,
+  );
+  const monthlyOrders = nonNegativeNumber(
+    input.monthlyOrders,
+    'Monthly orders',
+    FREE_SHIPPING_DEFAULTS.monthlyOrders,
+  );
+
+  const eatLabelRaw = calculateOrder({ ...input, shippingCharged: 0 });
+  const absorbPrice = price + shippingCharged;
+  const absorbRaw = calculateOrder({ ...input, price: absorbPrice, shippingCharged: 0 });
+  const raisedRaw = calculateOrder({ ...input, price: freeShipPrice, shippingCharged: 0 });
+  const lift = liftToMatch(chargedRaw.profit, raisedRaw.profit);
+  const extraOrdersNeeded = lift.extraPerOrder == null ? null : monthlyOrders * lift.extraPerOrder;
+
+  const chargedProfit = roundMoney(chargedRaw.profit);
+  const eatLabelProfit = roundMoney(eatLabelRaw.profit);
+  const absorbProfit = roundMoney(absorbRaw.profit);
+  const raisedProfit = roundMoney(raisedRaw.profit);
+  const perOrderDelta = roundMoney(raisedRaw.profit - chargedRaw.profit);
+  const eatLabelDelta = roundMoney(eatLabelRaw.profit - chargedRaw.profit);
+
+  return {
+    freeShipPrice: roundMoney(freeShipPrice),
+    monthlyOrders,
+    absorbPrice: roundMoney(absorbPrice),
+    charged: {
+      id: 'charged',
+      label: 'Charge shipping',
+      price: roundMoney(price),
+      shippingCharged: roundMoney(shippingCharged),
+      revenue: roundMoney(chargedRaw.revenue),
+      profit: chargedProfit,
+      monthly: roundMoney(monthlyOrders * chargedRaw.profit),
+    },
+    eatLabel: {
+      id: 'eat_label',
+      label: 'Free shipping, same item price',
+      price: roundMoney(price),
+      shippingCharged: 0,
+      revenue: roundMoney(eatLabelRaw.revenue),
+      profit: eatLabelProfit,
+      monthly: roundMoney(monthlyOrders * eatLabelRaw.profit),
+    },
+    absorb: {
+      id: 'absorb',
+      label: 'Free shipping, same customer total',
+      price: roundMoney(absorbPrice),
+      shippingCharged: 0,
+      revenue: roundMoney(absorbRaw.revenue),
+      profit: absorbProfit,
+      monthly: roundMoney(monthlyOrders * absorbRaw.profit),
+    },
+    raised: {
+      id: 'raised',
+      label: 'Free shipping at typed price',
+      price: roundMoney(freeShipPrice),
+      shippingCharged: 0,
+      revenue: roundMoney(raisedRaw.revenue),
+      profit: raisedProfit,
+      monthly: roundMoney(monthlyOrders * raisedRaw.profit),
+    },
+    perOrderDelta,
+    eatLabelDelta,
+    liftPercent: lift.liftPercent == null ? null : roundMoney(lift.liftPercent),
+    extraPerOrder: lift.extraPerOrder == null ? null : lift.extraPerOrder,
+    extraOrdersNeeded: extraOrdersNeeded == null ? null : roundMoney(extraOrdersNeeded),
+    canWinWithVolume: lift.canWinWithVolume,
+    alreadyAhead: lift.alreadyAhead,
+    winner: freeShippingWinner(raisedRaw.profit, chargedRaw.profit),
+    monthlyCharged: roundMoney(monthlyOrders * chargedRaw.profit),
+    monthlyRaised: roundMoney(monthlyOrders * raisedRaw.profit),
+    monthlyEatLabel: roundMoney(monthlyOrders * eatLabelRaw.profit),
+    monthlyDelta: roundMoney(monthlyOrders * (raisedRaw.profit - chargedRaw.profit)),
+  };
+}
+
+export function freeShippingNote(comparison) {
+  if (!comparison?.charged || !comparison?.raised || !comparison?.eatLabel || !comparison?.absorb) {
+    throw new Error('Free-shipping comparison is missing rows');
+  }
+  const money = (value) => {
+    const sign = value < 0 ? '−' : '';
+    return `${sign}$${Math.abs(value).toFixed(2)}`;
+  };
+  const signed = (value) => {
+    if (Math.abs(value) <= 1e-9) return '$0.00';
+    return `${value < 0 ? '−' : '+'}$${Math.abs(value).toFixed(2)}`;
+  };
+  const charged = `Charging ${money(comparison.charged.shippingCharged)} shipping on a ${money(comparison.charged.price)} item leaves ${money(comparison.charged.profit)} per order.`;
+  const eat = ` Free shipping at the same item price leaves ${money(comparison.eatLabel.profit)} (${signed(comparison.eatLabelDelta)}).`;
+  const absorb = ` Moving the label into the item price (${money(comparison.absorb.price)} + $0.00) leaves ${money(comparison.absorb.profit)} — the same customer total is a tie.`;
+  const raised = ` Free shipping at ${money(comparison.raised.price)} leaves ${money(comparison.raised.profit)} (${signed(comparison.perOrderDelta)} per order).`;
+  let volume;
+  if (comparison.alreadyAhead) {
+    volume = ` Free shipping already keeps more per order, so it does not need extra volume.`;
+  } else if (comparison.winner === 'tie') {
+    volume = ` Same leftover per order — extra orders are a ranking question, not a fee-stack one.`;
+  } else if (!comparison.canWinWithVolume) {
+    volume = ` Free shipping is at or below $0.00 leftover, so no finite extra-order lift can match charging shipping.`;
+  } else {
+    volume = ` At ${comparison.monthlyOrders} orders/month, free shipping needs about ${comparison.extraOrdersNeeded.toFixed(1)} extra orders (${comparison.liftPercent.toFixed(1)}%) to match ${money(comparison.monthlyCharged)}.`;
+  }
+  return `${charged}${eat}${absorb}${raised}${volume}`;
+}
+
 export function productionPartnerNote(comparison) {
   if (!comparison?.youMake || !comparison?.partner || !comparison?.hybrid) {
     throw new Error('Production-partner comparison is missing rows');
@@ -1072,4 +1304,84 @@ export function productionPartnerNote(comparison) {
     ? ` Raising the listing to about ${money(comparison.matchYouMakePrice)} keeps the handmade leftover on the partner path.`
     : ' No finite listing price can match your handmade leftover on the partner path at these fee rates.';
   return `${perUnitLine}${capacityLine}${ceiling}${reprice}`;
+}
+
+const RENEWAL_SALES_SCENARIOS = [0, 1, 2, 5, 10, 20];
+
+// Etsy charges the listing fee when the listing is published or auto-renews,
+// not once per sale. The order calculator subtracts that fee from every order,
+// which overstates cost on a listing that sells more than once and hides the
+// fee entirely on a listing that sells nothing. This function keeps the same
+// per-order stack, then allocates the listing fee across the sales expected
+// in one renewal window. It does not decide whether auto-renew should stay on.
+export function calculateListingRenewal(input = {}) {
+  const listingFee = nonNegativeNumber(input.listingFee, 'Listing fee', 0.2);
+  const renewalMonths = Number(input.renewalMonths ?? 4);
+  if (!Number.isFinite(renewalMonths) || renewalMonths <= 0) {
+    throw new Error('Renewal months must be greater than zero');
+  }
+  const expectedSales = nonNegativeNumber(input.expectedSales, 'Expected sales', 0);
+
+  const withoutListing = calculateOrder({ ...input, listingFee: 0 });
+  const withPerOrderListing = calculateOrder({ ...input, listingFee });
+  const listingPerSale = expectedSales === 0 ? null : listingFee / expectedSales;
+  const withAllocatedListing = listingPerSale === null
+    ? null
+    : calculateOrder({ ...input, listingFee: listingPerSale });
+  const renewalsPerYear = 12 / renewalMonths;
+  const annualListingCost = listingFee * renewalsPerYear;
+  const salesToRecover = withoutListing.profit > 0 ? Math.ceil(listingFee / withoutListing.profit) : null;
+  const periodProfitAfterListing = expectedSales * withoutListing.profit - listingFee;
+  const annualSales = expectedSales * renewalsPerYear;
+  const annualProfitAfterListing = annualSales * withoutListing.profit - annualListingCost;
+  const overstatedInPeriod = expectedSales > 1 ? listingFee * (expectedSales - 1) : 0;
+
+  return {
+    listingFee,
+    renewalMonths,
+    expectedSales,
+    renewalsPerYear,
+    annualListingCost,
+    listingPerSale,
+    contributionExListing: withoutListing.profit,
+    revenue: withoutListing.revenue,
+    profitIfChargedEveryOrder: withPerOrderListing.profit,
+    profitIfAllocated: withAllocatedListing ? withAllocatedListing.profit : null,
+    salesToRecover,
+    periodProfitAfterListing,
+    annualProfitAfterListing,
+    overstatedInPeriod,
+    coversListing: periodProfitAfterListing >= 0,
+    unpaidRenewal: expectedSales === 0,
+    scenarios: RENEWAL_SALES_SCENARIOS.map((sales) => ({
+      sales,
+      listingPerSale: sales === 0 ? null : listingFee / sales,
+      periodProfitAfterListing: sales * withoutListing.profit - listingFee,
+      periodProfitIfListingPerOrder: sales * (withoutListing.profit - listingFee),
+    })),
+  };
+}
+
+export function listingRenewalNote(result) {
+  if (!result || typeof result.listingFee !== 'number') {
+    throw new Error('Listing-renewal comparison is missing');
+  }
+  const money = (value) => {
+    const sign = value < 0 ? '−' : '';
+    return `${sign}$${Math.abs(value).toFixed(2)}`;
+  };
+  if (result.unpaidRenewal) {
+    return `Auto-renew still charges ${money(result.listingFee)} even if nothing sells. Treating the listing fee as a per-order cost hides that ${money(result.listingFee)} until an order is calculated. Annual listing cost at a ${result.renewalMonths}-month window is ${money(result.annualListingCost)}.`;
+  }
+  const leftover = `${result.expectedSales} sales in ${result.renewalMonths} months leave ${money(result.periodProfitAfterListing)} after the listing fee.`;
+  const allocated = result.listingPerSale === null ? '' : ` Listing cost per sale is ${money(result.listingPerSale)}.`;
+  const recover = result.salesToRecover === null
+    ? ' This order does not recover the listing fee.'
+    : result.salesToRecover === 1
+      ? ' 1 sale recovers the listing fee from leftover contribution.'
+      : ` ${result.salesToRecover} sales recover the listing fee from leftover contribution.`;
+  const overstated = result.overstatedInPeriod > 0
+    ? ` Charging the full listing fee on every order overstates listing cost by ${money(result.overstatedInPeriod)} across ${result.expectedSales} sales.`
+    : '';
+  return `${leftover}${allocated}${recover}${overstated}`;
 }

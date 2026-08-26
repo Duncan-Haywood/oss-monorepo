@@ -2,7 +2,9 @@
 
 The free Etsy profit calculator shows what an order leaves after listing fees,
 transaction fees, payment processing, offsite ads, shipping, materials, and
-other per-order costs. Use it before changing a price or publishing a listing.
+other per-order costs — including return on the cash you put into materials and
+shipping, and a side-by-side of organic vs 12% vs 15% Offsite Ads. Use it
+before changing a price, publishing a listing, or taking an attributed ad sale.
 
 Open `index.html` in a browser. The calculation is local and works without an
 account, network request, or API key. It is arithmetic, not an estimate of the
@@ -116,6 +118,24 @@ same 12% ACOS ceiling falls to about 45.64%. The SEO page
 [is-etsy-ads-worth-it.html](is-etsy-ads-worth-it.html) walks through the
 same examples.
 
+## Do Offsite Ads still leave a profit?
+
+Offsite Ads are a percentage Etsy takes on the order total when it
+attributes the sale to Google or social. That is not on-site Etsy Ads.
+Shops under $10,000 in trailing 12-month sales typically pay 15%; shops
+over that threshold typically pay 12%. The calculator shows organic,
+12%, and 15% on the same listing, plus the highest rate that still
+breaks even, and return on the cash you put into materials and shipping.
+
+On a $14 print with $3 shipping charged, $5.50 postage, and $7
+materials, organic leftover is $2.44 (19.5% ROI on $12.50 cash). 12%
+takes $2.04 and leaves $0.39. 15% takes $2.55 and leaves −$0.12. The
+order stays at or above $0.00 leftover until Offsite Ads reach about
+14.3%. The default $30 listing still keeps $15.98 at 15% — the tight
+print is the case that flips. The page
+[are-etsy-offsite-ads-worth-it.html](are-etsy-offsite-ads-worth-it.html)
+walks through the same examples. It does not opt a shop in or out.
+
 ## Does this production partner still pay?
 
 A partner quote looks expensive per piece until you run out of hours.
@@ -180,6 +200,42 @@ sale expects $10.18 and beats both full price and the $5 coupon. The
 SEO page
 [should-i-put-my-etsy-shop-on-sale.html](should-i-put-my-etsy-shop-on-sale.html)
 walks through the same examples.
+
+## Does free shipping still leave a profit?
+
+A free-shipping badge looks like a ranking cheat until every packed
+order at a $32 item price leaves $2.72 less than charging $5.00
+shipping. Percentage fees sit on the customer total, so moving the
+whole label into the item price is a tie. The cash free shipping
+returns is extra orders, not a cheaper fee stack. This is not a shop
+sale and it is not on-site Ads.
+
+On the default $30 listing, charging shipping keeps $21.23. Free
+shipping at the same $30 item price keeps $16.70 (−$4.53). Absorbing
+the $5.00 label into a $35.00 item is a tie at $21.23. Free shipping
+at $32.00 keeps $18.51 (−$2.72). At 40 orders/month it needs about
+5.9 extra orders (14.7%) to match $849.00. Eating the label needs
+about 10.8 extra orders. A $40.00 free-shipping price already keeps
+$25.75 (+$4.52) and does not need extra volume. 15% Offsite Ads raise
+the $32 lift to about 6.6 extra orders. The SEO page
+[should-i-offer-free-shipping-on-etsy.html](should-i-offer-free-shipping-on-etsy.html)
+walks through the same examples.
+
+## Does auto-renew still cover a slow listing?
+
+Etsy charges the listing fee when a listing publishes or auto-renews,
+not once per sale. The order calculator subtracts that fee from every
+order, which overstates cost on a listing that sells more than once
+and hides the fee on a listing that sells nothing.
+
+Open [listing-renewal.html](listing-renewal.html) and type the sales
+you actually expect in one renewal window. On the default $30 listing
+with $1 other cost, contribution before the listing fee is $20.43.
+Two sales in four months leave $40.65 after the $0.20 fee ($0.10 per
+sale). One sale recovers the fee. Zero sales still cost $0.20 — $0.60
+a year at a four-month window. Charging $0.20 on every order
+overstates listing cost by $0.20 across those two sales, or $0.80
+across five. The page does not turn auto-renew on or off.
 
 [GitHub Sponsors](https://github.com/sponsors/Duncan-Haywood) is entirely
 optional and never changes what the calculator does.

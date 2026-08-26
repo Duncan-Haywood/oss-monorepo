@@ -1,6 +1,8 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { calculateOrder, priceForMargin, compareEtsyPlus, plusBreakEvenListings, plusCreditValueUsed, ETSY_PLUS_DEFAULTS, comparePersonalization, personalizationNote, PERSONALIZATION_DEFAULTS, compareEtsyAds, etsyAdsNote, ETSY_ADS_DEFAULTS, compareProductionPartner, productionPartnerNote, PRODUCTION_PARTNER_DEFAULTS, compareStarSeller, starSellerNote, STAR_SELLER_DEFAULTS, compareShopSale, shopSaleNote, SHOP_SALE_DEFAULTS } from './calc.mjs';
+import { calculateOrder, priceForMargin, compareOffsiteAdRates, maxAffordableOffsiteRate, offsiteAdsNote, compareEtsyPlus, plusBreakEvenListings, plusCreditValueUsed, ETSY_PLUS_DEFAULTS, comparePersonalization, personalizationNote, PERSONALIZATION_DEFAULTS, compareEtsyAds, etsyAdsNote, ETSY_ADS_DEFAULTS, compareProductionPartner, productionPartnerNote, PRODUCTION_PARTNER_DEFAULTS, compareStarSeller, starSellerNote, STAR_SELLER_DEFAULTS, compareShopSale, shopSaleNote, SHOP_SALE_DEFAULTS, compareFreeShipping, freeShippingNote, FREE_SHIPPING_DEFAULTS, calculateListingRenewal, listingRenewalNote } from './calc.mjs';
+
+const near = (actual, expected, msg) => assert.ok(Math.abs(actual - expected) < 1e-6, `${msg}: ${actual} vs ${expected}`);
 
 test('calculates the complete fee stack and contribution', () => {
   const result = calculateOrder({ price: 30, shippingCharged: 5, listingFee: .2, transactionRate: 6.5, paymentRate: 3, paymentFixed: .25, offsiteAdRate: 0, shippingCost: 6, materialCost: 4, otherCost: 1 });
@@ -35,6 +37,91 @@ test('finds the item price for a target margin', () => {
 
 test('rejects impossible target margins', () => {
   assert.throws(() => priceForMargin({ transactionRate: 60, paymentRate: 40 }, 1), /not possible/);
+});
+
+test('reports cash invested and ROI, excluding marketplace fees', () => {
+  const result = calculateOrder({
+    price: 30, shippingCharged: 5, listingFee: .2, transactionRate: 6.5,
+    paymentRate: 3, paymentFixed: .25, offsiteAdRate: 0, shippingCost: 6,
+    materialCost: 4, otherCost: 1,
+  });
+  near(result.cashInvested, 11, 'cash invested is shipping + materials + other');
+  near(result.roi, 20.225 / 11 * 100, 'ROI is profit over cash laid out');
+});
+
+test('ROI is null when no cash was invested', () => {
+  const result = calculateOrder({ price: 20, shippingCharged: 0, shippingCost: 0, materialCost: 0, otherCost: 0 });
+  assert.equal(result.roi, null);
+});
+
+// Tight handmade listing: $14 item + $3 shipping charged, $5.50 label, $7
+// supplies. Organic still clears ~$2.44. A 12% Offsite Ads sale (shops over
+// $10k trailing 12 months) is still barely profitable. A 15% sale (under $10k)
+// turns the order into a small loss — the decision the comparison table exists
+// to surface.
+const tightListing = {
+  price: 14, shippingCharged: 3, listingFee: 0.2, transactionRate: 6.5,
+  paymentRate: 3, paymentFixed: 0.25, shippingCost: 5.5, materialCost: 7,
+};
+
+test('offsite-ads comparison: 15% turns the tight listing into a loss', () => {
+  const rows = compareOffsiteAdRates(tightListing);
+  assert.deepEqual(rows.map((row) => row.offsiteAdRate), [0, 12, 15]);
+
+  const organic = rows.find((row) => row.offsiteAdRate === 0);
+  const at12 = rows.find((row) => row.offsiteAdRate === 12);
+  const at15 = rows.find((row) => row.offsiteAdRate === 15);
+
+  near(organic.profit, 2.435, 'organic profit');
+  assert.equal(organic.stillProfitable, true);
+  near(organic.profitVsOrganic, 0, 'organic vs itself');
+
+  near(at12.offsiteAdFee, 2.04, '12% of $17 revenue');
+  near(at12.profit, 0.395, '12% still clears a few cents');
+  assert.equal(at12.stillProfitable, true);
+
+  near(at15.offsiteAdFee, 2.55, '15% of $17 revenue');
+  near(at15.profit, -0.115, '15% is a small loss');
+  assert.equal(at15.stillProfitable, false);
+  near(at15.profitVsOrganic, -2.55, 'the whole offsite fee is the delta vs organic');
+});
+
+test('includes a custom offsite rate that is not a published preset', () => {
+  const rows = compareOffsiteAdRates({ ...tightListing, offsiteAdRate: 8 });
+  assert.deepEqual(rows.map((row) => row.offsiteAdRate), [0, 8, 12, 15]);
+  assert.equal(rows.find((row) => row.offsiteAdRate === 8).isCurrent, true);
+  assert.equal(rows.find((row) => row.offsiteAdRate === 0).isCurrent, false);
+});
+
+test('max affordable offsite rate is where organic profit is consumed', () => {
+  const cap = maxAffordableOffsiteRate(tightListing);
+  near(cap, 2.435 / 17 * 100, 'cap is organic profit / revenue');
+  const atCap = calculateOrder({ ...tightListing, offsiteAdRate: cap });
+  near(atCap.profit, 0, 'profit at the cap is break-even');
+  assert.ok(cap < 15, 'the tight listing cannot afford the 15% under-$10k rate');
+  assert.ok(cap > 12, 'it can still afford the 12% over-$10k rate');
+});
+
+test('max affordable offsite rate is zero when the order already loses money', () => {
+  const cap = maxAffordableOffsiteRate({
+    price: 8, shippingCharged: 0, listingFee: 0.2, transactionRate: 6.5,
+    paymentRate: 3, paymentFixed: 0.25, shippingCost: 6, materialCost: 5,
+  });
+  assert.equal(cap, 0);
+});
+
+test('rejects a non-numeric minimum profit for the offsite-ads cap', () => {
+  assert.throws(() => maxAffordableOffsiteRate(tightListing, 'nope'), /Minimum profit/);
+});
+
+test('offsite-ads note names the $0.12 loss and the 14.3% ceiling', () => {
+  const rows = compareOffsiteAdRates(tightListing);
+  const text = offsiteAdsNote(rows, maxAffordableOffsiteRate(tightListing));
+  assert.match(text, /\$2\.44/);
+  assert.match(text, /\$0\.39/);
+  assert.match(text, /−\$0\.12/);
+  assert.match(text, /14\.3%/);
+  assert.doesNotMatch(text, /should opt|must turn|opt in or out/i);
 });
 
 test('Plus defaults match the published $10 / 15 credits / $5 Ads credit example', () => {
@@ -599,4 +686,175 @@ test('rejects negative or over-100 shop-sale inputs', () => {
   assert.throws(() => compareShopSale({ ...PAGE_ORDER, saleDollar: -5 }), /Sale dollar off/);
   assert.throws(() => compareShopSale({ ...PAGE_ORDER, listedSellThroughPct: 101 }), /at most 100/);
   assert.throws(() => compareShopSale({ ...PAGE_ORDER, saleSellThroughPct: -5 }), /Sale sell-through/);
+});
+
+test('free-shipping defaults match the $32 / 40-order example', () => {
+  assert.deepEqual(FREE_SHIPPING_DEFAULTS, {
+    freeShipPrice: 32,
+    monthlyOrders: 40,
+  });
+});
+
+test('charging shipping beats a $32 free-shipping price until extra orders arrive', () => {
+  const result = compareFreeShipping(PAGE_ORDER);
+  assert.equal(result.charged.profit, 21.23);
+  assert.equal(result.charged.monthly, 849);
+  assert.equal(result.eatLabel.profit, 16.7);
+  assert.equal(result.eatLabelDelta, -4.53);
+  assert.equal(result.absorb.price, 35);
+  assert.equal(result.absorb.profit, 21.23);
+  assert.equal(result.raised.price, 32);
+  assert.equal(result.raised.profit, 18.51);
+  assert.equal(result.perOrderDelta, -2.72);
+  assert.equal(result.liftPercent, 14.67);
+  assert.equal(result.extraOrdersNeeded, 5.87);
+  assert.equal(result.monthlyRaised, 740.4);
+  assert.equal(result.monthlyDelta, -108.6);
+  assert.equal(result.canWinWithVolume, true);
+  assert.equal(result.alreadyAhead, false);
+  assert.equal(result.winner, 'charged');
+});
+
+test('absorbing the label into the item price is a fee-stack tie', () => {
+  const result = compareFreeShipping({ ...PAGE_ORDER, freeShipPrice: 35 });
+  assert.equal(result.raised.profit, 21.23);
+  assert.equal(result.perOrderDelta, 0);
+  assert.equal(result.extraOrdersNeeded, 0);
+  assert.equal(result.winner, 'tie');
+});
+
+test('eating the label at the same item price needs about 10.8 extra orders', () => {
+  const result = compareFreeShipping({ ...PAGE_ORDER, freeShipPrice: 30 });
+  assert.equal(result.raised.profit, 16.7);
+  assert.equal(result.perOrderDelta, -4.53);
+  assert.equal(result.liftPercent, 27.1);
+  assert.equal(result.extraOrdersNeeded, 10.84);
+  assert.equal(result.winner, 'charged');
+});
+
+test('raising the free-shipping price above the old buyer total already wins', () => {
+  const result = compareFreeShipping({ ...PAGE_ORDER, freeShipPrice: 40 });
+  assert.equal(result.raised.profit, 25.75);
+  assert.equal(result.perOrderDelta, 4.52);
+  assert.equal(result.alreadyAhead, true);
+  assert.equal(result.winner, 'raised');
+});
+
+test('15% Offsite Ads still leave charging shipping ahead on the $32 path', () => {
+  const result = compareFreeShipping({ ...PAGE_ORDER, offsiteAdRate: 15 });
+  assert.equal(result.charged.profit, 15.98);
+  assert.equal(result.raised.profit, 13.71);
+  assert.equal(result.perOrderDelta, -2.27);
+  assert.equal(result.liftPercent, 16.52);
+  assert.equal(result.extraOrdersNeeded, 6.61);
+  assert.equal(result.winner, 'charged');
+});
+
+test('a free-shipping price that loses money cannot catch up with volume', () => {
+  const result = compareFreeShipping({ ...PAGE_ORDER, freeShipPrice: 10, materialCost: 20 });
+  assert.equal(result.raised.profit, -17.4);
+  assert.equal(result.canWinWithVolume, false);
+  assert.equal(result.extraOrdersNeeded, null);
+  assert.equal(result.winner, 'charged');
+});
+
+test('freeShippingNote names the $32 default lift', () => {
+  const note = freeShippingNote(compareFreeShipping(PAGE_ORDER));
+  assert.match(note, /\$21\.23/);
+  assert.match(note, /\$16\.70/);
+  assert.match(note, /−\$4\.53/);
+  assert.match(note, /\$35\.00/);
+  assert.match(note, /tie/);
+  assert.match(note, /\$18\.51/);
+  assert.match(note, /−\$2\.72/);
+  assert.match(note, /5\.9 extra orders/);
+  assert.match(note, /14\.7%/);
+  assert.match(note, /\$849\.00/);
+});
+
+test('freeShippingNote names a raised-ahead path without asking for volume', () => {
+  const note = freeShippingNote(compareFreeShipping({ ...PAGE_ORDER, freeShipPrice: 40 }));
+  assert.match(note, /\+\$4\.52/);
+  assert.match(note, /already keeps more/);
+});
+
+test('rejects a negative free-shipping item price or monthly orders', () => {
+  assert.throws(() => compareFreeShipping({ ...PAGE_ORDER, freeShipPrice: -1 }), /Free-shipping item price/);
+  assert.throws(() => compareFreeShipping({ ...PAGE_ORDER, monthlyOrders: -4 }), /Monthly orders/);
+});
+
+const renewalInput = {
+  price: 30,
+  shippingCharged: 5,
+  listingFee: 0.2,
+  transactionRate: 6.5,
+  paymentRate: 3,
+  paymentFixed: 0.25,
+  offsiteAdRate: 0,
+  shippingCost: 6,
+  materialCost: 4,
+  otherCost: 1,
+  renewalMonths: 4,
+};
+
+test('allocates the listing fee across sales in one renewal window', () => {
+  const result = calculateListingRenewal({ ...renewalInput, expectedSales: 5 });
+  const withoutListing = calculateOrder({ ...renewalInput, listingFee: 0 });
+  assert.equal(result.listingPerSale, 0.04);
+  assert.equal(result.contributionExListing, withoutListing.profit);
+  assert.equal(result.periodProfitAfterListing, withoutListing.profit * 5 - 0.2);
+  assert.equal(Number(result.annualListingCost.toFixed(2)), 0.6);
+  assert.equal(result.overstatedInPeriod, 0.8);
+  assert.equal(result.coversListing, true);
+  assert.equal(result.unpaidRenewal, false);
+  assert.equal(result.profitIfAllocated, calculateOrder({ ...renewalInput, listingFee: 0.04 }).profit);
+});
+
+test('keeps the listing fee on a listing that sells nothing', () => {
+  const result = calculateListingRenewal({ ...renewalInput, expectedSales: 0 });
+  assert.equal(result.listingPerSale, null);
+  assert.equal(result.profitIfAllocated, null);
+  assert.equal(result.periodProfitAfterListing, -0.2);
+  assert.equal(result.coversListing, false);
+  assert.equal(result.unpaidRenewal, true);
+  assert.equal(result.scenarios[0].periodProfitAfterListing, -0.2);
+  assert.equal(result.scenarios[0].periodProfitIfListingPerOrder, 0);
+});
+
+test('counts how many sales recover the listing fee from leftover contribution', () => {
+  const result = calculateListingRenewal({ ...renewalInput, expectedSales: 2 });
+  assert.equal(result.salesToRecover, 1);
+  assert.ok(result.contributionExListing > 0.2);
+  assert.equal(Number(result.periodProfitAfterListing.toFixed(2)), 40.65);
+  assert.equal(result.listingPerSale, 0.1);
+});
+
+test('reports that a losing order never recovers the listing fee', () => {
+  const result = calculateListingRenewal({
+    ...renewalInput,
+    price: 5,
+    shippingCharged: 0,
+    shippingCost: 8,
+    materialCost: 4,
+    expectedSales: 10,
+  });
+  assert.equal(result.salesToRecover, null);
+  assert.equal(result.coversListing, false);
+});
+
+test('rejects a zero or invalid renewal window', () => {
+  assert.throws(() => calculateListingRenewal({ ...renewalInput, renewalMonths: 0 }), /greater than zero/);
+  assert.throws(() => calculateListingRenewal({ ...renewalInput, expectedSales: -1 }), /non-negative/);
+});
+
+test('listingRenewalNote names unpaid renewals and overstated per-order fees', () => {
+  const unpaid = listingRenewalNote(calculateListingRenewal({ ...renewalInput, expectedSales: 0 }));
+  assert.match(unpaid, /\$0\.20/);
+  assert.match(unpaid, /even if nothing sells/);
+  assert.match(unpaid, /\$0\.60/);
+  const two = listingRenewalNote(calculateListingRenewal({ ...renewalInput, expectedSales: 2 }));
+  assert.match(two, /\$40\.65/);
+  assert.match(two, /\$0\.10/);
+  assert.match(two, /1 sale recovers/);
+  assert.match(two, /\$0\.20/);
 });

@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { calculateOrder, calculatePriceScenarios, calculateRepricingTable, compareListingFormat, listingFormatNote, comparePartialRefund, partialRefundNote, DEFAULT_PARTIAL_REFUND, DEFAULT_MONTHLY_CASES, compareAuthenticity, authenticityNote, DEFAULT_AUTHENTICITY_FEE_RATE, DEFAULT_AUTHENTICITY_EXTRA_SHIP, DEFAULT_WITHOUT_AG_SELL_THROUGH, DEFAULT_AUTHENTICITY_SELL_THROUGH, DEFAULT_AUTHENTICITY_RETURN_RATE, DEFAULT_MONTHLY_AG_LISTINGS, compareLocalPickup, localPickupNote, DEFAULT_SHIP_SELL_THROUGH, DEFAULT_PICKUP_SELL_THROUGH, DEFAULT_PICKUP_NO_SHOW, DEFAULT_PICKUP_MINUTES, DEFAULT_PICKUP_HOURLY_WAGE, DEFAULT_MONTHLY_PICKUP_LISTINGS, compareLotVsSingles, lotVsSinglesNote, DEFAULT_LOT_PIECE_COUNT, DEFAULT_SINGLE_EXPECTED_PRICE, DEFAULT_LOT_SELL_THROUGH, DEFAULT_SINGLE_SELL_THROUGH, DEFAULT_SINGLE_INSERTION_FEE, DEFAULT_MONTHLY_LOT_DECISIONS, compareStandardEnvelope, standardEnvelopeNote, DEFAULT_ENVELOPE_SHIPPING_COST, DEFAULT_ENVELOPE_PACKAGING_COST, DEFAULT_ENVELOPE_CLAIM_RATE, DEFAULT_ENVELOPE_FEE_REFUND_ON_CLAIM, DEFAULT_TRACKED_SELL_THROUGH, DEFAULT_ENVELOPE_SELL_THROUGH, DEFAULT_MONTHLY_ENVELOPE_LISTINGS, compareCombinedShipping, combinedShippingNote, DEFAULT_COMBINED_ITEM_COUNT, DEFAULT_COMBINED_SHIPPING_CHARGED, DEFAULT_COMBINED_SHIPPING_COST, DEFAULT_COMBINED_PACKAGING_COST, DEFAULT_COMBINED_RETURN_SHIPPING_COST, DEFAULT_COMBINED_FIXED_FEE, DEFAULT_MONTHLY_COMBINED_ORDERS, compareSellerInitiatedOffer, sellerInitiatedOfferNote, DEFAULT_OFFER_PERCENT, DEFAULT_WAIT_SELL_THROUGH, DEFAULT_OFFER_ACCEPT, DEFAULT_MONTHLY_OFFERS, comparePromotedOffsite, promotedOffsiteNote, DEFAULT_OFFSITE_SPEND, DEFAULT_OFFSITE_EXTRA_ORDERS, DEFAULT_MONTHLY_OFFSITE_CAMPAIGNS, compareQuantityDiscount, quantityDiscountNote, DEFAULT_QTY_DISCOUNT_UNITS, DEFAULT_QTY_DISCOUNT_PERCENT, DEFAULT_QTY_SHIPPING_CHARGED, DEFAULT_QTY_SHIPPING_COST, DEFAULT_QTY_PACKAGING_COST, DEFAULT_QTY_RETURN_SHIPPING_COST, DEFAULT_QTY_FIXED_FEE, DEFAULT_SINGLES_SELL_THROUGH, DEFAULT_QTY_TAKE_PCT, DEFAULT_MONTHLY_QTY_ORDERS, compareSellerCoupon, sellerCouponNote, DEFAULT_COUPON_PERCENT, DEFAULT_COUPON_REDEEM_PCT, DEFAULT_LISTED_SELL_THROUGH, DEFAULT_COUPON_SELL_THROUGH, DEFAULT_DROP_SELL_THROUGH, DEFAULT_MONTHLY_COUPON_LISTINGS, compareImmediatePayment, immediatePaymentNote, DEFAULT_UNPAID_RATE, DEFAULT_LATER_SELL_THROUGH, DEFAULT_IMMEDIATE_SELL_THROUGH, DEFAULT_UNPAID_RELIST_FEE, DEFAULT_UNPAID_MINUTES, DEFAULT_UNPAID_HOURLY_WAGE, DEFAULT_MONTHLY_IMMEDIATE_LISTINGS, compareTopRatedPlus, topRatedPlusNote, DEFAULT_TRS_DISCOUNT_PCT, DEFAULT_STANDARD_SELL_THROUGH, DEFAULT_TRS_SELL_THROUGH, DEFAULT_STANDARD_RETURN_RATE, DEFAULT_TRS_RETURN_RATE, DEFAULT_MONTHLY_TRS_LISTINGS, compareManagedReturns, managedReturnsNote, DEFAULT_SELF_RETURN_LABEL, DEFAULT_SELF_RETURN_RATE, DEFAULT_MANAGED_RETURN_FEE, DEFAULT_MANAGED_RETURN_RATE, DEFAULT_BUYER_PAYS_RETURN_RATE, DEFAULT_MONTHLY_MANAGED_LISTINGS } from './calc.mjs';
+import { calculateOrder, calculatePriceScenarios, calculateRepricingTable, compareListingFormat, listingFormatNote, comparePartialRefund, partialRefundNote, DEFAULT_PARTIAL_REFUND, DEFAULT_MONTHLY_CASES, compareAuthenticity, authenticityNote, DEFAULT_AUTHENTICITY_FEE_RATE, DEFAULT_AUTHENTICITY_EXTRA_SHIP, DEFAULT_WITHOUT_AG_SELL_THROUGH, DEFAULT_AUTHENTICITY_SELL_THROUGH, DEFAULT_AUTHENTICITY_RETURN_RATE, DEFAULT_MONTHLY_AG_LISTINGS, compareLocalPickup, localPickupNote, DEFAULT_SHIP_SELL_THROUGH, DEFAULT_PICKUP_SELL_THROUGH, DEFAULT_PICKUP_NO_SHOW, DEFAULT_PICKUP_MINUTES, DEFAULT_PICKUP_HOURLY_WAGE, DEFAULT_MONTHLY_PICKUP_LISTINGS, compareLotVsSingles, lotVsSinglesNote, DEFAULT_LOT_PIECE_COUNT, DEFAULT_SINGLE_EXPECTED_PRICE, DEFAULT_LOT_SELL_THROUGH, DEFAULT_SINGLE_SELL_THROUGH, DEFAULT_SINGLE_INSERTION_FEE, DEFAULT_MONTHLY_LOT_DECISIONS, compareStandardEnvelope, standardEnvelopeNote, DEFAULT_ENVELOPE_SHIPPING_COST, DEFAULT_ENVELOPE_PACKAGING_COST, DEFAULT_ENVELOPE_CLAIM_RATE, DEFAULT_ENVELOPE_FEE_REFUND_ON_CLAIM, DEFAULT_TRACKED_SELL_THROUGH, DEFAULT_ENVELOPE_SELL_THROUGH, DEFAULT_MONTHLY_ENVELOPE_LISTINGS, compareCombinedShipping, combinedShippingNote, DEFAULT_COMBINED_ITEM_COUNT, DEFAULT_COMBINED_SHIPPING_CHARGED, DEFAULT_COMBINED_SHIPPING_COST, DEFAULT_COMBINED_PACKAGING_COST, DEFAULT_COMBINED_RETURN_SHIPPING_COST, DEFAULT_COMBINED_FIXED_FEE, DEFAULT_MONTHLY_COMBINED_ORDERS, compareSellerInitiatedOffer, sellerInitiatedOfferNote, DEFAULT_OFFER_PERCENT, DEFAULT_WAIT_SELL_THROUGH, DEFAULT_OFFER_ACCEPT, DEFAULT_MONTHLY_OFFERS, comparePromotedOffsite, promotedOffsiteNote, DEFAULT_OFFSITE_SPEND, DEFAULT_OFFSITE_EXTRA_ORDERS, DEFAULT_MONTHLY_OFFSITE_CAMPAIGNS, comparePromotedStandard, promotedStandardNote, DEFAULT_PROMOTED_STANDARD_RATE, DEFAULT_PROMOTED_STANDARD_EXTRA_ORDERS, DEFAULT_MONTHLY_PROMOTED_LISTINGS, compareQuantityDiscount, quantityDiscountNote, DEFAULT_QTY_DISCOUNT_UNITS, DEFAULT_QTY_DISCOUNT_PERCENT, DEFAULT_QTY_SHIPPING_CHARGED, DEFAULT_QTY_SHIPPING_COST, DEFAULT_QTY_PACKAGING_COST, DEFAULT_QTY_RETURN_SHIPPING_COST, DEFAULT_QTY_FIXED_FEE, DEFAULT_SINGLES_SELL_THROUGH, DEFAULT_QTY_TAKE_PCT, DEFAULT_MONTHLY_QTY_ORDERS, compareSellerCoupon, sellerCouponNote, DEFAULT_COUPON_PERCENT, DEFAULT_COUPON_REDEEM_PCT, DEFAULT_LISTED_SELL_THROUGH, DEFAULT_COUPON_SELL_THROUGH, DEFAULT_DROP_SELL_THROUGH, DEFAULT_MONTHLY_COUPON_LISTINGS, compareImmediatePayment, immediatePaymentNote, DEFAULT_UNPAID_RATE, DEFAULT_LATER_SELL_THROUGH, DEFAULT_IMMEDIATE_SELL_THROUGH, DEFAULT_UNPAID_RELIST_FEE, DEFAULT_UNPAID_MINUTES, DEFAULT_UNPAID_HOURLY_WAGE, DEFAULT_MONTHLY_IMMEDIATE_LISTINGS, compareTopRatedPlus, topRatedPlusNote, DEFAULT_TRS_DISCOUNT_PCT, DEFAULT_STANDARD_SELL_THROUGH, DEFAULT_TRS_SELL_THROUGH, DEFAULT_STANDARD_RETURN_RATE, DEFAULT_TRS_RETURN_RATE, DEFAULT_MONTHLY_TRS_LISTINGS, compareManagedReturns, managedReturnsNote, DEFAULT_SELF_RETURN_LABEL, DEFAULT_SELF_RETURN_RATE, DEFAULT_MANAGED_RETURN_FEE, DEFAULT_MANAGED_RETURN_RATE, DEFAULT_BUYER_PAYS_RETURN_RATE, DEFAULT_MONTHLY_MANAGED_LISTINGS, compareGlobalShipping, globalShippingNote, DEFAULT_GSP_RETURN_RATE, DEFAULT_GSP_SELL_THROUGH, DEFAULT_SELF_SHIP_SHIPPING_CHARGED, DEFAULT_SELF_SHIP_SHIPPING_COST, DEFAULT_SELF_SHIP_RETURN_SHIPPING_COST, DEFAULT_SELF_SHIP_INTL_FEE_RATE, DEFAULT_SELF_SHIP_RETURN_RATE, DEFAULT_SELF_SHIP_CLAIM_RATE, DEFAULT_SELF_SHIP_SELL_THROUGH, DEFAULT_MONTHLY_GSP_LISTINGS, compareStoreTiers, storeTiersNote, storeBreakEvenOrders, STORE_TIER_PRESETS, DEFAULT_MONTHLY_STORE_ORDERS, DEFAULT_MONTHLY_STORE_FEE, compareBestOffer, bestOfferRows, bestOfferNote, bestOfferSummary, DEFAULT_INCOMING_BEST_OFFER, DEFAULT_INCOMING_WAIT_CHANCE, compareInternational, internationalNote, internationalSummary, ILLUSTRATIVE_INTL_FEE_RATE, DEFAULT_INTL_EXTRA_SHIPPING, compareFreeShipping, freeShippingNote, DEFAULT_BUYER_PAYS_SHIP_SELL_THROUGH, DEFAULT_FREE_SHIP_SELL_THROUGH, DEFAULT_MONTHLY_FREE_SHIP_LISTINGS, comparePromotedAdvanced, promotedAdvancedNote, DEFAULT_ADVANCED_CPC, DEFAULT_ADVANCED_CLICKS, DEFAULT_ADVANCED_EXTRA_ORDERS, DEFAULT_MONTHLY_ADVANCED_CAMPAIGNS, comparePackageProtection, packageProtectionNote, packageProtectionSummary, DEFAULT_SKIP_CLAIM_RATE, DEFAULT_INSURANCE_PREMIUM, DEFAULT_INSURANCE_CLAIM_RATE, DEFAULT_SIGNATURE_FEE, DEFAULT_SIGNATURE_CLAIM_RATE, DEFAULT_MONTHLY_PROTECTION_SHIPMENTS, compareEbayLabels, ebayLabelsNote, ebayLabelsSummary, DEFAULT_THIRD_PARTY_LABEL_COST, DEFAULT_EBAY_LABEL_CLAIM_RATE, DEFAULT_THIRD_PARTY_CLAIM_RATE, DEFAULT_LABEL_UPLOAD_MINUTES, DEFAULT_LABEL_UPLOAD_WAGE, DEFAULT_MONTHLY_LABEL_SHIPMENTS } from './calc.mjs';
 
 const near = (actual, expected, msg) => assert.ok(Math.abs(actual - expected) < 1e-6, `${msg}: ${actual} vs ${expected}`);
 
@@ -949,6 +949,167 @@ test('rejects a missing price, a negative spend, and a missing Offsite compariso
   assert.throws(() => promotedOffsiteNote({}), /missing rows/);
 });
 
+test('a 5% Standard campaign that buys one extra sale still pays after the ad cut', () => {
+  const comparison = comparePromotedStandard(offsiteBase);
+  assert.equal(comparison.promotedRate, DEFAULT_PROMOTED_STANDARD_RATE);
+  assert.equal(comparison.extraOrders, DEFAULT_PROMOTED_STANDARD_EXTRA_ORDERS);
+  assert.equal(comparison.monthlyListings, DEFAULT_MONTHLY_PROMOTED_LISTINGS);
+  near(comparison.listingExpectedProfit, 18.3445, 'skip after returns');
+  near(comparison.extraSaleExpectedProfit, 16.2745, 'one promoted sale after returns');
+  near(comparison.skip.expectedProfit, 18.3445, 'skip Standard');
+  near(comparison.promote.expectedProfit, 32.549, 'add Standard');
+  near(comparison.extraKeptOnPromote, 14.2045, 'Standard gap');
+  near(comparison.monthlyExtraOnPromote, 14.2045 * 20, 'twenty listings');
+  near(comparison.breakEvenExtraOrders, 18.3445 / 16.2745 - 1, 'extra-sale floor');
+  near(comparison.breakEvenPromotedRate, 22.155193236714993, 'rate ceiling');
+  near(comparison.noLiftExpectedProfit, 16.2745, 'no-lift leftover');
+  near(comparison.adDragOnExistingSale, 2.07, 'ad drag on the sale you already had');
+  near(comparison.promotedAdFee, 2.3, '5% of $46');
+  assert.equal(comparison.winner, 'promote');
+  assert.equal(comparison.skip.adFee, 0);
+  assert.equal(comparison.promote.extraOrders, 1);
+});
+
+test('break-even extra sales and Standard rate match skip', () => {
+  const comparison = comparePromotedStandard(offsiteBase);
+  const atOrders = comparePromotedStandard({
+    ...offsiteBase,
+    promotedStandardExtraOrders: comparison.breakEvenExtraOrders,
+  });
+  near(atOrders.promote.expectedProfit, atOrders.skip.expectedProfit, 'floor extras tie skip');
+  const atRate = comparePromotedStandard({
+    ...offsiteBase,
+    promotedStandardRate: comparison.breakEvenPromotedRate,
+  });
+  near(atRate.promote.expectedProfit, atRate.skip.expectedProfit, 'ceiling rate ties skip');
+  assert.ok(comparison.breakEvenExtraOrders < 1, 'default one extra is above the floor');
+  assert.ok(comparison.breakEvenPromotedRate > 5, 'default 5% is below the ceiling');
+});
+
+test('zero extra sales flips skip-Standard ahead by the ad cut', () => {
+  const comparison = comparePromotedStandard({ ...offsiteBase, promotedStandardExtraOrders: 0 });
+  assert.equal(comparison.winner, 'skip');
+  near(comparison.promote.expectedProfit, 16.2745, 'no-lift leftover');
+  near(comparison.extraKeptOnPromote, -2.07, 'no-lift gap');
+});
+
+test('Promoted Listings Standard note reports both paths without telling the seller which to use', () => {
+  const comparison = comparePromotedStandard(offsiteBase);
+  const note = promotedStandardNote(comparison);
+  assert.match(note, /Skip Promoted Listings/);
+  assert.match(note, /\$18\.34/);
+  assert.match(note, /5% Standard campaign/);
+  assert.match(note, /1 extra sale/);
+  assert.match(note, /\$32\.55/);
+  assert.match(note, /\$14\.20 more/);
+  assert.match(note, /\$16\.27/);
+  assert.match(note, /\$2\.07 less/);
+  assert.match(note, /0\.13/);
+  assert.doesNotMatch(note, /should turn on|must promote|enroll/i);
+});
+
+test('rejects a missing price, a rate above 100%, and a missing Standard comparison', () => {
+  assert.throws(() => comparePromotedStandard({ price: -1 }), /Item price/);
+  assert.throws(() => comparePromotedStandard({ ...offsiteBase, promotedStandardRate: 101 }), /at most 100/);
+  assert.throws(() => comparePromotedStandard({ ...offsiteBase, promotedStandardExtraOrders: -1 }), /Extra Standard orders/);
+  assert.throws(() => promotedStandardNote({}), /missing rows/);
+});
+
+test('a $0.40 CPC Advanced campaign on 40 clicks that buys one extra sale still pays after the bill', () => {
+  const comparison = comparePromotedAdvanced(offsiteBase);
+  assert.equal(comparison.cpc, DEFAULT_ADVANCED_CPC);
+  assert.equal(comparison.clicks, DEFAULT_ADVANCED_CLICKS);
+  assert.equal(comparison.extraOrders, DEFAULT_ADVANCED_EXTRA_ORDERS);
+  assert.equal(comparison.monthlyCampaigns, DEFAULT_MONTHLY_ADVANCED_CAMPAIGNS);
+  near(comparison.adSpend, 16, '40 clicks at $0.40');
+  near(comparison.listingExpectedProfit, 18.3445, 'skip after returns');
+  near(comparison.extraSaleExpectedProfit, 18.3445, 'one extra organic sale after returns');
+  near(comparison.skip.expectedProfit, 18.3445, 'skip Advanced');
+  near(comparison.advanced.expectedProfit, 20.689, 'add Advanced');
+  near(comparison.extraKeptOnAdvanced, 2.3445, 'Advanced gap');
+  near(comparison.monthlyExtraOnAdvanced, 2.3445 * 20, 'twenty campaigns');
+  near(comparison.breakEvenExtraOrders, 16 / 18.3445, 'extra-sale floor');
+  near(comparison.breakEvenCpc, 18.3445 / 40, 'CPC ceiling');
+  near(comparison.breakEvenClicks, 18.3445 / 0.4, 'click ceiling');
+  near(comparison.noLiftExpectedProfit, 2.3445, 'bill with no extra sales');
+  near(comparison.costPerExtraSale, 16, 'spend per extra sale');
+  near(comparison.conversionPct, 2.5, '1 / 40');
+  near(comparison.breakEvenConversionPct, 16 / 18.3445 / 40 * 100, 'conversion floor');
+  assert.equal(comparison.winner, 'advanced');
+  assert.equal(comparison.skip.adSpend, 0);
+  assert.equal(comparison.advanced.clicks, 40);
+});
+
+test('break-even extra sales, CPC, and clicks match skip-Advanced', () => {
+  const comparison = comparePromotedAdvanced(offsiteBase);
+  const atOrders = comparePromotedAdvanced({
+    ...offsiteBase,
+    advancedExtraOrders: comparison.breakEvenExtraOrders,
+  });
+  near(atOrders.advanced.expectedProfit, atOrders.skip.expectedProfit, 'floor extras tie skip');
+  const atCpc = comparePromotedAdvanced({
+    ...offsiteBase,
+    advancedCpc: comparison.breakEvenCpc,
+  });
+  near(atCpc.advanced.expectedProfit, atCpc.skip.expectedProfit, 'ceiling CPC ties skip');
+  const atClicks = comparePromotedAdvanced({
+    ...offsiteBase,
+    advancedClicks: Math.round(comparison.breakEvenClicks),
+  });
+  // 46 clicks at $0.40 is $18.40, just above the $18.3445 extra-sale leftover.
+  assert.ok(atClicks.advanced.expectedProfit < atClicks.skip.expectedProfit, '46 clicks overshoots skip');
+  const atFloorClicks = comparePromotedAdvanced({
+    ...offsiteBase,
+    advancedClicks: 45,
+  });
+  assert.ok(atFloorClicks.advanced.expectedProfit > atFloorClicks.skip.expectedProfit, '45 clicks still pays');
+  assert.ok(comparison.breakEvenExtraOrders < 1, 'default one extra is above the floor');
+  assert.ok(comparison.breakEvenCpc > 0.4, 'default $0.40 is below the ceiling');
+});
+
+test('zero extra Advanced sales flips skip ahead by the click bill', () => {
+  const comparison = comparePromotedAdvanced({ ...offsiteBase, advancedExtraOrders: 0 });
+  assert.equal(comparison.winner, 'skip');
+  near(comparison.advanced.expectedProfit, 2.3445, 'organic leftover minus $16');
+  near(comparison.extraKeptOnAdvanced, -16, 'no-lift gap');
+});
+
+test('Advanced extra sales that also pay Standard still subtract the click bill', () => {
+  const comparison = comparePromotedAdvanced({
+    ...offsiteBase,
+    advancedPromotedRate: 5,
+  });
+  near(comparison.extraSaleExpectedProfit, 16.2745, '5% Standard on the extra sale');
+  near(comparison.advanced.expectedProfit, 18.3445 + 16.2745 - 16, 'skip + extra after Standard − bill');
+  near(comparison.extraKeptOnAdvanced, 16.2745 - 16, 'extra after Standard minus $16');
+});
+
+test('Promoted Listings Advanced note reports both paths without telling the seller which to use', () => {
+  const comparison = comparePromotedAdvanced(offsiteBase);
+  const note = promotedAdvancedNote(comparison);
+  assert.match(note, /Skip Promoted Listings Advanced/);
+  assert.match(note, /\$18\.34/);
+  assert.match(note, /\$0\.40 CPC campaign/);
+  assert.match(note, /40 clicks/);
+  assert.match(note, /\$16\.00 billed either way/);
+  assert.match(note, /1 extra sale/);
+  assert.match(note, /\$20\.69/);
+  assert.match(note, /\$2\.34 more/);
+  assert.match(note, /\$2\.34/);
+  assert.match(note, /\$16\.00 less than skip/);
+  assert.match(note, /0\.87/);
+  assert.doesNotMatch(note, /should turn on|must promote|enroll/i);
+});
+
+test('rejects a missing price, a fractional click count, and a missing Advanced comparison', () => {
+  assert.throws(() => comparePromotedAdvanced({ price: -1 }), /Item price/);
+  assert.throws(() => comparePromotedAdvanced({ ...offsiteBase, advancedCpc: -1 }), /Promoted Listings Advanced CPC/);
+  assert.throws(() => comparePromotedAdvanced({ ...offsiteBase, advancedClicks: 40.5 }), /whole number/);
+  assert.throws(() => comparePromotedAdvanced({ ...offsiteBase, advancedExtraOrders: -1 }), /Extra Advanced orders/);
+  assert.throws(() => comparePromotedAdvanced({ ...offsiteBase, advancedPromotedRate: 101 }), /at most 100/);
+  assert.throws(() => promotedAdvancedNote({}), /missing rows/);
+});
+
 test('compares 10% off two units against two singles on the default listing', () => {
   // Two singles: completed $43.21; 10% mix → $36.689 packed; 55% → $20.17895.
   // 10% off ($36) in one $6 / $5.50 / $1.25 box: completed $36.615;
@@ -1421,4 +1582,643 @@ test('summary names the extra returns and the rate ceiling', () => {
   assert.doesNotMatch(text, /should enroll|must join|turn on Managed/i);
   assert.equal(text, managedReturnsNote(compareManagedReturns(MANAGED_BASE)));
   assert.throws(() => managedReturnsNote({}), /missing rows/);
+});
+
+test('compares Global Shipping Program against you-ship on the default listing', () => {
+  // GSP: same $21.605 completed sale as the domestic form, 6% return
+  // mix → $19.6487 leftover; 40% ST → $7.85948.
+  // You-ship: $62 revenue, 14.90% fees + $0.30 = $9.538, $31 invested
+  // → $21.462 completed. Return −$37; 10% mix → $15.6158. An 8%
+  // claim loses COGS + intl label + pack (−$31) → $11.886536 packed;
+  // 55% ST → $6.5375948. GSP is ahead after sell-through.
+  const comparison = compareGlobalShipping(agBase);
+  assert.equal(comparison.gspReturnRate, DEFAULT_GSP_RETURN_RATE);
+  assert.equal(comparison.gsp.sellThroughPct, DEFAULT_GSP_SELL_THROUGH);
+  assert.equal(comparison.selfShipCharged, DEFAULT_SELF_SHIP_SHIPPING_CHARGED);
+  assert.equal(comparison.selfShipCost, DEFAULT_SELF_SHIP_SHIPPING_COST);
+  assert.equal(comparison.selfShipReturnCost, DEFAULT_SELF_SHIP_RETURN_SHIPPING_COST);
+  assert.equal(comparison.selfShipIntlFee, DEFAULT_SELF_SHIP_INTL_FEE_RATE);
+  assert.equal(comparison.selfShipReturnRate, DEFAULT_SELF_SHIP_RETURN_RATE);
+  assert.equal(comparison.selfShipClaimRate, DEFAULT_SELF_SHIP_CLAIM_RATE);
+  assert.equal(comparison.selfShip.sellThroughPct, DEFAULT_SELF_SHIP_SELL_THROUGH);
+  assert.equal(comparison.monthlyListings, DEFAULT_MONTHLY_GSP_LISTINGS);
+  near(comparison.gsp.completedProfit, 21.605, 'GSP completed');
+  near(comparison.gsp.soldExpectedProfit, 0.94 * 21.605 + 0.06 * -11, 'GSP leftover');
+  near(comparison.gsp.expectedProfit, (0.94 * 21.605 + 0.06 * -11) * 0.40, 'GSP after 40%');
+  near(comparison.selfShip.completedProfit, 21.462, 'you-ship completed');
+  near(comparison.claimProfit, -31, 'claim loses COGS and the intl label');
+  near(comparison.selfShip.soldExpectedProfit, 0.92 * 15.6158 + 0.08 * -31, 'you-ship leftover');
+  near(comparison.selfShip.expectedProfit, (0.92 * 15.6158 + 0.08 * -31) * 0.55, 'you-ship after 55%');
+  near(
+    comparison.extraKeptOnGsp,
+    (0.94 * 21.605 + 0.06 * -11) * 0.40 - (0.92 * 15.6158 + 0.08 * -31) * 0.55,
+    'ST gap',
+  );
+  near(
+    comparison.monthlyExtraOnGsp,
+    ((0.94 * 21.605 + 0.06 * -11) * 0.40 - (0.92 * 15.6158 + 0.08 * -31) * 0.55) * 20,
+    'twenty listings',
+  );
+  assert.equal(comparison.winner, 'gsp');
+  assert.equal(comparison.gspPays, true);
+});
+
+test('break-even claim rate and you-ship sell-through match GSP', () => {
+  const comparison = compareGlobalShipping(agBase);
+  const atClaim = compareGlobalShipping({
+    ...agBase,
+    selfShipClaimRatePercent: comparison.breakEvenClaimRate,
+  });
+  near(atClaim.selfShip.expectedProfit, atClaim.gsp.expectedProfit, 'claim floor ties GSP');
+  const atSelfSt = compareGlobalShipping({
+    ...agBase,
+    selfShipSellThroughPct: comparison.breakEvenSelfShipSellThroughPct,
+  });
+  near(atSelfSt.selfShip.expectedProfit, atSelfSt.gsp.expectedProfit, 'you-ship ST floor ties GSP');
+  assert.ok(comparison.breakEvenClaimRate < 8, 'default 8% claims sit above the floor');
+  assert.ok(comparison.breakEvenSelfShipSellThroughPct > 55, 'default 55% you-ship ST is below the floor');
+});
+
+test('matching 40% sell-through already loses on you-ship', () => {
+  const comparison = compareGlobalShipping({ ...agBase, selfShipSellThroughPct: 40 });
+  assert.equal(comparison.winner, 'gsp');
+  near(comparison.selfShip.expectedProfit, (0.92 * 15.6158 + 0.08 * -31) * 0.40, 'matched you-ship ST');
+  near(comparison.gsp.expectedProfit, (0.94 * 21.605 + 0.06 * -11) * 0.40, 'unchanged GSP');
+});
+
+test('zero claims flip you-ship ahead of GSP at the default close rates', () => {
+  const comparison = compareGlobalShipping({ ...agBase, selfShipClaimRatePercent: 0 });
+  assert.equal(comparison.winner, 'self-ship');
+  near(comparison.selfShip.soldExpectedProfit, 15.6158, 'no-claim leftover');
+  near(comparison.selfShip.expectedProfit, 15.6158 * 0.55, 'no-claim after 55%');
+  assert.equal(comparison.gspPays, false);
+});
+
+test('a 70% you-ship sell-through flips the international label ahead', () => {
+  const comparison = compareGlobalShipping({ ...agBase, selfShipSellThroughPct: 70 });
+  assert.equal(comparison.winner, 'self-ship');
+  near(comparison.selfShip.expectedProfit, (0.92 * 15.6158 + 0.08 * -31) * 0.70, '70% you-ship');
+  near(comparison.gsp.expectedProfit, (0.94 * 21.605 + 0.06 * -11) * 0.40, 'unchanged GSP');
+});
+
+test('a 30% GSP sell-through loses to the default you-ship close rate', () => {
+  const comparison = compareGlobalShipping({ ...agBase, gspSellThroughPct: 30 });
+  assert.equal(comparison.winner, 'self-ship');
+  near(comparison.gsp.expectedProfit, (0.94 * 21.605 + 0.06 * -11) * 0.30, '30% GSP');
+});
+
+test('Global Shipping note reports both paths without telling the seller which program to enroll', () => {
+  const note = globalShippingNote(compareGlobalShipping(agBase));
+  assert.match(note, /Global Shipping Program/);
+  assert.match(note, /\$6\.00/);
+  assert.match(note, /6%/);
+  assert.match(note, /\$19\.65/);
+  assert.match(note, /\$22\.00/);
+  assert.match(note, /\$19\.00/);
+  assert.match(note, /1\.65%/);
+  assert.match(note, /10%/);
+  assert.match(note, /8%/);
+  assert.match(note, /\$11\.89/);
+  assert.match(note, /\$7\.76/);
+  assert.match(note, /40%/);
+  assert.match(note, /55%/);
+  assert.match(note, /\$7\.86/);
+  assert.match(note, /\$6\.54/);
+  assert.match(note, /\$1\.32/);
+  assert.match(note, /2\.8%/);
+  assert.match(note, /66\.1%/);
+  assert.doesNotMatch(note, /should enroll|must use GSP|must self-ship/i);
+});
+
+test('rejects a claim rate above 100% and a missing comparison', () => {
+  assert.throws(() => compareGlobalShipping({ ...agBase, selfShipClaimRatePercent: 101 }), /at most 100/);
+  assert.throws(() => compareGlobalShipping({ ...agBase, gspSellThroughPct: 101 }), /at most 100/);
+  assert.throws(() => compareGlobalShipping({ ...agBase, selfShipIntlFeeRate: -1 }), /Self-ship international fee/);
+  assert.throws(() => compareGlobalShipping({ price: -1 }), /Item price/);
+  assert.throws(() => globalShippingNote({}), /missing rows/);
+});
+
+const STORE_BASE = {
+  price: 40, shippingCharged: 6, finalValueRate: 13.25, fixedFee: 0.3,
+  costOfGoods: 12, shippingCost: 5, packagingCost: 1,
+};
+
+test('defaults match the published store mix', () => {
+  assert.equal(DEFAULT_MONTHLY_STORE_ORDERS, 40);
+  assert.equal(DEFAULT_MONTHLY_STORE_FEE, 0);
+  assert.equal(STORE_TIER_PRESETS[0].monthlyFee, 7.95);
+  assert.equal(STORE_TIER_PRESETS[0].finalValueRate, 12.95);
+  assert.equal(STORE_TIER_PRESETS[1].monthlyFee, 27.95);
+  assert.equal(STORE_TIER_PRESETS[2].monthlyFee, 74.95);
+});
+
+test('forty $40 sales leave Starter $2.43 behind the no-store rate', () => {
+  const r = compareStoreTiers(STORE_BASE);
+  near(r.current.profit, 21.605, 'completed sale');
+  near(r.current.monthlyProfit, 864.2, 'forty no-store sales');
+  near(r.starter.profit, 21.743, 'starter sale');
+  near(r.starter.monthlyProfit, 861.77, 'starter month');
+  near(r.extraKeptOnStarter, -2.43, 'starter vs no store');
+  near(r.basic.monthlyProfit, 849.13, 'basic month');
+  near(r.premium.monthlyProfit, 815.01, 'premium month');
+  near(r.starter.breakEvenOrders, 57.60869565217378, 'starter floor');
+  near(r.basic.breakEvenOrders, 86.80124223602493, 'basic floor');
+  near(r.premium.breakEvenOrders, 116.38198757763972, 'premium floor');
+  assert.equal(r.winner, 'current');
+  assert.ok(r.current.monthlyProfit > r.starter.monthlyProfit, 'no store beats Starter at 40');
+});
+
+test('eighty of the same sales flip Starter ahead', () => {
+  const r = compareStoreTiers({ ...STORE_BASE, monthlyStoreOrders: 80 });
+  near(r.extraKeptOnStarter, 3.09, 'starter at 80');
+  assert.equal(r.winner, 'starter');
+});
+
+test('a store rate that is not cheaper never recovers the subscription', () => {
+  assert.equal(storeBreakEvenOrders({
+    revenue: 46,
+    currentFinalValueRate: 12.95,
+    storeFinalValueRate: 13.25,
+    monthlyFee: 7.95,
+  }), Infinity);
+});
+
+test('empty store fields use the published defaults', () => {
+  const r = compareStoreTiers(STORE_BASE);
+  near(r.monthlyOrders, DEFAULT_MONTHLY_STORE_ORDERS, 'default volume');
+  near(r.currentStoreFee, DEFAULT_MONTHLY_STORE_FEE, 'default fee');
+  near(r.starter.monthlyFee, 7.95, 'example Starter');
+});
+
+test('dedicated monthlyStoreOrders wins over a leftover monthlyOrders alias', () => {
+  const r = compareStoreTiers({ ...STORE_BASE, monthlyOrders: 10, monthlyStoreOrders: 80 });
+  near(r.monthlyOrders, 80, 'dedicated field');
+  assert.equal(r.winner, 'starter');
+});
+
+test('compareStoreTiers rejects an impossible month or missing price', () => {
+  assert.throws(() => compareStoreTiers({ ...STORE_BASE, monthlyStoreOrders: 0 }), /Monthly store orders/);
+  assert.throws(() => compareStoreTiers({ ...STORE_BASE, monthlyStoreOrders: 1.5 }), /Monthly store orders/);
+  assert.throws(() => compareStoreTiers({ ...STORE_BASE, monthlyStoreFee: -1 }), /Current monthly store fee/);
+  assert.throws(() => compareStoreTiers({ price: -1 }), /Item price/);
+  assert.throws(() => compareStoreTiers(STORE_BASE, []), /At least one store tier/);
+});
+
+test('store note names the $2.43 gap and the 58-sale floor', () => {
+  const text = compareStoreTiers(STORE_BASE).summary;
+  assert.match(text, /\$7\.95/);
+  assert.match(text, /12\.95%/);
+  assert.match(text, /\$2\.43 less/);
+  assert.match(text, /13\.25%/);
+  assert.match(text, /58 of these sales/);
+  assert.doesNotMatch(text, /should subscribe|must enroll|buy a store/i);
+  assert.equal(text, storeTiersNote(compareStoreTiers(STORE_BASE)));
+  assert.throws(() => storeTiersNote({}), /missing rows/);
+});
+
+const OFFER_BASE = {
+  price: 40, shippingCharged: 6, finalValueRate: 13.25, fixedFee: 0.3,
+  costOfGoods: 12, shippingCost: 5, packagingCost: 1, targetMargin: 20,
+};
+
+test('defaults match the published Best Offer mix', () => {
+  assert.equal(DEFAULT_INCOMING_BEST_OFFER, 34);
+  assert.equal(DEFAULT_INCOMING_WAIT_CHANCE, 50);
+});
+
+test('a $34 offer keeps $5.60 more than waiting at a 50% chance of list', () => {
+  const comparison = compareBestOffer(OFFER_BASE);
+  near(comparison.listing.profit, 21.605, 'list profit');
+  near(comparison.offer.price, 34, 'offer price');
+  near(comparison.offer.profit, 16.4, 'offer profit');
+  near(comparison.offer.margin, 41, 'offer margin');
+  near(comparison.cashLeftOnTable, 5.205, 'cash left on the table');
+  near(comparison.midpoint.price, 37, 'midpoint counter');
+  near(comparison.expectedWaitProfit, 10.8025, '50% of list profit');
+  near(comparison.extraKeptOnAccept, 5.5975, 'offer vs wait');
+  near(comparison.waitChanceCeiling, 16.4 / 21.605 * 100, 'chance ceiling');
+  assert.equal(comparison.aboveBreakEven, true);
+  assert.equal(comparison.meetsTargetMargin, true);
+  assert.equal(comparison.acceptBeatsWait, true);
+  assert.equal(comparison.winner, 'offer');
+  const rows = bestOfferRows(comparison);
+  assert.deepEqual(rows.map((row) => row.kind), ['wait', 'offer', 'midpoint', 'target']);
+});
+
+test('flags an offer that still pays but misses the target margin', () => {
+  const comparison = compareBestOffer({ ...OFFER_BASE, incomingBestOffer: 16 });
+  near(comparison.offer.profit, 0.785, 'thin offer profit');
+  assert.equal(comparison.aboveBreakEven, true);
+  assert.equal(comparison.meetsTargetMargin, false);
+  assert.equal(comparison.acceptBeatsWait, false);
+  assert.equal(comparison.winner, 'wait');
+  assert.match(bestOfferNote(comparison), /misses your target margin/);
+  assert.match(bestOfferNote(comparison), /Counter \$21\.42/);
+});
+
+test('flags a Best Offer that loses money after fees', () => {
+  const comparison = compareBestOffer({ ...OFFER_BASE, incomingBestOffer: 15 });
+  near(comparison.offer.profit, -0.0825, 'below break-even');
+  assert.equal(comparison.aboveBreakEven, false);
+  assert.equal(comparison.acceptBeatsWait, false);
+  assert.match(bestOfferNote(comparison), /loses \$0\.08/);
+  assert.match(bestOfferNote(comparison), /Counter at least \$15\.10/);
+  assert.match(bestOfferNote(comparison), /No chance of list makes this losing offer match waiting/);
+  assert.doesNotMatch(bestOfferNote(comparison), /-\d/);
+});
+
+test('waiting wins when the seller is sure the item still sells at list', () => {
+  const comparison = compareBestOffer({ ...OFFER_BASE, incomingWaitChancePct: 100 });
+  assert.equal(comparison.winner, 'wait');
+  assert.equal(comparison.acceptBeatsWait, false);
+  near(comparison.expectedWaitProfit, 21.605, 'sure list');
+  near(comparison.extraKeptOnAccept, 16.4 - 21.605, 'offer vs sure list');
+});
+
+test('empty Best Offer fields use the published defaults', () => {
+  const r = compareBestOffer(OFFER_BASE);
+  near(r.offer.price, DEFAULT_INCOMING_BEST_OFFER, 'default offer');
+  near(r.chanceOfFullPricePct, DEFAULT_INCOMING_WAIT_CHANCE, 'default chance');
+});
+
+test('dedicated incomingBestOffer wins over a leftover bestOffer alias', () => {
+  const r = compareBestOffer({ ...OFFER_BASE, bestOffer: 15, incomingBestOffer: 34 });
+  near(r.offer.price, 34, 'dedicated field');
+  assert.equal(r.winner, 'offer');
+});
+
+test('compareBestOffer rejects an impossible chance or missing price', () => {
+  assert.throws(() => compareBestOffer({ ...OFFER_BASE, incomingWaitChancePct: 101 }), /at most 100/);
+  assert.throws(() => compareBestOffer({ ...OFFER_BASE, incomingBestOffer: -1 }), /Best offer/);
+  assert.throws(() => compareBestOffer({ price: -1 }), /Item price/);
+});
+
+test('Best Offer note names the $5.60 gap and the 75.9% chance floor', () => {
+  const text = compareBestOffer(OFFER_BASE).summary;
+  assert.match(text, /\$34\.00/);
+  assert.match(text, /\$16\.40/);
+  assert.match(text, /41\.0% margin/);
+  assert.match(text, /\$5\.21 less/);
+  assert.match(text, /\$5\.60 more/);
+  assert.match(text, /50% chance/);
+  assert.match(text, /75\.9% chance/);
+  assert.doesNotMatch(text, /should accept|must take|decline this/i);
+  assert.equal(text, bestOfferNote(compareBestOffer(OFFER_BASE)));
+  assert.equal(text, bestOfferSummary(compareBestOffer(OFFER_BASE)));
+  assert.throws(() => bestOfferNote({}), /missing rows/);
+});
+
+const FREE_SHIP_BASE = {
+  price: 40,
+  shippingCharged: 6,
+  finalValueRate: 13.25,
+  fixedFee: 0.3,
+  costOfGoods: 12,
+  shippingCost: 5,
+  packagingCost: 1,
+  returnShippingCost: 5,
+  feeRefundOnReturnPercent: 100,
+  returnRatePercent: 10,
+};
+
+test('defaults match the published free-shipping mix', () => {
+  assert.equal(DEFAULT_BUYER_PAYS_SHIP_SELL_THROUGH, 55);
+  assert.equal(DEFAULT_FREE_SHIP_SELL_THROUGH, 70);
+  assert.equal(DEFAULT_MONTHLY_FREE_SHIP_LISTINGS, 40);
+});
+
+test('baking shipping charged into the item is cash-identical per completed sale', () => {
+  const r = compareFreeShipping(FREE_SHIP_BASE);
+  near(r.buyerPays.completedProfit, 21.605, 'completed buyer-pays');
+  near(r.freeShip.completedProfit, 21.605, 'completed free-ship');
+  near(r.buyerPays.soldExpectedProfit, 18.3445, 'buyer-pays after returns');
+  near(r.freeShip.soldExpectedProfit, 18.3445, 'baked free-ship after returns');
+  near(r.extraPackedOnFreeShip, 0, 'same leftover after bake-in');
+  near(r.buyerPays.expectedProfit, 10.089475, 'buyer-pays after 55%');
+  near(r.freeShip.expectedProfit, 12.84115, 'free-ship after 70%');
+  near(r.extraKeptOnFreeShip, 2.751675, 'sell-through lift');
+  near(r.monthlyExtraOnFreeShip, 2.751675 * 40, 'forty listings');
+  near(r.breakEvenFreeShipSellThroughPct, 55, 'sell-through floor');
+  near(r.breakEvenFreeShipPrice, 40.9651434060656, 'list that ties at 70%');
+  near(r.bakeInPrice, 46, 'bake-in');
+  near(r.underBake, 0, 'no under-bake');
+  assert.equal(r.winner, 'free_ship');
+});
+
+test('leaving the list at $40 loses after the postage you still buy', () => {
+  const r = compareFreeShipping({ ...FREE_SHIP_BASE, freeShipPrice: 40 });
+  near(r.freeShip.soldExpectedProfit, 13.66, 'under-baked sale');
+  near(r.freeShip.expectedProfit, 9.562, 'under-baked listing');
+  near(r.extraKeptOnFreeShip, 9.562 - 10.089475, 'loses versus buyer-pays');
+  near(r.breakEvenFreeShipSellThroughPct, 73.86145680819912, 'needs more sell-through');
+  assert.equal(r.winner, 'buyer_pays');
+});
+
+test('a $44 free-ship list still beats buyer-pays after the typed lift', () => {
+  const r = compareFreeShipping({ ...FREE_SHIP_BASE, freeShipPrice: 44 });
+  near(r.freeShip.soldExpectedProfit, 16.783, 'partial bake-in');
+  near(r.freeShip.expectedProfit, 11.7481, 'partial bake-in listing');
+  near(r.extraKeptOnFreeShip, 1.658625, 'still ahead');
+  assert.equal(r.winner, 'free_ship');
+});
+
+test('matched sell-through on a baked-in list is a tie', () => {
+  const r = compareFreeShipping({ ...FREE_SHIP_BASE, freeShipSellThroughPct: 55 });
+  near(r.extraKeptOnFreeShip, 0, 'same leftover');
+  assert.equal(r.winner, 'tie');
+});
+
+test('50% free-ship sell-through loses even when the list is baked in', () => {
+  const r = compareFreeShipping({ ...FREE_SHIP_BASE, freeShipSellThroughPct: 50 });
+  near(r.freeShip.expectedProfit, 9.17225, '50% listing');
+  near(r.extraKeptOnFreeShip, -0.917225, 'loses the lift');
+  assert.equal(r.winner, 'buyer_pays');
+});
+
+test('empty free-shipping fields use the published defaults', () => {
+  const r = compareFreeShipping(FREE_SHIP_BASE);
+  near(r.freeShipPrice, 46, 'default bake-in');
+  near(r.buyerPaysSellThroughPct, DEFAULT_BUYER_PAYS_SHIP_SELL_THROUGH, 'default buyer ST');
+  near(r.freeShipSellThroughPct, DEFAULT_FREE_SHIP_SELL_THROUGH, 'default free ST');
+  near(r.monthlyFreeShipListings, DEFAULT_MONTHLY_FREE_SHIP_LISTINGS, 'default month');
+});
+
+test('compareFreeShipping rejects an impossible rate or negative list', () => {
+  assert.throws(() => compareFreeShipping({ ...FREE_SHIP_BASE, freeShipSellThroughPct: 101 }), /Free-shipping sell-through/);
+  assert.throws(() => compareFreeShipping({ ...FREE_SHIP_BASE, buyerPaysSellThroughPct: 101 }), /Buyer-pays sell-through/);
+  assert.throws(() => compareFreeShipping({ ...FREE_SHIP_BASE, freeShipPrice: -1 }), /Free-shipping list price/);
+  assert.throws(() => compareFreeShipping({ price: -1 }), /Item price/);
+});
+
+test('summary names the bake-in leftover and the sell-through floor', () => {
+  const text = compareFreeShipping(FREE_SHIP_BASE).summary;
+  assert.match(text, /\$10\.09/);
+  assert.match(text, /\$12\.84/);
+  assert.match(text, /\$2\.75 more/);
+  assert.match(text, /\$18\.34/);
+  assert.match(text, /55\.0%/);
+  assert.match(text, /\$40\.97/);
+  assert.doesNotMatch(text, /should offer free shipping|must offer free|turn on free shipping/i);
+  assert.equal(text, freeShippingNote(compareFreeShipping(FREE_SHIP_BASE)));
+  assert.throws(() => freeShippingNote({}), /missing rows/);
+});
+
+const INTL_BASE = {
+  price: 40, shippingCharged: 6, finalValueRate: 13.25, fixedFee: 0.3,
+  costOfGoods: 12, shippingCost: 5, packagingCost: 1, targetMargin: 20,
+};
+
+test('defaults match the published international mix', () => {
+  assert.equal(ILLUSTRATIVE_INTL_FEE_RATE, 1.65);
+  assert.equal(DEFAULT_INTL_EXTRA_SHIPPING, 12);
+});
+
+test('worldwide at the same $40 list keeps less than domestic only', () => {
+  const comparison = compareInternational(INTL_BASE);
+  near(comparison.domesticProfit, 21.605, 'domestic profit');
+  near(comparison.buyerPaysProfit, 20.846, 'buyer-pays profit');
+  near(comparison.youShipProfit, 8.846, 'you-ship profit');
+  near(comparison.extraKeptOnBuyerPays, -0.759, 'intl fee drag');
+  near(comparison.extraKeptOnYouShip, -12.759, 'fee plus extra postage');
+  near(comparison.rows[1].holdPrice, 40.89, 'buyer-pays hold price');
+  near(comparison.rows[2].holdPrice, 54.99, 'you-ship hold price');
+  assert.equal(comparison.usedIllustrativeIntlRate, true);
+  assert.equal(comparison.winner, 'domestic');
+  assert.equal(comparison.rows.filter((row) => row.winner).length, 1);
+});
+
+test('a typed international fee replaces the illustrative rate', () => {
+  const comparison = compareInternational({ ...INTL_BASE, intlFeeRate: 2.5 });
+  assert.equal(comparison.usedIllustrativeIntlRate, false);
+  near(comparison.intlFeeRate, 2.5, 'typed rate');
+  near(comparison.buyerPaysProfit, 20.455, '2.5% of $46');
+});
+
+test('zero extra postage makes you-ship match buyer-pays', () => {
+  const comparison = compareInternational({ ...INTL_BASE, intlExtraShipping: 0 });
+  near(comparison.buyerPaysProfit, comparison.youShipProfit, 'same leftover');
+  assert.equal(comparison.winner, 'domestic');
+});
+
+test('expected leftover after a 10% return still ranks domestic first', () => {
+  const comparison = compareInternational({
+    ...INTL_BASE,
+    returnRatePercent: 10,
+    returnShippingCost: 5,
+    feeRefundOnReturnPercent: 100,
+  });
+  near(comparison.domesticExpectedProfit, 18.3445, 'domestic after returns');
+  near(comparison.rows[1].expectedProfit, 17.6614, 'buyer-pays after returns');
+  near(comparison.rows[2].expectedProfit, 5.6614, 'you-ship after returns');
+  assert.equal(comparison.winner, 'domestic');
+});
+
+test('compareInternational rejects a missing price', () => {
+  assert.throws(() => compareInternational({}), /Item price/);
+  assert.throws(() => compareInternational({ price: -1 }), /Item price/);
+  assert.throws(() => compareInternational({ ...INTL_BASE, intlExtraShipping: -1 }), /Extra international/);
+});
+
+test('international note names the $0.76 fee drag and the $40.89 hold price', () => {
+  const text = compareInternational(INTL_BASE).summary;
+  assert.match(text, /\$21\.61/);
+  assert.match(text, /1\.65%/);
+  assert.match(text, /\$0\.76 less/);
+  assert.match(text, /\$20\.85/);
+  assert.match(text, /\$40\.89/);
+  assert.match(text, /\$12\.76 less/);
+  assert.match(text, /\$8\.85/);
+  assert.match(text, /\$54\.99/);
+  assert.doesNotMatch(text, /should offer|must ship worldwide|turn international on/i);
+  assert.equal(text, internationalNote(compareInternational(INTL_BASE)));
+  assert.equal(text, internationalSummary(compareInternational(INTL_BASE)));
+  assert.throws(() => internationalNote({}), /missing rows/);
+});
+
+const PROTECT_BASE = {
+  price: 40,
+  shippingCharged: 6,
+  finalValueRate: 13.25,
+  fixedFee: 0.3,
+  costOfGoods: 12,
+  shippingCost: 5,
+  packagingCost: 1,
+  returnRatePercent: 10,
+  returnShippingCost: 5,
+  feeRefundOnReturnPercent: 100,
+};
+
+test('skip insurance on the default $40 SKU still beats a $1.80 premium', () => {
+  const comparison = comparePackageProtection(PROTECT_BASE);
+  near(comparison.skip.expectedProfit, 17.4358875, 'skip after 2.5% claims');
+  near(comparison.insure.expectedProfit, 16.434433, 'insure after leftover claims');
+  near(comparison.signature.expectedProfit, 14.749122, 'signature after leftover claims');
+  near(comparison.skip.claimProfit, -18, 'skip claim is sunk cost');
+  near(comparison.insure.claimProfit, -1.8, 'insured claim leftover is the premium');
+  near(comparison.extraKeptOnInsure, -1.0014545, 'insurance drag');
+  near(comparison.monthlyExtraOnInsure, -40.05818, 'forty shipments');
+  near(comparison.breakEvenSkipClaimRate, 5.255449930525944, 'skip claim floor');
+  near(comparison.breakEvenInsurancePremium, 0.7985455, 'premium ceiling');
+  assert.equal(comparison.winner, 'skip');
+  assert.equal(comparison.insurancePayout, 18);
+  assert.equal(comparison.usedDefaultPayout, true);
+  assert.equal(comparison.skipClaimRate, DEFAULT_SKIP_CLAIM_RATE);
+  assert.equal(comparison.insurancePremium, DEFAULT_INSURANCE_PREMIUM);
+  assert.equal(comparison.insuranceClaimRate, DEFAULT_INSURANCE_CLAIM_RATE);
+  assert.equal(comparison.signatureFee, DEFAULT_SIGNATURE_FEE);
+  assert.equal(comparison.signatureClaimRate, DEFAULT_SIGNATURE_CLAIM_RATE);
+  assert.equal(comparison.monthlyShipments, DEFAULT_MONTHLY_PROTECTION_SHIPMENTS);
+});
+
+test('an 8% skip claim rate flips insurance ahead on the same $40 SKU', () => {
+  const comparison = comparePackageProtection({ ...PROTECT_BASE, skipClaimRatePercent: 8 });
+  near(comparison.skip.expectedProfit, 15.43694, '8% skip claims');
+  near(comparison.insure.expectedProfit, 16.434433, 'insured leftover unchanged');
+  assert.equal(comparison.winner, 'insure');
+});
+
+test('a high-COGS $180 SKU flips insurance ahead at the default 2.5% claim rate', () => {
+  const comparison = comparePackageProtection({
+    ...PROTECT_BASE,
+    price: 180,
+    shippingCharged: 12,
+    costOfGoods: 85,
+    shippingCost: 12,
+    packagingCost: 2,
+    returnShippingCost: 12,
+  });
+  near(comparison.skip.expectedProfit, 54.01065, 'high-ticket skip');
+  near(comparison.insure.expectedProfit, 55.786396, 'high-ticket insure');
+  near(comparison.extraKeptOnInsure, 1.775746, 'insurance save');
+  near(comparison.breakEvenSkipClaimRate, 1.3684759198134164, '1.4% floor');
+  assert.equal(comparison.winner, 'insure');
+  assert.equal(comparison.insurancePayout, 99);
+});
+
+test('a typed insurance payout replaces the replacement-value default', () => {
+  const comparison = comparePackageProtection({ ...PROTECT_BASE, insurancePayout: 46 });
+  assert.equal(comparison.usedDefaultPayout, false);
+  near(comparison.insurancePayout, 46, 'retail declaration');
+  assert.ok(comparison.insure.claimProfit > comparison.skip.claimProfit);
+});
+
+test('comparePackageProtection rejects impossible inputs', () => {
+  assert.throws(() => comparePackageProtection({}), /Item price/);
+  assert.throws(() => comparePackageProtection({ price: -1 }), /Item price/);
+  assert.throws(() => comparePackageProtection({ ...PROTECT_BASE, skipClaimRatePercent: 101 }), /at most 100/);
+  assert.throws(() => comparePackageProtection({ ...PROTECT_BASE, monthlyProtectionShipments: 0 }), /greater than zero/);
+});
+
+test('package-protection note names the $1.00 drag and the 5.3% floor', () => {
+  const text = comparePackageProtection(PROTECT_BASE).summary;
+  assert.match(text, /\$17\.44/);
+  assert.match(text, /\$16\.43/);
+  assert.match(text, /\$1\.00 less/);
+  assert.match(text, /\$14\.75/);
+  assert.match(text, /\$2\.69 less/);
+  assert.match(text, /5\.3%/);
+  assert.match(text, /\$0\.80/);
+  assert.doesNotMatch(text, /should buy insurance|must add signature|buy a policy/i);
+  assert.equal(text, packageProtectionNote(comparePackageProtection(PROTECT_BASE)));
+  assert.equal(text, packageProtectionSummary(comparePackageProtection(PROTECT_BASE)));
+  assert.throws(() => packageProtectionNote({}), /missing rows/);
+});
+
+const LABEL_BASE = {
+  price: 40,
+  shippingCharged: 6,
+  finalValueRate: 13.25,
+  fixedFee: 0.3,
+  costOfGoods: 12,
+  shippingCost: 5,
+  packagingCost: 1,
+  returnRatePercent: 10,
+  returnShippingCost: 5,
+  feeRefundOnReturnPercent: 100,
+};
+
+test('a $4.25 Pirate Ship quote still loses after four minutes on the default $40 SKU', () => {
+  const comparison = compareEbayLabels(LABEL_BASE);
+  near(comparison.ebay.expectedProfit, 18.053744, 'eBay label after 0.8% claims');
+  near(comparison.third.expectedProfit, 16.9858875, 'third-party after time and 2.5% claims');
+  near(comparison.postageOnly.expectedProfit, 18.1858875, 'third-party with no extra time');
+  near(comparison.ebay.claimProfit, -18, 'eBay claim is sunk cost');
+  near(comparison.uploadTimeCost, 1.2, '4 minutes at $18');
+  near(comparison.extraKeptOnThird, -1.0678565, 'timed third-party drag');
+  near(comparison.extraKeptOnPostageOnly, 0.1321435, 'postage-only save');
+  near(comparison.monthlyExtraOnThird, -42.71426, 'forty shipments');
+  near(comparison.breakEvenThirdPartyLabelCost, 3.1821435, 'label ceiling');
+  near(comparison.breakEvenUploadMinutes, 0.44047833333333786, 'time ceiling');
+  assert.equal(comparison.winner, 'third_party_no_time');
+  assert.equal(comparison.breakEvenThirdPartyClaimRate, Infinity);
+  assert.equal(comparison.ebayLabelCost, 5);
+  assert.equal(comparison.thirdPartyLabelCost, DEFAULT_THIRD_PARTY_LABEL_COST);
+  assert.equal(comparison.ebayClaimRate, DEFAULT_EBAY_LABEL_CLAIM_RATE);
+  assert.equal(comparison.thirdPartyClaimRate, DEFAULT_THIRD_PARTY_CLAIM_RATE);
+  assert.equal(comparison.uploadMinutes, DEFAULT_LABEL_UPLOAD_MINUTES);
+  assert.equal(comparison.uploadWage, DEFAULT_LABEL_UPLOAD_WAGE);
+  assert.equal(comparison.monthlyShipments, DEFAULT_MONTHLY_LABEL_SHIPMENTS);
+  assert.equal(comparison.usedDefaultEbayLabel, true);
+  assert.equal(comparison.usedDefaultThirdPartyLabel, true);
+});
+
+test('a 4% third-party claim rate flips the postage-only path behind the eBay label', () => {
+  const comparison = compareEbayLabels({
+    ...LABEL_BASE,
+    labelUploadMinutes: 0,
+    thirdPartyClaimRatePercent: 4,
+  });
+  near(comparison.ebay.expectedProfit, 18.053744, 'eBay leftover unchanged');
+  near(comparison.third.expectedProfit, 17.64072, '4% third-party claims');
+  near(comparison.breakEvenThirdPartyClaimRate, 2.8635859621125666, '2.9% floor');
+  assert.equal(comparison.winner, 'ebay');
+});
+
+test('a high-COGS $180 SKU keeps the eBay label ahead of a $9.50 third-party quote', () => {
+  const comparison = compareEbayLabels({
+    ...LABEL_BASE,
+    price: 180,
+    shippingCharged: 12,
+    costOfGoods: 85,
+    shippingCost: 12,
+    packagingCost: 2,
+    returnShippingCost: 12,
+    thirdPartyLabelCost: 9.5,
+  });
+  near(comparison.ebay.expectedProfit, 56.678528, 'high-ticket eBay label');
+  near(comparison.third.expectedProfit, 55.31065, 'high-ticket third-party');
+  near(comparison.postageOnly.expectedProfit, 56.51065, 'high-ticket postage-only');
+  near(comparison.extraKeptOnThird, -1.367878, 'timed third-party drag');
+  near(comparison.breakEvenThirdPartyClaimRate, 1.6283737112416787, '1.6% floor');
+  assert.equal(comparison.winner, 'ebay');
+  assert.equal(comparison.ebayLabelCost, 12);
+});
+
+test('a typed eBay label replaces the shipping-cost default', () => {
+  const comparison = compareEbayLabels({ ...LABEL_BASE, ebayLabelCost: 5.4 });
+  assert.equal(comparison.usedDefaultEbayLabel, false);
+  near(comparison.ebayLabelCost, 5.4, 'typed eBay quote');
+  assert.ok(comparison.ebay.expectedProfit < 18.053744);
+});
+
+test('compareEbayLabels rejects impossible inputs', () => {
+  assert.throws(() => compareEbayLabels({}), /Item price/);
+  assert.throws(() => compareEbayLabels({ price: -1 }), /Item price/);
+  assert.throws(() => compareEbayLabels({ ...LABEL_BASE, thirdPartyClaimRatePercent: 101 }), /at most 100/);
+  assert.throws(() => compareEbayLabels({ ...LABEL_BASE, monthlyLabelShipments: 0 }), /greater than zero/);
+});
+
+test('label note names the $1.07 drag, the $0.13 postage-only save, and the $3.18 ceiling', () => {
+  const text = compareEbayLabels(LABEL_BASE).summary;
+  assert.match(text, /\$18\.05/);
+  assert.match(text, /\$16\.99/);
+  assert.match(text, /\$1\.07 less/);
+  assert.match(text, /\$18\.19/);
+  assert.match(text, /\$0\.13 more/);
+  assert.match(text, /\$3\.18/);
+  assert.match(text, /No third-party claim rate/);
+  assert.doesNotMatch(text, /should buy Pirate Ship|must use eBay labels|buy the eBay label/i);
+  assert.equal(text, ebayLabelsNote(compareEbayLabels(LABEL_BASE)));
+  assert.equal(text, ebayLabelsSummary(compareEbayLabels(LABEL_BASE)));
+  assert.throws(() => ebayLabelsNote({}), /missing rows/);
 });

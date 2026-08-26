@@ -76,17 +76,21 @@ split, a four-rail comparison on the same stair, a five-chair
 comparison on the same stair (the power-swivel upgrade versus
 the standard special), a three-way **who-supplies** comparison
 (you supply the lift, they supply one that fits, they supply
-one that does not), and the **walk-away price**. Entering a
-price already on the table scores it against the same cost
-base — including the $795 “just install what I bought”
-special. **Copy bid summary** turns the result into a
+one that does not), a three-way **when-they-need-it** comparison
+(weekday they leave, discharge week with next-day rail freight,
+Saturday overtime plus a second dispatch), and the **walk-away
+price**. Entering a price already on the table scores it
+against the same cost base — including the $795 “just
+install what I bought” special and the $3,995 “mom comes
+home Friday” rush. **Copy bid summary** turns the result into a
 plain-text draft ready to paste into a proposal.
 
 The arithmetic lives in [`calc.mjs`](calc.mjs). See
 [`calc.test.mjs`](calc.test.mjs).
 
 Search phrases: [`how-much-to-charge-to-install-a-stair-lift.html`](how-much-to-charge-to-install-a-stair-lift.html),
-[`should-i-install-a-customer-supplied-stair-lift.html`](should-i-install-a-customer-supplied-stair-lift.html).
+[`should-i-install-a-customer-supplied-stair-lift.html`](should-i-install-a-customer-supplied-stair-lift.html),
+[`should-i-expedite-a-stair-lift-for-hospital-discharge.html`](should-i-expedite-a-stair-lift-for-hospital-discharge.html).
 
 ## Privacy
 
@@ -107,7 +111,7 @@ when the browser sends Do Not Track or Global Privacy Control. See
 
 Events counted: `bid_calculated`, `preset_applied`, `rail_changed`,
 `chair_changed`, `attach_changed`, `proposed_price_compared`,
-`owner_supply_compared`, `summary_copied`.
+`owner_supply_compared`, `access_compared`, `summary_copied`.
 
 ## Limitations
 

@@ -85,6 +85,14 @@ export const INPUT_FIELDS = [
   'offsiteExtraOrders',
   'offsitePromotedRate',
   'monthlyOffsiteCampaigns',
+  'promotedStandardRate',
+  'promotedStandardExtraOrders',
+  'monthlyPromotedListings',
+  'advancedCpc',
+  'advancedClicks',
+  'advancedExtraOrders',
+  'advancedPromotedRate',
+  'monthlyAdvancedCampaigns',
   'qtyDiscountUnits',
   'qtyDiscountPercent',
   'qtyShippingCharged',
@@ -125,6 +133,50 @@ export const INPUT_FIELDS = [
   'managedReturnRatePercent',
   'buyerPaysReturnRatePercent',
   'monthlyManagedListings',
+  'gspReturnRatePercent',
+  'gspSellThroughPct',
+  'selfShipShippingCharged',
+  'selfShipShippingCost',
+  'selfShipReturnShippingCost',
+  'selfShipIntlFeeRate',
+  'selfShipReturnRatePercent',
+  'selfShipClaimRatePercent',
+  'selfShipSellThroughPct',
+  'monthlyGspListings',
+  'monthlyStoreOrders',
+  'monthlyStoreFee',
+  // Comparison-only: ignored by calculateOrder, carried by save/share
+  // so a "should I take this offer?" link opens with the same offer.
+  'incomingBestOffer',
+  'incomingWaitChancePct',
+  'freeShipPrice',
+  'buyerPaysSellThroughPct',
+  'freeShipSellThroughPct',
+  'monthlyFreeShipListings',
+  // Comparison-only: extra label cost when the seller absorbs
+  // international postage. Ignored by calculateOrder so the
+  // headline stays a domestic order until they type an intl fee.
+  'intlExtraShipping',
+  // Comparison-only: skip vs insurance vs signature on the
+  // same already-sold tracked shipment. Ignored by calculateOrder.
+  'skipClaimRatePercent',
+  'insurancePremium',
+  'insuranceClaimRatePercent',
+  'insurancePayout',
+  'signatureFee',
+  'signatureClaimRatePercent',
+  'protectionFeeRefundOnClaimPercent',
+  'monthlyProtectionShipments',
+  // Comparison-only: eBay label vs Pirate Ship / Shippo on the
+  // same already-sold shipment. Ignored by calculateOrder.
+  'ebayLabelCost',
+  'thirdPartyLabelCost',
+  'ebayLabelClaimRatePercent',
+  'thirdPartyClaimRatePercent',
+  'labelUploadMinutes',
+  'labelUploadWage',
+  'labelFeeRefundOnClaimPercent',
+  'monthlyLabelShipments',
 ];
 
 export function calculateOrder(input) {
@@ -1726,15 +1778,16 @@ function sioRow({ id, label, price, sellThroughPct, input }) {
  * Same listed SKU, two ways to close the watchers you already have:
  * wait for Buy It Now, or send a seller-initiated offer.
  *
- * This is not incoming Best Offer (open #1538): the buyer is not
- * naming a price. You are. It is also not auction vs BIN (listing
- * format before anyone watches) and not the repricing table (a
- * price move without a typed conversion lift). Insertion is
- * already sunk — the listing exists. Accept rate and wait
- * sell-through are inputs, not eBay watcher-conversion policy.
+ * This is not incoming Best Offer: the buyer is not naming a
+ * price. You are. Incoming Best Offer is compareBestOffer. It
+ * is also not auction vs BIN (listing format before anyone
+ * watches) and not the repricing table (a price move without a
+ * typed conversion lift). Insertion is already sunk — the
+ * listing exists. Accept rate and wait sell-through are inputs,
+ * not eBay watcher-conversion policy.
  *
- * Open eBay PRs still own promoted, store, Best Offer,
- * international, Managed Returns, and Top Rated Plus.
+ * Complementary to incoming Best Offer and
+ * compareInternational (domestic vs worldwide at this list).
  */
 export function compareSellerInitiatedOffer(input) {
   const listedPrice = optionalNumber(input.price, 'Item price');
@@ -1993,6 +2046,396 @@ export function comparePromotedOffsite(input) {
     listingExpectedProfit: listing.expectedProfit,
     listingCompletedProfit: listing.profit,
   };
+}
+
+/**
+ * Illustrative Promoted Listings Standard extras. 5% is a rate
+ * sellers actually type into the campaign picker. One extra sale
+ * is the first lift that can cover the cut Standard takes on the
+ * sale you already would have made. Twenty listings is a
+ * placeholder volume, not a forecast. This is not Offsite: there
+ * is no campaign bill if they bounce.
+ */
+export const DEFAULT_PROMOTED_STANDARD_RATE = 5;
+export const DEFAULT_PROMOTED_STANDARD_EXTRA_ORDERS = 1;
+export const DEFAULT_MONTHLY_PROMOTED_LISTINGS = 20;
+
+function standardRow({
+  id,
+  label,
+  extraOrders,
+  adFee,
+  extraSalesProfit,
+  completedProfit,
+  expectedProfit,
+  promotedRate,
+}) {
+  return {
+    id,
+    label,
+    extraOrders,
+    adFee,
+    extraSalesProfit,
+    completedProfit,
+    expectedProfit,
+    expectedProfitDelta: 0,
+    promotedRate,
+  };
+}
+
+function expectedProfitAtPromotedRate(input, promotedRate) {
+  return calculateOrder({ ...input, promotedRate }).expectedProfit;
+}
+
+/**
+ * Highest Standard rate at the typed extra-sale count that still
+ * matches skip. expectedProfit is linear in the promoted rate
+ * when fee refunds are a constant share of fees, so two
+ * evaluations recover the slope. Binary-search fallback covers
+ * a non-linear refund mix.
+ */
+function breakEvenStandardRate(input, extraOrders, skipExpected) {
+  const sales = 1 + extraOrders;
+  const atZero = expectedProfitAtPromotedRate(input, 0) * sales;
+  const atTen = expectedProfitAtPromotedRate(input, 10) * sales;
+  const slope = (atTen - atZero) / 10;
+  if (Math.abs(slope) > 1e-12) {
+    const closed = (skipExpected - atZero) / slope;
+    if (Number.isFinite(closed)) {
+      const clamped = Math.max(0, Math.min(100, closed));
+      const check = expectedProfitAtPromotedRate(input, clamped) * sales;
+      if (Math.abs(check - skipExpected) < 1e-6) return clamped;
+    }
+  }
+  let lo = 0;
+  let hi = 100;
+  const atHi = expectedProfitAtPromotedRate(input, hi) * sales;
+  if (atZero < skipExpected - 1e-9 && atHi < skipExpected - 1e-9) {
+    return Infinity;
+  }
+  for (let i = 0; i < 40; i += 1) {
+    const mid = (lo + hi) / 2;
+    if (expectedProfitAtPromotedRate(input, mid) * sales >= skipExpected - 1e-9) lo = mid;
+    else hi = mid;
+  }
+  return lo;
+}
+
+/**
+ * Same listing, skip Promoted Listings Standard or turn it on.
+ *
+ *   - Skip Standard — the sale you already have at 0% ads.
+ *   - Add Standard — that same sale now pays the typed percent,
+ *     plus N extra completed sales that also pay it. There is
+ *     no campaign bill if they bounce. Zero extra sales is the
+ *     conservative test: the campaign only takes a cut of a
+ *     sale you already would have made.
+ *
+ * This is not Offsite (#1653): Offsite is a bill either way.
+ * Open eBay PRs still own Best Offer and international.
+ * Extra-sale counts are inputs, not eBay’s Promoted Listings
+ * attribution.
+ */
+export function comparePromotedStandard(input) {
+  const listedPrice = optionalNumber(input.price, 'Item price');
+  if (listedPrice === undefined) {
+    throw new Error('Item price must be a non-negative number');
+  }
+
+  const promotedRate = requiredPercent(
+    input.promotedStandardRate,
+    'Promoted Listings Standard rate',
+    DEFAULT_PROMOTED_STANDARD_RATE,
+  );
+  const extraOrders = optionalNumber(
+    input.promotedStandardExtraOrders,
+    'Extra Standard orders',
+    DEFAULT_PROMOTED_STANDARD_EXTRA_ORDERS,
+  );
+  const monthlyListings = optionalNumber(
+    input.monthlyPromotedListings,
+    'Monthly promoted listings',
+    DEFAULT_MONTHLY_PROMOTED_LISTINGS,
+  );
+
+  const skipSale = calculateOrder({ ...input, promotedRate: 0 });
+  const promotedSale = calculateOrder({ ...input, promotedRate });
+  const extraSalesProfit = promotedSale.expectedProfit * extraOrders;
+  const extraSalesCompleted = promotedSale.profit * extraOrders;
+
+  const skip = standardRow({
+    id: 'skip',
+    label: 'Skip Promoted Listings',
+    extraOrders: 0,
+    adFee: 0,
+    extraSalesProfit: 0,
+    completedProfit: skipSale.profit,
+    expectedProfit: skipSale.expectedProfit,
+    promotedRate: 0,
+  });
+  const promote = standardRow({
+    id: 'promote',
+    label: 'Add Promoted Listings Standard',
+    extraOrders,
+    adFee: promotedSale.fees.promoted * (1 + extraOrders),
+    extraSalesProfit,
+    completedProfit: promotedSale.profit + extraSalesCompleted,
+    expectedProfit: promotedSale.expectedProfit + extraSalesProfit,
+    promotedRate,
+  });
+  skip.expectedProfitDelta = skip.expectedProfit - promote.expectedProfit;
+  promote.expectedProfitDelta = promote.expectedProfit - skip.expectedProfit;
+
+  const winner = promote.expectedProfit > skip.expectedProfit + 1e-9
+    ? 'promote'
+    : promote.expectedProfit < skip.expectedProfit - 1e-9
+      ? 'skip'
+      : 'tie';
+
+  let breakEvenExtraOrders = Infinity;
+  if (promotedSale.expectedProfit > 1e-12) {
+    breakEvenExtraOrders = skipSale.expectedProfit / promotedSale.expectedProfit - 1;
+    if (breakEvenExtraOrders < 0) breakEvenExtraOrders = 0;
+  } else if (skipSale.expectedProfit <= 1e-12) {
+    breakEvenExtraOrders = 0;
+  }
+
+  const noLiftExpectedProfit = promotedSale.expectedProfit;
+  const adDragOnExistingSale = skipSale.expectedProfit - noLiftExpectedProfit;
+  const breakEvenRate = breakEvenStandardRate(input, extraOrders, skipSale.expectedProfit);
+
+  return {
+    rows: [skip, promote],
+    skip,
+    promote,
+    winner,
+    promotedRate,
+    extraOrders,
+    monthlyListings,
+    extraKeptOnPromote: promote.expectedProfit - skip.expectedProfit,
+    monthlyExtraOnPromote: (promote.expectedProfit - skip.expectedProfit) * monthlyListings,
+    breakEvenExtraOrders,
+    breakEvenPromotedRate: breakEvenRate,
+    noLiftExpectedProfit,
+    adDragOnExistingSale,
+    extraSaleExpectedProfit: promotedSale.expectedProfit,
+    extraSaleCompletedProfit: promotedSale.profit,
+    listingExpectedProfit: skipSale.expectedProfit,
+    listingCompletedProfit: skipSale.profit,
+    promotedAdFee: promotedSale.fees.promoted,
+  };
+}
+
+/**
+ * Illustrative Promoted Listings Advanced extras. $0.40 CPC
+ * on 40 clicks is a $16 campaign bill — charged even if they
+ * bounce. One extra sale at 2.5% conversion is the first
+ * integer lift that can still cover that bill on the default
+ * $40 listing. Twenty campaigns is a placeholder volume, not
+ * a forecast. This is not Standard: there is a campaign bill
+ * if they bounce. This is not Offsite: the clicks are on eBay
+ * search, not Google or Facebook.
+ */
+export const DEFAULT_ADVANCED_CPC = 0.4;
+export const DEFAULT_ADVANCED_CLICKS = 40;
+export const DEFAULT_ADVANCED_EXTRA_ORDERS = 1;
+export const DEFAULT_MONTHLY_ADVANCED_CAMPAIGNS = 20;
+
+function advancedRow({
+  id,
+  label,
+  extraOrders,
+  clicks,
+  cpc,
+  adSpend,
+  extraSalesProfit,
+  completedProfit,
+  expectedProfit,
+  promotedRate,
+}) {
+  return {
+    id,
+    label,
+    extraOrders,
+    clicks,
+    cpc,
+    adSpend,
+    extraSalesProfit,
+    completedProfit,
+    expectedProfit,
+    expectedProfitDelta: 0,
+    promotedRate,
+  };
+}
+
+/**
+ * Same listing, skip Promoted Listings Advanced or turn it on.
+ *
+ *   - Skip Advanced — the sale you already have, no click bill.
+ *   - Add Advanced — that same sale plus N extra completed
+ *     sales, minus CPC × clicks. The click bill is charged
+ *     even if they bounce. Zero extra sales is the
+ *     conservative test: you paid for traffic and kept the
+ *     sale you already had.
+ *
+ * This is not Standard (#1669): Standard is a percent taken
+ * only when the listing sells. This is not Offsite (#1653):
+ * Offsite is a Google/Facebook campaign billed either way.
+ * Open complementary eBay PRs: free shipping (#1674),
+ * international (#1564). Extra-sale counts, CPC, and clicks
+ * are inputs, not eBay’s Promoted Listings attribution.
+ */
+export function comparePromotedAdvanced(input) {
+  const listedPrice = optionalNumber(input.price, 'Item price');
+  if (listedPrice === undefined) {
+    throw new Error('Item price must be a non-negative number');
+  }
+
+  const cpc = optionalNumber(input.advancedCpc, 'Promoted Listings Advanced CPC', DEFAULT_ADVANCED_CPC);
+  const clicks = optionalNumber(input.advancedClicks, 'Promoted Listings Advanced clicks', DEFAULT_ADVANCED_CLICKS);
+  if (!Number.isInteger(clicks)) {
+    throw new Error('Promoted Listings Advanced clicks must be a whole number');
+  }
+  const extraOrders = optionalNumber(
+    input.advancedExtraOrders,
+    'Extra Advanced orders',
+    DEFAULT_ADVANCED_EXTRA_ORDERS,
+  );
+  const listingPromotedRate = optionalNumber(input.promotedRate, 'Promoted listings rate', 0);
+  const advancedPromotedRate = requiredPercent(
+    input.advancedPromotedRate,
+    'Advanced sale promoted rate',
+    listingPromotedRate,
+  );
+  const monthlyCampaigns = optionalNumber(
+    input.monthlyAdvancedCampaigns,
+    'Monthly Advanced campaigns',
+    DEFAULT_MONTHLY_ADVANCED_CAMPAIGNS,
+  );
+
+  const adSpend = cpc * clicks;
+  const listing = calculateOrder(input);
+  const extraSale = calculateOrder({ ...input, promotedRate: advancedPromotedRate });
+  const extraSalesProfit = extraSale.expectedProfit * extraOrders;
+  const extraSalesCompleted = extraSale.profit * extraOrders;
+
+  const skip = advancedRow({
+    id: 'skip',
+    label: 'Skip Promoted Listings Advanced',
+    extraOrders: 0,
+    clicks: 0,
+    cpc,
+    adSpend: 0,
+    extraSalesProfit: 0,
+    completedProfit: listing.profit,
+    expectedProfit: listing.expectedProfit,
+    promotedRate: listingPromotedRate,
+  });
+  const advanced = advancedRow({
+    id: 'advanced',
+    label: 'Add Promoted Listings Advanced',
+    extraOrders,
+    clicks,
+    cpc,
+    adSpend,
+    extraSalesProfit,
+    completedProfit: listing.profit + extraSalesCompleted - adSpend,
+    expectedProfit: listing.expectedProfit + extraSalesProfit - adSpend,
+    promotedRate: advancedPromotedRate,
+  });
+  skip.expectedProfitDelta = skip.expectedProfit - advanced.expectedProfit;
+  advanced.expectedProfitDelta = advanced.expectedProfit - skip.expectedProfit;
+
+  const winner = advanced.expectedProfit > skip.expectedProfit + 1e-9
+    ? 'advanced'
+    : advanced.expectedProfit < skip.expectedProfit - 1e-9
+      ? 'skip'
+      : 'tie';
+
+  let breakEvenExtraOrders = Infinity;
+  if (extraSale.expectedProfit > 1e-12) {
+    breakEvenExtraOrders = adSpend / extraSale.expectedProfit;
+  } else if (adSpend <= 1e-12) {
+    breakEvenExtraOrders = 0;
+  }
+
+  const breakEvenAdSpend = extraOrders * extraSale.expectedProfit;
+  const breakEvenCpc = clicks > 1e-12 ? breakEvenAdSpend / clicks : Infinity;
+  const breakEvenClicks = cpc > 1e-12 ? breakEvenAdSpend / cpc : Infinity;
+  const costPerExtraSale = extraOrders > 1e-12 ? adSpend / extraOrders : Infinity;
+  const conversionPct = clicks > 1e-12 ? extraOrders / clicks * 100 : 0;
+  const breakEvenConversionPct = clicks > 1e-12 && Number.isFinite(breakEvenExtraOrders)
+    ? breakEvenExtraOrders / clicks * 100
+    : Infinity;
+  const noLiftExpectedProfit = listing.expectedProfit - adSpend;
+
+  return {
+    rows: [skip, advanced],
+    skip,
+    advanced,
+    winner,
+    cpc,
+    clicks,
+    adSpend,
+    extraOrders,
+    advancedPromotedRate,
+    listingPromotedRate,
+    extraSaleExpectedProfit: extraSale.expectedProfit,
+    extraSaleCompletedProfit: extraSale.profit,
+    monthlyCampaigns,
+    extraKeptOnAdvanced: advanced.expectedProfit - skip.expectedProfit,
+    monthlyExtraOnAdvanced: (advanced.expectedProfit - skip.expectedProfit) * monthlyCampaigns,
+    breakEvenExtraOrders,
+    breakEvenAdSpend,
+    breakEvenCpc,
+    breakEvenClicks,
+    costPerExtraSale,
+    conversionPct,
+    breakEvenConversionPct,
+    noLiftExpectedProfit,
+    listingExpectedProfit: listing.expectedProfit,
+    listingCompletedProfit: listing.profit,
+  };
+}
+
+export function promotedAdvancedNote(comparison) {
+  if (!comparison?.skip || !comparison?.advanced) {
+    throw new Error('Promoted Listings Advanced comparison is missing rows');
+  }
+  const money = (value) => {
+    const sign = value < 0 ? '-' : '';
+    return `${sign}$${Math.abs(value).toFixed(2)}`;
+  };
+  const { skip, advanced } = comparison;
+  const gap = money(Math.abs(advanced.expectedProfit - skip.expectedProfit));
+  const ahead = advanced.expectedProfit >= skip.expectedProfit ? 'more' : 'less';
+  const skipLine = `Skip Promoted Listings Advanced. The listing you already have expects ${money(skip.expectedProfit)} after the typed return rate.`;
+  const advancedLine = `A ${money(comparison.cpc)} CPC campaign on ${comparison.clicks} click${comparison.clicks === 1 ? '' : 's'} (${money(comparison.adSpend)} billed either way) that produces ${comparison.extraOrders} extra sale${comparison.extraOrders === 1 ? '' : 's'} expects ${money(advanced.expectedProfit)} after that spend — ${gap} ${ahead}.`;
+  const drag = ` With no extra sales the same clicks leave ${money(comparison.noLiftExpectedProfit)} (${money(comparison.adSpend)} less than skip).`;
+  const floor = Number.isFinite(comparison.breakEvenExtraOrders)
+    ? ` Extra sales have to stay at about ${comparison.breakEvenExtraOrders.toFixed(2)} before Advanced matches skip.`
+    : ' No extra-sale count on these rates can match skip.';
+  return `${skipLine} ${advancedLine}${drag}${floor}`;
+}
+
+export function promotedStandardNote(comparison) {
+  if (!comparison?.skip || !comparison?.promote) {
+    throw new Error('Promoted Listings Standard comparison is missing rows');
+  }
+  const money = (value) => {
+    const sign = value < 0 ? '-' : '';
+    return `${sign}$${Math.abs(value).toFixed(2)}`;
+  };
+  const { skip, promote } = comparison;
+  const gap = money(Math.abs(promote.expectedProfit - skip.expectedProfit));
+  const ahead = promote.expectedProfit >= skip.expectedProfit ? 'more' : 'less';
+  const skipLine = `Skip Promoted Listings. The sale you already have expects ${money(skip.expectedProfit)} after the typed return rate.`;
+  const promoteLine = `A ${comparison.promotedRate}% Standard campaign that produces ${comparison.extraOrders} extra sale${comparison.extraOrders === 1 ? '' : 's'} expects ${money(promote.expectedProfit)} after the ad cut — ${gap} ${ahead}.`;
+  const drag = ` With no extra sales the same rate leaves ${money(comparison.noLiftExpectedProfit)} (${money(comparison.adDragOnExistingSale)} less than skip).`;
+  const floor = Number.isFinite(comparison.breakEvenExtraOrders)
+    ? ` Extra sales have to stay at about ${comparison.breakEvenExtraOrders.toFixed(2)} before Standard matches skip.`
+    : ' No extra-sale count on these rates can match skip.';
+  return `${skipLine} ${promoteLine}${drag}${floor}`;
 }
 
 export function promotedOffsiteNote(comparison) {
@@ -3192,4 +3635,1631 @@ export function managedReturnsNote(comparison) {
     return `Managed Returns and your own label leave the same expected profit on these rates.${buyer}`;
   }
   return `${feeLine}${floor}${buyer}`;
+}
+
+/**
+ * Illustrative Global Shipping Program defaults. A $40 listing that
+ * already ships domestically for $6/$5 still usually keeps more
+ * leftover through the hub than buying an $18 international label,
+ * even after GSP sticker-shock sell-through. Postage, the extra
+ * international fee, and the claim rate are inputs, not eBay
+ * invoice policy.
+ */
+export const DEFAULT_GSP_RETURN_RATE = 6;
+export const DEFAULT_GSP_SELL_THROUGH = 40;
+export const DEFAULT_SELF_SHIP_SHIPPING_CHARGED = 22;
+export const DEFAULT_SELF_SHIP_SHIPPING_COST = 18;
+export const DEFAULT_SELF_SHIP_RETURN_SHIPPING_COST = 18;
+export const DEFAULT_SELF_SHIP_INTL_FEE_RATE = 1.65;
+export const DEFAULT_SELF_SHIP_RETURN_RATE = 10;
+export const DEFAULT_SELF_SHIP_CLAIM_RATE = 8;
+export const DEFAULT_SELF_SHIP_SELL_THROUGH = 55;
+export const DEFAULT_MONTHLY_GSP_LISTINGS = 20;
+
+function globalShippingRow({
+  id,
+  label,
+  sellThroughPct,
+  shippingCharged,
+  postageAndPack,
+  intlFeeRate,
+  lossRatePercent,
+  lossKind,
+  soldExpectedProfit,
+  completedProfit,
+  expectedProfit,
+}) {
+  return {
+    id,
+    label,
+    sellThroughPct,
+    shippingCharged,
+    postageAndPack,
+    intlFeeRate,
+    lossRatePercent,
+    lossKind,
+    soldExpectedProfit,
+    completedProfit,
+    expectedProfit,
+    expectedProfitDelta: 0,
+  };
+}
+
+/**
+ * Same listed SKU, one international buyer, two ways to get the
+ * box there: enable Global Shipping Program and ship to the US
+ * hub, or collect international postage and buy the label yourself.
+ *
+ *   - GSP — seller revenue stays item + the domestic shipping they
+ *     already charge. Buyer pays the GSP international bill to
+ *     eBay, not to you. You buy a domestic hub label. The extra
+ *     international fee is treated as 0% because the sale is
+ *     handed to a US hub. After intake, lost-in-transit claims are
+ *     GSP's. You still take a typed GSP return rate.
+ *   - You-ship — you collect international postage, pay the
+ *     international label, and take the typed extra international
+ *     fee. A typed claim rate is an item-not-received or customs
+ *     loss: cost of goods and postage stay gone. That is not a
+ *     return (the item does not come back).
+ *
+ * This is not "should I offer international at all"
+ * (compareInternational — domestic vs worldwide at this list
+ * price). That question is whether turning worldwide on still
+ * leaves a profit. This table assumes an international buyer
+ * already wants the item. Not Standard Envelope (domestic cheap
+ * postage vs a claim), not combined shipping, and not
+ * Authenticity Guarantee (a hub label for authentication).
+ * Rates and postage are inputs, not eBay's live GSP schedule.
+ */
+export function compareGlobalShipping(input) {
+  const listedPrice = optionalNumber(input.price, 'Item price');
+  if (listedPrice === undefined) {
+    throw new Error('Item price must be a non-negative number');
+  }
+
+  const gspReturnRate = requiredPercent(
+    input.gspReturnRatePercent,
+    'GSP return rate',
+    DEFAULT_GSP_RETURN_RATE,
+  );
+  const gspSellThrough = requiredPercent(
+    input.gspSellThroughPct,
+    'GSP sell-through',
+    DEFAULT_GSP_SELL_THROUGH,
+  );
+  const selfShipCharged = optionalNumber(
+    input.selfShipShippingCharged,
+    'Self-ship shipping charged',
+    DEFAULT_SELF_SHIP_SHIPPING_CHARGED,
+  );
+  const selfShipCost = optionalNumber(
+    input.selfShipShippingCost,
+    'Self-ship shipping cost',
+    DEFAULT_SELF_SHIP_SHIPPING_COST,
+  );
+  const selfShipReturnCost = optionalNumber(
+    input.selfShipReturnShippingCost,
+    'Self-ship return shipping',
+    DEFAULT_SELF_SHIP_RETURN_SHIPPING_COST,
+  );
+  const selfShipIntlFee = requiredPercent(
+    input.selfShipIntlFeeRate,
+    'Self-ship international fee',
+    DEFAULT_SELF_SHIP_INTL_FEE_RATE,
+  );
+  const selfShipReturnRate = requiredPercent(
+    input.selfShipReturnRatePercent,
+    'Self-ship return rate',
+    DEFAULT_SELF_SHIP_RETURN_RATE,
+  );
+  const selfShipClaimRate = requiredPercent(
+    input.selfShipClaimRatePercent,
+    'Self-ship claim rate',
+    DEFAULT_SELF_SHIP_CLAIM_RATE,
+  );
+  const selfShipSellThrough = requiredPercent(
+    input.selfShipSellThroughPct,
+    'Self-ship sell-through',
+    DEFAULT_SELF_SHIP_SELL_THROUGH,
+  );
+  const monthlyListings = optionalNumber(
+    input.monthlyGspListings,
+    'Monthly international listings',
+    DEFAULT_MONTHLY_GSP_LISTINGS,
+  );
+
+  const packagingCost = optionalNumber(input.packagingCost, 'Packaging cost', 0);
+  const costOfGoods = optionalNumber(input.costOfGoods, 'Cost of goods', 0);
+  const otherCost = optionalNumber(input.otherCost, 'Other cost', 0);
+  const gspShippingCharged = optionalNumber(input.shippingCharged, 'Shipping charged', 0);
+  const gspShippingCost = optionalNumber(input.shippingCost, 'Shipping cost', 0);
+  const feeRefundOnReturn = requiredPercent(
+    input.feeRefundOnReturnPercent,
+    'Fee refund on return',
+    100,
+  );
+
+  const gspSold = calculateOrder({
+    ...input,
+    intlFeeRate: 0,
+    returnRatePercent: gspReturnRate,
+  });
+  const selfSold = calculateOrder({
+    ...input,
+    shippingCharged: selfShipCharged,
+    shippingCost: selfShipCost,
+    returnShippingCost: selfShipReturnCost,
+    intlFeeRate: selfShipIntlFee,
+    returnRatePercent: selfShipReturnRate,
+  });
+
+  const quantity = selfSold.quantity;
+  const sunkOnClaim = (costOfGoods + selfShipCost + packagingCost + otherCost) * quantity;
+  const unrefundedFees = selfSold.feeTotal * (1 - feeRefundOnReturn / 100);
+  const claimProfit = -sunkOnClaim - unrefundedFees;
+  const claimRateFrac = selfShipClaimRate / 100;
+  const selfAfterClaims = (1 - claimRateFrac) * selfSold.expectedProfit + claimRateFrac * claimProfit;
+
+  const gspPostage = (gspShippingCost + packagingCost) * gspSold.quantity;
+  const selfPostage = (selfShipCost + packagingCost) * quantity;
+
+  const gsp = globalShippingRow({
+    id: 'gsp',
+    label: 'Global Shipping Program',
+    sellThroughPct: gspSellThrough,
+    shippingCharged: gspShippingCharged,
+    postageAndPack: gspPostage,
+    intlFeeRate: 0,
+    lossRatePercent: gspReturnRate,
+    lossKind: 'return',
+    soldExpectedProfit: gspSold.expectedProfit,
+    completedProfit: gspSold.profit,
+    expectedProfit: gspSold.expectedProfit * (gspSellThrough / 100),
+  });
+  const selfShip = globalShippingRow({
+    id: 'self-ship',
+    label: 'You ship internationally',
+    sellThroughPct: selfShipSellThrough,
+    shippingCharged: selfShipCharged,
+    postageAndPack: selfPostage,
+    intlFeeRate: selfShipIntlFee,
+    lossRatePercent: selfShipClaimRate,
+    lossKind: 'claim',
+    soldExpectedProfit: selfAfterClaims,
+    completedProfit: selfSold.profit,
+    expectedProfit: selfAfterClaims * (selfShipSellThrough / 100),
+  });
+  gsp.expectedProfitDelta = gsp.expectedProfit - selfShip.expectedProfit;
+  selfShip.expectedProfitDelta = selfShip.expectedProfit - gsp.expectedProfit;
+
+  const extraKeptOnGsp = gsp.expectedProfit - selfShip.expectedProfit;
+  const winner = extraKeptOnGsp > 1e-9
+    ? 'gsp'
+    : extraKeptOnGsp < -1e-9
+      ? 'self-ship'
+      : 'tie';
+
+  const profitClaimGap = selfSold.expectedProfit - claimProfit;
+  let breakEvenClaimRate = Infinity;
+  if (selfShipSellThrough > 1e-12 && profitClaimGap > 1e-12) {
+    const neededPacked = gsp.expectedProfit / (selfShipSellThrough / 100);
+    const rate = (selfSold.expectedProfit - neededPacked) / profitClaimGap * 100;
+    breakEvenClaimRate = rate < -1e-9 || rate > 100 + 1e-9
+      ? Infinity
+      : Math.max(0, Math.min(100, rate));
+  }
+
+  const breakEvenSelfShipSellThroughPct = selfAfterClaims <= 1e-12
+    ? (gsp.expectedProfit <= 1e-12 ? 0 : Infinity)
+    : (gsp.expectedProfit / selfAfterClaims) * 100;
+
+  const selfAtPostage = (shippingCost) => {
+    const sold = calculateOrder({
+      ...input,
+      shippingCharged: selfShipCharged,
+      shippingCost,
+      returnShippingCost: selfShipReturnCost,
+      intlFeeRate: selfShipIntlFee,
+      returnRatePercent: selfShipReturnRate,
+    });
+    const sunk = (costOfGoods + shippingCost + packagingCost + otherCost) * quantity;
+    const unrefunded = sold.feeTotal * (1 - feeRefundOnReturn / 100);
+    const claim = -sunk - unrefunded;
+    const afterClaims = (1 - claimRateFrac) * sold.expectedProfit + claimRateFrac * claim;
+    return afterClaims * (selfShipSellThrough / 100);
+  };
+  const atZeroPostage = selfAtPostage(0);
+  const atTenPostage = selfAtPostage(10);
+  const postageSlope = (atTenPostage - atZeroPostage) / 10;
+  let breakEvenSelfShipPostage = Infinity;
+  if (Math.abs(postageSlope) > 1e-12) {
+    const neededPostage = (gsp.expectedProfit - atZeroPostage) / postageSlope;
+    breakEvenSelfShipPostage = neededPostage < -1e-9 ? Infinity : neededPostage;
+  }
+
+  return {
+    rows: [gsp, selfShip],
+    gsp,
+    selfShip,
+    winner,
+    gspReturnRate,
+    gspSellThrough,
+    selfShipCharged,
+    selfShipCost,
+    selfShipReturnCost,
+    selfShipIntlFee,
+    selfShipReturnRate,
+    selfShipClaimRate,
+    selfShipSellThrough,
+    claimProfit,
+    monthlyListings,
+    extraKeptOnGsp,
+    extraPackedOnGsp: gsp.soldExpectedProfit - selfShip.soldExpectedProfit,
+    monthlyExtraOnGsp: extraKeptOnGsp * monthlyListings,
+    breakEvenClaimRate,
+    breakEvenSelfShipSellThroughPct,
+    breakEvenSelfShipPostage,
+    gspCompletedProfit: gspSold.profit,
+    selfShipCompletedProfit: selfSold.profit,
+    gspPays: extraKeptOnGsp > 1e-9,
+  };
+}
+
+export function globalShippingNote(comparison) {
+  if (!comparison?.gsp || !comparison?.selfShip) {
+    throw new Error('Global Shipping comparison is missing rows');
+  }
+  const money = (value) => {
+    const sign = value < 0 ? '-' : '';
+    return `${sign}$${Math.abs(value).toFixed(2)}`;
+  };
+  const { gsp, selfShip } = comparison;
+  const packedGap = money(Math.abs(gsp.soldExpectedProfit - selfShip.soldExpectedProfit));
+  const packedAhead = gsp.soldExpectedProfit >= selfShip.soldExpectedProfit ? 'more' : 'less';
+  const stGap = money(Math.abs(gsp.expectedProfit - selfShip.expectedProfit));
+  const stAhead = gsp.expectedProfit >= selfShip.expectedProfit ? 'more' : 'less';
+  const gspLine = `Global Shipping Program, shipping to the hub at ${money(gsp.postageAndPack)} postage and pack with a ${gsp.lossRatePercent}% return rate, expects ${money(gsp.soldExpectedProfit)} leftover after returns.`;
+  const selfLine = ` You-ship, collecting ${money(selfShip.shippingCharged)} postage, paying ${money(selfShip.postageAndPack)} for the international label and pack, a ${comparison.selfShipIntlFee}% international fee, a ${comparison.selfShipReturnRate}% return rate, and an ${selfShip.lossRatePercent}% item-not-received claim rate, expects ${money(selfShip.soldExpectedProfit)} leftover — ${packedGap} ${packedAhead} on a completed international sale.`;
+  const closeLine = ` At ${gsp.sellThroughPct}% GSP sell-through versus ${selfShip.sellThroughPct}% when you set your own international rate, GSP expects ${money(gsp.expectedProfit)} and you-ship expects ${money(selfShip.expectedProfit)} — ${stGap} ${stAhead}.`;
+  const claim = Number.isFinite(comparison.breakEvenClaimRate)
+    ? ` Claims have to stay at about ${comparison.breakEvenClaimRate.toFixed(1)}% before you-ship matches GSP after sell-through.`
+    : ' No claim rate on these postage figures can make you-ship match GSP after sell-through.';
+  const stFloor = Number.isFinite(comparison.breakEvenSelfShipSellThroughPct)
+    ? ` You-ship has to convert about ${comparison.breakEvenSelfShipSellThroughPct.toFixed(1)}% of the time before it matches GSP after sell-through.`
+    : '';
+  return `${gspLine}${selfLine}${closeLine}${claim}${stFloor}`;
+}
+
+/**
+ * Illustrative store-subscription assumptions. Monthly fee and the
+ * final-value rate each tier unlocks are inputs — not eBay's current
+ * published store prices. $7.95 / 12.95%, $27.95 / 12.55%, $74.95 /
+ * 11.85% is a Starter / Basic / Premium-shaped mix a seller overwrites
+ * from their own invoice.
+ */
+export const STORE_TIER_PRESETS = [
+  { id: 'starter', label: 'Starter (example)', monthlyFee: 7.95, finalValueRate: 12.95 },
+  { id: 'basic', label: 'Basic (example)', monthlyFee: 27.95, finalValueRate: 12.55 },
+  { id: 'premium', label: 'Premium (example)', monthlyFee: 74.95, finalValueRate: 11.85 },
+];
+export const DEFAULT_MONTHLY_STORE_ORDERS = 40;
+export const DEFAULT_MONTHLY_STORE_FEE = 0;
+
+/**
+ * Orders needed at this order's revenue for a cheaper final-value
+ * rate to cover the extra monthly subscription. Infinity when the
+ * store rate is not cheaper — paying more per order never recovers
+ * a subscription.
+ */
+export function storeBreakEvenOrders({
+  revenue,
+  currentFinalValueRate,
+  storeFinalValueRate,
+  monthlyFee,
+}) {
+  const orderRevenue = optionalNumber(revenue, 'Order revenue', 0);
+  const currentRate = optionalNumber(currentFinalValueRate, 'Current final value fee rate', 0);
+  const storeRate = optionalNumber(storeFinalValueRate, 'Store final value fee rate', 0);
+  const fee = optionalNumber(monthlyFee, 'Store monthly fee', 0);
+  const savingsPerOrder = orderRevenue * (currentRate - storeRate) / 100;
+  if (savingsPerOrder <= 1e-12) return Infinity;
+  return fee / savingsPerOrder;
+}
+
+/**
+ * Same SKU, the typed final-value rate versus example store tiers.
+ *
+ *   - No store / current rate — the headline final-value percent
+ *     minus any subscription the seller already pays.
+ *   - Starter / Basic / Premium — that same order at the example
+ *     store rate, then the monthly subscription is taken out of
+ *     monthly leftover. The subscription stays off per-order
+ *     invested cash so ROI on one sale stays honest.
+ *
+ * Complementary to Promoted Listings (a percent of a completed
+ * sale) and Top Rated Plus (a fee discount for free returns).
+ * Fees and rates are inputs, not eBay store policy. Complementary
+ * to Global Shipping (#1671), incoming Best Offer, and
+ * compareInternational (domestic vs worldwide at this list).
+ */
+export function compareStoreTiers(input, tiers = STORE_TIER_PRESETS) {
+  if (!Array.isArray(tiers) || tiers.length === 0) {
+    throw new Error('At least one store tier is required');
+  }
+  const listedPrice = optionalNumber(input.price, 'Item price');
+  if (listedPrice === undefined) {
+    throw new Error('Item price must be a non-negative number');
+  }
+
+  const monthlyOrders = optionalNumber(
+    firstPresent(input.monthlyStoreOrders, input.monthlyOrders),
+    'Monthly store orders',
+    DEFAULT_MONTHLY_STORE_ORDERS,
+  );
+  if (!Number.isInteger(monthlyOrders) || monthlyOrders < 1) {
+    throw new Error('Monthly store orders must be a whole number of at least 1');
+  }
+  const currentStoreFee = optionalNumber(
+    input.monthlyStoreFee,
+    'Current monthly store fee',
+    DEFAULT_MONTHLY_STORE_FEE,
+  );
+  const currentRate = optionalNumber(input.finalValueRate, 'Final value fee rate', 13.25);
+
+  const currentOrder = calculateOrder(input);
+  const currentMonthlyProfit = currentOrder.profit * monthlyOrders - currentStoreFee;
+
+  const makeRow = ({ id, label, monthlyFee, finalValueRate, order, isCurrent }) => {
+    const monthlyProfit = order.profit * monthlyOrders - monthlyFee;
+    return {
+      id,
+      label,
+      monthlyFee,
+      finalValueRate,
+      profit: order.profit,
+      feeTotal: order.feeTotal,
+      revenue: order.revenue,
+      monthlyProfit,
+      monthlyDelta: monthlyProfit - currentMonthlyProfit,
+      breakEvenOrders: isCurrent
+        ? 0
+        : storeBreakEvenOrders({
+          revenue: order.revenue,
+          currentFinalValueRate: currentRate,
+          storeFinalValueRate: finalValueRate,
+          monthlyFee,
+        }),
+      isCurrent,
+    };
+  };
+
+  const current = makeRow({
+    id: 'current',
+    label: 'No store / current rate',
+    monthlyFee: currentStoreFee,
+    finalValueRate: currentRate,
+    order: currentOrder,
+    isCurrent: true,
+  });
+
+  const storeRows = [];
+  for (const tier of tiers) {
+    const monthlyFee = optionalNumber(tier.monthlyFee, 'Store monthly fee', 0);
+    const finalValueRate = optionalNumber(tier.finalValueRate, 'Store final value fee rate', 0);
+    if (finalValueRate === currentRate && monthlyFee === currentStoreFee) continue;
+    const order = calculateOrder({ ...input, finalValueRate });
+    storeRows.push(makeRow({
+      id: String(tier.id ?? finalValueRate),
+      label: String(tier.label ?? `${finalValueRate}% store`),
+      monthlyFee,
+      finalValueRate,
+      order,
+      isCurrent: false,
+    }));
+  }
+
+  const rows = [current, ...storeRows].map((row) => ({
+    ...row,
+    vsCurrent: row.monthlyProfit - currentMonthlyProfit,
+  }));
+  const maxProfit = Math.max(...rows.map((row) => row.monthlyProfit));
+  const leaders = rows.filter((row) => Math.abs(row.monthlyProfit - maxProfit) < 1e-9);
+  const winner = leaders.length === 1 ? leaders[0].id : 'tie';
+
+  const starter = rows.find((row) => row.id === 'starter');
+  const basic = rows.find((row) => row.id === 'basic');
+  const premium = rows.find((row) => row.id === 'premium');
+  const extraKeptOnStarter = starter ? starter.monthlyProfit - currentMonthlyProfit : 0;
+
+  return {
+    rows,
+    current: rows[0],
+    starter,
+    basic,
+    premium,
+    monthlyOrders,
+    currentStoreFee,
+    currentRate,
+    extraKeptOnStarter,
+    extraKeptOnBasic: basic ? basic.monthlyProfit - currentMonthlyProfit : 0,
+    extraKeptOnPremium: premium ? premium.monthlyProfit - currentMonthlyProfit : 0,
+    winner,
+    summary: storeTiersNote({
+      winner,
+      currentRate,
+      extraKeptOnStarter,
+      starter,
+    }),
+  };
+}
+
+export function storeTiersNote(comparison) {
+  if (!comparison || comparison.extraKeptOnStarter === undefined || !comparison.starter) {
+    throw new Error('Store comparison is missing rows');
+  }
+  const money = (value) => {
+    const sign = value < 0 ? '-' : '';
+    return `${sign}$${Math.abs(value).toFixed(2)}`;
+  };
+  const { winner, currentRate, extraKeptOnStarter, starter } = comparison;
+  const gap = money(Math.abs(extraKeptOnStarter));
+  const ahead = extraKeptOnStarter >= 0 ? 'more' : 'less';
+  const feeLine = `Starter at ${money(starter.monthlyFee)} / ${starter.finalValueRate}% keeps ${gap} ${ahead} than staying at ${currentRate}% with no subscription.`;
+  const floor = Number.isFinite(starter.breakEvenOrders)
+    ? ` Starter still ties around ${starter.breakEvenOrders.toFixed(0)} of these sales.`
+    : ' No order count recovers Starter when its final-value rate is not cheaper.';
+  if (winner === 'tie') {
+    return `Starter and your current rate leave the same monthly leftover on these fees.${floor}`;
+  }
+  return `${feeLine}${floor}`;
+}
+
+export const DEFAULT_INCOMING_BEST_OFFER = 34;
+export const DEFAULT_INCOMING_WAIT_CHANCE = 50;
+
+function pricedOrder(input, price) {
+  const rounded = Math.round(Number(price) * 100) / 100;
+  return { price: rounded, ...calculateOrder({ ...input, price: rounded }) };
+}
+
+/**
+ * A buyer sent a Best Offer. Compare taking it now against
+ * waiting for list (list profit × the typed chance the item
+ * still sells at list), a midpoint counter, and the
+ * target-margin price.
+ *
+ * Waiting treats a miss as $0 this cycle — the item is still
+ * sitting, cash still tied up — rather than assuming a later
+ * offer. The offer is in hand: accept keeps that profit. This
+ * is not a seller-initiated offer (you naming a discount to
+ * watchers) and not the repricing table (a list move without
+ * a typed wait chance). Dedicated incomingBestOffer /
+ * incomingWaitChancePct keep the headline sale at list.
+ *
+ * Complementary to compareSellerInitiatedOffer and
+ * compareInternational (domestic vs worldwide at this list).
+ */
+export function compareBestOffer(input, offerAmount, listChance) {
+  const listedPrice = optionalNumber(input.price, 'Item price');
+  if (listedPrice === undefined) {
+    throw new Error('Item price must be a non-negative number');
+  }
+
+  const offerPrice = optionalNumber(
+    firstPresent(offerAmount, input.incomingBestOffer, input.bestOffer),
+    'Best offer',
+    DEFAULT_INCOMING_BEST_OFFER,
+  );
+  const chancePct = requiredPercent(
+    firstPresent(listChance, input.incomingWaitChancePct, input.listChance),
+    'Chance of selling at list',
+    DEFAULT_INCOMING_WAIT_CHANCE,
+  );
+
+  const listing = pricedOrder(input, listedPrice);
+  const offer = pricedOrder(input, offerPrice);
+  const midpoint = pricedOrder(input, (listing.price + offerPrice) / 2);
+  const target = Number.isFinite(listing.targetMarginPrice)
+    ? pricedOrder(input, listing.targetMarginPrice)
+    : null;
+  const expectedWaitProfit = listing.profit * (chancePct / 100);
+  const extraKeptOnAccept = offer.profit - expectedWaitProfit;
+  const winner = extraKeptOnAccept > 1e-9
+    ? 'offer'
+    : extraKeptOnAccept < -1e-9
+      ? 'wait'
+      : 'tie';
+  const waitChanceCeiling = listing.profit <= 1e-12
+    ? (offer.profit <= 1e-12 ? 0 : Infinity)
+    : (offer.profit / listing.profit) * 100;
+
+  const wait = {
+    id: 'wait',
+    label: 'Wait for list',
+    kind: 'wait',
+    price: listing.price,
+    profit: listing.profit,
+    margin: listing.margin,
+    soldProfit: listing.profit,
+    expectedProfit: expectedWaitProfit,
+    sellThroughPct: chancePct,
+    expectedProfitDelta: 0,
+  };
+
+  const comparison = {
+    listing,
+    offer,
+    midpoint,
+    target,
+    wait,
+    cashLeftOnTable: listing.profit - offer.profit,
+    aboveBreakEven: offer.profit >= -1e-9,
+    meetsTargetMargin: offer.margin + 1e-9 >= Number(input.targetMargin ?? 0),
+    chanceOfFullPricePct: chancePct,
+    expectedWaitProfit,
+    acceptBeatsWait: extraKeptOnAccept > 1e-9,
+    waitGap: extraKeptOnAccept,
+    extraKeptOnAccept,
+    waitChanceCeiling,
+    winner,
+  };
+  comparison.rows = bestOfferRows(comparison);
+  comparison.summary = bestOfferNote(comparison);
+  return comparison;
+}
+
+export function bestOfferRows(comparison) {
+  if (!comparison?.listing || !comparison?.offer || !comparison?.wait) {
+    throw new Error('Best Offer comparison is missing rows');
+  }
+  const rows = [comparison.wait, {
+    ...comparison.offer,
+    id: 'offer',
+    label: 'This offer',
+    kind: 'offer',
+    soldProfit: comparison.offer.profit,
+    expectedProfit: comparison.offer.profit,
+    sellThroughPct: 100,
+    expectedProfitDelta: comparison.extraKeptOnAccept,
+  }];
+  if (
+    comparison.midpoint
+    && comparison.midpoint.price !== comparison.offer.price
+    && comparison.midpoint.price !== comparison.listing.price
+  ) {
+    rows.push({
+      ...comparison.midpoint,
+      id: 'midpoint',
+      label: 'Midpoint counter',
+      kind: 'midpoint',
+      soldProfit: comparison.midpoint.profit,
+      expectedProfit: comparison.midpoint.profit,
+      sellThroughPct: 100,
+      expectedProfitDelta: comparison.midpoint.profit - comparison.expectedWaitProfit,
+    });
+  }
+  if (
+    comparison.target
+    && comparison.target.price !== comparison.offer.price
+    && comparison.target.price !== comparison.listing.price
+  ) {
+    rows.push({
+      ...comparison.target,
+      id: 'target',
+      label: 'Holds your target margin',
+      kind: 'target',
+      soldProfit: comparison.target.profit,
+      expectedProfit: comparison.target.profit,
+      sellThroughPct: 100,
+      expectedProfitDelta: comparison.target.profit - comparison.expectedWaitProfit,
+    });
+  }
+  return rows;
+}
+
+export function bestOfferNote(comparison) {
+  if (!comparison?.listing || !comparison?.offer || comparison.extraKeptOnAccept === undefined) {
+    throw new Error('Best Offer comparison is missing rows');
+  }
+  const money = (value) => {
+    const sign = value < 0 ? '-' : '';
+    return `${sign}$${Math.abs(value).toFixed(2)}`;
+  };
+  const wait = comparison.acceptBeatsWait
+    ? ` Accepting keeps ${money(Math.abs(comparison.extraKeptOnAccept))} more than waiting if you only have a ${comparison.chanceOfFullPricePct}% chance of the list price.`
+    : ` Waiting still has the higher expected leftover if you really have a ${comparison.chanceOfFullPricePct}% chance of selling at list.`;
+  const ceiling = Number.isFinite(comparison.waitChanceCeiling) && comparison.waitChanceCeiling >= 0
+    ? ` Waiting still ties at about a ${comparison.waitChanceCeiling.toFixed(1)}% chance of selling at list.`
+    : comparison.offer.profit < 0
+      ? ' No chance of list makes this losing offer match waiting.'
+      : '';
+  if (!comparison.aboveBreakEven) {
+    const floor = Number.isFinite(comparison.listing.breakEvenPrice)
+      ? money(comparison.listing.breakEvenPrice)
+      : 'a price that covers your fees';
+    return `This ${money(comparison.offer.price)} offer loses ${money(-comparison.offer.profit)}. Counter at least ${floor} to stop losing money.${wait}${ceiling}`;
+  }
+  if (!comparison.meetsTargetMargin && comparison.target) {
+    return `This ${money(comparison.offer.price)} offer still pays ${money(comparison.offer.profit)} but misses your target margin. Counter ${money(comparison.target.price)} to hold it.${wait}${ceiling}`;
+  }
+  return `This ${money(comparison.offer.price)} offer still leaves ${money(comparison.offer.profit)} (${comparison.offer.margin.toFixed(1)}% margin), ${money(comparison.cashLeftOnTable)} less than list.${wait}${ceiling}`;
+}
+
+export function bestOfferSummary(comparison) {
+  return bestOfferNote(comparison);
+}
+
+/**
+ * Illustrative free-shipping extras. 55% vs 70% is a 15-point
+ * search-rank lift — both typed, not scraped from Seller Hub.
+ * Leaving freeShipPrice empty bakes the typed shipping charged
+ * into the item, which on eBay is cash-identical per completed
+ * sale. Forty listings is a placeholder volume, not a forecast.
+ */
+export const DEFAULT_BUYER_PAYS_SHIP_SELL_THROUGH = 55;
+export const DEFAULT_FREE_SHIP_SELL_THROUGH = 70;
+export const DEFAULT_MONTHLY_FREE_SHIP_LISTINGS = 40;
+
+function freeShipRow({
+  id,
+  label,
+  price,
+  shippingCharged,
+  sellThroughPct,
+  sold,
+}) {
+  return {
+    id,
+    label,
+    price,
+    shippingCharged,
+    buyerPays: price + shippingCharged,
+    sellThroughPct,
+    completedProfit: sold.profit,
+    soldExpectedProfit: sold.expectedProfit,
+    soldFees: sold.feeTotal,
+    expectedProfit: sold.expectedProfit * (sellThroughPct / 100),
+    expectedProfitDelta: 0,
+  };
+}
+
+/**
+ * Same SKU, two ways to handle outbound postage: charge the
+ * buyer the typed shipping, or offer free shipping at a typed
+ * free-ship list and still buy the label.
+ *
+ * eBay final-value fee sits on item plus shipping. Folding the
+ * exact shipping charged into the item therefore leaves the
+ * same completed-sale leftover — unlike Reverb, where marketplace
+ * fee sits on the item only. The decision is sell-through versus
+ * under-baking the list.
+ *
+ * Complementary to local pickup (meetup vs the label, no-show),
+ * combined shipping (two already-sold items), Standard Envelope
+ * (tracked vs ESE), quantity discount (N units, one box), and
+ * seller coupon (public code, not postage). Global Shipping (#1671) is a hub label versus you-ship
+ * international postage. Store subscription (#1672) is a monthly fee
+ * versus the no-store rate. Incoming Best Offer (#1673) is take-the-offer
+ * versus waiting. Domestic vs worldwide (#1676) is the extra international fee and postage you absorb — not whether to bake shipping into a domestic list. Rates are inputs, not eBay search
+ * ranking.
+ */
+export function compareFreeShipping(input) {
+  const listedPrice = optionalNumber(input.price, 'Item price');
+  if (listedPrice === undefined) {
+    throw new Error('Item price must be a non-negative number');
+  }
+
+  const shippingCharged = optionalNumber(input.shippingCharged, 'Shipping charged', 0);
+  const bakeInPrice = Math.round((listedPrice + shippingCharged) * 100) / 100;
+  const freeShipPrice = optionalNumber(
+    input.freeShipPrice,
+    'Free-shipping list price',
+    bakeInPrice,
+  );
+  const buyerPaysSellThroughPct = requiredPercent(
+    input.buyerPaysSellThroughPct,
+    'Buyer-pays sell-through',
+    DEFAULT_BUYER_PAYS_SHIP_SELL_THROUGH,
+  );
+  const freeShipSellThroughPct = requiredPercent(
+    input.freeShipSellThroughPct,
+    'Free-shipping sell-through',
+    DEFAULT_FREE_SHIP_SELL_THROUGH,
+  );
+  const monthlyFreeShipListings = optionalNumber(
+    input.monthlyFreeShipListings,
+    'Monthly free-shipping listings',
+    DEFAULT_MONTHLY_FREE_SHIP_LISTINGS,
+  );
+
+  const buyerSold = calculateOrder({ ...input, quantity: 1 });
+  const freeSold = calculateOrder({
+    ...input,
+    quantity: 1,
+    price: freeShipPrice,
+    shippingCharged: 0,
+  });
+
+  const buyerPays = freeShipRow({
+    id: 'buyer_pays',
+    label: 'Buyer pays shipping',
+    price: listedPrice,
+    shippingCharged,
+    sellThroughPct: buyerPaysSellThroughPct,
+    sold: buyerSold,
+  });
+  const freeShip = freeShipRow({
+    id: 'free_ship',
+    label: 'Offer free shipping',
+    price: freeShipPrice,
+    shippingCharged: 0,
+    sellThroughPct: freeShipSellThroughPct,
+    sold: freeSold,
+  });
+  buyerPays.expectedProfitDelta = buyerPays.expectedProfit - freeShip.expectedProfit;
+  freeShip.expectedProfitDelta = freeShip.expectedProfit - buyerPays.expectedProfit;
+
+  const extraKeptOnFreeShip = freeShip.expectedProfit - buyerPays.expectedProfit;
+  const winner = extraKeptOnFreeShip > 1e-9
+    ? 'free_ship'
+    : extraKeptOnFreeShip < -1e-9
+      ? 'buyer_pays'
+      : 'tie';
+
+  const breakEvenFreeShipSellThroughPct = freeSold.expectedProfit <= 1e-12
+    ? (buyerPays.expectedProfit <= 1e-12 ? 0 : Infinity)
+    : (buyerPays.expectedProfit / freeSold.expectedProfit) * 100;
+
+  const targetSoldExpected = freeShipSellThroughPct <= 1e-12
+    ? Infinity
+    : buyerPays.expectedProfit / (freeShipSellThroughPct / 100);
+  const promotedRate = optionalNumber(input.promotedRate, 'Promoted listings rate', 0);
+  const breakEvenFreeShipPrice = !Number.isFinite(targetSoldExpected)
+    ? Infinity
+    : priceForExpectedProfit(
+      { ...input, shippingCharged: 0 },
+      promotedRate,
+      targetSoldExpected,
+    );
+
+  const comparison = {
+    rows: [buyerPays, freeShip],
+    buyerPays,
+    freeShip,
+    winner,
+    bakeInPrice,
+    freeShipPrice,
+    underBake: bakeInPrice - freeShipPrice,
+    buyerPaysSellThroughPct,
+    freeShipSellThroughPct,
+    monthlyFreeShipListings,
+    extraKeptOnFreeShip,
+    extraPackedOnFreeShip: freeShip.soldExpectedProfit - buyerPays.soldExpectedProfit,
+    monthlyExtraOnFreeShip: extraKeptOnFreeShip * monthlyFreeShipListings,
+    breakEvenFreeShipSellThroughPct,
+    breakEvenFreeShipPrice,
+    freeShipPays: extraKeptOnFreeShip > 1e-9,
+  };
+  comparison.summary = freeShippingNote(comparison);
+  return comparison;
+}
+
+export function freeShippingNote(comparison) {
+  if (!comparison?.buyerPays || !comparison?.freeShip) {
+    throw new Error('Free-shipping comparison is missing rows');
+  }
+  const money = (value) => {
+    const sign = value < 0 ? '-' : '';
+    return `${sign}$${Math.abs(value).toFixed(2)}`;
+  };
+  const { buyerPays, freeShip } = comparison;
+  const stGap = money(Math.abs(freeShip.expectedProfit - buyerPays.expectedProfit));
+  const stAhead = freeShip.expectedProfit >= buyerPays.expectedProfit ? 'more' : 'less';
+  const packedGap = money(Math.abs(freeShip.soldExpectedProfit - buyerPays.soldExpectedProfit));
+  const packedAhead = freeShip.soldExpectedProfit >= buyerPays.soldExpectedProfit ? 'more' : 'less';
+  const baked = Math.abs(comparison.underBake) <= 1e-9;
+  const bakeLine = baked
+    ? ` Free shipping at ${money(freeShip.price)} bakes in the ${money(comparison.bakeInPrice - buyerPays.price)} charged, so a completed sale still expects ${money(freeShip.soldExpectedProfit)} — the same leftover, because eBay final-value fee sits on item plus shipping.`
+    : ` Free shipping at ${money(freeShip.price)} is ${money(Math.abs(comparison.underBake))} ${comparison.underBake > 0 ? 'under' : 'over'} the ${money(comparison.bakeInPrice)} bake-in, so a completed sale expects ${money(freeShip.soldExpectedProfit)} — ${packedGap} ${packedAhead}.`;
+  const buyerLine = `Buyer-pays shipping at ${money(buyerPays.price)} plus ${money(buyerPays.shippingCharged)}, with ${buyerPays.sellThroughPct}% sell-through, expects ${money(buyerPays.expectedProfit)} leftover after the typed return rate.`;
+  const freeLine = ` At ${freeShip.sellThroughPct}% free-shipping sell-through, free shipping expects ${money(freeShip.expectedProfit)} — ${stGap} ${stAhead}.`;
+  const stFloor = Number.isFinite(comparison.breakEvenFreeShipSellThroughPct)
+    ? ` Free shipping has to convert about ${comparison.breakEvenFreeShipSellThroughPct.toFixed(1)}% of the time before it matches buyer-pays after sell-through.`
+    : ' No free-shipping sell-through on these rates can match buyer-pays.';
+  const priceFloor = Number.isFinite(comparison.breakEvenFreeShipPrice)
+    ? ` The free-ship list that matches buyer-pays leftover at ${comparison.freeShipSellThroughPct}% sell-through is ${money(comparison.breakEvenFreeShipPrice)}.`
+    : '';
+  return `${buyerLine}${bakeLine}${freeLine}${stFloor}${priceFloor}`;
+}
+
+/**
+ * Illustrative international-fee and extra-postage defaults.
+ * Sellers overwrite both from their own fee preview and label
+ * quotes. The form starts the headline international fee at 0
+ * so a domestic order stays the result until they type a rate;
+ * the comparison then uses 1.65% so "what if I turn worldwide
+ * on" is a number instead of a blank row. $12 extra postage is
+ * a small-parcel add-on, not a live rate table.
+ */
+export const ILLUSTRATIVE_INTL_FEE_RATE = 1.65;
+export const DEFAULT_INTL_EXTRA_SHIPPING = 12;
+
+function priceForCompletedProfit(input, targetProfit) {
+  const atZero = calculateOrder({ ...input, price: 0 });
+  const atHundred = calculateOrder({ ...input, price: 100 });
+  const slope = (atHundred.profit - atZero.profit) / 100;
+  if (Math.abs(slope) <= 1e-12) return Infinity;
+  const price = (targetProfit - atZero.profit) / slope;
+  if (!Number.isFinite(price)) return Infinity;
+  return Math.max(0, Math.round(price * 100) / 100);
+}
+
+/**
+ * Same SKU, three ways to treat worldwide shipping.
+ *
+ *   - Domestic only — headline order with the international fee
+ *     forced to 0. The completed-sale leftover stays the
+ *     baseline the other rows have to beat.
+ *   - International, buyer pays postage — same label cost, the
+ *     typed (or illustrative) international fee on the order
+ *     total. The buyer pays the extra postage themselves, so
+ *     your box cost does not change.
+ *   - International, you pay extra postage — same fee, plus the
+ *     typed extra label cost. Free-shipping-worldwide and
+ *     "I'll eat the label" both land here.
+ *
+ * Complementary to Global Shipping (an international buyer
+ * already wants the item; the question is who buys the label)
+ * and Standard Envelope (cheap domestic postage vs a claim).
+ * Salvaged from #1564 onto current main. Rates and postage are
+ * inputs, not eBay's live international schedule.
+ */
+export function compareInternational(input) {
+  const listedPrice = optionalNumber(input.price, 'Item price');
+  if (listedPrice === undefined) {
+    throw new Error('Item price must be a non-negative number');
+  }
+
+  const extraShipping = optionalNumber(
+    input.intlExtraShipping,
+    'Extra international shipping',
+    DEFAULT_INTL_EXTRA_SHIPPING,
+  );
+  const typedIntl = optionalNumber(input.intlFeeRate, 'International fee rate', 0);
+  const intlFeeRate = typedIntl > 0 ? typedIntl : ILLUSTRATIVE_INTL_FEE_RATE;
+  const shippingCost = optionalNumber(input.shippingCost, 'Shipping cost', 0);
+
+  const domestic = calculateOrder({ ...input, intlFeeRate: 0 });
+  const buyerPays = calculateOrder({ ...input, intlFeeRate });
+  const youShip = calculateOrder({
+    ...input,
+    intlFeeRate,
+    shippingCost: shippingCost + extraShipping,
+  });
+
+  const holdBuyerPays = priceForCompletedProfit({ ...input, intlFeeRate }, domestic.profit);
+  const holdYouShip = priceForCompletedProfit({
+    ...input,
+    intlFeeRate,
+    shippingCost: shippingCost + extraShipping,
+  }, domestic.profit);
+
+  const rows = [
+    {
+      id: 'domestic',
+      label: 'Domestic only',
+      pathIntlFeeRate: 0,
+      pathShippingCost: shippingCost,
+      extraShipping: 0,
+      profit: domestic.profit,
+      expectedProfit: domestic.expectedProfit,
+      feeTotal: domestic.feeTotal,
+      profitDelta: 0,
+      expectedProfitDelta: 0,
+      holdPrice: null,
+    },
+    {
+      id: 'intl_buyer_pays',
+      label: 'International, buyer pays postage',
+      pathIntlFeeRate: intlFeeRate,
+      pathShippingCost: shippingCost,
+      extraShipping: 0,
+      profit: buyerPays.profit,
+      expectedProfit: buyerPays.expectedProfit,
+      feeTotal: buyerPays.feeTotal,
+      profitDelta: buyerPays.profit - domestic.profit,
+      expectedProfitDelta: buyerPays.expectedProfit - domestic.expectedProfit,
+      holdPrice: holdBuyerPays,
+    },
+    {
+      id: 'intl_you_ship',
+      label: 'International, you pay extra postage',
+      pathIntlFeeRate: intlFeeRate,
+      pathShippingCost: shippingCost + extraShipping,
+      extraShipping,
+      profit: youShip.profit,
+      expectedProfit: youShip.expectedProfit,
+      feeTotal: youShip.feeTotal,
+      profitDelta: youShip.profit - domestic.profit,
+      expectedProfitDelta: youShip.expectedProfit - domestic.expectedProfit,
+      holdPrice: holdYouShip,
+    },
+  ];
+
+  const bestExpected = Math.max(...rows.map((row) => row.expectedProfit));
+  const winners = rows.filter((row) => Math.abs(row.expectedProfit - bestExpected) <= 1e-9);
+  const winner = winners.length === 1 ? winners[0].id : 'tie';
+
+  const result = {
+    intlFeeRate,
+    extraShipping,
+    usedIllustrativeIntlRate: typedIntl === 0,
+    domesticProfit: domestic.profit,
+    domesticExpectedProfit: domestic.expectedProfit,
+    buyerPaysProfit: buyerPays.profit,
+    youShipProfit: youShip.profit,
+    extraKeptOnBuyerPays: buyerPays.expectedProfit - domestic.expectedProfit,
+    extraKeptOnYouShip: youShip.expectedProfit - domestic.expectedProfit,
+    winner,
+    rows: rows.map((row) => ({
+      ...row,
+      winner: Math.abs(row.expectedProfit - bestExpected) <= 1e-9,
+    })),
+  };
+  result.summary = internationalNote(result);
+  return result;
+}
+
+export function internationalNote(comparison) {
+  if (!comparison?.rows?.length) {
+    throw new Error('International comparison is missing rows');
+  }
+  const money = (value) => {
+    const sign = value < 0 ? '-' : '';
+    return `${sign}$${Math.abs(value).toFixed(2)}`;
+  };
+  const buyer = comparison.rows.find((row) => row.id === 'intl_buyer_pays');
+  const youShip = comparison.rows.find((row) => row.id === 'intl_you_ship');
+  const rateLine = comparison.usedIllustrativeIntlRate
+    ? ` Using the illustrative ${comparison.intlFeeRate}% international fee — overwrite it from your fee preview.`
+    : ` Using the ${comparison.intlFeeRate}% international fee you typed.`;
+  const buyerLine = ` Buyer-pays worldwide keeps ${money(Math.abs(comparison.extraKeptOnBuyerPays))} ${comparison.extraKeptOnBuyerPays >= 0 ? 'more' : 'less'} than domestic after returns (${money(buyer.profit)} if they keep it).`;
+  const holdBuyer = Number.isFinite(buyer.holdPrice)
+    ? ` List ${money(buyer.holdPrice)} to hold the domestic leftover when they pay postage.`
+    : '';
+  const youLine = ` Absorbing ${money(comparison.extraShipping)} extra postage keeps ${money(Math.abs(comparison.extraKeptOnYouShip))} ${comparison.extraKeptOnYouShip >= 0 ? 'more' : 'less'} (${money(youShip.profit)} if they keep it).`;
+  const holdYou = Number.isFinite(youShip.holdPrice)
+    ? ` List ${money(youShip.holdPrice)} to hold the domestic leftover if you buy the extra label.`
+    : '';
+  return `Domestic only expects ${money(comparison.domesticExpectedProfit)} after returns and ${money(comparison.domesticProfit)} on a completed sale.${rateLine}${buyerLine}${holdBuyer}${youLine}${holdYou}`;
+}
+
+export function internationalSummary(comparison) {
+  return internationalNote(comparison);
+}
+
+/**
+ * Illustrative package-protection defaults. A $1.80 third-party
+ * premium and a $3.45 signature add-on are typical quotes on a
+ * $40–$50 parcel, not a live carrier table. The skip claim rate
+ * is the item-not-received / lost-in-transit share on an already
+ * tracked label — not the Standard Envelope claim rate, which
+ * is about untracked mail. Sellers overwrite every figure from
+ * their own Shipsurance / USPS / UPS quote and Seller Hub INR
+ * rate.
+ */
+export const DEFAULT_SKIP_CLAIM_RATE = 2.5;
+export const DEFAULT_INSURANCE_PREMIUM = 1.8;
+export const DEFAULT_INSURANCE_CLAIM_RATE = 0.6;
+export const DEFAULT_SIGNATURE_FEE = 3.45;
+export const DEFAULT_SIGNATURE_CLAIM_RATE = 0.4;
+export const DEFAULT_PROTECTION_FEE_REFUND_ON_CLAIM = 100;
+export const DEFAULT_MONTHLY_PROTECTION_SHIPMENTS = 40;
+
+function protectionRow({
+  id,
+  label,
+  extraCost,
+  claimRatePercent,
+  payout,
+  completedProfit,
+  soldExpectedProfit,
+  claimProfit,
+  expectedProfit,
+}) {
+  return {
+    id,
+    label,
+    extraCost,
+    claimRatePercent,
+    payout,
+    completedProfit,
+    soldExpectedProfit,
+    claimProfit,
+    expectedProfit,
+    expectedProfitDelta: 0,
+  };
+}
+
+function packageClaimProfit({
+  sold,
+  extraCost,
+  payout,
+  feeRefundOnClaim,
+  costOfGoods,
+  shippingCost,
+  packagingCost,
+  otherCost,
+}) {
+  const quantity = sold.quantity;
+  const unrefundedFees = sold.feeTotal * (1 - feeRefundOnClaim / 100);
+  const sunk = (costOfGoods + shippingCost + packagingCost + otherCost + extraCost) * quantity;
+  return -sunk - unrefundedFees + payout * quantity;
+}
+
+function packagePathExpected({
+  input,
+  extraCost,
+  claimRatePercent,
+  payout,
+  feeRefundOnClaim,
+}) {
+  const shippingCost = optionalNumber(input.shippingCost, 'Shipping cost', 0);
+  const packagingCost = optionalNumber(input.packagingCost, 'Packaging cost', 0);
+  const costOfGoods = optionalNumber(input.costOfGoods, 'Cost of goods', 0);
+  const otherCost = optionalNumber(input.otherCost, 'Other cost', 0);
+  const sold = calculateOrder({
+    ...input,
+    otherCost: otherCost + extraCost,
+  });
+  const claimProfit = packageClaimProfit({
+    sold,
+    extraCost,
+    payout,
+    feeRefundOnClaim,
+    costOfGoods,
+    shippingCost,
+    packagingCost,
+    otherCost,
+  });
+  const claimFrac = claimRatePercent / 100;
+  const expectedProfit = (1 - claimFrac) * sold.expectedProfit + claimFrac * claimProfit;
+  return {
+    sold,
+    claimProfit,
+    expectedProfit,
+  };
+}
+
+/**
+ * Same already-sold tracked shipment, three ways to treat a
+ * lost-in-transit / item-not-received claim.
+ *
+ *   - Skip — pay nothing extra. The typed skip claim rate is
+ *     a full loss: buyer refunded, item gone, fees usually
+ *     come back. A return restocks the item; a claim does not.
+ *   - Insure — pay a typed premium on every label. Remaining
+ *     claims pay a typed payout that defaults to cost of goods
+ *     plus postage and pack (replacement value, not retail).
+ *   - Signature — pay a typed add-on on every label. Claims
+ *     drop; leftover claims are still a full loss. Signature
+ *     is deterrence, not reimbursement.
+ *
+ * Complementary to Standard Envelope (cheap untracked mail vs
+ * a tracked label) and Authenticity Guarantee (a hub inspects
+ * the item). Premium, signature fee, payout, and both claim
+ * rates are inputs, not carrier or eBay seller-protection
+ * policy.
+ */
+export function comparePackageProtection(input) {
+  const listedPrice = optionalNumber(input.price, 'Item price');
+  if (listedPrice === undefined) {
+    throw new Error('Item price must be a non-negative number');
+  }
+
+  const skipClaimRate = requiredPercent(
+    input.skipClaimRatePercent,
+    'Skip claim rate',
+    DEFAULT_SKIP_CLAIM_RATE,
+  );
+  const insurancePremium = optionalNumber(
+    input.insurancePremium,
+    'Insurance premium',
+    DEFAULT_INSURANCE_PREMIUM,
+  );
+  const insuranceClaimRate = requiredPercent(
+    input.insuranceClaimRatePercent,
+    'Insurance claim rate',
+    DEFAULT_INSURANCE_CLAIM_RATE,
+  );
+  const costOfGoods = optionalNumber(input.costOfGoods, 'Cost of goods', 0);
+  const shippingCost = optionalNumber(input.shippingCost, 'Shipping cost', 0);
+  const packagingCost = optionalNumber(input.packagingCost, 'Packaging cost', 0);
+  const defaultPayout = costOfGoods + shippingCost + packagingCost;
+  const insurancePayout = optionalNumber(
+    input.insurancePayout,
+    'Insurance payout',
+    defaultPayout,
+  );
+  const signatureFee = optionalNumber(
+    input.signatureFee,
+    'Signature fee',
+    DEFAULT_SIGNATURE_FEE,
+  );
+  const signatureClaimRate = requiredPercent(
+    input.signatureClaimRatePercent,
+    'Signature claim rate',
+    DEFAULT_SIGNATURE_CLAIM_RATE,
+  );
+  const feeRefundOnClaim = requiredPercent(
+    input.protectionFeeRefundOnClaimPercent,
+    'Fee refund on protection claim',
+    DEFAULT_PROTECTION_FEE_REFUND_ON_CLAIM,
+  );
+  const monthlyShipments = optionalNumber(
+    input.monthlyProtectionShipments,
+    'Monthly protection shipments',
+    DEFAULT_MONTHLY_PROTECTION_SHIPMENTS,
+  );
+  if (monthlyShipments === 0) throw new Error('Monthly protection shipments must be greater than zero');
+
+  const skipPath = packagePathExpected({
+    input,
+    extraCost: 0,
+    claimRatePercent: skipClaimRate,
+    payout: 0,
+    feeRefundOnClaim,
+  });
+  const insurePath = packagePathExpected({
+    input,
+    extraCost: insurancePremium,
+    claimRatePercent: insuranceClaimRate,
+    payout: insurancePayout,
+    feeRefundOnClaim,
+  });
+  const signaturePath = packagePathExpected({
+    input,
+    extraCost: signatureFee,
+    claimRatePercent: signatureClaimRate,
+    payout: 0,
+    feeRefundOnClaim,
+  });
+
+  const skip = protectionRow({
+    id: 'skip',
+    label: 'Skip protection',
+    extraCost: 0,
+    claimRatePercent: skipClaimRate,
+    payout: 0,
+    completedProfit: skipPath.sold.profit,
+    soldExpectedProfit: skipPath.sold.expectedProfit,
+    claimProfit: skipPath.claimProfit,
+    expectedProfit: skipPath.expectedProfit,
+  });
+  const insure = protectionRow({
+    id: 'insure',
+    label: 'Buy shipping insurance',
+    extraCost: insurancePremium,
+    claimRatePercent: insuranceClaimRate,
+    payout: insurancePayout,
+    completedProfit: insurePath.sold.profit,
+    soldExpectedProfit: insurePath.sold.expectedProfit,
+    claimProfit: insurePath.claimProfit,
+    expectedProfit: insurePath.expectedProfit,
+  });
+  const signature = protectionRow({
+    id: 'signature',
+    label: 'Add signature confirmation',
+    extraCost: signatureFee,
+    claimRatePercent: signatureClaimRate,
+    payout: 0,
+    completedProfit: signaturePath.sold.profit,
+    soldExpectedProfit: signaturePath.sold.expectedProfit,
+    claimProfit: signaturePath.claimProfit,
+    expectedProfit: signaturePath.expectedProfit,
+  });
+  skip.expectedProfitDelta = 0;
+  insure.expectedProfitDelta = insure.expectedProfit - skip.expectedProfit;
+  signature.expectedProfitDelta = signature.expectedProfit - skip.expectedProfit;
+
+  const rows = [skip, insure, signature];
+  const bestExpected = Math.max(...rows.map((row) => row.expectedProfit));
+  const winners = rows.filter((row) => Math.abs(row.expectedProfit - bestExpected) <= 1e-9);
+  const winner = winners.length === 1 ? winners[0].id : 'tie';
+
+  const skipGap = skip.soldExpectedProfit - skip.claimProfit;
+  let breakEvenSkipClaimRate = Infinity;
+  if (skipGap > 1e-12) {
+    const rate = (skip.soldExpectedProfit - insure.expectedProfit) / skipGap * 100;
+    breakEvenSkipClaimRate = rate < -1e-9 || rate > 100 + 1e-9
+      ? Infinity
+      : Math.max(0, Math.min(100, rate));
+  }
+
+  const skipAtPremium = (premium) => packagePathExpected({
+    input,
+    extraCost: premium,
+    claimRatePercent: insuranceClaimRate,
+    payout: insurancePayout,
+    feeRefundOnClaim,
+  }).expectedProfit;
+  const atZeroPremium = skipAtPremium(0);
+  const atTenPremium = skipAtPremium(10);
+  const premiumSlope = (atTenPremium - atZeroPremium) / 10;
+  let breakEvenInsurancePremium = Infinity;
+  if (Math.abs(premiumSlope) > 1e-12) {
+    const needed = (skip.expectedProfit - atZeroPremium) / premiumSlope;
+    breakEvenInsurancePremium = needed < -1e-9 ? Infinity : needed;
+  }
+
+  const signatureGap = signature.soldExpectedProfit - signature.claimProfit;
+  let breakEvenSignatureClaimRate = Infinity;
+  if (signatureGap > 1e-12) {
+    const rate = (signature.soldExpectedProfit - skip.expectedProfit) / signatureGap * 100;
+    breakEvenSignatureClaimRate = rate < -1e-9 || rate > 100 + 1e-9
+      ? Infinity
+      : Math.max(0, Math.min(100, rate));
+  }
+
+  const extraKeptOnInsure = insure.expectedProfit - skip.expectedProfit;
+  const extraKeptOnSignature = signature.expectedProfit - skip.expectedProfit;
+
+  const result = {
+    rows,
+    skip,
+    insure,
+    signature,
+    winner,
+    skipClaimRate,
+    insurancePremium,
+    insuranceClaimRate,
+    insurancePayout,
+    usedDefaultPayout: input.insurancePayout === undefined
+      || input.insurancePayout === null
+      || input.insurancePayout === '',
+    signatureFee,
+    signatureClaimRate,
+    feeRefundOnClaim,
+    monthlyShipments,
+    extraKeptOnInsure,
+    extraKeptOnSignature,
+    monthlyExtraOnInsure: extraKeptOnInsure * monthlyShipments,
+    monthlyExtraOnSignature: extraKeptOnSignature * monthlyShipments,
+    breakEvenSkipClaimRate,
+    breakEvenInsurancePremium,
+    breakEvenSignatureClaimRate,
+  };
+  result.summary = packageProtectionNote(result);
+  return result;
+}
+
+export function packageProtectionNote(comparison) {
+  if (!comparison?.skip || !comparison?.insure || !comparison?.signature) {
+    throw new Error('Package-protection comparison is missing rows');
+  }
+  const money = (value) => {
+    const sign = value < 0 ? '-' : '';
+    return `${sign}$${Math.abs(value).toFixed(2)}`;
+  };
+  const { skip, insure, signature } = comparison;
+  const skipLine = `Skip protection at a ${skip.claimRatePercent}% item-not-received claim rate expects ${money(skip.expectedProfit)} after the typed return mix — a claim on that path leaves ${money(skip.claimProfit)}.`;
+  const insureGap = money(Math.abs(insure.expectedProfit - skip.expectedProfit));
+  const insureAhead = insure.expectedProfit >= skip.expectedProfit ? 'more' : 'less';
+  const insureLine = ` Buying ${money(insure.extraCost)} insurance that pays ${money(insure.payout)} at a ${insure.claimRatePercent}% leftover-claim rate expects ${money(insure.expectedProfit)} — ${insureGap} ${insureAhead}.`;
+  const sigGap = money(Math.abs(signature.expectedProfit - skip.expectedProfit));
+  const sigAhead = signature.expectedProfit >= skip.expectedProfit ? 'more' : 'less';
+  const sigLine = ` A ${money(signature.extraCost)} signature add-on at a ${signature.claimRatePercent}% claim rate expects ${money(signature.expectedProfit)} — ${sigGap} ${sigAhead}.`;
+  const claimFloor = Number.isFinite(comparison.breakEvenSkipClaimRate)
+    ? ` Skip claims have to reach about ${comparison.breakEvenSkipClaimRate.toFixed(1)}% before insurance matches skip.`
+    : ' No skip claim rate on these premiums can match insurance.';
+  const premiumCeil = Number.isFinite(comparison.breakEvenInsurancePremium)
+    ? ` Insurance has to stay at about ${money(comparison.breakEvenInsurancePremium)} before it matches skip.`
+    : '';
+  return `${skipLine}${insureLine}${sigLine}${claimFloor}${premiumCeil}`;
+}
+
+export function packageProtectionSummary(comparison) {
+  return packageProtectionNote(comparison);
+}
+
+/**
+ * Illustrative third-party / carrier-account label when the
+ * seller has not typed one. Edit it from a Pirate Ship, Shippo,
+ * or UPS quote — not a published eBay Shipping rate.
+ */
+export const DEFAULT_THIRD_PARTY_LABEL_COST = 4.25;
+export const DEFAULT_EBAY_LABEL_CLAIM_RATE = 0.8;
+export const DEFAULT_THIRD_PARTY_CLAIM_RATE = 2.5;
+export const DEFAULT_LABEL_UPLOAD_MINUTES = 4;
+export const DEFAULT_LABEL_UPLOAD_WAGE = 18;
+export const DEFAULT_LABEL_FEE_REFUND_ON_CLAIM = 100;
+export const DEFAULT_MONTHLY_LABEL_SHIPMENTS = 40;
+
+function labelUploadTimeCost(minutes, hourlyWage) {
+  return minutes * (hourlyWage / 60);
+}
+
+function labelPathExpected({
+  input,
+  shippingCost,
+  extraCost,
+  claimRatePercent,
+  feeRefundOnClaim,
+}) {
+  return packagePathExpected({
+    input: { ...input, shippingCost },
+    extraCost,
+    claimRatePercent,
+    payout: 0,
+    feeRefundOnClaim,
+  });
+}
+
+function labelRow({
+  id,
+  label,
+  labelCost,
+  extraCost,
+  claimRatePercent,
+  completedProfit,
+  soldExpectedProfit,
+  claimProfit,
+  expectedProfit,
+}) {
+  return {
+    id,
+    label,
+    labelCost,
+    extraCost,
+    claimRatePercent,
+    completedProfit,
+    soldExpectedProfit,
+    claimProfit,
+    expectedProfit,
+    expectedProfitDelta: 0,
+  };
+}
+
+/**
+ * Same already-sold tracked shipment, three ways to buy the label.
+ *
+ *   - eBay label — pay the eBay Shipping quote. Tracking
+ *     auto-uploads. The typed eBay claim rate is the leftover
+ *     item-not-received share after seller protection that
+ *     usually rides with an eBay-purchased label.
+ *   - Third-party label — Pirate Ship, Shippo, or a carrier
+ *     account. Postage is often cheaper. Tracking is uploaded
+ *     by hand, so a typed upload-time cost sits on every box.
+ *     The typed third-party claim rate is usually higher
+ *     because eBay seller protection is thinner when the label
+ *     was bought elsewhere.
+ *   - Third-party, no extra time — same postage and claim rate
+ *     with the upload minutes zeroed. Isolates whether the
+ *     claim-rate gap, not the four minutes, is the leak.
+ *
+ * Complementary to package protection (an add-on on a label
+ * already bought), Standard Envelope (untracked mail vs a
+ * tracked label), and free shipping (what you charge vs baking
+ * postage into the list). Label quotes, claim rates, and
+ * upload time are inputs, not a carrier table or eBay
+ * seller-protection policy.
+ */
+export function compareEbayLabels(input) {
+  const listedPrice = optionalNumber(input.price, 'Item price');
+  if (listedPrice === undefined) {
+    throw new Error('Item price must be a non-negative number');
+  }
+
+  const typedShippingCost = optionalNumber(input.shippingCost, 'Shipping cost', 0);
+  const ebayLabelCost = optionalNumber(input.ebayLabelCost, 'eBay label', typedShippingCost);
+  const thirdPartyLabelCost = optionalNumber(
+    input.thirdPartyLabelCost,
+    'Third-party label',
+    DEFAULT_THIRD_PARTY_LABEL_COST,
+  );
+  const ebayClaimRate = requiredPercent(
+    input.ebayLabelClaimRatePercent,
+    'eBay label claim rate',
+    DEFAULT_EBAY_LABEL_CLAIM_RATE,
+  );
+  const thirdPartyClaimRate = requiredPercent(
+    input.thirdPartyClaimRatePercent,
+    'Third-party claim rate',
+    DEFAULT_THIRD_PARTY_CLAIM_RATE,
+  );
+  const uploadMinutes = optionalNumber(
+    input.labelUploadMinutes,
+    'Label upload minutes',
+    DEFAULT_LABEL_UPLOAD_MINUTES,
+  );
+  const uploadWage = optionalNumber(
+    input.labelUploadWage,
+    'Label upload hourly wage',
+    DEFAULT_LABEL_UPLOAD_WAGE,
+  );
+  const feeRefundOnClaim = requiredPercent(
+    input.labelFeeRefundOnClaimPercent,
+    'Fee refund on label claim',
+    DEFAULT_LABEL_FEE_REFUND_ON_CLAIM,
+  );
+  const monthlyShipments = optionalNumber(
+    input.monthlyLabelShipments,
+    'Monthly label shipments',
+    DEFAULT_MONTHLY_LABEL_SHIPMENTS,
+  );
+  if (monthlyShipments === 0) throw new Error('Monthly label shipments must be greater than zero');
+
+  const uploadTimeCost = labelUploadTimeCost(uploadMinutes, uploadWage);
+
+  const ebayPath = labelPathExpected({
+    input,
+    shippingCost: ebayLabelCost,
+    extraCost: 0,
+    claimRatePercent: ebayClaimRate,
+    feeRefundOnClaim,
+  });
+  const thirdPath = labelPathExpected({
+    input,
+    shippingCost: thirdPartyLabelCost,
+    extraCost: uploadTimeCost,
+    claimRatePercent: thirdPartyClaimRate,
+    feeRefundOnClaim,
+  });
+  const postagePath = labelPathExpected({
+    input,
+    shippingCost: thirdPartyLabelCost,
+    extraCost: 0,
+    claimRatePercent: thirdPartyClaimRate,
+    feeRefundOnClaim,
+  });
+
+  const ebay = labelRow({
+    id: 'ebay',
+    label: 'eBay label',
+    labelCost: ebayLabelCost,
+    extraCost: 0,
+    claimRatePercent: ebayClaimRate,
+    completedProfit: ebayPath.sold.profit,
+    soldExpectedProfit: ebayPath.sold.expectedProfit,
+    claimProfit: ebayPath.claimProfit,
+    expectedProfit: ebayPath.expectedProfit,
+  });
+  const third = labelRow({
+    id: 'third_party',
+    label: 'Third-party label',
+    labelCost: thirdPartyLabelCost,
+    extraCost: uploadTimeCost,
+    claimRatePercent: thirdPartyClaimRate,
+    completedProfit: thirdPath.sold.profit,
+    soldExpectedProfit: thirdPath.sold.expectedProfit,
+    claimProfit: thirdPath.claimProfit,
+    expectedProfit: thirdPath.expectedProfit,
+  });
+  const postageOnly = labelRow({
+    id: 'third_party_no_time',
+    label: 'Third-party, no extra time',
+    labelCost: thirdPartyLabelCost,
+    extraCost: 0,
+    claimRatePercent: thirdPartyClaimRate,
+    completedProfit: postagePath.sold.profit,
+    soldExpectedProfit: postagePath.sold.expectedProfit,
+    claimProfit: postagePath.claimProfit,
+    expectedProfit: postagePath.expectedProfit,
+  });
+  ebay.expectedProfitDelta = 0;
+  third.expectedProfitDelta = third.expectedProfit - ebay.expectedProfit;
+  postageOnly.expectedProfitDelta = postageOnly.expectedProfit - ebay.expectedProfit;
+
+  const rows = [ebay, third, postageOnly];
+  const bestExpected = Math.max(...rows.map((row) => row.expectedProfit));
+  const winners = rows.filter((row) => Math.abs(row.expectedProfit - bestExpected) <= 1e-9);
+  const winner = winners.length === 1 ? winners[0].id : 'tie';
+
+  const thirdGap = third.soldExpectedProfit - third.claimProfit;
+  let breakEvenThirdPartyClaimRate = Infinity;
+  if (thirdGap > 1e-12) {
+    const rate = (third.soldExpectedProfit - ebay.expectedProfit) / thirdGap * 100;
+    breakEvenThirdPartyClaimRate = rate < -1e-9 || rate > 100 + 1e-9
+      ? Infinity
+      : Math.max(0, Math.min(100, rate));
+  }
+
+  const thirdAtLabel = (labelCost) => labelPathExpected({
+    input,
+    shippingCost: labelCost,
+    extraCost: uploadTimeCost,
+    claimRatePercent: thirdPartyClaimRate,
+    feeRefundOnClaim,
+  }).expectedProfit;
+  const atZeroLabel = thirdAtLabel(0);
+  const atTenLabel = thirdAtLabel(10);
+  const labelSlope = (atTenLabel - atZeroLabel) / 10;
+  let breakEvenThirdPartyLabelCost = Infinity;
+  if (Math.abs(labelSlope) > 1e-12) {
+    const needed = (ebay.expectedProfit - atZeroLabel) / labelSlope;
+    breakEvenThirdPartyLabelCost = needed < -1e-9 ? Infinity : needed;
+  }
+
+  const thirdAtMinutes = (minutes) => labelPathExpected({
+    input,
+    shippingCost: thirdPartyLabelCost,
+    extraCost: labelUploadTimeCost(minutes, uploadWage),
+    claimRatePercent: thirdPartyClaimRate,
+    feeRefundOnClaim,
+  }).expectedProfit;
+  const atZeroMinutes = thirdAtMinutes(0);
+  const atTenMinutes = thirdAtMinutes(10);
+  const minuteSlope = (atTenMinutes - atZeroMinutes) / 10;
+  let breakEvenUploadMinutes = Infinity;
+  if (Math.abs(minuteSlope) > 1e-12) {
+    const needed = (ebay.expectedProfit - atZeroMinutes) / minuteSlope;
+    breakEvenUploadMinutes = needed < -1e-9 ? Infinity : needed;
+  }
+
+  const extraKeptOnThird = third.expectedProfit - ebay.expectedProfit;
+  const extraKeptOnPostageOnly = postageOnly.expectedProfit - ebay.expectedProfit;
+
+  const result = {
+    rows,
+    ebay,
+    third,
+    postageOnly,
+    winner,
+    ebayLabelCost,
+    thirdPartyLabelCost,
+    ebayClaimRate,
+    thirdPartyClaimRate,
+    uploadMinutes,
+    uploadWage,
+    uploadTimeCost,
+    feeRefundOnClaim,
+    monthlyShipments,
+    extraKeptOnThird,
+    extraKeptOnPostageOnly,
+    monthlyExtraOnThird: extraKeptOnThird * monthlyShipments,
+    monthlyExtraOnPostageOnly: extraKeptOnPostageOnly * monthlyShipments,
+    breakEvenThirdPartyClaimRate,
+    breakEvenThirdPartyLabelCost,
+    breakEvenUploadMinutes,
+    usedDefaultEbayLabel: input.ebayLabelCost === undefined
+      || input.ebayLabelCost === null
+      || input.ebayLabelCost === '',
+    usedDefaultThirdPartyLabel: input.thirdPartyLabelCost === undefined
+      || input.thirdPartyLabelCost === null
+      || input.thirdPartyLabelCost === '',
+  };
+  result.summary = ebayLabelsNote(result);
+  return result;
+}
+
+export function ebayLabelsNote(comparison) {
+  if (!comparison?.ebay || !comparison?.third || !comparison?.postageOnly) {
+    throw new Error('Label comparison is missing rows');
+  }
+  const money = (value) => {
+    const sign = value < 0 ? '-' : '';
+    return `${sign}$${Math.abs(value).toFixed(2)}`;
+  };
+  const { ebay, third, postageOnly } = comparison;
+  const ebayLine = `The ${money(ebay.labelCost)} eBay label at a ${ebay.claimRatePercent}% item-not-received claim rate expects ${money(ebay.expectedProfit)} after the typed return mix — a claim on that path leaves ${money(ebay.claimProfit)}.`;
+  const thirdGap = money(Math.abs(third.expectedProfit - ebay.expectedProfit));
+  const thirdAhead = third.expectedProfit >= ebay.expectedProfit ? 'more' : 'less';
+  const timeBit = third.extraCost > 1e-9
+    ? ` after ${money(third.extraCost)} of upload time`
+    : '';
+  const thirdLine = ` A ${money(third.labelCost)} third-party label at a ${third.claimRatePercent}% claim rate${timeBit} expects ${money(third.expectedProfit)} — ${thirdGap} ${thirdAhead}.`;
+  const postageGap = money(Math.abs(postageOnly.expectedProfit - ebay.expectedProfit));
+  const postageAhead = postageOnly.expectedProfit >= ebay.expectedProfit ? 'more' : 'less';
+  const postageLine = ` The same third-party postage with no extra time expects ${money(postageOnly.expectedProfit)} — ${postageGap} ${postageAhead}.`;
+  const claimCeil = Number.isFinite(comparison.breakEvenThirdPartyClaimRate)
+    ? ` Third-party claims have to stay at about ${comparison.breakEvenThirdPartyClaimRate.toFixed(1)}% before that path matches the eBay label.`
+    : ' No third-party claim rate on these labels can match the eBay label.';
+  const labelCeil = Number.isFinite(comparison.breakEvenThirdPartyLabelCost)
+    ? ` The third-party quote has to stay at about ${money(comparison.breakEvenThirdPartyLabelCost)} before it matches the eBay label.`
+    : '';
+  return `${ebayLine}${thirdLine}${postageLine}${claimCeil}${labelCeil}`;
+}
+
+export function ebayLabelsSummary(comparison) {
+  return ebayLabelsNote(comparison);
 }

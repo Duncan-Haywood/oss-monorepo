@@ -66,6 +66,19 @@ is billed even if they bounce and add the extra sales you type.
 Promoted Listings Standard is a percent of a completed sale;
 Offsite is not.
 [Is eBay Promoted Offsite worth it?](is-ebay-promoted-offsite-worth-it.html).
+A **Promoted Listings Standard vs skip** table then prices the
+same listing two ways: keep the sale you already have at 0% ads,
+or take the typed Standard percent on that sale plus the extra
+sales you type. Zero extra sales is the conservative test — the
+campaign only cuts a sale you already would have made.
+[Are eBay Promoted Listings worth it?](are-ebay-promoted-listings-worth-it.html).
+A **Promoted Listings Advanced vs skip** table then prices the
+same listing two ways: keep the sale you already have, or pay a
+cost-per-click on eBay search that is billed even if they bounce
+and add the extra sales you type. Standard is a percent of a
+completed sale. Offsite is a Google or Facebook bill. Advanced
+is neither.
+[Are eBay Promoted Listings Advanced worth it?](are-ebay-promoted-listings-advanced-worth-it.html).
 A **Quantity discount vs selling separately** table then prices the
 same multi-quantity SKU two ways: sell N units as singles at list,
 or cut the item price so one buyer takes all N, pays shipping
@@ -98,6 +111,48 @@ program fee (usually at a higher return rate), or make the buyer
 pay return shipping. A $5.50 fee still loses after four extra
 return points on a $40 listing.
 [Is eBay Managed Returns worth it?](is-ebay-managed-returns-worth-it.html).
+A **Global Shipping Program vs you-ship** table then prices the
+same international buyer two ways: ship to the US hub on your
+domestic label, or collect international postage and buy the
+label yourself. An 8% item-not-received claim rate can cost
+more than the extra postage you collected.
+[Should I use eBay Global Shipping Program?](should-i-use-ebay-global-shipping-program.html).
+A **Store subscription vs no-store rate** table then prices the
+same SKU four ways: stay at the final-value rate you type, or
+take example Starter, Basic, and Premium mixes after the monthly
+subscription. Forty $40 sales leave a $7.95 Starter $2.43 behind.
+[Is an eBay store worth it?](is-an-ebay-store-worth-it.html).
+An **incoming Best Offer vs waiting** table then prices the same
+listing two ways: take the buyer’s number now, or wait for list
+profit times your guessed chance it still sells. A $34 offer on
+a $40 listing keeps $5.60 more than waiting at 50%.
+[Should I accept this eBay offer?](should-i-accept-this-ebay-offer.html).
+A **Domestic vs worldwide at this list** table then prices the
+same SKU three ways: keep the listing domestic, turn worldwide
+on while the buyer pays extra postage, or absorb a typed extra
+label. A 1.65% international fee on a $40 sale costs $0.76;
+eating a $12 label drops leftover to $8.85.
+[Should I offer international shipping on eBay?](should-i-offer-international-shipping-on-ebay.html).
+A **Free shipping vs buyer-pays** table then prices the same SKU
+two ways: charge the typed postage, or offer free shipping at a
+typed list and still buy the label. On eBay, folding the exact
+shipping charged into the item leaves the same leftover per
+completed sale. Leaving the list at $40 loses after a $5 label.
+[Should I offer free shipping on eBay?](should-i-offer-free-shipping-on-ebay.html).
+A **Skip vs insurance vs signature** table then prices the same
+already-sold tracked shipment three ways: skip the add-on, buy
+a typed premium that pays replacement value, or add signature
+confirmation. On a $40 sale a $1.80 premium keeps $1.00 less
+than skip; an 8% claim rate or a $180 / $85-cost SKU flips it.
+[Should I add shipping insurance on eBay?](should-i-add-shipping-insurance-on-ebay.html).
+An **eBay label vs Pirate Ship** table then prices the same
+already-sold tracked shipment three ways: buy the eBay quote,
+buy a typed Pirate Ship / Shippo / carrier-account quote after
+upload time, or use that cheaper postage with no extra time.
+On a $40 sale a $4.25 quote after four minutes keeps $1.07
+less than the $5 eBay label; the postage-only path keeps
+$0.13 more.
+[Should I buy eBay shipping labels or use Pirate Ship?](should-i-buy-ebay-shipping-labels.html).
 
 **After using the authenticity page, you can now see whether a 3% fee
 and an $8 hub label still beat skip-AG on that SKU** — which used to
@@ -162,6 +217,40 @@ looks free” and never pricing the labels you now buy.
 $5.50 program fee still beats an $8 label after extra returns** —
 which used to mean enrolling because “postage is cheaper” and
 never pricing the easier return path.
+
+**After using the Global Shipping page, you can now see whether
+the hub still beats an $18 international label after an 8%
+claim rate** — which used to mean turning GSP off because
+“I can ship cheaper” and never pricing the boxes that never
+arrive.
+
+**After using the store page, you can now see whether a $7.95
+Starter still beats a 13.25% no-store rate after 40 sales** —
+which used to mean subscribing because “the rate is lower” and
+never pricing the month.
+
+**After using the Best Offer page, you can now see whether a $34
+offer still beats waiting for a $40 list after a 50% chance it
+still sells** — which used to mean declining because “it’s under
+list” and never pricing the wait.
+
+**After using the international page, you can now see whether
+worldwide at a $40 list still leaves a profit after a 1.65%
+fee and a $12 extra label** — which used to mean turning
+worldwide on because “more buyers” and never pricing the fee
+or the postage you absorb.
+
+**After using the free-shipping page, you can now see whether
+baking $6 into a $46 list still beats charging shipping after a
+typed sell-through lift** — which used to mean offering free
+shipping because “eBay ranks it higher” and never pricing an
+under-baked $40 list that still bought the label.
+
+**After using the labels page, you can now see whether a $4.25
+Pirate Ship quote still beats a $5 eBay label after claims and
+four minutes of upload time** — which used to mean buying the
+cheaper quote because “postage is postage” and never pricing
+seller protection or the tracking upload.
 
 Open `index.html` in a browser. The calculation is local and works without an
 account, network request, or API key. It is arithmetic, not an estimate of the
@@ -230,6 +319,11 @@ drive that decision:
   with the listing you already have versus that listing plus
   extra sales minus a campaign billed either way. The table
   also names the extra-sale count that still ties skip.
+- **Promoted Listings Standard vs skip** — expected profit after
+  returns with the sale you already have at 0% ads versus that
+  sale plus extra sales, all paying the typed Standard percent.
+  Zero extra sales is the conservative test. The table also
+  names the extra-sale floor and the rate that still ties skip.
 - **Quantity discount vs selling separately** — expected profit
   after sell-through with N singles versus one multi-buy at a
   percent off, one shipping charge, and one label. The table
@@ -253,6 +347,37 @@ drive that decision:
   returns with the label you buy versus a typed program fee
   versus buyer-paid return shipping. The table also names the
   Managed Returns rate that still ties buying the label yourself.
+- **Global Shipping Program vs you-ship** — expected listing
+  profit after sell-through with a hub label versus an
+  international label you buy. A claim is not a return — the
+  item is gone. The table also names the claim rate and
+  you-ship sell-through that still tie GSP.
+- **Store subscription vs no-store rate** — monthly leftover at
+  the final-value rate you type versus example Starter, Basic,
+  and Premium mixes after the subscription. The table also names
+  the order count that still ties staying off a store.
+- **Incoming Best Offer vs waiting** — leftover if you take the
+  buyer’s number now versus list leftover times a typed chance
+  the listing still sells. The table also names the wait chance
+  that still ties the offer.
+- **Domestic vs worldwide at this list** — completed leftover
+  and expected leftover after returns with the listing kept
+  domestic versus worldwide while the buyer pays extra postage
+  versus worldwide if you absorb a typed extra label. The table
+  also names the list prices that still hold the domestic
+  leftover.
+- **Free shipping vs buyer-pays** — expected listing profit after
+  sell-through with charged postage versus a typed free-ship list
+  that still buys the label. On eBay, baking the exact shipping
+  charged into the item is leftover-identical per completed sale.
+  The table also names the sell-through and free-ship list that
+  still tie buyer-pays.
+- **Skip vs insurance vs signature** — expected leftover after
+  returns and item-not-received claims with no add-on versus a
+  typed premium that pays replacement value versus signature
+  confirmation. A claim is not a return — the item is gone.
+  The table also names the skip claim rate and premium that
+  still tie skip.
 
 **No warranty.** This tool is provided free and as-is, without warranty of any
 kind, express or implied. It is not tax, financial, or business advice, and it
@@ -282,23 +407,41 @@ The counted events are `order_profit_calculated`, `target_margin_calculated`,
 `standard_envelope_compared`, `combined_shipping_compared`,
 `seller_initiated_offer_compared`,
 `promoted_offsite_compared`,
+`promoted_standard_compared`,
+`promoted_advanced_compared`,
 `quantity_discount_compared`,
 `seller_coupon_compared`,
 `immediate_payment_compared`,
 `top_rated_plus_compared`,
-`managed_returns_compared`, and
+`managed_returns_compared`,
+`global_shipping_compared`,
+`store_compared`,
+`best_offer_compared`,
+`international_compared`,
+`free_shipping_compared`,
+`package_protection_compared`,
+`ebay_labels_compared`, and
 `price_sensitivity_viewed`.
-`price_sensitivity_viewed`, `listing_format_compared`,
+`listing_format_compared`,
 `partial_refund_compared`, `authenticity_compared`,
 `local_pickup_compared`, `lot_vs_singles_compared`,
 `standard_envelope_compared`, `combined_shipping_compared`,
 `seller_initiated_offer_compared`,
 `promoted_offsite_compared`,
+`promoted_standard_compared`,
+`promoted_advanced_compared`,
 `quantity_discount_compared`,
 `seller_coupon_compared`,
 `immediate_payment_compared`,
-`top_rated_plus_compared`, and
-`managed_returns_compared` are counted at most
+`top_rated_plus_compared`,
+`managed_returns_compared`,
+`global_shipping_compared`,
+`store_compared`,
+`best_offer_compared`,
+`international_compared`,
+`free_shipping_compared`,
+`package_protection_compared`, and
+`ebay_labels_compared` are counted at most
 once per visit and only after an input is edited — counting the table's
 first paint would just re-count page loads and say nothing about whether
 the view is used.

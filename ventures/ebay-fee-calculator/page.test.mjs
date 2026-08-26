@@ -216,12 +216,56 @@ test('the Promoted Offsite table has one cell per column and a counted event', (
   assert.match(page, /is-ebay-promoted-offsite-worth-it\.html/);
   assert.match(page, /"featureList":\s*"[^"]*Promoted Offsite vs skip/);
   const offsiteStart = page.indexOf('id="promotedOffsiteTable"');
-  const offsiteEnd = page.indexOf('id="quantityDiscount"', offsiteStart);
+  const offsiteEnd = page.indexOf('id="promotedStandard"', offsiteStart);
   const headerBlock = page.slice(offsiteStart, offsiteEnd === -1 ? undefined : offsiteEnd);
   const headers = [...headerBlock.matchAll(/<th scope="col">([^<]+)<\/th>/g)].map((m) => m[1]);
   assert.deepEqual(headers, [
     'Path',
     'Extra sales',
+    'Ad spend',
+    'Extra sales after returns',
+    'If they keep the extras',
+    'Expected after spend',
+    'vs skip',
+  ]);
+});
+
+test('the Promoted Listings Standard table has one cell per column and a counted event', () => {
+  assert.match(page, /comparePromotedStandard/);
+  assert.match(page, /id="promotedStandard"/);
+  assert.match(page, /id="promotedStandardVerdict"/);
+  assert.match(page, /promoted_standard_compared/);
+  assert.match(page, /are-ebay-promoted-listings-worth-it\.html/);
+  assert.match(page, /"featureList":\s*"[^"]*Promoted Listings Standard vs skip/);
+  const standardStart = page.indexOf('id="promotedStandardTable"');
+  const standardEnd = page.indexOf('id="promotedAdvanced"', standardStart);
+  const headerBlock = page.slice(standardStart, standardEnd === -1 ? undefined : standardEnd);
+  const headers = [...headerBlock.matchAll(/<th scope="col">([^<]+)<\/th>/g)].map((m) => m[1]);
+  assert.deepEqual(headers, [
+    'Path',
+    'Extra sales',
+    'Ad fee',
+    'Extra sales after returns',
+    'If they keep the extras',
+    'Expected after ads',
+    'vs skip',
+  ]);
+});
+
+test('the Promoted Listings Advanced table has one cell per column and a counted event', () => {
+  assert.match(page, /comparePromotedAdvanced/);
+  assert.match(page, /id="promotedAdvanced"/);
+  assert.match(page, /id="promotedAdvancedVerdict"/);
+  assert.match(page, /promoted_advanced_compared/);
+  assert.match(page, /are-ebay-promoted-listings-advanced-worth-it\.html/);
+  assert.match(page, /"featureList":\s*"[^"]*Promoted Listings Advanced vs skip/);
+  const advancedStart = page.indexOf('id="promotedAdvancedTable"');
+  const advancedEnd = page.indexOf('id="quantityDiscount"', advancedStart);
+  const headerBlock = page.slice(advancedStart, advancedEnd === -1 ? undefined : advancedEnd);
+  const headers = [...headerBlock.matchAll(/<th scope="col">([^<]+)<\/th>/g)].map((m) => m[1]);
+  assert.deepEqual(headers, [
+    'Path',
+    'Clicks',
     'Ad spend',
     'Extra sales after returns',
     'If they keep the extras',
@@ -325,7 +369,9 @@ test('the Managed Returns table has one cell per column and a counted event', ()
   assert.match(page, /managed_returns_compared/);
   assert.match(page, /is-ebay-managed-returns-worth-it\.html/);
   assert.match(page, /"featureList":\s*"[^"]*Managed Returns vs your own label/);
-  const headerBlock = page.slice(page.indexOf('id="managedReturnsTable"'));
+  const managedStart = page.indexOf('id="managedReturnsTable"');
+  const managedEnd = page.indexOf('id="globalShipping"', managedStart);
+  const headerBlock = page.slice(managedStart, managedEnd === -1 ? undefined : managedEnd);
   const headers = [...headerBlock.matchAll(/<th scope="col">([^<]+)<\/th>/g)].map((m) => m[1]);
   assert.deepEqual(headers, [
     'Path',
@@ -333,5 +379,151 @@ test('the Managed Returns table has one cell per column and a counted event', ()
     'Return rate',
     'Expected leftover',
     'vs self-label',
+  ]);
+});
+
+test('the Global Shipping table has one cell per column and a counted event', () => {
+  assert.match(page, /compareGlobalShipping/);
+  assert.match(page, /id="globalShipping"/);
+  assert.match(page, /id="globalShippingVerdict"/);
+  assert.match(page, /global_shipping_compared/);
+  assert.match(page, /should-i-use-ebay-global-shipping-program\.html/);
+  assert.match(page, /"featureList":\s*"[^"]*Global Shipping Program vs you-ship/);
+  const gspStart = page.indexOf('id="globalShippingTable"');
+  const gspEnd = page.indexOf('id="storeTiers"', gspStart);
+  const headerBlock = page.slice(gspStart, gspEnd === -1 ? undefined : gspEnd);
+  const headers = [...headerBlock.matchAll(/<th scope="col">([^<]+)<\/th>/g)].map((m) => m[1]);
+  assert.deepEqual(headers, [
+    'Path',
+    'Collected',
+    'Close rate',
+    'Loss rate',
+    'If they keep it',
+    'Expected after sell-through',
+    'vs GSP',
+  ]);
+});
+
+test('the store-subscription table has one cell per column and a counted event', () => {
+  assert.match(page, /compareStoreTiers/);
+  assert.match(page, /id="storeTiers"/);
+  assert.match(page, /id="storeTiersVerdict"/);
+  assert.match(page, /store_compared/);
+  assert.match(page, /is-an-ebay-store-worth-it\.html/);
+  assert.match(page, /"featureList":\s*"[^"]*store subscription vs no-store rate/);
+  const storeStart = page.indexOf('id="storeTiersTable"');
+  const storeEnd = page.indexOf('id="bestOffer"', storeStart);
+  const headerBlock = page.slice(storeStart, storeEnd === -1 ? undefined : storeEnd);
+  const headers = [...headerBlock.matchAll(/<th scope="col">([^<]+)<\/th>/g)].map((m) => m[1]);
+  assert.deepEqual(headers, [
+    'Path',
+    'Monthly fee',
+    'Final value',
+    'Monthly leftover',
+    'vs no store',
+  ]);
+});
+
+test('the incoming Best Offer table has one cell per column and a counted event', () => {
+  assert.match(page, /compareBestOffer/);
+  assert.match(page, /id="bestOffer"/);
+  assert.match(page, /id="bestOfferVerdict"/);
+  assert.match(page, /best_offer_compared/);
+  assert.match(page, /should-i-accept-this-ebay-offer\.html/);
+  assert.match(page, /"featureList":\s*"[^"]*incoming Best Offer vs waiting/);
+  const offerStart = page.indexOf('id="bestOfferTable"');
+  const offerEnd = page.indexOf('id="freeShipping"', offerStart);
+  const headerBlock = page.slice(offerStart, offerEnd === -1 ? undefined : offerEnd);
+  const headers = [...headerBlock.matchAll(/<th scope="col">([^<]+)<\/th>/g)].map((m) => m[1]);
+  assert.deepEqual(headers, [
+    'Path',
+    'Price',
+    'If it sells',
+    'Expected leftover',
+    'vs waiting',
+  ]);
+});
+
+test('the free-shipping table has one cell per column and a counted event', () => {
+  assert.match(page, /compareFreeShipping/);
+  assert.match(page, /id="freeShipping"/);
+  assert.match(page, /id="freeShippingVerdict"/);
+  assert.match(page, /free_shipping_compared/);
+  assert.match(page, /should-i-offer-free-shipping-on-ebay\.html/);
+  assert.match(page, /"featureList":\s*"[^"]*free shipping vs buyer-pays/);
+  const freeStart = page.indexOf('id="freeShippingTable"');
+  const freeEnd = page.indexOf('id="internationalShipping"', freeStart);
+  const headerBlock = page.slice(freeStart, freeEnd === -1 ? undefined : freeEnd);
+  const headers = [...headerBlock.matchAll(/<th scope="col">([^<]+)<\/th>/g)].map((m) => m[1]);
+  assert.deepEqual(headers, [
+    'Path',
+    'Buyer pays',
+    'Close rate',
+    'If they keep it',
+    'Expected after sell-through',
+    'vs buyer-pays',
+  ]);
+});
+
+test('the international-shipping table has one cell per column and a counted event', () => {
+  assert.match(page, /compareInternational/);
+  assert.match(page, /id="internationalShipping"/);
+  assert.match(page, /id="internationalShippingVerdict"/);
+  assert.match(page, /international_compared/);
+  assert.match(page, /should-i-offer-international-shipping-on-ebay\.html/);
+  assert.match(page, /"featureList":\s*"[^"]*domestic vs worldwide at this list/);
+  const intlStart = page.indexOf('id="internationalShippingTable"');
+  const intlEnd = page.indexOf('id="packageProtection"', intlStart);
+  const headerBlock = page.slice(intlStart, intlEnd === -1 ? undefined : intlEnd);
+  const headers = [...headerBlock.matchAll(/<th scope="col">([^<]+)<\/th>/g)].map((m) => m[1]);
+  assert.deepEqual(headers, [
+    'Path',
+    'Intl fee',
+    'Your label',
+    'If they keep it',
+    'Expected leftover',
+    'vs domestic',
+  ]);
+});
+
+test('the package-protection table has one cell per column and a counted event', () => {
+  assert.match(page, /comparePackageProtection/);
+  assert.match(page, /id="packageProtection"/);
+  assert.match(page, /id="packageProtectionVerdict"/);
+  assert.match(page, /package_protection_compared/);
+  assert.match(page, /should-i-add-shipping-insurance-on-ebay\.html/);
+  assert.match(page, /"featureList":\s*"[^"]*skip vs insurance vs signature after item-not-received claims/);
+  const protStart = page.indexOf('id="packageProtectionTable"');
+  const protEnd = page.indexOf('id="ebayLabels"', protStart);
+  const headerBlock = page.slice(protStart, protEnd === -1 ? undefined : protEnd);
+  const headers = [...headerBlock.matchAll(/<th scope="col">([^<]+)<\/th>/g)].map((m) => m[1]);
+  assert.deepEqual(headers, [
+    'Path',
+    'Extra cost',
+    'Claim rate',
+    'Payout',
+    'If they keep it',
+    'Expected after claims',
+    'vs skip',
+  ]);
+});
+
+test('the eBay-label table has one cell per column and a counted event', () => {
+  assert.match(page, /compareEbayLabels/);
+  assert.match(page, /id="ebayLabels"/);
+  assert.match(page, /id="ebayLabelsVerdict"/);
+  assert.match(page, /ebay_labels_compared/);
+  assert.match(page, /should-i-buy-ebay-shipping-labels\.html/);
+  assert.match(page, /"featureList":\s*"[^"]*eBay label vs Pirate Ship after claims and upload time/);
+  const headerBlock = page.slice(page.indexOf('id="ebayLabelsTable"'));
+  const headers = [...headerBlock.matchAll(/<th scope="col">([^<]+)<\/th>/g)].map((m) => m[1]);
+  assert.deepEqual(headers, [
+    'Path',
+    'Label',
+    'Extra time',
+    'Claim rate',
+    'If they keep it',
+    'Expected after claims',
+    'vs eBay',
   ]);
 });

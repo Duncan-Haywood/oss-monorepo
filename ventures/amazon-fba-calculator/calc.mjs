@@ -2042,6 +2042,171 @@ export function compareInboundPlacement(input) {
   };
 }
 
+// Oct–Dec storage is billed at a higher cubic-foot rate than Jan–Sep.
+// The listing calculator takes one blended rate; this comparison keeps
+// the two seasons on separate rows so a seller can see whether sending
+// now and sitting through Q4 still beats waiting until January.
+// Complementary to aged-inventory (an age surcharge on leftover units)
+// and to expected returns (a mix on completed sales). Salvaged from
+// #1516 onto current main so the unique inbound-timing table is not
+// lost behind a conflicted rebase.
+export function blendedStorageRate({
+  offPeakMonths,
+  peakMonths,
+  offPeakRate = STORAGE_PRESETS.off_peak.perCuFt,
+  peakRate = STORAGE_PRESETS.peak.perCuFt,
+}) {
+  const offM = number(offPeakMonths, "Off-peak months");
+  const peakM = number(peakMonths, "Peak months");
+  const offR = number(offPeakRate, "Off-peak storage rate");
+  const peakR = number(peakRate, "Peak storage rate");
+  const total = offM + peakM;
+  if (total === 0) return 0;
+  return (offM * offR + peakM * peakR) / total;
+}
+
+/**
+ * Price the same listing three ways: wait until January (all off-peak),
+ * the typed stay (some months at the Oct–Dec rate), or an all-peak stay.
+ *
+ * Storage is the only line that changes. Referral, fulfillment, inbound,
+ * and cost of goods stay. Return mix is forced to zero so this table
+ * stays completed-sale storage arithmetic — complementary to the
+ * returns page, not a second return sweep.
+ *
+ * A hang-only price is not in play here. The "$612 to sit through Q4"
+ * number is waitUntilJanuarySaves on the typed unit count.
+ */
+export function compareStorageSeasons(input) {
+  const months = number(input.monthsInStorage ?? input.months, "Months in storage", 1);
+  const peakMonths = number(input.peakMonths ?? 0, "Peak months");
+  if (peakMonths > months) {
+    throw new Error("Peak months cannot exceed months in storage");
+  }
+  const offPeakMonths = months - peakMonths;
+  const offPeakRate = number(
+    input.offPeakRate,
+    "Off-peak storage rate",
+    STORAGE_PRESETS.off_peak.perCuFt,
+  );
+  const peakRate = number(input.peakRate, "Peak storage rate", STORAGE_PRESETS.peak.perCuFt);
+  const typedUnits = input.units ?? input.monthlyUnits;
+  const units = number(typedUnits === undefined || typedUnits === "" ? 1 : typedUnits, "Units", 1);
+  if (units === 0) throw new Error("Units must be greater than zero");
+
+  function scenario(id, label, offM, peakM) {
+    const storageRate = blendedStorageRate({
+      offPeakMonths: offM,
+      peakMonths: peakM,
+      offPeakRate,
+      peakRate,
+    });
+    const listing = calculateListing({
+      ...input,
+      monthsInStorage: offM + peakM,
+      storageRate,
+      returnRate: 0,
+      unsellableReturnRate: 0,
+      returnHandlingFee: 0,
+    });
+    return {
+      id,
+      label,
+      offPeakMonths: offM,
+      peakMonths: peakM,
+      storageRate,
+      storagePerUnit: listing.storagePerUnit,
+      storageOnUnits: listing.storagePerUnit * units,
+      fbaProfit: listing.fba.profit,
+      fbaProfitOnUnits: listing.fba.profit * units,
+      maxBuyCost: listing.fba.breakEvenBuyCost,
+    };
+  }
+
+  const scenarios = {
+    off_peak: scenario("off_peak", "Wait until January (all off-peak)", months, 0),
+    mixed: scenario("mixed", "Your stay (peak months at Oct–Dec rate)", offPeakMonths, peakMonths),
+    peak: scenario("peak", "All peak (Oct–Dec rate)", 0, months),
+  };
+  const ranked = ["off_peak", "mixed", "peak"]
+    .map((id) => scenarios[id])
+    .sort((a, b) => b.fbaProfit - a.fbaProfit);
+  const bestProfit = ranked[0].fbaProfit;
+  const cheapestIds = ranked
+    .filter((row) => Math.abs(row.fbaProfit - bestProfit) < 1e-9)
+    .map((row) => row.id);
+  const winner = cheapestIds.length === 1 ? cheapestIds[0] : "tie";
+
+  const zeroStorage = calculateListing({
+    ...input,
+    monthsInStorage: 0,
+    storageRate: 0,
+    returnRate: 0,
+    unsellableReturnRate: 0,
+    returnHandlingFee: 0,
+  });
+  const cuFt = cubicFeet({
+    length: input.length,
+    width: input.width,
+    height: input.height,
+  });
+  const peakCostPerMonth = cuFt * peakRate;
+  let peakMonthsUntilUnprofitable;
+  if (peakCostPerMonth === 0) {
+    peakMonthsUntilUnprofitable = zeroStorage.fba.profit > 0 ? Infinity : 0;
+  } else if (zeroStorage.fba.profit <= 0) {
+    peakMonthsUntilUnprofitable = 0;
+  } else {
+    peakMonthsUntilUnprofitable = zeroStorage.fba.profit / peakCostPerMonth;
+  }
+
+  return {
+    months,
+    peakMonths,
+    offPeakMonths,
+    units,
+    cubicFeet: cuFt,
+    offPeakRate,
+    peakRate,
+    scenarios,
+    ranked,
+    winner,
+    cheapestIds,
+    waitUntilJanuarySavesPerUnit:
+      scenarios.mixed.storagePerUnit - scenarios.off_peak.storagePerUnit,
+    waitUntilJanuarySaves: scenarios.mixed.storageOnUnits - scenarios.off_peak.storageOnUnits,
+    peakCostsExtraPerUnit: scenarios.peak.storagePerUnit - scenarios.off_peak.storagePerUnit,
+    peakCostsExtra: scenarios.peak.storageOnUnits - scenarios.off_peak.storageOnUnits,
+    peakMonthsUntilUnprofitable,
+    profitBeforeStorage: zeroStorage.fba.profit,
+  };
+}
+
+export function storageSeasonNote(result) {
+  if (!result?.scenarios?.off_peak || !result?.scenarios?.mixed) {
+    throw new Error("Storage-season comparison is missing rows");
+  }
+  const money = (value) => {
+    const sign = value < 0 ? "−" : "";
+    return `${sign}$${Math.abs(value).toFixed(2)}`;
+  };
+  const january = result.scenarios.off_peak;
+  const mixed = result.scenarios.mixed;
+  const peakStay = result.scenarios.peak;
+  if (result.peakMonths === 0) {
+    return `This stay has no October–December months, so waiting until January does not change storage. Each path keeps ${money(january.fbaProfit)} per unit.`;
+  }
+  const saveLine = `Waiting until January keeps ${money(result.waitUntilJanuarySavesPerUnit)} more per unit (${money(result.waitUntilJanuarySaves)} on ${result.units} units) than a stay with ${result.peakMonths} peak month${result.peakMonths === 1 ? "" : "s"}.`;
+  const peakLine = ` An all-peak stay costs ${money(result.peakCostsExtraPerUnit)} more per unit (${money(result.peakCostsExtra)} on the shipment) than January.`;
+  const wipe = result.peakMonthsUntilUnprofitable === Infinity
+    ? " Peak storage cannot wipe this listing because the peak cubic-foot charge is $0.00."
+    : result.peakMonthsUntilUnprofitable === 0
+      ? " The listing is already at or below $0.00 before storage, so peak months do not create the loss."
+      : ` Peak storage alone wipes leftover after about ${result.peakMonthsUntilUnprofitable.toFixed(1)} October–December months.`;
+  const januaryProfit = ` January leftover is ${money(january.fbaProfit)}; sending now leaves ${money(mixed.fbaProfit)}; all-peak leaves ${money(peakStay.fbaProfit)}.`;
+  return `${saveLine}${peakLine}${wipe}${januaryProfit}`;
+}
+
 export function placementSummary(comparison) {
   if (!comparison?.paths) {
     throw new Error("Inbound-placement comparison is missing paths");

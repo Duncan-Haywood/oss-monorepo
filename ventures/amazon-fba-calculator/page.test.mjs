@@ -90,6 +90,8 @@ test("schema.org featureList names the comparisons the page actually renders", (
   assert.match(featureList[1], /aged inventory vs remove vs dispose/i);
   assert.match(featureList[1], /expected returns/i);
   assert.match(featureList[1], /return-rate sweep/i);
+  assert.match(featureList[1], /peak vs off-peak Q4 storage/i);
+  assert.match(markup, /peak-vs-off-peak-storage\.html/);
   assert.match(markup, /id="returnsCompare"/);
   assert.match(markup, /id="returnRate"/);
   assert.match(markup, /do-amazon-returns-wipe-the-profit\.html/);

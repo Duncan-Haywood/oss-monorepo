@@ -146,6 +146,22 @@ test('counts a Promoted Offsite comparison without storing spend or extra sales'
   assert.deepEqual(Object.keys(stored).sort(), ['last_day', 'promoted_offsite_compared']);
 });
 
+test('counts a Promoted Listings Standard comparison without storing a rate or extra sales', () => {
+  const storage = fakeStorage();
+  recordUsage(storage, false, 'promoted_standard_compared');
+  const stored = JSON.parse(storage.getItem('ebay-fee-usage'));
+  assert.equal(stored.promoted_standard_compared, 1);
+  assert.deepEqual(Object.keys(stored).sort(), ['last_day', 'promoted_standard_compared']);
+});
+
+test('counts a Promoted Listings Advanced comparison without storing a CPC or click count', () => {
+  const storage = fakeStorage();
+  recordUsage(storage, false, 'promoted_advanced_compared');
+  const stored = JSON.parse(storage.getItem('ebay-fee-usage'));
+  assert.equal(stored.promoted_advanced_compared, 1);
+  assert.deepEqual(Object.keys(stored).sort(), ['last_day', 'promoted_advanced_compared']);
+});
+
 test('counts a quantity-discount comparison without storing a percent or take rate', () => {
   const storage = fakeStorage();
   recordUsage(storage, false, 'quantity_discount_compared');
@@ -184,6 +200,62 @@ test('counts a Managed Returns comparison without storing a fee or rate', () => 
   const stored = JSON.parse(storage.getItem('ebay-fee-usage'));
   assert.equal(stored.managed_returns_compared, 1);
   assert.deepEqual(Object.keys(stored).sort(), ['last_day', 'managed_returns_compared']);
+});
+
+test('counts a Global Shipping comparison without storing postage or a claim rate', () => {
+  const storage = fakeStorage();
+  recordUsage(storage, false, 'global_shipping_compared');
+  const stored = JSON.parse(storage.getItem('ebay-fee-usage'));
+  assert.equal(stored.global_shipping_compared, 1);
+  assert.deepEqual(Object.keys(stored).sort(), ['global_shipping_compared', 'last_day']);
+});
+
+test('counts a Best Offer comparison without storing the offer', () => {
+  const storage = fakeStorage();
+  recordUsage(storage, false, 'best_offer_compared');
+  const stored = JSON.parse(storage.getItem('ebay-fee-usage'));
+  assert.equal(stored.best_offer_compared, 1);
+  assert.deepEqual(Object.keys(stored).sort(), ['best_offer_compared', 'last_day']);
+});
+
+test('counts an international comparison without storing postage or a fee', () => {
+  const storage = fakeStorage();
+  recordUsage(storage, false, 'international_compared');
+  const stored = JSON.parse(storage.getItem('ebay-fee-usage'));
+  assert.equal(stored.international_compared, 1);
+  assert.deepEqual(Object.keys(stored).sort(), ['international_compared', 'last_day']);
+});
+
+test('counts a store comparison without storing a fee or order count', () => {
+  const storage = fakeStorage();
+  recordUsage(storage, false, 'store_compared');
+  const stored = JSON.parse(storage.getItem('ebay-fee-usage'));
+  assert.equal(stored.store_compared, 1);
+  assert.deepEqual(Object.keys(stored).sort(), ['last_day', 'store_compared']);
+});
+
+test('counts a free-shipping comparison without storing a list or sell-through', () => {
+  const storage = fakeStorage();
+  recordUsage(storage, false, 'free_shipping_compared');
+  const stored = JSON.parse(storage.getItem('ebay-fee-usage'));
+  assert.equal(stored.free_shipping_compared, 1);
+  assert.deepEqual(Object.keys(stored).sort(), ['free_shipping_compared', 'last_day']);
+});
+
+test('counts a package-protection comparison without storing a premium or claim rate', () => {
+  const storage = fakeStorage();
+  recordUsage(storage, false, 'package_protection_compared');
+  const stored = JSON.parse(storage.getItem('ebay-fee-usage'));
+  assert.equal(stored.package_protection_compared, 1);
+  assert.deepEqual(Object.keys(stored).sort(), ['last_day', 'package_protection_compared']);
+});
+
+test('counts an eBay-label comparison without storing a quote or claim rate', () => {
+  const storage = fakeStorage();
+  recordUsage(storage, false, 'ebay_labels_compared');
+  const stored = JSON.parse(storage.getItem('ebay-fee-usage'));
+  assert.equal(stored.ebay_labels_compared, 1);
+  assert.deepEqual(Object.keys(stored).sort(), ['ebay_labels_compared', 'last_day']);
 });
 
 test('counts the return-rate view without storing a rate or cost', () => {

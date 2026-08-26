@@ -3,15 +3,17 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
-import { compareEtsyPlus, comparePersonalization, compareEtsyAds, compareProductionPartner, compareStarSeller, compareShopSale } from './calc.mjs';
+import { compareEtsyPlus, comparePersonalization, compareEtsyAds, compareOffsiteAdRates, maxAffordableOffsiteRate, compareProductionPartner, compareStarSeller, compareShopSale, compareFreeShipping } from './calc.mjs';
 
 const html = readFileSync(new URL('./index.html', import.meta.url), 'utf8');
 const seo = readFileSync(new URL('./is-etsy-plus-worth-it.html', import.meta.url), 'utf8');
 const personalizationSeo = readFileSync(new URL('./should-i-charge-for-etsy-personalization.html', import.meta.url), 'utf8');
 const adsSeo = readFileSync(new URL('./is-etsy-ads-worth-it.html', import.meta.url), 'utf8');
+const offsiteSeo = readFileSync(new URL('./are-etsy-offsite-ads-worth-it.html', import.meta.url), 'utf8');
 const partnerSeo = readFileSync(new URL('./should-i-use-an-etsy-production-partner.html', import.meta.url), 'utf8');
 const starSeo = readFileSync(new URL('./is-etsy-star-seller-worth-it.html', import.meta.url), 'utf8');
 const saleSeo = readFileSync(new URL('./should-i-put-my-etsy-shop-on-sale.html', import.meta.url), 'utf8');
+const freeShipSeo = readFileSync(new URL('./should-i-offer-free-shipping-on-etsy.html', import.meta.url), 'utf8');
 
 function parse(source) {
   const RAW = /<(textarea|script|style)\b[^>]*>/i;
@@ -57,9 +59,13 @@ test('schema.org featureList names the Plus comparison the page actually renders
   assert.match(featureList[1], /Etsy Plus credit comparison/i);
   assert.match(featureList[1], /personalization upcharge comparison/i);
   assert.match(featureList[1], /Etsy Ads ACOS comparison/i);
+  assert.match(featureList[1], /Offsite Ads 12%\/15% comparison/i);
   assert.match(featureList[1], /production partner vs handmade comparison/i);
   assert.match(featureList[1], /Star Seller vs unsigned comparison/i);
   assert.match(featureList[1], /shop sale vs full price comparison/i);
+  assert.match(featureList[1], /free shipping vs charged shipping comparison/i);
+  assert.match(featureList[1], /listing auto-renew allocation/i);
+  assert.match(markup, /listing-renewal\.html/);
   assert.match(markup, /id="plusTable"/);
   assert.match(markup, /id="listingsPerMonth"/);
   assert.match(markup, /id="monthlyPlusFee"/);
@@ -144,7 +150,7 @@ test('the personalization SEO page uses the same worked examples the calculator 
 });
 
 test('the Ads row template has one cell per column', () => {
-  const tableMarkup = (markup.split('id="adsTable"')[1] || '').split('id="partnerTable"')[0];
+  const tableMarkup = (markup.split('id="adsTable"')[1] || '').split('id="offsiteTable"')[0];
   const headers = [...tableMarkup.matchAll(/<th scope="col"[^>]*>([\s\S]*?)<\/th>/g)].map((m) =>
     m[1].replace(/\s+/g, ' ').trim());
   assert.equal(headers.length, 5, `expected 5 Ads columns, found ${headers.join(' | ')}`);
@@ -181,6 +187,44 @@ test('the Etsy Ads SEO page uses the same worked examples the calculator default
   assert.ok(adsSeo.includes(money(offsite.organic.profit)), `missing offsite organic ${money(offsite.organic.profit)}`);
   assert.ok(adsSeo.includes(money(offsite.advertised.profit)), `missing offsite advertised ${money(offsite.advertised.profit)}`);
   assert.ok(adsSeo.includes(`${offsite.breakEvenAcosPct.toFixed(2)}%`), `missing offsite ceiling ${offsite.breakEvenAcosPct.toFixed(2)}%`);
+});
+
+test('the Offsite Ads row template has one cell per column', () => {
+  const tableMarkup = (markup.split('id="offsiteTable"')[1] || '').split('id="partnerTable"')[0];
+  const headers = [...tableMarkup.matchAll(/<th scope="col"[^>]*>([\s\S]*?)<\/th>/g)].map((m) =>
+    m[1].replace(/\s+/g, ' ').trim());
+  assert.equal(headers.length, 5, `expected 5 Offsite Ads columns, found ${headers.join(' | ')}`);
+  assert.match(scriptSource, /compareOffsiteAdRates/);
+  assert.match(scriptSource, /offsiteAdsNote/);
+  assert.match(scriptSource, /offsite_ads_compared/);
+  assert.match(markup, /id="offsite-ads"/);
+  assert.match(markup, /id="cashInvested"/);
+  assert.match(markup, /id="roi"/);
+});
+
+test('the Offsite Ads SEO page uses the same worked examples the calculator defaults produce', () => {
+  assert.match(offsiteSeo, /Are Etsy Offsite Ads worth it/i);
+  assert.match(offsiteSeo, /href="\.\/#offsite-ads"/);
+  assert.match(offsiteSeo, /No warranty/);
+  assert.match(offsiteSeo, /no SLA/i);
+  const money = (value) => {
+    const rounded = Math.round((Number(value) + Number.EPSILON) * 100) / 100;
+    const sign = rounded < 0 ? '−' : '';
+    return `${sign}$${Math.abs(rounded).toFixed(2)}`;
+  };
+  const tight = {
+    price: 14, shippingCharged: 3, listingFee: 0.2, transactionRate: 6.5,
+    paymentRate: 3, paymentFixed: 0.25, shippingCost: 5.5, materialCost: 7,
+  };
+  const rows = compareOffsiteAdRates(tight);
+  const cap = maxAffordableOffsiteRate(tight);
+  const organic = rows.find((row) => row.offsiteAdRate === 0);
+  const at12 = rows.find((row) => row.offsiteAdRate === 12);
+  const at15 = rows.find((row) => row.offsiteAdRate === 15);
+  assert.ok(offsiteSeo.includes(money(organic.profit)), `missing organic ${money(organic.profit)}`);
+  assert.ok(offsiteSeo.includes(money(at12.profit)), `missing 12% ${money(at12.profit)}`);
+  assert.ok(offsiteSeo.includes(money(at15.profit)), `missing 15% ${money(at15.profit)}`);
+  assert.ok(offsiteSeo.includes(`${cap.toFixed(1)}%`), `missing ceiling ${cap.toFixed(1)}%`);
 });
 
 test('the production-partner row template has one cell per column', () => {
@@ -296,7 +340,7 @@ test('the Star Seller SEO page uses the same worked examples the calculator defa
 });
 
 test('the shop-sale row template has one cell per column', () => {
-  const tableMarkup = markup.split('id="saleTable"')[1] || '';
+  const tableMarkup = (markup.split('id="saleTable"')[1] || '').split('id="freeShipTable"')[0];
   const headers = [...tableMarkup.matchAll(/<th scope="col"[^>]*>([\s\S]*?)<\/th>/g)].map((m) =>
     m[1].replace(/\s+/g, ' ').trim());
   assert.equal(headers.length, 6, `expected 6 shop-sale columns, found ${headers.join(' | ')}`);
@@ -351,4 +395,48 @@ test('the shop-sale SEO page uses the same worked examples the calculator defaul
   assert.ok(saleSeo.includes(money(shallow.percent.profit)), `missing 10% packed ${money(shallow.percent.profit)}`);
   assert.ok(saleSeo.includes(money(shallow.percent.expected)), `missing 10% expected ${money(shallow.percent.expected)}`);
   assert.ok(saleSeo.includes(signed(shallow.percentExtraExpected)), `missing 10% extra ${signed(shallow.percentExtraExpected)}`);
+});
+
+test('the free-shipping row template has one cell per column', () => {
+  const tableMarkup = markup.split('id="freeShipTable"')[1] || '';
+  const headers = [...tableMarkup.matchAll(/<th scope="col"[^>]*>([\s\S]*?)<\/th>/g)].map((m) =>
+    m[1].replace(/\s+/g, ' ').trim());
+  assert.equal(headers.length, 5, `expected 5 free-shipping columns, found ${headers.join(' | ')}`);
+  assert.match(scriptSource, /compareFreeShipping/);
+  assert.match(scriptSource, /freeShippingNote/);
+  assert.match(scriptSource, /free_shipping_compared/);
+  assert.match(markup, /id="freeShipPrice"/);
+  assert.match(markup, /id="monthlyOrders"/);
+  assert.match(markup, /id="free-shipping"/);
+});
+
+test('the free-shipping SEO page uses the same worked examples the calculator defaults produce', () => {
+  assert.match(freeShipSeo, /Should I offer free shipping on Etsy/i);
+  assert.match(freeShipSeo, /href="\.\/#free-shipping"/);
+  assert.match(freeShipSeo, /No warranty/);
+  assert.match(freeShipSeo, /no SLA/i);
+  const money = (value) => `$${(Math.round((Number(value) + Number.EPSILON) * 100) / 100).toFixed(2)}`;
+  const signed = (value) => `${value < 0 ? '−' : '+'}${money(Math.abs(value))}`;
+  const pageOrder = {
+    price: 30, shippingCharged: 5, listingFee: 0.2, transactionRate: 6.5,
+    paymentRate: 3, paymentFixed: 0.25, offsiteAdRate: 0, shippingCost: 6,
+    materialCost: 4, otherCost: 0,
+  };
+  const defaults = compareFreeShipping(pageOrder);
+  const eat = compareFreeShipping({ ...pageOrder, freeShipPrice: 30 });
+  const raised = compareFreeShipping({ ...pageOrder, freeShipPrice: 40 });
+  const ads = compareFreeShipping({ ...pageOrder, offsiteAdRate: 15 });
+  assert.ok(freeShipSeo.includes(money(defaults.charged.profit)), `missing charged ${money(defaults.charged.profit)}`);
+  assert.ok(freeShipSeo.includes(money(defaults.eatLabel.profit)), `missing eat ${money(defaults.eatLabel.profit)}`);
+  assert.ok(freeShipSeo.includes(money(defaults.raised.profit)), `missing $32 ${money(defaults.raised.profit)}`);
+  assert.ok(freeShipSeo.includes(signed(defaults.perOrderDelta)), `missing $32 delta ${signed(defaults.perOrderDelta)}`);
+  assert.ok(freeShipSeo.includes(money(defaults.monthlyCharged)), `missing monthly ${money(defaults.monthlyCharged)}`);
+  assert.ok(freeShipSeo.includes(`${defaults.extraOrdersNeeded.toFixed(1)} extra orders`), `missing lift ${defaults.extraOrdersNeeded.toFixed(1)}`);
+  assert.ok(freeShipSeo.includes(money(eat.raised.profit)), `missing $30 leftover ${money(eat.raised.profit)}`);
+  assert.ok(freeShipSeo.includes(`${eat.extraOrdersNeeded.toFixed(1)} extra orders`), `missing $30 lift ${eat.extraOrdersNeeded.toFixed(1)}`);
+  assert.ok(freeShipSeo.includes(money(raised.raised.profit)), `missing $40 leftover ${money(raised.raised.profit)}`);
+  assert.ok(freeShipSeo.includes(signed(raised.perOrderDelta)), `missing $40 delta ${signed(raised.perOrderDelta)}`);
+  assert.ok(freeShipSeo.includes(money(ads.charged.profit)), `missing ads charged ${money(ads.charged.profit)}`);
+  assert.ok(freeShipSeo.includes(money(ads.raised.profit)), `missing ads raised ${money(ads.raised.profit)}`);
+  assert.ok(freeShipSeo.includes(signed(ads.perOrderDelta)), `missing ads delta ${signed(ads.perOrderDelta)}`);
 });

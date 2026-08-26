@@ -197,6 +197,34 @@ test('carries Promoted Offsite fields so a shared link does not drop them', () =
   assert.equal(restored.monthlyOffsiteCampaigns, 4);
 });
 
+test('carries Promoted Listings Standard fields so a shared link does not drop them', () => {
+  const restored = decodeInputs(encodeInputs({
+    price: 40,
+    promotedStandardRate: 5,
+    promotedStandardExtraOrders: 1,
+    monthlyPromotedListings: 20,
+  }));
+  assert.equal(restored.promotedStandardRate, 5);
+  assert.equal(restored.promotedStandardExtraOrders, 1);
+  assert.equal(restored.monthlyPromotedListings, 20);
+});
+
+test('carries Promoted Listings Advanced fields so a shared link does not drop them', () => {
+  const restored = decodeInputs(encodeInputs({
+    price: 40,
+    advancedCpc: 0.4,
+    advancedClicks: 40,
+    advancedExtraOrders: 1,
+    advancedPromotedRate: 5,
+    monthlyAdvancedCampaigns: 20,
+  }));
+  assert.equal(restored.advancedCpc, 0.4);
+  assert.equal(restored.advancedClicks, 40);
+  assert.equal(restored.advancedExtraOrders, 1);
+  assert.equal(restored.advancedPromotedRate, 5);
+  assert.equal(restored.monthlyAdvancedCampaigns, 20);
+});
+
 test('carries quantity-discount fields so a shared link does not drop them', () => {
   const restored = decodeInputs(encodeInputs({
     price: 40,
@@ -243,6 +271,32 @@ test('carries immediate-payment fields so a shared link does not drop them', () 
   assert.equal(restored.unpaidMinutes, 20);
   assert.equal(restored.unpaidHourlyWage, 18);
   assert.equal(restored.monthlyImmediateListings, 40);
+});
+
+test('carries Global Shipping fields so a shared link does not drop them', () => {
+  const restored = decodeInputs(encodeInputs({
+    price: 40,
+    gspReturnRatePercent: 6,
+    gspSellThroughPct: 40,
+    selfShipShippingCharged: 22,
+    selfShipShippingCost: 18,
+    selfShipReturnShippingCost: 18,
+    selfShipIntlFeeRate: 1.65,
+    selfShipReturnRatePercent: 10,
+    selfShipClaimRatePercent: 8,
+    selfShipSellThroughPct: 55,
+    monthlyGspListings: 20,
+  }));
+  assert.equal(restored.gspReturnRatePercent, 6);
+  assert.equal(restored.gspSellThroughPct, 40);
+  assert.equal(restored.selfShipShippingCharged, 22);
+  assert.equal(restored.selfShipShippingCost, 18);
+  assert.equal(restored.selfShipReturnShippingCost, 18);
+  assert.equal(restored.selfShipIntlFeeRate, 1.65);
+  assert.equal(restored.selfShipReturnRatePercent, 10);
+  assert.equal(restored.selfShipClaimRatePercent, 8);
+  assert.equal(restored.selfShipSellThroughPct, 55);
+  assert.equal(restored.monthlyGspListings, 20);
 });
 
 test('carries seller-coupon fields so a shared link does not drop them', () => {
@@ -305,6 +359,75 @@ test('carries Managed Returns fields so a shared link does not drop them', () =>
   assert.equal(restored.managedReturnRatePercent, 14);
   assert.equal(restored.buyerPaysReturnRatePercent, 6);
   assert.equal(restored.monthlyManagedListings, 40);
+});
+
+test('carries store-subscription fields so a shared link does not drop them', () => {
+  const restored = decodeInputs(encodeInputs({
+    price: 40,
+    monthlyStoreOrders: 80,
+    monthlyStoreFee: 7.95,
+  }));
+  assert.equal(restored.monthlyStoreOrders, 80);
+  assert.equal(restored.monthlyStoreFee, 7.95);
+});
+
+test('carries the extra international label cost', () => {
+  const restored = decodeInputs(encodeInputs({ price: 40, intlExtraShipping: 18.5 }));
+  assert.equal(restored.intlExtraShipping, 18.5);
+});
+
+test('carries package-protection fields so a shared link does not drop them', () => {
+  const restored = decodeInputs(encodeInputs({
+    price: 40,
+    skipClaimRatePercent: 8,
+    insurancePremium: 2.25,
+    insuranceClaimRatePercent: 0.5,
+    insurancePayout: 20,
+    signatureFee: 4,
+    signatureClaimRatePercent: 0.3,
+    monthlyProtectionShipments: 25,
+  }));
+  assert.equal(restored.skipClaimRatePercent, 8);
+  assert.equal(restored.insurancePremium, 2.25);
+  assert.equal(restored.insuranceClaimRatePercent, 0.5);
+  assert.equal(restored.insurancePayout, 20);
+  assert.equal(restored.signatureFee, 4);
+  assert.equal(restored.signatureClaimRatePercent, 0.3);
+  assert.equal(restored.monthlyProtectionShipments, 25);
+});
+
+test('carries eBay-label vs third-party fields so a shared link does not drop them', () => {
+  const restored = decodeInputs(encodeInputs({
+    price: 40,
+    ebayLabelCost: 5.4,
+    thirdPartyLabelCost: 4.1,
+    ebayLabelClaimRatePercent: 0.7,
+    thirdPartyClaimRatePercent: 3,
+    labelUploadMinutes: 3,
+    labelUploadWage: 20,
+    monthlyLabelShipments: 25,
+  }));
+  assert.equal(restored.ebayLabelCost, 5.4);
+  assert.equal(restored.thirdPartyLabelCost, 4.1);
+  assert.equal(restored.ebayLabelClaimRatePercent, 0.7);
+  assert.equal(restored.thirdPartyClaimRatePercent, 3);
+  assert.equal(restored.labelUploadMinutes, 3);
+  assert.equal(restored.labelUploadWage, 20);
+  assert.equal(restored.monthlyLabelShipments, 25);
+});
+
+test('carries free-shipping fields so a shared link does not drop them', () => {
+  const restored = decodeInputs(encodeInputs({
+    price: 40,
+    freeShipPrice: 46,
+    buyerPaysSellThroughPct: 55,
+    freeShipSellThroughPct: 70,
+    monthlyFreeShipListings: 40,
+  }));
+  assert.equal(restored.freeShipPrice, 46);
+  assert.equal(restored.buyerPaysSellThroughPct, 55);
+  assert.equal(restored.freeShipSellThroughPct, 70);
+  assert.equal(restored.monthlyFreeShipListings, 40);
 });
 
 test('round-trips known numeric inputs in stable order', () => {

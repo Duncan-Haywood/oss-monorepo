@@ -18,7 +18,7 @@
     "applicationCategory": "BusinessApplication",
     "operatingSystem": "Any (runs in a web browser)",
     "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
-    "featureList": "FBA vs FBM comparison, Individual vs Professional seller plan, seller-plan volume ladder, size-tier fulfillment, storage, inbound, inbound placement vs split freight, expected returns, return-rate sweep, net profit, margin, ROI, break-even price, max buy cost, target-margin price, Low-Price FBA vs raising the list price, coupon vs list profit, coupon break-even volume, Subscribe & Save vs list profit, S&S enroll-share mixed month, Multi-Channel Fulfillment vs Amazon vs you-ship, usual PO vs supplier MOQ, you-prep vs Amazon inbound prep, aged inventory vs remove vs dispose"
+    "featureList": "FBA vs FBM comparison, Individual vs Professional seller plan, seller-plan volume ladder, size-tier fulfillment, storage, inbound, inbound placement vs split freight, expected returns, return-rate sweep, peak vs off-peak Q4 storage, net profit, margin, ROI, break-even price, max buy cost, target-margin price, Low-Price FBA vs raising the list price, coupon vs list profit, coupon break-even volume, Subscribe & Save vs list profit, S&S enroll-share mixed month, Multi-Channel Fulfillment vs Amazon vs you-ship, usual PO vs supplier MOQ, you-prep vs Amazon inbound prep, aged inventory vs remove vs dispose"
   }
   </script>
   <script type="application/ld+json">
@@ -209,6 +209,7 @@
         </label>
         <label>Months in storage <input id="monthsInStorage" type="number" min="0" step="0.1" value="1"></label>
         <label>Storage rate ($ / cu ft / mo) <input id="storageRate" type="number" min="0" step="0.01" value="0.87"></label>
+        <p class="note span2">A stay that crosses October–December is a timing question, not this blended rate. <a href="peak-vs-off-peak-storage.html" style="color:#9ec5ff">Should you send inventory before Q4 peak storage?</a></p>
         <label>FBA fulfillment fee <span class="hint" id="sizeHint"></span>
           <input id="fulfillmentFee" type="number" min="0" step="0.01" value="">
         </label>
@@ -586,6 +587,13 @@
       that still ties dispose.
     </p>
     <p>
+      Units that have not shipped yet are a seasonal-storage decision:
+      send now and sit through October–December, or wait until January.
+      <a href="peak-vs-off-peak-storage.html">Should you send FBA inventory before Q4 peak storage?</a>
+      keeps the off-peak and peak cubic-foot rates on separate rows so a
+      blended storage / unit does not hide the January gap.
+    </p>
+    <p>
       Returns are a further mix on the same SKU: a completed sale keeps
       the leftover, a return usually refunds the buyer and the referral,
       and the pick fee plus inbound stay spent.
@@ -596,7 +604,7 @@
     <p>
       It does not recommend a price, a category, a fulfillment method, a
       coupon, Subscribe &amp; Save enrollment, a purchase-order size, a
-      prep path, an inbound split, an account type, a Vine enrollment, a removal order, or a return policy, and it is not tax or financial advice. The gap
+      prep path, an inbound split, an account type, a Vine enrollment, a removal order, a return policy, or a ship month, and it is not tax or financial advice. The gap
       between paths is an arithmetic comparison of the rates you entered.
     </p>
   </section>
