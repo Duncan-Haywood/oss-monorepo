@@ -498,6 +498,23 @@ products:
           (alcove plumbing), and home elevator (a shaft). Public URL
           remains owner-gated; the local-first counter reports only to
           the user's own browser and is opt-out. Baseline row.
+  - slug: home-elevator-bid-calculator
+    surface: static-page-in-repo
+    readings:
+      - as_of: 2026-08-25
+        signals:
+          live_url_visitors: null
+          local_events_reported: 0
+        note: >-
+          Shipped a local home elevator / residential elevator bid
+          calculator (stops, travel feet, pneumatic vs winding-drum vs
+          hydraulic vs traction-MRL, through-floor vs existing-shaft vs
+          new-wood vs masonry vs glass, cab finish, pit/feeder/permit
+          extras, copyable proposal summary). Distinct from stair lift
+          (a chair on a rail), wheelchair ramp (carpentry), and walk-in
+          tub (alcove plumbing). Public URL remains owner-gated; the
+          local-first counter reports only to the user's own browser
+          and is opt-out. Baseline row.
   - slug: freelance-retainer-calculator
     surface: static-page-in-repo
     readings:
