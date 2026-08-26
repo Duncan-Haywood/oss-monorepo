@@ -24,9 +24,37 @@ test('finds the price that covers fixed and percentage costs', () => {
   assert.equal(result.breakEvenPrice, 20);
 });
 
+test('credits shipping charged when finding the break-even item price', () => {
+  const result = calculateOrder({
+    price: 0,
+    shippingCharged: 5,
+    listingFee: 1,
+    paymentFixed: 1,
+    transactionRate: 10,
+    paymentRate: 5,
+    shippingCost: 10,
+    materialCost: 5,
+  });
+  assert.equal(result.breakEvenPrice, 15);
+  assert.equal(calculateOrder({
+    price: result.breakEvenPrice,
+    shippingCharged: 5,
+    listingFee: 1,
+    paymentFixed: 1,
+    transactionRate: 10,
+    paymentRate: 5,
+    shippingCost: 10,
+    materialCost: 5,
+  }).profit, 0);
+});
+
 test('rejects negative or non-numeric inputs', () => {
   assert.throws(() => calculateOrder({ price: -1 }));
   assert.throws(() => calculateOrder({ price: 'nope' }));
+});
+
+test('rejects percentage fee rates that make break-even impossible', () => {
+  assert.throws(() => calculateOrder({ price: 10, transactionRate: 60, paymentRate: 40 }), /below 100/);
 });
 
 test('finds the item price for a target margin', () => {
