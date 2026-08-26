@@ -411,6 +411,9 @@ workflows:
 - workflow: sunroom-bid-calculator-ci.yml
   classification: none
   publishes: []
+- workflow: tender-radar-ci.yml
+  classification: none
+  publishes: []
 - workflow: tiktok-shop-fee-calculator-ci.yml
   classification: none
   publishes: []
