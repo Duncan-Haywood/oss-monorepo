@@ -649,29 +649,83 @@ ${DISCLAIMER_HTML}
 // with nearly every open branch.
 const CHROME_MARKER = 'pf-chrome';
 
+/**
+ * How a page says it carries no availability promise, in any of the wordings
+ * the ventures actually use. Deliberately loose: several write the clause in
+ * their own voice ("Hosted URLs, when they exist, carry no availability SLA"),
+ * and a page that already says it must not be given a second notice.
+ */
+export const NO_SLA_PATTERN =
+  /best-effort hosting|no (availability )?sla|carry no availability|taken offline without notice/i;
+
+/**
+ * The availability clause, injected into any published page that lacks one.
+ *
+ * PRODUCT_PLAYBOOK.md 5b requires it on every hosted surface, and a test has
+ * enforced that since #1731 — but it can only fail *after* the venture is on
+ * `main`, and three ventures shipped without the clause and turned `main` red
+ * in a single day (#1747 for two, and sewer-line-replace after them). That is
+ * not carelessness: a calculator is written as a standalone page, months
+ * before anyone decides it will be hosted, so nothing in front of its author
+ * says an availability promise is now implied.
+ *
+ * Injecting it where it is missing makes the requirement hold by construction
+ * for every tool including the one that lands tomorrow, the same way the
+ * canonical below is injected only where absent.
+ *
+ * Only the *hosting* clause is injected, never the no-warranty one. This build
+ * decides how these pages are hosted, so the availability promise is its
+ * statement to make; what a tool is not advice *about* is the venture's own
+ * ("not landscaping, construction, legal, tax, or financial advice"), and
+ * generic prose there would be worse than what each venture already writes.
+ */
+const NO_SLA_CLAUSE =
+  '<p class="pf-sla"><strong>Best-effort hosting, no SLA.</strong> These tools are free and ' +
+  'experimental, and may be slow, broken, moved, or taken offline without notice. We do not ' +
+  'promise uptime, or that a URL will keep working. Do not use this as a system of record.</p>';
+
 // Scoped under `.pf-chrome` so it cannot restyle a venture's own page, and
 // declared with fallbacks rather than inherited variables because each venture
 // names its theme variables differently.
+// The chrome takes its colours from the host page, not from the operating
+// system, and that is the one non-obvious thing about this block.
+//
+// It used to paint an opaque band from its own palette behind
+// `prefers-color-scheme`. Internally that is perfectly legible — the band sets
+// both its background and its text, so the contrast within it is fine. The
+// problem is what it sits on. Most ventures in this portfolio are deliberately
+// light-only: they carry no `prefers-color-scheme` rule at all, so their page
+// stays cream whatever the OS says. A visitor with a dark OS therefore got a
+// near-black slab bolted to the bottom of a light page — readable, and
+// unmistakably broken-looking. On a phone at night, which is a lot of this
+// audience, that slab was the last thing they saw before deciding whether the
+// site was worth trusting with a bid.
+//
+// So: `color:inherit` for text, and a neutral mid-grey at low alpha for lines
+// and fills, which reads as a subtle tint over a light or a dark background
+// without the chrome needing to know which one it is. Links are underlined
+// rather than tinted, because no single accent is legible on all 42 pages.
+// A venture with its own dark mode still gets dark chrome — it inherits it,
+// which is the point.
+//
+// (`favicon.ico` is the deliberate exception elsewhere in this file: the
+// browser draws it onto its own furniture, so there is no host page for it to
+// inherit from.)
 const CHROME_STYLE = `<style id="pf-chrome-style">
-.pf-chrome{font-family:system-ui,-apple-system,"Segoe UI",sans-serif;font-size:.9rem;line-height:1.5}
-.pf-chrome a{color:#0f5648;text-decoration:underline}
-.pf-chrome-top{border-bottom:1px solid #d3dce6;background:#eef2f7;color:#1d2530;padding:9px 16px}
+.pf-chrome{font-family:system-ui,-apple-system,"Segoe UI",sans-serif;font-size:.9rem;line-height:1.5;
+  color:inherit;--pf-line:rgba(128,128,128,.34);--pf-fill:rgba(128,128,128,.07)}
+.pf-chrome a{color:inherit;text-decoration:underline;text-underline-offset:2px}
+.pf-chrome-top{border-bottom:1px solid var(--pf-line);background:var(--pf-fill);padding:9px 16px}
 .pf-chrome-top a{font-weight:650;text-decoration:none}
 .pf-chrome-top a:hover,.pf-chrome-top a:focus-visible{text-decoration:underline}
-.pf-chrome-foot{border-top:1px solid #d3dce6;background:#eef2f7;color:#1d2530;margin-top:40px;padding:22px 16px 26px}
+.pf-chrome-foot{border-top:1px solid var(--pf-line);background:var(--pf-fill);margin-top:40px;padding:22px 16px 26px}
 .pf-chrome-foot .pf-inner{max-width:1080px;margin:0 auto}
-.pf-chrome-foot h2{font-size:1rem;margin:0 0 4px}
-.pf-chrome-foot p{margin:0 0 12px;color:#4a5666}
+.pf-chrome-foot h2{font-size:1rem;margin:0 0 4px;color:inherit}
+.pf-chrome-foot p{margin:0 0 12px;opacity:.78}
 .pf-chrome-foot ul{list-style:none;margin:0 0 14px;padding:0;display:grid;gap:8px 18px;
   grid-template-columns:repeat(auto-fill,minmax(240px,1fr))}
 .pf-chrome-foot li{margin:0}
-.pf-chrome :focus-visible{outline:2px solid #0f5648;outline-offset:2px}
-@media (prefers-color-scheme:dark){
-.pf-chrome a{color:#7fd8c0}
-.pf-chrome-top,.pf-chrome-foot{background:#10151c;color:#e8eef5;border-color:#2a343f}
-.pf-chrome-foot p{color:#a2b0c0}
-.pf-chrome :focus-visible{outline-color:#7fd8c0}
-}
+.pf-chrome :focus-visible{outline:2px solid currentColor;outline-offset:2px}
 </style>`;
 
 // The same anonymous, local-only convention the hub uses: which tool slugs were
@@ -736,10 +790,48 @@ export function relatedTools(surfaces, slug, limit = 4) {
  * unchanged when there is no `<body>` to attach to, or when the page has been
  * wrapped already — the pass has to be safe to run twice.
  */
-export function injectChrome(html, { slug, toRoot, total, related = [] }) {
+export function injectChrome(html, { slug, toRoot, total, related = [], canonical, isEntry, title }) {
   if (html.includes(CHROME_MARKER)) return html;
   const bodyOpen = html.match(/<body[^>]*>/i);
   if (!bodyOpen || !/<\/body>/i.test(html)) return html;
+
+  // Two head tags that only became possible once these pages shared an origin.
+  // Both are added only where the venture does not already provide its own — a
+  // second canonical is worse than none, because the crawler then picks one
+  // arbitrarily.
+  let headExtras = '';
+  if (canonical && !/<link[^>]+rel=["']canonical["']/i.test(html)) {
+    // Under one origin every page is reachable at both `/tool/page.html` and,
+    // for an index, `/tool/` — which splits the ranking of a page already
+    // competing for one narrow search term. Ventures written as standalone
+    // sites had no origin to point a canonical at, so many carry none.
+    headExtras += `\n<link rel="canonical" href="${escapeHtml(canonical)}">`;
+  }
+  if (isEntry && canonical && !html.includes('"BreadcrumbList"')) {
+    // Lets a result render as "Free small-business calculators › eBay Fee
+    // Calculator" rather than a bare URL, and tells an answer engine these are
+    // one collection rather than 42 unrelated pages. Entry pages only: a deep
+    // SEO page inside a tool is not a third level of the site, and saying it is
+    // would describe a hierarchy that does not exist.
+    headExtras += `\n<script type="application/ld+json">${jsonLd({
+      '@context': 'https://schema.org',
+      '@type': 'BreadcrumbList',
+      itemListElement: [
+        {
+          '@type': 'ListItem',
+          position: 1,
+          name: 'Free small-business calculators',
+          item: canonical.slice(0, canonical.length - `${slug}/`.length),
+        },
+        { '@type': 'ListItem', position: 2, name: title || slug, item: canonical },
+      ],
+    })}</script>`;
+  }
+  if (headExtras) {
+    html = /<\/head>/i.test(html)
+      ? html.replace(/<\/head>/i, `${headExtras}\n</head>`)
+      : html.replace(bodyOpen[0], `${headExtras}\n${bodyOpen[0]}`);
+  }
 
   const hub = `${toRoot}`;
   const topBar = `<nav class="pf-chrome pf-chrome-top" aria-label="Site">
@@ -755,11 +847,14 @@ export function injectChrome(html, { slug, toRoot, total, related = [] }) {
     )
     .join('\n');
 
+  // Tested against the venture's own markup, before any chrome is added.
+  const noSla = NO_SLA_PATTERN.test(html) ? '' : `    ${NO_SLA_CLAUSE}\n`;
+
   const footer = `<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
   <div class="pf-inner">
     <h2>More free tools</h2>
     <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
-${links ? `    <ul>\n${links}\n    </ul>\n` : ''}    <p>
+${noSla}${links ? `    <ul>\n${links}\n    </ul>\n` : ''}    <p>
       <a href="${escapeHtml(hub)}" data-pf-to="hub">Browse all ${total} free tools →</a>
       &nbsp;·&nbsp;
       <a href="https://github.com/sponsors/Duncan-Haywood">Sponsoring on GitHub</a>
@@ -784,7 +879,7 @@ ${CHROME_SCRIPT(slug)}`;
  * as one that escapes the site and repoints it at GitHub — which is exactly what
  * would happen to a `../` hub link injected any earlier.
  */
-export async function addSiteChrome({ outDir, surfaces }) {
+export async function addSiteChrome({ outDir, surfaces, baseUrl = DEFAULT_BASE_URL }) {
   const wrapped = [];
 
   for (const surface of surfaces) {
@@ -794,12 +889,18 @@ export async function addSiteChrome({ outDir, surfaces }) {
 
     for (const file of (await listFiles(dir)).filter((f) => f.endsWith('.html'))) {
       const relative = path.relative(outDir, file);
+      const url = relative.split(path.sep).join('/');
       const html = await fs.readFile(file, 'utf8');
       const next = injectChrome(html, {
         slug: surface.slug,
         toRoot: upToRoot(relative),
         total: surfaces.length,
         related,
+        title: surface.title,
+        // `/tool/index.html` and `/tool/` are the same page; the directory form
+        // is the one to declare.
+        canonical: `${baseUrl}${url.replace(/(^|\/)index\.html$/, '$1')}`,
+        isEntry: url === `${surface.slug}/index.html`,
       });
       if (next === html) continue;
       await fs.writeFile(file, next);
@@ -974,7 +1075,7 @@ export async function buildSite({
   // without this, any directory starting with `_` is silently dropped.
   await fs.writeFile(path.join(outDir, '.nojekyll'), '');
 
-  const wrapped = await addSiteChrome({ outDir, surfaces });
+  const wrapped = await addSiteChrome({ outDir, surfaces, baseUrl: base });
 
   return { outDir, baseUrl: base, surfaces, repairs, wrapped };
 }

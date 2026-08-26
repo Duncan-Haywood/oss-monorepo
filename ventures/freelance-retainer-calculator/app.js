@@ -8,7 +8,12 @@ export const PAYMENT_TERMS = {
   arrears15: { days: 45, label: 'Invoice at month-end, Net 15' },
   arrears30: { days: 60, label: 'Invoice at month-end, Net 30' },
 };
-export const inputIds = ['income', 'costs', 'hours', 'utilization', 'retainerHours', 'buffer', 'currency', 'paymentTerms'];
+// `otherRevenue`, `otherHours` and `fillRate` describe the rest of the
+// freelancer's month, not this client. They are saved in the local draft like
+// everything else, but `formatProposalSummary` must never print them: that
+// summary is copied into a client-facing proposal, and what other clients pay
+// is none of its business. A test asserts the summary stays clean.
+export const inputIds = ['income', 'costs', 'hours', 'utilization', 'retainerHours', 'buffer', 'otherRevenue', 'otherHours', 'fillRate', 'currency', 'paymentTerms'];
 export const DRAFT_KEY = 'frc-draft-v1';
 export const DISCLAIMER = 'Planning aid only. No warranty. Review and verify this output before relying on it; it is not financial advice.';
 
@@ -65,6 +70,137 @@ export function calculatePlan(values) {
   const rate = target / capacity;
   const retainer = Math.round(rate * retainerHours * (1 + buffer) * 100) / 100;
   return { capacity, remainingCapacity: capacity - retainerHours, target, rate, retainer, retainerHours };
+}
+
+export const DEFAULT_FILL_RATE = 100;
+
+/**
+ * Whether this retainer actually reaches the income goal — which is not the
+ * same question as whether it clears the hourly floor.
+ *
+ * `calculatePlan` derives the floor as `target / capacity`: the rate that hits
+ * the goal *if every billable hour in the month is sold*. A 20-hour retainer
+ * out of 104 billable hours can clear that floor to the penny and still leave
+ * the freelancer thousands short, because the other 84 hours are an assumption
+ * nobody made out loud. Every other number on the page is about one client;
+ * this one is about the month.
+ *
+ * So: name what is already sold (this retainer plus any other committed work),
+ * name how much of what is left you actually expect to bill, and report the
+ * gap. `requiredFillRate` is the honest headline — the share of unsold
+ * capacity that has to turn into billed work for the goal to arrive.
+ *
+ * Defaults reproduce the tool's previous implicit assumption exactly: no other
+ * commitments and a 100% fill rate. The change is that the assumption is now
+ * on screen instead of buried in the arithmetic.
+ */
+export function calculateIncomeCoverage(plan, options = {}) {
+  const rate = Number(plan?.rate);
+  const retainer = Number(plan?.retainer);
+  const target = Number(plan?.target);
+  const capacity = Number(plan?.capacity);
+  const retainerHours = Number(options.retainerHours ?? plan?.retainerHours);
+  if (![rate, retainer, target, capacity, retainerHours].every((value) => Number.isFinite(value) && value > 0)) {
+    throw new Error('Need a priced retainer and a positive hourly floor to check the income goal.');
+  }
+
+  const otherRevenue = Number(options.otherRevenue ?? 0);
+  const otherHours = Number(options.otherHours ?? 0);
+  const fillRatePercent = Number(options.fillRatePercent ?? DEFAULT_FILL_RATE);
+  if (![otherRevenue, otherHours].every((value) => Number.isFinite(value) && value >= 0)) {
+    throw new Error('Other committed revenue and hours must be zero or more.');
+  }
+  if (!Number.isFinite(fillRatePercent) || fillRatePercent < 0 || fillRatePercent > 100) {
+    throw new Error('Expected fill rate must be a percentage from 0 to 100.');
+  }
+
+  const committedHours = round2(retainerHours + otherHours);
+  if (committedHours > capacity + 1e-9) {
+    throw new Error(`This retainer plus your other commitments need ${committedHours} hours, but your plan has only ${capacity.toFixed(1)} billable hours.`);
+  }
+  const committedRevenue = round2(retainer + otherRevenue);
+  const unsoldHours = round2(Math.max(0, capacity - committedHours));
+
+  const fillRate = fillRatePercent / 100;
+  const expectedFillHours = round2(unsoldHours * fillRate);
+  const expectedOtherRevenue = round2(expectedFillHours * rate);
+  const expectedRevenue = round2(committedRevenue + expectedOtherRevenue);
+  const shortfall = round2(target - expectedRevenue);
+  const coversTarget = shortfall <= 1e-9;
+
+  // The break-even that makes the rest trustworthy: what share of the unsold
+  // hours has to become billed work. Above 100% means no amount of selling
+  // inside this capacity closes the gap — the price, the capacity, or the
+  // client list has to change instead. Reported as the raw figure rather than
+  // suppressed, because "you would need 140% of the hours you have" is a more
+  // useful answer than "unreachable".
+  const gapAfterCommitted = round2(target - committedRevenue);
+  const requiredFillRate = unsoldHours > 0
+    ? round2(Math.max(0, (gapAfterCommitted / (unsoldHours * rate)) * 100))
+    : null;
+  const reachableWithinCapacity = requiredFillRate !== null
+    ? requiredFillRate <= 100 + 1e-9
+    : gapAfterCommitted <= 1e-9;
+
+  const hoursToClose = shortfall > 0 ? round2(shortfall / rate) : 0;
+  // What this retainer alone would have to cost to close the gap by itself —
+  // the "or raise the price" branch of the same decision.
+  const retainerPriceToCloseGap = shortfall > 0 ? round2(retainer + shortfall) : round2(retainer);
+  const retainerShareOfTarget = round2((retainer / target) * 100);
+
+  // The verdict is the one place a reader meets these figures in prose, so it
+  // formats its own money. `options.currency` is display-only and changes no
+  // arithmetic; every numeric field on the returned object stays a raw number.
+  const money = (value) => moneyText(value, options.currency ?? 'USD');
+  const parts = [];
+  if (coversTarget) {
+    parts.push(`At ${fillRatePercent}% fill on the ${unsoldHours} unsold hours, the month reaches ${money(expectedRevenue)} against a ${money(target)} target. This retainer is ${retainerShareOfTarget}% of it.`);
+    if (requiredFillRate !== null && requiredFillRate > 0) {
+      parts.push(`The goal survives down to a ${requiredFillRate}% fill rate before it stops arriving.`);
+    }
+  } else {
+    parts.push(`This retainer clears your ${money(round2(rate))}/hr floor, but the month does not reach the goal: ${money(expectedRevenue)} of ${money(target)}, ${money(shortfall)} short. The retainer is only ${retainerShareOfTarget}% of the target — the rest is ${unsoldHours} unsold hours you are assuming will fill.`);
+    if (requiredFillRate === null) {
+      parts.push('There are no unsold hours left to fill, so the gap can only close on price or capacity.');
+    } else if (reachableWithinCapacity) {
+      parts.push(`Closing it needs ${hoursToClose} more billed hours — a ${requiredFillRate}% fill rate rather than ${fillRatePercent}%. If that is not the year you are having, price this retainer at ${money(retainerPriceToCloseGap)} instead, or plan for a second client.`);
+    } else {
+      parts.push(`No fill rate closes it: even billing every one of the ${unsoldHours} unsold hours leaves you short, because you would need ${requiredFillRate}% of them. Raise the price toward ${money(retainerPriceToCloseGap)}, add capacity, or lower the take-home goal — selling harder cannot do it.`);
+    }
+  }
+
+  return {
+    quotedHourlyRate: round2(rate),
+    retainerPrice: round2(retainer),
+    target: round2(target),
+    capacity: round2(capacity),
+    otherRevenue: round2(otherRevenue),
+    otherHours: round2(otherHours),
+    committedHours,
+    committedRevenue,
+    unsoldHours,
+    fillRatePercent,
+    expectedFillHours,
+    expectedOtherRevenue,
+    expectedRevenue,
+    shortfall: round2(Math.max(0, shortfall)),
+    surplus: round2(Math.max(0, -shortfall)),
+    coversTarget,
+    requiredFillRate,
+    reachableWithinCapacity,
+    hoursToClose,
+    retainerPriceToCloseGap,
+    retainerShareOfTarget,
+    recommendation: parts.join(' '),
+  };
+}
+
+export function formatIncomeCoverageAdvice(coverage, currency = 'USD') {
+  const money = (value) => moneyText(value, currency);
+  if (coverage.coversTarget) {
+    return `Income goal: reached at a ${coverage.fillRatePercent}% fill rate — ${money(coverage.expectedRevenue)} against ${money(coverage.target)}.`;
+  }
+  return `Income goal: ${money(coverage.shortfall)} short at a ${coverage.fillRatePercent}% fill rate. ${coverage.reachableWithinCapacity ? `Needs ${coverage.requiredFillRate}% instead, or ${money(coverage.retainerPriceToCloseGap)} for this retainer.` : `Unreachable by selling — this retainer would have to be ${money(coverage.retainerPriceToCloseGap)}.`}`;
 }
 
 /**
@@ -366,6 +502,20 @@ if (typeof document !== 'undefined') {
       if ($('rolloverUnused')) $('rolloverUnused').textContent = `${rollover.unusedHours} hours`;
       if ($('rolloverVerdict')) $('rolloverVerdict').textContent = formatRolloverAdvice(rollover, $('currency')?.value || 'USD');
     };
+    const renderCoverage = (coverage) => {
+      if (!$('coverageCompare')) return;
+      $('coverageCommitted').textContent = money(coverage.committedRevenue);
+      $('coverageUnsold').textContent = `${coverage.unsoldHours} hours`;
+      $('coverageExpected').textContent = money(coverage.expectedRevenue);
+      $('coverageShortfall').textContent = coverage.coversTarget
+        ? `None — ${money(coverage.surplus)} over`
+        : money(coverage.shortfall);
+      $('coverageShortfall').classList.toggle('needs-float', !coverage.coversTarget);
+      $('coverageRequiredFill').textContent = coverage.requiredFillRate === null
+        ? 'No unsold hours left'
+        : `${coverage.requiredFillRate}%${coverage.reachableWithinCapacity ? '' : ' — more than you have'}`;
+      $('coverageVerdict').textContent = coverage.recommendation;
+    };
     form.addEventListener('submit', (event) => {
       event.preventDefault();
       try {
@@ -373,6 +523,12 @@ if (typeof document !== 'undefined') {
         const plan = calculatePlan(input);
         const comparison = compareRetainerUsage(plan);
         const rollover = compareUnusedHourRollover(plan);
+        const coverage = calculateIncomeCoverage(plan, {
+          otherRevenue: input.otherRevenue === '' ? 0 : Number(input.otherRevenue),
+          otherHours: input.otherHours === '' ? 0 : Number(input.otherHours),
+          fillRatePercent: input.fillRate === '' ? DEFAULT_FILL_RATE : Number(input.fillRate),
+          currency: input.currency,
+        });
         const float = calculateCashFloat(plan.target, input.paymentTerms);
         $('errors').hidden = true;
         $('results').hidden = false;
@@ -385,6 +541,7 @@ if (typeof document !== 'undefined') {
         $('cashFloat').textContent = money(float.cashToFloat);
         $('cashFloat').classList.toggle('needs-float', !float.prepaid);
         $('explanation').textContent = `Your ${input.utilization}% utilization leaves ${plan.capacity.toFixed(1)} billable hours from ${input.hours} available hours. After this retainer, ${plan.remainingCapacity.toFixed(1)} hours remain for other work, admin, and recovery. The retainer includes a ${input.buffer}% buffer for scope drift; it is a planning floor, not a promise of results. ${formatCashFloatAdvice(float, input.currency)} ${formatArrearsComparison(plan.target, input.currency)}`;
+        renderCoverage(coverage);
         renderUsage(comparison);
         renderRollover(rollover);
         $('summary').value = formatProposalSummary(input, plan, input.currency, comparison, rollover);
@@ -392,6 +549,13 @@ if (typeof document !== 'undefined') {
         track('calculate');
         track('retainer_usage_compared');
         track('unused_hour_rollover_compared');
+        // Separable from `calculate` on purpose: the question this event exists
+        // to answer is whether anyone engages with the month-level check at
+        // all, or only ever prices the one client in front of them.
+        if (!coverage.coversTarget) track('income_goal_short');
+        if (coverage.otherRevenue > 0 || coverage.otherHours > 0 || coverage.fillRatePercent !== DEFAULT_FILL_RATE) {
+          track('income_coverage_compared');
+        }
         if (!float.prepaid) track('payment-terms-float');
       } catch (error) {
         $('errors').textContent = error.message;

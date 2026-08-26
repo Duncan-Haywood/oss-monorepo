@@ -16,7 +16,7 @@
     "applicationCategory": "BusinessApplication",
     "operatingSystem": "Any browser",
     "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
-    "featureList": "sheet goods layout diagrams, guillotine cutting plans, saw kerf allowance, edge trim, grain direction lock, offcut list, compare 4x8 vs 5x5 sheet sizes, linear stock optimization, material cost estimate, printable job ticket",
+    "featureList": "sheet goods layout diagrams, guillotine cutting plans, saw kerf allowance, edge trim, grain direction lock, offcut list, compare 4x8 vs 5x5 sheet sizes, linear stock optimization, material cost estimate for sheets and linear stock, printable job ticket",
     "description": "A free browser tool that turns a parts list into a low-waste cutting plan and ranks common sheet sizes by material cost before you buy. Runs entirely on the visitor's device."
   }
   </script>
@@ -53,6 +53,13 @@
     dd { font-variant-numeric: tabular-nums; font-weight: 700; }
     .bar { border-top: 1px solid #ffffff30; padding: 11px 0; }
     .bar strong { display: block; }
+    .tag {
+      display: inline-block; font-size: .68rem; letter-spacing: .08em; font-weight: 800;
+      border-radius: 999px; padding: 2px 8px; margin-right: 7px; vertical-align: 1px;
+    }
+    .tag-onhand { background: #e9be76; color: #24392b; }
+    .tag-buy { background: #ffffff26; color: #f8f5eb; }
+    .saved { background: #e9be76; color: #24392b; border-radius: 10px; padding: 11px 13px; font-weight: 700; font-size: .9rem; margin: 14px 0 0; }
     .muted { opacity: .75; font-size: .84rem; }
     .warn { background: #fdf1e6; color: #20241d; border: 1px solid #d9a273; border-radius: 10px; padding: 12px 14px; margin-top: 14px; font-size: .9rem; }
     .warn:empty { display: none; }
@@ -218,12 +225,27 @@ Top: 31.5 x 11.25 x 2</textarea>
               <option value="ft">feet</option>
             </select>
           </label>
+          <label>Cost per stock piece <span class="muted">optional</span><input id="stock-cost" type="number" min="0" step="0.01" placeholder="12.00"></label>
+          <label>Currency
+            <select id="currency">
+              <option value="$">$ USD</option>
+              <option value="&euro;">&euro; EUR</option>
+              <option value="&pound;">&pound; GBP</option>
+              <option value="C$">C$ CAD</option>
+              <option value="A$">A$ AUD</option>
+            </select>
+          </label>
           <label class="wide">Required cuts, one per line
             <span class="muted">Use <code>24 x 3</code> for three pieces at 24</span>
             <textarea id="cuts" spellcheck="false">48 x 2
 30 x 4
 18 x 3
 12.5</textarea>
+          </label>
+          <label class="wide">Offcuts you already have
+            <span class="muted">Optional &mdash; these get used before anything is bought</span>
+            <textarea id="onhand" spellcheck="false">36 x 2
+22</textarea>
           </label>
         </div>
       </section>
@@ -232,8 +254,11 @@ Top: 31.5 x 11.25 x 2</textarea>
         <h2>Your cutting plan</h2>
         <p class="big" id="headline">—</p>
         <p class="muted" id="message" role="status" aria-live="polite">Enter your stock length, saw kerf, and required cuts to see a plan.</p>
+        <p class="saved" id="saved" hidden></p>
         <dl>
-          <dt>Stock pieces to buy</dt><dd id="bars">—</dd>
+          <dt>Stock pieces in plan</dt><dd id="bars">—</dd>
+          <dt>New pieces to buy</dt><dd id="purchased">—</dd>
+          <dt>Material cost</dt><dd id="linear-total-cost">—</dd>
           <dt>Required material</dt><dd id="used">—</dd>
           <dt>Offcut after kerf allowance</dt><dd id="waste">—</dd>
           <dt>Stock utilization</dt><dd id="utilization">—</dd>
@@ -269,7 +294,7 @@ Top: 31.5 x 11.25 x 2</textarea>
   </footer>
 
   <script type="module">
-    import { parseCuts, optimizeCutList, formatCutPlan } from './calc.mjs';
+    import { parseCuts, parseStock, optimizeCutList, formatCutPlan } from './calc.mjs';
     import { parsePanels, optimizeSheets, formatSheetPlan, compareSheetSizes, formatSheetComparison } from './sheet.mjs';
     import { recordUsage, clearUsage } from './usage.mjs';
     import { loadDraft, saveDraft, clearDraft } from './draft.mjs';
@@ -484,37 +509,71 @@ Top: 31.5 x 11.25 x 2</textarea>
 
     /* ---------------- Linear stock ---------------- */
 
-    const LINEAR_STATS = ['bars', 'used', 'waste', 'utilization'];
+    const LINEAR_STATS = ['bars', 'purchased', 'linear-total-cost', 'used', 'waste', 'utilization'];
 
     function renderLinear() {
       const unit = $('unit').value;
+      const currency = $('currency').value;
       const format = (n) => `${n.toFixed(2)} ${unit}`;
+      const money = (n) => `${currency}${n.toFixed(2)}`;
+      const rawCost = Number($('stock-cost').value);
+      const stockCost = Number.isFinite(rawCost) && rawCost >= 0 && $('stock-cost').value.trim() !== '' ? rawCost : null;
       try {
         const result = optimizeCutList({
           stockLength: Number($('stock').value),
           kerf: Number($('kerf').value),
           cuts: parseCuts($('cuts').value),
+          onHand: parseStock($('onhand').value),
+          stockCost,
         });
-        $('headline').textContent = `${result.bars.length} stock piece${result.bars.length === 1 ? '' : 's'}`;
-        $('message').textContent = 'Largest cuts are placed first to keep the plan compact. Confirm against your actual saw and stock.';
+        $('headline').textContent = result.purchased === 0
+          ? 'Nothing to buy'
+          : `Buy ${result.purchased} piece${result.purchased === 1 ? '' : 's'}`;
+        $('message').textContent = 'Largest cuts are placed first, into your shortest usable offcut before any new stock. Confirm against your actual saw and stock.';
         $('bars').textContent = result.bars.length;
+        $('purchased').textContent = result.purchased;
         $('used').textContent = format(result.totalCuts);
         $('waste').textContent = format(result.waste);
         $('utilization').textContent = `${(result.utilization * 100).toFixed(1)}%`;
-        $('plan').innerHTML = result.bars.map((bar, i) => (
-          `<div class="bar"><strong>Stock ${i + 1}: ${bar.cuts.map(format).join(' + ')}</strong>`
-          + `<span class="muted">${format(bar.remaining)} remaining after kerf allowance</span></div>`
-        )).join('');
+        $('linear-total-cost').textContent = result.totalCost === null ? 'add a stock price' : money(result.totalCost);
+
+        const saved = $('saved');
+        if (result.purchasesAvoided > 0) {
+          const value = result.savings === null ? '' : ` — ${money(result.savings)} you do not spend`;
+          saved.textContent = `Your offcuts covered ${result.purchasesAvoided} stock piece${result.purchasesAvoided === 1 ? '' : 's'}${value}.`;
+          saved.hidden = false;
+        } else {
+          saved.hidden = true;
+        }
+
+        // Mirrors formatCutPlan's labelling so the copied ticket and the screen
+        // name the same piece the same way.
+        let purchaseNumber = 0;
+        $('plan').innerHTML = result.bars.map((bar, i) => {
+          let tag = '';
+          let label = `Stock ${i + 1}`;
+          if (result.onHandUsed) {
+            purchaseNumber += bar.source === 'purchase' ? 1 : 0;
+            tag = bar.source === 'on-hand'
+              ? '<span class="tag tag-onhand">FROM YOUR RACK</span>'
+              : '<span class="tag tag-buy">BUY</span>';
+            label = bar.source === 'on-hand' ? format(bar.length) : `New piece ${purchaseNumber}`;
+          }
+          return `<div class="bar"><strong>${tag}${label}: ${bar.cuts.map(format).join(' + ')}</strong>`
+            + `<span class="muted">${format(bar.remaining)} remaining after kerf allowance</span></div>`;
+        }).join('');
         $('copy-plan').disabled = false;
         $('copy-plan').dataset.plan = formatCutPlan(result, {
           stockUnit: unit,
           stockLength: $('stock').value,
           kerf: $('kerf').value,
+          currency,
         });
         ready.linear = true;
       } catch (error) {
         $('headline').textContent = 'Check your list';
         $('message').textContent = error.message;
+        $('saved').hidden = true;
         LINEAR_STATS.forEach((id) => { $(id).textContent = '—'; });
         $('plan').textContent = '';
         $('copy-plan').disabled = true;
@@ -527,7 +586,7 @@ Top: 31.5 x 11.25 x 2</textarea>
 
     const DRAFT_FIELDS = [
       'sheet-width', 'sheet-height', 'sheet-kerf', 'sheet-trim', 'sheet-cost', 'sheet-parts', 'sheet-unit', 'sheet-rotate',
-      'stock', 'kerf', 'cuts', 'unit',
+      'stock', 'kerf', 'cuts', 'unit', 'stock-cost', 'onhand', 'currency',
     ];
 
     function draftValues() {
@@ -599,7 +658,7 @@ Top: 31.5 x 11.25 x 2</textarea>
     ['preset-5x5', 'preset-4x4', 'preset-5x10'].forEach((id) => {
       $(id).addEventListener('click', () => applyPreset(id.replace('preset-', '')));
     });
-    wireInputs(['stock', 'kerf', 'cuts', 'unit'], renderLinear, 'linear', 'runs');
+    wireInputs(['stock', 'kerf', 'cuts', 'unit', 'stock-cost', 'onhand', 'currency'], renderLinear, 'linear', 'runs');
 
     wireCopy('sheet-copy', 'sheet-copy-status', 'sheet-copies');
     wireCopy('copy-plan', 'copy-status', 'copies');

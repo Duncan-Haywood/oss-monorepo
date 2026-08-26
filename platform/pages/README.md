@@ -104,55 +104,54 @@ did not ship. It follows the sitemap index into each venture's sitemap; a check
 that read only the root would have passed while every defect above sat one
 level down.
 
-It also fails on four things that a link-and-sitemap pass cannot see, merged in
-from a concurrent checker written against the same gap:
-
-- **A product the hub does not link.** Checked in both directions, because the
-  two failures differ. A hub link with nothing behind it is a 404 a visitor
-  sees; a product with no hub link built, deployed, passed every other check,
-  and cannot be reached at all.
-- **A page with no disclaimer.** Every product page and the hub must carry the
-  no-warranty marker (`PRODUCT_PLAYBOOK.md` §5b). This is the one check here
-  with legal weight rather than broken-link weight: without it a page ships
-  calculated money figures with no limitation of liability.
-- **Leaked bookkeeping.** `*.test.mjs`, `VENTURE.yaml`, `README.md`,
-  `package-lock.json`, `node_modules` — finding any of it means the copy filter
-  regressed and visitors can download test payload.
-- **A discovery collapse.** The CLI requires at least 20 products. The floor
-  sits far below the count on `main` so a landing venture never needs it touched,
-  but a build that finds almost nothing emits a hub that looks fine with three
-  tools on it and would otherwise pass every check above.
-
-Module specifiers are matched in both quote styles and in `import(...)`, not
-only `from "…"`. Every calculator loads its `calc.mjs` from an inline module
-script, so a specifier the pattern misses is a tool that renders its form and
-then does nothing.
-
 The workflow runs it between building and uploading, so a broken artifact never
 reaches the live site.
 
-### The browser half
+## Driving the customer journey
 
-`check.mjs` can prove a page shipped and its links resolve. It cannot prove the
-calculator *computes* — a tool whose module throws on load passes every static
-check and is still useless in front of a user.
+`check.mjs` proves the files are right. It cannot prove the site *works* — that
+search filters, that the opt-out actually stops counting, that a calculator
+computes rather than just paints, that nothing throws in the console.
+`journey.mjs` drives that in a real browser:
 
-`journey.mjs` is that pass. It serves the built artifact and drives Chromium
-through the real journey: hub loads → search narrows the list → open a tool →
-change an input → the figures move. It requires the output to **change**, not
-merely that a dollar sign is present, because every tool here ships
-worked-example defaults and already shows figures on load.
+```bash
+node platform/pages/build.mjs --out=dist
+python3 -m http.server 8793 --directory dist &
+node platform/pages/journey.mjs
 
+# or against the live site, once publishing is on:
+BASE_URL=https://duncan-haywood.github.io/monorepo-projects node platform/pages/journey.mjs
 ```
-node platform/pages/journey.mjs --dist=dist
+
+It covers the hub and its grouping, search (narrowing, the empty state, and
+clearing), the usage opt-out across a reload, a click through into a calculator
+and a computed figure, a cross-product sibling link, a nested product hub,
+sitemap sampling, the 404, and a 375px viewport for horizontal overflow.
+
+It also **changes an input and requires the output to move**, on one calculator
+of each shape. That distinction carries the weight here: every tool ships
+worked-example defaults, so money is on the page from the moment it loads and a
+"computed a figure" assertion passes whether or not the arithmetic ever ran. A
+tool whose `calc.mjs` throws on load renders its form, shows its defaults, and
+satisfies every static check in `check.mjs` while being useless to a visitor.
+Only a changed input tells the two apart.
+
+If Playwright is installed globally rather than beside this repo, point
+`PLAYWRIGHT` at it:
+
+```bash
+PLAYWRIGHT=/opt/node22/lib/node_modules/playwright/index.mjs node platform/pages/journey.mjs
 ```
 
-Playwright is not a dependency of this repo, so this exits 0 with a `SKIP` line
-where no browser is available and is **not** a CI gate. Run it before a publish.
-Last run (2026-08-26, 48 products): the hub listed all 48, search narrowed to 3
-on "ebay", and `ebay-fee-calculator`, `invoice-payment-terms-calculator`,
-`amazon-fba-calculator` and `janitorial-bid-calculator` each recomputed on input
-change with no console errors and no failed requests.
+Counts are derived from the page, never hardcoded — a venture lands most days,
+and a literal would fail on a healthy site the moment someone ships a
+calculator.
+
+It is deliberately **not** in CI: it needs Playwright, which is not a dependency
+of this repo, and `build.test.mjs` plus `check.mjs` already gate the build. Run
+it before claiming the site works, and again against production after the owner
+flip. If Playwright is installed globally rather than beside the repo, point
+`PLAYWRIGHT` at its module path.
 
 ## Deploying
 
@@ -174,6 +173,16 @@ not a second ask — this workflow is what it now publishes.
 Until it is set, the `deploy` job is skipped and the `build` job still runs, so
 the artifact is always proven buildable. `actions/deploy-pages` 404s while Pages
 is off, which is why the gate exists rather than letting every merge go red.
+
+The gate also requires `github.ref == 'refs/heads/main'`. `workflow_dispatch`
+can be run against any branch, and publishing the live site from a feature
+branch is not a mistake anyone would notice quickly.
+
+After deploying, the workflow fetches the real public URL — the front page,
+both sitemaps, `robots.txt`, and one product — and fails if any of them does not
+return 200, or if `sitemap.xml` comes back without a sitemap index. A completed
+deploy step is not evidence that anything serves; this makes "deployed" a fact
+rather than an inference.
 
 Only one workflow may publish to Pages. `retail-pilot-intel-deploy-docs.yml`
 reads `RETAIL_PILOT_INTEL_PAGES` instead, so an owner who wants those docs on

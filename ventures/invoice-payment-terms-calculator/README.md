@@ -1,8 +1,37 @@
 # Invoice Payment Terms Calculator
 
-Free browser tool for freelancers and small service businesses. Enter an invoice amount, terms, late-rate assumption, and outstanding invoices to get the due date, cash-flow exposure, 30/60/90-day late-fee scenarios, copyable payment-terms wording, whether a **2/10 Net 30 discount still beats waiting**, and whether **factoring still beats waiting** after your carrying cost.
+Free browser tool for freelancers and small service businesses. Enter an invoice amount, terms, late-rate assumption, and outstanding invoices to get the due date, **when the cash actually lands on your client's payment run**, cash-flow exposure, 30/60/90-day late-fee scenarios, copyable payment-terms wording, whether a **2/10 Net 30 discount still beats waiting**, and whether **factoring still beats waiting** after your carrying cost.
 
-**After using this, you can now** see when the invoice is due, how many operating days several unpaid invoices consume, whether giving 2% to get paid in 10 days still covers the float, and whether a 3% factor fee still beats waiting — which used to mean a spreadsheet that forgot grace days or treated “2/10 Net 30” and “get paid now” as slogans.
+**After using this, you can now** see when the invoice is due, when the money actually arrives, how many operating days several unpaid invoices consume, whether giving 2% to get paid in 10 days still covers the float, and whether a 3% factor fee still beats waiting — which used to mean a spreadsheet that forgot grace days or treated “2/10 Net 30” and “get paid now” as slogans.
+
+## When the cash actually lands
+
+The due date is the date the invoice says. It is usually **not** the date
+money arrives, because accounts-payable departments pay in runs — weekdays
+only, the 1st and 15th, once a month, one weekday a week. Two things follow
+that a due date alone will never show you:
+
+- **Drift.** An invoice dated 2026-08-24 on Net 30 is due 2026-09-23. At a
+  client who pays on the 1st and 15th, cash lands **2026-10-01** — eight days
+  later, about **$6.31** on $1,200 at a 24% carrying rate. Those days are not
+  lateness and no late fee applies to them; they are the client's normal
+  process, and they are invisible until you model the run.
+
+- **Longer terms are often free.** Because runs are batched, a longer term
+  frequently lands on the very same one. At a client paying monthly on the
+  1st, that same invoice lands **2026-10-01 under both Net 15 and Net 30** —
+  fifteen extra days of terms at no cost in cash timing. The tool lays Net 7,
+  15, 30, 45, and 60 side by side so you can see where that happens before you
+  negotiate.
+
+When moving the invoice date earlier would catch the previous run, the tool
+says by which date and how many days sooner you would be paid. It only says so
+when batching actually gives leverage — where every shift is one-for-one, as
+on a weekdays-only schedule, there is nothing useful to report and it stays
+quiet.
+
+This models the schedule you tell it. It does not predict whether a client
+pays on time.
 
 Open [`index.html`](index.html) in a browser. The calculation is local and works without an account, network request, or API key.
 
@@ -15,6 +44,14 @@ They match at about 36.1%. At 50%, the discount flips ahead.
 answers the third-party fee question. On 24% money, waiting still leaves
 $1,176.33 against $1,161.24 after a 3% fee and 90% advance. They match
 at a 1.74% fee. At 50%, factoring flips ahead.
+
+[Already overdue? Wait, chase, settle, or collections](chasing-a-late-invoice.html)
+picks up where the due date runs out. The same invoice, 15 days late, scored
+four ways on expected cash after float and the hours a chase costs: a 10%
+settlement is worth $861.16, waiting $823.43, chasing it yourself $755.61
+(three hours at $85 is $255 spent whether or not they pay), and collections
+$355.63. The most useful number is the chase-hours break-even — about **1.8
+hours** on these defaults. Odds are the operator's estimate, not a prediction.
 
 It is not a quote-margin tool (that prices the job), not a retainage
 schedule (that is construction withhold), and not a Faire payout-speed
@@ -31,7 +68,7 @@ Then open `http://localhost:8877`. There is no build step.
 
 ## Privacy and usage
 
-Everything runs in your browser. Your amounts, dates, and drafts are never uploaded. There are no accounts, cookies, tracking pixels, or analytics vendors. The optional anonymous local counter records only feature names (`calculation`, `terms_copied`, `draft_saved`, `draft_loaded`, `early_pay_compared`, `factor_compared`) and can be disabled in the footer. Saved drafts stay on this device.
+Everything runs in your browser. Your amounts, dates, and drafts are never uploaded. There are no accounts, cookies, tracking pixels, or analytics vendors. The optional anonymous local counter records only feature names (`calculation`, `terms_copied`, `draft_saved`, `draft_loaded`, `early_pay_compared`, `factor_compared`, `settlement_projected`, `late_invoice_compared`, `late_invoice_draft_saved`, `late_invoice_draft_loaded`) and can be disabled in the footer. Saved drafts stay on this device.
 
 ## Safety
 
@@ -40,6 +77,8 @@ Everything runs in your browser. Your amounts, dates, and drafts are never uploa
 **Best-effort hosting, no SLA.** These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record. If a tool needs to survive, export your inputs and run it yourself.
 
 Late-fee results are arithmetic scenarios, not a recommendation or a determination that a fee can be charged.
+
+The overdue comparison is arithmetic on recovery odds you type. It does not tell you to settle, escalate, or walk away, and it does not say what a late fee, a settlement, or a collection agency is permitted to do — those vary by jurisdiction and by the contract you signed.
 
 [GitHub Sponsors](https://github.com/sponsors/Duncan-Haywood) is optional and never changes what the tool does.
 

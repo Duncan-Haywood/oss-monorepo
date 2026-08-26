@@ -154,6 +154,64 @@ class DuplicateKeys(unittest.TestCase):
             wf(text)
 
 
+class SinglePagesDeployer(unittest.TestCase):
+    """
+    A guard that only ever passes proves nothing, so each case here builds the
+    conflict it is meant to catch.
+    """
+
+    @staticmethod
+    def row(name, gate):
+        step = {"job": "deploy", "step": "uses actions/deploy-pages"}
+        if gate is not None:
+            step["gates"] = [gate]
+        return {"workflow": name, "classification": "gated", "publishes": [step]}
+
+    def test_two_workflows_behind_the_same_variable_conflict(self):
+        # The incident: pages.yml and portfolio-pages.yml, same flip, one origin.
+        rows = [
+            self.row("a.yml", "github.event_name != 'pull_request' && vars.GITHUB_PAGES_ENABLED == 'true'"),
+            self.row("b.yml", "${{ vars.GITHUB_PAGES_ENABLED == 'true' }}"),
+        ]
+        problems = ps.check_single_pages_deployer(rows)
+        self.assertEqual(len(problems), 1)
+        self.assertIn("GITHUB_PAGES_ENABLED", problems[0])
+        self.assertIn("a.yml", problems[0])
+        self.assertIn("b.yml", problems[0])
+
+    def test_different_variables_are_a_deliberate_either_or(self):
+        # retail-pilot-intel is gated on its own variable precisely so the
+        # portfolio flip does not publish it. That must stay legal.
+        rows = [
+            self.row("portfolio.yml", "${{ vars.GITHUB_PAGES_ENABLED == 'true' }}"),
+            self.row("docs.yml", "${{ vars.RETAIL_PILOT_INTEL_PAGES == 'true' }}"),
+        ]
+        self.assertEqual(ps.check_single_pages_deployer(rows), [])
+
+    def test_a_single_deployer_is_fine_however_it_is_gated(self):
+        self.assertEqual(ps.check_single_pages_deployer([self.row("only.yml", None)]), [])
+
+    def test_an_ungated_deployer_alongside_another_is_flagged(self):
+        rows = [self.row("open.yml", None), self.row("gated.yml", "${{ vars.X == 'true' }}")]
+        problems = ps.check_single_pages_deployer(rows)
+        self.assertTrue(any("no owner-set variable" in p for p in problems))
+
+    def test_bracket_syntax_names_the_same_variable(self):
+        rows = [
+            self.row("a.yml", "${{ vars['GITHUB_PAGES_ENABLED'] == 'true' }}"),
+            self.row("b.yml", "${{ vars.GITHUB_PAGES_ENABLED == 'true' }}"),
+        ]
+        self.assertEqual(len(ps.check_single_pages_deployer(rows)), 1)
+
+    def test_workflows_that_do_not_deploy_pages_are_ignored(self):
+        rows = [
+            {"workflow": "npm.yml", "classification": "gated",
+             "publishes": [{"job": "p", "step": "runs 'npm publish'", "gates": ["${{ vars.G == 'true' }}"]}]},
+            {"workflow": "quiet.yml", "classification": "none", "publishes": []},
+        ]
+        self.assertEqual(ps.check_single_pages_deployer(rows), [])
+
+
 class Snapshot(unittest.TestCase):
     def test_committed_snapshot_matches_the_live_workflows(self):
         rows, errors = ps.survey()
@@ -172,6 +230,12 @@ class Snapshot(unittest.TestCase):
         problems = ps.check(rows + [{"workflow": "new.yml", "classification": "live", "publishes": []}])
         self.assertTrue(any("new.yml" in p for p in problems))
 
+    def test_one_variable_never_arms_two_pages_deployments(self):
+        # The live invariant: GitHub serves one Pages site, so no single owner
+        # flip may arm two workflows that replace it.
+        rows, _ = ps.survey()
+        self.assertEqual(ps.check_single_pages_deployer(rows), [])
+
     def test_no_workflow_publishes_on_a_merge_to_main(self):
         # Pin: a merge to main currently reaches no live audience. If this
         # fails, a product merge also publishes. Still merge product PRs;
@@ -183,94 +247,3 @@ class Snapshot(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
-
-
-class SingletonCollisions(unittest.TestCase):
-    """
-    Two workflows able to publish to the one Pages site on the same owner flip.
-
-    This is the class of defect the snapshot cannot express: each workflow's own
-    row is correct in isolation, so `--check` passed while #1718 and #1724 both
-    gated a full Pages deploy on `GITHUB_PAGES_ENABLED`. The hazard had already
-    been written down twice -- a ledger entry and a workflow comment -- and was
-    reintroduced anyway, because nothing failed.
-    """
-
-    @staticmethod
-    def row(workflow, gates, classification="gated", step="uses actions/deploy-pages"):
-        return {
-            "workflow": workflow,
-            "classification": classification,
-            "publishes": [{"job": "deploy", "step": step, "gates": gates}],
-        }
-
-    def test_two_pages_deploys_on_one_variable_collide(self):
-        problems = ps.singleton_collisions([
-            self.row("portfolio-pages.yml", ["vars.GITHUB_PAGES_ENABLED == 'true'"]),
-            self.row("pages.yml", ["github.event_name != 'pull_request' && vars.GITHUB_PAGES_ENABLED == 'true'"]),
-        ])
-        self.assertEqual(len(problems), 1)
-        self.assertIn("GITHUB_PAGES_ENABLED", problems[0])
-        self.assertIn("pages.yml", problems[0])
-        self.assertIn("portfolio-pages.yml", problems[0])
-
-    def test_separate_variables_do_not_collide(self):
-        # The actual fix, and the shape retail-pilot-intel-deploy-docs.yml
-        # already used: one flip, one deployment.
-        self.assertEqual(
-            ps.singleton_collisions([
-                self.row("portfolio-pages.yml", ["vars.GITHUB_PAGES_ENABLED == 'true'"]),
-                self.row("pages.yml", ["vars.PAGES_PY_BUILDER == 'true'"]),
-                self.row("retail-pilot-intel-deploy-docs.yml", ["vars.RETAIL_PILOT_INTEL_PAGES == 'true'"]),
-            ]),
-            [],
-        )
-
-    def test_one_workflow_alone_does_not_collide(self):
-        self.assertEqual(
-            ps.singleton_collisions([self.row("portfolio-pages.yml", ["vars.GITHUB_PAGES_ENABLED == 'true'"])]),
-            [],
-        )
-
-    def test_two_ungated_pages_deploys_collide(self):
-        problems = ps.singleton_collisions([
-            self.row("a.yml", [], classification="live"),
-            self.row("b.yml", [], classification="live"),
-        ])
-        self.assertEqual(len(problems), 1)
-        self.assertIn("no owner gate", problems[0])
-
-    def test_a_workflow_no_push_reaches_is_ignored(self):
-        # `none` means no publish step at all; it cannot race a merge.
-        self.assertEqual(
-            ps.singleton_collisions([
-                self.row("portfolio-pages.yml", ["vars.GITHUB_PAGES_ENABLED == 'true'"]),
-                self.row("archived.yml", ["vars.GITHUB_PAGES_ENABLED == 'true'"], classification="none"),
-            ]),
-            [],
-        )
-
-    def test_a_gate_naming_several_variables_claims_each(self):
-        # A workflow gated on two variables can be started by either, so it
-        # collides with anything claiming either one.
-        problems = ps.singleton_collisions([
-            self.row("a.yml", ["vars.ONE == 'true' && vars.TWO == 'true'"]),
-            self.row("b.yml", ["vars.TWO == 'true'"]),
-        ])
-        self.assertEqual(len(problems), 1)
-        self.assertIn("vars.TWO", problems[0])
-
-    def test_a_different_destination_does_not_collide_with_pages(self):
-        # Vercel and Pages are separate origins; sharing a variable is fine.
-        self.assertEqual(
-            ps.singleton_collisions([
-                self.row("a.yml", ["vars.SHARED == 'true'"], step="uses amondnet/vercel-action"),
-                self.row("b.yml", ["vars.SHARED == 'true'"], step="uses amondnet/vercel-action"),
-            ]),
-            [],
-        )
-
-    def test_the_real_repository_has_no_collision(self):
-        rows, errors = ps.survey()
-        self.assertEqual(errors, [])
-        self.assertEqual(ps.singleton_collisions(rows), [])

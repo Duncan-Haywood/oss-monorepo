@@ -16,6 +16,7 @@ import {
   categoryFor,
   discoverSurfaces,
   injectChrome,
+  NO_SLA_PATTERN,
   listFiles,
   relatedTools,
   upToRoot,
@@ -45,6 +46,25 @@ async function site() {
 }
 
 const read = async (...parts) => fs.readFile(path.join((await site()).outDir, ...parts), 'utf8');
+
+/**
+ * Every off-origin URL the given HTML would *fetch* on load, as opposed to
+ * link to. `src` covers scripts, images and frames; a <link> that fetches --
+ * a stylesheet, an icon, a preload, a web manifest -- carries its URL in
+ * `href`, which is indistinguishable by attribute from an ordinary anchor, so
+ * the `rel` is what separates them.
+ */
+const FETCHING_REL = /^(icon|alternate icon|shortcut icon|mask-icon|apple-touch-icon|stylesheet|preload|prefetch|preconnect|dns-prefetch|manifest)$/i;
+
+function offOriginResources(html) {
+  return [
+    ...[...html.matchAll(/src="(https?:\/\/[^"]+)"/g)].map((m) => m[1]),
+    ...[...html.matchAll(/<link\b[^>]*>/g)]
+      .filter((m) => FETCHING_REL.test((m[0].match(/rel="([^"]*)"/)?.[1] ?? '').trim()))
+      .map((m) => m[0].match(/href="([^"]*)"/)?.[1] ?? '')
+      .filter((href) => /^https?:\/\//.test(href)),
+  ];
+}
 
 const exists = (target) => fs.access(target).then(() => true, () => false);
 
@@ -314,10 +334,42 @@ test('usage counting is local, opt-out, and honours browser signals', async () =
 test('the hub makes no off-origin request', async () => {
   const hub = await read('index.html');
   const external = [...hub.matchAll(/(?:src|href)="(https?:\/\/[^"]+)"/g)].map((m) => m[1]);
-  // Links a visitor clicks are fine; a resource the page loads is not.
-  const loaded = [...hub.matchAll(/src="(https?:\/\/[^"]+)"/g)].map((m) => m[1]);
+  const loaded = offOriginResources(hub);
   assert.deepEqual(loaded, [], `the hub loads off-origin resources: ${loaded.join(', ')}`);
   assert.ok(external.every((url) => url.startsWith('https://')), 'no plaintext http links');
+});
+
+test('the off-origin check sees resources fetched by <link>, not just src', () => {
+  // The check above passes on an empty result, so it is only worth as much as
+  // its ability to fail. This plants each way a page can reach off-origin and
+  // asserts every one is caught -- in particular the <link> forms, which an
+  // earlier version of this check missed because it matched only `src`. A
+  // stylesheet or icon on someone else's host announces the visit of everyone
+  // who opens a fee calculator, which is the opposite of what README.md
+  // promises about this page.
+  const planted = `
+    <link rel="stylesheet" href="https://cdn.example.com/reset.css">
+    <link rel="icon" href="https://cdn.example.com/favicon.ico">
+    <link rel="preconnect" href="https://fonts.example.com">
+    <link rel="manifest" href="https://cdn.example.com/app.webmanifest">
+    <script src="https://cdn.example.com/analytics.js"></script>
+  `;
+  assert.deepEqual(offOriginResources(planted).sort(), [
+    'https://cdn.example.com/analytics.js',
+    'https://cdn.example.com/app.webmanifest',
+    'https://cdn.example.com/favicon.ico',
+    'https://cdn.example.com/reset.css',
+    'https://fonts.example.com',
+  ]);
+
+  // A link a visitor clicks is not a resource the page loads, and neither is a
+  // same-origin one -- flagging those would make the check noise and get it
+  // switched off.
+  assert.deepEqual(offOriginResources(`
+    <a href="https://github.com/sponsors/Duncan-Haywood">Sponsor</a>
+    <link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/">
+    <link rel="icon" href="favicon.ico">
+  `), []);
 });
 
 // ---------------------------------------------------------------------------
@@ -667,6 +719,35 @@ test('a lone tool advertises no siblings and still renders', () => {
   assert.ok(html.includes('data-pf-to="hub"'));
 });
 
+// The clause is injected rather than required of each venture because the
+// requirement can otherwise only be discovered after the venture is on `main`.
+// Three ventures shipped without it in one day; these two tests are what stop
+// a fourth from turning `main` red.
+
+test('a page with no availability clause is given one', () => {
+  const html = injectChrome('<html><head></head><body>calculator</body></html>', {
+    slug: 'x',
+    toRoot: '../',
+    total: 2,
+    related: [],
+  });
+  assert.match(html, /Best-effort hosting, no SLA/);
+  assert.match(html, NO_SLA_PATTERN);
+});
+
+test('a page that writes its own availability clause is not given a second', () => {
+  // The wording a venture uses is its own; two notices are worse than one.
+  const own = '<p>Hosted URLs, when they exist, carry no availability SLA.</p>';
+  const html = injectChrome(`<html><head></head><body>${own}</body></html>`, {
+    slug: 'x',
+    toRoot: '../',
+    total: 2,
+    related: [],
+  });
+  assert.ok(!html.includes('pf-sla'), 'the venture already says it');
+  assert.ok(html.includes(own), 'and its own wording survives');
+});
+
 test('the chrome escapes venture copy', () => {
   const html = injectChrome('<html><head></head><body>x</body></html>', {
     slug: 'x',
@@ -719,4 +800,87 @@ test('publishable JSON that a page actually needs is still copied', () => {
   assert.equal(isPublishable('package.json'), false);
   assert.equal(isPublishable('site.webmanifest'), true);
   assert.equal(isPublishable('rates.json'), true);
+});
+
+// ---------------------------------------------------------------------------
+// Shared-origin head tags, and chrome that follows the page it wraps
+// ---------------------------------------------------------------------------
+
+const everyToolPage = async () => {
+  const { outDir, surfaces } = await site();
+  const out = [];
+  for (const surface of surfaces) {
+    for (const f of await htmlPagesUnder(path.join(outDir, surface.slug))) {
+      out.push({ rel: path.relative(outDir, f), html: await fs.readFile(f, 'utf8') });
+    }
+  }
+  return out;
+};
+
+test('every published page declares exactly one canonical URL', async () => {
+  const missing = [];
+  const duplicated = [];
+  for (const { rel, html } of await everyToolPage()) {
+    const n = (html.match(/rel=["']canonical["']/gi) ?? []).length;
+    if (n === 0) missing.push(rel);
+    // Two canonicals are worse than none: the crawler then picks one at random.
+    if (n > 1) duplicated.push(`${rel} (${n})`);
+  }
+  assert.deepEqual(missing, [], 'a page with no canonical competes with its own /index.html twin');
+  assert.deepEqual(duplicated, [], 'these pages carry more than one canonical');
+});
+
+test('an injected canonical is the directory URL on the real origin', async () => {
+  const entry = await read('ebay-fee-calculator', 'index.html');
+  assert.equal(entry.match(/<link rel="canonical" href="([^"]*)"/)[1], `${BASE}ebay-fee-calculator/`);
+});
+
+test('each tool entry page carries breadcrumb structured data', async () => {
+  const { surfaces } = await site();
+  for (const surface of surfaces) {
+    const html = await read(surface.slug, 'index.html');
+    const crumb = [...html.matchAll(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/g)]
+      .map((m) => JSON.parse(m[1]))
+      .find((b) => b['@type'] === 'BreadcrumbList');
+    assert.ok(crumb, `${surface.slug} has no BreadcrumbList`);
+    assert.equal(crumb.itemListElement[0].item, BASE, 'the first crumb is the hub');
+    assert.equal(crumb.itemListElement.at(-1).item, `${BASE}${surface.slug}/`);
+    assert.equal(crumb.itemListElement.at(-1).name, surface.title);
+  }
+});
+
+test('breadcrumbs go on entry pages only', async () => {
+  // A deep SEO page inside a tool is not a third level of the site; claiming it
+  // is would describe a hierarchy that does not exist.
+  const deep = (await everyToolPage()).filter(({ rel }) => !/^[^/\\]+[/\\]index\.html$/.test(rel));
+  assert.ok(deep.length > 100, `fixture assumption: many sub-pages, saw ${deep.length}`);
+  for (const { rel, html } of deep) {
+    assert.ok(!html.includes('"BreadcrumbList"'), `${rel} should not claim to be a breadcrumb level`);
+  }
+});
+
+test('chrome takes its theme from the host page, not the operating system', async () => {
+  // Regression. The chrome used to paint an opaque band from its own palette
+  // behind `prefers-color-scheme`. Within the band that is perfectly legible —
+  // the problem is what it sits on. Most ventures here are deliberately
+  // light-only, so a visitor whose OS was dark got a near-black slab bolted to
+  // the bottom of a cream page. Measured with a headless browser at the time:
+  // the fixed version holds 13.7:1 or better on every tool in both OS schemes,
+  // and a tool with its own dark mode still flips (17.4:1 light, 15.1:1 dark).
+  const html = await read('etsy-profit-calculator', 'index.html');
+  const style = html.match(/<style id="pf-chrome-style">([\s\S]*?)<\/style>/)[1];
+
+  assert.ok(!/prefers-color-scheme/.test(style),
+    'the chrome must not branch on the OS theme — the host page decides');
+  assert.ok(!/#[0-9a-f]{3,8}\b/i.test(style),
+    `the chrome must not hard-code a colour: ${style.match(/#[0-9a-f]{3,8}\b/i)?.[0]}`);
+  assert.match(style, /color:inherit/, 'text colour comes from the page');
+  assert.match(style, /--pf-line:rgba\(128,128,128/, 'lines are neutral on either background');
+});
+
+test('injected head tags do not disturb the page they land in', async () => {
+  const html = await read('ebay-fee-calculator', 'index.html');
+  assert.equal((html.match(/<\/head>/gi) ?? []).length, 1);
+  assert.equal((html.match(/<body[^>]*>/gi) ?? []).length, 1);
+  assert.ok(html.includes('calc.mjs'), 'the calculator still loads its own module');
 });

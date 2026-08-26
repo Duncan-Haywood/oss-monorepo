@@ -23245,6 +23245,7 @@ entries:
           CI-red rule against fixing what a base-branch failure someone else
           already owns.
     mrr_end: null
+
   - venture: cut-list-optimizer
     agent_spend_usd: null
     human_hours: 0
@@ -23350,51 +23351,139 @@ entries:
         primary journey, crawlability, and 288 files with zero dangling
         internal references.
     mrr_end: null
+  - venture: cut-list-optimizer
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+          Webhook session (pull_request.edited on #1020). Merged #1020
+          (unit-aware ticket exports, 6/6 tests verified locally) and #1019
+          (local e-invoice preflight CLI, 5/5 verified), resolving #1019's
+          `portfolio/usage/usage.yaml` conflict by keeping both sides -- both
+          were additive appends after the same anchor.
+      - >-
+          Then found the product itself was dead. `ventures/cut-list-
+          optimizer/index.html` had opened `<textarea id="cuts">` and never
+          closed it since its first commit. textarea is an HTML raw-text
+          element, so the parser swallowed the results panel, the copy
+          button, the disclaimer, the opt-out, and the entire
+          `<script type="module">` as literal text. The script never ran; the
+          tool had never calculated anything for anyone. Three PRs (#1017,
+          #1020, and the original ship) merged on top of it. The reason
+          nothing caught it: `calc.test.mjs` imports `calc.mjs` directly and
+          never looks at the page, and the venture had no CI workflow at all,
+          so its PRs showed zero checks.
+      - >-
+          Concurrency: a second session found the same defect mid-run and
+          landed #1023 (repair, first CI workflow, split runs/copies
+          counters, a browser-accurate `page.test.mjs`) while this work was
+          in progress. Integrated rather than re-landed -- took their
+          `page.test.mjs` (its raw-text parser is strictly better than the
+          regex-and-tag-stack version written here, which their own test
+          would have caught), their workflow, their usage counters, and their
+          README correction that ES modules cannot load over `file://`. Kept
+          only the feature work on top.
+      - >-
+          Shipped on top: cuts are now planned against the offcuts a shop
+          already owns (consumed shortest-usable-first so long stock stays
+          whole; an untouched offcut counts as neither consumed stock nor
+          waste), plus price per stock piece, currency, the count of
+          purchases the rack avoided, and what that saved. 25 passing tests.
+          Verified in Chromium against the real page: default load, pricing,
+          unit switch, empty on-hand, malformed input, clipboard export, the
+          split counters, and mobile layout -- zero page errors.
+      - >-
+          Two defects the browser run surfaced that no unit test would have:
+          a 1/8" kerf (0.125) was rounded to 0.13 on the job ticket,
+          misstating the allowance the plan was built on, and on-hand rows
+          were double-labelled both "ON HAND 22.00 in" and "Stock 1". Both
+          fixed and covered.
+      - >-
+          Swept the five sibling static-page ventures for the same class of
+          defect -- no unclosed raw-text element and no missing script-driven
+          id in any of them. `etsy-profit-calculator` and
+          `shopify-a11y-evidence` still have no CI workflow, so their
+          committed tests never run; left as a scoped follow-up rather than
+          widening this PR into other ventures.
+    mrr_end: null
+  - venture: invoice-payment-terms-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Shipped the pay-run settlement model (#1753): the calculator now
+        shows when cash actually lands, not only the contractual due date.
+        Accounts-payable departments pay in runs, so a Net 30 invoice dated
+        2026-08-24 is due 2026-09-23 but lands 2026-10-01 at a client paying
+        the 1st and 15th -- eight days of drift, about $6.31 on $1,200 at
+        24%, which no late fee covers because it is not lateness. Five
+        schedules, drift priced at the carrying rate already on the form,
+        and a Net 7/15/30/45/60 ladder. 40 tests; verified in a headless
+        browser against the built Pages artifact.
+      - >-
+        The differentiated finding is that longer terms are frequently free:
+        because runs are batched, Net 15 and Net 30 both land 2026-10-01 at a
+        monthly-on-the-1st client. Fifteen extra days of terms at zero cost in
+        cash timing is a concession a freelancer can trade in a negotiation,
+        and no invoice calculator surveyed surfaces it. Measured going forward
+        by the new `settlement_projected` counter against `calculation`.
+      - >-
+        Integration over ownership: #1729 shipped invoice factoring to this
+        same venture mid-session. Both sides were pure appends to one base, so
+        the merge replayed both rather than choosing -- 11 exports, both test
+        suites, all six FAQ entries, both hypotheses. Learned that the useful
+        check for "is this really superseded" is running the other branch's
+        own tests against the survivor: it retired #1098 and #1400 (3/3 and
+        5/5 passing against `main`) and would have caught a false supersede.
+        `supersede_check.py` said NOT SUPERSEDED for all four PRs closed this
+        session because it compares added lines exactly and the survivors had
+        reworded the same facts -- the flag is about wording, not capability,
+        and each close says so rather than hiding it.
+    mrr_end: null
   - venture: portfolio
     agent_spend_usd: null
     human_hours: 0
     outcomes:
       - >-
-        Found and fixed a live race on the one Pages origin. #1724 merged 20
-        minutes after #1718 and gated its deploy on the same
-        `GITHUB_PAGES_ENABLED`, from a second builder, in a different
-        concurrency group (`pages-deploy` vs `portfolio-pages`). GitHub serves
-        one Pages site per repository and nothing serialised them, so the owner
-        flip everyone is waiting on would have fired both on every push to
-        `main` and left the live site on whichever finished last -- flapping
-        between two builds of the same ~48 products, per push. Moved
-        `pages.yml` to its own `PAGES_PY_BUILDER`, following the precedent
-        `retail-pilot-intel-deploy-docs.yml` already set, so exactly one
-        workflow reads the owner flip. No work discarded: that workflow still
-        builds, tests and uploads on every push, so its builder stays
-        exercised. Verified with `publish_surface.py` -- three Pages deploy
-        paths now hold three separate variables.
+        Strengthened the Pages artifact check and the browser journey by
+        merging two independently-written versions of each rather than letting
+        either overwrite the other. Three sessions built a checker from #1723's
+        `check_site.py` within about an hour, and two built a browser journey.
+        `check.mjs` kept main's sitemap-index traversal, artifact-derived base
+        path and reverse page-in-no-sitemap check, and gained four checks it
+        did not have: hub-to-artifact reachability in both directions, the
+        required no-warranty disclaimer on every product page and the hub,
+        leaked test payload and repo bookkeeping, and a product-count floor for
+        a discovery collapse. Also widened module-specifier matching to both
+        quote styles and dynamic `import()` -- the double-quote-only pattern
+        could not see `from './calc.mjs'`, so a calculator could lose its
+        module and still pass.
       - >-
-        The learning is that this hazard was already known and documented in
-        this very file, and a fourth session still reintroduced it. The
-        2026-08-26 entry above records a session discarding its own duplicate
-        builder and explicitly naming the separate-gate reasoning. The reason
-        the knowledge did not transfer is that it lived in a ledger row and a
-        code comment, not in a check -- nothing failed when a second workflow
-        claimed the same variable. `publish_surface.py` pins gates but treats
-        two workflows sharing one variable as unremarkable. A check that fails
-        when more than one workflow gates a `deploy-pages` job on the same
-        variable would have caught this at merge, and is the cheapest guard
-        against the fifth occurrence.
+        The reachability check is the one worth naming: a product that ships,
+        resolves every link, and appears in a sitemap while carrying no hub
+        link is unreachable, and it is the only failure in this class that is
+        completely silent. Checking one direction only would have missed it.
       - >-
-        Also merged two independently-written artifact checkers rather than
-        letting one overwrite the other. `platform/pages/check.mjs` landed on
-        `main` mid-session from another session, adapted from the same #1723
-        `check_site.py` this session was working from. Each caught what the
-        other missed, so both sets are kept: theirs contributed sitemap-index
-        traversal, artifact-derived base path and the reverse
-        page-in-no-sitemap check; this session added hub-to-artifact
-        reachability in both directions (a product that ships, resolves every
-        link, appears in a sitemap and has no hub link is unreachable and
-        silent), the required no-warranty disclaimer per page, leaked test
-        payload and bookkeeping, a product-count floor for a discovery
-        collapse, and single-quoted / dynamic `import()` specifiers. Added
-        `journey.mjs` for the half no static check can reach -- whether the
-        calculator recomputes -- and verified 48 products / 217 pages clean
-        through both, with four injected regressions each caught.
+        `journey.mjs` kept main's version -- stronger, because it can run
+        against the live origin after the flip -- and gained the assertion it
+        lacked: change an input and require the output to move. Every tool
+        ships worked-example defaults, so money is on the page from load and
+        main's `the tool computes a figure` check passed whether or not the
+        arithmetic ran. A tool whose calc.mjs throws renders its form, shows
+        its defaults, satisfies every static check, and is useless to a
+        visitor; only a changed input separates the two. Verified on 48
+        products / 217 pages, four calculators driven, no console errors.
+      - >-
+        Learned that the duplication rate on this surface is now the dominant
+        cost. In one session: two Pages builders on main, three artifact
+        checkers, two browser journeys, two collision guards -- and a fourth
+        builder discarded by an earlier session. Every one was competent work.
+        The pattern is that sessions pick the same highest-value gap because
+        DIRECTION.md correctly says deploy-first, then cannot see each other
+        until merge. Two of this session's own deliverables were superseded
+        mid-run and dropped rather than pushed: a separate-variable fix for the
+        deploy race (main removed the second deploy job outright, which is
+        better) and a `singleton_collisions()` guard (main's
+        `check_single_pages_deployer` is equivalent and its tests cover more).
+        Discarding both was cheaper than defending them.
     mrr_end: null
