@@ -1122,6 +1122,311 @@ export function agedWfsNote(comparison) {
   return comparison.summary;
 }
 
+// Walmart Connect Sponsored Products is billed as CPC; sellers
+// think in ACOS (ad spend / attributed sales). The listing
+// adsPerUnit line is a flat leftover on a completed sale — it
+// cannot show extra units ads buy, or last-click billing on
+// organic sales you already had. Complementary to WFS vs seller
+// (fulfillment), 2-day (Buy Box take), returns (a refund), and
+// aged leftover (units already inbound). Defaults are
+// illustrative — overwrite ACOS, extra units, and attribution
+// from Ads Manager.
+export const WALMART_ADS_DEFAULTS = {
+  acosPct: 15,
+  extraAdUnits: 12,
+  attributedOrganicPct: 40,
+  highAcosPct: 25,
+  highExtraAdUnits: 22,
+  highAttributedOrganicPct: 50,
+};
+
+function adsPath({
+  id,
+  label,
+  acosPct,
+  extraAdUnits,
+  attributedOrganicUnits,
+  adSpendPerUnit,
+  billedUnits,
+  adSpend,
+  cash,
+}) {
+  return {
+    id,
+    label,
+    acosPct,
+    extraAdUnits,
+    attributedOrganicUnits,
+    adSpendPerUnit,
+    billedUnits,
+    adSpend,
+    cash,
+  };
+}
+
+function adsCash({
+  organicUnits,
+  organicProfit,
+  extraAdUnits,
+  attributedOrganicUnits,
+  adSpendPerUnit,
+}) {
+  return (
+    organicUnits * organicProfit +
+    extraAdUnits * organicProfit -
+    (attributedOrganicUnits + extraAdUnits) * adSpendPerUnit
+  );
+}
+
+function adsSummary({
+  winner,
+  skip,
+  sponsored,
+  higher,
+  extraSponsoredVsSkip,
+  extraHigherVsSkip,
+  organicUnits,
+  breakEvenAcosPct,
+  breakEvenExtraAdUnits,
+  breakEvenAttributedOrganicPct,
+}) {
+  const skipKeep = moneyLabel(skip.cash);
+  const adsKeep = moneyLabel(sponsored.cash);
+  const highKeep = moneyLabel(higher.cash);
+  const adsGap = moneyLabel(Math.abs(extraSponsoredVsSkip));
+  const highGap = moneyLabel(Math.abs(extraHigherVsSkip));
+  const acosCeil = Number.isFinite(breakEvenAcosPct)
+    ? `${breakEvenAcosPct.toFixed(1)}%`
+    : "an unreachable ACOS";
+  const extraFloor = Number.isFinite(breakEvenExtraAdUnits)
+    ? breakEvenExtraAdUnits.toFixed(1)
+    : "an unreachable extra-unit count";
+  const attrCeil = Number.isFinite(breakEvenAttributedOrganicPct)
+    ? `${breakEvenAttributedOrganicPct.toFixed(1)}%`
+    : "an unreachable attribution rate";
+  const volume = `${organicUnits} organic unit${organicUnits === 1 ? "" : "s"}`;
+
+  if (winner === "sponsored") {
+    return (
+      `Sponsored Products keeps ${adsGap} more than skipping ads ` +
+      `(${adsKeep} vs ${skipKeep}) on ${volume}. ` +
+      `ACOS can rise to about ${acosCeil} before skip matches. ` +
+      `The higher-ACOS campaign is ${highKeep}.`
+    );
+  }
+  if (winner === "higher") {
+    return (
+      `The higher-ACOS campaign keeps ${highGap} more than skipping ads ` +
+      `(${highKeep} vs ${skipKeep}) on ${volume}. ` +
+      `Sponsored Products is ${adsKeep}.`
+    );
+  }
+  if (winner === "skip") {
+    return (
+      `Skipping Walmart Connect keeps ${adsGap} more than Sponsored Products ` +
+      `(${skipKeep} vs ${adsKeep}) on ${volume}. ` +
+      `Ads match if ACOS falls to about ${acosCeil}, extra units rise to ` +
+      `about ${extraFloor}, or last-click attribution on organic falls to ` +
+      `about ${attrCeil}. The higher-ACOS campaign is ${highKeep}.`
+    );
+  }
+  return "Skipping Walmart Connect and running Sponsored Products leave the same leftover on these rates.";
+}
+
+/**
+ * Same listing, three ways to buy Walmart traffic: skip ads,
+ * run Sponsored Products at a typed ACOS, or spend harder at a
+ * higher ACOS. Organic leftover is take-home on the selected
+ * fulfillment path with adsPerUnit forced to zero so the page
+ * form does not double-count. Ad spend is ACOS% × sale price
+ * on last-click billed units (a share of organic plus extra
+ * ad units). monthlyUnits is treated as organic completed volume.
+ */
+export function compareWalmartAds(input = {}) {
+  const acosPct = takePercent(input.acosPct, "Sponsored Products ACOS", WALMART_ADS_DEFAULTS.acosPct);
+  const extraAdUnits = number(
+    input.extraAdUnits,
+    "Extra ad units",
+    WALMART_ADS_DEFAULTS.extraAdUnits,
+  );
+  const attributedOrganicPct = takePercent(
+    input.attributedOrganicPct,
+    "Attributed organic percent",
+    WALMART_ADS_DEFAULTS.attributedOrganicPct,
+  );
+  const highAcosPct = takePercent(
+    input.highAcosPct,
+    "Higher ACOS",
+    WALMART_ADS_DEFAULTS.highAcosPct,
+  );
+  const highExtraAdUnits = number(
+    input.highExtraAdUnits,
+    "Higher-ACOS extra units",
+    WALMART_ADS_DEFAULTS.highExtraAdUnits,
+  );
+  const highAttributedOrganicPct = takePercent(
+    input.highAttributedOrganicPct,
+    "Higher-ACOS attributed organic percent",
+    WALMART_ADS_DEFAULTS.highAttributedOrganicPct,
+  );
+  const organicUnits = number(input.monthlyUnits, "Monthly units", 60);
+  if (organicUnits === 0) throw new Error("Monthly units must be greater than zero");
+
+  const listing = calculateListing({ ...input, adsPerUnit: 0 });
+  const organicProfit = listing.selected.profit;
+  const salePrice = listing.salePrice;
+  const adSpendPerUnit = salePrice * (acosPct / 100);
+  const highAdSpendPerUnit = salePrice * (highAcosPct / 100);
+  const attributedOrganicUnits = organicUnits * (attributedOrganicPct / 100);
+  const highAttributedOrganicUnits = organicUnits * (highAttributedOrganicPct / 100);
+
+  const skipCash = adsCash({
+    organicUnits,
+    organicProfit,
+    extraAdUnits: 0,
+    attributedOrganicUnits: 0,
+    adSpendPerUnit: 0,
+  });
+  const sponsoredCash = adsCash({
+    organicUnits,
+    organicProfit,
+    extraAdUnits,
+    attributedOrganicUnits,
+    adSpendPerUnit,
+  });
+  const higherCash = adsCash({
+    organicUnits,
+    organicProfit,
+    extraAdUnits: highExtraAdUnits,
+    attributedOrganicUnits: highAttributedOrganicUnits,
+    adSpendPerUnit: highAdSpendPerUnit,
+  });
+
+  const skip = adsPath({
+    id: "skip",
+    label: "Skip Walmart Connect",
+    acosPct: 0,
+    extraAdUnits: 0,
+    attributedOrganicUnits: 0,
+    adSpendPerUnit: 0,
+    billedUnits: 0,
+    adSpend: 0,
+    cash: skipCash,
+  });
+  const sponsored = adsPath({
+    id: "sponsored",
+    label: "Sponsored Products",
+    acosPct,
+    extraAdUnits,
+    attributedOrganicUnits,
+    adSpendPerUnit,
+    billedUnits: attributedOrganicUnits + extraAdUnits,
+    adSpend: (attributedOrganicUnits + extraAdUnits) * adSpendPerUnit,
+    cash: sponsoredCash,
+  });
+  const higher = adsPath({
+    id: "higher",
+    label: "Higher ACOS campaign",
+    acosPct: highAcosPct,
+    extraAdUnits: highExtraAdUnits,
+    attributedOrganicUnits: highAttributedOrganicUnits,
+    adSpendPerUnit: highAdSpendPerUnit,
+    billedUnits: highAttributedOrganicUnits + highExtraAdUnits,
+    adSpend: (highAttributedOrganicUnits + highExtraAdUnits) * highAdSpendPerUnit,
+    cash: higherCash,
+  });
+
+  const extraSponsoredVsSkip = sponsoredCash - skipCash;
+  const extraHigherVsSkip = higherCash - skipCash;
+  const rows = [skip, sponsored, higher].map((row) => ({
+    ...row,
+    vsSkip: row.cash - skipCash,
+  }));
+
+  const bestCash = Math.max(skipCash, sponsoredCash, higherCash);
+  const leaders = [
+    { id: "skip", value: skipCash },
+    { id: "sponsored", value: sponsoredCash },
+    { id: "higher", value: higherCash },
+  ].filter((row) => Math.abs(row.value - bestCash) <= 1e-9);
+  const winner = leaders.length === 1 ? leaders[0].id : "tie";
+
+  const billedSponsored = attributedOrganicUnits + extraAdUnits;
+  let breakEvenAcosPct = Infinity;
+  if (billedSponsored > 1e-12 && salePrice > 1e-12) {
+    breakEvenAcosPct = (extraAdUnits * organicProfit * 100) / (billedSponsored * salePrice);
+    if (breakEvenAcosPct < -1e-9) breakEvenAcosPct = Infinity;
+  } else if (extraAdUnits === 0 && attributedOrganicUnits === 0) {
+    breakEvenAcosPct = Infinity;
+  }
+
+  let breakEvenExtraAdUnits = Infinity;
+  const extraMargin = organicProfit - adSpendPerUnit;
+  if (extraMargin > 1e-12) {
+    breakEvenExtraAdUnits = (attributedOrganicUnits * adSpendPerUnit) / extraMargin;
+    if (breakEvenExtraAdUnits < 0) breakEvenExtraAdUnits = 0;
+  } else if (attributedOrganicUnits * adSpendPerUnit <= 1e-12) {
+    breakEvenExtraAdUnits = 0;
+  }
+
+  let breakEvenAttributedOrganicPct = Infinity;
+  if (organicUnits > 1e-12 && adSpendPerUnit > 1e-12) {
+    breakEvenAttributedOrganicPct =
+      (extraAdUnits * extraMargin * 100) / (organicUnits * adSpendPerUnit);
+    if (breakEvenAttributedOrganicPct < -1e-9) {
+      breakEvenAttributedOrganicPct = Infinity;
+    } else {
+      breakEvenAttributedOrganicPct = Math.max(0, Math.min(100, breakEvenAttributedOrganicPct));
+    }
+  } else if (adSpendPerUnit <= 1e-12) {
+    breakEvenAttributedOrganicPct = 100;
+  }
+
+  return {
+    rows,
+    skip: rows[0],
+    sponsored: rows[1],
+    higher: rows[2],
+    winner,
+    organicUnits,
+    organicProfit,
+    salePrice,
+    fulfillmentMethod: listing.fulfillmentMethod,
+    sizeTier: listing.sizeTier,
+    sizeTierLabel: listing.sizeTierLabel,
+    acosPct,
+    extraAdUnits,
+    attributedOrganicPct,
+    highAcosPct,
+    highExtraAdUnits,
+    highAttributedOrganicPct,
+    extraSponsoredVsSkip,
+    extraHigherVsSkip,
+    breakEvenAcosPct,
+    breakEvenExtraAdUnits,
+    breakEvenAttributedOrganicPct,
+    summary: adsSummary({
+      winner,
+      skip: rows[0],
+      sponsored: rows[1],
+      higher: rows[2],
+      extraSponsoredVsSkip,
+      extraHigherVsSkip,
+      organicUnits,
+      breakEvenAcosPct,
+      breakEvenExtraAdUnits,
+      breakEvenAttributedOrganicPct,
+    }),
+  };
+}
+
+export function walmartAdsNote(comparison) {
+  if (!comparison?.skip || !comparison?.sponsored || !comparison?.higher) {
+    throw new Error("Walmart ads comparison is missing rows");
+  }
+  return comparison.summary;
+}
+
 export function calculateListing(input) {
   const salePrice = number(input.salePrice, "Sale price");
   const listed = listingAtPrice(input, salePrice);

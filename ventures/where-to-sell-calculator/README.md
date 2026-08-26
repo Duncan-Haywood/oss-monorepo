@@ -3,7 +3,9 @@
 One item, every channel. Enter what an item cost you and what you would sell it
 for, and see what **eBay, Etsy, Amazon, your own store and a direct sale** each
 leave you after fees — and after that channel's return rate — plus the price
-each channel would need to charge to match the best one.
+each channel would need to charge to match the best one. Then it asks the
+question a fee table cannot: **how often does it actually sell there**, and
+what is one listing worth per month of shelf once you count that.
 
 It runs entirely in the browser: static ES modules, no build step, no
 dependencies, no server, no account, no API key.
@@ -30,6 +32,11 @@ Three things flat "X% fee" comparisons get wrong, all of which this models:
   list higher can win on every completed order and still lose once you count
   its return rate, return postage, and units that cannot be sold again. The
   table ranks on expected keep after returns unless you turn that overlay off.
+- **A sale you never make is worth nothing.** Ranking channels on what they pay
+  per sale assumes every channel sells the item. They do not, and the ones that
+  sell it slowly charge listing renewals and tie up your cash while they fail
+  to. At the shipped defaults Etsy keeps $3.36 more per sale than eBay and is
+  worth about a third as much per month of shelf.
 
 ## Using it
 
@@ -40,7 +47,8 @@ python3 -m http.server 8000     # then visit /ventures/where-to-sell-calculator/
 ```
 
 Shared inputs (price, shipping, cost of goods, packaging, expected monthly
-orders) apply to every channel. Anything a channel does differently — a higher
+orders, plus how long you would leave it listed, what your cash is worth, and
+what the item is still worth to you unsold) apply to every channel. Anything a channel does differently — a higher
 price on Etsy, no postage on a local sale, an FBA fee on Amazon — goes in that
 channel's own panel under the table, along with its rates. Channels can be
 switched out of the comparison; "Other channel" starts switched off and blank
@@ -81,6 +89,37 @@ money working", break-even answers "how far can I move the price", and after
 returns answers "does the completed-sale winner still win in the mix I
 actually ship".
 
+### The second table: what a listing is worth, not what a sale is worth
+
+Everything above ranks a *sale*. A seller with stock is ranking a *listing*,
+and a listing only pays out if it sells. The second table ranks the same
+channels on that basis:
+
+- **Sells within horizon / days to sell** — your two estimates, per channel.
+  These matter more than any fee rate on this page and vary far more by
+  category than by channel, so replace them from your own sold-listing history.
+- **If it does not** — what a listing costs when it never sells: the
+  per-listing fee charged again on every renewal cycle inside your horizon
+  (an Etsy listing renews at four months), plus your cash tied up in the item
+  for the whole time. Postage, packaging and fulfilment are *not* counted
+  here — they are only spent on a sale, and they are already in the figures
+  above.
+- **One listing is worth** — the two outcomes weighted by sell-through.
+- **Per 30 days** — that value spread over the shelf the listing actually
+  occupies (shorter when it sells fast). This is what the second ranking uses,
+  and it is why a cheaper, faster channel can beat a richer, slower one on the
+  same inventory dollar.
+- **Sell-through to match** — how often this channel would have to sell to
+  earn the leader's rate. Read it as a test of your own estimate: at the
+  shipped defaults Etsy needs 72.4% against its assumed 35%, so the ranking
+  survives a large error. It reads "—" where no sell-through catches the
+  leader.
+
+The two rankings often disagree, and the page says so instead of picking. Take
+the higher rate per 30 days when cash or shelf is your constraint; take the
+higher keep when you have one item and nothing else the money would be doing.
+`does-it-actually-sell-there.html` works one flip through in full.
+
 ## Rates are inputs, not a published schedule
 
 Every rate ships with an **illustrative** US default and is editable. This
@@ -91,15 +130,21 @@ makes the comparison yours rather than a generic estimate.
 
 ## What it deliberately does not model
 
-Fees are the part that is easy to calculate, not the whole decision. This has
-no way to know how many buyers each channel puts in front of you or how fast
-an item sells there. Returns are an input — each channel has a rate, return
-postage, a still-sellable share, and a fee-refund share — but those remain
-assumptions you replace with your own report, not a live marketplace
-schedule. A marketplace fee is also partly a payment for demand you would
-otherwise have to create. Read the fee-and-return gap as one input.
+Fees are the part that is easy to calculate, not the whole decision. Returns
+and sell-through are inputs, not measurements: this has no way to know how many
+buyers a channel puts in front of *you*, or how fast your items actually move
+there. Every such rate is a starting point you replace with your own return
+report and sold-listing history. A marketplace fee is also partly a payment for
+demand you would otherwise have to create. Read the fee, return and shelf-time
+gaps as inputs to the decision, not the decision.
 
-`returns-change-the-ranking.html` works the Amazon-vs-eBay flip in full.
+Also absent: warehouse or storage rent per unit (the FBA-style cost), price
+decay on aging stock beyond the single "value you still have if it does not
+sell" input, and any interaction between channels — listing the same unit in
+two places at once is a real strategy this models as two separate questions.
+
+`returns-change-the-ranking.html` works the Amazon-vs-eBay flip in full;
+`does-it-actually-sell-there.html` works the margin-versus-turnover flip.
 
 ## Tests
 

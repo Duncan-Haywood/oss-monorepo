@@ -21,6 +21,7 @@
 import { promises as fs, existsSync } from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import zlib from 'node:zlib';
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 export const REPO_ROOT = path.resolve(HERE, '..', '..');
@@ -56,7 +57,14 @@ const EXCLUDED_SLUGS = new Set([
 // Never shipped to a visitor: test payload they would download for no benefit,
 // repo bookkeeping, or a per-venture robots.txt that crawlers never read
 // (only the one at the origin root counts).
-const EXCLUDED_FILES = new Set(['VENTURE.yaml', 'robots.txt', 'README.md', 'package-lock.json']);
+// `package.json` is on the list for the same reason its lockfile already was:
+// two ventures ship one, a visitor downloads none of it, and publishing it puts
+// internal script names and dependency versions on a public URL for no benefit.
+// The rule below this one is by extension, so `.json` alone does not catch it —
+// and `.json` has to stay publishable for JSON-LD payloads and web manifests.
+const EXCLUDED_FILES = new Set([
+  'VENTURE.yaml', 'robots.txt', 'README.md', 'package.json', 'package-lock.json',
+]);
 const EXCLUDED_DIRS = new Set(['node_modules', '.git', 'dist', 'coverage', '.cache', 'tests', '__pycache__']);
 const isTestFile = (name) => /\.test\.(mjs|js|cjs|py)$/.test(name);
 
@@ -175,11 +183,16 @@ const decodeEntities = (value) =>
     .replace(/&quot;/g, '"')
     .replace(/&#0?39;/g, "'");
 
+// The content value is read up to the *same* quote that opened it, via a
+// backreference. Accepting any quote instead (`[^"']*`) silently stops at the
+// first apostrophe inside a double-quoted attribute, so "last night's archive
+// shrank" reached the hub and its JSON-LD as "last night" — a card and a
+// crawler description cut mid-sentence.
 const metaContent = (html, attr, value) => {
-  const pattern = new RegExp(`<meta[^>]*${attr}=["']${value}["'][^>]*content=["']([^"']*)["']`, 'i');
-  const reversed = new RegExp(`<meta[^>]*content=["']([^"']*)["'][^>]*${attr}=["']${value}["']`, 'i');
+  const pattern = new RegExp(`<meta[^>]*${attr}=["']${value}["'][^>]*content=(["'])(.*?)\\1`, 'i');
+  const reversed = new RegExp(`<meta[^>]*content=(["'])(.*?)\\1[^>]*${attr}=["']${value}["']`, 'i');
   const match = html.match(pattern) ?? html.match(reversed);
-  return match ? decodeEntities(match[1]).trim() : '';
+  return match ? decodeEntities(match[2]).trim() : '';
 };
 
 const titleize = (slug) => slug.split('-').map((word) => word.charAt(0).toUpperCase() + word.slice(1)).join(' ');
@@ -595,6 +608,185 @@ ${DISCLAIMER_HTML}
 `;
 }
 
+// ---------------------------------------------------------------------------
+// Site chrome
+// ---------------------------------------------------------------------------
+
+// Every venture page was written as a standalone site, so none of them links to
+// any other. Under one origin that makes 33 tools into 33 dead ends: a visitor
+// who arrives from a search result at `does-subscribe-and-save-still-pay.html`
+// can see one calculator and has no route to the other 32 — not to the hub, not
+// to the sibling tool that answers their next question. The hub links down; up
+// to now nothing linked back or across.
+//
+// The chrome is injected at build time rather than written into each venture,
+// for two reasons. A calculator lands on `main` most days and the injection
+// covers each new one for free. And venture pages are edited concurrently by
+// other sessions, so a nav bar committed into 150 product files would conflict
+// with nearly every open branch.
+const CHROME_MARKER = 'pf-chrome';
+
+// Scoped under `.pf-chrome` so it cannot restyle a venture's own page, and
+// declared with fallbacks rather than inherited variables because each venture
+// names its theme variables differently.
+const CHROME_STYLE = `<style id="pf-chrome-style">
+.pf-chrome{font-family:system-ui,-apple-system,"Segoe UI",sans-serif;font-size:.9rem;line-height:1.5}
+.pf-chrome a{color:#0f5648;text-decoration:underline}
+.pf-chrome-top{border-bottom:1px solid #d3dce6;background:#eef2f7;color:#1d2530;padding:9px 16px}
+.pf-chrome-top a{font-weight:650;text-decoration:none}
+.pf-chrome-top a:hover,.pf-chrome-top a:focus-visible{text-decoration:underline}
+.pf-chrome-foot{border-top:1px solid #d3dce6;background:#eef2f7;color:#1d2530;margin-top:40px;padding:22px 16px 26px}
+.pf-chrome-foot .pf-inner{max-width:1080px;margin:0 auto}
+.pf-chrome-foot h2{font-size:1rem;margin:0 0 4px}
+.pf-chrome-foot p{margin:0 0 12px;color:#4a5666}
+.pf-chrome-foot ul{list-style:none;margin:0 0 14px;padding:0;display:grid;gap:8px 18px;
+  grid-template-columns:repeat(auto-fill,minmax(240px,1fr))}
+.pf-chrome-foot li{margin:0}
+.pf-chrome :focus-visible{outline:2px solid #0f5648;outline-offset:2px}
+@media (prefers-color-scheme:dark){
+.pf-chrome a{color:#7fd8c0}
+.pf-chrome-top,.pf-chrome-foot{background:#10151c;color:#e8eef5;border-color:#2a343f}
+.pf-chrome-foot p{color:#a2b0c0}
+.pf-chrome :focus-visible{outline-color:#7fd8c0}
+}
+</style>`;
+
+// The same anonymous, local-only convention the hub uses: which tool slugs were
+// opened, never who opened them, never leaving the device, and silent for a
+// browser asking not to be counted. Until this shipped the only page that
+// counted anything was the hub, so a visitor arriving from search at a deep SEO
+// page was invisible — which is most of the traffic these pages are written for.
+const CHROME_SCRIPT = (slug) => `<script>
+(function(){
+  try{
+    if(navigator.doNotTrack==='1'||navigator.globalPrivacyControl===true)return;
+    if(localStorage.getItem('portfolio-hub-optout')==='1')return;
+    var k='portfolio-hub-usage';
+    var bump=function(event){
+      try{
+        var c=JSON.parse(localStorage.getItem(k)||'{}');
+        c[event]=(c[event]||0)+1;
+        c.last_day=new Date().toISOString().slice(0,10);
+        localStorage.setItem(k,JSON.stringify(c));
+      }catch(e){}
+    };
+    bump('tool_viewed:${slug}');
+    document.addEventListener('click',function(e){
+      var a=e.target&&e.target.closest&&e.target.closest('[data-pf-to]');
+      if(a)bump('cross_tool_click:'+a.getAttribute('data-pf-to'));
+    });
+  }catch(e){}
+})();
+</script>`;
+
+/** How many `../` segments reach the site root from a published file. */
+export function upToRoot(relativePath) {
+  const depth = relativePath.split(/[\\/]/).length - 1;
+  return depth === 0 ? './' : '../'.repeat(depth);
+}
+
+/**
+ * Up to `limit` other tools to offer at the foot of `slug`'s pages: same
+ * category first, then the rest of the site. Rotating the list by the tool's
+ * own position means neighbouring tools do not all advertise the same four,
+ * while keeping the choice deterministic — the build has to be reproducible.
+ */
+export function relatedTools(surfaces, slug, limit = 4) {
+  const others = surfaces.filter((surface) => surface.slug !== slug);
+  if (others.length === 0) return [];
+
+  const category = categoryFor(slug).id;
+  const sameCategory = others.filter((surface) => categoryFor(surface.slug).id === category);
+  const rest = others.filter((surface) => categoryFor(surface.slug).id !== category);
+
+  const rotate = (list) => {
+    if (list.length === 0) return list;
+    const offset = surfaces.findIndex((surface) => surface.slug === slug) % list.length;
+    return [...list.slice(offset), ...list.slice(0, offset)];
+  };
+
+  return [...rotate(sameCategory), ...rotate(rest)].slice(0, limit);
+}
+
+/**
+ * Wrap one already-published page in the site's navigation. Returns the html
+ * unchanged when there is no `<body>` to attach to, or when the page has been
+ * wrapped already — the pass has to be safe to run twice.
+ */
+export function injectChrome(html, { slug, toRoot, total, related = [] }) {
+  if (html.includes(CHROME_MARKER)) return html;
+  const bodyOpen = html.match(/<body[^>]*>/i);
+  if (!bodyOpen || !/<\/body>/i.test(html)) return html;
+
+  const hub = `${toRoot}`;
+  const topBar = `<nav class="pf-chrome pf-chrome-top" aria-label="Site">
+  <a href="${escapeHtml(hub)}" data-pf-to="hub">← All ${total} free tools</a>
+</nav>`;
+
+  const links = related
+    .map(
+      (surface) =>
+        `      <li><a href="${escapeHtml(`${toRoot}${surface.slug}/`)}" data-pf-to="${escapeHtml(
+          surface.slug,
+        )}">${escapeHtml(surface.title)}</a></li>`,
+    )
+    .join('\n');
+
+  const footer = `<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+${links ? `    <ul>\n${links}\n    </ul>\n` : ''}    <p>
+      <a href="${escapeHtml(hub)}" data-pf-to="hub">Browse all ${total} free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood">Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+</aside>
+${CHROME_SCRIPT(slug)}`;
+
+  const withStyle = html.replace(/<\/head>/i, `${CHROME_STYLE}\n</head>`);
+  // A page with no <head> still gets the stylesheet, ahead of the bar it styles.
+  const stylePrefix = withStyle === html ? `${CHROME_STYLE}\n` : '';
+
+  return withStyle
+    .replace(bodyOpen[0], `${bodyOpen[0]}\n${stylePrefix}${topBar}`)
+    .replace(/<\/body>/i, `${footer}\n</body>`);
+}
+
+/**
+ * Adds the navigation to every published venture page. Runs after the hub is
+ * written, because `repairLinks` treats a link to a file that does not exist yet
+ * as one that escapes the site and repoints it at GitHub — which is exactly what
+ * would happen to a `../` hub link injected any earlier.
+ */
+export async function addSiteChrome({ outDir, surfaces }) {
+  const wrapped = [];
+
+  for (const surface of surfaces) {
+    const dir = path.join(outDir, surface.slug);
+    if (!(await exists(dir))) continue;
+    const related = relatedTools(surfaces, surface.slug);
+
+    for (const file of (await listFiles(dir)).filter((f) => f.endsWith('.html'))) {
+      const relative = path.relative(outDir, file);
+      const html = await fs.readFile(file, 'utf8');
+      const next = injectChrome(html, {
+        slug: surface.slug,
+        toRoot: upToRoot(relative),
+        total: surfaces.length,
+        related,
+      });
+      if (next === html) continue;
+      await fs.writeFile(file, next);
+      wrapped.push(relative);
+    }
+  }
+
+  return wrapped;
+}
+
 export function renderRobots(baseUrl) {
   return `User-agent: *\nAllow: /\n\nSitemap: ${baseUrl}sitemap.xml\n`;
 }
@@ -708,11 +900,107 @@ export async function buildSite({
   await fs.writeFile(path.join(outDir, 'sitemap.xml'), renderSitemapIndex(surfaces, base));
   await fs.writeFile(path.join(outDir, 'sitemap-hub.xml'), renderHubSitemap(surfaces, base));
 
+  await fs.writeFile(path.join(outDir, 'favicon.ico'), renderFavicon());
+
   // Tell Jekyll (which GitHub Pages runs by default) to leave the tree alone;
   // without this, any directory starting with `_` is silently dropped.
   await fs.writeFile(path.join(outDir, '.nojekyll'), '');
 
-  return { outDir, baseUrl: base, surfaces, repairs };
+  const wrapped = await addSiteChrome({ outDir, surfaces });
+
+  return { outDir, baseUrl: base, surfaces, repairs, wrapped };
+}
+
+// ---------------------------------------------------------------------------
+// Favicon
+// ---------------------------------------------------------------------------
+
+/**
+ * Every browser requests `/favicon.ico` on its own, for every page, whether or
+ * not the markup asks for one -- so without this file all 183 published pages
+ * log a 404 on load and open as an anonymous blank tab. The ventures' own
+ * pages cannot be asked to link an icon (there are 183 of them and they are
+ * the ventures' files, not this build's), and only `.ico` at the origin root
+ * is fetched automatically, so the icon has to be generated here.
+ *
+ * Built rather than committed so the tree stays reviewable text: a 16x16 PNG
+ * assembled by hand and wrapped in a single-image ICO container. Deterministic
+ * -- same bytes on every run.
+ */
+function pngChunk(type, data) {
+  const length = Buffer.alloc(4);
+  length.writeUInt32BE(data.length);
+  const body = Buffer.concat([Buffer.from(type, 'ascii'), data]);
+  const crc = Buffer.alloc(4);
+  crc.writeUInt32BE(crc32(body) >>> 0);
+  return Buffer.concat([length, body, crc]);
+}
+
+let CRC_TABLE = null;
+function crc32(buffer) {
+  if (!CRC_TABLE) {
+    CRC_TABLE = new Int32Array(256);
+    for (let n = 0; n < 256; n += 1) {
+      let c = n;
+      for (let k = 0; k < 8; k += 1) c = c & 1 ? 0xedb88320 ^ (c >>> 1) : c >>> 1;
+      CRC_TABLE[n] = c;
+    }
+  }
+  let crc = -1;
+  for (const byte of buffer) crc = CRC_TABLE[(crc ^ byte) & 0xff] ^ (crc >>> 8);
+  return crc ^ -1;
+}
+
+export function renderFavicon() {
+  const size = 16;
+  const ink = [36, 61, 53]; // the hub's accent green, so the tab matches the site
+  const mark = [197, 237, 181];
+
+  // Three rising bars on a rounded square. Chosen after looking at it at
+  // actual size: anything with a diagonal turns to mush at 16px, while flat
+  // bars stay crisp and read as "numbers" rather than as a generic glyph.
+  const BARS = [
+    { x0: 3, x1: 4, top: 9 },
+    { x0: 7, x1: 8, top: 6 },
+    { x0: 11, x1: 12, top: 3 },
+  ];
+  const raw = [];
+  for (let y = 0; y < size; y += 1) {
+    raw.push(0); // PNG filter byte: none
+    for (let x = 0; x < size; x += 1) {
+      const corner = (x < 2 || x > 13) && (y < 2 || y > 13);
+      const inBar = BARS.some((b) => x >= b.x0 && x <= b.x1 && y >= b.top && y <= 12);
+      if (corner) raw.push(0, 0, 0, 0);
+      else if (inBar) raw.push(...mark, 255);
+      else raw.push(...ink, 255);
+    }
+  }
+
+  const ihdr = Buffer.alloc(13);
+  ihdr.writeUInt32BE(size, 0);
+  ihdr.writeUInt32BE(size, 4);
+  ihdr[8] = 8; // bit depth
+  ihdr[9] = 6; // colour type: RGBA
+  const png = Buffer.concat([
+    Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]),
+    pngChunk('IHDR', ihdr),
+    pngChunk('IDAT', zlib.deflateSync(Buffer.from(raw), { level: 9 })),
+    pngChunk('IEND', Buffer.alloc(0)),
+  ]);
+
+  // ICO container: 6-byte header, one 16-byte directory entry, then the PNG.
+  const header = Buffer.alloc(6);
+  header.writeUInt16LE(0, 0);
+  header.writeUInt16LE(1, 2); // type: icon
+  header.writeUInt16LE(1, 4); // one image
+  const entry = Buffer.alloc(16);
+  entry[0] = size;
+  entry[1] = size;
+  entry.writeUInt16LE(1, 4); // colour planes
+  entry.writeUInt16LE(32, 6); // bits per pixel
+  entry.writeUInt32LE(png.length, 8);
+  entry.writeUInt32LE(header.length + entry.length, 12);
+  return Buffer.concat([header, entry, png]);
 }
 
 // ---------------------------------------------------------------------------
@@ -734,4 +1022,5 @@ if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.me
   if (result.repairs.length > 0) {
     console.log(`Repointed ${result.repairs.length} off-site link(s) at the repository source.`);
   }
+  console.log(`Added site navigation to ${result.wrapped.length} page(s).`);
 }
