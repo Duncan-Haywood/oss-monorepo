@@ -291,6 +291,39 @@ ventures:
       liability_containment: pass
       ethical_robustness: pass
 
+  - slug: tiktok-shop-fee-calculator
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 7
+      gross_margin: 10
+      defensibility: 5
+      distribution: 8
+    composite: 6.833
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      There is no AI anywhere in the product. The value is a domain model —
+      organic vs affiliate after returns, and the announced October 2026
+      schedule — that is arithmetic, and adding inference would only make
+      the result less checkable.
+    basis: >-
+      Graduated on 2026-08-24 as a browser-local TikTok Shop unit-economics
+      calculator. Scored above amazon-fba-calculator on defensibility (5):
+      generic "TikTok takes 6%" pages omit creator commission kept on a
+      return, which is the decision sellers actually make. Distribution 8:
+      "tiktok shop fees calculator" and "tiktok shop affiliate commission"
+      are high-intent seller queries and less bought-out than Amazon FBA.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Pass: the output is arithmetic on the seller's own inputs, never a
+      recommended price, a claim about TikTok's live schedule, or tax advice.
+      Presets are labelled illustrative starting points. Nothing the user
+      enters leaves the browser.
+
   - slug: where-to-sell-calculator
     scores:
       ai_leverage: 2

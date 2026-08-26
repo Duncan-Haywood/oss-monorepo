@@ -11,7 +11,7 @@ test('the page asks for a name on Other space and escapes it in the split', () =
   assert.match(page, /class="a-name"/);
   assert.match(page, /Name this space/);
   assert.match(page, /syncOtherState/);
-  assert.match(page, /escapeHtml\(area\.name\)/);
+  assert.match(page, /escapeHtml\((area|item)\.name\)/);
   assert.match(page, /nameForRow\(/);
   assert.match(page, /space_named/);
   assert.match(page, /e\.g\. Server room, gym, loading dock/);

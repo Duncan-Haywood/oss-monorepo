@@ -26,3 +26,17 @@ test('custom space names stay available for Other rows', () => {
   assert.match(html, /Other space/);
   assert.match(html, /e\.g\. Server room/);
 });
+
+test('the page ships a day-porter section and the search phrases contractors type', () => {
+  for (const marker of [
+    'id="addShift"',
+    'id="shifts"',
+    'id="shiftHours"',
+    'How do I price a day porter on a janitorial contract',
+    'FAQPage',
+    'SHIFT_ROLE_PRESETS',
+    'readShifts',
+  ]) {
+    assert.match(html, new RegExp(marker.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')));
+  }
+});

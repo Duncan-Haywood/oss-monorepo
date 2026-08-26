@@ -60,6 +60,13 @@ the labor split across spaces, and the **walk-away price** — total monthly cos
 below which the job makes nothing. Entering a price already on the table scores
 it against the same cost base and says plainly whether it is under water.
 
+**Day-porter / scheduled shifts** are priced as coverage, not extra square
+feet. Hours = people × hours per shift × shifts per week × 52/12. A
+different wage can be set on a shift when the porter is paid more than the
+night crew; an omitted wage uses the contract cleaner rate. Those hours
+stay on the monthly contract (they are recurring) but they are not baked
+into the night-clean production rate.
+
 **One-time project work** — strip and wax, carpet extraction, an initial deep
 clean, post-construction, or a named custom job — is priced with the same
 loaded wage, overhead, and margin, then kept off the monthly contract. Hours
@@ -123,6 +130,7 @@ See [`usage.mjs`](usage.mjs) and [`portfolio/usage/`](../../portfolio/usage/READ
 
 Events counted: `bid_calculated`, `area_added`, `area_removed`,
 `proposed_price_compared`, `summary_copied`, `space_named`,
+`shift_added`, `shift_priced`, `shift_removed`,
 `project_added`, `project_priced`, `project_removed`,
 `frequency_reduction_compared`, `frequency_note_copied`,
 `supply_responsibility_compared`, `supply_note_copied`,
@@ -135,8 +143,9 @@ Events counted: `bid_calculated`, `area_added`, `area_removed`,
 - Periodic service plus optional one-time project work (strip and wax,
   extraction, initial/post-construction) invoiced separately from the month.
 - "Other space" rows can be named; an empty name still falls back to `Area N`.
-- Day porter or fixed-headcount contracts are not modelled; this prices from
-  production rates, not from a scheduled shift.
+- Day-porter / attendant shifts are modelled as scheduled coverage on the
+  monthly contract. Crew-capacity checks (can they finish the visit in the
+  window) are still out of scope.
 - Project-work rates and coat counts are starter figures. Real strip, extract,
   and initial-clean times depend on soil, finish buildup, furniture, and access.
 
