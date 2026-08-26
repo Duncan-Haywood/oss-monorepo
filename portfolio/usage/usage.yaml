@@ -337,6 +337,17 @@ products:
           Shipped theme-area routing at theme-areas.html (which Liquid file
           to open first). Complementary to quote.html. Public URL remains
           owner-gated.
+      - as_of: 2026-08-26
+        signals:
+          live_url_visitors: null
+          comparison_generated: 0
+          comparison_copied: 0
+          comparison_downloaded: 0
+        note: >-
+          Shipped before/after axe compare at
+          what-changed-between-axe-scans.html (salvage of #1514 onto a
+          sibling so index.html stays the single-scan record). Public URL
+          remains owner-gated.
   - slug: ebay-fee-calculator
     surface: static-page-in-repo
     readings:
