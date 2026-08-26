@@ -114,3 +114,25 @@ test('aged storage page compares leftover surcharge and names the flip', async (
   assert.match(sitemap, /does-long-term-storage-flip-a-3pl-quote\.html/);
   assert.match(robots, /Sitemap:/);
 });
+
+test('return disposition page compares restock, destroy, and customer-keeps', async () => {
+  const page = await readFile(new URL('./should-i-restock-or-let-the-customer-keep-a-3pl-return.html', import.meta.url), 'utf8');
+  const index = await readFile(new URL('./index.html', import.meta.url), 'utf8');
+  const sitemap = await readFile(new URL('./sitemap.xml', import.meta.url), 'utf8');
+  const robots = await readFile(new URL('./robots.txt', import.meta.url), 'utf8');
+  assert.match(page, /Should I Restock a 3PL Return or Let the Customer Keep It/);
+  assert.match(page, /compareReturnDisposition/);
+  assert.match(page, /returnDispositionRestockableSweep/);
+  assert.match(page, /returnDispositionUnitCostSweep/);
+  assert.match(page, /returnDispositionSummary/);
+  assert.match(page, /name="restockableRate"/);
+  assert.match(page, /name="returnLabelCost"/);
+  assert.match(page, /name="unitCost"/);
+  assert.match(page, /name="keepOffer"/);
+  assert.match(page, /return_disposition_compared/);
+  assert.match(page, /not financial, tax, legal, or engineering advice/);
+  assert.match(page, /Best-effort hosting, no SLA/);
+  assert.match(index, /should-i-restock-or-let-the-customer-keep-a-3pl-return\.html/);
+  assert.match(sitemap, /should-i-restock-or-let-the-customer-keep-a-3pl-return\.html/);
+  assert.match(robots, /Sitemap:/);
+});

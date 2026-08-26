@@ -353,6 +353,218 @@ export function agedStorageSummary(input = {}) {
   ].join("\n");
 }
 
+function fieldPercent(value, fallback = 0) {
+  return Math.min(100, fieldNumber(value, fallback));
+}
+
+function roundMoney(value) {
+  return Math.round((Number(value) + Number.EPSILON) * 100) / 100;
+}
+
+const DEFAULT_RESTOCKABLE_RATES = [40, 50, 60, 70, 80, 90, 100];
+const DEFAULT_UNIT_COSTS = [8, 12, 18, 24, 30, 45, 60];
+
+// A return that just arrived is a different decision from leftover pallets
+// already on the floor (compareAgedStorage) and from raising the return
+// *rate* against in-house (returnsSensitivity). Here the sale is already
+// refunded. Restock pays inbound + inspect and keeps sellable units.
+// Destroy pays inbound + dispose and writes off cost. Customer-keeps skips
+// the label and the 3PL return lines and writes off cost.
+export function compareReturnDisposition(input = {}) {
+  const orders = fieldNumber(input.orders, 100);
+  const returnsRate = fieldPercent(input.returnsRate, 12);
+  const returnedOrders = roundMoney(orders * returnsRate / 100);
+  const returnFee = fieldNumber(input.returnFee, 3.5);
+  const restockFee = fieldNumber(input.restockFee, 4);
+  const destroyFee = fieldNumber(input.destroyFee, 1.5);
+  const returnLabelCost = fieldNumber(input.returnLabelCost, 8);
+  const unitCost = fieldNumber(input.unitCost, 18);
+  const restockableRate = fieldPercent(input.restockableRate, 70);
+  const restockable = restockableRate / 100;
+  const storageUntilResale = fieldNumber(input.storageUntilResale, 0.4);
+  const keepOffer = fieldNumber(input.keepOffer, 0);
+
+  const restockFees = returnLabelCost + returnFee + restockFee + storageUntilResale;
+  const destroyFees = returnLabelCost + returnFee + destroyFee;
+  const inventoryLostIfRestock = unitCost * (1 - restockable);
+  const destroyLeftoverIfRestock = destroyFee * (1 - restockable);
+
+  const restockNet = roundMoney(restockFees + inventoryLostIfRestock + destroyLeftoverIfRestock);
+  const destroyNet = roundMoney(destroyFees + unitCost);
+  const keepNet = roundMoney(unitCost + keepOffer);
+
+  const restock = {
+    id: "restock",
+    label: "Restock sellable units",
+    perReturn: restockNet,
+    monthly: roundMoney(restockNet * returnedOrders),
+    fees: roundMoney(restockFees),
+    inventoryLost: roundMoney(inventoryLostIfRestock),
+    destroyLeftover: roundMoney(destroyLeftoverIfRestock),
+    unitsKept: roundMoney(returnedOrders * restockable),
+  };
+  const destroy = {
+    id: "destroy",
+    label: "Destroy the return",
+    perReturn: destroyNet,
+    monthly: roundMoney(destroyNet * returnedOrders),
+    fees: roundMoney(destroyFees),
+    inventoryLost: roundMoney(unitCost),
+    destroyLeftover: roundMoney(destroyFee),
+    unitsKept: 0,
+  };
+  const keep = {
+    id: "keep",
+    label: "Customer keeps the item",
+    perReturn: keepNet,
+    monthly: roundMoney(keepNet * returnedOrders),
+    fees: roundMoney(keepOffer),
+    inventoryLost: roundMoney(unitCost),
+    destroyLeftover: 0,
+    unitsKept: 0,
+  };
+  const rows = [restock, destroy, keep];
+  const minCost = Math.min(...rows.map((row) => row.perReturn));
+  const leaders = rows.filter((row) => Math.abs(row.perReturn - minCost) < 1e-9);
+  const cheapestPath = leaders.length === 1 ? leaders[0].id : "tie";
+
+  // Restock beats customer-keeps once recovered inventory covers the extra
+  // 3PL path. Algebra: fees + cogs*(1-r) + destroyFee*(1-r) = cogs + keepOffer
+  const restockBeatsKeepAt = restockable > 0
+    ? roundMoney((restockFees + destroyFee * (1 - restockable) - keepOffer) / restockable)
+    : null;
+  const restockBeatsDestroyAt = restockable > 0
+    ? roundMoney((restockFees + destroyFee * (1 - restockable) - destroyFees) / restockable)
+    : null;
+
+  return {
+    orders,
+    returnsRate,
+    returnedOrders,
+    returnFee,
+    restockFee,
+    destroyFee,
+    returnLabelCost,
+    unitCost,
+    restockableRate,
+    storageUntilResale,
+    keepOffer,
+    restockFees: roundMoney(restockFees),
+    destroyFees: roundMoney(destroyFees),
+    rows,
+    restock,
+    destroy,
+    keep,
+    cheapestPath,
+    cheapestPerReturn: minCost,
+    vsKeep: {
+      restock: roundMoney(keepNet - restockNet),
+      destroy: roundMoney(keepNet - destroyNet),
+    },
+    restockBeatsKeepAt,
+    restockBeatsDestroyAt,
+  };
+}
+
+function normalizeSweepValues(values, fallbacks) {
+  const unique = [...new Set((values || fallbacks).map((value) => {
+    const number = Number(value);
+    return Number.isFinite(number) ? Math.max(0, number) : 0;
+  }))];
+  unique.sort((left, right) => left - right);
+  return unique;
+}
+
+export function returnDispositionRestockableSweep(input = {}, rates = DEFAULT_RESTOCKABLE_RATES) {
+  return normalizeSweepValues(rates, DEFAULT_RESTOCKABLE_RATES).map((restockableRate) => {
+    const comparison = compareReturnDisposition({ ...input, restockableRate });
+    return {
+      restockableRate,
+      restock: comparison.restock.perReturn,
+      destroy: comparison.destroy.perReturn,
+      keep: comparison.keep.perReturn,
+      cheapestPath: comparison.cheapestPath,
+    };
+  });
+}
+
+export function returnDispositionUnitCostSweep(input = {}, costs = DEFAULT_UNIT_COSTS) {
+  return normalizeSweepValues(costs, DEFAULT_UNIT_COSTS).map((unitCost) => {
+    const comparison = compareReturnDisposition({ ...input, unitCost });
+    return {
+      unitCost,
+      restock: comparison.restock.perReturn,
+      destroy: comparison.destroy.perReturn,
+      keep: comparison.keep.perReturn,
+      cheapestPath: comparison.cheapestPath,
+    };
+  });
+}
+
+export function returnDispositionFlip(rows, key = "restockableRate") {
+  if (!rows.length) return { kind: "empty" };
+  const first = rows[0].cheapestPath;
+  const flip = rows.find((row) => row.cheapestPath !== first && row.cheapestPath !== "tie");
+  if (!flip) return { kind: "holds", path: first, at: rows[rows.length - 1][key] };
+  return { kind: "flips", from: first, to: flip.cheapestPath, at: flip[key] };
+}
+
+export function returnDispositionSummary(input = {}) {
+  const comparison = compareReturnDisposition(input);
+  const restockableSweep = returnDispositionRestockableSweep(input);
+  const unitCostSweep = returnDispositionUnitCostSweep(input);
+  const restockableFlip = returnDispositionFlip(restockableSweep, "restockableRate");
+  const unitCostFlip = returnDispositionFlip(unitCostSweep, "unitCost");
+  const keepVsRestock = roundMoney(comparison.restock.perReturn - comparison.keep.perReturn);
+  const cheapestLine = comparison.cheapestPath === "tie"
+    ? "The three paths tie on net cash out per return at these assumptions."
+    : comparison.cheapestPath === "keep"
+      ? `Letting the customer keep the item is cheaper by ${money(keepVsRestock)} per return versus restock (${money(comparison.keep.perReturn)} vs ${money(comparison.restock.perReturn)}).`
+      : comparison.cheapestPath === "restock"
+        ? `Restocking sellable units is cheaper by ${money(comparison.vsKeep.restock)} per return versus letting the customer keep it.`
+        : `Destroying the return is the cheapest path at ${money(comparison.destroy.perReturn)} per return.`;
+  const thresholdLine = comparison.restockBeatsKeepAt == null
+    ? "At 0% restockable, restock never recovers inventory, so it cannot beat customer-keeps."
+    : comparison.unitCost + 1e-9 >= comparison.restockBeatsKeepAt
+      ? `Restock already beats customer-keeps. It first wins once unit cost is ${money(comparison.restockBeatsKeepAt)} at this restockable rate.`
+      : `Restock beats customer-keeps once unit cost reaches ${money(comparison.restockBeatsKeepAt)} at this restockable rate.`;
+  const flipLine = restockableFlip.kind === "holds"
+    ? `${restockableFlip.path === "keep" ? "Customer-keeps" : restockableFlip.path === "restock" ? "Restock" : "Destroy"} stays cheapest through ${restockableFlip.at}% restockable.`
+    : restockableFlip.kind === "flips"
+      ? `Cheapest path flips from ${restockableFlip.from} to ${restockableFlip.to} at ${restockableFlip.at}% restockable.`
+      : "No restockable-rate sweep.";
+  const unitFlipLine = unitCostFlip.kind === "holds"
+    ? `${unitCostFlip.path === "keep" ? "Customer-keeps" : unitCostFlip.path === "restock" ? "Restock" : "Destroy"} stays cheapest through ${money(unitCostFlip.at)} unit cost.`
+    : unitCostFlip.kind === "flips"
+      ? `Cheapest path flips from ${unitCostFlip.from} to ${unitCostFlip.to} at ${money(unitCostFlip.at)} unit cost.`
+      : "No unit-cost sweep.";
+  return [
+    "3PL return disposition comparison",
+    `${comparison.returnedOrders} returned orders / month at ${comparison.returnsRate}% of ${comparison.orders} orders.`,
+    cheapestLine,
+    thresholdLine,
+    flipLine,
+    unitFlipLine,
+    "",
+    "Path, 3PL + label fees, inventory written off, net per return, monthly",
+    ...comparison.rows.map((row) =>
+      `${row.label}: ${money(row.fees)} fees, ${money(row.inventoryLost)} inventory, ${money(row.perReturn)} each, ${money(row.monthly)} / month`,
+    ),
+    "",
+    "Restockable-rate sweep (net per return)",
+    ...restockableSweep.map((row) =>
+      `${row.restockableRate}% restockable: restock ${money(row.restock)}, destroy ${money(row.destroy)}, keep ${money(row.keep)}, cheapest ${row.cheapestPath}`,
+    ),
+    "",
+    "Unit-cost sweep (net per return)",
+    ...unitCostSweep.map((row) =>
+      `${money(row.unitCost)} COGS: restock ${money(row.restock)}, destroy ${money(row.destroy)}, keep ${money(row.keep)}, cheapest ${row.cheapestPath}`,
+    ),
+    "",
+    "Review these figures against the signed rate card and your own refund policy before relying on them.",
+  ].join("\n");
+}
+
 export function negotiationLines(result) {
   const driver = largestCostDriver(result);
   return [
