@@ -194,7 +194,9 @@ test('the seller-initiated-offer table has one cell per column and a counted eve
   assert.match(page, /seller_initiated_offer_compared/);
   assert.match(page, /should-i-send-an-ebay-offer-to-watchers\.html/);
   assert.match(page, /"featureList":\s*"[^"]*seller-initiated offer vs waiting/);
-  const headerBlock = page.slice(page.indexOf('id="sellerInitiatedOfferTable"'));
+  const offerStart = page.indexOf('id="sellerInitiatedOfferTable"');
+  const offerEnd = page.indexOf('id="promotedOffsite"', offerStart);
+  const headerBlock = page.slice(offerStart, offerEnd === -1 ? undefined : offerEnd);
   const headers = [...headerBlock.matchAll(/<th scope="col">([^<]+)<\/th>/g)].map((m) => m[1]);
   assert.deepEqual(headers, [
     'Path',
@@ -203,5 +205,25 @@ test('the seller-initiated-offer table has one cell per column and a counted eve
     'If it sells',
     'Expected after sell-through',
     'vs waiting',
+  ]);
+});
+
+test('the Promoted Offsite table has one cell per column and a counted event', () => {
+  assert.match(page, /comparePromotedOffsite/);
+  assert.match(page, /id="promotedOffsite"/);
+  assert.match(page, /id="promotedOffsiteVerdict"/);
+  assert.match(page, /promoted_offsite_compared/);
+  assert.match(page, /is-ebay-promoted-offsite-worth-it\.html/);
+  assert.match(page, /"featureList":\s*"[^"]*Promoted Offsite vs skip/);
+  const headerBlock = page.slice(page.indexOf('id="promotedOffsiteTable"'));
+  const headers = [...headerBlock.matchAll(/<th scope="col">([^<]+)<\/th>/g)].map((m) => m[1]);
+  assert.deepEqual(headers, [
+    'Path',
+    'Extra sales',
+    'Ad spend',
+    'Extra sales after returns',
+    'If they keep the extras',
+    'Expected after spend',
+    'vs skip',
   ]);
 });
