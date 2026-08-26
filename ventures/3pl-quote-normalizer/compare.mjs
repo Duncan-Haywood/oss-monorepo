@@ -35,6 +35,6 @@ function money(value) { return new Intl.NumberFormat("en-US", { style: "currency
 
 export function targetMessage(result, firstName = "Quote A", secondName = "Quote B") {
   if (result.error || result.target == null) return "";
-  const status = (name, total, within) => `${name} ${within ? "is within" : "is above"} the ${money(result.target)} target by ${money(Math.abs(total - result.target))}.`;
+  const status = (name, total, within) => `${name} ${within ? `is within the ${money(result.target)} target (${money(result.target - total)} under)` : `is above the ${money(result.target)} target by ${money(total - result.target)}`}.`;
   return `${status(firstName, result.first, result.firstWithinTarget)} ${status(secondName, result.second, result.secondWithinTarget)}`;
 }
