@@ -266,7 +266,35 @@ export function parseUblInvoice(source) {
   const period = invoicePeriod(root);
   if (period) invoice.period = period;
   Object.assign(invoice, commercialReferences(root));
+  const adjustments = headerAdjustments(root);
+  if (adjustments.length) invoice.adjustments = adjustments;
   return invoice;
+}
+
+function headerAdjustments(root) {
+  const rows = [];
+  for (const child of root.children) {
+    if (child.name !== "AllowanceCharge") continue;
+    const indicator = textOf(child, "ChargeIndicator", false);
+    const amount = textOf(child, "Amount", false);
+    const base = textOf(child, "BaseAmount", false);
+    const percent = textOf(child, "MultiplierFactorNumeric", false);
+    const reason = textOf(child, "AllowanceChargeReason", false);
+    const reasonCode = textOf(child, "AllowanceChargeReasonCode", false);
+    if (!indicator && !amount && !base && !percent && !reason && !reasonCode) continue;
+    const row = {};
+    if (indicator) {
+      const token = indicator.trim().toLowerCase();
+      row.kind = token === "true" || token === "1" ? "charge" : "allowance";
+    }
+    if (amount) row.amount = asNumber(amount);
+    if (base) row.base = asNumber(base);
+    if (percent) row.percent = asNumber(percent);
+    if (reason) row.reason = reason;
+    if (reasonCode) row.reason_code = reasonCode;
+    if (Object.keys(row).length) rows.push(row);
+  }
+  return rows;
 }
 
 function commercialReferences(root) {

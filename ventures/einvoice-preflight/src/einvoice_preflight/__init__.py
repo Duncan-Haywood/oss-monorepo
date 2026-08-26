@@ -1,5 +1,6 @@
 """Local, format-neutral e-invoice preflight checks."""
 
+from .adjustment import header_adjustment_net_delta, inspect_header_adjustments, normalize_kind
 from .bic import inspect_payment_bic, looks_like_complete_bic, normalize_bic
 from .breakdown import inspect_tax_breakdown
 from .checks import check_invoice
@@ -14,6 +15,8 @@ from .vat import inspect_party_vat, looks_like_complete_vat, normalize_vat
 
 __all__ = [
     "check_invoice",
+    "header_adjustment_net_delta",
+    "inspect_header_adjustments",
     "inspect_commercial_references",
     "inspect_invoice_period",
     "inspect_party_endpoint",
@@ -32,6 +35,7 @@ __all__ = [
     "looks_like_complete_vat",
     "looks_like_exemption_category",
     "looks_like_placeholder",
+    "normalize_kind",
     "looks_like_structured_rf",
     "normalize_bic",
     "normalize_endpoint_id",
