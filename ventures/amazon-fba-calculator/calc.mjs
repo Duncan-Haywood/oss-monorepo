@@ -1515,3 +1515,267 @@ export function compareVine(input) {
     }),
   };
 }
+
+// Illustrative aged-inventory defaults so the table is immediately useful.
+// AIS, removal, and disposal are inputs — not Amazon's live surcharge
+// schedule or a published removal-order rate card. $1.50 / unit / month
+// is a middle-aged standard-size surcharge a seller replaces from the
+// fee preview. $1.04 return and $0.32 dispose are the common standard-size
+// removal examples. 80 units at 5% sell-through over 3 months is a slow
+// leftover pile, not a forecast.
+export const DEFAULT_AGED_UNITS = 80;
+export const DEFAULT_AGED_SELL_THROUGH_PCT = 5;
+export const DEFAULT_AGED_HORIZON_MONTHS = 3;
+export const DEFAULT_AGED_AIS_PER_UNIT = 1.5;
+export const DEFAULT_AGED_REMOVAL_FEE = 1.04;
+export const DEFAULT_AGED_DISPOSAL_FEE = 0.32;
+
+function agedKeepPath({
+  units,
+  sellThroughPct,
+  horizonMonths,
+  storagePerUnitMonth,
+  aisPerUnit,
+  contribution,
+}) {
+  let remaining = units;
+  let cash = 0;
+  let soldTotal = 0;
+  let carryingFees = 0;
+  const rate = sellThroughPct / 100;
+  for (let month = 0; month < horizonMonths; month += 1) {
+    const fees = remaining * (storagePerUnitMonth + aisPerUnit);
+    const sold = remaining * rate;
+    cash += sold * contribution - fees;
+    carryingFees += fees;
+    soldTotal += sold;
+    remaining -= sold;
+  }
+  return { cash, remaining, soldTotal, carryingFees };
+}
+
+function agedBreakEvenSellThrough(targetCash, args) {
+  if (agedKeepPath({ ...args, sellThroughPct: 100 }).cash + 1e-9 < targetCash) {
+    return Infinity;
+  }
+  if (agedKeepPath({ ...args, sellThroughPct: 0 }).cash >= targetCash - 1e-9) {
+    return 0;
+  }
+  let lo = 0;
+  let hi = 100;
+  for (let i = 0; i < 48; i += 1) {
+    const mid = (lo + hi) / 2;
+    if (agedKeepPath({ ...args, sellThroughPct: mid }).cash >= targetCash) hi = mid;
+    else lo = mid;
+  }
+  return hi;
+}
+
+function agedBreakEvenAis(targetCash, args) {
+  const atZero = agedKeepPath({ ...args, aisPerUnit: 0 });
+  if (atZero.cash + 1e-9 < targetCash) return 0;
+  let lo = 0;
+  let hi = 1;
+  while (agedKeepPath({ ...args, aisPerUnit: hi }).cash > targetCash && hi < 1e6) {
+    hi *= 2;
+  }
+  if (agedKeepPath({ ...args, aisPerUnit: hi }).cash > targetCash) return Infinity;
+  for (let i = 0; i < 48; i += 1) {
+    const mid = (lo + hi) / 2;
+    if (agedKeepPath({ ...args, aisPerUnit: mid }).cash >= targetCash) lo = mid;
+    else hi = mid;
+  }
+  return lo;
+}
+
+function agedInventorySummary({
+  winner,
+  keepCash,
+  removeCash,
+  disposeCash,
+  extraKeepVsDispose,
+  breakEvenSellThroughVsDispose,
+  agedUnits,
+  horizonMonths,
+}) {
+  const keep = moneyLabel(keepCash);
+  const remove = moneyLabel(removeCash);
+  const dispose = moneyLabel(disposeCash);
+  const gap = moneyLabel(Math.abs(extraKeepVsDispose));
+  const floor = Number.isFinite(breakEvenSellThroughVsDispose)
+    ? `${breakEvenSellThroughVsDispose.toFixed(1)}%`
+    : "an unreachable sell-through";
+  const pile = `${agedUnits} unit${agedUnits === 1 ? "" : "s"}`;
+  const months = `${horizonMonths} month${horizonMonths === 1 ? "" : "s"}`;
+  if (winner === "keep") {
+    return (
+      `Keeping the ${pile} still beats disposing by ${gap} over ${months} ` +
+      `(${keep} vs ${dispose}). Removing them now is ${remove}. ` +
+      `Keeping needs about ${floor} monthly sell-through to match dispose.`
+    );
+  }
+  if (winner === "remove") {
+    return (
+      `A return removal at ${remove} beats keeping (${keep}) by ` +
+      `${moneyLabel(removeCash - keepCash)} over ${months}. ` +
+      `Disposing is ${dispose}. Keeping needs about ${floor} monthly ` +
+      `sell-through to match dispose.`
+    );
+  }
+  if (winner === "dispose") {
+    return (
+      `Disposing the ${pile} loses ${gap} less than keeping over ${months} ` +
+      `(${dispose} vs ${keep}). A return removal is ${remove}. ` +
+      `Keeping needs about ${floor} monthly sell-through to match dispose.`
+    );
+  }
+  return (
+    `Keeping, returning, and disposing leave the same cash on these rates ` +
+    `over ${months}.`
+  );
+}
+
+/**
+ * Same leftover FBA pile, three ways to treat units that already sit.
+ *
+ *   - Keep — expected sales at the typed monthly sell-through, minus
+ *     storage and aged-inventory surcharge on what is still there.
+ *   - Remove (return) — pay the return-removal fee now; COGS is already
+ *     sunk and the units come back.
+ *   - Dispose — pay the cheaper disposal fee; the units are gone.
+ *
+ * COGS and inbound are sunk (the pile is already in FBA). Professional
+ * is paid anyway. Complementary to Q4 storage (a seasonal rate, not an
+ * age surcharge), to restock vs low-inventory fee (a quantity question),
+ * and to 3PL long-term storage (a different warehouse). Rates are inputs,
+ * not Amazon's live AIS or removal schedule.
+ */
+export function compareAgedInventory(input) {
+  const agedUnits = emptyField(input.agedUnits)
+    ? DEFAULT_AGED_UNITS
+    : number(input.agedUnits, "Aged units");
+  if (agedUnits === 0) throw new Error("Aged units must be greater than zero");
+  const monthlySellThroughPct = emptyField(input.monthlySellThroughPct)
+    ? DEFAULT_AGED_SELL_THROUGH_PCT
+    : number(input.monthlySellThroughPct, "Monthly sell-through percent");
+  if (monthlySellThroughPct > 100) {
+    throw new Error("Monthly sell-through percent must be at most 100");
+  }
+  const horizonMonths = emptyField(input.horizonMonths)
+    ? DEFAULT_AGED_HORIZON_MONTHS
+    : number(input.horizonMonths, "Horizon months");
+  if (horizonMonths === 0) throw new Error("Horizon months must be greater than zero");
+  const aisPerUnit = emptyField(input.aisPerUnit)
+    ? DEFAULT_AGED_AIS_PER_UNIT
+    : number(input.aisPerUnit, "Aged inventory surcharge");
+  const removalFee = emptyField(input.removalFee)
+    ? DEFAULT_AGED_REMOVAL_FEE
+    : number(input.removalFee, "Removal fee");
+  const disposalFee = emptyField(input.disposalFee)
+    ? DEFAULT_AGED_DISPOSAL_FEE
+    : number(input.disposalFee, "Disposal fee");
+
+  const listing = calculateListing({
+    ...input,
+    fulfillmentMethod: "fba",
+    monthsInStorage: 1,
+  });
+  const salePrice = listing.salePrice;
+  const referral = salePrice * (number(input.referralRate, "Referral rate", 15) / 100);
+  const adsPerUnit = number(input.adsPerUnit, "Ads per unit");
+  const contribution = salePrice - referral - listing.fulfillmentFee - adsPerUnit;
+  const storagePerUnitMonth = listing.cubicFeet * number(
+    input.storageRate,
+    "Storage rate",
+    STORAGE_PRESETS.off_peak.perCuFt,
+  );
+
+  const keepPath = agedKeepPath({
+    units: agedUnits,
+    sellThroughPct: monthlySellThroughPct,
+    horizonMonths,
+    storagePerUnitMonth,
+    aisPerUnit,
+    contribution,
+  });
+  const removeCash = -removalFee * agedUnits;
+  const disposeCash = -disposalFee * agedUnits;
+
+  const keep = {
+    id: "keep",
+    label: "Keep and sell through",
+    cash: keepPath.cash,
+    leftoverUnits: keepPath.remaining,
+    soldUnits: keepPath.soldTotal,
+    carryingFees: keepPath.carryingFees,
+  };
+  const remove = {
+    id: "remove",
+    label: "Remove (return to you)",
+    cash: removeCash,
+    leftoverUnits: agedUnits,
+    soldUnits: 0,
+    carryingFees: 0,
+  };
+  const dispose = {
+    id: "dispose",
+    label: "Dispose",
+    cash: disposeCash,
+    leftoverUnits: 0,
+    soldUnits: 0,
+    carryingFees: 0,
+  };
+
+  const rows = [keep, remove, dispose].map((row) => ({
+    ...row,
+    vsKeep: row.cash - keep.cash,
+  }));
+  const maxCash = Math.max(...rows.map((row) => row.cash));
+  const leaders = rows.filter((row) => Math.abs(row.cash - maxCash) < 1e-9);
+  const winner = leaders.length === 1 ? leaders[0].id : "tie";
+
+  const keepArgs = {
+    units: agedUnits,
+    horizonMonths,
+    storagePerUnitMonth,
+    aisPerUnit,
+    contribution,
+  };
+  const breakEvenSellThroughVsDispose = agedBreakEvenSellThrough(disposeCash, keepArgs);
+  const breakEvenSellThroughVsRemove = agedBreakEvenSellThrough(removeCash, keepArgs);
+  const breakEvenAisVsDispose = agedBreakEvenAis(disposeCash, {
+    ...keepArgs,
+    sellThroughPct: monthlySellThroughPct,
+  });
+
+  return {
+    rows,
+    keep: rows[0],
+    remove: rows[1],
+    dispose: rows[2],
+    agedUnits,
+    monthlySellThroughPct,
+    horizonMonths,
+    aisPerUnit,
+    removalFee,
+    disposalFee,
+    contribution,
+    storagePerUnitMonth,
+    extraKeepVsDispose: keep.cash - dispose.cash,
+    extraKeepVsRemove: keep.cash - remove.cash,
+    breakEvenSellThroughVsDispose,
+    breakEvenSellThroughVsRemove,
+    breakEvenAisVsDispose,
+    winner,
+    summary: agedInventorySummary({
+      winner,
+      keepCash: keep.cash,
+      removeCash,
+      disposeCash,
+      extraKeepVsDispose: keep.cash - dispose.cash,
+      breakEvenSellThroughVsDispose,
+      agedUnits,
+      horizonMonths,
+    }),
+  };
+}

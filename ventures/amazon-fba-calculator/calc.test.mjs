@@ -16,8 +16,15 @@ import {
   compareSellerPlanVolumes,
   compareSubscribeSave,
   compareVine,
+  compareAgedInventory,
   vineUnitCost,
   DEFAULT_VINE_UNITS,
+  DEFAULT_AGED_UNITS,
+  DEFAULT_AGED_SELL_THROUGH_PCT,
+  DEFAULT_AGED_HORIZON_MONTHS,
+  DEFAULT_AGED_AIS_PER_UNIT,
+  DEFAULT_AGED_REMOVAL_FEE,
+  DEFAULT_AGED_DISPOSAL_FEE,
   DEFAULT_VINE_REFERRAL_RATE,
   DEFAULT_CONVERSION_LIFT_PCT,
   DEFAULT_VINE_MONTHS,
@@ -947,6 +954,77 @@ test("summary names leftover Vine and the lift floor", () => {
   assert.match(text, /8\.0%/);
   assert.match(text, /\$116\.54 less/);
   assert.doesNotMatch(text, /should enroll|must join|turn on Vine/i);
+});
+
+test("defaults match the published aged-inventory pile", () => {
+  assert.equal(DEFAULT_AGED_UNITS, 80);
+  assert.equal(DEFAULT_AGED_SELL_THROUGH_PCT, 5);
+  assert.equal(DEFAULT_AGED_HORIZON_MONTHS, 3);
+  assert.equal(DEFAULT_AGED_AIS_PER_UNIT, 1.5);
+  assert.equal(DEFAULT_AGED_REMOVAL_FEE, 1.04);
+  assert.equal(DEFAULT_AGED_DISPOSAL_FEE, 0.32);
+});
+
+test("disposing the default leftover pile loses less than keeping", () => {
+  // Contribution is list minus referral and pick — COGS and inbound are sunk.
+  // 80 units × 5% sell-through over 3 months: 11.41 sold, 68.59 leftover.
+  // Carrying is storage + $1.50 AIS on what is still there each month.
+  const r = compareAgedInventory(base);
+  near(r.contribution, 21.3415, "sunk-COGS contribution");
+  near(r.storagePerUnitMonth, 0.04833333333333333, "cu ft × $0.87");
+  near(r.keep.cash, -109.82315166666672, "keep");
+  near(r.remove.cash, -83.2, "return removal");
+  near(r.dispose.cash, -25.6, "dispose");
+  near(r.keep.soldUnits, 11.41, "expected sold");
+  near(r.keep.leftoverUnits, 68.59, "still sitting");
+  near(r.keep.carryingFees, 353.3296666666667, "storage + AIS");
+  near(r.extraKeepVsDispose, -84.22315166666672, "keep vs dispose");
+  near(r.breakEvenSellThroughVsDispose, 6.720082528357096, "sell-through floor");
+  near(r.breakEvenSellThroughVsRemove, 5.537296348009946, "vs return");
+  near(r.breakEvenAisVsDispose, 1.1309239628980379, "AIS ceiling");
+  assert.equal(r.winner, "dispose");
+  assert.ok(r.dispose.cash > r.remove.cash, "dispose beats a return");
+  assert.ok(r.remove.cash > r.keep.cash, "a return beats keeping");
+});
+
+test("a faster leftover pile flips keep ahead of dispose", () => {
+  const r = compareAgedInventory({ ...base, monthlySellThroughPct: 20 });
+  assert.equal(r.winner, "keep");
+  assert.ok(r.keep.cash > 0, "sales cover carrying");
+  assert.ok(r.extraKeepVsDispose > 0, "keep beats dispose");
+});
+
+test("zero sell-through is just three months of carrying", () => {
+  const r = compareAgedInventory({ ...base, monthlySellThroughPct: 0 });
+  near(r.keep.soldUnits, 0, "nothing sold");
+  near(r.keep.leftoverUnits, 80, "whole pile remains");
+  near(r.keep.cash, -371.6, "80 × ($0.04833 + $1.50) × 3");
+  assert.equal(r.winner, "dispose");
+});
+
+test("empty aged-inventory fields use the published defaults", () => {
+  const r = compareAgedInventory(base);
+  near(r.agedUnits, DEFAULT_AGED_UNITS, "default units");
+  near(r.monthlySellThroughPct, DEFAULT_AGED_SELL_THROUGH_PCT, "default sell-through");
+  near(r.horizonMonths, DEFAULT_AGED_HORIZON_MONTHS, "default horizon");
+  near(r.aisPerUnit, DEFAULT_AGED_AIS_PER_UNIT, "default AIS");
+});
+
+test("compareAgedInventory rejects a zero pile or horizon", () => {
+  assert.throws(() => compareAgedInventory({ ...base, agedUnits: 0 }), /Aged units/);
+  assert.throws(() => compareAgedInventory({ ...base, horizonMonths: 0 }), /Horizon months/);
+  assert.throws(() => compareAgedInventory({ ...base, monthlySellThroughPct: 101 }), /at most 100/);
+  assert.throws(() => compareAgedInventory({ ...base, aisPerUnit: -1 }), /Aged inventory surcharge/);
+});
+
+test("summary names dispose and the sell-through floor", () => {
+  const text = compareAgedInventory(base).summary;
+  assert.match(text, /\$84\.22 less/);
+  assert.match(text, /-\$25\.60/);
+  assert.match(text, /-\$109\.82/);
+  assert.match(text, /-\$83\.20/);
+  assert.match(text, /6\.7%/);
+  assert.doesNotMatch(text, /should dispose|must remove|create a removal/i);
 });
 
 test("rejects unknown presets and invalid inputs", () => {
