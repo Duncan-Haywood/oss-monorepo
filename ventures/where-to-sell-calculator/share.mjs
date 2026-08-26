@@ -1,21 +1,30 @@
 // Share only calculator assumptions in the URL. No saved inputs leave the
 // browser except when the user explicitly copies a link.
+//
+// Every field the calculator reads must appear in one of these two lists. A
+// field that is missing is silently dropped from the link, and the recipient
+// then computes a different answer than the sender saw — the failure mode is
+// a wrong number, not an error.
 const SHARED_FIELDS = [
   "price", "shippingCharged", "shippingCost", "itemCost",
-  "packagingCost", "otherCost", "monthlyOrders",
+  "packagingCost", "otherCost", "monthlyOrders", "daysToSell",
+  "horizonDays", "capitalCostPct", "unsoldRecoveryPct",
 ];
 const CHANNEL_FIELDS = [
   "price", "shippingCharged", "shippingCost", "fulfilmentCost",
   "commissionRate", "paymentRate", "paymentFixed", "perListingFee",
   "monthlyFee", "adRate",
+  "returnRate", "returnShippingCost", "resellableRate", "feeRefundRate",
+  "sellThroughPct", "daysToSell", "listingRenewalDays",
 ];
 
 export function encodeComparison(shared = {}, channels = []) {
   const payload = {
     shared: Object.fromEntries(SHARED_FIELDS
-      .filter((key) => shared[key] !== undefined)
+      .filter((key) => shared[key] !== undefined && shared[key] !== "")
       .map((key) => [key, shared[key]])),
     includeSubscription: shared.includeSubscription !== false,
+    includeReturns: shared.includeReturns !== false,
     channels: channels.map((channel) => ({
       id: channel.id,
       enabled: channel.enabled !== false,
@@ -41,10 +50,22 @@ export function decodeComparison(value) {
       .map((channel) => ({
         id: channel.id,
         enabled: channel.enabled !== false,
-        ...Object.fromEntries(CHANNEL_FIELDS.map((key) => [key, channel.values?.[key]])
-          .filter(([, value]) => value !== undefined && value !== "")),
+        // Coerce, do not merely pass through: a link is untrusted input, and a
+        // non-numeric value used to survive this filter and reach the
+        // calculator, where it surfaced as a validation error on a field the
+        // recipient never typed. Dropping it falls back to the preset instead.
+        ...Object.fromEntries(CHANNEL_FIELDS.map((key) => {
+          const raw = channel.values?.[key];
+          const parsed = raw === undefined || raw === "" ? null : Number(raw);
+          return [key, Number.isFinite(parsed) && parsed >= 0 ? parsed : null];
+        }).filter(([, value]) => value !== null)),
       })) : [];
-    return { shared, includeSubscription: parsed.includeSubscription !== false, channels };
+    return {
+      shared,
+      includeSubscription: parsed.includeSubscription !== false,
+      includeReturns: parsed.includeReturns !== false,
+      channels,
+    };
   } catch {
     return null;
   }

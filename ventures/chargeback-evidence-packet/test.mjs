@@ -48,6 +48,11 @@ test("reviewed packets can be downloaded locally", () => {
   assert.match(html, /slice\(0,80\)/);
 });
 
+test("optional sponsors and no-warranty are visible", () => {
+  assert.match(html, /GitHub Sponsors/);
+  assert.match(html, /No warranty/);
+});
+
 test("draft persistence is explicit and browser-local", () => {
   assert.match(html, /id="save"/);
   assert.match(html, /id="restore"/);
