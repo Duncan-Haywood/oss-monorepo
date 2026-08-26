@@ -77,7 +77,7 @@ test('every element the script reaches for exists in the markup', () => {
 });
 
 test('inputs and result fields for the primary journey are present', () => {
-  for (const id of ['stock', 'kerf', 'unit', 'cuts', 'headline', 'message', 'bars', 'used', 'waste', 'utilization', 'plan', 'copy-plan', 'copy-status', 'optout']) {
+  for (const id of ['stock', 'kerf', 'unit', 'cuts', 'onhand', 'stock-cost', 'currency', 'headline', 'message', 'saved', 'bars', 'purchased', 'linear-total-cost', 'used', 'waste', 'utilization', 'plan', 'copy-plan', 'copy-status', 'optout']) {
     assert.ok(declaredIds.has(id), `#${id} is missing from index.html`);
   }
 });
@@ -98,6 +98,9 @@ test('the sheet-goods inputs and result fields are present', () => {
     'sheet-width', 'sheet-height', 'sheet-kerf', 'sheet-trim', 'sheet-unit', 'sheet-cost',
     'sheet-rotate', 'sheet-parts', 'sheet-headline', 'sheet-message', 'sheet-count',
     'sheet-utilization', 'sheet-used', 'sheet-waste', 'sheet-total-cost', 'sheet-oversize',
+    'sheet-compare', 'sheet-alt1-width', 'sheet-alt1-height', 'sheet-alt1-cost',
+    'sheet-alt2-width', 'sheet-alt2-height', 'sheet-alt2-cost',
+    'preset-5x5', 'preset-4x4', 'preset-5x10',
     'sheet-copy', 'sheet-print', 'sheet-copy-status', 'sheet-diagrams',
   ]) {
     assert.ok(declaredIds.has(id), `#${id} is missing from index.html`);
@@ -132,6 +135,11 @@ test('every module the page imports exists and exports what it names', async () 
       assert.equal(typeof module[name], 'function', `${specifier} does not export ${name}`);
     }
   }
+});
+
+test('the landing page points at the 4×8 vs 5×5 comparison', () => {
+  assert.match(markup, /href="compare-4x8-vs-5x5.html"/);
+  assert.match(markup, /compare other sheet sizes/i);
 });
 
 test('user-supplied part labels are escaped before they reach innerHTML', () => {
