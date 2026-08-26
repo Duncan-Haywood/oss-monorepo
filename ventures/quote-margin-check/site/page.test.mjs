@@ -129,7 +129,34 @@ test("sitemap and robots advertise the cost-rise page", async () => {
   assert.match(sitemap, /if-they-ask-for-10-percent-off\.html/);
   assert.match(sitemap, /should-i-send-a-fixed-quote-or-bill-hourly\.html/);
   assert.match(sitemap, /should-i-take-this-kill-fee-or-finish\.html/);
+  assert.match(sitemap, /effective-hourly-rate\.html/);
   assert.match(robots, /Sitemap: sitemap\.xml/);
+});
+
+test("effective-rate guide matches calculator defaults and carries disclaimers", async () => {
+  const page = await readFile(new URL("./effective-hourly-rate.html", import.meta.url), "utf8");
+  const index = await readFile(new URL("./index.html", import.meta.url), "utf8");
+  const quote = loadQuote({
+    price: 2400,
+    delivery_hours: 24,
+    admin_hours: 5,
+    revision_hours: 6,
+    overhead: 180,
+    subcontractor_cost: 300,
+    target_hourly_rate: 75,
+  });
+  const report = calculate(quote);
+  assert.equal(report.total_hours, 35);
+  assert.equal(report.direct_costs, 480);
+  assert.equal(Number(report.effective_hourly_rate.toFixed(2)), 54.86);
+  assert.equal(report.target_price, 3105);
+  assert.match(page, /\$54\.86/);
+  assert.match(page, /\$3,105/);
+  assert.match(page, /No warranty/);
+  assert.match(page, /no SLA/);
+  assert.match(page, /GitHub Sponsors/);
+  assert.doesNotMatch(page, /should raise|must quote|recommend a price/);
+  assert.match(index, /effective-hourly-rate\.html/);
 });
 
 test("calculator page persists a local draft and can reset it", async () => {

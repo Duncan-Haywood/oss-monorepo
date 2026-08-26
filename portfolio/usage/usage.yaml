@@ -343,6 +343,13 @@ products:
         note: >-
           Added local draft persistence for the browser worksheet. Public
           URL remains owner-gated; quote values stay in the browser.
+      - as_of: 2026-08-26
+        signals:
+          live_url_visitors: null
+        note: >-
+          Added a crawlable effective-hourly-rate guide next to the
+          calculator. Public URL remains owner-gated; the page is
+          documentation of the same arithmetic, not a second calculator.
   - slug: mls-photo-spec-preflight
     surface: static-page-in-repo
     readings:
