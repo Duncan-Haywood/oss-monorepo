@@ -22,10 +22,11 @@ function hours(n) {
 /**
  * Stable measure,value,unit CSV for the on-screen review.
  *
- * Core rows match the headline result. Optional extras add the tables
- * already rendered on the page (time overrun, cost rise, discount ask,
- * kill-fee) so a pasted spreadsheet matches what the visitor just saw.
- * Null extras keep the original seven-row report — same shape as the CLI.
+ * Core rows match the headline result plus the planned-hours hourly
+ * comparison. Optional extras add the tables already rendered on the
+ * page (time overrun, cost rise, discount ask, extra-time hourly
+ * rows, kill-fee) so a pasted spreadsheet matches what the visitor
+ * just saw. Null extras keep the same shape as the CLI.
  */
 export function quoteCsv(quote, report, extras = {}) {
   const currency = quote.currency;
@@ -39,6 +40,8 @@ export function quoteCsv(quote, report, extras = {}) {
     ["target_price", money(report.target_price), currency],
     ["gap_to_target", money(report.gap_to_target), currency],
     ["cost_coverage", money(report.cost_coverage), currency],
+    ["hourly_bill_at_planned_hours", money(report.target_price), currency],
+    ["hourly_minus_fixed_at_planned_hours", money(report.target_price - quote.price), currency],
   ];
 
   for (const row of extras.overrunRows ?? []) {
@@ -51,6 +54,12 @@ export function quoteCsv(quote, report, extras = {}) {
     rows.push([`cost_spike_${row.percent}_direct_costs`, money(row.direct_costs), currency]);
     rows.push([`cost_spike_${row.percent}_rate`, money(row.effective_hourly_rate), perHour]);
     rows.push([`cost_spike_${row.percent}_target_price`, money(row.target_price), currency]);
+  }
+
+  for (const row of extras.billingRows ?? []) {
+    rows.push([`hourly_${row.percent}_hours`, hours(row.total_hours), "hours"]);
+    rows.push([`hourly_${row.percent}_bill`, money(row.hourly_total), currency]);
+    rows.push([`hourly_${row.percent}_minus_fixed`, money(row.hourly_minus_fixed), currency]);
   }
 
   for (const row of extras.discountRows ?? []) {
