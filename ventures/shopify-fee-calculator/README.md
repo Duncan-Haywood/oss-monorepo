@@ -47,6 +47,9 @@ many extra orders cover the gap.
 [Should I offer store credit instead of a refund?](should-i-offer-store-credit-instead-of-a-refund.html)
 answers the return question: whether issuing credit or exchanging still beats
 sending cash after the return label, restock, and expected redemption.
+[Which Shopify promo still pays](which-shopify-promo-costs-less.html) answers
+the sale question: whether 10% off, a dollar-off coupon, or free shipping
+keeps more after percentage fees, because free shipping still pays the label.
 [What a refund rate still leaves](refunds.html) mixes completed-order profit
 with a full-refund outcome so a merchant can see whether PayPal keeping its
 fee on returns flips the comparison. Refund fields stay on that sibling page

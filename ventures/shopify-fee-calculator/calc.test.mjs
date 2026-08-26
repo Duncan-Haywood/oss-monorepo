@@ -2,7 +2,11 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import {
   applyPlanPreset,
+  applyPromo,
   calculateOrder,
+  comparePromos,
+  defaultPromoSet,
+  promoComparisonSummary,
   compareOnlineVsPos,
   compareShippingLabels,
   compareReturnResolution,
@@ -1767,4 +1771,86 @@ test("rejects refund rates outside 0-100", () => {
     () => expectedProfitAfterRefunds({ ...refundBase, restockablePercent: -1 }),
     /Restockable/,
   );
+});
+
+const BASIC_PROMO_ORDER = {
+  price: 48,
+  shippingCharged: 6,
+  paymentsRate: 2.9,
+  paymentsFixed: 0.3,
+  costOfGoods: 14,
+  shippingCost: 5,
+  packagingCost: 1,
+  monthlyPlan: 39,
+  monthlyOrders: 100,
+  paymentMethod: "shopify_payments",
+};
+
+test("10% off keeps more than free shipping on the same Basic order", () => {
+  const comparison = comparePromos(BASIC_PROMO_ORDER);
+  const byId = Object.fromEntries(comparison.rows.map((row) => [row.id, row]));
+
+  near(byId.list.revenue, 54, "list revenue");
+  near(byId.list.feeTotal, 1.866, "list fees");
+  near(byId.list.profit, 31.744, "list profit");
+  near(byId.list.cashInvested, 20.39, "list cash");
+
+  near(byId.percent_off.price, 43.2, "10% price");
+  near(byId.percent_off.revenue, 49.2, "10% revenue");
+  near(byId.percent_off.feeTotal, 1.7268, "10% fees");
+  near(byId.percent_off.profit, 27.0832, "10% profit");
+  near(byId.percent_off.profitDelta, 27.0832 - 31.744, "10% vs list");
+
+  near(byId.free_shipping.shippingCharged, 0, "free-ship charged");
+  near(byId.free_shipping.revenue, 48, "free-ship revenue");
+  near(byId.free_shipping.feeTotal, 1.692, "free-ship fees");
+  near(byId.free_shipping.profit, 25.918, "free-ship profit");
+  near(byId.free_shipping.cashInvested, 20.39, "label still paid");
+
+  near(byId.amount_off.price, 38, "$10 price");
+  near(byId.amount_off.revenue, 44, "$10 revenue");
+  near(byId.amount_off.feeTotal, 1.576, "$10 fees");
+  near(byId.amount_off.profit, 22.034, "$10 profit");
+
+  assert.equal(comparison.best.id, "list");
+  const promoRank = comparison.ranked.filter((row) => row.kind !== "list").map((row) => row.id);
+  assert.deepEqual(promoRank, ["percent_off", "free_shipping", "amount_off"]);
+  near(byId.percent_off.profit - byId.free_shipping.profit, 1.1652, "10% vs free ship");
+});
+
+test("free shipping can flip a thin order to a loss when 10% off does not", () => {
+  const thin = {
+    price: 24,
+    shippingCharged: 10,
+    paymentsRate: 2.9,
+    paymentsFixed: 0.3,
+    costOfGoods: 15,
+    shippingCost: 9,
+    packagingCost: 1,
+    monthlyPlan: 0,
+    paymentMethod: "shopify_payments",
+  };
+  const comparison = comparePromos(thin, defaultPromoSet({ percentOff: 10, amountOff: 5 }));
+  const byId = Object.fromEntries(comparison.rows.map((row) => [row.id, row]));
+
+  near(byId.list.profit, 7.714, "thin list");
+  near(byId.percent_off.profit, 5.3836, "thin 10%");
+  near(byId.amount_off.profit, 2.859, "thin $5");
+  near(byId.free_shipping.profit, -1.996, "thin free ship");
+  assert.equal(byId.percent_off.isLoss, false);
+  assert.equal(byId.free_shipping.isLoss, true);
+  assert.match(promoComparisonSummary(comparison), /Free shipping turns the order into a loss/);
+  assert.match(promoComparisonSummary(comparison), /10% off item keeps the most/);
+});
+
+test("applyPromo floors an amount-off below the item price at zero", () => {
+  const applied = applyPromo({ price: 8, shippingCharged: 4 }, { kind: "amount_off", amount: 20 });
+  assert.equal(applied.price, 0);
+  assert.equal(applied.shippingCharged, 4);
+});
+
+test("rejects unknown promo kinds and percents above 100", () => {
+  assert.throws(() => applyPromo({ price: 10 }, { kind: "bogo" }), /Unknown promo kind/);
+  assert.throws(() => applyPromo({ price: 10 }, { kind: "percent_off", percent: 110 }), /at most 100/);
+  assert.throws(() => comparePromos({ price: 10 }, []), /At least one promo/);
 });
