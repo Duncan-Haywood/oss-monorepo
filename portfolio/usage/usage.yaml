@@ -316,6 +316,14 @@ products:
           Shipped browser-local remediation quote (hours + range) at
           quote.html. Complementary to #1514 before/after compare — keep
           quote.html as a sibling. Public URL remains owner-gated.
+      - as_of: 2026-08-26
+        signals:
+          live_url_visitors: null
+          local_events_reported: 0
+        note: >-
+          Shipped theme-area routing at theme-areas.html (which Liquid file
+          to open first). Complementary to quote.html. Public URL remains
+          owner-gated.
   - slug: ebay-fee-calculator
     surface: static-page-in-repo
     readings:
