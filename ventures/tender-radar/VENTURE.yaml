@@ -1,0 +1,27 @@
+name: tender-radar
+description: A private browser tool that helps small contractors triage public tender listings by deadline, fit, and response effort.
+stage: prototype
+owner: duncan
+hypotheses:
+  - claim: Small specialist contractors will return to a fast shortlist workflow when tender portals make opportunity review too slow.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: An import-first local tool can prove value without owning a tender feed or storing bid documents.
+    status: supported
+    checked: 2026-08-24
+    evidence: in-repo
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+budget:
+  monthly_cap: 1
+  protected: true
+kill_criteria:
+  - Fewer than three contractors use the shortlist workflow twice within 90 days of a public launch.
+  - Users do not report saving at least 30 minutes per tender review during the first 90 days.
+links:
+  production: null
+  analytics: null
