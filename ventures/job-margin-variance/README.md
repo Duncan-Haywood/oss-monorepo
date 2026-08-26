@@ -19,6 +19,9 @@ verifying its output before relying on it**, and for meeting any obligation it
 helps you prepare for. To the maximum extent permitted by law, the authors
 accept no liability for any loss or damage arising from its use.
 
+[GitHub Sponsors](https://github.com/sponsors/Duncan-Haywood) is optional and
+never changes what the tool does.
+
 ## Privacy and usage
 
 Everything runs in your browser. Your data is never uploaded, and there are no
