@@ -13,6 +13,10 @@ hypotheses:
     status: untested
     checked: null
     evidence: customer-contact
+  - claim: Freelancers act on the gap between clearing an hourly floor and reaching a monthly income goal — the floor rate assumes every billable hour sells, and a single retainer rarely is more than a quarter of the month.
+    status: untested
+    checked: null
+    evidence: customer-contact
 
 economics:
   currency: USD

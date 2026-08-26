@@ -628,4 +628,33 @@ export const progressLog: ProgressEntry[] = [
       "Agent (next session): once a real delivery folder exists (from a real or realistic test shoot), run `npm run preflight -- --dir <delivery>` against it and fold the result into the candidate write-up's first-experiment section as real evidence instead of the current fixture-only precision/recall claim.",
     ],
   },
+  {
+    date: "2026-08-25",
+    agent: "cursor/deploy-built-products-priority-ffdc",
+    summary:
+      "Added a deploy-first task to the Listing Lens roadmap so already-built public surfaces (research report, /photo-check) outrank more process work, matching the portfolio Current priority in DIRECTION.md.",
+    changes: [
+      "process/roadmap.ts: new p0-deploy-built-surfaces (not_started, owner both) — done when a stranger can open the existing research report and /photo-check without cloning the repo. Points at the existing deploy-settings owner ask; does not open a second one.",
+    ],
+    nextUp: [
+      "Agent: prepare the public deploy artifact for the already-built research / photo-check surfaces; do not start p3-app-scope or another tool.",
+      "Human: flip deploy-settings (Pages / Cloudflare credentials) if that is what unblocks the URL. Same long-open blockers in process/blockers.ts otherwise stand.",
+    ],
+  },
+  {
+    date: "2026-08-25",
+    agent: "cursor/product-first-development-mandate-b002",
+    summary:
+      "Turned MLS photo-check findings into a copyable reshoot / desk-fix list so a photographer knows which rooms to recapture versus which files to rename, recrop, or pair — complementary to the three open evidence-download PRs (#1333, #1358, #1385).",
+    changes: [
+      "research/src/lib/photo-spec.ts: buildReshootPlan + formatReshootPlan map each finding to recapture / pair / reexport / rename with disclosed unimplemented rules on the copied text.",
+      "research/src/components/PhotoCheckTool.tsx: What to fix next panel and Copy shot list; usage events reshoot_list_viewed / reshoot_list_copied stay localStorage-only.",
+      "pipeline/src/cli-preflight.ts: prints the same list after the findings so the CLI path matches the browser.",
+      "Tests: three new photo-spec cases (9/9). Did not add a second download/export — those PRs already cover that.",
+    ],
+    nextUp: [
+      "Keep #1333/#1358/#1385 open for the evidence-record download; do not close them as superseded by this list.",
+      "Public URL is still owner-gated (deploy-settings). Do not add another trade bid calculator.",
+    ],
+  },
 ];
