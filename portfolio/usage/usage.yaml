@@ -2384,3 +2384,15 @@ products:
           Shipped a local wheelchair-ramp bid calculator with rise-to-run
           landings, walk-away price, and a copyable proposal summary;
           public URL remains owner-gated.
+
+  - slug: mcp-supply-chain-watch
+    surface: local-cli
+    readings:
+      - as_of: 2026-08-26
+        signals:
+          live_url_visitors: null
+          manifest_compared: 0
+        note: >-
+          Repair-and-merge of unique #1161 MCP supply-chain watch onto current
+          main. Local JSON/Markdown manifest diff only; usage log is opt-in
+          and stores no tool names or schemas.

@@ -3404,3 +3404,32 @@ ventures:
       permit, or an engineering stamp. The shipped slopes and landing sizes
       are labelled ballpark starting points rather than a standard, and
       nothing the user enters leaves the browser.
+
+  - slug: mcp-supply-chain-watch
+    scores:
+      ai_leverage: 3
+      autonomous_ops: 9
+      time_to_revenue: 6
+      gross_margin: 10
+      defensibility: 4
+      distribution: 4
+    composite: 6.0
+    rater_b: null
+    floor: 3
+    floor_dimension: ai_leverage
+    floor_note: >-
+      The first release is a deterministic local JSON diff with a small
+      instruction-language heuristic; a signed per-server history is not
+      required to complete a review.
+    basis: >-
+      Graduated on 2026-08-26 as a local MCP tool-manifest drift checker.
+      Distinct from permission-drift and DNS evidence: the artifact is a
+      customer-captured MCP tools list, not Shopify scopes or resolver
+      answers. Search intent includes MCP tool drift and MCP supply chain
+      review.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Pass, conditionally: output is observed manifest difference, not a
+      safety certification, and findings never echo descriptions or schemas.
