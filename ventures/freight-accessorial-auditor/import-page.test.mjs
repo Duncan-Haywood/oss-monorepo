@@ -141,9 +141,17 @@ test("the rate card shipped in the page parses to the codes it shows", () => {
   assert.ok(shipped, "the default rate card is missing");
   const { rates, issues } = parseRateCard(shipped[1]);
   assert.deepEqual(issues, [], "the shipped default rate card must parse cleanly");
-  assert.equal(rates.get("LIFT"), 75);
-  assert.equal(rates.get("DET"), 75);
-  assert.equal(rates.get("RESI"), 45);
+  assert.equal(rates.get("LIFT").amount, 75);
+  assert.equal(rates.get("LIFT").per, null);
+  assert.equal(rates.get("RESI").amount, 45);
+  // The default card demonstrates the per-unit grammar, because a shipper who
+  // never sees it will keep leaving detention — the accessorial most worth
+  // auditing — with no expected amount at all.
+  const detention = rates.get("DET");
+  assert.equal(detention.per, "hour");
+  assert.equal(detention.amount, 65);
+  assert.equal(detention.free, 2);
+  assert.equal(detention.max, 325);
 });
 
 test("the shipped placeholder in the paste box is a row the parser understands", () => {
@@ -153,7 +161,71 @@ test("the shipped placeholder in the paste box is a row the parser understands",
   const table = readTable(text);
   const mapping = suggestMapping(table.header);
   assert.equal(mapping.billed != null, true, "the example's amount column must be recognised");
-  const built = buildImportedRows(table, mapping);
-  assert.equal(built.rows.length, 1);
+  assert.equal(mapping.units != null, true, "the example's quantity column must be recognised");
+  const shipped = index.match(/<textarea id="rateCard"[^>]*>([\s\S]*?)<\/textarea>/);
+  const { rates } = parseRateCard(shipped[1]);
+  const built = buildImportedRows(table, mapping, { rates });
+  assert.equal(built.rows.length, 2);
   assert.equal(built.rows[0].billed, "125.00");
+  // 3 hours on dock, 2 free, $65/hour — the placeholder and the default rate
+  // card are one worked example, so a visitor who pastes what they are shown
+  // immediately sees a priced overage rather than a blank expected column.
+  assert.equal(built.rows[1].expected, "65.00");
+  assert.match(built.rows[1].basis, /1 hour past 2 free × \$65\.00\/hour/);
+});
+
+test("the page carries the quantity and basis through the queue without a build step", () => {
+  // The queue is rebuilt from the DOM on every keystroke, so anything the
+  // importer computed has to live in the row or it is lost the moment the
+  // user edits a cell.
+  assert.match(source, /for \(const key of \["units", "basis"\]\)/);
+  assert.match(source, /carried\.type = "hidden"/);
+  assert.match(source, /tr\.cells\[0\]\.append\(carried\)/);
+  // Cleared when the expected amount is typed over: a cited contract term
+  // must not survive the figure it explains.
+  assert.match(source, /input\[data-key="basis"\]/);
+  assert.match(source, /Expected from \$\{row\.basis\}/);
+  assert.match(source, /per_unit_rule_priced/);
+});
+
+test("the page explains the per-unit grammar it now accepts", () => {
+  assert.match(index, /DET 65\/hr after 2 hours, max 325/);
+  assert.match(index, /REWEIGH 4\.50\/cwt min 45/);
+  assert.match(index, /hour, minute, day, cwt, pallet, piece, mile, stop, and unit/);
+  // The rate-card status reads per-unit rules back so a shipper can see the
+  // allowance was understood as an allowance.
+  assert.match(source, /per-unit rule/);
+  assert.match(source, /These need a quantity column/);
+});
+
+test("the explainer's per-unit worked example is recomputed, not asserted", () => {
+  // Same guard as the flat worked example above: the page states figures, so
+  // the figures have to come back out of the code that produces them.
+  const ruleBlock = page.match(/<pre>DET 65\/hr after 2 hours, max 325[\s\S]*?<\/pre>/);
+  assert.ok(ruleBlock, "the per-unit rate-card block is missing from the page");
+  const { rates, issues } = parseRateCard(
+    ruleBlock[0].replace(/^<pre>/, "").replace(/<\/pre>$/, ""),
+  );
+  assert.deepEqual(issues, [], "every rule the page shows must parse cleanly");
+
+  const csv = ["Invoice,Code,Charge Amount,Detention Hours", "INV-4471,DET,300.00,5"].join("\n");
+  const table = readTable(csv);
+  const built = buildImportedRows(table, suggestMapping(table.header), { rates });
+  const [line] = auditCharges(built.rows);
+
+  assert.equal(line.expected, 195);
+  assert.equal(line.variance, 105);
+  assert.equal(line.basis, "3 hours past 2 free × $65.00/hour");
+  for (const figure of ["$300.00", "5 hours", "$195.00", "$105.00", "3 hours past 2 free × $65.00/hour"]) {
+    assert.ok(page.includes(figure), `the page is missing ${figure}`);
+  }
+  assert.match(page, /hour, minute, day, cwt, pallet, piece, mile, stop, and\s*\n?\s*unit/);
+  // The page promises a blank expected amount, not a zero, when the quantity
+  // is missing. Check the promise against the importer.
+  const noQuantity = buildImportedRows(
+    readTable(["Invoice,Code,Charge Amount", "INV-4471,DET,300.00"].join("\n")),
+    suggestMapping(["Invoice", "Code", "Charge Amount"]),
+    { rates },
+  );
+  assert.equal(noQuantity.rows[0].expected, "");
 });
