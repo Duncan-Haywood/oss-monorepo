@@ -62,6 +62,7 @@ test("inputs and result fields for the primary journey are present", () => {
   for (const id of [
     "category", "salePrice", "matchPrice", "referralRate", "referralMinimum",
     "costOfGoods", "profit", "compare", "matchResult", "usageOptOut",
+    "twoDayShippingCost", "twoDayCompare", "twoDayNote",
   ]) {
     assert.ok(declaredIds.has(id), `#${id} is missing from index.html`);
   }
@@ -76,4 +77,11 @@ test("the liability disclaimer and privacy note are real markup, not swallowed t
 test("WFS and seller-fulfilled paths are both offered", () => {
   assert.match(markup, /value="wfs"/);
   assert.match(markup, /value="seller"/);
+});
+
+test("the 2-day take table is wired to the comparison", () => {
+  assert.match(scriptSource, /compareTwoDay/);
+  assert.match(scriptSource, /twoDayNote/);
+  assert.match(scriptSource, /two_day_compared/);
+  assert.match(markup, /should-i-offer-two-day-shipping-on-walmart\.html/);
 });

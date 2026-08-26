@@ -16,14 +16,16 @@ products:
           fulfillment_path_compared: 0
           price_match_checked: 0
           category_preset_applied: 0
+          two_day_compared: 0
         note: >-
           Salvage of unique #1507 Walmart Marketplace WFS vs seller-fulfilled
-          profit calculator onto current main: category referral including the
-          per-item floor, size-tier WFS fulfillment, storage, inbound, the
-          seller-paid label, max buy cost, and whether a competitive match
-          still profits. Public URL remains owner-gated; the local-first
-          counter reports only to the user's own browser and is opt-out.
-          Baseline row.
+          profit calculator onto current main, plus the 2-day vs WFS take-rate
+          table: category referral including the per-item floor, size-tier WFS
+          fulfillment, storage, inbound, the seller-paid label, max buy cost,
+          whether a competitive match still profits, and whether a
+          seller-fulfilled 2-day label still beats WFS after take rate. Public
+          URL remains owner-gated; the local-first counter reports only to the
+          user's own browser and is opt-out. Baseline row.
   - slug: faire-wholesale-calculator
     surface: static-page-in-repo
     readings:

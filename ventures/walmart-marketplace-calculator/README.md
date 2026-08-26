@@ -6,8 +6,9 @@ listing — referral fee (including the per-item floor that bites cheap
 SKUs), size-tier WFS fulfillment, monthly storage, inbound, and the
 shipping label you buy yourself — then reports net profit, margin, return
 on the cash in the unit, the break-even sale price, the price that hits a
-target margin, the **maximum you can pay for inventory**, and whether
-**matching a lower offer still leaves a profit**.
+target margin, the **maximum you can pay for inventory**, whether
+**matching a lower offer still leaves a profit**, and whether a
+**seller-fulfilled 2-day label still beats WFS after take rate**.
 
 Open [`index.html`](index.html) in a browser. The calculation is local and
 works without an account, network request, or API key. It is arithmetic, not
@@ -15,9 +16,10 @@ an estimate of the fees Walmart will charge: enter the rates from your
 current Seller Center fee preview, and verify them there.
 
 **After using this, you can now see whether WFS or shipping it yourself
-leaves more on a real SKU, the most you can pay a supplier, and whether a
-price-match still works** — which used to mean a spreadsheet that forgot
-the referral floor, WFS storage, or the match.
+leaves more on a real SKU, the most you can pay a supplier, whether a
+price-match still works, and whether buying a 2-day label yourself still
+beats WFS once take rate is in the mix** — which used to mean a spreadsheet
+that forgot the referral floor, WFS storage, the match, or the Buy Box.
 
 ## Why it's different
 
@@ -31,13 +33,19 @@ the match:
   plus the shipping you pay to send the order.
 - **Price match** — the same costs at a lower offer, which is the squeeze
   Walmart listings take that Amazon FBA pages do not model.
+- **2-day vs WFS** — WFS includes the two-day promise; a seller-fulfilled
+  2-day label plus pack time usually converts more than standard shipping
+  and still often loses to WFS after inbound. The completed-sale table
+  cannot show that gap.
 
 This tool keeps every assumption editable, fills illustrative US defaults
 from a category and storage picker, classifies a WFS size tier from
 dimensions and weight, and shows **both paths on the same listing**.
 
 [WFS vs seller fulfilled: which path leaves more?](wfs-vs-seller-fulfilled.html)
-answers that search question directly.
+answers the completed-sale question.
+[Should I offer 2-day shipping on Walmart?](should-i-offer-two-day-shipping-on-walmart.html)
+mixes take rate with the faster label.
 
 It is not an Amazon FBA calculator, not a Faire wholesale fee tool, and
 not a cross-channel “where to sell” ranker. Those already exist in this
