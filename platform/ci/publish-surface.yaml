@@ -136,6 +136,9 @@ workflows:
 - workflow: deck-staining-bid-calculator-ci.yml
   classification: none
   publishes: []
+- workflow: delivery-app-margin-calculator-ci.yml
+  classification: none
+  publishes: []
 - workflow: demand-signal-reachability-ci.yml
   classification: none
   publishes: []
