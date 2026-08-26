@@ -3065,3 +3065,36 @@ ventures:
       determination, pricing recommendation, or financial advice.
       Inputs never leave the browser.
 
+  - slug: fifo-pick-evidence
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 6
+      gross_margin: 10
+      defensibility: 5
+      distribution: 6
+    composite: 6.333
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      The checker is deterministic timestamp-and-lot comparison.
+      Adding inference would guess at warehouse semantics the
+      operator already has in their WMS export.
+    basis: >-
+      Graduated on 2026-08-26 as a local CSV FIFO exception
+      checker (repair-and-merge of unique #1308). Distinct from
+      3PL quote normalizer (inbound pricing) and public-record-watch
+      (register snapshots): the buyer is a small 3PL explaining
+      pick order before a customer audit. Distribution is
+      "FIFO pick order audit evidence" and "warehouse FIFO CSV
+      checker".
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Pass: output is a source-linked observation of supplied
+      rows, not an audit conclusion, compliance determination,
+      or warranty that FIFO was followed. Logs never leave the
+      operator's machine.
+
