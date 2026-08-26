@@ -127,6 +127,16 @@ the offline widget stays hidden rather than appearing and failing.
 Nothing about this sends anything anywhere. The worker only touches same-origin
 GETs; the hub's counting is still `localStorage`-only.
 
+## The availability clause
+
+`PRODUCT_PLAYBOOK.md` §5b requires the no-warranty *and* the no-SLA clause on
+every hosted surface. Most ventures write both in their own voice; a few were
+authored when nothing here was hosted, so the availability half was moot. It
+stops being moot the moment the Pages variable is flipped, so the chrome pass
+supplies the clause on any page still missing one — matched loosely, so a
+venture that words it its own way is left alone and never given a second,
+differently-worded statement. A page added tomorrow cannot ship without it.
+
 ## Checking the artifact
 
 `check.mjs` runs over the built directory, not the sources, because that is
@@ -140,6 +150,37 @@ level down.
 
 The workflow runs it between building and uploading, so a broken artifact never
 reaches the live site.
+
+## Driving the customer journey
+
+`check.mjs` proves the files are right. It cannot prove the site *works* — that
+search filters, that the opt-out actually stops counting, that a calculator
+computes rather than just paints, that nothing throws in the console.
+`journey.mjs` drives that in a real browser:
+
+```bash
+node platform/pages/build.mjs --out=dist
+python3 -m http.server 8793 --directory dist &
+node platform/pages/journey.mjs
+
+# or against the live site, once publishing is on:
+BASE_URL=https://duncan-haywood.github.io/monorepo-projects node platform/pages/journey.mjs
+```
+
+It covers the hub and its grouping, search (narrowing, the empty state, and
+clearing), the usage opt-out across a reload, a click through into a calculator
+and a computed figure, a cross-product sibling link, a nested product hub,
+sitemap sampling, the 404, and a 375px viewport for horizontal overflow.
+
+Counts are derived from the page, never hardcoded — a venture lands most days,
+and a literal would fail on a healthy site the moment someone ships a
+calculator.
+
+It is deliberately **not** in CI: it needs Playwright, which is not a dependency
+of this repo, and `build.test.mjs` plus `check.mjs` already gate the build. Run
+it before claiming the site works, and again against production after the owner
+flip. If Playwright is installed globally rather than beside the repo, point
+`PLAYWRIGHT` at its module path.
 
 ## Deploying
 
@@ -162,19 +203,28 @@ Until it is set, the `deploy` job is skipped and the `build` job still runs, so
 the artifact is always proven buildable. `actions/deploy-pages` 404s while Pages
 is off, which is why the gate exists rather than letting every merge go red.
 
+The gate also requires `github.ref == 'refs/heads/main'`. `workflow_dispatch`
+can be run against any branch, and publishing the live site from a feature
+branch is not a mistake anyone would notice quickly.
+
+After deploying, the workflow fetches the real public URL — the front page,
+both sitemaps, `robots.txt`, and one product — and fails if any of them does not
+return 200, or if `sitemap.xml` comes back without a sitemap index. A completed
+deploy step is not evidence that anything serves; this makes "deployed" a fact
+rather than an inference.
+
 Only one workflow may publish to Pages. `retail-pilot-intel-deploy-docs.yml`
 reads `RETAIL_PILOT_INTEL_PAGES` instead, so an owner who wants those docs on
 the origin makes that choice explicitly rather than having two deployments race.
 
-The same applies to `pages.yml`, a **second portfolio site** built independently
-the same day (`platform/ci/build_pages_site.py`). It deployed on the same
-`GITHUB_PAGES_ENABLED` flip from a different concurrency group, so the flip
-would have started two deployments of two different sites to the one origin and
-the live site would have flapped between them on every merge. Its deploy now
-reads `PORTFOLIO_PAGES_PY`, both workflows share the `github-pages-origin`
-concurrency group, and its build and checks still run on every push. Nothing
-about it is deleted — to publish that site instead, set `PORTFOLIO_PAGES_PY` and
-unset `GITHUB_PAGES_ENABLED`. Never both.
+The same applied to `pages.yml`, a **second portfolio site** built independently
+the same hour (`platform/ci/build_pages_site.py`), which deployed on the same
+`GITHUB_PAGES_ENABLED` flip from a different concurrency group — so the flip
+would have armed two publishers of two different builds for the one origin. That
+is resolved on `main`: `pages.yml` no longer deploys, it still builds and checks
+its artifact as an independent second opinion on what `ventures/` contains, and
+`publish_surface.py --check` now fails if one variable would ever arm two Pages
+deployments again.
 
 ## Rollback
 
