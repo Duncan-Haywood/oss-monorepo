@@ -4,8 +4,9 @@ A free browser calculator for tile setters and kitchen remodelers. It
 prices a kitchen tile backsplash the way the trade actually loses
 money — tile-only on a ready wall versus new prep versus
 demo-and-replace, subway running-bond versus herringbone versus mosaic
-versus large-format, then outlet cuts, a cooktop cutout, and Schluter
-— and shows the margin before the price goes out.
+versus large-format, you-supply versus a customer-supplied box, then
+outlet cuts, a cooktop cutout, and Schluter — and shows the margin
+before the price goes out.
 
 **After using this, you can now** send a walk-away kitchen-backsplash
 price that sees the wall and the pattern, **which used to take**
@@ -67,14 +68,23 @@ kitchen tile backsplash.
 It then reports price per square foot, effective hourly rate, the hour
 split, a three-scope comparison on the same wall, a four-pattern
 comparison on the same wall (the herringbone upgrade versus the subway
-special), and the **walk-away price**. Entering a price already on the
-table scores it against the same cost base. **Copy bid summary** turns
-the result into a plain-text draft ready to paste into a proposal.
+special), leftover boxes after box round-up (and whether a laundry /
+pantry wall still needs a buy), a who-supplies comparison (you-supply
+versus owner-covers versus short / wrong lot), a three-way **when you can work**
+comparison (empty weekday versus they-cook-around-you versus after-hours /
+weekend), and the **walk-away price**. Entering a
+price already on the table scores it against the same cost base.
+**Copy bid summary** turns the result into a plain-text draft ready to
+paste into a proposal. Leftover stock does not change the headline bid
+unless you decide that van inventory is already paid for.
 
 The arithmetic lives in [`calc.mjs`](calc.mjs). See
 [`calc.test.mjs`](calc.test.mjs).
 
-Search phrase: [`how-much-to-charge-for-a-kitchen-tile-backsplash.html`](how-much-to-charge-for-a-kitchen-tile-backsplash.html).
+Search phrases: [`how-much-to-charge-for-a-kitchen-tile-backsplash.html`](how-much-to-charge-for-a-kitchen-tile-backsplash.html),
+[`should-i-install-customer-supplied-backsplash-tile.html`](should-i-install-customer-supplied-backsplash-tile.html),
+[`should-i-tile-a-backsplash-after-hours.html`](should-i-tile-a-backsplash-after-hours.html).
+Leftover boxes: [`do-leftover-tile-boxes-cover-the-next-wall.html`](do-leftover-tile-boxes-cover-the-next-wall.html).
 
 ## Privacy
 
@@ -95,13 +105,14 @@ when the browser sends Do Not Track or Global Privacy Control. See
 
 Events counted: `bid_calculated`, `preset_applied`, `scope_changed`,
 `pattern_changed`, `wall_changed`, `proposed_price_compared`,
-`summary_copied`.
+`owner_supply_compared`, `access_compared`, `summary_copied`, `boxes_compared`.
 
 ## Limitations
 
 - Single currency and no tax, permit, or HOA-color handling.
 - One splash wall. A second elevation or a pantry return is extra
-  square feet, not a polygon.
+  square feet, not a polygon. Leftover-box coverage on that second
+  wall uses the same waste rate; it is not a second polygon.
 - Starting tile, waste, and prep rates are ballpark figures, not a
   catalog.
 - Waterproofing design, substrate engineering, and product warranties

@@ -1,0 +1,181 @@
+// Structural tests for index.html and the SEO article.
+//
+// calc.test.mjs stays green if the page never executes. These checks are
+// dependency-free (no jsdom) so CI stays a plain `node --test`. They catch
+// the class of defect that actually shipped on another calculator: an
+// unclosed raw-text element that swallowed the app script.
+import { test } from 'node:test';
+import assert from 'node:assert/strict';
+import { readFileSync } from 'node:fs';
+import {
+  compareAccess,
+  accessNote,
+  suggestedScopeKit,
+  suggestedWindowKit,
+  suggestedWellKit,
+  suggestedExtraKit,
+} from './calc.mjs';
+
+const html = readFileSync(new URL('./index.html', import.meta.url), 'utf8');
+const seo = readFileSync(new URL('./how-much-to-charge-to-install-an-egress-window.html', import.meta.url), 'utf8');
+const supplySeo = readFileSync(new URL('./should-i-install-a-customer-supplied-egress-window.html', import.meta.url), 'utf8');
+const accessSeo = readFileSync(new URL('./should-i-cut-an-egress-window-on-saturday.html', import.meta.url), 'utf8');
+
+const RAW_TEXT_ELEMENTS = ['textarea', 'script', 'style'];
+
+function parse(source) {
+  const RAW = /<(textarea|script|style)\b[^>]*>/i;
+  let rest = source;
+  let markup = '';
+  const scripts = [];
+  for (;;) {
+    const open = rest.match(RAW);
+    if (!open) return { markup: markup + rest, scripts, unclosed: null };
+    const tag = open[1].toLowerCase();
+    const contentStart = open.index + open[0].length;
+    markup += rest.slice(0, contentStart);
+    const closer = new RegExp(`</${tag}\\s*>`, 'i').exec(rest.slice(contentStart));
+    if (!closer) return { markup, scripts, unclosed: tag };
+    if (tag === 'script') scripts.push(rest.slice(contentStart, contentStart + closer.index));
+    markup += closer[0];
+    rest = rest.slice(contentStart + closer.index + closer[0].length);
+  }
+}
+
+const { markup, scripts, unclosed } = parse(html);
+const declaredIds = new Set([...markup.matchAll(/\bid="([\w-]+)"/g)].map((m) => m[1]));
+const scriptSource = scripts.join('\n');
+
+test('every raw-text element is closed', () => {
+  assert.equal(unclosed, null, `<${unclosed}> is never closed; everything after it is swallowed as text instead of parsed as markup`);
+  for (const tag of RAW_TEXT_ELEMENTS) {
+    const opened = (html.match(new RegExp(`<${tag}[\\s>]`, 'gi')) || []).length;
+    const closed = (html.match(new RegExp(`</${tag}\\s*>`, 'gi')) || []).length;
+    assert.equal(opened, closed, `<${tag}> is opened ${opened}x but closed ${closed}x`);
+  }
+});
+
+test('the module script survives parsing and would actually execute', () => {
+  assert.match(markup, /<script type="module">/, 'the app script tag is missing or was swallowed by an earlier element');
+  assert.match(scriptSource, /calculateBid/, 'the app script did not parse as a script element');
+  assert.match(scriptSource, /compareScope/, 'scope comparison is missing from the executable script');
+  assert.match(scriptSource, /compareWindow/, 'window comparison is missing from the executable script');
+  assert.match(scriptSource, /compareOwnerSupply/, 'owner-supply comparison is missing from the executable script');
+  assert.match(scriptSource, /ownerSupplyNote/, 'owner-supply verdict is missing from the executable script');
+  assert.match(scriptSource, /compareAccess/, 'access comparison is missing from the executable script');
+  assert.match(scriptSource, /accessNote/, 'access note is missing from the executable script');
+  assert.match(scriptSource, /formatBidSummary/, 'copy-summary helper is missing from the executable script');
+});
+
+test('every element the script reaches for exists in the markup', () => {
+  const wanted = new Set([
+    ...[...scriptSource.matchAll(/el\(\s*'([\w-]+)'\s*\)/g)].map((m) => m[1]),
+    ...[...scriptSource.matchAll(/getElementById\(\s*'([\w-]+)'\s*\)/g)].map((m) => m[1]),
+  ]);
+  assert.ok(wanted.size > 0, 'no element lookups found; the script probably did not parse');
+  const missing = [...wanted].filter((id) => !declaredIds.has(id));
+  assert.deepEqual(missing, [], `script queries ids that no element declares: ${missing.join(', ')}`);
+});
+
+test('inputs and result fields for the primary journey are present', () => {
+  for (const id of [
+    'scope', 'window', 'well', 'windowCount', 'travelMiles',
+    'hourlyWage', 'targetMargin', 'proposedPrice',
+    'price', 'breakEven', 'compare', 'windows', 'supply', 'supplyNote', 'access', 'accessNote', 'copySummary', 'usageOptOut', 'jobPresets',
+  ]) {
+    assert.ok(declaredIds.has(id), `missing #${id}`);
+  }
+});
+
+test('the landing page names the problem in the contractor\'s words', () => {
+  assert.match(html, /<title>[^<]*Egress Window Bid Calculator/i);
+  assert.match(html, /meta name="description"[^>]*egress/i);
+  assert.match(html, /Bid the opening, the cut, and the extras/);
+  assert.match(html, /SoftwareApplication/);
+  assert.match(html, /Same opening, four sashes/);
+  assert.match(html, /vs hopper/);
+  assert.match(html, /Same opening, who bought the sash/);
+  assert.match(html, /should-i-install-a-customer-supplied-egress-window\.html/);
+  assert.match(html, /Same opening, when you can work/);
+  assert.match(html, /should-i-cut-an-egress-window-on-saturday\.html/);
+});
+
+test('disclaimer and privacy line are visible, not only in the README', () => {
+  assert.match(markup, /No warranty/);
+  assert.match(markup, /not building-code, egress-size, foundation-design, waterproofing, legal, tax, or financial advice/i);
+  assert.match(markup, /Nothing leaves your browser/);
+  assert.match(markup, /usageOptOut/);
+});
+
+test('the SEO article answers the search phrase and points back to the calculator', () => {
+  assert.match(seo, /How much to charge to install an egress window/i);
+  assert.match(seo, /FAQPage/);
+  assert.match(seo, /HowTo/);
+  assert.match(seo, /index.html/);
+  assert.match(seo, /\$1,800/);
+  assert.match(seo, /No warranty/);
+  assert.match(seo, /window replacement/i);
+  assert.match(seo, /Customer-supplied sash is not a free set/i);
+  assert.match(seo, /Saturday is not the weekday bid/i);
+});
+
+test('the owner-supply article answers the search phrase and stays crawlable', () => {
+  assert.match(supplySeo, /Should I install a customer-supplied egress window/i);
+  assert.match(supplySeo, /FAQPage/);
+  assert.match(supplySeo, /\$1,800/);
+  assert.match(supplySeo, /\$3,976\.62/);
+  assert.match(supplySeo, /\$2,031\.30/);
+  assert.match(supplySeo, /\$231\.30/);
+  assert.match(supplySeo, /wrong size/i);
+  assert.match(supplySeo, /index\.html/);
+  assert.match(supplySeo, /No warranty/);
+  assert.match(supplySeo, /no SLA/i);
+  assert.doesNotMatch(supplySeo, /<textarea/i);
+});
+
+test('the Saturday article quotes the masonry legal bedroom and poured-cut arithmetic', () => {
+  const kit = {
+    ...suggestedScopeKit('new-cut-masonry'),
+    ...suggestedWindowKit('vinyl-slider'),
+    ...suggestedWellKit('steel'),
+    ...suggestedExtraKit(),
+  };
+  const rows = compareAccess({
+    windowCount: 1,
+    scope: 'new-cut-masonry',
+    window: 'vinyl-slider',
+    well: 'steel',
+    travelMiles: 14,
+    includeCover: true,
+    includeLadder: true,
+    includeDrain: true,
+    includeHaul: false,
+    includeInteriorFinish: false,
+    hourlyWage: 42,
+    burdenRate: 30,
+    overheadRate: 15,
+    targetMargin: 20,
+    travelAndEquipment: 95,
+    otherCost: 0,
+    ...kit,
+  }, { installOnlyPrice: 3500 });
+  const afterHours = rows.find((row) => row.access === 'after-hours');
+  assert.equal(afterHours.installOnly.belowBreakEven, true);
+  assert.match(accessNote(rows), /\$492\.54/);
+  assert.match(accessSeo, /Should I cut an egress window on Saturday/i);
+  assert.match(accessSeo, /FAQPage/);
+  assert.match(accessSeo, /\$3,500/);
+  assert.match(accessSeo, /\$492\.54/);
+  assert.match(accessSeo, /\$3,992\.54/);
+  assert.match(accessSeo, /\$3,976\.62/);
+  assert.match(accessSeo, /\$4,990\.68/);
+  assert.match(accessSeo, /\$7,494\.94/);
+  assert.match(accessSeo, /\$9,045\.85/);
+  assert.match(accessSeo, /\$7,236\.68/);
+  assert.match(accessSeo, /\$1,800/);
+  assert.match(accessSeo, /time-and-a-half/i);
+  assert.match(accessSeo, /index\.html/);
+  assert.match(accessSeo, /No warranty/);
+  assert.match(accessSeo, /no SLA/i);
+  assert.doesNotMatch(accessSeo, /<textarea/i);
+});

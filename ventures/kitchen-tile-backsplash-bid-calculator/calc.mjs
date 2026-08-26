@@ -497,8 +497,463 @@ export function comparePattern(input) {
     .sort((a, b) => a.price - b.price);
 }
 
+/**
+ * Tile is sold by the box. A 33 SF kitchen buy at 10 SF / box is
+ * four boxes (40 SF), not 3.3. Leftover boxes already on the van
+ * credit against that buy. After the splash, leftover may or may
+ * not cover a laundry / pantry return — matching the kitchen tile
+ * invoice on that second wall is how leftover gets wasted or a
+ * second supplier trip gets eaten. This does not change the
+ * headline bid: leftover is already-paid stock unless the setter
+ * decides to credit it.
+ *
+ * @param {object} input same shape as calculateBid, plus sfPerBox,
+ *   leftoverBoxes, and secondWallSf
+ */
+export function leftoverBoxPlan(input) {
+  const bid = calculateBid(input);
+  const sfPerBox = number(input.sfPerBox ?? 0, 'Square feet per box', { allowZero: false });
+  const leftoverBoxes = number(input.leftoverBoxes ?? 0, 'Leftover boxes');
+  const secondWallSf = number(input.secondWallSf ?? 0, 'Second wall square feet');
+  const wasteRate = number(input.wasteRate ?? 0, 'Waste rate');
+  const tilePerSf = number(input.tilePerSf ?? 0, 'Tile per SF');
+
+  const kitchenNeedSf = bid.buySf;
+  const leftoverSf = leftoverBoxes * sfPerBox;
+  const usedFromStock = Math.min(leftoverSf, kitchenNeedSf);
+  const stillNeedSf = kitchenNeedSf - usedFromStock;
+  const boxesToBuy = stillNeedSf <= 1e-9 ? 0 : Math.ceil((stillNeedSf / sfPerBox) - 1e-9);
+  const purchasedSf = boxesToBuy * sfPerBox;
+  const leftoverAfterKitchen = leftoverSf + purchasedSf - kitchenNeedSf;
+  const leftoverAfterKitchenBoxes = leftoverAfterKitchen / sfPerBox;
+
+  const secondNeedSf = secondWallSf * (1 + wasteRate);
+  const secondShortfallSf = Math.max(0, secondNeedSf - leftoverAfterKitchen);
+  const secondCoveredByLeftover = secondNeedSf <= leftoverAfterKitchen + 1e-9;
+  const secondBoxesToBuy = secondShortfallSf <= 1e-9
+    ? 0
+    : Math.ceil((secondShortfallSf / sfPerBox) - 1e-9);
+
+  const leftoverCredit = usedFromStock * tilePerSf;
+  const boxRoundUpSf = purchasedSf - stillNeedSf;
+  const boxRoundUpCost = boxRoundUpSf * tilePerSf;
+  const naiveTileInvoice = kitchenNeedSf * tilePerSf;
+  const tileInvoiceAfterBoxes = purchasedSf * tilePerSf;
+
+  return {
+    sfPerBox,
+    leftoverBoxes,
+    leftoverSf,
+    kitchenNeedSf,
+    usedFromStock,
+    stillNeedSf,
+    boxesToBuy,
+    purchasedSf,
+    leftoverAfterKitchen,
+    leftoverAfterKitchenBoxes,
+    secondWallSf,
+    secondNeedSf,
+    secondCoveredByLeftover,
+    secondShortfallSf,
+    secondBoxesToBuy,
+    leftoverCredit,
+    boxRoundUpSf,
+    boxRoundUpCost,
+    naiveTileInvoice,
+    tileInvoiceAfterBoxes,
+  };
+}
+
+function boxesWord(count) {
+  return `${count} box${count === 1 ? '' : 'es'}`;
+}
+
+/**
+ * One-line leftover verdict. Names the laundry-wall miss when a
+ * second wall is on the ticket; otherwise names the kitchen
+ * round-up the setter is about to eat.
+ */
+export function leftoverBoxNote(plan) {
+  if (!plan || typeof plan !== 'object') {
+    throw new Error('Leftover-box plan is missing');
+  }
+  const leftover = Number(plan.leftoverAfterKitchen);
+  const secondNeed = Number(plan.secondNeedSf);
+  const secondBoxes = Number(plan.secondBoxesToBuy);
+  const buyBoxes = Number(plan.boxesToBuy);
+  const roundUp = Number(plan.boxRoundUpSf);
+  if (![leftover, secondNeed, secondBoxes, buyBoxes, roundUp].every(Number.isFinite)) {
+    throw new Error('Leftover-box plan is missing coverage figures');
+  }
+  const secondWallSf = Number(plan.secondWallSf);
+  if (secondWallSf > 0 && !plan.secondCoveredByLeftover) {
+    return `After the kitchen you have ${leftover.toFixed(1)} SF left. The second wall still needs ${boxesWord(secondBoxes)} — leftover does not cover the laundry / pantry return.`;
+  }
+  if (secondWallSf > 0 && plan.secondCoveredByLeftover) {
+    return `Leftover after the kitchen covers the second wall (${secondNeed.toFixed(1)} SF with waste). Do not buy another box for that return.`;
+  }
+  if (roundUp > 0) {
+    return `You buy ${boxesWord(buyBoxes)} and eat ${roundUp.toFixed(1)} SF of round-up. Enter a laundry / pantry wall to see whether that leftover still covers it.`;
+  }
+  return 'The leftover on the van covers this kitchen buy. No new boxes.';
+}
+
+export const SUPPLY_PRESETS = Object.freeze([
+  {
+    id: 'you-supply',
+    label: 'You supply the tile',
+    detail: 'Tile invoice stays in the bid',
+  },
+  {
+    id: 'owner-covers',
+    label: 'Owner supplies — it covers',
+    detail: 'No tile invoice, same set hours',
+  },
+  {
+    id: 'owner-short',
+    label: 'Owner supplies — short / wrong lot',
+    detail: 'Second trip plus rush tile for the waste they skipped',
+  },
+]);
+
+/**
+ * Starting callback hours and rush-tile multiplier when the
+ * owner's store-bought boxes do not cover the wall. They
+ * usually buy the measured SF, not the waste, or the lot
+ * does not match the leftover from another room. Taken from
+ * the extra-kit trip so a typed 9-hour set does not inflate
+ * the callback.
+ */
+export function suggestedOwnerCallbackKit() {
+  const extra = suggestedExtraKit();
+  return {
+    hoursCallbackTrip: extra.hoursTrip,
+    rushTileMultiplier: 1.5,
+  };
+}
+
+function scoreInstallOnly(bid, installPrice) {
+  if (installPrice === null) return null;
+  return {
+    price: installPrice,
+    profit: installPrice - bid.totalCost,
+    margin: installPrice === 0 ? 0 : (installPrice - bid.totalCost) / installPrice * 100,
+    hourlyRate: bid.totalHours === 0 ? null : installPrice / bid.totalHours,
+    belowBreakEven: installPrice < bid.totalCost,
+  };
+}
+
+/**
+ * Price the same splash three ways: you supply the tile, the
+ * owner supplies boxes that actually cover (including waste),
+ * or the owner supplies a short / wrong-lot buy that costs a
+ * second trip and rush tile.
+ *
+ * Owner rows zero the tile invoice and keep the current set
+ * hours — pulling Home Depot boxes is still a set. Outlets,
+ * cooktop, and Schluter stay. The short/wrong-lot row adds a
+ * starting callback trip and buys the waste they skipped at
+ * a rush multiplier so a typed tile invoice does not leak
+ * into the "they bought it" case.
+ *
+ * An install-only price (options.installOnlyPrice, else the
+ * proposed price on the bid) is scored against each cost base.
+ * That is the $35 / SF "just set what I bought" number setters
+ * actually get shopped on.
+ */
+export function compareOwnerSupply(input, options = {}) {
+  const callback = suggestedOwnerCallbackKit();
+  const hoursTrip = number(input.hoursTrip ?? 0, 'Trip hours');
+  const otherCost = number(input.otherCost ?? 0, 'Other cost');
+  const wallSf = number(input.wallSf ?? 0, 'Wall square feet');
+  const wasteRate = number(input.wasteRate ?? 0, 'Waste rate');
+  const tilePerSf = number(input.tilePerSf ?? 0, 'Tile per SF');
+
+  let installPrice = null;
+  const rawInstall = options.installOnlyPrice !== undefined
+    ? options.installOnlyPrice
+    : input.proposedPrice;
+  if (rawInstall !== null && rawInstall !== undefined && rawInstall !== '') {
+    installPrice = number(rawInstall, 'Install-only price');
+  }
+
+  const shortfallSf = wallSf * wasteRate;
+  const rushBuy = shortfallSf * tilePerSf * callback.rushTileMultiplier;
+
+  const youSupply = calculateBid(input);
+  const ownerCovers = calculateBid({ ...input, tilePerSf: 0 });
+  const ownerShort = calculateBid({
+    ...input,
+    tilePerSf: 0,
+    hoursTrip: hoursTrip + callback.hoursCallbackTrip,
+    otherCost: otherCost + rushBuy,
+  });
+
+  const rows = [
+    {
+      supply: 'you-supply',
+      label: SUPPLY_PRESETS[0].label,
+      detail: SUPPLY_PRESETS[0].detail,
+      bid: youSupply,
+      shortfallMaterial: 0,
+    },
+    {
+      supply: 'owner-covers',
+      label: SUPPLY_PRESETS[1].label,
+      detail: SUPPLY_PRESETS[1].detail,
+      bid: ownerCovers,
+      shortfallMaterial: 0,
+    },
+    {
+      supply: 'owner-short',
+      label: SUPPLY_PRESETS[2].label,
+      detail: SUPPLY_PRESETS[2].detail,
+      bid: ownerShort,
+      shortfallMaterial: rushBuy,
+    },
+  ].map((row) => ({
+    supply: row.supply,
+    label: row.label,
+    detail: row.detail,
+    price: row.bid.price,
+    totalCost: row.bid.totalCost,
+    totalHours: row.bid.totalHours,
+    tileMaterial: row.bid.tileMaterial,
+    shortfallMaterial: row.shortfallMaterial,
+    hoursTravel: row.bid.hoursTravel,
+    breakEvenPrice: row.bid.breakEvenPrice,
+    installOnly: scoreInstallOnly(row.bid, installPrice),
+    savedVsYou: youSupply.price - row.bid.price,
+  }));
+
+  const cheapest = Math.min(...rows.map((row) => row.price));
+  return rows.map((row) => ({
+    ...row,
+    cheapest: row.price === cheapest,
+    delta: row.price - cheapest,
+    installOnlyPrice: installPrice,
+    shortfallSf,
+  }));
+}
+
+/**
+ * One-line verdict for the owner-supplied table. Names the
+ * install-only loss when that number is on the table; otherwise
+ * names the bid drop from zeroing the tile invoice.
+ */
+export function ownerSupplyNote(rows) {
+  if (!Array.isArray(rows) || rows.length < 3) {
+    throw new Error('Owner-supply comparison is missing rows');
+  }
+  const you = rows.find((row) => row.supply === 'you-supply');
+  const covers = rows.find((row) => row.supply === 'owner-covers');
+  const short = rows.find((row) => row.supply === 'owner-short');
+  if (!you || !covers || !short) {
+    throw new Error('Owner-supply comparison is missing a supply row');
+  }
+
+  const drop = you.price - covers.price;
+  const callbackLift = short.price - covers.price;
+  if (you.installOnly && covers.installOnly) {
+    const asked = you.installOnly.price;
+    if (you.installOnly.belowBreakEven && covers.installOnly.belowBreakEven) {
+      return `At ${money(asked)} install-only you lose money even when they bought the tile. Walk-away on the owner-supplied set is ${money(covers.breakEvenPrice)}.`;
+    }
+    if (you.installOnly.belowBreakEven && !covers.installOnly.belowBreakEven) {
+      return `At ${money(asked)} the you-supply job loses ${money(Math.abs(you.installOnly.profit))}. The same install-only number covers the set if their boxes actually cover.`;
+    }
+    if (short.installOnly?.belowBreakEven) {
+      return `At ${money(asked)} the set covers if their boxes cover. A short / wrong-lot callback still loses ${money(Math.abs(short.installOnly.profit))} — walk-away then is ${money(short.breakEvenPrice)}.`;
+    }
+    return `At ${money(asked)} both supply paths hold a margin. A short / wrong-lot callback still adds ${money(callbackLift)} to the bid.`;
+  }
+  return `Zeroing the tile invoice drops the bid ${money(drop)}. A short / wrong-lot callback puts ${money(callbackLift)} back on.`;
+}
+
+export const ACCESS_PRESETS = Object.freeze([
+  {
+    id: 'empty-weekday',
+    label: 'Weekday, empty kitchen',
+    detail: 'They leave; you work the day',
+  },
+  {
+    id: 'occupied-weekday',
+    label: 'Weekday, they cook around you',
+    detail: 'Same wage, slower set and punch-list',
+  },
+  {
+    id: 'after-hours',
+    label: 'After-hours / weekend',
+    detail: 'Overtime wage plus a second evening trip',
+  },
+]);
+
+/**
+ * Starting pace and overtime when the owner will not leave
+ * the kitchen, or wants Saturday / after 5pm so they can
+ * cook during the week. Occupied pace is a multiplier on
+ * the typed tile and punch-list hours — working around a
+ * cook is slower, not a different wage. After-hours is
+ * time-and-a-half on the typed wage plus a second evening
+ * dispatch from the extra-kit trip, so a typed 9-hour set
+ * does not inflate the extra trip.
+ */
+export function suggestedAccessKit() {
+  const extra = suggestedExtraKit();
+  return {
+    occupiedPaceMultiplier: 1.25,
+    afterHoursWageMultiplier: 1.5,
+    afterHoursExtraTripHours: extra.hoursTrip,
+  };
+}
+
+/**
+ * Price the same splash three ways: empty weekday, they
+ * cook around you, or after-hours / weekend.
+ *
+ * Occupied keeps the typed wage and adds clock hours on
+ * the set and punch-list. After-hours keeps the typed
+ * hours and raises the wage, then adds a starting second
+ * evening trip because you cannot leave mud overnight.
+ * Pattern, scope, tile invoice, and extras stay.
+ *
+ * An install-only price (options.installOnlyPrice, else
+ * the proposed price on the bid) is scored against each
+ * cost base. That is the "$35 / SF Saturday" number
+ * setters actually get shopped on.
+ */
+export function compareAccess(input, options = {}) {
+  const kit = suggestedAccessKit();
+  const hoursTilePerSf = number(input.hoursTilePerSf ?? 0, 'Tile hours per SF');
+  const siteHours = number(input.siteHours ?? 0, 'Site hours');
+  const hoursTrip = number(input.hoursTrip ?? 0, 'Trip hours');
+  const hourlyWage = number(input.hourlyWage ?? 0, 'Hourly wage');
+
+  let installPrice = null;
+  const rawInstall = options.installOnlyPrice !== undefined
+    ? options.installOnlyPrice
+    : input.proposedPrice;
+  if (rawInstall !== null && rawInstall !== undefined && rawInstall !== '') {
+    installPrice = number(rawInstall, 'Install-only price');
+  }
+
+  const empty = calculateBid(input);
+  const occupied = calculateBid({
+    ...input,
+    hoursTilePerSf: hoursTilePerSf * kit.occupiedPaceMultiplier,
+    siteHours: siteHours * kit.occupiedPaceMultiplier,
+  });
+  const afterHours = calculateBid({
+    ...input,
+    hourlyWage: hourlyWage * kit.afterHoursWageMultiplier,
+    hoursTrip: hoursTrip + kit.afterHoursExtraTripHours,
+  });
+
+  const rows = [
+    {
+      access: 'empty-weekday',
+      label: ACCESS_PRESETS[0].label,
+      detail: ACCESS_PRESETS[0].detail,
+      bid: empty,
+    },
+    {
+      access: 'occupied-weekday',
+      label: ACCESS_PRESETS[1].label,
+      detail: ACCESS_PRESETS[1].detail,
+      bid: occupied,
+    },
+    {
+      access: 'after-hours',
+      label: ACCESS_PRESETS[2].label,
+      detail: ACCESS_PRESETS[2].detail,
+      bid: afterHours,
+    },
+  ].map((row) => ({
+    access: row.access,
+    label: row.label,
+    detail: row.detail,
+    price: row.bid.price,
+    totalCost: row.bid.totalCost,
+    totalHours: row.bid.totalHours,
+    loadedWage: row.bid.loadedWage,
+    hoursTravel: row.bid.hoursTravel,
+    hoursTile: row.bid.hoursTile,
+    siteHours: row.bid.siteHours,
+    laborCost: row.bid.laborCost,
+    breakEvenPrice: row.bid.breakEvenPrice,
+    installOnly: scoreInstallOnly(row.bid, installPrice),
+    liftFromEmpty: row.bid.price - empty.price,
+  }));
+
+  const cheapest = Math.min(...rows.map((row) => row.price));
+  return rows.map((row) => ({
+    ...row,
+    cheapest: row.price === cheapest,
+    delta: row.price - cheapest,
+    installOnlyPrice: installPrice,
+  }));
+}
+
+/**
+ * One-line verdict for the access table. Names the
+ * Saturday / after-hours loss when that number is on the
+ * table; otherwise names the bid lift from an empty weekday.
+ */
+export function accessNote(rows) {
+  if (!Array.isArray(rows) || rows.length < 3) {
+    throw new Error('Access comparison is missing rows');
+  }
+  const empty = rows.find((row) => row.access === 'empty-weekday');
+  const occupied = rows.find((row) => row.access === 'occupied-weekday');
+  const afterHours = rows.find((row) => row.access === 'after-hours');
+  if (!empty || !occupied || !afterHours) {
+    throw new Error('Access comparison is missing an access row');
+  }
+
+  const occupiedLift = occupied.price - empty.price;
+  const afterHoursLift = afterHours.price - empty.price;
+  if (empty.installOnly && afterHours.installOnly) {
+    const asked = empty.installOnly.price;
+    if (empty.installOnly.belowBreakEven && afterHours.installOnly.belowBreakEven) {
+      return `At ${money(asked)} you lose money even on an empty weekday. Walk-away after-hours is ${money(afterHours.breakEvenPrice)}.`;
+    }
+    if (!empty.installOnly.belowBreakEven && afterHours.installOnly.belowBreakEven) {
+      return `At ${money(asked)} the empty-weekday set covers. The same Saturday / after-hours number loses ${money(Math.abs(afterHours.installOnly.profit))} — walk-away then is ${money(afterHours.breakEvenPrice)}.`;
+    }
+    if (occupied.installOnly?.belowBreakEven) {
+      return `At ${money(asked)} an empty weekday covers. They-cook-around-you still loses ${money(Math.abs(occupied.installOnly.profit))} — walk-away then is ${money(occupied.breakEvenPrice)}.`;
+    }
+    return `At ${money(asked)} every access window still holds a margin. After-hours still adds ${money(afterHoursLift)} to the bid.`;
+  }
+  return `They-cook-around-you adds ${money(occupiedLift)} to the bid. After-hours / weekend adds ${money(afterHoursLift)}.`;
+}
+
 function money(value) {
   return `$${value.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+}
+
+function boxWord(count) {
+  return count === 1 ? 'box' : 'boxes';
+}
+
+/**
+ * Setter-facing leftover note. Costs stay out of the customer draft —
+ * this is the box count they lose when leftover is only on the screen.
+ */
+export function formatBoxPlanNote(plan) {
+  const lines = [
+    'BOX PLAN (internal — leftover does not change the installed price)',
+    `- Buy ${plan.boxesToBuy} ${boxWord(plan.boxesToBuy)} (${plan.purchasedSf.toFixed(1)} SF)`,
+    `- Leftover after kitchen: ${plan.leftoverAfterKitchen.toFixed(1)} SF`,
+  ];
+  if (plan.secondWallSf > 0) {
+    lines.push(plan.secondCoveredByLeftover
+      ? `- Second wall ${plan.secondWallSf} SF: leftover covers it`
+      : `- Second wall ${plan.secondWallSf} SF: leftover misses it — still ${plan.secondBoxesToBuy} ${boxWord(plan.secondBoxesToBuy)}`);
+  } else {
+    lines.push('- No second wall entered');
+  }
+  return lines.join('\n');
 }
 
 /**

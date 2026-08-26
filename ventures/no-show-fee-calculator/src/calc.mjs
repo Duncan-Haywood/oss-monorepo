@@ -58,13 +58,37 @@ export function parseInputs(raw) {
   if (!isFinitePercent(feePercent)) errors.push("Fee percentage must be between 0 and 100.");
   if (!isFinitePercent(enforcementRatePct)) errors.push("Assumed enforcement rate must be between 0 and 100.");
 
+  // Overflow cost is optional: a cleared field means "cost one session,"
+  // which is the conservative default for a double-booked chair. An
+  // explicit zero is allowed — some operators treat overflow as free.
+  let overflowCost = price;
+  const overflowRaw = raw.overflowCost;
+  if (overflowRaw !== undefined && overflowRaw !== null && String(overflowRaw).trim() !== "") {
+    const overflowValue = Number(overflowRaw);
+    if (!Number.isFinite(overflowValue)) {
+      errors.push("Double-book / overflow cost must be a number.");
+    } else if (overflowValue < 0) {
+      errors.push("Double-book / overflow cost cannot be negative.");
+    } else {
+      overflowCost = overflowValue;
+    }
+  }
+
   if (errors.length > 0) {
     return { ok: false, errors };
   }
 
   return {
     ok: true,
-    values: { price, bookingsPerWeek, noShowRatePct, noticeHours, feePercent, enforcementRatePct },
+    values: {
+      price,
+      bookingsPerWeek,
+      noShowRatePct,
+      noticeHours,
+      feePercent,
+      enforcementRatePct,
+      overflowCost,
+    },
   };
 }
 
@@ -149,6 +173,184 @@ export function compareFeeScenarios(values) {
 }
 
 /**
+ * How many extra names to put on a weekly book as a fraction of the
+ * expected no-shows. 0 is "book only the chairs you have." 1 is the
+ * classic match-the-no-show-rate rule. 1.5 is the aggressive book that
+ * starts to collide on the mean.
+ */
+export const OVERBOOK_FACTORS = [0, 0.5, 1, 1.5];
+
+/**
+ * Expected weekly chair use if `extraBookingsPerWeek` names are added
+ * on top of capacity. This is a mean-value model, not a Poisson busy-day
+ * simulation: even a week whose average fits can still overflow on a
+ * high-show day. The overflow cost is how that risk is priced.
+ *
+ * @param {{ bookingsPerWeek: number, noShowRatePct: number }} values
+ * @param {number} extraBookingsPerWeek
+ */
+export function weeklyBook(values, extraBookingsPerWeek) {
+  const capacity = values.bookingsPerWeek;
+  const extra = extraBookingsPerWeek;
+  if (!isFiniteNonNegative(extra)) {
+    throw new Error("Extra bookings per week cannot be negative.");
+  }
+  const booked = capacity + extra;
+  const showRate = 1 - values.noShowRatePct / 100;
+  const expectedArrivals = booked * showRate;
+  const served = Math.min(expectedArrivals, capacity);
+  const overflow = Math.max(0, expectedArrivals - capacity);
+  const empty = Math.max(0, capacity - expectedArrivals);
+  const noShows = booked * (values.noShowRatePct / 100);
+  return {
+    capacity,
+    extraBookingsPerWeek: extra,
+    booked,
+    showRate,
+    expectedArrivals,
+    served,
+    overflow,
+    empty,
+    noShows,
+  };
+}
+
+/**
+ * Annual cash from one booking policy: service on served chairs, optional
+ * no-show fees on the names that did not arrive, minus overflow cost on
+ * the chairs that could not be sat.
+ *
+ * @param {{ price: number, bookingsPerWeek: number, noShowRatePct: number, feePercent: number, enforcementRatePct: number, overflowCost: number }} values
+ * @param {{ extraBookingsPerWeek: number, collectFee: boolean }} policy
+ */
+export function annualOverbookOutcome(values, { extraBookingsPerWeek, collectFee }) {
+  const week = weeklyBook(values, extraBookingsPerWeek);
+  const overflowCost = isFiniteNonNegative(values.overflowCost) ? values.overflowCost : values.price;
+  const feeAmount = computeFeeAmount(values);
+  const serviceRevenue = round2(week.served * values.price * WEEKS_PER_YEAR);
+  const noShowsPerYear = week.noShows * WEEKS_PER_YEAR;
+  const feeRevenue = collectFee
+    ? computeAnnualFeeRevenue({
+        feeAmount,
+        noShowsPerYear,
+        enforcementRatePct: values.enforcementRatePct,
+      })
+    : 0;
+  const overflowCostAnnual = round2(week.overflow * overflowCost * WEEKS_PER_YEAR);
+  return {
+    ...week,
+    collectFee,
+    feeAmount,
+    overflowCost,
+    serviceRevenue,
+    feeRevenue,
+    overflowCostAnnual,
+    netKept: round2(serviceRevenue + feeRevenue - overflowCostAnnual),
+  };
+}
+
+function overbookRowId(factor) {
+  return factor === 0 ? "fee_only" : `overbook_${String(factor).replace(".", "_")}`;
+}
+
+function overbookRowLabel(factor, { collectFee }) {
+  if (factor === 0) return "Capacity only, collect fee";
+  const pct = Math.round(factor * 100);
+  return collectFee
+    ? `Overbook ${pct}% of expected no-shows + fee`
+    : `Overbook ${pct}% of expected no-shows, drop the fee`;
+}
+
+/**
+ * One-line arithmetic observation. It names which policy kept more on
+ * these inputs; it does not tell the operator to overbook or to charge.
+ */
+export function overbookingSummary(comparison) {
+  const money = (n) => {
+    const abs = Math.abs(n).toFixed(2);
+    return n < 0 ? `-$${abs}` : `$${abs}`;
+  };
+  const gap = money(Math.abs(comparison.extraVsFeeOnly));
+  if (comparison.expectedNoShowsPerWeek === 0) {
+    return "No-show rate is 0%, so extra names only add overflow risk. The fee-only book and the overbook rows are the same full book.";
+  }
+  if (comparison.winner === "fee_only") {
+    return `Keeping the book at capacity and collecting the fee keeps ${gap} more per year than the best overbook row on these rates.`;
+  }
+  if (comparison.winner === "overbook_drop_fee") {
+    return `Overbooking to match the no-show rate and dropping the fee keeps ${gap} more per year than the fee alone. Overflow cost is priced at ${money(comparison.overflowCost)} per collided chair.`;
+  }
+  return `${comparison.winnerLabel} keeps ${gap} more per year than the fee alone. Overflow cost is priced at ${money(comparison.overflowCost)} per collided chair.`;
+}
+
+/**
+ * Compare a fee-only book against overbooking 50/100/150% of expected
+ * no-shows (still collecting the fee), plus matching no-shows and
+ * dropping the fee. The last row is the policy many salons actually
+ * try: fill the empty chairs and skip the awkward charge.
+ *
+ * @param {{ price: number, bookingsPerWeek: number, noShowRatePct: number, feePercent: number, enforcementRatePct: number, overflowCost?: number }} values
+ */
+export function compareOverbooking(values) {
+  const overflowCost = isFiniteNonNegative(values.overflowCost) ? values.overflowCost : values.price;
+  const input = { ...values, overflowCost };
+  const expectedNoShowsPerWeek = round2(values.bookingsPerWeek * (values.noShowRatePct / 100));
+
+  const rows = OVERBOOK_FACTORS.map((factor) => {
+    const extraBookingsPerWeek = round2(expectedNoShowsPerWeek * factor);
+    const withFee = annualOverbookOutcome(input, {
+      extraBookingsPerWeek,
+      collectFee: true,
+    });
+    return {
+      id: overbookRowId(factor),
+      factor,
+      label: overbookRowLabel(factor, { collectFee: true }),
+      extraBookingsPerWeek,
+      withFee,
+    };
+  });
+
+  const matchNoFee = annualOverbookOutcome(input, {
+    extraBookingsPerWeek: expectedNoShowsPerWeek,
+    collectFee: false,
+  });
+
+  const candidates = [
+    ...rows.map((row) => ({
+      id: row.id,
+      label: row.label,
+      netKept: row.withFee.netKept,
+    })),
+    {
+      id: "overbook_drop_fee",
+      label: overbookRowLabel(1, { collectFee: false }),
+      netKept: matchNoFee.netKept,
+    },
+  ];
+
+  let winner = candidates[0];
+  for (const candidate of candidates) {
+    if (candidate.netKept > winner.netKept + 1e-9) winner = candidate;
+  }
+
+  const feeOnly = rows[0].withFee;
+  const extraVsFeeOnly = round2(winner.netKept - feeOnly.netKept);
+  const comparison = {
+    overflowCost,
+    expectedNoShowsPerWeek,
+    rows,
+    matchNoFee,
+    feeOnly,
+    winner: winner.id,
+    winnerLabel: winner.label,
+    extraVsFeeOnly,
+  };
+  comparison.summary = overbookingSummary(comparison);
+  return comparison;
+}
+
+/**
  * Generates a plain-language, copy-paste cancellation / no-show policy.
  * Always returns text ending in the non-warranty note — callers should not
  * strip it.
@@ -192,6 +394,7 @@ const SHARE_FIELDS = [
   "noticeHours",
   "feePercent",
   "enforcementRatePct",
+  "overflowCost",
   "businessName",
   "serviceName",
 ];
