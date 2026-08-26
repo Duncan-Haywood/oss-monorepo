@@ -99,6 +99,10 @@ function number(value, name, { min = 0, allowZero = true } = {}) {
  *   Optional one-time work (strip and wax, extraction, initial clean). Priced
  *   with the same loaded wage, overhead, and margin as the monthly contract,
  *   but invoiced once — not rolled into the recurring price.
+ * @param {Array<{name?: string, costPerOccurrence: number, occurrencesPerYear: number}>} [input.periodicServices]
+ *   Recurring lump work (quarterly floor care, twice-yearly extraction)
+ *   priced as cost × visits/year, then averaged into the monthly contract.
+ *   Distinct from `projects`, which are production-rate jobs invoiced once.
  * @param {number|null} input.proposedPrice Optional: a price already on the
  *   table, so the contractor can see the margin it actually leaves.
  */
@@ -188,10 +192,24 @@ export function calculateBid(input) {
   const monthlyLaborCost = areaMonthlyLaborCost + shiftMonthlyLaborCost;
   const monthlySupplies = totalSquareFeet * suppliesPerSqFtMonth;
 
+  const periodicServices = (Array.isArray(input.periodicServices) ? input.periodicServices : []).map((service, index) => {
+    const name = service.name?.trim() || `Periodic service ${index + 1}`;
+    const costPerOccurrence = number(service.costPerOccurrence ?? 0, `${name}: cost per occurrence`);
+    const occurrencesPerYear = number(service.occurrencesPerYear ?? 0, `${name}: occurrences per year`);
+    return {
+      name,
+      costPerOccurrence,
+      occurrencesPerYear,
+      annualCost: costPerOccurrence * occurrencesPerYear,
+    };
+  });
+  const annualPeriodicCost = periodicServices.reduce((sum, service) => sum + service.annualCost, 0);
+  const monthlyPeriodicCost = annualPeriodicCost / 12;
+
   // Overhead is a markup on the direct cost of servicing this job, which is
   // how a small contractor recovers office, admin, and sales cost. It is
   // deliberately not applied to itself or to profit.
-  const directCost = monthlyLaborCost + monthlySupplies + equipmentMonthly + otherMonthly;
+  const directCost = monthlyLaborCost + monthlySupplies + equipmentMonthly + otherMonthly + monthlyPeriodicCost;
   const monthlyOverhead = directCost * overheadRate / 100;
   const monthlyCost = directCost + monthlyOverhead;
 
@@ -301,6 +319,10 @@ export function calculateBid(input) {
       // A bid below break-even is the failure this tool exists to catch.
       belowBreakEven: proposedPrice < monthlyCost,
     },
+    periodicServices,
+    monthlyPeriodicCost,
+    annualPeriodicCost,
+    hasPeriodicWork: annualPeriodicCost > 0,
     projects,
     projectHours,
     projectLaborCost,
@@ -357,6 +379,18 @@ export function formatBidSummary(result) {
         `First-month invoice (monthly + project): ${money(result.firstMonthInvoice)}`,
       ]
     : [];
+  const periodicLines = (result.periodicServices || [])
+    .filter(service => service.annualCost > 0)
+    .map(service => `- ${service.name}: ${money(service.costPerOccurrence)} × ${service.occurrencesPerYear}/year (${money(service.annualCost / 12)}/month)`)
+    .join('\n');
+  const periodicBlock = result.hasPeriodicWork
+    ? [
+        '',
+        'PERIODIC SERVICES (MONTHLY AVERAGE)',
+        periodicLines || '- No periodic rows entered',
+        `Periodic work in the monthly: ${money(result.monthlyPeriodicCost)}`,
+      ]
+    : [];
   return [
     'COMMERCIAL CLEANING BID',
     '',
@@ -367,6 +401,7 @@ export function formatBidSummary(result) {
     `Price per square foot: $${result.pricePerSqFtMonth === null ? 'n/a' : result.pricePerSqFtMonth.toFixed(3)}/sq ft/month`,
     ...porterBlock,
     ...projectBlock,
+    ...periodicBlock,
     '',
     'SERVICE AREAS',
     spaces || '- No service areas entered',
