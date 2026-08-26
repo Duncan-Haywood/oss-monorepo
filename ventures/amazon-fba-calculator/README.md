@@ -113,6 +113,13 @@ that still ties dispose. Complementary to
 [peak vs off-peak Q4 storage](peak-vs-off-peak-storage.html) (a seasonal
 rate) and to 3PL long-term storage (a different warehouse).
 
+FBA Liquidations is the recovery on that same leftover pile: Amazon
+pays a percent of list, or you pay the return-removal fee and sell
+the units on eBay, your site, or a jobber.
+[Should I liquidate aged FBA inventory?](should-i-liquidate-aged-fba-inventory.html)
+shows leftover cash after recovery, the elsewhere leftover that still
+ties liquidations, and the monthly sell-through that still ties.
+
 Units that are still selling, but sitting thin, are a quantity
 decision on the same SKU: pay the low-inventory-level surcharge on
 each FBA shipment, or send enough units to cover 28 days.
@@ -150,6 +157,13 @@ different marketplace).
 keeping 80 leftover units at 5% sell-through still beats a $0.32
 dispose after $1.50 / unit / month surcharge** — which used to mean
 leaving the pile because removal looked like giving up.
+
+**After using the liquidation page, you can now see whether pulling
+80 leftover $29.99 units and selling them elsewhere at $4 leftover
+keeps $68.86 more than an 8% FBA Liquidations recovery ($236.80 vs
+$167.94), and that elsewhere leftover can fall to about $3.14
+before liquidations match** — which used to mean disposing the pile
+because Amazon’s recovery percent looked like the only exit.
 
 **After using the Vine page, you can now see whether leftover units
 still beat skipping after a $419.95 gift, and why a hero SKU that
@@ -277,7 +291,7 @@ optional and never changes what the tool does.
 Pure ES modules, no build step, no dependencies.
 
 ```
-node --test        # runs calc.test.mjs, usage.test.mjs, page.test.mjs, vine-page.test.mjs, aged-inventory-page.test.mjs, inbound-page.test.mjs, returns-page.test.mjs, storage-page.test.mjs, packaging-page.test.mjs, sfp-page.test.mjs, low-inventory-page.test.mjs, awd-page.test.mjs, and remote-fulfillment-page.test.mjs
+node --test        # runs calc.test.mjs, usage.test.mjs, page.test.mjs, vine-page.test.mjs, aged-inventory-page.test.mjs, inbound-page.test.mjs, returns-page.test.mjs, storage-page.test.mjs, packaging-page.test.mjs, sfp-page.test.mjs, low-inventory-page.test.mjs, awd-page.test.mjs, remote-fulfillment-page.test.mjs, and liquidation-page.test.mjs
 ```
 
 `calc.mjs` holds the fee/profit/ROI arithmetic, size-tier classification,
@@ -293,7 +307,8 @@ peak vs off-peak Q4 storage,
 Seller Fulfilled Prime vs FBA vs FBM,
 restock vs low-inventory-level fee,
 Amazon AWD vs send-all-to-FBA vs you-hold,
-and Remote Fulfillment vs skip Canada vs a Canada FBA pile;
+Remote Fulfillment vs skip Canada vs a Canada FBA pile,
+and FBA Liquidations vs dispose vs sell-elsewhere;
 `usage.mjs` holds the anonymous
 local counter; `index.html` is the calculator UI.
 
