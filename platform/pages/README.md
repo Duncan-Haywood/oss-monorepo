@@ -158,6 +158,45 @@ level down.
 The workflow runs it between building and uploading, so a broken artifact never
 reaches the live site.
 
+## Checking the sources: the no-warranty clause
+
+PRODUCT_PLAYBOOK.md §5b requires two clauses on every hosted page, and they are
+enforced in two different places because the build draws a line between them.
+
+The **no-SLA** clause is about how these pages are hosted, which is this
+build's own statement to make, so `build.mjs` injects it into any published
+page that lacks one. That requirement holds by construction; no venture has to
+carry it, and nothing checks that they do.
+
+The **no-warranty** clause is about what a given tool is not advice *about* —
+"not landscaping, construction, legal, tax, or financial advice". Only the
+venture can write that, so it cannot be injected, and it stays the venture's to
+get right. `clauses.mjs` is what checks it, and it is the one check here that
+reads the **sources** rather than the built site:
+
+```
+node platform/pages/clauses.mjs                 # every surface
+node platform/pages/clauses.mjs <venture-slug>  # one venture
+```
+
+Reading sources is what makes it cheap enough to run from a venture's own CI,
+which is where it now runs. That matters because the built-site assertion in
+`build.test.mjs` fires on `platform/pages/**` — so a venture that omits the
+clause merges cleanly and turns `main` red in the Pages job, naming an author
+who never saw the requirement, in a workflow they did not touch. That is how
+the no-SLA half kept recurring (#1747, #1763, sewer-line-replace) until
+injection retired it; the no-warranty half was left exactly as exposed.
+
+A venture with no browser surface passes trivially, so a CLI or library can run
+the same step unconditionally. `portfolio-validate.yml` runs the no-argument
+form as a backstop, which is what covers a slug whose workflow was never
+created at all — how carpet-install-bid-calculator reached `main` already
+inside the Pages build with no CI of its own.
+
+The pattern is deliberately loose: ventures word the surrounding paragraph in
+their own voice, and demanding the playbook's exact prose would rewrite correct
+pages instead of catching missing ones.
+
 ## Driving the customer journey
 
 `check.mjs` proves the files are right. It cannot prove the site *works* — that
