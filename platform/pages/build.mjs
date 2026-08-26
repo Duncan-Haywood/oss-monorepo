@@ -19,9 +19,23 @@
 // opt-out.
 
 import { promises as fs, existsSync } from 'node:fs';
+import crypto from 'node:crypto';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import zlib from 'node:zlib';
+
+import {
+  ICONS,
+  OFFLINE_WIDGET_HTML,
+  OFFLINE_WIDGET_SCRIPT,
+  THEME_COLOR,
+  injectOfflineSupport,
+  renderIcon,
+  renderKillSwitchWorker,
+  renderManifest,
+  renderOfflinePage,
+  renderServiceWorker,
+} from './offline.mjs';
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 export const REPO_ROOT = path.resolve(HERE, '..', '..');
@@ -66,7 +80,14 @@ const EXCLUDED_FILES = new Set([
   'VENTURE.yaml', 'robots.txt', 'README.md', 'package.json', 'package-lock.json',
 ]);
 const EXCLUDED_DIRS = new Set(['node_modules', '.git', 'dist', 'coverage', '.cache', 'tests', '__pycache__']);
-const isTestFile = (name) => /\.test\.(mjs|js|cjs|py)$/.test(name);
+// `foo.test.mjs` is the house convention, but it is a convention rather than a
+// rule, and two ventures did not follow it: `retainage-cashflow-calculator`
+// ships its suite as `test.mjs` and `freelance-retainer-calculator` as
+// `test_app.mjs`. Both were being copied to the public site, where a visitor
+// downloads none of it and a crawler can index the venture's internal
+// assertions. Cover the other spellings a test file is given.
+const isTestFile = (name) =>
+  /(^|\.)test\.(mjs|js|cjs|py)$/.test(name) || /^test_/.test(name) || /_test\.(mjs|js|cjs|py)$/.test(name);
 
 // Several ventures ship a browser tool *and* a CLI from the same directory
 // (einvoice-preflight is both a Python package and a static page). A visitor
@@ -183,16 +204,58 @@ const decodeEntities = (value) =>
     .replace(/&quot;/g, '"')
     .replace(/&#0?39;/g, "'");
 
-// The content value is read up to the *same* quote that opened it, via a
-// backreference. Accepting any quote instead (`[^"']*`) silently stops at the
-// first apostrophe inside a double-quoted attribute, so "last night's archive
-// shrank" reached the hub and its JSON-LD as "last night" — a card and a
-// crawler description cut mid-sentence.
+/**
+ * Every `<meta>` tag in `html`, as raw source.
+ *
+ * The alternation consumes either an ordinary character or a whole quoted
+ * string, so an attribute value is never mistaken for the end of the tag. A
+ * plain `<meta[^>]*>` ends the tag at the first `>` even when that `>` sits
+ * inside a quoted description ("4×8 > 5×5").
+ */
+const metaTags = (html) => html.match(/<meta\b(?:[^>"']|"[^"]*"|'[^']*')*>/gi) ?? [];
+
+const ATTRIBUTE = /([a-zA-Z_:][\w:.-]*)\s*=\s*(?:"([^"]*)"|'([^']*)'|([^\s"'>]+))/g;
+
+/** Attribute name → value for one tag, names lowercased, values still encoded. */
+const parseAttributes = (tag) => {
+  const attrs = {};
+  for (const [, name, dq, sq, bare] of tag.matchAll(ATTRIBUTE)) {
+    attrs[name.toLowerCase()] = dq ?? sq ?? bare ?? '';
+  }
+  return attrs;
+};
+
+/**
+ * The `content` of the first `<meta>` whose `attr` equals `value`.
+ *
+ * Tags are parsed attribute by attribute rather than matched with one regex.
+ * The regex form had to guess where a value ended, and `content=["']([^"']*)["']`
+ * stops at whichever quote comes first — so a description written with a
+ * literal apostrophe inside a double-quoted attribute
+ * (`content="Turn a Shopify storefront's axe-core export…"`) was silently cut
+ * to "Turn a Shopify storefront". That fragment reached the hub card, the
+ * JSON-LD `ItemList`, and the card's `data-search` index — so the hub's own
+ * search box could not find that tool by "axe-core", the term its users would
+ * actually type. A surface's own pages are copied verbatim and were unaffected.
+ * Parsing per attribute also drops the old attribute-order fallback: which of
+ * `name` and `content` is written first no longer matters.
+ *
+ * A backreferenced `content=(["'])(.*?)\1` also fixes the apostrophe, and
+ * landed on `main` first. This keeps the parser instead because `.` does not
+ * match a newline: a description written across two lines makes that pattern
+ * fail outright and return the empty string — losing the whole description
+ * rather than the tail of it. No venture wraps one today, so that is latent
+ * rather than live, but the parser costs nothing to keep and cannot regress it.
+ */
 const metaContent = (html, attr, value) => {
-  const pattern = new RegExp(`<meta[^>]*${attr}=["']${value}["'][^>]*content=(["'])(.*?)\\1`, 'i');
-  const reversed = new RegExp(`<meta[^>]*content=(["'])(.*?)\\1[^>]*${attr}=["']${value}["']`, 'i');
-  const match = html.match(pattern) ?? html.match(reversed);
-  return match ? decodeEntities(match[2]).trim() : '';
+  const wanted = value.toLowerCase();
+  for (const tag of metaTags(html)) {
+    const attrs = parseAttributes(tag);
+    if (attrs[attr.toLowerCase()]?.toLowerCase() === wanted && attrs.content) {
+      return decodeEntities(attrs.content).trim();
+    }
+  }
+  return '';
 };
 
 const titleize = (slug) => slug.split('-').map((word) => word.charAt(0).toUpperCase() + word.slice(1)).join(' ');
@@ -219,7 +282,61 @@ export function readMeta(html, slug) {
   const description =
     metaContent(html, 'name', 'description') || metaContent(html, 'property', 'og:description') || '';
 
-  return { title, description: truncate(description) };
+  // `description` is card copy and is trimmed to fit one. `fullDescription` is
+  // what the hub's search actually indexes: 24 of 34 tools say more about
+  // themselves than a card can hold, and the eBay tool says 1862 characters'
+  // worth. Indexing the trimmed copy made ~90% of that tool unfindable.
+  return { title, description: truncate(description), fullDescription: description };
+}
+
+/** Words too common across these tools to narrow a search. */
+const SEARCH_STOPWORDS = new Set(
+  ('a an and are as at be but by for from get how if in into is it its of on or so that the then ' +
+   'there these they this to too was what when where which who why will with you your' ).split(' '),
+);
+
+/**
+ * The searchable token set for one card.
+ *
+ * Kept as deduplicated tokens rather than raw prose for two reasons: the page
+ * carries the whole index inline, so repeating "calculator" 34 times costs
+ * bytes for nothing; and matching per token is what makes a two-word query
+ * ("ebay return") work, which a substring match over prose cannot do.
+ */
+export function searchTokens(parts) {
+  const seen = new Set();
+  for (const part of parts) {
+    for (const token of String(part ?? '')
+      .toLowerCase()
+      .split(/[^a-z0-9]+/)) {
+      if (token.length < 2 || SEARCH_STOPWORDS.has(token)) continue;
+      seen.add(token);
+    }
+  }
+  return [...seen].sort().join(' ');
+}
+
+/**
+ * The `<title>`/`<h1>` of every other page in a venture.
+ *
+ * These are the venture's SEO articles, and they are phrased as the question a
+ * visitor actually types ("should I use Amazon AWD", "how much to charge to
+ * install crown molding"). None of that wording appears in the tool's own meta
+ * description, so without this the hub cannot answer the search that brought
+ * the visitor to the portfolio in the first place.
+ */
+export async function collectPageTitles(sourceDir, entryFile) {
+  const files = (await listFiles(sourceDir)).filter(
+    (file) => file.endsWith('.html') && file !== entryFile,
+  );
+  const titles = [];
+  for (const file of files.slice(0, 40)) {
+    const html = await fs.readFile(file, 'utf8');
+    const title = html.match(/<title>([^<]*)<\/title>/i)?.[1] ?? '';
+    const heading = html.match(/<h1[^>]*>([\s\S]*?)<\/h1>/i)?.[1] ?? '';
+    titles.push(decodeEntities(title), decodeEntities(heading.replace(/<[^>]*>/g, ' ')));
+  }
+  return titles;
 }
 
 async function countPages(sourceDir) {
@@ -254,8 +371,25 @@ export async function publishedPages(dir, prefix = '') {
 // Copy
 // ---------------------------------------------------------------------------
 
+// Point already-written SEO at the real, served URL: every venture wrote its
+// canonical tags against the placeholder origin, back when none existed.
 function rewriteOrigin(contents, baseUrl) {
-  return contents.split(PLACEHOLDER_ORIGIN).join(baseUrl);
+  const rewritten = contents.split(PLACEHOLDER_ORIGIN).join(baseUrl);
+
+  // Three ventures (freelance-retainer, no-show-fee, retainage-cashflow) wrote
+  // today's Pages address into their canonical tags directly, rather than the
+  // placeholder. That is correct by accident: it holds only while the site is
+  // served from exactly that URL, and `PAGES_BASE_URL` exists so a custom
+  // domain can be attached. On that day those pages would keep naming the
+  // github.io origin as canonical, which tells every crawler the real page is
+  // at the old address and hands the new domain a duplicate.
+  //
+  // Sitemaps are safe without this — they are regenerated from what actually
+  // published — but canonical tags are copied through, so they are not.
+  // Treating the default as a second placeholder makes the whole portfolio
+  // follow the base URL it is actually built with.
+  if (baseUrl === DEFAULT_BASE_URL) return rewritten;
+  return rewritten.split(DEFAULT_BASE_URL).join(baseUrl);
 }
 
 export function isPublishable(name) {
@@ -264,6 +398,34 @@ export function isPublishable(name) {
 }
 
 /** Recursively copy `from` into `to`, dropping test payload and repo bookkeeping. */
+/**
+ * Point one published page at the site's favicon.
+ *
+ * `renderFavicon()` writes the icon to the *published tree's* root, on the
+ * reasoning that a browser fetches `/favicon.ico` on its own for every page.
+ * That is true of the **origin** root — and this is a GitHub *project* site, so
+ * the origin root is `duncan-haywood.github.io/`, not the tree at
+ * `.../monorepo-projects/`. The automatic request lands outside this repository
+ * and the generated icon is never reached. Writing the link in is what closes
+ * that gap.
+ *
+ * The href is relative to the page rather than root-absolute, for the same
+ * reason every other in-site link here is: `check.mjs` rejects a link that
+ * leaves the site root, and a relative one is correct whatever path the site is
+ * served under — including a local preview at `/`.
+ *
+ * A venture that declares its own icon keeps it, and the link goes after the
+ * charset declaration so that stays the first thing the parser sees.
+ */
+export function injectFavicon(html, toRoot) {
+  if (/<link[^>]+rel=["'][^"']*icon/i.test(html)) return html;
+  const link = `\n  <link rel="icon" href="${escapeHtml(`${toRoot}favicon.ico`)}" sizes="16x16">`;
+  if (/<meta[^>]+charset/i.test(html)) {
+    return html.replace(/<meta[^>]+charset[^>]*>/i, (meta) => `${meta}${link}`);
+  }
+  return html.replace(/<head(\s[^>]*)?>/i, (head) => `${head}${link}`);
+}
+
 export async function copyTree(from, to, baseUrl) {
   await fs.mkdir(to, { recursive: true });
   const entries = await fs.readdir(from, { withFileTypes: true });
@@ -436,7 +598,8 @@ export function renderHub(surfaces, baseUrl) {
 ${items
   .map(
     (surface) => `          <li class="card" data-search="${escapeHtml(
-      `${surface.title} ${surface.description} ${surface.slug}`.toLowerCase(),
+      surface.searchIndex ??
+        searchTokens([surface.title, surface.fullDescription ?? surface.description, surface.slug]),
     )}">
             <a href="${escapeHtml(surface.slug)}/" data-tool="${escapeHtml(surface.slug)}">
               <h3>${escapeHtml(surface.title)}</h3>
@@ -460,11 +623,14 @@ ${items
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="icon" href="./favicon.ico" sizes="16x16">
   <title>Free Small-Business Calculators | Marketplace Fees, Trade Bids, Freight &amp; Compliance</title>
   <meta name="description" content="${escapeHtml(
     `${surfaces.length} free, private calculators for marketplace sellers, trade contractors, logistics buyers, and small teams. Everything runs in your browser — nothing you type is uploaded.`,
   )}">
   <link rel="canonical" href="${escapeHtml(baseUrl)}">
+  <link rel="icon" href="favicon.svg" type="image/svg+xml">
+  <link rel="alternate icon" href="favicon.ico" sizes="16x16">
   <meta property="og:type" content="website">
   <meta property="og:title" content="Free small-business calculators">
   <meta property="og:description" content="Price a listing, bid a job, audit a freight bill, or produce a compliance record — free, and entirely in your browser.">
@@ -507,6 +673,17 @@ ${items
     .card a:hover h3, .card a:focus-visible h3 { color: var(--accent); text-decoration: underline; }
     .card p { margin: 0; font-size: .89rem; line-height: 1.5; color: var(--muted); }
     .card .meta { margin-top: 9px; font-size: .78rem; font-weight: 650; color: var(--accent); }
+    .yours { margin-top: 30px; padding: 16px 18px 18px; background: var(--panel);
+             border: 1px solid var(--line); border-radius: 13px; }
+    .yours h2 { font-size: 1.05rem; margin: 0 0 4px; letter-spacing: -.01em; }
+    .yours p { color: var(--muted); margin: 0 0 12px; font-size: .87rem; line-height: 1.5; }
+    .yours ul { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 8px; }
+    .yours li { margin: 0; }
+    .yours li a { display: inline-block; border: 1px solid var(--line); border-radius: 999px;
+                  padding: 7px 14px; font-size: .88rem; font-weight: 600;
+                  color: var(--ink); text-decoration: none; background: var(--bg); }
+    .yours li a:hover, .yours li a:focus-visible { border-color: var(--accent); color: var(--accent); }
+    .yours .times { display: block; font-size: .72rem; color: var(--muted); margin-top: 3px; padding-left: 4px; }
     .empty { display: none; color: var(--muted); font-style: italic; margin-top: 30px; }
     footer { margin-top: 52px; border-top: 1px solid var(--line); padding-top: 24px;
              font-size: .87rem; line-height: 1.6; color: var(--muted); }
@@ -515,6 +692,13 @@ ${items
     .support { background: var(--panel); border: 1px solid var(--line); border-radius: 13px;
                padding: 15px 18px; margin-top: 26px; }
     .optout { margin-top: 18px; font-size: .84rem; }
+    .offline p { margin: 8px 0 12px; font-size: .9rem; line-height: 1.5; color: var(--muted); }
+    .offline button { font: inherit; font-weight: 650; padding: 10px 16px; border-radius: 9px;
+                      border: 1px solid var(--accent); background: var(--accent);
+                      color: var(--accent-ink); cursor: pointer; }
+    .offline button[disabled] { opacity: .6; cursor: progress; }
+    .offline #offline-status:empty { display: none; }
+    .offline #offline-status { margin: 10px 0 0; font-size: .85rem; }
     :focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
   </style>
 </head>
@@ -541,9 +725,23 @@ ${items
       <p class="count" id="count"></p>
     </div>
 
+    <!-- Filled in by script from counts held on this device; a visitor with no
+         history, no storage, or an opt-out never sees it. -->
+    <section class="yours" id="yours" hidden>
+      <h2>Pick up where you left off</h2>
+      <p>
+        The tools you have opened in this browser, most used first. This list is
+        built from a count kept on your own device — it is never uploaded, and
+        clearing your browser data clears it.
+      </p>
+      <ul id="yoursList"></ul>
+    </section>
+
 ${sections}
 
     <p class="empty" id="empty">No tool matches that. Try a marketplace, a trade, or the thing you are pricing.</p>
+
+${OFFLINE_WIDGET_HTML}
 
     <div class="support">
       <strong>Free, and staying free.</strong> If one of these saved you money,
@@ -558,7 +756,8 @@ ${DISCLAIMER_HTML}
         <label><input type="checkbox" id="optout"> Don't count my visit</label>
       </p>
       <p>
-        Open source — every tool is a static page you can save and run offline.
+        Open source — every tool is a static page, and one you have opened keeps
+        working with no connection.
       </p>
     </footer>
   </div>
@@ -573,11 +772,35 @@ ${DISCLAIMER_HTML}
     const groups = [...document.querySelectorAll('.group')];
     const total = cards.length;
 
+    // Every query word must hit, so "ebay return" narrows to the eBay tool
+    // instead of finding nothing because those two words are never adjacent.
+    // A word matches at a token boundary, which is what makes a half-typed
+    // "backspl" still find the backsplash calculator.
+    const matches = (index, words, boundary) =>
+      words.every((word) => (boundary ? (' ' + index).includes(' ' + word) : index.includes(word)));
+
+    // The query is normalised exactly as the index was. It has to be: a word
+    // the index never stores can never match, so keeping it would force every
+    // query containing it down to zero hits — typing "2/10 net 30" would find
+    // nothing because "2" was dropped at build time but not from the query.
+    const STOPWORDS = new Set(${JSON.stringify([...SEARCH_STOPWORDS])});
+    const normalise = (text) =>
+      text
+        .toLowerCase()
+        .split(/[^a-z0-9]+/)
+        .filter((word) => word.length >= 2 && !STOPWORDS.has(word));
+
     function filter() {
-      const needle = q.value.trim().toLowerCase();
+      const words = normalise(q.value.trim());
+      // Token-prefix first; fall back to a loose substring pass so a query that
+      // would have matched before this became token-aware still matches.
+      let boundary = true;
+      if (words.length && !cards.some((c) => matches(c.dataset.search, words, true))) {
+        boundary = false;
+      }
       let shown = 0;
       for (const card of cards) {
-        const hit = !needle || card.dataset.search.includes(needle);
+        const hit = !words.length || matches(card.dataset.search, words, boundary);
         card.hidden = !hit;
         if (hit) shown += 1;
       }
@@ -585,7 +808,7 @@ ${DISCLAIMER_HTML}
         group.hidden = ![...group.querySelectorAll('.card')].some((c) => !c.hidden);
       }
       empty.style.display = shown === 0 ? 'block' : 'none';
-      count.textContent = needle ? shown + ' of ' + total + ' tools' : total + ' tools';
+      count.textContent = words.length ? shown + ' of ' + total + ' tools' : total + ' tools';
     }
     q.addEventListener('input', filter);
     filter();
@@ -625,6 +848,75 @@ ${DISCLAIMER_HTML}
     for (const link of document.querySelectorAll('[data-tool]')) {
       link.addEventListener('click', () => record('tool_opened:' + link.dataset.tool));
     }
+
+    // Thirty-seven tools is a lot to search through when you came back for the
+    // one you used last week. Every tool page already records a tool_viewed
+    // count for its own slug on this device, so the hub can lead with the tools
+    // this browser actually uses without asking anyone to sign in and without a
+    // byte leaving the machine. Counting is what makes the shortcut possible,
+    // which is also the honest argument for the counting.
+    //
+    // tool_viewed and not tool_opened: a visit counts however the visitor
+    // arrived, and most of them arrive from a search result rather than here.
+    function yourTools(limit = 6) {
+      // No counts exist for someone who opted out or whose browser asked not to
+      // be counted, so there is nothing to show and nothing to decide.
+      if (optedOut() || honorsBrowserSignal()) return [];
+
+      let counts;
+      try { counts = JSON.parse(localStorage.getItem(KEY) || '{}'); } catch { return []; }
+      if (!counts || typeof counts !== 'object') return [];
+
+      const used = [];
+      for (const [event, value] of Object.entries(counts)) {
+        const slug = /^tool_viewed:(.*)$/.exec(event)?.[1];
+        // Every tool on this site shares one origin, so any page on it can write
+        // to this key. Take a slug only in the shape the build produces, and
+        // build the link from that — never from the stored string as given.
+        if (!slug || !/^[a-z0-9][a-z0-9-]*$/.test(slug)) continue;
+        if (!Number.isFinite(value) || value <= 0) continue;
+        used.push([slug, value]);
+      }
+
+      return used
+        .sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0]))
+        .slice(0, limit);
+    }
+
+    function showYourTools() {
+      const section = document.getElementById('yours');
+      const list = document.getElementById('yoursList');
+      const mine = yourTools();
+      list.replaceChildren();
+
+      for (const [slug, times] of mine) {
+        // Only offer a tool the hub is actually showing: a slug left behind by
+        // a tool that has since been renamed or withdrawn would 404.
+        const card = document.querySelector('[data-tool="' + slug + '"]');
+        if (!card) continue;
+
+        const item = document.createElement('li');
+        const link = document.createElement('a');
+        link.href = slug + '/';
+        link.textContent = card.querySelector('h3')?.textContent.trim() || slug;
+        link.addEventListener('click', () => record('tool_opened:' + slug));
+
+        const meta = document.createElement('span');
+        meta.className = 'times';
+        meta.textContent = times === 1 ? 'opened once' : 'opened ' + times + ' times';
+
+        item.append(link, meta);
+        list.append(item);
+      }
+
+      section.hidden = list.childElementCount === 0;
+    }
+
+    showYourTools();
+    // Turning counting off should take the shortcut away with it, in the same
+    // click rather than on the next visit.
+    optout.addEventListener('change', showYourTools);
+${OFFLINE_WIDGET_SCRIPT}
   </script>
 </body>
 </html>
@@ -891,9 +1183,10 @@ export async function addSiteChrome({ outDir, surfaces, baseUrl = DEFAULT_BASE_U
       const relative = path.relative(outDir, file);
       const url = relative.split(path.sep).join('/');
       const html = await fs.readFile(file, 'utf8');
-      const next = injectChrome(html, {
+      const toRoot = upToRoot(relative);
+      const next = injectFavicon(injectChrome(html, {
         slug: surface.slug,
-        toRoot: upToRoot(relative),
+        toRoot,
         total: surfaces.length,
         related,
         title: surface.title,
@@ -901,7 +1194,7 @@ export async function addSiteChrome({ outDir, surfaces, baseUrl = DEFAULT_BASE_U
         // is the one to declare.
         canonical: `${baseUrl}${url.replace(/(^|\/)index\.html$/, '$1')}`,
         isEntry: url === `${surface.slug}/index.html`,
-      });
+      }), toRoot);
       if (next === html) continue;
       await fs.writeFile(file, next);
       wrapped.push(relative);
@@ -914,6 +1207,7 @@ export async function addSiteChrome({ outDir, surfaces, baseUrl = DEFAULT_BASE_U
 export function renderRobots(baseUrl) {
   return `User-agent: *\nAllow: /\n\nSitemap: ${baseUrl}sitemap.xml\n`;
 }
+
 
 /**
  * The sitemap `robots.txt` names. A `<sitemapindex>` cannot hold `<url>`
@@ -991,6 +1285,7 @@ export function renderNotFound(baseUrl) {
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="icon" href="./favicon.ico" sizes="16x16">
   <title>Not found</title>
   <style>
     body { font-family: system-ui, sans-serif; max-width: 40rem; margin: 12vh auto;
@@ -1011,6 +1306,105 @@ export function renderNotFound(baseUrl) {
 }
 
 // ---------------------------------------------------------------------------
+// Offline support
+// ---------------------------------------------------------------------------
+
+/** Files a visitor asking to "save all tools" needs: each tool's entry page and
+ *  the modules and styles that page loads. Not the whole tree — the SEO
+ *  articles and sitemaps are not what someone with no signal is reaching for,
+ *  and this runs on a phone's data. */
+const BUNDLE_EXTENSIONS = new Set(['.mjs', '.js', '.css']);
+
+export async function collectOfflineBundle(outDir, surfaces) {
+  const assets = new Set(['./', 'index.html', 'offline.html', 'manifest.webmanifest']);
+
+  for (const surface of surfaces) {
+    const dir = path.join(outDir, surface.slug);
+    // copyTree publishes the directory holding the entry point as `slug/`, so
+    // the tool's front page is always exactly here.
+    const entry = path.join(dir, 'index.html');
+    const rel = (file) => path.relative(outDir, file).split(path.sep).join('/');
+    if (existsSync(entry)) {
+      assets.add(rel(entry));
+      // A visitor can arrive at either form; a cache entry under one does not
+      // answer a request for the other.
+      assets.add(`${surface.slug}/`);
+    }
+
+    for (const file of await listFiles(dir)) {
+      if (BUNDLE_EXTENSIONS.has(path.extname(file))) assets.add(rel(file));
+    }
+  }
+
+  return [...assets].sort();
+}
+
+/**
+ * Emits the worker, the manifest, the icons and the offline fallback, then
+ * wires every published page to them.
+ *
+ * The cache name carries a hash of what was built, which is what makes the
+ * worker's cache-first strategy safe: a deploy lands in a new cache and the old
+ * one is deleted on activation, so a visitor is never served a mix of two
+ * builds and is at most one navigation behind.
+ */
+export async function addOfflineSupport({
+  outDir,
+  base,
+  surfaces,
+  disableWorker = false,
+  // The worker, the head injection and the offline page are all produced from
+  // this module, and none of them are on disk when the hash is taken. Without
+  // this, changing the worker's own logic would leave the cache name identical,
+  // old caches undeleted, and visitors served the previous behaviour from cache
+  // forever. Hashing the generator closes that.
+  codeVersion,
+} = {}) {
+  const bundle = await collectOfflineBundle(outDir, surfaces);
+
+  const hash = crypto.createHash('sha256');
+  hash.update(codeVersion ?? (await fs.readFile(path.join(HERE, 'offline.mjs'))));
+  for (const file of (await listFiles(outDir)).sort()) {
+    hash.update(path.relative(outDir, file));
+    hash.update(await fs.readFile(file));
+  }
+  const cacheName = `portfolio-${hash.digest('hex').slice(0, 12)}`;
+
+  await fs.writeFile(path.join(outDir, 'offline.html'), renderOfflinePage(base));
+  await fs.writeFile(path.join(outDir, 'manifest.webmanifest'), renderManifest(base, surfaces.length));
+  for (const icon of ICONS) {
+    await fs.writeFile(
+      path.join(outDir, icon.file),
+      renderIcon({ size: icon.size, maskable: Boolean(icon.maskable) }),
+    );
+  }
+  await fs.writeFile(
+    path.join(outDir, 'sw.js'),
+    disableWorker
+      ? renderKillSwitchWorker()
+      : renderServiceWorker({
+        cacheName,
+        // Enough for the front door to open with no signal on a device that has
+        // been here once. Everything else is cached as it is visited.
+        shell: ['./', 'index.html', 'offline.html', 'manifest.webmanifest', 'icon-192.png'],
+        bundle,
+      }),
+  );
+
+  let injected = 0;
+  for (const file of await listFiles(outDir)) {
+    if (!file.endsWith('.html')) continue;
+    const depth = path.relative(outDir, file).split(path.sep).length - 1;
+    const result = injectOfflineSupport(await fs.readFile(file, 'utf8'), '../'.repeat(depth));
+    if (!result.injected) continue;
+    await fs.writeFile(file, result.html);
+    injected += 1;
+  }
+
+  return { cacheName, bundle, injected };
+}
+
+// ---------------------------------------------------------------------------
 // Build
 // ---------------------------------------------------------------------------
 
@@ -1019,6 +1413,9 @@ export async function buildSite({
   outDir = path.join(REPO_ROOT, 'platform', 'pages', 'dist'),
   baseUrl = DEFAULT_BASE_URL,
   log = () => {},
+  // The rollback lever for a worker already on visitors' devices; see
+  // renderKillSwitchWorker.
+  disableWorker = false,
 } = {}) {
   const base = baseUrl.endsWith('/') ? baseUrl : `${baseUrl}/`;
 
@@ -1031,7 +1428,7 @@ export async function buildSite({
 
   for (const surface of discovered) {
     const html = await fs.readFile(surface.entryFile, 'utf8');
-    const { title, description } = readMeta(html, surface.slug);
+    const { title, description, fullDescription } = readMeta(html, surface.slug);
     const destination = path.join(outDir, surface.slug);
 
     await copyTree(surface.sourceDir, destination, base);
@@ -1056,6 +1453,13 @@ export async function buildSite({
       ...surface,
       title,
       description,
+      fullDescription,
+      searchIndex: searchTokens([
+        title,
+        fullDescription,
+        surface.slug,
+        ...(await collectPageTitles(surface.sourceDir, surface.entryFile)),
+      ]),
       pageCount: await countPages(surface.sourceDir),
       publishedPageCount: pages.length,
     });
@@ -1070,6 +1474,7 @@ export async function buildSite({
   await fs.writeFile(path.join(outDir, 'sitemap-hub.xml'), renderHubSitemap(base));
 
   await fs.writeFile(path.join(outDir, 'favicon.ico'), renderFavicon());
+  await fs.writeFile(path.join(outDir, 'favicon.svg'), renderFaviconSvg());
 
   // Tell Jekyll (which GitHub Pages runs by default) to leave the tree alone;
   // without this, any directory starting with `_` is silently dropped.
@@ -1077,7 +1482,12 @@ export async function buildSite({
 
   const wrapped = await addSiteChrome({ outDir, surfaces, baseUrl: base });
 
-  return { outDir, baseUrl: base, surfaces, repairs, wrapped };
+  // After the chrome pass, not before: the offline layer hashes the finished
+  // site to name its cache, and injects into pages the chrome has already
+  // rewritten. Reversed, every deploy would cache a page missing its nav.
+  const offline = await addOfflineSupport({ outDir, base, surfaces, disableWorker });
+
+  return { outDir, baseUrl: base, surfaces, repairs, wrapped, offline };
 }
 
 // ---------------------------------------------------------------------------
@@ -1120,19 +1530,55 @@ function crc32(buffer) {
   return crc ^ -1;
 }
 
-export function renderFavicon() {
-  const size = 16;
-  const ink = [36, 61, 53]; // the hub's accent green, so the tab matches the site
-  const mark = [197, 237, 181];
+// The mark, in one place. `renderFavicon` rasterises it to the 16x16 ICO every
+// browser fetches on its own; `renderFaviconSvg` emits the same geometry as
+// vector art for the icon the hub links explicitly. Sharing the constants is
+// what keeps the two from drifting into different logos.
+const ICON_SIZE = 16;
+const ICON_INK = [36, 61, 53]; // the hub's accent green, so the tab matches the site
+const ICON_MARK = [197, 237, 181];
 
-  // Three rising bars on a rounded square. Chosen after looking at it at
-  // actual size: anything with a diagonal turns to mush at 16px, while flat
-  // bars stay crisp and read as "numbers" rather than as a generic glyph.
-  const BARS = [
-    { x0: 3, x1: 4, top: 9 },
-    { x0: 7, x1: 8, top: 6 },
-    { x0: 11, x1: 12, top: 3 },
-  ];
+// Three rising bars on a rounded square. Chosen after looking at it at
+// actual size: anything with a diagonal turns to mush at 16px, while flat
+// bars stay crisp and read as "numbers" rather than as a generic glyph.
+const ICON_BARS = [
+  { x0: 3, x1: 4, top: 9 },
+  { x0: 7, x1: 8, top: 6 },
+  { x0: 11, x1: 12, top: 3 },
+];
+const ICON_BAR_BOTTOM = 12;
+const ICON_CORNER = 2; // matches the 2px corner the rasteriser cuts
+
+const rgbHex = (rgb) => '#' + rgb.map((c) => c.toString(16).padStart(2, '0')).join('');
+
+/**
+ * The same mark as `renderFavicon()`, as vector art.
+ *
+ * The `.ico` is a fixed raster: exactly right at 16px in a tab, and soft
+ * everywhere a browser shows it larger — a pinned tab, the bookmark bar, a
+ * phone home screen. A browser that understands `rel="icon"
+ * type="image/svg+xml"` prefers this and renders the mark crisply at any size,
+ * while the automatic `/favicon.ico` request still finds a file.
+ */
+export function renderFaviconSvg() {
+  const bars = ICON_BARS.map(
+    (b) =>
+      `<rect x="${b.x0}" y="${b.top}" width="${b.x1 - b.x0 + 1}" ` +
+      `height="${ICON_BAR_BOTTOM - b.top + 1}" fill="${rgbHex(ICON_MARK)}"/>`,
+  ).join('');
+
+  return (
+    `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${ICON_SIZE} ${ICON_SIZE}">` +
+    `<rect width="${ICON_SIZE}" height="${ICON_SIZE}" rx="${ICON_CORNER}" ` +
+    `fill="${rgbHex(ICON_INK)}"/>${bars}</svg>\n`
+  );
+}
+
+export function renderFavicon() {
+  const size = ICON_SIZE;
+  const ink = ICON_INK;
+  const mark = ICON_MARK;
+  const BARS = ICON_BARS;
   const raw = [];
   for (let y = 0; y < size; y += 1) {
     raw.push(0); // PNG filter byte: none
@@ -1183,6 +1629,7 @@ if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.me
   const result = await buildSite({
     baseUrl: argBase || process.env.PAGES_BASE_URL || DEFAULT_BASE_URL,
     outDir: argOut ? path.resolve(argOut) : undefined,
+    disableWorker: process.env.PAGES_DISABLE_SW === '1',
     log: console.log,
   });
 
