@@ -18,6 +18,7 @@ import {
   isPublishable,
   readMeta,
   renderHub,
+  renderFavicon,
   renderRobots,
   renderSitemapIndex,
   truncate,
@@ -184,6 +185,49 @@ test('the hub carries the required disclaimers and privacy line', async () => {
   assert.match(hub, /never uploaded/i);
 });
 
+test('every published page carries both liability clauses, not just the hub', async () => {
+  // PRODUCT_PLAYBOOK.md 5b requires the no-warranty clause AND the no-SLA
+  // clause on every hosted surface. Until this site existed the second one was
+  // arguably moot -- nothing was hosted -- and eighteen pages across nine
+  // ventures shipped without any availability statement at all. The moment the
+  // owner flips `GITHUB_PAGES_ENABLED` all of them are hosted surfaces, so the
+  // clause is checked here, where a new landing page cannot slip past it.
+  //
+  // Matched loosely on purpose: several ventures word the clause in their own
+  // voice ("Hosted URLs, when they exist, carry no availability SLA"), and
+  // demanding the playbook's exact prose would force a rewrite of correct
+  // pages rather than catch a missing one.
+  const { outDir, surfaces } = await site();
+  const warranty = /no warranty/i;
+  const noSla = /best-effort hosting|no (availability )?sla|carry no availability|taken offline without notice/i;
+
+  const missing = [];
+  let checked = 0;
+  for (const surface of surfaces) {
+    for (const page of await htmlPagesUnder(path.join(outDir, surface.slug))) {
+      const markup = await fs.readFile(page, 'utf8');
+      const relative = path.relative(outDir, page);
+      checked += 1;
+      if (!warranty.test(markup)) missing.push(`${relative} (no-warranty)`);
+      if (!noSla.test(markup)) missing.push(`${relative} (no-SLA)`);
+    }
+  }
+
+  // A silently-empty walk would make the assertion above pass for free.
+  assert.ok(checked > 100, `only ${checked} page(s) checked`);
+  assert.deepEqual(missing, [], `pages missing a required clause:\n${missing.join('\n')}`);
+});
+
+async function htmlPagesUnder(dir) {
+  const found = [];
+  for (const entry of await fs.readdir(dir, { withFileTypes: true })) {
+    const full = path.join(dir, entry.name);
+    if (entry.isDirectory()) found.push(...(await htmlPagesUnder(full)));
+    else if (entry.name.endsWith('.html')) found.push(full);
+  }
+  return found;
+}
+
 test('the sponsor ask is optional and does not gate anything', async () => {
   const hub = await read('index.html');
   assert.match(hub, /github\.com\/sponsors\//);
@@ -256,6 +300,25 @@ test('a tool without its own sitemap is still listed', async () => {
   const index = renderSitemapIndex(surfaces, BASE);
   assert.ok(index.includes(`${BASE}has-one/sitemap.xml`));
   assert.ok(!index.includes('has-none/sitemap.xml'), 'do not point at a sitemap that is not there');
+});
+
+test('a favicon is emitted, because every page requests one whether or not it links one', async () => {
+  const { outDir } = await site();
+  const ico = await fs.readFile(path.join(outDir, 'favicon.ico'));
+
+  // ICO header: reserved 0, type 1 (icon), one image.
+  assert.deepEqual([...ico.subarray(0, 6)], [0, 0, 1, 0, 1, 0]);
+  assert.equal(ico[6], 16, 'width');
+  assert.equal(ico[7], 16, 'height');
+  // The payload is a PNG, and its signature must survive the offset arithmetic
+  // in the directory entry -- get that wrong and browsers show nothing at all
+  // while the file still looks fine on disk.
+  const offset = ico.readUInt32LE(18);
+  assert.deepEqual([...ico.subarray(offset, offset + 8)], [0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]);
+});
+
+test('the favicon is byte-identical on every build', () => {
+  assert.deepEqual(renderFavicon(), renderFavicon());
 });
 
 test('.nojekyll is emitted so Pages serves the tree verbatim', async () => {

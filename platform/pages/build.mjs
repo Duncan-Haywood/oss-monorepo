@@ -21,6 +21,7 @@
 import { promises as fs, existsSync } from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import zlib from 'node:zlib';
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 export const REPO_ROOT = path.resolve(HERE, '..', '..');
@@ -708,11 +709,105 @@ export async function buildSite({
   await fs.writeFile(path.join(outDir, 'sitemap.xml'), renderSitemapIndex(surfaces, base));
   await fs.writeFile(path.join(outDir, 'sitemap-hub.xml'), renderHubSitemap(surfaces, base));
 
+  await fs.writeFile(path.join(outDir, 'favicon.ico'), renderFavicon());
+
   // Tell Jekyll (which GitHub Pages runs by default) to leave the tree alone;
   // without this, any directory starting with `_` is silently dropped.
   await fs.writeFile(path.join(outDir, '.nojekyll'), '');
 
   return { outDir, baseUrl: base, surfaces, repairs };
+}
+
+// ---------------------------------------------------------------------------
+// Favicon
+// ---------------------------------------------------------------------------
+
+/**
+ * Every browser requests `/favicon.ico` on its own, for every page, whether or
+ * not the markup asks for one -- so without this file all 183 published pages
+ * log a 404 on load and open as an anonymous blank tab. The ventures' own
+ * pages cannot be asked to link an icon (there are 183 of them and they are
+ * the ventures' files, not this build's), and only `.ico` at the origin root
+ * is fetched automatically, so the icon has to be generated here.
+ *
+ * Built rather than committed so the tree stays reviewable text: a 16x16 PNG
+ * assembled by hand and wrapped in a single-image ICO container. Deterministic
+ * -- same bytes on every run.
+ */
+function pngChunk(type, data) {
+  const length = Buffer.alloc(4);
+  length.writeUInt32BE(data.length);
+  const body = Buffer.concat([Buffer.from(type, 'ascii'), data]);
+  const crc = Buffer.alloc(4);
+  crc.writeUInt32BE(crc32(body) >>> 0);
+  return Buffer.concat([length, body, crc]);
+}
+
+let CRC_TABLE = null;
+function crc32(buffer) {
+  if (!CRC_TABLE) {
+    CRC_TABLE = new Int32Array(256);
+    for (let n = 0; n < 256; n += 1) {
+      let c = n;
+      for (let k = 0; k < 8; k += 1) c = c & 1 ? 0xedb88320 ^ (c >>> 1) : c >>> 1;
+      CRC_TABLE[n] = c;
+    }
+  }
+  let crc = -1;
+  for (const byte of buffer) crc = CRC_TABLE[(crc ^ byte) & 0xff] ^ (crc >>> 8);
+  return crc ^ -1;
+}
+
+export function renderFavicon() {
+  const size = 16;
+  const ink = [36, 61, 53]; // the hub's accent green, so the tab matches the site
+  const mark = [197, 237, 181];
+
+  // Three rising bars on a rounded square. Chosen after looking at it at
+  // actual size: anything with a diagonal turns to mush at 16px, while flat
+  // bars stay crisp and read as "numbers" rather than as a generic glyph.
+  const BARS = [
+    { x0: 3, x1: 4, top: 9 },
+    { x0: 7, x1: 8, top: 6 },
+    { x0: 11, x1: 12, top: 3 },
+  ];
+  const raw = [];
+  for (let y = 0; y < size; y += 1) {
+    raw.push(0); // PNG filter byte: none
+    for (let x = 0; x < size; x += 1) {
+      const corner = (x < 2 || x > 13) && (y < 2 || y > 13);
+      const inBar = BARS.some((b) => x >= b.x0 && x <= b.x1 && y >= b.top && y <= 12);
+      if (corner) raw.push(0, 0, 0, 0);
+      else if (inBar) raw.push(...mark, 255);
+      else raw.push(...ink, 255);
+    }
+  }
+
+  const ihdr = Buffer.alloc(13);
+  ihdr.writeUInt32BE(size, 0);
+  ihdr.writeUInt32BE(size, 4);
+  ihdr[8] = 8; // bit depth
+  ihdr[9] = 6; // colour type: RGBA
+  const png = Buffer.concat([
+    Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]),
+    pngChunk('IHDR', ihdr),
+    pngChunk('IDAT', zlib.deflateSync(Buffer.from(raw), { level: 9 })),
+    pngChunk('IEND', Buffer.alloc(0)),
+  ]);
+
+  // ICO container: 6-byte header, one 16-byte directory entry, then the PNG.
+  const header = Buffer.alloc(6);
+  header.writeUInt16LE(0, 0);
+  header.writeUInt16LE(1, 2); // type: icon
+  header.writeUInt16LE(1, 4); // one image
+  const entry = Buffer.alloc(16);
+  entry[0] = size;
+  entry[1] = size;
+  entry.writeUInt16LE(1, 4); // colour planes
+  entry.writeUInt16LE(32, 6); // bits per pixel
+  entry.writeUInt32LE(png.length, 8);
+  entry.writeUInt32LE(header.length + entry.length, 12);
+  return Buffer.concat([header, entry, png]);
 }
 
 // ---------------------------------------------------------------------------
