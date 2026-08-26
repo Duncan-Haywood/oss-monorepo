@@ -103,6 +103,12 @@ reviewing and verifying its output before relying on it.** To the maximum
 extent permitted by law, the authors accept no liability for any loss or
 damage arising from its use.
 
+**Best-effort hosting, no SLA.** These tools are free, experimental, and
+may be slow, broken, moved, or taken offline without notice. We do not
+promise uptime, backups of anything you type, or that a URL will keep
+working. Do not use this as a system of record. If a tool needs to
+survive, export your inputs and run it yourself.
+
 ## Cost and support
 
 $0 to run: static files, no inference, no paid API, no database. Free with
