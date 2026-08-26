@@ -185,6 +185,9 @@ workflows:
 - workflow: pole-barn-bid-calculator-ci.yml
   classification: none
   publishes: []
+- workflow: popcorn-ceiling-bid-calculator-ci.yml
+  classification: none
+  publishes: []
 - workflow: portfolio-pages.yml
   classification: gated
   publishes:
