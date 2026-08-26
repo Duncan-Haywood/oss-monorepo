@@ -19,6 +19,10 @@ hypotheses:
     status: untested
     checked: null
     evidence: customer-contact
+  - claim: Showing acrylic, standard, wood-panel, and glass on the same house changes the bid enough that contractors quote the glass-cab ticket instead of matching the acrylic-tube number after the owner shops the $18,995 special.
+    status: untested
+    checked: null
+    evidence: customer-contact
 economics:
   currency: USD
   mrr: null

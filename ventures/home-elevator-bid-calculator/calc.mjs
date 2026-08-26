@@ -565,6 +565,77 @@ export function compareHoistway(input) {
     .sort((a, b) => a.price - b.price);
 }
 
+/**
+ * Price the same house four ways — acrylic tube, standard enclosed,
+ * wood-panel, glass — from the suggested cab kits so the contractor
+ * can see when a glass-cab ask is not the cheap-special acrylic
+ * number. User-typed cab rates are not reused here: the comparison
+ * is apples-to-apples on the starting figures. Drive and hoistway
+ * kits stay with the current job.
+ */
+export function compareCab(input) {
+  const driveKit = suggestedDriveKit(String(input.drive ?? 'pneumatic'));
+  const hoistwayKit = suggestedHoistwayKit(String(input.hoistway ?? 'through-floor'));
+  const extraKit = suggestedExtraKit();
+  const rows = CAB_PRESETS.map((preset) => {
+    const kit = suggestedCabKit(preset.id);
+    const bid = calculateBid({
+      ...input,
+      cab: preset.id,
+      ...driveKit,
+      ...hoistwayKit,
+      ...extraKit,
+      ...kit,
+    });
+    return {
+      cab: preset.id,
+      label: preset.label,
+      price: bid.price,
+      totalCost: bid.totalCost,
+      totalHours: bid.totalHours,
+      hoursCab: bid.hoursCab,
+      cabMaterial: bid.cabMaterial,
+      extraCost: bid.extraCost,
+      breakEvenPrice: bid.breakEvenPrice,
+    };
+  });
+  const cheapest = Math.min(...rows.map((row) => row.price));
+  const acrylic = rows.find((row) => row.cab === 'acrylic');
+  return rows
+    .map((row) => ({
+      ...row,
+      cheapest: row.price === cheapest,
+      delta: row.price - cheapest,
+      upgradeFromAcrylic: acrylic ? row.price - acrylic.price : 0,
+    }))
+    .sort((a, b) => a.price - b.price);
+}
+
+/**
+ * One-line verdict for the four-cab table. Acrylic is the
+ * cheap-special tube; glass is the upgrade they ask for after
+ * they have already shopped that number.
+ */
+export function cabNote(rows) {
+  if (!Array.isArray(rows) || rows.length < 4) {
+    throw new Error('cab comparison missing rows');
+  }
+  const acrylic = rows.find((row) => row.cab === 'acrylic');
+  const standard = rows.find((row) => row.cab === 'standard');
+  const wood = rows.find((row) => row.cab === 'wood-panel');
+  const glass = rows.find((row) => row.cab === 'glass-cab');
+  if (!acrylic || !standard || !wood || !glass) {
+    throw new Error('cab comparison missing rows');
+  }
+  return [
+    `The acrylic tube is the cheap-special cab at ${money(acrylic.price)}.`,
+    `A standard enclosed cab adds ${money(standard.upgradeFromAcrylic)}.`,
+    `Wood-panel adds ${money(wood.upgradeFromAcrylic)}.`,
+    `Glass adds ${money(glass.upgradeFromAcrylic)} (${money(glass.price)}).`,
+    'Matching the acrylic number on a glass-cab ask is the losing bid.',
+  ].join(' ');
+}
+
 export const SUPPLY_PRESETS = Object.freeze([
   {
     id: 'contractor-supplied',

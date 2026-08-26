@@ -627,6 +627,17 @@ products:
           (walk-away about $5,811); $6,995 covers that set (keeps about
           $1,184) and a wrong opening walks away about $9,226. Public URL
           remains owner-gated.
+      - as_of: 2026-08-26
+        signals:
+          live_url_visitors: null
+          local_events_reported: 0
+        note: >-
+          Added acrylic versus standard versus wood-panel versus glass
+          cab comparison (compareCab) plus an acrylic-vs-glass-home-elevator-cab
+          page. Default cheap special: glass adds $8,354.52 over acrylic
+          ($28,108.09 → $36,462.61); matching the acrylic bid on a
+          glass-cab ask sits $1,062.00 under the glass walk-away of
+          $29,170.09. Public URL remains owner-gated.
   - slug: freelance-retainer-calculator
     surface: static-page-in-repo
     readings:

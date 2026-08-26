@@ -11,6 +11,7 @@ import { readFileSync } from 'node:fs';
 const html = readFileSync(new URL('./index.html', import.meta.url), 'utf8');
 const seo = readFileSync(new URL('./how-much-to-charge-to-install-a-home-elevator.html', import.meta.url), 'utf8');
 const supplySeo = readFileSync(new URL('./should-i-install-a-customer-supplied-home-elevator.html', import.meta.url), 'utf8');
+const cabSeo = readFileSync(new URL('./acrylic-vs-glass-home-elevator-cab.html', import.meta.url), 'utf8');
 
 const RAW_TEXT_ELEMENTS = ['textarea', 'script', 'style'];
 
@@ -51,6 +52,8 @@ test('the module script survives parsing and would actually execute', () => {
   assert.match(scriptSource, /calculateBid/, 'the app script did not parse as a script element');
   assert.match(scriptSource, /compareDrive/, 'drive comparison is missing from the executable script');
   assert.match(scriptSource, /compareHoistway/, 'hoistway comparison is missing from the executable script');
+  assert.match(scriptSource, /compareCab/, 'cab comparison is missing from the executable script');
+  assert.match(scriptSource, /cabNote/, 'cab verdict is missing from the executable script');
   assert.match(scriptSource, /compareOwnerSupply/, 'owner-supply comparison is missing from the executable script');
   assert.match(scriptSource, /ownerSupplyNote/, 'owner-supply verdict is missing from the executable script');
   assert.match(scriptSource, /formatBidSummary/, 'copy-summary helper is missing from the executable script');
@@ -70,7 +73,7 @@ test('inputs and result fields for the primary journey are present', () => {
   for (const id of [
     'drive', 'hoistway', 'cab', 'stops', 'travelFeet', 'travelMiles',
     'hourlyWage', 'targetMargin', 'proposedPrice',
-    'price', 'breakEven', 'compare', 'drives', 'supply', 'supplyNote', 'copySummary', 'usageOptOut', 'jobPresets',
+    'price', 'breakEven', 'compare', 'drives', 'cabs', 'cabNote', 'supply', 'supplyNote', 'copySummary', 'usageOptOut', 'jobPresets',
   ]) {
     assert.ok(declaredIds.has(id), `missing #${id}`);
   }
@@ -83,7 +86,27 @@ test('the landing page names the problem in the contractor\'s words', () => {
   assert.match(html, /SoftwareApplication/);
   assert.match(html, /Same house, four drives/);
   assert.match(html, /vs pneumatic/);
+  assert.match(html, /Same house, four cabs/);
+  assert.match(html, /vs acrylic/);
   assert.match(html, /Same house, who bought the unit/);
+});
+
+test('the cab article answers the search phrase and stays crawlable', () => {
+  assert.match(cabSeo, /Acrylic vs glass home elevator cab/i);
+  assert.match(cabSeo, /FAQPage/);
+  assert.match(cabSeo, /\$28,108\.09/);
+  assert.match(cabSeo, /\$36,462\.61/);
+  assert.match(cabSeo, /\$8,354\.52/);
+  assert.match(cabSeo, /\$29,170\.09/);
+  assert.match(cabSeo, /\$1,062\.00/);
+  assert.match(cabSeo, /index\.html/);
+  assert.match(cabSeo, /No warranty/);
+  assert.match(cabSeo, /no SLA/i);
+  assert.doesNotMatch(cabSeo, /<textarea/i);
+});
+
+test('the landing page links the acrylic-versus-glass cab question', () => {
+  assert.match(html, /acrylic-vs-glass-home-elevator-cab\.html/);
 });
 
 test('the owner-supply article answers the search phrase and stays crawlable', () => {
@@ -119,5 +142,6 @@ test('the SEO article answers the search phrase and stays crawlable', () => {
   assert.match(seo, /Pneumatic versus hydraulic on the same house/i);
   assert.match(seo, /index\.html/);
   assert.match(seo, /should-i-install-a-customer-supplied-home-elevator\.html/);
+  assert.match(seo, /acrylic-vs-glass-home-elevator-cab\.html/);
   assert.doesNotMatch(seo, /<textarea/i);
 });

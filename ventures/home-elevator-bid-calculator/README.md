@@ -74,7 +74,9 @@ elevator.
 It then reports price per stop, effective hourly rate, the hour
 split, a four-drive comparison on the same house, a five-hoistway
 comparison on the same house (the shaft upgrade versus the
-through-floor special), a who-supplies comparison (you supply the
+through-floor special), a four-cab comparison (acrylic tube versus
+standard versus wood-panel versus glass — the upgrade after they
+shopped the tube), a who-supplies comparison (you supply the
 unit versus they already bought one that fits versus a wrong
 opening), and the **walk-away price**. Entering a price already on
 the table scores it against the same cost base, including the
@@ -84,7 +86,8 @@ the result into a plain-text draft ready to paste into a proposal.
 The arithmetic lives in [`calc.mjs`](calc.mjs). See
 [`calc.test.mjs`](calc.test.mjs).
 
-Search phrases: [`how-much-to-charge-to-install-a-home-elevator.html`](how-much-to-charge-to-install-a-home-elevator.html)
+Search phrases: [`how-much-to-charge-to-install-a-home-elevator.html`](how-much-to-charge-to-install-a-home-elevator.html),
+[`acrylic-vs-glass-home-elevator-cab.html`](acrylic-vs-glass-home-elevator-cab.html),
 and [`should-i-install-a-customer-supplied-home-elevator.html`](should-i-install-a-customer-supplied-home-elevator.html).
 
 ## Privacy
@@ -105,7 +108,7 @@ when the browser sends Do Not Track or Global Privacy Control. See
 [`portfolio/usage/`](../../portfolio/usage/README.md).
 
 Events counted: `bid_calculated`, `preset_applied`, `drive_changed`,
-`hoistway_changed`, `cab_changed`, `proposed_price_compared`,
+`hoistway_changed`, `cab_changed`, `cab_compared`, `proposed_price_compared`,
 `summary_copied`, `owner_supply_compared`.
 
 ## Limitations
