@@ -3309,3 +3309,32 @@ ventures:
       Pass, conditionally: outputs are estimates based on user-supplied plan
       figures, no savings are guaranteed, and users must verify invoices,
       contracts, and seat activity before changing a subscription.
+
+  - slug: consent-change-record
+    scores:
+      ai_leverage: 3
+      autonomous_ops: 9
+      time_to_revenue: 5
+      gross_margin: 10
+      defensibility: 4
+      distribution: 4
+    composite: 5.833
+    rater_b: null
+    floor: 3
+    floor_dimension: ai_leverage
+    floor_note: >-
+      The first release is deterministic and local-first. Repeatable customer
+      trace history could become a workflow moat only after agency demand is
+      measured.
+    basis: >-
+      Graduated on 2026-08-24 as a browser-local comparator for customer-owned
+      consent traces. It reports observable request and storage-key changes
+      without capturing page content, visitor data, credentials, or making a
+      compliance determination.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Pass, conditionally: the output is explicitly limited to the supplied
+      browser observations, distinguishes unobserved from absent, and keeps
+      legal interpretation with the customer and their qualified advisers.

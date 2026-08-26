@@ -2346,3 +2346,15 @@ products:
           Repair-and-merge of unique #1353 SaaS seat true-up calculator onto
           current main. Public URL remains owner-gated; local counting honors
           DNT/GPC and a persistent opt-out.
+
+  - slug: consent-change-record
+    surface: static-page-in-repo
+    readings:
+      - as_of: 2026-08-26
+        signals:
+          live_url_visitors: null
+          comparisons: 0
+        note: >-
+          Repair-and-merge of unique #1223 consent change record onto current
+          main. Public URL remains owner-gated; local counting honors DNT/GPC
+          and a visible opt-out. Keep #1258 open for the HAR-diff extra.
