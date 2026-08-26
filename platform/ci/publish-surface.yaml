@@ -103,6 +103,9 @@ workflows:
 - workflow: home-elevator-bid-calculator-ci.yml
   classification: none
   publishes: []
+- workflow: interior-door-bid-calculator-ci.yml
+  classification: none
+  publishes: []
 - workflow: janitorial-bid-calculator-ci.yml
   classification: none
   publishes: []
@@ -161,9 +164,6 @@ workflows:
 - workflow: repository-branch-hygiene-ci.yml
   classification: none
   publishes: []
-- workflow: reverb-fee-calculator-ci.yml
-  classification: none
-  publishes: []
 - workflow: retail-pilot-intel-ci.yml
   classification: none
   publishes: []
@@ -178,6 +178,9 @@ workflows:
     step: uses amondnet/vercel-action
     gates:
     - ${{ vars.VERCEL_DEPLOY == 'true' }}
+- workflow: reverb-fee-calculator-ci.yml
+  classification: none
+  publishes: []
 - workflow: shopify-a11y-evidence-ci.yml
   classification: none
   publishes: []
