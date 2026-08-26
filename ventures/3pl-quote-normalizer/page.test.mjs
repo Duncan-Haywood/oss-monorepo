@@ -22,6 +22,21 @@ test('negotiation page builds a copyable brief without recommending a provider',
   assert.match(compare, /negotiation\.html/);
 });
 
+test('drivers page ranks saved quote lines without telling the user to negotiate', async () => {
+  const page = await readFile(new URL('./drivers.html', import.meta.url), 'utf8');
+  const index = await readFile(new URL('./index.html', import.meta.url), 'utf8');
+  const sitemap = await readFile(new URL('./sitemap.xml', import.meta.url), 'utf8');
+  assert.match(page, /costDrivers/);
+  assert.match(page, /cost_drivers_viewed/);
+  assert.match(page, /not a script for the provider conversation/);
+  assert.match(page, /not financial, tax, legal, or engineering advice/);
+  assert.match(page, /Best-effort hosting, no SLA/);
+  assert.match(page, /github.com\/sponsors\/Duncan-Haywood/);
+  assert.doesNotMatch(page, /should negotiate|must ask|recommend a provider/);
+  assert.match(index, /drivers\.html/);
+  assert.match(sitemap, /drivers\.html/);
+});
+
 test('comparison page exposes two monthly quote inputs and disclaimer', async () => {
   const page = await readFile(new URL('./compare.html', import.meta.url), 'utf8');
   assert.match(page, /name="first"/);
