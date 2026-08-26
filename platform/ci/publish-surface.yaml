@@ -258,6 +258,9 @@ workflows:
 - workflow: sod-install-bid-calculator-ci.yml
   classification: none
   publishes: []
+- workflow: soffit-fascia-bid-calculator-ci.yml
+  classification: none
+  publishes: []
 - workflow: source-silence-detector-ci.yml
   classification: none
   publishes: []
