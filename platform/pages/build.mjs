@@ -21,6 +21,7 @@
 import { promises as fs, existsSync } from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import zlib from 'node:zlib';
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 export const REPO_ROOT = path.resolve(HERE, '..', '..');
@@ -231,6 +232,29 @@ export function readMeta(html, slug) {
 async function countPages(sourceDir) {
   const entries = await fs.readdir(sourceDir, { withFileTypes: true });
   return entries.filter((e) => e.isFile() && e.name.endsWith('.html')).length;
+}
+
+/**
+ * Every `.html` file published under `dir`, as paths relative to it.
+ *
+ * This reads the built output rather than the sources, so it sees exactly what
+ * a visitor can reach — after exclusions, after nested directories, after any
+ * page a venture added without telling anyone.
+ */
+export async function publishedPages(dir, prefix = '') {
+  const entries = await fs.readdir(dir, { withFileTypes: true });
+  const pages = [];
+
+  for (const entry of entries) {
+    const relative = prefix ? `${prefix}/${entry.name}` : entry.name;
+    if (entry.isDirectory()) {
+      pages.push(...(await publishedPages(path.join(dir, entry.name), relative)));
+    } else if (entry.isFile() && entry.name.endsWith('.html') && entry.name !== '404.html') {
+      pages.push(relative);
+    }
+  }
+
+  return pages.sort();
 }
 
 // ---------------------------------------------------------------------------
@@ -890,15 +914,18 @@ export function renderRobots(baseUrl) {
 
 /**
  * The sitemap `robots.txt` names. A `<sitemapindex>` cannot hold `<url>`
- * entries, so the hub itself and any venture without its own sitemap live in
- * `sitemap-hub.xml`, which this index also lists — otherwise a crawler
- * following robots.txt would reach the ventures and never the front page.
+ * entries, so the hub page itself lives in `sitemap-hub.xml`, which this index
+ * also lists — otherwise a crawler following robots.txt would reach the
+ * ventures and never the front page.
+ *
+ * Every published venture gets a generated sitemap (see `renderVentureSitemap`),
+ * so there is no venture the index can leave out.
  */
 export function renderSitemapIndex(surfaces, baseUrl) {
   const entries = [`  <sitemap><loc>${baseUrl}sitemap-hub.xml</loc></sitemap>`].concat(
-    surfaces
-      .filter((surface) => surface.hasSitemap)
-      .map((surface) => `  <sitemap><loc>${baseUrl}${surface.slug}/sitemap.xml</loc></sitemap>`),
+    surfaces.map(
+      (surface) => `  <sitemap><loc>${baseUrl}${surface.slug}/sitemap.xml</loc></sitemap>`,
+    ),
   );
 
   return `<?xml version="1.0" encoding="UTF-8"?>
@@ -908,12 +935,46 @@ ${entries.join('\n')}
 `;
 }
 
-export function renderHubSitemap(surfaces, baseUrl) {
-  const urls = [`  <url><loc>${baseUrl}</loc></url>`].concat(
-    surfaces
-      .filter((surface) => !surface.hasSitemap)
-      .map((surface) => `  <url><loc>${baseUrl}${surface.slug}/</loc></url>`),
-  );
+export function renderHubSitemap(baseUrl) {
+  return `<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <url><loc>${baseUrl}</loc></url>
+</urlset>
+`;
+}
+
+/**
+ * The URL a published page is served at, relative to the site root.
+ * `index.html` is served as its directory, so it is listed that way.
+ */
+export function pageUrlPath(slug, relativePath) {
+  const posix = relativePath.split(path.sep).join('/');
+  if (posix === 'index.html') return `${slug}/`;
+  if (posix.endsWith('/index.html')) return `${slug}/${posix.slice(0, -'index.html'.length)}`;
+  return `${slug}/${posix}`;
+}
+
+/**
+ * A venture's sitemap, generated from the pages the build actually published.
+ *
+ * The ventures ship their own hand-written `sitemap.xml` files, and copying
+ * those verbatim published two defects at once. They go stale — a venture
+ * grows a landing page and nobody edits the sitemap, so 70 of the 186 pages
+ * on this site were in no sitemap at all. And several were written against
+ * `…/monorepo-projects/ventures/<slug>/`, a path this site does not serve
+ * (products are mounted at `/<slug>/`), so every URL they advertised was a
+ * 404 — the worst possible thing to hand a crawler, since organic search is
+ * how these tools are meant to be found.
+ *
+ * Generating from the output makes both impossible by construction: a page is
+ * listed because it shipped, at the URL it actually shipped to.
+ */
+export function renderVentureSitemap(slug, relativePages, baseUrl) {
+  const urls = relativePages
+    .map((relative) => `${baseUrl}${pageUrlPath(slug, relative)}`)
+    .sort()
+    .map((url) => `  <url><loc>${url}</loc></url>`);
+
   return `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
 ${urls.join('\n')}
@@ -980,12 +1041,20 @@ export async function buildSite({
       })),
     );
 
+    // Overwrite whatever sitemap the venture shipped with one generated from
+    // what actually published. See `renderVentureSitemap` for why.
+    const pages = await publishedPages(destination);
+    await fs.writeFile(
+      path.join(destination, 'sitemap.xml'),
+      renderVentureSitemap(surface.slug, pages, base),
+    );
+
     surfaces.push({
       ...surface,
       title,
       description,
       pageCount: await countPages(surface.sourceDir),
-      hasSitemap: await exists(path.join(destination, 'sitemap.xml')),
+      publishedPageCount: pages.length,
     });
     log(`  ${surface.slug}`);
   }
@@ -995,7 +1064,9 @@ export async function buildSite({
   await fs.writeFile(path.join(outDir, '404.html'), renderNotFound(base));
 
   await fs.writeFile(path.join(outDir, 'sitemap.xml'), renderSitemapIndex(surfaces, base));
-  await fs.writeFile(path.join(outDir, 'sitemap-hub.xml'), renderHubSitemap(surfaces, base));
+  await fs.writeFile(path.join(outDir, 'sitemap-hub.xml'), renderHubSitemap(base));
+
+  await fs.writeFile(path.join(outDir, 'favicon.ico'), renderFavicon());
 
   // Tell Jekyll (which GitHub Pages runs by default) to leave the tree alone;
   // without this, any directory starting with `_` is silently dropped.
@@ -1004,6 +1075,98 @@ export async function buildSite({
   const wrapped = await addSiteChrome({ outDir, surfaces });
 
   return { outDir, baseUrl: base, surfaces, repairs, wrapped };
+}
+
+// ---------------------------------------------------------------------------
+// Favicon
+// ---------------------------------------------------------------------------
+
+/**
+ * Every browser requests `/favicon.ico` on its own, for every page, whether or
+ * not the markup asks for one -- so without this file all 183 published pages
+ * log a 404 on load and open as an anonymous blank tab. The ventures' own
+ * pages cannot be asked to link an icon (there are 183 of them and they are
+ * the ventures' files, not this build's), and only `.ico` at the origin root
+ * is fetched automatically, so the icon has to be generated here.
+ *
+ * Built rather than committed so the tree stays reviewable text: a 16x16 PNG
+ * assembled by hand and wrapped in a single-image ICO container. Deterministic
+ * -- same bytes on every run.
+ */
+function pngChunk(type, data) {
+  const length = Buffer.alloc(4);
+  length.writeUInt32BE(data.length);
+  const body = Buffer.concat([Buffer.from(type, 'ascii'), data]);
+  const crc = Buffer.alloc(4);
+  crc.writeUInt32BE(crc32(body) >>> 0);
+  return Buffer.concat([length, body, crc]);
+}
+
+let CRC_TABLE = null;
+function crc32(buffer) {
+  if (!CRC_TABLE) {
+    CRC_TABLE = new Int32Array(256);
+    for (let n = 0; n < 256; n += 1) {
+      let c = n;
+      for (let k = 0; k < 8; k += 1) c = c & 1 ? 0xedb88320 ^ (c >>> 1) : c >>> 1;
+      CRC_TABLE[n] = c;
+    }
+  }
+  let crc = -1;
+  for (const byte of buffer) crc = CRC_TABLE[(crc ^ byte) & 0xff] ^ (crc >>> 8);
+  return crc ^ -1;
+}
+
+export function renderFavicon() {
+  const size = 16;
+  const ink = [36, 61, 53]; // the hub's accent green, so the tab matches the site
+  const mark = [197, 237, 181];
+
+  // Three rising bars on a rounded square. Chosen after looking at it at
+  // actual size: anything with a diagonal turns to mush at 16px, while flat
+  // bars stay crisp and read as "numbers" rather than as a generic glyph.
+  const BARS = [
+    { x0: 3, x1: 4, top: 9 },
+    { x0: 7, x1: 8, top: 6 },
+    { x0: 11, x1: 12, top: 3 },
+  ];
+  const raw = [];
+  for (let y = 0; y < size; y += 1) {
+    raw.push(0); // PNG filter byte: none
+    for (let x = 0; x < size; x += 1) {
+      const corner = (x < 2 || x > 13) && (y < 2 || y > 13);
+      const inBar = BARS.some((b) => x >= b.x0 && x <= b.x1 && y >= b.top && y <= 12);
+      if (corner) raw.push(0, 0, 0, 0);
+      else if (inBar) raw.push(...mark, 255);
+      else raw.push(...ink, 255);
+    }
+  }
+
+  const ihdr = Buffer.alloc(13);
+  ihdr.writeUInt32BE(size, 0);
+  ihdr.writeUInt32BE(size, 4);
+  ihdr[8] = 8; // bit depth
+  ihdr[9] = 6; // colour type: RGBA
+  const png = Buffer.concat([
+    Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]),
+    pngChunk('IHDR', ihdr),
+    pngChunk('IDAT', zlib.deflateSync(Buffer.from(raw), { level: 9 })),
+    pngChunk('IEND', Buffer.alloc(0)),
+  ]);
+
+  // ICO container: 6-byte header, one 16-byte directory entry, then the PNG.
+  const header = Buffer.alloc(6);
+  header.writeUInt16LE(0, 0);
+  header.writeUInt16LE(1, 2); // type: icon
+  header.writeUInt16LE(1, 4); // one image
+  const entry = Buffer.alloc(16);
+  entry[0] = size;
+  entry[1] = size;
+  entry.writeUInt16LE(1, 4); // colour planes
+  entry.writeUInt16LE(32, 6); // bits per pixel
+  entry.writeUInt32LE(png.length, 8);
+  entry.writeUInt32LE(header.length + entry.length, 12);
+  return Buffer.concat([header, entry, png]);
 }
 
 // ---------------------------------------------------------------------------
