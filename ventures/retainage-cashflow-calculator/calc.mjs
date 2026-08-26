@@ -346,3 +346,15 @@ export function worksheetSummary({ projectName, payerName, invoiceReference, due
     'This is a private worksheet export, not advice or evidence of entitlement. Verify the figures, contract, payment terms, and local requirements before relying on it.'
   ].join('\n');
 }
+
+export function evidenceSnapshot({ inputs, result, projectName = '', payerName = '', invoiceReference = '', dueDate = '' }) {
+  const { inputs: _resultInputs, values: _resultValues, ...modeledResults } = result;
+  return {
+    exportedAt: new Date().toISOString(),
+    product: 'construction-retainage-calculator',
+    project: { projectName: projectName.trim(), payerName: payerName.trim(), invoiceReference: invoiceReference.trim(), dueDate: dueDate.trim() },
+    inputs,
+    modeledResults,
+    note: 'User-provided inputs and deterministic modeled results. Review against the contract and records; this is not legal, tax, financial, or engineering advice.'
+  };
+}

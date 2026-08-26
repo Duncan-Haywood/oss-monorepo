@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
-import { parseInputs, decodeDraft, computeAll, delayScenarios, followUpDraft, releaseSchedule, releaseNote, comparePartialReleaseOffer, partialReleaseNote, worksheetSummary, compareRetainageRates, rateComparisonNote } from './calc.mjs';
+import { parseInputs, decodeDraft, computeAll, delayScenarios, followUpDraft, releaseSchedule, releaseNote, comparePartialReleaseOffer, partialReleaseNote, worksheetSummary, compareRetainageRates, rateComparisonNote, evidenceSnapshot } from './calc.mjs';
 
 test('calculates retainage and carrying cost without rounding drift', () => {
   const parsed = parseInputs({ contractValue: '100000', retainagePct: '10', paidToDate: '75000', daysOutstanding: '90', annualCarryingRatePct: '12' });
@@ -290,6 +290,23 @@ test('worksheet summary includes the retainage-rate comparison', () => {
   });
   assert.match(summary, /Retainage rate comparison \(modeled on a 90-day hold\):/);
   assert.match(summary, /10\.0% \(this worksheet\): withheld \$10000\.00; progress cash \$90000\.00; bid to keep progress cash \$111111\.11 \(\$11111\.11 extra\)/);
+});
+
+test('snapshot contains local inputs, modeled results, and safety note', () => {
+  const snapshot = evidenceSnapshot({ inputs: { contractValue: 100000 }, result: { earnedUnpaid: 25000, inputs: { contractValue: 100000 } }, projectName: ' Main Street ' });
+  assert.equal(snapshot.project.projectName, 'Main Street');
+  assert.deepEqual(snapshot.inputs, { contractValue: 100000 });
+  assert.equal(snapshot.modeledResults.earnedUnpaid, 25000);
+  assert.equal(snapshot.modeledResults.inputs, undefined);
+  assert.match(snapshot.note, /not legal/);
+  assert.match(snapshot.exportedAt, /^20\d\d-/);
+});
+
+test('the page offers a private JSON evidence snapshot', () => {
+  const page = readFileSync(new URL('./index.html', import.meta.url), 'utf8');
+  assert.match(page, /id="jsonSnapshot"/);
+  assert.match(page, /evidenceSnapshot\(/);
+  assert.match(page, /retainage-cashflow:snapshot-downloads/);
 });
 
 test('the page restores drafts through decodeDraft, not a bare JSON.parse', () => {
