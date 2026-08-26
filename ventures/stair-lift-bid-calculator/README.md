@@ -74,15 +74,19 @@ a **home elevator** (a shaft). This prices a stair lift.
 It then reports price per lift, effective hourly rate, the hour
 split, a four-rail comparison on the same stair, a five-chair
 comparison on the same stair (the power-swivel upgrade versus
-the standard special), and the **walk-away price**. Entering a
+the standard special), a three-way **who-supplies** comparison
+(you supply the lift, they supply one that fits, they supply
+one that does not), and the **walk-away price**. Entering a
 price already on the table scores it against the same cost
-base. **Copy bid summary** turns the result into a plain-text
-draft ready to paste into a proposal.
+base — including the $795 “just install what I bought”
+special. **Copy bid summary** turns the result into a
+plain-text draft ready to paste into a proposal.
 
 The arithmetic lives in [`calc.mjs`](calc.mjs). See
 [`calc.test.mjs`](calc.test.mjs).
 
-Search phrase: [`how-much-to-charge-to-install-a-stair-lift.html`](how-much-to-charge-to-install-a-stair-lift.html).
+Search phrases: [`how-much-to-charge-to-install-a-stair-lift.html`](how-much-to-charge-to-install-a-stair-lift.html),
+[`should-i-install-a-customer-supplied-stair-lift.html`](should-i-install-a-customer-supplied-stair-lift.html).
 
 ## Privacy
 
@@ -103,7 +107,7 @@ when the browser sends Do Not Track or Global Privacy Control. See
 
 Events counted: `bid_calculated`, `preset_applied`, `rail_changed`,
 `chair_changed`, `attach_changed`, `proposed_price_compared`,
-`summary_copied`.
+`owner_supply_compared`, `summary_copied`.
 
 ## Limitations
 

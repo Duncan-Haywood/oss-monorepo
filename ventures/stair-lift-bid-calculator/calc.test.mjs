@@ -4,12 +4,15 @@ import {
   calculateBid,
   compareRail,
   compareChair,
+  compareOwnerSupply,
+  ownerSupplyNote,
   formatBidSummary,
   travelHours,
   suggestedRailKit,
   suggestedChairKit,
   suggestedAttachKit,
   suggestedExtraKit,
+  suggestedOwnerCallbackKit,
   JOB_PRESETS,
 } from './calc.mjs';
 
@@ -199,6 +202,86 @@ test('job presets cover the cheap special and the losing curved job', () => {
   assert.ok(JOB_PRESETS.some((job) => job.rail === 'straight-one' && job.chair === 'standard'));
   assert.ok(JOB_PRESETS.some((job) => job.rail === 'curved' && job.chair === 'heavy-duty'));
   assert.ok(JOB_PRESETS.some((job) => job.liftCount === 2));
+});
+
+test('compareOwnerSupply zeros the rail and chair invoices and keeps the set hours', () => {
+  const rows = compareOwnerSupply(special());
+  assert.equal(rows.length, 3);
+  const contractor = rows.find((row) => row.supply === 'contractor-supplied');
+  const fits = rows.find((row) => row.supply === 'owner-fits');
+  const wrong = rows.find((row) => row.supply === 'owner-wrong');
+  assert.ok(contractor);
+  assert.ok(fits);
+  assert.ok(wrong);
+  assert.equal(fits.cheapest, true);
+  assert.ok(fits.price < contractor.price);
+  assert.ok(fits.fixtureMaterial < contractor.fixtureMaterial);
+  assert.equal(fits.totalHours, contractor.totalHours);
+  assert.ok(wrong.totalHours > fits.totalHours);
+  assert.ok(wrong.price > fits.price);
+  assert.ok(wrong.attachMaterial > fits.attachMaterial);
+  assert.ok(wrong.hoursTravel > fits.hoursTravel);
+  assert.ok(wrong.hoursAttach > fits.hoursAttach);
+});
+
+test('compareOwnerSupply does not leak a typed invoice into the owner-supplied rows', () => {
+  const baseline = compareOwnerSupply(special()).find((row) => row.supply === 'owner-fits');
+  const overridden = compareOwnerSupply({
+    ...special(),
+    railInvoice: 9999,
+    chairInvoice: 4500,
+  }).find((row) => row.supply === 'owner-fits');
+  assert.ok(baseline);
+  assert.ok(overridden);
+  assert.equal(overridden.fixtureMaterial, baseline.fixtureMaterial);
+  assert.ok(Math.abs(overridden.price - baseline.price) < 1e-9);
+});
+
+test('compareOwnerSupply scores a $795 install-only special against each cost base', () => {
+  const rows = compareOwnerSupply(special(), { installOnlyPrice: 795 });
+  const contractor = rows.find((row) => row.supply === 'contractor-supplied');
+  const fits = rows.find((row) => row.supply === 'owner-fits');
+  const wrong = rows.find((row) => row.supply === 'owner-wrong');
+  assert.equal(contractor.installOnly.belowBreakEven, true);
+  assert.equal(fits.installOnly.belowBreakEven, true);
+  assert.equal(wrong.installOnly.belowBreakEven, true);
+  assert.ok(fits.breakEvenPrice > 795);
+  const note = ownerSupplyNote(rows);
+  assert.match(note, /\$795\.00/);
+  assert.match(note, /lose money even when they bought the lift/i);
+  assert.match(note, /walk-away/i);
+});
+
+test('ownerSupplyNote names the bid drop when no install-only price is set', () => {
+  const note = ownerSupplyNote(compareOwnerSupply(special()));
+  assert.match(note, /Zeroing the rail and chair invoices drops the bid/i);
+  assert.match(note, /wrong-rail callback/i);
+});
+
+test('ownerSupplyNote names the path that covers when only the owner-supplied set holds', () => {
+  const rows = compareOwnerSupply(special());
+  const fits = rows.find((row) => row.supply === 'owner-fits');
+  const between = Math.round((fits.breakEvenPrice + rows.find((row) => row.supply === 'contractor-supplied').breakEvenPrice) / 2);
+  const scored = compareOwnerSupply(special(), { installOnlyPrice: between });
+  assert.match(ownerSupplyNote(scored), /covers the set if their lift actually fits/i);
+});
+
+test('ownerSupplyNote uses proposedPrice when installOnlyPrice is omitted', () => {
+  const rows = compareOwnerSupply({ ...special(), proposedPrice: 795 });
+  assert.equal(rows[0].installOnlyPrice, 795);
+  assert.match(ownerSupplyNote(rows), /\$795\.00/);
+});
+
+test('ownerSupplyNote rejects a short row list', () => {
+  assert.throws(() => ownerSupplyNote([]), /missing rows/);
+  assert.throws(() => ownerSupplyNote([{ supply: 'contractor-supplied' }]), /missing rows/);
+});
+
+test('suggestedOwnerCallbackKit is a second trip plus missing hardware', () => {
+  const kit = suggestedOwnerCallbackKit();
+  assert.equal(kit.hoursCallbackTrip, suggestedExtraKit().hoursTrip);
+  assert.ok(kit.hoursMissingHardwareEach > 0);
+  assert.ok(kit.missingHardwareEach > 0);
 });
 
 test('formatBidSummary is a customer-facing draft without wages', () => {

@@ -10,6 +10,7 @@ import { readFileSync } from 'node:fs';
 
 const html = readFileSync(new URL('./index.html', import.meta.url), 'utf8');
 const seo = readFileSync(new URL('./how-much-to-charge-to-install-a-stair-lift.html', import.meta.url), 'utf8');
+const supplySeo = readFileSync(new URL('./should-i-install-a-customer-supplied-stair-lift.html', import.meta.url), 'utf8');
 
 const RAW_TEXT_ELEMENTS = ['textarea', 'script', 'style'];
 
@@ -50,6 +51,8 @@ test('the module script survives parsing and would actually execute', () => {
   assert.match(scriptSource, /calculateBid/, 'the app script did not parse as a script element');
   assert.match(scriptSource, /compareRail/, 'rail comparison is missing from the executable script');
   assert.match(scriptSource, /compareChair/, 'chair comparison is missing from the executable script');
+  assert.match(scriptSource, /compareOwnerSupply/, 'owner-supply comparison is missing from the executable script');
+  assert.match(scriptSource, /ownerSupplyNote/, 'owner-supply verdict is missing from the executable script');
   assert.match(scriptSource, /formatBidSummary/, 'copy-summary helper is missing from the executable script');
 });
 
@@ -67,7 +70,7 @@ test('inputs and result fields for the primary journey are present', () => {
   for (const id of [
     'rail', 'chair', 'attach', 'liftCount', 'travelMiles',
     'hourlyWage', 'targetMargin', 'proposedPrice',
-    'price', 'breakEven', 'compare', 'chairs', 'copySummary', 'usageOptOut', 'jobPresets',
+    'price', 'breakEven', 'compare', 'chairs', 'supply', 'supplyNote', 'copySummary', 'usageOptOut', 'jobPresets',
   ]) {
     assert.ok(declaredIds.has(id), `missing #${id}`);
   }
@@ -80,6 +83,8 @@ test('the landing page names the problem in the contractor\'s words', () => {
   assert.match(html, /SoftwareApplication/);
   assert.match(html, /Same stair, five chairs/);
   assert.match(html, /vs standard/);
+  assert.match(html, /Same stair, who bought the lift/);
+  assert.match(html, /should-i-install-a-customer-supplied-stair-lift\.html/);
 });
 
 test('disclaimer and privacy line are visible, not only in the README', () => {
@@ -97,4 +102,20 @@ test('the SEO article answers the search phrase and points back to the calculato
   assert.match(seo, /\$3,995/);
   assert.match(seo, /No warranty/);
   assert.match(seo, /wheelchair ramp/i);
+  assert.match(seo, /should-i-install-a-customer-supplied-stair-lift\.html/);
+});
+
+test('the owner-supply article answers the search phrase and stays crawlable', () => {
+  assert.match(supplySeo, /Should I install a customer-supplied stair lift/i);
+  assert.match(supplySeo, /FAQPage/);
+  assert.match(supplySeo, /\$795/);
+  assert.match(supplySeo, /wrong rail/i);
+  assert.match(supplySeo, /index\.html/);
+  assert.match(supplySeo, /No warranty/);
+  assert.match(supplySeo, /no SLA/i);
+  assert.doesNotMatch(supplySeo, /<textarea/i);
+});
+
+test('the landing page links the customer-supplied lift question', () => {
+  assert.match(html, /should-i-install-a-customer-supplied-stair-lift\.html/);
 });

@@ -23,6 +23,13 @@
 // shower* (tile, slope, glass), *entry door*, and *home
 // elevator* (a shaft). This prices a stair lift: the rail,
 // the chair, the attach, and the extras.
+//
+// Owners also shop a second special: “I already bought one
+// on Facebook — just install it for $795.” Zeroing the rail
+// and chair invoices is not a free set. Templating their
+// used rail still takes hours. Missing brackets, a rail that
+// is too short, or an indoor unit on an outdoor stair is a
+// second trip plus hardware they expect you to eat.
 
 export const RAIL_PRESETS = Object.freeze([
   { id: 'straight-one', label: 'Straight one-flight — the cheap special' },
@@ -511,6 +518,169 @@ export function compareChair(input) {
       upgradeFromStandard: standard ? row.price - standard.price : 0,
     }))
     .sort((a, b) => a.price - b.price);
+}
+
+export const SUPPLY_PRESETS = Object.freeze([
+  {
+    id: 'contractor-supplied',
+    label: 'You supply the lift',
+    detail: 'Rail and chair invoices stay in the bid',
+  },
+  {
+    id: 'owner-fits',
+    label: 'Owner supplies — it fits',
+    detail: 'No rail or chair invoice, same set hours',
+  },
+  {
+    id: 'owner-wrong',
+    label: 'Owner supplies — wrong rail / missing hardware',
+    detail: 'Inspect trip plus missing brackets',
+  },
+]);
+
+/**
+ * Starting callback hours and missing-hardware cost when the
+ * owner's used lift does not match the stair. Taken from the
+ * extra-kit trip plus a second attach pass so a typed rail
+ * invoice does not leak into the "they bought it" case.
+ */
+export function suggestedOwnerCallbackKit() {
+  const extra = suggestedExtraKit();
+  return {
+    hoursCallbackTrip: extra.hoursTrip,
+    hoursMissingHardwareEach: 2.0,
+    missingHardwareEach: 180,
+  };
+}
+
+function scoreInstallOnly(bid, installPrice) {
+  if (installPrice === null) return null;
+  return {
+    price: installPrice,
+    profit: installPrice - bid.totalCost,
+    margin: installPrice === 0 ? 0 : (installPrice - bid.totalCost) / installPrice * 100,
+    hourlyRate: bid.totalHours === 0 ? null : installPrice / bid.totalHours,
+    belowBreakEven: installPrice < bid.totalCost,
+  };
+}
+
+/**
+ * Price the same stair three ways: you supply the lift, the
+ * owner supplies one that fits, or the owner supplies one that
+ * does not fit and costs a second trip.
+ *
+ * Owner rows zero the rail and chair invoices and keep the
+ * current set hours — bolting their Facebook unit is still a
+ * set. The wrong-rail row adds a starting inspect trip and
+ * missing-bracket hardware on top of the current rates so a
+ * typed invoice does not leak into the "they bought it" case.
+ *
+ * An install-only price (options.installOnlyPrice, else the
+ * proposed price on the bid) is scored against each cost base.
+ * That is the $795 "just install what I bought" number
+ * contractors actually get shopped on.
+ */
+export function compareOwnerSupply(input, options = {}) {
+  const callback = suggestedOwnerCallbackKit();
+  const hoursTrip = number(input.hoursTrip ?? 0, 'Trip hours');
+  const hoursAttachEach = number(input.hoursAttachEach ?? 0, 'Attach hours each');
+  const attachInvoice = number(input.attachInvoice ?? 0, 'Attach invoice');
+
+  let installPrice = null;
+  const rawInstall = options.installOnlyPrice !== undefined
+    ? options.installOnlyPrice
+    : input.proposedPrice;
+  if (rawInstall !== null && rawInstall !== undefined && rawInstall !== '') {
+    installPrice = number(rawInstall, 'Install-only price');
+  }
+
+  const contractor = calculateBid(input);
+  const ownerFits = calculateBid({ ...input, railInvoice: 0, chairInvoice: 0 });
+  const ownerWrong = calculateBid({
+    ...input,
+    railInvoice: 0,
+    chairInvoice: 0,
+    hoursTrip: hoursTrip + callback.hoursCallbackTrip,
+    hoursAttachEach: hoursAttachEach + callback.hoursMissingHardwareEach,
+    attachInvoice: attachInvoice + callback.missingHardwareEach,
+  });
+
+  const rows = [
+    {
+      supply: 'contractor-supplied',
+      label: SUPPLY_PRESETS[0].label,
+      detail: SUPPLY_PRESETS[0].detail,
+      bid: contractor,
+    },
+    {
+      supply: 'owner-fits',
+      label: SUPPLY_PRESETS[1].label,
+      detail: SUPPLY_PRESETS[1].detail,
+      bid: ownerFits,
+    },
+    {
+      supply: 'owner-wrong',
+      label: SUPPLY_PRESETS[2].label,
+      detail: SUPPLY_PRESETS[2].detail,
+      bid: ownerWrong,
+    },
+  ].map((row) => ({
+    supply: row.supply,
+    label: row.label,
+    detail: row.detail,
+    price: row.bid.price,
+    totalCost: row.bid.totalCost,
+    totalHours: row.bid.totalHours,
+    fixtureMaterial: row.bid.fixtureMaterial,
+    attachMaterial: row.bid.attachMaterial,
+    hoursTravel: row.bid.hoursTravel,
+    hoursAttach: row.bid.hoursAttach,
+    breakEvenPrice: row.bid.breakEvenPrice,
+    installOnly: scoreInstallOnly(row.bid, installPrice),
+    savedVsContractor: contractor.price - row.bid.price,
+  }));
+
+  const cheapest = Math.min(...rows.map((row) => row.price));
+  return rows.map((row) => ({
+    ...row,
+    cheapest: row.price === cheapest,
+    delta: row.price - cheapest,
+    installOnlyPrice: installPrice,
+  }));
+}
+
+/**
+ * One-line verdict for the owner-supplied table. Names the
+ * install-only loss when that number is on the table; otherwise
+ * names the bid drop from zeroing the rail and chair.
+ */
+export function ownerSupplyNote(rows) {
+  if (!Array.isArray(rows) || rows.length < 3) {
+    throw new Error('Owner-supply comparison is missing rows');
+  }
+  const contractor = rows.find((row) => row.supply === 'contractor-supplied');
+  const fits = rows.find((row) => row.supply === 'owner-fits');
+  const wrong = rows.find((row) => row.supply === 'owner-wrong');
+  if (!contractor || !fits || !wrong) {
+    throw new Error('Owner-supply comparison is missing a supply row');
+  }
+
+  const drop = contractor.price - fits.price;
+  const callbackLift = wrong.price - fits.price;
+  if (contractor.installOnly && fits.installOnly) {
+    const asked = contractor.installOnly.price;
+    if (contractor.installOnly.belowBreakEven && fits.installOnly.belowBreakEven) {
+      return `At ${money(asked)} install-only you lose money even when they bought the lift. Walk-away on the owner-supplied set is ${money(fits.breakEvenPrice)}.`;
+    }
+    if (contractor.installOnly.belowBreakEven && !fits.installOnly.belowBreakEven) {
+      return `At ${money(asked)} the contractor-supplied job loses ${money(Math.abs(contractor.installOnly.profit))}. The same install-only number covers the set if their lift actually fits.`;
+    }
+    if (wrong.installOnly?.belowBreakEven) {
+      return `At ${money(asked)} the set covers if their lift fits. A wrong-rail callback still loses ${money(Math.abs(wrong.installOnly.profit))} — walk-away then is ${money(wrong.breakEvenPrice)}.`;
+    }
+    return `At ${money(asked)} both supply paths hold a margin. A wrong-rail callback still adds ${money(callbackLift)} to the bid.`;
+  }
+  return `Zeroing the rail and chair invoices drops the bid ${money(drop)}. A wrong-rail callback puts ${money(callbackLift)} back on.`;
 }
 
 function money(value) {
