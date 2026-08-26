@@ -6,7 +6,7 @@ import { BlockList, isIP } from "node:net";
 import { pipeline, Readable } from "node:stream";
 import { createBrotliDecompress, createGunzip, createInflate } from "node:zlib";
 import { diffWords, type DiffOp } from "./diff";
-import { getSnapshot, saveSnapshot } from "./watch-store";
+import { getSnapshot, saveSnapshot, type StoredSnapshot } from "./watch-store";
 
 export type CheckOutcome = "first_snapshot" | "unchanged" | "changed" | "inconclusive";
 
@@ -20,6 +20,12 @@ export type CheckResult = {
   errorMessage?: string;
   previous?: SnapshotRef;
   diff?: DiffOp[];
+  // The snapshot this check produced, present on every successful fetch so a
+  // caller keeping its own baseline can store it. Absent on "inconclusive",
+  // where there is no page text to become the next baseline — replacing a
+  // good baseline with a failed fetch is how a monitor loses the evidence it
+  // exists to hold.
+  snapshot?: StoredSnapshot;
 };
 
 const FETCH_TIMEOUT_MS = 8000;
@@ -335,13 +341,33 @@ export type FetchFn = (input: string, init?: RequestInit) => Promise<Response>;
  * Caller is expected to have already validated the URL with
  * isPlausibleHttpUrl(); this function assumes a well-formed http(s) URL
  * and still refuses private/loopback/link-local targets on each hop.
+ *
+ * `baseline` lets the caller supply the snapshot to compare against instead
+ * of using the shared server-side store. Browsers pass their own, kept in
+ * localStorage: the baseline then survives a deploy and belongs to one
+ * visitor rather than to whoever last checked the same URL. Passing it —
+ * including as an explicit null, meaning "I am tracking this myself and have
+ * nothing yet" — bypasses the module store entirely in both directions, so
+ * one visitor's snapshot can never answer another's check. Omitting it keeps
+ * the original server-store behaviour for callers that have nowhere to keep
+ * state of their own.
  */
-export async function checkUrl(url: string, fetchImpl: FetchFn = fetch): Promise<CheckResult> {
+export async function checkUrl(
+  url: string,
+  fetchImpl: FetchFn = fetch,
+  baseline?: StoredSnapshot | null,
+): Promise<CheckResult> {
+  const callerTracksBaseline = baseline !== undefined;
   const now = new Date();
-  const previousSnapshot = getSnapshot(url);
+  const previousSnapshot = callerTracksBaseline ? baseline : getSnapshot(url);
   const previousRef: SnapshotRef | undefined = previousSnapshot
     ? { fetchedAt: previousSnapshot.fetchedAt, httpStatus: previousSnapshot.httpStatus }
     : undefined;
+  // Only the store-backed path writes back. A caller holding its own baseline
+  // gets the new snapshot in the result and persists it itself.
+  const remember = (snapshot: StoredSnapshot) => {
+    if (!callerTracksBaseline) saveSnapshot(snapshot);
+  };
 
   const controller = new AbortController();
   const timeout = setTimeout(() => controller.abort(), checkTimeoutMs);
@@ -389,19 +415,21 @@ export async function checkUrl(url: string, fetchImpl: FetchFn = fetch): Promise
     const hash = createHash("sha256").update(normalizedText).digest("hex");
     const fetchedAt = now.toISOString();
 
+    const snapshot: StoredSnapshot = { url, normalizedText, hash, fetchedAt, httpStatus: status };
+
     if (!previousSnapshot) {
-      saveSnapshot({ url, normalizedText, hash, fetchedAt, httpStatus: status });
-      return { outcome: "first_snapshot", url, fetchedAt, httpStatus: status };
+      remember(snapshot);
+      return { outcome: "first_snapshot", url, fetchedAt, httpStatus: status, snapshot };
     }
 
     if (previousSnapshot.hash === hash) {
-      saveSnapshot({ url, normalizedText, hash, fetchedAt, httpStatus: status });
-      return { outcome: "unchanged", url, fetchedAt, httpStatus: status, previous: previousRef };
+      remember(snapshot);
+      return { outcome: "unchanged", url, fetchedAt, httpStatus: status, previous: previousRef, snapshot };
     }
 
     const diff = diffWords(previousSnapshot.normalizedText, normalizedText);
-    saveSnapshot({ url, normalizedText, hash, fetchedAt, httpStatus: status });
-    return { outcome: "changed", url, fetchedAt, httpStatus: status, previous: previousRef, diff };
+    remember(snapshot);
+    return { outcome: "changed", url, fetchedAt, httpStatus: status, previous: previousRef, diff, snapshot };
   } finally {
     clearTimeout(timeout);
   }
