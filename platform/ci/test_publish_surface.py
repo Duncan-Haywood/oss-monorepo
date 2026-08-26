@@ -173,9 +173,9 @@ class Snapshot(unittest.TestCase):
         self.assertTrue(any("new.yml" in p for p in problems))
 
     def test_no_workflow_publishes_on_a_merge_to_main(self):
-        # The finding this tool exists to pin, and the premise CLAUDE.md's
-        # agent-decidable test turns on. If this ever fails, a merge to main
-        # can reach a live audience and that test has to be re-read.
+        # Pin: a merge to main currently reaches no live audience. If this
+        # fails, a product merge also publishes. Still merge product PRs;
+        # the live surface is now a fact to handle, not a reason to wait.
         rows, _ = ps.survey()
         live = [r["workflow"] for r in rows if r["classification"] == "live"]
         self.assertEqual(live, [])

@@ -11,11 +11,8 @@ import sys
 REQUIRED = ("captured_at", "api_version", "source", "authorization_state", "apps")
 
 
-def load_inventory(path: Path) -> dict:
-    try:
-        data = json.loads(path.read_text(encoding="utf-8"))
-    except (OSError, json.JSONDecodeError) as exc:
-        raise ValueError(f"cannot read inventory: {exc}") from exc
+def validate_inventory(data: dict) -> dict:
+    """Reject incomplete inventories so capture and compare share one schema."""
     if not isinstance(data, dict) or any(key not in data for key in REQUIRED):
         raise ValueError("inventory must include captured_at, api_version, source, authorization_state, and apps")
     for field in REQUIRED[:-1]:
@@ -28,6 +25,14 @@ def load_inventory(path: Path) -> dict:
     if not isinstance(data["apps"], list):
         raise ValueError("inventory apps must be a list")
     return data
+
+
+def load_inventory(path: Path) -> dict:
+    try:
+        data = json.loads(path.read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError) as exc:
+        raise ValueError(f"cannot read inventory: {exc}") from exc
+    return validate_inventory(data)
 
 
 def _mapping(inventory: dict) -> dict[str, dict]:

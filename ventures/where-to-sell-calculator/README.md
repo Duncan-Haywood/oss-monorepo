@@ -2,8 +2,8 @@
 
 One item, every channel. Enter what an item cost you and what you would sell it
 for, and see what **eBay, Etsy, Amazon, your own store and a direct sale** each
-leave you after fees — plus the price each channel would need to charge to
-match the best one.
+leave you after fees — and after that channel's return rate — plus the price
+each channel would need to charge to match the best one.
 
 It runs entirely in the browser: static ES modules, no build step, no
 dependencies, no server, no account, no API key.
@@ -26,6 +26,10 @@ Three things flat "X% fee" comparisons get wrong, all of which this models:
 - **The fee percentage is not the decision.** What matters is the price each
   channel needs to leave you the same money — a channel with higher fees still
   wins if you can list higher there. That is the last column of the table.
+- **A completed sale is not the mix you live in.** A channel that lets you
+  list higher can win on every completed order and still lose once you count
+  its return rate, return postage, and units that cannot be sold again. The
+  table ranks on expected keep after returns unless you turn that overlay off.
 
 ## Using it
 
@@ -66,9 +70,16 @@ questions the ranking alone does not:
   whose fee structures differ. It reads "—" when nothing was invested (a
   giveaway, or an item with no per-unit cost), rather than an infinite return.
 
+- **After returns** — expected keep once some share of orders come back.
+  Return postage, unsellable units, and fees the channel does not refund are
+  counted on the returned share; a completed sale still keeps the sold profit.
+- **Return drag** — the gap between a completed sale and that expected keep.
+  It is the number that explains a ranking flip.
+
 Margin answers "how good is this sale", return on cash answers "how hard is my
-money working", and break-even answers "how far can I move the price" — which
-is usually the one a seller can act on today.
+money working", break-even answers "how far can I move the price", and after
+returns answers "does the completed-sale winner still win in the mix I
+actually ship".
 
 ## Rates are inputs, not a published schedule
 
@@ -81,9 +92,14 @@ makes the comparison yours rather than a generic estimate.
 ## What it deliberately does not model
 
 Fees are the part that is easy to calculate, not the whole decision. This has
-no way to know how many buyers each channel puts in front of you, how fast an
-item sells there, or what returns cost. A marketplace fee is partly a payment
-for demand you would otherwise have to create. Read the fee gap as one input.
+no way to know how many buyers each channel puts in front of you or how fast
+an item sells there. Returns are an input — each channel has a rate, return
+postage, a still-sellable share, and a fee-refund share — but those remain
+assumptions you replace with your own report, not a live marketplace
+schedule. A marketplace fee is also partly a payment for demand you would
+otherwise have to create. Read the fee-and-return gap as one input.
+
+`returns-change-the-ranking.html` works the Amazon-vs-eBay flip in full.
 
 ## Tests
 
@@ -115,6 +131,7 @@ device.
 
 The optional usage counter records only an event name (`comparison_calculated`,
 `channel_rates_edited`, `channel_toggled`, `subscription_toggled`,
+`returns_compared`,
 `share_link_copied`) and the
 current day, in the visitor's own `localStorage`. It never records inputs, it
 never leaves the device, it is off for anyone sending Do Not Track or Global
@@ -130,6 +147,12 @@ does not replace a qualified professional. **You are responsible for reviewing
 and verifying its output before relying on it.** To the maximum extent
 permitted by law, the authors accept no liability for any loss or damage
 arising from its use.
+
+**Best-effort hosting, no SLA.** These tools are free, experimental, and may
+be slow, broken, moved, or taken offline without notice. We do not promise
+uptime, backups of anything you type, or that a URL will keep working. Do not
+use this as a system of record. If a tool needs to survive, export your
+inputs and run it yourself.
 
 ## Cost and support
 

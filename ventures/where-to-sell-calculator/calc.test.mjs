@@ -101,14 +101,22 @@ test("comparison ranks channels and reports the gap against the best", () => {
     assert.ok(result.gapVsBest >= 0, `${result.label} gap must not be negative`);
     if (!result.isBest) assert.ok(result.rank > 1, `${result.label} must rank below the best`);
   }
-  close(comparison.spread, best.profit - Math.min(...comparison.results.map((r) => r.profit)), "spread");
+  const score = (result) => result.expectedProfit;
+  close(comparison.spread, score(best) - Math.min(...comparison.results.map(score)), "spread");
 });
 
 test("price to match the best channel actually matches it", () => {
-  const comparison = compareChannels([preset("ebay"), preset("etsy")], shared);
+  const comparison = compareChannels([preset("ebay"), preset("etsy")], { ...shared, includeReturns: false });
   const loser = comparison.results.find((result) => !result.isBest);
   const repriced = calculateChannel({ ...preset(loser.id), price: loser.priceToMatchBest }, shared);
   close(repriced.profit, comparison.best.profit, "repriced profit matches the winner");
+});
+
+test("price to match the best after returns matches expected keep", () => {
+  const comparison = compareChannels([preset("ebay"), preset("etsy")], shared);
+  const loser = comparison.results.find((result) => !result.isBest);
+  const repriced = calculateChannel({ ...preset(loser.id), price: loser.priceToMatchBest }, shared);
+  close(repriced.expectedProfit, comparison.best.expectedProfit, "repriced expected profit matches the winner");
 });
 
 test("a fee-free direct sale beats the marketplaces at the same price", () => {
@@ -155,4 +163,61 @@ test("an unsold-item cost still shows up when the price is zero", () => {
   close(result.fees.listing, 0.2, "listing fee is charged regardless");
   assert.ok(result.profit < 0, "a zero-price order cannot be profitable");
   assert.equal(result.margin, 0, "margin is defined as zero when there is no revenue");
+});
+
+test("a zero return rate leaves expected profit equal to the sold sale", () => {
+  const result = calculateChannel({ ...preset("ebay"), returnRate: 0 }, shared);
+  close(result.expectedProfit, result.profit, "expected equals sold");
+  close(result.returnDrag, 0, "no drag");
+  close(result.expectedBreakEvenPrice, result.breakEvenPrice, "expected break-even collapses to sold");
+  close(result.priceForExpectedProfit(20), result.priceForProfit(20), "target solver collapses");
+});
+
+test("eBay worked example: 8% returns with refunded FVF and $6 return postage", () => {
+  const result = calculateChannel(preset("ebay"), shared);
+  close(result.profit, 26.545, "sold keep");
+  // Completed sale $26.545; a return costs outbound $5 + pack $1 + return $6
+  // + 10% of the $14 item that cannot be listed again = −$13.40. At 8%:
+  // 0.92 × 26.545 + 0.08 × (−13.40) = 23.3494.
+  close(result.returnedProfit, -13.4, "cash on a returned order");
+  close(result.expectedProfit, 23.3494, "expected keep after returns");
+  close(result.returnDrag, 3.1956, "returns cost $3.20 versus a perfect sale");
+});
+
+test("Amazon's higher return rate can flip a sold-sale win against eBay", () => {
+  // Sellers often list higher on Amazon. At $54 vs eBay's $48 the completed
+  // sale favours Amazon; 18% returns vs 8% does not.
+  const amazon = { ...preset("amazon"), price: 54 };
+  const soldOnly = compareChannels([preset("ebay"), amazon], { ...shared, includeReturns: false });
+  const afterReturns = compareChannels([preset("ebay"), amazon], shared);
+
+  assert.equal(soldOnly.best.id, "amazon", "the higher Amazon price wins on a completed sale");
+  assert.equal(afterReturns.best.id, "ebay", "eBay wins once Amazon's 18% returns are counted");
+  assert.equal(soldOnly.includeReturns, false);
+  assert.equal(afterReturns.includeReturns, true);
+
+  const amazonAfter = afterReturns.results.find((result) => result.id === "amazon");
+  const ebayAfter = afterReturns.results.find((result) => result.id === "ebay");
+  assert.ok(amazonAfter.returnDrag > ebayAfter.returnDrag, "Amazon's return drag is the larger hole");
+  close(amazonAfter.profit, 30.6001, "Amazon sold keep at $54 + $6 shipping");
+  close(amazonAfter.expectedProfit, 22.1761, "Amazon expected keep after 18% returns");
+});
+
+test("own-store processing fees that are not refunded stay in the return loss", () => {
+  const refunded = calculateChannel({ ...preset("own-store"), feeRefundRate: 100 }, shared);
+  const kept = calculateChannel(preset("own-store"), shared);
+  assert.ok(kept.returnedProfit < refunded.returnedProfit, "keeping the processor fee makes a return worse");
+  close(kept.fees.payment, 54 * 0.029 + 0.3, "2.9% + $0.30 on the $54 order");
+});
+
+test("return-rate inputs outside 0–100 are refused", () => {
+  assert.throws(() => calculateChannel({ ...preset("ebay"), returnRate: 101 }, shared), /return rate/);
+  assert.throws(() => calculateChannel({ ...preset("ebay"), resellableRate: -1 }, shared), /still-sellable/);
+  assert.throws(() => calculateChannel({ ...preset("ebay"), feeRefundRate: 140 }, shared), /fee refund/);
+});
+
+test("expected profit at the expected break-even is zero", () => {
+  const result = calculateChannel(preset("amazon"), shared);
+  const atBreakEven = calculateChannel({ ...preset("amazon"), price: result.expectedBreakEvenPrice }, shared);
+  close(atBreakEven.expectedProfit, 0, "expected profit at expected break-even");
 });
