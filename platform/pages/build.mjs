@@ -175,11 +175,16 @@ const decodeEntities = (value) =>
     .replace(/&quot;/g, '"')
     .replace(/&#0?39;/g, "'");
 
+// The content value is read up to the *same* quote that opened it, via a
+// backreference. Accepting any quote instead (`[^"']*`) silently stops at the
+// first apostrophe inside a double-quoted attribute, so "last night's archive
+// shrank" reached the hub and its JSON-LD as "last night" — a card and a
+// crawler description cut mid-sentence.
 const metaContent = (html, attr, value) => {
-  const pattern = new RegExp(`<meta[^>]*${attr}=["']${value}["'][^>]*content=["']([^"']*)["']`, 'i');
-  const reversed = new RegExp(`<meta[^>]*content=["']([^"']*)["'][^>]*${attr}=["']${value}["']`, 'i');
+  const pattern = new RegExp(`<meta[^>]*${attr}=["']${value}["'][^>]*content=(["'])(.*?)\\1`, 'i');
+  const reversed = new RegExp(`<meta[^>]*content=(["'])(.*?)\\1[^>]*${attr}=["']${value}["']`, 'i');
   const match = html.match(pattern) ?? html.match(reversed);
-  return match ? decodeEntities(match[1]).trim() : '';
+  return match ? decodeEntities(match[2]).trim() : '';
 };
 
 const titleize = (slug) => slug.split('-').map((word) => word.charAt(0).toUpperCase() + word.slice(1)).join(' ');

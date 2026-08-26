@@ -291,6 +291,32 @@ test('readMeta decodes entities rather than showing them raw', () => {
   assert.equal(meta.title, 'Fees & Margin');
 });
 
+// An apostrophe is ordinary English, not an edge case: three shipped ventures
+// carried one in the description a crawler reads. Reading only to the next
+// quote of either kind cut "last night's archive shrank" down to "last night".
+test('readMeta keeps an apostrophe inside a double-quoted attribute', () => {
+  const html = `<meta name="description" content="See whether last night's archive shrank.">`;
+  assert.equal(readMeta(html, 'x').description, "See whether last night's archive shrank.");
+});
+
+test('readMeta keeps an apostrophe in og:title and og:description', () => {
+  const html = `<meta property="og:title" content="Ohm's Law Calculator">
+    <meta property="og:description" content="Resistor codes and Ohm's law.">`;
+  const meta = readMeta(html, 'x');
+  assert.equal(meta.title, "Ohm's Law Calculator");
+  assert.equal(meta.description, "Resistor codes and Ohm's law.");
+});
+
+test('readMeta still reads a single-quoted attribute, quotes and all', () => {
+  const html = `<meta name='description' content='He said "go" before the run.'>`;
+  assert.equal(readMeta(html, 'x').description, 'He said "go" before the run.');
+});
+
+test('readMeta reads content written before the identifying attribute', () => {
+  const html = `<meta content="Last night's run." name="description">`;
+  assert.equal(readMeta(html, 'x').description, "Last night's run.");
+});
+
 test('truncate cuts on a word boundary', () => {
   assert.equal(truncate('short', 20), 'short');
   const long = truncate('a'.repeat(30) + ' tail words here that go on', 40);
