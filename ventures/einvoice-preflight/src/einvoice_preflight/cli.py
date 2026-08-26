@@ -17,6 +17,7 @@ from xml.sax.saxutils import escape, quoteattr
 import fcntl
 
 from .checks import check_invoice
+from .formats import DocumentError, detect_syntax, parse_cii_invoice
 from .ubl import parse_ubl_invoice
 
 VERSION = "0.1.0"
@@ -246,7 +247,11 @@ def _json_report(
 ) -> dict[str, Any]:
     """Build one versioned adapter payload for every input mode."""
     rule_counts = Counter(error["rule"] for _, errors in reports for error in errors)
-    errors = [error for _, invoice_errors in reports for error in invoice_errors]
+    errors = [
+        {**error, "file": path.as_posix()}
+        for path, invoice_errors in reports
+        for error in invoice_errors
+    ]
     fix_details: dict[str, dict[str, str | int]] = {}
     for error in errors:
         detail = fix_details.setdefault(
@@ -597,7 +602,7 @@ def _markdown_text(value: str) -> str:
 
 
 def main(argv: list[str] | None = None) -> int:
-    parser = argparse.ArgumentParser(description="Check a local JSON or UBL XML e-invoice before submission. No tax advice or submission.")
+    parser = argparse.ArgumentParser(description="Check a local JSON, UBL XML, or UN/CEFACT CII e-invoice before submission. No tax advice or submission.")
     parser.add_argument("--version", action="version", version=f"einvoice-preflight {VERSION}")
     parser.add_argument("invoice", type=Path, help="JSON/XML file, directory of JSON/XML files, or '-' for stdin")
     parser.add_argument("--format", choices=("text", "summary", "json", "jsonl", "remediation", "checklist", "markdown", "html", "csv", "junit", "sarif", "github"), default="text")
@@ -670,8 +675,15 @@ def main(argv: list[str] | None = None) -> int:
         try:
             raw = source if source is not None else _read_file_limited(invoice_path, args.max_bytes)
             is_xml = report_path.suffix.lower() == ".xml" or raw.lstrip().startswith(b"<")
-            invoice = parse_ubl_invoice(raw) if is_xml else json.loads(raw)
-        except (OSError, UnicodeDecodeError, ValueError, json.JSONDecodeError) as exc:
+            if is_xml:
+                try:
+                    syntax = detect_syntax(raw)
+                except DocumentError:
+                    syntax = "ubl"
+                invoice = parse_cii_invoice(raw) if syntax == "cii" else parse_ubl_invoice(raw)
+            else:
+                invoice = json.loads(raw)
+        except (OSError, UnicodeDecodeError, ValueError, json.JSONDecodeError, DocumentError) as exc:
             read_errors.append({"file": report_path.as_posix(), "error": str(exc)})
             continue
         reports.append((report_path, check_invoice(invoice)))
