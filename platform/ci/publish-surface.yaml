@@ -525,6 +525,9 @@ workflows:
 - workflow: skylight-install-bid-calculator-ci.yml
   classification: none
   publishes: []
+- workflow: snow-removal-bid-calculator-ci.yml
+  classification: none
+  publishes: []
 - workflow: sod-install-bid-calculator-ci.yml
   classification: none
   publishes: []
