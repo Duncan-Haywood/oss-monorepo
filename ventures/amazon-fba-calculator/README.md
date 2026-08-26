@@ -315,7 +315,9 @@ Amazon AWD vs send-all-to-FBA vs you-hold,
 Remote Fulfillment vs skip Canada vs a Canada FBA pile,
 and FBA Liquidations vs dispose vs sell-elsewhere;
 `usage.mjs` holds the anonymous
-local counter; `index.html` is the calculator UI.
+local counter (`sourcing_check_used` when the cost-of-goods field changes);
+`index.html` is the calculator UI. The buy-cost check is arithmetic against
+the zero-profit max-buy ceiling, not a recommendation to buy or pass.
 
 Not yet deployed to a public URL — publishing under the portfolio's name is
 owner-gated per `portfolio/DIRECTION.md` — but the page is ready to host as

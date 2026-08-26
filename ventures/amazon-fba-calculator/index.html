@@ -347,6 +347,7 @@
         <dt>Return on investment</dt><dd id="roi"></dd>
         <dt>Break-even sale price</dt><dd id="breakEven"></dd>
         <dt>Max buy cost</dt><dd id="maxBuy"></dd>
+        <dt>Buy-cost check</dt><dd id="buyCostStatus"></dd>
         <dt>Price for target margin</dt><dd id="targetMarginPrice"></dd>
         <dt>FBA vs FBM</dt><dd id="advantage"></dd>
         <dt>Profit before returns</dt><dd id="profitBeforeReturns"></dd>
@@ -717,6 +718,7 @@
       applyCategoryPreset,
       applyPlacementPreset,
       applyStoragePreset,
+      buyCostCheck,
       calculateListing,
       compareBulkBuy,
       compareCoupons,
@@ -898,7 +900,8 @@
     function update() {
       updateFeePlaceholder();
       try {
-        const result = calculateListing(readInput());
+        const input = readInput();
+        const result = calculateListing(input);
         const profitEl = document.getElementById("profit");
         profitEl.textContent = money(result.selected.profit);
         profitEl.className = `hero-number ${result.selected.profit < 0 ? "negative" : "positive"}`;
@@ -914,6 +917,13 @@
         document.getElementById("breakEven").textContent = Number.isFinite(result.selected.breakEvenPrice)
           ? money(result.selected.breakEvenPrice) : "never";
         document.getElementById("maxBuy").textContent = money(result.selected.breakEvenBuyCost);
+        const check = buyCostCheck(result, input.costOfGoods);
+        document.getElementById("buyCostStatus").textContent =
+          check.status === "below_ceiling"
+            ? `${money(check.headroom)} under the zero-profit ceiling`
+            : check.status === "above_ceiling"
+              ? `${money(-check.headroom)} over the zero-profit ceiling`
+              : "at the zero-profit ceiling";
         document.getElementById("targetMarginPrice").textContent = Number.isFinite(result.selected.targetMarginPrice)
           ? money(result.selected.targetMarginPrice) : "unreachable";
         const extra = result.fbaAdvantage;
@@ -1087,7 +1097,7 @@
         document.getElementById("profit").textContent = error.message;
         document.getElementById("profit").className = "hero-number error";
         document.getElementById("label").textContent = "fix the inputs to see a result";
-        ["revenue", "fees", "invested", "margin", "roi", "breakEven", "maxBuy", "targetMarginPrice", "advantage", "profitBeforeReturns", "returnDrag", "breakEvenReturnRate", "returnsSummary", "planVerdict", "lowPriceSummary", "lowPriceBreakEven", "lowPriceWinner", "mcfSummary", "mcfBreakEven", "mcfWinner", "bulkSummary", "bulkBreakEven", "bulkExtraCash", "bulkWinner", "prepSummary", "prepBreakEven", "prepWinner", "placementSummary", "placementVerdict", "placementWinner", "placementCarry"].forEach((id) => {
+        ["revenue", "fees", "invested", "margin", "roi", "breakEven", "maxBuy", "buyCostStatus", "targetMarginPrice", "advantage", "profitBeforeReturns", "returnDrag", "breakEvenReturnRate", "returnsSummary", "planVerdict", "lowPriceSummary", "lowPriceBreakEven", "lowPriceWinner", "mcfSummary", "mcfBreakEven", "mcfWinner", "bulkSummary", "bulkBreakEven", "bulkExtraCash", "bulkWinner", "prepSummary", "prepBreakEven", "prepWinner", "placementSummary", "placementVerdict", "placementWinner", "placementCarry"].forEach((id) => {
           document.getElementById(id).textContent = "";
         });
         document.getElementById("compare").innerHTML = "";
@@ -1174,6 +1184,7 @@
         localStorage,
         document.getElementById("usageOptOut").checked,
         id === "targetMargin" ? "target_margin_calculated"
+          : id === "costOfGoods" ? "sourcing_check_used"
           : id === "fbmHandlingCost" ? "fbm_labor_calculated"
           : id === "monthlySellerFee" || id === "individualPerUnit" || id === "monthlyUnits"
             ? "seller_plan_compared"
