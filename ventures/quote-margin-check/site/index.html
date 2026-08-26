@@ -215,6 +215,22 @@
     <input type="number" id="target_hourly_rate" inputmode="decimal" value="75" min="0" step="any" />
     <p class="hint">What you'd want to be paid per hour if you were billing hourly instead.</p>
 
+    <div class="result change-order" id="change-order" aria-live="polite">
+      <strong>When the scope grows</strong>
+      <p class="hint">Price extra work before agreeing to it. This uses your target rate and any new direct cost. It is an arithmetic floor, not a recommendation.</p>
+      <div class="row">
+        <div>
+          <label for="extra-hours">Additional hours</label>
+          <input type="number" id="extra-hours" inputmode="decimal" value="4" min="0" step="any" />
+        </div>
+        <div>
+          <label for="extra-direct-costs">Additional direct costs</label>
+          <input type="number" id="extra-direct-costs" inputmode="decimal" value="0" min="0" step="any" />
+        </div>
+      </div>
+      <p id="change-order-result"></p>
+    </div>
+
     <div class="result" id="result" role="status" aria-live="polite"></div>
     <div class="result" id="target-breakdown" aria-live="polite">
       <strong>What makes up the target price</strong>
@@ -454,7 +470,7 @@
 </main>
 
 <script type="module">
-  import { loadQuote, calculate, overrunScenarios, directCostSpikeScenarios, directCostSpikeSummary, discountAskScenarios, discountAskSummary, compareBillingModels, billingModelNote, loadKillFeeProgress, compareKillFee, killFeeSummary, targetPriceBreakdown, encodeQuote, decodeQuote } from "./calc.mjs";
+  import { loadQuote, calculate, overrunScenarios, directCostSpikeScenarios, directCostSpikeSummary, discountAskScenarios, discountAskSummary, compareBillingModels, billingModelNote, loadKillFeeProgress, compareKillFee, killFeeSummary, targetPriceBreakdown, changeOrderPrice, encodeQuote, decodeQuote } from "./calc.mjs";
   import { quoteCsv } from "./export.mjs";
   import { formatReviewSummary } from "./summary.mjs";
   import { markdownReview } from "./markdown.mjs";
@@ -485,6 +501,7 @@
       // Only when the kill-fee inputs actually parsed on the render that
       // produced this count — an invalid kill fee is not a comparison.
       if (killFeeSettled) recordEvent("kill_fee_compared");
+      recordEvent("change_order_checked");
     },
   });
 
@@ -499,6 +516,9 @@
   const billing = document.getElementById("billing");
   const killFee = document.getElementById("kill-fee");
   const targetBreakdown = document.getElementById("target-breakdown");
+  const changeOrderResult = document.getElementById("change-order-result");
+  const extraHours = document.getElementById("extra-hours");
+  const extraDirectCosts = document.getElementById("extra-direct-costs");
   const historyList = document.getElementById("history-list");
   const historyEmpty = document.getElementById("history-empty");
   const historyStatus = document.getElementById("history-status");
@@ -606,9 +626,11 @@
       }
       result.classList.remove("error");
       reportCounter.count(JSON.stringify(quote));
+      updateChangeOrder(quote);
     } catch (err) {
       lastReport = null;
       reportCounter.drop();
+      if (changeOrderResult) changeOrderResult.textContent = "Fix the quote inputs above to price extra scope.";
        result.textContent = err.message;
        result.classList.add("error");
        review.querySelector(".checks").textContent = "Fix the inputs above to review this quote.";
@@ -626,6 +648,18 @@
          if (breakdownBody) breakdownBody.innerHTML = "";
          if (breakdownFoot) breakdownFoot.textContent = "";
        }
+    }
+  }
+
+  function updateChangeOrder(quote) {
+    if (!changeOrderResult) return;
+    try {
+      const change = changeOrderPrice(quote, Number(extraHours.value), Number(extraDirectCosts.value));
+      changeOrderResult.textContent = change.extra_hours === 0
+        ? "Add the expected extra hours to see a change-order price floor."
+        : `Ask for at least ${quote.currency} ${fmt(change.target_price)} for this scope change (${fmt(change.extra_hours)} hours at ${quote.currency} ${fmt(quote.target_hourly_rate)}/hour, including ${quote.currency} ${fmt(change.extra_direct_costs)} in direct costs). This is an arithmetic floor, not a recommendation.`;
+    } catch (err) {
+      changeOrderResult.textContent = err.message;
     }
   }
 
@@ -667,6 +701,11 @@
   for (const id of draftFields) {
     el[id].addEventListener("input", update);
     el[id].addEventListener("input", dismissExampleNote, { once: true });
+  }
+  for (const field of [extraHours, extraDirectCosts]) {
+    field.addEventListener("input", () => {
+      try { updateChangeOrder(loadQuote(readInputs())); } catch { /* quote inputs still invalid */ }
+    });
   }
   document.getElementById("clear-draft").addEventListener("click", () => {
     const defaults = {
