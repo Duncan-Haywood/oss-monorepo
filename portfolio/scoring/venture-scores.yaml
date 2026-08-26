@@ -1157,3 +1157,39 @@ ventures:
       opinion. The shipped hours and unit invoices are labelled ballpark
       starting points rather than a standard or benchmark, and nothing the
       user enters leaves the browser.
+
+  - slug: reverb-fee-calculator
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 8
+      gross_margin: 10
+      defensibility: 5
+      distribution: 8
+    composite: 7.0
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      There is no AI anywhere in the product. The value is a domain model —
+      Reverb marketplace versus payment versus eBay final value on the same
+      item — that is arithmetic, and adding inference to it would only make
+      the result less checkable.
+    basis: >-
+      Graduated on 2026-08-26 as a browser-local Reverb seller fee calculator.
+      Distinct from the eBay fee calculator (one channel's final-value fee),
+      the Etsy profit calculator (listing credits and Plus), Amazon FBA
+      (fulfillment and storage), and where-to-sell (a custom "other channel"
+      row, not Reverb's offer-versus-list shape). Distribution 8: "Reverb
+      seller fees" and "should I take this Reverb offer" are high-intent
+      seller queries; defensibility 5 because the offer-versus-list and
+      Reverb-versus-eBay compare encode the decision sellers actually make
+      rather than restating a published special.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Pass: the output is arithmetic on the seller's own inputs, never a
+      recommended price, a tax determination, or a marketplace-policy
+      opinion. The shipped rates are labelled starting points rather than a
+      live schedule, and nothing the user enters leaves the browser.

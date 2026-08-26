@@ -544,6 +544,19 @@ products:
           PRs #1333, #1358, and #1385 — those export the evidence record;
           this tells the photographer which rooms to recapture. Public URL
           remains owner-gated (`deploy-settings`).
+  - slug: reverb-fee-calculator
+    surface: static-page-in-repo
+    readings:
+      - as_of: 2026-08-26
+        signals:
+          live_url_visitors: null
+          local_events_reported: 0
+        note: >-
+          Shipped a local Reverb seller fee calculator (list vs offer cash,
+          Reverb vs eBay on the same item, offer that matches eBay list
+          cash). Public URL remains owner-gated; the local-first counter
+          reports only to the user's own browser and is opt-out. Baseline
+          row.
 
 # Example of the shape, once a product has shipped:
 #

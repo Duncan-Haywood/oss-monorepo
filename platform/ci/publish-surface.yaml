@@ -158,6 +158,9 @@ workflows:
 - workflow: repository-branch-hygiene-ci.yml
   classification: none
   publishes: []
+- workflow: reverb-fee-calculator-ci.yml
+  classification: none
+  publishes: []
 - workflow: retail-pilot-intel-ci.yml
   classification: none
   publishes: []
