@@ -7,6 +7,9 @@
 #
 # classification: live | gated | dispatch | none  (see the module docstring)
 workflows:
+- workflow: 3pl-quote-normalizer-ci.yml
+  classification: none
+  publishes: []
 - workflow: a11y-axe-recall-ci.yml
   classification: none
   publishes: []
@@ -76,6 +79,9 @@ workflows:
 - workflow: branch-cleanup.yml
   classification: none
   publishes: []
+- workflow: carpet-install-bid-calculator-ci.yml
+  classification: none
+  publishes: []
 - workflow: claude-routine-trigger.yml
   classification: none
   publishes: []
@@ -115,10 +121,19 @@ workflows:
 - workflow: faire-wholesale-calculator-ci.yml
   classification: none
   publishes: []
+- workflow: flat-roof-bid-calculator-ci.yml
+  classification: none
+  publishes: []
 - workflow: forge-surface-reachability-ci.yml
   classification: none
   publishes: []
+- workflow: freelance-retainer-calculator-ci.yml
+  classification: none
+  publishes: []
 - workflow: freight-accessorial-auditor-ci.yml
+  classification: none
+  publishes: []
+- workflow: french-drain-bid-calculator-ci.yml
   classification: none
   publishes: []
 - workflow: garmin-world-traveler-watchface-ci.yml
@@ -175,6 +190,9 @@ workflows:
 - workflow: parking-lot-striping-bid-calculator-ci.yml
   classification: none
   publishes: []
+- workflow: patio-door-bid-calculator-ci.yml
+  classification: none
+  publishes: []
 - workflow: photo-editing-ci.yml
   classification: none
   publishes: []
@@ -199,7 +217,8 @@ workflows:
   - job: deploy
     step: uses actions/deploy-pages
     gates:
-    - ${{ github.event_name != 'pull_request' && vars.GITHUB_PAGES_ENABLED == 'true' }}
+    - ${{ github.ref == 'refs/heads/main' && github.event_name != 'pull_request' && vars.GITHUB_PAGES_ENABLED
+      == 'true' }}
 - workflow: portfolio-validate.yml
   classification: none
   publishes: []
@@ -246,6 +265,9 @@ workflows:
   classification: none
   publishes: []
 - workflow: reverb-fee-calculator-ci.yml
+  classification: none
+  publishes: []
+- workflow: sewer-line-replace-bid-calculator-ci.yml
   classification: none
   publishes: []
 - workflow: shed-install-bid-calculator-ci.yml
