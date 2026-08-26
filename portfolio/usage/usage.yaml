@@ -628,6 +628,14 @@ products:
           Added one-time vs amortized vs thrown-in on a takeover /
           initial clean, including 30-day cancel cash. Public URL remains
           owner-gated.
+      - as_of: 2026-08-26
+        signals:
+          live_url_visitors: null
+          project_priced: 0
+        note: >-
+          Added strip-and-wax / extraction / initial-clean as one-time
+          project rows kept off the monthly price, with a first-month
+          invoice. Public URL remains owner-gated.
   - slug: shopify-fee-calculator
     surface: static-page-in-repo
     readings:

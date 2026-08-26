@@ -38,6 +38,18 @@ export const PRODUCTION_RATE_PRESETS = Object.freeze([
   { label: 'Stairwells', rate: 1500 },
 ]);
 
+// One-time project work that rides on the same bid — initial cleans, strip
+// and wax, carpet extraction. Rates are ballpark starter figures in cleanable
+// square feet per cleaner-hour, NOT a standard or a quote. "Passes" is coats
+// of finish or extra machine passes; hours = square feet ÷ rate × passes.
+export const PROJECT_RATE_PRESETS = Object.freeze([
+  { label: 'Strip & wax (VCT)', rate: 250, passes: 2 },
+  { label: 'Carpet extraction', rate: 300, passes: 1 },
+  { label: 'Initial deep clean', rate: 1500, passes: 1 },
+  { label: 'Post-construction clean', rate: 800, passes: 1 },
+  { label: 'Hard-floor machine scrub', rate: 2000, passes: 1 },
+]);
+
 function number(value, name, { min = 0, allowZero = true } = {}) {
   const result = Number(value);
   if (!Number.isFinite(result)) throw new Error(`${name} must be a number`);
@@ -63,6 +75,10 @@ function number(value, name, { min = 0, allowZero = true } = {}) {
  * @param {number} input.otherMonthly       Anything else billed to this job monthly.
  * @param {number} input.overheadRate       Business overhead as a % on direct cost.
  * @param {number} input.targetMargin       Net profit as a % of the final price.
+ * @param {Array<{name?: string, squareFeet: number, productionRate: number, passes?: number, materials?: number}>} [input.projects]
+ *   Optional one-time work (strip and wax, extraction, initial clean). Priced
+ *   with the same loaded wage, overhead, and margin as the monthly contract,
+ *   but invoiced once — not rolled into the recurring price.
  * @param {number|null} input.proposedPrice Optional: a price already on the
  *   table, so the contractor can see the margin it actually leaves.
  */
@@ -122,6 +138,42 @@ export function calculateBid(input) {
   const hasProposed = input.proposedPrice !== null && input.proposedPrice !== undefined && input.proposedPrice !== '';
   const proposedPrice = hasProposed ? number(input.proposedPrice, 'Price you are considering') : null;
 
+  const projectsInput = Array.isArray(input.projects) ? input.projects : [];
+  const projects = projectsInput.map((project, index) => {
+    const label = project.name?.trim() || `Project ${index + 1}`;
+    const squareFeet = number(project.squareFeet ?? 0, `${label}: project square feet`);
+    const productionRate = number(project.productionRate ?? 0, `${label}: project production rate`, { allowZero: false });
+    const passes = number(project.passes ?? 1, `${label}: passes`, { min: 0 });
+    const materials = number(project.materials ?? 0, `${label}: project materials`);
+    const hours = productionRate === 0 ? 0 : (squareFeet / productionRate) * passes;
+    const laborCost = hours * loadedWage;
+    const directCost = laborCost + materials;
+    const overhead = directCost * overheadRate / 100;
+    const cost = directCost + overhead;
+    const price = cost / (1 - targetMargin / 100);
+    return {
+      name: label,
+      squareFeet,
+      productionRate,
+      passes,
+      hours,
+      laborCost,
+      materials,
+      overhead,
+      cost,
+      price,
+      profit: price - cost,
+    };
+  });
+
+  const projectHours = projects.reduce((sum, project) => sum + project.hours, 0);
+  const projectLaborCost = projects.reduce((sum, project) => sum + project.laborCost, 0);
+  const projectMaterials = projects.reduce((sum, project) => sum + project.materials, 0);
+  const projectOverhead = projects.reduce((sum, project) => sum + project.overhead, 0);
+  const projectCost = projects.reduce((sum, project) => sum + project.cost, 0);
+  const projectPrice = projects.reduce((sum, project) => sum + project.price, 0);
+  const projectProfit = projectPrice - projectCost;
+
   return {
     areas: areas.map(area => ({
       ...area,
@@ -158,7 +210,65 @@ export function calculateBid(input) {
       // A bid below break-even is the failure this tool exists to catch.
       belowBreakEven: proposedPrice < monthlyCost,
     },
+    projects,
+    projectHours,
+    projectLaborCost,
+    projectMaterials,
+    projectOverhead,
+    projectCost,
+    projectPrice,
+    projectProfit,
+    // One-time work is invoiced with the first month, not amortized into the
+    // recurring price — mixing them is how a contractor underprices the
+    // contract for the remaining eleven months.
+    firstMonthInvoice: monthlyPrice + projectPrice,
+    breakEvenFirstMonth: monthlyCost + projectCost,
+    hasProjectWork: projectHours > 0 || projectMaterials > 0,
   };
+}
+
+function money(value) {
+  return `$${value.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+}
+
+/**
+ * Plain-text bid draft a contractor can paste into a proposal. One-time
+ * project work is listed separately from the monthly contract so the first
+ * invoice is not mistaken for the recurring price.
+ */
+export function formatBidSummary(result) {
+  const spaces = result.areas
+    .filter(area => area.squareFeet > 0 && area.cleaningsPerWeek > 0)
+    .map(area => `- ${area.name}: ${area.squareFeet.toLocaleString('en-US')} sq ft, ${area.cleaningsPerWeek}x/week`)
+    .join('\n');
+  const projectLines = (result.projects || [])
+    .filter(project => project.squareFeet > 0 || project.materials > 0)
+    .map(project => `- ${project.name}: ${project.squareFeet.toLocaleString('en-US')} sq ft, ${project.passes} pass${project.passes === 1 ? '' : 'es'}, ${project.hours.toFixed(1)} h — ${money(project.price)}`)
+    .join('\n');
+  const projectBlock = result.hasProjectWork
+    ? [
+        '',
+        'ONE-TIME PROJECT WORK',
+        projectLines || '- No project rows entered',
+        `One-time project total: ${money(result.projectPrice)}`,
+        `First-month invoice (monthly + project): ${money(result.firstMonthInvoice)}`,
+      ]
+    : [];
+  return [
+    'COMMERCIAL CLEANING BID',
+    '',
+    `Proposed monthly service: ${money(result.monthlyPrice)}`,
+    `Annual contract value: ${money(result.annualPrice)}`,
+    `Service labor: ${result.monthlyHours.toFixed(1)} hours/month`,
+    `Price per square foot: $${result.pricePerSqFtMonth === null ? 'n/a' : result.pricePerSqFtMonth.toFixed(3)}/sq ft/month`,
+    ...projectBlock,
+    '',
+    'SERVICE AREAS',
+    spaces || '- No service areas entered',
+    '',
+    `Scope basis: ${result.hoursPerVisitTotal.toFixed(2)} labor hours per visit at the entered frequencies.`,
+    'This is a draft for review. Confirm scope, schedule, insurance, taxes, and all pricing before sending.',
+  ].join('\n');
 }
 
 /**

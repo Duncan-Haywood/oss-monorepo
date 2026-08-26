@@ -43,7 +43,9 @@ who price off the raw wage are short before they start.
    is actually being cleaned instead of `Area 2`.
    Hours per visit = square feet ÷ production rate. Monthly hours multiply that
    by the weekly frequency and by 52/12 weeks — not 4, which understates the
-   month by about 8%, more than the margin on a typical contract.
+   month by about 8%, more than the margin on a typical contract. **Other
+   space** rows take a custom name so a server room or vacant wing does not
+   show up as `Area N`.
 2. **Loaded labor.** Hourly wage × (1 + payroll burden %).
 3. **Other direct cost.** Supplies per square foot per month, plus equipment,
    travel, and anything else billed to the job monthly.
@@ -56,9 +58,17 @@ It then reports the numbers a contractor sanity-checks a bid against: price per
 square foot per month, effective hourly billing rate, annual contract value,
 the labor split across spaces, and the **walk-away price** — total monthly cost,
 below which the job makes nothing. Entering a price already on the table scores
-it against the same cost base and says plainly whether it is under water. **Copy
-bid summary** turns the result into a plain-text draft with the price, annual
-value, service hours, and service areas ready to paste into a proposal.
+it against the same cost base and says plainly whether it is under water.
+
+**One-time project work** — strip and wax, carpet extraction, an initial deep
+clean, post-construction, or a named custom job — is priced with the same
+loaded wage, overhead, and margin, then kept off the monthly contract. Hours
+are square feet ÷ production rate × coats or passes, plus materials. The
+result is a one-time project total and a **first-month invoice** (monthly
+service + project work) so the contractor does not amortize a floor job across
+eleven months they will never recoup. **Copy bid summary** turns the result
+into a plain-text draft with the monthly price, the project lines, the
+first-month invoice, and the service areas ready to paste into a proposal.
 
 **If they cut the schedule** answers the renewal question contractors actually
 get: a prospect who wants 3×/week instead of 5× and offers 60% of today’s
@@ -95,10 +105,10 @@ dependency, so it is testable and auditable on its own. See
 
 ## Production rates
 
-The space types ship with common ballpark rates as a starting point. **They are
-not an industry standard, a benchmark, or a guarantee.** Real rates depend on
-the crew, the equipment, the layout, how congested the space is, and how much
-is actually done on each visit. Every rate is editable, and picking a space
+The space types and project types ship with common ballpark rates as a starting
+point. **They are not an industry standard, a benchmark, or a guarantee.** Real
+rates depend on the crew, the equipment, the layout, soil, finish buildup, and
+how much is actually done on each visit. Every rate is editable, and picking a
 type never overwrites a rate the contractor has already changed — a rate timed
 from their own crew is worth more than any published figure.
 
@@ -113,6 +123,7 @@ See [`usage.mjs`](usage.mjs) and [`portfolio/usage/`](../../portfolio/usage/READ
 
 Events counted: `bid_calculated`, `area_added`, `area_removed`,
 `proposed_price_compared`, `summary_copied`, `space_named`,
+`project_added`, `project_priced`, `project_removed`,
 `frequency_reduction_compared`, `frequency_note_copied`,
 `supply_responsibility_compared`, `supply_note_copied`,
 `initial_clean_compared`, `initial_clean_offer_compared`,
@@ -121,12 +132,13 @@ Events counted: `bid_calculated`, `area_added`, `area_removed`,
 ## Limitations
 
 - Single currency and no tax handling; the contractor enters their own numbers.
-- Periodic service plus a one-time takeover / initial clean. Recurring
-  project work (strip and wax, carpet extraction, post-construction) is
-  still not priced as its own cycle.
+- Periodic service plus optional one-time project work (strip and wax,
+  extraction, initial/post-construction) invoiced separately from the month.
 - "Other space" rows can be named; an empty name still falls back to `Area N`.
 - Day porter or fixed-headcount contracts are not modelled; this prices from
   production rates, not from a scheduled shift.
+- Project-work rates and coat counts are starter figures. Real strip, extract,
+  and initial-clean times depend on soil, finish buildup, furniture, and access.
 
 ## Disclaimer
 

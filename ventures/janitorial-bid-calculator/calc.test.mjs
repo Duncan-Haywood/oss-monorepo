@@ -1,6 +1,18 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { calculateBid, compareFrequencyReduction, frequencyReductionNote, compareSupplyResponsibility, supplyResponsibilityNote, compareInitialClean, initialCleanNote, WEEKS_PER_MONTH, PRODUCTION_RATE_PRESETS } from './calc.mjs';
+import {
+  calculateBid,
+  formatBidSummary,
+  compareFrequencyReduction,
+  frequencyReductionNote,
+  compareSupplyResponsibility,
+  supplyResponsibilityNote,
+  compareInitialClean,
+  initialCleanNote,
+  WEEKS_PER_MONTH,
+  PRODUCTION_RATE_PRESETS,
+  PROJECT_RATE_PRESETS,
+} from './calc.mjs';
 
 const office = () => ({
   areas: [
@@ -169,6 +181,145 @@ test('production-rate presets are usable positive numbers', () => {
 test('monthly conversion uses averaged weeks, not a flat four', () => {
   assert.ok(Math.abs(WEEKS_PER_MONTH - 52 / 12) < 1e-12);
   assert.ok(WEEKS_PER_MONTH > 4.3);
+});
+
+test('omitted project work leaves the monthly contract unchanged', () => {
+  const without = calculateBid(office());
+  const empty = calculateBid({ ...office(), projects: [] });
+  assert.equal(without.hasProjectWork, false);
+  assert.equal(empty.hasProjectWork, false);
+  assert.equal(without.monthlyPrice, empty.monthlyPrice);
+  assert.equal(without.projectPrice, 0);
+  assert.equal(without.firstMonthInvoice, without.monthlyPrice);
+  assert.equal(without.breakEvenFirstMonth, without.monthlyCost);
+});
+
+test('strip and wax hours are square feet divided by rate times coats', () => {
+  const result = calculateBid({
+    ...office(),
+    projects: [{
+      name: 'Strip & wax (VCT)',
+      squareFeet: 2000,
+      productionRate: 250,
+      passes: 2,
+      materials: 80,
+    }],
+  });
+  const line = result.projects[0];
+  assert.ok(Math.abs(line.hours - 16) < 1e-9);
+  assert.ok(Math.abs(line.laborCost - 16 * result.loadedWage) < 1e-9);
+  assert.equal(line.materials, 80);
+  assert.ok(result.hasProjectWork);
+  assert.ok(Math.abs(result.projectHours - 16) < 1e-9);
+  // Same margin-on-price rule as the monthly contract, applied only to the
+  // one-time work — not amortized into the eleven months that follow.
+  assert.ok(Math.abs(result.projectProfit / result.projectPrice * 100 - 20) < 1e-9);
+  assert.ok(Math.abs(result.firstMonthInvoice - (result.monthlyPrice + result.projectPrice)) < 1e-9);
+  assert.ok(result.projectPrice > 80);
+});
+
+test('project work does not change the recurring monthly price', () => {
+  const monthlyOnly = calculateBid(office());
+  const withProject = calculateBid({
+    ...office(),
+    projects: [{ name: 'Carpet extraction', squareFeet: 1500, productionRate: 300, passes: 1, materials: 40 }],
+  });
+  assert.ok(Math.abs(withProject.monthlyPrice - monthlyOnly.monthlyPrice) < 1e-9);
+  assert.ok(Math.abs(withProject.annualPrice - monthlyOnly.annualPrice) < 1e-9);
+  assert.ok(withProject.firstMonthInvoice > withProject.monthlyPrice);
+  assert.ok(withProject.breakEvenFirstMonth > withProject.breakEvenMonthlyPrice);
+});
+
+test('a zero-area project with no materials is idle, not an error', () => {
+  const result = calculateBid({
+    ...office(),
+    projects: [{ name: 'Not yet scoped', squareFeet: 0, productionRate: 250, passes: 2, materials: 0 }],
+  });
+  assert.equal(result.hasProjectWork, false);
+  assert.equal(result.projectHours, 0);
+  assert.equal(result.projectPrice, 0);
+});
+
+test('materials-only project work still prices and is flagged', () => {
+  const result = calculateBid({
+    ...office(),
+    projects: [{ name: 'Extra chemical charge', squareFeet: 0, productionRate: 250, passes: 1, materials: 120 }],
+  });
+  assert.equal(result.hasProjectWork, true);
+  assert.equal(result.projectHours, 0);
+  assert.ok(result.projectPrice > 120);
+});
+
+test('zero passes means no labor hours on that project', () => {
+  const result = calculateBid({
+    ...office(),
+    projects: [{ name: 'Hold finish', squareFeet: 2000, productionRate: 250, passes: 0, materials: 10 }],
+  });
+  assert.equal(result.projects[0].hours, 0);
+  assert.equal(result.projects[0].laborCost, 0);
+  assert.equal(result.hasProjectWork, true);
+});
+
+test('project inputs that would produce a nonsense price are rejected', () => {
+  assert.throws(
+    () => calculateBid({
+      ...office(),
+      projects: [{ name: 'Strip', squareFeet: 1000, productionRate: 0, passes: 2 }],
+    }),
+    /Strip: project production rate must be greater than zero/,
+  );
+  assert.throws(
+    () => calculateBid({
+      ...office(),
+      projects: [{ name: 'Strip', squareFeet: -1, productionRate: 250 }],
+    }),
+    /Strip: project square feet must be at least 0/,
+  );
+  assert.throws(
+    () => calculateBid({
+      ...office(),
+      projects: [{ name: 'Strip', squareFeet: 1000, productionRate: 250, passes: -1 }],
+    }),
+    /Strip: passes must be at least 0/,
+  );
+});
+
+test('a nameless project still reports under a stable label', () => {
+  const result = calculateBid({
+    ...office(),
+    projects: [{ squareFeet: 500, productionRate: 250, passes: 1, materials: 0 }],
+  });
+  assert.equal(result.projects[0].name, 'Project 1');
+});
+
+test('project-rate presets are usable positive numbers', () => {
+  assert.ok(PROJECT_RATE_PRESETS.length >= 4);
+  for (const preset of PROJECT_RATE_PRESETS) {
+    assert.ok(preset.label.length > 0);
+    assert.ok(Number.isFinite(preset.rate) && preset.rate > 0);
+    assert.ok(Number.isFinite(preset.passes) && preset.passes >= 1);
+  }
+});
+
+test('bid summary keeps one-time work out of the monthly line', () => {
+  const result = calculateBid({
+    ...office(),
+    projects: [{ name: 'Strip & wax (VCT)', squareFeet: 2000, productionRate: 250, passes: 2, materials: 80 }],
+  });
+  const text = formatBidSummary(result);
+  assert.match(text, /Proposed monthly service:/);
+  assert.match(text, /ONE-TIME PROJECT WORK/);
+  assert.match(text, /Strip & wax \(VCT\)/);
+  assert.match(text, /First-month invoice/);
+  assert.match(text, /SERVICE AREAS/);
+  assert.match(text, /Open office/);
+  assert.doesNotMatch(text, /undefined/);
+});
+
+test('bid summary omits the project block when there is no project work', () => {
+  const text = formatBidSummary(calculateBid(office()));
+  assert.doesNotMatch(text, /ONE-TIME PROJECT WORK/);
+  assert.doesNotMatch(text, /First-month invoice/);
 });
 
 test('a 5× to 3× cut scales labor and leaves supplies and equipment on the job', () => {
