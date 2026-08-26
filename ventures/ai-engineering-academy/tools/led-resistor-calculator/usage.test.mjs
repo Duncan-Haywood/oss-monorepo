@@ -18,7 +18,7 @@ function setNavigator(value) {
 globalThis.localStorage = new FakeStorage();
 setNavigator({ doNotTrack: undefined, globalPrivacyControl: undefined });
 
-const { recordEvent, isUsageCountingEnabled, setUsageCountingEnabled, readLocalUsage } = await import("./usage.mjs");
+const { recordEvent, recordEventSettled, flushSettledEvents, cancelSettledEvents, isUsageCountingEnabled, setUsageCountingEnabled, readLocalUsage } = await import("./usage.mjs");
 
 test("usage counting is on by default", () => {
   assert.equal(isUsageCountingEnabled(), true);
@@ -56,4 +56,62 @@ test("a Do Not Track / Global Privacy Control signal disables counting even with
   recordEvent("led_resistor_calculated");
   assert.deepEqual(readLocalUsage(), {});
   setNavigator({ doNotTrack: undefined, globalPrivacyControl: undefined });
+});
+
+// These tools recompute on every `input` event. Before recordEventSettled,
+// the counter was incremented from that same handler, so typing "220" into
+// one field recorded three calculations -- the bug these cases pin down.
+
+test("a burst of keystrokes records one event, not one per keystroke", () => {
+  globalThis.localStorage = new FakeStorage();
+  cancelSettledEvents();
+  for (const _ of "220") recordEventSettled("led_resistor_calculated");
+  assert.deepEqual(readLocalUsage(), {}, "nothing is recorded until the input settles");
+  flushSettledEvents();
+  const events = readLocalUsage();
+  const keys = Object.keys(events);
+  assert.equal(keys.length, 1);
+  assert.equal(events[keys[0]], 1, "three keystrokes are one calculation");
+});
+
+test("distinct events settle independently", () => {
+  globalThis.localStorage = new FakeStorage();
+  cancelSettledEvents();
+  recordEventSettled("led_resistor_calculated");
+  recordEventSettled("some_other_action");
+  flushSettledEvents();
+  assert.equal(Object.keys(readLocalUsage()).length, 2);
+});
+
+test("a settled event still respects opting out", () => {
+  globalThis.localStorage = new FakeStorage();
+  cancelSettledEvents();
+  setUsageCountingEnabled(false);
+  recordEventSettled("led_resistor_calculated");
+  flushSettledEvents();
+  assert.deepEqual(readLocalUsage(), {});
+  setUsageCountingEnabled(true);
+});
+
+test("a settled event still respects Do Not Track", () => {
+  globalThis.localStorage = new FakeStorage();
+  cancelSettledEvents();
+  setNavigator({ doNotTrack: "1" });
+  recordEventSettled("led_resistor_calculated");
+  flushSettledEvents();
+  assert.deepEqual(readLocalUsage(), {});
+  setNavigator({ doNotTrack: undefined, globalPrivacyControl: undefined });
+});
+
+test("settling twice records twice -- two real calculations still count as two", async () => {
+  globalThis.localStorage = new FakeStorage();
+  cancelSettledEvents();
+  recordEventSettled("led_resistor_calculated", 5);
+  await new Promise((resolve) => setTimeout(resolve, 25));
+  recordEventSettled("led_resistor_calculated", 5);
+  await new Promise((resolve) => setTimeout(resolve, 25));
+  const events = readLocalUsage();
+  const keys = Object.keys(events);
+  assert.equal(keys.length, 1, "same event name and day share one key");
+  assert.equal(events[keys[0]], 2);
 });

@@ -1,0 +1,32 @@
+name: skylight-install-bid-calculator
+description: A private browser calculator for roofers and window crews that prices a skylight install from unit count, tubular versus fixed versus solar-venting, replace-existing versus new cut-in, asphalt versus tile/metal versus low-slope, drywall shafts, and extras — and shows the extra-work share and the walk-away price below which the job loses money.
+stage: prototype
+owner: duncan
+hypotheses:
+  - claim: Independent roofers and window crews will use a unit-versus-type bid calculator because the generic "$800 a skylight installed" special they are shopped on cannot see that one tubular sun tunnel in an existing chase is a different job from three solar-venting glass units with new cut-ins, tile flashing, drywall light shafts, and a second-story ladder.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: The walk-away price and the extra-work share (not the published per-unit dump) are the two figures a crew actually decides on when an owner asks them to match a cheaper tube quote on a venting cut-in.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: Showing tubular, fixed, and venting-solar on the same openings, with shaft hours and roof flashing, changes the bid enough that crews notice which unit type keeps the margin.
+    status: untested
+    checked: null
+    evidence: customer-contact
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+budget:
+  monthly_cap: 1
+  protected: true
+kill_criteria:
+  - Fewer than three qualified roofers or window crews use the calculator twice within 90 days.
+  - Contractors report that splitting units, type, and extras is more work than their existing per-unit method without changing the price they would have bid.
+  - The starting hours and unit invoices prove so far from real crews that the tool cannot be used without data we have no way to gather.
+links:
+  production: null
+  analytics: null
