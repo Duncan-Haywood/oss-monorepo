@@ -54,6 +54,10 @@ how much extra monthly profit covers the fee.
 [Should I take bank transfer on Shopify?](should-i-take-bank-transfer-on-shopify.html)
 answers the invoice question: whether skipping the card fee still pays after
 your collection rate, and whether holding the order beats shipping first.
+[Should I fight a Shopify chargeback?](should-i-fight-a-shopify-chargeback.html)
+answers the dispute question: whether refunding before the pull still beats
+fighting or accepting after the chargeback fee, and the win rate that
+flips representment.
 
 **After using the POS page, you can now see whether a market table or
 retail tap keeps more than checkout on that SKU** — which used to mean
@@ -83,6 +87,11 @@ to mean accepting the offer email because $1,400 looked cheap on $10,000.
 2.9% + $0.30 still pays after a 5% unpaid-invoice rate, and whether you
 have to hold the order for that save to survive** — which used to mean
 turning on Mark as paid because the processor fee looked like free money.
+
+**After using the chargeback page, you can now see whether a 25%
+representment win rate still loses to refunding after a $15 fee, and
+the win rate that would flip the table** — which used to mean fighting
+every dispute because winning sounded free.
 
 **No warranty.** This tool is provided free and as-is, without warranty of any
 kind, express or implied. It is not tax, financial, or business advice, and it
@@ -117,7 +126,7 @@ optional and never changes what the tool does.
 Pure ES modules, no build step, no dependencies.
 
 ```
-node --test        # calc, usage, POS / label / installment / return / Capital / bank-transfer page tests
+node --test        # calc, usage, POS / label / installment / return / Capital / bank-transfer / chargeback page tests
 ```
 
 `calc.mjs` holds the fee/profit/ROI arithmetic and plan presets; `usage.mjs`

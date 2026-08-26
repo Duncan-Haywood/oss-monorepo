@@ -9,6 +9,7 @@ import {
   compareShopPayInstallments,
   compareShopifyCapital,
   compareManualPayment,
+  compareChargeback,
   DEFAULT_BANK_APR_PCT,
   DEFAULT_CAPITAL_ADVANCE,
   DEFAULT_CAPITAL_HOLDBACK_PCT,
@@ -24,6 +25,12 @@ import {
   DEFAULT_COLLECTION_PCT,
   DEFAULT_MANUAL_DISCOUNT_PCT,
   DEFAULT_CHASE_COST,
+  DEFAULT_CHARGEBACK_FEE,
+  DEFAULT_CHARGEBACK_WIN_PCT,
+  DEFAULT_FIGHT_COST,
+  DEFAULT_MONTHLY_CHARGEBACKS,
+  DEFAULT_REFUND_FEE_KEPT_PCT,
+  DEFAULT_CHARGEBACK_RESTOCKABLE_PCT,
   PLAN_PRESETS,
 } from "./calc.mjs";
 
@@ -807,4 +814,101 @@ test("summary names the hold winner and the collection floor", () => {
   assert.match(text, /\$1\.87/);
   assert.match(text, /94\.4%/);
   assert.match(text, /96\.5%/);
+});
+
+const CHARGEBACK_BASE = {
+  price: 48,
+  shippingCharged: 6,
+  paymentsRate: 2.9,
+  paymentsFixed: 0.3,
+  costOfGoods: 14,
+  shippingCost: 5,
+  packagingCost: 1,
+  monthlyPlan: 39,
+  monthlyOrders: 100,
+  paymentMethod: "shopify_payments",
+};
+
+test("default chargeback table refunds now, then fight, then accept", () => {
+  const r = compareChargeback(CHARGEBACK_BASE);
+  near(r.completedProfit, 31.744, "completed sale");
+  near(r.pulledAmount, 54, "processor pull");
+  near(r.feeReturned, 1.866, "refunded processing fee");
+  near(r.refund.kept, -20.39, "refund leftover is the cash already spent");
+  near(r.fight.kept, -23.756, "25% win still pays the $15 fee");
+  near(r.accept.kept, -37.256, "accept loses the ticket plus the fee");
+  near(r.extraVsAccept, 16.866, "refund vs accept");
+  near(r.extraVsFight, 3.366, "refund vs fight");
+  near(r.breakEvenWinPct, (1 - (31.744 - 15 - 0 - -20.39) / 54) * 100, "win floor");
+  assert.ok(r.breakEvenWinPct > 31 && r.breakEvenWinPct < 31.3, "about 31.2%");
+  assert.equal(r.winner, "refund");
+  near(r.chargebackFee, DEFAULT_CHARGEBACK_FEE, "default fee");
+  near(r.winPct, DEFAULT_CHARGEBACK_WIN_PCT, "default win rate");
+});
+
+test("a high enough win rate makes fighting beat a refund", () => {
+  const r = compareChargeback({ ...CHARGEBACK_BASE, chargebackWinPct: 40 });
+  assert.ok(r.fight.kept > r.refund.kept, "40% already clears the 31.2% floor");
+  assert.equal(r.winner, "fight");
+  near(r.fight.kept, 0.4 * 31.744 + 0.6 * (31.744 - 54) - 15, "40% expected leftover");
+});
+
+test("accepting is the $15 fee plus fees a refund can still return", () => {
+  const r = compareChargeback(CHARGEBACK_BASE);
+  near(r.accept.kept, r.refund.kept - 15 - 1.866, "accept vs refund");
+  near(r.extraKeptOnFight, r.fight.kept - r.accept.kept, "fight vs accept");
+});
+
+test("restocking the item on a refund shrinks the cash already spent", () => {
+  const r = compareChargeback({ ...CHARGEBACK_BASE, chargebackRestockablePct: 100 });
+  near(r.recoveredCogs, 14, "full COGS back");
+  near(r.refund.kept, -20.39 + 14, "refund after restock");
+  assert.equal(r.winner, "refund");
+});
+
+test("keeping the processing fee on a refund still beats accepting", () => {
+  const r = compareChargeback({ ...CHARGEBACK_BASE, refundFeeKeptPct: 100 });
+  near(r.feeReturned, 0, "no fee comes back");
+  near(r.refund.kept, 31.744 - 54, "refund without fee return");
+  assert.ok(r.refund.kept > r.accept.kept, "the $15 fee still makes accept worse");
+  assert.equal(r.winner, "refund");
+});
+
+test("monthly chargebacks scale the refund-vs-accept gap", () => {
+  const r = compareChargeback({ ...CHARGEBACK_BASE, monthlyChargebacks: 2 });
+  near(r.monthlyExtraVsAccept, 16.866 * 2, "two disputes a month");
+  near(r.monthlyChargebacks, DEFAULT_MONTHLY_CHARGEBACKS, "default volume");
+});
+
+test("empty chargeback fields use the published defaults", () => {
+  const r = compareChargeback({
+    price: 48,
+    shippingCharged: 6,
+    paymentsRate: 2.9,
+    paymentsFixed: 0.3,
+    costOfGoods: 14,
+    shippingCost: 5,
+    packagingCost: 1,
+    monthlyPlan: 0,
+    monthlyOrders: 1,
+  });
+  near(r.chargebackFee, DEFAULT_CHARGEBACK_FEE, "default fee");
+  near(r.winPct, DEFAULT_CHARGEBACK_WIN_PCT, "default win");
+  near(r.fightCost, DEFAULT_FIGHT_COST, "default evidence cost");
+  near(r.refundFeeKeptPct, DEFAULT_REFUND_FEE_KEPT_PCT, "default refunded fees");
+  near(r.restockablePct, DEFAULT_CHARGEBACK_RESTOCKABLE_PCT, "default restock");
+});
+
+test("compareChargeback rejects impossible rates and costs", () => {
+  assert.throws(() => compareChargeback({ ...CHARGEBACK_BASE, chargebackWinPct: 101 }), /Chargeback win percent/);
+  assert.throws(() => compareChargeback({ ...CHARGEBACK_BASE, chargebackFee: -1 }), /Chargeback fee/);
+  assert.throws(() => compareChargeback({ ...CHARGEBACK_BASE, fightCost: -2 }), /Fight \/ evidence cost/);
+});
+
+test("summary names the refund winner and the win-rate floor", () => {
+  const text = compareChargeback(CHARGEBACK_BASE).summary;
+  assert.match(text, /Refunding before the chargeback lands/);
+  assert.match(text, /\$16\.87/);
+  assert.match(text, /\$15\.00/);
+  assert.match(text, /31\.2%/);
 });

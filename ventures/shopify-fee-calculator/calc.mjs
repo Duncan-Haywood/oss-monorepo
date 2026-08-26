@@ -1085,3 +1085,191 @@ export function compareManualPayment(input) {
     }),
   };
 }
+
+/**
+ * Illustrative chargeback fee and win rate so the table is immediately
+ * useful. Replace the fee from your Shopify Payments / processor
+ * statement and the win rate from your own representment history —
+ * these are not Shopify's current dispute schedule.
+ */
+export const DEFAULT_CHARGEBACK_FEE = 15;
+export const DEFAULT_CHARGEBACK_WIN_PCT = 25;
+export const DEFAULT_FIGHT_COST = 0;
+export const DEFAULT_MONTHLY_CHARGEBACKS = 2;
+export const DEFAULT_REFUND_FEE_KEPT_PCT = 0;
+export const DEFAULT_CHARGEBACK_RESTOCKABLE_PCT = 0;
+
+function chargebackSummary({
+  winner,
+  extraVsAccept,
+  extraVsFight,
+  breakEvenWinPct,
+  chargebackFee,
+  winPct,
+  monthlyExtraVsAccept,
+}) {
+  const save = moneyLabel(extraVsAccept);
+  const vsFight = moneyLabel(Math.abs(extraVsFight));
+  const fee = moneyLabel(chargebackFee);
+  const floor = breakEvenWinPct == null ? null : `${breakEvenWinPct.toFixed(1)}%`;
+  const month = moneyLabel(monthlyExtraVsAccept);
+  if (winner === "refund") {
+    const fightLine =
+      extraVsFight > 1e-9
+        ? ` It also keeps ${vsFight} more than fighting at a ${winPct}% win rate` +
+          (floor == null ? "." : ` — you need about ${floor} wins for representment to match a refund.`)
+        : ` Fighting at a ${winPct}% win rate leaves the same leftover.`;
+    return `Refunding before the chargeback lands keeps ${save} more than accepting it (the ${fee} fee plus the processing fees that a refund can still return).${fightLine} At this volume that gap is ${month} / month versus accepting.`;
+  }
+  if (winner === "fight") {
+    return `Fighting the chargeback at a ${winPct}% win rate keeps more than refunding now. Representment still has to beat a refund after the ${fee} fee; the typed win rate already does.`;
+  }
+  if (winner === "accept") {
+    return `Accepting the chargeback keeps more on these rates. That is unusual — check that the refund amount or restock recovery is not larger than the pulled funds plus the ${fee} fee.`;
+  }
+  return `Refunding, fighting, and accepting the chargeback leave the same leftover on these rates.`;
+}
+
+/**
+ * Same completed Shopify order, three responses to a payment dispute.
+ *
+ *   - Refund now — send the ticket back before (or instead of) a
+ *     chargeback. Percentage processing fees often come back; there is
+ *     no $15 network fee. Goods come back only at
+ *     the typed restockable percent (default 0: they already have the
+ *     item).
+ *   - Accept the chargeback — the processor pulls the original charge
+ *     and adds the chargeback fee. Processing fees stay. Goods almost
+ *     never come back.
+ *   - Fight / representment — expected leftover at the typed win rate.
+ *     The chargeback fee is paid either way (the usual card-network
+ *     default). Evidence time is the typed fight cost.
+ *
+ * The usual pitch is “always fight, you might win.” On a $54 ticket the
+ * $15 fee plus fees that a refund can still return means a 25% win rate
+ * still loses to refunding. Rates and the win percent are inputs — not
+ * Shopify Payments dispute policy. Complementary to landed store-credit
+ * vs refund (a requested return, not a card-network pull).
+ */
+export function compareChargeback(input) {
+  const order = calculateOrder(input);
+  const price = number(input.price, "Item price");
+  const shippingCharged = number(input.shippingCharged, "Shipping charged");
+  const costOfGoods = number(input.costOfGoods, "Cost of goods");
+  const chargebackFee = emptyField(input.chargebackFee)
+    ? DEFAULT_CHARGEBACK_FEE
+    : number(input.chargebackFee, "Chargeback fee");
+  const winPct = emptyField(input.chargebackWinPct)
+    ? DEFAULT_CHARGEBACK_WIN_PCT
+    : ratePercent(input.chargebackWinPct, "Chargeback win percent");
+  const fightCost = emptyField(input.fightCost)
+    ? DEFAULT_FIGHT_COST
+    : number(input.fightCost, "Fight / evidence cost");
+  const monthlyChargebacks = emptyField(input.monthlyChargebacks)
+    ? DEFAULT_MONTHLY_CHARGEBACKS
+    : number(input.monthlyChargebacks, "Monthly chargebacks");
+  const refundFeeKeptPct = emptyField(input.refundFeeKeptPct)
+    ? DEFAULT_REFUND_FEE_KEPT_PCT
+    : ratePercent(input.refundFeeKeptPct, "Refund fee kept percent");
+  const restockablePct = emptyField(input.chargebackRestockablePct)
+    ? DEFAULT_CHARGEBACK_RESTOCKABLE_PCT
+    : ratePercent(input.chargebackRestockablePct, "Restockable percent");
+  const refundShippingCharged = input.refundShippingCharged === undefined
+    ? true
+    : truthyFlag(input.refundShippingCharged);
+
+  const pulledAmount = price + shippingCharged;
+  const refundPaid = refundShippingCharged ? pulledAmount : price;
+  const completedProfit = order.selected.profit;
+  const feeReturned = order.selected.feeTotal * (1 - refundFeeKeptPct / 100);
+  const recoveredCogs = costOfGoods * (restockablePct / 100);
+  const winRate = winPct / 100;
+  const loseRate = 1 - winRate;
+
+  const refundKept = completedProfit - refundPaid + feeReturned + recoveredCogs;
+  const acceptKept = completedProfit - pulledAmount - chargebackFee;
+  const fightKept =
+    winRate * completedProfit + loseRate * (completedProfit - pulledAmount) - chargebackFee - fightCost;
+
+  const extraVsAccept = refundKept - acceptKept;
+  const extraVsFight = refundKept - fightKept;
+  const monthlyExtraVsAccept = extraVsAccept * monthlyChargebacks;
+  const monthlyExtraVsFight = extraVsFight * monthlyChargebacks;
+
+  // fightKept = refundKept
+  // completed - (1-w)*pulled - fee - fightCost = refundKept
+  // (1-w)*pulled = completed - fee - fightCost - refundKept
+  const recoverNeeded = completedProfit - chargebackFee - fightCost - refundKept;
+  const breakEvenWinPct =
+    pulledAmount > 1e-12 ? (1 - recoverNeeded / pulledAmount) * 100 : null;
+  const usableBreakEven =
+    breakEvenWinPct == null || breakEvenWinPct < 0 || breakEvenWinPct > 100
+      ? null
+      : breakEvenWinPct;
+
+  const refund = {
+    id: "refund",
+    label: "Refund now",
+    pulled: refundPaid,
+    extraFee: 0,
+    kept: refundKept,
+  };
+  const fight = {
+    id: "fight",
+    label: "Fight the chargeback",
+    pulled: loseRate * pulledAmount,
+    extraFee: chargebackFee + fightCost,
+    kept: fightKept,
+  };
+  const accept = {
+    id: "accept",
+    label: "Accept the chargeback",
+    pulled: pulledAmount,
+    extraFee: chargebackFee,
+    kept: acceptKept,
+  };
+
+  const rows = [refund, fight, accept].map((row) => ({
+    ...row,
+    vsAccept: row.kept - acceptKept,
+    vsRefund: row.kept - refundKept,
+  }));
+  const maxKept = Math.max(...rows.map((row) => row.kept));
+  const leaders = rows.filter((row) => Math.abs(row.kept - maxKept) < 1e-9);
+  const winner = leaders.length === 1 ? leaders[0].id : "tie";
+
+  return {
+    rows,
+    refund: rows[0],
+    fight: rows[1],
+    accept: rows[2],
+    completedProfit,
+    pulledAmount,
+    refundPaid,
+    feeReturned,
+    recoveredCogs,
+    chargebackFee,
+    winPct,
+    fightCost,
+    refundFeeKeptPct,
+    restockablePct,
+    refundShippingCharged,
+    monthlyChargebacks,
+    extraVsAccept,
+    extraVsFight,
+    extraKeptOnFight: fightKept - acceptKept,
+    monthlyExtraVsAccept,
+    monthlyExtraVsFight,
+    breakEvenWinPct: usableBreakEven,
+    winner,
+    summary: chargebackSummary({
+      winner,
+      extraVsAccept,
+      extraVsFight,
+      breakEvenWinPct: usableBreakEven,
+      chargebackFee,
+      winPct,
+      monthlyExtraVsAccept,
+    }),
+  };
+}
