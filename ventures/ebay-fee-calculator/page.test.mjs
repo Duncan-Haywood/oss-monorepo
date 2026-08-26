@@ -281,7 +281,9 @@ test('the immediate-payment table has one cell per column and a counted event', 
   assert.match(page, /immediate_payment_compared/);
   assert.match(page, /should-i-require-immediate-payment-on-ebay\.html/);
   assert.match(page, /"featureList":\s*"[^"]*immediate payment vs unpaid checkouts/);
-  const headerBlock = page.slice(page.indexOf('id="immediatePaymentTable"'));
+  const immediateStart = page.indexOf('id="immediatePaymentTable"');
+  const immediateEnd = page.indexOf('id="topRatedPlus"', immediateStart);
+  const headerBlock = page.slice(immediateStart, immediateEnd === -1 ? undefined : immediateEnd);
   const headers = [...headerBlock.matchAll(/<th scope="col">([^<]+)<\/th>/g)].map((m) => m[1]);
   assert.deepEqual(headers, [
     'Path',
@@ -291,5 +293,25 @@ test('the immediate-payment table has one cell per column and a counted event', 
     'If checkout starts',
     'Expected after sell-through',
     'vs later',
+  ]);
+});
+
+test('the Top Rated Plus table has one cell per column and a counted event', () => {
+  assert.match(page, /compareTopRatedPlus/);
+  assert.match(page, /id="topRatedPlus"/);
+  assert.match(page, /id="topRatedPlusVerdict"/);
+  assert.match(page, /top_rated_plus_compared/);
+  assert.match(page, /is-ebay-top-rated-plus-worth-it\.html/);
+  assert.match(page, /"featureList":\s*"[^"]*Top Rated Plus vs stay standard/);
+  const headerBlock = page.slice(page.indexOf('id="topRatedPlusTable"'));
+  const headers = [...headerBlock.matchAll(/<th scope="col">([^<]+)<\/th>/g)].map((m) => m[1]);
+  assert.deepEqual(headers, [
+    'Path',
+    'Sell-through',
+    'Return rate',
+    'Handling',
+    'If it sells',
+    'Expected after sell-through',
+    'vs standard',
   ]);
 });
