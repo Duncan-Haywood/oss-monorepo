@@ -19,6 +19,10 @@ hypotheses:
     status: untested
     checked: null
     evidence: customer-contact
+  - claim: Showing one-time vs amortized vs thrown-in on a 5x takeover clean stops contractors from giving away month 1 to win a monthly that the prospect can cancel after 30 days.
+    status: untested
+    checked: null
+    evidence: customer-contact
 economics:
   currency: USD
   mrr: null

@@ -554,6 +554,15 @@ products:
           lines still absent from main. Building-level currentWeekly now
           rebases area rows when they disagree. Public URL remains
           owner-gated.
+      - as_of: 2026-08-26
+        signals:
+          live_url_visitors: null
+          initial_clean_compared: 0
+          initial_clean_note_copied: 0
+        note: >-
+          Added one-time vs amortized vs thrown-in on a takeover /
+          initial clean, including 30-day cancel cash. Public URL remains
+          owner-gated.
   - slug: shopify-fee-calculator
     surface: static-page-in-repo
     readings:

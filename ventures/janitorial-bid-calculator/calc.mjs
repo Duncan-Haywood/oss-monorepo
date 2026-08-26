@@ -380,3 +380,152 @@ export function supplyResponsibilityNote(comparison, { targetMargin } = {}) {
     : `Dropping the whole supplies line from today's price leaves a ${comparison.naiveMarginAtRestroom.toFixed(1)}% margin if they actually take the restroom stock, versus the ${marginPct}% the original bid was built on.`;
   return [restroomLine, honestLine, fillLine, naiveLine].join(' ');
 }
+
+/**
+ * Compare quoting the takeover / initial clean as a one-time line versus
+ * throwing it into month 1 at today's monthly.
+ *
+ * A neglected or vacant building's first visit is several regular cleans of
+ * labor plus extra chemicals. Prospects ask to "just include it." Month 1
+ * then carries a project on a periodic price. If they cancel after 30 days,
+ * that giveaway is the whole relationship. This is not strip-and-wax (a
+ * recurring floor-finish project) and not a second address — it is the
+ * one-time deep clean that wins the monthly.
+ *
+ * Overhead and margin are applied to the initial the same way they are
+ * applied to the month, so the one-time number is the price that still
+ * holds the target, not the raw crew cost.
+ *
+ * @param {object} input  Same shape as calculateBid.
+ * @param {object} options
+ * @param {number} [options.visitMultiplier=5] How many regular visits the
+ *   initial is worth. 2–3× is a maintained building; 5× is a typical
+ *   takeover of a neglected floor.
+ * @param {number} [options.extraSupplies=80] Extra chemicals, liners, and
+ *   dumpster cost on that first visit only.
+ * @param {number} [options.amortizeMonths=12] Months over which to recover
+ *   the initial if it is baked into the monthly instead of invoiced once.
+ * @param {number} [options.cancelAfterMonths=1] Tenure used for the
+ *   cancel-early cash comparison (default: they leave after 30 days).
+ * @param {number|string|null} [options.clientOfferMonthly] Optional monthly
+ *   they offered that already "includes" the initial, scored against the
+ *   month-1 cost that still carries the project.
+ */
+export function compareInitialClean(input, options = {}) {
+  const visitMultiplier = number(
+    options.visitMultiplier ?? 5,
+    'Initial-clean visit multiplier',
+    { allowZero: false },
+  );
+  const extraSupplies = number(options.extraSupplies ?? 80, 'Extra initial-clean supplies');
+  const amortizeMonths = number(
+    options.amortizeMonths ?? 12,
+    'Months to recover the initial',
+    { allowZero: false },
+  );
+  const cancelAfterMonths = number(
+    options.cancelAfterMonths ?? 1,
+    'If they cancel after this many months',
+    { allowZero: false },
+  );
+  const overheadRate = number(input.overheadRate ?? 0, 'Overhead');
+  const targetMargin = number(input.targetMargin ?? 0, 'Target margin');
+  if (targetMargin >= 100) throw new Error('Target margin must be less than 100%');
+
+  const monthly = calculateBid({ ...input, proposedPrice: undefined });
+  const hoursPerVisit = monthly.hoursPerVisitTotal;
+  const initialHours = hoursPerVisit * visitMultiplier;
+  const initialLabor = initialHours * monthly.loadedWage;
+  const initialDirect = initialLabor + extraSupplies;
+  const initialOverhead = initialDirect * overheadRate / 100;
+  const initialCost = initialDirect + initialOverhead;
+  const initialPrice = initialCost / (1 - targetMargin / 100);
+  const initialProfit = initialPrice - initialCost;
+
+  const amortizedMonthlyCost = monthly.monthlyCost + initialCost / amortizeMonths;
+  const amortizedMonthlyPrice = amortizedMonthlyCost / (1 - targetMargin / 100);
+  const amortizedAddOn = amortizedMonthlyPrice - monthly.monthlyPrice;
+
+  const thrownInMonth1Cost = monthly.monthlyCost + initialCost;
+  const thrownInMonth1Profit = monthly.monthlyPrice - thrownInMonth1Cost;
+  const thrownInMonth1Margin = monthly.monthlyPrice === 0
+    ? 0
+    : thrownInMonth1Profit / monthly.monthlyPrice * 100;
+  const thrownInBelowBreakEven = monthly.monthlyPrice < thrownInMonth1Cost;
+
+  // How many months of ordinary profit equal the giveaway. Null when the
+  // monthly itself does not make money — there is then no recovery path.
+  const monthsOfProfitToCoverGiveaway = monthly.monthlyProfit <= 0
+    ? null
+    : initialCost / monthly.monthlyProfit;
+
+  // Quoted separately they pay the one-time and the month. Thrown in they
+  // pay only the month, so month 1 still carries the project cost.
+  const quotedSeparatelyCashIfCancel =
+    cancelAfterMonths * monthly.monthlyProfit + initialProfit;
+  const thrownInCashIfCancel =
+    cancelAfterMonths * monthly.monthlyProfit - initialCost;
+  const giveawayVsQuotedIfCancel = thrownInCashIfCancel - quotedSeparatelyCashIfCancel;
+
+  const hasOffer = options.clientOfferMonthly !== null
+    && options.clientOfferMonthly !== undefined
+    && options.clientOfferMonthly !== '';
+  const offerPrice = hasOffer
+    ? number(options.clientOfferMonthly, 'Monthly they offered including the initial')
+    : null;
+  const clientOffer = offerPrice === null ? null : {
+    price: offerPrice,
+    month1Profit: offerPrice - thrownInMonth1Cost,
+    month1Margin: offerPrice === 0 ? 0 : (offerPrice - thrownInMonth1Cost) / offerPrice * 100,
+    belowBreakEvenMonth1: offerPrice < thrownInMonth1Cost,
+    laterProfit: offerPrice - monthly.monthlyCost,
+    laterBelowBreakEven: offerPrice < monthly.monthlyCost,
+  };
+
+  return {
+    visitMultiplier,
+    extraSupplies,
+    amortizeMonths,
+    cancelAfterMonths,
+    hoursPerVisit,
+    initialHours,
+    initialLabor,
+    initialDirect,
+    initialOverhead,
+    initialCost,
+    initialPrice,
+    initialProfit,
+    monthly,
+    amortizedMonthlyCost,
+    amortizedMonthlyPrice,
+    amortizedAddOn,
+    thrownInMonth1Cost,
+    thrownInMonth1Profit,
+    thrownInMonth1Margin,
+    thrownInBelowBreakEven,
+    monthsOfProfitToCoverGiveaway,
+    quotedSeparatelyCashIfCancel,
+    thrownInCashIfCancel,
+    giveawayVsQuotedIfCancel,
+    walkAwayMonth1: thrownInMonth1Cost,
+    clientOffer,
+  };
+}
+
+/**
+ * One paragraph a contractor can paste into a "just include the initial"
+ * reply. Arithmetic only — it does not tell them to accept or refuse.
+ */
+export function initialCleanNote(comparison, { targetMargin } = {}) {
+  const money = value => `$${value.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+  const marginPct = Number.isFinite(targetMargin) ? targetMargin : 20;
+  const oneTime = `A ${comparison.visitMultiplier.toFixed(1)}× takeover clean (${comparison.initialHours.toFixed(1)} h plus ${money(comparison.extraSupplies)} of extra supplies) is a ${money(comparison.initialPrice)} one-time line if it still holds a ${marginPct}% margin — not a free extra on the ${money(comparison.monthly.monthlyPrice)} monthly.`;
+  const thrown = comparison.thrownInBelowBreakEven
+    ? `Throwing it in at today's monthly loses ${money(Math.abs(comparison.thrownInMonth1Profit))} in month 1 against a ${money(comparison.walkAwayMonth1)} walk-away.`
+    : `Throwing it in at today's monthly leaves ${money(comparison.thrownInMonth1Profit)} in month 1 (${comparison.thrownInMonth1Margin.toFixed(1)}% margin), not the ${marginPct}% the monthly was built on.`;
+  const amortize = `Baking it into the monthly over ${comparison.amortizeMonths} months is ${money(comparison.amortizedMonthlyPrice)} (${money(comparison.amortizedAddOn)} above today's monthly).`;
+  const cancel = comparison.thrownInCashIfCancel < 0
+    ? `If they cancel after ${comparison.cancelAfterMonths} month${comparison.cancelAfterMonths === 1 ? '' : 's'}, the giveaway finishes ${money(Math.abs(comparison.thrownInCashIfCancel))} under water versus ${money(comparison.quotedSeparatelyCashIfCancel)} if the initial was invoiced.`
+    : `If they cancel after ${comparison.cancelAfterMonths} month${comparison.cancelAfterMonths === 1 ? '' : 's'}, throwing it in keeps ${money(comparison.thrownInCashIfCancel)} versus ${money(comparison.quotedSeparatelyCashIfCancel)} if the initial was invoiced.`;
+  return [oneTime, thrown, amortize, cancel].join(' ');
+}
