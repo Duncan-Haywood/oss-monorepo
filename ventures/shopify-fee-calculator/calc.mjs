@@ -731,3 +731,190 @@ export function compareReturnResolution(input) {
     }),
   };
 }
+
+/**
+ * Illustrative Shopify Capital offer so the table is immediately useful.
+ * Replace the advance, repayment, and holdback from the offer email —
+ * these are not Shopify Capital's current schedule.
+ */
+export const DEFAULT_CAPITAL_ADVANCE = 10000;
+export const DEFAULT_CAPITAL_REPAY = 11400;
+export const DEFAULT_CAPITAL_HOLDBACK_PCT = 10;
+export const DEFAULT_CAPITAL_MONTHLY_SALES = 30000;
+export const DEFAULT_BANK_APR_PCT = 12;
+const DAYS_PER_MONTH = 30;
+const DAYS_PER_YEAR = 365;
+
+function capitalSummary({
+  winner,
+  fee,
+  daysToRepay,
+  simpleAnnualizedPct,
+  breakEvenExtraMonthly,
+  extraMonthlyProfit,
+  extraCoversFee,
+}) {
+  const feeLabel = moneyLabel(fee);
+  const days = daysToRepay.toFixed(1);
+  const annual = simpleAnnualizedPct.toFixed(1);
+  const breakEven = moneyLabel(breakEvenExtraMonthly);
+  if (winner === "wait") {
+    const liftLine =
+      extraMonthlyProfit > 1e-9
+        ? extraCoversFee
+          ? ` The extra monthly profit you typed already covers that fee.`
+          : ` The extra monthly profit you typed does not cover that fee.`
+        : ` You need about ${breakEven} extra profit / month during the holdback for Capital to match waiting.`;
+    return `Waiting and self-funding keeps more than this Shopify Capital offer. The ${feeLabel} fee over ${days} days is about ${annual}% simple annualized.${liftLine}`;
+  }
+  if (winner === "bank") {
+    return `A bank or line of credit at the typed APR keeps more than this Shopify Capital offer. Capital's ${feeLabel} fee over ${days} days is about ${annual}% simple annualized.`;
+  }
+  if (winner === "capital") {
+    return `Shopify Capital keeps more than waiting after the extra inventory profit you typed. The ${feeLabel} fee over ${days} days is about ${annual}% simple annualized.`;
+  }
+  return `Shopify Capital, waiting, and a bank line leave the same leftover on these rates.`;
+}
+
+/**
+ * Same cash need, three ways to fund it.
+ *
+ *   - Shopify Capital — a merchant cash advance. Fee is repayment minus
+ *     advance. Holdback is a percent of daily sales until repaid. Simple
+ *     annualized cost is (fee / advance) × (365 / days to repay). That
+ *     is not APR-of-record and not a Truth-in-Lending figure.
+ *   - Wait / self-fund — save the advance from leftover monthly profit
+ *     (typed, or this SKU's profit × monthly orders). Miss the extra
+ *     monthly profit during those save-up days.
+ *   - Bank / LOC — interest at the typed APR over the same repay days,
+ *     with the same extra monthly profit as having the cash now.
+ *
+ * Extra monthly profit is the inventory or campaign that only happens
+ * if the cash arrives now. Default 0 so the table does not invent a
+ * lift. Rates and the offer are inputs, not Shopify Capital policy.
+ * Complementary to landed Shop Pay Installments (customer BNPL, not
+ * merchant funding) and to open plan-upgrade work.
+ */
+export function compareShopifyCapital(input) {
+  const advance = emptyField(input.advanceAmount)
+    ? DEFAULT_CAPITAL_ADVANCE
+    : number(input.advanceAmount, "Capital advance");
+  const repayment = emptyField(input.repaymentAmount)
+    ? DEFAULT_CAPITAL_REPAY
+    : number(input.repaymentAmount, "Capital repayment");
+  const holdbackPct = emptyField(input.holdbackPct)
+    ? DEFAULT_CAPITAL_HOLDBACK_PCT
+    : ratePercent(input.holdbackPct, "Holdback percent");
+  const monthlySales = emptyField(input.monthlySales)
+    ? DEFAULT_CAPITAL_MONTHLY_SALES
+    : number(input.monthlySales, "Monthly sales");
+  const extraMonthlyProfit = number(input.extraMonthlyProfit, "Extra monthly profit from having the cash now", 0);
+  const bankAprPct = emptyField(input.bankAprPct)
+    ? DEFAULT_BANK_APR_PCT
+    : number(input.bankAprPct, "Bank APR");
+  if (advance <= 0) throw new Error("Capital advance must be greater than zero");
+  if (repayment < advance) throw new Error("Capital repayment cannot be less than the advance");
+  if (holdbackPct <= 0) throw new Error("Holdback percent must be greater than zero");
+  if (monthlySales <= 0) throw new Error("Monthly sales must be greater than zero");
+
+  const fee = repayment - advance;
+  const dailySales = monthlySales / DAYS_PER_MONTH;
+  const dailyHoldback = dailySales * (holdbackPct / 100);
+  if (dailyHoldback <= 1e-12) throw new Error("Holdback must take some daily sales");
+  const daysToRepay = repayment / dailyHoldback;
+  const simpleAnnualizedPct = (fee / advance) * (DAYS_PER_YEAR / daysToRepay) * 100;
+  const extraProfitDuringRepay = extraMonthlyProfit * (daysToRepay / DAYS_PER_MONTH);
+  const breakEvenExtraMonthly = daysToRepay > 1e-12 ? fee / (daysToRepay / DAYS_PER_MONTH) : null;
+
+  let leftoverMonthlyProfit;
+  if (emptyField(input.leftoverMonthlyProfit)) {
+    const order = calculateOrder(input);
+    leftoverMonthlyProfit = order.selected.profit * number(input.monthlyOrders, "Monthly orders", 1);
+  } else {
+    leftoverMonthlyProfit = number(input.leftoverMonthlyProfit, "Leftover monthly profit");
+  }
+
+  const dailyLeftover = leftoverMonthlyProfit / DAYS_PER_MONTH;
+  const daysToSelfFund = dailyLeftover > 1e-12 ? advance / dailyLeftover : null;
+  const missedWhileWaiting =
+    daysToSelfFund == null ? extraMonthlyProfit : extraMonthlyProfit * (daysToSelfFund / DAYS_PER_MONTH);
+  const bankInterest = advance * (bankAprPct / 100) * (daysToRepay / DAYS_PER_YEAR);
+
+  const capitalKept = extraProfitDuringRepay - fee;
+  const waitKept = -missedWhileWaiting;
+  const bankKept = extraProfitDuringRepay - bankInterest;
+  const extraCoversFee = extraProfitDuringRepay + 1e-9 >= fee;
+
+  const capital = {
+    id: "capital",
+    label: "Shopify Capital",
+    cashNow: advance,
+    cost: fee,
+    extraProfit: extraProfitDuringRepay,
+    days: daysToRepay,
+    kept: capitalKept,
+  };
+  const wait = {
+    id: "wait",
+    label: "Wait and self-fund",
+    cashNow: 0,
+    cost: missedWhileWaiting,
+    extraProfit: 0,
+    days: daysToSelfFund,
+    kept: waitKept,
+  };
+  const bank = {
+    id: "bank",
+    label: "Bank / line of credit",
+    cashNow: advance,
+    cost: bankInterest,
+    extraProfit: extraProfitDuringRepay,
+    days: daysToRepay,
+    kept: bankKept,
+  };
+
+  const rows = [capital, wait, bank].map((row) => ({
+    ...row,
+    vsWait: row.kept - waitKept,
+  }));
+  const maxKept = Math.max(...rows.map((row) => row.kept));
+  const leaders = rows.filter((row) => Math.abs(row.kept - maxKept) < 1e-9);
+  const winner = leaders.length === 1 ? leaders[0].id : "tie";
+
+  return {
+    rows,
+    capital: rows[0],
+    wait: rows[1],
+    bank: rows[2],
+    advance,
+    repayment,
+    fee,
+    holdbackPct,
+    monthlySales,
+    dailySales,
+    dailyHoldback,
+    daysToRepay,
+    simpleAnnualizedPct,
+    extraMonthlyProfit,
+    extraProfitDuringRepay,
+    leftoverMonthlyProfit,
+    daysToSelfFund,
+    missedWhileWaiting,
+    bankAprPct,
+    bankInterest,
+    breakEvenExtraMonthly,
+    extraCoversFee,
+    extraKeptOnCapital: capitalKept - waitKept,
+    extraKeptOnBank: bankKept - waitKept,
+    winner,
+    summary: capitalSummary({
+      winner,
+      fee,
+      daysToRepay,
+      simpleAnnualizedPct,
+      breakEvenExtraMonthly,
+      extraMonthlyProfit,
+      extraCoversFee,
+    }),
+  };
+}
