@@ -1,47 +1,17 @@
 # Mobile Detailing Bid Calculator
 
-A free browser calculator for mobile auto detailers. It prices the whole stop,
-including travel, setup, cleanup, loaded labor, supplies, vehicle costs,
-overhead, and target margin, so an attractive package price does not quietly
-turn into an underpaid day.
+The free mobile detailing bid calculator shows the minimum quote and target-margin price for a mobile detail job after labor, round-trip travel, vehicle cost, supplies, overhead, and payment fees. After using this, you can price a job with its real travel burden, which used to take a spreadsheet and a second guess.
 
-Open [`index.html`](index.html) directly or serve this directory statically.
-There are no accounts, network calls, build steps, or paid dependencies.
+Open `index.html` in a browser. It runs without an account, network request, API key, or paid dependency. Numbers are saved only in the browser and can be shared as a URL when you choose to copy one.
 
-```bash
-cd ventures/mobile-detailing-bid-calculator
-node --test
-python3 -m http.server 8080
-```
-
-## Why this is distinct
-
-The portfolio has calculators for commercial cleaning, lawn care, HVAC
-contracts, and other trades, but none models mobile auto detailing's distinctive
-travel, water/power, setup, and cleanup economics. The search phrase is
-“mobile detailing pricing calculator”; the user gets a quote, cost floor,
-effective hourly rate, and copyable draft in one visit.
+**No warranty.** This tool is provided free and as-is, without warranty of any kind, express or implied. It is not business, tax, financial, or professional advice, and it does not replace a qualified professional. **You are responsible for reviewing and verifying its output before relying on it**, and for meeting any obligation it helps you prepare for. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.
 
 ## Privacy and usage
 
-Everything runs in the browser; job details and prices are never uploaded. An
-anonymous local tally records only `quote_calculated` and `summary_copied`.
-It contains no person identifiers, IP address, quote content, or analytics
-vendor and is skipped for Do Not Track or Global Privacy Control. Clear this
-site's local storage to remove it. No public usage reading exists yet because
-publishing is owner-gated.
+Everything runs in your browser. Your prices, costs, and job details are never uploaded. There are no accounts, cookies, tracking pixels, or analytics vendor. Unless you opt out, the browser stores only anonymous event names and the day a feature was used; it never stores inputs in the usage counter. The footer checkbox turns this counter off.
 
-## Limitations and disclaimer
+## Opportunity assessment
 
-This is arithmetic, not a market-rate guide. It does not estimate chemical
-quantities, taxes, payment processing, weather risk, damage liability, or local
-demand. Verify wage, burden, insurance, travel, equipment, and supply inputs.
+The target user is an independent mobile detailer or two-person crew pricing a one-off job. Generic hourly-rate calculators commonly omit round-trip driving, setup/load-out time, chemical consumption, and card fees, causing underquoted jobs and unpaid travel. The differentiated result is a transparent, detailing-specific quote that shows break-even, target-margin price, and effective hourly contribution side by side.
 
-**No warranty.** This tool is provided free and as-is, without warranty of any
-kind, express or implied. It is not financial or business advice, and it does
-not replace a qualified professional. **You are responsible for reviewing and
-verifying its output before relying on it**, and for meeting any obligation it
-helps you prepare for. To the maximum extent permitted by law, the authors
-accept no liability for any loss or damage arising from its use.
-
-MIT licensed; see [`LICENSE`](LICENSE).
+Acquisition can come from searches such as “mobile detailing price calculator”, “mobile detailer minimum charge”, and “how much should I charge to detail a car”. A later hosted tier could add saved job templates or optional AI explanations using the user's own API key, but the free arithmetic core has zero inference and hosting cost. Risks are limited to users treating estimates as guarantees; the visible disclaimer, explicit assumptions, and wording as a pricing worksheet rather than advice contain that risk.
