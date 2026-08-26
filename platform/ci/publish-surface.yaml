@@ -73,6 +73,9 @@ workflows:
 - workflow: cloud-egress-calculator-ci.yml
   classification: none
   publishes: []
+- workflow: crown-molding-bid-calculator-ci.yml
+  classification: none
+  publishes: []
 - workflow: cut-list-optimizer-ci.yml
   classification: none
   publishes: []
