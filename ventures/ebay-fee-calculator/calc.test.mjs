@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { calculateOrder, calculatePriceScenarios, calculateRepricingTable, compareListingFormat, listingFormatNote, comparePartialRefund, partialRefundNote, DEFAULT_PARTIAL_REFUND, DEFAULT_MONTHLY_CASES, compareAuthenticity, authenticityNote, DEFAULT_AUTHENTICITY_FEE_RATE, DEFAULT_AUTHENTICITY_EXTRA_SHIP, DEFAULT_WITHOUT_AG_SELL_THROUGH, DEFAULT_AUTHENTICITY_SELL_THROUGH, DEFAULT_AUTHENTICITY_RETURN_RATE, DEFAULT_MONTHLY_AG_LISTINGS, compareLocalPickup, localPickupNote, DEFAULT_SHIP_SELL_THROUGH, DEFAULT_PICKUP_SELL_THROUGH, DEFAULT_PICKUP_NO_SHOW, DEFAULT_PICKUP_MINUTES, DEFAULT_PICKUP_HOURLY_WAGE, DEFAULT_MONTHLY_PICKUP_LISTINGS, compareLotVsSingles, lotVsSinglesNote, DEFAULT_LOT_PIECE_COUNT, DEFAULT_SINGLE_EXPECTED_PRICE, DEFAULT_LOT_SELL_THROUGH, DEFAULT_SINGLE_SELL_THROUGH, DEFAULT_SINGLE_INSERTION_FEE, DEFAULT_MONTHLY_LOT_DECISIONS } from './calc.mjs';
+import { calculateOrder, calculatePriceScenarios, calculateRepricingTable, compareListingFormat, listingFormatNote, comparePartialRefund, partialRefundNote, DEFAULT_PARTIAL_REFUND, DEFAULT_MONTHLY_CASES, compareAuthenticity, authenticityNote, DEFAULT_AUTHENTICITY_FEE_RATE, DEFAULT_AUTHENTICITY_EXTRA_SHIP, DEFAULT_WITHOUT_AG_SELL_THROUGH, DEFAULT_AUTHENTICITY_SELL_THROUGH, DEFAULT_AUTHENTICITY_RETURN_RATE, DEFAULT_MONTHLY_AG_LISTINGS, compareLocalPickup, localPickupNote, DEFAULT_SHIP_SELL_THROUGH, DEFAULT_PICKUP_SELL_THROUGH, DEFAULT_PICKUP_NO_SHOW, DEFAULT_PICKUP_MINUTES, DEFAULT_PICKUP_HOURLY_WAGE, DEFAULT_MONTHLY_PICKUP_LISTINGS, compareLotVsSingles, lotVsSinglesNote, DEFAULT_LOT_PIECE_COUNT, DEFAULT_SINGLE_EXPECTED_PRICE, DEFAULT_LOT_SELL_THROUGH, DEFAULT_SINGLE_SELL_THROUGH, DEFAULT_SINGLE_INSERTION_FEE, DEFAULT_MONTHLY_LOT_DECISIONS, compareStandardEnvelope, standardEnvelopeNote, DEFAULT_ENVELOPE_SHIPPING_COST, DEFAULT_ENVELOPE_PACKAGING_COST, DEFAULT_ENVELOPE_CLAIM_RATE, DEFAULT_ENVELOPE_FEE_REFUND_ON_CLAIM, DEFAULT_TRACKED_SELL_THROUGH, DEFAULT_ENVELOPE_SELL_THROUGH, DEFAULT_MONTHLY_ENVELOPE_LISTINGS } from './calc.mjs';
 
 const near = (actual, expected, msg) => assert.ok(Math.abs(actual - expected) < 1e-6, `${msg}: ${actual} vs ${expected}`);
 
@@ -615,4 +615,96 @@ test('rejects a one-piece lot, a sell-through above 100%, and a missing comparis
   assert.throws(() => compareLotVsSingles({ ...agBase, singleSellThroughPct: 101 }), /at most 100/);
   assert.throws(() => compareLotVsSingles({ price: -1 }), /Item price/);
   assert.throws(() => lotVsSinglesNote({}), /missing rows/);
+});
+
+test('compares Standard Envelope against a tracked label on the default listing', () => {
+  // Tracked: completed $21.605, return −$11, 10% mix → $18.3445;
+  // 90% sell-through → $16.51005.
+  // Envelope: $0.66 + $0.35 pack. Completed $26.595. An 8% INR claim
+  // loses $12 + $1.01 and does not restock → −$13.01. Mix → $23.4266;
+  // 85% sell-through → $19.91261. Envelope is ahead.
+  const comparison = compareStandardEnvelope(agBase);
+  assert.equal(comparison.envelopeShip, DEFAULT_ENVELOPE_SHIPPING_COST);
+  assert.equal(comparison.envelopePack, DEFAULT_ENVELOPE_PACKAGING_COST);
+  assert.equal(comparison.claimRate, DEFAULT_ENVELOPE_CLAIM_RATE);
+  assert.equal(comparison.feeRefundOnClaim, DEFAULT_ENVELOPE_FEE_REFUND_ON_CLAIM);
+  assert.equal(comparison.tracked.sellThroughPct, DEFAULT_TRACKED_SELL_THROUGH);
+  assert.equal(comparison.envelope.sellThroughPct, DEFAULT_ENVELOPE_SELL_THROUGH);
+  assert.equal(comparison.monthlyListings, DEFAULT_MONTHLY_ENVELOPE_LISTINGS);
+  near(comparison.tracked.soldExpectedProfit, 18.3445, 'tracked completed expected');
+  near(comparison.tracked.expectedProfit, 18.3445 * 0.90, 'tracked listing expected');
+  near(comparison.envelope.completedProfit, 26.595, 'envelope completed');
+  near(comparison.claimProfit, -13.01, 'claim loses COGS and envelope postage');
+  near(comparison.envelope.soldExpectedProfit, 23.4266, 'envelope after claims');
+  near(comparison.envelope.expectedProfit, 23.4266 * 0.85, 'envelope listing expected');
+  near(comparison.extraKeptOnEnvelope, 19.91261 - 16.51005, 'envelope gap');
+  near(comparison.monthlyExtraOnEnvelope, (19.91261 - 16.51005) * 40, 'forty listings');
+  assert.equal(comparison.winner, 'envelope');
+  assert.equal(comparison.tracked.lossKind, 'return');
+  assert.equal(comparison.envelope.lossKind, 'claim');
+});
+
+test('break-even claim rate and envelope postage match the tracked label', () => {
+  const comparison = compareStandardEnvelope(agBase);
+  const atClaim = compareStandardEnvelope({
+    ...agBase,
+    envelopeClaimRatePercent: comparison.breakEvenClaimRate,
+  });
+  near(atClaim.envelope.expectedProfit, atClaim.tracked.expectedProfit, 'ceiling claim ties tracked');
+  const atPostage = compareStandardEnvelope({
+    ...agBase,
+    envelopeShippingCost: comparison.breakEvenEnvelopePostage,
+  });
+  near(atPostage.envelope.expectedProfit, atPostage.tracked.expectedProfit, 'ceiling postage ties tracked');
+  assert.ok(comparison.breakEvenClaimRate > 8, 'default 8% claims are below the ceiling');
+  assert.ok(comparison.breakEvenEnvelopePostage > 0.66, 'default $0.66 postage is below the ceiling');
+});
+
+test('a vintage card with high COGS flips the tracked label ahead', () => {
+  const comparison = compareStandardEnvelope({
+    price: 80,
+    shippingCharged: 0,
+    finalValueRate: 13.25,
+    fixedFee: 0.3,
+    costOfGoods: 40,
+    shippingCost: 4.25,
+    packagingCost: 0.4,
+    returnShippingCost: 4.25,
+    feeRefundOnReturnPercent: 100,
+    returnRatePercent: 2,
+  });
+  assert.equal(comparison.winner, 'tracked');
+  near(comparison.tracked.soldExpectedProfit, 23.783, 'tracked completed expected');
+  near(comparison.tracked.expectedProfit, 23.783 * 0.90, 'tracked listing expected');
+  near(comparison.envelope.soldExpectedProfit, 22.562, 'envelope after claims');
+  near(comparison.envelope.expectedProfit, 22.562 * 0.85, 'envelope listing expected');
+  near(comparison.extraKeptOnEnvelope, 19.1777 - 21.4047, 'vintage gap');
+  assert.equal(comparison.breakEvenEnvelopePostage, Infinity);
+});
+
+test('a 25% claim rate flips the tracked label ahead on the $40 SKU', () => {
+  const comparison = compareStandardEnvelope({ ...agBase, envelopeClaimRatePercent: 25 });
+  assert.equal(comparison.winner, 'tracked');
+  near(comparison.envelope.soldExpectedProfit, 0.75 * 26.595 + 0.25 * -13.01, '25% claim mix');
+  assert.ok(comparison.envelope.expectedProfit < comparison.tracked.expectedProfit);
+});
+
+test('Standard Envelope note reports both paths without telling the seller which to use', () => {
+  const comparison = compareStandardEnvelope(agBase);
+  const note = standardEnvelopeNote(comparison);
+  assert.match(note, /tracked label at 90%/);
+  assert.match(note, /\$6\.00 postage and pack/);
+  assert.match(note, /10% return rate/);
+  assert.match(note, /Standard Envelope at 85%/);
+  assert.match(note, /\$1\.01 postage and pack/);
+  assert.match(note, /8% item-not-received claim rate/);
+  assert.match(note, /Claims have to stay at about 18\.1%/);
+  assert.doesNotMatch(note, /should use the envelope|must buy a label/i);
+});
+
+test('rejects a claim rate above 100% and a missing envelope comparison', () => {
+  assert.throws(() => compareStandardEnvelope({ ...agBase, envelopeClaimRatePercent: 101 }), /at most 100/);
+  assert.throws(() => compareStandardEnvelope({ ...agBase, envelopeSellThroughPct: 101 }), /at most 100/);
+  assert.throws(() => compareStandardEnvelope({ price: -1 }), /Item price/);
+  assert.throws(() => standardEnvelopeNote({}), /missing rows/);
 });

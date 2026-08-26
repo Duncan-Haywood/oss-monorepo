@@ -114,6 +114,14 @@ test('counts a lot-versus-singles comparison without storing a piece count or wa
   assert.deepEqual(Object.keys(stored).sort(), ['last_day', 'lot_vs_singles_compared']);
 });
 
+test('counts a Standard Envelope comparison without storing postage or a claim rate', () => {
+  const storage = fakeStorage();
+  recordUsage(storage, false, 'standard_envelope_compared');
+  const stored = JSON.parse(storage.getItem('ebay-fee-usage'));
+  assert.equal(stored.standard_envelope_compared, 1);
+  assert.deepEqual(Object.keys(stored).sort(), ['last_day', 'standard_envelope_compared']);
+});
+
 test('counts the return-rate view without storing a rate or cost', () => {
   const storage = fakeStorage();
   recordUsage(storage, false, 'return_rate_viewed');

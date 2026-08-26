@@ -62,6 +62,13 @@ export const INPUT_FIELDS = [
   'singleListingMinutes',
   'lotListingWage',
   'monthlyLotDecisions',
+  'envelopeShippingCost',
+  'envelopePackagingCost',
+  'envelopeClaimRatePercent',
+  'envelopeFeeRefundOnClaimPercent',
+  'trackedSellThroughPct',
+  'envelopeSellThroughPct',
+  'monthlyEnvelopeListings',
 ];
 
 export function calculateOrder(input) {
@@ -1148,4 +1155,233 @@ export function lotVsSinglesNote(comparison) {
     ? ` Each single has to list at about ${money(comparison.breakEvenSinglePrice)} before splitting matches the lot.`
     : ' No single list price on these rates can match the lot.';
   return `${lotLine} ${singlesLine}${price}`;
+}
+
+/**
+ * Illustrative Standard Envelope defaults. A $0.66 envelope plus a
+ * rigid mailer usually beats a $5 Ground / First Class label on a
+ * $40 collectible — until the item is expensive enough that an
+ * item-not-received claim eats the sourcing cost. Postage and the
+ * claim rate are inputs, not eBay's live envelope schedule.
+ */
+export const DEFAULT_ENVELOPE_SHIPPING_COST = 0.66;
+export const DEFAULT_ENVELOPE_PACKAGING_COST = 0.35;
+export const DEFAULT_ENVELOPE_CLAIM_RATE = 8;
+export const DEFAULT_ENVELOPE_FEE_REFUND_ON_CLAIM = 100;
+export const DEFAULT_TRACKED_SELL_THROUGH = 90;
+export const DEFAULT_ENVELOPE_SELL_THROUGH = 85;
+export const DEFAULT_MONTHLY_ENVELOPE_LISTINGS = 40;
+
+function envelopeRow({
+  id,
+  label,
+  sellThroughPct,
+  lossRatePercent,
+  lossKind,
+  postageAndPack,
+  soldExpectedProfit,
+  completedProfit,
+  expectedProfit,
+}) {
+  return {
+    id,
+    label,
+    sellThroughPct,
+    lossRatePercent,
+    lossKind,
+    postageAndPack,
+    soldExpectedProfit,
+    completedProfit,
+    expectedProfit,
+    expectedProfitDelta: 0,
+  };
+}
+
+/**
+ * Same SKU, shipped with a tracked label or with eBay Standard
+ * Envelope.
+ *
+ *   - Tracked label — the order you already calculated, including the
+ *     typed return rate. A return restocks the item; you eat the
+ *     outbound label and return postage. Sell-through is the tracked
+ *     rate.
+ *   - Standard Envelope — cheaper postage and pack, no tracking. A
+ *     claim is not a return: the buyer is refunded and the item is
+ *     gone, so cost of goods is lost. Percentage fees usually come
+ *     back on an item-not-received case; that refund rate is an
+ *     input. Envelope completed-sale math uses a 0% return rate so
+ *     claims are not double-counted.
+ *
+ * Complementary to local pickup (meetup vs any label), lot vs
+ * singles (one listing vs many), and Authenticity Guarantee (hub
+ * label). Open eBay PRs still own promoted, store, Best Offer,
+ * international, and Managed Returns. Postage and the claim rate
+ * are inputs, not eBay envelope eligibility or seller-protection
+ * policy.
+ */
+export function compareStandardEnvelope(input) {
+  const listedPrice = optionalNumber(input.price, 'Item price');
+  if (listedPrice === undefined) {
+    throw new Error('Item price must be a non-negative number');
+  }
+
+  const envelopeShip = optionalNumber(
+    input.envelopeShippingCost,
+    'Envelope postage',
+    DEFAULT_ENVELOPE_SHIPPING_COST,
+  );
+  const envelopePack = optionalNumber(
+    input.envelopePackagingCost,
+    'Envelope packaging',
+    DEFAULT_ENVELOPE_PACKAGING_COST,
+  );
+  const claimRate = requiredPercent(
+    input.envelopeClaimRatePercent,
+    'Envelope claim rate',
+    DEFAULT_ENVELOPE_CLAIM_RATE,
+  );
+  const feeRefundOnClaim = requiredPercent(
+    input.envelopeFeeRefundOnClaimPercent,
+    'Fee refund on envelope claim',
+    DEFAULT_ENVELOPE_FEE_REFUND_ON_CLAIM,
+  );
+  const trackedSellThrough = requiredPercent(
+    input.trackedSellThroughPct,
+    'Tracked sell-through',
+    DEFAULT_TRACKED_SELL_THROUGH,
+  );
+  const envelopeSellThrough = requiredPercent(
+    input.envelopeSellThroughPct,
+    'Envelope sell-through',
+    DEFAULT_ENVELOPE_SELL_THROUGH,
+  );
+  const monthlyListings = optionalNumber(
+    input.monthlyEnvelopeListings,
+    'Monthly envelope listings',
+    DEFAULT_MONTHLY_ENVELOPE_LISTINGS,
+  );
+
+  const trackedSold = calculateOrder(input);
+  const envelopeSold = calculateOrder({
+    ...input,
+    shippingCost: envelopeShip,
+    packagingCost: envelopePack,
+    returnRatePercent: 0,
+    returnShippingCost: 0,
+  });
+
+  const quantity = envelopeSold.quantity;
+  const costOfGoods = optionalNumber(input.costOfGoods, 'Cost of goods', 0);
+  const otherCost = optionalNumber(input.otherCost, 'Other cost', 0);
+  const unrefundedFees = envelopeSold.feeTotal * (1 - feeRefundOnClaim / 100);
+  const sunkOnClaim = (costOfGoods + envelopeShip + envelopePack + otherCost) * quantity;
+  const claimProfit = -sunkOnClaim - unrefundedFees;
+  const claimRateFrac = claimRate / 100;
+  const envelopeAfterClaims = (1 - claimRateFrac) * envelopeSold.profit + claimRateFrac * claimProfit;
+
+  const trackedPostage = (optionalNumber(input.shippingCost, 'Shipping cost', 0)
+    + optionalNumber(input.packagingCost, 'Packaging cost', 0)) * trackedSold.quantity;
+  const envelopePostage = (envelopeShip + envelopePack) * quantity;
+
+  const tracked = envelopeRow({
+    id: 'tracked',
+    label: 'Tracked label',
+    sellThroughPct: trackedSellThrough,
+    lossRatePercent: trackedSold.returnRatePercent,
+    lossKind: 'return',
+    postageAndPack: trackedPostage,
+    soldExpectedProfit: trackedSold.expectedProfit,
+    completedProfit: trackedSold.profit,
+    expectedProfit: trackedSold.expectedProfit * (trackedSellThrough / 100),
+  });
+  const envelope = envelopeRow({
+    id: 'envelope',
+    label: 'Standard Envelope',
+    sellThroughPct: envelopeSellThrough,
+    lossRatePercent: claimRate,
+    lossKind: 'claim',
+    postageAndPack: envelopePostage,
+    soldExpectedProfit: envelopeAfterClaims,
+    completedProfit: envelopeSold.profit,
+    expectedProfit: envelopeAfterClaims * (envelopeSellThrough / 100),
+  });
+  tracked.expectedProfitDelta = tracked.expectedProfit - envelope.expectedProfit;
+  envelope.expectedProfitDelta = envelope.expectedProfit - tracked.expectedProfit;
+
+  const winner = envelope.expectedProfit > tracked.expectedProfit + 1e-9
+    ? 'envelope'
+    : envelope.expectedProfit < tracked.expectedProfit - 1e-9
+      ? 'tracked'
+      : 'tie';
+
+  const profitClaimGap = envelopeSold.profit - claimProfit;
+  let breakEvenClaimRate = Infinity;
+  if (envelopeSellThrough > 1e-12 && profitClaimGap > 1e-12) {
+    const neededAfterClaims = tracked.expectedProfit / (envelopeSellThrough / 100);
+    const rate = (envelopeSold.profit - neededAfterClaims) / profitClaimGap * 100;
+    breakEvenClaimRate = rate < -1e-9 || rate > 100 + 1e-9
+      ? Infinity
+      : Math.max(0, Math.min(100, rate));
+  }
+
+  const envelopeAtPostage = (shippingCost) => {
+    const sold = calculateOrder({
+      ...input,
+      shippingCost,
+      packagingCost: envelopePack,
+      returnRatePercent: 0,
+      returnShippingCost: 0,
+    });
+    const sunk = (costOfGoods + shippingCost + envelopePack + otherCost) * quantity;
+    const unrefunded = sold.feeTotal * (1 - feeRefundOnClaim / 100);
+    const claim = -sunk - unrefunded;
+    const afterClaims = (1 - claimRateFrac) * sold.profit + claimRateFrac * claim;
+    return afterClaims * (envelopeSellThrough / 100);
+  };
+  const atZeroPostage = envelopeAtPostage(0);
+  const atTenPostage = envelopeAtPostage(10);
+  const postageSlope = (atTenPostage - atZeroPostage) / 10;
+  let breakEvenEnvelopePostage = Infinity;
+  if (Math.abs(postageSlope) > 1e-12) {
+    const neededPostage = (tracked.expectedProfit - atZeroPostage) / postageSlope;
+    breakEvenEnvelopePostage = neededPostage < -1e-9 ? Infinity : neededPostage;
+  }
+
+  return {
+    rows: [tracked, envelope],
+    tracked,
+    envelope,
+    winner,
+    envelopeShip,
+    envelopePack,
+    claimRate,
+    feeRefundOnClaim,
+    claimProfit,
+    monthlyListings,
+    extraKeptOnEnvelope: envelope.expectedProfit - tracked.expectedProfit,
+    monthlyExtraOnEnvelope: (envelope.expectedProfit - tracked.expectedProfit) * monthlyListings,
+    breakEvenClaimRate,
+    breakEvenEnvelopePostage,
+    trackedCompletedProfit: trackedSold.profit,
+    envelopeCompletedProfit: envelopeSold.profit,
+  };
+}
+
+export function standardEnvelopeNote(comparison) {
+  if (!comparison?.tracked || !comparison?.envelope) {
+    throw new Error('Standard Envelope comparison is missing rows');
+  }
+  const money = (value) => {
+    const sign = value < 0 ? '-' : '';
+    return `${sign}$${Math.abs(value).toFixed(2)}`;
+  };
+  const { tracked, envelope } = comparison;
+  const gap = money(Math.abs(envelope.expectedProfit - tracked.expectedProfit));
+  const ahead = envelope.expectedProfit >= tracked.expectedProfit ? 'more' : 'less';
+  const trackedLine = `A tracked label at ${tracked.sellThroughPct}% sell-through, with ${money(tracked.postageAndPack)} postage and pack and a ${tracked.lossRatePercent}% return rate, expects ${money(tracked.expectedProfit)}.`;
+  const envelopeLine = `Standard Envelope at ${envelope.sellThroughPct}% sell-through, ${money(envelope.postageAndPack)} postage and pack, and an ${envelope.lossRatePercent}% item-not-received claim rate expects ${money(envelope.expectedProfit)} — ${gap} ${ahead}.`;
+  const claim = Number.isFinite(comparison.breakEvenClaimRate)
+    ? ` Claims have to stay at about ${comparison.breakEvenClaimRate.toFixed(1)}% before the envelope matches the tracked label.`
+    : ' No claim rate on these postage figures can match the tracked label.';
+  return `${trackedLine} ${envelopeLine}${claim}`;
 }
