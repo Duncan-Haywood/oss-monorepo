@@ -108,6 +108,11 @@ Use **Download JSON report** to save the current quote inputs and derived
 result as a portable local artifact. The download contains no hidden
 browser data and does not upload anything.
 
+The browser can also copy or download a complete Markdown review. It
+includes the supplied inputs, derived arithmetic, pre-send observations,
+and the time-overrun table so you can retain or share a readable handoff
+without retyping the figures. The file stays on this device.
+
 The browser also breaks the target price into delivery labor, hidden admin and
 revision time, and direct costs. This makes the arithmetic auditable instead
 of leaving the user to reverse-engineer one total; it is not a recommendation

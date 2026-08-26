@@ -325,6 +325,8 @@
     <div class="actions">
       <button type="button" id="clear-draft">Reset to example</button>
       <button type="button" id="copy-summary">Copy review summary</button>
+      <button type="button" id="copy-markdown">Copy review as Markdown</button>
+      <button type="button" id="download-markdown">Download review</button>
       <button type="button" id="copy-csv">Copy as CSV</button>
       <button type="button" id="download-csv">Download CSV</button>
       <button type="button" id="download-report">Download JSON report</button>
@@ -451,6 +453,7 @@
   import { loadQuote, calculate, overrunScenarios, directCostSpikeScenarios, directCostSpikeSummary, discountAskScenarios, discountAskSummary, compareBillingModels, billingModelNote, loadKillFeeProgress, compareKillFee, killFeeSummary, targetPriceBreakdown } from "./calc.mjs";
   import { quoteCsv } from "./export.mjs";
   import { formatReviewSummary } from "./summary.mjs";
+  import { markdownReview } from "./markdown.mjs";
   import { reviewQuote } from "./review.mjs";
   import { reportDocument } from "./report.mjs";
   import { recordEvent, createReportCounter, isUsageCountingEnabled, setUsageCountingEnabled } from "./usage.mjs";
@@ -678,6 +681,39 @@
     } catch {
       copyStatus.textContent = "Couldn't access the clipboard in this browser.";
     }
+  });
+  function currentMarkdown() {
+    const { quote, r } = lastReport;
+    return markdownReview(quote, r, reviewQuote(quote, r), {
+      overrunRows: overrunScenarios(quote, r),
+    });
+  }
+  document.getElementById("copy-markdown").addEventListener("click", async () => {
+    if (!lastReport) {
+      copyStatus.textContent = "Fix the inputs above first.";
+      return;
+    }
+    try {
+      await navigator.clipboard.writeText(currentMarkdown());
+      copyStatus.textContent = "Copied Markdown review.";
+      recordEvent("markdown_copied");
+    } catch {
+      copyStatus.textContent = "Couldn't access the clipboard in this browser.";
+    }
+  });
+  document.getElementById("download-markdown").addEventListener("click", () => {
+    if (!lastReport) {
+      copyStatus.textContent = "Fix the inputs above first.";
+      return;
+    }
+    const blob = new Blob([currentMarkdown()], { type: "text/markdown;charset=utf-8" });
+    const link = document.createElement("a");
+    link.href = URL.createObjectURL(blob);
+    link.download = "quote-margin-review.md";
+    link.click();
+    setTimeout(() => URL.revokeObjectURL(link.href), 0);
+    copyStatus.textContent = "Downloaded quote-margin-review.md.";
+    recordEvent("markdown_downloaded");
   });
   copyBtn.addEventListener("click", async () => {
     if (!lastReport) {
