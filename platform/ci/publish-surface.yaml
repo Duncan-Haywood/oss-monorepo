@@ -406,6 +406,9 @@ workflows:
 - workflow: popcorn-ceiling-bid-calculator-ci.yml
   classification: none
   publishes: []
+- workflow: portable-restroom-event-quote-ci.yml
+  classification: none
+  publishes: []
 - workflow: portfolio-pages.yml
   classification: gated
   publishes:
