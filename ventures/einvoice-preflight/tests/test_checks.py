@@ -642,7 +642,7 @@ class ChecksTest(unittest.TestCase):
             self.assertEqual(report["schema_version"], 1)
             self.assertEqual(report["exit_code"], 2)
             self.assertEqual(report["files_checked"], 0)
-            self.assertEqual(report["read_errors"][0]["error"], "No JSON or XML invoices found.")
+            self.assertEqual(report["read_errors"][0]["error"], "No JSON, XML, or PDF invoices found.")
 
     def test_cli_json_max_files_refusal_keeps_machine_readable_contract(self):
         with tempfile.TemporaryDirectory() as directory:

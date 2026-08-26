@@ -3,14 +3,15 @@
 **Validate a structured invoice before submission.** After using this, you can
 now see which fields, totals, VAT digits, or payment instructions would fail a
 local preflight — in the browser or in CI — which used to mean waiting for a
-network rejection. Open `index.html` and drop a JSON, UBL, or CII XML file, or run
-the CLI below. The page never uploads the invoice.
+network rejection. Open `index.html` and drop a JSON, UBL, CII, or Factur-X
+PDF file, or run the CLI below. The page never uploads the invoice.
 
-This free local CLI also checks a small, transparent JSON, UBL XML, or
-UN/CEFACT CII (XRechnung CII / Factur-X) invoice for missing fields and
-arithmetic mistakes, then prints rule IDs and plain-language fixes. It is
-aimed at bookkeepers and ERP integrators searching for an e-invoice
-preflight check. CII is the XML an ERP actually emits when it is not UBL.
+This free local CLI also checks a small, transparent JSON, UBL XML,
+UN/CEFACT CII (XRechnung CII / Factur-X), or Factur-X / ZUGFeRD PDF invoice
+for missing fields and arithmetic mistakes, then prints rule IDs and
+plain-language fixes. It is aimed at bookkeepers and ERP integrators
+searching for an e-invoice preflight check. CII is the XML an ERP actually
+emits when it is not UBL; a Factur-X PDF is only the envelope around that XML.
 
 ```sh
 cd ventures/einvoice-preflight
@@ -28,6 +29,7 @@ PYTHONPATH=src python3 -m einvoice_preflight examples/valid-invoice.json
 PYTHONPATH=src python3 -m einvoice_preflight examples/valid-credit-note.json
 PYTHONPATH=src python3 -m einvoice_preflight examples/valid-mixed-rate.json
 PYTHONPATH=src python3 -m einvoice_preflight examples/cii-invoice.xml
+PYTHONPATH=src python3 -m einvoice_preflight examples/factur-x-invoice.pdf
 PYTHONPATH=src python3 -m einvoice_preflight examples/ubl-invoice.xml
 # The one example that is meant to fail: six planted defects, annotated at the
 # top of the file and pinned by tests/test_examples.py. Exits 1.
@@ -61,11 +63,14 @@ The package has a focused GitHub Actions workflow that installs the command,
 runs the standard-library test suite, and smoke-tests the installed entry point
 whenever this venture changes.
 Pass `-`
-as the filename to read one JSON or UBL XML invoice from standard input, which
-is useful for ERP adapters and CI pipelines. SARIF reports use `stdin.json` as
-the artifact name for piped input. Directories are scanned recursively for both
-`.json` and `.xml` files. XML input maps common UBL Invoice, CreditNote, and
-DebitNote elements into the same checks. It is
+as the filename to read one JSON, UBL XML, CII XML, or Factur-X PDF invoice from
+standard input, which is useful for ERP adapters and CI pipelines. SARIF reports
+use `stdin.json` as the artifact name for piped input. Directories are scanned
+recursively for `.json`, `.xml`, and `.pdf` files. A Factur-X / ZUGFeRD /
+XRechnung PDF is unwrapped to its embedded invoice XML before the same checks
+run. Encrypted PDFs and scanned paper PDFs with no attachment are refused.
+XML input maps common UBL Invoice, CreditNote, and
+DebitNote elements, and CII CrossIndustryInvoice, into the same checks. It is
 not a full Peppol or EN 16931 conformance validator. Use
 `--max-files N` in CI or ERP jobs to refuse a directory scan when more than `N`
 invoice files are present. This bounds accidental scans of a broad working
@@ -82,6 +87,7 @@ for selecting the correct format, tax treatment, and submission process.
 
 The supported v0 JSON shape is intentionally small and format-neutral. UBL XML
 and UN/CEFACT CII (XRechnung CII / Factur-X XML) both map into this shape.
+A Factur-X / ZUGFeRD / XRechnung PDF is unwrapped to that embedded XML first.
 UBL input maps common `Invoice`, `CreditNote`, `DebitNote`, line, party, tax, and
 monetary-total elements. CII maps `CrossIndustryInvoice` header, parties, lines,
 tax, payment, and totals the same way. When an invoice contains multiple UBL `TaxTotal`
