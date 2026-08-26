@@ -4,10 +4,10 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Janitorial Bid Calculator | Commercial Cleaning Price Per Month</title>
-  <meta name="description" content="Price a commercial cleaning contract from production rates, then see what a 5× to 3× frequency cut actually costs — labor drops with the visits, travel and equipment do not.">
+  <meta name="description" content="Price a commercial cleaning contract from production rates, see what a 5× to 3× cut actually costs, and whether letting the building buy the paper still holds your margin.">
   <meta property="og:title" content="Janitorial Bid Calculator">
-  <meta property="og:description" content="Bid commercial cleaning the way the trade does — square feet divided by production rate — and see why a linear 60% of a 5-day price is not a 3-day bid.">
-  <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Janitorial Bid Calculator","applicationCategory":"BusinessApplication","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"featureList":"Production-rate labor hours by area, payroll burden, supplies and overhead, monthly contract price, price per square foot, effective hourly rate, break-even walk-away price, proposed-price margin check, 5x vs 3x frequency-cut comparison"}</script>
+  <meta property="og:description" content="Bid commercial cleaning the way the trade does — and see why dropping the supplies line when they buy the paper is not the same as a restroom-stock handoff.">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Janitorial Bid Calculator","applicationCategory":"BusinessApplication","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"featureList":"Production-rate labor hours by area, payroll burden, supplies and overhead, monthly contract price, price per square foot, effective hourly rate, break-even walk-away price, proposed-price margin check, 5x vs 3x frequency-cut comparison, who-supplies restroom paper soap and liners"}</script>
   <style>
     :root { color-scheme: light; font-family: system-ui, sans-serif; color: #1d2530; background: #eef2f7; }
     body { max-width: 1060px; margin: 0 auto; padding: 32px 18px; }
@@ -78,7 +78,7 @@
   <header>
     <p class="eyebrow">FOR COMMERCIAL CLEANING CONTRACTORS</p>
     <h1>Bid the building, not the square footage.</h1>
-    <p>Price a janitorial contract the way the trade actually does: each space divided by the production rate your crew really hits, then wage burden, supplies, overhead, and the margin you intend to keep. You get the monthly price, what it works out to per square foot and per labor hour, the number below which the job loses money, and what a 5×-to-3× schedule cut is actually worth — not 60% of today’s price.</p>
+    <p>Price a janitorial contract the way the trade actually does: each space divided by the production rate your crew really hits, then wage burden, supplies, overhead, and the margin you intend to keep. You get the monthly price, what it works out to per square foot and per labor hour, the number below which the job loses money, what a 5×-to-3× schedule cut is actually worth — not 60% of today’s price — and whether letting the building buy the paper still holds your margin.</p>
   </header>
 
   <main>
@@ -116,6 +116,16 @@
           <label>Current days / week <input id="currentWeekly" type="number" min="0.5" max="21" step="0.5" value="5"></label>
           <label>Proposed days / week <input id="proposedWeekly" type="number" min="0" max="21" step="0.5" value="3"></label>
           <label>Price they offered for the cut (optional) <input id="clientOfferMonthly" type="number" min="0" step="10" placeholder="e.g. 60% of today"></label>
+        </div>
+      </section>
+
+      <section>
+        <h2>If they want to buy the paper</h2>
+        <p class="hint">A facility manager who says “we’ll buy the paper, soap, and liners — take the supplies off” is not asking you to drop the whole line. Restroom stock is only a share of it. Chemicals, finish, and glass stay yours. And if they run out, the emergency fill you still make can cost more than stocking it yourself. <a href="should-i-let-them-buy-the-paper.html">Should I let the building buy the paper?</a></p>
+        <div class="fields">
+          <label>Restroom stock share of supplies (%) <input id="restroomSharePercent" type="number" min="0" max="100" step="1" value="65"></label>
+          <label>Emergency fill when they run out ($ / month) <input id="emergencyFillMonthly" type="number" min="0" step="1" value="35"></label>
+          <label>Price they offered after dropping supplies (optional) <input id="supplyOfferMonthly" type="number" min="0" step="10" placeholder="e.g. today minus supplies"></label>
         </div>
       </section>
     </div>
@@ -203,6 +213,59 @@
       <span id="frequencyStatus" class="summary-status" role="status" aria-live="polite" style="color:#1c7a5e"></span>
     </div>
   </section>
+
+  <section class="compare" id="supplyCompare" hidden>
+    <h2>Who buys the paper is not “take the supplies off”</h2>
+    <p class="hint" id="supplyHint">Labor, equipment, and travel stay put. Only restroom stock moves — and an emergency fill after they run out is its own line.</p>
+    <div class="table-scroll" style="overflow-x:auto">
+      <table>
+        <thead>
+          <tr>
+            <th scope="col">Who buys restroom stock</th>
+            <th scope="col">Supplies you still pay</th>
+            <th scope="col">Monthly cost</th>
+            <th scope="col">Price that holds your margin</th>
+            <th scope="col">vs you-supply</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <th scope="row">You supply paper, soap, liners</th>
+            <td id="supYouPay"></td>
+            <td id="supYouCost"></td>
+            <td id="supYouPrice"></td>
+            <td id="supYouDelta">—</td>
+          </tr>
+          <tr class="hold">
+            <th scope="row">They buy restroom stock</th>
+            <td id="supRestroomPay"></td>
+            <td id="supRestroomCost"></td>
+            <td id="supRestroomPrice"></td>
+            <td id="supRestroomDelta"></td>
+          </tr>
+          <tr>
+            <th scope="row">They buy everything (drop the line)</th>
+            <td id="supAllPay"></td>
+            <td id="supAllCost"></td>
+            <td id="supAllPrice"></td>
+            <td id="supAllDelta"></td>
+          </tr>
+          <tr id="supFillRow">
+            <th scope="row">They buy restroom stock, you still fill</th>
+            <td id="supFillPay"></td>
+            <td id="supFillCost"></td>
+            <td id="supFillPrice"></td>
+            <td id="supFillDelta"></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <div id="supplyVerdict" class="compare-verdict"></div>
+    <div class="summary-actions">
+      <button type="button" id="copySupplyNote">Copy paper-handoff reply</button>
+      <span id="supplyStatus" class="summary-status" role="status" aria-live="polite" style="color:#1c7a5e"></span>
+    </div>
+  </section>
   </main>
 
   <footer>
@@ -214,11 +277,12 @@
   </footer>
 
   <script type="module">
-    import { calculateBid, compareFrequencyReduction, frequencyReductionNote, PRODUCTION_RATE_PRESETS } from './calc.mjs';
+    import { calculateBid, compareFrequencyReduction, frequencyReductionNote, compareSupplyResponsibility, supplyResponsibilityNote, PRODUCTION_RATE_PRESETS } from './calc.mjs';
     import { recordUsage } from './usage.mjs';
 
     const COST_IDS = ['hourlyWage','burdenRate','suppliesPerSqFtMonth','equipmentMonthly','otherMonthly','overheadRate','targetMargin','proposedPrice'];
     const FREQ_IDS = ['currentWeekly','proposedWeekly','clientOfferMonthly'];
+    const SUPPLY_IDS = ['restroomSharePercent','emergencyFillMonthly','supplyOfferMonthly'];
     const money = value => `$${value.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
     const el = id => document.getElementById(id);
 
@@ -311,6 +375,7 @@
       el('split').innerHTML = '';
       el('verdict').hidden = true;
       el('frequencyCompare').hidden = true;
+      el('supplyCompare').hidden = true;
     }
 
     function update() {
@@ -371,6 +436,7 @@
       }
 
       renderFrequencyCompare({ areas, result });
+      renderSupplyCompare({ areas });
     }
 
     function renderFrequencyCompare({ areas }) {
@@ -425,6 +491,64 @@
 
       panel.hidden = false;
       panel.dataset.note = frequencyReductionNote(comparison, { targetMargin: Number(el('targetMargin').value) });
+    }
+
+    function signedMoney(value) {
+      if (Math.abs(value) < 0.005) return '—';
+      return `${value > 0 ? '+' : '−'}${money(Math.abs(value))}`;
+    }
+
+    function renderSupplyCompare({ areas }) {
+      const panel = el('supplyCompare');
+      let comparison;
+      try {
+        comparison = compareSupplyResponsibility({
+          areas,
+          ...Object.fromEntries(COST_IDS.map(id => [id, el(id).value])),
+        }, {
+          restroomSharePercent: el('restroomSharePercent').value,
+          emergencyFillMonthly: el('emergencyFillMonthly').value,
+          clientOfferMonthly: el('supplyOfferMonthly').value,
+        });
+      } catch {
+        panel.hidden = true;
+        return;
+      }
+
+      el('supYouPay').textContent = money(comparison.youSupply.monthlySupplies);
+      el('supYouCost').textContent = money(comparison.youSupply.monthlyCost);
+      el('supYouPrice').textContent = money(comparison.youSupply.monthlyPrice);
+      el('supRestroomPay').textContent = money(comparison.theyBuyRestroom.monthlySupplies);
+      el('supRestroomCost').textContent = money(comparison.theyBuyRestroom.monthlyCost);
+      el('supRestroomPrice').textContent = money(comparison.theyBuyRestroom.monthlyPrice);
+      el('supRestroomDelta').textContent = signedMoney(-comparison.leftoverIfTheyBuyRestroom);
+      el('supAllPay').textContent = money(comparison.theyBuyAll.monthlySupplies);
+      el('supAllCost').textContent = money(comparison.theyBuyAll.monthlyCost);
+      el('supAllPrice').textContent = money(comparison.theyBuyAll.monthlyPrice);
+      el('supAllDelta').textContent = signedMoney(-comparison.leftoverIfTheyBuyAll);
+      el('supFillPay').textContent = `${money(comparison.theyBuyButYouFill.monthlySupplies)} + ${money(comparison.emergencyFillMonthly)} fill`;
+      el('supFillCost').textContent = money(comparison.theyBuyButYouFill.monthlyCost);
+      el('supFillPrice').textContent = money(comparison.theyBuyButYouFill.monthlyPrice);
+      el('supFillDelta').textContent = signedMoney(comparison.fillPremiumVsYouSupply);
+      el('supFillRow').className = comparison.fillCostsMoreThanYouSupply ? 'warn' : '';
+
+      const verdict = el('supplyVerdict');
+      verdict.className = `compare-verdict${comparison.naiveBelowBreakEvenAtFill || comparison.fillCostsMoreThanYouSupply ? ' bad' : ''}`;
+      const offer = comparison.clientOfferFill || comparison.clientOfferRestroom;
+      const offerLine = offer
+        ? (offer.belowBreakEven
+          ? ` Their offer of ${money(offer.price)} loses ${money(Math.abs(offer.profit))} a month against the cost you still carry.`
+          : ` Their offer of ${money(offer.price)} leaves a ${offer.margin.toFixed(1)}% margin (${money(offer.profit)}/month) on the restroom-handoff cost.`)
+        : '';
+      const fillLine = comparison.emergencyFillMonthly > 0
+        ? (comparison.fillCostsMoreThanYouSupply
+          ? ` If you still emergency-fill when they run out, the price that holds your margin is <strong>${money(comparison.theyBuyButYouFill.monthlyPrice)}</strong> — ${money(comparison.fillPremiumVsYouSupply)} a month above you-supplying.`
+          : ` Emergency-fill at ${money(comparison.emergencyFillMonthly)}/month prices at ${money(comparison.theyBuyButYouFill.monthlyPrice)}.`)
+        : '';
+      verdict.innerHTML = `If they take only the restroom stock, the price that still holds your margin is <strong>${money(comparison.theyBuyRestroom.monthlyPrice)}</strong> — ${money(comparison.leftoverIfTheyBuyRestroom)} a month below you-supplying (${money(comparison.youSupply.monthlyPrice)}), not a drop of the whole supplies line (${money(comparison.naiveDropPrice)}). Chemicals stay at ${money(comparison.chemicalSuppliesMonthly)}.${fillLine}${offerLine}`;
+
+      panel.hidden = false;
+      panel.dataset.note = supplyResponsibilityNote(comparison, { targetMargin: Number(el('targetMargin').value) });
     }
 
     function summaryText(result) {
@@ -488,7 +612,35 @@
       el(id).addEventListener('input', update);
       el(id).addEventListener('change', () => count('frequency_reduction_compared'));
     });
+    SUPPLY_IDS.forEach(id => {
+      el(id).addEventListener('input', update);
+      el(id).addEventListener('change', () => count('supply_responsibility_compared'));
+    });
     el('usageOptOut').addEventListener('change', update);
+    el('copySupplyNote').addEventListener('click', async () => {
+      const text = el('supplyCompare').dataset.note || '';
+      if (!text) return;
+      try {
+        try {
+          await navigator.clipboard.writeText(text);
+        } catch {
+          const fallback = document.createElement('textarea');
+          fallback.value = text;
+          fallback.setAttribute('readonly', '');
+          fallback.style.position = 'fixed';
+          fallback.style.opacity = '0';
+          document.body.append(fallback);
+          fallback.select();
+          document.execCommand('copy');
+          fallback.remove();
+        }
+        count('supply_note_copied');
+        el('supplyStatus').textContent = 'Copied to clipboard';
+        setTimeout(() => { el('supplyStatus').textContent = ''; }, 2500);
+      } catch (error) {
+        el('supplyStatus').textContent = error.message;
+      }
+    });
     el('copyFrequencyNote').addEventListener('click', async () => {
       const text = el('frequencyCompare').dataset.note || '';
       if (!text) return;

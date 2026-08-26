@@ -261,3 +261,122 @@ export function frequencyReductionNote(comparison, { targetMargin } = {}) {
     naiveLine,
   ].join(' ');
 }
+
+/**
+ * Compare who buys restroom paper, soap, and liners.
+ *
+ * Prospects routinely say "we'll buy the paper if you drop the supplies
+ * line." Restroom stock is only a share of that line — chemicals, finish,
+ * and glass stay yours. Dropping the whole line from today's price silently
+ * eats the chemicals and the markup on them. And if they run out, the
+ * emergency fill you still make is less efficient than stocking it yourself,
+ * so the price that holds your margin can land *above* the you-supply bid.
+ *
+ * Labor, equipment, and travel do not change. Only the supplies (and the
+ * optional emergency-fill) line moves, then overhead and margin are reapplied.
+ *
+ * @param {object} input  Same shape as calculateBid.
+ * @param {object} options
+ * @param {number} [options.restroomSharePercent=65] Share of the monthly
+ *   supplies line that is paper, soap, liners, and seat covers.
+ * @param {number} [options.emergencyFillMonthly=0] Extra monthly cost when
+ *   they "buy it" but you still restock after they run out.
+ * @param {number|string|null} [options.clientOfferMonthly] Optional price
+ *   they put on the labor-only / drop-supplies ask, scored against each
+ *   reduced cost base.
+ */
+export function compareSupplyResponsibility(input, options = {}) {
+  const restroomSharePercent = number(
+    options.restroomSharePercent ?? 65,
+    'Restroom stock share of supplies',
+  );
+  if (restroomSharePercent > 100) {
+    throw new Error('Restroom stock share of supplies must be at most 100');
+  }
+  const emergencyFillMonthly = number(
+    options.emergencyFillMonthly ?? 0,
+    'Emergency fill when they run out',
+  );
+  const suppliesRate = number(input.suppliesPerSqFtMonth ?? 0, 'Supplies per sq ft');
+  const otherMonthly = number(input.otherMonthly ?? 0, 'Other monthly cost');
+  const overheadRate = number(input.overheadRate ?? 0, 'Overhead');
+  const targetMargin = number(input.targetMargin ?? 0, 'Target margin');
+  if (targetMargin >= 100) throw new Error('Target margin must be less than 100%');
+
+  const restroomShare = restroomSharePercent / 100;
+  const chemicalRate = suppliesRate * (1 - restroomShare);
+  const bidInput = { ...input, proposedPrice: undefined };
+
+  const youSupply = calculateBid(bidInput);
+  const theyBuyRestroom = calculateBid({
+    ...bidInput,
+    suppliesPerSqFtMonth: chemicalRate,
+    proposedPrice: options.clientOfferMonthly,
+  });
+  const theyBuyAll = calculateBid({
+    ...bidInput,
+    suppliesPerSqFtMonth: 0,
+    proposedPrice: options.clientOfferMonthly,
+  });
+  const theyBuyButYouFill = calculateBid({
+    ...bidInput,
+    suppliesPerSqFtMonth: chemicalRate,
+    otherMonthly: otherMonthly + emergencyFillMonthly,
+    proposedPrice: options.clientOfferMonthly,
+  });
+
+  // The verbal ask is "take the supplies off the bid" — today's price minus
+  // the fully marked-up supplies line, as if chemicals vanished too.
+  const suppliesInPrice = youSupply.monthlySupplies * (1 + overheadRate / 100) / (1 - targetMargin / 100);
+  const naiveDropPrice = youSupply.monthlyPrice - suppliesInPrice;
+  const naiveProfitAtRestroom = naiveDropPrice - theyBuyRestroom.monthlyCost;
+  const naiveMarginAtRestroom = naiveDropPrice === 0 ? 0 : naiveProfitAtRestroom / naiveDropPrice * 100;
+  const naiveProfitAtFill = naiveDropPrice - theyBuyButYouFill.monthlyCost;
+  const naiveMarginAtFill = naiveDropPrice === 0 ? 0 : naiveProfitAtFill / naiveDropPrice * 100;
+
+  return {
+    restroomSharePercent,
+    emergencyFillMonthly,
+    restroomSuppliesMonthly: youSupply.monthlySupplies * restroomShare,
+    chemicalSuppliesMonthly: youSupply.monthlySupplies * (1 - restroomShare),
+    youSupply,
+    theyBuyRestroom,
+    theyBuyAll,
+    theyBuyButYouFill,
+    suppliesInPrice,
+    naiveDropPrice,
+    naiveProfitAtRestroom,
+    naiveMarginAtRestroom,
+    naiveBelowBreakEvenAtRestroom: naiveDropPrice < theyBuyRestroom.monthlyCost,
+    naiveProfitAtFill,
+    naiveMarginAtFill,
+    naiveBelowBreakEvenAtFill: naiveDropPrice < theyBuyButYouFill.monthlyCost,
+    leftoverIfTheyBuyRestroom: youSupply.monthlyPrice - theyBuyRestroom.monthlyPrice,
+    leftoverIfTheyBuyAll: youSupply.monthlyPrice - theyBuyAll.monthlyPrice,
+    fillPremiumVsYouSupply: theyBuyButYouFill.monthlyPrice - youSupply.monthlyPrice,
+    fillCostsMoreThanYouSupply: theyBuyButYouFill.monthlyPrice > youSupply.monthlyPrice,
+    clientOfferRestroom: theyBuyRestroom.proposed,
+    clientOfferAll: theyBuyAll.proposed,
+    clientOfferFill: theyBuyButYouFill.proposed,
+  };
+}
+
+/**
+ * One paragraph a contractor can paste into a "we'll buy the paper" reply.
+ * Arithmetic only — it does not tell them to accept or refuse.
+ */
+export function supplyResponsibilityNote(comparison, { targetMargin } = {}) {
+  const money = value => `$${value.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+  const marginPct = Number.isFinite(targetMargin) ? targetMargin : 20;
+  const restroomLine = `Restroom paper, soap, and liners are ${comparison.restroomSharePercent.toFixed(0)}% of this supplies line (${money(comparison.restroomSuppliesMonthly)}); chemicals, finish, and glass stay yours (${money(comparison.chemicalSuppliesMonthly)}).`;
+  const honestLine = `If they take only the restroom stock, the monthly price that still holds a ${marginPct}% margin is ${money(comparison.theyBuyRestroom.monthlyPrice)}, not today's ${money(comparison.youSupply.monthlyPrice)} minus the whole supplies line (${money(comparison.naiveDropPrice)}).`;
+  const fillLine = comparison.emergencyFillMonthly > 0
+    ? (comparison.fillCostsMoreThanYouSupply
+      ? `If you still emergency-fill when they run out (${money(comparison.emergencyFillMonthly)}/month), the price that holds the margin is ${money(comparison.theyBuyButYouFill.monthlyPrice)} — ${money(comparison.fillPremiumVsYouSupply)} a month above you-supplying.`
+      : `If you still emergency-fill when they run out (${money(comparison.emergencyFillMonthly)}/month), the price that holds the margin is ${money(comparison.theyBuyButYouFill.monthlyPrice)}.`)
+    : `Labor, equipment, and travel do not move when they take the paper.`;
+  const naiveLine = comparison.naiveBelowBreakEvenAtFill || comparison.naiveBelowBreakEvenAtRestroom
+    ? `Dropping the whole supplies line from today's price (${money(comparison.naiveDropPrice)}) would lose ${money(Math.abs(comparison.naiveBelowBreakEvenAtFill ? comparison.naiveProfitAtFill : comparison.naiveProfitAtRestroom))} a month against the cost you still carry.`
+    : `Dropping the whole supplies line from today's price leaves a ${comparison.naiveMarginAtRestroom.toFixed(1)}% margin if they actually take the restroom stock, versus the ${marginPct}% the original bid was built on.`;
+  return [restroomLine, honestLine, fillLine, naiveLine].join(' ');
+}
