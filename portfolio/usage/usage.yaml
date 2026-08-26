@@ -49,6 +49,11 @@ products:
           live_url_visitors: null
           return_disposition_compared: 0
         note: Added restock vs destroy vs customer-keeps on a just-arrived return; public URL remains owner-gated.
+      - as_of: 2026-08-26
+        signals:
+          live_url_visitors: null
+          kitting_compared: 0
+        note: Added 3PL assembly vs pre-kit vs skip-the-bundle; public URL remains owner-gated.
   - slug: shopify-permission-drift
     surface: static-page-in-repo
     readings:

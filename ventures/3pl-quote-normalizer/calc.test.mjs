@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { agedStorageFlip, agedStorageSummary, agedStorageSweep, calculate, compareAgedStorage, compareQuotes, compareReturnDisposition, comparisonSummary, inputWarnings, largestCostDriver, negotiationLines, returnDispositionFlip, returnDispositionRestockableSweep, returnDispositionSummary, returnDispositionUnitCostSweep, returnsFlip, returnsMinimumMask, returnsSensitivity, returnsSensitivitySummary, summary, volumeSensitivity } from "./calc.mjs";
+import { agedStorageFlip, agedStorageSummary, agedStorageSweep, calculate, compareAgedStorage, compareKitting, compareQuotes, compareReturnDisposition, comparisonSummary, inputWarnings, kittingAovSweep, kittingFeeSweep, kittingFlip, kittingSummary, largestCostDriver, negotiationLines, returnDispositionFlip, returnDispositionRestockableSweep, returnDispositionSummary, returnDispositionUnitCostSweep, returnsFlip, returnsMinimumMask, returnsSensitivity, returnsSensitivitySummary, summary, volumeSensitivity } from "./calc.mjs";
 
 test("custom return and restocking fees flow into the normalized quote", () => {
   const result = calculate({ orders: 100, unitsPerOrder: 1, returnsRate: 10, returnFee: 7, restockFee: 3 });
@@ -410,6 +410,99 @@ test("a keep-the-item thank-you still beats bringing a cheap SKU back", () => {
   assert.equal(expensive.keep.perReturn, 50);
   assert.equal(expensive.restock.perReturn, 29.85);
   assert.equal(expensive.cheapestPath, "restock");
+});
+
+const kittingPage = {
+  orders: 400,
+  kitAttachRate: 100,
+  aovLift: 6,
+  extraCogs: 2.8,
+  kitFee: 3.5,
+  extraPicks: 1,
+  extraReceiving: 0.36,
+  inHouseKitLabor: 0.9,
+};
+
+test("kitting prices 3PL assembly, pre-kit, and skipping the bundle", () => {
+  const comparison = compareKitting(kittingPage);
+  assert.equal(comparison.kittedOrders, 400);
+  assert.equal(comparison.threePlFees, 4.86);
+  assert.equal(comparison.threePl.perOrder, -1.66);
+  assert.equal(comparison.prekit.perOrder, 2.3);
+  assert.equal(comparison.skip.perOrder, 0);
+  assert.equal(comparison.threePl.monthly, -664);
+  assert.equal(comparison.prekit.monthly, 920);
+  assert.equal(comparison.bestPath, "prekit");
+  assert.equal(comparison.bestIfAlreadyInbound, "skip");
+  assert.equal(comparison.threePlBeatsSkipAtKitFee, 1.84);
+  assert.equal(comparison.threePlBeatsSkipAtAovLift, 7.66);
+  assert.equal(comparison.prekitBeatsSkipAtAovLift, 3.7);
+});
+
+test("kitting at a cheap 3PL fee still loses to pre-kit but beats skip", () => {
+  const comparison = compareKitting({ ...kittingPage, kitFee: 0.75 });
+  assert.equal(comparison.threePlFees, 2.11);
+  assert.equal(comparison.threePl.perOrder, 1.09);
+  assert.equal(comparison.bestPath, "prekit");
+  assert.equal(comparison.bestIfAlreadyInbound, "threePl");
+  assert.match(kittingSummary({ ...kittingPage, kitFee: 0.75 }), /Kitting before inbound keeps \$2\.30 per kit/);
+});
+
+test("kitting kit-fee sweep flips the on-floor winner from 3PL to skip", () => {
+  const sweep = kittingFeeSweep(kittingPage);
+  const flip = kittingFlip(sweep, "kitFee", "bestIfAlreadyInbound");
+  assert.deepEqual(sweep.map((row) => row.kitFee), [0.75, 1.25, 1.84, 2.5, 3.5, 5, 7]);
+  assert.equal(sweep[0].bestIfAlreadyInbound, "threePl");
+  assert.equal(sweep[2].bestIfAlreadyInbound, "tie");
+  assert.equal(sweep[3].bestIfAlreadyInbound, "skip");
+  assert.equal(sweep[0].bestPath, "prekit");
+  assert.equal(flip.kind, "flips");
+  assert.equal(flip.from, "threePl");
+  assert.equal(flip.to, "skip");
+  assert.equal(flip.at, 2.5);
+});
+
+test("kitting AOV sweep flips the on-floor winner from skip to 3PL", () => {
+  const sweep = kittingAovSweep(kittingPage);
+  const flip = kittingFlip(sweep, "aovLift", "bestIfAlreadyInbound");
+  assert.equal(sweep.find((row) => row.aovLift === 6).bestIfAlreadyInbound, "skip");
+  assert.equal(sweep.find((row) => row.aovLift === 7.66).bestIfAlreadyInbound, "tie");
+  assert.equal(sweep.find((row) => row.aovLift === 8).bestIfAlreadyInbound, "threePl");
+  assert.equal(flip.kind, "flips");
+  assert.equal(flip.from, "skip");
+  assert.equal(flip.to, "threePl");
+  assert.equal(flip.at, 8);
+  assert.match(kittingSummary(kittingPage), /skip the kit/);
+  assert.match(kittingSummary(kittingPage), /\$1\.84 kit fee/);
+});
+
+test("blank kitting inputs use the page defaults and attach cannot exceed 100", () => {
+  const blank = compareKitting({ orders: 400, kitAttachRate: "", aovLift: "", kitFee: "" });
+  assert.equal(blank.kitAttachRate, 100);
+  assert.equal(blank.aovLift, 6);
+  assert.equal(blank.kitFee, 3.5);
+  assert.equal(blank.threePl.perOrder, -1.66);
+  const capped = compareKitting({ ...kittingPage, kitAttachRate: 140 });
+  assert.equal(capped.kitAttachRate, 100);
+  assert.equal(capped.kittedOrders, 400);
+});
+
+test("half the book on kits halves the monthly without changing per-kit math", () => {
+  const comparison = compareKitting({ ...kittingPage, kitAttachRate: 50 });
+  assert.equal(comparison.kittedOrders, 200);
+  assert.equal(comparison.threePl.perOrder, -1.66);
+  assert.equal(comparison.threePl.monthly, -332);
+  assert.equal(comparison.prekit.monthly, 460);
+  assert.equal(comparison.bestPath, "prekit");
+});
+
+test("expensive in-house labor can make skipping the kit the overall winner", () => {
+  const comparison = compareKitting({ ...kittingPage, inHouseKitLabor: 3.5 });
+  assert.equal(comparison.prekit.perOrder, -0.3);
+  assert.equal(comparison.threePl.perOrder, -1.66);
+  assert.equal(comparison.bestPath, "skip");
+  assert.equal(comparison.bestIfAlreadyInbound, "skip");
+  assert.match(kittingSummary({ ...kittingPage, inHouseKitLabor: 3.5 }), /Skipping the kit keeps more/);
 });
 
 test("uses the first component when the quote is tied or empty", () => {

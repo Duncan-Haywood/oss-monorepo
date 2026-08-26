@@ -19,6 +19,10 @@ hypotheses:
     status: untested
     checked: null
     evidence: customer-contact
+  - claim: Showing 3PL assembly plus extra picks against pre-kitting and skipping the bundle changes a kit that looked profitable on AOV lift alone.
+    status: untested
+    checked: null
+    evidence: customer-contact
 economics:
   currency: USD
   mrr: null
