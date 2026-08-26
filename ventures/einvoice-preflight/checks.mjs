@@ -6,6 +6,7 @@ import { inspectPaymentBic } from "./bic.mjs";
 import { inspectDocumentType } from "./document.mjs";
 import { inspectPaymentIban } from "./iban.mjs";
 import { inspectPaymentRemittance } from "./remittance.mjs";
+import { inspectTaxExemption } from "./tax.mjs";
 import { inspectPartyVat } from "./vat.mjs";
 
 function parseNumber(value) {
@@ -119,6 +120,9 @@ export function checkInvoice(invoice) {
     fail(finding.rule, finding.message, finding.fix, finding.path);
   }
   for (const finding of inspectDocumentType(invoice)) {
+    fail(finding.rule, finding.message, finding.fix, finding.path);
+  }
+  for (const finding of inspectTaxExemption(invoice)) {
     fail(finding.rule, finding.message, finding.fix, finding.path);
   }
 

@@ -8,6 +8,7 @@ from .bic import inspect_payment_bic
 from .document import inspect_document_type
 from .iban import inspect_payment_iban
 from .remittance import inspect_payment_remittance
+from .tax import inspect_tax_exemption
 from .vat import inspect_party_vat
 
 
@@ -75,6 +76,8 @@ def check_invoice(invoice: Any) -> list[dict[str, str]]:
     for finding in inspect_payment_remittance(invoice):
         fail(finding["rule"], finding["message"], finding["fix"], finding["path"])
     for finding in inspect_document_type(invoice):
+        fail(finding["rule"], finding["message"], finding["fix"], finding["path"])
+    for finding in inspect_tax_exemption(invoice):
         fail(finding["rule"], finding["message"], finding["fix"], finding["path"])
     lines = invoice.get("lines")
     if not isinstance(lines, list) or not lines:
