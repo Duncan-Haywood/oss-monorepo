@@ -475,6 +475,15 @@ products:
           after FBA fees, horizon leftover, conversion-lift floor).
           Still no public URL; local event vine_compared is opt-out and
           stores no inputs.
+      - as_of: 2026-08-26
+        signals:
+          live_url_visitors: null
+          local_events_reported: 0
+        note: >-
+          Added aged-inventory keep vs return vs dispose (storage plus
+          surcharge on leftover units, sell-through floor). Still no
+          public URL; local event aged_inventory_compared is opt-out
+          and stores no inputs.
   - slug: einvoice-preflight
     surface: local-cli
     readings:

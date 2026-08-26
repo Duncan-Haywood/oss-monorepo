@@ -95,6 +95,19 @@ units, gift units that would have sold, or skip.
 shows enrollment cost after the pick fee, leftover over the typed
 months, and the conversion lift that still ties.
 
+Units that already sit are a leftover-pile decision on the same SKU:
+keep paying storage and the aged-inventory surcharge, pay to send
+them back, or pay to dispose.
+[Should I remove aged Amazon inventory?](should-i-remove-aged-amazon-inventory.html)
+shows leftover cash, leftover units, and the monthly sell-through
+that still ties dispose. Complementary to Q4 storage (a seasonal
+rate) and to 3PL long-term storage (a different warehouse).
+
+**After using the aged-inventory page, you can now see whether
+keeping 80 leftover units at 5% sell-through still beats a $0.32
+dispose after $1.50 / unit / month surcharge** — which used to mean
+leaving the pile because removal looked like giving up.
+
 **After using the Vine page, you can now see whether leftover units
 still beat skipping after a $419.95 gift, and why a hero SKU that
 would have sold usually does not** — which used to mean accepting
@@ -133,15 +146,16 @@ optional and never changes what the tool does.
 Pure ES modules, no build step, no dependencies.
 
 ```
-node --test        # runs calc.test.mjs, usage.test.mjs, page.test.mjs, and vine-page.test.mjs
+node --test        # runs calc.test.mjs, usage.test.mjs, page.test.mjs, vine-page.test.mjs, and aged-inventory-page.test.mjs
 ```
 
 `calc.mjs` holds the fee/profit/ROI arithmetic, size-tier classification,
 category presets, coupon comparison, Subscribe & Save comparison,
 Multi-Channel Fulfillment comparison, usual-PO vs supplier-MOQ
 comparison, you-prep vs Amazon inbound prep comparison,
-Individual vs Professional seller-plan comparison, and
-Vine leftover vs sellable enrollment comparison;
+Individual vs Professional seller-plan comparison,
+Vine leftover vs sellable enrollment comparison, and
+aged-inventory keep vs return vs dispose comparison;
 `usage.mjs` holds the anonymous
 local counter; `index.html` is the calculator UI.
 

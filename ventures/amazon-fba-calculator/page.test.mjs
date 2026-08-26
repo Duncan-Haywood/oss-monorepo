@@ -82,6 +82,7 @@ test("schema.org featureList names the comparisons the page actually renders", (
   assert.match(featureList[1], /you-prep vs Amazon inbound prep/i);
   assert.match(featureList[1], /Individual vs Professional seller plan/i);
   assert.match(featureList[1], /seller-plan volume ladder/i);
+  assert.match(featureList[1], /aged inventory vs remove vs dispose/i);
   assert.match(markup, /id="bulkCompare"/);
   assert.match(markup, /id="prepCompare"/);
   assert.match(markup, /should-i-pay-amazon-to-prep-inbound\.html/);
