@@ -26,7 +26,10 @@ omits. That shows the monthly surcharge versus the quote as written, whether
 that aged path still beats in-house, and how many months of the hold eat a
 liquidation recovery.
 After normalizing, use **Download CSV record** to save the exact on-screen
-calculation for a spreadsheet or quote review without retyping figures.
+calculation for a spreadsheet, or **Download JSON record** for a procurement or
+ERP adapter, without retyping figures. The JSON record is versioned and includes
+only calculated values, warnings, and review safeguards; it does not include the
+raw rate-card fields.
 If a pasted value is malformed or negative, the copied line-by-line report
 includes an explicit warning instead of hiding the normalization rule.
 Blank fields are also called out with the default value used, so a missing
