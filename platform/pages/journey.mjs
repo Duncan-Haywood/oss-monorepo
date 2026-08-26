@@ -122,6 +122,46 @@ await page.waitForLoadState('networkidle');
 check('navigated to the tool', page.url().includes('/walmart-marketplace-calculator/'), page.url());
 check('the tool computes a figure', /\$\d/.test(await page.textContent('body')));
 
+// A figure being *present* proves very little: every tool here ships
+// worked-example defaults, so the page shows money on load whether or not the
+// arithmetic ran. A calculator whose `calc.mjs` throws on load passes the check
+// above, passes every static check in `check.mjs`, and is useless in front of a
+// user. So change an input and require the output to move.
+async function drives(slug) {
+  await page.goto(`${BASE}/${slug}/`, { waitUntil: 'networkidle' });
+  const readout = async () =>
+    (await page.textContent('body')).match(/\$\s?-?[\d,]+(?:\.\d+)?/g)?.join('|') ?? '';
+
+  const onLoad = await readout();
+  const fields = page.locator('input[type="number"]');
+  const total = await fields.count();
+  if (total === 0) return { moved: false, detail: 'no numeric inputs' };
+
+  // Stop at the first field that moves the output. Which field that is differs
+  // per tool, and several are only wired once a mode is selected.
+  for (let i = 0; i < Math.min(total, 12); i++) {
+    const field = fields.nth(i);
+    if (!(await field.isVisible()) || !(await field.isEditable())) continue;
+    await field.fill(String(Number((await field.inputValue()) || '0') + 137));
+    await field.dispatchEvent('input');
+    await page.waitForTimeout(200);
+    if ((await readout()) !== onLoad) return { moved: true, detail: `input ${i} of ${total}` };
+  }
+  return { moved: false, detail: `${total} inputs, none changed the output` };
+}
+
+// One per shape of calculator on the site, so a regression in a shared helper
+// shows up rather than hiding behind a tool that does not use it.
+for (const slug of [
+  'ebay-fee-calculator',
+  'invoice-payment-terms-calculator',
+  'amazon-fba-calculator',
+  'janitorial-bid-calculator',
+]) {
+  const { moved, detail } = await drives(slug);
+  check(`${slug} recomputes when an input changes`, moved, detail);
+}
+
 // 5. The cross-product sibling link that only resolves under this layout.
 await page.goto(`${BASE}/where-to-sell-calculator/`, { waitUntil: 'networkidle' });
 const sibling = page.locator('a[href="../ebay-fee-calculator/"]').first();

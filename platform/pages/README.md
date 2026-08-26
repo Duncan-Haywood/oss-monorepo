@@ -250,6 +250,21 @@ masks a missing `<link rel="icon">`; served from `/monorepo-projects/`, which is
 the shape GitHub Pages actually serves, it does not and the page 404s. That gap
 is how every page shipped with a failing favicon request until #1746. Run both.
 
+It also **changes an input and requires the output to move**, on one calculator
+of each shape. That distinction carries the weight here: every tool ships
+worked-example defaults, so money is on the page from the moment it loads and a
+"computed a figure" assertion passes whether or not the arithmetic ever ran. A
+tool whose `calc.mjs` throws on load renders its form, shows its defaults, and
+satisfies every static check in `check.mjs` while being useless to a visitor.
+Only a changed input tells the two apart.
+
+If Playwright is installed globally rather than beside this repo, point
+`PLAYWRIGHT` at it:
+
+```bash
+PLAYWRIGHT=/opt/node22/lib/node_modules/playwright/index.mjs node platform/pages/journey.mjs
+```
+
 Counts are derived from the page, never hardcoded — a venture lands most days,
 and a literal would fail on a healthy site the moment someone ships a
 calculator.
