@@ -483,6 +483,9 @@ workflows:
 - workflow: stair-lift-bid-calculator-ci.yml
   classification: none
   publishes: []
+- workflow: standby-generator-bid-calculator-ci.yml
+  classification: none
+  publishes: []
 - workflow: str-host-payout-calculator-ci.yml
   classification: none
   publishes: []

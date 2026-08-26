@@ -4744,3 +4744,37 @@ ventures:
       recommended price, a first-hour rating they can stamp, or a code ruling.
       Starting hours and material dollars are labelled takeoff points rather
       than a standard, and nothing the user enters leaves the browser.
+  - slug: standby-generator-bid-calculator
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 7
+      gross_margin: 10
+      defensibility: 5
+      distribution: 7
+    composite: 6.667
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      There is no AI anywhere in the product. The value is a domain model —
+      nameplate feeder, transfer-switch rating, fuel line, and setback — that
+      is arithmetic, and adding inference to it would only make the result
+      less checkable.
+    basis: >-
+      Graduated on 2026-08-25 as a browser-local residential standby-generator
+      install bid calculator. Scored with the other trade bid calculators:
+      defensibility 5 because the model encodes how the trade actually
+      estimates labor (feeder vs ATS, NG vs propane, beside-house vs far
+      yard) rather than restating a published fee schedule; distribution 7
+      because "how much to install a standby generator" and "whole-house
+      generator cost calculator" are bought by an operator with a real
+      install on the line.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Pass: the output is arithmetic on the installer's own inputs, never a
+      recommended price, a load calculation they can stamp, or a code ruling.
+      Starting hours and material dollars are labelled takeoff points rather
+      than a standard, and nothing the user enters leaves the browser.
