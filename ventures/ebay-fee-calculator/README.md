@@ -40,6 +40,10 @@ ways: ship it at a higher sell-through and pay the outbound label, or
 offer pickup only, skip postage, pay meetup time, and take a no-show
 rate.
 [Should I offer local pickup on eBay?](should-i-offer-ebay-local-pickup.html).
+A **Lot vs individual listings** table then prices the same pile two
+ways: keep one lot listing, or split the pieces and pay a label,
+insertion, and listing session on each.
+[Should I break an eBay lot into individual listings?](should-i-break-an-ebay-lot-into-individual-listings.html).
 
 **After using the authenticity page, you can now see whether a 3% fee
 and an $8 hub label still beat skip-AG on that SKU** — which used to
@@ -50,6 +54,11 @@ label.
 label still beats a 25-minute meetup after no-shows** — which used to
 mean offering pickup because “the buyer is local” and never pricing
 the drive.
+
+**After using the lot page, you can now see whether five $14 listings
+still beat a $40 lot after five labels and listing time** — which used
+to mean breaking every pile because “singles always make more” and
+never pricing the extra postage.
 
 Open `index.html` in a browser. The calculation is local and works without an
 account, network request, or API key. It is arithmetic, not an estimate of the
@@ -96,6 +105,11 @@ drive that decision:
   sell-through with shipping versus pickup. Meetup time is paid on
   every scheduled handoff, including no-shows. The table also names
   the outbound-label ceiling that still ties pickup.
+- **Lot vs individual listings** — expected listing profit after
+  sell-through with one lot versus N singles. Listing time and
+  insertion fees are paid on every listing, including the ones that
+  do not sell. The table also names the single price that still ties
+  the lot.
 
 **No warranty.** This tool is provided free and as-is, without warranty of any
 kind, express or implied. It is not tax, financial, or business advice, and it
@@ -121,11 +135,11 @@ footer, or your browser's Do Not Track / Global Privacy Control setting.
 The counted events are `order_profit_calculated`, `target_margin_calculated`,
 `batch_calculated`, `return_rate_viewed`, `listing_format_compared`,
 `partial_refund_compared`, `authenticity_compared`,
-`local_pickup_compared`, and
+`local_pickup_compared`, `lot_vs_singles_compared`, and
 `price_sensitivity_viewed`.
 `price_sensitivity_viewed`, `listing_format_compared`,
-`partial_refund_compared`, `authenticity_compared`, and
-`local_pickup_compared` are counted at most
+`partial_refund_compared`, `authenticity_compared`,
+`local_pickup_compared`, and `lot_vs_singles_compared` are counted at most
 once per visit and only after an input is edited — counting the table's
 first paint would just re-count page loads and say nothing about whether
 the view is used.

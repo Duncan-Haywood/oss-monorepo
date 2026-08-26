@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { calculateOrder, calculatePriceScenarios, calculateRepricingTable, compareListingFormat, listingFormatNote, comparePartialRefund, partialRefundNote, DEFAULT_PARTIAL_REFUND, DEFAULT_MONTHLY_CASES, compareAuthenticity, authenticityNote, DEFAULT_AUTHENTICITY_FEE_RATE, DEFAULT_AUTHENTICITY_EXTRA_SHIP, DEFAULT_WITHOUT_AG_SELL_THROUGH, DEFAULT_AUTHENTICITY_SELL_THROUGH, DEFAULT_AUTHENTICITY_RETURN_RATE, DEFAULT_MONTHLY_AG_LISTINGS, compareLocalPickup, localPickupNote, DEFAULT_SHIP_SELL_THROUGH, DEFAULT_PICKUP_SELL_THROUGH, DEFAULT_PICKUP_NO_SHOW, DEFAULT_PICKUP_MINUTES, DEFAULT_PICKUP_HOURLY_WAGE, DEFAULT_MONTHLY_PICKUP_LISTINGS } from './calc.mjs';
+import { calculateOrder, calculatePriceScenarios, calculateRepricingTable, compareListingFormat, listingFormatNote, comparePartialRefund, partialRefundNote, DEFAULT_PARTIAL_REFUND, DEFAULT_MONTHLY_CASES, compareAuthenticity, authenticityNote, DEFAULT_AUTHENTICITY_FEE_RATE, DEFAULT_AUTHENTICITY_EXTRA_SHIP, DEFAULT_WITHOUT_AG_SELL_THROUGH, DEFAULT_AUTHENTICITY_SELL_THROUGH, DEFAULT_AUTHENTICITY_RETURN_RATE, DEFAULT_MONTHLY_AG_LISTINGS, compareLocalPickup, localPickupNote, DEFAULT_SHIP_SELL_THROUGH, DEFAULT_PICKUP_SELL_THROUGH, DEFAULT_PICKUP_NO_SHOW, DEFAULT_PICKUP_MINUTES, DEFAULT_PICKUP_HOURLY_WAGE, DEFAULT_MONTHLY_PICKUP_LISTINGS, compareLotVsSingles, lotVsSinglesNote, DEFAULT_LOT_PIECE_COUNT, DEFAULT_SINGLE_EXPECTED_PRICE, DEFAULT_LOT_SELL_THROUGH, DEFAULT_SINGLE_SELL_THROUGH, DEFAULT_SINGLE_INSERTION_FEE, DEFAULT_MONTHLY_LOT_DECISIONS } from './calc.mjs';
 
 const near = (actual, expected, msg) => assert.ok(Math.abs(actual - expected) < 1e-6, `${msg}: ${actual} vs ${expected}`);
 
@@ -543,4 +543,76 @@ test('rejects a pickup no-show above 100% and a missing comparison', () => {
   assert.throws(() => compareLocalPickup({ ...agBase, pickupNoShowPct: 101 }), /at most 100/);
   assert.throws(() => compareLocalPickup({ price: -1 }), /Item price/);
   assert.throws(() => localPickupNote({}), /missing rows/);
+});
+
+test('compares keeping a lot against splitting it into singles', () => {
+  // Lot: completed $21.605; return −$11; 10% mix → $18.3445 expected.
+  // 80% sell-through minus $2.40 listing time → $12.2756.
+  // Single at $14+$5: completed $8.7825; return −$10; 10% mix → $6.90425.
+  // 55% sell-through minus $0.35 insertion → $3.4473375 × 5 − $12 time → $5.2366875.
+  const comparison = compareLotVsSingles(agBase);
+  assert.equal(comparison.pieceCount, DEFAULT_LOT_PIECE_COUNT);
+  assert.equal(comparison.singlePrice, DEFAULT_SINGLE_EXPECTED_PRICE);
+  assert.equal(comparison.lot.sellThroughPct, DEFAULT_LOT_SELL_THROUGH);
+  assert.equal(comparison.singles.sellThroughPct, DEFAULT_SINGLE_SELL_THROUGH);
+  assert.equal(comparison.singleInsertion, DEFAULT_SINGLE_INSERTION_FEE);
+  assert.equal(comparison.monthlyDecisions, DEFAULT_MONTHLY_LOT_DECISIONS);
+  near(comparison.lot.soldExpectedProfit, 18.3445, 'lot completed expected');
+  near(comparison.lot.expectedProfit, 18.3445 * 0.80 - 2.4, 'lot listing expected');
+  near(comparison.singleCompletedProfit, 8.7825, 'one single completed');
+  near(comparison.singles.soldExpectedProfit, 6.90425 * 5, 'five singles if they all sell');
+  near(comparison.singles.expectedProfit, (6.90425 * 0.55 - 0.35) * 5 - 12, 'singles listing expected');
+  assert.equal(comparison.winner, 'lot');
+  near(comparison.extraKeptOnSingles, 5.2366875 - 12.2756, 'singles vs lot');
+  near(comparison.monthlyExtraOnSingles, (5.2366875 - 12.2756) * 6, 'six decisions');
+  near(comparison.breakEvenSingleSellThrough, 75.39008581670711, 'sell-through that ties the lot');
+  near(comparison.breakEvenSinglePrice, 17.278391989054818, 'single price that ties the lot');
+});
+
+test('break-even single price and sell-through match the lot', () => {
+  const comparison = compareLotVsSingles(agBase);
+  const atPrice = compareLotVsSingles({ ...agBase, singleExpectedPrice: comparison.breakEvenSinglePrice });
+  near(atPrice.singles.expectedProfit, atPrice.lot.expectedProfit, 'ceiling price ties the lot');
+  const atSellThrough = compareLotVsSingles({
+    ...agBase,
+    singleSellThroughPct: comparison.breakEvenSingleSellThrough,
+  });
+  near(atSellThrough.singles.expectedProfit, atSellThrough.lot.expectedProfit, 'ceiling sell-through ties the lot');
+  assert.ok(comparison.breakEvenSinglePrice > 14, 'default $14 single is below the ceiling');
+});
+
+test('a known SKU with store insertion and a cheap label flips splitting ahead', () => {
+  const comparison = compareLotVsSingles({
+    ...agBase,
+    singleExpectedPrice: 18,
+    singleSellThroughPct: 85,
+    singleInsertionFee: 0,
+    singleListingMinutes: 3,
+    singleShippingCost: 3,
+  });
+  assert.equal(comparison.winner, 'singles');
+  near(comparison.lot.expectedProfit, 12.2756, 'lot unchanged');
+  near(comparison.singles.expectedProfit, 42.3658125, 'known-SKU singles');
+  near(comparison.extraKeptOnSingles, 42.3658125 - 12.2756, 'known-SKU gap');
+});
+
+test('lot-versus-singles note names the figures without telling the seller what to do', () => {
+  const comparison = compareLotVsSingles(agBase);
+  const note = lotVsSinglesNote(comparison);
+  assert.match(note, /Keeping the lot at 80%/);
+  assert.match(note, /\$6\.00 postage and pack/);
+  assert.match(note, /\$2\.40 of listing time/);
+  assert.match(note, /Splitting into 5 listings at \$14\.00/);
+  assert.match(note, /55% sell-through/);
+  assert.match(note, /\$12\.00 of listing time/);
+  assert.match(note, /Each single has to list at about/);
+  assert.doesNotMatch(note, /should split|must keep the lot|break the lot/i);
+});
+
+test('rejects a one-piece lot, a sell-through above 100%, and a missing comparison', () => {
+  assert.throws(() => compareLotVsSingles({ ...agBase, lotPieceCount: 1 }), /at least 2/);
+  assert.throws(() => compareLotVsSingles({ ...agBase, lotPieceCount: 2.5 }), /at least 2/);
+  assert.throws(() => compareLotVsSingles({ ...agBase, singleSellThroughPct: 101 }), /at most 100/);
+  assert.throws(() => compareLotVsSingles({ price: -1 }), /Item price/);
+  assert.throws(() => lotVsSinglesNote({}), /missing rows/);
 });

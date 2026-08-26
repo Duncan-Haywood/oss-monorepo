@@ -106,7 +106,9 @@ test('the local-pickup table has one cell per column and a counted event', () =>
   assert.match(page, /local_pickup_compared/);
   assert.match(page, /should-i-offer-ebay-local-pickup\.html/);
   assert.match(page, /"featureList":\s*"[^"]*local pickup vs ship/);
-  const headerBlock = page.slice(page.indexOf('id="localPickupTable"'));
+  const pickupStart = page.indexOf('id="localPickupTable"');
+  const pickupEnd = page.indexOf('id="lotVsSingles"', pickupStart);
+  const headerBlock = page.slice(pickupStart, pickupEnd === -1 ? undefined : pickupEnd);
   const headers = [...headerBlock.matchAll(/<th scope="col">([^<]+)<\/th>/g)].map((m) => m[1]);
   assert.deepEqual(headers, [
     'Path',
@@ -116,5 +118,25 @@ test('the local-pickup table has one cell per column and a counted event', () =>
     'If it sells',
     'Expected after sell-through',
     'vs ship',
+  ]);
+});
+
+test('the lot-versus-singles table has one cell per column and a counted event', () => {
+  assert.match(page, /compareLotVsSingles/);
+  assert.match(page, /id="lotVsSingles"/);
+  assert.match(page, /id="lotVsSinglesVerdict"/);
+  assert.match(page, /lot_vs_singles_compared/);
+  assert.match(page, /should-i-break-an-ebay-lot-into-individual-listings\.html/);
+  assert.match(page, /"featureList":\s*"[^"]*lot vs individual listings/);
+  const headerBlock = page.slice(page.indexOf('id="lotVsSinglesTable"'));
+  const headers = [...headerBlock.matchAll(/<th scope="col">([^<]+)<\/th>/g)].map((m) => m[1]);
+  assert.deepEqual(headers, [
+    'Path',
+    'Listings',
+    'Sell-through',
+    'Time cost',
+    'If it sells',
+    'Expected after sell-through',
+    'vs the lot',
   ]);
 });

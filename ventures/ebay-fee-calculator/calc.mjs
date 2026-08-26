@@ -49,6 +49,19 @@ export const INPUT_FIELDS = [
   'pickupPackagingCost',
   'pickupReturnRatePercent',
   'monthlyPickupListings',
+  'lotPieceCount',
+  'singleExpectedPrice',
+  'lotSellThroughPct',
+  'singleSellThroughPct',
+  'lotInsertionFee',
+  'singleInsertionFee',
+  'singleShippingCharged',
+  'singleShippingCost',
+  'singlePackagingCost',
+  'lotListingMinutes',
+  'singleListingMinutes',
+  'lotListingWage',
+  'monthlyLotDecisions',
 ];
 
 export function calculateOrder(input) {
@@ -213,6 +226,14 @@ function requiredPositive(value, name, fallback) {
 function requiredPercent(value, name, fallback) {
   const result = optionalNumber(value, name, fallback);
   if (result > 100) throw new Error(`${name} must be at most 100%`);
+  return result;
+}
+
+function requiredWholeCount(value, name, fallback) {
+  const result = optionalNumber(value, name, fallback);
+  if (!Number.isInteger(result) || result < 2) {
+    throw new Error(`${name} must be a whole number of at least 2`);
+  }
   return result;
 }
 
@@ -869,4 +890,262 @@ export function localPickupNote(comparison) {
     ? ` The outbound label has to be about ${money(comparison.breakEvenShippingCost)} before shipping matches pickup.`
     : ' No outbound label on these rates can match pickup.';
   return `${shipLine} ${pickupLine}${label}`;
+}
+
+/**
+ * Illustrative lot-vs-singles defaults. A $40 pile of five mixed
+ * pieces still usually beats five $14 listings once you pay five
+ * labels, five insertions, and the extra listing time. The known-SKU
+ * case (high single sell-through, store insertion) is the one that
+ * flips. Minutes and wage are inputs, not a published labor schedule.
+ */
+export const DEFAULT_LOT_PIECE_COUNT = 5;
+export const DEFAULT_SINGLE_EXPECTED_PRICE = 14;
+export const DEFAULT_LOT_SELL_THROUGH = 80;
+export const DEFAULT_SINGLE_SELL_THROUGH = 55;
+export const DEFAULT_LOT_INSERTION_FEE = 0;
+export const DEFAULT_SINGLE_INSERTION_FEE = 0.35;
+export const DEFAULT_SINGLE_SHIPPING_CHARGED = 5;
+export const DEFAULT_SINGLE_SHIPPING_COST = 4;
+export const DEFAULT_SINGLE_PACKAGING_COST = 1;
+export const DEFAULT_LOT_LISTING_MINUTES = 8;
+export const DEFAULT_SINGLE_LISTING_MINUTES = 8;
+export const DEFAULT_LOT_LISTING_WAGE = 18;
+export const DEFAULT_MONTHLY_LOT_DECISIONS = 6;
+
+function lotRow({
+  id,
+  label,
+  listings,
+  sellThroughPct,
+  insertionFee,
+  timeCost,
+  postageAndPack,
+  soldExpectedProfit,
+  completedProfit,
+  expectedProfit,
+}) {
+  return {
+    id,
+    label,
+    listings,
+    sellThroughPct,
+    insertionFee,
+    timeCost,
+    postageAndPack,
+    soldExpectedProfit,
+    completedProfit,
+    expectedProfit,
+    expectedProfitDelta: 0,
+  };
+}
+
+/**
+ * Same pile of items, listed as one lot or broken into individual
+ * listings.
+ *
+ *   - Keep the lot — one listing, one label, one insertion, one pack.
+ *     Item price and shipping on the form are the lot. Cost of goods
+ *     is the pile. Listing time is paid whether it sells or not.
+ *   - Split into singles — N listings, N labels, N insertions, N packs.
+ *     Cost of goods is split across the pieces. Each listing uses the
+ *     typed single price and single postage. Listing time is paid on
+ *     every piece, including the ones that do not sell.
+ *
+ * Complementary to auction vs BIN (format), local pickup (meetup vs
+ * label), and Authenticity Guarantee (hub label). Open eBay PRs still
+ * own promoted, store, Best Offer, international, and Managed Returns.
+ * Rates, insertion, and the wage are inputs, not eBay listing policy.
+ */
+export function compareLotVsSingles(input) {
+  const listedPrice = optionalNumber(input.price, 'Item price');
+  if (listedPrice === undefined) {
+    throw new Error('Item price must be a non-negative number');
+  }
+
+  const pieceCount = requiredWholeCount(
+    input.lotPieceCount,
+    'Pieces in the lot',
+    DEFAULT_LOT_PIECE_COUNT,
+  );
+  const singlePrice = optionalNumber(
+    input.singleExpectedPrice,
+    'Single expected price',
+    DEFAULT_SINGLE_EXPECTED_PRICE,
+  );
+  const lotSellThrough = requiredPercent(
+    input.lotSellThroughPct,
+    'Lot sell-through',
+    DEFAULT_LOT_SELL_THROUGH,
+  );
+  const singleSellThrough = requiredPercent(
+    input.singleSellThroughPct,
+    'Single sell-through',
+    DEFAULT_SINGLE_SELL_THROUGH,
+  );
+  const lotInsertion = optionalNumber(
+    input.lotInsertionFee,
+    'Lot insertion fee',
+    DEFAULT_LOT_INSERTION_FEE,
+  );
+  const singleInsertion = optionalNumber(
+    input.singleInsertionFee,
+    'Single insertion fee',
+    DEFAULT_SINGLE_INSERTION_FEE,
+  );
+  const singleShipCharged = optionalNumber(
+    input.singleShippingCharged,
+    'Single shipping charged',
+    DEFAULT_SINGLE_SHIPPING_CHARGED,
+  );
+  const singleShipCost = optionalNumber(
+    input.singleShippingCost,
+    'Single shipping cost',
+    DEFAULT_SINGLE_SHIPPING_COST,
+  );
+  const singlePack = optionalNumber(
+    input.singlePackagingCost,
+    'Single packaging',
+    DEFAULT_SINGLE_PACKAGING_COST,
+  );
+  const lotMinutes = optionalNumber(
+    input.lotListingMinutes,
+    'Lot listing minutes',
+    DEFAULT_LOT_LISTING_MINUTES,
+  );
+  const singleMinutes = optionalNumber(
+    input.singleListingMinutes,
+    'Single listing minutes',
+    DEFAULT_SINGLE_LISTING_MINUTES,
+  );
+  const wage = optionalNumber(
+    input.lotListingWage,
+    'Listing hourly wage',
+    DEFAULT_LOT_LISTING_WAGE,
+  );
+  const monthlyDecisions = optionalNumber(
+    input.monthlyLotDecisions,
+    'Monthly lot decisions',
+    DEFAULT_MONTHLY_LOT_DECISIONS,
+  );
+
+  const costOfGoods = optionalNumber(input.costOfGoods, 'Cost of goods', 0);
+  const lotSold = calculateOrder({ ...input, quantity: 1 });
+  const singleSold = calculateOrder({
+    ...input,
+    quantity: 1,
+    price: singlePrice,
+    shippingCharged: singleShipCharged,
+    shippingCost: singleShipCost,
+    packagingCost: singlePack,
+    costOfGoods: costOfGoods / pieceCount,
+  });
+
+  const lotTime = (lotMinutes / 60) * wage;
+  const singleTime = pieceCount * (singleMinutes / 60) * wage;
+  const lotPostage = optionalNumber(input.shippingCost, 'Shipping cost', 0)
+    + optionalNumber(input.packagingCost, 'Packaging cost', 0);
+  const singlePostage = (singleShipCost + singlePack) * pieceCount;
+
+  const lotExpected = lotSold.expectedProfit * (lotSellThrough / 100) - lotInsertion - lotTime;
+  const singleExpected = (singleSold.expectedProfit * (singleSellThrough / 100) - singleInsertion)
+    * pieceCount - singleTime;
+
+  const lot = lotRow({
+    id: 'lot',
+    label: 'Keep the lot',
+    listings: 1,
+    sellThroughPct: lotSellThrough,
+    insertionFee: lotInsertion,
+    timeCost: lotTime,
+    postageAndPack: lotPostage,
+    soldExpectedProfit: lotSold.expectedProfit,
+    completedProfit: lotSold.profit,
+    expectedProfit: lotExpected,
+  });
+  const singles = lotRow({
+    id: 'singles',
+    label: `Split into ${pieceCount} listings`,
+    listings: pieceCount,
+    sellThroughPct: singleSellThrough,
+    insertionFee: singleInsertion * pieceCount,
+    timeCost: singleTime,
+    postageAndPack: singlePostage,
+    soldExpectedProfit: singleSold.expectedProfit * pieceCount,
+    completedProfit: singleSold.profit * pieceCount,
+    expectedProfit: singleExpected,
+  });
+  lot.expectedProfitDelta = lot.expectedProfit - singles.expectedProfit;
+  singles.expectedProfitDelta = singles.expectedProfit - lot.expectedProfit;
+
+  const winner = singles.expectedProfit > lot.expectedProfit + 1e-9
+    ? 'singles'
+    : singles.expectedProfit < lot.expectedProfit - 1e-9
+      ? 'lot'
+      : 'tie';
+
+  let breakEvenSingleSellThrough = Infinity;
+  if (singleSold.expectedProfit > 1e-12) {
+    const needed = ((lot.expectedProfit + singleTime) / pieceCount + singleInsertion)
+      / singleSold.expectedProfit * 100;
+    breakEvenSingleSellThrough = needed > 100 + 1e-9 ? Infinity : Math.max(0, needed);
+  }
+
+  const singlesAtPrice = (price) => {
+    const sold = calculateOrder({
+      ...input,
+      quantity: 1,
+      price,
+      shippingCharged: singleShipCharged,
+      shippingCost: singleShipCost,
+      packagingCost: singlePack,
+      costOfGoods: costOfGoods / pieceCount,
+    });
+    return (sold.expectedProfit * (singleSellThrough / 100) - singleInsertion)
+      * pieceCount - singleTime;
+  };
+  const atZero = singlesAtPrice(0);
+  const atHundred = singlesAtPrice(100);
+  const slope = (atHundred - atZero) / 100;
+  let breakEvenSinglePrice = Infinity;
+  if (slope > 1e-12) {
+    breakEvenSinglePrice = Math.max(0, (lot.expectedProfit - atZero) / slope);
+  }
+
+  return {
+    rows: [lot, singles],
+    lot,
+    singles,
+    winner,
+    pieceCount,
+    singlePrice,
+    lotInsertion,
+    singleInsertion,
+    monthlyDecisions,
+    extraKeptOnSingles: singles.expectedProfit - lot.expectedProfit,
+    monthlyExtraOnSingles: (singles.expectedProfit - lot.expectedProfit) * monthlyDecisions,
+    breakEvenSingleSellThrough,
+    breakEvenSinglePrice,
+    lotCompletedProfit: lotSold.profit,
+    singleCompletedProfit: singleSold.profit,
+  };
+}
+
+export function lotVsSinglesNote(comparison) {
+  if (!comparison?.lot || !comparison?.singles) {
+    throw new Error('Lot-versus-singles comparison is missing rows');
+  }
+  const money = (value) => {
+    const sign = value < 0 ? '-' : '';
+    return `${sign}$${Math.abs(value).toFixed(2)}`;
+  };
+  const { lot, singles } = comparison;
+  const gap = money(Math.abs(singles.expectedProfit - lot.expectedProfit));
+  const ahead = singles.expectedProfit >= lot.expectedProfit ? 'more' : 'less';
+  const lotLine = `Keeping the lot at ${lot.sellThroughPct}% sell-through, with ${money(lot.postageAndPack)} postage and pack and ${money(lot.timeCost)} of listing time, expects ${money(lot.expectedProfit)}.`;
+  const singlesLine = `Splitting into ${comparison.pieceCount} listings at ${money(comparison.singlePrice)} each, ${singles.sellThroughPct}% sell-through, and ${money(singles.timeCost)} of listing time expects ${money(singles.expectedProfit)} — ${gap} ${ahead}.`;
+  const price = Number.isFinite(comparison.breakEvenSinglePrice)
+    ? ` Each single has to list at about ${money(comparison.breakEvenSinglePrice)} before splitting matches the lot.`
+    : ' No single list price on these rates can match the lot.';
+  return `${lotLine} ${singlesLine}${price}`;
 }
