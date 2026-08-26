@@ -16,3 +16,9 @@ test('download path creates and cleans up a local object URL', () => {
   assert.match(page, /URL\.revokeObjectURL\(url\)/);
   assert.doesNotMatch(page, /fetch\(|navigator\.sendBeacon\(/);
 });
+
+test('download writes the same proposal draft as copy', () => {
+  assert.match(page, /formatBidSummary\(currentBid\(\)\)/);
+  assert.match(page, /shifts: readShifts\(\)/);
+  assert.match(page, /projects: readProjects\(\)/);
+});
