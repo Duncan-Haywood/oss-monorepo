@@ -1,0 +1,145 @@
+// Structural tests for index.html and the SEO article.
+//
+// calc.test.mjs stays green if the page never executes. These checks are
+// dependency-free (no jsdom) so CI stays a plain `node --test`. They catch
+// the class of defect that actually shipped on another calculator: an
+// unclosed raw-text element that swallowed the app script.
+import { test } from 'node:test';
+import assert from 'node:assert/strict';
+import { readFileSync } from 'node:fs';
+
+const html = readFileSync(new URL('./index.html', import.meta.url), 'utf8');
+const seo = readFileSync(new URL('./how-much-to-charge-to-replace-a-boiler.html', import.meta.url), 'utf8');
+const patch = readFileSync(new URL('./should-i-patch-this-boiler-for-one-more-winter.html', import.meta.url), 'utf8');
+const supplySeo = readFileSync(new URL('./should-i-install-a-customer-supplied-boiler.html', import.meta.url), 'utf8');
+const saturdaySeo = readFileSync(new URL('./should-i-take-a-saturday-boiler-call.html', import.meta.url), 'utf8');
+
+const RAW_TEXT_ELEMENTS = ['textarea', 'script', 'style'];
+
+function parse(source) {
+  const RAW = /<(textarea|script|style)\b[^>]*>/i;
+  let rest = source;
+  let markup = '';
+  const scripts = [];
+  for (;;) {
+    const open = rest.match(RAW);
+    if (!open) return { markup: markup + rest, scripts, unclosed: null };
+    const tag = open[1].toLowerCase();
+    const contentStart = open.index + open[0].length;
+    markup += rest.slice(0, contentStart);
+    const closer = new RegExp(`</${tag}\\s*>`, 'i').exec(rest.slice(contentStart));
+    if (!closer) return { markup, scripts, unclosed: tag };
+    if (tag === 'script') scripts.push(rest.slice(contentStart, contentStart + closer.index));
+    markup += closer[0];
+    rest = rest.slice(contentStart + closer.index + closer[0].length);
+  }
+}
+
+const { markup, scripts, unclosed } = parse(html);
+const declaredIds = new Set([...markup.matchAll(/\bid="([\w-]+)"/g)].map((m) => m[1]));
+const scriptSource = scripts.join('\n');
+
+test('every raw-text element is closed', () => {
+  assert.equal(unclosed, null, `<${unclosed}> is never closed; everything after it is swallowed as text instead of parsed as markup`);
+  for (const tag of RAW_TEXT_ELEMENTS) {
+    const opened = (html.match(new RegExp(`<${tag}[\\s>]`, 'gi')) || []).length;
+    const closed = (html.match(new RegExp(`</${tag}\\s*>`, 'gi')) || []).length;
+    assert.equal(opened, closed, `<${tag}> is opened ${opened}x but closed ${closed}x`);
+  }
+});
+
+test('the module script survives parsing and would actually execute', () => {
+  assert.match(markup, /<script type="module">/, 'the app script tag is missing or was swallowed by an earlier element');
+  assert.match(scriptSource, /calculateBid/, 'the app script did not parse as a script element');
+  assert.match(scriptSource, /compareScope/, 'scope comparison is missing from the executable script');
+  assert.match(scriptSource, /compareRepairVsReplace/, 'repair comparison is missing from the executable script');
+  assert.match(scriptSource, /repairVsReplaceNote/, 'repair verdict helper is missing from the executable script');
+  assert.match(scriptSource, /compareOwnerSupply/, 'owner-supply comparison is missing from the executable script');
+  assert.match(scriptSource, /ownerSupplyNote/, 'owner-supply verdict is missing from the executable script');
+  assert.match(scriptSource, /compareAccess/, 'access comparison is missing from the executable script');
+  assert.match(scriptSource, /accessNote/, 'access verdict is missing from the executable script');
+  assert.match(scriptSource, /formatBidSummary/, 'copy-summary helper is missing from the executable script');
+});
+
+test('every element the script reaches for exists in the markup', () => {
+  const wanted = new Set([
+    ...[...scriptSource.matchAll(/el\(\s*'([\w-]+)'\s*\)/g)].map((m) => m[1]),
+    ...[...scriptSource.matchAll(/getElementById\(\s*'([\w-]+)'\s*\)/g)].map((m) => m[1]),
+  ]);
+  assert.ok(wanted.size > 0, 'no element lookups found; the script probably did not parse');
+  const missing = [...wanted].filter((id) => !declaredIds.has(id));
+  assert.deepEqual(missing, [], `script queries ids that no element declares: ${missing.join(', ')}`);
+});
+
+test('inputs and result fields for the primary journey are present', () => {
+  for (const id of [
+    'scope', 'system', 'fuel', 'inputMbh', 'zones', 'travelMiles',
+    'hourlyWage', 'targetMargin', 'proposedPrice',
+    'hoursRepair', 'repairParts', 'extraCallsThisWinter', 'remainingWinters', 'patchPrice',
+    'price', 'breakEven', 'compare', 'repair', 'repairNote', 'supply', 'supplyNote', 'access', 'accessNote', 'copySummary', 'usageOptOut', 'jobPresets',
+  ]) {
+    assert.ok(declaredIds.has(id), `missing #${id}`);
+  }
+});
+
+test('the landing page names the problem in the contractor\'s words', () => {
+  assert.match(html, /<title>[^<]*Boiler Replacement Bid Calculator/i);
+  assert.match(html, /meta name="description"[^>]*boiler/i);
+  assert.match(html, /Bid the plant, the system, and the extras/);
+  assert.match(html, /SoftwareApplication/);
+});
+
+test('disclaimer and privacy line are visible, not only in the README', () => {
+  assert.match(markup, /No warranty/);
+  assert.match(markup, /not heat-loss, fuel-gas-code, chimney-design, legal, tax, or financial advice/i);
+  assert.match(markup, /Nothing leaves your browser/);
+  assert.match(markup, /usageOptOut/);
+});
+
+test('the SEO article answers the search phrase and stays crawlable', () => {
+  assert.match(seo, /How much to charge to replace a boiler/i);
+  assert.match(seo, /FAQPage/);
+  assert.match(seo, /HowTo/);
+  assert.match(seo, /like-for-like/i);
+  assert.match(seo, /index\.html/);
+  assert.match(seo, /should-i-patch-this-boiler-for-one-more-winter\.html/);
+  assert.match(seo, /should-i-install-a-customer-supplied-boiler\.html/);
+  assert.match(seo, /should-i-take-a-saturday-boiler-call\.html/);
+  assert.doesNotMatch(seo, /<textarea/i);
+});
+
+test('the landing page links the customer-supplied and Saturday questions', () => {
+  assert.match(html, /should-i-install-a-customer-supplied-boiler\.html/);
+  assert.match(html, /should-i-take-a-saturday-boiler-call\.html/);
+});
+
+test('the patch article answers the no-heat question and stays crawlable', () => {
+  assert.match(patch, /Should I patch this boiler for one more winter/i);
+  assert.match(patch, /FAQPage/);
+  assert.match(patch, /\$280/);
+  assert.match(patch, /index\.html/);
+  assert.match(patch, /No warranty/);
+  assert.match(patch, /Best-effort hosting, no SLA/);
+  assert.doesNotMatch(patch, /<textarea/i);
+});
+
+test('the supply article answers the customer-supplied question and stays crawlable', () => {
+  assert.match(supplySeo, /Should I install a customer-supplied boiler/i);
+  assert.match(supplySeo, /FAQPage/);
+  assert.match(supplySeo, /\$4,500/);
+  assert.match(supplySeo, /index\.html/);
+  assert.match(supplySeo, /No warranty/);
+  assert.match(supplySeo, /Best-effort hosting, no SLA/);
+  assert.doesNotMatch(supplySeo, /<textarea/i);
+});
+
+test('the Saturday article answers the no-heat overtime question and stays crawlable', () => {
+  assert.match(saturdaySeo, /Should I take a Saturday boiler call/i);
+  assert.match(saturdaySeo, /FAQPage/);
+  assert.match(saturdaySeo, /\$5,800/);
+  assert.match(saturdaySeo, /\$4,500/);
+  assert.match(saturdaySeo, /index\.html/);
+  assert.match(saturdaySeo, /No warranty/);
+  assert.match(saturdaySeo, /Best-effort hosting, no SLA/);
+  assert.doesNotMatch(saturdaySeo, /<textarea/i);
+});

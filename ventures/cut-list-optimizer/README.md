@@ -24,7 +24,15 @@ Enter the sheet size, your saw kerf, and one part per line:
 
 **Edge trim** is stock taken off all four sides before anything is laid out — useful when the factory edge of a sheet is not square enough to reference off. **Pieces may be rotated 90°** is on by default; turn it off for a veneer or a printed face where direction has to run one way, or add `grain` to a single line to pin just that piece. **Cost per sheet** is optional: fill it in and the plan reports what the job costs in material and what the offcut is costing you.
 
+**Compare other sheet sizes** ranks the same parts list against a 5×5 Baltic birch, a 4×4 half-sheet, or a 5×10 — or any two sizes you type. When every size has a price, the ranking is cash; when prices are missing, it is sheets to buy. A size that cannot take every piece never wins, even if it is cheaper per sheet. The dedicated page [4×8 vs 5×5](compare-4x8-vs-5x5.html) walks the cabinet-door example.
+
 **Copy cut plan** puts a plain-text version on the clipboard for a job ticket or shop note. **Print** produces a paper copy of the diagrams with the controls hidden.
+
+The current form is saved as an optional local draft when a field is changed, so a
+shop can return to an unfinished list after closing the tab. **Clear saved draft**
+removes it immediately. Drafts contain only the form values and never leave the
+browser; enabling the footer opt-out clears both the draft and anonymous usage
+counts.
 
 ### How the layouts are produced, and what that means for you
 
@@ -36,11 +44,11 @@ The plan is a **heuristic**, not a proof. It is not guaranteed to be the best po
 
 Kerf and edge trim are counted as **waste**, not as usable material, so the utilization figure is the honest one. Pieces that cannot fit a sheet in any allowed orientation are reported separately rather than dropped, so one mistyped line never hides a usable plan for the rest of the list.
 
-**Known limitations:** guillotine layouts only, so a shop with a CNC router could nest more tightly; one sheet size per plan, so mixed stock needs separate runs; no thickness or material tracking, so a plan is per material, per thickness.
+**Known limitations:** guillotine layouts only, so a shop with a CNC router could nest more tightly; the comparison ranks whole-job sizes, not a mixed stack of 4×8 and 5×5 on the same ticket; no thickness or material tracking, so a plan is per material, per thickness.
 
 ## Linear stock
 
-Enter one required length per line. Add `x quantity` when several identical pieces are needed, such as `24 x 3`. The deterministic first-fit decreasing plan is a planning aid, not a guarantee of the optimal arrangement. Use **Copy cut plan** to put a plain-text version into a job ticket or shop note; it stays in your browser and is not uploaded.
+Enter one required length per line. Add `x quantity` when several identical pieces are needed, such as `24 x 3`. Add an optional cost per stock piece to see the material spend for the plan before buying. The deterministic first-fit decreasing plan is a planning aid, not a guarantee of the optimal arrangement. Use **Copy cut plan** to put a plain-text version into a job ticket or shop note; it stays in your browser and is not uploaded.
 
 ## Privacy
 
@@ -52,6 +60,9 @@ Everything runs in the browser. The cut list never leaves your device, there are
 | `cut-list-optimizer-copies` | A linear plan was copied out for a job ticket |
 | `cut-list-optimizer-sheet-runs` | A sheet layout was calculated from a settled edit |
 | `cut-list-optimizer-sheet-copies` | A sheet plan was copied out for a job ticket |
+| `cut-list-optimizer-sheet-compares` | Two or more sheet sizes were ranked on the same list |
+
+The saved draft uses a separate local-storage key and is not an analytics event.
 
 Keeping them apart is what makes the numbers readable: `runs` shows the tool was used, `copies` shows a plan was good enough to carry into the shop, and the `sheet-` pair shows which half of the product people come back for. None of the counters records the cut list itself — no dimension, label, quantity, or price — and nothing is transmitted.
 
@@ -60,7 +71,7 @@ Counting is skipped entirely when the browser sends Do Not Track or Global Priva
 ## Development
 
 ```sh
-node --test             # 51 tests: sheet, calc, usage, and page structure
+node --test             # sheet, calc, usage, page structure, and 4×8 vs 5×5 page
 python3 -m http.server  # then verify the page at http://localhost:8000/
 ```
 
