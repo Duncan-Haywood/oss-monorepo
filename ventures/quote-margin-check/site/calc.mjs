@@ -51,6 +51,7 @@ export function calculate(quote) {
     target_price: targetPrice,
     gap_to_target: quote.price - targetPrice,
     cost_coverage: quote.price - directCosts,
+    discount_room: Math.max(0, quote.price - targetPrice),
   };
 }
 

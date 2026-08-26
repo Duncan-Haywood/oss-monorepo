@@ -49,6 +49,12 @@ test("rejects non-finite numbers", () => {
 test("reports price left after direct costs", () => {
   const quote = loadQuote({ price: 1000, delivery_hours: 10, overhead: 125, subcontractor_cost: 75, target_hourly_rate: 80 });
   assert.equal(calculate(quote).cost_coverage, 800);
+  assert.equal(calculate(quote).discount_room, 0);
+});
+
+test("reports discount room above target without recommending a price", () => {
+  const quote = loadQuote({ price: 4000, delivery_hours: 10, target_hourly_rate: 100 });
+  assert.equal(calculate(quote).discount_room, 3000);
 });
 
 test("currency defaults and is trimmed", () => {

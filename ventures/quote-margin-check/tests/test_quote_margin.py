@@ -39,6 +39,11 @@ class QuoteMarginTests(unittest.TestCase):
     def test_reports_price_left_after_direct_costs(self) -> None:
         quote = load_quote({"price": 1000, "delivery_hours": 10, "overhead": 125, "subcontractor_cost": 75, "target_hourly_rate": 80})
         self.assertEqual(calculate(quote)["cost_coverage"], 800)
+        self.assertEqual(calculate(quote)["discount_room"], 0)
+
+    def test_reports_discount_room_above_target(self) -> None:
+        quote = load_quote({"price": 4000, "delivery_hours": 10, "target_hourly_rate": 100})
+        self.assertEqual(calculate(quote)["discount_room"], 3000)
 
     def test_discount_ask_keeps_hours_and_direct_costs_fixed(self) -> None:
         quote = load_quote({"price": 2400, "delivery_hours": 24, "admin_hours": 5, "revision_hours": 6, "overhead": 180, "subcontractor_cost": 300, "target_hourly_rate": 75})
@@ -68,6 +73,7 @@ class QuoteMarginTests(unittest.TestCase):
                 "target_price,1800.00,EUR",
                 "gap_to_target,600.00,EUR",
                 "cost_coverage,2400.00,EUR",
+                "discount_room,600.00,EUR",
                 "hourly_bill_at_planned_hours,1800.00,EUR",
                 "hourly_minus_fixed_at_planned_hours,-600.00,EUR",
             ],
