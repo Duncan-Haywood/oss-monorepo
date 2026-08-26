@@ -468,6 +468,9 @@ workflows:
 - workflow: water-softener-bid-calculator-ci.yml
   classification: none
   publishes: []
+- workflow: well-pump-bid-calculator-ci.yml
+  classification: none
+  publishes: []
 - workflow: wheelchair-ramp-bid-calculator-ci.yml
   classification: none
   publishes: []
