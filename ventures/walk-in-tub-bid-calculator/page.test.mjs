@@ -11,6 +11,7 @@ import { readFileSync } from 'node:fs';
 const html = readFileSync(new URL('./index.html', import.meta.url), 'utf8');
 const seo = readFileSync(new URL('./how-much-to-charge-to-install-a-walk-in-tub.html', import.meta.url), 'utf8');
 const supplySeo = readFileSync(new URL('./should-i-install-a-customer-supplied-walk-in-tub.html', import.meta.url), 'utf8');
+const accessSeo = readFileSync(new URL('./should-i-take-a-saturday-walk-in-tub-call.html', import.meta.url), 'utf8');
 
 const RAW_TEXT_ELEMENTS = ['textarea', 'script', 'style'];
 
@@ -53,6 +54,8 @@ test('the module script survives parsing and would actually execute', () => {
   assert.match(scriptSource, /compareTub/, 'tub comparison is missing from the executable script');
   assert.match(scriptSource, /compareOwnerSupply/, 'owner-supply comparison is missing from the executable script');
   assert.match(scriptSource, /ownerSupplyNote/, 'owner-supply verdict is missing from the executable script');
+  assert.match(scriptSource, /compareAccess/, 'access comparison is missing from the executable script');
+  assert.match(scriptSource, /accessNote/, 'access note is missing from the executable script');
   assert.match(scriptSource, /formatBidSummary/, 'copy-summary helper is missing from the executable script');
 });
 
@@ -70,7 +73,7 @@ test('inputs and result fields for the primary journey are present', () => {
   for (const id of [
     'scope', 'tub', 'door', 'tubCount', 'travelMiles',
     'hourlyWage', 'targetMargin', 'proposedPrice',
-    'price', 'breakEven', 'compare', 'tubs', 'supply', 'supplyNote', 'copySummary', 'usageOptOut', 'jobPresets',
+    'price', 'breakEven', 'compare', 'tubs', 'supply', 'supplyNote', 'accessWindow', 'accessWindowNote', 'copySummary', 'usageOptOut', 'jobPresets',
   ]) {
     assert.ok(declaredIds.has(id), `missing #${id}`);
   }
@@ -85,6 +88,8 @@ test('the landing page names the problem in the contractor\'s words', () => {
   assert.match(html, /vs soaker/);
   assert.match(html, /Same bath, who bought the tub/);
   assert.match(html, /should-i-install-a-customer-supplied-walk-in-tub\.html/);
+  assert.match(html, /Same bath, when you can work/);
+  assert.match(html, /should-i-take-a-saturday-walk-in-tub-call\.html/);
 });
 
 test('disclaimer and privacy line are visible, not only in the README', () => {
@@ -103,6 +108,7 @@ test('the SEO article answers the search phrase and points back to the calculato
   assert.match(seo, /No warranty/);
   assert.match(seo, /walk-in shower/i);
   assert.match(seo, /should-i-install-a-customer-supplied-walk-in-tub\.html/);
+  assert.match(seo, /should-i-take-a-saturday-walk-in-tub-call\.html/);
 });
 
 test('the owner-supply article answers the search phrase and stays crawlable', () => {
@@ -115,9 +121,33 @@ test('the owner-supply article answers the search phrase and stays crawlable', (
   assert.match(supplySeo, /index\.html/);
   assert.match(supplySeo, /No warranty/);
   assert.match(supplySeo, /no SLA/i);
+  assert.match(supplySeo, /should-i-take-a-saturday-walk-in-tub-call\.html/);
   assert.doesNotMatch(supplySeo, /<textarea/i);
 });
 
 test('the landing page links the customer-supplied tub question', () => {
   assert.match(html, /should-i-install-a-customer-supplied-walk-in-tub\.html/);
+});
+
+test('the landing page links the Saturday / after-hours question', () => {
+  assert.match(html, /should-i-take-a-saturday-walk-in-tub-call\.html/);
+});
+
+test('the after-hours article quotes the soaker and whirlpool Saturday arithmetic', () => {
+  assert.match(accessSeo, /Should I take a Saturday walk-in tub call/i);
+  assert.match(accessSeo, /FAQPage/);
+  assert.match(accessSeo, /\$3,499/);
+  assert.match(accessSeo, /\$3,757\.32/);
+  assert.match(accessSeo, /\$4,407\.98/);
+  assert.match(accessSeo, /\$27\.39/);
+  assert.match(accessSeo, /\$3,526\.39/);
+  assert.match(accessSeo, /\$8,640\.43/);
+  assert.match(accessSeo, /\$9,566\.19/);
+  assert.match(accessSeo, /\$5,800/);
+  assert.match(accessSeo, /\$7,652\.95/);
+  assert.match(accessSeo, /index\.html/);
+  assert.match(accessSeo, /No warranty/);
+  assert.match(accessSeo, /no SLA/i);
+  assert.match(accessSeo, /walk-in shower/i);
+  assert.doesNotMatch(accessSeo, /<textarea/i);
 });

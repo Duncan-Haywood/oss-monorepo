@@ -823,6 +823,22 @@ products:
           $1,499 loses $583.34 even when they bought the tub.
           Complementary, not a second calculator. Public URL
           remains owner-gated (`deploy-settings`).
+      - as_of: 2026-08-26
+        signals:
+          live_url_visitors: null
+          local_events_reported: 0
+        note: >-
+          Added weekday-they-leave vs only-bath-still-in-use vs
+          after-hours Saturday comparison (occupied pace on unit,
+          demo, set, and punch-list; overtime wage plus a second
+          evening dispatch). Default acrylic soaker: weekday
+          $3,757.32, occupied $3,928.03 (+$170.71), after-hours
+          $4,407.98 (+$650.66). $3,499 Saturday covers weekday and
+          loses $27.39 after hours (walk-away $3,526.39). Typical
+          whirlpool: weekday $8,640.43 / after-hours $9,566.19;
+          $5,800 loses even on weekday (after-hours walk-away
+          $7,652.95). Public URL remains owner-gated; local event
+          access_compared is opt-out and stores no inputs.
   - slug: stair-lift-bid-calculator
     surface: static-page-in-repo
     readings:
