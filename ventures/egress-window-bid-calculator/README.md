@@ -68,15 +68,19 @@ room), **skylight** (a roof cut), **basement waterproofing**
 It then reports price per window, effective hourly rate, the hour
 split, a four-scope comparison on the same opening, a four-sash
 comparison on the same opening (the casement upgrade versus the
-hopper special), and the **walk-away price**. Entering a price
-already on the table scores it against the same cost base. **Copy
+hopper special), a **who-supplies comparison** (you buy the sash
+and well versus they already bought a kit that fits versus a kit
+that will not pass), and the **walk-away price**. Entering a price
+already on the table scores it against the same cost base — that
+is the $1,800 “just cut and set what I bought” number. **Copy
 bid summary** turns the result into a plain-text draft ready to
 paste into a proposal.
 
 The arithmetic lives in [`calc.mjs`](calc.mjs). See
 [`calc.test.mjs`](calc.test.mjs).
 
-Search phrase: [`how-much-to-charge-to-install-an-egress-window.html`](how-much-to-charge-to-install-an-egress-window.html).
+Search phrases: [`how-much-to-charge-to-install-an-egress-window.html`](how-much-to-charge-to-install-an-egress-window.html)
+and [`should-i-install-a-customer-supplied-egress-window.html`](should-i-install-a-customer-supplied-egress-window.html).
 
 ## Privacy
 
@@ -97,7 +101,7 @@ when the browser sends Do Not Track or Global Privacy Control. See
 
 Events counted: `bid_calculated`, `preset_applied`, `scope_changed`,
 `window_changed`, `well_changed`, `proposed_price_compared`,
-`summary_copied`.
+`owner_supply_compared`, `summary_copied`.
 
 ## Limitations
 

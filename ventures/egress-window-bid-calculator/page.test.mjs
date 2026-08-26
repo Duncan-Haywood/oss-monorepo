@@ -10,6 +10,7 @@ import { readFileSync } from 'node:fs';
 
 const html = readFileSync(new URL('./index.html', import.meta.url), 'utf8');
 const seo = readFileSync(new URL('./how-much-to-charge-to-install-an-egress-window.html', import.meta.url), 'utf8');
+const supplySeo = readFileSync(new URL('./should-i-install-a-customer-supplied-egress-window.html', import.meta.url), 'utf8');
 
 const RAW_TEXT_ELEMENTS = ['textarea', 'script', 'style'];
 
@@ -50,6 +51,8 @@ test('the module script survives parsing and would actually execute', () => {
   assert.match(scriptSource, /calculateBid/, 'the app script did not parse as a script element');
   assert.match(scriptSource, /compareScope/, 'scope comparison is missing from the executable script');
   assert.match(scriptSource, /compareWindow/, 'window comparison is missing from the executable script');
+  assert.match(scriptSource, /compareOwnerSupply/, 'owner-supply comparison is missing from the executable script');
+  assert.match(scriptSource, /ownerSupplyNote/, 'owner-supply verdict is missing from the executable script');
   assert.match(scriptSource, /formatBidSummary/, 'copy-summary helper is missing from the executable script');
 });
 
@@ -67,7 +70,7 @@ test('inputs and result fields for the primary journey are present', () => {
   for (const id of [
     'scope', 'window', 'well', 'windowCount', 'travelMiles',
     'hourlyWage', 'targetMargin', 'proposedPrice',
-    'price', 'breakEven', 'compare', 'windows', 'copySummary', 'usageOptOut', 'jobPresets',
+    'price', 'breakEven', 'compare', 'windows', 'supply', 'supplyNote', 'copySummary', 'usageOptOut', 'jobPresets',
   ]) {
     assert.ok(declaredIds.has(id), `missing #${id}`);
   }
@@ -80,6 +83,8 @@ test('the landing page names the problem in the contractor\'s words', () => {
   assert.match(html, /SoftwareApplication/);
   assert.match(html, /Same opening, four sashes/);
   assert.match(html, /vs hopper/);
+  assert.match(html, /Same opening, who bought the sash/);
+  assert.match(html, /should-i-install-a-customer-supplied-egress-window\.html/);
 });
 
 test('disclaimer and privacy line are visible, not only in the README', () => {
@@ -97,4 +102,19 @@ test('the SEO article answers the search phrase and points back to the calculato
   assert.match(seo, /\$1,800/);
   assert.match(seo, /No warranty/);
   assert.match(seo, /window replacement/i);
+  assert.match(seo, /Customer-supplied sash is not a free set/i);
+});
+
+test('the owner-supply article answers the search phrase and stays crawlable', () => {
+  assert.match(supplySeo, /Should I install a customer-supplied egress window/i);
+  assert.match(supplySeo, /FAQPage/);
+  assert.match(supplySeo, /\$1,800/);
+  assert.match(supplySeo, /\$3,976\.62/);
+  assert.match(supplySeo, /\$2,031\.30/);
+  assert.match(supplySeo, /\$231\.30/);
+  assert.match(supplySeo, /wrong size/i);
+  assert.match(supplySeo, /index\.html/);
+  assert.match(supplySeo, /No warranty/);
+  assert.match(supplySeo, /no SLA/i);
+  assert.doesNotMatch(supplySeo, /<textarea/i);
 });
