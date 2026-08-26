@@ -75,7 +75,10 @@ jobs:
 
   deploy:
     needs: build
-    if: ${{ github.event_name != 'pull_request' && vars.GITHUB_PAGES_ENABLED == 'true' }}
+    # `github.ref` as well as the event: `workflow_dispatch` can be run against
+    # any branch, and publishing the live site from a feature branch by accident
+    # is not a mistake anyone would notice quickly.
+    if: ${{ github.ref == 'refs/heads/main' && github.event_name != 'pull_request' && vars.GITHUB_PAGES_ENABLED == 'true' }}
     runs-on: ubuntu-latest
     permissions:
       pages: write
@@ -87,3 +90,22 @@ jobs:
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4
+
+      - name: Verify the published site answers
+        # A completed deploy step is not evidence that anything serves. Check
+        # the front page, both sitemaps, robots, and one product through the
+        # real public URL, so "deployed" is a fact rather than an inference.
+        env:
+          PAGE_URL: ${{ steps.deployment.outputs.page_url }}
+        run: |
+          set -euo pipefail
+          base="${PAGE_URL%/}"
+          for path in "/" "/sitemap.xml" "/sitemap-hub.xml" "/robots.txt" "/walmart-marketplace-calculator/"; do
+            code=$(curl -sS -o /dev/null -w '%{http_code}' --retry 5 --retry-delay 5 \
+                     --retry-all-errors "${base}${path}")
+            echo "${code}  ${base}${path}"
+            [ "$code" = "200" ] || { echo "::error::${base}${path} returned ${code}"; exit 1; }
+          done
+          curl -sS "${base}/sitemap.xml" | grep -q "<sitemapindex" \
+            || { echo "::error::sitemap.xml served without a sitemap index"; exit 1; }
+          echo "Published and verified: ${base}/"
