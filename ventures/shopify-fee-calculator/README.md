@@ -5,7 +5,8 @@ after **Shopify Payments** or a **third-party processor** (PayPal, Stripe, and
 the rest), including the extra Shopify third-party transaction fee that generic
 fee pages skip. From the same inputs it reports net profit, margin, return on
 the cash you put into the order (plus a share of the monthly plan), the
-break-even listing price, the price that hits a target margin, and whether
+break-even listing price, the price that hits a target margin or a target
+dollar profit, and whether
 Basic, Grow, Advanced, or Plus leaves more at your monthly volume.
 
 Open [`index.html`](index.html) in a browser. The calculation is local and
