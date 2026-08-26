@@ -1,58 +1,78 @@
 import { readSession } from "../auth/demoAuth";
 import { BarChart } from "../components/BarChart";
+import { DataSourceBadge } from "../components/DataSourceBadge";
 import { InsightList } from "../components/InsightList";
 import { KpiCard } from "../components/KpiCard";
 import { OwnerBanner } from "../components/OwnerBanner";
 import { PortalShell } from "../components/PortalShell";
-import {
-  funnelStages,
-  hourlyFootfall,
-  insights,
-  todayKpis,
-  weekTrend,
-} from "../data/demoStore";
+import { funnelStages, hourlyFootfall, insights, weekTrend } from "../data/demoStore";
+import { usePilotKpis } from "../lib/usePilotKpis";
+
+function formatEuro(value: number): string {
+  return `€${Number(value.toFixed(2)).toLocaleString("it-IT")}`;
+}
 
 export function OverviewPage() {
-  const k = todayKpis;
+  const { view, loading } = usePilotKpis();
+  const k = view.kpis;
   const isOwner = readSession()?.role === "owner";
+  const liveHeadline = view.source === "live";
 
   return (
     <PortalShell
       title="Today at a glance"
-      subtitle="What a store owner would see after door CV and POS are joined on the edge — illustrative pilot week."
+      subtitle={
+        liveHeadline
+          ? "Door counts and POS closes joined from this store's SQLite — charts below stay illustrative until hourly rollups land."
+          : "What a store owner would see after door CV and POS are joined on the edge — illustrative pilot week."
+      }
+      dataSource={view.source}
     >
       {isOwner ? <OwnerBanner /> : null}
 
+      <DataSourceBadge source={view.source} message={view.message} />
+
+      {loading ? (
+        <p className="kpi-loading" role="status">
+          Loading store KPIs…
+        </p>
+      ) : null}
+
       <section className="kpi-grid">
-        <KpiCard
-          label="Door entries"
-          value={k.entries}
-          delta={`${k.vsLastWeek.entries} vs last week`}
-        />
+        <KpiCard label="Door entries" value={k.entries} delta={k.vsLastWeek?.entries} />
         <KpiCard
           label="Conversion"
           value={k.conversionPct}
           suffix="%"
-          delta={`+${k.vsLastWeek.conversion} pts`}
+          delta={k.vsLastWeek?.conversion}
         />
         <KpiCard
           label="Revenue"
-          value={`€${k.revenueEur.toLocaleString("it-IT")}`}
-          delta={`+${k.vsLastWeek.revenue}%`}
+          value={formatEuro(k.revenueEur)}
+          delta={k.vsLastWeek?.revenue}
         />
         <KpiCard
           label="Avg basket"
-          value={`€${k.avgBasketEur}`}
-          hint={`${k.purchases} purchases today`}
+          value={formatEuro(k.avgBasketEur)}
+          hint={`${k.purchases} purchases${liveHeadline && view.date ? ` on ${view.date}` : " today"}`}
         />
-        <KpiCard label="Engaged visits" value={k.engaged} suffix={`${k.engagementPct}%`} />
-        <KpiCard label="Bounces" value={k.bounces} suffix={`${k.bouncePct}%`} />
+        {k.engaged !== null && k.engagementPct !== null ? (
+          <KpiCard label="Engaged visits" value={k.engaged} suffix={`${k.engagementPct}%`} />
+        ) : null}
+        <KpiCard
+          label="Bounces"
+          value={k.bounces}
+          suffix={k.bouncePct ? `${k.bouncePct}%` : undefined}
+        />
       </section>
 
       <div className="split-panels">
         <section className="panel">
           <h2>Hourly footfall & closes</h2>
-          <p className="panel-desc">Door entries vs POS purchases — Europe/Rome buckets.</p>
+          <p className="panel-desc">
+            Door entries vs POS purchases — Europe/Rome buckets
+            {liveHeadline ? " (illustrative hourly series until rollups land)" : ""}.
+          </p>
           <BarChart
             items={hourlyFootfall}
             labelKey="hour"
@@ -63,7 +83,10 @@ export function OverviewPage() {
 
         <section className="panel">
           <h2>7-day trend</h2>
-          <p className="panel-desc">Entries (bars) with same-day revenue overlay.</p>
+          <p className="panel-desc">
+            Entries (bars) with same-day revenue overlay
+            {liveHeadline ? " (illustrative week until daily history is served)" : ""}.
+          </p>
           <BarChart
             items={weekTrend.map((d) => ({
               day: d.day,
