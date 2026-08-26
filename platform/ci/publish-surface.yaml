@@ -58,6 +58,9 @@ workflows:
 - workflow: amazon-fba-calculator-ci.yml
   classification: none
   publishes: []
+- workflow: appliance-repair-quote-calculator-ci.yml
+  classification: none
+  publishes: []
 - workflow: artificial-turf-bid-calculator-ci.yml
   classification: none
   publishes: []
@@ -82,10 +85,16 @@ workflows:
 - workflow: carpet-install-bid-calculator-ci.yml
   classification: none
   publishes: []
+- workflow: chargeback-evidence-packet-ci.yml
+  classification: none
+  publishes: []
 - workflow: claude-routine-trigger.yml
   classification: none
   publishes: []
 - workflow: cloud-egress-calculator-ci.yml
+  classification: none
+  publishes: []
+- workflow: commercial-photo-license-calculator-ci.yml
   classification: none
   publishes: []
 - workflow: conflict-markers-ci.yml
