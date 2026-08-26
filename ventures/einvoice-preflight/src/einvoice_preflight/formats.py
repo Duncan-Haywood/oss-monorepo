@@ -28,7 +28,14 @@ from pathlib import Path
 from typing import Any
 from xml.etree import ElementTree
 
-__all__ = ["DocumentError", "load_document", "parse_bytes", "detect_syntax"]
+__all__ = [
+    "DocumentError",
+    "detect_syntax",
+    "load_document",
+    "parse_bytes",
+    "parse_cii_invoice",
+    "to_checker_invoice",
+]
 
 # A preflight tool is pointed at files from outside the operator's control, so
 # parsing is bounded before it starts. 16 MiB is far above any real invoice
@@ -520,5 +527,115 @@ def _parse_cii_payment(settlement: Any) -> dict[str, Any]:
             _text(means, f"{{{RAM}}}PayeePartyCreditorFinancialAccount", f"{{{RAM}}}IBANID"),
             _text(means, f"{{{RAM}}}PayeePartyCreditorFinancialAccount", f"{{{RAM}}}ProprietaryID"),
         ),
+        "remittance": _text(settlement, f"{{{RAM}}}PaymentReference"),
         "terms": _text(settlement, f"{{{RAM}}}SpecifiedTradePaymentTerms", f"{{{RAM}}}Description"),
     }
+
+
+def to_checker_invoice(document: dict[str, Any]) -> dict[str, Any]:
+    """Map a CII (or formats.py) document onto the checker invoice shape.
+
+    Amounts stay strings. The checker converts them once, so this mapping
+    must not introduce float rounding.
+    """
+    breakdown_src = document.get("vat_breakdown") if isinstance(document.get("vat_breakdown"), list) else []
+    header_reason = None
+    for row in breakdown_src:
+        if isinstance(row, dict) and row.get("exemption_reason"):
+            header_reason = row["exemption_reason"]
+            break
+
+    def party(raw: Any) -> dict[str, Any]:
+        source = raw if isinstance(raw, dict) else {}
+        mapped: dict[str, Any] = {
+            "id": source.get("id") or "",
+            "name": source.get("name") or "",
+        }
+        if source.get("vat_id"):
+            mapped["vat_id"] = source["vat_id"]
+        return mapped
+
+    lines = []
+    for line in document.get("lines") or []:
+        if not isinstance(line, dict):
+            continue
+        mapped_line: dict[str, Any] = {
+            "description": line.get("description") or "",
+            "quantity": line.get("quantity"),
+            "unit_price": line.get("unit_price"),
+            "tax_percent": line.get("tax_percent"),
+            "net": line.get("net"),
+        }
+        if line.get("tax_category"):
+            mapped_line["tax_category"] = line["tax_category"]
+        reason = line.get("tax_reason") or header_reason
+        if reason:
+            mapped_line["tax_reason"] = reason
+        lines.append(mapped_line)
+
+    totals_src = document.get("totals") if isinstance(document.get("totals"), dict) else {}
+    invoice: dict[str, Any] = {
+        "invoice_number": document.get("invoice_number") or "",
+        "issue_date": document.get("issue_date"),
+        "currency": document.get("currency"),
+        "document_type": document.get("document_type") or "invoice",
+        "supplier": party(document.get("supplier")),
+        "customer": party(document.get("customer")),
+        "lines": lines,
+        "totals": {
+            "net": totals_src.get("net"),
+            "tax": totals_src.get("tax"),
+            "gross": totals_src.get("gross"),
+        },
+    }
+    if document.get("due_date"):
+        invoice["due_date"] = document["due_date"]
+    if document.get("type_code"):
+        invoice["document_code"] = document["type_code"]
+    if document.get("buyer_reference"):
+        invoice["buyer_reference"] = document["buyer_reference"]
+    if header_reason:
+        invoice["tax_exemption_reason"] = header_reason
+    if totals_src.get("prepaid") not in (None, ""):
+        invoice["totals"]["prepaid"] = totals_src["prepaid"]
+    if totals_src.get("payable") not in (None, ""):
+        invoice["totals"]["payable"] = totals_src["payable"]
+
+    rows = []
+    for row in breakdown_src:
+        if not isinstance(row, dict):
+            continue
+        mapped_row: dict[str, Any] = {}
+        if row.get("tax_percent") not in (None, ""):
+            mapped_row["tax_percent"] = row["tax_percent"]
+        if row.get("taxable_amount") not in (None, ""):
+            mapped_row["taxable"] = row["taxable_amount"]
+        if row.get("tax_amount") not in (None, ""):
+            mapped_row["tax"] = row["tax_amount"]
+        if row.get("tax_category"):
+            mapped_row["tax_category"] = row["tax_category"]
+        if mapped_row:
+            rows.append(mapped_row)
+    if rows:
+        invoice["tax_breakdown"] = rows
+
+    payment_src = document.get("payment") if isinstance(document.get("payment"), dict) else {}
+    payment: dict[str, Any] = {}
+    if payment_src.get("account"):
+        payment["iban"] = payment_src["account"]
+    if payment_src.get("means_code"):
+        payment["means_code"] = payment_src["means_code"]
+    if payment_src.get("remittance"):
+        payment["remittance"] = payment_src["remittance"]
+    if payment:
+        invoice["payment"] = payment
+    return invoice
+
+
+def parse_cii_invoice(source: bytes | str) -> dict[str, Any]:
+    """Read a UN/CEFACT CrossIndustryInvoice into the checker invoice shape."""
+    raw = source.encode() if isinstance(source, str) else source
+    document, syntax = parse_bytes(raw)
+    if syntax != "cii":
+        raise DocumentError("The file is not a UN/CEFACT CrossIndustryInvoice.")
+    return to_checker_invoice(document)
