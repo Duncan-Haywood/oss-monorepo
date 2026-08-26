@@ -39,6 +39,10 @@ The table names the kit-fee and AOV-lift flips.
 Use [Create a 3PL negotiation brief](./negotiation.html) to turn two
 normalized monthly totals into a factual ask — the gap, not a recommended
 provider.
+Use [Rank the largest rate-card lines](./drivers.html) to sort the same
+normalized quote by monthly cost and see what a typed percent reduction
+would change on each line. That is a different question from the two-quote
+brief: it names the line, not the provider.
 Use [Which inbound method is cheaper](./inbound.html) to convert pallet,
 carton, and loose receiving into the same per-unit rate and see which line
 wins at your inbound volume. A monthly minimum can hide a real receiving

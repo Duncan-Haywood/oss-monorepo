@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { agedStorageFlip, agedStorageSummary, agedStorageSweep, calculate, compareAgedStorage, compareInboundMethods, compareKitting, compareQuotes, compareReturnDisposition, comparisonSummary, inboundComparisonSummary, inboundReceivingPerUnit, inputWarnings, kittingAovSweep, kittingFeeSweep, kittingFlip, kittingSummary, largestCostDriver, negotiationLines, returnDispositionFlip, returnDispositionRestockableSweep, returnDispositionSummary, returnDispositionUnitCostSweep, returnsFlip, returnsMinimumMask, returnsSensitivity, returnsSensitivitySummary, summary, volumeSensitivity } from "./calc.mjs";
+import { agedStorageFlip, agedStorageSummary, agedStorageSweep, calculate, compareAgedStorage, compareInboundMethods, compareKitting, compareQuotes, compareReturnDisposition, comparisonSummary, costDrivers, inboundComparisonSummary, inboundReceivingPerUnit, inputWarnings, kittingAovSweep, kittingFeeSweep, kittingFlip, kittingSummary, largestCostDriver, negotiationLines, returnDispositionFlip, returnDispositionRestockableSweep, returnDispositionSummary, returnDispositionUnitCostSweep, returnsFlip, returnsMinimumMask, returnsSensitivity, returnsSensitivitySummary, summary, volumeSensitivity } from "./calc.mjs";
 
 test("custom return and restocking fees flow into the normalized quote", () => {
   const result = calculate({ orders: 100, unitsPerOrder: 1, returnsRate: 10, returnFee: 7, restockFee: 3 });
@@ -121,6 +121,16 @@ test("identifies the largest normalized cost driver for negotiation", () => {
   assert.equal(driver.share, Math.round((result.quote.shipping / result.quote.subtotal) * 100));
   assert.match(summary(result), /Largest cost driver: Shipping/);
   assert.match(negotiationLines(result).join("\n"), /Largest normalized cost driver: Shipping/);
+});
+
+test("ranks cost drivers and estimates savings from a typed reduction", () => {
+  const drivers = costDrivers(calculate({ orders: 100, shipping: 8, fixedFee: 100 }), 10);
+  assert.equal(drivers[0].component, "shipping");
+  assert.equal(drivers[0].savings, 80);
+  assert.equal(drivers[0].revised, 720);
+  assert.equal(drivers.at(-1).component, "storage");
+  const clamped = costDrivers(calculate({ orders: 100 }), -5);
+  assert.equal(clamped[0].savings, 0);
 });
 
 test("sweeps return rates and keeps other rate-card lines fixed", () => {

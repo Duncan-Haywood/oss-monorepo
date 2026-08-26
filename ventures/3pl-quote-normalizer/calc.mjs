@@ -891,6 +891,21 @@ export function largestCostDriver(result) {
   return { component, label: componentLabels[component] || component, amount, share: subtotal ? Math.round((amount / subtotal) * 100) : 0 };
 }
 
+export function costDrivers(result, reductionPercent = 10) {
+  const reduction = Math.min(100, Math.max(0, Number(reductionPercent) || 0)) / 100;
+  return result.components.map((component) => {
+    const current = result.quote[component] || 0;
+    const savings = current * reduction;
+    return {
+      component,
+      label: componentLabels[component] || component,
+      current,
+      savings,
+      revised: current - savings,
+    };
+  }).sort((first, second) => second.current - first.current);
+}
+
 export function summary(result) {
   const driver = largestCostDriver(result);
   return [
