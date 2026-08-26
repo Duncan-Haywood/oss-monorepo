@@ -881,6 +881,17 @@ products:
           floats $7,800; month-end plus Net 30 floats $15,600. Currency
           and payment terms persist in the local draft. Public URL
           remains owner-gated.
+  - slug: tuckpointing-bid-calculator
+    surface: static-page-in-repo
+    readings:
+      - as_of: 2026-08-25
+        signals:
+          live_url_visitors: null
+          local_events_reported: 0
+        note: >-
+          Shipped a local tuckpointing / brick pointing bid calculator with
+          joint-and-access math, three-method comparison, and a copyable
+          proposal summary; public URL remains owner-gated.
   - slug: shed-install-bid-calculator
     surface: static-page-in-repo
     readings:

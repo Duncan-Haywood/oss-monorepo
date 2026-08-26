@@ -267,6 +267,9 @@ workflows:
 - workflow: toilet-replacement-bid-calculator-ci.yml
   classification: none
   publishes: []
+- workflow: tuckpointing-bid-calculator-ci.yml
+  classification: none
+  publishes: []
 - workflow: ubuntu-agent-server-ci.yml
   classification: none
   publishes: []
