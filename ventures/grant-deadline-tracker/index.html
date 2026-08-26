@@ -4,12 +4,12 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Grant Deadline Tracker for Small Nonprofits</title>
-  <meta name="description" content="Free private grant deadline and reporting tracker for small nonprofits. Find overdue obligations, see award funds remaining, and export a CSV without an account.">
+  <meta name="description" content="Free private grant deadline and reporting tracker for small nonprofits. Find overdue obligations, see award funds remaining, and compare hiring a grant writer against the cash a late report puts at risk.">
   <meta name="robots" content="index,follow">
   <meta property="og:title" content="Grant Deadline Tracker for Small Nonprofits">
   <meta property="og:description" content="Replace a fragile grant spreadsheet with a private browser-local deadline and reporting tracker.">
   <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Grant Deadline Tracker","applicationCategory":"BusinessApplication","operatingSystem":"Any","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"description":"Browser-local grant deadline, reporting, and award balance tracker for small nonprofits."}</script>
-  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"When is my next grant report due?","acceptedAnswer":{"@type":"Answer","text":"If the award started 1 January 2025 and the funder wants a report every 6 months, the current period as of 26 August 2026 is 1 July 2026 — overdue — not the first interval after the award. Type the next date yourself when the award letter names a different day."}},{"@type":"Question","name":"Does this file a grant report?","acceptedAnswer":{"@type":"Answer","text":"No. The tracker is a planning record. It does not file a report, certify allowability, or determine a funder's deadline."}}]}</script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"When is my next grant report due?","acceptedAnswer":{"@type":"Answer","text":"If the award started 1 January 2025 and the funder wants a report every 6 months, the current period as of 26 August 2026 is 1 July 2026 — overdue — not the first interval after the award. Type the next date yourself when the award letter names a different day."}},{"@type":"Question","name":"Does this file a grant report?","acceptedAnswer":{"@type":"Answer","text":"No. The tracker is a planning record. It does not file a report, certify allowability, or determine a funder's deadline."}},{"@type":"Question","name":"Should I hire a grant writer to file this report on time?","acceptedAnswer":{"@type":"Answer","text":"On a typical $24,000 food-program award with $15,500 still unspent and a $6,000 next installment, $21,500 is at risk if the report is late. Filing it yourself at 14 hours and $42/hr costs $588 and keeps $20,912. A contract writer at 8 hours and $85/hr costs $680 and still keeps $20,820. Missing the report keeps $0 of that cash."}}]}</script>
   <style>
     :root{font-family:system-ui,sans-serif;color:#18221d;background:#f3f5ef;--ink:#18221d;--muted:#5d685f;--line:#cbd4c8;--card:#fff;--accent:#176b53;--warn:#9a5b00;--danger:#a52d2d}
     *{box-sizing:border-box}body{margin:0}main{max-width:1100px;margin:auto;padding:2rem 1rem 4rem}
@@ -23,6 +23,7 @@
     .summary{display:flex;gap:.6rem;flex-wrap:wrap;margin-bottom:1rem}.stat{background:#e6eee5;border-radius:9px;padding:.7rem 1rem}.stat strong{display:block;font-size:1.4rem}
     .table-wrap{overflow:auto}table{width:100%;border-collapse:collapse;min-width:760px}th,td{text-align:left;padding:.7rem .45rem;border-bottom:1px solid var(--line)}th{font-size:.8rem;color:var(--muted);text-transform:uppercase}
     .overdue{color:var(--danger);font-weight:700}.soon{color:var(--warn);font-weight:700}.empty{text-align:center;color:var(--muted);padding:2rem}
+    .risk{margin-top:1rem}.risk table{min-width:0}#riskMessage{min-height:1.5rem;color:var(--danger);font-weight:650}#riskNote{white-space:pre-wrap}
     footer{border-top:1px solid var(--line);margin-top:2rem;padding-top:1.2rem}
     @media(max-width:800px){.grid,.pair{grid-template-columns:1fr}main{padding-top:1rem}.card{box-shadow:3px 3px 0 #dfe6db}}
   </style>
@@ -33,7 +34,7 @@
     <p>PRIVATE GRANT WORKSPACE</p>
     <h1>Stop missing grant reports.</h1>
     <p class="lede">Track applications and funder reporting deadlines, see how much of each award remains, and take a clean CSV into your next finance meeting.</p>
-    <p class="fine"><a href="when-is-my-next-grant-report-due.html">When is my next grant report due?</a></p>
+    <p class="fine"><a href="when-is-my-next-grant-report-due.html">When is my next grant report due?</a> · <a href="should-i-hire-a-grant-writer-to-file-this-report.html">Should I hire a grant writer to file this report?</a></p>
   </header>
   <div class="grid">
     <section class="card">
@@ -117,6 +118,89 @@
       </div>
     </section>
   </div>
+  <section class="card risk" id="lateReport">
+    <h2>Cash at risk if this report is late</h2>
+    <p class="hint">A late progress report usually stops the next draw before it stops the whole award. Compare missing it, writing it yourself, and hiring a contract grant writer. <a href="should-i-hire-a-grant-writer-to-file-this-report.html">Worked example</a>.</p>
+    <form id="risk-form">
+      <div class="pair">
+        <div>
+          <label for="riskAward">Award amount</label>
+          <input id="riskAward" type="number" min="0" step="0.01" value="24000">
+        </div>
+        <div>
+          <label for="riskSpent">Spent so far</label>
+          <input id="riskSpent" type="number" min="0" step="0.01" value="8500">
+        </div>
+      </div>
+      <div class="pair">
+        <div>
+          <label for="riskInstallment">Next installment they can withhold</label>
+          <input id="riskInstallment" type="number" min="0" step="0.01" value="6000">
+        </div>
+        <div>
+          <label for="riskRenewal">Renewal they can refuse</label>
+          <input id="riskRenewal" type="number" min="0" step="0.01" value="0">
+        </div>
+      </div>
+      <div class="pair">
+        <div>
+          <label for="riskClawback">Clawback of spent funds (%)</label>
+          <input id="riskClawback" type="number" min="0" max="100" step="0.1" value="0">
+        </div>
+        <div>
+          <label for="riskDue">Report due date</label>
+          <input id="riskDue" type="date" value="2026-09-15">
+        </div>
+      </div>
+      <div class="pair">
+        <div>
+          <label for="edHours">Hours if you write it</label>
+          <input id="edHours" type="number" min="0" step="0.25" value="14">
+        </div>
+        <div>
+          <label for="edRate">Your loaded hourly rate</label>
+          <input id="edRate" type="number" min="0" step="0.01" value="42">
+        </div>
+      </div>
+      <div class="pair">
+        <div>
+          <label for="writerHours">Grant-writer hours</label>
+          <input id="writerHours" type="number" min="0" step="0.25" value="8">
+        </div>
+        <div>
+          <label for="writerRate">Grant-writer hourly rate</label>
+          <input id="writerRate" type="number" min="0" step="0.01" value="85">
+        </div>
+      </div>
+      <div class="actions">
+        <button type="button" class="secondary" id="fill-risk">Fill from first overdue or soon grant</button>
+        <button type="button" id="price-risk">Compare cash at risk</button>
+        <button type="button" class="secondary" id="copyRiskNote">Copy a board-ready note</button>
+      </div>
+      <p id="riskMessage" role="alert"></p>
+    </form>
+    <div class="summary">
+      <div class="stat"><strong id="riskAtRisk">$0</strong>Cash at risk if late</div>
+      <div class="stat"><strong id="riskWriterCost">$0</strong>Writer cost</div>
+      <div class="stat"><strong id="riskKept">$0</strong>Kept after hiring</div>
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Path</th>
+            <th>What you spend</th>
+            <th>Cash you keep</th>
+            <th>Net vs missing</th>
+          </tr>
+        </thead>
+        <tbody id="riskRows">
+          <tr><td colspan="4" class="empty">Compare the three paths to see whether a writer still pays.</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="hint" id="riskNote"></p>
+  </section>
   <footer>
     <p><strong>Use it safely.</strong> This is a planning record, not a grant compliance determination or filing service. Review dates and amounts against the funder's award documents.</p>
     <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, financial, or compliance advice, and it does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for meeting any obligation it helps you prepare for. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
@@ -126,7 +210,7 @@
   </footer>
 </main>
 <script type="module">
-  import { SAMPLE_GRANTS, csvReport, loadGrants, nextDueFromInterval, removeGrant, summarize } from "./calc.mjs";
+  import { SAMPLE_GRANTS, compareLateReport, csvReport, lateReportNote, loadGrants, nextDueFromInterval, removeGrant, summarize } from "./calc.mjs";
   import { countUsage, setUsageEnabled, usageAllowed } from "./usage.mjs";
 
   const $ = (id) => document.getElementById(id);
@@ -244,6 +328,87 @@
     render();
     countUsage("grant-removed");
   });
+  function readRiskInput() {
+    return {
+      award: $("riskAward").value,
+      spent: $("riskSpent").value,
+      nextInstallment: $("riskInstallment").value,
+      renewalAtRisk: $("riskRenewal").value,
+      clawbackPercent: $("riskClawback").value,
+      nextDate: $("riskDue").value,
+      edHours: $("edHours").value,
+      edRate: $("edRate").value,
+      writerHours: $("writerHours").value,
+      writerRate: $("writerRate").value,
+    };
+  }
+
+  function renderRisk({ count = false } = {}) {
+    try {
+      const comparison = compareLateReport(readRiskInput(), new Date());
+      $("riskMessage").textContent = "";
+      $("riskAtRisk").textContent = money(comparison.remainingAtRisk);
+      $("riskWriterCost").textContent = money(comparison.writerCost);
+      $("riskKept").textContent = money(comparison.writer.net);
+      const rows = [
+        ["Miss the report", comparison.miss.cost, comparison.miss.cashKept, comparison.miss.net],
+        ["File it yourself", comparison.yourself.cost, comparison.yourself.cashKept, comparison.yourself.net],
+        ["Hire a grant writer", comparison.writer.cost, comparison.writer.cashKept, comparison.writer.net],
+      ];
+      $("riskRows").innerHTML = rows.map(([label, cost, kept, net]) => `<tr>
+        <td>${label}</td>
+        <td>${money(cost)}</td>
+        <td>${money(kept)}</td>
+        <td class="${net < 0 ? "overdue" : ""}">${money(net)}</td>
+      </tr>`).join("");
+      $("riskNote").textContent = lateReportNote(comparison);
+      $("lateReport").dataset.note = lateReportNote(comparison);
+      if (count) countUsage("late_report_compared");
+    } catch (error) {
+      $("riskMessage").textContent = error.message;
+    }
+  }
+
+  $("fill-risk").addEventListener("click", () => {
+    let rows = [];
+    try {
+      rows = summarize(grants, new Date());
+    } catch (error) {
+      $("riskMessage").textContent = error.message;
+      return;
+    }
+    const urgent = rows.find((row) => row.urgency !== "upcoming") || rows[0];
+    if (!urgent) {
+      $("riskMessage").textContent = "Add a grant first, then fill from it.";
+      return;
+    }
+    $("riskAward").value = urgent.award;
+    $("riskSpent").value = urgent.spent;
+    $("riskDue").value = urgent.nextDate;
+    renderRisk({ count: true });
+    $("riskMessage").textContent = `Filled award, spent, and due date from ${urgent.name}. Type the installment they can actually withhold.`;
+  });
+  $("price-risk").addEventListener("click", () => renderRisk({ count: true }));
+  $("copyRiskNote").addEventListener("click", async () => {
+    const text = $("lateReport").dataset.note || "";
+    if (!text) {
+      renderRisk({ count: true });
+    }
+    const note = $("lateReport").dataset.note || "";
+    if (!note) return;
+    try {
+      await navigator.clipboard.writeText(note);
+      $("riskMessage").textContent = "Copied a board-ready note. It stays on this device.";
+      countUsage("late_report_note_copied");
+    } catch {
+      $("riskMessage").textContent = "This browser blocked clipboard access. Select the note below and copy it yourself.";
+    }
+  });
+  ["riskAward", "riskSpent", "riskInstallment", "riskRenewal", "riskClawback", "riskDue", "edHours", "edRate", "writerHours", "writerRate"].forEach((id) => {
+    $(id).addEventListener("change", () => renderRisk({ count: true }));
+  });
+  renderRisk();
+
   $("usage-off").checked = !usageAllowed();
   $("usage-off").addEventListener("change", (e) => setUsageEnabled(!e.target.checked));
   try {

@@ -28,9 +28,11 @@ products:
           live_url_visitors: null
           local_grants_added: 0
           csv_exports: 0
+          late_report_compared: 0
         note: >-
           Shipped browser-local nonprofit grant deadline tracker (salvage of
-          #1440 plus interval current-period math from #1188). Public URL
+          #1440 plus interval current-period math from #1188) and a late-report
+          cash-at-risk comparison (hire a writer vs file vs miss). Public URL
           remains owner-gated; the local-first counter reports only to the
           user's own browser and is opt-out. Baseline row.
   - slug: retainage-cashflow-calculator

@@ -3,13 +3,28 @@ import assert from "node:assert/strict";
 import {
   SAMPLE_GRANTS,
   addMonths,
+  compareLateReport,
   csvReport,
+  lateReportNote,
   loadGrants,
   nextDueFromInterval,
   normalizeGrant,
   removeGrant,
   summarize,
 } from "./calc.mjs";
+
+const FOOD_RISK = {
+  award: 24000,
+  spent: 8500,
+  nextInstallment: 6000,
+  renewalAtRisk: 0,
+  clawbackPercent: 0,
+  edHours: 14,
+  edRate: 42,
+  writerHours: 8,
+  writerRate: 85,
+  nextDate: "2026-09-15",
+};
 
 const food = {
   name: "Food, Inc.",
@@ -86,6 +101,102 @@ test("removeGrant drops one row and leaves others untouched", () => {
   assert.equal(kept.length, 1);
   assert.equal(kept[0].name, "Youth arts application");
   assert.equal(removeGrant(SAMPLE_GRANTS, 9).length, 2);
+});
+
+test("compareLateReport prices missing vs writing vs hiring on the default food grant", () => {
+  const comparison = compareLateReport(FOOD_RISK, "2026-08-26");
+  assert.equal(comparison.remaining, 15500);
+  assert.equal(comparison.remainingAtRisk, 21500);
+  assert.equal(comparison.edCost, 588);
+  assert.equal(comparison.writerCost, 680);
+  assert.equal(comparison.writerPremium, 92);
+  assert.equal(comparison.miss.net, -21500);
+  assert.equal(comparison.yourself.net, 20912);
+  assert.equal(comparison.writer.net, 20820);
+  assert.equal(comparison.days, 20);
+  assert.equal(comparison.urgency, "soon");
+  assert.equal(comparison.writerStillPays, true);
+  assert.equal(comparison.edStillPays, true);
+  assert.equal(comparison.cheaperFiler, "yourself");
+  assert.equal(comparison.writerWorseThanMissing, false);
+});
+
+test("compareLateReport rejects a writer who costs more than the leftover crumbs", () => {
+  const comparison = compareLateReport({
+    award: 5000,
+    spent: 4700,
+    nextInstallment: 0,
+    edHours: 3,
+    edRate: 42,
+    writerHours: 10,
+    writerRate: 125,
+    nextDate: "2026-09-15",
+  }, "2026-08-26");
+  assert.equal(comparison.remainingAtRisk, 300);
+  assert.equal(comparison.writerCost, 1250);
+  assert.equal(comparison.edCost, 126);
+  assert.equal(comparison.writerStillPays, false);
+  assert.equal(comparison.edStillPays, true);
+  assert.equal(comparison.writer.net, -950);
+  assert.equal(comparison.writerWorseThanMissing, true);
+});
+
+test("compareLateReport counts an overdue report and a clawback of spent funds", () => {
+  const comparison = compareLateReport({
+    award: 10000,
+    spent: 4000,
+    nextInstallment: 2000,
+    clawbackPercent: 25,
+    edHours: 6,
+    edRate: 40,
+    writerHours: 5,
+    writerRate: 80,
+    nextDate: "2026-08-01",
+  }, "2026-08-26");
+  assert.equal(comparison.remaining, 6000);
+  assert.equal(comparison.clawback, 1000);
+  assert.equal(comparison.remainingAtRisk, 9000);
+  assert.equal(comparison.days, -25);
+  assert.equal(comparison.urgency, "overdue");
+  assert.equal(comparison.writerCost, 400);
+  assert.equal(comparison.writerStillPays, true);
+});
+
+test("compareLateReport treats a renewal as cash the late report can still block", () => {
+  const comparison = compareLateReport({
+    award: 4000,
+    spent: 3200,
+    renewalAtRisk: 18000,
+    edHours: 16,
+    edRate: 55,
+    writerHours: 6,
+    writerRate: 90,
+    nextDate: "2026-10-15",
+  }, "2026-08-26");
+  assert.equal(comparison.remaining, 800);
+  assert.equal(comparison.remainingAtRisk, 18800);
+  assert.equal(comparison.urgency, "upcoming");
+  assert.equal(comparison.writerCost, 540);
+  assert.equal(comparison.writerStillPays, true);
+  assert.equal(comparison.cheaperFiler, "writer");
+});
+
+test("compareLateReport rejects overspend, negative rates, and clawback above 100", () => {
+  assert.throws(() => compareLateReport({ award: 10, spent: 11 }), /Spent cannot exceed/);
+  assert.throws(() => compareLateReport({ edRate: -1 }), /at least 0/);
+  assert.throws(() => compareLateReport({ clawbackPercent: 101 }), /at most 100/);
+});
+
+test("lateReportNote names the default food-grant arithmetic a board can paste", () => {
+  const note = lateReportNote(compareLateReport(FOOD_RISK, "2026-08-26"));
+  assert.match(note, /20 days away/);
+  assert.match(note, /\$15,500\.00/);
+  assert.match(note, /\$6,000\.00/);
+  assert.match(note, /\$21,500\.00/);
+  assert.match(note, /\$588\.00/);
+  assert.match(note, /\$680\.00/);
+  assert.match(note, /\$20,820\.00/);
+  assert.match(note, /\$20,912\.00/);
 });
 
 test("summarize keeps the original row index after sorting by due date", () => {
