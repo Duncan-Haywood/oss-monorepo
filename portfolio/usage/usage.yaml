@@ -881,6 +881,20 @@ products:
           floats $7,800; month-end plus Net 30 floats $15,600. Currency
           and payment terms persist in the local draft. Public URL
           remains owner-gated.
+  - slug: holiday-light-bid-calculator
+    surface: static-page-in-repo
+    readings:
+      - as_of: 2026-08-25
+        signals:
+          live_url_visitors: null
+          local_calculations: 0
+          local_summary_copies: 0
+        note: >-
+          Shipped a zero-dependency browser calculator for holiday lighting
+          contractors to price hang-only versus hang-and-takedown versus
+          full-service storage from eave lineal feet, stories, and extras.
+          Public URL remains owner-gated; counters are local, aggregate, and
+          opt-out.
   - slug: soffit-fascia-bid-calculator
     surface: static-page-in-repo
     readings:

@@ -130,6 +130,9 @@ workflows:
 - workflow: hetzner-gitops-ci.yml
   classification: none
   publishes: []
+- workflow: holiday-light-bid-calculator-ci.yml
+  classification: none
+  publishes: []
 - workflow: home-elevator-bid-calculator-ci.yml
   classification: none
   publishes: []
