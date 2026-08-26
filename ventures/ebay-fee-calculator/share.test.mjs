@@ -127,6 +127,26 @@ test('carries lot-versus-singles fields so a shared link does not drop them', ()
   assert.equal(restored.monthlyLotDecisions, 6);
 });
 
+test('carries Standard Envelope fields so a shared link does not drop them', () => {
+  const restored = decodeInputs(encodeInputs({
+    price: 40,
+    envelopeShippingCost: 0.66,
+    envelopePackagingCost: 0.35,
+    envelopeClaimRatePercent: 8,
+    envelopeFeeRefundOnClaimPercent: 100,
+    trackedSellThroughPct: 90,
+    envelopeSellThroughPct: 85,
+    monthlyEnvelopeListings: 40,
+  }));
+  assert.equal(restored.envelopeShippingCost, 0.66);
+  assert.equal(restored.envelopePackagingCost, 0.35);
+  assert.equal(restored.envelopeClaimRatePercent, 8);
+  assert.equal(restored.envelopeFeeRefundOnClaimPercent, 100);
+  assert.equal(restored.trackedSellThroughPct, 90);
+  assert.equal(restored.envelopeSellThroughPct, 85);
+  assert.equal(restored.monthlyEnvelopeListings, 40);
+});
+
 test('round-trips known numeric inputs in stable order', () => {
   const encoded = encodeInputs({ price: 40, shippingCharged: 6, finalValueRate: 13.25 });
   assert.equal(encoded, 'price=40&shippingCharged=6&finalValueRate=13.25');

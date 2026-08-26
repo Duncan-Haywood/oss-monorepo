@@ -128,7 +128,9 @@ test('the lot-versus-singles table has one cell per column and a counted event',
   assert.match(page, /lot_vs_singles_compared/);
   assert.match(page, /should-i-break-an-ebay-lot-into-individual-listings\.html/);
   assert.match(page, /"featureList":\s*"[^"]*lot vs individual listings/);
-  const headerBlock = page.slice(page.indexOf('id="lotVsSinglesTable"'));
+  const lotStart = page.indexOf('id="lotVsSinglesTable"');
+  const lotEnd = page.indexOf('id="standardEnvelope"', lotStart);
+  const headerBlock = page.slice(lotStart, lotEnd === -1 ? undefined : lotEnd);
   const headers = [...headerBlock.matchAll(/<th scope="col">([^<]+)<\/th>/g)].map((m) => m[1]);
   assert.deepEqual(headers, [
     'Path',
@@ -138,5 +140,25 @@ test('the lot-versus-singles table has one cell per column and a counted event',
     'If it sells',
     'Expected after sell-through',
     'vs the lot',
+  ]);
+});
+
+test('the Standard Envelope table has one cell per column and a counted event', () => {
+  assert.match(page, /compareStandardEnvelope/);
+  assert.match(page, /id="standardEnvelope"/);
+  assert.match(page, /id="standardEnvelopeVerdict"/);
+  assert.match(page, /standard_envelope_compared/);
+  assert.match(page, /is-ebay-standard-envelope-worth-it\.html/);
+  assert.match(page, /"featureList":\s*"[^"]*Standard Envelope vs tracked label/);
+  const headerBlock = page.slice(page.indexOf('id="standardEnvelopeTable"'));
+  const headers = [...headerBlock.matchAll(/<th scope="col">([^<]+)<\/th>/g)].map((m) => m[1]);
+  assert.deepEqual(headers, [
+    'Path',
+    'Sell-through',
+    'Loss rate',
+    'Postage and pack',
+    'If it sells',
+    'Expected after sell-through',
+    'vs tracked',
   ]);
 });
