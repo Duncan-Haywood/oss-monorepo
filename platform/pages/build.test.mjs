@@ -505,14 +505,59 @@ test('readMeta decodes entities rather than showing them raw', () => {
   assert.equal(meta.title, 'Fees & Margin');
 });
 
-// An apostrophe is ordinary English, not an edge case: three shipped ventures
-// carried one in the description a crawler reads. Reading only to the next
-// quote of either kind cut "last night's archive shrank" down to "last night".
+// Three shipped surfaces lost most of their description to this: the value was
+// captured with `content=["']([^"']*)["']`, which ends at whichever quote comes
+// first, so a possessive apostrophe closed a double-quoted attribute early.
+// `shopify-a11y-evidence` reached the hub, its own `<meta description>`, and the
+// JSON-LD ItemList as the fragment "Turn a Shopify storefront".
 test('readMeta keeps an apostrophe inside a double-quoted attribute', () => {
-  const html = `<meta name="description" content="See whether last night's archive shrank.">`;
-  assert.equal(readMeta(html, 'x').description, "See whether last night's archive shrank.");
+  const html = `<meta name="description" content="Turn a Shopify storefront's axe-core JSON export into a dated record.">`;
+  assert.equal(
+    readMeta(html, 'shopify-a11y-evidence').description,
+    "Turn a Shopify storefront's axe-core JSON export into a dated record.",
+  );
 });
 
+test('readMeta keeps a quote inside a single-quoted attribute', () => {
+  const html = `<meta name='description' content='The "walk-away" number before you bid.'>`;
+  assert.equal(readMeta(html, 'x').description, 'The "walk-away" number before you bid.');
+});
+
+test('readMeta reads a description containing a bare > character', () => {
+  const html = `<meta name="description" content="Compare 4×8 > 5×5 before you buy.">`;
+  assert.equal(readMeta(html, 'x').description, 'Compare 4×8 > 5×5 before you buy.');
+});
+
+test('readMeta finds the tag whatever order its attributes are written in', () => {
+  const html = `<meta content="Price the run and the corners." name="description">`;
+  assert.equal(readMeta(html, 'x').description, 'Price the run and the corners.');
+});
+
+// The consequence users would have felt: the hub's search box matches against
+// `data-search`, which is built from the description. A truncated description
+// meant the Shopify tool could not be found by "axe-core".
+test('a description survives into the searchable card text', () => {
+  const html = `<meta property="og:title" content="Shopify Accessibility Evidence Report">
+    <meta name="description" content="Turn a Shopify storefront's axe-core JSON export into a dated record.">`;
+  const { title, description } = readMeta(html, 'shopify-a11y-evidence');
+  assert.match(`${title} ${description}`.toLowerCase(), /axe-core/);
+});
+
+test('readMeta does not confuse one meta tag with the next', () => {
+  const html = `<meta property="og:site_name" content="Portfolio">
+    <meta name="description" content="The real description.">`;
+  assert.equal(readMeta(html, 'x').description, 'The real description.');
+});
+
+// The other two affected surfaces, kept as their own case (from the fix that
+// landed on main in parallel) so all three shipped regressions are pinned.
+test('readMeta keeps an apostrophe in the other affected descriptions', () => {
+  const backup = `<meta name="description" content="See whether last night's archive shrank.">`;
+  assert.equal(readMeta(backup, 'x').description, "See whether last night's archive shrank.");
+});
+
+// og:title and og:description go through the same lookup, so they broke the
+// same way — "Ohm's Law Calculator" would have become "Ohm".
 test('readMeta keeps an apostrophe in og:title and og:description', () => {
   const html = `<meta property="og:title" content="Ohm's Law Calculator">
     <meta property="og:description" content="Resistor codes and Ohm's law.">`;
@@ -521,14 +566,14 @@ test('readMeta keeps an apostrophe in og:title and og:description', () => {
   assert.equal(meta.description, "Resistor codes and Ohm's law.");
 });
 
-test('readMeta still reads a single-quoted attribute, quotes and all', () => {
-  const html = `<meta name='description' content='He said "go" before the run.'>`;
-  assert.equal(readMeta(html, 'x').description, 'He said "go" before the run.');
-});
-
-test('readMeta reads content written before the identifying attribute', () => {
-  const html = `<meta content="Last night's run." name="description">`;
-  assert.equal(readMeta(html, 'x').description, "Last night's run.");
+// A backreferenced `content=(["'])(.*?)\1` — the parallel fix on main — passes
+// every case above but returns the empty string here, because `.` does not
+// match a newline. Losing the whole description is worse than truncating it.
+test('readMeta reads a description wrapped across two lines', () => {
+  const html = `<meta name="description"
+    content="Price the run,
+    the corners, and the extras.">`;
+  assert.match(readMeta(html, 'x').description, /the corners, and the extras\./);
 });
 
 test('truncate cuts on a word boundary', () => {
