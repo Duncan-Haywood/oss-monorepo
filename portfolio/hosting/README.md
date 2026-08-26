@@ -51,7 +51,8 @@ without it, and say so in the privacy line.
 `.github/workflows/portfolio-pages.yml` runs `platform/pages/build.mjs` on every
 push to `main`. The builder finds every venture with an `index.html` (at the
 venture root, or under `site/`), copies its web assets to `dist/<slug>/`, and
-generates the hub at `dist/index.html` that links all of them. It then injects
+generates the hub at `dist/index.html` that links all of them, plus
+`sitemap.xml`, `catalog.json`, `robots.txt`, and `404.html`. It then injects
 the cross-tool navigation and checks the artifact (`platform/pages/check.mjs`)
 before anything is uploaded.
 
