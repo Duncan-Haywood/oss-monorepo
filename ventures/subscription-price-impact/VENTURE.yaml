@@ -1,0 +1,27 @@
+name: subscription-price-impact
+description: A browser-local calculator that shows SaaS operators how much churn a price increase can absorb before recurring revenue falls.
+stage: prototype
+owner: duncan
+hypotheses:
+  - claim: Small SaaS operators need a fast way to test price changes without exporting customer data.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: A churn break-even view is more useful for pricing decisions than a percentage-only calculator.
+    status: untested
+    checked: null
+    evidence: customer-contact
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+budget:
+  monthly_cap: 1
+  protected: true
+kill_criteria:
+  - Fewer than three SaaS operators use the calculator twice within 90 days.
+  - Users cannot identify a price scenario worth testing in the first 90 days.
+links:
+  production: null
+  analytics: null
