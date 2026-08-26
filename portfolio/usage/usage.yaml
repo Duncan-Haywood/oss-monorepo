@@ -2952,3 +2952,15 @@ products:
           the transfer switch, the pad, and the fuel line a flat installed
           quote hides; public URL remains owner-gated and the browser
           counter is local and opt-out. Baseline row.
+  - slug: ev-charger-bid-calculator
+    surface: static-page-in-repo
+    readings:
+      - as_of: 2026-08-26
+        signals:
+          live_url_visitors: null
+          local_events_reported: 0
+        note: >-
+          Shipped a local Level 2 EV charger install bid calculator that
+          prices the run, the trench, and the panel work a flat hang fee
+          hides; public URL remains owner-gated and the browser counter is
+          local and opt-out. Baseline row.

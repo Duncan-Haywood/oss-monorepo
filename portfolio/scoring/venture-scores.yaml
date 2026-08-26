@@ -4778,3 +4778,39 @@ ventures:
       recommended price, a load calculation they can stamp, or a code ruling.
       Starting hours and material dollars are labelled takeoff points rather
       than a standard, and nothing the user enters leaves the browser.
+  - slug: ev-charger-bid-calculator
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 7
+      gross_margin: 10
+      defensibility: 5
+      distribution: 8
+    composite: 6.833
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      There is no AI anywhere in the product. The value is a domain model —
+      125% continuous-load sizing, a 3% voltage-drop upsize, and trench /
+      panel-work hours — that is arithmetic, and adding inference to it would
+      only make the result less checkable.
+    basis: >-
+      Graduated on 2026-08-25 as a browser-local residential Level 2 EV
+      charger install bid calculator. Scored above the marketplace fee
+      calculators on defensibility (5): those restate a published fee
+      schedule, whereas this encodes how an electrician actually estimates
+      the circuit, the run, and the panel. Distribution 8: "how much to
+      install an EV charger" and "EV charger installation cost" are
+      high-intent queries from both homeowners and electrical contractors,
+      and the incumbents are ad-funded roundup pages that quote a flat hang
+      fee rather than a takeoff.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Pass: the output is arithmetic on the electrician's own inputs, never
+      a code ruling, a stamped load calculation, or a recommended price.
+      Breaker sizes and copper gauges are labelled starting takeoff points,
+      the disclaimer refuses electrical and engineering advice, and nothing
+      the user enters leaves the browser.
