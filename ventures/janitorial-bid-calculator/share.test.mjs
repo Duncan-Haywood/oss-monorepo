@@ -247,3 +247,22 @@ test('a spec with no rows is unaffected by any of this', () => {
   assert.equal(encodeBid(SPEC, { area: '48', areas: [{ type: 'office' }] }).includes('areas'), false);
   assert.equal(decodeBid(SPEC, 'area=48&areas=office:1:2').areas, undefined);
 });
+
+test('a second row group rides alongside the first so a day porter is not dropped', () => {
+  const spec = {
+    ...ROW_SPEC,
+    extraRows: [{
+      param: 'shifts',
+      fields: [
+        { key: 'role', kind: 'choice', options: ['porter', 'attendant'] },
+        { key: 'people', kind: 'number' },
+        { key: 'hours', kind: 'number' },
+      ],
+    }],
+  };
+  const values = {
+    areas: [{ type: 'office', squareFeet: '1000', rate: '4000' }],
+    shifts: [{ role: 'porter', people: '1', hours: '8' }],
+  };
+  assert.deepEqual(decodeBid(spec, encodeBid(spec, values)), values);
+});
