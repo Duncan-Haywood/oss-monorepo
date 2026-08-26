@@ -23248,3 +23248,65 @@ entries:
           users to open `index.html` from disk, which cannot work, since
           browsers refuse ES module imports over `file://`.
     mrr_end: null
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Owner decided the host: GitHub Pages for static products, the
+        existing Hetzner boxes for processes, no Cloudflare, no Vercel as
+        a portfolio default. Documented in `portfolio/hosting/README.md`,
+        the no-SLA clause in `PRODUCT_PLAYBOOK.md` §5b, and the operating
+        docs that pointed at an open platform menu. Removed the stale
+        `deployment-platform` queue row (#720 already closed unmerged).
+        Remaining owner flip for static URLs is still `deploy-settings`
+        (enable GitHub Pages).
+    mrr_end: null
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Owner answered 2026-08-25: agents merge product PRs. Rely on the
+        owner as little as possible. Removed the "may we merge venture
+        code?" queue row. Remaining owner flags are money, legal-person
+        accounts, public publishing, unattended paid spend, and secrets
+        only they can paste.
+    mrr_end: null
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Made every page on the new Pages site carry the liability clauses
+        before it gets a URL. `PRODUCT_PLAYBOOK.md` §5b requires the
+        no-warranty *and* the no-SLA clause on every hosted surface; the
+        second was checked only on the hub. Audited all 192 published pages
+        against the built tree: 20 pages across 10 ventures (`3pl-quote-
+        normalizer`, `ai-engineering-academy`, `amazon-fba-calculator`,
+        `cut-list-optimizer`, `ebay-fee-calculator`, `einvoice-preflight`,
+        `shopify-a11y-evidence`, `shopify-fee-calculator`,
+        `shopify-permission-drift`, `where-to-sell-calculator`,
+        `automatic-driveway-gate-bid-calculator`) carried no
+        availability statement at all. Added it to each, and added a test
+        over the built tree so the 184th page cannot ship without one --
+        verified the test goes red when a clause is removed (it caught
+        `automatic-driveway-gate-bid-calculator` the moment that venture merged
+        mid-session). Also emitted a
+        generated `favicon.ico`: browsers request it per page regardless of
+        markup, so all 192 pages were logging a 404 and opening as blank
+        tabs. Learned that the disclaimer gap was invisible to per-venture
+        CI because it is only a gap once the pages are hosted -- which they
+        were not until #1718 landed the site.
+      - >-
+        Duplicate avoided rather than merged: this session had a complete
+        second Pages builder (`platform/site/`, Python, 40 tests) when
+        #1718 merged an equivalent one 20 minutes earlier. Compared both --
+        #1718's published a strict superset (33 surfaces to 32, plus
+        `EXCLUDED_SLUGS` and a separate `RETAIL_PILOT_INTEL_PAGES` gate so
+        one owner flip cannot make two deployments race) -- and discarded
+        this session's rather than opening a competing PR. Verified the
+        merged one in a real browser instead: 33 tools listed, search,
+        primary journey, crawlability, and 288 files with zero dangling
+        internal references.
+    mrr_end: null

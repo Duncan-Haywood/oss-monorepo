@@ -23,7 +23,9 @@ Three things this document no longer implies:
 - **It is not the default next task.** The default is putting something a
   stranger can already run on a public URL. If `main` has undeployed
   products, that deploy outranks this tier chart and outranks the next
-  `build-now` candidate. See [`portfolio/DIRECTION.md`](portfolio/DIRECTION.md)
+  `build-now` candidate. Host is GitHub Pages or the Hetzner product box
+  ([`portfolio/hosting/README.md`](portfolio/hosting/README.md)). See
+  [`portfolio/DIRECTION.md`](portfolio/DIRECTION.md)
   "Current priority". `python3 portfolio/ledger/session_gate.py` names a
   concrete target in two seconds; take that over the roadmap here.
 - **It does not outrank the five things every product ships** — license,
