@@ -641,4 +641,20 @@ export const progressLog: ProgressEntry[] = [
       "Human: flip deploy-settings (Pages / Cloudflare credentials) if that is what unblocks the URL. Same long-open blockers in process/blockers.ts otherwise stand.",
     ],
   },
+  {
+    date: "2026-08-25",
+    agent: "cursor/product-first-development-mandate-b002",
+    summary:
+      "Turned MLS photo-check findings into a copyable reshoot / desk-fix list so a photographer knows which rooms to recapture versus which files to rename, recrop, or pair — complementary to the three open evidence-download PRs (#1333, #1358, #1385).",
+    changes: [
+      "research/src/lib/photo-spec.ts: buildReshootPlan + formatReshootPlan map each finding to recapture / pair / reexport / rename with disclosed unimplemented rules on the copied text.",
+      "research/src/components/PhotoCheckTool.tsx: What to fix next panel and Copy shot list; usage events reshoot_list_viewed / reshoot_list_copied stay localStorage-only.",
+      "pipeline/src/cli-preflight.ts: prints the same list after the findings so the CLI path matches the browser.",
+      "Tests: three new photo-spec cases (9/9). Did not add a second download/export — those PRs already cover that.",
+    ],
+    nextUp: [
+      "Keep #1333/#1358/#1385 open for the evidence-record download; do not close them as superseded by this list.",
+      "Public URL is still owner-gated (deploy-settings). Do not add another trade bid calculator.",
+    ],
+  },
 ];

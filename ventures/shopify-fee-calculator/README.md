@@ -32,6 +32,129 @@ expected monthly orders, and shows **both paths on the same order**.
 
 [Why PayPal can cost more on Shopify](why-paypal-costs-more.html) answers that
 search question directly.
+[Shopify POS vs online fees](shopify-pos-vs-online-fees.html) answers the
+counter-vs-checkout question: whether a cheaper in-person tap still beats
+the same SKU sold online after postage markup, and how many taps recover a
+card reader.
+[Should I buy Shopify Shipping labels?](should-i-buy-shopify-shipping-labels.html)
+answers the postage question: whether a Pirate Ship, Shippo, or carrier-account
+quote still beats the Shopify Shipping label after card fees, and what you
+keep if checkout charges Shopify’s rate while you buy the cheaper label.
+[Should I offer Shop Pay Installments?](should-i-offer-shop-pay-installments.html)
+answers the installment question: whether the extra Shop Pay Installments
+rate still pays after you blend the share of checkouts that use it, and how
+many extra orders cover the gap.
+[Should I offer store credit instead of a refund?](should-i-offer-store-credit-instead-of-a-refund.html)
+answers the return question: whether issuing credit or exchanging still beats
+sending cash after the return label, restock, and expected redemption.
+[Should I take Shopify Capital?](should-i-take-shopify-capital.html)
+answers the merchant-funding question: whether the Capital fee still beats
+waiting to self-fund leftover profit or a bank line at a typed APR, and
+how much extra monthly profit covers the fee.
+[Should I take bank transfer on Shopify?](should-i-take-bank-transfer-on-shopify.html)
+answers the invoice question: whether skipping the card fee still pays after
+your collection rate, and whether holding the order beats shipping first.
+[Should I fight a Shopify chargeback?](should-i-fight-a-shopify-chargeback.html)
+answers the dispute question: whether refunding before the pull still beats
+fighting or accepting after the chargeback fee, and the win rate that
+flips representment.
+[Should I offer local delivery on Shopify?](should-i-offer-local-delivery-on-shopify.html)
+answers the drop-off question: whether driver time and miles still beat a
+carrier label, and what you keep if you charge shipping and still deliver.
+[Should I sell gift cards on Shopify?](should-i-sell-gift-cards-on-shopify.html)
+answers the stored-value question: whether a card they redeem later still
+beats selling the SKU now after sale-day fees, a leftover swipe, and a
+promo off the face.
+[Should I collect duties on Shopify?](should-i-collect-duties-on-shopify.html)
+answers the Markets question: whether collecting duties at checkout (DDP)
+still beats letting the buyer pay at the door (DAP) after the card fee
+on the duty and the refuse leftover.
+[Should I recover abandoned checkouts on Shopify?](should-i-recover-abandoned-checkouts-on-shopify.html)
+answers the recovery question: whether leaving the checkout still beats
+recovery emails or emails plus an item coupon after the send cost and
+the cheaper ticket.
+[Should I offer subscriptions on Shopify?](should-i-offer-subscriptions-on-shopify.html)
+answers the subscribe-and-save question: whether a monthly leftover
+after the discount, billing fee, and skip rate still beats a one-time
+checkout, and when a prepaid pack keeps more.
+[Should I offer pickup on Shopify?](should-i-offer-pickup-on-shopify.html)
+answers the hold question: whether free or paid in-store pickup still
+beats a carrier label after staff time, a lighter bag, and a no-show
+refund mix.
+[Should I add a Shopify upsell?](should-i-add-a-shopify-upsell.html)
+answers the add-on question: whether a checkout offer still beats a
+post-purchase one-click after the second swipe and the carts that
+bounce because you asked before they paid.
+
+**After using the POS page, you can now see whether a market table or
+retail tap keeps more than checkout on that SKU** — which used to mean
+comparing two rate cards and forgetting the postage line.
+
+**After using the label page, you can now see whether Shopify Shipping or
+your own label keeps more on the same order, including the leftover if you
+charge Shopify’s quote and buy cheaper postage** — which used to mean
+subtracting two label PDFs and forgetting that card fees sit on shipping charged.
+
+**After using the installment page, you can now see whether Shop Pay
+Installments still pay after the extra fee, including the conversion lift
+that covers a blended month** — which used to mean staring at a 5.99%
+sticker and turning the offer off.
+
+**After using the return page, you can now see whether store credit or an
+exchange still beats a cash refund on that order** — which used to mean
+refunding the Shopify button default and forgetting redemption and the
+second label.
+
+**After using the Capital page, you can now see whether a 14% cash-advance
+fee is a 45% simple annualized cost, and whether waiting still keeps more
+when you are not buying inventory you would otherwise skip** — which used
+to mean accepting the offer email because $1,400 looked cheap on $10,000.
+
+**After using the bank-transfer page, you can now see whether skipping
+2.9% + $0.30 still pays after a 5% unpaid-invoice rate, and whether you
+have to hold the order for that save to survive** — which used to mean
+turning on Mark as paid because the processor fee looked like free money.
+
+**After using the chargeback page, you can now see whether a 25%
+representment win rate still loses to refunding after a $15 fee, and
+the win rate that would flip the table** — which used to mean fighting
+every dispute because winning sounded free.
+
+**After using the local-delivery page, you can now see whether a
+25-minute drop-off still beats a $5 label after driver time and miles**
+— which used to mean turning on Local Delivery because the postage
+looked like the only cost.
+
+**After using the gift-card page, you can now see whether a $50 card
+still pays after the sale-day fee and a later redeem, including the
+second swipe on a leftover ticket** — which used to mean selling
+discounted cards because $50 in the bank looked like profit.
+
+**After using the duties page, you can now see whether collecting
+duties at Shopify checkout still beats a cheaper DAP door bill after
+the extra card fee and refused packages** — which used to mean
+turning on Markets duties because a $54 checkout looked kinder than
+$62.10.
+
+**After using the abandoned-checkout page, you can now see whether
+recovery emails or a 10% coupon still beat leaving the checkout after
+the send cost** — which used to mean turning on Shopify Email because
+a $54 ticket that already walked away looked like free leftover.
+
+**After using the subscription page, you can now see whether a 10%
+subscribe-and-save still beats a one-time checkout after the billing
+fee and skip rate** — which used to mean turning on Recharge because
+a subscriber who stays looked free.
+
+**After using the pickup page, you can now see whether an 8-minute
+in-store hold still beats a $5 label after staff time and a 12%
+no-show refund** — which used to mean turning on Local Pickup because
+the postage looked like the only cost.
+
+**After using the upsell page, you can now see whether an 18%
+checkout add-on still beats a 12% one-click after a 2% extra
+abandon** — which used to mean installing Rebuy because a $18
+add-on looked like free leftover.
 
 **No warranty.** This tool is provided free and as-is, without warranty of any
 kind, express or implied. It is not tax, financial, or business advice, and it
@@ -39,6 +162,12 @@ does not replace a qualified professional. **You are responsible for reviewing
 and verifying its output before relying on it**, and for meeting any obligation
 it helps you prepare for. To the maximum extent permitted by law, the authors
 accept no liability for any loss or damage arising from its use.
+
+**Best-effort hosting, no SLA.** These tools are free, experimental, and may
+be slow, broken, moved, or taken offline without notice. We do not promise
+uptime, backups of anything you type, or that a URL will keep working. Do not
+use this as a system of record. If a tool needs to survive, export your
+inputs and run it yourself.
 
 ## Privacy and usage
 
@@ -60,7 +189,7 @@ optional and never changes what the tool does.
 Pure ES modules, no build step, no dependencies.
 
 ```
-node --test        # runs calc.test.mjs and usage.test.mjs
+node --test        # calc, usage, POS / label / installment / return / Capital / bank-transfer / chargeback / local-delivery / gift-card / Markets-duties / abandoned-checkout / subscription / pickup / upsell page tests
 ```
 
 `calc.mjs` holds the fee/profit/ROI arithmetic and plan presets; `usage.mjs`

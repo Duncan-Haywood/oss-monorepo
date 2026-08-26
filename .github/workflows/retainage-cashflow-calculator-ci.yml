@@ -1,0 +1,38 @@
+name: retainage-cashflow-calculator CI
+
+# Test runner for the browser-local retainage worksheet. The product is
+# static ES modules with no build step and no dependencies, so this does
+# no more than a contributor runs locally: `node --test`. It publishes
+# nothing, registers nothing, and spends no API budget.
+
+on:
+  pull_request:
+    paths:
+      - "ventures/retainage-cashflow-calculator/**"
+      - ".github/workflows/retainage-cashflow-calculator-ci.yml"
+  push:
+    branches: [main]
+    paths:
+      - "ventures/retainage-cashflow-calculator/**"
+      - ".github/workflows/retainage-cashflow-calculator-ci.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: retainage-cashflow-calculator-ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  site-test:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ventures/retainage-cashflow-calculator
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - run: node --test

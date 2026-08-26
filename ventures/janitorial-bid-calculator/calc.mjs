@@ -158,3 +158,374 @@ export function calculateBid(input) {
     },
   };
 }
+
+/**
+ * Compare a building-wide frequency cut (or increase) against a linear
+ * discount of the current monthly price.
+ *
+ * Prospects routinely ask for 3×/week instead of 5× and offer 60% of the
+ * current price. Labor hours do scale with visits. In this model, supplies
+ * are a monthly-per-square-foot line, and equipment/travel stay on the job
+ * regardless of how many days you show up — so a 40% cut in days is not a
+ * 40% cut in cost. Accepting the linear number silently eats the margin
+ * the original bid was built on.
+ *
+ * Each area's own weekly frequency is scaled so a mixed schedule (restrooms
+ * 5×, offices 3×) stays proportional. The building-level currentWeekly is
+ * the cadence the comparison is about: if the area rows still say 3× while
+ * the contractor typed 5× as today's building week, baseline labor follows
+ * the 5× cut, not a mix of the two.
+ *
+ * @param {object} input                 Same shape as calculateBid.
+ * @param {object} options
+ * @param {number} options.currentWeekly How many days a week the building is
+ *   currently cleaned — the number the contractor quotes, not a per-area max.
+ * @param {number} options.proposedWeekly The schedule the prospect is asking for.
+ * @param {number|string|null} [options.clientOfferMonthly] Optional price they
+ *   put on the reduced schedule, scored against the reduced cost base.
+ */
+export function compareFrequencyReduction(input, options = {}) {
+  const currentWeekly = number(options.currentWeekly ?? 0, 'Current cleanings per week', { allowZero: false });
+  const proposedWeekly = number(options.proposedWeekly ?? 0, 'Proposed cleanings per week');
+  const factor = proposedWeekly / currentWeekly;
+
+  const areas = Array.isArray(input.areas) ? input.areas : [];
+  const areaFreqs = areas.map((area, index) => {
+    const label = area.name?.trim() || `Area ${index + 1}`;
+    return number(area.cleaningsPerWeek ?? 0, `${label}: cleanings per week`);
+  });
+  // Highest scheduled area is the building week the rows already encode.
+  // Rebase onto currentWeekly when that disagrees, so a 5→3 comparison is
+  // actually priced at 5 days then 3 days rather than 3 days then 1.8.
+  const typicalAreaWeek = Math.max(0, ...areaFreqs);
+  const alignFactor = typicalAreaWeek > 0 ? currentWeekly / typicalAreaWeek : 1;
+
+  const alignedAreas = areas.map((area, index) => ({
+    ...area,
+    cleaningsPerWeek: areaFreqs[index] * alignFactor,
+  }));
+  const scaledAreas = alignedAreas.map((area, index) => ({
+    ...area,
+    cleaningsPerWeek: areaFreqs[index] * alignFactor * factor,
+  }));
+
+  const baseline = calculateBid({ ...input, areas: alignedAreas, proposedPrice: undefined });
+  const reduced = calculateBid({
+    ...input,
+    areas: scaledAreas,
+    proposedPrice: options.clientOfferMonthly,
+  });
+
+  const naiveLinearPrice = baseline.monthlyPrice * factor;
+  const naiveProfit = naiveLinearPrice - reduced.monthlyCost;
+  const naiveMargin = naiveLinearPrice === 0 ? 0 : naiveProfit / naiveLinearPrice * 100;
+  const leftOnTable = reduced.monthlyPrice - naiveLinearPrice;
+
+  return {
+    currentWeekly,
+    proposedWeekly,
+    reductionFactor: factor,
+    baseline,
+    reduced,
+    naiveLinearPrice,
+    naiveProfit,
+    naiveMargin,
+    naiveBelowBreakEven: naiveLinearPrice < reduced.monthlyCost,
+    priceToHoldTargetMargin: reduced.monthlyPrice,
+    walkAwayAtReduced: reduced.breakEvenMonthlyPrice,
+    leftOnTable,
+    laborHoursDropped: baseline.monthlyHours - reduced.monthlyHours,
+    laborCostDropped: baseline.monthlyLaborCost - reduced.monthlyLaborCost,
+    unscaledMonthly: baseline.monthlySupplies + baseline.equipmentMonthly + baseline.otherMonthly,
+    suppliesUnchanged: Math.abs(reduced.monthlySupplies - baseline.monthlySupplies) < 1e-9,
+    equipmentUnchanged: Math.abs(reduced.equipmentMonthly - baseline.equipmentMonthly) < 1e-9,
+    clientOffer: reduced.proposed,
+  };
+}
+
+/**
+ * One paragraph a contractor can paste into a renewal reply. Arithmetic only —
+ * it does not tell them to accept or refuse.
+ */
+export function frequencyReductionNote(comparison, { targetMargin } = {}) {
+  const money = value => `$${value.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+  const pct = comparison.reductionFactor * 100;
+  const marginPct = Number.isFinite(targetMargin) ? targetMargin : 20;
+  const direction = comparison.proposedWeekly < comparison.currentWeekly ? 'cut' : 'change';
+  const naiveLine = comparison.naiveBelowBreakEven
+    ? `Accepting ${pct.toFixed(0)}% of the ${comparison.currentWeekly}× price (${money(comparison.naiveLinearPrice)}) would lose ${money(Math.abs(comparison.naiveProfit))} a month against the ${comparison.proposedWeekly}× cost base. Walk-away on the reduced schedule is ${money(comparison.walkAwayAtReduced)}.`
+    : `A linear ${pct.toFixed(0)}% of the ${comparison.currentWeekly}× price is ${money(comparison.naiveLinearPrice)}, which leaves a ${comparison.naiveMargin.toFixed(1)}% margin at ${comparison.proposedWeekly}× — ${money(Math.abs(comparison.leftOnTable))} a month ${comparison.leftOnTable > 0 ? 'below' : 'above'} the price that holds a ${marginPct}% target.`;
+  return [
+    `At ${comparison.proposedWeekly}×/week the monthly price that still holds a ${marginPct}% margin is ${money(comparison.priceToHoldTargetMargin)}, not a linear ${direction} of the ${comparison.currentWeekly}× price (${money(comparison.baseline.monthlyPrice)}).`,
+    `Labor drops with the visits (${comparison.baseline.monthlyHours.toFixed(1)} h → ${comparison.reduced.monthlyHours.toFixed(1)} h). Supplies, equipment, and travel stay on the job (${money(comparison.unscaledMonthly)}/month in this bid).`,
+    naiveLine,
+  ].join(' ');
+}
+
+/**
+ * Compare who buys restroom paper, soap, and liners.
+ *
+ * Prospects routinely say "we'll buy the paper if you drop the supplies
+ * line." Restroom stock is only a share of that line — chemicals, finish,
+ * and glass stay yours. Dropping the whole line from today's price silently
+ * eats the chemicals and the markup on them. And if they run out, the
+ * emergency fill you still make is less efficient than stocking it yourself,
+ * so the price that holds your margin can land *above* the you-supply bid.
+ *
+ * Labor, equipment, and travel do not change. Only the supplies (and the
+ * optional emergency-fill) line moves, then overhead and margin are reapplied.
+ *
+ * @param {object} input  Same shape as calculateBid.
+ * @param {object} options
+ * @param {number} [options.restroomSharePercent=65] Share of the monthly
+ *   supplies line that is paper, soap, liners, and seat covers.
+ * @param {number} [options.emergencyFillMonthly=0] Extra monthly cost when
+ *   they "buy it" but you still restock after they run out.
+ * @param {number|string|null} [options.clientOfferMonthly] Optional price
+ *   they put on the labor-only / drop-supplies ask, scored against each
+ *   reduced cost base.
+ */
+export function compareSupplyResponsibility(input, options = {}) {
+  const restroomSharePercent = number(
+    options.restroomSharePercent ?? 65,
+    'Restroom stock share of supplies',
+  );
+  if (restroomSharePercent > 100) {
+    throw new Error('Restroom stock share of supplies must be at most 100');
+  }
+  const emergencyFillMonthly = number(
+    options.emergencyFillMonthly ?? 0,
+    'Emergency fill when they run out',
+  );
+  const suppliesRate = number(input.suppliesPerSqFtMonth ?? 0, 'Supplies per sq ft');
+  const otherMonthly = number(input.otherMonthly ?? 0, 'Other monthly cost');
+  const overheadRate = number(input.overheadRate ?? 0, 'Overhead');
+  const targetMargin = number(input.targetMargin ?? 0, 'Target margin');
+  if (targetMargin >= 100) throw new Error('Target margin must be less than 100%');
+
+  const restroomShare = restroomSharePercent / 100;
+  const chemicalRate = suppliesRate * (1 - restroomShare);
+  const bidInput = { ...input, proposedPrice: undefined };
+
+  const youSupply = calculateBid(bidInput);
+  const theyBuyRestroom = calculateBid({
+    ...bidInput,
+    suppliesPerSqFtMonth: chemicalRate,
+    proposedPrice: options.clientOfferMonthly,
+  });
+  const theyBuyAll = calculateBid({
+    ...bidInput,
+    suppliesPerSqFtMonth: 0,
+    proposedPrice: options.clientOfferMonthly,
+  });
+  const theyBuyButYouFill = calculateBid({
+    ...bidInput,
+    suppliesPerSqFtMonth: chemicalRate,
+    otherMonthly: otherMonthly + emergencyFillMonthly,
+    proposedPrice: options.clientOfferMonthly,
+  });
+
+  // The verbal ask is "take the supplies off the bid" — today's price minus
+  // the fully marked-up supplies line, as if chemicals vanished too.
+  const suppliesInPrice = youSupply.monthlySupplies * (1 + overheadRate / 100) / (1 - targetMargin / 100);
+  const naiveDropPrice = youSupply.monthlyPrice - suppliesInPrice;
+  const naiveProfitAtRestroom = naiveDropPrice - theyBuyRestroom.monthlyCost;
+  const naiveMarginAtRestroom = naiveDropPrice === 0 ? 0 : naiveProfitAtRestroom / naiveDropPrice * 100;
+  const naiveProfitAtFill = naiveDropPrice - theyBuyButYouFill.monthlyCost;
+  const naiveMarginAtFill = naiveDropPrice === 0 ? 0 : naiveProfitAtFill / naiveDropPrice * 100;
+
+  return {
+    restroomSharePercent,
+    emergencyFillMonthly,
+    restroomSuppliesMonthly: youSupply.monthlySupplies * restroomShare,
+    chemicalSuppliesMonthly: youSupply.monthlySupplies * (1 - restroomShare),
+    youSupply,
+    theyBuyRestroom,
+    theyBuyAll,
+    theyBuyButYouFill,
+    suppliesInPrice,
+    naiveDropPrice,
+    naiveProfitAtRestroom,
+    naiveMarginAtRestroom,
+    naiveBelowBreakEvenAtRestroom: naiveDropPrice < theyBuyRestroom.monthlyCost,
+    naiveProfitAtFill,
+    naiveMarginAtFill,
+    naiveBelowBreakEvenAtFill: naiveDropPrice < theyBuyButYouFill.monthlyCost,
+    leftoverIfTheyBuyRestroom: youSupply.monthlyPrice - theyBuyRestroom.monthlyPrice,
+    leftoverIfTheyBuyAll: youSupply.monthlyPrice - theyBuyAll.monthlyPrice,
+    fillPremiumVsYouSupply: theyBuyButYouFill.monthlyPrice - youSupply.monthlyPrice,
+    fillCostsMoreThanYouSupply: theyBuyButYouFill.monthlyPrice > youSupply.monthlyPrice,
+    clientOfferRestroom: theyBuyRestroom.proposed,
+    clientOfferAll: theyBuyAll.proposed,
+    clientOfferFill: theyBuyButYouFill.proposed,
+  };
+}
+
+/**
+ * One paragraph a contractor can paste into a "we'll buy the paper" reply.
+ * Arithmetic only — it does not tell them to accept or refuse.
+ */
+export function supplyResponsibilityNote(comparison, { targetMargin } = {}) {
+  const money = value => `$${value.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+  const marginPct = Number.isFinite(targetMargin) ? targetMargin : 20;
+  const restroomLine = `Restroom paper, soap, and liners are ${comparison.restroomSharePercent.toFixed(0)}% of this supplies line (${money(comparison.restroomSuppliesMonthly)}); chemicals, finish, and glass stay yours (${money(comparison.chemicalSuppliesMonthly)}).`;
+  const honestLine = `If they take only the restroom stock, the monthly price that still holds a ${marginPct}% margin is ${money(comparison.theyBuyRestroom.monthlyPrice)}, not today's ${money(comparison.youSupply.monthlyPrice)} minus the whole supplies line (${money(comparison.naiveDropPrice)}).`;
+  const fillLine = comparison.emergencyFillMonthly > 0
+    ? (comparison.fillCostsMoreThanYouSupply
+      ? `If you still emergency-fill when they run out (${money(comparison.emergencyFillMonthly)}/month), the price that holds the margin is ${money(comparison.theyBuyButYouFill.monthlyPrice)} — ${money(comparison.fillPremiumVsYouSupply)} a month above you-supplying.`
+      : `If you still emergency-fill when they run out (${money(comparison.emergencyFillMonthly)}/month), the price that holds the margin is ${money(comparison.theyBuyButYouFill.monthlyPrice)}.`)
+    : `Labor, equipment, and travel do not move when they take the paper.`;
+  const naiveLine = comparison.naiveBelowBreakEvenAtFill || comparison.naiveBelowBreakEvenAtRestroom
+    ? `Dropping the whole supplies line from today's price (${money(comparison.naiveDropPrice)}) would lose ${money(Math.abs(comparison.naiveBelowBreakEvenAtFill ? comparison.naiveProfitAtFill : comparison.naiveProfitAtRestroom))} a month against the cost you still carry.`
+    : `Dropping the whole supplies line from today's price leaves a ${comparison.naiveMarginAtRestroom.toFixed(1)}% margin if they actually take the restroom stock, versus the ${marginPct}% the original bid was built on.`;
+  return [restroomLine, honestLine, fillLine, naiveLine].join(' ');
+}
+
+/**
+ * Compare quoting the takeover / initial clean as a one-time line versus
+ * throwing it into month 1 at today's monthly.
+ *
+ * A neglected or vacant building's first visit is several regular cleans of
+ * labor plus extra chemicals. Prospects ask to "just include it." Month 1
+ * then carries a project on a periodic price. If they cancel after 30 days,
+ * that giveaway is the whole relationship. This is not strip-and-wax (a
+ * recurring floor-finish project) and not a second address — it is the
+ * one-time deep clean that wins the monthly.
+ *
+ * Overhead and margin are applied to the initial the same way they are
+ * applied to the month, so the one-time number is the price that still
+ * holds the target, not the raw crew cost.
+ *
+ * @param {object} input  Same shape as calculateBid.
+ * @param {object} options
+ * @param {number} [options.visitMultiplier=5] How many regular visits the
+ *   initial is worth. 2–3× is a maintained building; 5× is a typical
+ *   takeover of a neglected floor.
+ * @param {number} [options.extraSupplies=80] Extra chemicals, liners, and
+ *   dumpster cost on that first visit only.
+ * @param {number} [options.amortizeMonths=12] Months over which to recover
+ *   the initial if it is baked into the monthly instead of invoiced once.
+ * @param {number} [options.cancelAfterMonths=1] Tenure used for the
+ *   cancel-early cash comparison (default: they leave after 30 days).
+ * @param {number|string|null} [options.clientOfferMonthly] Optional monthly
+ *   they offered that already "includes" the initial, scored against the
+ *   month-1 cost that still carries the project.
+ */
+export function compareInitialClean(input, options = {}) {
+  const visitMultiplier = number(
+    options.visitMultiplier ?? 5,
+    'Initial-clean visit multiplier',
+    { allowZero: false },
+  );
+  const extraSupplies = number(options.extraSupplies ?? 80, 'Extra initial-clean supplies');
+  const amortizeMonths = number(
+    options.amortizeMonths ?? 12,
+    'Months to recover the initial',
+    { allowZero: false },
+  );
+  const cancelAfterMonths = number(
+    options.cancelAfterMonths ?? 1,
+    'If they cancel after this many months',
+    { allowZero: false },
+  );
+  const overheadRate = number(input.overheadRate ?? 0, 'Overhead');
+  const targetMargin = number(input.targetMargin ?? 0, 'Target margin');
+  if (targetMargin >= 100) throw new Error('Target margin must be less than 100%');
+
+  const monthly = calculateBid({ ...input, proposedPrice: undefined });
+  const hoursPerVisit = monthly.hoursPerVisitTotal;
+  const initialHours = hoursPerVisit * visitMultiplier;
+  const initialLabor = initialHours * monthly.loadedWage;
+  const initialDirect = initialLabor + extraSupplies;
+  const initialOverhead = initialDirect * overheadRate / 100;
+  const initialCost = initialDirect + initialOverhead;
+  const initialPrice = initialCost / (1 - targetMargin / 100);
+  const initialProfit = initialPrice - initialCost;
+
+  const amortizedMonthlyCost = monthly.monthlyCost + initialCost / amortizeMonths;
+  const amortizedMonthlyPrice = amortizedMonthlyCost / (1 - targetMargin / 100);
+  const amortizedAddOn = amortizedMonthlyPrice - monthly.monthlyPrice;
+
+  const thrownInMonth1Cost = monthly.monthlyCost + initialCost;
+  const thrownInMonth1Profit = monthly.monthlyPrice - thrownInMonth1Cost;
+  const thrownInMonth1Margin = monthly.monthlyPrice === 0
+    ? 0
+    : thrownInMonth1Profit / monthly.monthlyPrice * 100;
+  const thrownInBelowBreakEven = monthly.monthlyPrice < thrownInMonth1Cost;
+
+  // How many months of ordinary profit equal the giveaway. Null when the
+  // monthly itself does not make money — there is then no recovery path.
+  const monthsOfProfitToCoverGiveaway = monthly.monthlyProfit <= 0
+    ? null
+    : initialCost / monthly.monthlyProfit;
+
+  // Quoted separately they pay the one-time and the month. Thrown in they
+  // pay only the month, so month 1 still carries the project cost.
+  const quotedSeparatelyCashIfCancel =
+    cancelAfterMonths * monthly.monthlyProfit + initialProfit;
+  const thrownInCashIfCancel =
+    cancelAfterMonths * monthly.monthlyProfit - initialCost;
+  const giveawayVsQuotedIfCancel = thrownInCashIfCancel - quotedSeparatelyCashIfCancel;
+
+  const hasOffer = options.clientOfferMonthly !== null
+    && options.clientOfferMonthly !== undefined
+    && options.clientOfferMonthly !== '';
+  const offerPrice = hasOffer
+    ? number(options.clientOfferMonthly, 'Monthly they offered including the initial')
+    : null;
+  const clientOffer = offerPrice === null ? null : {
+    price: offerPrice,
+    month1Profit: offerPrice - thrownInMonth1Cost,
+    month1Margin: offerPrice === 0 ? 0 : (offerPrice - thrownInMonth1Cost) / offerPrice * 100,
+    belowBreakEvenMonth1: offerPrice < thrownInMonth1Cost,
+    laterProfit: offerPrice - monthly.monthlyCost,
+    laterBelowBreakEven: offerPrice < monthly.monthlyCost,
+  };
+
+  return {
+    visitMultiplier,
+    extraSupplies,
+    amortizeMonths,
+    cancelAfterMonths,
+    hoursPerVisit,
+    initialHours,
+    initialLabor,
+    initialDirect,
+    initialOverhead,
+    initialCost,
+    initialPrice,
+    initialProfit,
+    monthly,
+    amortizedMonthlyCost,
+    amortizedMonthlyPrice,
+    amortizedAddOn,
+    thrownInMonth1Cost,
+    thrownInMonth1Profit,
+    thrownInMonth1Margin,
+    thrownInBelowBreakEven,
+    monthsOfProfitToCoverGiveaway,
+    quotedSeparatelyCashIfCancel,
+    thrownInCashIfCancel,
+    giveawayVsQuotedIfCancel,
+    walkAwayMonth1: thrownInMonth1Cost,
+    clientOffer,
+  };
+}
+
+/**
+ * One paragraph a contractor can paste into a "just include the initial"
+ * reply. Arithmetic only — it does not tell them to accept or refuse.
+ */
+export function initialCleanNote(comparison, { targetMargin } = {}) {
+  const money = value => `$${value.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+  const marginPct = Number.isFinite(targetMargin) ? targetMargin : 20;
+  const oneTime = `A ${comparison.visitMultiplier.toFixed(1)}× takeover clean (${comparison.initialHours.toFixed(1)} h plus ${money(comparison.extraSupplies)} of extra supplies) is a ${money(comparison.initialPrice)} one-time line if it still holds a ${marginPct}% margin — not a free extra on the ${money(comparison.monthly.monthlyPrice)} monthly.`;
+  const thrown = comparison.thrownInBelowBreakEven
+    ? `Throwing it in at today's monthly loses ${money(Math.abs(comparison.thrownInMonth1Profit))} in month 1 against a ${money(comparison.walkAwayMonth1)} walk-away.`
+    : `Throwing it in at today's monthly leaves ${money(comparison.thrownInMonth1Profit)} in month 1 (${comparison.thrownInMonth1Margin.toFixed(1)}% margin), not the ${marginPct}% the monthly was built on.`;
+  const amortize = `Baking it into the monthly over ${comparison.amortizeMonths} months is ${money(comparison.amortizedMonthlyPrice)} (${money(comparison.amortizedAddOn)} above today's monthly).`;
+  const cancel = comparison.thrownInCashIfCancel < 0
+    ? `If they cancel after ${comparison.cancelAfterMonths} month${comparison.cancelAfterMonths === 1 ? '' : 's'}, the giveaway finishes ${money(Math.abs(comparison.thrownInCashIfCancel))} under water versus ${money(comparison.quotedSeparatelyCashIfCancel)} if the initial was invoiced.`
+    : `If they cancel after ${comparison.cancelAfterMonths} month${comparison.cancelAfterMonths === 1 ? '' : 's'}, throwing it in keeps ${money(comparison.thrownInCashIfCancel)} versus ${money(comparison.quotedSeparatelyCashIfCancel)} if the initial was invoiced.`;
+  return [oneTime, thrown, amortize, cancel].join(' ');
+}
