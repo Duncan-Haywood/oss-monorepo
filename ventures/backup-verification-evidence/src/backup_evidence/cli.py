@@ -140,8 +140,12 @@ def cmd_verify(args: argparse.Namespace) -> int:
                 result["detail"] += f"; freshness: {freshness['detail']}"
         results.append(result)
 
+    payload = {"artifacts": results}
+    if args.output:
+        args.output.parent.mkdir(parents=True, exist_ok=True)
+        args.output.write_text(json.dumps(payload, indent=2) + "\n", encoding="utf-8")
     if args.format == "json":
-        print(json.dumps({"artifacts": results}, indent=2))
+        print(json.dumps(payload, indent=2))
     else:
         for result in results:
             print(f"{result['result'].upper()}  {result['path']}  [{result['format']}]")
@@ -234,6 +238,11 @@ def build_parser() -> argparse.ArgumentParser:
     verify.add_argument("artifacts", nargs="+", type=Path)
     verify.add_argument("--format", choices=("text", "json"), default="text")
     verify.add_argument("--integrity-max-bytes", type=int, default=None)
+    verify.add_argument(
+        "--output",
+        type=Path,
+        help="write the JSON evidence record to this local file (artifact paths and structural findings only)",
+    )
     verify.add_argument(
         "--max-age-hours",
         type=_positive_hours,

@@ -279,6 +279,19 @@ class VerifyCommandTests(unittest.TestCase):
             self._run(["verify", str(artifact), "--usage-file", str(usage)])
             self.assertEqual(json.loads(usage.read_text())["artifact_verified"], 1)
 
+    def test_json_evidence_can_be_written_to_a_local_handoff_file(self):
+        with tempfile.TemporaryDirectory() as directory:
+            artifact = _tar_gz(Path(directory) / "nightly.tar.gz")
+            output = Path(directory) / "evidence.json"
+            self.assertEqual(
+                self._run(["verify", "--format", "json", "--output", str(output), str(artifact)]),
+                0,
+            )
+            payload = json.loads(output.read_text(encoding="utf-8"))
+            self.assertEqual(payload["artifacts"][0]["result"], "intact")
+            self.assertEqual(payload["artifacts"][0]["path"], str(artifact))
+            self.assertNotIn("log_tail", payload)
+
     def test_fresh_intact_archive_passes_age_check(self):
         with tempfile.TemporaryDirectory() as directory:
             artifact = _tar_gz(Path(directory) / "nightly.tar.gz")

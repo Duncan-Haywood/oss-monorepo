@@ -26,6 +26,10 @@ PYTHONPATH=src python3 -m backup_evidence.cli verify /backups/*.tar.gz
 # Also require each artifact to have been modified within the last 26 hours:
 PYTHONPATH=src python3 -m backup_evidence.cli verify \
   --max-age-hours 26 /backups/*.tar.gz
+
+# Write a portable JSON handoff for a ticket (paths and findings only):
+PYTHONPATH=src python3 -m backup_evidence.cli verify \
+  --format json --output evidence.json /backups/*.tar.gz
 ```
 
 ```

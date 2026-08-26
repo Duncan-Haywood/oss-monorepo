@@ -1031,6 +1031,13 @@ products:
           Added a browser night-over-night trend page and `check --trend`.
           `trend_viewed` is counted locally (CLI `--usage-file` or browser
           localStorage). Public URL remains owner-gated (`deploy-settings`).
+      - as_of: 2026-08-26
+        signals:
+          local_artifacts_verified: 0
+          handoff_exports: 0
+        note: >-
+          `verify --output` writes a local JSON handoff (artifact paths
+          and structural findings only) for a ticket. Nothing is uploaded.
   - slug: eaa-remediation-pipeline
     surface: local-site-studio-browser
     readings:
