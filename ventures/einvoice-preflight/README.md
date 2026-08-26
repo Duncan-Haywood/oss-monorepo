@@ -1,12 +1,20 @@
 # E-invoice preflight
 
-**Validate a structured invoice before submission.** This free local CLI checks
-a small, transparent JSON or UBL XML invoice shape for missing fields and
-arithmetic mistakes, then prints rule IDs and plain-language fixes. It is aimed
-at bookkeepers and ERP integrators searching for an e-invoice preflight check.
+**Validate a structured invoice before submission.** After using this, you can
+now see which fields, totals, VAT digits, or payment instructions would fail a
+local preflight — in the browser or in CI — which used to mean waiting for a
+network rejection. Open `index.html` and drop a JSON or UBL XML file, or run
+the CLI below. The page never uploads the invoice.
+
+This free local CLI also checks a small, transparent JSON or UBL XML invoice
+shape for missing fields and arithmetic mistakes, then prints rule IDs and
+plain-language fixes. It is aimed at bookkeepers and ERP integrators searching
+for an e-invoice preflight check.
 
 ```sh
 cd ventures/einvoice-preflight
+# Browser: open index.html, or `python3 -m http.server 8765` and visit
+# http://127.0.0.1:8765/ — same rule IDs as the CLI, including VAT/IBAN/BIC.
 PYTHONPATH=src python3 -m einvoice_preflight examples/valid-invoice.json
 PYTHONPATH=src python3 -m einvoice_preflight examples/valid-invoice.json --format json
 PYTHONPATH=src python3 -m einvoice_preflight examples/valid-invoice.json --format sarif > preflight.sarif

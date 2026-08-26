@@ -1,0 +1,49 @@
+name: einvoice-preflight CI
+
+# Test runner for the local e-invoice preflight CLI and browser checker.
+# Python unittest covers the CLI; node --test covers the browser modules.
+# It publishes nothing, registers nothing, and spends no API budget.
+
+on:
+  pull_request:
+    paths:
+      - "ventures/einvoice-preflight/**"
+      - ".github/workflows/einvoice-preflight-ci.yml"
+  push:
+    branches: [main]
+    paths:
+      - "ventures/einvoice-preflight/**"
+      - ".github/workflows/einvoice-preflight-ci.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: einvoice-preflight-ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  cli-test:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ventures/einvoice-preflight
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: PYTHONPATH=src python3 -m unittest discover -s tests
+
+  site-test:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ventures/einvoice-preflight
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - run: node --test
