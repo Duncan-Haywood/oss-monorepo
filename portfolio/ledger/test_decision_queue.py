@@ -186,6 +186,11 @@ class RealFile(unittest.TestCase):
             self.assertIn(d["gates"], GATES)
             self.assertIn(d["exposure"], EXPOSURES)
 
+    def test_product_prs_are_not_an_owner_decision(self):
+        ids = {d["id"] for d in load()}
+        self.assertNotIn("venture-gate-premise", ids)
+        self.assertNotIn("eaa-evidence-product-line", ids)
+
 
 if __name__ == "__main__":
     unittest.main()
