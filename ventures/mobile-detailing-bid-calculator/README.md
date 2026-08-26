@@ -1,6 +1,6 @@
 # Mobile Detailing Bid Calculator
 
-The free mobile detailing bid calculator shows the minimum quote and target-margin price for a mobile detail job after hands-on time, travel/setup/cleanup hours, loaded wage, round-trip miles, vehicle cost, supplies, overhead, and payment fees. After using this, you can price a job with its real travel burden, which used to take a spreadsheet and a second guess. A $180 default bid stays in the black when wage is left at 0; putting $28/hour plus 25% burden on the 4.25-hour stop turns it into a loss.
+The free mobile detailing bid calculator shows the minimum quote and target-margin price for a mobile detail job after hands-on time, travel/setup/cleanup hours, loaded wage, round-trip miles, vehicle cost, supplies, overhead, and payment fees. After using this, you can price a job with its real travel burden, which used to take a spreadsheet and a second guess. A $180 default bid stays in the black when wage is left at 0; putting $28/hour plus 25% burden on the 4.25-hour stop turns it into a loss. Fee and margin are both slices of the final price — the form names how much of the ticket they already claim, and it will not print a negative quote when they jointly exceed 100%.
 
 Open `index.html` in a browser. It runs without an account, network request, API key, or paid dependency. Numbers are saved only in the browser and can be shared as a URL when you choose to copy one.
 

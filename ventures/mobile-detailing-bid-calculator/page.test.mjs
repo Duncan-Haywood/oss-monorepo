@@ -104,7 +104,7 @@ test('the form exposes every default the calculator reads, including whole-stop 
   for (const id of required) {
     assert.ok(declaredIds.has(id), `missing #${id} for a default the calculator reads`);
   }
-  for (const id of ['totalHours', 'laborCost', 'effectiveRate', 'copyLink', 'reset', 'usageOptOut']) {
+  for (const id of ['totalHours', 'laborCost', 'effectiveRate', 'copyLink', 'reset', 'usageOptOut', 'claimHint']) {
     assert.ok(declaredIds.has(id), `missing result or action #${id}`);
   }
 });
@@ -136,6 +136,13 @@ test('the page handles an unreachable target instead of printing a negative pric
     'index.html formats targetQuote without checking it is finite; an unreachable target would print as $Infinity or as a negative quote',
   );
   assert.match(scriptSource, /unreachable/, 'no unreachable-target message found in the page script');
+});
+
+test('the form names the fee-plus-margin claim as the user types', () => {
+  assert.match(scriptSource, /claimNote/, 'the page does not render the live claim hint');
+  assert.match(scriptSource, /claim_conflict_shown/, 'the first conflict should be counted once');
+  assert.match(markup, /id="claimHint"/);
+  assert.match(markup, /aria-live="polite"/);
 });
 
 test('the disclaimer PRODUCT_PLAYBOOK 5b requires is on the page', () => {

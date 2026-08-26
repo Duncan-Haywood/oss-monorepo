@@ -56,21 +56,44 @@ export function calculateBid(input = {}) {
   // -$4,608.00"). At exactly 100% it returns Infinity. Neither is a quote.
   // Infinity is the house signal for "no price reaches this" — the eBay
   // calculator uses it the same way — and the page renders it as unreachable.
-  const targetDenominator = 1 - paymentRate / 100 - targetMargin / 100;
-  const targetQuote = targetDenominator <= 0
-    ? Infinity
-    : directCosts / targetDenominator;
+  const claimedSharePct = paymentRate + targetMargin;
+  const targetDenominator = 1 - claimedSharePct / 100;
+  const targetReachable = targetDenominator > 0;
+  const targetQuote = targetReachable
+    ? directCosts / targetDenominator
+    : Infinity;
   const proposedPrice = targetPrice;
   return {
     targetPrice, laborHours, travelHours, setupHours, cleanupHours, totalHours,
     travelMiles, vehicleRate, wage, burdenPercent, loadedLaborRate, laborCost,
-    supplies, overhead, paymentRate, targetMargin,
+    supplies, overhead, paymentRate, targetMargin, claimedSharePct, targetReachable,
     travelCost, directCosts, paymentFee, totalCost, contribution, margin, breakEven, targetQuote,
     proposedPrice, profit: proposedPrice - totalCost,
     marginAtProposed: proposedPrice === 0 ? 0 : (proposedPrice - totalCost) / proposedPrice * 100,
     effectiveHourly: contribution / laborHours,
     effectiveRate: totalHours === 0 ? 0 : contribution / totalHours,
   };
+}
+
+/**
+ * Live copy for the fee + margin pair. Both numbers are slices of the
+ * *final* price, so they can jointly claim the whole ticket while each
+ * input is still individually legal. Name the sum as the user types so
+ * the conflict is visible before they read a quote that cannot exist.
+ */
+export function claimNote(result) {
+  const claimed = Number(result.claimedSharePct);
+  const fee = Number(result.paymentRate);
+  const margin = Number(result.targetMargin);
+  if (![claimed, fee, margin].every(Number.isFinite)) {
+    return '';
+  }
+  const claimedLabel = claimed.toFixed(1);
+  const leftover = (100 - claimed).toFixed(1);
+  if (!result.targetReachable) {
+    return `These two already claim ${claimedLabel}% of the price (fee ${fee.toFixed(1)}% + margin ${margin.toFixed(1)}%). No quote can hit that target — lower one of them.`;
+  }
+  return `Fee and margin claim ${claimedLabel}% of the price, leaving ${leftover}% for job costs.`;
 }
 
 export { defaults };

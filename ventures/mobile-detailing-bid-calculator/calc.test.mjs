@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { calculateBid } from './calc.mjs';
+import { calculateBid, claimNote } from './calc.mjs';
 
 test('includes mobile travel and payment fee in the quote economics', () => {
   const result = calculateBid({ targetPrice: 180, laborHours: 3, travelMiles: 24, vehicleRate: .67, supplies: 18, overhead: 12, paymentRate: 3, targetMargin: 35 });
@@ -102,4 +102,17 @@ test('ordinary targets are unaffected by the guard', () => {
   assert.ok(Number.isFinite(result.targetQuote));
   // directCosts / (1 - 0.03 - 0.35), the same arithmetic as before.
   assert.equal(Number(result.targetQuote.toFixed(2)), Number((result.directCosts / 0.62).toFixed(2)));
+});
+
+test('claimed share is the sum of the two final-price slices', () => {
+  const ordinary = calculateBid({ paymentRate: 3, targetMargin: 35 });
+  assert.equal(ordinary.claimedSharePct, 38);
+  assert.equal(ordinary.targetReachable, true);
+  assert.match(claimNote(ordinary), /38\.0% of the price, leaving 62\.0%/);
+
+  const conflict = calculateBid({ paymentRate: 3, targetMargin: 98 });
+  assert.equal(conflict.claimedSharePct, 101);
+  assert.equal(conflict.targetReachable, false);
+  assert.match(claimNote(conflict), /already claim 101\.0%/);
+  assert.match(claimNote(conflict), /No quote can hit that target/);
 });
