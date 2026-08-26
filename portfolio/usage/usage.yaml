@@ -1949,6 +1949,14 @@ products:
           Added a spreadsheet-friendly, non-executable approval queue export to
           the read-only branch inventory CLI. Pilot demand and recurring use
           remain untested; no customer repository data is collected.
+      - as_of: 2026-08-26
+        signals:
+          live_url_visitors: null
+          landing_page_views: 0
+        note: >-
+          Added a static landing page so the CLI has a public entry once
+          Pages is enabled. Public URL remains owner-gated; no repository
+          data is collected.
 # Example of the shape, once a product has shipped:
 #
 # products:

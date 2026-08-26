@@ -272,5 +272,18 @@ class BranchHygieneTests(unittest.TestCase):
         self.assertIn("not legal, security, or compliance advice", result.stdout)
         self.assertIn("reviewing and verifying its", result.stdout)
 
+    def test_landing_page_is_discoverable_and_carries_disclaimers(self):
+        project = Path(__file__).parents[1]
+        page = (project / "index.html").read_text()
+        robots = (project / "robots.txt").read_text()
+        sitemap = (project / "sitemap.xml").read_text()
+        self.assertIn("Git branch cleanup report", page)
+        self.assertIn("No warranty", page)
+        self.assertIn("Best-effort hosting, no SLA", page)
+        self.assertIn("does not replace a qualified professional", page)
+        self.assertNotIn("safe to delete", page.lower())
+        self.assertIn("Allow: /", robots)
+        self.assertIn("repository-branch-hygiene", sitemap)
+
 if __name__ == "__main__":
     unittest.main()
