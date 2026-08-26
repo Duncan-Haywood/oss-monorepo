@@ -672,4 +672,18 @@ export const progressLog: ProgressEntry[] = [
       "Public URL is still owner-gated (deploy-settings). Do not add another trade bid calculator.",
     ],
   },
+  {
+    date: "2026-08-26",
+    agent: "cursor/listing-lens-photo-read-recovery-20260824",
+    summary:
+      "Made the Listing Lens browser preflight recover cleanly when a selected photo cannot be read.",
+    changes: [
+      "PhotoCheckTool now catches delayed File.arrayBuffer failures, stops the processing state, and renders an actionable alert without an unhandled rejection.",
+      "Added a focused regression test for specific and unknown read-error messages; research test command now runs both the photo-spec and component helper checks.",
+      "Kept the existing Markdown/JSON evidence downloads and reshoot list from main. No photo data, filenames, or error contents are sent to usage tracking.",
+    ],
+    nextUp: [
+      "Human: run the preflight against a real listing delivery after the first concierge shoot; the check remains a dated floor-spec observation, not an MLS acceptance guarantee.",
+    ],
+  },
 ];
