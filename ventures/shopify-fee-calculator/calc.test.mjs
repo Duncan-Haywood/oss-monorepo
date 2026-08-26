@@ -14,6 +14,7 @@ import {
   compareGiftCard,
   compareMarketsDuties,
   compareAbandonedCheckout,
+  compareSubscriptions,
   localDeliveryCost,
   DEFAULT_BANK_APR_PCT,
   DEFAULT_CAPITAL_ADVANCE,
@@ -60,6 +61,14 @@ import {
   DEFAULT_RECOVERY_DISCOUNT_PCT,
   DEFAULT_EMAIL_COST_PER_ABANDONED,
   DEFAULT_MONTHLY_ABANDONED,
+  DEFAULT_SUBSCRIBE_DISCOUNT_PCT,
+  DEFAULT_PREPAID_DISCOUNT_PCT,
+  DEFAULT_PREPAID_MONTHS,
+  DEFAULT_SUBSCRIPTION_FEE_PCT,
+  DEFAULT_EXPECTED_CYCLES,
+  DEFAULT_SKIP_PCT,
+  DEFAULT_SUBSCRIBE_ENROLL_PCT,
+  DEFAULT_MONTHLY_SUB_BUYERS,
   PLAN_PRESETS,
 } from "./calc.mjs";
 
@@ -1266,4 +1275,121 @@ test("summary names the abandoned leftover and does not tell you to send emails"
   assert.match(text, /14\.1%/);
   assert.match(text, /\$231\.23/);
   assert.doesNotMatch(text, /should send|must offer|turn on emails|turn on recovery/i);
+});
+
+const SUB_BASE = {
+  price: 48,
+  shippingCharged: 6,
+  paymentsRate: 2.9,
+  paymentsFixed: 0.3,
+  costOfGoods: 14,
+  shippingCost: 5,
+  packagingCost: 1,
+  monthlyPlan: 39,
+  monthlyOrders: 100,
+  paymentMethod: "shopify_payments",
+};
+
+test("defaults match the published subscription starting points", () => {
+  assert.equal(DEFAULT_SUBSCRIBE_DISCOUNT_PCT, 10);
+  assert.equal(DEFAULT_PREPAID_DISCOUNT_PCT, 15);
+  assert.equal(DEFAULT_PREPAID_MONTHS, 3);
+  assert.equal(DEFAULT_SUBSCRIPTION_FEE_PCT, 1);
+  assert.equal(DEFAULT_EXPECTED_CYCLES, 5);
+  assert.equal(DEFAULT_SKIP_PCT, 20);
+  assert.equal(DEFAULT_SUBSCRIBE_ENROLL_PCT, 25);
+  assert.equal(DEFAULT_MONTHLY_SUB_BUYERS, 80);
+});
+
+test("monthly subscribe keeps more than one-time after four paid cycles", () => {
+  // List ticket $54. Fees $1.866. Cash $20.39. One-time leftover $31.744.
+  // Subscribe item $43.20, ticket $49.20. Fees $1.7268. 1% billing $0.492.
+  // Cycle leftover $26.5912. 5 months × 20% skip → 4 paid cycles → $106.3648.
+  // Prepaid 15% item $40.80 × 3 + $18 shipping = $140.40. Fees $4.3716.
+  // Billing $1.404. Cash $60.39 (3 fulfillments, one plan share). Leftover $74.2344.
+  const r = compareSubscriptions(SUB_BASE);
+  near(r.ticket, 54, "ticket");
+  near(r.monthlyTicket, 49.2, "monthly ticket");
+  near(r.prepaidTicket, 140.4, "prepaid ticket");
+  near(r.monthlyPrice, 43.2, "monthly item");
+  near(r.prepaidPrice, 40.8, "prepaid item");
+  near(r.oneTime.lifetime, 31.744, "one-time leftover");
+  near(r.monthly.cycleProfit, 26.5912, "monthly cycle");
+  near(r.monthly.lifetime, 106.3648, "monthly lifetime");
+  near(r.prepaid.lifetime, 74.2344, "prepaid leftover");
+  near(r.paidCycles, 4, "paid cycles");
+  near(r.monthlyAppFee, 0.492, "monthly billing fee");
+  near(r.prepaidAppFee, 1.404, "prepaid billing fee");
+  near(r.extraOnMonthlyVsOneTime, 74.6208, "monthly minus one-time");
+  near(r.extraOnPrepaidVsMonthly, -32.1304, "prepaid minus monthly");
+  near(r.extraOnPrepaidVsOneTime, 42.4904, "prepaid minus one-time");
+  near(r.mixedLifetime, 50.3992, "25% enroll mix");
+  near(r.extraOnEnrollVsOneTime, 18.6552, "enroll minus one-time");
+  near(r.monthlyExtraOnEnrollVsOneTime, 1492.416, "80 buyers");
+  near(r.breakEvenPaidCycles, 1.1937783928517705, "paid-cycle floor");
+  near(r.breakEvenSkipPct, 76.1244321429646, "skip ceiling");
+  near(r.breakEvenAppFeePct, 38.91707317073171, "billing-fee ceiling");
+  assert.equal(r.winner, "monthly");
+  assert.ok(r.monthly.lifetime > r.prepaid.lifetime, "monthly wins the default stay");
+  assert.ok(r.prepaid.lifetime > r.oneTime.lifetime, "prepaid still beats one-time");
+});
+
+test("one paid cycle with a 20% one-month prepaid flips the table to one-time", () => {
+  const r = compareSubscriptions({
+    ...SUB_BASE,
+    expectedCycles: 1,
+    skipPct: 0,
+    prepaidMonths: 1,
+    prepaidDiscountPct: 20,
+  });
+  near(r.monthly.lifetime, 26.5912, "one-cycle monthly");
+  near(r.prepaid.lifetime, 21.9784, "one-month 20% prepaid");
+  assert.ok(r.oneTime.lifetime > r.monthly.lifetime, "one-time keeps more after one cycle");
+  assert.equal(r.winner, "one_time");
+});
+
+test("an 80% skip rate flips the table to the prepaid pack", () => {
+  const r = compareSubscriptions({ ...SUB_BASE, skipPct: 80 });
+  near(r.paidCycles, 1, "one paid cycle after skip");
+  near(r.monthly.lifetime, 26.5912, "monthly at one paid cycle");
+  assert.ok(r.prepaid.lifetime > r.oneTime.lifetime, "prepaid still beats one-time");
+  assert.ok(r.prepaid.lifetime > r.monthly.lifetime, "prepaid beats a one-cycle stay");
+  assert.equal(r.winner, "prepaid");
+});
+
+test("empty subscription fields use the published defaults", () => {
+  const r = compareSubscriptions(SUB_BASE);
+  near(r.subscribeDiscountPct, DEFAULT_SUBSCRIBE_DISCOUNT_PCT, "default subscribe discount");
+  near(r.prepaidDiscountPct, DEFAULT_PREPAID_DISCOUNT_PCT, "default prepaid discount");
+  near(r.prepaidMonths, DEFAULT_PREPAID_MONTHS, "default prepaid months");
+  near(r.subscriptionFeePct, DEFAULT_SUBSCRIPTION_FEE_PCT, "default billing fee");
+  near(r.expectedCycles, DEFAULT_EXPECTED_CYCLES, "default stay");
+  near(r.skipPct, DEFAULT_SKIP_PCT, "default skip");
+  near(r.enrollPct, DEFAULT_SUBSCRIBE_ENROLL_PCT, "default enroll");
+  near(r.monthlyBuyers, DEFAULT_MONTHLY_SUB_BUYERS, "default buyers");
+});
+
+test("compareSubscriptions rejects a discount over 100 and a zero stay", () => {
+  assert.throws(() => compareSubscriptions({ ...SUB_BASE, subscribeDiscountPct: 101 }), /Subscribe discount percent/);
+  assert.throws(() => compareSubscriptions({ ...SUB_BASE, prepaidDiscountPct: 120 }), /Prepaid discount percent/);
+  assert.throws(() => compareSubscriptions({ ...SUB_BASE, subscriptionFeePct: 101 }), /Subscription fee percent/);
+  assert.throws(() => compareSubscriptions({ ...SUB_BASE, skipPct: 120 }), /Skip percent/);
+  assert.throws(() => compareSubscriptions({ ...SUB_BASE, expectedCycles: 0 }), /greater than zero/);
+  assert.throws(() => compareSubscriptions({ ...SUB_BASE, prepaidMonths: 0 }), /at least 1/);
+  assert.throws(() => compareSubscriptions({ ...SUB_BASE, monthlySubscriptionBuyers: 0 }), /greater than zero/);
+});
+
+test("summary names the subscription leftover and does not tell you to turn subscriptions on", () => {
+  const text = compareSubscriptions(SUB_BASE).summary;
+  assert.match(text, /\$31\.74/);
+  assert.match(text, /\$26\.59/);
+  assert.match(text, /\$106\.36/);
+  assert.match(text, /\$74\.62/);
+  assert.match(text, /\$74\.23/);
+  assert.match(text, /\$32\.13/);
+  assert.match(text, /1\.2/);
+  assert.match(text, /76\.1%/);
+  assert.match(text, /38\.9%/);
+  assert.match(text, /\$1492\.42/);
+  assert.doesNotMatch(text, /should offer|must offer|turn on subscriptions|turn on selling plans/i);
 });

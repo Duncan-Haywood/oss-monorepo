@@ -2137,3 +2137,275 @@ export function compareAbandonedCheckout(input) {
     }),
   };
 }
+
+/**
+ * Illustrative Shopify subscription defaults. The subscribe-and-save
+ * percent, prepaid percent, app / billing fee, stay length, and skip
+ * rate are inputs — not Recharge, Skio, or Shopify Selling Plan
+ * policy. 10% / 15% / 1% / 5 months / 20% skip is a consumable-adjacent
+ * mix a merchant overwrites from their own subscription report.
+ */
+export const DEFAULT_SUBSCRIBE_DISCOUNT_PCT = 10;
+export const DEFAULT_PREPAID_DISCOUNT_PCT = 15;
+export const DEFAULT_PREPAID_MONTHS = 3;
+export const DEFAULT_SUBSCRIPTION_FEE_PCT = 1;
+export const DEFAULT_EXPECTED_CYCLES = 5;
+export const DEFAULT_SKIP_PCT = 20;
+export const DEFAULT_SUBSCRIBE_ENROLL_PCT = 25;
+export const DEFAULT_MONTHLY_SUB_BUYERS = 80;
+
+function subscriptionPath({ id, label, units, cycleProfit, lifetime, appFee }) {
+  return {
+    id,
+    label,
+    units,
+    cycleProfit,
+    lifetime,
+    appFee,
+  };
+}
+
+function subscriptionsSummary({
+  oneTime,
+  monthly,
+  prepaid,
+  extraOnMonthlyVsOneTime,
+  extraOnPrepaidVsMonthly,
+  monthlyExtraOnEnrollVsOneTime,
+  breakEvenPaidCycles,
+  breakEvenSkipPct,
+  breakEvenAppFeePct,
+  subscribeDiscountPct,
+  prepaidDiscountPct,
+  prepaidMonths,
+  subscriptionFeePct,
+  paidCycles,
+}) {
+  const oneLine = `A one-time checkout keeps ${moneyLabel(oneTime.lifetime)}.`;
+  const monthlyGap = moneyLabel(Math.abs(extraOnMonthlyVsOneTime));
+  const monthlyAhead = extraOnMonthlyVsOneTime >= 0 ? "more" : "less";
+  const monthlyLine = ` Monthly subscribe at ${subscribeDiscountPct}% off plus a ${subscriptionFeePct}% billing fee keeps ${moneyLabel(monthly.cycleProfit)} a paid cycle — ${moneyLabel(monthly.lifetime)} across ${paidCycles.toFixed(1)} paid cycles (${monthlyGap} ${monthlyAhead}).`;
+  const prepaidGap = moneyLabel(Math.abs(extraOnPrepaidVsMonthly));
+  const prepaidAhead = extraOnPrepaidVsMonthly >= 0 ? "more" : "less";
+  const prepaidLine = ` A prepaid ${prepaidMonths}-month pack at ${prepaidDiscountPct}% off keeps ${moneyLabel(prepaid.lifetime)} — ${prepaidGap} ${prepaidAhead} than monthly.`;
+  const cycleFloor = Number.isFinite(breakEvenPaidCycles)
+    ? ` Monthly has to land about ${breakEvenPaidCycles.toFixed(1)} paid cycles before it matches one-time.`
+    : " No stay length on this leftover can match one-time.";
+  const skipCeil = Number.isFinite(breakEvenSkipPct)
+    ? ` Skip can rise to about ${breakEvenSkipPct.toFixed(1)}% before monthly matches one-time.`
+    : "";
+  const feeCeil = Number.isFinite(breakEvenAppFeePct)
+    ? ` The billing fee can rise to about ${breakEvenAppFeePct.toFixed(1)}% before monthly matches one-time.`
+    : "";
+  const month = Math.abs(monthlyExtraOnEnrollVsOneTime) > 1e-9
+    ? ` Across the typed month the enroll mix keeps ${moneyLabel(Math.abs(monthlyExtraOnEnrollVsOneTime))} ${monthlyExtraOnEnrollVsOneTime >= 0 ? "more" : "less"} than selling every buyer one-time.`
+    : "";
+  return `${oneLine}${monthlyLine}${prepaidLine}${cycleFloor}${skipCeil}${feeCeil}${month}`;
+}
+
+/**
+ * Same SKU, three ways leftover can land when a merchant turns on
+ * subscriptions.
+ *
+ *   - One-time — leftover of one completed checkout.
+ *   - Monthly subscribe — typed percent off plus a billing / app fee
+ *     on each paid cycle, times stay length after skip.
+ *   - Prepaid pack — deeper percent off, one swipe for N units, one
+ *     plan allocation, N fulfillments.
+ *
+ * Complementary to Shop Pay Installments (those are one checkout),
+ * abandoned-checkout recovery (they already left), and gift cards
+ * (stored value, not a recurring SKU). Rates and the billing fee are
+ * inputs, not Recharge / Skio / Shopify Selling Plan policy.
+ */
+export function compareSubscriptions(input) {
+  const subscribeDiscountPct = emptyField(input.subscribeDiscountPct)
+    ? DEFAULT_SUBSCRIBE_DISCOUNT_PCT
+    : ratePercent(input.subscribeDiscountPct, "Subscribe discount percent");
+  const prepaidDiscountPct = emptyField(input.prepaidDiscountPct)
+    ? DEFAULT_PREPAID_DISCOUNT_PCT
+    : ratePercent(input.prepaidDiscountPct, "Prepaid discount percent");
+  const prepaidMonths = emptyField(input.prepaidMonths)
+    ? DEFAULT_PREPAID_MONTHS
+    : number(input.prepaidMonths, "Prepaid months");
+  const subscriptionFeePct = emptyField(input.subscriptionFeePct)
+    ? DEFAULT_SUBSCRIPTION_FEE_PCT
+    : ratePercent(input.subscriptionFeePct, "Subscription fee percent");
+  const expectedCycles = emptyField(input.expectedCycles)
+    ? DEFAULT_EXPECTED_CYCLES
+    : number(input.expectedCycles, "Expected cycles");
+  const skipPct = emptyField(input.skipPct)
+    ? DEFAULT_SKIP_PCT
+    : ratePercent(input.skipPct, "Skip percent");
+  const enrollPct = emptyField(input.subscribeEnrollPct)
+    ? DEFAULT_SUBSCRIBE_ENROLL_PCT
+    : ratePercent(input.subscribeEnrollPct, "Subscribe enroll percent");
+  const monthlyBuyers = emptyField(input.monthlySubscriptionBuyers)
+    ? DEFAULT_MONTHLY_SUB_BUYERS
+    : number(input.monthlySubscriptionBuyers, "Monthly buyers");
+  if (prepaidMonths < 1) {
+    throw new Error("Prepaid months must be at least 1");
+  }
+  if (expectedCycles === 0) {
+    throw new Error("Expected cycles must be greater than zero");
+  }
+  if (monthlyBuyers === 0) {
+    throw new Error("Monthly buyers must be greater than zero");
+  }
+
+  const listedPrice = number(input.price, "Item price");
+  const shippingCharged = number(input.shippingCharged, "Shipping charged");
+  const costOfGoods = number(input.costOfGoods, "Cost of goods");
+  const shippingCost = number(input.shippingCost, "Shipping cost");
+  const packagingCost = number(input.packagingCost, "Packaging cost");
+  const otherCost = number(input.otherCost, "Other cost");
+
+  const oneTimeOrder = calculateOrder(input);
+  const oneTimeProfit = oneTimeOrder.selected.profit;
+  const paidCycles = expectedCycles * (1 - skipPct / 100);
+
+  const monthlyPrice = listedPrice * (1 - subscribeDiscountPct / 100);
+  const monthlyOrder = calculateOrder({ ...input, price: monthlyPrice });
+  const monthlyTicket = monthlyOrder.revenue;
+  const monthlyAppFee = monthlyTicket * (subscriptionFeePct / 100);
+  const monthlyCycleProfit = monthlyOrder.selected.profit - monthlyAppFee;
+  const monthlyLifetime = monthlyCycleProfit * paidCycles;
+
+  const prepaidPrice = listedPrice * (1 - prepaidDiscountPct / 100);
+  const prepaidOrder = calculateOrder({
+    ...input,
+    price: prepaidPrice * prepaidMonths,
+    shippingCharged: shippingCharged * prepaidMonths,
+    costOfGoods: costOfGoods * prepaidMonths,
+    shippingCost: shippingCost * prepaidMonths,
+    packagingCost: packagingCost * prepaidMonths,
+    otherCost: otherCost * prepaidMonths,
+  });
+  const prepaidTicket = prepaidOrder.revenue;
+  const prepaidAppFee = prepaidTicket * (subscriptionFeePct / 100);
+  const prepaidProfit = prepaidOrder.selected.profit - prepaidAppFee;
+
+  const oneTime = subscriptionPath({
+    id: "one_time",
+    label: "One-time checkout",
+    units: 1,
+    cycleProfit: oneTimeProfit,
+    lifetime: oneTimeProfit,
+    appFee: 0,
+  });
+  const monthly = subscriptionPath({
+    id: "monthly",
+    label: "Monthly subscribe",
+    units: paidCycles,
+    cycleProfit: monthlyCycleProfit,
+    lifetime: monthlyLifetime,
+    appFee: monthlyAppFee,
+  });
+  const prepaid = subscriptionPath({
+    id: "prepaid",
+    label: `Prepaid ${prepaidMonths}-month pack`,
+    units: prepaidMonths,
+    cycleProfit: prepaidProfit / prepaidMonths,
+    lifetime: prepaidProfit,
+    appFee: prepaidAppFee,
+  });
+
+  const extraOnMonthlyVsOneTime = monthly.lifetime - oneTime.lifetime;
+  const extraOnPrepaidVsMonthly = prepaid.lifetime - monthly.lifetime;
+  const extraOnPrepaidVsOneTime = prepaid.lifetime - oneTime.lifetime;
+  const mixedLifetime = oneTime.lifetime * (1 - enrollPct / 100)
+    + monthly.lifetime * (enrollPct / 100);
+  const extraOnEnrollVsOneTime = mixedLifetime - oneTime.lifetime;
+  const monthlyExtraOnEnrollVsOneTime = extraOnEnrollVsOneTime * monthlyBuyers;
+  const monthlyExtraOnMonthlyVsOneTime = extraOnMonthlyVsOneTime * monthlyBuyers;
+
+  const rows = [oneTime, monthly, prepaid].map((row) => ({
+    ...row,
+    vsOneTime: row.lifetime - oneTime.lifetime,
+  }));
+
+  const lifetimeValues = [oneTime.lifetime, monthly.lifetime, prepaid.lifetime];
+  const bestLifetime = Math.max(...lifetimeValues);
+  const winnerIds = [
+    { id: "one_time", value: oneTime.lifetime },
+    { id: "monthly", value: monthly.lifetime },
+    { id: "prepaid", value: prepaid.lifetime },
+  ].filter((row) => Math.abs(row.value - bestLifetime) <= 1e-9);
+  const winner = winnerIds.length === 1 ? winnerIds[0].id : "tie";
+
+  let breakEvenPaidCycles = Infinity;
+  if (monthlyCycleProfit > 1e-12) {
+    const needed = oneTimeProfit / monthlyCycleProfit;
+    breakEvenPaidCycles = needed < -1e-9 ? Infinity : needed;
+  }
+
+  let breakEvenSkipPct = Infinity;
+  if (monthlyCycleProfit > 1e-12 && expectedCycles > 1e-12) {
+    const paidNeeded = oneTimeProfit / monthlyCycleProfit;
+    const rate = (1 - paidNeeded / expectedCycles) * 100;
+    breakEvenSkipPct = rate < -1e-9 || rate > 100 + 1e-9
+      ? Infinity
+      : Math.max(0, Math.min(100, rate));
+  }
+
+  let breakEvenAppFeePct = Infinity;
+  if (paidCycles > 1e-12 && monthlyTicket > 1e-12) {
+    const neededCycle = oneTimeProfit / paidCycles;
+    const maxAppFee = monthlyTicket - monthlyOrder.selected.feeTotal
+      - monthlyOrder.selected.cashInvested - neededCycle;
+    const rate = maxAppFee / monthlyTicket * 100;
+    breakEvenAppFeePct = rate < -1e-9 || rate > 100 + 1e-9
+      ? Infinity
+      : Math.max(0, Math.min(100, rate));
+  }
+
+  return {
+    rows,
+    oneTime: rows[0],
+    monthly: rows[1],
+    prepaid: rows[2],
+    ticket: oneTimeOrder.revenue,
+    monthlyTicket,
+    prepaidTicket,
+    monthlyPrice,
+    prepaidPrice,
+    subscribeDiscountPct,
+    prepaidDiscountPct,
+    prepaidMonths,
+    subscriptionFeePct,
+    expectedCycles,
+    skipPct,
+    paidCycles,
+    enrollPct,
+    monthlyBuyers,
+    monthlyAppFee,
+    prepaidAppFee,
+    extraOnMonthlyVsOneTime,
+    extraOnPrepaidVsMonthly,
+    extraOnPrepaidVsOneTime,
+    mixedLifetime,
+    extraOnEnrollVsOneTime,
+    monthlyExtraOnEnrollVsOneTime,
+    monthlyExtraOnMonthlyVsOneTime,
+    breakEvenPaidCycles,
+    breakEvenSkipPct,
+    breakEvenAppFeePct,
+    winner,
+    summary: subscriptionsSummary({
+      oneTime: rows[0],
+      monthly: rows[1],
+      prepaid: rows[2],
+      extraOnMonthlyVsOneTime,
+      extraOnPrepaidVsMonthly,
+      monthlyExtraOnEnrollVsOneTime,
+      breakEvenPaidCycles,
+      breakEvenSkipPct,
+      breakEvenAppFeePct,
+      subscribeDiscountPct,
+      prepaidDiscountPct,
+      prepaidMonths,
+      subscriptionFeePct,
+      paidCycles,
+    }),
+  };
+}

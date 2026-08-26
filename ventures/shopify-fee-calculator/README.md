@@ -73,6 +73,10 @@ on the duty and the refuse leftover.
 answers the recovery question: whether leaving the checkout still beats
 recovery emails or emails plus an item coupon after the send cost and
 the cheaper ticket.
+[Should I offer subscriptions on Shopify?](should-i-offer-subscriptions-on-shopify.html)
+answers the subscribe-and-save question: whether a monthly leftover
+after the discount, billing fee, and skip rate still beats a one-time
+checkout, and when a prepaid pack keeps more.
 
 **After using the POS page, you can now see whether a market table or
 retail tap keeps more than checkout on that SKU** — which used to mean
@@ -129,6 +133,11 @@ recovery emails or a 10% coupon still beat leaving the checkout after
 the send cost** — which used to mean turning on Shopify Email because
 a $54 ticket that already walked away looked like free leftover.
 
+**After using the subscription page, you can now see whether a 10%
+subscribe-and-save still beats a one-time checkout after the billing
+fee and skip rate** — which used to mean turning on Recharge because
+a subscriber who stays looked free.
+
 **No warranty.** This tool is provided free and as-is, without warranty of any
 kind, express or implied. It is not tax, financial, or business advice, and it
 does not replace a qualified professional. **You are responsible for reviewing
@@ -162,7 +171,7 @@ optional and never changes what the tool does.
 Pure ES modules, no build step, no dependencies.
 
 ```
-node --test        # calc, usage, POS / label / installment / return / Capital / bank-transfer / chargeback / local-delivery / gift-card / Markets-duties / abandoned-checkout page tests
+node --test        # calc, usage, POS / label / installment / return / Capital / bank-transfer / chargeback / local-delivery / gift-card / Markets-duties / abandoned-checkout / subscription page tests
 ```
 
 `calc.mjs` holds the fee/profit/ROI arithmetic and plan presets; `usage.mjs`
