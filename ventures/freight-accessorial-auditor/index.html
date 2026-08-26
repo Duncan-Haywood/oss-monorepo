@@ -40,6 +40,11 @@
     #importIssues{margin:8px 0 0;padding-left:18px;color:#9a3412}
     .tablewrap{overflow-x:auto}
     @media(max-width:720px){.results{grid-template-columns:1fr}th:nth-child(2),td:nth-child(2){display:none}}
+      /* A grid item defaults to min-width:auto and grows to its widest child, so a
+       wide results table pushed the whole page sideways on a phone instead of
+       scrolling inside its own box, dragging the inputs off-screen with it. */
+    .results > *, .panel { min-width: 0; }
+    @media (max-width: 720px) { .panel { overflow-x: auto; } table { max-width: 100%; } }
   </style>
 </head>
 <body>

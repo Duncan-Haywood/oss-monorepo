@@ -21,7 +21,11 @@
     .pair{display:grid;grid-template-columns:1fr 1fr;gap:.6rem}.actions{display:flex;gap:.5rem;flex-wrap:wrap}.actions button{flex:1;min-width:130px}
     .hint,.privacy,footer,.fine{font-size:.88rem;color:var(--muted)}#message{min-height:1.5rem;color:var(--danger);font-weight:650}
     .summary{display:flex;gap:.6rem;flex-wrap:wrap;margin-bottom:1rem}.stat{background:#e6eee5;border-radius:9px;padding:.7rem 1rem}.stat strong{display:block;font-size:1.4rem}
-    .table-wrap{overflow:auto}table{width:100%;border-collapse:collapse;min-width:760px}th,td{text-align:left;padding:.7rem .45rem;border-bottom:1px solid var(--line)}th{font-size:.8rem;color:var(--muted);text-transform:uppercase}
+    /* A grid item defaults to min-width:auto, so it grows to its widest content
+       and the 760px table pushes the whole page sideways instead of scrolling
+       inside its own box. On a phone that drags the input column off-screen. */
+    .grid>*,.card{min-width:0}
+    .table-wrap{overflow-x:auto;min-width:0}table{width:100%;border-collapse:collapse;min-width:760px}th,td{text-align:left;padding:.7rem .45rem;border-bottom:1px solid var(--line)}th{font-size:.8rem;color:var(--muted);text-transform:uppercase}
     .overdue{color:var(--danger);font-weight:700}.soon{color:var(--warn);font-weight:700}.empty{text-align:center;color:var(--muted);padding:2rem}
     .risk{margin-top:1rem}.risk table{min-width:0}#riskMessage{min-height:1.5rem;color:var(--danger);font-weight:650}#riskNote{white-space:pre-wrap}
     footer{border-top:1px solid var(--line);margin-top:2rem;padding-top:1.2rem}
