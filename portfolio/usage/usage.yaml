@@ -22,6 +22,26 @@ products:
           current main, plus 2/10 Net 30 vs waiting after carrying cost.
           Public URL remains owner-gated; the local-first counter reports only
           to the user's own browser and is opt-out. Baseline row.
+      - as_of: 2026-08-26
+        signals:
+          live_url_visitors: null
+          calculation: 0
+          terms_copied: 0
+          draft_saved: 0
+          draft_loaded: 0
+          early_pay_compared: 0
+          schedule_compared: 0
+          schedule_copied: 0
+        note: >-
+          Added the billing-schedule comparison: how much finished work a
+          deposit or milestone split leaves unpaid on handover day, and what
+          financing the rest costs. `schedule_compared` is counted separately
+          from `calculation` and `early_pay_compared` on purpose — the question
+          it exists to answer is whether freelancers engage with the schedule
+          decision at all, or only ever price the invoice they have already
+          decided to send. Still zero on every row: the public URL remains
+          owner-gated on `deploy-settings`, so no reading here can be anything
+          but a baseline.
   - slug: portfolio-pages
     surface: github-pages-artifact
     readings:

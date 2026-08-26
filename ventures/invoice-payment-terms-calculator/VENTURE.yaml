@@ -1,5 +1,5 @@
 name: invoice-payment-terms-calculator
-description: Free browser calculator that turns an invoice amount, payment terms, and late-fee policy into a due date, cash-flow exposure, copyable payment-terms wording, and whether a 2/10 Net 30 discount still beats waiting after carrying cost.
+description: Free browser calculator that turns an invoice amount, payment terms, and late-fee policy into a due date, cash-flow exposure, copyable payment-terms wording, whether a 2/10 Net 30 discount still beats waiting after carrying cost, and how much finished work a deposit or milestone billing schedule leaves unpaid on handover day.
 
 stage: prototype
 owner: duncan
@@ -12,6 +12,11 @@ hypotheses:
     status: untested
     checked: null
     evidence: customer-contact
+  - claim: Freelancers deciding a billing schedule care more about how much finished work is unpaid on handover day than about the financing cost of the float, and will engage with the deposit comparison separately from the single-invoice tools.
+    status: untested
+    checked: null
+    evidence: customer-contact
+    measure: schedule_compared fires independently of calculation and early_pay_compared once a public URL exists.
 economics:
   currency: USD
   mrr: null
