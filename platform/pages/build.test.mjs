@@ -46,6 +46,25 @@ async function site() {
 
 const read = async (...parts) => fs.readFile(path.join((await site()).outDir, ...parts), 'utf8');
 
+/**
+ * Every off-origin URL the given HTML would *fetch* on load, as opposed to
+ * link to. `src` covers scripts, images and frames; a <link> that fetches --
+ * a stylesheet, an icon, a preload, a web manifest -- carries its URL in
+ * `href`, which is indistinguishable by attribute from an ordinary anchor, so
+ * the `rel` is what separates them.
+ */
+const FETCHING_REL = /^(icon|alternate icon|shortcut icon|mask-icon|apple-touch-icon|stylesheet|preload|prefetch|preconnect|dns-prefetch|manifest)$/i;
+
+function offOriginResources(html) {
+  return [
+    ...[...html.matchAll(/src="(https?:\/\/[^"]+)"/g)].map((m) => m[1]),
+    ...[...html.matchAll(/<link\b[^>]*>/g)]
+      .filter((m) => FETCHING_REL.test((m[0].match(/rel="([^"]*)"/)?.[1] ?? '').trim()))
+      .map((m) => m[0].match(/href="([^"]*)"/)?.[1] ?? '')
+      .filter((href) => /^https?:\/\//.test(href)),
+  ];
+}
+
 const exists = (target) => fs.access(target).then(() => true, () => false);
 
 /** The path component of a base URL, without the leading slash. */
@@ -314,10 +333,42 @@ test('usage counting is local, opt-out, and honours browser signals', async () =
 test('the hub makes no off-origin request', async () => {
   const hub = await read('index.html');
   const external = [...hub.matchAll(/(?:src|href)="(https?:\/\/[^"]+)"/g)].map((m) => m[1]);
-  // Links a visitor clicks are fine; a resource the page loads is not.
-  const loaded = [...hub.matchAll(/src="(https?:\/\/[^"]+)"/g)].map((m) => m[1]);
+  const loaded = offOriginResources(hub);
   assert.deepEqual(loaded, [], `the hub loads off-origin resources: ${loaded.join(', ')}`);
   assert.ok(external.every((url) => url.startsWith('https://')), 'no plaintext http links');
+});
+
+test('the off-origin check sees resources fetched by <link>, not just src', () => {
+  // The check above passes on an empty result, so it is only worth as much as
+  // its ability to fail. This plants each way a page can reach off-origin and
+  // asserts every one is caught -- in particular the <link> forms, which an
+  // earlier version of this check missed because it matched only `src`. A
+  // stylesheet or icon on someone else's host announces the visit of everyone
+  // who opens a fee calculator, which is the opposite of what README.md
+  // promises about this page.
+  const planted = `
+    <link rel="stylesheet" href="https://cdn.example.com/reset.css">
+    <link rel="icon" href="https://cdn.example.com/favicon.ico">
+    <link rel="preconnect" href="https://fonts.example.com">
+    <link rel="manifest" href="https://cdn.example.com/app.webmanifest">
+    <script src="https://cdn.example.com/analytics.js"></script>
+  `;
+  assert.deepEqual(offOriginResources(planted).sort(), [
+    'https://cdn.example.com/analytics.js',
+    'https://cdn.example.com/app.webmanifest',
+    'https://cdn.example.com/favicon.ico',
+    'https://cdn.example.com/reset.css',
+    'https://fonts.example.com',
+  ]);
+
+  // A link a visitor clicks is not a resource the page loads, and neither is a
+  // same-origin one -- flagging those would make the check noise and get it
+  // switched off.
+  assert.deepEqual(offOriginResources(`
+    <a href="https://github.com/sponsors/Duncan-Haywood">Sponsor</a>
+    <link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/">
+    <link rel="icon" href="favicon.ico">
+  `), []);
 });
 
 // ---------------------------------------------------------------------------
