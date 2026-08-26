@@ -52,7 +52,7 @@ test('the module script survives parsing and would actually execute', () => {
   assert.match(scriptSource, /compareScope/, 'scope comparison is missing from the executable script');
   assert.match(scriptSource, /compareTub/, 'tub comparison is missing from the executable script');
   assert.match(scriptSource, /compareOwnerSupply/, 'owner-supply comparison is missing from the executable script');
-  assert.match(scriptSource, /ownerSupplyNote/, 'owner-supply note is missing from the executable script');
+  assert.match(scriptSource, /ownerSupplyNote/, 'owner-supply verdict is missing from the executable script');
   assert.match(scriptSource, /formatBidSummary/, 'copy-summary helper is missing from the executable script');
 });
 
@@ -105,14 +105,17 @@ test('the SEO article answers the search phrase and points back to the calculato
   assert.match(seo, /should-i-install-a-customer-supplied-walk-in-tub\.html/);
 });
 
-test('the customer-supplied SEO page walks the $1,499 special and points back', () => {
+test('the owner-supply article answers the search phrase and stays crawlable', () => {
   assert.match(supplySeo, /Should I install a customer-supplied walk-in tub/i);
   assert.match(supplySeo, /FAQPage/);
-  assert.match(supplySeo, /\$1,499/);
-  assert.match(supplySeo, /\$2,082\.34/);
-  assert.match(supplySeo, /\$8,640\.43/);
-  assert.match(supplySeo, /index.html/);
+  assert.match(supplySeo, /\$995/);
+  assert.match(supplySeo, /wrong drain/i);
+  assert.match(supplySeo, /index\.html/);
   assert.match(supplySeo, /No warranty/);
-  assert.match(supplySeo, /walk-in shower/i);
-  assert.match(supplySeo, /stair lift/i);
+  assert.match(supplySeo, /no SLA/i);
+  assert.doesNotMatch(supplySeo, /<textarea/i);
+});
+
+test('the landing page links the customer-supplied tub question', () => {
+  assert.match(html, /should-i-install-a-customer-supplied-walk-in-tub\.html/);
 });

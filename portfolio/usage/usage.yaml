@@ -34,6 +34,11 @@ products:
           live_url_visitors: null
           returns_sensitivity_views: 0
         note: Added a return-rate sweep that names the flip versus in-house; public URL remains owner-gated.
+      - as_of: 2026-08-26
+        signals:
+          live_url_visitors: null
+          aged_storage_compared: 0
+        note: Added leftover long-term storage vs liquidate vs the quote as written; public URL remains owner-gated.
   - slug: shopify-permission-drift
     surface: static-page-in-repo
     readings:
@@ -533,15 +538,16 @@ products:
       - as_of: 2026-08-26
         signals:
           live_url_visitors: null
-          owner_supply_compared: 0
+          local_events_reported: 0
         note: >-
-          Added you-supply vs owner-supplied vs wrong-unit/drain
-          callback on the existing walk-in tub calculator. Expected
-          keep scores the $1,499 just-set special against each cost
-          base. Complementary to alcove/unit compares and distinct
-          from stair-lift (#1607: a chair on a rail), walk-in shower
-          (tile), and toilet (a commode). Public URL remains
-          owner-gated (`deploy-settings`).
+          Added contractor-supplied vs owner-supplied-it-fits vs
+          owner-supplied-wrong-drain on the same alcove, plus a
+          should-i-install-a-customer-supplied-walk-in-tub page. Default
+          cheap special: $995 install-only still loses about $2,011 when
+          you supply the soaker, keeps about $117 when they bought a
+          unit that fits (walk-away about $878), and loses about $362
+          when the drain does not line up (walk-away about $1,357).
+          Public URL remains owner-gated.
   - slug: stair-lift-bid-calculator
     surface: static-page-in-repo
     readings:

@@ -21,6 +21,13 @@
 // and a pad), *toilet replacement* (a commode swap), and
 // *water-heater* (a tank). This prices a walk-in tub: the
 // alcove, the unit, the door, and the extras.
+//
+// Owners also shop a second special: “I already bought one
+// on Amazon — just install it for $995.” Zeroing the tub
+// invoice is not a free set. Setting their unit still takes
+// hours. A drain that does not line up, a missing overflow
+// kit, or a door seal they expect you to eat is a second
+// trip plus hardware.
 
 export const SCOPE_PRESETS = Object.freeze([
   { id: 'alcove-swap', label: 'Alcove swap — same footprint, existing drain (the cheap special)' },
@@ -511,35 +518,35 @@ export function compareTub(input) {
 
 export const SUPPLY_PRESETS = Object.freeze([
   {
-    id: 'you-supply',
+    id: 'contractor-supplied',
     label: 'You supply the tub',
     detail: 'Tub invoice stays in the bid',
   },
   {
-    id: 'owner-covers',
+    id: 'owner-fits',
     label: 'Owner supplies — it fits',
     detail: 'No tub invoice, same set hours',
   },
   {
     id: 'owner-wrong',
-    label: 'Owner supplies — wrong unit / drain',
-    detail: 'Second trip plus restock and fit time',
+    label: 'Owner supplies — wrong drain / missing kit',
+    detail: 'Inspect trip plus missing drain or overflow',
   },
 ]);
 
 /**
- * Starting callback hours and restock cash when the owner's
- * showroom or big-box tub is the wrong alcove, the drain is on
- * the other end, or the jets need a circuit that is not there.
- * Taken from the extra-kit trip plus a fit/return pass so a
- * typed 8-hour set does not inflate the callback.
+ * Starting callback hours and missing-kit cost when the
+ * owner's Amazon tub does not match the alcove. Taken from
+ * the extra-kit trip plus a second door/drain pass so a
+ * typed tub invoice does not leak into the "they bought it"
+ * case.
  */
 export function suggestedOwnerCallbackKit() {
   const extra = suggestedExtraKit();
   return {
     hoursCallbackTrip: extra.hoursTrip,
-    hoursFitEach: 2.0,
-    restockEach: 95,
+    hoursMissingHardwareEach: 2.0,
+    missingHardwareEach: 220,
   };
 }
 
@@ -555,30 +562,29 @@ function scoreInstallOnly(bid, installPrice) {
 }
 
 /**
- * Price the same bath three ways: you supply the tub, the owner
- * supplies one that fits, or the owner supplies one that does
- * not fit and costs a second trip.
+ * Price the same bath three ways: you supply the tub, the
+ * owner supplies one that fits, or the owner supplies one
+ * that does not fit and costs a second trip.
  *
  * Owner rows zero the tub invoice and keep the current set
- * hours — pulling a Home Depot or showroom unit is still a set.
- * The wrong-unit row adds a starting callback trip, fit/return
- * hours, and a restock fee on top of the current rates so a
- * typed invoice does not leak into the "they bought it" case.
+ * hours — setting their Amazon unit is still a set. The
+ * wrong-drain row adds a starting inspect trip and missing
+ * overflow / drain-kit hardware on top of the current rates
+ * so a typed invoice does not leak into the "they bought it"
+ * case. Door invoice stays off the owner-row override;
+ * missing-kit dollars go on the door line so tubInvoice
+ * never appears on an owner row.
  *
  * An install-only price (options.installOnlyPrice, else the
- * proposed price on the bid) is scored against each cost base.
- * That is the $1,499 "just set what I bought" number bath
- * remodelers actually get shopped on.
- *
- * Distinct from walk-in shower (tile, slope, glass), toilet
- * (a commode), stair-lift (a chair on a rail), and hot-tub
- * (outdoor crane and a pad). This is a walk-in tub with a door.
+ * proposed price on the bid) is scored against each cost
+ * base. That is the $995 "just install what I bought"
+ * number contractors actually get shopped on.
  */
 export function compareOwnerSupply(input, options = {}) {
   const callback = suggestedOwnerCallbackKit();
   const hoursTrip = number(input.hoursTrip ?? 0, 'Trip hours');
-  const siteHours = number(input.siteHours ?? 0, 'Site hours');
-  const otherCost = number(input.otherCost ?? 0, 'Other cost');
+  const hoursDoorEach = number(input.hoursDoorEach ?? 0, 'Door hours each');
+  const doorInvoice = number(input.doorInvoice ?? 0, 'Door invoice');
 
   let installPrice = null;
   const rawInstall = options.installOnlyPrice !== undefined
@@ -588,28 +594,28 @@ export function compareOwnerSupply(input, options = {}) {
     installPrice = number(rawInstall, 'Install-only price');
   }
 
-  const youSupply = calculateBid(input);
-  const ownerCovers = calculateBid({ ...input, tubInvoice: 0 });
+  const contractor = calculateBid(input);
+  const ownerFits = calculateBid({ ...input, tubInvoice: 0 });
   const ownerWrong = calculateBid({
     ...input,
     tubInvoice: 0,
     hoursTrip: hoursTrip + callback.hoursCallbackTrip,
-    siteHours: siteHours + callback.hoursFitEach,
-    otherCost: otherCost + callback.restockEach,
+    hoursDoorEach: hoursDoorEach + callback.hoursMissingHardwareEach,
+    doorInvoice: doorInvoice + callback.missingHardwareEach,
   });
 
   const rows = [
     {
-      supply: 'you-supply',
+      supply: 'contractor-supplied',
       label: SUPPLY_PRESETS[0].label,
       detail: SUPPLY_PRESETS[0].detail,
-      bid: youSupply,
+      bid: contractor,
     },
     {
-      supply: 'owner-covers',
+      supply: 'owner-fits',
       label: SUPPLY_PRESETS[1].label,
       detail: SUPPLY_PRESETS[1].detail,
-      bid: ownerCovers,
+      bid: ownerFits,
     },
     {
       supply: 'owner-wrong',
@@ -624,13 +630,14 @@ export function compareOwnerSupply(input, options = {}) {
     price: row.bid.price,
     totalCost: row.bid.totalCost,
     totalHours: row.bid.totalHours,
-    tubMaterial: row.bid.tubMaterial,
+    fixtureMaterial: row.bid.fixtureMaterial,
+    doorMaterial: row.bid.doorMaterial,
     hoursTravel: row.bid.hoursTravel,
-    siteHours: row.bid.siteHours,
-    softCost: row.bid.softCost,
+    hoursDoor: row.bid.hoursDoor,
+    hoursSet: row.bid.hoursSet,
     breakEvenPrice: row.bid.breakEvenPrice,
     installOnly: scoreInstallOnly(row.bid, installPrice),
-    savedVsYou: youSupply.price - row.bid.price,
+    savedVsContractor: contractor.price - row.bid.price,
   }));
 
   const cheapest = Math.min(...rows.map((row) => row.price));
@@ -651,29 +658,32 @@ export function ownerSupplyNote(rows) {
   if (!Array.isArray(rows) || rows.length < 3) {
     throw new Error('Owner-supply comparison is missing rows');
   }
-  const you = rows.find((row) => row.supply === 'you-supply');
-  const covers = rows.find((row) => row.supply === 'owner-covers');
+  const contractor = rows.find((row) => row.supply === 'contractor-supplied');
+  const fits = rows.find((row) => row.supply === 'owner-fits');
   const wrong = rows.find((row) => row.supply === 'owner-wrong');
-  if (!you || !covers || !wrong) {
+  if (!contractor || !fits || !wrong) {
     throw new Error('Owner-supply comparison is missing a supply row');
   }
 
-  const drop = you.price - covers.price;
-  const callbackLift = wrong.price - covers.price;
-  if (you.installOnly && covers.installOnly) {
-    const asked = you.installOnly.price;
-    if (you.installOnly.belowBreakEven && covers.installOnly.belowBreakEven) {
-      return `At ${money(asked)} install-only you lose money even when they bought the tub. Walk-away on the owner-supplied set is ${money(covers.breakEvenPrice)}.`;
+  const drop = contractor.price - fits.price;
+  const callbackLift = wrong.price - fits.price;
+  if (contractor.installOnly && fits.installOnly) {
+    const asked = contractor.installOnly.price;
+    if (contractor.installOnly.belowBreakEven && fits.installOnly.belowBreakEven) {
+      return `At ${money(asked)} install-only you lose money even when they bought the tub. Walk-away on the owner-supplied set is ${money(fits.breakEvenPrice)}.`;
     }
-    if (you.installOnly.belowBreakEven && !covers.installOnly.belowBreakEven) {
-      return `At ${money(asked)} the you-supply job loses ${money(Math.abs(you.installOnly.profit))}. The same install-only number covers the set if their unit actually fits.`;
+    if (contractor.installOnly.belowBreakEven && !fits.installOnly.belowBreakEven) {
+      if (wrong.installOnly?.belowBreakEven) {
+        return `At ${money(asked)} the contractor-supplied job loses ${money(Math.abs(contractor.installOnly.profit))}. The same install-only number covers the set if their tub actually fits. A wrong-drain callback still loses ${money(Math.abs(wrong.installOnly.profit))} — walk-away then is ${money(wrong.breakEvenPrice)}.`;
+      }
+      return `At ${money(asked)} the contractor-supplied job loses ${money(Math.abs(contractor.installOnly.profit))}. The same install-only number covers the set if their tub actually fits.`;
     }
     if (wrong.installOnly?.belowBreakEven) {
-      return `At ${money(asked)} the set covers if their unit fits. A wrong-unit / wrong-drain callback still loses ${money(Math.abs(wrong.installOnly.profit))} — walk-away then is ${money(wrong.breakEvenPrice)}.`;
+      return `At ${money(asked)} the set covers if their tub fits. A wrong-drain callback still loses ${money(Math.abs(wrong.installOnly.profit))} — walk-away then is ${money(wrong.breakEvenPrice)}.`;
     }
-    return `At ${money(asked)} both supply paths hold a margin. A wrong-unit callback still adds ${money(callbackLift)} to the bid.`;
+    return `At ${money(asked)} both supply paths hold a margin. A wrong-drain callback still adds ${money(callbackLift)} to the bid.`;
   }
-  return `Zeroing the tub invoice drops the bid ${money(drop)}. A wrong-unit / wrong-drain callback puts ${money(callbackLift)} back on.`;
+  return `Zeroing the tub invoice drops the bid ${money(drop)}. A wrong-drain callback puts ${money(callbackLift)} back on.`;
 }
 
 function money(value) {

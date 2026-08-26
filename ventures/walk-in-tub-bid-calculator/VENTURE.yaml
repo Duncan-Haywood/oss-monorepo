@@ -1,5 +1,5 @@
 name: walk-in-tub-bid-calculator
-description: A private browser calculator for bath remodelers and accessibility contractors that prices a walk-in tub install from tub count, acrylic soaker versus cast versus whirlpool versus air-jet versus extra-wide, alcove-swap versus relocate versus new-construction versus custom-opening, inward versus outward versus walk-through door, extras, and whether a customer-supplied tub still pays at the $1,499 just-set special.
+description: A private browser calculator for bath remodelers and accessibility contractors that prices a walk-in tub install from tub count, acrylic soaker versus cast versus whirlpool versus air-jet versus extra-wide, alcove-swap versus relocate versus new-construction versus custom-opening, inward versus outward versus walk-through door, extras, and contractor-supplied versus customer-supplied tub — and shows the extra-work share and the walk-away price below which the job loses money.
 stage: prototype
 owner: duncan
 hypotheses:
