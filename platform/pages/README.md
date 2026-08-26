@@ -130,7 +130,7 @@ present.
 
 Playwright is not a dependency of this repo, so `journey.mjs` exits 0 with a
 `SKIP` line where no browser is available, and is not a CI gate. Run it before a
-publish. Last run: 34 tools on the hub, search narrowed 34→3, and
+publish. Last run: 38 tools on the hub, search narrowed 38→3, and
 `ebay-fee-calculator`, `invoice-payment-terms-calculator`,
 `amazon-fba-calculator` and `janitorial-bid-calculator` each recomputed with no
 console errors.
