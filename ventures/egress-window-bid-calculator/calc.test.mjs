@@ -4,12 +4,15 @@ import {
   calculateBid,
   compareScope,
   compareWindow,
+  compareOwnerSupply,
+  ownerSupplyNote,
   formatBidSummary,
   travelHours,
   suggestedScopeKit,
   suggestedWindowKit,
   suggestedWellKit,
   suggestedExtraKit,
+  suggestedOwnerCallbackKit,
   JOB_PRESETS,
 } from './calc.mjs';
 
@@ -29,6 +32,34 @@ function special() {
     includeCover: false,
     includeLadder: false,
     includeDrain: false,
+    includeHaul: false,
+    includeInteriorFinish: false,
+    hourlyWage: 42,
+    burdenRate: 30,
+    overheadRate: 15,
+    targetMargin: 20,
+    travelAndEquipment: 95,
+    otherCost: 0,
+    ...kit,
+  };
+}
+
+function typicalLegalBedroom() {
+  const kit = {
+    ...suggestedScopeKit('new-cut-masonry'),
+    ...suggestedWindowKit('vinyl-slider'),
+    ...suggestedWellKit('steel'),
+    ...suggestedExtraKit(),
+  };
+  return {
+    windowCount: 1,
+    scope: 'new-cut-masonry',
+    window: 'vinyl-slider',
+    well: 'steel',
+    travelMiles: 14,
+    includeCover: true,
+    includeLadder: true,
+    includeDrain: true,
     includeHaul: false,
     includeInteriorFinish: false,
     hourlyWage: 42,
@@ -217,4 +248,118 @@ test('flag helpers accept common form values', () => {
   const off = calculateBid({ ...special(), includeCover: '0' });
   assert.ok(on.hoursCover > 0);
   assert.equal(off.hoursCover, 0);
+});
+
+test('compareOwnerSupply zeros sash and well invoices and keeps the cut hours', () => {
+  const rows = compareOwnerSupply(typicalLegalBedroom(), { installOnlyPrice: null });
+  assert.equal(rows.length, 3);
+  const contractor = rows.find((row) => row.supply === 'contractor-supplied');
+  const fits = rows.find((row) => row.supply === 'owner-fits');
+  const wrong = rows.find((row) => row.supply === 'owner-wrong');
+  assert.ok(contractor.windowMaterial > 0);
+  assert.ok(contractor.wellMaterial > 0);
+  assert.equal(fits.windowMaterial, 0);
+  assert.equal(fits.wellMaterial, 0);
+  assert.equal(wrong.windowMaterial, 0);
+  assert.equal(wrong.wellMaterial, 0);
+  assert.ok(Math.abs(fits.hoursCut - contractor.hoursCut) < 1e-9);
+  assert.ok(Math.abs(fits.totalHours - contractor.totalHours) < 1e-9);
+  assert.ok(wrong.totalHours > fits.totalHours);
+  assert.ok(wrong.hoursTravel > contractor.hoursTravel);
+  assert.ok(wrong.softCost > contractor.softCost);
+  assert.ok(fits.price < contractor.price);
+  assert.ok(wrong.price > fits.price);
+  assert.ok(fits.cheapest);
+  assert.equal(contractor.savedVsContractor, 0);
+  assert.ok(fits.savedVsContractor > 0);
+});
+
+test('compareOwnerSupply does not leak a typed invoice into the owner-supplied rows', () => {
+  const baseline = compareOwnerSupply(typicalLegalBedroom(), { installOnlyPrice: null })
+    .find((row) => row.supply === 'owner-fits');
+  const overridden = compareOwnerSupply({
+    ...typicalLegalBedroom(),
+    windowInvoice: 4000,
+    wellInvoice: 2800,
+  }, { installOnlyPrice: null });
+  const contractor = overridden.find((row) => row.supply === 'contractor-supplied');
+  const fits = overridden.find((row) => row.supply === 'owner-fits');
+  assert.ok(contractor.windowMaterial > 1000);
+  assert.equal(fits.windowMaterial, 0);
+  assert.equal(fits.wellMaterial, 0);
+  assert.ok(Math.abs(fits.price - baseline.price) < 1e-9);
+});
+
+test('a $1,800 just-set special still loses on a masonry legal bedroom even when they bought the kit', () => {
+  const rows = compareOwnerSupply(typicalLegalBedroom(), { installOnlyPrice: 1800 });
+  const contractor = rows.find((row) => row.supply === 'contractor-supplied');
+  const fits = rows.find((row) => row.supply === 'owner-fits');
+  const wrong = rows.find((row) => row.supply === 'owner-wrong');
+  assert.equal(contractor.installOnly.belowBreakEven, true);
+  assert.equal(fits.installOnly.belowBreakEven, true);
+  assert.equal(wrong.installOnly.belowBreakEven, true);
+  assert.ok(contractor.installOnly.profit < fits.installOnly.profit);
+  assert.ok(fits.installOnly.profit < 0);
+  const note = ownerSupplyNote(rows);
+  assert.match(note, /lose money even when they bought the sash and well/i);
+  assert.match(note, /Walk-away on the owner-supplied set/i);
+});
+
+test('an install-only number can cover the set but not the contractor-supplied kit', () => {
+  const contractorBid = calculateBid(typicalLegalBedroom());
+  const ownerBid = calculateBid({
+    ...typicalLegalBedroom(),
+    windowInvoice: 0,
+    wellInvoice: 0,
+  });
+  const between = (contractorBid.totalCost + ownerBid.totalCost) / 2;
+  const rows = compareOwnerSupply(typicalLegalBedroom(), { installOnlyPrice: between });
+  const contractor = rows.find((row) => row.supply === 'contractor-supplied');
+  const fits = rows.find((row) => row.supply === 'owner-fits');
+  assert.equal(contractor.installOnly.belowBreakEven, true);
+  assert.equal(fits.installOnly.belowBreakEven, false);
+  assert.match(ownerSupplyNote(rows), /covers the set if their kit actually fits/i);
+});
+
+test('proposed price on the bid is the default install-only number', () => {
+  const rows = compareOwnerSupply({ ...typicalLegalBedroom(), proposedPrice: 1800 });
+  assert.equal(rows[0].installOnlyPrice, 1800);
+  assert.equal(rows[0].installOnly.price, 1800);
+});
+
+test('the $1,800 Facebook special is the default install-only number', () => {
+  const rows = compareOwnerSupply(typicalLegalBedroom());
+  assert.equal(rows[0].installOnlyPrice, 1800);
+});
+
+test('ownerSupplyNote names the bid drop when install-only scoring is skipped', () => {
+  const note = ownerSupplyNote(compareOwnerSupply(typicalLegalBedroom(), { installOnlyPrice: null }));
+  assert.match(note, /Zeroing the sash and well invoices drops the bid/i);
+  assert.match(note, /wrong-size callback/i);
+});
+
+test('ownerSupplyNote rejects a short row list', () => {
+  assert.throws(() => ownerSupplyNote([]), /missing rows/);
+  assert.throws(() => ownerSupplyNote([{ supply: 'contractor-supplied' }]), /missing rows/);
+});
+
+test('typical masonry legal bedroom numbers stay the ones the SEO article cites', () => {
+  const rows = compareOwnerSupply(typicalLegalBedroom(), { installOnlyPrice: 1800 });
+  const contractor = rows.find((row) => row.supply === 'contractor-supplied');
+  const fits = rows.find((row) => row.supply === 'owner-fits');
+  const wrong = rows.find((row) => row.supply === 'owner-wrong');
+  assert.ok(Math.abs(contractor.price - 3976.62) < 0.02);
+  assert.ok(Math.abs(fits.price - 2539.12) < 0.02);
+  assert.ok(Math.abs(fits.breakEvenPrice - 2031.30) < 0.02);
+  assert.ok(Math.abs(wrong.price - 3569.17) < 0.02);
+  assert.ok(Math.abs(fits.installOnly.profit + 231.30) < 0.02);
+});
+
+test('the owner-callback kit is a second trip plus a legal slider', () => {
+  const kit = suggestedOwnerCallbackKit();
+  const extra = suggestedExtraKit();
+  const slider = suggestedWindowKit('vinyl-slider');
+  assert.equal(kit.hoursCallbackTrip, extra.hoursTrip);
+  assert.equal(kit.hoursWrongSizeEach, slider.hoursWindowEach);
+  assert.equal(kit.replacementSashEach, slider.windowInvoice);
 });

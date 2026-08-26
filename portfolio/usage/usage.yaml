@@ -540,6 +540,17 @@ products:
           cover/ladder/drain/haul/finish extras, copyable proposal summary).
           Public URL remains owner-gated; the local-first counter reports
           only to the user's own browser and is opt-out. Baseline row.
+      - as_of: 2026-08-26
+        signals:
+          live_url_visitors: null
+          local_events_reported: 0
+        note: >-
+          Added contractor-supplied vs owner-supplied sash/well comparison
+          (kit fits vs wrong-size callback) scored against the $1,800
+          just-set special. Typical masonry legal bedroom: you-supply
+          $3,976.62; owner-fits walk-away $2,031.30; $1,800 still loses
+          $231.30 even when they bought the kit. Public URL remains
+          owner-gated.
   - slug: walk-in-tub-bid-calculator
     surface: static-page-in-repo
     readings:
