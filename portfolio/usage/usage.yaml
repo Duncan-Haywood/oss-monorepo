@@ -2751,3 +2751,16 @@ products:
           Shipped a local foundation-repair bid calculator (helical / push
           piers, extra shaft, interior access, straps) with a copyable
           proposal summary; public URL remains owner-gated.
+  - slug: basement-waterproofing-bid-calculator
+    surface: static-page-in-repo
+    readings:
+      - as_of: 2026-08-25
+        signals:
+          live_url_visitors: null
+          local_calculations: 0
+          local_summary_copies: 0
+        note: >-
+          Shipped a zero-dependency browser calculator for waterproofing
+          contractors to price interior drain, exterior excavation, and
+          crawl encapsulation from wells, sump, and discharge. Public URL
+          remains owner-gated; counters are local, aggregate, and opt-out.

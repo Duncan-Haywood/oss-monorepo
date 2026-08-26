@@ -76,6 +76,9 @@ workflows:
 - workflow: basement-finishing-bid-calculator-ci.yml
   classification: none
   publishes: []
+- workflow: basement-waterproofing-bid-calculator-ci.yml
+  classification: none
+  publishes: []
 - workflow: boiler-replacement-bid-calculator-ci.yml
   classification: none
   publishes: []
