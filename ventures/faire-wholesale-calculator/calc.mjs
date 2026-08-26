@@ -294,6 +294,209 @@ export function compareRetailerLifetime(input = {}, expectedReorders) {
   };
 }
 
+export const OPEN_HOUSE_DEFAULTS = {
+  openHouseDiscountRate: 20,
+  openHouseCommissionRate: 0,
+  openHouseFirstOrderExtraRate: 0,
+  openHouseExtraRetailers: 2,
+};
+
+function moneyLabel(value) {
+  const abs = Math.abs(value).toFixed(2);
+  return value < 0 ? `−$${abs}` : `$${abs}`;
+}
+
+function openHouseOrder(input, discountRate, commissionRate, firstOrderExtraRate, firstOrderFlat) {
+  return calculateBrandOrder({
+    ...input,
+    openingDiscountRate: discountRate,
+    commissionRate,
+    firstOrderExtraRate,
+    firstOrderFlat,
+  }, "marketplace_first");
+}
+
+/**
+ * Discount percent on an Open House first order that still matches
+ * everyday leftover. Binary search so first-order extra rates and
+ * processing stay in the same formula as calculateBrandOrder.
+ */
+function openHouseDiscountCeiling(input, everydayProfit, commissionRate, firstOrderExtraRate, firstOrderFlat) {
+  const atZero = openHouseOrder(input, 0, commissionRate, firstOrderExtraRate, firstOrderFlat);
+  if (atZero.profit + 1e-9 < everydayProfit) return 0;
+  const atTop = openHouseOrder(input, 99.9, commissionRate, firstOrderExtraRate, firstOrderFlat);
+  if (atTop.profit + 1e-9 >= everydayProfit) return 99.9;
+  let lo = 0;
+  let hi = 99.9;
+  for (let i = 0; i < 40; i += 1) {
+    const mid = (lo + hi) / 2;
+    const row = openHouseOrder(input, mid, commissionRate, firstOrderExtraRate, firstOrderFlat);
+    if (row.profit + 1e-12 >= everydayProfit) lo = mid;
+    else hi = mid;
+  }
+  return lo;
+}
+
+/**
+ * Same new retailer, first marketplace order: list everyday at your
+ * usual opening discount, list during Open House at the deeper
+ * retailer discount Faire shoppers expect, and list during Open House
+ * at your everyday discount so the waived commission is visible
+ * without the extra markdown.
+ *
+ * Open House is not Faire Direct (you still did not bring the
+ * retailer) and not a reorder (the new-customer fee can still apply).
+ * Commission and the first-order extra percent default to 0% for the
+ * event; the flat new-customer fee stays unless you type a different
+ * Open House flat. Extra new retailers are a count you enter, not a
+ * forecast that the window will produce them.
+ */
+export function compareOpenHouse(input = {}) {
+  const openHouseDiscountRate = number(
+    input.openHouseDiscountRate,
+    "Open House discount %",
+    OPEN_HOUSE_DEFAULTS.openHouseDiscountRate,
+  );
+  if (openHouseDiscountRate >= 100) throw new Error("Open House discount must be below 100%");
+  const openHouseCommissionRate = number(
+    input.openHouseCommissionRate,
+    "Open House commission rate",
+    OPEN_HOUSE_DEFAULTS.openHouseCommissionRate,
+  );
+  const openHouseFirstOrderExtraRate = number(
+    input.openHouseFirstOrderExtraRate,
+    "Open House first-order extra rate",
+    OPEN_HOUSE_DEFAULTS.openHouseFirstOrderExtraRate,
+  );
+  const extraRetailers = wholeNumberOrZero(
+    input.openHouseExtraRetailers,
+    "Open House extra retailers",
+    OPEN_HOUSE_DEFAULTS.openHouseExtraRetailers,
+  );
+  const region = regionPreset(input.region);
+  const everydayFirstFlat = number(input.firstOrderFlat, "First-order flat fee", region.firstOrderFlat);
+  const openHouseFirstOrderFlat = input.openHouseFirstOrderFlat === undefined || input.openHouseFirstOrderFlat === ""
+    ? everydayFirstFlat
+    : number(input.openHouseFirstOrderFlat, "Open House first-order flat fee");
+
+  const everyday = calculateBrandOrder(input, "marketplace_first");
+  const openHouse = openHouseOrder(
+    input,
+    openHouseDiscountRate,
+    openHouseCommissionRate,
+    openHouseFirstOrderExtraRate,
+    openHouseFirstOrderFlat,
+  );
+  const openHouseSameList = openHouseOrder(
+    input,
+    everyday.brandFundedDiscount === 0 && number(input.openingDiscountRate, "Brand-funded discount %", 0) === 0
+      ? 0
+      : number(input.openingDiscountRate, "Brand-funded discount %", 0),
+    openHouseCommissionRate,
+    openHouseFirstOrderExtraRate,
+    openHouseFirstOrderFlat,
+  );
+
+  const pack = (id, label, order, retailers) => ({
+    id,
+    label,
+    retailers,
+    profit: order.profit,
+    fees: order.feeTotal,
+    payout: order.payoutAmount,
+    discount: order.brandFundedDiscount,
+    discountRate: order.merchandise === 0 ? 0 : order.brandFundedDiscount / order.merchandise * 100,
+    commissionRate: order.commissionRate,
+    pileProfit: order.profit * retailers,
+    order,
+  });
+
+  const everydayRetailers = 1;
+  const openHouseRetailers = 1 + extraRetailers;
+  const rows = [
+    pack("everyday", "Everyday first order", everyday, everydayRetailers),
+    pack("open_house", "Open House + event discount", openHouse, openHouseRetailers),
+    pack("open_house_same_list", "Open House at everyday discount", openHouseSameList, openHouseRetailers),
+  ];
+  const perOrderBest = rows.reduce((winner, row) => (row.profit > winner.profit ? row : winner));
+  const pileBest = rows.reduce((winner, row) => (row.pileProfit > winner.pileProfit ? row : winner));
+
+  let retailersToMatchEveryday = 1;
+  if (openHouse.profit + 1e-12 < everyday.profit) {
+    if (openHouse.profit <= 0) retailersToMatchEveryday = null;
+    else retailersToMatchEveryday = Math.ceil(everyday.profit / openHouse.profit - 1e-12);
+  }
+
+  const discountCeiling = openHouseDiscountCeiling(
+    input,
+    everyday.profit,
+    openHouseCommissionRate,
+    openHouseFirstOrderExtraRate,
+    openHouseFirstOrderFlat,
+  );
+
+  const result = {
+    everyday,
+    openHouse,
+    openHouseSameList,
+    extraRetailers,
+    openHouseRetailers,
+    discountCeiling,
+    retailersToMatchEveryday,
+    extraVsEveryday: openHouse.profit - everyday.profit,
+    sameListVsEveryday: openHouseSameList.profit - everyday.profit,
+    pileExtraVsEveryday: openHouse.profit * openHouseRetailers - everyday.profit,
+    rows: rows.map((row) => ({
+      ...row,
+      isBestPerOrder: row === perOrderBest,
+      isBestPile: row === pileBest,
+      gapVsBestPerOrder: perOrderBest.profit - row.profit,
+      pileGapVsBest: pileBest.pileProfit - row.pileProfit,
+    })),
+    bestPerOrder: { id: perOrderBest.id, label: perOrderBest.label, profit: perOrderBest.profit },
+    bestPile: { id: pileBest.id, label: pileBest.label, profit: pileBest.pileProfit },
+  };
+  result.summary = openHouseNote(result);
+  return result;
+}
+
+export function openHouseNote(comparison) {
+  if (!comparison?.everyday || !comparison?.openHouse || !comparison?.openHouseSameList) {
+    throw new Error("openHouseNote missing rows");
+  }
+  const everyday = comparison.everyday;
+  const event = comparison.openHouse;
+  const same = comparison.openHouseSameList;
+  const extra = comparison.extraVsEveryday;
+  const ceiling = comparison.discountCeiling;
+  const pile = comparison.pileExtraVsEveryday;
+  const extraRetailers = comparison.extraRetailers;
+  const match = comparison.retailersToMatchEveryday;
+  const matchBit = match === null
+    ? " The event-discount path does not recover everyday leftover at a positive Open House profit."
+    : match <= 1
+      ? ""
+      : ` ${match} Open House first orders (${match - 1} extra) match one everyday order.`;
+  const pileBit = extraRetailers === 0
+    ? ""
+    : pile >= 0
+      ? ` ${extraRetailers} extra new retailer${extraRetailers === 1 ? "" : "s"} flip the pile ${moneyLabel(event.profit * comparison.openHouseRetailers)} vs ${moneyLabel(everyday.profit)} (${pile >= 0 ? "+" : ""}${moneyLabel(pile)}).`
+      : ` ${extraRetailers} extra new retailer${extraRetailers === 1 ? "" : "s"} still leave the pile ${moneyLabel(event.profit * comparison.openHouseRetailers)} vs ${moneyLabel(everyday.profit)} (${moneyLabel(pile)}).`;
+  return (
+    `Everyday first order keeps ${moneyLabel(everyday.profit)} after ${everyday.commissionRate}% + ${moneyLabel(everyday.fees.firstOrder)}.`
+    + ` Open House at ${event.commissionRate}% commission and a ${(event.merchandise === 0 ? 0 : event.brandFundedDiscount / event.merchandise * 100).toFixed(0)}% retailer discount keeps ${moneyLabel(event.profit)}`
+    + ` (${extra >= 0 ? "+" : ""}${moneyLabel(extra)}).`
+    + ` The waived commission still funds about ${ceiling.toFixed(1)}% off before leftover matches everyday.`
+    + ` Open House at your everyday discount keeps ${moneyLabel(same.profit)} (${comparison.sameListVsEveryday >= 0 ? "+" : ""}${moneyLabel(comparison.sameListVsEveryday)}) — the leak is the deeper discount, not the event.`
+    + matchBit
+    + pileBit
+  );
+}
+
+export function openHouseSummary(comparison) {
+  return openHouseNote(comparison);
+}
+
 export function comparePayoutSpeeds(input, scenarioId = "marketplace_reorder") {
   return Object.entries(PAYOUT_PRESETS).map(([id, preset]) => {
     const result = calculateBrandOrder({
