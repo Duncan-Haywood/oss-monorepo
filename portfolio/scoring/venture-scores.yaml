@@ -2769,3 +2769,35 @@ ventures:
       Pass: output is a modeled price at the user's target margin,
       never a recommended bid or a code/warranty opinion. Nothing the
       user enters leaves the browser.
+
+  - slug: subcontractor-cashflow-planner
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 7
+      gross_margin: 10
+      defensibility: 4
+      distribution: 7
+    composite: 6.5
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      The planner is intentionally deterministic and local-first. Its
+      value is payment-term timing against materials and weekly burn,
+      not inference.
+    basis: >-
+      Graduated on 2026-08-26 as a browser-local payment-delay cash
+      planner for independent subcontractors (repair-and-merge of
+      unique #1441). Distinct from cash-runway-planner (weekly income
+      vs bills) and retainage (construction withhold on one contract):
+      this models one subcontract's invoice, retention, late-payment
+      buffer, and the cash needed before collection. Distribution is
+      "subcontractor cash flow calculator" and "retention payment delay".
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Pass: output is a timing scenario, never a lending offer, a
+      collection instruction, or a recommendation to accept the job.
+      Nothing the user enters leaves the browser.
