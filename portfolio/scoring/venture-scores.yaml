@@ -48,6 +48,33 @@ scoring_rule: >-
   near-zero-price norm is a real property of the business on any host.
 
 ventures:
+  - slug: freight-accessorial-auditor
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 6
+      gross_margin: 10
+      defensibility: 4
+      distribution: 7
+    composite: 6.333
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      The value is transparent invoice arithmetic; adding AI would make
+      accessorial review less reproducible.
+    basis: >-
+      Graduated on 2026-08-26 as a browser-local freight accessorial invoice
+      auditor (salvage of #1379 plus evidence/dispute draft from #1436 and a
+      detention clock extra). Distinct from 3pl-quote-normalizer (prospective
+      warehouse quotes). Search intent includes freight accessorial audit and
+      detention charge dispute.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Outputs are review flags from user-supplied amounts and evidence, never
+      a pay-or-dispute determination or legal/financial advice.
   - slug: cloud-egress-calculator
     scores:
       ai_leverage: 1
