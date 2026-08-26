@@ -556,3 +556,178 @@ export function compareShopPayInstallments(input) {
     }),
   };
 }
+
+function ratePercent(value, name, fallback = 0) {
+  const result = number(value, name, fallback);
+  if (result > 100) throw new Error(`${name} must be between 0 and 100`);
+  return result;
+}
+
+function truthyFlag(value) {
+  if (value === true || value === 1) return true;
+  if (value === false || value === 0 || value === undefined || value === null || value === "") {
+    return false;
+  }
+  const normalized = String(value).trim().toLowerCase();
+  return normalized === "true" || normalized === "1" || normalized === "on" || normalized === "yes";
+}
+
+/**
+ * Illustrative return-label and redemption defaults so the table is
+ * immediately useful. Replace the label from a Pirate Ship / USPS quote
+ * and the redemption rate from your own gift-card report — these are
+ * not Shopify policy.
+ */
+export const DEFAULT_RETURN_LABEL_COST = 7;
+export const DEFAULT_RESTOCKABLE_PCT = 85;
+export const DEFAULT_CREDIT_REDEMPTION_PCT = 70;
+export const DEFAULT_PROCESSOR_FEE_KEPT_PCT = 100;
+
+function returnResolutionSummary({ winner, refund, credit, exchange }) {
+  const creditKeep = moneyLabel(credit.kept);
+  const refundKeep = moneyLabel(refund.kept);
+  const exchangeKeep = moneyLabel(exchange.kept);
+  const vsRefund = moneyLabel(credit.kept - refund.kept);
+  if (winner === "credit") {
+    return `Store credit keeps ${creditKeep} after this return — ${vsRefund} more than refunding cash at ${refundKeep}. Exchange keeps ${exchangeKeep}. Credit only spends the next item if they come back; a cash refund leaves now.`;
+  }
+  if (winner === "exchange") {
+    return `An exchange keeps ${exchangeKeep} after this return — ${moneyLabel(exchange.kept - refund.kept)} more than refunding cash at ${refundKeep}. Store credit keeps ${creditKeep}.`;
+  }
+  if (winner === "refund") {
+    return `Refunding cash keeps ${refundKeep} on these rates, ahead of store credit at ${creditKeep} and an exchange at ${exchangeKeep}.`;
+  }
+  return `Refund, store credit, and exchange leave the same amount after this return.`;
+}
+
+/**
+ * Same returned order, three ways to close it.
+ *
+ *   - Refund cash — give back the item (and optionally shipping charged).
+ *     Processor-fee keep is an input: PayPal often keeps the original
+ *     fee; Shopify Payments often returns it. Inventory comes back only
+ *     at the restockable rate.
+ *   - Store credit — no cash leaves. Same return label and restock.
+ *     Expected next-item cost is redemption rate × (COGS + pack +
+ *     replacement postage). Unused credit is breakage, not a refund.
+ *   - Exchange — keep the original payment, pay the return label plus a
+ *     replacement outbound and pack. Extra COGS only on the unrestockable
+ *     share, because a restocked unit plus a replacement is one unit net.
+ *
+ * Completed-sale profit is the baseline. This table is the decision
+ * after a return is requested, not a mix-rate overlay. Complementary
+ * to open refund-rate work (#1552) and to landed Shop Pay Installments.
+ * Rates are inputs.
+ */
+export function compareReturnResolution(input) {
+  const order = calculateOrder(input);
+  const price = number(input.price, "Item price");
+  const shippingCharged = number(input.shippingCharged, "Shipping charged");
+  const costOfGoods = number(input.costOfGoods, "Cost of goods");
+  const shippingCost = number(input.shippingCost, "Shipping cost");
+  const packagingCost = number(input.packagingCost, "Packaging cost");
+  const restockingFee = number(input.restockingFee, "Restocking fee", 0);
+  const returnLabelCost = emptyField(input.returnLabelCost)
+    ? DEFAULT_RETURN_LABEL_COST
+    : number(input.returnLabelCost, "Return label");
+  const replacementShippingCost = emptyField(input.replacementShippingCost)
+    ? shippingCost
+    : number(input.replacementShippingCost, "Replacement shipping");
+  const replacementPackagingCost = emptyField(input.replacementPackagingCost)
+    ? packagingCost
+    : number(input.replacementPackagingCost, "Replacement packaging");
+  const restockablePct = emptyField(input.restockablePct)
+    ? DEFAULT_RESTOCKABLE_PCT
+    : ratePercent(input.restockablePct, "Restockable percent");
+  const creditRedemptionPct = emptyField(input.creditRedemptionPct)
+    ? DEFAULT_CREDIT_REDEMPTION_PCT
+    : ratePercent(input.creditRedemptionPct, "Credit redemption percent");
+  const processorFeeKeptPct = emptyField(input.processorFeeKeptPct)
+    ? DEFAULT_PROCESSOR_FEE_KEPT_PCT
+    : ratePercent(input.processorFeeKeptPct, "Processor fee kept percent");
+  const monthlyReturns = number(input.monthlyReturns, "Monthly returns", 0);
+  const refundShippingCharged = truthyFlag(input.refundShippingCharged);
+
+  const refundBase = (refundShippingCharged ? price + shippingCharged : price);
+  if (restockingFee > refundBase) {
+    throw new Error("Restocking fee cannot exceed the refund amount");
+  }
+
+  const refundPaid = refundBase - restockingFee;
+  const feeReturned = order.selected.feeTotal * (1 - processorFeeKeptPct / 100);
+  const restockableRate = restockablePct / 100;
+  const redemptionRate = creditRedemptionPct / 100;
+  const recoveredCogs = costOfGoods * restockableRate;
+  const nextItemCost = costOfGoods + replacementPackagingCost + replacementShippingCost;
+  const expectedNextItemCost = nextItemCost * redemptionRate;
+  const extraUnrestockableCogs = costOfGoods * (1 - restockableRate);
+  const completedProfit = order.selected.profit;
+
+  const refundKept = completedProfit - refundPaid + feeReturned + recoveredCogs - returnLabelCost;
+  const creditKept = completedProfit + recoveredCogs - returnLabelCost - expectedNextItemCost;
+  const exchangeKept =
+    completedProfit - returnLabelCost - replacementShippingCost - replacementPackagingCost
+    - extraUnrestockableCogs;
+
+  const refund = {
+    id: "refund",
+    label: "Refund cash",
+    cashBack: refundPaid,
+    extraPostage: returnLabelCost,
+    nextItemCost: 0,
+    kept: refundKept,
+  };
+  const credit = {
+    id: "credit",
+    label: "Store credit",
+    cashBack: 0,
+    extraPostage: returnLabelCost,
+    nextItemCost: expectedNextItemCost,
+    kept: creditKept,
+  };
+  const exchange = {
+    id: "exchange",
+    label: "Exchange",
+    cashBack: 0,
+    extraPostage: returnLabelCost + replacementShippingCost,
+    nextItemCost: extraUnrestockableCogs + replacementPackagingCost,
+    kept: exchangeKept,
+  };
+
+  const rows = [refund, credit, exchange].map((row) => ({
+    ...row,
+    vsRefund: row.kept - refundKept,
+    vsCompleted: row.kept - completedProfit,
+  }));
+  const maxKept = Math.max(...rows.map((row) => row.kept));
+  const leaders = rows.filter((row) => Math.abs(row.kept - maxKept) < 1e-9);
+  const winner = leaders.length === 1 ? leaders[0].id : "tie";
+
+  return {
+    rows,
+    refund: rows[0],
+    credit: rows[1],
+    exchange: rows[2],
+    completedProfit,
+    refundPaid,
+    feeReturned,
+    recoveredCogs,
+    expectedNextItemCost,
+    returnLabelCost,
+    restockablePct,
+    creditRedemptionPct,
+    processorFeeKeptPct,
+    refundShippingCharged,
+    restockingFee,
+    extraKeptOnCredit: creditKept - refundKept,
+    extraKeptOnExchange: exchangeKept - refundKept,
+    monthlyExtraOnCredit: (creditKept - refundKept) * monthlyReturns,
+    winner,
+    summary: returnResolutionSummary({
+      winner,
+      refund: rows[0],
+      credit: rows[1],
+      exchange: rows[2],
+    }),
+  };
+}

@@ -44,6 +44,9 @@ keep if checkout charges Shopify’s rate while you buy the cheaper label.
 answers the installment question: whether the extra Shop Pay Installments
 rate still pays after you blend the share of checkouts that use it, and how
 many extra orders cover the gap.
+[Should I offer store credit instead of a refund?](should-i-offer-store-credit-instead-of-a-refund.html)
+answers the return question: whether issuing credit or exchanging still beats
+sending cash after the return label, restock, and expected redemption.
 
 **After using the POS page, you can now see whether a market table or
 retail tap keeps more than checkout on that SKU** — which used to mean
@@ -58,6 +61,11 @@ subtracting two label PDFs and forgetting that card fees sit on shipping charged
 Installments still pay after the extra fee, including the conversion lift
 that covers a blended month** — which used to mean staring at a 5.99%
 sticker and turning the offer off.
+
+**After using the return page, you can now see whether store credit or an
+exchange still beats a cash refund on that order** — which used to mean
+refunding the Shopify button default and forgetting redemption and the
+second label.
 
 **No warranty.** This tool is provided free and as-is, without warranty of any
 kind, express or implied. It is not tax, financial, or business advice, and it
@@ -92,7 +100,7 @@ optional and never changes what the tool does.
 Pure ES modules, no build step, no dependencies.
 
 ```
-node --test        # runs calc.test.mjs and usage.test.mjs
+node --test        # calc, usage, POS / label / installment / return page tests
 ```
 
 `calc.mjs` holds the fee/profit/ROI arithmetic and plan presets; `usage.mjs`
