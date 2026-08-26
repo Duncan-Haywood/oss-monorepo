@@ -2729,3 +2729,14 @@ products:
         note: >-
           Shipped a local septic pumping bid calculator with a copyable
           proposal summary; public URL remains owner-gated.
+  - slug: electrical-panel-upgrade-bid-calculator
+    surface: static-page-in-repo
+    readings:
+      - as_of: 2026-08-25
+        signals:
+          live_url_visitors: null
+          local_events_reported: 0
+        note: >-
+          Shipped a local electrical panel / 200A service-upgrade bid
+          calculator with a copyable proposal summary; public URL remains
+          owner-gated. Counters are local, aggregate, and opt-out.
