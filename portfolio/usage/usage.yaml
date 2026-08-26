@@ -1814,6 +1814,45 @@ products:
           (a dry splash) and toilet Saturday (a commode swap).
           Public URL remains owner-gated.
 
+  - slug: tiktok-shop-fee-calculator
+    surface: static-page-in-repo
+    readings:
+      - as_of: 2026-08-24
+        signals:
+          live_url_visitors: null
+          local_events_reported: 0
+        note: >-
+          Shipped local TikTok Shop fee calculator (organic vs affiliate after
+          returns, affiliate commission kept on refunds, announced 1 Oct 2026
+          schedule). Public URL remains owner-gated; the local-first counter
+          reports only to the user's own browser and is opt-out. Baseline row.
+
+  - slug: str-host-payout-calculator
+    surface: static-page-in-repo
+    readings:
+      - as_of: 2026-08-24
+        signals:
+          live_url_visitors: null
+          local_events_reported: 0
+        note: >-
+          Shipped a local Airbnb vs Vrbo vs direct host-payout calculator
+          (2026 host-only fee, payout restore, occupancy break-even).
+          Public URL remains owner-gated; the local-first counter reports
+          only to the user's own browser and is opt-out. Baseline row.
+
+  - slug: owner-operator-cpm-calculator
+    surface: static-page-in-repo
+    readings:
+      - as_of: 2026-08-24
+        signals:
+          live_url_visitors: null
+          local_events_reported: 0
+        note: >-
+          Shipped a local owner-operator cost-per-mile calculator (deadhead-
+          adjusted break-even loaded rate, factoring on an offered rate,
+          copyable week summary). Public URL remains owner-gated; the local
+          counter is anonymous, event-only, and opt-out. Baseline row.
+
 # Example of the shape, once a product has shipped:
 #
 # products:
@@ -1975,3 +2014,59 @@ products:
           live_url_visitors: null
           local_events_reported: 0
         note: Shipped browser-local vendor scenario comparison baseline; public URL remains owner-gated.
+
+  - slug: equipment-rental-break-even
+    surface: static-page-in-repo
+    readings:
+      - as_of: 2026-08-26
+        signals:
+          live_url_visitors: null
+          calculation: 0
+          export: 0
+          draft_save: 0
+        note: >-
+          Repair-and-merge of unique #1395 equipment-rental booking
+          calculator onto current main. Public URL remains owner-gated;
+          the local-first counter reports only to the user's own browser
+          and is opt-out. Baseline row.
+
+  - slug: cash-runway-planner
+    surface: static-page-in-repo
+    readings:
+      - as_of: 2026-08-26
+        signals:
+          live_url_visitors: null
+          forecast_runs: 0
+          csv_exported: 0
+        note: >-
+          Repair-and-merge of unique #1230 cash runway planner onto
+          current main. Public URL remains owner-gated; usage is opt-in
+          and local-only. Baseline row.
+
+  - slug: ltl-freight-class-estimator
+    surface: static-page-in-repo
+    readings:
+      - as_of: 2026-08-26
+        signals:
+          live_url_visitors: null
+          estimate_completed: 0
+          result_copied: 0
+        note: >-
+          Repair-and-merge of unique #1194 LTL freight class estimator
+          onto current main. Public URL remains owner-gated; the
+          local-first counter reports only to the user's own browser
+          and is opt-out. Baseline row.
+
+  - slug: hvac-maintenance-contract-calculator
+    surface: static-page-in-repo
+    readings:
+      - as_of: 2026-08-26
+        signals:
+          live_url_visitors: null
+          plan_calculated: 0
+          summary_copied: 0
+        note: >-
+          Repair-and-merge of unique #1350 HVAC maintenance contract
+          calculator onto current main. Public URL remains owner-gated;
+          the local-first counter reports only to the user's own browser
+          and is opt-out. Baseline row.
