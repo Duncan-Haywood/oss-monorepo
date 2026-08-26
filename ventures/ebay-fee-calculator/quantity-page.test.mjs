@@ -119,6 +119,7 @@ test('disclaimers, privacy, sponsors, and cross-links are on the page', () => {
   assert.match(markup, /github.com\/sponsors\/Duncan-Haywood/);
   assert.match(markup, /should-i-offer-ebay-combined-shipping\.html/);
   assert.match(markup, /should-i-send-an-ebay-offer-to-watchers\.html/);
+  assert.match(markup, /is-ebay-promoted-offsite-worth-it\.html/);
   assert.match(markup, /should-i-break-an-ebay-lot-into-individual-listings\.html/);
   assert.match(markup, /href="\.\/"/);
 });

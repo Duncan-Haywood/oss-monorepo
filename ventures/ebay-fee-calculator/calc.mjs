@@ -81,6 +81,10 @@ export const INPUT_FIELDS = [
   'waitSellThroughPct',
   'offerAcceptPct',
   'monthlyOffers',
+  'offsiteSpend',
+  'offsiteExtraOrders',
+  'offsitePromotedRate',
+  'monthlyOffsiteCampaigns',
   'qtyDiscountUnits',
   'qtyDiscountPercent',
   'qtyShippingCharged',
@@ -1465,9 +1469,11 @@ function combinedRow({
  * This is a fulfillment decision after the sales already closed.
  * It is not lot-versus-singles (listing format before anyone
  * buys) and not Standard Envelope (postage type on one item).
- * Open eBay PRs still own promoted, store, Best Offer,
- * international, and Managed Returns. Postage and the combined
- * return rate are inputs, not eBay combined-invoice policy.
+ * Complementary to Promoted Offsite (ad spend billed even if
+ * they bounce). Open eBay PRs still own Promoted Listings
+ * Standard rate, store, Best Offer, international, Top Rated
+ * Plus, and Managed Returns. Postage and the combined return
+ * rate are inputs, not eBay combined-invoice policy.
  */
 export function compareCombinedShipping(input) {
   const listedPrice = optionalNumber(input.price, 'Item price');
@@ -1810,6 +1816,176 @@ export function sellerInitiatedOfferNote(comparison) {
 }
 
 /**
+ * Illustrative Promoted Offsite defaults. A $20 Offsite campaign
+ * that actually produces two extra $40 sales still usually pays
+ * after the typed return rate. One extra sale for the same $20
+ * does not. Spend is billed whether they buy or not — that is
+ * the difference from Promoted Listings Standard. Extra-sale
+ * counts and the Offsite spend are inputs, not eBay's live
+ * Offsite bid or daily budget.
+ */
+export const DEFAULT_OFFSITE_SPEND = 20;
+export const DEFAULT_OFFSITE_EXTRA_ORDERS = 2;
+export const DEFAULT_MONTHLY_OFFSITE_CAMPAIGNS = 4;
+
+function offsiteRow({
+  id,
+  label,
+  extraOrders,
+  adSpend,
+  extraSalesProfit,
+  completedProfit,
+  expectedProfit,
+  promotedRate,
+}) {
+  return {
+    id,
+    label,
+    extraOrders,
+    adSpend,
+    extraSalesProfit,
+    completedProfit,
+    expectedProfit,
+    expectedProfitDelta: 0,
+    promotedRate,
+  };
+}
+
+/**
+ * Same listing, skip Promoted Offsite or add a campaign.
+ *
+ *   - Skip Offsite — the listing you already have. No extra
+ *     spend, no extra sales. Promoted Listings Standard, if
+ *     typed, is already in that sale.
+ *   - Add Offsite — the same listing plus N extra completed
+ *     sales, minus the Offsite spend. The spend is paid even
+ *     if they bounce. Extra sales still pay final value fee
+ *     and, by default, the same Promoted Listings rate as
+ *     the listing (they stack). Set the Offsite sale promoted
+ *     rate to 0 if those extra sales would not also pay
+ *     Standard.
+ *
+ * This is not “does a Promoted Listings percent still pay”
+ * (#1482): Standard is a percent of a completed sale. Offsite
+ * is a bill either way. Open eBay PRs still own store, Best
+ * Offer, international, Top Rated Plus, and Managed Returns.
+ * Spend and extra-sale counts are inputs, not eBay Offsite
+ * policy.
+ */
+export function comparePromotedOffsite(input) {
+  const listedPrice = optionalNumber(input.price, 'Item price');
+  if (listedPrice === undefined) {
+    throw new Error('Item price must be a non-negative number');
+  }
+
+  const offsiteSpend = optionalNumber(
+    input.offsiteSpend,
+    'Promoted Offsite spend',
+    DEFAULT_OFFSITE_SPEND,
+  );
+  const extraOrders = optionalNumber(
+    input.offsiteExtraOrders,
+    'Extra Offsite orders',
+    DEFAULT_OFFSITE_EXTRA_ORDERS,
+  );
+  const listingPromotedRate = optionalNumber(input.promotedRate, 'Promoted listings rate', 0);
+  const offsitePromotedRate = requiredPercent(
+    input.offsitePromotedRate,
+    'Offsite sale promoted rate',
+    listingPromotedRate,
+  );
+  const monthlyCampaigns = optionalNumber(
+    input.monthlyOffsiteCampaigns,
+    'Monthly Offsite campaigns',
+    DEFAULT_MONTHLY_OFFSITE_CAMPAIGNS,
+  );
+
+  const listing = calculateOrder(input);
+  const extraSale = calculateOrder({ ...input, promotedRate: offsitePromotedRate });
+  const extraSalesProfit = extraSale.expectedProfit * extraOrders;
+  const extraSalesCompleted = extraSale.profit * extraOrders;
+
+  const skip = offsiteRow({
+    id: 'skip',
+    label: 'Skip Promoted Offsite',
+    extraOrders: 0,
+    adSpend: 0,
+    extraSalesProfit: 0,
+    completedProfit: listing.profit,
+    expectedProfit: listing.expectedProfit,
+    promotedRate: listingPromotedRate,
+  });
+  const offsite = offsiteRow({
+    id: 'offsite',
+    label: 'Add Promoted Offsite',
+    extraOrders,
+    adSpend: offsiteSpend,
+    extraSalesProfit,
+    completedProfit: listing.profit + extraSalesCompleted - offsiteSpend,
+    expectedProfit: listing.expectedProfit + extraSalesProfit - offsiteSpend,
+    promotedRate: offsitePromotedRate,
+  });
+  skip.expectedProfitDelta = skip.expectedProfit - offsite.expectedProfit;
+  offsite.expectedProfitDelta = offsite.expectedProfit - skip.expectedProfit;
+
+  const winner = offsite.expectedProfit > skip.expectedProfit + 1e-9
+    ? 'offsite'
+    : offsite.expectedProfit < skip.expectedProfit - 1e-9
+      ? 'skip'
+      : 'tie';
+
+  let breakEvenExtraOrders = Infinity;
+  if (extraSale.expectedProfit > 1e-12) {
+    breakEvenExtraOrders = offsiteSpend / extraSale.expectedProfit;
+  } else if (offsiteSpend <= 1e-12) {
+    breakEvenExtraOrders = 0;
+  }
+
+  const breakEvenOffsiteSpend = extraOrders * extraSale.expectedProfit;
+  const costPerExtraSale = extraOrders > 1e-12 ? offsiteSpend / extraOrders : Infinity;
+
+  return {
+    rows: [skip, offsite],
+    skip,
+    offsite,
+    winner,
+    offsiteSpend,
+    extraOrders,
+    offsitePromotedRate,
+    listingPromotedRate,
+    extraSaleExpectedProfit: extraSale.expectedProfit,
+    extraSaleCompletedProfit: extraSale.profit,
+    monthlyCampaigns,
+    extraKeptOnOffsite: offsite.expectedProfit - skip.expectedProfit,
+    monthlyExtraOnOffsite: (offsite.expectedProfit - skip.expectedProfit) * monthlyCampaigns,
+    breakEvenExtraOrders,
+    breakEvenOffsiteSpend,
+    costPerExtraSale,
+    listingExpectedProfit: listing.expectedProfit,
+    listingCompletedProfit: listing.profit,
+  };
+}
+
+export function promotedOffsiteNote(comparison) {
+  if (!comparison?.skip || !comparison?.offsite) {
+    throw new Error('Promoted Offsite comparison is missing rows');
+  }
+  const money = (value) => {
+    const sign = value < 0 ? '-' : '';
+    return `${sign}$${Math.abs(value).toFixed(2)}`;
+  };
+  const { skip, offsite } = comparison;
+  const gap = money(Math.abs(offsite.expectedProfit - skip.expectedProfit));
+  const ahead = offsite.expectedProfit >= skip.expectedProfit ? 'more' : 'less';
+  const skipLine = `Skip Promoted Offsite. The listing you already have expects ${money(skip.expectedProfit)} after the typed return rate.`;
+  const offsiteLine = `A ${money(comparison.offsiteSpend)} Offsite campaign that produces ${comparison.extraOrders} extra sale${comparison.extraOrders === 1 ? '' : 's'} expects ${money(offsite.expectedProfit)} after that spend — ${gap} ${ahead}.`;
+  const floor = Number.isFinite(comparison.breakEvenExtraOrders)
+    ? ` Extra sales have to stay at about ${comparison.breakEvenExtraOrders.toFixed(2)} before Offsite matches skip.`
+    : ' No extra-sale count on these rates can match skip-Offsite.';
+  return `${skipLine} ${offsiteLine}${floor}`;
+}
+
+/**
  * Illustrative quantity-discount extras. Two units at 10% off is
  * the first tier eBay surfaces. $6 charged / $5.50 label / $1.25
  * pack is one slightly heavier box instead of two $5+$1 singles.
@@ -1901,9 +2077,10 @@ function qtyRow({
  * This is not combined shipping (already-sold different items,
  * no price cut). It is not lot-versus-singles (one listing of a
  * pile versus N listings). It is not a seller-initiated offer
- * (one unit, percent off to watchers). Open eBay PRs still own
- * promoted, store, Best Offer, international, Managed Returns,
- * Top Rated Plus, and Promoted Offsite. Postage, the discount,
+ * (one unit, percent off to watchers). Promoted Offsite (#1653) is a campaign billed either way,
+ * not a price cut. Open eBay PRs still own promoted Standard,
+ * store, incoming Best Offer, international, Managed Returns,
+ * and Top Rated Plus. Postage, the discount,
  * and both close rates are inputs, not eBay volume-pricing
  * policy.
  */

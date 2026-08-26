@@ -60,11 +60,18 @@ already-listed SKU two ways: wait for Buy It Now, or send a percent
 offer to watchers. A 20% “make them take it” coupon can leave less
 than sitting at the listed price.
 [Should I send an offer to eBay watchers?](should-i-send-an-ebay-offer-to-watchers.html).
+A **Promoted Offsite vs skip** table then prices the same listing
+two ways: keep the sale you already have, or pay a campaign that
+is billed even if they bounce and add the extra sales you type.
+Promoted Listings Standard is a percent of a completed sale;
+Offsite is not.
+[Is eBay Promoted Offsite worth it?](is-ebay-promoted-offsite-worth-it.html).
 A **Quantity discount vs selling separately** table then prices the
-same multi-quantity SKU two ways: sell N as singles at list, or
-cut the item price so one buyer takes all N in one box. A 10%
-off-two coupon can leave less leftover if they would have bought
-two anyway.
+same multi-quantity SKU two ways: sell N units as singles at list,
+or cut the item price so one buyer takes all N, pays shipping
+once, and gets one box. If they would have bought N anyway, the
+leftover usually shrinks. A 20% “make them take two” coupon can
+leave less than two singles at list.
 [Should I offer an eBay quantity discount?](should-i-offer-an-ebay-quantity-discount.html).
 
 **After using the authenticity page, you can now see whether a 3% fee
@@ -97,10 +104,17 @@ a 10% seller-initiated offer still beats waiting at 40%
 sell-through** — which used to mean hitting Send offer because
 eBay showed a watcher count and never pricing the discount.
 
+**After using the Promoted Offsite page, you can now see whether
+a $20 campaign still pays after two extra sales** — which used
+to mean turning Offsite on because “it looks like Promoted
+Listings” and never pricing a bill that is charged even if they
+bounce.
+
 **After using the quantity-discount page, you can now see whether
 10% off two still beats two singles after a typed take rate** —
-which used to mean turning on Buy 2, get 10% off because the
-listing form offered it and never pricing the leftover.
+which used to mean turning Buy 2, get 10% off on because
+“volume always pays” and never pricing leftover on a packed
+multi-buy.
 
 Open `index.html` in a browser. The calculation is local and works without an
 account, network request, or API key. It is arithmetic, not an estimate of the
@@ -165,11 +179,15 @@ drive that decision:
   after sell-through with Buy It Now versus a percent offer to
   watchers. Insertion is already sunk. The table also names the
   accept rate and offer-percent ceiling that still tie waiting.
-- **Quantity discount vs selling separately** — expected leftover
-  for N singles at list versus one multi-buy at a percent off,
-  then the same leftover after a typed singles sell-through
-  versus take rate. The table also names the take-rate floor and
-  the leftover discount-percent ceiling.
+- **Promoted Offsite vs skip** — expected profit after returns
+  with the listing you already have versus that listing plus
+  extra sales minus a campaign billed either way. The table
+  also names the extra-sale count that still ties skip.
+- **Quantity discount vs selling separately** — expected profit
+  after sell-through with N singles versus one multi-buy at a
+  percent off, one shipping charge, and one label. The table
+  also names the take rate and discount-percent ceiling that
+  still tie selling separately.
 
 **No warranty.** This tool is provided free and as-is, without warranty of any
 kind, express or implied. It is not tax, financial, or business advice, and it
@@ -197,13 +215,16 @@ The counted events are `order_profit_calculated`, `target_margin_calculated`,
 `partial_refund_compared`, `authenticity_compared`,
 `local_pickup_compared`, `lot_vs_singles_compared`,
 `standard_envelope_compared`, `combined_shipping_compared`,
-`seller_initiated_offer_compared`, `quantity_discount_compared`, and
+`seller_initiated_offer_compared`,
+`promoted_offsite_compared`,
+`quantity_discount_compared`, and
 `price_sensitivity_viewed`.
 `price_sensitivity_viewed`, `listing_format_compared`,
 `partial_refund_compared`, `authenticity_compared`,
 `local_pickup_compared`, `lot_vs_singles_compared`,
 `standard_envelope_compared`, `combined_shipping_compared`,
-`seller_initiated_offer_compared`, and
+`seller_initiated_offer_compared`,
+`promoted_offsite_compared`, and
 `quantity_discount_compared` are counted at most
 once per visit and only after an input is edited — counting the table's
 first paint would just re-count page loads and say nothing about whether
