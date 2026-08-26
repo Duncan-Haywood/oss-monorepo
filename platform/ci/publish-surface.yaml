@@ -211,6 +211,9 @@ workflows:
 - workflow: gravel-driveway-bid-calculator-ci.yml
   classification: none
   publishes: []
+- workflow: gutter-guard-bid-calculator-ci.yml
+  classification: none
+  publishes: []
 - workflow: gutter-install-bid-calculator-ci.yml
   classification: none
   publishes: []
@@ -394,6 +397,9 @@ workflows:
   classification: none
   publishes: []
 - workflow: screened-porch-bid-calculator-ci.yml
+  classification: none
+  publishes: []
+- workflow: seller-net-sheet-ci.yml
   classification: none
   publishes: []
 - workflow: sewer-hydrojet-bid-calculator-ci.yml

@@ -4127,3 +4127,36 @@ ventures:
     gate_note: >-
       Pass: arithmetic on user inputs, never a closing disclosure or
       advice to accept an offer. Nothing leaves the browser.
+  - slug: gutter-guard-bid-calculator
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 7
+      gross_margin: 10
+      defensibility: 5
+      distribution: 7
+    composite: 6.667
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      There is no AI anywhere in the product. The value is a domain model —
+      extra stories, extra lineal feet, extra miters, and a micromesh coil as
+      their own hours — that is arithmetic, and adding inference to it
+      would only make the result less checkable.
+    basis: >-
+      Graduated on 2026-08-25 as a browser-local gutter guard bid calculator.
+      Distinct from gutter cleaning (seasonal debris flush / downspout snake)
+      and from roofing / shingle / reroof (squares and pitch). This prices a
+      guard *install*: the feet, the stories, the miters, and the system.
+      Distribution 7: "how much to charge to install gutter guards" and
+      "gutter guard bid calculator" are lower-volume than marketplace-fee
+      queries but bought by an operator with a real job on the line.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Pass: the output is arithmetic on the contractor's own inputs, never a
+      recommended price, a leak warranty, or a building-code determination.
+      The shipped hours are labelled ballpark starting points rather than a
+      standard or protocol, and nothing the user enters leaves the browser.
