@@ -4,18 +4,21 @@ const $ = (id) => document.getElementById(id);
 const values = () => Object.fromEntries(ids.map((id) => [id, id === "currency" ? $(id).value.trim() || "units" : Number($(id).value)]));
 const DRAFTS_KEY = "rental-drafts";
 let last;
+let countedSignature = "";
 function render(count = true) {
   try {
     const v = values();
     last = { v, r: calculate(v) };
     const { r } = last;
+    const daysShare = Number.isFinite(r.utilization) ? (r.utilization * v.rental_days) / v.available : Infinity;
     const rows = [
       ["Booking-specific costs", `${v.currency} ${r.bookingCosts.toFixed(2)}`],
       ["Ownership recovery per rental day", `${v.currency} ${r.ownershipPerDay.toFixed(2)}`],
       ["Minimum price at expected utilization", `${v.currency} ${r.minimumPrice.toFixed(2)}`],
       ["Price at target contribution margin", `${v.currency} ${r.targetPrice.toFixed(2)}`],
       ["Contribution after booking and ownership costs", `${v.currency} ${r.contribution.toFixed(2)}`, r.contribution >= 0],
-      ["Break-even utilization", Number.isFinite(r.utilization) ? `${(r.utilization * 100).toFixed(1)}%` : "Not reached", r.utilization <= 1],
+      ["Break-even bookings per month", Number.isFinite(r.utilization) ? r.utilization.toFixed(2) : "Not reached", r.utilization <= (v.available / v.rental_days)],
+      ["Share of available rental days", Number.isFinite(daysShare) ? `${(daysShare * 100).toFixed(1)}%` : "Not reached", daysShare <= 1],
     ];
     const result = $("result");
     result.replaceChildren();
@@ -29,7 +32,11 @@ function render(count = true) {
       dl.append(dt, dd);
     });
     result.append(dl);
-    if (count) usage("calculation");
+    const signature = ids.map((id) => String(v[id])).join("|");
+    if (count && signature !== countedSignature) {
+      usage("calculation");
+      countedSignature = signature;
+    }
   } catch (e) {
     const error = document.createElement("p");
     error.className = "bad";
