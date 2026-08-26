@@ -14,9 +14,10 @@ test('round-trips every field the calculator accepts', () => {
 });
 
 test('carries batch quantity and target margin', () => {
-  const restored = decodeInputs(encodeInputs({ price: 40, quantity: 10, targetMargin: 25 }));
+  const restored = decodeInputs(encodeInputs({ price: 40, quantity: 10, targetMargin: 25, targetRoi: 50 }));
   assert.equal(restored.quantity, 10);
   assert.equal(restored.targetMargin, 25);
+  assert.equal(restored.targetRoi, 50);
 });
 
 test('carries expected return-rate fields so a shared link does not drop them', () => {

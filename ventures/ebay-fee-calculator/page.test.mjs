@@ -13,6 +13,14 @@ test('the form exposes every calculator field so a saved or shared link can rest
   }
 });
 
+test('the result panel shows a sourcing ceiling for the typed target ROI', () => {
+  assert.match(page, /id="targetRoi"/);
+  assert.match(page, /id="sourcingCeiling"/);
+  assert.match(page, /id="ceilingStatus"/);
+  assert.match(page, /calculateSourcingCeiling/);
+  assert.match(page, /sourcing_ceiling_calculated/);
+});
+
 test('the result panel shows expected profit after returns', () => {
   assert.match(page, /id="expectedProfit"/);
   assert.match(page, /id="cashEatenPerReturn"/);

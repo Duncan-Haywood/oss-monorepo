@@ -21,6 +21,7 @@ export const INPUT_FIELDS = [
   'packagingCost',
   'otherCost',
   'targetMargin',
+  'targetRoi',
   'returnRatePercent',
   'returnShippingCost',
   'feeRefundOnReturnPercent',
@@ -289,6 +290,23 @@ export function calculateOrder(input) {
     // Null-equivalent Infinity means even every order coming back still pays
     // (no sunk shipping/fees). Zero means the completed sale already loses.
     breakEvenReturnRate,
+  };
+}
+
+export function calculateSourcingCeiling(input, targetRoi) {
+  const target = Number(targetRoi);
+  if (!Number.isFinite(target) || target < 0) throw new Error('Target ROI must be a non-negative number');
+  const baseline = calculateOrder({ ...input, costOfGoods: 0, quantity: 1 });
+  const otherCashPerUnit = Number(input.shippingCost ?? 0) + Number(input.packagingCost ?? 0) + Number(input.otherCost ?? 0);
+  const targetRate = target / 100;
+  const numerator = baseline.unitProfit - targetRate * otherCashPerUnit;
+  const maximumAcquisitionCost = Math.max(0, numerator / (1 + targetRate));
+  return {
+    targetRoi: target,
+    maximumAcquisitionCost,
+    currentAcquisitionCost: Number(input.costOfGoods ?? 0),
+    isReachable: numerator >= 0,
+    amountOverCeiling: Math.max(0, Number(input.costOfGoods ?? 0) - maximumAcquisitionCost),
   };
 }
 
