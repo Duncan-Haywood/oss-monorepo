@@ -182,7 +182,21 @@ export function computeRecovery({ feeAmount, annualLostRevenue, annualFeeRevenue
       ? null
       : Math.ceil(annualLostRevenue / feeAmount);
 
-  return { recoveryRatePct, collectionsToBreakEven };
+  // The same figures at the cadence an owner actually plans on. An annual
+  // exposure is easy to wave off as a big abstract number; the monthly slice is
+  // the one that sits next to rent. Derived here rather than divided at the
+  // render site so the rounding is stated once.
+  const monthlyExposure = round2(annualLostRevenue / 12);
+  const monthlyFeeRevenue = round2(annualFeeRevenue / 12);
+  const monthlyUnrecovered = round2(monthlyExposure - monthlyFeeRevenue);
+
+  return {
+    recoveryRatePct,
+    collectionsToBreakEven,
+    monthlyExposure,
+    monthlyFeeRevenue,
+    monthlyUnrecovered,
+  };
 }
 
 /**
@@ -197,7 +211,13 @@ export function computeAll(values) {
     noShowsPerYear,
     enforcementRatePct: values.enforcementRatePct,
   });
-  const { recoveryRatePct, collectionsToBreakEven } = computeRecovery({
+  const {
+    recoveryRatePct,
+    collectionsToBreakEven,
+    monthlyExposure,
+    monthlyFeeRevenue,
+    monthlyUnrecovered,
+  } = computeRecovery({
     feeAmount,
     annualLostRevenue,
     annualFeeRevenue,
@@ -209,6 +229,9 @@ export function computeAll(values) {
     annualFeeRevenue,
     recoveryRatePct,
     collectionsToBreakEven,
+    monthlyExposure,
+    monthlyFeeRevenue,
+    monthlyUnrecovered,
     inputs: values,
   };
 }

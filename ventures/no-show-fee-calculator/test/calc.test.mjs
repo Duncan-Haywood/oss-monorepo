@@ -160,6 +160,9 @@ test("computeRecovery reports modeled recovery and whole-fee break-even count", 
   assert.deepEqual(computeRecovery({ feeAmount: 75, annualLostRevenue: 6240, annualFeeRevenue: 4368 }), {
     recoveryRatePct: 70,
     collectionsToBreakEven: 84,
+    monthlyExposure: 520,
+    monthlyFeeRevenue: 364,
+    monthlyUnrecovered: 156,
   });
 });
 
@@ -167,10 +170,16 @@ test("computeRecovery handles zero exposure and zero fee without infinity", () =
   assert.deepEqual(computeRecovery({ feeAmount: 0, annualLostRevenue: 0, annualFeeRevenue: 0 }), {
     recoveryRatePct: 0,
     collectionsToBreakEven: 0,
+    monthlyExposure: 0,
+    monthlyFeeRevenue: 0,
+    monthlyUnrecovered: 0,
   });
   assert.deepEqual(computeRecovery({ feeAmount: 0, annualLostRevenue: 100, annualFeeRevenue: 0 }), {
     recoveryRatePct: 0,
     collectionsToBreakEven: null,
+    monthlyExposure: 8.33,
+    monthlyFeeRevenue: 0,
+    monthlyUnrecovered: 8.33,
   });
 });
 
@@ -872,4 +881,34 @@ test("draft helpers degrade to a no-op when storage is unavailable", () => {
   assert.deepEqual(readDraft(throwing), {});
   assert.equal(clearDraft(throwing), false);
   assert.equal(saveDraft({ price: "1" }, null), false);
+});
+
+test("computeRecovery reports the monthly slice of the annual exposure", () => {
+  const result = computeRecovery({ feeAmount: 75, annualLostRevenue: 6240, annualFeeRevenue: 4368 });
+  assert.equal(result.monthlyExposure, 520);
+  assert.equal(result.monthlyFeeRevenue, 364);
+  assert.equal(result.monthlyUnrecovered, 156);
+  // The monthly view must agree with the annual rate it sits beside.
+  assert.equal(result.recoveryRatePct, 70);
+});
+
+test("the monthly view is zero across the board at zero exposure", () => {
+  const result = computeRecovery({ feeAmount: 0, annualLostRevenue: 0, annualFeeRevenue: 0 });
+  assert.equal(result.monthlyExposure, 0);
+  assert.equal(result.monthlyFeeRevenue, 0);
+  assert.equal(result.monthlyUnrecovered, 0);
+});
+
+test("computeAll surfaces the monthly view alongside the annual figures", () => {
+  const result = computeAll({
+    price: 120, bookingsPerWeek: 40, noShowRatePct: 5, noticeHours: 24,
+    feePercent: 50, enforcementRatePct: 70,
+  });
+  const round2 = (n) => Math.round(n * 100) / 100;
+  assert.equal(result.monthlyExposure, round2(result.annualLostRevenue / 12));
+  assert.equal(result.monthlyFeeRevenue, round2(result.annualFeeRevenue / 12));
+  assert.equal(
+    result.monthlyUnrecovered,
+    round2(result.monthlyExposure - result.monthlyFeeRevenue),
+  );
 });

@@ -87,6 +87,12 @@ function renderResults(result) {
   document.getElementById("out-break-even-collections").textContent = result.collectionsToBreakEven === null
     ? "Not possible at $0"
     : result.collectionsToBreakEven.toLocaleString();
+  // The annual figures above are the same arithmetic; these are the cadence an
+  // owner plans on, so the fee is judged against a month of exposure rather
+  // than a year of it.
+  document.getElementById("out-monthly-exposure").textContent = fmtMoney(result.monthlyExposure);
+  document.getElementById("out-monthly-fee-revenue").textContent = fmtMoney(result.monthlyFeeRevenue);
+  document.getElementById("out-monthly-unrecovered").textContent = fmtMoney(result.monthlyUnrecovered);
 }
 
 function renderScenarios(values) {
