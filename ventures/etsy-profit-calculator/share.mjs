@@ -48,6 +48,8 @@ export const FIELD_IDS = [
   'listedSellThroughPct',
   'saleSellThroughPct',
   'saleListings',
+  'freeShipPrice',
+  'monthlyOrders',
 ];
 
 // A field value is only carried if it is a finite, non-negative number — the

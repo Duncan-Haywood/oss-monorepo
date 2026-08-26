@@ -1051,6 +1051,155 @@ export function shopSaleNote(comparison) {
   return `${listed}${percentPacked}${dollarPacked}${expected}${percentCeiling}${dollarCeiling}${discountCeiling}`;
 }
 
+// Illustrative free-shipping defaults: raise the $30 item to $32 and drop
+// the $5 label. Absorbing the whole label ($35 item, $0 charged) is a tie
+// on the same customer total — percentage fees sit on item + shipping.
+export const FREE_SHIPPING_DEFAULTS = {
+  freeShipPrice: 32,
+  monthlyOrders: 40,
+};
+
+function liftToMatch(baseProfit, altProfit) {
+  if (altProfit > baseProfit + 1e-9) {
+    return { liftPercent: 0, extraPerOrder: 0, canWinWithVolume: true, alreadyAhead: true };
+  }
+  if (Math.abs(altProfit - baseProfit) <= 1e-9) {
+    return { liftPercent: 0, extraPerOrder: 0, canWinWithVolume: true, alreadyAhead: false };
+  }
+  if (altProfit <= 1e-12) {
+    return { liftPercent: null, extraPerOrder: null, canWinWithVolume: false, alreadyAhead: false };
+  }
+  const extraPerOrder = (baseProfit - altProfit) / altProfit;
+  return {
+    liftPercent: extraPerOrder * 100,
+    extraPerOrder,
+    canWinWithVolume: true,
+    alreadyAhead: false,
+  };
+}
+
+function freeShippingWinner(raisedProfit, chargedProfit) {
+  if (raisedProfit > chargedProfit + 1e-9) return 'raised';
+  if (chargedProfit > raisedProfit + 1e-9) return 'charged';
+  return 'tie';
+}
+
+// Charge shipping vs free shipping at a typed item price. Eating the label
+// (same item price, $0 charged) and absorbing it (item = old buyer total)
+// are teaching rows: same customer total is a fee-stack tie.
+export function compareFreeShipping(input = {}) {
+  const chargedRaw = calculateOrder(input);
+  const price = nonNegativeNumber(input.price, 'Price');
+  const shippingCharged = nonNegativeNumber(input.shippingCharged, 'Shipping charged', 0);
+  const freeShipPrice = nonNegativeNumber(
+    input.freeShipPrice,
+    'Free-shipping item price',
+    FREE_SHIPPING_DEFAULTS.freeShipPrice,
+  );
+  const monthlyOrders = nonNegativeNumber(
+    input.monthlyOrders,
+    'Monthly orders',
+    FREE_SHIPPING_DEFAULTS.monthlyOrders,
+  );
+
+  const eatLabelRaw = calculateOrder({ ...input, shippingCharged: 0 });
+  const absorbPrice = price + shippingCharged;
+  const absorbRaw = calculateOrder({ ...input, price: absorbPrice, shippingCharged: 0 });
+  const raisedRaw = calculateOrder({ ...input, price: freeShipPrice, shippingCharged: 0 });
+  const lift = liftToMatch(chargedRaw.profit, raisedRaw.profit);
+  const extraOrdersNeeded = lift.extraPerOrder == null ? null : monthlyOrders * lift.extraPerOrder;
+
+  const chargedProfit = roundMoney(chargedRaw.profit);
+  const eatLabelProfit = roundMoney(eatLabelRaw.profit);
+  const absorbProfit = roundMoney(absorbRaw.profit);
+  const raisedProfit = roundMoney(raisedRaw.profit);
+  const perOrderDelta = roundMoney(raisedRaw.profit - chargedRaw.profit);
+  const eatLabelDelta = roundMoney(eatLabelRaw.profit - chargedRaw.profit);
+
+  return {
+    freeShipPrice: roundMoney(freeShipPrice),
+    monthlyOrders,
+    absorbPrice: roundMoney(absorbPrice),
+    charged: {
+      id: 'charged',
+      label: 'Charge shipping',
+      price: roundMoney(price),
+      shippingCharged: roundMoney(shippingCharged),
+      revenue: roundMoney(chargedRaw.revenue),
+      profit: chargedProfit,
+      monthly: roundMoney(monthlyOrders * chargedRaw.profit),
+    },
+    eatLabel: {
+      id: 'eat_label',
+      label: 'Free shipping, same item price',
+      price: roundMoney(price),
+      shippingCharged: 0,
+      revenue: roundMoney(eatLabelRaw.revenue),
+      profit: eatLabelProfit,
+      monthly: roundMoney(monthlyOrders * eatLabelRaw.profit),
+    },
+    absorb: {
+      id: 'absorb',
+      label: 'Free shipping, same customer total',
+      price: roundMoney(absorbPrice),
+      shippingCharged: 0,
+      revenue: roundMoney(absorbRaw.revenue),
+      profit: absorbProfit,
+      monthly: roundMoney(monthlyOrders * absorbRaw.profit),
+    },
+    raised: {
+      id: 'raised',
+      label: 'Free shipping at typed price',
+      price: roundMoney(freeShipPrice),
+      shippingCharged: 0,
+      revenue: roundMoney(raisedRaw.revenue),
+      profit: raisedProfit,
+      monthly: roundMoney(monthlyOrders * raisedRaw.profit),
+    },
+    perOrderDelta,
+    eatLabelDelta,
+    liftPercent: lift.liftPercent == null ? null : roundMoney(lift.liftPercent),
+    extraPerOrder: lift.extraPerOrder == null ? null : lift.extraPerOrder,
+    extraOrdersNeeded: extraOrdersNeeded == null ? null : roundMoney(extraOrdersNeeded),
+    canWinWithVolume: lift.canWinWithVolume,
+    alreadyAhead: lift.alreadyAhead,
+    winner: freeShippingWinner(raisedRaw.profit, chargedRaw.profit),
+    monthlyCharged: roundMoney(monthlyOrders * chargedRaw.profit),
+    monthlyRaised: roundMoney(monthlyOrders * raisedRaw.profit),
+    monthlyEatLabel: roundMoney(monthlyOrders * eatLabelRaw.profit),
+    monthlyDelta: roundMoney(monthlyOrders * (raisedRaw.profit - chargedRaw.profit)),
+  };
+}
+
+export function freeShippingNote(comparison) {
+  if (!comparison?.charged || !comparison?.raised || !comparison?.eatLabel || !comparison?.absorb) {
+    throw new Error('Free-shipping comparison is missing rows');
+  }
+  const money = (value) => {
+    const sign = value < 0 ? '−' : '';
+    return `${sign}$${Math.abs(value).toFixed(2)}`;
+  };
+  const signed = (value) => {
+    if (Math.abs(value) <= 1e-9) return '$0.00';
+    return `${value < 0 ? '−' : '+'}$${Math.abs(value).toFixed(2)}`;
+  };
+  const charged = `Charging ${money(comparison.charged.shippingCharged)} shipping on a ${money(comparison.charged.price)} item leaves ${money(comparison.charged.profit)} per order.`;
+  const eat = ` Free shipping at the same item price leaves ${money(comparison.eatLabel.profit)} (${signed(comparison.eatLabelDelta)}).`;
+  const absorb = ` Moving the label into the item price (${money(comparison.absorb.price)} + $0.00) leaves ${money(comparison.absorb.profit)} — the same customer total is a tie.`;
+  const raised = ` Free shipping at ${money(comparison.raised.price)} leaves ${money(comparison.raised.profit)} (${signed(comparison.perOrderDelta)} per order).`;
+  let volume;
+  if (comparison.alreadyAhead) {
+    volume = ` Free shipping already keeps more per order, so it does not need extra volume.`;
+  } else if (comparison.winner === 'tie') {
+    volume = ` Same leftover per order — extra orders are a ranking question, not a fee-stack one.`;
+  } else if (!comparison.canWinWithVolume) {
+    volume = ` Free shipping is at or below $0.00 leftover, so no finite extra-order lift can match charging shipping.`;
+  } else {
+    volume = ` At ${comparison.monthlyOrders} orders/month, free shipping needs about ${comparison.extraOrdersNeeded.toFixed(1)} extra orders (${comparison.liftPercent.toFixed(1)}%) to match ${money(comparison.monthlyCharged)}.`;
+  }
+  return `${charged}${eat}${absorb}${raised}${volume}`;
+}
+
 export function productionPartnerNote(comparison) {
   if (!comparison?.youMake || !comparison?.partner || !comparison?.hybrid) {
     throw new Error('Production-partner comparison is missing rows');
