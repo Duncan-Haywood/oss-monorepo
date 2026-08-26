@@ -196,6 +196,13 @@ vendors. The optional local counter records only the event name and day in your
 browser; it never records the inputs. Turn it off with the checkbox in the
 footer, or your browser's Do Not Track / Global Privacy Control setting.
 
+The page can copy a private share link containing the current numeric inputs and
+payment path, or copy a text order summary for a partner or spreadsheet. The
+link is encoded in the URL and is never sent to this project; do not put
+sensitive information in calculator fields because URLs may be retained by
+browser history or messaging tools. Sharing and summary-copy events are counted
+locally without recording the calculation values.
+
 ## Support
 
 The tool is free and full-featured. The
