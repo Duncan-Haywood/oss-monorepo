@@ -69,7 +69,7 @@
     footer { margin-top: 25px; font-size: .82rem; color: #4a5666; }
     footer a { color: #1c7a5e; }
     .support { margin-top: 14px; }
-    .summary-actions { display: flex; gap: 8px; align-items: center; margin-top: 14px; }
+    .summary-actions { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; margin-top: 14px; }
     .summary-status { font-size: .8rem; color: #bce8cf; }
     .compare { margin-top: 18px; min-width: 0; }
     .compare table { width: 100%; border-collapse: collapse; font-size: .92rem; }
@@ -221,6 +221,7 @@
         <button type="button" id="copyLink">Copy bid link</button>
         <button type="button" id="clearSaved">Start a fresh bid</button>
         <button type="button" id="copySummary">Copy bid summary</button>
+        <button type="button" id="downloadSummary">Download .txt</button>
         <span id="summaryStatus" class="summary-status" role="status" aria-live="polite"></span>
       </div>
       <p id="restoreNote" class="note" role="status" aria-live="polite" hidden></p>
@@ -901,36 +902,18 @@
       panel.dataset.note = initialCleanNote(comparison, { targetMargin: Number(el('targetMargin').value) });
     }
 
-    function summaryText(result) {
-      const spaces = result.areas
-        .filter(area => area.squareFeet > 0 && area.cleaningsPerWeek > 0)
-        .map(area => `- ${area.name}: ${area.squareFeet.toLocaleString('en-US')} sq ft, ${area.cleaningsPerWeek}x/week`)
-        .join('\n');
-      return [
-        'COMMERCIAL CLEANING BID',
-        '',
-        `Proposed monthly service: ${money(result.monthlyPrice)}`,
-        `Annual contract value: ${money(result.annualPrice)}`,
-        `Service labor: ${result.monthlyHours.toFixed(1)} hours/month`,
-        `Price per square foot: $${result.pricePerSqFtMonth === null ? 'n/a' : result.pricePerSqFtMonth.toFixed(3)}/sq ft/month`,
-        '',
-        'SERVICE AREAS',
-        spaces || '- No service areas entered',
-        '',
-        `Scope basis: ${result.hoursPerVisitTotal.toFixed(2)} labor hours per visit at the entered frequencies.`,
-        'This is a draft for review. Confirm scope, schedule, insurance, taxes, and all pricing before sending.',
-      ].join('\n');
-    }
-
-    async function copySummary() {
-      const areas = readAreas();
-      const result = calculateBid({
-        areas,
+    function currentBid() {
+      return calculateBid({
+        areas: readAreas(),
+        shifts: readShifts(),
         projects: readProjects(),
         ...Object.fromEntries(COST_IDS.map(id => [id, el(id).value])),
         proposedPrice: el('proposedPrice').value,
       });
-      const text = formatBidSummary(result);
+    }
+
+    async function copySummary() {
+      const text = formatBidSummary(currentBid());
       try {
         await navigator.clipboard.writeText(text);
       } catch {
@@ -946,6 +929,22 @@
       }
       count('summary_copied');
       el('summaryStatus').textContent = 'Copied to clipboard';
+      setTimeout(() => { el('summaryStatus').textContent = ''; }, 2500);
+    }
+
+    function downloadSummary() {
+      const blob = new Blob([formatBidSummary(currentBid())], { type: 'text/plain;charset=utf-8' });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = 'janitorial-bid-summary.txt';
+      link.hidden = true;
+      document.body.append(link);
+      link.click();
+      link.remove();
+      URL.revokeObjectURL(url);
+      count('summary_downloaded');
+      el('summaryStatus').textContent = 'Downloaded bid summary';
       setTimeout(() => { el('summaryStatus').textContent = ''; }, 2500);
     }
 
@@ -1057,6 +1056,13 @@
     el('copySummary').addEventListener('click', () => {
       try {
         copySummary().catch(() => { el('summaryStatus').textContent = 'Copy failed; select and copy the figures above.'; });
+      } catch (error) {
+        el('summaryStatus').textContent = error.message;
+      }
+    });
+    el('downloadSummary').addEventListener('click', () => {
+      try {
+        downloadSummary();
       } catch (error) {
         el('summaryStatus').textContent = error.message;
       }

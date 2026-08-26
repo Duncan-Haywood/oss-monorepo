@@ -79,6 +79,8 @@ service + project work) so the contractor does not amortize a floor job across
 eleven months they will never recoup. **Copy bid summary** turns the result
 into a plain-text draft with the monthly price, the project lines, the
 first-month invoice, and the service areas ready to paste into a proposal.
+**Download .txt** saves that same draft locally so it can be attached to a CRM
+record or opened in a word processor without retyping the figures.
 
 **If they cut the schedule** answers the renewal question contractors actually
 get: a prospect who wants 3×/week instead of 5× and offers 60% of today’s
@@ -113,6 +115,7 @@ A second building is a different question. Open
 [`second-site.html`](second-site.html) to price the new site the same way,
 then add the drive as loaded labor and extra fuel. The first-building bid
 treats the van as already paid for; the hop to the next address is not free.
+>>>>>>> origin/main
 
 The arithmetic lives in [`calc.mjs`](calc.mjs) with no DOM or network
 dependency, so it is testable and auditable on its own. See
@@ -137,7 +140,7 @@ automatically when the browser sends Do Not Track or Global Privacy Control.
 See [`usage.mjs`](usage.mjs) and [`portfolio/usage/`](../../portfolio/usage/README.md).
 
 Events counted: `bid_calculated`, `area_added`, `area_removed`,
-`proposed_price_compared`, `summary_copied`, `space_named`,
+`proposed_price_compared`, `summary_copied`, `summary_downloaded`, `space_named`,
 `shift_added`, `shift_priced`, `shift_removed`,
 `project_added`, `project_priced`, `project_removed`,
 `frequency_reduction_compared`, `frequency_note_copied`,

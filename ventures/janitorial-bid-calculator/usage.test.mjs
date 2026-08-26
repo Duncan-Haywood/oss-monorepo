@@ -37,6 +37,7 @@ test('supports a named aggregate event without recording inputs', () => {
   recordUsage(storage, false, 'frequency_reduction_compared');
   recordUsage(storage, false, 'supply_responsibility_compared');
   recordUsage(storage, false, 'initial_clean_compared');
+  recordUsage(storage, false, 'summary_downloaded');
   const event = JSON.parse(storage.values.get('janitorial-bid-usage'));
   assert.equal(event.area_added, 2);
   assert.equal(event.shift_added, 1);
@@ -47,6 +48,7 @@ test('supports a named aggregate event without recording inputs', () => {
   assert.equal(event.frequency_reduction_compared, 1);
   assert.equal(event.supply_responsibility_compared, 1);
   assert.equal(event.initial_clean_compared, 1);
+  assert.equal(event.summary_downloaded, 1);
 });
 
 test('stores nothing beyond event counters and the day', () => {
