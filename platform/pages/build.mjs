@@ -19,9 +19,23 @@
 // opt-out.
 
 import { promises as fs, existsSync } from 'node:fs';
+import crypto from 'node:crypto';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import zlib from 'node:zlib';
+
+import {
+  ICONS,
+  OFFLINE_WIDGET_HTML,
+  OFFLINE_WIDGET_SCRIPT,
+  THEME_COLOR,
+  injectOfflineSupport,
+  renderIcon,
+  renderKillSwitchWorker,
+  renderManifest,
+  renderOfflinePage,
+  renderServiceWorker,
+} from './offline.mjs';
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 export const REPO_ROOT = path.resolve(HERE, '..', '..');
@@ -183,16 +197,58 @@ const decodeEntities = (value) =>
     .replace(/&quot;/g, '"')
     .replace(/&#0?39;/g, "'");
 
-// The content value is read up to the *same* quote that opened it, via a
-// backreference. Accepting any quote instead (`[^"']*`) silently stops at the
-// first apostrophe inside a double-quoted attribute, so "last night's archive
-// shrank" reached the hub and its JSON-LD as "last night" — a card and a
-// crawler description cut mid-sentence.
+/**
+ * Every `<meta>` tag in `html`, as raw source.
+ *
+ * The alternation consumes either an ordinary character or a whole quoted
+ * string, so an attribute value is never mistaken for the end of the tag. A
+ * plain `<meta[^>]*>` ends the tag at the first `>` even when that `>` sits
+ * inside a quoted description ("4×8 > 5×5").
+ */
+const metaTags = (html) => html.match(/<meta\b(?:[^>"']|"[^"]*"|'[^']*')*>/gi) ?? [];
+
+const ATTRIBUTE = /([a-zA-Z_:][\w:.-]*)\s*=\s*(?:"([^"]*)"|'([^']*)'|([^\s"'>]+))/g;
+
+/** Attribute name → value for one tag, names lowercased, values still encoded. */
+const parseAttributes = (tag) => {
+  const attrs = {};
+  for (const [, name, dq, sq, bare] of tag.matchAll(ATTRIBUTE)) {
+    attrs[name.toLowerCase()] = dq ?? sq ?? bare ?? '';
+  }
+  return attrs;
+};
+
+/**
+ * The `content` of the first `<meta>` whose `attr` equals `value`.
+ *
+ * Tags are parsed attribute by attribute rather than matched with one regex.
+ * The regex form had to guess where a value ended, and `content=["']([^"']*)["']`
+ * stops at whichever quote comes first — so a description written with a
+ * literal apostrophe inside a double-quoted attribute
+ * (`content="Turn a Shopify storefront's axe-core export…"`) was silently cut
+ * to "Turn a Shopify storefront". That fragment reached the hub card, the
+ * JSON-LD `ItemList`, and the card's `data-search` index — so the hub's own
+ * search box could not find that tool by "axe-core", the term its users would
+ * actually type. A surface's own pages are copied verbatim and were unaffected.
+ * Parsing per attribute also drops the old attribute-order fallback: which of
+ * `name` and `content` is written first no longer matters.
+ *
+ * A backreferenced `content=(["'])(.*?)\1` also fixes the apostrophe, and
+ * landed on `main` first. This keeps the parser instead because `.` does not
+ * match a newline: a description written across two lines makes that pattern
+ * fail outright and return the empty string — losing the whole description
+ * rather than the tail of it. No venture wraps one today, so that is latent
+ * rather than live, but the parser costs nothing to keep and cannot regress it.
+ */
 const metaContent = (html, attr, value) => {
-  const pattern = new RegExp(`<meta[^>]*${attr}=["']${value}["'][^>]*content=(["'])(.*?)\\1`, 'i');
-  const reversed = new RegExp(`<meta[^>]*content=(["'])(.*?)\\1[^>]*${attr}=["']${value}["']`, 'i');
-  const match = html.match(pattern) ?? html.match(reversed);
-  return match ? decodeEntities(match[2]).trim() : '';
+  const wanted = value.toLowerCase();
+  for (const tag of metaTags(html)) {
+    const attrs = parseAttributes(tag);
+    if (attrs[attr.toLowerCase()]?.toLowerCase() === wanted && attrs.content) {
+      return decodeEntities(attrs.content).trim();
+    }
+  }
+  return '';
 };
 
 const titleize = (slug) => slug.split('-').map((word) => word.charAt(0).toUpperCase() + word.slice(1)).join(' ');
@@ -254,8 +310,25 @@ export async function publishedPages(dir, prefix = '') {
 // Copy
 // ---------------------------------------------------------------------------
 
+// Point already-written SEO at the real, served URL: every venture wrote its
+// canonical tags against the placeholder origin, back when none existed.
 function rewriteOrigin(contents, baseUrl) {
-  return contents.split(PLACEHOLDER_ORIGIN).join(baseUrl);
+  const rewritten = contents.split(PLACEHOLDER_ORIGIN).join(baseUrl);
+
+  // Three ventures (freelance-retainer, no-show-fee, retainage-cashflow) wrote
+  // today's Pages address into their canonical tags directly, rather than the
+  // placeholder. That is correct by accident: it holds only while the site is
+  // served from exactly that URL, and `PAGES_BASE_URL` exists so a custom
+  // domain can be attached. On that day those pages would keep naming the
+  // github.io origin as canonical, which tells every crawler the real page is
+  // at the old address and hands the new domain a duplicate.
+  //
+  // Sitemaps are safe without this — they are regenerated from what actually
+  // published — but canonical tags are copied through, so they are not.
+  // Treating the default as a second placeholder makes the whole portfolio
+  // follow the base URL it is actually built with.
+  if (baseUrl === DEFAULT_BASE_URL) return rewritten;
+  return rewritten.split(DEFAULT_BASE_URL).join(baseUrl);
 }
 
 export function isPublishable(name) {
@@ -515,6 +588,13 @@ ${items
     .support { background: var(--panel); border: 1px solid var(--line); border-radius: 13px;
                padding: 15px 18px; margin-top: 26px; }
     .optout { margin-top: 18px; font-size: .84rem; }
+    .offline p { margin: 8px 0 12px; font-size: .9rem; line-height: 1.5; color: var(--muted); }
+    .offline button { font: inherit; font-weight: 650; padding: 10px 16px; border-radius: 9px;
+                      border: 1px solid var(--accent); background: var(--accent);
+                      color: var(--accent-ink); cursor: pointer; }
+    .offline button[disabled] { opacity: .6; cursor: progress; }
+    .offline #offline-status:empty { display: none; }
+    .offline #offline-status { margin: 10px 0 0; font-size: .85rem; }
     :focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
   </style>
 </head>
@@ -545,6 +625,8 @@ ${sections}
 
     <p class="empty" id="empty">No tool matches that. Try a marketplace, a trade, or the thing you are pricing.</p>
 
+${OFFLINE_WIDGET_HTML}
+
     <div class="support">
       <strong>Free, and staying free.</strong> If one of these saved you money,
       <a href="https://github.com/sponsors/Duncan-Haywood">sponsoring on GitHub</a>
@@ -558,7 +640,8 @@ ${DISCLAIMER_HTML}
         <label><input type="checkbox" id="optout"> Don't count my visit</label>
       </p>
       <p>
-        Open source — every tool is a static page you can save and run offline.
+        Open source — every tool is a static page, and one you have opened keeps
+        working with no connection.
       </p>
     </footer>
   </div>
@@ -625,6 +708,7 @@ ${DISCLAIMER_HTML}
     for (const link of document.querySelectorAll('[data-tool]')) {
       link.addEventListener('click', () => record('tool_opened:' + link.dataset.tool));
     }
+${OFFLINE_WIDGET_SCRIPT}
   </script>
 </body>
 </html>
@@ -1011,6 +1095,105 @@ export function renderNotFound(baseUrl) {
 }
 
 // ---------------------------------------------------------------------------
+// Offline support
+// ---------------------------------------------------------------------------
+
+/** Files a visitor asking to "save all tools" needs: each tool's entry page and
+ *  the modules and styles that page loads. Not the whole tree — the SEO
+ *  articles and sitemaps are not what someone with no signal is reaching for,
+ *  and this runs on a phone's data. */
+const BUNDLE_EXTENSIONS = new Set(['.mjs', '.js', '.css']);
+
+export async function collectOfflineBundle(outDir, surfaces) {
+  const assets = new Set(['./', 'index.html', 'offline.html', 'manifest.webmanifest']);
+
+  for (const surface of surfaces) {
+    const dir = path.join(outDir, surface.slug);
+    // copyTree publishes the directory holding the entry point as `slug/`, so
+    // the tool's front page is always exactly here.
+    const entry = path.join(dir, 'index.html');
+    const rel = (file) => path.relative(outDir, file).split(path.sep).join('/');
+    if (existsSync(entry)) {
+      assets.add(rel(entry));
+      // A visitor can arrive at either form; a cache entry under one does not
+      // answer a request for the other.
+      assets.add(`${surface.slug}/`);
+    }
+
+    for (const file of await listFiles(dir)) {
+      if (BUNDLE_EXTENSIONS.has(path.extname(file))) assets.add(rel(file));
+    }
+  }
+
+  return [...assets].sort();
+}
+
+/**
+ * Emits the worker, the manifest, the icons and the offline fallback, then
+ * wires every published page to them.
+ *
+ * The cache name carries a hash of what was built, which is what makes the
+ * worker's cache-first strategy safe: a deploy lands in a new cache and the old
+ * one is deleted on activation, so a visitor is never served a mix of two
+ * builds and is at most one navigation behind.
+ */
+export async function addOfflineSupport({
+  outDir,
+  base,
+  surfaces,
+  disableWorker = false,
+  // The worker, the head injection and the offline page are all produced from
+  // this module, and none of them are on disk when the hash is taken. Without
+  // this, changing the worker's own logic would leave the cache name identical,
+  // old caches undeleted, and visitors served the previous behaviour from cache
+  // forever. Hashing the generator closes that.
+  codeVersion,
+} = {}) {
+  const bundle = await collectOfflineBundle(outDir, surfaces);
+
+  const hash = crypto.createHash('sha256');
+  hash.update(codeVersion ?? (await fs.readFile(path.join(HERE, 'offline.mjs'))));
+  for (const file of (await listFiles(outDir)).sort()) {
+    hash.update(path.relative(outDir, file));
+    hash.update(await fs.readFile(file));
+  }
+  const cacheName = `portfolio-${hash.digest('hex').slice(0, 12)}`;
+
+  await fs.writeFile(path.join(outDir, 'offline.html'), renderOfflinePage(base));
+  await fs.writeFile(path.join(outDir, 'manifest.webmanifest'), renderManifest(base, surfaces.length));
+  for (const icon of ICONS) {
+    await fs.writeFile(
+      path.join(outDir, icon.file),
+      renderIcon({ size: icon.size, maskable: Boolean(icon.maskable) }),
+    );
+  }
+  await fs.writeFile(
+    path.join(outDir, 'sw.js'),
+    disableWorker
+      ? renderKillSwitchWorker()
+      : renderServiceWorker({
+        cacheName,
+        // Enough for the front door to open with no signal on a device that has
+        // been here once. Everything else is cached as it is visited.
+        shell: ['./', 'index.html', 'offline.html', 'manifest.webmanifest', 'icon-192.png'],
+        bundle,
+      }),
+  );
+
+  let injected = 0;
+  for (const file of await listFiles(outDir)) {
+    if (!file.endsWith('.html')) continue;
+    const depth = path.relative(outDir, file).split(path.sep).length - 1;
+    const result = injectOfflineSupport(await fs.readFile(file, 'utf8'), '../'.repeat(depth));
+    if (!result.injected) continue;
+    await fs.writeFile(file, result.html);
+    injected += 1;
+  }
+
+  return { cacheName, bundle, injected };
+}
+
+// ---------------------------------------------------------------------------
 // Build
 // ---------------------------------------------------------------------------
 
@@ -1019,6 +1202,9 @@ export async function buildSite({
   outDir = path.join(REPO_ROOT, 'platform', 'pages', 'dist'),
   baseUrl = DEFAULT_BASE_URL,
   log = () => {},
+  // The rollback lever for a worker already on visitors' devices; see
+  // renderKillSwitchWorker.
+  disableWorker = false,
 } = {}) {
   const base = baseUrl.endsWith('/') ? baseUrl : `${baseUrl}/`;
 
@@ -1077,7 +1263,12 @@ export async function buildSite({
 
   const wrapped = await addSiteChrome({ outDir, surfaces, baseUrl: base });
 
-  return { outDir, baseUrl: base, surfaces, repairs, wrapped };
+  // After the chrome pass, not before: the offline layer hashes the finished
+  // site to name its cache, and injects into pages the chrome has already
+  // rewritten. Reversed, every deploy would cache a page missing its nav.
+  const offline = await addOfflineSupport({ outDir, base, surfaces, disableWorker });
+
+  return { outDir, baseUrl: base, surfaces, repairs, wrapped, offline };
 }
 
 // ---------------------------------------------------------------------------
@@ -1183,6 +1374,7 @@ if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.me
   const result = await buildSite({
     baseUrl: argBase || process.env.PAGES_BASE_URL || DEFAULT_BASE_URL,
     outDir: argOut ? path.resolve(argOut) : undefined,
+    disableWorker: process.env.PAGES_DISABLE_SW === '1',
     log: console.log,
   });
 

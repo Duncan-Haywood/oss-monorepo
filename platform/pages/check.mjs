@@ -134,6 +134,41 @@ export async function checkSite(site) {
   const files = await walk(site);
   const servedPages = files.filter((f) => f.endsWith('.html'));
 
+  // A canonical tag must name a URL under this site's own base, and the hub's
+  // canonical is what that base is. Anything else tells crawlers the real page
+  // lives somewhere other than where it just shipped.
+  //
+  // The case this exists for is not a placeholder but a *stale real origin*:
+  // three ventures wrote `duncan-haywood.github.io/...` into their canonicals
+  // as a literal instead of using the placeholder. That is invisible today,
+  // because it happens to match where the site is served. The day
+  // `PAGES_BASE_URL` points at a custom domain, every one of those pages hands
+  // the new domain a duplicate and keeps the old address as canonical. The
+  // build now rewrites them; this is the check that says so.
+  let siteBase = null;
+  if (files.includes('index.html')) {
+    const hub = await fs.readFile(path.join(site, 'index.html'), 'utf8');
+    const canonical = /<link\b[^>]*\brel=["']canonical["'][^>]*\bhref=["']([^"']+)["']/i.exec(hub);
+    if (canonical) {
+      try {
+        siteBase = new URL(canonical[1]);
+      } catch {
+        problems.push(`index.html: canonical href is not a valid URL -> ${canonical[1]}`);
+      }
+    }
+  }
+
+  if (siteBase) {
+    const prefix = `${siteBase.origin}${siteBase.pathname}`;
+    for (const relative of servedPages) {
+      const html = await fs.readFile(path.join(site, relative), 'utf8');
+      const canonical = /<link\b[^>]*\brel=["']canonical["'][^>]*\bhref=["']([^"']+)["']/i.exec(html);
+      if (canonical && /^https?:/i.test(canonical[1]) && !canonical[1].startsWith(prefix)) {
+        problems.push(`${relative}: canonical points outside this site -> ${canonical[1]}`);
+      }
+    }
+  }
+
   for (const relative of files) {
     const extension = path.extname(relative).toLowerCase();
     if (!TEXT_EXTENSIONS.has(extension)) continue;
@@ -191,6 +226,13 @@ export async function checkSite(site) {
   // A page in no sitemap is built, deployed, and never found.
   for (const page of servedPages) {
     if (page === '404.html') continue;
+    // ...unless it asked not to be found. The offline fallback is a shell, and
+    // indexed it would be the search result for a calculator. A page that
+    // declares noindex and is then listed in a sitemap is the contradiction;
+    // one that declares it and stays out is correct.
+    if (/<meta name="robots" content="noindex">/i.test(await fs.readFile(path.join(site, page), 'utf8'))) {
+      continue;
+    }
     const candidates = [page];
     if (page.endsWith('/index.html')) candidates.push(page.slice(0, -'index.html'.length));
     if (page === 'index.html') candidates.push('');

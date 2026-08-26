@@ -65,7 +65,15 @@ leave to still hit the supplied target rate. See
 The table is arithmetic on the figures you typed, not a negotiation
 script or a pricing recommendation.
 
-A fourth table is the mid-project cancel. Hours already spent, cash
+A fourth table puts the same hours and direct costs next to hourly at
+the supplied target rate. Planned hours answers whether the fixed
+quote is already a discount versus hourly; extra-time rows show how
+the two bills diverge when the work runs long. See
+[`site/should-i-send-a-fixed-quote-or-bill-hourly.html`](site/should-i-send-a-fixed-quote-or-bill-hourly.html).
+The table is arithmetic on the figures you typed, not a
+recommendation of which to send.
+
+A fifth table is the mid-project cancel. Hours already spent, cash
 already collected, a kill fee on top of that, and costs already sunk
 stay as you typed them. It shows cash kept if you finish, take the
 fee, or walk with only the deposit — then the same three paths if
@@ -99,7 +107,8 @@ what makes it comparable to the CLI's own count. The browser also counts
 `quote_review_checked` locally when a valid quote is reviewed, and
 `cost_spike_compared` when the cost-rise table is computed, and
 `discount_ask_compared` when the discount-ask table is computed, and
-`kill_fee_compared` when the mid-project cancel table is computed. CSV copy
+`kill_fee_compared` when the mid-project cancel table is computed, and
+`billing_model_compared` when the fixed-vs-hourly table is computed. CSV copy
 and download events happen only when the user invokes those actions. The
 export contains the same arithmetic report as the page and quotes currency
 labels safely for spreadsheet import. It stores no quote values and sends

@@ -247,3 +247,103 @@ class Snapshot(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class OneOriginPerGate(unittest.TestCase):
+    """GitHub serves one Pages site per repository, so two deployments behind one
+    owner variable is a race, not redundancy.
+
+    This is the shape of the 2026-08-26 near-miss: two sessions independently
+    built "publish the portfolio to Pages", both reused `GITHUB_PAGES_ENABLED`
+    so as not to open a second owner ask, and both merged. Individually valid,
+    correctly snapshotted as gated, and invisible until the owner set the
+    variable -- at which point the live site would have flapped between two
+    different builds rather than failing outright.
+    """
+
+    @staticmethod
+    def _pages_row(workflow, variable):
+        return {
+            "workflow": workflow,
+            "classification": "gated",
+            "publishes": [
+                {
+                    "job": "deploy",
+                    "step": "uses actions/deploy-pages",
+                    "gates": [f"github.event_name != 'pull_request' && vars.{variable} == 'true'"],
+                }
+            ],
+        }
+
+    def test_two_pages_deploys_on_one_variable_is_reported(self):
+        problems = ps.check_one_origin_per_gate([
+            self._pages_row("pages.yml", "GITHUB_PAGES_ENABLED"),
+            self._pages_row("portfolio-pages.yml", "GITHUB_PAGES_ENABLED"),
+        ])
+        self.assertEqual(len(problems), 1)
+        self.assertIn("GITHUB_PAGES_ENABLED", problems[0])
+        self.assertIn("pages.yml", problems[0])
+        self.assertIn("portfolio-pages.yml", problems[0])
+
+    def test_separate_variables_are_fine(self):
+        self.assertEqual(
+            ps.check_one_origin_per_gate([
+                self._pages_row("pages.yml", "PAGES_PYTHON_BUILDER"),
+                self._pages_row("portfolio-pages.yml", "GITHUB_PAGES_ENABLED"),
+            ]),
+            [],
+        )
+
+    def test_one_workflow_on_one_variable_is_fine(self):
+        self.assertEqual(
+            ps.check_one_origin_per_gate([self._pages_row("portfolio-pages.yml", "GITHUB_PAGES_ENABLED")]),
+            [],
+        )
+
+    def test_a_gate_naming_two_variables_still_collides_on_the_shared_one(self):
+        # `vars.A == 'true' && vars.B == 'true'` shares the origin with anything
+        # gated on A alone: setting A and B fires both.
+        rows = [
+            self._pages_row("portfolio-pages.yml", "GITHUB_PAGES_ENABLED"),
+            {
+                "workflow": "other.yml",
+                "classification": "gated",
+                "publishes": [
+                    {
+                        "job": "deploy",
+                        "step": "uses actions/deploy-pages",
+                        "gates": ["vars.GITHUB_PAGES_ENABLED == 'true' && vars.EXTRA == 'true'"],
+                    }
+                ],
+            },
+        ]
+        problems = ps.check_one_origin_per_gate(rows)
+        self.assertEqual(len(problems), 1)
+        self.assertIn("GITHUB_PAGES_ENABLED", problems[0])
+
+    def test_non_pages_publishers_do_not_collide(self):
+        # Vercel and Cloudflare have their own destinations; two of them behind
+        # one variable is not an origin race.
+        rows = [
+            {
+                "workflow": "a.yml",
+                "classification": "gated",
+                "publishes": [
+                    {"job": "d", "step": "uses amondnet/vercel-action", "gates": ["vars.SHARED == 'true'"]}
+                ],
+            },
+            {
+                "workflow": "b.yml",
+                "classification": "gated",
+                "publishes": [
+                    {"job": "d", "step": "uses cloudflare/wrangler-action", "gates": ["vars.SHARED == 'true'"]}
+                ],
+            },
+        ]
+        self.assertEqual(ps.check_one_origin_per_gate(rows), [])
+
+    def test_the_live_repository_has_at_most_one_pages_deploy_per_gate(self):
+        # The check above proves the logic; this proves the repository.
+        rows, errors = ps.survey()
+        self.assertEqual(errors, [], 'every workflow must be readable for this to mean anything')
+        self.assertEqual(ps.check_one_origin_per_gate(rows), [])
