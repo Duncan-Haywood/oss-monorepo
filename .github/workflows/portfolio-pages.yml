@@ -78,13 +78,8 @@ jobs:
   deploy:
     needs: build
     # `github.ref` as well as the event: `workflow_dispatch` can be run against
-<<<<<<< HEAD
-    # any branch, and publishing the live site from a feature branch is not a
-    # mistake anyone notices quickly.
-=======
     # any branch, and publishing the live site from a feature branch by accident
     # is not a mistake anyone would notice quickly.
->>>>>>> origin/main
     if: ${{ github.ref == 'refs/heads/main' && github.event_name != 'pull_request' && vars.GITHUB_PAGES_ENABLED == 'true' }}
     runs-on: ubuntu-latest
     permissions:
