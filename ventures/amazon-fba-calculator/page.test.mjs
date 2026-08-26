@@ -3,7 +3,7 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
-import { compareBulkBuy, compareCoupons, compareMcf, compareSubscribeSave } from "./calc.mjs";
+import { compareBulkBuy, compareCoupons, compareMcf, comparePrep, compareSubscribeSave } from "./calc.mjs";
 
 const html = readFileSync(new URL("./index.html", import.meta.url), "utf8");
 const couponSeo = readFileSync(new URL("./does-this-amazon-coupon-still-pay.html", import.meta.url), "utf8");
@@ -21,6 +21,10 @@ const snsSeo = readFileSync(
 );
 const bulkSeo = readFileSync(
   new URL("./does-this-amazon-moq-still-pay.html", import.meta.url),
+  "utf8",
+);
+const prepSeo = readFileSync(
+  new URL("./should-i-pay-amazon-to-prep-inbound.html", import.meta.url),
   "utf8",
 );
 
@@ -71,7 +75,10 @@ test("schema.org featureList names the comparisons the page actually renders", (
   assert.match(featureList[1], /Low-Price FBA/i);
   assert.match(featureList[1], /Multi-Channel Fulfillment/i);
   assert.match(featureList[1], /supplier MOQ/i);
+  assert.match(featureList[1], /you-prep vs Amazon inbound prep/i);
   assert.match(markup, /id="bulkCompare"/);
+  assert.match(markup, /id="prepCompare"/);
+  assert.match(markup, /should-i-pay-amazon-to-prep-inbound\.html/);
   assert.match(markup, /does-this-amazon-moq-still-pay\.html/);
   assert.match(markup, /id="couponCompare"/);
   assert.match(markup, /id="couponPercent"/);
@@ -292,6 +299,64 @@ test("SEO page uses the same MOQ worked example the tests lock", () => {
   nearEnough(comparison.breakEvenLargeCogs, 8.11);
 });
 
+test("the prep row template has one cell per column", () => {
+  const prepMarkup = markup.split('id="prepCompare"')[0];
+  const headerBlock = prepMarkup.slice(prepMarkup.lastIndexOf("<thead>"));
+  const headers = [...headerBlock.matchAll(/<th scope="col"[^>]*>([\s\S]*?)<\/th>/g)].map((m) =>
+    m[1].replace(/\s+/g, " ").trim(),
+  );
+  assert.deepEqual(headers, ["Prep", "Cost", "Profit", "vs you-prep", "Hits target?"]);
+  assert.match(scriptSource, /comparePrep\(readInput\(\)\)/);
+  assert.match(scriptSource, /prepSummary\(prep\)/);
+  assert.match(html, /prep_compared/);
+  assert.match(html, /id="amazonLabelFee"/);
+  assert.match(html, /id="amazonBagFee"/);
+  assert.match(html, /id="amazonBubbleFee"/);
+  assert.match(html, /id="amazonPrepFee"/);
+});
+
+test("SEO page uses the same prep worked example the tests lock", () => {
+  const comparison = comparePrep({
+    salePrice: 29.99,
+    referralRate: 15,
+    length: 8,
+    width: 6,
+    height: 2,
+    weightLb: 0.75,
+    costOfGoods: 8,
+    inboundPerUnit: 1.2,
+    monthsInStorage: 1,
+    storageRate: 0.87,
+    fbmShippingCost: 4.75,
+    packagingCost: 0.6,
+    otherCost: 0,
+    adsPerUnit: 0,
+    monthlySellerFee: 39.99,
+    monthlyUnits: 80,
+    targetMargin: 30,
+    fulfillmentMethod: "fba",
+  });
+  assert.match(prepSeo, /\$10\.99/);
+  assert.match(prepSeo, /\$11\.29/);
+  assert.match(prepSeo, /\$0\.30/);
+  assert.match(prepSeo, /\$24\.00/);
+  assert.match(prepSeo, /\$0\.85/);
+  assert.match(prepSeo, /\$0\.25/);
+  assert.match(prepSeo, /\$10\.74/);
+  assert.match(prepSeo, /\$1\.65/);
+  assert.match(prepSeo, /\$9\.94/);
+  assert.match(prepSeo, /\$1\.05/);
+  assert.match(prepSeo, /\$0\.60/);
+  assert.match(prepSeo, /No warranty/);
+  assert.match(prepSeo, /Best-effort hosting, no SLA/);
+  assert.match(prepSeo, /github\.com\/sponsors\/Duncan-Haywood/);
+  nearEnough(comparison.diy.profit, 10.99);
+  nearEnough(comparison.label.profit, 11.29);
+  nearEnough(comparison.labelBag.profit, 10.74);
+  nearEnough(comparison.full.profit, 9.94);
+  nearEnough(comparison.label.monthlyDelta, 24);
+});
+
 test("pages keep the disclaimer and optional sponsor link", () => {
   assert.match(html, /No warranty/);
   assert.match(html, /Best-effort hosting, no SLA/);
@@ -303,4 +368,6 @@ test("pages keep the disclaimer and optional sponsor link", () => {
   assert.match(snsSeo, /github\.com\/sponsors\/Duncan-Haywood/);
   assert.match(bulkSeo, /No warranty/);
   assert.match(bulkSeo, /github\.com\/sponsors\/Duncan-Haywood/);
+  assert.match(prepSeo, /No warranty/);
+  assert.match(prepSeo, /github\.com\/sponsors\/Duncan-Haywood/);
 });

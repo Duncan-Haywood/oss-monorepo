@@ -17,8 +17,9 @@ SKU, the most you can pay a supplier for that unit, whether staying under
 Amazon’s Low-Price FBA threshold still beats a real raise, and whether a
 coupon still hits your target after the redemption fee, whether
 Subscribe & Save still pays when only some units enroll, whether a
-website order shipped MCF still beats selling the unit on Amazon, and
-whether a supplier MOQ still pays after the extra warehouse stay** —
+website order shipped MCF still beats selling the unit on Amazon,
+whether a supplier MOQ still pays after the extra warehouse stay, and
+whether paying Amazon to prep inbound still beats you-prep** —
 which used to mean a spreadsheet that forgot storage, inbound, or the
 pick-fee jump at $10.
 
@@ -69,6 +70,13 @@ scales the listing months by pile size, then shows leftover per unit,
 extra cash, and the MOQ cost that still matches the usual purchase
 order.
 
+Paying Amazon to label, bag, or wrap inbound is a prep decision on
+the same SKU. You-prep is already in the listing; Amazon’s inbound
+prep fees replace that line.
+[Should I pay Amazon to prep inbound?](should-i-pay-amazon-to-prep-inbound.html)
+shows leftover profit, the monthly gap, and the Amazon fee that
+still matches you-prep.
+
 **No warranty.** This tool is provided free and as-is, without warranty of any
 kind, express or implied. It is not tax, financial, or business advice, and it
 does not replace a qualified professional. **You are responsible for reviewing
@@ -107,8 +115,9 @@ node --test        # runs calc.test.mjs, usage.test.mjs, and page.test.mjs
 
 `calc.mjs` holds the fee/profit/ROI arithmetic, size-tier classification,
 category presets, coupon comparison, Subscribe & Save comparison,
-Multi-Channel Fulfillment comparison, and usual-PO vs supplier-MOQ
-comparison; `usage.mjs` holds the anonymous
+Multi-Channel Fulfillment comparison, usual-PO vs supplier-MOQ
+comparison, and you-prep vs Amazon inbound prep comparison;
+`usage.mjs` holds the anonymous
 local counter; `index.html` is the calculator UI.
 
 Not yet deployed to a public URL — publishing under the portfolio's name is

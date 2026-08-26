@@ -332,6 +332,15 @@ products:
           pile size, extra cash, break-even MOQ COGS). Still no public
           URL; local event bulk_buy_compared is opt-out and stores no
           inputs.
+      - as_of: 2026-08-26
+        signals:
+          live_url_visitors: null
+          local_events_reported: 0
+        note: >-
+          Added you-prep vs Amazon inbound prep comparison (label, bag,
+          bubble, optional shipment quote, monthly gap, break-even Amazon
+          fee). Still no public URL; local event prep_compared is opt-out
+          and stores no inputs.
   - slug: einvoice-preflight
     surface: local-cli
     readings:

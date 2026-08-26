@@ -11,7 +11,12 @@ import {
   compareCoupons,
   compareLowPriceFba,
   compareMcf,
+  comparePrep,
   compareSubscribeSave,
+  DEFAULT_AMAZON_BAG_FEE,
+  DEFAULT_AMAZON_BUBBLE_FEE,
+  DEFAULT_AMAZON_LABEL_FEE,
+  prepSummary,
   couponDiscount,
   couponedListing,
   couponSummary,
@@ -694,6 +699,83 @@ test("bulkBuySummary names the extra cash and the COGS that still ties", () => {
 test("compareBulkBuy rejects empty piles", () => {
   assert.throws(() => compareBulkBuy({ ...base, smallOrderQty: 0 }), /greater than zero/);
   assert.throws(() => compareBulkBuy({ ...base, largeOrderQty: 0 }), /greater than zero/);
+});
+
+test("comparePrep ranks you-prep against Amazon inbound prep bundles", () => {
+  const comparison = comparePrep(base);
+  near(comparison.diy.prepCost, 0.6, "typed you-prep");
+  near(comparison.label.prepCost, DEFAULT_AMAZON_LABEL_FEE, "label default");
+  near(comparison.labelBag.prepCost, DEFAULT_AMAZON_LABEL_FEE + DEFAULT_AMAZON_BAG_FEE, "label+bag");
+  near(
+    comparison.full.prepCost,
+    DEFAULT_AMAZON_LABEL_FEE + DEFAULT_AMAZON_BAG_FEE + DEFAULT_AMAZON_BUBBLE_FEE,
+    "full bundle",
+  );
+  near(comparison.diy.profit, 10.993291666666668, "you-prep matches listing");
+  near(comparison.label.profit, 11.293291666666668, "cheaper Amazon label");
+  near(comparison.labelBag.profit, 10.743291666666668, "label+bag costs more");
+  near(comparison.full.profit, 9.943291666666668, "full prep costs more");
+  near(comparison.label.profitDelta, 0.3, "label vs you-prep");
+  near(comparison.label.monthlyDelta, 24, "80 units");
+  near(comparison.labelBag.profitDelta, -0.25, "bag bundle vs you-prep");
+  near(comparison.labelBag.monthlyDelta, -20, "80 units");
+  near(comparison.full.profitDelta, -1.05, "full vs you-prep");
+  near(comparison.full.monthlyDelta, -84, "80 units");
+  near(comparison.breakEvenAmazonFee, 0.6, "Amazon can charge up to you-prep");
+  assert.equal(comparison.winner, "label");
+  assert.equal(comparison.quote, null);
+  assert.equal(comparison.diy.hitsTarget, true);
+  assert.equal(comparison.label.hitsTarget, true);
+  assert.equal(comparison.labelBag.hitsTarget, true);
+  assert.equal(comparison.full.hitsTarget, true);
+});
+
+test("comparePrep adds a typed Amazon shipment-preview quote", () => {
+  const comparison = comparePrep({ ...base, amazonPrepFee: 0.45 });
+  assert.equal(comparison.quote.label, "Your Amazon prep quote");
+  near(comparison.quote.prepCost, 0.45, "typed quote");
+  near(comparison.quote.profitDelta, 0.15, "quote vs you-prep");
+  assert.equal(comparison.rows.length, 5);
+});
+
+test("comparePrep names you-prep the winner when Amazon bundles cost more", () => {
+  const comparison = comparePrep({
+    ...base,
+    packagingCost: 0.2,
+    amazonLabelFee: 0.4,
+    amazonBagFee: 0.7,
+    amazonBubbleFee: 0.9,
+  });
+  assert.equal(comparison.winner, "diy");
+  near(comparison.label.profitDelta, -0.2, "label more than cheap DIY");
+  near(comparison.labelBag.prepCost, 1.1, "typed label+bag");
+});
+
+test("comparePrep ties when Amazon prep equals you-prep", () => {
+  const comparison = comparePrep({
+    ...base,
+    packagingCost: 0.3,
+    amazonLabelFee: 0.3,
+    amazonBagFee: 0.4,
+    amazonBubbleFee: 0.5,
+  });
+  assert.equal(comparison.winner, "tie");
+  near(comparison.label.profitDelta, 0, "same prep cost");
+});
+
+test("prepSummary names the label win and the bag loss on the defaults", () => {
+  const text = prepSummary(comparePrep(base));
+  assert.match(text, /\$0\.30/);
+  assert.match(text, /\$0\.60/);
+  assert.match(text, /\$24\.00/);
+  assert.match(text, /\$0\.85/);
+  assert.match(text, /\$0\.25/);
+  assert.match(text, /80 units/);
+});
+
+test("comparePrep rejects a negative Amazon prep fee", () => {
+  assert.throws(() => comparePrep({ ...base, amazonLabelFee: -0.1 }), /Amazon labeling fee/);
+  assert.throws(() => comparePrep({ ...base, amazonPrepFee: -1 }), /Amazon prep quote/);
 });
 
 test("rejects unknown presets and invalid inputs", () => {

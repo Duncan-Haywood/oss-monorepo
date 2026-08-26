@@ -1,5 +1,5 @@
 name: amazon-fba-calculator
-description: A private browser calculator for Amazon sellers to compare FBA vs FBM profit on the same listing after referral, fulfillment, storage, inbound, and cost of goods — including the maximum inventory buy cost, whether Low-Price FBA still beats raising the list price, whether a coupon still hits the target after the redemption fee, whether Subscribe & Save still pays after only some units enroll, whether a website order shipped MCF still beats selling the unit on Amazon, and whether a supplier MOQ still pays after extra FBA storage.
+description: A private browser calculator for Amazon sellers to compare FBA vs FBM profit on the same listing after referral, fulfillment, storage, inbound, and cost of goods — including the maximum inventory buy cost, whether Low-Price FBA still beats raising the list price, whether a coupon still hits the target after the redemption fee, whether Subscribe & Save still pays after only some units enroll, whether a website order shipped MCF still beats selling the unit on Amazon, whether a supplier MOQ still pays after extra FBA storage, and whether paying Amazon to prep inbound still beats you-prep.
 stage: prototype
 owner: duncan
 hypotheses:
