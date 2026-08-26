@@ -1,137 +1,144 @@
-// Structural tests for index.html.
-//
-// calc.test.mjs imports calc.mjs directly and never looks at the page, so a
-// whole class of defect stays green there. This venture had no page test at
-// all, and two of the three cases below are things that had already gone
-// wrong or could go wrong silently:
-//
-//   1. calc.mjs can compute a figure the page never renders. The page reads
-//      its input ids from `Object.keys(defaults)`, so a field added to
-//      defaults without a matching <input id> reads as undefined and quietly
-//      falls back to the default — the user changes nothing and sees nothing.
-//   2. The page can render a figure calc.mjs no longer produces, printing
-//      "undefined" or "$NaN".
-//   3. An unclosed raw-text element (<style>, <script>) is not a parse error:
-//      the rest of the document is swallowed as text, and every id after that
-//      point silently stops existing. The guards derive everything from the
-//      parse rather than the raw source so that this is visible — see
-//      janitorial-bid-calculator/page.test.mjs, which was loosened back to
-//      raw-source regexes once without any test noticing.
-//
-// Kept dependency-free (no jsdom, no browser) so CI stays a plain
-// `node --test`.
+import { readFileSync } from 'node:fs';
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { readFileSync } from 'node:fs';
 import { calculateBid, defaults } from './calc.mjs';
 
 const html = readFileSync(new URL('./index.html', import.meta.url), 'utf8');
 
-// Raw-text elements are not parsed as markup, so an unclosed one discards the
-// rest of the document without any parse error. Split them out before counting
-// anything, so markup inside a <script> template literal is not mistaken for
-// markup the browser would render, and vice versa.
-function derive(source) {
+// Walk the document the way a browser does so an unclosed raw-text element
+// really does swallow everything after it. A sibling calculator shipped dead
+// that way while its unit tests stayed green by importing calc.mjs directly.
+const RAW_TEXT_ELEMENTS = ['textarea', 'script', 'style'];
+function parseRawText(source) {
   const RAW = /<(textarea|script|style)\b[^>]*>/i;
   let rest = source;
   let markup = '';
   const scripts = [];
   for (;;) {
     const open = rest.match(RAW);
-    if (!open) {
-      const full = markup + rest;
-      return {
-        markup: full,
-        scripts,
-        scriptSource: scripts.join('\n'),
-        unclosed: null,
-        declaredIds: new Set([...full.matchAll(/\bid="([\w-]+)"/g)].map((m) => m[1])),
-      };
-    }
+    if (!open) return { markup: markup + rest, scripts, unclosed: null };
     const tag = open[1].toLowerCase();
     const contentStart = open.index + open[0].length;
     markup += rest.slice(0, contentStart);
     const closer = new RegExp(`</${tag}\\s*>`, 'i').exec(rest.slice(contentStart));
-    if (!closer) {
-      return {
-        markup,
-        scripts,
-        scriptSource: scripts.join('\n'),
-        unclosed: tag,
-        declaredIds: new Set([...markup.matchAll(/\bid="([\w-]+)"/g)].map((m) => m[1])),
-      };
-    }
-    scripts.push(rest.slice(contentStart, contentStart + closer.index));
+    if (!closer) return { markup, scripts, unclosed: tag };
+    if (tag === 'script') scripts.push(rest.slice(contentStart, contentStart + closer.index));
+    markup += closer[0];
     rest = rest.slice(contentStart + closer.index + closer[0].length);
   }
 }
 
-const page = derive(html);
+function derive(source) {
+  const { markup, scripts, unclosed } = parseRawText(source);
+  return {
+    markup,
+    unclosed,
+    scripts,
+    scriptSource: scripts.join('\n'),
+    declaredIds: new Set([...markup.matchAll(/\bid="([\w-]+)"/g)].map((m) => m[1])),
+  };
+}
+
+const { markup, scriptSource, declaredIds, unclosed } = derive(html);
 
 test('every raw-text element is closed', () => {
-  assert.equal(
-    page.unclosed,
-    null,
-    `<${page.unclosed}> is never closed; everything after it is swallowed as text instead of parsed as markup`,
-  );
-});
-
-test('every input the calculator reads exists on the page', () => {
-  // update() builds its input object from Object.keys(defaults) and calls
-  // document.getElementById for each. A missing one throws on load.
-  for (const id of Object.keys(defaults)) {
-    assert.ok(
-      page.declaredIds.has(id),
-      `calc.mjs defaults include ${id}, but index.html declares no element with that id — the field would read as undefined and silently use the default`,
-    );
+  assert.equal(unclosed, null, `<${unclosed}> is never closed; everything after it is swallowed as text`);
+  for (const tag of RAW_TEXT_ELEMENTS) {
+    const opened = (html.match(new RegExp(`<${tag}[\\s>]`, 'gi')) || []).length;
+    const closed = (html.match(new RegExp(`</${tag}\\s*>`, 'gi')) || []).length;
+    assert.equal(opened, closed, `<${tag}> is opened ${opened}x but closed ${closed}x`);
   }
 });
 
-test('every figure the page renders is one the calculator returns', () => {
-  const result = calculateBid({});
-  // Ids the script writes into with textContent, minus the inputs and the
-  // page furniture that holds prose rather than a computed figure.
-  const furniture = new Set([...Object.keys(defaults), 'contribution', 'caption', 'targetQuote', 'status', 'usageOptOut']);
-  const written = [...page.scriptSource.matchAll(/field\('([\w-]+)'\)\.textContent/g)].map((m) => m[1]);
-  const figures = [...new Set(written)].filter((id) => !furniture.has(id));
-  assert.ok(figures.length > 0, 'no rendered figures found; this test is not checking anything');
-  for (const id of figures) {
-    assert.ok(
-      id in result,
-      `index.html renders ${id}, but calculateBid does not return it — the page would print undefined`,
-    );
-  }
+test('the module script survives parsing and would actually execute', () => {
+  assert.match(markup, /<script type="module">/, 'the app script tag is missing or was swallowed');
+  assert.match(scriptSource, /calculateBid/, 'the app script did not parse as a script element');
+  assert.match(scriptSource, /from '\.\/calc\.mjs'/, 'the calculation module is not imported');
+  assert.match(scriptSource, /from '\.\/usage\.mjs'/, 'the usage module is not imported');
 });
 
-test('the page handles an unreachable target instead of printing a negative price', () => {
-  // The guard in calc.mjs returns Infinity when the payment fee and target
-  // margin together claim the whole price. money() would render that as
-  // "$Infinity", so the page must branch on Number.isFinite first.
-  const unreachable = calculateBid({ targetPrice: 180, laborHours: 3, paymentRate: 3, targetMargin: 98 });
-  assert.equal(unreachable.targetQuote, Infinity);
-  assert.match(
-    page.scriptSource,
-    /Number\.isFinite\(r\.targetQuote\)/,
-    'index.html renders targetQuote without checking it is finite; an unreachable target would print as $Infinity or a negative quote',
-  );
-  assert.match(page.scriptSource, /unreachable/, 'no unreachable-target message found in the page script');
+test('every element the script reaches for exists in the markup', () => {
+  const wanted = new Set([
+    ...[...scriptSource.matchAll(/getElementById\(\s*'([\w-]+)'\s*\)/g)].map((m) => m[1]),
+    ...[...scriptSource.matchAll(/\bfield\(\s*'([\w-]+)'\s*\)/g)].map((m) => m[1]),
+  ]);
+  assert.ok(wanted.size > 0, 'no element lookups found; the script probably did not parse');
+  const missing = [...wanted].filter((id) => !declaredIds.has(id));
+  assert.deepEqual(missing, [], `script queries ids that no element declares: ${missing.join(', ')}`);
 });
 
 test('the structural guards actually fail on a swallowed document', () => {
-  // A guard that cannot fail proves nothing. If declaredIds is ever re-derived
-  // from the raw source instead of the parse, this is what catches it.
   const broken = html.replace('</style>', '');
   assert.notEqual(broken, html, 'index.html no longer contains </style>; this case needs updating');
-
   const d = derive(broken);
   assert.equal(d.unclosed, 'style', 'an unclosed <style> was not detected');
+  assert.doesNotMatch(d.markup, /<script type="module">/, 'the app script is still visible as markup after being swallowed');
+  assert.doesNotMatch(d.scriptSource, /calculateBid/, 'swallowed script text was still collected as executable script');
   assert.ok(
-    d.declaredIds.size < page.declaredIds.size,
-    `ids are being read from the raw file, not the parse: ${d.declaredIds.size} of ${page.declaredIds.size} still visible after the document was swallowed`,
+    d.declaredIds.size < declaredIds.size,
+    `ids are being read from the raw file, not the parse: ${d.declaredIds.size} of ${declaredIds.size} still visible after the document was swallowed`,
   );
 });
 
+test('an unclosed module script is caught the same way', () => {
+  const at = html.lastIndexOf('</script>');
+  assert.ok(at > 0, 'index.html has no </script>; this case needs updating');
+  const d = derive(html.slice(0, at) + html.slice(at + '</script>'.length));
+  assert.equal(d.unclosed, 'script');
+});
+
+test('the guards pass on the unmodified page (control)', () => {
+  const d = derive(html);
+  assert.equal(d.unclosed, null);
+  assert.match(d.scriptSource, /calculateBid/);
+  assert.ok(d.declaredIds.size > 0);
+});
+
+test('the form exposes every default the calculator reads, including whole-stop hours', () => {
+  const required = [
+    'targetPrice', 'laborHours', 'travelHours', 'setupHours', 'cleanupHours',
+    'travelMiles', 'vehicleRate', 'wage', 'burdenPercent', 'supplies',
+    'overhead', 'paymentRate', 'targetMargin',
+  ];
+  assert.deepEqual(Object.keys(defaults), required);
+  for (const id of required) {
+    assert.ok(declaredIds.has(id), `missing #${id} for a default the calculator reads`);
+  }
+  for (const id of ['totalHours', 'laborCost', 'effectiveRate', 'copyLink', 'reset', 'usageOptOut']) {
+    assert.ok(declaredIds.has(id), `missing result or action #${id}`);
+  }
+});
+
+test('share and persist read Object.keys(defaults), so a new field cannot drop off the link', () => {
+  assert.match(scriptSource, /const ids = Object\.keys\(defaults\)/, 'the page keeps its own field list instead of defaults');
+  assert.match(scriptSource, /location\.hash/, 'the bid must ride in the fragment, not the query string');
+  assert.ok(!/`\?\$\{/.test(scriptSource), 'the bid link must not be built with a query string');
+});
+
+test('the default $180 example stays in the black when wage is skipped', () => {
+  const result = calculateBid(defaults);
+  assert.equal(result.totalHours, 4.25);
+  assert.equal(result.laborCost, 0);
+  assert.ok(result.contribution > 0, 'skipping wage should not hide a loss on the worked example');
+});
+
+test('the page handles an unreachable target instead of printing a negative price', () => {
+  // The payment fee and the target margin are both slices of the final price,
+  // so together they can claim the whole ticket. calc.mjs answers Infinity for
+  // that — the house signal for "no price reaches this" — and money() would
+  // render Infinity as "$Infinity", so the page has to branch before it
+  // formats. Before the guard it printed "Quote at least $-4608.00".
+  const unreachable = calculateBid({ targetPrice: 180, laborHours: 3, paymentRate: 3, targetMargin: 98 });
+  assert.equal(unreachable.targetQuote, Infinity);
+  assert.match(
+    scriptSource,
+    /Number\.isFinite\(r\.targetQuote\)/,
+    'index.html formats targetQuote without checking it is finite; an unreachable target would print as $Infinity or as a negative quote',
+  );
+  assert.match(scriptSource, /unreachable/, 'no unreachable-target message found in the page script');
+});
+
 test('the disclaimer PRODUCT_PLAYBOOK 5b requires is on the page', () => {
-  assert.match(page.markup, /No warranty/i);
-  assert.match(page.markup, /not .*(business|tax|financial|professional) .*advice/i);
+  assert.match(markup, /No warranty/i);
+  assert.match(markup, /not .*(business|tax|financial|professional) .*advice/i);
 });
