@@ -1929,3 +1929,211 @@ export function compareMarketsDuties(input) {
     }),
   };
 }
+
+/**
+ * Illustrative abandoned-checkout recovery defaults. Recover rates and
+ * the allocated email cost are inputs — not Shopify Email, Shopify
+ * Inbox, or Klaviyo policy. 6% / 12% / 18% is a clothing-adjacent
+ * mix a merchant overwrites from their own abandoned-checkout report.
+ */
+export const DEFAULT_ORGANIC_RECOVER_PCT = 6;
+export const DEFAULT_EMAIL_RECOVER_PCT = 12;
+export const DEFAULT_DISCOUNT_RECOVER_PCT = 18;
+export const DEFAULT_RECOVERY_DISCOUNT_PCT = 10;
+export const DEFAULT_EMAIL_COST_PER_ABANDONED = 0.08;
+export const DEFAULT_MONTHLY_ABANDONED = 80;
+
+function abandonedPath({ id, label, recoverPct, completedProfit, emailCost }) {
+  return {
+    id,
+    label,
+    recoverPct,
+    completedProfit,
+    emailCost,
+    expected: completedProfit * (recoverPct / 100) - emailCost,
+  };
+}
+
+function abandonedCheckoutSummary({
+  leave,
+  email,
+  discount,
+  extraOnEmailVsLeave,
+  extraOnDiscountVsEmail,
+  monthlyExtraOnDiscountVsLeave,
+  breakEvenEmailRecoverPct,
+  breakEvenDiscountRecoverPct,
+  breakEvenEmailCostVsLeave,
+  discountPct,
+  emailCost,
+}) {
+  const leaveLine = `Leaving the checkout, with a ${leave.recoverPct}% organic bounce-back, expects ${moneyLabel(leave.expected)}.`;
+  const emailGap = moneyLabel(Math.abs(extraOnEmailVsLeave));
+  const emailAhead = extraOnEmailVsLeave >= 0 ? "more" : "less";
+  const emailLine = ` Recovery emails at a ${email.recoverPct}% recover rate and ${moneyLabel(emailCost)} allocated cost expect ${moneyLabel(email.expected)} — ${emailGap} ${emailAhead}.`;
+  const discountGap = moneyLabel(Math.abs(extraOnDiscountVsEmail));
+  const discountAhead = extraOnDiscountVsEmail >= 0 ? "more" : "less";
+  const discountLine = ` Emails plus a ${discountPct}% item coupon at a ${discount.recoverPct}% recover rate expect ${moneyLabel(discount.expected)} — ${discountGap} ${discountAhead} than emails alone. A recovered discounted order keeps ${moneyLabel(discount.completedProfit)} versus ${moneyLabel(leave.completedProfit)} at the list.`;
+  const emailFloor = Number.isFinite(breakEvenEmailRecoverPct)
+    ? ` Emails have to recover about ${breakEvenEmailRecoverPct.toFixed(1)}% before they match leaving it.`
+    : " No email recover rate on this leftover can match leaving it.";
+  const discountFloor = Number.isFinite(breakEvenDiscountRecoverPct)
+    ? ` The coupon has to recover about ${breakEvenDiscountRecoverPct.toFixed(1)}% before it matches emails alone.`
+    : " No coupon recover rate on this leftover can match emails alone.";
+  const costFloor = Number.isFinite(breakEvenEmailCostVsLeave)
+    ? ` Email cost can rise to about ${moneyLabel(breakEvenEmailCostVsLeave)} before emails match leaving it.`
+    : "";
+  const month = Math.abs(monthlyExtraOnDiscountVsLeave) > 1e-9
+    ? ` Across the typed month the coupon path keeps ${moneyLabel(Math.abs(monthlyExtraOnDiscountVsLeave))} ${monthlyExtraOnDiscountVsLeave >= 0 ? "more" : "less"} than leaving it.`
+    : "";
+  return `${leaveLine}${emailLine}${discountLine}${emailFloor}${discountFloor}${costFloor}${month}`;
+}
+
+/**
+ * Same already-abandoned checkout, three ways leftover can still land.
+ *
+ *   - Leave it — typed organic bounce-back, no email cost.
+ *   - Recovery emails — typed recover rate minus allocated send cost.
+ *   - Emails + item coupon — higher recover rate on a cheaper ticket
+ *     (the percent sits on the item; shipping charged stays).
+ *
+ * Complementary to checkout promos (they already completed), Shop Pay
+ * Installments (they already paid), and Markets duties (they already
+ * placed an international order). Rates and the email cost are inputs,
+ * not Shopify Email / Inbox policy.
+ */
+export function compareAbandonedCheckout(input) {
+  const organicRecoverPct = emptyField(input.organicRecoverPct)
+    ? DEFAULT_ORGANIC_RECOVER_PCT
+    : ratePercent(input.organicRecoverPct, "Organic recover percent");
+  const emailRecoverPct = emptyField(input.emailRecoverPct)
+    ? DEFAULT_EMAIL_RECOVER_PCT
+    : ratePercent(input.emailRecoverPct, "Email recover percent");
+  const discountRecoverPct = emptyField(input.discountRecoverPct)
+    ? DEFAULT_DISCOUNT_RECOVER_PCT
+    : ratePercent(input.discountRecoverPct, "Discount recover percent");
+  const discountPct = emptyField(input.recoveryDiscountPct)
+    ? DEFAULT_RECOVERY_DISCOUNT_PCT
+    : ratePercent(input.recoveryDiscountPct, "Recovery discount percent");
+  const emailCost = emptyField(input.emailCostPerAbandoned)
+    ? DEFAULT_EMAIL_COST_PER_ABANDONED
+    : number(input.emailCostPerAbandoned, "Email cost per abandoned checkout");
+  const monthlyAbandoned = emptyField(input.monthlyAbandonedCheckouts)
+    ? DEFAULT_MONTHLY_ABANDONED
+    : number(input.monthlyAbandonedCheckouts, "Monthly abandoned checkouts");
+  if (monthlyAbandoned === 0) {
+    throw new Error("Monthly abandoned checkouts must be greater than zero");
+  }
+
+  const listedPrice = number(input.price, "Item price");
+  const discountedPrice = listedPrice * (1 - discountPct / 100);
+  const fullOrder = calculateOrder(input);
+  const discountOrder = calculateOrder({ ...input, price: discountedPrice });
+  const fullProfit = fullOrder.selected.profit;
+  const discountProfit = discountOrder.selected.profit;
+
+  const leave = abandonedPath({
+    id: "leave",
+    label: "Leave the checkout",
+    recoverPct: organicRecoverPct,
+    completedProfit: fullProfit,
+    emailCost: 0,
+  });
+  const email = abandonedPath({
+    id: "email",
+    label: "Recovery emails",
+    recoverPct: emailRecoverPct,
+    completedProfit: fullProfit,
+    emailCost,
+  });
+  const discount = abandonedPath({
+    id: "discount",
+    label: "Emails + item coupon",
+    recoverPct: discountRecoverPct,
+    completedProfit: discountProfit,
+    emailCost,
+  });
+
+  const extraOnEmailVsLeave = email.expected - leave.expected;
+  const extraOnDiscountVsEmail = discount.expected - email.expected;
+  const extraOnDiscountVsLeave = discount.expected - leave.expected;
+  const monthlyExtraOnEmailVsLeave = extraOnEmailVsLeave * monthlyAbandoned;
+  const monthlyExtraOnDiscountVsEmail = extraOnDiscountVsEmail * monthlyAbandoned;
+  const monthlyExtraOnDiscountVsLeave = extraOnDiscountVsLeave * monthlyAbandoned;
+
+  const rows = [leave, email, discount].map((row) => ({
+    ...row,
+    vsLeave: row.expected - leave.expected,
+  }));
+
+  const expectedValues = [leave.expected, email.expected, discount.expected];
+  const bestExpected = Math.max(...expectedValues);
+  const winnerIds = [
+    { id: "leave", value: leave.expected },
+    { id: "email", value: email.expected },
+    { id: "discount", value: discount.expected },
+  ].filter((row) => Math.abs(row.value - bestExpected) <= 1e-9);
+  const winner = winnerIds.length === 1 ? winnerIds[0].id : "tie";
+
+  let breakEvenEmailRecoverPct = Infinity;
+  if (fullProfit > 1e-12) {
+    const needed = (leave.expected + emailCost) / fullProfit * 100;
+    breakEvenEmailRecoverPct = needed < -1e-9 || needed > 100 + 1e-9
+      ? Infinity
+      : Math.max(0, needed);
+  }
+
+  let breakEvenDiscountRecoverPct = Infinity;
+  if (discountProfit > 1e-12) {
+    const needed = (email.expected + emailCost) / discountProfit * 100;
+    breakEvenDiscountRecoverPct = needed < -1e-9 || needed > 100 + 1e-9
+      ? Infinity
+      : Math.max(0, needed);
+  }
+
+  let breakEvenEmailCostVsLeave = Infinity;
+  const recoverLift = (emailRecoverPct - organicRecoverPct) / 100;
+  if (recoverLift > 1e-12) {
+    const needed = recoverLift * fullProfit;
+    breakEvenEmailCostVsLeave = needed < -1e-9 ? Infinity : needed;
+  }
+
+  return {
+    rows,
+    leave: rows[0],
+    email: rows[1],
+    discount: rows[2],
+    ticket: fullOrder.revenue,
+    discountedTicket: discountOrder.revenue,
+    discountPct,
+    discountedPrice,
+    emailCost,
+    monthlyAbandoned,
+    organicRecoverPct,
+    emailRecoverPct,
+    discountRecoverPct,
+    extraOnEmailVsLeave,
+    extraOnDiscountVsEmail,
+    extraOnDiscountVsLeave,
+    monthlyExtraOnEmailVsLeave,
+    monthlyExtraOnDiscountVsEmail,
+    monthlyExtraOnDiscountVsLeave,
+    breakEvenEmailRecoverPct,
+    breakEvenDiscountRecoverPct,
+    breakEvenEmailCostVsLeave,
+    winner,
+    summary: abandonedCheckoutSummary({
+      leave: rows[0],
+      email: rows[1],
+      discount: rows[2],
+      extraOnEmailVsLeave,
+      extraOnDiscountVsEmail,
+      monthlyExtraOnDiscountVsLeave,
+      breakEvenEmailRecoverPct,
+      breakEvenDiscountRecoverPct,
+      breakEvenEmailCostVsLeave,
+      discountPct,
+      emailCost,
+    }),
+  };
+}
