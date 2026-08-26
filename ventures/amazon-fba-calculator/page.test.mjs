@@ -81,6 +81,7 @@ test("schema.org featureList names the comparisons the page actually renders", (
   assert.match(featureList[1], /supplier MOQ/i);
   assert.match(featureList[1], /you-prep vs Amazon inbound prep/i);
   assert.match(featureList[1], /Individual vs Professional seller plan/i);
+  assert.match(featureList[1], /seller-plan volume ladder/i);
   assert.match(markup, /id="bulkCompare"/);
   assert.match(markup, /id="prepCompare"/);
   assert.match(markup, /should-i-pay-amazon-to-prep-inbound\.html/);
@@ -373,7 +374,9 @@ test("calculator page wires Individual vs Professional columns that match the ro
   );
   assert.deepEqual(headers, ["Account", "Fee / unit", "Profit", "Max buy"]);
   assert.match(scriptSource, /compareSellerPlans/);
+  assert.match(scriptSource, /compareSellerPlanVolumes/);
   assert.match(scriptSource, /seller_plan_compared/);
+  assert.match(markup, /id="planVolumeCompare"/);
   assert.match(scriptSource, /money\(path\.profit\)/);
   assert.match(scriptSource, /money\(path\.breakEvenBuyCost\)/);
   assert.match(html, /individual-vs-professional\.html/);
@@ -406,6 +409,9 @@ test("SEO page uses the same seller-plan worked example the tests lock", () => {
   assert.match(planSeo, /\$0\.49/);
   assert.match(planSeo, /\$39\.21/);
   assert.match(planSeo, /\$7\.49/);
+  assert.match(planSeo, /volume ladder/);
+  assert.match(planSeo, /Individual \+\$3\.01/);
+  assert.match(planSeo, /Professional \+\$0\.79/);
   assert.match(planSeo, /href="\.\/"/);
   assert.match(planSeo, /No warranty/);
   assert.match(planSeo, /no SLA/);

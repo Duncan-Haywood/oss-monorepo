@@ -84,7 +84,8 @@ Individual charges per item sold; Professional is a flat month.
 [Individual vs Professional: when does the monthly plan pay?](individual-vs-professional.html)
 applies both to leftover profit and max buy. At the illustrative
 US defaults the subscription matches the per-item fee at about
-40.4 units a month.
+40.4 units a month. A volume ladder at 10, 20, 40, 80, and 200
+units shows when the $0.99/item fee flips as sales grow.
 
 **No warranty.** This tool is provided free and as-is, without warranty of any
 kind, express or implied. It is not tax, financial, or business advice, and it

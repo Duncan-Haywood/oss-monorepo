@@ -18,7 +18,7 @@
     "applicationCategory": "BusinessApplication",
     "operatingSystem": "Any (runs in a web browser)",
     "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
-    "featureList": "FBA vs FBM comparison, Individual vs Professional seller plan, size-tier fulfillment, storage, inbound, net profit, margin, ROI, break-even price, max buy cost, target-margin price, Low-Price FBA vs raising the list price, coupon vs list profit, coupon break-even volume, Subscribe & Save vs list profit, S&S enroll-share mixed month, Multi-Channel Fulfillment vs Amazon vs you-ship, usual PO vs supplier MOQ, you-prep vs Amazon inbound prep"
+    "featureList": "FBA vs FBM comparison, Individual vs Professional seller plan, seller-plan volume ladder, size-tier fulfillment, storage, inbound, net profit, margin, ROI, break-even price, max buy cost, target-margin price, Low-Price FBA vs raising the list price, coupon vs list profit, coupon break-even volume, Subscribe & Save vs list profit, S&S enroll-share mixed month, Multi-Channel Fulfillment vs Amazon vs you-ship, usual PO vs supplier MOQ, you-prep vs Amazon inbound prep"
   }
   </script>
   <script type="application/ld+json">
@@ -103,7 +103,7 @@
           "name": "Is Amazon Professional worth it vs Individual?",
           "acceptedAnswer": {
             "@type": "Answer",
-            "text": "Professional pays for itself on the account fee when monthly units exceed the monthly plan price divided by the Individual per-item fee. At the illustrative US defaults that is about 40.4 units a month. This page also applies each plan to the same FBA or FBM listing so you can see profit and max buy cost, not only the subscription math. It does not recommend an account type."
+            "text": "Professional pays for itself on the account fee when monthly units exceed the monthly plan price divided by the Individual per-item fee. At the illustrative US defaults that is about 40.4 units a month. This page also applies each plan to the same FBA or FBM listing so you can see profit and max buy cost, not only the subscription math, and a volume ladder at 10, 20, 40, 80, and 200 units so you can see when the $0.99/item fee flips. It does not recommend an account type."
           }
         }
     ]
@@ -299,7 +299,19 @@
         </thead>
         <tbody id="planCompare"></tbody>
       </table>
-      <p class="note">The break-even is monthly plan ÷ per-item fee. At the defaults that is about 40.4 units a month. The table applies each plan to the selected FBA or FBM path so you see leftover profit and max buy, not only the subscription line. <a href="individual-vs-professional.html" style="color:#9ec5ff">Individual vs Professional: when does the monthly plan pay?</a></p>
+      <h3>Same listing, as monthly volume grows</h3>
+      <table>
+        <thead>
+          <tr>
+            <th scope="col">Units / mo</th>
+            <th scope="col">Individual profit</th>
+            <th scope="col">Professional profit</th>
+            <th scope="col">Keeps more</th>
+          </tr>
+        </thead>
+        <tbody id="planVolumeCompare"></tbody>
+      </table>
+      <p class="note">The break-even is monthly plan ÷ per-item fee. At the defaults that is about 40.4 units a month. The table applies each plan to the selected FBA or FBM path so you see leftover profit and max buy, not only the subscription line. The ladder shows that flip at 10, 20, 40, 80, and 200 units as sales grow. <a href="individual-vs-professional.html" style="color:#9ec5ff">Individual vs Professional: when does the monthly plan pay?</a></p>
       <hr>
       <h2>Low-Price FBA vs raising the price</h2>
       <p id="lowPriceSummary" class="note"></p>
@@ -489,6 +501,7 @@
       compareMcf,
       comparePrep,
       compareSellerPlans,
+      compareSellerPlanVolumes,
       compareSubscribeSave,
       couponSummary,
       prepSummary,
@@ -643,8 +656,22 @@
           ].map(([name, fee, path]) =>
             `<tr><td>${name}</td><td>${money(fee)}</td><td>${money(path.profit)}</td><td>${money(path.breakEvenBuyCost)}</td></tr>`
           ).join("");
+          const ladder = compareSellerPlanVolumes(readInput(), {
+            individualPerUnit: document.getElementById("individualPerUnit").value,
+            professionalMonthly: document.getElementById("monthlySellerFee").value,
+          });
+          document.getElementById("planVolumeCompare").innerHTML = ladder.rows.map((row) => {
+            const keeps =
+              row.cheaperPlan === "professional"
+                ? `Professional +${money(row.profitDelta)}`
+                : row.cheaperPlan === "individual"
+                  ? `Individual +${money(-row.profitDelta)}`
+                  : "tie";
+            return `<tr><td>${row.monthlyUnits}</td><td>${money(row.individualProfit)}</td><td>${money(row.professionalProfit)}</td><td>${keeps}</td></tr>`;
+          }).join("");
         } catch (planError) {
           document.getElementById("planCompare").innerHTML = "";
+          document.getElementById("planVolumeCompare").innerHTML = "";
           document.getElementById("planVerdict").textContent = planError.message;
         }
         const low = compareLowPriceFba(readInput());
@@ -726,6 +753,7 @@
         });
         document.getElementById("compare").innerHTML = "";
         document.getElementById("planCompare").innerHTML = "";
+        document.getElementById("planVolumeCompare").innerHTML = "";
         document.getElementById("lowPriceCompare").innerHTML = "";
         document.getElementById("couponCompare").innerHTML = "";
         document.getElementById("couponSummary").textContent = "";
