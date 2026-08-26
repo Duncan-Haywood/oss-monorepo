@@ -4,10 +4,10 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Home Elevator Bid Calculator | How Much to Charge to Install a Home Elevator</title>
-  <meta name="description" content="Price a residential home elevator from stops, travel, pneumatic versus hydraulic versus traction MRL, through-floor versus a new shaft, and extras — plus the walk-away price an $18,995 pneumatic special cannot see.">
+  <meta name="description" content="Price a residential home elevator from stops, travel, pneumatic versus hydraulic versus traction MRL, through-floor versus a new shaft, acrylic versus glass cab, and extras — plus the walk-away price an $18,995 pneumatic special cannot see.">
   <meta property="og:title" content="Home Elevator Bid Calculator">
   <meta property="og:description" content="Bid a home elevator the way the trade does — stops, drive, hoistway, and extras, not a published pneumatic dump — and see the margin before you send the price.">
-  <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Home Elevator Bid Calculator","applicationCategory":"BusinessApplication","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"featureList":"Stops and travel feet, pneumatic vs winding-drum vs hydraulic vs traction-MRL comparison, through-floor vs existing-shaft vs new-wood vs masonry vs glass comparison, pit machine-closet feeder permit extras, owner-supplied vs contractor-supplied comparison, walk-away price, proposed-price margin check, copyable bid summary"}</script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Home Elevator Bid Calculator","applicationCategory":"BusinessApplication","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"featureList":"Stops and travel feet, pneumatic vs winding-drum vs hydraulic vs traction-MRL comparison, through-floor vs existing-shaft vs new-wood vs masonry vs glass comparison, acrylic vs standard vs wood-panel vs glass cab comparison, pit machine-closet feeder permit extras, owner-supplied vs contractor-supplied comparison, walk-away price, proposed-price margin check, copyable bid summary"}</script>
   <style>
     :root { color-scheme: light; font-family: system-ui, sans-serif; color: #1c2833; background: #e8eef3; }
     body { max-width: 1060px; margin: 0 auto; padding: 32px 18px; }
@@ -178,6 +178,14 @@
         <tbody id="compare"></tbody>
       </table>
       <hr>
+      <p class="note" style="margin-bottom:4px"><strong>Same house, four cabs</strong></p>
+      <p class="note" style="margin-top:0">The upgrade after they shopped the tube: acrylic versus standard versus wood-panel versus glass, starting cab kits. Matching the acrylic number on a glass-cab ask is the losing bid. <a href="acrylic-vs-glass-home-elevator-cab.html" style="color:#cde6ea">Acrylic vs glass home elevator cab?</a></p>
+      <table>
+        <thead><tr><th>Cab</th><th>Hours</th><th>Price</th><th>vs acrylic</th></tr></thead>
+        <tbody id="cabs"></tbody>
+      </table>
+      <p id="cabNote" class="note"></p>
+      <hr>
       <p class="note" style="margin-bottom:4px"><strong>Same house, who bought the unit</strong></p>
       <p class="note" style="margin-top:0">The $4,995 “just install what I bought” special. Zeroing the unit invoice is not a free set — setting their Stiltz or Savaria still takes hours, and a wrong opening is a second trip. <a href="should-i-install-a-customer-supplied-home-elevator.html" style="color:#cde6ea">Should I install a customer-supplied home elevator?</a></p>
       <table>
@@ -198,7 +206,7 @@
     <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not elevator-specification, structural, building-code, accessibility, legal, tax, or financial advice, and it does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for meeting any obligation it helps you prepare for. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
     <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record. If a tool needs to survive, export your inputs and run it yourself.</p>
     <p><strong>Nothing leaves your browser.</strong> Every number stays on this device. Usage counts are anonymous tallies of which features were used, stored locally, and never include your stops, wages, costs, or prices.</p>
-    <p>Looking up <a href="how-much-to-charge-to-install-a-home-elevator.html">how much to charge to install a home elevator</a>? The article walks the stop-versus-shaft math this calculator uses. Customer bought the unit? See <a href="should-i-install-a-customer-supplied-home-elevator.html">should I install a customer-supplied home elevator</a>.</p>
+    <p>Looking up <a href="how-much-to-charge-to-install-a-home-elevator.html">how much to charge to install a home elevator</a>? The article walks the stop-versus-shaft math this calculator uses. They asked for glass after shopping the tube? See <a href="acrylic-vs-glass-home-elevator-cab.html">acrylic vs glass home elevator cab</a>. Customer bought the unit? See <a href="should-i-install-a-customer-supplied-home-elevator.html">should I install a customer-supplied home elevator</a>.</p>
     <p class="support">Free and open source. If it wins you a job, the <a href="https://github.com/Duncan-Haywood/monorepo-projects" rel="noopener">project is on GitHub</a> &mdash; support is entirely optional and never changes what the tool does.</p>
   </footer>
 
@@ -207,6 +215,8 @@
       calculateBid,
       compareDrive,
       compareHoistway,
+      compareCab,
+      cabNote,
       compareOwnerSupply,
       ownerSupplyNote,
       formatBidSummary,
@@ -252,6 +262,7 @@
     const money = value => `$${value.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
     const el = id => document.getElementById(id);
     let supplyCounted = false;
+    let cabCounted = false;
 
     function fillSelect(id, presets) {
       el(id).innerHTML = presets.map(item => `<option value="${item.id}">${item.label}</option>`).join('');
@@ -308,6 +319,8 @@
       el('split').innerHTML = '';
       el('compare').innerHTML = '';
       el('drives').innerHTML = '';
+      el('cabs').innerHTML = '';
+      el('cabNote').textContent = '';
       el('supply').innerHTML = '';
       el('supplyNote').textContent = '';
       el('verdict').hidden = true;
@@ -380,6 +393,24 @@
         <td>${upgrade}</td>
       </tr>`;
       }).join('');
+
+      const cabs = compareCab(readInput());
+      el('cabs').innerHTML = cabs.map(row => {
+        const upgrade = row.upgradeFromAcrylic === 0
+          ? 'acrylic'
+          : `+${money(row.upgradeFromAcrylic)}`;
+        return `<tr class="${row.cheapest ? 'cheap' : ''}">
+        <td>${row.label}${row.cheapest ? ' · lowest' : ''}</td>
+        <td>${row.totalHours.toFixed(1)} h</td>
+        <td>${money(row.price)}</td>
+        <td>${upgrade}</td>
+      </tr>`;
+      }).join('');
+      el('cabNote').textContent = cabNote(cabs);
+      if (!cabCounted) {
+        count('cab_compared');
+        cabCounted = true;
+      }
 
       const supply = compareOwnerSupply(readInput());
       el('supply').innerHTML = supply.map(row => {

@@ -4,6 +4,8 @@ import {
   calculateBid,
   compareDrive,
   compareHoistway,
+  compareCab,
+  cabNote,
   compareOwnerSupply,
   ownerSupplyNote,
   formatBidSummary,
@@ -193,6 +195,57 @@ test('compareHoistway ranks reuse cheapest and names the wood-shaft upgrade over
   assert.ok(wood.upgradeFromThroughFloor > 0);
   assert.ok(wood.price > through.price);
   assert.ok(wood.hoursHoistway > through.hoursHoistway);
+});
+
+test('compareCab ranks acrylic cheapest and names the glass upgrade over the tube', () => {
+  const rows = compareCab(special());
+  assert.equal(rows.length, 4);
+  assert.equal(rows[0].cab, 'acrylic');
+  assert.equal(rows[0].cheapest, true);
+  const standard = rows.find((row) => row.cab === 'standard');
+  const wood = rows.find((row) => row.cab === 'wood-panel');
+  const glass = rows.find((row) => row.cab === 'glass-cab');
+  assert.ok(standard.upgradeFromAcrylic > 0);
+  assert.ok(wood.upgradeFromAcrylic > standard.upgradeFromAcrylic);
+  assert.ok(glass.upgradeFromAcrylic > wood.upgradeFromAcrylic);
+  assert.ok(glass.price > rows[0].price);
+  assert.ok(glass.hoursCab > rows[0].hoursCab);
+  assert.ok(glass.cabMaterial > rows[0].cabMaterial);
+});
+
+test('compareCab does not leak a typed cab invoice into the kit rows', () => {
+  const baseline = compareCab(special()).find((row) => row.cab === 'glass-cab');
+  const overridden = compareCab({
+    ...special(),
+    hoursCab: 99,
+    cabInvoice: 99999,
+  }).find((row) => row.cab === 'glass-cab');
+  assert.ok(baseline);
+  assert.ok(overridden);
+  assert.equal(overridden.cabMaterial, baseline.cabMaterial);
+  assert.equal(overridden.hoursCab, baseline.hoursCab);
+  assert.ok(Math.abs(overridden.price - baseline.price) < 1e-9);
+});
+
+test('compareCab keeps drive and hoistway with the current job', () => {
+  const cheap = compareCab(special()).find((row) => row.cab === 'acrylic');
+  const hydraulic = compareCab(losingJob()).find((row) => row.cab === 'acrylic');
+  assert.ok(cheap);
+  assert.ok(hydraulic);
+  assert.ok(hydraulic.price > cheap.price);
+  assert.ok(hydraulic.totalHours > cheap.totalHours);
+});
+
+test('cabNote names the glass add-on over acrylic', () => {
+  const note = cabNote(compareCab(special()));
+  assert.match(note, /acrylic tube is the cheap-special cab/i);
+  assert.match(note, /glass adds/i);
+  assert.match(note, /losing bid/i);
+});
+
+test('cabNote rejects a short row list', () => {
+  assert.throws(() => cabNote([]), /missing rows/);
+  assert.throws(() => cabNote([{ cab: 'acrylic' }]), /missing rows/);
 });
 
 test('job presets cover the cheap special and the losing hydraulic shaft', () => {
