@@ -22,7 +22,7 @@ def _invoice(iban=None):
         "totals": {"net": 200, "tax": 38, "gross": 238},
     }
     if iban is not None:
-        invoice["payment"] = {"iban": iban}
+        invoice["payment"] = {"iban": iban, "remittance": "INV-1"}
     return invoice
 
 
@@ -35,6 +35,7 @@ UBL_WITH_ACCOUNT = b'''<?xml version="1.0" encoding="UTF-8"?>
   <cac:AccountingCustomerParty><cac:Party><cac:PartyIdentification><cbc:ID>C1</cbc:ID></cac:PartyIdentification><cac:PartyName><cbc:Name>Customer</cbc:Name></cac:PartyName></cac:Party></cac:AccountingCustomerParty>
   <cac:PaymentMeans>
     <cbc:PaymentMeansCode>30</cbc:PaymentMeansCode>
+    <cbc:PaymentID>INV-XML-IBAN</cbc:PaymentID>
     <cac:PayeeFinancialAccount>
       <cbc:ID>DE89370400440532013001</cbc:ID>
       <cac:FinancialInstitutionBranch><cbc:ID>COBADEFFXXX</cbc:ID></cac:FinancialInstitutionBranch>
@@ -134,6 +135,7 @@ class IbanInvoiceIntegrationTest(unittest.TestCase):
         source = UBL_WITH_ACCOUNT.replace(
             b"""  <cac:PaymentMeans>
     <cbc:PaymentMeansCode>30</cbc:PaymentMeansCode>
+    <cbc:PaymentID>INV-XML-IBAN</cbc:PaymentID>
     <cac:PayeeFinancialAccount>
       <cbc:ID>DE89370400440532013001</cbc:ID>
       <cac:FinancialInstitutionBranch><cbc:ID>COBADEFFXXX</cbc:ID></cac:FinancialInstitutionBranch>

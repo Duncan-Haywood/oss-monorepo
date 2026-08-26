@@ -73,6 +73,7 @@ test("UBL payee account and branch map into payment IBAN and BIC", () => {
     `</cac:AccountingCustomerParty>
   <cac:PaymentMeans>
     <cbc:PaymentMeansCode>30</cbc:PaymentMeansCode>
+    <cbc:PaymentID>RF18539007547034</cbc:PaymentID>
     <cac:PayeeFinancialAccount>
       <cbc:ID>DE89370400440532013000</cbc:ID>
       <cac:FinancialInstitutionBranch><cbc:ID>COBADEFFXXX</cbc:ID></cac:FinancialInstitutionBranch>
@@ -80,7 +81,11 @@ test("UBL payee account and branch map into payment IBAN and BIC", () => {
   </cac:PaymentMeans>`,
   );
   const invoice = parseUblInvoice(source);
-  assert.deepEqual(invoice.payment, { iban: "DE89370400440532013000", bic: "COBADEFFXXX" });
+  assert.deepEqual(invoice.payment, {
+    remittance: "RF18539007547034",
+    iban: "DE89370400440532013000",
+    bic: "COBADEFFXXX",
+  });
   assert.deepEqual(checkInvoice(invoice), []);
 });
 

@@ -13,6 +13,7 @@ test("browser page is discoverable and names the user job", () => {
   assert.match(page, /Catch invoice defects before you submit/);
   assert.match(page, /INV-022 through INV-027/);
   assert.match(page, /INV-028 and INV-029/);
+  assert.match(page, /INV-030 and INV-031/);
 });
 
 test("disclaimer and optional sponsors are visible", () => {
