@@ -4,10 +4,10 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Toilet Replacement Bid Calculator | How Much to Charge to Replace a Toilet</title>
-  <meta name="description" content="Price a toilet replacement from toilet count, two-piece versus comfort-height versus one-piece versus bidet-combo, swap-only versus flange-repair, owner-supplied versus plumber-supplied, and extras — plus the walk-away price a $249 installed special cannot see.">
+  <meta name="description" content="Price a toilet replacement from toilet count, two-piece versus comfort-height versus one-piece versus bidet-combo, swap-only versus flange-repair, owner-supplied versus plumber-supplied, weekday versus Saturday emergency, and extras — plus the walk-away price a $249 installed special cannot see.">
   <meta property="og:title" content="Toilet Replacement Bid Calculator">
-  <meta property="og:description" content="Bid a toilet the way the trade does — closet, bowl, and extras, not a published installed dump — and see the margin before you send the price.">
-  <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Toilet Replacement Bid Calculator","applicationCategory":"BusinessApplication","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"featureList":"Toilet count, two-piece vs comfort-height vs one-piece vs bidet-combo comparison, swap-only vs new-supply vs flange-repair vs full-reset comparison, owner-supplied vs plumber-supplied install, 10/12/14-inch rough-in, haul-away wax-free bidet extras, walk-away price, proposed-price margin check, copyable bid summary"}</script>
+  <meta property="og:description" content="Bid a toilet the way the trade does — closet, bowl, extras, and whether Saturday still pays — not a published installed dump — and see the margin before you send the price.">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Toilet Replacement Bid Calculator","applicationCategory":"BusinessApplication","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"featureList":"Toilet count, two-piece vs comfort-height vs one-piece vs bidet-combo comparison, swap-only vs new-supply vs flange-repair vs full-reset comparison, owner-supplied vs plumber-supplied install, weekday vs same-day vs after-hours Saturday comparison, 10/12/14-inch rough-in, haul-away wax-free bidet extras, walk-away price, proposed-price margin check, copyable bid summary"}</script>
   <style>
     :root { color-scheme: light; font-family: system-ui, sans-serif; color: #1f2a32; background: #e8eef2; }
     body { max-width: 1060px; margin: 0 auto; padding: 32px 18px; }
@@ -175,6 +175,14 @@
       </table>
       <p id="supplyNote" class="note"></p>
       <hr>
+      <p class="note" style="margin-bottom:4px"><strong>Same closet, when you can work</strong></p>
+      <p class="note" style="margin-top:0">The “can you come Saturday? Same $249?” special. A weekday slot is the bid you already have. Same-day while they stay home is the same wage on a slower set. After-hours is time-and-a-half plus a second dispatch because an overflowing toilet is not a stop you combine with a weekday route. <a href="should-i-take-a-saturday-toilet-call.html" style="color:#cde6ea">Should I take a Saturday toilet call?</a></p>
+      <table>
+        <thead><tr><th>When</th><th>Hours</th><th>Your bid</th><th>At their number</th></tr></thead>
+        <tbody id="access"></tbody>
+      </table>
+      <p id="accessNote" class="note"></p>
+      <hr>
       <p class="note" style="margin-bottom:4px"><strong>Where the hours go</strong></p>
       <ul class="split" id="split"></ul>
       <hr>
@@ -187,7 +195,7 @@
     <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not plumbing-code, fixture-specification, legal, tax, or financial advice, and it does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for meeting any obligation it helps you prepare for. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
     <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record. If a tool needs to survive, export your inputs and run it yourself.</p>
     <p><strong>Nothing leaves your browser.</strong> Every number stays on this device. Usage counts are anonymous tallies of which features were used, stored locally, and never include your closet, wages, costs, or prices.</p>
-    <p>Looking up <a href="how-much-to-charge-to-replace-a-toilet.html">how much to charge to replace a toilet</a>? The article walks the closet-versus-scope math this calculator uses. Customer bought the bowl? See <a href="should-i-install-a-customer-supplied-toilet.html">should I install a customer-supplied toilet</a>.</p>
+    <p>Looking up <a href="how-much-to-charge-to-replace-a-toilet.html">how much to charge to replace a toilet</a>? The article walks the closet-versus-scope math this calculator uses. Customer bought the bowl? See <a href="should-i-install-a-customer-supplied-toilet.html">should I install a customer-supplied toilet</a>. Saturday overflow? See <a href="should-i-take-a-saturday-toilet-call.html">should I take a Saturday toilet call</a>.</p>
     <p class="support">Free and open source. If it wins you a job, the <a href="https://github.com/Duncan-Haywood/monorepo-projects" rel="noopener">project is on GitHub</a> &mdash; support is entirely optional and never changes what the tool does.</p>
   </footer>
 
@@ -198,6 +206,8 @@
       compareToilet,
       compareOwnerSupply,
       ownerSupplyNote,
+      compareAccess,
+      accessNote,
       formatBidSummary,
       suggestedScopeKit,
       suggestedToiletKit,
@@ -240,6 +250,7 @@
     const money = value => `$${value.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
     const el = id => document.getElementById(id);
     let supplyCounted = false;
+    let accessCounted = false;
 
     function fillSelect(id, presets) {
       el(id).innerHTML = presets.map(item => `<option value="${item.id}">${item.label}</option>`).join('');
@@ -298,6 +309,8 @@
       el('toilets').innerHTML = '';
       el('supply').innerHTML = '';
       el('supplyNote').textContent = '';
+      el('access').innerHTML = '';
+      el('accessNote').textContent = '';
       el('verdict').hidden = true;
     }
 
@@ -387,6 +400,26 @@
         supplyCounted = true;
       }
 
+      const access = compareAccess(readInput());
+      el('access').innerHTML = access.map(row => {
+        const atTheirs = row.installOnly === null
+          ? 'enter their number'
+          : row.installOnly.belowBreakEven
+            ? `loses ${money(Math.abs(row.installOnly.profit))}`
+            : `keeps ${money(row.installOnly.profit)}`;
+        return `<tr class="${row.cheapest ? 'cheap' : ''}">
+        <td>${row.label}${row.cheapest ? ' · lowest bid' : ''}</td>
+        <td>${row.totalHours.toFixed(1)} h</td>
+        <td>${money(row.price)}</td>
+        <td>${atTheirs}</td>
+      </tr>`;
+      }).join('');
+      el('accessNote').textContent = accessNote(access);
+      if (!accessCounted) {
+        count('access_compared');
+        accessCounted = true;
+      }
+
       const verdict = el('verdict');
       if (result.proposed === null) {
         verdict.hidden = true;
@@ -468,7 +501,14 @@
     [...JOB_IDS, ...COST_IDS].forEach(id => {
       if (id === 'scope' || id === 'toilet' || id === 'roughIn') return;
       el(id).addEventListener('input', update);
-      el(id).addEventListener('change', () => count(id === 'proposedPrice' ? 'proposed_price_compared' : 'bid_calculated'));
+      el(id).addEventListener('change', () => {
+        if (id === 'proposedPrice') {
+          count('proposed_price_compared');
+          count('access_compared');
+        } else {
+          count('bid_calculated');
+        }
+      });
     });
     FLAG_IDS.forEach(id => {
       el(id).addEventListener('change', () => {
