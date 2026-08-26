@@ -3776,3 +3776,38 @@ ventures:
       recommended price, a wage determination, or a water-management opinion.
       The shipped hours are labelled ballpark starting points rather than a
       standard or benchmark, and nothing the user enters leaves the browser.
+  - slug: furnace-bid-calculator
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 7
+      gross_margin: 10
+      defensibility: 5
+      distribution: 7
+    composite: 6.667
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      There is no AI anywhere in the product. The value is a domain model —
+      extra duct past the included run, attic versus basement, a matching
+      coil, a gas upsize, haul-away, and a thermostat as their own hours —
+      that is arithmetic, and adding inference to it would only make the
+      result less checkable.
+    basis: >-
+      Graduated on 2026-08-25 as a browser-local furnace and heat-pump
+      replacement bid calculator. Distinct from HVAC maintenance
+      (recurring contracts), mini-split / ductless installs (heads and
+      line-set), and water-heater replacement (a vented appliance): this
+      prices a furnace or heat-pump changeout. Defensibility 5:
+      incumbents are paid estimating suites, not free ad-funded pages.
+      Distribution 7: "how much to charge to replace a furnace" is a
+      contractor query with a real changeout on the line.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Pass: the output is arithmetic on the shop's own inputs, never a
+      recommended price, a Manual J, a permit, or an engineering stamp.
+      Starting hours are labelled ballpark figures rather than a
+      standard, and nothing the user enters leaves the browser.
