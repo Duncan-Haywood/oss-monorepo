@@ -12,6 +12,13 @@ Agent instructions: [`AGENTS.md`](AGENTS.md). How to build one:
 [`PRODUCT_PLAYBOOK.md`](PRODUCT_PLAYBOOK.md). What to count and where it
 lands: [`portfolio/usage/`](portfolio/usage/README.md).
 
+The operating priority is product value over administrative throughput. Existing
+work should be triaged proportionately, then the next session should leave a
+stranger with a runnable workflow, measured only with privacy-conscious,
+off-switchable event counts. A blocked CI provider or owner-only deployment
+permission is a dependency to report, not a reason to substitute more process
+work for building.
+
 The point of consolidating: agent automation is repo-scoped. In a polyrepo
 setup every new venture costs a fresh onboarding pass across every agent
 surface (Claude Code, Cursor, Antigravity, CI). Here a new venture is a new
