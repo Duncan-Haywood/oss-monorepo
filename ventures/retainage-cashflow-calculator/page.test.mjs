@@ -1,20 +1,38 @@
-import test from 'node:test';
+import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { readFile } from 'node:fs/promises';
+import { readFileSync } from 'node:fs';
 
-const page = await readFile(new URL('./index.html', import.meta.url), 'utf8');
+const page = readFileSync(new URL('./index.html', import.meta.url), 'utf8');
+const article = readFileSync(new URL('./should-i-take-partial-retainage-now.html', import.meta.url), 'utf8');
 
-test('landing copy names the 5% vs 10% bid decision', () => {
-  assert.match(page, /5% vs 10% Bid Markup/);
-  assert.match(page, /What bid keeps the same cash coming in\?/);
-  assert.match(page, /compareRetainageRates/);
-  assert.match(page, /typicalHoldDays/);
-  assert.match(page, /rate-compared/);
+test('the worksheet exposes the partial-offer compare and counts it once', () => {
+  assert.match(page, /comparePartialReleaseOffer/);
+  assert.match(page, /id="partialReleaseCompare"/);
+  assert.match(page, /id="partialOffer"/);
+  assert.match(page, /id="waitDays"/);
+  assert.match(page, /id="partialReleaseVerdict"|id="partialReleaseNote"/);
+  assert.match(page, /retainage-cashflow:partial-release-compared/);
+  assert.match(page, /should-i-take-partial-retainage-now\.html/);
+  assert.match(page, /Best-effort hosting, no SLA/);
+  assert.match(page, /releaseSchedule/);
+  assert.match(page, /id="releaseSection"/);
+  assert.match(page, /id="share"/);
+  assert.match(page, /retainage-cashflow:link-copies/);
+  const headerBlock = page.slice(page.indexOf('id="partialReleaseTable"'));
+  const headers = [...headerBlock.matchAll(/<th scope="col">([^<]+)<\/th>/g)].map((m) => m[1]);
+  assert.deepEqual(headers, [
+    'Path',
+    'Cash from retainage',
+    'Added carrying',
+    'Net after carrying',
+    'Vs waiting',
+  ]);
 });
 
-test('page keeps the disclaimer, privacy off-switch, and optional sponsors', () => {
-  assert.match(page, /No warranty/);
-  assert.match(page, /Count anonymous local usage events/);
-  assert.match(page, /github.com\/sponsors\/Duncan-Haywood/);
-  assert.match(page, /no uptime or availability SLA/);
+test('the partial-retainage article answers the search question and points back', () => {
+  assert.match(article, /partial retainage check now/i);
+  assert.match(article, /href="\.\/#partialReleaseCompare"/);
+  assert.match(article, /\$9,802\.74/);
+  assert.match(article, /No warranty/);
+  assert.match(article, /Best-effort hosting, no SLA/);
 });

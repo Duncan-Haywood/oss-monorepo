@@ -7,6 +7,21 @@ import type { ProgressEntry } from "./types";
  */
 export const progressLog: ProgressEntry[] = [
   {
+    date: "2026-08-24",
+    agent: "session/agent_0f91c692-9c76-4ae5-bc98-79b2014f706e",
+    summary:
+      "Completed the customer-facing artifact for the MLS photo-spec preflight product line: a browser run can now be retained as a dated Markdown findings record.",
+    changes: [
+      "research/src/components/PhotoCheckTool.tsx now creates a local Markdown download with the checked timestamp, dated spec identifier, file-level findings, skipped-file count, and explicit out-of-scope checks. Table values are escaped so imported filenames or parser details cannot corrupt the record format.",
+      "Added an opt-out local report_downloaded usage event. Photo bytes, findings, and filenames remain in the browser; no analytics vendor, account, or server endpoint was introduced.",
+      "Added the p2-photo-preflight-record roadmap task and recorded the local-export product decision.",
+    ],
+    nextUp: [
+      "Human: run the check against a real delivery folder once a concierge listing exists; the current record is still based on the dated generic floor spec, not a board-specific acceptance rule.",
+      "Agent: validate the research build and browser download behavior, then use local usage readings to decide whether a PDF or board-profile feature is worth building.",
+    ],
+  },
+  {
     date: "2026-06-13",
     agent: "initial-scaffold",
     summary:
@@ -639,6 +654,22 @@ export const progressLog: ProgressEntry[] = [
     nextUp: [
       "Agent: prepare the public deploy artifact for the already-built research / photo-check surfaces; do not start p3-app-scope or another tool.",
       "Human: flip deploy-settings (Pages / Cloudflare credentials) if that is what unblocks the URL. Same long-open blockers in process/blockers.ts otherwise stand.",
+    ],
+  },
+  {
+    date: "2026-08-25",
+    agent: "cursor/product-first-development-mandate-b002",
+    summary:
+      "Turned MLS photo-check findings into a copyable reshoot / desk-fix list so a photographer knows which rooms to recapture versus which files to rename, recrop, or pair — complementary to the three open evidence-download PRs (#1333, #1358, #1385).",
+    changes: [
+      "research/src/lib/photo-spec.ts: buildReshootPlan + formatReshootPlan map each finding to recapture / pair / reexport / rename with disclosed unimplemented rules on the copied text.",
+      "research/src/components/PhotoCheckTool.tsx: What to fix next panel and Copy shot list; usage events reshoot_list_viewed / reshoot_list_copied stay localStorage-only.",
+      "pipeline/src/cli-preflight.ts: prints the same list after the findings so the CLI path matches the browser.",
+      "Tests: three new photo-spec cases (9/9). Did not add a second download/export — those PRs already cover that.",
+    ],
+    nextUp: [
+      "Keep #1333/#1358/#1385 open for the evidence-record download; do not close them as superseded by this list.",
+      "Public URL is still owner-gated (deploy-settings). Do not add another trade bid calculator.",
     ],
   },
 ];
