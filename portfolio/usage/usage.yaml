@@ -902,6 +902,18 @@ products:
           assertions lived in `test_app.mjs`, which `node --test` does not
           match, so they had never run anywhere. Public URL remains
           owner-gated.
+  - slug: sunroom-bid-calculator
+    surface: static-page-in-repo
+    readings:
+      - as_of: 2026-08-25
+        signals:
+          live_url_visitors: null
+          local_events_reported: 0
+        note: >-
+          Shipped a local sunroom / three-season / four-season bid calculator
+          that prices glass, thermal floor, and insulated roof instead of a
+          floor-square-foot coupon. Public URL remains owner-gated; counters
+          are local, aggregate, and opt-out.
   - slug: metal-roof-bid-calculator
     surface: static-page-in-repo
     readings:

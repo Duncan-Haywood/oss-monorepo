@@ -303,6 +303,9 @@ workflows:
 - workflow: substitute-supply-ci.yml
   classification: none
   publishes: []
+- workflow: sunroom-bid-calculator-ci.yml
+  classification: none
+  publishes: []
 - workflow: toilet-replacement-bid-calculator-ci.yml
   classification: none
   publishes: []
