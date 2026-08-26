@@ -61,6 +61,10 @@ flips representment.
 [Should I offer local delivery on Shopify?](should-i-offer-local-delivery-on-shopify.html)
 answers the drop-off question: whether driver time and miles still beat a
 carrier label, and what you keep if you charge shipping and still deliver.
+[Should I sell gift cards on Shopify?](should-i-sell-gift-cards-on-shopify.html)
+answers the stored-value question: whether a card they redeem later still
+beats selling the SKU now after sale-day fees, a leftover swipe, and a
+promo off the face.
 
 **After using the POS page, you can now see whether a market table or
 retail tap keeps more than checkout on that SKU** — which used to mean
@@ -101,6 +105,11 @@ every dispute because winning sounded free.
 — which used to mean turning on Local Delivery because the postage
 looked like the only cost.
 
+**After using the gift-card page, you can now see whether a $50 card
+still pays after the sale-day fee and a later redeem, including the
+second swipe on a leftover ticket** — which used to mean selling
+discounted cards because $50 in the bank looked like profit.
+
 **No warranty.** This tool is provided free and as-is, without warranty of any
 kind, express or implied. It is not tax, financial, or business advice, and it
 does not replace a qualified professional. **You are responsible for reviewing
@@ -134,7 +143,7 @@ optional and never changes what the tool does.
 Pure ES modules, no build step, no dependencies.
 
 ```
-node --test        # calc, usage, POS / label / installment / return / Capital / bank-transfer / chargeback / local-delivery page tests
+node --test        # calc, usage, POS / label / installment / return / Capital / bank-transfer / chargeback / local-delivery / gift-card page tests
 ```
 
 `calc.mjs` holds the fee/profit/ROI arithmetic and plan presets; `usage.mjs`

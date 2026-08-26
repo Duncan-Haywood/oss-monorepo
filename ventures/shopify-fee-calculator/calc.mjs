@@ -1446,3 +1446,209 @@ export function compareLocalDelivery(input) {
     }),
   };
 }
+
+/**
+ * Illustrative gift-card defaults so the table is immediately useful.
+ * Face, what they pay, and redemption rate are inputs — not Shopify
+ * gift-card policy or a published breakage schedule. $50 face / $50
+ * paid / 80% redeem is a digital card a merchant overwrites from
+ * their own gift-card report.
+ */
+export const DEFAULT_GIFT_CARD_FACE = 50;
+export const DEFAULT_GIFT_CARD_PRICE = 50;
+export const DEFAULT_GIFT_CARD_REDEMPTION_PCT = 80;
+export const DEFAULT_MONTHLY_GIFT_CARDS = 20;
+
+function cardFeesOnAmount(amount, input) {
+  if (amount <= 1e-12) return 0;
+  const paymentsRate = number(input.paymentsRate, "Shopify Payments rate", 2.9);
+  const paymentsFixed = number(input.paymentsFixed, "Shopify Payments fixed fee", 0.3);
+  const shopifyTxnRate = number(input.shopifyTxnRate, "Shopify third-party transaction rate", 2);
+  const processorRate = number(input.processorRate, "Third-party processor rate", 3.49);
+  const processorFixed = number(input.processorFixed, "Third-party processor fixed fee", 0.49);
+  const paymentMethod = input.paymentMethod ?? "shopify_payments";
+  if (paymentMethod === "third_party") {
+    return amount * ((processorRate + shopifyTxnRate) / 100) + processorFixed;
+  }
+  return amount * (paymentsRate / 100) + paymentsFixed;
+}
+
+function giftCardSummary({
+  winner,
+  extraOnRedeem,
+  saleFees,
+  remainderFees,
+  promoDiscount,
+  face,
+  cardPrice,
+  redemptionPct,
+  expectedKept,
+  monthlyExtraOnRedeem,
+}) {
+  const gap = moneyLabel(Math.abs(extraOnRedeem));
+  const ahead = extraOnRedeem >= 0 ? "more" : "less";
+  const paid = moneyLabel(cardPrice);
+  const faceLabel = moneyLabel(face);
+  const swipe = remainderFees > 1e-9
+    ? ` The extra ${moneyLabel(remainderFees)} is the second card swipe on the leftover after the card.`
+    : "";
+  const promo = promoDiscount > 1e-9
+    ? ` They paid ${paid} for a ${faceLabel} card (${moneyLabel(promoDiscount)} off).`
+    : "";
+  const month = monthlyExtraOnRedeem === 0
+    ? ""
+    : extraOnRedeem >= 0
+      ? ` Across the typed month that is ${moneyLabel(monthlyExtraOnRedeem)} more.`
+      : ` Across the typed month that gap is ${moneyLabel(Math.abs(monthlyExtraOnRedeem))}.`;
+  if (winner === "tie") {
+    return `Selling the SKU now and a gift card they later redeem leave the same leftover on these rates.${promo}${month}`;
+  }
+  const redeemLine = winner === "redeem"
+    ? `A ${paid} gift card they later redeem on this SKU keeps ${gap} more than selling the item now.`
+    : `Selling the SKU now keeps ${gap} more than a ${paid} gift card they later redeem on this order.`;
+  return `${redeemLine}${promo}${swipe} Sale-day card fees are ${moneyLabel(saleFees)}. An ${redemptionPct}% redemption mix would leave ${moneyLabel(expectedKept)} — that includes unredeemed cards, not a forecast you should plan on.${month}`;
+}
+
+/**
+ * Same typical SKU, three views of a Shopify gift-card sale.
+ *
+ *   - Sell the SKU now — landed checkout on the typed item + shipping.
+ *   - Gift card, they redeem — fees hit what they pay for the card
+ *     today. On redeem they apply the face to the same order; any
+ *     leftover ticket is a second card swipe (another fixed fee).
+ *     Unused face stays a liability, not leftover.
+ *   - Expected mix — blends the redeem cycle with breakage at the
+ *     typed redemption rate. Shown so merchants can see the temptation;
+ *     it is not the winner. Breakage is unredeemed liability, not a
+ *     plan.
+ *
+ * Complementary to landed store-credit vs refund (a return, not a
+ * sold card) and to Shop Pay Installments (a card-rail mix). Face,
+ * purchase price, and redemption percent are inputs — not Shopify
+ * gift-card policy.
+ */
+export function compareGiftCard(input) {
+  const face = emptyField(input.giftCardFace)
+    ? DEFAULT_GIFT_CARD_FACE
+    : number(input.giftCardFace, "Gift card face");
+  if (face <= 0) throw new Error("Gift card face must be greater than zero");
+  const cardPrice = emptyField(input.giftCardPrice)
+    ? DEFAULT_GIFT_CARD_PRICE
+    : number(input.giftCardPrice, "Gift card price");
+  const redemptionPct = emptyField(input.giftCardRedemptionPct)
+    ? DEFAULT_GIFT_CARD_REDEMPTION_PCT
+    : ratePercent(input.giftCardRedemptionPct, "Gift card redemption percent");
+  const monthlyGiftCards = emptyField(input.monthlyGiftCards)
+    ? DEFAULT_MONTHLY_GIFT_CARDS
+    : number(input.monthlyGiftCards, "Monthly gift cards");
+
+  const price = number(input.price, "Item price");
+  const shippingCharged = number(input.shippingCharged, "Shipping charged");
+  const costOfGoods = number(input.costOfGoods, "Cost of goods");
+  const shippingCost = number(input.shippingCost, "Shipping cost");
+  const packagingCost = number(input.packagingCost, "Packaging cost");
+  const otherCost = number(input.otherCost, "Other cost");
+
+  const sellNowOrder = calculateOrder(input);
+  const sellNowProfit = sellNowOrder.selected.profit;
+  const allocatedPlan = sellNowOrder.allocatedPlanCost;
+  const fulfillment = costOfGoods + shippingCost + packagingCost + otherCost;
+  const orderTotal = price + shippingCharged;
+  const applied = Math.min(face, orderTotal);
+  const remainder = Math.max(0, orderTotal - face);
+  const leftoverCredit = Math.max(0, face - orderTotal);
+
+  const saleFees = cardFeesOnAmount(cardPrice, input);
+  const remainderFees = cardFeesOnAmount(remainder, input);
+  const cycleRevenue = cardPrice + remainder;
+  const cycleFees = saleFees + remainderFees;
+  const cycleKept = cycleRevenue - cycleFees - allocatedPlan - fulfillment - leftoverCredit;
+  const breakageKept = cardPrice - saleFees - allocatedPlan;
+  const cashToday = breakageKept;
+  const redemptionRate = redemptionPct / 100;
+  const expectedKept = (1 - redemptionRate) * breakageKept + redemptionRate * cycleKept;
+  const promoDiscount = Math.max(0, face - cardPrice);
+
+  const extraOnRedeem = cycleKept - sellNowProfit;
+  const extraOnExpected = expectedKept - sellNowProfit;
+  const monthlyExtraOnRedeem = extraOnRedeem * monthlyGiftCards;
+  const monthlyExtraOnExpected = extraOnExpected * monthlyGiftCards;
+
+  const sell = {
+    id: "sell",
+    label: "Sell the SKU now",
+    charged: orderTotal,
+    fees: sellNowOrder.selected.feeTotal,
+    fulfillment,
+    kept: sellNowProfit,
+  };
+  const redeem = {
+    id: "redeem",
+    label: "Gift card, they redeem",
+    charged: cycleRevenue,
+    fees: cycleFees,
+    fulfillment,
+    kept: cycleKept,
+  };
+  const expected = {
+    id: "expected",
+    label: `Gift card, ${redemptionPct}% redeem`,
+    charged: cycleRevenue,
+    fees: cycleFees,
+    fulfillment,
+    kept: expectedKept,
+  };
+
+  const rows = [sell, redeem, expected].map((row) => ({
+    ...row,
+    vsSell: row.kept - sellNowProfit,
+  }));
+
+  let winner = "tie";
+  if (extraOnRedeem > 1e-9) winner = "redeem";
+  else if (extraOnRedeem < -1e-9) winner = "sell";
+
+  return {
+    rows,
+    sell: rows[0],
+    redeem: rows[1],
+    expected: rows[2],
+    face,
+    cardPrice,
+    redemptionPct,
+    monthlyGiftCards,
+    orderTotal,
+    applied,
+    remainder,
+    leftoverCredit,
+    saleFees,
+    remainderFees,
+    cycleFees,
+    cycleRevenue,
+    cycleKept,
+    breakageKept,
+    cashToday,
+    expectedKept,
+    promoDiscount,
+    allocatedPlan,
+    fulfillment,
+    extraOnRedeem,
+    extraOnExpected,
+    extraKeptOnRedeem: extraOnRedeem,
+    monthlyExtraOnRedeem,
+    monthlyExtraOnExpected,
+    winner,
+    summary: giftCardSummary({
+      winner,
+      extraOnRedeem,
+      saleFees,
+      remainderFees,
+      promoDiscount,
+      face,
+      cardPrice,
+      redemptionPct,
+      expectedKept,
+      monthlyExtraOnRedeem,
+    }),
+  };
+}
