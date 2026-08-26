@@ -3,11 +3,11 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Reverb Fee Calculator | Offer vs List, Shipping Included vs Buyer-Pays</title>
-  <meta name="description" content="See what a Reverb sale leaves after marketplace, payment, shipping, and gear cost — whether a buyer offer still beats eBay, and whether free shipping or local pickup still beats charging postage.">
+  <title>Reverb Fee Calculator | Offer vs List, Safe Shipping vs Own Label</title>
+  <meta name="description" content="See what a Reverb sale leaves after marketplace, payment, shipping, and gear cost — whether a buyer offer still beats eBay, whether free shipping still beats charging postage, and whether Reverb Safe Shipping still beats your own label.">
   <meta property="og:title" content="Reverb Fee Calculator">
-  <meta property="og:description" content="Net cash on a Reverb list price, on the offer in your inbox, versus eBay, and versus baking shipping into the item price.">
-  <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Reverb Fee Calculator","applicationCategory":"BusinessApplication","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"featureList":"Reverb fee breakdown, offer versus list cash, Reverb versus eBay compare, offer that matches eBay list cash, shipping included versus buyer-pays, local pickup versus ship"}</script>
+  <meta property="og:description" content="Net cash on a Reverb list price, on the offer in your inbox, versus eBay, versus baking shipping into the item price, and versus buying Reverb's insured label.">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Reverb Fee Calculator","applicationCategory":"BusinessApplication","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"featureList":"Reverb fee breakdown, offer versus list cash, Reverb versus eBay compare, offer that matches eBay list cash, shipping included versus buyer-pays, local pickup versus ship, Reverb Safe Shipping versus own label"}</script>
   <style>
     :root { color-scheme: light; font-family: system-ui, sans-serif; color: #1f2320; background: #f3f1ea; }
     body { max-width: 980px; margin: 0 auto; padding: 32px 18px; }
@@ -26,7 +26,7 @@
   <header>
     <p>FOR REVERB SELLERS</p>
     <h1>See whether that offer still beats eBay.</h1>
-    <p>Enter the rates from your last Reverb payout and the eBay final-value fee you actually pay. The calculator shows cash at your list price, cash if you take the offer, and the Reverb offer that leaves the same cash as selling the same item on eBay. Walk the numbers on <a href="should-i-take-this-reverb-offer.html">should I take this Reverb offer</a>. Marketplace fee sits on the item, so baking postage into the list costs extra — compare that to charging shipping or offering pickup on <a href="should-i-include-shipping-on-reverb.html">should I include shipping on Reverb</a>.</p>
+    <p>Enter the rates from your last Reverb payout and the eBay final-value fee you actually pay. The calculator shows cash at your list price, cash if you take the offer, and the Reverb offer that leaves the same cash as selling the same item on eBay. Walk the numbers on <a href="should-i-take-this-reverb-offer.html">should I take this Reverb offer</a>. Marketplace fee sits on the item, so baking postage into the list costs extra — compare that to charging shipping or offering pickup on <a href="should-i-include-shipping-on-reverb.html">should I include shipping on Reverb</a>. Reverb Safe Shipping is a more expensive label, not a different checkout — compare it to your own label on <a href="should-i-buy-reverb-safe-shipping.html">should I buy Reverb Safe Shipping</a>.</p>
   </header>
   <main class="layout">
     <section>
@@ -36,6 +36,9 @@
         <label>Buyer offer <input id="offerPrice" type="number" min="0" step="0.01" value="720"></label>
         <label>Shipping charged <input id="shippingCharged" type="number" min="0" step="0.01" value="75"></label>
         <label>Shipping you pay <input id="shippingCost" type="number" min="0" step="0.01" value="65"></label>
+        <label>Reverb Safe Shipping label <input id="safeShippingCost" type="number" min="0" step="0.01" value="80"></label>
+        <label>Cash you eat on an unprotected claim <input id="claimCost" type="number" min="0" step="0.01" value="450"></label>
+        <label>Unprotected claim rate (%) <input id="unprotectedLossRatePct" type="number" min="0" max="100" step="0.1" value="2"></label>
         <label>What you paid for the item <input id="itemCost" type="number" min="0" step="0.01" value="450"></label>
         <label>Other per-sale cost <input id="otherCost" type="number" min="0" step="0.01" value="10"></label>
         <label>Reverb marketplace fee (%) <input id="marketplaceRate" type="number" min="0" step="0.1" value="5"></label>
@@ -106,6 +109,24 @@
     <p id="shippingMatch" class="note"></p>
     <p class="note">Free shipping keeps the same checkout by folding postage into the item. Reverb marketplace then charges on that higher item price. Local pickup uses your list with no shipping charged and no postage you pay. This is not a recommendation to offer pickup or free shipping — it is the arithmetic on the rates you typed. <a href="should-i-include-shipping-on-reverb.html">Worked example</a>.</p>
   </section>
+  <section class="compare" id="safe-shipping-compare">
+    <h2>Your own label or Reverb Safe Shipping</h2>
+    <p id="safeShippingVerdict" class="verdict"></p>
+    <table>
+      <thead>
+        <tr>
+          <th scope="col">Path</th>
+          <th scope="col">Label you pay</th>
+          <th scope="col">Expected claim</th>
+          <th scope="col">Expected net</th>
+          <th scope="col">vs own after claims</th>
+        </tr>
+      </thead>
+      <tbody id="safeShippingRows"></tbody>
+    </table>
+    <p id="safeShippingMatch" class="note"></p>
+    <p class="note">Safe Shipping does not change what the buyer pays. It only changes the label you buy and whether you eat a damaged or lost shipment. Expected keep subtracts (claim rate × cash you lose on an unprotected claim) from own-label profit. A $0 Safe Shipping quote is illustrated at your own label plus $15 so the table is never empty. This is not a recommendation to buy their label — it is the arithmetic on the rates you typed. <a href="should-i-buy-reverb-safe-shipping.html">Worked example</a>.</p>
+  </section>
   <footer>
     <label><input id="usageOptOut" type="checkbox" style="width:auto"> Do not keep anonymous local usage counts</label>
     <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not tax, financial, or business advice, and it does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for meeting any obligation it helps you prepare for. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
@@ -113,7 +134,7 @@
     <p>Free and open source. If it stopped you from taking a $720 offer that left $74 on the table, the <a href="https://github.com/Duncan-Haywood/monorepo-projects">project is on GitHub</a> — <a href="https://github.com/sponsors/Duncan-Haywood">GitHub Sponsors</a> is optional and never changes what the tool does. MIT licensed.</p>
   </footer>
   <script type="module">
-    import { INPUT_FIELDS, REVERB_DEFAULTS, compareOfferToList, compareReverbToEbay, calculateEbaySale, offerThatMatchesEbayList, compareShippingPaths } from './calc.mjs';
+    import { INPUT_FIELDS, REVERB_DEFAULTS, compareOfferToList, compareReverbToEbay, calculateEbaySale, offerThatMatchesEbayList, compareShippingPaths, compareSafeShipping } from './calc.mjs';
     import { recordUsage } from './usage.mjs';
     import { encodeInputs, decodeInputs } from './share.mjs';
 
@@ -194,11 +215,29 @@
       document.getElementById('shippingMatch').textContent =
         `To keep buyer-pays cash with shipping included, list at ${money(shipping.includedListThatMatchesBuyerPays)} (buyer pays that all-in).`;
 
+      const protectedShip = compareSafeShipping(inputs);
+      document.getElementById('safeShippingRows').innerHTML = protectedShip.rows.map(row => {
+        const wins = row.id === protectedShip.winner || (protectedShip.winner === 'tie' && row.id !== 'ownIfNothing');
+        return `<tr class="${wins ? 'winner' : ''}"><td>${row.label}</td><td>${money(row.labelCost)}</td><td>${money(row.expectedClaim)}</td><td>${money(row.expectedProfit)}</td><td>${signed(row.vsOwnExpected)}</td></tr>`;
+      }).join('');
+      const breakEven = Number.isFinite(protectedShip.breakEvenLossRatePct)
+        ? `${protectedShip.breakEvenLossRatePct.toFixed(2)}%`
+        : 'any rate (claim cost is $0)';
+      document.getElementById('safeShippingVerdict').textContent = protectedShip.winner === 'safeShipping'
+        ? `Reverb Safe Shipping still leaves more expected cash. The extra ${money(protectedShip.extraLabelCost)} label beats a ${protectedShip.lossRatePct}% chance of eating ${money(protectedShip.claimCost)}.`
+        : protectedShip.winner === 'ownExpected'
+          ? `Your own label still leaves more expected cash. Safe Shipping's extra ${money(protectedShip.extraLabelCost)} label is worth it only if you lose more than ${breakEven} of shipments at a ${money(protectedShip.claimCost)} claim.`
+          : `Own label after expected claims and Safe Shipping leave the same cash on these inputs.`;
+      document.getElementById('safeShippingMatch').textContent = protectedShip.usedIllustratedQuote
+        ? `No Safe Shipping quote was typed, so the table illustrates your own label plus $15.00.`
+        : `Break-even unprotected claim rate is ${breakEven}.`;
+
       safe(() => localStorage.setItem(INPUTS_KEY, JSON.stringify(inputs)));
       const optedOut = field('usageOptOut').checked;
       recordUsage(undefined, optedOut, 'reverb_sale_calculated');
       recordUsage(undefined, optedOut, 'reverb_offer_compared');
       recordUsage(undefined, optedOut, 'reverb_shipping_compared');
+      recordUsage(undefined, optedOut, 'reverb_safe_shipping_compared');
     }
 
     field('copyLink').addEventListener('click', async () => {

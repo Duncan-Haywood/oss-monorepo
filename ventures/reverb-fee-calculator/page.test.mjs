@@ -8,11 +8,13 @@ import {
   calculateEbaySale,
   offerThatMatchesEbayList,
   compareShippingPaths,
+  compareSafeShipping,
 } from './calc.mjs';
 
 const html = readFileSync(new URL('./index.html', import.meta.url), 'utf8');
 const seo = readFileSync(new URL('./should-i-take-this-reverb-offer.html', import.meta.url), 'utf8');
 const shippingSeo = readFileSync(new URL('./should-i-include-shipping-on-reverb.html', import.meta.url), 'utf8');
+const safeShippingSeo = readFileSync(new URL('./should-i-buy-reverb-safe-shipping.html', import.meta.url), 'utf8');
 
 function money(value) {
   return `$${(Math.round((Number(value) + Number.EPSILON) * 100) / 100).toFixed(2)}`;
@@ -33,10 +35,17 @@ test('the calculator page wires the compare the schema.org featureList names', (
   assert.match(html, /id="shippingRows"/);
   assert.match(html, /offerThatMatchesEbayList/);
   assert.match(html, /compareShippingPaths/);
+  assert.match(featureList[1], /Safe Shipping versus own label/i);
+  assert.match(html, /id="safeShippingCost"/);
+  assert.match(html, /id="claimCost"/);
+  assert.match(html, /id="unprotectedLossRatePct"/);
+  assert.match(html, /id="safeShippingRows"/);
+  assert.match(html, /compareSafeShipping/);
   assert.match(html, /no SLA/i);
   assert.match(html, /GitHub Sponsors/);
   assert.match(html, /should-i-take-this-reverb-offer.html/);
   assert.match(html, /should-i-include-shipping-on-reverb.html/);
+  assert.match(html, /should-i-buy-reverb-safe-shipping.html/);
 });
 
 test('the SEO page uses the same worked example the calculator defaults produce', () => {
@@ -69,4 +78,19 @@ test('the shipping SEO page uses the same worked example the calculator defaults
   assert.ok(shippingSeo.includes(signed(shipping.rows[2].vsBuyerPays)), `missing pickup delta ${signed(shipping.rows[2].vsBuyerPays)}`);
   assert.ok(shippingSeo.includes(money(shipping.includedListThatMatchesBuyerPays)), `missing match list ${money(shipping.includedListThatMatchesBuyerPays)}`);
   assert.ok(shippingSeo.includes(money(shipping.extraMarketplaceOnIncluded)), `missing extra marketplace ${money(shipping.extraMarketplaceOnIncluded)}`);
+});
+
+test('the Safe Shipping SEO page uses the same worked example the calculator defaults produce', () => {
+  const comparison = compareSafeShipping(REVERB_DEFAULTS);
+  assert.match(safeShippingSeo, /Should I buy Reverb Safe Shipping/i);
+  assert.match(safeShippingSeo, /href="\.\/#safe-shipping-compare"/);
+  assert.match(safeShippingSeo, /No warranty/);
+  assert.match(safeShippingSeo, /no SLA/i);
+  assert.ok(safeShippingSeo.includes(money(comparison.own.profit)), `missing own-if-nothing ${money(comparison.own.profit)}`);
+  assert.ok(safeShippingSeo.includes(money(comparison.ownExpectedProfit)), `missing own expected ${money(comparison.ownExpectedProfit)}`);
+  assert.ok(safeShippingSeo.includes(money(comparison.safe.profit)), `missing Safe Shipping ${money(comparison.safe.profit)}`);
+  assert.ok(safeShippingSeo.includes(money(comparison.extraLabelCost)), `missing extra label ${money(comparison.extraLabelCost)}`);
+  assert.ok(safeShippingSeo.includes(money(comparison.expectedClaim)), `missing expected claim ${money(comparison.expectedClaim)}`);
+  assert.ok(safeShippingSeo.includes(comparison.breakEvenLossRatePct.toFixed(2)), `missing break-even ${comparison.breakEvenLossRatePct.toFixed(2)}`);
+  assert.ok(safeShippingSeo.includes(signed(comparison.rows[2].vsOwnExpected)), `missing Safe delta ${signed(comparison.rows[2].vsOwnExpected)}`);
 });
