@@ -106,6 +106,11 @@ month-1 profit if you throw it in, and the cash if they cancel early. A
 crawlable explainer lives at
 [`should-i-throw-in-the-initial-clean.html`](should-i-throw-in-the-initial-clean.html).
 
+A second building is a different question. Open
+[`second-site.html`](second-site.html) to price the new site the same way,
+then add the drive as loaded labor and extra fuel. The first-building bid
+treats the van as already paid for; the hop to the next address is not free.
+
 The arithmetic lives in [`calc.mjs`](calc.mjs) with no DOM or network
 dependency, so it is testable and auditable on its own. See
 [`calc.test.mjs`](calc.test.mjs).
@@ -135,7 +140,9 @@ Events counted: `bid_calculated`, `area_added`, `area_removed`,
 `frequency_reduction_compared`, `frequency_note_copied`,
 `supply_responsibility_compared`, `supply_note_copied`,
 `initial_clean_compared`, `initial_clean_offer_compared`,
-`initial_clean_note_copied`.
+`initial_clean_note_copied`,
+`second_site_compared`, `second_site_offer_compared`,
+`second_site_summary_copied`.
 
 ## Limitations
 

@@ -645,6 +645,16 @@ products:
           Added day-porter / scheduled-shift pricing as coverage hours
           kept separate from the night-clean production rate. Public
           URL remains owner-gated.
+      - as_of: 2026-08-26
+        signals:
+          live_url_visitors: null
+          second_site_compared: 0
+          second_site_offer_compared: 0
+          second_site_summary_copied: 0
+        note: >-
+          Added a second-site page that prices the next building after
+          loaded drive labor and extra fuel. Public URL remains
+          owner-gated.
   - slug: shopify-fee-calculator
     surface: static-page-in-repo
     readings:
