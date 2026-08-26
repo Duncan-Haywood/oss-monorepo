@@ -77,6 +77,17 @@ import {
   DEFAULT_PICKUP_PACKAGING,
   DEFAULT_PICKUP_NO_SHOW_PCT,
   DEFAULT_MONTHLY_PICKUP_ORDERS,
+  compareUpsell,
+  upsellNote,
+  DEFAULT_ADDON_PRICE,
+  DEFAULT_ADDON_COST,
+  DEFAULT_ADDON_DISCOUNT_PCT,
+  DEFAULT_CHECKOUT_TAKE_PCT,
+  DEFAULT_POST_PURCHASE_TAKE_PCT,
+  DEFAULT_CHECKOUT_DROP_PCT,
+  DEFAULT_ADDON_PACKAGING,
+  DEFAULT_ADDON_LABEL,
+  DEFAULT_MONTHLY_UPSELL_CHECKOUTS,
   PLAN_PRESETS,
 } from "./calc.mjs";
 
@@ -1497,4 +1508,100 @@ test("summary names the pickup leftover and does not tell you to turn pickup on"
   assert.match(text, /\$258\.25/);
   assert.match(text, /Even a 0% no-show/);
   assert.doesNotMatch(text, /should offer|must offer|turn on pickup|turn on local pickup/i);
+});
+
+const UPSELL_BASE = {
+  price: 48,
+  shippingCharged: 6,
+  paymentsRate: 2.9,
+  paymentsFixed: 0.3,
+  costOfGoods: 14,
+  shippingCost: 5,
+  packagingCost: 1,
+  monthlyPlan: 39,
+  monthlyOrders: 100,
+  paymentMethod: "shopify_payments",
+};
+
+test("defaults match the published upsell starting points", () => {
+  assert.equal(DEFAULT_ADDON_PRICE, 18);
+  assert.equal(DEFAULT_ADDON_COST, 6);
+  assert.equal(DEFAULT_ADDON_DISCOUNT_PCT, 10);
+  assert.equal(DEFAULT_CHECKOUT_TAKE_PCT, 18);
+  assert.equal(DEFAULT_POST_PURCHASE_TAKE_PCT, 12);
+  assert.equal(DEFAULT_CHECKOUT_DROP_PCT, 2);
+  assert.equal(DEFAULT_ADDON_PACKAGING, 0.5);
+  assert.equal(DEFAULT_ADDON_LABEL, 0);
+  assert.equal(DEFAULT_MONTHLY_UPSELL_CHECKOUTS, 80);
+});
+
+test("one-click keeps a hair more than checkout after a 2% extra abandon", () => {
+  // Hero: $54 ticket, leftover $31.744.
+  // Combined first swipe: $48 + $16.20 add-on + $6 ship = $70.20,
+  // fees $2.3358, cash $26.89, leftover $40.9742.
+  // Checkout mix at 18% take / 2% drop: $32.73732728.
+  // Second swipe: $16.20, fees $0.7698, cash $6.50, leftover $8.9302.
+  // Post at 12% take: $31.744 + $1.071624 = $32.815624.
+  const r = compareUpsell(UPSELL_BASE);
+  near(r.skip.expectedProfit, 31.744, "skip leftover");
+  near(r.discountedAddOn, 16.2, "10% off $18");
+  near(r.combinedTicket, 70.2, "combined ticket");
+  near(r.combinedProfit, 40.9742, "if they add at checkout");
+  near(r.addOnProfit, 8.9302, "second swipe leftover");
+  near(r.checkoutIfComplete, 33.405436, "checkout if they still pay");
+  near(r.checkout.expectedProfit, 32.73732728, "checkout after drop");
+  near(r.post.expectedProfit, 32.815624, "one-click mix");
+  near(r.extraOnCheckout, 0.99332728, "checkout minus skip");
+  near(r.extraOnPost, 1.071624, "one-click minus skip");
+  near(r.extraOnPostVsCheckout, 0.07829672, "one-click minus checkout");
+  near(r.monthlyExtraOnPost, 85.72992, "80 checkouts");
+  near(r.breakEvenCheckoutTakePct, 7.018664110137129, "checkout take floor");
+  near(r.breakEvenPostTakeVsCheckout, 11.123236657633678, "one-click take vs checkout");
+  near(r.breakEvenCheckoutDropPct, 1.7656168295483443, "drop that ties one-click");
+  assert.equal(r.winner, "post");
+});
+
+test("zero extra abandon flips the checkout add-on ahead", () => {
+  const r = compareUpsell({ ...UPSELL_BASE, checkoutDropPct: 0 });
+  near(r.checkout.expectedProfit, 33.405436, "no-drop checkout mix");
+  near(r.post.expectedProfit, 32.815624, "one-click unchanged");
+  assert.ok(r.checkout.expectedProfit > r.post.expectedProfit, "first swipe wins without drop");
+  assert.equal(r.winner, "checkout");
+});
+
+test("empty upsell fields use the published defaults", () => {
+  const r = compareUpsell(UPSELL_BASE);
+  near(r.addOnPrice, DEFAULT_ADDON_PRICE, "default add-on");
+  near(r.addOnCost, DEFAULT_ADDON_COST, "default add-on cost");
+  near(r.addOnDiscountPct, DEFAULT_ADDON_DISCOUNT_PCT, "default discount");
+  near(r.checkoutTakePct, DEFAULT_CHECKOUT_TAKE_PCT, "default checkout take");
+  near(r.postPurchaseTakePct, DEFAULT_POST_PURCHASE_TAKE_PCT, "default one-click take");
+  near(r.checkoutDropPct, DEFAULT_CHECKOUT_DROP_PCT, "default drop");
+  near(r.extraPack, DEFAULT_ADDON_PACKAGING, "default extra pack");
+  near(r.extraLabel, DEFAULT_ADDON_LABEL, "default extra label");
+  near(r.monthlyCheckouts, DEFAULT_MONTHLY_UPSELL_CHECKOUTS, "default month");
+});
+
+test("compareUpsell rejects a take over 100 and a zero month", () => {
+  assert.throws(() => compareUpsell({ ...UPSELL_BASE, checkoutTakePct: 101 }), /Checkout take percent/);
+  assert.throws(() => compareUpsell({ ...UPSELL_BASE, postPurchaseTakePct: 101 }), /Post-purchase take percent/);
+  assert.throws(() => compareUpsell({ ...UPSELL_BASE, addOnPrice: -1 }), /Add-on price/);
+  assert.throws(() => compareUpsell({ ...UPSELL_BASE, monthlyUpsellCheckouts: 0 }), /greater than zero/);
+});
+
+test("summary names the upsell leftover and does not tell you to turn an offer on", () => {
+  const text = compareUpsell(UPSELL_BASE).summary;
+  assert.equal(text, upsellNote(compareUpsell(UPSELL_BASE)));
+  assert.match(text, /\$31\.74/);
+  assert.match(text, /\$32\.74/);
+  assert.match(text, /\$40\.97/);
+  assert.match(text, /\$32\.82/);
+  assert.match(text, /\$1\.07/);
+  assert.match(text, /\$8\.93/);
+  assert.match(text, /\$0\.08/);
+  assert.match(text, /\$85\.73/);
+  assert.match(text, /7\.0%/);
+  assert.match(text, /11\.1%/);
+  assert.match(text, /1\.8%/);
+  assert.doesNotMatch(text, /should offer|must offer|turn on upsells|install rebuy/i);
 });
