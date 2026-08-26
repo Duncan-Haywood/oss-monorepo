@@ -184,6 +184,11 @@
     .error { color: #ffb0a2; }
     .hint { font-weight: 500; font-size: .78rem; color: #5a6b82; }
     @media (max-width: 800px) { .layout { grid-template-columns: 1fr; } .result { position: static; } .fields { grid-template-columns: 1fr; } }
+      /* A grid item defaults to min-width:auto and grows to its widest child, so a
+       wide results table pushed the whole page sideways on a phone instead of
+       scrolling inside its own box, dragging the inputs off-screen with it. */
+    .layout > * { min-width: 0; }
+    @media (max-width: 800px) { section { overflow-x: auto; } table { max-width: 100%; } }
   </style>
 </head>
 <body>
