@@ -36,6 +36,7 @@ import {
   renderOfflinePage,
   renderServiceWorker,
 } from './offline.mjs';
+import { injectShopRates } from './rates.mjs';
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 export const REPO_ROOT = path.resolve(HERE, '..', '..');
@@ -1234,6 +1235,7 @@ ${CHROME_SCRIPT(slug)}`;
  */
 export async function addSiteChrome({ outDir, surfaces, baseUrl = DEFAULT_BASE_URL }) {
   const wrapped = [];
+  const rated = [];
 
   for (const surface of surfaces) {
     const dir = path.join(outDir, surface.slug);
@@ -1247,7 +1249,7 @@ export async function addSiteChrome({ outDir, surfaces, baseUrl = DEFAULT_BASE_U
       const toRoot = upToRoot(relative);
       // The attribute pass runs on the venture's own markup, before the chrome
       // adds any input of its own, and is a no-op on a page with no numbers.
-      const next = injectFavicon(annotateNumberInputs(injectChrome(html, {
+      const chromed = injectFavicon(annotateNumberInputs(injectChrome(html, {
         slug: surface.slug,
         toRoot,
         total: surfaces.length,
@@ -1258,13 +1260,18 @@ export async function addSiteChrome({ outDir, surfaces, baseUrl = DEFAULT_BASE_U
         canonical: `${baseUrl}${url.replace(/(^|\/)index\.html$/, '$1')}`,
         isEntry: url === `${surface.slug}/index.html`,
       })), toRoot);
+      // Last: the bar anchors under the site nav, so the chrome has to be there
+      // already, and it carries no numeric input for the attribute pass to
+      // annotate.
+      const next = injectShopRates(chromed);
+      if (next !== chromed) rated.push(relative);
       if (next === html) continue;
       await fs.writeFile(file, next);
       wrapped.push(relative);
     }
   }
 
-  return wrapped;
+  return { wrapped, rated };
 }
 
 export function renderRobots(baseUrl) {
@@ -1581,14 +1588,14 @@ export async function buildSite({
   // without this, any directory starting with `_` is silently dropped.
   await fs.writeFile(path.join(outDir, '.nojekyll'), '');
 
-  const wrapped = await addSiteChrome({ outDir, surfaces, baseUrl: base });
+  const { wrapped, rated } = await addSiteChrome({ outDir, surfaces, baseUrl: base });
 
   // After the chrome pass, not before: the offline layer hashes the finished
   // site to name its cache, and injects into pages the chrome has already
   // rewritten. Reversed, every deploy would cache a page missing its nav.
   const offline = await addOfflineSupport({ outDir, base, surfaces, disableWorker });
 
-  return { outDir, baseUrl: base, surfaces, repairs, wrapped, offline };
+  return { outDir, baseUrl: base, surfaces, repairs, wrapped, rated, offline };
 }
 
 // ---------------------------------------------------------------------------
@@ -1740,4 +1747,5 @@ if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.me
     console.log(`Repointed ${result.repairs.length} off-site link(s) at the repository source.`);
   }
   console.log(`Added site navigation to ${result.wrapped.length} page(s).`);
+  console.log(`Carried saved shop rates into ${result.rated.length} bid calculator page(s).`);
 }

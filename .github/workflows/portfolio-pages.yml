@@ -56,8 +56,12 @@ jobs:
         with:
           node-version: "22"
 
+      # A glob, not a list. The list named build and check only, so
+      # `clauses.test.mjs` had never run here — a suite can be added beside the
+      # thing it tests and silently not be CI's problem, which is the one way a
+      # test file is worse than no test file.
       - name: Test the site builder
-        run: node --test build.test.mjs check.test.mjs
+        run: node --test "*.test.mjs"
         working-directory: platform/pages
 
       - name: Build the site
