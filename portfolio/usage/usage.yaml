@@ -871,6 +871,18 @@ products:
           floats $7,800; month-end plus Net 30 floats $15,600. Currency
           and payment terms persist in the local draft. Public URL
           remains owner-gated.
+  - slug: artificial-turf-bid-calculator
+    surface: static-page-in-repo
+    readings:
+      - as_of: 2026-08-25
+        signals:
+          live_url_visitors: null
+          local_calculation_events: 0
+          summary_copies: 0
+        note: >-
+          Shipped browser-local landscape / pet / putting-green artificial
+          turf bid calculator; public URL remains owner-gated. Local
+          counters are anonymous, event-only, and opt-out. Baseline row.
   - slug: asphalt-driveway-pave-bid-calculator
     surface: static-page-in-repo
     readings:
