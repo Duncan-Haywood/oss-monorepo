@@ -5140,3 +5140,41 @@ ventures:
       flue is safe to use. The shipped hours are labelled ballpark starting
       points rather than a standard or code table, and nothing the user
       enters leaves the browser.
+
+  - slug: irrigation-winterization-bid-calculator
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 7
+      gross_margin: 10
+      defensibility: 5
+      distribution: 7
+    composite: 6.667
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      There is no AI anywhere in the product. The value is a domain model —
+      zone-type minutes, backflow drain time, and the drive — that is
+      arithmetic, and adding inference to it would only make the result less
+      checkable.
+    basis: >-
+      Graduated on 2026-08-25 as a browser-local irrigation winterization /
+      sprinkler-blowout bid calculator. Scored above the marketplace fee
+      calculators on defensibility (5): those restate a published fee
+      schedule, whereas the zones-and-backflow model encodes how the trade
+      actually estimates a stop, and the incumbents here are paid estimating
+      suites rather than free ad-funded pages. Distribution 7: "how much to
+      charge for a sprinkler blowout" and "irrigation winterization cost
+      calculator" are seasonal, lower-volume than marketplace-fee queries,
+      but far less saturated and bought by an operator with a real freeze
+      window on the calendar.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Pass: the output is arithmetic on the contractor's own inputs, never a
+      recommended price, a winterization specification, or a backflow
+      procedure. Starting minutes-per-zone are labelled ballpark starting
+      points rather than a manufacturer procedure, and nothing the user
+      enters leaves the browser.
