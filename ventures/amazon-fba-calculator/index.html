@@ -1,0 +1,1130 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Amazon FBA vs FBM Profit Calculator | Inbound Placement vs Split Freight</title>
+  <meta name="description" content="Free Amazon FBA vs FBM calculator: compare fulfillment paths after expected returns. Get net profit, max buy cost, the return rate that wipes the listing, when inbound placement still beats split freight, and whether aged inventory still beats a removal.">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href=".">
+  <meta property="og:title" content="Amazon FBA vs FBM Profit Calculator">
+  <meta property="og:description" content="Compare FBA and merchant-fulfilled profit on one listing — including the max buy cost before the unit loses money.">
+  <meta property="og:type" content="website">
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "SoftwareApplication",
+    "name": "Amazon FBA vs FBM Profit Calculator",
+    "applicationCategory": "BusinessApplication",
+    "operatingSystem": "Any (runs in a web browser)",
+    "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
+    "featureList": "FBA vs FBM comparison, Individual vs Professional seller plan, seller-plan volume ladder, size-tier fulfillment, size-tier packaging cliff, storage, inbound, inbound placement vs split freight, expected returns, return-rate sweep, peak vs off-peak Q4 storage, restock vs low-inventory-level fee, net profit, margin, ROI, break-even price, max buy cost, target-margin price, Low-Price FBA vs raising the list price, coupon vs list profit, coupon break-even volume, Subscribe & Save vs list profit, S&S enroll-share mixed month, Multi-Channel Fulfillment vs Amazon vs you-ship, Seller Fulfilled Prime vs FBA vs FBM, Amazon AWD vs send-all-to-FBA vs you-hold, Remote Fulfillment vs skip Canada vs a Canada FBA pile, usual PO vs supplier MOQ, you-prep vs Amazon inbound prep, aged inventory vs remove vs dispose, FBA Liquidations vs dispose vs sell-elsewhere"
+  }
+  </script>
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "mainEntity": [
+      {
+        "@type": "Question",
+        "name": "Should I use FBA or FBM for this product?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Compare both paths on the same sale price and cost of goods. FBA adds a fulfillment fee, inbound, and monthly storage. FBM replaces those with the shipping label you pay. This page does the arithmetic from the rates you enter; it does not recommend a fulfillment method."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "How do I calculate Amazon FBA profit?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Start with the sale price. Subtract the category referral fee, the FBA fulfillment fee for the size tier, allocated storage, inbound to Amazon, cost of goods, prep, ads, and a share of the professional seller fee. Enter the share of orders you expect to come back to mix that leftover with return handling and unsellable units. What remains is expected net contribution. Enter the rates from your current Amazon fee preview — this page does not publish Amazon's live schedule."
+        }
+      },
+        {
+          "@type": "Question",
+          "name": "What is the maximum I can pay for Amazon inventory?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "The max buy cost is the cost of goods that drives net profit to zero after the referral fee and the fulfillment-path costs you entered. Buy above that number and the unit loses money on these assumptions."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Does this Amazon coupon still leave a profit?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "A coupon cuts the price the buyer pays, so the referral fee falls with it, and Amazon also charges a per-redemption coupon fee. Fulfillment, inbound, and storage stay the same. Compare the list-price unit to 5%, 10%, 15%, and 20% coupons, then see how many extra couponed sales you would need to match this month's list-price profit. The page does not recommend running a coupon."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Does Amazon Subscribe & Save still leave a profit?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Subscribe & Save cuts the price enrolled buyers pay, so referral falls with that price. Fulfillment, inbound, and storage stay the same, and there is typically no coupon redemption fee. Compare list to 5%, 10%, and 15%, then see what a mixed month still keeps when only some units enroll — and how many new S&S-only sales would offset those converted buyers. The page does not recommend enrolling the listing."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Should I fulfill a website order with Amazon MCF or sell it on Amazon?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "A website order fulfilled from FBA inventory pays Multi-Channel Fulfillment and your card processor, not Amazon's referral fee. Compare that leftover to the same unit sold on Amazon and to shipping it yourself. The page does the arithmetic from the rates you enter; it does not recommend a sales channel."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Should I stay under Amazon Low-Price FBA or raise the price?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "A one-cent raise above the Low-Price threshold usually loses, because the regular pick fee jumps by more than the extra revenue after referral. The calculator shows the raise that matches Low-Price profit on the fees you enter. It does not publish Amazon's live schedule or say a listing is eligible."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Does this Amazon supplier MOQ still pay after extra FBA storage?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "A cheaper unit cost at a minimum order quantity still sits in FBA until it sells. The calculator scales the warehouse stay by pile size, then shows leftover per unit, extra cash tied up, and the MOQ cost that still matches your usual purchase order. It does not recommend taking the MOQ."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Is Amazon inbound placement cheaper than splitting a shipment?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Add the freight you would pay to one warehouse plus Amazon's per-unit inbound placement fee, then compare that total with the extra freight of a partial or Amazon-optimized split. The cheaper total inbound is the one to send. This page does the arithmetic from the rates you enter; it does not publish Amazon's live placement schedule."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Should I pay Amazon to prep inbound or do it myself?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Amazon FBA Prep Service charges per unit for FNSKU labels, polybags, and bubble wrap on inbound shipments. You-prep is the supplies and time already in the listing. The calculator swaps that line and shows leftover profit, the monthly gap, and the Amazon fee that still matches you-prep. It does not recommend a prep path."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Is Amazon Professional worth it vs Individual?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Professional pays for itself on the account fee when monthly units exceed the monthly plan price divided by the Individual per-item fee. At the illustrative US defaults that is about 40.4 units a month. This page also applies each plan to the same FBA or FBM listing so you can see profit and max buy cost, not only the subscription math, and a volume ladder at 10, 20, 40, 80, and 200 units so you can see when the $0.99/item fee flips. It does not recommend an account type."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Do Amazon returns wipe FBA profit?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "They can. A completed FBA sale keeps the leftover after referral, pick fee, inbound, and storage. A return typically refunds the buyer and the referral, but the outbound pick fee, inbound, storage, and ads stay spent, and Amazon often adds a return-processing fee. Cost of goods comes back only when the unit can be sold again. Expected profit mixes those two outcomes at the return rate you type. On the $29.99 example a 15% rate with $2.50 handling and 20% unsellable drops $10.99 to $7.75; the rate that wipes expected profit is about 50.9%."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Should I leave FBA for Seller Fulfilled Prime?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Seller Fulfilled Prime keeps the Prime badge if you buy a 2-day label and pack on time. On the default $29.99 large-standard unit, FBA keeps $4.03 more per session than SFP because Amazon's $4.15 pick plus inbound is cheaper than an $8.95 2-day label and 6 minutes at $18. The 2-day label has to fall to about $2.75 before SFP matches. Merchant fulfilled without Prime can keep more on a completed sale but usually converts fewer sessions. The page does the arithmetic from the rates you enter; it does not recommend a fulfillment method."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Should I use Amazon Remote Fulfillment for Canada?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Remote Fulfillment ships a unit already sitting in US FBA to Canada or Mexico for a per-unit surcharge. On the default $29.99 large-standard unit, that path keeps $5.12 more per Canada session than skipping ($204.86 on 40 sessions). A first dedicated Canada pile at $5.20 inbound is $0.25 behind because local Prime take does not yet cover the extra inbound. A $2.40 Canada inbound flips the pile ahead by $1.57. The page does the arithmetic from the rates you enter; it does not recommend opening Canada."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Does a smaller box drop my Amazon FBA size tier?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "It can, when the packed cube crosses a dimensional or weight gate. On the default 8×6×2 inch carton at 0.75 lb, flattening the shortest side to 0.75 inch is what classifies the same unit as small standard if it still fits. Illustrative fulfillment drops from $4.15 to $3.38 and the smaller cube keeps about $0.80 more per unit, $64.02 a month at 80 units, before extra prep. The page does not claim the product fits the smaller box."
+          }
+        }
+    ]
+  }
+  </script>
+  <style>
+    :root { color-scheme: light; font-family: system-ui, sans-serif; color: #1b2433; background: #eef2f8; }
+    body { max-width: 1080px; margin: 0 auto; padding: 32px 18px; }
+    header { max-width: 760px; margin-bottom: 26px; }
+    h1 { font-size: clamp(2rem, 6vw, 3.4rem); line-height: .98; margin: 0 0 12px; letter-spacing: -.05em; }
+    p { line-height: 1.5; }
+    .eyebrow { font-size: .8rem; font-weight: 700; letter-spacing: .08em; color: #1f4f8a; margin: 0 0 6px; }
+    .layout { display: grid; grid-template-columns: minmax(0, 1fr) minmax(300px, .9fr); gap: 18px; align-items: start; }
+    section { background: #fff; border: 1px solid #c5d0e0; border-radius: 14px; padding: 20px; box-shadow: 0 8px 24px #1b243310; }
+    h2 { margin-top: 0; font-size: 1.15rem; }
+    .fields { display: grid; grid-template-columns: repeat(2, 1fr); gap: 13px; }
+    label { display: grid; gap: 5px; font-size: .87rem; font-weight: 650; }
+    input, select { width: 100%; box-sizing: border-box; border: 1px solid #8fa0b8; border-radius: 7px; padding: 10px; font: inherit; background: white; }
+    .span2 { grid-column: 1 / -1; }
+    .paths { display: flex; gap: 1rem; flex-wrap: wrap; }
+    .paths label { display: flex; gap: .45rem; align-items: center; font-weight: 600; }
+    .paths input { width: auto; }
+    .result { position: sticky; top: 15px; background: #1b2a44; color: #f4f7fb; border-color: #1b2a44; }
+    .hero-number { font-size: 3rem; font-weight: 750; letter-spacing: -.05em; margin: 8px 0; }
+    .negative { color: #ffb0a2; } .positive { color: #b6efc0; }
+    dl { display: grid; grid-template-columns: 1fr auto; gap: 9px; margin: 20px 0; }
+    dt, dd { margin: 0; } dd { font-variant-numeric: tabular-nums; }
+    hr { border: 0; border-top: 1px solid #ffffff2b; }
+    .note { font-size: .82rem; opacity: .82; }
+    table { width: 100%; border-collapse: collapse; font-size: .92rem; }
+    th, td { padding: 8px 4px; text-align: right; border-bottom: 1px solid #ffffff22; }
+    th:first-child, td:first-child { text-align: left; }
+    tr.current td { font-weight: 700; }
+    tr.winner-row td { font-weight: 700; }
+    footer { margin-top: 25px; font-size: .82rem; color: #445064; }
+    footer a { color: #1f4f8a; }
+    .faq { margin-top: 18px; }
+    .error { color: #ffb0a2; }
+    .hint { font-weight: 500; font-size: .78rem; color: #5a6b82; }
+    @media (max-width: 800px) { .layout { grid-template-columns: 1fr; } .result { position: static; } .fields { grid-template-columns: 1fr; } }
+      /* A grid item defaults to min-width:auto and grows to its widest child, so a
+       wide results table pushed the whole page sideways on a phone instead of
+       scrolling inside its own box, dragging the inputs off-screen with it. */
+    .layout > * { min-width: 0; }
+    @media (max-width: 800px) { section { overflow-x: auto; } table { max-width: 100%; } }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="eyebrow">FOR AMAZON SELLERS</p>
+    <h1>Know whether FBA or FBM leaves more — and the most you can pay for the unit.</h1>
+    <p>
+      Enter the listing price, category, size, and what you paid. The
+      calculator shows referral, fulfillment, storage, and inbound on FBA
+      against the shipping you pay on FBM. Everything runs in this page;
+      nothing is uploaded.
+    </p>
+  </header>
+  <main class="layout">
+    <section>
+      <h2>Listing, size and costs</h2>
+      <div class="fields">
+        <label class="span2">Category (fills an illustrative US referral rate — edit it)
+          <select id="category">
+            <option value="home" selected>Home &amp; kitchen (15%)</option>
+            <option value="clothing">Clothing &amp; accessories (17%)</option>
+            <option value="jewelry">Jewelry (20%)</option>
+            <option value="electronics">Electronics (8%)</option>
+            <option value="grocery">Grocery &amp; gourmet (8%)</option>
+            <option value="beauty">Beauty &amp; personal care (8%)</option>
+            <option value="toys">Toys &amp; games (15%)</option>
+            <option value="sports">Sports &amp; outdoors (15%)</option>
+            <option value="books">Books (15%)</option>
+            <option value="everything_else">Everything else (15%)</option>
+          </select>
+        </label>
+        <div class="span2 paths" role="radiogroup" aria-label="Fulfillment path">
+          <label><input type="radio" name="fulfillmentMethod" value="fba" checked> FBA</label>
+          <label><input type="radio" name="fulfillmentMethod" value="fbm"> FBM (you ship)</label>
+        </div>
+        <label>Sale price <input id="salePrice" type="number" min="0" step="0.01" value="29.99"></label>
+        <label>Referral rate (%) <input id="referralRate" type="number" min="0" step="0.01" value="15"></label>
+        <label>Length (in) <input id="length" type="number" min="0" step="0.01" value="8"></label>
+        <label>Width (in) <input id="width" type="number" min="0" step="0.01" value="6"></label>
+        <label>Height (in) <input id="height" type="number" min="0" step="0.01" value="2"></label>
+        <label>Weight (lb) <input id="weightLb" type="number" min="0" step="0.01" value="0.75"></label>
+        <p class="note span2">A fee jump after a carton change is a size-tier gate, not this listing’s referral. <a href="does-smaller-box-cut-amazon-fba-fees.html" style="color:#9ec5ff">Does a smaller box cut Amazon FBA fees?</a></p>
+        <label class="span2">Storage season
+          <select id="storageSeason">
+            <option value="off_peak" selected>Jan–Sep off-peak ($0.87 / cu ft)</option>
+            <option value="peak">Oct–Dec peak ($2.40 / cu ft)</option>
+          </select>
+        </label>
+        <label>Months in storage <input id="monthsInStorage" type="number" min="0" step="0.1" value="1"></label>
+        <label>Storage rate ($ / cu ft / mo) <input id="storageRate" type="number" min="0" step="0.01" value="0.87"></label>
+        <p class="note span2">A stay that crosses October–December is a timing question, not this blended rate. <a href="peak-vs-off-peak-storage.html" style="color:#9ec5ff">Should you send inventory before Q4 peak storage?</a></p>
+        <label>FBA fulfillment fee <span class="hint" id="sizeHint"></span>
+          <input id="fulfillmentFee" type="number" min="0" step="0.01" value="">
+        </label>
+        <label>You paid for the item <input id="costOfGoods" type="number" min="0" step="0.01" value="8"></label>
+        <label>Inbound to Amazon / unit <input id="inboundPerUnit" type="number" min="0" step="0.01" value="1.20"></label>
+        <label>FBM shipping you pay <input id="fbmShippingCost" type="number" min="0" step="0.01" value="4.75"></label>
+        <label>FBM handling labor / unit <span class="hint">optional</span>
+          <input id="fbmHandlingCost" type="number" min="0" step="0.01" value="0">
+        </label>
+        <p class="note span2">A 2-day Prime badge on your own label is Seller Fulfilled Prime, not this Ground line. <a href="should-i-use-seller-fulfilled-prime.html" style="color:#9ec5ff">Should I use Seller Fulfilled Prime?</a></p>
+        <label>Prep / packaging <input id="packagingCost" type="number" min="0" step="0.01" value="0.60"></label>
+        <label>Ads per unit <input id="adsPerUnit" type="number" min="0" step="0.01" value="0"></label>
+        <label>Other per-unit cost <input id="otherCost" type="number" min="0" step="0.01" value="0"></label>
+        <label>Professional plan / month <input id="monthlySellerFee" type="number" min="0" step="0.01" value="39.99"></label>
+        <label>Individual per item sold <input id="individualPerUnit" type="number" min="0" step="0.01" value="0.99"></label>
+        <label>Units sold per month <input id="monthlyUnits" type="number" min="0" step="1" value="80"></label>
+        <label>Target net margin (%) <input id="targetMargin" type="number" min="0" max="99.99" step="0.1" value="30"></label>
+        <label>Expected return rate (%)
+          <input id="returnRate" type="number" min="0" max="100" step="0.1" value="0">
+          <span class="hint">Share of orders that come back. Leave 0 to see a completed sale only.</span>
+        </label>
+        <label>Return handling / unit
+          <input id="returnHandlingFee" type="number" min="0" step="0.01" value="0">
+          <span class="hint">Amazon return-processing or the label you buy yourself.</span>
+        </label>
+        <label>Unsellable return rate (%)
+          <input id="unsellableReturnRate" type="number" min="0" max="100" step="0.1" value="0">
+          <span class="hint">Share of returns that cannot go back into inventory.</span>
+        </label>
+        <label class="span2">Low-Price FBA threshold ($)
+          <input id="lowPriceThreshold" type="number" min="0.01" step="0.01" value="10">
+          <span class="hint">Illustrative US $10 standard-size band. Apparel and other categories sometimes use a different cutoff — type the one on your fee preview.</span>
+        </label>
+        <label>Low-Price sale price <input id="lowPriceSalePrice" type="number" min="0" step="0.01" value=""></label>
+        <label>Price if you leave the program <input id="raisePrice" type="number" min="0" step="0.01" value=""></label>
+        <label>Low-Price fulfillment fee <span class="hint" id="lowPriceFeeHint"></span>
+          <input id="lowPriceFulfillmentFee" type="number" min="0" step="0.01" value="">
+        </label>
+        <label class="span2" style="display:flex;gap:.5rem;align-items:center;font-weight:600">
+          <input id="lowPriceEligible" type="checkbox" checked style="width:auto">
+          Listing can use Low-Price FBA (standard-size, at or under the threshold — you confirm, this page does not)
+        </label>
+        <label>Coupon percent (%) <input id="couponPercent" type="number" min="0" max="100" step="0.1" value="15"></label>
+        <label>Coupon $ off <input id="couponFixed" type="number" min="0" step="0.01" value="0"></label>
+        <label>Coupon fee / redemption <input id="couponFee" type="number" min="0" step="0.01" value="0.60"></label>
+        <label>Expected volume lift (%) <span class="hint">extra units if the coupon is on</span>
+          <input id="couponLiftPct" type="number" min="0" step="1" value="0">
+        </label>
+        <label>Subscribe &amp; Save percent (%) <input id="snsPercent" type="number" min="0" max="100" step="0.1" value="5"></label>
+        <label>Share of units that enroll (%) <span class="hint">mixed month: list + S&amp;S</span>
+          <input id="snsEnrollPct" type="number" min="0" max="100" step="1" value="40">
+        </label>
+        <label>Website sale price <input id="dtcSalePrice" type="number" min="0" step="0.01" value=""></label>
+        <label>MCF fulfillment fee <span class="hint" id="mcfFeeHint"></span>
+          <input id="mcfFulfillmentFee" type="number" min="0" step="0.01" value="">
+        </label>
+        <label>Website card rate (%) <input id="dtcProcessorRate" type="number" min="0" step="0.01" value="2.9"></label>
+        <label>Website card fixed fee <input id="dtcProcessorFixed" type="number" min="0" step="0.01" value="0.30"></label>
+        <label class="span2">Removal fee if you pull the unit from Amazon
+          <input id="removalFee" type="number" min="0" step="0.01" value="0">
+          <span class="hint">Leave $0 when the you-ship unit is already outside Amazon. Add the removal line from your fee preview when you would un-fulfill it first.</span>
+        </label>
+        <label>Usual PO quantity <input id="smallOrderQty" type="number" min="1" step="1" value="100"></label>
+        <label>MOQ quantity <input id="largeOrderQty" type="number" min="1" step="1" value="500"></label>
+        <label>MOQ unit cost <span class="hint">blank = same as you paid</span>
+          <input id="largeCogs" type="number" min="0" step="0.01" value="6.50">
+        </label>
+        <label>MOQ inbound / unit <span class="hint">blank = same inbound</span>
+          <input id="largeInboundPerUnit" type="number" min="0" step="0.01" value="0.90">
+        </label>
+        <label class="span2">MOQ months in storage
+          <input id="largeMonthsInStorage" type="number" min="0" step="0.1" value="">
+          <span class="hint">Leave blank to scale the listing months by MOQ ÷ usual qty. A 5× pile then sits 5× as long as the stay you already modeled.</span>
+        </label>
+        <label>Amazon labeling / unit <span class="hint">FNSKU sticker from inbound preview</span>
+          <input id="amazonLabelFee" type="number" min="0" step="0.01" value="0.30">
+        </label>
+        <label>Amazon bagging / unit <span class="hint">polybag / opaque bag</span>
+          <input id="amazonBagFee" type="number" min="0" step="0.01" value="0.55">
+        </label>
+        <label>Amazon bubble wrap / unit
+          <input id="amazonBubbleFee" type="number" min="0" step="0.01" value="0.80">
+        </label>
+        <label class="span2">Your Amazon prep quote / unit <span class="hint">blank = skip this row</span>
+          <input id="amazonPrepFee" type="number" min="0" step="0.01" value="">
+        </label>
+      </div>
+    </section>
+    <section class="result">
+      <h2>Listing result</h2>
+      <div id="profit" class="hero-number">$—</div>
+      <div id="label">estimated net profit on the selected path</div>
+      <dl>
+        <dt>Sale price</dt><dd id="revenue"></dd>
+        <dt>Fees on this path</dt><dd id="fees"></dd>
+        <dt>Cash + path costs</dt><dd id="invested"></dd>
+        <dt>Net margin</dt><dd id="margin"></dd>
+        <dt>Return on investment</dt><dd id="roi"></dd>
+        <dt>Break-even sale price</dt><dd id="breakEven"></dd>
+        <dt>Max buy cost</dt><dd id="maxBuy"></dd>
+        <dt>Price for target margin</dt><dd id="targetMarginPrice"></dd>
+        <dt>FBA vs FBM</dt><dd id="advantage"></dd>
+        <dt>Profit before returns</dt><dd id="profitBeforeReturns"></dd>
+        <dt>Return drag</dt><dd id="returnDrag"></dd>
+        <dt>Return rate that wipes profit</dt><dd id="breakEvenReturnRate"></dd>
+      </dl>
+      <hr>
+      <h2>Same listing, both paths</h2>
+      <table>
+        <thead><tr><th>Path</th><th>Fees</th><th>Profit</th><th>Max buy</th></tr></thead>
+        <tbody id="compare"></tbody>
+      </table>
+      <hr>
+      <h2 id="returns">Same listing, after expected returns</h2>
+      <p id="returnsSummary" class="note"></p>
+      <table>
+        <thead>
+          <tr>
+            <th scope="col">Return rate</th>
+            <th scope="col">Expected profit</th>
+            <th scope="col">Drag</th>
+            <th scope="col">Margin</th>
+            <th scope="col">Max buy</th>
+          </tr>
+        </thead>
+        <tbody id="returnsCompare"></tbody>
+      </table>
+      <p class="note">A completed sale can look fine and still lose money once returns start. The outbound pick fee, inbound, and storage stay spent; cost of goods comes back only when the unit is still sellable. <a href="do-amazon-returns-wipe-the-profit.html" style="color:#9ec5ff">Do Amazon returns wipe FBA profit?</a></p>
+      <hr>
+      <h2>Individual vs Professional</h2>
+      <p id="planVerdict" class="note"></p>
+      <table>
+        <thead>
+          <tr>
+            <th scope="col">Account</th>
+            <th scope="col">Fee / unit</th>
+            <th scope="col">Profit</th>
+            <th scope="col">Max buy</th>
+          </tr>
+        </thead>
+        <tbody id="planCompare"></tbody>
+      </table>
+      <h3>Same listing, as monthly volume grows</h3>
+      <table>
+        <thead>
+          <tr>
+            <th scope="col">Units / mo</th>
+            <th scope="col">Individual profit</th>
+            <th scope="col">Professional profit</th>
+            <th scope="col">Keeps more</th>
+          </tr>
+        </thead>
+        <tbody id="planVolumeCompare"></tbody>
+      </table>
+      <p class="note">The break-even is monthly plan ÷ per-item fee. At the defaults that is about 40.4 units a month. The table applies each plan to the selected FBA or FBM path so you see leftover profit and max buy, not only the subscription line. The ladder shows that flip at 10, 20, 40, 80, and 200 units as sales grow. <a href="individual-vs-professional.html" style="color:#9ec5ff">Individual vs Professional: when does the monthly plan pay?</a></p>
+      <hr>
+      <h2>Low-Price FBA vs raising the price</h2>
+      <p id="lowPriceSummary" class="note"></p>
+      <dl>
+        <dt>Raise that matches Low-Price profit</dt><dd id="lowPriceBreakEven"></dd>
+        <dt>Which path keeps more</dt><dd id="lowPriceWinner"></dd>
+      </dl>
+      <table>
+        <thead><tr><th>Path</th><th>Price</th><th>Pick fee</th><th>Profit</th></tr></thead>
+        <tbody id="lowPriceCompare"></tbody>
+      </table>
+      <p class="note">A one-cent raise above the threshold usually loses — the regular pick fee jumps by more than that extra revenue after referral. <a href="should-i-price-over-amazons-low-price-fba.html" style="color:#9ec5ff">Should I stay under Low-Price FBA?</a></p>
+      <hr>
+      <h2>Same listing, coupon vs list</h2>
+      <table>
+        <thead>
+          <tr>
+            <th scope="col">Offer</th>
+            <th scope="col">Buyer pays</th>
+            <th scope="col">Profit</th>
+            <th scope="col">vs list</th>
+            <th scope="col">Hits target?</th>
+          </tr>
+        </thead>
+        <tbody id="couponCompare"></tbody>
+      </table>
+      <p id="couponSummary" class="note"></p>
+      <hr>
+      <h2>Same listing, Subscribe &amp; Save vs list</h2>
+      <table>
+        <thead>
+          <tr>
+            <th scope="col">Offer</th>
+            <th scope="col">Buyer pays</th>
+            <th scope="col">Profit</th>
+            <th scope="col">vs list</th>
+            <th scope="col">Hits target?</th>
+          </tr>
+        </thead>
+        <tbody id="snsCompare"></tbody>
+      </table>
+      <p id="snsSummary" class="note"></p>
+      <p class="note">S&amp;S is a standing percent off for enrolled deliveries. Referral falls with the buyer price; fulfillment does not, and there is typically no coupon fee. The mixed month uses the enroll share you typed. <a href="does-subscribe-and-save-still-pay.html" style="color:#9ec5ff">Does Subscribe &amp; Save still pay?</a></p>
+      <hr>
+      <h2>Website order: MCF vs Amazon vs you ship</h2>
+      <p id="mcfSummary" class="note"></p>
+      <dl>
+        <dt>MCF fee that matches Amazon</dt><dd id="mcfBreakEven"></dd>
+        <dt>Which path keeps more</dt><dd id="mcfWinner"></dd>
+      </dl>
+      <table>
+        <thead>
+          <tr>
+            <th scope="col">Path</th>
+            <th scope="col">Price</th>
+            <th scope="col">Fees</th>
+            <th scope="col">Profit</th>
+            <th scope="col">vs Amazon</th>
+          </tr>
+        </thead>
+        <tbody id="mcfCompare"></tbody>
+      </table>
+      <p class="note">MCF ships a website, eBay, or Walmart order from FBA inventory: no Amazon referral, a higher pick fee, plus your card processor. You-ship assumes the unit is already outside Amazon unless you add a removal fee. <a href="should-i-use-amazon-mcf-for-website-orders.html" style="color:#9ec5ff">Should I use Amazon MCF for website orders?</a></p>
+      <hr>
+      <h2>Usual PO vs supplier MOQ</h2>
+      <p id="bulkSummary" class="note"></p>
+      <dl>
+        <dt>MOQ unit cost that still ties</dt><dd id="bulkBreakEven"></dd>
+        <dt>Extra cash on the MOQ</dt><dd id="bulkExtraCash"></dd>
+        <dt>Which order keeps more</dt><dd id="bulkWinner"></dd>
+      </dl>
+      <table>
+        <thead>
+          <tr>
+            <th scope="col">Order</th>
+            <th scope="col">COGS</th>
+            <th scope="col">Months</th>
+            <th scope="col">Profit</th>
+            <th scope="col">vs usual</th>
+          </tr>
+        </thead>
+        <tbody id="bulkCompare"></tbody>
+      </table>
+      <p class="note">The cheaper MOQ unit still sits until it sells. Leave months blank to scale the listing stay by pile size. Extra cash is the whole MOQ pile minus the usual PO. <a href="does-this-amazon-moq-still-pay.html" style="color:#9ec5ff">Does this Amazon supplier MOQ still pay?</a></p>
+      <hr>
+      <h2>You-prep vs Amazon inbound prep</h2>
+      <p id="prepSummary" class="note"></p>
+      <dl>
+        <dt>Amazon fee that still ties you-prep</dt><dd id="prepBreakEven"></dd>
+        <dt>Which prep keeps more</dt><dd id="prepWinner"></dd>
+      </dl>
+      <table>
+        <thead>
+          <tr>
+            <th scope="col">Prep</th>
+            <th scope="col">Cost</th>
+            <th scope="col">Profit</th>
+            <th scope="col">vs you-prep</th>
+            <th scope="col">Hits target?</th>
+          </tr>
+        </thead>
+        <tbody id="prepCompare"></tbody>
+      </table>
+      <p class="note">Amazon FBA Prep Service is charged on inbound shipments. You-prep is the Prep / packaging line already on the listing (supplies + your time). Referral, pick fee, inbound freight, and storage stay put. Enter the lines from your inbound preview. <a href="should-i-pay-amazon-to-prep-inbound.html" style="color:#9ec5ff">Should I pay Amazon to prep inbound?</a></p>
+      <hr>
+      <h2 id="inbound-placement">Inbound placement vs split freight</h2>
+      <p id="placementSummary" class="note"></p>
+      <div class="fields">
+        <label>Units in this inbound shipment <input id="placementUnits" type="number" min="1" step="1" value="200"></label>
+        <label>Freight to one warehouse ($) <input id="freightMinimal" type="number" min="0" step="0.01" value="85"></label>
+        <label>Freight for a partial split ($) <input id="freightPartial" type="number" min="0" step="0.01" value="140"></label>
+        <label>Freight for Amazon-optimized split ($) <input id="freightOptimized" type="number" min="0" step="0.01" value="210"></label>
+        <label>Placement fee / unit, one warehouse <span class="hint" id="placementMinimalHint"></span>
+          <input id="placementMinimalPerUnit" type="number" min="0" step="0.01" value="0.43">
+        </label>
+        <label>Placement fee / unit, partial split <span class="hint" id="placementPartialHint"></span>
+          <input id="placementPartialPerUnit" type="number" min="0" step="0.01" value="0.27">
+        </label>
+        <label>Placement fee / unit, Amazon-optimized
+          <input id="placementOptimizedPerUnit" type="number" min="0" step="0.01" value="0">
+        </label>
+      </div>
+      <p id="placementVerdict" class="note"></p>
+      <dl>
+        <dt>Which inbound split costs less</dt><dd id="placementWinner"></dd>
+        <dt>Extra freight the optimized split can absorb</dt><dd id="placementCarry"></dd>
+      </dl>
+      <table>
+        <thead>
+          <tr>
+            <th scope="col">Split</th>
+            <th scope="col">Freight</th>
+            <th scope="col">Placement</th>
+            <th scope="col">Total inbound</th>
+            <th scope="col">Per unit</th>
+            <th scope="col">vs cheapest</th>
+          </tr>
+        </thead>
+        <tbody id="placementCompare"></tbody>
+      </table>
+      <p class="note">The listing inbound / unit field above is a blended number. This table keeps freight and Amazon’s inbound placement fee on separate lines so you can see whether following the split actually costs less. Illustrative US placement defaults come from the size tier — not Amazon’s live schedule. <a href="inbound-placement-fee.html" style="color:#9ec5ff">Is Amazon inbound placement cheaper than splitting the shipment?</a></p>
+      <p class="note">Transparent arithmetic from your inputs — not Amazon’s current fee schedule. FBM handling labor is an optional per-unit opportunity cost. Referral, fulfillment, storage, inbound, coupon fees, Subscribe &amp; Save discounts, MCF, Low-Price bands, prep-service fees, inbound-placement fees, and Individual vs Professional selling fees vary by category, size, season, and account. Verify against your Amazon fee preview before buying inventory, launching a coupon, enrolling in Subscribe &amp; Save, turning on MCF, taking a supplier MOQ, paying Amazon to prep inbound, paying inbound placement, or switching seller plans.</p>
+    </section>
+  </main>
+  <section class="faq" aria-labelledby="faq-heading">
+    <h2 id="faq-heading">What this checks</h2>
+    <p>
+      Generic “Amazon FBA calculator” pages often stop at a referral
+      percentage. The decision sellers actually face is
+      <strong>FBA vs FBM on the same SKU</strong>: fulfillment, inbound, and
+      storage versus the label you buy yourself — and whether the buy cost
+      still works.
+      <a href="fba-vs-fbm.html">FBA vs FBM: which path leaves more?</a>
+      walks through that in search-query words.
+      On a cheap SKU the next decision is
+      <a href="should-i-price-over-amazons-low-price-fba.html">whether staying under Low-Price FBA still beats a real raise</a>
+      — a one-cent move over $10 usually does not.
+    </p>
+    <p>
+      A coupon is a second decision on the same SKU: the buyer pays less,
+      referral falls with that price, and a per-redemption fee is deducted
+      from proceeds. Fulfillment does not get cheaper.
+      <a href="does-this-amazon-coupon-still-pay.html">Does this Amazon coupon still pay?</a>
+      shows the lift you would need to match this month’s list-price profit.
+    </p>
+    <p>
+      Subscribe &amp; Save is the standing version of that discount: same
+      referral cut, usually no redemption fee, and only some units enroll.
+      <a href="does-subscribe-and-save-still-pay.html">Does Subscribe &amp; Save still pay?</a>
+      shows the mixed month and the new S&amp;S-only sales that would
+      offset converted buyers.
+    </p>
+    <p>
+      A website order is a further decision on the same SKU sitting in FBA:
+      sell it on Amazon, let Amazon ship the website order (MCF), or ship
+      it yourself.
+      <a href="should-i-use-amazon-mcf-for-website-orders.html">Should I use Amazon MCF for website orders?</a>
+      shows when skipping the referral still covers the higher pick fee
+      and the card.
+    </p>
+    <p>
+      A supplier MOQ is a sourcing decision on the same SKU: a cheaper
+      unit that sits longer and ties up more cash.
+      <a href="does-this-amazon-moq-still-pay.html">Does this Amazon supplier MOQ still pay?</a>
+      scales the warehouse stay by pile size and shows the MOQ cost that
+      still matches your usual purchase order.
+    </p>
+    <p>
+      Paying Amazon to label, bag, or wrap inbound is a prep decision on
+      the same SKU: you-prep is already in the listing; Amazon’s inbound
+      prep fees replace that line.
+      <a href="should-i-pay-amazon-to-prep-inbound.html">Should I pay Amazon to prep inbound?</a>
+      shows leftover profit, the monthly gap, and the Amazon fee that
+      still matches you-prep.
+    </p>
+    <p>
+      After you pick a path, the inbound decision is
+      <strong>placement fee versus extra freight</strong>:
+      send to one warehouse and pay Amazon’s inbound placement fee, or
+      follow the split and pay more freight.
+      <a href="inbound-placement-fee.html">Is Amazon inbound placement cheaper than splitting the shipment?</a>
+      keeps those lines separate so a blended inbound / unit does not hide
+      the cheaper total.
+    </p>
+    <p>
+      The selling plan is a further account decision on the same SKU:
+      Individual charges per item sold; Professional is a flat month.
+      <a href="individual-vs-professional.html">Individual vs Professional: when does the monthly plan pay?</a>
+      applies both to leftover profit and max buy.
+    </p>
+    <p>
+      A Vine invite is a launch decision on the same SKU: gift leftover
+      units, gift units that would have sold, or skip.
+      <a href="is-amazon-vine-worth-it.html">Is Amazon Vine worth it?</a>
+      shows enrollment cost after the pick fee, leftover over the typed
+      months, and the conversion lift that still ties.
+    </p>
+    <p>
+      Units that already sit are a further leftover-pile decision: keep
+      paying storage and the aged-inventory surcharge, pay to send them
+      back, or pay to dispose.
+      <a href="should-i-remove-aged-amazon-inventory.html">Should I remove aged Amazon inventory?</a>
+      shows leftover cash, leftover units, and the monthly sell-through
+      that still ties dispose.
+      <a href="should-i-liquidate-aged-fba-inventory.html">Should I liquidate aged FBA inventory?</a>
+      adds Amazon’s recovery percent and selling the returned units
+      elsewhere — that page treats a return as a recovery, not a fee
+      with no resale.
+    </p>
+    <p>
+      Units that are still selling, but sitting thin, are a quantity
+      decision: pay the low-inventory-level surcharge on each FBA
+      shipment, or send enough units to cover 28 days and pay inbound
+      plus storage on the extra cube.
+      <a href="low-inventory-level-fee.html">Does restocking beat the low-inventory-level fee?</a>
+      shows both historical windows, the surcharge band, and the monthly
+      gap after extra storage.
+    </p>
+    <p>
+      Units that have not shipped yet are a seasonal-storage decision:
+      send now and sit through October–December, or wait until January.
+      <a href="peak-vs-off-peak-storage.html">Should you send FBA inventory before Q4 peak storage?</a>
+      keeps the off-peak and peak cubic-foot rates on separate rows so a
+      blended storage / unit does not hide the January gap.
+    </p>
+    <p>
+      A carton that just crossed 0.75 inch or 1 lb is a packaging
+      decision on the same SKU: stay in the current size tier, flatten
+      into the next-lower tier if the unit still fits, or drop only a
+      fulfillment weight band.
+      <a href="does-smaller-box-cut-amazon-fba-fees.html">Does a smaller box cut Amazon FBA fees?</a>
+      shows leftover per unit and extra prep so a cheaper ounce band is
+      not confused with a cheaper size tier.
+    </p>
+    <p>
+      An SFP invite is a badge decision on the same SKU: keep FBA
+      Prime, buy a 2-day label yourself, or drop to merchant fulfilled.
+      <a href="should-i-use-seller-fulfilled-prime.html">Should I use Seller Fulfilled Prime?</a>
+      mixes take rate with the 2-day label and pack time so a
+      completed-sale leftover does not hide a Prime-filter gap.
+    </p>
+    <p>
+      A fresh supplier PO is an inbound-bulk decision on the same SKU:
+      send the whole lot to FBA now, park it in Amazon Warehousing and
+      Distribution and replenish a working FBA stock, or hold it
+      yourself and drip inbound.
+      <a href="should-i-use-amazon-awd.html">Should I use Amazon AWD?</a>
+      keeps receive, transfer, and bulk storage on separate lines so a
+      blended inbound / unit does not hide the cheaper pile.
+    </p>
+    <p>
+      Canada or Mexico demand on a SKU already sitting in US FBA is
+      an expansion decision: skip that border, fulfill from the US
+      pile with Remote Fulfillment, or send a dedicated Canada pile.
+      <a href="should-i-use-amazon-remote-fulfillment.html">Should I use Amazon Remote Fulfillment?</a>
+      mixes the remote surcharge with Canada inbound and take rate so
+      a blended inbound / unit does not hide the first CA shipment.
+    </p>
+    <p>
+      Returns are a further mix on the same SKU: a completed sale keeps
+      the leftover, a return usually refunds the buyer and the referral,
+      and the pick fee plus inbound stay spent.
+      <a href="do-amazon-returns-wipe-the-profit.html">Do Amazon returns wipe FBA profit?</a>
+      shows expected profit, the drag, and the return rate that takes
+      leftover to zero.
+    </p>
+    <p>
+      It does not recommend a price, a category, a fulfillment method, a
+      coupon, Subscribe &amp; Save enrollment, a purchase-order size, a
+      prep path, an inbound split, AWD, Remote Fulfillment, an account type, a Vine enrollment, a removal order, a return policy, a ship month, a pack-out, Seller Fulfilled Prime, or a restock, and it is not tax or financial advice. The gap
+      between paths is an arithmetic comparison of the rates you entered.
+    </p>
+  </section>
+  <footer>
+    <label><input id="usageOptOut" type="checkbox" style="width:auto"> Do not keep anonymous local usage counts</label>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not tax, financial, or business advice, and it does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for meeting any obligation it helps you prepare for. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record. If a tool needs to survive, export your inputs and run it yourself.</p>
+    <p>Everything runs in your browser. Your prices and costs are never uploaded. There are no accounts, cookies, tracking pixels, or analytics vendors. The optional local counter records only the event name and day; never the inputs. Turn it off above, or with Do Not Track / Global Privacy Control.</p>
+    <p>Free and open source. If it saved you from an unprofitable buy, the <a href="https://github.com/Duncan-Haywood/monorepo-projects">project is on GitHub</a> — <a href="https://github.com/sponsors/Duncan-Haywood">GitHub Sponsors</a> is optional and never changes what the tool does. MIT licensed.</p>
+  </footer>
+  <script type="module">
+    import {
+      applyCategoryPreset,
+      applyPlacementPreset,
+      applyStoragePreset,
+      calculateListing,
+      compareBulkBuy,
+      compareCoupons,
+      compareInboundPlacement,
+      compareReturns,
+      compareLowPriceFba,
+      compareMcf,
+      comparePrep,
+      compareSellerPlans,
+      compareSellerPlanVolumes,
+      compareSubscribeSave,
+      couponSummary,
+      placementSummary,
+      returnsSummary,
+      prepSummary,
+      subscribeSaveSummary,
+    } from "./calc.mjs";
+    import { recordUsage } from "./usage.mjs";
+
+    const ids = [
+      "salePrice", "referralRate", "length", "width", "height", "weightLb",
+      "monthsInStorage", "storageRate", "fulfillmentFee", "costOfGoods",
+      "inboundPerUnit", "fbmShippingCost", "fbmHandlingCost", "packagingCost", "adsPerUnit",
+      "otherCost", "monthlySellerFee", "individualPerUnit", "monthlyUnits", "targetMargin",
+      "returnRate", "returnHandlingFee", "unsellableReturnRate",
+      "lowPriceThreshold", "lowPriceSalePrice", "raisePrice", "lowPriceFulfillmentFee",
+      "couponPercent", "couponFixed", "couponFee", "couponLiftPct",
+      "snsPercent", "snsEnrollPct",
+      "dtcSalePrice", "mcfFulfillmentFee", "dtcProcessorRate", "dtcProcessorFixed", "removalFee",
+      "smallOrderQty", "largeOrderQty", "largeCogs", "largeInboundPerUnit", "largeMonthsInStorage",
+      "amazonLabelFee", "amazonBagFee", "amazonBubbleFee", "amazonPrepFee",
+      "placementUnits", "freightMinimal", "freightPartial", "freightOptimized",
+      "placementMinimalPerUnit", "placementPartialPerUnit", "placementOptimizedPerUnit",
+    ];
+    const money = (value) => `$${value.toFixed(2)}`;
+    let syncingFee = false;
+    let syncingPlacement = false;
+
+    function fulfillmentMethod() {
+      return document.querySelector('input[name="fulfillmentMethod"]:checked').value;
+    }
+
+    function readInput() {
+      const raw = Object.fromEntries(ids.map((id) => [id, document.getElementById(id).value]));
+      if (raw.fulfillmentFee === "") delete raw.fulfillmentFee;
+      if (raw.lowPriceFulfillmentFee === "") delete raw.lowPriceFulfillmentFee;
+      if (raw.lowPriceSalePrice === "") delete raw.lowPriceSalePrice;
+      if (raw.raisePrice === "") delete raw.raisePrice;
+      if (raw.dtcSalePrice === "") delete raw.dtcSalePrice;
+      if (raw.mcfFulfillmentFee === "") delete raw.mcfFulfillmentFee;
+      if (raw.largeCogs === "") delete raw.largeCogs;
+      if (raw.largeInboundPerUnit === "") delete raw.largeInboundPerUnit;
+      if (raw.largeMonthsInStorage === "") delete raw.largeMonthsInStorage;
+      if (raw.amazonPrepFee === "") delete raw.amazonPrepFee;
+      return {
+        ...raw,
+        fulfillmentMethod: fulfillmentMethod(),
+        lowPriceEligible: document.getElementById("lowPriceEligible").checked,
+      };
+    }
+
+    function fillAuto(id, value) {
+      const field = document.getElementById(id);
+      if (field.value === "" || field.dataset.auto === "1") {
+        syncingFee = true;
+        field.value = value;
+        field.dataset.auto = "1";
+        syncingFee = false;
+      }
+    }
+
+    function updateFeePlaceholder() {
+      try {
+        const result = calculateListing({ ...readInput(), fulfillmentFee: undefined });
+        const field = document.getElementById("fulfillmentFee");
+        field.placeholder = result.suggestedFulfillment.toFixed(2);
+        document.getElementById("sizeHint").textContent =
+          `(${result.sizeTierLabel}, default $${result.suggestedFulfillment.toFixed(2)})`;
+        fillAuto("fulfillmentFee", result.suggestedFulfillment.toFixed(2));
+
+        const stayAuto = document.getElementById("lowPriceSalePrice").dataset.auto === "1"
+          || document.getElementById("lowPriceSalePrice").value === "";
+        const raiseAuto = document.getElementById("raisePrice").dataset.auto === "1"
+          || document.getElementById("raisePrice").value === "";
+        const compared = compareLowPriceFba({
+          ...readInput(),
+          fulfillmentFee: undefined,
+          lowPriceFulfillmentFee: undefined,
+          ...(stayAuto ? { lowPriceSalePrice: undefined } : {}),
+          ...(raiseAuto ? { raisePrice: undefined } : {}),
+        });
+        document.getElementById("lowPriceFulfillmentFee").placeholder = compared.suggestedLow.toFixed(2);
+        document.getElementById("lowPriceFeeHint").textContent =
+          `(default $${compared.suggestedLow.toFixed(2)})`;
+        fillAuto("lowPriceFulfillmentFee", compared.suggestedLow.toFixed(2));
+        fillAuto("lowPriceSalePrice", compared.stayPrice.toFixed(2));
+        fillAuto("raisePrice", compared.raisePrice.toFixed(2));
+
+        const mcfAuto = document.getElementById("mcfFulfillmentFee").dataset.auto === "1"
+          || document.getElementById("mcfFulfillmentFee").value === "";
+        const dtcAuto = document.getElementById("dtcSalePrice").dataset.auto === "1"
+          || document.getElementById("dtcSalePrice").value === "";
+        const mcfCompared = compareMcf({
+          ...readInput(),
+          fulfillmentFee: undefined,
+          ...(mcfAuto ? { mcfFulfillmentFee: undefined } : {}),
+          ...(dtcAuto ? { dtcSalePrice: undefined } : {}),
+        });
+        document.getElementById("mcfFulfillmentFee").placeholder = mcfCompared.suggestedMcfFee.toFixed(2);
+        document.getElementById("mcfFeeHint").textContent =
+          `(default $${mcfCompared.suggestedMcfFee.toFixed(2)})`;
+        fillAuto("mcfFulfillmentFee", mcfCompared.suggestedMcfFee.toFixed(2));
+        fillAuto("dtcSalePrice", mcfCompared.dtcSalePrice.toFixed(2));
+      } catch {
+        document.getElementById("sizeHint").textContent = "";
+        document.getElementById("lowPriceFeeHint").textContent = "";
+        document.getElementById("mcfFeeHint").textContent = "";
+      }
+    }
+
+    function update() {
+      updateFeePlaceholder();
+      try {
+        const result = calculateListing(readInput());
+        const profitEl = document.getElementById("profit");
+        profitEl.textContent = money(result.selected.profit);
+        profitEl.className = `hero-number ${result.selected.profit < 0 ? "negative" : "positive"}`;
+        document.getElementById("label").textContent =
+          result.selected.profit < 0
+            ? (result.returnRate > 0 ? "expected loss after returns" : "loss on this listing")
+            : (result.returnRate > 0 ? "expected net after returns" : "estimated net profit on the selected path");
+        document.getElementById("revenue").textContent = money(result.salePrice);
+        document.getElementById("fees").textContent = money(result.selected.feeTotal);
+        document.getElementById("invested").textContent = money(result.selected.cashInvested);
+        document.getElementById("margin").textContent = `${result.selected.margin.toFixed(1)}%`;
+        document.getElementById("roi").textContent = result.selected.roi === null ? "n/a" : `${result.selected.roi.toFixed(1)}%`;
+        document.getElementById("breakEven").textContent = Number.isFinite(result.selected.breakEvenPrice)
+          ? money(result.selected.breakEvenPrice) : "never";
+        document.getElementById("maxBuy").textContent = money(result.selected.breakEvenBuyCost);
+        document.getElementById("targetMarginPrice").textContent = Number.isFinite(result.selected.targetMarginPrice)
+          ? money(result.selected.targetMarginPrice) : "unreachable";
+        const extra = result.fbaAdvantage;
+        document.getElementById("advantage").textContent =
+          extra > 0 ? `${money(extra)} more with FBA` : extra < 0 ? `${money(-extra)} more with FBM` : "same profit";
+        document.getElementById("profitBeforeReturns").textContent = money(result.selected.profitBeforeReturns);
+        document.getElementById("returnDrag").textContent = money(result.selected.returnDrag);
+        document.getElementById("breakEvenReturnRate").textContent =
+          result.selected.breakEvenReturnRate === null
+            ? "never"
+            : `${(result.selected.breakEvenReturnRate * 100).toFixed(1)}%`;
+        const returns = compareReturns(readInput());
+        document.getElementById("returnsSummary").textContent = returnsSummary({
+          typedRate: returns.returnRate,
+          handling: returns.returnHandlingFee,
+          unsellable: returns.unsellableReturnRate,
+          typed: returns.typed,
+        });
+        document.getElementById("returnsCompare").innerHTML = returns.rows.map((row) =>
+          `<tr class="${row.isCurrent ? "current" : ""}"><td>${row.returnRate}%</td><td>${money(row.profit)}</td><td>${money(row.returnDrag)}</td><td>${row.margin.toFixed(1)}%</td><td>${Number.isFinite(row.breakEvenBuyCost) ? money(row.breakEvenBuyCost) : "n/a"}</td></tr>`
+        ).join("");
+        document.getElementById("compare").innerHTML = [
+          ["FBA", result.fba],
+          ["FBM (you ship)", result.fbm],
+        ].map(([name, path]) =>
+          `<tr><td>${name}</td><td>${money(path.feeTotal)}</td><td>${money(path.profit)}</td><td>${money(path.breakEvenBuyCost)}</td></tr>`
+        ).join("");
+        try {
+          const plans = compareSellerPlans(readInput(), {
+            individualPerUnit: document.getElementById("individualPerUnit").value,
+            professionalMonthly: document.getElementById("monthlySellerFee").value,
+          });
+          const winner = plans.cheaperPlan === "professional"
+            ? `Professional keeps ${money(plans.profitDelta)} more per unit on the selected path`
+            : plans.cheaperPlan === "individual"
+              ? `Individual keeps ${money(-plans.profitDelta)} more per unit on the selected path`
+              : "same leftover profit on both plans";
+          const breakEven = !Number.isFinite(plans.breakEvenUnits)
+            ? plans.breakEvenUnits === null
+              ? "both account fees are $0"
+              : "Professional never catches Individual at a $0 per-item fee"
+            : `Professional’s monthly fee matches Individual at ${plans.breakEvenUnits.toFixed(1)} units/mo`;
+          document.getElementById("planVerdict").textContent = `${winner}. ${breakEven}.`;
+          document.getElementById("planCompare").innerHTML = [
+            ["Individual", plans.individualPerUnit, plans.individual.selected],
+            ["Professional", plans.professionalAllocatedFee, plans.professional.selected],
+          ].map(([name, fee, path]) =>
+            `<tr><td>${name}</td><td>${money(fee)}</td><td>${money(path.profit)}</td><td>${money(path.breakEvenBuyCost)}</td></tr>`
+          ).join("");
+          const ladder = compareSellerPlanVolumes(readInput(), {
+            individualPerUnit: document.getElementById("individualPerUnit").value,
+            professionalMonthly: document.getElementById("monthlySellerFee").value,
+          });
+          document.getElementById("planVolumeCompare").innerHTML = ladder.rows.map((row) => {
+            const keeps =
+              row.cheaperPlan === "professional"
+                ? `Professional +${money(row.profitDelta)}`
+                : row.cheaperPlan === "individual"
+                  ? `Individual +${money(-row.profitDelta)}`
+                  : "tie";
+            return `<tr><td>${row.monthlyUnits}</td><td>${money(row.individualProfit)}</td><td>${money(row.professionalProfit)}</td><td>${keeps}</td></tr>`;
+          }).join("");
+        } catch (planError) {
+          document.getElementById("planCompare").innerHTML = "";
+          document.getElementById("planVolumeCompare").innerHTML = "";
+          document.getElementById("planVerdict").textContent = planError.message;
+        }
+        const low = compareLowPriceFba(readInput());
+        document.getElementById("lowPriceSummary").textContent = low.summary;
+        document.getElementById("lowPriceBreakEven").textContent = Number.isFinite(low.breakEvenRaise)
+          ? money(low.breakEvenRaise) : "unreachable";
+        document.getElementById("lowPriceWinner").textContent =
+          low.winner === "stay" ? "Low-Price FBA keeps more"
+            : low.winner === "raise" ? "Listing above the threshold keeps more"
+              : "same profit";
+        const rows = [
+          [`Low-Price FBA at ${money(low.stayPrice)}`, low.stayPrice, low.eligible ? low.lowPriceFee : low.regularFee, low.stay.fba.profit],
+          [`Regular FBA at ${money(low.raisePrice)}`, low.raisePrice, low.regularFee, low.raise.fba.profit],
+        ];
+        if (Math.abs(low.raisePrice - low.justOverPrice) > 1e-9) {
+          rows.splice(1, 0, [
+            `Penny over threshold (${money(low.justOverPrice)})`,
+            low.justOverPrice,
+            low.regularFee,
+            low.justOver.fba.profit,
+          ]);
+        }
+        document.getElementById("lowPriceCompare").innerHTML = rows.map(([name, price, fee, profit]) =>
+          `<tr><td>${name}</td><td>${money(price)}</td><td>${money(fee)}</td><td>${money(profit)}</td></tr>`
+        ).join("");
+        const coupons = compareCoupons(readInput());
+        const signed = (value) => `${value > 0 ? "+" : value < 0 ? "−" : ""}${money(Math.abs(value))}`;
+        document.getElementById("couponCompare").innerHTML = coupons.rows.map((row) =>
+          `<tr class="${row.isCurrent ? "current" : ""}"><td>${row.label}</td><td>${money(row.buyerPays)}</td><td>${money(row.profit)}</td><td>${signed(row.profitDelta)}</td><td>${row.hitsTarget ? "yes" : "no"}</td></tr>`
+        ).join("");
+        document.getElementById("couponSummary").textContent = couponSummary(coupons);
+        const sns = compareSubscribeSave(readInput());
+        document.getElementById("snsCompare").innerHTML = sns.rows.map((row) =>
+          `<tr class="${row.isCurrent ? "current" : ""}"><td>${row.label}</td><td>${money(row.buyerPays)}</td><td>${money(row.profit)}</td><td>${signed(row.profitDelta)}</td><td>${row.hitsTarget ? "yes" : "no"}</td></tr>`
+        ).join("");
+        document.getElementById("snsSummary").textContent = subscribeSaveSummary(sns);
+        const mcf = compareMcf(readInput());
+        document.getElementById("mcfSummary").textContent = mcf.summary;
+        document.getElementById("mcfBreakEven").textContent = Number.isFinite(mcf.breakEvenMcfFee)
+          ? money(mcf.breakEvenMcfFee) : "unreachable";
+        document.getElementById("mcfWinner").textContent =
+          mcf.winner === "amazon" ? "Amazon FBA keeps more"
+            : mcf.winner === "mcf" ? "Website + MCF keeps more"
+              : mcf.winner === "self" ? "Website + you ship keeps more"
+                : "same profit";
+        document.getElementById("mcfCompare").innerHTML = mcf.rows.map((row) =>
+          `<tr class="${row.id === mcf.winner ? "current" : ""}"><td>${row.label}</td><td>${money(row.salePrice)}</td><td>${money(row.feeTotal)}</td><td>${money(row.profit)}</td><td>${signed(row.profitDelta)}</td></tr>`
+        ).join("");
+        const bulk = compareBulkBuy(readInput());
+        document.getElementById("bulkSummary").textContent = bulk.summary;
+        document.getElementById("bulkBreakEven").textContent = money(bulk.breakEvenLargeCogs);
+        document.getElementById("bulkExtraCash").textContent = money(bulk.extraCapital);
+        document.getElementById("bulkWinner").textContent =
+          bulk.winner === "large" ? "The MOQ keeps more per unit"
+            : bulk.winner === "small" ? "The usual PO keeps more per unit"
+              : "same profit";
+        document.getElementById("bulkCompare").innerHTML = bulk.rows.map((row) =>
+          `<tr class="${row.id === bulk.winner ? "current" : ""}"><td>${row.label}</td><td>${money(row.costOfGoods)}</td><td>${row.monthsInStorage.toFixed(1)}</td><td>${money(row.profit)}</td><td>${signed(row.profit - bulk.small.profit)}</td></tr>`
+        ).join("");
+        const prep = comparePrep(readInput());
+        document.getElementById("prepSummary").textContent = prepSummary(prep);
+        document.getElementById("prepBreakEven").textContent = money(prep.breakEvenAmazonFee);
+        document.getElementById("prepWinner").textContent =
+          prep.winner === "diy" ? "You-prep keeps more"
+            : prep.winner === "label" ? "Amazon labeling keeps more"
+              : prep.winner === "label_bag" ? "Amazon label + bag keeps more"
+                : prep.winner === "full" ? "Amazon label + bag + bubble keeps more"
+                  : prep.winner === "quote" ? "Your Amazon prep quote keeps more"
+                    : "same profit";
+        document.getElementById("prepCompare").innerHTML = prep.rows.map((row) =>
+          `<tr class="${row.id === prep.winner ? "current" : ""}"><td>${row.label}</td><td>${money(row.prepCost)}</td><td>${money(row.profit)}</td><td>${signed(row.profitDelta)}</td><td>${row.hitsTarget ? "yes" : "no"}</td></tr>`
+        ).join("");
+        try {
+          syncPlacementRates(result.sizeTier, result.sizeTierLabel);
+          const placement = compareInboundPlacement({
+            units: document.getElementById("placementUnits").value,
+            freightMinimal: document.getElementById("freightMinimal").value,
+            freightPartial: document.getElementById("freightPartial").value,
+            freightOptimized: document.getElementById("freightOptimized").value,
+            placementMinimalPerUnit: document.getElementById("placementMinimalPerUnit").value,
+            placementPartialPerUnit: document.getElementById("placementPartialPerUnit").value,
+            placementOptimizedPerUnit: document.getElementById("placementOptimizedPerUnit").value,
+          });
+          document.getElementById("placementSummary").textContent = placementSummary(placement);
+          document.getElementById("placementVerdict").textContent = placement.winner === "tie"
+            ? "These splits cost the same"
+            : `${placement.paths[placement.winner].label} — ${money(placement.nextBestDelta)} less than the next option`;
+          document.getElementById("placementWinner").textContent =
+            placement.winner === "tie" ? "same inbound cost"
+              : placement.winner === "minimal" ? "One warehouse plus placement costs less"
+                : placement.winner === "partial" ? "A partial split costs less"
+                  : "Amazon-optimized split costs less";
+          document.getElementById("placementCarry").textContent = money(placement.extraFreightOptimizedCanCarry);
+          document.getElementById("placementCompare").innerHTML = placement.ranked.map((path) => {
+            const vs = placement.extraVsCheapest[path.id];
+            return `<tr class="${placement.cheapestIds.includes(path.id) ? "winner-row" : ""}"><td>${path.label}</td><td>${money(path.freight)}</td><td>${money(path.placementTotal)}</td><td>${money(path.total)}</td><td>${money(path.perUnit)}</td><td>${vs === 0 ? "cheapest" : `+${money(vs)}`}</td></tr>`;
+          }).join("");
+        } catch (placementError) {
+          document.getElementById("placementSummary").textContent = placementError.message;
+          document.getElementById("placementVerdict").textContent = "Fix the inbound shipment inputs to see the comparison.";
+          document.getElementById("placementWinner").textContent = "";
+          document.getElementById("placementCarry").textContent = "";
+          document.getElementById("placementCompare").innerHTML = "";
+        }
+      } catch (error) {
+        document.getElementById("profit").textContent = error.message;
+        document.getElementById("profit").className = "hero-number error";
+        document.getElementById("label").textContent = "fix the inputs to see a result";
+        ["revenue", "fees", "invested", "margin", "roi", "breakEven", "maxBuy", "targetMarginPrice", "advantage", "profitBeforeReturns", "returnDrag", "breakEvenReturnRate", "returnsSummary", "planVerdict", "lowPriceSummary", "lowPriceBreakEven", "lowPriceWinner", "mcfSummary", "mcfBreakEven", "mcfWinner", "bulkSummary", "bulkBreakEven", "bulkExtraCash", "bulkWinner", "prepSummary", "prepBreakEven", "prepWinner", "placementSummary", "placementVerdict", "placementWinner", "placementCarry"].forEach((id) => {
+          document.getElementById(id).textContent = "";
+        });
+        document.getElementById("compare").innerHTML = "";
+        document.getElementById("returnsCompare").innerHTML = "";
+        document.getElementById("planCompare").innerHTML = "";
+        document.getElementById("planVolumeCompare").innerHTML = "";
+        document.getElementById("lowPriceCompare").innerHTML = "";
+        document.getElementById("couponCompare").innerHTML = "";
+        document.getElementById("couponSummary").textContent = "";
+        document.getElementById("snsCompare").innerHTML = "";
+        document.getElementById("snsSummary").textContent = "";
+        document.getElementById("mcfCompare").innerHTML = "";
+        document.getElementById("bulkCompare").innerHTML = "";
+        document.getElementById("prepCompare").innerHTML = "";
+        document.getElementById("placementCompare").innerHTML = "";
+      }
+    }
+
+    function applyCategory() {
+      const filled = applyCategoryPreset({}, document.getElementById("category").value);
+      document.getElementById("referralRate").value = filled.referralRate;
+      update();
+      recordUsage(localStorage, document.getElementById("usageOptOut").checked, "category_preset_applied");
+    }
+
+    function applyStorage() {
+      const filled = applyStoragePreset({}, document.getElementById("storageSeason").value);
+      document.getElementById("storageRate").value = filled.storageRate;
+      update();
+      recordUsage(localStorage, document.getElementById("usageOptOut").checked, "storage_season_applied");
+    }
+
+    function syncPlacementRates(sizeTier, sizeTierLabel) {
+      try {
+        const filled = applyPlacementPreset({}, sizeTier);
+        const minimal = document.getElementById("placementMinimalPerUnit");
+        const partial = document.getElementById("placementPartialPerUnit");
+        document.getElementById("placementMinimalHint").textContent =
+          `(${sizeTierLabel} default $${filled.placementMinimalPerUnit.toFixed(2)})`;
+        document.getElementById("placementPartialHint").textContent =
+          `(${sizeTierLabel} default $${filled.placementPartialPerUnit.toFixed(2)})`;
+        if (minimal.dataset.auto !== "0") {
+          syncingPlacement = true;
+          minimal.value = filled.placementMinimalPerUnit.toFixed(2);
+          minimal.dataset.auto = "1";
+          syncingPlacement = false;
+        }
+        if (partial.dataset.auto !== "0") {
+          syncingPlacement = true;
+          partial.value = filled.placementPartialPerUnit.toFixed(2);
+          partial.dataset.auto = "1";
+          syncingPlacement = false;
+        }
+      } catch {
+        document.getElementById("placementMinimalHint").textContent = "";
+        document.getElementById("placementPartialHint").textContent = "";
+      }
+    }
+
+    document.getElementById("category").addEventListener("change", applyCategory);
+    document.getElementById("storageSeason").addEventListener("change", applyStorage);
+    const autoFields = new Set(["fulfillmentFee", "lowPriceFulfillmentFee", "lowPriceSalePrice", "raisePrice", "mcfFulfillmentFee", "dtcSalePrice"]);
+    const placementAutoFields = new Set(["placementMinimalPerUnit", "placementPartialPerUnit"]);
+    const mcfFields = new Set(["dtcSalePrice", "mcfFulfillmentFee", "dtcProcessorRate", "dtcProcessorFixed", "removalFee"]);
+    const lowPriceFields = new Set(["lowPriceThreshold", "lowPriceSalePrice", "raisePrice", "lowPriceFulfillmentFee"]);
+    const bulkFields = new Set(["smallOrderQty", "largeOrderQty", "largeCogs", "largeInboundPerUnit", "largeMonthsInStorage"]);
+    const prepFields = new Set(["amazonLabelFee", "amazonBagFee", "amazonBubbleFee", "amazonPrepFee"]);
+    const returnFields = new Set(["returnRate", "returnHandlingFee", "unsellableReturnRate"]);
+    const placementFields = new Set([
+      "placementUnits", "freightMinimal", "freightPartial", "freightOptimized",
+      "placementMinimalPerUnit", "placementPartialPerUnit", "placementOptimizedPerUnit",
+    ]);
+    ids.forEach((id) => document.getElementById(id).addEventListener("input", () => {
+      if (autoFields.has(id) && !syncingFee) {
+        document.getElementById(id).dataset.auto = "0";
+      }
+      if (placementAutoFields.has(id) && !syncingPlacement) {
+        document.getElementById(id).dataset.auto = "0";
+      }
+      update();
+    }));
+    ids.forEach((id) => document.getElementById(id).addEventListener("change", () => {
+      recordUsage(
+        localStorage,
+        document.getElementById("usageOptOut").checked,
+        id === "targetMargin" ? "target_margin_calculated"
+          : id === "fbmHandlingCost" ? "fbm_labor_calculated"
+          : id === "monthlySellerFee" || id === "individualPerUnit" || id === "monthlyUnits"
+            ? "seller_plan_compared"
+          : id.startsWith("coupon") ? "coupon_compared"
+          : id.startsWith("sns") ? "subscribe_save_compared"
+          : mcfFields.has(id) ? "mcf_compared"
+          : lowPriceFields.has(id) ? "low_price_fba_compared"
+          : bulkFields.has(id) ? "bulk_buy_compared"
+          : prepFields.has(id) ? "prep_compared"
+          : placementFields.has(id) ? "inbound_placement_compared"
+          : returnFields.has(id) ? "return_rate_calculated"
+            : "listing_profit_calculated",
+      );
+    }));
+    document.getElementById("lowPriceEligible").addEventListener("change", () => {
+      update();
+      recordUsage(localStorage, document.getElementById("usageOptOut").checked, "low_price_fba_compared");
+    });
+    document.querySelectorAll('input[name="fulfillmentMethod"]').forEach((el) => {
+      el.addEventListener("change", () => {
+        update();
+        recordUsage(localStorage, document.getElementById("usageOptOut").checked, "fulfillment_path_compared");
+      });
+    });
+    document.getElementById("usageOptOut").addEventListener("change", update);
+    update();
+  </script>
+</body>
+</html>

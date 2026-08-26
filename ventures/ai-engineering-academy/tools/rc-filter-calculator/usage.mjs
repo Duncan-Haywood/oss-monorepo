@@ -58,6 +58,57 @@ export function recordEvent(eventName) {
   }
 }
 
+// How long an input must sit unchanged before the interaction counts as one
+// event. Long enough to span ordinary typing (including a pause to look at
+// the result), short enough that a user who types and immediately leaves is
+// still counted.
+const SETTLE_MS = 800;
+
+const pendingTimers = new Map();
+
+/**
+ * Records `eventName` once the user has stopped changing inputs, rather than
+ * once per keystroke.
+ *
+ * These tools recompute on every `input` event, which is right for the
+ * result but wrong for the counter: calling recordEvent() from that handler
+ * counted keystrokes, so typing "220" into one field recorded three
+ * calculations and a five-field form could record a dozen. That made the
+ * only signal these tools produce -- "did anyone actually use this" --
+ * unreadable, and portfolio/usage/ is what decides what gets built next.
+ *
+ * Repeated calls for the same event name collapse into one, so a burst of
+ * typing yields a single count once it settles. Different event names are
+ * tracked independently, so two calculators on one page each keep their own.
+ */
+export function recordEventSettled(eventName, delayMs = SETTLE_MS) {
+  const existing = pendingTimers.get(eventName);
+  if (existing !== undefined) clearTimeout(existing);
+  const timer = setTimeout(() => {
+    pendingTimers.delete(eventName);
+    recordEvent(eventName);
+  }, delayMs);
+  // Under Node (the test runner) a pending timer keeps the process alive;
+  // browsers have no unref, hence the guard rather than a bare call.
+  if (typeof timer === "object" && typeof timer?.unref === "function") timer.unref();
+  pendingTimers.set(eventName, timer);
+}
+
+/** Records any settled-but-not-yet-written events immediately. Exists so tests need not wait on wall-clock time. */
+export function flushSettledEvents() {
+  for (const [eventName, timer] of pendingTimers) {
+    clearTimeout(timer);
+    recordEvent(eventName);
+  }
+  pendingTimers.clear();
+}
+
+/** Discards pending settled events without recording them. Used by tests to isolate cases. */
+export function cancelSettledEvents() {
+  for (const timer of pendingTimers.values()) clearTimeout(timer);
+  pendingTimers.clear();
+}
+
 /** Returns the raw local event counts, for the user's own inspection. */
 export function readLocalUsage() {
   if (!hasStorage()) return {};

@@ -1,0 +1,32 @@
+name: foundation-repair-bid-calculator
+description: A private browser calculator for foundation-repair contractors that prices helical piers, hydraulic push piers, or bowed-wall stabilization from pier count, installed depth past the included footage, interior versus exterior access, engineering stamp, carbon-fiber straps, and plumbing under the slab — and shows the price per pier, the hours the first interior bracket actually consumes, and the walk-away price below which the job loses money.
+stage: prototype
+owner: duncan
+hypotheses:
+  - claim: Independent foundation-repair contractors will use an access-and-strap bid calculator because the generic price-per-pier rules of thumb they are shopped on cannot see that a 6-pier interior house with an engineering stamp and four carbon-fiber straps is a different job from an 8-pier brochure house with exterior access.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: The walk-away price and the hour split (not the published per-pier number) are the two figures a contractor actually decides on when a homeowner asks them to match a cheaper pier quote.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: Treating interior access, extra shaft past included footage, engineering, and wall straps as their own hours, instead of a blended add-on to pier count, changes the bid enough that shops notice which part of a high number is the first cramped bracket.
+    status: untested
+    checked: null
+    evidence: customer-contact
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+budget:
+  monthly_cap: 1
+  protected: true
+kill_criteria:
+  - Fewer than three qualified foundation-repair contractors use the calculator twice within 90 days.
+  - Contractors report that splitting access, extra depth, engineering, and straps is more work than their existing per-pier method without changing the price they would have bid.
+  - The starting hours and material rates prove so far from real crews that the tool cannot be used without data we have no way to gather.
+links:
+  production: null
+  analytics: null

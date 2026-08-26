@@ -5,7 +5,7 @@ sys.path.insert(0, str(Path(__file__).parents[1] / "src"))
 
 import unittest
 
-from backup_evidence.report import build_history_report, classify_run, markdown_report
+from backup_evidence.report import build_history_report, build_trend, classify_run, markdown_report
 
 
 def run(exit_code=0, finished_at="2026-08-24T03:00:00Z", artifact=None, expected=None, tool="restic", started_at=None):
@@ -139,5 +139,169 @@ class HistoryReportTests(unittest.TestCase):
         self.assertIn("## Limits", output)
 
 
+class TrendTests(unittest.TestCase):
+    def _night(self, day, size, exit_code=0):
+        return run(
+            exit_code=exit_code,
+            started_at=f"2026-08-{day}T03:00:00Z",
+            finished_at=f"2026-08-{day}T03:04:00Z",
+            artifact={
+                "exists": True,
+                "size_bytes": size,
+                "modified_at": f"2026-08-{day}T03:03:50Z",
+            },
+            expected={"min_size_bytes": 1_000_000, "max_age_hours": 26},
+        )
+
+    def test_verified_nights_still_flag_a_twenty_percent_shrink(self):
+        trend = build_trend(
+            [
+                self._night("21", 50_000_000),
+                self._night("22", 51_200_000),
+                self._night("23", 50_400_000),
+                self._night("24", 12_000_000),
+            ]
+        )
+        latest = trend["latest"]
+        self.assertEqual(latest["status"], "verified")
+        self.assertTrue(latest["shrinking_vs_previous"])
+        self.assertTrue(latest["shrinking_vs_median"])
+        kinds = {alert["kind"] for alert in trend["alerts"]}
+        self.assertIn("shrinking_vs_previous", kinds)
+        self.assertIn("shrinking_vs_median", kinds)
+
+    def test_a_small_wobble_is_not_an_alert(self):
+        trend = build_trend(
+            [
+                self._night("21", 50_000_000),
+                self._night("22", 48_000_000),
+            ]
+        )
+        self.assertEqual(trend["alert_count"], 0)
+        self.assertFalse(trend["latest"]["shrinking_vs_previous"])
+
+    def test_status_regression_is_flagged_even_when_size_is_stable(self):
+        trend = build_trend(
+            [
+                self._night("23", 50_000_000),
+                self._night("24", 50_000_000, exit_code=1),
+            ]
+        )
+        self.assertTrue(trend["latest"]["status_regression"])
+        self.assertEqual(trend["alerts"][0]["kind"], "status_regression")
+
+    def test_markdown_includes_trend_only_when_attached(self):
+        records = [self._night("23", 50_000_000), self._night("24", 10_000_000)]
+        plain = markdown_report(build_history_report(records))
+        self.assertNotIn("Night-over-night trend", plain)
+        with_trend = build_history_report(records)
+        with_trend["trend"] = build_trend(records)
+        output = markdown_report(with_trend)
+        self.assertIn("Night-over-night trend", output)
+        self.assertIn("smaller than previous", output)
+
+    def test_invalid_shrink_ratio_falls_back_to_the_default(self):
+        trend = build_trend([self._night("23", 50_000_000)], shrink_ratio=2)
+        self.assertEqual(trend["shrink_ratio"], 0.2)
+
+
 if __name__ == "__main__":
     unittest.main()
+
+
+class IntegrityClassificationTests(unittest.TestCase):
+    """A proven-bad artifact must never survive as `verified`.
+
+    These cover the gap that motivated integrity checking: every record below
+    passes the exit-code, size, and age gates -- the classifier's entire prior
+    vocabulary -- and is distinguished only by what reading the file found.
+    """
+
+    def _artifact(self, integrity=None):
+        artifact = {
+            "exists": True,
+            "size_bytes": 5_000_000,
+            "modified_at": "2026-08-24T02:58:00Z",
+        }
+        if integrity is not None:
+            artifact["integrity"] = integrity
+        return artifact
+
+    def test_corrupt_artifact_is_failed_despite_clean_exit_size_and_age(self):
+        record = run(
+            artifact=self._artifact({"result": "corrupt", "format": "tar.gz", "detail": "the tar stream ended mid-archive"}),
+            expected={"max_age_hours": 26, "min_size_bytes": 1000},
+        )
+        result = classify_run(record)
+        self.assertEqual(result["status"], "failed")
+        self.assertIn("not intact", result["reasons"][0])
+        self.assertIn("ended mid-archive", result["reasons"][0])
+
+    def test_identical_record_without_the_integrity_check_is_verified(self):
+        # The control for the case above: same exit code, same size, same age.
+        # Only reading the artifact tells the two runs apart, which is the whole
+        # argument for doing it.
+        result = classify_run(
+            run(artifact=self._artifact(), expected={"max_age_hours": 26, "min_size_bytes": 1000})
+        )
+        self.assertEqual(result["status"], "verified")
+
+    def test_intact_artifact_is_verified_and_says_so(self):
+        record = run(
+            artifact=self._artifact({"result": "intact", "format": "tar.gz", "detail": "walked all 4 member(s)"}),
+            expected={"max_age_hours": 26, "min_size_bytes": 1000},
+        )
+        result = classify_run(record)
+        self.assertEqual(result["status"], "verified")
+        self.assertIn("structurally intact", result["reasons"][0])
+
+    def test_verified_without_integrity_states_that_nothing_was_opened(self):
+        result = classify_run(run(artifact=self._artifact()))
+        self.assertEqual(result["status"], "verified")
+        self.assertIn("not opened or checked", result["reasons"][0])
+
+    def test_unsupported_format_still_verifies_but_discloses_the_gap(self):
+        record = run(
+            artifact=self._artifact(
+                {"result": "unsupported", "format": "zstd", "detail": "zstd is not in the standard library"}
+            )
+        )
+        result = classify_run(record)
+        self.assertEqual(result["status"], "verified")
+        self.assertIn("not checked", result["reasons"][0])
+
+    def test_inconclusive_integrity_makes_the_run_suspicious(self):
+        # Failing loud: if the artifact could not be read, that is worth a look,
+        # not a green tick.
+        record = run(
+            artifact=self._artifact(
+                {"result": "inconclusive", "format": "gzip", "detail": "permission denied"}
+            )
+        )
+        result = classify_run(record)
+        self.assertEqual(result["status"], "suspicious")
+        self.assertIn("could not be established", result["reasons"][0])
+
+    def test_corrupt_outranks_a_size_shortfall_in_the_reported_reason(self):
+        # Both problems are real; the corrupt one is the one that explains the
+        # other, so it is what the operator should be told first.
+        record = run(
+            artifact=self._artifact({"result": "corrupt", "format": "gzip", "detail": "CRC check failed"}),
+            expected={"min_size_bytes": 10_000_000},
+        )
+        result = classify_run(record)
+        self.assertEqual(result["status"], "failed")
+        self.assertIn("CRC check failed", result["reasons"][0])
+
+
+class MarkdownEscapingTests(unittest.TestCase):
+    def test_pipes_in_a_tool_name_do_not_shear_the_table_row(self):
+        # `pg_dump|gzip` is both a realistic tool label and the exact pipeline
+        # whose silent failure this venture exists to catch, so it must render.
+        report = build_history_report(
+            [run(tool="pg_dump|gzip", artifact={"exists": True, "size_bytes": 10})]
+        )
+        output = markdown_report(report)
+        row = [line for line in output.splitlines() if "pg_dump" in line and line.startswith("|")][0]
+        self.assertIn(r"pg_dump\|gzip", row)
+        self.assertEqual(row.count("|") - row.count(r"\|"), 5)

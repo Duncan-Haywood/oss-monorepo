@@ -115,6 +115,7 @@
     RC or RL filter — or work backwards from a target cutoff to the component
     you need. Everything runs in this page; nothing is uploaded.
   </p>
+  <nav class="toolbar"><a href="../">← All free electronics tools</a></nav>
 
   <section aria-labelledby="calc-heading">
     <h2 id="calc-heading">Filter</h2>
@@ -262,6 +263,7 @@
       by law, the authors accept no liability for any loss or damage arising
       from its use.
     </p>
+    <p><strong>Best-effort hosting, no SLA.</strong> This tool is free and experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use it as a system of record; if you need it to survive, export your inputs and run it yourself.</p>
 
     <h2 id="privacy-heading">Privacy</h2>
     <p>
@@ -278,7 +280,8 @@
     </p>
 
     <p>
-      Part of <a href="../../README.md">AI Engineering Academy</a>. MIT
+      Part of <a href="../">the free electronics tools</a> from
+      <a href="../../README.md">AI Engineering Academy</a>. MIT
       licensed — see <a href="LICENSE">LICENSE</a>. See also the
       <a href="../resistor-calculator/">resistor color code &amp; Ohm's law
       calculator</a>, the
@@ -301,7 +304,7 @@
     formatInductance,
     formatTime,
   } from "./calc.mjs";
-  import { recordEvent, isUsageCountingEnabled, setUsageCountingEnabled } from "./usage.mjs";
+  import { recordEventSettled, isUsageCountingEnabled, setUsageCountingEnabled } from "./usage.mjs";
 
   const $ = (id) => document.getElementById(id);
   const typeEl = $("type");
@@ -346,7 +349,7 @@
     solveForEl.value = prev === "resistance" ? "resistance" : other;
   }
 
-  function renderCutoff() {
+  function renderCutoff(userAction) {
     const type = typeEl.value;
     const inputs = { type, resistanceOhms: scaled("r", "r-unit") };
     if (isRc()) inputs.capacitanceFarads = scaled("c", "c-unit");
@@ -364,7 +367,7 @@
       </dl>
       <p class="note">${describeFilter(type)}</p>
     `;
-    recordEvent("cutoff_calculated");
+    if (userAction) recordEventSettled("cutoff_calculated");
   }
 
   function fmtComponent(label, value) {
@@ -373,7 +376,7 @@
     return formatResistance(value);
   }
 
-  function renderDesign() {
+  function renderDesign(userAction) {
     const type = typeEl.value;
     const solveFor = solveForEl.value;
     const inputs = { type, targetCutoffHz: scaled("target", "target-unit"), solveFor };
@@ -397,13 +400,19 @@
       </dl>
       <p class="note">${describeFilter(type)}</p>
     `;
-    recordEvent("component_designed");
+    if (userAction) recordEventSettled("component_designed");
   }
 
-  function update() {
+  // `update` runs both on page load (to render a first result from the
+  // prefilled defaults) and whenever a person changes something. Only the
+  // second is somebody using the tool, so only it is counted -- the on-load
+  // call was recording a calculation for every page view, bounces included,
+  // which is exactly the difference portfolio/usage/ exists to measure.
+  // Real-interaction call sites pass `true`; the on-load call passes nothing.
+  function update(userAction) {
     try {
-      if (mode() === "cutoff") renderCutoff();
-      else renderDesign();
+      if (mode() === "cutoff") renderCutoff(userAction);
+      else renderDesign(userAction);
       result.classList.remove("error");
     } catch (err) {
       result.textContent = err.message;
@@ -411,31 +420,31 @@
     }
   }
 
-  function syncMode() {
+  function syncMode(userAction) {
     const design = mode() === "design";
     cutoffInputs.classList.toggle("hidden", design);
     designInputs.classList.toggle("hidden", !design);
     syncComponentVisibility();
-    update();
+    update(userAction);
   }
 
   typeEl.addEventListener("change", () => {
     typeDesc.textContent = describeFilter(typeEl.value);
     rebuildSolveOptions();
     syncComponentVisibility();
-    update();
+    update(true);
   });
   solveForEl.addEventListener("change", () => {
     syncComponentVisibility();
-    update();
+    update(true);
   });
   for (const el of document.querySelectorAll('input[name="mode"]')) {
-    el.addEventListener("change", syncMode);
+    el.addEventListener("change", () => syncMode(true));
   }
   for (const el of document.querySelectorAll("input, select")) {
     if (el.name === "mode" || el === typeEl || el === solveForEl) continue;
-    el.addEventListener("input", update);
-    if (el.tagName === "SELECT") el.addEventListener("change", update);
+    el.addEventListener("input", () => update(true));
+    if (el.tagName === "SELECT") el.addEventListener("change", () => update(true));
   }
 
   // Initial paint.
