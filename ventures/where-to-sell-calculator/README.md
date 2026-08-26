@@ -2,8 +2,10 @@
 
 One item, every channel. Enter what an item cost you and what you would sell it
 for, and see what **eBay, Etsy, Amazon, your own store and a direct sale** each
-leave you after fees — plus the price each channel would need to charge to
-match the best one.
+leave you after fees — and after that channel's return rate — plus the price
+each channel would need to charge to match the best one. Then it asks the
+question a fee table cannot: **how often does it actually sell there**, and
+what is one listing worth per month of shelf once you count that.
 
 It runs entirely in the browser: static ES modules, no build step, no
 dependencies, no server, no account, no API key.
@@ -26,6 +28,15 @@ Three things flat "X% fee" comparisons get wrong, all of which this models:
 - **The fee percentage is not the decision.** What matters is the price each
   channel needs to leave you the same money — a channel with higher fees still
   wins if you can list higher there. That is the last column of the table.
+- **A completed sale is not the mix you live in.** A channel that lets you
+  list higher can win on every completed order and still lose once you count
+  its return rate, return postage, and units that cannot be sold again. The
+  table ranks on expected keep after returns unless you turn that overlay off.
+- **A sale you never make is worth nothing.** Ranking channels on what they pay
+  per sale assumes every channel sells the item. They do not, and the ones that
+  sell it slowly charge listing renewals and tie up your cash while they fail
+  to. At the shipped defaults Etsy keeps $3.36 more per sale than eBay and is
+  worth about a third as much per month of shelf.
 
 ## Using it
 
@@ -36,7 +47,8 @@ python3 -m http.server 8000     # then visit /ventures/where-to-sell-calculator/
 ```
 
 Shared inputs (price, shipping, cost of goods, packaging, expected monthly
-orders) apply to every channel. Anything a channel does differently — a higher
+orders, plus how long you would leave it listed, what your cash is worth, and
+what the item is still worth to you unsold) apply to every channel. Anything a channel does differently — a higher
 price on Etsy, no postage on a local sale, an FBA fee on Amazon — goes in that
 channel's own panel under the table, along with its rates. Channels can be
 switched out of the comparison; "Other channel" starts switched off and blank
@@ -66,9 +78,82 @@ questions the ranking alone does not:
   whose fee structures differ. It reads "—" when nothing was invested (a
   giveaway, or an item with no per-unit cost), rather than an infinite return.
 
+- **After returns** — expected keep once some share of orders come back.
+  Return postage, unsellable units, and fees the channel does not refund are
+  counted on the returned share; a completed sale still keeps the sold profit.
+- **Return drag** — the gap between a completed sale and that expected keep.
+  It is the number that explains a ranking flip.
+
 Margin answers "how good is this sale", return on cash answers "how hard is my
-money working", and break-even answers "how far can I move the price" — which
-is usually the one a seller can act on today.
+money working", break-even answers "how far can I move the price", and after
+returns answers "does the completed-sale winner still win in the mix I
+actually ship".
+
+### The second table: what a listing is worth, not what a sale is worth
+
+Everything above ranks a *sale*. A seller with stock is ranking a *listing*,
+and a listing only pays out if it sells. The second table ranks the same
+channels on that basis:
+
+- **Sells within horizon / days to sell** — your two estimates, per channel.
+  These matter more than any fee rate on this page and vary far more by
+  category than by channel, so replace them from your own sold-listing history.
+- **If it does not** — what a listing costs when it never sells: the
+  per-listing fee charged again on every renewal cycle inside your horizon
+  (an Etsy listing renews at four months), plus your cash tied up in the item
+  for the whole time. Postage, packaging and fulfilment are *not* counted
+  here — they are only spent on a sale, and they are already in the figures
+  above.
+- **One listing is worth** — the two outcomes weighted by sell-through.
+- **Per 30 days** — that value spread over the shelf the listing actually
+  occupies (shorter when it sells fast). This is what the second ranking uses,
+  and it is why a cheaper, faster channel can beat a richer, slower one on the
+  same inventory dollar.
+- **Sell-through to match** — how often this channel would have to sell to
+  earn the leader's rate. Read it as a test of your own estimate: at the
+  shipped defaults Etsy needs 72.4% against its assumed 35%, so the ranking
+  survives a large error. It reads "—" where no sell-through catches the
+  leader.
+
+The two rankings often disagree, and the page says so instead of picking. Take
+the higher rate per 30 days when cash or shelf is your constraint; take the
+higher keep when you have one item and nothing else the money would be doing.
+`does-it-actually-sell-there.html` works one flip through in full.
+
+## Carrying the item into a channel's own calculator
+
+This page answers *which* channel. It does not answer what a promoted listing,
+a return, or free shipping then does to that number — the channel's own
+calculator in this portfolio does, with twenty-odd scenarios in it.
+
+The gap between those two was retyping. Price, postage, what you paid,
+packaging: enter it again or do not go. Most people do not go, so the deeper
+tool sits unused and the comparison ends at a ranking nobody acts on.
+
+So under the verdict, every channel that has a dedicated calculator **and** can
+accept inputs from a link gets a "keep going with this item" link, built from
+what is on screen. Today that is eBay and Etsy; a channel gains one the day its
+calculator learns to read a link.
+
+Two details that are not obvious:
+
+- **A channel without a prefillable calculator gets no link at all**, rather
+  than a link to a page that would quietly show its own defaults. A wrong
+  number that looks like your number is worse than an extra click.
+- **A cost the target has no field for is folded in, not dropped.** Etsy has no
+  separate packaging input because packaging is part of what it calls
+  materials, so packaging is added to `materialCost` on the way over. Dropping
+  it would understate cost and overstate profit on arrival.
+
+Nothing is uploaded. The values ride in the URL fragment — the same mechanism
+the "Copy share link" button already uses — which browsers never send to a
+server, and they only travel inside your own browser as you follow the link.
+
+Field names differ between calculators (`itemCost` here is `costOfGoods` on
+eBay and `materialCost` on Etsy), and a name the receiver does not recognise is
+*silently dropped* rather than raising an error. `handoff.test.mjs` therefore
+imports each target's own field list and fails if a name stops matching, so
+that drift breaks a test here instead of a number there.
 
 ## Rates are inputs, not a published schedule
 
@@ -80,10 +165,21 @@ makes the comparison yours rather than a generic estimate.
 
 ## What it deliberately does not model
 
-Fees are the part that is easy to calculate, not the whole decision. This has
-no way to know how many buyers each channel puts in front of you, how fast an
-item sells there, or what returns cost. A marketplace fee is partly a payment
-for demand you would otherwise have to create. Read the fee gap as one input.
+Fees are the part that is easy to calculate, not the whole decision. Returns
+and sell-through are inputs, not measurements: this has no way to know how many
+buyers a channel puts in front of *you*, or how fast your items actually move
+there. Every such rate is a starting point you replace with your own return
+report and sold-listing history. A marketplace fee is also partly a payment for
+demand you would otherwise have to create. Read the fee, return and shelf-time
+gaps as inputs to the decision, not the decision.
+
+Also absent: warehouse or storage rent per unit (the FBA-style cost), price
+decay on aging stock beyond the single "value you still have if it does not
+sell" input, and any interaction between channels — listing the same unit in
+two places at once is a real strategy this models as two separate questions.
+
+`returns-change-the-ranking.html` works the Amazon-vs-eBay flip in full;
+`does-it-actually-sell-there.html` works the margin-versus-turnover flip.
 
 ## Tests
 
@@ -97,6 +193,10 @@ target-profit solving round-tripping through the calculator, ranking and the
 gap against the best channel, the switched-off-channel rule, input validation,
 and the usage counter's opt-out, Do Not Track / Global Privacy Control, and
 hostile-storage behaviour.
+
+`handoff.test.mjs` checks the links into the channel calculators, against
+each target's *own* field list imported from that venture — so a rename
+there fails a test here rather than silently dropping a number there.
 
 `page.test.mjs` adds structural checks on `index.html` itself, because
 `calc.test.mjs` imports `calc.mjs` directly and never looks at the page. It
@@ -115,7 +215,8 @@ device.
 
 The optional usage counter records only an event name (`comparison_calculated`,
 `channel_rates_edited`, `channel_toggled`, `subscription_toggled`,
-`share_link_copied`) and the
+`returns_compared`,
+`share_link_copied`, `handoff_ebay`, `handoff_etsy`) and the
 current day, in the visitor's own `localStorage`. It never records inputs, it
 never leaves the device, it is off for anyone sending Do Not Track or Global
 Privacy Control, and the footer checkbox turns it off and discards what was
@@ -130,6 +231,12 @@ does not replace a qualified professional. **You are responsible for reviewing
 and verifying its output before relying on it.** To the maximum extent
 permitted by law, the authors accept no liability for any loss or damage
 arising from its use.
+
+**Best-effort hosting, no SLA.** These tools are free, experimental, and may
+be slow, broken, moved, or taken offline without notice. We do not promise
+uptime, backups of anything you type, or that a URL will keep working. Do not
+use this as a system of record. If a tool needs to survive, export your
+inputs and run it yourself.
 
 ## Cost and support
 

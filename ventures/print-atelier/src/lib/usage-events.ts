@@ -7,7 +7,8 @@ export type UsageEventName =
   | "checkout_remove"
   | "checkout_quantity_change"
   | "preflight_completed"
-  | "preflight_exported";
+  | "preflight_exported"
+  | "preflight_compared";
 
 export type UsageEvent = {
   name: UsageEventName;
