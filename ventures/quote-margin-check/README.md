@@ -84,6 +84,11 @@ the two bills diverge when the work runs long. See
 The table is arithmetic on the figures you typed, not a
 recommendation of which to send.
 
+A short guide,
+[`site/effective-hourly-rate.html`](site/effective-hourly-rate.html),
+walks the leftover-rate arithmetic (hours, direct costs, target price)
+for people who want the method before they change the worksheet.
+
 A fifth table is the mid-project cancel. Hours already spent, cash
 already collected, a kill fee on top of that, and costs already sunk
 stay as you typed them. It shows cash kept if you finish, take the
