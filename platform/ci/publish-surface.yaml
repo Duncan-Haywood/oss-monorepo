@@ -67,6 +67,9 @@ workflows:
 - workflow: asphalt-driveway-pave-bid-calculator-ci.yml
   classification: none
   publishes: []
+- workflow: attic-insulation-bid-calculator-ci.yml
+  classification: none
+  publishes: []
 - workflow: automatic-driveway-gate-bid-calculator-ci.yml
   classification: none
   publishes: []
@@ -565,6 +568,9 @@ workflows:
   classification: none
   publishes: []
 - workflow: where-to-sell-calculator-ci.yml
+  classification: none
+  publishes: []
+- workflow: window-replacement-bid-calculator-ci.yml
   classification: none
   publishes: []
 - workflow: world-clock-widget-ci.yml
