@@ -758,6 +758,8 @@ ${DISCLAIMER_HTML}
       <p>
         Open source — every tool is a static page, and one you have opened keeps
         working with no connection.
+        <a href="catalog.json">Machine-readable catalog</a> ·
+        <a href="sitemap.xml">Sitemap</a>
       </p>
     </footer>
   </div>
@@ -1340,6 +1342,43 @@ ${urls.join('\n')}
 `;
 }
 
+/**
+ * A machine-readable index of the whole site.
+ *
+ * `renderHub` already emits JSON-LD for a human-facing crawler. This is the
+ * flatter thing an AI assistant answering "is there a free tool that does X"
+ * can fetch and read in one request, without parsing a page of markup. It is
+ * the discoverability half of PRODUCT_PLAYBOOK.md §5e, and it costs one file.
+ *
+ * Deliberately not carrying a sponsorship or funding field: whether this repo
+ * publishes a funding surface is an open owner decision (`funding-sponsors-live`
+ * in the decision queue), and a machine-readable file is the wrong place to
+ * pre-answer it.
+ */
+export function renderCatalog(surfaces, baseUrl) {
+  return `${JSON.stringify(
+    {
+      name: 'Free calculators for sellers, contractors, and small back offices',
+      url: baseUrl,
+      license: 'MIT',
+      price: { amount: '0', currency: 'USD' },
+      privacy: 'client-side-only',
+      source: SOURCE_URL_PREFIX.replace('/blob/main/', ''),
+      generated_by: 'platform/pages/build.mjs',
+      tools: surfaces.map((surface) => ({
+        slug: surface.slug,
+        name: surface.title,
+        url: `${baseUrl}${surface.slug}/`,
+        category: categoryFor(surface.slug).title,
+        description: surface.description,
+        pages: surface.pageCount,
+      })),
+    },
+    null,
+    2,
+  )}\n`;
+}
+
 export function renderNotFound(baseUrl) {
   return `<!doctype html>
 <html lang="en">
@@ -1533,6 +1572,7 @@ export async function buildSite({
 
   await fs.writeFile(path.join(outDir, 'sitemap.xml'), renderSitemapIndex(surfaces, base));
   await fs.writeFile(path.join(outDir, 'sitemap-hub.xml'), renderHubSitemap(base));
+  await fs.writeFile(path.join(outDir, 'catalog.json'), renderCatalog(surfaces, base));
 
   await fs.writeFile(path.join(outDir, 'favicon.ico'), renderFavicon());
   await fs.writeFile(path.join(outDir, 'favicon.svg'), renderFaviconSvg());
