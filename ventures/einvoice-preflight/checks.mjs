@@ -9,6 +9,7 @@ import { inspectPartyEndpoint } from "./endpoint.mjs";
 import { inspectPaymentIban } from "./iban.mjs";
 import { inspectPaymentMeans } from "./means.mjs";
 import { inspectInvoicePeriod } from "./period.mjs";
+import { inspectCommercialReferences } from "./reference.mjs";
 import { inspectPaymentRemittance } from "./remittance.mjs";
 import { inspectTaxExemption } from "./tax.mjs";
 import { inspectPartyVat } from "./vat.mjs";
@@ -139,6 +140,9 @@ export function checkInvoice(invoice) {
     fail(finding.rule, finding.message, finding.fix, finding.path);
   }
   for (const finding of inspectInvoicePeriod(invoice)) {
+    fail(finding.rule, finding.message, finding.fix, finding.path);
+  }
+  for (const finding of inspectCommercialReferences(invoice)) {
     fail(finding.rule, finding.message, finding.fix, finding.path);
   }
 
