@@ -6,6 +6,17 @@
 # retired honestly instead of quietly.
 period: 2026-08
 products:
+  - slug: chargeback-evidence-packet
+    surface: static-page-in-repo
+    readings:
+      - as_of: 2026-08-24
+        signals:
+          live_url_visitors: null
+          local_events_reported: 0
+        note: >-
+          New browser-local evidence packet builder for ecommerce dispute
+          responses. No public URL yet; local events are opt-out and remain in
+          the visitor's browser.
   - slug: commercial-photo-license-calculator
     surface: static-page-in-repo
     readings:
