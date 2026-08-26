@@ -31,7 +31,7 @@
       "priceCurrency": "USD"
     },
     "description": "Free calculator that turns a service business's own appointment price, booking volume, and no-show rate into a defensible cancellation fee, an overbooking comparison, an estimate of annual revenue at risk, and a ready-to-copy cancellation policy.",
-    "featureList": "No-show fee from your own price, annual exposure, fee-level comparison, 24-hour vs 48-hour waitlist refill, overbooking vs collecting the fee, overflow cost, ready-to-copy cancellation policy",
+    "featureList": "No-show fee from your own price, annual exposure, fee-level comparison, deposit vs chasing the fee, 24-hour vs 48-hour waitlist refill, overbooking vs collecting the fee, overflow cost, ready-to-copy cancellation policy",
     "url": "https://duncan-haywood.github.io/monorepo-projects/no-show-fee-calculator/"
   }
   </script>
@@ -70,6 +70,14 @@
         "acceptedAnswer": {
           "@type": "Answer",
           "text": "They recover different money. A fee compensates you when the chair stays empty and you actually collect. Overbooking tries to fill that chair in advance and risks a double-booked hour when everyone shows. The calculator compares a fee-only book to overbooking 50%, 100%, and 150% of your expected no-shows, plus matching the rate and dropping the fee. It is arithmetic from your numbers, not advice to overbook."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Should I take a deposit instead of charging a no-show fee?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "A deposit is collected when the client books, so a late cancel does not depend on a second collection attempt. A no-show fee is invoiced after the missed slot and only arrives at the rate you actually enforce. This calculator compares those policies on your own price, volume, no-show rate, and assumed enforcement rate. It is not legal advice."
         }
       }
     ]
@@ -132,6 +140,11 @@
           <label for="enforcementRatePct">Assumed enforcement rate (%)</label>
           <input type="number" id="enforcementRatePct" name="enforcementRatePct" min="0" max="100" step="1" value="70" required />
           <p class="hint">How often you expect to actually collect the fee once the policy is in place. This is your assumption, not a measured number — the tool shows it back to you rather than hiding it.</p>
+        </div>
+        <div class="field">
+          <label for="depositPercent">Booking deposit you could require (% of the price)</label>
+          <input type="number" id="depositPercent" name="depositPercent" min="0" max="100" step="1" value="50" required />
+          <p class="hint">Compared against chasing the no-show fee after the fact. The deposit is treated as already collected when the slot is reserved — not as a second invoice you have to chase.</p>
         </div>
         <div class="field">
           <label for="overflowCost">Cost of a double-booked chair (optional)</label>
@@ -220,6 +233,34 @@
             <tbody id="scenario-body"></tbody>
           </table>
         </div>
+      </div>
+
+      <div id="collection-section" hidden>
+        <h2>Deposit or chase the fee?</h2>
+        <p class="note">
+          Same bookings and no-show rate as above. The deposit is treated as already
+          in hand; the after-the-fact fee uses your assumed enforcement rate. This
+          answers whether requiring a deposit recovers more cash from the same missed
+          slots than sending a no-show invoice later.
+        </p>
+        <div class="table-wrap">
+          <table>
+            <caption class="sr-only">Modeled cash recovered under deposit versus after-the-fact fee policies</caption>
+            <thead>
+              <tr>
+                <th scope="col">Policy</th>
+                <th scope="col">Recovered per no-show</th>
+                <th scope="col">Estimated annual recovered</th>
+                <th scope="col">Still unrecovered</th>
+              </tr>
+            </thead>
+            <tbody id="collection-body"></tbody>
+          </table>
+        </div>
+        <p id="collection-note" class="note"></p>
+        <h3>Draft deposit policy</h3>
+        <textarea id="deposit-policy-text" rows="10" readonly></textarea>
+        <button type="button" id="copy-deposit-policy">Copy deposit policy</button>
       </div>
 
       <div id="notice-section" hidden>
@@ -322,6 +363,14 @@
         hour when everyone shows. The table above compares a fee-only book to overbooking
         50%, 100%, and 150% of your expected no-shows, plus matching the rate and dropping
         the fee. It does not tell you which policy to publish.
+      </p>
+      <h3>Should I take a deposit instead of charging a no-show fee?</h3>
+      <p>
+        A deposit is collected when the client books, so a late cancel does not depend
+        on a second collection attempt. A no-show fee is invoiced after the missed
+        slot, so it only comes in at the rate you actually enforce. Compare the two
+        on your own numbers above — this tool does not decide which is lawful or
+        appropriate for your business.
       </p>
     </section>
 

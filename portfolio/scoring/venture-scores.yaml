@@ -2863,6 +2863,36 @@ ventures:
     gate_note: >-
       Pass: files never leave the browser, no money is moved, and
       output is a review queue rather than a posting instruction.
+  - slug: public-record-watch
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 6
+      gross_margin: 10
+      defensibility: 5
+      distribution: 4
+    composite: 6.0
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      The shipped slice is a deterministic local snapshot comparer. Adding
+      inference would make a register change less checkable against the two
+      files the operator already has.
+    basis: >-
+      Graduated on 2026-08-26 as a local CLI that diffs customer-authorized
+      public-register snapshots (repair-and-merge of unique #1411). Distinct
+      from vendor-change-evidence (supplier docs) and DNS evidence (name
+      records): the buyer is a credentialing or staffing desk comparing two
+      dated register exports. Distribution is "license board change report"
+      and "public register snapshot comparer".
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Pass: inputs must declare authorized: true, the tool does not scrape
+      registers or rank people, and the report is a source-linked observation
+      rather than a suitability or compliance determination.
   - slug: change-order-margin-calculator
     scores:
       ai_leverage: 1

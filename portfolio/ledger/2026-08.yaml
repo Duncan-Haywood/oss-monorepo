@@ -54,6 +54,18 @@ entries:
         robots.txt. Public publishing remains owner-gated; first usage reading
         is recorded as zero.
     mrr_end: null
+  - venture: public-record-watch
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Graduated the public-record watch candidate into a local offline CLI:
+        customer-authorized register snapshots produce added, removed, changed,
+        and unchanged findings with the source URL preserved. Includes tests,
+        visible disclaimer, local aggregate usage counter, MIT license, and
+        privacy-first boundaries. Ten-practitioner distribution probe and any
+        hosted scheduler remain unresolved.
+    mrr_end: null
   - venture: shopify-a11y-evidence
     agent_spend_usd: null
     human_hours: 0
