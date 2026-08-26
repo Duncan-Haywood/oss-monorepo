@@ -38,7 +38,10 @@ page. The browser can also copy a plain-text review summary for an email or
 proposal note. It includes the quote's arithmetic, the supplied target
 comparison, and only attention-level review observations. Copying the summary
 records an anonymous `review_summary_copied` event locally; quote values are
-never stored in that event or sent anywhere.
+never stored in that event or sent anywhere. The browser can also remember
+the current worksheet in local storage on this device. Restoring or resetting
+that draft records anonymous `draft_restored` / `draft_reset` events; quote
+values stay in the browser.
 Batch CSV emits one comparison row per filename, making a folder of recurring
 proposal reviews easy to sort and filter without exposing the proposal data.
 When a quote clears the supplied target, `discount_room` shows the arithmetic
@@ -118,7 +121,8 @@ what makes it comparable to the CLI's own count. The browser also counts
 `kill_fee_compared` when the mid-project cancel table is computed, and
 `billing_model_compared` when the fixed-vs-hourly table is computed. CSV copy
 and download events happen only when the user invokes those actions. Copying
-the review summary records `review_summary_copied` the same way. The
+the review summary records `review_summary_copied` the same way. Restoring
+or resetting a local draft records `draft_restored` or `draft_reset`. The
 export contains the same arithmetic report as the page and quotes currency
 labels safely for spreadsheet import. It stores no quote values and sends
 nothing anywhere.
