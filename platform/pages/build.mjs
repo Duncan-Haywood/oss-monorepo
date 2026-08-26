@@ -275,7 +275,61 @@ export function readMeta(html, slug) {
   const description =
     metaContent(html, 'name', 'description') || metaContent(html, 'property', 'og:description') || '';
 
-  return { title, description: truncate(description) };
+  // `description` is card copy and is trimmed to fit one. `fullDescription` is
+  // what the hub's search actually indexes: 24 of 34 tools say more about
+  // themselves than a card can hold, and the eBay tool says 1862 characters'
+  // worth. Indexing the trimmed copy made ~90% of that tool unfindable.
+  return { title, description: truncate(description), fullDescription: description };
+}
+
+/** Words too common across these tools to narrow a search. */
+const SEARCH_STOPWORDS = new Set(
+  ('a an and are as at be but by for from get how if in into is it its of on or so that the then ' +
+   'there these they this to too was what when where which who why will with you your' ).split(' '),
+);
+
+/**
+ * The searchable token set for one card.
+ *
+ * Kept as deduplicated tokens rather than raw prose for two reasons: the page
+ * carries the whole index inline, so repeating "calculator" 34 times costs
+ * bytes for nothing; and matching per token is what makes a two-word query
+ * ("ebay return") work, which a substring match over prose cannot do.
+ */
+export function searchTokens(parts) {
+  const seen = new Set();
+  for (const part of parts) {
+    for (const token of String(part ?? '')
+      .toLowerCase()
+      .split(/[^a-z0-9]+/)) {
+      if (token.length < 2 || SEARCH_STOPWORDS.has(token)) continue;
+      seen.add(token);
+    }
+  }
+  return [...seen].sort().join(' ');
+}
+
+/**
+ * The `<title>`/`<h1>` of every other page in a venture.
+ *
+ * These are the venture's SEO articles, and they are phrased as the question a
+ * visitor actually types ("should I use Amazon AWD", "how much to charge to
+ * install crown molding"). None of that wording appears in the tool's own meta
+ * description, so without this the hub cannot answer the search that brought
+ * the visitor to the portfolio in the first place.
+ */
+export async function collectPageTitles(sourceDir, entryFile) {
+  const files = (await listFiles(sourceDir)).filter(
+    (file) => file.endsWith('.html') && file !== entryFile,
+  );
+  const titles = [];
+  for (const file of files.slice(0, 40)) {
+    const html = await fs.readFile(file, 'utf8');
+    const title = html.match(/<title>([^<]*)<\/title>/i)?.[1] ?? '';
+    const heading = html.match(/<h1[^>]*>([\s\S]*?)<\/h1>/i)?.[1] ?? '';
+    titles.push(decodeEntities(title), decodeEntities(heading.replace(/<[^>]*>/g, ' ')));
+  }
+  return titles;
 }
 
 async function countPages(sourceDir) {
@@ -337,6 +391,34 @@ export function isPublishable(name) {
 }
 
 /** Recursively copy `from` into `to`, dropping test payload and repo bookkeeping. */
+/**
+ * Point one published page at the site's favicon.
+ *
+ * `renderFavicon()` writes the icon to the *published tree's* root, on the
+ * reasoning that a browser fetches `/favicon.ico` on its own for every page.
+ * That is true of the **origin** root — and this is a GitHub *project* site, so
+ * the origin root is `duncan-haywood.github.io/`, not the tree at
+ * `.../monorepo-projects/`. The automatic request lands outside this repository
+ * and the generated icon is never reached. Writing the link in is what closes
+ * that gap.
+ *
+ * The href is relative to the page rather than root-absolute, for the same
+ * reason every other in-site link here is: `check.mjs` rejects a link that
+ * leaves the site root, and a relative one is correct whatever path the site is
+ * served under — including a local preview at `/`.
+ *
+ * A venture that declares its own icon keeps it, and the link goes after the
+ * charset declaration so that stays the first thing the parser sees.
+ */
+export function injectFavicon(html, toRoot) {
+  if (/<link[^>]+rel=["'][^"']*icon/i.test(html)) return html;
+  const link = `\n  <link rel="icon" href="${escapeHtml(`${toRoot}favicon.ico`)}" sizes="16x16">`;
+  if (/<meta[^>]+charset/i.test(html)) {
+    return html.replace(/<meta[^>]+charset[^>]*>/i, (meta) => `${meta}${link}`);
+  }
+  return html.replace(/<head(\s[^>]*)?>/i, (head) => `${head}${link}`);
+}
+
 export async function copyTree(from, to, baseUrl) {
   await fs.mkdir(to, { recursive: true });
   const entries = await fs.readdir(from, { withFileTypes: true });
@@ -509,7 +591,8 @@ export function renderHub(surfaces, baseUrl) {
 ${items
   .map(
     (surface) => `          <li class="card" data-search="${escapeHtml(
-      `${surface.title} ${surface.description} ${surface.slug}`.toLowerCase(),
+      surface.searchIndex ??
+        searchTokens([surface.title, surface.fullDescription ?? surface.description, surface.slug]),
     )}">
             <a href="${escapeHtml(surface.slug)}/" data-tool="${escapeHtml(surface.slug)}">
               <h3>${escapeHtml(surface.title)}</h3>
@@ -533,6 +616,7 @@ ${items
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="icon" href="./favicon.ico" sizes="16x16">
   <title>Free Small-Business Calculators | Marketplace Fees, Trade Bids, Freight &amp; Compliance</title>
   <meta name="description" content="${escapeHtml(
     `${surfaces.length} free, private calculators for marketplace sellers, trade contractors, logistics buyers, and small teams. Everything runs in your browser — nothing you type is uploaded.`,
@@ -656,11 +740,35 @@ ${DISCLAIMER_HTML}
     const groups = [...document.querySelectorAll('.group')];
     const total = cards.length;
 
+    // Every query word must hit, so "ebay return" narrows to the eBay tool
+    // instead of finding nothing because those two words are never adjacent.
+    // A word matches at a token boundary, which is what makes a half-typed
+    // "backspl" still find the backsplash calculator.
+    const matches = (index, words, boundary) =>
+      words.every((word) => (boundary ? (' ' + index).includes(' ' + word) : index.includes(word)));
+
+    // The query is normalised exactly as the index was. It has to be: a word
+    // the index never stores can never match, so keeping it would force every
+    // query containing it down to zero hits — typing "2/10 net 30" would find
+    // nothing because "2" was dropped at build time but not from the query.
+    const STOPWORDS = new Set(${JSON.stringify([...SEARCH_STOPWORDS])});
+    const normalise = (text) =>
+      text
+        .toLowerCase()
+        .split(/[^a-z0-9]+/)
+        .filter((word) => word.length >= 2 && !STOPWORDS.has(word));
+
     function filter() {
-      const needle = q.value.trim().toLowerCase();
+      const words = normalise(q.value.trim());
+      // Token-prefix first; fall back to a loose substring pass so a query that
+      // would have matched before this became token-aware still matches.
+      let boundary = true;
+      if (words.length && !cards.some((c) => matches(c.dataset.search, words, true))) {
+        boundary = false;
+      }
       let shown = 0;
       for (const card of cards) {
-        const hit = !needle || card.dataset.search.includes(needle);
+        const hit = !words.length || matches(card.dataset.search, words, boundary);
         card.hidden = !hit;
         if (hit) shown += 1;
       }
@@ -668,7 +776,7 @@ ${DISCLAIMER_HTML}
         group.hidden = ![...group.querySelectorAll('.card')].some((c) => !c.hidden);
       }
       empty.style.display = shown === 0 ? 'block' : 'none';
-      count.textContent = needle ? shown + ' of ' + total + ' tools' : total + ' tools';
+      count.textContent = words.length ? shown + ' of ' + total + ' tools' : total + ' tools';
     }
     q.addEventListener('input', filter);
     filter();
@@ -975,9 +1083,10 @@ export async function addSiteChrome({ outDir, surfaces, baseUrl = DEFAULT_BASE_U
       const relative = path.relative(outDir, file);
       const url = relative.split(path.sep).join('/');
       const html = await fs.readFile(file, 'utf8');
-      const next = injectChrome(html, {
+      const toRoot = upToRoot(relative);
+      const next = injectFavicon(injectChrome(html, {
         slug: surface.slug,
-        toRoot: upToRoot(relative),
+        toRoot,
         total: surfaces.length,
         related,
         title: surface.title,
@@ -985,7 +1094,7 @@ export async function addSiteChrome({ outDir, surfaces, baseUrl = DEFAULT_BASE_U
         // is the one to declare.
         canonical: `${baseUrl}${url.replace(/(^|\/)index\.html$/, '$1')}`,
         isEntry: url === `${surface.slug}/index.html`,
-      });
+      }), toRoot);
       if (next === html) continue;
       await fs.writeFile(file, next);
       wrapped.push(relative);
@@ -998,6 +1107,7 @@ export async function addSiteChrome({ outDir, surfaces, baseUrl = DEFAULT_BASE_U
 export function renderRobots(baseUrl) {
   return `User-agent: *\nAllow: /\n\nSitemap: ${baseUrl}sitemap.xml\n`;
 }
+
 
 /**
  * The sitemap `robots.txt` names. A `<sitemapindex>` cannot hold `<url>`
@@ -1075,6 +1185,7 @@ export function renderNotFound(baseUrl) {
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="icon" href="./favicon.ico" sizes="16x16">
   <title>Not found</title>
   <style>
     body { font-family: system-ui, sans-serif; max-width: 40rem; margin: 12vh auto;
@@ -1217,7 +1328,7 @@ export async function buildSite({
 
   for (const surface of discovered) {
     const html = await fs.readFile(surface.entryFile, 'utf8');
-    const { title, description } = readMeta(html, surface.slug);
+    const { title, description, fullDescription } = readMeta(html, surface.slug);
     const destination = path.join(outDir, surface.slug);
 
     await copyTree(surface.sourceDir, destination, base);
@@ -1242,6 +1353,13 @@ export async function buildSite({
       ...surface,
       title,
       description,
+      fullDescription,
+      searchIndex: searchTokens([
+        title,
+        fullDescription,
+        surface.slug,
+        ...(await collectPageTitles(surface.sourceDir, surface.entryFile)),
+      ]),
       pageCount: await countPages(surface.sourceDir),
       publishedPageCount: pages.length,
     });

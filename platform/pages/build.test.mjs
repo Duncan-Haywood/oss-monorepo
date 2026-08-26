@@ -15,20 +15,23 @@ import {
   addOfflineSupport,
   buildSite,
   categoryFor,
+  collectPageTitles,
+  injectFavicon,
   discoverSurfaces,
   injectChrome,
+  isPublishable,
   NO_SLA_PATTERN,
   listFiles,
+  readMeta,
   relatedTools,
   upToRoot,
-  isPublishable,
-  readMeta,
   renderHub,
   pageUrlPath,
   renderFavicon,
   renderRobots,
   renderSitemapIndex,
   renderVentureSitemap,
+  searchTokens,
   truncate,
   REPO_ROOT,
   SOURCE_URL_PREFIX,
@@ -48,6 +51,23 @@ async function site() {
 
 const read = async (...parts) => fs.readFile(path.join((await site()).outDir, ...parts), 'utf8');
 
+const BASE_PATH = new URL(BASE).pathname; // "/site/"
+
+/**
+ * The file a page's href points at.
+ *
+ * Root-absolute hrefs are resolved against the site root rather than the
+ * filesystem root: on a project site the published tree lives under a path
+ * prefix, so `/site/favicon.ico` is `<outDir>/favicon.ico`. Resolving those
+ * relative to the containing page reports every one of them as broken.
+ */
+function hrefTarget(href, fromFile, outDir) {
+  const resolved = href.startsWith('/')
+    ? path.join(outDir, href.startsWith(BASE_PATH) ? href.slice(BASE_PATH.length) : href.slice(1))
+    : path.resolve(path.dirname(fromFile), href);
+  return href.endsWith('/') ? path.join(resolved, 'index.html') : resolved;
+}
+
 /**
  * Every off-origin URL the given HTML would *fetch* on load, as opposed to
  * link to. `src` covers scripts, images and frames; a <link> that fetches --
@@ -64,8 +84,7 @@ function offOriginResources(html) {
       .filter((m) => FETCHING_REL.test((m[0].match(/rel="([^"]*)"/)?.[1] ?? '').trim()))
       .map((m) => m[0].match(/href="([^"]*)"/)?.[1] ?? '')
       .filter((href) => /^https?:\/\//.test(href)),
-  ];
-}
+  ];}
 
 const exists = (target) => fs.access(target).then(() => true, () => false);
 
@@ -107,8 +126,7 @@ async function sitemapUrlPaths() {
   };
 
   await collect('sitemap.xml');
-  return paths;
-}
+  return paths;}
 
 // ---------------------------------------------------------------------------
 // Discovery
@@ -210,9 +228,9 @@ test('every hub link resolves to a file that exists', async () => {
   const hrefs = [...hub.matchAll(/href="([^"]+)"/g)].map((m) => m[1]).filter((h) => !h.startsWith('http'));
   assert.ok(hrefs.length > 20, 'the hub should link to every tool');
 
+  const hub_ = path.join(outDir, 'index.html');
   for (const href of hrefs) {
-    const target = href.endsWith('/') ? path.join(outDir, href, 'index.html') : path.join(outDir, href);
-    await fs.access(target);
+    await fs.access(hrefTarget(href, hub_, outDir));
   }
 });
 
@@ -229,10 +247,8 @@ test('relative links inside each tool resolve', async () => {
         .filter((r) => !/^(https?:|mailto:|data:|\/\/|#)/.test(r) && r !== '');
 
       for (const ref of refs) {
-        const target = path.resolve(path.dirname(file), ref);
-        const check = ref.endsWith('/') ? path.join(target, 'index.html') : target;
         try {
-          await fs.access(check);
+          await fs.access(hrefTarget(ref, file, outDir));
         } catch {
           broken.push(`${path.relative(outDir, file)} -> ${ref}`);
         }
@@ -254,6 +270,17 @@ test('the hub carries the required disclaimers and privacy line', async () => {
   assert.match(hub, /Everything runs in your browser/i);
   assert.match(hub, /never uploaded/i);
 });
+
+/**
+ * The hub's copy with the search index stripped out.
+ *
+ * The index is a bag of words describing what the tools *calculate*, and some
+ * of those tools price subscription programs — Subscribe & Save, Shopify
+ * subscriptions. Those words are vocabulary a visitor searches for, never
+ * anything the hub offers to sell them, so a check on what the page *says*
+ * must not read them.
+ */
+const visibleCopy = (hub) => hub.replace(/ data-search="[^"]*"/g, '');
 
 test('every published page carries both liability clauses, not just the hub', async () => {
   // PRODUCT_PLAYBOOK.md 5b requires the no-warranty clause AND the no-SLA
@@ -302,7 +329,10 @@ test('the sponsor ask is optional and does not gate anything', async () => {
   const hub = await read('index.html');
   assert.match(hub, /github\.com\/sponsors\//);
   assert.match(hub, /entirely optional/i);
-  assert.ok(!/subscribe|upgrade to|paid plan|free trial/i.test(hub), 'no paywall language');
+  assert.ok(
+    !/subscribe|upgrade to|paid plan|free trial/i.test(visibleCopy(hub)),
+    'no paywall language',
+  );
 });
 
 test('the hub declares structured data listing every tool', async () => {
@@ -496,7 +526,18 @@ test('readMeta prefers og:title over the SEO title', () => {
   assert.deepEqual(readMeta(html, 'janitorial-bid-calculator'), {
     title: 'Janitorial Bid Calculator',
     description: 'Price a contract.',
+    // Card copy and search copy are the same string only while it fits a card.
+    fullDescription: 'Price a contract.',
   });
+});
+
+test('readMeta keeps the whole description for search, not just the card', () => {
+  const long = `${'word '.repeat(50)}needleword.`;
+  const html = `<title>T</title><meta name="description" content="${long}">`;
+  const { description, fullDescription } = readMeta(html, 'slug');
+  assert.ok(description.endsWith('…'), 'card copy is trimmed');
+  assert.ok(!description.includes('needleword'), 'the trim really does drop the tail');
+  assert.ok(fullDescription.includes('needleword'), 'search copy keeps the tail');
 });
 
 test('readMeta falls back through title, then slug', () => {
@@ -585,6 +626,157 @@ test('truncate cuts on a word boundary', () => {
   const long = truncate('a'.repeat(30) + ' tail words here that go on', 40);
   assert.ok(long.endsWith('…'));
   assert.ok(long.length <= 41);
+});
+
+// The hub's search is the only way a visitor narrows 34 tools, so a tool the
+// search cannot find is a tool that does not exist for them. These tests cover
+// the two ways that failed silently: indexing card copy that had already been
+// cut to 180 characters, and matching the query as one substring so any
+// two-word phrase found nothing.
+
+test('searchTokens normalises, dedupes, and drops noise words', () => {
+  assert.equal(searchTokens(['eBay Fee']), 'ebay fee');
+  assert.equal(searchTokens(['fee', 'FEE', 'Fee']), 'fee');
+  // Sorted, so the attribute is stable build to build.
+  assert.equal(searchTokens(['zebra alpha']), 'alpha zebra');
+  // Stopwords and single characters carry no signal and cost bytes on every card.
+  assert.equal(searchTokens(['how much to charge for a deck']), 'charge deck much');
+  // "in" is a stopword and "2" is a single character, so both are dropped —
+  // and the client-side query normaliser must drop them the same way.
+  assert.equal(searchTokens(['walk-in tub, 2 units']), 'tub units walk');
+  assert.equal(searchTokens([null, undefined, '']), '');
+});
+
+test('the search index carries description text the card is too small to show', async () => {
+  const html = await read('index.html');
+  const surfaces = (await site()).surfaces;
+
+  const truncated = surfaces.filter(
+    (s) => s.fullDescription && s.fullDescription.length > s.description.replace(/…$/, '').length + 1,
+  );
+  // If this is ever zero the test is no longer proving anything.
+  assert.ok(truncated.length > 0, 'expected at least one description longer than its card');
+
+  for (const surface of truncated) {
+    const shown = surface.description.replace(/…$/, '');
+    const tail = surface.fullDescription.slice(shown.length);
+    const word = searchTokens([tail]).split(' ').filter((w) => w.length > 4)[0];
+    if (!word) continue;
+    const index = html.match(
+      new RegExp(`data-search="([^"]*)"[^>]*>\\s*<a href="${surface.slug}/`),
+    )?.[1];
+    assert.ok(index, `no card rendered for ${surface.slug}`);
+    assert.ok(
+      ` ${index} `.includes(` ${word} `),
+      `"${word}" is in ${surface.slug}'s description but not in its search index`,
+    );
+  }
+});
+
+test("the search index carries a venture's other page titles", async () => {
+  // A visitor arrives having typed the question one of these pages answers.
+  const titles = await collectPageTitles(
+    path.join(VENTURES, 'ebay-fee-calculator'),
+    path.join(VENTURES, 'ebay-fee-calculator', 'index.html'),
+  );
+  assert.ok(titles.length > 0, 'expected the eBay venture to have article pages');
+
+  const surface = (await site()).surfaces.find((s) => s.slug === 'ebay-fee-calculator');
+  const indexed = new Set(surface.searchIndex.split(' '));
+  const fromTitles = searchTokens(titles).split(' ').filter((w) => w.length > 4);
+  const missing = fromTitles.filter((w) => !indexed.has(w));
+  assert.deepEqual(missing, [], 'page-title words missing from the search index');
+});
+
+test('a query whose words are not adjacent still matches', async () => {
+  const html = await read('index.html');
+  const cards = [...html.matchAll(/data-search="([^"]*)"[\s\S]*?data-tool="([^"]*)"/g)].map(
+    (m) => ({ index: m[1], slug: m[2] }),
+  );
+  assert.equal(cards.length, (await site()).surfaces.length);
+
+  // The rule the page implements: every query word must hit a token boundary.
+  const search = (query) =>
+    cards
+      .filter((c) =>
+        searchTokens([query])
+          .split(' ')
+          .filter(Boolean)
+          .every((word) => ` ${c.index}`.includes(` ${word}`)),
+      )
+      .map((c) => c.slug);
+
+  // Each of these found nothing when the index was one truncated string.
+  assert.ok(search('ebay return').includes('ebay-fee-calculator'));
+  assert.ok(search('freight accessorial').includes('freight-accessorial-auditor'));
+  assert.deepEqual(search('qqzzxx'), []);
+});
+
+test('the query drops exactly the words the index dropped', async () => {
+  // If the two normalisers disagree, a query containing a word the index never
+  // stores can never match anything.
+  const html = await read('index.html');
+  const rendered = JSON.parse(html.match(/const STOPWORDS = new Set\((\[[\s\S]*?\])\)/)[1]);
+  for (const word of rendered) {
+    assert.equal(searchTokens([word]), '', `"${word}" is a query stopword but is still indexed`);
+  }
+  assert.ok(html.includes('word.length >= 2'), 'query must drop single characters as the index does');
+});
+
+test('every published page links the favicon, not just the site root', async () => {
+  // The generated icon sits at the *published tree's* root. On a project site
+  // the browser's automatic /favicon.ico request goes to the origin root
+  // instead — a different place this repo does not serve — so without a link
+  // written into each page the icon is emitted and never fetched.
+  const { outDir, surfaces } = await site();
+
+  const pages = (await listFiles(outDir)).filter((f) => f.endsWith('.html'));
+  assert.ok(pages.length > surfaces.length, 'expected article pages as well as landing pages');
+
+  const missing = [];
+  const unresolved = [];
+  for (const file of pages) {
+    const html = await fs.readFile(file, 'utf8');
+    const href = html.match(/<link[^>]+rel="icon"[^>]+href="([^"]+)"/i)?.[1];
+    if (!href) {
+      missing.push(path.relative(outDir, file));
+      continue;
+    }
+    // A venture that ships its own icon keeps it; several declare a `data:`
+    // URI, which is self-contained and has no file to resolve.
+    if (/^(data:|https?:)/.test(href)) continue;
+    // Relative, not root-absolute: `check.mjs` rejects a link that leaves the
+    // site root, and the site is served under a path prefix in production.
+    assert.ok(!href.startsWith('/'), `${path.relative(outDir, file)} links the icon absolutely`);
+    if (!(await exists(hrefTarget(href, file, outDir)))) {
+      unresolved.push(`${path.relative(outDir, file)} -> ${href}`);
+    }
+  }
+
+  assert.deepEqual(missing, [], 'pages served without an icon');
+  assert.deepEqual(unresolved, [], `icon links that do not resolve:\n${unresolved.join('\n')}`);
+});
+
+test('a venture that declares its own icon keeps it', () => {
+  const own = '<head><link rel="icon" href="mine.png"></head>';
+  assert.equal(injectFavicon(own, '../'), own);
+
+  const injected = injectFavicon('<head>\n<title>t</title></head>', '../');
+  assert.equal((injected.match(/rel="icon"/g) ?? []).length, 1);
+  assert.ok(injected.includes('href="../favicon.ico"'));
+
+  // Depth is the caller's to supply; a page at the root gets './'.
+  assert.ok(injectFavicon('<head></head>', './').includes('href="./favicon.ico"'));
+
+  // The charset declaration has to stay the first thing in the head.
+  const withCharset = injectFavicon('<head><meta charset="utf-8"><title>t</title></head>', '../');
+  assert.ok(
+    withCharset.indexOf('charset') < withCharset.indexOf('rel="icon"'),
+    'the icon must not displace the charset declaration',
+  );
+
+  // A fragment with no <head> must be left exactly as it was, not corrupted.
+  assert.equal(injectFavicon('<p>no head here</p>', '../'), '<p>no head here</p>');
 });
 
 test('categories route each slug shape somewhere sensible', () => {
