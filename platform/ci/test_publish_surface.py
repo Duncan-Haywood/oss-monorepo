@@ -181,5 +181,98 @@ class Snapshot(unittest.TestCase):
         self.assertEqual(live, [])
 
 
+class PagesCollisions(unittest.TestCase):
+    """One repository, one Pages site.
+
+    Two workflows that each deploy to it are individually well-formed and
+    together are a race whose winner is whichever job finishes last. The
+    snapshot cannot express that, because it records one row per workflow.
+    This is what caught the real one: on 2026-08-26 `pages.yml` and
+    `portfolio-pages.yml` both landed on `main` deploying different artifacts
+    behind the same `GITHUB_PAGES_ENABLED`, under different `concurrency:`
+    groups — which do not queue across workflows.
+    """
+
+    @staticmethod
+    def row(workflow, gates, classification="gated"):
+        return {
+            "workflow": workflow,
+            "classification": classification,
+            "publishes": [{"job": "deploy", "step": "uses actions/deploy-pages", "gates": gates}],
+        }
+
+    def test_one_pages_deployer_is_fine(self):
+        rows = [self.row("a.yml", ["vars.GITHUB_PAGES_ENABLED == 'true'"])]
+        self.assertEqual(ps.pages_collisions(rows), [])
+
+    def test_two_deployers_on_distinct_variables_are_fine(self):
+        rows = [
+            self.row("a.yml", ["vars.GITHUB_PAGES_ENABLED == 'true'"]),
+            self.row("b.yml", ["vars.RETAIL_PILOT_INTEL_PAGES == 'true'"]),
+        ]
+        self.assertEqual(ps.pages_collisions(rows), [])
+
+    def test_two_deployers_on_the_same_variable_collide(self):
+        rows = [
+            self.row("a.yml", ["vars.GITHUB_PAGES_ENABLED == 'true'"]),
+            self.row("b.yml", ["vars.GITHUB_PAGES_ENABLED == 'true'"]),
+        ]
+        problems = ps.pages_collisions(rows)
+        self.assertEqual(len(problems), 1)
+        self.assertIn("a.yml and b.yml", problems[0])
+        self.assertIn("GITHUB_PAGES_ENABLED", problems[0])
+
+    def test_the_same_gate_written_two_ways_still_collides(self):
+        # The real pair differed only in the `${{ }}` wrapper and whitespace,
+        # which is why gates are compared by the variables they read.
+        rows = [
+            self.row("a.yml", ["${{ github.event_name != 'pull_request' && vars.X == 'true' }}"]),
+            self.row("b.yml", ["github.event_name != 'pull_request' &&\n vars.X == 'true'"]),
+        ]
+        self.assertEqual(len(ps.pages_collisions(rows)), 1)
+
+    def test_bracket_syntax_reads_as_the_same_variable(self):
+        rows = [
+            self.row("a.yml", ["vars.X == 'true'"]),
+            self.row("b.yml", ["vars['X'] == 'true'"]),
+        ]
+        self.assertEqual(len(ps.pages_collisions(rows)), 1)
+
+    def test_an_ungated_deployer_races_every_other_one(self):
+        # It fires on every push, so it does not need to share a gate to win.
+        rows = [
+            self.row("always.yml", [], classification="live"),
+            self.row("gated.yml", ["vars.GITHUB_PAGES_ENABLED == 'true'"]),
+        ]
+        problems = ps.pages_collisions(rows)
+        self.assertTrue(problems)
+        self.assertTrue(any("always.yml" in p and "gated.yml" in p for p in problems))
+
+    def test_a_deployer_no_push_can_reach_is_not_a_collision(self):
+        rows = [
+            self.row("a.yml", ["vars.GITHUB_PAGES_ENABLED == 'true'"]),
+            self.row("dispatch.yml", ["vars.GITHUB_PAGES_ENABLED == 'true'"], classification="dispatch"),
+        ]
+        self.assertEqual(ps.pages_collisions(rows), [])
+
+    def test_a_non_pages_publisher_never_collides(self):
+        rows = [
+            self.row("a.yml", ["vars.GITHUB_PAGES_ENABLED == 'true'"]),
+            {
+                "workflow": "vercel.yml",
+                "classification": "gated",
+                "publishes": [{"job": "deploy", "step": "uses amondnet/vercel-action",
+                               "gates": ["vars.GITHUB_PAGES_ENABLED == 'true'"]}],
+            },
+        ]
+        self.assertEqual(ps.pages_collisions(rows), [])
+
+    def test_the_live_repository_has_at_most_one_deployer_per_gate(self):
+        # The assertion that matters. If this fails, the owner flip everyone
+        # is waiting on would publish two different sites.
+        rows, _ = ps.survey()
+        self.assertEqual(ps.pages_collisions(rows), [])
+
+
 if __name__ == "__main__":
     unittest.main()

@@ -50,12 +50,37 @@ Four classifications result, and only the first means a merge publishes:
   gated        reachable trigger, but every publish step is behind an `if:`
   dispatch     publishes, but no push trigger can reach it
   none         no publishing step at all
+
+## One more thing the per-workflow table cannot see
+
+A repository has exactly **one** GitHub Pages site. Two workflows that each
+deploy to it are individually well-formed -- both classify as `gated`, both
+match their snapshot rows -- and together they are a race whose winner is
+whichever job finishes last. Concurrency does not save you: a `concurrency:`
+group is per-workflow, so two workflows with different group names never
+queue behind each other.
+
+That is not hypothetical here. On 2026-08-26 three sessions independently
+built a portfolio Pages site within hours of each other. Two landed on `main`
+(`portfolio-pages.yml` and `pages.yml`), both deploying different artifacts,
+both gated on the same `GITHUB_PAGES_ENABLED`, under the concurrency groups
+`portfolio-pages` and `pages-deploy`. Nothing was red. The defect would have
+appeared the moment the owner flipped that one variable -- every push to
+`ventures/**` publishing two different sites, non-deterministically -- which
+is the worst possible moment, since that flip is the portfolio's entire
+current priority.
+
+So `--check` also asserts the cross-workflow property the snapshot cannot
+express: at most one Pages deployer per gate. Gates are compared by the
+`vars.*` they depend on rather than by their text, because the two above were
+written as `${{ ... }}` and `... ` and are the same condition.
 """
 
 from __future__ import annotations
 
 import argparse
 import json
+import re
 import sys
 from pathlib import Path
 
@@ -286,6 +311,79 @@ def render(rows) -> str:
     return "\n".join(out)
 
 
+PAGES_ACTION = "actions/deploy-pages"
+
+# `vars.NAME` / `vars['NAME']` inside an `if:` expression.
+_VARS_REF = re.compile(r"""vars\.([A-Za-z_][A-Za-z0-9_]*)|vars\[['"]([A-Za-z_][A-Za-z0-9_]*)['"]\]""")
+
+
+def gate_variables(gates) -> frozenset[str]:
+    """The owner-set variables a set of `if:` gates depends on.
+
+    Compared by variable rather than by text because the same condition gets
+    written `${{ github.event_name != 'pull_request' && vars.X == 'true' }}`
+    in one workflow and without the `${{ }}` in the next, and those are the
+    same flip.
+    """
+    names = set()
+    for gate in gates:
+        for match in _VARS_REF.finditer(gate):
+            names.add(match.group(1) or match.group(2))
+    return frozenset(names)
+
+
+def pages_deployers(rows) -> list[tuple[str, frozenset[str]]]:
+    """Every workflow a push to the default branch can reach that deploys Pages."""
+    found = []
+    for row in rows:
+        if row["classification"] not in {"live", "gated"}:
+            continue
+        for step in row["publishes"]:
+            if PAGES_ACTION in step["step"]:
+                found.append((row["workflow"], gate_variables(step["gates"])))
+    return found
+
+
+def pages_collisions(rows) -> list[str]:
+    """Report every pair of workflows that one flip would race against each other.
+
+    A repository serves one Pages site. Two deployers behind the same variable
+    means the owner's single flip starts two publishes of two different
+    artifacts on every qualifying push, and the live site is whichever finished
+    last. An *ungated* Pages deployer collides with everything, since it fires
+    on every push regardless.
+    """
+    deployers = pages_deployers(rows)
+    if len(deployers) < 2:
+        return []
+
+    buckets: dict[frozenset[str], list[str]] = {}
+    for workflow, variables in deployers:
+        buckets.setdefault(variables, []).append(workflow)
+
+    problems = []
+    ungated = sorted(set(buckets.get(frozenset(), [])))
+    for variables, workflows in sorted(buckets.items(), key=lambda kv: sorted(kv[1])):
+        names = sorted(set(workflows))
+        # An ungated deployer races every other one, not just its own bucket.
+        peers = names if variables == frozenset() else sorted(set(names) | set(ungated))
+        if len(peers) < 2:
+            continue
+        gate = (
+            "no gate at all, so they fire on every qualifying push"
+            if variables == frozenset()
+            else "the same owner flip: " + ", ".join(f"vars.{v}" for v in sorted(variables))
+        )
+        problems.append(
+            f"{' and '.join(peers)} both deploy to GitHub Pages behind {gate}. "
+            "A repository serves one Pages site, and a `concurrency:` group is "
+            "per-workflow, so these do not queue behind each other — the live site "
+            "becomes whichever job finishes last. Pick one to publish the origin "
+            "and move the other behind its own variable (or remove it)."
+        )
+    return problems
+
+
 def load_snapshot():
     if not SNAPSHOT.exists():
         return None
@@ -377,6 +475,22 @@ def main() -> int:
                 file=sys.stderr,
             )
             return 1
+
+        # Cross-workflow, so the snapshot cannot express it: two Pages
+        # deployers are individually well-formed and together are a race.
+        # Deliberately not `--write`-able — there is no version of two
+        # deployers on one flip that is correct, so this cannot be pinned
+        # away the way a classification change can.
+        collisions = pages_collisions(rows)
+        if collisions:
+            print(
+                f"{len(collisions)} GitHub Pages deploy collision(s):\n",
+                file=sys.stderr,
+            )
+            for collision in collisions:
+                print(f"  - {collision}", file=sys.stderr)
+            return 1
+
         live = sum(1 for r in rows if r["classification"] == "live")
         print(f"Publish surface matches the snapshot ({len(rows)} workflows, {live} live).")
         return 0

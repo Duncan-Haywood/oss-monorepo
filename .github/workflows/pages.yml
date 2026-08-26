@@ -12,13 +12,34 @@
 # products, because nothing built them into a Pages artifact. Now it publishes
 # all of them at once.
 #
-# This deliberately reuses the SAME owner variable the existing Pages workflow
-# gates on rather than introducing a second switch. `portfolio/hosting/README.md`
-# is explicit that `deploy-settings` is the one remaining owner flip and that no
-# second platform ask should be opened.
-#
 # The build job runs unconditionally so that a broken site build is a red check
 # on the PR that broke it, whether or not Pages is switched on yet.
+#
+# Superseded as the publisher, 2026-08-26
+# ---------------------------------------
+# Three sessions built a portfolio Pages site within hours of each other. Two
+# landed: this one and `portfolio-pages.yml`. Both deployed a *different*
+# artifact, and both were gated on the same `GITHUB_PAGES_ENABLED` under
+# different `concurrency:` groups (`pages-deploy` and `portfolio-pages`) — and a
+# concurrency group is per-workflow, so they would not have queued behind each
+# other. A repository serves one Pages site, so the owner's single flip would
+# have started two publishes on every push to `ventures/**` and left the live
+# site as whichever job finished last. Nothing was red; the defect would only
+# have appeared at the flip, which is the worst possible moment.
+#
+# `portfolio-pages.yml` is the publisher, on the merits rather than on arrival
+# order: building both, it produced 41 tools to this one's 40 (it reaches the
+# five electronics calculators under `ai-engineering-academy`), it injects
+# cross-page navigation so a visitor arriving from a search result can reach the
+# other tools, and it ships a 404 page.
+#
+# This workflow is kept rather than deleted — it is a complete, tested
+# implementation and the two are worth consolidating deliberately rather than in
+# the same rushed hour that produced them. Its deploy now needs its own
+# `PAGES_PY_BUILDER` variable, which nothing sets. That is not a second owner
+# ask: `deploy-settings` is unchanged and still publishes the site, through
+# `portfolio-pages.yml`. `publish_surface.py --check` now fails if two Pages
+# deployers ever share a gate again.
 
 name: Deploy portfolio Pages site
 
@@ -85,9 +106,14 @@ jobs:
     needs: build
     # Never publish from a pull request: a PR build is untrusted code, and a
     # fork PR must not be able to overwrite the live site.
+    # `PAGES_PY_BUILDER`, not `GITHUB_PAGES_ENABLED` — see the header. One flip
+    # must not start two publishes of two different sites to the one Pages
+    # origin this repository has. Setting this to `true` hands the origin to
+    # this builder instead of `portfolio-pages.yml`; leaving it unset (the
+    # default) is what makes `deploy-settings` unambiguous.
     if: >-
       github.event_name != 'pull_request' &&
-      vars.GITHUB_PAGES_ENABLED == 'true'
+      vars.PAGES_PY_BUILDER == 'true'
     runs-on: ubuntu-latest
     permissions:
       pages: write
