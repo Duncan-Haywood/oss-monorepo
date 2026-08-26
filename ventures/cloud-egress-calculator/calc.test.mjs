@@ -8,6 +8,8 @@ import {
   cdnNote,
   compareReplica,
   replicaNote,
+  compareStorageClass,
+  storageClassNote,
 } from "./calc.mjs";
 
 test("calculates storage, request, and egress charges", () => {
@@ -241,4 +243,70 @@ test("accepts the numeric strings a form posts", () => {
   });
   assert.equal(result.replica.horizon, 152.8);
   assert.equal(result.cheaperHorizon, "replica");
+});
+
+test("default storage-class demo: 150 GB retrieve still loses to standard", () => {
+  const result = compareStorageClass({
+    storageGb: 500,
+    retrieveGb: 150,
+    standardStorageRate: 0.023,
+    infrequentStorageRate: 0.0125,
+    infrequentRetrieveRate: 0.04,
+  });
+  assert.equal(result.standard.storage, 11.5);
+  assert.equal(result.standard.total, 11.5);
+  assert.equal(result.infrequent.storage, 6.25);
+  assert.equal(result.infrequent.retrieve, 6);
+  assert.equal(result.infrequent.total, 12.25);
+  assert.equal(result.cheaper, "standard");
+  assert.equal(result.savings, 0.75);
+  assert.equal(result.annualSavings, 9);
+  assert.equal(result.retrieveGbCeiling, 131.25);
+  assert.equal(result.retrieveSharePercent, 30);
+});
+
+test("100 GB retrieved flips infrequent ahead by $1.25", () => {
+  const result = compareStorageClass({
+    storageGb: 500,
+    retrieveGb: 100,
+    standardStorageRate: 0.023,
+    infrequentStorageRate: 0.0125,
+    infrequentRetrieveRate: 0.04,
+  });
+  assert.equal(result.infrequent.total, 10.25);
+  assert.equal(result.cheaper, "infrequent");
+  assert.equal(result.savings, 1.25);
+});
+
+test("infrequent retrieve-request fees sit on the infrequent path only", () => {
+  const result = compareStorageClass({
+    storageGb: 500,
+    retrieveGb: 0,
+    standardStorageRate: 0.023,
+    infrequentStorageRate: 0.0125,
+    retrieveRequestsMillion: 2,
+    infrequentRetrieveRequestRate: 0.4,
+  });
+  assert.equal(result.standard.total, 11.5);
+  assert.equal(result.infrequent.requests, 0.8);
+  assert.equal(result.infrequent.total, 7.05);
+  assert.equal(result.cheaper, "infrequent");
+});
+
+test("rejects a negative retrieve volume", () => {
+  assert.throws(() => compareStorageClass({ retrieveGb: -1, storageGb: 1 }), /Retrieved data/);
+});
+
+test("storageClassNote names the cheaper class and the retrieve ceiling without advising", () => {
+  const result = compareStorageClass({
+    storageGb: 500,
+    retrieveGb: 150,
+    standardStorageRate: 0.023,
+    infrequentStorageRate: 0.0125,
+    infrequentRetrieveRate: 0.04,
+  });
+  const note = storageClassNote(result);
+  assert.match(note, /standard class is \$0\.75 cheaper/);
+  assert.match(note, /131\.3 GB retrieved/);
+  assert.doesNotMatch(note, /should|must|move|enable|archive this|turn on/i);
 });

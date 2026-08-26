@@ -32,11 +32,13 @@ test("records named feature events without storing inputs", () => {
   recordUsage(storage, false, "returns_compared");
   recordUsage(storage, false, "aged_wfs_compared");
   recordUsage(storage, false, "ads_compared");
+  recordUsage(storage, false, "match_take_compared");
   const stored = JSON.parse(storage.getItem("walmart-marketplace-usage"));
   assert.equal(stored.price_match_checked, 1);
   assert.equal(stored.returns_compared, 1);
   assert.equal(stored.aged_wfs_compared, 1);
   assert.equal(stored.ads_compared, 1);
+  assert.equal(stored.match_take_compared, 1);
   assert.ok(stored.last_day);
 });
 

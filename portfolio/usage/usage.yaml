@@ -1310,20 +1310,23 @@ products:
           returns_compared: 0
           aged_wfs_compared: 0
           ads_compared: 0
+          match_take_compared: 0
         note: >-
           Salvage of unique #1507 Walmart Marketplace WFS vs seller-fulfilled
           profit calculator onto current main, plus the 2-day vs WFS take-rate
-          table, the returns mix, leftover keep vs remove vs dispose, and
-          Walmart Connect skip vs Sponsored Products: category referral
-          including the per-item floor, size-tier WFS fulfillment, storage,
-          inbound, the seller-paid label, max buy cost, whether a competitive
-          match still profits, whether a seller-fulfilled 2-day label still
-          beats WFS after take rate, whether WFS still beats seller fulfilled
-          after a refund mix, whether leftover units already inbound still
-          beat a removal after aged storage, and whether extra ad units cover
-          last-click ACOS on organic sales. Public URL remains owner-gated;
-          the local-first counter reports only to the user's own browser and
-          is opt-out. Baseline row.
+          table, the returns mix, leftover keep vs remove vs dispose,
+          Walmart Connect skip vs Sponsored Products, and hold vs match vs
+          promo after Buy Box take: category referral including the per-item
+          floor, size-tier WFS fulfillment, storage, inbound, the seller-paid
+          label, max buy cost, whether a competitive match still profits,
+          whether a seller-fulfilled 2-day label still beats WFS after take
+          rate, whether WFS still beats seller fulfilled after a refund mix,
+          whether leftover units already inbound still beat a removal after
+          aged storage, whether extra ad units cover last-click ACOS on
+          organic sales, and whether winning more of the Buy Box at a lower
+          ticket still beats holding the list. Public URL remains
+          owner-gated; the local-first counter reports only to the user's
+          own browser and is opt-out. Baseline row.
   - slug: faire-wholesale-calculator
     surface: static-page-in-repo
     readings:
@@ -1335,6 +1338,7 @@ products:
           scenario_compared: 0
           payout_float_compared: 0
           open_house_compared: 0
+          faire_return_compared: 0
           link_copied: 0
         note: >-
           Salvage of unique #1489 Faire wholesale fee calculator onto current
@@ -1343,6 +1347,8 @@ products:
           retailer page that keeps unsold opening-order units in the cost.
           Open House vs everyday first order added 2026-08-26 (event discount
           can eat the waived commission; extra new retailers flip the pile).
+          Keep-it credit vs deny vs taking a Faire return added 2026-08-26
+          (outbound shipping and the first-order fee are already sunk).
           Public URL remains owner-gated; the local-first counter reports only
           to the user's own browser and is opt-out. Baseline row.
   - slug: freight-accessorial-auditor

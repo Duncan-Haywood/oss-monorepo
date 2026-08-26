@@ -1427,6 +1427,297 @@ export function walmartAdsNote(comparison) {
   return comparison.summary;
 }
 
+function matchTakePath({
+  id,
+  label,
+  takePct,
+  salePrice,
+  completedProfit,
+  expectedProfit,
+  monthlyProfit,
+}) {
+  return {
+    id,
+    label,
+    takePct,
+    salePrice,
+    completedProfit,
+    expectedProfit,
+    monthlyProfit,
+  };
+}
+
+function matchTakeSummary({
+  winner,
+  hold,
+  match,
+  promo,
+  extraMatchVsHold,
+  extraPromoVsHold,
+  extraMatchVsPromo,
+  monthlyUnits,
+  breakEvenMatchTakePct,
+  breakEvenPromoDays,
+  breakEvenMatchPrice,
+}) {
+  const holdKeep = moneyLabel(hold.monthlyProfit);
+  const matchKeep = moneyLabel(match.monthlyProfit);
+  const promoKeep = moneyLabel(promo.monthlyProfit);
+  const matchGap = moneyLabel(Math.abs(extraMatchVsHold));
+  const promoGap = moneyLabel(Math.abs(extraPromoVsHold));
+  const vsPromo = moneyLabel(Math.abs(extraMatchVsPromo));
+  const volume = `${monthlyUnits} completed sale${monthlyUnits === 1 ? "" : "s"} at the hold take`;
+  const takeFloor = Number.isFinite(breakEvenMatchTakePct)
+    ? `${breakEvenMatchTakePct.toFixed(1)}%`
+    : "an unreachable match take";
+  const dayFloor = Number.isFinite(breakEvenPromoDays)
+    ? `${breakEvenPromoDays.toFixed(1)} promo days`
+    : "an unreachable promo length";
+  const priceFloor = Number.isFinite(breakEvenMatchPrice)
+    ? moneyLabel(breakEvenMatchPrice)
+    : "an unreachable match price";
+
+  if (winner === "match") {
+    return (
+      `Permanently matching keeps ${matchGap} more than holding the list price ` +
+      `(${matchKeep} vs ${holdKeep}) on ${volume}. ` +
+      `A time-boxed promo is ${promoKeep}, ${vsPromo} behind the match. ` +
+      `The promo matches a permanent drop at about ${dayFloor}. ` +
+      `Holding matches if match take falls to about ${takeFloor}.`
+    );
+  }
+  if (winner === "promo") {
+    return (
+      `A time-boxed promo keeps ${promoGap} more than holding the list price ` +
+      `(${promoKeep} vs ${holdKeep}) on ${volume}. ` +
+      `A permanent match is ${matchKeep}. ` +
+      `The promo still beats a permanent drop down to about ${dayFloor}. ` +
+      `Holding matches if match take falls to about ${takeFloor}.`
+    );
+  }
+  if (winner === "hold") {
+    return (
+      `Holding the list price keeps ${matchGap} more than permanently matching ` +
+      `(${holdKeep} vs ${matchKeep}) on ${volume}. ` +
+      `A time-boxed promo is ${promoKeep}. ` +
+      `Matching wins if take rises to about ${takeFloor} ` +
+      `or the match price stays above about ${priceFloor}.`
+    );
+  }
+  return "Holding the list price, permanently matching, and a time-boxed promo leave the same leftover on these rates.";
+}
+
+// The main calculator's match view holds take fixed: same sessions,
+// lower ticket. Walmart's Buy Box does not. A lower offer usually
+// converts more of the people who already saw the listing; a
+// permanent match also lets competitors react, so take often rises
+// less than a short promo. Complementary to the unit-profit match
+// (same take), to 2-day (fulfillment vs take, price held), to
+// Connect ads (buying traffic, price held), to returns (a refund),
+// and to aged leftover (units already inbound). Defaults are
+// illustrative — overwrite the match price and take rates from
+// Seller Center.
+export const MATCH_TAKE_DEFAULTS = {
+  holdTakePct: 40,
+  matchPrice: 21.99,
+  matchTakePct: 70,
+  promoTakePct: 80,
+  promoDays: 10,
+  monthDays: 30,
+};
+
+/**
+ * Same listing, three ways to answer a lower competing offer:
+ *   - Hold the list price at the current (usually lower) take.
+ *   - Permanently match — lower ticket every day, mid take after
+ *     competitors react.
+ *   - Time-boxed promo — match-price leftover at a higher take for
+ *     N days, then revert to the hold mix.
+ * monthlyUnits is treated as completed sales at the hold take, so
+ * sessions = units / hold take. Expected leftover is
+ * take% × completed-sale profit on the selected fulfillment path.
+ */
+export function compareMatchTake(input = {}) {
+  const holdTakePct = takePercent(
+    input.holdTakePct,
+    "Hold take percent",
+    MATCH_TAKE_DEFAULTS.holdTakePct,
+  );
+  const matchPrice = number(
+    input.matchPrice,
+    "Match price",
+    MATCH_TAKE_DEFAULTS.matchPrice,
+  );
+  const matchTakePct = takePercent(
+    input.matchTakePct,
+    "Match take percent",
+    MATCH_TAKE_DEFAULTS.matchTakePct,
+  );
+  const promoTakePct = takePercent(
+    input.promoTakePct,
+    "Promo take percent",
+    MATCH_TAKE_DEFAULTS.promoTakePct,
+  );
+  const promoDays = number(
+    input.promoDays,
+    "Promo days",
+    MATCH_TAKE_DEFAULTS.promoDays,
+  );
+  const monthDays = number(
+    input.monthDays,
+    "Month days",
+    MATCH_TAKE_DEFAULTS.monthDays,
+  );
+  const monthlyUnits = number(input.monthlyUnits, "Monthly units", 60);
+
+  if (monthlyUnits === 0) throw new Error("Monthly units must be greater than zero");
+  if (holdTakePct === 0) throw new Error("Hold take percent must be greater than zero");
+  if (monthDays === 0) throw new Error("Month days must be greater than zero");
+  if (promoDays > monthDays) throw new Error("Promo days cannot exceed month days");
+
+  const listing = calculateListing({ ...input, matchPrice: undefined });
+  const matched = listingAtPrice(input, matchPrice);
+  const holdCompleted = listing.selected.profit;
+  const matchCompleted = matched.selected.profit;
+  const sessions = monthlyUnits / (holdTakePct / 100);
+  const holdExpected = (holdTakePct / 100) * holdCompleted;
+  const matchExpected = (matchTakePct / 100) * matchCompleted;
+  const promoPeriodExpected = (promoTakePct / 100) * matchCompleted;
+  const promoFrac = promoDays / monthDays;
+  const promoExpected = promoFrac * promoPeriodExpected + (1 - promoFrac) * holdExpected;
+  const holdMonthly = holdExpected * sessions;
+  const matchMonthly = matchExpected * sessions;
+  const promoMonthly = promoExpected * sessions;
+
+  const hold = matchTakePath({
+    id: "hold",
+    label: "Hold list price",
+    takePct: holdTakePct,
+    salePrice: listing.salePrice,
+    completedProfit: holdCompleted,
+    expectedProfit: holdExpected,
+    monthlyProfit: holdMonthly,
+  });
+  const match = matchTakePath({
+    id: "match",
+    label: "Permanent match",
+    takePct: matchTakePct,
+    salePrice: matchPrice,
+    completedProfit: matchCompleted,
+    expectedProfit: matchExpected,
+    monthlyProfit: matchMonthly,
+  });
+  const promo = matchTakePath({
+    id: "promo",
+    label: "Time-boxed promo",
+    takePct: promoTakePct,
+    salePrice: matchPrice,
+    completedProfit: matchCompleted,
+    expectedProfit: promoExpected,
+    monthlyProfit: promoMonthly,
+  });
+
+  const extraMatchVsHold = matchMonthly - holdMonthly;
+  const extraPromoVsHold = promoMonthly - holdMonthly;
+  const extraMatchVsPromo = matchMonthly - promoMonthly;
+  const rows = [hold, match, promo].map((row) => ({
+    ...row,
+    vsHold: row.monthlyProfit - holdMonthly,
+  }));
+
+  const bestMonthly = Math.max(holdMonthly, matchMonthly, promoMonthly);
+  const leaders = [
+    { id: "hold", value: holdMonthly },
+    { id: "match", value: matchMonthly },
+    { id: "promo", value: promoMonthly },
+  ].filter((row) => Math.abs(row.value - bestMonthly) <= 1e-9);
+  const winner = leaders.length === 1 ? leaders[0].id : "tie";
+
+  let breakEvenMatchTakePct = Infinity;
+  if (matchCompleted > 1e-12) {
+    breakEvenMatchTakePct = (holdExpected / matchCompleted) * 100;
+    if (breakEvenMatchTakePct < -1e-9 || breakEvenMatchTakePct > 100 + 1e-9) {
+      breakEvenMatchTakePct = Infinity;
+    } else {
+      breakEvenMatchTakePct = Math.max(0, Math.min(100, breakEvenMatchTakePct));
+    }
+  }
+
+  let breakEvenPromoDays = Infinity;
+  const promoLift = promoPeriodExpected - holdExpected;
+  if (Math.abs(promoLift) > 1e-12) {
+    const rawDays = ((matchExpected - holdExpected) / promoLift) * monthDays;
+    if (rawDays >= -1e-9 && rawDays <= monthDays + 1e-9) {
+      breakEvenPromoDays = Math.max(0, Math.min(monthDays, rawDays));
+    }
+  }
+
+  const matchedListing = matched;
+  const otherFees = matchedListing.selected.feeTotal - matchedListing.referral;
+  const neededCompleted = holdTakePct > 1e-12 && matchTakePct > 1e-12
+    ? holdExpected / (matchTakePct / 100)
+    : Infinity;
+  let breakEvenMatchPrice = Infinity;
+  if (Number.isFinite(neededCompleted)) {
+    const cashInvested = matchedListing.selected.cashInvested;
+    breakEvenMatchPrice = breakEvenSalePrice({
+      fixedCash: neededCompleted + otherFees + cashInvested,
+      referralRate: number(input.referralRate, "Referral rate", 15),
+      referralMinimum: number(
+        input.referralMinimum,
+        "Referral minimum",
+        DEFAULT_REFERRAL_MINIMUM,
+      ),
+    });
+  }
+
+  return {
+    rows,
+    hold: rows[0],
+    match: rows[1],
+    promo: rows[2],
+    winner,
+    sessions,
+    monthlyUnits,
+    holdTakePct,
+    matchPrice,
+    matchTakePct,
+    promoTakePct,
+    promoDays,
+    monthDays,
+    sizeTier: listing.sizeTier,
+    sizeTierLabel: listing.sizeTierLabel,
+    fulfillmentFee: listing.fulfillmentFee,
+    fulfillmentMethod: listing.fulfillmentMethod,
+    extraMatchVsHold,
+    extraPromoVsHold,
+    extraMatchVsPromo,
+    breakEvenMatchTakePct,
+    breakEvenPromoDays,
+    breakEvenMatchPrice,
+    summary: matchTakeSummary({
+      winner,
+      hold: rows[0],
+      match: rows[1],
+      promo: rows[2],
+      extraMatchVsHold,
+      extraPromoVsHold,
+      extraMatchVsPromo,
+      monthlyUnits,
+      breakEvenMatchTakePct,
+      breakEvenPromoDays,
+      breakEvenMatchPrice,
+    }),
+  };
+}
+
+export function matchTakeNote(comparison) {
+  if (!comparison?.hold || !comparison?.match || !comparison?.promo) {
+    throw new Error("Match-take comparison is missing rows");
+  }
+  return comparison.summary;
+}
+
 export function calculateListing(input) {
   const salePrice = number(input.salePrice, "Sale price");
   const listed = listingAtPrice(input, salePrice);

@@ -120,8 +120,11 @@ A bid link carries your own rates — wage, burden, overhead, and target margin.
 Send it to yourself or your crew. The customer should get the price, not the
 link.
 
-Nothing is uploaded either way. The link is built in the browser and copied by
-you; the save is `localStorage` on your own device.
+Nothing is uploaded either way. The rates ride in the link's `#` fragment,
+which browsers never send to a server or put in a `Referer` header, so opening
+or forwarding a bid link does not leak the numbers off the machines you send it
+to. The link is built in the browser and copied by you; the save is
+`localStorage` on your own device.
 
 `share.mjs` is the pure encode/decode/store module and is identical in every
 bid calculator here. Its field list is passed in from the page rather than kept

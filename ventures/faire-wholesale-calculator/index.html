@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Faire Seller Fee Calculator | First Order vs Reorder vs Faire Direct</title>
-  <meta name="description" content="Free Faire wholesale fee calculator for brands: net payout after 15% commission, the $10 new-customer fee, and payout-speed processing. Compare first orders, Faire Direct, and whether next-day payout still beats waiting after your carrying cost.">
+  <meta name="description" content="Free Faire wholesale fee calculator for brands: net payout after 15% commission, the $10 new-customer fee, payout-speed processing, Open House, and whether a keep-it credit still beats taking a return.">
   <meta name="robots" content="index, follow">
   <link rel="canonical" href=".">
   <meta property="og:title" content="Faire Seller Fee Calculator">
@@ -18,7 +18,7 @@
     "applicationCategory": "BusinessApplication",
     "operatingSystem": "Any (runs in a web browser)",
     "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
-    "featureList": "Faire marketplace first-order vs reorder vs Faire Direct comparison, retailer lifetime after expected reorders, Open House waived commission vs a deeper retailer discount, payout-speed processing, payout-speed after carrying cost, net profit, margin, ROI, wholesale price for a target margin"
+    "featureList": "Faire marketplace first-order vs reorder vs Faire Direct comparison, retailer lifetime after expected reorders, Open House waived commission vs a deeper retailer discount, payout-speed processing, payout-speed after carrying cost, keep-it credit vs deny vs taking a Faire return, net profit, margin, ROI, wholesale price for a target margin"
   }
   </script>
   <script type="application/ld+json">
@@ -64,6 +64,14 @@
         "acceptedAnswer": {
           "@type": "Answer",
           "text": "On the calculator defaults — a $200 North America first marketplace order and a 24% annual carrying-cost assumption — next-day payout leaves $72.59 after modeled float. Waiting 60 days leaves $69.28. The $3.20 processing spread does not cover 24% money sitting 60 days. At 6%, waiting still finishes ahead. Enter your own rate. This is not a recommendation to take next-day payout."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Should I take this Faire return?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "On a completed $20 × 10 first order that booked $75.90, a 20% keep-it credit leaves $41.90. Denying at 50% they'll-drop-it leaves $37.95. Taking all 10 units back with an $18 label and 80% restockable leaves −$49.00. Returning 2 of 10 with an $8 label flips taking the return to $46.52. This is not a recommendation to take, credit, or fight the return."
         }
       },
       {
@@ -129,6 +137,7 @@
       <a href="faire-direct-vs-marketplace.html">Faire Direct vs marketplace fees</a>
       <a href="should-i-pay-for-faire-next-day-payout.html">Should I pay for next-day payout?</a>
       <a href="should-i-list-during-faire-open-house.html">Open House vs everyday first order</a>
+      <a href="should-i-take-this-faire-return.html">Should I take this Faire return?</a>
     </nav>
   </header>
   <main class="layout">
@@ -166,6 +175,11 @@
         <label>Open House discount (%) <input id="openHouseDiscountRate" type="number" min="0" step="0.1" value="20"></label>
         <label>Open House commission (%) <input id="openHouseCommissionRate" type="number" min="0" step="0.1" value="0"></label>
         <label class="span2">Extra new retailers during Open House <input id="openHouseExtraRetailers" type="number" min="0" step="1" value="2"></label>
+        <label>Units they want back <input id="returnUnits" type="number" min="1" step="1" value="10"></label>
+        <label>Return label you pay <input id="returnLabel" type="number" min="0" step="0.01" value="18"></label>
+        <label>Restockable (%) <input id="restockablePct" type="number" min="0" max="100" step="1" value="80"></label>
+        <label>Keep-it credit (%) <input id="keepDiscountPct" type="number" min="0" step="0.1" value="20"></label>
+        <label>They'll-drop-it if you deny (%) <input id="denyKeepPct" type="number" min="0" max="100" step="1" value="50"></label>
       </div>
     </section>
     <section class="result">
@@ -229,6 +243,20 @@
       </table>
       <p><a href="should-i-list-during-faire-open-house.html" style="color:#c5edb5">Should I list during Faire Open House?</a></p>
       <hr>
+      <h2>Return request vs keep-it credit</h2>
+      <p id="faireReturnNote" class="note"></p>
+      <table>
+        <thead>
+          <tr>
+            <th scope="col">Choice</th>
+            <th scope="col">Leftover</th>
+            <th scope="col">vs keep-it</th>
+          </tr>
+        </thead>
+        <tbody id="faireReturn"></tbody>
+      </table>
+      <p><a href="should-i-take-this-faire-return.html" style="color:#c5edb5">Should I take this Faire return?</a></p>
+      <hr>
       <h2>Reprice for a goal</h2>
       <label>Target margin on the Faire subtotal (%) <input id="targetMargin" type="number" min="0" max="99.9" step="1" value="40"></label>
       <p id="targetPrice"></p>
@@ -268,6 +296,8 @@
       to an existing account, whether
       <a href="should-i-list-during-faire-open-house.html">Open House</a>
       still leaves more after the deeper discount retailers expect,
+      whether <a href="should-i-take-this-faire-return.html">a keep-it credit still beats taking the return</a>
+      after a completed first order,
       and whether <a href="should-i-pay-for-faire-next-day-payout.html">next-day payout</a>
       still beats waiting after the carrying cost you type.
       A <a href="retailer.html">boutique buying the same order</a> has a different question: landed cost versus shelf price.
@@ -285,7 +315,7 @@
     <p>Free and open source. If it saved you from an underpriced opening order, the <a href="https://github.com/Duncan-Haywood/monorepo-projects">project is on GitHub</a> — <a href="https://github.com/sponsors/Duncan-Haywood">GitHub Sponsors</a> is optional and never changes what the tool does. MIT licensed.</p>
   </footer>
   <script type="module">
-    import { REGION_PRESETS, PAYOUT_PRESETS, compareBrandScenarios, compareOpenHouse, comparePayoutSpeedsAfterFloat, compareRetailerLifetime, openHouseNote, summarizePayoutFloat, wholesaleForMargin } from "./calc.mjs";
+    import { REGION_PRESETS, PAYOUT_PRESETS, compareBrandScenarios, compareFaireReturn, compareOpenHouse, comparePayoutSpeedsAfterFloat, compareRetailerLifetime, faireReturnNote, openHouseNote, summarizePayoutFloat, wholesaleForMargin } from "./calc.mjs";
     import { recordUsage } from "./usage.mjs";
     import { encodeInputs, decodeInputs, FIELD_IDS } from "./share.mjs";
 
@@ -371,6 +401,15 @@
           row.innerHTML = `<td>${result.label}</td><td>${result.discountRate.toFixed(0)}%</td><td>${money(result.profit)}</td><td>${vsEveryday}</td><td>${money(result.pileProfit)}</td>`;
           return row;
         }));
+        const faireReturn = compareFaireReturn(input);
+        field("faireReturnNote").textContent = faireReturnNote(faireReturn);
+        field("faireReturn").replaceChildren(...faireReturn.rows.map((result) => {
+          const row = document.createElement("tr");
+          row.className = result.isBest ? "best" : "";
+          const vsKeep = result.id === "keep" ? "—" : money(result.leftover - faireReturn.keepAfter);
+          row.innerHTML = `<td>${result.label}</td><td>${money(result.leftover)}</td><td>${vsKeep}</td>`;
+          return row;
+        }));
         const target = Number(input.targetMargin);
         const needed = wholesaleForMargin(input, target, "marketplace_first");
         field("targetPrice").textContent = `Charge ${money(needed)} wholesale to target a ${target}% margin on a first marketplace order.`;
@@ -395,6 +434,8 @@
         field("amortized").textContent = "";
         field("openHouse").replaceChildren();
         field("openHouseNote").textContent = "";
+        field("faireReturn").replaceChildren();
+        field("faireReturnNote").textContent = "";
         field("speeds").replaceChildren();
         field("floatNote").textContent = "";
         field("floatBreakEven").textContent = "";
@@ -417,7 +458,7 @@
 
     FIELD_IDS.forEach((id) => {
       field(id).addEventListener("input", () => { update(); persist(); });
-      field(id).addEventListener("change", () => recordUsage(safe(() => localStorage), field("usageOptOut").checked, id === "annualCarryRate" ? "payout_float_compared" : id === "targetMargin" ? "scenario_compared" : id.startsWith("openHouse") ? "open_house_compared" : "brand_order_calculated"));
+      field(id).addEventListener("change", () => recordUsage(safe(() => localStorage), field("usageOptOut").checked, id === "annualCarryRate" ? "payout_float_compared" : id === "targetMargin" ? "scenario_compared" : id.startsWith("openHouse") ? "open_house_compared" : ["returnUnits", "returnLabel", "restockablePct", "keepDiscountPct", "denyKeepPct"].includes(id) ? "faire_return_compared" : "brand_order_calculated"));
     });
     field("region").addEventListener("change", () => {
       applyRegionRates();
@@ -451,6 +492,7 @@
         paymentRate: 1.9, paymentFixed: 0.3, targetMargin: 40, expectedReorders: 2,
         annualCarryRate: 24,
         openHouseDiscountRate: 20, openHouseCommissionRate: 0, openHouseExtraRetailers: 2,
+        returnUnits: 10, returnLabel: 18, restockablePct: 80, keepDiscountPct: 20, denyKeepPct: 50,
         region: "north_america", payout: "day_60",
       });
       update();
