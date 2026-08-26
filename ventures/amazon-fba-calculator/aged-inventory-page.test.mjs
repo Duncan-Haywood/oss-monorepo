@@ -6,7 +6,7 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
-import { compareAgedInventory } from "./calc.mjs";
+import { compareAgedInventory, compareHoldVsRemove } from "./calc.mjs";
 
 const html = readFileSync(new URL("./should-i-remove-aged-amazon-inventory.html", import.meta.url), "utf8");
 const sitemap = readFileSync(new URL("./sitemap.xml", import.meta.url), "utf8");
@@ -42,11 +42,15 @@ test("every raw-text element is closed", () => {
 test("the page imports the comparison it claims to run", () => {
   assert.match(scriptSource, /compareAgedInventory/);
   assert.match(scriptSource, /aged_inventory_compared/);
+  assert.match(scriptSource, /compareHoldVsRemove/);
+  assert.match(scriptSource, /hold_vs_remove_compared/);
 });
 
 test("every results column has a cell, and every cell has a column", () => {
   assert.ok(rowTemplate, "could not find the per-path <tr> template");
-  const headers = [...markup.matchAll(/<th scope="col"[^>]*>([\s\S]*?)<\/th>/g)].map((m) =>
+  const firstTable = markup.match(/<table>[\s\S]*?<\/table>/);
+  assert.ok(firstTable, "could not find the keep-vs-dispose table");
+  const headers = [...firstTable[0].matchAll(/<th scope="col"[^>]*>([\s\S]*?)<\/th>/g)].map((m) =>
     m[1].replace(/\s+/g, " ").trim());
   const cells = (rowTemplate[0].match(/<t[hd][\s>]/g) || []).length;
   assert.equal(
@@ -118,4 +122,27 @@ test("hosted surface carries the no-SLA sentence the playbook requires", () => {
 test("index and sitemap point at the aged-inventory comparison", () => {
   assert.match(index, /should-i-remove-aged-amazon-inventory\.html/);
   assert.match(sitemap, /should-i-remove-aged-amazon-inventory\.html/);
+});
+
+test("hold-vs-remove defaults on the page still prefer holding a $29.99 leftover", () => {
+  assert.match(html, /id="remainingUnits"[^>]*value="20"/);
+  assert.match(html, /id="expectedMonthsToSell"[^>]*value="3"/);
+  assert.match(html, /id="monthsAlreadyStored"[^>]*value="5"/);
+  const decision = compareHoldVsRemove({
+    remainingUnits: 20,
+    expectedMonthsToSell: 3,
+    monthsAlreadyStored: 5,
+    agedStartsAfterMonths: 6,
+    storageRate: 0.87,
+    agedSurchargePerCuFt: 1.5,
+    removalFeePerUnit: 1.04,
+    salvagePerUnit: 0,
+    cubicFeet: (8 * 6 * 2) / 1728,
+    salePrice: 29.99,
+    referralRate: 15,
+    fulfillmentFee: 4.15,
+    adsPerUnit: 0,
+  });
+  assert.equal(decision.betterPath, "hold");
+  assert.match(markup, /id="hold-vs-remove"/);
 });
