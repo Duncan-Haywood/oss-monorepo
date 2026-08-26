@@ -47,6 +47,10 @@ many extra orders cover the gap.
 [Should I offer store credit instead of a refund?](should-i-offer-store-credit-instead-of-a-refund.html)
 answers the return question: whether issuing credit or exchanging still beats
 sending cash after the return label, restock, and expected redemption.
+[Should I take Shopify Capital?](should-i-take-shopify-capital.html)
+answers the merchant-funding question: whether the Capital fee still beats
+waiting to self-fund leftover profit or a bank line at a typed APR, and
+how much extra monthly profit covers the fee.
 
 **After using the POS page, you can now see whether a market table or
 retail tap keeps more than checkout on that SKU** — which used to mean
@@ -66,6 +70,11 @@ sticker and turning the offer off.
 exchange still beats a cash refund on that order** — which used to mean
 refunding the Shopify button default and forgetting redemption and the
 second label.
+
+**After using the Capital page, you can now see whether a 14% cash-advance
+fee is a 45% simple annualized cost, and whether waiting still keeps more
+when you are not buying inventory you would otherwise skip** — which used
+to mean accepting the offer email because $1,400 looked cheap on $10,000.
 
 **No warranty.** This tool is provided free and as-is, without warranty of any
 kind, express or implied. It is not tax, financial, or business advice, and it
@@ -100,7 +109,7 @@ optional and never changes what the tool does.
 Pure ES modules, no build step, no dependencies.
 
 ```
-node --test        # calc, usage, POS / label / installment / return page tests
+node --test        # calc, usage, POS / label / installment / return / Capital page tests
 ```
 
 `calc.mjs` holds the fee/profit/ROI arithmetic and plan presets; `usage.mjs`

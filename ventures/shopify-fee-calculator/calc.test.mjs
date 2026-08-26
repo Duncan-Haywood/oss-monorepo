@@ -7,6 +7,12 @@ import {
   compareShippingLabels,
   compareReturnResolution,
   compareShopPayInstallments,
+  compareShopifyCapital,
+  DEFAULT_BANK_APR_PCT,
+  DEFAULT_CAPITAL_ADVANCE,
+  DEFAULT_CAPITAL_HOLDBACK_PCT,
+  DEFAULT_CAPITAL_MONTHLY_SALES,
+  DEFAULT_CAPITAL_REPAY,
   DEFAULT_CREDIT_REDEMPTION_PCT,
   DEFAULT_OWN_LABEL_COST,
   DEFAULT_INSTALLMENT_RATE,
@@ -603,4 +609,95 @@ test("summary names store credit and the gap versus a cash refund", () => {
   assert.match(text, /\$22\.64/);
   assert.match(text, /\$34\.00 more/);
   assert.match(text, /-\$11\.36/);
+});
+
+const CAPITAL_BASE = {
+  price: 48,
+  shippingCharged: 6,
+  paymentsRate: 2.9,
+  paymentsFixed: 0.3,
+  costOfGoods: 14,
+  shippingCost: 5,
+  packagingCost: 1,
+  monthlyPlan: 39,
+  monthlyOrders: 100,
+  paymentMethod: "shopify_payments",
+};
+
+test("defaults match the published Capital offer example", () => {
+  assert.equal(DEFAULT_CAPITAL_ADVANCE, 10000);
+  assert.equal(DEFAULT_CAPITAL_REPAY, 11400);
+  assert.equal(DEFAULT_CAPITAL_HOLDBACK_PCT, 10);
+  assert.equal(DEFAULT_CAPITAL_MONTHLY_SALES, 30000);
+  assert.equal(DEFAULT_BANK_APR_PCT, 12);
+});
+
+test("waiting beats Capital when no extra inventory profit is typed", () => {
+  // $10,000 now, repay $11,400, 10% of $30,000 / 30 = $100 / day, 114 days.
+  // Simple annualized: 14% × 365/114. Leftover from the $48 SKU × 100 orders.
+  const r = compareShopifyCapital(CAPITAL_BASE);
+  near(r.advance, 10000, "advance");
+  near(r.fee, 1400, "fee");
+  near(r.dailyHoldback, 100, "daily holdback");
+  near(r.daysToRepay, 114, "days to repay");
+  near(r.simpleAnnualizedPct, (1400 / 10000) * (365 / 114) * 100, "simple annualized");
+  near(r.leftoverMonthlyProfit, 31.744 * 100, "SKU leftover");
+  near(r.daysToSelfFund, 10000 / (3174.4 / 30), "days to save");
+  near(r.bankInterest, 10000 * 0.12 * (114 / 365), "bank interest");
+  near(r.capital.kept, -1400, "capital leftover");
+  near(r.wait.kept, 0, "wait leftover");
+  near(r.breakEvenExtraMonthly, 1400 / (114 / 30), "break-even extra / month");
+  assert.equal(r.winner, "wait");
+  assert.equal(r.extraCoversFee, false);
+});
+
+test("typed extra monthly profit can make Capital beat waiting", () => {
+  const r = compareShopifyCapital({ ...CAPITAL_BASE, extraMonthlyProfit: 500 });
+  near(r.extraProfitDuringRepay, 500 * (114 / 30), "extra during holdback");
+  near(r.capital.kept, 1900 - 1400, "capital after lift");
+  assert.ok(r.wait.kept < 0, "waiting misses that lift");
+  assert.equal(r.extraCoversFee, true);
+  assert.equal(r.winner, "bank");
+  assert.ok(r.bank.kept > r.capital.kept, "same cash now, smaller bank cost");
+});
+
+test("a 12% bank line costs less than the 14% Capital fee over the same days", () => {
+  const r = compareShopifyCapital(CAPITAL_BASE);
+  assert.ok(r.bankInterest < r.fee, "bank interest below Capital fee");
+  near(r.extraKeptOnBank, r.bank.kept - r.wait.kept, "bank vs wait");
+});
+
+test("empty Capital fields use the published defaults", () => {
+  const r = compareShopifyCapital({
+    price: 48,
+    shippingCharged: 6,
+    paymentsRate: 2.9,
+    paymentsFixed: 0.3,
+    costOfGoods: 14,
+    shippingCost: 5,
+    packagingCost: 1,
+    monthlyPlan: 0,
+    monthlyOrders: 1,
+  });
+  near(r.advance, DEFAULT_CAPITAL_ADVANCE, "default advance");
+  near(r.repayment, DEFAULT_CAPITAL_REPAY, "default repay");
+  near(r.holdbackPct, DEFAULT_CAPITAL_HOLDBACK_PCT, "default holdback");
+  near(r.monthlySales, DEFAULT_CAPITAL_MONTHLY_SALES, "default sales");
+  near(r.bankAprPct, DEFAULT_BANK_APR_PCT, "default bank APR");
+});
+
+test("compareShopifyCapital rejects impossible offers", () => {
+  assert.throws(() => compareShopifyCapital({ ...CAPITAL_BASE, advanceAmount: 0 }), /Capital advance/);
+  assert.throws(() => compareShopifyCapital({ ...CAPITAL_BASE, repaymentAmount: 9000 }), /Capital repayment/);
+  assert.throws(() => compareShopifyCapital({ ...CAPITAL_BASE, holdbackPct: 0 }), /Holdback percent/);
+  assert.throws(() => compareShopifyCapital({ ...CAPITAL_BASE, monthlySales: 0 }), /Monthly sales/);
+  assert.throws(() => compareShopifyCapital({ ...CAPITAL_BASE, holdbackPct: 101 }), /Holdback percent/);
+});
+
+test("summary names the Capital fee and the wait as the default winner", () => {
+  const text = compareShopifyCapital(CAPITAL_BASE).summary;
+  assert.match(text, /Waiting and self-funding/);
+  assert.match(text, /\$1400\.00/);
+  assert.match(text, /44\.8%/);
+  assert.match(text, /\$368\.42 extra profit/);
 });
