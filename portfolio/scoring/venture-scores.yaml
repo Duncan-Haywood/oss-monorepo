@@ -5319,3 +5319,40 @@ ventures:
       recommended price, a tariff, or an employment-law opinion. The shipped
       hours and access minutes are labelled ballpark starting points rather
       than a standard, and nothing the user enters leaves the browser.
+
+  - slug: portable-restroom-event-quote
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 7
+      gross_margin: 10
+      defensibility: 5
+      distribution: 8
+    composite: 6.833
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      There is no AI anywhere in the product. The value is a domain model —
+      days on site, two-round-trip mileage, and pump-out visits — that is
+      arithmetic, and adding inference to it would only make the result less
+      checkable.
+    basis: >-
+      Graduated on 2026-08-25 as a browser-local portable sanitation event
+      quote calculator. Scored with the same defensibility (5) as the
+      janitorial production-rate model: the incumbents are Saturday-special
+      unit-price guesses and paid dispatch suites, not a free page that
+      prices Friday drop, Sunday pickup, and four-times-one-way miles.
+      Distribution 8: "how many porta potties for 200 people" and "porta
+      potty rental cost calculator" are high-intent queries bought by an
+      operator with a real event on the line, and less saturated than
+      marketplace-fee keywords.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Pass: the output is arithmetic on the yard's own inputs, never a
+      recommended price, a required unit count, or an ADA / health-department
+      determination. The starting fleet estimate and daily rents are labelled
+      planning figures rather than a code table, and nothing the user enters
+      leaves the browser.
