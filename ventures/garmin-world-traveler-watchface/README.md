@@ -220,6 +220,10 @@ newer watches (or drop ones you don't want to support).
 
 ## Roadmap / possible follow-ups
 
+**Current priority:** get the already-built watch face in front of users
+(Connect IQ listing is owner-gated store publish). New AOD / visual polish
+does not outrank that deploy.
+
 - Always-on (AOD) support via `onPartialUpdate` for AMOLED devices, with a
   clipped low-power redraw region.
 - A filled day/night shading arc behind the city ring, instead of just
