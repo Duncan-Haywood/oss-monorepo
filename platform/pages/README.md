@@ -99,6 +99,21 @@ merely contains the word (`latest.mjs`, `testimonials.html`) still ships.
   a nav bar written into ~180 product files would conflict with nearly every
   open branch. Markup is scoped under `.pf-chrome` so it cannot restyle a
   venture's page, and the pass is idempotent.
+- **The mobile keypad.** Every calculator asks for thirty to forty numbers, and
+  the person entering them is often on a phone at the job site. `type="number"`
+  alone does not settle which keyboard opens — on iOS it gives the
+  numbers-and-punctuation layout, small top-row keys with no dedicated decimal
+  point, rather than the large phone-dial keypad. Not one of the 35 bid
+  calculators set `inputmode`, so the build adds it to all 2,664 number inputs
+  across 130 pages, choosing `numeric` or `decimal` from each input's own
+  `step`: a field that accepts only whole numbers does not get a decimal key
+  that would produce a value it then rejects. An input carrying its own
+  `inputmode` keeps it, and the pass is idempotent.
+
+  Injected for the same two reasons as the chrome: a calculator lands on `main`
+  most days and this covers each new one for free, and an attribute added to
+  ~180 concurrently-edited product files would conflict with nearly every open
+  branch.
 
 ## Offline and installable
 
