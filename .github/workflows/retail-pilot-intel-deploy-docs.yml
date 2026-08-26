@@ -15,8 +15,10 @@ on:
       - ".github/workflows/retail-pilot-intel-deploy-docs.yml"
   workflow_dispatch:
 
+# Shares `github-pages-site` with the other workflows that can publish to this
+# repository's single Pages site, so two publishes serialise instead of racing.
 concurrency:
-  group: retail-pilot-intel-deploy-docs
+  group: github-pages-site
   cancel-in-progress: false
 
 permissions:
@@ -82,7 +84,12 @@ jobs:
     # public origin should serve. Setting `RETAIL_PILOT_INTEL_PAGES=true` hands
     # the origin to them instead; the Vercel job below is the better route if
     # both are wanted at once.
-    if: ${{ vars.RETAIL_PILOT_INTEL_PAGES == 'true' }}
+    # Mutually exclusive with the portfolio site by construction, not just by
+    # having a differently named variable: if both flags were ever set, the two
+    # workflows would overwrite each other on one Pages site and the public URL
+    # would be whichever ran last. Publishing these passcode-gated docs to the
+    # public origin means turning the portfolio site off, deliberately.
+    if: ${{ vars.RETAIL_PILOT_INTEL_PAGES == 'true' && vars.GITHUB_PAGES_ENABLED != 'true' }}
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}

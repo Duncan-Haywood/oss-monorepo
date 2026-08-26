@@ -25,11 +25,13 @@ on:
       - ".github/workflows/portfolio-pages.yml"
   workflow_dispatch:
 
-# GitHub serves one Pages site per repository, so two deployments must never
-# race. `cancel-in-progress: false` lets an in-flight publish finish rather
-# than leaving the live site half-swapped.
+# GitHub serves one Pages site per repository, so every workflow that can deploy
+# to it shares this one concurrency group — `github-pages-site`. Different groups
+# would let two publishes run at the same moment and interleave on one site.
+# `cancel-in-progress: false` lets an in-flight publish finish rather than
+# leaving the live site on a half-uploaded artifact.
 concurrency:
-  group: portfolio-pages
+  group: github-pages-site
   cancel-in-progress: false
 
 permissions:
@@ -48,7 +50,7 @@ jobs:
           node-version: "22"
 
       - name: Test the site builder
-        run: node --test build.test.mjs check.test.mjs
+        run: node --test build.test.mjs check.test.mjs publishers.test.mjs
         working-directory: platform/pages
 
       - name: Build the site

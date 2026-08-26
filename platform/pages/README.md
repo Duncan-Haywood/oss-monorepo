@@ -142,9 +142,41 @@ Until it is set, the `deploy` job is skipped and the `build` job still runs, so
 the artifact is always proven buildable. `actions/deploy-pages` 404s while Pages
 is off, which is why the gate exists rather than letting every merge go red.
 
-Only one workflow may publish to Pages. `retail-pilot-intel-deploy-docs.yml`
-reads `RETAIL_PILOT_INTEL_PAGES` instead, so an owner who wants those docs on
-the origin makes that choice explicitly rather than having two deployments race.
+### One Pages site, one publisher
+
+A repository serves exactly one Pages site, so exactly one workflow may deploy
+to it. On 2026-08-26 three sessions each added a `deploy-pages` workflow within
+hours, and two of them — this one and `pages.yml` (#1724) — ended up reading the
+**same** `GITHUB_PAGES_ENABLED` variable from **different** concurrency groups.
+The owner flip would have started both at once, racing for one site, with the
+public URL showing whichever finished last, re-rolled on every push to
+`ventures/**`. Each PR looked correct on its own; `publish_surface.py` listed
+both publishers, but listing is not objecting.
+
+So the invariant is now asserted, in `publishers.test.mjs`:
+
+- every workflow that can deploy Pages shares the `github-pages-site`
+  concurrency group, so a mis-set variable serialises instead of racing;
+- exactly one gate is reachable on `GITHUB_PAGES_ENABLED` alone;
+- that gate also requires `refs/heads/main`, so `workflow_dispatch` on a feature
+  branch cannot publish the live site.
+
+It runs in both `portfolio-pages.yml` and `pages.yml`, since either could break
+it. It catches the accident, not a determined mistake — a new gate still wants
+reading.
+
+Current state:
+
+| Workflow | Publishes when |
+|---|---|
+| `portfolio-pages.yml` | `GITHUB_PAGES_ENABLED=true` — **the owner flip** |
+| `pages.yml` | also needs `PAGES_PUBLISHER=platform-ci`; held off, build still runs |
+| `retail-pilot-intel-deploy-docs.yml` | `RETAIL_PILOT_INTEL_PAGES=true` **and** `GITHUB_PAGES_ENABLED` unset |
+
+`pages.yml` builds the same site from `platform/ci/build_pages_site.py`. Nothing
+there is deleted and its tests, build, and link check still run on every push;
+it is one variable from being the publisher again. If it should become one, hold
+off this workflow's deploy the same way — do not put two on one variable.
 
 ## Rollback
 
