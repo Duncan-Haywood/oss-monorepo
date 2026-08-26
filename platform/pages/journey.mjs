@@ -201,7 +201,7 @@ check('the receiving tool still prices the job',
 // The rule `share.mjs` exists to protect: a recipient must see the price the
 // sender saw. Their own saved rates must not quietly reprice someone's bid.
 await page.goto(
-  `${BASE}/interior-door-bid-calculator/?hourlyWage=39&burdenRate=25&overheadRate=10&targetMargin=18`,
+  `${BASE}/interior-door-bid-calculator/#hourlyWage=39&burdenRate=25&overheadRate=10&targetMargin=18`,
   { waitUntil: 'networkidle' });
 await ratesReady();
 check('a bid link keeps the sender’s rates',

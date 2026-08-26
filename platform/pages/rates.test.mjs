@@ -197,4 +197,15 @@ test('a bid link keeps the sender numbers unless the visitor asks otherwise', ()
   // price for the recipient than the sender saw is worse than no link.
   const out = injectShopRates(page(form));
   assert.match(out, /if \(!force && params\.has\(f\.id\)\)/);
+  // #1796 moved bid links into the fragment. Reading only location.search
+  // would make every shared bid look like an ordinary page and overwrite it.
+  assert.match(out, /location\.hash \|\| location\.search/);
+});
+
+test('the injected script rejects a blank field before Number()', () => {
+  // Number('') is 0. Without this guard, clearing a field and clicking Save
+  // persists a $0 wage onto the next trade.
+  const out = injectShopRates(page(form));
+  assert.match(out, /raw === '' \|\| raw === null \|\| raw === undefined/);
+  assert.match(out, /kept === FIELDS\.length \? out : null/);
 });

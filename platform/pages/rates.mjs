@@ -199,10 +199,12 @@ const RATES_MARKUP = `<section class="pf-rates" hidden data-pf-rates-root>
  *
  * The rule about what may be overwritten is the whole design:
  *
- *   - A field named in the page's query string came off a *bid link* someone
- *     sent. Those are the sender's numbers on the sender's job, and replacing
- *     them would silently price a different bid than the sender saw — the exact
- *     bug `share.mjs` was written to avoid. Never overwritten.
+ *   - A field named in the page's URL fragment (or a leftover query string)
+ *     came off a *bid link* someone sent. Those are the sender's numbers on
+ *     the sender's job, and replacing them would silently price a different
+ *     bid than the sender saw — the exact bug `share.mjs` was written to
+ *     avoid. Never overwritten. Bid links live in the fragment so wage and
+ *     margin never hit the server log or a Referer.
  *   - Anything else is overwritten by the saved rates, including the copy sitting
  *     in this browser's own saved bid. That copy is a snapshot of what the rates
  *     were when the bid was last touched; the saved rates are what they are now.
@@ -237,6 +239,14 @@ const RATES_SCRIPT = `<script type="module">
   }
 
   var store = (function(){ try { return window.localStorage; } catch (e) { return null; } })();
+  // Number('') and Number(null) are 0. A blank field must not become a $0
+  // wage that then prices the next trade at nothing and looks deliberate.
+  var usable = function(raw, max){
+    if (raw === '' || raw === null || raw === undefined) return null;
+    var value = typeof raw === 'number' ? raw : Number(String(raw).trim());
+    if (!isFinite(value) || value < 0 || value > max) return null;
+    return value;
+  };
   var read = function(){
     if (!store) return null;
     var raw;
@@ -248,11 +258,11 @@ const RATES_SCRIPT = `<script type="module">
     var source = parsed.rates && typeof parsed.rates === 'object' ? parsed.rates : parsed;
     var out = {}, kept = 0;
     FIELDS.forEach(function(f){
-      var value = Number(source[f.id]);
-      if (!isFinite(value) || value < 0 || value > f.max) return;
+      var value = usable(source[f.id], f.max);
+      if (value === null) return;
       out[f.id] = value; kept++;
     });
-    return kept ? out : null;
+    return kept === FIELDS.length ? out : null;
   };
   var write = function(rates){
     if (!store) return false;
@@ -275,7 +285,8 @@ const RATES_SCRIPT = `<script type="module">
     } catch (e) {}
   };
 
-  var params = new URLSearchParams(location.search);
+  var encoded = (location.hash || location.search).replace(/^[#?]/, '');
+  var params = new URLSearchParams(encoded);
   var format = function(f, value){
     var shown = Math.round(value * 100) / 100;
     return f.prefix + shown.toLocaleString('en-US') + f.suffix;
@@ -284,8 +295,8 @@ const RATES_SCRIPT = `<script type="module">
   var currentFromForm = function(){
     var out = {}, kept = 0;
     FIELDS.forEach(function(f){
-      var value = Number(fieldFor(f.id).value);
-      if (!isFinite(value) || value < 0 || value > f.max) return;
+      var value = usable(fieldFor(f.id).value, f.max);
+      if (value === null) return;
       out[f.id] = value; kept++;
     });
     return kept === FIELDS.length ? out : null;

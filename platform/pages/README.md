@@ -146,13 +146,15 @@ Save them once, and every trade bid calculator here opens with them. One
 reason the feature can exist at all — before the single-site build there was no
 shared origin to keep it on.
 
-**What is never overwritten.** A field named in the page's query string came off
-a *bid link* someone sent. Those are the sender's numbers on the sender's job,
-and replacing them would price a different bid than the sender saw — the exact
-failure `share.mjs` was written to avoid. The bar says so and offers a button
-instead. Everything else is overwritten, including the copy in this browser's
-own saved bid: that copy is a snapshot of what the rates were, and the saved
-rates are what they are now.
+**What is never overwritten.** A field named in the page's URL fragment (or a
+leftover query string) came off a *bid link* someone sent. Those are the
+sender's numbers on the sender's job, and replacing them would price a
+different bid than the sender saw — the exact failure `share.mjs` was written
+to avoid. Bid links live in the fragment so wage and margin never hit the
+server log or a Referer. The bar says so and offers a button instead.
+Everything else is overwritten, including the copy in this browser's own saved
+bid: that copy is a snapshot of what the rates were, and the saved rates are
+what they are now.
 
 Injection is build-time for the same reasons the nav is (above): a bid
 calculator lands on `main` most days, and the same four-line edit committed into
