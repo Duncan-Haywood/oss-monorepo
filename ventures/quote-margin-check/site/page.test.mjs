@@ -291,3 +291,12 @@ test("fixed-vs-hourly SEO page numbers match the calculator defaults", async () 
   assert.match(page, /no SLA/);
   assert.match(page, /GitHub Sponsors/);
 });
+
+test("calculator page offers editable quote starting points, not recommendations", async () => {
+  const page = await readFile(new URL("./index.html", import.meta.url), "utf8");
+  assert.match(page, /id="preset"/);
+  assert.match(page, /QUOTE_PRESETS/);
+  assert.match(page, /quote_preset_selected/);
+  assert.match(page, /editable examples, not pricing recommendations/);
+  assert.doesNotMatch(page, /should use this preset|must start from/i);
+});

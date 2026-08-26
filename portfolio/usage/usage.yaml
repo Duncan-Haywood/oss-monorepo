@@ -292,22 +292,13 @@ products:
           owner-gated, so there is no traffic signal to read yet; the
           page's counter reports only to the visitor's own browser.
           Baseline row for the browser surface.
-   - slug: quote-margin-check
-     surface: static-page-in-repo
-     readings:
+  - slug: quote-margin-check
+    surface: static-page-in-repo
+    readings:
       - as_of: 2026-08-24
         signals:
           live_url_visitors: null
           quote_review_checked: 0
-         note: >-
-           Added a browser-local pre-send review that surfaces direct-cost,
-           target-gap, hidden-time, and revision-assumption observations. No
-           public URL yet; the feature counter stores only aggregate local
-           events and remains opt-out.
-      - as_of: 2026-08-25
-        signals:
-          live_url_visitors: null
-          quote_preset_selected: 0
         note: >-
           Added a browser-local pre-send review that surfaces direct-cost,
           target-gap, hidden-time, and revision-assumption observations. No
@@ -382,6 +373,15 @@ products:
           Added a 50/75/100/125 hourly-target price ladder on the browser
           calculator. Hours and direct costs stay fixed; the table is
           arithmetic, not a recommended quote. Public URL remains owner-gated.
+      - as_of: 2026-08-26
+        signals:
+          live_url_visitors: null
+          quote_preset_selected: 0
+        note: >-
+          Added editable website, brand, and consulting quote starting points.
+          Presets are examples only. Public URL remains owner-gated, so this
+          is a zero baseline.
+
   - slug: mls-photo-spec-preflight
     surface: static-page-in-repo
     readings:
