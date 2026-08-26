@@ -3,4 +3,5 @@
   <url><loc>./</loc></url>
   <url><loc>./does-a-cdn-cut-s3-egress.html</loc></url>
   <url><loc>./does-a-replica-beat-cross-region-pull.html</loc></url>
+  <url><loc>./does-infrequent-access-still-beat-standard.html</loc></url>
 </urlset>
