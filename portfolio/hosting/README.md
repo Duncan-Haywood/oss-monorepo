@@ -48,10 +48,23 @@ without it, and say so in the privacy line.
 
 ## The Pages artifact builds itself
 
-`.github/workflows/pages.yml` runs `platform/ci/build_pages_site.py` on every
-push to `main`. The builder finds every venture with an `index.html` (at the
-venture root, or under `site/`), copies its web assets to `_site/<slug>/`, and
-generates the hub at `_site/index.html` that links all of them.
+`.github/workflows/portfolio-pages.yml` runs `platform/pages/build.mjs` on every
+push to `main`. The builder finds every venture with a browser entry point (an
+`index.html` at the venture root or under `site/`), copies its web assets to
+`<slug>/`, and generates the hub that links all of them, plus `sitemap.xml`,
+`catalog.json`, `robots.txt`, and `404.html`.
+
+**This is the workflow the owner flip publishes**, and it is the only one that
+publishes. On 2026-08-26 two sessions landed a portfolio Pages pipeline within
+hours of each other — #1718 (`platform/pages/`) and #1724 (`platform/ci/
+build_pages_site.py`) — neither able to see the other in flight. GitHub serves
+one Pages site per repository, and both gated on the same `GITHUB_PAGES_ENABLED`
+variable without a shared concurrency group, so the flip would have raced two
+deployments for one origin. `portfolio/DIRECTION.md` names `platform/pages/` as
+the site, and it is the document that wins on conflict, so `pages.yml` was
+changed to build and check only. Both builders still run their tests on every
+push; consolidating them into one is a worthwhile follow-up, deliberately left
+as its own decision rather than folded into the race fix.
 
 **A new static product needs no deploy work at all.** Give it an `index.html`
 and it appears on the hub on merge. There is nothing to register.
@@ -69,9 +82,9 @@ Two things the builder owns, so no venture should hand-maintain them:
 Run it locally before assuming anything about the live site:
 
 ```
-python3 platform/ci/build_pages_site.py          # build into _site/
-python3 platform/ci/check_pages_links.py _site   # fail on any link that 404s
-python3 -m http.server -d _site 8000             # then open localhost:8000
+node platform/pages/build.mjs --out=dist     # build; fails on any dead link
+node --test platform/pages/build.test.mjs    # test
+python3 -m http.server -d dist 8000          # then open localhost:8000
 ```
 
 The remaining owner flip is still `deploy-settings` — enable GitHub Pages

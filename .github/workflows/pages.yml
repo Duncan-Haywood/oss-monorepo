@@ -1,26 +1,34 @@
-# Publish every browser product in `ventures/` to GitHub Pages.
+# Build and check the portfolio Pages artifact. This workflow does NOT publish.
 #
-# Why this workflow exists
+# Why it no longer deploys
 # ------------------------
-# As of 2026-08-26 this repo carries 32 finished browser calculators and not one
-# of them has a public URL. `platform/ci/publish_surface.py` reports that no
-# workflow publishes anything on a push to `main`, and the only Pages workflow
-# in the repo ships one venture's docs (`retail-pilot-intel-deploy-docs.yml`).
+# Two sessions built a portfolio Pages pipeline within hours of each other on
+# 2026-08-26 and both landed on `main`: #1718 (`platform/pages/build.mjs`, driven
+# by `portfolio-pages.yml`) and #1724 (this one, `platform/ci/build_pages_site.py`).
+# Neither could see the other in flight.
 #
-# That is the gap this closes. The owner flip everyone has been waiting on --
-# `GITHUB_PAGES_ENABLED` -- would, on its own, have published none of the
-# products, because nothing built them into a Pages artifact. Now it publishes
-# all of them at once.
+# GitHub serves ONE Pages site per repository. Both workflows triggered on
+# `ventures/**`, both gated their deploy on the same `GITHUB_PAGES_ENABLED`
+# variable, and their concurrency groups differed -- so they did not serialise
+# against each other. The owner flip everyone is waiting on would therefore have
+# started two `actions/deploy-pages` runs on every push and left the live origin
+# flapping between two different builds of the same products. That defeats the
+# flip rather than delivering it.
 #
-# This deliberately reuses the SAME owner variable the existing Pages workflow
-# gates on rather than introducing a second switch. `portfolio/hosting/README.md`
-# is explicit that `deploy-settings` is the one remaining owner flip and that no
-# second platform ask should be opened.
+# `portfolio/DIRECTION.md` names `platform/pages/` and `portfolio-pages.yml` as
+# the site the flip publishes, and DIRECTION.md is explicitly the document that
+# wins when instructions conflict. That is the tiebreak used here: publishing
+# lives in `portfolio-pages.yml`, and this workflow keeps building and checking.
 #
-# The build job runs unconditionally so that a broken site build is a red check
-# on the PR that broke it, whether or not Pages is switched on yet.
+# Nothing here is deleted. `platform/ci/build_pages_site.py`, its tests, and
+# `check_pages_links.py` still run on every push and pull request, so this code
+# stays exercised and its checks still guard `ventures/**`. Consolidating the two
+# builders into one is worth doing, but it is a judgement about which of two
+# tested, merged implementations survives -- it should be made deliberately, not
+# as a side effect of fixing the race. Do not re-add a deploy job here without
+# first removing the one in `portfolio-pages.yml`.
 
-name: Deploy portfolio Pages site
+name: Portfolio Pages artifact check
 
 on:
   push:
@@ -38,10 +46,10 @@ on:
       - ".github/workflows/pages.yml"
   workflow_dispatch:
 
-# Pages allows one deployment at a time. Do not cancel a running publish --
-# an interrupted deploy can leave the live site on a half-uploaded artifact.
+# Serialised so two builds of the same tree do not interleave. This workflow no
+# longer publishes, so nothing here can reach the live site.
 concurrency:
-  group: pages-deploy
+  group: pages-artifact-check
   cancel-in-progress: false
 
 permissions:
@@ -80,28 +88,3 @@ jobs:
         uses: actions/upload-pages-artifact@v3
         with:
           path: _site
-
-  deploy:
-    needs: build
-    # Never publish from a pull request: a PR build is untrusted code, and a
-    # fork PR must not be able to overwrite the live site.
-    if: >-
-      github.event_name != 'pull_request' &&
-      vars.GITHUB_PAGES_ENABLED == 'true'
-    runs-on: ubuntu-latest
-    permissions:
-      pages: write
-      id-token: write
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
-    steps:
-      - name: Deploy to GitHub Pages
-        id: deployment
-        uses: actions/deploy-pages@v4
-
-      - name: Report the public URL
-        run: |
-          echo "### Portfolio site published" >> "$GITHUB_STEP_SUMMARY"
-          echo "" >> "$GITHUB_STEP_SUMMARY"
-          echo "${{ steps.deployment.outputs.page_url }}" >> "$GITHUB_STEP_SUMMARY"
