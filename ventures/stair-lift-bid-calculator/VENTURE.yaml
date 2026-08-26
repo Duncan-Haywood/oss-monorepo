@@ -1,0 +1,40 @@
+name: stair-lift-bid-calculator
+description: A private browser calculator for accessibility contractors and aging-in-place remodelers that prices a stair-lift / chair-lift install from lift count, straight versus landing versus outdoor versus curved rail, perch versus standard versus power-swivel versus power-pack versus heavy-duty chair, wood versus concrete versus open-riser attach, extras, contractor-supplied versus customer-supplied lift, and weekday versus hospital-discharge week versus Saturday expedite — and shows the extra-work share and the walk-away price below which the job loses money.
+stage: prototype
+owner: duncan
+hypotheses:
+  - claim: Independent accessibility contractors will use a rail-versus-chair bid calculator because the generic "$3,995 installed" special they are shopped on cannot see that a straight indoor rail with a standard seated chair on wood treads is a different job from a curved custom-bent rail with a heavy-duty power-swivel chair, open-riser attach, a folding rail, a dedicated circuit, and pulling the old lift.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: The walk-away price and the extra-work share (not the published installed dump) are the two figures a contractor actually decides on when an owner asks them to match a cheaper straight-rail quote on a curved-plus-circuit job.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: Showing perch, standard, power-swivel, power-pack, and heavy-duty on the same stair, next to straight versus curved, changes the bid enough that contractors quote the aging-in-place job instead of matching the $3,995 special.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: Showing contractor-supplied versus owner-supplied-it-fits versus owner-supplied-wrong-rail on the same stair changes the bid enough that contractors refuse the $795 "just install what I bought" special instead of treating a used Facebook unit as a free set.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: Showing weekday-they-leave versus discharge-week-with-expedite-freight versus Saturday-overtime on the same stair changes the bid enough that contractors refuse the $3,995 "mom comes home Friday" special instead of treating next-day rail freight and overtime as the weekday dump.
+    status: untested
+    checked: null
+    evidence: customer-contact
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+budget:
+  monthly_cap: 1
+  protected: true
+kill_criteria:
+  - Fewer than three qualified accessibility contractors use the calculator twice within 90 days.
+  - Contractors report that splitting rail, chair, and extras is more work than their existing installed-price method without changing the price they would have bid.
+  - The starting hours and rail invoices prove so far from real crews that the tool cannot be used without data we have no way to gather.
+links:
+  production: null
+  analytics: null
