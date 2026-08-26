@@ -99,6 +99,7 @@ test('figures named in schema.org featureList are actually rendered', () => {
     ['break-even price', /result\.breakEvenPrice/],
     ['price needed to match the best channel', /result\.priceToMatchBest/],
     ['net profit per channel', /result\.profit/],
+    ['expected monthly profit', /result\.monthlyProfit/],
     ['profit per day', /result\.profitPerDay/],
     ['expected profit after returns', /result\.expectedProfit/],
     ['listing value per month of shelf time', /result\.velocity\.valuePer30Days/],

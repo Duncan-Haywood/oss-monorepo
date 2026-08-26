@@ -250,6 +250,61 @@ test("an unsold-item cost still shows up when the price is zero", () => {
   assert.equal(result.margin, 0, "margin is defined as zero when there is no revenue");
 });
 
+test("monthly keep is per-sale profit times the shared order volume", () => {
+  const result = calculateChannel(preset("ebay"), shared);
+  close(result.expectedMonthlySales, 100, "defaults to shared monthly orders");
+  close(result.monthlyProfit, result.profit * 100, "100 sales of the same item");
+});
+
+test("a channel volume override is what a monthly plan is spread over", () => {
+  const thin = calculateChannel({ ...preset("own-store"), expectedMonthlySales: 10 }, shared);
+  close(thin.expectedMonthlySales, 10, "override wins over the shared 100");
+  close(thin.fees.subscription, 3.9, "39/month over 10 own-store sales, not 100");
+  close(thin.monthlyProfit, thin.profit * 10, "monthly keep uses the same 10");
+
+  const defaulted = calculateChannel(preset("own-store"), shared);
+  assert.ok(thin.profit < defaulted.profit, "thinner volume must carry more of the plan per sale");
+});
+
+test("explicit zero volume on a plan still charges the plan that month", () => {
+  const idle = calculateChannel({ ...preset("own-store"), expectedMonthlySales: 0 }, shared);
+  close(idle.fees.subscription, 0, "nothing to amortize onto a sale that will not happen");
+  close(idle.monthlyProfit, -39, "you still pay the $39 plan");
+});
+
+test("higher volume can beat a cheaper-per-sale channel", () => {
+  const comparison = compareChannels(
+    [
+      { ...preset("local"), shippingCharged: 0, shippingCost: 0, expectedMonthlySales: 4 },
+      { ...preset("ebay"), expectedMonthlySales: 40 },
+    ],
+    { ...shared, shippingCharged: 0, shippingCost: 0 },
+  );
+  const local = comparison.results.find((result) => result.id === "local");
+  const ebay = comparison.results.find((result) => result.id === "ebay");
+
+  assert.equal(comparison.best.id, "local", "no fees still wins a single sale");
+  assert.ok(local.profit > ebay.profit, "local keeps more per sale");
+  assert.equal(comparison.bestMonthly.id, "ebay", "eBay keeps more in a month at 10× the volume");
+  assert.equal(comparison.rankingsDiverge, true, "the two rankings must disagree");
+  assert.equal(comparison.volumesDiffer, true);
+  assert.ok(ebay.monthlyProfit > local.monthlyProfit, "40 eBay sales beat 4 local ones");
+  assert.equal(local.isBestMonthly, false);
+  assert.equal(ebay.isBestMonthly, true);
+  close(ebay.monthlyGapVsBest, 0, "monthly winner gives up nothing");
+  assert.ok(local.monthlyGapVsBest > 0, "local gives up monthly cash against eBay volume");
+});
+
+test("equal volumes keep the per-sale ranking as the monthly ranking", () => {
+  const comparison = compareChannels(CHANNEL_PRESETS, { ...shared, includeReturns: false });
+  assert.equal(comparison.rankingsDiverge, false);
+  assert.equal(comparison.volumesDiffer, false);
+  assert.equal(comparison.best.id, comparison.bestMonthly.id);
+  const best = comparison.results.find((result) => result.isBest);
+  assert.equal(best.isBestMonthly, true);
+  close(comparison.monthlySpread, best.monthlyProfit - Math.min(...comparison.results.map((r) => r.monthlyProfit)), "monthly spread");
+});
+
 test("a zero return rate leaves expected profit equal to the sold sale", () => {
   const result = calculateChannel({ ...preset("ebay"), returnRate: 0 }, shared);
   close(result.expectedProfit, result.profit, "expected equals sold");

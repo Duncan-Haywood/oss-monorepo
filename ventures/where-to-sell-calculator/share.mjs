@@ -13,7 +13,7 @@ const SHARED_FIELDS = [
 const CHANNEL_FIELDS = [
   "price", "shippingCharged", "shippingCost", "fulfilmentCost",
   "commissionRate", "paymentRate", "paymentFixed", "perListingFee",
-  "monthlyFee", "adRate",
+  "monthlyFee", "adRate", "expectedMonthlySales",
   "returnRate", "returnShippingCost", "resellableRate", "feeRefundRate",
   "sellThroughPct", "daysToSell", "listingRenewalDays",
 ];

@@ -3,9 +3,11 @@
 One item, every channel. Enter what an item cost you and what you would sell it
 for, and see what **eBay, Etsy, Amazon, your own store and a direct sale** each
 leave you after fees — and after that channel's return rate — plus the price
-each channel would need to charge to match the best one. Then it asks the
-question a fee table cannot: **how often does it actually sell there**, and
-what is one listing worth per month of shelf once you count that.
+each channel would need to charge to match the best one, and, when you expect
+different volumes on each channel, which one actually keeps more cash in a
+month. Then it asks the question a fee table cannot: **how often does it
+actually sell there**, and what is one listing worth per month of shelf once
+you count that.
 
 It runs entirely in the browser: static ES modules, no build step, no
 dependencies, no server, no account, no API key.
@@ -28,6 +30,10 @@ Three things flat "X% fee" comparisons get wrong, all of which this models:
 - **The fee percentage is not the decision.** What matters is the price each
   channel needs to leave you the same money — a channel with higher fees still
   wins if you can list higher there. That is the last column of the table.
+- **Per-sale profit is not monthly cash.** A direct sale that keeps $33 and
+  happens four times a month loses to a marketplace that keeps $26 and happens
+  forty times. Put expected sales on each channel; a monthly plan is spread
+  over that same number so a $39 store plan on 20 sales is $1.95 a sale.
 - **A completed sale is not the mix you live in.** A channel that lets you
   list higher can win on every completed order and still lose once you count
   its return rate, return postage, and units that cannot be sold again. The
@@ -77,13 +83,16 @@ questions the ranking alone does not:
   not counted as invested; that keeps the figure comparable across channels
   whose fee structures differ. It reads "—" when nothing was invested (a
   giveaway, or an item with no per-unit cost), rather than an infinite return.
+- **Monthly keep** — per-sale profit times the sales you expect on that
+  channel. Leave the per-channel field blank to use the shared monthly-orders
+  figure. When volumes differ, the hero can name a different winner for the
+  month than for a single sale.
 - **You keep / day** — profit divided by the days you expect that channel to
   take to sell. A no-fee local sale can still lose this comparison if the item
   sits for a month while a marketplace sells next week. Each channel ships with
   an illustrative pace you are expected to replace with how long your last
   similar listings actually took. The column reads "—" when no pace is set,
   rather than inventing one.
-
 - **After returns** — expected keep once some share of orders come back.
   Return postage, unsellable units, and fees the channel does not refund are
   counted on the returned share; a completed sale still keeps the sold profit.
@@ -172,13 +181,14 @@ makes the comparison yours rather than a generic estimate.
 
 ## What it deliberately does not model
 
-Fees are the part that is easy to calculate, not the whole decision. Days to
-sell is your estimate of demand, not a measured marketplace statistic.
+Fees are the part that is easy to calculate, not the whole decision. You can
+put your own expected sales on each channel so volume can flip the ranking.
+Days to sell is your estimate of demand, not a measured marketplace statistic.
 Returns and sell-through are inputs, not measurements: this has no way to know
 how many buyers a channel puts in front of *you*, or how fast your items
 actually move there. Every such rate is a starting point you replace with your
 own return report and sold-listing history. A marketplace fee is also partly a
-payment for demand you would otherwise have to create. Read the fee,
+payment for demand you would otherwise have to create. Read the fee, volume,
 cash-per-day, return and shelf-time gaps as inputs to the decision, not the
 decision.
 
@@ -199,11 +209,13 @@ node --test
 Covers each channel's fee shape, monthly-plan amortisation (including the
 refusal to divide a plan by zero orders), per-channel overrides, break-even and
 target-profit solving round-tripping through the calculator, ranking and the
-gap against the best channel, the switched-off-channel rule, input validation,
-profit-per-day from expected days to sell (including the refusal to invent a
-pace when days are missing), the case where the fastest channel is not the
-highest-fee-profit channel, and the usage counter's opt-out, Do Not Track /
-Global Privacy Control, and hostile-storage behaviour.
+gap against the best channel, per-channel expected volume and the case where
+monthly cash ranks a different winner than a single sale, the switched-off-channel
+rule, input validation, profit-per-day from expected days to sell (including
+the refusal to invent a pace when days are missing), the case where the
+fastest channel is not the highest-fee-profit channel, and the usage
+counter's opt-out, Do Not Track / Global Privacy Control, and hostile-storage
+behaviour.
 
 `handoff.test.mjs` checks the links into the channel calculators, against
 each target's *own* field list imported from that venture — so a rename
@@ -226,7 +238,7 @@ device.
 
 The optional usage counter records only an event name (`comparison_calculated`,
 `channel_rates_edited`, `channel_toggled`, `subscription_toggled`,
-`returns_compared`, `shelf_time_compared`,
+`channel_volume_edited`, `returns_compared`, `shelf_time_compared`,
 `share_link_copied`, `handoff_ebay`, `handoff_etsy`) and the
 current day, in the visitor's own `localStorage`. It never records inputs, it
 never leaves the device, it is off for anyone sending Do Not Track or Global

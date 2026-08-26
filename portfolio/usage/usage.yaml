@@ -695,11 +695,16 @@ products:
         signals:
           live_url_visitors: null
           local_events_reported: 0
+          channel_volume_edited: 0
         note: >-
           Added expected days-to-sell and profit-per-day so a slower no-fee
-          channel can lose to a faster marketplace on cash velocity. Public
-          URL remains owner-gated; the local-first counter is unchanged
-          (comparison_calculated / channel_rates_edited).
+          channel can lose to a faster marketplace on cash velocity. Also
+          added per-channel expected monthly sales and a monthly-keep ranking
+          so a cheaper-per-sale channel can lose the month when another sells
+          more units. Public URL remains owner-gated; watch
+          channel_volume_edited against comparison_calculated once a URL
+          exists; the velocity signals stay comparison_calculated /
+          channel_rates_edited.
       - as_of: 2026-08-26
         signals:
           live_url_visitors: null

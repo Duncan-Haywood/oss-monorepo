@@ -19,7 +19,7 @@
     "applicationCategory": "BusinessApplication",
     "operatingSystem": "Any (runs in a web browser)",
     "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
-    "featureList": "Cross-marketplace fee comparison, net profit per channel, expected profit after returns, margin and ROI, monthly-plan amortisation, break-even price, price needed to match the best channel, profit per day from expected days to sell, listing value per month of shelf time, sell-through needed to match the fastest channel"
+    "featureList": "Cross-marketplace fee comparison, net profit per channel, expected profit after returns, margin and ROI, monthly-plan amortisation, expected monthly profit, break-even price, price needed to match the best channel, profit per day from expected days to sell, listing value per month of shelf time, sell-through needed to match the fastest channel"
   }
   </script>
   <script type="application/ld+json">
@@ -48,7 +48,7 @@
         "name": "Does selling on my own store beat a marketplace?",
         "acceptedAnswer": {
           "@type": "Answer",
-          "text": "On fees alone an own store usually wins, because there is no marketplace commission — only card processing and the monthly plan spread over your orders. What it does not include is the buyers. A marketplace fee is partly a payment for demand you do not have to create, so the honest comparison is the fee gap against what it would cost you to bring the same number of buyers yourself."
+          "text": "On fees alone an own store usually wins, because there is no marketplace commission — only card processing and the monthly plan spread over your orders. What it does not include is the buyers. Put the number of sales you actually expect on each channel in that channel's panel: a store that keeps more per sale can still lose the month to a marketplace that sells more units. The honest comparison is the fee gap against the volume each channel can carry."
         }
       },
       {
@@ -127,7 +127,7 @@
     .continue a:hover, .continue a:focus { border-color: #c9bcff; text-decoration: underline; }
     .continue a .who { opacity: .8; font-weight: 500; }
     .scroller { overflow-x: auto; }
-    table { width: 100%; border-collapse: collapse; font-size: .92rem; min-width: 560px; }
+    table { width: 100%; border-collapse: collapse; font-size: .92rem; min-width: 640px; }
     th, td { padding: 9px 6px; text-align: right; border-bottom: 1px solid #ded9f0; vertical-align: top; }
     th:first-child, td:first-child { text-align: left; }
     thead th { font-size: .78rem; text-transform: uppercase; letter-spacing: .04em; color: #574d80; }
@@ -177,12 +177,14 @@
       sale</strong> each leave you after their fees — including the per-listing
       fees and monthly plans that flat “X% fee” comparisons skip — then applies
       each channel’s return rate so a high-return marketplace cannot win on a
-      completed sale and lose you money in the real mix. It also divides what
-      you keep by how many days you expect that channel to take, so a slower
-      no-fee sale does not automatically beat a faster marketplace. Then it
-      asks the question fees alone cannot answer: <strong>how often does it
-      actually sell there</strong>, and what is one listing worth per month of
-      shelf once you count that. Everything runs in this page; nothing is
+      completed sale and lose you money in the real mix. When you sell more
+      units on one channel than another, it also ranks expected monthly cash,
+      not just the single sale. It divides what you keep by how many days you
+      expect that channel to take, so a slower no-fee sale does not
+      automatically beat a faster marketplace. Then it asks the question fees
+      alone cannot answer: <strong>how often does it actually sell there</strong>,
+      and what is one listing worth per month of shelf once you count that.
+      Everything runs in this page; nothing is
       uploaded.
     </p>
   </header>
@@ -263,6 +265,7 @@
               <th scope="col">Margin</th>
               <th scope="col" title="Profit as a percentage of the cash you laid out to source, pack and ship.">Return on cash</th>
               <th scope="col">Gives up</th>
+              <th scope="col" title="Per-sale profit times the sales you expect on this channel this month.">Monthly keep</th>
               <th scope="col" title="Your estimate of how long this listing sits before it sells. Replace the illustrative starting points with your last similar listings.">Days to sell</th>
               <th scope="col" title="What you keep divided by days to sell. Empty when you have not given a pace.">You keep / day</th>
               <th scope="col" title="List below this and the sale loses money on this channel.">Break-even price</th>
@@ -281,6 +284,11 @@
         laid out to source, pack and ship; fees come out of the sale rather
         than your pocket, so they are not counted as invested. It reads “—”
         when nothing was invested.
+        <strong>Monthly keep</strong> is that per-sale profit times the sales
+        you expect on this channel. Leave the per-channel field blank to use
+        the shared monthly-orders figure; fill it in when one channel actually
+        sells more than another. A monthly plan is spread over that same
+        number, so a $39 store plan on 20 sales is $1.95 a sale, not $0.39.
         <strong>You keep / day</strong> is what that sale leaves you divided
         by the days you expect it to take. A no-fee local sale can still lose
         if the item sits for weeks while a marketplace sells next week. Days
@@ -389,18 +397,20 @@
     <h3>What it deliberately leaves out</h3>
     <p>
       Fees are not the only difference between channels. A marketplace fee buys
-      you demand you would otherwise have to create. Days-to-sell is your
-      estimate of that demand, not a measured sell-through rate, and the page
-      still has no way to know how many buyers each channel puts in front of
-      <em>you</em> — sell-through and time to sale are numbers you supply, not
-      measurements. Returns are an input the same way: each channel has a rate,
-      return postage, a still-sellable share, and a fee-refund share you can
-      replace with your own report.
+      you demand you would otherwise have to create. Put your own expected
+      sales in each channel’s panel to see when volume flips the ranking.
+      Days-to-sell is your estimate of that demand, not a measured sell-through
+      rate, and the page still has no way to know how many buyers each channel
+      puts in front of <em>you</em> — sell-through and time to sale are numbers
+      you supply, not measurements. Returns are an input the same way: each
+      channel has a rate, return postage, a still-sellable share, and a
+      fee-refund share you can replace with your own report.
       <a href="returns-change-the-ranking.html">Returns can flip the ranking</a>
       works one Amazon-vs-eBay example through in full.
-      Read the fee, cash-per-day, return and shelf-time gaps as inputs to the
-      decision, not the decision. It does not recommend a price, a channel,
-      or a business model, and it is not tax, financial or business advice.
+      Read the fee, volume, cash-per-day, return and shelf-time gaps as inputs
+      to the decision, not the decision. It does not recommend a price, a
+      channel, or a business model, and it is not tax, financial or business
+      advice.
     </p>
   </section>
 
@@ -408,7 +418,7 @@
     <label class="check"><input id="usageOptOut" type="checkbox"> Do not keep anonymous local usage counts</label>
     <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not tax, financial, or business advice, and it does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for meeting any obligation it helps you prepare for. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
     <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record. If a tool needs to survive, export your inputs and run it yourself.</p>
-    <p>Everything runs in your browser. Your prices, costs and rates are never uploaded. There are no accounts, cookies, tracking pixels, or analytics vendors. Your entries are saved in this browser only, so the page remembers them next time; clearing site data removes them. The optional local counter records only an event name and the day, never your inputs — turn it off above, or with Do Not Track / Global Privacy Control.</p>
+    <p>Everything runs in your browser. Your prices, costs and rates are never uploaded. There are no accounts, cookies, tracking pixels, or analytics vendors. Your entries are saved in this browser only, so the page remembers them next time; clearing site data removes them. The optional local counter records only an event name (<code>comparison_calculated</code>, <code>channel_rates_edited</code>, <code>channel_toggled</code>, <code>subscription_toggled</code>, <code>channel_volume_edited</code>, <code>returns_compared</code>, <code>shelf_time_compared</code>, <code>share_link_copied</code>, <code>handoff_ebay</code>, <code>handoff_etsy</code>) and the day, never your inputs — turn it off above, or with Do Not Track / Global Privacy Control.</p>
     <p>Free and open source. If it stopped you listing in the wrong place, the <a href="https://github.com/Duncan-Haywood/monorepo-projects">project is on GitHub</a> — <a href="https://github.com/sponsors/Duncan-Haywood">GitHub Sponsors</a> is optional and never changes what the tool does. MIT licensed.</p>
     <p>More seller arithmetic: <a href="../ebay-fee-calculator/">eBay fee calculator</a> · <a href="../etsy-profit-calculator/">Etsy profit calculator</a> · <a href="../shopify-fee-calculator/">Shopify fee calculator</a>.</p>
   </footer>
@@ -436,6 +446,7 @@
       { key: "perListingFee", label: "Per-listing fee", step: "0.01" },
       { key: "monthlyFee", label: "Monthly plan", step: "0.01" },
       { key: "adRate", label: "Ads / promoted (%)", step: "0.01" },
+      { key: "expectedMonthlySales", label: "Expected sales / month on this channel", step: "1" },
       { key: "returnRate", label: "Return rate (%)", step: "0.1" },
       { key: "returnShippingCost", label: "Return shipping you pay", step: "0.01" },
       { key: "resellableRate", label: "Still sellable (%)", step: "1" },
@@ -555,7 +566,7 @@
             ${CHANNEL_FIELDS.map((field) => `
               <label>${field.label}
                 <input type="number" min="0" step="${field.step}" data-index="${index}" data-key="${field.key}"
-                       value="${channel[field.key] ?? ""}">
+                       value="${channel[field.key] ?? ""}"${field.key === "expectedMonthlySales" ? ` placeholder="${document.getElementById("monthlyOrders").value || "shared"}"` : ""}>
               </label>`).join("")}
           </div>
         </details>`).join("");
@@ -566,8 +577,11 @@
           channels[Number(index)][key] = event.target.value;
           update();
         });
-        input.addEventListener("change", () => {
-          recordUsage(localStorage, optedOut(), "channel_rates_edited");
+        input.addEventListener("change", (event) => {
+          const eventName = event.target.dataset.key === "expectedMonthlySales"
+            ? "channel_volume_edited"
+            : "channel_rates_edited";
+          recordUsage(localStorage, optedOut(), eventName);
           save();
         });
       }
@@ -674,7 +688,17 @@
         : velocity.id === comparison.best.id
           ? ` ${velocity.label} also keeps the most per day (${money(velocity.profitPerDay)}), about ${money(velocity.monthlyProfitAtVelocity)} in a 30-day month at that pace.`
           : ` ${velocity.label} keeps less per sale but more per day (${money(velocity.profitPerDay)}) if it sells in ${velocity.daysToSell} days — about ${money(velocity.monthlyProfitAtVelocity)} in a 30-day month. Fee-best is not always the listing to wait on.`;
-      document.getElementById("spread").textContent = feeNote + velocityNote;
+      let spreadText = feeNote + velocityNote;
+      if (comparison.rankingsDiverge) {
+        spreadText =
+          `${comparison.bestMonthly.label} keeps ${money(comparison.bestMonthly.monthlyProfit)} / month at ${comparison.bestMonthly.expectedMonthlySales} sales — more than ${comparison.best.label}, even though ${comparison.best.label} wins a single sale. Volume is part of the decision.`
+          + velocityNote;
+      } else if (comparison.volumesDiffer) {
+        spreadText = feeNote
+          + ` Monthly keep still sits with ${comparison.bestMonthly.label} at ${money(comparison.bestMonthly.monthlyProfit)}.`
+          + velocityNote;
+      }
+      document.getElementById("spread").textContent = spreadText;
 
       renderContinue(comparison.results, readShared());
 
@@ -692,6 +716,7 @@
             <td class="money">${result.margin.toFixed(1)}%</td>
             <td class="money">${result.roi === null ? "—" : `${result.roi.toFixed(0)}%`}</td>
             <td class="money">${result.isBest ? "—" : money(result.gapVsBest)}</td>
+            <td class="money">${money(result.monthlyProfit)}${comparison.rankingsDiverge && result.isBestMonthly ? " · best month" : ""}</td>
             <td class="money">${result.daysToSell === null ? "—" : result.daysToSell}</td>
             <td class="money" title="${result.monthlyProfitAtVelocity === null ? "" : `About ${money(result.monthlyProfitAtVelocity)} in a 30-day month at this pace.`}">${result.profitPerDay === null ? "—" : money(result.profitPerDay)}</td>
             <td class="money${result.price < result.breakEvenPrice ? " negative" : ""}">${money(result.breakEvenPrice)}</td>
