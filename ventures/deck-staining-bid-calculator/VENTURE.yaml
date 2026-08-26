@@ -1,0 +1,32 @@
+name: deck-staining-bid-calculator
+description: A private browser calculator for deck-staining contractors that prices a stain or seal from walking surface, picket-rail lineal feet, stairs, prep, coats, access, and furniture — and shows the stainable square feet a per-square-foot special cannot see and the walk-away price below which the job loses money.
+stage: prototype
+owner: duncan
+hypotheses:
+  - claim: Independent deck-staining crews will use a stainable-surface bid calculator because the generic "$2.50 / sq ft" special they are shopped on cannot see that a 200-square-foot platform with no rail is a different job from a 192-square-foot 12x16 with 40 lineal feet of picket rail, a stair, and two oil coats.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: The walk-away price and the hour split (not the published per-square-foot special) are the two figures a crew actually decides on when a homeowner asks them to match a cheaper stain quote.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: Treating picket rails, stairs, strip, second-story carry, and furniture as their own hours, instead of a blended add-on to a $2.50/sf special, changes the bid enough that shops notice which part of a high number is the first picket rail.
+    status: untested
+    checked: null
+    evidence: customer-contact
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+budget:
+  monthly_cap: 1
+  protected: true
+kill_criteria:
+  - Fewer than three qualified deck-staining contractors use the calculator twice within 90 days.
+  - Contractors report that splitting stainable surface and extras versus a platform special is more work than their existing per-square-foot method without changing the price they would have bid.
+  - The starting hours and material rates prove so far from real crews that the tool cannot be used without data we have no way to gather.
+links:
+  production: null
+  analytics: null
