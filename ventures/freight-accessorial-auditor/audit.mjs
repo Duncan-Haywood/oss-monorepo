@@ -105,6 +105,13 @@ export function auditCharges(rows) {
       evidence,
       flags,
       index,
+      // How the expected amount was arrived at, in the user's own terms —
+      // "$65.00/hour × 1 hour past 2 free", say. Set by the importer from the
+      // rate-card rule that priced the line; blank for a hand-typed figure.
+      // Carried through so the CSV and the dispute draft can cite the
+      // contract term rather than assert a number.
+      basis: String(row.basis ?? "").trim(),
+      units: String(row.units ?? "").trim(),
     };
     result.priority = priorityFor(result);
     return result;
@@ -139,15 +146,17 @@ export function auditTotals(results) {
 
 export function csvForReview(results) {
   const escape = (value) => `"${String(value).replaceAll('"', '""')}"`;
-  const lines = ["Invoice,Reference,Code,Billed,Expected,Variance,Evidence,Priority,Flags"];
+  const lines = ["Invoice,Reference,Code,Quantity,Billed,Expected,Basis,Variance,Evidence,Priority,Flags"];
   for (const row of results) {
     lines.push(
       [
         row.invoice,
         row.reference,
         row.code,
+        row.units ?? "",
         row.billed.toFixed(2),
         row.expected.toFixed(2),
+        row.basis ?? "",
         row.variance.toFixed(2),
         row.evidence,
         row.priority,
@@ -175,7 +184,11 @@ export function disputeDraft({ invoice = "", carrier = "", results = [] } = {}) 
         : row.evidence === "missing"
           ? "supporting evidence is not attached"
           : "evidence status was not selected";
-    return `- ${code} on ${row.invoice || "unlabelled invoice"}: billed ${money(row.billed)}, expected ${money(row.expected)} (${money(row.variance)} above expected; ${evidence})`;
+    // Citing how the expected figure was reached turns the line from an
+    // assertion into something the carrier's rating desk can check against the
+    // same contract. A hand-typed expected amount has no basis to cite.
+    const basis = row.basis ? `; expected from ${row.basis}` : "";
+    return `- ${code} on ${row.invoice || "unlabelled invoice"}: billed ${money(row.billed)}, expected ${money(row.expected)} (${money(row.variance)} above expected${basis}; ${evidence})`;
   });
   const body = [
     `Subject: Accessorial review — ${subjectRef}`,
