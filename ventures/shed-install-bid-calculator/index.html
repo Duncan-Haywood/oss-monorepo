@@ -1,0 +1,572 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Shed Install Bid Calculator | How Much to Charge to Install a Shed</title>
+  <meta name="description" content="Price a backyard shed install from pad, delivery miles, crane versus forklift, and extras — plus the walk-away price a $2,499 drop-and-set special cannot see.">
+  <meta property="og:title" content="Shed Install Bid Calculator">
+  <meta property="og:description" content="Bid shed installs the way the trade does — pad, delivery, and extras, not a published drop-and-set dump — and see the margin before you send the price.">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Shed Install Bid Calculator", "applicationCategory": "BusinessApplication", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "featureList": "Pad area from shed plus overhang, existing vs gravel vs slab comparison, drop-and-set vs kit vs stick-built, delivery miles, crane versus forklift, ramp loft windows haul-away extras, walk-away price, proposed-price margin check, copyable bid summary, saved bid that reopens on the next visit, shareable bid link"}</script>
+  <style>
+    :root { color-scheme: light; font-family: system-ui, sans-serif; color: #2a2218; background: #f3eee6; }
+    body { max-width: 1060px; margin: 0 auto; padding: 32px 18px; }
+    header { max-width: 720px; margin-bottom: 26px; }
+    h1 { font-size: clamp(2rem, 6vw, 3.6rem); line-height: .98; margin: 0 0 12px; letter-spacing: -.05em; }
+    p { line-height: 1.5; }
+    .eyebrow { font-size: .8rem; font-weight: 700; letter-spacing: .08em; color: #7a4a1c; margin: 0 0 6px; }
+    .layout { display: grid; grid-template-columns: minmax(0, 1fr) minmax(300px, .75fr); gap: 18px; align-items: start; }
+    section { background: #fff; border: 1px solid #d8cbb8; border-radius: 14px; padding: 20px; box-shadow: 0 8px 24px #3d2a180d; margin-bottom: 18px; }
+    h2 { margin-top: 0; font-size: 1.15rem; }
+    .hint { font-size: .82rem; color: #5a4d3e; margin: -6px 0 14px; }
+    .fields { display: grid; grid-template-columns: repeat(2, 1fr); gap: 13px; }
+    label { display: grid; gap: 5px; font-size: .87rem; font-weight: 650; }
+    input, select { width: 100%; box-sizing: border-box; border: 1px solid #b6a48c; border-radius: 7px; padding: 10px; font: inherit; background: #fff; }
+    .checks { display: grid; gap: 8px; margin-top: 12px; }
+    .checks label { display: flex; gap: 8px; align-items: center; font-weight: 550; }
+    .checks input { width: auto; }
+    button { font: inherit; border-radius: 7px; border: 1px solid #b6a48c; background: #f6f0e6; padding: 10px 14px; cursor: pointer; font-weight: 650; }
+    button:hover { background: #ebe2d2; }
+    .result { position: sticky; top: 15px; background: #3d2a18; color: #f7f1e8; border-color: #3d2a18; }
+    .hero-number { font-size: 2.9rem; font-weight: 750; letter-spacing: -.05em; margin: 8px 0; }
+    .negative { color: #ffb0a2; } .positive { color: #c6e6a9; }
+    dl { display: grid; grid-template-columns: 1fr auto; gap: 9px; margin: 20px 0; }
+    dt, dd { margin: 0; } dd { font-variant-numeric: tabular-nums; }
+    hr { border: 0; border-top: 1px solid #ffffff2b; }
+    .note { font-size: .82rem; opacity: .84; }
+    .split { margin: 14px 0 0; padding: 0; list-style: none; font-size: .84rem; }
+    .split li { display: grid; grid-template-columns: 1fr auto; gap: 8px; padding: 3px 0; }
+    .bar { grid-column: 1 / -1; height: 4px; border-radius: 2px; background: #ffffff2e; }
+    .bar > span { display: block; height: 100%; border-radius: 2px; background: #e0b56a; }
+    .verdict { margin-top: 14px; padding: 12px; border-radius: 9px; font-size: .87rem; background: #ffffff1a; }
+    .verdict.bad { background: #7d2317; }
+    .empty { font-size: .87rem; opacity: .84; }
+    footer { margin-top: 25px; font-size: .82rem; color: #5a4d3e; }
+    footer a { color: #7a4a1c; }
+    .support { margin-top: 14px; }
+    .summary-actions { display: flex; gap: 8px; align-items: center; margin-top: 14px; }
+    .summary-status { font-size: .8rem; color: #e8d3a8; }
+    table { width: 100%; border-collapse: collapse; font-size: .84rem; }
+    th, td { text-align: left; padding: 7px 4px; border-bottom: 1px solid #ffffff24; }
+    th { font-size: .74rem; letter-spacing: .04em; text-transform: uppercase; opacity: .75; }
+    td:last-child, th:last-child { text-align: right; }
+    .cheap { color: #c6e6a9; font-weight: 700; }
+    @media (max-width: 780px) {
+      .layout { grid-template-columns: 1fr; } .result { position: static; } .fields { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="eyebrow">FOR SHED DEALERS AND BACKYARD-BUILDING CREWS</p>
+    <h1>Bid the pad, the delivery, and the extras.</h1>
+    <p>Price a backyard shed the way the trade actually loses money: existing pad versus new gravel or a slab, delivery miles, crane versus forklift, then ramp, loft, windows, and haul-away — not the published $2,499 drop-and-set special. You get the job price, what it works out to per square foot, and the number below which the shed loses money.</p>
+  </header>
+
+  <main class="layout">
+    <div>
+      <section>
+        <h2>The shed</h2>
+        <p class="hint">Pick a common job to start, then replace every rate with your kit ticket and a crew you have timed. Changing fulfillment, pad, access, or electrical fills starting hours and material only when you have not already edited that field.</p>
+        <div class="fields">
+          <label>Job preset
+            <select id="jobPresets">
+              <option value="">Choose a starting job…</option>
+            </select>
+          </label>
+          <label>Fulfillment <select id="fulfillment"></select></label>
+          <label>Pad <select id="pad"></select></label>
+          <label>Access <select id="access"></select></label>
+          <label>Length (ft) <input id="lengthFt" type="number" min="0" step="1" value="12"></label>
+          <label>Width (ft) <input id="widthFt" type="number" min="0" step="1" value="10"></label>
+          <label>Delivery miles <input id="deliveryMiles" type="number" min="0" step="1" value="15"></label>
+          <label>Extra windows <input id="extraWindows" type="number" min="0" step="1" value="0"></label>
+          <label>Extra doors <input id="extraDoors" type="number" min="0" step="1" value="0"></label>
+          <label>Electrical <select id="electrical"></select></label>
+        </div>
+        <div class="checks">
+          <label><input id="ramp" type="checkbox"> Ramp</label>
+          <label><input id="loft" type="checkbox"> Loft</label>
+          <label><input id="haulAway" type="checkbox"> Old-shed haul-away</label>
+        </div>
+      </section>
+
+      <section>
+        <h2>Hours and material rates</h2>
+        <p class="hint">These start from the fulfillment, pad, access, and electrical you picked. They are ballpark crew figures, not a kit catalog or a guarantee.</p>
+        <div class="fields">
+          <label>Trip hours <input id="hoursTrip" type="number" min="0" step="0.1"></label>
+          <label>Hours / mile <input id="hoursPerMile" type="number" min="0" step="0.01"></label>
+          <label>Build hours / sq ft <input id="hoursPerSqFtBuild" type="number" min="0" step="0.0001"></label>
+          <label>Set hours <input id="hoursSet" type="number" min="0" step="0.1"></label>
+          <label>Pad hours / sq ft <input id="hoursPerSqFtPad" type="number" min="0" step="0.0001"></label>
+          <label>Access hours <input id="hoursAccess" type="number" min="0" step="0.1"></label>
+          <label>Hours / window <input id="hoursPerWindow" type="number" min="0" step="0.1"></label>
+          <label>Hours / door <input id="hoursPerDoor" type="number" min="0" step="0.1"></label>
+          <label>Ramp hours <input id="hoursRamp" type="number" min="0" step="0.1"></label>
+          <label>Loft hours <input id="hoursLoft" type="number" min="0" step="0.1"></label>
+          <label>Haul-away hours <input id="hoursHaulAway" type="number" min="0" step="0.1"></label>
+          <label>Electrical hours <input id="hoursElectrical" type="number" min="0" step="0.1"></label>
+          <label>Site / punch-list hours <input id="siteHours" type="number" min="0" step="0.1"></label>
+          <label>Shed unit $ <input id="shedUnit" type="number" min="0" step="10"></label>
+          <label>Lumber $ / sq ft <input id="lumberPerSqFt" type="number" min="0" step="0.1"></label>
+          <label>Gravel $ / cy <input id="gravelPerCy" type="number" min="0" step="1"></label>
+          <label>Concrete $ / cy <input id="concretePerCy" type="number" min="0" step="1"></label>
+          <label>Pad thickness (in) <input id="padThicknessIn" type="number" min="0" step="0.5"></label>
+          <label>Uses gravel (0/1) <input id="usesGravel" type="number" min="0" max="1" step="1"></label>
+          <label>Uses concrete (0/1) <input id="usesConcrete" type="number" min="0" max="1" step="1"></label>
+          <label>Access equipment $ <input id="accessEquipment" type="number" min="0" step="10"></label>
+          <label>Delivery $ / mile <input id="deliveryPerMile" type="number" min="0" step="0.1"></label>
+          <label>Window $ each <input id="windowEach" type="number" min="0" step="5"></label>
+          <label>Door $ each <input id="doorEach" type="number" min="0" step="5"></label>
+          <label>Ramp $ <input id="rampEach" type="number" min="0" step="5"></label>
+          <label>Loft package $ <input id="loftPackage" type="number" min="0" step="10"></label>
+          <label>Haul-away $ <input id="haulAwayInvoice" type="number" min="0" step="5"></label>
+          <label>Electrical package $ <input id="electricalPackage" type="number" min="0" step="10"></label>
+          <label>Pad overhang (ft) <input id="padOverhangFt" type="number" min="0" step="0.25"></label>
+        </div>
+      </section>
+
+      <section>
+        <h2>Your costs</h2>
+        <div class="fields">
+          <label>Crew hourly wage <input id="hourlyWage" type="number" min="0" step="0.25" value="26"></label>
+          <label>Payroll burden (%) <input id="burdenRate" type="number" min="0" step="0.5" value="28"></label>
+          <label>Travel &amp; equipment <input id="travelAndEquipment" type="number" min="0" step="1" value="85"></label>
+          <label>Other cost <input id="otherCost" type="number" min="0" step="1" value="0"></label>
+          <label>Overhead on direct cost (%) <input id="overheadRate" type="number" min="0" step="0.5" value="15"></label>
+          <label>Target net margin (%) <input id="targetMargin" type="number" min="0" max="99.9" step="0.5" value="20"></label>
+          <label>Price you&rsquo;re considering (optional) <input id="proposedPrice" type="number" min="0" step="50" placeholder="e.g. 2499"></label>
+        </div>
+        <p class="hint" style="margin-top:14px;margin-bottom:0">Payroll burden covers employer taxes, workers&rsquo; compensation, liability insurance, and paid time off. Underestimating it is how a drop-and-set special that looked profitable was not.</p>
+      </section>
+    </div>
+
+    <section class="result" aria-live="polite">
+      <h2>Your bid</h2>
+      <div id="price" class="hero-number">$&mdash;</div>
+      <div id="priceLabel">installed shed price</div>
+      <dl>
+        <dt>Shed area</dt><dd id="area"></dd>
+        <dt>Pad billed</dt><dd id="padBilled"></dd>
+        <dt>Pad volume</dt><dd id="padCy"></dd>
+        <dt>Delivery</dt><dd id="delivery"></dd>
+        <dt>Crew hours</dt><dd id="hours"></dd>
+        <dt>Loaded labor</dt><dd id="labor"></dd>
+        <dt>Shed / lumber</dt><dd id="shedCost"></dd>
+        <dt>Pad, delivery, extras</dt><dd id="extra"></dd>
+        <dt>Travel &amp; other</dt><dd id="soft"></dd>
+        <dt>Overhead</dt><dd id="overhead"></dd>
+        <dt>Total cost</dt><dd id="cost"></dd>
+        <dt>Profit</dt><dd id="profit"></dd>
+        <dt>Price per sq ft</dt><dd id="perSqFt"></dd>
+        <dt>Effective hourly rate</dt><dd id="hourlyRate"></dd>
+        <dt>Walk-away price</dt><dd id="breakEven"></dd>
+      </dl>
+      <div id="verdict" class="verdict" hidden></div>
+      <div class="summary-actions">
+        <button type="button" id="copyLink">Copy bid link</button>
+        <button type="button" id="clearSaved">Start a fresh bid</button>
+        <button type="button" id="copySummary">Copy bid summary</button>
+        <span id="summaryStatus" class="summary-status" role="status" aria-live="polite"></span>
+      </div>
+      <p id="restoreNote" class="note" role="status" aria-live="polite" hidden></p>
+      <p class="note" style="margin-top:8px">A bid link carries your own rates — wage, burden, overhead, and target margin — so the page reopens exactly as you left it. Send it to yourself or your crew. The customer should get the price, not the link.</p>
+      <hr>
+      <p class="note" style="margin-bottom:4px"><strong>Same shed, three pads</strong></p>
+      <table>
+        <thead><tr><th>Pad</th><th>Hours</th><th>Price</th></tr></thead>
+        <tbody id="compare"></tbody>
+      </table>
+      <hr>
+      <p class="note" style="margin-bottom:4px"><strong>Where the hours go</strong></p>
+      <ul class="split" id="split"></ul>
+      <hr>
+      <p class="note">Transparent arithmetic from your own inputs. The starting hours and material rates are common ballpark figures, not an industry standard, a benchmark, or a guarantee &mdash; time your own crews and replace them.</p>
+    </section>
+  </main>
+
+  <footer>
+    <label style="display:inline-flex;gap:6px;align-items:center;font-weight:400"><input id="usageOptOut" type="checkbox" style="width:auto"> Do not keep anonymous local usage counts</label>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not structural, construction, building-code, legal, tax, or financial advice, and it does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for meeting any obligation it helps you prepare for. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record. If a tool needs to survive, export your inputs and run it yourself.</p>
+    <p><strong>Nothing leaves your browser.</strong> Every number stays on this device. Your bid is saved in this browser so it is still here next visit, and &ldquo;Start a fresh bid&rdquo; deletes it; a bid link you copy holds those same numbers in the address itself, so treat one like your rate sheet. Usage counts are anonymous tallies of which features were used, stored locally, and never include your shed, wages, costs, or prices.</p>
+    <p>Looking up <a href="how-much-to-charge-to-install-a-shed.html">how much to charge to install a shed</a>? The article walks the pad-and-delivery math this calculator uses.</p>
+    <p class="support">Free and open source. If it wins you a job, the <a href="https://github.com/Duncan-Haywood/monorepo-projects" rel="noopener">project is on GitHub</a> &mdash; support is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import {
+      calculateBid,
+      comparePad,
+      formatBidSummary,
+      suggestedFulfillmentKit,
+      suggestedPadKit,
+      suggestedAccessKit,
+      suggestedElectricalKit,
+      suggestedExtraKit,
+      FULFILLMENT_PRESETS,
+      PAD_PRESETS,
+      ACCESS_PRESETS,
+      ELECTRICAL_PRESETS,
+      JOB_PRESETS,
+    } from './calc.mjs';
+    import { recordUsage } from './usage.mjs';
+    import { encodeBid, saveBid, clearBid, restoreBid } from './share.mjs';
+
+    const JOB_IDS = [
+      'fulfillment', 'pad', 'access', 'lengthFt', 'widthFt', 'deliveryMiles',
+      'extraWindows', 'extraDoors', 'electrical',
+    ];
+    const FLAG_IDS = ['ramp', 'loft', 'haulAway'];
+    const RATE_IDS = [
+      'hoursTrip', 'hoursPerMile', 'hoursPerSqFtBuild', 'hoursSet', 'hoursPerSqFtPad',
+      'hoursAccess', 'hoursPerWindow', 'hoursPerDoor', 'hoursRamp', 'hoursLoft',
+      'hoursHaulAway', 'hoursElectrical', 'siteHours', 'shedUnit', 'lumberPerSqFt',
+      'gravelPerCy', 'concretePerCy', 'padThicknessIn', 'usesGravel', 'usesConcrete',
+      'accessEquipment', 'deliveryPerMile', 'windowEach', 'doorEach', 'rampEach',
+      'loftPackage', 'haulAwayInvoice', 'electricalPackage', 'padOverhangFt',
+    ];
+    const COST_IDS = [
+      'hourlyWage', 'burdenRate', 'travelAndEquipment', 'otherCost',
+      'overheadRate', 'targetMargin', 'proposedPrice',
+    ];
+    const FULFILLMENT_RATE_IDS = ['hoursPerSqFtBuild', 'hoursSet', 'shedUnit', 'lumberPerSqFt'];
+    const PAD_RATE_IDS = [
+      'hoursPerSqFtPad', 'padThicknessIn', 'gravelPerCy', 'concretePerCy',
+      'usesGravel', 'usesConcrete',
+    ];
+    const ACCESS_RATE_IDS = ['hoursAccess', 'accessEquipment'];
+    const ELECTRICAL_RATE_IDS = ['hoursElectrical', 'electricalPackage'];
+    const EXTRA_RATE_IDS = [
+      'hoursTrip', 'hoursPerMile', 'hoursPerWindow', 'hoursPerDoor', 'hoursRamp',
+      'hoursLoft', 'hoursHaulAway', 'siteHours', 'deliveryPerMile', 'windowEach',
+      'doorEach', 'rampEach', 'loftPackage', 'haulAwayInvoice', 'padOverhangFt',
+    ];
+    const money = value => `$${value.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+    const el = id => document.getElementById(id);
+
+    function fillSelect(id, presets) {
+      el(id).innerHTML = presets.map(item => `<option value="${item.id}">${item.label}</option>`).join('');
+    }
+
+    fillSelect('fulfillment', FULFILLMENT_PRESETS);
+    fillSelect('pad', PAD_PRESETS);
+    fillSelect('access', ACCESS_PRESETS);
+    fillSelect('electrical', ELECTRICAL_PRESETS);
+    el('jobPresets').innerHTML = '<option value="">Choose a starting job…</option>'
+      + JOB_PRESETS.map((job, index) => `<option value="${index}">${job.label}</option>`).join('');
+
+    function applyKit(kit, ids) {
+      for (const id of ids) {
+        const field = el(id);
+        if (field.dataset.edited) continue;
+        if (kit[id] !== undefined) field.value = kit[id];
+      }
+    }
+
+    function applyFulfillmentKit() {
+      applyKit(suggestedFulfillmentKit(el('fulfillment').value), FULFILLMENT_RATE_IDS);
+    }
+
+    function applyPadKit() {
+      applyKit(suggestedPadKit(el('pad').value), PAD_RATE_IDS);
+    }
+
+    function applyAccessKit() {
+      applyKit(suggestedAccessKit(el('access').value), ACCESS_RATE_IDS);
+    }
+
+    function applyElectricalKit() {
+      applyKit(suggestedElectricalKit(el('electrical').value), ELECTRICAL_RATE_IDS);
+    }
+
+    function applyExtraKit() {
+      applyKit(suggestedExtraKit(), EXTRA_RATE_IDS);
+    }
+
+    function readInput() {
+      const values = Object.fromEntries(
+        [...JOB_IDS, ...RATE_IDS, ...COST_IDS].map(id => [id, el(id).value]),
+      );
+      for (const id of FLAG_IDS) values[id] = el(id).checked;
+      return values;
+    }
+
+    function count(event) {
+      recordUsage(localStorage, el('usageOptOut').checked, event);
+    }
+
+    function clearOutputs(message, isError) {
+      el('price').textContent = message;
+      el('price').className = `hero-number ${isError ? 'negative' : ''}`;
+      el('priceLabel').textContent = isError ? 'check the highlighted input' : 'installed shed price';
+      ['area','padBilled','padCy','delivery','hours','labor','shedCost','extra','soft','overhead','cost','profit','perSqFt','hourlyRate','breakEven']
+        .forEach(id => { el(id).textContent = ''; });
+      el('split').innerHTML = '';
+      el('compare').innerHTML = '';
+      el('verdict').hidden = true;
+    }
+
+    function update() {
+      let result;
+      try {
+        result = calculateBid(readInput());
+      } catch (error) {
+        clearOutputs(error.message, true);
+        return;
+      }
+
+      el('price').textContent = money(result.price);
+      el('price').className = 'hero-number';
+      el('priceLabel').textContent = 'installed shed price';
+      el('area').textContent = `${result.areaSqFt.toLocaleString('en-US')} sq ft`;
+      el('padBilled').textContent = `${result.billedPadSqFt.toLocaleString('en-US')} sq ft`;
+      el('padCy').textContent = `${result.padCy.toFixed(1)} cy`;
+      el('delivery').textContent = `${result.deliveryMiles} mi · ${result.hoursDelivery.toFixed(1)} h`;
+      el('hours').textContent = `${result.totalHours.toFixed(1)} h`;
+      el('labor').textContent = money(result.laborCost);
+      el('shedCost').textContent = money(result.shedMaterial);
+      el('extra').textContent = money(result.extraCost);
+      el('soft').textContent = money(result.softCost);
+      el('overhead').textContent = money(result.overhead);
+      el('cost').textContent = money(result.totalCost);
+      el('profit').textContent = money(result.profit);
+      el('perSqFt').textContent = result.pricePerSqFt === null ? 'n/a' : `$${result.pricePerSqFt.toFixed(2)}`;
+      el('hourlyRate').textContent = result.effectiveHourlyRate === null ? 'n/a' : `${money(result.effectiveHourlyRate)}/h`;
+      el('breakEven').textContent = money(result.breakEvenPrice);
+
+      const hourRows = [
+        ['Delivery', result.hourShares.delivery],
+        ['Build', result.hourShares.build],
+        ['Set', result.hourShares.set],
+        ['Pad', result.hourShares.pad],
+        ['Access', result.hourShares.access],
+        ['Windows', result.hourShares.windows],
+        ['Doors', result.hourShares.doors],
+        ['Ramp', result.hourShares.ramp],
+        ['Loft', result.hourShares.loft],
+        ['Haul-away', result.hourShares.haulAway],
+        ['Electrical', result.hourShares.electrical],
+        ['Site', result.hourShares.site],
+      ].filter(row => row[1] > 0);
+      el('split').innerHTML = hourRows.length === 0
+        ? '<li class="empty">Hours appear here once the shed has area.</li>'
+        : hourRows
+          .sort((a, b) => b[1] - a[1])
+          .map(([name, share]) => `<li><span>${name}</span><span>${share.toFixed(0)}% of hours</span>
+            <span class="bar"><span style="width:${share.toFixed(1)}%"></span></span></li>`)
+          .join('');
+
+      const compared = comparePad(readInput());
+      el('compare').innerHTML = compared.map(row => `<tr class="${row.cheapest ? 'cheap' : ''}">
+        <td>${row.label}${row.cheapest ? ' · lowest' : ''}</td>
+        <td>${row.totalHours.toFixed(1)} h</td>
+        <td>${money(row.price)}</td>
+      </tr>`).join('');
+
+      const verdict = el('verdict');
+      if (result.proposed === null) {
+        verdict.hidden = true;
+      } else {
+        verdict.hidden = false;
+        verdict.className = `verdict${result.proposed.belowBreakEven ? ' bad' : ''}`;
+        const rate = result.proposed.hourlyRate === null ? 'n/a' : `${money(result.proposed.hourlyRate)}/h`;
+        verdict.innerHTML = result.proposed.belowBreakEven
+          ? `At ${money(result.proposed.price)} this job <strong>loses ${money(Math.abs(result.proposed.profit))}</strong> before you take anything out of it. Your walk-away price is ${money(result.breakEvenPrice)}.`
+          : `At ${money(result.proposed.price)} you keep <strong>${money(result.proposed.profit)}</strong> — a ${result.proposed.margin.toFixed(1)}% margin, billing ${rate} of labor.`;
+      }
+    }
+
+    async function copySummary() {
+      const result = calculateBid(readInput());
+      const preset = JOB_PRESETS[Number(el('jobPresets').value)];
+      const text = formatBidSummary(result, preset ? preset.label : 'Shed install');
+      try {
+        await navigator.clipboard.writeText(text);
+      } catch {
+        const fallback = document.createElement('textarea');
+        fallback.value = text;
+        fallback.setAttribute('readonly', '');
+        fallback.style.position = 'fixed';
+        fallback.style.opacity = '0';
+        document.body.append(fallback);
+        fallback.select();
+        document.execCommand('copy');
+        fallback.remove();
+      }
+      count('summary_copied');
+      el('summaryStatus').textContent = 'Copied to clipboard';
+      setTimeout(() => { el('summaryStatus').textContent = ''; }, 2500);
+    }
+
+    function applyJob(index) {
+      const job = JOB_PRESETS[index];
+      if (!job) return;
+      for (const id of RATE_IDS) delete el(id).dataset.edited;
+      el('lengthFt').value = job.lengthFt;
+      el('widthFt').value = job.widthFt;
+      el('fulfillment').value = job.fulfillment;
+      el('pad').value = job.pad;
+      el('access').value = job.access;
+      el('electrical').value = job.electrical;
+      el('deliveryMiles').value = job.deliveryMiles;
+      el('extraWindows').value = job.extraWindows;
+      el('extraDoors').value = job.extraDoors;
+      el('ramp').checked = job.ramp;
+      el('loft').checked = job.loft;
+      el('haulAway').checked = job.haulAway;
+      applyFulfillmentKit();
+      applyPadKit();
+      applyAccessKit();
+      applyElectricalKit();
+      applyExtraKit();
+    }
+
+    el('jobPresets').addEventListener('change', () => {
+      if (el('jobPresets').value === '') return;
+      applyJob(Number(el('jobPresets').value));
+      count('preset_applied');
+      update();
+    });
+    el('fulfillment').addEventListener('change', () => {
+      applyFulfillmentKit();
+      count('fulfillment_changed');
+      update();
+    });
+    el('pad').addEventListener('change', () => {
+      applyPadKit();
+      count('pad_changed');
+      update();
+    });
+    el('access').addEventListener('change', () => {
+      applyAccessKit();
+      count('access_changed');
+      update();
+    });
+    el('electrical').addEventListener('change', () => {
+      applyElectricalKit();
+      count('electrical_changed');
+      update();
+    });
+    RATE_IDS.forEach(id => {
+      el(id).addEventListener('input', () => { el(id).dataset.edited = '1'; update(); });
+      el(id).addEventListener('change', () => count('bid_calculated'));
+    });
+    [...JOB_IDS, ...COST_IDS].forEach(id => {
+      if (id === 'fulfillment' || id === 'pad' || id === 'access' || id === 'electrical') return;
+      el(id).addEventListener('input', update);
+      el(id).addEventListener('change', () => count(id === 'proposedPrice' ? 'proposed_price_compared' : 'bid_calculated'));
+    });
+    FLAG_IDS.forEach(id => {
+      el(id).addEventListener('change', () => {
+        count('bid_calculated');
+        update();
+      });
+    });
+    el('usageOptOut').addEventListener('change', update);
+    el('copySummary').addEventListener('click', () => {
+      try {
+        copySummary().catch(() => { el('summaryStatus').textContent = 'Copy failed; select and copy the figures above.'; });
+      } catch (error) {
+        el('summaryStatus').textContent = error.message;
+      }
+    });
+
+    applyFulfillmentKit();
+    applyPadKit();
+    applyAccessKit();
+    applyElectricalKit();
+    applyExtraKit();
+    // Derived from the very id lists `readInput()` reads and the options the
+    // selects actually offer, so a field added to the form is saved and
+    // shareable without touching this. The alternative — a second field list
+    // kept by hand — is how a shared link ends up quietly dropping a field and
+    // pricing a different job for the recipient than the sender saw.
+    const CHOICE_IDS = ['fulfillment', 'pad', 'access', 'electrical'];
+    const BID_SPEC = {
+      key: 'shed-install-bid',
+      numbers: [...JOB_IDS, ...RATE_IDS, ...COST_IDS].filter(id => !CHOICE_IDS.includes(id)),
+      flags: FLAG_IDS,
+      choices: Object.fromEntries(CHOICE_IDS.map(id => [id, [...el(id).options].map(option => option.value)])),
+    };
+
+    // A restored field counts as hand-entered. Without this the suggested-rate
+    // kits would overwrite it on the next apply, so a setter who tuned their
+    // own rate and copied the link would watch the recipient's page reset it
+    // to the ballpark figure.
+    function applyValues(values) {
+      for (const [id, value] of Object.entries(values)) {
+        const field = el(id);
+        if (!field) continue;
+        if (field.type === 'checkbox') field.checked = Boolean(value);
+        else field.value = value;
+        field.dataset.edited = '1';
+      }
+    }
+
+    function persist() {
+      try {
+        saveBid(localStorage, BID_SPEC, readInput());
+      } catch {
+        // A browser with site data blocked throws on access. Losing the save
+        // is survivable; losing the calculator mid-bid is not.
+      }
+    }
+
+    async function copyLink() {
+      const query = encodeBid(BID_SPEC, readInput());
+      const url = `${location.origin}${location.pathname}${query ? `?${query}` : ''}`;
+      try {
+        await navigator.clipboard.writeText(url);
+      } catch {
+        const fallback = document.createElement('textarea');
+        fallback.value = url;
+        fallback.setAttribute('readonly', '');
+        fallback.style.position = 'fixed';
+        fallback.style.opacity = '0';
+        document.body.append(fallback);
+        fallback.select();
+        document.execCommand('copy');
+        fallback.remove();
+      }
+      count('link_copied');
+      el('summaryStatus').textContent = 'Bid link copied — it reopens this bid';
+      setTimeout(() => { el('summaryStatus').textContent = ''; }, 2500);
+    }
+
+    const restored = restoreBid(BID_SPEC, {
+      search: location.search,
+      storage: (() => { try { return localStorage; } catch { return null; } })(),
+    });
+    applyValues(restored.values);
+
+    if (restored.source !== 'none') {
+      // Say which bid is on screen. Numbers that changed themselves between
+      // visits, with no explanation, are how a setter stops trusting the tool.
+      el('restoreNote').hidden = false;
+      el('restoreNote').textContent = restored.source === 'link'
+        ? 'Opened from a bid link — these are the sender’s numbers, not yours.'
+        : 'Picked up your last bid from this browser. “Start a fresh bid” clears it.';
+    }
+
+    el('copyLink').addEventListener('click', () => {
+      copyLink().catch(() => { el('summaryStatus').textContent = 'Copy failed; copy the address bar instead.'; });
+    });
+
+    el('clearSaved').addEventListener('click', () => {
+      try { clearBid(localStorage, BID_SPEC); } catch { /* storage blocked; the reload still clears the form */ }
+      location.href = location.pathname;
+    });
+
+    // Every input already calls `update()`; saving here means the bid is kept
+    // as it is typed rather than only when a button is pressed, which is the
+    // difference between surviving a closed tab and not.
+    document.addEventListener('input', persist);
+    document.addEventListener('change', persist);
+
+    update();
+    persist();
+  </script>
+</body>
+</html>
