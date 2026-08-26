@@ -348,6 +348,14 @@ products:
           Added seller-initiated offer vs waiting after sell-through (accept
           floor, offer-percent ceiling). Still no public URL; local event
           seller_initiated_offer_compared is opt-out and stores no inputs.
+      - as_of: 2026-08-26
+        signals:
+          live_url_visitors: null
+          promoted_offsite_compared: 0
+        note: >-
+          Added Promoted Offsite vs skip after a bill charged either way
+          (extra-sale floor, spend ceiling). Still no public URL; local event
+          promoted_offsite_compared is opt-out and stores no inputs.
   - slug: cut-list-optimizer
     surface: static-page-in-repo
     readings:

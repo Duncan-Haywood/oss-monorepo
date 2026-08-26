@@ -60,6 +60,12 @@ already-listed SKU two ways: wait for Buy It Now, or send a percent
 offer to watchers. A 20% “make them take it” coupon can leave less
 than sitting at the listed price.
 [Should I send an offer to eBay watchers?](should-i-send-an-ebay-offer-to-watchers.html).
+A **Promoted Offsite vs skip** table then prices the same listing
+two ways: keep the sale you already have, or pay a campaign that
+is billed even if they bounce and add the extra sales you type.
+Promoted Listings Standard is a percent of a completed sale;
+Offsite is not.
+[Is eBay Promoted Offsite worth it?](is-ebay-promoted-offsite-worth-it.html).
 
 **After using the authenticity page, you can now see whether a 3% fee
 and an $8 hub label still beat skip-AG on that SKU** — which used to
@@ -90,6 +96,12 @@ shipping you gave away.
 a 10% seller-initiated offer still beats waiting at 40%
 sell-through** — which used to mean hitting Send offer because
 eBay showed a watcher count and never pricing the discount.
+
+**After using the Promoted Offsite page, you can now see whether
+a $20 campaign still pays after two extra sales** — which used
+to mean turning Offsite on because “it looks like Promoted
+Listings” and never pricing a bill that is charged even if they
+bounce.
 
 Open `index.html` in a browser. The calculation is local and works without an
 account, network request, or API key. It is arithmetic, not an estimate of the
@@ -154,6 +166,10 @@ drive that decision:
   after sell-through with Buy It Now versus a percent offer to
   watchers. Insertion is already sunk. The table also names the
   accept rate and offer-percent ceiling that still tie waiting.
+- **Promoted Offsite vs skip** — expected profit after returns
+  with the listing you already have versus that listing plus
+  extra sales minus a campaign billed either way. The table
+  also names the extra-sale count that still ties skip.
 
 **No warranty.** This tool is provided free and as-is, without warranty of any
 kind, express or implied. It is not tax, financial, or business advice, and it
@@ -181,13 +197,15 @@ The counted events are `order_profit_calculated`, `target_margin_calculated`,
 `partial_refund_compared`, `authenticity_compared`,
 `local_pickup_compared`, `lot_vs_singles_compared`,
 `standard_envelope_compared`, `combined_shipping_compared`,
-`seller_initiated_offer_compared`, and
+`seller_initiated_offer_compared`,
+`promoted_offsite_compared`, and
 `price_sensitivity_viewed`.
 `price_sensitivity_viewed`, `listing_format_compared`,
 `partial_refund_compared`, `authenticity_compared`,
 `local_pickup_compared`, `lot_vs_singles_compared`,
-`standard_envelope_compared`, `combined_shipping_compared`, and
-`seller_initiated_offer_compared` are counted at most
+`standard_envelope_compared`, `combined_shipping_compared`,
+`seller_initiated_offer_compared`, and
+`promoted_offsite_compared` are counted at most
 once per visit and only after an input is edited — counting the table's
 first paint would just re-count page loads and say nothing about whether
 the view is used.

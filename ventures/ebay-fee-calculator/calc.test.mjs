@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { calculateOrder, calculatePriceScenarios, calculateRepricingTable, compareListingFormat, listingFormatNote, comparePartialRefund, partialRefundNote, DEFAULT_PARTIAL_REFUND, DEFAULT_MONTHLY_CASES, compareAuthenticity, authenticityNote, DEFAULT_AUTHENTICITY_FEE_RATE, DEFAULT_AUTHENTICITY_EXTRA_SHIP, DEFAULT_WITHOUT_AG_SELL_THROUGH, DEFAULT_AUTHENTICITY_SELL_THROUGH, DEFAULT_AUTHENTICITY_RETURN_RATE, DEFAULT_MONTHLY_AG_LISTINGS, compareLocalPickup, localPickupNote, DEFAULT_SHIP_SELL_THROUGH, DEFAULT_PICKUP_SELL_THROUGH, DEFAULT_PICKUP_NO_SHOW, DEFAULT_PICKUP_MINUTES, DEFAULT_PICKUP_HOURLY_WAGE, DEFAULT_MONTHLY_PICKUP_LISTINGS, compareLotVsSingles, lotVsSinglesNote, DEFAULT_LOT_PIECE_COUNT, DEFAULT_SINGLE_EXPECTED_PRICE, DEFAULT_LOT_SELL_THROUGH, DEFAULT_SINGLE_SELL_THROUGH, DEFAULT_SINGLE_INSERTION_FEE, DEFAULT_MONTHLY_LOT_DECISIONS, compareStandardEnvelope, standardEnvelopeNote, DEFAULT_ENVELOPE_SHIPPING_COST, DEFAULT_ENVELOPE_PACKAGING_COST, DEFAULT_ENVELOPE_CLAIM_RATE, DEFAULT_ENVELOPE_FEE_REFUND_ON_CLAIM, DEFAULT_TRACKED_SELL_THROUGH, DEFAULT_ENVELOPE_SELL_THROUGH, DEFAULT_MONTHLY_ENVELOPE_LISTINGS, compareCombinedShipping, combinedShippingNote, DEFAULT_COMBINED_ITEM_COUNT, DEFAULT_COMBINED_SHIPPING_CHARGED, DEFAULT_COMBINED_SHIPPING_COST, DEFAULT_COMBINED_PACKAGING_COST, DEFAULT_COMBINED_RETURN_SHIPPING_COST, DEFAULT_COMBINED_FIXED_FEE, DEFAULT_MONTHLY_COMBINED_ORDERS, compareSellerInitiatedOffer, sellerInitiatedOfferNote, DEFAULT_OFFER_PERCENT, DEFAULT_WAIT_SELL_THROUGH, DEFAULT_OFFER_ACCEPT, DEFAULT_MONTHLY_OFFERS } from './calc.mjs';
+import { calculateOrder, calculatePriceScenarios, calculateRepricingTable, compareListingFormat, listingFormatNote, comparePartialRefund, partialRefundNote, DEFAULT_PARTIAL_REFUND, DEFAULT_MONTHLY_CASES, compareAuthenticity, authenticityNote, DEFAULT_AUTHENTICITY_FEE_RATE, DEFAULT_AUTHENTICITY_EXTRA_SHIP, DEFAULT_WITHOUT_AG_SELL_THROUGH, DEFAULT_AUTHENTICITY_SELL_THROUGH, DEFAULT_AUTHENTICITY_RETURN_RATE, DEFAULT_MONTHLY_AG_LISTINGS, compareLocalPickup, localPickupNote, DEFAULT_SHIP_SELL_THROUGH, DEFAULT_PICKUP_SELL_THROUGH, DEFAULT_PICKUP_NO_SHOW, DEFAULT_PICKUP_MINUTES, DEFAULT_PICKUP_HOURLY_WAGE, DEFAULT_MONTHLY_PICKUP_LISTINGS, compareLotVsSingles, lotVsSinglesNote, DEFAULT_LOT_PIECE_COUNT, DEFAULT_SINGLE_EXPECTED_PRICE, DEFAULT_LOT_SELL_THROUGH, DEFAULT_SINGLE_SELL_THROUGH, DEFAULT_SINGLE_INSERTION_FEE, DEFAULT_MONTHLY_LOT_DECISIONS, compareStandardEnvelope, standardEnvelopeNote, DEFAULT_ENVELOPE_SHIPPING_COST, DEFAULT_ENVELOPE_PACKAGING_COST, DEFAULT_ENVELOPE_CLAIM_RATE, DEFAULT_ENVELOPE_FEE_REFUND_ON_CLAIM, DEFAULT_TRACKED_SELL_THROUGH, DEFAULT_ENVELOPE_SELL_THROUGH, DEFAULT_MONTHLY_ENVELOPE_LISTINGS, compareCombinedShipping, combinedShippingNote, DEFAULT_COMBINED_ITEM_COUNT, DEFAULT_COMBINED_SHIPPING_CHARGED, DEFAULT_COMBINED_SHIPPING_COST, DEFAULT_COMBINED_PACKAGING_COST, DEFAULT_COMBINED_RETURN_SHIPPING_COST, DEFAULT_COMBINED_FIXED_FEE, DEFAULT_MONTHLY_COMBINED_ORDERS, compareSellerInitiatedOffer, sellerInitiatedOfferNote, DEFAULT_OFFER_PERCENT, DEFAULT_WAIT_SELL_THROUGH, DEFAULT_OFFER_ACCEPT, DEFAULT_MONTHLY_OFFERS, comparePromotedOffsite, promotedOffsiteNote, DEFAULT_OFFSITE_SPEND, DEFAULT_OFFSITE_EXTRA_ORDERS, DEFAULT_MONTHLY_OFFSITE_CAMPAIGNS } from './calc.mjs';
 
 const near = (actual, expected, msg) => assert.ok(Math.abs(actual - expected) < 1e-6, `${msg}: ${actual} vs ${expected}`);
 
@@ -860,4 +860,91 @@ test('rejects an offer percent above 100% and a missing comparison', () => {
   assert.throws(() => compareSellerInitiatedOffer({ ...agBase, offerAcceptPct: -1 }), /Offer accept rate/);
   assert.throws(() => compareSellerInitiatedOffer({ price: -1 }), /Item price/);
   assert.throws(() => sellerInitiatedOfferNote({}), /missing rows/);
+});
+
+const offsiteBase = {
+  price: 40,
+  shippingCharged: 6,
+  finalValueRate: 13.25,
+  fixedFee: 0.3,
+  costOfGoods: 12,
+  shippingCost: 5,
+  packagingCost: 1,
+  returnShippingCost: 5,
+  feeRefundOnReturnPercent: 100,
+  returnRatePercent: 10,
+};
+
+test('a $20 Offsite campaign that buys two extra sales still pays after returns', () => {
+  const comparison = comparePromotedOffsite(offsiteBase);
+  assert.equal(comparison.offsiteSpend, DEFAULT_OFFSITE_SPEND);
+  assert.equal(comparison.extraOrders, DEFAULT_OFFSITE_EXTRA_ORDERS);
+  assert.equal(comparison.monthlyCampaigns, DEFAULT_MONTHLY_OFFSITE_CAMPAIGNS);
+  near(comparison.listingExpectedProfit, 18.3445, 'listing after returns');
+  near(comparison.extraSaleExpectedProfit, 18.3445, 'one extra sale after returns');
+  near(comparison.skip.expectedProfit, 18.3445, 'skip Offsite');
+  near(comparison.offsite.expectedProfit, 35.0335, 'add Offsite');
+  near(comparison.extraKeptOnOffsite, 16.689, 'Offsite gap');
+  near(comparison.monthlyExtraOnOffsite, 16.689 * 4, 'four campaigns');
+  near(comparison.breakEvenExtraOrders, 20 / 18.3445, 'extra-sale floor');
+  near(comparison.breakEvenOffsiteSpend, 36.689, 'spend ceiling');
+  near(comparison.costPerExtraSale, 10, 'spend per extra sale');
+  assert.equal(comparison.winner, 'offsite');
+  assert.equal(comparison.skip.adSpend, 0);
+  assert.equal(comparison.offsite.adSpend, 20);
+  assert.equal(comparison.offsite.extraOrders, 2);
+});
+
+test('break-even extra sales and spend match skip-Offsite', () => {
+  const comparison = comparePromotedOffsite(offsiteBase);
+  const atOrders = comparePromotedOffsite({
+    ...offsiteBase,
+    offsiteExtraOrders: comparison.breakEvenExtraOrders,
+  });
+  near(atOrders.offsite.expectedProfit, atOrders.skip.expectedProfit, 'floor extras tie skip');
+  const atSpend = comparePromotedOffsite({
+    ...offsiteBase,
+    offsiteSpend: comparison.breakEvenOffsiteSpend,
+  });
+  near(atSpend.offsite.expectedProfit, atSpend.skip.expectedProfit, 'ceiling spend ties skip');
+  assert.ok(comparison.breakEvenExtraOrders < 2, 'default two extras is above the floor');
+  assert.ok(comparison.breakEvenOffsiteSpend > 20, 'default $20 spend is below the ceiling');
+});
+
+test('one extra sale for the same $20 flips skip-Offsite ahead', () => {
+  const comparison = comparePromotedOffsite({ ...offsiteBase, offsiteExtraOrders: 1 });
+  assert.equal(comparison.winner, 'skip');
+  near(comparison.offsite.expectedProfit, 16.689, 'one extra after spend');
+  near(comparison.extraKeptOnOffsite, -1.6555, 'one-extra gap');
+});
+
+test('extra Offsite sales still paying Promoted Listings Standard reduce the gap', () => {
+  const comparison = comparePromotedOffsite({ ...offsiteBase, offsitePromotedRate: 8 });
+  near(comparison.extraSaleExpectedProfit, 15.0325, '8% Standard on extras');
+  near(comparison.offsite.expectedProfit, 28.4095, 'stacked after spend');
+  near(comparison.extraKeptOnOffsite, 10.065, 'stacked gap');
+  assert.equal(comparison.winner, 'offsite');
+  assert.equal(comparison.offsite.promotedRate, 8);
+  assert.equal(comparison.skip.promotedRate, 0);
+});
+
+test('Promoted Offsite note reports both paths without telling the seller which to use', () => {
+  const comparison = comparePromotedOffsite(offsiteBase);
+  const note = promotedOffsiteNote(comparison);
+  assert.match(note, /Skip Promoted Offsite/);
+  assert.match(note, /\$18\.34/);
+  assert.match(note, /\$20\.00 Offsite campaign/);
+  assert.match(note, /2 extra sales/);
+  assert.match(note, /\$35\.03/);
+  assert.match(note, /\$16\.69 more/);
+  assert.match(note, /1\.09/);
+  assert.doesNotMatch(note, /should turn on|must skip|turn Offsite on/i);
+});
+
+test('rejects a missing price, a negative spend, and a missing Offsite comparison', () => {
+  assert.throws(() => comparePromotedOffsite({ price: -1 }), /Item price/);
+  assert.throws(() => comparePromotedOffsite({ ...offsiteBase, offsiteSpend: -1 }), /Promoted Offsite spend/);
+  assert.throws(() => comparePromotedOffsite({ ...offsiteBase, offsiteExtraOrders: -1 }), /Extra Offsite orders/);
+  assert.throws(() => comparePromotedOffsite({ ...offsiteBase, offsitePromotedRate: 101 }), /at most 100/);
+  assert.throws(() => promotedOffsiteNote({}), /missing rows/);
 });

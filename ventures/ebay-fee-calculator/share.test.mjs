@@ -183,6 +183,20 @@ test('carries seller-initiated-offer fields so a shared link does not drop them'
   assert.equal(restored.monthlyOffers, 40);
 });
 
+test('carries Promoted Offsite fields so a shared link does not drop them', () => {
+  const restored = decodeInputs(encodeInputs({
+    price: 40,
+    offsiteSpend: 20,
+    offsiteExtraOrders: 2,
+    offsitePromotedRate: 8,
+    monthlyOffsiteCampaigns: 4,
+  }));
+  assert.equal(restored.offsiteSpend, 20);
+  assert.equal(restored.offsiteExtraOrders, 2);
+  assert.equal(restored.offsitePromotedRate, 8);
+  assert.equal(restored.monthlyOffsiteCampaigns, 4);
+});
+
 test('round-trips known numeric inputs in stable order', () => {
   const encoded = encodeInputs({ price: 40, shippingCharged: 6, finalValueRate: 13.25 });
   assert.equal(encoded, 'price=40&shippingCharged=6&finalValueRate=13.25');
