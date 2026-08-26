@@ -3,6 +3,7 @@
 // cent-rounded arithmetic. This is an observation, not a legal validity claim.
 
 import { inspectPaymentBic } from "./bic.mjs";
+import { inspectDocumentType } from "./document.mjs";
 import { inspectPaymentIban } from "./iban.mjs";
 import { inspectPaymentRemittance } from "./remittance.mjs";
 import { inspectPartyVat } from "./vat.mjs";
@@ -115,6 +116,9 @@ export function checkInvoice(invoice) {
     fail(finding.rule, finding.message, finding.fix, finding.path);
   }
   for (const finding of inspectPaymentRemittance(invoice)) {
+    fail(finding.rule, finding.message, finding.fix, finding.path);
+  }
+  for (const finding of inspectDocumentType(invoice)) {
     fail(finding.rule, finding.message, finding.fix, finding.path);
   }
 

@@ -37,8 +37,15 @@ def _party(element: ElementTree.Element) -> dict[str, str]:
     return mapped
 
 
+_DOCUMENT_ROOTS = {
+    "Invoice": ("invoice", "InvoiceLine", "InvoicedQuantity"),
+    "CreditNote": ("credit_note", "CreditNoteLine", "CreditedQuantity"),
+    "DebitNote": ("debit_note", "DebitNoteLine", "DebitedQuantity"),
+}
+
+
 def parse_ubl_invoice(source: bytes | str) -> dict[str, Any]:
-    """Map a local UBL Invoice into the format-neutral checker shape."""
+    """Map a local UBL Invoice, CreditNote, or DebitNote into the checker shape."""
     raw = source.encode() if isinstance(source, str) else source
     if b"<!DOCTYPE" in raw.upper() or b"<!ENTITY" in raw.upper():
         raise ValueError("DTD and entity declarations are not supported")
@@ -46,12 +53,14 @@ def parse_ubl_invoice(source: bytes | str) -> dict[str, Any]:
         root = ElementTree.fromstring(raw)
     except ElementTree.ParseError as exc:
         raise ValueError(str(exc)) from exc
-    if root.tag.rsplit("}", 1)[-1] != "Invoice":
-        raise ValueError("UBL document root must be Invoice")
+    root_name = root.tag.rsplit("}", 1)[-1]
+    if root_name not in _DOCUMENT_ROOTS:
+        raise ValueError("UBL document root must be Invoice, CreditNote, or DebitNote")
+    document_type, line_name, quantity_name = _DOCUMENT_ROOTS[root_name]
 
     lines = []
-    for line in _children(root, "InvoiceLine"):
-        quantity = _text(line, "InvoicedQuantity")
+    for line in _children(root, line_name):
+        quantity = _text(line, quantity_name)
         price = _text(line, "PriceAmount")
         net = _text(line, "LineExtensionAmount")
         category = next(iter(_children(line, "ClassifiedTaxCategory")), line)
@@ -71,10 +80,19 @@ def parse_ubl_invoice(source: bytes | str) -> dict[str, Any]:
         raise ValueError("UBL field TaxAmount is missing")
     tax_total = sum((Decimal(_text(item, "TaxAmount")) for item in tax_totals), Decimal("0"))
     due_date = _text(root, "DueDate", required=False)
+    type_code = (
+        _text(root, "InvoiceTypeCode", required=False)
+        or _text(root, "CreditNoteTypeCode", required=False)
+        or _text(root, "DebitNoteTypeCode", required=False)
+    )
+    original = _billing_reference(root)
     invoice = {
         "invoice_number": _text(root, "ID"),
         "issue_date": _text(root, "IssueDate"),
         **({"due_date": due_date} if due_date else {}),
+        "document_type": document_type,
+        **({"document_code": type_code} if type_code else {}),
+        **({"original_invoice": original} if original else {}),
         "currency": _text(root, "DocumentCurrencyCode"),
         "supplier": _party(supplier),
         "customer": _party(customer),
@@ -91,6 +109,16 @@ def parse_ubl_invoice(source: bytes | str) -> dict[str, Any]:
     if payment:
         invoice["payment"] = payment
     return invoice
+
+
+def _billing_reference(root: ElementTree.Element) -> str:
+    """Map BillingReference/InvoiceDocumentReference/ID when present."""
+    for ref in _children(root, "BillingReference"):
+        for invoice_ref in _children(ref, "InvoiceDocumentReference"):
+            value = _text(invoice_ref, "ID", required=False)
+            if value:
+                return value
+    return ""
 
 
 def _optional_monetary_totals(total: ElementTree.Element) -> dict[str, int | float]:
