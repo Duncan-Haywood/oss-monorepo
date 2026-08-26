@@ -559,6 +559,36 @@ ventures:
       liability_containment: pass
       ethical_robustness: pass
 
+  - slug: equipment-rental-break-even
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 8
+      gross_margin: 10
+      defensibility: 4
+      distribution: 7
+    composite: 6.667
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      The v0 is intentionally deterministic: rental operators need transparent
+      ownership recovery and utilization arithmetic, not generated advice.
+    basis: >-
+      Graduated on 2026-08-25 as a browser-local equipment-rental booking
+      calculator. It models booking-specific costs, asset recovery, target
+      contribution price, and break-even utilization without accounts, uploads,
+      integrations, or paid APIs. The niche has direct money value for
+      independent operators, clear calculator search intent, and a low-cost
+      static launch path; customer demand remains untested.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Pass: outputs are labeled arithmetic scenarios rather than profit,
+      financial, tax, or engineering advice; users supply and verify their own
+      assumptions before quoting.
+
   - slug: world-clock-widget
     scores:
       ai_leverage: 1
