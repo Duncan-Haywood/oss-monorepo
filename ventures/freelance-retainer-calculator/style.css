@@ -14,3 +14,6 @@
 .usage-table th:first-child, .usage-table td:first-child { text-align:left; }
 .usage-table .warn-row td { color:#9d291d; }
 .verdict { font:600 14px/1.45 Arial,sans-serif; margin:12px 0 0; }
+.needs-float { color:#9d291d; }
+.copy ul { color:var(--muted); padding-left:1.2em; }
+.copy a { color:var(--accent); }
