@@ -115,6 +115,12 @@ merely contains the word (`latest.mjs`, `testimonials.html`) still ships.
   ~180 concurrently-edited product files would conflict with nearly every open
   branch.
 
+- **A machine-readable catalog.** `catalog.json` lists every tool with its URL,
+  category, and description — the flat thing an AI assistant answering "is there
+  a free tool for X" can fetch in one request instead of parsing the hub. The
+  deploy workflow also reads it back off the live origin to pick the product page
+  it verifies, so a renamed venture cannot make verification pass vacuously.
+
 ## Shop rates, carried between tools
 
 `rates.mjs` injects a small bar under the site nav on every **trade bid
@@ -372,10 +378,13 @@ can be run against any branch, and publishing the live site from a feature
 branch is not a mistake anyone would notice quickly.
 
 After deploying, the workflow fetches the real public URL — the front page,
-both sitemaps, `robots.txt`, and one product — and fails if any of them does not
-return 200, or if `sitemap.xml` comes back without a sitemap index. A completed
-deploy step is not evidence that anything serves; this makes "deployed" a fact
-rather than an inference.
+both sitemaps, `robots.txt`, `catalog.json`, and one product — and fails if any
+of them does not return 200, or if `sitemap.xml` comes back without a sitemap
+index. A completed deploy step is not evidence that anything serves; this makes
+"deployed" a fact rather than an inference. The product it fetches is named by
+the catalog it just downloaded rather than hardcoded: a hardcoded slug stops
+proving anything the moment that venture is renamed, and reports the rename as
+a dead site.
 
 Only one workflow may publish to Pages. `retail-pilot-intel-deploy-docs.yml`
 reads `RETAIL_PILOT_INTEL_PAGES` instead, so an owner who wants those docs on

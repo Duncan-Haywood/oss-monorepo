@@ -10,6 +10,7 @@ import {
   parseMoney,
   parseQuantity,
   parseRateCard,
+  priceEnteredRows,
   readTable,
   suggestMapping,
 } from "./import.mjs";
@@ -404,7 +405,10 @@ test("a per-unit rule with no quantity leaves the expected amount blank, never z
   const built = buildImportedRows(table, suggestMapping(table.header), { rates });
   assert.equal(built.rows[0].expected, "");
   assert.equal(built.summary.needsUnits, 1);
-  assert.equal(built.summary.withoutExpected, 1);
+  // Not also counted as unpriced-for-want-of-a-rate-card-entry: the code is on
+  // the card. Counting it twice made the summary tell the shipper to add a
+  // code they had already typed, alongside the correct advice to map a column.
+  assert.equal(built.summary.withoutExpected, 0);
   assert.match(built.issues[0].reason, /rated per hour — map a quantity column/);
   const totals = auditTotals(auditCharges(built.rows));
   assert.equal(totals.recoverable, 0);
@@ -466,6 +470,68 @@ test("a quantity cell reads the way a carrier export writes one", () => {
   assert.equal(parseQuantity("1,250 cwt", "cwt").value, 1250);
   assert.equal(parseQuantity("", "hour").ok, false);
   assert.equal(parseQuantity("n/a", "hour").ok, false);
+});
+
+test("the rate card prices hand-entered rows, and never overwrites a typed figure", () => {
+  const { rates } = parseRateCard("DET 65/hr after 2 hours, max 325\nLIFT, 75");
+  const rows = [
+    { code: "DET", billed: "300", units: "5" },
+    { code: "LIFT", billed: "125" },
+    // Typed by the shipper for this shipment: their figure, not the card's.
+    { code: "LIFT", billed: "125", expected: "90" },
+    { code: "DET", billed: "300" },
+    { code: "MYSTERY", billed: "40" },
+  ];
+  const priced = priceEnteredRows(rows, rates);
+
+  assert.equal(priced[0].expected, "195.00");
+  assert.equal(priced[0].pricedPerUnit, true);
+  assert.match(priced[0].basis, /3 hours past 2 free × \$65\.00\/hour/);
+
+  assert.equal(priced[1].expected, "75.00");
+  assert.equal(priced[1].pricedPerUnit, false);
+
+  assert.equal(priced[2].expected, "90");
+  assert.equal(priced[2].basis, undefined, "a typed figure keeps no borrowed basis");
+
+  // Per-unit rule, no quantity: blank rather than zero, with the reason for
+  // the page to show on the cell that takes one.
+  assert.equal(priced[3].expected, undefined);
+  assert.match(priced[3].priceHint, /rated per hour — map a quantity column/);
+
+  assert.equal(priced[4].expected, undefined);
+  assert.equal(priced[4].priceHint, undefined);
+
+  // The card is re-applied on every keystroke, so a pass must not mutate the
+  // rows it was handed or an edited card could never lower a price again.
+  assert.equal(rows[0].expected, undefined);
+  assert.deepEqual(priceEnteredRows(rows, new Map())[0], rows[0]);
+});
+
+test("a missing quantity and a missing rate-card entry are counted apart", () => {
+  // Two different lines, two different fixes. Before, the DET line landed in
+  // both counters and the summary reported one line as two.
+  const csv = ["Invoice,Code,Amount", "INV-1,DET,300.00", "INV-1,MYSTERY,40.00"].join("\n");
+  const table = readTable(csv);
+  const { rates } = parseRateCard("DET 65/hr after 2 hours\nLIFT, 75");
+  const built = buildImportedRows(table, suggestMapping(table.header), { rates });
+  assert.equal(built.summary.needsUnits, 1);
+  assert.equal(built.summary.withoutExpected, 1);
+});
+
+test("a free allowance written without naming its unit is an allowance, not an unknown unit", () => {
+  // "after 2 free" is as common on a confirmation as "after 2 hours free",
+  // and the trailing word is the allowance's own, not a unit name.
+  for (const line of ["DET 65/hr after 2 free", "DET 65/hr after 2 hours free", "DET 65/hr after 2 hours"]) {
+    const { rates, issues } = parseRateCard(line);
+    assert.deepEqual(issues, [], line);
+    assert.equal(rates.get("DET").free, 2, line);
+    assert.equal(rates.get("DET").per, "hour", line);
+  }
+  // The minutes conversion still applies through the same clause.
+  const { rates } = parseRateCard("DET 65/hr past 30 min free, max 325");
+  assert.equal(rates.get("DET").free, 0.5);
+  assert.equal(rates.get("DET").max, 325);
 });
 
 test("the import summary says what the per-unit rules did and did not price", () => {
