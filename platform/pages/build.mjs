@@ -269,7 +269,22 @@ export async function publishedPages(dir, prefix = '') {
 // ---------------------------------------------------------------------------
 
 function rewriteOrigin(contents, baseUrl) {
-  return contents.split(PLACEHOLDER_ORIGIN).join(baseUrl);
+  const rewritten = contents.split(PLACEHOLDER_ORIGIN).join(baseUrl);
+
+  // Three ventures (freelance-retainer, no-show-fee, retainage-cashflow) wrote
+  // today's Pages address into their canonical tags directly, rather than the
+  // placeholder. That is correct by accident: it holds only while the site is
+  // served from exactly that URL, and `PAGES_BASE_URL` exists so a custom
+  // domain can be attached. On that day those pages would keep naming the
+  // github.io origin as canonical, which tells every crawler the real page is
+  // at the old address and hands the new domain a duplicate.
+  //
+  // Sitemaps are safe without this — they are regenerated from what actually
+  // published — but canonical tags are copied through, so they are not.
+  // Treating the default as a second placeholder makes the whole portfolio
+  // follow the base URL it is actually built with.
+  if (baseUrl === DEFAULT_BASE_URL) return rewritten;
+  return rewritten.split(DEFAULT_BASE_URL).join(baseUrl);
 }
 
 export function isPublishable(name) {

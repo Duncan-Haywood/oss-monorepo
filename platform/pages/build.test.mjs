@@ -1008,6 +1008,36 @@ test('changing the worker itself changes the cache name', async () => {
 });
 
 // ---------------------------------------------------------------------------
+// A stale real origin, as opposed to the placeholder
+//
+// Three ventures wrote today's Pages address into their canonical tags as a
+// literal rather than using `example.invalid`. That is invisible while the
+// site is served from exactly that URL, and wrong the moment `PAGES_BASE_URL`
+// points somewhere else — which is the whole reason that variable exists.
+//
+// Sitemaps are immune (they are regenerated from what published); canonicals
+// are copied through, so they are not.
+// ---------------------------------------------------------------------------
+
+test('no canonical tag names an origin other than the one the site was built with', async () => {
+  // The suite builds at https://example.test/site/, deliberately not the
+  // default — so a hardcoded production origin shows up here and nowhere else.
+  const { outDir } = await site();
+  const offenders = [];
+
+  for (const file of (await walk(outDir)).filter((f) => f.endsWith('.html'))) {
+    const html = await fs.readFile(file, 'utf8');
+    const canonical = /<link\b[^>]*\brel="canonical"[^>]*\bhref="([^"]+)"/i.exec(html);
+    if (canonical && /^https?:/i.test(canonical[1]) && !canonical[1].startsWith(BASE)) {
+      offenders.push(`${path.relative(outDir, file)} -> ${canonical[1]}`);
+    }
+  }
+
+  assert.deepEqual(offenders, [],
+    `these canonicals ignore the base URL the site was built with:\n${offenders.join('\n')}`);
+});
+
+// ---------------------------------------------------------------------------
 // Shared-origin head tags, and chrome that follows the page it wraps
 // ---------------------------------------------------------------------------
 
