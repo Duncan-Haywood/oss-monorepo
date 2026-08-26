@@ -3600,3 +3600,38 @@ ventures:
       stamp. The shipped hours and material rates are labelled ballpark
       starting points rather than a standard, and nothing the user enters
       leaves the browser.
+
+  - slug: fireplace-insert-bid-calculator
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 7
+      gross_margin: 10
+      defensibility: 5
+      distribution: 7
+    composite: 6.667
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      There is no AI anywhere in the product. The value is a domain model —
+      liner footage, hearth, and stack-height hours plus payroll burden —
+      that is arithmetic, and adding inference to it would only make the
+      result less checkable.
+    basis: >-
+      Graduated on 2026-08-25 as a browser-local fireplace-insert bid
+      calculator. Distinct from chimney-sweep tools (flue, creosote, CSIA
+      height): this prices the insert, the liner, the hearth, and the extras
+      that a "$2,499 installed" gas special cannot see. Distribution 7:
+      "how much to charge to install a fireplace insert" is a seasonal,
+      operator-intent query bought by a shop with a real job on the line,
+      and the incumbents are paid estimating suites or ad-funded guess pages.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Pass: the output is arithmetic on the contractor's own inputs, never a
+      recommended price, a code determination, a WETT/CSIA inspection, or an
+      engineering stamp. The shipped hours and material rates are labelled
+      ballpark starting points rather than a standard, and nothing the user
+      enters leaves the browser.
