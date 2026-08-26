@@ -319,37 +319,27 @@ export function isPublishable(name) {
 
 /** Recursively copy `from` into `to`, dropping test payload and repo bookkeeping. */
 /**
- * Where `favicon.ico` sits relative to the origin, e.g. `/monorepo-projects/`
- * for a project site. Root-absolute rather than relative because the same href
- * is injected into pages at several depths.
+ * Point one published page at the site's favicon.
+ *
+ * `renderFavicon()` writes the icon to the *published tree's* root, on the
+ * reasoning that a browser fetches `/favicon.ico` on its own for every page.
+ * That is true of the **origin** root — and this is a GitHub *project* site, so
+ * the origin root is `duncan-haywood.github.io/`, not the tree at
+ * `.../monorepo-projects/`. The automatic request lands outside this repository
+ * and the generated icon is never reached. Writing the link in is what closes
+ * that gap.
+ *
+ * The href is relative to the page rather than root-absolute, for the same
+ * reason every other in-site link here is: `check.mjs` rejects a link that
+ * leaves the site root, and a relative one is correct whatever path the site is
+ * served under — including a local preview at `/`.
+ *
+ * A venture that declares its own icon keeps it, and the link goes after the
+ * charset declaration so that stays the first thing the parser sees.
  */
-export function faviconHref(baseUrl) {
-  return `${new URL(baseUrl).pathname.replace(/\/*$/, '/')}favicon.ico`;
-}
-
-/**
- * Point a copied page at the site's favicon.
- *
- * `renderFavicon()` below writes the icon to the site root, on the reasoning
- * that a browser fetches `/favicon.ico` on its own for every page. That is true
- * of the *origin* root — and this is a GitHub **project** site, so the origin
- * root is `duncan-haywood.github.io/`, not the published tree at
- * `.../monorepo-projects/`. The automatic request therefore lands outside this
- * repository entirely and the generated icon is never reached.
- *
- * Writing the link in is what closes that gap. It rewrites the published copy
- * in the same pass that already rewrites the placeholder origin, so no
- * venture's own source is touched — and a venture that declares its own icon
- * keeps it.
- *
- * If the portfolio ever moves to a custom domain at an origin root, the
- * automatic request starts working and these links become belt-and-braces
- * rather than load-bearing. They stay correct either way.
- */
-export function injectFavicon(html, baseUrl) {
+export function injectFavicon(html, toRoot) {
   if (/<link[^>]+rel=["'][^"']*icon/i.test(html)) return html;
-  const link = `\n  <link rel="icon" href="${faviconHref(baseUrl)}" sizes="16x16">`;
-  // After the charset declaration, which the parser wants to see first.
+  const link = `\n  <link rel="icon" href="${escapeHtml(`${toRoot}favicon.ico`)}" sizes="16x16">`;
   if (/<meta[^>]+charset/i.test(html)) {
     return html.replace(/<meta[^>]+charset[^>]*>/i, (meta) => `${meta}${link}`);
   }
@@ -377,11 +367,7 @@ export async function copyTree(from, to, baseUrl) {
 
     if (REWRITABLE.has(path.extname(entry.name))) {
       const contents = await fs.readFile(src, 'utf8');
-      const rewritten = rewriteOrigin(contents, baseUrl);
-      await fs.writeFile(
-        dest,
-        path.extname(entry.name) === '.html' ? injectFavicon(rewritten, baseUrl) : rewritten,
-      );
+      await fs.writeFile(dest, rewriteOrigin(contents, baseUrl));
     } else {
       await fs.copyFile(src, dest);
     }
@@ -557,7 +543,7 @@ ${items
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <link rel="icon" href="${escapeHtml(faviconHref(baseUrl))}" sizes="16x16">
+  <link rel="icon" href="./favicon.ico" sizes="16x16">
   <title>Free Small-Business Calculators | Marketplace Fees, Trade Bids, Freight &amp; Compliance</title>
   <meta name="description" content="${escapeHtml(
     `${surfaces.length} free, private calculators for marketplace sellers, trade contractors, logistics buyers, and small teams. Everything runs in your browser — nothing you type is uploaded.`,
@@ -917,12 +903,11 @@ export async function addSiteChrome({ outDir, surfaces }) {
     for (const file of (await listFiles(dir)).filter((f) => f.endsWith('.html'))) {
       const relative = path.relative(outDir, file);
       const html = await fs.readFile(file, 'utf8');
-      const next = injectChrome(html, {
-        slug: surface.slug,
-        toRoot: upToRoot(relative),
-        total: surfaces.length,
-        related,
-      });
+      const toRoot = upToRoot(relative);
+      const next = injectFavicon(
+        injectChrome(html, { slug: surface.slug, toRoot, total: surfaces.length, related }),
+        toRoot,
+      );
       if (next === html) continue;
       await fs.writeFile(file, next);
       wrapped.push(relative);
@@ -1013,7 +998,7 @@ export function renderNotFound(baseUrl) {
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <link rel="icon" href="${escapeHtml(faviconHref(baseUrl))}" sizes="16x16">
+  <link rel="icon" href="./favicon.ico" sizes="16x16">
   <title>Not found</title>
   <style>
     body { font-family: system-ui, sans-serif; max-width: 40rem; margin: 12vh auto;

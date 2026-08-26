@@ -15,7 +15,6 @@ import {
   buildSite,
   categoryFor,
   collectPageTitles,
-  faviconHref,
   injectFavicon,
   discoverSurfaces,
   injectChrome,
@@ -629,49 +628,55 @@ test('every published page links the favicon, not just the site root', async () 
   // the browser's automatic /favicon.ico request goes to the origin root
   // instead — a different place this repo does not serve — so without a link
   // written into each page the icon is emitted and never fetched.
-  //
-  // The href is root-absolute because pages sit at several depths, and carries
-  // the site's path prefix for the same reason. Getting either wrong is a
-  // broken icon on every page, silently.
-  assert.equal(faviconHref('https://example.test/site/'), '/site/favicon.ico');
-  assert.equal(faviconHref('https://example.test'), '/favicon.ico');
-
-  const expected = faviconHref(BASE);
   const { outDir, surfaces } = await site();
-
-  const hub = await read('index.html');
-  assert.ok(
-    hub.includes(`<link rel="icon" href="${expected}"`),
-    'the hub declares no icon',
-  );
 
   const pages = (await listFiles(outDir)).filter((f) => f.endsWith('.html'));
   assert.ok(pages.length > surfaces.length, 'expected article pages as well as landing pages');
+
   const missing = [];
+  const unresolved = [];
   for (const file of pages) {
     const html = await fs.readFile(file, 'utf8');
-    if (!/<link[^>]+rel=["'][^"']*icon/i.test(html)) missing.push(path.relative(outDir, file));
+    const href = html.match(/<link[^>]+rel="icon"[^>]+href="([^"]+)"/i)?.[1];
+    if (!href) {
+      missing.push(path.relative(outDir, file));
+      continue;
+    }
+    // A venture that ships its own icon keeps it; several declare a `data:`
+    // URI, which is self-contained and has no file to resolve.
+    if (/^(data:|https?:)/.test(href)) continue;
+    // Relative, not root-absolute: `check.mjs` rejects a link that leaves the
+    // site root, and the site is served under a path prefix in production.
+    assert.ok(!href.startsWith('/'), `${path.relative(outDir, file)} links the icon absolutely`);
+    if (!(await exists(hrefTarget(href, file, outDir)))) {
+      unresolved.push(`${path.relative(outDir, file)} -> ${href}`);
+    }
   }
+
   assert.deepEqual(missing, [], 'pages served without an icon');
+  assert.deepEqual(unresolved, [], `icon links that do not resolve:\n${unresolved.join('\n')}`);
 });
 
 test('a venture that declares its own icon keeps it', () => {
   const own = '<head><link rel="icon" href="mine.png"></head>';
-  assert.equal(injectFavicon(own, BASE), own);
+  assert.equal(injectFavicon(own, '../'), own);
 
-  const injected = injectFavicon('<head>\n<title>t</title></head>', BASE);
+  const injected = injectFavicon('<head>\n<title>t</title></head>', '../');
   assert.equal((injected.match(/rel="icon"/g) ?? []).length, 1);
-  assert.ok(injected.includes(faviconHref(BASE)));
+  assert.ok(injected.includes('href="../favicon.ico"'));
+
+  // Depth is the caller's to supply; a page at the root gets './'.
+  assert.ok(injectFavicon('<head></head>', './').includes('href="./favicon.ico"'));
 
   // The charset declaration has to stay the first thing in the head.
-  const withCharset = injectFavicon('<head><meta charset="utf-8"><title>t</title></head>', BASE);
+  const withCharset = injectFavicon('<head><meta charset="utf-8"><title>t</title></head>', '../');
   assert.ok(
     withCharset.indexOf('charset') < withCharset.indexOf('rel="icon"'),
     'the icon must not displace the charset declaration',
   );
 
   // A fragment with no <head> must be left exactly as it was, not corrupted.
-  assert.equal(injectFavicon('<p>no head here</p>', BASE), '<p>no head here</p>');
+  assert.equal(injectFavicon('<p>no head here</p>', '../'), '<p>no head here</p>');
 });
 
 test('categories route each slug shape somewhere sensible', () => {
