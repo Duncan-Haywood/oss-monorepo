@@ -11,6 +11,10 @@ hypotheses:
     status: untested
     checked: null
     evidence: customer-contact
+  - claim: Sellers will return to compare inbound placement against split freight on a real shipment, because the listing inbound field hides that trade.
+    status: untested
+    checked: null
+    evidence: customer-contact
   - claim: Sellers will skip or keep Amazon inbound placement when they can see one-warehouse freight plus the placement fee against extra freight on the optimized split.
     status: untested
     checked: null

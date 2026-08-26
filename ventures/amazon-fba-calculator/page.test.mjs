@@ -66,6 +66,7 @@ function parse(source) {
     const closer = new RegExp(`</${tag}\\s*>`, "i").exec(rest.slice(contentStart));
     if (!closer) return { markup, scripts, unclosed: tag };
     if (tag === "script") scripts.push(rest.slice(contentStart, contentStart + closer.index));
+    markup += closer[0];
     rest = rest.slice(contentStart + closer.index + closer[0].length);
   }
 }
@@ -451,6 +452,30 @@ test("SEO page uses the same inbound-placement worked example the tests lock", (
   assert.match(placementSeo, /Best-effort hosting, no SLA/);
   assert.match(placementSeo, /github\.com\/sponsors\/Duncan-Haywood/);
   assert.equal(comparison.winner, "minimal");
+});
+
+test("the listing and inbound-placement scripts actually execute", () => {
+  assert.match(scriptSource, /compareInboundPlacement/);
+  assert.match(scriptSource, /calculateListing/);
+  assert.match(markup, /id="inbound-placement"/);
+  for (const id of [
+    "placementUnits",
+    "freightMinimal",
+    "freightPartial",
+    "freightOptimized",
+    "placementMinimalPerUnit",
+    "placementPartialPerUnit",
+    "placementCompare",
+    "placementVerdict",
+  ]) {
+    assert.match(markup, new RegExp(`id="${id}"`));
+  }
+});
+
+test("SEO page names the inbound-placement question and links back", () => {
+  assert.match(placementSeo, /inbound placement/i);
+  assert.match(placementSeo, /<a href="\.\/#inbound-placement">/);
+  assert.match(placementSeo, /No warranty/);
 });
 
 test("calculator page wires Individual vs Professional columns that match the row template", () => {
