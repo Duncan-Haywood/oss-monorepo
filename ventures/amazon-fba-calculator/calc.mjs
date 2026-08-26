@@ -2709,6 +2709,305 @@ export function sfpNote(comparison) {
   return comparison.summary;
 }
 
+// Amazon Warehousing and Distribution is the inbound-bulk decision on a
+// fresh PO: send the whole lot to FBA now, park it in AWD and replenish a
+// working FBA stock, or hold it yourself and drip inbound. Complementary
+// to inbound placement (which FC, not AWD vs FBA), aged inventory (units
+// already sitting), Q4 storage (when you send), supplier MOQ (how
+// many you buy), and restock vs the low-inventory-level fee (how thin
+// FBA already is). Defaults are illustrative 2025–26 US mid-band figures;
+// sellers overwrite them from the current AWD and FBA fee previews.
+export const DEFAULT_AWD_LOT_UNITS = 400;
+export const DEFAULT_AWD_HORIZON_MONTHS = 5;
+export const DEFAULT_AWD_INBOUND = 0.15;
+export const DEFAULT_AWD_STORAGE_PER_CU_FT = 0.48;
+export const DEFAULT_AWD_TO_FBA = 0.68;
+export const DEFAULT_YOU_HOLD_STORAGE_PER_UNIT = 0.25;
+
+function simulateAwdPath({
+  lotUnits,
+  monthlyUnits,
+  horizonMonths,
+  workingStock,
+  fbaStoragePerUnitMonth,
+  contribution,
+  receivePerUnit = 0,
+  transferPerUnit = 0,
+  bulkStoragePerUnitMonth = 0,
+  startInFba = false,
+}) {
+  let bulk = startInFba ? 0 : lotUnits;
+  let fba = startInFba ? lotUnits : 0;
+  let inbound = receivePerUnit * lotUnits;
+  let transfers = 0;
+  let storage = 0;
+  let sold = 0;
+  let fbaUnitMonths = 0;
+  let bulkUnitMonths = 0;
+  let movedFromBulk = 0;
+
+  const prime = startInFba ? 0 : Math.min(workingStock, bulk);
+  if (prime > 0) {
+    bulk -= prime;
+    fba += prime;
+    transfers += prime * transferPerUnit;
+    movedFromBulk += prime;
+  }
+
+  for (let month = 0; month < horizonMonths; month += 1) {
+    storage += bulk * bulkStoragePerUnitMonth + fba * fbaStoragePerUnitMonth;
+    bulkUnitMonths += bulk;
+    fbaUnitMonths += fba;
+    const sell = Math.min(monthlyUnits, fba);
+    fba -= sell;
+    sold += sell;
+    if (!startInFba) {
+      const need = Math.min(Math.max(0, workingStock - fba), bulk);
+      if (need > 0) {
+        bulk -= need;
+        fba += need;
+        transfers += need * transferPerUnit;
+        movedFromBulk += need;
+      }
+    }
+  }
+
+  return {
+    cash: sold * contribution - inbound - transfers - storage,
+    sold,
+    remainingBulk: bulk,
+    remainingFba: fba,
+    leftover: bulk + fba,
+    inbound,
+    transfers,
+    storage,
+    fbaUnitMonths,
+    bulkUnitMonths,
+    movedFromBulk,
+  };
+}
+
+function awdPathRow(id, label, sim, fbaCash) {
+  return {
+    id,
+    label,
+    cash: sim.cash,
+    sold: sim.sold,
+    leftover: sim.leftover,
+    inbound: sim.inbound,
+    transfers: sim.transfers,
+    storage: sim.storage,
+    vsFba: sim.cash - fbaCash,
+  };
+}
+
+function awdSummary({
+  winner,
+  fba,
+  awd,
+  hold,
+  lotUnits,
+  extraAwdVsFba,
+  extraHoldVsFba,
+  breakEvenAwdToFba,
+  breakEvenAwdStorage,
+}) {
+  const awdGap = moneyLabel(Math.abs(extraAwdVsFba));
+  const holdGap = moneyLabel(Math.abs(extraHoldVsFba));
+  const awdCash = moneyLabel(awd.cash);
+  const fbaCash = moneyLabel(fba.cash);
+  const holdCash = moneyLabel(hold.cash);
+  const transferCeil = Number.isFinite(breakEvenAwdToFba)
+    ? moneyLabel(breakEvenAwdToFba)
+    : "an unreachable fee";
+  const storageCeil = Number.isFinite(breakEvenAwdStorage)
+    ? moneyLabel(breakEvenAwdStorage)
+    : "an unreachable rate";
+  if (winner === "awd") {
+    return `AWD replenish keeps ${awdGap} more on ${lotUnits} units than sending the whole lot to FBA now (${awdCash} vs ${fbaCash}). The AWD-to-FBA transfer can rise to about ${transferCeil} before FBA wins. You-hold and drip ${extraHoldVsFba < -1e-9 ? `loses ${holdGap}` : extraHoldVsFba > 1e-9 ? `keeps ${holdGap} more` : "ties FBA"} (${holdCash}).`;
+  }
+  if (winner === "fba") {
+    return `Sending the whole lot to FBA now keeps ${awdGap} more on ${lotUnits} units than AWD replenish (${fbaCash} vs ${awdCash}). AWD storage has to fall to about ${storageCeil} / cu ft, or the transfer to ${transferCeil}, to match. You-hold and drip is ${holdCash}.`;
+  }
+  if (winner === "hold") {
+    return `You-hold and drip keeps ${holdGap} more on ${lotUnits} units than sending the whole lot to FBA now (${holdCash} vs ${fbaCash}). AWD replenish is ${awdCash} (${extraAwdVsFba >= 0 ? "ahead of" : "behind"} FBA by ${awdGap}).`;
+  }
+  return `AWD replenish and sending the whole lot to FBA now leave the same cash on ${lotUnits} units (${fbaCash}). You-hold and drip is ${holdCash}. The AWD-to-FBA transfer ceiling is about ${transferCeil}.`;
+}
+
+/**
+ * Compare sending a fresh PO straight to FBA, parking it in Amazon
+ * Warehousing and Distribution and replenishing a working FBA stock,
+ * or holding it yourself and dripping inbound. Per-sale leftover
+ * (referral, pick, COGS, prep) is the same once a unit is in FBA —
+ * the table is inbound + bulk storage + AWD-to-FBA transfer. Return
+ * mix is held at zero so this stays an inbound-bulk question.
+ */
+export function compareAwd(input = {}) {
+  const lotUnits = emptyField(input.lotUnits)
+    ? DEFAULT_AWD_LOT_UNITS
+    : number(input.lotUnits, "Lot units", 1);
+  if (lotUnits === 0) throw new Error("Lot units must be greater than zero");
+  const horizonMonths = emptyField(input.horizonMonths)
+    ? DEFAULT_AWD_HORIZON_MONTHS
+    : number(input.horizonMonths, "Horizon months", 1);
+  if (horizonMonths === 0) throw new Error("Horizon months must be greater than zero");
+  const awdInboundPerUnit = emptyField(input.awdInboundPerUnit)
+    ? DEFAULT_AWD_INBOUND
+    : number(input.awdInboundPerUnit, "AWD inbound per unit");
+  const awdStoragePerCuFt = emptyField(input.awdStoragePerCuFt)
+    ? DEFAULT_AWD_STORAGE_PER_CU_FT
+    : number(input.awdStoragePerCuFt, "AWD storage per cubic foot");
+  const awdToFbaPerUnit = emptyField(input.awdToFbaPerUnit)
+    ? DEFAULT_AWD_TO_FBA
+    : number(input.awdToFbaPerUnit, "AWD to FBA per unit");
+  const youHoldStoragePerUnit = emptyField(input.youHoldStoragePerUnit)
+    ? DEFAULT_YOU_HOLD_STORAGE_PER_UNIT
+    : number(input.youHoldStoragePerUnit, "You-hold storage per unit");
+
+  const listing = calculateListing({
+    ...input,
+    inboundPerUnit: 0,
+    monthsInStorage: 0,
+    returnRate: 0,
+    unsellableReturnRate: 0,
+    returnHandlingFee: 0,
+    monthlySellerFee: 0,
+  });
+  const monthlyUnits = number(input.monthlyUnits, "Monthly units", 1);
+  if (monthlyUnits === 0) throw new Error("Monthly units must be greater than zero");
+  const workingStock = emptyField(input.workingStock)
+    ? monthlyUnits
+    : number(input.workingStock, "Working stock", 1);
+  if (workingStock === 0) throw new Error("Working stock must be greater than zero");
+
+  const fbaInboundPerUnit = number(input.inboundPerUnit, "Inbound per unit");
+  const fbaStoragePerUnitMonth = listing.cubicFeet * number(
+    input.storageRate,
+    "Storage rate",
+    STORAGE_PRESETS.off_peak.perCuFt,
+  );
+  const awdStoragePerUnitMonth = listing.cubicFeet * awdStoragePerCuFt;
+  const contribution = listing.salePrice
+    - listing.fba.fees.referral
+    - listing.fulfillmentFee
+    - number(input.costOfGoods, "Cost of goods")
+    - number(input.packagingCost, "Packaging cost")
+    - number(input.otherCost, "Other cost")
+    - number(input.adsPerUnit, "Ads per unit");
+
+  const shared = { lotUnits, monthlyUnits, horizonMonths, workingStock, fbaStoragePerUnitMonth, contribution };
+
+  const fbaSim = simulateAwdPath({
+    ...shared,
+    receivePerUnit: fbaInboundPerUnit,
+    startInFba: true,
+  });
+  const awdSim = simulateAwdPath({
+    ...shared,
+    receivePerUnit: awdInboundPerUnit,
+    transferPerUnit: awdToFbaPerUnit,
+    bulkStoragePerUnitMonth: awdStoragePerUnitMonth,
+  });
+  const holdSim = simulateAwdPath({
+    ...shared,
+    receivePerUnit: 0,
+    transferPerUnit: fbaInboundPerUnit,
+    bulkStoragePerUnitMonth: youHoldStoragePerUnit,
+  });
+
+  const fba = awdPathRow("fba", "Send all to FBA now", fbaSim, fbaSim.cash);
+  const awd = awdPathRow("awd", "AWD, then replenish FBA", awdSim, fbaSim.cash);
+  const hold = awdPathRow("hold", "You hold, drip to FBA", holdSim, fbaSim.cash);
+  const rows = [fba, awd, hold];
+
+  const maxCash = Math.max(...rows.map((row) => row.cash));
+  const leaders = rows.filter((row) => Math.abs(row.cash - maxCash) <= 1e-9);
+  const winner = leaders.length === 1 ? leaders[0].id : "tie";
+
+  const extraAwdVsFba = awd.cash - fba.cash;
+  const extraHoldVsFba = hold.cash - fba.cash;
+
+  let breakEvenAwdToFba = Infinity;
+  if (awdSim.movedFromBulk > 1e-12) {
+    // AWD cash − FBA cash = FBA inbound − AWD inbound − transfer×moved − AWD storage + FBA storage
+    breakEvenAwdToFba =
+      (fbaSim.inbound - awdSim.inbound - awdSim.storage + fbaSim.storage) / awdSim.movedFromBulk;
+    if (!Number.isFinite(breakEvenAwdToFba)) breakEvenAwdToFba = Infinity;
+  }
+
+  let breakEvenAwdStorage = Infinity;
+  if (awdSim.bulkUnitMonths > 1e-12 && listing.cubicFeet > 1e-12) {
+    // AWD storage = bulkUnitMonths * cuFt * rate + fbaUnitMonths * fbaRate
+    // delta = fbaInbound - awdInbound - awdToFba*moved - awdStorage + fbaStorage
+    // awdStorage = bulkUnitMonths * cuFt * rate + awdSim's FBA storage portion
+    const awdFbaStorage = awdSim.fbaUnitMonths * fbaStoragePerUnitMonth;
+    breakEvenAwdStorage =
+      (fbaSim.inbound - awdSim.inbound - awdSim.transfers + fbaSim.storage - awdFbaStorage)
+      / (awdSim.bulkUnitMonths * listing.cubicFeet);
+    if (!Number.isFinite(breakEvenAwdStorage) || breakEvenAwdStorage < -1e-9) {
+      breakEvenAwdStorage = Infinity;
+    }
+  }
+
+  let breakEvenYouHoldStorage = Infinity;
+  if (holdSim.bulkUnitMonths > 1e-12) {
+    const holdFbaStorage = holdSim.fbaUnitMonths * fbaStoragePerUnitMonth;
+    breakEvenYouHoldStorage =
+      (fbaSim.inbound - holdSim.inbound - holdSim.transfers + fbaSim.storage - holdFbaStorage)
+      / holdSim.bulkUnitMonths;
+    if (!Number.isFinite(breakEvenYouHoldStorage) || breakEvenYouHoldStorage < -1e-9) {
+      breakEvenYouHoldStorage = Infinity;
+    }
+  }
+
+  return {
+    rows,
+    fba,
+    awd,
+    hold,
+    winner,
+    lotUnits,
+    monthlyUnits,
+    horizonMonths,
+    workingStock,
+    contribution,
+    cubicFeet: listing.cubicFeet,
+    sizeTier: listing.sizeTier,
+    sizeTierLabel: listing.sizeTierLabel,
+    fulfillmentFee: listing.fulfillmentFee,
+    fbaInboundPerUnit,
+    awdInboundPerUnit,
+    awdStoragePerCuFt,
+    awdToFbaPerUnit,
+    youHoldStoragePerUnit,
+    fbaStoragePerUnitMonth,
+    extraAwdVsFba,
+    extraHoldVsFba,
+    breakEvenAwdToFba,
+    breakEvenAwdStorage,
+    breakEvenYouHoldStorage,
+    summary: awdSummary({
+      winner,
+      fba,
+      awd,
+      hold,
+      lotUnits,
+      extraAwdVsFba,
+      extraHoldVsFba,
+      breakEvenAwdToFba,
+      breakEvenAwdStorage,
+    }),
+  };
+}
+
+export function awdNote(comparison) {
+  if (!comparison?.fba || !comparison?.awd) {
+    throw new Error("AWD comparison is missing rows");
+  }
+  return comparison.summary;
+}
+
 export function sizeTierPackagingNote(comparison) {
   if (!comparison?.current) {
     throw new Error("Size-tier packaging comparison is missing rows");

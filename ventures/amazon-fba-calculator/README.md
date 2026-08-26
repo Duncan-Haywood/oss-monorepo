@@ -28,7 +28,8 @@ rate still leaves expected profit after handling and unsellable units, and
 whether sending inventory before Q4 still beats waiting until January,
 and whether a smaller carton still drops a size-tier fee cliff, and
 whether Seller Fulfilled Prime still beats FBA after a 2-day label
-and pack time** —
+and pack time, and whether Amazon AWD still beats sending the whole
+lot to FBA after receive, transfer, and bulk storage** —
 which used to mean a spreadsheet that forgot storage, inbound, or the
 0.75-inch small-standard gate.
 
@@ -201,6 +202,25 @@ on 80 FBA units) against FBA, and that the label has to fall to
 about $2.75 before SFP matches** — which used to mean leaving FBA
 because the Prime badge looked free to keep.
 
+A fresh supplier PO is an inbound-bulk decision on the same SKU:
+send the whole lot to FBA now, park it in Amazon Warehousing and
+Distribution and replenish a working FBA stock, or hold it yourself
+and drip inbound.
+[Should I use Amazon AWD?](should-i-use-amazon-awd.html)
+keeps receive, transfer, and bulk storage on separate lines so a
+blended inbound / unit does not hide the cheaper pile.
+Complementary to [inbound placement](inbound-placement-fee.html)
+(which FC), to [aged inventory](should-i-remove-aged-amazon-inventory.html)
+(units already sitting), to [Q4 storage](peak-vs-off-peak-storage.html)
+(when you send), and to [supplier MOQ](does-this-amazon-moq-still-pay.html)
+(how many you buy).
+
+**After using the AWD page, you can now see whether a $0.15 AWD
+receive plus a $0.68 transfer still keeps $165.33 more on 400 units
+than sending the lot to FBA now ($4723.93 vs $4558.60), and that the
+transfer has to rise to about $1.09 before FBA matches** — which used
+to mean inbounding the whole PO because AWD looked like an extra hop.
+
 **No warranty.** This tool is provided free and as-is, without warranty of any
 kind, express or implied. It is not tax, financial, or business advice, and it
 does not replace a qualified professional. **You are responsible for reviewing
@@ -234,7 +254,7 @@ optional and never changes what the tool does.
 Pure ES modules, no build step, no dependencies.
 
 ```
-node --test        # runs calc.test.mjs, usage.test.mjs, page.test.mjs, vine-page.test.mjs, aged-inventory-page.test.mjs, inbound-page.test.mjs, returns-page.test.mjs, storage-page.test.mjs, packaging-page.test.mjs, sfp-page.test.mjs, and low-inventory-page.test.mjs
+node --test        # runs calc.test.mjs, usage.test.mjs, page.test.mjs, vine-page.test.mjs, aged-inventory-page.test.mjs, inbound-page.test.mjs, returns-page.test.mjs, storage-page.test.mjs, packaging-page.test.mjs, sfp-page.test.mjs, low-inventory-page.test.mjs, and awd-page.test.mjs
 ```
 
 `calc.mjs` holds the fee/profit/ROI arithmetic, size-tier classification,
@@ -248,7 +268,8 @@ inbound placement vs split-freight comparison,
 expected profit after returns,
 peak vs off-peak Q4 storage,
 Seller Fulfilled Prime vs FBA vs FBM,
-and restock vs low-inventory-level fee;
+restock vs low-inventory-level fee,
+and Amazon AWD vs send-all-to-FBA vs you-hold;
 `usage.mjs` holds the anonymous
 local counter; `index.html` is the calculator UI.
 
