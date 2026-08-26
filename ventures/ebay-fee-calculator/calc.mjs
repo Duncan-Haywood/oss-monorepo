@@ -149,6 +149,14 @@ export const INPUT_FIELDS = [
   // so a "should I take this offer?" link opens with the same offer.
   'incomingBestOffer',
   'incomingWaitChancePct',
+  'freeShipPrice',
+  'buyerPaysSellThroughPct',
+  'freeShipSellThroughPct',
+  'monthlyFreeShipListings',
+  // Comparison-only: extra label cost when the seller absorbs
+  // international postage. Ignored by calculateOrder so the
+  // headline stays a domestic order until they type an intl fee.
+  'intlExtraShipping',
 ];
 
 export function calculateOrder(input) {
@@ -1758,8 +1766,8 @@ function sioRow({ id, label, price, sellThroughPct, input }) {
  * listing exists. Accept rate and wait sell-through are inputs,
  * not eBay watcher-conversion policy.
  *
- * Complementary to incoming Best Offer. Open eBay PRs still
- * own international-vs-domestic (#1564).
+ * Complementary to incoming Best Offer and
+ * compareInternational (domestic vs worldwide at this list).
  */
 export function compareSellerInitiatedOffer(input) {
   const listedPrice = optionalNumber(input.price, 'Item price');
@@ -3674,13 +3682,14 @@ function globalShippingRow({
  *     loss: cost of goods and postage stay gone. That is not a
  *     return (the item does not come back).
  *
- * This is not "should I offer international at all" (open #1564),
- * not Standard Envelope (domestic cheap postage vs a claim), not
- * combined shipping, and not Authenticity Guarantee (a hub label
- * for authentication). Open eBay PRs still own promoted Standard,
- * store, incoming Best Offer, international, Managed Returns, and
- * Top Rated Plus. Rates and postage are inputs, not eBay's live
- * GSP schedule.
+ * This is not "should I offer international at all"
+ * (compareInternational — domestic vs worldwide at this list
+ * price). That question is whether turning worldwide on still
+ * leaves a profit. This table assumes an international buyer
+ * already wants the item. Not Standard Envelope (domestic cheap
+ * postage vs a claim), not combined shipping, and not
+ * Authenticity Guarantee (a hub label for authentication).
+ * Rates and postage are inputs, not eBay's live GSP schedule.
  */
 export function compareGlobalShipping(input) {
   const listedPrice = optionalNumber(input.price, 'Item price');
@@ -3950,8 +3959,8 @@ export function storeBreakEvenOrders({
  * Complementary to Promoted Listings (a percent of a completed
  * sale) and Top Rated Plus (a fee discount for free returns).
  * Fees and rates are inputs, not eBay store policy. Complementary
- * to Global Shipping (#1671) and incoming Best Offer. Open eBay
- * PRs still own international-vs-domestic (#1564).
+ * to Global Shipping (#1671), incoming Best Offer, and
+ * compareInternational (domestic vs worldwide at this list).
  */
 export function compareStoreTiers(input, tiers = STORE_TIER_PRESETS) {
   if (!Array.isArray(tiers) || tiers.length === 0) {
@@ -4107,8 +4116,8 @@ function pricedOrder(input, price) {
  * a typed wait chance). Dedicated incomingBestOffer /
  * incomingWaitChancePct keep the headline sale at list.
  *
- * Complementary to compareSellerInitiatedOffer. Open eBay PRs
- * still own international-vs-domestic (#1564).
+ * Complementary to compareSellerInitiatedOffer and
+ * compareInternational (domestic vs worldwide at this list).
  */
 export function compareBestOffer(input, offerAmount, listChance) {
   const listedPrice = optionalNumber(input.price, 'Item price');
@@ -4258,4 +4267,353 @@ export function bestOfferNote(comparison) {
 
 export function bestOfferSummary(comparison) {
   return bestOfferNote(comparison);
+}
+
+/**
+ * Illustrative free-shipping extras. 55% vs 70% is a 15-point
+ * search-rank lift — both typed, not scraped from Seller Hub.
+ * Leaving freeShipPrice empty bakes the typed shipping charged
+ * into the item, which on eBay is cash-identical per completed
+ * sale. Forty listings is a placeholder volume, not a forecast.
+ */
+export const DEFAULT_BUYER_PAYS_SHIP_SELL_THROUGH = 55;
+export const DEFAULT_FREE_SHIP_SELL_THROUGH = 70;
+export const DEFAULT_MONTHLY_FREE_SHIP_LISTINGS = 40;
+
+function freeShipRow({
+  id,
+  label,
+  price,
+  shippingCharged,
+  sellThroughPct,
+  sold,
+}) {
+  return {
+    id,
+    label,
+    price,
+    shippingCharged,
+    buyerPays: price + shippingCharged,
+    sellThroughPct,
+    completedProfit: sold.profit,
+    soldExpectedProfit: sold.expectedProfit,
+    soldFees: sold.feeTotal,
+    expectedProfit: sold.expectedProfit * (sellThroughPct / 100),
+    expectedProfitDelta: 0,
+  };
+}
+
+/**
+ * Same SKU, two ways to handle outbound postage: charge the
+ * buyer the typed shipping, or offer free shipping at a typed
+ * free-ship list and still buy the label.
+ *
+ * eBay final-value fee sits on item plus shipping. Folding the
+ * exact shipping charged into the item therefore leaves the
+ * same completed-sale leftover — unlike Reverb, where marketplace
+ * fee sits on the item only. The decision is sell-through versus
+ * under-baking the list.
+ *
+ * Complementary to local pickup (meetup vs the label, no-show),
+ * combined shipping (two already-sold items), Standard Envelope
+ * (tracked vs ESE), quantity discount (N units, one box), and
+ * seller coupon (public code, not postage). Global Shipping (#1671) is a hub label versus you-ship
+ * international postage. Store subscription (#1672) is a monthly fee
+ * versus the no-store rate. Incoming Best Offer (#1673) is take-the-offer
+ * versus waiting. Domestic vs worldwide (#1676) is the extra international fee and postage you absorb — not whether to bake shipping into a domestic list. Rates are inputs, not eBay search
+ * ranking.
+ */
+export function compareFreeShipping(input) {
+  const listedPrice = optionalNumber(input.price, 'Item price');
+  if (listedPrice === undefined) {
+    throw new Error('Item price must be a non-negative number');
+  }
+
+  const shippingCharged = optionalNumber(input.shippingCharged, 'Shipping charged', 0);
+  const bakeInPrice = Math.round((listedPrice + shippingCharged) * 100) / 100;
+  const freeShipPrice = optionalNumber(
+    input.freeShipPrice,
+    'Free-shipping list price',
+    bakeInPrice,
+  );
+  const buyerPaysSellThroughPct = requiredPercent(
+    input.buyerPaysSellThroughPct,
+    'Buyer-pays sell-through',
+    DEFAULT_BUYER_PAYS_SHIP_SELL_THROUGH,
+  );
+  const freeShipSellThroughPct = requiredPercent(
+    input.freeShipSellThroughPct,
+    'Free-shipping sell-through',
+    DEFAULT_FREE_SHIP_SELL_THROUGH,
+  );
+  const monthlyFreeShipListings = optionalNumber(
+    input.monthlyFreeShipListings,
+    'Monthly free-shipping listings',
+    DEFAULT_MONTHLY_FREE_SHIP_LISTINGS,
+  );
+
+  const buyerSold = calculateOrder({ ...input, quantity: 1 });
+  const freeSold = calculateOrder({
+    ...input,
+    quantity: 1,
+    price: freeShipPrice,
+    shippingCharged: 0,
+  });
+
+  const buyerPays = freeShipRow({
+    id: 'buyer_pays',
+    label: 'Buyer pays shipping',
+    price: listedPrice,
+    shippingCharged,
+    sellThroughPct: buyerPaysSellThroughPct,
+    sold: buyerSold,
+  });
+  const freeShip = freeShipRow({
+    id: 'free_ship',
+    label: 'Offer free shipping',
+    price: freeShipPrice,
+    shippingCharged: 0,
+    sellThroughPct: freeShipSellThroughPct,
+    sold: freeSold,
+  });
+  buyerPays.expectedProfitDelta = buyerPays.expectedProfit - freeShip.expectedProfit;
+  freeShip.expectedProfitDelta = freeShip.expectedProfit - buyerPays.expectedProfit;
+
+  const extraKeptOnFreeShip = freeShip.expectedProfit - buyerPays.expectedProfit;
+  const winner = extraKeptOnFreeShip > 1e-9
+    ? 'free_ship'
+    : extraKeptOnFreeShip < -1e-9
+      ? 'buyer_pays'
+      : 'tie';
+
+  const breakEvenFreeShipSellThroughPct = freeSold.expectedProfit <= 1e-12
+    ? (buyerPays.expectedProfit <= 1e-12 ? 0 : Infinity)
+    : (buyerPays.expectedProfit / freeSold.expectedProfit) * 100;
+
+  const targetSoldExpected = freeShipSellThroughPct <= 1e-12
+    ? Infinity
+    : buyerPays.expectedProfit / (freeShipSellThroughPct / 100);
+  const promotedRate = optionalNumber(input.promotedRate, 'Promoted listings rate', 0);
+  const breakEvenFreeShipPrice = !Number.isFinite(targetSoldExpected)
+    ? Infinity
+    : priceForExpectedProfit(
+      { ...input, shippingCharged: 0 },
+      promotedRate,
+      targetSoldExpected,
+    );
+
+  const comparison = {
+    rows: [buyerPays, freeShip],
+    buyerPays,
+    freeShip,
+    winner,
+    bakeInPrice,
+    freeShipPrice,
+    underBake: bakeInPrice - freeShipPrice,
+    buyerPaysSellThroughPct,
+    freeShipSellThroughPct,
+    monthlyFreeShipListings,
+    extraKeptOnFreeShip,
+    extraPackedOnFreeShip: freeShip.soldExpectedProfit - buyerPays.soldExpectedProfit,
+    monthlyExtraOnFreeShip: extraKeptOnFreeShip * monthlyFreeShipListings,
+    breakEvenFreeShipSellThroughPct,
+    breakEvenFreeShipPrice,
+    freeShipPays: extraKeptOnFreeShip > 1e-9,
+  };
+  comparison.summary = freeShippingNote(comparison);
+  return comparison;
+}
+
+export function freeShippingNote(comparison) {
+  if (!comparison?.buyerPays || !comparison?.freeShip) {
+    throw new Error('Free-shipping comparison is missing rows');
+  }
+  const money = (value) => {
+    const sign = value < 0 ? '-' : '';
+    return `${sign}$${Math.abs(value).toFixed(2)}`;
+  };
+  const { buyerPays, freeShip } = comparison;
+  const stGap = money(Math.abs(freeShip.expectedProfit - buyerPays.expectedProfit));
+  const stAhead = freeShip.expectedProfit >= buyerPays.expectedProfit ? 'more' : 'less';
+  const packedGap = money(Math.abs(freeShip.soldExpectedProfit - buyerPays.soldExpectedProfit));
+  const packedAhead = freeShip.soldExpectedProfit >= buyerPays.soldExpectedProfit ? 'more' : 'less';
+  const baked = Math.abs(comparison.underBake) <= 1e-9;
+  const bakeLine = baked
+    ? ` Free shipping at ${money(freeShip.price)} bakes in the ${money(comparison.bakeInPrice - buyerPays.price)} charged, so a completed sale still expects ${money(freeShip.soldExpectedProfit)} — the same leftover, because eBay final-value fee sits on item plus shipping.`
+    : ` Free shipping at ${money(freeShip.price)} is ${money(Math.abs(comparison.underBake))} ${comparison.underBake > 0 ? 'under' : 'over'} the ${money(comparison.bakeInPrice)} bake-in, so a completed sale expects ${money(freeShip.soldExpectedProfit)} — ${packedGap} ${packedAhead}.`;
+  const buyerLine = `Buyer-pays shipping at ${money(buyerPays.price)} plus ${money(buyerPays.shippingCharged)}, with ${buyerPays.sellThroughPct}% sell-through, expects ${money(buyerPays.expectedProfit)} leftover after the typed return rate.`;
+  const freeLine = ` At ${freeShip.sellThroughPct}% free-shipping sell-through, free shipping expects ${money(freeShip.expectedProfit)} — ${stGap} ${stAhead}.`;
+  const stFloor = Number.isFinite(comparison.breakEvenFreeShipSellThroughPct)
+    ? ` Free shipping has to convert about ${comparison.breakEvenFreeShipSellThroughPct.toFixed(1)}% of the time before it matches buyer-pays after sell-through.`
+    : ' No free-shipping sell-through on these rates can match buyer-pays.';
+  const priceFloor = Number.isFinite(comparison.breakEvenFreeShipPrice)
+    ? ` The free-ship list that matches buyer-pays leftover at ${comparison.freeShipSellThroughPct}% sell-through is ${money(comparison.breakEvenFreeShipPrice)}.`
+    : '';
+  return `${buyerLine}${bakeLine}${freeLine}${stFloor}${priceFloor}`;
+}
+
+/**
+ * Illustrative international-fee and extra-postage defaults.
+ * Sellers overwrite both from their own fee preview and label
+ * quotes. The form starts the headline international fee at 0
+ * so a domestic order stays the result until they type a rate;
+ * the comparison then uses 1.65% so "what if I turn worldwide
+ * on" is a number instead of a blank row. $12 extra postage is
+ * a small-parcel add-on, not a live rate table.
+ */
+export const ILLUSTRATIVE_INTL_FEE_RATE = 1.65;
+export const DEFAULT_INTL_EXTRA_SHIPPING = 12;
+
+function priceForCompletedProfit(input, targetProfit) {
+  const atZero = calculateOrder({ ...input, price: 0 });
+  const atHundred = calculateOrder({ ...input, price: 100 });
+  const slope = (atHundred.profit - atZero.profit) / 100;
+  if (Math.abs(slope) <= 1e-12) return Infinity;
+  const price = (targetProfit - atZero.profit) / slope;
+  if (!Number.isFinite(price)) return Infinity;
+  return Math.max(0, Math.round(price * 100) / 100);
+}
+
+/**
+ * Same SKU, three ways to treat worldwide shipping.
+ *
+ *   - Domestic only — headline order with the international fee
+ *     forced to 0. The completed-sale leftover stays the
+ *     baseline the other rows have to beat.
+ *   - International, buyer pays postage — same label cost, the
+ *     typed (or illustrative) international fee on the order
+ *     total. The buyer pays the extra postage themselves, so
+ *     your box cost does not change.
+ *   - International, you pay extra postage — same fee, plus the
+ *     typed extra label cost. Free-shipping-worldwide and
+ *     "I'll eat the label" both land here.
+ *
+ * Complementary to Global Shipping (an international buyer
+ * already wants the item; the question is who buys the label)
+ * and Standard Envelope (cheap domestic postage vs a claim).
+ * Salvaged from #1564 onto current main. Rates and postage are
+ * inputs, not eBay's live international schedule.
+ */
+export function compareInternational(input) {
+  const listedPrice = optionalNumber(input.price, 'Item price');
+  if (listedPrice === undefined) {
+    throw new Error('Item price must be a non-negative number');
+  }
+
+  const extraShipping = optionalNumber(
+    input.intlExtraShipping,
+    'Extra international shipping',
+    DEFAULT_INTL_EXTRA_SHIPPING,
+  );
+  const typedIntl = optionalNumber(input.intlFeeRate, 'International fee rate', 0);
+  const intlFeeRate = typedIntl > 0 ? typedIntl : ILLUSTRATIVE_INTL_FEE_RATE;
+  const shippingCost = optionalNumber(input.shippingCost, 'Shipping cost', 0);
+
+  const domestic = calculateOrder({ ...input, intlFeeRate: 0 });
+  const buyerPays = calculateOrder({ ...input, intlFeeRate });
+  const youShip = calculateOrder({
+    ...input,
+    intlFeeRate,
+    shippingCost: shippingCost + extraShipping,
+  });
+
+  const holdBuyerPays = priceForCompletedProfit({ ...input, intlFeeRate }, domestic.profit);
+  const holdYouShip = priceForCompletedProfit({
+    ...input,
+    intlFeeRate,
+    shippingCost: shippingCost + extraShipping,
+  }, domestic.profit);
+
+  const rows = [
+    {
+      id: 'domestic',
+      label: 'Domestic only',
+      pathIntlFeeRate: 0,
+      pathShippingCost: shippingCost,
+      extraShipping: 0,
+      profit: domestic.profit,
+      expectedProfit: domestic.expectedProfit,
+      feeTotal: domestic.feeTotal,
+      profitDelta: 0,
+      expectedProfitDelta: 0,
+      holdPrice: null,
+    },
+    {
+      id: 'intl_buyer_pays',
+      label: 'International, buyer pays postage',
+      pathIntlFeeRate: intlFeeRate,
+      pathShippingCost: shippingCost,
+      extraShipping: 0,
+      profit: buyerPays.profit,
+      expectedProfit: buyerPays.expectedProfit,
+      feeTotal: buyerPays.feeTotal,
+      profitDelta: buyerPays.profit - domestic.profit,
+      expectedProfitDelta: buyerPays.expectedProfit - domestic.expectedProfit,
+      holdPrice: holdBuyerPays,
+    },
+    {
+      id: 'intl_you_ship',
+      label: 'International, you pay extra postage',
+      pathIntlFeeRate: intlFeeRate,
+      pathShippingCost: shippingCost + extraShipping,
+      extraShipping,
+      profit: youShip.profit,
+      expectedProfit: youShip.expectedProfit,
+      feeTotal: youShip.feeTotal,
+      profitDelta: youShip.profit - domestic.profit,
+      expectedProfitDelta: youShip.expectedProfit - domestic.expectedProfit,
+      holdPrice: holdYouShip,
+    },
+  ];
+
+  const bestExpected = Math.max(...rows.map((row) => row.expectedProfit));
+  const winners = rows.filter((row) => Math.abs(row.expectedProfit - bestExpected) <= 1e-9);
+  const winner = winners.length === 1 ? winners[0].id : 'tie';
+
+  const result = {
+    intlFeeRate,
+    extraShipping,
+    usedIllustrativeIntlRate: typedIntl === 0,
+    domesticProfit: domestic.profit,
+    domesticExpectedProfit: domestic.expectedProfit,
+    buyerPaysProfit: buyerPays.profit,
+    youShipProfit: youShip.profit,
+    extraKeptOnBuyerPays: buyerPays.expectedProfit - domestic.expectedProfit,
+    extraKeptOnYouShip: youShip.expectedProfit - domestic.expectedProfit,
+    winner,
+    rows: rows.map((row) => ({
+      ...row,
+      winner: Math.abs(row.expectedProfit - bestExpected) <= 1e-9,
+    })),
+  };
+  result.summary = internationalNote(result);
+  return result;
+}
+
+export function internationalNote(comparison) {
+  if (!comparison?.rows?.length) {
+    throw new Error('International comparison is missing rows');
+  }
+  const money = (value) => {
+    const sign = value < 0 ? '-' : '';
+    return `${sign}$${Math.abs(value).toFixed(2)}`;
+  };
+  const buyer = comparison.rows.find((row) => row.id === 'intl_buyer_pays');
+  const youShip = comparison.rows.find((row) => row.id === 'intl_you_ship');
+  const rateLine = comparison.usedIllustrativeIntlRate
+    ? ` Using the illustrative ${comparison.intlFeeRate}% international fee — overwrite it from your fee preview.`
+    : ` Using the ${comparison.intlFeeRate}% international fee you typed.`;
+  const buyerLine = ` Buyer-pays worldwide keeps ${money(Math.abs(comparison.extraKeptOnBuyerPays))} ${comparison.extraKeptOnBuyerPays >= 0 ? 'more' : 'less'} than domestic after returns (${money(buyer.profit)} if they keep it).`;
+  const holdBuyer = Number.isFinite(buyer.holdPrice)
+    ? ` List ${money(buyer.holdPrice)} to hold the domestic leftover when they pay postage.`
+    : '';
+  const youLine = ` Absorbing ${money(comparison.extraShipping)} extra postage keeps ${money(Math.abs(comparison.extraKeptOnYouShip))} ${comparison.extraKeptOnYouShip >= 0 ? 'more' : 'less'} (${money(youShip.profit)} if they keep it).`;
+  const holdYou = Number.isFinite(youShip.holdPrice)
+    ? ` List ${money(youShip.holdPrice)} to hold the domestic leftover if you buy the extra label.`
+    : '';
+  return `Domestic only expects ${money(comparison.domesticExpectedProfit)} after returns and ${money(comparison.domesticProfit)} on a completed sale.${rateLine}${buyerLine}${holdBuyer}${youLine}${holdYou}`;
+}
+
+export function internationalSummary(comparison) {
+  return internationalNote(comparison);
 }

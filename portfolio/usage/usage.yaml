@@ -445,6 +445,24 @@ products:
       - as_of: 2026-08-26
         signals:
           live_url_visitors: null
+          international_compared: 0
+        note: >-
+          Added domestic vs worldwide at this list (illustrative
+          international fee, extra postage you absorb, hold prices).
+          Still no public URL; local event international_compared is
+          opt-out and stores no inputs.
+      - as_of: 2026-08-26
+        signals:
+          live_url_visitors: null
+          free_shipping_compared: 0
+        note: >-
+          Added free shipping vs buyer-pays after sell-through (bake-in
+          leftover, under-baked $40 list, sell-through floor). Still no
+          public URL; local event free_shipping_compared is opt-out and
+          stores no inputs.
+      - as_of: 2026-08-26
+        signals:
+          live_url_visitors: null
           promoted_advanced_compared: 0
         note: >-
           Added Promoted Listings Advanced vs skip after a click bill
@@ -904,6 +922,23 @@ products:
           they bought a unit that fits (walk-away about $989); a wrong
           rail or missing brackets walks away about $1,422. Public URL
           remains owner-gated.
+      - as_of: 2026-08-26
+        signals:
+          live_url_visitors: null
+          access_compared: 0
+        note: >-
+          Added weekday they-leave vs discharge-week expedite freight
+          vs Saturday overtime on the same stair, plus a
+          should-i-expedite-a-stair-lift-for-hospital-discharge page.
+          Default cheap special: weekday $5,333.37, discharge week
+          $6,190.67 (+$857.30), after-hours $6,692.99 (+$1,359.62).
+          $4,500 Saturday covers weekday and loses $854.39 after hours
+          (walk-away $5,354.39). $3,995 Facebook special loses even on
+          weekday. Curved heavy-duty: weekday $20,983.85 / after-hours
+          $23,222.14; $2,495 loses even on weekday (after-hours
+          walk-away $18,577.71). Distinct from owner-supply, walk-in-tub
+          Saturday, toilet Saturday, kitchen-tile Saturday, and boiler
+          Saturday. Public URL remains owner-gated.
   - slug: home-elevator-bid-calculator
     surface: static-page-in-repo
     readings:

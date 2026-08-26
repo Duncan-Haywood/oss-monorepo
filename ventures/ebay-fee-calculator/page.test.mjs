@@ -431,7 +431,9 @@ test('the incoming Best Offer table has one cell per column and a counted event'
   assert.match(page, /best_offer_compared/);
   assert.match(page, /should-i-accept-this-ebay-offer\.html/);
   assert.match(page, /"featureList":\s*"[^"]*incoming Best Offer vs waiting/);
-  const headerBlock = page.slice(page.indexOf('id="bestOfferTable"'));
+  const offerStart = page.indexOf('id="bestOfferTable"');
+  const offerEnd = page.indexOf('id="freeShipping"', offerStart);
+  const headerBlock = page.slice(offerStart, offerEnd === -1 ? undefined : offerEnd);
   const headers = [...headerBlock.matchAll(/<th scope="col">([^<]+)<\/th>/g)].map((m) => m[1]);
   assert.deepEqual(headers, [
     'Path',
@@ -439,5 +441,45 @@ test('the incoming Best Offer table has one cell per column and a counted event'
     'If it sells',
     'Expected leftover',
     'vs waiting',
+  ]);
+});
+
+test('the free-shipping table has one cell per column and a counted event', () => {
+  assert.match(page, /compareFreeShipping/);
+  assert.match(page, /id="freeShipping"/);
+  assert.match(page, /id="freeShippingVerdict"/);
+  assert.match(page, /free_shipping_compared/);
+  assert.match(page, /should-i-offer-free-shipping-on-ebay\.html/);
+  assert.match(page, /"featureList":\s*"[^"]*free shipping vs buyer-pays/);
+  const freeStart = page.indexOf('id="freeShippingTable"');
+  const freeEnd = page.indexOf('id="internationalShipping"', freeStart);
+  const headerBlock = page.slice(freeStart, freeEnd === -1 ? undefined : freeEnd);
+  const headers = [...headerBlock.matchAll(/<th scope="col">([^<]+)<\/th>/g)].map((m) => m[1]);
+  assert.deepEqual(headers, [
+    'Path',
+    'Buyer pays',
+    'Close rate',
+    'If they keep it',
+    'Expected after sell-through',
+    'vs buyer-pays',
+  ]);
+});
+
+test('the international-shipping table has one cell per column and a counted event', () => {
+  assert.match(page, /compareInternational/);
+  assert.match(page, /id="internationalShipping"/);
+  assert.match(page, /id="internationalShippingVerdict"/);
+  assert.match(page, /international_compared/);
+  assert.match(page, /should-i-offer-international-shipping-on-ebay\.html/);
+  assert.match(page, /"featureList":\s*"[^"]*domestic vs worldwide at this list/);
+  const headerBlock = page.slice(page.indexOf('id="internationalShippingTable"'));
+  const headers = [...headerBlock.matchAll(/<th scope="col">([^<]+)<\/th>/g)].map((m) => m[1]);
+  assert.deepEqual(headers, [
+    'Path',
+    'Intl fee',
+    'Your label',
+    'If they keep it',
+    'Expected leftover',
+    'vs domestic',
   ]);
 });

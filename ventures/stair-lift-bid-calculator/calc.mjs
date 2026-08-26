@@ -683,6 +683,189 @@ export function ownerSupplyNote(rows) {
   return `Zeroing the rail and chair invoices drops the bid ${money(drop)}. A wrong-rail callback puts ${money(callbackLift)} back on.`;
 }
 
+export const ACCESS_PRESETS = Object.freeze([
+  {
+    id: 'weekday-scheduled',
+    label: 'Weekday, they leave',
+    detail: 'Standard ground freight; empty house',
+  },
+  {
+    id: 'discharge-week',
+    label: 'Discharge week, they stay',
+    detail: 'Expedite rail freight plus a slower occupied set',
+  },
+  {
+    id: 'after-hours',
+    label: 'Saturday / after-hours discharge',
+    detail: 'Expedite freight, overtime, and a second dispatch',
+  },
+]);
+
+/**
+ * Starting pace, overtime, and next-day rail freight when the
+ * family will not wait for a weekday slot after a hospital
+ * discharge. Occupied pace is a multiplier on the typed rail,
+ * set, chair, attach, and punch-list hours — working around
+ * someone who just came home is slower, not a different wage.
+ * After-hours is time-and-a-half on the typed wage plus a
+ * second dispatch from the extra-kit trip, so a typed 9-hour
+ * trip does not inflate the extra emergency run. Expedite
+ * freight is a starting next-day rail ticket on top of the
+ * typed other-cost line; weekday ground freight stays in the
+ * rail invoice.
+ */
+export function suggestedAccessKit() {
+  const extra = suggestedExtraKit();
+  return {
+    occupiedPaceMultiplier: 1.2,
+    afterHoursWageMultiplier: 1.5,
+    afterHoursExtraTripHours: extra.hoursTrip,
+    expediteFreightEach: 485,
+  };
+}
+
+/**
+ * Price the same stair three ways: weekday they leave with
+ * standard freight, discharge week while they stay home with
+ * next-day rail freight, or Saturday / after-hours discharge.
+ *
+ * Discharge week keeps the typed wage and adds clock hours on
+ * the on-stair work plus a starting expedite ticket. After-hours
+ * keeps the typed hours, raises the wage, adds a starting
+ * second dispatch, and the same expedite ticket — a Friday
+ * discharge is not a stop you combine with a weekday route.
+ * Rail, chair, attach, and extras stay.
+ *
+ * A proposed price (options.installOnlyPrice, else the
+ * proposed price on the bid) is scored against each cost
+ * base. That is the "$3,995 Saturday, mom comes home Friday"
+ * number contractors actually get shopped on.
+ */
+export function compareAccess(input, options = {}) {
+  const kit = suggestedAccessKit();
+  const liftCount = number(input.liftCount ?? 0, 'Lift count');
+  const hoursRailEach = number(input.hoursRailEach ?? 0, 'Rail hours each');
+  const hoursSetBase = number(input.hoursSetBase ?? 0, 'Set-base hours each');
+  const hoursChairEach = number(input.hoursChairEach ?? 0, 'Chair hours each');
+  const hoursAttachEach = number(input.hoursAttachEach ?? 0, 'Attach hours each');
+  const siteHours = number(input.siteHours ?? 0, 'Site hours');
+  const hoursTrip = number(input.hoursTrip ?? 0, 'Trip hours');
+  const hourlyWage = number(input.hourlyWage ?? 0, 'Hourly wage');
+  const otherCost = number(input.otherCost ?? 0, 'Other cost');
+  const expediteFreight = kit.expediteFreightEach * liftCount;
+
+  let installPrice = null;
+  const rawInstall = options.installOnlyPrice !== undefined
+    ? options.installOnlyPrice
+    : input.proposedPrice;
+  if (rawInstall !== null && rawInstall !== undefined && rawInstall !== '') {
+    installPrice = number(rawInstall, 'Install-only price');
+  }
+
+  const weekday = calculateBid(input);
+  const discharge = calculateBid({
+    ...input,
+    hoursRailEach: hoursRailEach * kit.occupiedPaceMultiplier,
+    hoursSetBase: hoursSetBase * kit.occupiedPaceMultiplier,
+    hoursChairEach: hoursChairEach * kit.occupiedPaceMultiplier,
+    hoursAttachEach: hoursAttachEach * kit.occupiedPaceMultiplier,
+    siteHours: siteHours * kit.occupiedPaceMultiplier,
+    otherCost: otherCost + expediteFreight,
+  });
+  const afterHours = calculateBid({
+    ...input,
+    hourlyWage: hourlyWage * kit.afterHoursWageMultiplier,
+    hoursTrip: hoursTrip + kit.afterHoursExtraTripHours,
+    otherCost: otherCost + expediteFreight,
+  });
+
+  const rows = [
+    {
+      access: 'weekday-scheduled',
+      label: ACCESS_PRESETS[0].label,
+      detail: ACCESS_PRESETS[0].detail,
+      bid: weekday,
+      expediteFreight: 0,
+    },
+    {
+      access: 'discharge-week',
+      label: ACCESS_PRESETS[1].label,
+      detail: ACCESS_PRESETS[1].detail,
+      bid: discharge,
+      expediteFreight,
+    },
+    {
+      access: 'after-hours',
+      label: ACCESS_PRESETS[2].label,
+      detail: ACCESS_PRESETS[2].detail,
+      bid: afterHours,
+      expediteFreight,
+    },
+  ].map((row) => ({
+    access: row.access,
+    label: row.label,
+    detail: row.detail,
+    price: row.bid.price,
+    totalCost: row.bid.totalCost,
+    totalHours: row.bid.totalHours,
+    loadedWage: row.bid.loadedWage,
+    hoursTravel: row.bid.hoursTravel,
+    hoursRail: row.bid.hoursRail,
+    hoursSet: row.bid.hoursSet,
+    hoursChair: row.bid.hoursChair,
+    hoursAttach: row.bid.hoursAttach,
+    siteHours: row.bid.siteHours,
+    laborCost: row.bid.laborCost,
+    softCost: row.bid.softCost,
+    expediteFreight: row.expediteFreight,
+    breakEvenPrice: row.bid.breakEvenPrice,
+    installOnly: scoreInstallOnly(row.bid, installPrice),
+    liftFromWeekday: row.bid.price - weekday.price,
+  }));
+
+  const cheapest = Math.min(...rows.map((row) => row.price));
+  return rows.map((row) => ({
+    ...row,
+    cheapest: row.price === cheapest,
+    delta: row.price - cheapest,
+    installOnlyPrice: installPrice,
+  }));
+}
+
+/**
+ * One-line verdict for the access table. Names the Saturday
+ * / discharge loss when that number is on the table;
+ * otherwise names the bid lift from a weekday slot.
+ */
+export function accessNote(rows) {
+  if (!Array.isArray(rows) || rows.length < 3) {
+    throw new Error('Access comparison is missing rows');
+  }
+  const weekday = rows.find((row) => row.access === 'weekday-scheduled');
+  const discharge = rows.find((row) => row.access === 'discharge-week');
+  const afterHours = rows.find((row) => row.access === 'after-hours');
+  if (!weekday || !discharge || !afterHours) {
+    throw new Error('Access comparison is missing an access row');
+  }
+
+  const dischargeLift = discharge.price - weekday.price;
+  const afterHoursLift = afterHours.price - weekday.price;
+  if (weekday.installOnly && afterHours.installOnly) {
+    const asked = weekday.installOnly.price;
+    if (weekday.installOnly.belowBreakEven && afterHours.installOnly.belowBreakEven) {
+      return `At ${money(asked)} you lose money even on a weekday slot. Walk-away after-hours is ${money(afterHours.breakEvenPrice)}.`;
+    }
+    if (!weekday.installOnly.belowBreakEven && afterHours.installOnly.belowBreakEven) {
+      return `At ${money(asked)} the weekday set covers. The same Saturday / discharge number loses ${money(Math.abs(afterHours.installOnly.profit))} — walk-away then is ${money(afterHours.breakEvenPrice)}.`;
+    }
+    if (discharge.installOnly?.belowBreakEven) {
+      return `At ${money(asked)} a weekday slot covers. Discharge week while they stay home still loses ${money(Math.abs(discharge.installOnly.profit))} — walk-away then is ${money(discharge.breakEvenPrice)}.`;
+    }
+    return `At ${money(asked)} every access window still holds a margin. After-hours still adds ${money(afterHoursLift)} to the bid.`;
+  }
+  return `Discharge week while they stay home adds ${money(dischargeLift)} to the bid. After-hours / Saturday adds ${money(afterHoursLift)}.`;
+}
+
 function money(value) {
   return `$${value.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
 }

@@ -1,5 +1,5 @@
 name: stair-lift-bid-calculator
-description: A private browser calculator for accessibility contractors and aging-in-place remodelers that prices a stair-lift / chair-lift install from lift count, straight versus landing versus outdoor versus curved rail, perch versus standard versus power-swivel versus power-pack versus heavy-duty chair, wood versus concrete versus open-riser attach, extras, and contractor-supplied versus customer-supplied lift — and shows the extra-work share and the walk-away price below which the job loses money.
+description: A private browser calculator for accessibility contractors and aging-in-place remodelers that prices a stair-lift / chair-lift install from lift count, straight versus landing versus outdoor versus curved rail, perch versus standard versus power-swivel versus power-pack versus heavy-duty chair, wood versus concrete versus open-riser attach, extras, contractor-supplied versus customer-supplied lift, and weekday versus hospital-discharge week versus Saturday expedite — and shows the extra-work share and the walk-away price below which the job loses money.
 stage: prototype
 owner: duncan
 hypotheses:
@@ -16,6 +16,10 @@ hypotheses:
     checked: null
     evidence: customer-contact
   - claim: Showing contractor-supplied versus owner-supplied-it-fits versus owner-supplied-wrong-rail on the same stair changes the bid enough that contractors refuse the $795 "just install what I bought" special instead of treating a used Facebook unit as a free set.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: Showing weekday-they-leave versus discharge-week-with-expedite-freight versus Saturday-overtime on the same stair changes the bid enough that contractors refuse the $3,995 "mom comes home Friday" special instead of treating next-day rail freight and overtime as the weekday dump.
     status: untested
     checked: null
     evidence: customer-contact
