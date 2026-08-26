@@ -1,5 +1,5 @@
 name: invoice-payment-terms-calculator
-description: Free browser calculator that turns an invoice amount, payment terms, and late-fee policy into a due date, cash-flow exposure, copyable payment-terms wording, and whether a 2/10 Net 30 discount still beats waiting after carrying cost.
+description: Free browser calculator that turns an invoice amount, payment terms, and late-fee policy into a due date, cash-flow exposure, copyable payment-terms wording, whether a 2/10 Net 30 discount still beats waiting, and whether factoring still beats waiting after carrying cost.
 
 stage: prototype
 owner: duncan
@@ -9,6 +9,10 @@ hypotheses:
     checked: null
     evidence: customer-contact
   - claim: Searchers looking for net 30 due dates, late payment fee calculators, and 2/10 Net 30 will prefer an interactive calculator that compares waiting versus an early-pay discount over generic templates.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: Seeing whether a 3% factor fee still beats waiting after carrying cost changes a cash decision that a 2/10 discount table hides, because the fee is paid to a third party while the client still has Net 30.
     status: untested
     checked: null
     evidence: customer-contact
