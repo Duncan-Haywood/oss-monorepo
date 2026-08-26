@@ -15,6 +15,12 @@ import {
   compareSellerPlans,
   compareSellerPlanVolumes,
   compareSubscribeSave,
+  compareVine,
+  vineUnitCost,
+  DEFAULT_VINE_UNITS,
+  DEFAULT_VINE_REFERRAL_RATE,
+  DEFAULT_CONVERSION_LIFT_PCT,
+  DEFAULT_VINE_MONTHS,
   SELLER_PLAN_DEFAULTS,
   SELLER_PLAN_VOLUME_STEPS,
   DEFAULT_AMAZON_BAG_FEE,
@@ -884,6 +890,63 @@ test("volume ladder accepts custom steps and rejects an empty list", () => {
   assert.equal(ladder.rows[0].cheaperPlan, "individual");
   assert.equal(ladder.rows[1].cheaperPlan, "professional");
   assert.throws(() => compareSellerPlanVolumes(base, {}, []), /non-empty list/);
+});
+
+test("defaults match the published Vine enrollment", () => {
+  assert.equal(DEFAULT_VINE_UNITS, 30);
+  assert.equal(DEFAULT_VINE_REFERRAL_RATE, 0);
+  assert.equal(DEFAULT_CONVERSION_LIFT_PCT, 12);
+  assert.equal(DEFAULT_VINE_MONTHS, 6);
+});
+
+test("leftover Vine pays on the default $29.99 listing; Vine on sellable units does not", () => {
+  // List leftover $10.993. Gifted unit: $8 + $0.60 + $1.20 + $0.048 storage + $4.15 pick.
+  // 30 leftover units cost $419.95. 12% of $879.46/month over 6 months is $633.21.
+  const r = compareVine(base);
+  near(r.profitPerUnit, 10.993291666666668, "list leftover");
+  near(r.vineUnitCost, 13.998333333333333, "gifted unit");
+  near(r.vineUpfront, 419.95, "30-unit enrollment");
+  near(r.monthlyProfit, 879.4633333333334, "80-unit month");
+  near(r.skip.horizonProfit, 5276.78, "skip six months");
+  near(r.leftover.horizonProfit, 5490.0436, "leftover Vine");
+  near(r.sellable.horizonProfit, 5160.24485, "sellable Vine");
+  near(r.extraKeptOnLeftover, 213.2636, "leftover vs skip");
+  near(r.extraKeptOnSellable, -116.53515, "sellable vs skip");
+  near(r.breakEvenLiftPct, 7.958451934702601, "lift floor");
+  near(r.breakEvenMonths, 3.9792259673513013, "months at 12%");
+  assert.equal(r.winner, "leftover");
+  assert.ok(r.leftover.horizonProfit > r.skip.horizonProfit, "leftover beats skip");
+  assert.ok(r.skip.horizonProfit > r.sellable.horizonProfit, "skip beats Vine on a hero SKU");
+});
+
+test("zero conversion lift makes leftover Vine just the gift cost", () => {
+  const r = compareVine({ ...base, conversionLiftPct: 0 });
+  near(r.extraMonthly, 0, "no extra sales");
+  near(r.extraKeptOnLeftover, -419.95, "ate the enrollment");
+  assert.equal(r.winner, "skip");
+});
+
+test("empty Vine fields use the published defaults", () => {
+  const r = compareVine(base);
+  near(r.vineUnits, DEFAULT_VINE_UNITS, "default units");
+  near(r.conversionLiftPct, DEFAULT_CONVERSION_LIFT_PCT, "default lift");
+  near(r.vineMonths, DEFAULT_VINE_MONTHS, "default months");
+  near(vineUnitCost(base), r.vineUnitCost, "helper matches");
+});
+
+test("compareVine rejects a zero enrollment or horizon", () => {
+  assert.throws(() => compareVine({ ...base, vineUnits: 0 }), /Vine units/);
+  assert.throws(() => compareVine({ ...base, vineMonths: 0 }), /Vine months/);
+  assert.throws(() => compareVine({ ...base, vineUnits: -1 }), /Vine units/);
+});
+
+test("summary names leftover Vine and the lift floor", () => {
+  const text = compareVine(base).summary;
+  assert.match(text, /\$213\.26 more/);
+  assert.match(text, /\$419\.95/);
+  assert.match(text, /8\.0%/);
+  assert.match(text, /\$116\.54 less/);
+  assert.doesNotMatch(text, /should enroll|must join|turn on Vine/i);
 });
 
 test("rejects unknown presets and invalid inputs", () => {
