@@ -910,6 +910,44 @@ ventures:
       financial advice or a guarantee of income, tax treatment, or contract
       enforceability; all data stays in the browser.
 
+  - slug: gravel-driveway-bid-calculator
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 7
+      gross_margin: 10
+      defensibility: 5
+      distribution: 7
+    composite: 6.667
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      There is no AI anywhere in the product. The value is a domain model —
+      compacted depth to leftover truck tons, and prep hours from the dirt —
+      that is arithmetic, and adding inference to it would only make the
+      result less checkable.
+    basis: >-
+      Graduated on 2026-08-25 as a browser-local gravel driveway bid
+      calculator. Distinct from asphalt paving (hot-mix tons, mill,
+      overlay), concrete driveway pours (cubic yards of slab), sealcoat
+      (coats and cracks), and paver patio (interlocking units).
+      Defensibility 5: the truck-and-depth model encodes how excavation
+      shops actually lose money on a published per-foot dump, and the
+      incumbents here are generic cost-per-square-foot pages rather than a
+      free walk-away tool. Distribution 7: "how much to charge for a gravel
+      driveway" and "gravel driveway cost calculator" are lower-volume than
+      marketplace-fee queries but bought by an operator with a real pad on
+      the line.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Pass: the output is arithmetic on the shop's own inputs, never a
+      recommended price, a civil determination, or a drainage design. The
+      shipped quarry rates are labelled ballpark starting points rather
+      than a standard or benchmark, and nothing the user enters leaves the
+      browser.
   - slug: sod-install-bid-calculator
     scores:
       ai_leverage: 1
