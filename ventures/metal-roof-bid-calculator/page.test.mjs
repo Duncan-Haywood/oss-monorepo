@@ -94,6 +94,36 @@ test('the SEO article answers the search phrase and stays crawlable', () => {
   assert.doesNotMatch(seo, /<textarea/i);
 });
 
+test('the customer-facing proposal has every field and control it needs', () => {
+  for (const id of [
+    'companyName', 'companyPhone', 'companyEmail', 'companyLicense', 'companyAddress',
+    'clientName', 'clientAddress', 'depositPercent', 'validDays',
+    'proposalScope', 'proposalExclusions', 'paymentTerms', 'proposalNotes',
+    'printProposal', 'forgetCompany', 'proposalStatus', 'proposalDoc',
+  ]) {
+    assert.ok(declaredIds.has(id), `missing #${id}`);
+  }
+  assert.match(scriptSource, /buildProposal/, 'the proposal builder is missing from the executable script');
+  assert.match(scriptSource, /renderProposalHtml/);
+  assert.match(scriptSource, /window\.print\(\)/, 'nothing actually sends the proposal to the printer');
+});
+
+test('printing sends the customer sheet and hides the contractor’s own numbers', () => {
+  const print = /@media print\s*\{([\s\S]*?)\n    \}/.exec(html);
+  assert.ok(print, 'no print stylesheet; the browser would print the whole calculator');
+  // The cost breakdown, wages, and margin all live inside <main>. If <main>
+  // printed, the homeowner would receive the contractor's loaded labour rate.
+  assert.match(print[1], /main[^;{]*\{?[^}]*display:\s*none/i,
+    'the calculator UI is not excluded from the printed sheet');
+  assert.match(print[1], /\.pr-shell\s*\{[^}]*display:\s*block/i,
+    'the proposal is not shown on the printed sheet');
+});
+
+test('the proposal promises the customer’s details are not stored', () => {
+  assert.match(markup, /customer&rsquo;s details are never saved|customer’s details are never saved/,
+    'the privacy claim the module actually enforces should be stated on the page');
+});
+
 // The saved-and-shared bid is only trustworthy if it carries every field the
 // calculator reads. This repo has already shipped the opposite once: a
 // `share.mjs` kept its own hand-written field list, the form grew two fields
@@ -196,5 +226,23 @@ test('every select the visitor can set travels as a validated choice', () => {
       new RegExp(`'${id}'`),
       `select #${id} is not in CHOICE_IDS, so a shared link would carry it unvalidated or not at all`,
     );
+  }
+});
+
+// The two features touch the same page from opposite directions: the bid link
+// deliberately carries the contractor's own rates, and the proposal deliberately
+// carries the customer's name and address. Neither may pick up the other's
+// payload. A bid link that quietly included the homeowner's address would be a
+// third party's personal data pasted into a URL and a chat app.
+test('a saved or shared bid carries no customer or business details', () => {
+  const spec = /const BID_SPEC = \{[\s\S]*?\n    \};/.exec(scriptSource);
+  assert.ok(spec, 'BID_SPEC not found; the save/share wiring changed shape');
+  for (const field of [
+    'clientName', 'clientAddress',
+    'companyName', 'companyPhone', 'companyEmail', 'companyLicense', 'companyAddress',
+    'proposalScope', 'proposalNotes', 'proposalExclusions', 'paymentTerms',
+  ]) {
+    assert.doesNotMatch(spec[0], new RegExp(`\\b${field}\\b`),
+      `${field} would be written into the saved bid and its shareable link`);
   }
 });

@@ -7,7 +7,7 @@ that lists and searches them.
 ```
 node platform/pages/build.mjs --out=dist          # build
 node platform/pages/check.mjs dist                # check the artifact
-node --test platform/pages/build.test.mjs platform/pages/check.test.mjs
+cd platform/pages && node --test "*.test.mjs"   # what CI runs
 ```
 
 Then serve it and click around:
@@ -120,6 +120,54 @@ merely contains the word (`latest.mjs`, `testimonials.html`) still ships.
   a free tool for X" can fetch in one request instead of parsing the hub. The
   deploy workflow also reads it back off the live origin to pick the product page
   it verifies, so a renamed venture cannot make verification pass vacuously.
+
+## Shop rates, carried between tools
+
+`rates.mjs` injects a small bar under the site nav on every **trade bid
+calculator** — 36 of them at the time of writing. It carries four fields, and
+only these four:
+
+| Field id | What it is |
+|---|---|
+| `hourlyWage` | crew hourly wage |
+| `burdenRate` | payroll burden, % |
+| `overheadRate` | overhead on direct cost, % |
+| `targetMargin` | target net margin, % |
+
+Those are facts about the contractor's *business*, not about the job, and they
+do not change between a door job and a crown-molding job. Every calculator
+nonetheless opened on a stranger's ballpark, so the second tool someone crossed
+to made them look up and retype the same four numbers — on a page that meanwhile
+showed a price computed from someone else's shop. That is the worst place on the
+site to lose a visitor: the moment they were about to become a returning user.
+
+Save them once, and every trade bid calculator here opens with them. One
+`localStorage` key (`portfolio-shop-rates`) on this origin, which is the only
+reason the feature can exist at all — before the single-site build there was no
+shared origin to keep it on.
+
+**What is never overwritten.** A field named in the page's URL fragment (or a
+leftover query string) came off a *bid link* someone sent. Those are the
+sender's numbers on the sender's job, and replacing them would price a
+different bid than the sender saw — the exact failure `share.mjs` was written
+to avoid. Bid links live in the fragment so wage and margin never hit the
+server log or a Referer. The bar says so and offers a button instead.
+Everything else is overwritten, including the copy in this browser's own saved
+bid: that copy is a snapshot of what the rates were, and the saved rates are
+what they are now.
+
+Injection is build-time for the same reasons the nav is (above): a bid
+calculator lands on `main` most days, and the same four-line edit committed into
+36 product files would conflict with nearly every open branch. A page gets the
+bar only if all four fields are present, so marketplace tools and the deep SEO
+pages are left alone. `rates.test.mjs` fails if any venture renames one of the
+four — otherwise the bar would silently stop appearing on that tool.
+
+Counting reuses the site convention: `shop_rates_saved`, `shop_rates_applied`,
+`shop_rates_opened` and `shop_rates_cleared` in `portfolio-hub-usage`, local
+only, silent under DNT/GPC and the site-wide opt-out. The prefill deliberately
+does not fire the venture's own `bid_calculated` event — a page that loaded is
+not a bid someone priced.
 
 ## Offline and installable
 

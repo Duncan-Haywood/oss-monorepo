@@ -323,6 +323,101 @@ export function comparePassThrough(input = {}) {
   };
 }
 
+/**
+ * Billed LTL fuel surcharge versus the contract percent of linehaul.
+ * Optional index (DOE / EIA / carrier bulletin) plus a typed adder is a
+ * second expected amount — never fetched. A rate card that skips FUEL
+ * cannot price this line because the base is linehaul, not a flat code.
+ */
+export function reviewFuelSurcharge(input = {}) {
+  const linehaul = nonNegative(input.linehaul, "Linehaul");
+  const contractPercent = nonNegative(input.contractPercent, "Contract fuel percent");
+  if (contractPercent > 100) {
+    throw new Error("Contract fuel percent must be at most 100.");
+  }
+  const billedAmount = nonNegative(input.billedAmount, "Billed fuel surcharge");
+  const indexPercent = optionalPercent(input.indexPercent, "Index fuel percent");
+  const indexAdderRaw = input.indexAdder;
+  const indexAdderProvided = indexAdderRaw != null && String(indexAdderRaw).trim() !== "";
+  if (indexAdderProvided && indexPercent == null) {
+    throw new Error("Index adder needs an index fuel percent.");
+  }
+  const indexAdder = indexPercent == null ? 0 : nonNegative(indexAdderRaw ?? 0, "Index adder");
+  const indexAppliedPercent = indexPercent == null ? null : cents(indexPercent + indexAdder);
+  if (indexAppliedPercent != null && indexAppliedPercent > 100) {
+    throw new Error("Index plus adder must be at most 100.");
+  }
+
+  const expectedFromContract = cents(linehaul * (contractPercent / 100));
+  const expectedFromIndex =
+    indexAppliedPercent == null ? null : cents(linehaul * (indexAppliedPercent / 100));
+  const billedPercent = linehaul > 0 ? cents((billedAmount / linehaul) * 100) : null;
+  const varianceVsContract = cents(billedAmount - expectedFromContract);
+  const varianceVsIndex =
+    expectedFromIndex == null ? null : cents(billedAmount - expectedFromIndex);
+
+  const flags = [];
+  if (linehaul === 0) flags.push("Linehaul is zero — billed percent cannot be computed");
+  if (varianceVsContract > 0) flags.push(`Over contract by ${money(varianceVsContract)}`);
+  if (varianceVsIndex != null && varianceVsIndex > 0) {
+    flags.push(`Over index by ${money(varianceVsIndex)}`);
+  }
+
+  return {
+    linehaul,
+    contractPercent,
+    billedAmount,
+    billedPercent,
+    expectedFromContract,
+    varianceVsContract,
+    recoverable: Math.max(0, varianceVsContract),
+    indexPercent,
+    indexAdder: indexPercent == null ? 0 : indexAdder,
+    indexAppliedPercent,
+    expectedFromIndex,
+    varianceVsIndex,
+    flags,
+  };
+}
+
+function optionalPercent(value, name) {
+  if (value == null || String(value).trim() === "") return null;
+  const number = nonNegative(value, name);
+  if (number > 100) throw new Error(`${name} must be at most 100.`);
+  return number;
+}
+
+export function fuelSurchargeNote(result) {
+  const linehaul = money(result.linehaul);
+  const contract = `${result.contractPercent.toFixed(2)}%`;
+  const expected = money(result.expectedFromContract);
+  const billed = money(result.billedAmount);
+  const billedPct =
+    result.billedPercent == null
+      ? "The billed percent cannot be computed without a linehaul."
+      : `${result.billedPercent.toFixed(2)}% of linehaul`;
+  const vsContract =
+    result.varianceVsContract === 0
+      ? `The billed line matches the ${expected} contract amount.`
+      : result.varianceVsContract > 0
+        ? `That is ${money(result.varianceVsContract)} above the contract.`
+        : `The invoice bills ${money(-result.varianceVsContract)} under the contract. This is a review of the line, not a determination that the invoice is short.`;
+  const index =
+    result.indexAppliedPercent == null
+      ? "No index percent was typed."
+      : `The typed index (${result.indexPercent.toFixed(2)}% plus ${result.indexAdder.toFixed(2)} points) is ${result.indexAppliedPercent.toFixed(2)}% and expects ${money(result.expectedFromIndex)}.` +
+        (result.varianceVsIndex === 0
+          ? " The billed line matches that index amount."
+          : result.varianceVsIndex > 0
+            ? ` The billed line is ${money(result.varianceVsIndex)} above that index amount.`
+            : ` The billed line is ${money(-result.varianceVsIndex)} under that index amount.`);
+  return (
+    `Linehaul ${linehaul} at the ${contract} contract rate expects ${expected}. ` +
+    `The invoice bills ${billed} — ${billedPct}. ${vsContract} ${index} ` +
+    `This is a review of the line, not a determination that the charge is wrong.`
+  );
+}
+
 export function passThroughNote(result) {
   const collected = money(result.collectedFreight);
   const billed = money(result.billed);

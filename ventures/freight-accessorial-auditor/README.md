@@ -1,8 +1,8 @@
 # Freight Accessorial Invoice Auditor
 
-Small shippers and freight brokers can now audit billed accessorial lines for duplicates, amounts above an expected contract figure, missing codes, and missing or contradictory evidence — then copy a factual review draft and download a CSV. Sibling pages compare a detention line to the dock clock after free time, and compare eating an extra versus billing the customer versus paying first and reviewing for a credit.
+Small shippers and freight brokers can now audit billed accessorial lines for duplicates, amounts above an expected contract figure, missing codes, and missing or contradictory evidence — then copy a factual review draft and download a CSV. Sibling pages compare a detention line to the dock clock after free time, compare a billed fuel surcharge to the contract percent of linehaul, and compare eating an extra versus billing the customer versus paying first and reviewing for a credit.
 
-**After using this, you can now** import the carrier's own invoice export, apply your contract rate card once, and identify invoice lines worth handing to AP with a dated review record — which used to take a manual spreadsheet pass against the rate confirmation, one line at a time.
+**After using this, you can now** import the carrier's own invoice export, apply your contract rate card once, see whether a billed fuel surcharge matches the contract percent of linehaul, and identify invoice lines worth handing to AP with a dated review record — which used to take a manual spreadsheet pass against the rate confirmation, one line at a time.
 
 Open `index.html` in a browser, or serve this directory with `python3 -m http.server`. It works without an account, API key, or paid service. It is distinct from a 3PL quote normalizer: this audits billed invoice lines after service, rather than comparing prospective fulfillment quotes.
 
@@ -16,6 +16,7 @@ Open `index.html` in a browser, or serve this directory with `python3 -m http.se
 - Copies a factual dispute-review draft that lists only actionable overages and never determines that a charge is wrong.
 - Downloads a private CSV review queue (invoice labels stay local).
 - Compares a detention bill to clock time after free time (`should-i-dispute-this-detention-charge.html`).
+- Compares a billed fuel surcharge to the contract percent of linehaul, with an optional typed bulletin index (`does-this-fuel-surcharge-match-the-contract.html`).
 - Compares eating a billed extra, invoicing the customer, or paying first and reviewing for a credit (`should-i-bill-this-accessorial-to-the-customer.html`).
 - Runs without an account, API key, network call, or paid dependency.
 - Includes crawler-readable metadata, JSON-LD, sitemap, and `robots.txt`.
@@ -40,9 +41,11 @@ The detention page starts with 180 minutes on dock, 120 free, $75/hour, and a $3
 
 The pass-through page starts with **$180.00 already collected**, a **$300.00** billed extra against **$75.00 supported**, a **$300.00** customer back-charge, and **1.5 hours** of review at **$42/hr**. Eating keeps **−$120.00**. Billing the customer keeps **$180.00**. A credit after **$63.00** labor keeps **$42.00**. No credit keeps **−$183.00**.
 
+The fuel page starts with a **$1,200.00** linehaul at **28%**, a **$412.00** billed FSC line, and a typed bulletin of **26% plus 2 points**. The contract expects **$336.00**. The invoice is **34.33% of linehaul**, **$76.00 above the contract**. The index path expects the same **$336.00**.
+
 ## Research and business case
 
-Target users are ecommerce brands, small shippers, and freight brokers who pay LTL invoices in AP. Their painful question is not the line-haul rate; it is whether detention, liftgate, residential, reweigh, and lumper charges match the contract and the shipment record — and, once the line is billed, who holds the cash. Carrier portals show the billed line. Spreadsheets do not rank evidence or compare eat / pass-through / review. This tool is local-first, searchable for “freight accessorial audit”, “should I dispute this detention charge?”, and “should I bill this accessorial to the customer?”, and produces a review record rather than a determination.
+Target users are ecommerce brands, small shippers, and freight brokers who pay LTL invoices in AP. Their painful question is not the line-haul rate; it is whether detention, liftgate, residential, reweigh, lumper, and fuel-surcharge charges match the contract and the shipment record — and, once the line is billed, who holds the cash. Carrier portals show the billed line. Spreadsheets do not rank evidence or compare eat / pass-through / review. A flat rate card skips FUEL because the base is linehaul. This tool is local-first, searchable for “freight accessorial audit”, “should I dispute this detention charge?”, “does this fuel surcharge match the contract?”, and “should I bill this accessorial to the customer?”, and produces a review record rather than a determination.
 
 The product can later support a user-supplied rate-confirmation import or a customer-managed API key for optional document parsing. It does not need those features to deliver value today. Hosting is static and marginal cost is zero.
 
