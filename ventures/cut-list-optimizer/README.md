@@ -48,7 +48,7 @@ Kerf and edge trim are counted as **waste**, not as usable material, so the util
 
 ## Linear stock
 
-Enter one required length per line. Add `x quantity` when several identical pieces are needed, such as `24 x 3`. The deterministic first-fit decreasing plan is a planning aid, not a guarantee of the optimal arrangement. Use **Copy cut plan** to put a plain-text version into a job ticket or shop note; it stays in your browser and is not uploaded.
+Enter one required length per line. Add `x quantity` when several identical pieces are needed, such as `24 x 3`. Add an optional cost per stock piece to see the material spend for the plan before buying. The deterministic first-fit decreasing plan is a planning aid, not a guarantee of the optimal arrangement. Use **Copy cut plan** to put a plain-text version into a job ticket or shop note; it stays in your browser and is not uploaded.
 
 ## Privacy
 
