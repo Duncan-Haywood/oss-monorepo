@@ -48,186 +48,6 @@ scoring_rule: >-
   near-zero-price norm is a real property of the business on any host.
 
 ventures:
-  - slug: freight-accessorial-auditor
-    scores:
-      ai_leverage: 1
-      autonomous_ops: 10
-      time_to_revenue: 6
-      gross_margin: 10
-      defensibility: 4
-      distribution: 7
-    composite: 6.333
-    rater_b: null
-    floor: 1
-    floor_dimension: ai_leverage
-    floor_note: >-
-      The value is transparent invoice arithmetic; adding AI would make
-      accessorial review less reproducible.
-    basis: >-
-      Graduated on 2026-08-26 as a browser-local freight accessorial invoice
-      auditor (salvage of #1379 plus evidence/dispute draft from #1436 and a
-      detention clock extra). Distinct from 3pl-quote-normalizer (prospective
-      warehouse quotes). Search intent includes freight accessorial audit and
-      detention charge dispute.
-    gates:
-      liability_containment: pass
-      ethical_robustness: pass
-    gate_note: >-
-      Outputs are review flags from user-supplied amounts and evidence, never
-      a pay-or-dispute determination or legal/financial advice.
-  - slug: cloud-egress-calculator
-    scores:
-      ai_leverage: 1
-      autonomous_ops: 10
-      time_to_revenue: 6
-      gross_margin: 10
-      defensibility: 4
-      distribution: 6
-    composite: 6.167
-    rater_b: null
-    floor: 1
-    floor_dimension: ai_leverage
-    floor_note: >-
-      The value is transparent cost arithmetic; adding AI would make price
-      comparisons less reproducible.
-    basis: >-
-      Graduated on 2026-08-26 as a browser-local object-storage and data-egress
-      scenario calculator (salvage of #1409 plus a CDN vs origin-only extra).
-      Distinct from egress-window-bid-calculator (a residential window install
-      bid). Search intent includes S3 egress cost and CloudFront vs S3 egress.
-    gates:
-      liability_containment: pass
-      ethical_robustness: pass
-    gate_note: >-
-      Outputs are estimates from user-supplied rates, never provider quotes or
-      financial/technical advice.
-  - slug: invoice-payment-terms-calculator
-    scores:
-      ai_leverage: 1
-      autonomous_ops: 10
-      time_to_revenue: 8
-      gross_margin: 10
-      defensibility: 4
-      distribution: 8
-    composite: 6.833
-    rater_b: null
-    floor: 1
-    floor_dimension: ai_leverage
-    floor_note: >-
-      The first release is deterministic due-date, late-fee, and early-pay
-      float arithmetic; AI is not needed to complete the workflow.
-    basis: >-
-      Graduated on 2026-08-26 as a browser-local invoice due-date, late-fee
-      scenario, and 2/10 Net 30 vs waiting calculator (salvage of #1405/#1400
-      plus the early-pay extra). Distinct from quote-margin-check (job
-      profitability), retainage (construction withhold), and Faire payout
-      speed (marketplace processing). Search intent includes invoice payment
-      terms calculator, net 30 due date, and 2/10 Net 30.
-    gates:
-      liability_containment: pass
-      ethical_robustness: pass
-    gate_note: >-
-      Late-fee and early-pay rows are arithmetic scenarios from user-supplied
-      rates, not legal conclusions or a recommendation to offer a discount.
-  - slug: grant-deadline-tracker
-    scores:
-      ai_leverage: 1
-      autonomous_ops: 10
-      time_to_revenue: 7
-      gross_margin: 10
-      defensibility: 4
-      distribution: 7
-    composite: 6.5
-    rater_b: null
-    floor: 1
-    floor_dimension: ai_leverage
-    floor_note: >-
-      The first release is deterministic deadline and balance arithmetic; AI is
-      not needed to complete the workflow.
-    basis: >-
-      Graduated on 2026-08-26 as a browser-local grant deadline and reporting
-      tracker for small nonprofits. Distinct from contractor cash-flow, quote,
-      and evidence products: the recurring job is managing funder obligations
-      and restricted award balances. Search intent includes grant deadline
-      tracker and nonprofit grant reporting calendar. Interval math from open
-      #1188 is included so an award date plus months fills the current period.
-    gates:
-      liability_containment: pass
-      ethical_robustness: pass
-    gate_note: >-
-      Pass, conditionally: dates and balances are calculated from user inputs,
-      not funder records; the output is a planning aid, not a filing or
-      compliance determination, and users must verify award documents.
-  - slug: walmart-marketplace-calculator
-    scores:
-      ai_leverage: 1
-      autonomous_ops: 10
-      time_to_revenue: 7
-      gross_margin: 10
-      defensibility: 4
-      distribution: 7
-    composite: 6.5
-    rater_b: null
-    floor: 1
-    floor_dimension: ai_leverage
-    floor_note: >-
-      There is no AI anywhere in the product. The value is a domain model —
-      WFS versus seller-fulfilled profit on one listing after the referral
-      floor, size-tier fulfillment, storage, and inbound — that is
-      arithmetic, and adding inference would only make the result less
-      checkable.
-    basis: >-
-      Graduated on 2026-08-26 as a browser-local Walmart Marketplace WFS vs
-      seller-fulfilled profit calculator (salvage of unique #1507 onto
-      current main). Distinct from amazon-fba-calculator, faire-wholesale,
-      etsy/ebay/shopify, and where-to-sell: the buyer is a Walmart
-      Marketplace seller, and the wedge is WFS fulfillment plus inbound
-      plus storage versus the seller-paid label on the same SKU, plus the
-      $0.30 referral floor and a competitive match-price view. Distribution
-      is the searchable phrases "Walmart seller fees", "WFS vs seller
-      fulfilled", and "Walmart Marketplace fee calculator".
-    gates:
-      liability_containment: pass
-      ethical_robustness: pass
-    gate_note: >-
-      Pass: output is arithmetic on the user's rates, never a recommended
-      fulfillment method or a claim about Walmart's live schedule. Not a
-      Walmart storefront, scrape, or affiliate. All data stays in the
-      browser.
-  - slug: faire-wholesale-calculator
-    scores:
-      ai_leverage: 1
-      autonomous_ops: 10
-      time_to_revenue: 7
-      gross_margin: 10
-      defensibility: 4
-      distribution: 7
-    composite: 6.5
-    rater_b: null
-    floor: 1
-    floor_dimension: ai_leverage
-    floor_note: >-
-      There is no AI anywhere in the product. The value is a domain model —
-      first-order fee versus reorder versus Faire Direct on one invoice —
-      that is arithmetic, and adding inference would only make the result
-      less checkable.
-    basis: >-
-      Graduated on 2026-08-26 as a browser-local Faire wholesale fee and
-      margin calculator (salvage of unique #1489 onto current main). Distinct
-      from etsy/ebay/shopify/where-to-sell: the buyer is a Faire brand or
-      independent retailer, and the wedge is the first-order new-customer
-      fee versus reorder versus Faire Direct on one invoice, plus
-      payout-speed processing and a retailer landed-cost view that keeps
-      unsold opening-order units in the cost. Distribution is the searchable
-      phrases "Faire seller fees", "Faire commission calculator", and
-      "Faire Direct vs marketplace".
-    gates:
-      liability_containment: pass
-      ethical_robustness: pass
-    gate_note: >-
-      Pass: output is arithmetic on the user's rates, never a recommended
-      wholesale price or a claim about Faire's live schedule. Not a Faire
-      storefront, scrape, or affiliate. All data stays in the browser.
   - slug: retainage-cashflow-calculator
     scores:
       ai_leverage: 1
@@ -1060,6 +880,359 @@ ventures:
       than a standard or benchmark, and nothing the user enters leaves the
       browser.
 
+  - slug: freelance-retainer-calculator
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 7
+      gross_margin: 10
+      defensibility: 4
+      distribution: 8
+    composite: 6.667
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      The core value is transparent pricing arithmetic; AI is not required for
+      the first useful workflow.
+    basis: >-
+      Graduated on 2026-08-25 as a browser-local calculator for independent
+      consultants and freelancers. It is distinct from trade bid calculators,
+      marketplace fee tools, and invoice cash-flow tools because it models
+      non-billable utilization and scope-risk buffer for recurring retainers.
+      Search intent is explicit in queries such as freelance retainer pricing
+      calculator and how to price a monthly retainer.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Pass: output is a planning floor from user-supplied assumptions, not
+      financial advice or a guarantee of income, tax treatment, or contract
+      enforceability; all data stays in the browser.
+
+  - slug: sod-install-bid-calculator
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 7
+      gross_margin: 10
+      defensibility: 5
+      distribution: 7
+    composite: 6.667
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      There is no AI anywhere in the product. The value is a domain model —
+      whole pallets after waste, and prep hours from the dirt — that is
+      arithmetic, and adding inference to it would only make the result less
+      checkable.
+    basis: >-
+      Graduated on 2026-08-25 as a browser-local sod installation bid
+      calculator. Distinct from lawn-care (recurring mowing of living grass)
+      and from artificial turf (synthetic rolls, base, and infill).
+      Defensibility 5: the pallet-and-prep model encodes how landscapers
+      actually lose money on a published per-foot special, and the incumbents
+      here are generic cost-per-square-foot pages rather than a free
+      walk-away tool. Distribution 7: "how much to charge to install sod"
+      and "sod installation cost calculator" are lower-volume than
+      marketplace-fee queries but bought by an operator with a real lawn
+      on the line.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Pass: the output is arithmetic on the landscaper's own inputs, never a
+      recommended price, a horticultural determination, or an irrigation
+      design. The shipped farm rates are labelled ballpark starting points
+      rather than a standard or benchmark, and nothing the user enters leaves
+      the browser.
+  - slug: artificial-turf-bid-calculator
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 7
+      gross_margin: 10
+      defensibility: 5
+      distribution: 7
+    composite: 6.667
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      There is no AI anywhere in the product. The value is a domain model —
+      turf-to-buy from roll waste, landscape versus pet versus putting-green,
+      and sod-demo extras — that is arithmetic, and adding inference to it
+      would only make the result less checkable.
+    basis: >-
+      Graduated on 2026-08-25 as a browser-local artificial turf bid
+      calculator. Distinct from lawn-care mowing (a recurring stop on living
+      grass) and from paver / concrete patio pours (hardscape). Scored above
+      the marketplace fee calculators on defensibility (5): those restate a
+      published fee schedule, whereas the type-and-base model encodes how
+      turf shops actually estimate rolls and extra work. Distribution 7:
+      "how much to charge for artificial turf" and "synthetic grass cost
+      calculator" are high-intent queries bought by an operator with a real
+      takeoff on the line.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Pass: the output is arithmetic on the contractor's own inputs, never a
+      recommended price, a wage determination, or a landscaping specification.
+      The shipped hours and turf rates are labelled ballpark starting points
+      rather than a standard or benchmark, and nothing the user enters
+      leaves the browser.
+  - slug: asphalt-driveway-pave-bid-calculator
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 7
+      gross_margin: 10
+      defensibility: 5
+      distribution: 7
+    composite: 6.667
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      There is no AI anywhere in the product. The value is a domain model —
+      mix tons from thickness, overlay versus mill-and-overlay versus
+      full-depth, and failed-base extras — that is arithmetic, and adding
+      inference to it would only make the result less checkable.
+    basis: >-
+      Graduated on 2026-08-25 as a browser-local asphalt driveway paving bid
+      calculator. Distinct from asphalt sealcoating (coats and crack fill)
+      and from concrete driveway pours (cubic yards of slab). Scored above
+      the marketplace fee calculators on defensibility (5): those restate a
+      published fee schedule, whereas the method-and-thickness model encodes
+      how paving shops actually estimate mix and extra work. Distribution 7:
+      "how much to pave a driveway" and "asphalt driveway cost calculator"
+      are high-intent queries bought by an operator with a real takeoff on
+      the line.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Pass: the output is arithmetic on the contractor's own inputs, never a
+      recommended price, a wage determination, or a paving specification.
+      The shipped hours and mix rates are labelled ballpark starting points
+      rather than a standard or benchmark, and nothing the user enters
+      leaves the browser.
+  - slug: parking-lot-striping-bid-calculator
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 7
+      gross_margin: 10
+      defensibility: 5
+      distribution: 7
+    composite: 6.667
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      There is no AI anywhere in the product. The value is a domain model —
+      stall-line footage, ADA hash, and coat labor — that is arithmetic, and
+      adding inference to it would only make the result less checkable.
+    basis: >-
+      Graduated on 2026-08-25 as a browser-local parking-lot striping and
+      pavement-marking bid calculator. Distinct from sealcoat (coats and
+      cracks), asphalt paving (tons of mix), gravel driveway (trucks and
+      depth), and concrete pours (cubic yards). Scored with the other trade
+      bid calculators: defensibility 5 because the stall-line / ADA-hash
+      model encodes how the trade actually loses money on a per-stall
+      special, and distribution 7 because "how much to charge to stripe a
+      parking lot" is a specific operator query with a job on the line.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Pass: the output is arithmetic on the contractor's own inputs, never a
+      recommended price, an ADA determination, or a MUTCD plan. Starting
+      coverage and hour rates are labelled ballpark starting points rather
+      than a standard or benchmark, and nothing the user enters leaves the
+      browser.
+  - slug: freight-accessorial-auditor
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 6
+      gross_margin: 10
+      defensibility: 4
+      distribution: 7
+    composite: 6.333
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      The value is transparent invoice arithmetic; adding AI would make
+      accessorial review less reproducible.
+    basis: >-
+      Graduated on 2026-08-26 as a browser-local freight accessorial invoice
+      auditor (salvage of #1379 plus evidence/dispute draft from #1436 and a
+      detention clock extra). Distinct from 3pl-quote-normalizer (prospective
+      warehouse quotes). Search intent includes freight accessorial audit and
+      detention charge dispute.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Outputs are review flags from user-supplied amounts and evidence, never
+      a pay-or-dispute determination or legal/financial advice.
+  - slug: cloud-egress-calculator
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 6
+      gross_margin: 10
+      defensibility: 4
+      distribution: 6
+    composite: 6.167
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      The value is transparent cost arithmetic; adding AI would make price
+      comparisons less reproducible.
+    basis: >-
+      Graduated on 2026-08-26 as a browser-local object-storage and data-egress
+      scenario calculator (salvage of #1409 plus a CDN vs origin-only extra).
+      Distinct from egress-window-bid-calculator (a residential window install
+      bid). Search intent includes S3 egress cost and CloudFront vs S3 egress.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Outputs are estimates from user-supplied rates, never provider quotes or
+      financial/technical advice.
+  - slug: invoice-payment-terms-calculator
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 8
+      gross_margin: 10
+      defensibility: 4
+      distribution: 8
+    composite: 6.833
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      The first release is deterministic due-date, late-fee, and early-pay
+      float arithmetic; AI is not needed to complete the workflow.
+    basis: >-
+      Graduated on 2026-08-26 as a browser-local invoice due-date, late-fee
+      scenario, and 2/10 Net 30 vs waiting calculator (salvage of #1405/#1400
+      plus the early-pay extra). Distinct from quote-margin-check (job
+      profitability), retainage (construction withhold), and Faire payout
+      speed (marketplace processing). Search intent includes invoice payment
+      terms calculator, net 30 due date, and 2/10 Net 30.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Late-fee and early-pay rows are arithmetic scenarios from user-supplied
+      rates, not legal conclusions or a recommendation to offer a discount.
+  - slug: grant-deadline-tracker
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 7
+      gross_margin: 10
+      defensibility: 4
+      distribution: 7
+    composite: 6.5
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      The first release is deterministic deadline and balance arithmetic; AI is
+      not needed to complete the workflow.
+    basis: >-
+      Graduated on 2026-08-26 as a browser-local grant deadline and reporting
+      tracker for small nonprofits. Distinct from contractor cash-flow, quote,
+      and evidence products: the recurring job is managing funder obligations
+      and restricted award balances. Search intent includes grant deadline
+      tracker and nonprofit grant reporting calendar. Interval math from open
+      #1188 is included so an award date plus months fills the current period.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Pass, conditionally: dates and balances are calculated from user inputs,
+      not funder records; the output is a planning aid, not a filing or
+      compliance determination, and users must verify award documents.
+  - slug: walmart-marketplace-calculator
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 7
+      gross_margin: 10
+      defensibility: 4
+      distribution: 7
+    composite: 6.5
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      There is no AI anywhere in the product. The value is a domain model —
+      WFS versus seller-fulfilled profit on one listing after the referral
+      floor, size-tier fulfillment, storage, and inbound — that is
+      arithmetic, and adding inference would only make the result less
+      checkable.
+    basis: >-
+      Graduated on 2026-08-26 as a browser-local Walmart Marketplace WFS vs
+      seller-fulfilled profit calculator (salvage of unique #1507 onto
+      current main). Distinct from amazon-fba-calculator, faire-wholesale,
+      etsy/ebay/shopify, and where-to-sell: the buyer is a Walmart
+      Marketplace seller, and the wedge is WFS fulfillment plus inbound
+      plus storage versus the seller-paid label on the same SKU, plus the
+      $0.30 referral floor and a competitive match-price view. Distribution
+      is the searchable phrases "Walmart seller fees", "WFS vs seller
+      fulfilled", and "Walmart Marketplace fee calculator".
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Pass: output is arithmetic on the user's rates, never a recommended
+      fulfillment method or a claim about Walmart's live schedule. Not a
+      Walmart storefront, scrape, or affiliate. All data stays in the
+      browser.
+  - slug: faire-wholesale-calculator
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 7
+      gross_margin: 10
+      defensibility: 4
+      distribution: 7
+    composite: 6.5
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      There is no AI anywhere in the product. The value is a domain model —
+      first-order fee versus reorder versus Faire Direct on one invoice —
+      that is arithmetic, and adding inference would only make the result
+      less checkable.
+    basis: >-
+      Graduated on 2026-08-26 as a browser-local Faire wholesale fee and
+      margin calculator (salvage of unique #1489 onto current main). Distinct
+      from etsy/ebay/shopify/where-to-sell: the buyer is a Faire brand or
+      independent retailer, and the wedge is the first-order new-customer
+      fee versus reorder versus Faire Direct on one invoice, plus
+      payout-speed processing and a retailer landed-cost view that keeps
+      unsold opening-order units in the cost. Distribution is the searchable
+      phrases "Faire seller fees", "Faire commission calculator", and
+      "Faire Direct vs marketplace".
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Pass: output is arithmetic on the user's rates, never a recommended
+      wholesale price or a claim about Faire's live schedule. Not a Faire
+      storefront, scrape, or affiliate. All data stays in the browser.
   - slug: automatic-driveway-gate-bid-calculator
     scores:
       ai_leverage: 1
@@ -1096,36 +1269,6 @@ ventures:
       The shipped hours and kit rates are labelled ballpark starting points
       rather than a standard or benchmark, and nothing the user enters
       leaves the browser.
-
-  - slug: freelance-retainer-calculator
-    scores:
-      ai_leverage: 1
-      autonomous_ops: 10
-      time_to_revenue: 7
-      gross_margin: 10
-      defensibility: 4
-      distribution: 8
-    composite: 6.667
-    rater_b: null
-    floor: 1
-    floor_dimension: ai_leverage
-    floor_note: >-
-      The core value is transparent pricing arithmetic; AI is not required for
-      the first useful workflow.
-    basis: >-
-      Graduated on 2026-08-25 as a browser-local calculator for independent
-      consultants and freelancers. It is distinct from trade bid calculators,
-      marketplace fee tools, and invoice cash-flow tools because it models
-      non-billable utilization and scope-risk buffer for recurring retainers.
-      Search intent is explicit in queries such as freelance retainer pricing
-      calculator and how to price a monthly retainer.
-    gates:
-      liability_containment: pass
-      ethical_robustness: pass
-    gate_note: >-
-      Pass: output is a planning floor from user-supplied assumptions, not
-      financial advice or a guarantee of income, tax treatment, or contract
-      enforceability; all data stays in the browser.
 
   - slug: kitchen-tile-backsplash-bid-calculator
     scores:
@@ -1486,3 +1629,108 @@ ventures:
       or a building-code determination. Starting hours are labelled ballpark
       figures rather than a standard, and nothing the user enters leaves the
       browser.
+
+  - slug: crown-molding-bid-calculator
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 7
+      gross_margin: 10
+      defensibility: 5
+      distribution: 8
+    composite: 6.833
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      There is no AI anywhere in the product. The value is a domain model —
+      linear feet, corners, grade, and payroll burden — that is arithmetic, and
+      adding inference to it would only make the result less checkable.
+    basis: >-
+      Graduated on 2026-08-25 as a browser-local crown molding bid
+      calculator. Distinct from interior painting (a coat), drywall (gypsum),
+      cabinet refinishing (doors), popcorn-ceiling (a scrape), and plantation
+      shutters (louvered panels). Distribution 8: "how much to charge to
+      install crown molding" and "crown molding cost calculator" are
+      high-intent operator queries; defensibility 5 because the
+      run-versus-corner model encodes how the trade estimates labor rather
+      than restating a published per-foot special.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Pass: the output is arithmetic on the carpenter's own inputs, never a
+      recommended price, a millwork shop drawing, or a structural opinion.
+      The shipped hours and millwork invoices are labelled ballpark
+      starting points rather than a standard or benchmark, and nothing the
+      user enters leaves the browser.
+
+  - slug: plantation-shutter-bid-calculator
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 7
+      gross_margin: 10
+      defensibility: 5
+      distribution: 8
+    composite: 6.833
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      There is no AI anywhere in the product. The value is a domain model —
+      openings, mount, grade, and payroll burden — that is arithmetic, and
+      adding inference to it would only make the result less checkable.
+    basis: >-
+      Graduated on 2026-08-25 as a browser-local plantation shutter bid
+      calculator. Distinct from window replacement (glass, united inches,
+      nailing flange), window cleaning (panes), and patio door (sliders).
+      Distribution 8: "how much to charge to install plantation shutters"
+      and "plantation shutter cost calculator" are high-intent operator
+      queries; defensibility 5 because the opening-versus-scope model
+      encodes how the trade estimates labor rather than restating a
+      published per-window special.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Pass: the output is arithmetic on the shop's own inputs, never a
+      recommended price, a window-design determination, or a building-code
+      opinion. The shipped hours and shutter invoices are labelled ballpark
+      starting points rather than a standard or benchmark, and nothing the
+      user enters leaves the browser.
+  - slug: crawl-space-encapsulation-bid-calculator
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 7
+      gross_margin: 10
+      defensibility: 5
+      distribution: 7
+    composite: 6.667
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      There is no AI anywhere in the product. The value is a domain model —
+      liner versus sealed encapsulate, hatch versus belly-crawl versus wet
+      access — that is arithmetic, and adding inference to it would
+      only make the result less checkable.
+    basis: >-
+      Graduated on 2026-08-25 as a browser-local crawl space encapsulation
+      bid calculator. Distinct from basement waterproofing (an interior
+      perimeter drain in a finished basement, window wells, a sump pit),
+      French drain (a yard trench), sump-pump (a pit and a discharge),
+      radon (SSD pipes), foundation repair (piers as the job), mold
+      (containment), spray-foam (board-foot insulation as the job), and
+      attic blown-in (bags above a ceiling). Search intent is explicit
+      in queries such as how much to charge for crawl space encapsulation
+      and crawl space encapsulation cost calculator.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Pass: output is a draft bid from user-supplied rates, not a
+      waterproofing specification, an engineered stamp, a radon or mold
+      clearance, or a standard or benchmark, and nothing the user enters
+      leaves the browser.

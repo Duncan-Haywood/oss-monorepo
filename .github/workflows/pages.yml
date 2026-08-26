@@ -1,0 +1,107 @@
+# Publish every browser product in `ventures/` to GitHub Pages.
+#
+# Why this workflow exists
+# ------------------------
+# As of 2026-08-26 this repo carries 32 finished browser calculators and not one
+# of them has a public URL. `platform/ci/publish_surface.py` reports that no
+# workflow publishes anything on a push to `main`, and the only Pages workflow
+# in the repo ships one venture's docs (`retail-pilot-intel-deploy-docs.yml`).
+#
+# That is the gap this closes. The owner flip everyone has been waiting on --
+# `GITHUB_PAGES_ENABLED` -- would, on its own, have published none of the
+# products, because nothing built them into a Pages artifact. Now it publishes
+# all of them at once.
+#
+# This deliberately reuses the SAME owner variable the existing Pages workflow
+# gates on rather than introducing a second switch. `portfolio/hosting/README.md`
+# is explicit that `deploy-settings` is the one remaining owner flip and that no
+# second platform ask should be opened.
+#
+# The build job runs unconditionally so that a broken site build is a red check
+# on the PR that broke it, whether or not Pages is switched on yet.
+
+name: Deploy portfolio Pages site
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "ventures/**"
+      - "platform/ci/build_pages_site.py"
+      - "platform/ci/test_build_pages_site.py"
+      - ".github/workflows/pages.yml"
+  pull_request:
+    paths:
+      - "ventures/**"
+      - "platform/ci/build_pages_site.py"
+      - "platform/ci/test_build_pages_site.py"
+      - ".github/workflows/pages.yml"
+  workflow_dispatch:
+
+# Pages allows one deployment at a time. Do not cancel a running publish --
+# an interrupted deploy can leave the live site on a half-uploaded artifact.
+concurrency:
+  group: pages-deploy
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Site-builder unit tests
+        working-directory: platform/ci
+        run: python3 -m unittest test_build_pages_site
+
+      - name: Validate what would be published
+        run: python3 platform/ci/build_pages_site.py --check
+
+      - name: Build the site
+        run: |
+          python3 platform/ci/build_pages_site.py \
+            --base-url "${{ vars.PAGES_BASE_URL || format('https://{0}.github.io/{1}', github.repository_owner, github.event.repository.name) }}"
+
+      # A published site whose links 404 is worse than no site: it burns the
+      # crawl budget and the first visitor. Check the artifact before it ships.
+      - name: Check every hub link resolves in the built artifact
+        run: python3 platform/ci/check_pages_links.py _site
+
+      - name: Upload Pages artifact
+        # Only the deploy job consumes this, but uploading unconditionally keeps
+        # the artifact inspectable on a PR run where deploying is not wanted.
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: _site
+
+  deploy:
+    needs: build
+    # Never publish from a pull request: a PR build is untrusted code, and a
+    # fork PR must not be able to overwrite the live site.
+    if: >-
+      github.event_name != 'pull_request' &&
+      vars.GITHUB_PAGES_ENABLED == 'true'
+    runs-on: ubuntu-latest
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
+
+      - name: Report the public URL
+        run: |
+          echo "### Portfolio site published" >> "$GITHUB_STEP_SUMMARY"
+          echo "" >> "$GITHUB_STEP_SUMMARY"
+          echo "${{ steps.deployment.outputs.page_url }}" >> "$GITHUB_STEP_SUMMARY"
