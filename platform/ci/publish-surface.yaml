@@ -259,6 +259,9 @@ workflows:
 - workflow: reverb-fee-calculator-ci.yml
   classification: none
   publishes: []
+- workflow: sewer-line-replace-bid-calculator-ci.yml
+  classification: none
+  publishes: []
 - workflow: shed-install-bid-calculator-ci.yml
   classification: none
   publishes: []
