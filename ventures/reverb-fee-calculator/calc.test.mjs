@@ -118,3 +118,25 @@ test('buyer-pays and included match when shipping charged is already zero', () =
   assert.equal(comparison.extraMarketplaceOnIncluded, 0);
   assert.equal(comparison.winner, 'pickup');
 });
+
+test('absorbing the label keeps the $800 list and leaves $69.08 versus including shipping', () => {
+  const comparison = compareShippingPaths(REVERB_DEFAULTS);
+  assert.equal(comparison.absorbed.salePrice, 800);
+  assert.equal(comparison.absorbed.revenue, 800);
+  assert.equal(comparison.absorbed.fees.marketplace, 40);
+  assert.equal(comparison.absorbed.fees.payment, 23.5);
+  assert.equal(comparison.absorbed.profit, 211.5);
+  assert.equal(Number(comparison.rows[3].vsBuyerPays.toFixed(3)), -72.825);
+  assert.equal(Number(comparison.absorbVsIncluded.toFixed(3)), -69.075);
+  assert.ok(comparison.absorbed.profit < comparison.included.profit);
+});
+
+test('a meetup cost comes out of pickup cash and does not change the other paths', () => {
+  const baseline = compareShippingPaths(REVERB_DEFAULTS);
+  const withMeetup = compareShippingPaths({ ...REVERB_DEFAULTS, meetupCost: 20 });
+  assert.equal(withMeetup.buyerPays.profit, baseline.buyerPays.profit);
+  assert.equal(withMeetup.included.profit, baseline.included.profit);
+  assert.equal(withMeetup.absorbed.profit, baseline.absorbed.profit);
+  assert.equal(withMeetup.pickup.profit, baseline.pickup.profit - 20);
+  assert.equal(withMeetup.meetupCost, 20);
+});

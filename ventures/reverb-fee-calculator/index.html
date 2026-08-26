@@ -7,7 +7,7 @@
   <meta name="description" content="See what a Reverb sale leaves after marketplace, payment, shipping, and gear cost — whether a buyer offer still beats eBay, and whether free shipping or local pickup still beats charging postage.">
   <meta property="og:title" content="Reverb Fee Calculator">
   <meta property="og:description" content="Net cash on a Reverb list price, on the offer in your inbox, versus eBay, and versus baking shipping into the item price.">
-  <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Reverb Fee Calculator","applicationCategory":"BusinessApplication","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"featureList":"Reverb fee breakdown, offer versus list cash, Reverb versus eBay compare, offer that matches eBay list cash, shipping included versus buyer-pays, local pickup versus ship"}</script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Reverb Fee Calculator","applicationCategory":"BusinessApplication","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"featureList":"Reverb fee breakdown, offer versus list cash, Reverb versus eBay compare, offer that matches eBay list cash, shipping included versus buyer-pays, local pickup versus ship, absorb the label versus include shipping"}</script>
   <style>
     :root { color-scheme: light; font-family: system-ui, sans-serif; color: #1f2320; background: #f3f1ea; }
     body { max-width: 980px; margin: 0 auto; padding: 32px 18px; }
@@ -26,7 +26,7 @@
   <header>
     <p>FOR REVERB SELLERS</p>
     <h1>See whether that offer still beats eBay.</h1>
-    <p>Enter the rates from your last Reverb payout and the eBay final-value fee you actually pay. The calculator shows cash at your list price, cash if you take the offer, and the Reverb offer that leaves the same cash as selling the same item on eBay. Walk the numbers on <a href="should-i-take-this-reverb-offer.html">should I take this Reverb offer</a>. Marketplace fee sits on the item, so baking postage into the list costs extra — compare that to charging shipping or offering pickup on <a href="should-i-include-shipping-on-reverb.html">should I include shipping on Reverb</a>.</p>
+    <p>Enter the rates from your last Reverb payout and the eBay final-value fee you actually pay. The calculator shows cash at your list price, cash if you take the offer, and the Reverb offer that leaves the same cash as selling the same item on eBay. Walk the numbers on <a href="should-i-take-this-reverb-offer.html">should I take this Reverb offer</a>. Marketplace fee sits on the item, so baking postage into the list costs extra — compare that to charging shipping, absorbing the label, or offering pickup on <a href="should-i-include-shipping-on-reverb.html">should I include shipping on Reverb</a> and <a href="should-i-eat-the-shipping-on-reverb.html">should I eat the shipping</a>.</p>
   </header>
   <main class="layout">
     <section>
@@ -43,6 +43,7 @@
         <label>Payment fixed fee <input id="paymentFixed" type="number" min="0" step="0.01" value="0.30"></label>
         <label>Reverb Gives (%) <input id="givesRate" type="number" min="0" step="0.1" value="0"></label>
         <label>Bump fee on this listing <input id="bumpFee" type="number" min="0" step="0.01" value="0"></label>
+        <label>Meetup / pickup cost <input id="meetupCost" type="number" min="0" step="0.01" value="0"></label>
         <label>eBay final value fee (%) <input id="ebayFinalValueRate" type="number" min="0" step="0.1" value="13.25"></label>
         <label>eBay per-order fixed fee <input id="ebayFixedFee" type="number" min="0" step="0.01" value="0.30"></label>
       </div>
@@ -89,7 +90,7 @@
     <p class="note">Marketplace and Reverb Gives apply to the item price. Payment processing applies to item plus shipping charged. eBay's final-value fee in this compare applies to item plus shipping, the usual marketplace shape — overwrite it from your own statement.</p>
   </section>
   <section class="compare" id="shipping-compare">
-    <h2>Buyer-pays shipping, free shipping, or local pickup</h2>
+    <h2>Buyer-pays, include shipping, absorb the label, or pickup</h2>
     <p id="shippingVerdict" class="verdict"></p>
     <table>
       <thead>
@@ -104,7 +105,7 @@
       <tbody id="shippingRows"></tbody>
     </table>
     <p id="shippingMatch" class="note"></p>
-    <p class="note">Free shipping keeps the same checkout by folding postage into the item. Reverb marketplace then charges on that higher item price. Local pickup uses your list with no shipping charged and no postage you pay. This is not a recommendation to offer pickup or free shipping — it is the arithmetic on the rates you typed. <a href="should-i-include-shipping-on-reverb.html">Worked example</a>.</p>
+    <p class="note">Including shipping folds postage into the item so marketplace fee rises. Absorbing the label keeps your typed list and leaves the postage on you — a cheaper checkout for the buyer and less cash for you. Local pickup uses your list with no shipping charged; add gas or parking as the meetup cost if pickup is not free. This is not a recommendation — it is the arithmetic on the rates you typed. <a href="should-i-include-shipping-on-reverb.html">Include-shipping example</a>. <a href="should-i-eat-the-shipping-on-reverb.html">Absorb-the-label example</a>.</p>
   </section>
   <footer>
     <label><input id="usageOptOut" type="checkbox" style="width:auto"> Do not keep anonymous local usage counts</label>
@@ -185,12 +186,14 @@
       ).join('');
       const extraFee = shipping.extraMarketplaceOnIncluded + shipping.extraGivesOnIncluded;
       document.getElementById('shippingVerdict').textContent = shipping.winner === 'buyerPays'
-        ? `Charging shipping still leaves the most cash. Folding ${money(Number(inputs.shippingCharged) || 0)} into the list costs ${money(extraFee)} more in marketplace and Gives fees.`
+        ? `Charging shipping still leaves the most cash. Folding ${money(Number(inputs.shippingCharged) || 0)} into the list costs ${money(extraFee)} more in marketplace and Gives fees. Absorbing the label leaves ${money(Math.abs(shipping.absorbVsIncluded))} less than including it.`
         : shipping.winner === 'included'
           ? `Shipping included leaves the most cash on these inputs.`
           : shipping.winner === 'pickup'
-            ? `Local pickup leaves the most cash on these inputs — you skip postage both ways.`
-            : `Two shipping paths leave the same cash on these inputs.`;
+            ? `Local pickup leaves the most cash on these inputs — you skip postage both ways${Number(inputs.meetupCost) > 0 ? ` after a ${money(Number(inputs.meetupCost))} meetup cost` : ''}.`
+            : shipping.winner === 'absorbed'
+              ? `Absorbing the label leaves the most cash on these inputs.`
+              : `Two shipping paths leave the same cash on these inputs.`;
       document.getElementById('shippingMatch').textContent =
         `To keep buyer-pays cash with shipping included, list at ${money(shipping.includedListThatMatchesBuyerPays)} (buyer pays that all-in).`;
 

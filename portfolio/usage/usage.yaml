@@ -588,6 +588,16 @@ products:
           folding postage into the list is a different sale. Derived from
           existing inputs — no second form. Public URL remains owner-gated
           (`deploy-settings`).
+      - as_of: 2026-08-26
+        signals:
+          live_url_visitors: null
+          reverb_shipping_compared: 0
+        note: >-
+          Added the absorb-the-label path (keep the typed list, still buy
+          the label) and an optional meetup cost on pickup. Complementary
+          to merged #1597, which modeled include-in-price vs buyer-pays vs
+          free pickup. No other open Reverb PR. Public URL remains
+          owner-gated.
 
 # Example of the shape, once a product has shipped:
 #

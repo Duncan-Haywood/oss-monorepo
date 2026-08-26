@@ -13,6 +13,7 @@ import {
 const html = readFileSync(new URL('./index.html', import.meta.url), 'utf8');
 const seo = readFileSync(new URL('./should-i-take-this-reverb-offer.html', import.meta.url), 'utf8');
 const shippingSeo = readFileSync(new URL('./should-i-include-shipping-on-reverb.html', import.meta.url), 'utf8');
+const absorbSeo = readFileSync(new URL('./should-i-eat-the-shipping-on-reverb.html', import.meta.url), 'utf8');
 
 function money(value) {
   return `$${(Math.round((Number(value) + Number.EPSILON) * 100) / 100).toFixed(2)}`;
@@ -27,7 +28,9 @@ test('the calculator page wires the compare the schema.org featureList names', (
   assert.match(featureList[1], /offer versus list/i);
   assert.match(featureList[1], /Reverb versus eBay/i);
   assert.match(featureList[1], /shipping included versus buyer-pays/i);
+  assert.match(featureList[1], /absorb the label/i);
   assert.match(html, /id="offerPrice"/);
+  assert.match(html, /id="meetupCost"/);
   assert.match(html, /id="compareRows"/);
   assert.match(html, /id="crossoverOffer"/);
   assert.match(html, /id="shippingRows"/);
@@ -37,6 +40,7 @@ test('the calculator page wires the compare the schema.org featureList names', (
   assert.match(html, /GitHub Sponsors/);
   assert.match(html, /should-i-take-this-reverb-offer.html/);
   assert.match(html, /should-i-include-shipping-on-reverb.html/);
+  assert.match(html, /should-i-eat-the-shipping-on-reverb.html/);
 });
 
 test('the SEO page uses the same worked example the calculator defaults produce', () => {
@@ -69,4 +73,16 @@ test('the shipping SEO page uses the same worked example the calculator defaults
   assert.ok(shippingSeo.includes(signed(shipping.rows[2].vsBuyerPays)), `missing pickup delta ${signed(shipping.rows[2].vsBuyerPays)}`);
   assert.ok(shippingSeo.includes(money(shipping.includedListThatMatchesBuyerPays)), `missing match list ${money(shipping.includedListThatMatchesBuyerPays)}`);
   assert.ok(shippingSeo.includes(money(shipping.extraMarketplaceOnIncluded)), `missing extra marketplace ${money(shipping.extraMarketplaceOnIncluded)}`);
+});
+
+test('the absorb-the-label SEO page uses the same fourth path the calculator paints', () => {
+  const shipping = compareShippingPaths(REVERB_DEFAULTS);
+  assert.match(absorbSeo, /Should I eat the shipping on Reverb/i);
+  assert.match(absorbSeo, /href="\.\/#shipping-compare"/);
+  assert.match(absorbSeo, /No warranty/);
+  assert.match(absorbSeo, /no SLA/i);
+  assert.ok(absorbSeo.includes(money(shipping.absorbed.profit)), `missing absorbed ${money(shipping.absorbed.profit)}`);
+  assert.ok(absorbSeo.includes(signed(shipping.rows[3].vsBuyerPays)), `missing absorbed delta ${signed(shipping.rows[3].vsBuyerPays)}`);
+  assert.ok(absorbSeo.includes(signed(shipping.absorbVsIncluded)), `missing absorb vs included ${signed(shipping.absorbVsIncluded)}`);
+  assert.ok(absorbSeo.includes(money(shipping.included.profit)), `missing included ${money(shipping.included.profit)}`);
 });

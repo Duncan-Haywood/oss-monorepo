@@ -19,6 +19,7 @@ export const INPUT_FIELDS = [
   'paymentFixed',
   'givesRate',
   'bumpFee',
+  'meetupCost',
   'ebayFinalValueRate',
   'ebayFixedFee',
 ];
@@ -35,6 +36,7 @@ export const REVERB_DEFAULTS = {
   paymentFixed: 0.3,
   givesRate: 0,
   bumpFee: 0,
+  meetupCost: 0,
   ebayFinalValueRate: 13.25,
   ebayFixedFee: 0.3,
 };
@@ -179,20 +181,28 @@ export function offerThatMatchesEbayList(input) {
   };
 }
 
-// Same buyer checkout, three ways to handle shipping. Marketplace and
-// Reverb Gives sit on the item price, so folding postage into the list
-// raises those lines. Local pickup drops both shipping charged and the
-// postage you pay. Derived from the existing sale fields — no new inputs.
+// Same listing, four ways to handle shipping. Marketplace and Reverb
+// Gives sit on the item price, so folding postage into the list raises
+// those lines. Absorbing the label keeps the typed list and leaves the
+// postage on you. Local pickup drops shipping charged and, unless you
+// type a meetup cost, the postage you pay.
 export function compareShippingPaths(input, salePrice = input?.price) {
   const price = number(salePrice, 'Sale price');
   const shippingCharged = number(input.shippingCharged, 'Shipping charged', 0);
+  const meetupCost = number(input.meetupCost, 'Meetup / pickup cost', 0);
   const buyerPays = calculateReverbSale(input, price);
   const included = calculateReverbSale({ ...input, shippingCharged: 0 }, price + shippingCharged);
-  const pickup = calculateReverbSale({ ...input, shippingCharged: 0, shippingCost: 0 }, price);
+  const pickup = calculateReverbSale({
+    ...input,
+    shippingCharged: 0,
+    shippingCost: meetupCost,
+  }, price);
+  const absorbed = calculateReverbSale({ ...input, shippingCharged: 0 }, price);
   const rows = [
     { id: 'buyerPays', label: 'Buyer pays shipping', sale: buyerPays },
     { id: 'included', label: 'Shipping included in the price', sale: included },
     { id: 'pickup', label: 'Local pickup', sale: pickup },
+    { id: 'absorbed', label: 'You absorb the label', sale: absorbed },
   ].map((row) => ({
     ...row,
     checkout: row.sale.revenue,
@@ -204,9 +214,12 @@ export function compareShippingPaths(input, salePrice = input?.price) {
     buyerPays,
     included,
     pickup,
+    absorbed,
+    meetupCost,
     rows,
     extraMarketplaceOnIncluded: included.fees.marketplace - buyerPays.fees.marketplace,
     extraGivesOnIncluded: included.fees.gives - buyerPays.fees.gives,
+    absorbVsIncluded: absorbed.profit - included.profit,
     includedListThatMatchesBuyerPays: includedListThatMatchesBuyerPays(input, buyerPays.profit),
     winner: leaders.length === 1 ? leaders[0].id : 'tie',
   };
