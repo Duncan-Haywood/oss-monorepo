@@ -145,6 +145,14 @@ a typed premium that pays replacement value, or add signature
 confirmation. On a $40 sale a $1.80 premium keeps $1.00 less
 than skip; an 8% claim rate or a $180 / $85-cost SKU flips it.
 [Should I add shipping insurance on eBay?](should-i-add-shipping-insurance-on-ebay.html).
+An **eBay label vs Pirate Ship** table then prices the same
+already-sold tracked shipment three ways: buy the eBay quote,
+buy a typed Pirate Ship / Shippo / carrier-account quote after
+upload time, or use that cheaper postage with no extra time.
+On a $40 sale a $4.25 quote after four minutes keeps $1.07
+less than the $5 eBay label; the postage-only path keeps
+$0.13 more.
+[Should I buy eBay shipping labels or use Pirate Ship?](should-i-buy-ebay-shipping-labels.html).
 
 **After using the authenticity page, you can now see whether a 3% fee
 and an $8 hub label still beat skip-AG on that SKU** — which used to
@@ -237,6 +245,12 @@ baking $6 into a $46 list still beats charging shipping after a
 typed sell-through lift** — which used to mean offering free
 shipping because “eBay ranks it higher” and never pricing an
 under-baked $40 list that still bought the label.
+
+**After using the labels page, you can now see whether a $4.25
+Pirate Ship quote still beats a $5 eBay label after claims and
+four minutes of upload time** — which used to mean buying the
+cheaper quote because “postage is postage” and never pricing
+seller protection or the tracking upload.
 
 Open `index.html` in a browser. The calculation is local and works without an
 account, network request, or API key. It is arithmetic, not an estimate of the
@@ -405,7 +419,8 @@ The counted events are `order_profit_calculated`, `target_margin_calculated`,
 `best_offer_compared`,
 `international_compared`,
 `free_shipping_compared`,
-`package_protection_compared`, and
+`package_protection_compared`,
+`ebay_labels_compared`, and
 `price_sensitivity_viewed`.
 `listing_format_compared`,
 `partial_refund_compared`, `authenticity_compared`,
@@ -424,8 +439,9 @@ The counted events are `order_profit_calculated`, `target_margin_calculated`,
 `store_compared`,
 `best_offer_compared`,
 `international_compared`,
-`free_shipping_compared`, and
-`package_protection_compared` are counted at most
+`free_shipping_compared`,
+`package_protection_compared`, and
+`ebay_labels_compared` are counted at most
 once per visit and only after an input is edited — counting the table's
 first paint would just re-count page loads and say nothing about whether
 the view is used.

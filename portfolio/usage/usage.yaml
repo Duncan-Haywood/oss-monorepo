@@ -493,6 +493,15 @@ products:
           claims (replacement-value payout, skip-claim floor, premium
           ceiling). Still no public URL; local event
           package_protection_compared is opt-out and stores no inputs.
+      - as_of: 2026-08-26
+        signals:
+          live_url_visitors: null
+          ebay_labels_compared: 0
+        note: >-
+          Added eBay label vs Pirate Ship after item-not-received
+          claims and upload time (claim-rate floor, quote ceiling,
+          time ceiling). Still no public URL; local event
+          ebay_labels_compared is opt-out and stores no inputs.
   - slug: cut-list-optimizer
     surface: static-page-in-repo
     readings:

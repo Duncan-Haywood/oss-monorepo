@@ -396,6 +396,26 @@ test('carries package-protection fields so a shared link does not drop them', ()
   assert.equal(restored.monthlyProtectionShipments, 25);
 });
 
+test('carries eBay-label vs third-party fields so a shared link does not drop them', () => {
+  const restored = decodeInputs(encodeInputs({
+    price: 40,
+    ebayLabelCost: 5.4,
+    thirdPartyLabelCost: 4.1,
+    ebayLabelClaimRatePercent: 0.7,
+    thirdPartyClaimRatePercent: 3,
+    labelUploadMinutes: 3,
+    labelUploadWage: 20,
+    monthlyLabelShipments: 25,
+  }));
+  assert.equal(restored.ebayLabelCost, 5.4);
+  assert.equal(restored.thirdPartyLabelCost, 4.1);
+  assert.equal(restored.ebayLabelClaimRatePercent, 0.7);
+  assert.equal(restored.thirdPartyClaimRatePercent, 3);
+  assert.equal(restored.labelUploadMinutes, 3);
+  assert.equal(restored.labelUploadWage, 20);
+  assert.equal(restored.monthlyLabelShipments, 25);
+});
+
 test('carries free-shipping fields so a shared link does not drop them', () => {
   const restored = decodeInputs(encodeInputs({
     price: 40,

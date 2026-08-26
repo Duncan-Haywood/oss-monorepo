@@ -493,7 +493,9 @@ test('the package-protection table has one cell per column and a counted event',
   assert.match(page, /package_protection_compared/);
   assert.match(page, /should-i-add-shipping-insurance-on-ebay\.html/);
   assert.match(page, /"featureList":\s*"[^"]*skip vs insurance vs signature after item-not-received claims/);
-  const headerBlock = page.slice(page.indexOf('id="packageProtectionTable"'));
+  const protStart = page.indexOf('id="packageProtectionTable"');
+  const protEnd = page.indexOf('id="ebayLabels"', protStart);
+  const headerBlock = page.slice(protStart, protEnd === -1 ? undefined : protEnd);
   const headers = [...headerBlock.matchAll(/<th scope="col">([^<]+)<\/th>/g)].map((m) => m[1]);
   assert.deepEqual(headers, [
     'Path',
@@ -503,5 +505,25 @@ test('the package-protection table has one cell per column and a counted event',
     'If they keep it',
     'Expected after claims',
     'vs skip',
+  ]);
+});
+
+test('the eBay-label table has one cell per column and a counted event', () => {
+  assert.match(page, /compareEbayLabels/);
+  assert.match(page, /id="ebayLabels"/);
+  assert.match(page, /id="ebayLabelsVerdict"/);
+  assert.match(page, /ebay_labels_compared/);
+  assert.match(page, /should-i-buy-ebay-shipping-labels\.html/);
+  assert.match(page, /"featureList":\s*"[^"]*eBay label vs Pirate Ship after claims and upload time/);
+  const headerBlock = page.slice(page.indexOf('id="ebayLabelsTable"'));
+  const headers = [...headerBlock.matchAll(/<th scope="col">([^<]+)<\/th>/g)].map((m) => m[1]);
+  assert.deepEqual(headers, [
+    'Path',
+    'Label',
+    'Extra time',
+    'Claim rate',
+    'If they keep it',
+    'Expected after claims',
+    'vs eBay',
   ]);
 });

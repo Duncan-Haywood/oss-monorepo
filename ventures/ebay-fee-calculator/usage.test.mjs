@@ -250,6 +250,14 @@ test('counts a package-protection comparison without storing a premium or claim 
   assert.deepEqual(Object.keys(stored).sort(), ['last_day', 'package_protection_compared']);
 });
 
+test('counts an eBay-label comparison without storing a quote or claim rate', () => {
+  const storage = fakeStorage();
+  recordUsage(storage, false, 'ebay_labels_compared');
+  const stored = JSON.parse(storage.getItem('ebay-fee-usage'));
+  assert.equal(stored.ebay_labels_compared, 1);
+  assert.deepEqual(Object.keys(stored).sort(), ['ebay_labels_compared', 'last_day']);
+});
+
 test('counts the return-rate view without storing a rate or cost', () => {
   const storage = fakeStorage();
   recordUsage(storage, false, 'return_rate_viewed');
