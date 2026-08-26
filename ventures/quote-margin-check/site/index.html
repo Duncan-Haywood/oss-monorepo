@@ -50,6 +50,14 @@
         "@type": "Answer",
         "text": "Keep the quoted price and hours fixed and raise only overhead plus subcontractor cost. The calculator shows the new effective hourly rate and the price that would still hit your target rate at +10%, +25%, and +50%. That is arithmetic on your inputs, not a forecast of supplier prices."
       }
+    },
+    {
+      "@type": "Question",
+      "name": "What if the client asks for 10% off a fixed-price quote?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Keep hours and direct costs fixed and lower only the quoted price. On the calculator example ($2,400, 35 hours, $480 of direct costs, $75 target), 10% off is $2,160 and $48.00/hour. Holding $75/hour would take cutting 12.60 hours of scope. That is arithmetic on your inputs, not a negotiation script."
+      }
     }
   ]
 }
@@ -207,6 +215,25 @@
         </table>
       </div>
     </div>
+    <div class="result" id="discount-ask" aria-live="polite">
+      <strong>If they ask for a percent off</strong>
+      <p class="hint">Hours and direct costs stay unchanged. Only the quoted price moves. <a href="if-they-ask-for-10-percent-off.html">Worked example</a>.</p>
+      <p class="hint" id="discount-ask-summary"></p>
+      <div class="table-scroll">
+        <table class="sensitivity">
+          <thead>
+            <tr>
+              <th>Discount</th>
+              <th>Price</th>
+              <th>Effective rate</th>
+              <th>Hours to cut to hold target</th>
+              <th>Gap to target</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </div>
       <div class="result" id="review" aria-live="polite"><strong>Before you send it</strong><ul class="checks"></ul></div>
 
     <div class="actions">
@@ -237,6 +264,13 @@
       fixed — the table is the cash you lose, or the new price that would
       still hit your target rate. That is not a forecast of supplier prices.
       See <a href="if-costs-go-up-is-this-quote-still-alive.html">if costs go up, is this quote still alive</a>.
+    </p>
+    <p>
+      A third table keeps hours and costs fixed and knocks 5–20% off the
+      quoted price. That is the “can you do 10%?” email. It shows the new
+      effective rate and how many hours of scope would have to leave to
+      still hit your target rate. It is not a negotiation script. See
+      <a href="if-they-ask-for-10-percent-off.html">if they ask for 10% off</a>.
     </p>
     <p>
       Prefer the command line, or need to batch several quotes into a
@@ -289,7 +323,7 @@
 </main>
 
 <script type="module">
-  import { loadQuote, calculate, overrunScenarios, directCostSpikeScenarios, directCostSpikeSummary } from "./calc.mjs";
+  import { loadQuote, calculate, overrunScenarios, directCostSpikeScenarios, directCostSpikeSummary, discountAskScenarios, discountAskSummary } from "./calc.mjs";
   import { reviewQuote } from "./review.mjs";
   import { recordEvent, createReportCounter, isUsageCountingEnabled, setUsageCountingEnabled } from "./usage.mjs";
 
@@ -302,6 +336,7 @@
   const review = document.getElementById("review");
   const sensitivity = document.getElementById("sensitivity");
   const costSpike = document.getElementById("cost-spike");
+  const discountAsk = document.getElementById("discount-ask");
 
   let lastReport = null;
 
@@ -351,8 +386,16 @@
          const label = scenario.percent === 0 ? "As quoted" : `+${scenario.percent}%`;
          return `<tr><th scope="row">${label}</th><td>${safeCurrency} ${fmt(scenario.direct_costs)}</td><td>${safeCurrency} ${fmt(scenario.effective_hourly_rate)}/hour</td><td>${safeCurrency} ${fmt(scenario.target_price)}</td><td>${safeCurrency} ${fmt(scenario.gap_to_target)}</td></tr>`;
        }).join("");
+       const discountRows = discountAskScenarios(quote, r);
+       discountAsk.querySelector("#discount-ask-summary").textContent = discountAskSummary(quote, r, discountRows);
+       discountAsk.querySelector("tbody").innerHTML = discountRows.map((scenario) => {
+         const label = scenario.percent === 0 ? "As quoted" : `${scenario.percent}% off`;
+         const cut = scenario.hours_to_cut === null ? "Cannot cover costs" : `${fmt(scenario.hours_to_cut)} hours`;
+         return `<tr><th scope="row">${label}</th><td>${safeCurrency} ${fmt(scenario.discounted_price)}</td><td>${safeCurrency} ${fmt(scenario.effective_hourly_rate)}/hour</td><td>${cut}</td><td>${safeCurrency} ${fmt(scenario.gap_to_target)}</td></tr>`;
+       }).join("");
        recordEvent("quote_review_checked");
        recordEvent("cost_spike_compared");
+       recordEvent("discount_ask_compared");
       result.classList.remove("error");
       reportCounter.count(JSON.stringify(quote));
     } catch (err) {
@@ -363,6 +406,8 @@
        review.querySelector(".checks").textContent = "Fix the inputs above to review this quote.";
        costSpike.querySelector("#cost-spike-summary").textContent = "Fix the inputs above to compare a cost rise.";
        costSpike.querySelector("tbody").innerHTML = "";
+       discountAsk.querySelector("#discount-ask-summary").textContent = "Fix the inputs above to compare a discount ask.";
+       discountAsk.querySelector("tbody").innerHTML = "";
     }
   }
 
@@ -394,6 +439,7 @@
       return;
     }
     const { quote, r } = lastReport;
+    const discountRows = discountAskScenarios(quote, r);
     const rows = [
       "measure,value,unit",
       `quoted_price,${quote.price.toFixed(2)},${quote.currency}`,
@@ -403,6 +449,8 @@
       `target_price,${r.target_price.toFixed(2)},${quote.currency}`,
       `gap_to_target,${r.gap_to_target.toFixed(2)},${quote.currency}`,
       `cost_coverage,${r.cost_coverage.toFixed(2)},${quote.currency}`,
+      ...discountRows.map((row) => `discount_${row.percent}_price,${row.discounted_price.toFixed(2)},${quote.currency}`),
+      ...discountRows.map((row) => `discount_${row.percent}_hours_to_cut,${row.hours_to_cut === null ? "" : row.hours_to_cut.toFixed(2)},hours`),
     ].join("\n");
     try {
       await navigator.clipboard.writeText(rows);
