@@ -58,8 +58,10 @@ test("figures named in schema.org featureList are actually rendered", () => {
 test("index links the CDN extra and the sitemap lists both pages", () => {
   assert.match(html, /does-a-cdn-cut-s3-egress\.html/);
   assert.match(html, /does-a-replica-beat-cross-region-pull\.html/);
+  assert.match(html, /does-infrequent-access-still-beat-standard\.html/);
   assert.match(sitemap, /does-a-cdn-cut-s3-egress\.html/);
   assert.match(sitemap, /does-a-replica-beat-cross-region-pull\.html/);
+  assert.match(sitemap, /does-infrequent-access-still-beat-standard\.html/);
   assert.match(sitemap, /\.\//);
 });
 

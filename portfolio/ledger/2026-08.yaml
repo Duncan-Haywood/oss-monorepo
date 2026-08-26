@@ -23659,6 +23659,41 @@ entries:
         resolved to main's own wording when a concurrent session fixed it
         differently, so the site states the clause once rather than twice.
     mrr_end: null
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Added `platform/ci/check_duplicate_symbols.py`, which fails a pull
+        request whose Python defines the same top-level name twice. This is the
+        follow-up flagged on #1787 rather than bundled into it, and it catches
+        that PR's own defect mechanically: run against the commit before #1787
+        it reports "`PAGES_DEPLOY_ACTIONS` is defined at line 299 and again at
+        406", which is exactly what took a manual read of the merged file to
+        find. Python rebinds silently, so two sessions writing the same constant
+        into one module is invisible to git (no shared lines, no conflict), to
+        the interpreter, and to the test suites (each function was tested
+        against itself and each passed).
+      - >-
+        Learned the check needs to be narrow to be worth having. Scoped to
+        top-level `def`/`class` and UPPER_CASE constants only: a `def` inside
+        `if TYPE_CHECKING:` or an `except ImportError:` fallback is a deliberate
+        alternative binding, and flagging those would make it a check people
+        learn to skip. Against all 349 tracked Python files it reports zero,
+        so it lands as a hard failure with no cleanup debt. Nine of its 24 tests
+        are false-positive cases rather than detections, because a check that
+        runs unfiltered over every Python file does more harm wrong than absent.
+      - >-
+        Python-only on purpose, and verified rather than assumed: a second
+        top-level `const X` in an ES module is a parse-time SyntaxError
+        ("Identifier 'X' has already been declared"), so `platform/pages/
+        build.mjs` -- the other file this fleet collides on -- cannot reach
+        `main` carrying one. Also noticed in passing, and deliberately not fixed
+        here to keep the change to its subject:
+        `portfolio/pipeline/probes/validate_probe_index.py` has an invalid
+        escape sequence `'\.'`, a DeprecationWarning on 3.12 that becomes a
+        SyntaxError on 3.14.
+    mrr_end: null
   - venture: where-to-sell-calculator
     agent_spend_usd: null
     human_hours: 0
@@ -23707,4 +23742,23 @@ entries:
         end to end there too: a $72 item costing $18 plus $1.75 packaging
         arrives on eBay with costOfGoods 18 and computes $33.01, and on Etsy
         with materialCost 19.75.
+    mrr_end: null
+  - venture: walmart-marketplace-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Deepened the Walmart Marketplace calculator with hold vs permanent
+        match vs a time-boxed promo after Buy Box take. The existing match
+        field held take fixed, so a seller could see unit profit at $21.99
+        and still not know whether winning more of the Buy Box covered the
+        thinner leftover. Defaults ($24.99 list, $21.99 match, 60 completed
+        sales at 40% hold take, 70% match take, 10-day promo at 80%):
+        permanently matching keeps $121.49 more ($640.48 vs $518.99). A
+        20-day promo flips ahead of the permanent match. A 50% match take
+        flips the leftover back to holding. 89/89 tests; Chromium CDP
+        verified defaults plus both flips on the dedicated page and the
+        same leftover on index.html. Distinct from the unit-profit match,
+        2-day take, returns, aged leftover, and Connect ads. No open Walmart
+        feature PR at selection. Hosting still waits on deploy-settings.
     mrr_end: null

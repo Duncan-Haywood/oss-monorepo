@@ -11,7 +11,9 @@ target margin, the **maximum you can pay for inventory**, whether
 **seller-fulfilled 2-day label still beats WFS after take rate**,
 whether **WFS still beats seller fulfilled after Walmart returns**,
 whether **pulling leftover WFS units still beats aged storage**, and
-whether **Walmart Connect extra units still cover last-click ACOS**.
+whether **Walmart Connect extra units still cover last-click ACOS**,
+and whether **matching a lower offer still beats holding the list
+after Buy Box take**.
 
 Open [`index.html`](index.html) in a browser. The calculation is local and
 works without an account, network request, or API key. It is arithmetic, not
@@ -24,9 +26,11 @@ price-match still works, whether buying a 2-day label yourself still
 beats WFS once take rate is in the mix, whether returns flip WFS
 versus the label you already bought, whether leftover units already
 inbound still belong in WFS, and whether extra Walmart Connect units
-still cover last-click ACOS on sales you already had** — which used
-to mean a spreadsheet that forgot the referral floor, WFS storage, the
-match, the Buy Box, return processing, aged storage, or ad attribution.
+still cover last-click ACOS on sales you already had, and whether
+**winning more of the Buy Box at a lower ticket still beats holding
+the list** — which used to mean a spreadsheet that forgot the referral
+floor, WFS storage, the match, the Buy Box, return processing, aged
+storage, ad attribution, or take rate on a price drop.
 
 ## Why it's different
 
@@ -55,6 +59,9 @@ the match:
 - **Walmart Connect vs skip** — the ads-per-unit line is one leftover on
   a completed sale. Extra units ads buy, and last-click billing on
   organic sales you already had, are a different mix.
+- **Hold vs match vs promo** — the match field holds take fixed. A
+  lower ticket that wins more of the Buy Box, or a time-boxed promo
+  that reverts before competitors react, is a different leftover.
 
 This tool keeps every assumption editable, fills illustrative US defaults
 from a category and storage picker, classifies a WFS size tier from
@@ -70,6 +77,8 @@ mixes a refunded-order leftover with the completed sale.
 mixes aged storage on leftover units with a removal you sell yourself.
 [Should I run Walmart Connect ads?](should-i-run-walmart-connect-ads.html)
 mixes extra ad units with last-click ACOS on organic sales.
+[Should I match the lower Walmart offer?](should-i-match-the-walmart-buy-box.html)
+mixes take rate with a permanent match and a time-boxed promo.
 
 It is not an Amazon FBA calculator, not a Faire wholesale fee tool, and
 not a cross-channel “where to sell” ranker. Those already exist in this
@@ -110,7 +119,7 @@ optional and never changes what the tool does.
 Pure ES modules, no build step, no dependencies.
 
 ```
-node --test        # runs calc.test.mjs, usage.test.mjs, page.test.mjs, two-day-page.test.mjs, returns-page.test.mjs, aged-page.test.mjs, and ads-page.test.mjs
+node --test        # runs calc.test.mjs, usage.test.mjs, page.test.mjs, two-day-page.test.mjs, returns-page.test.mjs, aged-page.test.mjs, ads-page.test.mjs, and match-page.test.mjs
 ```
 
 `calc.mjs` holds the fee/profit/ROI arithmetic, size-tier classification,

@@ -564,7 +564,7 @@
 
     async function copyLink() {
       const query = encodeBid(BID_SPEC, readInput());
-      const url = `${location.origin}${location.pathname}${query ? `?${query}` : ''}`;
+      const url = `${location.origin}${location.pathname}${query ? `#${query}` : ''}`;
       try {
         await navigator.clipboard.writeText(url);
       } catch {
@@ -584,7 +584,7 @@
     }
 
     const restored = restoreBid(BID_SPEC, {
-      search: location.search,
+      search: location.hash,
       storage: (() => { try { return localStorage; } catch { return null; } })(),
     });
     applyValues(restored.values);

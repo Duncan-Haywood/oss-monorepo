@@ -23,6 +23,11 @@ test("round-trips a full brand set including region and payout", () => {
     openHouseDiscountRate: 20,
     openHouseCommissionRate: 0,
     openHouseExtraRetailers: 2,
+    returnUnits: 10,
+    returnLabel: 18,
+    restockablePct: 80,
+    keepDiscountPct: 20,
+    denyKeepPct: 50,
     region: "outside_na",
     payout: "next_day",
   };

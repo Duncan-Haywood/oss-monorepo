@@ -13,6 +13,7 @@ import {
   compareTwoDay,
   compareReturns,
   compareWalmartAds,
+  compareMatchTake,
   cubicFeet,
   DEFAULT_REFERRAL_MINIMUM,
   defaultFulfillmentFee,
@@ -21,9 +22,11 @@ import {
   STORAGE_PRESETS,
   TWO_DAY_DEFAULTS,
   WALMART_ADS_DEFAULTS,
+  MATCH_TAKE_DEFAULTS,
   twoDayNote,
   returnsNote,
   walmartAdsNote,
+  matchTakeNote,
 } from "./calc.mjs";
 
 const near = (actual, expected, msg) =>
@@ -404,4 +407,77 @@ test("exports the Walmart Connect defaults the page starts from", () => {
   assert.equal(WALMART_ADS_DEFAULTS.highAcosPct, 25);
   assert.equal(WALMART_ADS_DEFAULTS.highExtraAdUnits, 22);
   assert.equal(WALMART_ADS_DEFAULTS.highAttributedOrganicPct, 50);
+});
+
+test("a 70% match take still beats holding the $24.99 list after Buy Box mix", () => {
+  const r = compareMatchTake(base);
+  const listing = calculateListing({ ...base, matchPrice: undefined });
+  const matched = calculateListing({ ...base, salePrice: 21.99, matchPrice: undefined });
+  const holdCompleted = listing.selected.profit;
+  const matchCompleted = matched.selected.profit;
+  const sessions = 60 / 0.4;
+
+  near(r.hold.completedProfit, holdCompleted, "hold unit leftover");
+  near(r.match.completedProfit, matchCompleted, "match unit leftover");
+  near(r.sessions, sessions, "sessions from hold take");
+  near(r.hold.monthlyProfit, 60 * holdCompleted, "hold monthly");
+  near(r.match.monthlyProfit, sessions * 0.7 * matchCompleted, "match monthly");
+  near(r.promo.monthlyProfit, sessions * ((10 / 30) * 0.8 * matchCompleted + (20 / 30) * 0.4 * holdCompleted), "promo monthly");
+  assert.equal(r.winner, "match");
+  near(r.hold.monthlyProfit, 518.99, "locked hold cash");
+  near(r.match.monthlyProfit, 640.4825, "locked match cash");
+  near(r.promo.monthlyProfit, 589.9866666666668, "locked promo cash");
+  near(r.extraMatchVsHold, 121.49249999999984, "locked match gap");
+  near(r.breakEvenMatchTakePct, 56.72176835432663, "locked match-take floor");
+  near(r.breakEvenPromoDays, 17.112423118456245, "locked promo-day floor");
+  near(r.breakEvenMatchPrice, 20.628739495798317, "locked match-price floor");
+  assert.match(matchTakeNote(r), /keeps \$121\.49 more/);
+  assert.match(matchTakeNote(r), /\$640\.48 vs \$518\.99/);
+  assert.match(matchTakeNote(r), /17\.1 promo days/);
+  assert.match(matchTakeNote(r), /56\.7%/);
+});
+
+test("a 20-day promo flips ahead of a permanent match", () => {
+  const r = compareMatchTake({ ...base, promoDays: 20 });
+  assert.equal(r.winner, "promo");
+  near(r.extraMatchVsPromo, -20.500833333333617, "locked promo flip");
+  assert.match(matchTakeNote(r), /keeps \$141\.99 more/);
+  assert.match(matchTakeNote(r), /\$660\.98 vs \$518\.99/);
+});
+
+test("a 50% match take flips the leftover back to holding the list", () => {
+  const r = compareMatchTake({ ...base, matchTakePct: 50, promoTakePct: 50 });
+  assert.equal(r.winner, "hold");
+  near(r.extraMatchVsHold, -61.50250000000005, "locked hold flip");
+  assert.match(matchTakeNote(r), /keeps \$61\.50 more/);
+  assert.match(matchTakeNote(r), /\$518\.99 vs \$457\.49/);
+});
+
+test("uses the selected fulfillment path and the typed match price", () => {
+  const wfs = compareMatchTake(base);
+  const seller = compareMatchTake({ ...base, fulfillmentMethod: "seller" });
+  assert.notEqual(wfs.hold.completedProfit, seller.hold.completedProfit);
+  assert.equal(wfs.match.salePrice, 21.99);
+  assert.equal(wfs.promo.salePrice, 21.99);
+  assert.equal(wfs.hold.salePrice, 24.99);
+});
+
+test("rejects invalid take, promo length, and zero volume", () => {
+  assert.throws(() => compareMatchTake({ ...base, holdTakePct: 0 }), /greater than zero/);
+  assert.throws(() => compareMatchTake({ ...base, holdTakePct: 101 }), /at most 100/);
+  assert.throws(() => compareMatchTake({ ...base, matchTakePct: 101 }), /at most 100/);
+  assert.throws(() => compareMatchTake({ ...base, promoTakePct: 101 }), /at most 100/);
+  assert.throws(() => compareMatchTake({ ...base, monthlyUnits: 0 }), /greater than zero/);
+  assert.throws(() => compareMatchTake({ ...base, monthDays: 0 }), /greater than zero/);
+  assert.throws(() => compareMatchTake({ ...base, promoDays: 40 }), /cannot exceed/);
+  assert.throws(() => matchTakeNote({}), /missing rows/);
+});
+
+test("exports the match-take defaults the page starts from", () => {
+  assert.equal(MATCH_TAKE_DEFAULTS.holdTakePct, 40);
+  assert.equal(MATCH_TAKE_DEFAULTS.matchPrice, 21.99);
+  assert.equal(MATCH_TAKE_DEFAULTS.matchTakePct, 70);
+  assert.equal(MATCH_TAKE_DEFAULTS.promoTakePct, 80);
+  assert.equal(MATCH_TAKE_DEFAULTS.promoDays, 10);
+  assert.equal(MATCH_TAKE_DEFAULTS.monthDays, 30);
 });

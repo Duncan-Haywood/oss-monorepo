@@ -14,6 +14,8 @@ search question. `should-i-pay-for-faire-next-day-payout.html` answers whether
 the extra next-day processing still beats waiting after your carrying cost.
 `should-i-list-during-faire-open-house.html` compares an everyday first order
 to Open House at 0% commission after the deeper discount retailers expect.
+`should-i-take-this-faire-return.html` compares a keep-it credit, denying
+the request, and taking the return after a completed first order.
 
 The calculation is local and works without an account, network request, or API
 key. It is arithmetic, not an estimate of the fees Faire will charge: enter the
@@ -23,7 +25,8 @@ After using this, you can now **set a wholesale price that still works on a
 first marketplace order, see whether expected reorders recover that
 opening-order fee, see whether next-day payout still beats waiting
 once your own carrying cost is on the invoice, and see whether a Faire
-Open House discount still leaves more than listing everyday**, which used
+Open House discount still leaves more than listing everyday, and see
+whether a keep-it credit still beats taking a Faire return**, which used
 to take reconciling Faire’s help articles against a spreadsheet.
 
 ## What it checks that a flat 15% page does not
