@@ -2639,6 +2639,19 @@ products:
           Shipped a local seller net sheet (post-NAR offer comparison,
           walk-away sale price, copyable worksheet). Public URL remains
           owner-gated; counters are local, aggregate, and opt-out.
+  - slug: gutter-guard-bid-calculator
+    surface: static-page-in-repo
+    readings:
+      - as_of: 2026-08-25
+        signals:
+          live_url_visitors: null
+          local_calculations: 0
+          local_summary_copies: 0
+        note: >-
+          Shipped a zero-dependency browser calculator for gutter shops
+          to price extra stories, extra lineal feet, extra miters, and a
+          micromesh coil instead of a published $8/ft special. Public URL
+          remains owner-gated; counters are local, aggregate, and opt-out.
 
   - slug: npm-deployment-evidence
     surface: local-cli
