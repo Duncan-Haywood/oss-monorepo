@@ -8,6 +8,7 @@ import {
   compareReturnResolution,
   compareShopPayInstallments,
   compareShopifyCapital,
+  compareManualPayment,
   DEFAULT_BANK_APR_PCT,
   DEFAULT_CAPITAL_ADVANCE,
   DEFAULT_CAPITAL_HOLDBACK_PCT,
@@ -20,6 +21,9 @@ import {
   DEFAULT_PROCESSOR_FEE_KEPT_PCT,
   DEFAULT_RESTOCKABLE_PCT,
   DEFAULT_RETURN_LABEL_COST,
+  DEFAULT_COLLECTION_PCT,
+  DEFAULT_MANUAL_DISCOUNT_PCT,
+  DEFAULT_CHASE_COST,
   PLAN_PRESETS,
 } from "./calc.mjs";
 
@@ -700,4 +704,107 @@ test("summary names the Capital fee and the wait as the default winner", () => {
   assert.match(text, /\$1400\.00/);
   assert.match(text, /44\.8%/);
   assert.match(text, /\$368\.42 extra profit/);
+});
+
+const MANUAL_BASE = {
+  price: 48,
+  shippingCharged: 6,
+  paymentsRate: 2.9,
+  paymentsFixed: 0.3,
+  costOfGoods: 14,
+  shippingCost: 5,
+  packagingCost: 1,
+  monthlyPlan: 39,
+  monthlyOrders: 100,
+  paymentMethod: "shopify_payments",
+};
+
+test("defaults match the published bank-transfer collection example", () => {
+  assert.equal(DEFAULT_COLLECTION_PCT, 95);
+  assert.equal(DEFAULT_MANUAL_DISCOUNT_PCT, 0);
+  assert.equal(DEFAULT_CHASE_COST, 0);
+});
+
+test("holding until paid still barely beats the card at 95% collection", () => {
+  // $54 revenue. Card fees 2.9% + $0.30 = $1.866.
+  // Cash: $14 + $5 + $1 + $39/100 = $20.39. Card profit $31.744.
+  // Manual paid: $54 − $20.39 = $33.61. Extra if they pay: $1.866.
+  // Hold at 95%: 0.95 × $33.61 = $31.9295.
+  // Ship first, 5% ghost: $31.9295 + 0.05 × (−$20.39) = $30.910.
+  const r = compareManualPayment(MANUAL_BASE);
+  near(r.cardFees, 1.866, "card fees");
+  near(r.cashInvested, 20.39, "cash");
+  near(r.card.kept, 31.744, "card leftover");
+  near(r.paidProfit, 33.61, "paid bank transfer");
+  near(r.extraIfPaid, 1.866, "fee save if they pay");
+  near(r.hold.kept, 0.95 * 33.61, "hold expected");
+  near(r.shipped.kept, 0.95 * 33.61 + 0.05 * -20.39, "shipped expected");
+  near(r.breakEvenHoldPct, (31.744 / 33.61) * 100, "hold floor");
+  near(r.breakEvenShippedPct, ((31.744 + 20.39) / 54) * 100, "shipped floor");
+  near(r.monthlyExtraIfPaid, 1.866 * 100, "monthly if they all pay");
+  assert.equal(r.winner, "hold");
+  assert.ok(r.hold.kept > r.card.kept, "95% hold still beats the card");
+  assert.ok(r.shipped.kept < r.card.kept, "shipping first loses at 95%");
+});
+
+test("a 90% collection rate makes the card beat holding the invoice", () => {
+  const r = compareManualPayment({ ...MANUAL_BASE, collectionPct: 90 });
+  near(r.hold.kept, 0.9 * 33.61, "90% hold");
+  assert.ok(r.hold.kept < r.card.kept, "card wins once unpaid invoices stack");
+  assert.equal(r.winner, "card");
+});
+
+test("100% collection makes hold and ship-first match, and names hold as the winner", () => {
+  const r = compareManualPayment({ ...MANUAL_BASE, collectionPct: 100 });
+  near(r.hold.kept, 33.61, "all invoices pay");
+  near(r.shipped.kept, 33.61, "nothing ghosted");
+  near(r.extraKeptOnHold, 1.866, "full fee save");
+  assert.equal(r.winner, "hold");
+});
+
+test("a 2% pay-by-transfer discount shrinks the fee save", () => {
+  const r = compareManualPayment({ ...MANUAL_BASE, collectionPct: 100, manualDiscountPct: 2 });
+  near(r.manualPrice, 48 * 0.98, "discounted item");
+  near(r.manualRevenue, 48 * 0.98 + 6, "discounted ticket");
+  near(r.paidProfit, 48 * 0.98 + 6 - 20.39, "paid after discount");
+  near(r.extraIfPaid, 48 * 0.98 + 6 - 20.39 - 31.744, "save after 2% off");
+  assert.ok(r.extraIfPaid < 1.866, "the discount eats part of the processor save");
+  assert.ok(r.extraIfPaid > 0, "2% off still cheaper than 2.9% + $0.30 here");
+});
+
+test("shipping first needs a higher collection floor than holding the order", () => {
+  const r = compareManualPayment(MANUAL_BASE);
+  assert.ok(r.breakEvenShippedPct > r.breakEvenHoldPct, "cash already spent is less forgiving");
+  assert.ok(r.breakEvenShippedPct > 95, "defaults should lose if you ship first");
+});
+
+test("empty collection fields use the published defaults", () => {
+  const r = compareManualPayment({
+    price: 48,
+    shippingCharged: 6,
+    paymentsRate: 2.9,
+    paymentsFixed: 0.3,
+    costOfGoods: 14,
+    shippingCost: 5,
+    packagingCost: 1,
+    monthlyPlan: 0,
+    monthlyOrders: 1,
+  });
+  near(r.collectionPct, DEFAULT_COLLECTION_PCT, "default collection");
+  near(r.manualDiscountPct, DEFAULT_MANUAL_DISCOUNT_PCT, "default discount");
+  near(r.chaseCost, DEFAULT_CHASE_COST, "default chase");
+});
+
+test("compareManualPayment rejects impossible rates and costs", () => {
+  assert.throws(() => compareManualPayment({ ...MANUAL_BASE, collectionPct: 101 }), /Collection percent/);
+  assert.throws(() => compareManualPayment({ ...MANUAL_BASE, manualDiscountPct: -1 }), /Manual payment discount/);
+  assert.throws(() => compareManualPayment({ ...MANUAL_BASE, chaseCost: -2 }), /Chase \/ matching cost/);
+});
+
+test("summary names the hold winner and the collection floor", () => {
+  const text = compareManualPayment(MANUAL_BASE).summary;
+  assert.match(text, /Holding the order until the bank transfer clears/);
+  assert.match(text, /\$1\.87/);
+  assert.match(text, /94\.4%/);
+  assert.match(text, /96\.5%/);
 });
