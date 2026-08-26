@@ -197,6 +197,18 @@ test('carries Promoted Offsite fields so a shared link does not drop them', () =
   assert.equal(restored.monthlyOffsiteCampaigns, 4);
 });
 
+test('carries Promoted Listings Standard fields so a shared link does not drop them', () => {
+  const restored = decodeInputs(encodeInputs({
+    price: 40,
+    promotedStandardRate: 5,
+    promotedStandardExtraOrders: 1,
+    monthlyPromotedListings: 20,
+  }));
+  assert.equal(restored.promotedStandardRate, 5);
+  assert.equal(restored.promotedStandardExtraOrders, 1);
+  assert.equal(restored.monthlyPromotedListings, 20);
+});
+
 test('carries quantity-discount fields so a shared link does not drop them', () => {
   const restored = decodeInputs(encodeInputs({
     price: 40,

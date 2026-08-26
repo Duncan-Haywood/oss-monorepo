@@ -85,6 +85,9 @@ export const INPUT_FIELDS = [
   'offsiteExtraOrders',
   'offsitePromotedRate',
   'monthlyOffsiteCampaigns',
+  'promotedStandardRate',
+  'promotedStandardExtraOrders',
+  'monthlyPromotedListings',
   'qtyDiscountUnits',
   'qtyDiscountPercent',
   'qtyShippingCharged',
@@ -1993,6 +1996,204 @@ export function comparePromotedOffsite(input) {
     listingExpectedProfit: listing.expectedProfit,
     listingCompletedProfit: listing.profit,
   };
+}
+
+/**
+ * Illustrative Promoted Listings Standard extras. 5% is a rate
+ * sellers actually type into the campaign picker. One extra sale
+ * is the first lift that can cover the cut Standard takes on the
+ * sale you already would have made. Twenty listings is a
+ * placeholder volume, not a forecast. This is not Offsite: there
+ * is no campaign bill if they bounce.
+ */
+export const DEFAULT_PROMOTED_STANDARD_RATE = 5;
+export const DEFAULT_PROMOTED_STANDARD_EXTRA_ORDERS = 1;
+export const DEFAULT_MONTHLY_PROMOTED_LISTINGS = 20;
+
+function standardRow({
+  id,
+  label,
+  extraOrders,
+  adFee,
+  extraSalesProfit,
+  completedProfit,
+  expectedProfit,
+  promotedRate,
+}) {
+  return {
+    id,
+    label,
+    extraOrders,
+    adFee,
+    extraSalesProfit,
+    completedProfit,
+    expectedProfit,
+    expectedProfitDelta: 0,
+    promotedRate,
+  };
+}
+
+function expectedProfitAtPromotedRate(input, promotedRate) {
+  return calculateOrder({ ...input, promotedRate }).expectedProfit;
+}
+
+/**
+ * Highest Standard rate at the typed extra-sale count that still
+ * matches skip. expectedProfit is linear in the promoted rate
+ * when fee refunds are a constant share of fees, so two
+ * evaluations recover the slope. Binary-search fallback covers
+ * a non-linear refund mix.
+ */
+function breakEvenStandardRate(input, extraOrders, skipExpected) {
+  const sales = 1 + extraOrders;
+  const atZero = expectedProfitAtPromotedRate(input, 0) * sales;
+  const atTen = expectedProfitAtPromotedRate(input, 10) * sales;
+  const slope = (atTen - atZero) / 10;
+  if (Math.abs(slope) > 1e-12) {
+    const closed = (skipExpected - atZero) / slope;
+    if (Number.isFinite(closed)) {
+      const clamped = Math.max(0, Math.min(100, closed));
+      const check = expectedProfitAtPromotedRate(input, clamped) * sales;
+      if (Math.abs(check - skipExpected) < 1e-6) return clamped;
+    }
+  }
+  let lo = 0;
+  let hi = 100;
+  const atHi = expectedProfitAtPromotedRate(input, hi) * sales;
+  if (atZero < skipExpected - 1e-9 && atHi < skipExpected - 1e-9) {
+    return Infinity;
+  }
+  for (let i = 0; i < 40; i += 1) {
+    const mid = (lo + hi) / 2;
+    if (expectedProfitAtPromotedRate(input, mid) * sales >= skipExpected - 1e-9) lo = mid;
+    else hi = mid;
+  }
+  return lo;
+}
+
+/**
+ * Same listing, skip Promoted Listings Standard or turn it on.
+ *
+ *   - Skip Standard — the sale you already have at 0% ads.
+ *   - Add Standard — that same sale now pays the typed percent,
+ *     plus N extra completed sales that also pay it. There is
+ *     no campaign bill if they bounce. Zero extra sales is the
+ *     conservative test: the campaign only takes a cut of a
+ *     sale you already would have made.
+ *
+ * This is not Offsite (#1653): Offsite is a bill either way.
+ * Open eBay PRs still own store, Best Offer, and international.
+ * Extra-sale counts are inputs, not eBay’s Promoted Listings
+ * attribution.
+ */
+export function comparePromotedStandard(input) {
+  const listedPrice = optionalNumber(input.price, 'Item price');
+  if (listedPrice === undefined) {
+    throw new Error('Item price must be a non-negative number');
+  }
+
+  const promotedRate = requiredPercent(
+    input.promotedStandardRate,
+    'Promoted Listings Standard rate',
+    DEFAULT_PROMOTED_STANDARD_RATE,
+  );
+  const extraOrders = optionalNumber(
+    input.promotedStandardExtraOrders,
+    'Extra Standard orders',
+    DEFAULT_PROMOTED_STANDARD_EXTRA_ORDERS,
+  );
+  const monthlyListings = optionalNumber(
+    input.monthlyPromotedListings,
+    'Monthly promoted listings',
+    DEFAULT_MONTHLY_PROMOTED_LISTINGS,
+  );
+
+  const skipSale = calculateOrder({ ...input, promotedRate: 0 });
+  const promotedSale = calculateOrder({ ...input, promotedRate });
+  const extraSalesProfit = promotedSale.expectedProfit * extraOrders;
+  const extraSalesCompleted = promotedSale.profit * extraOrders;
+
+  const skip = standardRow({
+    id: 'skip',
+    label: 'Skip Promoted Listings',
+    extraOrders: 0,
+    adFee: 0,
+    extraSalesProfit: 0,
+    completedProfit: skipSale.profit,
+    expectedProfit: skipSale.expectedProfit,
+    promotedRate: 0,
+  });
+  const promote = standardRow({
+    id: 'promote',
+    label: 'Add Promoted Listings Standard',
+    extraOrders,
+    adFee: promotedSale.fees.promoted * (1 + extraOrders),
+    extraSalesProfit,
+    completedProfit: promotedSale.profit + extraSalesCompleted,
+    expectedProfit: promotedSale.expectedProfit + extraSalesProfit,
+    promotedRate,
+  });
+  skip.expectedProfitDelta = skip.expectedProfit - promote.expectedProfit;
+  promote.expectedProfitDelta = promote.expectedProfit - skip.expectedProfit;
+
+  const winner = promote.expectedProfit > skip.expectedProfit + 1e-9
+    ? 'promote'
+    : promote.expectedProfit < skip.expectedProfit - 1e-9
+      ? 'skip'
+      : 'tie';
+
+  let breakEvenExtraOrders = Infinity;
+  if (promotedSale.expectedProfit > 1e-12) {
+    breakEvenExtraOrders = skipSale.expectedProfit / promotedSale.expectedProfit - 1;
+    if (breakEvenExtraOrders < 0) breakEvenExtraOrders = 0;
+  } else if (skipSale.expectedProfit <= 1e-12) {
+    breakEvenExtraOrders = 0;
+  }
+
+  const noLiftExpectedProfit = promotedSale.expectedProfit;
+  const adDragOnExistingSale = skipSale.expectedProfit - noLiftExpectedProfit;
+  const breakEvenRate = breakEvenStandardRate(input, extraOrders, skipSale.expectedProfit);
+
+  return {
+    rows: [skip, promote],
+    skip,
+    promote,
+    winner,
+    promotedRate,
+    extraOrders,
+    monthlyListings,
+    extraKeptOnPromote: promote.expectedProfit - skip.expectedProfit,
+    monthlyExtraOnPromote: (promote.expectedProfit - skip.expectedProfit) * monthlyListings,
+    breakEvenExtraOrders,
+    breakEvenPromotedRate: breakEvenRate,
+    noLiftExpectedProfit,
+    adDragOnExistingSale,
+    extraSaleExpectedProfit: promotedSale.expectedProfit,
+    extraSaleCompletedProfit: promotedSale.profit,
+    listingExpectedProfit: skipSale.expectedProfit,
+    listingCompletedProfit: skipSale.profit,
+    promotedAdFee: promotedSale.fees.promoted,
+  };
+}
+
+export function promotedStandardNote(comparison) {
+  if (!comparison?.skip || !comparison?.promote) {
+    throw new Error('Promoted Listings Standard comparison is missing rows');
+  }
+  const money = (value) => {
+    const sign = value < 0 ? '-' : '';
+    return `${sign}$${Math.abs(value).toFixed(2)}`;
+  };
+  const { skip, promote } = comparison;
+  const gap = money(Math.abs(promote.expectedProfit - skip.expectedProfit));
+  const ahead = promote.expectedProfit >= skip.expectedProfit ? 'more' : 'less';
+  const skipLine = `Skip Promoted Listings. The sale you already have expects ${money(skip.expectedProfit)} after the typed return rate.`;
+  const promoteLine = `A ${comparison.promotedRate}% Standard campaign that produces ${comparison.extraOrders} extra sale${comparison.extraOrders === 1 ? '' : 's'} expects ${money(promote.expectedProfit)} after the ad cut — ${gap} ${ahead}.`;
+  const drag = ` With no extra sales the same rate leaves ${money(comparison.noLiftExpectedProfit)} (${money(comparison.adDragOnExistingSale)} less than skip).`;
+  const floor = Number.isFinite(comparison.breakEvenExtraOrders)
+    ? ` Extra sales have to stay at about ${comparison.breakEvenExtraOrders.toFixed(2)} before Standard matches skip.`
+    : ' No extra-sale count on these rates can match skip.';
+  return `${skipLine} ${promoteLine}${drag}${floor}`;
 }
 
 export function promotedOffsiteNote(comparison) {
