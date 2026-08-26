@@ -1,0 +1,41 @@
+name: 3pl-quote-normalizer CI
+
+# Like `freelance-retainer-calculator`, this venture shipped in the Portfolio
+# Pages build with no CI workflow of its own: its 78 tests ran only when a
+# contributor remembered to run them locally. Added 2026-08-26 so a regression
+# in the quote-normalizing math cannot reach the public site unnoticed.
+#
+# Static ES modules, no build step, no dependencies: this does no more than a
+# contributor runs locally. It publishes nothing and spends no API budget.
+
+on:
+  pull_request:
+    paths:
+      - "ventures/3pl-quote-normalizer/**"
+      - ".github/workflows/3pl-quote-normalizer-ci.yml"
+  push:
+    branches: [main]
+    paths:
+      - "ventures/3pl-quote-normalizer/**"
+      - ".github/workflows/3pl-quote-normalizer-ci.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: 3pl-quote-normalizer-ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  site-test:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ventures/3pl-quote-normalizer
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - run: node --test
