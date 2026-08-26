@@ -130,6 +130,11 @@ not match, so it is not softened to `suspicious`. When no integrity check ran,
 `verified` says so in its own reason text — the two grades of `verified` are
 different claims and the report never blurs them.
 
+Command output is not saved in a record by default because backup logs can
+contain paths, hostnames, or application data. Add `--include-log-tail` to
+`record` only when the operator has reviewed that local retention is appropriate;
+the option saves at most the final `--log-lines` lines.
+
 `check` exits `0` when the most recent run is `verified`, and non-zero
 otherwise — wire it into your own monitoring/alerting as the pass/fail signal
 without depending on this tool for the alerting itself. See

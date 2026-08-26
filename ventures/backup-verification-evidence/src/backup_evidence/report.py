@@ -44,7 +44,10 @@ def classify_run(record: dict[str, Any]) -> dict[str, Any]:
       artifact: {exists: bool, size_bytes: int, modified_at: str,
                  integrity: {result, format, detail} | null} | null
       expected: {max_age_hours: number, min_size_bytes: int} | null -- both optional
-      log_tail: str | null -- last lines of the tool's own output, for context only
+      log_tail: str -- last lines of the tool's own output, for context only.
+                Absent unless the operator passed `record --include-log-tail`:
+                backup output can carry paths, hostnames, or application data,
+                so it is kept out of the durable record by default.
     """
     reasons: list[str] = []
     missing = [field for field in REQUIRED_FIELDS if record.get(field) in (None, "")]

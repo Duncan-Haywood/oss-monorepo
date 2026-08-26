@@ -40,6 +40,17 @@ entries:
         so, so the next session spends its time on depth in the tools that will
         go live rather than on a thirty-eighth front page.
     mrr_end: null
+  - venture: backup-verification-evidence
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Hardened the local backup evidence record: command output is no longer
+        retained by default because logs can contain paths, hostnames, or
+        application data; --include-log-tail is an explicit bounded opt-in.
+        Added regression tests and verified 76 tests pass. No network, account,
+        payment, or deployment dependency was added.
+    mrr_end: null
   - venture: retainage-cashflow-calculator
     agent_spend_usd: null
     human_hours: 0

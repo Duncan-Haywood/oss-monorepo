@@ -79,6 +79,25 @@ class RecordCommandTests(unittest.TestCase):
             record = json.loads(output.read_text(encoding="utf-8"))
             self.assertEqual(record["exit_code"], 1)
 
+    def test_record_does_not_persist_command_output_by_default(self):
+        with tempfile.TemporaryDirectory() as directory:
+            output = Path(directory) / "run.json"
+            with self.assertRaises(SystemExit) as ctx:
+                main(["record", "--tool", "backup", "--output", str(output), "--", "sh", "-c", "printf 'secret-path'"])
+            self.assertEqual(ctx.exception.code, 0)
+            self.assertNotIn("log_tail", json.loads(output.read_text(encoding="utf-8")))
+
+    def test_record_can_opt_in_to_command_output(self):
+        with tempfile.TemporaryDirectory() as directory:
+            output = Path(directory) / "run.json"
+            with self.assertRaises(SystemExit) as ctx:
+                main([
+                    "record", "--tool", "backup", "--include-log-tail",
+                    "--output", str(output), "--", "sh", "-c", "printf 'diagnostic'",
+                ])
+            self.assertEqual(ctx.exception.code, 0)
+            self.assertEqual(json.loads(output.read_text(encoding="utf-8"))["log_tail"], "diagnostic")
+
 
 class CheckCommandTests(unittest.TestCase):
     def test_usage_file_flag_works_after_the_subcommand_as_documented(self):

@@ -72,8 +72,11 @@ def cmd_record(args: argparse.Namespace) -> int:
         "started_at": started_at,
         "finished_at": finished_at,
         "duration_seconds": duration_seconds,
-        "log_tail": "\n".join((result.stdout + result.stderr).splitlines()[-args.log_lines :]),
     }
+    # Backup output can contain paths, hostnames, or application data. Keep it
+    # out of the durable evidence record unless the operator explicitly opts in.
+    if args.include_log_tail:
+        record["log_tail"] = "\n".join((result.stdout + result.stderr).splitlines()[-args.log_lines :])
     if args.artifact:
         record["artifact"] = _stat_artifact(Path(args.artifact))
         if args.verify_integrity and record["artifact"].get("exists"):
@@ -199,6 +202,11 @@ def build_parser() -> argparse.ArgumentParser:
     record.add_argument("--max-age-hours", type=float, default=None)
     record.add_argument("--min-size-bytes", type=int, default=None)
     record.add_argument("--log-lines", type=int, default=20)
+    record.add_argument(
+        "--include-log-tail",
+        action="store_true",
+        help="opt in to saving the command's final output lines in the local record",
+    )
     record.add_argument(
         "--verify-integrity",
         action="store_true",
