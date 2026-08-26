@@ -270,6 +270,11 @@ drive that decision:
 - **ROI** — profit as a percentage of the cash you actually invested (item
   cost + shipping + packaging + other), because fees come out of the sale, not
   your pocket up front.
+- **Cash recovery checkpoint** — sale revenue after modeled fees, the percentage
+  of modeled invested cash recovered by that sale, and the resulting cash
+  surplus or shortfall. The surplus is the same arithmetic as net profit, shown
+  in sourcing language so a seller can see whether the sale replenishes the cash
+  tied up in the item.
 - **Break-even item price** — the lowest price you can list at without losing
   money, holding shipping charged constant.
 - **Target-margin item price** — the price needed to reach a chosen net margin
@@ -380,6 +385,10 @@ drive that decision:
   confirmation. A claim is not a return — the item is gone.
   The table also names the skip claim rate and premium that
   still tie skip.
+
+The recovery checkpoint does not model inventory velocity, returns, taxes,
+storage, labor, or the time value of money. A positive checkpoint is not a
+recommendation to buy or list an item.
 
 **No warranty.** This tool is provided free and as-is, without warranty of any
 kind, express or implied. It is not tax, financial, or business advice, and it
