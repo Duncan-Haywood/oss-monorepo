@@ -15,6 +15,10 @@ hypotheses:
     status: untested
     checked: null
     evidence: customer-contact
+  - claim: Sellers who keep the typed list and click free shipping will use an absorb-the-label row because that path is not the same sale as folding postage into the item.
+    status: untested
+    checked: null
+    evidence: customer-contact
   - claim: Sellers will return to see whether Reverb Safe Shipping still beats their own label, because the extra postage is a sure cost and the unprotected claim is a maybe.
     status: untested
     checked: null
