@@ -5,8 +5,10 @@ import { auditCharges, auditTotals } from "./audit.mjs";
 import {
   buildImportedRows,
   detectDelimiter,
+  expectedFor,
   importSummaryNote,
   parseMoney,
+  parseQuantity,
   parseRateCard,
   readTable,
   suggestMapping,
@@ -96,6 +98,7 @@ test("mapping is guessed from real-looking carrier headers", () => {
     code: 2,
     billed: 3,
     expected: 4,
+    units: null,
   });
 });
 
@@ -116,7 +119,7 @@ test("no column is claimed by two fields", () => {
 
 test("unrecognisable headers map to nothing rather than to the wrong column", () => {
   const mapping = suggestMapping(["alpha", "beta", "gamma"]);
-  assert.deepEqual(mapping, { invoice: null, reference: null, code: null, billed: null, expected: null });
+  assert.deepEqual(mapping, { invoice: null, reference: null, code: null, billed: null, expected: null, units: null });
 });
 
 test("a rate card is read from the shapes people paste", () => {
@@ -124,11 +127,13 @@ test("a rate card is read from the shapes people paste", () => {
     ["# contract rates", "LIFT,75", "DET 60", "resi: $30.00", "LUMPER = 90", "", "REWEIGH\t45"].join("\n"),
   );
   assert.deepEqual(issues, []);
-  assert.equal(rates.get("LIFT"), 75);
-  assert.equal(rates.get("DET"), 60);
-  assert.equal(rates.get("RESI"), 30);
-  assert.equal(rates.get("LUMPER"), 90);
-  assert.equal(rates.get("REWEIGH"), 45);
+  // Values are rules, not bare numbers: a flat rate is the `per: null` case.
+  assert.equal(rates.get("LIFT").amount, 75);
+  assert.equal(rates.get("LIFT").per, null);
+  assert.equal(rates.get("DET").amount, 60);
+  assert.equal(rates.get("RESI").amount, 30);
+  assert.equal(rates.get("LUMPER").amount, 90);
+  assert.equal(rates.get("REWEIGH").amount, 45);
 });
 
 test("a rate-card line that is not a code and amount is reported, not ignored", () => {
@@ -290,4 +295,185 @@ test("the worked example published on the SEO page is what the code produces", (
   // flag: three of the four imported lines are flagged, not all four.
   assert.equal(totals.flagged, 3);
   assert.equal(totals.actionable, 3);
+});
+
+// ---------------------------------------------------------------------------
+// Per-unit rate-card rules
+//
+// A flat `CODE, amount` card can only price accessorials that are flat. The
+// three worth the most money on an LTL invoice — detention, storage, reweigh —
+// are rated per unit with a free allowance and often a cap, so on a flat card
+// they imported with no expected amount at all and dropped out of the audit.
+// These tests pin the grammar and, more importantly, the arithmetic: a wrong
+// expected amount is worse than a blank one, because it is the number the
+// shipper puts in front of the carrier.
+// ---------------------------------------------------------------------------
+
+test("reads a per-unit rule with a free allowance and a cap", () => {
+  const { rates, issues } = parseRateCard("DET 65/hr after 2 hours, max 325");
+  assert.deepEqual(issues, []);
+  assert.deepEqual(rates.get("DET"), {
+    code: "DET",
+    amount: 65,
+    per: "hour",
+    free: 2,
+    min: null,
+    max: 325,
+    source: "DET 65/hr after 2 hours, max 325",
+  });
+});
+
+test("reads the spellings a rate confirmation actually uses", () => {
+  const { rates, issues } = parseRateCard(
+    [
+      "STO $40 per day after 1 day",
+      "REWEIGH 4.50/cwt min 45",
+      "INSIDE DELIVERY 95",
+      "DRIVER ASSIST 35/hour, not to exceed 140",
+      "SORT 1.25/piece",
+    ].join("\n"),
+  );
+  assert.deepEqual(issues, []);
+  assert.equal(rates.get("STO").per, "day");
+  assert.equal(rates.get("STO").free, 1);
+  assert.equal(rates.get("REWEIGH").per, "cwt");
+  assert.equal(rates.get("REWEIGH").min, 45);
+  // A code with a space in it is a description column pasted verbatim, which
+  // is how most people write their card the first time.
+  assert.equal(rates.get("INSIDE DELIVERY").amount, 95);
+  assert.equal(rates.get("INSIDE DELIVERY").per, null);
+  assert.equal(rates.get("DRIVER ASSIST").max, 140);
+  assert.equal(rates.get("SORT").per, "piece");
+});
+
+test("clause order does not change the rule", () => {
+  const { rates } = parseRateCard("DET 65/hr max 325 min 65 after 2");
+  assert.equal(rates.get("DET").max, 325);
+  assert.equal(rates.get("DET").min, 65);
+  assert.equal(rates.get("DET").free, 2);
+});
+
+test("prices a per-unit line past its free allowance", () => {
+  const { rates } = parseRateCard("DET 65/hr after 2 hours");
+  const priced = expectedFor(rates.get("DET"), "5");
+  assert.equal(priced.ok, true);
+  assert.equal(priced.amount, 195);
+  assert.match(priced.basis, /3 hours past 2 free × \$65\.00\/hour/);
+});
+
+test("a line inside its free allowance expects nothing, and the minimum does not invent a charge", () => {
+  // A shipment that left inside free time should expect $0.00, so a billed
+  // detention line on it shows as the whole amount above expected. Applying
+  // the contract minimum here would quietly agree that something was owed.
+  const { rates } = parseRateCard("DET 65/hr after 2 hours min 65");
+  const priced = expectedFor(rates.get("DET"), "1.5");
+  assert.equal(priced.amount, 0);
+  assert.doesNotMatch(priced.basis, /minimum/);
+});
+
+test("the cap and the minimum bound the priced amount", () => {
+  const { rates } = parseRateCard("DET 65/hr after 2, min 100, max 325");
+  assert.equal(expectedFor(rates.get("DET"), "3").amount, 100);
+  assert.equal(expectedFor(rates.get("DET"), "12").amount, 325);
+  assert.match(expectedFor(rates.get("DET"), "12").basis, /capped at \$325\.00/);
+});
+
+test("dock minutes price against a per-hour rate", () => {
+  // Carrier exports report dock time in minutes at least as often as hours.
+  // Reading 210 as 210 hours would put $13,000 of expected detention on a
+  // line that should expect $162.50.
+  const { rates } = parseRateCard("DET 65/hr after 2 hours");
+  const priced = expectedFor(rates.get("DET"), "210 min");
+  assert.equal(priced.amount, 97.5);
+  assert.match(priced.basis, /from minutes/);
+});
+
+test("a quantity in the wrong unit is refused rather than converted", () => {
+  const { rates } = parseRateCard("REWEIGH 4.50/cwt");
+  const priced = expectedFor(rates.get("REWEIGH"), "3 pallets");
+  assert.equal(priced.ok, false);
+  assert.match(priced.reason, /pallets but REWEIGH is rated per cwt/);
+});
+
+test("a per-unit rule with no quantity leaves the expected amount blank, never zero", () => {
+  // The whole honesty rule of this importer in one case: a $0.00 expected
+  // amount would headline the entire billed line as recoverable.
+  const csv = ["Invoice,Code,Amount", "INV-1,DET,300.00"].join("\n");
+  const table = readTable(csv);
+  const { rates } = parseRateCard("DET 65/hr after 2 hours");
+  const built = buildImportedRows(table, suggestMapping(table.header), { rates });
+  assert.equal(built.rows[0].expected, "");
+  assert.equal(built.summary.needsUnits, 1);
+  assert.equal(built.summary.withoutExpected, 1);
+  assert.match(built.issues[0].reason, /rated per hour — map a quantity column/);
+  const totals = auditTotals(auditCharges(built.rows));
+  assert.equal(totals.recoverable, 0);
+  assert.equal(totals.unpriced, 1);
+});
+
+test("a quantity column is guessed and priced end to end", () => {
+  const csv = [
+    "Invoice Number,PRO Number,Charge Code,Charge Amount,Detention Hours",
+    "INV-1,PRO-1,DET,300.00,5",
+    "INV-1,PRO-1,LIFT,125.00,",
+  ].join("\n");
+  const table = readTable(csv);
+  const mapping = suggestMapping(table.header);
+  assert.equal(mapping.units, 4);
+  const { rates } = parseRateCard("DET 65/hr after 2 hours, max 325\nLIFT, 75");
+  const built = buildImportedRows(table, mapping, { rates });
+  assert.equal(built.rows[0].expected, "195.00");
+  assert.equal(built.rows[1].expected, "75.00");
+  assert.equal(built.summary.pricedPerUnit, 1);
+  assert.equal(built.summary.perUnitRules, 1);
+  const results = auditCharges(built.rows);
+  assert.equal(results[0].variance, 105);
+  assert.match(results[0].basis, /\$65\.00\/hour/);
+  assert.equal(results[1].basis, "flat contract rate $75.00");
+});
+
+test("the carrier export's own expected column still wins over the rate card", () => {
+  // A rated amount agreed for this shipment beats the card's general rule.
+  const csv = ["Invoice,Code,Charge Amount,Contract Amount,Hours", "INV-1,DET,300.00,150.00,5"].join("\n");
+  const table = readTable(csv);
+  const { rates } = parseRateCard("DET 65/hr after 2 hours");
+  const built = buildImportedRows(table, suggestMapping(table.header), { rates });
+  assert.equal(built.rows[0].expected, "150.00");
+  assert.match(built.rows[0].basis, /carrier's own export/);
+  assert.equal(built.summary.pricedPerUnit, 0);
+});
+
+test("a free allowance written against a flat rate is reported, not dropped", () => {
+  // Silently pricing this as flat $65 would apply no allowance while the
+  // shipper believes two hours are free.
+  const { rates, issues } = parseRateCard("DET 65 after 2 hours");
+  assert.equal(rates.size, 0);
+  assert.match(issues[0].reason, /needs a per-unit rate/);
+});
+
+test("an unusable rule is reported rather than half-applied", () => {
+  const { rates, issues } = parseRateCard(
+    ["DET 65/fortnight", "STO 40/day min 300 max 100", "LIFT 75"].join("\n"),
+  );
+  assert.equal(rates.size, 1);
+  assert.match(issues[0].reason, /unknown unit "fortnight"/);
+  assert.match(issues[1].reason, /minimum is above the cap/);
+});
+
+test("a quantity cell reads the way a carrier export writes one", () => {
+  assert.equal(parseQuantity("3", "hour").value, 3);
+  assert.equal(parseQuantity("3.5 hrs", "hour").value, 3.5);
+  assert.equal(parseQuantity("1,250 cwt", "cwt").value, 1250);
+  assert.equal(parseQuantity("", "hour").ok, false);
+  assert.equal(parseQuantity("n/a", "hour").ok, false);
+});
+
+test("the import summary says what the per-unit rules did and did not price", () => {
+  const note = importSummaryNote({
+    readRows: 4, columns: 5, imported: 4, skipped: 0, skippedCodes: [],
+    unreadableBilled: 0, withoutExpected: 1, needsUnits: 1, pricedPerUnit: 2,
+    ratedCodes: 3, perUnitRules: 1,
+  });
+  assert.match(note, /2 lines were priced from a per-unit rule/);
+  assert.match(note, /map the column holding hours, days, or weight/);
 });

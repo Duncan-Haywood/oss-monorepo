@@ -10,8 +10,8 @@
   <meta property="og:title" content="Freight Accessorial Invoice Auditor">
   <meta property="og:description" content="Find freight invoice overcharges privately in your browser and copy a factual review draft.">
   <meta property="og:type" content="website">
-  <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Freight Accessorial Invoice Auditor","applicationCategory":"BusinessApplication","operatingSystem":"Any","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"description":"A private browser tool that finds duplicate and over-billed freight accessorial charges.","featureList":"Duplicate and over-expected flags, evidence-aware priority, private CSV review export, factual dispute draft, eat vs bill-the-customer vs review-for-credit, CSV invoice import with column mapping and a contract rate card"}</script>
-  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Can I check a whole carrier invoice at once?","acceptedAnswer":{"@type":"Answer","text":"Yes. Load the CSV your carrier portal or TMS exports, or paste the rows out of a spreadsheet. The columns are guessed from their headings and shown for you to correct. Type your accessorial contract rates once — one CODE, amount per line — and every imported line gets an expected amount to be checked against. On a six-line example invoice with line haul and fuel skipped, four accessorial lines totalling $595.00 import and $325.00 is above the rate card, including a liftgate billed twice. The file is read in your browser and never uploaded."}},{"@type":"Question","name":"How do I audit freight accessorial charges?","acceptedAnswer":{"@type":"Answer","text":"Paste each billed line with the amount you expected from the rate confirmation. The default demo is two $125 liftgate lines on INV-1 (expected $75, evidence missing) and a $20 uncoded line that matches. That is $100.00 above expected across 3 flagged of 3 lines, 2 actionable. The page flags duplicates, overages, missing codes, and invalid amounts. It does not decide whether to pay or dispute."}},{"@type":"Question","name":"Should I dispute this detention charge?","acceptedAnswer":{"@type":"Answer","text":"Compare the billed detention line to the dock clock after free time. On 180 minutes on dock, 120 free, and $75/hour, 1.00 hour is billable — $75.00 expected. A $300.00 billed line is $225.00 above the clock, as if 4.00 hours. That is a review of the line, not a determination that the charge is wrong."}},{"@type":"Question","name":"Should I bill this accessorial to the customer?","acceptedAnswer":{"@type":"Answer","text":"On a prepaid collect shipment that already paid $180, a $300 detention against $75 supported leaves a $225.00 gap. Eating the line keeps −$120.00. Billing the customer $300.00 keeps $180.00. Paying first and getting that $225.00 credit after 1.5 hours at $42/hr ($63.00 labor) keeps $42.00. The same review with no credit keeps −$183.00. That is cash on these inputs, not a reason to invoice a customer or to file a claim."}}]}</script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Freight Accessorial Invoice Auditor","applicationCategory":"BusinessApplication","operatingSystem":"Any","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"description":"A private browser tool that finds duplicate and over-billed freight accessorial charges.","featureList":"Duplicate and over-expected flags, evidence-aware priority, private CSV review export, factual dispute draft, eat vs bill-the-customer vs review-for-credit, CSV invoice import with column mapping and a contract rate card, per-unit rate rules with free allowance, minimum and cap"}</script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Can I check a whole carrier invoice at once?","acceptedAnswer":{"@type":"Answer","text":"Yes. Load the CSV your carrier portal or TMS exports, or paste the rows out of a spreadsheet. The columns are guessed from their headings and shown for you to correct. Type your accessorial contract rates once — one CODE, amount per line — and every imported line gets an expected amount to be checked against. On a six-line example invoice with line haul and fuel skipped, four accessorial lines totalling $595.00 import and $325.00 is above the rate card, including a liftgate billed twice. The file is read in your browser and never uploaded."}},{"@type":"Question","name":"How do I check detention or storage billed by the hour or day?","acceptedAnswer":{"@type":"Answer","text":"Write the rule the way your confirmation states it — DET 65/hr after 2 hours, max 325 — and map the column holding hours or days. A line billed $300.00 with 5 hours on dock expects $195.00, so $105.00 is above the rate card, and the queue, CSV, and dispute draft all say why: 3 hours past 2 free at $65.00/hour. A per-unit code with no quantity imports with a blank expected amount and the reason shown, never a zero. Units understood are hour, minute, day, cwt, pallet, piece, mile, stop, and unit."}},{"@type":"Question","name":"How do I audit freight accessorial charges?","acceptedAnswer":{"@type":"Answer","text":"Paste each billed line with the amount you expected from the rate confirmation. The default demo is two $125 liftgate lines on INV-1 (expected $75, evidence missing) and a $20 uncoded line that matches. That is $100.00 above expected across 3 flagged of 3 lines, 2 actionable. The page flags duplicates, overages, missing codes, and invalid amounts. It does not decide whether to pay or dispute."}},{"@type":"Question","name":"Should I dispute this detention charge?","acceptedAnswer":{"@type":"Answer","text":"Compare the billed detention line to the dock clock after free time. On 180 minutes on dock, 120 free, and $75/hour, 1.00 hour is billable — $75.00 expected. A $300.00 billed line is $225.00 above the clock, as if 4.00 hours. That is a review of the line, not a determination that the charge is wrong."}},{"@type":"Question","name":"Should I bill this accessorial to the customer?","acceptedAnswer":{"@type":"Answer","text":"On a prepaid collect shipment that already paid $180, a $300 detention against $75 supported leaves a $225.00 gap. Eating the line keeps −$120.00. Billing the customer $300.00 keeps $180.00. Paying first and getting that $225.00 credit after 1.5 hours at $42/hr ($63.00 labor) keeps $42.00. The same review with no credit keeps −$183.00. That is cash on these inputs, not a reason to invoice a customer or to file a claim."}}]}</script>
   <style>
     :root{font:16px/1.5 system-ui,sans-serif;color:#172033;background:#f5f1e8;--ink:#172033;--muted:#5b665e;--line:#d8d0c2;--panel:#fffdf8;--accent:#d36b35}
     *{box-sizing:border-box}body{margin:0}main{max-width:980px;margin:auto;padding:32px 18px 56px}
@@ -27,6 +27,8 @@
     .metric{border-top:4px solid var(--accent);padding:14px;background:#fff8f2;border-radius:8px}
     .metric strong{display:block;font-size:1.35rem;color:var(--ink)}
     .flag{color:#9a3412;font-weight:600}.small{font-size:.85rem}
+    /* The reason a line expects what it expects, subordinate to the line. */
+    .basis{margin:-6px 0 10px;padding-left:12px;border-left:2px solid var(--line);color:var(--muted)}
     .toggle{display:flex;align-items:center;gap:8px}.toggle input{width:auto;display:inline}
     textarea{width:100%;min-height:160px;margin-top:10px;padding:10px;border:1px solid #a9a092;border-radius:6px}
     footer{border-top:1px solid var(--line);padding-top:16px;color:var(--muted)}
@@ -51,7 +53,7 @@
 <main>
   <p class="small">PRIVATE, LOCAL-FIRST AUDIT</p>
   <h1>Find freight accessorial overcharges before you pay.</h1>
-  <p class="lede">Import the carrier's own invoice export, type your contract rates once, and get a review queue for duplicates, overages, missing codes, and missing evidence — then copy a factual draft. Or enter lines by hand.</p>
+  <p class="lede">Import the carrier's own invoice export, type your contract rates once — flat or per hour, day, or hundredweight with a free allowance and a cap — and get a review queue for duplicates, overages, missing codes, and missing evidence, each priced line saying which contract term produced its expected amount. Then copy a factual draft. Or enter lines by hand.</p>
   <p class="small"><a href="how-to-audit-a-whole-freight-invoice.html">How do I check a whole carrier invoice at once?</a> — import the export, apply your rate card, review what is flagged. <a href="should-i-dispute-this-detention-charge.html">Should I dispute this detention charge?</a> — clock time after free time versus the billed detention line. <a href="should-i-bill-this-accessorial-to-the-customer.html">Should I bill this accessorial to the customer?</a> — eat it, invoice the customer, or pay first and file a review.</p>
 
   <section class="panel" aria-labelledby="import-heading">
@@ -64,7 +66,7 @@
     </div>
     <div class="field">
       <label class="small" for="paste">…or paste rows here</label>
-      <textarea id="paste" placeholder="Invoice Number,PRO Number,Charge Code,Charge Amount&#10;INV-4471,PRO-77120,LIFT,125.00"></textarea>
+      <textarea id="paste" placeholder="Invoice Number,PRO Number,Charge Code,Charge Amount,Hours&#10;INV-4471,PRO-77120,LIFT,125.00,&#10;INV-4471,PRO-77120,DET,300.00,3"></textarea>
     </div>
     <label class="toggle small"><input id="hasHeader" type="checkbox" checked> The first row is a header</label>
 
@@ -75,10 +77,11 @@
     </div>
 
     <div class="field">
-      <label class="small" for="rateCard">Your contract rates — one <code>CODE, amount</code> per line</label>
+      <label class="small" for="rateCard">Your contract rates — one rule per line</label>
       <p class="small">A carrier invoice states what it billed. It never states what you expected. Type the accessorial rates from your rate confirmation once and every imported line gets an expected amount to be checked against.</p>
+      <p class="small">A rate can be flat (<code>LIFT, 75</code>) or per unit with a free allowance and a cap — <code>DET 65/hr after 2 hours, max 325</code>, <code>STO $40 per day after 1</code>, <code>REWEIGH 4.50/cwt min 45</code>. Per-unit rules need a quantity column mapped above; units understood are hour, minute, day, cwt, pallet, piece, mile, stop, and unit.</p>
       <textarea id="rateCard" spellcheck="false">LIFT, 75
-DET, 75
+DET 65/hr after 2 hours, max 325
 RESI, 45</textarea>
       <p class="small" id="rateCardStatus" role="status" aria-live="polite"></p>
     </div>
@@ -172,9 +175,31 @@ RESI, 45</textarea>
         input.inputMode = "decimal";
         input.setAttribute("aria-label", key);
       }
+      if (key === "expected") {
+        // The basis describes how the rate card produced *this* figure. Once
+        // the figure is typed over, the basis no longer explains it, and a
+        // dispute draft citing a contract term for a number the shipper
+        // overrode by hand is worse than one citing nothing.
+        input.addEventListener("input", () => {
+          const carried = tr.querySelector('input[data-key="basis"]');
+          if (carried) carried.value = "";
+        });
+      }
       input.addEventListener("input", () => render(true));
       td.append(input);
       tr.append(td);
+    }
+    // Carried through the queue but not edited here: the quantity a per-unit
+    // rule was priced against, and the sentence explaining the price. These
+    // live inside the first cell rather than directly under the row, because
+    // a `<tr>` may only contain cells and the parser would otherwise hoist
+    // them out of the table and drop the values.
+    for (const key of ["units", "basis"]) {
+      const carried = document.createElement("input");
+      carried.type = "hidden";
+      carried.dataset.key = key;
+      carried.value = row[key] ?? "";
+      tr.cells[0].append(carried);
     }
     const evidenceTd = document.createElement("td");
     const evidence = document.createElement("select");
@@ -236,6 +261,15 @@ RESI, 45</textarea>
       const flags = row.flags.length ? row.flags.join("; ") : "No flag";
       line.textContent = `${label}: ${amounts}. ${row.priority}. ${flags}`;
       queue.append(line);
+      // Where the expected figure came from. Shown under the line because it
+      // is what the shipper has to be able to say out loud when the carrier
+      // asks why the charge is being questioned.
+      if (row.basis) {
+        const why = document.createElement("p");
+        why.className = "small basis";
+        why.textContent = `Expected from ${row.basis}.`;
+        queue.append(why);
+      }
     }
     draft.value = disputeDraft({
       invoice: document.getElementById("invoice").value,
@@ -266,10 +300,20 @@ RESI, 45</textarea>
 
   function showRateCardStatus() {
     const { rates, issues } = rateCard();
+    const rules = [...rates.values()];
+    const perUnit = rules.filter((rule) => rule.per);
     const rated = rates.size === 1 ? "1 code rated" : `${rates.size} codes rated`;
+    // Read the per-unit rules back in the tool's own words. A shipper who
+    // wrote "after 2 hours" needs to see that it was understood as a free
+    // allowance and not, say, swallowed into the rate.
+    const perUnitNote = perUnit.length
+      ? ` ${perUnit.length} per-unit rule${perUnit.length === 1 ? "" : "s"}: ${perUnit
+          .map((rule) => `${rule.code} at $${rule.amount.toFixed(2)}/${rule.per}${rule.free ? ` after ${rule.free} free` : ""}${rule.min != null ? `, min $${rule.min.toFixed(2)}` : ""}${rule.max != null ? `, capped at $${rule.max.toFixed(2)}` : ""}`)
+          .join("; ")}. These need a quantity column.`
+      : "";
     rateCardStatus.textContent = issues.length
-      ? `${rated}. ${issues.length} line${issues.length === 1 ? "" : "s"} not understood: ${issues.map((issue) => `line ${issue.line} (${issue.reason})`).join(", ")}.`
-      : `${rated}.`;
+      ? `${rated}.${perUnitNote} ${issues.length} line${issues.length === 1 ? "" : "s"} not understood: ${issues.map((issue) => `line ${issue.line} (${issue.reason})`).join(", ")}.`
+      : `${rated}.${perUnitNote}`;
   }
 
   function drawMapping() {
@@ -345,6 +389,10 @@ RESI, 45</textarea>
     for (const row of built.rows) add(row);
     render();
     countUsage("invoice_imported");
+    // Counted separately from the import itself: whether anyone actually
+    // rates an accessorial per unit is the question this feature exists to
+    // answer, and an import count cannot distinguish it from a flat card.
+    if (built.summary.pricedPerUnit > 0) countUsage("per_unit_rule_priced");
     importStatus.textContent = `${importSummaryNote(built.summary)} ${built.rows.length} line${built.rows.length === 1 ? "" : "s"} ${replace ? "now in" : "added to"} the review queue below.`;
     document.getElementById("results-heading").scrollIntoView({ block: "start" });
   }

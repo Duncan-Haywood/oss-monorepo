@@ -106,6 +106,18 @@
     .hero-number { font-size: 2.8rem; font-weight: 750; letter-spacing: -.05em; margin: 8px 0 2px; }
     .negative { color: #ffb0a2; } .positive { color: #bdf0c6; }
     .verdict .note { font-size: .85rem; opacity: .85; }
+    /* Sits inside the dark verdict panel, so it borrows that palette rather
+       than defining a second one. */
+    .continue { margin: 14px 0 2px; padding-top: 12px; border-top: 1px solid #4a3d8f; }
+    .continue p { margin: 0 0 8px; font-size: .85rem; opacity: .85; }
+    .continue ul { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 8px; }
+    .continue li { margin: 0; }
+    .continue a {
+      display: inline-block; padding: 7px 12px; border: 1px solid #4a3d8f;
+      border-radius: 8px; text-decoration: none; font-size: .88rem; font-weight: 600;
+    }
+    .continue a:hover, .continue a:focus { border-color: #c9bcff; text-decoration: underline; }
+    .continue a .who { opacity: .8; font-weight: 500; }
     .scroller { overflow-x: auto; }
     table { width: 100%; border-collapse: collapse; font-size: .92rem; min-width: 560px; }
     th, td { padding: 9px 6px; text-align: right; border-bottom: 1px solid #ded9f0; vertical-align: top; }
@@ -212,6 +224,11 @@
         <div id="bestProfit" class="hero-number">$—</div>
         <p id="spread" class="note"></p>
       </div>
+      <!-- Populated by handoff.mjs. This page answers "which channel"; the
+           channel's own calculator answers "and what does a promoted listing,
+           a return, or free shipping do to that number". Retyping the item is
+           what stops people crossing over, so the link carries it. -->
+      <nav id="continue" class="continue" aria-label="Continue with this item" hidden></nav>
       <div class="scroller">
         <table>
           <caption class="note" style="text-align:left;padding-bottom:8px">
@@ -371,6 +388,7 @@
   <script type="module">
     import { CHANNEL_PRESETS, compareChannels } from "./calc.mjs";
     import { decodeComparison, encodeComparison } from "./share.mjs";
+    import { handoffsForResults } from "./handoff.mjs";
     import { readOptOut, recordUsage, writeOptOut } from "./usage.mjs";
 
     const SHARED_FIELDS = [
@@ -557,6 +575,52 @@
       document.getElementById("shelfRows").innerHTML = "";
     }
 
+    // Built with DOM nodes rather than innerHTML: a channel label is free text
+    // the reader can edit, and this is the one place it would be re-parsed as
+    // markup.
+    function renderContinue(results, shared) {
+      const nav = document.getElementById("continue");
+      const offers = handoffsForResults(results, shared);
+      nav.textContent = "";
+
+      if (offers.length === 0) {
+        nav.hidden = true;
+        return;
+      }
+
+      const intro = document.createElement("p");
+      intro.textContent = offers.length === 1
+        ? "Keep going with this item — no retyping:"
+        : "Keep going with this item on any of these — no retyping:";
+      nav.appendChild(intro);
+
+      const list = document.createElement("ul");
+      for (const offer of offers) {
+        const item = document.createElement("li");
+        const link = document.createElement("a");
+        link.href = offer.href;
+        link.appendChild(document.createTextNode(
+          `${offer.isBest ? "Open the winner in the " : "Open the "}${offer.label}`,
+        ));
+        if (!offer.isBest) {
+          const who = document.createElement("span");
+          who.className = "who";
+          who.textContent = ` (${offer.channelLabel})`;
+          link.appendChild(who);
+        }
+        // The counter records that a handoff happened and to where — an event
+        // name and the day, never the item. It is what will say whether this
+        // link is worth keeping once the site is public.
+        link.addEventListener("click", () => {
+          recordUsage(localStorage, optedOut(), `handoff_${offer.channel}`);
+        });
+        item.appendChild(link);
+        list.appendChild(item);
+      }
+      nav.appendChild(list);
+      nav.hidden = false;
+    }
+
     function update() {
       let comparison;
       try {
@@ -576,6 +640,8 @@
       document.getElementById("spread").textContent = comparison.spread > 0
         ? `${money(comparison.spread)} separates the best channel from the worst on this one item — ${comparison.best.margin.toFixed(1)}% ${comparison.includeReturns ? "expected " : ""}margin at the top.`
         : "Every channel leaves you the same on this item.";
+
+      renderContinue(comparison.results, readShared());
 
       document.getElementById("rows").innerHTML = comparison.results
         .slice()
